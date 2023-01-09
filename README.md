@@ -42,6 +42,3 @@
 
 Copyright (c) 2023 Kuingsmile
 
-## Github star
-
-[![Stargazers over time](https://starchart.cc/Kuingsmile/PicHoro.svg)](https://starchart.cc/Kuingsmile/PicList)
