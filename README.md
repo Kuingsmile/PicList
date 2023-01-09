@@ -1,7 +1,7 @@
 
 <div align="center">
   <img src="http://imgx.horosama.com/admin_uploads/2022/10/2022_10_05_633d79e401694.png" alt="">
-  <h1>PicHoro</h1>
+  <h1>PicList</h1>
   <a href="https://github.com/Kuingsmile/PicHoro/releases">
     <img src="https://img.shields.io/github/downloads/Kuingsmile/PicList/total.svg?style=flat-square" alt="">
   </a>
