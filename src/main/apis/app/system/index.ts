@@ -31,9 +31,9 @@ export function createContextMenu () {
         label: T('ABOUT'),
         click () {
           dialog.showMessageBox({
-            title: 'PicGo',
-            message: 'PicGo',
-            detail: `Version: ${pkg.version}\nAuthor: Molunerfinn\nGithub: https://github.com/Molunerfinn/PicGo`
+            title: 'PicList',
+            message: 'PicList',
+            detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`
           })
         }
       },
@@ -117,10 +117,10 @@ export function createContextMenu () {
         label: T('ABOUT'),
         click () {
           dialog.showMessageBox({
-            title: 'PicGo',
-            message: 'PicGo',
+            title: 'PicList',
+            message: 'PicList',
             buttons: ['Ok'],
-            detail: `Version: ${pkg.version}\nAuthor: Molunerfinn\nGithub: https://github.com/Molunerfinn/PicGo`
+            detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`
           })
         }
       },

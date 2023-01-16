@@ -293,18 +293,20 @@ export default {
   align-items center
   justify-content center
 #upload-view
+  height 100%
   .view-title
     margin 20px auto
   #upload-area
-    height 220px
+    height 400px
     border 2px dashed #dddddd
     border-radius 8px
     text-align center
-    width 450px
+    width 800px
     margin 0 auto
     color #dddddd
     cursor pointer
     transition all .2s ease-in-out
+    align-items center
     #upload-dragger
       height 100%
     &.is-dragover,

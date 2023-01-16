@@ -5,7 +5,7 @@
       :class="{ 'darwin': os === 'darwin' }"
     >
       <div class="fake-title-bar__title">
-        PicGo - {{ version }}
+        PicList - {{ version }}
       </div>
       <div
         v-if="os !== 'darwin'"
@@ -51,6 +51,12 @@
             </el-icon>
             <span>{{ $T('UPLOAD_AREA') }}</span>
           </el-menu-item>
+          <el-menu-item :index="routerConfig.MANAGE_MAIN_PAGE">
+            <el-icon>
+              <PictureFilled />
+            </el-icon>
+            <span>{{ $T('PICBEDS_MANAGE') }}</span>
+          </el-menu-item>
           <el-menu-item :index="routerConfig.GALLERY_PAGE">
             <el-icon>
               <PictureFilled />
@@ -82,7 +88,7 @@
             <el-icon>
               <Setting />
             </el-icon>
-            <span>{{ $T('PICGO_SETTINGS') }}</span>
+            <span>{{ $T('PICLIST_SETTINGS') }}</span>
           </el-menu-item>
           <el-menu-item :index="routerConfig.PLUGIN_PAGE">
             <el-icon>
@@ -101,7 +107,7 @@
       <el-col
         :span="19"
         :offset="5"
-        style="height: 428px"
+        style="height: 100%"
         class="main-wrapper"
         :class="{ 'darwin': os === 'darwin' }"
       >
@@ -123,7 +129,7 @@
     </el-row>
     <el-dialog
       v-model="visible"
-      :title="$T('SPONSOR_PICGO')"
+      :title="$T('SPONSOR_PICLIST')"
       width="70%"
       top="10vh"
     >
@@ -131,7 +137,8 @@
       <el-row class="support">
         <el-col :span="12">
           <img
-            src="https://user-images.githubusercontent.com/12621342/34188165-e7cdf372-e56f-11e7-8732-1338c88b9bb7.jpg"
+            width="200"
+            src="https://pichoro.msq.pub/images/zhifubao_money.jpg"
             :alt="$T('ALIPAY')"
           >
           <div class="support-title">
@@ -140,7 +147,8 @@
         </el-col>
         <el-col :span="12">
           <img
-            src="https://user-images.githubusercontent.com/12621342/34188201-212cda84-e570-11e7-9b7a-abb298699d85.jpg"
+            width="200"
+            src="https://pichoro.msq.pub/images/wechat_money.jpg"
             :alt="$T('WECHATPAY')"
           >
           <div class="support-title">
@@ -352,7 +360,7 @@ export default {
 <style lang='stylus'>
 $darwinBg = transparentify(#172426, #000, 0.7)
 .setting-list-scroll
-  height 425px
+  height 800px
   overflow-y auto
   overflow-x hidden
   margin-right 0!important
@@ -370,6 +378,7 @@ $darwinBg = transparentify(#172426, #000, 0.7)
   text-align center
   margin 10px auto
 #main-page
+  height 100%
   .qrcode-dialog
     .qrcode-container
       display flex
@@ -473,6 +482,7 @@ $darwinBg = transparentify(#172426, #000, 0.7)
   .main-content
     padding-top 22px
     position relative
+    height calc(100vh - 22px)
     z-index 10
   .el-dialog__body
     padding 20px

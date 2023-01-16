@@ -14,7 +14,7 @@ UPLOADING: Uploading
 QUICK_UPLOAD: Quick Upload
 UPLOAD_BY_CLIPBOARD: Upload by Clipboard
 HIDE_WINDOW: Hide Window
-SPONSOR_PICGO: Sponsor PicGo
+SPONSOR_PICLIST: Sponsor PicList
 SHOW_PICBED_QRCODE: Show Picbed Qrcode
 PICBED_QRCODE: Picbed Qrcode
 ENABLE: Enable
@@ -31,9 +31,10 @@ CHOOSE_YOUR_DEFAULT_PICBED: 'Choose ${d} as your default picbed:'
 UPLOAD_AREA: Upload Area
 GALLERY: Gallery
 PICBEDS_SETTINGS: Picbeds Settings
-PICGO_SETTINGS: PicGo Settings
+PICBEDS_MANAGE: Picbeds Manage
+PICLIST_SETTINGS: PicList Settings
 PLUGIN_SETTINGS: Plugins Settings
-PICGO_SPONSOR_TEXT: PicGo is a free software, if you like it, please don't forget to buy me a cup of coffee.
+PICGO_SPONSOR_TEXT: PicList is a free software, if you like it, please don't forget to buy me a cup of coffee.
 ALIPAY: Alipay
 WECHATPAY: Wechat Pay
 CHOOSE_PICBED: Choose Picbed

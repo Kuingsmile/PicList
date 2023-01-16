@@ -77,14 +77,14 @@ const buildMainPageMenu = (win: BrowserWindow) => {
       label: T('ABOUT'),
       click () {
         dialog.showMessageBox({
-          title: 'PicGo',
-          message: 'PicGo',
-          detail: `Version: ${pkg.version}\nAuthor: Molunerfinn\nGithub: https://github.com/Molunerfinn/PicGo`
+          title: 'PicList',
+          message: 'PicList',
+          detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`
         })
       }
     },
     {
-      label: T('SPONSOR_PICGO'),
+      label: T('SPONSOR_PICLIST'),
       click () {
         win?.webContents?.send(SHOW_MAIN_PAGE_DONATION)
       }

@@ -67,6 +67,11 @@ export default createRouter({
     {
       path: '/:pathMatch(.*)*',
       redirect: '/'
+    },
+    {
+      path: '/manage-main-page',
+      name: config.MANAGE_MAIN_PAGE,
+      component: () => import(/* webpackChunkName: "ManageMainPage" */ '@/manage/ManageMain.vue')
     }
   ]
 })

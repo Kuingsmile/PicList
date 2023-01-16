@@ -46,6 +46,7 @@ export default {
     height 100%
     font-family "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif
   #app
+    height 100%
     user-select none
     overflow hidden
   .el-button-group

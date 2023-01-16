@@ -5,7 +5,7 @@
       align="middle"
       justify="center"
     >
-      {{ $T('PICGO_SETTINGS') }} -
+      {{ $T('PICLIST_SETTINGS') }} -
       <el-icon
         class="el-icon-document"
         @click="goConfigPage"
@@ -930,10 +930,11 @@ export default {
     &:hover
       color #49B1F5
 #picgo-setting
+  height 100%
   .sub-title
     font-size 14px
   .setting-list
-    height 360px
+    height 100%
     box-sizing border-box
     overflow-y auto
     overflow-x hidden

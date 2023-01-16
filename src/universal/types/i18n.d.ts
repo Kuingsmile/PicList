@@ -15,7 +15,7 @@ interface ILocales {
   QUICK_UPLOAD: string
   UPLOAD_BY_CLIPBOARD: string
   HIDE_WINDOW: string
-  SPONSOR_PICGO: string
+  SPONSOR_PICLIST: string
   SHOW_PICBED_QRCODE: string
   PICBED_QRCODE: string
   ENABLE: string
@@ -29,7 +29,8 @@ interface ILocales {
   UPLOAD_AREA: string
   GALLERY: string
   PICBEDS_SETTINGS: string
-  PICGO_SETTINGS: string
+  PICBEDS_MANAGE: string
+  PICLIST_SETTINGS: string
   PLUGIN_SETTINGS: string
   PICGO_SPONSOR_TEXT: string
   ALIPAY: string

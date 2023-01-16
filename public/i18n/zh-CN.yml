@@ -14,7 +14,7 @@ UPLOADING: 正在上传
 QUICK_UPLOAD: 快捷上传
 UPLOAD_BY_CLIPBOARD: 剪贴板图片上传
 HIDE_WINDOW: 隐藏窗口
-SPONSOR_PICGO: 赞助 PicGo
+SPONSOR_PICLIST: 赞助 PicList
 SHOW_PICBED_QRCODE: 生成图床配置二维码
 PICBED_QRCODE: 图床配置二维码
 ENABLE: 启用
@@ -31,9 +31,10 @@ CHOOSE_YOUR_DEFAULT_PICBED: 选择 ${d} 作为你默认图床：
 UPLOAD_AREA: 上传区
 GALLERY: 相册
 PICBEDS_SETTINGS: 图床设置
-PICGO_SETTINGS: PicGo设置
+PICBEDS_MANAGE: 图床管理
+PICLIST_SETTINGS: PicList设置
 PLUGIN_SETTINGS: 插件设置
-PICGO_SPONSOR_TEXT: PicGo是免费开源的软件，如果你喜欢它，对你有帮助，不妨请我喝杯咖啡？
+PICGO_SPONSOR_TEXT: PicList是免费开源的软件，如果你喜欢它，对你有帮助，可以请我喝杯蜜雪冰城~
 ALIPAY: 支付宝
 WECHATPAY: 微信支付
 CHOOSE_PICBED: 选择图床
