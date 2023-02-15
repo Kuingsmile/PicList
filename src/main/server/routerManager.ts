@@ -8,7 +8,7 @@ import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis
 import path from 'path'
 import { dbPathDir } from 'apis/core/datastore/dbChecker'
 const STORE_PATH = dbPathDir()
-const LOG_PATH = path.join(STORE_PATH, 'picgo.log')
+const LOG_PATH = path.join(STORE_PATH, 'piclist.log')
 
 const errorMessage = `upload error. see ${LOG_PATH} for more detail.`
 
@@ -22,9 +22,9 @@ router.post('/upload', async ({
   try {
     if (list.length === 0) {
       // upload with clipboard
-      logger.info('[PicGo Server] upload clipboard file')
+      logger.info('[PicList Server] upload clipboard file')
       const res = await uploadClipboardFiles()
-      logger.info('[PicGo Server] upload result:', res)
+      logger.info('[PicList Server] upload result:', res)
       if (res) {
         handleResponse({
           response,
@@ -43,7 +43,7 @@ router.post('/upload', async ({
         })
       }
     } else {
-      logger.info('[PicGo Server] upload files in list')
+      logger.info('[PicList Server] upload files in list')
       //  upload with files
       const pathList = list.map(item => {
         return {
@@ -52,7 +52,7 @@ router.post('/upload', async ({
       })
       const win = windowManager.getAvailableWindow()
       const res = await uploadChoosedFiles(win.webContents, pathList)
-      logger.info('[PicGo Server] upload result', res.join(' ; '))
+      logger.info('[PicList Server] upload result', res.join(' ; '))
       if (res.length) {
         handleResponse({
           response,

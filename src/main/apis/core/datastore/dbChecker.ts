@@ -1,11 +1,11 @@
 import fs from 'fs-extra'
 import writeFile from 'write-file-atomic'
 import path from 'path'
-import { app as APP } from 'electron'
-import { getLogger } from '@core/utils/localLogger'
+import { app } from 'electron'
+import { getLogger } from '../utils/localLogger'
 import dayjs from 'dayjs'
 import { T } from '~/main/i18n'
-const STORE_PATH = APP.getPath('userData')
+const STORE_PATH = app.getPath('userData')
 const configFilePath = path.join(STORE_PATH, 'data.json')
 const configFileBackupPath = path.join(STORE_PATH, 'data.bak.json')
 export const defaultConfigPath = configFilePath
@@ -79,7 +79,6 @@ function dbPathChecker (): string {
   if (_configFilePath) {
     return _configFilePath
   }
-  // defaultConfigPath
   _configFilePath = defaultConfigPath
   // if defaultConfig path is not exit
   // do not parse the content of config
@@ -98,8 +97,8 @@ function dbPathChecker (): string {
     }
     return _configFilePath
   } catch (e) {
-    const picgoLogPath = path.join(STORE_PATH, 'picgo-gui-local.log')
-    const logger = getLogger(picgoLogPath)
+    const piclistLogPath = path.join(STORE_PATH, 'piclist-gui-local.log')
+    const logger = getLogger(piclistLogPath, 'PicList')
     if (!hasCheckPath) {
       const optionsTpl = {
         title: T('TIPS_NOTICE'),
@@ -123,8 +122,8 @@ function getGalleryDBPath (): {
   dbBackupPath: string
 } {
   const configPath = dbPathChecker()
-  const dbPath = path.join(path.dirname(configPath), 'picgo.db')
-  const dbBackupPath = path.join(path.dirname(dbPath), 'picgo.bak.db')
+  const dbPath = path.join(path.dirname(configPath), 'piclist.db')
+  const dbBackupPath = path.join(path.dirname(dbPath), 'piclist.bak.db')
   return {
     dbPath,
     dbBackupPath

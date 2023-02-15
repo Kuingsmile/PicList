@@ -10,6 +10,15 @@
         <CaretBottom v-show="!handleBarActive" />
         <CaretTop v-show="handleBarActive" />
       </el-icon>
+      <span
+        style="position: absolute; right: 0; top: 0; margin-right: 20px; font-size: 0.8em; color: #fff;"
+      >同步删除云端：
+        <el-switch
+          v-model="deleteCloud"
+          :active-text="$T('SETTINGS_OPEN')"
+          :inactive-text="$T('SETTINGS_CLOSE')"
+          @change="handleDeleteCloudFile"
+        /></span>
     </div>
     <transition name="el-zoom-in-top">
       <el-row v-show="handleBarActive">
@@ -79,7 +88,7 @@
             <el-col :span="4">
               <div
                 class="item-base copy round"
-                :class="{ active: isMultiple(choosedList)}"
+                :class="{ active: isMultiple(choosedList) }"
                 @click="multiCopy"
               >
                 {{ $T('COPY') }}
@@ -88,7 +97,7 @@
             <el-col :span="4">
               <div
                 class="item-base delete round"
-                :class="{ active: isMultiple(choosedList)}"
+                :class="{ active: isMultiple(choosedList) }"
                 @click="multiRemove"
               >
                 {{ $T('DELETE') }}
@@ -97,10 +106,10 @@
             <el-col :span="4">
               <div
                 class="item-base all-pick round"
-                :class="{ active: filterList.length > 0}"
+                :class="{ active: filterList.length > 0 }"
                 @click="toggleSelectAll"
               >
-                {{ isAllSelected ? $T('CANCEL') : $T('SELECT_ALL') }}
+                {{ isAllSelected? $T('CANCEL'): $T('SELECT_ALL') }}
               </div>
             </el-col>
           </el-row>
@@ -128,7 +137,11 @@
           <el-col
             v-for="(item, index) in filterList"
             :key="item.id"
-            :span="6"
+            :xs="24"
+            :sm="8"
+            :md="6"
+            :lg="4"
+            :xl="3"
             class="gallery-list__img"
           >
             <div
@@ -166,7 +179,7 @@
                 </el-icon>
                 <el-icon
                   class="cursor-pointer delete"
-                  @click="remove(item.id)"
+                  @click="remove(item)"
                 >
                   <Delete />
                 </el-icon>
@@ -187,9 +200,7 @@
       :modal-append-to-body="false"
     >
       <el-input v-model="imgInfo.imgUrl" />
-      <template
-        #footer
-      >
+      <template #footer>
         <el-button @click="dialogVisible = false">
           {{ $T('CANCEL') }}
         </el-button>
@@ -206,7 +217,7 @@
 <script lang="ts" setup>
 import type { IResult } from '@picgo/store/dist/types'
 import { PASTE_TEXT, GET_PICBEDS } from '#/events/constants'
-import { CheckboxValueType, ElMessageBox } from 'element-plus'
+import { CheckboxValueType, ElMessageBox, ElNotification } from 'element-plus'
 import { Close, CaretBottom, Document, Edit, Delete, CaretTop } from '@element-plus/icons-vue'
 import {
   ipcRenderer,
@@ -218,6 +229,7 @@ import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
 import { onBeforeRouteUpdate } from 'vue-router'
 import { T as $T } from '@/i18n/index'
 import $$db from '@/utils/db'
+import ALLApi from '@/apis/allApi'
 const images = ref<ImgInfo[]>([])
 const dialogVisible = ref(false)
 const imgInfo = reactive({
@@ -230,6 +242,7 @@ const gallerySliderControl = reactive({
   visible: false,
   index: 0
 })
+const deleteCloud = ref<boolean>(false)
 const choosedPicBed = ref<string[]>([])
 const lastChoosed = ref<number>(-1)
 const isShiftKeyPress = ref<boolean>(false)
@@ -252,6 +265,12 @@ onBeforeRouteUpdate((to, from) => {
     updateGallery()
   }
 })
+
+// init deleteCloud
+async function initDeleteCloud () {
+  const config = await getConfig() as any
+  deleteCloud.value = config.settings.deleteCloudFile || false
+}
 
 onBeforeMount(async () => {
   ipcRenderer.on('updateGallery', () => {
@@ -396,15 +415,37 @@ async function copy (item: ImgInfo) {
   }
 }
 
-function remove (id?: string) {
-  if (id) {
+function remove (item: ImgInfo) {
+  if (item.id) {
     $confirm($T('TIPS_REMOVE_LINK'), $T('TIPS_NOTICE'), {
       confirmButtonText: $T('CONFIRM'),
       cancelButtonText: $T('CANCEL'),
       type: 'warning'
     }).then(async () => {
-      const file = await $$db.getById(id)
-      await $$db.removeById(id)
+      const file = await $$db.getById(item.id!)
+      await $$db.removeById(item.id!)
+      const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun']
+      if (await getConfig('settings.deleteCloudFile')) {
+        if (item.type !== undefined && picBedsCanbeDeleted.includes(item.type)) {
+          setTimeout(() => {
+            ALLApi.delete(item).then((value: boolean) => {
+              if (value) {
+                ElNotification({
+                  title: '通知',
+                  message: `${item.fileName} 云端删除成功`,
+                  type: 'success'
+                })
+              } else {
+                ElNotification({
+                  title: '通知',
+                  message: `${item.fileName} 云端删除失败`,
+                  type: 'error'
+                })
+              }
+            })
+          }, 0)
+        }
+      }
       sendToMain('removeFiles', [file])
       const obj = {
         title: $T('OPERATION_SUCCEED'),
@@ -422,6 +463,12 @@ function remove (id?: string) {
   }
 }
 
+function handleDeleteCloudFile (val: ICheckBoxValueType) {
+  saveConfig({
+    'settings.deleteCloudFile': val
+  })
+}
+
 function openDialog (item: ImgInfo) {
   imgInfo.id = item.id!
   imgInfo.imgUrl = item.imgUrl as string
@@ -435,7 +482,6 @@ async function confirmModify () {
   const obj = {
     title: $T('CHANGE_IMAGE_URL_SUCCEED'),
     body: imgInfo.imgUrl
-    // icon: this.imgInfo.imgUrl
   }
   const myNotification = new Notification(obj.title, obj)
   myNotification.onclick = () => {
@@ -444,15 +490,6 @@ async function confirmModify () {
   dialogVisible.value = false
   updateGallery()
 }
-
-// function choosePicBed (type: string) {
-//   const idx = choosedPicBed.value.indexOf(type)
-//   if (idx !== -1) {
-//     choosedPicBed.value.splice(idx, 1)
-//   } else {
-//     choosedPicBed.value.push(type)
-//   }
-// }
 
 function cleanSearch () {
   searchText.value = ''
@@ -482,13 +519,49 @@ function multiRemove () {
     }).then(async () => {
       const files: IResult<ImgInfo>[] = []
       const imageIDList = Object.keys(choosedList)
-      for (let i = 0; i < imageIDList.length; i++) {
-        const key = imageIDList[i]
-        if (choosedList[key]) {
-          const file = await $$db.getById<ImgInfo>(key)
-          if (file) {
-            files.push(file)
-            await $$db.removeById(key)
+      const isDeleteCloudFile = await getConfig('settings.deleteCloudFile')
+      const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun']
+      if (isDeleteCloudFile) {
+        for (let i = 0; i < imageIDList.length; i++) {
+          const key = imageIDList[i]
+          if (choosedList[key]) {
+            const file = await $$db.getById<ImgInfo>(key)
+            if (file) {
+              if (file.type !== undefined && picBedsCanbeDeleted.includes(file.type)) {
+                setTimeout(() => {
+                  ALLApi.delete(file).then((value: boolean) => {
+                    if (value) {
+                      ElNotification({
+                        title: '通知',
+                        message: `${file.fileName} 云端删除成功`,
+                        type: 'success',
+                        duration: multiRemoveNumber > 5 ? 1000 : 2000
+                      })
+                    } else {
+                      ElNotification({
+                        title: '通知',
+                        message: `${file.fileName} 云端删除失败`,
+                        type: 'error',
+                        duration: multiRemoveNumber > 5 ? 1000 : 2000
+                      })
+                    }
+                  })
+                }, 0)
+              }
+              files.push(file)
+              await $$db.removeById(key)
+            }
+          }
+        }
+      } else {
+        for (let i = 0; i < imageIDList.length; i++) {
+          const key = imageIDList[i]
+          if (choosedList[key]) {
+            const file = await $$db.getById<ImgInfo>(key)
+            if (file) {
+              files.push(file)
+              await $$db.removeById(key)
+            }
           }
         }
       }
@@ -555,6 +628,7 @@ onBeforeUnmount(() => {
 
 onActivated(async () => {
   pasteStyle.value = (await getConfig('settings.pasteStyle')) || 'markdown'
+  initDeleteCloud()
 })
 
 </script>
@@ -623,7 +697,7 @@ export default {
   .pull-right
     float right
   .gallery-list
-    height 360px
+    height 100%
     box-sizing border-box
     padding 8px 0
     overflow-y auto
@@ -633,7 +707,7 @@ export default {
     transition all .2s ease-in-out .1s
     width 100%
     &.small
-      height: 287px
+      height: 100%
       top: 113px
     &__img
       // height 150px

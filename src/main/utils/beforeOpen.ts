@@ -4,7 +4,6 @@ import os from 'os'
 import { dbPathChecker } from 'apis/core/datastore/dbChecker'
 import yaml from 'js-yaml'
 import { i18nManager } from '~/main/i18n'
-// import { ILocales } from '~/universal/types/i18n'
 
 const configPath = dbPathChecker()
 const CONFIG_DIR = path.dirname(configPath)
@@ -21,12 +20,12 @@ function beforeOpen () {
  * macOS 右键菜单
  */
 function resolveMacWorkFlow () {
-  const dest = `${os.homedir()}/Library/Services/Upload pictures with PicGo.workflow`
+  const dest = `${os.homedir()}/Library/Services/Upload pictures with PicList.workflow`
   if (fs.existsSync(dest)) {
     return true
   } else {
     try {
-      fs.copySync(path.join(__static, 'Upload pictures with PicGo.workflow'), dest)
+      fs.copySync(path.join(__static, 'Upload pictures with PicList.workflow'), dest)
     } catch (e) {
       console.log(e)
     }

@@ -2,24 +2,24 @@
 
 // macos
 const darwin = [{
-  appNameWithPrefix: 'PicGo-',
+  appNameWithPrefix: 'PicList-',
   ext: '.dmg',
   arch: '-arm64',
   'version-file': 'latest-mac.yml'
 }, {
-  appNameWithPrefix: 'PicGo-',
+  appNameWithPrefix: 'PicList-',
   ext: '.dmg',
   arch: '-x64',
   'version-file': 'latest-mac.yml'
 }]
 
 const linux = [{
-  appNameWithPrefix: 'PicGo-',
+  appNameWithPrefix: 'PicList-',
   ext: '.AppImage',
   arch: '',
   'version-file': 'latest-linux.yml'
 }, {
-  appNameWithPrefix: 'picgo_',
+  appNameWithPrefix: 'piclist_',
   ext: '.snap',
   arch: '_amd64',
   'version-file': 'latest-linux.yml'
@@ -27,17 +27,17 @@ const linux = [{
 
 // windows
 const win32 = [{
-  appNameWithPrefix: 'PicGo-Setup-',
+  appNameWithPrefix: 'PicList-Setup-',
   ext: '.exe',
   arch: '-ia32',
   'version-file': 'latest.yml'
 }, {
-  appNameWithPrefix: 'PicGo-Setup-',
+  appNameWithPrefix: 'PicList-Setup-',
   ext: '.exe',
   arch: '-x64',
   'version-file': 'latest.yml'
 }, {
-  appNameWithPrefix: 'PicGo-Setup-',
+  appNameWithPrefix: 'PicList-Setup-',
   ext: '.exe',
   arch: '', // 32 & 64
   'version-file': 'latest.yml'

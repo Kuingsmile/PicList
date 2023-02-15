@@ -10,7 +10,6 @@ import db, { GalleryDB } from '~/main/apis/core/datastore'
 import { handleCopyUrl } from '~/main/utils/common'
 import { handleUrlEncode } from '#/utils/common'
 import { T } from '~/main/i18n/index'
-// import dayjs from 'dayjs'
 
 const handleClipboardUploading = async (): Promise<false | ImgInfo[]> => {
   const useBuiltinClipboard = !!db.get('settings.useBuiltinClipboard')

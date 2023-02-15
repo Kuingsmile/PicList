@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs-extra'
-import { Logger } from 'picgo'
+import { Logger } from 'piclist'
 import { isUrl } from '~/universal/utils/common'
 interface IResultFileObject {
   path: string

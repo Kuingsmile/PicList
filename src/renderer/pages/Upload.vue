@@ -1,9 +1,11 @@
 <template>
   <div id="upload-view">
-    <el-row :gutter="16">
+    <el-row
+      :gutter="16"
+      align="middle"
+    >
       <el-col
-        :span="20"
-        :offset="2"
+        :span="24"
       >
         <div class="view-title">
           {{ $T('PICTURE_UPLOAD') }} - {{ picBedName }}
@@ -47,7 +49,7 @@
           :status="showError ? 'exception' : undefined"
         />
         <div class="paste-style">
-          <div class="el-col-16">
+          <div class="el-col-12">
             <div class="paste-style__text">
               {{ $T('LINK_FORMAT') }}
             </div>
@@ -56,14 +58,27 @@
               size="small"
               @change="handlePasteStyleChange"
             >
-              <el-radio-button label="markdown">
+              <el-radio-button
+                label="markdown"
+                title="![alt](url)"
+              >
                 Markdown
               </el-radio-button>
-              <el-radio-button label="HTML" />
-              <el-radio-button label="URL" />
-              <el-radio-button label="UBB" />
               <el-radio-button
-                label="Custom"
+                label="HTML"
+                title="<img src='url'/>"
+              />
+              <el-radio-button
+                label="URL"
+                title="http://test.com/test.png"
+              />
+              <el-radio-button
+                label="UBB"
+                title="[img]url[/img]"
+              />
+              <!--TODO 修改title为用户具体设置的格式-->
+              <el-radio-button
+                :label="$T('CUSTOM')"
                 :title="$T('CUSTOM')"
               />
             </el-radio-group>
@@ -99,7 +114,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-// import { Component, Vue, Watch } from 'vue-property-decorator'
 import { UploadFilled, CaretBottom } from '@element-plus/icons-vue'
 import {
   ipcRenderer,
@@ -127,7 +141,7 @@ const pasteStyle = ref('')
 const picBed = ref<IPicBedType[]>([])
 const picBedName = ref('')
 onBeforeMount(() => {
-  ipcRenderer.on('uploadProgress', (event: IpcRendererEvent, _progress: number) => {
+  ipcRenderer.on('uploadProgress', (_event: IpcRendererEvent, _progress: number) => {
     if (_progress !== -1) {
       showProgress.value = true
       progress.value = _progress
@@ -269,7 +283,7 @@ async function getDefaultPicBed () {
   })
 }
 
-function getPicBeds (event: Event, picBeds: IPicBedType[]) {
+function getPicBeds (_event: Event, picBeds: IPicBedType[]) {
   picBed.value = picBeds
   getDefaultPicBed()
 }
@@ -295,13 +309,13 @@ export default {
 #upload-view
   height 100%
   .view-title
-    margin 20px auto
+    margin 10vh auto 10px
   #upload-area
-    height 400px
+    height 50vh
     border 2px dashed #dddddd
     border-radius 8px
     text-align center
-    width 800px
+    width 60vw
     margin 0 auto
     color #dddddd
     cursor pointer
@@ -309,15 +323,16 @@ export default {
     align-items center
     #upload-dragger
       height 100%
+      item-align center
     &.is-dragover,
     &:hover
       border 2px dashed #A4D8FA
       background-color rgba(164, 216, 250, 0.3)
       color #fff
     i
-      font-size 66px
-      margin 50px 0 16px
-      line-height 66px
+      height 80%
+      font-size 10vh
+      margin 0
     span
       color #409EFF
   #file-uploader

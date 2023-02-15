@@ -1,8 +1,8 @@
 // TODO: so how to import pure esm module in electron main process????? help wanted
 
 // just copy the fix-path because I can't import pure ESM module in electron main process
-
-const shellPath = require('shell-path')
+// @ts-nocheck
+import { shellPath } from 'shell-path'
 
 export default function fixPath () {
   if (process.platform === 'win32') {

@@ -7,6 +7,7 @@ import { webFrame } from 'electron'
 import VueLazyLoad from 'vue3-lazyload'
 import axios from 'axios'
 import { mainMixin } from './renderer/utils/mainMixin'
+import ContextMenu from '@imengyu/vue3-context-menu'
 import { dragMixin } from '@/utils/mixin'
 import { initTalkingData } from './renderer/utils/analytics'
 import db from './renderer/utils/db'
@@ -15,6 +16,8 @@ import { getConfig, saveConfig, sendToMain, triggerRPC } from '@/utils/dataSende
 import { store } from '@/store'
 import vue3PhotoPreview from 'vue3-photo-preview'
 import 'vue3-photo-preview/dist/index.css'
+import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 webFrame.setVisualZoomLevelLimits(1, 1)
 
@@ -45,6 +48,8 @@ app.config.globalProperties.sendToMain = sendToMain
 
 app.mixin(mainMixin)
 app.mixin(dragMixin)
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 
 app.use(VueLazyLoad, {
   error: `file://${__static.replace(/\\/g, '/')}/unknown-file-type.svg`
@@ -53,7 +58,8 @@ app.use(ElementUI)
 app.use(router)
 app.use(store)
 app.use(vue3PhotoPreview)
-
+app.use(pinia)
+app.use(ContextMenu)
 app.mount('#app')
 
 initTalkingData()

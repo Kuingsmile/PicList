@@ -51,11 +51,11 @@
             </el-icon>
             <span>{{ $T('UPLOAD_AREA') }}</span>
           </el-menu-item>
-          <el-menu-item :index="routerConfig.MANAGE_MAIN_PAGE">
+          <el-menu-item :index="routerConfig.MANAGE_LOGIN_PAGE">
             <el-icon>
-              <PictureFilled />
+              <PieChart />
             </el-icon>
-            <span>{{ $T('PICBEDS_MANAGE') }}</span>
+            <span>管理页面</span>
           </el-menu-item>
           <el-menu-item :index="routerConfig.GALLERY_PAGE">
             <el-icon>
@@ -105,8 +105,8 @@
         </el-icon>
       </el-col>
       <el-col
-        :span="19"
-        :offset="5"
+        :span="21"
+        :offset="3"
         style="height: 100%"
         class="main-wrapper"
         :class="{ 'darwin': os === 'darwin' }"
@@ -133,7 +133,7 @@
       width="70%"
       top="10vh"
     >
-      {{ $T('PICGO_SPONSOR_TEXT') }}
+      {{ $T('PICLIST_SPONSOR_TEXT') }}
       <el-row class="support">
         <el-col :span="12">
           <img
@@ -219,10 +219,11 @@ import {
   InfoFilled,
   Minus,
   CirclePlus,
-  Close
+  Close,
+  PieChart
 } from '@element-plus/icons-vue'
 import { ElMessage as $message } from 'element-plus'
-import { T } from '@/i18n/index'
+import { T as $T } from '@/i18n/index'
 import { ref, onBeforeUnmount, Ref, onBeforeMount, watch, nextTick, reactive } from 'vue'
 import { onBeforeRouteUpdate, useRouter } from 'vue-router'
 import QrcodeVue from 'qrcode.vue'
@@ -299,18 +300,6 @@ const handleSelect = (index: string) => {
         type
       }
     })
-    // if (this.$builtInPicBed.includes(picBed)) {
-    //   this.$router.push({
-    //     name: picBed
-    //   })
-    // } else {
-    //   this.$router.push({
-    //     name: 'others',
-    //     params: {
-    //       type: picBed
-    //     }
-    //   })
-    // }
   }
 }
 
@@ -332,7 +321,7 @@ function openMiniWindow () {
 
 function handleCopyPicBedConfig () {
   clipboard.writeText(picBedConfigString.value)
-  $message.success(T('COPY_PICBED_CONFIG_SUCCEED'))
+  $message.success($T('COPY_PICBED_CONFIG_SUCCEED'))
 }
 
 function getPicBeds (event: IpcRendererEvent, picBeds: IPicBedType[]) {

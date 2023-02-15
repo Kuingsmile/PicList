@@ -11,17 +11,10 @@ import db from '~/main/apis/core/datastore'
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/events/constants'
 import { app } from 'electron'
 import { remoteNoticeHandler } from '../remoteNotice'
-// import { i18n } from '~/main/i18n'
-// import { URLSearchParams } from 'url'
 
 const windowList = new Map<IWindowList, IWindowListItem>()
 
 const handleWindowParams = (windowURL: string) => {
-  // const [baseURL, hash = ''] = windowURL.split('#')
-  // const search = new URLSearchParams()
-  // const lang = i18n.getLanguage()
-  // search.append('lang', lang)
-  // return `${baseURL}?${search.toString()}#${hash}`
   return windowURL
 }
 

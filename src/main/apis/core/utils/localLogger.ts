@@ -41,9 +41,9 @@ const recreateLogFile = (logPath: string): void => {
 }
 
 /**
- * for local log before picgo inited
+ * for local log before piclist inited
  */
-const getLogger = (logPath: string) => {
+const getLogger = (logPath: string, logtype: string) => {
   let hasUncathcedError = false
   try {
     if (!fs.existsSync(logPath)) {
@@ -64,7 +64,7 @@ const getLogger = (logPath: string) => {
       return
     }
     try {
-      let log = `${dayjs().format('YYYY-MM-DD HH:mm:ss')} [PicGo ${type.toUpperCase()}] `
+      let log = `${dayjs().format('YYYY-MM-DD HH:mm:ss')} [${logtype} ${type.toUpperCase()}] `
       msg.forEach((item: ILogArgvTypeWithError) => {
         if (typeof item === 'object' && type === 'error') {
           log += `\n------Error Stack Begin------\n${util.format(item.stack)}\n-------Error Stack End------- `

@@ -3,12 +3,12 @@ description: 功能请求 / Feature request
 title: "[Feature]: "
 labels: ["feature request"]
 assignees:
-  - molunerfinn
+  - Kuingsmile
 body:
   - type: markdown
     attributes:
       value: |+
-        ## PicGo Issue 模板
+        ## PicList Issue 模板
 
         请依照该模板来提交，否则将会被关闭。
         **提问之前请注意你看过 FAQ、文档以及那些被关闭的 issues。否则同样的提问也会被关闭！**
@@ -24,15 +24,15 @@ body:
       options:
         - label: "[文档/Doc](https://picgo.github.io/PicGo-Doc/)"
           required: true
-        - label: "[Issues](https://github.com/Molunerfinn/PicGo/issues?q=is%3Aissue+sort%3Aupdated-desc+is%3Aclosed)"
+        - label: "[Issues](https://github.com/Kuingsmile/PicList/issues?q=is%3Aissue+sort%3Aupdated-desc+is%3Aclosed)"
           required: true
-        - label: "[FAQ](https://github.com/Molunerfinn/PicGo/blob/dev/FAQ.md)"
+        - label: "[FAQ](https://github.com/Kuingsmile/PicList/blob/dev/FAQ.md)"
           required: true
   - type: input
     id: version
     attributes:
-      label: PicGo的版本 | PicGo Version
-      placeholder: 例如 v2.3.0-beta.1
+      label: PicList的版本 | PicList Version
+      placeholder: 例如 v0.0.1
     validations:
       required: true
   - type: dropdown
@@ -57,7 +57,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        最后，喜欢 PicGo 的话不妨给它点个 star~
+        最后，喜欢 PicList 的话不妨给它点个 star~
         如果可以的话，请我喝杯咖啡？首页有赞助二维码，谢谢你的支持！ 
-        Finally, if you like PicGo, give it a star~
+        Finally, if you like PicList, give it a star~
         Buy me a cup of coffee if you can? There is a sponsorship QR code on the homepage, thank you for your support!

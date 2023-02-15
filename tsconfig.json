@@ -15,7 +15,8 @@
     "types": [
       "webpack-env",
       "element-plus/global",
-      "vue3-photo-preview"
+      "vue3-photo-preview",
+      "node"
     ],
     "typeRoots": [
       "./src/universal/types/*",

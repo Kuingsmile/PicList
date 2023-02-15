@@ -32,7 +32,7 @@ interface ILocales {
   PICBEDS_MANAGE: string
   PICLIST_SETTINGS: string
   PLUGIN_SETTINGS: string
-  PICGO_SPONSOR_TEXT: string
+  PICLIST_SPONSOR_TEXT: string
   ALIPAY: string
   WECHATPAY: string
   CHOOSE_PICBED: string

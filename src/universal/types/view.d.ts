@@ -11,7 +11,8 @@ interface ISettingForm {
   checkBetaUpdate: boolean
   useBuiltinClipboard: boolean
   language: string
-  logFileSizeLimit: number
+  logFileSizeLimit: number,
+  deleteCloudFile: boolean
 }
 
 interface IShortKeyMap {

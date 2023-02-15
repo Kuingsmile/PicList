@@ -7,7 +7,7 @@ import { getLatestVersion } from '#/utils/getLatestVersion'
 const version = pkg.version
 // const releaseUrl = 'https://api.github.com/repos/Molunerfinn/PicGo/releases'
 // const releaseUrlBackup = 'https://picgo-1251750343.cos.ap-chengdu.myqcloud.com'
-const downloadUrl = 'https://github.com/Molunerfinn/PicGo/releases/latest'
+const downloadUrl = 'https://github.com/Kuingsmile/PicList/releases/latest'
 
 const checkVersion = async () => {
   let showTip = db.get('settings.showUpdateTip')
@@ -16,8 +16,7 @@ const checkVersion = async () => {
     showTip = true
   }
   if (showTip) {
-    const isCheckBetaUpdate = db.get('settings.checkBetaUpdate') !== false
-    const res: string = await getLatestVersion(isCheckBetaUpdate)
+    const res: string = await getLatestVersion()
     if (res !== '') {
       const latest = res
       const result = compareVersion2Update(version, latest)
@@ -49,12 +48,6 @@ const checkVersion = async () => {
 // if true -> update else return false
 const compareVersion2Update = (current: string, latest: string) => {
   try {
-    if (latest.includes('beta')) {
-      const isCheckBetaUpdate = db.get('settings.checkBetaUpdate') !== false
-      if (!isCheckBetaUpdate) {
-        return false
-      }
-    }
     return lt(current, latest)
   } catch (e) {
     return false

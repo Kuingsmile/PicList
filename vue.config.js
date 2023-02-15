@@ -23,7 +23,7 @@ const config = {
     electronBuilder: {
       nodeIntegration: true, // will remove in the future
       customFileProtocol: 'picgo://./',
-      externals: ['picgo'],
+      externals: ['piclist'],
       chainWebpackMainProcess: config => {
         config.resolve.alias
           .set('@', resolve('src/renderer'))
@@ -38,13 +38,13 @@ const config = {
           .add('module')
       },
       builderOptions: {
-        productName: 'PicGo',
-        appId: 'com.molunerfinn.picgo',
+        productName: 'PicList',
+        appId: 'com.kuingsmile.piclist',
         publish: [
           {
             provider: 'github',
-            owner: 'Molunerfinn',
-            repo: 'PicGo',
+            owner: 'Kuingsmile',
+            repo: 'PicList',
             releaseType: 'draft'
           }
         ],
@@ -76,12 +76,12 @@ const config = {
             ]
           }],
           // eslint-disable-next-line no-template-curly-in-string
-          artifactName: 'PicGo-${version}-${arch}.dmg'
+          artifactName: 'PicList-${version}-${arch}.dmg'
         },
         win: {
           icon: 'build/icons/icon.ico',
           // eslint-disable-next-line no-template-curly-in-string
-          artifactName: 'PicGo-Setup-${version}-${arch}.exe',
+          artifactName: 'PicList-Setup-${version}-${arch}.exe',
           target: [{
             target: 'nsis',
             arch: [
@@ -91,7 +91,7 @@ const config = {
           }]
         },
         nsis: {
-          shortcutName: 'PicGo',
+          shortcutName: 'PicList',
           oneClick: false,
           allowToChangeInstallationDirectory: true,
           include: 'build/installer.nsh'

@@ -30,6 +30,33 @@ export default createRouter({
           name: config.UPLOAD_PAGE
         },
         {
+          path: 'manage-main-page',
+          name: config.MANAGE_MAIN_PAGE,
+          component: () => import(/* webpackChunkName: "ManageMainPage" */ '@/manage/pages/manageMain.vue'),
+          children: [
+            {
+              path: '',
+              name: config.MANAGE_EMPTY_PAGE,
+              component: () => import(/* webpackChunkName: "ManageEmptyPage" */ '@/manage/pages/emptyPage.vue')
+            },
+            {
+              path: 'manage-setting-page',
+              name: config.MANAGE_SETTING_PAGE,
+              component: () => import(/* webpackChunkName: "ManageSettingPage" */ '@/manage/pages/manageSetting.vue')
+            },
+            {
+              path: 'manage-bucket-page',
+              name: config.MANAGE_BUCKET_PAGE,
+              component: () => import(/* webpackChunkName: "ManageBucketPage" */ '@/manage/pages/bucketPage.vue')
+            }
+          ]
+        },
+        {
+          path: 'manage-login-page',
+          name: config.MANAGE_LOGIN_PAGE,
+          component: () => import(/* webpackChunkName: "ManageLogeinPage" */ '@/manage/pages/logIn.vue')
+        },
+        {
           path: 'picbeds/:type/:configId?',
           component: () => import(/* webpackChunkName: "Other" */ '@/pages/picbeds/index.vue'),
           name: config.PICBEDS_PAGE
@@ -67,11 +94,6 @@ export default createRouter({
     {
       path: '/:pathMatch(.*)*',
       redirect: '/'
-    },
-    {
-      path: '/manage-main-page',
-      name: config.MANAGE_MAIN_PAGE,
-      component: () => import(/* webpackChunkName: "ManageMainPage" */ '@/manage/ManageMain.vue')
     }
   ]
 })

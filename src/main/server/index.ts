@@ -48,7 +48,7 @@ class Server {
 
     if (request.method === 'POST') {
       if (!routers.getHandler(request.url!)) {
-        logger.warn(`[PicGo Server] don't support [${request.url}] url`)
+        logger.warn(`[PicList Server] don't support [${request.url}] url`)
         handleResponse({
           response,
           statusCode: 404,
@@ -66,7 +66,7 @@ class Server {
           try {
             postObj = (body === '') ? {} : JSON.parse(body)
           } catch (err: any) {
-            logger.error('[PicGo Server]', err)
+            logger.error('[PicList Server]', err)
             return handleResponse({
               response,
               body: {
@@ -75,7 +75,7 @@ class Server {
               }
             })
           }
-          logger.info('[PicGo Server] get the request', body)
+          logger.info('[PicList Server] get the request', body)
           const handler = routers.getHandler(request.url!)
           handler!({
             ...postObj,
@@ -84,7 +84,7 @@ class Server {
         })
       }
     } else {
-      logger.warn(`[PicGo Server] don't support [${request.method}] method`)
+      logger.warn(`[PicList Server] don't support [${request.method}] method`)
       response.statusCode = 404
       response.end()
     }
@@ -92,7 +92,7 @@ class Server {
 
   // port as string is a bug
   private listen = (port: number | string) => {
-    logger.info(`[PicGo Server] is listening at ${port}`)
+    logger.info(`[PicList Server] is listening at ${port}`)
     if (typeof port === 'string') {
       port = parseInt(port, 10)
     }
@@ -103,7 +103,7 @@ class Server {
           await axios.post(ensureHTTPLink(`${this.config.host}:${port}/heartbeat`))
           this.shutdown(true)
         } catch (e) {
-          logger.warn(`[PicGo Server] ${port} is busy, trying with port ${(port as number) + 1}`)
+          logger.warn(`[PicList Server] ${port} is busy, trying with port ${(port as number) + 1}`)
           // fix a bug: not write an increase number to config file
           // to solve the auto number problem
           this.listen((port as number) + 1)
@@ -122,7 +122,7 @@ class Server {
   shutdown (hasStarted?: boolean) {
     this.httpServer.close()
     if (!hasStarted) {
-      logger.info('[PicGo Server] shutdown')
+      logger.info('[PicList Server] shutdown')
     }
   }
 

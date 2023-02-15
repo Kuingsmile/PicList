@@ -4,7 +4,6 @@
     :style="{ backgroundImage: 'url(' + logo + ')' }"
     :class="{ linux: os === 'linux' }"
   >
-    <!-- <i class="el-icon-upload2"></i> -->
     <div
       id="upload-area"
       :class="{ 'is-dragover': dragover, uploading: showProgress, linux: os === 'linux' }"
@@ -28,8 +27,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-// import mixin from '@/utils/mixin'
-// import { Component, Vue, Watch } from 'vue-property-decorator'
+
 import { T as $T } from '@/i18n/index'
 import { ElMessage as $message } from 'element-plus'
 import {
@@ -163,12 +161,6 @@ function handleMouseMove (e: MouseEvent) {
       width: 64,
       height: 64
     })
-    // remote.BrowserWindow.getFocusedWindow()!.setBounds({
-    //   x: xLoc,
-    //   y: yLoc,
-    //   width: 64,
-    //   height: 64
-    // })
   }
 }
 

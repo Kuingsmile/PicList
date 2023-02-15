@@ -1,6 +1,6 @@
 import { dbChecker, dbPathChecker } from 'apis/core/datastore/dbChecker'
 import pkg from 'root/package.json'
-import { PicGo } from 'picgo'
+import { PicGo } from 'piclist'
 import db from 'apis/core/datastore'
 import debounce from 'lodash/debounce'
 

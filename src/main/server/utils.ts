@@ -19,7 +19,7 @@ export const handleResponse = ({
   body?: any
 }) => {
   if (body?.success === false) {
-    logger.warn('[PicGo Server] upload failed, see picgo.log for more detail ↑')
+    logger.warn('[PicList Server] upload failed, see piclist.log for more detail ↑')
   }
   response.writeHead(statusCode, header)
   response.write(JSON.stringify(body))

@@ -34,9 +34,12 @@ import bus from '@core/bus'
 import logger from 'apis/core/picgo/logger'
 import picgo from 'apis/core/picgo'
 import fixPath from './fixPath'
+import { clearTempFolder } from '../manage/utils/common'
 import { initI18n } from '~/main/utils/handleI18n'
 import { remoteNoticeHandler } from 'apis/app/remoteNotice'
-
+import { manageIpcList } from '../manage/events/ipcList'
+import getManageApi from '../manage/Main'
+import UpDownTaskQueue from '../manage/datastore/upDownTaskQueue'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const handleStartUpFiles = (argv: string[], cwd: string) => {
@@ -64,6 +67,9 @@ class LifeCycle {
     beforeOpen()
     initI18n()
     ipcList.listen()
+    getManageApi()
+    UpDownTaskQueue.getInstance()
+    manageIpcList.listen()
     busEventList.listen()
     updateShortKeyFromVersion212(db, db.get('settings.shortKey'))
     await migrateGalleryFromVersion230(db, GalleryDB.getInstance(), picgo)
@@ -135,7 +141,7 @@ class LifeCycle {
       openAtLogin: db.get('settings.autoStart') || false
     })
     if (process.platform === 'win32') {
-      app.setAppUserModelId('com.molunerfinn.picgo')
+      app.setAppUserModelId('com.kuingsmile.piclist')
     }
 
     if (process.env.XDG_CURRENT_DESKTOP && process.env.XDG_CURRENT_DESKTOP.includes('Unity')) {
@@ -151,6 +157,8 @@ class LifeCycle {
     })
 
     app.on('will-quit', () => {
+      UpDownTaskQueue.getInstance().persist()
+      clearTempFolder()
       globalShortcut.unregisterAll()
       bus.removeAllListeners()
       server.shutdown()

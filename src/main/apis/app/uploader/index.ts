@@ -11,7 +11,7 @@ import db from '~/main/apis/core/datastore'
 import windowManager from 'apis/app/window/windowManager'
 import { IWindowList } from '#/types/enum'
 import util from 'util'
-import { IPicGo } from 'picgo'
+import { IPicGo } from 'piclist'
 import { showNotification, calcDurationRange, getClipboardFilePath } from '~/main/utils/common'
 import { RENAME_FILE_NAME, TALKING_DATA_EVENT } from '~/universal/events/constants'
 import logger from '@core/picgo/logger'
@@ -163,6 +163,9 @@ class Uploader {
             duration: Date.now() - startTime
           } as IAnalyticsData)
         }
+        output.forEach((item: ImgInfo) => {
+          item.config = db.get(`picBed.${item.type}`)
+        })
         return output.filter(item => item.imgUrl)
       } else {
         return false

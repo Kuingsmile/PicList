@@ -19,6 +19,9 @@ dist_electron/
 test.js
 .env
 scripts/*.yml
+scripts/generateYmlFile.js
 
 #Electron-builder output
 /dist_electron
+/docs
+cloc.exe

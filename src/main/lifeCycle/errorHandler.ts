@@ -2,9 +2,9 @@ import path from 'path'
 import { app } from 'electron'
 import { getLogger } from 'apis/core/utils/localLogger'
 const STORE_PATH = app.getPath('userData')
-const LOG_PATH = path.join(STORE_PATH, 'picgo-gui-local.log')
+const LOG_PATH = path.join(STORE_PATH, 'piclist-gui-local.log')
 
-const logger = getLogger(LOG_PATH)
+const logger = getLogger(LOG_PATH, 'PicList')
 
 // since the error may occur in picgo-core
 // so we can't use the log from picgo

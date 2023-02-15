@@ -181,7 +181,6 @@ export function createTray () {
               }
             } else {
               const imgUrl = img.toDataURL()
-              // console.log(imgUrl)
               obj.push({
                 width: img.getSize().width,
                 height: img.getSize().height,

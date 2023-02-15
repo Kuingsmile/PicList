@@ -1,18 +1,18 @@
 const pkg = require('../package.json')
 const version = pkg.version
 // TODO: use the same name format
-const generateURL = (platform, ext, prefix = 'PicGo-') => {
-  return `https://picgo-1251750343.cos.ap-chengdu.myqcloud.com/${version}/${prefix}${version}${platform}${ext}`
+const generateURL = (platform, ext, prefix = 'PicList-') => {
+  return `https://release.piclist.cn/${version}/${prefix}${version}${platform}${ext}`
 }
 
 const platformExtList = [
-  ['-arm64', '.dmg', 'PicGo-'],
-  ['-x64', '.dmg', 'PicGo-'],
-  ['', '.AppImage', 'PicGo-'],
-  ['-ia32', '.exe', 'PicGo-Setup-'],
-  ['-x64', '.exe', 'PicGo-Setup-'],
-  ['', '.exe', 'PicGo-Setup-'],
-  ['_amd64', '.snap', 'picgo_']
+  ['-arm64', '.dmg', 'PicList-'],
+  ['-x64', '.dmg', 'PicList-'],
+  ['', '.AppImage', 'PicList-'],
+  ['-ia32', '.exe', 'PicList-Setup-'],
+  ['-x64', '.exe', 'PicList-Setup-'],
+  ['', '.exe', 'PicList-Setup-'],
+  ['_amd64', '.snap', 'piclist_']
 ]
 
 const links = platformExtList.map(([arch, ext, prefix]) => {

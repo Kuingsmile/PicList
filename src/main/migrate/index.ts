@@ -2,7 +2,7 @@ import { DBStore } from '@picgo/store'
 import ConfigStore from '~/main/apis/core/datastore'
 import path from 'path'
 import fse from 'fs-extra'
-import { PicGo as PicGoCore } from 'picgo'
+import { PicGo as PicGoCore } from 'piclist'
 import { T } from '~/main/i18n'
 // from v2.1.2
 const updateShortKeyFromVersion212 = (db: typeof ConfigStore, shortKeyConfig: IShortKeyConfigs | IOldShortKeyConfigs) => {

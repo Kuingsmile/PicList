@@ -1,7 +1,7 @@
 # main.yml
 
 # Workflow's name
-name: Build
+name: Manually Build
 
 # Workflow's trigger
 on: workflow_dispatch
@@ -51,5 +51,6 @@ jobs:
           yarn upload-dist
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          PICGO_ENV_COS_SECRET_ID: ${{ secrets.PICGO_ENV_COS_SECRET_ID }}
-          PICGO_ENV_COS_SECRET_KEY: ${{ secrets.PICGO_ENV_COS_SECRET_KEY }}
+          R2_SECRET_ID: ${{ secrets.R2_SECRET_ID }}
+          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}

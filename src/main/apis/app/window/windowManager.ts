@@ -45,14 +45,6 @@ class WindowManager implements IWindowManager {
     return this.windowMap.has(name)
   }
 
-  // useless
-  // delete (name: IWindowList) {
-  //   const window = this.windowMap.get(name)
-  //   if (window) {
-  //     this.windowIdMap.delete(window.id)
-  //     this.windowMap.delete(name)
-  //   }
-  // }
   deleteById = (id: number) => {
     const name = this.windowIdMap.get(id)
     if (name) {

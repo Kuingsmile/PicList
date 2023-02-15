@@ -98,7 +98,7 @@ export default {
 <style lang='stylus'>
 #picbeds-page
   .setting-list
-    height 425px
+    height 100%
     overflow-y auto
     overflow-x hidden
   .confirm-btn

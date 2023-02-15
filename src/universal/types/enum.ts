@@ -5,6 +5,13 @@ export enum IChalkType {
   error = 'red'
 }
 
+export enum ILogType {
+  success = 'success',
+  info = 'info',
+  warn = 'warn',
+  error = 'error'
+}
+
 export enum IPicGoHelperType {
   afterUploadPlugins = 'afterUploadPlugins',
   beforeTransformPlugins = 'beforeTransformPlugins',

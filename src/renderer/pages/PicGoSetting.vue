@@ -27,11 +27,10 @@
             <el-form-item
               :label="$T('SETTINGS_CHOOSE_LANGUAGE')"
             >
-              <!-- <el-button type="primary" round size="small" @click="openFile('data.json')">{{ $T('SETTINGS_CLICK_TO_OPEN') }}</el-button> -->
               <el-select
                 v-model="currentLanguage"
                 size="small"
-                style="width: 100%"
+                style="width: 50%"
                 :placeholder="$T('SETTINGS_CHOOSE_LANGUAGE')"
                 @change="handleLanguageChange"
               >
@@ -138,17 +137,6 @@
               />
             </el-form-item>
             <el-form-item
-              v-show="form.updateHelper"
-              :label="$T('SETTINGS_ACCEPT_BETA_UPDATE')"
-            >
-              <el-switch
-                v-model="form.checkBetaUpdate"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="checkBetaUpdateChange"
-              />
-            </el-form-item>
-            <el-form-item
               :label="$T('SETTINGS_LAUNCH_ON_BOOT')"
             >
               <el-switch
@@ -156,6 +144,16 @@
                 :active-text="$T('SETTINGS_OPEN')"
                 :inactive-text="$T('SETTINGS_CLOSE')"
                 @change="handleAutoStartChange"
+              />
+            </el-form-item>
+            <el-form-item
+              label="相册内删除时同步删除云端文件"
+            >
+              <el-switch
+                v-model="form.deleteCloudFile"
+                :active-text="$T('SETTINGS_OPEN')"
+                :inactive-text="$T('SETTINGS_CLOSE')"
+                @change="handleDeleteCloudFile"
               />
             </el-form-item>
             <el-form-item
@@ -247,6 +245,10 @@
                 />
               </el-checkbox-group>
             </el-form-item>
+            <el-divider
+              border-style="none"
+            />
+            <el-form-item />
           </el-form>
         </el-row>
       </el-col>
@@ -403,7 +405,7 @@
             type="primary"
             round
             size="small"
-            @click="openFile('picgo.log')"
+            @click="openFile('piclist.log')"
           >
             {{ $T('SETTINGS_CLICK_TO_OPEN') }}
           </el-button>
@@ -520,7 +522,7 @@
 import { ElForm, ElMessage as $message, FormRules } from 'element-plus'
 import { Reading, QuestionFilled } from '@element-plus/icons-vue'
 import pkg from 'root/package.json'
-import { IConfig } from 'picgo'
+import { IConfig } from 'piclist'
 import { PICGO_OPEN_FILE, OPEN_URL, GET_PICBEDS } from '#/events/constants'
 import {
   ipcRenderer
@@ -529,7 +531,7 @@ import { i18nManager, T as $T } from '@/i18n/index'
 import { enforceNumber } from '~/universal/utils/common'
 import { getLatestVersion } from '#/utils/getLatestVersion'
 import { compare } from 'compare-versions'
-import { STABLE_RELEASE_URL, BETA_RELEASE_URL } from '#/utils/static'
+import { STABLE_RELEASE_URL } from '#/utils/static'
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
 import { useRouter } from 'vue-router'
@@ -558,7 +560,8 @@ const form = reactive<ISettingForm>({
   checkBetaUpdate: true,
   useBuiltinClipboard: false,
   language: 'zh-CN',
-  logFileSizeLimit: 10
+  logFileSizeLimit: 10,
+  deleteCloudFile: false
 })
 
 const languageList = i18nManager.languageList.map(item => ({
@@ -643,6 +646,7 @@ async function initData () {
     form.checkBetaUpdate = settings.checkBetaUpdate === undefined ? true : settings.checkBetaUpdate
     form.useBuiltinClipboard = settings.useBuiltinClipboard === undefined ? false : settings.useBuiltinClipboard
     form.language = settings.language ?? 'zh-CN'
+    form.deleteCloudFile = settings.deleteCloudFile || false
     currentLanguage.value = settings.language ?? 'zh-CN'
     customLink.value = settings.customLink || '$url'
     shortKey.upload = settings.shortKey.upload
@@ -728,10 +732,6 @@ function updateHelperChange (val: ICheckBoxValueType) {
   saveConfig('settings.showUpdateTip', val)
 }
 
-function checkBetaUpdateChange (val: ICheckBoxValueType) {
-  saveConfig('settings.checkBetaUpdate', val)
-}
-
 function useBuiltinClipboardChange (val: ICheckBoxValueType) {
   saveConfig('settings.useBuiltinClipboard', val)
 }
@@ -756,6 +756,12 @@ function handleAutoStartChange (val: ICheckBoxValueType) {
   sendToMain('autoStart', val)
 }
 
+function handleDeleteCloudFile (val: ICheckBoxValueType) {
+  saveConfig({
+    'settings.deleteCloudFile': val
+  })
+}
+
 function handleRename (val: ICheckBoxValueType) {
   saveConfig({
     'settings.rename': val
@@ -774,7 +780,7 @@ function compareVersion2Update (current: string, latest: string): boolean {
 
 async function checkUpdate () {
   checkUpdateVisible.value = true
-  const version = await getLatestVersion(form.checkBetaUpdate)
+  const version = await getLatestVersion()
   if (version) {
     latestVersion.value = version
   } else {
@@ -784,7 +790,7 @@ async function checkUpdate () {
 
 function confirmCheckVersion () {
   if (needUpdate.value) {
-    sendToMain(OPEN_URL, form.checkBetaUpdate ? BETA_RELEASE_URL : STABLE_RELEASE_URL)
+    sendToMain(OPEN_URL, STABLE_RELEASE_URL)
   }
   checkUpdateVisible.value = false
 }

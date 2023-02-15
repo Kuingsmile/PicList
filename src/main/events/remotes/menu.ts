@@ -11,7 +11,7 @@ import pkg from 'root/package.json'
 import GuiApi from 'apis/gui'
 import { PICGO_CONFIG_PLUGIN, PICGO_HANDLE_PLUGIN_DONE, PICGO_HANDLE_PLUGIN_ING, PICGO_TOGGLE_PLUGIN, SHOW_MAIN_PAGE_DONATION, SHOW_MAIN_PAGE_QRCODE } from '~/universal/events/constants'
 import picgoCoreIPC from '~/main/events/picgoCoreIPC'
-import { PicGo as PicGoCore } from 'picgo'
+import { PicGo as PicGoCore } from 'piclist'
 import { T } from '~/main/i18n'
 import { changeCurrentUploader } from '~/main/utils/handleUploaderConfig'
 
