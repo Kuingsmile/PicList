@@ -2,15 +2,6 @@
 <div align="center">
   <img src="http://imgx.horosama.com/admin_uploads/2022/10/2022_10_05_633d79e401694.png" alt="">
   <h1>PicList</h1>
-  <a href="https://github.com/Kuingsmile/PicList/releases">
-    <img src="https://img.shields.io/github/downloads/Kuingsmile/PicList/total.svg?style=flat-square" alt="">
-  </a>
-  <a href="https://github.com/Kuingsmile/PicList/releases/latest">
-    <img src="https://img.shields.io/github/release/Kuingsmile/PicList.svg?style=flat-square" alt="">
-  </a>
-  <a href="https://github.com/Kuingsmile/PicList">
-     <img src="https://img.shields.io/github/stars/Kuingsmile/PicList.svg?style=flat-square" alt="">
-     </a>
 </div>
 
 &emsp;&emsp;一款fork自PicGo的二次开发项目，保留了PicGo的所有功能的同时，为相册添加了同步云端删除功能，同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件和图片预览等。
@@ -34,8 +25,8 @@ https://github.com/Kuingsmile/PicList/releases
 
 请参考release页面的说明
 
-
 ## 应用截图
+
 ![image](https://user-images.githubusercontent.com/96409857/219062180-ba6de40b-94bb-45be-a510-c4d231920032.png)
 ![image](https://user-images.githubusercontent.com/96409857/219063188-d7e0b0e7-6e3c-4deb-8bef-0b2b57d2d7ee.png)
 ![image](https://user-images.githubusercontent.com/96409857/219063398-9a8607df-a1e2-4121-a652-ebd63b38007b.png)
@@ -58,5 +49,6 @@ yarn 下载依赖。注意如果你没有 yarn，请去 官网 下载安装后�
 
 [MIT](https://opensource.org/licenses/MIT)
 
-Copyright (c) 2017-present, Molunerfinn
+Copyright (c) 2017-present, Molunerfinn  
+ 
 Copyright (c) 2023-present Kuingsmile
