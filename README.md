@@ -42,6 +42,7 @@ yarn 下载依赖。注意如果你没有 yarn，请去 官网 下载安装后�
 ## 其它相关
 
 - [PicGo](https://github.com/Molunerfinn/PicGo) : 原版PicGo项目
+- [PicHoro](https://github.com/Kuingsmile/PicHoro): 与PicList搭配使用的手机端APP
 
 ## License
 
