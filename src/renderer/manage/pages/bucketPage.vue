@@ -1175,7 +1175,7 @@ const itemsPerPage = computed(() => manageStore.config.picBed[configMap.alias].i
 
 const calculateAllFileSize = computed(() => formatFileSize(currentPageFilesInfo.reduce((total: any, item: { fileSize: any }) => total + item.fileSize, 0)) || '0')
 
-const isShowImageIcon = computed(() => manageStore.config.settings.isShowImageIcon ?? false)
+const isShowThumbnail = computed(() => manageStore.config.settings.isShowThumbnail ?? false)
 const isAutoRefresh = computed(() => manageStore.config.settings.isAutoRefresh ?? false)
 const isIgnoreCase = computed(() => manageStore.config.settings.isIgnoreCase ?? false)
 
@@ -2333,7 +2333,7 @@ const columns: Column<any>[] = [
             reference: () => (
               !item.isDir
                 ? <ElImage
-                  src={isShowImageIcon.value ? item.isImage ? item.url : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`) : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)}
+                  src={isShowThumbnail.value ? item.isImage ? item.url : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`) : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)}
                   fit="contain"
                   style={{ width: '20px', height: '20px' }}
                 >

@@ -20,7 +20,7 @@ test.js
 .env
 scripts/*.yml
 scripts/generateYmlFile.js
-
+.yarnrc
 #Electron-builder output
 /dist_electron
 /docs
