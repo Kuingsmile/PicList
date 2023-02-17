@@ -27,7 +27,7 @@
 ## 已支持平台
 
 | 平台 | 相册云删除 | 云存储管理 |
-| :--: | :--: | :--- |
+| :--: | :--: | :--: |
 | SM.MS | :heavy_check_mark: | :heavy_check_mark: |
 | Github | :heavy_check_mark: | :heavy_check_mark: |
 | Imgur | :heavy_check_mark: | :heavy_check_mark: |

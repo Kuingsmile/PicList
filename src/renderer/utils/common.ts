@@ -35,7 +35,7 @@ export const getRawData = (args: any): any => {
     })
     return data
   }
-  if (typeof args === 'object') {
+  if (typeof args === 'object' && args !== null) {
     const data = {} as IStringKeyMap
     Object.keys(args).forEach(key => {
       const item = args[key]

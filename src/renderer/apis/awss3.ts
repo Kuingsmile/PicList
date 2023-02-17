@@ -2,30 +2,36 @@ import { S3 } from 'aws-sdk'
 
 export default class AwsS3Api {
   static async delete (configMap: IStringKeyMap): Promise<boolean> {
-    const { imgUrl, config: { accessKeyID, secretAccessKey, bucketName, region, endpoint, pathStyleAccess } } = configMap
+    const { imgUrl, config: { accessKeyID, secretAccessKey, bucketName, region, endpoint, pathStyleAccess, bucketEndpoint, rejectUnauthorized } } = configMap
     try {
-      const url = new URL(imgUrl)
+      const url = new URL((!imgUrl.startsWith('http') && !imgUrl.startsWith('https')) ? `http://${imgUrl}` : imgUrl)
       const fileKey = url.pathname
       let endpointUrl
       if (endpoint) {
-        endpointUrl = endpoint
-      } else {
-        if (region) {
-          endpointUrl = `https://s3.${region}.amazonaws.com`
+        if (!endpoint.startsWith('http') && !endpoint.startsWith('https')) {
+          endpointUrl = `http://${endpoint}`
         } else {
-          endpointUrl = 'https://s3.us-east-1.amazonaws.com'
+          endpointUrl = endpoint
         }
       }
       let sslEnabled = true
-      const endpointUrlObj = new URL(endpointUrl)
-      sslEnabled = endpointUrlObj.protocol === 'https:'
+      if (endpointUrl) {
+        sslEnabled = endpointUrl.startsWith('https')
+      }
+      const http = sslEnabled ? require('https') : require('http')
       const client = new S3({
         accessKeyId: accessKeyID,
         secretAccessKey,
         endpoint: endpointUrl,
         s3ForcePathStyle: pathStyleAccess,
         sslEnabled,
-        region: region || 'us-east-1'
+        region,
+        s3BucketEndpoint: bucketEndpoint,
+        httpOptions: {
+          agent: new http.Agent({
+            rejectUnauthorized
+          })
+        }
       })
       const result = await client.deleteObject({
         Bucket: bucketName,
