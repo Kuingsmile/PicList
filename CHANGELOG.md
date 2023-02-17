@@ -1,3 +1,23 @@
+## :tada: 1.0.2 (2023-02-17)
+
+
+### :sparkles: Features
+
+* album remote deletion now Support picgo-plugin-s3 ([21e870d](https://github.com/Kuingsmile/PicList/commit/21e870d))
+
+
+### :bug: Bug Fixes
+
+* fix qiniu file modified time error ([681da4a](https://github.com/Kuingsmile/PicList/commit/681da4a))
+
+
+### :pencil: Documentation
+
+* update README.md ([23652d9](https://github.com/Kuingsmile/PicList/commit/23652d9))
+* update README.md ([0488ad3](https://github.com/Kuingsmile/PicList/commit/0488ad3))
+
+
+
 ## :tada: 1.0.1 (2023-02-17)
 
 
