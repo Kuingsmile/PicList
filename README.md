@@ -13,7 +13,7 @@
   </a>
 </div>
 
-&emsp;&emsp;一款fork自PicGo的二次开发项目，保留了PicGo的所有功能的同时，为相册添加了同步云端删除功能，同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件和图片预览等。
+&emsp;&emsp;fork自PicGo的二次开发项目，保留了PicGo的所有功能的同时，为相册添加了同步云端删除功能，同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件和图片预览等。
 
 ## 特色功能
 
@@ -24,11 +24,27 @@
 - 对于私有存储桶等支持复制预签名链接进行分享
 - 优化了PicGo的界面，解锁了窗口大小限制，同时美化了部分界面布局
 
+## 已支持平台
+
+| 平台 | 相册云删除 | 云存储管理 |
+| :--: | :--: | :--- |
+| SM.MS | :heavy_check_mark: | :heavy_check_mark: |
+| Github | :heavy_check_mark: | :heavy_check_mark: |
+| Imgur | :heavy_check_mark: | :heavy_check_mark: |
+| 腾讯COS V5 | :heavy_check_mark: | :heavy_check_mark: |
+| 阿里云OSS | :heavy_check_mark: | :heavy_check_mark: |
+| 又拍云 | :heavy_check_mark: | :heavy_check_mark: |
+| 七牛云 | :heavy_check_mark: | :heavy_check_mark: |
+
+| 插件 | 相册云删除 |
+| :--: | :--: |
+| [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3) | :heavy_check_mark: |
+
 ## 下载安装
 
 ### Github release
 
-https://github.com/Kuingsmile/PicList/releases
+[https://github.com/Kuingsmile/PicList/releases](https://github.com/Kuingsmile/PicList/releases)
 
 ### CDN加速下载地址
 
@@ -49,12 +65,12 @@ https://github.com/Kuingsmile/PicList/releases
 ## 开发说明
 
 1. 你需要有 Node、Git 环境，了解 npm 的相关知识。
-2. git clone https://github.com/Kuingsmile/PicList.git 并进入项目。
+2. git clone [https://github.com/Kuingsmile/PicList.git](https://github.com/Kuingsmile/PicList.git) 并进入项目。
 yarn 下载依赖。注意如果你没有 yarn，请去 官网 下载安装后再使用。 用 npm install 将导致未知错误！
 3. Mac 需要有 Xcode 环境，Windows 需要有 VS 环境。
 4. 如果需要贡献代码，可以参考[贡献指南](https://github.com/Kuingsmile/PicList/blob/dev/CONTRIBUTING.md)。
 
-## 开发模式
+### 开发模式
 
 输入 `yarn run dev` 进入开发模式，开发模式具有热重载特性。不过需要注意的是，开发模式不稳定，会有进程崩溃的情况。此时需要：
 
@@ -62,7 +78,7 @@ ctrl+c # 退出开发模式
 yarn run dev # 重新进入开发模式
 注：Windows 开发模式运行之后会在底部任务栏的右下角应用区出现 PicGo 的应用图标。
 
-## 生产模式
+### 生产模式
 
 如果你需要自行构建，可以 `yarn run build` 开始进行构建。构建成功后，会在 dist_electron 目录里出现构建成功的相应安装文件。
 
