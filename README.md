@@ -32,13 +32,13 @@ https://github.com/Kuingsmile/PicList/releases
 
 ### CDN加速下载地址
 
-[PicList-1.0.1-arm64.dmg](https://release.piclist.cn/1.0.1/PicList-1.0.1-arm64.dmg)
-[PicList-1.0.1-x64.dmg](https://release.piclist.cn/1.0.1/PicList-1.0.1-x64.dmg)
-[PicList-1.0.1.AppImage](https://release.piclist.cn/1.0.1/PicList-1.0.1.AppImage)
-[PicList-Setup-1.0.1-ia32.exe](https://release.piclist.cn/1.0.1/PicList-Setup-1.0.1-ia32.exe)
-[PicList-Setup-1.0.1-x64.exe](https://release.piclist.cn/1.0.1/PicList-Setup-1.0.1-x64.exe)
-[PicList-Setup-1.0.1.exe](https://release.piclist.cn/1.0.1/PicList-Setup-1.0.1.exe)
-[piclist_1.0.1_amd64.snap](https://release.piclist.cn/1.0.1/piclist_1.0.1_amd64.snap)
+- [PicList-1.0.1-arm64.dmg](https://release.piclist.cn/1.0.1/PicList-1.0.1-arm64.dmg)
+- [PicList-1.0.1-x64.dmg](https://release.piclist.cn/1.0.1/PicList-1.0.1-x64.dmg)
+- [PicList-1.0.1.AppImage](https://release.piclist.cn/1.0.1/PicList-1.0.1.AppImage)
+- [PicList-Setup-1.0.1-ia32.exe](https://release.piclist.cn/1.0.1/PicList-Setup-1.0.1-ia32.exe)
+- [PicList-Setup-1.0.1-x64.exe](https://release.piclist.cn/1.0.1/PicList-Setup-1.0.1-x64.exe)
+- [PicList-Setup-1.0.1.exe](https://release.piclist.cn/1.0.1/PicList-Setup-1.0.1.exe)
+- [piclist_1.0.1_amd64.snap](https://release.piclist.cn/1.0.1/piclist_1.0.1_amd64.snap)
 
 ## 应用截图
 
