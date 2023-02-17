@@ -221,24 +221,30 @@ export const trimPath = (path: string) => path.replace(/^\/+|\/+$/g, '').replace
 
 export const getAgent = (proxy:any, https: boolean = true) => {
   const formatProxy = formatHttpProxy(proxy, 'string') as any
-  const opt = {
-    keepAlive: true,
-    keepAliveMsecs: 1000,
-    maxSockets: 256,
-    maxFreeSockets: 256,
-    scheduling: 'lifo' as 'lifo' | 'fifo' | undefined,
-    proxy: formatProxy.replace('127.0.0.1', 'localhost')
-  }
   if (https) {
     return formatProxy
       ? {
-        https: new HttpsProxyAgent(opt)
+        https: new HttpsProxyAgent({
+          keepAlive: true,
+          keepAliveMsecs: 1000,
+          maxSockets: 256,
+          maxFreeSockets: 256,
+          scheduling: 'lifo' as 'lifo' | 'fifo' | undefined,
+          proxy: formatProxy.replace('127.0.0.1', 'localhost')
+        })
       }
       : {}
   } else {
     return formatProxy
       ? {
-        http: new HttpProxyAgent(opt)
+        http: new HttpProxyAgent({
+          keepAlive: true,
+          keepAliveMsecs: 1000,
+          maxSockets: 256,
+          maxFreeSockets: 256,
+          scheduling: 'lifo' as 'lifo' | 'fifo' | undefined,
+          proxy: formatProxy.replace('127.0.0.1', 'localhost')
+        })
       }
       : {}
   }
