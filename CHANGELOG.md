@@ -1,3 +1,12 @@
+## :tada: 1.0.1 (2023-02-17)
+
+
+### :bug: Bug Fixes
+
+* fix proxy setting bug ([22bee0b](https://github.com/Kuingsmile/PicList/commit/22bee0b)), closes [#1](https://github.com/Kuingsmile/PicList/issues/1)
+
+
+
 # :tada: 1.0.0 (2023-02-15)
 
 
