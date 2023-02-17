@@ -26,7 +26,7 @@
     "@picgo/store": "^2.0.4",
     "@types/mime-types": "^2.1.1",
     "ali-oss": "^6.17.1",
-    "aws-sdk": "^2.1304.0",
+    "aws-sdk": "^2.1317.0",
     "axios": "^1.3.2",
     "compare-versions": "^4.1.3",
     "core-js": "^3.27.1",

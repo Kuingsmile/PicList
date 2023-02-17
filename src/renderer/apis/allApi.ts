@@ -5,6 +5,7 @@ import QiniuApi from './qiniu'
 import ImgurApi from './imgur'
 import GithubApi from './github'
 import UpyunApi from './upyun'
+import AwsS3Api from './awss3'
 
 const apiMap: IStringKeyMap = {
   smms: SmmsApi,
@@ -13,7 +14,8 @@ const apiMap: IStringKeyMap = {
   qiniu: QiniuApi,
   imgur: ImgurApi,
   github: GithubApi,
-  upyun: UpyunApi
+  upyun: UpyunApi,
+  'aws-s3': AwsS3Api
 }
 
 export default class ALLApi {
