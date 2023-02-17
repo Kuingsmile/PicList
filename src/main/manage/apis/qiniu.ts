@@ -53,7 +53,7 @@ class QiniuApi {
       fileName: item.key.replace(slicedPrefix, ''),
       url: `${urlPrefix}/${item.key}`,
       fileSize: item.fsize,
-      formatedTime: new Date(parseInt(item.putTime.toString().slice(0, -7), 10)).toLocaleString(),
+      formatedTime: new Date(parseInt(item.putTime.toString().slice(0, -4), 10)).toLocaleString(),
       isDir: false,
       checked: false,
       match: false,
