@@ -2,6 +2,15 @@
 <div align="center">
   <img src="http://imgx.horosama.com/admin_uploads/2022/10/2022_10_05_633d79e401694.png" alt="">
   <h1>PicList</h1>
+  <a href="https://github.com/Kuingsmile/PicList/actions">
+    <img src="https://img.shields.io/badge/code%20style-standard-green.svg?style=flat-square" alt="">
+  </a>
+  <a href="https://github.com/Kuingsmile/PicList/actions">
+    <img src="https://github.com/Kuingsmile/PicList/actions/workflows/manually.yml/badge.svg" alt="">
+  </a>
+  <a href="https://github.com/Kuingsmile/PicList/releases/latest">
+    <img src="https://img.shields.io/github/release/Kuingsmile/PicList.svg?style=flat-square" alt="">
+  </a>
 </div>
 
 &emsp;&emsp;一款fork自PicGo的二次开发项目，保留了PicGo的所有功能的同时，为相册添加了同步云端删除功能，同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件和图片预览等。
@@ -21,9 +30,15 @@
 
 https://github.com/Kuingsmile/PicList/releases
 
-### CloudFlare R2
+### CDN加速下载地址
 
-请参考release页面的说明
+[PicList-1.0.1-arm64.dmg](https://release.piclist.cn/1.0.1/PicList-1.0.1-arm64.dmg)
+[PicList-1.0.1-x64.dmg](https://release.piclist.cn/1.0.1/PicList-1.0.1-x64.dmg)
+[PicList-1.0.1.AppImage](https://release.piclist.cn/1.0.1/PicList-1.0.1.AppImage)
+[PicList-Setup-1.0.1-ia32.exe](https://release.piclist.cn/1.0.1/PicList-Setup-1.0.1-ia32.exe)
+[PicList-Setup-1.0.1-x64.exe](https://release.piclist.cn/1.0.1/PicList-Setup-1.0.1-x64.exe)
+[PicList-Setup-1.0.1.exe](https://release.piclist.cn/1.0.1/PicList-Setup-1.0.1.exe)
+[piclist_1.0.1_amd64.snap](https://release.piclist.cn/1.0.1/piclist_1.0.1_amd64.snap)
 
 ## 应用截图
 
@@ -38,6 +53,24 @@ https://github.com/Kuingsmile/PicList/releases
 yarn 下载依赖。注意如果你没有 yarn，请去 官网 下载安装后再使用。 用 npm install 将导致未知错误！
 3. Mac 需要有 Xcode 环境，Windows 需要有 VS 环境。
 4. 如果需要贡献代码，可以参考[贡献指南](https://github.com/Kuingsmile/PicList/blob/dev/CONTRIBUTING.md)。
+
+## 开发模式
+
+输入 `yarn run dev` 进入开发模式，开发模式具有热重载特性。不过需要注意的是，开发模式不稳定，会有进程崩溃的情况。此时需要：
+
+ctrl+c # 退出开发模式
+yarn run dev # 重新进入开发模式
+注：Windows 开发模式运行之后会在底部任务栏的右下角应用区出现 PicGo 的应用图标。
+
+## 生产模式
+
+如果你需要自行构建，可以 `yarn run build` 开始进行构建。构建成功后，会在 dist_electron 目录里出现构建成功的相应安装文件。
+
+注意：如果你的网络环境不太好，可能会出现 electron-builder 下载 electron 二进制文件失败的情况。这个时候需要在 npm run electron:build 之前指定一下 electron 的源为国内源：
+
+export ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+
+**在 Windows 上，则可以使用 set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ （无需引号）**
 
 ## 其它相关
 
