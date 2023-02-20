@@ -4,11 +4,11 @@ export default class AwsS3Api {
   static async delete (configMap: IStringKeyMap): Promise<boolean> {
     const { imgUrl, config: { accessKeyID, secretAccessKey, bucketName, region, endpoint, pathStyleAccess, bucketEndpoint, rejectUnauthorized } } = configMap
     try {
-      const url = new URL((!imgUrl.startsWith('http') && !imgUrl.startsWith('https')) ? `http://${imgUrl}` : imgUrl)
+      const url = new URL(!/^https?:\/\//.test(imgUrl) ? `http://${imgUrl}` : imgUrl)
       const fileKey = url.pathname
       let endpointUrl
       if (endpoint) {
-        if (!endpoint.startsWith('http') && !endpoint.startsWith('https')) {
+        if (!/^https?:\/\//.test(endpoint)) {
           endpointUrl = `http://${endpoint}`
         } else {
           endpointUrl = endpoint
@@ -29,7 +29,8 @@ export default class AwsS3Api {
         s3BucketEndpoint: bucketEndpoint,
         httpOptions: {
           agent: new http.Agent({
-            rejectUnauthorized
+            rejectUnauthorized,
+            timeout: 30000
           })
         }
       })

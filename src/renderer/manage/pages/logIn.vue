@@ -133,22 +133,50 @@
             v-for="option in supportedPicBedList[item.icon].options"
             :key="option"
             :prop="item.icon + '.' + option"
-            :label="supportedPicBedList[item.icon].configOptions[option].description"
           >
+            <template #label>
+              {{ supportedPicBedList[item.icon].configOptions[option].description }}
+              <el-tooltip
+                v-if="!!supportedPicBedList[item.icon].configOptions[option].tooltip"
+                effect="dark"
+                :content="supportedPicBedList[item.icon].configOptions[option].tooltip"
+                placement="right"
+              >
+                <el-icon
+                  color="#409EFF"
+                >
+                  <InfoFilled />
+                </el-icon>
+              </el-tooltip>
+            </template>
             <el-input
-              v-if="option !== 'paging' && option !== 'itemsPerPage'"
+              v-if="supportedPicBedList[item.icon].configOptions[option].type === 'string'"
               v-model.trim="configResult[item.icon + '.' + option]"
               :placeholder="supportedPicBedList[item.icon].configOptions[option].placeholder"
             />
             <el-switch
-              v-else-if="option === 'paging'"
+              v-else-if="supportedPicBedList[item.icon].configOptions[option].type === 'boolean'"
               v-model="configResult[item.icon + '.' + option]"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
             />
             <el-input
-              v-else
+              v-else-if="supportedPicBedList[item.icon].configOptions[option].type === 'number'"
               v-model.number="configResult[item.icon + '.' + option]"
               :placeholder="supportedPicBedList[item.icon].configOptions[option].placeholder"
             />
+            <el-select
+              v-else-if="supportedPicBedList[item.icon].configOptions[option].type === 'select'"
+              v-model="configResult[item.icon + '.' + option]"
+              placeholder="请选择"
+            >
+              <el-option
+                v-for="i in Object.entries(supportedPicBedList[item.icon].configOptions[option].selectOptions)"
+                :key="i[0]"
+                :label="i[1] as string"
+                :value="i[0]"
+              />
+            </el-select>
           </el-form-item>
         </el-form>
         <div style="margin: 0 auto;position: relative;left: 10%;right: 50%;">
@@ -220,7 +248,7 @@
 <script lang="ts" setup>
 import { reactive, ref, onBeforeMount, computed } from 'vue'
 import { supportedPicBedList } from '../utils/constants'
-import { Delete, Edit, Pointer } from '@element-plus/icons-vue'
+import { Delete, Edit, Pointer, InfoFilled } from '@element-plus/icons-vue'
 import { ElMessage, ElNotification } from 'element-plus'
 import { getConfig, saveConfig, removeConfig } from '../utils/dataSender'
 import { shell } from 'electron'
@@ -314,7 +342,7 @@ const handleConfigChange = async (name: string) => {
   for (const key of allKeys) {
     const resultKey = name + '.' + key
     if (supportedPicBedList[name].configOptions[key].required) {
-      if (key !== 'paging' && !configResult[resultKey]) {
+      if (supportedPicBedList[name].configOptions[key].type !== 'boolean' && !configResult[resultKey]) {
         ElMessage.error(`请填写 ${supportedPicBedList[name].configOptions[key].description}`)
         return
       }
@@ -329,7 +357,7 @@ const handleConfigChange = async (name: string) => {
     }
     if ((key === 'customUrl') && configResult[resultKey] !== undefined && configResult[resultKey] !== '') {
       if (name !== 'upyun') {
-        if (!configResult[resultKey].startsWith('http://') && !configResult[resultKey].startsWith('https://')) {
+        if (!/^https?:\/\//.test(configResult[resultKey])) {
           ElMessage.error('自定义域名必须以http://或https://开头')
           return
         }
@@ -363,7 +391,7 @@ const handleConfigChange = async (name: string) => {
           [bucketName[i]]: {
             baseDir: baseDir && baseDir[i] ? baseDir[i] : '/',
             area: area && area[i] ? area[i] : '',
-            customUrl: customUrl && customUrl[i] ? customUrl[i].startsWith('http') || customUrl[i].startsWith('https') ? customUrl[i] : 'http://' + customUrl[i] : '',
+            customUrl: customUrl && customUrl[i] ? /^https?:\/\//.test(customUrl[i]) ? customUrl[i] : 'http://' + customUrl[i] : '',
             operator: operator && operator[i] ? operator[i] : '',
             password: password && password[i] ? password[i] : ''
           }
@@ -489,10 +517,12 @@ function handleConfigImport (alias: string) {
   const selectedConfig = existingConfiguration[alias]
   if (selectedConfig) {
     supportedPicBedList[selectedConfig.picBedName].options.forEach((option: any) => {
-      if (selectedConfig[option]) {
+      if (selectedConfig[option] !== undefined) {
         configResult[selectedConfig.picBedName + '.' + option] = selectedConfig[option]
       }
-      configResult[selectedConfig.picBedName + '.paging'] = selectedConfig.paging
+      if (typeof selectedConfig[option] === 'boolean') {
+        configResult[selectedConfig.picBedName + '.' + option] = selectedConfig[option]
+      }
     })
   }
 }

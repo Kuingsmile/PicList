@@ -211,10 +211,8 @@ class TcyunApi {
       result.isTruncated = res.IsTruncated === 'true'
       result.nextMarker = res.NextMarker || ''
       result.success = true
-      return result
-    } else {
-      return result
     }
+    return result
   }
 
   /**

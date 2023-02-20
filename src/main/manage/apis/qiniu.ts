@@ -21,6 +21,7 @@ class QiniuApi {
   commonType = 'application/x-www-form-urlencoded'
   host = 'uc.qiniuapi.com'
   logger: ManageLogger
+  timeout = 30000
 
   hostList = {
     getBucketList: 'https://uc.qiniuapi.com/buckets',
@@ -100,7 +101,7 @@ class QiniuApi {
         Authorization: authorization,
         'Content-Type': this.commonType
       },
-      timeout: 10000
+      timeout: this.timeout
     })
     if (res && res.status === 200) {
       if (res.data && res.data.length) {
@@ -145,7 +146,7 @@ class QiniuApi {
         'Content-Type': 'application/json',
         Host: this.host
       },
-      timeout: 10000
+      timeout: this.timeout
     })
     if (res && res.status === 200) {
       return {
@@ -175,7 +176,7 @@ class QiniuApi {
         Authorization: authorization,
         'Content-Type': this.commonType
       },
-      timeout: 10000
+      timeout: this.timeout
     })
     if (res && res.status === 200) {
       return res.data && res.data.length ? res.data : []
@@ -206,7 +207,7 @@ class QiniuApi {
         'Content-Type': this.commonType,
         Host: this.host
       },
-      timeout: 10000
+      timeout: this.timeout
     })
     return res && res.status === 200
   }
@@ -233,7 +234,7 @@ class QiniuApi {
         'Content-Type': 'application/json',
         Host: this.host
       },
-      timeout: 10000
+      timeout: this.timeout
     })
     if (res && res.status === 200) {
       const changeAclRes = await this.setBucketAclPolicy({
@@ -364,10 +365,8 @@ class QiniuApi {
       result.isTruncated = !!(res.respBody && res.respBody.marker)
       result.nextMarker = res.respBody && res.respBody.marker ? res.respBody.marker : ''
       result.success = true
-      return result
-    } else {
-      return result
     }
+    return result
   }
 
   /**

@@ -15,7 +15,7 @@
         style="flex-grow: 1;margin-left: 16px"
       >
         <el-select
-          v-if="showCustomUrlSelectList && customUrlList.length > 1"
+          v-if="showCustomUrlSelectList && customUrlList.length > 1 && isAutoCustomUrl"
           v-model="currentCustomUrl"
           placeholder="请选择自定义域名"
           style="width: 200px;"
@@ -28,6 +28,13 @@
             :value="item.value"
           />
         </el-select>
+        <el-input
+          v-else-if="['aliyun', 'qiniu', 'tcyun', 's3plist'].includes(currentPicBedName)"
+          v-model="currentCustomUrl"
+          placeholder="请输入自定义域名"
+          style="width: 200px;"
+          @blur="handelChangeCustomUrl"
+        />
         <el-link
           v-else
           :underline="false"
@@ -140,7 +147,7 @@
                 <Link />
               </el-icon>
               <template #dropdown>
-                <template v-if="['tcyun', 'qiniu', 'aliyun', 'github'].includes(currentPicBedName)">
+                <template v-if="showPresignedUrl">
                   <el-dropdown-item
                     v-for="i in [...linkArray, { key: '预签名链接', value: 'preSignedUrl' }]"
                     :key="i.key"
@@ -790,6 +797,7 @@ import { v4 as uuidv4 } from 'uuid'
 import path from 'path'
 import { IUploadTask, IDownloadTask } from '~/main/manage/datastore/upDownTaskQueue'
 import fs from 'fs-extra'
+import { getConfig, saveConfig } from '../utils/dataSender'
 
 /*
 configMap:{
@@ -866,9 +874,11 @@ const currentCustomUrl = ref('')
 
 const showCustomUrlSelectList = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value))
 
-const showCreateNewFolder = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 'github'].includes(currentPicBedName.value))
+const showCreateNewFolder = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 'github', 's3plist'].includes(currentPicBedName.value))
 
-const showRenameFileIcon = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun'].includes(currentPicBedName.value))
+const showRenameFileIcon = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist'].includes(currentPicBedName.value))
+
+const showPresignedUrl = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github', 's3plist'].includes(currentPicBedName.value))
 
 const uploadingTaskList = computed(() => uploadTaskList.value.filter(item => ['uploading', 'queuing', 'paused'].includes(item.status)))
 
@@ -877,6 +887,8 @@ const uploadedTaskList = computed(() => uploadTaskList.value.filter(item => ['up
 const downloadingTaskList = computed(() => downloadTaskList.value.filter(item => ['downloading', 'queuing', 'paused'].includes(item.status)))
 
 const downloadedTaskList = computed(() => downloadTaskList.value.filter(item => ['downloaded', 'failed', 'canceled'].includes(item.status)))
+
+const isAutoCustomUrl = computed(() => manageStore.config.picBed[configMap.alias].isAutoCustomUrl === undefined ? true : manageStore.config.picBed[configMap.alias].isAutoCustomUrl)
 
 function startRefreshUploadTask () {
   refreshUploadTaskId.value = setInterval(() => {
@@ -1096,7 +1108,8 @@ function uploadFiles () {
       filePath: item.path,
       fileSize: item.size,
       fileName: item.rawName,
-      githubBranch: currentCustomUrl.value
+      githubBranch: currentCustomUrl.value,
+      aclForUpload: manageStore.config.picBed[configMap.alias].aclForUpload
     })
   })
   ipcRenderer.send('uploadBucketFile', configMap.alias, param)
@@ -1193,49 +1206,97 @@ async function handelChangeCustomUrl () {
     showLoadingPage.value = true
     await resetParam(true)
     showLoadingPage.value = false
+  } else if (['aliyun', 'tcyun', 'qiniu', 's3plist'].includes(currentPicBedName.value)) {
+    const currentConfigs = await getConfig<any>('picBed')
+    const currentConfig = currentConfigs[configMap.alias]
+    const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
+    if (currentTransformedConfig[configMap.bucketName]) {
+      currentTransformedConfig[configMap.bucketName].customUrl = currentCustomUrl.value
+    } else {
+      currentTransformedConfig[configMap.bucketName] = {
+        customUrl: currentCustomUrl.value
+      }
+    }
+    currentConfig.transformedConfig = JSON.stringify(currentTransformedConfig)
+    saveConfig(`picBed.${configMap.alias}`, currentConfig)
+    await manageStore.refreshConfig()
   }
 }
 
 // when the current picBed is github, the customUrlList is used to store the github repo branches
 async function initCustomUrlList () {
-  const param = {
-    bucketName: configMap.bucketName,
-    region: configMap.bucketConfig.Location
-  }
-  let defaultUrl = ''
-  if (currentPicBedName.value === 'tcyun') {
-    defaultUrl = `https://${configMap.bucketName}.cos.${configMap.bucketConfig.Location}.myqcloud.com`
-  } else if (currentPicBedName.value === 'aliyun') {
-    defaultUrl = `https://${configMap.bucketName}.${configMap.bucketConfig.Location}.aliyuncs.com`
-  } else if (currentPicBedName.value === 'github') {
-    defaultUrl = 'main'
-  }
-  const res = await ipcRenderer.invoke('getBucketDomain', configMap.alias, param)
-  if (res.length > 0) {
-    customUrlList.value.length = 0
-    res.forEach((item: any) => {
-      if (!item.startsWith('http://') && !item.startsWith('https://') && currentPicBedName.value !== 'github') {
-        item = manageStore.config.settings.isForceCustomUrlHttps ? `https://${item}` : `http://${item}`
-      }
-      customUrlList.value.push({
-        label: item,
-        value: item
+  if ((['aliyun', 'tcyun', 'qiniu'].includes(currentPicBedName.value) &&
+    (manageStore.config.picBed[configMap.alias].isAutoCustomUrl === undefined || manageStore.config.picBed[configMap.alias].isAutoCustomUrl === true)) ||
+    ['github', 'smms', 'upyun', 'imgur'].includes(currentPicBedName.value)) {
+    const param = {
+      bucketName: configMap.bucketName,
+      region: configMap.bucketConfig.Location
+    }
+    let defaultUrl = ''
+    if (currentPicBedName.value === 'tcyun') {
+      defaultUrl = `https://${configMap.bucketName}.cos.${configMap.bucketConfig.Location}.myqcloud.com`
+    } else if (currentPicBedName.value === 'aliyun') {
+      defaultUrl = `https://${configMap.bucketName}.${configMap.bucketConfig.Location}.aliyuncs.com`
+    } else if (currentPicBedName.value === 'github') {
+      defaultUrl = 'main'
+    }
+    const res = await ipcRenderer.invoke('getBucketDomain', configMap.alias, param)
+    if (res.length > 0) {
+      customUrlList.value.length = 0
+      res.forEach((item: any) => {
+        if (!/^https?:\/\//.test(item) && currentPicBedName.value !== 'github') {
+          item = manageStore.config.settings.isForceCustomUrlHttps ? `https://${item}` : `http://${item}`
+        }
+        customUrlList.value.push({
+          label: item,
+          value: item
+        })
       })
-    })
-    defaultUrl !== '' && currentPicBedName.value !== 'github' && customUrlList.value.push({
-      label: defaultUrl,
-      value: defaultUrl
-    })
-    currentCustomUrl.value = customUrlList.value[0].value
-  } else {
-    customUrlList.value.length = 0
-    customUrlList.value = [
-      {
+      defaultUrl !== '' && currentPicBedName.value !== 'github' && customUrlList.value.push({
         label: defaultUrl,
         value: defaultUrl
+      })
+      currentCustomUrl.value = customUrlList.value[0].value
+    } else {
+      customUrlList.value.length = 0
+      customUrlList.value = [
+        {
+          label: defaultUrl,
+          value: defaultUrl
+        }
+      ]
+      currentCustomUrl.value = defaultUrl
+    }
+  } else if (['aliyun', 'tcyun', 'qiniu'].includes(currentPicBedName.value)) {
+    const currentConfigs = await getConfig<any>('picBed')
+    const currentConfig = currentConfigs[configMap.alias]
+    const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
+    if (currentTransformedConfig[configMap.bucketName]) {
+      currentCustomUrl.value = currentTransformedConfig[configMap.bucketName].customUrl ?? ''
+    } else {
+      currentCustomUrl.value = ''
+    }
+  } else if (currentPicBedName.value === 's3plist') {
+    const currentConfigs = await getConfig<any>('picBed')
+    const currentConfig = currentConfigs[configMap.alias]
+    const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
+    if (currentTransformedConfig[configMap.bucketName]) {
+      currentCustomUrl.value = currentTransformedConfig[configMap.bucketName].customUrl ?? ''
+    } else {
+      if (manageStore.config.picBed[configMap.alias].endpoint) {
+        const endpoint = manageStore.config.picBed[configMap.alias].endpoint
+        let url
+        if (/^https?:\/\//.test(endpoint)) {
+          url = new URL(endpoint)
+        } else {
+          url = new URL(manageStore.config.picBed[configMap.alias].sslEnabled ? 'https://' + endpoint : 'http://' + endpoint)
+        }
+        currentCustomUrl.value = `${url.protocol}//${configMap.bucketName}.${url.hostname}`
+      } else {
+        currentCustomUrl.value = `https://${configMap.bucketName}.s3.amazonaws.com`
       }
-    ]
-    currentCustomUrl.value = defaultUrl
+    }
+    handelChangeCustomUrl()
   }
 }
 
@@ -2484,7 +2545,7 @@ const columns: Column<any>[] = [
                   >
                     自定义
                   </ElDropdownItem>
-                  {['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value)
+                  { showPresignedUrl.value
                     ? <ElDropdownItem
                       onClick={async () => {
                         const res = await getPreSignedUrl(item)

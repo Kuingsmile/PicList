@@ -15,15 +15,20 @@ class SmmsApi {
   token: string
   axiosInstance: AxiosInstance
   logger: ManageLogger
+  timeout = 30000
 
   constructor (token: string, logger: ManageLogger) {
     this.token = token
     this.axiosInstance = axios.create({
       baseURL: this.baseUrl,
-      timeout: 30000,
+      timeout: this.timeout,
       headers: {
         Authorization: this.token
-      }
+      },
+      httpsAgent: new (require('https').Agent)({
+        keepAlive: true,
+        timeout: this.timeout
+      })
     })
     this.logger = logger
   }

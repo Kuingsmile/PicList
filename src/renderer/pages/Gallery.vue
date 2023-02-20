@@ -446,7 +446,6 @@ function remove (item: ImgInfo) {
           }, 0)
         }
       }
-      console.log(file)
       sendToMain('removeFiles', [file])
       const obj = {
         title: $T('OPERATION_SUCCEED'),

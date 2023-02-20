@@ -315,7 +315,8 @@ const urlMap : IStringKeyMap = {
   aliyun: 'https://oss.console.aliyun.com',
   qiniu: 'https://portal.qiniu.com',
   tcyun: 'https://console.cloud.tencent.com/cos',
-  upyun: 'https://console.upyun.com'
+  upyun: 'https://console.upyun.com',
+  s3plist: 'https://aws.amazon.com/cn/s3/'
 }
 
 const openPicBedUrl = () => shell.openExternal(urlMap[currentPagePicBedConfig.picBedName])
@@ -438,6 +439,7 @@ const menuTitleMap:IStringKeyMap = {
   qiniu: '存储桶',
   tcyun: '存储桶',
   upyun: '存储桶',
+  s3plist: '存储桶',
   smms: '相册',
   imgur: '相册',
   github: '仓库'

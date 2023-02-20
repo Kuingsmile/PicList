@@ -20,7 +20,7 @@ class AliyunApi {
   ctx: OSS
   accessKeyId: string
   accessKeySecret: string
-  timeOut = 60000
+  timeOut = 30000
   logger: ManageLogger
 
   constructor (accessKeyId: string, accessKeySecret: string, logger: ManageLogger) {
@@ -308,12 +308,10 @@ class AliyunApi {
         item.size !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
       })
       result.isTruncated = res.isTruncated
-      result.nextMarker = res.nextContinuationToken === null ? '' : res.nextContinuationToken
+      result.nextMarker = res.nextContinuationToken || ''
       result.success = true
-      return result
-    } else {
-      return result
     }
+    return result
   }
 
   /**
@@ -375,7 +373,7 @@ class AliyunApi {
       delimiter: '/',
       'max-keys': '1000'
     }, {
-      timeout: 60000
+      timeout: this.timeOut
     }) as any
     if (res && res.res.statusCode === 200) {
       res.prefixes !== null && allFileList.CommonPrefixes.push(...res.prefixes)
@@ -498,8 +496,7 @@ class AliyunApi {
               progress: Math.floor(p * 100),
               status: uploadTaskSpecialStatus.uploading
             })
-          },
-          timeout: 60000
+          }
         }
       ).then((res: any) => {
         const id = `${bucketName}-${region}-${key}-${filePath}`

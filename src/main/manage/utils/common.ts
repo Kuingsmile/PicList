@@ -101,13 +101,10 @@ export const gotDownload = async (
   got(
     preSignedUrl,
     {
-      timeout: {
-        request: 30000
-      },
       isStream: true,
       throwHttpErrors: false,
       searchParams: param,
-      agent
+      agent: agent || {}
     }
   )
     .on('downloadProgress', (progress: any) => {
@@ -118,7 +115,7 @@ export const gotDownload = async (
       })
     })
     .pipe(fileStream)
-    .on('finish', () => {
+    .on('close', () => {
       instance.updateDownloadTask({
         id,
         progress: 100,
@@ -158,7 +155,7 @@ export const gotUpload = async (
       method,
       body,
       timeout: {
-        request: timeout
+        lookup: timeout
       },
       throwHttpErrors,
       agent
@@ -227,8 +224,7 @@ export const getAgent = (proxy:any, https: boolean = true) => {
         https: new HttpsProxyAgent({
           keepAlive: true,
           keepAliveMsecs: 1000,
-          maxSockets: 256,
-          maxFreeSockets: 256,
+          rejectUnauthorized: false,
           scheduling: 'lifo' as 'lifo' | 'fifo' | undefined,
           proxy: formatProxy.replace('127.0.0.1', 'localhost')
         })
@@ -240,8 +236,6 @@ export const getAgent = (proxy:any, https: boolean = true) => {
         http: new HttpProxyAgent({
           keepAlive: true,
           keepAliveMsecs: 1000,
-          maxSockets: 256,
-          maxFreeSockets: 256,
           scheduling: 'lifo' as 'lifo' | 'fifo' | undefined,
           proxy: formatProxy.replace('127.0.0.1', 'localhost')
         })

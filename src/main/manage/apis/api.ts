@@ -5,6 +5,7 @@ import UpyunApi from './upyun'
 import SmmsApi from './smms'
 import GithubApi from './github'
 import ImgurApi from './imgur'
+import S3plistApi from './s3plist'
 
 export default {
   TcyunApi,
@@ -13,5 +14,6 @@ export default {
   UpyunApi,
   SmmsApi,
   GithubApi,
-  ImgurApi
+  ImgurApi,
+  S3plistApi
 }

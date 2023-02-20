@@ -89,13 +89,10 @@ export function formatFileName (fileName: string) {
   return name.length > 20 ? `${name.slice(0, 20)}...${ext}` : fileName
 }
 
-export function getExtension (fileName: string) {
-  return path.extname(fileName).slice(1)
-}
+export const getExtension = (fileName: string) => path.extname(fileName).slice(1)
 
-export function isImage (fileName: string) {
-  return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ico'].includes(getExtension(fileName))
-}
+export const isImage = (fileName: string) =>
+  ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ico'].includes(getExtension(fileName))
 
 export function formObjToTableData (obj: any) {
   const exclude = [undefined, null, '', 'transformedConfig']
@@ -126,21 +123,23 @@ export interface IHTTPProxy {
 
 export const formatHttpProxy = (proxy: string | undefined, type: 'object' | 'string'): IHTTPProxy | undefined | string => {
   if (proxy === undefined || proxy === '') return undefined
-  if (proxy.startsWith('http://') || proxy.startsWith('https://')) {
+  if (/^https?:\/\//.test(proxy)) {
     const { protocol, hostname, port } = new URL(proxy)
-    if (type === 'string') return `${protocol}//${hostname}:${port}`
-    return {
-      host: hostname,
-      port: Number(port),
-      protocol: protocol.slice(0, -1)
-    }
+    return type === 'string'
+      ? `${protocol}//${hostname}:${port}`
+      : {
+        host: hostname,
+        port: Number(port),
+        protocol: protocol.slice(0, -1)
+      }
   } else {
     const [host, port] = proxy.split(':')
-    if (type === 'string') return `http://${host}:${port}`
-    return {
-      host,
-      port: port ? Number(port) : 80,
-      protocol: 'http'
-    }
+    return type === 'string'
+      ? `http://${host}:${port}`
+      : {
+        host,
+        port: port ? Number(port) : 80,
+        protocol: 'http'
+      }
   }
 }

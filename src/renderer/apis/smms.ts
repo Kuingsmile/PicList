@@ -15,7 +15,7 @@ export default class SmmsApi {
             hash,
             format: 'json'
           },
-          timeout: 10000
+          timeout: 30000
         })
       return res.status === 200
     }

@@ -1,4 +1,4 @@
-export const isUrl = (url: string): boolean => (url.startsWith('http://') || url.startsWith('https://'))
+export const isUrl = (url: string): boolean => (/^https?:\/\//.test(url))
 export const isUrlEncode = (url: string): boolean => {
   url = url || ''
   try {

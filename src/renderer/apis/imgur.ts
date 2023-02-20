@@ -11,7 +11,7 @@ export default class ImgurApi {
     try {
       const res = await axios.delete(fullUrl, {
         headers,
-        timeout: 10000
+        timeout: 30000
       })
       return res.status === 200
     } catch (error) {

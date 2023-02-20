@@ -173,10 +173,8 @@ class UpyunApi {
       result.isTruncated = res.next !== this.stopMarker
       result.nextMarker = res.next
       result.success = true
-      return result
-    } else {
-      return result
     }
+    return result
   }
 
   /**

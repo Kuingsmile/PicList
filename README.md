@@ -35,6 +35,7 @@
 | 阿里云OSS | :heavy_check_mark: | :heavy_check_mark: |
 | 又拍云 | :heavy_check_mark: | :heavy_check_mark: |
 | 七牛云 | :heavy_check_mark: | :heavy_check_mark: |
+| S3 API兼容平台 | :heavy_check_mark: | :heavy_check_mark: |
 
 | 插件 | 相册云删除 |
 | :--: | :--: |
@@ -48,13 +49,7 @@
 
 ### CDN加速下载地址
 
-- [PicList-1.0.1-arm64.dmg](https://release.piclist.cn/1.0.1/PicList-1.0.1-arm64.dmg)
-- [PicList-1.0.1-x64.dmg](https://release.piclist.cn/1.0.1/PicList-1.0.1-x64.dmg)
-- [PicList-1.0.1.AppImage](https://release.piclist.cn/1.0.1/PicList-1.0.1.AppImage)
-- [PicList-Setup-1.0.1-ia32.exe](https://release.piclist.cn/1.0.1/PicList-Setup-1.0.1-ia32.exe)
-- [PicList-Setup-1.0.1-x64.exe](https://release.piclist.cn/1.0.1/PicList-Setup-1.0.1-x64.exe)
-- [PicList-Setup-1.0.1.exe](https://release.piclist.cn/1.0.1/PicList-Setup-1.0.1.exe)
-- [piclist_1.0.1_amd64.snap](https://release.piclist.cn/1.0.1/piclist_1.0.1_amd64.snap)
+[https://github.com/Kuingsmile/PicList/releases/latest](https://github.com/Kuingsmile/PicList/releases/latest)
 
 ## 应用截图
 

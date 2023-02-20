@@ -19,6 +19,9 @@
     "link": "node ./scripts/cos-link.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.272.0",
+    "@aws-sdk/lib-storage": "^3.272.0",
+    "@aws-sdk/s3-request-presigner": "^3.272.0",
     "@element-plus/icons-vue": "^2.0.10",
     "@imengyu/vue3-context-menu": "^1.2.2",
     "@octokit/rest": "^19.0.7",
