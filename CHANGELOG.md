@@ -1,3 +1,22 @@
+# :tada: 1.1.0 (2023-02-20)
+
+
+### :sparkles: Features
+
+* s3-compatible storage is supported now ([176bdac](https://github.com/Kuingsmile/PicList/commit/176bdac))
+
+
+### :bug: Bug Fixes
+
+* fix S3 deletion endpoint parse bug ([7f7f400](https://github.com/Kuingsmile/PicList/commit/7f7f400))
+
+
+### :pencil: Documentation
+
+* update README.md ([0263351](https://github.com/Kuingsmile/PicList/commit/0263351))
+
+
+
 ## :tada: 1.0.2 (2023-02-17)
 
 
