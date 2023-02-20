@@ -1,6 +1,8 @@
 // upload dist bundled-app to r2
 require('dotenv').config()
 const S3 = require('aws-sdk/clients/s3')
+const S3Client = require('@aws-sdk/client-s3')
+const Upload = require('@aws-sdk/lib-storage')
 const pkg = require('../package.json')
 const configList = require('./config')
 const fs = require('fs')
@@ -12,7 +14,6 @@ const FILE_PATH = `${VERSION}/`
 const ACCOUNT_ID = process.env.R2_ACCOUNT_ID
 const SECRET_ID = process.env.R2_SECRET_ID
 const SECRET_KEY = process.env.R2_SECRET_KEY
-console.log(ACCOUNT_ID, SECRET_ID, SECRET_KEY)
 
 const s3 = new S3({
     endpoint: `https://${ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -31,13 +32,35 @@ const uploadFile = async () => {
                 const distPath = path.join(__dirname, '../dist_electron')
                 let versionFileName = config['version-file']
                 console.log('[PicList Dist] Uploading...', fileName, `${index + 1}/${configList[platform].length}`)
-                const fileBuffer = fs.readFileSync(path.join(distPath, fileName))
-                await s3.upload({
-                    Bucket: BUCKET,
-                    Key: `${FILE_PATH}${fileName}`,
-                    Body: fileBuffer
-                }).promise()
-                // upload version file
+                const fileStream = fs.createReadStream(path.join(distPath, fileName))
+                const options = {
+                    credentials: {
+                        accessKeyId: SECRET_ID,
+                        secretAccessKey: SECRET_KEY
+                    },
+                    endpoint: `https://${ACCOUNT_ID}.r2.cloudflarestorage.com`,
+                    sslEnabled: true,
+                    region: 'us-east-1'
+                }
+                const client = new S3Client.S3Client(options)
+                const parallelUploads3 = new Upload.Upload({
+                    client,
+                    params: {
+                        Bucket: BUCKET,
+                        Key: `${FILE_PATH}${fileName}`,
+                        Body: fileStream,
+                        ContentType: 'application/octet-stream',
+                        Metadata: {
+                            description: 'uploaded by PicList'
+                        }
+                    }
+                })
+                parallelUploads3.on('httpUploadProgress', (progress) => {
+                    const progressBar = Math.round((progress.loaded / progress.total) * 100)
+                    process.stdout.write(`\r${progressBar}% ${fileName}`)
+                })
+                await parallelUploads3.done()
+                console.log(`${fileName} uploaded!`)
                 if (!versionFileHasUploaded) {
                     console.log('[PicList Version File] Uploading...', versionFileName)
                     let versionFilePath
