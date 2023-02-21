@@ -1,3 +1,12 @@
+## :tada: 1.1.1 (2023-02-21)
+
+
+### :bug: Bug Fixes
+
+* fix auto link copy funtion failure bug when using custom format ([9c96870](https://github.com/Kuingsmile/PicList/commit/9c96870))
+
+
+
 # :tada: 1.1.0 (2023-02-20)
 
 
