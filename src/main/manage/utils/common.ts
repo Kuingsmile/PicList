@@ -14,8 +14,10 @@ import UpDownTaskQueue,
   downloadTaskSpecialStatus
 } from '../datastore/upDownTaskQueue'
 import { ManageLogger } from '../utils/logger'
-import { formatHttpProxy } from '@/manage/utils/common'
+import { formatHttpProxy, IHTTPProxy } from '@/manage/utils/common'
 import { HttpsProxyAgent, HttpProxyAgent } from 'hpagent'
+import http from 'http'
+import https from 'https'
 
 export const getFSFile = async (
   filePath: string,
@@ -244,6 +246,47 @@ export const getAgent = (proxy:any, https: boolean = true) => {
   }
 }
 
+export const getInnerAgent = (proxy: any, sslEnabled: boolean = true) => {
+  const formatProxy = formatHttpProxy(proxy, 'object') as IHTTPProxy
+  if (sslEnabled) {
+    return formatProxy
+      ? {
+        agent: new https.Agent({
+          keepAlive: true,
+          keepAliveMsecs: 1000,
+          rejectUnauthorized: false,
+          scheduling: 'lifo' as 'lifo' | 'fifo' | undefined,
+          host: formatProxy.host,
+          port: formatProxy.port
+        })
+      }
+      : {
+        agent: new https.Agent({
+          rejectUnauthorized: false,
+          keepAlive: true
+        })
+      }
+  } else {
+    return formatProxy
+      ? {
+        agent: new http.Agent({
+          keepAlive: true,
+          keepAliveMsecs: 1000,
+          scheduling: 'lifo' as 'lifo' | 'fifo' | undefined,
+          host: formatProxy.host,
+          port: formatProxy.port
+        })
+      }
+      : {
+        agent: new http.Agent({
+          keepAlive: true,
+          keepAliveMsecs: 1000,
+          scheduling: 'lifo' as 'lifo' | 'fifo' | undefined
+        })
+      }
+  }
+}
+
 export function getOptions (
   method?: string,
   headers?: IStringKeyMap,
@@ -270,3 +313,10 @@ export function getOptions (
   })
   return options
 }
+
+export const formatEndpoint = (endpoint: string, sslEnabled: boolean): string =>
+  !/^https?:\/\//.test(endpoint)
+    ? `${sslEnabled ? 'https' : 'http'}://${endpoint}`
+    : sslEnabled
+      ? endpoint.replace('http://', 'https://')
+      : endpoint.replace('https://', 'http://')

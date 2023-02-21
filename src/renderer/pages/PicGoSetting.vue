@@ -906,7 +906,7 @@ function handleLanguageChange (val: string) {
 }
 
 function goConfigPage () {
-  sendToMain(OPEN_URL, 'https://picgo.github.io/PicGo-Doc/zh/guide/config.html#picgo设置')
+  sendToMain(OPEN_URL, 'https://piclist.cn/configure.html')
 }
 
 function goShortCutPage () {

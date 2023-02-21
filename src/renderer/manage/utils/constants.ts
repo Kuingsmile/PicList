@@ -661,5 +661,100 @@ export const supportedPicBedList: IStringKeyMap = {
     options: ['alias', 'accessKeyId', 'secretAccessKey', 'endpoint', 'sslEnabled', 's3ForcePathStyle', 'proxy', 'aclForUpload', 'bucketName', 'baseDir', 'paging', 'itemsPerPage'],
     refLink: 'https://github.com/wayjam/picgo-plugin-s3',
     referenceText: '配置教程请参考：'
+  },
+  webdavplist: {
+    name: 'WebDAV',
+    icon: 'webdavplist',
+    configOptions: {
+      alias: {
+        required: true,
+        description: '配置别名-必需',
+        placeholder: '该配置的唯一标识',
+        type: 'string',
+        rule: aliasRule,
+        default: 'webdavplist-A',
+        tooltip: aliasTooltip
+      },
+      endpoint: {
+        required: true,
+        description: '地址-必需',
+        placeholder: '例如：https://example.com/dav',
+        type: 'string',
+        rule: defaultBaseRule('rootDomain'),
+        tooltip: '请填写完整的WebDAV地址，例如：https://example.com/dav'
+      },
+      username: {
+        required: true,
+        description: '用户名-必需',
+        placeholder: '请输入用户名',
+        type: 'string',
+        rule: defaultBaseRule('username')
+      },
+      bucketName: {
+        required: true,
+        description: '特殊配置',
+        placeholder: '例如：bucket1',
+        type: 'string',
+        default: 'webdav',
+        disabled: true,
+        tooltip: '此处不可修改，仅为软件兼容性考虑'
+      },
+      password: {
+        required: true,
+        description: '密码-必需',
+        placeholder: '请输入密码',
+        type: 'string',
+        rule: defaultBaseRule('password')
+      },
+      baseDir: {
+        required: false,
+        description: '起始目录-可选',
+        placeholder: '例如：/test1',
+        type: 'string',
+        default: '/',
+        tooltip: baseDirTooltip
+      },
+      customUrl: {
+        required: false,
+        description: '自定义域名-可选',
+        placeholder: '例如：https://example.com',
+        type: 'string',
+        tooltip: '如果您的WebDAV服务器支持自定义域名，请填写完整的自定义域名，例如：https://example.com',
+        rule: [
+          {
+            validator: (rule: any, value: any, callback: any) => {
+              if (value) {
+                if (!/^https?:\/\/.+/.test(value)) {
+                  callback(new Error('自定义域名请以http://或https://开头'))
+                } else {
+                  callback()
+                }
+              } else {
+                callback()
+              }
+            },
+            trigger: 'change'
+          }
+        ]
+      },
+      proxy: {
+        required: false,
+        description: '代理-可选',
+        placeholder: '例如：http://127.0.0.1:1080',
+        type: 'string',
+        tooltip: '如果需要特殊网络环境才能访问，请使用代理'
+      },
+      sslEnabled: {
+        required: true,
+        description: '使用HTTPS连接',
+        default: true,
+        type: 'boolean',
+        tooltip: '根据WebDAV服务器的配置，如果您的服务器不支持HTTPS，请关闭该选项'
+      }
+    },
+    explain: 'WebDAV配置',
+    options: ['alias', 'endpoint', 'username', 'password', 'bucketName', 'baseDir', 'customUrl', 'proxy', 'sslEnabled'],
+    refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=webdav',
+    referenceText: '配置教程请参考：'
   }
 }

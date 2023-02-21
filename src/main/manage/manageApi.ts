@@ -69,6 +69,8 @@ export class ManageApi extends EventEmitter implements ManageApiType {
         return new API.ImgurApi(this.currentPicBedConfig.imgurUserName, this.currentPicBedConfig.accessToken, this.currentPicBedConfig.proxy, this.logger)
       case 's3plist':
         return new API.S3plistApi(this.currentPicBedConfig.accessKeyId, this.currentPicBedConfig.secretAccessKey, this.currentPicBedConfig.endpoint, this.currentPicBedConfig.sslEnabled, this.currentPicBedConfig.s3ForcePathStyle, this.currentPicBedConfig.proxy, this.logger)
+      case 'webdavplist':
+        return new API.WebdavplistApi(this.currentPicBedConfig.endpoint, this.currentPicBedConfig.username, this.currentPicBedConfig.password, this.currentPicBedConfig.sslEnabled, this.currentPicBedConfig.proxy, this.logger)
       default:
         return {} as any
     }
@@ -170,6 +172,12 @@ export class ManageApi extends EventEmitter implements ManageApiType {
         return [{
           Name: 'smms',
           Location: 'smms',
+          CreationDate: new Date().toISOString()
+        }]
+      case 'webdavplist':
+        return [{
+          Name: 'webdav',
+          Location: 'webdav',
           CreationDate: new Date().toISOString()
         }]
       default:
@@ -309,6 +317,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'github':
       case 'imgur':
       case 's3plist':
+      case 'webdavplist':
         try {
           client = this.createClient() as any
           return await client.getBucketListBackstage(param!)

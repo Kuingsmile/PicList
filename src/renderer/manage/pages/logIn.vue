@@ -153,6 +153,7 @@
               v-if="supportedPicBedList[item.icon].configOptions[option].type === 'string'"
               v-model.trim="configResult[item.icon + '.' + option]"
               :placeholder="supportedPicBedList[item.icon].configOptions[option].placeholder"
+              :disabled="!!supportedPicBedList[item.icon].configOptions[option].disabled"
             />
             <el-switch
               v-else-if="supportedPicBedList[item.icon].configOptions[option].type === 'boolean'"

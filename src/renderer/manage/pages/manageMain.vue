@@ -316,7 +316,8 @@ const urlMap : IStringKeyMap = {
   qiniu: 'https://portal.qiniu.com',
   tcyun: 'https://console.cloud.tencent.com/cos',
   upyun: 'https://console.upyun.com',
-  s3plist: 'https://aws.amazon.com/cn/s3/'
+  s3plist: 'https://aws.amazon.com/cn/s3/',
+  webdavplist: 'https://baike.baidu.com/item/WebDAV/4610909'
 }
 
 const openPicBedUrl = () => shell.openExternal(urlMap[currentPagePicBedConfig.picBedName])
@@ -442,7 +443,8 @@ const menuTitleMap:IStringKeyMap = {
   s3plist: '存储桶',
   smms: '相册',
   imgur: '相册',
-  github: '仓库'
+  github: '仓库',
+  webdavplist: ''
 }
 
 const showNewIconList = ['aliyun', 'qiniu', 'tcyun']

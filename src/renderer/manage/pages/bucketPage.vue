@@ -1,4 +1,4 @@
-/*
+ea/*
  *UI布局和部分样式代码参考了https://github.com/willnewii/qiniuClient
  *感谢作者@willnewii
  */
@@ -29,7 +29,7 @@
           />
         </el-select>
         <el-input
-          v-else-if="['aliyun', 'qiniu', 'tcyun', 's3plist'].includes(currentPicBedName)"
+          v-else-if="showCustomUrlInput"
           v-model="currentCustomUrl"
           placeholder="请输入自定义域名"
           style="width: 200px;"
@@ -764,18 +764,97 @@ https://www.baidu.com/img/bd_logo1.png"
         </el-tab-pane>
       </el-tabs>
     </el-drawer>
+    <el-dialog
+      v-model="isShowMarkDownDialog"
+      title="预览MD"
+      center
+      align-center
+      draggable
+      fullscreen
+      close-on-press-escape
+      show-close
+      destroy-on-close
+    >
+      <div
+        style="-webkit-user-select: text"
+        v-html="markDownContent"
+      />
+      <el-button
+        type="danger"
+        :icon="Close"
+        size="large"
+        style="position: fixed;bottom: 10px;right: 15px"
+        circle
+        @click="() => {isShowMarkDownDialog = false}"
+      />
+    </el-dialog>
+    <el-dialog
+      v-model="isShowTextFileDialog"
+      title="预览"
+      center
+      align-center
+      draggable
+      fullscreen
+      close-on-press-escape
+      show-close
+      destroy-on-close
+    >
+      <highlightjs
+        style="-webkit-user-select: text;"
+        language="js"
+        :code="textfileContent"
+      />
+      <el-button
+        type="danger"
+        :icon="Close"
+        size="large"
+        style="position: fixed;bottom: 10px;right: 15px"
+        circle
+        @click="() => {isShowTextFileDialog = false}"
+      />
+    </el-dialog>
+    <el-dialog
+      v-model="isShowVideoFileDialog"
+      title="播放"
+      center
+      align-center
+      draggable
+      fullscreen
+      close-on-press-escape
+      show-close
+      destroy-on-close
+    >
+      <video-player
+        :src="videoFileUrl"
+        controls
+        :loop="true"
+        :volume="0.6"
+        :autoplay="true"
+        :width="1100"
+        :height="700"
+      />
+      <el-button
+        type="danger"
+        :icon="Close"
+        size="large"
+        style="position: fixed;bottom: 10px;right: 15px"
+        circle
+        @click="() => {isShowVideoFileDialog = false}"
+      />
+    </el-dialog>
   </div>
 </template>
 
 <script lang="tsx" setup>
 import { ref, reactive, watch, onBeforeMount, computed, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
-import { Folder, FolderAdd, Upload, CircleClose, Loading, CopyDocument, Edit, DocumentAdd, Link, Refresh, ArrowRight, HomeFilled, Document, Coin, Download, DeleteFilled, Sort, FolderOpened } from '@element-plus/icons-vue'
+import { Close, Folder, FolderAdd, Upload, CircleClose, Loading, CopyDocument, Edit, DocumentAdd, Link, Refresh, ArrowRight, HomeFilled, Document, Coin, Download, DeleteFilled, Sort, FolderOpened } from '@element-plus/icons-vue'
 import { useManageStore } from '../store/manageStore'
 import { renameFile, formatLink, formatFileName, getFileIconPath, formatFileSize, getExtension, isValidUrl } from '../utils/common'
 import { ipcRenderer, clipboard, IpcRendererEvent } from 'electron'
 import { fileCacheDbInstance } from '../store/bucketFileDb'
 import { trimPath } from '~/main/manage/utils/common'
+import axios from 'axios'
 import {
   ElMessage, ElMessageBox, ElNotification,
   ElButton,
@@ -798,7 +877,9 @@ import path from 'path'
 import { IUploadTask, IDownloadTask } from '~/main/manage/datastore/upDownTaskQueue'
 import fs from 'fs-extra'
 import { getConfig, saveConfig } from '../utils/dataSender'
-
+import { marked } from 'marked'
+import { textFileExt } from '../utils/textfile'
+import { videoExt } from '../utils/videofile'
 /*
 configMap:{
     prefix: string, -> baseDir
@@ -871,12 +952,20 @@ const isLoadingUploadPanelFiles = ref(false)
 const tableData = reactive([] as any[])
 const customUrlList = ref([] as any[])
 const currentCustomUrl = ref('')
+const isShowMarkDownDialog = ref(false)
+const markDownContent = ref('')
+const isShowTextFileDialog = ref(false)
+const textfileContent = ref('')
+const isShowVideoFileDialog = ref(false)
+const videoFileUrl = ref('')
 
 const showCustomUrlSelectList = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value))
 
-const showCreateNewFolder = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 'github', 's3plist'].includes(currentPicBedName.value))
+const showCustomUrlInput = computed(() => ['aliyun', 'qiniu', 'tcyun', 's3plist', 'webdavplist'].includes(currentPicBedName.value))
 
-const showRenameFileIcon = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist'].includes(currentPicBedName.value))
+const showCreateNewFolder = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 'github', 's3plist', 'webdavplist'].includes(currentPicBedName.value))
+
+const showRenameFileIcon = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist'].includes(currentPicBedName.value))
 
 const showPresignedUrl = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github', 's3plist'].includes(currentPicBedName.value))
 
@@ -1177,6 +1266,40 @@ async function handleClickFile (item: any) {
     showLoadingPage.value = true
     await resetParam(false)
     showLoadingPage.value = false
+  } else if (item.fileName.endsWith('.md')) {
+    try {
+      ElMessage({
+        message: '开始获取文件',
+        duration: 300,
+        type: 'success'
+      })
+      const fileUrl = item.url
+      const res = await axios.get(fileUrl)
+      const content = res.data
+      markDownContent.value = marked(content)
+      isShowMarkDownDialog.value = true
+    } catch (error) {
+      ElMessage.error('获取文件内容失败')
+    }
+  } else if (textFileExt.includes(path.extname(item.fileName).toLowerCase()) ||
+    textFileExt.includes(item.fileName.toLowerCase())
+  ) {
+    try {
+      ElMessage({
+        message: '开始获取文件',
+        duration: 300,
+        type: 'success'
+      })
+      const fileUrl = item.url
+      const res = await axios.get(fileUrl)
+      textfileContent.value = res.data
+      isShowTextFileDialog.value = true
+    } catch (error) {
+      ElMessage.error('获取文件内容失败')
+    }
+  } else if (videoExt.includes(path.extname(item.fileName).toLowerCase())) {
+    videoFileUrl.value = item.url
+    isShowVideoFileDialog.value = true
   }
 }
 
@@ -1206,7 +1329,7 @@ async function handelChangeCustomUrl () {
     showLoadingPage.value = true
     await resetParam(true)
     showLoadingPage.value = false
-  } else if (['aliyun', 'tcyun', 'qiniu', 's3plist'].includes(currentPicBedName.value)) {
+  } else if (['aliyun', 'tcyun', 'qiniu', 's3plist', 'webdavplist'].includes(currentPicBedName.value)) {
     const currentConfigs = await getConfig<any>('picBed')
     const currentConfig = currentConfigs[configMap.alias]
     const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
@@ -1295,6 +1418,20 @@ async function initCustomUrlList () {
       } else {
         currentCustomUrl.value = `https://${configMap.bucketName}.s3.amazonaws.com`
       }
+    }
+    handelChangeCustomUrl()
+  } else if (currentPicBedName.value === 'webdavplist') {
+    const currentConfigs = await getConfig<any>('picBed')
+    const currentConfig = currentConfigs[configMap.alias]
+    const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
+    if (currentTransformedConfig[configMap.bucketName] && currentTransformedConfig[configMap.bucketName]?.customUrl) {
+      currentCustomUrl.value = currentTransformedConfig[configMap.bucketName].customUrl
+    } else {
+      let endpoint = manageStore.config.picBed[configMap.alias].endpoint
+      if (!/^https?:\/\//.test(endpoint)) {
+        endpoint = 'http://' + endpoint
+      }
+      currentCustomUrl.value = endpoint
     }
     handelChangeCustomUrl()
   }

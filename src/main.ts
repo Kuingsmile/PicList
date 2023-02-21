@@ -18,6 +18,11 @@ import vue3PhotoPreview from 'vue3-photo-preview'
 import 'vue3-photo-preview/dist/index.css'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import 'highlight.js/styles/atom-one-dark.css'
+import hljsVuePlugin from '@highlightjs/vue-plugin'
+import hljsCommon from 'highlight.js/lib/common'
+import VueVideoPlayer from '@videojs-player/vue'
+import 'video.js/dist/video-js.css'
 
 webFrame.setVisualZoomLevelLimits(1, 1)
 
@@ -60,6 +65,9 @@ app.use(store)
 app.use(vue3PhotoPreview)
 app.use(pinia)
 app.use(ContextMenu)
+console.log(hljsCommon.highlightAuto('<h1>Highlight.js has been registered successfully!</h1>').value)
+app.use(hljsVuePlugin)
+app.use(VueVideoPlayer)
 app.mount('#app')
 
 initTalkingData()

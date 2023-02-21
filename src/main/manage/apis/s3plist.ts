@@ -18,7 +18,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import https from 'https'
 import http from 'http'
 import { ManageLogger } from '../utils/logger'
-import { formatError, getAgent, getFileMimeType, gotDownload } from '../utils/common'
+import { formatEndpoint, formatError, getAgent, getFileMimeType, gotDownload } from '../utils/common'
 import { isImage } from '@/manage/utils/common'
 import { HttpsProxyAgent, HttpProxyAgent } from 'hpagent'
 import windowManager from 'apis/app/window/windowManager'
@@ -64,7 +64,7 @@ class S3plistApi {
         accessKeyId,
         secretAccessKey
       },
-      endpoint: endpoint ? this.formatEndpoint(endpoint, sslEnabled) : undefined,
+      endpoint: endpoint ? formatEndpoint(endpoint, sslEnabled) : undefined,
       sslEnabled,
       s3ForcePathStyle,
       httpOptions: {
@@ -74,9 +74,6 @@ class S3plistApi {
     this.logger = logger
     this.agent = this.setAgent(proxy, sslEnabled)
   }
-
-  formatEndpoint = (endpoint: string, sslEnabled: boolean): string =>
-    !/^https?:\/\//.test(endpoint) ? `${sslEnabled ? 'https' : 'http'}://${endpoint}` : endpoint
 
   setAgent (proxy: string | undefined, sslEnabled: boolean) : HttpProxyAgent | HttpsProxyAgent | undefined {
     if (sslEnabled) {
