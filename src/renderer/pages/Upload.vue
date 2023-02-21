@@ -76,10 +76,9 @@
                 label="UBB"
                 title="[img]url[/img]"
               />
-              <!--TODO 修改title为用户具体设置的格式-->
               <el-radio-button
-                :label="$T('CUSTOM')"
-                :title="$T('CUSTOM')"
+                label="Custom"
+                :title="customLink"
               />
             </el-radio-group>
           </div>
@@ -140,6 +139,7 @@ const showError = ref(false)
 const pasteStyle = ref('')
 const picBed = ref<IPicBedType[]>([])
 const picBedName = ref('')
+const customLink = ref('')
 onBeforeMount(() => {
   ipcRenderer.on('uploadProgress', (_event: IpcRendererEvent, _progress: number) => {
     if (_progress !== -1) {
@@ -242,6 +242,7 @@ function ipcSendFiles (files: FileList) {
 
 async function getPasteStyle () {
   pasteStyle.value = await getConfig('settings.pasteStyle') || 'markdown'
+  customLink.value = await getConfig('settings.customLink') || '$url'
 }
 
 function handlePasteStyleChange (val: string | number | boolean) {

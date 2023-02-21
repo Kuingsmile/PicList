@@ -164,7 +164,7 @@ class Uploader {
           } as IAnalyticsData)
         }
         output.forEach((item: ImgInfo) => {
-          item.config = db.get(`picBed.${item.type}`)
+          item.config = JSON.parse(JSON.stringify(db.get(`picBed.${item.type}`)))
         })
         return output.filter(item => item.imgUrl)
       } else {
