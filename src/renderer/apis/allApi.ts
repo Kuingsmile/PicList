@@ -6,6 +6,7 @@ import ImgurApi from './imgur'
 import GithubApi from './github'
 import UpyunApi from './upyun'
 import AwsS3Api from './awss3'
+import WebdavApi from './webdav'
 
 const apiMap: IStringKeyMap = {
   smms: SmmsApi,
@@ -15,7 +16,8 @@ const apiMap: IStringKeyMap = {
   imgur: ImgurApi,
   github: GithubApi,
   upyun: UpyunApi,
-  'aws-s3': AwsS3Api
+  'aws-s3': AwsS3Api,
+  webdavplist: WebdavApi
 }
 
 export default class ALLApi {

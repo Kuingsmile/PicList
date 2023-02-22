@@ -425,7 +425,7 @@ function remove (item: ImgInfo) {
     }).then(async () => {
       const file = await $$db.getById(item.id!)
       await $$db.removeById(item.id!)
-      const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun', 'aws-s3']
+      const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun', 'aws-s3', 'webdavplist']
       if (await getConfig('settings.deleteCloudFile')) {
         if (item.type !== undefined && picBedsCanbeDeleted.includes(item.type)) {
           setTimeout(() => {
