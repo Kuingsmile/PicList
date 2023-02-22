@@ -1,3 +1,13 @@
+# :tada: 1.2.0 (2023-02-22)
+
+
+### :sparkles: Features
+
+* add concurrency limit for download ([8440b75](https://github.com/Kuingsmile/PicList/commit/8440b75))
+* add video,text file and markdown file preview ([b3ce9b9](https://github.com/Kuingsmile/PicList/commit/b3ce9b9))
+
+
+
 ## :tada: 1.1.1 (2023-02-21)
 
 
