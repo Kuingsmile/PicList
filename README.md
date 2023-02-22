@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="http://imgx.horosama.com/admin_uploads/2022/10/2022_10_05_633d79e401694.png" alt="">
+  <img src="https://imgx.horosama.com/admin_uploads/2022/10/2022_10_05_633d79e401694.png" alt="">
   <h1>PicList</h1>
   <a href="https://github.com/Kuingsmile/PicList/actions">
     <img src="https://img.shields.io/badge/code%20style-standard-green.svg?style=flat-square" alt="">
@@ -13,7 +13,7 @@
   </a>
 </div>
 
-&emsp;&emsp;fork自PicGo的二次开发项目，保留了PicGo的所有功能的同时，为相册添加了同步云端删除功能，同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件和图片预览等。
+&emsp;&emsp;fork自PicGo的二次开发项目，保留了PicGo的所有功能的同时，为相册添加了同步云端删除功能，同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件链接和图片/markdown/文本/视频预览等。
 
 ## 特色功能
 
@@ -37,6 +37,7 @@
 | 又拍云 | :heavy_check_mark: | :heavy_check_mark: |
 | 七牛云 | :heavy_check_mark: | :heavy_check_mark: |
 | S3 API兼容平台 | :heavy_check_mark: | :heavy_check_mark: |
+| WebDAV | :heavy_check_mark: | :heavy_check_mark: |
 
 | 插件 | 相册云删除 |
 | :--: | :--: |
@@ -44,25 +45,22 @@
 
 ## 下载安装
 
-### Github release
-
-[https://github.com/Kuingsmile/PicList/releases](https://github.com/Kuingsmile/PicList/releases)
-
-### CDN加速下载地址
-
 [https://github.com/Kuingsmile/PicList/releases/latest](https://github.com/Kuingsmile/PicList/releases/latest)
 
 ## 应用截图
 
-![image](https://user-images.githubusercontent.com/96409857/219062180-ba6de40b-94bb-45be-a510-c4d231920032.png)
-![image](https://user-images.githubusercontent.com/96409857/219063188-d7e0b0e7-6e3c-4deb-8bef-0b2b57d2d7ee.png)
-![image](https://user-images.githubusercontent.com/96409857/219063398-9a8607df-a1e2-4121-a652-ebd63b38007b.png)
+![image](https://user-images.githubusercontent.com/96409857/220510112-e524f270-ab56-4e8b-bfb2-eb0a77e559ef.png)
+![image](https://user-images.githubusercontent.com/96409857/220510176-8a3f9f19-9182-4b56-b943-fc408ef63f22.png)
+![image](https://user-images.githubusercontent.com/96409857/220510302-f193fc77-db1b-4817-81ff-3ab1c3a1f4d3.png)
+![image](https://user-images.githubusercontent.com/96409857/220510371-a2fad42e-8063-4014-a691-ca5b66b8cc60.png)
+![image](https://user-images.githubusercontent.com/96409857/220510427-b85ffc0a-55cf-43f1-b1b0-ba7776a75de2.png)
 
 ## 开发说明
 
 1. 你需要有 Node、Git 环境，了解 npm 的相关知识。
 2. git clone [https://github.com/Kuingsmile/PicList.git](https://github.com/Kuingsmile/PicList.git) 并进入项目。
-yarn 下载依赖。注意如果你没有 yarn，请去 官网 下载安装后再使用。 用 npm install 将导致未知错误！
+`yarn` 下载依赖
+注意如果你没有yarn，请去 官网 下载安装后再使用。 用 npm install 将导致未知错误！
 3. Mac 需要有 Xcode 环境，Windows 需要有 VS 环境。
 4. 如果需要贡献代码，可以参考[贡献指南](https://github.com/Kuingsmile/PicList/blob/dev/CONTRIBUTING.md)。
 
@@ -70,19 +68,19 @@ yarn 下载依赖。注意如果你没有 yarn，请去 官网 下载安装后�
 
 输入 `yarn run dev` 进入开发模式，开发模式具有热重载特性。不过需要注意的是，开发模式不稳定，会有进程崩溃的情况。此时需要：
 
-ctrl+c # 退出开发模式
-yarn run dev # 重新进入开发模式
-注：Windows 开发模式运行之后会在底部任务栏的右下角应用区出现 PicGo 的应用图标。
+`ctrl+c` # 退出开发模式
+`yarn run dev` # 重新进入开发模式
+注：Windows 开发模式运行之后会在底部任务栏的右下角应用区出现 PicList 的应用图标。
 
 ### 生产模式
 
-如果你需要自行构建，可以 `yarn run build` 开始进行构建。构建成功后，会在 dist_electron 目录里出现构建成功的相应安装文件。
+如果你需要自行构建，可以 `yarn run build` 开始进行构建。构建成功后，会在 `dist_electron` 目录里出现构建成功的相应安装文件。
 
-注意：如果你的网络环境不太好，可能会出现 electron-builder 下载 electron 二进制文件失败的情况。这个时候需要在 npm run electron:build 之前指定一下 electron 的源为国内源：
+注意：如果你的网络环境不太好，可能会出现 `electron-builder` 下载 electron 二进制文件失败的情况。这个时候需要在 `npm run electron:build` 之前指定一下 electron 的源为国内源：
 
-export ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+`export ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"`
 
-**在 Windows 上，则可以使用 set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ （无需引号）**
+**在 Windows 上，则可以使用 `set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/` （无需引号）**
 
 ## 其它相关
 
