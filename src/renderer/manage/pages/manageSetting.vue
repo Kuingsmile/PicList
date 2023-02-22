@@ -133,6 +133,31 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
+                >最大同时下载文件数(1-9999)
+                  <el-tooltip
+                    effect="dark"
+                    content="腾讯云由于后端实现不同，该设置不生效"
+                    placement="right"
+                  >
+                    <el-icon>
+                      <InfoFilled />
+                    </el-icon>
+                  </el-tooltip>
+                </span>
+              </template>
+              <el-input-number
+                v-model="maxDownloadFileCount"
+                style="position:absolute;right: 0;"
+                placeholder="请输入最大同时下载文件数"
+                :min="1"
+                :max="9999"
+                :step="1"
+              />
+            </el-form-item>
+            <el-form-item>
+              <template #label>
+                <span
+                  style="position:absolute;left: 0;"
                 >文件搜索时，是否忽略大小写
                   <el-tooltip
                     effect="dark"
@@ -421,6 +446,14 @@ const customRenameFormat = reactive({
   value: '{filename}'
 })
 
+const maxDownloadFileCount = ref(5)
+
+watch(maxDownloadFileCount, (val) => {
+  saveConfig({
+    'settings.maxDownloadFileCount': val
+  })
+})
+
 watch(customRenameFormat, (val) => {
   saveConfig({
     'settings.customRenameFormat': val.value
@@ -468,6 +501,7 @@ async function initData () {
   form.isIgnoreCase = config.settings.isIgnoreCase ?? false
   form.isForceCustomUrlHttps = config.settings.isForceCustomUrlHttps ?? true
   PreSignedExpire.value = config.settings.PreSignedExpire ?? 14400
+  maxDownloadFileCount.value = config.settings.maxDownloadFileCount ?? 5
 }
 
 async function handleDownloadDirClick () {

@@ -387,6 +387,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'github':
       case 'imgur':
       case 's3plist':
+      case 'webdavplist':
         try {
           client = this.createClient() as any
           const res = await client.deleteBucketFile(param!)
@@ -411,6 +412,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'upyun':
       case 'github':
       case 's3plist':
+      case 'webdavplist':
         try {
           client = this.createClient() as any
           return await client.deleteBucketFolder(param!)
@@ -433,6 +435,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'qiniu':
       case 'upyun':
       case 's3plist':
+      case 'webdavplist':
         try {
           client = this.createClient() as any
           return await client.renameBucketFile(param!)
@@ -458,6 +461,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'github':
       case 'imgur':
       case 's3plist':
+      case 'webdavplist':
         try {
           client = this.createClient() as any
           const res = await client.downloadBucketFile(param!)
@@ -489,6 +493,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'upyun':
       case 'github':
       case 's3plist':
+      case 'webdavplist':
         try {
           client = this.createClient() as any
           return await client.createBucketFolder(param!)
@@ -514,6 +519,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'github':
       case 'imgur':
       case 's3plist':
+      case 'webdavplist':
         try {
           client = this.createClient() as any
           return await client.uploadBucketFile(param!)
@@ -536,6 +542,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'qiniu':
       case 'github':
       case 's3plist':
+      case 'webdavplist':
         try {
           client = this.createClient() as any
           return await client.getPreSignedUrl(param!)

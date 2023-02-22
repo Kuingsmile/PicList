@@ -234,7 +234,7 @@ ea/*
         </el-breadcrumb-item>
         <template v-if="configMap.prefix !== '/'">
           <el-breadcrumb-item
-            v-for="(item, index) in configMap.prefix.slice(0, configMap.prefix.length - 1).split('/')"
+            v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')"
             :key="index"
             style="flex-shrink: 0;font-size: 12px;color: #606266;font-family: Arial, Helvetica, sans-serif;cursor: pointer;"
             @click="handleBreadcrumbClick(index)"
@@ -562,9 +562,19 @@ https://www.baidu.com/img/bd_logo1.png"
         stretch
       >
         <el-tab-pane
-          :label="`上传中(${uploadingTaskList.length})`"
           name="uploading"
         >
+          <template #label>
+            <span>
+              上传中
+            </span>
+            <el-badge
+              v-if="uploadingTaskList.length"
+              :value="uploadingTaskList.length"
+              :max="9999"
+              type="primary"
+            />
+          </template>
           <el-button-group size="small">
             <el-button
               type="primary"
@@ -605,9 +615,19 @@ https://www.baidu.com/img/bd_logo1.png"
           </div>
         </el-tab-pane>
         <el-tab-pane
-          :label="`已完成(${uploadedTaskList.length})`"
           name="finished"
         >
+          <template #label>
+            <span>
+              成功
+            </span>
+            <el-badge
+              v-if="uploadedTaskList.filter(item => item.status === 'uploaded').length"
+              :value="uploadedTaskList.filter(item => item.status === 'uploaded').length"
+              :max="9999"
+              type="success"
+            />
+          </template>
           <el-button-group size="small">
             <el-button
               type="primary"
@@ -639,7 +659,60 @@ https://www.baidu.com/img/bd_logo1.png"
               <template #default="{ height, width }">
                 <el-table-v2
                   :columns="uploadedTaskColumns"
-                  :data="uploadedTaskList"
+                  :data="uploadedTaskList.filter(item => item.status === 'uploaded')"
+                  :width="width"
+                  :height="height"
+                />
+              </template>
+            </el-auto-resizer>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane
+          name="failed"
+        >
+          <template #label>
+            <span>
+              失败
+            </span>
+            <el-badge
+              v-if="uploadedTaskList.filter(item => item.status !== 'uploaded').length"
+              :value="uploadedTaskList.filter(item => item.status !== 'uploaded').length"
+              :max="9999"
+              type="danger"
+            />
+          </template>
+          <el-button-group size="small">
+            <el-button
+              type="primary"
+              plain
+              :icon="Document"
+              @click="handelCopyUploadingTaskInfo"
+            >
+              复制上传任务信息
+            </el-button>
+            <el-button
+              type="primary"
+              plain
+              :icon="DeleteFilled"
+              @click="handelDeleteUploadedTask"
+            >
+              清空已完成任务
+            </el-button>
+            <el-button
+              type="primary"
+              plain
+              :icon="DeleteFilled"
+              @click="handelDeleteAllUploadedTask"
+            >
+              清空所有任务
+            </el-button>
+          </el-button-group>
+          <div style="height:500px;">
+            <el-auto-resizer>
+              <template #default="{ height, width }">
+                <el-table-v2
+                  :columns="uploadedTaskColumns"
+                  :data="uploadedTaskList.filter(item => item.status !== 'uploaded')"
                   :width="width"
                   :height="height"
                 />
@@ -661,9 +734,17 @@ https://www.baidu.com/img/bd_logo1.png"
         stretch
       >
         <el-tab-pane
-          :label="`下载中(${downloadingTaskList.length})`"
           name="downloading"
         >
+          <template #label>
+            <span>下载中</span>
+            <el-badge
+              v-if="downloadingTaskList.length"
+              :value="downloadingTaskList.length"
+              type="primary"
+              :max="9999"
+            />
+          </template>
           <el-button-group size="small">
             <el-button
               type="primary"
@@ -712,9 +793,17 @@ https://www.baidu.com/img/bd_logo1.png"
           </div>
         </el-tab-pane>
         <el-tab-pane
-          :label="`已完成(${downloadedTaskList.length})`"
           name="finished"
         >
+          <template #label>
+            <span>成功</span>
+            <el-badge
+              v-if="downloadedTaskList.filter(item => item.status === 'downloaded').length"
+              :value="downloadedTaskList.filter(item => item.status === 'downloaded').length"
+              :max="9999"
+              type="success"
+            />
+          </template>
           <el-button-group size="small">
             <el-button
               type="primary"
@@ -754,7 +843,66 @@ https://www.baidu.com/img/bd_logo1.png"
               <template #default="{ height, width }">
                 <el-table-v2
                   :columns="downloadedTaskColumns"
-                  :data="downloadedTaskList"
+                  :data="downloadedTaskList.filter(item => item.status === 'downloaded')"
+                  :width="width"
+                  :height="height"
+                />
+              </template>
+            </el-auto-resizer>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane
+          name="failed"
+        >
+          <template #label>
+            <span>失败</span>
+            <el-badge
+              v-if="downloadedTaskList.filter(item => item.status !== 'downloaded').length"
+              :value="downloadedTaskList.filter(item => item.status !== 'downloaded').length"
+              :max="9999"
+              type="warning"
+            />
+          </template>
+          <el-button-group size="small">
+            <el-button
+              type="primary"
+              plain
+              :icon="Document"
+              @click="handelCopyDownloadingTaskInfo"
+            >
+              复制下载任务信息
+            </el-button>
+            <el-button
+              type="primary"
+              plain
+              :icon="DeleteFilled"
+              @click="handelDeleteDownloadedTask"
+            >
+              清空已完成任务
+            </el-button>
+            <el-button
+              type="primary"
+              plain
+              :icon="DeleteFilled"
+              @click="handelDeleteAllDownloadedTask"
+            >
+              清空所有任务
+            </el-button>
+            <el-button
+              type="primary"
+              plain
+              :icon="Folder"
+              @click="handelOpenDownloadedFolder"
+            >
+              打开下载目录
+            </el-button>
+          </el-button-group>
+          <div style="height:600px;">
+            <el-auto-resizer>
+              <template #default="{ height, width }">
+                <el-table-v2
+                  :columns="downloadedTaskColumns"
+                  :data="downloadedTaskList.filter(item => item.status !== 'downloaded')"
                   :width="width"
                   :height="height"
                 />
@@ -826,6 +974,7 @@ https://www.baidu.com/img/bd_logo1.png"
     >
       <video-player
         :src="videoFileUrl"
+        :headers="videoPlayerHeaders"
         controls
         :loop="true"
         :volume="0.6"
@@ -958,6 +1107,7 @@ const isShowTextFileDialog = ref(false)
 const textfileContent = ref('')
 const isShowVideoFileDialog = ref(false)
 const videoFileUrl = ref('')
+const videoPlayerHeaders = ref({})
 
 const showCustomUrlSelectList = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value))
 
@@ -967,7 +1117,7 @@ const showCreateNewFolder = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun',
 
 const showRenameFileIcon = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist'].includes(currentPicBedName.value))
 
-const showPresignedUrl = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github', 's3plist'].includes(currentPicBedName.value))
+const showPresignedUrl = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github', 's3plist', 'webdavplist'].includes(currentPicBedName.value))
 
 const uploadingTaskList = computed(() => uploadTaskList.value.filter(item => ['uploading', 'queuing', 'paused'].includes(item.status)))
 
@@ -1191,6 +1341,7 @@ function uploadFiles () {
   }
   formateduploadPanelFilesList.forEach((item: any) => {
     param.fileArray.push({
+      alias: configMap.alias,
       bucketName: configMap.bucketName,
       region: configMap.bucketConfig.Location,
       key: item.key,
@@ -1254,6 +1405,12 @@ async function handleBreadcrumbClick (index: number) {
 }
 
 async function handleClickFile (item: any) {
+  const options = {} as any
+  if (currentPicBedName.value === 'webdavplist') {
+    options.headers = {
+      Authorization: `Basic ${Buffer.from(`${manageStore.config.picBed[configMap.alias].username}:${manageStore.config.picBed[configMap.alias].password}`).toString('base64')}`
+    }
+  }
   if (item.isImage) {
     previewedImage.value = item.url
     showImagePreview.value = true
@@ -1274,7 +1431,7 @@ async function handleClickFile (item: any) {
         type: 'success'
       })
       const fileUrl = item.url
-      const res = await axios.get(fileUrl)
+      const res = await axios.get(fileUrl, options)
       const content = res.data
       markDownContent.value = marked(content)
       isShowMarkDownDialog.value = true
@@ -1291,7 +1448,7 @@ async function handleClickFile (item: any) {
         type: 'success'
       })
       const fileUrl = item.url
-      const res = await axios.get(fileUrl)
+      const res = await axios.get(fileUrl, options)
       textfileContent.value = res.data
       isShowTextFileDialog.value = true
     } catch (error) {
@@ -1300,6 +1457,7 @@ async function handleClickFile (item: any) {
   } else if (videoExt.includes(path.extname(item.fileName).toLowerCase())) {
     videoFileUrl.value = item.url
     isShowVideoFileDialog.value = true
+    videoPlayerHeaders.value = options.headers
   }
 }
 
@@ -1763,11 +1921,13 @@ async function handelBatchDownload () {
   const defaultDownloadPath = await ipcRenderer.invoke('getDefaultDownloadFolder')
   const param = {
     downloadPath: manageStore.config.settings.downloadDir ?? defaultDownloadPath,
+    maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount ? manageStore.config.settings.maxDownloadFileCount : 5,
     fileArray: [] as any[]
   }
   selectedItems.forEach((item: any) => {
     if (!item.isDir) {
       param.fileArray.push({
+        alias: configMap.alias,
         bucketName: configMap.bucketName,
         region: configMap.bucketConfig.Location,
         key: item.key,
@@ -2431,11 +2591,12 @@ const uploadingTaskColumns: Column<any>[] = [
     width: 300,
     cellRenderer: ({ rowData: item }) => (
       <ElProgress
-        percentage={item.progress}
+        percentage={item.progress ? item.progress : 50}
         status="success"
         strokeWidth={20}
         textInside
         style="width: 100%;"
+        indeterminate={!!item.noProgress}
       />
     )
   }

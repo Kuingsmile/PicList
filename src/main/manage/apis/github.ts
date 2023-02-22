@@ -1,10 +1,10 @@
 import got from 'got'
 import { ManageLogger } from '../utils/logger'
-import { isImage } from '~/renderer/manage/utils/common'
+import { formatHttpProxy, isImage } from '~/renderer/manage/utils/common'
 import windowManager from 'apis/app/window/windowManager'
 import { IWindowList } from '#/types/enum'
 import { ipcMain, IpcMainEvent } from 'electron'
-import { gotUpload, trimPath, gotDownload, getAgent, getOptions } from '../utils/common'
+import { gotUpload, trimPath, NewDownloader, getAgent, getOptions, ConcurrencyPromisePool, formatError } from '../utils/common'
 import UpDownTaskQueue,
 {
   commonTaskStatus
@@ -17,6 +17,7 @@ class GithubApi {
   username: string
   logger: ManageLogger
   proxy: any
+  proxyStr: string | undefined
   baseUrl = 'https://api.github.com'
   commonHeaders : IStringKeyMap
 
@@ -25,6 +26,7 @@ class GithubApi {
     this.token = token.startsWith('Bearer ') ? token : `Bearer ${token}`.trim()
     this.username = username
     this.proxy = proxy
+    this.proxyStr = formatHttpProxy(proxy, 'string') as string | undefined
     this.commonHeaders = {
       Authorization: this.token,
       Accept: 'application/vnd.github+json'
@@ -388,13 +390,13 @@ class GithubApi {
    * @param configMap
    */
   async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray } = configMap
+    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
+    const promises = [] as any
     for (const item of fileArray) {
       const { bucketName: repo, customUrl: branch, key, fileName, githubPrivate, githubUrl } = item
       const id = `${repo}-${branch}-${key}-${fileName}`
       const savedFilePath = path.join(downloadPath, fileName)
-      const fileStream = fs.createWriteStream(savedFilePath)
       if (instance.getDownloadTask(id)) {
         continue
       }
@@ -405,7 +407,7 @@ class GithubApi {
         sourceFileName: fileName,
         targetFilePath: savedFilePath
       })
-      let downloadUrl
+      let downloadUrl: string
       if (githubPrivate) {
         const preSignedUrl = await this.getPreSignedUrl({
           bucketName: repo,
@@ -418,17 +420,28 @@ class GithubApi {
       } else {
         downloadUrl = githubUrl
       }
-      gotDownload(
-        instance,
-        downloadUrl,
-        fileStream,
-        id,
-        savedFilePath,
-        this.logger,
-        undefined,
-        getAgent(this.proxy)
-      )
+      promises.push(() => new Promise((resolve, reject) => {
+        NewDownloader(
+          instance,
+          downloadUrl,
+          id,
+          savedFilePath,
+          this.logger,
+          this.proxyStr
+        )
+          .then((res: boolean) => {
+            if (res) {
+              resolve(res)
+            } else {
+              reject(res)
+            }
+          })
+      }))
     }
+    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
+    pool.all(promises).catch((error) => {
+      this.logger.error(formatError(error, { class: 'GithubApi', method: 'downloadBucketFile' }))
+    })
     return true
   }
 }

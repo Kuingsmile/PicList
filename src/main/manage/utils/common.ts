@@ -18,6 +18,7 @@ import { formatHttpProxy, IHTTPProxy } from '@/manage/utils/common'
 import { HttpsProxyAgent, HttpProxyAgent } from 'hpagent'
 import http from 'http'
 import https from 'https'
+import Downloader from 'nodejs-file-downloader'
 
 export const getFSFile = async (
   filePath: string,
@@ -90,52 +91,57 @@ export const md5 = (str: string, code: 'hex' | 'base64'): string => crypto.creat
 
 export const hmacSha1Base64 = (secretKey: string, stringToSign: string) : string => crypto.createHmac('sha1', secretKey).update(Buffer.from(stringToSign, 'utf8')).digest('base64')
 
-export const gotDownload = async (
+export const NewDownloader = async (
   instance: UpDownTaskQueue,
   preSignedUrl: string,
-  fileStream: fs.WriteStream,
   id : string,
   savedFilePath: string,
   logger?: ManageLogger,
-  param?: any,
-  agent: any = {}
-) => {
-  got(
-    preSignedUrl,
-    {
-      isStream: true,
-      throwHttpErrors: false,
-      searchParams: param,
-      agent: agent || {}
-    }
-  )
-    .on('downloadProgress', (progress: any) => {
+  proxy?: string,
+  headers?: any
+) : Promise<boolean> => {
+  const options = {
+    url: preSignedUrl,
+    directory: path.dirname(savedFilePath),
+    fileName: path.basename(savedFilePath),
+    cloneFiles: false,
+    onProgress: (percentage: string) => {
       instance.updateDownloadTask({
         id,
-        progress: Math.floor(progress.percent * 100),
+        progress: Math.floor(Number(percentage)),
         status: downloadTaskSpecialStatus.downloading
       })
+    },
+    maxAttempts: 3
+  } as any
+  if (proxy) {
+    options.proxy = proxy
+  }
+  if (headers) {
+    options.headers = headers
+  }
+  const downloader = new Downloader(options)
+  try {
+    await downloader.download()
+    instance.updateDownloadTask({
+      id,
+      progress: 100,
+      status: downloadTaskSpecialStatus.downloaded,
+      finishTime: new Date().toLocaleString()
     })
-    .pipe(fileStream)
-    .on('close', () => {
-      instance.updateDownloadTask({
-        id,
-        progress: 100,
-        status: downloadTaskSpecialStatus.downloaded,
-        finishTime: new Date().toLocaleString()
-      })
+    return true
+  } catch (e: any) {
+    logger && logger.error(formatError(e, { method: 'NewDownloader' }))
+    fs.remove(savedFilePath)
+    instance.updateDownloadTask({
+      id,
+      progress: 0,
+      status: commonTaskStatus.failed,
+      response: formatError(e, { method: 'NewDownloader' }),
+      finishTime: new Date().toLocaleString()
     })
-    .on('error', (err: any) => {
-      logger && logger.error(formatError(err, { method: 'gotDownload' }))
-      fs.remove(savedFilePath)
-      instance.updateDownloadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.failed,
-        response: formatError(err, { method: 'gotDownload' }),
-        finishTime: new Date().toLocaleString()
-      })
-    })
+    return false
+  }
 }
 
 export const gotUpload = async (
@@ -320,3 +326,45 @@ export const formatEndpoint = (endpoint: string, sslEnabled: boolean): string =>
     : sslEnabled
       ? endpoint.replace('http://', 'https://')
       : endpoint.replace('https://', 'http://')
+
+export class ConcurrencyPromisePool {
+  limit: number
+  queue: any[]
+  runningNum: number
+  results: any[]
+
+  constructor (limit: number) {
+    this.limit = limit
+    this.queue = []
+    this.runningNum = 0
+    this.results = []
+  }
+
+  all (promises: any[] = []) {
+    return new Promise((resolve, reject) => {
+      for (const promise of promises) {
+        this._run(promise, resolve, reject)
+      }
+    })
+  }
+
+  _run (promise: any, resolve: any, reject: any) {
+    if (this.runningNum >= this.limit) {
+      this.queue.push(promise)
+      return
+    }
+    this.runningNum += 1
+    promise()
+      .then((res: any) => {
+        this.results.push(res)
+        --this.runningNum
+        if (this.queue.length === 0 && this.runningNum === 0) {
+          return resolve(this.results)
+        }
+        if (this.queue.length > 0) {
+          this._run(this.queue.shift(), resolve, reject)
+        }
+      })
+      .catch(reject)
+  }
+}

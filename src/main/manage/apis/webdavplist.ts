@@ -1,12 +1,19 @@
 import ManageLogger from '../utils/logger'
-import { createClient, WebDAVClient, FileStat } from 'webdav'
-import { formatError, formatEndpoint, getInnerAgent } from '../utils/common'
-import { isImage } from '@/manage/utils/common'
+import { createClient, WebDAVClient, FileStat, ProgressEvent } from 'webdav'
+import { formatError, formatEndpoint, getInnerAgent, NewDownloader, ConcurrencyPromisePool } from '../utils/common'
+import { formatHttpProxy, isImage } from '@/manage/utils/common'
 import http from 'http'
 import https from 'https'
 import windowManager from 'apis/app/window/windowManager'
 import { IWindowList } from '#/types/enum'
 import { ipcMain, IpcMainEvent } from 'electron'
+import UpDownTaskQueue,
+{
+  uploadTaskSpecialStatus,
+  commonTaskStatus
+} from '../datastore/upDownTaskQueue'
+import fs from 'fs-extra'
+import path from 'path'
 
 class WebdavplistApi {
   endpoint: string
@@ -14,6 +21,7 @@ class WebdavplistApi {
   password: string
   sslEnabled: boolean
   proxy: string | undefined
+  proxyStr: string | undefined
   logger: ManageLogger
   agent: https.Agent | http.Agent
   ctx: WebDAVClient
@@ -24,6 +32,7 @@ class WebdavplistApi {
     this.password = password
     this.sslEnabled = sslEnabled
     this.proxy = proxy
+    this.proxyStr = formatHttpProxy(proxy, 'string') as string | undefined
     this.logger = logger
     this.agent = getInnerAgent(proxy, sslEnabled).agent
     this.ctx = createClient(
@@ -124,6 +133,173 @@ class WebdavplistApi {
     result.finished = true
     window.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')
+  }
+
+  async renameBucketFile (configMap: IStringKeyMap): Promise<boolean> {
+    const { oldKey, newKey } = configMap
+    let result = false
+    try {
+      await this.ctx.moveFile(oldKey, newKey)
+      result = true
+    } catch (error) {
+      this.logParam(error, 'renameBucketFile')
+    }
+    return result
+  }
+
+  async deleteBucketFile (configMap: IStringKeyMap): Promise<boolean> {
+    const { key } = configMap
+    let result = false
+    try {
+      await this.ctx.deleteFile(key)
+      result = true
+    } catch (error) {
+      this.logParam(error, 'deleteBucketFile')
+    }
+    return result
+  }
+
+  async deleteBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
+    const { key } = configMap
+    let result = false
+    try {
+      await this.ctx.deleteFile(key)
+      result = true
+    } catch (error) {
+      this.logParam(error, 'deleteBucketFolder')
+    }
+    return result
+  }
+
+  async getPreSignedUrl (configMap: IStringKeyMap): Promise<string> {
+    const { key } = configMap
+    let result = ''
+    try {
+      const res = this.ctx.getFileDownloadLink(key)
+      result = res
+    } catch (error) {
+      this.logParam(error, 'getPreSignedUrl')
+    }
+    return result
+  }
+
+  async uploadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
+    const { fileArray } = configMap
+    const instance = UpDownTaskQueue.getInstance()
+    for (const item of fileArray) {
+      const { alias, bucketName, region, key, filePath, fileName } = item
+      const id = `${alias}-${bucketName}-${key}-${filePath}`
+      if (instance.getUploadTask(id)) {
+        continue
+      }
+      instance.addUploadTask({
+        id,
+        progress: 0,
+        status: commonTaskStatus.queuing,
+        sourceFileName: fileName,
+        sourceFilePath: filePath,
+        targetFilePath: key,
+        targetFileBucket: bucketName,
+        targetFileRegion: region,
+        noProgress: true
+      })
+      this.ctx.putFileContents(
+        key,
+        fs.createReadStream(filePath),
+        {
+          overwrite: true,
+          onUploadProgress: (progressEvent: ProgressEvent) => {
+            instance.updateUploadTask({
+              id,
+              progress: Math.floor((progressEvent.loaded / progressEvent.total) * 100),
+              status: uploadTaskSpecialStatus.uploading
+            })
+          }
+        }
+      ).then((res: boolean) => {
+        if (res) {
+          instance.updateUploadTask({
+            id,
+            progress: 100,
+            status: uploadTaskSpecialStatus.uploaded,
+            finishTime: new Date().toLocaleString()
+          })
+        } else {
+          instance.updateUploadTask({
+            id,
+            progress: 0,
+            status: commonTaskStatus.failed,
+            finishTime: new Date().toLocaleString()
+          })
+        }
+      }).catch((error: any) => {
+        this.logParam(error, 'uploadBucketFile')
+        instance.updateUploadTask({
+          id,
+          progress: 0,
+          status: commonTaskStatus.failed,
+          finishTime: new Date().toLocaleString()
+        })
+      })
+    }
+    return true
+  }
+
+  async createBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
+    const { key } = configMap
+    let result = false
+    try {
+      await this.ctx.createDirectory(key, {
+        recursive: true
+      })
+      result = true
+    } catch (error) {
+      this.logParam(error, 'createBucketFolder')
+    }
+    return result
+  }
+
+  async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
+    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
+    const instance = UpDownTaskQueue.getInstance()
+    const promises = [] as any
+    for (const item of fileArray) {
+      const { alias, bucketName, region, key, fileName } = item
+      const savedFilePath = path.join(downloadPath, fileName)
+      const id = `${alias}-${bucketName}-${region}-${key}`
+      if (instance.getDownloadTask(id)) {
+        continue
+      }
+      instance.addDownloadTask({
+        id,
+        progress: 0,
+        status: commonTaskStatus.queuing,
+        sourceFileName: fileName,
+        targetFilePath: savedFilePath
+      })
+      const preSignedUrl = await this.getPreSignedUrl({
+        key
+      })
+      const base64Str = Buffer.from(`${this.username}:${this.password}`).toString('base64')
+      const headers = {
+        Authorization: `Basic ${base64Str}`
+      }
+      promises.push(() => new Promise((resolve, reject) => {
+        NewDownloader(instance, preSignedUrl, id, savedFilePath, this.logger, this.proxyStr, headers)
+          .then((res: boolean) => {
+            if (res) {
+              resolve(res)
+            } else {
+              reject(res)
+            }
+          })
+      }))
+    }
+    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
+    pool.all(promises).catch((error) => {
+      this.logParam(error, 'downloadBucketFile')
+    })
+    return true
   }
 }
 

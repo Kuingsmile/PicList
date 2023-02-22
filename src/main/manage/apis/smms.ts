@@ -5,7 +5,7 @@ import { IWindowList } from '#/types/enum'
 import { ipcMain, IpcMainEvent } from 'electron'
 import FormData from 'form-data'
 import fs from 'fs-extra'
-import { getFileMimeType, gotUpload, gotDownload } from '../utils/common'
+import { getFileMimeType, gotUpload, NewDownloader, ConcurrencyPromisePool, formatError } from '../utils/common'
 import path from 'path'
 import UpDownTaskQueue, { commonTaskStatus } from '../datastore/upDownTaskQueue'
 import { ManageLogger } from '../utils/logger'
@@ -227,12 +227,12 @@ class SmmsApi {
    * @param configMap
    */
   async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray } = configMap
+    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
+    const promises = [] as any
     for (const item of fileArray) {
       const { bucketName, region, key, fileName, downloadUrl: preSignedUrl } = item
       const savedFilePath = path.join(downloadPath, fileName)
-      const fileStream = fs.createWriteStream(savedFilePath)
       const id = `${bucketName}-${region}-${key}`
       if (instance.getDownloadTask(id)) {
         continue
@@ -244,8 +244,21 @@ class SmmsApi {
         sourceFileName: fileName,
         targetFilePath: savedFilePath
       })
-      gotDownload(instance, preSignedUrl, fileStream, id, savedFilePath, this.logger)
+      promises.push(() => new Promise((resolve, reject) => {
+        NewDownloader(instance, preSignedUrl, id, savedFilePath, this.logger)
+          .then((res: boolean) => {
+            if (res) {
+              resolve(res)
+            } else {
+              reject(res)
+            }
+          })
+      }))
     }
+    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
+    pool.all(promises).catch((error) => {
+      this.logger.error(formatError(error, { class: 'SmmsApi', method: 'downloadBucketFile' }))
+    })
     return true
   }
 }

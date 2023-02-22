@@ -1,10 +1,10 @@
 import got from 'got'
 import ManageLogger from '../utils/logger'
-import { getAgent, getOptions, gotDownload, gotUpload, getFileMimeType } from '../utils/common'
+import { getAgent, getOptions, NewDownloader, gotUpload, getFileMimeType, ConcurrencyPromisePool, formatError } from '../utils/common'
 import windowManager from 'apis/app/window/windowManager'
 import { IWindowList } from '#/types/enum'
 import { ipcMain, IpcMainEvent } from 'electron'
-import { isImage } from '~/renderer/manage/utils/common'
+import { formatHttpProxy, isImage } from '~/renderer/manage/utils/common'
 import path from 'path'
 import UpDownTaskQueue,
 {
@@ -18,6 +18,7 @@ class ImgurApi {
   accessToken: string
   proxy: any
   logger: ManageLogger
+  proxyStr: string | undefined
   tokenHeaders: any
   idHeaders: any
   baseUrl = 'https://api.imgur.com/3'
@@ -26,6 +27,7 @@ class ImgurApi {
     this.userName = userName
     this.accessToken = accessToken.startsWith('Bearer ') ? accessToken : `Bearer ${accessToken}`
     this.proxy = proxy
+    this.proxyStr = formatHttpProxy(proxy, 'string') as string | undefined
     this.logger = logger
     this.tokenHeaders = {
       Authorization: this.accessToken
@@ -227,13 +229,13 @@ class ImgurApi {
    * @param configMap
    */
   async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray } = configMap
+    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
+    const promises = [] as any
     for (const item of fileArray) {
       const { bucketName, region, key, fileName, githubUrl: url } = item
       const id = `${bucketName}-${region}-${key}-${fileName}`
       const savedFilePath = path.join(downloadPath, fileName)
-      const fileStream = fs.createWriteStream(savedFilePath)
       if (instance.getDownloadTask(id)) {
         continue
       }
@@ -244,17 +246,28 @@ class ImgurApi {
         sourceFileName: fileName,
         targetFilePath: savedFilePath
       })
-      gotDownload(
-        instance,
-        url,
-        fileStream,
-        id,
-        savedFilePath,
-        this.logger,
-        undefined,
-        getAgent(this.proxy)
-      )
+      promises.push(() => new Promise((resolve, reject) => {
+        NewDownloader(
+          instance,
+          url,
+          id,
+          savedFilePath,
+          this.logger,
+          this.proxyStr
+        )
+          .then((res: boolean) => {
+            if (res) {
+              resolve(res)
+            } else {
+              reject(res)
+            }
+          })
+      }))
     }
+    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
+    pool.all(promises).catch((error) => {
+      this.logger.error(formatError(error, { class: 'ImgurApi', method: 'downloadBucketFile' }))
+    })
     return true
   }
 }

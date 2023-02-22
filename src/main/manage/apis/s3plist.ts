@@ -18,8 +18,8 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import https from 'https'
 import http from 'http'
 import { ManageLogger } from '../utils/logger'
-import { formatEndpoint, formatError, getAgent, getFileMimeType, gotDownload } from '../utils/common'
-import { isImage } from '@/manage/utils/common'
+import { formatEndpoint, formatError, getAgent, getFileMimeType, NewDownloader, ConcurrencyPromisePool } from '../utils/common'
+import { isImage, formatHttpProxy } from '@/manage/utils/common'
 import { HttpsProxyAgent, HttpProxyAgent } from 'hpagent'
 import windowManager from 'apis/app/window/windowManager'
 import { IWindowList } from '#/types/enum'
@@ -49,6 +49,7 @@ class S3plistApi {
   baseOptions: S3plistApiOptions
   logger: ManageLogger
   agent: any
+  proxy: string | undefined
 
   constructor (
     accessKeyId: string,
@@ -73,6 +74,7 @@ class S3plistApi {
     } as S3plistApiOptions
     this.logger = logger
     this.agent = this.setAgent(proxy, sslEnabled)
+    this.proxy = formatHttpProxy(proxy, 'string') as string | undefined
   }
 
   setAgent (proxy: string | undefined, sslEnabled: boolean) : HttpProxyAgent | HttpsProxyAgent | undefined {
@@ -129,32 +131,43 @@ class S3plistApi {
     const options = Object.assign({}, this.baseOptions) as S3ClientConfig
     options.region = 'us-east-1'
     const result = [] as IStringKeyMap[]
+    const endpoint = options.endpoint as string || '' as string
     try {
       const client = new S3Client(options)
       const command = new ListBucketsCommand({})
       const data = await client.send(command)
       if (data.$metadata.httpStatusCode === 200) {
         if (data.Buckets) {
-          for (let i = 0; i < data.Buckets.length; i++) {
-            const bucket = data.Buckets[i]
-            const bucketName = bucket.Name
-            const command = new GetBucketLocationCommand({
-              Bucket: bucketName
+          if (endpoint.indexOf('cloudflarestorage') !== -1) {
+            data.Buckets.forEach((bucket) => {
+              result.push({
+                Name: bucket.Name,
+                CreationDate: bucket.CreationDate,
+                Location: 'auto'
+              })
             })
-            const bucketConfig = await client.send(command)
-            if (bucketConfig.$metadata.httpStatusCode === 200) {
-              result.push({
-                Name: bucketName,
-                CreationDate: bucket.CreationDate,
-                Location: bucketConfig.LocationConstraint || 'us-east-1'
+          } else {
+            for (let i = 0; i < data.Buckets.length; i++) {
+              const bucket = data.Buckets[i]
+              const bucketName = bucket.Name
+              const command = new GetBucketLocationCommand({
+                Bucket: bucketName
               })
-            } else {
-              this.logParam(bucketConfig, 'getBucketList')
-              result.push({
-                Name: bucketName,
-                CreationDate: bucket.CreationDate,
-                Location: 'us-east-1'
-              })
+              const bucketConfig = await client.send(command)
+              if (bucketConfig.$metadata.httpStatusCode === 200) {
+                result.push({
+                  Name: bucketName,
+                  CreationDate: bucket.CreationDate,
+                  Location: bucketConfig.LocationConstraint?.toLowerCase() || 'us-east-1'
+                })
+              } else {
+                this.logParam(bucketConfig, 'getBucketList')
+                result.push({
+                  Name: bucketName,
+                  CreationDate: bucket.CreationDate,
+                  Location: 'us-east-1'
+                })
+              }
             }
           }
         }
@@ -573,18 +586,12 @@ class S3plistApi {
    * @param configMap
    */
   async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray } = configMap
-    // fileArray = [{
-    //   bucketName: string,
-    //   region: string,
-    //   key: string,
-    //  fileName: string
-    // }]
+    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
+    const promises = [] as any
     for (const item of fileArray) {
       const { bucketName, region, key, fileName, customUrl } = item
       const savedFilePath = path.join(downloadPath, fileName)
-      const fileStream = fs.createWriteStream(savedFilePath)
       const id = `${bucketName}-${region}-${key}-${savedFilePath}`
       if (instance.getDownloadTask(id)) {
         continue
@@ -603,8 +610,21 @@ class S3plistApi {
         expires: 36000,
         customUrl
       })
-      gotDownload(instance, preSignedUrl, fileStream, id, savedFilePath, this.logger)
+      promises.push(() => new Promise((resolve, reject) => {
+        NewDownloader(instance, preSignedUrl, id, savedFilePath, this.logger, this.proxy)
+          .then((res: boolean) => {
+            if (res) {
+              resolve(res)
+            } else {
+              reject(res)
+            }
+          })
+      }))
     }
+    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
+    pool.all(promises).catch((error) => {
+      this.logParam(error, 'downloadBucketFile')
+    })
     return true
   }
 }

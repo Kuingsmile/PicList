@@ -52,6 +52,7 @@
     "marked": "^4.2.12",
     "mime-types": "^2.1.35",
     "mitt": "^3.0.0",
+    "nodejs-file-downloader": "^4.10.6",
     "piclist": "^0.0.8",
     "pinia": "^2.0.29",
     "pinia-plugin-persistedstate": "^3.0.2",

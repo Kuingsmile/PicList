@@ -1,6 +1,6 @@
 // @ts-ignore
 import Upyun from 'upyun'
-import { md5, hmacSha1Base64, getFileMimeType, gotDownload, gotUpload } from '../utils/common'
+import { md5, hmacSha1Base64, getFileMimeType, NewDownloader, gotUpload, ConcurrencyPromisePool, formatError } from '../utils/common'
 import { isImage } from '~/renderer/manage/utils/common'
 import windowManager from 'apis/app/window/windowManager'
 import { IWindowList } from '#/types/enum'
@@ -359,12 +359,12 @@ class UpyunApi {
    * @param configMap
    */
   async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray } = configMap
+    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
+    const promises = [] as any
     for (const item of fileArray) {
       const { bucketName, region, key, fileName, customUrl } = item
       const savedFilePath = path.join(downloadPath, fileName)
-      const fileStream = fs.createWriteStream(savedFilePath)
       const id = `${bucketName}-${region}-${key}`
       if (instance.getDownloadTask(id)) {
         continue
@@ -377,8 +377,21 @@ class UpyunApi {
         targetFilePath: savedFilePath
       })
       const preSignedUrl = `${customUrl}/${key}`
-      gotDownload(instance, preSignedUrl, fileStream, id, savedFilePath, this.logger)
+      promises.push(() => new Promise((resolve, reject) => {
+        NewDownloader(instance, preSignedUrl, id, savedFilePath, this.logger)
+          .then((res: boolean) => {
+            if (res) {
+              resolve(res)
+            } else {
+              reject(res)
+            }
+          })
+      }))
     }
+    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
+    pool.all(promises).catch((error) => {
+      this.logger.error(formatError(error, { class: 'UpyunApi', method: 'downloadBucketFile' }))
+    })
     return true
   }
 }

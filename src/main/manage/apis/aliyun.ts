@@ -1,7 +1,6 @@
 import axios from 'axios'
-import { hmacSha1Base64, getFileMimeType, gotDownload, formatError } from '../utils/common'
+import { hmacSha1Base64, getFileMimeType, formatError, NewDownloader, ConcurrencyPromisePool } from '../utils/common'
 import { ipcMain, IpcMainEvent } from 'electron'
-import fs from 'fs-extra'
 import { XMLParser } from 'fast-xml-parser'
 import OSS from 'ali-oss'
 import path from 'path'
@@ -548,19 +547,13 @@ class AliyunApi {
    * @param configMap
    */
   async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray } = configMap
-    // fileArray = [{
-    //   bucketName: string,
-    //   region: string,
-    //   key: string,
-    //  fileName: string
-    // }]
+    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
+    const promises = [] as any
     for (const item of fileArray) {
       const { bucketName, region, key, fileName } = item
       const client = this.getNewCtx(region, bucketName)
       const savedFilePath = path.join(downloadPath, fileName)
-      const fileStream = fs.createWriteStream(savedFilePath)
       const id = `${bucketName}-${region}-${key}`
       if (instance.getDownloadTask(id)) {
         continue
@@ -575,8 +568,21 @@ class AliyunApi {
       const preSignedUrl = client.signatureUrl(key, {
         expires: 60 * 60 * 48
       })
-      gotDownload(instance, preSignedUrl, fileStream, id, savedFilePath, this.logger)
+      promises.push(() => new Promise((resolve, reject) => {
+        NewDownloader(instance, preSignedUrl, id, savedFilePath, this.logger)
+          .then((res: boolean) => {
+            if (res) {
+              resolve(res)
+            } else {
+              reject(res)
+            }
+          })
+      }))
     }
+    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
+    pool.all(promises).catch((error: any) => {
+      this.logger.error(formatError(error, { class: 'AliyunApi', method: 'downloadBucketFile' }))
+    })
     return true
   }
 }
