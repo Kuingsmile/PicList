@@ -256,6 +256,8 @@ import { shell } from 'electron'
 import { useRouter } from 'vue-router'
 import { useManageStore } from '../store/manageStore'
 import { formObjToTableData } from '../utils/common'
+import { getConfig as getPicBedsConfig } from '@/utils/dataSender'
+import { formatEndpoint } from '~/main/manage/utils/common'
 
 const activeName = ref('login')
 const configResult:IStringKeyMap = reactive({})
@@ -528,7 +530,192 @@ function handleConfigImport (alias: string) {
   }
 }
 
-onBeforeMount(() => {
+async function getCurrentConfigList () {
+  const configList = await getPicBedsConfig<any>('uploader') ?? {}
+  const pbList = ['aliyun', 'tcyun', 'upyun', 'qiniu', 'smms', 'qiniu', 'github', 'webdavplist', 'aws-s3']
+  for (const pb of pbList) {
+    if (configList[pb] && configList[pb].configList.length > 0) {
+      for (const config of configList[pb].configList) {
+        await transUpToManage(config, pb)
+      }
+    }
+  }
+}
+
+async function transUpToManage (config: IUploaderConfigListItem, picBedName: string) {
+  const resultMap: IStringKeyMap = {}
+  switch (picBedName) {
+    case 'smms':
+      if (!config.token) {
+        return
+      }
+      resultMap.alias = `smms-${config._configName ?? 'Default'}-imp`
+      resultMap.picBedName = 'smms'
+      resultMap.token = config.token
+      resultMap.paging = true
+      saveConfig(`picBed.${resultMap.alias}`, resultMap)
+      break
+    case 'aliyun':
+      if (!config.accessKeyId || !config.accessKeySecret) {
+        return
+      }
+      resultMap.alias = `aliyun-${config._configName ?? 'Default'}-imp`
+      resultMap.picBedName = 'aliyun'
+      resultMap.accessKeyId = config.accessKeyId
+      resultMap.accessKeySecret = config.accessKeySecret
+      resultMap.bucketName = ''
+      resultMap.baseDir = '/'
+      resultMap.paging = true
+      resultMap.itemsPerPage = 50
+      resultMap.isAutoCustomUrl = !config.customUrl
+      resultMap.transformedConfig = JSON.stringify(config.customUrl
+        ? {
+          [config.bucket]: {
+            customUrl: config.customUrl
+          }
+        }
+        : {})
+      resultMap.paging = true
+      saveConfig(`picBed.${resultMap.alias}`, resultMap)
+      break
+    case 'qiniu':
+      if (!config.accessKey || !config.secretKey) {
+        return
+      }
+      resultMap.alias = `qiniu-${config._configName ?? 'Default'}-imp`
+      resultMap.picBedName = 'qiniu'
+      resultMap.accessKey = config.accessKey
+      resultMap.secretKey = config.secretKey
+      resultMap.bucketName = ''
+      resultMap.baseDir = '/'
+      resultMap.isAutoCustomUrl = false
+      resultMap.transformedConfig = JSON.stringify({ [config.bucket]: config.url })
+      resultMap.paging = true
+      resultMap.itemsPerPage = 50
+      saveConfig(`picBed.${resultMap.alias}`, resultMap)
+      break
+    case 'tcyun':
+      if (!config.secretId || !config.secretKey || config.version === 'v4') {
+        return
+      }
+      resultMap.alias = `tcyun-${config._configName ?? 'Default'}-imp`
+      resultMap.picBedName = 'tcyun'
+      resultMap.secretId = config.secretId
+      resultMap.secretKey = config.secretKey
+      resultMap.bucketName = ''
+      resultMap.baseDir = '/'
+      resultMap.appId = config.appId
+      resultMap.isAutoCustomUrl = !config.customUrl
+      resultMap.transformedConfig = JSON.stringify(config.customUrl
+        ? {
+          [config.bucket]: {
+            customUrl: config.customUrl
+          }
+        }
+        : {})
+      resultMap.paging = true
+      resultMap.itemsPerPage = 50
+      saveConfig(`picBed.${resultMap.alias}`, resultMap)
+      break
+    case 'github':
+      if (!config.token) {
+        return
+      }
+      resultMap.alias = `github-${config._configName ?? 'Default'}-imp`
+      resultMap.picBedName = 'github'
+      resultMap.token = config.token
+      resultMap.githubUsername = config.repo.split('/')[0]
+      resultMap.customUrl = ''
+      resultMap.proxy = ''
+      resultMap.paging = true
+      resultMap.itemsPerPage = 50
+      saveConfig(`picBed.${resultMap.alias}`, resultMap)
+      break
+    case 'upyun':
+      if (!config.operator || !config.password) {
+        return
+      }
+      resultMap.alias = `upyun-${config._configName ?? 'Default'}-imp`
+      resultMap.picBedName = 'upyun'
+      resultMap.operator = config.operator
+      resultMap.password = config.password
+      resultMap.bucketName = config.bucket
+      resultMap.baseDir = '/'
+      resultMap.customUrl = config.url
+      resultMap.transformedConfig = JSON.stringify({
+        [config.bucket]: {
+          customUrl: config.url,
+          baseDir: '/',
+          area: '',
+          operator: config.operator,
+          password: config.password
+        }
+      })
+      resultMap.paging = true
+      resultMap.itemsPerPage = 50
+      saveConfig(`picBed.${resultMap.alias}`, resultMap)
+      break
+    case 'webdavplist':
+      if (!config.host) {
+        return
+      }
+      resultMap.alias = `webdav-${config._configName ?? 'Default'}-imp`
+      resultMap.endpoint = formatEndpoint(config.host, config.sslEnabled)
+      resultMap.picBedName = 'webdavplist'
+      resultMap.username = config.username
+      resultMap.password = config.password
+      resultMap.bucketName = 'webdav'
+      resultMap.baseDir = config.path || '/'
+      resultMap.customUrl = config.customUrl || ''
+      resultMap.sslEnabled = !!config.sslEnabled
+      resultMap.proxy = ''
+      resultMap.transformedConfig = JSON.stringify({
+        webdav: {
+          operator: '',
+          password: config.password,
+          baseDir: config.path || '/',
+          customUrl: config.customUrl || '',
+          area: ''
+        }
+      })
+      saveConfig(`picBed.${resultMap.alias}`, resultMap)
+      break
+    case 'aws-s3':
+      if (!config.accessKeyID || !config.secretAccessKey) {
+        return
+      }
+      resultMap.alias = `s3-${config._configName ?? 'Default'}-imp`
+      resultMap.picBedName = 's3plist'
+      resultMap.accessKeyId = config.accessKeyID
+      resultMap.secretAccessKey = config.secretAccessKey
+      resultMap.endpoint = config.endpoint || ''
+      resultMap.baseDir = '/'
+      resultMap.bucketName = ''
+      resultMap.paging = true
+      resultMap.itemsPerPage = 50
+      resultMap.proxy = ''
+      resultMap.sslEnabled = config.endpoint ? config.endpoint.startsWith('https') : false
+      resultMap.aclForUpload = 'public-read'
+      resultMap.s3ForcePathStyle = config.pathStyleAccess
+      resultMap.transformedConfig = JSON.stringify(
+        config.urlPrefix
+          ? {
+            [config.bucket]: {
+              customUrl: config.urlPrefix
+            }
+          }
+          : {}
+      )
+      saveConfig(`picBed.${resultMap.alias}`, resultMap)
+      break
+    default:
+      return
+  }
+  await manageStore.refreshConfig()
+}
+
+onBeforeMount(async () => {
+  await getCurrentConfigList()
   getExistingConfig('login')
   getAllConfigAliasArray()
 })
