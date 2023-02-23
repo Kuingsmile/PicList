@@ -1,3 +1,14 @@
+## :tada: 1.2.1 (2023-02-23)
+
+
+### :sparkles: Features
+
+* add picbed config name in upload page ([0a31143](https://github.com/Kuingsmile/PicList/commit/0a31143))
+* configs of picBeds can be auto imported to manage config now ([be68f0f](https://github.com/Kuingsmile/PicList/commit/be68f0f))
+* picture upload support webdav now ([1dacd3c](https://github.com/Kuingsmile/PicList/commit/1dacd3c))
+
+
+
 # :tada: 1.2.0 (2023-02-22)
 
 
