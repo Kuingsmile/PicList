@@ -1,3 +1,12 @@
+## :tada: 1.2.2 (2023-02-24)
+
+
+### :sparkles: Features
+
+* add grid view for file explorer ([69e1b48](https://github.com/Kuingsmile/PicList/commit/69e1b48))
+
+
+
 ## :tada: 1.2.1 (2023-02-23)
 
 
