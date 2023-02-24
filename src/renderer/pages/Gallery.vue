@@ -138,10 +138,10 @@
             v-for="(item, index) in filterList"
             :key="item.id"
             :xs="24"
-            :sm="8"
-            :md="6"
-            :lg="4"
-            :xl="3"
+            :sm="12"
+            :md="8"
+            :lg="3"
+            :xl="2"
             class="gallery-list__img"
           >
             <div

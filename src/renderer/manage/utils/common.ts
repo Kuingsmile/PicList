@@ -83,10 +83,10 @@ export function formatFileSize (size: number) {
   return `${(size / Math.pow(2, index * 10)).toFixed(2)} ${units[index]}`
 }
 
-export function formatFileName (fileName: string) {
+export function formatFileName (fileName: string, length: number = 20) {
   const ext = path.extname(fileName)
   const name = path.basename(fileName, ext)
-  return name.length > 20 ? `${name.slice(0, 20)}...${ext}` : fileName
+  return name.length > length ? `${name.slice(0, length)}...${ext}` : fileName
 }
 
 export const getExtension = (fileName: string) => path.extname(fileName).slice(1)
@@ -143,3 +143,14 @@ export const formatHttpProxy = (proxy: string | undefined, type: 'object' | 'str
       }
   }
 }
+
+export const svg = `
+  <path class="path" d="
+    M 30 15
+    L 28 17
+    M 25.61 25.61
+    A 15 15, 0, 0, 1, 15 30
+    A 15 15, 0, 1, 1, 27.99 7.5
+    L 15 15
+  " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
+  `

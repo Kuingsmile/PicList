@@ -19,6 +19,15 @@
           show-icon
           center
         />
+        <div
+          v-if="isLoading"
+          v-loading="isLoading"
+          element-loading-text="加载中..."
+          :element-loading-spinner="svg"
+          element-loading-svg-view-box="0, 0, 50, 50"
+          element-loading-background="rgba(122, 122, 122, 0.5)"
+          style="width: 100%;height: 100%;"
+        />
         <el-row>
           <el-col
             v-for="item in sortedAllConfigAliasMap"
@@ -255,7 +264,7 @@ import { getConfig, saveConfig, removeConfig } from '../utils/dataSender'
 import { shell } from 'electron'
 import { useRouter } from 'vue-router'
 import { useManageStore } from '../store/manageStore'
-import { formObjToTableData } from '../utils/common'
+import { formObjToTableData, svg } from '../utils/common'
 import { getConfig as getPicBedsConfig } from '@/utils/dataSender'
 import { formatEndpoint } from '~/main/manage/utils/common'
 
@@ -266,6 +275,7 @@ const dataForTable = reactive([] as any[])
 const allConfigAliasMap = reactive({} as IStringKeyMap)
 const router = useRouter()
 const manageStore = useManageStore()
+const isLoading = ref(false)
 
 const sortedAllConfigAliasMap = computed(() => {
   const sorted = Object.values(allConfigAliasMap).sort((a, b) => {
@@ -517,6 +527,7 @@ const handleConfigClick = async (item: any) => {
 }
 
 function handleConfigImport (alias: string) {
+  isLoading.value = true
   const selectedConfig = existingConfiguration[alias]
   if (selectedConfig) {
     supportedPicBedList[selectedConfig.picBedName].options.forEach((option: any) => {
@@ -528,6 +539,7 @@ function handleConfigImport (alias: string) {
       }
     })
   }
+  isLoading.value = false
 }
 
 async function getCurrentConfigList () {

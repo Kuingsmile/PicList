@@ -109,6 +109,23 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
+                >文件列表默认显示方式
+                </span>
+              </template>
+              <el-switch
+                v-model="form.isShowList"
+                style="position:absolute;right: 0;"
+                active-text="列表"
+                inactive-text="卡片"
+                active-color="#13ce66"
+                inactive-color="orange"
+                @change="handelIsShowListChange"
+              />
+            </el-form-item>
+            <el-form-item>
+              <template #label>
+                <span
+                  style="position:absolute;left: 0;"
                 >为自定义域名开启强制HTTPS
                   <el-tooltip
                     effect="dark"
@@ -431,7 +448,8 @@ const form = reactive<IStringKeyMap>({
   customRename: false,
   isAutoRefresh: false,
   isIgnoreCase: false,
-  isForceCustomUrlHttps: false
+  isForceCustomUrlHttps: false,
+  isShowList: false
 })
 
 const downloadDir = ref('')
@@ -514,6 +532,12 @@ async function handleDownloadDirClick () {
 function handelIsShowThumbnailChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.isShowThumbnail': val
+  })
+}
+
+function handelIsShowListChange (val:ICheckBoxValueType) {
+  saveConfig({
+    'settings.isShowList': val
   })
 }
 

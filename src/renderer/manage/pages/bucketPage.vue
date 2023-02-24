@@ -369,6 +369,22 @@ ea/*
           </el-dropdown-item>
         </template>
       </el-dropdown>
+      <el-button-group
+        size="small"
+        style="margin-left: 10px;width: 80px;flex-shrink: 0;"
+        type="primary"
+      >
+        <el-button
+          :icon="Grid"
+          :type="showFileStyle === 'grid' ? 'primary' : 'info'"
+          @click="handleViewChange('grid')"
+        />
+        <el-button
+          :icon="Fold"
+          :type="showFileStyle === 'list' ? 'primary' : 'info'"
+          @click="handleViewChange('list')"
+        />
+      </el-button-group>
       <el-input-number
         v-if="paging"
         v-model="currentPage"
@@ -409,14 +425,17 @@ https://www.baidu.com/img/bd_logo1.png"
       </template>
     </el-dialog>
     <div
+      v-show="showFileStyle === 'list'"
       class="layout-table"
       style="margin: 0 15px 15px 15px;overflow-y: auto;overflow-x: hidden;height: 80vh;"
     >
       <el-auto-resizer>
-        <template #default="{ height, width }">
+        <template
+          #default="{ height, width }"
+        >
           <el-table-v2
             ref="elTable"
-            :columns="columns"
+            :columns="columns "
             :data="currentPageFilesInfo"
             :row-class="rowClass"
             :width="width"
@@ -424,6 +443,184 @@ https://www.baidu.com/img/bd_logo1.png"
           />
         </template>
       </el-auto-resizer>
+    </div>
+    <div
+      v-show="showFileStyle === 'grid'"
+      class="layout-grid"
+      style="margin: 0 15px 15px 15px;overflow-y: auto;overflow-x: hidden;height: 80vh;"
+    >
+      <el-col
+        :span="24"
+      >
+        <el-row
+          :gutter="16"
+        >
+          <el-col
+            v-for="(item,index) in currentPageFilesInfo"
+            :key="index"
+            :xs="24"
+            :sm="12"
+            :md="8"
+            :lg="3"
+            :xl="2"
+          >
+            <el-card
+              v-if="item.match || !searchText"
+              :body-style="{ padding: '0px', height: '150px', width: '100%', background: item.checked ? '#f2f2f2' : '#fff' }"
+              style="margin-bottom: 10px;"
+              shadow="hover"
+            >
+              <el-image
+                v-if="!item.isDir && currentPicBedName !== 'webdavplist'"
+                :src="isShowThumbnail && item.isImage ?
+                  item.url
+                  : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)"
+                fit="contain"
+                style="height: 100px;width: 100%;margin: 0 auto;"
+                @click="handleClickFile(item)"
+              >
+                <template #placeholder>
+                  <el-icon>
+                    <Loading />
+                  </el-icon>
+                </template>
+                <template #error>
+                  <el-image
+                    :src="require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)"
+                    fit="contain"
+                    style="height: 100px;width: 100%;margin: 0 auto;"
+                  />
+                </template>
+              </el-image>
+              <ImageWebdav
+                v-else-if="!item.isDir && currentPicBedName === 'webdavplist'"
+                :is-show-thumbnail="isShowThumbnail"
+                :item="item"
+                :headers="getBase64ofWebdav()"
+                :url="item.url"
+                @click="handleClickFile(item)"
+              />
+              <el-image
+                v-else
+                :src="require('./assets/icons/folder.png')"
+                fit="contain"
+                style="height: 100px;width: 100%;margin: 0 auto;"
+                @click="handleClickFile(item)"
+              />
+              <div
+                style="align-items: center;display: flex;justify-content: center;"
+                @click="copyToClipboard(item.fileName ?? '')"
+              >
+                <el-tooltip
+                  placement="top"
+                  effect="light"
+                  :content="item.fileName"
+                >
+                  <el-link
+                    style="font-size: 12px;font-family: Arial, Helvetica, sans-serif;"
+                    :underline="false"
+                    :type="item.checked ? 'primary' : 'info'"
+                  >
+                    {{ formatFileName(item.fileName ?? '', 10) }}
+                  </el-link>
+                </el-tooltip>
+              </div>
+              <el-row
+                style="display: flex;"
+                justify="space-between"
+                align="middle"
+              >
+                <el-row>
+                  <el-icon
+                    v-if="!item.isDir || !showRenameFileIcon"
+                    size="20"
+                    style="cursor: pointer;"
+                    color="#409EFF"
+                    @click="handleRenameFile(item)"
+                  >
+                    <Edit />
+                  </el-icon>
+                  <el-dropdown>
+                    <template #default>
+                      <el-icon
+                        size="20"
+                        style="cursor: pointer;"
+                        color="#409EFF"
+                        @click="copyToClipboard(formatLink(item.url, item.fileName, manageStore.config.settings.pasteForma ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))"
+                      >
+                        <CopyDocument />
+                      </el-icon>
+                    </template>
+                    <template #dropdown>
+                      <el-dropdown-menu>
+                        <el-dropdown-item
+                          @click="copyToClipboard(formatLink(item.url, item.fileName, 'url'))"
+                        >
+                          Url
+                        </el-dropdown-item>
+                        <el-dropdown-item
+                          @click="copyToClipboard(formatLink(item.url, item.fileName, 'markdown'))"
+                        >
+                          Markdown
+                        </el-dropdown-item>
+                        <el-dropdown-item
+                          @click="copyToClipboard(formatLink(item.url, item.fileName, 'markdown-with-link'))"
+                        >
+                          Markdown-link
+                        </el-dropdown-item>
+                        <el-dropdown-item
+                          @click="copyToClipboard(formatLink(item.url, item.fileName, 'html'))"
+                        >
+                          Html
+                        </el-dropdown-item>
+                        <el-dropdown-item
+                          @click="copyToClipboard(formatLink(item.url, item.fileName, 'bbcode'))"
+                        >
+                          BBCode
+                        </el-dropdown-item>
+                        <el-dropdown-item
+                          @click="copyToClipboard(formatLink(item.url, item.fileName, 'custom', manageStore.config.settings.customPasteFormat))"
+                        >
+                          自定义
+                        </el-dropdown-item>
+                        <el-dropdown-item
+                          v-if="showPresignedUrl"
+                          @click="async () => {
+                            copyToClipboard(await getPreSignedUrl(item))
+                          }"
+                        >
+                          预签名链接
+                        </el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                  <el-icon
+                    size="20"
+                    style="cursor: pointer;"
+                    color="#409EFF"
+                    @click="handleShowFileInfo(item)"
+                  >
+                    <Document />
+                  </el-icon>
+                  <el-icon
+                    size="20"
+                    style="cursor: pointer;"
+                    color="#FFB6C1"
+                    @click="handleDeleteFile(item)"
+                  >
+                    <DeleteFilled />
+                  </el-icon>
+                </el-row>
+                <el-checkbox
+                  v-model="item.checked"
+                  size="large"
+                  @change="handleCheckChange(item)"
+                />
+              </el-row>
+            </el-card>
+          </el-col>
+        </el-row>
+      </el-col>
     </div>
     <el-image-viewer
       v-if="showImagePreview"
@@ -997,9 +1194,9 @@ https://www.baidu.com/img/bd_logo1.png"
 <script lang="tsx" setup>
 import { ref, reactive, watch, onBeforeMount, computed, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
-import { Close, Folder, FolderAdd, Upload, CircleClose, Loading, CopyDocument, Edit, DocumentAdd, Link, Refresh, ArrowRight, HomeFilled, Document, Coin, Download, DeleteFilled, Sort, FolderOpened } from '@element-plus/icons-vue'
+import { Grid, Fold, Close, Folder, FolderAdd, Upload, CircleClose, Loading, CopyDocument, Edit, DocumentAdd, Link, Refresh, ArrowRight, HomeFilled, Document, Coin, Download, DeleteFilled, Sort, FolderOpened } from '@element-plus/icons-vue'
 import { useManageStore } from '../store/manageStore'
-import { renameFile, formatLink, formatFileName, getFileIconPath, formatFileSize, getExtension, isValidUrl } from '../utils/common'
+import { renameFile, formatLink, formatFileName, getFileIconPath, formatFileSize, getExtension, isValidUrl, svg } from '../utils/common'
 import { ipcRenderer, clipboard, IpcRendererEvent } from 'electron'
 import { fileCacheDbInstance } from '../store/bucketFileDb'
 import { trimPath } from '~/main/manage/utils/common'
@@ -1017,7 +1214,8 @@ import {
   ElDropdownMenu,
   ElProgress,
   ElLink,
-  ElTag
+  ElTag,
+  ElCard
 } from 'element-plus'
 import type { Column, RowClassNameGetter } from 'element-plus'
 import { useFileTransferStore } from '@/manage/store/manageStore'
@@ -1029,6 +1227,8 @@ import { getConfig, saveConfig } from '../utils/dataSender'
 import { marked } from 'marked'
 import { textFileExt } from '../utils/textfile'
 import { videoExt } from '../utils/videofile'
+import ImageWebdav from '@/components/ImageWebdav.vue'
+
 /*
 configMap:{
     prefix: string, -> baseDir
@@ -1040,16 +1240,6 @@ configMap:{
     bucketConfig
 }
 */
-const svg = `
-        <path class="path" d="
-          M 30 15
-          L 28 17
-          M 25.61 25.61
-          A 15 15, 0, 0, 1, 15 30
-          A 15 15, 0, 1, 1, 27.99 7.5
-          L 15 15
-        " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
-      `
 
 const linkArray = [
   { key: 'Url', value: 'url' },
@@ -1108,6 +1298,7 @@ const textfileContent = ref('')
 const isShowVideoFileDialog = ref(false)
 const videoFileUrl = ref('')
 const videoPlayerHeaders = ref({})
+const showFileStyle = ref<'list' | 'grid'>('grid')
 
 const showCustomUrlSelectList = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value))
 
@@ -1128,6 +1319,17 @@ const downloadingTaskList = computed(() => downloadTaskList.value.filter(item =>
 const downloadedTaskList = computed(() => downloadTaskList.value.filter(item => ['downloaded', 'failed', 'canceled'].includes(item.status)))
 
 const isAutoCustomUrl = computed(() => manageStore.config.picBed[configMap.alias].isAutoCustomUrl === undefined ? true : manageStore.config.picBed[configMap.alias].isAutoCustomUrl)
+
+function handleViewChange (val: 'list' | 'grid') {
+  showFileStyle.value = val
+}
+
+function getBase64ofWebdav () {
+  const headers = {
+    Authorization: 'Basic ' + Buffer.from(`${manageStore.config.picBed[configMap.alias].username}:${manageStore.config.picBed[configMap.alias].password}`).toString('base64')
+  }
+  return headers
+}
 
 function startRefreshUploadTask () {
   refreshUploadTaskId.value = setInterval(() => {
@@ -1613,6 +1815,7 @@ async function resetParam (force: boolean = false) {
   previewedImage.value = ''
   isShowFileInfo.value = false
   lastChoosed.value = -1
+  showFileStyle.value = manageStore.config.picBed[configMap.alias].isShowList ? 'list' : 'grid'
   if (!isAutoRefresh.value && !force && !paging.value) {
     const cachedData = await searchExistFileList()
     if (cachedData.length > 0) {
@@ -2769,21 +2972,14 @@ const columns: Column<any>[] = [
       item.match || !searchText.value
         ? item.isDir || !showRenameFileIcon.value
           ? <span></span>
-          : <ElTooltip
-            placement="top"
-            content="重命名"
-            effect='light'
-            hide-after={150}
+          : <ElIcon
+            size="20"
+            style="cursor: pointer;"
+            color="#409EFF"
+            onClick={() => handleRenameFile(item)}
           >
-            <ElIcon
-              size="20"
-              style="cursor: pointer;"
-              color="#409EFF"
-              onClick={() => handleRenameFile(item)}
-            >
-              <Edit />
-            </ElIcon>
-          </ElTooltip>
+            <Edit />
+          </ElIcon>
         : <template></template>
     )
   },
@@ -2933,20 +3129,13 @@ const columns: Column<any>[] = [
     width: 30,
     cellRenderer: ({ rowData: item }) => (
       item.match || !searchText.value
-        ? <ElTooltip
-          placement="top"
-          content="删除"
-          effect='light'
-          hide-after={150}
+        ? <ElIcon
+          style="cursor: pointer;"
+          color="red"
+          onClick={() => handleDeleteFile(item)}
         >
-          <ElIcon
-            style="cursor: pointer;"
-            color="red"
-            onClick={() => handleDeleteFile(item)}
-          >
-            <DeleteFilled />
-          </ElIcon>
-        </ElTooltip>
+          <DeleteFilled />
+        </ElIcon>
         : <template></template>
     )
   }
