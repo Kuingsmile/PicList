@@ -1,3 +1,18 @@
+# :tada: 1.3.0 (2023-02-27)
+
+
+### :sparkles: Features
+
+* downloaded file or folder can keey folder structure now ([1e9c87d](https://github.com/Kuingsmile/PicList/commit/1e9c87d))
+* folder structure can be keeped when uploading folders ([750ea58](https://github.com/Kuingsmile/PicList/commit/750ea58))
+
+
+### :bug: Bug Fixes
+
+* optimized software UI ([d6ce555](https://github.com/Kuingsmile/PicList/commit/d6ce555)), closes [#12](https://github.com/Kuingsmile/PicList/issues/12)
+
+
+
 ## :tada: 1.2.2 (2023-02-24)
 
 
