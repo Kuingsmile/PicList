@@ -141,7 +141,7 @@ function openEditPage (configId: string) {
 }
 
 function formatTime (time: number): string {
-  return dayjs(time).format('YYYY-MM-DD HH:mm:ss')
+  return dayjs(time).format('YY/MM/DD HH:mm')
 }
 
 async function deleteConfig (id: string) {
@@ -183,8 +183,10 @@ export default {
 </script>
 <style lang='stylus'>
 #config-list-view
-  position relative
+  position absolute
   min-height 100%
+  left 150px
+  right 0
   overflow-x hidden
   overflow-y auto
   padding-bottom 50px
@@ -218,12 +220,23 @@ export default {
         position absolute
         right 5px
         top 8px
+        left 0
         font-size 18pxc
+        word-break break-all
         display flex
         align-items center
         color #eee
         .el-icon-edit
+          right 20px
+          position absolute
+          top 2px
+          margin-right 10px
+          cursor pointer
         .el-icon-delete
+          position absolute
+          top 2px
+          margin-right 10px
+          right 0
           cursor pointer
         .el-icon-edit
           margin-right 10px

@@ -137,7 +137,7 @@
           <el-col
             v-for="(item, index) in filterList"
             :key="item.id"
-            :xs="24"
+            :xs="12"
             :sm="12"
             :md="8"
             :lg="3"
@@ -658,6 +658,9 @@ export default {
     &.active
       transform: rotate(180deg)
 #gallery-view
+  position absolute
+  left 140px
+  right 0
   height 100%
   .cursor-pointer
     cursor pointer
@@ -692,7 +695,6 @@ export default {
       background #44B363
       color #fff
 #gallery-view
-  position relative
   .round
     border-radius 14px
   .pull-right

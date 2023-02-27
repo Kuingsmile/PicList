@@ -937,6 +937,9 @@ export default {
       color #49B1F5
 #picgo-setting
   height 100%
+  position absolute
+  left 140px
+  right 0
   .sub-title
     font-size 14px
   .setting-list

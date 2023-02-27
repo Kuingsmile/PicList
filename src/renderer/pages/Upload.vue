@@ -310,6 +310,9 @@ export default {
   align-items center
   justify-content center
 #upload-view
+  position absolute
+  left 140px
+  right 0
   height 100%
   .view-title
     margin 10vh auto 10px
@@ -350,6 +353,7 @@ export default {
     .el-progress-bar__inner
       transition all .2s ease-in-out
   .paste-style
+    justify-content center
     text-align center
     margin-top 16px
     display flex

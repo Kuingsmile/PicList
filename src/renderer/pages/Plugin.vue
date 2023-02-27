@@ -54,7 +54,7 @@
         v-for="item in pluginList"
         :key="item.fullName"
         class="plugin-item__container"
-        :span="12"
+        :span="24"
       >
         <div
           class="plugin-item"
@@ -90,7 +90,7 @@
             </div>
             <div class="plugin-item__info-bar">
               <span class="plugin-item__author">
-                {{ item.author }}
+                {{ item.author.replace(/<.*>/, '') }}
               </span>
               <span class="plugin-item__config">
                 <template v-if="searchText">
@@ -546,7 +546,9 @@ export default {
 <style lang='stylus'>
 $darwinBg = #172426
 #plugin-view
-  position relative
+  position absolute
+  left 140px
+  right 0
   padding 0 20px 0
   .el-loading-mask
     background-color rgba(0, 0, 0, 0.8)
@@ -639,9 +641,11 @@ $darwinBg = #172426
       font-size 16px
       height 22px
       line-height 22px
-      // font-weight 600
       font-weight 600
       cursor pointer
+      text-overflow ellipsis
+      white-space nowrap
+      overflow hidden
       transition all .2s ease-in-out
       &:hover
         color: #1B9EF3
