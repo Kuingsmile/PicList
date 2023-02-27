@@ -150,6 +150,54 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
+                >上传时保留目录结构
+                  <el-tooltip
+                    effect="dark"
+                    content="开启后，上传文件时会保留目录结构，关闭后会将所有文件展开到指定目录下"
+                    placement="right"
+                  >
+                    <el-icon>
+                      <InfoFilled />
+                    </el-icon>
+                  </el-tooltip>
+                </span>
+              </template>
+              <el-switch
+                v-model="form.isUploadKeepDirStructure"
+                style="position:absolute;right: 0;"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                @change="handelIsUploadKeepDirStructureChange"
+              />
+            </el-form-item>
+            <el-form-item>
+              <template #label>
+                <span
+                  style="position:absolute;left: 0;"
+                >下载时保留目录结构
+                  <el-tooltip
+                    effect="dark"
+                    content="开启后，下载文件时会保留目录结构，关闭后会将所有文件展开到下载目录下"
+                    placement="right"
+                  >
+                    <el-icon>
+                      <InfoFilled />
+                    </el-icon>
+                  </el-tooltip>
+                </span>
+              </template>
+              <el-switch
+                v-model="form.isDownloadKeepDirStructure"
+                style="position:absolute;right: 0;"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                @change="handelIsDownloadKeepDirStructureChange"
+              />
+            </el-form-item>
+            <el-form-item>
+              <template #label>
+                <span
+                  style="position:absolute;left: 0;"
                 >最大同时下载文件数(1-9999)
                   <el-tooltip
                     effect="dark"
@@ -449,7 +497,9 @@ const form = reactive<IStringKeyMap>({
   isAutoRefresh: false,
   isIgnoreCase: false,
   isForceCustomUrlHttps: false,
-  isShowList: false
+  isShowList: false,
+  isUploadKeepDirStructure: true,
+  isDownloadKeepDirStructure: true
 })
 
 const downloadDir = ref('')
@@ -520,6 +570,8 @@ async function initData () {
   form.isForceCustomUrlHttps = config.settings.isForceCustomUrlHttps ?? true
   PreSignedExpire.value = config.settings.PreSignedExpire ?? 14400
   maxDownloadFileCount.value = config.settings.maxDownloadFileCount ?? 5
+  form.isUploadKeepDirStructure = config.settings.isUploadKeepDirStructure ?? true
+  form.isDownloadKeepDirStructure = config.settings.isDownloadKeepDirStructure ?? true
 }
 
 async function handleDownloadDirClick () {
@@ -550,6 +602,18 @@ function handelisIgnoreCaseChange (val:ICheckBoxValueType) {
 function handelIsAutoRefreshChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.isAutoRefresh': val
+  })
+}
+
+function handelIsUploadKeepDirStructureChange (val:ICheckBoxValueType) {
+  saveConfig({
+    'settings.isUploadKeepDirStructure': val
+  })
+}
+
+function handelIsDownloadKeepDirStructureChange (val:ICheckBoxValueType) {
+  saveConfig({
+    'settings.isDownloadKeepDirStructure': val
   })
 }
 

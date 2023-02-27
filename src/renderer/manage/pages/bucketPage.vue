@@ -521,7 +521,7 @@ https://www.baidu.com/img/bd_logo1.png"
                     :underline="false"
                     :type="item.checked ? 'primary' : 'info'"
                   >
-                    {{ formatFileName(item.fileName ?? '', 10) }}
+                    {{ formatFileName(item.fileName ?? '', 8) }}
                   </el-link>
                 </el-tooltip>
               </div>
@@ -689,11 +689,18 @@ https://www.baidu.com/img/bd_logo1.png"
     </el-affix>
     <el-drawer
       v-model="isShowUploadPanel"
-      title="上传文件"
       size="60%"
       @open="startRefreshUploadTask"
       @close="stopRefreshUploadTask"
     >
+    <template #header>
+    <el-switch
+      v-model="isUploadKeepDirStructure"
+      @change="handleUploadKeepDirChange"
+      active-text="保持目录结构"
+      inactive-text="不保持目录结构"
+    />
+  </template>
       <div
         id="upload-area"
         :class="{ 'is-dragover': dragover }"
@@ -1299,6 +1306,7 @@ const isShowVideoFileDialog = ref(false)
 const videoFileUrl = ref('')
 const videoPlayerHeaders = ref({})
 const showFileStyle = ref<'list' | 'grid'>('grid')
+const isUploadKeepDirStructure = ref(manageStore.config.settings.isUploadKeepDirStructure ?? true)
 
 const showCustomUrlSelectList = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value))
 
@@ -1319,6 +1327,11 @@ const downloadingTaskList = computed(() => downloadTaskList.value.filter(item =>
 const downloadedTaskList = computed(() => downloadTaskList.value.filter(item => ['downloaded', 'failed', 'canceled'].includes(item.status)))
 
 const isAutoCustomUrl = computed(() => manageStore.config.picBed[configMap.alias].isAutoCustomUrl === undefined ? true : manageStore.config.picBed[configMap.alias].isAutoCustomUrl)
+
+function handleUploadKeepDirChange (val: any) {
+  saveConfig('settings.isUploadKeepDirStructure', !!val)
+  manageStore.refreshConfig()
+}
 
 function handleViewChange (val: 'list' | 'grid') {
   showFileStyle.value = val
@@ -1408,7 +1421,8 @@ function webkitReadDataTransfer (dataTransfer: DataTransfer) {
           uploadPanelFilesList.value.push({
             name: item.name,
             path: item.path,
-            size: item.size
+            size: item.size,
+            relativePath: item.relativePath
           })
         }
       })
@@ -1530,12 +1544,19 @@ function uploadFiles () {
       rawName: item.name,
       path: item.path.replace(/\\/g, '/'),
       size: item.size,
-      renamedFileName: renameFileBeforeUpload(item.name)
+      renamedFileName: renameFileBeforeUpload(item.name),
+      relativePath: item.relativePath ?? ''
     })
   })
-  formateduploadPanelFilesList.forEach((item: any) => {
-    item.key = currentPrefix.value + item.renamedFileName
-  })
+  if (isUploadKeepDirStructure.value) {
+    formateduploadPanelFilesList.forEach((item: any) => {
+      item.key = `${currentPrefix.value}${item.relativePath.substring(0, item.relativePath.lastIndexOf('/'))}/${item.renamedFileName}`
+    })
+  } else {
+    formateduploadPanelFilesList.forEach((item: any) => {
+      item.key = currentPrefix.value + item.renamedFileName
+    })
+  }
   clearTableData()
   const param = {
     // tcyun
