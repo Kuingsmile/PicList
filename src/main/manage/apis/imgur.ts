@@ -147,9 +147,9 @@ class ImgurApi {
           return
         }
         initPage++
-      } while (res.body.data.length > 0)
+      } while (res.body.data.length > 0 && !cancelTask[0])
     }
-    result.success = true
+    result.success = !cancelTask[0]
     result.finished = true
     window.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')

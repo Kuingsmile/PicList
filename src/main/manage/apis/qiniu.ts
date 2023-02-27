@@ -12,6 +12,7 @@ import UpDownTaskQueue,
   commonTaskStatus
 } from '../datastore/upDownTaskQueue'
 import { ManageLogger } from '../utils/logger'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 class QiniuApi {
   mac: qiniu.auth.digest.Mac
@@ -246,6 +247,62 @@ class QiniuApi {
     }
   }
 
+  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const { bucketName: bucket, prefix, cancelToken, customUrl: urlPrefix } = configMap
+    let marker = undefined as any
+    const slicedPrefix = prefix.slice(1)
+    const cancelTask = [false]
+    ipcMain.on(cancelDownloadLoadingFileList, (_evt: IpcMainEvent, token: string) => {
+      if (token === cancelToken) {
+        cancelTask[0] = true
+        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+      }
+    })
+    let res = {} as any
+    const result = {
+      fullList: <any>[],
+      success: false,
+      finished: false
+    }
+    const config = new qiniu.conf.Config()
+    const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
+    do {
+      res = await new Promise((resolve, reject) => {
+        bucketManager.listPrefix(bucket, {
+          prefix: slicedPrefix === '' ? undefined : slicedPrefix,
+          marker,
+          limit: 1000
+        }, (err: any, respBody: any, respInfo: any) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve({
+              respBody,
+              respInfo
+            })
+          }
+        })
+      })
+      if (res && res.respInfo.statusCode === 200) {
+        res.respBody && res.respBody.items && res.respBody.items.forEach((item: any) => {
+          item.fsize !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
+        })
+        window.webContents.send(refreshDownloadFileTransferList, result)
+      } else {
+        result.finished = true
+        window.webContents.send(refreshDownloadFileTransferList, result)
+        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+        return
+      }
+      marker = res.respBody.marker
+    } while (res.respBody && res.respBody.marker && !cancelTask[0])
+    result.success = !cancelTask[0]
+    result.finished = true
+    window.webContents.send(refreshDownloadFileTransferList, result)
+    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+  }
+
   async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: bucket, prefix, cancelToken, customUrl: urlPrefix } = configMap
@@ -300,7 +357,7 @@ class QiniuApi {
       }
       marker = res.respBody.marker
     } while (res.respBody && res.respBody.marker && !cancelTask[0])
-    result.success = true
+    result.success = !cancelTask[0]
     result.finished = true
     window.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')

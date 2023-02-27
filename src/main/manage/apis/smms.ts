@@ -100,7 +100,7 @@ class SmmsApi {
       }
       marker++
     } while (!cancelTask[0] && res && res.status === 200 && res.data && res.data.success && res.data.CurrentPage < res.data.TotalPages)
-    result.success = true
+    result.success = !cancelTask[0]
     result.finished = true
     window.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')

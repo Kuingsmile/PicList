@@ -14,6 +14,7 @@ import UpDownTaskQueue,
   downloadTaskSpecialStatus
 } from '../datastore/upDownTaskQueue'
 import { ManageLogger } from '../utils/logger'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 class TcyunApi {
   ctx: COS
@@ -115,6 +116,53 @@ class TcyunApi {
     return res && res.statusCode === 200
   }
 
+  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const bucket = configMap.bucketName
+    const region = configMap.bucketConfig.Location
+    const prefix = configMap.prefix as string
+    const slicedPrefix = prefix.slice(1, prefix.length)
+    const urlPrefix = configMap.customUrl || `https://${bucket}.cos.${region}.myqcloud.com`
+    let marker
+    const cancelToken = configMap.cancelToken as string
+    const cancelTask = [false]
+    ipcMain.on(cancelDownloadLoadingFileList, (_evt: IpcMainEvent, token: string) => {
+      if (token === cancelToken) {
+        cancelTask[0] = true
+        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+      }
+    })
+    let res = {} as COS.GetBucketResult
+    const result = {
+      fullList: <any>[],
+      success: false,
+      finished: false
+    }
+    do {
+      res = await this.ctx.getBucket({
+        Bucket: bucket,
+        Region: region,
+        Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
+        Marker: marker
+      })
+      if (res && res.statusCode === 200) {
+        res.Contents.forEach((item: COS.CosObject) =>
+          parseInt(item.Size) !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix)))
+        window.webContents.send(refreshDownloadFileTransferList, result)
+      } else {
+        result.finished = true
+        window.webContents.send(refreshDownloadFileTransferList, result)
+        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+        return
+      }
+      marker = res.NextMarker
+    } while (res.IsTruncated === 'true' && !cancelTask[0])
+    result.success = !cancelTask[0]
+    result.finished = true
+    window.webContents.send(refreshDownloadFileTransferList, result)
+    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+  }
+
   async getBucketListBackstage (configMap: IStringKeyMap): Promise < any > {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const bucket = configMap.bucketName
@@ -159,7 +207,7 @@ class TcyunApi {
       }
       marker = res.NextMarker
     } while (res.IsTruncated === 'true' && !cancelTask[0])
-    result.success = true
+    result.success = !cancelTask[0]
     result.finished = true
     window.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')
@@ -481,6 +529,7 @@ class TcyunApi {
         sourceFileName: fileName,
         targetFilePath: path.join(downloadPath, fileName)
       })
+      fs.ensureDirSync(path.dirname(path.join(downloadPath, fileName)))
       this.ctx.downloadFile({
         Bucket: bucketName,
         Region: region,

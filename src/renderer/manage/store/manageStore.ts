@@ -45,3 +45,34 @@ export const useFileTransferStore = defineStore('fileTransfer', {
     }
   }
 })
+
+export const useDownloadFileTransferStore = defineStore('downloadFileTransfer', {
+  state: () => {
+    return {
+      downloadFileTransferList: [] as IStringKeyMap[],
+      success: false,
+      finished: false
+    }
+  },
+  actions: {
+    refreshDownloadFileTransferList (newData: IStringKeyMap) {
+      this.downloadFileTransferList = newData.fullList ?? []
+      this.success = newData.success
+      this.finished = newData.finished
+    },
+    resetDownloadFileTransferList () {
+      this.downloadFileTransferList = []
+      this.success = false
+      this.finished = false
+    },
+    getDownloadFileTransferList () {
+      return this.downloadFileTransferList
+    },
+    isFinished () {
+      return this.finished
+    },
+    isSuccess () {
+      return this.success
+    }
+  }
+})

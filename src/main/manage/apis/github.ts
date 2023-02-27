@@ -11,6 +11,7 @@ import UpDownTaskQueue,
 } from '../datastore/upDownTaskQueue'
 import fs from 'fs-extra'
 import path from 'path'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 class GithubApi {
   token: string
@@ -145,6 +146,57 @@ class GithubApi {
       initPage++
     } while (res.body.length > 0)
     return result
+  }
+
+  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const { bucketName: repo, customUrl: branch, prefix, cancelToken, cdnUrl } = configMap
+    const slicedPrefix = prefix.replace(/^\//, '').replace(/\/$/, '')
+    const cancelTask = [false]
+    ipcMain.on(cancelDownloadLoadingFileList, (_evt: IpcMainEvent, token: string) => {
+      if (token === cancelToken) {
+        cancelTask[0] = true
+        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+      }
+    })
+    let res = {} as any
+    const result = {
+      fullList: <any>[],
+      success: false,
+      finished: false
+    }
+    const treeQueue = [slicedPrefix]
+    while (treeQueue.length) {
+      if (cancelTask[0]) {
+        result.finished = true
+        return result
+      }
+      const currentPrefix = treeQueue[0]
+      res = await got(
+        `${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${treeQueue.shift()}`,
+        getOptions('GET', this.commonHeaders, {}, 'json', undefined, undefined, this.proxy)
+      ) as any
+      if (res && res.statusCode === 200) {
+        const { tree } = res.body
+        tree.forEach((item: any) => {
+          if (item.type === 'tree') {
+            treeQueue.push(`${currentPrefix}/${item.path}`)
+          } else {
+            result.fullList.push(this.formatFile(item, currentPrefix, branch, repo, cdnUrl))
+          }
+        })
+        window.webContents.send(refreshDownloadFileTransferList, result)
+      } else {
+        result.finished = true
+        window.webContents.send(refreshDownloadFileTransferList, result)
+        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+        return
+      }
+    }
+    result.success = true
+    result.finished = true
+    window.webContents.send(refreshDownloadFileTransferList, result)
+    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
   async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {

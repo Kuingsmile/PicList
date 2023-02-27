@@ -56,6 +56,11 @@ export const manageIpcList = {
       return manage.getBucketListBackstage(param)
     })
 
+    ipcMain.on('getBucketListRecursively', async (_evt: IpcMainInvokeEvent, currentPicBed: string, param: IStringKeyMap) => {
+      const manage = new ManageApi(currentPicBed)
+      return manage.getBucketListRecursively(param)
+    })
+
     ipcMain.handle('openFileSelectDialog', async () => {
       const res = await dialog.showOpenDialog({
         properties: ['openFile', 'multiSelections']

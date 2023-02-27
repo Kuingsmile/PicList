@@ -286,6 +286,7 @@ ea/*
           size="small"
           type="primary"
           plain
+          style="margin-right: 2px;"
           @click="handleCheckAllChange"
         >
           全选
@@ -300,6 +301,7 @@ ea/*
           size="small"
           type="warning"
           plain
+          style="margin-right: 2px;"
           @click="handelCancelCheck"
         >
           取消
@@ -309,6 +311,7 @@ ea/*
           size="small"
           type="primary"
           plain
+          style="margin-right: 2px;"
           @click="handleReverseCheck"
         >
           反选
@@ -318,6 +321,7 @@ ea/*
           size="small"
           type="primary"
           plain
+          style="margin-right: 2px;"
           @click="handleCheckAllChange"
         >
           全选
@@ -328,9 +332,10 @@ ea/*
           type="success"
           plain
           :icon="Download"
+          style="margin-right: 2px;"
           @click="handelBatchDownload"
         >
-          下载({{ selectedItems.length }})
+          下载({{ selectedItems.filter(item => item.isDir === false).length }})
         </el-button>
         <el-button
           class="btn"
@@ -532,13 +537,22 @@ https://www.baidu.com/img/bd_logo1.png"
               >
                 <el-row>
                   <el-icon
-                    v-if="!item.isDir || !showRenameFileIcon"
+                    v-if="!item.isDir && showRenameFileIcon"
                     size="20"
                     style="cursor: pointer;"
                     color="#409EFF"
                     @click="handleRenameFile(item)"
                   >
                     <Edit />
+                  </el-icon>
+                  <el-icon
+                    v-if="item.isDir"
+                    size="20"
+                    style="cursor: pointer;"
+                    color="crimson"
+                    @click="handelFolderBatchDownload(item)"
+                  >
+                    <Download />
                   </el-icon>
                   <el-dropdown>
                     <template #default>
@@ -687,20 +701,34 @@ https://www.baidu.com/img/bd_logo1.png"
         加载中，点击取消
       </el-button>
     </el-affix>
+    <el-affix
+      v-if="isLoadingDownloadData"
+      style="position: fixed;top: 50px;right: 0px;"
+      @click="cancelDownloadLoading"
+    >
+      <el-button
+        type="warning"
+        icon="el-icon-loading"
+        style="font-size: 12px;font-weight: 500;"
+        :loading="isLoadingDownloadData"
+      >
+        准备下载中，点击取消
+      </el-button>
+    </el-affix>
     <el-drawer
       v-model="isShowUploadPanel"
       size="60%"
       @open="startRefreshUploadTask"
       @close="stopRefreshUploadTask"
     >
-    <template #header>
-    <el-switch
-      v-model="isUploadKeepDirStructure"
-      @change="handleUploadKeepDirChange"
-      active-text="保持目录结构"
-      inactive-text="不保持目录结构"
-    />
-  </template>
+      <template #header>
+        <el-switch
+          v-model="isUploadKeepDirStructure"
+          active-text="保持目录结构"
+          inactive-text="不保持目录结构"
+          @change="handleUploadKeepDirChange"
+        />
+      </template>
       <div
         id="upload-area"
         :class="{ 'is-dragover': dragover }"
@@ -1204,6 +1232,7 @@ import { useRoute } from 'vue-router'
 import { Grid, Fold, Close, Folder, FolderAdd, Upload, CircleClose, Loading, CopyDocument, Edit, DocumentAdd, Link, Refresh, ArrowRight, HomeFilled, Document, Coin, Download, DeleteFilled, Sort, FolderOpened } from '@element-plus/icons-vue'
 import { useManageStore } from '../store/manageStore'
 import { renameFile, formatLink, formatFileName, getFileIconPath, formatFileSize, getExtension, isValidUrl, svg } from '../utils/common'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '../utils/static'
 import { ipcRenderer, clipboard, IpcRendererEvent } from 'electron'
 import { fileCacheDbInstance } from '../store/bucketFileDb'
 import { trimPath } from '~/main/manage/utils/common'
@@ -1225,7 +1254,7 @@ import {
   ElCard
 } from 'element-plus'
 import type { Column, RowClassNameGetter } from 'element-plus'
-import { useFileTransferStore } from '@/manage/store/manageStore'
+import { useFileTransferStore, useDownloadFileTransferStore } from '@/manage/store/manageStore'
 import { v4 as uuidv4 } from 'uuid'
 import path from 'path'
 import { IUploadTask, IDownloadTask } from '~/main/manage/datastore/upDownTaskQueue'
@@ -1267,6 +1296,7 @@ const fileSortTimeReverse = ref(false)
 const fileSortSizeReverse = ref(false)
 const fileSortExtReverse = ref(false)
 const currentPageFilesInfo = reactive([] as any[])
+const currentDownloadFileList = reactive([] as any[])
 const route = useRoute()
 const configMap = reactive(JSON.parse(route.query.configMap as string))
 const selectedItems = reactive([] as any[])
@@ -1282,7 +1312,9 @@ const elTable = ref(null as any)
 const isShiftKeyPress = ref<boolean>(false)
 const lastChoosed = ref<number>(-1)
 const isLoadingData = ref(false)
+const isLoadingDownloadData = ref(false)
 const cancelToken = ref('')
+const downloadCancelToken = ref('')
 const isShowUploadPanel = ref(false)
 const isShowDownloadPanel = ref(false)
 const dragover = ref(false)
@@ -1823,11 +1855,16 @@ async function resetParam (force: boolean = false) {
     isLoadingData.value = false
     ipcRenderer.send('cancelLoadingFileList', cancelToken.value)
   }
+  if (isLoadingDownloadData.value) {
+    isLoadingDownloadData.value = false
+    ipcRenderer.send(cancelDownloadLoadingFileList, downloadCancelToken.value)
+  }
   cancelToken.value = ''
   pagingMarker.value = ''
   currentPrefix.value = configMap.prefix
   currentPage.value = 1
   currentPageFilesInfo.length = 0
+  currentDownloadFileList.length = 0
   selectedItems.length = 0
   searchText.value = ''
   urlToUpload.value = ''
@@ -2141,6 +2178,90 @@ function handleCheckChange (item: any) {
   }
 }
 
+async function handelFolderBatchDownload (item: any) {
+  ElMessageBox.confirm('确定要下载该文件夹吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    const defaultDownloadPath = await ipcRenderer.invoke('getDefaultDownloadFolder')
+    const param = {
+      downloadPath: manageStore.config.settings.downloadDir ?? defaultDownloadPath,
+      maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount ? manageStore.config.settings.maxDownloadFileCount : 5,
+      fileArray: [] as any[]
+    }
+    cancelToken.value = uuidv4()
+    const paramGet = {
+      // tcyun
+      bucketName: configMap.bucketName,
+      bucketConfig: {
+        Location: configMap.bucketConfig.Location
+      },
+      paging: paging.value,
+      prefix: `/${item.key.replace(/\/+$/, '').replace(/^\/+/, '')}/`,
+      marker: pagingMarker.value,
+      itemsPerPage: itemsPerPage.value,
+      customUrl: currentCustomUrl.value,
+      currentPage: currentPage.value,
+      cancelToken: cancelToken.value,
+      cdnUrl: configMap.cdnUrl
+    }
+    isLoadingDownloadData.value = true
+    const downloadFileTransferStore = useDownloadFileTransferStore()
+    downloadFileTransferStore.resetDownloadFileTransferList()
+    ipcRenderer.send('getBucketListRecursively', configMap.alias, paramGet)
+    ipcRenderer.on(refreshDownloadFileTransferList, (evt: IpcRendererEvent, data) => {
+      downloadFileTransferStore.refreshDownloadFileTransferList(data)
+    })
+    const interval = setInterval(() => {
+      const currentFileList = downloadFileTransferStore.getDownloadFileTransferList()
+      currentDownloadFileList.length = 0
+      currentDownloadFileList.push(...currentFileList)
+      if (downloadFileTransferStore.isFinished()) {
+        clearInterval(interval)
+        isLoadingDownloadData.value = false
+        if (downloadFileTransferStore.isSuccess()) {
+          ElNotification.success({
+            title: '提示',
+            message: '获取下载列表成功',
+            duration: 500
+          })
+          if (currentDownloadFileList.length) {
+            currentDownloadFileList.forEach((item: any) => {
+              param.fileArray.push({
+                alias: configMap.alias,
+                bucketName: configMap.bucketName,
+                region: configMap.bucketConfig.Location,
+                key: item.key,
+                fileName: [undefined, true].includes(manageStore.config.settings.isDownloadFolderKeepDirStructure) ? `/${item.key.replace(/\/+$/, '').replace(/^\/+/, '')}` : item.fileName,
+                customUrl: currentCustomUrl.value,
+                downloadUrl: item.downloadUrl,
+                githubUrl: item.url,
+                githubPrivate: configMap.bucketConfig.private
+              })
+            })
+          }
+          ipcRenderer.send('downloadBucketFile', configMap.alias, param)
+          isShowDownloadPanel.value = true
+        } else {
+          ElNotification.error({
+            title: '提示',
+            message: '获取失败',
+            duration: 500
+          })
+        }
+        downloadFileTransferStore.resetDownloadFileTransferList()
+      }
+    }, 500)
+  }).catch(() => {
+    ElNotification.info({
+      title: '提示',
+      message: '已取消',
+      duration: 500
+    })
+  })
+}
+
 async function handelBatchDownload () {
   const defaultDownloadPath = await ipcRenderer.invoke('getDefaultDownloadFolder')
   const param = {
@@ -2155,7 +2276,7 @@ async function handelBatchDownload () {
         bucketName: configMap.bucketName,
         region: configMap.bucketConfig.Location,
         key: item.key,
-        fileName: item.fileName,
+        fileName: manageStore.config.settings.isDownloadFileKeepDirStructure ? `/${item.key.replace(/\/+$/, '').replace(/^\/+/, '')}` : item.fileName,
         customUrl: currentCustomUrl.value,
         downloadUrl: item.downloadUrl,
         githubUrl: item.url,
@@ -2313,6 +2434,18 @@ function cancelLoading () {
   }).catch(() => { })
 }
 
+function cancelDownloadLoading () {
+  ElMessageBox.confirm('是否停止下载文件获取？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    isLoadingData.value = false
+    ipcRenderer.send(cancelDownloadLoadingFileList, downloadCancelToken.value)
+    ElMessage.success('下载文件获取已停止')
+  }).catch(() => { })
+}
+
 async function getBucketFileListBackStage () {
   cancelToken.value = uuidv4()
   const param = {
@@ -2364,13 +2497,13 @@ async function getBucketFileListBackStage () {
         ElNotification.success({
           title: '提示',
           message: '获取文件列表成功',
-          duration: 1000
+          duration: 500
         })
       } else {
         ElNotification.error({
           title: '提示',
           message: '部分文件获取失败',
-          duration: 1000
+          duration: 500
         })
       }
       fileTransferStore.resetFileTransferList()
@@ -2992,7 +3125,16 @@ const columns: Column<any>[] = [
     cellRenderer: ({ rowData: item }) => (
       item.match || !searchText.value
         ? item.isDir || !showRenameFileIcon.value
-          ? <span></span>
+          ? item.isDir
+            ? <ElIcon
+              size="20"
+              style="cursor: pointer;"
+              color="#409EFF"
+              onClick={() => handelFolderBatchDownload(item)}
+            >
+              <Download />
+            </ElIcon>
+            : <template></template>
           : <ElIcon
             size="20"
             style="cursor: pointer;"
@@ -3178,7 +3320,11 @@ onBeforeUnmount(() => {
   if (isLoadingData.value) {
     ipcRenderer.send('cancelLoadingFileList', cancelToken.value)
   }
+  if (isLoadingDownloadData.value) {
+    ipcRenderer.send(cancelDownloadLoadingFileList, downloadCancelToken.value)
+  }
   ipcRenderer.removeAllListeners('refreshFileTransferList')
+  ipcRenderer.removeAllListeners(refreshDownloadFileTransferList)
 })
 
 </script>

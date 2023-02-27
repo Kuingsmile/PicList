@@ -60,6 +60,12 @@ interface ManageApiType {
   /**
    * get bucket list
    */
+  getBucketListRecursively: (
+    param?: IStringKeyMap
+  ) => Promise<any | ManageError>;
+  /**
+   * get bucket list
+   */
   getBucketListBackstage: (
     param?: IStringKeyMap
   ) => Promise<any | ManageError>;

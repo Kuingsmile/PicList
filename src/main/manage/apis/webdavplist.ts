@@ -14,6 +14,7 @@ import UpDownTaskQueue,
 } from '../datastore/upDownTaskQueue'
 import fs from 'fs-extra'
 import path from 'path'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 class WebdavplistApi {
   endpoint: string
@@ -85,6 +86,55 @@ class WebdavplistApi {
 
   isRequestSuccess = (code: number) => code >= 200 && code < 300
 
+  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const { prefix, customUrl, cancelToken } = configMap
+    const urlPrefix = customUrl || this.endpoint
+    const cancelTask = [false]
+    ipcMain.on(cancelDownloadLoadingFileList, (_evt: IpcMainEvent, token: string) => {
+      if (token === cancelToken) {
+        cancelTask[0] = true
+        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+      }
+    })
+    let res = {} as any
+    const result = {
+      fullList: <any>[],
+      success: false,
+      finished: false
+    }
+    try {
+      res = await this.ctx.getDirectoryContents(prefix, {
+        deep: true,
+        details: true
+      })
+      if (this.isRequestSuccess(res.status)) {
+        if (res.data && res.data.length) {
+          res.data.forEach((item: FileStat) => {
+            if (item.type !== 'directory') {
+              result.fullList.push(this.formatFile(item, urlPrefix))
+            }
+          })
+        }
+      } else {
+        result.finished = true
+        window.webContents.send(refreshDownloadFileTransferList, result)
+        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+        return
+      }
+    } catch (error) {
+      this.logParam(error, 'getBucketListRecursively')
+      result.finished = true
+      window.webContents.send(refreshDownloadFileTransferList, result)
+      ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+      return
+    }
+    result.success = true
+    result.finished = true
+    window.webContents.send(refreshDownloadFileTransferList, result)
+    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+  }
+
   async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { prefix, customUrl, cancelToken } = configMap
@@ -128,6 +178,7 @@ class WebdavplistApi {
       result.finished = true
       window.webContents.send('refreshFileTransferList', result)
       ipcMain.removeAllListeners('cancelLoadingFileList')
+      return
     }
     result.success = true
     result.finished = true

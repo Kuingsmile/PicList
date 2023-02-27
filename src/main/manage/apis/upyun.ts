@@ -14,6 +14,7 @@ import UpDownTaskQueue,
   commonTaskStatus
 } from '../datastore/upDownTaskQueue'
 import { ManageLogger } from '../utils/logger'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 class UpyunApi {
   ser: Upyun.Service
@@ -91,6 +92,58 @@ class UpyunApi {
     return this.bucket
   }
 
+  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const { bucketName: bucket, prefix, cancelToken } = configMap
+    const slicedPrefix = prefix.slice(1)
+    const urlPrefix = configMap.customUrl || `http://${bucket}.test.upcdn.net`
+    const cancelTask = [false]
+    ipcMain.on(cancelDownloadLoadingFileList, (_evt: IpcMainEvent, token: string) => {
+      if (token === cancelToken) {
+        cancelTask[0] = true
+        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+      }
+    })
+    let res = {} as any
+    const result = {
+      fullList: <any>[],
+      success: false,
+      finished: false
+    }
+    const folderQueue = [prefix]
+    const getFolderFile = async (folder: any) => {
+      let marker = ''
+      const key = folder
+      do {
+        res = await this.cli.listDir(key, {
+          limit: 10000,
+          iter: marker
+        })
+        if (res) {
+          res.files && res.files.forEach((item: any) => {
+            item.type === 'F' && folderQueue.push(`${slicedPrefix}${item.name}/`)
+            item.type === 'N' && result.fullList.push(this.formatFile(item, folder, urlPrefix))
+          })
+          window.webContents.send(refreshDownloadFileTransferList, result)
+        } else {
+          result.finished = true
+          window.webContents.send(refreshDownloadFileTransferList, result)
+          ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+          return
+        }
+        marker = res.next
+      } while (!cancelTask[0] && res.next !== this.stopMarker)
+    }
+    while (folderQueue.length) {
+      const folder = folderQueue.shift()
+      await getFolderFile(folder)
+    }
+    result.success = !cancelTask[0]
+    result.finished = true
+    window.webContents.send(refreshDownloadFileTransferList, result)
+    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+  }
+
   async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: bucket, prefix, cancelToken } = configMap
@@ -129,7 +182,7 @@ class UpyunApi {
       }
       marker = res.next
     } while (!cancelTask[0] && res.next !== this.stopMarker)
-    result.success = true
+    result.success = !cancelTask[0]
     result.finished = true
     window.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')

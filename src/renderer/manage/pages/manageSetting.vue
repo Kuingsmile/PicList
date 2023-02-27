@@ -174,10 +174,10 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
-                >下载时保留目录结构
+                ><span>下载</span><span style="color: orange;">文件</span><span>时保留目录结构</span>
                   <el-tooltip
                     effect="dark"
-                    content="开启后，下载文件时会保留目录结构，关闭后会将所有文件展开到下载目录下"
+                    content="开启后，下载文件时会保留原始目录结构"
                     placement="right"
                   >
                     <el-icon>
@@ -187,11 +187,35 @@
                 </span>
               </template>
               <el-switch
-                v-model="form.isDownloadKeepDirStructure"
+                v-model="form.isDownloadFileKeepDirStructure"
                 style="position:absolute;right: 0;"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="handelIsDownloadKeepDirStructureChange"
+                @change="handelIsDownloadFileKeepDirStructureChange"
+              />
+            </el-form-item>
+            <el-form-item>
+              <template #label>
+                <span
+                  style="position:absolute;left: 0;"
+                ><span>下载</span><span style="color: coral;">文件夹</span><span>时保留目录结构</span>
+                  <el-tooltip
+                    effect="dark"
+                    content="开启后，下载文件夹时会保留目录结构，关闭后会将所有文件展开到下载目录下"
+                    placement="right"
+                  >
+                    <el-icon>
+                      <InfoFilled />
+                    </el-icon>
+                  </el-tooltip>
+                </span>
+              </template>
+              <el-switch
+                v-model="form.isDownloadFolderKeepDirStructure"
+                style="position:absolute;right: 0;"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                @change="handelIsDownloadFolderKeepDirStructureChange"
               />
             </el-form-item>
             <el-form-item>
@@ -499,7 +523,8 @@ const form = reactive<IStringKeyMap>({
   isForceCustomUrlHttps: false,
   isShowList: false,
   isUploadKeepDirStructure: true,
-  isDownloadKeepDirStructure: true
+  isDownloadFileKeepDirStructure: false,
+  isDownloadFolderKeepDirStructure: true
 })
 
 const downloadDir = ref('')
@@ -571,7 +596,8 @@ async function initData () {
   PreSignedExpire.value = config.settings.PreSignedExpire ?? 14400
   maxDownloadFileCount.value = config.settings.maxDownloadFileCount ?? 5
   form.isUploadKeepDirStructure = config.settings.isUploadKeepDirStructure ?? true
-  form.isDownloadKeepDirStructure = config.settings.isDownloadKeepDirStructure ?? true
+  form.isDownloadFileKeepDirStructure = config.settings.isDownloadKeepDirStructure ?? false
+  form.isDownloadFolderKeepDirStructure = config.settings.isDownloadFolderKeepDirStructure ?? true
 }
 
 async function handleDownloadDirClick () {
@@ -611,9 +637,15 @@ function handelIsUploadKeepDirStructureChange (val:ICheckBoxValueType) {
   })
 }
 
-function handelIsDownloadKeepDirStructureChange (val:ICheckBoxValueType) {
+function handelIsDownloadFileKeepDirStructureChange (val:ICheckBoxValueType) {
   saveConfig({
-    'settings.isDownloadKeepDirStructure': val
+    'settings.isDownloadFileKeepDirStructure': val
+  })
+}
+
+function handelIsDownloadFolderKeepDirStructureChange (val:ICheckBoxValueType) {
+  saveConfig({
+    'settings.isDownloadFolderKeepDirStructure': val
   })
 }
 

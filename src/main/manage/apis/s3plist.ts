@@ -31,6 +31,7 @@ import UpDownTaskQueue,
 } from '../datastore/upDownTaskQueue'
 import fs from 'fs-extra'
 import path from 'path'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 interface S3plistApiOptions {
   credentials: {
@@ -129,9 +130,9 @@ class S3plistApi {
     */
   async getBucketList (): Promise<any> {
     const options = Object.assign({}, this.baseOptions) as S3ClientConfig
-    options.region = 'us-east-1'
     const result = [] as IStringKeyMap[]
     const endpoint = options.endpoint as string || '' as string
+    options.region = endpoint.indexOf('cloudflarestorage') !== -1 ? 'auto' : 'us-east-1'
     try {
       const client = new S3Client(options)
       const command = new ListBucketsCommand({})
@@ -180,6 +181,64 @@ class S3plistApi {
     return result
   }
 
+  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const { bucketName: bucket, bucketConfig: { Location: region }, prefix, cancelToken } = configMap
+    const slicedPrefix = prefix.slice(1)
+    const urlPrefix = configMap.customUrl || `https://${bucket}.s3.amazonaws.com`
+    let marker
+    const cancelTask = [false]
+    ipcMain.on(cancelDownloadLoadingFileList, (_evt: IpcMainEvent, token: string) => {
+      if (token === cancelToken) {
+        cancelTask[0] = true
+        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+      }
+    })
+    let res = {} as ListObjectsV2CommandOutput
+    const result = {
+      fullList: <any>[],
+      success: false,
+      finished: false
+    }
+    try {
+      do {
+        const options = Object.assign({}, this.baseOptions) as S3ClientConfig
+        options.region = region || 'us-east-1'
+        const client = new S3Client(options)
+        const command = new ListObjectsV2Command({
+          Bucket: bucket,
+          Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
+          MaxKeys: 1000,
+          ContinuationToken: marker
+        })
+        res = await client.send(command)
+        if (res.$metadata.httpStatusCode === 200) {
+          res.Contents && res.Contents.forEach((item: _Object) => {
+            result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
+          })
+          window.webContents.send(refreshDownloadFileTransferList, result)
+        } else {
+          this.logParam(res, 'getBucketListRecursively')
+          result.finished = true
+          window.webContents.send(refreshDownloadFileTransferList, result)
+          ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+          return
+        }
+        marker = res.NextContinuationToken
+      } while (res.IsTruncated && !cancelTask[0])
+    } catch (error) {
+      this.logParam(error, 'getBucketListRecursively')
+      result.finished = true
+      window.webContents.send(refreshDownloadFileTransferList, result)
+      ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+      return
+    }
+    result.success = !cancelTask[0]
+    result.finished = true
+    window.webContents.send(refreshDownloadFileTransferList, result)
+    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+  }
+
   async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: bucket, bucketConfig: { Location: region }, prefix, cancelToken } = configMap
@@ -221,7 +280,7 @@ class S3plistApi {
           })
           window.webContents.send('refreshFileTransferList', result)
         } else {
-          this.logParam(res, 'getBucketFileList')
+          this.logParam(res, 'getBucketListBackstage')
           result.finished = true
           window.webContents.send('refreshFileTransferList', result)
           ipcMain.removeAllListeners('cancelLoadingFileList')
@@ -230,12 +289,13 @@ class S3plistApi {
         marker = res.NextContinuationToken
       } while (res.IsTruncated && !cancelTask[0])
     } catch (error) {
-      this.logParam(error, 'getBucketFileList')
+      this.logParam(error, 'getBucketListBackstage')
       result.finished = true
       window.webContents.send('refreshFileTransferList', result)
       ipcMain.removeAllListeners('cancelLoadingFileList')
+      return
     }
-    result.success = true
+    result.success = !cancelTask[0]
     result.finished = true
     window.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')

@@ -18,6 +18,7 @@ import API from './apis/api'
 import windowManager from 'apis/app/window/windowManager'
 import { IWindowList } from '#/types/enum'
 import { ipcMain } from 'electron'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 export class ManageApi extends EventEmitter implements ManageApiType {
   private _config!: Partial<ManageConfigType>
@@ -290,6 +291,44 @@ export class ManageApi extends EventEmitter implements ManageApiType {
         }
       default:
         return false
+    }
+  }
+
+  async getBucketListRecursively (
+    param?: IStringKeyMap
+  ): Promise<IStringKeyMap | ManageError> {
+    let client
+    let window
+    const defaultResult = {
+      fullList: [],
+      success: false,
+      finished: true
+    }
+    switch (this.currentPicBedConfig.picBedName) {
+      case 'tcyun':
+      case 'aliyun':
+      case 'qiniu':
+      case 'upyun':
+      case 'smms':
+      case 'github':
+      case 'imgur':
+      case 's3plist':
+      case 'webdavplist':
+        try {
+          client = this.createClient() as any
+          return await client.getBucketListRecursively(param!)
+        } catch (error: any) {
+          this.errorMsg(error, this.getMsgParam('getBucketListRecursively'))
+          window = windowManager.get(IWindowList.SETTING_WINDOW)!
+          window.webContents.send(refreshDownloadFileTransferList, defaultResult)
+          ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+          return {}
+        }
+      default:
+        window = windowManager.get(IWindowList.SETTING_WINDOW)!
+        window.webContents.send(refreshDownloadFileTransferList, defaultResult)
+        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+        return {}
     }
   }
 

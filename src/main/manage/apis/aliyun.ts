@@ -13,6 +13,7 @@ import UpDownTaskQueue,
   commonTaskStatus
 } from '../datastore/upDownTaskQueue'
 import { ManageLogger } from '../utils/logger'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 // 坑爹阿里云 返回数据类型标注和实际各种不一致
 class AliyunApi {
@@ -211,6 +212,53 @@ class AliyunApi {
     return res && res.res.status === 200
   }
 
+  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const { bucketName: bucket, bucketConfig: { Location: region }, prefix, cancelToken } = configMap
+    const slicedPrefix = prefix.slice(1)
+    const urlPrefix = configMap.customUrl || `https://${bucket}.${region}.aliyuncs.com`
+    let marker
+    const cancelTask = [false]
+    ipcMain.on(cancelDownloadLoadingFileList, (_evt: IpcMainEvent, token: string) => {
+      if (token === cancelToken) {
+        cancelTask[0] = true
+        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+      }
+    })
+    let res = {} as any
+    const result = {
+      fullList: <any>[],
+      success: false,
+      finished: false
+    }
+    const client = this.getNewCtx(region, bucket)
+    do {
+      res = await client.listV2({
+        prefix: slicedPrefix === '' ? undefined : slicedPrefix,
+        'max-keys': '1000',
+        'continuation-token': marker
+      }, {
+        timeout: this.timeOut
+      })
+      if (res && res.res.statusCode === 200) {
+        res.objects && res.objects.forEach((item: OSS.ObjectMeta) => {
+          item.size !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
+        })
+        window.webContents.send(refreshDownloadFileTransferList, result)
+      } else {
+        result.finished = true
+        window.webContents.send(refreshDownloadFileTransferList, result)
+        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+        return
+      }
+      marker = res.nextContinuationToken
+    } while (res.isTruncated === true && !cancelTask[0])
+    result.success = !cancelTask[0]
+    result.finished = true
+    window.webContents.send(refreshDownloadFileTransferList, result)
+    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+  }
+
   async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: bucket, bucketConfig: { Location: region }, prefix, cancelToken } = configMap
@@ -256,7 +304,7 @@ class AliyunApi {
       }
       marker = res.nextContinuationToken
     } while (res.isTruncated === true && !cancelTask[0])
-    result.success = true
+    result.success = !cancelTask[0]
     result.finished = true
     window.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')

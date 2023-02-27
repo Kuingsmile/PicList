@@ -59,6 +59,7 @@ const uploadFile = async () => {
                     const progressBar = Math.round((progress.loaded / progress.total) * 100)
                     process.stdout.write(`\r${progressBar}% ${fileName}`)
                 })
+                console.log('\n')
                 await parallelUploads3.done()
                 console.log(`${fileName} uploaded!`)
                 if (!versionFileHasUploaded) {
