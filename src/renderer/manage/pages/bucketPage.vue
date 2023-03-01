@@ -78,7 +78,7 @@ ea/*
             <el-icon
               class="icon"
               size="25px"
-              style="margin-left: 10px;"
+              style="margin-left: 5px;"
             >
               <Upload />
             </el-icon>
@@ -101,7 +101,7 @@ ea/*
             <el-icon
               class="icon"
               size="25px"
-              style="margin-left: 10px;"
+              style="margin-left: 5px;"
             >
               <FolderAdd />
             </el-icon>
@@ -121,9 +121,29 @@ ea/*
             <el-icon
               class="icon"
               size="25px"
-              style="margin-left: 10px;"
+              style="margin-left: 5px;"
             >
               <Download />
+            </el-icon>
+          </el-tooltip>
+        </el-button>
+      </div>
+      <div
+        @click="handelBatchRenameFile"
+      >
+        <el-button type="text">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            content="文件批量重命名"
+            placement="bottom"
+          >
+            <el-icon
+              class="icon"
+              size="25px"
+              style="margin-left: 5px;"
+            >
+              <Edit />
             </el-icon>
           </el-tooltip>
         </el-button>
@@ -201,6 +221,7 @@ ea/*
             placement="bottom"
           >
             <el-icon
+              id="refresh"
               class="icon"
               size="25px"
               style="margin-left: 10px;color: red;"
@@ -1223,15 +1244,145 @@ https://www.baidu.com/img/bd_logo1.png"
         @click="() => {isShowVideoFileDialog = false}"
       />
     </el-dialog>
+    <el-dialog
+      v-model="isShowBatchRenameDialog"
+      title="文件重命名"
+      center
+      align-center
+      draggable
+      destroy-on-close
+      @close="() => {
+        isSingleRename = false
+        isRenameIncludeExt = false
+        }"
+    >
+      <el-link
+        :underline="false"
+        style="margin-bottom: 10px;"
+      >
+        <span>进行替换时匹配的字符串或js正则表达式
+          <el-tooltip
+            effect="dark"
+            content="正则表达式请直接输入，不需要加上/"
+            placement="right"
+          >
+            <el-icon
+              color="#409EFF"
+            >
+              <InfoFilled />
+            </el-icon>
+          </el-tooltip>
+        </span>
+      </el-link>
+      <el-input
+        v-model="batchRenameMatch"
+        placeholder="例如：^\d{4}-\d{2}-\d{2} "
+        clearable
+      />
+      <el-link
+        :underline="false"
+        style="margin-bottom: 10px;margin-top: 10px;"
+      >
+        <span>需要替换的字符串，可使用自定义重命名规则中的占位符
+          <el-popover
+            effect="light"
+            placement="right"
+            width="280"
+          >
+            <template #reference>
+              <el-icon
+                color="#409EFF"
+              >
+                <InfoFilled />
+              </el-icon>
+            </template>
+            <el-descriptions
+              :column="1"
+              style="width: 250px;"
+              border
+            >
+              <el-descriptions-item
+                v-for="(item, index) in customRenameFormatTable"
+                :key="index"
+                :label="item.placeholder"
+                align="center"
+                label-style="width: 100px;"
+              >
+                {{ item.description }}
+              </el-descriptions-item>
+              <el-descriptions-item
+                v-for="(item, index) in customRenameFormatTable.slice(0, customRenameFormatTable.length-1)"
+                :key="index"
+                :label="item.placeholderB"
+                align="center"
+                label-style="width: 100px;"
+              >
+                {{ item.descriptionB }}
+              </el-descriptions-item>
+            </el-descriptions>
+          </el-popover>
+        </span>
+      </el-link>
+      <el-input
+        v-model="batchRenameReplace"
+        placeholder="例如：{Y}-{m}-{uuid} "
+        clearable
+      />
+      <el-link
+        :underline="false"
+        style="margin-bottom: 10px;margin-top: 10px;"
+      >
+        <span>是否匹配扩展名进行替换
+          <el-tooltip
+            effect="dark"
+            content="如果希望修改扩展名，请勾选此项"
+            placement="right"
+          >
+            <el-icon
+              color="#409EFF"
+            >
+              <InfoFilled />
+            </el-icon>
+          </el-tooltip>
+        </span>
+      </el-link>
+      <br />
+      <el-switch
+        v-model="isRenameIncludeExt"
+        active-text="是"
+        inactive-text="否"
+      />
+      <div
+        style="margin-top: 10px;align-items: center;display: flex;justify-content: flex-end;"
+      >
+        <el-button
+          type="danger"
+          style="margin-right: 30px;"
+          plain
+          :icon="Close"
+          @click="() => {isShowBatchRenameDialog = false}"
+        >
+          取消
+        </el-button>
+        <el-button
+          type="primary"
+          plain
+          :icon="Edit"
+          @click="isSingleRename ? singleRename() : BatchRename()"
+        >
+          确定
+        </el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script lang="tsx" setup>
 import { ref, reactive, watch, onBeforeMount, computed, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
-import { Grid, Fold, Close, Folder, FolderAdd, Upload, CircleClose, Loading, CopyDocument, Edit, DocumentAdd, Link, Refresh, ArrowRight, HomeFilled, Document, Coin, Download, DeleteFilled, Sort, FolderOpened } from '@element-plus/icons-vue'
+import { InfoFilled, Grid, Fold, Close, Folder, FolderAdd, Upload, CircleClose, Loading, CopyDocument, Edit, DocumentAdd, Link, Refresh, ArrowRight, HomeFilled, Document, Coin, Download, DeleteFilled, Sort, FolderOpened } from '@element-plus/icons-vue'
 import { useManageStore } from '../store/manageStore'
-import { renameFile, formatLink, formatFileName, getFileIconPath, formatFileSize, getExtension, isValidUrl, svg } from '../utils/common'
+import { customRenameFormatTable, customStrMatch, customStrReplace, renameFile, formatLink, formatFileName, getFileIconPath, formatFileSize, getExtension, isValidUrl, svg } from '../utils/common'
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '../utils/static'
 import { ipcRenderer, clipboard, IpcRendererEvent } from 'electron'
 import { fileCacheDbInstance } from '../store/bucketFileDb'
@@ -1339,6 +1490,12 @@ const videoFileUrl = ref('')
 const videoPlayerHeaders = ref({})
 const showFileStyle = ref<'list' | 'grid'>('grid')
 const isUploadKeepDirStructure = ref(manageStore.config.settings.isUploadKeepDirStructure ?? true)
+const isShowBatchRenameDialog = ref(false)
+const batchRenameMatch = ref('')
+const batchRenameReplace = ref('')
+const isRenameIncludeExt = ref(false)
+const isSingleRename = ref(false)
+const itemToBeRenamed = ref({} as any)
 
 const showCustomUrlSelectList = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value))
 
@@ -2381,6 +2538,115 @@ async function handelUploadFromUrl () {
   isShowUploadPanel.value = true
 }
 
+function handelBatchRenameFile () {
+  batchRenameMatch.value = ''
+  isSingleRename.value = false
+  isShowBatchRenameDialog.value = true
+}
+
+async function BatchRename () {
+  isShowBatchRenameDialog.value = false
+  if (batchRenameMatch.value === '') {
+    ElMessage.warning('请输入匹配字符串')
+    return
+  }
+  let matchedFiles = [] as any[]
+  currentPageFilesInfo.forEach((item: any) => {
+    if (isRenameIncludeExt.value) {
+      if (customStrMatch(item.fileName, batchRenameMatch.value) && !item.isDir) {
+        matchedFiles.push(item)
+      }
+    } else {
+      if (customStrMatch(item.fileName.split('.')[0], batchRenameMatch.value) && !item.isDir) {
+        matchedFiles.push(item)
+      }
+    }
+  })
+  if (matchedFiles.length === 0) {
+    ElMessage.warning('没有匹配到文件')
+    return
+  }
+  for (let i = 0; i < matchedFiles.length; i++) {
+    if (isRenameIncludeExt.value) {
+      matchedFiles[i].newName = customStrReplace(matchedFiles[i].fileName, batchRenameMatch.value, batchRenameReplace.value)
+    } else {
+      matchedFiles[i].newName = customStrReplace(matchedFiles[i].fileName.split('.')[0], batchRenameMatch.value, batchRenameReplace.value) + '.' + matchedFiles[i].fileName.split('.')[1]
+    }
+  }
+  matchedFiles = matchedFiles.filter((item: any) => item.fileName !== item.newName)
+  if (matchedFiles.length === 0) {
+    ElMessage.warning('没有需要重命名的文件')
+    return
+  }
+  let successCount = 0
+  let failCount = 0
+  const error = new Error('error')
+  const renamefunc = (item:any) => {
+    return new Promise((resolve, reject) => {
+      const param = {
+        // tcyun
+        bucketName: configMap.bucketName,
+        region: configMap.bucketConfig.Location,
+        oldKey: item.key,
+        newKey: (item.key.slice(0, item.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/'),
+        customUrl: currentCustomUrl.value
+      }
+      ipcRenderer.invoke('renameBucketFile', configMap.alias, param).then((res: any) => {
+        if (res) {
+          successCount++
+          resolve(true)
+          const oldKey = currentPrefix.value + item.fileName
+          if (pagingMarker.value === oldKey.slice(1)) {
+            pagingMarker.value = currentPrefix.value.slice(1) + item.newName
+          }
+          const oldName = item.fileName
+          if (item.newName.includes('/')) {
+            item.fileName = item.newName.slice(0, item.newName.indexOf('/'))
+            item.isDir = true
+            item.fileSize = 0
+            item.formatedTime = ''
+          } else {
+            item.fileName = item.newName
+          }
+          item.key = (item.key.slice(0, item.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/')
+          item.url = `${currentCustomUrl.value}${currentPrefix.value}${item.newName}`
+          item.formatedTime = new Date().toLocaleString()
+          if (!paging.value) {
+            const table = fileCacheDbInstance.table(currentPicBedName.value)
+            table.where('key').equals(getTableKeyOfDb()).modify((l: any) => {
+              l.value.fullList.forEach((i: any) => {
+                if (i.fileName === oldName) {
+                  if (item.newName.includes('/')) {
+                    i.fileName = item.newName.slice(0, item.newName.indexOf('/'))
+                    i.isDir = true
+                    i.fileSize = 0
+                    i.formatedTime = ''
+                  } else {
+                    i.fileName = item.newName
+                  }
+                  i.key = (i.key.slice(0, i.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/')
+                  i.url = `${currentCustomUrl.value}${currentPrefix.value}${item.newName}`
+                  i.formatedTime = new Date().toLocaleString()
+                }
+              })
+            })
+          }
+        } else {
+          failCount++
+          reject(error)
+        }
+      })
+    })
+  }
+  const promiseList = [] as any[]
+  for (let i = 0; i < matchedFiles.length; i++) {
+    promiseList.push(renamefunc(matchedFiles[i]))
+  }
+  Promise.allSettled(promiseList).then(() => {
+    ElMessage.success(`重命名成功${successCount}个，失败${failCount}个`)
+  })
+}
+
 function handelBatchCopyInfo () {
   if (selectedItems.length === 0) {
     ElMessage.warning('请先选择文件')
@@ -2655,54 +2921,69 @@ function handleDeleteFile (item: any) {
 }
 
 function handleRenameFile (item: any) {
-  ElMessageBox.prompt('请输入新的文件名', '重命名', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    inputPattern: /^[a-zA-Z0-9\u4e00-\u9fa5\-_.][a-zA-Z0-9\u4e00-\u9fa5\-_./]*[a-zA-Z0-9\u4e00-\u9fa5\-_.]?$/,
-    inputErrorMessage: '文件名不合法'
-  }).then(async ({ value }) => {
-    const param = {
-      // tcyun
-      bucketName: configMap.bucketName,
-      region: configMap.bucketConfig.Location,
-      oldKey: item.key,
-      newKey: (item.key.slice(0, item.key.lastIndexOf('/') + 1) + value).replaceAll('//', '/'),
-      customUrl: currentCustomUrl.value
-    }
-    const res = await ipcRenderer.invoke('renameBucketFile', configMap.alias, param)
+  batchRenameMatch.value = path.basename(item.fileName, path.extname(item.fileName))
+  isSingleRename.value = true
+  isShowBatchRenameDialog.value = true
+  itemToBeRenamed.value = item
+}
+
+function singleRename () {
+  const index = currentPageFilesInfo.findIndex((i: any) => i === itemToBeRenamed.value)
+  isShowBatchRenameDialog.value = false
+  if (batchRenameMatch.value === '') {
+    batchRenameMatch.value = '.+'
+  }
+  if (isRenameIncludeExt.value) {
+    itemToBeRenamed.value.newName = customStrReplace(itemToBeRenamed.value.fileName, batchRenameMatch.value, batchRenameReplace.value)
+  } else {
+    itemToBeRenamed.value.newName = customStrReplace(itemToBeRenamed.value.fileName.split('.')[0], batchRenameMatch.value, batchRenameReplace.value) + '.' + itemToBeRenamed.value.fileName.split('.')[1]
+  }
+  if (itemToBeRenamed.value.newName === itemToBeRenamed.value.fileName) {
+    ElMessage.info('新文件名与原文件名相同，无需重命名')
+    return
+  }
+  const item = currentPageFilesInfo[index]
+  const param = {
+    // tcyun
+    bucketName: configMap.bucketName,
+    region: configMap.bucketConfig.Location,
+    oldKey: item.key,
+    newKey: (item.key.slice(0, item.key.lastIndexOf('/') + 1) + itemToBeRenamed.value.newName).replaceAll('//', '/'),
+    customUrl: currentCustomUrl.value
+  }
+  ipcRenderer.invoke('renameBucketFile', configMap.alias, param).then((res: any) => {
     if (res) {
-      ElMessage.success('重命名成功')
       const oldKey = currentPrefix.value + item.fileName
       if (pagingMarker.value === oldKey.slice(1)) {
-        pagingMarker.value = currentPrefix.value.slice(1) + value
+        pagingMarker.value = currentPrefix.value.slice(1) + itemToBeRenamed.value.newName
       }
       const oldName = item.fileName
-      if (value.includes('/')) {
-        item.fileName = value.slice(0, value.indexOf('/'))
+      if (itemToBeRenamed.value.newName.includes('/')) {
+        item.fileName = itemToBeRenamed.value.newName.slice(0, itemToBeRenamed.value.newName.indexOf('/'))
         item.isDir = true
         item.fileSize = 0
         item.formatedTime = ''
       } else {
-        item.fileName = value
+        item.fileName = itemToBeRenamed.value.newName
       }
-      item.key = (item.key.slice(0, item.key.lastIndexOf('/') + 1) + value).replaceAll('//', '/')
-      item.url = `${currentCustomUrl.value}${currentPrefix.value}${value}`
+      item.key = (item.key.slice(0, item.key.lastIndexOf('/') + 1) + itemToBeRenamed.value.newName).replaceAll('//', '/')
+      item.url = `${currentCustomUrl.value}${currentPrefix.value}${itemToBeRenamed.value.newName}`
       item.formatedTime = new Date().toLocaleString()
       if (!paging.value) {
         const table = fileCacheDbInstance.table(currentPicBedName.value)
         table.where('key').equals(getTableKeyOfDb()).modify((l: any) => {
           l.value.fullList.forEach((i: any) => {
             if (i.fileName === oldName) {
-              if (value.includes('/')) {
-                i.fileName = value.slice(0, value.indexOf('/'))
+              if (itemToBeRenamed.value.newName.includes('/')) {
+                i.fileName = itemToBeRenamed.value.newName.slice(0, itemToBeRenamed.value.newName.indexOf('/'))
                 i.isDir = true
                 i.fileSize = 0
                 i.formatedTime = ''
               } else {
-                i.fileName = value
+                i.fileName = itemToBeRenamed.value.newName
               }
-              i.key = (i.key.slice(0, i.key.lastIndexOf('/') + 1) + value).replaceAll('//', '/')
-              i.url = `${currentCustomUrl.value}${currentPrefix.value}${value}`
+              i.key = (i.key.slice(0, i.key.lastIndexOf('/') + 1) + itemToBeRenamed.value.newName).replaceAll('//', '/')
+              i.url = `${currentCustomUrl.value}${currentPrefix.value}${itemToBeRenamed.value.newName}`
               i.formatedTime = new Date().toLocaleString()
             }
           })
@@ -2711,9 +2992,8 @@ function handleRenameFile (item: any) {
     } else {
       ElMessage.error('重命名失败')
     }
-  }).catch(() => {
-    ElMessage.info('已取消')
-  })
+  }
+  )
 }
 
 async function getPreSignedUrl (item: any) {
@@ -3375,6 +3655,9 @@ onBeforeUnmount(() => {
   font-family Arial, Helvetica, sans-serif
 .file-list-row-checked
   background-color Beige
+#refresh
+  :hover
+    animation rotate 1s linear infinite reverse
 #upload-area
   height 40%
   border 2px dashed #dddddd

@@ -474,45 +474,8 @@ import { getConfig, saveConfig, invokeToMain } from '../utils/dataSender'
 import { ElMessage } from 'element-plus'
 import { useManageStore } from '../store/manageStore'
 import { fileCacheDbInstance } from '../store/bucketFileDb'
-import { formatFileSize } from '../utils/common'
+import { formatFileSize, customRenameFormatTable } from '../utils/common'
 const manageStore = useManageStore()
-
-const customRenameFormatTable = [
-  {
-    placeholder: '{Y}',
-    description: '年份，4位数',
-    placeholderB: '{y}',
-    descriptionB: '年份，2位数'
-  },
-  {
-    placeholder: '{m}',
-    description: '月份(01-12)',
-    placeholderB: '{d}',
-    descriptionB: '日期(01-31)'
-  },
-  {
-    placeholder: '{timestamp}',
-    description: '时间戳（秒）',
-    placeholderB: '{uuid}',
-    descriptionB: 'uuid字符串'
-  },
-  {
-    placeholder: '{md5}',
-    description: 'md5',
-    placeholderB: '{md5-16}',
-    descriptionB: 'md5前16位'
-  },
-  {
-    placeholder: '{str-10}',
-    description: '10位随机字符串',
-    placeholderB: '{str-20}',
-    descriptionB: '20位随机字符串'
-  },
-  {
-    placeholder: '{filename}',
-    description: '原文件名'
-  }
-]
 
 const form = reactive<IStringKeyMap>({
   timestampRename: false,

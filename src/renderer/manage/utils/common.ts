@@ -16,7 +16,7 @@ export function renameFileNameWithRandomString (oldName: string, length: number 
   return `${randomStringGenerator(length)}${path.extname(oldName)}`
 }
 
-export function renameFileNameWithCustomString (oldName: string, customFormat: string): string {
+export function renameFileNameWithCustomString (oldName: string, customFormat: string, affixFileName?: string): string {
   const conversionMap : {[key: string]: () => string} = {
     '{Y}': () => new Date().getFullYear().toString(),
     '{y}': () => new Date().getFullYear().toString().slice(2),
@@ -26,7 +26,7 @@ export function renameFileNameWithCustomString (oldName: string, customFormat: s
     '{md5-16}': () => crypto.createHash('md5').update(path.basename(oldName, path.extname(oldName))).digest('hex').slice(0, 16),
     '{str-10}': () => randomStringGenerator(10),
     '{str-20}': () => randomStringGenerator(20),
-    '{filename}': () => path.basename(oldName, path.extname(oldName)),
+    '{filename}': () => affixFileName ? path.basename(affixFileName, path.extname(affixFileName)) : path.basename(oldName, path.extname(oldName)),
     '{uuid}': () => uuidv4().replace(/-/g, ''),
     '{timestamp}': () => Math.floor(Date.now() / 1000).toString()
   }
@@ -35,7 +35,7 @@ export function renameFileNameWithCustomString (oldName: string, customFormat: s
   }
   const ext = path.extname(oldName)
   return Object.keys(conversionMap).reduce((acc, cur) => {
-    return acc.replace(cur, conversionMap[cur]())
+    return acc.replace(new RegExp(cur, 'g'), conversionMap[cur]())
   }, customFormat) + ext
 }
 
@@ -154,3 +154,65 @@ export const svg = `
     L 15 15
   " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
   `
+
+export function customStrMatch (str: string, pattern: string) : boolean {
+  if (!str || !pattern) return false
+  try {
+    const reg = new RegExp(pattern, 'g')
+    return reg.test(str)
+  } catch (e) {
+    console.error(e)
+    return false
+  }
+}
+
+export function customStrReplace (str: string, pattern: string, replacement: string) : string {
+  if (!str || !pattern) return str
+  replacement = replacement || ''
+  let result = str
+  try {
+    const reg = new RegExp(pattern, 'g')
+    result = str.replace(reg, replacement)
+    result = renameFileNameWithCustomString(result, result, str)
+  } catch (e) {
+    console.error(e)
+  }
+  return result
+}
+
+export const customRenameFormatTable = [
+  {
+    placeholder: '{Y}',
+    description: '年份，4位数',
+    placeholderB: '{y}',
+    descriptionB: '年份，2位数'
+  },
+  {
+    placeholder: '{m}',
+    description: '月份(01-12)',
+    placeholderB: '{d}',
+    descriptionB: '日期(01-31)'
+  },
+  {
+    placeholder: '{timestamp}',
+    description: '时间戳（秒）',
+    placeholderB: '{uuid}',
+    descriptionB: 'uuid字符串'
+  },
+  {
+    placeholder: '{md5}',
+    description: 'md5',
+    placeholderB: '{md5-16}',
+    descriptionB: 'md5前16位'
+  },
+  {
+    placeholder: '{str-10}',
+    description: '10位随机字符串',
+    placeholderB: '{str-20}',
+    descriptionB: '20位随机字符串'
+  },
+  {
+    placeholder: '{filename}',
+    description: '原文件名'
+  }
+]
