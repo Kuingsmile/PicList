@@ -1319,6 +1319,13 @@ https://www.baidu.com/img/bd_logo1.png"
               >
                 {{ item.descriptionB }}
               </el-descriptions-item>
+              <el-descriptions-item
+                label="{auto}"
+                align="center"
+                label-style="width: 100px;"
+              >
+                自增数字
+              </el-descriptions-item>
             </el-descriptions>
           </el-popover>
         </span>
@@ -2578,6 +2585,9 @@ async function BatchRename () {
     ElMessage.warning('没有需要重命名的文件')
     return
   }
+  for (let i = 0; i < matchedFiles.length; i++) {
+    matchedFiles[i].newName = matchedFiles[i].newName.replaceAll('{auto}', (i + 1).toString())
+  }
   let successCount = 0
   let failCount = 0
   const error = new Error('error')
@@ -2942,6 +2952,7 @@ function singleRename () {
     ElMessage.info('新文件名与原文件名相同，无需重命名')
     return
   }
+  itemToBeRenamed.value.newName = itemToBeRenamed.value.newName.replaceAll('{auto}', '1')
   const item = currentPageFilesInfo[index]
   const param = {
     // tcyun
