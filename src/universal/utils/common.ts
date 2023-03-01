@@ -1,4 +1,12 @@
-export const isUrl = (url: string): boolean => (/^https?:\/\//.test(url))
+export const isUrl = (url: string): boolean => {
+  try {
+    new URL(url)
+    return true
+  } catch {
+    return false
+  }
+}
+
 export const isUrlEncode = (url: string): boolean => {
   url = url || ''
   try {
