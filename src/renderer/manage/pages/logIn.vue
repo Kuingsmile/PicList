@@ -14,19 +14,14 @@
         style="width: 100%;overflow-y: scroll;height: calc(100vh - 50px);"
       >
         <el-alert
+          v-loading.fullscreen="isLoading"
           title="已设置配置列表，点击图标和别名可查看配置详情，点击进入可查看文件页面，点击删除可删除配置"
           type="success"
           show-icon
           center
-        />
-        <div
-          v-if="isLoading"
-          v-loading="isLoading"
-          element-loading-text="加载中..."
+          element-loading-text="导入配置..."
           :element-loading-spinner="svg"
-          element-loading-svg-view-box="0, 0, 50, 50"
-          element-loading-background="rgba(122, 122, 122, 0.5)"
-          style="width: 100%;height: 100%;"
+          element-loading-svg-view-box="0, 0, 150, 150"
         />
         <el-row>
           <el-col
@@ -71,7 +66,7 @@
                   >
                     <template #icon>
                       <img
-                        :src="require(`./assets/${item.picBedName}.png`)"
+                        :src="require(`./assets/${item.picBedName}.webp`)"
                         style="width: 25px; height: 25px;"
                       >
                     </template>
@@ -527,7 +522,6 @@ const handleConfigClick = async (item: any) => {
 }
 
 function handleConfigImport (alias: string) {
-  isLoading.value = true
   const selectedConfig = existingConfiguration[alias]
   if (selectedConfig) {
     supportedPicBedList[selectedConfig.picBedName].options.forEach((option: any) => {
@@ -539,7 +533,6 @@ function handleConfigImport (alias: string) {
       }
     })
   }
-  isLoading.value = false
 }
 
 async function getCurrentConfigList () {
@@ -727,8 +720,10 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
 }
 
 onBeforeMount(async () => {
+  isLoading.value = true
   await getCurrentConfigList()
   getExistingConfig('login')
+  isLoading.value = false
   getAllConfigAliasArray()
 })
 

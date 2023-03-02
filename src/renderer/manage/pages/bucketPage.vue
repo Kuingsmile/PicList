@@ -528,7 +528,7 @@ https://www.baidu.com/img/bd_logo1.png"
               />
               <el-image
                 v-else
-                :src="require('./assets/icons/folder.png')"
+                :src="require('./assets/icons/folder.webp')"
                 fit="contain"
                 style="height: 100px;width: 100%;margin: 0 auto;"
                 @click="handleClickFile(item)"
@@ -3376,7 +3376,7 @@ const columns: Column<any>[] = [
                   }}
                 </ElImage>
                 : <ElImage
-                  src={require('./assets/icons/folder.png')}
+                  src={require('./assets/icons/folder.webp')}
                   fit="contain"
                   style={{ width: '20px', height: '20px' }}
                 />

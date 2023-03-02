@@ -7,7 +7,7 @@
           @click="openPicBedUrl"
         >
           <img
-            :src="require(`./assets/${currentPagePicBedConfig.picBedName}.png`)"
+            :src="require(`./assets/${currentPagePicBedConfig.picBedName}.webp`)"
             class="layout__menu__button__item__icon"
           >
           {{ '-' + supportedPicBedList[currentPagePicBedConfig.picBedName].name + '-' }}
@@ -179,7 +179,7 @@
             @click="switchPicBed(item.alias)"
           >
             <el-image
-              :src="require(`./assets/${item.picBedName}.png`)"
+              :src="require(`./assets/${item.picBedName}.webp`)"
               class="layout__addNewBucket__icon"
               style="width: 25px;height: 25px;margin: 0 auto;"
             />
@@ -208,7 +208,7 @@
           style="position: relative;height: 10vh;width: 100%;"
         >
           <el-image
-            :src="require(`./assets/${currentPicBedName}.png`)"
+            :src="require(`./assets/${currentPicBedName}.webp`)"
             class="layout__addNewBucket__icon"
             style="position: absolute;top: 50%;left: 50%;transform: translate(-50%, -50%);"
           />
@@ -317,7 +317,8 @@ const urlMap : IStringKeyMap = {
   tcyun: 'https://console.cloud.tencent.com/cos',
   upyun: 'https://console.upyun.com',
   s3plist: 'https://aws.amazon.com/cn/s3/',
-  webdavplist: 'https://baike.baidu.com/item/WebDAV/4610909'
+  webdavplist: 'https://baike.baidu.com/item/WebDAV/4610909',
+  localplist: 'https://plist.cn'
 }
 
 const openPicBedUrl = () => shell.openExternal(urlMap[currentPagePicBedConfig.picBedName])
@@ -444,7 +445,8 @@ const menuTitleMap:IStringKeyMap = {
   smms: '相册',
   imgur: '相册',
   github: '仓库',
-  webdavplist: ''
+  webdavplist: '',
+  localplist: '本地'
 }
 
 const showNewIconList = ['aliyun', 'qiniu', 'tcyun']

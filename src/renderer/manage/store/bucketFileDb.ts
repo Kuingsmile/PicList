@@ -4,10 +4,10 @@ import Dexie, { Table } from 'dexie'
   * create a database for bucket file cache
   *database name: bucketFileDb
   *structure:
-  - table: picBedName
-  - key: alias-bucketName-prefix
-  - value: from fullList
-  - primaryKey: key
+  * - table: picBedName
+  * - key: alias-bucketName-prefix
+  * - value: from fullList
+  * - primaryKey: key
 */
 
 export interface IFileCache {
@@ -28,15 +28,16 @@ export class FileCacheDb extends Dexie {
   imgur: Table<IFileCache, string>
   s3plist: Table<IFileCache, string>
   webdavplist: Table<IFileCache, string>
+  localplist: Table<IFileCache, string>
 
   constructor () {
     super('bucketFileDb')
-    const tableNames = ['tcyun', 'aliyun', 'qiniu', 'github', 'smms', 'upyun', 'imgur', 's3plist', 'webdavplist']
+    const tableNames = ['tcyun', 'aliyun', 'qiniu', 'github', 'smms', 'upyun', 'imgur', 's3plist', 'webdavplist', 'localplist']
     const tableNamesMap = tableNames.reduce((acc, cur) => {
       acc[cur] = '&key, value'
       return acc
     }, {} as IStringKeyMap)
-    this.version(2).stores(tableNamesMap)
+    this.version(3).stores(tableNamesMap)
     this.tcyun = this.table('tcyun')
     this.aliyun = this.table('aliyun')
     this.qiniu = this.table('qiniu')
@@ -46,6 +47,7 @@ export class FileCacheDb extends Dexie {
     this.imgur = this.table('imgur')
     this.s3plist = this.table('s3plist')
     this.webdavplist = this.table('webdavplist')
+    this.localplist = this.table('localplist')
   }
 }
 

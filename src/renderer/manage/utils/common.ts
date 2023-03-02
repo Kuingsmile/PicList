@@ -73,7 +73,7 @@ export function formatLink (url: string, fileName: string, type: string, format?
 
 export function getFileIconPath (fileName: string) {
   const ext = path.extname(fileName).slice(1)
-  return availableIconList.includes(ext) ? `${ext}.png` : 'unknown.png'
+  return availableIconList.includes(ext) ? `${ext}.webp` : 'unknown.webp'
 }
 
 export function formatFileSize (size: number) {
