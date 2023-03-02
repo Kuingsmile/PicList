@@ -54,6 +54,8 @@ const urlCreateObjectURL = async () => {
     headers: props.headers
   }).then(res => res.blob()).then(blob => {
     base64Url.value = URL.createObjectURL(blob)
+  }).catch(err => {
+    console.log(err)
   })
 }
 

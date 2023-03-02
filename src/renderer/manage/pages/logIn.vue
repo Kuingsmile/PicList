@@ -14,7 +14,7 @@
         style="width: 100%;overflow-y: scroll;height: calc(100vh - 50px);"
       >
         <el-alert
-          v-loading.fullscreen="isLoading"
+          v-loading="isLoading"
           title="已设置配置列表，点击图标和别名可查看配置详情，点击进入可查看文件页面，点击删除可删除配置"
           type="success"
           show-icon
@@ -705,7 +705,7 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
       resultMap.transformedConfig = JSON.stringify(
         config.urlPrefix
           ? {
-            [config.bucket]: {
+            [config.bucketName]: {
               customUrl: config.urlPrefix
             }
           }

@@ -76,15 +76,17 @@ export function getFileIconPath (fileName: string) {
   return availableIconList.includes(ext) ? `${ext}.webp` : 'unknown.webp'
 }
 
+const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+
 export function formatFileSize (size: number) {
   if (size === 0) return ''
-  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
   const index = Math.floor(Math.log2(size) / 10)
   return `${(size / Math.pow(2, index * 10)).toFixed(2)} ${units[index]}`
 }
 
 export function formatFileName (fileName: string, length: number = 20) {
-  const ext = path.extname(fileName)
+  let ext = path.extname(fileName)
+  ext = ext.length > 5 ? ext.slice(ext.length - 5) : ext
   const name = path.basename(fileName, ext)
   return name.length > length ? `${name.slice(0, length)}...${ext}` : fileName
 }
@@ -92,7 +94,7 @@ export function formatFileName (fileName: string, length: number = 20) {
 export const getExtension = (fileName: string) => path.extname(fileName).slice(1)
 
 export const isImage = (fileName: string) =>
-  ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ico'].includes(getExtension(fileName))
+  ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ico', 'svg'].includes(getExtension(fileName))
 
 export function formObjToTableData (obj: any) {
   const exclude = [undefined, null, '', 'transformedConfig']
@@ -103,16 +105,11 @@ export function formObjToTableData (obj: any) {
 }
 
 export function isValidUrl (str: string) {
-  const pattern = new RegExp(
-    '^([a-zA-Z]+:\\/\\/)?' +
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-    '((\\d{1,3}\\.){3}\\d{1,3}))' +
-    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-    '(\\?[;&a-z\\d%_.~+=-]*)?' +
-    '(\\#[-a-z\\d_]*)?$',
-    'i'
-  )
-  return pattern.test(str)
+  try {
+    return !!new URL(str)
+  } catch (e) {
+    return false
+  }
 }
 
 export interface IHTTPProxy {
