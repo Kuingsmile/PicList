@@ -1,3 +1,14 @@
+## :tada: 1.3.1 (2023-03-02)
+
+
+### :sparkles: Features
+
+* add {atuo} for rename placholders, represent for auto increment number ([d6df9bc](https://github.com/Kuingsmile/PicList/commit/d6df9bc)), closes [#14](https://github.com/Kuingsmile/PicList/issues/14)
+* add file batch rename, and support placeholder now ([327a7ac](https://github.com/Kuingsmile/PicList/commit/327a7ac)), closes [#14](https://github.com/Kuingsmile/PicList/issues/14)
+* now prompts if there are duplicate file names ([8ba46d9](https://github.com/Kuingsmile/PicList/commit/8ba46d9))
+
+
+
 # :tada: 1.3.0 (2023-02-27)
 
 
