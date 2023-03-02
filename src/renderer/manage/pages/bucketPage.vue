@@ -1254,7 +1254,7 @@ https://www.baidu.com/img/bd_logo1.png"
       @close="() => {
         isSingleRename = false
         isRenameIncludeExt = false
-        }"
+      }"
     >
       <el-link
         :underline="false"
@@ -1353,7 +1353,7 @@ https://www.baidu.com/img/bd_logo1.png"
           </el-tooltip>
         </span>
       </el-link>
-      <br />
+      <br>
       <el-switch
         v-model="isRenameIncludeExt"
         active-text="是"
@@ -2588,6 +2588,7 @@ async function BatchRename () {
   for (let i = 0; i < matchedFiles.length; i++) {
     matchedFiles[i].newName = matchedFiles[i].newName.replaceAll('{auto}', (i + 1).toString())
   }
+  const duplicateFilesNum = matchedFiles.filter((item: any) => matchedFiles.filter((item2: any) => item2.newName === item.newName).length > 1).length
   let successCount = 0
   let failCount = 0
   const error = new Error('error')
@@ -2648,13 +2649,31 @@ async function BatchRename () {
       })
     })
   }
-  const promiseList = [] as any[]
-  for (let i = 0; i < matchedFiles.length; i++) {
-    promiseList.push(renamefunc(matchedFiles[i]))
+  if (duplicateFilesNum > 0) {
+    ElMessageBox.confirm(`检测到有${duplicateFilesNum}个文件名重复，是否继续？`, '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      const promiseList = [] as any[]
+      for (let i = 0; i < matchedFiles.length; i++) {
+        promiseList.push(renamefunc(matchedFiles[i]))
+      }
+      Promise.allSettled(promiseList).then(() => {
+        ElMessage.success(`重命名成功${successCount}个，失败${failCount}个`)
+      })
+    }).catch(() => {
+      ElMessage.info('已取消')
+    })
+  } else {
+    const promiseList = [] as any[]
+    for (let i = 0; i < matchedFiles.length; i++) {
+      promiseList.push(renamefunc(matchedFiles[i]))
+    }
+    Promise.allSettled(promiseList).then(() => {
+      ElMessage.success(`重命名成功${successCount}个，失败${failCount}个`)
+    })
   }
-  Promise.allSettled(promiseList).then(() => {
-    ElMessage.success(`重命名成功${successCount}个，失败${failCount}个`)
-  })
 }
 
 function handelBatchCopyInfo () {
