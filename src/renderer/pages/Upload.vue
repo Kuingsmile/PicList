@@ -15,6 +15,16 @@
           >
             <CaretBottom />
           </el-icon>
+          <el-button
+            type="primary"
+            round
+            size="small"
+            class="quick-upload"
+            style="margin-left: 6px"
+            @click="handleImageProcess"
+          >
+            图片处理
+          </el-button>
         </div>
         <div
           id="upload-area"
@@ -110,6 +120,214 @@
         </div>
       </el-col>
     </el-row>
+    <el-dialog
+      v-model="imageProcessDialogVisible"
+      title="图片处理设置"
+      width="50%"
+      draggable
+      center
+      align-center
+    >
+      <el-form
+        label-position="top"
+        require-asterisk-position="right"
+        label-width="10vw"
+        size="default"
+        :model="waterMarkForm"
+      >
+        <el-form-item label="是否添加水印">
+          <el-switch
+            v-model="waterMarkForm.isAddWatermark"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
+        <el-form-item
+          v-show="waterMarkForm.isAddWatermark"
+          label="水印类型"
+        >
+          <el-radio-group v-model="waterMarkForm.watermarkType">
+            <el-radio label="text">
+              文字
+            </el-radio>
+            <el-radio label="image">
+              图片
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item
+          v-show="waterMarkForm.isAddWatermark"
+          label="是否全屏水印"
+        >
+          <el-switch
+            v-model="waterMarkForm.isFullScreenWatermark"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
+        <el-form-item
+          v-show="waterMarkForm.isAddWatermark"
+          label="水印角度"
+        >
+          <el-input-number
+            v-model="waterMarkForm.watermarkDegree"
+            :step="1"
+          />
+        </el-form-item>
+        <el-form-item
+          v-show="waterMarkForm.isAddWatermark && waterMarkForm.watermarkType === 'text'"
+          label="水印文字"
+        >
+          <el-input v-model="waterMarkForm.watermarkText" />
+        </el-form-item>
+        <el-form-item
+          v-show="waterMarkForm.isAddWatermark && waterMarkForm.watermarkType === 'text'"
+          label="水印字体路径(留空默认使用simhei.ttf)"
+        >
+          <el-input v-model="waterMarkForm.watermarkFontPath" />
+        </el-form-item>
+        <el-form-item
+          v-show="waterMarkForm.isAddWatermark"
+          label="水印占原图比例"
+        >
+          <el-input-number
+            v-model="waterMarkForm.watermarkScaleRatio"
+            :min="0"
+            :max="1"
+            :step="0.01"
+          />
+        </el-form-item>
+        <el-form-item
+          v-show="waterMarkForm.isAddWatermark && waterMarkForm.watermarkType === 'text'"
+          label="水印颜色，请从取色器中选择"
+        >
+          <el-color-picker
+            v-model="waterMarkForm.watermarkColor"
+            show-alpha
+          />
+        </el-form-item>
+        <el-form-item
+          v-show="waterMarkForm.isAddWatermark && waterMarkForm.watermarkType === 'image'"
+          label="水印图片路径(留空使用默认图片)"
+        >
+          <el-input v-model="waterMarkForm.watermarkImagePath" />
+        </el-form-item>
+        <el-form-item
+          v-show="waterMarkForm.isAddWatermark"
+          label="水印位置"
+        >
+          <el-radio-group
+            v-model="waterMarkForm.watermarkPosition"
+          >
+            <el-radio
+              v-for="item in waterMarkPositionMap"
+              :key="item[0]"
+              :label="item[0]"
+            >
+              {{ item[1] }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="压缩质量">
+          <el-input-number
+            v-model="compressForm.quality"
+            :min="0"
+            :max="100"
+            :step="1"
+          />
+        </el-form-item>
+        <el-form-item label="是否转换格式">
+          <el-switch
+            v-model="compressForm.isConvert"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
+        <el-form-item
+          v-show="compressForm.isConvert"
+          label="选择转换目的格式"
+        >
+          <el-select v-model="compressForm.convertFormat">
+            <el-option
+              v-for="item in availableFormat"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="是否按固定尺寸调整图片">
+          <el-switch
+            v-model="compressForm.isReSize"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
+        <el-form-item
+          v-show="compressForm.isReSize"
+          label="调整尺寸宽度"
+        >
+          <el-input-number
+            v-model="compressForm.reSizeWidth"
+            :min="0"
+          />
+        </el-form-item>
+        <el-form-item
+          v-show="compressForm.isReSize"
+          label="调整尺寸高度"
+        >
+          <el-input-number
+            v-model="compressForm.reSizeHeight"
+            :min="0"
+          />
+        </el-form-item>
+        <el-form-item label="是否按比例调整尺寸，优先级高于固定尺寸">
+          <el-switch
+            v-model="compressForm.isReSizeByPercent"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
+        <el-form-item
+          v-show="compressForm.isReSizeByPercent"
+          label="调整尺寸比例, 输入50表示50%"
+        >
+          <el-input-number
+            v-model="compressForm.reSizePercent"
+            :min="0"
+          />
+        </el-form-item>
+        <el-form-item
+          label="是否旋转"
+        >
+          <el-switch
+            v-model="compressForm.isRotate"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
+        <el-form-item
+          v-show="compressForm.isRotate"
+          label="旋转角度"
+        >
+          <el-input-number
+            v-model="compressForm.rotateDegree"
+            :step="1"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            type="primary"
+            @click="handelSaveConfig"
+          >
+            保存
+          </el-button>
+          <el-button @click="closeDialog">
+            取消
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 <script lang="ts" setup>
@@ -118,7 +336,7 @@ import {
   ipcRenderer,
   IpcRendererEvent
 } from 'electron'
-import { ref, onBeforeMount, onBeforeUnmount, watch } from 'vue'
+import { ref, reactive, onBeforeMount, onBeforeUnmount, watch, toRaw } from 'vue'
 import { T as $T } from '@/i18n'
 import $bus from '@/utils/bus'
 import {
@@ -132,6 +350,89 @@ import {
 } from '~/universal/utils/common'
 import { ElMessage as $message } from 'element-plus'
 import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
+import { IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
+
+const imageProcessDialogVisible = ref(false)
+
+const waterMarkPositionMap = new Map([
+  ['north', '上'],
+  ['northeast', '右上'],
+  ['southeast', '右下'],
+  ['south', '下'],
+  ['southwest', '左下'],
+  ['northwest', '左上'],
+  ['west', '左'],
+  ['east', '右'],
+  ['centre', '中']
+])
+
+const availableFormat = ['avif', 'dz', 'fits', 'gif', 'heif', 'input', 'jpeg', 'jpg', 'jp2', 'jxl', 'magick', 'openslide', 'pdf', 'png', 'ppm', 'raw', 'svg', 'tiff', 'tif', 'v', 'webp']
+
+const waterMarkForm = reactive<any>({
+  isAddWatermark: false,
+  watermarkType: 'text',
+  isFullScreenWatermark: false,
+  watermarkDegree: 0,
+  watermarkText: '',
+  watermarkFontPath: '',
+  watermarkScaleRatio: 0.15,
+  watermarkColor: '#CCCCCC73',
+  watermarkImagePath: '',
+  watermarkPosition: 'southeast'
+})
+
+const compressForm = reactive<any>({
+  quality: 100,
+  isConvert: false,
+  convertFormat: 'jpg',
+  isReSize: false,
+  reSizeWidth: 500,
+  reSizeHeight: 500,
+  isReSizeByPercent: false,
+  reSizePercent: 50,
+  isRotate: false,
+  rotateDegree: 0
+})
+
+function closeDialog () {
+  imageProcessDialogVisible.value = false
+}
+
+function handelSaveConfig () {
+  saveConfig('buildIn.compress', toRaw(compressForm))
+  saveConfig('buildIn.watermark', toRaw(waterMarkForm))
+  closeDialog()
+}
+
+async function initData () {
+  const compress = await getConfig<IBuildInCompressOptions>('buildIn.compress')
+  const watermark = await getConfig<IBuildInWaterMarkOptions>('buildIn.watermark')
+  if (compress) {
+    compressForm.quality = compress.quality ?? 100
+    compressForm.isConvert = compress.isConvert ?? false
+    compressForm.convertFormat = compress.convertFormat ?? 'jpg'
+    compressForm.isReSize = compress.isReSize ?? false
+    compressForm.reSizeWidth = compress.reSizeWidth ?? 500
+    compressForm.reSizeHeight = compress.reSizeHeight ?? 500
+    compressForm.isReSizeByPercent = compress.isReSizeByPercent ?? false
+    compressForm.reSizePercent = compress.reSizePercent ?? 50
+    compressForm.isRotate = compress.isRotate ?? false
+    compressForm.rotateDegree = compress.rotateDegree ?? 0
+  }
+  if (watermark) {
+    waterMarkForm.isAddWatermark = watermark.isAddWatermark ?? false
+    waterMarkForm.watermarkType = watermark.watermarkType ?? 'text'
+    waterMarkForm.isFullScreenWatermark = watermark.isFullScreenWatermark ?? false
+    waterMarkForm.watermarkDegree = watermark.watermarkDegree ?? 0
+    waterMarkForm.watermarkText = watermark.watermarkText ?? ''
+    waterMarkForm.watermarkFontPath = watermark.watermarkFontPath ?? ''
+    waterMarkForm.watermarkScaleRatio = watermark.watermarkScaleRatio ?? 0.15
+    waterMarkForm.watermarkColor = watermark.watermarkColor === undefined || watermark.watermarkColor === '' ? '#CCCCCC73' : watermark.watermarkColor
+    waterMarkForm.watermarkImagePath = watermark.watermarkImagePath ?? ''
+    waterMarkForm.watermarkPosition = watermark.watermarkPosition ?? 'southeast'
+  }
+}
+
 const dragover = ref(false)
 const progress = ref(0)
 const showProgress = ref(false)
@@ -141,6 +442,7 @@ const picBed = ref<IPicBedType[]>([])
 const picBedName = ref('')
 const customLink = ref('')
 const picBedConfigName = ref('')
+
 onBeforeMount(() => {
   ipcRenderer.on('uploadProgress', (_event: IpcRendererEvent, _progress: number) => {
     if (_progress !== -1) {
@@ -159,7 +461,12 @@ onBeforeMount(() => {
   sendToMain(GET_PICBEDS)
   ipcRenderer.on(GET_PICBEDS, getPicBeds)
   $bus.on(SHOW_INPUT_BOX_RESPONSE, handleInputBoxValue)
+  initData()
 })
+
+const handleImageProcess = () => {
+  imageProcessDialogVisible.value = true
+}
 
 watch(progress, onProgressChange)
 

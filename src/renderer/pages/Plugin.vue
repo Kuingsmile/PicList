@@ -46,6 +46,7 @@
       </el-input>
     </el-row>
     <el-row
+      id="pluginList"
       v-loading="loading"
       :gutter="10"
       class="plugin-list"
@@ -214,7 +215,7 @@ import {
   GET_PICBEDS,
   PICGO_HANDLE_PLUGIN_DONE
 } from '#/events/constants'
-import { computed, ref, onBeforeMount, onBeforeUnmount, watch } from 'vue'
+import { computed, ref, onBeforeMount, onBeforeUnmount, watch, onMounted } from 'vue'
 import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
 import { ElMessageBox } from 'element-plus'
 import axios from 'axios'
@@ -351,6 +352,17 @@ onBeforeMount(async () => {
 async function buildContextMenu (plugin: IPicGoPlugin) {
   sendToMain(SHOW_PLUGIN_PAGE_MENU, plugin)
 }
+
+function handleResize () {
+  const myDiv = document.getElementById('pluginList') as HTMLElement
+  const windowHeight = window.innerHeight
+  const newHeight = windowHeight * 0.75
+  myDiv.style.height = newHeight + 'px'
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
 
 function getPluginList () {
   sendToMain('getPluginList')
@@ -529,6 +541,7 @@ function handleImportLocalPlugin () {
 }
 
 onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
   ipcRenderer.removeAllListeners('pluginList')
   ipcRenderer.removeAllListeners('installPlugin')
   ipcRenderer.removeAllListeners('uninstallSuccess')
@@ -554,7 +567,7 @@ $darwinBg = #172426
     background-color rgba(0, 0, 0, 0.8)
   .plugin-list
     align-content flex-start
-    height: 339px;
+    height: 600px;
     box-sizing: border-box;
     padding: 8px 15px;
     overflow-y: auto;

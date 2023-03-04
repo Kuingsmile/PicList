@@ -15,12 +15,20 @@
 
 &emsp;&emsp;fork自PicGo的二次开发项目，保留了PicGo的所有功能的同时，为相册添加了同步云端删除功能，同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件链接和图片/markdown/文本/视频预览等。
 
+## PicList-Core
+
+PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](https://github.com/Kuingsmile/PicList-Core)，为云端删除等功能做了适配，同时，新增了水印添加和图片压缩/缩放/旋转/格式转换等功能，可以通过CLI命令行调用，还有一些其他的功能改动。
+
+如果您希望使用PicList-core，请前往[https://github.com/Kuingsmile/PicList-Core](https://github.com/Kuingsmile/PicList-Core)，或者前往[npm官方地址](https://www.npmjs.com/package/piclist)查看安装说明。
+
 ## 特色功能
 
 - 保留了PicGo的所有功能，兼容已有的PicGo插件系统，包括和typora、obsidian等的搭配
 - 相册中可同步删除云端图片
+- 内置水印添加、图片压缩、图片缩放、图片旋转和图片格式转换等功能，支持自定义配置，且可以通过CLI命令行调用
 - 支持管理所有图床，可以在线进行云端目录查看、文件搜索、批量上传、批量下载、删除文件等
 - 支持预览多种格式的文件，包括图片、视频、纯文本文件和markdown文件等，具体支持的格式请参考[支持的文件格式列表](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)
+- 支持正则表达式的批量云端文件重命名
 - 管理界面使用内置数据库缓存目录，加速目录加载速度
 - 对于私有存储桶等支持复制预签名链接进行分享
 - 优化了PicGo的界面，解锁了窗口大小限制，同时美化了部分界面布局
@@ -47,8 +55,18 @@
 
 [https://github.com/Kuingsmile/PicList/releases/latest](https://github.com/Kuingsmile/PicList/releases/latest)
 
+### Mac特殊说明
+
+如果macOS系统安装完PicList显示「文件已损坏」或者安装完打开没有反应，请参考[FAQ说明](https://github.com/Kuingsmile/PicList/blob/dev/FAQ.md)的第11条，或者直接尝试下面的命令：
+
+```bash
+sudo xattr -d com.apple.quarantine /Applications/PicList.app/
+```
+
 ## 应用截图
 
+![image](https://user-images.githubusercontent.com/96409857/222900642-f1d04a41-f025-4f3c-b838-bae770e0b929.png)
+![image](https://user-images.githubusercontent.com/96409857/222900656-6bb33045-6672-4c4d-ac34-1b9ba86011cc.png)
 ![image](https://user-images.githubusercontent.com/96409857/220510112-e524f270-ab56-4e8b-bfb2-eb0a77e559ef.png)
 ![image](https://user-images.githubusercontent.com/96409857/220510176-8a3f9f19-9182-4b56-b943-fc408ef63f22.png)
 ![image](https://user-images.githubusercontent.com/96409857/220510302-f193fc77-db1b-4817-81ff-3ab1c3a1f4d3.png)

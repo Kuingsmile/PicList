@@ -8,14 +8,7 @@
 
 ## 1. PicList和PicGo有什么关系？
 
-PicList项目fork自PicGo项目，基于PicGo进行了二次开发，添加了如下功能：
-
-注意：以下功能已适配的图床包括：阿里云 OSS、腾讯云 COS、七牛云 Kodo、又拍云、SM.MS、Imgur、GitHub。
-
-- 相册中可同步删除云端图片
-- 支持管理所有图床，可以在线进行云端目录查看、文件搜索、批量上传、批量下载、删除文件和图片预览等
-- 对于私有存储桶等支持复制预签名链接进行分享
-- 优化了PicGo的界面，解锁了窗口大小限制，同时美化了部分界面布局
+PicList项目fork自PicGo项目，基于PicGo进行了二次开发，同时核心功能内核PicGo-Core也进行了二次开发，重命名为[PicList-Core](https://github.com/Kuingsmile/PicList-Core)。
 
 PicList所有新功能的添加没有影响到PicGo的原有功能，所以你可以在PicList中使用PicGo的所有插件。同时仍然可以配合typora、obsidian等软件进行使用。
 
@@ -25,7 +18,7 @@ PicList所有新功能的添加没有影响到PicGo的原有功能，所以你�
 
 ## 3. 支持哪些图床远端同步删除
 
-可以，本软件基于PicGo进行了二次开发，添加了远端同步删除功能。但是需要你的图床支持，目前支持的图床有：
+目前支持的图床有：
 
 - 阿里云 OSS
 - 腾讯云 COS
@@ -34,6 +27,8 @@ PicList所有新功能的添加没有影响到PicGo的原有功能，所以你�
 - SM.MS
 - Imgur
 - GitHub
+- Webdav
+- Aws S3
 
 ## 4. 能否支持上传视频文件
 
@@ -41,7 +36,7 @@ PicList所有新功能的添加没有影响到PicGo的原有功能，所以你�
 
 ## 5. 能否支持某某某图床
 
-PicGo本体支持了如下图床：
+PicList本体支持了如下图床：
 
 - `七牛图床`
 - `腾讯云 COS`
@@ -50,8 +45,9 @@ PicGo本体支持了如下图床：
 - `SM.MS`
 - `阿里云 OSS`
 - `Imgur`
+- `Webdav`
 
-PicList在上述7个图床之外，计划整合和优化现有插件，内置更多的常用图床。
+PicList计划整合和优化现有插件，内置更多的常用图床。
 
 此外，PicList兼容PicGo的插件系统，需要其他图床支持可以参考目前已有的PicGo三方 [插件](https://github.com/PicGo/Awesome-PicGo)，如果还是没有你所需要的图床欢迎开发一个插件供大家使用。
 
@@ -85,13 +81,13 @@ PicList 在 Mac 上是一个顶部栏应用，在 dock 栏是不会有图标的�
 
 信任开发者，会要求输入密码:
 
-```
+```bash
 sudo spctl --master-disable
 ```
 
 然后放行 PicList :
 
-```
+```bash
 xattr -cr /Applications/PicList.app
 ```
 
@@ -120,8 +116,15 @@ options:
   -l: print long format (attr_name: attr_value)
   -z: compress or decompress (if compressed) attribute value in zip format
 ```
+
 执行命令
 
-```
+```bash
 xattr -c /Applications/PicList.app/*
+```
+
+如果上述命令依然没有效果，可以尝试下面的命令：
+
+```bash
+sudo xattr -d com.apple.quarantine /Applications/PicList.app/
 ```
