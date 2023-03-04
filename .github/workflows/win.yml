@@ -47,7 +47,7 @@ jobs:
 
       - name: Build
         run: |
-          yarn build
+          yarn release
           yarn upload-dist
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
