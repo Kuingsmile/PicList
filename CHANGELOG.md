@@ -1,3 +1,12 @@
+# :tada: 1.4.0 (2023-03-04)
+
+
+### :sparkles: Features
+
+* add buildin watermark process and image resize/compress/rotate/convert feature ([da42bb4](https://github.com/Kuingsmile/PicList/commit/da42bb4))
+
+
+
 ## :tada: 1.3.1 (2023-03-02)
 
 
