@@ -1,13 +1,15 @@
 # main.yml
 
 # Workflow's name
-name: Auto Build
+name: Win Build
 
 # Workflow's trigger
 on:
+  workflow_dispatch:
   push:
     branches:
       - release
+  
 
 # Workflow's jobs
 jobs:
