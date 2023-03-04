@@ -1,0 +1,54 @@
+# main.yml
+
+# Workflow's name
+name: Auto Build
+
+# Workflow's trigger
+on:
+  push:
+    branches:
+      - release
+
+# Workflow's jobs
+jobs:
+  # job's id
+  release:
+    # job's name
+    name: build and release electron app
+
+    # the type of machine to run the job on
+    runs-on: ${{ matrix.os }}
+
+    # create a build matrix for jobs
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+
+    # create steps
+    steps:
+      # step1: check out repository
+      - name: Check out git repository
+        uses: actions/checkout@v2
+
+      # step2: install node env
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+
+      # step3: yarn
+      - name: Yarn install
+        run: |
+          yarn
+          yarn global add xvfb-maybe
+
+      - name: Build
+        run: |
+          yarn build
+          yarn upload-dist
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          R2_SECRET_ID: ${{ secrets.R2_SECRET_ID }}
+          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
