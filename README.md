@@ -13,7 +13,7 @@
   </a>
 </div>
 
-&emsp;&emsp;fork自PicGo的二次开发项目，保留了PicGo的所有功能的同时，为相册添加了同步云端删除功能，同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件链接和图片/markdown/文本/视频预览等。
+PicList是一款云存储/图床平台管理和文件上传工具，基于PicGo的进行了深度二次开发，保留了PicGo的所有功能的同时，为相册添加了同步云端删除功能，同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件链接和图片/markdown/文本/视频预览等。
 
 ## PicList-Core
 
@@ -73,6 +73,10 @@ sudo xattr -d com.apple.quarantine /Applications/PicList.app/
 ![image](https://user-images.githubusercontent.com/96409857/220510371-a2fad42e-8063-4014-a691-ca5b66b8cc60.png)
 ![image](https://user-images.githubusercontent.com/96409857/220510427-b85ffc0a-55cf-43f1-b1b0-ba7776a75de2.png)
 
+## 微信交流群
+
+<img src="https://pichoro.msq.pub/wechat.png" alt="" width="350" height="350" />
+
 ## 开发说明
 
 1. 你需要有 Node、Git 环境，了解 npm 的相关知识。
@@ -102,8 +106,8 @@ sudo xattr -d com.apple.quarantine /Applications/PicList.app/
 
 ## 其它相关
 
-- [PicGo](https://github.com/Molunerfinn/PicGo) : 原版PicGo项目
-- [PicHoro](https://github.com/Kuingsmile/PicHoro): 与PicList搭配使用的手机端APP
+- [PicList-Core](https://github.com/Kuingsmile/PicList-Core) : 基于 PicGo-Core 二次开发的核心库，用于 CLI 操作和项目开发
+- [PicHoro](https://github.com/Kuingsmile/PicHoro): 与 PicList 搭配使用的手机端 APP
 
 ## License
 
