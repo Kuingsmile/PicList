@@ -37,14 +37,12 @@ jobs:
       - name: Install the Apple certificates
         run: |
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+          PP_PATH=./piclist.provisionprofile
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
           echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
-          echo $CERTIFICATE_PATH
+          echo $PP_PATH
           echo "create keychain"
-          echo $CSC_LINK
-          echo $CSC_KEY_PASSWORD
 
       # step3: install node env
       - name: Install Node.js

@@ -67,6 +67,7 @@ const config = {
         },
         mac: {
           icon: 'build/icons/icon.icns',
+          provisioningProfile: './piclist.provisionprofile',
           extendInfo: {
             LSUIElement: 1
           },
