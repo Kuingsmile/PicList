@@ -49,6 +49,7 @@ const config = {
           }
         ],
         dmg: {
+          sign: false,
           contents: [
             {
               x: 410,

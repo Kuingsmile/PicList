@@ -1,0 +1,77 @@
+# main.yml
+
+# Workflow's name
+name: Mac Build
+
+# Workflow's trigger
+on: workflow_dispatch
+
+env:
+  ELECTRON_OUTPUT_PATH: ./dist_electron
+
+# Workflow's jobs
+jobs:
+  # job's id
+  release:
+    # job's name
+    name: build and release electron app
+
+    # the type of machine to run the job on
+    runs-on: ${{ matrix.os }}
+
+    # create a build matrix for jobs
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-11]
+
+    # create steps
+    steps:
+      # step1: check out repository
+      - name: Check out git repository
+        uses: actions/checkout@v2
+      
+      # step2: sign
+      - name: Install the Apple certificates
+        run: |
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+
+      # step3: install node env
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+
+      # step4: yarn
+      - name: Yarn install
+        run: |
+          yarn
+          yarn global add xvfb-maybe
+
+      - name: Build  & release app
+        run: |
+          yarn build
+          yarn upload-beta
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          R2_SECRET_ID: ${{ secrets.R2_SECRET_ID }}
+          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          ELECTRON_SKIP_NOTARIZATION: ${{ secrets.ELECTRON_SKIP_NOTARIZATION }}
+          XCODE_APP_LOADER_EMAIL: ${{ secrets.XCODE_APP_LOADER_EMAIL }}
+          XCODE_APP_LOADER_PASSWORD: ${{ secrets.XCODE_APP_LOADER_PASSWORD }}
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
