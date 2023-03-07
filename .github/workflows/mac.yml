@@ -8,6 +8,8 @@ on: workflow_dispatch
 
 env:
   ELECTRON_OUTPUT_PATH: ./dist_electron
+  CSC_LINK: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+  CSC_KEY_PASSWORD: ${{ secrets.P12_PASSWORD }}
 
 # Workflow's jobs
 jobs:
@@ -43,6 +45,8 @@ jobs:
           echo "create keychain"
           export CSC_LINK=$CERTIFICATE_PATH
           export CSC_KEY_PASSWORD=$P12_PASSWORD
+          echo $CSC_LINK
+          echo $CSC_KEY_PASSWORD
 
       # step3: install node env
       - name: Install Node.js
