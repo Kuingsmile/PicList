@@ -1,6 +1,11 @@
 {
   "name": "piclist",
   "version": "1.4.0",
+  "author": {
+    "name": "Kuingsmile",
+    "email": "msq@msq.pub"
+  },
+  "description": "PicList is a simple and powerful cloude storage manage tool.",
   "private": true,
   "scripts": {
     "build": "vue-cli-service electron:build",
@@ -111,10 +116,6 @@
     "stylus-loader": "^3.0.2",
     "typescript": "^4.9.5",
     "vue-cli-plugin-electron-builder": "^3.0.0-alpha.4"
-  },
-  "build": {
-    "appId": "com.kuingsmile.piclist",
-    "afterSign": "scripts/notarize.js"
   },
   "commitlint": {
     "extends": [
