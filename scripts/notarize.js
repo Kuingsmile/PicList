@@ -30,6 +30,7 @@ async function main(context) {
     appleId: XCODE_APP_LOADER_EMAIL,
     appleIdPassword: XCODE_APP_LOADER_PASSWORD,
   })
+  cosole.log("Finished Apple notarization.")
 
 }
 
