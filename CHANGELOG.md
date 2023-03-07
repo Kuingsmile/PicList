@@ -1,3 +1,30 @@
+## :tada: 1.4.1 (2023-03-07)
+
+
+### :bug: Bug Fixes
+
+* fix config ([040ad5f](https://github.com/Kuingsmile/PicList/commit/040ad5f))
+* fix picbed config page scroll bug ([d515cc5](https://github.com/Kuingsmile/PicList/commit/d515cc5))
+* mac.yml ([def9502](https://github.com/Kuingsmile/PicList/commit/def9502))
+
+
+### :package: Chore
+
+* add app sign and for mac, add win ([ab48363](https://github.com/Kuingsmile/PicList/commit/ab48363))
+* fix mac.yml ([4a9d646](https://github.com/Kuingsmile/PicList/commit/4a9d646))
+* mac auto build test ([ed74764](https://github.com/Kuingsmile/PicList/commit/ed74764))
+* mac build test ([bc2749e](https://github.com/Kuingsmile/PicList/commit/bc2749e))
+* macos code signing test ([4915290](https://github.com/Kuingsmile/PicList/commit/4915290))
+* update mac autoflow ([f4d313f](https://github.com/Kuingsmile/PicList/commit/f4d313f))
+* update mac.yml ([b3d8e4d](https://github.com/Kuingsmile/PicList/commit/b3d8e4d))
+
+
+### :pencil: Documentation
+
+* update README.md ([a2ffd4f](https://github.com/Kuingsmile/PicList/commit/a2ffd4f))
+
+
+
 # :tada: 1.4.0 (2023-03-04)
 
 
