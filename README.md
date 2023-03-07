@@ -32,6 +32,7 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 - 管理界面使用内置数据库缓存目录，加速目录加载速度
 - 对于私有存储桶等支持复制预签名链接进行分享
 - 优化了PicGo的界面，解锁了窗口大小限制，同时美化了部分界面布局
+- mac平台安装包已签名，从源头解决了PicGo上的安装包已损坏的日经问题
 
 ## 已支持平台
 
@@ -57,11 +58,9 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 
 ### Mac特殊说明
 
-如果macOS系统安装完PicList显示「文件已损坏」或者安装完打开没有反应，请参考[FAQ说明](https://github.com/Kuingsmile/PicList/blob/dev/FAQ.md)的第11条，或者直接尝试下面的命令：
+如果macOS系统安装完PicList显示「文件已损坏」或者安装完打开没有反应，请升级到PicList V1.4.1以上版本。
 
-```bash
-sudo xattr -d com.apple.quarantine /Applications/PicList.app/
-```
+从V1.4.1版本开始，所有的mac安装包均经过了我的开发者证书签名，不会再被macOS系统识别为「恶意软件」，不会再出现「文件已损坏」的提示。
 
 ## 应用截图
 

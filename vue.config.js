@@ -40,7 +40,7 @@ const config = {
       builderOptions: {
         productName: 'PicList',
         appId: 'com.kuingsmile.piclist',
-        afterSign: "scripts/notarize.js",
+        afterSign: 'scripts/notarize.js',
         publish: [
           {
             provider: 'github',

@@ -97,6 +97,9 @@ export default {
 </script>
 <style lang='stylus'>
 #picbeds-page
+  height 100%
+  overflow-y auto
+  overflow-x hidden
   .setting-list
     height 100%
     overflow-y auto
