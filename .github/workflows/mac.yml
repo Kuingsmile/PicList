@@ -43,8 +43,6 @@ jobs:
           echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
           echo $CERTIFICATE_PATH
           echo "create keychain"
-          export CSC_LINK=$CERTIFICATE_PATH
-          export CSC_KEY_PASSWORD=$P12_PASSWORD
           echo $CSC_LINK
           echo $CSC_KEY_PASSWORD
 
