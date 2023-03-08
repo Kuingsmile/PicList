@@ -7,7 +7,6 @@ import { webFrame } from 'electron'
 import VueLazyLoad from 'vue3-lazyload'
 import axios from 'axios'
 import { mainMixin } from './renderer/utils/mainMixin'
-import ContextMenu from '@imengyu/vue3-context-menu'
 import { dragMixin } from '@/utils/mixin'
 import { initTalkingData } from './renderer/utils/analytics'
 import db from './renderer/utils/db'
@@ -65,7 +64,6 @@ app.use(router)
 app.use(store)
 app.use(vue3PhotoPreview)
 app.use(pinia)
-app.use(ContextMenu)
 console.log(hljsCommon.highlightAuto('<h1>Highlight.js has been registered successfully!</h1>').value)
 app.use(hljsVuePlugin)
 app.use(VueVideoPlayer)
