@@ -19,7 +19,9 @@
       "node"
     ],
     "typeRoots": [
-      "./src/universal/types/*",
+      "./src/universal/types/",
+      "./node_modules/@types",
+      "./node_modules",
     ],
     "paths": {
       "@/*": [

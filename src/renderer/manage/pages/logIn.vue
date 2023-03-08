@@ -251,7 +251,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, onBeforeMount, computed } from 'vue'
+import { reactive, ref, onMounted, computed } from 'vue'
 import { supportedPicBedList } from '../utils/constants'
 import { Delete, Edit, Pointer, InfoFilled } from '@element-plus/icons-vue'
 import { ElMessage, ElNotification } from 'element-plus'
@@ -716,14 +716,11 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
     default:
       return
   }
-  await manageStore.refreshConfig()
+  manageStore.refreshConfig()
 }
 
-onBeforeMount(async () => {
-  isLoading.value = true
+onMounted(async () => {
   await getCurrentConfigList()
-  getExistingConfig('login')
-  isLoading.value = false
   getAllConfigAliasArray()
 })
 
