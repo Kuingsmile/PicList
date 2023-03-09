@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-11]
+        os: [ macos-11 ]
 
     # create steps
     steps:
@@ -52,6 +52,7 @@ jobs:
         run: |
           yarn
           yarn global add xvfb-maybe
+          npm rebuild --platform=darwin --arch=arm64 sharp
 
       - name: Build  & release app
         run: |

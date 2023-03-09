@@ -67,18 +67,30 @@ const config = {
         },
         mac: {
           icon: 'build/icons/icon.icns',
+          hardenedRuntime: true,
+          entitlements: 'build/entitlements.mas.plist',
+          entitlementsInherit: 'build/entitlements.mas.inherit.plist',
+          provisioningProfile: 'build/piclistmass.provisionprofile',
           extendInfo: {
             LSUIElement: 1
           },
           target: [{
-            target: 'dmg',
+            target: 'mas',
             arch: [
-              'x64',
-              'arm64'
+              'universal'
             ]
           }],
           // eslint-disable-next-line no-template-curly-in-string
-          artifactName: 'PicList-${version}-${arch}.dmg'
+          artifactName: 'PicList-${version}-${arch}.${ext}'
+        },
+        mas: {
+          type: 'distribution',
+          icon: 'build/icons/icon.icns',
+          hardenedRuntime: true,
+          entitlements: 'build/entitlements.mas.plist',
+          entitlementsInherit: 'build/entitlements.mas.inherit.plist',
+          provisioningProfile: 'build/piclistmass.provisionprofile',
+          entitlementsLoginHelper: "build/entitlements.mas.loginhelper.plist"
         },
         win: {
           icon: 'build/icons/icon.ico',
