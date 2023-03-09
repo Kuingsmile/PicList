@@ -182,7 +182,7 @@
         </el-form-item>
         <el-form-item
           v-show="waterMarkForm.isAddWatermark && waterMarkForm.watermarkType === 'text'"
-          label="水印字体路径(留空默认使用simhei.ttf)"
+          label="水印字体路径(留空默认黑体，第一次需下载字体文件)"
         >
           <el-input v-model="waterMarkForm.watermarkFontPath" />
         </el-form-item>

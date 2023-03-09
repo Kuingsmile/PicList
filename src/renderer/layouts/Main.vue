@@ -13,18 +13,26 @@
       >
         <el-icon
           class="minus"
+          color="#fff"
+          size="20"
+          style="margin-right: 10px;"
           @click="minimizeWindow"
         >
           <Minus />
         </el-icon>
         <el-icon
           class="plus"
+          color="orange"
+          size="20"
+          style="margin-right: 10px;"
           @click="openMiniWindow"
         >
           <CirclePlus />
         </el-icon>
         <el-icon
           class="close"
+          color="#fff"
+          size="20"
           @click="closeWindow"
         >
           <Close />
