@@ -70,7 +70,7 @@ jobs:
           yarn global add xvfb-maybe
           npm rebuild --platform=win32 --arch=ia32 sharp
         
-        - name: Yarn install linux
+      - name: Yarn install linux
         if: matrix.os = 'ubuntu-latest'
         run: |
           yarn
