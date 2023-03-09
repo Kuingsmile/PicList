@@ -1,3 +1,25 @@
+## :tada: 1.4.2 (2023-03-09)
+
+
+### :sparkles: Features
+
+* update piclist-core, reduce package size ([c88dd1d](https://github.com/Kuingsmile/PicList/commit/c88dd1d))
+
+
+### :bug: Bug Fixes
+
+* fix aliasArray bug ([b027a73](https://github.com/Kuingsmile/PicList/commit/b027a73))
+* fix config name validate rule ([f715233](https://github.com/Kuingsmile/PicList/commit/f715233))
+* fix sharp build error on MacOS M1 chip ([1240afa](https://github.com/Kuingsmile/PicList/commit/1240afa))
+
+
+### :package: Chore
+
+* add mas.yml ([198157d](https://github.com/Kuingsmile/PicList/commit/198157d))
+* fix main.yml syntax error ([27b92d8](https://github.com/Kuingsmile/PicList/commit/27b92d8))
+
+
+
 ## :tada: 1.4.1 (2023-03-07)
 
 
