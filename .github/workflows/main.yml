@@ -57,21 +57,21 @@ jobs:
 
       # step3: yarn
       - name: Yarn install macos
-        if: matrix.os = 'macos-11'
+        if: matrix.os == 'macos-11'
         run: |
           yarn
           yarn global add xvfb-maybe
           npm rebuild --platform=darwin --arch=arm64 sharp
 
       - name: Yarn install windows
-        if: matrix.os = 'windows-latest'
+        if: matrix.os == 'windows-latest'
         run: |
           yarn
           yarn global add xvfb-maybe
           npm rebuild --platform=win32 --arch=ia32 sharp
         
       - name: Yarn install linux
-        if: matrix.os = 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           yarn
           yarn global add xvfb-maybe
