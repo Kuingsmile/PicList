@@ -44,7 +44,7 @@ jobs:
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
 
-      # step2: install node env
+      # step3: install node env
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
@@ -55,7 +55,6 @@ jobs:
         run: |
           sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils
 
-      
       # step3: yarn
       - name: Yarn install macos
         if: matrix.os = 'macos-11'
@@ -63,7 +62,7 @@ jobs:
           yarn
           yarn global add xvfb-maybe
           npm rebuild --platform=darwin --arch=arm64 sharp
-      
+
       - name: Yarn install windows
         if: matrix.os = 'windows-latest'
         run: |

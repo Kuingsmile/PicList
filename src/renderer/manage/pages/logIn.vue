@@ -346,7 +346,7 @@ const handleConfigChange = async (name: string) => {
   const aliasList = getAliasList()
   const allKeys = Object.keys(supportedPicBedList[name].configOptions)
   const resultMap:IStringKeyMap = {}
-  const reg = /^[\u4e00-\u9fa5_a-zA-Z0-9-]{1,15}$/
+  const reg = /^[\u4e00-\u9fa5_a-zA-Z0-9-]+$/
   for (const key of allKeys) {
     const resultKey = name + '.' + key
     if (supportedPicBedList[name].configOptions[key].required) {
@@ -356,7 +356,7 @@ const handleConfigChange = async (name: string) => {
       }
     }
     if (key === 'alias' && configResult[resultKey] !== undefined && !reg.test(configResult[resultKey])) {
-      ElMessage.error('别名只能包含中文、英文、数字和下划线，且长度不超过15个字符')
+      ElMessage.error('别名只能包含中文、英文、数字、下划线和中划线')
       return
     }
     if (key === 'itemsPerPage' && configResult[resultKey] !== undefined && (configResult[resultKey] < 20 || configResult[resultKey] > 1000)) {
@@ -488,14 +488,14 @@ const getAllConfigAliasArray = async () => {
     return
   }
   let i = 0
-  for (const key in result) {
+  Object.keys(result).forEach((key) => {
     allConfigAliasMap[i] = {
       alias: result[key].alias,
       picBedName: result[key].picBedName,
       config: result[key]
     }
     i++
-  }
+  })
 }
 
 const handleCellClick = (row:any, column:any) => {
@@ -538,23 +538,45 @@ function handleConfigImport (alias: string) {
 async function getCurrentConfigList () {
   const configList = await getPicBedsConfig<any>('uploader') ?? {}
   const pbList = ['aliyun', 'tcyun', 'upyun', 'qiniu', 'smms', 'qiniu', 'github', 'webdavplist', 'aws-s3']
-  for (const pb of pbList) {
-    if (configList[pb] && configList[pb].configList.length > 0) {
-      for (const config of configList[pb].configList) {
-        await transUpToManage(config, pb)
-      }
+  const filteredConfigList = pbList.map((pb) => {
+    const config = configList[pb]
+    if (config && config.configList.length > 0) {
+      config.configList.forEach((item: any) => {
+        item.type = pb
+      })
+      return config
+    } else {
+      return null
+    }
+  }).filter((config) => config && config.configList.length > 0)
+  await getAllConfigAliasArray()
+  const promises: Promise<any>[] = []
+  for (const config of filteredConfigList.flatMap((config) => config.configList)) {
+    const pb = config.type
+    promises.push(transUpToManage(config, pb))
+  }
+  await Promise.all(promises)
+}
+
+function isImported (alias: string) {
+  for (const key in allConfigAliasMap) {
+    if (allConfigAliasMap[key].alias === alias) {
+      return true
     }
   }
+  return false
 }
 
 async function transUpToManage (config: IUploaderConfigListItem, picBedName: string) {
+  let alias: string = ''
   const resultMap: IStringKeyMap = {}
   switch (picBedName) {
     case 'smms':
-      if (!config.token) {
+      alias = `smms-${config._configName ?? 'Default'}-imp`
+      if (!config.token || isImported(alias)) {
         return
       }
-      resultMap.alias = `smms-${config._configName ?? 'Default'}-imp`
+      resultMap.alias = alias
       resultMap.picBedName = 'smms'
       resultMap.token = config.token
       resultMap.paging = true
@@ -584,10 +606,11 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
       saveConfig(`picBed.${resultMap.alias}`, resultMap)
       break
     case 'qiniu':
-      if (!config.accessKey || !config.secretKey) {
+      alias = `qiniu-${config._configName ?? 'Default'}-imp`
+      if (!config.accessKey || !config.secretKey || isImported(alias)) {
         return
       }
-      resultMap.alias = `qiniu-${config._configName ?? 'Default'}-imp`
+      resultMap.alias = alias
       resultMap.picBedName = 'qiniu'
       resultMap.accessKey = config.accessKey
       resultMap.secretKey = config.secretKey
@@ -600,10 +623,11 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
       saveConfig(`picBed.${resultMap.alias}`, resultMap)
       break
     case 'tcyun':
-      if (!config.secretId || !config.secretKey || config.version === 'v4') {
+      alias = `tcyun-${config._configName ?? 'Default'}-imp`
+      if (!config.secretId || !config.secretKey || config.version === 'v4' || isImported(alias)) {
         return
       }
-      resultMap.alias = `tcyun-${config._configName ?? 'Default'}-imp`
+      resultMap.alias = alias
       resultMap.picBedName = 'tcyun'
       resultMap.secretId = config.secretId
       resultMap.secretKey = config.secretKey
@@ -623,10 +647,11 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
       saveConfig(`picBed.${resultMap.alias}`, resultMap)
       break
     case 'github':
-      if (!config.token) {
+      alias = `github-${config._configName ?? 'Default'}-imp`
+      if (!config.token || isImported(alias)) {
         return
       }
-      resultMap.alias = `github-${config._configName ?? 'Default'}-imp`
+      resultMap.alias = alias
       resultMap.picBedName = 'github'
       resultMap.token = config.token
       resultMap.githubUsername = config.repo.split('/')[0]
@@ -637,10 +662,11 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
       saveConfig(`picBed.${resultMap.alias}`, resultMap)
       break
     case 'upyun':
-      if (!config.operator || !config.password) {
+      alias = `upyun-${config._configName ?? 'Default'}-imp`
+      if (!config.operator || !config.password || isImported(alias)) {
         return
       }
-      resultMap.alias = `upyun-${config._configName ?? 'Default'}-imp`
+      resultMap.alias = alias
       resultMap.picBedName = 'upyun'
       resultMap.operator = config.operator
       resultMap.password = config.password
@@ -661,10 +687,11 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
       saveConfig(`picBed.${resultMap.alias}`, resultMap)
       break
     case 'webdavplist':
-      if (!config.host) {
+      alias = `webdav-${config._configName ?? 'Default'}-imp`
+      if (!config.host || isImported(alias)) {
         return
       }
-      resultMap.alias = `webdav-${config._configName ?? 'Default'}-imp`
+      resultMap.alias = alias
       resultMap.endpoint = formatEndpoint(config.host, config.sslEnabled)
       resultMap.picBedName = 'webdavplist'
       resultMap.username = config.username
@@ -686,10 +713,11 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
       saveConfig(`picBed.${resultMap.alias}`, resultMap)
       break
     case 'aws-s3':
-      if (!config.accessKeyID || !config.secretAccessKey) {
+      alias = `aws-s3-${config._configName ?? 'Default'}-imp`
+      if (!config.accessKeyID || !config.secretAccessKey || isImported(alias)) {
         return
       }
-      resultMap.alias = `s3-${config._configName ?? 'Default'}-imp`
+      resultMap.alias = alias
       resultMap.picBedName = 's3plist'
       resultMap.accessKeyId = config.accessKeyID
       resultMap.secretAccessKey = config.secretAccessKey

@@ -40,9 +40,9 @@ const aliasRule = [
   },
   {
     validator: (rule: any, value: any, callback: any) => {
-      const reg = /^[\u4e00-\u9fa5_a-zA-Z0-9-]{1,15}$/
+      const reg = /^[\u4e00-\u9fa5_a-zA-Z0-9-]+$/
       if (!reg.test(value)) {
-        callback(new Error('配置别名只能包含中文、英文、数字和下划线，且不能超过15个字符'))
+        callback(new Error('配置别名只能包含中文、英文、数字、下划线和中划线'))
       } else {
         callback()
       }
@@ -51,7 +51,7 @@ const aliasRule = [
   }
 ]
 
-const aliasTooltip = '配置别名只能包含中文、英文、数字和下划线，且不能超过15个字符'
+const aliasTooltip = '配置别名只能包含中文、英文、数字、下划线和中划线'
 const itemsPerPageTooltip = '每页显示数量必须在20-1000之间'
 const pagingTooltip = '关闭分页时，目录列表将使用数据库缓存以优化性能'
 const bucketNameTooltip = '英文逗号分隔，如：bucket1,bucket2,bucket3，和起始目录顺序一一对应'
