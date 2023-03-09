@@ -42,10 +42,7 @@ jobs:
         if: matrix.os == 'macos-11'
         run: |
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
 
       # step2: install node env
       - name: Install Node.js
@@ -60,7 +57,22 @@ jobs:
 
       
       # step3: yarn
-      - name: Yarn install
+      - name: Yarn install macos
+        if: matrix.os = 'macos-11'
+        run: |
+          yarn
+          yarn global add xvfb-maybe
+          npm rebuild --platform=darwin --arch=arm64 sharp
+      
+      - name: Yarn install windows
+        if: matrix.os = 'windows-latest'
+        run: |
+          yarn
+          yarn global add xvfb-maybe
+          npm rebuild --platform=win32 --arch=ia32 sharp
+        
+        - name: Yarn install linux
+        if: matrix.os = 'ubuntu-latest'
         run: |
           yarn
           yarn global add xvfb-maybe
