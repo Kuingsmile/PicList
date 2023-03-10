@@ -637,6 +637,13 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="是否移除Eixf信息">
+          <el-switch
+            v-model="compressForm.isRemoveExif"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
         <el-form-item label="压缩质量">
           <el-input-number
             v-model="compressForm.quality"
@@ -797,7 +804,8 @@ const compressForm = reactive<any>({
   isReSizeByPercent: false,
   reSizePercent: 50,
   isRotate: false,
-  rotateDegree: 0
+  rotateDegree: 0,
+  isRemoveExif: false
 })
 
 function closeDialog () {
@@ -824,6 +832,7 @@ async function initForm () {
     compressForm.reSizePercent = compress.reSizePercent ?? 50
     compressForm.isRotate = compress.isRotate ?? false
     compressForm.rotateDegree = compress.rotateDegree ?? 0
+    compressForm.isRemoveExif = compress.isRemoveExif ?? false
   }
   if (watermark) {
     waterMarkForm.isAddWatermark = watermark.isAddWatermark ?? false
