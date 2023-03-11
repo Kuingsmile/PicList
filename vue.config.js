@@ -86,7 +86,7 @@ const config = {
         mas: {
           type: 'distribution',
           icon: 'build/icons/icon.icns',
-          hardenedRuntime: true,
+          hardenedRuntime: false,
           entitlements: 'build/entitlements.mas.plist',
           entitlementsInherit: 'build/entitlements.mas.inherit.plist',
           provisioningProfile: 'build/piclistmass.provisionprofile',
