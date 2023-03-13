@@ -27,7 +27,7 @@ let tray: Tray | null
 export function createApplicationMenu () {
   if (process.platform === 'darwin') {
     const submenu = buildPicBedListMenu()
-    contextMenu = Menu.buildFromTemplate([
+    const appMenu = Menu.buildFromTemplate([
       {
         label: 'PicList',
         submenu: [
@@ -99,7 +99,7 @@ export function createApplicationMenu () {
       }
 
     ])
-    Menu.setApplicationMenu(contextMenu)
+    Menu.setApplicationMenu(appMenu)
   }
 }
 
