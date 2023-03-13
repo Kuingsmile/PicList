@@ -23,8 +23,7 @@ import {
   uploadClipboardFiles
 } from 'apis/app/uploader/apis'
 import {
-  createTray,
-  createApplicationMenu
+  createTray
 } from 'apis/app/system'
 import server from '~/main/server/index'
 import updateChecker from '~/main/utils/updateChecker'
@@ -91,7 +90,6 @@ class LifeCycle {
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
       createTray()
-      createApplicationMenu()
       db.set('needReload', false)
       updateChecker()
       // 不需要阻塞
