@@ -23,7 +23,8 @@ import {
   uploadClipboardFiles
 } from 'apis/app/uploader/apis'
 import {
-  createTray
+  createTray,
+  createApplicationMenu
 } from 'apis/app/system'
 import server from '~/main/server/index'
 import updateChecker from '~/main/utils/updateChecker'
@@ -90,6 +91,7 @@ class LifeCycle {
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
       createTray()
+      createApplicationMenu()
       db.set('needReload', false)
       updateChecker()
       // 不需要阻塞
@@ -180,15 +182,10 @@ class LifeCycle {
   }
 
   async launchApp () {
-    const gotTheLock = app.requestSingleInstanceLock()
-    if (!gotTheLock) {
-      app.quit()
-    } else {
-      await this.beforeReady()
-      this.onReady()
-      this.onRunning()
-      this.onQuit()
-    }
+    await this.beforeReady()
+    this.onReady()
+    this.onRunning()
+    this.onQuit()
   }
 }
 

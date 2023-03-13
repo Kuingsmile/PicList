@@ -67,7 +67,7 @@ const config = {
         },
         mac: {
           icon: 'build/icons/icon.icns',
-          hardenedRuntime: true,
+          hardenedRuntime: false,
           entitlements: 'build/entitlements.mas.plist',
           entitlementsInherit: 'build/entitlements.mas.inherit.plist',
           provisioningProfile: 'build/piclistmass.provisionprofile',
@@ -90,7 +90,7 @@ const config = {
           entitlements: 'build/entitlements.mas.plist',
           entitlementsInherit: 'build/entitlements.mas.inherit.plist',
           provisioningProfile: 'build/piclistmass.provisionprofile',
-          entitlementsLoginHelper: "build/entitlements.mas.loginhelper.plist"
+          entitlementsLoginHelper: 'build/entitlements.mas.loginhelper.plist'
         },
         win: {
           icon: 'build/icons/icon.ico',

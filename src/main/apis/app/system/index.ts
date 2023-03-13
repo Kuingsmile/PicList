@@ -23,6 +23,86 @@ import { buildPicBedListMenu } from '~/main/events/remotes/menu'
 let contextMenu: Menu | null
 let menu: Menu | null
 let tray: Tray | null
+
+export function createApplicationMenu () {
+  if (process.platform === 'darwin') {
+    const submenu = buildPicBedListMenu()
+    contextMenu = Menu.buildFromTemplate([
+      {
+        label: 'PicList',
+        submenu: [
+          {
+            label: T('ABOUT'),
+            click () {
+              dialog.showMessageBox({
+                title: 'PicList',
+                message: 'PicList',
+                detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`
+              })
+            }
+          },
+          {
+            label: T('OPEN_MAIN_WINDOW'),
+            click () {
+              const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+              settingWindow!.show()
+              settingWindow!.focus()
+              if (windowManager.has(IWindowList.MINI_WINDOW)) {
+                windowManager.get(IWindowList.MINI_WINDOW)!.hide()
+              }
+            }
+          },
+          {
+            label: T('CHOOSE_DEFAULT_PICBED'),
+            type: 'submenu',
+            // @ts-ignore
+            submenu
+          },
+          // @ts-ignore
+          {
+            label: T('OPEN_UPDATE_HELPER'),
+            type: 'checkbox',
+            checked: db.get('settings.showUpdateTip'),
+            click () {
+              const value = db.get('settings.showUpdateTip')
+              db.set('settings.showUpdateTip', !value)
+            }
+          },
+          {
+            label: T('PRIVACY_AGREEMENT'),
+            click () {
+              privacyManager.show(false)
+            }
+          },
+          {
+            label: T('RELOAD_APP'),
+            click () {
+              app.relaunch()
+              app.exit(0)
+            }
+          },
+          // @ts-ignore
+          {
+            role: 'quit',
+            label: T('QUIT')
+          }
+        ]
+      },
+      {
+        label: T('QUIT'),
+        submenu: [
+          {
+            label: T('QUIT'),
+            role: 'quit'
+          }
+        ]
+      }
+
+    ])
+    Menu.setApplicationMenu(contextMenu)
+  }
+}
+
 export function createContextMenu () {
   if (process.platform === 'darwin' || process.platform === 'win32') {
     const submenu = buildPicBedListMenu()
