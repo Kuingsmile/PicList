@@ -72,7 +72,7 @@ const config = {
           entitlementsInherit: 'build/entitlements.mas.inherit.plist',
           provisioningProfile: 'build/piclistmass.provisionprofile',
           extendInfo: {
-            LSUIElement: 0
+            LSUIElement: 1
           },
           target: [{
             target: 'mas',
