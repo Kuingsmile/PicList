@@ -6735,10 +6735,10 @@ electron@^22.0.2:
     "@types/node" "^16.11.26"
     extract-zip "^2.0.1"
 
-element-plus@^2.2.35:
-  version "2.2.35"
-  resolved "https://registry.npmjs.org/element-plus/-/element-plus-2.2.35.tgz#d18787c8050e7b888b229324a561b1694f506f59"
-  integrity sha512-if5QW41hQwVltekRS+avXYtqjRNra/fSgGstXKPR1lSJ81PWQccy+oztw/OP+USqZP/OejFs7rjLPk5MHgT40w==
+element-plus@^2.2.32:
+  version "2.3.0"
+  resolved "https://registry.npmjs.org/element-plus/-/element-plus-2.3.0.tgz#c7492fe7b604eef60163d4e900ab074ae22bc553"
+  integrity sha512-3s3JO4+LHLi61tFwF2emIHx6nxwKKdj5YWcj3GUBoXKhbuRjhq6xqaxWpBlPk7jySr/8Eci5++T2THbvrpGn7A==
   dependencies:
     "@ctrl/tinycolor" "^3.4.1"
     "@element-plus/icons-vue" "^2.0.6"
