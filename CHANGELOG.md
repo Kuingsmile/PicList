@@ -1,3 +1,18 @@
+## :tada: 1.4.3 (2023-03-14)
+
+
+### :bug: Bug Fixes
+
+* downgrade element-plus , fix picbed setting bug ([d2b048f](https://github.com/Kuingsmile/PicList/commit/d2b048f))
+* fix webdav path error when setting to root dir ([1371e95](https://github.com/Kuingsmile/PicList/commit/1371e95))
+
+
+### :pencil: Documentation
+
+* picList is available at Mac App Store ! ([4613aa3](https://github.com/Kuingsmile/PicList/commit/4613aa3))
+
+
+
 ## :tada: 1.4.2 (2023-03-09)
 
 
