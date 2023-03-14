@@ -67,7 +67,7 @@ const config = {
         },
         mac: {
           icon: 'build/icons/icon.icns',
-          hardenedRuntime: false,
+          hardenedRuntime: true,
           entitlements: 'build/entitlements.mas.plist',
           entitlementsInherit: 'build/entitlements.mas.inherit.plist',
           provisioningProfile: 'build/piclistmass.provisionprofile',
@@ -86,7 +86,7 @@ const config = {
         mas: {
           type: 'distribution',
           icon: 'build/icons/icon.icns',
-          hardenedRuntime: false,
+          hardenedRuntime: true,
           entitlements: 'build/entitlements.mas.plist',
           entitlementsInherit: 'build/entitlements.mas.inherit.plist',
           provisioningProfile: 'build/piclistmass.provisionprofile',
