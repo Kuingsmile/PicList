@@ -62,6 +62,18 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 
 从V1.4.1版本开始，所有的mac安装包均经过了我的开发者证书签名，不会再被macOS系统识别为「恶意软件」，不会再出现「文件已损坏」的提示。
 
+### Mac App Store
+
+PicList 在Github提供免费的Mac版本安装包，同时，也在Mac App Store上架，如果您希望通过Mac App Store进行安装，请前往[Mac App Store](https://apps.apple.com/app/piclist-基于picgo的图片管理工具/id6446192094)进行下载。
+
+需要注意的是，Mac App Store中，你需要支付 `一元` 人民币，才能使用，这是由于苹果开发者账号需要 99 美元/年的费用，同时Github中下载的mac安装包能够签名避免被macOS系统识别为「恶意软件」也需要这个开发者账号。
+
+如果PicList对您有帮助，欢迎您通过Mac App Store进行购买，这是对我最好的支持。
+
+Mac App Store中的版本和Github中的版本是同步更新的，不会有任何额外的功能。
+
+**当然，如果您不想支付，也可以通过Github下载免费的安装包进行安装。**
+
 ## 应用截图
 
 ![image](https://user-images.githubusercontent.com/96409857/222900642-f1d04a41-f025-4f3c-b838-bae770e0b929.png)
