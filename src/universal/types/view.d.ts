@@ -12,7 +12,9 @@ interface ISettingForm {
   useBuiltinClipboard: boolean
   language: string
   logFileSizeLimit: number,
-  deleteCloudFile: boolean
+  deleteCloudFile: boolean,
+  isCustomMiniIcon: boolean,
+  customMiniIcon: string
 }
 
 interface IShortKeyMap {

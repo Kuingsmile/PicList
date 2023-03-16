@@ -61,6 +61,11 @@ export const manageIpcList = {
       return manage.getBucketListRecursively(param)
     })
 
+    ipcMain.handle('convertPathToBase64', async (_evt: IpcMainInvokeEvent, filePath: string) => {
+      const res = fs.readFileSync(filePath, 'base64')
+      return res
+    })
+
     ipcMain.handle('openFileSelectDialog', async () => {
       const res = await dialog.showOpenDialog({
         properties: ['openFile', 'multiSelections']
