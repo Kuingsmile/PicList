@@ -8,7 +8,18 @@
         :span="24"
       >
         <div class="view-title">
+          <el-tooltip
+            placement="top"
+            effect="light"
+            :content="$T('UPLOAD_VIEW_HINT')"
+            >
+          <span
+            id = "upload-view-title"
+            @click="handlePicBedNameClick(picBedName, picBedConfigName)"
+          >
           {{ $T('PICTURE_UPLOAD') }} - {{ picBedName }} - {{ picBedConfigName }}
+        </span>
+      </el-tooltip>
           <el-icon
             style="cursor: pointer; margin-left: 4px;"
             @click="handleChangePicBed"
@@ -358,6 +369,9 @@ import {
 import { ElMessage as $message } from 'element-plus'
 import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
 import { IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
+import { useRouter } from 'vue-router'
+import { PICBEDS_PAGE } from '@/router/config'
+const $router = useRouter()
 
 const imageProcessDialogVisible = ref(false)
 
@@ -489,6 +503,24 @@ function onProgressChange (val: number) {
       progress.value = 0
     }, 1200)
   }
+}
+
+async function handlePicBedNameClick (picBedName: string, picBedConfigName: string) {
+  const currentPicBed = await getConfig<string>('picBed.current')
+  const currentPicBedConfig = await getConfig<any[]>(`uploader.${currentPicBed}`) as any || {}
+  const configList = currentPicBedConfig.configList || []
+  const config = configList.find((item: any) => item._configName === picBedConfigName)
+  $router.push({
+    name: PICBEDS_PAGE,
+    params: {
+      type: currentPicBed,
+      configId: config._id
+    },
+    query: {
+      defaultConfigId: currentPicBedConfig.defaultId || ''
+    }
+  })
+  console.log(configList, picBedConfigName)
 }
 
 onBeforeUnmount(() => {
@@ -625,6 +657,10 @@ export default {
   margin 10px auto
   align-items center
   justify-content center
+#upload-view-title
+  &:hover
+    cursor pointer
+    color #409EFF
 #upload-view
   position absolute
   left 140px
