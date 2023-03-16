@@ -91,7 +91,7 @@
               </el-button>
             </el-form-item>
             <el-form-item
-              label="设置图片水印和压缩-格式转换等参数"
+              :label="$T('SETTINGS_COMPRESS_AND_WATERMARK')"
             >
               <el-button
                 type="primary"
@@ -159,7 +159,7 @@
               />
             </el-form-item>
             <el-form-item
-              label="相册内删除时同步删除云端文件"
+              :label="$T('SETTINGS_SYNC_DELETE_CLOUD')"
             >
               <el-switch
                 v-model="form.deleteCloudFile"
@@ -209,6 +209,31 @@
                 @change="handleMiniWindowOntop"
               />
             </el-form-item>
+            <el-form-item
+              v-if="os !== 'darwin' && form.isCustomMiniIcon"
+              :label="$T('SETTINGS_CUSTOM_MINI_ICON_PATH')"
+            >
+              <el-button
+                type="primary"
+                round
+                size="small"
+                @click="handleMiniIconPath"
+              >
+                {{ $T('SETTINGS_CLICK_TO_SET') }}
+              </el-button>
+            </el-form-item>
+            <el-form-item
+              v-if="os !== 'darwin'"
+              :label="$T('SETTINGS_CUSTOM_MINI_ICON')"
+            >
+              <el-switch
+                v-model="form.isCustomMiniIcon"
+                :active-text="$T('SETTINGS_OPEN')"
+                :inactive-text="$T('SETTINGS_CLOSE')"
+                @change="handleIsCustomMiniIcon"
+              />
+            </el-form-item>
+
             <el-form-item
               :label="$T('SETTINGS_AUTO_COPY_URL_AFTER_UPLOAD')"
             >
@@ -269,6 +294,7 @@
       v-model="customLinkVisible"
       :title="$T('SETTINGS_CUSTOM_LINK_FORMAT')"
       :modal-append-to-body="false"
+      center
     >
       <el-form
         ref="$customLink"
@@ -282,11 +308,9 @@
         >
           <div class="custom-title">
             {{ $T('SETTINGS_TIPS_PLACEHOLDER_URL') }}
-          </div>
-          <div class="custom-title">
+            <br>
             {{ $T('SETTINGS_TIPS_PLACEHOLDER_FILENAME') }}
-          </div>
-          <div class="custom-title">
+            <br>
             {{ $T('SETTINGS_TIPS_PLACEHOLDER_EXTNAME') }}
           </div>
           <el-input
@@ -320,6 +344,7 @@
       :title="$T('SETTINGS_SET_PROXY_AND_MIRROR')"
       :modal-append-to-body="false"
       width="70%"
+      center
     >
       <el-form
         label-position="right"
@@ -374,6 +399,7 @@
       v-model="checkUpdateVisible"
       :title="$T('SETTINGS_CHECK_UPDATE')"
       :modal-append-to-body="false"
+      center
     >
       <div>
         {{ $T('SETTINGS_CURRENT_VERSION') }}: {{ version }}
@@ -405,6 +431,7 @@
       :title="$T('SETTINGS_SET_LOG_FILE')"
       :modal-append-to-body="false"
       width="500px"
+      center
     >
       <el-form
         label-position="right"
@@ -474,6 +501,7 @@
       width="60%"
       :title="$T('SETTINGS_SET_PICGO_SERVER')"
       :modal-append-to-body="false"
+      center
     >
       <div class="notice-text">
         {{ $T('SETTINGS_TIPS_SERVER_NOTICE') }}
@@ -764,6 +792,7 @@ import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
 import { useRouter } from 'vue-router'
 import { SHORTKEY_PAGE } from '@/router/config'
 import { IConfig, IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
+import { invokeToMain } from '@/manage/utils/dataSender'
 
 const imageProcessDialogVisible = ref(false)
 
@@ -872,7 +901,9 @@ const form = reactive<ISettingForm>({
   useBuiltinClipboard: false,
   language: 'zh-CN',
   logFileSizeLimit: 10,
-  deleteCloudFile: false
+  deleteCloudFile: false,
+  isCustomMiniIcon: false,
+  customMiniIcon: ''
 })
 
 const languageList = i18nManager.languageList.map(item => ({
@@ -959,6 +990,8 @@ async function initData () {
     form.useBuiltinClipboard = settings.useBuiltinClipboard === undefined ? false : settings.useBuiltinClipboard
     form.language = settings.language ?? 'zh-CN'
     form.deleteCloudFile = settings.deleteCloudFile || false
+    form.isCustomMiniIcon = settings.isCustomMiniIcon || false
+    form.customMiniIcon = settings.customMiniIcon || ''
     currentLanguage.value = settings.language ?? 'zh-CN'
     customLink.value = settings.customLink || '$url'
     shortKey.upload = settings.shortKey.upload
@@ -1119,6 +1152,20 @@ function handleUploadNotification (val: ICheckBoxValueType) {
 
 function handleMiniWindowOntop (val: ICheckBoxValueType) {
   saveConfig('settings.miniWindowOntop', val)
+  $message.info($T('TIPS_NEED_RELOAD'))
+}
+
+async function handleMiniIconPath (evt: Event) {
+  const result = await invokeToMain('openFileSelectDialog')
+  if (result && result[0]) {
+    form.customMiniIcon = result[0]
+  }
+  saveConfig('settings.customMiniIcon', form.customMiniIcon)
+  $message.info($T('TIPS_NEED_RELOAD'))
+}
+
+function handleIsCustomMiniIcon (val: ICheckBoxValueType) {
+  saveConfig('settings.isCustomMiniIcon', val)
   $message.info($T('TIPS_NEED_RELOAD'))
 }
 
@@ -1317,6 +1364,7 @@ export default {
         width 100%
   .server-dialog
     .notice-text
+      text-align center
       color: #49B1F5
     .el-dialog__body
       padding-top: 0

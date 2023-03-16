@@ -12,14 +12,14 @@
             placement="top"
             effect="light"
             :content="$T('UPLOAD_VIEW_HINT')"
-            >
-          <span
-            id = "upload-view-title"
-            @click="handlePicBedNameClick(picBedName, picBedConfigName)"
           >
-          {{ $T('PICTURE_UPLOAD') }} - {{ picBedName }} - {{ picBedConfigName }}
-        </span>
-      </el-tooltip>
+            <span
+              id="upload-view-title"
+              @click="handlePicBedNameClick(picBedName, picBedConfigName)"
+            >
+              {{ $T('PICTURE_UPLOAD') }} - {{ picBedName }} - {{ picBedConfigName }}
+            </span>
+          </el-tooltip>
           <el-icon
             style="cursor: pointer; margin-left: 4px;"
             @click="handleChangePicBed"

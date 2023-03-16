@@ -1,9 +1,12 @@
 <template>
   <div
     id="mini-page"
-    :style="{ backgroundImage: 'url(' + logo + ')' }"
     :class="{ linux: os === 'linux' }"
   >
+   <img
+    :src="logoPath.value ? logoPath.value : require('../assets/squareLogo.png')"
+    style="width: 100%; height: 100%;border-radius: 50%;"
+    >
     <div
       id="upload-area"
       :class="{ 'is-dragover': dragover, uploading: showProgress, linux: os === 'linux' }"
@@ -34,13 +37,17 @@ import {
   ipcRenderer,
   IpcRendererEvent
 } from 'electron'
-import { onBeforeUnmount, onBeforeMount, ref, watch } from 'vue'
+import { onBeforeUnmount, onBeforeMount, ref, watch, reactive } from 'vue'
 import { SHOW_MINI_PAGE_MENU, SET_MINI_WINDOW_POS } from '~/universal/events/constants'
 import {
   isUrl
 } from '~/universal/utils/common'
-import { sendToMain } from '@/utils/dataSender'
-const logo = require('../assets/squareLogo.png')
+import { getConfig, sendToMain } from '@/utils/dataSender'
+import { IConfig } from 'piclist'
+import { invokeToMain } from '@/manage/utils/dataSender'
+const logoPath = reactive({
+  value: ''
+})
 const dragover = ref(false)
 const progress = ref(0)
 const showProgress = ref(false)
@@ -52,8 +59,18 @@ const screenX = ref(-1)
 const screenY = ref(-1)
 const os = ref('')
 
-onBeforeMount(() => {
+async function initLogoPath () {
+  const config = (await getConfig<IConfig>())!
+  if (config !== undefined) {
+    if (config.settings?.isCustomMiniIcon && config.settings?.customMiniIcon) {
+      logoPath.value = 'data:image/jpg;base64,' + await invokeToMain('convertPathToBase64', config.settings.customMiniIcon)
+    }
+  }
+}
+
+onBeforeMount(async () => {
   os.value = process.platform
+  await initLogoPath()
   ipcRenderer.on('uploadProgress', (event: IpcRendererEvent, _progress: number) => {
     if (_progress !== -1) {
       showProgress.value = true
