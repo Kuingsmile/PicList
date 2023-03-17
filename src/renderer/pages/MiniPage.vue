@@ -3,9 +3,9 @@
     id="mini-page"
     :class="{ linux: os === 'linux' }"
   >
-   <img
-    :src="logoPath.value ? logoPath.value : require('../assets/squareLogo.png')"
-    style="width: 100%; height: 100%;border-radius: 50%;"
+    <img
+      :src="logoPath.value ? logoPath.value : require('../assets/squareLogo.png')"
+      style="width: 100%; height: 100%;border-radius: 50%;"
     >
     <div
       id="upload-area"

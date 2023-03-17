@@ -8,8 +8,16 @@
         :span="20"
         :offset="2"
       >
-        <div class="view-title">
+        <div
+          class="view-title"
+          @click="handelNameClick"
+        >
           {{ picBedName }} {{ $T('SETTINGS') }}
+          <el-icon
+            v-if="linkToLogInList.includes(picBedName)"
+          >
+            <Link />
+          </el-icon>
         </div>
         <config-form
           v-if="config.length > 0"
@@ -53,6 +61,8 @@ import {
   ipcRenderer,
   IpcRendererEvent
 } from 'electron'
+import { OPEN_URL } from '~/universal/events/constants'
+import { Link } from '@element-plus/icons-vue'
 const type = ref('')
 const config = ref<IPicGoPluginConfig[]>([])
 const picBedName = ref('')
@@ -80,6 +90,37 @@ const handleConfirm = async () => {
   }
 }
 
+const linkToLogInList = ['GitHub', '腾讯云COS', '阿里云OSS', 'SM.MS', '七牛云', 'Imgur', '又拍云', 'githubPlus']
+
+function handelNameClick () {
+  switch (picBedName.value) {
+    case 'GitHub':
+    case 'githubPlus':
+      sendToMain(OPEN_URL, 'https://github.com')
+      break
+    case '腾讯云COS':
+      sendToMain(OPEN_URL, 'https://cloud.tencent.com/login')
+      break
+    case '阿里云OSS':
+      sendToMain(OPEN_URL, 'https://account.aliyun.com/login/login.htm')
+      break
+    case 'SM.MS':
+      sendToMain(OPEN_URL, 'https://smms.app')
+      break
+    case '七牛云':
+      sendToMain(OPEN_URL, 'https://portal.qiniu.com')
+      break
+    case 'Imgur':
+      sendToMain(OPEN_URL, 'https://imgur.com')
+      break
+    case '又拍云':
+      sendToMain(OPEN_URL, 'https://console.upyun.com')
+      break
+    default:
+      break
+  }
+}
+
 function getPicBeds (event: IpcRendererEvent, _config: IPicGoPluginConfig[], name: string) {
   config.value = _config
   picBedName.value = name
@@ -104,6 +145,10 @@ export default {
     height 100%
     overflow-y auto
     overflow-x hidden
+  .view-title
+    &:hover
+      cursor pointer
+      color #409EFF
   .confirm-btn
     width: 250px
   .el-form

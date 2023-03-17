@@ -63,7 +63,7 @@
             <el-icon>
               <PieChart />
             </el-icon>
-            <span>管理页面</span>
+            <span>{{ $T('MANAGE_PAGE') }}</span>
           </el-menu-item>
           <el-menu-item :index="routerConfig.GALLERY_PAGE">
             <el-icon>
