@@ -5,6 +5,7 @@ import UpDownTaskQueue from '../datastore/upDownTaskQueue'
 import { downloadFileFromUrl } from '../utils/common'
 import path from 'path'
 import fs from 'fs-extra'
+import { selectDownloadFolder } from '@/manage/utils/static'
 
 export const manageIpcList = {
   listen () {
@@ -121,7 +122,7 @@ export const manageIpcList = {
       UpDownTaskQueue.getInstance().clearDownloadTaskQueue()
     })
 
-    ipcMain.handle('selectDownloadFolder', async () => {
+    ipcMain.handle(selectDownloadFolder, async () => {
       const res = await dialog.showOpenDialog({
         properties: ['openDirectory']
       })

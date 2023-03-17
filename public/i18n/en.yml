@@ -177,6 +177,64 @@ TIPS_PLUGIN_NOT_GUI_IMPLEMENT: This plugin is not optimized for the GUI, continu
 TIPS_CLICK_NOTIFICATION_TO_RELOAD: Click notification to reload app
 TIPS_GET_PLUGIN_LIST_FAILED: Get plugin list failed
 
+# manage page
+
+# manageSetting
+
+MANAGE_SETTING_TITLE: Manage Setting
+MANAGE_SETTING_AUTO_FRESH_TITLE: Auto refresh file list when entering new directory
+MANAGE_SETTING_AUTO_FRESH_TIPS: Only applies to non-paginated mode, data is cached to indexdb to speed up loading speed
+MANAGE_SETTING_CLEAR_CACHE_TITLE: 'Clear file list cache database, currently in use:'
+MANAGE_SETTING_CLEAR_CACHE_FREE_TITLE: 'Available:'
+MANAGE_SETTING_CLEAR_CACHE_TIPS: After clearing, the file list will be reloaded when entering a new directory next time
+MANAGE_SETTING_CLEAR_CACHE_PROMPT: Are you sure you want to clear the file list cache database?
+MANAGE_SETTING_CLEAR_CACHE_BUTTON: Clear
+MANAGE_SETTING_SHOW_THUMBNAIL_TITLE: Display the original image instead of format icon (requires public access permissions)
+MANAGE_SETTING_SHOW_FILE_LIST_TYPE_TITLE: Default display mode for the file list
+MANAGE_SETTING_SHOW_FILE_LIST_TYPE_LIST: List
+MANAGE_SETTING_SHOW_FILE_LIST_TYPE_CARD: Card
+MANAGE_SETTING_FORCE_CUSTOM_URL_HTTPS_TITLE: Force custom URL to use HTTPS
+MANAGE_SETTING_FORCE_CUSTOM_URL_HTTPS_TIPS: After enabling, all operations will automatically add the https prefix to custom domains
+MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_UPLOAD_TITLE: Preserve directory structure when uploading
+MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_UPLOAD_TIPS: After disabling, all files will be expanded to the specified directory
+MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_A: Download
+MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_B: File
+MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_C: will preserve the directory structure
+MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_D: Folder
+MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_FILE_TIPS: After enabling, the original directory structure will be preserved
+MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TITLE: Maximum number of files to download simultaneously (1-9999)
+MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TIPS: Not work on Tencent 
+MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_INPUT_TIPS: Please enter the maximum number of files to download simultaneously
+MANAGE_SETTING_SEARCH_IGNORE_CASE_TITLE: Should file search be case-insensitive
+MANAGE_SETTING_SEARCH_IGNORE_CASE_TIPS: After enabling, the search will be case-insensitive
+MANAGE_SETTING_TIMESTAMP_RENAME_TITLE: Rename uploaded files with timestamp - (highest priority)
+MANAGE_SETTING_TIMESTAMP_RENAME_TIPS: After enabling, the uploaded file will be renamed with the timestamp
+MANAGE_SETTING_RANDOM_STRING_RENAME_TITLE: Rename uploaded files with random strings - (medium priority)
+MANAGE_SETTING_RANDOM_STRING_RENAME_TIPS: Random string length is 20
+MANAGE_SETTING_CUSTOM_RENAME_TITLE: Rename uploaded files with custom names - (lowest priority)
+MANAGE_SETTING_CUSTOM_RENAME_TIPS: After enabling, the uploaded file will be renamed with the custom pattern
+MANAGE_SETTING_CUSTOM_PATTERN_TITLE: Custom rename format, placeholders can be freely combined, please refer to the table below
+MANAGE_SETTING_CUSTOM_PATTERN_TIPS: Please enter the custom rename format
+MANAGE_SETTING_CUSTOM_PATTERN_TABLE_TITLE: Placeholder
+MANAGE_SETTING_CUSTOM_PATTERN_TABLE_TIPS: Description
+MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TITLE: Presigned URL expiration time (seconds)
+MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TIPS: Please enter the presigned URL expiration time
+MANAGE_SETTING_CHOOSE_COPY_FORMAT_TITLE: Select default link format for copying
+MANAGE_SETTING_CHOOSE_COPY_FORMAT_MARKDOWN: Markdown
+MANAGE_SETTING_CHOOSE_COPY_FORMAT_MARKDOWN_WITH_LINK: Markdown with link
+MANAGE_SETTING_CHOOSE_COPY_FORMAT_RAWURL: Raw URL
+MANAGE_SETTING_CHOOSE_COPY_FORMAT_HTML: HTML
+MANAGE_SETTING_CHOOSE_COPY_FORMAT_BBCODE: BBCode
+MANAGE_SETTING_CHOOSE_COPY_FORMAT_CUSTOM: Custom
+MANAGE_SETTING_CUSTOM_COPY_FORMAT_TITLE: Custom link format($url -> raw url, $fileName -> raw fileName)
+MANAGE_SETTING_CUSTOM_COPY_FORMAT_TIPS: Please enter the custom link format
+MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_TITLE: Choose default download folder
+MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_TIPS: System default download directory
+MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_BUTTON: Choose folder
+MANAGE_SETTING_COPY_MESSAGE: Copied
+MANAGE_SETTING_CLEAR_CACHE_SUCCESS: Cleared successfully
+MANAGE_SETTING_CLEAR_CACHE_FAILED: Clear failed
+
 # ---renderer i18n end---
 
 # plugins
@@ -208,7 +266,7 @@ TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR: Custom config file parse error, please check
 TIPS_SHORTCUT_MODIFIED_SUCCEED: Shortcut modified successfully
 TIPS_SHORTCUT_MODIFIED_CONFLICT: Shortcut conflict, please reset
 TIPS_CUSTOM_LINK_STYLE_MODIFIED_SUCCEED: Custom link style modified successfully
-TIPS_FIND_NEW_VERSION: Find new version ${v}，update many new features, do you want to download the latest version?
+TIPS_FIND_NEW_VERSION: Find new version ${v}, update many new features, do you want to download the latest version?
 
 # privacy
 PRIVACY: >

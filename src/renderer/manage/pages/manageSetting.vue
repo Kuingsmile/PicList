@@ -6,7 +6,7 @@
       justify="center"
       style="font-size: 20px;color: black;"
     >
-      管理页面设置
+      {{ $T('MANAGE_SETTING_TITLE') }}
     </el-row>
     <el-row
       class="setting-list"
@@ -28,10 +28,11 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
-                >每次进入新目录时，是否自动刷新文件列表
+                >
+                  {{ $T('MANAGE_SETTING_AUTO_FRESH_TITLE') }}
                   <el-tooltip
                     effect="dark"
-                    content="仅对不分页模式有效，默认在加载过一次后自动缓存到数据库来加快下次加载速度"
+                    :content="$T('MANAGE_SETTING_AUTO_FRESH_TIPS')"
                     placement="right"
                   >
                     <el-icon>
@@ -53,17 +54,17 @@
                 <span
                   style="position:absolute;left: 0;"
                 >
-                  <span>清空文件列表缓存数据库 已占用: </span>
+                  <span>{{ $T('MANAGE_SETTING_CLEAR_CACHE_TITLE') }} </span>
                   <span
                     style="color: #ff4949;"
                   >{{ formatFileSize(dbSize) === ''? 0 : formatFileSize(dbSize) }}</span>
-                  <span> 剩余可用: </span>
+                  <span> {{ $T('MANAGE_SETTING_CLEAR_CACHE_FREE_TITLE') }} </span>
                   <span
                     style="color: #ff4949;"
                   >{{ dbSizeAvailableRate }} %</span>
                   <el-tooltip
                     effect="dark"
-                    content="清空后下次进入新目录时将会重新加载文件列表"
+                    :content="$T('MANAGE_SETTING_CLEAR_CACHE_TIPS')"
                     placement="right"
                   >
                     <el-icon>
@@ -73,9 +74,9 @@
                 </span>
               </template>
               <el-popconfirm
-                title="确定要清空文件列表缓存数据库吗？"
-                confirm-button-text="确定"
-                cancel-button-text="取消"
+                :title="$T('MANAGE_SETTING_CLEAR_CACHE_PROMPT')"
+                :confirm-button-text="$T('CONFIRM')"
+                :cancel-button-text="$T('CANCEL')"
                 hide-icon
                 @confirm="handleClearDb"
               >
@@ -85,7 +86,7 @@
                     plain
                     style="position:absolute;right: 0;"
                   >
-                    清空
+                    {{ $T('MANAGE_SETTING_CLEAR_CACHE_BUTTON') }}
                   </el-button>
                 </template>
               </el-popconfirm>
@@ -94,7 +95,8 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
-                >图片显示为原图而非默认文件格式图标(需要存储桶可公开访问)
+                >
+                  {{ $T('MANAGE_SETTING_SHOW_THUMBNAIL_TITLE') }}
                 </span>
               </template>
               <el-switch
@@ -109,14 +111,15 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
-                >文件列表默认显示方式
+                >
+                  {{ $T('MANAGE_SETTING_SHOW_FILE_LIST_TYPE_TITLE') }}
                 </span>
               </template>
               <el-switch
                 v-model="form.isShowList"
                 style="position:absolute;right: 0;"
-                active-text="列表"
-                inactive-text="卡片"
+                :active-text="$T('MANAGE_SETTING_SHOW_FILE_LIST_TYPE_LIST')"
+                :inactive-text="$T('MANAGE_SETTING_SHOW_FILE_LIST_TYPE_CARD')"
                 active-color="#13ce66"
                 inactive-color="orange"
                 @change="handelIsShowListChange"
@@ -126,10 +129,11 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
-                >为自定义域名开启强制HTTPS
+                >
+                  {{ $T('MANAGE_SETTING_FORCE_CUSTOM_URL_HTTPS_TITLE') }}
                   <el-tooltip
                     effect="dark"
-                    content="开启后，复制链接等操作将会自动为自定义域名添加https前缀"
+                    :content="$T('MANAGE_SETTING_FORCE_CUSTOM_URL_HTTPS_TIPS')"
                     placement="right"
                   >
                     <el-icon>
@@ -150,10 +154,11 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
-                >上传时保留目录结构
+                >
+                  {{ $T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_UPLOAD_TITLE') }}
                   <el-tooltip
                     effect="dark"
-                    content="开启后，上传文件时会保留目录结构，关闭后会将所有文件展开到指定目录下"
+                    :content="$T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_UPLOAD_TIPS')"
                     placement="right"
                   >
                     <el-icon>
@@ -174,10 +179,13 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
-                ><span>下载</span><span style="color: orange;">文件</span><span>时保留目录结构</span>
+                >
+                  <span>{{ $T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_A') }}</span>
+                  <span style="color: orange;">{{ $T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_B') }}</span>
+                  <span>{{ $T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_C') }}</span>
                   <el-tooltip
                     effect="dark"
-                    content="开启后，下载文件时会保留原始目录结构"
+                    :content="$T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_FILE_TIPS')"
                     placement="right"
                   >
                     <el-icon>
@@ -198,10 +206,13 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
-                ><span>下载</span><span style="color: coral;">文件夹</span><span>时保留目录结构</span>
+                >
+                  <span>{{ $T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_A') }}</span>
+                  <span style="color: coral;">{{ $T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_D') }}</span>
+                  <span>{{ $T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_C') }}</span>
                   <el-tooltip
                     effect="dark"
-                    content="开启后，下载文件夹时会保留目录结构，关闭后会将所有文件展开到下载目录下"
+                    :content="$T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_FILE_TIPS')"
                     placement="right"
                   >
                     <el-icon>
@@ -222,10 +233,11 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
-                >最大同时下载文件数(1-9999)
+                >
+                  {{ $T('MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TITLE') }}
                   <el-tooltip
                     effect="dark"
-                    content="腾讯云由于后端实现不同，该设置不生效"
+                    :content="$T('MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TIPS')"
                     placement="right"
                   >
                     <el-icon>
@@ -237,7 +249,7 @@
               <el-input-number
                 v-model="maxDownloadFileCount"
                 style="position:absolute;right: 0;"
-                placeholder="请输入最大同时下载文件数"
+                :placeholder="$T('MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_INPUT_TIPS')"
                 :min="1"
                 :max="9999"
                 :step="1"
@@ -247,10 +259,11 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
-                >文件搜索时，是否忽略大小写
+                >
+                  {{ $T('MANAGE_SETTING_SEARCH_IGNORE_CASE_TITLE') }}
                   <el-tooltip
                     effect="dark"
-                    content="开启后，文件搜索时，将会忽略大小写"
+                    :content="$T('MANAGE_SETTING_SEARCH_IGNORE_CASE_TIPS')"
                     placement="right"
                   >
                     <el-icon>
@@ -271,10 +284,11 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
-                >上传文件时间戳重命名--(优先级最高)
+                >
+                  {{ $T('MANAGE_SETTING_TIMESTAMP_RENAME_TITLE') }}
                   <el-tooltip
                     effect="dark"
-                    content="开启后，上传时文件名将会根据当前时间进行重命名"
+                    :content="$T('MANAGE_SETTING_TIMESTAMP_RENAME_TIPS')"
                     placement="right"
                   >
                     <el-icon>
@@ -295,10 +309,11 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
-                >上传文件随机字符串重命名--(优先级中)
+                >
+                  {{ $T('MANAGE_SETTING_RANDOM_STRING_RENAME_TITLE') }}
                   <el-tooltip
                     effect="dark"
-                    content="开启后，上传时文件名重命名为20位随机字符串"
+                    :content="$T('MANAGE_SETTING_RANDOM_STRING_RENAME_TIPS')"
                     placement="right"
                   >
                     <el-icon>
@@ -319,10 +334,11 @@
               <template #label>
                 <span
                   style="position:absolute;left: 0;"
-                >上传文件自定义重命名--(优先级最低)
+                >
+                  {{ $T('MANAGE_SETTING_CUSTOM_RENAME_TITLE') }}
                   <el-tooltip
                     effect="dark"
-                    content="开启后，上传时文件名将会根据自定义格式进行重命名"
+                    :content="$T('MANAGE_SETTING_CUSTOM_RENAME_TIPS')"
                     placement="right"
                   >
                     <el-icon>
@@ -344,12 +360,12 @@
               style="margin-top: 10px;margin-bottom: 10px;color: #409eff;"
               :underline="false"
             >
-              自定义重命名格式，占位符请参考下表，可自由组合
+              {{ $T('MANAGE_SETTING_CUSTOM_PATTERN_TITLE') }}
             </el-link>
             <el-input
               v-if="form.customRename"
               v-model="customRenameFormat.value"
-              placeholder="请输入自定义重命名格式"
+              :placeholder="$T('MANAGE_SETTING_CUSTOM_PATTERN_TIPS')"
               style="width: 100%;"
             />
             <el-table
@@ -362,22 +378,22 @@
             >
               <el-table-column
                 prop="placeholder"
-                label="占位符"
+                :label="$T('MANAGE_SETTING_CUSTOM_PATTERN_TABLE_TITLE')"
                 width="150"
               />
               <el-table-column
                 prop="description"
-                label="描述"
+                :label="$T('MANAGE_SETTING_CUSTOM_PATTERN_TABLE_TIPS')"
                 width="150"
               />
               <el-table-column
                 prop="placeholderB"
-                label="占位符"
+                :label="$T('MANAGE_SETTING_CUSTOM_PATTERN_TABLE_TITLE')"
                 width="150"
               />
               <el-table-column
                 prop="descriptionB"
-                label="描述"
+                :label="$T('MANAGE_SETTING_CUSTOM_PATTERN_TABLE_TIPS')"
                 width="150"
               />
             </el-table>
@@ -385,11 +401,11 @@
               style="margin-top: 10px;margin-bottom: 10px;color: #409eff;"
               :underline="false"
             >
-              预签名链接过期时间(单位：秒)
+              {{ $T('MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TITLE') }}
             </el-link>
             <el-input
               v-model="PreSignedExpire"
-              placeholder="请输入预签名链接过期时间"
+              :placeholder="$T('MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TIPS')"
               clearable
               @blur="handelPreSignedExpireChange"
             />
@@ -397,28 +413,29 @@
               style="margin-top: 10px;margin-bottom: 10px;color: #409eff;"
               :underline="false"
             >
-              选择默认复制的链接格式
+              {{ $T('MANAGE_SETTING_CHOOSE_COPY_FORMAT_TITLE') }}
             </el-link>
+            <br />
             <el-radio-group
               v-model="pasteFormat"
             >
               <el-radio label="markdown">
-                Markdown
+                {{ $T('MANAGE_SETTING_CHOOSE_COPY_FORMAT_MARKDOWN') }}
               </el-radio>
               <el-radio lable="markdown-with-link">
-                Markdown(带链接)
+                {{ $T('MANAGE_SETTING_CHOOSE_COPY_FORMAT_MARKDOWN_WITH_LINK') }}
               </el-radio>
               <el-radio label="rawurl">
-                原始链接
+                {{ $T('MANAGE_SETTING_CHOOSE_COPY_FORMAT_RAWURL') }}
               </el-radio>
               <el-radio label="html">
-                HTML格式
+                {{ $T('MANAGE_SETTING_CHOOSE_COPY_FORMAT_HTML') }}
               </el-radio>
               <el-radio label="bbcode">
-                BBCode格式
+                {{ $T('MANAGE_SETTING_CHOOSE_COPY_FORMAT_BBCODE') }}
               </el-radio>
               <el-radio label="custom">
-                自定义格式
+                {{ $T('MANAGE_SETTING_CHOOSE_COPY_FORMAT_CUSTOM') }}
               </el-radio>
             </el-radio-group>
             <el-link
@@ -426,12 +443,12 @@
               style="margin-top: 10px;margin-bottom: 10px;color: #409eff;"
               :underline="false"
             >
-              自定义链接格式（$url为链接，$fileName为文件名）
+              {{ $T('MANAGE_SETTING_CUSTOM_COPY_FORMAT_TITLE') }}
             </el-link>
             <el-input
               v-if="pasteFormat === 'custom'"
               v-model="customPasteFormat"
-              placeholder="请输入自定义链接格式"
+              :placeholder="$T('MANAGE_SETTING_CUSTOM_COPY_FORMAT_TIPS')"
               style="width: 100%;"
             />
             <div>
@@ -439,13 +456,13 @@
                 style="margin-top: 10px;margin-bottom: 10px;color: #409eff;"
                 :underline="false"
               >
-                选择下载目录
+                {{ $T('MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_TITLE') }}
               </el-link>
             </div>
             <el-input
               v-model="downloadDir"
               disabled
-              placeholder="系统默认下载目录"
+              :placeholder="$T('MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_TIPS')"
               style="width: 100%;margin-top: 10px;"
             >
               <template #append>
@@ -456,11 +473,14 @@
                   <el-icon>
                     <Folder />
                   </el-icon>
-                  选择目录
+                  {{ $T('MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_BUTTON') }}
                 </el-button>
               </template>
             </el-input>
           </el-form>
+          <el-divider
+              border-style="none"
+            />
         </el-row>
       </el-col>
     </el-row>
@@ -475,6 +495,9 @@ import { ElMessage } from 'element-plus'
 import { useManageStore } from '../store/manageStore'
 import { fileCacheDbInstance } from '../store/bucketFileDb'
 import { formatFileSize, customRenameFormatTable } from '../utils/common'
+import { T as $T } from '@/i18n'
+import { selectDownloadFolder } from '../utils/static'
+
 const manageStore = useManageStore()
 
 const form = reactive<IStringKeyMap>({
@@ -564,7 +587,7 @@ async function initData () {
 }
 
 async function handleDownloadDirClick () {
-  const result = await invokeToMain('selectDownloadFolder')
+  const result = await invokeToMain(selectDownloadFolder)
   if (result) {
     downloadDir.value = result
   }
@@ -638,15 +661,15 @@ function handelCustomRenameChange (val:ICheckBoxValueType) {
 
 const handleCellClick = (row:any, column:any) => {
   navigator.clipboard.writeText(row[column.property])
-  ElMessage.success(`已复制${row[column.property]}`)
+  ElMessage.success(`${$T('MANAGE_SETTING_COPY_MESSAGE')}${row[column.property]}`)
 }
 
 function handleClearDb () {
   fileCacheDbInstance.delete().then(() => {
     getIndexDbSize()
-    ElMessage.success('清除成功')
+    ElMessage.success($T('MANAGE_SETTING_CLEAR_CACHE_SUCCESS'))
   }).catch(() => {
-    ElMessage.error('清除失败')
+    ElMessage.error($T('MANAGE_SETTING_CLEAR_CACHE_FAILED'))
   })
 }
 
