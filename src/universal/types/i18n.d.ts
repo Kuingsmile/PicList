@@ -28,6 +28,7 @@ interface ILocales {
   CHOOSE_YOUR_DEFAULT_PICBED: string
   UPLOAD_AREA: string
   UPLOAD_VIEW_HINT: string
+  MANAGE_PAGE: string
   GALLERY: string
   PICBEDS_SETTINGS: string
   PICBEDS_MANAGE: string
