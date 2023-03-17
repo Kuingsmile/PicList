@@ -25,7 +25,7 @@
           <el-tooltip
             v-if="showNewIconList.includes(currentPicBedName)"
             effect="dark"
-            content="新建存储桶"
+            :content="$T('MANAGE_MAIN_PAGE_NEW_BUCKET')"
             placement="right"
             popper-class="layout__menu__button__divider__tooltip"
           >
@@ -97,7 +97,7 @@
             >
               <HomeFilled />
             </el-icon>
-            返回首页
+            {{ $T('MANAGE_MAIN_PAGE_BACK_TO_HOME') }}
           </span>
         </el-menu-item>
         <el-menu-item
@@ -113,7 +113,7 @@
             >
               <Switch />
             </el-icon>
-            切换图床
+            {{ $T('MANAGE_MAIN_PAGE_SWITCH_PICBED') }}
           </span>
         </el-menu-item>
         <el-menu-item
@@ -129,7 +129,7 @@
             >
               <Setting />
             </el-icon>
-            设置
+            {{ $T('MANAGE_MAIN_PAGE_SETTING') }}
           </span>
         </el-menu-item>
       </el-menu>
@@ -165,7 +165,7 @@
             <span
               style="font-size: 13px;margin-top: 5px;color: red;"
             >
-              返回首页
+              {{ $T('MANAGE_MAIN_PAGE_BACK_TO_HOME') }}
             </span>
           </div>
         </el-card>
@@ -264,7 +264,7 @@
             style="position: absolute;top: 50%;left: 50%;transform: translate(-50%, -50%);"
             @click="createNewBucket(currentPicBedName)"
           >
-            提交
+            {{ $T('MANAGE_MAIN_PAGE_SUBMIT') }}
           </el-button>
         </div>
       </el-form>
@@ -282,6 +282,8 @@ import { ElNotification } from 'element-plus'
 import { invokeToMain } from '../utils/dataSender'
 import { newBucketConfig } from '../utils/newBucketConfig'
 import { useManageStore } from '../store/manageStore'
+import { T as $T } from '@/i18n'
+
 const manageStore = useManageStore() as any
 const route = useRoute()
 const router = useRouter()
@@ -369,8 +371,8 @@ const createNewBucket = (picBedName: string) => {
   res.then((result: any) => {
     if (result) {
       ElNotification({
-        title: '提示',
-        message: '创建成功',
+        title: `${$T('MANAGE_MAIN_PAGE_TIPS')}`,
+        message: `${$T('MANAGE_MAIN_PAGE_TIPS_SUCCESS')}`,
         type: 'success'
       })
       nweBucketDrawerVisible.value = false
@@ -379,8 +381,8 @@ const createNewBucket = (picBedName: string) => {
       }, 2000)
     } else {
       ElNotification({
-        title: '提示',
-        message: '创建失败',
+        title: `${$T('MANAGE_MAIN_PAGE_TIPS')}`,
+        message: `${$T('MANAGE_MAIN_PAGE_TIPS_FAILED')}`,
         type: 'error'
       })
     }
@@ -436,14 +438,14 @@ const handleSelectMenu = (bucketName: string) => {
 const nweBucketDrawerVisible = ref(false)
 
 const menuTitleMap:IStringKeyMap = {
-  aliyun: '存储桶',
-  qiniu: '存储桶',
-  tcyun: '存储桶',
-  upyun: '存储桶',
-  s3plist: '存储桶',
-  smms: '相册',
-  imgur: '相册',
-  github: '仓库',
+  aliyun: `${$T('MANAGE_MAIN_PAGE_BUCKET')}`,
+  qiniu: `${$T('MANAGE_MAIN_PAGE_BUCKET')}`,
+  tcyun: `${$T('MANAGE_MAIN_PAGE_BUCKET')}`,
+  upyun: `${$T('MANAGE_MAIN_PAGE_BUCKET')}`,
+  s3plist: `${$T('MANAGE_MAIN_PAGE_BUCKET')}`,
+  smms: `${$T('MANAGE_MAIN_PAGE_GALLERY')}`,
+  imgur: `${$T('MANAGE_MAIN_PAGE_GALLERY')}`,
+  github: `${$T('MANAGE_MAIN_PAGE_REPOSITORY')}`,
   webdavplist: ''
 }
 

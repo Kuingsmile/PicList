@@ -415,7 +415,7 @@
             >
               {{ $T('MANAGE_SETTING_CHOOSE_COPY_FORMAT_TITLE') }}
             </el-link>
-            <br />
+            <br>
             <el-radio-group
               v-model="pasteFormat"
             >
@@ -479,8 +479,8 @@
             </el-input>
           </el-form>
           <el-divider
-              border-style="none"
-            />
+            border-style="none"
+          />
         </el-row>
       </el-col>
     </el-row>
