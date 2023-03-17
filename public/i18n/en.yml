@@ -28,14 +28,14 @@ CURRENT_PICBED: Current Picbed
 # ---renderer i18n begin---
 
 CHOOSE_YOUR_DEFAULT_PICBED: 'Choose ${d} as your default picbed:'
-UPLOAD_AREA: Upload Area
+UPLOAD_AREA: Upload
 UPLOAD_VIEW_HINT: Click to open picbeds settings
 MANAGE_PAGE: Manage Page
 GALLERY: Gallery
-PICBEDS_SETTINGS: Picbeds Settings
+PICBEDS_SETTINGS: Picbeds
 PICBEDS_MANAGE: Picbeds Manage
-PICLIST_SETTINGS: PicList Settings
-PLUGIN_SETTINGS: Plugins Settings
+PICLIST_SETTINGS: Settings
+PLUGIN_SETTINGS: Plugins
 PICLIST_SPONSOR_TEXT: PicList is a free software, if you like it, please don't forget to buy me a cup of coffee.
 ALIPAY: Alipay
 WECHATPAY: Wechat Pay

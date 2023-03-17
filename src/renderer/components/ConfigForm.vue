@@ -32,7 +32,7 @@
         <el-input
           v-if="item.type === 'input' || item.type === 'password'"
           v-model="ruleForm[item.name]"
-          :type="item.type === 'password' ? 'password' : 'input'"
+          type="input"
           :placeholder="item.message || item.name"
         />
         <el-select
@@ -78,6 +78,7 @@ import { cloneDeep, union } from 'lodash'
 import { getConfig } from '@/utils/dataSender'
 import { useRoute } from 'vue-router'
 import type { FormInstance } from 'element-plus'
+import { T as $T } from '@/i18n'
 
 interface IProps {
   config: any[]
