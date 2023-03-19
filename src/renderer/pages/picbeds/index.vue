@@ -90,30 +90,30 @@ const handleConfirm = async () => {
   }
 }
 
-const linkToLogInList = ['GitHub', '腾讯云COS', '阿里云OSS', 'SM.MS', '七牛云', 'Imgur', '又拍云', 'githubPlus']
+const linkToLogInList = ['github', 'tcyun', 'aliyun', 'smms', 'qiniu', 'imgur', 'upyun', 'githubPlus']
 
 function handelNameClick () {
-  switch (picBedName.value) {
-    case 'GitHub':
+  switch ($route.params.type) {
+    case 'github':
     case 'githubPlus':
       sendToMain(OPEN_URL, 'https://github.com')
       break
-    case '腾讯云COS':
+    case 'tcyun':
       sendToMain(OPEN_URL, 'https://cloud.tencent.com/login')
       break
-    case '阿里云OSS':
+    case 'aliyun':
       sendToMain(OPEN_URL, 'https://account.aliyun.com/login/login.htm')
       break
-    case 'SM.MS':
+    case 'smms':
       sendToMain(OPEN_URL, 'https://smms.app')
       break
-    case '七牛云':
+    case 'qiniu':
       sendToMain(OPEN_URL, 'https://portal.qiniu.com')
       break
-    case 'Imgur':
+    case 'imgur':
       sendToMain(OPEN_URL, 'https://imgur.com')
       break
-    case '又拍云':
+    case 'upyun':
       sendToMain(OPEN_URL, 'https://console.upyun.com')
       break
     default:
