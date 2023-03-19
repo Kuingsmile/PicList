@@ -1,9 +1,10 @@
+import { T as $T } from '@/i18n'
 
 const defaultBaseRule = (name: string) => {
   return [
     {
       required: true,
-      message: `请输入${name}`,
+      message: `${$T('MANAGE_CONSTANT_BASE_RULE')}${name}`,
       trigger: 'blur'
     }
   ]
@@ -12,18 +13,18 @@ const defaultBaseRule = (name: string) => {
 const itemsPerPageRule = [
   {
     required: true,
-    message: '请输入每页显示数量',
+    message: $T('MANAGE_CONSTANT_ITEMS_PAGE_RULE_MESSAGE_A'),
     trigger: 'blur'
   },
   {
     type: 'number',
-    message: '每页显示数量必须为数字',
+    message: $T('MANAGE_CONSTANT_ITEMS_PAGE_RULE_MESSAGE_B'),
     trigger: 'change'
   },
   {
     validator: (rule: any, value: any, callback: any) => {
       if (value < 20 || value > 1000) {
-        callback(new Error('每页显示数量必须在20-1000之间'))
+        callback(new Error($T('MANAGE_CONSTANT_ITEMS_PAGE_RULE_MESSAGE_C')))
       } else {
         callback()
       }
@@ -35,14 +36,14 @@ const itemsPerPageRule = [
 const aliasRule = [
   {
     required: true,
-    message: '请输入配置别名, 该配置的唯一标识',
+    message: $T('MANAGE_CONSTANT_ALIAS_RULE_MESSAGE_A'),
     trigger: 'blur'
   },
   {
     validator: (rule: any, value: any, callback: any) => {
       const reg = /^[\u4e00-\u9fa5_a-zA-Z0-9-]+$/
       if (!reg.test(value)) {
-        callback(new Error('配置别名只能包含中文、英文、数字、下划线和中划线'))
+        callback(new Error($T('MANAGE_CONSTANT_ALIAS_RULE_MESSAGE_B')))
       } else {
         callback()
       }
@@ -51,12 +52,12 @@ const aliasRule = [
   }
 ]
 
-const aliasTooltip = '配置别名只能包含中文、英文、数字、下划线和中划线'
-const itemsPerPageTooltip = '每页显示数量必须在20-1000之间'
-const pagingTooltip = '关闭分页时，目录列表将使用数据库缓存以优化性能'
-const bucketNameTooltip = '英文逗号分隔，如：bucket1,bucket2,bucket3，和起始目录顺序一一对应'
-const baseDirTooltip = '英文逗号分隔，如：/dir1,/dir2,/dir3，和存储桶顺序一一对应'
-const isAutoCustomUrlTooltip = '开启时，将自动获取存储桶绑定的域名，关闭时可手动填写域名'
+const aliasTooltip = $T('MANAGE_CONSTANT_ALIAS_TOOLTIP')
+const itemsPerPageTooltip = $T('MANAGE_CONSTANT_ITEMS_PAGE_TOOLTIP')
+const pagingTooltip = $T('MANAGE_CONSTANT_PAGING_TOOLTIP')
+const bucketNameTooltip = $T('MANAGE_CONSTANT_BUCKET_NAME_TOOLTIP')
+const baseDirTooltip = $T('MANAGE_CONSTANT_BASE_DIR_TOOLTIP')
+const isAutoCustomUrlTooltip = $T('MANAGE_CONSTANT_IS_AUTO_CUSTOM_URL_TOOLTIP')
 
 export const supportedPicBedList: IStringKeyMap = {
   smms: {
@@ -65,8 +66,8 @@ export const supportedPicBedList: IStringKeyMap = {
     configOptions: {
       alias: {
         required: true,
-        description: '配置别名-必需',
-        placeholder: '该配置的唯一标识',
+        description: $T('MANAGE_CONSTANT_SMMS_ALIAS_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SMMS_ALIAS_PLACEHOLDER'),
         type: 'string',
         rule: aliasRule,
         default: 'smms-A',
@@ -74,32 +75,32 @@ export const supportedPicBedList: IStringKeyMap = {
       },
       token: {
         required: true,
-        description: 'token-必需',
-        placeholder: '请输入token',
+        description: $T('MANAGE_CONSTANT_SMMS_TOKEN_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SMMS_TOKEN_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('token')
       },
       paging: {
         required: true,
-        description: '是否分页',
+        description: $T('MANAGE_CONSTANT_SMMS_PAGING_DESC'),
         default: true,
         type: 'boolean',
         tooltip: pagingTooltip
       }
     },
-    explain: '大陆地区请访问备用域名https://smms.app, 请勿大批量上传图片，否则API接口会被限制',
+    explain: $T('MANAGE_CONSTANT_SMMS_EXPLAIN'),
     options: ['alias', 'token', 'paging'],
     refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=%e5%8f%82%e6%95%b0%e8%af%b4%e6%98%8e-6',
-    referenceText: '配置教程请参考：'
+    referenceText: $T('MANAGE_CONSTANT_SMMS_REFER_TEXT')
   },
   qiniu: {
-    name: '七牛云',
+    name: $T('MANAGE_CONSTANT_QINIU_NAME'),
     icon: 'qiniu',
     configOptions: {
       alias: {
         required: true,
-        description: '配置别名-必需',
-        placeholder: '该配置的唯一标识',
+        description: $T('MANAGE_CONSTANT_QINIU_ALIAS_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_QINIU_ALIAS_PLACEHOLDER'),
         type: 'string',
         rule: aliasRule,
         default: 'qiniu-A',
@@ -107,60 +108,60 @@ export const supportedPicBedList: IStringKeyMap = {
       },
       accessKey: {
         required: true,
-        description: 'accessKey-必需',
-        placeholder: '请输入accessKey',
+        description: $T('MANAGE_CONSTANT_QINIU_ACCESS_KEY_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_QINIU_ACCESS_KEY_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('accessKey')
       },
       secretKey: {
         required: true,
-        description: 'secretKey-必需',
-        placeholder: '请输入secretKey',
+        description: $T('MANAGE_CONSTANT_QINIU_SECRET_KEY_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_QINIU_SECRET_KEY_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('secretKey')
       },
       bucketName: {
         required: false,
-        description: '空间名-可选',
-        placeholder: '英文逗号分隔，例如：bucket1,bucket2',
+        description: $T('MANAGE_CONSTANT_QINIU_BUCKET_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_QINIU_BUCKET_PLACEHOLDER'),
         type: 'string',
         tooltip: bucketNameTooltip
       },
       baseDir: {
         required: false,
-        description: '起始目录-可选',
-        placeholder: '英文逗号分隔，例如：/test1,/test2',
+        description: $T('MANAGE_CONSTANT_QINIU_BASE_DIR_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_QINIU_BASE_DIR_PLACEHOLDER'),
         default: '/',
         type: 'string',
         tooltip: baseDirTooltip
       },
       isAutoCustomUrl: {
         required: true,
-        description: '是否自动获取绑定域名',
+        description: $T('MANAGE_CONSTANT_QINIU_IS_AUTO_CUSTOM_URL_DESC'),
         default: true,
         type: 'boolean',
         tooltip: isAutoCustomUrlTooltip
       },
       paging: {
         required: true,
-        description: '是否分页',
+        description: $T('MANAGE_CONSTANT_QINIU_PAGING_DESC'),
         default: true,
         type: 'boolean',
         tooltip: pagingTooltip
       },
       itemsPerPage: {
         required: true,
-        description: '每页显示数量',
+        description: $T('MANAGE_CONSTANT_QINIU_ITEMS_PAGE_DESC'),
         default: 50,
         type: 'number',
         rule: itemsPerPageRule,
         tooltip: itemsPerPageTooltip
       }
     },
-    explain: '空间名和起始目录配置时可通过英文逗号分隔不同存储桶的设置，顺序必须一致，逗号间留空或缺失项使用默认值',
+    explain: $T('MANAGE_CONSTANT_QINIU_EXPLAIN'),
     options: ['alias', 'accessKey', 'secretKey', 'bucketName', 'baseDir', 'isAutoCustomUrl', 'paging', 'itemsPerPage'],
     refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=%e5%8f%82%e6%95%b0%e8%af%b4%e6%98%8e-3',
-    referenceText: '配置教程请参考：'
+    referenceText: $T('MANAGE_CONSTANT_QINIU_REFER_TEXT')
   },
   github: {
     name: 'GitHub',
@@ -168,8 +169,8 @@ export const supportedPicBedList: IStringKeyMap = {
     configOptions: {
       alias: {
         required: true,
-        description: '配置别名-必需',
-        placeholder: '该配置的唯一标识',
+        description: $T('MANAGE_CONSTANT_GITHUB_ALIAS_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_GITHUB_ALIAS_PLACEHOLDER'),
         type: 'string',
         rule: aliasRule,
         default: 'github-A',
@@ -177,39 +178,39 @@ export const supportedPicBedList: IStringKeyMap = {
       },
       token: {
         required: true,
-        description: 'token-必需',
-        placeholder: '请输入token',
+        description: $T('MANAGE_CONSTANT_GITHUB_TOKEN_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_GITHUB_TOKEN_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('token'),
-        tooltip: '请提供具有完整repo权限的token，否则部分功能可能无法使用'
+        tooltip: $T('MANAGE_CONSTANT_GITHUB_TOKEN_TIPS')
       },
       githubUsername: {
         required: true,
-        description: '用户名-必需',
-        placeholder: '请输入用户名',
+        description: $T('MANAGE_CONSTANT_GITHUB_USER_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_GITHUB_USER_PLACEHOLDER'),
         type: 'string',
-        rule: defaultBaseRule('用户名')
+        rule: defaultBaseRule($T('MANAGE_CONSTANT_GITHUB_USER_RULE_MESSAGE'))
       },
       proxy: {
         required: false,
-        description: '代理-可选',
-        placeholder: '例如：http://127.0.0.1:1080',
+        description: $T('MANAGE_CONSTANT_GITHUB_PROXY_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_GITHUB_PROXY_PLACEHOLDER'),
         type: 'string',
-        tooltip: '如果您的网络环境需要使用代理才能访问GitHub，请在此处填写代理地址'
+        tooltip: $T('MANAGE_CONSTANT_GITHUB_PROXY_TIPS')
       },
       paging: {
         required: true,
-        description: '是否分页',
+        description: $T('MANAGE_CONSTANT_GITHUB_PAGING_DESC'),
         default: false,
         type: 'boolean',
         tooltip: pagingTooltip
       },
       customUrl: {
         required: false,
-        description: 'CDN加速域名-可选',
-        placeholder: '支持使用{username}、{repo}、{branch}和{path}作为替换占位符，用于适配不同仓库和分支',
+        description: $T('MANAGE_CONSTANT_GITHUB_CUSTOM_URL_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_GITHUB_CUSTOM_URL_PLACEHOLDER'),
         type: 'string',
-        tooltip: '例如: https://cdn.staticaly.com/gh/{username}/{repo}@{branch}/{path}',
+        tooltip: $T('MANAGE_CONSTANT_GITHUB_CUSTOM_URL_TIPS'),
         rule: [
           {
             validator: (_rule: any, value: any, callback: any) => {
@@ -247,9 +248,9 @@ export const supportedPicBedList: IStringKeyMap = {
                   return true
                 })
                 if (!customUrlValid) {
-                  callback(new Error('加速域名请以http://或https://开头'))
+                  callback(new Error($T('MANAGE_CONSTANT_GITHUB_CUSTOM_URL_RULE_MESSAGE_A')))
                 } else if (!isBracketsValid) {
-                  callback(new Error('加速域名中的大括号必须成对出现'))
+                  callback(new Error($T('MANAGE_CONSTANT_GITHUB_CUSTOM_URL_RULE_MESSAGE_B')))
                 } else {
                   callback()
                 }
@@ -262,19 +263,19 @@ export const supportedPicBedList: IStringKeyMap = {
         ]
       }
     },
-    explain: 'API调用有每小时上限，此外不支持上传超过100M的文件',
+    explain: $T('MANAGE_CONSTANT_GITHUB_EXPLAIN'),
     options: ['alias', 'token', 'githubUsername', 'proxy', 'customUrl'],
     refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=%e5%8f%82%e6%95%b0%e8%af%b4%e6%98%8e-9',
-    referenceText: '配置教程请参考：'
+    referenceText: $T('MANAGE_CONSTANT_GITHUB_REFER_TEXT')
   },
   aliyun: {
-    name: '阿里云',
+    name: $T('MANAGE_CONSTANT_ALIYUN_NAME'),
     icon: 'aliyun',
     configOptions: {
       alias: {
         required: true,
-        description: '配置别名-必需',
-        placeholder: '该配置的唯一标识',
+        description: $T('MANAGE_CONSTANT_ALIYUN_ALIAS_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_ALIYUN_ALIAS_PLACEHOLDER'),
         type: 'string',
         rule: aliasRule,
         default: 'aliyun-A',
@@ -282,69 +283,69 @@ export const supportedPicBedList: IStringKeyMap = {
       },
       accessKeyId: {
         required: true,
-        description: 'accessKeyId-必需',
+        description: $T('MANAGE_CONSTANT_ALIYUN_ACCESS_KEY_ID_DESC'),
         placeholder: '请输入accessKeyId',
         type: 'string',
         rule: defaultBaseRule('accessKeyId')
       },
       accessKeySecret: {
         required: true,
-        description: 'accessKeySecret-必需',
-        placeholder: '请输入accessKeySecret',
+        description: $T('MANAGE_CONSTANT_ALIYUN_ACCESS_KEY_SECRET_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_ALIYUN_ACCESS_KEY_SECRET_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('accessKeySecret')
       },
       bucketName: {
         required: false,
-        description: '存储桶名-可选',
-        placeholder: '英文逗号分隔，例如：bucket1,bucket2',
+        description: $T('MANAGE_CONSTANT_ALIYUN_BUCKET_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_ALIYUN_BUCKET_PLACEHOLDER'),
         type: 'string',
         tooltip: bucketNameTooltip
       },
       baseDir: {
         required: false,
-        description: '起始目录-可选',
-        placeholder: '英文逗号分隔，例如：/test1,/test2',
+        description: $T('MANAGE_CONSTANT_ALIYUN_BASE_DIR_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_ALIYUN_BASE_DIR_PLACEHOLDER'),
         type: 'string',
         default: '/',
         tooltip: baseDirTooltip
       },
       isAutoCustomUrl: {
         required: true,
-        description: '是否自动获取绑定域名',
+        description: $T('MANAGE_CONSTANT_ALIYUN_IS_AUTO_CUSTOM_URL_DESC'),
         default: true,
         type: 'boolean',
         tooltip: isAutoCustomUrlTooltip
       },
       paging: {
         required: true,
-        description: '是否分页',
+        description: $T('MANAGE_CONSTANT_ALIYUN_PAGING_DESC'),
         default: true,
         type: 'boolean',
         tooltip: pagingTooltip
       },
       itemsPerPage: {
         required: true,
-        description: '每页显示数量',
+        description: $T('MANAGE_CONSTANT_ALIYUN_ITEMS_PAGE_DESC'),
         default: 50,
         type: 'number',
         rule: itemsPerPageRule,
         tooltip: itemsPerPageTooltip
       }
     },
-    explain: '存储桶名和起始目录配置时可通过英文逗号分隔不同存储桶的设置，顺序必须一致，逗号间留空或缺失项使用默认值',
+    explain: $T('MANAGE_CONSTANT_ALIYUN_EXPLAIN'),
     options: ['alias', 'accessKeyId', 'accessKeySecret', 'bucketName', 'baseDir', 'isAutoCustomUrl', 'paging', 'itemsPerPage'],
     refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=%e5%8f%82%e6%95%b0%e8%af%b4%e6%98%8e-1',
-    referenceText: '配置教程请参考：'
+    referenceText: $T('MANAGE_CONSTANT_ALIYUN_REFER_TEXT')
   },
   tcyun: {
-    name: '腾讯云',
+    name: $T('MANAGE_CONSTANT_TENCENT_NAME'),
     icon: 'tcyun',
     configOptions: {
       alias: {
         required: true,
-        description: '配置别名-必需',
-        placeholder: '该配置的唯一标识',
+        description: $T('MANAGE_CONSTANT_TENCENT_ALIAS_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_TENCENT_ALIAS_PLACEHOLDER'),
         type: 'string',
         rule: aliasRule,
         default: 'tcyun-A',
@@ -352,77 +353,77 @@ export const supportedPicBedList: IStringKeyMap = {
       },
       secretId: {
         required: true,
-        description: 'secretId-必需',
-        placeholder: '请输入secretId',
+        description: $T('MANAGE_CONSTANT_TENCENT_SECRET_ID_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_TENCENT_SECRET_ID_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('secretId')
       },
       secretKey: {
         required: true,
-        description: 'secretKey-必需',
-        placeholder: '请输入secretKey',
+        description: $T('MANAGE_CONSTANT_TENCENT_SECRET_KEY_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_TENCENT_SECRET_KEY_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('secretKey')
       },
       appId: {
         required: true,
-        description: 'appId-必需',
-        placeholder: '请输入appId',
+        description: $T('MANAGE_CONSTANT_TENCENT_APPID_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_TENCENT_APPID_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('appId'),
-        tooltip: '例如：1250000000'
+        tooltip: $T('MANAGE_CONSTANT_TENCENT_APPID_TOOLTIP')
       },
       bucketName: {
         required: false,
-        description: '存储桶名-可选(注意包含AppId)',
-        placeholder: '英文逗号分隔，例如：bucket1-1250000000,bucket2-1250000000',
+        description: $T('MANAGE_CONSTANT_TENCENT_BUCKET_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_TENCENT_BUCKET_PLACEHOLDER'),
         type: 'string',
         tooltip: bucketNameTooltip
       },
       baseDir: {
         required: false,
-        description: '起始目录-可选',
-        placeholder: '英文逗号分隔，例如：/test1,/test2',
+        description: $T('MANAGE_CONSTANT_TENCENT_BASE_DIR_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_TENCENT_BASE_DIR_PLACEHOLDER'),
         type: 'string',
         default: '/',
         tooltip: baseDirTooltip
       },
       isAutoCustomUrl: {
         required: true,
-        description: '是否自动获取绑定域名',
+        description: $T('MANAGE_CONSTANT_TENCENT_IS_AUTO_CUSTOM_URL_DESC'),
         default: true,
         type: 'boolean',
         tooltip: isAutoCustomUrlTooltip
       },
       paging: {
         required: true,
-        description: '是否分页',
+        description: $T('MANAGE_CONSTANT_TENCENT_PAGING_DESC'),
         default: true,
         type: 'boolean',
         tooltip: pagingTooltip
       },
       itemsPerPage: {
         required: true,
-        description: '每页显示数量',
+        description: $T('MANAGE_CONSTANT_TENCENT_ITEMS_PAGE_DESC'),
         default: 50,
         type: 'number',
         rule: itemsPerPageRule,
         tooltip: itemsPerPageTooltip
       }
     },
-    explain: '存储桶名和起始目录配置时可通过英文逗号分隔不同存储桶的设置，顺序必须一致，逗号间留空或缺失项使用默认值',
+    explain: $T('MANAGE_CONSTANT_TENCENT_EXPLAIN'),
     options: ['alias', 'secretId', 'secretKey', 'appId', 'bucketName', 'baseDir', 'isAutoCustomUrl', 'paging', 'itemsPerPage'],
     refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=%e5%8f%82%e6%95%b0%e8%af%b4%e6%98%8e-2',
-    referenceText: '配置教程请参考：'
+    referenceText: $T('MANAGE_CONSTANT_TENCENT_REFER_TEXT')
   },
   upyun: {
-    name: '又拍云',
+    name: $T('MANAGE_CONSTANT_UPYUN_NAME'),
     icon: 'upyun',
     configOptions: {
       alias: {
         required: true,
-        description: '配置别名-必需',
-        placeholder: '该配置的唯一标识',
+        description: $T('MANAGE_CONSTANT_UPYUN_ALIAS_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_UPYUN_ALIAS_PLACEHOLDER'),
         type: 'string',
         rule: aliasRule,
         default: 'upyun-A',
@@ -430,41 +431,41 @@ export const supportedPicBedList: IStringKeyMap = {
       },
       bucketName: {
         required: true,
-        description: '服务名-必需',
-        placeholder: '对应其它对象存储的存储桶名',
+        description: $T('MANAGE_CONSTANT_UPYUN_BUCKET_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_UPYUN_BUCKET_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('bucketName')
       },
       operator: {
         required: true,
-        description: '操作员-必需',
-        placeholder: '推荐使用具有读取、写入和删除完整权限的操作员',
+        description: $T('MANAGE_CONSTANT_UPYUN_OPERATOR_NAME_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_UPYUN_OPERATOR_NAME_PLACEHOLDER'),
         type: 'string',
-        rule: defaultBaseRule('操作员')
+        rule: defaultBaseRule($T('MANAGE_CONSTANT_UPYUN_OPERATOR_NAME_RULE'))
       },
       password: {
         required: true,
-        description: '操作员密码-必需',
-        placeholder: '请输入密码',
+        description: $T('MANAGE_CONSTANT_UPYUN_OPERATOR_PWD_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_UPYUN_OPERATOR_PWD_PLACEHOLDER'),
         type: 'string',
-        rule: defaultBaseRule('操作员密码')
+        rule: defaultBaseRule($T('MANAGE_CONSTANT_UPYUN_OPERATOR_PWD_RULE'))
       },
       baseDir: {
         required: false,
-        description: '起始目录-可选',
-        placeholder: '读取文件时的初始目录',
+        description: $T('MANAGE_CONSTANT_UPYUN_BASE_DIR_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_UPYUN_BASE_DIR_PLACEHOLDER'),
         type: 'string',
         default: '/'
       },
       customUrl: {
         required: true,
-        description: '加速域名-必需',
-        placeholder: '请以http://或https://开头',
+        description: $T('MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_PLACEHOLDER'),
         type: 'string',
         rule: [
           {
             required: true,
-            message: '加速域名不能为空',
+            message: $T('MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_RULE_MESSAGE_A'),
             trigger: 'change'
           },
           {
@@ -481,7 +482,7 @@ export const supportedPicBedList: IStringKeyMap = {
                   return true
                 })
                 if (!customUrlValid) {
-                  callback(new Error('自定义域名请以http://或https://开头'))
+                  callback(new Error($T('MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_RULE_MESSAGE_B')))
                 } else {
                   callback()
                 }
@@ -495,73 +496,73 @@ export const supportedPicBedList: IStringKeyMap = {
       },
       paging: {
         required: true,
-        description: '是否分页',
+        description: $T('MANAGE_CONSTANT_UPYUN_PAGING'),
         default: true,
         type: 'boolean',
         tooltip: pagingTooltip
       },
       itemsPerPage: {
         required: true,
-        description: '每页显示数量',
+        description: $T('MANAGE_CONSTANT_UPYUN_ITEMS_PAGE'),
         default: 50,
         type: 'number',
         rule: itemsPerPageRule,
         tooltip: itemsPerPageTooltip
       }
     },
-    explain: '又拍云图床务必填写加速域名，否则无法正常使用',
+    explain: $T('MANAGE_CONSTANT_UPYUN_EXPLAIN'),
     options: ['alias', 'bucketName', 'operator', 'password', 'baseDir', 'customUrl', 'paging', 'itemsPerPage'],
     refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=%e5%8f%82%e6%95%b0%e8%af%b4%e6%98%8e-4',
-    referenceText: '配置教程请参考：'
+    referenceText: $T('MANAGE_CONSTANT_UPYUN_REFER_TEXT')
   },
   imgur: {
-    name: 'Imgur',
+    name: $T('MANAGE_CONSTANT_IMGUR_NAME'),
     icon: 'imgur',
     configOptions: {
       alias: {
         required: true,
-        description: '配置别名-必需',
-        placeholder: '该配置的唯一标识',
+        description: $T('MANAGE_CONSTANT_IMGUR_ALIAS_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_IMGUR_ALIAS_PLACEHOLDER'),
         type: 'string',
         rule: aliasRule,
         default: 'imgur-A'
       },
       imgurUserName: {
         required: true,
-        description: 'imgur用户名-必需',
-        placeholder: '请输入imgur用户名',
+        description: $T('MANAGE_CONSTANT_IMGUR_USERNAME_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_IMGUR_USERNAME_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('imgurUserName')
       },
       accessToken: {
         required: true,
-        description: 'accessToken-必需',
-        placeholder: '请输入accessToken',
+        description: $T('MANAGE_CONSTANT_IMGUR_ACCESS_TOKEN_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_IMGUR_ACCESS_TOKEN_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('accessToken'),
-        tooltip: '不是clientID,请参考配置教程'
+        tooltip: $T('MANAGE_CONSTANT_IMGUR_ACCESS_TOKEN_TOOLTIP')
       },
       proxy: {
         required: false,
-        description: '代理-可选',
-        placeholder: '例如：http://127.0.0.1:1080',
+        description: $T('MANAGE_CONSTANT_IMGUR_PROXY_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_IMGUR_PROXY_PLACEHOLDER'),
         type: 'string',
-        tooltip: '大陆地区请使用代理，否则无法正常使用'
+        tooltip: $T('MANAGE_CONSTANT_IMGUR_PROXY_TOOLTIP')
       }
     },
-    explain: '大陆地区请使用代理，API调用存在限制，请注意使用频率',
+    explain: $T('MANAGE_CONSTANT_IMGUR_EXPLAIN'),
     options: ['alias', 'imgurUserName', 'accessToken', 'proxy'],
     refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=imgur%e5%9b%be%e5%ba%8a-1',
-    referenceText: '配置教程请参考：'
+    referenceText: $T('MANAGE_CONSTANT_IMGUR_REFER_TEXT')
   },
   s3plist: {
-    name: 'S3兼容云',
+    name: $T('MANAGE_CONSTANT_S3_NAME'),
     icon: 's3plist',
     configOptions: {
       alias: {
         required: true,
-        description: '配置别名-必需',
-        placeholder: '该配置的唯一标识',
+        description: $T('MANAGE_CONSTANT_S3_ALIAS_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_S3_ALIAS_PLACEHOLDER'),
         type: 'string',
         rule: aliasRule,
         default: 's3plist-A',
@@ -569,98 +570,98 @@ export const supportedPicBedList: IStringKeyMap = {
       },
       accessKeyId: {
         required: true,
-        description: 'accessKeyId-必需',
-        placeholder: '请输入accessKeyId',
+        description: $T('MANAGE_CONSTANT_S3_ACCESS_KEY_ID_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_S3_ACCESS_KEY_ID_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('accessKeyId')
       },
       secretAccessKey: {
         required: true,
-        description: 'secretAccessKey-必需',
-        placeholder: '请输入secretAccessKey',
+        description: $T('MANAGE_CONSTANT_S3_SECRET_ACCESS_KEY_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_S3_SECRET_ACCESS_KEY_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('secretAccessKey')
       },
       endpoint: {
         required: false,
-        description: 'endpoint-可选',
-        placeholder: '例如：s3.us-east-1.amazonaws.com',
+        description: $T('MANAGE_CONSTANT_S3_ENDPOINT_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_S3_ENDPOINT_PLACEHOLDER'),
         type: 'string',
-        tooltip: '如果不填写，默认访问 AWS S3，请提供根API endpoint'
+        tooltip: $T('MANAGE_CONSTANT_S3_ENDPOINT_TOOLTIP')
       },
       sslEnabled: {
         required: true,
-        description: '使用HTTPS连接',
+        description: $T('MANAGE_CONSTANT_S3_SSLENABLED_DESC'),
         default: true,
         type: 'boolean',
-        tooltip: '大部分平台都支持HTTPS连接，如果您的平台不支持，请关闭该选项'
+        tooltip: $T('MANAGE_CONSTANT_S3_SSLENABLED_TOOLTIP')
       },
       s3ForcePathStyle: {
         required: true,
-        description: '启用 S3 Path style',
+        description: $T('MANAGE_CONSTANT_S3_FORCE_PATH_STYLE_DESC'),
         default: false,
         type: 'boolean',
-        tooltip: '例如使用 minio 时需要启用'
+        tooltip: $T('MANAGE_CONSTANT_S3_FORCE_PATH_STYLE_TOOLTIP')
       },
       proxy: {
         required: false,
-        description: '代理-可选',
-        placeholder: '例如：http://127.0.0.1:1080',
+        description: $T('MANAGE_CONSTANT_S3_PROXY_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_S3_PROXY_PLACEHOLDER'),
         type: 'string',
-        tooltip: '如果部分平台大陆地区无法访问，请使用代理'
+        tooltip: $T('MANAGE_CONSTANT_S3_PROXY_TOOLTIP')
       },
       aclForUpload: {
         required: true,
-        description: '上传文件的权限',
+        description: $T('MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_DESC'),
         rule: defaultBaseRule('aclForUpload'),
         default: 'public-read',
         type: 'select',
         selectOptions: {
-          private: '私有',
-          'public-read': '公共读',
-          'public-read-write': '公共读写',
-          'authenticated-read': '授权读',
-          'bucket-owner-read': '桶所有者读',
-          'bucket-owner-full-control': '桶所有者完全控制',
-          'aws-exec-read': 'aws执行读'
+          private: $T('MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_PRIVATE'),
+          'public-read': $T('MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_PUBLIC_READ'),
+          'public-read-write': $T('MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_PUBLIC_READ_WRITE'),
+          'authenticated-read': $T('MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_AUTHENTICATED_READ'),
+          'bucket-owner-read': $T('MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_BUCKET_OWNER_READ'),
+          'bucket-owner-full-control': $T('MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_BUCKET_OWNER_FULL_CONTROL'),
+          'aws-exec-read': $T('MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_AWS_EXEC_READ')
         },
-        tooltip: '上传文件的权限，可选值：private、public-read、public-read-write、authenticated-read、bucket-owner-read、bucket-owner-full-control、aws-exec-read'
+        tooltip: $T('MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_TOOLTIP')
       },
       bucketName: {
         required: false,
-        description: '存储桶名-可选',
-        placeholder: '英文逗号分隔，例如：bucket1,bucket2',
+        description: $T('MANAGE_CONSTANT_S3_BUCKET_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_S3_BUCKET_PLACEHOLDER'),
         type: 'string',
         tooltip: bucketNameTooltip
       },
       baseDir: {
         required: false,
-        description: '起始目录-可选',
-        placeholder: '英文逗号分隔，例如：/test1,/test2',
+        description: $T('MANAGE_CONSTANT_S3_BASE_DIR_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_S3_BASE_DIR_PLACEHOLDER'),
         type: 'string',
         default: '/',
         tooltip: baseDirTooltip
       },
       paging: {
         required: true,
-        description: '是否分页',
+        description: $T('MANAGE_CONSTANT_S3_PAGING_DESC'),
         default: true,
         type: 'boolean',
         tooltip: pagingTooltip
       },
       itemsPerPage: {
         required: true,
-        description: '每页显示数量',
+        description: $T('MANAGE_CONSTANT_S3_ITEMS_PAGE_DESC'),
         default: 50,
         type: 'number',
         rule: itemsPerPageRule,
         tooltip: itemsPerPageTooltip
       }
     },
-    explain: '存储桶名和起始目录配置时可通过英文逗号分隔不同存储桶的设置，顺序必须一致，逗号间留空或缺失项使用默认值',
+    explain: $T('MANAGE_CONSTANT_S3_EXPLAIN'),
     options: ['alias', 'accessKeyId', 'secretAccessKey', 'endpoint', 'sslEnabled', 's3ForcePathStyle', 'proxy', 'aclForUpload', 'bucketName', 'baseDir', 'paging', 'itemsPerPage'],
     refLink: 'https://github.com/wayjam/picgo-plugin-s3',
-    referenceText: '配置教程请参考：'
+    referenceText: $T('MANAGE_CONSTANT_S3_REFER_TEXT')
   },
   webdavplist: {
     name: 'WebDAV',
@@ -668,8 +669,8 @@ export const supportedPicBedList: IStringKeyMap = {
     configOptions: {
       alias: {
         required: true,
-        description: '配置别名-必需',
-        placeholder: '该配置的唯一标识',
+        description: $T('MANAGE_CONSTANT_WEBDAV_ALIAS_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_WEBDAV_ALIAS_PLACEHOLDER'),
         type: 'string',
         rule: aliasRule,
         default: 'webdavplist-A',
@@ -677,55 +678,55 @@ export const supportedPicBedList: IStringKeyMap = {
       },
       endpoint: {
         required: true,
-        description: '地址-必需',
-        placeholder: '例如：https://example.com/dav',
+        description: $T('MANAGE_CONSTANT_WEBDAV_HOST_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_WEBDAV_HOST_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('rootDomain'),
-        tooltip: '请填写完整的WebDAV地址，例如：https://example.com/dav'
+        tooltip: $T('MANAGE_CONSTANT_WEBDAV_HOST_TOOLTIP')
       },
       username: {
         required: true,
-        description: '用户名-必需',
-        placeholder: '请输入用户名',
+        description: $T('MANAGE_CONSTANT_WEBDAV_USERNAME_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_WEBDAV_USERNAME_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('username')
       },
       bucketName: {
         required: true,
-        description: '特殊配置',
-        placeholder: '例如：bucket1',
+        description: $T('MANAGE_CONSTANT_WEBDAV_BUCKET_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_WEBDAV_BUCKET_PLACEHOLDER'),
         type: 'string',
         default: 'webdav',
         disabled: true,
-        tooltip: '此处不可修改，仅为软件兼容性考虑'
+        tooltip: $T('MANAGE_CONSTANT_WEBDAV_BUCKET_TOOLTIP')
       },
       password: {
         required: true,
-        description: '密码-必需',
-        placeholder: '请输入密码',
+        description: $T('MANAGE_CONSTANT_WEBDAV_PASSWORD_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_WEBDAV_PASSWORD_PLACEHOLDER'),
         type: 'string',
         rule: defaultBaseRule('password')
       },
       baseDir: {
         required: false,
-        description: '起始目录-可选',
-        placeholder: '例如：/test1',
+        description: $T('MANAGE_CONSTANT_WEBDAV_BASE_DIR_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_WEBDAV_BASE_DIR_PLACEHOLDER'),
         type: 'string',
         default: '/',
         tooltip: baseDirTooltip
       },
       customUrl: {
         required: false,
-        description: '自定义域名-可选',
-        placeholder: '例如：https://example.com',
+        description: $T('MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_PLACEHOLDER'),
         type: 'string',
-        tooltip: '如果您的WebDAV服务器支持自定义域名，请填写完整的自定义域名，例如：https://example.com',
+        tooltip: $T('MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_TOOLTIP'),
         rule: [
           {
             validator: (rule: any, value: any, callback: any) => {
               if (value) {
                 if (!/^https?:\/\/.+/.test(value)) {
-                  callback(new Error('自定义域名请以http://或https://开头'))
+                  callback(new Error($T('MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_RULE_MESSAGE')))
                 } else {
                   callback()
                 }
@@ -739,22 +740,22 @@ export const supportedPicBedList: IStringKeyMap = {
       },
       proxy: {
         required: false,
-        description: '代理-可选',
-        placeholder: '例如：http://127.0.0.1:1080',
+        description: $T('MANAGE_CONSTANT_WEBDAV_PROXY_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_WEBDAV_PROXY_PLACEHOLDER'),
         type: 'string',
-        tooltip: '如果需要特殊网络环境才能访问，请使用代理'
+        tooltip: $T('MANAGE_CONSTANT_WEBDAV_PROXY_TOOLTIP')
       },
       sslEnabled: {
         required: true,
-        description: '使用HTTPS连接',
+        description: $T('MANAGE_CONSTANT_WEBDAV_SSL_DESC'),
         default: true,
         type: 'boolean',
-        tooltip: '根据WebDAV服务器的配置，如果您的服务器不支持HTTPS，请关闭该选项'
+        tooltip: $T('MANAGE_CONSTANT_WEBDAV_SSL_TOOLTIP')
       }
     },
-    explain: 'WebDAV配置',
+    explain: $T('MANAGE_CONSTANT_WEBDAV_EXPLAIN'),
     options: ['alias', 'endpoint', 'username', 'password', 'bucketName', 'baseDir', 'customUrl', 'proxy', 'sslEnabled'],
     refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=webdav',
-    referenceText: '配置教程请参考：'
+    referenceText: $T('MANAGE_CONSTANT_WEBDAV_REFER_TEXT')
   }
 }

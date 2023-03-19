@@ -371,8 +371,8 @@ const createNewBucket = (picBedName: string) => {
   res.then((result: any) => {
     if (result) {
       ElNotification({
-        title: `${$T('MANAGE_MAIN_PAGE_TIPS')}`,
-        message: `${$T('MANAGE_MAIN_PAGE_TIPS_SUCCESS')}`,
+        title: $T('MANAGE_MAIN_PAGE_TIPS'),
+        message: $T('MANAGE_MAIN_PAGE_TIPS_SUCCESS'),
         type: 'success'
       })
       nweBucketDrawerVisible.value = false
@@ -381,8 +381,8 @@ const createNewBucket = (picBedName: string) => {
       }, 2000)
     } else {
       ElNotification({
-        title: `${$T('MANAGE_MAIN_PAGE_TIPS')}`,
-        message: `${$T('MANAGE_MAIN_PAGE_TIPS_FAILED')}`,
+        title: $T('MANAGE_MAIN_PAGE_TIPS'),
+        message: $T('MANAGE_MAIN_PAGE_TIPS_FAILED'),
         type: 'error'
       })
     }
@@ -437,15 +437,19 @@ const handleSelectMenu = (bucketName: string) => {
 
 const nweBucketDrawerVisible = ref(false)
 
+const bucketT = $T('MANAGE_MAIN_PAGE_BUCKET')
+const galleryT = $T('MANAGE_MAIN_PAGE_GALLERY')
+const repositoryT = $T('MANAGE_MAIN_PAGE_REPOSITORY')
+
 const menuTitleMap:IStringKeyMap = {
-  aliyun: `${$T('MANAGE_MAIN_PAGE_BUCKET')}`,
-  qiniu: `${$T('MANAGE_MAIN_PAGE_BUCKET')}`,
-  tcyun: `${$T('MANAGE_MAIN_PAGE_BUCKET')}`,
-  upyun: `${$T('MANAGE_MAIN_PAGE_BUCKET')}`,
-  s3plist: `${$T('MANAGE_MAIN_PAGE_BUCKET')}`,
-  smms: `${$T('MANAGE_MAIN_PAGE_GALLERY')}`,
-  imgur: `${$T('MANAGE_MAIN_PAGE_GALLERY')}`,
-  github: `${$T('MANAGE_MAIN_PAGE_REPOSITORY')}`,
+  aliyun: bucketT,
+  qiniu: bucketT,
+  tcyun: bucketT,
+  upyun: bucketT,
+  s3plist: bucketT,
+  smms: galleryT,
+  imgur: galleryT,
+  github: repositoryT,
   webdavplist: ''
 }
 

@@ -30,13 +30,13 @@ CURRENT_PICBED: Current Picbed
 CHOOSE_YOUR_DEFAULT_PICBED: 'Choose ${d} as your default picbed:'
 UPLOAD_AREA: Upload
 UPLOAD_VIEW_HINT: Click to open picbeds settings
-MANAGE_PAGE: Manage Page
+MANAGE_PAGE: Manage
 GALLERY: Gallery
 PICBEDS_SETTINGS: Picbeds
 PICBEDS_MANAGE: Picbeds Manage
 PICLIST_SETTINGS: Settings
 PLUGIN_SETTINGS: Plugins
-PICLIST_SPONSOR_TEXT: PicList is a free software, if you like it, please don't forget to buy me a cup of coffee.
+PICLIST_SPONSOR_TEXT: If you like it, please don't forget to buy me a cup of coffee.
 ALIPAY: Alipay
 WECHATPAY: Wechat Pay
 CHOOSE_PICBED: Choose Picbed
@@ -139,7 +139,7 @@ SHORTCUT_CHANGE_UPLOAD: Change Upload Shortcut
 # tray-page
 
 WAIT_TO_UPLOAD: Wait to Upload
-ALREADY_UPLOAD: Already Upload
+ALREADY_UPLOAD: Already Uploaded
 
 # upload-page
 
@@ -198,9 +198,9 @@ MANAGE_SETTING_FORCE_CUSTOM_URL_HTTPS_TIPS: After enabling, all operations will 
 MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_UPLOAD_TITLE: Preserve directory structure when uploading
 MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_UPLOAD_TIPS: After disabling, all files will be expanded to the specified directory
 MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_A: Download
-MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_B: File
+MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_B: ' File '
 MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_C: will preserve the directory structure
-MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_D: Folder
+MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_TITLE_D: ' Folder '
 MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_FILE_TIPS: After enabling, the original directory structure will be preserved
 MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TITLE: Maximum number of files to download simultaneously (1-9999)
 MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TIPS: Not work on Tencent 
@@ -250,6 +250,200 @@ MANAGE_MAIN_PAGE_TIPS_FAILED: Create failed
 MANAGE_MAIN_PAGE_BUCKET: Bucket
 MANAGE_MAIN_PAGE_GALLERY: Album
 MANAGE_MAIN_PAGE_REPOSITORY: Repo
+
+# manage constant
+MANAGE_CONSTANT_BASE_RULE: 'Please enter '
+MANAGE_CONSTANT_ITEMS_PAGE_RULE_MESSAGE_A: Please enter the number of items displayed per page.
+MANAGE_CONSTANT_ITEMS_PAGE_RULE_MESSAGE_B: The number of items displayed per page must be a number.
+MANAGE_CONSTANT_ITEMS_PAGE_RULE_MESSAGE_C: The number of items displayed per page must be between 20 and 1000.
+MANAGE_CONSTANT_ALIAS_RULE_MESSAGE_A: Please enter the alias, which is the unique identifier for this configuration.
+MANAGE_CONSTANT_ALIAS_RULE_MESSAGE_B: The alias can only contain Chinese, English, numbers, underscores, and hyphens.
+MANAGE_CONSTANT_ALIAS_TOOLTIP: The alias can only contain Chinese, English, numbers, underscores, and hyphens.
+MANAGE_CONSTANT_ITEMS_PAGE_TOOLTIP: The number of items displayed per page must be between 20 and 1000.
+MANAGE_CONSTANT_PAGING_TOOLTIP: When paging is turned off, the directory list will use database caching to optimize performance.
+MANAGE_CONSTANT_BUCKET_NAME_TOOLTIP: Separated by commas, e.g., bucket1,bucket2,bucket3, and corresponding to the starting directory order one by one.
+MANAGE_CONSTANT_BASE_DIR_TOOLTIP: 'Separated by commas, e.g., /dir1,/dir2,/dir3, corresponding to the storage bucket order one by one.'
+MANAGE_CONSTANT_IS_AUTO_CUSTOM_URL_TOOLTIP: When turned on, the domainbound to bucket will be automatically obtained. Else, it can be manually filled in.
+
+MANAGE_CONSTANT_SMMS_ALIAS_DESC: Alias - required
+MANAGE_CONSTANT_SMMS_ALIAS_PLACEHOLDER: Unique identifier of this configuration
+MANAGE_CONSTANT_SMMS_TOKEN_DESC: Token - required
+MANAGE_CONSTANT_SMMS_TOKEN_PLACEHOLDER: Please fill in your token
+MANAGE_CONSTANT_SMMS_PAGING_DESC: Whether to enable pagination
+MANAGE_CONSTANT_SMMS_EXPLAIN: 'For users in mainland China, please visit the backup domain https://smms.app. Do not upload images in large quantities.'
+MANAGE_CONSTANT_SMMS_REFER_TEXT: 'Refer to: '
+
+MANAGE_CONSTANT_QINIU_NAME: Qiniu
+MANAGE_CONSTANT_QINIU_ALIAS_DESC: Alias - Required
+MANAGE_CONSTANT_QINIU_ALIAS_PLACEHOLDER: Unique identifier for this configuration
+MANAGE_CONSTANT_QINIU_ACCESS_KEY_DESC: accessKey - Required
+MANAGE_CONSTANT_QINIU_ACCESS_KEY_PLACEHOLDER: Please enter the accessKey
+MANAGE_CONSTANT_QINIU_SECRET_KEY_DESC: secretKey - Required
+MANAGE_CONSTANT_QINIU_SECRET_KEY_PLACEHOLDER: Please enter the secretKey
+MANAGE_CONSTANT_QINIU_BUCKET_DESC: space name - Optional
+MANAGE_CONSTANT_QINIU_BUCKET_PLACEHOLDER: 'English comma separated, for example: bucket1, bucket2'
+MANAGE_CONSTANT_QINIU_BASE_DIR_DESC: Base directory - Optional
+MANAGE_CONSTANT_QINIU_BASE_DIR_PLACEHOLDER: 'English comma separated, for example: /dir1, /dir2'
+MANAGE_CONSTANT_QINIU_IS_AUTO_CUSTOM_URL_DESC: Automatically get the bound domain name
+MANAGE_CONSTANT_QINIU_PAGING_DESC: Enable pagination
+MANAGE_CONSTANT_QINIU_ITEMS_PAGE_DESC: Number of items displayed per page
+MANAGE_CONSTANT_QINIU_EXPLAIN: When configuring space name and base directory, they can be set using English comma separation. The order must be consistent and missing or empty items will use the default value.
+MANAGE_CONSTANT_QINIU_REFER_TEXT: 'Refer to: '
+
+MANAGE_CONSTANT_GITHUB_ALIAS_DESC: Alias - Required
+MANAGE_CONSTANT_GITHUB_ALIAS_PLACEHOLDER: Unique identifier for this configuration
+MANAGE_CONSTANT_GITHUB_TOKEN_DESC: Token - Required
+MANAGE_CONSTANT_GITHUB_TOKEN_PLACEHOLDER: Please enter the Token
+MANAGE_CONSTANT_GITHUB_TOKEN_TIPS: 'Please provide a token with full repo permissions'
+MANAGE_CONSTANT_GITHUB_USER_DESC: Username - Required
+MANAGE_CONSTANT_GITHUB_USER_PLACEHOLDER: Please enter the Username
+MANAGE_CONSTANT_GITHUB_USER_RULE_MESSAGE: Username
+MANAGE_CONSTANT_GITHUB_PROXY_DESC: Proxy address - Optional
+MANAGE_CONSTANT_GITHUB_PROXY_PLACEHOLDER: 'For example: http://127.0.0.1:1080'
+MANAGE_CONSTANT_GITHUB_PROXY_TIPS: 'If the access speed is slow, you can try configuring a proxy'
+MANAGE_CONSTANT_GITHUB_PAGING_DESC: Enable pagination
+MANAGE_CONSTANT_GITHUB_CUSTOM_URL_DESC: CDN acceleration domain name - Optional
+MANAGE_CONSTANT_GITHUB_CUSTOM_URL_PLACEHOLDER: 'Support using {username}, {repo}, {branch}, and {path} as replacement placeholders'
+MANAGE_CONSTANT_GITHUB_CUSTOM_URL_TIPS: 'For example: https://cdn.staticaly.com/gh/{username}/{repo}@{branch}/{path}'
+MANAGE_CONSTANT_GITHUB_CUSTOM_URL_RULE_MESSAGE_A: 'The acceleration domain name must start with http:// or https://'
+MANAGE_CONSTANT_GITHUB_CUSTOM_URL_RULE_MESSAGE_B: The braces in the acceleration domain name must appear in pairs
+MANAGE_CONSTANT_GITHUB_EXPLAIN: There is an hourly limit for API calls, and uploading files larger than 100M is not supported
+MANAGE_CONSTANT_GITHUB_REFER_TEXT: 'Refer to:'
+
+MANAGE_CONSTANT_ALIYUN_NAME: Ali Cloud
+MANAGE_CONSTANT_ALIYUN_ALIAS_DESC: Alias - required
+MANAGE_CONSTANT_ALIYUN_ALIAS_PLACEHOLDER: The unique identifier of this configuration
+MANAGE_CONSTANT_ALIYUN_ACCESS_KEY_ID_DESC: AccessKeyId - required
+MANAGE_CONSTANT_ALIYUN_ACCESS_KEY_ID_PLACEHOLDER: Please fill in AccessKeyId
+MANAGE_CONSTANT_ALIYUN_ACCESS_KEY_SECRET_DESC: AccessKeySecret - required
+MANAGE_CONSTANT_ALIYUN_ACCESS_KEY_SECRET_PLACEHOLDER: Please fill in AccessKeySecret
+MANAGE_CONSTANT_ALIYUN_BUCKET_DESC: Bucket name - optional
+MANAGE_CONSTANT_ALIYUN_BUCKET_PLACEHOLDER: 'Separated by commas in English, for example: bucket1, bucket2'
+MANAGE_CONSTANT_ALIYUN_BASE_DIR_DESC: Base directory - optional
+MANAGE_CONSTANT_ALIYUN_BASE_DIR_PLACEHOLDER: 'Separated by commas in English, for example: /dir1, /dir2'
+MANAGE_CONSTANT_ALIYUN_IS_AUTO_CUSTOM_URL_DESC: Automatically obtain bound domain name
+MANAGE_CONSTANT_ALIYUN_PAGING_DESC: Whether to enable pagination
+MANAGE_CONSTANT_ALIYUN_ITEMS_PAGE_DESC: Number of items displayed per page
+MANAGE_CONSTANT_ALIYUN_EXPLAIN: When configuring bucket name and base directory, they can be set using English comma separation. The order must be consistent and missing or empty items will use the default value.
+MANAGE_CONSTANT_ALIYUN_REFER_TEXT: 'Refer to: '
+
+MANAGE_CONSTANT_TENCENT_NAME: Tencent Cloud
+MANAGE_CONSTANT_TENCENT_ALIAS_DESC: Alias - Required
+MANAGE_CONSTANT_TENCENT_ALIAS_PLACEHOLDER: Unique identifier for this configuration
+MANAGE_CONSTANT_TENCENT_SECRET_ID_DESC: SecretID - Required
+MANAGE_CONSTANT_TENCENT_SECRET_ID_PLACEHOLDER: Please fill in the SecretID
+MANAGE_CONSTANT_TENCENT_SECRET_KEY_DESC: SecretKey - Required
+MANAGE_CONSTANT_TENCENT_SECRET_KEY_PLACEHOLDER: Please fill in the SecretKey
+MANAGE_CONSTANT_TENCENT_APPID_DESC: App ID - Required
+MANAGE_CONSTANT_TENCENT_APPID_PLACEHOLDER: Please fill in the App ID
+MANAGE_CONSTANT_TENCENT_APPID_TOOLTIP: 'For example: 1250000000'
+MANAGE_CONSTANT_TENCENT_BUCKET_DESC: Bucket name - Optional (note the App ID must be included)
+MANAGE_CONSTANT_TENCENT_BUCKET_PLACEHOLDER: 'Comma-separated list of bucket names, for example: bucket1-1250000000, bucket2-1250000000'
+MANAGE_CONSTANT_TENCENT_BASE_DIR_DESC: Starting directory - Optional
+MANAGE_CONSTANT_TENCENT_BASE_DIR_PLACEHOLDER: 'Comma-separated list of directories, for example: /dir1, /dir2'
+MANAGE_CONSTANT_TENCENT_IS_AUTO_CUSTOM_URL_DESC: Automatically obtain binding domain name
+MANAGE_CONSTANT_TENCENT_PAGING_DESC: Enable paging
+MANAGE_CONSTANT_TENCENT_ITEMS_PAGE_DESC: Number of items to display per page
+MANAGE_CONSTANT_TENCENT_EXPLAIN: When configuring bucket name and base directory, they can be set using English comma separation. The order must be consistent and missing or empty items will use the default value.
+MANAGE_CONSTANT_TENCENT_REFER_TEXT: 'Refer to: '
+
+MANAGE_CONSTANT_UPYUN_NAME: Upyun
+MANAGE_CONSTANT_UPYUN_ALIAS_DESC: Alias - required
+MANAGE_CONSTANT_UPYUN_ALIAS_PLACEHOLDER: Unique identifier of the configuration
+MANAGE_CONSTANT_UPYUN_BUCKET_DESC: Service name - required
+MANAGE_CONSTANT_UPYUN_BUCKET_PLACEHOLDER: Name of the storage bucket corresponding to other object storage
+MANAGE_CONSTANT_UPYUN_OPERATOR_NAME_DESC: Operator name - required
+MANAGE_CONSTANT_UPYUN_OPERATOR_NAME_PLACEHOLDER: It is recommended to use an operator with full read, write, and delete permissions
+MANAGE_CONSTANT_UPYUN_OPERATOR_NAME_RULE: Operator
+MANAGE_CONSTANT_UPYUN_OPERATOR_PWD_DESC: Operator password - required
+MANAGE_CONSTANT_UPYUN_OPERATOR_PWD_PLACEHOLDER: Please enter the password
+MANAGE_CONSTANT_UPYUN_OPERATOR_PWD_RULE: Operator password
+MANAGE_CONSTANT_UPYUN_BASE_DIR_DESC: Base directory - optional
+MANAGE_CONSTANT_UPYUN_BASE_DIR_PLACEHOLDER: Initial directory when reading files
+MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_DESC: Acceleration domain name - required
+MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_PLACEHOLDER: 'Please start with http:// or https://'
+MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_RULE_MESSAGE_A: Acceleration domain name cannot be empty
+MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_RULE_MESSAGE_B: 'Please start the custom domain name with http:// or https://'
+MANAGE_CONSTANT_UPYUN_PAGING: Whether to enable pagination
+MANAGE_CONSTANT_UPYUN_ITEMS_PAGE: Number of items displayed per page
+MANAGE_CONSTANT_UPYUN_EXPLAIN: It is necessary to fill in the acceleration domain name of Upyun image bed, otherwise it cannot be used normally.
+MANAGE_CONSTANT_UPYUN_REFER_TEXT: 'Refer to: '
+
+MANAGE_CONSTANT_IMGUR_NAME: Imgur
+MANAGE_CONSTANT_IMGUR_ALIAS_DESC: Alias - required
+MANAGE_CONSTANT_IMGUR_ALIAS_PLACEHOLDER: Unique identifier of the configuration
+MANAGE_CONSTANT_IMGUR_USERNAME_DESC: Imgur username - required
+MANAGE_CONSTANT_IMGUR_USERNAME_PLACEHOLDER: Please enter the Imgur username
+MANAGE_CONSTANT_IMGUR_ACCESS_TOKEN_DESC: Access token - required
+MANAGE_CONSTANT_IMGUR_ACCESS_TOKEN_PLACEHOLDER: Please enter the access token
+MANAGE_CONSTANT_IMGUR_ACCESS_TOKEN_TOOLTIP: Not the client ID, please refer to the configuration tutorial
+MANAGE_CONSTANT_IMGUR_PROXY_DESC: Proxy - optional
+MANAGE_CONSTANT_IMGUR_PROXY_PLACEHOLDER: 'For example: http://127.0.0.1:1080'
+MANAGE_CONSTANT_IMGUR_PROXY_TOOLTIP: Please use a proxy in mainland China, otherwise it cannot be used normally
+MANAGE_CONSTANT_IMGUR_EXPLAIN: Please use a proxy in mainland China, API calls have restrictions, please pay attention to usage frequency
+MANAGE_CONSTANT_IMGUR_REFER_TEXT: 'Refer to: '
+
+MANAGE_CONSTANT_S3_NAME: S3-Compatible
+MANAGE_CONSTANT_S3_ALIAS_DESC: Alias - Required
+MANAGE_CONSTANT_S3_ALIAS_PLACEHOLDER: Unique identifier for this configuration
+MANAGE_CONSTANT_S3_ACCESS_KEY_ID_DESC: Access Key ID - Required
+MANAGE_CONSTANT_S3_ACCESS_KEY_ID_PLACEHOLDER: Please enter Access Key ID
+MANAGE_CONSTANT_S3_SECRET_ACCESS_KEY_DESC: Secret Access Key - Required
+MANAGE_CONSTANT_S3_SECRET_ACCESS_KEY_PLACEHOLDER: Please enter Secret Access Key
+MANAGE_CONSTANT_S3_ENDPOINT_DESC: Endpoint - Optional
+MANAGE_CONSTANT_S3_ENDPOINT_PLACEHOLDER: e.g. s3.us-east-1.amazonaws.com
+MANAGE_CONSTANT_S3_ENDPOINT_TOOLTIP: If left blank, AWS S3 is accessed by default. Provide the root API endpoint
+MANAGE_CONSTANT_S3_SSLENABLED_DESC: Use HTTPS connection
+MANAGE_CONSTANT_S3_SSLENABLED_TOOLTIP: Disable this option if not supported by your platform.
+MANAGE_CONSTANT_S3_FORCE_PATH_STYLE_DESC: Enable S3 Path style
+MANAGE_CONSTANT_S3_FORCE_PATH_STYLE_TOOLTIP: Required when using Minio, for example.
+MANAGE_CONSTANT_S3_PROXY_DESC: Proxy - Optional
+MANAGE_CONSTANT_S3_PROXY_PLACEHOLDER: e.g. http://127.0.0.1:1080
+MANAGE_CONSTANT_S3_PROXY_TOOLTIP: Use proxy if unable to access in some parts of Mainland China
+MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_DESC: Permission for uploaded files
+MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_PRIVATE: Private
+MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_PUBLIC_READ: Public read
+MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_PUBLIC_READ_WRITE: Public read and write
+MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_AUTHENTICATED_READ: Authenticated read
+MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_BUCKET_OWNER_READ: Bucket owner read
+MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_BUCKET_OWNER_FULL_CONTROL: Bucket owner full control
+MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_AWS_EXEC_READ: AWS execution read
+MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_TOOLTIP: 'Permission options for uploaded files'
+MANAGE_CONSTANT_S3_BUCKET_DESC: Bucket name - Optional
+MANAGE_CONSTANT_S3_BUCKET_PLACEHOLDER: English comma-separated list, e.g. bucket1,bucket2
+MANAGE_CONSTANT_S3_BASE_DIR_DESC: Base directory - Optional
+MANAGE_CONSTANT_S3_BASE_DIR_PLACEHOLDER: English comma-separated list, e.g. /dir1,/dir2
+MANAGE_CONSTANT_S3_PAGING_DESC: Enable pagination
+MANAGE_CONSTANT_S3_ITEMS_PAGE_DESC: Items per page
+MANAGE_CONSTANT_S3_EXPLAIN: When configuring bucket name and base directory, they can be set using English comma separation. The order must be consistent and missing or empty items will use the default value.
+MANAGE_CONSTANT_S3_REFER_TEXT: 'Refer to: '
+
+MANAGE_CONSTANT_WEBDAV_NAME: WebDAV
+MANAGE_CONSTANT_WEBDAV_ALIAS_DESC: Alias - Required
+MANAGE_CONSTANT_WEBDAV_ALIAS_PLACEHOLDER: Unique identifier for this configuration
+MANAGE_CONSTANT_WEBDAV_HOST_DESC: Address - Required
+MANAGE_CONSTANT_WEBDAV_HOST_PLACEHOLDER: 'e.g. https://example.com/dav'
+MANAGE_CONSTANT_WEBDAV_HOST_TOOLTIP: Please enter the complete WebDAV address
+MANAGE_CONSTANT_WEBDAV_USERNAME_DESC: Username - Required
+MANAGE_CONSTANT_WEBDAV_USERNAME_PLACEHOLDER: Please enter your username
+MANAGE_CONSTANT_WEBDAV_BUCKET_DESC: Special Configuration
+MANAGE_CONSTANT_WEBDAV_BUCKET_PLACEHOLDER: 'e.g. bucket1'
+MANAGE_CONSTANT_WEBDAV_BUCKET_TOOLTIP: This cannot be modified, only for software compatibility consideration
+MANAGE_CONSTANT_WEBDAV_PASSWORD_DESC: Password - Required
+MANAGE_CONSTANT_WEBDAV_PASSWORD_PLACEHOLDER: Please enter your password
+MANAGE_CONSTANT_WEBDAV_BASE_DIR_DESC: Base Directory - Optional
+MANAGE_CONSTANT_WEBDAV_BASE_DIR_PLACEHOLDER: 'e.g. /dir1'
+MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_DESC: Custom Domain - Optional
+MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_PLACEHOLDER: 'e.g. https://example.com'
+MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_TOOLTIP: If your WebDAV server supports custom domains, please fill in
+MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_RULE_MESSAGE: 'Custom domain should start with http:// or https://'
+MANAGE_CONSTANT_WEBDAV_PROXY_DESC: Proxy - Optional
+MANAGE_CONSTANT_WEBDAV_PROXY_PLACEHOLDER: 'e.g. http://127.0.0.1:1080'
+MANAGE_CONSTANT_WEBDAV_PROXY_TOOLTIP: If special network environment is required to access, please use proxy
+MANAGE_CONSTANT_WEBDAV_SSL_DESC: Use HTTPS Connection
+MANAGE_CONSTANT_WEBDAV_SSL_TOOLTIP: Depending on the configuration of your WebDAV server, if your server does not support HTTPS, please turn off this option
+MANAGE_CONSTANT_WEBDAV_EXPLAIN: 'WebDAV Configuration'
+MANAGE_CONSTANT_WEBDAV_REFER_TEXT: 'Refer to:'
 
 # ---renderer i18n end---
 
