@@ -368,7 +368,7 @@ MANAGE_CONSTANT_ALIYUN_ITEMS_PAGE_DESC: Number of items displayed per page
 MANAGE_CONSTANT_ALIYUN_EXPLAIN: When configuring bucket name and base directory, they can be set using English comma separation. The order must be consistent and missing or empty items will use the default value.
 MANAGE_CONSTANT_ALIYUN_REFER_TEXT: 'Refer to: '
 
-MANAGE_CONSTANT_TENCENT_NAME: Tencent Cloud
+MANAGE_CONSTANT_TENCENT_NAME: Tencent
 MANAGE_CONSTANT_TENCENT_ALIAS_DESC: Alias - Required
 MANAGE_CONSTANT_TENCENT_ALIAS_PLACEHOLDER: Unique identifier for this configuration
 MANAGE_CONSTANT_TENCENT_SECRET_ID_DESC: SecretID - Required
@@ -686,6 +686,49 @@ MANAGE_BUCKET_FILE_COLUMN_COPY_URL: Copy link
 MANAGE_BUCKET_FILE_COLUMN_INFO: File Info
 MANAGE_BUCKET_FILE_COLUMN_FILESIZE: Size
 MANAGE_BUCKET_FILE_COLUMN_TIME: Time
+
+MANAGE_NEW_BUCKET_TCYUN_NAME: Tencent Cloud
+MANAGE_NEW_BUCKET_TCYUN_BUCKETNAME_DESC: Bucket Name
+MANAGE_NEW_BUCKET_TCYUN_BUCKETNAME_PLACEHOLDER: Please enter the Bucket name
+MANAGE_NEW_BUCKET_TCYUN_BUCKETNAME_RULE_MSG_A: Bucket name can't be empty
+MANAGE_NEW_BUCKET_TCYUN_BUCKETNAME_RULE_MSG_B: Bucket name length cannot exceed 23 characters
+MANAGE_NEW_BUCKET_TCYUN_BUCKETNAME_RULE_MSG_C: Bucket name can only contain lowercase letters, numbers, and hyphens, and cannot begin or end with a hyphen
+MANAGE_NEW_BUCKET_TCYUN_REGION: Region
+MANAGE_NEW_BUCKET_TCYUN_ACL_DESC: Access Control
+MANAGE_NEW_BUCKET_TCYUN_ACL_PUBLIC_RW: Public Read and Write
+MANAGE_NEW_BUCKET_TCYUN_ACL_PUBLIC_R: Public Read
+MANAGE_NEW_BUCKET_TCYUN_ACL_PRIVATE: Private
+MANAGE_NEW_BUCKET_ALIYUN_NAME: Alibaba Cloud
+MANAGE_NEW_BUCKET_ALIYUN_BUCKETNAME_DESC: Bucket Name
+MANAGE_NEW_BUCKET_ALIYUN_BUCKETNAME_PLACEHOLDER: Please enter the Bucket name
+MANAGE_NEW_BUCKET_ALIYUN_BUCKETNAME_RULE_MSG_A: Bucket name can't be empty
+MANAGE_NEW_BUCKET_ALIYUN_BUCKETNAME_RULE_MSG_B: Bucket name length cannot exceed 63 characters
+MANAGE_NEW_BUCKET_ALIYUN_BUCKETNAME_RULE_MSG_C: Bucket name can only contain lowercase letters, numbers, and hyphens, and cannot begin or end with a hyphen
+MANAGE_NEW_BUCKET_ALIYUN_REGION: Region
+MANAGE_NEW_BUCKET_ALIYUN_ACL_DESC: Access Control
+MANAGE_NEW_BUCKET_ALIYUN_ACL_PUBLIC_RW: Public Read and Write
+MANAGE_NEW_BUCKET_ALIYUN_ACL_PUBLIC_R: Public Read
+MANAGE_NEW_BUCKET_ALIYUN_ACL_PRIVATE: Private
+MANAGE_NEW_BUCKET_QINIU_NAME: Qiniu Cloud
+MANAGE_NEW_BUCKET_QINIU_BUCKETNAME_DESC: Bucket Name
+MANAGE_NEW_BUCKET_QINIU_BUCKETNAME_PLACEHOLDER: Please enter the Bucket name
+MANAGE_NEW_BUCKET_QINIU_BUCKETNAME_RULE_MSG_A: Bucket name can't be empty
+MANAGE_NEW_BUCKET_QINIU_BUCKETNAME_RULE_MSG_B: Bucket name length cannot exceed 63 characters
+MANAGE_NEW_BUCKET_QINIU_BUCKETNAME_RULE_MSG_C: Bucket names can only contain lowercase letters, numbers, and hyphens, and cannot start or end with a hyphen.
+MANAGE_NEW_BUCKET_QINIU_REGION: Region
+MANAGE_NEW_BUCKET_QINIU_ACL_DESC: Public Access
+MANAGE_NEW_BUCKET_UPYUN_NAME: Upyun
+MANAGE_NEW_BUCKET_UPYUN_BUCKETNAME_DESC: Bucket Name
+MANAGE_NEW_BUCKET_UPYUN_BUCKETNAME_PLACEHOLDER: Please enter bucket name
+MANAGE_NEW_BUCKET_UPYUN_BUCKETNAME_RULE_MSG_A: Bucket name cannot be empty
+MANAGE_NEW_BUCKET_UPYUN_BUCKETNAME_RULE_MSG_B: Bucket name length should be between 5-20 characters
+MANAGE_NEW_BUCKET_UPYUN_BUCKETNAME_RULE_MSG_C: Bucket names can only contain lowercase letters, numbers, and hyphens, and cannot start or end with a hyphen.
+MANAGE_NEW_BUCKET_UPYUN_OPERATORNAME_DESC: Operator Name
+MANAGE_NEW_BUCKET_UPYUN_OPERATORNAME_PLACEHOLDER: Please enter operator name
+MANAGE_NEW_BUCKET_UPYUN_OPERATORNAME_RULE_MSG_A: Operator name cannot be empty
+MANAGE_NEW_BUCKET_UPYUN_PASSWORD_DESC: Password
+MANAGE_NEW_BUCKET_UPYUN_PASSWORD_PLACEHOLDER: Please enter password
+MANAGE_NEW_BUCKET_UPYUN_PASSWORD_RULE_MSG_A: Password cannot be empty
 
 # ---renderer i18n end---
 
