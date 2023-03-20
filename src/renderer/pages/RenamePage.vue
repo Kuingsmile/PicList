@@ -37,6 +37,7 @@
 <script lang="ts" setup>
 import { RENAME_FILE_NAME } from '#/events/constants'
 import { sendToMain } from '@/utils/dataSender'
+import { T as $T } from '@/i18n/index'
 import {
   ipcRenderer,
   IpcRendererEvent

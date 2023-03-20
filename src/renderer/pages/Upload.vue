@@ -34,7 +34,7 @@
             style="margin-left: 6px"
             @click="handleImageProcess"
           >
-            图片处理
+            {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_NAME') }}
           </el-button>
         </div>
         <div
@@ -133,7 +133,7 @@
     </el-row>
     <el-dialog
       v-model="imageProcessDialogVisible"
-      title="图片处理设置"
+      :title="$T('UPLOAD_PAGE_IMAGE_PROCESS_DIALOG_TITLE')"
       width="50%"
       draggable
       center
@@ -146,7 +146,9 @@
         size="default"
         :model="waterMarkForm"
       >
-        <el-form-item label="是否添加水印">
+        <el-form-item
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISADDWM')"
+        >
           <el-switch
             v-model="waterMarkForm.isAddWatermark"
             active-color="#13ce66"
@@ -155,20 +157,20 @@
         </el-form-item>
         <el-form-item
           v-show="waterMarkForm.isAddWatermark"
-          label="水印类型"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMTYPE')"
         >
           <el-radio-group v-model="waterMarkForm.watermarkType">
             <el-radio label="text">
-              文字
+              {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_WMTYPE_TEXT') }}
             </el-radio>
             <el-radio label="image">
-              图片
+              {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_WMTYPE_IMAGE') }}
             </el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item
           v-show="waterMarkForm.isAddWatermark"
-          label="是否全屏水印"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISFULLSCREEN_WM')"
         >
           <el-switch
             v-model="waterMarkForm.isFullScreenWatermark"
@@ -178,7 +180,7 @@
         </el-form-item>
         <el-form-item
           v-show="waterMarkForm.isAddWatermark"
-          label="水印角度"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMDEGREE')"
         >
           <el-input-number
             v-model="waterMarkForm.watermarkDegree"
@@ -187,19 +189,19 @@
         </el-form-item>
         <el-form-item
           v-show="waterMarkForm.isAddWatermark && waterMarkForm.watermarkType === 'text'"
-          label="水印文字"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMTEXT')"
         >
           <el-input v-model="waterMarkForm.watermarkText" />
         </el-form-item>
         <el-form-item
           v-show="waterMarkForm.isAddWatermark && waterMarkForm.watermarkType === 'text'"
-          label="水印字体路径(留空默认黑体，第一次需下载字体文件)"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMTEXT_FONT_PATH')"
         >
           <el-input v-model="waterMarkForm.watermarkFontPath" />
         </el-form-item>
         <el-form-item
           v-show="waterMarkForm.isAddWatermark"
-          label="水印占原图比例"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMRATIO')"
         >
           <el-input-number
             v-model="waterMarkForm.watermarkScaleRatio"
@@ -210,7 +212,7 @@
         </el-form-item>
         <el-form-item
           v-show="waterMarkForm.isAddWatermark && waterMarkForm.watermarkType === 'text'"
-          label="水印颜色，请从取色器中选择"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMCOLOR')"
         >
           <el-color-picker
             v-model="waterMarkForm.watermarkColor"
@@ -219,13 +221,13 @@
         </el-form-item>
         <el-form-item
           v-show="waterMarkForm.isAddWatermark && waterMarkForm.watermarkType === 'image'"
-          label="水印图片路径(留空使用默认图片)"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMPATH')"
         >
           <el-input v-model="waterMarkForm.watermarkImagePath" />
         </el-form-item>
         <el-form-item
           v-show="waterMarkForm.isAddWatermark"
-          label="水印位置"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMPOSITION')"
         >
           <el-radio-group
             v-model="waterMarkForm.watermarkPosition"
@@ -239,14 +241,18 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="是否移除Eixf信息">
+        <el-form-item
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISREMOVEEXIF')"
+        >
           <el-switch
             v-model="compressForm.isRemoveExif"
             active-color="#13ce66"
             inactive-color="#ff4949"
           />
         </el-form-item>
-        <el-form-item label="压缩质量">
+        <el-form-item
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_QUALITY')"
+        >
           <el-input-number
             v-model="compressForm.quality"
             :min="0"
@@ -254,7 +260,9 @@
             :step="1"
           />
         </el-form-item>
-        <el-form-item label="是否转换格式">
+        <el-form-item
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISCONVERT')"
+        >
           <el-switch
             v-model="compressForm.isConvert"
             active-color="#13ce66"
@@ -263,7 +271,7 @@
         </el-form-item>
         <el-form-item
           v-show="compressForm.isConvert"
-          label="选择转换目的格式"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT')"
         >
           <el-select v-model="compressForm.convertFormat">
             <el-option
@@ -274,7 +282,9 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="是否按固定尺寸调整图片">
+        <el-form-item
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISRESIZE')"
+        >
           <el-switch
             v-model="compressForm.isReSize"
             active-color="#13ce66"
@@ -283,7 +293,7 @@
         </el-form-item>
         <el-form-item
           v-show="compressForm.isReSize"
-          label="调整尺寸宽度"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_RESIZEWIDTH')"
         >
           <el-input-number
             v-model="compressForm.reSizeWidth"
@@ -292,14 +302,16 @@
         </el-form-item>
         <el-form-item
           v-show="compressForm.isReSize"
-          label="调整尺寸高度"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_RESIZEHEIGHT')"
         >
           <el-input-number
             v-model="compressForm.reSizeHeight"
             :min="0"
           />
         </el-form-item>
-        <el-form-item label="是否按比例调整尺寸，优先级高于固定尺寸">
+        <el-form-item
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISRESIZEBYPERCENT')"
+        >
           <el-switch
             v-model="compressForm.isReSizeByPercent"
             active-color="#13ce66"
@@ -308,7 +320,7 @@
         </el-form-item>
         <el-form-item
           v-show="compressForm.isReSizeByPercent"
-          label="调整尺寸比例, 输入50表示50%"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_RESIZEPERCENT')"
         >
           <el-input-number
             v-model="compressForm.reSizePercent"
@@ -316,7 +328,7 @@
           />
         </el-form-item>
         <el-form-item
-          label="是否旋转"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISROTATE')"
         >
           <el-switch
             v-model="compressForm.isRotate"
@@ -326,7 +338,7 @@
         </el-form-item>
         <el-form-item
           v-show="compressForm.isRotate"
-          label="旋转角度"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ROTATEDEGREE')"
         >
           <el-input-number
             v-model="compressForm.rotateDegree"
@@ -338,10 +350,10 @@
             type="primary"
             @click="handelSaveConfig"
           >
-            保存
+            {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_CONFIRM') }}
           </el-button>
           <el-button @click="closeDialog">
-            取消
+            {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_CANCEL') }}
           </el-button>
         </el-form-item>
       </el-form>
@@ -376,15 +388,15 @@ const $router = useRouter()
 const imageProcessDialogVisible = ref(false)
 
 const waterMarkPositionMap = new Map([
-  ['north', '上'],
-  ['northeast', '右上'],
-  ['southeast', '右下'],
-  ['south', '下'],
-  ['southwest', '左下'],
-  ['northwest', '左上'],
-  ['west', '左'],
-  ['east', '右'],
-  ['centre', '中']
+  ['north', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP')],
+  ['northeast', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP_RIGHT')],
+  ['southeast', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_BOTTOM_RIGHT')],
+  ['south', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_BOTTOM')],
+  ['southwest', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_BOTTOM_LEFT')],
+  ['northwest', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP_LEFT')],
+  ['west', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_LEFT')],
+  ['east', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_RIGHT')],
+  ['centre', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_CENTER')]
 ])
 
 const availableFormat = ['avif', 'dz', 'fits', 'gif', 'heif', 'input', 'jpeg', 'jpg', 'jp2', 'jxl', 'magick', 'openslide', 'pdf', 'png', 'ppm', 'raw', 'svg', 'tiff', 'tif', 'v', 'webp']
