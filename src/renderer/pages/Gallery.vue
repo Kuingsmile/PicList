@@ -12,7 +12,8 @@
       </el-icon>
       <span
         style="position: absolute; right: 0; top: 0; margin-right: 20px; font-size: 0.8em; color: #fff;"
-      >同步删除云端：
+      >
+        {{ $T('GALLERY_SYNC_DELETE') }}
         <el-switch
           v-model="deleteCloud"
           :active-text="$T('SETTINGS_OPEN')"
@@ -432,14 +433,14 @@ function remove (item: ImgInfo) {
             ALLApi.delete(item).then((value: boolean) => {
               if (value) {
                 ElNotification({
-                  title: '通知',
-                  message: `${item.fileName} 云端删除成功`,
+                  title: $T('GALLERY_SYNC_DELETE_NOTICE_TITLE'),
+                  message: `${item.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_SUCCEED')}`,
                   type: 'success'
                 })
               } else {
                 ElNotification({
-                  title: '通知',
-                  message: `${item.fileName} 云端删除失败`,
+                  title: $T('GALLERY_SYNC_DELETE_NOTICE_TITLE'),
+                  message: `${item.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_FAILED')}`,
                   type: 'error'
                 })
               }
@@ -533,15 +534,15 @@ function multiRemove () {
                   ALLApi.delete(file).then((value: boolean) => {
                     if (value) {
                       ElNotification({
-                        title: '通知',
-                        message: `${file.fileName} 云端删除成功`,
+                        title: $T('GALLERY_SYNC_DELETE'),
+                        message: `${file.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_SUCCEED')}`,
                         type: 'success',
                         duration: multiRemoveNumber > 5 ? 1000 : 2000
                       })
                     } else {
                       ElNotification({
-                        title: '通知',
-                        message: `${file.fileName} 云端删除失败`,
+                        title: $T('GALLERY_SYNC_DELETE'),
+                        message: `${file.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_FAILED')}`,
                         type: 'error',
                         duration: multiRemoveNumber > 5 ? 1000 : 2000
                       })

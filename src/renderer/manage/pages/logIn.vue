@@ -10,16 +10,16 @@
     >
       <el-tab-pane
         name="login"
-        label="已保存配置"
+        :label="$T('MANAGE_LOGIN_PAGE_PANE_NAME')"
         style="width: 100%;overflow-y: scroll;height: calc(100vh - 50px);"
       >
         <el-alert
           v-loading="isLoading"
-          title="已设置配置列表，点击图标和别名可查看配置详情，点击进入可查看文件页面，点击删除可删除配置"
+          :title="$T('MANAGE_LOGIN_PAGE_PANE_DESC')"
           type="success"
           show-icon
           center
-          element-loading-text="导入配置..."
+          :element-loading-text="$T('MANAGE_LOGIN_PAGE_PANE_LOADING')"
           :element-loading-spinner="svg"
           element-loading-svg-view-box="0, 0, 150, 150"
         />
@@ -52,12 +52,12 @@
                 >
                   <el-table-column
                     prop="key"
-                    label="配置项"
+                    :label="$T('MANAGE_LOGIN_PAGE_PANE_KEY_NAME')"
                     width="100"
                   />
                   <el-table-column
                     prop="value"
-                    label="配置值"
+                    :label="$T('MANAGE_LOGIN_PAGE_PANE_KEY_VALUE')"
                   />
                 </el-table>
                 <template #reference>
@@ -83,7 +83,7 @@
                   plain
                   @click="handleConfigClick(item)"
                 >
-                  进入
+                  {{ $T('MANAGE_LOGIN_PAGE_PANE_ENTER') }}
                 </el-button>
                 <el-button
                   type="warning"
@@ -91,7 +91,7 @@
                   plain
                   @click="handleConfigRemove(item.alias)"
                 >
-                  删除
+                  {{ $T('MANAGE_LOGIN_PAGE_PANE_DELETE') }}
                 </el-button>
               </el-button-group>
             </el-card>
@@ -173,7 +173,7 @@
             <el-select
               v-else-if="supportedPicBedList[item.icon].configOptions[option].type === 'select'"
               v-model="configResult[item.icon + '.' + option]"
-              placeholder="请选择"
+              :placeholder="$T('MANAGE_LOGIN_PAGE_PANE_SELECT_PLACEHOLDER')"
             >
               <el-option
                 v-for="i in Object.entries(supportedPicBedList[item.icon].configOptions[option].selectOptions)"
@@ -192,7 +192,7 @@
             placement="top"
             :disabled="currentAliasList.length === 0"
           >
-            导入
+            {{ $T('MANAGE_LOGIN_PAGE_PANE_IMPORT') }}
             <template #dropdown>
               <el-dropdown-item
                 v-for="i in currentAliasList"
@@ -210,7 +210,7 @@
             plain
             @click="handleConfigChange(item.icon)"
           >
-            保存
+            {{ $T('MANAGE_LOGIN_PAGE_PANE_SAVE') }}
           </el-button>
           <el-button
             type="danger"
@@ -219,12 +219,12 @@
             plain
             @click="handleConfigReset(item.icon)"
           >
-            重置
+            {{ $T('MANAGE_LOGIN_PAGE_PANE_RESET') }}
           </el-button>
         </div>
         <br>
         <el-alert
-          title="已有配置，单击可复制对应单元格数据"
+          :title="$T('MANAGE_LOGIN_PAGE_PANE_TABLE_TITLE')"
           type="success"
           center
           :closable="false"
@@ -262,6 +262,7 @@ import { useManageStore } from '../store/manageStore'
 import { formObjToTableData, svg } from '../utils/common'
 import { getConfig as getPicBedsConfig } from '@/utils/dataSender'
 import { formatEndpoint } from '~/main/manage/utils/common'
+import { T as $T } from '@/i18n'
 
 const activeName = ref('login')
 const configResult:IStringKeyMap = reactive({})
@@ -351,22 +352,22 @@ const handleConfigChange = async (name: string) => {
     const resultKey = name + '.' + key
     if (supportedPicBedList[name].configOptions[key].required) {
       if (supportedPicBedList[name].configOptions[key].type !== 'boolean' && !configResult[resultKey]) {
-        ElMessage.error(`请填写 ${supportedPicBedList[name].configOptions[key].description}`)
+        ElMessage.error(`${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_MESSAGE_A')} ${supportedPicBedList[name].configOptions[key].description}`)
         return
       }
     }
     if (key === 'alias' && configResult[resultKey] !== undefined && !reg.test(configResult[resultKey])) {
-      ElMessage.error('别名只能包含中文、英文、数字、下划线和中划线')
+      ElMessage.error($T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_ALIAS_MESSAGE'))
       return
     }
     if (key === 'itemsPerPage' && configResult[resultKey] !== undefined && (configResult[resultKey] < 20 || configResult[resultKey] > 1000)) {
-      ElMessage.error('每页数量必须在20-1000之间')
+      ElMessage.error($T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_ITEMS_PER_PAGE_MESSAGE'))
       return
     }
     if ((key === 'customUrl') && configResult[resultKey] !== undefined && configResult[resultKey] !== '') {
       if (name !== 'upyun') {
         if (!/^https?:\/\//.test(configResult[resultKey])) {
-          ElMessage.error('自定义域名必须以http://或https://开头')
+          ElMessage.error($T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_CUSTOM_URL_MESSAGE'))
           return
         }
       }
@@ -418,8 +419,8 @@ const handleConfigChange = async (name: string) => {
   if (aliasList.includes(resultMap.alias)) {
     ElNotification(
       {
-        title: '通知',
-        message: `已覆盖别名为${resultMap.alias}的配置`,
+        title: $T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
+        message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE')}${resultMap.alias}`,
         type: 'warning',
         duration: 500,
         customClass: 'notification',
@@ -429,8 +430,8 @@ const handleConfigChange = async (name: string) => {
   } else {
     ElNotification(
       {
-        title: '通知',
-        message: `已保存别名为${resultMap.alias}的配置`,
+        title: $T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
+        message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_B')}${resultMap.alias}`,
         type: 'success',
         duration: 2000,
         customClass: 'notification',
@@ -453,8 +454,8 @@ const handleConfigRemove = (name: string) => {
     removeConfig('picBed', name)
     ElNotification(
       {
-        title: '通知',
-        message: `已删除别名为${name}的配置`,
+        title: $T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
+        message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_C')}${name}`,
         type: 'success',
         duration: 2000,
         customClass: 'notification',
@@ -467,8 +468,8 @@ const handleConfigRemove = (name: string) => {
   } catch (error) {
     ElNotification(
       {
-        title: '通知',
-        message: `删除别名为${name}的配置失败`,
+        title: $T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
+        message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_D')}${name}${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_E')}`,
         type: 'error',
         duration: 2000,
         customClass: 'notification',
@@ -500,7 +501,7 @@ const getAllConfigAliasArray = async () => {
 
 const handleCellClick = (row:any, column:any) => {
   navigator.clipboard.writeText(row[column.property])
-  ElMessage.success(`已复制${row[column.property]}`)
+  ElMessage.success(`${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_COPY_SUCCESS')}${row[column.property]}`)
 }
 
 const handleReferenceClick = (url: string) => shell.openExternal(url)

@@ -5,7 +5,7 @@ ea/*
 <template>
   <div
     v-loading="showLoadingPage"
-    element-loading-text="加载文件中..."
+    :element-loading-text="$T('MANAGE_BUCKET_PAGE_LOADING_TEXT')"
     :element-loading-spinner="svg"
     element-loading-svg-view-box="0, 0, 50, 50"
     element-loading-background="rgba(122, 122, 122, 0.5)"
@@ -17,7 +17,7 @@ ea/*
         <el-select
           v-if="showCustomUrlSelectList && customUrlList.length > 1 && isAutoCustomUrl"
           v-model="currentCustomUrl"
-          placeholder="请选择自定义域名"
+          :placeholder="$T('MANAGE_BUCKET_PAGE_CUSTOM_URL_SELECT_PLACEHOLDER')"
           style="width: 200px;"
           @change="handelChangeCustomUrl"
         >
@@ -31,7 +31,7 @@ ea/*
         <el-input
           v-else-if="showCustomUrlInput"
           v-model="currentCustomUrl"
-          placeholder="请输入自定义域名"
+          :placeholder="$T('MANAGE_BUCKET_PAGE_CUSTOM_URL_INPUT_PLACEHOLDER')"
           style="width: 200px;"
           @blur="handelChangeCustomUrl"
         />
@@ -52,7 +52,7 @@ ea/*
           <el-tooltip
             class="item"
             effect="dark"
-            content="文件上传(支持多选)"
+            :content="$T('MANAGE_BUCKET_PAGE_UPLOAD_FILES_TOOLTIP')"
             placement="bottom"
           >
             <el-icon
@@ -72,7 +72,7 @@ ea/*
           <el-tooltip
             class="item"
             effect="dark"
-            content="从URL上传"
+            :content="$T('MANAGE_BUCKET_PAGE_UPLOAD_FROM_URL_TOOLTIP')"
             placement="bottom"
           >
             <el-icon
@@ -95,7 +95,7 @@ ea/*
           <el-tooltip
             class="item"
             effect="dark"
-            content="新建文件夹"
+            :content="$T('MANAGE_BUCKET_PAGE_CREATE_FOLDER_TOOLTIP')"
             placement="bottom"
           >
             <el-icon
@@ -115,7 +115,7 @@ ea/*
           <el-tooltip
             class="item"
             effect="dark"
-            content="下载页面"
+            :content="$T('MANAGE_BUCKET_PAGE_DOWNLOAD_TOOLTIP')"
             placement="bottom"
           >
             <el-icon
@@ -135,7 +135,7 @@ ea/*
           <el-tooltip
             class="item"
             effect="dark"
-            content="文件批量重命名"
+            :content="$T('MANAGE_BUCKET_PAGE_BATCH_RENAME_TOOLTIP')"
             placement="bottom"
           >
             <el-icon
@@ -153,7 +153,7 @@ ea/*
           <el-tooltip
             class="item"
             effect="dark"
-            content="批量复制链接"
+            :content="$T('MANAGE_BUCKET_PAGE_BATCH_COPY_URL_TOOLTIP')"
             placement="right"
           >
             <el-dropdown>
@@ -169,7 +169,7 @@ ea/*
               <template #dropdown>
                 <template v-if="showPresignedUrl">
                   <el-dropdown-item
-                    v-for="i in [...linkArray, { key: '预签名链接', value: 'preSignedUrl' }]"
+                    v-for="i in [...linkArray, { key: 'preSignURL', value: 'preSignedUrl' }]"
                     :key="i.key"
                     @click="handelBatchCopyLink(i.value)"
                   >
@@ -194,7 +194,7 @@ ea/*
           <el-tooltip
             class="item"
             effect="dark"
-            content="复制文件信息"
+            :content="$T('MANAGE_BUCKET_PAGE_COPY_FILE_INFO_TOOLTIP')"
             placement="bottom"
           >
             <el-icon
@@ -217,7 +217,7 @@ ea/*
           <el-tooltip
             class="item"
             effect="dark"
-            content="强制刷新文件列表"
+            :content="$T('MANAGE_BUCKET_PAGE_FORCE_REFRESH_TOOLTIP')"
             placement="bottom"
           >
             <el-icon
@@ -233,7 +233,7 @@ ea/*
       </div>
       <el-input
         v-model="searchText"
-        placeholder="搜索文件"
+        :placeholder="$T('MANAGE_BUCKET_PAGE_SEARCH_PLACEHOLDER')"
         style="margin-left: 10px;width: 200px;"
         clearable
         size="small"
@@ -261,7 +261,7 @@ ea/*
             @click="handleBreadcrumbClick(index)"
           >
             <el-link>
-              {{ item === '' ? '根目录' : item }}
+              {{ item === '' ? $T('MANAGE_BUCKET_PAGE_ROOT_FOLDER') : item }}
             </el-link>
           </el-breadcrumb-item>
         </template>
@@ -270,7 +270,7 @@ ea/*
           style="flex-shrink: 0;font-size: 12px;color: #606266;font-family: Arial, Helvetica, sans-serif;cursor: pointer;"
         >
           <el-link>
-            根目录
+            {{ $T('MANAGE_BUCKET_PAGE_ROOT_FOLDER') }}
           </el-link>
         </el-breadcrumb-item>
       </el-breadcrumb>
@@ -285,7 +285,7 @@ ea/*
             >
               <Document />
             </el-icon>
-            <span style="margin-right: 5px;padding-left: 5px;">文件数: {{ currentPageFilesInfo.length }} </span>
+            <span style="margin-right: 5px;padding-left: 5px;">{{ `${$T('MANAGE_BUCKET_PAGE_FILE_NUMBER')}${currentPageFilesInfo.length}` }} </span>
           </span>
           <span>
             <el-icon
@@ -294,7 +294,7 @@ ea/*
             >
               <Coin />
             </el-icon>
-            <span style="padding-left: 5px;">总大小: {{ calculateAllFileSize }}</span>
+            <span style="padding-left: 5px;">{{ `${$T('MANAGE_BUCKET_PAGE_FILE_SIZE')}${calculateAllFileSize}` }}</span>
           </span>
         </div>
       </div>
@@ -310,7 +310,7 @@ ea/*
           style="margin-right: 2px;"
           @click="handleCheckAllChange"
         >
-          全选
+          {{ $T('MANAGE_BUCKET_PAGE_SELECT_ALL') }}
         </el-button>
       </div>
       <div
@@ -325,7 +325,7 @@ ea/*
           style="margin-right: 2px;"
           @click="handelCancelCheck"
         >
-          取消
+          {{ $T('MANAGE_BUCKET_PAGE_SELECT_NONE') }}
         </el-button>
         <el-button
           class="btn"
@@ -335,7 +335,7 @@ ea/*
           style="margin-right: 2px;"
           @click="handleReverseCheck"
         >
-          反选
+          {{ $T('MANAGE_BUCKET_PAGE_SELECT_INVERT') }}
         </el-button>
         <el-button
           class="btn"
@@ -345,7 +345,7 @@ ea/*
           style="margin-right: 2px;"
           @click="handleCheckAllChange"
         >
-          全选
+          {{ $T('MANAGE_BUCKET_PAGE_SELECT_ALL') }}
         </el-button>
         <el-button
           class="btn"
@@ -356,7 +356,7 @@ ea/*
           style="margin-right: 2px;"
           @click="handelBatchDownload"
         >
-          下载({{ selectedItems.filter(item => item.isDir === false).length }})
+          {{ `${$T('MANAGE_BUCKET_DOWNLOAD_BTN')}(${selectedItems.filter(item => item.isDir === false).length})` }}
         </el-button>
         <el-button
           class="btn"
@@ -365,7 +365,7 @@ ea/*
           :icon="DeleteFilled"
           @click="handelBatchDeleteInfo"
         >
-          删除({{ selectedItems.length }})
+          {{ `${$T('MANAGE_BUCKET_DELETE_BTN')}${selectedItems.length}` }}
         </el-button>
       </div>
       <el-dropdown>
@@ -375,23 +375,23 @@ ea/*
           plain
           :icon="Sort"
         >
-          排序
+          {{ $T('MANAGE_BUCKET_SORT_TITLE') }}
         </el-button>
         <template #dropdown>
           <el-dropdown-item @click="sortFile('name')">
-            文件名
+            {{ $T('MANAGE_BUCKET_SORT_NAME') }}
           </el-dropdown-item>
           <el-dropdown-item @click="sortFile('size')">
-            文件大小
+            {{ $T('MANAGE_BUCKET_SORT_SIZE') }}
           </el-dropdown-item>
           <el-dropdown-item @click="sortFile('ext')">
-            文件类型
+            {{ $T('MANAGE_BUCKET_SORT_TYPE') }}
           </el-dropdown-item>
           <el-dropdown-item @click="sortFile('time')">
-            上传时间
+            {{ $T('MANAGE_BUCKET_SORT_TIME') }}
           </el-dropdown-item>
           <el-dropdown-item @click="sortFile('check')">
-            选中状态
+            {{ $T('MANAGE_BUCKET_SORT_SELECTED') }}
           </el-dropdown-item>
         </template>
       </el-dropdown>
@@ -423,7 +423,7 @@ ea/*
     </div>
     <el-dialog
       v-model="dialogVisible"
-      title="请输入URL，支持多个URL，以换行分隔"
+      :title="$T('MANAGE_BUCKET_URL_UPLOAD_DIALOG_TITLE')"
       width="50%"
       draggable
       center
@@ -439,14 +439,14 @@ https://www.baidu.com/img/bd_logo1.png"
       />
       <template #footer>
         <el-button @click="dialogVisible = false">
-          取消
+          {{ $T('MANAGE_BUCKET_URL_UPLOAD_DIALOG_CANCEL') }}
         </el-button>
         <el-button
           type="primary"
           style="font-size: 12px;font-weight: 500;"
           @click="handelUploadFromUrl"
         >
-          确定
+          {{ $T('MANAGE_BUCKET_URL_UPLOAD_DIALOG_CONFIRM') }}
         </el-button>
       </template>
     </el-dialog>
@@ -616,7 +616,7 @@ https://www.baidu.com/img/bd_logo1.png"
                         <el-dropdown-item
                           @click="copyToClipboard(formatLink(item.url, item.fileName, 'custom', manageStore.config.settings.customPasteFormat))"
                         >
-                          自定义
+                          {{ $T('MANAGE_BUCKET_URL_FORMAT_CUSTOM') }}
                         </el-dropdown-item>
                         <el-dropdown-item
                           v-if="showPresignedUrl"
@@ -624,7 +624,7 @@ https://www.baidu.com/img/bd_logo1.png"
                             copyToClipboard(await getPreSignedUrl(item))
                           }"
                         >
-                          预签名链接
+                          {{ $T('MANAGE_BUCKET_URL_FORMAT_PRESIGN') }}
                         </el-dropdown-item>
                       </el-dropdown-menu>
                     </template>
@@ -667,7 +667,7 @@ https://www.baidu.com/img/bd_logo1.png"
     />
     <el-dialog
       v-model="isShowFileInfo"
-      title="文件信息"
+      :title="$T('MANAGE_BUCKET_FILE_INFO_TITLE')"
       center
       align-center
       draggable
@@ -683,7 +683,7 @@ https://www.baidu.com/img/bd_logo1.png"
               <Document />
             </el-icon>
           </template>
-          复制JSON格式信息
+          {{ $T('MANAGE_BUCKET_FILE_INFO_COPY_TIPS') }}
         </el-button>
       </template>
       <el-row
@@ -719,7 +719,7 @@ https://www.baidu.com/img/bd_logo1.png"
         style="font-size: 12px;font-weight: 500;"
         :loading="isLoadingData"
       >
-        加载中，点击取消
+        {{ $T('MANAGE_BUCKET_FILE_LIST_LOADING') }}
       </el-button>
     </el-affix>
     <el-affix
@@ -733,7 +733,7 @@ https://www.baidu.com/img/bd_logo1.png"
         style="font-size: 12px;font-weight: 500;"
         :loading="isLoadingDownloadData"
       >
-        准备下载中，点击取消
+        {{ $T('MANAGE_BUCKET_FILE_LIST_DOWNLOAD_PRE') }}
       </el-button>
     </el-affix>
     <el-drawer
@@ -745,8 +745,8 @@ https://www.baidu.com/img/bd_logo1.png"
       <template #header>
         <el-switch
           v-model="isUploadKeepDirStructure"
-          active-text="保持目录结构"
-          inactive-text="不保持目录结构"
+          :active-text="$T('MANAGE_BUCKET_KEEP_FOLDER_STRUCTURE')"
+          :inactive-text="$T('MANAGE_BUCKET_NOT_KEEP_FOLDER_STRUCTURE')"
           @change="handleUploadKeepDirChange"
         />
       </template>
@@ -768,11 +768,11 @@ https://www.baidu.com/img/bd_logo1.png"
             class="upload-dragger__text"
             style="color: orange;font-size: 2.5vh;font-family: Arial, Helvetica, sans-serif;align-items: center;display: flex;justify-content: center;flex-direction: column;"
           >
-            拖放上传支持递归上传文件夹
+            {{ $T('MANAGE_BUCKET_UPLOAD_AREA_TITLE') }}
             <span
               style="color: #409EFF;font-size: 2.5vh;font-family: Arial, Helvetica, sans-serif;align-items: center;display: flex;justify-content: center;flex-direction: column;"
             >
-              或：点击选择文件(不支持文件夹)
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_TEXT') }}
             </span>
           </div>
         </div>
@@ -796,7 +796,7 @@ https://www.baidu.com/img/bd_logo1.png"
             :disabled="isLoadingUploadPanelFiles || !tableData.length"
             @click="uploadFiles"
           >
-            {{ isLoadingUploadPanelFiles? '读取文件中': '上传' }}
+            {{ isLoadingUploadPanelFiles? $T('MANAGE_BUCKET_UPLOAD_AREA_BTN_LOADING'): $T('MANAGE_BUCKET_UPLOAD_AREA_BTN') }}
           </el-button>
           <span>
             <el-button
@@ -805,7 +805,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :disabled="isLoadingUploadPanelFiles"
               @click="clearTableData"
             >
-              清空
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR') }}
             </el-button>
           </span>
         </el-button-group>
@@ -819,7 +819,7 @@ https://www.baidu.com/img/bd_logo1.png"
         >
           <template #label>
             <span>
-              上传中
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_STATUS_UPLOADING') }}
             </span>
             <el-badge
               v-if="uploadingTaskList.length"
@@ -835,7 +835,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Document"
               @click="handelCopyUploadingTaskInfo"
             >
-              复制上传任务信息
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -843,7 +843,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handelDeleteUploadedTask"
             >
-              清空已完成任务
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -851,7 +851,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handelDeleteAllUploadedTask"
             >
-              清空所有任务
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
             </el-button>
           </el-button-group>
           <div style="height: 500px;">
@@ -872,7 +872,7 @@ https://www.baidu.com/img/bd_logo1.png"
         >
           <template #label>
             <span>
-              成功
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_SUCCESS') }}
             </span>
             <el-badge
               v-if="uploadedTaskList.filter(item => item.status === 'uploaded').length"
@@ -888,7 +888,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Document"
               @click="handelCopyUploadingTaskInfo"
             >
-              复制上传任务信息
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -896,7 +896,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handelDeleteUploadedTask"
             >
-              清空已完成任务
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -904,7 +904,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handelDeleteAllUploadedTask"
             >
-              清空所有任务
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
             </el-button>
           </el-button-group>
           <div style="height:500px;">
@@ -925,7 +925,7 @@ https://www.baidu.com/img/bd_logo1.png"
         >
           <template #label>
             <span>
-              失败
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_FAILED') }}
             </span>
             <el-badge
               v-if="uploadedTaskList.filter(item => item.status !== 'uploaded').length"
@@ -941,7 +941,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Document"
               @click="handelCopyUploadingTaskInfo"
             >
-              复制上传任务信息
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -949,7 +949,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handelDeleteUploadedTask"
             >
-              清空已完成任务
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -957,7 +957,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handelDeleteAllUploadedTask"
             >
-              清空所有任务
+              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
             </el-button>
           </el-button-group>
           <div style="height:500px;">
@@ -977,7 +977,7 @@ https://www.baidu.com/img/bd_logo1.png"
     </el-drawer>
     <el-drawer
       v-model="isShowDownloadPanel"
-      title="下载页面"
+      :title="$T('MANAGE_BUCKET_DOWNLOAD_PAGE_TITLE')"
       size="60%"
       @open="startRefreshDownloadTask"
       @close="stopRefreshDownloadTask"
@@ -990,7 +990,9 @@ https://www.baidu.com/img/bd_logo1.png"
           name="downloading"
         >
           <template #label>
-            <span>下载中</span>
+            <span>
+              {{ $T('MANAGE_BUCKET_DOWNLOADING') }}
+            </span>
             <el-badge
               v-if="downloadingTaskList.length"
               :value="downloadingTaskList.length"
@@ -1005,7 +1007,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Document"
               @click="handelCopyDownloadingTaskInfo"
             >
-              复制下载任务信息
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1013,7 +1015,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handelDeleteDownloadedTask"
             >
-              清空已完成任务
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1021,7 +1023,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handelDeleteAllDownloadedTask"
             >
-              清空所有任务
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1029,7 +1031,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Folder"
               @click="handelOpenDownloadedFolder"
             >
-              打开下载目录
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
             </el-button>
           </el-button-group>
           <div style="height: 600px;">
@@ -1049,7 +1051,9 @@ https://www.baidu.com/img/bd_logo1.png"
           name="finished"
         >
           <template #label>
-            <span>成功</span>
+            <span>
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_SUCCESS') }}
+            </span>
             <el-badge
               v-if="downloadedTaskList.filter(item => item.status === 'downloaded').length"
               :value="downloadedTaskList.filter(item => item.status === 'downloaded').length"
@@ -1064,7 +1068,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Document"
               @click="handelCopyDownloadingTaskInfo"
             >
-              复制下载任务信息
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1072,7 +1076,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handelDeleteDownloadedTask"
             >
-              清空已完成任务
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1080,7 +1084,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handelDeleteAllDownloadedTask"
             >
-              清空所有任务
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1088,7 +1092,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Folder"
               @click="handelOpenDownloadedFolder"
             >
-              打开下载目录
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
             </el-button>
           </el-button-group>
           <div style="height:600px;">
@@ -1108,7 +1112,9 @@ https://www.baidu.com/img/bd_logo1.png"
           name="failed"
         >
           <template #label>
-            <span>失败</span>
+            <span>
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_FAILED') }}
+            </span>
             <el-badge
               v-if="downloadedTaskList.filter(item => item.status !== 'downloaded').length"
               :value="downloadedTaskList.filter(item => item.status !== 'downloaded').length"
@@ -1123,7 +1129,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Document"
               @click="handelCopyDownloadingTaskInfo"
             >
-              复制下载任务信息
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1131,7 +1137,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handelDeleteDownloadedTask"
             >
-              清空已完成任务
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1139,7 +1145,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handelDeleteAllDownloadedTask"
             >
-              清空所有任务
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1147,7 +1153,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Folder"
               @click="handelOpenDownloadedFolder"
             >
-              打开下载目录
+              {{ $T('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
             </el-button>
           </el-button-group>
           <div style="height:600px;">
@@ -1167,7 +1173,7 @@ https://www.baidu.com/img/bd_logo1.png"
     </el-drawer>
     <el-dialog
       v-model="isShowMarkDownDialog"
-      title="预览MD"
+      :title="$T('MANAGE_BUCKET_MARKDOWN_PREVIEW')"
       center
       align-center
       draggable
@@ -1191,7 +1197,7 @@ https://www.baidu.com/img/bd_logo1.png"
     </el-dialog>
     <el-dialog
       v-model="isShowTextFileDialog"
-      title="预览"
+      :title="$T('MANAGE_BUCKET_MARKDOWN_PREVIEW')"
       center
       align-center
       draggable
@@ -1216,7 +1222,7 @@ https://www.baidu.com/img/bd_logo1.png"
     </el-dialog>
     <el-dialog
       v-model="isShowVideoFileDialog"
-      title="播放"
+      :title="$T('MANAGE_BUCKET_PLAY')"
       center
       align-center
       draggable
@@ -1246,7 +1252,7 @@ https://www.baidu.com/img/bd_logo1.png"
     </el-dialog>
     <el-dialog
       v-model="isShowBatchRenameDialog"
-      title="文件重命名"
+      :title="$T('MANAGE_BUCKET_RENAME_FILE')"
       center
       align-center
       draggable
@@ -1260,10 +1266,11 @@ https://www.baidu.com/img/bd_logo1.png"
         :underline="false"
         style="margin-bottom: 10px;"
       >
-        <span>进行替换时匹配的字符串或js正则表达式
+        <span>
+          {{ $T('MANAGE_BUCKET_RENAME_FILE_INPUT_A') }}
           <el-tooltip
             effect="dark"
-            content="正则表达式请直接输入，不需要加上/"
+            :content="$T('MANAGE_BUCKET_RENAME_FILE_INPUT_A_TIPS')"
             placement="right"
           >
             <el-icon
@@ -1276,14 +1283,15 @@ https://www.baidu.com/img/bd_logo1.png"
       </el-link>
       <el-input
         v-model="batchRenameMatch"
-        placeholder="例如：^\d{4}-\d{2}-\d{2} "
+        :placeholder="$T('MANAGE_BUCKET_RENAME_FILE_INPUT_A_PLACEHOLDER')"
         clearable
       />
       <el-link
         :underline="false"
         style="margin-bottom: 10px;margin-top: 10px;"
       >
-        <span>需要替换的字符串，可使用自定义重命名规则中的占位符
+        <span>
+          {{ $T('MANAGE_BUCKET_RENAME_FILE_INPUT_B') }}
           <el-popover
             effect="light"
             placement="right"
@@ -1324,7 +1332,7 @@ https://www.baidu.com/img/bd_logo1.png"
                 align="center"
                 label-style="width: 100px;"
               >
-                自增数字
+                {{ $T('MANAGE_BUCKET_RENAME_FILE_TABLE_IID') }}
               </el-descriptions-item>
             </el-descriptions>
           </el-popover>
@@ -1332,17 +1340,18 @@ https://www.baidu.com/img/bd_logo1.png"
       </el-link>
       <el-input
         v-model="batchRenameReplace"
-        placeholder="例如：{Y}-{m}-{uuid} "
+        placeholder="Ex. {Y}-{m}-{uuid}"
         clearable
       />
       <el-link
         :underline="false"
         style="margin-bottom: 10px;margin-top: 10px;"
       >
-        <span>是否匹配扩展名进行替换
+        <span>
+          {{ $T('MANAGE_BUCKET_RENAME_FILE_EXT') }}
           <el-tooltip
             effect="dark"
-            content="如果希望修改扩展名，请勾选此项"
+            :content="$T('MANAGE_BUCKET_RENAME_FILE_EXT_TIPS')"
             placement="right"
           >
             <el-icon
@@ -1356,8 +1365,8 @@ https://www.baidu.com/img/bd_logo1.png"
       <br>
       <el-switch
         v-model="isRenameIncludeExt"
-        active-text="是"
-        inactive-text="否"
+        :active-text="$T('MANAGE_BUCKET_RENAME_FILE_EXT_YES')"
+        :inactive-text="$T('MANAGE_BUCKET_RENAME_FILE_EXT_NO')"
       />
       <div
         style="margin-top: 10px;align-items: center;display: flex;justify-content: flex-end;"
@@ -1369,7 +1378,7 @@ https://www.baidu.com/img/bd_logo1.png"
           :icon="Close"
           @click="() => {isShowBatchRenameDialog = false}"
         >
-          取消
+          {{ $T('MANAGE_BUCKET_RENAME_FILE_CANCEL') }}
         </el-button>
         <el-button
           type="primary"
@@ -1377,7 +1386,7 @@ https://www.baidu.com/img/bd_logo1.png"
           :icon="Edit"
           @click="isSingleRename ? singleRename() : BatchRename()"
         >
-          确定
+          {{ $T('MANAGE_BUCKET_RENAME_FILE_CONFIRM') }}
         </el-button>
       </div>
     </el-dialog>
@@ -1422,6 +1431,7 @@ import { marked } from 'marked'
 import { textFileExt } from '../utils/textfile'
 import { videoExt } from '../utils/videofile'
 import ImageWebdav from '@/components/ImageWebdav.vue'
+import { T as $T } from '@/i18n'
 
 /*
 configMap:{
@@ -1441,7 +1451,7 @@ const linkArray = [
   { key: 'Markdown-link', value: 'markdown-with-link' },
   { key: 'Html', value: 'html' },
   { key: 'BBCode', value: 'bbcode' },
-  { key: '自定义', value: 'custom' }
+  { key: 'Custom', value: 'custom' }
 ]
 
 const manageStore = useManageStore()
@@ -1776,32 +1786,32 @@ function uploadFiles () {
 
 function handelCopyUploadingTaskInfo () {
   clipboard.writeText(JSON.stringify(uploadTaskList.value, null, 2))
-  ElMessage.success('复制成功')
+  ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
 }
 
 function handelCopyDownloadingTaskInfo () {
   clipboard.writeText(JSON.stringify(downloadTaskList.value, null, 2))
-  ElMessage.success('复制成功')
+  ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
 }
 
 function handelDeleteUploadedTask () {
   ipcRenderer.send('deleteUploadedTask')
-  ElMessage.success('删除成功')
+  ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
 function handelDeleteAllUploadedTask () {
   ipcRenderer.send('deleteAllUploadedTask')
-  ElMessage.success('删除成功')
+  ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
 function handelDeleteDownloadedTask () {
   ipcRenderer.send('deleteDownloadedTask')
-  ElMessage.success('删除成功')
+  ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
 function handelDeleteAllDownloadedTask () {
   ipcRenderer.send('deleteAllDownloadedTask')
-  ElMessage.success('删除成功')
+  ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
 const handelOpenDownloadedFolder = () => ipcRenderer.send('OpenDownloadedFolder', manageStore.config.settings.downloadDir)
@@ -1845,7 +1855,7 @@ async function handleClickFile (item: any) {
   } else if (item.fileName.endsWith('.md')) {
     try {
       ElMessage({
-        message: '开始获取文件',
+        message: $T('MANAGE_BUCKET_START_LOADING_MESSAGE'),
         duration: 300,
         type: 'success'
       })
@@ -1855,14 +1865,14 @@ async function handleClickFile (item: any) {
       markDownContent.value = marked(content)
       isShowMarkDownDialog.value = true
     } catch (error) {
-      ElMessage.error('获取文件内容失败')
+      ElMessage.error($T('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))
     }
   } else if (textFileExt.includes(path.extname(item.fileName).toLowerCase()) ||
     textFileExt.includes(item.fileName.toLowerCase())
   ) {
     try {
       ElMessage({
-        message: '开始获取文件',
+        message: $T('MANAGE_BUCKET_START_LOADING_MESSAGE'),
         duration: 300,
         type: 'success'
       })
@@ -1871,7 +1881,7 @@ async function handleClickFile (item: any) {
       textfileContent.value = res.data
       isShowTextFileDialog.value = true
     } catch (error) {
-      ElMessage.error('获取文件内容失败')
+      ElMessage.error($T('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))
     }
   } else if (videoExt.includes(path.extname(item.fileName).toLowerCase())) {
     videoFileUrl.value = item.url
@@ -1897,8 +1907,8 @@ async function handelChangeCustomUrl () {
     showLoadingPage.value = true
     if (isLoadingData.value) {
       ElNotification({
-        title: '提示',
-        message: '正在加载文件列表，请稍后再试',
+        title: $T('MANAGE_BUCKET_CHANGE_CUSTOM_URL_TITLE'),
+        message: $T('MANAGE_BUCKET_CHANGE_CUSTOM_URL_MSG'),
         type: 'error',
         duration: 2000
       })
@@ -2064,16 +2074,16 @@ async function resetParam (force: boolean = false) {
         pagingMarker.value = res.nextMarker
       } else if (paging.value && currentPage.value > 1) {
         ElNotification({
-          title: '提示',
-          message: '已经是最后一页了',
+          title: $T('MANAGE_BUCKET_LAST_PAGE_TITLE'),
+          message: $T('MANAGE_BUCKET_LAST_PAGE_MSG'),
           type: 'success',
           duration: 500
         })
       }
     } else {
       ElNotification({
-        title: '提示',
-        message: '获取文件列表失败',
+        title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+        message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
         type: 'error',
         duration: 2000
       })
@@ -2081,8 +2091,8 @@ async function resetParam (force: boolean = false) {
   } else {
     getBucketFileListBackStage()
     ElNotification.info({
-      title: '提示',
-      message: '正在后台获取文件列表，请不要切换页面',
+      title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+      message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG2'),
       duration: 1000
     })
   }
@@ -2104,10 +2114,10 @@ watch(route, async (newRoute) => {
 async function forceRefreshFileList () {
   if (isLoadingData.value) {
     ElNotification({
-      title: '提示',
-      message: '正在加载文件列表，请稍后再试',
+      title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+      message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG3'),
       type: 'error',
-      duration: 2000
+      duration: 1000
     })
     return
   }
@@ -2146,18 +2156,18 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
           pagingMarker.value = res.nextMarker
         } else {
           ElNotification({
-            title: '提示',
-            message: '已经是最后一页了',
+            title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+            message: $T('MANAGE_BUCKET_LAST_PAGE_MSG'),
             type: 'success',
-            duration: 2000
+            duration: 1000
           })
         }
       } else {
         ElNotification({
-          title: '提示',
-          message: '获取文件列表失败',
+          title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+          message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
           type: 'error',
-          duration: 2000
+          duration: 1000
         })
       }
     } else if (cur < prev) {
@@ -2184,19 +2194,19 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
             pagingMarker.value = res.nextMarker
           } else {
             ElNotification({
-              title: '提示',
-              message: '已经是最后一页了',
+              title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+              message: $T('MANAGE_BUCKET_LAST_PAGE_MSG'),
               type: 'success',
-              duration: 2000
+              duration: 1000
             })
           }
         }
       } else {
         ElNotification({
-          title: '提示',
-          message: '获取文件列表失败',
+          title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+          message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
           type: 'error',
-          duration: 2000
+          duration: 1000
         })
       }
     }
@@ -2343,9 +2353,9 @@ function handleCheckChange (item: any) {
 }
 
 async function handelFolderBatchDownload (item: any) {
-  ElMessageBox.confirm('确定要下载该文件夹吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm($T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TITLE'), $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'), {
+    confirmButtonText: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CONFIRM'),
+    cancelButtonText: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CANCEL'),
     type: 'warning'
   }).then(async () => {
     const defaultDownloadPath = await ipcRenderer.invoke('getDefaultDownloadFolder')
@@ -2386,8 +2396,8 @@ async function handelFolderBatchDownload (item: any) {
         isLoadingDownloadData.value = false
         if (downloadFileTransferStore.isSuccess()) {
           ElNotification.success({
-            title: '提示',
-            message: '获取下载列表成功',
+            title: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
+            message: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_SUCCESS'),
             duration: 500
           })
           if (currentDownloadFileList.length) {
@@ -2409,8 +2419,8 @@ async function handelFolderBatchDownload (item: any) {
           isShowDownloadPanel.value = true
         } else {
           ElNotification.error({
-            title: '提示',
-            message: '获取失败',
+            title: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
+            message: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_FAIL'),
             duration: 500
           })
         }
@@ -2419,8 +2429,8 @@ async function handelFolderBatchDownload (item: any) {
     }, 500)
   }).catch(() => {
     ElNotification.info({
-      title: '提示',
-      message: '已取消',
+      title: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
+      message: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_CANCEL'),
       duration: 500
     })
   })
@@ -2486,11 +2496,11 @@ function handleCheckAllChange () {
 }
 
 function handelCreateFolder () {
-  ElMessageBox.prompt('请输入文件夹名称', '新建文件夹', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.prompt($T('MANAGE_BUCKET_CREATE_FOLDER_BOX_TITLE'), $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_TIP'), {
+    confirmButtonText: $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_CONFIRM'),
+    cancelButtonText: $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_CANCEL'),
     inputPattern: /^[\u4e00-\u9fa5_a-zA-Z0-9/]+$/,
-    inputErrorMessage: '文件夹名称只能包含中文、英文、数字、下划线和斜杠'
+    inputErrorMessage: $T('MANAGE_BUCKET_CREATE_FOLDER_ERROR_MSG')
   }).then(async ({ value }) => {
     let formatedPath = value
     formatedPath = trimPath(formatedPath)
@@ -2503,9 +2513,9 @@ function handelCreateFolder () {
     }
     const res = await ipcRenderer.invoke('createBucketFolder', configMap.alias, param)
     if (res) {
-      ElMessage.success('创建成功, 请刷新')
+      ElMessage.success($T('MANAGE_BUCKET_CREATE_FOLDER_SUCCESS'))
     } else {
-      ElMessage.error('创建失败')
+      ElMessage.error($T('MANAGE_BUCKET_CREATE_FOLDER_FAIL'))
     }
   }).catch(() => {})
 }
@@ -2523,12 +2533,12 @@ async function handelUploadFromUrl () {
     }
   })
   if (urlList.length === 0) {
-    ElMessage.warning('请输入有效的URL')
+    ElMessage.warning($T('MANAGE_BUCKET_UPLOAD_URL_ERROR_MSQ'))
     return
   }
   ElNotification({
-    title: '提示',
-    message: '开始后台下载，成功后自动上传',
+    title: $T('MANAGE_BUCKET_UPLOAD_URL_NOT_TITLE'),
+    message: $T('MANAGE_BUCKET_UPLOAD_URL_NOT_MSG'),
     type: 'success',
     duration: 1000
   })
@@ -2554,7 +2564,7 @@ function handelBatchRenameFile () {
 async function BatchRename () {
   isShowBatchRenameDialog.value = false
   if (batchRenameMatch.value === '') {
-    ElMessage.warning('请输入匹配字符串')
+    ElMessage.warning($T('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG'))
     return
   }
   let matchedFiles = [] as any[]
@@ -2570,7 +2580,7 @@ async function BatchRename () {
     }
   })
   if (matchedFiles.length === 0) {
-    ElMessage.warning('没有匹配到文件')
+    ElMessage.warning($T('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG2'))
     return
   }
   for (let i = 0; i < matchedFiles.length; i++) {
@@ -2582,7 +2592,7 @@ async function BatchRename () {
   }
   matchedFiles = matchedFiles.filter((item: any) => item.fileName !== item.newName)
   if (matchedFiles.length === 0) {
-    ElMessage.warning('没有需要重命名的文件')
+    ElMessage.warning($T('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG3'))
     return
   }
   for (let i = 0; i < matchedFiles.length; i++) {
@@ -2650,9 +2660,9 @@ async function BatchRename () {
     })
   }
   if (duplicateFilesNum > 0) {
-    ElMessageBox.confirm(`检测到有${duplicateFilesNum}个文件名重复，是否继续？`, '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    ElMessageBox.confirm(`${$T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_A')} ${duplicateFilesNum} ${$T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_B')}`, $T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_C'), {
+      confirmButtonText: $T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CONFIRM'),
+      cancelButtonText: $T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CANCEL'),
       type: 'warning'
     }).then(() => {
       const promiseList = [] as any[]
@@ -2660,10 +2670,10 @@ async function BatchRename () {
         promiseList.push(renamefunc(matchedFiles[i]))
       }
       Promise.allSettled(promiseList).then(() => {
-        ElMessage.success(`重命名成功${successCount}个，失败${failCount}个`)
+        ElMessage.success(`${$T('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_A')} ${successCount},${$T('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_B')} ${failCount}`)
       })
     }).catch(() => {
-      ElMessage.info('已取消')
+      ElMessage.info($T('MANAGE_BUCKET_BATCH_RENAME_CANCEL'))
     })
   } else {
     const promiseList = [] as any[]
@@ -2671,14 +2681,14 @@ async function BatchRename () {
       promiseList.push(renamefunc(matchedFiles[i]))
     }
     Promise.allSettled(promiseList).then(() => {
-      ElMessage.success(`重命名成功${successCount}个，失败${failCount}个`)
+      ElMessage.success(`${$T('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_A')} ${successCount},${$T('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_B')} ${failCount}`)
     })
   }
 }
 
 function handelBatchCopyInfo () {
   if (selectedItems.length === 0) {
-    ElMessage.warning('请先选择文件')
+    ElMessage.warning($T('MANAGE_BUCKET_BATCH_COPY_INFO_ERROR_MSG'))
     return
   }
   const result = {} as IStringKeyMap
@@ -2686,12 +2696,12 @@ function handelBatchCopyInfo () {
     result[item.fileName] = item
   })
   clipboard.writeText(JSON.stringify(result, null, 2))
-  ElMessage.success(`已复制${selectedItems.length}个文件信息`)
+  ElMessage.success(`${$T('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_A')} ${selectedItems.length} ${$T('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_B')}`)
 }
 
 function handelBatchCopyLink (type: string) {
   if (selectedItems.length === 0) {
-    ElMessage.warning('请先选择文件')
+    ElMessage.warning($T('MANAGE_BUCKET_BATCH_COPY_URL_ERROR_MSG'))
     return
   }
   const result = [] as string[]
@@ -2705,7 +2715,7 @@ function handelBatchCopyLink (type: string) {
         }).then(() => {
           if (result.length === selectedItems.length) {
             clipboard.writeText(result.join('\n'))
-            ElMessage.success(`已复制${result.length}个链接`)
+            ElMessage.success(`${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_A')} ${result.length} ${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_B')}`)
           }
         })
       }
@@ -2713,31 +2723,31 @@ function handelBatchCopyLink (type: string) {
   })
   if (type !== 'preSignedUrl') {
     clipboard.writeText(result.join('\n'))
-    ElMessage.success(`已复制${result.length}个链接`)
+    ElMessage.success(`${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_A')} ${result.length} ${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_B')}`)
   }
 }
 
 function cancelLoading () {
-  ElMessageBox.confirm('是否停止获取文件列表？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm($T('MANAGE_BUCKET_CANCEL_LOADING_TITLE'), $T('MANAGE_BUCKET_CANCEL_LOADING_MSG'), {
+    confirmButtonText: $T('MANAGE_BUCKET_CANCEL_LOADING_CONFIRM'),
+    cancelButtonText: $T('MANAGE_BUCKET_CANCEL_LOADING_CANCEL'),
     type: 'warning'
   }).then(() => {
     isLoadingData.value = false
     ipcRenderer.send('cancelLoadingFileList', cancelToken.value)
-    ElMessage.success('文件列表获取已停止')
+    ElMessage.success($T('MANAGE_BUCKET_CANCEL_LOADING_SUCCESS'))
   }).catch(() => { })
 }
 
 function cancelDownloadLoading () {
-  ElMessageBox.confirm('是否停止下载文件获取？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm($T('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_TITLE'), $T('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_MSG'), {
+    confirmButtonText: $T('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_CONFIRM'),
+    cancelButtonText: $T('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_CANCEL'),
     type: 'warning'
   }).then(() => {
     isLoadingData.value = false
     ipcRenderer.send(cancelDownloadLoadingFileList, downloadCancelToken.value)
-    ElMessage.success('下载文件获取已停止')
+    ElMessage.success($T('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_SUCCESS'))
   }).catch(() => { })
 }
 
@@ -2790,14 +2800,14 @@ async function getBucketFileListBackStage () {
       isLoadingData.value = false
       if (fileTransferStore.isSuccess()) {
         ElNotification.success({
-          title: '提示',
-          message: '获取文件列表成功',
+          title: $T('MANAGE_BUCKET_GET_FILE_BS_NOT_TITLE'),
+          message: $T('MANAGE_BUCKET_GET_FILE_BS_NOT_MSG'),
           duration: 500
         })
       } else {
         ElNotification.error({
-          title: '提示',
-          message: '部分文件获取失败',
+          title: $T('MANAGE_BUCKET_GET_FILE_BS_NOT_TITLE'),
+          message: $T('MANAGE_BUCKET_GET_FILE_BS_NOT_MSG2'),
           duration: 500
         })
       }
@@ -2825,9 +2835,9 @@ async function getBucketFileList () {
 }
 
 function handelBatchDeleteInfo () {
-  ElMessageBox.confirm(`将永久删除${selectedItems.length}个文件，是否继续？`, '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm(`${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_A')} ${selectedItems.length} ${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_B')}`, $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_MSG'), {
+    confirmButtonText: $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CONFIRM'),
+    cancelButtonText: $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CANCEL'),
     type: 'warning',
     center: true,
     draggable: true
@@ -2874,32 +2884,32 @@ function handelBatchDeleteInfo () {
     }
     if (successCount === 0) {
       ElNotification.error({
-        title: '提示',
-        message: '删除失败',
+        title: $T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_TITLE'),
+        message: $T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG'),
         duration: 1000
       })
     } else if (failCount === 0) {
       ElNotification.success({
-        title: '提示',
-        message: '删除成功',
+        title: $T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_TITLE'),
+        message: $T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
         duration: 1000
       })
     } else {
       ElNotification.warning({
-        title: '提示',
-        message: `删除成功${successCount}个，失败${failCount}个`,
+        title: $T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_TITLE'),
+        message: `${$T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2')} ${successCount}, ${$T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG3')} ${failCount}`,
         duration: 1000
       })
     }
   }).catch(() => {
-    ElMessage.info('已取消删除')
+    ElMessage.info($T('MANAGE_BUCKET_BATCH_DELETE_CANCEL'))
   })
 }
 
 function handleDeleteFile (item: any) {
-  ElMessageBox.confirm(`将永久删除${item.isDir ? '文件夹' : '文件'} ${item.fileName} ${item.isDir ? '和该目录下的所有文件' : ''}，是否继续？`, '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm(`${$T('MANAGE_BUCKET_DELETE_CONFIRM_TITLE')} ${item.isDir ? $T('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FOLDER') : $T('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FILE')} ${item.fileName} ${item.isDir ? $T('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FOLDER_A') : ''}, ${$T('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_C')}`, $T('MANAGE_BUCKET_DELETE_CONFIRM_MSG'), {
+    confirmButtonText: $T('MANAGE_BUCKET_DELETE_CONFIRM_CONFIRM'),
+    cancelButtonText: $T('MANAGE_BUCKET_DELETE_CONFIRM_CANCEL'),
     type: 'warning',
     center: true,
     draggable: true
@@ -2925,14 +2935,14 @@ function handleDeleteFile (item: any) {
         githubBranch: currentCustomUrl.value
       }
       ElNotification.info({
-        title: '提示',
-        message: '删除文件夹可能需要一段时间，请耐心等待',
+        title: $T('MANAGE_BUCKET_DELETE_ERROR_MSG_TITLE'),
+        message: $T('MANAGE_BUCKET_DELETE_ERROR_MSG_MSG'),
         duration: 1000
       })
       res = await ipcRenderer.invoke('deleteBucketFolder', configMap.alias, param)
     }
     if (res) {
-      ElMessage.success('删除成功')
+      ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
       currentPageFilesInfo.splice(currentPageFilesInfo.findIndex((i: any) => i.key === item.key), 1)
       selectedItems.splice(selectedItems.findIndex((i: any) => i.key === item.key), 1)
       if (!paging.value) {
@@ -2942,10 +2952,10 @@ function handleDeleteFile (item: any) {
         })
       }
     } else {
-      ElMessage.error('删除失败')
+      ElMessage.error($T('MANAGE_BUCKET_DELETE_FAIL'))
     }
   }).catch(() => {
-    ElMessage.info('已取消删除')
+    ElMessage.info($T('MANAGE_BUCKET_DELETE_CANCEL'))
   })
 }
 
@@ -2968,7 +2978,7 @@ function singleRename () {
     itemToBeRenamed.value.newName = customStrReplace(itemToBeRenamed.value.fileName.split('.')[0], batchRenameMatch.value, batchRenameReplace.value) + '.' + itemToBeRenamed.value.fileName.split('.')[1]
   }
   if (itemToBeRenamed.value.newName === itemToBeRenamed.value.fileName) {
-    ElMessage.info('新文件名与原文件名相同，无需重命名')
+    ElMessage.info($T('MANAGE_BUCKET_RENAME_INFO_MSG'))
     return
   }
   itemToBeRenamed.value.newName = itemToBeRenamed.value.newName.replaceAll('{auto}', '1')
@@ -3020,7 +3030,7 @@ function singleRename () {
         })
       }
     } else {
-      ElMessage.error('重命名失败')
+      ElMessage.error($T('MANAGE_BUCKET_RENAME_ERROR_MSG'))
     }
   }
   )
@@ -3043,7 +3053,7 @@ async function getPreSignedUrl (item: any) {
 
 function copyToClipboard (text: string) {
   clipboard.writeText(text)
-  ElMessage.success('复制成功')
+  ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
 }
 
 function getTableKeyOfDb () {
@@ -3076,7 +3086,7 @@ function handleDetectShiftKey (event: KeyboardEvent) {
 const downloadedTaskColumns: Column<any>[] = [
   {
     key: 'name',
-    title: '文件名',
+    title: $T('MANAGE_BUCKET_DOWNLOAD_COLUMN_FILENAME'),
     dataKey: 'sourceFileName',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3101,7 +3111,7 @@ const downloadedTaskColumns: Column<any>[] = [
   },
   {
     key: 'finishTime',
-    title: '完成时间',
+    title: $T('MANAGE_BUCKET_DOWNLOAD_COLUMN_FINISHTIME'),
     dataKey: 'finishTime',
     width: 200,
     cellRenderer: ({ rowData: item }) => (
@@ -3113,7 +3123,7 @@ const downloadedTaskColumns: Column<any>[] = [
   },
   {
     key: 'status',
-    title: '状态',
+    title: $T('MANAGE_BUCKET_DOWNLOAD_COLUMN_STATUS'),
     width: 100,
     cellRenderer: ({ rowData: item }) => (
       item.status === 'downloaded'
@@ -3121,14 +3131,16 @@ const downloadedTaskColumns: Column<any>[] = [
           <ElTag
             type="success"
             style="font-size: 14px;font-family: Arial, Helvetica, sans-serif;"
-          >成功
+          >
+            {$T('MANAGE_BUCKET_DOWNLOAD_COLUMN_STATUS_SUCCESS')}
           </ElTag>
         )
         : (
           <ElTag
             type="danger"
             style="font-size: 14px;font-family: Arial, Helvetica, sans-serif;"
-          >失败
+          >
+            {$T('MANAGE_BUCKET_DOWNLOAD_COLUMN_STATUS_FAIL')}
           </ElTag>
         )
     )
@@ -3138,7 +3150,7 @@ const downloadedTaskColumns: Column<any>[] = [
 const uploadedTaskColumns: Column<any>[] = [
   {
     key: 'name',
-    title: '文件名',
+    title: $T('MANAGE_BUCKET_UPLOAD_COLUMN_FILENAME'),
     dataKey: 'sourceFileName',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3156,7 +3168,7 @@ const uploadedTaskColumns: Column<any>[] = [
   },
   {
     key: 'targetFilePath',
-    title: '上传路径',
+    title: $T('MANAGE_BUCKET_UPLOAD_COLUMN_TARGETFILEPATH'),
     dataKey: 'targetFilePath',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3174,7 +3186,7 @@ const uploadedTaskColumns: Column<any>[] = [
   },
   {
     key: 'finishTime',
-    title: '完成时间',
+    title: $T('MANAGE_BUCKET_UPLOAD_COLUMN_FINISHTIME'),
     dataKey: 'finishTime',
     width: 200,
     cellRenderer: ({ rowData: item }) => (
@@ -3186,7 +3198,7 @@ const uploadedTaskColumns: Column<any>[] = [
   },
   {
     key: 'status',
-    title: '状态',
+    title: $T('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS'),
     width: 100,
     cellRenderer: ({ rowData: item }) => (
       item.status === 'uploaded'
@@ -3194,14 +3206,16 @@ const uploadedTaskColumns: Column<any>[] = [
           <ElTag
             type="success"
             style="font-size: 14px;font-family: Arial, Helvetica, sans-serif;"
-          >成功
+          >
+            {$T('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS_SUCCESS')}
           </ElTag>
         )
         : (
           <ElTag
             type="danger"
             style="font-size: 14px;font-family: Arial, Helvetica, sans-serif;"
-          >失败
+          >
+            {$T('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS_FAIL')}
           </ElTag>
         )
     )
@@ -3211,7 +3225,7 @@ const uploadedTaskColumns: Column<any>[] = [
 const downloadingTaskColumns: Column<any>[] = [
   {
     key: 'name',
-    title: '文件名',
+    title: $T('MANAGE_BUCKET_DOWNLOADING_COLUMN_FILENAME'),
     dataKey: 'sourceFileName',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3223,7 +3237,7 @@ const downloadingTaskColumns: Column<any>[] = [
   },
   {
     key: 'progress',
-    title: '进度',
+    title: $T('MANAGE_BUCKET_DOWNLOADING_COLUMN_PROGRESS'),
     dataKey: 'progress',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3241,7 +3255,7 @@ const downloadingTaskColumns: Column<any>[] = [
 const uploadingTaskColumns: Column<any>[] = [
   {
     key: 'name',
-    title: '文件名',
+    title: $T('MANAGE_BUCKET_UPLOADING_COLUMN_FILENAME'),
     dataKey: 'sourceFileName',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3253,7 +3267,7 @@ const uploadingTaskColumns: Column<any>[] = [
   },
   {
     key: 'progress',
-    title: '进度',
+    title: $T('MANAGE_BUCKET_UPLOADING_COLUMN_PROGRESS'),
     dataKey: 'progress',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3272,7 +3286,7 @@ const uploadingTaskColumns: Column<any>[] = [
 const upLoadTaskColumns: Column<any>[] = [
   {
     key: 'name',
-    title: '文件名',
+    title: $T('MANAGE_BUCKET_UPLOADED_COLUMN_FILENAME'),
     dataKey: 'name',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3302,7 +3316,7 @@ const upLoadTaskColumns: Column<any>[] = [
   },
   {
     key: 'fileSize',
-    title: '大小',
+    title: $T('MANAGE_BUCKET_UPLOADED_COLUMN_FILESIZE'),
     dataKey: 'fileSize',
     width: 100,
     cellRenderer: ({ rowData: item }) => (
@@ -3313,7 +3327,7 @@ const upLoadTaskColumns: Column<any>[] = [
   },
   {
     key: 'fileNumber',
-    title: '文件数',
+    title: $T('MANAGE_BUCKET_UPLOADED_COLUMN_FILENUM'),
     width: 100,
     cellRenderer: ({ rowData: item }) => (
       !item.isFolder
@@ -3406,7 +3420,7 @@ const columns: Column<any>[] = [
   },
   {
     key: 'fileName',
-    title: '文件名',
+    title: $T('MANAGE_BUCKET_FILE_COLUMN_FILENAME'),
     dataKey: 'fileName',
     width: 300,
     cellRenderer: ({ cellData: fileName, rowData: item }) => (
@@ -3464,7 +3478,7 @@ const columns: Column<any>[] = [
       item.match || !searchText.value
         ? <ElTooltip
           placement="top"
-          content="复制链接"
+          content={$T('MANAGE_BUCKET_FILE_COLUMN_COPY_URL')}
           effect='light'
           hide-after={150}
         >
@@ -3510,7 +3524,7 @@ const columns: Column<any>[] = [
                   <ElDropdownItem
                     onClick={() => copyToClipboard(formatLink(item.url, item.fileName, 'custom', manageStore.config.settings.customPasteFormat))}
                   >
-                    自定义
+                    Custom
                   </ElDropdownItem>
                   { showPresignedUrl.value
                     ? <ElDropdownItem
@@ -3519,7 +3533,7 @@ const columns: Column<any>[] = [
                         copyToClipboard(res)
                       }}
                     >
-                    预签名链接
+                    preSignURL
                     </ElDropdownItem>
                     : <template></template>}
                 </ElDropdownMenu>
@@ -3538,7 +3552,7 @@ const columns: Column<any>[] = [
       item.match || !searchText.value
         ? <ElTooltip
           placement="top"
-          content="文件信息"
+          content={$T('MANAGE_BUCKET_FILE_COLUMN_INFO')}
           effect='light'
           hide-after={150}
         >
@@ -3566,7 +3580,7 @@ const columns: Column<any>[] = [
   },
   {
     key: 'fileSize',
-    title: '大小',
+    title: $T('MANAGE_BUCKET_FILE_COLUMN_FILESIZE'),
     width: 100,
     dataKey: 'fileSize',
     cellRenderer: ({ cellData: fileSize, rowData: item }) => (
@@ -3582,7 +3596,7 @@ const columns: Column<any>[] = [
   },
   {
     key: 'formatedTime',
-    title: '修改时间',
+    title: $T('MANAGE_BUCKET_FILE_COLUMN_TIME'),
     width: 200,
     dataKey: 'formatedTime',
     cellRenderer: ({ cellData: formatedTime, rowData: item }) => (
