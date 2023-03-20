@@ -1,3 +1,16 @@
+# :tada: 1.5.0 (2023-03-20)
+
+
+### :sparkles: Features
+
+* click picbed name can link to login page now, add some i18n key ([d725e71](https://github.com/Kuingsmile/PicList/commit/d725e71))
+* click the picbed name at upload page will route to config page now ([016075e](https://github.com/Kuingsmile/PicList/commit/016075e))
+* complete i18n support for manage func ([a473e25](https://github.com/Kuingsmile/PicList/commit/a473e25))
+* i18n of new bucket config ([67fe85e](https://github.com/Kuingsmile/PicList/commit/67fe85e))
+* users can customize mini window icon now ([8feb30a](https://github.com/Kuingsmile/PicList/commit/8feb30a))
+
+
+
 ## :tada: 1.4.3 (2023-03-14)
 
 
