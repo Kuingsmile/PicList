@@ -30,6 +30,9 @@ interface ILocales {
   UPLOAD_VIEW_HINT: string
   MANAGE_PAGE: string
   GALLERY: string
+  MANUAL: string
+  OPEN_MANUAL_LINK: string
+  OPEN_MANUAL_LINK_HINT: string
   PICBEDS_SETTINGS: string
   PICBEDS_MANAGE: string
   PICLIST_SETTINGS: string

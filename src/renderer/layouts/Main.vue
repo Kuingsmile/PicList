@@ -104,6 +104,12 @@
             </el-icon>
             <span>{{ $T('PLUGIN_SETTINGS') }}</span>
           </el-menu-item>
+          <el-menu-item index="MANUAL">
+            <el-icon>
+              <Link />
+            </el-icon>
+            <span>{{ $T('MANUAL') }}</span>
+          </el-menu-item>
         </el-menu>
         <el-icon
           class="info-window"
@@ -228,9 +234,10 @@ import {
   Minus,
   CirclePlus,
   Close,
-  PieChart
+  PieChart,
+  Link
 } from '@element-plus/icons-vue'
-import { ElMessage as $message } from 'element-plus'
+import { ElMessage as $message, ElMessageBox } from 'element-plus'
 import { T as $T } from '@/i18n/index'
 import { ref, onBeforeUnmount, Ref, onBeforeMount, watch, nextTick, reactive } from 'vue'
 import { onBeforeRouteUpdate, useRouter } from 'vue-router'
@@ -250,9 +257,11 @@ import {
   SHOW_MAIN_PAGE_MENU,
   SHOW_MAIN_PAGE_QRCODE,
   SHOW_MAIN_PAGE_DONATION,
-  GET_PICBEDS
+  GET_PICBEDS,
+  OPEN_URL
 } from '~/universal/events/constants'
 import { getConfig, sendToMain } from '@/utils/dataSender'
+import { IConfig } from 'piclist'
 const version = ref(process.env.NODE_ENV === 'production' ? pkg.version : 'Dev')
 const routerConfig = reactive(config)
 const defaultActive = ref(routerConfig.UPLOAD_PAGE)
@@ -294,6 +303,27 @@ const handleGetPicPeds = () => {
 }
 
 const handleSelect = (index: string) => {
+  if (index === 'MANUAL') {
+    ElMessageBox.confirm($T('OPEN_MANUAL_LINK_HINT'), $T('OPEN_MANUAL_LINK'), {
+      confirmButtonText: $T('CONFIRM'),
+      cancelButtonText: $T('CANCEL'),
+      type: 'warning',
+      center: true
+    }).then(async () => {
+      let language = 'zh-CN'
+      const config = (await getConfig<IConfig>())!
+      if (config !== undefined) {
+        const settings = config.settings || {}
+        language = settings.language ?? 'zh-CN'
+      }
+      if (language === 'zh-CN' || language === 'zh-TW') {
+        sendToMain(OPEN_URL, 'https://piclist.cn/configure.html')
+      } else {
+        sendToMain(OPEN_URL, 'https://piclist.cn/en/configure.html')
+      }
+    }).catch(() => {})
+    return
+  }
   defaultActive.value = index
   const type = index.match(routerConfig.UPLOADER_CONFIG_PAGE)
   if (type === null) {
