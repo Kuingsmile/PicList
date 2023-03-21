@@ -43,6 +43,18 @@
               </el-select>
             </el-form-item>
             <el-form-item
+              :label="$T('SETTINGS_MIGRATE_FROM_PICGO')"
+            >
+              <el-button
+                type="primary"
+                round
+                size="small"
+                @click="handelMigrateFromPicGo"
+              >
+                {{ $T('SETTINGS_CLICK_TO_SET') }}
+              </el-button>
+            </el-form-item>
+            <el-form-item
               :label="$T('SETTINGS_OPEN_CONFIG_FILE')"
             >
               <el-button
@@ -787,7 +799,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ElForm, ElMessage as $message, FormRules } from 'element-plus'
+import { ElForm, ElMessage as $message, ElMessage, ElMessageBox, FormRules } from 'element-plus'
 import { Reading, QuestionFilled } from '@element-plus/icons-vue'
 import pkg from 'root/package.json'
 import { PICGO_OPEN_FILE, OPEN_URL, GET_PICBEDS } from '#/events/constants'
@@ -1083,6 +1095,23 @@ function confirmProxy () {
   successNotification.onclick = () => {
     return true
   }
+}
+
+function handelMigrateFromPicGo () {
+  ElMessageBox.confirm($T('SETTINGS_MIGRATE_FROM_PICGO_CONTENT'), $T('SETTINGS_MIGRATE_FROM_PICGO_TITLE'), {
+    confirmButtonText: $T('CONFIRM'),
+    cancelButtonText: $T('CANCEL'),
+    type: 'warning',
+    center: true
+  }).then(() => {
+    ipcRenderer.invoke('migrateFromPicGo').then(() => {
+      ElMessage.success($T('SETTINGS_MIGRATE_FROM_PICGO_SUCCESS'))
+    }).catch(() => {
+      ElMessage.error($T('SETTINGS_MIGRATE_FROM_PICGO_FAILED'))
+    })
+  }).catch(() => {
+    return false
+  })
 }
 
 function updateHelperChange (val: ICheckBoxValueType) {

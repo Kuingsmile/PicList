@@ -105,6 +105,11 @@ UPLOAD_PAGE_IMAGE_PROCESS_POSITION_CENTER: center
 
 SETTINGS: Settings
 SETTINGS_OPEN_CONFIG_FILE: Open Config File
+SETTINGS_MIGRATE_FROM_PICGO: Migrate from PicGo
+SETTINGS_MIGRATE_FROM_PICGO_TITLE: Notice
+SETTINGS_MIGRATE_FROM_PICGO_CONTENT: Migrate from PicGo will overwrite your current settings and gallery, do you want to continue?
+SETTINGS_MIGRATE_FROM_PICGO_SUCCESS: Import succeed, please restart PicList
+SETTINGS_MIGRATE_FROM_PICGO_FAILED: Import failed
 SETTINGS_CLICK_TO_OPEN: Click to Open
 SETTINGS_SET_LOG_FILE: Set Log File
 SETTINGS_CLICK_TO_SET: Click to Set

@@ -15,6 +15,7 @@ import server from '~/main/server'
 import getPicBeds from '~/main/utils/getPicBeds'
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import bus from '@core/bus'
+import fs from 'fs-extra'
 import {
   TOGGLE_SHORTKEY_MODIFIED_MODE,
   OPEN_DEVTOOLS,
@@ -110,6 +111,34 @@ export default {
           body: T('TIPS_SHORTCUT_MODIFIED_CONFLICT')
         })
         notification.show()
+      }
+    })
+
+    ipcMain.handle('migrateFromPicGo', async () => {
+      const picGoConfigPath = STORE_PATH.replace('piclist', 'picgo')
+      console.log(picGoConfigPath)
+      const fileToMigration = [
+        'data.json',
+        'data.bak.json',
+        'picgo.db',
+        'picgo.bak.db'
+      ]
+      const targetFileNames = [
+        'data.json',
+        'data.bak.json',
+        'piclist.db',
+        'piclist.bak.db'
+      ]
+      try {
+        for (let i = 0; i < fileToMigration.length; i++) {
+          if (fs.existsSync(path.join(picGoConfigPath, fileToMigration[i]))) {
+            fs.removeSync(path.join(STORE_PATH, targetFileNames[i]))
+            fs.copyFileSync(path.join(picGoConfigPath, fileToMigration[i]), path.join(STORE_PATH, targetFileNames[i]))
+          }
+        }
+        return true
+      } catch (e) {
+        return false
       }
     })
 
