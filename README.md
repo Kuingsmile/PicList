@@ -42,11 +42,21 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 
 ### 如何在Typora中使用
 
+Windows:
+
 进入Typora设置界面，选择图像，将上传服务设置为`PicGo(app)`，然后在`PicGo路径`中填写PicList的安装路径，如下图所示：
 
 ![image](https://user-images.githubusercontent.com/96409857/226522101-b3531b7b-534c-4149-b527-8738d4ebb041.png)
 
 或者，您也可以使用`npm install piclist`命令安装PicList-core，然后上传服务设置为`PicGo-Core(command line)`。
+
+MacOS:
+
+进入Typora设置界面，选择图像，将上传服务设置为`Custom Command`，然后在`Command`中填写`/Applications/PicList.app/Contents/MacOS/PicList upload`，如下图所示：
+
+![image](https://user-images.githubusercontent.com/96409857/226645570-4c6e06a5-5bd9-40c3-a21d-8446c66325e3.png)
+
+验证上传选项可能会出现问题，可以忽略，直接使用是正常的。
 
 ### 如何在Obsidian中使用
 

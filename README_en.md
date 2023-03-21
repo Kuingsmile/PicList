@@ -42,11 +42,21 @@ if you want to use PicList-core, please go to [https://github.com/Kuingsmile/Pic
 
 ### How to use in Typora
 
+Windows:
+
 Enter the Typora settings page, select the image, set the upload service to `PicGo(app)`, and then fill in the installation path of PicList in `PicGo path`, as shown below:
 
 ![image](https://user-images.githubusercontent.com/96409857/226522101-b3531b7b-534c-4149-b527-8738d4ebb041.png)
 
 Or, you can also use the `npm install piclist` command to install PicList-core, and then set the upload service to `PicGo-Core(command line)`.
+
+MacOS:
+
+Enter the Typora settings page, select the image, set the upload service to `Custom Command`, and then fill in `/Applications/PicList.app/Contents/MacOS/PicList upload` in `Command`, as shown below:
+
+![image](https://user-images.githubusercontent.com/96409857/226645570-4c6e06a5-5bd9-40c3-a21d-8446c66325e3.png)
+
+The verification of the upload option may have problems, you can ignore it, and use it directly.
 
 ### How to use in Obsidian
 
