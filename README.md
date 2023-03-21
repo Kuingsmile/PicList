@@ -13,7 +13,13 @@
   </a>
 </div>
 
+简体中文 | [English](https://github.com/Kuingsmile/PicList/blob/dev/README_en.md)
+
 PicList是一款云存储/图床平台管理和文件上传工具，基于PicGo的进行了深度二次开发，保留了PicGo的所有功能的同时，为相册添加了同步云端删除功能，同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件链接和图片/markdown/文本/视频预览等。
+
+## 如何从PicGo迁移
+
+PicList `V1.5.0`以上版本提供`一键迁移`功能，进入`设置`页面，然后在`从PicGo迁移`选项点击右侧按钮即可，迁移后请重启应用生效。
 
 ## PicList-Core
 
@@ -34,22 +40,36 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 - 优化了PicGo的界面，解锁了窗口大小限制，同时美化了部分界面布局
 - mac平台安装包已签名，从源头解决了PicGo上的安装包已损坏的日经问题
 
+### 如何在Typora中使用
+
+进入Typora设置界面，选择图像，将上传服务设置为`PicGo(app)`，然后在`PicGo路径`中填写PicList的安装路径，如下图所示：
+
+![image](https://user-images.githubusercontent.com/96409857/226522101-b3531b7b-534c-4149-b527-8738d4ebb041.png)
+
+或者，您也可以使用`npm install piclist`命令安装PicList-core，然后上传服务设置为`PicGo-Core(command line)`。
+
+### 如何在Obsidian中使用
+
+在社区插件中搜索安装`Image auto upload Plugin`，然后进入插件设置页面，修改默认上传器为`PicGo(app)`，设置`PicGo server`为`http://127.0.0.1:36677/upload`即可，如下图所示：
+
+![image](https://user-images.githubusercontent.com/96409857/226522718-8378c480-9fb4-4785-87e1-d59808862016.png)
+
 ## 已支持平台
 
-| 平台 | 相册云删除 | 云存储管理 |
-| :--: | :--: | :--: |
-| SM.MS | :heavy_check_mark: | :heavy_check_mark: |
-| Github | :heavy_check_mark: | :heavy_check_mark: |
-| Imgur | :heavy_check_mark: | :heavy_check_mark: |
-| 腾讯COS V5 | :heavy_check_mark: | :heavy_check_mark: |
-| 阿里云OSS | :heavy_check_mark: | :heavy_check_mark: |
-| 又拍云 | :heavy_check_mark: | :heavy_check_mark: |
-| 七牛云 | :heavy_check_mark: | :heavy_check_mark: |
+|      平台      |     相册云删除     |     云存储管理     |
+| :------------: | :----------------: | :----------------: |
+|     SM.MS      | :heavy_check_mark: | :heavy_check_mark: |
+|     Github     | :heavy_check_mark: | :heavy_check_mark: |
+|     Imgur      | :heavy_check_mark: | :heavy_check_mark: |
+|   腾讯COS V5   | :heavy_check_mark: | :heavy_check_mark: |
+|   阿里云OSS    | :heavy_check_mark: | :heavy_check_mark: |
+|     又拍云     | :heavy_check_mark: | :heavy_check_mark: |
+|     七牛云     | :heavy_check_mark: | :heavy_check_mark: |
 | S3 API兼容平台 | :heavy_check_mark: | :heavy_check_mark: |
-| WebDAV | :heavy_check_mark: | :heavy_check_mark: |
+|     WebDAV     | :heavy_check_mark: | :heavy_check_mark: |
 
-| 插件 | 相册云删除 |
-| :--: | :--: |
+|                             插件                             |     相册云删除     |
+| :----------------------------------------------------------: | :----------------: |
 | [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3) | :heavy_check_mark: |
 
 ## 下载安装
