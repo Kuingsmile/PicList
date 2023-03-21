@@ -21,7 +21,6 @@ import { T } from '~/main/i18n'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/main/utils/getMacOSVersion'
 import { buildPicBedListMenu } from '~/main/events/remotes/menu'
 let contextMenu: Menu | null
-let menu: Menu | null
 let tray: Tray | null
 
 export function createMenu () {

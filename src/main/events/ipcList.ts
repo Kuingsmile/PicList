@@ -39,6 +39,7 @@ import { handleCopyUrl } from '~/main/utils/common'
 import { buildMainPageMenu, buildMiniPageMenu, buildPluginPageMenu, buildPicBedListMenu } from './remotes/menu'
 import path from 'path'
 import { T } from '~/main/i18n'
+import picgo from '../apis/core/picgo'
 
 const STORE_PATH = app.getPath('userData')
 
@@ -72,6 +73,18 @@ export default {
     ipcMain.on('uploadClipboardFilesFromUploadPage', () => {
       console.log('handle')
       uploadClipboardFiles()
+    })
+
+    ipcMain.handle('getStorePath', () => {
+      return STORE_PATH
+    })
+
+    ipcMain.on('manualRegesterPlugin', (evt: IpcMainEvent, pluginName: string) => {
+      picgo.pluginLoader.registerPlugin(pluginName)
+    })
+
+    ipcMain.on('manualUnRegesterPlugin', (evt: IpcMainEvent, pluginName: string) => {
+      picgo.pluginLoader.unregisterPlugin(pluginName)
     })
 
     ipcMain.on('uploadChoosedFiles', async (evt: IpcMainEvent, files: IFileWithPath[]) => {

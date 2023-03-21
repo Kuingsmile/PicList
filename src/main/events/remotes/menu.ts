@@ -10,7 +10,6 @@ import { privacyManager } from '~/main/utils/privacyManager'
 import pkg from 'root/package.json'
 import GuiApi from 'apis/gui'
 import { PICGO_CONFIG_PLUGIN, PICGO_HANDLE_PLUGIN_DONE, PICGO_HANDLE_PLUGIN_ING, PICGO_TOGGLE_PLUGIN, SHOW_MAIN_PAGE_DONATION, SHOW_MAIN_PAGE_QRCODE } from '~/universal/events/constants'
-import picgoCoreIPC from '~/main/events/picgoCoreIPC'
 import { PicGo as PicGoCore } from 'piclist'
 import { T } from '~/main/i18n'
 import { changeCurrentUploader } from '~/main/utils/handleUploaderConfig'
@@ -222,15 +221,13 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
     label: T('UNINSTALL_PLUGIN'),
     click () {
       const window = windowManager.get(IWindowList.SETTING_WINDOW)!
-      window.webContents.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
-      picgoCoreIPC.handlePluginUninstall(plugin.fullName)
+      window.webContents.send('uninstallPlugin', plugin.fullName)
     }
   }, {
     label: T('UPDATE_PLUGIN'),
     click () {
       const window = windowManager.get(IWindowList.SETTING_WINDOW)!
-      window.webContents.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
-      picgoCoreIPC.handlePluginUpdate(plugin.fullName)
+      window.webContents.send('updatePlugin', plugin.fullName)
     }
   }]
   for (const i in plugin.config) {

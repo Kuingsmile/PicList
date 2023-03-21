@@ -13,17 +13,6 @@
           <Goods />
         </el-icon>
       </el-tooltip>
-      <el-tooltip
-        :content="importLocalPluginToolTip"
-        placement="left"
-      >
-        <el-icon
-          class="el-icon-download"
-          @click="handleImportLocalPlugin"
-        >
-          <Download />
-        </el-icon>
-      </el-tooltip>
     </div>
     <el-row
       class="handle-bar"
@@ -196,11 +185,12 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { Close, Download, Goods, Remove, Setting } from '@element-plus/icons-vue'
+import { Close, Goods, Remove, Setting } from '@element-plus/icons-vue'
 import { T as $T } from '@/i18n/index'
 import ConfigForm from '@/components/ConfigForm.vue'
 import { debounce, DebouncedFunc } from 'lodash'
 import {
+  clipboard,
   ipcRenderer,
   IpcRendererEvent
 } from 'electron'
@@ -217,7 +207,7 @@ import {
 } from '#/events/constants'
 import { computed, ref, onBeforeMount, onBeforeUnmount, watch, onMounted } from 'vue'
 import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
-import { ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
 const $confirm = ElMessageBox.confirm
 const searchText = ref('')
@@ -230,7 +220,6 @@ const pluginNameList = ref<string[]>([])
 const loading = ref(true)
 const needReload = ref(false)
 const pluginListToolTip = $T('PLUGIN_LIST')
-const importLocalPluginToolTip = $T('PLUGIN_IMPORT_LOCAL')
 // const id = ref('')
 const os = ref('')
 const defaultLogo = ref(`this.src="file://${__static.replace(/\\/g, '/')}/roundLogo.png"`)
@@ -328,6 +317,59 @@ onBeforeMount(async () => {
     dialogVisible.value = true
     config.value = _config
   })
+  ipcRenderer.on('uninstallPlugin', async (evt: IpcRendererEvent, fullName: string) => {
+    const appPath = await ipcRenderer.invoke('getStorePath')
+    const cmd = `cd '${appPath}' && npm uninstall ${fullName}`
+    clipboard.writeText(cmd)
+    ElMessageBox.confirm('命令已复制到剪切板，请前往终端执行', '提示', {
+      confirmButtonText: '执行成功',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      saveConfig(`picgoPlugins.${fullName}`, false)
+      ipcRenderer.send('manualUnRegesterPlugin', fullName)
+      pluginList.value = pluginList.value.filter(item => {
+        if (item.fullName === fullName) { // restore Uploader & Transformer after uninstalling
+          if (item.config.transformer.name) {
+            handleRestoreState('transformer', item.config.transformer.name)
+          }
+          if (item.config.uploader.name) {
+            handleRestoreState('uploader', item.config.uploader.name)
+          }
+          getPicBeds()
+        }
+        return item.fullName !== fullName
+      })
+      pluginNameList.value = pluginNameList.value.filter(item => item !== fullName)
+      ElMessage.success('卸载成功')
+    }).catch(() => {
+      console.log('cancel')
+    })
+  })
+  ipcRenderer.on('updatePlugin', async (evt: IpcRendererEvent, fullName: string) => {
+    const appPath = await ipcRenderer.invoke('getStorePath')
+    const cmd = `cd '${appPath}' && npm update ${fullName}`
+    clipboard.writeText(cmd)
+    ElMessageBox.confirm('命令已复制到剪切板，请前往终端执行', '提示', {
+      confirmButtonText: '执行成功',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      saveConfig(`picgoPlugins.${fullName}`, true)
+      ipcRenderer.send('manualRegesterPlugin', fullName)
+      pluginList.value.forEach(item => {
+        if (item.fullName === fullName) {
+          item.ing = false
+          item.hasInstall = true
+        }
+        getPicBeds()
+      })
+      handleReload()
+      getPluginList()
+    }).catch(() => {
+      console.log('cancel')
+    })
+  })
   ipcRenderer.on(PICGO_HANDLE_PLUGIN_ING, (evt: IpcRendererEvent, fullName: string) => {
     pluginList.value.forEach(item => {
       if (item.fullName === fullName || (item.name === fullName)) {
@@ -372,21 +414,42 @@ function getPicBeds () {
   sendToMain(GET_PICBEDS)
 }
 
-function installPlugin (item: IPicGoPlugin) {
+async function installPluginManually (item: IPicGoPlugin) {
+  const appPath = await ipcRenderer.invoke('getStorePath')
+  const cmd = `npm install ${item.fullName} --prefix '${appPath}'`
+  // 命令复制到剪切板
+  clipboard.writeText(cmd)
+  ElMessageBox.confirm('命令已复制到剪切板，请前往终端执行', '提示', {
+    confirmButtonText: '执行成功',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    saveConfig(`picgoPlugins.${item.fullName}`, true)
+    item.hasInstall = true
+    ipcRenderer.send('manualRegesterPlugin', item.fullName)
+    pluginList.value.forEach(i => {
+      if (i.fullName === item.fullName) {
+        i.ing = false
+        item.hasInstall = true
+      }
+    })
+    ElMessage.success('安装成功')
+  }).catch(() => {
+    console.log('Install canceled')
+  })
+}
+
+async function installPlugin (item: IPicGoPlugin) {
   if (!item.gui) {
     $confirm($T('TIPS_PLUGIN_NOT_GUI_IMPLEMENT'), $T('TIPS_NOTICE'), {
       confirmButtonText: $T('CONFIRM'),
       cancelButtonText: $T('CANCEL'),
       type: 'warning'
-    }).then(() => {
-      item.ing = true
-      sendToMain('installPlugin', item.fullName)
-    }).catch(() => {
-      console.log('Install canceled')
+    }).then(async () => {
+      installPluginManually(item)
     })
   } else {
-    item.ing = true
-    sendToMain('installPlugin', item.fullName)
+    installPluginManually(item)
   }
 }
 
@@ -535,11 +598,6 @@ function goAwesomeList () {
   sendToMain(OPEN_URL, 'https://github.com/PicGo/Awesome-PicGo')
 }
 
-function handleImportLocalPlugin () {
-  sendToMain('importLocalPlugin')
-  loading.value = true
-}
-
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
   ipcRenderer.removeAllListeners('pluginList')
@@ -548,6 +606,8 @@ onBeforeUnmount(() => {
   ipcRenderer.removeAllListeners('updateSuccess')
   ipcRenderer.removeAllListeners('hideLoading')
   ipcRenderer.removeAllListeners(PICGO_HANDLE_PLUGIN_DONE)
+  ipcRenderer.removeAllListeners('updatePlugin')
+  ipcRenderer.removeAllListeners('uninstallPlugin')
 })
 
 </script>
