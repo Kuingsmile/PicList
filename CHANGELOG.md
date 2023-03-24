@@ -1,3 +1,18 @@
+## :tada: 1.5.1 (2023-03-24)
+
+
+### :sparkles: Features
+
+* optimize UI, rewrite some css settings ([f47d273](https://github.com/Kuingsmile/PicList/commit/f47d273))
+* picbeds config can be reseted to empty now ([086b287](https://github.com/Kuingsmile/PicList/commit/086b287))
+
+
+### :bug: Bug Fixes
+
+* fix backgroud color mismatch problem on MacOS ([f0daf97](https://github.com/Kuingsmile/PicList/commit/f0daf97))
+
+
+
 # :tada: 1.5.0 (2023-03-20)
 
 
