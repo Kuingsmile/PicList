@@ -2,7 +2,6 @@
   <div id="main-page">
     <div
       class="fake-title-bar"
-      :class="{ 'darwin': os === 'darwin' }"
     >
       <div class="fake-title-bar__title">
         PicList - {{ version }}
@@ -123,7 +122,6 @@
         :offset="3"
         style="height: 100%"
         class="main-wrapper"
-        :class="{ 'darwin': os === 'darwin' }"
       >
         <router-view
           v-slot="{ Component }"
