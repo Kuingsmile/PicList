@@ -11,12 +11,27 @@ import db from '~/main/apis/core/datastore'
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/events/constants'
 import { app } from 'electron'
 import { remoteNoticeHandler } from '../remoteNotice'
+import picgo from '~/main/apis/core/picgo'
 
 const windowList = new Map<IWindowList, IWindowListItem>()
 
 const handleWindowParams = (windowURL: string) => {
   return windowURL
 }
+
+const getDefaultWindowSizes = (): { width: number, height: number } => {
+  const mainWindowWidth = picgo.getConfig<any>('settings.mainWindowWidth')
+  const mainWindowHeight = picgo.getConfig<any>('settings.mainWindowHeight')
+  console.log('mainWindowWidth', mainWindowWidth)
+  console.log('mainWindowHeight', mainWindowHeight)
+  return {
+    width: mainWindowWidth || 1200,
+    height: mainWindowHeight || 800
+  }
+}
+
+const defaultWindowWidth = getDefaultWindowSizes().width
+const defaultWindowHeight = getDefaultWindowSizes().height
 
 windowList.set(IWindowList.TRAY_WINDOW, {
   isValid: process.platform !== 'linux',
@@ -53,8 +68,8 @@ windowList.set(IWindowList.SETTING_WINDOW, {
   multiple: false,
   options () {
     const options: IBrowserWindowOptions = {
-      height: 800,
-      width: 1200,
+      height: defaultWindowHeight,
+      width: defaultWindowWidth,
       show: false,
       frame: true,
       center: true,

@@ -620,9 +620,8 @@ export default {
 $darwinBg = #172426
 #plugin-view
   position absolute
-  left 140px
+  left 162px
   right 0
-  padding 0 20px 0
   .el-loading-mask
     background-color rgba(0, 0, 0, 0.8)
   .plugin-list

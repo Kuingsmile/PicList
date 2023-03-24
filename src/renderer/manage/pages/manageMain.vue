@@ -136,7 +136,7 @@
     </div>
     <div
       class="layout__content"
-      style="height: 100%;position: relative;width: 100%;background-color: transparent;"
+      style="height: 100%;background-color: transparent;flex: 1;width: 0;"
     >
       <router-view />
     </div>
@@ -511,7 +511,7 @@ onBeforeMount(() => {
     flex-direction: column
     border-bottom-right-radius: 4px
     z-index 1
-    width: 140px
+    width: 130px
     position: relative
     &__button
       font-weight: bold;

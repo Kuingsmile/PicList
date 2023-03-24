@@ -163,6 +163,9 @@ export default {
   height 100%
   overflow-y auto
   overflow-x hidden
+  position absolute
+  left 162px
+  right 0
   .setting-list
     height 100%
     overflow-y auto

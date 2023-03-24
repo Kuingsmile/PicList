@@ -15,8 +15,8 @@
     </el-row>
     <el-row class="setting-list">
       <el-col
-        :span="20"
-        :offset="2"
+        :span="22"
+        :offset="1"
       >
         <el-row style="width: 100%">
           <el-form
@@ -197,6 +197,18 @@
                 :inactive-text="$T('SETTINGS_CLOSE')"
                 @change="handleUploadNotification"
               />
+            </el-form-item>
+            <el-form-item
+              :label="$T('SETTINGS_MAIN_WINDOW_SIZE')"
+            >
+              <el-button
+                type="primary"
+                round
+                size="small"
+                @click="mainWindowSizeVisible = true"
+              >
+                {{ $T('SETTINGS_CLICK_TO_SET') }}
+              </el-button>
             </el-form-item>
             <el-form-item
               v-if="os !== 'darwin'"
@@ -390,6 +402,62 @@
           type="primary"
           round
           @click="confirmProxy"
+        >
+          {{ $T('CONFIRM') }}
+        </el-button>
+      </template>
+    </el-dialog>
+    <el-dialog
+      v-model="mainWindowSizeVisible"
+      :title="$T('SETTINGS_MAIN_WINDOW_SIZE')"
+      :modal-append-to-body="false"
+      width="70%"
+      center
+    >
+      <el-form
+        label-position="right"
+        :model="customLink"
+        label-width="120px"
+      >
+        <el-form-item
+          :label="$T('SETTINGS_MAIN_WINDOW_SIZE_WIDTH')"
+        >
+          <el-input
+            v-model="mainWindowWidth"
+            :autofocus="true"
+            :placeholder="$T('SETTINGS_MAIN_WINDOW_WIDTH_HINT')"
+          />
+        </el-form-item>
+        <el-form-item
+          :label="$T('SETTINGS_MAIN_WINDOW_SIZE_HEIGHT')"
+        >
+          <el-input
+            v-model="mainWindowHeight"
+            :autofocus="true"
+            :placeholder="$T('SETTINGS_MAIN_WINDOW_HEIGHT_HINT')"
+          />
+        </el-form-item>
+        <el-form-item
+          :label="$T('SETTINGS_RAW_PICGO_SIZE')"
+        >
+          <el-switch
+            v-model="rawPicGoSize"
+            :active-text="$T('SETTINGS_OPEN')"
+            :inactive-text="$T('SETTINGS_CLOSE')"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button
+          round
+          @click="cancelWindowSize"
+        >
+          {{ $T('CANCEL') }}
+        </el-button>
+        <el-button
+          type="primary"
+          round
+          @click="confirmWindowSize"
         >
           {{ $T('CONFIRM') }}
         </el-button>
@@ -932,6 +1000,7 @@ const customLinkVisible = ref(false)
 const checkUpdateVisible = ref(false)
 const serverVisible = ref(false)
 const proxyVisible = ref(false)
+const mainWindowSizeVisible = ref(false)
 
 const customLink = reactive({
   value: '$url'
@@ -940,6 +1009,10 @@ const customLink = reactive({
 const shortKey = reactive<IShortKeyMap>({
   upload: ''
 })
+
+const mainWindowWidth = ref(1200)
+const mainWindowHeight = ref(800)
+const rawPicGoSize = ref(false)
 
 const proxy = ref('')
 const npmRegistry = ref('')
@@ -1010,6 +1083,8 @@ async function initData () {
     proxy.value = picBed.proxy || ''
     npmRegistry.value = settings.registry || ''
     npmProxy.value = settings.proxy || ''
+    mainWindowWidth.value = settings.mainWindowWidth || 1200
+    mainWindowHeight.value = settings.mainWindowHeight || 800
     server.value = settings.server || {
       port: 36677,
       host: '127.0.0.1',
@@ -1162,6 +1237,29 @@ function handleUploadNotification (val: ICheckBoxValueType) {
   })
 }
 
+async function cancelWindowSize () {
+  mainWindowSizeVisible.value = false
+  mainWindowWidth.value = await getConfig<number>('settings.mainWindowWidth') || 1200
+  mainWindowHeight.value = await getConfig<number>('settings.mainWindowHeight') || 800
+}
+
+async function confirmWindowSize () {
+  mainWindowSizeVisible.value = false
+  const width = enforceNumber(mainWindowWidth.value)
+  const height = enforceNumber(mainWindowHeight.value)
+  saveConfig({
+    'settings.mainWindowWidth': rawPicGoSize.value ? 800 : width < 100 ? 100 : width,
+    'settings.mainWindowHeight': rawPicGoSize.value ? 450 : height < 100 ? 100 : height
+  })
+
+  const successNotification = new Notification($T('SETTINGS_MAIN_WINDOW_SIZE'), {
+    body: $T('TIPS_NEED_RELOAD')
+  })
+  successNotification.onclick = () => {
+    return true
+  }
+}
+
 function handleMiniWindowOntop (val: ICheckBoxValueType) {
   saveConfig('settings.miniWindowOntop', val)
   $message.info($T('TIPS_NEED_RELOAD'))
@@ -1309,7 +1407,7 @@ export default {
 #picgo-setting
   height 100%
   position absolute
-  left 140px
+  left 162px
   right 0
   .sub-title
     font-size 14px
