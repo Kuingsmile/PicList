@@ -460,7 +460,7 @@ $darwinBg = transparentify(#172426, #000, 0.7)
     height calc(100vh - 22px)
     overflow-x hidden
     overflow-y auto
-    width 170px
+    width 162px
     .info-window
       cursor pointer
       position fixed
@@ -474,7 +474,7 @@ $darwinBg = transparentify(#172426, #000, 0.7)
   .el-menu
     border-right none
     background transparent
-    width 170px
+    width 162px
     &-item
       color #eee
       position relative
@@ -487,7 +487,7 @@ $darwinBg = transparentify(#172426, #000, 0.7)
         &:before
           content ''
           position absolute
-          width 3px
+          width 1px
           height 20px
           right 0
           top 18px
@@ -520,7 +520,7 @@ $darwinBg = transparentify(#172426, #000, 0.7)
     input
       text-align center
   *::-webkit-scrollbar
-    width 8px
+    width 2px
     height 8px
   *::-webkit-scrollbar-thumb
     border-radius 4px

@@ -185,7 +185,7 @@ export default {
 #config-list-view
   position absolute
   min-height 100%
-  left 150px
+  left 162px
   right 0
   overflow-x hidden
   overflow-y auto

@@ -757,11 +757,10 @@ onMounted(async () => {
 
 <style lang='stylus'>
 .layout
-  height 100%
-  width 100%
   background-color #fff
-  overflow auto
-  margin 0 0 0 0
+  position absolute
+  left 162px
+  right 0
   &.el-tabs
     border 0
     border-style none
