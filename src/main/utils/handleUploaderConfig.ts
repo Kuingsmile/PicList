@@ -167,3 +167,23 @@ export const updateUploaderConfig = (type: string, id: string, config: IStringKe
     [`picBed.${type}`]: updatedConfig
   })
 }
+
+/**
+ * Reset selected congfig id to default
+ */
+
+export const resetUploaderConfig = (type: string, id: string) => {
+  const { configList } = getUploaderConfigList(type)
+  configList.forEach((item: IStringKeyMap) => {
+    if (item._id === id) {
+      Object.keys(item).forEach(key => {
+        if (!['_configName', '_id', '_createdAt', '_updatedAt'].includes(key)) {
+          delete item[key]
+        }
+      })
+    }
+  })
+  picgo.saveConfig({
+    [`uploader.${type}.configList`]: configList
+  })
+}

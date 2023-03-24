@@ -46,6 +46,7 @@ interface ILocales {
   INPUT: string
   CANCEL: string
   CONFIRM: string
+  RESET_PICBED_CONFIG: string
   CHOOSE_SHOWED_PICBED: string
   CHOOSE_PASTE_FORMAT: string
   SEARCH: string
@@ -196,6 +197,7 @@ interface ILocales {
   TIPS_NEED_RELOAD: string
   TIPS_PLEASE_CHOOSE_LOG_LEVEL: string
   TIPS_SET_SUCCEED: string
+  TIPS_RESET_SUCCEED: string
   TIPS_PLUGIN_NOT_GUI_IMPLEMENT: string
   TIPS_CLICK_NOTIFICATION_TO_RELOAD: string
   TIPS_GET_PLUGIN_LIST_FAILED: string
