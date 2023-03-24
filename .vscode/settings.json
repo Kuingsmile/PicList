@@ -21,5 +21,8 @@
   "stylusSupremacy.quoteChar": "\"",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
-  }
+  },
+  "githubPullRequests.ignoredPullRequestBranches": [
+    "dev"
+  ]
 }
