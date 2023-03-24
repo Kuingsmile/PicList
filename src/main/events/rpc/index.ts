@@ -4,6 +4,7 @@ import { RPC_ACTIONS } from '#/events/constants'
 import {
   deleteUploaderConfig,
   getUploaderConfigList,
+  resetUploaderConfig,
   selectUploaderConfig,
   updateUploaderConfig
 } from '~/main/utils/handleUploaderConfig'
@@ -30,6 +31,11 @@ class RPCServer {
           }
           case IRPCActionType.UPDATE_UPLOADER_CONFIG: {
             this.updateUploaderConfig(args as IUpdateUploaderConfigArgs)
+            this.sendBack(event, action, true, callbackId)
+            break
+          }
+          case IRPCActionType.RESET_UPLOADER_CONFIG: {
+            this.resetUploaderConfig(args as IResetUploaderConfigArgs)
             this.sendBack(event, action, true, callbackId)
             break
           }
@@ -72,6 +78,12 @@ class RPCServer {
   private updateUploaderConfig (args: IUpdateUploaderConfigArgs) {
     const [type, id, config] = args
     const res = updateUploaderConfig(type, id, config)
+    return res
+  }
+
+  private resetUploaderConfig (args: IResetUploaderConfigArgs) {
+    const [type, id] = args
+    const res = resetUploaderConfig(type, id)
     return res
   }
 }

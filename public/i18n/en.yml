@@ -48,6 +48,7 @@ COPY_PICBED_CONFIG_SUCCEED: Copy Picbed Config Succeed
 INPUT: Input
 CANCEL: Cancel
 CONFIRM: Confirm
+RESET_PICBED_CONFIG: Reset
 CHOOSE_SHOWED_PICBED: Choose Showed Picbed
 CHOOSE_PASTE_FORMAT: Choose Paste Format
 SEARCH: Search
@@ -222,6 +223,7 @@ TIPS_NETWORK_ERROR: Network Error
 TIPS_NEED_RELOAD: Need Reload App
 TIPS_PLEASE_CHOOSE_LOG_LEVEL: Please choose log level
 TIPS_SET_SUCCEED: Set successfully
+TIPS_RESET_SUCCEED: Reset successfully
 TIPS_PLUGIN_NOT_GUI_IMPLEMENT: This plugin is not optimized for the GUI, continue?
 TIPS_CLICK_NOTIFICATION_TO_RELOAD: Click notification to reload app
 TIPS_GET_PLUGIN_LIST_FAILED: Get plugin list failed

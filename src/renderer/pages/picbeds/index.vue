@@ -27,14 +27,24 @@
           type="uploader"
         >
           <el-form-item>
-            <el-button
-              class="confirm-btn"
-              type="primary"
-              round
-              @click="handleConfirm"
-            >
-              {{ $T('CONFIRM') }}
-            </el-button>
+            <el-button-group>
+              <el-button
+                class="confirm-btn"
+                type="info"
+                round
+                @click="handleReset"
+              >
+                {{ $T('RESET_PICBED_CONFIG') }}
+              </el-button>
+              <el-button
+                class="confirm-btn"
+                type="success"
+                round
+                @click="handleConfirm"
+              >
+                {{ $T('CONFIRM') }}
+              </el-button>
+            </el-button-group>
           </el-form-item>
         </config-form>
         <div
@@ -63,6 +73,7 @@ import {
 } from 'electron'
 import { OPEN_URL } from '~/universal/events/constants'
 import { Link } from '@element-plus/icons-vue'
+
 const type = ref('')
 const config = ref<IPicGoPluginConfig[]>([])
 const picBedName = ref('')
@@ -88,6 +99,17 @@ const handleConfirm = async () => {
     }
     $router.back()
   }
+}
+
+const handleReset = async () => {
+  await triggerRPC<void>(IRPCActionType.RESET_UPLOADER_CONFIG, type.value, $route.params.configId)
+  const successNotification = new Notification($T('SETTINGS_RESULT'), {
+    body: $T('TIPS_RESET_SUCCEED')
+  })
+  successNotification.onclick = () => {
+    return true
+  }
+  $router.back()
 }
 
 const linkToLogInList = ['github', 'tcyun', 'aliyun', 'smms', 'qiniu', 'imgur', 'upyun', 'githubPlus']
