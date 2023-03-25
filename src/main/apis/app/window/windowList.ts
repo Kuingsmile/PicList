@@ -22,8 +22,6 @@ const handleWindowParams = (windowURL: string) => {
 const getDefaultWindowSizes = (): { width: number, height: number } => {
   const mainWindowWidth = picgo.getConfig<any>('settings.mainWindowWidth')
   const mainWindowHeight = picgo.getConfig<any>('settings.mainWindowHeight')
-  console.log('mainWindowWidth', mainWindowWidth)
-  console.log('mainWindowHeight', mainWindowHeight)
   return {
     width: mainWindowWidth || 1200,
     height: mainWindowHeight || 800
