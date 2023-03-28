@@ -1,3 +1,17 @@
+## :tada: 1.5.2 (2023-03-28)
+
+
+### :sparkles: Features
+
+* add /delete route for build in http server ([9e8ae93](https://github.com/Kuingsmile/PicList/commit/9e8ae93))
+
+
+### :bug: Bug Fixes
+
+* fix url encode bug when filename contains special chars ([a736190](https://github.com/Kuingsmile/PicList/commit/a736190))
+
+
+
 ## :tada: 1.5.1 (2023-03-24)
 
 
