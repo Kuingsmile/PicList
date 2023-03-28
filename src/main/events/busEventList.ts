@@ -34,13 +34,15 @@ function initEventCenter () {
 }
 
 async function busCallUploadClipboardFiles () {
-  const imgUrl = await uploadClipboardFiles()
+  const result = await uploadClipboardFiles()
+  const imgUrl = result.url
   bus.emit(UPLOAD_WITH_CLIPBOARD_FILES_RESPONSE, imgUrl)
 }
 
 async function busCallUploadFiles (pathList: IFileWithPath[]) {
   const win = windowManager.getAvailableWindow()
-  const urls = await uploadChoosedFiles(win.webContents, pathList)
+  const result = await uploadChoosedFiles(win.webContents, pathList)
+  const urls = result.map((item: any) => item.url)
   bus.emit(UPLOAD_WITH_FILES_RESPONSE, urls)
 }
 

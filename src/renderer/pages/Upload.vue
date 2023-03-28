@@ -532,7 +532,6 @@ async function handlePicBedNameClick (picBedName: string, picBedConfigName: stri
       defaultConfigId: currentPicBedConfig.defaultId || ''
     }
   })
-  console.log(configList, picBedConfigName)
 }
 
 onBeforeUnmount(() => {
