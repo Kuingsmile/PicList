@@ -76,3 +76,15 @@ PicList 在 Mac 上是一个顶部栏应用，在 dock 栏是不会有图标的�
 ## 11. macOS系统安装完PicList显示「文件已损坏」或者安装完打开没有反应
 
 请升级PicList 1.4.1或以上版本，自1.4.1开始，PicList已经经过Apple的签名，不会再出现这种情况。
+
+## 12. 水印没有正常添加
+
+PicList在添加水印前会先检查字体文件是否存在，如果不存在会自动下载字体文件，但是由于网络问题，可能会导致字体文件下载失败，此时会跳过水印添加。
+
+请根据自己的系统检查对应路径下的字体文件是否存在，如果不存在，请手动下载字体文件，然后放到对应的路径下。
+
+Windows: `%APPDATA%\piclist\assets\simhei.ttf`
+Linux: `$XDG_CONFIG_HOME/piclist/assets/simhei.ttf` or `~/.config//assets/simhei.ttf`
+macOS: `~/Library/Application\ Support/picgo/assets/simhei.ttf`
+
+字体文件下载地址：[https://release.piclist.cn/simhei.ttf](https://release.piclist.cn/simhei.ttf)
