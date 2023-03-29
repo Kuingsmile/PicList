@@ -94,15 +94,11 @@ MacOS:
 
 ### Mac App Store
 
-PicList 在Github提供免费的Mac版本安装包，同时，也在Mac App Store上架，如果您希望通过Mac App Store进行安装，请前往[Mac App Store](https://apps.apple.com/app/piclist-基于picgo的图片管理工具/id6446192094)进行下载。
+由于Mac App Store的沙盒机制，导致多项功能无法正常使用，因此不再支持Mac App Store的安装方式。
 
-需要注意的是，Mac App Store中，你需要支付 `一元` 人民币，才能使用，这是由于苹果开发者账号需要 99 美元/年的费用，同时Github中下载的mac安装包能够签名避免被macOS系统识别为「恶意软件」也需要这个开发者账号。
+如果您已经通过Mac App Store购买了PicList，请添加我的微信`pku_sq_ma`，我会为您退费。
 
-如果PicList对您有帮助，欢迎您通过Mac App Store进行购买，这是对我最好的支持。
-
-Mac App Store中的版本和Github中的版本是同步更新的，不会有任何额外的功能。
-
-**当然，如果您不想支付，也可以通过Github下载免费的安装包进行安装。**
+再次感谢您对PicList的支持。
 
 ## 应用截图
 

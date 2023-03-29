@@ -94,14 +94,11 @@ After V1.4.1, all mac installation packages have been signed by my developer cer
 
 ### Mac App Store
 
-PicList currently provides free Mac version installation packages on Github, and is also on the Mac App Store. If you want to install through the Mac App Store, please go to [Mac App Store](https://apps.apple.com/app/piclist-基于picgo的图片管理工具/id6446192094) to download.
+Due to the sandbox mechanism of Mac App Store, many functions cannot be used normally, so the installation method of Mac App Store is no longer supported.
 
-需要注意的是，Mac App Store中，你需要支付 `一元` 人民币，才能使用，这是由于苹果开发者账号需要 99 美元/年的费用，同时Github中下载的mac安装包能够签名避免被macOS系统识别为「恶意软件」也需要这个开发者账号。
-You need to pay $ 1 to use it in the Mac App Store, because the Apple developer account needs to pay 99 US dollars per year, and the Mac installation package downloaded from Github can be signed to avoid being recognized by the macOS system as "malicious software", which also requires this developer account.
+If you have purchased PicList through Mac App Store, please add my WeChat `pku_sq_ma`, I will refund you.
 
-If PicList is helpful to you, you are welcome to purchase it through the Mac App Store, which is the best support for me.
-
-Mac App Store version and Github version are synchronized, there will be no additional features.
+Thank you again for your support for PicList.
 
 **Of course, if you don't want to pay, you can also download the free installation package through Github to install.**
 
