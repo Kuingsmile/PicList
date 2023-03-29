@@ -1,3 +1,17 @@
+## :tada: 1.5.3 (2023-03-29)
+
+
+### :bug: Bug Fixes
+
+* fix aliyun upload bug ([ef018ff](https://github.com/Kuingsmile/PicList/commit/ef018ff))
+
+
+### :pencil: Documentation
+
+* remove from mac app store, and add describe for refund ([1aa133f](https://github.com/Kuingsmile/PicList/commit/1aa133f))
+
+
+
 ## :tada: 1.5.2 (2023-03-28)
 
 
