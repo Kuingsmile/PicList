@@ -99,7 +99,10 @@ const config = {
           include: 'build/installer.nsh'
         },
         linux: {
-          icon: 'build/icons/'
+          icon: 'build/icons/',
+          asarUnpack: [
+            '**/node_modules/sharp/**'
+          ]
         },
         snap: {
           publish: ['github']
