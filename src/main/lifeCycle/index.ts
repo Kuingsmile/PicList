@@ -28,7 +28,6 @@ import {
   createTray
 } from 'apis/app/system'
 import server from '~/main/server/index'
-import updateChecker from '~/main/utils/updateChecker'
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import { getUploadFiles } from '~/main/utils/handleArgv'
 import db, { GalleryDB } from '~/main/apis/core/datastore'
@@ -100,7 +99,7 @@ autoUpdater.on('update-downloaded', () => {
 })
 
 autoUpdater.on('error', (err) => {
-  dialog.showErrorBox('error', err.message)
+  console.log(err)
 })
 
 class LifeCycle {
@@ -152,7 +151,7 @@ class LifeCycle {
       }
       createTray()
       db.set('needReload', false)
-      updateChecker()
+      // updateChecker()
       autoUpdater.checkForUpdatesAndNotify()
       // 不需要阻塞
       process.nextTick(() => {

@@ -50,16 +50,6 @@ export function createMenu () {
             }
           }
         },
-        // @ts-ignore
-        {
-          label: T('OPEN_UPDATE_HELPER'),
-          type: 'checkbox',
-          checked: db.get('settings.showUpdateTip'),
-          click () {
-            const value = db.get('settings.showUpdateTip')
-            db.set('settings.showUpdateTip', !value)
-          }
-        },
         {
           label: T('PRIVACY_AGREEMENT'),
           click () {
@@ -125,16 +115,6 @@ export function createContextMenu () {
         // @ts-ignore
         submenu
       },
-      // @ts-ignore
-      {
-        label: T('OPEN_UPDATE_HELPER'),
-        type: 'checkbox',
-        checked: db.get('settings.showUpdateTip'),
-        click () {
-          const value = db.get('settings.showUpdateTip')
-          db.set('settings.showUpdateTip', !value)
-        }
-      },
       {
         label: T('PRIVACY_AGREEMENT'),
         click () {
@@ -172,16 +152,6 @@ export function createContextMenu () {
           if (windowManager.has(IWindowList.MINI_WINDOW)) {
             windowManager.get(IWindowList.MINI_WINDOW)!.hide()
           }
-        }
-      },
-      // @ts-ignore
-      {
-        label: T('OPEN_UPDATE_HELPER'),
-        type: 'checkbox',
-        checked: db.get('settings.showUpdateTip'),
-        click () {
-          const value = db.get('settings.showUpdateTip')
-          db.set('settings.showUpdateTip', !value)
         }
       },
       {
