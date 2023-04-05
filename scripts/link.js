@@ -2,12 +2,13 @@ const pkg = require('../package.json')
 const version = pkg.version
 // TODO: use the same name format
 const generateURL = (platform, ext, prefix = 'PicList-') => {
-  return `https://release.piclist.cn/${version}/${prefix}${version}${platform}${ext}`
+  return `https://release.piclist.cn/latest/${prefix}${version}${platform}${ext}`
 }
 
 const platformExtList = [
   ['-arm64', '.dmg', 'PicList-'],
   ['-x64', '.dmg', 'PicList-'],
+  ['-universal', '.dmg', 'PicList-'],
   ['', '.AppImage', 'PicList-'],
   ['-ia32', '.exe', 'PicList-Setup-'],
   ['-x64', '.exe', 'PicList-Setup-'],

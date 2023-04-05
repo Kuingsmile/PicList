@@ -11,7 +11,13 @@ const darwin = [{
   ext: '.dmg',
   arch: '-x64',
   'version-file': 'latest-mac.yml'
-}]
+}, {
+  appNameWithPrefix: 'PicList-',
+  ext: '.dmg',
+  arch: '-universal',
+  'version-file': 'latest-mac.yml'
+}
+]
 
 const linux = [{
   appNameWithPrefix: 'PicList-',

@@ -43,6 +43,14 @@ const config = {
         afterSign: 'scripts/notarize.js',
         publish: [
           {
+            provider: 's3',
+            bucket: 'piclist-dl',
+            region: 'auto',
+            acl: 'private',
+            endpoint: 'https://7ab4ed5cb1f4052a13d3b573876ecf33.r2.cloudflarestorage.com',
+            path: '/latest'
+          },
+          {
             provider: 'github',
             owner: 'Kuingsmile',
             repo: 'PicList',
@@ -73,6 +81,7 @@ const config = {
           target: [{
             target: 'dmg',
             arch: [
+              'universal',
               'x64',
               'arm64'
             ]

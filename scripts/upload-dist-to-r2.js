@@ -10,7 +10,7 @@ const path = require('path')
 
 const BUCKET = 'piclist-dl'
 const VERSION = pkg.version
-const FILE_PATH = `${VERSION}/`
+const FILE_PATH = `latest/`
 const ACCOUNT_ID = process.env.R2_ACCOUNT_ID
 const SECRET_ID = process.env.R2_SECRET_ID
 const SECRET_KEY = process.env.R2_SECRET_KEY
@@ -76,6 +76,11 @@ const uploadFile = async () => {
                     await s3.upload({
                         Bucket: BUCKET,
                         Key: `${versionFileName}`,
+                        Body: versionFileBuffer
+                    }).promise()
+                    await s3.upload({
+                        Bucket: BUCKET,
+                        Key: `${FILE_PATH}${versionFileName}`,
                         Body: versionFileBuffer
                     }).promise()
                     versionFileHasUploaded = true

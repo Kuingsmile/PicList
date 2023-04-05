@@ -151,6 +151,7 @@
               </el-button>
             </el-form-item>
             <el-form-item
+              v-if="false"
               :label="$T('SETTINGS_OPEN_UPDATE_HELPER')"
             >
               <el-switch

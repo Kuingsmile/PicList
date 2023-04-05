@@ -50,6 +50,7 @@
     "cos-nodejs-sdk-v5": "^2.11.19",
     "custom-electron-titlebar": "^4.1.5",
     "dexie": "^3.2.3",
+    "electron-updater": "^5.3.0",
     "element-plus": "^2.2.32",
     "fast-xml-parser": "^4.1.1",
     "form-data": "^4.0.0",

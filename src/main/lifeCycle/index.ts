@@ -4,7 +4,8 @@ import {
   globalShortcut,
   protocol,
   Notification,
-  Menu
+  Menu,
+  dialog
 } from 'electron'
 import {
   createProtocol
@@ -42,6 +43,7 @@ import { manageIpcList } from '../manage/events/ipcList'
 import getManageApi from '../manage/Main'
 import UpDownTaskQueue from '../manage/datastore/upDownTaskQueue'
 import { T } from '~/main/i18n'
+import { UpdateInfo, autoUpdater } from 'electron-updater'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const handleStartUpFiles = (argv: string[], cwd: string) => {
@@ -60,6 +62,46 @@ const handleStartUpFiles = (argv: string[], cwd: string) => {
     return false
   }
 }
+
+autoUpdater.setFeedURL({
+  provider: 'generic',
+  url: 'https://release.piclist.cn/latest',
+  channel: 'latest'
+})
+
+autoUpdater.autoDownload = false
+
+autoUpdater.on('update-available', (info: UpdateInfo) => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: T('FIND_NEW_VERSION'),
+    buttons: ['Yes', 'No'],
+    message: T('TIPS_FIND_NEW_VERSION', {
+      v: info.version
+    })
+  }).then((result) => {
+    if (result.response === 0) {
+      autoUpdater.downloadUpdate()
+    }
+  })
+})
+
+autoUpdater.on('update-downloaded', () => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: T('UPDATE_DOWNLOADED'),
+    buttons: ['Yes', 'No'],
+    message: T('TIPS_UPDATE_DOWNLOADED')
+  }).then((result) => {
+    if (result.response === 0) {
+      autoUpdater.quitAndInstall()
+    }
+  })
+})
+
+autoUpdater.on('error', (err) => {
+  dialog.showErrorBox('error', err.message)
+})
 
 class LifeCycle {
   private async beforeReady () {
@@ -111,6 +153,7 @@ class LifeCycle {
       createTray()
       db.set('needReload', false)
       updateChecker()
+      autoUpdater.checkForUpdatesAndNotify()
       // 不需要阻塞
       process.nextTick(() => {
         shortKeyHandler.init()
