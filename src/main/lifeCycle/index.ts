@@ -3,7 +3,8 @@ import {
   app,
   globalShortcut,
   protocol,
-  Notification
+  Notification,
+  Menu
 } from 'electron'
 import {
   createProtocol
@@ -40,6 +41,7 @@ import { remoteNoticeHandler } from 'apis/app/remoteNotice'
 import { manageIpcList } from '../manage/events/ipcList'
 import getManageApi from '../manage/Main'
 import UpDownTaskQueue from '../manage/datastore/upDownTaskQueue'
+import { T } from '~/main/i18n'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const handleStartUpFiles = (argv: string[], cwd: string) => {
@@ -89,6 +91,23 @@ class LifeCycle {
       }
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
+      if (process.platform === 'darwin') {
+        app.dock.setMenu(
+          Menu.buildFromTemplate([
+            {
+              label: T('OPEN_MAIN_WINDOW'),
+              click () {
+                const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+                settingWindow!.show()
+                settingWindow!.focus()
+                if (windowManager.has(IWindowList.MINI_WINDOW)) {
+                  windowManager.get(IWindowList.MINI_WINDOW)!.hide()
+                }
+              }
+            }
+          ])
+        )
+      }
       createTray()
       db.set('needReload', false)
       updateChecker()

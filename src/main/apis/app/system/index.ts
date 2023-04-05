@@ -21,8 +21,79 @@ import { T } from '~/main/i18n'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/main/utils/getMacOSVersion'
 import { buildPicBedListMenu } from '~/main/events/remotes/menu'
 let contextMenu: Menu | null
-let menu: Menu | null
 let tray: Tray | null
+
+export function createMenu () {
+  const submenu = buildPicBedListMenu()
+  const appMenu = Menu.buildFromTemplate([
+    {
+      label: 'PicList',
+      submenu: [
+        {
+          label: T('ABOUT'),
+          click () {
+            dialog.showMessageBox({
+              title: 'PicList',
+              message: 'PicList',
+              detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`
+            })
+          }
+        },
+        {
+          label: T('OPEN_MAIN_WINDOW'),
+          click () {
+            const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+            settingWindow!.show()
+            settingWindow!.focus()
+            if (windowManager.has(IWindowList.MINI_WINDOW)) {
+              windowManager.get(IWindowList.MINI_WINDOW)!.hide()
+            }
+          }
+        },
+        // @ts-ignore
+        {
+          label: T('OPEN_UPDATE_HELPER'),
+          type: 'checkbox',
+          checked: db.get('settings.showUpdateTip'),
+          click () {
+            const value = db.get('settings.showUpdateTip')
+            db.set('settings.showUpdateTip', !value)
+          }
+        },
+        {
+          label: T('PRIVACY_AGREEMENT'),
+          click () {
+            privacyManager.show(false)
+          }
+        },
+        {
+          label: T('RELOAD_APP'),
+          click () {
+            app.relaunch()
+            app.exit(0)
+          }
+        }
+      ]
+    },
+    {
+      label: T('CHOOSE_DEFAULT_PICBED'),
+      type: 'submenu',
+      // @ts-ignore
+      submenu
+    },
+    {
+      label: T('QUIT'),
+      submenu: [
+        {
+          label: T('QUIT'),
+          role: 'quit'
+        }
+      ]
+    }
+  ])
+  Menu.setApplicationMenu(appMenu)
+}
+
 export function createContextMenu () {
   if (process.platform === 'darwin' || process.platform === 'win32') {
     const submenu = buildPicBedListMenu()
@@ -247,33 +318,6 @@ export function createTray () {
   // 需要使用 setContextMenu 设置菜单
     createContextMenu()
     tray!.setContextMenu(contextMenu)
-  }
-}
-
-export function createMenu () {
-  if (process.env.NODE_ENV !== 'development') {
-    const template = [{
-      label: 'Edit',
-      submenu: [
-        { label: 'Undo', accelerator: 'CmdOrCtrl+Z', selector: 'undo:' },
-        { label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', selector: 'redo:' },
-        { type: 'separator' },
-        { label: 'Cut', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
-        { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
-        { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
-        { label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' },
-        {
-          label: 'Quit',
-          accelerator: 'CmdOrCtrl+Q',
-          click () {
-            app.quit()
-          }
-        }
-      ]
-    }]
-    // @ts-ignore
-    menu = Menu.buildFromTemplate(template)
-    Menu.setApplicationMenu(menu)
   }
 }
 
