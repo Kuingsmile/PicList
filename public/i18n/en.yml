@@ -1,6 +1,7 @@
 LANG_DISPLAY_LABEL: 'English'
 ABOUT: About
 OPEN_MAIN_WINDOW: Open Main Window
+OPEN_MINI_WINDOW: Open Mini Window
 CHOOSE_DEFAULT_PICBED: Choose Default Picbed
 OPEN_UPDATE_HELPER: Open Update Helper
 PRIVACY_AGREEMENT: Privacy Agreement
@@ -111,6 +112,10 @@ SETTINGS_MIGRATE_FROM_PICGO_TITLE: Notice
 SETTINGS_MIGRATE_FROM_PICGO_CONTENT: Migrate from PicGo will overwrite your current settings and gallery, do you want to continue?
 SETTINGS_MIGRATE_FROM_PICGO_SUCCESS: Import succeed, please restart PicList
 SETTINGS_MIGRATE_FROM_PICGO_FAILED: Import failed
+SETTINGS_START_MODE: Default Start Mode
+SETTINGS_START_MODE_MINI: Mini Window
+SETTINGS_START_MODE_MAIN: Main Window
+SETTINGS_START_MODE_QUIET: Quiet Mode
 SETTINGS_CLICK_TO_OPEN: Click to Open
 SETTINGS_SET_LOG_FILE: Set Log File
 SETTINGS_CLICK_TO_SET: Click to Set

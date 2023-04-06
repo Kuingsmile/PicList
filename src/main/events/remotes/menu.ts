@@ -50,12 +50,6 @@ const buildMiniPageMenu = () => {
       }
     },
     {
-      label: T('PRIVACY_AGREEMENT'),
-      click () {
-        privacyManager.show(false)
-      }
-    },
-    {
       label: T('RELOAD_APP'),
       click () {
         app.relaunch()

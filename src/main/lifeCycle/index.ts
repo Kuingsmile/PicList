@@ -5,7 +5,8 @@ import {
   protocol,
   Notification,
   Menu,
-  dialog
+  dialog,
+  screen
 } from 'electron'
 import {
   createProtocol
@@ -174,6 +175,34 @@ class LifeCycle {
       }
       await remoteNoticeHandler.init()
       remoteNoticeHandler.triggerHook(IRemoteNoticeTriggerHook.APP_START)
+      if (db.get('settings.startMode') === 'mini') {
+        windowManager.create(IWindowList.MINI_WINDOW)
+        const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
+        if (db.get('settings.miniWindowOntop')) {
+          miniWindow.setAlwaysOnTop(true)
+        }
+        const { width, height } = screen.getPrimaryDisplay().workAreaSize
+        const lastPosition = db.get('settings.miniWindowPosition')
+        if (lastPosition) {
+          miniWindow.setPosition(lastPosition[0], lastPosition[1])
+        } else {
+          miniWindow.setPosition(width - 100, height - 100)
+        }
+        miniWindow.on('close', () => {
+          const position = miniWindow.getPosition()
+          db.set('settings.miniWindowPosition', position)
+        })
+        miniWindow.on('move', () => {
+          const position = miniWindow.getPosition()
+          db.set('settings.miniWindowPosition', position)
+        })
+        miniWindow.show()
+        miniWindow.focus()
+      } else if (db.get('settings.startMode') === 'main') {
+        const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
+        settingWindow.show()
+        settingWindow.focus()
+      }
     }
     app.whenReady().then(readyFunction)
   }

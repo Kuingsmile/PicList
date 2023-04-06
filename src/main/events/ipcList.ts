@@ -4,7 +4,8 @@ import {
   shell,
   Notification,
   IpcMainEvent,
-  BrowserWindow
+  BrowserWindow,
+  screen
 } from 'electron'
 import windowManager from 'apis/app/window/windowManager'
 import { IWindowList } from '#/types/enum'
@@ -170,7 +171,21 @@ export default {
       if (db.get('settings.miniWindowOntop')) {
         miniWindow.setAlwaysOnTop(true)
       }
-
+      const { width, height } = screen.getPrimaryDisplay().workAreaSize
+      const lastPosition = db.get('settings.miniWindowPosition')
+      if (lastPosition) {
+        miniWindow.setPosition(lastPosition[0], lastPosition[1])
+      } else {
+        miniWindow.setPosition(width - 100, height - 100)
+      }
+      miniWindow.on('close', () => {
+        const position = miniWindow.getPosition()
+        db.set('settings.miniWindowPosition', position)
+      })
+      miniWindow.on('move', () => {
+        const position = miniWindow.getPosition()
+        db.set('settings.miniWindowPosition', position)
+      })
       miniWindow.show()
       miniWindow.focus()
       settingWindow.hide()

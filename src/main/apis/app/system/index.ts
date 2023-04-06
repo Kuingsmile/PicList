@@ -6,7 +6,8 @@ import {
   dialog,
   clipboard,
   systemPreferences,
-  Notification
+  Notification,
+  screen
 } from 'electron'
 import uploader from 'apis/app/uploader'
 import db, { GalleryDB } from '~/main/apis/core/datastore'
@@ -15,7 +16,6 @@ import { IWindowList } from '#/types/enum'
 import pasteTemplate from '~/main/utils/pasteTemplate'
 import pkg from 'root/package.json'
 import { ensureFilePath, handleCopyUrl } from '~/main/utils/common'
-// import { T } from '#/i18n'
 import { T } from '~/main/i18n'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/main/utils/getMacOSVersion'
 import { buildPicBedListMenu } from '~/main/events/remotes/menu'
@@ -80,7 +80,7 @@ export function createMenu () {
 export function createContextMenu () {
   if (process.platform === 'darwin' || process.platform === 'win32') {
     const submenu = buildPicBedListMenu()
-    contextMenu = Menu.buildFromTemplate([
+    const template = [
       {
         label: T('ABOUT'),
         click () {
@@ -120,7 +120,39 @@ export function createContextMenu () {
         role: 'quit',
         label: T('QUIT')
       }
-    ])
+    ] as any
+    if (process.platform === 'win32') {
+      template.splice(2, 0,
+        {
+          label: T('OPEN_MINI_WINDOW'),
+          click () {
+            const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
+
+            if (db.get('settings.miniWindowOntop')) {
+              miniWindow.setAlwaysOnTop(true)
+            }
+            const { width, height } = screen.getPrimaryDisplay().workAreaSize
+            const lastPosition = db.get('settings.miniWindowPosition')
+            if (lastPosition) {
+              miniWindow.setPosition(lastPosition[0], lastPosition[1])
+            } else {
+              miniWindow.setPosition(width - 100, height - 100)
+            }
+            miniWindow.on('close', () => {
+              const position = miniWindow.getPosition()
+              db.set('settings.miniWindowPosition', position)
+            })
+            miniWindow.on('move', () => {
+              const position = miniWindow.getPosition()
+              db.set('settings.miniWindowPosition', position)
+            })
+            miniWindow.show()
+            miniWindow.focus()
+          }
+        }
+      )
+    }
+    contextMenu = Menu.buildFromTemplate(template)
   } else if (process.platform === 'linux') {
     // TODO 图床选择功能
     // 由于在Linux难以像在Mac和Windows上那样在点击时构造ContextMenu，
@@ -139,6 +171,33 @@ export function createContextMenu () {
           if (windowManager.has(IWindowList.MINI_WINDOW)) {
             windowManager.get(IWindowList.MINI_WINDOW)!.hide()
           }
+        }
+      },
+      {
+        label: T('OPEN_MINI_WINDOW'),
+        click () {
+          const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
+
+          if (db.get('settings.miniWindowOntop')) {
+            miniWindow.setAlwaysOnTop(true)
+          }
+          const { width, height } = screen.getPrimaryDisplay().workAreaSize
+          const lastPosition = db.get('settings.miniWindowPosition')
+          if (lastPosition) {
+            miniWindow.setPosition(lastPosition[0], lastPosition[1])
+          } else {
+            miniWindow.setPosition(width - 100, height - 100)
+          }
+          miniWindow.on('close', () => {
+            const position = miniWindow.getPosition()
+            db.set('settings.miniWindowPosition', position)
+          })
+          miniWindow.on('move', () => {
+            const position = miniWindow.getPosition()
+            db.set('settings.miniWindowPosition', position)
+          })
+          miniWindow.show()
+          miniWindow.focus()
         }
       },
       {

@@ -43,6 +43,34 @@
               </el-select>
             </el-form-item>
             <el-form-item
+              :label="$T('SETTINGS_START_MODE')"
+            >
+              <el-select
+                v-model="currentStartMode"
+                size="small"
+                style="width: 50%"
+                :placeholder="$T('SETTINGS_START_MODE')"
+                @change="handleStartModeChange"
+              >
+                <el-option
+                  key="quiet"
+                  :label="$T('SETTINGS_START_MODE_QUIET')"
+                  :value="'quiet'"
+                />
+                <el-option
+                  v-if="os !== 'darwin'"
+                  key="mini"
+                  :label="$T('SETTINGS_START_MODE_MINI')"
+                  :value="'mini'"
+                />
+                <el-option
+                  key="main"
+                  :label="$T('SETTINGS_START_MODE_MAIN')"
+                  :value="'main'"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item
               :label="$T('SETTINGS_MIGRATE_FROM_PICGO')"
             >
               <el-button
@@ -234,6 +262,17 @@
               />
             </el-form-item>
             <el-form-item
+              v-if="os !== 'darwin'"
+              :label="$T('SETTINGS_CUSTOM_MINI_ICON')"
+            >
+              <el-switch
+                v-model="form.isCustomMiniIcon"
+                :active-text="$T('SETTINGS_OPEN')"
+                :inactive-text="$T('SETTINGS_CLOSE')"
+                @change="handleIsCustomMiniIcon"
+              />
+            </el-form-item>
+            <el-form-item
               v-if="os !== 'darwin' && form.isCustomMiniIcon"
               :label="$T('SETTINGS_CUSTOM_MINI_ICON_PATH')"
             >
@@ -246,18 +285,6 @@
                 {{ $T('SETTINGS_CLICK_TO_SET') }}
               </el-button>
             </el-form-item>
-            <el-form-item
-              v-if="os !== 'darwin'"
-              :label="$T('SETTINGS_CUSTOM_MINI_ICON')"
-            >
-              <el-switch
-                v-model="form.isCustomMiniIcon"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleIsCustomMiniIcon"
-              />
-            </el-form-item>
-
             <el-form-item
               :label="$T('SETTINGS_AUTO_COPY_URL_AFTER_UPLOAD')"
             >
@@ -1004,6 +1031,7 @@ const languageList = i18nManager.languageList.map(item => ({
 }))
 
 const currentLanguage = ref('zh-CN')
+const currentStartMode = ref('quiet')
 
 const picBed = ref<IPicBedType[]>([])
 
@@ -1090,6 +1118,7 @@ async function initData () {
     form.isCustomMiniIcon = settings.isCustomMiniIcon || false
     form.customMiniIcon = settings.customMiniIcon || ''
     currentLanguage.value = settings.language ?? 'zh-CN'
+    currentStartMode.value = settings.startMode || 'quiet'
     customLink.value = settings.customLink || '$url'
     shortKey.upload = settings.shortKey.upload
     proxy.value = picBed.proxy || ''
@@ -1401,6 +1430,12 @@ function handleLanguageChange (val: string) {
     'settings.language': val
   })
   sendToMain(GET_PICBEDS)
+}
+
+function handleStartModeChange (val: 'quiet' | 'mini' | 'main') {
+  saveConfig({
+    'settings.startMode': val
+  })
 }
 
 function goConfigPage () {

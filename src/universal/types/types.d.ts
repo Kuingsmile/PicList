@@ -115,6 +115,7 @@ interface IBrowserWindowOptions {
   icon?: string
   skipTaskbar?: boolean
   alwaysOnTop?: boolean
+  [propName: string]: any
 }
 
 interface IFileWithPath {
