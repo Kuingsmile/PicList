@@ -1,3 +1,31 @@
+# :tada: 1.6.0 (2023-04-06)
+
+
+### :sparkles: Features
+
+* add batch rename , sort and more search options for gallery ([38e48df](https://github.com/Kuingsmile/PicList/commit/38e48df))
+* add dock menu and appbar menu ([19e1191](https://github.com/Kuingsmile/PicList/commit/19e1191))
+* support auto update now ([e39cac9](https://github.com/Kuingsmile/PicList/commit/e39cac9))
+* users can set start mode now, mini window position will be remembered ([76c0cfb](https://github.com/Kuingsmile/PicList/commit/76c0cfb))
+
+
+### :bug: Bug Fixes
+
+* fix linux build bug caused by sharp ([1dc70e6](https://github.com/Kuingsmile/PicList/commit/1dc70e6)), closes [#29](https://github.com/Kuingsmile/PicList/issues/29)
+
+
+### :package: Chore
+
+* change macos icon files ([107e8ae](https://github.com/Kuingsmile/PicList/commit/107e8ae))
+* modify icon size ([ca950db](https://github.com/Kuingsmile/PicList/commit/ca950db))
+
+
+### :pencil: Documentation
+
+* update FAQ ([a05fbf6](https://github.com/Kuingsmile/PicList/commit/a05fbf6))
+
+
+
 ## :tada: 1.5.3 (2023-03-29)
 
 
