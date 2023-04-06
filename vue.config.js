@@ -79,7 +79,7 @@ const config = {
             LSUIElement: 0
           },
           target: [{
-            target: 'dmg',
+            target: ['dmg', 'zip'],
             arch: [
               'universal',
               'x64',
