@@ -31,7 +31,7 @@
             class="handle-bar"
             :gutter="16"
           >
-            <el-col :span="12">
+            <el-col :span="6">
               <el-select
                 v-model="choosedPicBed"
                 multiple
@@ -48,7 +48,25 @@
                 />
               </el-select>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="10">
+              <el-date-picker
+                v-model="dateRange"
+                type="daterange"
+                unlink-panels
+                range-separator="To"
+                start-placeholder="Start date"
+                end-placeholder="End date"
+                size="small"
+              />
+            </el-col>
+            <el-col :span="1">
+              <el-divider
+                direction="vertical"
+                style="height: 100%;"
+                border-style="hidden"
+              />
+            </el-col>
+            <el-col :span="5">
               <el-select
                 v-model="pasteStyle"
                 size="small"
@@ -64,15 +82,40 @@
                 />
               </el-select>
             </el-col>
+            <el-col :span="2">
+              <el-dropdown>
+                <el-button
+                  size="small"
+                  type="primary"
+                  :icon="Sort"
+                >
+                  {{ $T('MANAGE_BUCKET_SORT_TITLE') }}
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-item @click="sortFile('name')">
+                    {{ $T('MANAGE_BUCKET_SORT_NAME') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="sortFile('ext')">
+                    {{ $T('MANAGE_BUCKET_SORT_TYPE') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="sortFile('time')">
+                    {{ $T('MANAGE_BUCKET_SORT_TIME') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="sortFile('check')">
+                    {{ $T('MANAGE_BUCKET_SORT_SELECTED') }}
+                  </el-dropdown-item>
+                </template>
+              </el-dropdown>
+            </el-col>
           </el-row>
           <el-row
             class="handle-bar"
             :gutter="16"
           >
-            <el-col :span="12">
+            <el-col :span="6">
               <el-input
                 v-model="searchText"
-                :placeholder="$T('SEARCH')"
+                :placeholder="$T('GALLERY_SEARCH_FILENAME')"
                 size="small"
               >
                 <template #suffix>
@@ -86,7 +129,24 @@
                 </template>
               </el-input>
             </el-col>
-            <el-col :span="4">
+            <el-col :span="6">
+              <el-input
+                v-model="searchTextURL"
+                :placeholder="$T('GALLERY_SEARCH_URL')"
+                size="small"
+              >
+                <template #suffix>
+                  <el-icon
+                    class="el-input__icon"
+                    style="cursor: pointer;"
+                    @click="cleanSearchUrl"
+                  >
+                    <close />
+                  </el-icon>
+                </template>
+              </el-input>
+            </el-col>
+            <el-col :span="3">
               <div
                 class="item-base copy round"
                 :class="{ active: isMultiple(choosedList) }"
@@ -95,7 +155,16 @@
                 {{ $T('COPY') }}
               </div>
             </el-col>
-            <el-col :span="4">
+            <el-col :span="3">
+              <div
+                class="item-base all-pick round"
+                :class="{ active: filterList.length > 0 }"
+                @click="() => isShowBatchRenameDialog = true"
+              >
+                {{ $T('GALLERY_CHANGE_URL') }}
+              </div>
+            </el-col>
+            <el-col :span="3">
               <div
                 class="item-base delete round"
                 :class="{ active: isMultiple(choosedList) }"
@@ -104,7 +173,7 @@
                 {{ $T('DELETE') }}
               </div>
             </el-col>
-            <el-col :span="4">
+            <el-col :span="3">
               <div
                 class="item-base all-pick round"
                 :class="{ active: filterList.length > 0 }"
@@ -213,13 +282,124 @@
         </el-button>
       </template>
     </el-dialog>
+    <el-dialog
+      v-model="isShowBatchRenameDialog"
+      :title="$T('CHANGE_IMAGE_URL')"
+      center
+      align-center
+      draggable
+      destroy-on-close
+    >
+      <el-link
+        :underline="false"
+        style="margin-bottom: 10px;"
+      >
+        <span>
+          {{ $T('MANAGE_BUCKET_RENAME_FILE_INPUT_A') + $T('GALLERY_MATCHED') + mathcedCount + ' ' }}
+          <el-tooltip
+            effect="dark"
+            :content="$T('MANAGE_BUCKET_RENAME_FILE_INPUT_A_TIPS')"
+            placement="right"
+          >
+            <el-icon
+              color="#409EFF"
+            >
+              <InfoFilled />
+            </el-icon>
+          </el-tooltip>
+        </span>
+      </el-link>
+      <el-input
+        v-model="batchRenameMatch"
+        :placeholder="$T('MANAGE_BUCKET_RENAME_FILE_INPUT_A_PLACEHOLDER')"
+        clearable
+      />
+      <el-link
+        :underline="false"
+        style="margin-bottom: 10px;margin-top: 10px;"
+      >
+        <span>
+          {{ $T('MANAGE_BUCKET_RENAME_FILE_INPUT_B') }}
+          <el-popover
+            effect="light"
+            placement="right"
+            width="280"
+          >
+            <template #reference>
+              <el-icon
+                color="#409EFF"
+              >
+                <InfoFilled />
+              </el-icon>
+            </template>
+            <el-descriptions
+              :column="1"
+              style="width: 250px;"
+              border
+            >
+              <el-descriptions-item
+                v-for="(item, index) in customRenameFormatTable"
+                :key="index"
+                :label="item.placeholder"
+                align="center"
+                label-style="width: 100px;"
+              >
+                {{ item.description }}
+              </el-descriptions-item>
+              <el-descriptions-item
+                v-for="(item, index) in customRenameFormatTable.slice(0, customRenameFormatTable.length-1)"
+                :key="index"
+                :label="item.placeholderB"
+                align="center"
+                label-style="width: 100px;"
+              >
+                {{ item.descriptionB }}
+              </el-descriptions-item>
+              <el-descriptions-item
+                label="{auto}"
+                align="center"
+                label-style="width: 100px;"
+              >
+                {{ $T('MANAGE_BUCKET_RENAME_FILE_TABLE_IID') }}
+              </el-descriptions-item>
+            </el-descriptions>
+          </el-popover>
+        </span>
+      </el-link>
+      <el-input
+        v-model="batchRenameReplace"
+        placeholder="Ex. {Y}-{m}-{uuid}"
+        clearable
+      />
+      <div
+        style="margin-top: 10px;align-items: center;display: flex;justify-content: flex-end;"
+      >
+        <el-button
+          type="danger"
+          style="margin-right: 30px;"
+          plain
+          :icon="Close"
+          @click="() => {isShowBatchRenameDialog = false}"
+        >
+          {{ $T('MANAGE_BUCKET_RENAME_FILE_CANCEL') }}
+        </el-button>
+        <el-button
+          type="primary"
+          plain
+          :icon="Edit"
+          @click="handelBatchRename()"
+        >
+          {{ $T('MANAGE_BUCKET_RENAME_FILE_CONFIRM') }}
+        </el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script lang="ts" setup>
 import type { IResult } from '@picgo/store/dist/types'
 import { PASTE_TEXT, GET_PICBEDS } from '#/events/constants'
-import { CheckboxValueType, ElMessageBox, ElNotification } from 'element-plus'
-import { Close, CaretBottom, Document, Edit, Delete, CaretTop } from '@element-plus/icons-vue'
+import { CheckboxValueType, ElMessageBox, ElNotification, ElMessage } from 'element-plus'
+import { InfoFilled, Close, CaretBottom, Document, Edit, Delete, CaretTop, Sort } from '@element-plus/icons-vue'
 import {
   ipcRenderer,
   clipboard,
@@ -231,6 +411,7 @@ import { onBeforeRouteUpdate } from 'vue-router'
 import { T as $T } from '@/i18n/index'
 import $$db from '@/utils/db'
 import ALLApi from '@/apis/allApi'
+import { customRenameFormatTable, customStrMatch, customStrReplace } from '../manage/utils/common'
 const images = ref<ImgInfo[]>([])
 const dialogVisible = ref(false)
 const imgInfo = reactive({
@@ -248,7 +429,8 @@ const choosedPicBed = ref<string[]>([])
 const lastChoosed = ref<number>(-1)
 const isShiftKeyPress = ref<boolean>(false)
 const searchText = ref<string>('')
-const handleBarActive = ref<boolean>(false)
+const searchTextURL = ref<string>('')
+const handleBarActive = ref<boolean>(true)
 const pasteStyle = ref<string>('')
 const pasteStyleMap = {
   Markdown: 'markdown',
@@ -257,6 +439,22 @@ const pasteStyleMap = {
   UBB: 'UBB',
   Custom: 'Custom'
 }
+const fileSortNameReverse = ref(false)
+const fileSortTimeReverse = ref(false)
+const fileSortExtReverse = ref(false)
+const isShowBatchRenameDialog = ref(false)
+const batchRenameMatch = ref('')
+const batchRenameReplace = ref('')
+const mathcedCount = computed(() => {
+  const matchedFiles = [] as any[]
+  images.value.forEach((item: any) => {
+    if (customStrMatch(item.imgUrl, batchRenameMatch.value)) {
+      matchedFiles.push(item)
+    }
+  })
+  return matchedFiles.length
+})
+const dateRange = ref('')
 const picBed = ref<IPicBedType[]>([])
 onBeforeRouteUpdate((to, from) => {
   if (from.name === 'gallery') {
@@ -317,18 +515,29 @@ function getPicBeds (event: IpcRendererEvent, picBeds: IPicBedType[]) {
 }
 
 function getGallery (): IGalleryItem[] {
-  if (searchText.value || choosedPicBed.value.length > 0) {
+  if (searchText.value || choosedPicBed.value.length > 0 || searchTextURL.value || dateRange.value) {
+    console.log(dateRange.value)
     return images.value
       .filter(item => {
         let isInChoosedPicBed = true
         let isIncludesSearchText = true
+        let isIncludesSearchTextURL = true
+        let isIncludesDateRange = true
         if (choosedPicBed.value.length > 0) {
           isInChoosedPicBed = choosedPicBed.value.some(type => type === item.type)
         }
         if (searchText.value) {
-          isIncludesSearchText = item.fileName?.includes(searchText.value) || false
+          isIncludesSearchText = customStrMatch(item.fileName || '', searchText.value)
         }
-        return isIncludesSearchText && isInChoosedPicBed
+        if (searchTextURL.value) {
+          isIncludesSearchTextURL = customStrMatch(item.imgUrl || '', searchTextURL.value)
+        }
+        if (dateRange.value) {
+          const [start, end] = dateRange.value
+          const date = new Date(item.updatedAt).getTime()
+          isIncludesDateRange = date >= new Date(start).getTime() && date <= new Date(end).getTime() + 86400000
+        }
+        return isIncludesSearchText && isInChoosedPicBed && isIncludesSearchTextURL && isIncludesDateRange
       }).map(item => {
         return {
           ...item,
@@ -497,6 +706,10 @@ function cleanSearch () {
   searchText.value = ''
 }
 
+function cleanSearchUrl () {
+  searchTextURL.value = ''
+}
+
 function isMultiple (obj: IObj) {
   return Object.values(obj).some(item => item)
 }
@@ -621,6 +834,118 @@ function toggleHandleBar () {
 async function handlePasteStyleChange (val: string) {
   saveConfig('settings.pasteStyle', val)
   pasteStyle.value = val
+}
+
+function sortFile (type: 'name' | 'time' | 'ext' | 'check') {
+  switch (type) {
+    case 'name':
+      fileSortNameReverse.value = !fileSortNameReverse.value
+      images.value.sort((a: any, b: any) => {
+        if (fileSortNameReverse.value) {
+          return a.fileName.localeCompare(b.fileName)
+        } else {
+          return b.fileName.localeCompare(a.fileName)
+        }
+      })
+      break
+    case 'time':
+      fileSortTimeReverse.value = !fileSortTimeReverse.value
+      images.value.sort((a: any, b: any) => {
+        if (fileSortTimeReverse.value) {
+          return a.updatedAt - b.updatedAt
+        } else {
+          return b.updatedAt - a.updatedAt
+        }
+      })
+      break
+    case 'ext':
+      fileSortExtReverse.value = !fileSortExtReverse.value
+      images.value.sort((a: any, b: any) => {
+        if (fileSortExtReverse.value) {
+          return a.extname.localeCompare(b.extname)
+        } else {
+          return b.extname.localeCompare(a.extname)
+        }
+      })
+      break
+    case 'check':
+      images.value.sort((a: any, b: any) => {
+        if (choosedList[a.id] && !choosedList[b.id]) {
+          return -1
+        } else if (!choosedList[a.id] && choosedList[b.id]) {
+          return 1
+        } else {
+          return 0
+        }
+      })
+      break
+  }
+}
+
+function handelBatchRename () {
+  isShowBatchRenameDialog.value = false
+  if (batchRenameMatch.value === '') {
+    ElMessage.warning($T('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG'))
+    return
+  }
+  let matchedFiles = [] as any[]
+  images.value.forEach((item: any) => {
+    if (customStrMatch(item.imgUrl, batchRenameMatch.value)) {
+      matchedFiles.push(item)
+    }
+  })
+  if (matchedFiles.length === 0) {
+    ElMessage.warning($T('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG2'))
+    return
+  }
+  for (let i = 0; i < matchedFiles.length; i++) {
+    matchedFiles[i].newUrl = customStrReplace(matchedFiles[i].imgUrl, batchRenameMatch.value, batchRenameReplace.value)
+  }
+  matchedFiles = matchedFiles.filter((item: any) => item.imgUrl !== item.newUrl)
+  if (matchedFiles.length === 0) {
+    ElMessage.warning($T('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG3'))
+  }
+  for (let i = 0; i < matchedFiles.length; i++) {
+    matchedFiles[i].newUrl = matchedFiles[i].newUrl.replaceAll('{auto}', (i + 1).toString())
+  }
+  const duplicateFilesNum = matchedFiles.filter((item: any) => matchedFiles.filter((item2: any) => item2.newUrl === item.newUrl).length > 1).length
+  const renamefunc = async (item: any) => {
+    await $$db.updateById(item.id, {
+      imgUrl: item.newUrl
+    })
+  }
+  const rename = () => {
+    const promiseList = [] as any[]
+    for (let i = 0; i < matchedFiles.length; i++) {
+      promiseList.push(renamefunc(matchedFiles[i]))
+    }
+    Promise.all(promiseList).then(() => {
+      const obj = {
+        title: $T('OPERATION_SUCCEED'),
+        body: ''
+      }
+      const myNotification = new Notification(obj.title, obj)
+      myNotification.onclick = () => {
+        return true
+      }
+      updateGallery()
+    }).catch(() => {
+      return true
+    })
+  }
+  if (duplicateFilesNum > 0) {
+    ElMessageBox.confirm(`${$T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_A')} ${duplicateFilesNum} ${$T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_B')}`, $T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_C'), {
+      confirmButtonText: $T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CONFIRM'),
+      cancelButtonText: $T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CANCEL'),
+      type: 'warning'
+    }).then(() => {
+      rename()
+    }).catch(() => {
+      ElMessage.info($T('MANAGE_BUCKET_BATCH_RENAME_CANCEL'))
+    })
+  } else {
+    rename()
+  }
 }
 
 onBeforeUnmount(() => {
