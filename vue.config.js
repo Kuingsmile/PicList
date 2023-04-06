@@ -87,7 +87,7 @@ const config = {
             ]
           }],
           // eslint-disable-next-line no-template-curly-in-string
-          artifactName: 'PicList-${version}-${arch}.dmg'
+          artifactName: 'PicList-${version}-${arch}.{ext}'
         },
         win: {
           icon: 'build/icons/icon.ico',
