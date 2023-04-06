@@ -15,7 +15,6 @@ import { IWindowList } from '#/types/enum'
 import pasteTemplate from '~/main/utils/pasteTemplate'
 import pkg from 'root/package.json'
 import { ensureFilePath, handleCopyUrl } from '~/main/utils/common'
-import { privacyManager } from '~/main/utils/privacyManager'
 // import { T } from '#/i18n'
 import { T } from '~/main/i18n'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/main/utils/getMacOSVersion'
@@ -48,12 +47,6 @@ export function createMenu () {
             if (windowManager.has(IWindowList.MINI_WINDOW)) {
               windowManager.get(IWindowList.MINI_WINDOW)!.hide()
             }
-          }
-        },
-        {
-          label: T('PRIVACY_AGREEMENT'),
-          click () {
-            privacyManager.show(false)
           }
         },
         {
@@ -114,12 +107,6 @@ export function createContextMenu () {
         type: 'submenu',
         // @ts-ignore
         submenu
-      },
-      {
-        label: T('PRIVACY_AGREEMENT'),
-        click () {
-          privacyManager.show(false)
-        }
       },
       {
         label: T('RELOAD_APP'),

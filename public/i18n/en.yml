@@ -779,7 +779,7 @@ TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR: Custom config file parse error, please check
 TIPS_SHORTCUT_MODIFIED_SUCCEED: Shortcut modified successfully
 TIPS_SHORTCUT_MODIFIED_CONFLICT: Shortcut conflict, please reset
 TIPS_CUSTOM_LINK_STYLE_MODIFIED_SUCCEED: Custom link style modified successfully
-TIPS_FIND_NEW_VERSION: Find new version ${v}, update many new features, do you want to download the latest version?
+TIPS_FIND_NEW_VERSION: Find new version ${v}, update many new features, do you want to download the latest version in the background?
 UPDATE_DOWNLOADED: Update downloaded
 TIPS_UPDATE_DOWNLOADED: The update has been downloaded and will be installed on the next app restart. Would you like to restart now?
 # privacy

@@ -43,6 +43,7 @@ import getManageApi from '../manage/Main'
 import UpDownTaskQueue from '../manage/datastore/upDownTaskQueue'
 import { T } from '~/main/i18n'
 import { UpdateInfo, autoUpdater } from 'electron-updater'
+import updateChecker from '../utils/updateChecker'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const handleStartUpFiles = (argv: string[], cwd: string) => {
@@ -77,11 +78,14 @@ autoUpdater.on('update-available', (info: UpdateInfo) => {
     buttons: ['Yes', 'No'],
     message: T('TIPS_FIND_NEW_VERSION', {
       v: info.version
-    })
+    }),
+    checkboxLabel: T('NO_MORE_NOTICE'),
+    checkboxChecked: false
   }).then((result) => {
     if (result.response === 0) {
       autoUpdater.downloadUpdate()
     }
+    db.set('settings.showUpdateTip', !result.checkboxChecked)
   })
 })
 
@@ -151,8 +155,7 @@ class LifeCycle {
       }
       createTray()
       db.set('needReload', false)
-      // updateChecker()
-      autoUpdater.checkForUpdatesAndNotify()
+      updateChecker()
       // 不需要阻塞
       process.nextTick(() => {
         shortKeyHandler.init()

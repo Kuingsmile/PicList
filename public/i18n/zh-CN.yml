@@ -780,7 +780,7 @@ TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR: 自定义文件解析出错，请检查路�
 TIPS_SHORTCUT_MODIFIED_SUCCEED: 快捷键已经修改成功
 TIPS_SHORTCUT_MODIFIED_CONFLICT: 快捷键冲突，请重新设置
 TIPS_CUSTOM_LINK_STYLE_MODIFIED_SUCCEED: 自定义链接格式已经修改成功
-TIPS_FIND_NEW_VERSION: 发现新版本${v}，更新了很多功能，是否去下载最新的版本？
+TIPS_FIND_NEW_VERSION: 发现新版本${v}，更新了很多功能，是否后台下载最新的版本？
 UPDATE_DOWNLOADED: 更新已下载
 TIPS_UPDATE_DOWNLOADED: 更新已下载，将在下次启动时安装，是否现在重启？
 
