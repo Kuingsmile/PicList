@@ -63,13 +63,14 @@
 
 <script lang="ts" setup>
 import { reactive, ref, onBeforeUnmount, onBeforeMount } from 'vue'
-import { ipcRenderer } from 'electron'
+import { clipboard, ipcRenderer } from 'electron'
 import $$db from '@/utils/db'
 import { T as $T } from '@/i18n/index'
 import { IResult } from '@picgo/store/dist/types'
-import { PASTE_TEXT, OPEN_WINDOW } from '#/events/constants'
-import { IWindowList } from '#/types/enum'
-import { sendToMain } from '@/utils/dataSender'
+import { OPEN_WINDOW } from '#/events/constants'
+import { IPasteStyle, IWindowList } from '#/types/enum'
+import { getConfig, sendToMain } from '@/utils/dataSender'
+import pasteTemplate from '~/main/utils/pasteTemplate'
 
 const files = ref<IResult<ImgInfo>[]>([])
 const notification = reactive({
@@ -92,8 +93,11 @@ async function getData () {
 
 async function copyTheLink (item: ImgInfo) {
   notification.body = item.imgUrl!
+  const pasteStyle = await getConfig<IPasteStyle>('settings.pasteStyle') || IPasteStyle.MARKDOWN
+  const customLink = await getConfig<string>('settings.customLink')
+  const txt = pasteTemplate(pasteStyle, item, customLink)
+  clipboard.writeText(txt)
   const myNotification = new Notification(notification.title, notification)
-  ipcRenderer.invoke(PASTE_TEXT, item)
   myNotification.onclick = () => {
     return true
   }
