@@ -1,4 +1,3 @@
-
 <div align="center">
   <img src="https://imgx.horosama.com/admin_uploads/2022/10/2022_10_05_633d79e401694.png" alt="">
   <h1>PicList</h1>
@@ -15,7 +14,7 @@
 
 [简体中文](https://github.com/Kuingsmile/PicList/blob/dev/README.md) | English
 
-PicList is a cloud storage platform management and file upload tool based on PicGo, which has been deeply redeveloped. It retains all the functions of PicGo, adds the function of synchronous cloud deletion to the album, and adds a complete cloud storage management function, including cloud directory viewing, file search, batch upload and download, and file deletion, copying multiple formats of file links and image/markdown/text/video preview, etc.
+PicList is a cloud storage platform management and file upload tool based on PicGo, which has been deeply redeveloped. It retains all the functions of PicGo, adds the function of synchronous cloud deletion to the album, and adds a complete cloud storage management function, including cloud directory viewing, file search, batch upload and download, and file deletion, copying multiple formats of file links and image/markdown/text/video preview, etc. Additionally, there are several other feature improvements and additions.
 
 ## How to migrate from PicGo
 
@@ -30,7 +29,7 @@ if you want to use PicList-core, please go to [https://github.com/Kuingsmile/Pic
 ## Features
 
 - Maintain all the functions of PicGo, compatible with the existing PicGo plug-in system, including the combination with typora, obsidian and other software
-- Synchronous cloud deletion of pictures in the album
+- Synchronous cloud deletion of pictures in the album, advanced search and sorting features have been added, along with the ability to bulk modify URLs.
 - Built-in watermark addition, image compression, image scaling, image rotation and image format conversion functions, support custom configuration, and can be called through CLI command line
 - Support management of all cloud storage platforms, can be online to view the cloud directory, file search, batch upload, batch download, delete files and other operations
 - Support previewing multiple formats of files, including pictures, videos, plain text files and markdown files, etc. For the specific formats supported, please refer to [Supported file format list](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)
@@ -68,19 +67,19 @@ Search and install `Image auto upload Plugin` in the community plugin, then ente
 
 |          Platform          | Album cloud deletion | Cloud storage management |
 | :------------------------: | :------------------: | :----------------------: |
-|           SM.MS            |  :heavy_check_mark:  |    :heavy_check_mark:    |
-|           Github           |  :heavy_check_mark:  |    :heavy_check_mark:    |
-|           Imgur            |  :heavy_check_mark:  |    :heavy_check_mark:    |
-|       Tencent COS V5       |  :heavy_check_mark:  |    :heavy_check_mark:    |
-|         Aliyun OSS         |  :heavy_check_mark:  |    :heavy_check_mark:    |
-|           Upyun            |  :heavy_check_mark:  |    :heavy_check_mark:    |
-|           Qiniu            |  :heavy_check_mark:  |    :heavy_check_mark:    |
-| S3 API compatible platform |  :heavy_check_mark:  |    :heavy_check_mark:    |
-|           WebDAV           |  :heavy_check_mark:  |    :heavy_check_mark:    |
+|           SM.MS           |         ✔️         |           ✔️           |
+|           Github           |         ✔️         |           ✔️           |
+|           Imgur           |         ✔️         |           ✔️           |
+|       Tencent COS V5       |         ✔️         |           ✔️           |
+|         Aliyun OSS         |         ✔️         |           ✔️           |
+|           Upyun           |         ✔️         |           ✔️           |
+|           Qiniu           |         ✔️         |           ✔️           |
+| S3 API compatible platform |         ✔️         |           ✔️           |
+|           WebDAV           |         ✔️         |           ✔️           |
 
-|                            Plugin                            | Album cloud deletion |
-| :----------------------------------------------------------: | :------------------: |
-| [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3) |  :heavy_check_mark:  |
+|                          Plugin                          | Album cloud deletion |
+| :-------------------------------------------------------: | :------------------: |
+| [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3) |         ✔️         |
 
 ## Download and install
 
@@ -120,8 +119,8 @@ Thank you again for your support for PicList.
 
 1. You need to have Node, Git environment, and understand the related knowledge of npm.
 2. git clone [https://github.com/Kuingsmile/PicList.git](https://github.com/Kuingsmile/PicList.git) and enter the project.
-`yarn` download dependencies
-Note that if you don't have yarn, please go to the official website to download and install it before using it. Using npm install will cause unknown errors!
+   `yarn` download dependencies
+   Note that if you don't have yarn, please go to the official website to download and install it before using it. Using npm install will cause unknown errors!
 3. Mac needs Xcode environment, Windows needs VS environment.
 4. If you need to contribute code, you can refer to [contribution guide](https://github.com/Kuingsmile/PicList/blob/dev/CONTRIBUTING_EN.md)
 
@@ -148,6 +147,6 @@ This project is open source under the MIT license. Welcome everyone to use and c
 
 [MIT](https://opensource.org/licenses/MIT)
 
-Copyright (c) 2017-present, Molunerfinn  
- 
+Copyright (c) 2017-present, Molunerfinn
+
 Copyright (c) 2023-present Kuingsmile
