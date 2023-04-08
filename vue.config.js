@@ -93,6 +93,7 @@ const config = {
           icon: 'build/icons/icon.ico',
           // eslint-disable-next-line no-template-curly-in-string
           artifactName: 'PicList-Setup-${version}-${arch}.exe',
+          verifyUpdateCodeSignature: false,
           target: [{
             target: 'nsis',
             arch: [
