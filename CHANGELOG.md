@@ -1,3 +1,19 @@
+## :tada: 1.6.1 (2023-04-08)
+
+
+### :bug: Bug Fixes
+
+* fix bug that traypage copy link func not work ([acf6609](https://github.com/Kuingsmile/PicList/commit/acf6609)), closes [#32](https://github.com/Kuingsmile/PicList/issues/32)
+* fix tcyun delete bug ([37dfe49](https://github.com/Kuingsmile/PicList/commit/37dfe49))
+
+
+### :pencil: Documentation
+
+* update FAQ ([d259a01](https://github.com/Kuingsmile/PicList/commit/d259a01))
+* update README ([4770fcd](https://github.com/Kuingsmile/PicList/commit/4770fcd))
+
+
+
 # :tada: 1.6.0 (2023-04-06)
 
 
