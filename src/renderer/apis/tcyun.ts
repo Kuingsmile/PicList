@@ -12,7 +12,7 @@ export default class TcyunApi {
       if (path === '/' || !path) {
         key = `/${fileName}`
       } else {
-        key = `/${path.replace(/^\//, '').replace(/\/$/, '')}${fileName}`
+        key = `/${path.replace(/^\//, '').replace(/\/$/, '')}/${fileName}`
       }
       const result = await cos.deleteObject({
         Bucket: bucket,
