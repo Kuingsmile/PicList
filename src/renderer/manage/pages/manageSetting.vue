@@ -695,4 +695,5 @@ onBeforeUnmount(async () => {
 <style lang='stylus'>
 #manage-setting
   height 100%
+  overflow-y auto
 </style>

@@ -158,6 +158,9 @@ class LifeCycle {
       if (startMode !== 'no-tray' && process.platform === 'darwin') {
         createTray()
       }
+      if (process.platform === 'win32' || process.platform === 'linux') {
+        createTray()
+      }
       db.set('needReload', false)
       const isHideDock = db.get('settings.isHideDock') || false
       if (isHideDock) {

@@ -1,6 +1,6 @@
 import { IPasteStyle } from '#/types/enum'
 import { handleUrlEncode } from '#/utils/common'
-import db from 'apis/core/datastore'
+import db from '~/main/apis/core/datastore'
 
 const formatCustomLink = (customLink: string, item: ImgInfo) => {
   const fileName = item.fileName!.replace(new RegExp(`\\${item.extname}$`), '')
