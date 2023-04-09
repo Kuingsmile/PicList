@@ -602,7 +602,7 @@ function ipcSendFiles (files: FileList) {
 
 async function getPasteStyle () {
   pasteStyle.value = await getConfig('settings.pasteStyle') || 'markdown'
-  customLink.value = await getConfig('settings.customLink') || '$url'
+  customLink.value = await getConfig('settings.customLink') || '![$fileName]($url)'
 }
 
 function handlePasteStyleChange (val: string | number | boolean) {

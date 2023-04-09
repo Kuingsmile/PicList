@@ -336,6 +336,16 @@
               />
             </el-form-item>
             <el-form-item
+              :label="$T('SETTINGS_ENCODE_OUTPUT_URL')"
+            >
+              <el-switch
+                v-model="form.encodeOutputURL"
+                :active-text="$T('SETTINGS_OPEN')"
+                :inactive-text="$T('SETTINGS_CLOSE')"
+                @change="handleEncodeOutputURL"
+              />
+            </el-form-item>
+            <el-form-item
               :style="{ marginRight: '-64px' }"
               :label="$T('CHOOSE_SHOWED_PICBED')"
             >
@@ -1040,7 +1050,8 @@ const form = reactive<ISettingForm>({
   deleteCloudFile: false,
   isCustomMiniIcon: false,
   customMiniIcon: '',
-  isHideDock: false
+  isHideDock: false,
+  encodeOutputURL: true
 })
 
 const languageList = i18nManager.languageList.map(item => ({
@@ -1061,7 +1072,7 @@ const proxyVisible = ref(false)
 const mainWindowSizeVisible = ref(false)
 
 const customLink = reactive({
-  value: '$url'
+  value: '![$fileName]($url)'
 })
 
 const shortKey = reactive<IShortKeyMap>({
@@ -1132,13 +1143,14 @@ async function initData () {
     form.checkBetaUpdate = settings.checkBetaUpdate === undefined ? true : settings.checkBetaUpdate
     form.useBuiltinClipboard = settings.useBuiltinClipboard === undefined ? false : settings.useBuiltinClipboard
     form.language = settings.language ?? 'zh-CN'
+    form.encodeOutputURL = settings.encodeOutputURL === undefined ? true : settings.encodeOutputURL
     form.deleteCloudFile = settings.deleteCloudFile || false
     form.isCustomMiniIcon = settings.isCustomMiniIcon || false
     form.customMiniIcon = settings.customMiniIcon || ''
     form.isHideDock = settings.isHideDock || false
     currentLanguage.value = settings.language ?? 'zh-CN'
     currentStartMode.value = settings.startMode || 'quiet'
-    customLink.value = settings.customLink || '$url'
+    customLink.value = settings.customLink || '![$fileName]($url)'
     shortKey.upload = settings.shortKey.upload
     proxy.value = picBed.proxy || ''
     npmRegistry.value = settings.registry || ''
@@ -1198,6 +1210,16 @@ function confirmCustomLink () {
       return false
     }
   })
+}
+
+function handleEncodeOutputURL (val: ICheckBoxValueType) {
+  saveConfig('settings.encodeOutputURL', val)
+  const successNotification = new Notification($T('SETTINGS_ENCODE_OUTPUT_URL'), {
+    body: $T('TIPS_SET_SUCCEED')
+  })
+  successNotification.onclick = () => {
+    return true
+  }
 }
 
 async function cancelProxy () {

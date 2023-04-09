@@ -192,6 +192,8 @@ SETTINGS_COMPRESS_AND_WATERMARK: 設置圖片浮水印和壓縮-格式轉換等�
 SETTINGS_SYNC_DELETE_CLOUD: 從相簿中刪除並同步從雲端刪除
 SETTINGS_ISHIDEDOCK: 是否隱藏dock圖示
 SETTINGS_ISHIDEDOCK_TIPS: 不支持同時隱藏dock和托盘
+SETTINGS_ENCODE_OUTPUT_URL: 輸出（複製） URL 時進行轉義
+
 # shortcut-page
 
 SHORTCUT_NAME: 快捷鍵名稱

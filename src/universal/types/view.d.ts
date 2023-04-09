@@ -15,7 +15,8 @@ interface ISettingForm {
   deleteCloudFile: boolean,
   isCustomMiniIcon: boolean,
   customMiniIcon: string,
-  isHideDock: boolean
+  isHideDock: boolean,
+  encodeOutputURL: boolean
 }
 
 interface IShortKeyMap {
