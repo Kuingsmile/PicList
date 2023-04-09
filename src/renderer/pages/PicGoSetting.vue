@@ -1244,6 +1244,7 @@ function updateHelperChange (val: ICheckBoxValueType) {
 function handleHideDockChange (val: ICheckBoxValueType) {
   if (val && currentStartMode.value === 'no-tray') {
     ElMessage.warning($T('SETTINGS_ISHIDEDOCK_TIPS'))
+    form.isHideDock = false
     return
   }
   saveConfig('settings.isHideDock', val)
