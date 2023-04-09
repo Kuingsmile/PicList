@@ -163,7 +163,7 @@ class LifeCycle {
       }
       db.set('needReload', false)
       const isHideDock = db.get('settings.isHideDock') || false
-      if (isHideDock) {
+      if (isHideDock && process.platform === 'darwin') {
         app.dock.hide()
       }
       updateChecker()
