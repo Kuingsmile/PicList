@@ -71,6 +71,7 @@
               </el-select>
             </el-form-item>
             <el-form-item
+              v-if="os === 'darwin'"
               :label="$T('SETTINGS_ISHIDEDOCK')"
             >
               <el-switch
