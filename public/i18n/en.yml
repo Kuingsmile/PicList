@@ -190,6 +190,7 @@ SETTINGS_CUSTOM_MINI_ICON: Custom Mini Window Icon
 SETTINGS_COMPRESS_AND_WATERMARK: Compress and Watermark
 SETTINGS_SYNC_DELETE_CLOUD: Sync delete from cloud storage of gallery
 SETTINGS_ISHIDEDOCK: Hide Dock Icon
+SETTINGS_ISHIDEDOCK_TIPS: Not support hide dock and tray at the same time
 # shortcut-page
 
 BUILTIN_CLIPBOARD_TIPS: Use builtin clipboard function to upload instead of using scripts

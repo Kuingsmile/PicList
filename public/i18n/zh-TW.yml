@@ -191,6 +191,7 @@ SETTINGS_CUSTOM_MINI_ICON: 自訂Mini視窗圖示
 SETTINGS_COMPRESS_AND_WATERMARK: 設置圖片浮水印和壓縮-格式轉換等參數
 SETTINGS_SYNC_DELETE_CLOUD: 從相簿中刪除並同步從雲端刪除
 SETTINGS_ISHIDEDOCK: 是否隱藏dock圖示
+SETTINGS_ISHIDEDOCK_TIPS: 不支持同時隱藏dock和托盘
 # shortcut-page
 
 SHORTCUT_NAME: 快捷鍵名稱

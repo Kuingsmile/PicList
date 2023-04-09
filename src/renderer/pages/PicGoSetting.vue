@@ -1242,6 +1242,10 @@ function updateHelperChange (val: ICheckBoxValueType) {
 }
 
 function handleHideDockChange (val: ICheckBoxValueType) {
+  if (val && currentStartMode.value === 'no-tray') {
+    ElMessage.warning($T('SETTINGS_ISHIDEDOCK_TIPS'))
+    return
+  }
   saveConfig('settings.isHideDock', val)
   sendToMain(HIDE_DOCK, val)
 }
@@ -1457,12 +1461,17 @@ function handleLanguageChange (val: string) {
 }
 
 function handleStartModeChange (val: 'quiet' | 'mini' | 'main' | 'no-tray') {
+  if (val === 'no-tray') {
+    if (form.isHideDock) {
+      ElMessage.warning($T('SETTINGS_ISHIDEDOCK_TIPS'))
+      currentStartMode.value = 'quiet'
+      return
+    }
+    $message.info($T('TIPS_NEED_RELOAD'))
+  }
   saveConfig({
     'settings.startMode': val
   })
-  if (val === 'no-tray') {
-    $message.info($T('TIPS_NEED_RELOAD'))
-  }
 }
 
 function goConfigPage () {
