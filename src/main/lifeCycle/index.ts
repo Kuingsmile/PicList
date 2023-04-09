@@ -154,8 +154,15 @@ class LifeCycle {
           ])
         )
       }
-      createTray()
+      const startMode = db.get('settings.startMode') || 'quiet'
+      if (startMode !== 'no-tray' && process.platform === 'darwin') {
+        createTray()
+      }
       db.set('needReload', false)
+      const isHideDock = db.get('settings.isHideDock') || false
+      if (isHideDock) {
+        app.dock.hide()
+      }
       updateChecker()
       // 不需要阻塞
       process.nextTick(() => {
@@ -175,7 +182,6 @@ class LifeCycle {
       }
       await remoteNoticeHandler.init()
       remoteNoticeHandler.triggerHook(IRemoteNoticeTriggerHook.APP_START)
-      const startMode = db.get('settings.startMode') || 'quiet'
       if (startMode === 'mini') {
         windowManager.create(IWindowList.MINI_WINDOW)
         const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
@@ -203,10 +209,6 @@ class LifeCycle {
         const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
         settingWindow.show()
         settingWindow.focus()
-      }
-      const isHideDock = db.get('settings.isHideDock') || false
-      if (isHideDock) {
-        app.dock.hide()
       }
     }
     app.whenReady().then(readyFunction)

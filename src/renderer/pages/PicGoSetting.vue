@@ -64,6 +64,12 @@
                   :value="'mini'"
                 />
                 <el-option
+                  v-if="os === 'darwin'"
+                  key="no-tray"
+                  :label="$T('SETTINGS_START_MODE_NO_TRAY')"
+                  :value="'no-tray'"
+                />
+                <el-option
                   key="main"
                   :label="$T('SETTINGS_START_MODE_MAIN')"
                   :value="'main'"
@@ -1450,10 +1456,13 @@ function handleLanguageChange (val: string) {
   sendToMain(GET_PICBEDS)
 }
 
-function handleStartModeChange (val: 'quiet' | 'mini' | 'main') {
+function handleStartModeChange (val: 'quiet' | 'mini' | 'main' | 'no-tray') {
   saveConfig({
     'settings.startMode': val
   })
+  if (val === 'no-tray') {
+    $message.info($T('TIPS_NEED_RELOAD'))
+  }
 }
 
 function goConfigPage () {
