@@ -175,7 +175,8 @@ class LifeCycle {
       }
       await remoteNoticeHandler.init()
       remoteNoticeHandler.triggerHook(IRemoteNoticeTriggerHook.APP_START)
-      if (db.get('settings.startMode') === 'mini') {
+      const startMode = db.get('settings.startMode') || 'quiet'
+      if (startMode === 'mini') {
         windowManager.create(IWindowList.MINI_WINDOW)
         const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
         if (db.get('settings.miniWindowOntop')) {
@@ -198,10 +199,14 @@ class LifeCycle {
         })
         miniWindow.show()
         miniWindow.focus()
-      } else if (db.get('settings.startMode') === 'main') {
+      } else if (startMode === 'main') {
         const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
         settingWindow.show()
         settingWindow.focus()
+      }
+      const isHideDock = db.get('settings.isHideDock') || false
+      if (isHideDock) {
+        app.dock.hide()
       }
     }
     app.whenReady().then(readyFunction)

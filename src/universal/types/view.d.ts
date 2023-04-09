@@ -14,7 +14,8 @@ interface ISettingForm {
   logFileSizeLimit: number,
   deleteCloudFile: boolean,
   isCustomMiniIcon: boolean,
-  customMiniIcon: string
+  customMiniIcon: string,
+  isHideDock: boolean
 }
 
 interface IShortKeyMap {

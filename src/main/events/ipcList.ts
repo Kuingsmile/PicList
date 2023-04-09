@@ -30,7 +30,8 @@ import {
   RELOAD_APP,
   SHOW_PLUGIN_PAGE_MENU,
   SET_MINI_WINDOW_POS,
-  GET_PICBEDS
+  GET_PICBEDS,
+  HIDE_DOCK
 } from '#/events/constants'
 import {
   uploadClipboardFiles,
@@ -269,6 +270,13 @@ export default {
     ipcMain.on(SET_MINI_WINDOW_POS, (evt: IpcMainEvent, pos: IMiniWindowPos) => {
       const window = BrowserWindow.getFocusedWindow()
       window?.setBounds(pos)
+    })
+    ipcMain.on(HIDE_DOCK, (_evt: IpcMainEvent, val: boolean) => {
+      if (val) {
+        app.dock.hide()
+      } else {
+        app.dock.show()
+      }
     })
   },
   dispose () {}

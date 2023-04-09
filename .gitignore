@@ -9,6 +9,7 @@ node_modules/
 npm-debug.log
 npm-debug.log.*
 thumbs.db
+remote-notice.json
 !.gitkeep
 yarn-error.log
 docs/dist/

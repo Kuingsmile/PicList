@@ -189,6 +189,7 @@ SETTINGS_CUSTOM_MINI_ICON_PATH: 自定义Mini窗口图标路径
 SETTINGS_CUSTOM_MINI_ICON: 是否自定义Mini窗口图标
 SETTINGS_COMPRESS_AND_WATERMARK: 设置图片水印和压缩-格式转换等参数
 SETTINGS_SYNC_DELETE_CLOUD: 相册内删除时同步删除云端文件
+SETTINGS_ISHIDEDOCK: 是否隐藏dock图标
 
 # shortcut-page
 

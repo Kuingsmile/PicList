@@ -71,6 +71,16 @@
               </el-select>
             </el-form-item>
             <el-form-item
+              :label="$T('SETTINGS_ISHIDEDOCK')"
+            >
+              <el-switch
+                v-model="form.isHideDock"
+                :active-text="$T('SETTINGS_OPEN')"
+                :inactive-text="$T('SETTINGS_CLOSE')"
+                @change="handleHideDockChange"
+              />
+            </el-form-item>
+            <el-form-item
               :label="$T('SETTINGS_MIGRATE_FROM_PICGO')"
             >
               <el-button
@@ -897,7 +907,7 @@
 import { ElForm, ElMessage as $message, ElMessage, ElMessageBox, FormRules } from 'element-plus'
 import { Reading, QuestionFilled } from '@element-plus/icons-vue'
 import pkg from 'root/package.json'
-import { PICGO_OPEN_FILE, OPEN_URL, GET_PICBEDS } from '#/events/constants'
+import { PICGO_OPEN_FILE, OPEN_URL, GET_PICBEDS, HIDE_DOCK } from '#/events/constants'
 import {
   ipcRenderer
 } from 'electron'
@@ -1022,7 +1032,8 @@ const form = reactive<ISettingForm>({
   logFileSizeLimit: 10,
   deleteCloudFile: false,
   isCustomMiniIcon: false,
-  customMiniIcon: ''
+  customMiniIcon: '',
+  isHideDock: false
 })
 
 const languageList = i18nManager.languageList.map(item => ({
@@ -1117,6 +1128,7 @@ async function initData () {
     form.deleteCloudFile = settings.deleteCloudFile || false
     form.isCustomMiniIcon = settings.isCustomMiniIcon || false
     form.customMiniIcon = settings.customMiniIcon || ''
+    form.isHideDock = settings.isHideDock || false
     currentLanguage.value = settings.language ?? 'zh-CN'
     currentStartMode.value = settings.startMode || 'quiet'
     customLink.value = settings.customLink || '$url'
@@ -1166,7 +1178,7 @@ function openLogSetting () {
 
 async function cancelCustomLink () {
   customLinkVisible.value = false
-  customLink.value = await getConfig<string>('settings.customLink') || '$url'
+  customLink.value = await getConfig<string>('settings.customLink') || '![$fileName]($url)'
 }
 
 function confirmCustomLink () {
@@ -1220,6 +1232,11 @@ function handelMigrateFromPicGo () {
 
 function updateHelperChange (val: ICheckBoxValueType) {
   saveConfig('settings.showUpdateTip', val)
+}
+
+function handleHideDockChange (val: ICheckBoxValueType) {
+  saveConfig('settings.isHideDock', val)
+  sendToMain(HIDE_DOCK, val)
 }
 
 function useBuiltinClipboardChange (val: ICheckBoxValueType) {
