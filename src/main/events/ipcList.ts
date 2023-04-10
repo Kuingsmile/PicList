@@ -168,7 +168,7 @@ export default {
     ipcMain.on('openMiniWindow', () => {
       const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
       const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
-
+      miniWindow.removeAllListeners()
       if (db.get('settings.miniWindowOntop')) {
         miniWindow.setAlwaysOnTop(true)
       }
@@ -179,14 +179,12 @@ export default {
       } else {
         miniWindow.setPosition(width - 100, height - 100)
       }
-      miniWindow.on('close', () => {
+      const setPositionFunc = () => {
         const position = miniWindow.getPosition()
         db.set('settings.miniWindowPosition', position)
-      })
-      miniWindow.on('move', () => {
-        const position = miniWindow.getPosition()
-        db.set('settings.miniWindowPosition', position)
-      })
+      }
+      miniWindow.on('close', setPositionFunc)
+      miniWindow.on('move', setPositionFunc)
       miniWindow.show()
       miniWindow.focus()
       settingWindow.hide()

@@ -190,6 +190,7 @@ class LifeCycle {
       if (startMode === 'mini') {
         windowManager.create(IWindowList.MINI_WINDOW)
         const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
+        miniWindow.removeAllListeners()
         if (db.get('settings.miniWindowOntop')) {
           miniWindow.setAlwaysOnTop(true)
         }
@@ -200,14 +201,12 @@ class LifeCycle {
         } else {
           miniWindow.setPosition(width - 100, height - 100)
         }
-        miniWindow.on('close', () => {
+        const setPositionFunc = () => {
           const position = miniWindow.getPosition()
           db.set('settings.miniWindowPosition', position)
-        })
-        miniWindow.on('move', () => {
-          const position = miniWindow.getPosition()
-          db.set('settings.miniWindowPosition', position)
-        })
+        }
+        miniWindow.on('close', setPositionFunc)
+        miniWindow.on('move', setPositionFunc)
         miniWindow.show()
         miniWindow.focus()
       } else if (startMode === 'main') {
@@ -269,8 +268,6 @@ class LifeCycle {
       globalShortcut.unregisterAll()
       bus.removeAllListeners()
       server.shutdown()
-      const clipboardWatcher = process.platform === 'darwin' ? clipboardPoll : clipboardListener
-      clipboardWatcher.stopListening()
     })
     // Exit cleanly on request from parent process in development mode.
     if (isDevelopment) {

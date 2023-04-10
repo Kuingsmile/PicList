@@ -58,6 +58,7 @@ export function setDockMenu () {
       click () {
         db.set('settings.isListeningClipboard', false)
         clipboardPoll.stopListening()
+        clipboardPoll.removeAllListeners()
         setDockMenu()
       },
       enabled: isListeningClipboard
@@ -152,6 +153,7 @@ export function createContextMenu () {
         click () {
           db.set('settings.isListeningClipboard', false)
           ClipboardWatcher.stopListening()
+          ClipboardWatcher.removeAllListeners()
           createContextMenu()
         },
         enabled: isListeningClipboard
@@ -175,7 +177,7 @@ export function createContextMenu () {
           label: T('OPEN_MINI_WINDOW'),
           click () {
             const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
-
+            miniWindow.removeAllListeners()
             if (db.get('settings.miniWindowOntop')) {
               miniWindow.setAlwaysOnTop(true)
             }
@@ -186,14 +188,12 @@ export function createContextMenu () {
             } else {
               miniWindow.setPosition(width - 100, height - 100)
             }
-            miniWindow.on('close', () => {
+            const setPositionFunc = () => {
               const position = miniWindow.getPosition()
               db.set('settings.miniWindowPosition', position)
-            })
-            miniWindow.on('move', () => {
-              const position = miniWindow.getPosition()
-              db.set('settings.miniWindowPosition', position)
-            })
+            }
+            miniWindow.on('close', setPositionFunc)
+            miniWindow.on('move', setPositionFunc)
             miniWindow.show()
             miniWindow.focus()
           }
@@ -225,7 +225,7 @@ export function createContextMenu () {
         label: T('OPEN_MINI_WINDOW'),
         click () {
           const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
-
+          miniWindow.removeAllListeners()
           if (db.get('settings.miniWindowOntop')) {
             miniWindow.setAlwaysOnTop(true)
           }
@@ -236,14 +236,12 @@ export function createContextMenu () {
           } else {
             miniWindow.setPosition(width - 100, height - 100)
           }
-          miniWindow.on('close', () => {
+          const setPositionFunc = () => {
             const position = miniWindow.getPosition()
             db.set('settings.miniWindowPosition', position)
-          })
-          miniWindow.on('move', () => {
-            const position = miniWindow.getPosition()
-            db.set('settings.miniWindowPosition', position)
-          })
+          }
+          miniWindow.on('close', setPositionFunc)
+          miniWindow.on('move', setPositionFunc)
           miniWindow.show()
           miniWindow.focus()
         }
@@ -266,6 +264,7 @@ export function createContextMenu () {
         click () {
           db.set('settings.isListeningClipboard', false)
           ClipboardWatcher.stopListening()
+          ClipboardWatcher.removeAllListeners()
           createContextMenu()
         },
         enabled: isListeningClipboard
