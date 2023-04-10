@@ -8,3 +8,4 @@ declare module '*.vue' {
 //   function fixPath(): void
 //   export default fixPath
 // }
+declare module 'clipboard-event'

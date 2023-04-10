@@ -346,6 +346,16 @@
               />
             </el-form-item>
             <el-form-item
+              :label="$T('SETTINGS_WATCH_CLIPBOARD')"
+            >
+              <el-switch
+                v-model="form.isAutoListenClipboard"
+                :active-text="$T('SETTINGS_OPEN')"
+                :inactive-text="$T('SETTINGS_CLOSE')"
+                @change="handleIsAutoListenClipboard"
+              />
+            </el-form-item>
+            <el-form-item
               :style="{ marginRight: '-64px' }"
               :label="$T('CHOOSE_SHOWED_PICBED')"
             >
@@ -1034,7 +1044,7 @@ const customLinkRule = (rule: any, value: string, callback: (arg0?: Error) => vo
 }
 const $router = useRouter()
 const form = reactive<ISettingForm>({
-  updateHelper: false,
+  updateHelper: true,
   showPicBedList: [],
   autoStart: false,
   rename: false,
@@ -1044,14 +1054,15 @@ const form = reactive<ISettingForm>({
   logLevel: ['all'],
   autoCopyUrl: true,
   checkBetaUpdate: true,
-  useBuiltinClipboard: false,
+  useBuiltinClipboard: true,
   language: 'zh-CN',
   logFileSizeLimit: 10,
   deleteCloudFile: false,
   isCustomMiniIcon: false,
   customMiniIcon: '',
   isHideDock: false,
-  encodeOutputURL: true
+  encodeOutputURL: true,
+  isAutoListenClipboard: false
 })
 
 const languageList = i18nManager.languageList.map(item => ({
@@ -1132,7 +1143,7 @@ async function initData () {
   if (config !== undefined) {
     const settings = config.settings || {}
     const picBed = config.picBed
-    form.updateHelper = settings.showUpdateTip || false
+    form.updateHelper = settings.showUpdateTip === undefined ? true : settings.showUpdateTip
     form.autoStart = settings.autoStart || false
     form.rename = settings.rename || false
     form.autoRename = settings.autoRename || false
@@ -1141,7 +1152,8 @@ async function initData () {
     form.logLevel = initLogLevel(settings.logLevel || [])
     form.autoCopyUrl = settings.autoCopy === undefined ? true : settings.autoCopy
     form.checkBetaUpdate = settings.checkBetaUpdate === undefined ? true : settings.checkBetaUpdate
-    form.useBuiltinClipboard = settings.useBuiltinClipboard === undefined ? false : settings.useBuiltinClipboard
+    form.useBuiltinClipboard = settings.useBuiltinClipboard === undefined ? true : settings.useBuiltinClipboard
+    form.isAutoListenClipboard = settings.isAutoListenClipboard || false
     form.language = settings.language ?? 'zh-CN'
     form.encodeOutputURL = settings.encodeOutputURL === undefined ? true : settings.encodeOutputURL
     form.deleteCloudFile = settings.deleteCloudFile || false
@@ -1275,6 +1287,10 @@ function handleHideDockChange (val: ICheckBoxValueType) {
 
 function useBuiltinClipboardChange (val: ICheckBoxValueType) {
   saveConfig('settings.useBuiltinClipboard', val)
+}
+
+function handleIsAutoListenClipboard (val: ICheckBoxValueType) {
+  saveConfig('settings.isAutoListenClipboard', val)
 }
 
 function handleShowPicBedListChange (val: ICheckBoxValueType[]) {

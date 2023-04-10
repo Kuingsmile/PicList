@@ -25,7 +25,8 @@ FIND_NEW_VERSION: 發現新版本
 NO_MORE_NOTICE: 以後不再提醒
 SHOW_DEVTOOLS: 開啟開發者工具
 CURRENT_PICBED: 當前圖床
-
+START_WATCH_CLIPBOARD: 開始監聽剪貼簿
+STOP_WATCH_CLIPBOARD: 停止監聽剪貼簿
 # ---renderer i18n begin---
 
 CHOOSE_YOUR_DEFAULT_PICBED: 選擇 ${d} 作為你的預設圖床：
@@ -193,7 +194,7 @@ SETTINGS_SYNC_DELETE_CLOUD: 從相簿中刪除並同步從雲端刪除
 SETTINGS_ISHIDEDOCK: 是否隱藏dock圖示
 SETTINGS_ISHIDEDOCK_TIPS: 不支持同時隱藏dock和托盘
 SETTINGS_ENCODE_OUTPUT_URL: 輸出（複製） URL 時進行轉義
-
+SETTINGS_WATCH_CLIPBOARD: 軟體啟動時自動監聽剪貼簿上傳
 # shortcut-page
 
 SHORTCUT_NAME: 快捷鍵名稱

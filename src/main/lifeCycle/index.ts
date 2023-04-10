@@ -4,7 +4,6 @@ import {
   globalShortcut,
   protocol,
   Notification,
-  Menu,
   dialog,
   screen
 } from 'electron'
@@ -26,7 +25,7 @@ import {
   uploadClipboardFiles
 } from 'apis/app/uploader/apis'
 import {
-  createTray
+  createTray, setDockMenu
 } from 'apis/app/system'
 import server from '~/main/server/index'
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
@@ -45,6 +44,10 @@ import UpDownTaskQueue from '../manage/datastore/upDownTaskQueue'
 import { T } from '~/main/i18n'
 import { UpdateInfo, autoUpdater } from 'electron-updater'
 import updateChecker from '../utils/updateChecker'
+import clipboardListener from 'clipboard-event'
+import path from 'path'
+import { CLIPBOARD_IMAGE_FOLDER } from '~/universal/utils/static'
+import fs from 'fs-extra'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const handleStartUpFiles = (argv: string[], cwd: string) => {
@@ -138,21 +141,7 @@ class LifeCycle {
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
       if (process.platform === 'darwin') {
-        app.dock.setMenu(
-          Menu.buildFromTemplate([
-            {
-              label: T('OPEN_MAIN_WINDOW'),
-              click () {
-                const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
-                settingWindow!.show()
-                settingWindow!.focus()
-                if (windowManager.has(IWindowList.MINI_WINDOW)) {
-                  windowManager.get(IWindowList.MINI_WINDOW)!.hide()
-                }
-              }
-            }
-          ])
-        )
+        setDockMenu()
       }
       const startMode = db.get('settings.startMode') || 'quiet'
       if (startMode !== 'no-tray' && process.platform === 'darwin') {
@@ -213,6 +202,19 @@ class LifeCycle {
         settingWindow.show()
         settingWindow.focus()
       }
+      const isAutoListenClipboard = db.get('settings.isAutoListenClipboard') || false
+      if (isAutoListenClipboard) {
+        db.set('settings.isListeningClipboard', true)
+        clipboardListener.startListening()
+        clipboardListener.on('change', () => {
+          picgo.log.info('clipboard changed')
+          uploadClipboardFiles()
+        })
+      } else {
+        db.set('settings.isListeningClipboard', false)
+      }
+      const clipboardDir = path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER)
+      fs.ensureDir(clipboardDir)
     }
     app.whenReady().then(readyFunction)
   }

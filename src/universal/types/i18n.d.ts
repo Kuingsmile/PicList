@@ -26,6 +26,8 @@ interface ILocales {
   NO_MORE_NOTICE: string
   SHOW_DEVTOOLS: string
   CURRENT_PICBED: string
+  START_WATCH_CLIPBOARD: string
+  STOP_WATCH_CLIPBOARD: string
   CHOOSE_YOUR_DEFAULT_PICBED: string
   UPLOAD_AREA: string
   UPLOAD_VIEW_HINT: string
@@ -187,6 +189,7 @@ interface ILocales {
   SETTINGS_ISHIDEDOCK: string
   SETTINGS_ISHIDEDOCK_TIPS: string
   SETTINGS_ENCODE_OUTPUT_URL: string
+  SETTINGS_WATCH_CLIPBOARD: string
   SHORTCUT_NAME: string
   SHORTCUT_BIND: string
   SHORTCUT_STATUS: string

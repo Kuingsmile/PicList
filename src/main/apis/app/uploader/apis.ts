@@ -15,7 +15,7 @@ import picgo from '@core/picgo'
 import GuiApi from '../../gui'
 
 const handleClipboardUploading = async (): Promise<false | ImgInfo[]> => {
-  const useBuiltinClipboard = !!db.get('settings.useBuiltinClipboard')
+  const useBuiltinClipboard = db.get('settings.useBuiltinClipboard') === undefined ? true : !!db.get('settings.useBuiltinClipboard')
   const win = windowManager.getAvailableWindow()
   if (useBuiltinClipboard) {
     return await uploader.setWebContents(win!.webContents).uploadWithBuildInClipboard()

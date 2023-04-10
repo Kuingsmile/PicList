@@ -16,7 +16,8 @@ interface ISettingForm {
   isCustomMiniIcon: boolean,
   customMiniIcon: string,
   isHideDock: boolean,
-  encodeOutputURL: boolean
+  encodeOutputURL: boolean,
+  isAutoListenClipboard: boolean
 }
 
 interface IShortKeyMap {

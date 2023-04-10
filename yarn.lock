@@ -5297,6 +5297,11 @@ cli-width@^2.0.0:
   resolved "https://registry.npmjs.org/cli-width/-/cli-width-2.2.1.tgz#b0433d0b4e9c847ef18868a4ef16fd5fc8271c48"
   integrity sha512-GRMWDxpOB6Dgk2E5Uo+3eEBvtOOlimMmpbFiKuLFnQzYDavtLFY3K5ona41jgN/WdRZtG7utuVSVTL4HbZHGkw==
 
+clipboard-event@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.npmjs.org/clipboard-event/-/clipboard-event-1.6.0.tgz#2cd6c6d469b635e3d9be73e2d0cc554cdf17f3d5"
+  integrity sha512-a69QYimd43xM+5hcHkucs0V/QoiZz1fqEFRTnewOITVQOtypRLbCx76Q91Djn6h7O24817dQw44sFUxRYWIuYA==
+
 clipboardy@^2.3.0:
   version "2.3.0"
   resolved "https://registry.npmjs.org/clipboardy/-/clipboardy-2.3.0.tgz#3c2903650c68e46a91b388985bc2774287dba290"

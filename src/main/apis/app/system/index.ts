@@ -19,25 +19,59 @@ import { ensureFilePath, handleCopyUrl } from '~/main/utils/common'
 import { T } from '~/main/i18n'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/main/utils/getMacOSVersion'
 import { buildPicBedListMenu } from '~/main/events/remotes/menu'
+import clipboardListener from 'clipboard-event'
+import picgo from '../../core/picgo'
+import { uploadClipboardFiles } from '../uploader/apis'
 let contextMenu: Menu | null
 let tray: Tray | null
 
+export function setDockMenu () {
+  const isListeningClipboard = db.get('settings.isListeningClipboard') || false
+  const dockMenu = Menu.buildFromTemplate([
+    {
+      label: T('OPEN_MAIN_WINDOW'),
+      click () {
+        const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+        settingWindow!.show()
+        settingWindow!.focus()
+        if (windowManager.has(IWindowList.MINI_WINDOW)) {
+          windowManager.get(IWindowList.MINI_WINDOW)!.hide()
+        }
+      }
+    },
+    {
+      label: T('START_WATCH_CLIPBOARD'),
+      click () {
+        db.set('settings.isListeningClipboard', true)
+        clipboardListener.startListening()
+        clipboardListener.on('change', () => {
+          picgo.log.info('clipboard changed')
+          uploadClipboardFiles()
+        })
+        setDockMenu()
+      },
+      enabled: !isListeningClipboard
+    },
+    {
+      label: T('STOP_WATCH_CLIPBOARD'),
+      click () {
+        db.set('settings.isListeningClipboard', false)
+        clipboardListener.stopListening()
+        setDockMenu()
+      },
+      enabled: isListeningClipboard
+    }
+  ])
+  app.dock.setMenu(dockMenu)
+}
+
 export function createMenu () {
   const submenu = buildPicBedListMenu()
+  const isListeningClipboard = db.get('settings.isListeningClipboard') || false
   const appMenu = Menu.buildFromTemplate([
     {
       label: 'PicList',
       submenu: [
-        {
-          label: T('ABOUT'),
-          click () {
-            dialog.showMessageBox({
-              title: 'PicList',
-              message: 'PicList',
-              detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`
-            })
-          }
-        },
         {
           label: T('OPEN_MAIN_WINDOW'),
           click () {
@@ -48,6 +82,28 @@ export function createMenu () {
               windowManager.get(IWindowList.MINI_WINDOW)!.hide()
             }
           }
+        },
+        {
+          label: T('START_WATCH_CLIPBOARD'),
+          click () {
+            db.set('settings.isListeningClipboard', true)
+            clipboardListener.startListening()
+            clipboardListener.on('change', () => {
+              picgo.log.info('clipboard changed')
+              uploadClipboardFiles()
+            })
+            createMenu()
+          },
+          enabled: !isListeningClipboard
+        },
+        {
+          label: T('STOP_WATCH_CLIPBOARD'),
+          click () {
+            db.set('settings.isListeningClipboard', false)
+            clipboardListener.stopListening()
+            createMenu()
+          },
+          enabled: isListeningClipboard
         },
         {
           label: T('RELOAD_APP'),
@@ -78,19 +134,10 @@ export function createMenu () {
 }
 
 export function createContextMenu () {
+  const isListeningClipboard = db.get('settings.isListeningClipboard') || false
   if (process.platform === 'darwin' || process.platform === 'win32') {
     const submenu = buildPicBedListMenu()
     const template = [
-      {
-        label: T('ABOUT'),
-        click () {
-          dialog.showMessageBox({
-            title: 'PicList',
-            message: 'PicList',
-            detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`
-          })
-        }
-      },
       {
         label: T('OPEN_MAIN_WINDOW'),
         click () {
@@ -107,6 +154,28 @@ export function createContextMenu () {
         type: 'submenu',
         // @ts-ignore
         submenu
+      },
+      {
+        label: T('START_WATCH_CLIPBOARD'),
+        click () {
+          db.set('settings.isListeningClipboard', true)
+          clipboardListener.startListening()
+          clipboardListener.on('change', () => {
+            picgo.log.info('clipboard changed')
+            uploadClipboardFiles()
+          })
+          createContextMenu()
+        },
+        enabled: !isListeningClipboard
+      },
+      {
+        label: T('STOP_WATCH_CLIPBOARD'),
+        click () {
+          db.set('settings.isListeningClipboard', false)
+          clipboardListener.stopListening()
+          createContextMenu()
+        },
+        enabled: isListeningClipboard
       },
       {
         label: T('RELOAD_APP'),
@@ -199,6 +268,28 @@ export function createContextMenu () {
           miniWindow.show()
           miniWindow.focus()
         }
+      },
+      {
+        label: T('START_WATCH_CLIPBOARD'),
+        click () {
+          db.set('settings.isListeningClipboard', true)
+          clipboardListener.startListening()
+          clipboardListener.on('change', () => {
+            picgo.log.info('clipboard changed')
+            uploadClipboardFiles()
+          })
+          createContextMenu()
+        },
+        enabled: !isListeningClipboard
+      },
+      {
+        label: T('STOP_WATCH_CLIPBOARD'),
+        click () {
+          db.set('settings.isListeningClipboard', false)
+          clipboardListener.stopListening()
+          createContextMenu()
+        },
+        enabled: isListeningClipboard
       },
       {
         label: T('ABOUT'),
