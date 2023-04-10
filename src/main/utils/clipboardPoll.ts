@@ -12,8 +12,13 @@ class ClipboardWatcher extends EventEmitter {
   }
 
   startListening (watchDelay = 500) {
-    if (this.timer) {
-      clearInterval(this.timer)
+    this.stopListening()
+    console.log('timer', this.timer)
+
+    const image = clipboard.readImage()
+    if (!image.isEmpty()) {
+      const dataUrl = image.toDataURL()
+      this.lastImage = nativeImage.createFromDataURL(dataUrl)
     }
 
     this.timer = setInterval(() => {
@@ -35,10 +40,12 @@ class ClipboardWatcher extends EventEmitter {
       this.lastImage = currentImage
       this.emit('change', currentImage)
     }, watchDelay)
+    console.log('start timer', this.timer)
   }
 
   stopListening () {
     if (this.timer) {
+      console.log('stop timer')
       clearInterval(this.timer)
       this.timer = null
     }

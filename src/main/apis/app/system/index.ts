@@ -67,9 +67,7 @@ export function setDockMenu () {
 }
 
 export function createMenu () {
-  const ClipboardWatcher = process.platform === 'darwin' ? clipboardPoll : clipboardListener
   const submenu = buildPicBedListMenu()
-  const isListeningClipboard = db.get('settings.isListeningClipboard') || false
   const appMenu = Menu.buildFromTemplate([
     {
       label: 'PicList',
@@ -84,28 +82,6 @@ export function createMenu () {
               windowManager.get(IWindowList.MINI_WINDOW)!.hide()
             }
           }
-        },
-        {
-          label: T('START_WATCH_CLIPBOARD'),
-          click () {
-            db.set('settings.isListeningClipboard', true)
-            ClipboardWatcher.startListening()
-            ClipboardWatcher.on('change', () => {
-              picgo.log.info('clipboard changed')
-              uploadClipboardFiles()
-            })
-            createMenu()
-          },
-          enabled: !isListeningClipboard
-        },
-        {
-          label: T('STOP_WATCH_CLIPBOARD'),
-          click () {
-            db.set('settings.isListeningClipboard', false)
-            ClipboardWatcher.stopListening()
-            createMenu()
-          },
-          enabled: isListeningClipboard
         },
         {
           label: T('RELOAD_APP'),
