@@ -20,6 +20,7 @@ import { T } from '~/main/i18n'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/main/utils/getMacOSVersion'
 import { buildPicBedListMenu } from '~/main/events/remotes/menu'
 import clipboardListener from 'clipboard-event'
+import clipboardPoll from '~/main/utils/clipboardPoll'
 import picgo from '../../core/picgo'
 import { uploadClipboardFiles } from '../uploader/apis'
 let contextMenu: Menu | null
@@ -43,8 +44,8 @@ export function setDockMenu () {
       label: T('START_WATCH_CLIPBOARD'),
       click () {
         db.set('settings.isListeningClipboard', true)
-        clipboardListener.startListening()
-        clipboardListener.on('change', () => {
+        clipboardPoll.startListening()
+        clipboardPoll.on('change', () => {
           picgo.log.info('clipboard changed')
           uploadClipboardFiles()
         })
@@ -56,7 +57,7 @@ export function setDockMenu () {
       label: T('STOP_WATCH_CLIPBOARD'),
       click () {
         db.set('settings.isListeningClipboard', false)
-        clipboardListener.stopListening()
+        clipboardPoll.stopListening()
         setDockMenu()
       },
       enabled: isListeningClipboard
@@ -66,6 +67,7 @@ export function setDockMenu () {
 }
 
 export function createMenu () {
+  const ClipboardWatcher = process.platform === 'darwin' ? clipboardPoll : clipboardListener
   const submenu = buildPicBedListMenu()
   const isListeningClipboard = db.get('settings.isListeningClipboard') || false
   const appMenu = Menu.buildFromTemplate([
@@ -87,8 +89,8 @@ export function createMenu () {
           label: T('START_WATCH_CLIPBOARD'),
           click () {
             db.set('settings.isListeningClipboard', true)
-            clipboardListener.startListening()
-            clipboardListener.on('change', () => {
+            ClipboardWatcher.startListening()
+            ClipboardWatcher.on('change', () => {
               picgo.log.info('clipboard changed')
               uploadClipboardFiles()
             })
@@ -100,7 +102,7 @@ export function createMenu () {
           label: T('STOP_WATCH_CLIPBOARD'),
           click () {
             db.set('settings.isListeningClipboard', false)
-            clipboardListener.stopListening()
+            ClipboardWatcher.stopListening()
             createMenu()
           },
           enabled: isListeningClipboard
@@ -134,6 +136,7 @@ export function createMenu () {
 }
 
 export function createContextMenu () {
+  const ClipboardWatcher = process.platform === 'darwin' ? clipboardPoll : clipboardListener
   const isListeningClipboard = db.get('settings.isListeningClipboard') || false
   if (process.platform === 'darwin' || process.platform === 'win32') {
     const submenu = buildPicBedListMenu()
@@ -159,8 +162,8 @@ export function createContextMenu () {
         label: T('START_WATCH_CLIPBOARD'),
         click () {
           db.set('settings.isListeningClipboard', true)
-          clipboardListener.startListening()
-          clipboardListener.on('change', () => {
+          ClipboardWatcher.startListening()
+          ClipboardWatcher.on('change', () => {
             picgo.log.info('clipboard changed')
             uploadClipboardFiles()
           })
@@ -172,7 +175,7 @@ export function createContextMenu () {
         label: T('STOP_WATCH_CLIPBOARD'),
         click () {
           db.set('settings.isListeningClipboard', false)
-          clipboardListener.stopListening()
+          ClipboardWatcher.stopListening()
           createContextMenu()
         },
         enabled: isListeningClipboard
@@ -273,8 +276,8 @@ export function createContextMenu () {
         label: T('START_WATCH_CLIPBOARD'),
         click () {
           db.set('settings.isListeningClipboard', true)
-          clipboardListener.startListening()
-          clipboardListener.on('change', () => {
+          ClipboardWatcher.startListening()
+          ClipboardWatcher.on('change', () => {
             picgo.log.info('clipboard changed')
             uploadClipboardFiles()
           })
@@ -286,7 +289,7 @@ export function createContextMenu () {
         label: T('STOP_WATCH_CLIPBOARD'),
         click () {
           db.set('settings.isListeningClipboard', false)
-          clipboardListener.stopListening()
+          ClipboardWatcher.stopListening()
           createContextMenu()
         },
         enabled: isListeningClipboard

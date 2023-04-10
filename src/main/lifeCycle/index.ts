@@ -45,6 +45,7 @@ import { T } from '~/main/i18n'
 import { UpdateInfo, autoUpdater } from 'electron-updater'
 import updateChecker from '../utils/updateChecker'
 import clipboardListener from 'clipboard-event'
+import clipboardPoll from '../utils/clipboardPoll'
 import path from 'path'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/universal/utils/static'
 import fs from 'fs-extra'
@@ -140,6 +141,18 @@ class LifeCycle {
       }
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
+      const isAutoListenClipboard = db.get('settings.isAutoListenClipboard') || false
+      const ClipboardWatcher = process.platform === 'darwin' ? clipboardPoll : clipboardListener
+      if (isAutoListenClipboard) {
+        db.set('settings.isListeningClipboard', true)
+        ClipboardWatcher.startListening()
+        ClipboardWatcher.on('change', () => {
+          picgo.log.info('clipboard changed')
+          uploadClipboardFiles()
+        })
+      } else {
+        db.set('settings.isListeningClipboard', false)
+      }
       if (process.platform === 'darwin') {
         setDockMenu()
       }
@@ -201,17 +214,6 @@ class LifeCycle {
         const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
         settingWindow.show()
         settingWindow.focus()
-      }
-      const isAutoListenClipboard = db.get('settings.isAutoListenClipboard') || false
-      if (isAutoListenClipboard) {
-        db.set('settings.isListeningClipboard', true)
-        clipboardListener.startListening()
-        clipboardListener.on('change', () => {
-          picgo.log.info('clipboard changed')
-          uploadClipboardFiles()
-        })
-      } else {
-        db.set('settings.isListeningClipboard', false)
       }
       const clipboardDir = path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER)
       fs.ensureDir(clipboardDir)
