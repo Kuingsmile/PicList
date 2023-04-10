@@ -85,6 +85,20 @@ MacOS:
 
 [https://github.com/Kuingsmile/PicList/releases/latest](https://github.com/Kuingsmile/PicList/releases/latest)
 
+### Homebrew
+
+MacOS用户现在可以使用Homebrew来安装PicList了，只需要执行以下命令即可：
+
+```bash
+brew install piclist --cask
+```
+
+卸载命令：
+
+```bash
+brew uninstall piclist
+```
+
 ### Mac特殊说明
 
 如果macOS系统安装完PicList显示「文件已损坏」或者安装完打开没有反应，请升级到PicList V1.4.1以上版本。

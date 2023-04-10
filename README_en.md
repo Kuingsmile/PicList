@@ -85,6 +85,20 @@ Search and install `Image auto upload Plugin` in the community plugin, then ente
 
 [https://github.com/Kuingsmile/PicList/releases/latest](https://github.com/Kuingsmile/PicList/releases/latest)
 
+### Homebrew
+
+MacOS users can now use Homebrew to install PicList, just execute the following command:
+
+```bash
+brew install piclist --cask
+```
+
+Uninstall:
+
+```bash
+brew uninstall piclist
+```
+
 ### Mac special instructions
 
 If the macOS system installs PicList and displays "file is damaged" or installs and opens without response, please upgrade to PicList V1.4.1 or above.
