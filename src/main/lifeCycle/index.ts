@@ -269,6 +269,8 @@ class LifeCycle {
       globalShortcut.unregisterAll()
       bus.removeAllListeners()
       server.shutdown()
+      const clipboardWatcher = process.platform === 'darwin' ? clipboardPoll : clipboardListener
+      clipboardWatcher.stopListening()
     })
     // Exit cleanly on request from parent process in development mode.
     if (isDevelopment) {
