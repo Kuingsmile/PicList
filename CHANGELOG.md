@@ -1,3 +1,40 @@
+## :tada: 1.6.2 (2023-04-11)
+
+
+### :sparkles: Features
+
+* add check to avoid hide dock and tray at the same time ([8421925](https://github.com/Kuingsmile/PicList/commit/8421925))
+* add config import for picbed setting ([1b15ccb](https://github.com/Kuingsmile/PicList/commit/1b15ccb))
+* add config item to hide dock, only for macos ([0466fa7](https://github.com/Kuingsmile/PicList/commit/0466fa7))
+* add url encode setting ([8c7c3b2](https://github.com/Kuingsmile/PicList/commit/8c7c3b2))
+* automatically upload  when clipboard changes ([3c3e7cd](https://github.com/Kuingsmile/PicList/commit/3c3e7cd)), closes [#35](https://github.com/Kuingsmile/PicList/issues/35)
+* on macos, tray icon can be hidden now ([4043dbf](https://github.com/Kuingsmile/PicList/commit/4043dbf))
+
+
+### :bug: Bug Fixes
+
+* fix repeated upload bug when listening clipboard ([6c18bcb](https://github.com/Kuingsmile/PicList/commit/6c18bcb))
+* fix some bugs ([7e0991d](https://github.com/Kuingsmile/PicList/commit/7e0991d))
+* hide dock setting for non-darwin os ([fe8112b](https://github.com/Kuingsmile/PicList/commit/fe8112b))
+
+
+### :package: Chore
+
+* modify link generate script ([9915526](https://github.com/Kuingsmile/PicList/commit/9915526))
+* remove unusable console.log ([dce26ff](https://github.com/Kuingsmile/PicList/commit/dce26ff))
+
+
+### :zap: Performance Improvements
+
+* stop clipboard listening when app quit ([993d2ac](https://github.com/Kuingsmile/PicList/commit/993d2ac))
+
+
+### :pencil: Documentation
+
+* add homebrew install describe ([350e6a3](https://github.com/Kuingsmile/PicList/commit/350e6a3))
+
+
+
 ## :tada: 1.6.1 (2023-04-08)
 
 
