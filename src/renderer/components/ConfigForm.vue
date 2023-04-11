@@ -167,7 +167,16 @@ async function getCurConfigFormData () {
   return curTypeConfigList.find(i => i._id === configId) || {}
 }
 
+function updateRuleForm (key: string, value: any) {
+  try {
+    ruleForm[key] = value
+  } catch (e) {
+    console.log(e)
+  }
+}
+
 defineExpose({
+  updateRuleForm,
   validate,
   getConfigType
 })
