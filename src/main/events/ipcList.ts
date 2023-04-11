@@ -118,7 +118,6 @@ export default {
 
     ipcMain.handle('migrateFromPicGo', async () => {
       const picGoConfigPath = STORE_PATH.replace('piclist', 'picgo')
-      console.log(picGoConfigPath)
       const fileToMigration = [
         'data.json',
         'data.bak.json',

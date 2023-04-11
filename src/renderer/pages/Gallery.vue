@@ -516,7 +516,6 @@ function getPicBeds (event: IpcRendererEvent, picBeds: IPicBedType[]) {
 
 function getGallery (): IGalleryItem[] {
   if (searchText.value || choosedPicBed.value.length > 0 || searchTextURL.value || dateRange.value) {
-    console.log(dateRange.value)
     return images.value
       .filter(item => {
         let isInChoosedPicBed = true
