@@ -142,7 +142,7 @@ class LifeCycle {
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
       const isAutoListenClipboard = db.get('settings.isAutoListenClipboard') || false
-      const ClipboardWatcher = process.platform === 'darwin' ? clipboardPoll : clipboardListener
+      const ClipboardWatcher = process.platform === 'win32' ? clipboardListener : clipboardPoll
       if (isAutoListenClipboard) {
         db.set('settings.isListeningClipboard', true)
         ClipboardWatcher.startListening()

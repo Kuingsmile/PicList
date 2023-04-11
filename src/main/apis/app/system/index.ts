@@ -113,7 +113,7 @@ export function createMenu () {
 }
 
 export function createContextMenu () {
-  const ClipboardWatcher = process.platform === 'darwin' ? clipboardPoll : clipboardListener
+  const ClipboardWatcher = process.platform === 'win32' ? clipboardListener : clipboardPoll
   const isListeningClipboard = db.get('settings.isListeningClipboard') || false
   if (process.platform === 'darwin' || process.platform === 'win32') {
     const submenu = buildPicBedListMenu()
