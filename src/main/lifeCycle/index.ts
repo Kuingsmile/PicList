@@ -10,7 +10,6 @@ import {
 import {
   createProtocol
 } from 'vue-cli-plugin-electron-builder/lib'
-import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import beforeOpen from '~/main/utils/beforeOpen'
 import ipcList from '~/main/events/ipcList'
 import busEventList from '~/main/events/busEventList'
@@ -131,14 +130,6 @@ class LifeCycle {
     const readyFunction = async () => {
       console.log('on ready')
       createProtocol('picgo')
-      if (isDevelopment && !process.env.IS_TEST) {
-        // Install Vue Devtools
-        try {
-          await installExtension(VUEJS_DEVTOOLS)
-        } catch (e: any) {
-          console.error('Vue Devtools failed to install:', e.toString())
-        }
-      }
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
       const isAutoListenClipboard = db.get('settings.isAutoListenClipboard') || false
@@ -153,21 +144,15 @@ class LifeCycle {
       } else {
         db.set('settings.isListeningClipboard', false)
       }
-      if (process.platform === 'darwin') {
-        setDockMenu()
-      }
+      const isHideDock = db.get('settings.isHideDock') || false
       const startMode = db.get('settings.startMode') || 'quiet'
-      if (startMode !== 'no-tray' && process.platform === 'darwin') {
-        createTray()
-      }
-      if (process.platform === 'win32' || process.platform === 'linux') {
+      if (process.platform === 'darwin') {
+        isHideDock ? app.dock.hide() : setDockMenu()
+        startMode !== 'no-tray' && createTray()
+      } else {
         createTray()
       }
       db.set('needReload', false)
-      const isHideDock = db.get('settings.isHideDock') || false
-      if (isHideDock && process.platform === 'darwin') {
-        app.dock.hide()
-      }
       updateChecker()
       // 不需要阻塞
       process.nextTick(() => {
