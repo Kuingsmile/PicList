@@ -28,7 +28,8 @@
     "release": "vue-cli-service electron:build --publish always",
     "upload-dist": "node ./scripts/upload-dist-to-r2.js",
     "upload-beta": "node ./scripts/upload-beta.js",
-    "link": "node ./scripts/link.js"
+    "link": "node ./scripts/link.js",
+    "sha256": "node ./scripts/gen-sha256.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.272.0",
