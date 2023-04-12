@@ -5,9 +5,9 @@ import {
   Tray,
   dialog,
   clipboard,
-  systemPreferences,
   Notification,
-  screen
+  screen,
+  nativeTheme
 } from 'electron'
 import uploader from 'apis/app/uploader'
 import db, { GalleryDB } from '~/main/apis/core/datastore'
@@ -101,14 +101,21 @@ export function createMenu () {
     },
     {
       label: 'Edit',
+      // @ts-ignore
       submenu: [
-        { label: 'Undo', accelerator: 'CmdOrCtrl+Z' },
-        { label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z' },
+        // @ts-ignore
+        { label: 'Undo', accelerator: 'CmdOrCtrl+Z', selector: 'undo:' },
+        // @ts-ignore
+        { label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', selector: 'redo:' },
         { type: 'separator' },
-        { label: 'Cut', accelerator: 'CmdOrCtrl+X' },
-        { label: 'Copy', accelerator: 'CmdOrCtrl+C' },
-        { label: 'Paste', accelerator: 'CmdOrCtrl+V' },
-        { label: 'Select All', accelerator: 'CmdOrCtrl+A' }
+        // @ts-ignore
+        { label: 'Cut', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
+        // @ts-ignore
+        { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
+        // @ts-ignore
+        { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
+        // @ts-ignore
+        { label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' }
       ]
     },
     {
@@ -372,7 +379,7 @@ export function createTray () {
     })
 
     tray.on('drag-enter', () => {
-      if (systemPreferences.isDarkMode()) {
+      if (nativeTheme.shouldUseDarkColors) {
         tray!.setImage(`${__static}/upload-dark.png`)
       } else {
         tray!.setImage(`${__static}/upload.png`)

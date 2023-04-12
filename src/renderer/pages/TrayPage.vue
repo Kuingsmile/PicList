@@ -70,7 +70,8 @@ import { IResult } from '@picgo/store/dist/types'
 import { OPEN_WINDOW } from '#/events/constants'
 import { IPasteStyle, IWindowList } from '#/types/enum'
 import { getConfig, sendToMain } from '@/utils/dataSender'
-import pasteTemplate from '~/main/utils/pasteTemplate'
+import { formatCustomLink } from '~/main/utils/pasteTemplate'
+import { handleUrlEncode } from '#/utils/common'
 
 const files = ref<IResult<ImgInfo>[]>([])
 const notification = reactive({
@@ -95,12 +96,28 @@ async function copyTheLink (item: ImgInfo) {
   notification.body = item.imgUrl!
   const pasteStyle = await getConfig<IPasteStyle>('settings.pasteStyle') || IPasteStyle.MARKDOWN
   const customLink = await getConfig<string>('settings.customLink')
-  const txt = pasteTemplate(pasteStyle, item, customLink)
+  const txt = await pasteTemplate(pasteStyle, item, customLink)
   clipboard.writeText(txt)
   const myNotification = new Notification(notification.title, notification)
   myNotification.onclick = () => {
     return true
   }
+}
+
+async function pasteTemplate (style: IPasteStyle, item: ImgInfo, customLink: string | undefined) {
+  let url = item.url || item.imgUrl
+  if ((await getConfig('settings.encodeOutputURL')) !== false) {
+    url = handleUrlEncode(url)
+  }
+  const _customLink = customLink || '![$fileName]($url)'
+  const tpl = {
+    markdown: `![](${url})`,
+    HTML: `<img src="${url}"/>`,
+    URL: url,
+    UBB: `[IMG]${url}[/IMG]`,
+    Custom: formatCustomLink(_customLink, item)
+  }
+  return tpl[style]
 }
 
 // function calcHeight (width: number, height: number): number {

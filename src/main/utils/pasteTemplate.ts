@@ -2,7 +2,7 @@ import { IPasteStyle } from '#/types/enum'
 import { handleUrlEncode } from '#/utils/common'
 import db from '~/main/apis/core/datastore'
 
-const formatCustomLink = (customLink: string, item: ImgInfo) => {
+export const formatCustomLink = (customLink: string, item: ImgInfo) => {
   const fileName = item.fileName!.replace(new RegExp(`\\${item.extname}$`), '')
   const url = item.url || item.imgUrl
   const extName = item.extname
