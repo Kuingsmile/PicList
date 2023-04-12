@@ -14,13 +14,17 @@ import picgoCoreIPC from '~/main/events/picgoCoreIPC'
 import { PicGo as PicGoCore } from 'piclist'
 import { T } from '~/main/i18n'
 import { changeCurrentUploader } from '~/main/utils/handleUploaderConfig'
-
+import db from '~/main/apis/core/datastore'
+import clipboardListener from 'clipboard-event'
+import clipboardPoll from '~/main/utils/clipboardPoll'
 interface GuiMenuItem {
   label: string
   handle: (arg0: PicGoCore, arg1: GuiApi) => Promise<void>
 }
 
 const buildMiniPageMenu = () => {
+  const isListeningClipboard = db.get('settings.isListeningClipboard') || false
+  const ClipboardWatcher = process.platform === 'win32' ? clipboardListener : clipboardPoll
   const submenu = buildPicBedListMenu()
   const template = [
     {
@@ -48,6 +52,29 @@ const buildMiniPageMenu = () => {
       click () {
         BrowserWindow.getFocusedWindow()!.hide()
       }
+    },
+    {
+      label: T('START_WATCH_CLIPBOARD'),
+      click () {
+        db.set('settings.isListeningClipboard', true)
+        ClipboardWatcher.startListening()
+        ClipboardWatcher.on('change', () => {
+          picgo.log.info('clipboard changed')
+          uploadClipboardFiles()
+        })
+        buildMiniPageMenu()
+      },
+      enabled: !isListeningClipboard
+    },
+    {
+      label: T('STOP_WATCH_CLIPBOARD'),
+      click () {
+        db.set('settings.isListeningClipboard', false)
+        ClipboardWatcher.stopListening()
+        ClipboardWatcher.removeAllListeners()
+        buildMiniPageMenu()
+      },
+      enabled: isListeningClipboard
     },
     {
       label: T('RELOAD_APP'),

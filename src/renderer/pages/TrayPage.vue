@@ -70,7 +70,6 @@ import { IResult } from '@picgo/store/dist/types'
 import { OPEN_WINDOW } from '#/events/constants'
 import { IPasteStyle, IWindowList } from '#/types/enum'
 import { getConfig, sendToMain } from '@/utils/dataSender'
-import { formatCustomLink } from '~/main/utils/pasteTemplate'
 import { handleUrlEncode } from '#/utils/common'
 
 const files = ref<IResult<ImgInfo>[]>([])
@@ -90,6 +89,25 @@ function openSettingWindow () {
 
 async function getData () {
   files.value = (await $$db.get<ImgInfo>({ orderBy: 'desc', limit: 5 })).data
+}
+
+const formatCustomLink = (customLink: string, item: ImgInfo) => {
+  const fileName = item.fileName!.replace(new RegExp(`\\${item.extname}$`), '')
+  const url = item.url || item.imgUrl
+  const extName = item.extname
+  const formatObj = {
+    url,
+    fileName,
+    extName
+  }
+  const keys = Object.keys(formatObj) as ['url', 'fileName', 'extName']
+  keys.forEach(item => {
+    if (customLink.indexOf(`$${item}`) !== -1) {
+      const reg = new RegExp(`\\$${item}`, 'g')
+      customLink = customLink.replace(reg, formatObj[item])
+    }
+  })
+  return customLink
 }
 
 async function copyTheLink (item: ImgInfo) {
