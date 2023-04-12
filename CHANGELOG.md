@@ -1,3 +1,24 @@
+# :tada: 1.7.0 (2023-04-12)
+
+
+### :sparkles: Features
+
+* add clipbord listening menu for mini page ([04d6705](https://github.com/Kuingsmile/PicList/commit/04d6705))
+
+
+### :bug: Bug Fixes
+
+* fix macos traypage bug ([b20c6d7](https://github.com/Kuingsmile/PicList/commit/b20c6d7))
+* mac shortcut bug ([9305293](https://github.com/Kuingsmile/PicList/commit/9305293))
+
+
+### :package: Chore
+
+* add sha256 calculate script for macos build ([0bf9e91](https://github.com/Kuingsmile/PicList/commit/0bf9e91))
+* add sha256 command ([ccafb2d](https://github.com/Kuingsmile/PicList/commit/ccafb2d))
+
+
+
 ## :tada: 1.6.2 (2023-04-11)
 
 
