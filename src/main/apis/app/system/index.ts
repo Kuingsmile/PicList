@@ -387,7 +387,7 @@ export function createTray () {
     })
 
     tray.on('drag-end', () => {
-      tray!.setImage(`${__static}/menubar.png`)
+      tray!.setImage(getTrayIcon())
     })
 
     // drop-files only be supported in macOS
