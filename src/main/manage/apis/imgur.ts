@@ -60,35 +60,24 @@ class ImgurApi {
     const result = [] as any[]
     do {
       res = await got(
-        `${this.baseUrl}/account/${this.userName}/albums/ids/${initPage}`,
+        `${this.baseUrl}/account/${this.userName}/albums/${initPage}`,
         getOptions('GET', this.tokenHeaders, undefined, 'json', undefined, undefined, this.proxy)
       ) as any
-      if (res.statusCode === 200 && res.body.success) {
-        res.body.data.forEach((item: any) => {
-          result.push(item)
-        })
-      } else {
+      if (!(res.statusCode === 200 && res.body.success)) {
         return []
       }
+      result.push(...res.body.data)
       initPage++
     } while (res.body.data.length > 0)
     const finalResult = [] as any[]
     for (let i = 0; i < result.length; i++) {
       const item = result[i]
-      const res = await got(
-        `${this.baseUrl}/account/${this.userName}/album/${item}`,
-        getOptions('GET', this.tokenHeaders, undefined, 'json', undefined, undefined, this.proxy)
-      ) as any
-      if (res.statusCode === 200 && res.body.success) {
-        finalResult.push({
-          ...res.body.data,
-          Name: res.body.data.title,
-          Location: res.body.data.id,
-          CreationDate: res.body.data.datetime
-        })
-      } else {
-        return []
-      }
+      finalResult.push({
+        ...item,
+        Name: item.title,
+        Location: item.id,
+        CreationDate: item.datetime
+      })
     }
     finalResult.push({
       Name: '全部',
