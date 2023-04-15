@@ -29,13 +29,14 @@ if you want to use PicList-core, please go to [https://github.com/Kuingsmile/Pic
 ## Features
 
 - Maintain all the functions of PicGo, compatible with the existing PicGo plug-in system, including the combination with typora, obsidian and other software
+- Add support for webdav upload, imgur account upload, etc.
 - Synchronous cloud deletion of pictures in the album, advanced search and sorting features have been added, along with the ability to bulk modify URLs.
 - Built-in watermark addition, image compression, image scaling, image rotation and image format conversion functions, support custom configuration, and can be called through CLI command line
 - Support management of all cloud storage platforms, can be online to view the cloud directory, file search, batch upload, batch download, delete files and other operations
 - Support previewing multiple formats of files, including pictures, videos, plain text files and markdown files, etc. For the specific formats supported, please refer to [Supported file format list](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)
 - Support batch cloud file renaming based on regular expressions
 - The management interface uses the built-in database cache directory to accelerate the directory loading speed
-- For private storage buckets and other cloud storage platforms that support copying pre-signed links for sharing
+- Support automatic update, no need to download manually every time, support multiple startup mode selection, and more function details are added and optimized
 - Optimized the PicGo interface, unlocked the window size limit, and beautified the interface layout
 - The installation package of the mac platform has been signed, and the installation package has been corrupted from the source to solve the daily problem of PicGo's installation package has been corrupted
 
