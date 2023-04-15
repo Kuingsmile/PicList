@@ -54,6 +54,7 @@
     "dexie": "^3.2.3",
     "electron-updater": "^5.3.0",
     "element-plus": "^2.2.32",
+    "epipebomb": "^1.0.0",
     "fast-xml-parser": "^4.1.1",
     "form-data": "^4.0.0",
     "fs-extra": "^11.1.0",
