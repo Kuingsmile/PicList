@@ -538,7 +538,7 @@ function handleConfigImport (alias: string) {
 
 async function getCurrentConfigList () {
   const configList = await getPicBedsConfig<any>('uploader') ?? {}
-  const pbList = ['aliyun', 'tcyun', 'upyun', 'qiniu', 'smms', 'qiniu', 'github', 'webdavplist', 'aws-s3']
+  const pbList = ['aliyun', 'tcyun', 'upyun', 'qiniu', 'smms', 'qiniu', 'github', 'webdavplist', 'aws-s3', 'imgur']
   const filteredConfigList = pbList.map((pb) => {
     const config = configList[pb]
     if (config && config.configList.length > 0) {
@@ -740,6 +740,18 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
           }
           : {}
       )
+      saveConfig(`picBed.${resultMap.alias}`, resultMap)
+      break
+    case 'imgur':
+      alias = `imgur-${config._configName ?? 'Default'}-imp`
+      if (!config.username || !config.accessToken || isImported(alias)) {
+        return
+      }
+      resultMap.alias = alias
+      resultMap.picBedName = 'imgur'
+      resultMap.imgurUserName = config.username
+      resultMap.accessToken = config.accessToken
+      resultMap.proxy = config.proxy || ''
       saveConfig(`picBed.${resultMap.alias}`, resultMap)
       break
     default:
