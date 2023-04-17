@@ -5,7 +5,8 @@ import {
   Notification,
   IpcMainEvent,
   BrowserWindow,
-  screen
+  screen,
+  IpcMainInvokeEvent
 } from 'electron'
 import windowManager from 'apis/app/window/windowManager'
 import { IWindowList } from '#/types/enum'
@@ -42,6 +43,7 @@ import { handleCopyUrl } from '~/main/utils/common'
 import { buildMainPageMenu, buildMiniPageMenu, buildPluginPageMenu, buildPicBedListMenu } from './remotes/menu'
 import path from 'path'
 import { T } from '~/main/i18n'
+import { generateShortUrl } from '~/universal/utils/common'
 
 const STORE_PATH = app.getPath('userData')
 
@@ -155,6 +157,11 @@ export default {
       app.setLoginItemSettings({
         openAtLogin: val
       })
+    })
+
+    ipcMain.handle('getShortUrl', async (evt: IpcMainInvokeEvent, url: string) => {
+      const shortUrl = await generateShortUrl(url)
+      return shortUrl
     })
 
     ipcMain.on('openSettingWindow', () => {

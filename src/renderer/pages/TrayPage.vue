@@ -70,7 +70,7 @@ import { IResult } from '@picgo/store/dist/types'
 import { OPEN_WINDOW } from '#/events/constants'
 import { IPasteStyle, IWindowList } from '#/types/enum'
 import { getConfig, sendToMain } from '@/utils/dataSender'
-import { handleUrlEncode, generateShortUrl } from '#/utils/common'
+import { handleUrlEncode } from '#/utils/common'
 
 const files = ref<IResult<ImgInfo>[]>([])
 const notification = reactive({
@@ -111,7 +111,6 @@ const formatCustomLink = (customLink: string, item: ImgInfo) => {
 }
 
 async function copyTheLink (item: ImgInfo) {
-  notification.body = item.imgUrl!
   const pasteStyle = await getConfig<IPasteStyle>('settings.pasteStyle') || IPasteStyle.MARKDOWN
   const customLink = await getConfig<string>('settings.customLink')
   const txt = await pasteTemplate(pasteStyle, item, customLink)
@@ -129,15 +128,18 @@ async function pasteTemplate (style: IPasteStyle, item: ImgInfo, customLink: str
   }
   const useShortUrl = await getConfig('settings.useShortUrl') || false
   if (useShortUrl) {
-    url = await generateShortUrl(url)
+    url = await ipcRenderer.invoke('getShortUrl', url)
   }
+  const copyedItem = JSON.parse(JSON.stringify(item))
+  copyedItem.url = url
+  notification.body = url
   const _customLink = customLink || '![$fileName]($url)'
   const tpl = {
     markdown: `![](${url})`,
     HTML: `<img src="${url}"/>`,
     URL: url,
     UBB: `[IMG]${url}[/IMG]`,
-    Custom: formatCustomLink(_customLink, item)
+    Custom: formatCustomLink(_customLink, copyedItem)
   }
   return tpl[style]
 }
