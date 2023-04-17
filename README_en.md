@@ -42,6 +42,18 @@ if you want to use PicList-core, please go to [https://github.com/Kuingsmile/Pic
 
 ### How to use in Typora
 
+#### **Version 1.6.0-dev and above**
+
+**Typora 1.6.0-dev and above versions now support PicList natively**
+
+download link:
+
+[Windows Version](https://download.typora.io/windows/typora-setup-x64-1.6.0-dev.exe)
+
+[Mac OS Version](https://download.typora.io/mac/Typora-1.6.0-dev.dmg)
+
+#### **Version < 1.6.0-dev**
+
 Windows:
 
 Enter the Typora settings page, select the image, set the upload service to `PicGo(app)`, and then fill in the installation path of PicList in `PicGo path`, as shown below:

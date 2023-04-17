@@ -30,15 +30,16 @@ export default async (style: IPasteStyle, item: ImgInfo, customLink: string | un
   if (useShortUrl) {
     url = await generateShortUrl(url)
   }
-  const copyedItem = JSON.parse(JSON.stringify(item))
-  copyedItem.url = url
   const _customLink = customLink || '![$fileName]($url)'
   const tpl = {
     markdown: `![](${url})`,
     HTML: `<img src="${url}"/>`,
     URL: url,
     UBB: `[IMG]${url}[/IMG]`,
-    Custom: formatCustomLink(_customLink, copyedItem)
+    Custom: formatCustomLink(_customLink, {
+      ...item,
+      url
+    })
   }
   return tpl[style]
 }

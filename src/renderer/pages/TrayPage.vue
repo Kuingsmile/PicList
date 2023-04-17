@@ -130,8 +130,6 @@ async function pasteTemplate (style: IPasteStyle, item: ImgInfo, customLink: str
   if (useShortUrl) {
     url = await ipcRenderer.invoke('getShortUrl', url)
   }
-  const copyedItem = JSON.parse(JSON.stringify(item))
-  copyedItem.url = url
   notification.body = url
   const _customLink = customLink || '![$fileName]($url)'
   const tpl = {
@@ -139,7 +137,10 @@ async function pasteTemplate (style: IPasteStyle, item: ImgInfo, customLink: str
     HTML: `<img src="${url}"/>`,
     URL: url,
     UBB: `[IMG]${url}[/IMG]`,
-    Custom: formatCustomLink(_customLink, copyedItem)
+    Custom: formatCustomLink(_customLink, {
+      ...item,
+      url
+    })
   }
   return tpl[style]
 }

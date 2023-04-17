@@ -42,6 +42,17 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 
 ### 如何在Typora中使用
 
+#### **1.6.0版本及以上**
+
+**Typora 1.6.0-dev以及以上版本现在已经原生支持PicList了**
+
+下载地址：
+
+[Windows 版本](https://download.typora.io/windows/typora-setup-x64-1.6.0-dev.exe "windows")
+[Mac OS版本](https://download.typora.io/mac/Typora-1.6.0-dev.dmg "macOS")
+
+#### 1.6.0版本以下
+
 Windows:
 
 进入Typora设置界面，选择图像，将上传服务设置为 `PicGo(app)`，然后在 `PicGo路径`中填写PicList的安装路径，如下图所示：
