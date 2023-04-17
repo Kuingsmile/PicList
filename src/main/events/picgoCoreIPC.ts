@@ -346,7 +346,7 @@ const handlePicGoGalleryDB = () => {
   ipcMain.handle(PASTE_TEXT, async (_, item: ImgInfo, copy = true) => {
     const pasteStyle = picgo.getConfig<IPasteStyle>('settings.pasteStyle') || IPasteStyle.MARKDOWN
     const customLink = picgo.getConfig<string>('settings.customLink')
-    const txt = pasteTemplate(pasteStyle, item, customLink)
+    const txt = await pasteTemplate(pasteStyle, item, customLink)
     if (copy) {
       clipboard.writeText(txt)
     }

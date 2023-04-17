@@ -81,7 +81,7 @@ class GuiApi implements IGuiApi {
       const pasteStyle = db.get('settings.pasteStyle') || 'markdown'
       const pasteText: string[] = []
       for (let i = 0; i < imgs.length; i++) {
-        pasteText.push(pasteTemplate(pasteStyle, imgs[i], db.get('settings.customLink')))
+        pasteText.push(await (pasteTemplate(pasteStyle, imgs[i], db.get('settings.customLink'))))
         const notification = new Notification({
           title: T('UPLOAD_SUCCEED'),
           body: imgs[i].imgUrl as string

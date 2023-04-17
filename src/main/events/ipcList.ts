@@ -55,7 +55,7 @@ export default {
       const img = await uploader.setWebContents(trayWindow.webContents).uploadWithBuildInClipboard()
       if (img !== false) {
         const pasteStyle = db.get('settings.pasteStyle') || 'markdown'
-        handleCopyUrl(pasteTemplate(pasteStyle, img[0], db.get('settings.customLink')))
+        handleCopyUrl(await (pasteTemplate(pasteStyle, img[0], db.get('settings.customLink'))))
         const notification = new Notification({
           title: T('UPLOAD_SUCCEED'),
           body: img[0].imgUrl!

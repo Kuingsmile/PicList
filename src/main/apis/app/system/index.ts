@@ -401,7 +401,7 @@ export function createTray () {
       if (imgs !== false) {
         const pasteText: string[] = []
         for (let i = 0; i < imgs.length; i++) {
-          pasteText.push(pasteTemplate(pasteStyle, imgs[i], db.get('settings.customLink')))
+          pasteText.push(await (pasteTemplate(pasteStyle, imgs[i], db.get('settings.customLink'))))
           const notification = new Notification({
             title: T('UPLOAD_SUCCEED'),
             body: imgs[i].imgUrl!

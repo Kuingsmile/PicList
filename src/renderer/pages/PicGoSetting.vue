@@ -312,6 +312,16 @@
                 @change="handleAutoCopyUrl"
               />
             </el-form-item>
+            <el-form-item
+              :label="$T('SETTINGS_SHORT_URL')"
+            >
+              <el-switch
+                v-model="form.useShortUrl"
+                :active-text="$T('SETTINGS_OPEN')"
+                :inactive-text="$T('SETTINGS_CLOSE')"
+                @change="handleUseShortUrl"
+              />
+            </el-form-item>
             <el-form-item>
               <template #label>
                 <el-row align="middle">
@@ -1062,7 +1072,8 @@ const form = reactive<ISettingForm>({
   customMiniIcon: '',
   isHideDock: false,
   encodeOutputURL: true,
-  isAutoListenClipboard: false
+  isAutoListenClipboard: false,
+  useShortUrl: false
 })
 
 const languageList = i18nManager.languageList.map(item => ({
@@ -1160,6 +1171,7 @@ async function initData () {
     form.isCustomMiniIcon = settings.isCustomMiniIcon || false
     form.customMiniIcon = settings.customMiniIcon || ''
     form.isHideDock = settings.isHideDock || false
+    form.useShortUrl = settings.useShortUrl || false
     currentLanguage.value = settings.language ?? 'zh-CN'
     currentStartMode.value = settings.startMode || 'quiet'
     customLink.value = settings.customLink || '![$fileName]($url)'
@@ -1407,6 +1419,16 @@ function handleIsCustomMiniIcon (val: ICheckBoxValueType) {
 function handleAutoCopyUrl (val: ICheckBoxValueType) {
   saveConfig('settings.autoCopy', val)
   const successNotification = new Notification($T('SETTINGS_AUTO_COPY_URL_AFTER_UPLOAD'), {
+    body: $T('TIPS_SET_SUCCEED')
+  })
+  successNotification.onclick = () => {
+    return true
+  }
+}
+
+function handleUseShortUrl (val: ICheckBoxValueType) {
+  saveConfig('settings.useShortUrl', val)
+  const successNotification = new Notification($T('SETTINGS_SHORT_URL'), {
     body: $T('TIPS_SET_SUCCEED')
   })
   successNotification.onclick = () => {

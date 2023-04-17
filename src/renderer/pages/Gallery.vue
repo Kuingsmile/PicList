@@ -31,7 +31,7 @@
             class="handle-bar"
             :gutter="16"
           >
-            <el-col :span="6">
+            <el-col :span="5">
               <el-select
                 v-model="choosedPicBed"
                 multiple
@@ -66,7 +66,7 @@
                 border-style="hidden"
               />
             </el-col>
-            <el-col :span="5">
+            <el-col :span="3">
               <el-select
                 v-model="pasteStyle"
                 size="small"
@@ -76,6 +76,22 @@
               >
                 <el-option
                   v-for="(value, key) in pasteStyleMap"
+                  :key="key"
+                  :label="key"
+                  :value="value"
+                />
+              </el-select>
+            </el-col>
+            <el-col :span="3">
+              <el-select
+                v-model="useShortUrl"
+                size="small"
+                style="width: 100%"
+                placeholder="Choose"
+                @change="handleUseShortUrlChange"
+              >
+                <el-option
+                  v-for="(value, key) in shortURLMap"
                   :key="key"
                   :label="key"
                   :value="value"
@@ -112,7 +128,7 @@
             class="handle-bar"
             :gutter="16"
           >
-            <el-col :span="6">
+            <el-col :span="5">
               <el-input
                 v-model="searchText"
                 :placeholder="$T('GALLERY_SEARCH_FILENAME')"
@@ -145,6 +161,13 @@
                   </el-icon>
                 </template>
               </el-input>
+            </el-col>
+            <el-col :span="1">
+              <el-divider
+                direction="vertical"
+                style="height: 100%;"
+                border-style="hidden"
+              />
             </el-col>
             <el-col :span="3">
               <div
@@ -438,6 +461,11 @@ const pasteStyleMap = {
   URL: 'URL',
   UBB: 'UBB',
   Custom: 'Custom'
+}
+const useShortUrl = ref<string>('')
+const shortURLMap = {
+  [$T('UPLOAD_SHORT_URL')]: $T('UPLOAD_SHORT_URL'),
+  [$T('UPLOAD_NORMAL_URL')]: $T('UPLOAD_NORMAL_URL')
 }
 const fileSortNameReverse = ref(false)
 const fileSortTimeReverse = ref(false)
@@ -835,6 +863,11 @@ async function handlePasteStyleChange (val: string) {
   pasteStyle.value = val
 }
 
+function handleUseShortUrlChange (value: string) {
+  saveConfig('settings.useShortUrl', value === $T('UPLOAD_SHORT_URL'))
+  useShortUrl.value = value
+}
+
 function sortFile (type: 'name' | 'time' | 'ext' | 'check') {
   switch (type) {
     case 'name':
@@ -954,6 +987,7 @@ onBeforeUnmount(() => {
 
 onActivated(async () => {
   pasteStyle.value = (await getConfig('settings.pasteStyle')) || 'markdown'
+  useShortUrl.value = (await getConfig('settings.useShortUrl') ? $T('UPLOAD_SHORT_URL') : $T('UPLOAD_NORMAL_URL'))
   initDeleteCloud()
 })
 

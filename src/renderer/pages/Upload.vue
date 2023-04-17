@@ -102,6 +102,24 @@
                 :title="customLink"
               />
             </el-radio-group>
+            <el-radio-group
+              v-model="useShortUrl"
+              size="small"
+              @change="handleUseShortUrlChange"
+            >
+              <el-radio-button
+                :label="true"
+                style="border-radius: 5px"
+              >
+                {{ $T('UPLOAD_SHORT_URL') }}
+              </el-radio-button>
+              <el-radio-button
+                :label="false"
+                style="border-radius: 5px"
+              >
+                {{ $T('UPLOAD_NORMAL_URL') }}
+              </el-radio-button>
+            </el-radio-group>
           </div>
           <div class="el-col-8">
             <div class="paste-style__text">
@@ -386,6 +404,7 @@ import { PICBEDS_PAGE } from '@/router/config'
 const $router = useRouter()
 
 const imageProcessDialogVisible = ref(false)
+const useShortUrl = ref(false)
 
 const waterMarkPositionMap = new Map([
   ['north', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP')],
@@ -488,6 +507,7 @@ onBeforeMount(() => {
       showError.value = true
     }
   })
+  getUseShortUrl()
   getPasteStyle()
   getDefaultPicBed()
   ipcRenderer.on('syncPicBed', () => {
@@ -603,6 +623,17 @@ function ipcSendFiles (files: FileList) {
 async function getPasteStyle () {
   pasteStyle.value = await getConfig('settings.pasteStyle') || 'markdown'
   customLink.value = await getConfig('settings.customLink') || '![$fileName]($url)'
+}
+
+async function getUseShortUrl () {
+  useShortUrl.value = await getConfig('settings.useShortUrl') || false
+}
+
+async function handleUseShortUrlChange () {
+  console.log(useShortUrl.value)
+  saveConfig({
+    'settings.useShortUrl': useShortUrl.value
+  })
 }
 
 function handlePasteStyleChange (val: string | number | boolean) {

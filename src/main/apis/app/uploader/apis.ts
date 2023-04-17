@@ -30,7 +30,7 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
     if (img.length > 0) {
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
       const pasteStyle = db.get('settings.pasteStyle') || 'markdown'
-      handleCopyUrl(pasteTemplate(pasteStyle, img[0], db.get('settings.customLink')))
+      handleCopyUrl(await (pasteTemplate(pasteStyle, img[0], db.get('settings.customLink'))))
       const notification = new Notification({
         title: T('UPLOAD_SUCCEED'),
         body: img[0].imgUrl!
@@ -77,7 +77,7 @@ export const uploadChoosedFiles = async (webContents: WebContents, files: IFileW
     const pasteStyle = db.get('settings.pasteStyle') || 'markdown'
     const pasteText: string[] = []
     for (let i = 0; i < imgs.length; i++) {
-      pasteText.push(pasteTemplate(pasteStyle, imgs[i], db.get('settings.customLink')))
+      pasteText.push(await (pasteTemplate(pasteStyle, imgs[i], db.get('settings.customLink'))))
       const notification = new Notification({
         title: T('UPLOAD_SUCCEED'),
         body: imgs[i].imgUrl!

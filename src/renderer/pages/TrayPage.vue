@@ -70,7 +70,7 @@ import { IResult } from '@picgo/store/dist/types'
 import { OPEN_WINDOW } from '#/events/constants'
 import { IPasteStyle, IWindowList } from '#/types/enum'
 import { getConfig, sendToMain } from '@/utils/dataSender'
-import { handleUrlEncode } from '#/utils/common'
+import { handleUrlEncode, generateShortUrl } from '#/utils/common'
 
 const files = ref<IResult<ImgInfo>[]>([])
 const notification = reactive({
@@ -126,6 +126,10 @@ async function pasteTemplate (style: IPasteStyle, item: ImgInfo, customLink: str
   let url = item.url || item.imgUrl
   if ((await getConfig('settings.encodeOutputURL')) !== false) {
     url = handleUrlEncode(url)
+  }
+  const useShortUrl = await getConfig('settings.useShortUrl') || false
+  if (useShortUrl) {
+    url = await generateShortUrl(url)
   }
   const _customLink = customLink || '![$fileName]($url)'
   const tpl = {

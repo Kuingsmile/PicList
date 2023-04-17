@@ -109,7 +109,8 @@ UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP_RIGHT: top right
 UPLOAD_PAGE_IMAGE_PROCESS_POSITION_BOTTOM_LEFT: bottom left
 UPLOAD_PAGE_IMAGE_PROCESS_POSITION_BOTTOM_RIGHT: bottom right
 UPLOAD_PAGE_IMAGE_PROCESS_POSITION_CENTER: center
-
+UPLOAD_SHORT_URL: 短链接
+UPLOAD_NORMAL_URL: 长链接
 # settings
 
 SETTINGS: Settings
@@ -195,6 +196,7 @@ SETTINGS_ISHIDEDOCK: Hide Dock Icon
 SETTINGS_ISHIDEDOCK_TIPS: Not support hide dock and tray at the same time
 SETTINGS_ENCODE_OUTPUT_URL: Encode Output(or Copyed) URL
 SETTINGS_WATCH_CLIPBOARD: Watch clipboard when software start
+SETTINGS_SHORT_URL: Use short url
 # shortcut-page
 
 BUILTIN_CLIPBOARD_TIPS: Use builtin clipboard function to upload instead of using scripts

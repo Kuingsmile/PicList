@@ -11,7 +11,6 @@ class PrivacyManager {
         return false
       } else {
         db.set('settings.privacyEnsure', true)
-        return true
       }
     }
     return true

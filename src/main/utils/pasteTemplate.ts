@@ -1,5 +1,5 @@
 import { IPasteStyle } from '#/types/enum'
-import { handleUrlEncode } from '#/utils/common'
+import { handleUrlEncode, generateShortUrl } from '#/utils/common'
 import db from '~/main/apis/core/datastore'
 
 export const formatCustomLink = (customLink: string, item: ImgInfo) => {
@@ -21,10 +21,14 @@ export const formatCustomLink = (customLink: string, item: ImgInfo) => {
   return customLink
 }
 
-export default (style: IPasteStyle, item: ImgInfo, customLink: string | undefined) => {
+export default async (style: IPasteStyle, item: ImgInfo, customLink: string | undefined) => {
   let url = item.url || item.imgUrl
   if (db.get('settings.encodeOutputURL') !== false) {
     url = handleUrlEncode(url)
+  }
+  const useShortUrl = db.get('settings.useShortUrl') || false
+  if (useShortUrl) {
+    url = await generateShortUrl(url)
   }
   const _customLink = customLink || '![$fileName]($url)'
   const tpl = {
