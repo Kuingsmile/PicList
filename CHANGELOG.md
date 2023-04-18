@@ -1,3 +1,38 @@
+## :tada: 1.7.1 (2023-04-18)
+
+
+### :sparkles: Features
+
+* add delete local file after uploading, fix compatibility with auto-delete ([6b49198](https://github.com/Kuingsmile/PicList/commit/6b49198)), closes [#40](https://github.com/Kuingsmile/PicList/issues/40)
+* support imgur auth upload and delete ([d5f7121](https://github.com/Kuingsmile/PicList/commit/d5f7121))
+* support short url now ([d554581](https://github.com/Kuingsmile/PicList/commit/d554581))
+
+
+### :bug: Bug Fixes
+
+* fix copy link bug ([72c9374](https://github.com/Kuingsmile/PicList/commit/72c9374))
+* fix tray image after drag ([22f8aa8](https://github.com/Kuingsmile/PicList/commit/22f8aa8))
+* sync with picgo, suppress epiep error ([dc1458f](https://github.com/Kuingsmile/PicList/commit/dc1458f))
+
+
+### :package: Chore
+
+* fix markdown format err ([19e341a](https://github.com/Kuingsmile/PicList/commit/19e341a))
+
+
+### :pencil: Documentation
+
+* update docs ([15d34ac](https://github.com/Kuingsmile/PicList/commit/15d34ac))
+* update typora 1.6.0-dev support ([34997f5](https://github.com/Kuingsmile/PicList/commit/34997f5))
+
+
+### :zap: Performance Improvements
+
+* optimize imgur album list speed ([6c5fdf1](https://github.com/Kuingsmile/PicList/commit/6c5fdf1))
+* remove duplicate check of new version, refactor getLatestVersion func ([ef917ce](https://github.com/Kuingsmile/PicList/commit/ef917ce))
+
+
+
 # :tada: 1.7.0 (2023-04-12)
 
 
