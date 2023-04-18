@@ -18,6 +18,8 @@ import {
 } from '~/universal/events/constants'
 import { DBStore } from '@picgo/store'
 import { T } from '~/main/i18n'
+import fs from 'fs-extra'
+import { cloneDeep } from 'lodash'
 
 // Cross-process support may be required in the future
 class GuiApi implements IGuiApi {
@@ -76,11 +78,16 @@ class GuiApi implements IGuiApi {
   async upload (input: IUploadOption) {
     this.windowId = await getWindowId()
     const webContents = this.getWebcontentsByWindowId(this.windowId)
+    const rawInput = cloneDeep(input)
     const imgs = await uploader.setWebContents(webContents!).upload(input)
     if (imgs !== false) {
       const pasteStyle = db.get('settings.pasteStyle') || 'markdown'
+      const deleteLocalFile = db.get('settings.deleteLocalFile') || false
       const pasteText: string[] = []
       for (let i = 0; i < imgs.length; i++) {
+        if (deleteLocalFile) {
+          await fs.remove(rawInput[i])
+        }
         pasteText.push(await (pasteTemplate(pasteStyle, imgs[i], db.get('settings.customLink'))))
         const notification = new Notification({
           title: T('UPLOAD_SUCCEED'),

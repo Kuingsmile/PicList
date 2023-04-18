@@ -226,6 +226,16 @@
               />
             </el-form-item>
             <el-form-item
+              :label="$T('SETTINGS_DELETE_LOCAL_FILE_AFTER_UPLOAD')"
+            >
+              <el-switch
+                v-model="form.deleteLocalFile"
+                :active-text="$T('SETTINGS_OPEN')"
+                :inactive-text="$T('SETTINGS_CLOSE')"
+                @change="handleDeleteLocalFile"
+              />
+            </el-form-item>
+            <el-form-item
               :label="$T('SETTINGS_RENAME_BEFORE_UPLOAD')"
             >
               <el-switch
@@ -1073,7 +1083,8 @@ const form = reactive<ISettingForm>({
   isHideDock: false,
   encodeOutputURL: true,
   isAutoListenClipboard: false,
-  useShortUrl: false
+  useShortUrl: false,
+  deleteLocalFile: false
 })
 
 const languageList = i18nManager.languageList.map(item => ({
@@ -1172,6 +1183,7 @@ async function initData () {
     form.customMiniIcon = settings.customMiniIcon || ''
     form.isHideDock = settings.isHideDock || false
     form.useShortUrl = settings.useShortUrl || false
+    form.deleteLocalFile = settings.deleteLocalFile || false
     currentLanguage.value = settings.language ?? 'zh-CN'
     currentStartMode.value = settings.startMode || 'quiet'
     customLink.value = settings.customLink || '![$fileName]($url)'
@@ -1328,6 +1340,12 @@ function handleAutoStartChange (val: ICheckBoxValueType) {
 function handleDeleteCloudFile (val: ICheckBoxValueType) {
   saveConfig({
     'settings.deleteCloudFile': val
+  })
+}
+
+function handleDeleteLocalFile (val: ICheckBoxValueType) {
+  saveConfig({
+    'settings.deleteLocalFile': val
   })
 }
 

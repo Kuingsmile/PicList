@@ -18,7 +18,8 @@ interface ISettingForm {
   isHideDock: boolean,
   encodeOutputURL: boolean,
   isAutoListenClipboard: boolean,
-  useShortUrl: boolean
+  useShortUrl: boolean,
+  deleteLocalFile: boolean
 }
 
 interface IShortKeyMap {

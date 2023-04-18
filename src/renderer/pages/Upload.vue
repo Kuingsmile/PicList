@@ -630,7 +630,6 @@ async function getUseShortUrl () {
 }
 
 async function handleUseShortUrlChange () {
-  console.log(useShortUrl.value)
   saveConfig({
     'settings.useShortUrl': useShortUrl.value
   })

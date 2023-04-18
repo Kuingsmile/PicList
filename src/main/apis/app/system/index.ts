@@ -23,6 +23,7 @@ import clipboardListener from 'clipboard-event'
 import clipboardPoll from '~/main/utils/clipboardPoll'
 import picgo from '../../core/picgo'
 import { uploadClipboardFiles } from '../uploader/apis'
+import { cloneDeep } from 'lodash'
 let contextMenu: Menu | null
 let tray: Tray | null
 
@@ -394,13 +395,18 @@ export function createTray () {
     // so the tray window must be available
     tray.on('drop-files', async (event: Event, files: string[]) => {
       const pasteStyle = db.get('settings.pasteStyle') || 'markdown'
+      const rawInput = cloneDeep(files)
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
       const imgs = await uploader
         .setWebContents(trayWindow.webContents)
         .upload(files)
+      const deleteLocalFile = db.get('settings.deleteLocalFile') || false
       if (imgs !== false) {
         const pasteText: string[] = []
         for (let i = 0; i < imgs.length; i++) {
+          if (deleteLocalFile) {
+            await fs.remove(rawInput[i])
+          }
           pasteText.push(await (pasteTemplate(pasteStyle, imgs[i], db.get('settings.customLink'))))
           const notification = new Notification({
             title: T('UPLOAD_SUCCEED'),

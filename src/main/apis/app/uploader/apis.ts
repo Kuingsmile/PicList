@@ -13,6 +13,8 @@ import { T } from '~/main/i18n/index'
 import ALLApi from '@/apis/allApi'
 import picgo from '@core/picgo'
 import GuiApi from '../../gui'
+import fs from 'fs-extra'
+import { cloneDeep } from 'lodash'
 
 const handleClipboardUploading = async (): Promise<false | ImgInfo[]> => {
   const useBuiltinClipboard = db.get('settings.useBuiltinClipboard') === undefined ? true : !!db.get('settings.useBuiltinClipboard')
@@ -71,12 +73,21 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
 
 export const uploadChoosedFiles = async (webContents: WebContents, files: IFileWithPath[]): Promise<IStringKeyMap[]> => {
   const input = files.map(item => item.path)
+  const rawInput = cloneDeep(input)
   const imgs = await uploader.setWebContents(webContents).upload(input)
   const result = []
   if (imgs !== false) {
     const pasteStyle = db.get('settings.pasteStyle') || 'markdown'
+    const deleteLocalFile = db.get('settings.deleteLocalFile') || false
     const pasteText: string[] = []
     for (let i = 0; i < imgs.length; i++) {
+      if (deleteLocalFile) {
+        fs.remove(rawInput[i]).then(() => {
+          picgo.log.info(`delete local file: ${rawInput[i]}`)
+        }).catch((err: Error) => {
+          picgo.log.error(err)
+        })
+      }
       pasteText.push(await (pasteTemplate(pasteStyle, imgs[i], db.get('settings.customLink'))))
       const notification = new Notification({
         title: T('UPLOAD_SUCCEED'),
