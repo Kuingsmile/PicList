@@ -8,17 +8,17 @@ const generateURL = (platform, ext, prefix = 'PicList-') => {
 const template = `
 ### 加速下载地址
 
-####MacOS
+#### MacOS
 [PicList-${version}-arm64.dmg](${generateURL('-arm64', '.dmg', 'PicList-')})
 [PicList-${version}-x64.dmg](${generateURL('-x64', '.dmg', 'PicList-')})
 [PicList-${version}-universal.dmg](${generateURL('-universal', '.dmg', 'PicList-')})
 
-####Windows
+#### Windows
 [PicList-Setup-${version}-ia32.exe](${generateURL('-ia32', '.exe', 'PicList-Setup-')})
 [PicList-Setup-${version}-x64.exe](${generateURL('-x64', '.exe', 'PicList-Setup-')})
 [PicList-Setup-${version}.exe](${generateURL('', '.exe', 'PicList-Setup-')})
 
-####Linux
+#### Linux
 [PicList-${version}.AppImage](${generateURL('', '.AppImage', 'PicList-')})
 [piclist_${version}_amd64.snap](${generateURL('_amd64', '.snap', 'piclist_')})`
 
