@@ -1,13 +1,16 @@
 import axios from 'axios'
 
 export default class SmmsApi {
+  private static readonly baseUrl = 'https://smms.app/api/v2'
+
   static async delete (configMap: IStringKeyMap): Promise<boolean> {
     const { hash, config: { token } } = configMap
     if (!hash || !token) {
       return false
-    } else {
+    }
+    try {
       const res = await axios.get(
-        `https://smms.app/api/v2/delete/${hash}`, {
+        `${SmmsApi.baseUrl}/delete/${hash}`, {
           headers: {
             Authorization: token
           },
@@ -18,6 +21,9 @@ export default class SmmsApi {
           timeout: 30000
         })
       return res.status === 200
+    } catch (error) {
+      console.log(error)
+      return false
     }
   }
 }

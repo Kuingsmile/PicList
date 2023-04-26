@@ -8,19 +8,11 @@ export const isMacOS = process.platform === 'darwin'
 
 let version: string | undefined
 
-const clean = (version: string) => {
-  const { length } = version.split('.')
-
-  if (length === 1) {
-    return `${version}.0.0`
-  }
-
-  if (length === 2) {
-    return `${version}.0`
-  }
-
-  return version
-}
+const clean = (version: string) => version.split('.').length === 1
+  ? `${version}.0.0`
+  : version.split('.').length === 2
+    ? `${version}.0`
+    : version
 
 const parseVersion = (plist: string) => {
   const matches = /<key>ProductVersion<\/key>\s*<string>([\d.]+)<\/string>/.exec(plist)
@@ -32,9 +24,7 @@ const parseVersion = (plist: string) => {
 }
 
 export function macOSVersion (): string {
-  if (!isMacOS) {
-    return ''
-  }
+  if (!isMacOS) return ''
 
   if (!version) {
     const file = fs.readFileSync('/System/Library/CoreServices/SystemVersion.plist', 'utf8')

@@ -21,6 +21,7 @@ export default class TcyunApi {
       })
       return result.statusCode === 204
     } catch (error) {
+      console.log(error)
       return false
     }
   }

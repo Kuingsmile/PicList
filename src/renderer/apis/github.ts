@@ -25,6 +25,7 @@ export default class GithubApi {
       })
       return result.status === 200
     } catch (error) {
+      console.log(error)
       return false
     }
   }

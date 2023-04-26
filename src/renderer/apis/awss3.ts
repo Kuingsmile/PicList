@@ -40,6 +40,7 @@ export default class AwsS3Api {
       }).promise()
       return result.$response.httpResponse.statusCode === 204
     } catch (error) {
+      console.log(error)
       return false
     }
   }

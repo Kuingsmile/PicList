@@ -52,28 +52,21 @@ export const showMessageBox = (options: any) => {
   })
 }
 
+const thresholds = [
+  { limit: 1000, value: 500 },
+  { limit: 1500, value: 1000 },
+  { limit: 3000, value: 2000 },
+  { limit: 5000, value: 3000 },
+  { limit: 7000, value: 5000 },
+  { limit: 10000, value: 8000 },
+  { limit: 12000, value: 10000 },
+  { limit: 20000, value: 15000 },
+  { limit: 30000, value: 20000 }
+]
+
 export const calcDurationRange = (duration: number) => {
-  if (duration < 1000) {
-    return 500
-  } else if (duration < 1500) {
-    return 1000
-  } else if (duration < 3000) {
-    return 2000
-  } else if (duration < 5000) {
-    return 3000
-  } else if (duration < 7000) {
-    return 5000
-  } else if (duration < 10000) {
-    return 8000
-  } else if (duration < 12000) {
-    return 10000
-  } else if (duration < 20000) {
-    return 15000
-  } else if (duration < 30000) {
-    return 20000
-  }
-  // max range
-  return 100000
+  const foundThreshold = thresholds.find(({ limit }) => duration < limit)
+  return foundThreshold ? foundThreshold.value : 100000
 }
 
 /**

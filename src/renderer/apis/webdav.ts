@@ -22,6 +22,7 @@ export default class WebdavApi {
       await ctx.deleteFile(key)
       return true
     } catch (error) {
+      console.log(error)
       return false
     }
   }
