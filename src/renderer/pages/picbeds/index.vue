@@ -10,7 +10,7 @@
       >
         <div
           class="view-title"
-          @click="handelNameClick"
+          @click="handleNameClick"
         >
           {{ picBedName }} {{ $T('SETTINGS') }}
           <el-icon
@@ -169,7 +169,7 @@ const handleReset = async () => {
 
 const linkToLogInList = ['github', 'tcyun', 'aliyun', 'smms', 'qiniu', 'imgur', 'upyun', 'githubPlus']
 
-function handelNameClick () {
+function handleNameClick () {
   switch ($route.params.type) {
     case 'github':
     case 'githubPlus':

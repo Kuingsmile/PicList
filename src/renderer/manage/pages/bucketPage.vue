@@ -19,7 +19,7 @@ ea/*
           v-model="currentCustomUrl"
           :placeholder="$T('MANAGE_BUCKET_PAGE_CUSTOM_URL_SELECT_PLACEHOLDER')"
           style="width: 200px;"
-          @change="handelChangeCustomUrl"
+          @change="handleChangeCustomUrl"
         >
           <el-option
             v-for="item in customUrlList"
@@ -33,7 +33,7 @@ ea/*
           v-model="currentCustomUrl"
           :placeholder="$T('MANAGE_BUCKET_PAGE_CUSTOM_URL_INPUT_PLACEHOLDER')"
           style="width: 200px;"
-          @blur="handelChangeCustomUrl"
+          @blur="handleChangeCustomUrl"
         />
         <el-link
           v-else
@@ -90,7 +90,7 @@ ea/*
       >
         <el-button
           type="text"
-          @click="handelCreateFolder"
+          @click="handleCreateFolder"
         >
           <el-tooltip
             class="item"
@@ -129,7 +129,7 @@ ea/*
         </el-button>
       </div>
       <div
-        @click="handelBatchRenameFile"
+        @click="handleBatchRenameFile"
       >
         <el-button type="text">
           <el-tooltip
@@ -162,7 +162,7 @@ ea/*
                 size="25px"
                 :color="selectedItems.length > 0 ? 'red' : 'gray'"
                 style="margin-left: 10px;"
-                @click="handelBatchCopyLink(manageStore.config.settings.customPasteFormat)"
+                @click="handleBatchCopyLink(manageStore.config.settings.customPasteFormat)"
               >
                 <Link />
               </el-icon>
@@ -171,7 +171,7 @@ ea/*
                   <el-dropdown-item
                     v-for="i in [...linkArray, { key: 'preSignURL', value: 'preSignedUrl' }]"
                     :key="i.key"
-                    @click="handelBatchCopyLink(i.value)"
+                    @click="handleBatchCopyLink(i.value)"
                   >
                     {{ i.key }}
                   </el-dropdown-item>
@@ -180,7 +180,7 @@ ea/*
                   v-for="i in linkArray"
                   v-else
                   :key="i.value+i.key"
-                  @click="handelBatchCopyLink(i.value)"
+                  @click="handleBatchCopyLink(i.value)"
                 >
                   {{ i.key }}
                 </el-dropdown-item>
@@ -202,7 +202,7 @@ ea/*
               size="25px"
               :color="selectedItems.length > 0 ? 'red' : 'gray'"
               style="margin-left: 10px;"
-              @click="handelBatchCopyInfo"
+              @click="handleBatchCopyInfo"
             >
               <Document />
             </el-icon>
@@ -323,7 +323,7 @@ ea/*
           type="warning"
           plain
           style="margin-right: 2px;"
-          @click="handelCancelCheck"
+          @click="handleCancelCheck"
         >
           {{ $T('MANAGE_BUCKET_PAGE_SELECT_NONE') }}
         </el-button>
@@ -354,7 +354,7 @@ ea/*
           plain
           :icon="Download"
           style="margin-right: 2px;"
-          @click="handelBatchDownload"
+          @click="handleBatchDownload"
         >
           {{ `${$T('MANAGE_BUCKET_DOWNLOAD_BTN')}(${selectedItems.filter(item => item.isDir === false).length})` }}
         </el-button>
@@ -363,7 +363,7 @@ ea/*
           size="small"
           type="danger"
           :icon="DeleteFilled"
-          @click="handelBatchDeleteInfo"
+          @click="handleBatchDeleteInfo"
         >
           {{ `${$T('MANAGE_BUCKET_DELETE_BTN')}${selectedItems.length}` }}
         </el-button>
@@ -444,7 +444,7 @@ https://www.baidu.com/img/bd_logo1.png"
         <el-button
           type="primary"
           style="font-size: 12px;font-weight: 500;"
-          @click="handelUploadFromUrl"
+          @click="handleUploadFromUrl"
         >
           {{ $T('MANAGE_BUCKET_URL_UPLOAD_DIALOG_CONFIRM') }}
         </el-button>
@@ -571,7 +571,7 @@ https://www.baidu.com/img/bd_logo1.png"
                     size="20"
                     style="cursor: pointer;"
                     color="crimson"
-                    @click="handelFolderBatchDownload(item)"
+                    @click="handleFolderBatchDownload(item)"
                   >
                     <Download />
                   </el-icon>
@@ -833,7 +833,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="Document"
-              @click="handelCopyUploadingTaskInfo"
+              @click="handleCopyUploadingTaskInfo"
             >
               {{ $T('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
             </el-button>
@@ -841,7 +841,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="DeleteFilled"
-              @click="handelDeleteUploadedTask"
+              @click="handleDeleteUploadedTask"
             >
               {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
             </el-button>
@@ -849,7 +849,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="DeleteFilled"
-              @click="handelDeleteAllUploadedTask"
+              @click="handleDeleteAllUploadedTask"
             >
               {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
             </el-button>
@@ -886,7 +886,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="Document"
-              @click="handelCopyUploadingTaskInfo"
+              @click="handleCopyUploadingTaskInfo"
             >
               {{ $T('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
             </el-button>
@@ -894,7 +894,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="DeleteFilled"
-              @click="handelDeleteUploadedTask"
+              @click="handleDeleteUploadedTask"
             >
               {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
             </el-button>
@@ -902,7 +902,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="DeleteFilled"
-              @click="handelDeleteAllUploadedTask"
+              @click="handleDeleteAllUploadedTask"
             >
               {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
             </el-button>
@@ -939,7 +939,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="Document"
-              @click="handelCopyUploadingTaskInfo"
+              @click="handleCopyUploadingTaskInfo"
             >
               {{ $T('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
             </el-button>
@@ -947,7 +947,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="DeleteFilled"
-              @click="handelDeleteUploadedTask"
+              @click="handleDeleteUploadedTask"
             >
               {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
             </el-button>
@@ -955,7 +955,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="DeleteFilled"
-              @click="handelDeleteAllUploadedTask"
+              @click="handleDeleteAllUploadedTask"
             >
               {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
             </el-button>
@@ -1005,7 +1005,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="Document"
-              @click="handelCopyDownloadingTaskInfo"
+              @click="handleCopyDownloadingTaskInfo"
             >
               {{ $T('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
             </el-button>
@@ -1013,7 +1013,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="DeleteFilled"
-              @click="handelDeleteDownloadedTask"
+              @click="handleDeleteDownloadedTask"
             >
               {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
             </el-button>
@@ -1021,7 +1021,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="DeleteFilled"
-              @click="handelDeleteAllDownloadedTask"
+              @click="handleDeleteAllDownloadedTask"
             >
               {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
             </el-button>
@@ -1029,7 +1029,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="Folder"
-              @click="handelOpenDownloadedFolder"
+              @click="handleOpenDownloadedFolder"
             >
               {{ $T('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
             </el-button>
@@ -1066,7 +1066,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="Document"
-              @click="handelCopyDownloadingTaskInfo"
+              @click="handleCopyDownloadingTaskInfo"
             >
               {{ $T('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
             </el-button>
@@ -1074,7 +1074,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="DeleteFilled"
-              @click="handelDeleteDownloadedTask"
+              @click="handleDeleteDownloadedTask"
             >
               {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
             </el-button>
@@ -1082,7 +1082,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="DeleteFilled"
-              @click="handelDeleteAllDownloadedTask"
+              @click="handleDeleteAllDownloadedTask"
             >
               {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
             </el-button>
@@ -1090,7 +1090,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="Folder"
-              @click="handelOpenDownloadedFolder"
+              @click="handleOpenDownloadedFolder"
             >
               {{ $T('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
             </el-button>
@@ -1127,7 +1127,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="Document"
-              @click="handelCopyDownloadingTaskInfo"
+              @click="handleCopyDownloadingTaskInfo"
             >
               {{ $T('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
             </el-button>
@@ -1135,7 +1135,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="DeleteFilled"
-              @click="handelDeleteDownloadedTask"
+              @click="handleDeleteDownloadedTask"
             >
               {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
             </el-button>
@@ -1143,7 +1143,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="DeleteFilled"
-              @click="handelDeleteAllDownloadedTask"
+              @click="handleDeleteAllDownloadedTask"
             >
               {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
             </el-button>
@@ -1151,7 +1151,7 @@ https://www.baidu.com/img/bd_logo1.png"
               type="primary"
               plain
               :icon="Folder"
-              @click="handelOpenDownloadedFolder"
+              @click="handleOpenDownloadedFolder"
             >
               {{ $T('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
             </el-button>
@@ -1632,7 +1632,7 @@ function webkitReadDataTransfer (dataTransfer: DataTransfer) {
           })
         }
       })
-      handelUploadFiles(files)
+      handleUploadFiles(files)
       isLoadingUploadPanelFiles.value = false
     }
   }
@@ -1682,7 +1682,7 @@ function webkitReadDataTransfer (dataTransfer: DataTransfer) {
   }
 }
 
-function handelUploadFiles (files: any[]) {
+function handleUploadFiles (files: any[]) {
   const dirObj = {} as any
   files.forEach((item) => {
     if (item.relativePath === item.name) {
@@ -1784,37 +1784,37 @@ function uploadFiles () {
   ipcRenderer.send('uploadBucketFile', configMap.alias, param)
 }
 
-function handelCopyUploadingTaskInfo () {
+function handleCopyUploadingTaskInfo () {
   clipboard.writeText(JSON.stringify(uploadTaskList.value, null, 2))
   ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
 }
 
-function handelCopyDownloadingTaskInfo () {
+function handleCopyDownloadingTaskInfo () {
   clipboard.writeText(JSON.stringify(downloadTaskList.value, null, 2))
   ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
 }
 
-function handelDeleteUploadedTask () {
+function handleDeleteUploadedTask () {
   ipcRenderer.send('deleteUploadedTask')
   ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
-function handelDeleteAllUploadedTask () {
+function handleDeleteAllUploadedTask () {
   ipcRenderer.send('deleteAllUploadedTask')
   ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
-function handelDeleteDownloadedTask () {
+function handleDeleteDownloadedTask () {
   ipcRenderer.send('deleteDownloadedTask')
   ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
-function handelDeleteAllDownloadedTask () {
+function handleDeleteAllDownloadedTask () {
   ipcRenderer.send('deleteAllDownloadedTask')
   ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
-const handelOpenDownloadedFolder = () => ipcRenderer.send('OpenDownloadedFolder', manageStore.config.settings.downloadDir)
+const handleOpenDownloadedFolder = () => ipcRenderer.send('OpenDownloadedFolder', manageStore.config.settings.downloadDir)
 
 function handleShowFileInfo (item: any) {
   isShowFileInfo.value = true
@@ -1902,7 +1902,7 @@ const isShowThumbnail = computed(() => manageStore.config.settings.isShowThumbna
 const isAutoRefresh = computed(() => manageStore.config.settings.isAutoRefresh ?? false)
 const isIgnoreCase = computed(() => manageStore.config.settings.isIgnoreCase ?? false)
 
-async function handelChangeCustomUrl () {
+async function handleChangeCustomUrl () {
   if (currentPicBedName.value === 'github') {
     showLoadingPage.value = true
     if (isLoadingData.value) {
@@ -2006,7 +2006,7 @@ async function initCustomUrlList () {
         currentCustomUrl.value = `https://${configMap.bucketName}.s3.amazonaws.com`
       }
     }
-    handelChangeCustomUrl()
+    handleChangeCustomUrl()
   } else if (currentPicBedName.value === 'webdavplist') {
     const currentConfigs = await getConfig<any>('picBed')
     const currentConfig = currentConfigs[configMap.alias]
@@ -2020,7 +2020,7 @@ async function initCustomUrlList () {
       }
       currentCustomUrl.value = endpoint
     }
-    handelChangeCustomUrl()
+    handleChangeCustomUrl()
   }
 }
 
@@ -2309,7 +2309,7 @@ function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
   }
 }
 
-function handelCancelCheck () {
+function handleCancelCheck () {
   currentPageFilesInfo.forEach((item: any) => {
     item.checked = false
   })
@@ -2352,7 +2352,7 @@ function handleCheckChange (item: any) {
   }
 }
 
-async function handelFolderBatchDownload (item: any) {
+async function handleFolderBatchDownload (item: any) {
   ElMessageBox.confirm($T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TITLE'), $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'), {
     confirmButtonText: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CONFIRM'),
     cancelButtonText: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CANCEL'),
@@ -2436,7 +2436,7 @@ async function handelFolderBatchDownload (item: any) {
   })
 }
 
-async function handelBatchDownload () {
+async function handleBatchDownload () {
   const defaultDownloadPath = await ipcRenderer.invoke('getDefaultDownloadFolder')
   const param = {
     downloadPath: manageStore.config.settings.downloadDir ?? defaultDownloadPath,
@@ -2459,7 +2459,7 @@ async function handelBatchDownload () {
     }
   })
   ipcRenderer.send('downloadBucketFile', configMap.alias, param)
-  handelCancelCheck()
+  handleCancelCheck()
   isShowDownloadPanel.value = true
 }
 
@@ -2495,7 +2495,7 @@ function handleCheckAllChange () {
   }
 }
 
-function handelCreateFolder () {
+function handleCreateFolder () {
   ElMessageBox.prompt($T('MANAGE_BUCKET_CREATE_FOLDER_BOX_TITLE'), $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_TIP'), {
     confirmButtonText: $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_CONFIRM'),
     cancelButtonText: $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_CANCEL'),
@@ -2524,7 +2524,7 @@ const showUrlDialog = () => {
   dialogVisible.value = true
 }
 
-async function handelUploadFromUrl () {
+async function handleUploadFromUrl () {
   dialogVisible.value = false
   const urlList = [] as string[]
   urlToUpload.value.split('\n').forEach((item: string) => {
@@ -2555,7 +2555,7 @@ async function handelUploadFromUrl () {
   isShowUploadPanel.value = true
 }
 
-function handelBatchRenameFile () {
+function handleBatchRenameFile () {
   batchRenameMatch.value = ''
   isSingleRename.value = false
   isShowBatchRenameDialog.value = true
@@ -2686,7 +2686,7 @@ async function BatchRename () {
   }
 }
 
-function handelBatchCopyInfo () {
+function handleBatchCopyInfo () {
   if (selectedItems.length === 0) {
     ElMessage.warning($T('MANAGE_BUCKET_BATCH_COPY_INFO_ERROR_MSG'))
     return
@@ -2699,7 +2699,7 @@ function handelBatchCopyInfo () {
   ElMessage.success(`${$T('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_A')} ${selectedItems.length} ${$T('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_B')}`)
 }
 
-function handelBatchCopyLink (type: string) {
+function handleBatchCopyLink (type: string) {
   if (selectedItems.length === 0) {
     ElMessage.warning($T('MANAGE_BUCKET_BATCH_COPY_URL_ERROR_MSG'))
     return
@@ -2834,7 +2834,7 @@ async function getBucketFileList () {
   return res
 }
 
-function handelBatchDeleteInfo () {
+function handleBatchDeleteInfo () {
   ElMessageBox.confirm(`${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_A')} ${selectedItems.length} ${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_B')}`, $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_MSG'), {
     confirmButtonText: $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CONFIRM'),
     cancelButtonText: $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CANCEL'),
@@ -3454,7 +3454,7 @@ const columns: Column<any>[] = [
               size="20"
               style="cursor: pointer;"
               color="#409EFF"
-              onClick={() => handelFolderBatchDownload(item)}
+              onClick={() => handleFolderBatchDownload(item)}
             >
               <Download />
             </ElIcon>

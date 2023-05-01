@@ -46,7 +46,7 @@
                 style="position:absolute;right: 0;"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="handelIsAutoRefreshChange"
+                @change="handleIsAutoRefreshChange"
               />
             </el-form-item>
             <el-form-item>
@@ -104,7 +104,7 @@
                 style="position:absolute;right: 0;"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="handelIsShowThumbnailChange"
+                @change="handleIsShowThumbnailChange"
               />
             </el-form-item>
             <el-form-item>
@@ -122,7 +122,7 @@
                 :inactive-text="$T('MANAGE_SETTING_SHOW_FILE_LIST_TYPE_CARD')"
                 active-color="#13ce66"
                 inactive-color="orange"
-                @change="handelIsShowListChange"
+                @change="handleIsShowListChange"
               />
             </el-form-item>
             <el-form-item>
@@ -147,7 +147,7 @@
                 style="position:absolute;right: 0;"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="handelIsForceCustomUrlHttpsChange"
+                @change="handleIsForceCustomUrlHttpsChange"
               />
             </el-form-item>
             <el-form-item>
@@ -172,7 +172,7 @@
                 style="position:absolute;right: 0;"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="handelIsUploadKeepDirStructureChange"
+                @change="handleIsUploadKeepDirStructureChange"
               />
             </el-form-item>
             <el-form-item>
@@ -199,7 +199,7 @@
                 style="position:absolute;right: 0;"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="handelIsDownloadFileKeepDirStructureChange"
+                @change="handleIsDownloadFileKeepDirStructureChange"
               />
             </el-form-item>
             <el-form-item>
@@ -226,7 +226,7 @@
                 style="position:absolute;right: 0;"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="handelIsDownloadFolderKeepDirStructureChange"
+                @change="handleIsDownloadFolderKeepDirStructureChange"
               />
             </el-form-item>
             <el-form-item>
@@ -277,7 +277,7 @@
                 style="position:absolute;right: 0;"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="handelisIgnoreCaseChange"
+                @change="handleisIgnoreCaseChange"
               />
             </el-form-item>
             <el-form-item>
@@ -302,7 +302,7 @@
                 style="position:absolute;right: 0;"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="handelTimestampRenameChange"
+                @change="handleTimestampRenameChange"
               />
             </el-form-item>
             <el-form-item>
@@ -327,7 +327,7 @@
                 style="position:absolute;right: 0;"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="handelRandomStringRenameChange"
+                @change="handleRandomStringRenameChange"
               />
             </el-form-item>
             <el-form-item>
@@ -352,7 +352,7 @@
                 style="position:absolute;right: 0;"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                @change="handelCustomRenameChange"
+                @change="handleCustomRenameChange"
               />
             </el-form-item>
             <el-link
@@ -407,7 +407,7 @@
               v-model="PreSignedExpire"
               :placeholder="$T('MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TIPS')"
               clearable
-              @blur="handelPreSignedExpireChange"
+              @blur="handlePreSignedExpireChange"
             />
             <el-link
               style="margin-top: 10px;margin-bottom: 10px;color: #409eff;"
@@ -557,7 +557,7 @@ watch(downloadDir, (val) => {
   })
 })
 
-function handelPreSignedExpireChange () {
+function handlePreSignedExpireChange () {
   if (Number.isNaN(Number(PreSignedExpire.value)) || Number(PreSignedExpire.value) <= 0) {
     PreSignedExpire.value = 14400
   }
@@ -593,67 +593,67 @@ async function handleDownloadDirClick () {
   }
 }
 
-function handelIsShowThumbnailChange (val:ICheckBoxValueType) {
+function handleIsShowThumbnailChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.isShowThumbnail': val
   })
 }
 
-function handelIsShowListChange (val:ICheckBoxValueType) {
+function handleIsShowListChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.isShowList': val
   })
 }
 
-function handelisIgnoreCaseChange (val:ICheckBoxValueType) {
+function handleisIgnoreCaseChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.isIgnoreCase': val
   })
 }
 
-function handelIsAutoRefreshChange (val:ICheckBoxValueType) {
+function handleIsAutoRefreshChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.isAutoRefresh': val
   })
 }
 
-function handelIsUploadKeepDirStructureChange (val:ICheckBoxValueType) {
+function handleIsUploadKeepDirStructureChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.isUploadKeepDirStructure': val
   })
 }
 
-function handelIsDownloadFileKeepDirStructureChange (val:ICheckBoxValueType) {
+function handleIsDownloadFileKeepDirStructureChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.isDownloadFileKeepDirStructure': val
   })
 }
 
-function handelIsDownloadFolderKeepDirStructureChange (val:ICheckBoxValueType) {
+function handleIsDownloadFolderKeepDirStructureChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.isDownloadFolderKeepDirStructure': val
   })
 }
 
-function handelIsForceCustomUrlHttpsChange (val:ICheckBoxValueType) {
+function handleIsForceCustomUrlHttpsChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.isForceCustomUrlHttps': val
   })
 }
 
-function handelTimestampRenameChange (val:ICheckBoxValueType) {
+function handleTimestampRenameChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.timestampRename': val
   })
 }
 
-function handelRandomStringRenameChange (val:ICheckBoxValueType) {
+function handleRandomStringRenameChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.randomStringRename': val
   })
 }
 
-function handelCustomRenameChange (val:ICheckBoxValueType) {
+function handleCustomRenameChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.customRename': val
   })

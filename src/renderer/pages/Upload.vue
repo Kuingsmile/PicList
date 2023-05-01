@@ -366,7 +366,7 @@
         <el-form-item>
           <el-button
             type="primary"
-            @click="handelSaveConfig"
+            @click="handleSaveConfig"
           >
             {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_CONFIRM') }}
           </el-button>
@@ -451,7 +451,7 @@ function closeDialog () {
   imageProcessDialogVisible.value = false
 }
 
-function handelSaveConfig () {
+function handleSaveConfig () {
   saveConfig('buildIn.compress', toRaw(compressForm))
   saveConfig('buildIn.watermark', toRaw(waterMarkForm))
   closeDialog()

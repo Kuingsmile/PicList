@@ -25,9 +25,6 @@ import 'video.js/dist/video-js.css'
 
 webFrame.setVisualZoomLevelLimits(1, 1)
 
-// do here before vue init
-// handleURLParams()
-
 const app = createApp(App)
 
 app.config.globalProperties.$builtInPicBed = [

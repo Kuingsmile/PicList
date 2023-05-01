@@ -279,7 +279,7 @@
               </el-row>
               <el-checkbox
                 v-model="choosedList[item.id ? item.id : '']"
-                @change="(val) => handleChooseImage(val, index)"
+                @change="(val: string | number | boolean) => handleChooseImage(val, index)"
               />
             </el-row>
           </el-col>
@@ -410,7 +410,7 @@
           type="primary"
           plain
           :icon="Edit"
-          @click="handelBatchRename()"
+          @click="handleBatchRename()"
         >
           {{ $T('MANAGE_BUCKET_RENAME_FILE_CONFIRM') }}
         </el-button>
@@ -914,7 +914,7 @@ function sortFile (type: 'name' | 'time' | 'ext' | 'check') {
   }
 }
 
-function handelBatchRename () {
+function handleBatchRename () {
   isShowBatchRenameDialog.value = false
   if (batchRenameMatch.value === '') {
     ElMessage.warning($T('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG'))

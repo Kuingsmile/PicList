@@ -88,13 +88,25 @@
               />
             </el-form-item>
             <el-form-item
+              :label="$T('SETTINGS_SYNC_CONFIG')"
+            >
+              <el-button
+                type="primary"
+                round
+                size="small"
+                @click="syncVisible = true"
+              >
+                {{ $T('SETTINGS_CLICK_TO_SET') }}
+              </el-button>
+            </el-form-item>
+            <el-form-item
               :label="$T('SETTINGS_MIGRATE_FROM_PICGO')"
             >
               <el-button
                 type="primary"
                 round
                 size="small"
-                @click="handelMigrateFromPicGo"
+                @click="handleMigrateFromPicGo"
               >
                 {{ $T('SETTINGS_CLICK_TO_SET') }}
               </el-button>
@@ -720,7 +732,100 @@
         </el-button>
       </template>
     </el-dialog>
-
+    <el-dialog
+      v-model="syncVisible"
+      class="server-dialog"
+      width="60%"
+      :title="$T('SETTINGS_SYNC_CONFIG_TITLE')"
+      :modal-append-to-body="false"
+      center
+    >
+      <div class="notice-text">
+        {{ $T('SETTINGS_SYNC_CONFIG_NOTE') }}
+      </div>
+      <el-form
+        label-position="right"
+        label-width="120px"
+      >
+        <el-form-item
+          :label="$T('SETTINGS_SYNC_CONFIG_SELECT_TYPE')"
+        >
+          <el-select
+            v-model="sync.type"
+            style="width: 100%;"
+          >
+            <el-option
+              v-for="typeitem of syncType"
+              :key="typeitem.value"
+              :label="typeitem.label"
+              :value="typeitem.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          :label="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_USERNAME') : $T('SETTINGS_SYNC_CONFIG_GITEE_USERNAME')"
+        >
+          <el-input
+            v-model.trim="sync.username"
+            type="input"
+            :placeholder="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_USERNAME_PLACEHOLDER') : $T('SETTINGS_SYNC_CONFIG_GITEE_USERNAME_PLACEHOLDER')"
+          />
+        </el-form-item>
+        <el-form-item
+          :label="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_REPO') : $T('SETTINGS_SYNC_CONFIG_GITEE_REPO')"
+        >
+          <el-input
+            v-model.trim="sync.repo"
+            type="input"
+            :placeholder="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_REPO_PLACEHOLDER') : $T('SETTINGS_SYNC_CONFIG_GITEE_REPO_PLACEHOLDER')"
+          />
+        </el-form-item>
+        <el-form-item
+          :label="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_BRANCH') : $T('SETTINGS_SYNC_CONFIG_GITEE_BRANCH')"
+        >
+          <el-input
+            v-model.trim="sync.branch"
+            type="input"
+            :placeholder="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_BRANCH_PLACEHOLDER') : $T('SETTINGS_SYNC_CONFIG_GITEE_BRANCH_PLACEHOLDER')"
+          />
+        </el-form-item>
+        <el-form-item
+          :label="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_TOKEN') : $T('SETTINGS_SYNC_CONFIG_GITEE_TOKEN')"
+        >
+          <el-input
+            v-model.trim="sync.token"
+            type="input"
+            :placeholder="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_TOKEN_PLACEHOLDER') : $T('SETTINGS_SYNC_CONFIG_GITEE_TOKEN_PLACEHOLDER')"
+          />
+        </el-form-item>
+        <el-form-item
+          v-if="sync.type === 'github'"
+          :label="$T('SETTINGS_SYNC_CONFIG_PROXY')"
+        >
+          <el-input
+            v-model.trim="sync.proxy"
+            type="input"
+            :placeholder="$T('SETTINGS_SYNC_CONFIG_PROXY_PLACEHOLDER')"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button
+          round
+          @click="cancelSyncSetting"
+        >
+          {{ $T('CANCEL') }}
+        </el-button>
+        <el-button
+          type="primary"
+          round
+          :disabled="!allSynFilled"
+          @click="confirmSyncSetting"
+        >
+          {{ $T('CONFIRM') }}
+        </el-button>
+      </template>
+    </el-dialog>
     <el-dialog
       v-model="imageProcessDialogVisible"
       :title="$T('UPLOAD_PAGE_IMAGE_PROCESS_DIALOG_TITLE')"
@@ -938,7 +1043,7 @@
         <el-form-item>
           <el-button
             type="primary"
-            @click="handelSaveConfig"
+            @click="handleSaveConfig"
           >
             {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_CONFIRM') }}
           </el-button>
@@ -954,7 +1059,7 @@
 import { ElForm, ElMessage as $message, ElMessage, ElMessageBox, FormRules } from 'element-plus'
 import { Reading, QuestionFilled } from '@element-plus/icons-vue'
 import pkg from 'root/package.json'
-import { PICGO_OPEN_FILE, OPEN_URL, GET_PICBEDS, HIDE_DOCK } from '#/events/constants'
+import { PICGO_OPEN_FILE, OPEN_URL, GET_PICBEDS, HIDE_DOCK, RELOAD_APP } from '#/events/constants'
 import {
   ipcRenderer
 } from 'electron'
@@ -1017,7 +1122,7 @@ function closeDialog () {
   imageProcessDialogVisible.value = false
 }
 
-function handelSaveConfig () {
+function handleSaveConfig () {
   saveConfig('buildIn.compress', toRaw(compressForm))
   saveConfig('buildIn.watermark', toRaw(waterMarkForm))
   closeDialog()
@@ -1101,6 +1206,7 @@ const logFileVisible = ref(false)
 const customLinkVisible = ref(false)
 const checkUpdateVisible = ref(false)
 const serverVisible = ref(false)
+const syncVisible = ref(false)
 const proxyVisible = ref(false)
 const mainWindowSizeVisible = ref(false)
 
@@ -1139,6 +1245,50 @@ const server = ref({
   host: '127.0.0.1',
   enable: true
 })
+
+const sync = ref({
+  type: 'github',
+  username: '',
+  repo: '',
+  branch: '',
+  token: '',
+  proxy: ''
+})
+
+const syncType = [
+  {
+    label: 'GitHub',
+    value: 'github'
+  },
+  {
+    label: 'Gitee',
+    value: 'gitee'
+  }
+]
+
+const allSynFilled = computed(() => {
+  return sync.value.username && sync.value.repo && sync.value.branch && sync.value.token
+})
+
+async function cancelSyncSetting () {
+  syncVisible.value = false
+  sync.value = await getConfig('settings.sync') || {
+    type: 'github',
+    username: '',
+    repo: '',
+    branch: '',
+    token: '',
+    proxy: ''
+  }
+}
+
+function confirmSyncSetting () {
+  saveConfig({
+    'settings.sync': sync.value
+  })
+  syncVisible.value = false
+  sendToMain(RELOAD_APP)
+}
 
 const version = pkg.version
 const latestVersion = ref('')
@@ -1197,6 +1347,14 @@ async function initData () {
       port: 36677,
       host: '127.0.0.1',
       enable: true
+    }
+    sync.value = settings.sync || {
+      type: 'github',
+      username: '',
+      repo: '',
+      branch: '',
+      token: '',
+      proxy: ''
     }
     form.logFileSizeLimit = enforceNumber(settings.logFileSizeLimit) || 10
   }
@@ -1278,7 +1436,7 @@ function confirmProxy () {
   }
 }
 
-function handelMigrateFromPicGo () {
+function handleMigrateFromPicGo () {
   ElMessageBox.confirm($T('SETTINGS_MIGRATE_FROM_PICGO_CONTENT'), $T('SETTINGS_MIGRATE_FROM_PICGO_TITLE'), {
     confirmButtonText: $T('CONFIRM'),
     cancelButtonText: $T('CANCEL'),
