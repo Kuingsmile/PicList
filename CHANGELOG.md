@@ -1,3 +1,17 @@
+## :tada: 1.8.1 (2023-05-02)
+
+
+### :sparkles: Features
+
+* url encode in manage page ([9fa989e](https://github.com/Kuingsmile/PicList/commit/9fa989e))
+
+
+### :pencil: Documentation
+
+* update Features ([b97f79b](https://github.com/Kuingsmile/PicList/commit/b97f79b))
+
+
+
 # :tada: 1.8.0 (2023-05-02)
 
 
