@@ -17,7 +17,7 @@
               id="upload-view-title"
               @click="handlePicBedNameClick(picBedName, picBedConfigName)"
             >
-              {{ $T('PICTURE_UPLOAD') }} - {{ picBedName }} - {{ picBedConfigName }}
+              {{ picBedName }} - {{ picBedConfigName }}
             </span>
           </el-tooltip>
           <el-icon

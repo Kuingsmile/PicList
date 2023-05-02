@@ -581,7 +581,7 @@ https://www.baidu.com/img/bd_logo1.png"
                         size="20"
                         style="cursor: pointer;"
                         color="#409EFF"
-                        @click="copyToClipboard(formatLink(item.url, item.fileName, manageStore.config.settings.pasteForma ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))"
+                        @click="copyToClipboard(formatLink(item.url, item.fileName, manageStore.config.settings.pasteFormat ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))"
                       >
                         <CopyDocument />
                       </el-icon>
@@ -1506,7 +1506,7 @@ const isShowVideoFileDialog = ref(false)
 const videoFileUrl = ref('')
 const videoPlayerHeaders = ref({})
 const showFileStyle = ref<'list' | 'grid'>('grid')
-const isUploadKeepDirStructure = ref(manageStore.config.settings.isUploadKeepDirStructure ?? true)
+const isUploadKeepDirStructure = computed(() => manageStore.config.settings.isUploadKeepDirStructure ?? true)
 const isShowBatchRenameDialog = ref(false)
 const batchRenameMatch = ref('')
 const batchRenameReplace = ref('')
@@ -3489,7 +3489,7 @@ const columns: Column<any>[] = [
                   size="20"
                   style="cursor: pointer;"
                   color="#409EFF"
-                  onClick={() => copyToClipboard(formatLink(item.url, item.fileName, manageStore.config.settings.pasteForma ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))}
+                  onClick={() => copyToClipboard(formatLink(item.url, item.fileName, manageStore.config.settings.pasteFormat ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))}
                 >
                   <CopyDocument />
                 </ElIcon>
@@ -3629,6 +3629,7 @@ const columns: Column<any>[] = [
 ]
 
 onBeforeMount(async () => {
+  console.log('onBeforeMount')
   await manageStore.refreshConfig()
   showLoadingPage.value = true
   await initCustomUrlList()

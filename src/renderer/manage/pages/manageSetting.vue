@@ -19,7 +19,7 @@
           style="width: 100%;"
         >
           <el-form
-            lable-position="left"
+            label-position="left"
             label-width="50%"
             size="default"
             style="position: relative;width: 100%;"
@@ -422,7 +422,7 @@
               <el-radio label="markdown">
                 {{ $T('MANAGE_SETTING_CHOOSE_COPY_FORMAT_MARKDOWN') }}
               </el-radio>
-              <el-radio lable="markdown-with-link">
+              <el-radio label="markdown-with-link">
                 {{ $T('MANAGE_SETTING_CHOOSE_COPY_FORMAT_MARKDOWN_WITH_LINK') }}
               </el-radio>
               <el-radio label="rawurl">
@@ -573,7 +573,7 @@ async function initData () {
   form.customRename = config.settings.customRename ?? false
   customRenameFormat.value = config.settings.customRenameFormat ?? '{filename}'
   customPasteFormat.value = config.settings.customPasteFormat ?? '$url'
-  form.pasteFormat = config.settings.pasteForma ?? 'markdown'
+  pasteFormat.value = config.settings.pasteFormat ?? 'markdown'
   downloadDir.value = config.settings.downloadDir ?? ''
   form.isAutoRefresh = config.settings.isAutoRefresh ?? false
   form.isShowThumbnail = config.settings.isShowThumbnail ?? false

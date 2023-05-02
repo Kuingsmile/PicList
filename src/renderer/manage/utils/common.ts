@@ -50,24 +50,25 @@ export function renameFile (typeMap : IStringKeyMap, oldName: string): string {
 }
 
 export function formatLink (url: string, fileName: string, type: string, format?: string) : string {
+  const encodedUrl = encodeURI(url)
   switch (type) {
     case 'markdown':
-      return `![${fileName}](${url})`
+      return `![${fileName}](${encodedUrl})`
     case 'html':
-      return `<img src="${url}" alt="${fileName}"/>`
+      return `<img src="${encodedUrl}" alt="${fileName}"/>`
     case 'bbcode':
-      return `[img]${url}[/img]`
+      return `[img]${encodedUrl}[/img]`
     case 'url':
-      return url
+      return encodedUrl
     case 'markdown-with-link':
-      return `[![${fileName}](${url})](${url})`
+      return `[![${fileName}](${encodedUrl})](${encodedUrl})`
     case 'custom':
       if (format && (format.includes('$url') || format.includes('$fileName'))) {
-        return format.replace(/\$url/g, url).replace(/\$fileName/g, fileName)
+        return format.replace(/\$url/g, encodedUrl).replace(/\$fileName/g, fileName)
       }
-      return url
+      return encodedUrl
     default:
-      return url
+      return encodedUrl
   }
 }
 
