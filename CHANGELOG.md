@@ -1,3 +1,13 @@
+# :tada: 1.8.0 (2023-05-02)
+
+
+### :sparkles: Features
+
+* add config sync module ([ab4e31f](https://github.com/Kuingsmile/PicList/commit/ab4e31f))
+* add interval for sync setting ([7150bf3](https://github.com/Kuingsmile/PicList/commit/7150bf3))
+
+
+
 ## :tada: 1.7.1 (2023-04-18)
 
 
