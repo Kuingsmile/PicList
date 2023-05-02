@@ -32,6 +32,8 @@ if you want to use PicList-core, please go to [https://github.com/Kuingsmile/Pic
 - Add support for webdav upload, imgur account upload, etc.
 - Synchronous cloud deletion of pictures in the album, advanced search and sorting features have been added, along with the ability to bulk modify URLs.
 - Built-in watermark addition, image compression, image scaling, image rotation and image format conversion functions, support custom configuration, and can be called through CLI command line
+- Add the configuration of multi-device synchronization function.
+- Add
 - Support management of all cloud storage platforms, can be online to view the cloud directory, file search, batch upload, batch download, delete files and other operations
 - Support previewing multiple formats of files, including pictures, videos, plain text files and markdown files, etc. For the specific formats supported, please refer to [Supported file format list](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)
 - Support batch cloud file renaming based on regular expressions
