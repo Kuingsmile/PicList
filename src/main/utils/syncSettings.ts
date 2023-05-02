@@ -7,6 +7,17 @@ import { HttpsProxyAgent } from 'hpagent'
 import { Octokit } from '@octokit/rest'
 import logger from 'apis/core/picgo/logger'
 
+interface SyncConfig {
+  type: string
+  file: string
+  username: string
+  repo: string
+  branch: string
+  token: string
+  proxy?: string,
+  interval?: number
+}
+
 const STORE_PATH = app.getPath('userData')
 
 const configFileNames = [
@@ -18,7 +29,7 @@ const configFileNames = [
   'UpDownTaskQueue.json'
 ]
 
-function getOctokit (syncConfig: any) {
+function getOctokit (syncConfig: SyncConfig) {
   const { token, proxy } = syncConfig
   return new Octokit({
     auth: token,
@@ -48,12 +59,12 @@ function getSyncConfig () {
   return syncConfig
 }
 
-function syncConfigValidator (syncConfig: any) {
+function syncConfigValidator (syncConfig: SyncConfig) {
   const { type, file, username, repo, branch, token } = syncConfig
   return type && file && username && repo && branch && token
 }
 
-async function getModifiedTime (syncConfig: IStringKeyMap, filePath: string) {
+async function getModifiedTime (syncConfig: SyncConfig, filePath: string) {
   const { username, repo, branch, token, type } = syncConfig
   if (type === 'gitee') {
     const url = `https://gitee.com/api/v5/repos/${username}/${repo}/commits`
@@ -100,7 +111,7 @@ async function getModifiedTimeOfLocal (filePath: string) {
   return stat.mtime
 }
 
-async function compareNewerFile (syncConfig: IStringKeyMap, fileName: string): Promise<'upload' | 'download' | 'update' | undefined> {
+async function compareNewerFile (syncConfig: SyncConfig, fileName: string): Promise<'upload' | 'download' | 'update' | undefined> {
   const localFilePath = path.join(STORE_PATH, fileName)
   const remoteModifiedTime = await getModifiedTime(syncConfig, fileName)
   if (remoteModifiedTime === null) {
@@ -114,7 +125,7 @@ async function compareNewerFile (syncConfig: IStringKeyMap, fileName: string): P
   }
 }
 
-async function uploadLocalToRemote (syncConfig: IStringKeyMap, fileName: string) {
+async function uploadLocalToRemote (syncConfig: SyncConfig, fileName: string) {
   const localFilePath = path.join(STORE_PATH, fileName)
   const { username, repo, branch, token, type } = syncConfig
   if (type === 'gitee') {
@@ -145,7 +156,7 @@ async function uploadLocalToRemote (syncConfig: IStringKeyMap, fileName: string)
   }
 }
 
-async function updateLocalToRemote (syncConfig: IStringKeyMap, fileName: string) {
+async function updateLocalToRemote (syncConfig: SyncConfig, fileName: string) {
   const localFilePath = path.join(STORE_PATH, fileName)
   const { username, repo, branch, token, type } = syncConfig
   if (type === 'gitee') {
@@ -205,7 +216,7 @@ async function updateLocalToRemote (syncConfig: IStringKeyMap, fileName: string)
   }
 }
 
-async function downloadRemoteToLocal (syncConfig: IStringKeyMap, fileName: string) {
+async function downloadRemoteToLocal (syncConfig: SyncConfig, fileName: string) {
   const localFilePath = path.join(STORE_PATH, fileName)
   const { username, repo, branch, token, proxy, type } = syncConfig
   if (type === 'gitee') {
@@ -258,9 +269,8 @@ async function downloadRemoteToLocal (syncConfig: IStringKeyMap, fileName: strin
   }
 }
 
-async function syncFile (syncConfig: IStringKeyMap, fileName: string) {
+async function syncFile (syncConfig: SyncConfig, fileName: string) {
   const compareResult = await compareNewerFile(syncConfig, fileName)
-  logger.info(`file ${fileName} compare result: ${compareResult}`)
   let result = false
   if (compareResult === 'upload') {
     result = await uploadLocalToRemote(syncConfig, fileName)
@@ -272,7 +282,7 @@ async function syncFile (syncConfig: IStringKeyMap, fileName: string) {
   return result
 }
 
-async function syncAllFiles (syncConfig: IStringKeyMap) {
+async function syncAllFiles (syncConfig: SyncConfig) {
   for (const file of configFileNames) {
     try {
       const result = await syncFile(syncConfig, file)
@@ -286,6 +296,15 @@ async function syncAllFiles (syncConfig: IStringKeyMap) {
   }
 }
 
+async function syncFunc () {
+  const syncConfig = await getSyncConfig()
+  if (!syncConfigValidator(syncConfig)) {
+    return
+  }
+  await syncAllFiles(syncConfig)
+  logger.info(`sync all files at ${new Date().toLocaleString()}`)
+}
+
 async function syncInterval () {
   const syncConfig = await getSyncConfig()
   if (!syncConfigValidator(syncConfig)) {
@@ -296,11 +315,13 @@ async function syncInterval () {
     logger.info(`sync all files at ${new Date().toLocaleString()}`)
   }
   await syncFunc()
+  const interval = Number(syncConfig.interval) || 60
   setInterval(async () => {
     syncFunc()
-  }, 1000 * 60 * 10)
+  }, 1000 * 60 * interval)
 }
 
 export {
+  syncFunc,
   syncInterval
 }

@@ -808,6 +808,15 @@
             :placeholder="$T('SETTINGS_SYNC_CONFIG_PROXY_PLACEHOLDER')"
           />
         </el-form-item>
+        <el-form-item
+          :label="$T('SETTINGS_SYNC_CONFIG_INTERVAL')"
+        >
+          <el-input-number
+            v-model="sync.interval"
+            :min="10"
+            :step="1"
+          />
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button
@@ -1252,7 +1261,8 @@ const sync = ref({
   repo: '',
   branch: '',
   token: '',
-  proxy: ''
+  proxy: '',
+  interval: 60
 })
 
 const syncType = [
@@ -1278,7 +1288,8 @@ async function cancelSyncSetting () {
     repo: '',
     branch: '',
     token: '',
-    proxy: ''
+    proxy: '',
+    interval: 60
   }
 }
 
@@ -1354,7 +1365,8 @@ async function initData () {
       repo: '',
       branch: '',
       token: '',
-      proxy: ''
+      proxy: '',
+      interval: 60
     }
     form.logFileSizeLimit = enforceNumber(settings.logFileSizeLimit) || 10
   }

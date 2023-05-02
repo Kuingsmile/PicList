@@ -1,10 +1,7 @@
 class LS {
   get (name: string) {
-    if (localStorage.getItem(name)) {
-      return JSON.parse(localStorage.getItem(name) as string)
-    } else {
-      return {}
-    }
+    const item = localStorage.getItem(name) as string
+    return item ? JSON.parse(item) : {}
   }
 
   set (name: string, value: any) {
