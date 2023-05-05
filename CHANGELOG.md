@@ -1,3 +1,18 @@
+## :tada: 1.8.2 (2023-05-05)
+
+
+### :sparkles: Features
+
+* auto import of manage page can be closed now ([ebcfbdf](https://github.com/Kuingsmile/PicList/commit/ebcfbdf))
+* sync with picgo 2.4.0 beta 1 ([e8d54fa](https://github.com/Kuingsmile/PicList/commit/e8d54fa))
+
+
+### :bug: Bug Fixes
+
+* fix configure files sync bug ([a1981ab](https://github.com/Kuingsmile/PicList/commit/a1981ab))
+
+
+
 ## :tada: 1.8.1 (2023-05-02)
 
 
