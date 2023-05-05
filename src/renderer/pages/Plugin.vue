@@ -207,7 +207,6 @@ import {
 import { handleStreamlinePluginName } from '~/universal/utils/common'
 import {
   OPEN_URL,
-  RELOAD_APP,
   PICGO_CONFIG_PLUGIN,
   PICGO_HANDLE_PLUGIN_ING,
   PICGO_TOGGLE_PLUGIN,
@@ -216,9 +215,11 @@ import {
   PICGO_HANDLE_PLUGIN_DONE
 } from '#/events/constants'
 import { computed, ref, onBeforeMount, onBeforeUnmount, watch, onMounted } from 'vue'
-import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
+import { getConfig, saveConfig, sendRPC, sendToMain } from '@/utils/dataSender'
 import { ElMessageBox } from 'element-plus'
 import axios from 'axios'
+import { IRPCActionType } from '~/universal/types/enum'
+
 const $confirm = ElMessageBox.confirm
 const searchText = ref('')
 const pluginList = ref<IPicGoPlugin[]>([])
@@ -411,7 +412,7 @@ function installPlugin (item: IPicGoPlugin) {
 // }
 
 function reloadApp () {
-  sendToMain(RELOAD_APP)
+  sendRPC(IRPCActionType.RELOAD_APP)
 }
 
 async function handleReload () {

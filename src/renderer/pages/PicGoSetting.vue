@@ -1068,7 +1068,7 @@
 import { ElForm, ElMessage as $message, ElMessage, ElMessageBox, FormRules } from 'element-plus'
 import { Reading, QuestionFilled } from '@element-plus/icons-vue'
 import pkg from 'root/package.json'
-import { PICGO_OPEN_FILE, OPEN_URL, GET_PICBEDS, HIDE_DOCK, RELOAD_APP } from '#/events/constants'
+import { PICGO_OPEN_FILE, OPEN_URL, GET_PICBEDS, HIDE_DOCK } from '#/events/constants'
 import {
   ipcRenderer
 } from 'electron'
@@ -1078,11 +1078,12 @@ import { getLatestVersion } from '#/utils/getLatestVersion'
 import { compare } from 'compare-versions'
 import { STABLE_RELEASE_URL } from '#/utils/static'
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, toRaw } from 'vue'
-import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
+import { getConfig, saveConfig, sendRPC, sendToMain } from '@/utils/dataSender'
 import { useRouter } from 'vue-router'
 import { SHORTKEY_PAGE } from '@/router/config'
 import { IConfig, IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
 import { invokeToMain } from '@/manage/utils/dataSender'
+import { IRPCActionType } from '~/universal/types/enum'
 
 const imageProcessDialogVisible = ref(false)
 
@@ -1298,7 +1299,7 @@ function confirmSyncSetting () {
     'settings.sync': sync.value
   })
   syncVisible.value = false
-  sendToMain(RELOAD_APP)
+  sendRPC(IRPCActionType.RELOAD_APP)
 }
 
 const version = pkg.version

@@ -117,6 +117,13 @@ const buildMainPageMenu = (win: BrowserWindow) => {
       }
     },
     {
+      label: T('OPEN_TOOLBOX'),
+      click () {
+        const window = windowManager.create(IWindowList.TOOLBOX_WINDOW)
+        window?.show()
+      }
+    },
+    {
       label: T('SHOW_DEVTOOLS'),
       click () {
         win?.webContents?.openDevTools()

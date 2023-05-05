@@ -2,7 +2,8 @@ import {
   SETTING_WINDOW_URL,
   TRAY_WINDOW_URL,
   MINI_WINDOW_URL,
-  RENAME_WINDOW_URL
+  RENAME_WINDOW_URL,
+  TOOLBOX_WINDOW_URL
 } from './constants'
 import { IRemoteNoticeTriggerHook, IWindowList } from '#/types/enum'
 import bus from '@core/bus'
@@ -12,6 +13,7 @@ import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/events/constants'
 import { app } from 'electron'
 import { remoteNoticeHandler } from '../remoteNotice'
 import picgo from '~/main/apis/core/picgo'
+import { T } from '~/main/i18n'
 
 const windowList = new Map<IWindowList, IWindowListItem>()
 
@@ -182,6 +184,53 @@ windowList.set(IWindowList.RENAME_WINDOW, {
       if (bounds.height > 400) {
         positionY = bounds.y + bounds.height / 2 - 88
       } else { // if is the miniWindow
+        positionY = bounds.y + bounds.height / 2
+      }
+      window.setPosition(positionX, positionY, false)
+    }
+  }
+})
+
+windowList.set(IWindowList.TOOLBOX_WINDOW, {
+  isValid: true,
+  multiple: false,
+  options () {
+    const options: IBrowserWindowOptions = {
+      height: 450,
+      width: 800,
+      show: false,
+      frame: true,
+      center: true,
+      fullscreenable: false,
+      resizable: false,
+      title: `PicList ${T('TOOLBOX')}`,
+      vibrancy: 'ultra-dark',
+      icon: `${__static}/logo.png`,
+      webPreferences: {
+        backgroundThrottling: false,
+        nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
+        contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+        nodeIntegrationInWorker: true,
+        webSecurity: false
+      }
+    }
+    if (process.platform !== 'darwin') {
+      options.backgroundColor = '#3f3c37'
+      options.autoHideMenuBar = true
+      options.transparent = false
+    }
+    return options
+  },
+  async callback (window, windowManager) {
+    window.loadURL(TOOLBOX_WINDOW_URL)
+    const currentWindow = windowManager.getAvailableWindow()
+    if (currentWindow && currentWindow.isVisible()) {
+      const bounds = currentWindow.getBounds()
+      const positionX = bounds.x + bounds.width / 2 - 400
+      let positionY
+      if (bounds.height > 400) {
+        positionY = bounds.y + bounds.height / 2 - 225
+      } else {
         positionY = bounds.y + bounds.height / 2
       }
       window.setPosition(positionX, positionY, false)
