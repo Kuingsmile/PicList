@@ -60,8 +60,8 @@ function getSyncConfig () {
 }
 
 function syncConfigValidator (syncConfig: SyncConfig) {
-  const { type, file, username, repo, branch, token } = syncConfig
-  return type && file && username && repo && branch && token
+  const { type, username, repo, branch, token } = syncConfig
+  return type && username && repo && branch && token
 }
 
 async function getModifiedTime (syncConfig: SyncConfig, filePath: string) {

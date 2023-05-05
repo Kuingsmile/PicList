@@ -227,7 +227,7 @@ SETTINGS_SHORT_URL: Use short url
 SETTINGS_DELETE_LOCAL_FILE_AFTER_UPLOAD: Delete local file after upload
 SETTINGS_SYNC_CONFIG: Settings Sync Configuration
 SETTINGS_SYNC_CONFIG_TITLE: Sync Settings
-SETTINGS_SYNC_CONFIG_NOTE: The files to be synchronized include both configuration files and gallery files.
+SETTINGS_SYNC_CONFIG_NOTE: The files to be synchronized are configuration files.
 SETTINGS_SYNC_CONFIG_SELECT_TYPE: Select sync method
 SETTINGS_SYNC_CONFIG_SELECT_FILE: Select files to sync
 SETTINGS_SYNC_CONFIG_SELECT_CONFIG: Configuration files only
