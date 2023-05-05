@@ -252,6 +252,7 @@ SETTINGS_SYNC_CONFIG_GITEE_BRANCH_PLACEHOLDER: Please enter Gitee branch name
 SETTINGS_SYNC_CONFIG_GITHUB_TOKEN_PLACEHOLDER: Please enter GitHub Token
 SETTINGS_SYNC_CONFIG_GITEE_TOKEN_PLACEHOLDER: Please enter Gitee Token
 SETTINGS_SYNC_CONFIG_PROXY_PLACEHOLDER: Please enter proxy
+SETTINGS_AUTO_IMPORT: Auto import config in manage page
 # shortcut-page
 
 BUILTIN_CLIPBOARD_TIPS: Use builtin clipboard function to upload instead of using scripts

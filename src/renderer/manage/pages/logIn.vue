@@ -569,6 +569,10 @@ function isImported (alias: string) {
 }
 
 async function transUpToManage (config: IUploaderConfigListItem, picBedName: string) {
+  const autoImport = await getConfig<boolean>('settings.autoImport') || false
+  if (!autoImport) {
+    return
+  }
   let alias: string = ''
   const resultMap: IStringKeyMap = {}
   switch (picBedName) {

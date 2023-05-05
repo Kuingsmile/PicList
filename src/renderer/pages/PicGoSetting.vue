@@ -196,6 +196,16 @@
               </el-button>
             </el-form-item>
             <el-form-item
+              :label="$T('SETTINGS_AUTO_IMPORT')"
+            >
+              <el-switch
+                v-model="form.autoImport"
+                :active-text="$T('SETTINGS_OPEN')"
+                :inactive-text="$T('SETTINGS_CLOSE')"
+                @change="autoImportChange"
+              />
+            </el-form-item>
+            <el-form-item
               :label="$T('SETTINGS_CHECK_UPDATE')"
             >
               <el-button
@@ -1196,6 +1206,7 @@ const form = reactive<ISettingForm>({
   isCustomMiniIcon: false,
   customMiniIcon: '',
   isHideDock: false,
+  autoImport: false,
   encodeOutputURL: true,
   isAutoListenClipboard: false,
   useShortUrl: false,
@@ -1341,6 +1352,7 @@ async function initData () {
     form.language = settings.language ?? 'zh-CN'
     form.encodeOutputURL = settings.encodeOutputURL === undefined ? true : settings.encodeOutputURL
     form.deleteCloudFile = settings.deleteCloudFile || false
+    form.autoImport = settings.autoImport || false
     form.isCustomMiniIcon = settings.isCustomMiniIcon || false
     form.customMiniIcon = settings.customMiniIcon || ''
     form.isHideDock = settings.isHideDock || false
@@ -1468,6 +1480,10 @@ function handleMigrateFromPicGo () {
 
 function updateHelperChange (val: ICheckBoxValueType) {
   saveConfig('settings.showUpdateTip', val)
+}
+
+function autoImportChange (val: ICheckBoxValueType) {
+  saveConfig('settings.autoImport', val)
 }
 
 function handleHideDockChange (val: ICheckBoxValueType) {
