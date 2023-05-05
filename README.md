@@ -12,6 +12,8 @@
   </a>
 </div>
 
+![Alt](https://repobeats.axiom.co/api/embed/9e4ec90b7b50f8e9c10d77439e49e26b303fabed.svg "Repobeats analytics image")
+
 简体中文 | [English](https://github.com/Kuingsmile/PicList/blob/dev/README_en.md)
 
 PicList是一款云存储/图床平台管理和文件上传工具，基于PicGo的进行了深度二次开发，保留了PicGo的所有功能的同时，为相册添加了同步云端删除功能，同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件链接和图片/markdown/文本/视频预览等，另外还有更加强大的相册和多项功能新增或优化。
@@ -181,3 +183,9 @@ brew uninstall piclist
 Copyright (c) 2017-present, Molunerfinn
 
 Copyright (c) 2023-present Kuingsmile
+
+## Star Me
+
+- Star 趋势  [![GitHub stars](https://img.shields.io/github/stars/kuingsmile/PicList?logo=github&style=social)](https://github.com/kuingsmile/PicList/stargazers)
+
+[![Stargazers over time](https://starchart.cc/kuingsmile/PicList.svg)](https://github.com/kuingsmile/PicList/stargazers)

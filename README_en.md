@@ -12,6 +12,8 @@
   </a>
 </div>
 
+![Alt](https://repobeats.axiom.co/api/embed/9e4ec90b7b50f8e9c10d77439e49e26b303fabed.svg "Repobeats analytics image")
+
 [简体中文](https://github.com/Kuingsmile/PicList/blob/dev/README.md) | English
 
 PicList is a cloud storage platform management and file upload tool based on PicGo, which has been deeply redeveloped. It retains all the functions of PicGo, adds the function of synchronous cloud deletion to the album, and adds a complete cloud storage management function, including cloud directory viewing, file search, batch upload and download, and file deletion, copying multiple formats of file links and image/markdown/text/video preview, etc. Additionally, there are several other feature improvements and additions.
@@ -179,3 +181,10 @@ This project is open source under the MIT license. Welcome everyone to use and c
 Copyright (c) 2017-present, Molunerfinn
 
 Copyright (c) 2023-present Kuingsmile
+
+## Star Me
+
+- Star  [![GitHub stars](https://img.shields.io/github/stars/kuingsmile/PicList?logo=github&style=social)](https://github.com/kuingsmile/PicList/stargazers)
+
+[![Stargazers over time](https://starchart.cc/kuingsmile/PicList.svg)](https://github.com/kuingsmile/PicList/stargazers)
+
