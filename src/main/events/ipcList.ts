@@ -44,6 +44,7 @@ import { buildMainPageMenu, buildMiniPageMenu, buildPluginPageMenu, buildPicBedL
 import path from 'path'
 import { T } from '~/main/i18n'
 import { generateShortUrl } from '~/universal/utils/common'
+import { uploadFile, downloadFile } from '../utils/syncSettings'
 
 const STORE_PATH = app.getPath('userData')
 
@@ -162,6 +163,46 @@ export default {
     ipcMain.handle('getShortUrl', async (evt: IpcMainInvokeEvent, url: string) => {
       const shortUrl = await generateShortUrl(url)
       return shortUrl
+    })
+
+    ipcMain.handle('uploadCommonConfig', async () => {
+      const dataResult = await uploadFile('data.json')
+      const bakResult = await uploadFile('data.bak.json')
+      return dataResult + bakResult
+    })
+
+    ipcMain.handle('downloadCommonConfig', async () => {
+      const dataResult = await downloadFile('data.json')
+      const bakResult = await downloadFile('data.bak.json')
+      return dataResult + bakResult
+    })
+
+    ipcMain.handle('uploadManageConfig', async () => {
+      const manageResult = await uploadFile('manage.json')
+      const bakResult = await uploadFile('manage.bak.json')
+      return manageResult + bakResult
+    })
+
+    ipcMain.handle('downloadManageConfig', async () => {
+      const manageResult = await downloadFile('manage.json')
+      const bakResult = await downloadFile('manage.bak.json')
+      return manageResult + bakResult
+    })
+
+    ipcMain.handle('uploadAllConfig', async () => {
+      const dataResult = await uploadFile('data.json')
+      const bakResult = await uploadFile('data.bak.json')
+      const manageResult = await uploadFile('manage.json')
+      const manageBakResult = await uploadFile('manage.bak.json')
+      return dataResult + bakResult + manageResult + manageBakResult
+    })
+
+    ipcMain.handle('downloadAllConfig', async () => {
+      const dataResult = await downloadFile('data.json')
+      const bakResult = await downloadFile('data.bak.json')
+      const manageResult = await downloadFile('manage.json')
+      const manageBakResult = await downloadFile('manage.bak.json')
+      return dataResult + bakResult + manageResult + manageBakResult
     })
 
     ipcMain.on('openSettingWindow', () => {

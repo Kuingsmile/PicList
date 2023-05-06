@@ -48,7 +48,6 @@ import clipboardPoll from '../utils/clipboardPoll'
 import path from 'path'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/universal/utils/static'
 import fs from 'fs-extra'
-import { syncInterval } from '../utils/syncSettings'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const handleStartUpFiles = (argv: string[], cwd: string) => {
@@ -202,7 +201,6 @@ class LifeCycle {
       }
       const clipboardDir = path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER)
       fs.ensureDir(clipboardDir)
-      syncInterval()
     }
     app.whenReady().then(readyFunction)
   }

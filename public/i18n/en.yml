@@ -252,6 +252,18 @@ SETTINGS_SYNC_CONFIG_GITEE_BRANCH_PLACEHOLDER: Please enter Gitee branch name
 SETTINGS_SYNC_CONFIG_GITHUB_TOKEN_PLACEHOLDER: Please enter GitHub Token
 SETTINGS_SYNC_CONFIG_GITEE_TOKEN_PLACEHOLDER: Please enter Gitee Token
 SETTINGS_SYNC_CONFIG_PROXY_PLACEHOLDER: Please enter proxy
+SETTINGS_UP_DOWN_DESC: Upload and download configuration files
+SETTINGS_UP_DOWN_TITLE: Please use this after filled the synchronization configuration
+SETTINGS_SYNC_UPLOAD: Upload
+SETTINGS_SYNC_DOWNLOAD: Download
+SETTINGS_SYNC_UPLOAD_ALL: Upload all
+SETTINGS_SYNC_DOWNLOAD_ALL: Download all
+SETTINGS_SYNC_UPLOAD_SUCCESS: Successfully uploaded
+SETTINGS_SYNC_UPLOAD_FAILED: Upload failed
+SETTINGS_SYNC_DOWNLOAD_SUCCESS: Successfully downloaded
+SETTINGS_SYNC_DOWNLOAD_FAILED: Download failed
+SETTINGS_SYNC_COMMON_CONFIG: Common configuration
+SETTINGS_SYNC_MANAGE_CONFIG: Manage configuration
 SETTINGS_AUTO_IMPORT: Auto import config in manage page
 # shortcut-page
 

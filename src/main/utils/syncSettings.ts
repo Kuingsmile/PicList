@@ -46,7 +46,7 @@ function getOctokit (syncConfig: SyncConfig) {
 }
 
 function getSyncConfig () {
-  const syncConfig = db.get('settings.sync') || {
+  return db.get('settings.sync') || {
     type: 'github',
     username: '',
     repo: '',
@@ -54,73 +54,11 @@ function getSyncConfig () {
     token: '',
     proxy: ''
   }
-  return syncConfig
 }
 
 function syncConfigValidator (syncConfig: SyncConfig) {
   const { type, username, repo, branch, token } = syncConfig
   return type && username && repo && branch && token
-}
-
-async function getModifiedTime (syncConfig: SyncConfig, filePath: string) {
-  const { username, repo, branch, token, type } = syncConfig
-  if (type === 'gitee') {
-    const url = `https://gitee.com/api/v5/repos/${username}/${repo}/commits`
-    const res = await axios.get(url, {
-      params: {
-        access_token: token,
-        ref: branch,
-        path: filePath
-      }
-    })
-    const data = res.data
-    if (data.length > 0) {
-      return data[0].commit.committer.date
-    } else {
-      return null
-    }
-  } else {
-    const octokit = getOctokit(syncConfig)
-    try {
-      const res = await octokit.rest.repos.listCommits({
-        owner: username,
-        repo,
-        ref: branch,
-        path: filePath,
-        per_page: 1
-      })
-      if (res.status === 200) {
-        return res.data.length > 0 ? res.data[0].commit.committer?.date : null
-      } else {
-        return null
-      }
-    } catch (error: any) {
-      logger.error(error)
-      return null
-    }
-  }
-}
-
-async function getModifiedTimeOfLocal (filePath: string) {
-  if (!fs.existsSync(filePath)) {
-    return new Date(0)
-  }
-  const stat = await fs.stat(filePath)
-  return stat.mtime
-}
-
-async function compareNewerFile (syncConfig: SyncConfig, fileName: string): Promise<'upload' | 'download' | 'update' | undefined> {
-  const localFilePath = path.join(STORE_PATH, fileName)
-  const remoteModifiedTime = await getModifiedTime(syncConfig, fileName)
-  if (remoteModifiedTime === null) {
-    return 'upload'
-  }
-  const localModifiedTime = await getModifiedTimeOfLocal(localFilePath)
-  if (remoteModifiedTime && localModifiedTime) {
-    return Date.parse(remoteModifiedTime) > localModifiedTime.getTime() ? 'download' : 'update'
-  } else {
-    throw new Error('get modified time failed')
-  }
 }
 
 async function uploadLocalToRemote (syncConfig: SyncConfig, fileName: string) {
@@ -130,14 +68,19 @@ async function uploadLocalToRemote (syncConfig: SyncConfig, fileName: string) {
   }
   const { username, repo, branch, token, type } = syncConfig
   if (type === 'gitee') {
-    const url = `https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`
-    const res = await axios.post(url, {
-      access_token: token,
-      branch,
-      content: fs.readFileSync(localFilePath, { encoding: 'base64' }),
-      message: `upload ${fileName} from PicList`
-    })
-    return res.status >= 200 && res.status < 300
+    try {
+      const url = `https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`
+      const res = await axios.post(url, {
+        access_token: token,
+        branch,
+        content: fs.readFileSync(localFilePath, { encoding: 'base64' }),
+        message: `upload ${fileName} from PicList`
+      })
+      return res.status >= 200 && res.status < 300
+    } catch (error: any) {
+      logger.error(error)
+      return false
+    }
   } else {
     const octokit = getOctokit(syncConfig)
     try {
@@ -269,65 +212,78 @@ async function downloadRemoteToLocal (syncConfig: SyncConfig, fileName: string) 
   }
 }
 
-async function syncFile (syncConfig: SyncConfig, fileName: string) {
-  const compareResult = await compareNewerFile(syncConfig, fileName)
-  let result = false
-  if (compareResult === 'upload') {
-    result = await uploadLocalToRemote(syncConfig, fileName)
-  } else if (compareResult === 'update') {
-    try {
-      result = await updateLocalToRemote(syncConfig, fileName)
-    } catch (error: any) {
-      result = await uploadLocalToRemote(syncConfig, fileName)
-    }
-  } else if (compareResult === 'download') {
-    result = await downloadRemoteToLocal(syncConfig, fileName)
+async function uploadFile (fileName: string, all = false) {
+  const syncConfig = getSyncConfig()
+  if (!syncConfigValidator(syncConfig)) {
+    logger.error('sync config is invalid')
+    return 0
   }
-  return result
-}
-
-async function syncAllFiles (syncConfig: SyncConfig) {
-  for (const file of configFileNames) {
-    try {
-      const result = await syncFile(syncConfig, file)
+  let successCount = 0
+  if (all) {
+    for (const file of configFileNames) {
+      const result = await uploadFunc(syncConfig, file)
       if (result) {
-        logger.info(`sync file ${file} success`)
-      } else {
-        logger.error(`sync file ${file} failed`)
+        successCount++
       }
-    } catch (error: any) {
-      logger.error(`sync file ${file} failed`)
-      logger.error(error)
     }
+    logger.info(`upload all files at ${new Date().toLocaleString()}`)
+    return successCount
+  } else {
+    const ressult = await uploadFunc(syncConfig, fileName)
+    return ressult ? 1 : 0
   }
 }
 
-async function syncFunc () {
-  const syncConfig = await getSyncConfig()
-  if (!syncConfigValidator(syncConfig)) {
-    return
+async function uploadFunc (syncConfig: SyncConfig, fileName: string) {
+  let result = false
+  try {
+    result = await updateLocalToRemote(syncConfig, fileName)
+  } catch (error: any) {
+    result = await uploadLocalToRemote(syncConfig, fileName)
   }
-  await syncAllFiles(syncConfig)
-  logger.info(`sync all files at ${new Date().toLocaleString()}`)
+  if (!result) {
+    logger.error(`upload ${fileName} failed`)
+    return false
+  } else {
+    logger.info(`upload ${fileName} success`)
+    return true
+  }
 }
 
-async function syncInterval () {
-  const syncConfig = await getSyncConfig()
+async function downloadFile (fileName: string, all = false) {
+  const syncConfig = getSyncConfig()
   if (!syncConfigValidator(syncConfig)) {
-    return
+    logger.error('sync config is invalid')
+    return 0
   }
-  const syncFunc = async () => {
-    await syncAllFiles(syncConfig)
-    logger.info(`sync all files at ${new Date().toLocaleString()}`)
+  if (all) {
+    let successCount = 0
+    for (const file of configFileNames) {
+      const result = await downloadFunc(syncConfig, file)
+      if (result) {
+        successCount++
+      }
+    }
+    logger.info(`download all files at ${new Date().toLocaleString()}`)
+    return successCount
+  } else {
+    const result = await downloadFunc(syncConfig, fileName)
+    return result ? 1 : 0
   }
-  await syncFunc()
-  const interval = Number(syncConfig.interval) || 60
-  setInterval(async () => {
-    syncFunc()
-  }, 1000 * 60 * interval)
+}
+
+async function downloadFunc (syncConfig: SyncConfig, fileName: string) {
+  const result = await downloadRemoteToLocal(syncConfig, fileName)
+  if (!result) {
+    logger.error(`download ${fileName} failed`)
+    return false
+  } else {
+    logger.info(`download ${fileName} success`)
+    return true
+  }
 }
 
 export {
-  syncFunc,
-  syncInterval
+  uploadFile,
+  downloadFile
 }

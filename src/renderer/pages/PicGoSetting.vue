@@ -100,6 +100,18 @@
               </el-button>
             </el-form-item>
             <el-form-item
+              :label="$T('SETTINGS_UP_DOWN_DESC')"
+            >
+              <el-button
+                type="primary"
+                round
+                size="small"
+                @click=" upDownConfigVisible = true"
+              >
+                {{ $T('SETTINGS_CLICK_TO_SET') }}
+              </el-button>
+            </el-form-item>
+            <el-form-item
               :label="$T('SETTINGS_MIGRATE_FROM_PICGO')"
             >
               <el-button
@@ -818,15 +830,6 @@
             :placeholder="$T('SETTINGS_SYNC_CONFIG_PROXY_PLACEHOLDER')"
           />
         </el-form-item>
-        <el-form-item
-          :label="$T('SETTINGS_SYNC_CONFIG_INTERVAL')"
-        >
-          <el-input-number
-            v-model="sync.interval"
-            :min="10"
-            :step="1"
-          />
-        </el-form-item>
       </el-form>
       <template #footer>
         <el-button
@@ -843,6 +846,80 @@
           {{ $T('CONFIRM') }}
         </el-button>
       </template>
+    </el-dialog>
+    <el-dialog
+      v-model="upDownConfigVisible"
+      class="server-dialog"
+      width="60%"
+      :title="$T('SETTINGS_UP_DOWN_DESC')"
+      :modal-append-to-body="false"
+      center
+    >
+      <el-form
+        label-position="right"
+        label-width="120px"
+      >
+        <el-form-item
+          :label="$T('SETTINGS_SYNC_UPLOAD')"
+        >
+          <el-button-group>
+            <el-button
+              type="primary"
+              plain
+              size="small"
+              @click="uploadCommonConfig"
+            >
+              {{ $T('SETTINGS_SYNC_COMMON_CONFIG') }}
+            </el-button>
+            <el-button
+              type="primary"
+              plain
+              size="small"
+              @click="uploadManageConfig"
+            >
+              {{ $T('SETTINGS_SYNC_MANAGE_CONFIG') }}
+            </el-button>
+            <el-button
+              type="warning"
+              plain
+              size="small"
+              @click="uploadAll"
+            >
+              {{ $T('SETTINGS_SYNC_UPLOAD_ALL') }}
+            </el-button>
+          </el-button-group>
+        </el-form-item>
+        <el-form-item
+          :label="$T('SETTINGS_SYNC_DOWNLOAD')"
+        >
+          <el-button-group>
+            <el-button
+              type="primary"
+              size="small"
+              plain
+              @click="downloadCommonConfig"
+            >
+              {{ $T('SETTINGS_SYNC_COMMON_CONFIG') }}
+            </el-button>
+            <el-button
+              type="primary"
+              size="small"
+              plain
+              @click="downloadManageConfig"
+            >
+              {{ $T('SETTINGS_SYNC_MANAGE_CONFIG') }}
+            </el-button>
+            <el-button
+              type="warning"
+              size="small"
+              plain
+              @click="downloadAll"
+            >
+              {{ $T('SETTINGS_SYNC_DOWNLOAD_ALL') }}
+            </el-button>
+          </el-button-group>
+        </el-form-item>
+      </el-form>
     </el-dialog>
     <el-dialog
       v-model="imageProcessDialogVisible"
@@ -1087,12 +1164,11 @@ import { getLatestVersion } from '#/utils/getLatestVersion'
 import { compare } from 'compare-versions'
 import { STABLE_RELEASE_URL } from '#/utils/static'
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, toRaw } from 'vue'
-import { getConfig, saveConfig, sendRPC, sendToMain } from '@/utils/dataSender'
+import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
 import { useRouter } from 'vue-router'
 import { SHORTKEY_PAGE } from '@/router/config'
 import { IConfig, IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
 import { invokeToMain } from '@/manage/utils/dataSender'
-import { IRPCActionType } from '~/universal/types/enum'
 
 const imageProcessDialogVisible = ref(false)
 
@@ -1227,6 +1303,7 @@ const customLinkVisible = ref(false)
 const checkUpdateVisible = ref(false)
 const serverVisible = ref(false)
 const syncVisible = ref(false)
+const upDownConfigVisible = ref(false)
 const proxyVisible = ref(false)
 const mainWindowSizeVisible = ref(false)
 
@@ -1287,10 +1364,6 @@ const syncType = [
   }
 ]
 
-const allSynFilled = computed(() => {
-  return sync.value.username && sync.value.repo && sync.value.branch && sync.value.token
-})
-
 async function cancelSyncSetting () {
   syncVisible.value = false
   sync.value = await getConfig('settings.sync') || {
@@ -1309,9 +1382,6 @@ function confirmSyncSetting () {
     'settings.sync': sync.value
   })
   syncVisible.value = false
-  if (allSynFilled.value) {
-    sendRPC(IRPCActionType.RELOAD_APP)
-  }
 }
 
 const version = pkg.version
@@ -1672,6 +1742,66 @@ async function cancelLogLevelSetting () {
   }
   form.logLevel = logLevel
   form.logFileSizeLimit = logFileSizeLimit
+}
+
+function DownMessage (failed: number) {
+  if (failed) {
+    $message.error($T('SETTINGS_SYNC_DOWNLOAD_FAILED', { failed }))
+  } else {
+    $message.success($T('SETTINGS_SYNC_DOWNLOAD_SUCCESS'))
+  }
+}
+
+function upMessage (failed: number) {
+  if (failed) {
+    $message.error($T('SETTINGS_SYNC_UPLOAD_FAILED', { failed }))
+  } else {
+    $message.success($T('SETTINGS_SYNC_UPLOAD_SUCCESS'))
+  }
+}
+
+async function uploadCommonConfig () {
+  const result = await invokeToMain('uploadCommonConfig')
+  const failed = 2 - result
+  upMessage(failed)
+}
+
+async function downloadCommonConfig () {
+  const result = await invokeToMain('downloadCommonConfig')
+  const failed = 2 - result
+  DownMessage(failed)
+}
+
+async function uploadManageConfig () {
+  const result = await invokeToMain('uploadManageConfig')
+  const failed = 2 - result
+  upMessage(failed)
+}
+
+async function downloadManageConfig () {
+  const result = await invokeToMain('downloadManageConfig')
+  const failed = 2 - result
+  DownMessage(failed)
+}
+
+async function uploadAll () {
+  const result = await invokeToMain('uploadAllConfig')
+  const failed = 4 - result
+  if (result === 4) {
+    $message.success($T('SETTINGS_SYNC_UPLOAD_SUCCESS'))
+  } else {
+    $message.error($T('SETTINGS_SYNC_UPLOAD_FAILED') + `(${failed})`)
+  }
+}
+
+async function downloadAll () {
+  const result = await invokeToMain('downloadAllConfig')
+  const failed = 4 - result
+  if (result === 4) {
+    $message.success($T('SETTINGS_SYNC_DOWNLOAD_SUCCESS'))
+  } else {
+    $message.error($T('SETTINGS_SYNC_DOWNLOAD_FAILED') + `(${failed})`)
+  }
 }
 
 function confirmServerSetting () {
