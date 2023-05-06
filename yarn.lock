@@ -8451,6 +8451,22 @@ he@^1.2.0:
   resolved "https://registry.npmjs.org/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
+heic-convert@^1.2.4:
+  version "1.2.4"
+  resolved "https://registry.npmjs.org/heic-convert/-/heic-convert-1.2.4.tgz#605820f98ace3949a40fc7b263ee0bc573a0176b"
+  integrity sha512-klJHyv+BqbgKiCQvCqI9IKIvweCcohDuDl0Jphearj8+16+v8eff2piVevHqq4dW9TK0r1onTR6PKHP1I4hdbA==
+  dependencies:
+    heic-decode "^1.1.2"
+    jpeg-js "^0.4.1"
+    pngjs "^3.4.0"
+
+heic-decode@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.npmjs.org/heic-decode/-/heic-decode-1.1.2.tgz#974701666432e31ed64b2263a1ece7cff5218209"
+  integrity sha512-UF8teegxvzQPdSTcx5frIUhitNDliz/9Pui0JFdIqVRE00spVE33DcCYtZqaLNyd4y5RP/QQWZFIc1YWVKKm2A==
+  dependencies:
+    libheif-js "^1.10.0"
+
 highlight.js@^10.7.1:
   version "10.7.3"
   resolved "https://registry.npmjs.org/highlight.js/-/highlight.js-10.7.3.tgz#697272e3991356e40c3cac566a74eef681756531"
@@ -9369,6 +9385,11 @@ joi@^17.4.0:
     "@sideway/formula" "^3.0.0"
     "@sideway/pinpoint" "^2.0.0"
 
+jpeg-js@^0.4.1:
+  version "0.4.4"
+  resolved "https://registry.npmjs.org/jpeg-js/-/jpeg-js-0.4.4.tgz#a9f1c6f1f9f0fa80cdb3484ed9635054d28936aa"
+  integrity sha512-WZzeDOEtTOBK4Mdsar0IqEU5sMr3vSV2RqkAIzUEV2BHnUfKGyswWFPFwK5EeDo93K3FohSHbLAjj0s1Wzd+dg==
+
 js-base64@^2.5.2:
   version "2.6.4"
   resolved "https://registry.npmmirror.com/js-base64/-/js-base64-2.6.4.tgz#f4e686c5de1ea1f867dbcad3d46d969428df98c4"
@@ -9629,6 +9650,11 @@ levn@~0.3.0:
   dependencies:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
+
+libheif-js@^1.10.0:
+  version "1.15.1"
+  resolved "https://registry.npmjs.org/libheif-js/-/libheif-js-1.15.1.tgz#4693d664c2c512c6d907153c7ec4e320625470ad"
+  integrity sha512-1nIVY1IFYLglxHPuLMqMBpjx4wigEEUVnSj2d3pRzeOjzKetwXlVejHJJgomZwEARu0PZ3HeGOW7ID/hZr13cg==
 
 lie@~3.3.0:
   version "3.3.0"
@@ -11069,10 +11095,10 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^0.5.3:
-  version "0.5.3"
-  resolved "https://registry.npmjs.org/piclist/-/piclist-0.5.3.tgz#a3ef0a74818564aa75ae443e43bad88e70c803be"
-  integrity sha512-mPPGesVBtl5cmDuJfbVf+CSQdLyXwZOnNvdXVxptgWOZXLQGIs1VRAbY4y8C5wbhsh+ElPM7/Qb5nSZY/9yqpw==
+piclist@^0.5.4:
+  version "0.5.4"
+  resolved "https://registry.npmjs.org/piclist/-/piclist-0.5.4.tgz#ca28e0c561ab62bbeb12a144377bbe3bab0dba12"
+  integrity sha512-5cVpGs9uPV72FInR7/kvrIQXYRM6bRaAVpd8iul8eZFJUosIDplfBCm+PPrWCeXvaJPkQw7CnO2OEjkL+rXWxA==
   dependencies:
     "@picgo/i18n" "^1.0.0"
     "@picgo/store" "^2.0.4"
@@ -11087,6 +11113,7 @@ piclist@^0.5.3:
     form-data "^4.0.0"
     fs-extra "^11.1.1"
     globby "^11.0.4"
+    heic-convert "^1.2.4"
     image-size "^0.8.3"
     inquirer "^6.0.0"
     is-wsl "^2.2.0"
@@ -11205,6 +11232,11 @@ plist@^3.0.1, plist@^3.0.4:
   dependencies:
     base64-js "^1.5.1"
     xmlbuilder "^9.0.7"
+
+pngjs@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.npmjs.org/pngjs/-/pngjs-3.4.0.tgz#99ca7d725965fb655814eaf65f38f12bbdbf555f"
+  integrity sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==
 
 portfinder@^1.0.26:
   version "1.0.28"
@@ -11651,10 +11683,10 @@ qiniu@^7.8.0:
     tunnel-agent "^0.6.0"
     urllib "^2.34.1"
 
-qrcode.vue@^3.3.3:
-  version "3.3.3"
-  resolved "https://registry.npmjs.org/qrcode.vue/-/qrcode.vue-3.3.3.tgz#00262244311a0ee1956fb7a0e238197ff7e14cfa"
-  integrity sha512-OsD4tQjIbxg/K6D5ZkWjBdYI9eg9K2i8qeYILdEAX5mdAydSAxV7xKmmZSP/hA12olLqEMZ9ryqDQrwa9jEMgw==
+qrcode.vue@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.npmjs.org/qrcode.vue/-/qrcode.vue-3.4.0.tgz#4513ff1a4734cb7184086c2fd439f0d462c6d281"
+  integrity sha512-4XeImbv10Fin16Fl2DArCMhGyAdvIg2jb7vDT+hZiIAMg/6H6mz9nUZr/dR8jBcun5VzNzkiwKhiqOGbloinwA==
 
 qs@6.11.0, qs@^6.4.0:
   version "6.11.0"
