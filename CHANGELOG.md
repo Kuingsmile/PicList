@@ -1,3 +1,12 @@
+## :tada: 1.8.4 (2023-05-06)
+
+
+### :sparkles: Features
+
+* support heic convert now ([b23dfd4](https://github.com/Kuingsmile/PicList/commit/b23dfd4))
+
+
+
 ## :tada: 1.8.3 (2023-05-06)
 
 
