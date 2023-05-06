@@ -9,7 +9,7 @@ import logger from 'apis/core/picgo/logger'
 
 interface SyncConfig {
   type: string
-  file: string
+  file?: string
   username: string
   repo: string
   branch: string
@@ -25,7 +25,6 @@ const configFileNames = [
   'data.bak.json',
   'manage.json',
   'manage.bak.json',
-  'piclist-remote-notice.json',
   'UpDownTaskQueue.json'
 ]
 
@@ -127,6 +126,9 @@ async function compareNewerFile (syncConfig: SyncConfig, fileName: string): Prom
 
 async function uploadLocalToRemote (syncConfig: SyncConfig, fileName: string) {
   const localFilePath = path.join(STORE_PATH, fileName)
+  if (!fs.existsSync(localFilePath)) {
+    return false
+  }
   const { username, repo, branch, token, type } = syncConfig
   if (type === 'gitee') {
     const url = `https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`
@@ -148,7 +150,7 @@ async function uploadLocalToRemote (syncConfig: SyncConfig, fileName: string) {
         content: fs.readFileSync(localFilePath, { encoding: 'base64' }),
         branch
       })
-      return res.status === 200
+      return res.status >= 200 && res.status < 300
     } catch (error: any) {
       logger.error(error)
       return false
@@ -158,6 +160,9 @@ async function uploadLocalToRemote (syncConfig: SyncConfig, fileName: string) {
 
 async function updateLocalToRemote (syncConfig: SyncConfig, fileName: string) {
   const localFilePath = path.join(STORE_PATH, fileName)
+  if (!fs.existsSync(localFilePath)) {
+    return false
+  }
   const { username, repo, branch, token, type } = syncConfig
   if (type === 'gitee') {
     const url = `https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`
@@ -187,32 +192,28 @@ async function updateLocalToRemote (syncConfig: SyncConfig, fileName: string) {
     return false
   } else {
     const octokit = getOctokit(syncConfig)
-    try {
-      const shaRes = await octokit.rest.repos.getContent({
-        owner: username,
-        repo,
-        path: fileName,
-        ref: branch
-      })
-      if (shaRes.status !== 200) {
-        return false
-      }
-      const data = shaRes.data as any
-      const sha = data.sha
-      const res = await octokit.rest.repos.createOrUpdateFileContents({
-        owner: username,
-        repo,
-        path: fileName,
-        message: `update ${fileName} from PicList`,
-        content: fs.readFileSync(localFilePath, { encoding: 'base64' }),
-        branch,
-        sha
-      })
-      return res.status === 200
-    } catch (error: any) {
-      logger.error(error)
-      return false
+
+    const shaRes = await octokit.rest.repos.getContent({
+      owner: username,
+      repo,
+      path: fileName,
+      ref: branch
+    })
+    if (shaRes.status !== 200) {
+      throw new Error('get sha failed')
     }
+    const data = shaRes.data as any
+    const sha = data.sha
+    const res = await octokit.rest.repos.createOrUpdateFileContents({
+      owner: username,
+      repo,
+      path: fileName,
+      message: `update ${fileName} from PicList`,
+      content: fs.readFileSync(localFilePath, { encoding: 'base64' }),
+      branch,
+      sha
+    })
+    return res.status === 200
   }
 }
 
@@ -275,7 +276,11 @@ async function syncFile (syncConfig: SyncConfig, fileName: string) {
   if (compareResult === 'upload') {
     result = await uploadLocalToRemote(syncConfig, fileName)
   } else if (compareResult === 'update') {
-    result = await updateLocalToRemote(syncConfig, fileName)
+    try {
+      result = await updateLocalToRemote(syncConfig, fileName)
+    } catch (error: any) {
+      result = await uploadLocalToRemote(syncConfig, fileName)
+    }
   } else if (compareResult === 'download') {
     result = await downloadRemoteToLocal(syncConfig, fileName)
   }
@@ -288,6 +293,8 @@ async function syncAllFiles (syncConfig: SyncConfig) {
       const result = await syncFile(syncConfig, file)
       if (result) {
         logger.info(`sync file ${file} success`)
+      } else {
+        logger.error(`sync file ${file} failed`)
       }
     } catch (error: any) {
       logger.error(`sync file ${file} failed`)

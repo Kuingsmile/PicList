@@ -838,7 +838,6 @@
         <el-button
           type="primary"
           round
-          :disabled="!allSynFilled"
           @click="confirmSyncSetting"
         >
           {{ $T('CONFIRM') }}
@@ -1310,7 +1309,9 @@ function confirmSyncSetting () {
     'settings.sync': sync.value
   })
   syncVisible.value = false
-  sendRPC(IRPCActionType.RELOAD_APP)
+  if (allSynFilled.value) {
+    sendRPC(IRPCActionType.RELOAD_APP)
+  }
 }
 
 const version = pkg.version
