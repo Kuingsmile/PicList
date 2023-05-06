@@ -1,3 +1,22 @@
+## :tada: 1.8.3 (2023-05-06)
+
+
+### :sparkles: Features
+
+* remember last time choosed sort type ([efd9d54](https://github.com/Kuingsmile/PicList/commit/efd9d54))
+
+
+### :bug: Bug Fixes
+
+* fix config file sync bug ([344088f](https://github.com/Kuingsmile/PicList/commit/344088f))
+
+
+### :pencil: Documentation
+
+* modify readme ([d8eea9c](https://github.com/Kuingsmile/PicList/commit/d8eea9c))
+
+
+
 ## :tada: 1.8.2 (2023-05-05)
 
 
