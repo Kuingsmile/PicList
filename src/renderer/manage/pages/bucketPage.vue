@@ -2052,6 +2052,10 @@ async function resetParam (force: boolean = false) {
     const cachedData = await searchExistFileList()
     if (cachedData.length > 0) {
       currentPageFilesInfo.push(...cachedData[0].value.fullList)
+      const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
+      if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
+        sortFile(sortType)
+      }
       showLoadingPage.value = false
       return
     }
@@ -2069,6 +2073,10 @@ async function resetParam (force: boolean = false) {
         }
       })
       currentPageFilesInfo.push(...res.fullList)
+      const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
+      if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
+        sortFile(sortType)
+      }
       if (res.isTruncated && paging.value) {
         pagingMarkerStack.push(pagingMarker.value)
         pagingMarker.value = res.nextMarker
@@ -2151,6 +2159,10 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
           return a.isDir ? -1 : 1
         })
         currentPageFilesInfo.push(...res.fullList)
+        const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
+        if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
+          sortFile(sortType)
+        }
         if (res.isTruncated) {
           pagingMarkerStack.push(pagingMarker.value)
           pagingMarker.value = res.nextMarker
@@ -2188,6 +2200,10 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
           return a.isDir ? -1 : 1
         })
         currentPageFilesInfo.push(...res.fullList)
+        const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
+        if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
+          sortFile(sortType)
+        }
         if (paging.value) {
           if (res.isTruncated) {
             pagingMarkerStack.push(pagingMarker.value)
@@ -2245,13 +2261,14 @@ function searchAndSort () {
     currentPageFilesInfo.forEach((item: any) => {
       item.match = true
     })
-    sortFile('init')
+    sortFile(localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || 'init')
   }
 }
 
 function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
   switch (type) {
     case 'name':
+      localStorage.setItem('sortType', 'name')
       fileSortNameReverse.value = !fileSortNameReverse.value
       currentPageFilesInfo.sort((a: any, b: any) => {
         if (fileSortNameReverse.value) {
@@ -2262,6 +2279,7 @@ function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
       })
       break
     case 'size':
+      localStorage.setItem('sortType', 'size')
       fileSortSizeReverse.value = !fileSortSizeReverse.value
       currentPageFilesInfo.sort((a: any, b: any) => {
         if (fileSortSizeReverse.value) {
@@ -2272,6 +2290,7 @@ function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
       })
       break
     case 'time':
+      localStorage.setItem('sortType', 'time')
       fileSortTimeReverse.value = !fileSortTimeReverse.value
       currentPageFilesInfo.sort((a: any, b: any) => {
         if (fileSortTimeReverse.value) {
@@ -2282,6 +2301,7 @@ function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
       })
       break
     case 'ext':
+      localStorage.setItem('sortType', 'ext')
       fileSortExtReverse.value = !fileSortExtReverse.value
       currentPageFilesInfo.sort((a: any, b: any) => {
         if (fileSortExtReverse.value) {
@@ -2788,6 +2808,10 @@ async function getBucketFileListBackStage () {
     })
     currentPageFilesInfo.length = 0
     currentPageFilesInfo.push(...currentFileList)
+    const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
+    if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
+      sortFile(sortType)
+    }
     const table = fileCacheDbInstance.table(currentPicBedName.value)
     table.put({
       key: getTableKeyOfDb(),

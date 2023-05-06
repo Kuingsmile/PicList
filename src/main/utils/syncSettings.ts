@@ -24,8 +24,7 @@ const configFileNames = [
   'data.json',
   'data.bak.json',
   'manage.json',
-  'manage.bak.json',
-  'UpDownTaskQueue.json'
+  'manage.bak.json'
 ]
 
 function getOctokit (syncConfig: SyncConfig) {
