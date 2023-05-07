@@ -1,3 +1,17 @@
+# :tada: 1.9.0 (2023-05-07)
+
+
+### :sparkles: Features
+
+* optimize url encode and filename encode ([8d1b817](https://github.com/Kuingsmile/PicList/commit/8d1b817))
+
+
+### :bug: Bug Fixes
+
+* fix several bugs of manage page and minipage ([5dbac83](https://github.com/Kuingsmile/PicList/commit/5dbac83))
+
+
+
 ## :tada: 1.8.4 (2023-05-06)
 
 
