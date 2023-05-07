@@ -1282,7 +1282,7 @@ const form = reactive<ISettingForm>({
   customMiniIcon: '',
   isHideDock: false,
   autoImport: false,
-  encodeOutputURL: true,
+  encodeOutputURL: false,
   isAutoListenClipboard: false,
   useShortUrl: false,
   deleteLocalFile: false
@@ -1421,7 +1421,7 @@ async function initData () {
     form.useBuiltinClipboard = settings.useBuiltinClipboard === undefined ? true : settings.useBuiltinClipboard
     form.isAutoListenClipboard = settings.isAutoListenClipboard || false
     form.language = settings.language ?? 'zh-CN'
-    form.encodeOutputURL = settings.encodeOutputURL === undefined ? true : settings.encodeOutputURL
+    form.encodeOutputURL = settings.encodeOutputURL === undefined ? false : settings.encodeOutputURL
     form.deleteCloudFile = settings.deleteCloudFile || false
     form.autoImport = settings.autoImport || false
     form.isCustomMiniIcon = settings.isCustomMiniIcon || false

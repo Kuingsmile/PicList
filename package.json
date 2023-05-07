@@ -68,7 +68,7 @@
     "mime-types": "^2.1.35",
     "mitt": "^3.0.0",
     "nodejs-file-downloader": "^4.10.6",
-    "piclist": "^0.5.4",
+    "piclist": "^0.6.0",
     "pinia": "^2.0.32",
     "pinia-plugin-persistedstate": "^3.1.0",
     "qiniu": "^7.8.0",

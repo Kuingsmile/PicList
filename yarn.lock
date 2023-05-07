@@ -11095,10 +11095,10 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^0.5.4:
-  version "0.5.4"
-  resolved "https://registry.npmjs.org/piclist/-/piclist-0.5.4.tgz#ca28e0c561ab62bbeb12a144377bbe3bab0dba12"
-  integrity sha512-5cVpGs9uPV72FInR7/kvrIQXYRM6bRaAVpd8iul8eZFJUosIDplfBCm+PPrWCeXvaJPkQw7CnO2OEjkL+rXWxA==
+piclist@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.npmjs.org/piclist/-/piclist-0.6.0.tgz#ad03c205736381df34469c079307283d0eae16e4"
+  integrity sha512-PgaH3rtmOzxfBMfxPzgdtjulkvZ1voRlZK2BJoPDaOIcm5rHF77/n8GRWTlXxS32XqtXJKbdq0hLvOYVDmxW0Q==
   dependencies:
     "@picgo/i18n" "^1.0.0"
     "@picgo/store" "^2.0.4"
@@ -11683,7 +11683,7 @@ qiniu@^7.8.0:
     tunnel-agent "^0.6.0"
     urllib "^2.34.1"
 
-qrcode.vue@^3.4.0:
+qrcode.vue@^3.3.3:
   version "3.4.0"
   resolved "https://registry.npmjs.org/qrcode.vue/-/qrcode.vue-3.4.0.tgz#4513ff1a4734cb7184086c2fd439f0d462c6d281"
   integrity sha512-4XeImbv10Fin16Fl2DArCMhGyAdvIg2jb7vDT+hZiIAMg/6H6mz9nUZr/dR8jBcun5VzNzkiwKhiqOGbloinwA==

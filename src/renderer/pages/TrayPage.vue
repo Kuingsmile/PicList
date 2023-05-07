@@ -123,7 +123,7 @@ async function copyTheLink (item: ImgInfo) {
 
 async function pasteTemplate (style: IPasteStyle, item: ImgInfo, customLink: string | undefined) {
   let url = item.url || item.imgUrl
-  if ((await getConfig('settings.encodeOutputURL')) !== false) {
+  if ((await getConfig('settings.encodeOutputURL')) === true) {
     url = handleUrlEncode(url)
   }
   const useShortUrl = await getConfig('settings.useShortUrl') || false

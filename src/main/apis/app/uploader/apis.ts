@@ -7,8 +7,7 @@ import { IWindowList } from '#/types/enum'
 import uploader from '.'
 import pasteTemplate from '~/main/utils/pasteTemplate'
 import db, { GalleryDB } from '~/main/apis/core/datastore'
-import { handleCopyUrl } from '~/main/utils/common'
-import { handleUrlEncode } from '#/utils/common'
+import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/main/utils/common'
 import { T } from '~/main/i18n/index'
 import ALLApi from '@/apis/allApi'
 import picgo from '@core/picgo'
@@ -49,7 +48,7 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
         windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
       }
       return {
-        url: handleUrlEncode(img[0].imgUrl as string),
+        url: handleUrlEncodeWithSetting(img[0].imgUrl as string),
         fullResult: img[0]
       }
     } else {
@@ -99,7 +98,7 @@ export const uploadChoosedFiles = async (webContents: WebContents, files: IFileW
       }, i * 100)
       await GalleryDB.getInstance().insert(imgs[i])
       result.push({
-        url: handleUrlEncode(imgs[i].imgUrl!),
+        url: handleUrlEncodeWithSetting(imgs[i].imgUrl!),
         fullResult: imgs[i]
       })
     }
