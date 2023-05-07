@@ -581,7 +581,9 @@ https://www.baidu.com/img/bd_logo1.png"
                         size="20"
                         style="cursor: pointer;"
                         color="#409EFF"
-                        @click="copyToClipboard(formatLink(item.url, item.fileName, manageStore.config.settings.pasteFormat ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))"
+                        @click="async () => {
+                          copyToClipboard(await formatLink(item.url, item.fileName, manageStore.config.settings.pasteFormat ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))
+                        }"
                       >
                         <CopyDocument />
                       </el-icon>
@@ -589,32 +591,44 @@ https://www.baidu.com/img/bd_logo1.png"
                     <template #dropdown>
                       <el-dropdown-menu>
                         <el-dropdown-item
-                          @click="copyToClipboard(formatLink(item.url, item.fileName, 'url'))"
+                          @click="async () => {
+                            copyToClipboard(await formatLink(item.url, item.fileName, 'url'))
+                          }"
                         >
                           Url
                         </el-dropdown-item>
                         <el-dropdown-item
-                          @click="copyToClipboard(formatLink(item.url, item.fileName, 'markdown'))"
+                          @click="async () => {
+                            copyToClipboard(await formatLink(item.url, item.fileName, 'markdown'))
+                          }"
                         >
                           Markdown
                         </el-dropdown-item>
                         <el-dropdown-item
-                          @click="copyToClipboard(formatLink(item.url, item.fileName, 'markdown-with-link'))"
+                          @click="async () => {
+                            copyToClipboard(await formatLink(item.url, item.fileName, 'markdown-with-link'))
+                          }"
                         >
                           Markdown-link
                         </el-dropdown-item>
                         <el-dropdown-item
-                          @click="copyToClipboard(formatLink(item.url, item.fileName, 'html'))"
+                          @click="async () => {
+                            copyToClipboard(await formatLink(item.url, item.fileName, 'html'))
+                          }"
                         >
                           Html
                         </el-dropdown-item>
                         <el-dropdown-item
-                          @click="copyToClipboard(formatLink(item.url, item.fileName, 'bbcode'))"
+                          @click="async () => {
+                            copyToClipboard(await formatLink(item.url, item.fileName, 'bbcode'))
+                          }"
                         >
                           BBCode
                         </el-dropdown-item>
                         <el-dropdown-item
-                          @click="copyToClipboard(formatLink(item.url, item.fileName, 'custom', manageStore.config.settings.customPasteFormat))"
+                          @click="async () => {
+                            copyToClipboard(await formatLink(item.url, item.fileName, 'custom', manageStore.config.settings.customPasteFormat))
+                          }"
                         >
                           {{ $T('MANAGE_BUCKET_URL_FORMAT_CUSTOM') }}
                         </el-dropdown-item>
@@ -1540,6 +1554,7 @@ function handleUploadKeepDirChange (val: any) {
 }
 
 function handleViewChange (val: 'list' | 'grid') {
+  saveConfig('settings.isShowList', val === 'list')
   showFileStyle.value = val
 }
 
@@ -1738,7 +1753,8 @@ function renameFileBeforeUpload (filePath: string): string {
   const typeMap = {
     timestampRename: manageStore.config.settings.timestampRename,
     randomStringRename: manageStore.config.settings.randomStringRename,
-    customRenameFormat: manageStore.config.settings.customRenameFormat
+    customRenameFormat: manageStore.config.settings.customRenameFormat,
+    customRename: manageStore.config.settings.customRename
   }
   return renameFile(typeMap, fileName)
 }
@@ -2047,7 +2063,7 @@ async function resetParam (force: boolean = false) {
   previewedImage.value = ''
   isShowFileInfo.value = false
   lastChoosed.value = -1
-  showFileStyle.value = manageStore.config.picBed[configMap.alias].isShowList ? 'list' : 'grid'
+  showFileStyle.value = manageStore.config.settings.isShowList ? 'list' : 'grid'
   if (!isAutoRefresh.value && !force && !paging.value) {
     const cachedData = await searchExistFileList()
     if (cachedData.length > 0) {
@@ -2719,19 +2735,19 @@ function handleBatchCopyInfo () {
   ElMessage.success(`${$T('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_A')} ${selectedItems.length} ${$T('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_B')}`)
 }
 
-function handleBatchCopyLink (type: string) {
+async function handleBatchCopyLink (type: string) {
   if (selectedItems.length === 0) {
     ElMessage.warning($T('MANAGE_BUCKET_BATCH_COPY_URL_ERROR_MSG'))
     return
   }
   const result = [] as string[]
-  selectedItems.forEach((item: any) => {
+  selectedItems.forEach(async (item: any) => {
     if (!item.isDir) {
       if (type !== 'preSignedUrl') {
-        result.push(formatLink(item.url, item.fileName, type, manageStore.config.settings.customPasteFormat))
+        result.push(await formatLink(item.url, item.fileName, type, manageStore.config.settings.customPasteFormat))
       } else {
-        getPreSignedUrl(item).then((url: string) => {
-          result.push(formatLink(url, item.fileName, type, manageStore.config.settings.customPasteFormat))
+        getPreSignedUrl(item).then(async (url: string) => {
+          result.push(await formatLink(url, item.fileName, type, manageStore.config.settings.customPasteFormat))
         }).then(() => {
           if (result.length === selectedItems.length) {
             clipboard.writeText(result.join('\n'))
@@ -3513,7 +3529,7 @@ const columns: Column<any>[] = [
                   size="20"
                   style="cursor: pointer;"
                   color="#409EFF"
-                  onClick={() => copyToClipboard(formatLink(item.url, item.fileName, manageStore.config.settings.pasteFormat ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))}
+                  onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, manageStore.config.settings.pasteFormat ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))}
                 >
                   <CopyDocument />
                 </ElIcon>
@@ -3521,32 +3537,32 @@ const columns: Column<any>[] = [
               dropdown: () => (
                 <ElDropdownMenu>
                   <ElDropdownItem
-                    onClick={() => copyToClipboard(formatLink(item.url, item.fileName, 'url'))}
+                    onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'url'))}
                   >
                     Url
                   </ElDropdownItem>
                   <ElDropdownItem
-                    onClick={() => copyToClipboard(formatLink(item.url, item.fileName, 'markdown'))}
+                    onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'markdown'))}
                   >
                     Markdown
                   </ElDropdownItem>
                   <ElDropdownItem
-                    onClick={() => copyToClipboard(formatLink(item.url, item.fileName, 'markdown-with-link'))}
+                    onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'markdown-with-link'))}
                   >
                     Markdown-link
                   </ElDropdownItem>
                   <ElDropdownItem
-                    onClick={() => copyToClipboard(formatLink(item.url, item.fileName, 'html'))}
+                    onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'html'))}
                   >
                     Html
                   </ElDropdownItem>
                   <ElDropdownItem
-                    onClick={() => copyToClipboard(formatLink(item.url, item.fileName, 'bbcode'))}
+                    onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'bbcode'))}
                   >
                     BBCode
                   </ElDropdownItem>
                   <ElDropdownItem
-                    onClick={() => copyToClipboard(formatLink(item.url, item.fileName, 'custom', manageStore.config.settings.customPasteFormat))}
+                    onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'custom', manageStore.config.settings.customPasteFormat))}
                   >
                     Custom
                   </ElDropdownItem>

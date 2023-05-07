@@ -2,6 +2,8 @@ import { v4 as uuidv4 } from 'uuid'
 import path from 'path'
 import crypto from 'crypto'
 import { availableIconList } from './icon'
+import { getConfig } from './dataSender'
+import { handleUrlEncode } from '~/universal/utils/common'
 
 export function randomStringGenerator (length: number): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -44,13 +46,14 @@ export function renameFile (typeMap : IStringKeyMap, oldName: string): string {
     return renameFileNameWithTimestamp(oldName)
   } else if (typeMap.randomStringRename) {
     return renameFileNameWithRandomString(oldName, 20)
-  } else {
+  } else if (typeMap.customRename) {
     return renameFileNameWithCustomString(oldName, typeMap.customRenameFormat)
   }
+  return oldName
 }
 
-export function formatLink (url: string, fileName: string, type: string, format?: string) : string {
-  const encodedUrl = encodeURI(url)
+export async function formatLink (url: string, fileName: string, type: string, format?: string) : Promise<string> {
+  const encodedUrl = await getConfig('settings.isEncodeUrl') ? handleUrlEncode(url) : url
   switch (type) {
     case 'markdown':
       return `![${fileName}](${encodedUrl})`
@@ -73,7 +76,7 @@ export function formatLink (url: string, fileName: string, type: string, format?
 }
 
 export function getFileIconPath (fileName: string) {
-  const ext = path.extname(fileName).slice(1)
+  const ext = path.extname(fileName).slice(1).toLowerCase()
   return availableIconList.includes(ext) ? `${ext}.webp` : 'unknown.webp'
 }
 

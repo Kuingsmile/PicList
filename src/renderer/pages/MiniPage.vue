@@ -1,12 +1,7 @@
 <template>
   <div
     id="mini-page"
-    :class="{ linux: os === 'linux' }"
   >
-    <img
-      :src="logoPath.value ? logoPath.value : require('../assets/squareLogo.png')"
-      style="width: 100%; height: 100%;border-radius: 50%;"
-    >
     <div
       id="upload-area"
       :class="{ 'is-dragover': dragover, uploading: showProgress, linux: os === 'linux' }"
@@ -15,6 +10,11 @@
       @dragover.prevent="dragover = true"
       @dragleave.prevent="dragover = false"
     >
+      <img
+        v-if="!dragover && !showProgress"
+        :src="logoPath.value ? logoPath.value : require('../assets/squareLogo.png')"
+        style="width: 100%; height: 100%;border-radius: 50%;"
+      >
       <div
         id="upload-dragger"
         @dblclick="openUploadWindow"

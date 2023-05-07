@@ -155,6 +155,31 @@
                 <span
                   style="position:absolute;left: 0;"
                 >
+                  {{ $T('MANAGE_SETTING_ENCODE_URL_WHEN_COPY') }}
+                  <el-tooltip
+                    effect="dark"
+                    :content="$T('MANAGE_SETTING_ENCODE_URL_WHEN_COPY_TIPS')"
+                    placement="right"
+                  >
+                    <el-icon>
+                      <InfoFilled />
+                    </el-icon>
+                  </el-tooltip>
+                </span>
+              </template>
+              <el-switch
+                v-model="form.isEncodeUrl"
+                style="position:absolute;right: 0;"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                @change="handleIsEncodeUrlChange"
+              />
+            </el-form-item>
+            <el-form-item>
+              <template #label>
+                <span
+                  style="position:absolute;left: 0;"
+                >
                   {{ $T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_UPLOAD_TITLE') }}
                   <el-tooltip
                     effect="dark"
@@ -507,6 +532,7 @@ const form = reactive<IStringKeyMap>({
   isAutoRefresh: false,
   isIgnoreCase: false,
   isForceCustomUrlHttps: false,
+  isEncodeUrl: false,
   isShowList: false,
   isUploadKeepDirStructure: true,
   isDownloadFileKeepDirStructure: false,
@@ -577,8 +603,10 @@ async function initData () {
   downloadDir.value = config.settings.downloadDir ?? ''
   form.isAutoRefresh = config.settings.isAutoRefresh ?? false
   form.isShowThumbnail = config.settings.isShowThumbnail ?? false
+  form.isShowList = config.settings.isShowList ?? false
   form.isIgnoreCase = config.settings.isIgnoreCase ?? false
   form.isForceCustomUrlHttps = config.settings.isForceCustomUrlHttps ?? true
+  form.isEncodeUrl = config.settings.isEncodeUrl ?? false
   PreSignedExpire.value = config.settings.PreSignedExpire ?? 14400
   maxDownloadFileCount.value = config.settings.maxDownloadFileCount ?? 5
   form.isUploadKeepDirStructure = config.settings.isUploadKeepDirStructure ?? true
@@ -638,6 +666,12 @@ function handleIsDownloadFolderKeepDirStructureChange (val:ICheckBoxValueType) {
 function handleIsForceCustomUrlHttpsChange (val:ICheckBoxValueType) {
   saveConfig({
     'settings.isForceCustomUrlHttps': val
+  })
+}
+
+function handleIsEncodeUrlChange (val:ICheckBoxValueType) {
+  saveConfig({
+    'settings.isEncodeUrl': val
   })
 }
 
