@@ -84,19 +84,19 @@ Search and install `Image auto upload Plugin` in the community plugin, then ente
 
 |          Platform          | Album cloud deletion | Cloud storage management |
 | :------------------------: | :------------------: | :----------------------: |
-|           SM.MS           |         ✔️         |           ✔️           |
-|           Github           |         ✔️         |           ✔️           |
-|           Imgur           |         ✔️         |           ✔️           |
-|       Tencent COS V5       |         ✔️         |           ✔️           |
-|         Aliyun OSS         |         ✔️         |           ✔️           |
-|           Upyun           |         ✔️         |           ✔️           |
-|           Qiniu           |         ✔️         |           ✔️           |
-| S3 API compatible platform |         ✔️         |           ✔️           |
-|           WebDAV           |         ✔️         |           ✔️           |
+|           SM.MS            |          ✔️           |            ✔️             |
+|           Github           |          ✔️           |            ✔️             |
+|           Imgur            |          ✔️           |            ✔️             |
+|       Tencent COS V5       |          ✔️           |            ✔️             |
+|         Aliyun OSS         |          ✔️           |            ✔️             |
+|           Upyun            |          ✔️           |            ✔️             |
+|           Qiniu            |          ✔️           |            ✔️             |
+| S3 API compatible platform |          ✔️           |            ✔️             |
+|           WebDAV           |          ✔️           |            ✔️             |
 
-|                          Plugin                          | Album cloud deletion |
-| :-------------------------------------------------------: | :------------------: |
-| [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3) |         ✔️         |
+|                            Plugin                            | Album cloud deletion |
+| :----------------------------------------------------------: | :------------------: |
+| [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3) |          ✔️           |
 
 ## Download and install
 

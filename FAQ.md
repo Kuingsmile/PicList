@@ -53,8 +53,9 @@ PicList计划整合和优化现有插件，内置更多的常用图床。
 
 ## 6. Github 图床有时能上传，有时上传失败
 
-1. GitHub 图床不支持上传同名文件，如果有同名文件上传，会报错。建议开启 `时间戳重命名` 避免同名文件。
-2. GitHub 服务器和国内 GFW 的问题会导致有时上传成功，有时上传失败，无解。想要稳定请使用付费云存储，如阿里云、腾讯云等，价格也不会贵。
+GitHub 服务器和国内 GFW 的问题会导致有时上传成功，有时上传失败，无解。
+
+想要稳定请使用付费云存储，如阿里云、腾讯云等，价格也不会贵。
 
 ## 7. Mac 上无法打开 PicList 的主窗口界面
 
@@ -92,3 +93,7 @@ Linux: `$XDG_CONFIG_HOME/piclist/assets/simhei.ttf` or `~/.config//assets/simhei
 macOS: `~/Library/Application\ Support/picgo/assets/simhei.ttf`
 
 字体文件下载地址：[https://release.piclist.cn/simhei.ttf](https://release.piclist.cn/simhei.ttf)
+
+## 13. 使用aws-s3插件上传到cloudflare R2时出现上传失败问题
+
+R2的endpoint地址会出现被GFW sni阻断的问题，查看piclist.log后将对应的ip地址加入代理列表可解决。
