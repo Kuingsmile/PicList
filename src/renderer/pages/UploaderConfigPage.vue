@@ -14,8 +14,11 @@
         v-for="item in curConfigList"
         :key="item._id"
         class="config-item-col"
-        :span="11"
-        :offset="1"
+        :xs="24"
+        :sm="curConfigList.length === 1 ? 24 : 12"
+        :md="curConfigList.length === 1 ? 24 : 12"
+        :lg="curConfigList.length === 1 ? 12 : 6"
+        :xl="curConfigList.length === 1 ? 12 : 3"
       >
         <div
           :class="`config-item ${defaultConfigId === item._id ? 'selected' : ''}`"
@@ -52,8 +55,11 @@
       </el-col>
       <el-col
         class="config-item-col"
-        :span="11"
-        :offset="1"
+        :xs="24"
+        :sm="curConfigList.length === 1 ? 24 : 12"
+        :md="curConfigList.length === 1 ? 24 : 12"
+        :lg="curConfigList.length === 1 ? 12 : 6"
+        :xl="curConfigList.length === 1 ? 12 : 3"
       >
         <div
           class="config-item config-item-add"

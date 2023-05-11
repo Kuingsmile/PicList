@@ -72,6 +72,9 @@
           </el-menu-item>
           <el-sub-menu
             index="sub-menu"
+            :show-timeout="0"
+            :hide-timeout="0"
+            :popper-offset="0"
           >
             <template #title>
               <el-icon>
@@ -460,7 +463,7 @@ $darwinBg = transparentify(#172426, #000, 0.7)
     height calc(100vh - 22px)
     overflow-x hidden
     overflow-y auto
-    width 162px
+    width 142px
     .info-window
       cursor pointer
       position fixed
@@ -474,7 +477,7 @@ $darwinBg = transparentify(#172426, #000, 0.7)
   .el-menu
     border-right none
     background transparent
-    width 162px
+    width 142px
     &-item
       color #eee
       position relative
@@ -500,7 +503,7 @@ $darwinBg = transparentify(#172426, #000, 0.7)
         color #fff
   .el-sub-menu
     .el-menu-item
-      min-width 166px
+      min-width 142px
       &.is-active
         &:before
           top 16px

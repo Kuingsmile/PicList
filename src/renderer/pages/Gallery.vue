@@ -1018,7 +1018,7 @@ export default {
       transform: rotate(180deg)
 #gallery-view
   position absolute
-  left 162px
+  left 142px
   right 0
   height 100%
   .cursor-pointer

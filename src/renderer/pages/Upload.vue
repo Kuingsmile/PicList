@@ -704,7 +704,7 @@ export default {
     color #409EFF
 #upload-view
   position absolute
-  left 162px
+  left 142px
   right 0
   height 100%
   .view-title

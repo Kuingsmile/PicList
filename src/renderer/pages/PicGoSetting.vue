@@ -1904,7 +1904,7 @@ export default {
 #picgo-setting
   height 100%
   position absolute
-  left 162px
+  left 142px
   right 0
   .sub-title
     font-size 14px

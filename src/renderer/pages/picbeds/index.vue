@@ -5,8 +5,8 @@
       class="setting-list"
     >
       <el-col
-        :span="20"
-        :offset="2"
+        :span="22"
+        :offset="1"
       >
         <div
           class="view-title"
@@ -219,7 +219,7 @@ export default {
   overflow-y auto
   overflow-x hidden
   position absolute
-  left 162px
+  left 142px
   right 0
   .setting-list
     height 100%
