@@ -55,7 +55,11 @@
         v-for="item in pluginList"
         :key="item.fullName"
         class="plugin-item__container"
-        :span="24"
+        :xs="24"
+        :sm="pluginList.length === 1 ? 24 : 12"
+        :md="pluginList.length === 1 ? 24 : 12"
+        :lg="pluginList.length === 1 ? 24 : 6"
+        :xl="pluginList.length === 1 ? 24 : 6"
       >
         <div
           class="plugin-item"

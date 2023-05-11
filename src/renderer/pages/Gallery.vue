@@ -24,8 +24,8 @@
     <transition name="el-zoom-in-top">
       <el-row v-show="handleBarActive">
         <el-col
-          :span="20"
-          :offset="2"
+          :span="22"
+          :offset="1"
         >
           <el-row
             class="handle-bar"
@@ -214,8 +214,8 @@
       :class="{ small: handleBarActive }"
     >
       <el-col
-        :span="20"
-        :offset="2"
+        :span="22"
+        :offset="1"
       >
         <el-row :gutter="16">
           <photo-slider
@@ -230,10 +230,10 @@
           <el-col
             v-for="(item, index) in filterList"
             :key="item.id"
-            :xs="12"
+            :xs="24"
             :sm="12"
             :md="8"
-            :lg="3"
+            :lg="4"
             :xl="2"
             class="gallery-list__img"
           >
