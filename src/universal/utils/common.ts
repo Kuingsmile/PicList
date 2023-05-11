@@ -20,12 +20,7 @@ export const isUrlEncode = (url: string): boolean => {
   }
 }
 
-export const handleUrlEncode = (url: string): string => {
-  if (!isUrlEncode(url)) {
-    url = encodeURI(url)
-  }
-  return url
-}
+export const handleUrlEncode = (url: string): string => isUrlEncode(url) ? url : encodeURI(url)
 
 /**
  * streamline the full plugin name to a simple one
@@ -47,17 +42,13 @@ export const simpleClone = (obj: any) => {
 }
 
 export const enforceNumber = (num: number | string) => {
-  return isNaN(Number(num)) ? 0 : Number(num)
+  return isNaN(+num) ? 0 : +num
 }
 
 export const isDev = process.env.NODE_ENV === 'development'
 
-export const trimValues = (obj: IStringKeyMap) => {
-  const newObj = {} as IStringKeyMap
-  Object.keys(obj).forEach(key => {
-    newObj[key] = typeof obj[key] === 'string' ? obj[key].trim() : obj[key]
-  })
-  return newObj
+export const trimValues = <T extends IStringKeyMap>(obj: T): {[K in keyof T]: T[K] extends string ? string : T[K]} => {
+  return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, typeof value === 'string' ? value.trim() : value])) as {[K in keyof T]: T[K] extends string ? string : T[K]}
 }
 
 const c1nApi = 'https://c1n.cn/link/short'

@@ -11,14 +11,6 @@ export const handleTalkingDataEvent = (data: ITalkingDataOptions) => {
   }
 }
 
-export const trimValues = (obj: IStringKeyMap) => {
-  const newObj = {} as IStringKeyMap
-  Object.keys(obj).forEach(key => {
-    newObj[key] = typeof obj[key] === 'string' ? obj[key].trim() : obj[key]
-  })
-  return newObj
-}
-
 /**
  * get raw data from reactive or ref
  */
