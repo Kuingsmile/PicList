@@ -1,3 +1,17 @@
+## :tada: 1.9.1 (2023-05-11)
+
+
+### :sparkles: Features
+
+* add webpath for webdav, fix urlEncode bug ([5628901](https://github.com/Kuingsmile/PicList/commit/5628901))
+
+
+### :pencil: Documentation
+
+* update docs ([80057c8](https://github.com/Kuingsmile/PicList/commit/80057c8))
+
+
+
 # :tada: 1.9.0 (2023-05-07)
 
 
