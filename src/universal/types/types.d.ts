@@ -337,12 +337,6 @@ interface IAppNotification {
   icon?: string
 }
 
-interface ITalkingDataOptions {
-  EventId: string
-  Label?: string
-  MapKv?: IStringKeyMap
-}
-
 interface IAnalyticsData {
   fromClipboard: boolean
   type: string

@@ -53,23 +53,6 @@ export const showMessageBox = (options: any) => {
   })
 }
 
-const thresholds = [
-  { limit: 1000, value: 500 },
-  { limit: 1500, value: 1000 },
-  { limit: 3000, value: 2000 },
-  { limit: 5000, value: 3000 },
-  { limit: 7000, value: 5000 },
-  { limit: 10000, value: 8000 },
-  { limit: 12000, value: 10000 },
-  { limit: 20000, value: 15000 },
-  { limit: 30000, value: 20000 }
-]
-
-export const calcDurationRange = (duration: number) => {
-  const foundThreshold = thresholds.find(({ limit }) => duration < limit)
-  return foundThreshold ? foundThreshold.value : 100000
-}
-
 /**
  * macOS public.file-url will get encoded file path,
  * so we need to decode it

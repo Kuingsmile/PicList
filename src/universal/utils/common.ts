@@ -41,9 +41,7 @@ export const simpleClone = (obj: any) => {
   return JSON.parse(JSON.stringify(obj))
 }
 
-export const enforceNumber = (num: number | string) => {
-  return isNaN(+num) ? 0 : +num
-}
+export const enforceNumber = (num: number | string) => isNaN(+num) ? 0 : +num
 
 export const isDev = process.env.NODE_ENV === 'development'
 

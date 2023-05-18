@@ -8,7 +8,6 @@ import VueLazyLoad from 'vue3-lazyload'
 import axios from 'axios'
 import { mainMixin } from './renderer/utils/mainMixin'
 import { dragMixin } from '@/utils/mixin'
-import { initTalkingData } from './renderer/utils/analytics'
 import db from './renderer/utils/db'
 import { i18nManager, T } from './renderer/i18n/index'
 import { getConfig, saveConfig, sendToMain, triggerRPC } from '@/utils/dataSender'
@@ -65,5 +64,3 @@ console.log(hljsCommon.highlightAuto('<h1>Highlight.js has been registered succe
 app.use(hljsVuePlugin)
 app.use(VueVideoPlayer)
 app.mount('#app')
-
-initTalkingData()
