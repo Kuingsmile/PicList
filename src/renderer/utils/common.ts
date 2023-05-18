@@ -15,30 +15,20 @@ export const handleTalkingDataEvent = (data: ITalkingDataOptions) => {
  * get raw data from reactive or ref
  */
 export const getRawData = (args: any): any => {
+  if (isRef(args)) {
+    return unref(args)
+  }
+  if (isReactive(args)) {
+    return toRaw(args)
+  }
   if (Array.isArray(args)) {
-    const data = args.map((item: any) => {
-      if (isRef(item)) {
-        return unref(item)
-      }
-      if (isReactive(item)) {
-        return toRaw(item)
-      }
-      return getRawData(item)
-    })
-    return data
+    return args.map(getRawData)
   }
   if (typeof args === 'object' && args !== null) {
-    const data = {} as IStringKeyMap
-    Object.keys(args).forEach(key => {
-      const item = args[key]
-      if (isRef(item)) {
-        data[key] = unref(item)
-      } else if (isReactive(item)) {
-        data[key] = toRaw(item)
-      } else {
-        data[key] = getRawData(item)
-      }
-    })
+    const data = {} as Record<string, any>
+    for (const key in args) {
+      data[key] = getRawData(args[key])
+    }
     return data
   }
   return args
