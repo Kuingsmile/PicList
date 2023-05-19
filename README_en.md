@@ -178,7 +178,7 @@ This project is open source under the MIT license. Welcome everyone to use and c
 
 [MIT](https://opensource.org/licenses/MIT)
 
-Copyright (c) 2017-present, Molunerfinn
+Copyright (c) 2017-present Molunerfinn
 
 Copyright (c) 2023-present Kuingsmile
 

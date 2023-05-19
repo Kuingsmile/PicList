@@ -202,7 +202,7 @@
 <script lang="ts" setup>
 import { Close, Download, Goods, Remove, Setting } from '@element-plus/icons-vue'
 import { T as $T } from '@/i18n/index'
-import ConfigForm from '@/components/ConfigForm.vue'
+import ConfigForm from '@/components/ConfigFormForPlugin.vue'
 import { debounce, DebouncedFunc } from 'lodash'
 import {
   ipcRenderer,
@@ -330,8 +330,8 @@ onBeforeMount(async () => {
   ipcRenderer.on(PICGO_CONFIG_PLUGIN, (evt: IpcRendererEvent, _currentType: 'plugin' | 'transformer' | 'uploader', _configName: string, _config: any) => {
     currentType.value = _currentType
     configName.value = _configName
-    dialogVisible.value = true
     config.value = _config
+    dialogVisible.value = true
   })
   ipcRenderer.on(PICGO_HANDLE_PLUGIN_ING, (evt: IpcRendererEvent, fullName: string) => {
     pluginList.value.forEach(item => {

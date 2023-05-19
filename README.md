@@ -180,7 +180,7 @@ brew uninstall piclist
 
 [MIT](https://opensource.org/licenses/MIT)
 
-Copyright (c) 2017-present, Molunerfinn
+Copyright (c) 2017-present Molunerfinn
 
 Copyright (c) 2023-present Kuingsmile
 
