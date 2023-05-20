@@ -162,7 +162,7 @@ ea/*
                 size="25px"
                 :color="selectedItems.length > 0 ? 'red' : 'gray'"
                 style="margin-left: 10px;"
-                @click="handleBatchCopyLink(manageStore.config.settings.customPasteFormat)"
+                @click="handleBatchCopyLink(manageStore.config.settings.pasteFormat)"
               >
                 <Link />
               </el-icon>
@@ -2741,7 +2741,8 @@ async function handleBatchCopyLink (type: string) {
     return
   }
   const result = [] as string[]
-  selectedItems.forEach(async (item: any) => {
+  for (let i = 0; i < selectedItems.length; i++) {
+    const item = selectedItems[i]
     if (!item.isDir) {
       if (type !== 'preSignedUrl') {
         result.push(await formatLink(item.url, item.fileName, type, manageStore.config.settings.customPasteFormat))
@@ -2756,7 +2757,7 @@ async function handleBatchCopyLink (type: string) {
         })
       }
     }
-  })
+  }
   if (type !== 'preSignedUrl') {
     clipboard.writeText(result.join('\n'))
     ElMessage.success(`${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_A')} ${result.length} ${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_B')}`)
