@@ -1,3 +1,24 @@
+## :tada: 1.9.2 (2023-05-21)
+
+
+### :sparkles: Features
+
+* beautify UI ([e733f6c](https://github.com/Kuingsmile/PicList/commit/e733f6c))
+* optimize gallery page and plugin page UI ([0c7f49b](https://github.com/Kuingsmile/PicList/commit/0c7f49b))
+
+
+### :bug: Bug Fixes
+
+* fix config dialog bug of plugin page ([bd9e33c](https://github.com/Kuingsmile/PicList/commit/bd9e33c))
+* fixed the issue where bulk copying links was not functioning properly ([f8a886c](https://github.com/Kuingsmile/PicList/commit/f8a886c))
+
+
+### :zap: Performance Improvements
+
+* remove talkingdata ([d9d2a84](https://github.com/Kuingsmile/PicList/commit/d9d2a84))
+
+
+
 ## :tada: 1.9.1 (2023-05-11)
 
 
