@@ -2736,32 +2736,20 @@ function handleBatchCopyInfo () {
 }
 
 async function handleBatchCopyLink (type: string) {
-  if (selectedItems.length === 0) {
+  if (!selectedItems.length) {
     ElMessage.warning($T('MANAGE_BUCKET_BATCH_COPY_URL_ERROR_MSG'))
     return
   }
   const result = [] as string[]
-  for (let i = 0; i < selectedItems.length; i++) {
-    const item = selectedItems[i]
+  for (const item of selectedItems) {
     if (!item.isDir) {
-      if (type !== 'preSignedUrl') {
-        result.push(await formatLink(item.url, item.fileName, type, manageStore.config.settings.customPasteFormat))
-      } else {
-        getPreSignedUrl(item).then(async (url: string) => {
-          result.push(await formatLink(url, item.fileName, type, manageStore.config.settings.customPasteFormat))
-        }).then(() => {
-          if (result.length === selectedItems.length) {
-            clipboard.writeText(result.join('\n'))
-            ElMessage.success(`${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_A')} ${result.length} ${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_B')}`)
-          }
-        })
-      }
+      const preSignedUrl = type === 'preSignedUrl' ? await getPreSignedUrl(item) : null
+      const url = await formatLink(preSignedUrl || item.url, item.fileName, type, manageStore.config.settings.customPasteFormat)
+      result.push(url)
     }
   }
-  if (type !== 'preSignedUrl') {
-    clipboard.writeText(result.join('\n'))
-    ElMessage.success(`${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_A')} ${result.length} ${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_B')}`)
-  }
+  clipboard.writeText(result.join('\n'))
+  ElMessage.success(`${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_A')} ${result.length} ${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_B')}`)
 }
 
 function cancelLoading () {

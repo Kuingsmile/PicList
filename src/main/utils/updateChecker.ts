@@ -1,7 +1,7 @@
 import db from '~/main/apis/core/datastore'
 import { autoUpdater } from 'electron-updater'
 
-const checkVersion = async () => {
+const updateChecker = async () => {
   let showTip = db.get('settings.showUpdateTip')
   if (showTip === undefined) {
     db.set('settings.showUpdateTip', true)
@@ -10,12 +10,8 @@ const checkVersion = async () => {
   if (showTip) {
     try {
       await autoUpdater.checkForUpdatesAndNotify()
-    } catch (err) {
-      return false
-    }
-  } else {
-    return false
+    } catch (err) {}
   }
 }
 
-export default checkVersion
+export default updateChecker
