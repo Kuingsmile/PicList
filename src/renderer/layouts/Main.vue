@@ -12,12 +12,21 @@
       >
         <el-icon
           class="minus"
+          :color="isAlwaysOnTop ? '#409EFF' : '#fff'"
+          size="20"
+          style="margin-right: 10px;"
+          @click="setAlwaysOnTop"
+        >
+          <ArrowUpBold />
+        </el-icon>
+        <el-icon
+          class="minus"
           color="#fff"
           size="20"
           style="margin-right: 10px;"
           @click="minimizeWindow"
         >
-          <Minus />
+          <SemiSelect />
         </el-icon>
         <el-icon
           class="plus"
@@ -26,7 +35,7 @@
           style="margin-right: 10px;"
           @click="openMiniWindow"
         >
-          <CirclePlus />
+          <ArrowDownBold />
         </el-icon>
         <el-icon
           class="close"
@@ -34,7 +43,7 @@
           size="20"
           @click="closeWindow"
         >
-          <Close />
+          <CloseBold />
         </el-icon>
       </div>
     </div>
@@ -232,11 +241,12 @@ import {
   Menu,
   Share,
   InfoFilled,
-  Minus,
-  CirclePlus,
-  Close,
+  SemiSelect,
+  ArrowDownBold,
+  CloseBold,
   PieChart,
-  Link
+  Link,
+  ArrowUpBold
 } from '@element-plus/icons-vue'
 import { ElMessage as $message, ElMessageBox } from 'element-plus'
 import { T as $T } from '@/i18n/index'
@@ -273,6 +283,7 @@ const picBed: Ref<IPicBedType[]> = ref([])
 const qrcodeVisible = ref(false)
 const picBedConfigString = ref('')
 const choosedPicBedForQRCode: Ref<string[]> = ref([])
+const isAlwaysOnTop = ref(false)
 
 const keepAlivePages = $router.getRoutes().filter(item => item.meta.keepAlive).map(item => item.name as string)
 
@@ -365,6 +376,11 @@ function handleCopyPicBedConfig () {
 
 function getPicBeds (event: IpcRendererEvent, picBeds: IPicBedType[]) {
   picBed.value = picBeds
+}
+
+function setAlwaysOnTop () {
+  isAlwaysOnTop.value = !isAlwaysOnTop.value
+  sendToMain('toggleMainWindowAlwaysOnTop', isAlwaysOnTop.value)
 }
 
 onBeforeRouteUpdate(async (to) => {

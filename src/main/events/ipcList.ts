@@ -205,6 +205,12 @@ export default {
       return dataResult + bakResult + manageResult + manageBakResult
     })
 
+    ipcMain.on('toggleMainWindowAlwaysOnTop', () => {
+      const mainWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
+      const isAlwaysOnTop = mainWindow.isAlwaysOnTop()
+      mainWindow.setAlwaysOnTop(!isAlwaysOnTop)
+    })
+
     ipcMain.on('openSettingWindow', () => {
       windowManager.get(IWindowList.SETTING_WINDOW)!.show()
       if (windowManager.has(IWindowList.MINI_WINDOW)) {
