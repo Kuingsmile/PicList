@@ -13,425 +13,522 @@
         <Reading />
       </el-icon>
     </el-row>
-    <el-row class="setting-list">
-      <el-col
-        :span="22"
-        :offset="1"
+    <el-tabs
+      v-model="activeName"
+      stretch
+      style="height: calc(100vh - 50px);width: 100%;overflow-x: hidden;top: 50px;position: absolute;"
+      tab-position="left"
+    >
+      <el-tab-pane
+        name="system"
+        :label="$T('SETTINGS_TAB_SYSTEM')"
+        style="height: 100%;overflow-y: scroll;height: calc(100vh - 50px);color: #fff;"
       >
-        <el-row style="width: 100%">
-          <el-form
-            label-position="left"
-            label-width="50%"
-            size="small"
+        <el-row class="setting-list">
+          <el-col
+            :span="22"
+            :offset="1"
           >
-            <el-form-item
-              :label="$T('SETTINGS_CHOOSE_LANGUAGE')"
-            >
-              <el-select
-                v-model="currentLanguage"
+            <el-row style="width: 100%">
+              <el-form
+                label-position="left"
+                label-width="50%"
                 size="small"
-                style="width: 50%"
-                :placeholder="$T('SETTINGS_CHOOSE_LANGUAGE')"
-                @change="handleLanguageChange"
               >
-                <el-option
-                  v-for="item in languageList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_START_MODE')"
-            >
-              <el-select
-                v-model="currentStartMode"
-                size="small"
-                style="width: 50%"
-                :placeholder="$T('SETTINGS_START_MODE')"
-                @change="handleStartModeChange"
-              >
-                <el-option
-                  key="quiet"
-                  :label="$T('SETTINGS_START_MODE_QUIET')"
-                  :value="'quiet'"
-                />
-                <el-option
-                  v-if="os !== 'darwin'"
-                  key="mini"
-                  :label="$T('SETTINGS_START_MODE_MINI')"
-                  :value="'mini'"
-                />
-                <el-option
-                  v-if="os === 'darwin'"
-                  key="no-tray"
-                  :label="$T('SETTINGS_START_MODE_NO_TRAY')"
-                  :value="'no-tray'"
-                />
-                <el-option
-                  key="main"
-                  :label="$T('SETTINGS_START_MODE_MAIN')"
-                  :value="'main'"
-                />
-              </el-select>
-            </el-form-item>
-            <el-form-item
-              v-if="os === 'darwin'"
-              :label="$T('SETTINGS_ISHIDEDOCK')"
-            >
-              <el-switch
-                v-model="form.isHideDock"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleHideDockChange"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_SYNC_CONFIG')"
-            >
-              <el-button
-                type="primary"
-                round
-                size="small"
-                @click="syncVisible = true"
-              >
-                {{ $T('SETTINGS_CLICK_TO_SET') }}
-              </el-button>
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_UP_DOWN_DESC')"
-            >
-              <el-button
-                type="primary"
-                round
-                size="small"
-                @click=" upDownConfigVisible = true"
-              >
-                {{ $T('SETTINGS_CLICK_TO_SET') }}
-              </el-button>
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_MIGRATE_FROM_PICGO')"
-            >
-              <el-button
-                type="primary"
-                round
-                size="small"
-                @click="handleMigrateFromPicGo"
-              >
-                {{ $T('SETTINGS_CLICK_TO_SET') }}
-              </el-button>
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_OPEN_CONFIG_FILE')"
-            >
-              <el-button
-                type="primary"
-                round
-                size="small"
-                @click="openFile('data.json')"
-              >
-                {{ $T('SETTINGS_CLICK_TO_OPEN') }}
-              </el-button>
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_SET_LOG_FILE')"
-            >
-              <el-button
-                type="primary"
-                round
-                size="small"
-                @click="openLogSetting"
-              >
-                {{ $T('SETTINGS_CLICK_TO_SET') }}
-              </el-button>
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_SET_SHORTCUT')"
-            >
-              <el-button
-                type="primary"
-                round
-                size="small"
-                @click="goShortCutPage"
-              >
-                {{ $T('SETTINGS_CLICK_TO_SET') }}
-              </el-button>
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_CUSTOM_LINK_FORMAT')"
-            >
-              <el-button
-                type="primary"
-                round
-                size="small"
-                @click="customLinkVisible = true"
-              >
-                {{ $T('SETTINGS_CLICK_TO_SET') }}
-              </el-button>
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_COMPRESS_AND_WATERMARK')"
-            >
-              <el-button
-                type="primary"
-                round
-                size="small"
-                @click="imageProcessDialogVisible = true"
-              >
-                {{ $T('SETTINGS_CLICK_TO_SET') }}
-              </el-button>
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_SET_PROXY_AND_MIRROR')"
-            >
-              <el-button
-                type="primary"
-                round
-                size="small"
-                @click="proxyVisible = true"
-              >
-                {{ $T('SETTINGS_CLICK_TO_SET') }}
-              </el-button>
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_SET_SERVER')"
-            >
-              <el-button
-                type="primary"
-                round
-                size="small"
-                @click="serverVisible = true"
-              >
-                {{ $T('SETTINGS_CLICK_TO_SET') }}
-              </el-button>
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_AUTO_IMPORT')"
-            >
-              <el-switch
-                v-model="form.autoImport"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="autoImportChange"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_CHECK_UPDATE')"
-            >
-              <el-button
-                type="primary"
-                round
-                size="small"
-                @click="checkUpdate"
-              >
-                {{ $T('SETTINGS_CLICK_TO_CHECK') }}
-              </el-button>
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_OPEN_UPDATE_HELPER')"
-            >
-              <el-switch
-                v-model="form.updateHelper"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="updateHelperChange"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_LAUNCH_ON_BOOT')"
-            >
-              <el-switch
-                v-model="form.autoStart"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleAutoStartChange"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_SYNC_DELETE_CLOUD')"
-            >
-              <el-switch
-                v-model="form.deleteCloudFile"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleDeleteCloudFile"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_DELETE_LOCAL_FILE_AFTER_UPLOAD')"
-            >
-              <el-switch
-                v-model="form.deleteLocalFile"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleDeleteLocalFile"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_RENAME_BEFORE_UPLOAD')"
-            >
-              <el-switch
-                v-model="form.rename"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleRename"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_TIMESTAMP_RENAME')"
-            >
-              <el-switch
-                v-model="form.autoRename"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleAutoRename"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_OPEN_UPLOAD_TIPS')"
-            >
-              <el-switch
-                v-model="form.uploadNotification"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleUploadNotification"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_MAIN_WINDOW_SIZE')"
-            >
-              <el-button
-                type="primary"
-                round
-                size="small"
-                @click="mainWindowSizeVisible = true"
-              >
-                {{ $T('SETTINGS_CLICK_TO_SET') }}
-              </el-button>
-            </el-form-item>
-            <el-form-item
-              v-if="os !== 'darwin'"
-              :label="$T('SETTINGS_MINI_WINDOW_ON_TOP')"
-            >
-              <el-switch
-                v-model="form.miniWindowOntop"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleMiniWindowOntop"
-              />
-            </el-form-item>
-            <el-form-item
-              v-if="os !== 'darwin'"
-              :label="$T('SETTINGS_CUSTOM_MINI_ICON')"
-            >
-              <el-switch
-                v-model="form.isCustomMiniIcon"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleIsCustomMiniIcon"
-              />
-            </el-form-item>
-            <el-form-item
-              v-if="os !== 'darwin' && form.isCustomMiniIcon"
-              :label="$T('SETTINGS_CUSTOM_MINI_ICON_PATH')"
-            >
-              <el-button
-                type="primary"
-                round
-                size="small"
-                @click="handleMiniIconPath"
-              >
-                {{ $T('SETTINGS_CLICK_TO_SET') }}
-              </el-button>
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_AUTO_COPY_URL_AFTER_UPLOAD')"
-            >
-              <el-switch
-                v-model="form.autoCopyUrl"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleAutoCopyUrl"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_SHORT_URL')"
-            >
-              <el-switch
-                v-model="form.useShortUrl"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleUseShortUrl"
-              />
-            </el-form-item>
-            <el-form-item>
-              <template #label>
-                <el-row align="middle">
-                  {{ $T('SETTINGS_USE_BUILTIN_CLIPBOARD_UPLOAD') }}
-                  <el-tooltip
-                    class="item"
-                    effect="dark"
-                    :content="$T('BUILTIN_CLIPBOARD_TIPS')"
-                    placement="right"
+                <el-form-item
+                  :label="$T('SETTINGS_CHOOSE_LANGUAGE')"
+                >
+                  <el-select
+                    v-model="currentLanguage"
+                    size="small"
+                    style="width: 50%"
+                    :placeholder="$T('SETTINGS_CHOOSE_LANGUAGE')"
+                    @change="handleLanguageChange"
                   >
-                    <el-icon style="margin-left: 4px">
-                      <QuestionFilled />
-                    </el-icon>
-                  </el-tooltip>
-                </el-row>
-              </template>
-              <el-switch
-                v-model="form.useBuiltinClipboard"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="useBuiltinClipboardChange"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_ENCODE_OUTPUT_URL')"
-            >
-              <el-switch
-                v-model="form.encodeOutputURL"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleEncodeOutputURL"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="$T('SETTINGS_WATCH_CLIPBOARD')"
-            >
-              <el-switch
-                v-model="form.isAutoListenClipboard"
-                :active-text="$T('SETTINGS_OPEN')"
-                :inactive-text="$T('SETTINGS_CLOSE')"
-                @change="handleIsAutoListenClipboard"
-              />
-            </el-form-item>
-            <el-form-item
-              :style="{ marginRight: '-64px' }"
-              :label="$T('CHOOSE_SHOWED_PICBED')"
-            >
-              <el-checkbox-group
-                v-model="form.showPicBedList"
-                @change="handleShowPicBedListChange"
-              >
-                <el-checkbox
-                  v-for="item in picBed"
-                  :key="item.name"
-                  :label="item.name"
-                />
-              </el-checkbox-group>
-            </el-form-item>
-            <el-divider
-              border-style="none"
-            />
-            <el-form-item />
-          </el-form>
+                    <el-option
+                      v-for="item in languageList"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_START_MODE')"
+                >
+                  <el-select
+                    v-model="currentStartMode"
+                    size="small"
+                    style="width: 50%"
+                    :placeholder="$T('SETTINGS_START_MODE')"
+                    @change="handleStartModeChange"
+                  >
+                    <el-option
+                      key="quiet"
+                      :label="$T('SETTINGS_START_MODE_QUIET')"
+                      :value="'quiet'"
+                    />
+                    <el-option
+                      v-if="os !== 'darwin'"
+                      key="mini"
+                      :label="$T('SETTINGS_START_MODE_MINI')"
+                      :value="'mini'"
+                    />
+                    <el-option
+                      v-if="os === 'darwin'"
+                      key="no-tray"
+                      :label="$T('SETTINGS_START_MODE_NO_TRAY')"
+                      :value="'no-tray'"
+                    />
+                    <el-option
+                      key="main"
+                      :label="$T('SETTINGS_START_MODE_MAIN')"
+                      :value="'main'"
+                    />
+                  </el-select>
+                </el-form-item>
+                <el-form-item
+                  v-if="os === 'darwin'"
+                  :label="$T('SETTINGS_ISHIDEDOCK')"
+                >
+                  <el-switch
+                    v-model="form.isHideDock"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleHideDockChange"
+                  />
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_MAIN_WINDOW_SIZE')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="mainWindowSizeVisible = true"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_SET') }}
+                  </el-button>
+                </el-form-item>
+                <el-form-item
+                  v-if="os !== 'darwin'"
+                  :label="$T('SETTINGS_MINI_WINDOW_ON_TOP')"
+                >
+                  <el-switch
+                    v-model="form.miniWindowOntop"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleMiniWindowOntop"
+                  />
+                </el-form-item>
+                <el-form-item
+                  v-if="os !== 'darwin'"
+                  :label="$T('SETTINGS_CUSTOM_MINI_ICON')"
+                >
+                  <el-switch
+                    v-model="form.isCustomMiniIcon"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleIsCustomMiniIcon"
+                  />
+                </el-form-item>
+                <el-form-item
+                  v-if="os !== 'darwin' && form.isCustomMiniIcon"
+                  :label="$T('SETTINGS_CUSTOM_MINI_ICON_PATH')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="handleMiniIconPath"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_SET') }}
+                  </el-button>
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_LAUNCH_ON_BOOT')"
+                >
+                  <el-switch
+                    v-model="form.autoStart"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleAutoStartChange"
+                  />
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_SET_SHORTCUT')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="goShortCutPage"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_SET') }}
+                  </el-button>
+                </el-form-item>
+              </el-form>
+            </el-row>
+          </el-col>
         </el-row>
-      </el-col>
-    </el-row>
+      </el-tab-pane>
+      <el-tab-pane
+        name="syncAndConfigure"
+        :label="$T('SETTINGS_TAB_SYNC_CONFIG')"
+        style="height: 100%;overflow-y: scroll;height: calc(100vh - 50px);color: #fff;"
+      >
+        <el-row class="setting-list">
+          <el-col
+            :span="22"
+            :offset="1"
+          >
+            <el-row style="width: 100%">
+              <el-form
+                label-position="left"
+                label-width="50%"
+                size="small"
+              >
+                <el-form-item
+                  :label="$T('SETTINGS_SYNC_CONFIG')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="syncVisible = true"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_SET') }}
+                  </el-button>
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_UP_DOWN_DESC')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click=" upDownConfigVisible = true"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_SET') }}
+                  </el-button>
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_MIGRATE_FROM_PICGO')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="handleMigrateFromPicGo"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_SET') }}
+                  </el-button>
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_OPEN_CONFIG_FILE')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="openFile('data.json')"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_OPEN') }}
+                  </el-button>
+                </el-form-item>
+              </el-form>
+            </el-row>
+          </el-col>
+        </el-row>
+      </el-tab-pane>
+      <el-tab-pane
+        name="upload"
+        :label="$T('SETTINGS_TAB_UPLOAD')"
+        style="height: 100%;overflow-y: scroll;height: calc(100vh - 50px);color: #fff;"
+      >
+        <el-row class="setting-list">
+          <el-col
+            :span="22"
+            :offset="1"
+          >
+            <el-row style="width: 100%">
+              <el-form
+                label-position="left"
+                label-width="50%"
+                size="small"
+              >
+                <el-form-item
+                  :label="$T('SETTINGS_AUTO_IMPORT')"
+                >
+                  <el-switch
+                    v-model="form.autoImport"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="autoImportChange"
+                  />
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_SYNC_DELETE_CLOUD')"
+                >
+                  <el-switch
+                    v-model="form.deleteCloudFile"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleDeleteCloudFile"
+                  />
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_OPEN_UPLOAD_TIPS')"
+                >
+                  <el-switch
+                    v-model="form.uploadNotification"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleUploadNotification"
+                  />
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_COMPRESS_AND_WATERMARK')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="imageProcessDialogVisible = true"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_SET') }}
+                  </el-button>
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_RENAME_BEFORE_UPLOAD')"
+                >
+                  <el-switch
+                    v-model="form.rename"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleRename"
+                  />
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_TIMESTAMP_RENAME')"
+                >
+                  <el-switch
+                    v-model="form.autoRename"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleAutoRename"
+                  />
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_DELETE_LOCAL_FILE_AFTER_UPLOAD')"
+                >
+                  <el-switch
+                    v-model="form.deleteLocalFile"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleDeleteLocalFile"
+                  />
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_AUTO_COPY_URL_AFTER_UPLOAD')"
+                >
+                  <el-switch
+                    v-model="form.autoCopyUrl"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleAutoCopyUrl"
+                  />
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_CUSTOM_LINK_FORMAT')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="customLinkVisible = true"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_SET') }}
+                  </el-button>
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_SHORT_URL')"
+                >
+                  <el-switch
+                    v-model="form.useShortUrl"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleUseShortUrl"
+                  />
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_ENCODE_OUTPUT_URL')"
+                >
+                  <el-switch
+                    v-model="form.encodeOutputURL"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleEncodeOutputURL"
+                  />
+                </el-form-item>
+                <el-form-item>
+                  <template #label>
+                    <el-row align="middle">
+                      {{ $T('SETTINGS_USE_BUILTIN_CLIPBOARD_UPLOAD') }}
+                      <el-tooltip
+                        class="item"
+                        effect="dark"
+                        :content="$T('BUILTIN_CLIPBOARD_TIPS')"
+                        placement="right"
+                      >
+                        <el-icon style="margin-left: 4px">
+                          <QuestionFilled />
+                        </el-icon>
+                      </el-tooltip>
+                    </el-row>
+                  </template>
+                  <el-switch
+                    v-model="form.useBuiltinClipboard"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="useBuiltinClipboardChange"
+                  />
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_WATCH_CLIPBOARD')"
+                >
+                  <el-switch
+                    v-model="form.isAutoListenClipboard"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleIsAutoListenClipboard"
+                  />
+                </el-form-item>
+                <el-form-item
+                  :style="{ marginRight: '-64px' }"
+                  :label="$T('CHOOSE_SHOWED_PICBED')"
+                >
+                  <el-checkbox-group
+                    v-model="form.showPicBedList"
+                    @change="handleShowPicBedListChange"
+                  >
+                    <el-checkbox
+                      v-for="item in picBed"
+                      :key="item.name"
+                      :label="item.name"
+                    />
+                  </el-checkbox-group>
+                </el-form-item>
+                <el-divider
+                  border-style="none"
+                />
+                <el-form-item />
+              </el-form>
+            </el-row>
+          </el-col>
+        </el-row>
+      </el-tab-pane>
+      <el-tab-pane
+        name="advanced"
+        :label="$T('SETTINGS_TAB_ADVANCED')"
+        style="height: 100%;overflow-y: scroll;height: calc(100vh - 50px);color: #fff;"
+      >
+        <el-row class="setting-list">
+          <el-col
+            :span="22"
+            :offset="1"
+          >
+            <el-row style="width: 100%">
+              <el-form
+                label-position="left"
+                label-width="50%"
+                size="small"
+              >
+                <el-form-item
+                  :label="$T('SETTINGS_SET_LOG_FILE')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="openLogSetting"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_SET') }}
+                  </el-button>
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_SET_PROXY_AND_MIRROR')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="proxyVisible = true"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_SET') }}
+                  </el-button>
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_SET_SERVER')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="serverVisible = true"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_SET') }}
+                  </el-button>
+                </el-form-item>
+              </el-form>
+            </el-row>
+          </el-col>
+        </el-row>
+      </el-tab-pane>
+      <el-tab-pane
+        name="upadte"
+        :label="$T('SETTINGS_TAB_UPDATE')"
+        style="height: 100%;overflow-y: scroll;height: calc(100vh - 50px);"
+      >
+        <el-row class="setting-list">
+          <el-col
+            :span="22"
+            :offset="1"
+          >
+            <el-row style="width: 100%">
+              <el-form
+                label-position="left"
+                label-width="50%"
+                size="small"
+              >
+                <el-form-item
+                  :label="$T('SETTINGS_CHECK_UPDATE')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="checkUpdate"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_CHECK') }}
+                  </el-button>
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_OPEN_UPDATE_HELPER')"
+                >
+                  <el-switch
+                    v-model="form.updateHelper"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="updateHelperChange"
+                  />
+                </el-form-item>
+              </el-form>
+            </el-row>
+          </el-col>
+        </el-row>
+      </el-tab-pane>
+    </el-tabs>
     <el-dialog
       v-model="customLinkVisible"
       :title="$T('SETTINGS_CUSTOM_LINK_FORMAT')"
@@ -1171,6 +1268,7 @@ import { IConfig, IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'picl
 import { invokeToMain } from '@/manage/utils/dataSender'
 
 const imageProcessDialogVisible = ref(false)
+const activeName = ref<'system' | 'syncAndConfigure' | 'upload' | 'advanced' | 'upadte'>('system')
 
 const waterMarkPositionMap = new Map([
   ['north', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP')],
@@ -1901,6 +1999,8 @@ export default {
     transition color .2s ease-in-out
     &:hover
       color #49B1F5
+.el-tabs__item
+  color:white
 #picgo-setting
   height 100%
   position absolute
