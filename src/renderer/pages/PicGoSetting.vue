@@ -1657,6 +1657,12 @@ async function initData () {
       enable: false,
       format: '{filename}'
     }
+    if (advancedRename.value.enable) {
+      form.autoRename = false
+      saveConfig({
+        'settings.autoRename': false
+      })
+    }
     sync.value = settings.sync || {
       type: 'github',
       username: '',
@@ -1736,6 +1742,10 @@ async function handleCancelAdvancedRename () {
 
 function handleSaveAdvancedRename () {
   saveConfig('buildIn.rename', toRaw(advancedRename.value))
+  if (advancedRename.value.enable) {
+    form.autoRename = false
+    saveConfig('settings.autoRename', false)
+  }
   advancedRenameVisible.value = false
   const successNotification = new Notification($T('SETTINGS_ADVANCED_RENAME'), {
     body: $T('TIPS_SET_SUCCEED')
