@@ -762,7 +762,7 @@ function multiRemove () {
       const files: IResult<ImgInfo>[] = []
       const imageIDList = Object.keys(choosedList)
       const isDeleteCloudFile = await getConfig('settings.deleteCloudFile')
-      const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun']
+      const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun', 'aws-s3', 'webdavplist']
       if (isDeleteCloudFile) {
         for (let i = 0; i < imageIDList.length; i++) {
           const key = imageIDList[i]
@@ -770,28 +770,25 @@ function multiRemove () {
             const file = await $$db.getById<ImgInfo>(key)
             if (file) {
               if (file.type !== undefined && picBedsCanbeDeleted.includes(file.type)) {
-                setTimeout(() => {
-                  ALLApi.delete(file).then((value: boolean) => {
-                    if (value) {
-                      ElNotification({
-                        title: $T('GALLERY_SYNC_DELETE'),
-                        message: `${file.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_SUCCEED')}`,
-                        type: 'success',
-                        duration: multiRemoveNumber > 5 ? 1000 : 2000
-                      })
-                    } else {
-                      ElNotification({
-                        title: $T('GALLERY_SYNC_DELETE'),
-                        message: `${file.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_FAILED')}`,
-                        type: 'error',
-                        duration: multiRemoveNumber > 5 ? 1000 : 2000
-                      })
-                    }
+                const result = await ALLApi.delete(file)
+                if (result) {
+                  ElNotification({
+                    title: $T('GALLERY_SYNC_DELETE'),
+                    message: `${file.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_SUCCEED')}`,
+                    type: 'success',
+                    duration: multiRemoveNumber > 5 ? 1000 : 2000
                   })
-                }, 0)
+                  files.push(file)
+                  await $$db.removeById(key)
+                } else {
+                  ElNotification({
+                    title: $T('GALLERY_SYNC_DELETE'),
+                    message: `${file.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_FAILED')}`,
+                    type: 'error',
+                    duration: multiRemoveNumber > 5 ? 1000 : 2000
+                  })
+                }
               }
-              files.push(file)
-              await $$db.removeById(key)
             }
           }
         }
