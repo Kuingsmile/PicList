@@ -320,6 +320,18 @@
                   />
                 </el-form-item>
                 <el-form-item
+                  :label="$T('SETTINGS_ADVANCED_RENAME')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="advancedRenameVisible = true"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_SET') }}
+                  </el-button>
+                </el-form-item>
+                <el-form-item
                   :label="$T('SETTINGS_DELETE_LOCAL_FILE_AFTER_UPLOAD')"
                 >
                   <el-switch
@@ -720,6 +732,99 @@
           {{ $T('CONFIRM') }}
         </el-button>
       </template>
+    </el-dialog>
+    <el-dialog
+      v-model="advancedRenameVisible"
+      :title="$T('SETTINGS_ADVANCED_RENAME')"
+      center
+      align-center
+      draggable
+      destroy-on-close
+    >
+      <el-link
+        :underline="false"
+        style="margin-bottom: 10px;"
+      >
+        {{ $T('SETTINGS_ADVANCED_RENAME_ENABLE') }}
+      </el-link>
+      <br>
+      <el-switch
+        v-model="advancedRename.enable"
+        :active-text="$T('SETTINGS_OPEN')"
+        :inactive-text="$T('SETTINGS_CLOSE')"
+      />
+      <br>
+      <el-link
+        :underline="false"
+        style="margin-bottom: 10px;margin-top: 10px;"
+      >
+        <span>
+          {{ $T('SETTINGS_ADVANCED_RENAME_FORMAT') }}
+          <el-popover
+            effect="light"
+            placement="right"
+            width="350"
+          >
+            <template #reference>
+              <el-icon
+                color="#409EFF"
+              >
+                <InfoFilled />
+              </el-icon>
+            </template>
+            <el-descriptions
+              :column="1"
+              style="width: 320px;"
+              border
+            >
+              <el-descriptions-item
+                v-for="(item, index) in buildInRenameFormatTable"
+                :key="index"
+                :label="item.placeholder"
+                align="center"
+                label-style="width: 100px;"
+              >
+                {{ item.description }}
+              </el-descriptions-item>
+              <el-descriptions-item
+                v-for="(item, index) in buildInRenameFormatTable.slice(0, buildInRenameFormatTable.length-1)"
+                :key="index"
+                :label="item.placeholderB"
+                align="center"
+                label-style="width: 100px;"
+              >
+                {{ item.descriptionB }}
+              </el-descriptions-item>
+            </el-descriptions>
+          </el-popover>
+        </span>
+      </el-link>
+      <el-input
+        v-model="advancedRename.format"
+        placeholder="Ex. {Y}-{m}-{uuid}"
+        clearable
+      />
+      <div
+        style="margin-top: 10px;align-items: center;display: flex;justify-content: flex-end;"
+      >
+        <el-button
+          type="danger"
+          style="margin-right: 30px;"
+          plain
+          :icon="Close"
+          @click="handleCancelAdvancedRename"
+        >
+          {{ $T('CANCEL') }}
+        </el-button>
+        <el-button
+          type="primary"
+          plain
+          :icon="Edit"
+          @click="handleSaveAdvancedRename"
+        >
+          {{ $T('CONFIRM') }}
+        </el-button>
+      </div>
     </el-dialog>
     <el-dialog
       v-model="logFileVisible"
@@ -1249,7 +1354,7 @@
 </template>
 <script lang="ts" setup>
 import { ElForm, ElMessage as $message, ElMessage, ElMessageBox, FormRules } from 'element-plus'
-import { Reading, QuestionFilled } from '@element-plus/icons-vue'
+import { Reading, Close, Edit, InfoFilled } from '@element-plus/icons-vue'
 import pkg from 'root/package.json'
 import { PICGO_OPEN_FILE, OPEN_URL, GET_PICBEDS, HIDE_DOCK } from '#/events/constants'
 import {
@@ -1266,6 +1371,7 @@ import { useRouter } from 'vue-router'
 import { SHORTKEY_PAGE } from '@/router/config'
 import { IConfig, IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
 import { invokeToMain } from '@/manage/utils/dataSender'
+import { buildInRenameFormatTable } from '../manage/utils/common'
 
 const imageProcessDialogVisible = ref(false)
 const activeName = ref<'system' | 'syncAndConfigure' | 'upload' | 'advanced' | 'upadte'>('system')
@@ -1404,6 +1510,7 @@ const syncVisible = ref(false)
 const upDownConfigVisible = ref(false)
 const proxyVisible = ref(false)
 const mainWindowSizeVisible = ref(false)
+const advancedRenameVisible = ref(false)
 
 const customLink = reactive({
   value: '![$fileName]($url)'
@@ -1439,6 +1546,11 @@ const server = ref({
   port: 36677,
   host: '127.0.0.1',
   enable: true
+})
+
+const advancedRename = ref({
+  enable: false,
+  format: '{filename}'
 })
 
 const sync = ref({
@@ -1541,6 +1653,10 @@ async function initData () {
       host: '127.0.0.1',
       enable: true
     }
+    advancedRename.value = config.buildIn?.rename || {
+      enable: false,
+      format: '{filename}'
+    }
     sync.value = settings.sync || {
       type: 'github',
       username: '',
@@ -1603,6 +1719,25 @@ function confirmCustomLink () {
 function handleEncodeOutputURL (val: ICheckBoxValueType) {
   saveConfig('settings.encodeOutputURL', val)
   const successNotification = new Notification($T('SETTINGS_ENCODE_OUTPUT_URL'), {
+    body: $T('TIPS_SET_SUCCEED')
+  })
+  successNotification.onclick = () => {
+    return true
+  }
+}
+
+async function handleCancelAdvancedRename () {
+  advancedRenameVisible.value = false
+  advancedRename.value = toRaw((await getConfig<any>('buildIn.rename')) || {
+    enable: false,
+    format: '{filename}'
+  })
+}
+
+function handleSaveAdvancedRename () {
+  saveConfig('buildIn.rename', toRaw(advancedRename.value))
+  advancedRenameVisible.value = false
+  const successNotification = new Notification($T('SETTINGS_ADVANCED_RENAME'), {
     body: $T('TIPS_SET_SUCCEED')
   })
   successNotification.onclick = () => {

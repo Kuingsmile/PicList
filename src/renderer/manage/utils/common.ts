@@ -217,3 +217,52 @@ export const customRenameFormatTable = [
     description: '原文件名'
   }
 ]
+
+export const buildInRenameFormatTable = [
+  {
+    placeholder: '{Y}',
+    description: '年份，4位数',
+    placeholderB: '{y}',
+    descriptionB: '年份，2位数'
+  },
+  {
+    placeholder: '{m}',
+    description: '月份(01-12)',
+    placeholderB: '{d}',
+    descriptionB: '日期(01-31)'
+  },
+  {
+    placeholder: '{h}',
+    description: '小时(00-23)',
+    placeholderB: '{i}',
+    descriptionB: '分钟(00-59)'
+  },
+  {
+    placeholder: '{s}',
+    description: '秒(00-59)',
+    placeholderB: '{localFolder:<number>}',
+    descriptionB: '本地文件夹层级'
+  },
+  {
+    placeholder: '{timestamp}',
+    description: '时间戳（秒）',
+    placeholderB: '{uuid}',
+    descriptionB: 'uuid字符串'
+  },
+  {
+    placeholder: '{md5}',
+    description: 'md5',
+    placeholderB: '{md5-16}',
+    descriptionB: 'md5前16位'
+  },
+  {
+    placeholder: '{str-10}',
+    description: '10位随机字符串',
+    placeholderB: '{str-20}',
+    descriptionB: '20位随机字符串'
+  },
+  {
+    placeholder: '{filename}',
+    description: '原文件名'
+  }
+]

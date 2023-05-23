@@ -11095,10 +11095,10 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^0.6.6:
-  version "0.6.6"
-  resolved "https://registry.npmjs.org/piclist/-/piclist-0.6.6.tgz#dda4f5b693f61dd6c5507312f5a94f8fd6679b4f"
-  integrity sha512-d2hzxpoQ7BpIG+S1rtQcrfabhZtfky4g1+HgSfdasI4j7sH+bbsVM+cIxRMRQBHhqbvtVsiswv7SoeNFJNSQnw==
+piclist@^0.6.7:
+  version "0.6.7"
+  resolved "https://registry.npmjs.org/piclist/-/piclist-0.6.7.tgz#fae5bc4b1298783a6b55ae8b00eca8b6b1e126f5"
+  integrity sha512-QPlyCnGMYCJQqzbtNg2jhsOvrit6cENZjQEaC137XbJ/xYC/JMSYhcNqt9PmRjlMBNqAH8SpnX51KJwWt74/nA==
   dependencies:
     "@picgo/i18n" "^1.0.0"
     "@picgo/store" "^2.0.4"
@@ -11129,6 +11129,7 @@ piclist@^0.6.6:
     sharp "^0.32.1"
     text-to-svg "^3.1.5"
     tunnel "^0.0.6"
+    uuid "^9.0.0"
 
 picocolors@^0.2.1:
   version "0.2.1"

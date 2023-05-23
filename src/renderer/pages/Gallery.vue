@@ -661,39 +661,48 @@ function remove (item: ImgInfo) {
       type: 'warning'
     }).then(async () => {
       const file = await $$db.getById(item.id!)
-      await $$db.removeById(item.id!)
       const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun', 'aws-s3', 'webdavplist']
       if (await getConfig('settings.deleteCloudFile')) {
         if (item.type !== undefined && picBedsCanbeDeleted.includes(item.type)) {
-          setTimeout(() => {
-            ALLApi.delete(item).then((value: boolean) => {
-              if (value) {
-                ElNotification({
-                  title: $T('GALLERY_SYNC_DELETE_NOTICE_TITLE'),
-                  message: `${item.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_SUCCEED')}`,
-                  type: 'success'
-                })
-              } else {
-                ElNotification({
-                  title: $T('GALLERY_SYNC_DELETE_NOTICE_TITLE'),
-                  message: `${item.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_FAILED')}`,
-                  type: 'error'
-                })
-              }
+          const result = await ALLApi.delete(item)
+          if (result) {
+            ElNotification({
+              title: $T('GALLERY_SYNC_DELETE_NOTICE_TITLE'),
+              message: `${item.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_SUCCEED')}`,
+              type: 'success'
             })
-          }, 0)
+            await $$db.removeById(item.id!)
+            sendToMain('removeFiles', [file])
+            const obj = {
+              title: $T('OPERATION_SUCCEED'),
+              body: ''
+            }
+            const myNotification = new Notification(obj.title, obj)
+            myNotification.onclick = () => {
+              return true
+            }
+            updateGallery()
+          } else {
+            ElNotification({
+              title: $T('GALLERY_SYNC_DELETE_NOTICE_TITLE'),
+              message: `${item.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_FAILED')}`,
+              type: 'error'
+            })
+          }
         }
+      } else {
+        await $$db.removeById(item.id!)
+        sendToMain('removeFiles', [file])
+        const obj = {
+          title: $T('OPERATION_SUCCEED'),
+          body: ''
+        }
+        const myNotification = new Notification(obj.title, obj)
+        myNotification.onclick = () => {
+          return true
+        }
+        updateGallery()
       }
-      sendToMain('removeFiles', [file])
-      const obj = {
-        title: $T('OPERATION_SUCCEED'),
-        body: ''
-      }
-      const myNotification = new Notification(obj.title, obj)
-      myNotification.onclick = () => {
-        return true
-      }
-      updateGallery()
     }).catch((e) => {
       console.log(e)
       return true
