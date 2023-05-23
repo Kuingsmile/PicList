@@ -1,3 +1,20 @@
+## :tada: 1.9.3 (2023-05-23)
+
+
+### :sparkles: Features
+
+* add addvanced rename feature ([c4b0235](https://github.com/Kuingsmile/PicList/commit/c4b0235))
+* add always on top icon on main page ([8f512fe](https://github.com/Kuingsmile/PicList/commit/8f512fe))
+* auto close timestamp rename when advanced rename is enabled ([0c6e8d1](https://github.com/Kuingsmile/PicList/commit/0c6e8d1))
+* rewrite the layout of the settings page ([5ccb899](https://github.com/Kuingsmile/PicList/commit/5ccb899))
+
+
+### :bug: Bug Fixes
+
+* fix batch delete bug of gallery page ([86505c1](https://github.com/Kuingsmile/PicList/commit/86505c1)), closes [#54](https://github.com/Kuingsmile/PicList/issues/54)
+
+
+
 ## :tada: 1.9.2 (2023-05-21)
 
 
