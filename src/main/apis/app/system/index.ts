@@ -35,9 +35,6 @@ export function setDockMenu () {
         const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
         settingWindow!.show()
         settingWindow!.focus()
-        if (windowManager.has(IWindowList.MINI_WINDOW)) {
-          windowManager.get(IWindowList.MINI_WINDOW)!.hide()
-        }
       }
     },
     {
@@ -79,9 +76,6 @@ export function createMenu () {
             const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
             settingWindow!.show()
             settingWindow!.focus()
-            if (windowManager.has(IWindowList.MINI_WINDOW)) {
-              windowManager.get(IWindowList.MINI_WINDOW)!.hide()
-            }
           }
         },
         {
@@ -143,9 +137,6 @@ export function createContextMenu () {
           const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
           settingWindow!.show()
           settingWindow!.focus()
-          if (windowManager.has(IWindowList.MINI_WINDOW)) {
-            windowManager.get(IWindowList.MINI_WINDOW)!.hide()
-          }
         }
       },
       {
@@ -235,9 +226,6 @@ export function createContextMenu () {
           const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
           settingWindow!.show()
           settingWindow!.focus()
-          if (windowManager.has(IWindowList.MINI_WINDOW)) {
-            windowManager.get(IWindowList.MINI_WINDOW)!.hide()
-          }
         }
       },
       {
@@ -372,9 +360,6 @@ export function createTray () {
         const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
         settingWindow!.show()
         settingWindow!.focus()
-        if (windowManager.has(IWindowList.MINI_WINDOW)) {
-          windowManager.get(IWindowList.MINI_WINDOW)!.hide()
-        }
       }
     })
 

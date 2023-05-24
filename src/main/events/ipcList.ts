@@ -213,9 +213,6 @@ export default {
 
     ipcMain.on('openSettingWindow', () => {
       windowManager.get(IWindowList.SETTING_WINDOW)!.show()
-      if (windowManager.has(IWindowList.MINI_WINDOW)) {
-        windowManager.get(IWindowList.MINI_WINDOW)!.hide()
-      }
     })
 
     ipcMain.on('openMiniWindow', () => {

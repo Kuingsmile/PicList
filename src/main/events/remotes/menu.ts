@@ -30,9 +30,6 @@ const buildMiniPageMenu = () => {
       label: T('OPEN_MAIN_WINDOW'),
       click () {
         windowManager.get(IWindowList.SETTING_WINDOW)!.show()
-        if (windowManager.has(IWindowList.MINI_WINDOW)) {
-          windowManager.get(IWindowList.MINI_WINDOW)!.hide()
-        }
       }
     },
     {
