@@ -43,7 +43,6 @@ import UpDownTaskQueue from '../manage/datastore/upDownTaskQueue'
 import { T } from '~/main/i18n'
 import { UpdateInfo, autoUpdater } from 'electron-updater'
 import updateChecker from '../utils/updateChecker'
-import clipboardListener from 'clipboard-event'
 import clipboardPoll from '../utils/clipboardPoll'
 import path from 'path'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/universal/utils/static'
@@ -133,7 +132,7 @@ class LifeCycle {
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
       const isAutoListenClipboard = db.get('settings.isAutoListenClipboard') || false
-      const ClipboardWatcher = process.platform === 'win32' ? clipboardListener : clipboardPoll
+      const ClipboardWatcher = clipboardPoll
       if (isAutoListenClipboard) {
         db.set('settings.isListeningClipboard', true)
         ClipboardWatcher.startListening()

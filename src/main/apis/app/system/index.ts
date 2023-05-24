@@ -19,7 +19,6 @@ import { ensureFilePath, handleCopyUrl } from '~/main/utils/common'
 import { T } from '~/main/i18n'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/main/utils/getMacOSVersion'
 import { buildPicBedListMenu } from '~/main/events/remotes/menu'
-import clipboardListener from 'clipboard-event'
 import clipboardPoll from '~/main/utils/clipboardPoll'
 import picgo from '../../core/picgo'
 import { uploadClipboardFiles } from '../uploader/apis'
@@ -133,7 +132,7 @@ export function createMenu () {
 }
 
 export function createContextMenu () {
-  const ClipboardWatcher = process.platform === 'win32' ? clipboardListener : clipboardPoll
+  const ClipboardWatcher = clipboardPoll
   const isListeningClipboard = db.get('settings.isListeningClipboard') || false
   if (process.platform === 'darwin' || process.platform === 'win32') {
     const submenu = buildPicBedListMenu()

@@ -15,7 +15,6 @@ import { PicGo as PicGoCore } from 'piclist'
 import { T } from '~/main/i18n'
 import { changeCurrentUploader } from '~/main/utils/handleUploaderConfig'
 import db from '~/main/apis/core/datastore'
-import clipboardListener from 'clipboard-event'
 import clipboardPoll from '~/main/utils/clipboardPoll'
 interface GuiMenuItem {
   label: string
@@ -24,7 +23,7 @@ interface GuiMenuItem {
 
 const buildMiniPageMenu = () => {
   const isListeningClipboard = db.get('settings.isListeningClipboard') || false
-  const ClipboardWatcher = process.platform === 'win32' ? clipboardListener : clipboardPoll
+  const ClipboardWatcher = clipboardPoll
   const submenu = buildPicBedListMenu()
   const template = [
     {
