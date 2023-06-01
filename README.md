@@ -140,6 +140,8 @@ brew uninstall piclist
 
 ## 微信交流群
 
+由于最近各种广告号频繁入群，请先加我的微信 `p请先添加ku_sq_ma`，我会拉你进群。
+
 <img src="https://pichoro.msq.pub/wechat.png" alt="" width="350" height="350" />
 
 ## 开发说明

@@ -144,6 +144,8 @@ Thank you again for your support for PicList.
 
 ## WeChat group
 
+Please add my WeChat `pku_sq_ma` first, I will pull you into the group.
+
 <img src="https://pichoro.msq.pub/wechat.png" alt="" width="350" height="350" />
 
 ## Development instructions
