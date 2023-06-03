@@ -15,25 +15,18 @@ env:
   CSC_LINK: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
   CSC_KEY_PASSWORD: ${{ secrets.P12_PASSWORD }}
 
-# Workflow's jobs
 jobs:
-  # job's id
   release:
-    # job's name
     name: build and release electron app
 
-    # the type of machine to run the job on
     runs-on: ${{ matrix.os }}
 
-    # create a build matrix for jobs
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-11, windows-latest]
 
-    # create steps
     steps:
-      # step1: check out repository
       - name: Check out git repository
         uses: actions/checkout@v2
 
@@ -81,8 +74,6 @@ jobs:
           yarn upload-dist
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           R2_SECRET_ID: ${{ secrets.R2_SECRET_ID }}
           R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
