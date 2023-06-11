@@ -1,3 +1,30 @@
+## :tada: 1.9.4 (2023-06-11)
+
+
+### :sparkles: Features
+
+* mini page will not be closed when main page is opened ([8a19ca2](https://github.com/Kuingsmile/PicList/commit/8a19ca2))
+
+
+### :bug: Bug Fixes
+
+* fix an issue that clipboard listening is not working in windows ([0800456](https://github.com/Kuingsmile/PicList/commit/0800456))
+* fix i18n bug ([0c56de5](https://github.com/Kuingsmile/PicList/commit/0c56de5))
+
+
+### :package: Chore
+
+* add new action script ([917e69a](https://github.com/Kuingsmile/PicList/commit/917e69a))
+* fix send email action ([fe0d779](https://github.com/Kuingsmile/PicList/commit/fe0d779))
+
+
+### :pencil: Documentation
+
+* chage wechat group ([25b845e](https://github.com/Kuingsmile/PicList/commit/25b845e))
+* fix wechat id error ([b971f05](https://github.com/Kuingsmile/PicList/commit/b971f05))
+
+
+
 ## :tada: 1.9.3 (2023-05-23)
 
 
