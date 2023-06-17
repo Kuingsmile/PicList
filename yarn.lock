@@ -6130,10 +6130,15 @@ dateformat@^3.0.0:
   resolved "https://registry.npmjs.org/dateformat/-/dateformat-3.0.3.tgz#a6e37499a4d9a9cf85ef5872044d62901c9889ae"
   integrity sha512-jyCETtSl3VMZMWeRo7iY1FL19ges1t55hMo5yaam4Jrsm5EPL89UQkoQRyiI+Yf4k8r2ZpdngkV8hr1lIdjb3Q==
 
-dayjs@^1.11.3, dayjs@^1.11.7:
+dayjs@^1.11.3:
   version "1.11.7"
   resolved "https://registry.npmjs.org/dayjs/-/dayjs-1.11.7.tgz#4b296922642f70999544d1144a2c25730fce63e2"
   integrity sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==
+
+dayjs@^1.11.8:
+  version "1.11.8"
+  resolved "https://registry.npmjs.org/dayjs/-/dayjs-1.11.8.tgz#4282f139c8c19dd6d0c7bd571e30c2d0ba7698ea"
+  integrity sha512-LcgxzFoWMEPO7ggRv1Y2N31hUf2R0Vj7fuy/m+Bg1K8rr+KAs1AEy4y9jd5DXe8pbHgX+srkHNS7TH6Q6ZhYeQ==
 
 debounce-fn@^4.0.0:
   version "4.0.0"
@@ -11059,10 +11064,10 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^0.6.7:
-  version "0.6.7"
-  resolved "https://registry.npmjs.org/piclist/-/piclist-0.6.7.tgz#fae5bc4b1298783a6b55ae8b00eca8b6b1e126f5"
-  integrity sha512-QPlyCnGMYCJQqzbtNg2jhsOvrit6cENZjQEaC137XbJ/xYC/JMSYhcNqt9PmRjlMBNqAH8SpnX51KJwWt74/nA==
+piclist@^0.6.8:
+  version "0.6.8"
+  resolved "https://registry.npmjs.org/piclist/-/piclist-0.6.8.tgz#b494c898c4bcbac77b74f5e88d08acc7a8270d3a"
+  integrity sha512-y7aDxDv00/fzCeOQCsUB9N9JpgRwECIUzrPGdDJwWGS+xiOrvAaXqY1E54khwyKcWo9Z1rdCoIOKta/gX8TbqA==
   dependencies:
     "@picgo/i18n" "^1.0.0"
     "@picgo/store" "^2.0.4"
@@ -11071,7 +11076,7 @@ piclist@^0.6.7:
     commander "^8.1.0"
     comment-json "^2.3.1"
     cross-spawn "^6.0.5"
-    dayjs "^1.11.7"
+    dayjs "^1.11.8"
     download-git-repo "^3.0.2"
     ejs "^2.6.1"
     form-data "^4.0.0"
