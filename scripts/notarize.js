@@ -6,7 +6,8 @@ const { notarize } = require('@electron/notarize')
 const {
   ELECTRON_SKIP_NOTARIZATION,
   XCODE_APP_LOADER_EMAIL,
-  XCODE_APP_LOADER_PASSWORD
+  XCODE_APP_LOADER_PASSWORD,
+  XCODE_TEAM_ID
 } = process.env
 
 async function main (context) {
@@ -16,7 +17,8 @@ async function main (context) {
     electronPlatformName !== 'darwin' ||
     ELECTRON_SKIP_NOTARIZATION === 'true' ||
     !XCODE_APP_LOADER_EMAIL ||
-    !XCODE_APP_LOADER_PASSWORD
+    !XCODE_APP_LOADER_PASSWORD ||
+    !XCODE_TEAM_ID
   ) {
     console.log('Skipping Apple notarization.')
     return
@@ -29,7 +31,8 @@ async function main (context) {
     appPath: `${appOutDir}/${appName}.app`,
     appleId: XCODE_APP_LOADER_EMAIL,
     appleIdPassword: XCODE_APP_LOADER_PASSWORD,
-    tool: 'notarytool'
+    tool: 'notarytool',
+    teamId: XCODE_TEAM_ID
   })
   console.log('Finished Apple notarization.')
 }
