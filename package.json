@@ -3,13 +3,13 @@
   "version": "1.9.4",
   "author": {
     "name": "Kuingsmile",
-    "email": "msq@msq.pub"
+    "email": "pkukuing@gmail.com"
   },
   "description": "PicList is a simple and powerful cloude storage manage tool.",
   "homepage": "https://piclist.cn",
   "bugs": {
     "url": "https://github.com/Kuingsmile/PicList/issues",
-    "email": "msq@msq.pub"
+    "email": "pkukuing@gmail.com"
   },
   "license": "MIT",
   "private": true,
@@ -67,7 +67,7 @@
     "mitt": "^3.0.0",
     "nodejs-file-downloader": "^4.12.1",
     "piclist": "^0.6.8",
-    "pinia": "^2.1.3",
+    "pinia": "^2.1.4",
     "pinia-plugin-persistedstate": "^3.1.0",
     "qiniu": "^7.8.0",
     "qrcode.vue": "^3.4.0",
@@ -84,7 +84,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.16.7",
-    "@electron/notarize": "^1.2.3",
+    "@electron/notarize": "^1.2.4",
     "@picgo/bump-version": "^1.1.2",
     "@types/ali-oss": "^6.16.8",
     "@types/electron-devtools-installer": "^2.2.0",

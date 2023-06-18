@@ -28,7 +28,8 @@ async function main (context) {
     appBundleId: 'com.kuingsmile.piclist',
     appPath: `${appOutDir}/${appName}.app`,
     appleId: XCODE_APP_LOADER_EMAIL,
-    appleIdPassword: XCODE_APP_LOADER_PASSWORD
+    appleIdPassword: XCODE_APP_LOADER_PASSWORD,
+    tool: 'notarytool'
   })
   console.log('Finished Apple notarization.')
 }

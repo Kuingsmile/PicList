@@ -74,8 +74,7 @@ jobs:
 
       - name: Build  & release app
         run: |
-          yarn release
-          yarn upload-dist
+          yarn build
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
