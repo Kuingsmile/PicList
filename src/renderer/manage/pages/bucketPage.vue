@@ -3483,6 +3483,7 @@ const columns: Column<any>[] = [
               size="20"
               style="cursor: pointer;"
               color="#409EFF"
+              // @ts-ignore
               onClick={() => handleFolderBatchDownload(item)}
             >
               <Download />
@@ -3492,6 +3493,7 @@ const columns: Column<any>[] = [
             size="20"
             style="cursor: pointer;"
             color="#409EFF"
+            // @ts-ignore
             onClick={() => handleRenameFile(item)}
           >
             <Edit />
@@ -3518,6 +3520,7 @@ const columns: Column<any>[] = [
                   size="20"
                   style="cursor: pointer;"
                   color="#409EFF"
+                  // @ts-ignore
                   onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, manageStore.config.settings.pasteFormat ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))}
                 >
                   <CopyDocument />
@@ -3589,6 +3592,7 @@ const columns: Column<any>[] = [
             size="20"
             style="cursor: pointer;"
             color="#409EFF"
+            // @ts-ignore
             onClick={() => handleShowFileInfo(item)}
           >
             <Document />
@@ -3648,6 +3652,7 @@ const columns: Column<any>[] = [
         ? <ElIcon
           style="cursor: pointer;"
           color="red"
+          // @ts-ignore
           onClick={() => handleDeleteFile(item)}
         >
           <DeleteFilled />
