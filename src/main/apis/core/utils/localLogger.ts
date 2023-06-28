@@ -2,26 +2,29 @@ import fs from 'fs-extra'
 import dayjs from 'dayjs'
 import util from 'util'
 
-const checkLogFileIsLarge = (logPath: string): {
+const MB = 1024 * 1024
+const DEFAULT_LOG_FILE_SIZE_LIMIT = 10 * MB
+
+interface CheckLogFileResult {
   isLarge: boolean
   logFileSize?: number
   logFileSizeLimit?: number
-} => {
+}
+
+const checkLogFileIsLarge = (logPath: string): CheckLogFileResult => {
   try {
     if (fs.existsSync(logPath)) {
       const logFileSize = fs.statSync(logPath).size
-      const logFileSizeLimit = 10 * 1024 * 1024 // 10 MB default
       return {
-        isLarge: logFileSize > logFileSizeLimit,
+        isLarge: logFileSize > DEFAULT_LOG_FILE_SIZE_LIMIT,
         logFileSize,
-        logFileSizeLimit
+        logFileSizeLimit: DEFAULT_LOG_FILE_SIZE_LIMIT
       }
     }
     return {
       isLarge: false
     }
   } catch (e) {
-    // why throw error???
     console.log(e)
     return {
       isLarge: true
@@ -36,14 +39,14 @@ const recreateLogFile = (logPath: string): void => {
       fs.createFileSync(logPath)
     }
   } catch (e) {
-    // do nothing
+    console.log(e)
   }
 }
 
 /**
  * for local log before piclist inited
  */
-const getLogger = (logPath: string, logtype: string) => {
+const getLogger = (logPath: string, logType: string) => {
   let hasUncathcedError = false
   try {
     if (!fs.existsSync(logPath)) {
@@ -64,7 +67,7 @@ const getLogger = (logPath: string, logtype: string) => {
       return
     }
     try {
-      let log = `${dayjs().format('YYYY-MM-DD HH:mm:ss')} [${logtype} ${type.toUpperCase()}] `
+      let log = `${dayjs().format('YYYY-MM-DD HH:mm:ss')} [${logType} ${type.toUpperCase()}] `
       msg.forEach((item: ILogArgvTypeWithError) => {
         if (typeof item === 'object' && type === 'error') {
           log += `\n------Error Stack Begin------\n${util.format(item.stack)}\n-------Error Stack End------- `

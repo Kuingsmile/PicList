@@ -17,9 +17,7 @@ import { T } from '~/main/i18n'
 
 const windowList = new Map<IWindowList, IWindowListItem>()
 
-const handleWindowParams = (windowURL: string) => {
-  return windowURL
-}
+const handleWindowParams = (windowURL: string) => windowURL
 
 const getDefaultWindowSizes = (): { width: number, height: number } => {
   const mainWindowWidth = picgo.getConfig<any>('settings.mainWindowWidth')
@@ -33,28 +31,127 @@ const getDefaultWindowSizes = (): { width: number, height: number } => {
 const defaultWindowWidth = getDefaultWindowSizes().width
 const defaultWindowHeight = getDefaultWindowSizes().height
 
+const trayWindowOptions = {
+  height: 350,
+  width: 196,
+  show: false,
+  frame: false,
+  fullscreenable: false,
+  resizable: false,
+  transparent: true,
+  vibrancy: 'ultra-dark',
+  webPreferences: {
+    nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
+    contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+    nodeIntegrationInWorker: true,
+    backgroundThrottling: false,
+    webSecurity: false
+  }
+}
+
+const settingWindowOptions = {
+  height: defaultWindowHeight,
+  width: defaultWindowWidth,
+  show: false,
+  frame: true,
+  center: true,
+  fullscreenable: true,
+  resizable: true,
+  title: 'PicList',
+  vibrancy: 'ultra-dark',
+  transparent: true,
+  titleBarStyle: 'hidden',
+  webPreferences: {
+    backgroundThrottling: false,
+    nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
+    contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+    nodeIntegrationInWorker: true,
+    webSecurity: false
+  }
+} as IBrowserWindowOptions
+
+if (process.platform !== 'darwin') {
+  settingWindowOptions.show = false
+  settingWindowOptions.frame = false
+  settingWindowOptions.backgroundColor = '#3f3c37'
+  settingWindowOptions.transparent = false
+  settingWindowOptions.icon = `${__static}/logo.png`
+}
+
+const miniWindowOptions = {
+  height: 64,
+  width: 64,
+  show: process.platform === 'linux',
+  frame: false,
+  fullscreenable: false,
+  skipTaskbar: true,
+  resizable: false,
+  transparent: process.platform !== 'linux',
+  icon: `${__static}/logo.png`,
+  webPreferences: {
+    backgroundThrottling: false,
+    nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
+    contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+    nodeIntegrationInWorker: true
+  }
+} as IBrowserWindowOptions
+
+if (db.get('settings.miniWindowOntop')) {
+  miniWindowOptions.alwaysOnTop = true
+}
+
+const renameWindowOptions = {
+  height: 175,
+  width: 300,
+  show: true,
+  fullscreenable: false,
+  resizable: false,
+  vibrancy: 'ultra-dark',
+  webPreferences: {
+    nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
+    contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+    nodeIntegrationInWorker: true,
+    backgroundThrottling: false
+  }
+} as IBrowserWindowOptions
+
+if (process.platform !== 'darwin') {
+  renameWindowOptions.show = true
+  renameWindowOptions.backgroundColor = '#3f3c37'
+  renameWindowOptions.autoHideMenuBar = true
+  renameWindowOptions.transparent = false
+}
+
+const toolboxWindowOptions = {
+  height: 450,
+  width: 800,
+  show: false,
+  frame: true,
+  center: true,
+  fullscreenable: false,
+  resizable: false,
+  title: `PicList ${T('TOOLBOX')}`,
+  vibrancy: 'ultra-dark',
+  icon: `${__static}/logo.png`,
+  webPreferences: {
+    backgroundThrottling: false,
+    nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
+    contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+    nodeIntegrationInWorker: true,
+    webSecurity: false
+  }
+} as IBrowserWindowOptions
+
+if (process.platform !== 'darwin') {
+  toolboxWindowOptions.backgroundColor = '#3f3c37'
+  toolboxWindowOptions.autoHideMenuBar = true
+  toolboxWindowOptions.transparent = false
+}
+
 windowList.set(IWindowList.TRAY_WINDOW, {
   isValid: process.platform !== 'linux',
   multiple: false,
-  options () {
-    return {
-      height: 350,
-      width: 196, // 196
-      show: false,
-      frame: false,
-      fullscreenable: false,
-      resizable: false,
-      transparent: true,
-      vibrancy: 'ultra-dark',
-      webPreferences: {
-        nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
-        contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
-        nodeIntegrationInWorker: true,
-        backgroundThrottling: false,
-        webSecurity: false
-      }
-    }
-  },
+  options: () => trayWindowOptions,
   callback (window) {
     window.loadURL(handleWindowParams(TRAY_WINDOW_URL))
     window.on('blur', () => {
@@ -66,36 +163,7 @@ windowList.set(IWindowList.TRAY_WINDOW, {
 windowList.set(IWindowList.SETTING_WINDOW, {
   isValid: true,
   multiple: false,
-  options () {
-    const options: IBrowserWindowOptions = {
-      height: defaultWindowHeight,
-      width: defaultWindowWidth,
-      show: false,
-      frame: true,
-      center: true,
-      fullscreenable: true,
-      resizable: true,
-      title: 'PicList',
-      vibrancy: 'ultra-dark',
-      transparent: true,
-      titleBarStyle: 'hidden',
-      webPreferences: {
-        backgroundThrottling: false,
-        nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
-        contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
-        nodeIntegrationInWorker: true,
-        webSecurity: false
-      }
-    }
-    if (process.platform !== 'darwin') {
-      options.show = false
-      options.frame = false
-      options.backgroundColor = '#3f3c37'
-      options.transparent = false
-      options.icon = `${__static}/logo.png`
-    }
-    return options
-  },
+  options: () => settingWindowOptions,
   callback (window, windowManager) {
     window.once('show', () => {
       remoteNoticeHandler.triggerHook(IRemoteNoticeTriggerHook.SETTING_WINDOW_OPEN)
@@ -117,30 +185,7 @@ windowList.set(IWindowList.SETTING_WINDOW, {
 windowList.set(IWindowList.MINI_WINDOW, {
   isValid: process.platform !== 'darwin',
   multiple: false,
-  options () {
-    const obj: IBrowserWindowOptions = {
-      height: 64,
-      width: 64,
-      show: process.platform === 'linux',
-      frame: false,
-      fullscreenable: false,
-      skipTaskbar: true,
-      resizable: false,
-      transparent: process.platform !== 'linux',
-      icon: `${__static}/logo.png`,
-      webPreferences: {
-        backgroundThrottling: false,
-        nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
-        contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
-        nodeIntegrationInWorker: true
-      }
-    }
-
-    if (db.get('settings.miniWindowOntop')) {
-      obj.alwaysOnTop = true
-    }
-    return obj
-  },
+  options: () => miniWindowOptions,
   callback (window) {
     window.loadURL(handleWindowParams(MINI_WINDOW_URL))
   }
@@ -149,29 +194,7 @@ windowList.set(IWindowList.MINI_WINDOW, {
 windowList.set(IWindowList.RENAME_WINDOW, {
   isValid: true,
   multiple: true,
-  options () {
-    const options: IBrowserWindowOptions = {
-      height: 175,
-      width: 300,
-      show: true,
-      fullscreenable: false,
-      resizable: false,
-      vibrancy: 'ultra-dark',
-      webPreferences: {
-        nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
-        contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
-        nodeIntegrationInWorker: true,
-        backgroundThrottling: false
-      }
-    }
-    if (process.platform !== 'darwin') {
-      options.show = true
-      options.backgroundColor = '#3f3c37'
-      options.autoHideMenuBar = true
-      options.transparent = false
-    }
-    return options
-  },
+  options: () => renameWindowOptions,
   async callback (window, windowManager) {
     window.loadURL(handleWindowParams(RENAME_WINDOW_URL))
     const currentWindow = windowManager.getAvailableWindow()
@@ -194,33 +217,7 @@ windowList.set(IWindowList.RENAME_WINDOW, {
 windowList.set(IWindowList.TOOLBOX_WINDOW, {
   isValid: true,
   multiple: false,
-  options () {
-    const options: IBrowserWindowOptions = {
-      height: 450,
-      width: 800,
-      show: false,
-      frame: true,
-      center: true,
-      fullscreenable: false,
-      resizable: false,
-      title: `PicList ${T('TOOLBOX')}`,
-      vibrancy: 'ultra-dark',
-      icon: `${__static}/logo.png`,
-      webPreferences: {
-        backgroundThrottling: false,
-        nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
-        contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
-        nodeIntegrationInWorker: true,
-        webSecurity: false
-      }
-    }
-    if (process.platform !== 'darwin') {
-      options.backgroundColor = '#3f3c37'
-      options.autoHideMenuBar = true
-      options.transparent = false
-    }
-    return options
-  },
+  options: () => toolboxWindowOptions,
   async callback (window, windowManager) {
     window.loadURL(TOOLBOX_WINDOW_URL)
     const currentWindow = windowManager.getAvailableWindow()
