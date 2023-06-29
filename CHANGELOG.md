@@ -1,3 +1,25 @@
+## :tada: 1.9.5 (2023-06-29)
+
+
+### :sparkles: Features
+
+* optimize image convert for imgur ([38d03fc](https://github.com/Kuingsmile/PicList/commit/38d03fc))
+
+
+### :bug: Bug Fixes
+
+* remove gif from extension list which can be converted ([b72cdf4](https://github.com/Kuingsmile/PicList/commit/b72cdf4)), closes [#60](https://github.com/Kuingsmile/PicList/issues/60)
+
+
+### :package: Chore
+
+* add team id ([f6b4806](https://github.com/Kuingsmile/PicList/commit/f6b4806))
+* add team id for notarizing app ([749c66e](https://github.com/Kuingsmile/PicList/commit/749c66e))
+* add XCODE_TEAM_ID ([0660218](https://github.com/Kuingsmile/PicList/commit/0660218))
+* using notarytool instead of altool which will be disabled on 2023.11.01 ([37ea225](https://github.com/Kuingsmile/PicList/commit/37ea225))
+
+
+
 ## :tada: 1.9.4 (2023-06-11)
 
 
