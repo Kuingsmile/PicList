@@ -1,13 +1,28 @@
 import COS from 'cos-nodejs-sdk-v5'
 
+interface IConfigMap {
+  fileName: string;
+  config: {
+    secretId: string;
+    secretKey: string;
+    bucket: string;
+    area: string;
+    path?: string;
+  };
+}
+
 export default class TcyunApi {
-  static async delete (configMap: IStringKeyMap): Promise<boolean> {
+  private static createCOS (SecretId: string, SecretKey: string): COS {
+    return new COS({
+      SecretId,
+      SecretKey
+    })
+  }
+
+  static async delete (configMap: IConfigMap): Promise<boolean> {
     const { fileName, config: { secretId, secretKey, bucket, area, path } } = configMap
     try {
-      const cos = new COS({
-        SecretId: secretId,
-        SecretKey: secretKey
-      })
+      const cos = TcyunApi.createCOS(secretId, secretKey)
       let key
       if (path === '/' || !path) {
         key = `/${fileName}`
@@ -21,7 +36,7 @@ export default class TcyunApi {
       })
       return result.statusCode === 204
     } catch (error) {
-      console.log(error)
+      console.error(error)
       return false
     }
   }

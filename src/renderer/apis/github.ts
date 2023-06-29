@@ -1,21 +1,36 @@
 import { Octokit } from '@octokit/rest'
 
+interface IConfigMap {
+  fileName: string
+  hash: string
+  config: {
+    repo: string
+    token: string
+    branch: string
+    path?: string
+  }
+}
+
 export default class GithubApi {
-  static async delete (configMap: IStringKeyMap): Promise<boolean> {
-    const { fileName, hash, config: { repo, token, branch, path } } = configMap
-    const owner = repo.split('/')[0]
-    const repoName = repo.split('/')[1]
-    const octokit = new Octokit({
+  private static createOctokit (token: string) {
+    return new Octokit({
       auth: token
     })
-    let key
-    if (path === '/' || !path) {
-      key = fileName
-    } else {
-      key = `${path.replace(/^\//, '').replace(/\/$/, '')}/${fileName}`
-    }
+  }
+
+  private static createKey (path: string | undefined, fileName: string): string {
+    return path && path !== '/'
+      ? `${path.replace(/^\//, '').replace(/\/$/, '')}/${fileName}`
+      : fileName
+  }
+
+  static async delete (configMap: IConfigMap): Promise<boolean> {
+    const { fileName, hash, config: { repo, token, branch, path } } = configMap
+    const [owner, repoName] = repo.split('/')
+    const octokit = GithubApi.createOctokit(token)
+    const key = GithubApi.createKey(path, fileName)
     try {
-      const result = await octokit.rest.repos.deleteFile({
+      const { status } = await octokit.rest.repos.deleteFile({
         owner,
         repo: repoName,
         path: key,
@@ -23,9 +38,9 @@ export default class GithubApi {
         sha: hash,
         branch
       })
-      return result.status === 200
+      return status === 200
     } catch (error) {
-      console.log(error)
+      console.error(error)
       return false
     }
   }
