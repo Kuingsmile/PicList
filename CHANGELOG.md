@@ -1,3 +1,12 @@
+## :tada: 1.9.6 (2023-06-30)
+
+
+### :bug: Bug Fixes
+
+* fix an issue which cause upload failed ([db5a2af](https://github.com/Kuingsmile/PicList/commit/db5a2af)), closes [#66](https://github.com/Kuingsmile/PicList/issues/66)
+
+
+
 ## :tada: 1.9.5 (2023-06-29)
 
 
