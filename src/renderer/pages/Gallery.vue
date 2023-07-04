@@ -1026,7 +1026,7 @@ export default {
   position absolute
   left 142px
   right 0
-  height 100%
+  height 95%
   .cursor-pointer
     cursor pointer
 .item-base
@@ -1069,7 +1069,7 @@ export default {
     box-sizing border-box
     padding 8px 0
     overflow-y auto
-    overflow-x hidden
+    overflow-x auto
     position absolute
     top: 38px
     transition all .2s ease-in-out .1s
@@ -1128,6 +1128,8 @@ export default {
       color #ddd
       font-size 14px
       margin-bottom 4px
+      text-align center
+      align-self center
   .handle-bar
     color #ddd
     margin-bottom 10px
