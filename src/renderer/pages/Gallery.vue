@@ -242,7 +242,7 @@
               @click="zoomImage(index)"
             >
               <img
-                v-lazy="item.imgUrl"
+                v-lazy="item.galleryPath || item.imgUrl"
                 class="gallery-list__item-img"
               >
             </div>
