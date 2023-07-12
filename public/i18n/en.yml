@@ -227,6 +227,9 @@ SETTINGS_ISHIDEDOCK_TIPS: Not support hide dock and tray at the same time
 SETTINGS_ENCODE_OUTPUT_URL: Encode Output(or Copyed) URL
 SETTINGS_WATCH_CLIPBOARD: Watch clipboard when software start
 SETTINGS_SHORT_URL: Use short url
+SETTINGS_SHORT_URL_SERVER: Short url server
+SETTINGS_SHORT_URL_YOURLS_DOMAIN: YOURLS domain
+SETTINGS_SHORT_URL_YOURLS_SIGNATURE: YOURLS signature
 SETTINGS_DELETE_LOCAL_FILE_AFTER_UPLOAD: Delete local file after upload
 SETTINGS_SYNC_CONFIG: Settings Sync Configuration
 SETTINGS_SYNC_CONFIG_TITLE: Sync Settings

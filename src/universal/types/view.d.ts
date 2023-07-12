@@ -20,6 +20,9 @@ interface ISettingForm {
   encodeOutputURL: boolean,
   isAutoListenClipboard: boolean,
   useShortUrl: boolean,
+  shortUrlServer: string,
+  yourlsDomain: string,
+  yourlsSignature: string,
   deleteLocalFile: boolean
 }
 

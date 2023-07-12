@@ -661,7 +661,7 @@ function remove (item: ImgInfo) {
       type: 'warning'
     }).then(async () => {
       const file = await $$db.getById(item.id!)
-      const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun', 'aws-s3', 'webdavplist']
+      const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun', 'aws-s3', 'webdavplist', 'local']
       if (await getConfig('settings.deleteCloudFile')) {
         if (item.type !== undefined && picBedsCanbeDeleted.includes(item.type)) {
           const result = await ALLApi.delete(item)
@@ -771,7 +771,7 @@ function multiRemove () {
       const files: IResult<ImgInfo>[] = []
       const imageIDList = Object.keys(choosedList)
       const isDeleteCloudFile = await getConfig('settings.deleteCloudFile')
-      const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun', 'aws-s3', 'webdavplist']
+      const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun', 'aws-s3', 'webdavplist', 'local']
       if (isDeleteCloudFile) {
         for (let i = 0; i < imageIDList.length; i++) {
           const key = imageIDList[i]

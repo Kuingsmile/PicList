@@ -3663,7 +3663,6 @@ const columns: Column<any>[] = [
 ]
 
 onBeforeMount(async () => {
-  console.log('onBeforeMount')
   await manageStore.refreshConfig()
   showLoadingPage.value = true
   await initCustomUrlList()

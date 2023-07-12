@@ -1,5 +1,5 @@
 import { IPasteStyle } from '#/types/enum'
-import { generateShortUrl } from '#/utils/common'
+import { generateShortUrl } from '~/main/utils/common'
 import db from '~/main/apis/core/datastore'
 import { handleUrlEncodeWithSetting } from './common'
 

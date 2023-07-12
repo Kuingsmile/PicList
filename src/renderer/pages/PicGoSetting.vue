@@ -374,6 +374,49 @@
                   />
                 </el-form-item>
                 <el-form-item
+                  v-if="form.useShortUrl"
+                  :label="$T('SETTINGS_SHORT_URL_SERVER')"
+                >
+                  <el-select
+                    v-model="form.shortUrlServer"
+                    size="small"
+                    style="width: 50%"
+                    :placeholder="$T('SETTINGS_SHORT_URL_SERVER')"
+                    @change="handleShortUrlServerChange"
+                  >
+                    <el-option
+                      v-for="item in shortUrlServerList"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </el-form-item>
+                <el-form-item
+                  v-if="form.useShortUrl && form.shortUrlServer === 'yourls'"
+                  :label="$T('SETTINGS_SHORT_URL_YOURLS_DOMAIN')"
+                >
+                  <el-input
+                    v-model="form.yourlsDomain"
+                    size="small"
+                    style="width: 50%"
+                    :placeholder="$T('SETTINGS_SHORT_URL_YOURLS_DOMAIN')"
+                    @change="handleYourlsDomainChange"
+                  />
+                </el-form-item>
+                <el-form-item
+                  v-if="form.useShortUrl && form.shortUrlServer === 'yourls'"
+                  :label="$T('SETTINGS_SHORT_URL_YOURLS_SIGNATURE')"
+                >
+                  <el-input
+                    v-model="form.yourlsSignature"
+                    size="small"
+                    style="width: 50%"
+                    :placeholder="$T('SETTINGS_SHORT_URL_YOURLS_SIGNATURE')"
+                    @change="handleYourlsSignatureChange"
+                  />
+                </el-form-item>
+                <el-form-item
                   :label="$T('SETTINGS_ENCODE_OUTPUT_URL')"
                 >
                   <el-switch
@@ -1376,6 +1419,16 @@ import { buildInRenameFormatTable } from '../manage/utils/common'
 const imageProcessDialogVisible = ref(false)
 const activeName = ref<'system' | 'syncAndConfigure' | 'upload' | 'advanced' | 'upadte'>('system')
 
+const shortUrlServerList = [{
+  label: 'c1n',
+  value: 'c1n'
+},
+{
+  label: 'yourls',
+  value: 'yourls'
+}
+]
+
 const waterMarkPositionMap = new Map([
   ['north', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP')],
   ['northeast', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP_RIGHT')],
@@ -1489,6 +1542,9 @@ const form = reactive<ISettingForm>({
   encodeOutputURL: false,
   isAutoListenClipboard: false,
   useShortUrl: false,
+  shortUrlServer: 'c1n',
+  yourlsDomain: '',
+  yourlsSignature: '',
   deleteLocalFile: false
 })
 
@@ -1638,6 +1694,9 @@ async function initData () {
     form.customMiniIcon = settings.customMiniIcon || ''
     form.isHideDock = settings.isHideDock || false
     form.useShortUrl = settings.useShortUrl || false
+    form.shortUrlServer = settings.shortUrlServer || 'c1n'
+    form.yourlsDomain = settings.yourlsDomain || ''
+    form.yourlsSignature = settings.yourlsSignature || ''
     form.deleteLocalFile = settings.deleteLocalFile || false
     currentLanguage.value = settings.language ?? 'zh-CN'
     currentStartMode.value = settings.startMode || 'quiet'
@@ -1953,6 +2012,18 @@ function handleUseShortUrl (val: ICheckBoxValueType) {
   successNotification.onclick = () => {
     return true
   }
+}
+
+function handleShortUrlServerChange (val: string) {
+  saveConfig('settings.shortUrlServer', val)
+}
+
+function handleYourlsDomainChange (val: string) {
+  saveConfig('settings.yourlsDomain', val)
+}
+
+function handleYourlsSignatureChange (val: string) {
+  saveConfig('settings.yourlsSignature', val)
 }
 
 function confirmLogLevelSetting () {

@@ -2,6 +2,10 @@ import fs from 'fs-extra'
 import db from '~/main/apis/core/datastore'
 import { clipboard, Notification, dialog } from 'electron'
 import { handleUrlEncode } from '~/universal/utils/common'
+import axios from 'axios'
+import FormData from 'form-data'
+import { C1 } from '#/utils/static'
+import logger from '../apis/core/picgo/logger'
 
 export const handleCopyUrl = (str: string): void => {
   if (db.get('settings.autoCopy') !== false) {
@@ -96,3 +100,45 @@ export const getClipboardFilePath = (): string => {
 }
 
 export const handleUrlEncodeWithSetting = (url: string) => db.get('settings.encodeOutputURL') ? handleUrlEncode(url) : url
+
+const c1nApi = 'https://c1n.cn/link/short'
+
+export const generateShortUrl = async (url: string) => {
+  const server = db.get('settings.shortUrlServer') || 'c1n'
+  if (server === 'c1n') {
+    const form = new FormData()
+    form.append('url', url)
+    const C = Buffer.from(C1, 'base64').toString()
+    try {
+      const res = await axios.post(c1nApi, form, {
+        headers: {
+          token: C
+        }
+      })
+      if (res.status >= 200 && res.status < 300 && res.data?.code === 0) {
+        return res.data.data
+      }
+    } catch (e: any) {
+      console.log(e)
+    }
+  } else if (server === 'yourls') {
+    const domain = db.get('settings.yourlsDomain') || ''
+    const signature = db.get('settings.yourlsSignature') || ''
+    if (domain && signature) {
+      try {
+        const res = await axios.get(`${domain}/yourls-api.php?signature=${signature}&action=shorturl&format=json&url=${url}`)
+        if (res.data.shorturl) {
+          return res.data.shorturl
+        }
+      } catch (e: any) {
+        if (e.response.data.message.indexOf('already exists in database') !== -1) {
+          return e.response.data.shorturl
+        }
+        console.log(e)
+      }
+    } else {
+      logger.warn('Yourls server or signature is not set')
+    }
+  }
+  return url
+}

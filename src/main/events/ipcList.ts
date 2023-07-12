@@ -39,11 +39,10 @@ import {
   uploadChoosedFiles
 } from '~/main/apis/app/uploader/apis'
 import picgoCoreIPC from './picgoCoreIPC'
-import { handleCopyUrl } from '~/main/utils/common'
+import { handleCopyUrl, generateShortUrl } from '~/main/utils/common'
 import { buildMainPageMenu, buildMiniPageMenu, buildPluginPageMenu, buildPicBedListMenu } from './remotes/menu'
 import path from 'path'
 import { T } from '~/main/i18n'
-import { generateShortUrl } from '~/universal/utils/common'
 import { uploadFile, downloadFile } from '../utils/syncSettings'
 
 const STORE_PATH = app.getPath('userData')
@@ -76,7 +75,6 @@ export default {
     })
 
     ipcMain.on('uploadClipboardFilesFromUploadPage', () => {
-      console.log('handle')
       uploadClipboardFiles()
     })
 

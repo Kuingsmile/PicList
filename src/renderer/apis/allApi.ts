@@ -7,6 +7,7 @@ import GithubApi from './github'
 import UpyunApi from './upyun'
 import AwsS3Api from './awss3'
 import WebdavApi from './webdav'
+import LocalApi from './local'
 
 const apiMap: IStringKeyMap = {
   smms: SmmsApi,
@@ -17,7 +18,8 @@ const apiMap: IStringKeyMap = {
   github: GithubApi,
   upyun: UpyunApi,
   'aws-s3': AwsS3Api,
-  webdavplist: WebdavApi
+  webdavplist: WebdavApi,
+  local: LocalApi
 }
 
 export default class ALLApi {
