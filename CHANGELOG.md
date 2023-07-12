@@ -1,3 +1,24 @@
+## :tada: 1.9.7 (2023-07-12)
+
+
+### :sparkles: Features
+
+* add a new buildin picbed - local pc ([5018ce7](https://github.com/Kuingsmile/PicList/commit/5018ce7))
+* add custom short url server ([d4a22f9](https://github.com/Kuingsmile/PicList/commit/d4a22f9)), closes [#69](https://github.com/Kuingsmile/PicList/issues/69) [#69](https://github.com/Kuingsmile/PicList/issues/69)
+
+
+### :bug: Bug Fixes
+
+* fix gallery page display bugs ([b6f5d9f](https://github.com/Kuingsmile/PicList/commit/b6f5d9f))
+* fix url bug of qiniu ([3b3c70a](https://github.com/Kuingsmile/PicList/commit/3b3c70a)), closes [#70](https://github.com/Kuingsmile/PicList/issues/70)
+
+
+### :pencil: Documentation
+
+* reopen wechat group ([57bf45f](https://github.com/Kuingsmile/PicList/commit/57bf45f))
+
+
+
 ## :tada: 1.9.6 (2023-06-30)
 
 
