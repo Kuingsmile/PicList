@@ -12,7 +12,7 @@ const serverPort = 36699
 export function startFileServer () {
   const server = http.createServer((req, res) => {
     const requestPath = req.url?.split('?')[0]
-    const filePath = path.join(imgFilePath, requestPath!)
+    const filePath = path.join(imgFilePath, decodeURIComponent(requestPath as string))
 
     fs.readFile(filePath, (err, data) => {
       if (err) {
