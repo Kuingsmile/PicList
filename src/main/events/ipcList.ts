@@ -58,13 +58,16 @@ export default {
       if (img !== false) {
         const pasteStyle = db.get('settings.pasteStyle') || 'markdown'
         handleCopyUrl(await (pasteTemplate(pasteStyle, img[0], db.get('settings.customLink'))))
-        const notification = new Notification({
-          title: T('UPLOAD_SUCCEED'),
-          body: img[0].imgUrl!
-          // icon: file[0]
-          // icon: img[0].imgUrl
-        })
-        notification.show()
+        const isShowResultNotification = db.get('settings.uploadResultNotification') === undefined ? true : !!db.get('settings.uploadResultNotification')
+        if (isShowResultNotification) {
+          const notification = new Notification({
+            title: T('UPLOAD_SUCCEED'),
+            body: img[0].imgUrl!
+            // icon: file[0]
+            // icon: img[0].imgUrl
+          })
+          notification.show()
+        }
         await GalleryDB.getInstance().insert(img[0])
         trayWindow.webContents.send('clipboardFiles', [])
         if (windowManager.has(IWindowList.SETTING_WINDOW)) {

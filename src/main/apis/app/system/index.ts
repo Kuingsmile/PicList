@@ -392,14 +392,17 @@ export function createTray () {
             await fs.remove(rawInput[i])
           }
           pasteText.push(await (pasteTemplate(pasteStyle, imgs[i], db.get('settings.customLink'))))
-          const notification = new Notification({
-            title: T('UPLOAD_SUCCEED'),
-            body: imgs[i].imgUrl!
-            // icon: files[i]
-          })
-          setTimeout(() => {
-            notification.show()
-          }, i * 100)
+          const isShowResultNotification = db.get('settings.uploadResultNotification') === undefined ? true : !!db.get('settings.uploadResultNotification')
+          if (isShowResultNotification) {
+            const notification = new Notification({
+              title: T('UPLOAD_SUCCEED'),
+              body: imgs[i].imgUrl!
+              // icon: files[i]
+            })
+            setTimeout(() => {
+              notification.show()
+            }, i * 100)
+          }
           await GalleryDB.getInstance().insert(imgs[i])
         }
         handleCopyUrl(pasteText.join('\n'))

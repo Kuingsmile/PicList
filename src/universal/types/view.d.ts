@@ -5,6 +5,7 @@ interface ISettingForm {
   rename: boolean
   autoRename: boolean
   uploadNotification: boolean
+  uploadResultNotification: boolean
   miniWindowOntop: boolean
   logLevel: string[]
   autoCopyUrl: boolean

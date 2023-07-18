@@ -288,6 +288,16 @@
                   />
                 </el-form-item>
                 <el-form-item
+                  :label="$T('SETTINGS_OPEN_UPLOAD_RESULT_TIPS')"
+                >
+                  <el-switch
+                    v-model="form.uploadResultNotification"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleUploadResultNotification"
+                  />
+                </el-form-item>
+                <el-form-item
                   :label="$T('SETTINGS_COMPRESS_AND_WATERMARK')"
                 >
                   <el-button
@@ -1527,6 +1537,7 @@ const form = reactive<ISettingForm>({
   rename: false,
   autoRename: false,
   uploadNotification: false,
+  uploadResultNotification: true,
   miniWindowOntop: false,
   logLevel: ['all'],
   autoCopyUrl: true,
@@ -1680,6 +1691,7 @@ async function initData () {
     form.rename = settings.rename || false
     form.autoRename = settings.autoRename || false
     form.uploadNotification = settings.uploadNotification || false
+    form.uploadResultNotification = settings.uploadResultNotification === undefined ? true : settings.uploadResultNotification
     form.miniWindowOntop = settings.miniWindowOntop || false
     form.logLevel = initLogLevel(settings.logLevel || [])
     form.autoCopyUrl = settings.autoCopy === undefined ? true : settings.autoCopy
@@ -1949,6 +1961,12 @@ function cancelCheckVersion () {
 function handleUploadNotification (val: ICheckBoxValueType) {
   saveConfig({
     'settings.uploadNotification': val
+  })
+}
+
+function handleUploadResultNotification (val: ICheckBoxValueType) {
+  saveConfig({
+    'settings.uploadResultNotification': val
   })
 }
 
