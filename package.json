@@ -51,7 +51,7 @@
     "cos-nodejs-sdk-v5": "^2.12.1",
     "dexie": "^3.2.4",
     "electron-updater": "^6.1.1",
-    "element-plus": "^2.3.7",
+    "element-plus": "^2.3.8",
     "epipebomb": "^1.0.0",
     "fast-xml-parser": "^4.2.5",
     "form-data": "^4.0.0",
