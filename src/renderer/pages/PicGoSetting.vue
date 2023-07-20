@@ -112,6 +112,28 @@
                 </el-form-item>
                 <el-form-item
                   v-if="os !== 'darwin'"
+                  :label="$T('SETTINGS_CLOSE_MINI_WINDOW_SYNC')"
+                >
+                  <el-switch
+                    v-model="form.autoCloseMiniWindow"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleAutoCloseMiniWindowChange"
+                  />
+                </el-form-item>
+                <el-form-item
+                  v-if="os !== 'darwin'"
+                  :label="$T('SETTINGS_CLOSE_MAIN_WINDOW_SYNC')"
+                >
+                  <el-switch
+                    v-model="form.autoCloseMainWindow"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleAutoCloseMainWindowChange"
+                  />
+                </el-form-item>
+                <el-form-item
+                  v-if="os !== 'darwin'"
                   :label="$T('SETTINGS_MINI_WINDOW_ON_TOP')"
                 >
                   <el-switch
@@ -1539,6 +1561,8 @@ const form = reactive<ISettingForm>({
   uploadNotification: false,
   uploadResultNotification: true,
   miniWindowOntop: false,
+  autoCloseMiniWindow: false,
+  autoCloseMainWindow: false,
   logLevel: ['all'],
   autoCopyUrl: true,
   checkBetaUpdate: true,
@@ -1693,6 +1717,8 @@ async function initData () {
     form.uploadNotification = settings.uploadNotification || false
     form.uploadResultNotification = settings.uploadResultNotification === undefined ? true : settings.uploadResultNotification
     form.miniWindowOntop = settings.miniWindowOntop || false
+    form.autoCloseMiniWindow = settings.autoCloseMiniWindow || false
+    form.autoCloseMainWindow = settings.autoCloseMainWindow || false
     form.logLevel = initLogLevel(settings.logLevel || [])
     form.autoCopyUrl = settings.autoCopy === undefined ? true : settings.autoCopy
     form.checkBetaUpdate = settings.checkBetaUpdate === undefined ? true : settings.checkBetaUpdate
@@ -1991,6 +2017,14 @@ async function confirmWindowSize () {
   successNotification.onclick = () => {
     return true
   }
+}
+
+function handleAutoCloseMainWindowChange (val: ICheckBoxValueType) {
+  saveConfig('settings.autoCloseMainWindow', val)
+}
+
+function handleAutoCloseMiniWindowChange (val: ICheckBoxValueType) {
+  saveConfig('settings.autoCloseMiniWindow', val)
 }
 
 function handleMiniWindowOntop (val: ICheckBoxValueType) {

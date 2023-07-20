@@ -28,6 +28,7 @@ let tray: Tray | null
 
 export function setDockMenu () {
   const isListeningClipboard = db.get('settings.isListeningClipboard') || false
+  const autoCloseMiniWindow = db.get('settings.autoCloseMiniWindow') || false
   const dockMenu = Menu.buildFromTemplate([
     {
       label: T('OPEN_MAIN_WINDOW'),
@@ -35,6 +36,9 @@ export function setDockMenu () {
         const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
         settingWindow!.show()
         settingWindow!.focus()
+        if (windowManager.has(IWindowList.MINI_WINDOW) && autoCloseMiniWindow) {
+          windowManager.get(IWindowList.MINI_WINDOW)!.hide()
+        }
       }
     },
     {
@@ -74,8 +78,12 @@ export function createMenu () {
           label: T('OPEN_MAIN_WINDOW'),
           click () {
             const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+            const autoCloseMiniWindow = db.get('settings.autoCloseMiniWindow') || false
             settingWindow!.show()
             settingWindow!.focus()
+            if (windowManager.has(IWindowList.MINI_WINDOW) && autoCloseMiniWindow) {
+              windowManager.get(IWindowList.MINI_WINDOW)!.hide()
+            }
           }
         },
         {
@@ -135,8 +143,12 @@ export function createContextMenu () {
         label: T('OPEN_MAIN_WINDOW'),
         click () {
           const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+          const autoCloseMiniWindow = db.get('settings.autoCloseMiniWindow') || false
           settingWindow!.show()
           settingWindow!.focus()
+          if (windowManager.has(IWindowList.MINI_WINDOW) && autoCloseMiniWindow) {
+            windowManager.get(IWindowList.MINI_WINDOW)!.hide()
+          }
         }
       },
       {
@@ -206,6 +218,10 @@ export function createContextMenu () {
             miniWindow.on('move', setPositionFunc)
             miniWindow.show()
             miniWindow.focus()
+            const autoCloseMainWindow = db.get('settings.autoCloseMainWindow') || false
+            if (windowManager.has(IWindowList.SETTING_WINDOW) && autoCloseMainWindow) {
+              windowManager.get(IWindowList.SETTING_WINDOW)!.hide()
+            }
           }
         }
       )
@@ -224,8 +240,12 @@ export function createContextMenu () {
         label: T('OPEN_MAIN_WINDOW'),
         click () {
           const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+          const autoCloseMiniWindow = db.get('settings.autoCloseMiniWindow') || false
           settingWindow!.show()
           settingWindow!.focus()
+          if (windowManager.has(IWindowList.MINI_WINDOW) && autoCloseMiniWindow) {
+            windowManager.get(IWindowList.MINI_WINDOW)!.hide()
+          }
         }
       },
       {
@@ -251,6 +271,10 @@ export function createContextMenu () {
           miniWindow.on('move', setPositionFunc)
           miniWindow.show()
           miniWindow.focus()
+          const autoCloseMainWindow = db.get('settings.autoCloseMainWindow') || false
+          if (windowManager.has(IWindowList.SETTING_WINDOW) && autoCloseMainWindow) {
+            windowManager.get(IWindowList.SETTING_WINDOW)!.hide()
+          }
         }
       },
       {
@@ -358,8 +382,12 @@ export function createTray () {
           windowManager.get(IWindowList.TRAY_WINDOW)!.hide()
         }
         const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+        const autoCloseMiniWindow = db.get('settings.autoCloseMiniWindow') || false
         settingWindow!.show()
         settingWindow!.focus()
+        if (windowManager.has(IWindowList.MINI_WINDOW) && autoCloseMiniWindow) {
+          windowManager.get(IWindowList.MINI_WINDOW)!.hide()
+        }
       }
     })
 

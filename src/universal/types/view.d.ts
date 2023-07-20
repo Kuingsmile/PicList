@@ -7,6 +7,8 @@ interface ISettingForm {
   uploadNotification: boolean
   uploadResultNotification: boolean
   miniWindowOntop: boolean
+  autoCloseMiniWindow: boolean
+  autoCloseMainWindow: boolean
   logLevel: string[]
   autoCopyUrl: boolean
   checkBetaUpdate: boolean

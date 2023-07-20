@@ -214,6 +214,12 @@ export default {
 
     ipcMain.on('openSettingWindow', () => {
       windowManager.get(IWindowList.SETTING_WINDOW)!.show()
+      const autoCloseMiniWindow = db.get('settings.autoCloseMiniWindow') || false
+      if (autoCloseMiniWindow) {
+        if (windowManager.has(IWindowList.MINI_WINDOW)) {
+          windowManager.get(IWindowList.MINI_WINDOW)!.hide()
+        }
+      }
     })
 
     ipcMain.on('openMiniWindow', () => {
