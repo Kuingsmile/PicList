@@ -32,14 +32,17 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
       const pasteStyle = db.get('settings.pasteStyle') || 'markdown'
       handleCopyUrl(await (pasteTemplate(pasteStyle, img[0], db.get('settings.customLink'))))
-      const notification = new Notification({
-        title: T('UPLOAD_SUCCEED'),
-        body: img[0].imgUrl!
-        // icon: img[0].imgUrl
-      })
-      setTimeout(() => {
-        notification.show()
-      }, 100)
+      const isShowResultNotification = db.get('settings.uploadResultNotification') === undefined ? true : !!db.get('settings.uploadResultNotification')
+      if (isShowResultNotification) {
+        const notification = new Notification({
+          title: T('UPLOAD_SUCCEED'),
+          body: img[0].imgUrl!
+          // icon: img[0].imgUrl
+        })
+        setTimeout(() => {
+          notification.show()
+        }, 100)
+      }
       await GalleryDB.getInstance().insert(img[0])
       // trayWindow just be created in mac/windows, not in linux
       trayWindow?.webContents?.send('clipboardFiles', [])
@@ -88,14 +91,17 @@ export const uploadChoosedFiles = async (webContents: WebContents, files: IFileW
         })
       }
       pasteText.push(await (pasteTemplate(pasteStyle, imgs[i], db.get('settings.customLink'))))
-      const notification = new Notification({
-        title: T('UPLOAD_SUCCEED'),
-        body: imgs[i].imgUrl!
-        // icon: files[i].path
-      })
-      setTimeout(() => {
-        notification.show()
-      }, i * 100)
+      const isShowResultNotification = db.get('settings.uploadResultNotification') === undefined ? true : !!db.get('settings.uploadResultNotification')
+      if (isShowResultNotification) {
+        const notification = new Notification({
+          title: T('UPLOAD_SUCCEED'),
+          body: imgs[i].imgUrl!
+          // icon: files[i].path
+        })
+        setTimeout(() => {
+          notification.show()
+        }, i * 100)
+      }
       await GalleryDB.getInstance().insert(imgs[i])
       result.push({
         url: handleUrlEncodeWithSetting(imgs[i].imgUrl!),

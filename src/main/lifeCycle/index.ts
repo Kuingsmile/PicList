@@ -47,6 +47,7 @@ import clipboardPoll from '../utils/clipboardPoll'
 import path from 'path'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/universal/utils/static'
 import fs from 'fs-extra'
+import { startFileServer } from '../fileServer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const handleStartUpFiles = (argv: string[], cwd: string) => {
@@ -158,6 +159,7 @@ class LifeCycle {
         shortKeyHandler.init()
       })
       server.startup()
+      startFileServer()
       if (process.env.NODE_ENV !== 'development') {
         handleStartUpFiles(process.argv, process.cwd())
       }

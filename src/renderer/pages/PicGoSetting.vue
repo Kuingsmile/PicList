@@ -112,6 +112,28 @@
                 </el-form-item>
                 <el-form-item
                   v-if="os !== 'darwin'"
+                  :label="$T('SETTINGS_CLOSE_MINI_WINDOW_SYNC')"
+                >
+                  <el-switch
+                    v-model="form.autoCloseMiniWindow"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleAutoCloseMiniWindowChange"
+                  />
+                </el-form-item>
+                <el-form-item
+                  v-if="os !== 'darwin'"
+                  :label="$T('SETTINGS_CLOSE_MAIN_WINDOW_SYNC')"
+                >
+                  <el-switch
+                    v-model="form.autoCloseMainWindow"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleAutoCloseMainWindowChange"
+                  />
+                </el-form-item>
+                <el-form-item
+                  v-if="os !== 'darwin'"
                   :label="$T('SETTINGS_MINI_WINDOW_ON_TOP')"
                 >
                   <el-switch
@@ -285,6 +307,16 @@
                     :active-text="$T('SETTINGS_OPEN')"
                     :inactive-text="$T('SETTINGS_CLOSE')"
                     @change="handleUploadNotification"
+                  />
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_OPEN_UPLOAD_RESULT_TIPS')"
+                >
+                  <el-switch
+                    v-model="form.uploadResultNotification"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                    @change="handleUploadResultNotification"
                   />
                 </el-form-item>
                 <el-form-item
@@ -1527,7 +1559,10 @@ const form = reactive<ISettingForm>({
   rename: false,
   autoRename: false,
   uploadNotification: false,
+  uploadResultNotification: true,
   miniWindowOntop: false,
+  autoCloseMiniWindow: false,
+  autoCloseMainWindow: false,
   logLevel: ['all'],
   autoCopyUrl: true,
   checkBetaUpdate: true,
@@ -1680,7 +1715,10 @@ async function initData () {
     form.rename = settings.rename || false
     form.autoRename = settings.autoRename || false
     form.uploadNotification = settings.uploadNotification || false
+    form.uploadResultNotification = settings.uploadResultNotification === undefined ? true : settings.uploadResultNotification
     form.miniWindowOntop = settings.miniWindowOntop || false
+    form.autoCloseMiniWindow = settings.autoCloseMiniWindow || false
+    form.autoCloseMainWindow = settings.autoCloseMainWindow || false
     form.logLevel = initLogLevel(settings.logLevel || [])
     form.autoCopyUrl = settings.autoCopy === undefined ? true : settings.autoCopy
     form.checkBetaUpdate = settings.checkBetaUpdate === undefined ? true : settings.checkBetaUpdate
@@ -1952,6 +1990,12 @@ function handleUploadNotification (val: ICheckBoxValueType) {
   })
 }
 
+function handleUploadResultNotification (val: ICheckBoxValueType) {
+  saveConfig({
+    'settings.uploadResultNotification': val
+  })
+}
+
 async function cancelWindowSize () {
   mainWindowSizeVisible.value = false
   mainWindowWidth.value = await getConfig<number>('settings.mainWindowWidth') || 1200
@@ -1973,6 +2017,14 @@ async function confirmWindowSize () {
   successNotification.onclick = () => {
     return true
   }
+}
+
+function handleAutoCloseMainWindowChange (val: ICheckBoxValueType) {
+  saveConfig('settings.autoCloseMainWindow', val)
+}
+
+function handleAutoCloseMiniWindowChange (val: ICheckBoxValueType) {
+  saveConfig('settings.autoCloseMiniWindow', val)
 }
 
 function handleMiniWindowOntop (val: ICheckBoxValueType) {

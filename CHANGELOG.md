@@ -1,3 +1,20 @@
+## :tada: 1.9.8 (2023-07-20)
+
+
+### :sparkles: Features
+
+* add a new config item to close upload result notification ([c1698e8](https://github.com/Kuingsmile/PicList/commit/c1698e8)), closes [#74](https://github.com/Kuingsmile/PicList/issues/74)
+* add two new config items to control mini window and main window ([2eff772](https://github.com/Kuingsmile/PicList/commit/2eff772))
+* pictures uploaded using webdav and local path can be previewed in gallery now ([6a94503](https://github.com/Kuingsmile/PicList/commit/6a94503)), closes [#64](https://github.com/Kuingsmile/PicList/issues/64)
+
+
+### :bug: Bug Fixes
+
+* fix a bug of file server when the request path is url encoded ([48b13b2](https://github.com/Kuingsmile/PicList/commit/48b13b2))
+* fix an issue related with yourls ([58486a3](https://github.com/Kuingsmile/PicList/commit/58486a3)), closes [#72](https://github.com/Kuingsmile/PicList/issues/72)
+
+
+
 ## :tada: 1.9.7 (2023-07-12)
 
 

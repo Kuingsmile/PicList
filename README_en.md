@@ -31,7 +31,7 @@ if you want to use PicList-core, please go to [https://github.com/Kuingsmile/Pic
 ## Features
 
 - Maintain all the functions of PicGo, compatible with the existing PicGo plug-in system, including the combination with typora, obsidian and other software
-- Add support for webdav upload, imgur account upload, etc.
+- Add support for webdav upload, imgur account upload, local path upload, etc.
 - Synchronous cloud deletion of pictures in the album, advanced search and sorting features have been added, along with the ability to bulk modify URLs.
 - Built-in watermark addition, image compression, image scaling, image rotation and image format conversion functions, support custom configuration, and can be called through CLI command line
 - Add the configuration of multi-device synchronization function.
@@ -93,6 +93,7 @@ Search and install `Image auto upload Plugin` in the community plugin, then ente
 |           Qiniu            |          ✔️           |            ✔️             |
 | S3 API compatible platform |          ✔️           |            ✔️             |
 |           WebDAV           |          ✔️           |            ✔️             |
+|           Local            |          ✔️           |            ✔️             |
 
 |                            Plugin                            | Album cloud deletion |
 | :----------------------------------------------------------: | :------------------: |

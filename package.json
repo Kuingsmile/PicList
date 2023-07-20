@@ -1,6 +1,6 @@
 {
   "name": "piclist",
-  "version": "1.9.7",
+  "version": "1.9.8",
   "author": {
     "name": "Kuingsmile",
     "email": "pkukuing@gmail.com"
@@ -51,7 +51,7 @@
     "cos-nodejs-sdk-v5": "^2.12.1",
     "dexie": "^3.2.4",
     "electron-updater": "^6.1.1",
-    "element-plus": "^2.3.7",
+    "element-plus": "^2.3.8",
     "epipebomb": "^1.0.0",
     "fast-xml-parser": "^4.2.5",
     "form-data": "^4.0.0",
@@ -66,7 +66,7 @@
     "mime-types": "^2.1.35",
     "mitt": "^3.0.0",
     "nodejs-file-downloader": "^4.12.1",
-    "piclist": "^0.7.4",
+    "piclist": "^0.7.6",
     "pinia": "^2.1.4",
     "pinia-plugin-persistedstate": "^3.1.0",
     "qiniu": "^7.8.0",

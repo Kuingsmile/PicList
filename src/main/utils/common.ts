@@ -122,9 +122,12 @@ export const generateShortUrl = async (url: string) => {
       console.log(e)
     }
   } else if (server === 'yourls') {
-    const domain = db.get('settings.yourlsDomain') || ''
+    let domain = db.get('settings.yourlsDomain') || ''
     const signature = db.get('settings.yourlsSignature') || ''
     if (domain && signature) {
+      if (!/^https?:\/\//.test(domain)) {
+        domain = `http://${domain}`
+      }
       try {
         const res = await axios.get(`${domain}/yourls-api.php?signature=${signature}&action=shorturl&format=json&url=${url}`)
         if (res.data.shorturl) {

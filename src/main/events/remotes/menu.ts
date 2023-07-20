@@ -30,6 +30,12 @@ const buildMiniPageMenu = () => {
       label: T('OPEN_MAIN_WINDOW'),
       click () {
         windowManager.get(IWindowList.SETTING_WINDOW)!.show()
+        const autoCloseMiniWindow = db.get('settings.autoCloseMiniWindow') || false
+        if (autoCloseMiniWindow) {
+          if (windowManager.has(IWindowList.MINI_WINDOW)) {
+            windowManager.get(IWindowList.MINI_WINDOW)!.hide()
+          }
+        }
       }
     },
     {
