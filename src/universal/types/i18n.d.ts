@@ -5,7 +5,6 @@ interface ILocales {
   OPEN_MINI_WINDOW: string
   CHOOSE_DEFAULT_PICBED: string
   OPEN_UPDATE_HELPER: string
-  PRIVACY_AGREEMENT: string
   RELOAD_APP: string
   UPLOAD_SUCCEED: string
   UPLOAD_FAILED: string
@@ -836,8 +835,6 @@ interface ILocales {
   TIPS_FIND_NEW_VERSION: string
   UPDATE_DOWNLOADED: string
   TIPS_UPDATE_DOWNLOADED: string
-  PRIVACY: string
-  PRIVACY_TIPS: string
   QUIT: string
 }
 type ILocalesKey = keyof ILocales
