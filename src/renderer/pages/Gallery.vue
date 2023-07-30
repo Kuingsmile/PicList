@@ -1026,7 +1026,7 @@ export default {
   position absolute
   left 142px
   right 0
-  height 95%
+  height 85%
   .cursor-pointer
     cursor pointer
 .item-base
