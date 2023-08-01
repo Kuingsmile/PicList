@@ -66,7 +66,7 @@
     "mime-types": "^2.1.35",
     "mitt": "^3.0.0",
     "nodejs-file-downloader": "^4.12.1",
-    "piclist": "^0.7.6",
+    "piclist": "^0.8.5",
     "pinia": "^2.1.4",
     "pinia-plugin-persistedstate": "^3.1.0",
     "qiniu": "^7.8.0",
@@ -76,10 +76,10 @@
     "uuid": "^9.0.0",
     "video.js": "^8.3.0",
     "vue": "^3.3.4",
-    "vue-router": "^4.2.2",
+    "vue-router": "^4.2.4",
     "vue3-lazyload": "^0.3.6",
     "vue3-photo-preview": "^0.3.0",
-    "webdav": "^5.1.0",
+    "webdav": "^5.2.3",
     "write-file-atomic": "^4.0.1"
   },
   "devDependencies": {

@@ -6,7 +6,6 @@ import picgo from '@core/picgo'
 import {
   uploadClipboardFiles
 } from '~/main/apis/app/uploader/apis'
-import { privacyManager } from '~/main/utils/privacyManager'
 import pkg from 'root/package.json'
 import GuiApi from 'apis/gui'
 import { PICGO_CONFIG_PLUGIN, PICGO_HANDLE_PLUGIN_DONE, PICGO_HANDLE_PLUGIN_ING, PICGO_TOGGLE_PLUGIN, SHOW_MAIN_PAGE_DONATION, SHOW_MAIN_PAGE_QRCODE } from '~/universal/events/constants'
@@ -129,12 +128,6 @@ const buildMainPageMenu = (win: BrowserWindow) => {
       label: T('SHOW_DEVTOOLS'),
       click () {
         win?.webContents?.openDevTools()
-      }
-    },
-    {
-      label: T('PRIVACY_AGREEMENT'),
-      click () {
-        privacyManager.show(false)
       }
     }
   ]

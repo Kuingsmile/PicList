@@ -1,5 +1,8 @@
 <template>
-  <div id="gallery-view">
+  <div
+    id="gallery-view"
+    :style="handleBarActive? 'height: 85%;': 'height: 95%;'"
+  >
     <div class="view-title">
       {{ $T('GALLERY') }} - {{ filterList.length }}
       <el-icon
@@ -1026,7 +1029,7 @@ export default {
   position absolute
   left 142px
   right 0
-  height 95%
+  height 85%
   .cursor-pointer
     cursor pointer
 .item-base

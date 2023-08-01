@@ -18,7 +18,6 @@ import logger from '@core/picgo/logger'
 import { T } from '~/main/i18n'
 import fse from 'fs-extra'
 import path from 'path'
-import { privacyManager } from '~/main/utils/privacyManager'
 import writeFile from 'write-file-atomic'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/universal/utils/static'
 
@@ -131,10 +130,6 @@ class Uploader {
 
   async upload (img?: IUploadOption): Promise<ImgInfo[]|false> {
     try {
-      const privacyCheckRes = await privacyManager.check()
-      if (!privacyCheckRes) {
-        throw Error(T('PRIVACY_TIPS'))
-      }
       const output = await picgo.upload(img)
       if (Array.isArray(output) && output.some((item: ImgInfo) => item.imgUrl)) {
         output.forEach((item: ImgInfo) => {
