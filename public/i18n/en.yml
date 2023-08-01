@@ -120,6 +120,8 @@ UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT: Destination Format
 UPLOAD_PAGE_IMAGE_PROCESS_ISRESIZE: Resize to fixed size
 UPLOAD_PAGE_IMAGE_PROCESS_RESIZEWIDTH: Width(Set to 0 to scale by height)
 UPLOAD_PAGE_IMAGE_PROCESS_RESIZEHEIGHT: Height(Set to 0 to scale by width)
+UPLOAD_PAGE_IMAGE_PROCESS_SKIPRESIZEOfSMALLIMG_HEIGHT: Skip resize when image height is smaller than target height
+UPLOAD_PAGE_IMAGE_PROCESS_SKIPRESIZEOfSMALLIMG_WIDTH: Skip resize when image width is smaller than target width
 UPLOAD_PAGE_IMAGE_PROCESS_ISRESIZEBYPERCENT: Resize by percentage (Higher priority)
 UPLOAD_PAGE_IMAGE_PROCESS_RESIZEPERCENT: Resize Percentage, enter 50 for 50%
 UPLOAD_PAGE_IMAGE_PROCESS_ISROTATE: Rotate

@@ -1377,6 +1377,26 @@
           />
         </el-form-item>
         <el-form-item
+          v-show="compressForm.isReSize && compressForm.reSizeHeight > 0 && compressForm.reSizeWidth === 0"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_SKIPRESIZEOfSMALLIMG_HEIGHT')"
+        >
+          <el-switch
+            v-model="compressForm.skipReSizeOfSmallImg"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
+        <el-form-item
+          v-show="compressForm.isReSize && compressForm.reSizeWidth > 0 && compressForm.reSizeHeight === 0"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_SKIPRESIZEOfSMALLIMG_WIDTH')"
+        >
+          <el-switch
+            v-model="compressForm.skipReSizeOfSmallImg"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
+        <el-form-item
           :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISRESIZEBYPERCENT')"
         >
           <el-switch
@@ -1523,6 +1543,7 @@ async function initForm () {
     compressForm.reSizeWidth = compress.reSizeWidth ?? 500
     compressForm.reSizeHeight = compress.reSizeHeight ?? 500
     compressForm.isReSizeByPercent = compress.isReSizeByPercent ?? false
+    compressForm.skipReSizeOfSmallImg = compress.skipReSizeOfSmallImg ?? false
     compressForm.reSizePercent = compress.reSizePercent ?? 50
     compressForm.isRotate = compress.isRotate ?? false
     compressForm.rotateDegree = compress.rotateDegree ?? 0
