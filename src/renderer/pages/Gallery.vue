@@ -1,5 +1,8 @@
 <template>
-  <div id="gallery-view">
+  <div
+    id="gallery-view"
+    :style="handleBarActive? 'height: 85%;': 'height: 95%;'"
+  >
     <div class="view-title">
       {{ $T('GALLERY') }} - {{ filterList.length }}
       <el-icon

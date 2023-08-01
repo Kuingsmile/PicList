@@ -7432,17 +7432,17 @@ fast-xml-parser@4.0.11:
   dependencies:
     strnum "^1.0.5"
 
-fast-xml-parser@^3.19.0:
-  version "3.21.1"
-  resolved "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-3.21.1.tgz#152a1d51d445380f7046b304672dd55d15c9e736"
-  integrity sha512-FTFVjYoBOZTJekiUsawGsSYV9QL0A+zDYCRj7y34IO6Jg+2IMYEtQa+bbictpdpV8dHxXywqU7C0gRDEOFtBFg==
-  dependencies:
-    strnum "^1.0.4"
-
 fast-xml-parser@^4.2.2:
   version "4.2.2"
   resolved "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-4.2.2.tgz#cb7310d1e9cf42d22c687b0fae41f3c926629368"
   integrity sha512-DLzIPtQqmvmdq3VUKR7T6omPK/VCRNqgFlGtbESfyhcH2R4I8EzK1/K6E8PkRCK2EabWrUHK32NjYRbEFnnz0Q==
+  dependencies:
+    strnum "^1.0.5"
+
+fast-xml-parser@^4.2.4:
+  version "4.2.7"
+  resolved "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-4.2.7.tgz#871f2ca299dc4334b29f8da3658c164e68395167"
+  integrity sha512-J8r6BriSLO1uj2miOk1NW0YVm8AGOOu3Si2HQp/cSmo6EA4m3fcwu2WKjJ4RK9wMLBtg69y1kS8baDiQBR41Ig==
   dependencies:
     strnum "^1.0.5"
 
@@ -13003,7 +13003,7 @@ strip-outer@^1.0.0:
   dependencies:
     escape-string-regexp "^1.0.2"
 
-strnum@^1.0.4, strnum@^1.0.5:
+strnum@^1.0.5:
   version "1.0.5"
   resolved "https://registry.npmjs.org/strnum/-/strnum-1.0.5.tgz#5c4e829fe15ad4ff0d20c3db5ac97b73c9b072db"
   integrity sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==
@@ -13959,10 +13959,10 @@ vue-loader@^17.0.0:
     hash-sum "^2.0.0"
     loader-utils "^2.0.0"
 
-vue-router@^4.2.2:
-  version "4.2.2"
-  resolved "https://registry.npmjs.org/vue-router/-/vue-router-4.2.2.tgz#b0097b66d89ca81c0986be03da244c7b32a4fd81"
-  integrity sha512-cChBPPmAflgBGmy3tBsjeoe3f3VOSG6naKyY5pjtrqLGbNEXdzCigFUHgBvp9e3ysAtFtEx7OLqcSDh/1Cq2TQ==
+vue-router@^4.2.4:
+  version "4.2.4"
+  resolved "https://registry.npmjs.org/vue-router/-/vue-router-4.2.4.tgz#382467a7e2923e6a85f015d081e1508052c191b9"
+  integrity sha512-9PISkmaCO02OzPVOMq2w82ilty6+xJmQrarYZDkjZBfl4RvYAlt4PKnEX21oW4KTtWfa9OuO/b3qk1Od3AEdCQ==
   dependencies:
     "@vue/devtools-api" "^6.5.0"
 
@@ -14031,15 +14031,15 @@ web-streams-polyfill@^3.0.3:
   resolved "https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.2.1.tgz#71c2718c52b45fd49dbeee88634b3a60ceab42a6"
   integrity sha512-e0MO3wdXWKrLbL0DgGnUV7WHVuw9OUvL4hjgnPkIeEvESk74gAITi5G606JtZPp39cd8HA9VQzCIvA49LpPN5Q==
 
-webdav@^5.1.0:
-  version "5.1.0"
-  resolved "https://registry.npmjs.org/webdav/-/webdav-5.1.0.tgz#959cb5c34379cd0202adcce58c8a71266d9c2d35"
-  integrity sha512-66OP2/PkVe3tkVy5wO/XsGebKuWhn2ebywA7a11ViHNls8Y6pgop6hU9j7god+GbZv/zVQeTs9w3ZS7JhHhE7g==
+webdav@^5.2.3:
+  version "5.2.3"
+  resolved "https://registry.npmjs.org/webdav/-/webdav-5.2.3.tgz#73f5ddfef170ea594a63620b99081e4db6d90860"
+  integrity sha512-u5wqJULZhB7IwO3qVD9r0ikt6SMHZ4P4YYtLJ6JrCmSoZuW6KvanXWJAA4LZDm548lK7aCNUsy0VxbBKBXAGrg==
   dependencies:
     "@buttercup/fetch" "^0.1.1"
     base-64 "^1.0.0"
     byte-length "^1.0.2"
-    fast-xml-parser "^3.19.0"
+    fast-xml-parser "^4.2.4"
     he "^1.2.0"
     hot-patcher "^2.0.0"
     layerr "^0.1.2"

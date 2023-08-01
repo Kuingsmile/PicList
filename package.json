@@ -76,10 +76,10 @@
     "uuid": "^9.0.0",
     "video.js": "^8.3.0",
     "vue": "^3.3.4",
-    "vue-router": "^4.2.2",
+    "vue-router": "^4.2.4",
     "vue3-lazyload": "^0.3.6",
     "vue3-photo-preview": "^0.3.0",
-    "webdav": "^5.1.0",
+    "webdav": "^5.2.3",
     "write-file-atomic": "^4.0.1"
   },
   "devDependencies": {
