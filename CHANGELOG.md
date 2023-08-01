@@ -1,3 +1,23 @@
+## :tada: 1.9.9 (2023-08-01)
+
+
+### :sparkles: Features
+
+* add new config item to skip resizing small pictures ([e6b80e8](https://github.com/Kuingsmile/PicList/commit/e6b80e8)), closes [#81](https://github.com/Kuingsmile/PicList/issues/81)
+* optimize gallery page UI ([3bf4683](https://github.com/Kuingsmile/PicList/commit/3bf4683))
+* option sslenabled of webdav is not required now ([530e30c](https://github.com/Kuingsmile/PicList/commit/530e30c))
+* support scale images by fixed width or fixed height ([3cc118e](https://github.com/Kuingsmile/PicList/commit/3cc118e)), closes [#81](https://github.com/Kuingsmile/PicList/issues/81)
+
+
+### :bug: Bug Fixes
+
+* exclude gif picture from image process pipline ([40efb5d](https://github.com/Kuingsmile/PicList/commit/40efb5d)), closes [#76](https://github.com/Kuingsmile/PicList/issues/76)
+* fix an issue of url upload and wechat urls ([baf358d](https://github.com/Kuingsmile/PicList/commit/baf358d)), closes [#80](https://github.com/Kuingsmile/PicList/issues/80)
+* fix an issue of webdav and file rename ([3e76ba1](https://github.com/Kuingsmile/PicList/commit/3e76ba1)), closes [#79](https://github.com/Kuingsmile/PicList/issues/79)
+* modify gallery page UI ([bce6303](https://github.com/Kuingsmile/PicList/commit/bce6303)), closes [#77](https://github.com/Kuingsmile/PicList/issues/77)
+
+
+
 ## :tada: 1.9.8 (2023-07-20)
 
 
