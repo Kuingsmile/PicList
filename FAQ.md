@@ -46,6 +46,7 @@ PicList本体支持了如下图床：
 - `阿里云 OSS`
 - `Imgur`
 - `Webdav`
+- `本地图床`
 
 PicList计划整合和优化现有插件，内置更多的常用图床。
 
@@ -97,3 +98,15 @@ macOS: `~/Library/Application\ Support/picgo/assets/simhei.ttf`
 ## 13. 使用aws-s3插件上传到cloudflare R2时出现上传失败问题
 
 R2的endpoint地址会出现被GFW sni阻断的问题，查看piclist.log后将对应的ip地址加入代理列表可解决。
+
+## 14. PicList兼容所有的PicGo插件吗？
+
+PicList兼容绝大部分的PicGo插件。然而由于PicList使用了更新的electron版本，与旧版本的sharp库不兼容，所以部分插件可能无法使用。
+
+已知的无法使用的插件有：
+
+- picgo-plugin-watermark (已经内置)
+- picgo-plugin-pic-migrater (该插件会校验PicGo的版本，无法使用，请换用pic-migrater-piclist插件)
+- picgo-plugin-auto-delete (已经内置)
+
+欢迎大家测试其他插件，如果有无法使用的插件，欢迎开issue反馈。
