@@ -34,7 +34,8 @@ app.config.globalProperties.$builtInPicBed = [
   'upyun',
   'aliyun',
   'github',
-  'webdavplist'
+  'webdavplist',
+  'local'
 ]
 app.config.unwrapInjectedRef = true
 

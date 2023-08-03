@@ -105,7 +105,7 @@
           </el-sub-menu>
           <el-menu-item :index="routerConfig.SETTING_PAGE">
             <el-icon>
-              <Setting />
+              <Tools />
             </el-icon>
             <span>{{ $T('PICLIST_SETTINGS') }}</span>
           </el-menu-item>
@@ -235,7 +235,7 @@
 <script lang="ts" setup>
 // import { Component, Vue, Watch } from 'vue-property-decorator'
 import {
-  Setting,
+  Tools,
   UploadFilled,
   PictureFilled,
   Menu,
