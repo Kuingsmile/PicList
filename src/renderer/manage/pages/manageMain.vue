@@ -127,7 +127,7 @@
             <el-icon
               class="layout__menu__setting__item__icon"
             >
-              <Setting />
+              <Tools />
             </el-icon>
             {{ $T('MANAGE_MAIN_PAGE_SETTING') }}
           </span>
@@ -276,7 +276,7 @@
 import { ref, reactive, computed, onBeforeMount, watch } from 'vue'
 import { shell } from 'electron'
 import { supportedPicBedList } from '../utils/constants'
-import { CirclePlus, SuccessFilled, Folder, Switch, Setting, ChromeFilled, HomeFilled, FolderOpened } from '@element-plus/icons-vue'
+import { CirclePlus, SuccessFilled, Folder, Switch, Tools, ChromeFilled, HomeFilled, FolderOpened } from '@element-plus/icons-vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElNotification } from 'element-plus'
 import { invokeToMain } from '../utils/dataSender'

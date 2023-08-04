@@ -134,7 +134,7 @@
                       class="el-icon-setting"
                       @click="buildContextMenu(item)"
                     >
-                      <Setting />
+                      <Tools />
                     </el-icon>
                     <el-icon
                       v-else
@@ -200,7 +200,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { Close, Download, Goods, Remove, Setting } from '@element-plus/icons-vue'
+import { Close, Download, Goods, Remove, Tools } from '@element-plus/icons-vue'
 import { T as $T } from '@/i18n/index'
 import ConfigForm from '@/components/ConfigFormForPlugin.vue'
 import { debounce, DebouncedFunc } from 'lodash'
