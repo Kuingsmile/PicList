@@ -2057,9 +2057,9 @@ async function handleMiniIconPath (evt: Event) {
   const result = await invokeToMain('openFileSelectDialog')
   if (result && result[0]) {
     form.customMiniIcon = result[0]
+    saveConfig('settings.customMiniIcon', form.customMiniIcon)
+    $message.info($T('TIPS_NEED_RELOAD'))
   }
-  saveConfig('settings.customMiniIcon', form.customMiniIcon)
-  $message.info($T('TIPS_NEED_RELOAD'))
 }
 
 function handleIsCustomMiniIcon (val: ICheckBoxValueType) {
