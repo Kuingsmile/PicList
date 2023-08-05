@@ -3229,7 +3229,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/ssh2@^1.11.9":
+"@types/ssh2@^1.11.10":
   version "1.11.13"
   resolved "https://registry.npmjs.org/@types/ssh2/-/ssh2-1.11.13.tgz#e6224da936abec0541bf26aa826b1cc37ea70d69"
   integrity sha512-08WbG68HvQ2YVi74n2iSUnYHYpUdFc/s2IsI0BHBdJwaqYJpWlVv9elL0tYShTv60yr0ObdxJR5NrCRiGJ/0CQ==
@@ -4857,11 +4857,6 @@ buffer@^5.1.0, buffer@^5.2.1, buffer@^5.5.0, buffer@^5.6.0:
     base64-js "^1.3.1"
     ieee754 "^1.1.13"
 
-buildcheck@~0.0.6:
-  version "0.0.6"
-  resolved "https://registry.npmjs.org/buildcheck/-/buildcheck-0.0.6.tgz#89aa6e417cfd1e2196e3f8fe915eb709d2fe4238"
-  integrity sha512-8f9ZJCUXyT1M35Jx7MkBgmBMo3oHTTBIPLiY9xyL0pl3T5RwcPEY8cUHr5LBNfu/fk6c2T4DJZuVM/8ZZT2D2A==
-
 builder-util-runtime@9.0.3:
   version "9.0.3"
   resolved "https://registry.npmjs.org/builder-util-runtime/-/builder-util-runtime-9.0.3.tgz#6c62c493ba2b73c2af92432db4013b5a327f02b2"
@@ -5849,14 +5844,6 @@ cosmiconfig@^7, cosmiconfig@^7.0.0:
     parse-json "^5.0.0"
     path-type "^4.0.0"
     yaml "^1.10.0"
-
-cpu-features@~0.0.8:
-  version "0.0.8"
-  resolved "https://registry.npmjs.org/cpu-features/-/cpu-features-0.0.8.tgz#a2d464b023b8ad09004c8cdca23b33f192f63546"
-  integrity sha512-BbHBvtYhUhksqTjr6bhNOjGgMnhwhGTQmOoZGD+K7BCaQDCuZl/Ve1ZxUSMRwVC4D/rkCPQ2MAIeYzrWyK7eEg==
-  dependencies:
-    buildcheck "~0.0.6"
-    nan "^2.17.0"
 
 crc32@^0.2.2:
   version "0.2.2"
@@ -10456,6 +10443,13 @@ node-forge@^1:
   resolved "https://registry.npmjs.org/node-forge/-/node-forge-1.3.1.tgz#be8da2af243b2417d5f646a770663a92b7e9ded3"
   integrity sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==
 
+node-loader@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/node-loader/-/node-loader-2.0.0.tgz#9109a6d828703fd3e0aa03c1baec12a798071562"
+  integrity sha512-I5VN34NO4/5UYJaUBtkrODPWxbobrE4hgDqPrjB25yPkonFhCmZ146vTH+Zg417E9Iwoh1l/MbRs1apc5J295Q==
+  dependencies:
+    loader-utils "^2.0.0"
+
 node-releases@^2.0.1:
   version "2.0.1"
   resolved "https://registry.npmjs.org/node-releases/-/node-releases-2.0.1.tgz#3d1d395f204f1f2f29a54358b9fb678765ad2fc5"
@@ -10466,18 +10460,18 @@ node-releases@^2.0.6:
   resolved "https://registry.npmjs.org/node-releases/-/node-releases-2.0.8.tgz#0f349cdc8fcfa39a92ac0be9bc48b7706292b9ae"
   integrity sha512-dFSmB8fFHEH/s81Xi+Y/15DQY6VHW81nXRj86EMSL3lmuTmK1e+aT4wrFCkTbm+gSwkw4KpX+rT/pMM2c1mF+A==
 
-node-ssh@^13.1.0:
-  version "13.1.0"
-  resolved "https://registry.npmjs.org/node-ssh/-/node-ssh-13.1.0.tgz#fca947200d61db9a5f9915e27c252e133b79e6bf"
-  integrity sha512-GLcw49yFd9+rUpP+FgX6wrF/N90cmuDl2n0i8d3L828b6riRjkb9w3SS+XvviRWbrAhLxuMKywFqxvQDZQ1bug==
+node-ssh-no-cpu-features@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/node-ssh-no-cpu-features/-/node-ssh-no-cpu-features-1.0.1.tgz#e0a54fa16d34f44dfa307b1c52d592d4b891e65c"
+  integrity sha512-dfxNdHpeB2Yapskc5PBZCnhRmL1bdOYZX/N9PECR0d1I8U2PlPB4VfshmNJIw/l3BuGNhFquu5Tu6z/1lnWmIA==
   dependencies:
-    "@types/ssh2" "^1.11.9"
+    "@types/ssh2" "^1.11.10"
     is-stream "^2.0.0"
     make-dir "^3.1.0"
     sb-promise-queue "^2.1.0"
     sb-scandir "^3.1.0"
     shell-escape "^0.2.0"
-    ssh2 "^1.11.0"
+    ssh2-no-cpu-features "^1.0.0"
 
 nodejs-file-downloader@^4.12.1:
   version "4.12.1"
@@ -11054,10 +11048,10 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^0.8.7:
-  version "0.8.7"
-  resolved "https://registry.npmjs.org/piclist/-/piclist-0.8.7.tgz#9a4fb342d70cfe28513b6df218370b05b8e9b170"
-  integrity sha512-IYVh+E9V7DyikmYZgE8ylWdCqg6aQQ+rb+y6oNTYo2tFWx6pdfthG9LdWAl6V9Uf+Y2Wt9nsC0XNi4V3ORlb3g==
+piclist@^0.8.10:
+  version "0.8.10"
+  resolved "https://registry.npmjs.org/piclist/-/piclist-0.8.10.tgz#efd7eddbe66023f375a7d687d4466a9031999aea"
+  integrity sha512-VLoLZywOoV6lGJN8u8Llr6B63OzT8k8yE5QF40JV3nwNK1jyGRLRZ/57/HIXsGFojWgoDerj3hmVuJOX556NFA==
   dependencies:
     "@picgo/i18n" "^1.0.0"
     "@picgo/store" "^2.0.4"
@@ -11082,7 +11076,7 @@ piclist@^0.8.7:
     mime-types "2.1.33"
     minimatch "^3.0.4"
     minimist "^1.2.5"
-    node-ssh "^13.1.0"
+    node-ssh-no-cpu-features "^1.0.1"
     qiniu "^7.8.0"
     resolve "^1.8.1"
     rimraf "^3.0.2"
@@ -12809,15 +12803,14 @@ sprintf-js@~1.0.2:
   resolved "https://registry.npmjs.org/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
-ssh2@^1.11.0:
-  version "1.14.0"
-  resolved "https://registry.npmjs.org/ssh2/-/ssh2-1.14.0.tgz#8f68440e1b768b66942c9e4e4620b2725b3555bb"
-  integrity sha512-AqzD1UCqit8tbOKoj6ztDDi1ffJZ2rV2SwlgrVVrHPkV5vWqGJOVp5pmtj18PunkPJAuKQsnInyKV+/Nb2bUnA==
+ssh2-no-cpu-features@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/ssh2-no-cpu-features/-/ssh2-no-cpu-features-1.0.0.tgz#641a8ea5331638ea9bfdee9e53f38ebfc46bf8cf"
+  integrity sha512-94HbS6PbjOvGYnWQ0OFlGLWp3yw6BfSAmpVlCRvsqqyfWa86gCorpnXFJLLJklnfCbp6UiZhEKzm3W+8vKCHqw==
   dependencies:
     asn1 "^0.2.6"
     bcrypt-pbkdf "^1.0.2"
   optionalDependencies:
-    cpu-features "~0.0.8"
     nan "^2.17.0"
 
 sshpk@^1.7.0:

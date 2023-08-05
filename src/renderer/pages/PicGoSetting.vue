@@ -1448,6 +1448,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+// @ts-ignore
 import { ElForm, ElMessage as $message, ElMessage, ElMessageBox, FormRules } from 'element-plus'
 import { Reading, Close, Edit, InfoFilled } from '@element-plus/icons-vue'
 import pkg from 'root/package.json'

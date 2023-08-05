@@ -44,6 +44,8 @@ import { buildMainPageMenu, buildMiniPageMenu, buildPluginPageMenu, buildPicBedL
 import path from 'path'
 import { T } from '~/main/i18n'
 import { uploadFile, downloadFile } from '../utils/syncSettings'
+import SSHClient from '../utils/sshClient'
+import { ISftpPlistConfig } from 'piclist'
 
 const STORE_PATH = app.getPath('userData')
 
@@ -117,6 +119,21 @@ export default {
           body: T('TIPS_SHORTCUT_MODIFIED_CONFLICT')
         })
         notification.show()
+      }
+    })
+
+    ipcMain.handle('delete-sftp-file', async (_evt: IpcMainInvokeEvent, config: ISftpPlistConfig, fileName: string) => {
+      try {
+        const client = SSHClient.instance
+        await client.connect(config)
+        const uploadPath = `/${(config.uploadPath || '').replace(/^\/+|\/+$/g, '')}/`.replace(/\/+/g, '/')
+        const remote = path.join(uploadPath, fileName)
+        const deleteResult = await client.deleteFile(remote)
+        client.close()
+        return deleteResult
+      } catch (err: any) {
+        console.error(err)
+        return false
       }
     })
 

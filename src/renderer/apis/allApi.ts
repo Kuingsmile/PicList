@@ -8,6 +8,7 @@ import UpyunApi from './upyun'
 import AwsS3Api from './awss3'
 import WebdavApi from './webdav'
 import LocalApi from './local'
+import SftpPlistApi from './sftpplist'
 
 const apiMap: IStringKeyMap = {
   smms: SmmsApi,
@@ -19,7 +20,8 @@ const apiMap: IStringKeyMap = {
   upyun: UpyunApi,
   'aws-s3': AwsS3Api,
   webdavplist: WebdavApi,
-  local: LocalApi
+  local: LocalApi,
+  sftpplist: SftpPlistApi
 }
 
 export default class ALLApi {

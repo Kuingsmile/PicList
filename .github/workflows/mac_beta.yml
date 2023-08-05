@@ -1,0 +1,86 @@
+# main.yml
+
+# Workflow's name
+name: Mac Beta Build
+
+# Workflow's trigger
+on:
+  workflow_dispatch:
+
+env:
+  ELECTRON_OUTPUT_PATH: ./dist_electron
+  CSC_LINK: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+  CSC_KEY_PASSWORD: ${{ secrets.P12_PASSWORD }}
+
+jobs:
+  release:
+    name: build and release electron app
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-11]
+
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@v2
+
+      # step2: sign
+      - name: Install the Apple certificates
+        if: matrix.os == 'macos-11'
+        run: |
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+
+      # step3: install node env
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+
+      - name: Install system deps
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils
+
+      # step3: yarn
+      - name: Yarn install macos
+        if: matrix.os == 'macos-11'
+        run: |
+          yarn
+          yarn global add xvfb-maybe
+          npm rebuild --platform=darwin --arch=arm64 sharp
+
+      - name: Yarn install windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          yarn
+          yarn global add xvfb-maybe
+        
+      - name: Yarn install linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          yarn
+          yarn global add xvfb-maybe
+
+      - name: Build  & release app
+        run: |
+          yarn run build
+          yarn upload-beta
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          R2_SECRET_ID: ${{ secrets.R2_SECRET_ID }}
+          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          ELECTRON_SKIP_NOTARIZATION: ${{ secrets.ELECTRON_SKIP_NOTARIZATION }}
+          XCODE_APP_LOADER_EMAIL: ${{ secrets.XCODE_APP_LOADER_EMAIL }}
+          XCODE_APP_LOADER_PASSWORD: ${{ secrets.XCODE_APP_LOADER_PASSWORD }}
+          XCODE_TEAM_ID: ${{ secrets.XCODE_TEAM_ID }}
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
