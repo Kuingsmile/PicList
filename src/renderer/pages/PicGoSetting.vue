@@ -290,6 +290,26 @@
                   />
                 </el-form-item>
                 <el-form-item
+                  v-if="form.autoImport"
+                  :label="$T('SETTINGS_AUTO_IMPORT_SELECT_PICBED')"
+                >
+                  <el-select
+                    v-model="form.autoImportPicBed"
+                    multiple
+                    size="small"
+                    style="width: 50%"
+                    :placeholder="$T('SETTINGS_AUTO_IMPORT_SELECT_PICBED')"
+                    @change="handleAutoImportPicBedChange"
+                  >
+                    <el-option
+                      v-for="item in picBed"
+                      :key="item.type"
+                      :label="item.name"
+                      :value="item.type"
+                    />
+                  </el-select>
+                </el-form-item>
+                <el-form-item
                   :label="$T('SETTINGS_SYNC_DELETE_CLOUD')"
                 >
                   <el-switch
@@ -1596,6 +1616,7 @@ const form = reactive<ISettingForm>({
   customMiniIcon: '',
   isHideDock: false,
   autoImport: false,
+  autoImportPicBed: [],
   encodeOutputURL: false,
   isAutoListenClipboard: false,
   useShortUrl: false,
@@ -1741,7 +1762,7 @@ async function initData () {
     form.miniWindowOntop = settings.miniWindowOntop || false
     form.autoCloseMiniWindow = settings.autoCloseMiniWindow || false
     form.autoCloseMainWindow = settings.autoCloseMainWindow || false
-    form.logLevel = initLogLevel(settings.logLevel || [])
+    form.logLevel = initArray(settings.logLevel || [], ['all'])
     form.autoCopyUrl = settings.autoCopy === undefined ? true : settings.autoCopy
     form.checkBetaUpdate = settings.checkBetaUpdate === undefined ? true : settings.checkBetaUpdate
     form.useBuiltinClipboard = settings.useBuiltinClipboard === undefined ? true : settings.useBuiltinClipboard
@@ -1750,6 +1771,7 @@ async function initData () {
     form.encodeOutputURL = settings.encodeOutputURL === undefined ? false : settings.encodeOutputURL
     form.deleteCloudFile = settings.deleteCloudFile || false
     form.autoImport = settings.autoImport || false
+    form.autoImportPicBed = initArray(settings.autoImportPicBed || [], [])
     form.isCustomMiniIcon = settings.isCustomMiniIcon || false
     form.customMiniIcon = settings.customMiniIcon || ''
     form.isHideDock = settings.isHideDock || false
@@ -1795,15 +1817,15 @@ async function initData () {
   }
 }
 
-function initLogLevel (logLevel: string | string[]) {
-  if (!Array.isArray(logLevel)) {
-    if (logLevel && logLevel.length > 0) {
-      logLevel = [logLevel]
+function initArray (arrayT: string | string[], defaultValue: string[]) {
+  if (!Array.isArray(arrayT)) {
+    if (arrayT && arrayT.length > 0) {
+      arrayT = [arrayT]
     } else {
-      logLevel = ['all']
+      arrayT = defaultValue
     }
   }
-  return logLevel
+  return arrayT
 }
 
 function getPicBeds (event: Event, picBeds: IPicBedType[]) {
@@ -1917,6 +1939,10 @@ function updateHelperChange (val: ICheckBoxValueType) {
 
 function autoImportChange (val: ICheckBoxValueType) {
   saveConfig('settings.autoImport', val)
+}
+
+function handleAutoImportPicBedChange (val: string[]) {
+  saveConfig('settings.autoImportPicBed', val)
 }
 
 function handleHideDockChange (val: ICheckBoxValueType) {

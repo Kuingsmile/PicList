@@ -275,6 +275,7 @@ SETTINGS_SYNC_DOWNLOAD_FAILED: Download failed
 SETTINGS_SYNC_COMMON_CONFIG: Common configuration
 SETTINGS_SYNC_MANAGE_CONFIG: Manage configuration
 SETTINGS_AUTO_IMPORT: Auto import config in manage page
+SETTINGS_AUTO_IMPORT_SELECT_PICBED: Select picbed
 SETTINGS_TAB_SYSTEM: System
 SETTINGS_TAB_SYNC_CONFIG: Sync and Configuration
 SETTINGS_TAB_UPLOAD: Upload
@@ -598,6 +599,9 @@ MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_DESC: Custom Domain - Optional
 MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_PLACEHOLDER: 'e.g. https://example.com'
 MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_TOOLTIP: If your WebDAV server supports custom domains, please fill in
 MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_RULE_MESSAGE: 'Custom domain should start with http:// or https://'
+MANAGE_CONSTANT_WEBDAV_WEB_PATH: Web Path - Optional
+MANAGE_CONSTANT_WEBDAV_WEB_PATH_PLACEHOLDER: 'e.g. test/ttc'
+MANAGE_CONSTANT_WEBDAV_WEB_PATH_TOOLTIP: 'Used to generate URL'
 MANAGE_CONSTANT_WEBDAV_PROXY_DESC: Proxy - Optional
 MANAGE_CONSTANT_WEBDAV_PROXY_PLACEHOLDER: 'e.g. http://127.0.0.1:1080'
 MANAGE_CONSTANT_WEBDAV_PROXY_TOOLTIP: If special network environment is required to access, please use proxy
@@ -605,6 +609,21 @@ MANAGE_CONSTANT_WEBDAV_SSL_DESC: Use HTTPS Connection
 MANAGE_CONSTANT_WEBDAV_SSL_TOOLTIP: Depending on the configuration of your WebDAV server, if your server does not support HTTPS, please turn off this option
 MANAGE_CONSTANT_WEBDAV_EXPLAIN: 'WebDAV Configuration'
 MANAGE_CONSTANT_WEBDAV_REFER_TEXT: 'Refer to:'
+
+MANAGE_CONSTANT_LOCAL_NAME: Local
+MANAGE_CONSTANT_LOCAL_ALIAS_DESC: Alias - Required
+MANAGE_CONSTANT_LOCAL_ALIAS_PLACEHOLDER: Unique identifier for this configuration
+MANAGE_CONSTANT_LOCAL_BASE_DIR_DESC: Base directory - Required
+MANAGE_CONSTANT_LOCAL_BASE_DIR_PLACEHOLDER: 'e.g. /dir1'
+MANAGE_CONSTANT_LOCAL_CUSTOM_URL_DESC: Custom Domain - Optional
+MANAGE_CONSTANT_LOCAL_CUSTOM_URL_PLACEHOLDER: 'e.g. https://example.com'
+MANAGE_CONSTANT_LOCAL_CUSTOM_URL_TOOLTIP: If your local path supports custom domains, please fill in
+MANAGE_CONSTANT_LOCAL_WEB_PATH: Web Path - Optional
+MANAGE_CONSTANT_LOCAL_WEB_PATH_PLACEHOLDER: 'e.g. test/ttc'
+MANAGE_CONSTANT_LOCAL_WEB_PATH_TOOLTIP: 'Used to generate URL'
+MANAGE_CONSTANT_LOCAL_EXPLAIN: 'Local Configuration'
+MANAGE_CONSTANT_LOCAL_REFER_TEXT: 'Refer to:'
+MANAGE_CONSTANT_LOCAL_BASE_DIR_RULE_MESSAGE: baseDir cannot be empty
 
 MANAGE_LOGIN_PAGE_PANE_NAME: Saved Config
 MANAGE_LOGIN_PAGE_PANE_DESC: Click on the icon or alias to view details, Enter to view the file page, Delete to remove the configuration

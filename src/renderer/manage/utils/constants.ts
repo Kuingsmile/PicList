@@ -712,8 +712,7 @@ export const supportedPicBedList: IStringKeyMap = {
         description: $T('MANAGE_CONSTANT_WEBDAV_BASE_DIR_DESC'),
         placeholder: $T('MANAGE_CONSTANT_WEBDAV_BASE_DIR_PLACEHOLDER'),
         type: 'string',
-        default: '/',
-        tooltip: baseDirTooltip
+        default: '/'
       },
       customUrl: {
         required: false,
@@ -738,6 +737,14 @@ export const supportedPicBedList: IStringKeyMap = {
           }
         ]
       },
+      webPath: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_WEBDAV_WEB_PATH'),
+        placeholder: $T('MANAGE_CONSTANT_WEBDAV_WEB_PATH_PLACEHOLDER'),
+        type: 'string',
+        tooltip: $T('MANAGE_CONSTANT_WEBDAV_WEB_PATH_TOOLTIP'),
+        default: ''
+      },
       proxy: {
         required: false,
         description: $T('MANAGE_CONSTANT_WEBDAV_PROXY_DESC'),
@@ -754,8 +761,76 @@ export const supportedPicBedList: IStringKeyMap = {
       }
     },
     explain: $T('MANAGE_CONSTANT_WEBDAV_EXPLAIN'),
-    options: ['alias', 'endpoint', 'username', 'password', 'bucketName', 'baseDir', 'customUrl', 'proxy', 'sslEnabled'],
+    options: ['alias', 'endpoint', 'username', 'password', 'bucketName', 'baseDir', 'customUrl', 'webPath', 'proxy', 'sslEnabled'],
     refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=webdav',
     referenceText: $T('MANAGE_CONSTANT_WEBDAV_REFER_TEXT')
+  },
+  local: {
+    name: $T('MANAGE_CONSTANT_LOCAL_NAME'),
+    icon: 'local',
+    configOptions: {
+      alias: {
+        required: true,
+        description: $T('MANAGE_CONSTANT_LOCAL_ALIAS_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_LOCAL_ALIAS_PLACEHOLDER'),
+        type: 'string',
+        rule: aliasRule,
+        default: 'local-A',
+        tooltip: aliasTooltip
+      },
+      baseDir: {
+        required: true,
+        description: $T('MANAGE_CONSTANT_LOCAL_BASE_DIR_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_LOCAL_BASE_DIR_PLACEHOLDER'),
+        type: 'string',
+        default: '',
+        rule: [
+          {
+            validator: (rule: any, value: any, callback: any) => {
+              if (!value) {
+                callback(new Error($T('MANAGE_CONSTANT_LOCAL_BASE_DIR_RULE_MESSAGE')))
+              } else {
+                callback()
+              }
+            }
+          }
+        ]
+      },
+      customUrl: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_LOCAL_CUSTOM_URL_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_LOCAL_CUSTOM_URL_PLACEHOLDER'),
+        type: 'string',
+        tooltip: $T('MANAGE_CONSTANT_LOCAL_CUSTOM_URL_TOOLTIP'),
+        rule: [
+          {
+            validator: (rule: any, value: any, callback: any) => {
+              if (value) {
+                if (!/^https?:\/\/.+/.test(value)) {
+                  callback(new Error($T('MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_RULE_MESSAGE')))
+                } else {
+                  callback()
+                }
+              } else {
+                callback()
+              }
+            },
+            trigger: 'change'
+          }
+        ]
+      },
+      webPath: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_LOCAL_WEB_PATH'),
+        placeholder: $T('MANAGE_CONSTANT_LOCAL_WEB_PATH_PLACEHOLDER'),
+        type: 'string',
+        tooltip: $T('MANAGE_CONSTANT_LOCAL_WEB_PATH_TOOLTIP'),
+        default: ''
+      }
+    },
+    explain: $T('MANAGE_CONSTANT_LOCAL_EXPLAIN'),
+    options: ['alias', 'baseDir', 'customUrl', 'webPath'],
+    refLink: 'https://piclist.cn',
+    referenceText: $T('MANAGE_CONSTANT_LOCAL_REFER_TEXT')
   }
 }
