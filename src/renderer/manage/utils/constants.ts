@@ -819,6 +819,15 @@ export const supportedPicBedList: IStringKeyMap = {
           }
         ]
       },
+      bucketName: {
+        required: true,
+        description: $T('MANAGE_CONSTANT_LOCAL_BUCKET_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_LOCAL_BUCKET_PLACEHOLDER'),
+        type: 'string',
+        default: 'local',
+        disabled: true,
+        tooltip: $T('MANAGE_CONSTANT_LOCAL_BUCKET_TOOLTIP')
+      },
       webPath: {
         required: false,
         description: $T('MANAGE_CONSTANT_LOCAL_WEB_PATH'),

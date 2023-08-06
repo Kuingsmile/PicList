@@ -2792,10 +2792,14 @@ async function getBucketFileListBackStage () {
     currentPage: currentPage.value,
     cancelToken: cancelToken.value,
     cdnUrl: configMap.cdnUrl
-  }
+  } as IStringKeyMap
   isLoadingData.value = true
   const fileTransferStore = useFileTransferStore()
   fileTransferStore.resetFileTransferList()
+  if (currentPicBedName.value === 'webdavplist') {
+    param.baseDir = configMap.baseDir
+    param.webPath = configMap.webPath
+  }
   ipcRenderer.send('getBucketListBackstage', configMap.alias, param)
   ipcRenderer.on('refreshFileTransferList', (evt: IpcRendererEvent, data) => {
     fileTransferStore.refreshFileTransferList(data)

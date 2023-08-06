@@ -28,16 +28,17 @@ export class FileCacheDb extends Dexie {
   imgur: Table<IFileCache, string>
   s3plist: Table<IFileCache, string>
   webdavplist: Table<IFileCache, string>
-  localplist: Table<IFileCache, string>
+  local: Table<IFileCache, string>
+  sftpplist: Table<IFileCache, string>
 
   constructor () {
     super('bucketFileDb')
-    const tableNames = ['tcyun', 'aliyun', 'qiniu', 'github', 'smms', 'upyun', 'imgur', 's3plist', 'webdavplist', 'localplist']
+    const tableNames = ['tcyun', 'aliyun', 'qiniu', 'github', 'smms', 'upyun', 'imgur', 's3plist', 'webdavplist', 'local', 'sftpplist']
     const tableNamesMap = tableNames.reduce((acc, cur) => {
       acc[cur] = '&key, value'
       return acc
     }, {} as IStringKeyMap)
-    this.version(3).stores(tableNamesMap)
+    this.version(4).stores(tableNamesMap)
     this.tcyun = this.table('tcyun')
     this.aliyun = this.table('aliyun')
     this.qiniu = this.table('qiniu')
@@ -47,7 +48,8 @@ export class FileCacheDb extends Dexie {
     this.imgur = this.table('imgur')
     this.s3plist = this.table('s3plist')
     this.webdavplist = this.table('webdavplist')
-    this.localplist = this.table('localplist')
+    this.local = this.table('local')
+    this.sftpplist = this.table('sftpplist')
   }
 }
 

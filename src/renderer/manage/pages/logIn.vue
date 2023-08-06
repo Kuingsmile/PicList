@@ -61,24 +61,24 @@
                   />
                 </el-table>
                 <template #reference>
-                  <el-tooltip
-                    effect="light"
-                    :content="item.alias"
-                    placement="top"
-                    :disabled="item.alias.length <= 15"
+                  <el-button
+                    style="width: 100%; text-align: center;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;"
                   >
-                    <el-button
-                      style="width: 100%; text-align: center;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;"
+                    <template #icon>
+                      <img
+                        :src="require(`./assets/${item.picBedName}.webp`)"
+                        style="width: 25px; height: 25px;"
+                      >
+                    </template>
+                    <el-tooltip
+                      effect="light"
+                      :content="item.alias"
+                      placement="top"
+                      :disabled="item.alias.length <= 15"
                     >
-                      <template #icon>
-                        <img
-                          :src="require(`./assets/${item.picBedName}.webp`)"
-                          style="width: 25px; height: 25px;"
-                        >
-                      </template>
                       {{ item.alias.length > 15 ? item.alias.slice(0, 8) + '...' + item.alias.slice(-6) : item.alias }}
-                    </el-button>
-                  </el-tooltip>
+                    </el-tooltip>
+                  </el-button>
                 </template>
               </el-popover>
               <br>

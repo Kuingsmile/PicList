@@ -319,7 +319,8 @@ const urlMap : IStringKeyMap = {
   tcyun: 'https://console.cloud.tencent.com/cos',
   upyun: 'https://console.upyun.com',
   s3plist: 'https://aws.amazon.com/cn/s3/',
-  webdavplist: 'https://baike.baidu.com/item/WebDAV/4610909'
+  webdavplist: 'https://baike.baidu.com/item/WebDAV/4610909',
+  local: 'https://piclist.cn'
 }
 
 const openPicBedUrl = () => shell.openExternal(urlMap[currentPagePicBedConfig.picBedName])
@@ -417,6 +418,7 @@ const handleSelectMenu = (bucketName: string) => {
   const alias = currentAlias.value
   const cdnUrl = manageStore.config.picBed[currentAlias.value].customUrl
   const bucketConfig = bucketList.value[bucketName]
+  const webPath = manageStore.config.picBed[currentAlias.value].webPath || ''
   const configMap = {
     prefix,
     bucketName,
@@ -424,7 +426,9 @@ const handleSelectMenu = (bucketName: string) => {
     picBedName,
     alias,
     bucketConfig,
-    cdnUrl
+    cdnUrl,
+    baseDir: prefix,
+    webPath
   }
   currentSelectedBucket.value = bucketName
   router.push({
@@ -450,7 +454,8 @@ const menuTitleMap:IStringKeyMap = {
   smms: galleryT,
   imgur: galleryT,
   github: repositoryT,
-  webdavplist: ''
+  webdavplist: '',
+  local: ''
 }
 
 const showNewIconList = ['aliyun', 'qiniu', 'tcyun']

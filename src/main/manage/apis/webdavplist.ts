@@ -52,7 +52,7 @@ class WebdavplistApi {
   logParam = (error:any, method: string) =>
     this.logger.error(formatError(error, { class: 'WebdavplistApi', method }))
 
-  formatFolder (item: FileStat, urlPrefix: string) {
+  formatFolder (item: FileStat, urlPrefix: string, isWebPath = false) {
     return {
       ...item,
       key: item.filename.replace(/^\/+/, ''),
@@ -64,11 +64,11 @@ class WebdavplistApi {
       checked: false,
       isImage: false,
       match: false,
-      url: `${urlPrefix}${item.filename}`
+      url: isWebPath ? urlPrefix : `${urlPrefix}${item.filename}`
     }
   }
 
-  formatFile (item: FileStat, urlPrefix: string) {
+  formatFile (item: FileStat, urlPrefix: string, isWebPath = false) {
     return {
       ...item,
       key: item.filename.replace(/^\/+/, ''),
@@ -80,7 +80,7 @@ class WebdavplistApi {
       checked: false,
       match: false,
       isImage: isImage(item.basename),
-      url: `${urlPrefix}${item.filename}`
+      url: isWebPath ? urlPrefix : `${urlPrefix}${item.filename}`
     }
   }
 
@@ -137,8 +137,13 @@ class WebdavplistApi {
 
   async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
-    const { prefix, customUrl, cancelToken } = configMap
-    const urlPrefix = customUrl || this.endpoint
+    const { prefix, customUrl, cancelToken, baseDir } = configMap
+    let urlPrefix = customUrl || this.endpoint
+    urlPrefix = urlPrefix.replace(/\/+$/, '')
+    let webPath = configMap.webPath || ''
+    if (webPath && customUrl && webPath !== '/') {
+      webPath = webPath.replace(/^\/+/, '').replace(/\/+$/, '')
+    }
     const cancelTask = [false]
     ipcMain.on('cancelLoadingFileList', (_evt: IpcMainEvent, token: string) => {
       if (token === cancelToken) {
@@ -160,10 +165,12 @@ class WebdavplistApi {
       if (this.isRequestSuccess(res.status)) {
         if (res.data && res.data.length) {
           res.data.forEach((item: FileStat) => {
+            const relativePath = path.relative(baseDir, item.filename)
+            const relative = webPath && urlPrefix + `/${path.join(webPath, relativePath)}`.replace(/\\/g, '/').replace(/\/+/g, '/')
             if (item.type === 'directory') {
-              result.fullList.push(this.formatFolder(item, urlPrefix))
+              result.fullList.push(this.formatFolder(item, webPath ? relative : urlPrefix, !!webPath))
             } else {
-              result.fullList.push(this.formatFile(item, urlPrefix))
+              result.fullList.push(this.formatFile(item, webPath ? relative : urlPrefix, !!webPath))
             }
           })
         }

@@ -624,6 +624,9 @@ MANAGE_CONSTANT_LOCAL_WEB_PATH_TOOLTIP: 'Used to generate URL'
 MANAGE_CONSTANT_LOCAL_EXPLAIN: 'Local Configuration'
 MANAGE_CONSTANT_LOCAL_REFER_TEXT: 'Refer to:'
 MANAGE_CONSTANT_LOCAL_BASE_DIR_RULE_MESSAGE: baseDir cannot be empty
+MANAGE_CONSTANT_LOCAL_BUCKET_DESC: Special Configuration
+MANAGE_CONSTANT_LOCAL_BUCKET_PLACEHOLDER: 'bucket1'
+MANAGE_CONSTANT_LOCAL_BUCKET_TOOLTIP: This cannot be modified, only for software compatibility consideration
 
 MANAGE_LOGIN_PAGE_PANE_NAME: Saved Config
 MANAGE_LOGIN_PAGE_PANE_DESC: Click on the icon or alias to view details, Enter to view the file page, Delete to remove the configuration

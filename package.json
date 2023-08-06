@@ -67,7 +67,7 @@
     "mitt": "^3.0.0",
     "node-ssh-no-cpu-features": "^1.0.1",
     "nodejs-file-downloader": "^4.12.1",
-    "piclist": "^0.8.10",
+    "piclist": "^0.8.11",
     "pinia": "^2.1.4",
     "pinia-plugin-persistedstate": "^3.1.0",
     "qiniu": "^7.9.0",
