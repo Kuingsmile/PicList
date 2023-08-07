@@ -1,10 +1,19 @@
+// External dependencies
 import fs from 'fs-extra'
+import path from 'path'
+
+// Electron modules
 import { IpcMainEvent } from 'electron'
-import { IToolboxItemCheckStatus, IToolboxItemType } from '~/universal/types/enum'
-import { sendToolboxResWithType } from './utils'
+
+// Custom utilities and modules
 import { dbPathChecker } from '~/main/apis/core/datastore/dbChecker'
 import { GalleryDB, DB_PATH } from '~/main/apis/core/datastore'
-import path from 'path'
+import { sendToolboxResWithType } from './utils'
+
+// Custom types/enums
+import { IToolboxItemCheckStatus, IToolboxItemType } from '~/universal/types/enum'
+
+// External utility functions
 import { T } from '~/main/i18n'
 
 export const checkFileMap: IToolboxCheckerMap<

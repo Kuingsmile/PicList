@@ -258,17 +258,40 @@
 </template>
 
 <script lang="ts" setup>
+// Vue 相关
 import { reactive, ref, onMounted, computed } from 'vue'
+
+// 支持的图床列表
 import { supportedPicBedList } from '../utils/constants'
+
+// Element Plus 图标
 import { Delete, Edit, Pointer, InfoFilled } from '@element-plus/icons-vue'
+
+// Element Plus 消息组件
 import { ElMessage, ElNotification } from 'element-plus'
+
+// 数据发送工具函数
 import { getConfig, saveConfig, removeConfig } from '../utils/dataSender'
+
+// Electron 相关
 import { shell } from 'electron'
+
+// Vue Router 相关
 import { useRouter } from 'vue-router'
+
+// 状态管理相关
 import { useManageStore } from '../store/manageStore'
+
+// 工具函数
 import { formObjToTableData, svg } from '../utils/common'
+
+// 数据发送工具函数
 import { getConfig as getPicBedsConfig } from '@/utils/dataSender'
+
+// 端点地址格式化
 import { formatEndpoint } from '~/main/manage/utils/common'
+
+// 国际化函数
 import { T as $T } from '@/i18n'
 
 const activeName = ref('login')

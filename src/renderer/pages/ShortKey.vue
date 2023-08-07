@@ -114,11 +114,22 @@
   </div>
 </template>
 <script lang="ts" setup>
+// 按键绑定工具函数
 import keyBinding from '@/utils/key-binding'
+
+// Electron 相关
 import { ipcRenderer, IpcRendererEvent } from 'electron'
+
+// 事件常量
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/events/constants'
+
+// Vue 生命周期钩子
 import { onBeforeUnmount, onBeforeMount, ref, watch } from 'vue'
+
+// 数据发送工具函数
 import { getConfig, sendToMain } from '@/utils/dataSender'
+
+// 国际化函数
 import { T as $T } from '@/i18n'
 
 const list = ref<IShortKeyConfig[]>([])

@@ -1,10 +1,24 @@
+// External dependencies
 import fs from 'fs-extra'
-import writeFile from 'write-file-atomic'
-import path from 'path'
-import { app } from 'electron'
-import { getLogger } from '../utils/localLogger'
 import dayjs from 'dayjs'
+import path from 'path'
+
+// Electron modules
+import { app } from 'electron'
+
+// Custom utilities and modules
+import { getLogger } from '../utils/localLogger'
+
+// Custom types/enums
+
+// External utility functions
+
+// External utility functions
+import writeFile from 'write-file-atomic'
+
+// Custom types/enums
 import { T } from '~/main/i18n'
+
 const STORE_PATH = app.getPath('userData')
 const configFilePath = path.join(STORE_PATH, 'data.json')
 const configFileBackupPath = path.join(STORE_PATH, 'data.bak.json')

@@ -17,7 +17,7 @@ export default class QiniuApi {
     const qiniuConfig = new Qiniu.conf.Config()
     try {
       const bucketManager = new Qiniu.rs.BucketManager(mac, qiniuConfig)
-      const formattedPath = path?.replace(/^\//, '').replace(/\/$/, '') || ''
+      const formattedPath = path?.replace(/^\/+|\/+$/, '') || ''
       const key = path === '/' || !path ? fileName : `${formattedPath}/${fileName}`
       const res = await new Promise((resolve, reject) => {
         bucketManager.delete(bucket, key, (err, respBody, respInfo) => {

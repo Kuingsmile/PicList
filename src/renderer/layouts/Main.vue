@@ -233,7 +233,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-// import { Component, Vue, Watch } from 'vue-property-decorator'
+// Element Plus 图标
 import {
   Tools,
   UploadFilled,
@@ -248,20 +248,42 @@ import {
   Link,
   ArrowUpBold
 } from '@element-plus/icons-vue'
+
+// Element Plus 消息框组件
 import { ElMessage as $message, ElMessageBox } from 'element-plus'
+
+// 国际化函数
 import { T as $T } from '@/i18n/index'
+
+// Vue 相关
 import { ref, onBeforeUnmount, Ref, onBeforeMount, watch, nextTick, reactive } from 'vue'
+
+// Vue Router 相关
 import { onBeforeRouteUpdate, useRouter } from 'vue-router'
+
+// 二维码组件
 import QrcodeVue from 'qrcode.vue'
+
+// Lodash pick 函数
 import pick from 'lodash/pick'
+
+// 根目录 package.json
 import pkg from 'root/package.json'
+
+// 路由配置常量
 import * as config from '@/router/config'
+
+// Electron 相关
 import {
   ipcRenderer,
   IpcRendererEvent,
   clipboard
 } from 'electron'
+
+// 输入框对话框组件
 import InputBoxDialog from '@/components/InputBoxDialog.vue'
+
+// 事件常量
 import {
   MINIMIZE_WINDOW,
   CLOSE_WINDOW,
@@ -271,8 +293,13 @@ import {
   GET_PICBEDS,
   OPEN_URL
 } from '~/universal/events/constants'
+
+// 数据发送工具函数
 import { getConfig, sendToMain } from '@/utils/dataSender'
+
+// Piclist 配置类型声明
 import { IConfig } from 'piclist'
+
 const version = ref(process.env.NODE_ENV === 'production' ? pkg.version : 'Dev')
 const routerConfig = reactive(config)
 const defaultActive = ref(routerConfig.UPLOAD_PAGE)

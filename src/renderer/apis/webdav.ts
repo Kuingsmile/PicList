@@ -16,7 +16,7 @@ export default class WebdavApi {
     if (path === '/' || !path) {
       key = fileName
     } else {
-      key = `${path.replace(/^\//, '').replace(/\/$/, '')}/${fileName}`
+      key = `${path.replace(/^\/+|\/+$/, '')}/${fileName}`
     }
     try {
       await ctx.deleteFile(key)

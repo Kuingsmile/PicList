@@ -399,28 +399,49 @@
   </div>
 </template>
 <script lang="ts" setup>
+// Element Plus 图标
 import { UploadFilled, CaretBottom } from '@element-plus/icons-vue'
-import {
-  ipcRenderer,
-  IpcRendererEvent
-} from 'electron'
+
+// Electron 相关
+import { ipcRenderer, IpcRendererEvent } from 'electron'
+
+// Vue 相关
 import { ref, reactive, onBeforeMount, onBeforeUnmount, watch, toRaw } from 'vue'
+
+// 国际化函数
 import { T as $T } from '@/i18n'
+
+// 事件总线
 import $bus from '@/utils/bus'
+
+// 事件常量
 import {
   SHOW_INPUT_BOX,
   SHOW_INPUT_BOX_RESPONSE,
   SHOW_UPLOAD_PAGE_MENU,
   GET_PICBEDS
 } from '~/universal/events/constants'
+
+// 工具函数
 import {
   isUrl
 } from '~/universal/utils/common'
+
+// Element Plus 消息提示
 import { ElMessage as $message } from 'element-plus'
+
+// 数据发送工具函数
 import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
+
+// 类型声明
 import { IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
+
+// Vue Router 相关
 import { useRouter } from 'vue-router'
+
+// 路由配置常量
 import { PICBEDS_PAGE } from '@/router/config'
+
 const $router = useRouter()
 
 const imageProcessDialogVisible = ref(false)

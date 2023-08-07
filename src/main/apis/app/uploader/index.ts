@@ -1,3 +1,11 @@
+// External dependencies
+import dayjs from 'dayjs'
+import util from 'util'
+import path from 'path'
+import writeFile from 'write-file-atomic'
+import fse from 'fs-extra'
+
+// Electron modules
 import {
   Notification,
   BrowserWindow,
@@ -5,21 +13,25 @@ import {
   WebContents,
   clipboard
 } from 'electron'
-import dayjs from 'dayjs'
+
+// Custom utilities and modules
 import picgo from '@core/picgo'
 import db from '~/main/apis/core/datastore'
 import windowManager from 'apis/app/window/windowManager'
-import { IWindowList } from '#/types/enum'
-import util from 'util'
-import { IPicGo } from 'piclist'
 import { showNotification, getClipboardFilePath } from '~/main/utils/common'
-import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '~/universal/events/constants'
 import logger from '@core/picgo/logger'
 import { T } from '~/main/i18n'
-import fse from 'fs-extra'
-import path from 'path'
-import writeFile from 'write-file-atomic'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/universal/utils/static'
+
+// Custom types/enums
+import { IWindowList } from '#/types/enum'
+
+// External utility functions
+import { IPicGo } from 'piclist'
+import {
+  GET_RENAME_FILE_NAME,
+  RENAME_FILE_NAME
+} from '~/universal/events/constants'
 
 const waitForRename = (window: BrowserWindow, id: number): Promise<string|null> => {
   return new Promise((resolve) => {

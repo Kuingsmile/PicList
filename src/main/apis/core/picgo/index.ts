@@ -1,8 +1,17 @@
-import { dbChecker, dbPathChecker } from 'apis/core/datastore/dbChecker'
+// External dependencies
 import pkg from 'root/package.json'
+import debounce from 'lodash/debounce'
+
+// Electron modules
+
+// Custom utilities and modules
 import { PicGo } from 'piclist'
 import db from 'apis/core/datastore'
-import debounce from 'lodash/debounce'
+import { dbChecker, dbPathChecker } from 'apis/core/datastore/dbChecker'
+
+// Custom types/enums
+
+// External utility functions
 
 const CONFIG_PATH = dbPathChecker()
 

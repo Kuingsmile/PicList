@@ -1470,23 +1470,49 @@
 <script lang="ts" setup>
 // @ts-ignore
 import { ElForm, ElMessage as $message, ElMessage, ElMessageBox, FormRules } from 'element-plus'
+
+// Element Plus 图标
 import { Reading, Close, Edit, InfoFilled } from '@element-plus/icons-vue'
+
+// 根目录 package.json
 import pkg from 'root/package.json'
+
+// 事件常量
 import { PICGO_OPEN_FILE, OPEN_URL, GET_PICBEDS, HIDE_DOCK } from '#/events/constants'
+
+// Electron 相关
 import {
   ipcRenderer
 } from 'electron'
+
+// 国际化管理器
 import { i18nManager, T as $T } from '@/i18n/index'
+
+// 工具函数
 import { enforceNumber } from '~/universal/utils/common'
 import { getLatestVersion } from '#/utils/getLatestVersion'
 import { compare } from 'compare-versions'
 import { STABLE_RELEASE_URL } from '#/utils/static'
+
+// Vue 相关
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, toRaw } from 'vue'
+
+// 数据发送工具函数
 import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
+
+// Vue Router 相关
 import { useRouter } from 'vue-router'
+
+// 路由配置常量
 import { SHORTKEY_PAGE } from '@/router/config'
+
+// Piclist 相关类型声明
 import { IConfig, IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
+
+// 数据发送工具函数
 import { invokeToMain } from '@/manage/utils/dataSender'
+
+// 内置重命名格式表
 import { buildInRenameFormatTable } from '../manage/utils/common'
 
 const imageProcessDialogVisible = ref(false)

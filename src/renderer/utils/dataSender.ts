@@ -1,7 +1,16 @@
+// Electron 相关
 import { ipcRenderer, IpcRendererEvent } from 'electron'
+
+// 事件常量
 import { PICGO_SAVE_CONFIG, PICGO_GET_CONFIG, RPC_ACTIONS } from '#/events/constants'
+
+// UUID
 import { v4 as uuid } from 'uuid'
+
+// 枚举类型声明
 import { IRPCActionType } from '~/universal/types/enum'
+
+// 公共工具函数
 import { getRawData } from './common'
 
 export function saveConfig (config: IObj | string, value?: any) {

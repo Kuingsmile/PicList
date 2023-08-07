@@ -1,6 +1,13 @@
+// Picgo Store 相关类型
 import { IObject, IResult, IGetResult, IFilter } from '@picgo/store/dist/types'
+
+// Electron 相关
 import { ipcRenderer, IpcRendererEvent } from 'electron'
+
+// UUID
 import { v4 as uuid } from 'uuid'
+
+// 数据库操作常量
 import {
   PICGO_GET_DB,
   PICGO_INSERT_DB,
@@ -9,8 +16,13 @@ import {
   PICGO_GET_BY_ID_DB,
   PICGO_REMOVE_BY_ID_DB
 } from '#/events/constants'
+
+// 数据库类型声明
 import { IGalleryDB } from '#/types/extra-vue'
+
+// 公共工具函数
 import { getRawData } from './common'
+
 export class GalleryDB implements IGalleryDB {
   async get<T> (filter?: IFilter): Promise<IGetResult<T>> {
     const res = await this.msgHandler<IGetResult<T>>(PICGO_GET_DB, filter)

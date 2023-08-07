@@ -1,10 +1,15 @@
+// External dependencies
+import fs from 'fs-extra'
+import { cloneDeep } from 'lodash'
+
+// Electron modules
 import {
   Notification,
   WebContents
 } from 'electron'
+
+// Custom utilities and modules
 import windowManager from 'apis/app/window/windowManager'
-import { IWindowList } from '#/types/enum'
-import uploader from '.'
 import pasteTemplate from '~/main/utils/pasteTemplate'
 import db, { GalleryDB } from '~/main/apis/core/datastore'
 import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/main/utils/common'
@@ -12,8 +17,8 @@ import { T } from '~/main/i18n/index'
 import ALLApi from '@/apis/allApi'
 import picgo from '@core/picgo'
 import GuiApi from '../../gui'
-import fs from 'fs-extra'
-import { cloneDeep } from 'lodash'
+import uploader from '.'
+import { IWindowList } from '#/types/enum'
 
 const handleClipboardUploading = async (): Promise<false | ImgInfo[]> => {
   const useBuiltinClipboard = db.get('settings.useBuiltinClipboard') === undefined ? true : !!db.get('settings.useBuiltinClipboard')

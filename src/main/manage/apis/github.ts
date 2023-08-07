@@ -35,12 +35,7 @@ class GithubApi {
   }
 
   formatFolder (item: any, slicedPrefix: string) {
-    let key = ''
-    if (slicedPrefix === '') {
-      key = `${item.path}/`
-    } else {
-      key = `${slicedPrefix}/${item.path}/`
-    }
+    const key = `${slicedPrefix ? `${slicedPrefix}/` : ''}${item.path}/`
     return {
       ...item,
       Key: key,
@@ -57,27 +52,18 @@ class GithubApi {
 
   formatFile (item: any, slicedPrefix: string, branch: string, repo: string, cdnUrl: string | undefined) {
     let rawUrl = ''
-    if (cdnUrl) {
-      const placeholder = ['{username}', '{repo}', '{branch}', '{path}']
-      if (placeholder.some(item => cdnUrl.includes(item))) {
-        rawUrl = cdnUrl.replace('{username}', this.username)
-          .replace('{repo}', repo)
-          .replace('{branch}', branch)
-          .replace('{path}', `${slicedPrefix}/${item.path}`)
-      } else {
-        rawUrl = `${cdnUrl}/${slicedPrefix}/${item.path}`
-      }
-    } else {
-      rawUrl = `https://raw.githubusercontent.com/${this.username}/${repo}/${branch}/${slicedPrefix}/${item.path}`
-    }
+    const placeholders = ['{username}', '{repo}', '{branch}', '{path}']
+    const key = slicedPrefix === '' ? item.path : `${slicedPrefix}/${item.path}`
+    rawUrl = cdnUrl
+      ? placeholders.some(item => cdnUrl.includes(item))
+        ? placeholders.reduce((url, ph) => {
+          const value = ph === '{username}' ? this.username : ph === '{repo}' ? repo : ph === '{branch}' ? branch : ph === '{path}' ? `${slicedPrefix}/${item.path}` : ''
+          return url.replaceAll(ph, value)
+        }, cdnUrl)
+        : `${cdnUrl}/${key}`
+      : `https://raw.githubusercontent.com/${this.username}/${repo}/${branch}/${key}`
     rawUrl = rawUrl.replace(/(?<!https?:)\/{2,}/g, '/')
-    let key = ''
-    if (slicedPrefix === '') {
-      key = item.path
-    } else {
-      key = `${slicedPrefix}/${item.path}`
-    }
-    const result = {
+    return {
       ...item,
       Key: key,
       key,
@@ -88,12 +74,9 @@ class GithubApi {
       checked: false,
       match: false,
       isImage: isImage(item.path),
-      rawUrl
+      rawUrl: item.url,
+      url: rawUrl
     }
-    const temp = result.rawUrl
-    result.rawUrl = result.url
-    result.url = temp
-    return result
   }
 
   /**
@@ -151,7 +134,7 @@ class GithubApi {
   async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: repo, customUrl: branch, prefix, cancelToken, cdnUrl } = configMap
-    const slicedPrefix = prefix.replace(/^\//, '').replace(/\/$/, '')
+    const slicedPrefix = prefix.replace(/(^\/+|\/+$)/g, '')
     const cancelTask = [false]
     ipcMain.on(cancelDownloadLoadingFileList, (_evt: IpcMainEvent, token: string) => {
       if (token === cancelToken) {
@@ -202,7 +185,7 @@ class GithubApi {
   async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: repo, customUrl: branch, prefix, cancelToken, cdnUrl } = configMap
-    const slicedPrefix = prefix.replace(/^\//, '').replace(/\/$/, '')
+    const slicedPrefix = prefix.replace(/(^\/+|\/+$)/g, '')
     const cancelTask = [false]
     ipcMain.on('cancelLoadingFileList', (_evt: IpcMainEvent, token: string) => {
       if (token === cancelToken) {
@@ -288,7 +271,7 @@ class GithubApi {
     // TODO: if there are more than 10000 files in the folder, it will be truncated
     // Rare cases, not considered for now
     const treeRes = await got(
-      `${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${key.replace(/^\//, '').replace(/\/$/, '')}`,
+      `${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${key.replace(/(^\/+|\/+$)/g, '')}`,
       getOptions('GET', this.commonHeaders, {
         recursive: true
       }, 'json', undefined, undefined, this.proxy)
@@ -299,7 +282,7 @@ class GithubApi {
     const oldTree = treeRes.body.tree
     const newTree = oldTree.filter((item: any) => item.type === 'blob')
       .map((item:any) => ({
-        path: `${key.replace(/^\//, '').replace(/\/$/, '')}/${item.path}`,
+        path: `${key.replace(/(^\/+|\/+$)/g, '')}/${item.path}`,
         mode: item.mode,
         type: item.type,
         sha: null
@@ -333,10 +316,7 @@ class GithubApi {
         sha: commitSha
       }), undefined, this.proxy)
     ) as any
-    if (updateRefRes.statusCode !== 200) {
-      return false
-    }
-    return true
+    return updateRefRes.statusCode === 200
   }
 
   /**
@@ -352,20 +332,14 @@ class GithubApi {
      */
   async getPreSignedUrl (configMap: IStringKeyMap): Promise<string> {
     const { bucketName: repo, customUrl: branch, key, rawUrl, githubPrivate: isPrivate } = configMap
-    if (!isPrivate) {
-      return rawUrl
-    }
+    if (!isPrivate) return rawUrl
     const res = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/contents/${key}`,
       getOptions('GET', this.commonHeaders, {
         ref: branch
       }, 'json', undefined, undefined, this.proxy)
     ) as any
-    if (res.statusCode === 200) {
-      return res.body.download_url
-    } else {
-      return ''
-    }
+    return res.statusCode === 200 ? res.body.download_url : ''
   }
 
   /**

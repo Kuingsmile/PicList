@@ -1,4 +1,5 @@
 import { ComponentOptions } from 'vue'
+
 export const dragMixin: ComponentOptions = {
   mounted () {
     this.disableDragEvent()

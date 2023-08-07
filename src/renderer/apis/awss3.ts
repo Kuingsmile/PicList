@@ -36,7 +36,7 @@ export default class AwsS3Api {
       })
       const result = await client.deleteObject({
         Bucket: bucketName,
-        Key: fileKey.replace(/^\//, '')
+        Key: fileKey.replace(/^\/+/, '')
       }).promise()
       return result.$response.httpResponse.statusCode === 204
     } catch (error) {

@@ -1,25 +1,29 @@
+// External dependencies
+import fs from 'fs-extra'
+import { cloneDeep } from 'lodash'
+
+// Electron modules
 import {
   dialog,
   BrowserWindow,
   Notification,
   ipcMain
 } from 'electron'
+
+// Custom utilities and modules
 import db, { GalleryDB } from 'apis/core/datastore'
 import { dbPathChecker, defaultConfigPath, getGalleryDBPath } from 'apis/core/datastore/dbChecker'
 import uploader from 'apis/app/uploader'
 import pasteTemplate from '~/main/utils/pasteTemplate'
 import { handleCopyUrl } from '~/main/utils/common'
-import {
-  getWindowId,
-  getSettingWindowId
-} from '@core/bus/apis'
-import {
-  SHOW_INPUT_BOX
-} from '~/universal/events/constants'
+import { getWindowId, getSettingWindowId } from '@core/bus/apis'
+import { SHOW_INPUT_BOX } from '~/universal/events/constants'
+
+// Custom types/enums
+
+// External utility functions
 import { DBStore } from '@picgo/store'
 import { T } from '~/main/i18n'
-import fs from 'fs-extra'
-import { cloneDeep } from 'lodash'
 
 // Cross-process support may be required in the future
 class GuiApi implements IGuiApi {

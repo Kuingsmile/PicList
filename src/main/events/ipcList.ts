@@ -126,7 +126,7 @@ export default {
       try {
         const client = SSHClient.instance
         await client.connect(config)
-        const uploadPath = `/${(config.uploadPath || '').replace(/^\/+|\/+$/g, '')}/`.replace(/\/+/g, '/')
+        const uploadPath = `/${(config.uploadPath || '')}/`.replace(/\/+/g, '/')
         const remote = path.join(uploadPath, fileName)
         const deleteResult = await client.deleteFile(remote)
         client.close()

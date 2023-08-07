@@ -18,6 +18,7 @@
 import { CircleCloseFilled, Loading, SuccessFilled } from '@element-plus/icons-vue'
 import { computed } from 'vue'
 import { IToolboxItemCheckStatus } from '~/universal/types/enum'
+
 interface IProps {
   status: IToolboxItemCheckStatus
 }

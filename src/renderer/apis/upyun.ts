@@ -11,7 +11,7 @@ export default class UpyunApi {
       if (path === '/' || !path) {
         key = fileName
       } else {
-        key = `${path.replace(/^\//, '').replace(/\/$/, '')}/${fileName}`
+        key = `${path.replace(/^\/+|\/+$/, '')}/${fileName}`
       }
       return await client.deleteFile(key)
     } catch (error) {

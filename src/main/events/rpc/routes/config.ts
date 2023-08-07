@@ -1,6 +1,12 @@
 import { IRPCActionType } from '~/universal/types/enum'
 import { RPCRouter } from '../router'
-import { deleteUploaderConfig, getUploaderConfigList, selectUploaderConfig, updateUploaderConfig, resetUploaderConfig } from '~/main/utils/handleUploaderConfig'
+import {
+  deleteUploaderConfig,
+  getUploaderConfigList,
+  selectUploaderConfig,
+  updateUploaderConfig,
+  resetUploaderConfig
+} from '~/main/utils/handleUploaderConfig'
 
 const configRouter = new RPCRouter()
 

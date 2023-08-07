@@ -410,7 +410,7 @@ class TcyunApi {
       Sign: true
     }, () => {
     })
-    return customUrl ? `${customUrl.replace(/\/$/, '')}/${key}${res.slice(res.indexOf('?'))}` : res
+    return customUrl ? `${customUrl.replace(/\/+$/, '')}/${key}${res.slice(res.indexOf('?'))}` : res
   }
 
   /**

@@ -1408,16 +1408,37 @@ https://www.baidu.com/img/bd_logo1.png"
 </template>
 
 <script lang="tsx" setup>
+// Vue 相关
 import { ref, reactive, watch, onBeforeMount, computed, onBeforeUnmount } from 'vue'
+
+// Vue Router 相关
 import { useRoute } from 'vue-router'
+
+// Element Plus 图标
 import { InfoFilled, Grid, Fold, Close, Folder, FolderAdd, Upload, CircleClose, Loading, CopyDocument, Edit, DocumentAdd, Link, Refresh, ArrowRight, HomeFilled, Document, Coin, Download, DeleteFilled, Sort, FolderOpened } from '@element-plus/icons-vue'
+
+// 状态管理相关
 import { useManageStore } from '../store/manageStore'
+
+// 工具函数
 import { customRenameFormatTable, customStrMatch, customStrReplace, renameFile, formatLink, formatFileName, getFileIconPath, formatFileSize, getExtension, isValidUrl, svg } from '../utils/common'
+
+// 静态工具函数
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '../utils/static'
+
+// Electron 相关
 import { ipcRenderer, clipboard, IpcRendererEvent } from 'electron'
+
+// 数据库操作
 import { fileCacheDbInstance } from '../store/bucketFileDb'
+
+// 工具函数
 import { trimPath } from '~/main/manage/utils/common'
+
+// Axios
 import axios from 'axios'
+
+// Element Plus 组件
 import {
   ElMessage, ElMessageBox, ElNotification,
   ElButton,
@@ -1434,18 +1455,41 @@ import {
   ElTag,
   ElCard
 } from 'element-plus'
+
+// 类型声明
 import type { Column, RowClassNameGetter } from 'element-plus'
+
+// 状态管理相关
 import { useFileTransferStore, useDownloadFileTransferStore } from '@/manage/store/manageStore'
+
+// UUID
 import { v4 as uuidv4 } from 'uuid'
+
+// 路径处理库
 import path from 'path'
-import { IUploadTask, IDownloadTask } from '~/main/manage/datastore/upDownTaskQueue'
+
+// 文件系统库
 import fs from 'fs-extra'
+
+// 数据发送工具函数
 import { getConfig, saveConfig } from '../utils/dataSender'
+
+// Markdown 解析库
 import { marked } from 'marked'
+
+// 文本文件扩展名列表
 import { textFileExt } from '../utils/textfile'
+
+// 视频文件扩展名列表
 import { videoExt } from '../utils/videofile'
+
+// 组件
 import ImageWebdav from '@/components/ImageWebdav.vue'
+
+// 国际化函数
 import { T as $T } from '@/i18n'
+
+import { IUploadTask, IDownloadTask } from '~/main/manage/datastore/upDownTaskQueue'
 
 /*
 configMap:{
@@ -2408,7 +2452,7 @@ async function handleFolderBatchDownload (item: any) {
         Location: configMap.bucketConfig.Location
       },
       paging: paging.value,
-      prefix: `/${item.key.replace(/\/+$/, '').replace(/^\/+/, '')}/`,
+      prefix: `/${item.key.replace(/^\/+|\/+$/, '')}/`,
       marker: pagingMarker.value,
       itemsPerPage: itemsPerPage.value,
       customUrl: currentCustomUrl.value,
@@ -2443,7 +2487,7 @@ async function handleFolderBatchDownload (item: any) {
                 bucketName: configMap.bucketName,
                 region: configMap.bucketConfig.Location,
                 key: item.key,
-                fileName: [undefined, true].includes(manageStore.config.settings.isDownloadFolderKeepDirStructure) ? `/${item.key.replace(/\/+$/, '').replace(/^\/+/, '')}` : item.fileName,
+                fileName: [undefined, true].includes(manageStore.config.settings.isDownloadFolderKeepDirStructure) ? `/${item.key.replace(/^\/+|\/+$/, '')}` : item.fileName,
                 customUrl: currentCustomUrl.value,
                 downloadUrl: item.downloadUrl,
                 githubUrl: item.url,
@@ -2486,7 +2530,7 @@ async function handleBatchDownload () {
         bucketName: configMap.bucketName,
         region: configMap.bucketConfig.Location,
         key: item.key,
-        fileName: manageStore.config.settings.isDownloadFileKeepDirStructure ? `/${item.key.replace(/\/+$/, '').replace(/^\/+/, '')}` : item.fileName,
+        fileName: manageStore.config.settings.isDownloadFileKeepDirStructure ? `/${item.key.replace(/^\/+|\/+$/, '')}` : item.fileName,
         customUrl: currentCustomUrl.value,
         downloadUrl: item.downloadUrl,
         githubUrl: item.url,

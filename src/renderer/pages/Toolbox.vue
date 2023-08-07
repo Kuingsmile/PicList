@@ -95,12 +95,25 @@
   </div>
 </template>
 <script lang="ts" setup>
+// 自定义钩子
 import { useIPC } from '@/hooks/useIPC'
+
+// 数据发送工具函数
 import { sendRPC, triggerRPC } from '@/utils/dataSender'
+
+// Element Plus 消息框组件
 import { ElMessageBox } from 'element-plus'
+
+// Vue 相关
 import { computed, reactive, ref } from 'vue'
+
+// 枚举类型声明
 import { IToolboxItemType, IToolboxItemCheckStatus, IRPCActionType } from '~/universal/types/enum'
+
+// 国际化函数
 import { T as $T } from '@/i18n'
+
+// 组件
 import ToolboxStatusIcon from '@/components/ToolboxStatusIcon.vue'
 import ToolboxHandler from '@/components/ToolboxHandler.vue'
 

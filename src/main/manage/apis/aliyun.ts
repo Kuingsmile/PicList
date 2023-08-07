@@ -493,7 +493,7 @@ class AliyunApi {
     const res = client.signatureUrl(key, {
       expires: expires || 3600
     })
-    return customUrl ? `${customUrl.replace(/\/$/, '')}/${key}${res.slice(res.indexOf('?'))}` : res
+    return customUrl ? `${customUrl.replace(/\/+$/, '')}/${key}${res.slice(res.indexOf('?'))}` : res
   }
 
   /**

@@ -422,22 +422,46 @@
   </div>
 </template>
 <script lang="ts" setup>
+// 类型声明
 import type { IResult } from '@picgo/store/dist/types'
+
+// 事件常量
 import { PASTE_TEXT, GET_PICBEDS } from '#/events/constants'
+
+// Element Plus 组件
 import { CheckboxValueType, ElMessageBox, ElNotification, ElMessage } from 'element-plus'
+
+// Element Plus 图标
 import { InfoFilled, Close, CaretBottom, Document, Edit, Delete, CaretTop, Sort } from '@element-plus/icons-vue'
+
+// Electron 相关
 import {
   ipcRenderer,
   clipboard,
   IpcRendererEvent
 } from 'electron'
+
+// Vue 相关
 import { computed, nextTick, onActivated, onBeforeUnmount, onBeforeMount, reactive, ref, watch } from 'vue'
+
+// 数据发送工具函数
 import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
+
+// Vue Router 相关
 import { onBeforeRouteUpdate } from 'vue-router'
+
+// 国际化函数
 import { T as $T } from '@/i18n/index'
+
+// 数据库操作
 import $$db from '@/utils/db'
+
+// API 接口
 import ALLApi from '@/apis/allApi'
+
+// 工具函数
 import { customRenameFormatTable, customStrMatch, customStrReplace } from '../manage/utils/common'
+
 const images = ref<ImgInfo[]>([])
 const dialogVisible = ref(false)
 const imgInfo = reactive({

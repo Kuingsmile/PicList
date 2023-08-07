@@ -24,7 +24,7 @@ export default class AliyunApi {
 
   private static getKey (fileName: string, path?: string): string {
     return path && path !== '/'
-      ? `${path.replace(/^\//, '').replace(/\/$/, '')}/${fileName}`
+      ? `${path.replace(/^\/+|\/+$/, '')}/${fileName}`
       : fileName
   }
 

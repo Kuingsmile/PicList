@@ -62,14 +62,31 @@
 </template>
 
 <script lang="ts" setup>
+// Vue 相关
 import { reactive, ref, onBeforeUnmount, onBeforeMount } from 'vue'
+
+// Electron 相关
 import { clipboard, ipcRenderer } from 'electron'
+
+// 数据库操作
 import $$db from '@/utils/db'
+
+// 国际化函数
 import { T as $T } from '@/i18n/index'
+
+// Picgo Store 相关类型
 import { IResult } from '@picgo/store/dist/types'
+
+// 事件常量
 import { OPEN_WINDOW } from '#/events/constants'
+
+// 枚举类型声明
 import { IPasteStyle, IWindowList } from '#/types/enum'
+
+// 数据发送工具函数
 import { getConfig, sendToMain } from '@/utils/dataSender'
+
+// 工具函数
 import { handleUrlEncode } from '#/utils/common'
 
 const files = ref<IResult<ImgInfo>[]>([])

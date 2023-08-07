@@ -1,8 +1,19 @@
+// UUID
 import { v4 as uuidv4 } from 'uuid'
+
+// 路径处理库
 import path from 'path'
+
+// 加密库
 import crypto from 'crypto'
+
+// 可用图标列表
 import { availableIconList } from './icon'
+
+// 数据发送工具函数
 import { getConfig } from './dataSender'
+
+// 工具函数
 import { handleUrlEncode } from '~/universal/utils/common'
 
 export function randomStringGenerator (length: number): string {

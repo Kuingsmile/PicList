@@ -513,14 +513,29 @@
 </template>
 
 <script lang="ts" setup>
+// Element Plus 图标
 import { InfoFilled, Folder } from '@element-plus/icons-vue'
+
+// Vue 相关
 import { ref, reactive, onBeforeMount, watch, onBeforeUnmount } from 'vue'
+
+// 数据发送工具函数
 import { getConfig, saveConfig, invokeToMain } from '../utils/dataSender'
+
+// Element Plus 消息组件
 import { ElMessage } from 'element-plus'
+
+// 状态管理相关
 import { useManageStore } from '../store/manageStore'
 import { fileCacheDbInstance } from '../store/bucketFileDb'
+
+// 工具函数
 import { formatFileSize, customRenameFormatTable } from '../utils/common'
+
+// 国际化函数
 import { T as $T } from '@/i18n'
+
+// 静态路径选择
 import { selectDownloadFolder } from '../utils/static'
 
 const manageStore = useManageStore()

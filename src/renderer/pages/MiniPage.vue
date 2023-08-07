@@ -30,21 +30,38 @@
   </div>
 </template>
 <script lang="ts" setup>
-
+// 国际化函数
 import { T as $T } from '@/i18n/index'
+
+// Element Plus 消息框组件
 import { ElMessage as $message } from 'element-plus'
+
+// Electron 相关
 import {
   ipcRenderer,
   IpcRendererEvent
 } from 'electron'
+
+// Vue 生命周期钩子
 import { onBeforeUnmount, onBeforeMount, ref, watch, reactive } from 'vue'
+
+// 事件常量
 import { SHOW_MINI_PAGE_MENU, SET_MINI_WINDOW_POS } from '~/universal/events/constants'
+
+// 工具函数
 import {
   isUrl
 } from '~/universal/utils/common'
+
+// 数据发送工具函数
 import { getConfig, sendToMain } from '@/utils/dataSender'
+
+// Piclist 配置类型声明
 import { IConfig } from 'piclist'
+
+// 数据发送工具函数
 import { invokeToMain } from '@/manage/utils/dataSender'
+
 const logoPath = reactive({
   value: ''
 })

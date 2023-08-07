@@ -52,16 +52,28 @@
   </div>
 </template>
 <script lang="ts" setup>
+// Element Plus 图标
 import { Close } from '@element-plus/icons-vue'
+
+// 事件常量
 import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '#/events/constants'
+
+// 数据发送工具函数
 import { sendToMain } from '@/utils/dataSender'
+
+// 国际化函数
 import { T as $T } from '@/i18n/index'
-import {
-  ipcRenderer,
-  IpcRendererEvent
-} from 'electron'
+
+// Electron 相关
+import { ipcRenderer, IpcRendererEvent } from 'electron'
+
+// Vue 生命周期钩子
 import { onBeforeUnmount, onBeforeMount, ref, reactive } from 'vue'
+
+// 自定义钩子
 import { useIPCOn } from '@/hooks/useIPC'
+
+// Element Plus 表单实例类型
 import { FormInstance } from 'element-plus'
 
 const id = ref<string | null>(null)
