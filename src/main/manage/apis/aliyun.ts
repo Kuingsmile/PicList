@@ -1,18 +1,37 @@
+// Axios
 import axios from 'axios'
+
+// 加密函数、获取文件 MIME 类型、错误格式化函数、新的下载器、并发异步任务池
 import { hmacSha1Base64, getFileMimeType, formatError, NewDownloader, ConcurrencyPromisePool } from '../utils/common'
+
+// Electron 相关
 import { ipcMain, IpcMainEvent } from 'electron'
+
+// 快速 XML 解析器
 import { XMLParser } from 'fast-xml-parser'
+
+// 阿里云 OSS 客户端库
 import OSS from 'ali-oss'
+
+// 路径处理库
 import path from 'path'
+
+// 是否为图片的判断函数
 import { isImage } from '~/renderer/manage/utils/common'
+
+// 窗口管理器
 import windowManager from 'apis/app/window/windowManager'
+
+// 枚举类型声明
 import { IWindowList } from '#/types/enum'
-import UpDownTaskQueue,
-{
-  uploadTaskSpecialStatus,
-  commonTaskStatus
-} from '../datastore/upDownTaskQueue'
+
+// 上传下载任务队列
+import UpDownTaskQueue, { uploadTaskSpecialStatus, commonTaskStatus } from '../datastore/upDownTaskQueue'
+
+// 日志记录器
 import { ManageLogger } from '../utils/logger'
+
+// 取消下载任务的加载文件列表、刷新下载文件传输列表
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 // 坑爹阿里云 返回数据类型标注和实际各种不一致
@@ -49,22 +68,20 @@ class AliyunApi {
   }
 
   formatFile (item: OSS.ObjectMeta, slicedPrefix: string, urlPrefix: string): any {
-    const result = {
+    const fileName = item.name.replace(slicedPrefix, '')
+    return {
       ...item,
       key: item.name,
-      rawUrl: `${urlPrefix}/${item.name}`,
-      fileName: item.name.replace(slicedPrefix, ''),
+      fileName,
       fileSize: item.size,
       formatedTime: new Date(item.lastModified).toLocaleString(),
       isDir: false,
       checked: false,
       match: false,
-      isImage: isImage(item.name.replace(slicedPrefix, ''))
+      isImage: isImage(fileName),
+      rawUrl: item.url,
+      url: `${urlPrefix}/${item.name}`
     }
-    const temp = result.rawUrl
-    result.rawUrl = result.url
-    result.url = temp
-    return result
   }
 
   getCanonicalizedOSSHeaders (headers: IStringKeyMap) {
@@ -100,47 +117,30 @@ class AliyunApi {
      * 获取存储桶列表
     */
   async getBucketList (): Promise<any> {
-    const formatItem = (item: OSS.Bucket) => {
-      return {
+    const getBuckets = async (marker?: string) => {
+      const res = await this.ctx.listBuckets({
+        marker,
+        'max-keys': 1000
+      }) as IStringKeyMap
+      if (res.res.statusCode !== 200 || !res.buckets) return { result: [], isTruncated: false }
+      const formattedBuckets = res.buckets.map((item: OSS.Bucket) => ({
         Name: item.name,
         Location: item.region,
         CreationDate: item.creationDate
-      }
+      }))
+      return { result: formattedBuckets, isTruncated: res.isTruncated, nextMarker: res.nextMarker }
     }
-    const res = await this.ctx.listBuckets({
-      'max-keys': 1000
-    }) as IStringKeyMap
-    const result = [] as IStringKeyMap[]
-    let NextMarker = ''
-    if (res.res.statusCode === 200) {
-      if (res.buckets) {
-        result.push(...res.buckets.map((item: OSS.Bucket) => formatItem(item)))
-        let isTruncated = res.isTruncated
-        NextMarker = res.nextMarker
-        while (isTruncated) {
-          const res = await this.ctx.listBuckets({
-            marker: NextMarker,
-            'max-keys': 1000
-          }) as IStringKeyMap
-          if (res.res.statusCode === 200) {
-            if (res.buckets) {
-              result.push(...res.buckets.map((item: OSS.Bucket) => formatItem(item)))
-              isTruncated = res.isTruncated
-              NextMarker = res.nextMarker
-            } else {
-              isTruncated = false
-            }
-          } else {
-            isTruncated = false
-          }
-        }
-        return result
-      } else {
-        return []
-      }
-    } else {
-      return []
-    }
+    const result: IStringKeyMap[] = []
+    let NextMarker: string | undefined
+    let isTruncated: boolean
+    do {
+      const { result: buckets, isTruncated: truncated, nextMarker } = await getBuckets(NextMarker)
+      result.push(...buckets)
+      NextMarker = nextMarker
+      isTruncated = truncated
+    } while (isTruncated)
+
+    return result
   }
 
   /**
@@ -151,6 +151,7 @@ class AliyunApi {
       Date: new Date().toUTCString()
     }
     const authorization = this.authorization('GET', `/${param.bucketName}/?cname`, headers, '', '')
+
     const res = await axios({
       url: `https://${param.bucketName}.${param.region}.aliyuncs.com/?cname`,
       method: 'GET',
@@ -159,25 +160,22 @@ class AliyunApi {
         Authorization: authorization
       }
     })
+
     if (res.status === 200) {
       const parser = new XMLParser()
       const result = parser.parse(res.data)
-      if (result.ListCnameResult && result.ListCnameResult.Cname) {
-        if (Array.isArray(result.ListCnameResult.Cname)) {
-          const cnameList = [] as string[]
-          result.ListCnameResult.Cname.forEach((item: IStringKeyMap) => {
-            item.Status === 'Enabled' && cnameList.push(item.Domain)
-          })
-          return cnameList
-        } else {
-          return result.ListCnameResult.Cname.Status === 'Enabled' ? [result.ListCnameResult.Cname.Domain] : []
-        }
-      } else {
-        return []
+
+      if (result.ListCnameResult?.Cname) {
+        const cnames = Array.isArray(result.ListCnameResult.Cname)
+          ? result.ListCnameResult.Cname
+          : [result.ListCnameResult.Cname]
+
+        return cnames
+          .filter((item: IStringKeyMap) => item.Status === 'Enabled')
+          .map((item: IStringKeyMap) => item.Domain)
       }
-    } else {
-      return []
     }
+    return []
   }
 
   /**
@@ -329,16 +327,10 @@ class AliyunApi {
     const { bucketName: bucket, bucketConfig: { Location: region }, prefix, marker, itemsPerPage } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `https://${bucket}.${region}.aliyuncs.com`
-    let res = {} as any
-    const result = {
-      fullList: <any>[],
-      isTruncated: false,
-      nextMarker: '',
-      success: false
-    }
+
     const client = this.getNewCtx(region, bucket)
-    res = await client.listV2({
-      prefix: slicedPrefix === '' ? undefined : slicedPrefix,
+    const res = await client.listV2({
+      prefix: slicedPrefix || undefined,
       delimiter: '/',
       'max-keys': itemsPerPage.toString(),
       'continuation-token': marker
@@ -347,18 +339,24 @@ class AliyunApi {
     }) as any
     // prefixes can be null
     // objects will be [] when no file
-    if (res && res.res.statusCode === 200) {
-      res.prefixes && res.prefixes.forEach((item: string) => {
-        result.fullList.push(this.formatFolder(item, slicedPrefix))
-      })
-      res.objects && res.objects.forEach((item: OSS.ObjectMeta) => {
-        item.size !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
-      })
-      result.isTruncated = res.isTruncated
-      result.nextMarker = res.nextContinuationToken || ''
-      result.success = true
+    if (res?.res.statusCode !== 200) {
+      return {
+        fullList: [],
+        isTruncated: false,
+        nextMarker: '',
+        success: false
+      }
     }
-    return result
+    const fullList = [
+      ...(res.prefixes?.map((item: string) => this.formatFolder(item, slicedPrefix)) || []),
+      ...(res.objects?.filter((item: OSS.ObjectMeta) => item.size !== 0).map((item: OSS.ObjectMeta) => this.formatFile(item, slicedPrefix, urlPrefix)) || [])
+    ]
+    return {
+      fullList,
+      isTruncated: res.isTruncated,
+      nextMarker: res.nextContinuationToken || '',
+      success: true
+    }
   }
 
   /**
@@ -374,16 +372,15 @@ class AliyunApi {
   async renameBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, oldKey, newKey } = configMap
     const client = this.getNewCtx(region, bucketName)
-    const res = await client.copy(
+    const copyRes = await client.copy(
       newKey,
       oldKey
     ) as any
-    if (res && res.res.statusCode === 200) {
-      const res2 = await client.delete(oldKey) as any
-      return res2 && res2.res.statusCode === 204
-    } else {
-      return false
+    if (copyRes?.res.statusCode === 200) {
+      const deleteRes = await client.delete(oldKey) as any
+      return deleteRes?.res.statusCode === 204
     }
+    return false
   }
 
   /**
@@ -399,7 +396,7 @@ class AliyunApi {
     const { bucketName, region, key } = configMap
     const client = this.getNewCtx(region, bucketName)
     const res = await client.delete(key) as any
-    return res && res.res.statusCode === 204
+    return res?.res.statusCode === 204
   }
 
   /**
@@ -415,62 +412,39 @@ class AliyunApi {
       CommonPrefixes: [] as any[],
       Contents: [] as any[]
     }
-    let res = await client.listV2({
-      prefix: key,
-      delimiter: '/',
-      'max-keys': '1000'
-    }, {
-      timeout: this.timeOut
-    }) as any
-    if (res && res.res.statusCode === 200) {
+    do {
+      const res = await client.listV2({
+        prefix: key,
+        delimiter: '/',
+        'max-keys': '1000',
+        'continuation-token': marker
+      }, {
+        timeout: this.timeOut
+      }) as any
+      if (res?.res.statusCode !== 200) return false
+
       res.prefixes !== null && allFileList.CommonPrefixes.push(...res.prefixes)
-      res.objects.length > 0 && allFileList.Contents.push(...res.objects)
+      res.objects?.length > 0 && allFileList.Contents.push(...res.objects)
       isTruncated = res.isTruncated
       marker = res.nextContinuationToken
-      while (isTruncated) {
-        res = await client.listV2({
-          prefix: key,
-          delimiter: '/',
-          'max-keys': '1000',
-          'continuation-token': marker
-        }, {
-          timeout: this.timeOut
-        }) as any
-        if (res && res.res.statusCode === 200) {
-          res.prefixes !== null && allFileList.CommonPrefixes.push(...res.prefixes)
-          res.objects.length > 0 && allFileList.Contents.push(...res.objects)
-          isTruncated = res.isTruncated
-          marker = res.nextContinuationToken
-        } else {
-          return false
-        }
-      }
-    } else {
-      return false
-    }
+    } while (isTruncated)
+
     if (allFileList.CommonPrefixes.length > 0) {
       for (const item of allFileList.CommonPrefixes) {
-        res = await this.deleteBucketFolder({
+        const successfully = await this.deleteBucketFolder({
           bucketName,
           region,
           key: item
         })
-        if (!res) {
-          return false
-        }
+        if (!successfully) return false
       }
     }
     if (allFileList.Contents.length > 0) {
       const cycle = Math.ceil(allFileList.Contents.length / 1000)
       for (let i = 0; i < cycle; i++) {
-        res = await client.deleteMulti(
-          allFileList.Contents.slice(i * 1000, (i + 1) * 1000).map((item: any) => {
-            return item.name
-          })
-        ) as any
-        if (!(res && res.res.statusCode === 200)) {
-          return false
-        }
+        const deleteRes = await client.deleteMulti(
+          allFileList.Contents.slice(i * 1000, (i + 1) * 1000).map((item: any) => item.name)) as any
+        if (deleteRes?.res.statusCode !== 200) return false
       }
     }
     return true

@@ -1,3 +1,4 @@
+// AWS S3 相关
 import {
   S3Client,
   ListBucketsCommand,
@@ -13,24 +14,48 @@ import {
   DeleteObjectsCommand,
   PutObjectCommand
 } from '@aws-sdk/client-s3'
+
+// AWS S3 上传和进度
 import { Upload, Progress } from '@aws-sdk/lib-storage'
+
+// AWS S3 请求签名
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+
+// HTTP 和 HTTPS 模块
 import https from 'https'
 import http from 'http'
+
+// 日志记录器
 import { ManageLogger } from '../utils/logger'
+
+// 端点地址格式化函数、错误格式化函数、获取请求代理、获取文件 MIME 类型、新的下载器、并发异步任务池
 import { formatEndpoint, formatError, getAgent, getFileMimeType, NewDownloader, ConcurrencyPromisePool } from '../utils/common'
+
+// 是否为图片的判断函数、HTTP 代理格式化函数
 import { isImage, formatHttpProxy } from '@/manage/utils/common'
+
+// HTTP 和 HTTPS 代理库
 import { HttpsProxyAgent, HttpProxyAgent } from 'hpagent'
+
+// 窗口管理器
 import windowManager from 'apis/app/window/windowManager'
+
+// 枚举类型声明
 import { IWindowList } from '#/types/enum'
+
+// Electron 相关
 import { ipcMain, IpcMainEvent } from 'electron'
-import UpDownTaskQueue,
-{
-  uploadTaskSpecialStatus,
-  commonTaskStatus
-} from '../datastore/upDownTaskQueue'
+
+// 上传下载任务队列
+import UpDownTaskQueue, { uploadTaskSpecialStatus, commonTaskStatus } from '../datastore/upDownTaskQueue'
+
+// 文件系统库
 import fs from 'fs-extra'
+
+// 路径处理库
 import path from 'path'
+
+// 取消下载任务的加载文件列表、刷新下载文件传输列表
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 interface S3plistApiOptions {
@@ -79,18 +104,14 @@ class S3plistApi {
   }
 
   setAgent (proxy: string | undefined, sslEnabled: boolean) : HttpProxyAgent | HttpsProxyAgent | undefined {
-    if (sslEnabled) {
-      const agent = getAgent(proxy, true).https
-      return agent ?? new https.Agent({
-        keepAlive: true,
-        rejectUnauthorized: false
-      })
-    } else {
-      const agent = getAgent(proxy, false).http
-      return agent ?? new http.Agent({
-        keepAlive: true
-      })
-    }
+    const protocol = sslEnabled ? 'https' : 'http'
+    const agent = getAgent(proxy, sslEnabled)[protocol]
+    const commonOptions = { keepAlive: true }
+    const extraOptions = sslEnabled ? { rejectUnauthorized: false } : {}
+    return agent ?? new (sslEnabled ? https.Agent : http.Agent)({
+      ...commonOptions,
+      ...extraOptions
+    })
   }
 
   logParam = (error:any, method: string) =>
@@ -111,17 +132,18 @@ class S3plistApi {
   }
 
   formatFile (item: _Object, slicedPrefix: string, urlPrefix: string): any {
+    const fileName = item.Key?.replace(slicedPrefix, '')
     return {
       ...item,
       key: item.Key,
       url: `${urlPrefix}/${item.Key}`,
-      fileName: item.Key?.replace(slicedPrefix, ''),
+      fileName,
       fileSize: item.Size,
       formatedTime: new Date(item.LastModified!).toLocaleString(),
       isDir: false,
       checked: false,
       match: false,
-      isImage: isImage(item.Key?.replace(slicedPrefix, '') || '')
+      isImage: isImage(fileName || '')
     }
   }
 
@@ -130,50 +152,43 @@ class S3plistApi {
     */
   async getBucketList (): Promise<any> {
     const options = Object.assign({}, this.baseOptions) as S3ClientConfig
-    const result = [] as IStringKeyMap[]
-    const endpoint = options.endpoint as string || '' as string
-    options.region = endpoint.indexOf('cloudflarestorage') !== -1 ? 'auto' : 'us-east-1'
+    const result: IStringKeyMap[] = []
+    const endpoint = options.endpoint as string || ''
+    options.region = endpoint.includes('cloudflarestorage') ? 'auto' : 'us-east-1'
     try {
       const client = new S3Client(options)
-      const command = new ListBucketsCommand({})
-      const data = await client.send(command)
-      if (data.$metadata.httpStatusCode === 200) {
-        if (data.Buckets) {
-          if (endpoint.indexOf('cloudflarestorage') !== -1) {
-            data.Buckets.forEach((bucket) => {
-              result.push({
-                Name: bucket.Name,
-                CreationDate: bucket.CreationDate,
-                Location: 'auto'
-              })
+      const data = await client.send(new ListBucketsCommand({}))
+
+      if (data.$metadata.httpStatusCode !== 200) {
+        this.logParam(data, 'getBucketList')
+        return result
+      }
+
+      if (data.Buckets) {
+        if (endpoint.includes('cloudflarestorage')) {
+          result.push(...data.Buckets.map(bucket => ({
+            Name: bucket.Name,
+            CreationDate: bucket.CreationDate,
+            Location: 'auto'
+          })))
+        } else {
+          for (const bucket of data.Buckets) {
+            const bucketName = bucket.Name
+            const bucketConfig = await client.send(new GetBucketLocationCommand({
+              Bucket: bucketName
+            }))
+            result.push({
+              Name: bucketName,
+              CreationDate: bucket.CreationDate,
+              Location: bucketConfig.$metadata.httpStatusCode === 200
+                ? bucketConfig.LocationConstraint?.toLowerCase() || 'us-east-1'
+                : 'us-east-1'
             })
-          } else {
-            for (let i = 0; i < data.Buckets.length; i++) {
-              const bucket = data.Buckets[i]
-              const bucketName = bucket.Name
-              const command = new GetBucketLocationCommand({
-                Bucket: bucketName
-              })
-              const bucketConfig = await client.send(command)
-              if (bucketConfig.$metadata.httpStatusCode === 200) {
-                result.push({
-                  Name: bucketName,
-                  CreationDate: bucket.CreationDate,
-                  Location: bucketConfig.LocationConstraint?.toLowerCase() || 'us-east-1'
-                })
-              } else {
-                this.logParam(bucketConfig, 'getBucketList')
-                result.push({
-                  Name: bucketName,
-                  CreationDate: bucket.CreationDate,
-                  Location: 'us-east-1'
-                })
-              }
+            if (bucketConfig.$metadata.httpStatusCode !== 200) {
+              this.logParam(bucketConfig, 'getBucketList')
             }
           }
         }
-      } else {
-        this.logParam(data, 'getBucketList')
       }
     } catch (error) {
       this.logParam(error, 'getBucketList')
@@ -312,8 +327,7 @@ class S3plistApi {
       success: false
     }
     try {
-      const options = Object.assign({}, this.baseOptions) as S3ClientConfig
-      options.region = region || 'us-east-1'
+      const options = Object.assign({}, { ...this.baseOptions, region: region || 'us-east-1' }) as S3ClientConfig
       const client = new S3Client(options)
       const command = new ListObjectsV2Command({
         Bucket: bucket,
@@ -324,12 +338,10 @@ class S3plistApi {
       })
       const data = await client.send(command)
       if (data.$metadata.httpStatusCode === 200) {
-        data.CommonPrefixes && data.CommonPrefixes.forEach((item: CommonPrefix) => {
-          result.fullList.push(this.formatFolder(item, slicedPrefix))
-        })
-        data.Contents && data.Contents.forEach((item: _Object) => {
-          result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
-        })
+        result.fullList = [
+          ...(data.CommonPrefixes?.map(item => this.formatFolder(item, slicedPrefix)) || []),
+          ...(data.Contents?.map(item => this.formatFile(item, slicedPrefix, urlPrefix)) || [])
+        ]
         result.isTruncated = data.IsTruncated || false
         result.nextMarker = data.NextContinuationToken || ''
         result.success = true
@@ -354,8 +366,7 @@ class S3plistApi {
     const { bucketName, region, oldKey, newKey } = configMap
     let result = false
     try {
-      const options = Object.assign({}, this.baseOptions) as S3ClientConfig
-      options.region = region || 'us-east-1'
+      const options = Object.assign({}, { ...this.baseOptions, region: region || 'us-east-1' }) as S3ClientConfig
       const client = new S3Client(options)
       const command = new CopyObjectCommand({
         Bucket: bucketName,

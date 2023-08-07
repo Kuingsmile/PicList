@@ -81,16 +81,12 @@ class ImgurApi {
       result.push(...res.body.data)
       initPage++
     } while (res.body.data.length > 0)
-    const finalResult = [] as any[]
-    for (let i = 0; i < result.length; i++) {
-      const item = result[i]
-      finalResult.push({
-        ...item,
-        Name: item.title,
-        Location: item.id,
-        CreationDate: item.datetime
-      })
-    }
+    const finalResult = result.map((item: any) => ({
+      ...item,
+      Name: item.title,
+      Location: item.id,
+      CreationDate: item.datetime
+    })) as any[]
     finalResult.push({
       Name: '全部',
       Location: 'unclassified',

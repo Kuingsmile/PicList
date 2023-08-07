@@ -47,7 +47,6 @@ class RemoteNoticeHandler {
       const localCountStorage: IRemoteNoticeLocalCountStorage = fs.readJSONSync(REMOTE_NOTICE_LOCAL_STORAGE_PATH, 'utf8')
       this.remoteNoticeLocalCountStorage = localCountStorage
     } catch (e) {
-      console.log(e)
       this.remoteNoticeLocalCountStorage = localCountStorage
     }
   }

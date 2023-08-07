@@ -1,13 +1,34 @@
+// 是否为图片的判断函数
 import { isImage } from '@/manage/utils/common'
+
+// Axios 和 Axios 实例类型声明
 import axios, { AxiosInstance } from 'axios'
+
+// 窗口管理器
 import windowManager from 'apis/app/window/windowManager'
+
+// 枚举类型声明
 import { IWindowList } from '#/types/enum'
+
+// Electron 相关
 import { ipcMain, IpcMainEvent } from 'electron'
+
+// 表单数据库
 import FormData from 'form-data'
+
+// 文件系统库
 import fs from 'fs-extra'
+
+// 获取文件 MIME 类型、got 上传函数、新的下载器、并发异步任务池、错误格式化函数
 import { getFileMimeType, gotUpload, NewDownloader, ConcurrencyPromisePool, formatError } from '../utils/common'
+
+// 路径处理库
 import path from 'path'
+
+// 上传下载任务队列
 import UpDownTaskQueue, { commonTaskStatus } from '../datastore/upDownTaskQueue'
+
+// 日志记录器
 import { ManageLogger } from '../utils/logger'
 
 class SmmsApi {
@@ -99,7 +120,7 @@ class SmmsApi {
         return
       }
       marker++
-    } while (!cancelTask[0] && res && res.status === 200 && res.data && res.data.success && res.data.CurrentPage < res.data.TotalPages)
+    } while (!cancelTask[0] && res?.status === 200 && res?.data?.success && res.data.CurrentPage < res.data.TotalPages)
     result.success = !cancelTask[0]
     result.finished = true
     window.webContents.send('refreshFileTransferList', result)
@@ -121,16 +142,14 @@ class SmmsApi {
    *  customUrl: string
    * }
   */
-  async getBucketFileList (configMap: IStringKeyMap): Promise<any> {
-    const { currentPage } = configMap
-    let res = {} as any
+  async getBucketFileList ({ currentPage }: IStringKeyMap): Promise<any> {
     const result = {
       fullList: <any>[],
       isTruncated: false,
       nextMarker: '',
       success: false
     }
-    res = await this.axiosInstance(
+    const res = await this.axiosInstance(
       '/upload_history',
       {
         method: 'GET',
@@ -142,21 +161,17 @@ class SmmsApi {
         }
       }
     )
-    if (res && res.status === 200 && res.data && res.data.success) {
-      if (res.data.Count === 0) {
-        result.success = true
-        return result
-      }
-      res.data.data.forEach((item: any) => {
-        result.fullList.push(this.formatFile(item))
-      })
-      result.isTruncated = res.data.CurrentPage < res.data.TotalPages
-      result.nextMarker = res.data.CurrentPage + 1
-      result.success = true
-      return result
-    } else {
-      return result
-    }
+    if (res?.status !== 200 || !res?.data?.success) return result
+
+    if (res.data.Count === 0) return { ...result, success: true }
+
+    res.data.data.forEach((item: any) => {
+      result.fullList.push(this.formatFile(item))
+    })
+    result.isTruncated = res.data.CurrentPage < res.data.TotalPages
+    result.nextMarker = res.data.CurrentPage + 1
+    result.success = true
+    return result
   }
 
   /**
@@ -169,20 +184,18 @@ class SmmsApi {
   * DeleteHash: string
   * }
   */
-  async deleteBucketFile (configMap: IStringKeyMap): Promise<boolean> {
-    const { DeleteHash } = configMap
-    const params = {
-      hash: DeleteHash,
-      format: 'json'
-    }
+  async deleteBucketFile ({ DeleteHash }: IStringKeyMap): Promise<boolean> {
     const res = await this.axiosInstance(
       `/delete/${DeleteHash}`,
       {
         method: 'GET',
-        params
+        params: {
+          hash: DeleteHash,
+          format: 'json'
+        }
       }
     )
-    return res && res.status === 200 && res.data && res.data.success
+    return res?.status === 200 && res?.data?.success
   }
 
   /**

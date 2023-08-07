@@ -9,13 +9,13 @@ import UpyunApi from './upyun'
 import WebdavplistApi from './webdavplist'
 
 export default {
-  TcyunApi,
   AliyunApi,
-  QiniuApi,
-  UpyunApi,
-  SmmsApi,
   GithubApi,
   ImgurApi,
+  QiniuApi,
   S3plistApi,
+  SmmsApi,
+  TcyunApi,
+  UpyunApi,
   WebdavplistApi
 }

@@ -1,17 +1,34 @@
+// Axios
 import axios from 'axios'
+
+// 加密函数、获取文件 MIME 类型、新的下载器、错误格式化函数、并发异步任务池
 import { hmacSha1Base64, getFileMimeType, NewDownloader, formatError, ConcurrencyPromisePool } from '../utils/common'
+
+// 七牛云客户端库
 import qiniu from 'qiniu/index'
+
+// 路径处理库
 import path from 'path'
+
+// 是否为图片的判断函数
 import { isImage } from '~/renderer/manage/utils/common'
+
+// 窗口管理器
 import windowManager from 'apis/app/window/windowManager'
+
+// 枚举类型声明
 import { IWindowList } from '#/types/enum'
+
+// Electron 相关
 import { ipcMain, IpcMainEvent } from 'electron'
-import UpDownTaskQueue,
-{
-  uploadTaskSpecialStatus,
-  commonTaskStatus
-} from '../datastore/upDownTaskQueue'
+
+// 上传下载任务队列
+import UpDownTaskQueue, { uploadTaskSpecialStatus, commonTaskStatus } from '../datastore/upDownTaskQueue'
+
+// 日志记录器
 import { ManageLogger } from '../utils/logger'
+
+// 取消下载任务的加载文件列表、刷新下载文件传输列表
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 class QiniuApi {
@@ -49,16 +66,17 @@ class QiniuApi {
   }
 
   formatFile (item: any, slicedPrefix: string, urlPrefix: string) {
+    const fileName = item.key.replace(slicedPrefix, '')
     return {
       ...item,
-      fileName: item.key.replace(slicedPrefix, ''),
+      fileName,
       url: `${urlPrefix}/${item.key}`,
       fileSize: item.fsize,
       formatedTime: new Date(parseInt(item.putTime.toString().slice(0, -4), 10)).toLocaleString(),
       isDir: false,
       checked: false,
       match: false,
-      isImage: isImage(item.key.replace(slicedPrefix, ''))
+      isImage: isImage(fileName)
     }
   }
 
@@ -71,22 +89,20 @@ class QiniuApi {
     contentType: string,
     xQiniuHeaders?: IStringKeyMap
   ) {
-    let signStr = `${method.toUpperCase()} ${urlPath}`
-    query && (signStr += `?${query}`)
-    signStr += `\nHost: ${host}`
+    let signStr = `${method.toUpperCase()} ${urlPath}${query ? `?${query}` : ''}\nHost: ${host}`
+
     contentType && (signStr += `\nContent-Type: ${contentType}`)
-    let xQiniuHeaderStr = ''
     if (xQiniuHeaders) {
-      const xQiniuHeaderKeys = Object.keys(xQiniuHeaders).sort()
-      xQiniuHeaderKeys.forEach((key) => {
-        xQiniuHeaderStr += `\n${key}:${xQiniuHeaders[key]}`
-      })
+      const xQiniuHeaderStr = Object.keys(xQiniuHeaders)
+        .sort()
+        .map((key) => `\n${key}:${xQiniuHeaders[key]}`)
+        .join('')
       signStr += xQiniuHeaderStr
     }
+
     signStr += '\n\n'
-    if (contentType !== 'application/octet-stream' && body) {
-      signStr += body
-    }
+
+    if (contentType !== 'application/octet-stream' && body) signStr += body
     return `Qiniu ${this.accessKey}:${hmacSha1Base64(this.secretKey, signStr).replace(/\+/g, '-').replace(/\//g, '_')}`
   }
 
@@ -103,28 +119,21 @@ class QiniuApi {
       },
       timeout: this.timeout
     })
-    if (res && res.status === 200) {
-      if (res.data && res.data.length) {
-        const result = [] as any[]
-        for (let i = 0; i < res.data.length; i++) {
-          const info = await this.getBucketInfo({ bucketName: res.data[i] })
-          if (!info.success) {
-            return []
-          }
-          result.push({
-            Name: res.data[i],
-            Location: info.zone,
-            CreationDate: new Date().toISOString(),
-            Private: info.private
-          })
-        }
-        return result
-      } else {
-        return []
+    if (res?.status === 200 && res?.data?.length) {
+      const result = [] as any[]
+      for (let i = 0; i < res.data.length; i++) {
+        const info = await this.getBucketInfo({ bucketName: res.data[i] })
+        if (!info.success) return []
+        result.push({
+          Name: res.data[i],
+          Location: info.zone,
+          CreationDate: new Date().toISOString(),
+          Private: info.private
+        })
       }
-    } else {
-      return []
+      return result
     }
+    return []
   }
 
   /**
@@ -148,17 +157,15 @@ class QiniuApi {
       },
       timeout: this.timeout
     })
-    if (res && res.status === 200) {
-      return {
+    return res?.status === 200
+      ? {
         success: true,
         private: res.data.private,
         zone: res.data.zone
       }
-    } else {
-      return {
+      : {
         success: false
       }
-    }
   }
 
   /**
@@ -178,11 +185,7 @@ class QiniuApi {
       },
       timeout: this.timeout
     })
-    if (res && res.status === 200) {
-      return res.data && res.data.length ? res.data : []
-    } else {
-      return []
-    }
+    return res?.status === 200 && res?.data?.length ? res.data : []
   }
 
   /**
@@ -209,7 +212,7 @@ class QiniuApi {
       },
       timeout: this.timeout
     })
-    return res && res.status === 200
+    return res?.status === 200
   }
 
   /**
@@ -222,8 +225,7 @@ class QiniuApi {
    * }
   */
   async createBucket (configMap: IStringKeyMap): Promise<boolean> {
-    const { BucketName, region } = configMap
-    const { acl } = configMap
+    const { BucketName, region, acl } = configMap
     const urlPath = `/mkbucketv3/${BucketName}/region/${region}`
     const authorization = this.authorization('POST', urlPath, this.host, '', '', 'application/json')
     const res = await axios({
@@ -236,15 +238,12 @@ class QiniuApi {
       },
       timeout: this.timeout
     })
-    if (res && res.status === 200) {
-      const changeAclRes = await this.setBucketAclPolicy({
+    return res?.status === 200
+      ? await this.setBucketAclPolicy({
         bucketName: BucketName,
         isPrivate: !acl
       })
-      return changeAclRes
-    } else {
-      return false
-    }
+      : false
   }
 
   async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
@@ -407,19 +406,19 @@ class QiniuApi {
         }
       })
     })
-    if (res && res.respInfo.statusCode === 200) {
-      if (res.respBody && res.respBody.commonPrefixes) {
+    if (res?.respInfo?.statusCode === 200) {
+      if (res.respBody?.commonPrefixes) {
         res.respBody.commonPrefixes.forEach((item: string) => {
           result.fullList.push(this.formatFolder(item, slicedPrefix))
         })
       }
-      if (res.respBody && res.respBody.items) {
+      if (res.respBody?.items) {
         res.respBody.items.forEach((item: any) => {
           item.fsize !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
         })
       }
-      result.isTruncated = !!(res.respBody && res.respBody.marker)
-      result.nextMarker = res.respBody && res.respBody.marker ? res.respBody.marker : ''
+      result.isTruncated = !!(res.respBody?.marker)
+      result.nextMarker = res.respBody?.marker ? res.respBody.marker : ''
       result.success = true
     }
     return result
@@ -450,11 +449,7 @@ class QiniuApi {
         }
       })
     }) as any
-    if (res && res.respInfo.statusCode === 200) {
-      return true
-    } else {
-      return false
-    }
+    return res?.respInfo?.statusCode === 200
   }
 
   /**
@@ -487,12 +482,12 @@ class QiniuApi {
           }
         })
       }) as any
-      if (res && res.respInfo.statusCode === 200) {
-        if (res.respBody && res.respBody.items) {
+      if (res?.respInfo?.statusCode === 200) {
+        if (res.respBody?.items) {
           allFileList.Contents = allFileList.Contents.concat(res.respBody.items)
         }
-        isTruncated = !!(res.respBody && res.respBody.marker)
-        marker = res.respBody && res.respBody.marker ? res.respBody.marker : ''
+        isTruncated = !!(res.respBody?.marker)
+        marker = res.respBody?.marker ? res.respBody.marker : ''
       } else {
         return false
       }
@@ -514,9 +509,7 @@ class QiniuApi {
           }
         })
       }) as any
-      if (!(res && res.respInfo.statusCode === 200)) {
-        return false
-      }
+      if (res?.respInfo?.statusCode !== 200) return false
     }
     return true
   }
@@ -549,7 +542,7 @@ class QiniuApi {
         }
       })
     }) as any
-    return res && res.respInfo.statusCode === 200
+    return res?.respInfo?.statusCode === 200
   }
 
   /**
@@ -671,11 +664,7 @@ class QiniuApi {
         }
       })
     }) as any
-    if (res && res.respInfo.statusCode === 200) {
-      return true
-    } else {
-      return false
-    }
+    return res?.respInfo?.statusCode === 200
   }
 
   /**

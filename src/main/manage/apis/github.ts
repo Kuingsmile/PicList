@@ -1,16 +1,34 @@
+// HTTP 请求库
 import got from 'got'
+
+// 日志记录器
 import { ManageLogger } from '../utils/logger'
+
+// HTTP 代理格式化函数、是否为图片的判断函数
 import { formatHttpProxy, isImage } from '~/renderer/manage/utils/common'
+
+// 窗口管理器
 import windowManager from 'apis/app/window/windowManager'
+
+// 枚举类型声明
 import { IWindowList } from '#/types/enum'
+
+// Electron 相关
 import { ipcMain, IpcMainEvent } from 'electron'
+
+// got 上传函数、路径处理函数、新的下载器、获取请求代理、获取请求选项、并发异步任务池、错误格式化函数
 import { gotUpload, trimPath, NewDownloader, getAgent, getOptions, ConcurrencyPromisePool, formatError } from '../utils/common'
-import UpDownTaskQueue,
-{
-  commonTaskStatus
-} from '../datastore/upDownTaskQueue'
+
+// 上传下载任务队列
+import UpDownTaskQueue, { commonTaskStatus } from '../datastore/upDownTaskQueue'
+
+// 文件系统库
 import fs from 'fs-extra'
+
+// 路径处理库
 import path from 'path'
+
+// 取消下载任务的加载文件列表、刷新下载文件传输列表
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 class GithubApi {
@@ -252,34 +270,32 @@ class GithubApi {
   */
   async deleteBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName: repo, githubBranch: branch, key } = configMap
+    // get sha of the branch
     const refRes = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/git/refs/heads/${branch}`,
       getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy)
     ) as any
-    if (refRes.statusCode !== 200) {
-      return false
-    }
+    if (refRes.statusCode !== 200) return false
     const refSha = refRes.body.object.sha
+    // get sha of the root tree
     const rootRes = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/branches/${branch}`,
       getOptions('GET', undefined, undefined, 'json', undefined, undefined, this.proxy)
     ) as any
-    if (rootRes.statusCode !== 200) {
-      return false
-    }
+    if (rootRes.statusCode !== 200) return false
     const rootSha = rootRes.body.commit.commit.tree.sha
     // TODO: if there are more than 10000 files in the folder, it will be truncated
     // Rare cases, not considered for now
+    // get sha of the folder tree
     const treeRes = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${key.replace(/(^\/+|\/+$)/g, '')}`,
       getOptions('GET', this.commonHeaders, {
         recursive: true
       }, 'json', undefined, undefined, this.proxy)
     ) as any
-    if (treeRes.statusCode !== 200) {
-      return false
-    }
+    if (treeRes.statusCode !== 200) return false
     const oldTree = treeRes.body.tree
+    // create a new tree
     const newTree = oldTree.filter((item: any) => item.type === 'blob')
       .map((item:any) => ({
         path: `${key.replace(/(^\/+|\/+$)/g, '')}/${item.path}`,
@@ -294,10 +310,9 @@ class GithubApi {
         tree: newTree
       }), undefined, this.proxy)
     ) as any
-    if (newTreeShaRes.statusCode !== 201) {
-      return false
-    }
+    if (newTreeShaRes.statusCode !== 201) return false
     const newTreeSha = newTreeShaRes.body.sha
+    // create a new commit
     const commitRes = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/git/commits`,
       getOptions('POST', this.commonHeaders, undefined, 'json', JSON.stringify({
@@ -306,10 +321,9 @@ class GithubApi {
         parents: [refSha]
       }), undefined, this.proxy)
     ) as any
-    if (commitRes.statusCode !== 201) {
-      return false
-    }
+    if (commitRes.statusCode !== 201) return false
     const commitSha = commitRes.body.sha
+    // update the branch
     const updateRefRes = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/git/refs/heads/${branch}`,
       getOptions('PATCH', this.commonHeaders, undefined, 'json', JSON.stringify({
