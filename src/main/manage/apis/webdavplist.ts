@@ -1,19 +1,38 @@
+// 日志记录器
 import ManageLogger from '../utils/logger'
+
+// WebDAV 客户端库
 import { createClient, WebDAVClient, FileStat, ProgressEvent } from 'webdav'
+
+// 错误格式化函数、端点地址格式化函数、获取内部代理、新的下载器、并发异步任务池
 import { formatError, formatEndpoint, getInnerAgent, NewDownloader, ConcurrencyPromisePool } from '../utils/common'
+
+// HTTP 代理格式化函数、是否为图片的判断函数
 import { formatHttpProxy, isImage } from '@/manage/utils/common'
+
+// HTTP 和 HTTPS 模块
 import http from 'http'
 import https from 'https'
+
+// 窗口管理器
 import windowManager from 'apis/app/window/windowManager'
+
+// 枚举类型声明
 import { IWindowList } from '#/types/enum'
+
+// Electron 相关
 import { ipcMain, IpcMainEvent } from 'electron'
-import UpDownTaskQueue,
-{
-  uploadTaskSpecialStatus,
-  commonTaskStatus
-} from '../datastore/upDownTaskQueue'
+
+// 上传下载任务队列
+import UpDownTaskQueue, { uploadTaskSpecialStatus, commonTaskStatus } from '../datastore/upDownTaskQueue'
+
+// 文件系统库
 import fs from 'fs-extra'
+
+// 路径处理库
 import path from 'path'
+
+// 取消下载任务的加载文件列表、刷新下载文件传输列表
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 class WebdavplistApi {
@@ -53,12 +72,13 @@ class WebdavplistApi {
     this.logger.error(formatError(error, { class: 'WebdavplistApi', method }))
 
   formatFolder (item: FileStat, urlPrefix: string, isWebPath = false) {
+    const key = item.filename.replace(/^\/+/, '')
     return {
       ...item,
-      key: item.filename.replace(/^\/+/, ''),
+      key,
       fileName: item.basename,
       fileSize: 0,
-      Key: item.filename.replace(/^\/+/, ''),
+      Key: key,
       formatedTime: '',
       isDir: true,
       checked: false,
@@ -69,12 +89,13 @@ class WebdavplistApi {
   }
 
   formatFile (item: FileStat, urlPrefix: string, isWebPath = false) {
+    const key = item.filename.replace(/^\/+/, '')
     return {
       ...item,
-      key: item.filename.replace(/^\/+/, ''),
+      key,
       fileName: item.basename,
       fileSize: item.size,
-      Key: item.filename.replace(/^\/+/, ''),
+      Key: key,
       formatedTime: new Date(item.lastmod).toLocaleString(),
       isDir: false,
       checked: false,
@@ -109,7 +130,7 @@ class WebdavplistApi {
         details: true
       })
       if (this.isRequestSuccess(res.status)) {
-        if (res.data && res.data.length) {
+        if (res.data?.length) {
           res.data.forEach((item: FileStat) => {
             if (item.type !== 'directory') {
               result.fullList.push(this.formatFile(item, urlPrefix))
@@ -142,7 +163,7 @@ class WebdavplistApi {
     urlPrefix = urlPrefix.replace(/\/+$/, '')
     let webPath = configMap.webPath || ''
     if (webPath && customUrl && webPath !== '/') {
-      webPath = webPath.replace(/^\/+/, '').replace(/\/+$/, '')
+      webPath = webPath.replace(/^\/+|\/+$/, '')
     }
     const cancelTask = [false]
     ipcMain.on('cancelLoadingFileList', (_evt: IpcMainEvent, token: string) => {
@@ -163,7 +184,7 @@ class WebdavplistApi {
         details: true
       })
       if (this.isRequestSuccess(res.status)) {
-        if (res.data && res.data.length) {
+        if (res.data?.length) {
           res.data.forEach((item: FileStat) => {
             const relativePath = path.relative(baseDir, item.filename)
             const relative = webPath && urlPrefix + `/${path.join(webPath, relativePath)}`.replace(/\\/g, '/').replace(/\/+/g, '/')

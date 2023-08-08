@@ -1,19 +1,37 @@
+// 腾讯云 COS SDK
 import COS from 'cos-nodejs-sdk-v5'
+
+// 文件系统库
 import fs from 'fs-extra'
+
+// 路径处理库
 import path from 'path'
+
+// 是否为图片的判断函数
 import { isImage } from '~/renderer/manage/utils/common'
+
+// URL 编码处理函数
 import { handleUrlEncode } from '~/universal/utils/common'
+
+// 窗口管理器
 import windowManager from 'apis/app/window/windowManager'
+
+// 枚举类型声明
 import { IWindowList } from '#/types/enum'
+
+// Electron 相关
 import { ipcMain, IpcMainEvent } from 'electron'
+
+// 错误格式化函数、获取文件 MIME 类型
 import { formatError, getFileMimeType } from '../utils/common'
-import UpDownTaskQueue,
-{
-  uploadTaskSpecialStatus,
-  commonTaskStatus,
-  downloadTaskSpecialStatus
-} from '../datastore/upDownTaskQueue'
+
+// 上传下载任务队列
+import UpDownTaskQueue, { uploadTaskSpecialStatus, commonTaskStatus, downloadTaskSpecialStatus } from '../datastore/upDownTaskQueue'
+
+// 日志记录器
 import { ManageLogger } from '../utils/logger'
+
+// 取消下载任务的加载文件列表、刷新下载文件传输列表
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 class TcyunApi {
@@ -62,7 +80,7 @@ class TcyunApi {
   */
   async getBucketList (): Promise<any> {
     const res = await this.ctx.getService({})
-    return res && res.Buckets ? res.Buckets : []
+    return res?.Buckets || []
   }
 
   /**
@@ -74,21 +92,8 @@ class TcyunApi {
       Bucket: bucketName,
       Region: region
     })
-    const result = [] as string[]
-    if (res && res.statusCode === 200) {
-      if (res.DomainRule && res.DomainRule.length > 0) {
-        res.DomainRule.forEach((item: any) => {
-          if (item.Status === 'ENABLED') {
-            result.push(item.Name)
-          }
-        })
-        return result
-      } else {
-        return []
-      }
-    } else {
-      return []
-    }
+    if (res?.statusCode !== 200 || !res?.DomainRule?.length) return []
+    return res.DomainRule.filter((item: any) => item.Status === 'ENABLED').map(item => item.Name)
   }
 
   /**
@@ -113,31 +118,29 @@ class TcyunApi {
       Bucket: configMap.BucketName,
       Region: configMap.region
     })
-    return res && res.statusCode === 200
+    return res?.statusCode === 200
   }
 
   async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
-    const bucket = configMap.bucketName
-    const region = configMap.bucketConfig.Location
-    const prefix = configMap.prefix as string
+    const { bucketName: bucket, bucketConfig: { Location: region }, prefix, customUrl, cancelToken } = configMap
     const slicedPrefix = prefix.slice(1, prefix.length)
-    const urlPrefix = configMap.customUrl || `https://${bucket}.cos.${region}.myqcloud.com`
-    let marker
-    const cancelToken = configMap.cancelToken as string
+    const urlPrefix = customUrl || `https://${bucket}.cos.${region}.myqcloud.com`
     const cancelTask = [false]
+    let marker
+
     ipcMain.on(cancelDownloadLoadingFileList, (_evt: IpcMainEvent, token: string) => {
       if (token === cancelToken) {
         cancelTask[0] = true
         ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
       }
     })
-    let res = {} as COS.GetBucketResult
     const result = {
       fullList: <any>[],
       success: false,
       finished: false
     }
+    let res = {} as COS.GetBucketResult
     do {
       res = await this.ctx.getBucket({
         Bucket: bucket,
@@ -145,9 +148,9 @@ class TcyunApi {
         Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
         Marker: marker
       })
-      if (res && res.statusCode === 200) {
-        res.Contents.forEach((item: COS.CosObject) =>
-          parseInt(item.Size) !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix)))
+      if (res?.statusCode === 200) {
+        result.fullList.push(...res.Contents.filter(item => parseInt(item.Size) !== 0)
+          .map(item => this.formatFile(item, slicedPrefix, urlPrefix)))
         window.webContents.send(refreshDownloadFileTransferList, result)
       } else {
         result.finished = true
@@ -165,14 +168,12 @@ class TcyunApi {
 
   async getBucketListBackstage (configMap: IStringKeyMap): Promise < any > {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
-    const bucket = configMap.bucketName
-    const region = configMap.bucketConfig.Location
-    const prefix = configMap.prefix as string
+    const { bucketName: bucket, bucketConfig: { Location: region }, prefix, customUrl, cancelToken } = configMap
     const slicedPrefix = prefix.slice(1, prefix.length)
-    const urlPrefix = configMap.customUrl || `https://${bucket}.cos.${region}.myqcloud.com`
-    let marker
-    const cancelToken = configMap.cancelToken as string
+    const urlPrefix = customUrl || `https://${bucket}.cos.${region}.myqcloud.com`
     const cancelTask = [false]
+    let marker
+
     ipcMain.on('cancelLoadingFileList', (_evt: IpcMainEvent, token: string) => {
       if (token === cancelToken) {
         cancelTask[0] = true
@@ -193,11 +194,12 @@ class TcyunApi {
         Delimiter: '/',
         Marker: marker
       })
-      if (res && res.statusCode === 200) {
-        res.CommonPrefixes.forEach((item: { Prefix: string}) =>
-          result.fullList.push(this.formatFolder(item, slicedPrefix)))
-        res.Contents.forEach((item: COS.CosObject) =>
-          parseInt(item.Size) !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix)))
+      if (res?.statusCode === 200) {
+        result.fullList.push(
+          ...res.CommonPrefixes.map(item => this.formatFolder(item, slicedPrefix)),
+          ...res.Contents.filter(item => parseInt(item.Size) !== 0)
+            .map(item => this.formatFile(item, slicedPrefix, urlPrefix))
+        )
         window.webContents.send('refreshFileTransferList', result)
       } else {
         result.finished = true
@@ -229,36 +231,34 @@ class TcyunApi {
    * }
   */
   async getBucketFileList (configMap: IStringKeyMap): Promise<any> {
-    const bucket = configMap.bucketName
-    const region = configMap.bucketConfig.Location
-    const prefix = configMap.prefix as string
+    const { bucketName: bucket, bucketConfig: { Location: region }, prefix, customUrl, marker, itemsPerPage } = configMap
     const slicedPrefix = prefix.slice(1)
-    const urlPrefix = configMap.customUrl || `https://${bucket}.cos.${region}.myqcloud.com`
-    const marker = configMap.marker as string
-    const itemsPerPage = configMap.itemsPerPage as number
-    let res = {} as COS.GetBucketResult
-    const result = {
-      fullList: <any>[],
-      isTruncated: false,
-      nextMarker: '',
-      success: false
-    }
-    res = await this.ctx.getBucket({
+    const urlPrefix = customUrl || `https://${bucket}.cos.${region}.myqcloud.com`
+    const res = await this.ctx.getBucket({
       Bucket: bucket,
       Region: region,
       Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
       Delimiter: '/',
       Marker: marker,
       MaxKeys: itemsPerPage
-    })
-    if (res && res.statusCode === 200) {
-      res.CommonPrefixes.forEach((item: { Prefix: string}) =>
-        result.fullList.push(this.formatFolder(item, slicedPrefix)))
-      res.Contents.forEach((item: COS.CosObject) =>
-        parseInt(item.Size) !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix)))
-      result.isTruncated = res.IsTruncated === 'true'
-      result.nextMarker = res.NextMarker || ''
-      result.success = true
+    }) as COS.GetBucketResult
+    if (res?.statusCode !== 200) {
+      return {
+        fullList: [],
+        isTruncated: false,
+        nextMarker: '',
+        success: false
+      }
+    }
+    const result = {
+      fullList: [
+        ...res.CommonPrefixes.map(item => this.formatFolder(item, slicedPrefix)),
+        ...res.Contents.filter(item => parseInt(item.Size) !== 0)
+          .map(item => this.formatFile(item, slicedPrefix, urlPrefix))
+      ],
+      isTruncated: res.IsTruncated === 'true',
+      nextMarker: res.NextMarker || '',
+      success: true
     }
     return result
   }
@@ -275,22 +275,22 @@ class TcyunApi {
   */
   async renameBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, oldKey, newKey } = configMap
-    const res = await this.ctx.putObjectCopy({
+    const copyRes = await this.ctx.putObjectCopy({
       Bucket: bucketName,
       Region: region,
       Key: newKey,
       CopySource: handleUrlEncode(`${bucketName}.cos.${region}.myqcloud.com/${oldKey}`)
     })
-    if (res && res.statusCode === 200) {
-      const res2 = await this.ctx.deleteObject({
-        Bucket: bucketName,
-        Region: region,
-        Key: oldKey
-      })
-      return res2 && res2.statusCode === 204
-    } else {
-      return false
-    }
+
+    if (copyRes?.statusCode !== 200) return false
+
+    const deleteRes = await this.ctx.deleteObject({
+      Bucket: bucketName,
+      Region: region,
+      Key: oldKey
+    })
+
+    return deleteRes?.statusCode === 204
   }
 
   /**
@@ -309,7 +309,7 @@ class TcyunApi {
       Region: region,
       Key: key
     })
-    return res && res.statusCode === 204
+    return res?.statusCode === 204
   }
 
   /**
@@ -319,72 +319,38 @@ class TcyunApi {
   async deleteBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, key } = configMap
     let marker
-    let isTruncated
+    let res: any
     const allFileList = {
       CommonPrefixes: [] as any[],
       Contents: [] as any[]
     }
-    let res = await this.ctx.getBucket({
-      Bucket: bucketName,
-      Region: region,
-      Prefix: key,
-      Delimiter: '/',
-      MaxKeys: 1000
-    })
-    if (res && res.statusCode === 200) {
-      res.CommonPrefixes.length > 0 && allFileList.CommonPrefixes.push(...res.CommonPrefixes)
-      res.Contents.length > 0 && allFileList.Contents.push(...res.Contents)
-      isTruncated = res.IsTruncated
+    do {
+      res = await this.ctx.getBucket({
+        Bucket: bucketName,
+        Region: region,
+        Prefix: key,
+        Delimiter: '/',
+        MaxKeys: 1000,
+        Marker: marker
+      })
+
+      if (res?.statusCode !== 200) return false
+
+      allFileList.CommonPrefixes.push(...res.CommonPrefixes)
+      allFileList.Contents.push(...res.Contents)
       marker = res.NextMarker
-      while (isTruncated === 'true') {
-        res = await this.ctx.getBucket({
-          Bucket: bucketName,
-          Region: region,
-          Prefix: key,
-          Delimiter: '/',
-          Marker: marker,
-          MaxKeys: 1000
-        }) as any
-        if (res && res.statusCode === 200) {
-          res.CommonPrefixes.length > 0 && allFileList.CommonPrefixes.push(...res.CommonPrefixes)
-          res.Contents.length > 0 && allFileList.Contents.push(...res.Contents)
-          isTruncated = res.IsTruncated
-          marker = res.NextMarker
-        } else {
-          return false
-        }
-      }
-    } else {
-      return false
+    } while (res.IsTruncated === 'true')
+    for (const item of allFileList.CommonPrefixes) {
+      if (!(await this.deleteBucketFolder({ bucketName, region, key: item.Prefix }))) return false
     }
-    if (allFileList.CommonPrefixes.length > 0) {
-      for (const item of allFileList.CommonPrefixes) {
-        res = await this.deleteBucketFolder({
-          bucketName,
-          region,
-          key: item.Prefix
-        }) as any
-        if (!res) {
-          return false
-        }
-      }
-    }
-    if (allFileList.Contents.length > 0) {
-      const cycle = Math.ceil(allFileList.Contents.length / 1000)
-      for (let i = 0; i < cycle; i++) {
-        res = await this.ctx.deleteMultipleObject({
-          Bucket: bucketName,
-          Region: region,
-          Objects: allFileList.Contents.slice(i * 1000, (i + 1) * 1000).map((item: any) => {
-            return {
-              Key: item.Key
-            }
-          })
-        }) as any
-        if (!(res && res.statusCode === 200)) {
-          return false
-        }
-      }
+    const cycles = Math.ceil(allFileList.Contents.length / 1000)
+    for (let i = 0; i < cycles; i++) {
+      const res = await this.ctx.deleteMultipleObject({
+        Bucket: bucketName,
+        Region: region,
+        Objects: allFileList.Contents.slice(i * 1000, (i + 1) * 1000).map((item: any) => ({ Key: item.Key }))
+      })
+      if (res?.statusCode !== 200) return false
     }
     return true
   }
@@ -500,7 +466,7 @@ class TcyunApi {
       Key: key,
       Body: ''
     })
-    return res && res.statusCode === 200
+    return res?.statusCode === 200
   }
 
   /**
