@@ -4,7 +4,6 @@ import {
   ListBucketsCommand,
   ListObjectsV2Command,
   GetBucketLocationCommand,
-  S3ClientConfig,
   _Object,
   CommonPrefix,
   ListObjectsV2CommandOutput,
@@ -12,7 +11,8 @@ import {
   GetObjectCommand,
   DeleteObjectCommand,
   DeleteObjectsCommand,
-  PutObjectCommand
+  PutObjectCommand,
+  S3ClientConfig
 } from '@aws-sdk/client-s3'
 
 // AWS S3 上传和进度
@@ -23,7 +23,8 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 // HTTP 和 HTTPS 模块
 import https from 'https'
-import http from 'http'
+import http, { AgentOptions } from 'http'
+import { NodeHttpHandler } from '@smithy/node-http-handler'
 
 // 日志记录器
 import { ManageLogger } from '../utils/logger'
@@ -33,9 +34,6 @@ import { formatEndpoint, formatError, getAgent, getFileMimeType, NewDownloader, 
 
 // 是否为图片的判断函数、HTTP 代理格式化函数
 import { isImage, formatHttpProxy } from '@/manage/utils/common'
-
-// HTTP 和 HTTPS 代理库
-import { HttpsProxyAgent, HttpProxyAgent } from 'hpagent'
 
 // 窗口管理器
 import windowManager from 'apis/app/window/windowManager'
@@ -58,21 +56,8 @@ import path from 'path'
 // 取消下载任务的加载文件列表、刷新下载文件传输列表
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
-interface S3plistApiOptions {
-  credentials: {
-    accessKeyId: string
-    secretAccessKey: string
-  }
-  endpoint?: string
-  sslEnabled: boolean
-  s3ForcePathStyle: boolean
-  httpOptions?: {
-    agent: https.Agent
-  }
-}
-
 class S3plistApi {
-  baseOptions: S3plistApiOptions
+  baseOptions: S3ClientConfig
   logger: ManageLogger
   agent: any
   proxy: string | undefined
@@ -92,26 +77,39 @@ class S3plistApi {
         secretAccessKey
       },
       endpoint: endpoint ? formatEndpoint(endpoint, sslEnabled) : undefined,
-      sslEnabled,
-      s3ForcePathStyle,
-      httpOptions: {
-        agent: this.setAgent(proxy, sslEnabled)
-      }
-    } as S3plistApiOptions
+      tls: sslEnabled,
+      forcePathStyle: s3ForcePathStyle,
+      requestHandler: this.setAgent(proxy, sslEnabled)
+    }
     this.logger = logger
-    this.agent = this.setAgent(proxy, sslEnabled)
     this.proxy = formatHttpProxy(proxy, 'string') as string | undefined
   }
 
-  setAgent (proxy: string | undefined, sslEnabled: boolean) : HttpProxyAgent | HttpsProxyAgent | undefined {
-    const protocol = sslEnabled ? 'https' : 'http'
-    const agent = getAgent(proxy, sslEnabled)[protocol]
-    const commonOptions = { keepAlive: true }
+  setAgent (proxy: string | undefined, sslEnabled: boolean) : NodeHttpHandler {
+    const agent = getAgent(proxy, sslEnabled)
+    const commonOptions: AgentOptions = {
+      keepAlive: true,
+      keepAliveMsecs: 1000,
+      scheduling: 'lifo' as 'lifo' | 'fifo' | undefined
+    }
     const extraOptions = sslEnabled ? { rejectUnauthorized: false } : {}
-    return agent ?? new (sslEnabled ? https.Agent : http.Agent)({
-      ...commonOptions,
-      ...extraOptions
-    })
+    return sslEnabled
+      ? new NodeHttpHandler({
+        httpsAgent: agent.https
+          ? agent.https
+          : new https.Agent({
+            ...commonOptions,
+            ...extraOptions
+          })
+      })
+      : new NodeHttpHandler({
+        httpAgent: agent.http
+          ? agent.http
+          : new http.Agent({
+            ...commonOptions,
+            ...extraOptions
+          })
+      })
   }
 
   logParam = (error:any, method: string) =>

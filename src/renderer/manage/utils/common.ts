@@ -134,7 +134,7 @@ export interface IHTTPProxy {
 }
 
 export const formatHttpProxy = (proxy: string | undefined, type: 'object' | 'string'): IHTTPProxy | undefined | string => {
-  if (proxy === undefined || proxy === '') return undefined
+  if (!proxy) return undefined
   if (/^https?:\/\//.test(proxy)) {
     const { protocol, hostname, port } = new URL(proxy)
     return type === 'string'
@@ -144,16 +144,15 @@ export const formatHttpProxy = (proxy: string | undefined, type: 'object' | 'str
         port: Number(port),
         protocol: protocol.slice(0, -1)
       }
-  } else {
-    const [host, port] = proxy.split(':')
-    return type === 'string'
-      ? `http://${host}:${port}`
-      : {
-        host,
-        port: port ? Number(port) : 80,
-        protocol: 'http'
-      }
   }
+  const [host, port] = proxy.split(':')
+  return type === 'string'
+    ? `http://${host}:${port}`
+    : {
+      host,
+      port: port ? Number(port) : 80,
+      protocol: 'http'
+    }
 }
 
 export const svg = `

@@ -1,3 +1,4 @@
+// Electron 相关
 import {
   app,
   ipcMain,
@@ -8,16 +9,38 @@ import {
   screen,
   IpcMainInvokeEvent
 } from 'electron'
+
+// 窗口管理器
 import windowManager from 'apis/app/window/windowManager'
+
+// 枚举类型声明
 import { IWindowList } from '#/types/enum'
+
+// 上传器
 import uploader from 'apis/app/uploader'
+
+// 粘贴模板函数
 import pasteTemplate from '~/main/utils/pasteTemplate'
+
+// 数据存储库和类型声明
 import db, { GalleryDB } from '~/main/apis/core/datastore'
+
+// 服务器模块
 import server from '~/main/server'
+
+// 获取图片床模块
 import getPicBeds from '~/main/utils/getPicBeds'
+
+// 快捷键处理器
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
+
+// 全局事件总线
 import bus from '@core/bus'
+
+// 文件系统库
 import fs from 'fs-extra'
+
+// 事件常量
 import {
   TOGGLE_SHORTKEY_MODIFIED_MODE,
   OPEN_DEVTOOLS,
@@ -34,18 +57,45 @@ import {
   GET_PICBEDS,
   HIDE_DOCK
 } from '#/events/constants'
+
+// 上传剪贴板文件和已选文件的函数
 import {
   uploadClipboardFiles,
   uploadChoosedFiles
 } from '~/main/apis/app/uploader/apis'
+
+// 核心 IPC 模块
 import picgoCoreIPC from './picgoCoreIPC'
+
+// 处理复制的 URL 和生成短链接的函数
 import { handleCopyUrl, generateShortUrl } from '~/main/utils/common'
+
+// 构建主页面、迷你页面、插件页面、图片床列表的菜单函数
 import { buildMainPageMenu, buildMiniPageMenu, buildPluginPageMenu, buildPicBedListMenu } from './remotes/menu'
+
+// 路径处理库
 import path from 'path'
+
+// i18n 模块
 import { T } from '~/main/i18n'
+
+// 同步设置的上传和下载文件函数
 import { uploadFile, downloadFile } from '../utils/syncSettings'
+
+// SSH 客户端模块
 import SSHClient from '../utils/sshClient'
+
+// Sftp 配置类型声明
 import { ISftpPlistConfig } from 'piclist'
+
+// AWS S3 相关模块
+import { S3Client, DeleteObjectCommand, S3ClientConfig } from '@aws-sdk/client-s3'
+import { NodeHttpHandler } from '@smithy/node-http-handler'
+import http, { AgentOptions } from 'http'
+import https from 'https'
+
+// 通用获取 Agent 函数
+import { getAgent } from '../manage/utils/common'
 
 const STORE_PATH = app.getPath('userData')
 
@@ -131,6 +181,66 @@ export default {
         const deleteResult = await client.deleteFile(remote)
         client.close()
         return deleteResult
+      } catch (err: any) {
+        console.error(err)
+        return false
+      }
+    })
+
+    ipcMain.handle('delete-aws-s3-file', async (_evt: IpcMainInvokeEvent, configMap: IStringKeyMap) => {
+      try {
+        const { imgUrl, config: { accessKeyID, secretAccessKey, bucketName, region, endpoint, pathStyleAccess, rejectUnauthorized, proxy } } = configMap
+        console.log(JSON.stringify(configMap, null, 2))
+        const url = new URL(!/^https?:\/\//.test(imgUrl) ? `http://${imgUrl}` : imgUrl)
+        const fileKey = url.pathname.replace(/^\/+/, '')
+        const endpointUrl: string | undefined = endpoint
+          ? /^https?:\/\//.test(endpoint)
+            ? endpoint
+            : `http://${endpoint}`
+          : undefined
+        const sslEnabled = endpointUrl ? endpointUrl.startsWith('https') : true
+        const agent = getAgent(proxy, sslEnabled)
+        const commonOptions: AgentOptions = {
+          keepAlive: true,
+          keepAliveMsecs: 1000,
+          scheduling: 'lifo' as 'lifo' | 'fifo' | undefined
+        }
+        const extraOptions = sslEnabled ? { rejectUnauthorized: !!rejectUnauthorized } : {}
+        const handler = sslEnabled
+          ? new NodeHttpHandler({
+            httpsAgent: agent.https
+              ? agent.https
+              : new https.Agent({
+                ...commonOptions,
+                ...extraOptions
+              })
+          })
+          : new NodeHttpHandler({
+            httpAgent: agent.http
+              ? agent.http
+              : new http.Agent({
+                ...commonOptions,
+                ...extraOptions
+              })
+          })
+        const s3Options: S3ClientConfig = {
+          credentials: {
+            accessKeyId: accessKeyID,
+            secretAccessKey
+          },
+          endpoint: endpointUrl,
+          tls: sslEnabled,
+          forcePathStyle: pathStyleAccess,
+          region,
+          requestHandler: handler
+        }
+        const client = new S3Client(s3Options)
+        const command = new DeleteObjectCommand({
+          Bucket: bucketName,
+          Key: fileKey
+        })
+        const result = await client.send(command)
+        return result.$metadata.httpStatusCode === 204
       } catch (err: any) {
         console.error(err)
         return false

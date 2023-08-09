@@ -4,7 +4,7 @@ import mime from 'mime-types'
 import axios from 'axios'
 import { app } from 'electron'
 import crypto from 'crypto'
-import got, { RequestError } from 'got'
+import got, { OptionsOfTextResponseBody, RequestError } from 'got'
 import { Stream } from 'stream'
 import { promisify } from 'util'
 import UpDownTaskQueue,
@@ -40,20 +40,13 @@ export const getFSFile = async (
   }
 }
 
-export const isInputConfigValid = (config: any): boolean => {
-  if (
-    typeof config === 'object' &&
+export function isInputConfigValid (config: any): boolean {
+  return typeof config === 'object' &&
     !Array.isArray(config) &&
     Object.keys(config).length > 0
-  ) {
-    return true
-  }
-  return false
 }
 
-export const getFileMimeType = (filePath: string): string => {
-  return mime.lookup(filePath) || 'application/octet-stream'
-}
+export const getFileMimeType = (filePath: string): string => mime.lookup(filePath) || 'application/octet-stream'
 
 const checkTempFolderExist = async () => {
   const tempPath = path.join(app.getPath('downloads'), 'piclistTemp')
@@ -131,7 +124,7 @@ export const NewDownloader = async (
     })
     return true
   } catch (e: any) {
-    logger && logger.error(formatError(e, { method: 'NewDownloader' }))
+    logger?.error(formatError(e, { method: 'NewDownloader' }))
     fs.remove(savedFilePath)
     instance.updateDownloadTask({
       id,
@@ -179,13 +172,13 @@ export const gotUpload = async (
     .then((res: any) => {
       instance.updateUploadTask({
         id,
-        progress: res && (res.statusCode === 200 || res.statusCode === 201) ? 100 : 0,
-        status: res && (res.statusCode === 200 || res.statusCode === 201) ? uploadTaskSpecialStatus.uploaded : commonTaskStatus.failed,
+        progress: res?.statusCode === 200 || res?.statusCode === 201 ? 100 : 0,
+        status: res?.statusCode === 200 || res?.statusCode === 201 ? uploadTaskSpecialStatus.uploaded : commonTaskStatus.failed,
         finishTime: new Date().toLocaleString()
       })
     })
     .catch((err: any) => {
-      logger && logger.error(formatError(err, { method: 'gotUpload' }))
+      logger?.error(formatError(err, { method: 'gotUpload' }))
       instance.updateUploadTask({
         id,
         progress: 0,
@@ -213,42 +206,46 @@ export const formatError = (err: any, params:IStringKeyMap) => {
       message: err.message ?? '',
       stack: err.stack ?? ''
     }
-  } else {
-    if (typeof err === 'object') {
-      return JSON.stringify(err) + JSON.stringify(params)
-    } else {
-      return String(err) + JSON.stringify(params)
-    }
   }
+  if (typeof err === 'object') {
+    return `${JSON.stringify(err)}${JSON.stringify(params)}`
+  }
+  return `${String(err)}${JSON.stringify(params)}`
 }
 
 export const trimPath = (path: string) => path.replace(/^\/+|\/+$/g, '').replace(/\/+/g, '/')
 
-export const getAgent = (proxy:any, https: boolean = true) => {
+const commonOptions = {
+  keepAlive: true,
+  keepAliveMsecs: 1000,
+  scheduling: 'lifo' as 'lifo' | 'fifo' | undefined
+} as any
+
+export const getAgent = (proxy:any, https: boolean = true): {
+  https?: HttpsProxyAgent
+  http?: HttpProxyAgent
+} => {
   const formatProxy = formatHttpProxy(proxy, 'string') as any
+  const commonResult = {
+    https: undefined,
+    http: undefined
+  }
+  if (!formatProxy) return commonResult
+  commonOptions.proxy = formatProxy.replace('127.0.0.1', 'localhost')
   if (https) {
-    return formatProxy
-      ? {
-        https: new HttpsProxyAgent({
-          keepAlive: true,
-          keepAliveMsecs: 1000,
-          rejectUnauthorized: false,
-          scheduling: 'lifo' as 'lifo' | 'fifo' | undefined,
-          proxy: formatProxy.replace('127.0.0.1', 'localhost')
-        })
-      }
-      : {}
-  } else {
-    return formatProxy
-      ? {
-        http: new HttpProxyAgent({
-          keepAlive: true,
-          keepAliveMsecs: 1000,
-          scheduling: 'lifo' as 'lifo' | 'fifo' | undefined,
-          proxy: formatProxy.replace('127.0.0.1', 'localhost')
-        })
-      }
-      : {}
+    return {
+      https: new HttpsProxyAgent({
+        ...commonOptions,
+        rejectUnauthorized: false
+      }),
+      http: undefined
+    }
+  }
+  return {
+    http: new HttpProxyAgent({
+      ...commonOptions
+    }),
+    https: undefined
   }
 }
 
@@ -258,10 +255,8 @@ export const getInnerAgent = (proxy: any, sslEnabled: boolean = true) => {
     return formatProxy
       ? {
         agent: new https.Agent({
-          keepAlive: true,
-          keepAliveMsecs: 1000,
+          ...commonOptions,
           rejectUnauthorized: false,
-          scheduling: 'lifo' as 'lifo' | 'fifo' | undefined,
           host: formatProxy.host,
           port: formatProxy.port
         })
@@ -272,25 +267,20 @@ export const getInnerAgent = (proxy: any, sslEnabled: boolean = true) => {
           keepAlive: true
         })
       }
-  } else {
-    return formatProxy
-      ? {
-        agent: new http.Agent({
-          keepAlive: true,
-          keepAliveMsecs: 1000,
-          scheduling: 'lifo' as 'lifo' | 'fifo' | undefined,
-          host: formatProxy.host,
-          port: formatProxy.port
-        })
-      }
-      : {
-        agent: new http.Agent({
-          keepAlive: true,
-          keepAliveMsecs: 1000,
-          scheduling: 'lifo' as 'lifo' | 'fifo' | undefined
-        })
-      }
   }
+  return formatProxy
+    ? {
+      agent: new http.Agent({
+        ...commonOptions,
+        host: formatProxy.host,
+        port: formatProxy.port
+      })
+    }
+    : {
+      agent: new http.Agent({
+        ...commonOptions
+      })
+    }
 }
 
 export function getOptions (
@@ -301,23 +291,17 @@ export function getOptions (
   body?: any,
   timeout?: number,
   proxy?: any
-) {
-  const options = {
-    method: method?.toUpperCase(),
-    headers,
-    searchParams,
-    agent: getAgent(proxy),
-    timeout: {
-      request: timeout || 30000
-    },
-    body,
-    throwHttpErrors: false,
-    responseType
-  } as IStringKeyMap
-  Object.keys(options).forEach(key => {
-    options[key] === undefined && delete options[key]
-  })
-  return options
+): OptionsOfTextResponseBody {
+  return {
+    ...(method && { method: method.toUpperCase() }),
+    ...(headers && { headers }),
+    ...(searchParams && { searchParams }),
+    ...(body && { body }),
+    ...(responseType && { responseType }),
+    ...(timeout !== undefined ? { timeout: { request: timeout } } : { timeout: { request: 30000 } }),
+    ...(proxy && { agent: Object.fromEntries(Object.entries(getAgent(proxy)).filter(([, v]) => v !== undefined)) }),
+    throwHttpErrors: false
+  }
 }
 
 export const formatEndpoint = (endpoint: string, sslEnabled: boolean): string =>
