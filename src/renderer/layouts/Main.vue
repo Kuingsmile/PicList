@@ -47,6 +47,15 @@
         </el-icon>
       </div>
     </div>
+    <el-progress
+      v-if="progressShow"
+      :percentage="progressPercentage"
+      :stroke-width="7"
+      :text-inside="true"
+      :show-text="false"
+      status="success"
+      class="progress-bar"
+    />
     <el-row
       style="padding-top: 22px;"
       class="main-content"
@@ -311,8 +320,10 @@ const qrcodeVisible = ref(false)
 const picBedConfigString = ref('')
 const choosedPicBedForQRCode: Ref<string[]> = ref([])
 const isAlwaysOnTop = ref(false)
-
 const keepAlivePages = $router.getRoutes().filter(item => item.meta.keepAlive).map(item => item.name as string)
+
+const progressShow = ref(true)
+const progressPercentage = ref(0)
 
 onBeforeMount(() => {
   os.value = process.platform
@@ -324,6 +335,10 @@ onBeforeMount(() => {
   })
   ipcRenderer.on(SHOW_MAIN_PAGE_DONATION, () => {
     visible.value = true
+  })
+  ipcRenderer.on('updateProgress', (_event: IpcRendererEvent, data: { progress: number}) => {
+    progressShow.value = data.progress !== 100 && data.progress !== 0
+    progressPercentage.value = data.progress
   })
 })
 
@@ -420,6 +435,9 @@ onBeforeRouteUpdate(async (to) => {
 
 onBeforeUnmount(() => {
   ipcRenderer.removeListener(GET_PICBEDS, getPicBeds)
+  ipcRenderer.removeAllListeners(SHOW_MAIN_PAGE_QRCODE)
+  ipcRenderer.removeAllListeners(SHOW_MAIN_PAGE_DONATION)
+  ipcRenderer.removeAllListeners('updateProgress')
 })
 
 </script>

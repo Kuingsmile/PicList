@@ -94,14 +94,16 @@ import { NodeHttpHandler } from '@smithy/node-http-handler'
 import http, { AgentOptions } from 'http'
 import https from 'https'
 
-// 通用获取 Agent 函数
+// 工具函数
 import { getAgent } from '../manage/utils/common'
+import logger from '@core/picgo/logger'
 
 const STORE_PATH = app.getPath('userData')
 
 export default {
   listen () {
     picgoCoreIPC.listen()
+    // Upload Related IPC
     // from macOS tray
     ipcMain.on('uploadClipboardFiles', async () => {
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
@@ -137,6 +139,7 @@ export default {
       return uploadChoosedFiles(evt.sender, files)
     })
 
+    // ShortKey Related IPC
     ipcMain.on('updateShortKey', (evt: IpcMainEvent, item: IShortKeyConfig, oldKey: string, from: string) => {
       const result = shortKeyHandler.updateShortKey(item, oldKey, from)
       evt.sender.send('updateShortKeyResponse', result)
@@ -172,6 +175,7 @@ export default {
       }
     })
 
+    // Gallery image cloud delete IPC
     ipcMain.handle('delete-sftp-file', async (_evt: IpcMainInvokeEvent, config: ISftpPlistConfig, fileName: string) => {
       try {
         const client = SSHClient.instance
@@ -190,7 +194,6 @@ export default {
     ipcMain.handle('delete-aws-s3-file', async (_evt: IpcMainInvokeEvent, configMap: IStringKeyMap) => {
       try {
         const { imgUrl, config: { accessKeyID, secretAccessKey, bucketName, region, endpoint, pathStyleAccess, rejectUnauthorized, proxy } } = configMap
-        console.log(JSON.stringify(configMap, null, 2))
         const url = new URL(!/^https?:\/\//.test(imgUrl) ? `http://${imgUrl}` : imgUrl)
         const fileKey = url.pathname.replace(/^\/+/, '')
         const endpointUrl: string | undefined = endpoint
@@ -242,10 +245,12 @@ export default {
         const result = await client.send(command)
         return result.$metadata.httpStatusCode === 204
       } catch (err: any) {
-        console.error(err)
+        logger.error(err)
         return false
       }
     })
+
+    // migrate from PicGo
 
     ipcMain.handle('migrateFromPicGo', async () => {
       const picGoConfigPath = STORE_PATH.replace('piclist', 'picgo')
@@ -273,6 +278,8 @@ export default {
         return false
       }
     })
+
+    // PicList Setting page IPC
 
     ipcMain.on('updateCustomLink', () => {
       const notification = new Notification({
@@ -338,6 +345,8 @@ export default {
       const isAlwaysOnTop = mainWindow.isAlwaysOnTop()
       mainWindow.setAlwaysOnTop(!isAlwaysOnTop)
     })
+
+    // Window operation API
 
     ipcMain.on('openSettingWindow', () => {
       windowManager.get(IWindowList.SETTING_WINDOW)!.show()

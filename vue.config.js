@@ -117,7 +117,8 @@ const config = {
         linux: {
           icon: 'build/icons/',
           asarUnpack: [
-            '**/node_modules/sharp/**'
+            '**/node_modules/sharp/**',
+            '**/node_modules/ssh2-no-cpu-features/**'
           ]
         },
         snap: {

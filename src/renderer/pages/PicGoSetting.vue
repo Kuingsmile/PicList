@@ -1479,6 +1479,7 @@ import pkg from 'root/package.json'
 
 // 事件常量
 import { PICGO_OPEN_FILE, OPEN_URL, GET_PICBEDS, HIDE_DOCK } from '#/events/constants'
+import { IRPCActionType } from '~/universal/types/enum'
 
 // Electron 相关
 import {
@@ -1492,13 +1493,12 @@ import { i18nManager, T as $T } from '@/i18n/index'
 import { enforceNumber } from '~/universal/utils/common'
 import { getLatestVersion } from '#/utils/getLatestVersion'
 import { compare } from 'compare-versions'
-import { STABLE_RELEASE_URL } from '#/utils/static'
 
 // Vue 相关
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, toRaw } from 'vue'
 
 // 数据发送工具函数
-import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
+import { getConfig, saveConfig, sendRPC, sendToMain } from '@/utils/dataSender'
 
 // Vue Router 相关
 import { useRouter } from 'vue-router'
@@ -2049,7 +2049,7 @@ async function checkUpdate () {
 
 function confirmCheckVersion () {
   if (needUpdate.value) {
-    sendToMain(OPEN_URL, STABLE_RELEASE_URL)
+    sendRPC(IRPCActionType.RELOAD_APP)
   }
   checkUpdateVisible.value = false
 }

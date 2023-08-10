@@ -1641,6 +1641,8 @@ function stopRefreshDownloadTask () {
   refreshDownloadTaskId.value && clearInterval(refreshDownloadTaskId.value)
 }
 
+// 界面相关
+
 function handleViewChange (val: 'list' | 'grid') {
   saveConfig('settings.isShowList', val === 'list')
   layoutStyle.value = val

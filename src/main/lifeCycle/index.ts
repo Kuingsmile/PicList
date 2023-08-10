@@ -62,9 +62,8 @@ const handleStartUpFiles = (argv: string[], cwd: string) => {
       uploadChoosedFiles(win.webContents, files)
     }
     return true
-  } else {
-    return false
   }
+  return false
 }
 
 autoUpdater.setFeedURL({
@@ -90,7 +89,17 @@ autoUpdater.on('update-available', (info: UpdateInfo) => {
       autoUpdater.downloadUpdate()
     }
     db.set('settings.showUpdateTip', !result.checkboxChecked)
+  }).catch((err) => {
+    logger.error(err)
   })
+})
+
+autoUpdater.on('download-progress', (progressObj) => {
+  const percent = {
+    progress: progressObj.percent
+  }
+  const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+  window.webContents.send('updateProgress', percent)
 })
 
 autoUpdater.on('update-downloaded', () => {
@@ -100,9 +109,13 @@ autoUpdater.on('update-downloaded', () => {
     buttons: ['Yes', 'No'],
     message: T('TIPS_UPDATE_DOWNLOADED')
   }).then((result) => {
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    window.webContents.send('updateProgress', { progress: 100 })
     if (result.response === 0) {
       autoUpdater.quitAndInstall()
     }
+  }).catch((err) => {
+    logger.error(err)
   })
 })
 

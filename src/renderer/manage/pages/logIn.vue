@@ -294,90 +294,89 @@ import { formatEndpoint } from '~/main/manage/utils/common'
 // 国际化函数
 import { T as $T } from '@/i18n'
 
+const manageStore = useManageStore()
+const router = useRouter()
+
+const isLoading = ref(false)
 const activeName = ref('login')
+
 const configResult:IStringKeyMap = reactive({})
 const existingConfiguration = reactive({} as IStringKeyMap)
 const dataForTable = reactive([] as any[])
 const allConfigAliasMap = reactive({} as IStringKeyMap)
-const router = useRouter()
-const manageStore = useManageStore()
-const isLoading = ref(false)
+const currentAliasList = reactive([] as string[])
+const rules = ruleMap(supportedPicBedList)
 
 const sortedAllConfigAliasMap = computed(() => {
-  const sorted = Object.values(allConfigAliasMap).sort((a, b) => {
+  return Object.values(allConfigAliasMap).sort((a, b) => {
     return a.picBedName.localeCompare(b.picBedName)
   })
-  return sorted
 })
 
-const currentAliasList = reactive([] as string[])
+const importedNewConfig: IStringKeyMap = {}
 
-const ruleMap = (options: IStringKeyMap) => {
+function ruleMap (options: IStringKeyMap) {
   const rule:any = {}
-  Object.keys(options).forEach((key) => {
-    const item = options[key].options
-    item.forEach((option: string) => {
-      const keyName = key + '.' + option
-      if (options[key].configOptions[option].rule) {
-        rule[keyName] = options[key].configOptions[option].rule
+  for (const key in options) {
+    const { options: itemOptions, configOptions } = options[key]
+
+    for (const option of itemOptions) {
+      const keyName = `${key}.${option}`
+      const configOption = configOptions[option]
+
+      if (configOption.rule) {
+        rule[keyName] = configOption.rule
       }
-      if (options[key].configOptions[option].default) {
-        configResult[keyName] = options[key].configOptions[option].default
+
+      if (configOption.default) {
+        configResult[keyName] = configOption.default
       }
-    })
-  })
+    }
+  }
   return rule
 }
 
-const rules = ruleMap(supportedPicBedList)
-
-const getDataForTable = () => {
+function getDataForTable () {
   for (const key in existingConfiguration) {
-    const obj = {} as IStringKeyMap
-    for (const option in existingConfiguration[key]) {
-      obj[option] = existingConfiguration[key][option]
-    }
-    dataForTable.push(obj)
+    dataForTable.push({ ...existingConfiguration[key] as IStringKeyMap })
   }
 }
 
-const getExistingConfig = async (name:string) => {
+async function getExistingConfig (name:string) {
   if (name === 'login') {
     getAllConfigAliasArray()
     return
   }
   currentAliasList.length = 0
   const result = await getConfig<any>('picBed')
-  if (!result) {
-    existingConfiguration[name] = { fail: '暂无配置' }
-  }
   for (const key in existingConfiguration) {
     delete existingConfiguration[key]
   }
-  for (const key in result) {
-    if (result[key].picBedName === name) {
-      existingConfiguration[key] = result[key]
-      currentAliasList.push(key)
+  if (!result || typeof result !== 'object' || Object.keys(result).length === 0) {
+    existingConfiguration[name] = { fail: '暂无配置' }
+  } else {
+    for (const key in result) {
+      if (result[key].picBedName === name) {
+        existingConfiguration[key] = result[key]
+        currentAliasList.push(key)
+      }
     }
   }
+
   dataForTable.length = 0
   getDataForTable()
   handleConfigImport(currentAliasList[0])
 }
 
-const getAliasList = () => {
-  const aliasList = [] as string[]
-  for (const key in existingConfiguration) {
-    aliasList.push(existingConfiguration[key].alias)
-  }
-  return aliasList
+function getAliasList () {
+  return Object.values(existingConfiguration).map(item => item.alias)
 }
 
-const handleConfigChange = async (name: string) => {
+async function handleConfigChange (name: string) {
   const aliasList = getAliasList()
   const allKeys = Object.keys(supportedPicBedList[name].configOptions)
   const resultMap:IStringKeyMap = {}
-  const reg = /^[\u4e00-\u9fa5_a-zA-Z0-9-]+$/
+  const reg = /^[\u4e00-\u9fff_a-zA-Z0-9-]+$/
   for (const key of allKeys) {
     const resultKey = name + '.' + key
     if (supportedPicBedList[name].configOptions[key].required) {
@@ -472,10 +471,14 @@ const handleConfigChange = async (name: string) => {
 }
 
 const handleConfigReset = (name: string) => {
-  let keys = Object.keys(configResult)
-  keys = keys.filter((key) => key.startsWith(name))
+  const keys = Object.keys(configResult).filter((key) => key.startsWith(name))
   keys.forEach((key) => {
-    configResult[key] = supportedPicBedList[name].configOptions[key.split('.')[1]].default || ''
+    const optionKey = key.split('.')[1]
+    const configOption = supportedPicBedList[name]?.configOptions?.[optionKey]
+
+    if (configOption) {
+      configResult[key] = configOption.default || ''
+    }
   })
 }
 
@@ -516,14 +519,12 @@ const getAllConfigAliasArray = async () => {
     delete allConfigAliasMap[key]
   }
   if (!result) return
-  let i = 0
-  Object.keys(result).forEach((key) => {
-    allConfigAliasMap[i] = {
-      alias: result[key].alias,
-      picBedName: result[key].picBedName,
-      config: result[key]
+  Object.entries(result).forEach(([, value]: [string, any], index) => {
+    allConfigAliasMap[index] = {
+      alias: value.alias,
+      picBedName: value.picBedName,
+      config: value
     }
-    i++
   })
 }
 
@@ -552,30 +553,22 @@ const handleConfigClick = async (item: any) => {
 
 function handleConfigImport (alias: string) {
   const selectedConfig = existingConfiguration[alias]
-  if (selectedConfig) {
-    supportedPicBedList[selectedConfig.picBedName].options.forEach((option: any) => {
-      if (selectedConfig[option] !== undefined) {
-        configResult[selectedConfig.picBedName + '.' + option] = selectedConfig[option]
-      }
-      if (typeof selectedConfig[option] === 'boolean') {
-        configResult[selectedConfig.picBedName + '.' + option] = selectedConfig[option]
-      }
-    })
-  }
-}
+  if (!selectedConfig) return
 
-const importedNewConfig: IStringKeyMap = {}
+  supportedPicBedList[selectedConfig.picBedName].forEach((option: any) => {
+    if (selectedConfig[option] !== undefined) {
+      configResult[selectedConfig.picBedName + '.' + option] = selectedConfig[option]
+    }
+  })
+}
 
 async function getCurrentConfigList () {
   const configList = await getPicBedsConfig<any>('uploader') ?? {}
-  const pbList = ['aliyun', 'tcyun', 'upyun', 'qiniu', 'smms', 'qiniu', 'github', 'webdavplist', 'aws-s3', 'imgur', 'local']
+  const pbList = ['aliyun', 'aws-s3', 'github', 'imgur', 'local', 'qiniu', 'smms', 'tcyun', 'upyun', 'webdavplist']
+
   const filteredConfigList = pbList.flatMap((pb) => {
     const config = configList[pb]
-    if (config && config.configList.length > 0) {
-      return config.configList.map((item: any) => ({ ...item, type: pb }))
-    } else {
-      return []
-    }
+    return config?.configList?.length ? config.configList.map((item: any) => ({ ...item, type: pb })) : []
   })
   await getAllConfigAliasArray()
   const autoImport = await getPicBedsConfig<boolean>('settings.autoImport') || false

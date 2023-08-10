@@ -306,16 +306,21 @@ import { T as $T } from '@/i18n'
 const manageStore = useManageStore() as any
 const route = useRoute()
 const router = useRouter()
+
 const currentAlias = ref(route.query.alias as string)
 const currentPicBedName = ref(route.query.picBedName as string)
+
 let allPicBedConfigure = JSON.parse(route.query.allPicBedConfigure as string)
 let currentPagePicBedConfig = reactive(JSON.parse(route.query.config as string))
-const picBedSwitchDialogVisible = ref(false)
+
 const newBucketConfigResult: IStringKeyMap = reactive({})
 const bucketList = ref({} as IStringKeyMap)
 const currentSelectedBucket = ref('')
-const isLoadingBucketList = ref(false)
 const bucketNameList = ref([] as string[])
+
+const isLoadingBucketList = ref(false)
+const nweBucketDrawerVisible = ref(false)
+const picBedSwitchDialogVisible = ref(false)
 
 watch(route, async (newRoute) => {
   if (newRoute.fullPath.split('?')[0] === '/main-page/manage-main-page') {
@@ -342,53 +347,66 @@ const urlMap : IStringKeyMap = {
   local: 'https://piclist.cn'
 }
 
-const openPicBedUrl = () => shell.openExternal(urlMap[currentPagePicBedConfig.picBedName])
+const showNewIconList = ['aliyun', 'qiniu', 'tcyun']
 
-const ruleMap = (options: IStringKeyMap) => {
-  const rule: IStringKeyMap = {}
-  Object.keys(options).forEach((key) => {
-    const item = options[key].options
-    item.forEach((option: string) => {
-      const keyName = `${key}.${option}`
-      if (options[key].configOptions[option].rule) {
-        rule[keyName] = options[key].configOptions[option].rule
-      }
-      if (options[key].configOptions[option].default) {
-        newBucketConfigResult[keyName] = options[key].configOptions[option].default
-      }
-    })
-  })
-  return rule
+const bucketT = $T('MANAGE_MAIN_PAGE_BUCKET')
+const galleryT = $T('MANAGE_MAIN_PAGE_GALLERY')
+const repositoryT = $T('MANAGE_MAIN_PAGE_REPOSITORY')
+
+const menuTitleMap:IStringKeyMap = {
+  aliyun: bucketT,
+  qiniu: bucketT,
+  tcyun: bucketT,
+  upyun: bucketT,
+  s3plist: bucketT,
+  smms: galleryT,
+  imgur: galleryT,
+  github: repositoryT,
+  webdavplist: '',
+  local: ''
 }
 
 const rules = ruleMap(newBucketConfig)
 
-const openNewBucketDrawer = () => {
+const openPicBedUrl = () => shell.openExternal(urlMap[currentPagePicBedConfig.picBedName])
+
+function ruleMap (options: IStringKeyMap) {
+  return Object.keys(options).reduce((result, key) => {
+    options[key].options.forEach((option: string) => {
+      const keyName = `${key}.${option}`
+      const configOption = options[key].configOptions[option]
+      if (configOption.rule) {
+        result[keyName] = configOption.rule
+      }
+      if (configOption.default) {
+        newBucketConfigResult[keyName] = configOption.default
+      }
+    })
+    return result
+  }, {} as IStringKeyMap)
+}
+
+function openNewBucketDrawer () {
   nweBucketDrawerVisible.value = true
 }
 
-const createNewBucket = (picBedName: string) => {
-  const allKeys = Object.keys(newBucketConfig[picBedName].configOptions)
-  const resultMap: IStringKeyMap = {}
-  for (const key of allKeys) {
+function createNewBucket (picBedName: string) {
+  const configOptions = newBucketConfig[picBedName].configOptions
+  const resultMap: IStringKeyMap = Object.keys(configOptions).reduce((result, key) => {
     const resultKey = `${picBedName}.${key}`
-    if (newBucketConfig[picBedName].configOptions[key].default !== undefined && newBucketConfigResult[resultKey] === '') {
-      resultMap[key] = newBucketConfig[picBedName].configOptions[key].default
-    } else if (newBucketConfigResult[resultKey] === undefined) {
-      if (newBucketConfig[picBedName].configOptions[key].default !== undefined) {
-        resultMap[key] = newBucketConfig[picBedName].configOptions[key].default
-      } else {
-        resultMap[key] = ''
-      }
-    } else {
-      resultMap[key] = newBucketConfigResult[resultKey]
-    }
-  }
+    const defaultValue = configOptions[key].default
+    const resultValue = newBucketConfigResult[resultKey]
+
+    result[key] = resultValue === '' && defaultValue !== undefined
+      ? defaultValue
+      : resultValue === undefined ? defaultValue ?? '' : resultValue
+
+    return result
+  }, {} as IStringKeyMap)
   if (currentPicBedName.value === 'tcyun') {
-    resultMap.BucketName = resultMap.BucketName + '-' + currentPagePicBedConfig.appId
+    resultMap.BucketName = `${resultMap.BucketName}-${currentPagePicBedConfig.appId}`
   }
-  const res = invokeToMain('createBucket', currentAlias, resultMap)
-  res.then((result: any) => {
+  invokeToMain('createBucket', currentAlias, resultMap).then((result: any) => {
     if (result) {
       ElNotification({
         title: $T('MANAGE_MAIN_PAGE_TIPS'),
@@ -409,12 +427,14 @@ const createNewBucket = (picBedName: string) => {
   })
 }
 
-const getBucketList = async () => {
+async function getBucketList () {
   bucketList.value = {}
   bucketNameList.value = []
   isLoadingBucketList.value = true
+
   const result = await invokeToMain('getBucketList', currentAlias.value)
   isLoadingBucketList.value = false
+
   if (result.length > 0) {
     result.forEach((item: any) => {
       bucketList.value[item.Name] = item
@@ -423,33 +443,27 @@ const getBucketList = async () => {
   }
 }
 
-const handleSelectMenu = (bucketName: string) => {
-  const transformedConfig = JSON.parse(manageStore.config.picBed[currentAlias.value].transformedConfig ?? '{}')
-  let prefix = transformedConfig[bucketName]?.baseDir
-  if (prefix === '' || prefix === undefined) {
-    prefix = '/'
-  } else {
-    !prefix.startsWith('/') && (prefix = `/${prefix}`)
-    !prefix.endsWith('/') && (prefix = `${prefix}/`)
-  }
-  const customUrl = transformedConfig[bucketName]?.customUrl ?? ''
-  const picBedName = manageStore.config.picBed[currentAlias.value].picBedName ?? currentPicBedName.value
-  const alias = currentAlias.value
-  const cdnUrl = manageStore.config.picBed[currentAlias.value].customUrl
-  const bucketConfig = bucketList.value[bucketName]
-  const webPath = manageStore.config.picBed[currentAlias.value].webPath || ''
+function handleSelectMenu (bucketName: string) {
+  const currentPicBedConfig = manageStore.config.picBed[currentAlias.value]
+  const transformedConfig = JSON.parse(currentPicBedConfig.transformedConfig ?? '{}')
+
+  let prefix = transformedConfig[bucketName]?.baseDir || '/'
+  prefix = prefix.startsWith('/') ? prefix : `/${prefix}`
+  prefix = prefix.endsWith('/') ? prefix : `${prefix}/`
+
   const configMap = {
     prefix,
     bucketName,
-    customUrl,
-    picBedName,
-    alias,
-    bucketConfig,
-    cdnUrl,
+    customUrl: transformedConfig[bucketName]?.customUrl ?? '',
+    picBedName: currentPicBedConfig.picBedName ?? currentPicBedName.value,
+    alias: currentAlias.value,
+    bucketConfig: bucketList.value[bucketName],
+    cdnUrl: currentPicBedConfig.customUrl,
     baseDir: prefix,
-    webPath
+    webPath: currentPicBedConfig.webPath || ''
   }
   currentSelectedBucket.value = bucketName
+
   router.push({
     path: '/main-page/manage-main-page/manage-bucket-page',
     query: {
@@ -458,61 +472,38 @@ const handleSelectMenu = (bucketName: string) => {
   })
 }
 
-const nweBucketDrawerVisible = ref(false)
-
-const bucketT = $T('MANAGE_MAIN_PAGE_BUCKET')
-const galleryT = $T('MANAGE_MAIN_PAGE_GALLERY')
-const repositoryT = $T('MANAGE_MAIN_PAGE_REPOSITORY')
-
-const menuTitleMap:IStringKeyMap = {
-  aliyun: bucketT,
-  qiniu: bucketT,
-  tcyun: bucketT,
-  upyun: bucketT,
-  s3plist: bucketT,
-  smms: galleryT,
-  imgur: galleryT,
-  github: repositoryT,
-  webdavplist: '',
-  local: ''
-}
-
-const showNewIconList = ['aliyun', 'qiniu', 'tcyun']
-
 function switchPicBed (picBedAlias:string) {
   if (picBedAlias === 'main') {
     router.push({
       path: '/main-page/manage-login-page'
     })
-  } else {
-    if (route.fullPath.startsWith('/main-page/manage-main-page/manage-bucket-page') || route.fullPath.startsWith('/main-page/manage-main-page/manage-setting-page')
-    ) {
-      picBedSwitchDialogVisible.value = false
-      router.push({
-        path: '/main-page/manage-main-page',
-        query: {
-          alias: picBedAlias,
-          picBedName: allPicBedConfigure[picBedAlias].picBedName,
-          config: JSON.stringify(allPicBedConfigure[picBedAlias]),
-          allPicBedConfigure: JSON.stringify(allPicBedConfigure)
-        }
-      })
-    } else {
-      currentAlias.value = picBedAlias
-      currentPicBedName.value = allPicBedConfigure[picBedAlias].picBedName
-      currentPagePicBedConfig = allPicBedConfigure[picBedAlias]
-      picBedSwitchDialogVisible.value = false
-      currentSelectedBucket.value = ''
-      getBucketList()
-    }
   }
+  if (route.fullPath.startsWith('/main-page/manage-main-page/manage-bucket-page') || route.fullPath.startsWith('/main-page/manage-main-page/manage-setting-page')
+  ) {
+    picBedSwitchDialogVisible.value = false
+    router.push({
+      path: '/main-page/manage-main-page',
+      query: {
+        alias: picBedAlias,
+        picBedName: allPicBedConfigure[picBedAlias].picBedName,
+        config: JSON.stringify(allPicBedConfigure[picBedAlias]),
+        allPicBedConfigure: JSON.stringify(allPicBedConfigure)
+      }
+    })
+  }
+  currentAlias.value = picBedAlias
+  currentPicBedName.value = allPicBedConfigure[picBedAlias].picBedName
+  currentPagePicBedConfig = allPicBedConfigure[picBedAlias]
+  picBedSwitchDialogVisible.value = false
+  currentSelectedBucket.value = ''
+  getBucketList()
 }
 
-const changePicBed = () => {
+function changePicBed () {
   picBedSwitchDialogVisible.value = true
 }
 
-const openBucketPageSetting = () => {
+function openBucketPageSetting () {
   router.push({
     path: '/main-page/manage-main-page/manage-setting-page'
   })
