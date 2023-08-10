@@ -16,10 +16,6 @@ import busEventList from '~/main/events/busEventList'
 import { IRemoteNoticeTriggerHook, IWindowList } from '#/types/enum'
 import windowManager from 'apis/app/window/windowManager'
 import {
-  updateShortKeyFromVersion212,
-  migrateGalleryFromVersion230
-} from '~/main/migrate'
-import {
   uploadChoosedFiles,
   uploadClipboardFiles
 } from 'apis/app/uploader/apis'
@@ -29,7 +25,7 @@ import {
 import server from '~/main/server/index'
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import { getUploadFiles } from '~/main/utils/handleArgv'
-import db, { GalleryDB } from '~/main/apis/core/datastore'
+import db from '~/main/apis/core/datastore'
 import bus from '@core/bus'
 import logger from 'apis/core/picgo/logger'
 import picgo from 'apis/core/picgo'
@@ -135,8 +131,6 @@ class LifeCycle {
     UpDownTaskQueue.getInstance()
     manageIpcList.listen()
     busEventList.listen()
-    updateShortKeyFromVersion212(db, db.get('settings.shortKey'))
-    await migrateGalleryFromVersion230(db, GalleryDB.getInstance(), picgo)
   }
 
   private onReady () {

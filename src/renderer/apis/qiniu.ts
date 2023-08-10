@@ -31,7 +31,7 @@ export default class QiniuApi {
           }
         })
       }) as any
-      return res && res.respInfo.statusCode === 200
+      return res?.respInfo?.statusCode === 200
     } catch (error) {
       console.error(error)
       return false

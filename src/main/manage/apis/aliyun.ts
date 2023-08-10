@@ -122,7 +122,7 @@ class AliyunApi {
         marker,
         'max-keys': 1000
       }) as IStringKeyMap
-      if (res.res.statusCode !== 200 || !res.buckets) return { result: [], isTruncated: false }
+      if (res?.res?.statusCode !== 200 || !res?.buckets) return { result: [], isTruncated: false }
       const formattedBuckets = res.buckets.map((item: OSS.Bucket) => ({
         Name: item.name,
         Location: item.region,
@@ -161,7 +161,7 @@ class AliyunApi {
       }
     })
 
-    if (res.status === 200) {
+    if (res?.status === 200) {
       const parser = new XMLParser()
       const result = parser.parse(res.data)
 
@@ -207,7 +207,7 @@ class AliyunApi {
       dataRedundancyType: 'LRS',
       timeout: this.timeOut
     })
-    return res && res.res.status === 200
+    return res?.res?.status === 200
   }
 
   async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
@@ -238,8 +238,8 @@ class AliyunApi {
       }, {
         timeout: this.timeOut
       })
-      if (res && res.res.statusCode === 200) {
-        res.objects && res.objects.forEach((item: OSS.ObjectMeta) => {
+      if (res?.res?.statusCode === 200) {
+        res?.objects?.forEach((item: OSS.ObjectMeta) => {
           item.size !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
         })
         window.webContents.send(refreshDownloadFileTransferList, result)
@@ -286,11 +286,11 @@ class AliyunApi {
       }, {
         timeout: this.timeOut
       })
-      if (res && res.res.statusCode === 200) {
-        res.prefixes && res.prefixes.forEach((item: string) => {
+      if (res?.res?.statusCode === 200) {
+        res?.prefixes?.forEach((item: string) => {
           result.fullList.push(this.formatFolder(item, slicedPrefix))
         })
-        res.objects && res.objects.forEach((item: OSS.ObjectMeta) => {
+        res?.objects?.forEach((item: OSS.ObjectMeta) => {
           item.size !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
         })
         window.webContents.send('refreshFileTransferList', result)
@@ -521,7 +521,7 @@ class AliyunApi {
         }
       ).then((res: any) => {
         const id = `${bucketName}-${region}-${key}-${filePath}`
-        if (res && res.res.statusCode === 200) {
+        if (res?.res?.statusCode === 200) {
           instance.updateUploadTask({
             id,
             progress: 100,
@@ -561,7 +561,7 @@ class AliyunApi {
     const { bucketName, region, key } = configMap
     const client = this.getNewCtx(region, bucketName)
     const res = await client.put(key, Buffer.from('')) as any
-    return res && res.res.statusCode === 200
+    return res?.res?.statusCode === 200
   }
 
   /**

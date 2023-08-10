@@ -322,7 +322,7 @@ const choosedPicBedForQRCode: Ref<string[]> = ref([])
 const isAlwaysOnTop = ref(false)
 const keepAlivePages = $router.getRoutes().filter(item => item.meta.keepAlive).map(item => item.name as string)
 
-const progressShow = ref(true)
+const progressShow = ref(false)
 const progressPercentage = ref(0)
 
 onBeforeMount(() => {

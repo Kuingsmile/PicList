@@ -11,6 +11,7 @@ import axios from 'axios'
 class Server {
   private httpServer: http.Server
   private config: IServerConfig
+
   constructor () {
     let config = picgo.getConfig<IServerConfig>('settings.server')
     const result = this.checkIfConfigIsValid(config)
@@ -31,11 +32,7 @@ class Server {
   }
 
   private checkIfConfigIsValid (config: IObj | undefined) {
-    if (config && config.port && config.host && (config.enable !== undefined)) {
-      return true
-    } else {
-      return false
-    }
+    return config && config.port && config.host && (config.enable !== undefined)
   }
 
   private handleRequest = (request: http.IncomingMessage, response: http.ServerResponse) => {

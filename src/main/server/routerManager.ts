@@ -7,9 +7,9 @@ import windowManager from 'apis/app/window/windowManager'
 import { uploadChoosedFiles, uploadClipboardFiles, deleteChoosedFiles } from 'apis/app/uploader/apis'
 import path from 'path'
 import { dbPathDir } from 'apis/core/datastore/dbChecker'
+
 const STORE_PATH = dbPathDir()
 const LOG_PATH = path.join(STORE_PATH, 'piclist.log')
-// import AllAPI from '../../renderer/apis/allApi'
 
 const errorMessage = `upload error. see ${LOG_PATH} for more detail.`
 const deleteErrorMessage = `delete error. see ${LOG_PATH} for more detail.`

@@ -461,6 +461,7 @@ import ALLApi from '@/apis/allApi'
 
 // 工具函数
 import { customRenameFormatTable, customStrMatch, customStrReplace } from '../manage/utils/common'
+import { picBedsCanbeDeleted } from '#/utils/static'
 
 const images = ref<ImgInfo[]>([])
 const dialogVisible = ref(false)
@@ -688,7 +689,6 @@ function remove (item: ImgInfo) {
       type: 'warning'
     }).then(async () => {
       const file = await $$db.getById(item.id!)
-      const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun', 'aws-s3', 'webdavplist', 'local', 'sftpplist']
       if (await getConfig('settings.deleteCloudFile')) {
         if (item.type !== undefined && picBedsCanbeDeleted.includes(item.type)) {
           const result = await ALLApi.delete(item)
@@ -798,7 +798,6 @@ function multiRemove () {
       const files: IResult<ImgInfo>[] = []
       const imageIDList = Object.keys(choosedList)
       const isDeleteCloudFile = await getConfig('settings.deleteCloudFile')
-      const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun', 'aws-s3', 'webdavplist', 'local', 'sftpplist']
       if (isDeleteCloudFile) {
         for (let i = 0; i < imageIDList.length; i++) {
           const key = imageIDList[i]
@@ -1161,3 +1160,4 @@ export default {
     color #ddd
     margin-bottom 10px
 </style>
+@/apis

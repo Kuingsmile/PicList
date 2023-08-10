@@ -104,9 +104,8 @@ export class ManageApi extends EventEmitter implements ManageApiType {
   getConfig<T> (name?: string): T {
     if (!name) {
       return this._config as unknown as T
-    } else {
-      return get(this._config, name)
     }
+    return get(this._config, name)
   }
 
   saveConfig (config: IStringKeyMap): void {
