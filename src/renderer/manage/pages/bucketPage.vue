@@ -2133,7 +2133,7 @@ async function resetParam (force: boolean = false) {
   previewedImage.value = ''
   isShowFileInfo.value = false
   lastChoosed.value = -1
-  layoutStyle.value = manageStore.config.settings.isShowList ? 'list' : 'grid'
+  layoutStyle.value = await getConfig('settings.isShowList') ? 'list' : 'grid'
   if (!isAutoRefresh.value && !force && !paging.value) {
     const cachedData = await searchExistFileList()
     if (cachedData.length > 0) {
