@@ -501,13 +501,14 @@ function switchPicBed (picBedAlias:string) {
         allPicBedConfigure: JSON.stringify(allPicBedConfigure)
       }
     })
+  } else {
+    currentAlias.value = picBedAlias
+    currentPicBedName.value = allPicBedConfigure[picBedAlias].picBedName
+    currentPagePicBedConfig = allPicBedConfigure[picBedAlias]
+    picBedSwitchDialogVisible.value = false
+    currentSelectedBucket.value = ''
+    getBucketList()
   }
-  currentAlias.value = picBedAlias
-  currentPicBedName.value = allPicBedConfigure[picBedAlias].picBedName
-  currentPagePicBedConfig = allPicBedConfigure[picBedAlias]
-  picBedSwitchDialogVisible.value = false
-  currentSelectedBucket.value = ''
-  getBucketList()
 }
 
 function changePicBed () {

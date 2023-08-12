@@ -54,7 +54,7 @@ export default createRouter({
         {
           path: 'manage-login-page',
           name: config.MANAGE_LOGIN_PAGE,
-          component: () => import(/* webpackChunkName: "ManageLogeinPage" */ '@/manage/pages/logIn.vue')
+          component: () => import(/* webpackChunkName: "ManageLoginPage" */ '@/manage/pages/logIn.vue')
         },
         {
           path: 'picbeds/:type/:configId?',

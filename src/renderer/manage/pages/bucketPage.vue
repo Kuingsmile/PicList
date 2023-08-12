@@ -1,4 +1,4 @@
-ea/*
+/*
  *UI布局和部分样式代码参考了https://github.com/willnewii/qiniuClient
  *感谢作者@willnewii
  */

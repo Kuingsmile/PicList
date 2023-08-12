@@ -1160,4 +1160,3 @@ export default {
     color #ddd
     margin-bottom 10px
 </style>
-@/apis

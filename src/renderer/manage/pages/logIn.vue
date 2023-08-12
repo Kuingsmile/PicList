@@ -317,22 +317,19 @@ const importedNewConfig: IStringKeyMap = {}
 
 function ruleMap (options: IStringKeyMap) {
   const rule:any = {}
-  for (const key in options) {
-    const { options: itemOptions, configOptions } = options[key]
-
-    for (const option of itemOptions) {
+  Object.keys(options).forEach((key) => {
+    const item = options[key].options
+    item.forEach((option: string) => {
+      const configOptions = options[key].configOptions[option]
       const keyName = `${key}.${option}`
-      const configOption = configOptions[option]
-
-      if (configOption.rule) {
-        rule[keyName] = configOption.rule
+      if (configOptions.rule) {
+        rule[keyName] = configOptions.rule
       }
-
-      if (configOption.default) {
-        configResult[keyName] = configOption.default
+      if (configOptions.default) {
+        configResult[keyName] = configOptions.default
       }
-    }
-  }
+    })
+  })
   return rule
 }
 
@@ -483,16 +480,19 @@ const handleConfigReset = (name: string) => {
 }
 
 const handleConfigRemove = (name: string) => {
+  const commonNoticeConfig = {
+    title: $T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
+    duration: 2000,
+    customClass: 'notification',
+    offset: 100
+  }
   try {
     removeConfig('picBed', name)
     ElNotification(
       {
-        title: $T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
+        ...commonNoticeConfig,
         message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_C')}${name}`,
         type: 'success',
-        duration: 2000,
-        customClass: 'notification',
-        offset: 100,
         position: 'bottom-right'
       }
     )
@@ -501,12 +501,9 @@ const handleConfigRemove = (name: string) => {
   } catch (error) {
     ElNotification(
       {
-        title: $T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
+        ...commonNoticeConfig,
         message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_D')}${name}${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_E')}`,
         type: 'error',
-        duration: 2000,
-        customClass: 'notification',
-        offset: 100,
         position: 'bottom-right'
       }
     )
