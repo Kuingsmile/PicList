@@ -37,6 +37,7 @@
     "@aws-sdk/s3-request-presigner": "^3.388.0",
     "@element-plus/icons-vue": "^2.1.0",
     "@highlightjs/vue-plugin": "^2.1.0",
+    "@nodelib/fs.walk": "^2.0.0",
     "@octokit/rest": "^19.0.7",
     "@picgo/i18n": "^1.0.0",
     "@picgo/store": "^2.0.4",

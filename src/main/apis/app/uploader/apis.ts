@@ -154,42 +154,21 @@ export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> =>
         const file = await dbStore.removeById(item.id)
         if (await picgo.getConfig('settings.deleteCloudFile')) {
           if (item.type !== undefined && picBedsCanbeDeleted.includes(item.type)) {
+            const noteFunc = (value: boolean) => {
+              const notification = new Notification({
+                title: T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
+                body: T(value ? 'GALLERY_SYNC_DELETE_NOTICE_SUCCEED' : 'GALLERY_SYNC_DELETE_NOTICE_FAILED')
+              })
+              notification.show()
+            }
             if (item.type === 'webdavplist') {
               const { fileName, config } = item
               setTimeout(() => {
-                deleteWebdavFile(getRawData(config), fileName || '').then((value: boolean) => {
-                  if (value) {
-                    const notification = new Notification({
-                      title: T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
-                      body: T('GALLERY_SYNC_DELETE_NOTICE_SUCCEED')
-                    })
-                    notification.show()
-                  } else {
-                    const notification = new Notification({
-                      title: T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
-                      body: T('GALLERY_SYNC_DELETE_NOTICE_FAILED')
-                    })
-                    notification.show()
-                  }
-                })
+                deleteWebdavFile(getRawData(config), fileName || '').then(noteFunc)
               }, 0)
             } else {
               setTimeout(() => {
-                ALLApi.delete(item).then((value: boolean) => {
-                  if (value) {
-                    const notification = new Notification({
-                      title: T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
-                      body: T('GALLERY_SYNC_DELETE_NOTICE_SUCCEED')
-                    })
-                    notification.show()
-                  } else {
-                    const notification = new Notification({
-                      title: T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
-                      body: T('GALLERY_SYNC_DELETE_NOTICE_FAILED')
-                    })
-                    notification.show()
-                  }
-                })
+                ALLApi.delete(item).then(noteFunc)
               }, 0)
             }
           }

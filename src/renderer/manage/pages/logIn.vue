@@ -555,7 +555,7 @@ function handleConfigImport (alias: string) {
   const selectedConfig = existingConfiguration[alias]
   if (!selectedConfig) return
 
-  supportedPicBedList[selectedConfig.picBedName].forEach((option: any) => {
+  supportedPicBedList[selectedConfig.picBedName].options.forEach((option: any) => {
     if (selectedConfig[option] !== undefined) {
       configResult[selectedConfig.picBedName + '.' + option] = selectedConfig[option]
     }

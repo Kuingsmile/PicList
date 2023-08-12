@@ -41,7 +41,7 @@ const aliasRule = [
   },
   {
     validator: (rule: any, value: any, callback: any) => {
-      const reg = /^[\u4e00-\u9fa5_a-zA-Z0-9-]+$/
+      const reg = /^[\u4e00-\u9fff_a-zA-Z0-9-]+$/
       if (!reg.test(value)) {
         callback(new Error($T('MANAGE_CONSTANT_ALIAS_RULE_MESSAGE_B')))
       } else {
@@ -838,7 +838,7 @@ export const supportedPicBedList: IStringKeyMap = {
       }
     },
     explain: $T('MANAGE_CONSTANT_LOCAL_EXPLAIN'),
-    options: ['alias', 'baseDir', 'customUrl', 'webPath'],
+    options: ['alias', 'baseDir', 'customUrl', 'bucketName', 'webPath'],
     refLink: 'https://piclist.cn',
     referenceText: $T('MANAGE_CONSTANT_LOCAL_REFER_TEXT')
   }

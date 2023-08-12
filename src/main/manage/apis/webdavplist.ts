@@ -137,20 +137,11 @@ class WebdavplistApi {
             }
           })
         }
-      } else {
-        result.finished = true
-        window.webContents.send(refreshDownloadFileTransferList, result)
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
-        return
+        result.success = true
       }
     } catch (error) {
       this.logParam(error, 'getBucketListRecursively')
-      result.finished = true
-      window.webContents.send(refreshDownloadFileTransferList, result)
-      ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
-      return
     }
-    result.success = true
     result.finished = true
     window.webContents.send(refreshDownloadFileTransferList, result)
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)

@@ -302,6 +302,7 @@ import { useManageStore } from '../store/manageStore'
 
 // 国际化函数
 import { T as $T } from '@/i18n'
+import path from 'path'
 
 const manageStore = useManageStore() as any
 const route = useRoute()
@@ -443,13 +444,22 @@ async function getBucketList () {
   }
 }
 
+function transPathToUnix (filePath: string | undefined) {
+  if (!filePath) return ''
+  return process.platform === 'win32' ? filePath.split(path.sep).join(path.posix.sep).replace(/^\/+|\/+$/g, '') : filePath.replace(/^\/+|\/+$/g, '')
+}
+
 function handleSelectMenu (bucketName: string) {
   const currentPicBedConfig = manageStore.config.picBed[currentAlias.value]
   const transformedConfig = JSON.parse(currentPicBedConfig.transformedConfig ?? '{}')
 
   let prefix = transformedConfig[bucketName]?.baseDir || '/'
-  prefix = prefix.startsWith('/') ? prefix : `/${prefix}`
-  prefix = prefix.endsWith('/') ? prefix : `${prefix}/`
+  if (currentPicBedConfig.picBedName ?? currentPicBedName.value === 'local') {
+    prefix = `/${transPathToUnix(prefix)}/`
+  } else {
+    prefix = prefix.startsWith('/') ? prefix : `/${prefix}`
+    prefix = prefix.endsWith('/') ? prefix : `${prefix}/`
+  }
 
   const configMap = {
     prefix,
@@ -463,7 +473,7 @@ function handleSelectMenu (bucketName: string) {
     webPath: currentPicBedConfig.webPath || ''
   }
   currentSelectedBucket.value = bucketName
-
+  console.log(configMap)
   router.push({
     path: '/main-page/manage-main-page/manage-bucket-page',
     query: {
@@ -477,6 +487,7 @@ function switchPicBed (picBedAlias:string) {
     router.push({
       path: '/main-page/manage-login-page'
     })
+    return
   }
   if (route.fullPath.startsWith('/main-page/manage-main-page/manage-bucket-page') || route.fullPath.startsWith('/main-page/manage-main-page/manage-setting-page')
   ) {

@@ -1570,6 +1570,7 @@ const urlToUpload = ref('')
 // 图片预览相关
 const previewedImage = ref('')
 const ImagePreviewList = computed(() => currentPageFilesInfo.filter(item => item.isImage).map(item => item.url))
+const getCurrentPreviewIndex = computed(() => ImagePreviewList.value.indexOf(previewedImage.value))
 // 快捷键相关
 const isShiftKeyPress = ref<boolean>(false)
 const lastChoosed = ref<number>(-1)
@@ -1577,7 +1578,7 @@ const lastChoosed = ref<number>(-1)
 const customDomainList = ref([] as any[])
 const currentCustomDomain = ref('')
 const isShowCustomDomainSelectList = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value))
-const isShowCustomDomainInput = computed(() => ['aliyun', 'qiniu', 'tcyun', 's3plist', 'webdavplist'].includes(currentPicBedName.value))
+const isShowCustomDomainInput = computed(() => ['aliyun', 'qiniu', 'tcyun', 's3plist', 'webdavplist', 'local'].includes(currentPicBedName.value))
 const isAutoCustomDomain = computed(() => manageStore.config.picBed[configMap.alias].isAutoCustomUrl === undefined ? true : manageStore.config.picBed[configMap.alias].isAutoCustomUrl)
 // 文件预览相关
 const isShowMarkDownDialog = ref(false)
@@ -1588,17 +1589,27 @@ const isShowVideoFileDialog = ref(false)
 const videoFileUrl = ref('')
 const videoPlayerHeaders = ref({})
 // 重命名相关
-const isShowRenameFileIcon = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist'].includes(currentPicBedName.value))
+const isShowRenameFileIcon = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist', 'local'].includes(currentPicBedName.value))
 const isShowBatchRenameDialog = ref(false)
 const batchRenameMatch = ref('')
 const batchRenameReplace = ref('')
 const isRenameIncludeExt = ref(false)
 const isSingleRename = ref(false)
 const itemToBeRenamed = ref({} as any)
-// 新建文件夹相关
-const isShowCreateNewFolder = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 'github', 's3plist', 'webdavplist'].includes(currentPicBedName.value))
 
-const isShowPresignedUrl = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github', 's3plist', 'webdavplist'].includes(currentPicBedName.value))
+// 当前页面信息相关
+const currentPicBedName = computed<string>(() => manageStore.config.picBed[configMap.alias].picBedName)
+const paging = computed(() => manageStore.config.picBed[configMap.alias].paging)
+const itemsPerPage = computed(() => manageStore.config.picBed[configMap.alias].itemsPerPage)
+const calculateAllFileSize = computed(() => formatFileSize(currentPageFilesInfo.reduce((total: any, item: { fileSize: any }) => total + item.fileSize, 0)) || '0')
+const isShowThumbnail = computed(() => manageStore.config.settings.isShowThumbnail ?? false)
+const isAutoRefresh = computed(() => manageStore.config.settings.isAutoRefresh ?? false)
+const isIgnoreCase = computed(() => manageStore.config.settings.isIgnoreCase ?? false)
+
+// 新建文件夹相关
+const isShowCreateNewFolder = computed(() => ['aliyun', 'github', 'local', 'qiniu', 'tcyun', 's3plist', 'upyun', 'webdavplist'].includes(currentPicBedName.value))
+
+const isShowPresignedUrl = computed(() => ['aliyun', 'github', 'qiniu', 's3plist', 'tcyun', 'webdavplist'].includes(currentPicBedName.value))
 
 // 上传相关函数
 
@@ -1655,7 +1666,7 @@ function getBase64ofWebdav () {
   return headers
 }
 
-const getCurrentPreviewIndex = computed(() => ImagePreviewList.value.indexOf(previewedImage.value))
+// 上传文件选择相关
 
 function openFileSelectDialog () {
   ipcRenderer.invoke('openFileSelectDialog').then((res: any) => {
@@ -1866,11 +1877,6 @@ function handleCopyUploadingTaskInfo () {
   ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
 }
 
-function handleCopyDownloadingTaskInfo () {
-  clipboard.writeText(JSON.stringify(downloadTaskList.value, null, 2))
-  ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
-}
-
 function handleDeleteUploadedTask () {
   ipcRenderer.send('deleteUploadedTask')
   ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
@@ -1879,6 +1885,13 @@ function handleDeleteUploadedTask () {
 function handleDeleteAllUploadedTask () {
   ipcRenderer.send('deleteAllUploadedTask')
   ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
+}
+
+// 下载任务相关
+
+function handleCopyDownloadingTaskInfo () {
+  clipboard.writeText(JSON.stringify(downloadTaskList.value, null, 2))
+  ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
 }
 
 function handleDeleteDownloadedTask () {
@@ -1891,7 +1904,11 @@ function handleDeleteAllDownloadedTask () {
   ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
-const handleOpenDownloadedFolder = () => ipcRenderer.send('OpenDownloadedFolder', manageStore.config.settings.downloadDir)
+function handleOpenDownloadedFolder () {
+  ipcRenderer.send('OpenDownloadedFolder', manageStore.config.settings.downloadDir)
+}
+
+// 文件列表相关
 
 function handleShowFileInfo (item: any) {
   isShowFileInfo.value = true
@@ -1967,17 +1984,7 @@ async function handleClickFile (item: any) {
   }
 }
 
-const currentPicBedName = computed<string>(() => manageStore.config.picBed[configMap.alias].picBedName)
-
-const paging = computed(() => manageStore.config.picBed[configMap.alias].paging)
-
-const itemsPerPage = computed(() => manageStore.config.picBed[configMap.alias].itemsPerPage)
-
-const calculateAllFileSize = computed(() => formatFileSize(currentPageFilesInfo.reduce((total: any, item: { fileSize: any }) => total + item.fileSize, 0)) || '0')
-
-const isShowThumbnail = computed(() => manageStore.config.settings.isShowThumbnail ?? false)
-const isAutoRefresh = computed(() => manageStore.config.settings.isAutoRefresh ?? false)
-const isIgnoreCase = computed(() => manageStore.config.settings.isIgnoreCase ?? false)
+// 自定义域名相关
 
 async function handleChangeCustomUrl () {
   if (currentPicBedName.value === 'github') {
@@ -2100,6 +2107,8 @@ async function initCustomDomainList () {
     handleChangeCustomUrl()
   }
 }
+
+// 重置
 
 async function resetParam (force: boolean = false) {
   if (isLoadingData.value) {
@@ -2596,7 +2605,7 @@ function handleCreateFolder () {
   ElMessageBox.prompt($T('MANAGE_BUCKET_CREATE_FOLDER_BOX_TITLE'), $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_TIP'), {
     confirmButtonText: $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_CONFIRM'),
     cancelButtonText: $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_CANCEL'),
-    inputPattern: /^[\u4e00-\u9fa5_a-zA-Z0-9/]+$/,
+    inputPattern: /^[\u4e00-\u9fff_a-zA-Z0-9/]+$/,
     inputErrorMessage: $T('MANAGE_BUCKET_CREATE_FOLDER_ERROR_MSG')
   }).then(async ({ value }) => {
     let formatedPath = value
@@ -2617,7 +2626,7 @@ function handleCreateFolder () {
   }).catch(() => {})
 }
 
-const showUrlDialog = () => {
+function showUrlDialog () {
   dialogVisible.value = true
 }
 
@@ -2857,10 +2866,12 @@ async function getBucketFileListBackStage () {
   isLoadingData.value = true
   const fileTransferStore = useFileTransferStore()
   fileTransferStore.resetFileTransferList()
-  if (currentPicBedName.value === 'webdavplist') {
+  if (currentPicBedName.value === 'webdavplist' ||
+    currentPicBedName.value === 'local') {
     param.baseDir = configMap.baseDir
     param.webPath = configMap.webPath
   }
+  console.log(param)
   ipcRenderer.send('getBucketListBackstage', configMap.alias, param)
   ipcRenderer.on('refreshFileTransferList', (evt: IpcRendererEvent, data) => {
     fileTransferStore.refreshFileTransferList(data)
@@ -3433,7 +3444,9 @@ const upLoadTaskColumns: Column<any>[] = [
   }
 ]
 
-const rowClass = ({ rowData }: Parameters<RowClassNameGetter<any>>[0]) => rowData.checked ? 'file-list-row-checked' : ''
+function rowClass ({ rowData }: Parameters<RowClassNameGetter<any>>[0]) {
+  return rowData.checked ? 'file-list-row-checked' : ''
+}
 
 const columns: Column<any>[] = [
   {
