@@ -497,7 +497,7 @@ https://www.baidu.com/img/bd_logo1.png"
               shadow="hover"
             >
               <el-image
-                v-if="!item.isDir && currentPicBedName !== 'webdavplist'"
+                v-if="!item.isDir && currentPicBedName !== 'webdavplist' && currentPicBedName !== 'local'"
                 :src="isShowThumbnail && item.isImage ?
                   item.url
                   : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)"
@@ -524,6 +524,13 @@ https://www.baidu.com/img/bd_logo1.png"
                 :item="item"
                 :headers="getBase64ofWebdav()"
                 :url="item.url"
+                @click="handleClickFile(item)"
+              />
+              <ImageLocal
+                v-else-if="!item.isDir && currentPicBedName === 'local'"
+                :is-show-thumbnail="isShowThumbnail"
+                :item="item"
+                :local-path="item.key"
                 @click="handleClickFile(item)"
               />
               <el-image
@@ -1485,6 +1492,7 @@ import { videoExt } from '../utils/videofile'
 
 // 组件
 import ImageWebdav from '@/components/ImageWebdav.vue'
+import ImageLocal from '@/components/ImageLocal.vue'
 
 // 国际化函数
 import { T as $T } from '@/i18n'
@@ -2134,6 +2142,10 @@ async function resetParam (force: boolean = false) {
   isShowFileInfo.value = false
   lastChoosed.value = -1
   layoutStyle.value = await getConfig('settings.isShowList') ? 'list' : 'grid'
+  fileSortExtReverse.value = false
+  fileSortNameReverse.value = false
+  fileSortSizeReverse.value = false
+  fileSortTimeReverse.value = false
   if (!isAutoRefresh.value && !force && !paging.value) {
     const cachedData = await searchExistFileList()
     if (cachedData.length > 0) {
@@ -2150,13 +2162,7 @@ async function resetParam (force: boolean = false) {
     const res = await getBucketFileList() as IStringKeyMap
     if (res.success) {
       res.fullList.sort((a: any, b: any) => {
-        if (a.isDir && !b.isDir) {
-          return -1
-        } else if (!a.isDir && b.isDir) {
-          return 1
-        } else {
-          return a.fileName.localeCompare(b.fileName)
-        }
+        return b.isDir - a.isDir || a.fileName.localeCompare(b.fileName)
       })
       currentPageFilesInfo.push(...res.fullList)
       const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
@@ -2229,88 +2235,57 @@ watch(currentPageNumber, () => {
 const changePage = async (cur: number | undefined, prev: number | undefined) => {
   if (!cur || !prev) {
     currentPageNumber.value = 1
-  } else {
-    if (cur > prev) {
-      isShowLoadingPage.value = true
-      currentPageNumber.value = prev + 1
-      currentPageFilesInfo.length = 0
-      selectedItems.length = 0
-      searchText.value = ''
-      urlToUpload.value = ''
-      dialogVisible.value = false
-      const res = await getBucketFileList() as IStringKeyMap
-      isShowLoadingPage.value = false
-      if (res.success) {
-        res.fullList.sort((a: any) => {
-          return a.isDir ? -1 : 1
-        })
-        currentPageFilesInfo.push(...res.fullList)
-        const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
-        if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
-          sortFile(sortType)
-        }
-        if (res.isTruncated) {
-          pagingMarkerStack.push(pagingMarker.value)
-          pagingMarker.value = res.nextMarker
-        } else {
-          ElNotification({
-            title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-            message: $T('MANAGE_BUCKET_LAST_PAGE_MSG'),
-            type: 'success',
-            duration: 1000
-          })
-        }
-      } else {
-        ElNotification({
-          title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-          message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
-          type: 'error',
-          duration: 1000
-        })
-      }
-    } else if (cur < prev) {
-      isShowLoadingPage.value = true
-      currentPageNumber.value = prev - 1
-      currentPageFilesInfo.length = 0
-      selectedItems.length = 0
-      searchText.value = ''
-      urlToUpload.value = ''
-      dialogVisible.value = false
-      pagingMarker.value = pagingMarkerStack[pagingMarkerStack.length - 2]
-      pagingMarkerStack.pop()
-      pagingMarkerStack.pop()
-      const res = await getBucketFileList() as IStringKeyMap
-      isShowLoadingPage.value = false
-      if (res.success) {
-        res.fullList.sort((a: any) => {
-          return a.isDir ? -1 : 1
-        })
-        currentPageFilesInfo.push(...res.fullList)
-        const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
-        if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
-          sortFile(sortType)
-        }
-        if (paging.value) {
-          if (res.isTruncated) {
-            pagingMarkerStack.push(pagingMarker.value)
-            pagingMarker.value = res.nextMarker
-          } else {
-            ElNotification({
-              title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-              message: $T('MANAGE_BUCKET_LAST_PAGE_MSG'),
-              type: 'success',
-              duration: 1000
-            })
-          }
-        }
-      } else {
-        ElNotification({
-          title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-          message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
-          type: 'error',
-          duration: 1000
-        })
-      }
+    return
+  }
+  const isForwardNavigation = cur > prev
+  const newPageNumber = isForwardNavigation ? prev + 1 : prev - 1
+  const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
+
+  isShowLoadingPage.value = true
+  currentPageNumber.value = newPageNumber
+  currentPageFilesInfo.length = 0
+  selectedItems.length = 0
+  searchText.value = ''
+  urlToUpload.value = ''
+  dialogVisible.value = false
+
+  if (!isForwardNavigation) {
+    pagingMarker.value = pagingMarkerStack[pagingMarkerStack.length - 2]
+    pagingMarkerStack.pop()
+    pagingMarkerStack.pop()
+  }
+
+  const res = await getBucketFileList() as IStringKeyMap
+  isShowLoadingPage.value = false
+
+  if (!res.success) {
+    ElNotification({
+      title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+      message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
+      type: 'error',
+      duration: 1000
+    })
+    return
+  }
+
+  res.fullList.sort((a: any) => (a.isDir ? -1 : 1))
+  currentPageFilesInfo.push(...res.fullList)
+
+  if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
+    sortFile(sortType)
+  }
+
+  if (!(cur < prev && !paging.value)) {
+    if (res.isTruncated) {
+      pagingMarkerStack.push(pagingMarker.value)
+      pagingMarker.value = res.nextMarker
+    } else {
+      ElNotification({
+        title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+        message: $T('MANAGE_BUCKET_LAST_PAGE_MSG'),
+        type: 'success',
+        duration: 1000
+      })
     }
   }
 }
@@ -2404,13 +2379,7 @@ function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
       break
     case 'init':
       currentPageFilesInfo.sort((a: any, b: any) => {
-        if (a.isDir && !b.isDir) {
-          return -1
-        } else if (!a.isDir && b.isDir) {
-          return 1
-        } else {
-          return a.fileName.localeCompare(b.fileName)
-        }
+        return b.isDir - a.isDir || a.fileName.localeCompare(b.fileName)
       })
   }
 }
@@ -2879,13 +2848,7 @@ async function getBucketFileListBackStage () {
   const interval = setInterval(() => {
     const currentFileList = fileTransferStore.getFileTransferList()
     currentFileList.sort((a: any, b: any) => {
-      if (a.isDir && !b.isDir) {
-        return -1
-      } else if (!a.isDir && b.isDir) {
-        return 1
-      } else {
-        return a.fileName.localeCompare(b.fileName)
-      }
+      return b.isDir - a.isDir || a.fileName.localeCompare(b.fileName)
     })
     currentPageFilesInfo.length = 0
     currentPageFilesInfo.push(...currentFileList)

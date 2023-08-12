@@ -26,6 +26,8 @@ import { ref, onBeforeMount } from 'vue'
 import { getFileIconPath } from '@/manage/utils/common'
 import { Loading } from '@element-plus/icons-vue'
 import fs from 'fs-extra'
+import mime from 'mime-types'
+import path from 'path'
 
 const base64Image = ref('')
 const props = defineProps(
@@ -46,11 +48,16 @@ const props = defineProps(
 )
 
 const createBase64Image = async () => {
-  const base64 = await fs.readFile(props.localPath, 'base64')
-  base64Image.value = `data:image/png;base64,${base64}`
+  const filePath = path.normalize(props.localPath)
+  const base64 = await fs.readFile(filePath, 'base64')
+  base64Image.value = `data:${mime.lookup(filePath) || 'image/png'};base64,${base64}`
 }
 
 onBeforeMount(async () => {
-  await createBase64Image()
+  try {
+    await createBase64Image()
+  } catch (e) {
+    console.log(e)
+  }
 })
 </script>

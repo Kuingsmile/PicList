@@ -454,7 +454,8 @@ function handleSelectMenu (bucketName: string) {
   const transformedConfig = JSON.parse(currentPicBedConfig.transformedConfig ?? '{}')
 
   let prefix = transformedConfig[bucketName]?.baseDir || '/'
-  if (currentPicBedConfig.picBedName ?? currentPicBedName.value === 'local') {
+  const cpicBedName = currentPicBedConfig.picBedName ?? currentPicBedName.value
+  if (cpicBedName === 'local') {
     prefix = `/${transPathToUnix(prefix)}/`
   } else {
     prefix = prefix.startsWith('/') ? prefix : `/${prefix}`
@@ -465,7 +466,7 @@ function handleSelectMenu (bucketName: string) {
     prefix,
     bucketName,
     customUrl: transformedConfig[bucketName]?.customUrl ?? '',
-    picBedName: currentPicBedConfig.picBedName ?? currentPicBedName.value,
+    picBedName: cpicBedName,
     alias: currentAlias.value,
     bucketConfig: bucketList.value[bucketName],
     cdnUrl: currentPicBedConfig.customUrl,
