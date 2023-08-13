@@ -2199,12 +2199,11 @@ async function resetParam (force: boolean = false) {
 }
 
 watch(route, async (newRoute) => {
-  if (newRoute.query.configMap) {
+  const queryConfigMap = newRoute.query.configMap as string
+  if (queryConfigMap) {
     isShowLoadingPage.value = true
-    const query = newRoute.query.configMap as string
-    for (const key in JSON.parse(query)) {
-      configMap[key] = JSON.parse(query)[key]
-    }
+    const parsedConfigMap = JSON.parse(queryConfigMap)
+    Object.assign(configMap, parsedConfigMap)
     await initCustomDomainList()
     await resetParam(false)
     isShowLoadingPage.value = false
@@ -2227,7 +2226,7 @@ async function forceRefreshFileList () {
 }
 
 watch(currentPageNumber, () => {
-  if (typeof currentPageNumber.value !== 'number' || currentPageNumber.value === null) {
+  if (typeof currentPageNumber.value !== 'number') {
     currentPageNumber.value = 1
   }
 })
@@ -2898,8 +2897,7 @@ async function getBucketFileList () {
     customUrl: currentCustomDomain.value,
     currentPage: currentPageNumber.value
   }
-  const res = await ipcRenderer.invoke('getBucketFileList', configMap.alias, param)
-  return res
+  return await ipcRenderer.invoke('getBucketFileList', configMap.alias, param)
 }
 
 function handleBatchDeleteInfo () {
@@ -3137,8 +3135,7 @@ function getTableKeyOfDb () {
 
 async function searchExistFileList () {
   const table = fileCacheDbInstance.table(currentPicBedName.value)
-  const res = await table.where('key').equals(getTableKeyOfDb()).toArray()
-  return res
+  return await table.where('key').equals(getTableKeyOfDb()).toArray()
 }
 
 function handleDetectShiftKey (event: KeyboardEvent) {

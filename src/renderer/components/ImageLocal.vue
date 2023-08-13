@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onBeforeMount } from 'vue'
+import { ref, onBeforeMount, watch } from 'vue'
 import { getFileIconPath } from '@/manage/utils/common'
 import { Loading } from '@element-plus/icons-vue'
 import fs from 'fs-extra'
@@ -43,6 +43,19 @@ const props = defineProps(
     localPath: {
       type: String,
       required: true
+    }
+  }
+)
+
+watch(
+  () => props.localPath,
+  async (newLocalPath, oldLocalPath) => {
+    if (newLocalPath !== oldLocalPath) {
+      try {
+        await createBase64Image()
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
 )

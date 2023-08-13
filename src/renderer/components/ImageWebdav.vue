@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onBeforeMount } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { getFileIconPath } from '@/manage/utils/common'
 import { Loading } from '@element-plus/icons-vue'
 
@@ -48,6 +48,20 @@ const props = defineProps(
   }
 )
 
+watch(
+  () => [props.url, props.headers],
+  async (newValues, oldValues) => {
+    if (newValues[0] !== oldValues[0] || newValues[1] !== oldValues[1]) {
+      try {
+        await urlCreateObjectURL()
+      } catch (e) {
+        console.log(e)
+      }
+    }
+  },
+  { deep: true }
+)
+
 const urlCreateObjectURL = async () => {
   await fetch(props.url, {
     method: 'GET',
@@ -59,7 +73,7 @@ const urlCreateObjectURL = async () => {
   })
 }
 
-onBeforeMount(async () => {
+onMounted(async () => {
   await urlCreateObjectURL()
 })
 </script>
