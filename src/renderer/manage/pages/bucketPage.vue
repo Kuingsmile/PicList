@@ -2293,35 +2293,20 @@ watch(searchText, () => searchAndSort())
 
 function searchAndSort () {
   fileTable.value.scrollToRow(0)
+
+  const shouldIgnoreCase = isIgnoreCase.value
+
+  currentPageFilesInfo.forEach((item: any) => {
+    const fileName = shouldIgnoreCase ? item.fileName.toLowerCase() : item.fileName
+    const search = shouldIgnoreCase ? searchText.value.toLowerCase() : searchText.value
+    item.match = searchText.value ? fileName.includes(search) : true
+  })
+
   if (searchText.value) {
-    if (isIgnoreCase.value) {
-      currentPageFilesInfo.forEach((item: any) => {
-        if (item.fileName.toLowerCase().includes(searchText.value.toLowerCase())) {
-          item.match = true
-        } else {
-          item.match = false
-        }
-      })
-      currentPageFilesInfo.sort((a: any, b: any) => {
-        return b.match - a.match
-      })
-    } else {
-      currentPageFilesInfo.forEach((item: any) => {
-        if (item.fileName.includes(searchText.value)) {
-          item.match = true
-        } else {
-          item.match = false
-        }
-      })
-      currentPageFilesInfo.sort((a: any, b: any) => {
-        return b.match - a.match
-      })
-    }
+    currentPageFilesInfo.sort((a: any, b: any) => b.match - a.match)
   } else {
-    currentPageFilesInfo.forEach((item: any) => {
-      item.match = true
-    })
-    sortFile(localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || 'init')
+    const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || 'init'
+    sortFile(sortType)
   }
 }
 
@@ -2407,20 +2392,18 @@ function handleCheckChangeOther (item: any) {
 }
 
 function handleCheckChange (item: any) {
+  const index = currentPageFilesInfo.findIndex((i: any) => i.fileName === item.fileName)
   if (item.checked) {
     if (lastChoosed.value !== -1 && isShiftKeyPress.value) {
-      const index = currentPageFilesInfo.findIndex((i: any) => i.fileName === item.fileName)
-      const start = Math.min(lastChoosed.value, index)
-      const end = Math.max(lastChoosed.value, index)
+      const [start, end] = [lastChoosed.value, index].sort((a, b) => a - b)
       for (let i = start + 1; i <= end; i++) {
         currentPageFilesInfo[i].checked = true
         selectedItems.push(currentPageFilesInfo[i])
       }
-      lastChoosed.value = index
     } else {
-      lastChoosed.value = currentPageFilesInfo.findIndex((i: any) => i.fileName === item.fileName)
       selectedItems.push(item)
     }
+    lastChoosed.value = index
   } else {
     selectedItems.splice(selectedItems.findIndex((i: any) => i.fileName === item.fileName), 1)
   }
@@ -2538,35 +2521,14 @@ async function handleBatchDownload () {
 }
 
 function handleCheckAllChange () {
-  if (searchText.value === '') {
-    if (selectedItems.length === currentPageFilesInfo.length) {
-      selectedItems.length = 0
-      currentPageFilesInfo.forEach((item: any) => {
-        item.checked = false
-      })
-    } else {
-      selectedItems.length = 0
-      selectedItems.push(...currentPageFilesInfo)
-      currentPageFilesInfo.forEach((item: any) => {
-        item.checked = true
-      })
-    }
-  } else {
-    if (selectedItems.length === currentPageFilesInfo.filter((item: any) => item.match).length) {
-      selectedItems.length = 0
-      currentPageFilesInfo.forEach((item: any) => {
-        item.checked = false
-      })
-    } else {
-      selectedItems.length = 0
-      currentPageFilesInfo.forEach((item: any) => {
-        if (item.match) {
-          item.checked = true
-          selectedItems.push(item)
-        }
-      })
-    }
-  }
+  const isSearchEmpty = searchText.value === ''
+  const itemsToCheck = isSearchEmpty ? currentPageFilesInfo : currentPageFilesInfo.filter((item: any) => item.match)
+  const allSelected = selectedItems.length === itemsToCheck.length
+  selectedItems.length = 0
+  currentPageFilesInfo.forEach((item: any) => {
+    item.checked = !allSelected && (isSearchEmpty || item.match)
+    if (item.checked) selectedItems.push(item)
+  })
 }
 
 function handleCreateFolder () {
@@ -2901,47 +2863,37 @@ async function getBucketFileList () {
 }
 
 function handleBatchDeleteInfo () {
-  ElMessageBox.confirm(`${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_A')} ${selectedItems.length} ${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_B')}`, $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_MSG'), {
+  const confirmTitle = `${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_A')} ${selectedItems.length} ${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_B')}`
+  ElMessageBox.confirm(confirmTitle, $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_MSG'), {
     confirmButtonText: $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CONFIRM'),
     cancelButtonText: $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CANCEL'),
     type: 'warning',
     center: true,
     draggable: true
   }).then(async () => {
-    const copyedSelectedItems = JSON.parse(JSON.stringify(selectedItems))
+    const copiedSelectedItems = JSON.parse(JSON.stringify(selectedItems))
     let successCount = 0
     let failCount = 0
-    let res = false
-    for (let i = 0; i < copyedSelectedItems.length; i++) {
-      if (!copyedSelectedItems[i].isDir) {
-        const param = {
-          // tcyun
-          bucketName: configMap.bucketName,
-          region: configMap.bucketConfig.Location,
-          key: copyedSelectedItems[i].key,
-          DeleteHash: copyedSelectedItems[i].sha,
-          githubBranch: currentCustomDomain.value
-        }
-        res = await ipcRenderer.invoke('deleteBucketFile', configMap.alias, param)
-      } else {
-        const param = {
-          // tcyun
-          bucketName: configMap.bucketName,
-          region: configMap.bucketConfig.Location,
-          key: copyedSelectedItems[i].key,
-          githubBranch: currentCustomDomain.value,
-          DeleteHash: copyedSelectedItems[i].sha
-        }
-        res = await ipcRenderer.invoke('deleteBucketFolder', configMap.alias, param)
+
+    for (const item of copiedSelectedItems) {
+      const param = {
+        bucketName: configMap.bucketName,
+        region: configMap.bucketConfig.Location,
+        key: item.key,
+        DeleteHash: item.sha,
+        githubBranch: currentCustomDomain.value
       }
-      if (res) {
+      const result = item.isDir
+        ? await ipcRenderer.invoke('deleteBucketFolder', configMap.alias, param)
+        : await ipcRenderer.invoke('deleteBucketFile', configMap.alias, param)
+      if (result) {
         successCount++
-        currentPageFilesInfo.splice(currentPageFilesInfo.findIndex((j: any) => j.key === copyedSelectedItems[i].key), 1)
-        selectedItems.splice(selectedItems.findIndex((j: any) => j.key === copyedSelectedItems[i].key), 1)
+        currentPageFilesInfo.splice(currentPageFilesInfo.findIndex((j: any) => j.key === item.key), 1)
+        selectedItems.splice(selectedItems.findIndex((j: any) => j.key === item.key), 1)
         if (!paging.value) {
           const table = fileCacheDbInstance.table(currentPicBedName.value)
           table.where('key').equals(getTableKeyOfDb()).modify((l: any) => {
-            l.value.fullList.splice(l.value.fullList.findIndex((j: any) => j.key === copyedSelectedItems[i].key), 1)
+            l.value.fullList.splice(l.value.fullList.findIndex((j: any) => j.key === item.key), 1)
           })
         }
       } else {
@@ -2981,31 +2933,22 @@ function handleDeleteFile (item: any) {
     draggable: true
   }).then(async () => {
     let res = false
-    if (!item.isDir) {
-      const param = {
-        // tcyun
-        bucketName: configMap.bucketName,
-        region: configMap.bucketConfig.Location,
-        key: item.key,
-        DeleteHash: item.sha,
-        githubBranch: currentCustomDomain.value
-      }
-      res = await ipcRenderer.invoke('deleteBucketFile', configMap.alias, param)
-    } else {
-      const param = {
-        // tcyun
-        bucketName: configMap.bucketName,
-        region: configMap.bucketConfig.Location,
-        key: item.key,
-        DeleteHash: item.sha,
-        githubBranch: currentCustomDomain.value
-      }
+    const param = {
+      bucketName: configMap.bucketName,
+      region: configMap.bucketConfig.Location,
+      key: item.key,
+      DeleteHash: item.sha,
+      githubBranch: currentCustomDomain.value
+    }
+    if (item.isDir) {
       ElNotification.info({
         title: $T('MANAGE_BUCKET_DELETE_ERROR_MSG_TITLE'),
         message: $T('MANAGE_BUCKET_DELETE_ERROR_MSG_MSG'),
         duration: 1000
       })
       res = await ipcRenderer.invoke('deleteBucketFolder', configMap.alias, param)
+    } else {
+      res = await ipcRenderer.invoke('deleteBucketFile', configMap.alias, param)
     }
     if (res) {
       ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))

@@ -1,8 +1,6 @@
 <template>
   <el-image
-    :src="isShowThumbnail && item.isImage ?
-      base64Url
-      : require(`../manage/pages/assets/icons/${getFileIconPath(item.fileName ?? '')}`)"
+    :src="imageSource"
     fit="contain"
     style="height: 100px;width: 100%;margin: 0 auto;"
   >
@@ -13,7 +11,7 @@
     </template>
     <template #error>
       <el-image
-        :src="require(`../manage/pages/assets/icons/${getFileIconPath(item.fileName ?? '')}`)"
+        :src="iconPath"
         fit="contain"
         style="height: 100px;width: 100%;margin: 0 auto;"
       />
@@ -22,11 +20,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { getFileIconPath } from '@/manage/utils/common'
 import { Loading } from '@element-plus/icons-vue'
 
 const base64Url = ref('')
+const success = ref(false)
+
 const props = defineProps(
   {
     isShowThumbnail: {
@@ -48,32 +48,32 @@ const props = defineProps(
   }
 )
 
-watch(
-  () => [props.url, props.headers],
-  async (newValues, oldValues) => {
-    if (newValues[0] !== oldValues[0] || newValues[1] !== oldValues[1]) {
-      try {
-        await urlCreateObjectURL()
-      } catch (e) {
-        console.log(e)
-      }
-    }
-  },
-  { deep: true }
-)
+const imageSource = computed(() => {
+  return (props.isShowThumbnail && props.item.isImage && success.value)
+    ? base64Url.value
+    : require(`../manage/pages/assets/icons/${getFileIconPath(props.item.fileName ?? '')}`)
+})
 
-const urlCreateObjectURL = async () => {
-  await fetch(props.url, {
-    method: 'GET',
-    headers: props.headers
-  }).then(res => res.blob()).then(blob => {
-    base64Url.value = URL.createObjectURL(blob)
-  }).catch(err => {
+const iconPath = computed(() => require(`../manage/pages/assets/icons/${getFileIconPath(props.item.fileName ?? '')}`))
+
+const fetchImage = async () => {
+  try {
+    const res = await fetch(props.url, { method: 'GET', headers: props.headers })
+    if (res.status >= 200 && res.status < 300) {
+      const blob = await res.blob()
+      success.value = true
+      base64Url.value = URL.createObjectURL(blob)
+    } else {
+      throw new Error('Network response was not ok.')
+    }
+  } catch (err) {
+    success.value = false
     console.log(err)
-  })
+  }
 }
 
-onMounted(async () => {
-  await urlCreateObjectURL()
-})
+watch(() => [props.url, props.headers], fetchImage, { deep: true })
+
+onMounted(fetchImage)
+
 </script>
