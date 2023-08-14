@@ -58,8 +58,8 @@
         :xs="24"
         :sm="pluginList.length === 1 ? 24 : 12"
         :md="pluginList.length === 1 ? 24 : 12"
-        :lg="pluginList.length === 1 ? 24 : 6"
-        :xl="pluginList.length === 1 ? 24 : 6"
+        :lg="pluginList.length === 1 ? 24 : 12"
+        :xl="pluginList.length === 1 ? 24 : 12"
       >
         <div
           class="plugin-item"
@@ -85,7 +85,17 @@
               class="plugin-item__name"
               @click="openHomepage(item.homepage)"
             >
-              {{ item.name }} <small>{{ ' ' + item.version }}</small>
+              {{ item.name }} <small>{{ ' ' + item.version }}</small> &nbsp;
+              <!-- 升级提示 -->
+              <el-tag
+                v-if="latestVersionMap[item.fullName] && latestVersionMap[item.fullName] !== item.version"
+                type="success"
+                size="small"
+                round
+                effect="plain"
+              >
+                new
+              </el-tag>
             </div>
             <div
               class="plugin-item__desc"
@@ -233,7 +243,7 @@ import {
 } from '#/events/constants'
 
 // Vue 相关
-import { computed, ref, onBeforeMount, onBeforeUnmount, watch, onMounted } from 'vue'
+import { computed, ref, onBeforeMount, onBeforeUnmount, watch, onMounted, reactive } from 'vue'
 
 // 数据发送工具函数
 import { getConfig, saveConfig, sendRPC, sendToMain } from '@/utils/dataSender'
@@ -257,6 +267,7 @@ const dialogVisible = ref(false)
 const pluginNameList = ref<string[]>([])
 const loading = ref(true)
 const needReload = ref(false)
+const latestVersionMap = reactive<{ [key: string]: string }>({})
 const pluginListToolTip = $T('PLUGIN_LIST')
 const importLocalPluginToolTip = $T('PLUGIN_IMPORT_LOCAL')
 // const id = ref('')
@@ -292,6 +303,15 @@ watch(dialogVisible, (val: boolean) => {
   }
 })
 
+async function getLatestVersionOfPlugIn (pluginName: string) {
+  try {
+    const res = await axios.get(`https://registry.npmjs.com/${pluginName}`)
+    latestVersionMap[pluginName] = res.data['dist-tags'].latest
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 onBeforeMount(async () => {
   os.value = process.platform
   ipcRenderer.on('hideLoading', () => {
@@ -308,6 +328,9 @@ onBeforeMount(async () => {
   ipcRenderer.on('pluginList', (evt: IpcRendererEvent, list: IPicGoPlugin[]) => {
     pluginList.value = list
     pluginNameList.value = list.map(item => item.fullName)
+    for (const item of pluginList.value) {
+      getLatestVersionOfPlugIn(item.fullName)
+    }
     loading.value = false
   })
   ipcRenderer.on('installPlugin', (evt: IpcRendererEvent, { success, body }: {

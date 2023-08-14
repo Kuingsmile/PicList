@@ -566,7 +566,7 @@ https://www.baidu.com/img/bd_logo1.png"
                 <el-row>
                   <el-icon
                     v-if="!item.isDir && isShowRenameFileIcon"
-                    size="20"
+                    size="15"
                     style="cursor: pointer;"
                     color="#409EFF"
                     @click="handleRenameFile(item)"
@@ -575,7 +575,7 @@ https://www.baidu.com/img/bd_logo1.png"
                   </el-icon>
                   <el-icon
                     v-if="item.isDir"
-                    size="20"
+                    size="15"
                     style="cursor: pointer;"
                     color="crimson"
                     @click="handleFolderBatchDownload(item)"
@@ -585,7 +585,7 @@ https://www.baidu.com/img/bd_logo1.png"
                   <el-dropdown>
                     <template #default>
                       <el-icon
-                        size="20"
+                        size="15"
                         style="cursor: pointer;"
                         color="#409EFF"
                         @click="async () => {
@@ -651,7 +651,7 @@ https://www.baidu.com/img/bd_logo1.png"
                     </template>
                   </el-dropdown>
                   <el-icon
-                    size="20"
+                    size="15"
                     style="cursor: pointer;"
                     color="#409EFF"
                     @click="handleShowFileInfo(item)"
@@ -659,7 +659,7 @@ https://www.baidu.com/img/bd_logo1.png"
                     <Document />
                   </el-icon>
                   <el-icon
-                    size="20"
+                    size="15"
                     style="cursor: pointer;"
                     color="#FFB6C1"
                     @click="handleDeleteFile(item)"
@@ -3461,7 +3461,7 @@ const columns: Column<any>[] = [
         ? item.isDir || !isShowRenameFileIcon.value
           ? item.isDir
             ? <ElIcon
-              size="20"
+              size="15"
               style="cursor: pointer;"
               color="#409EFF"
               // @ts-ignore
@@ -3471,7 +3471,7 @@ const columns: Column<any>[] = [
             </ElIcon>
             : <template></template>
           : <ElIcon
-            size="20"
+            size="15"
             style="cursor: pointer;"
             color="#409EFF"
             // @ts-ignore
@@ -3498,7 +3498,7 @@ const columns: Column<any>[] = [
             {{
               default: () => (
                 <ElIcon
-                  size="20"
+                  size="15"
                   style="cursor: pointer;"
                   color="#409EFF"
                   // @ts-ignore
@@ -3570,7 +3570,7 @@ const columns: Column<any>[] = [
           hide-after={150}
         >
           <ElIcon
-            size="20"
+            size="15"
             style="cursor: pointer;"
             color="#409EFF"
             // @ts-ignore
