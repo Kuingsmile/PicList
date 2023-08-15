@@ -14,7 +14,7 @@ import { availableIconList } from './icon'
 import { getConfig } from './dataSender'
 
 // 工具函数
-import { handleUrlEncode } from '~/universal/utils/common'
+import { handleUrlEncode, safeSliceF, isNeedToShorten } from '~/universal/utils/common'
 
 export function randomStringGenerator (length: number): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -103,7 +103,7 @@ export function formatFileName (fileName: string, length: number = 20) {
   let ext = path.extname(fileName)
   ext = ext.length > 5 ? ext.slice(ext.length - 5) : ext
   const name = path.basename(fileName, ext)
-  return name.length > length ? `${name.slice(0, length)}...${ext}` : fileName
+  return isNeedToShorten(fileName, length) ? `${safeSliceF(name, length - 3 - ext.length)}...${ext}` : fileName
 }
 
 export const getExtension = (fileName: string) => path.extname(fileName).slice(1)

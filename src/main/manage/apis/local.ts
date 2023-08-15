@@ -50,12 +50,12 @@ class LocalApi {
   transBack (filePath: string | undefined) {
     if (!filePath) return ''
     return this.isWindows
-      ? filePath.split(path.posix.sep).join(path.sep).replace(/^\\+/, '')
-      : `/${filePath.replace(/^\/+/, '')}`
+      ? filePath.split(path.posix.sep).join(path.sep).replace(/^\\+|\\+$/g, '')
+      : `/${filePath.replace(/^\/+|\/+$/g, '')}`
   }
 
   formatFolder (item: fs.Stats, urlPrefix: string, fileName: string, filePath: string) {
-    const key = this.transPathToUnix(filePath)
+    const key = `${this.transPathToUnix(filePath)}/`.replace(/\/+$/, '/')
     return {
       ...item,
       key,
@@ -71,8 +71,8 @@ class LocalApi {
     }
   }
 
-  formatFile (item: fs.Stats, urlPrefix: string, fileName: string, filePath: string) {
-    const key = this.transPathToUnix(filePath)
+  formatFile (item: fs.Stats, urlPrefix: string, fileName: string, filePath: string, isDownload = false) {
+    const key = isDownload ? filePath : this.transPathToUnix(filePath)
     return {
       ...item,
       key,
@@ -106,7 +106,7 @@ class LocalApi {
       finished: false
     }
     try {
-      res = fsWalk.walkSync(prefix, {
+      res = fsWalk.walkSync(this.transBack(prefix), {
         followSymbolicLinks: true,
         fs,
         stats: true,
@@ -114,9 +114,9 @@ class LocalApi {
       })
       if (res.length) {
         result.fullList.push(
-          ...res.data
+          ...res
             .filter((item: fsWalk.Entry) => item.stats?.isFile())
-            .map((item: any) => this.formatFile(item, urlPrefix, item.name, item.path))
+            .map((item: any) => this.formatFile(item, urlPrefix, item.name, item.path, true))
         )
         result.success = true
       }
@@ -133,7 +133,7 @@ class LocalApi {
     const { customUrl = '', cancelToken, baseDir } = configMap
     let prefix = configMap.prefix
     prefix = this.transBack(prefix)
-    let urlPrefix = customUrl.replace(/\/+$/, '')
+    const urlPrefix = customUrl.replace(/\/+$/, '')
     let webPath = configMap.webPath || ''
     if (webPath && customUrl && webPath !== '/') {
       webPath = webPath.replace(/^\/+|\/+$/, '')
@@ -156,20 +156,22 @@ class LocalApi {
         withFileTypes: true
       })
       if (res.length) {
+        let urlPrefixF
         res.forEach((item: fs.Dirent) => {
           const pathOfFile = path.join(prefix, item.name)
-          const relativePath = path.relative(baseDir, pathOfFile)
-          const relative = webPath && urlPrefix + `/${path.join(webPath, relativePath)}`.replace(/\\/g, '/').replace(/\/+/g, '/')
-          if (webPath && customUrl) {
-            urlPrefix = relative
+          let relative
+          if (customUrl) {
+            const relativePath = path.relative(this.transBack(baseDir), pathOfFile)
+            relative = urlPrefix + `/${path.join(webPath, relativePath)}`.replace(/\\/g, '/').replace(/\/+/g, '/')
+            urlPrefixF = this.isWindows ? relative.replace(/\/[a-zA-Z]:\//, '/') : relative
           } else {
-            urlPrefix = pathOfFile
+            urlPrefixF = pathOfFile
           }
           const stats = fs.statSync(pathOfFile)
           if (item.isDirectory()) {
-            result.fullList.push(this.formatFolder(stats, urlPrefix, item.name, relativePath))
+            result.fullList.push(this.formatFolder(stats, urlPrefixF, item.name, pathOfFile))
           } else {
-            result.fullList.push(this.formatFile(stats, urlPrefix, item.name, relativePath))
+            result.fullList.push(this.formatFile(stats, urlPrefixF, item.name, pathOfFile))
           }
         })
         result.success = true
@@ -210,7 +212,7 @@ class LocalApi {
     const { key } = configMap
     let result = false
     try {
-      await fs.rmdir(this.transBack(key), {
+      await fs.rm(this.transBack(key), {
         recursive: true
       })
       result = true
@@ -241,7 +243,7 @@ class LocalApi {
         noProgress: true
       })
       try {
-        fs.ensureFileSync(filePath)
+        fs.ensureFileSync(this.transBack(key))
         await fs.copyFile(filePath, this.transBack(key))
         instance.updateUploadTask({
           id,
@@ -281,7 +283,7 @@ class LocalApi {
     const instance = UpDownTaskQueue.getInstance()
     for (const item of fileArray) {
       const { alias, bucketName, key, fileName } = item
-      const savedFilePath = path.join(downloadPath, fileName)
+      const savedFilePath = path.join(downloadPath, fileName.replace(/[:*?"<>|]/g, ''))
       const id = `${alias}-${bucketName}-local-${key}`
       if (instance.getDownloadTask(id)) {
         continue

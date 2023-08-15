@@ -74,9 +74,9 @@
                       effect="light"
                       :content="item.alias"
                       placement="top"
-                      :disabled="item.alias.length <= 15"
+                      :disabled="isNeedToShorten(item.alias)"
                     >
-                      {{ item.alias.length > 15 ? item.alias.slice(0, 8) + '...' + item.alias.slice(-6) : item.alias }}
+                      {{ isNeedToShorten(item.alias) ? safeSliceF(item.alias, 17) + '...' : item.alias }}
                     </el-tooltip>
                   </el-button>
                 </template>
@@ -290,6 +290,7 @@ import { getConfig as getPicBedsConfig } from '@/utils/dataSender'
 
 // 端点地址格式化
 import { formatEndpoint } from '~/main/manage/utils/common'
+import { isNeedToShorten, safeSliceF } from '#/utils/common'
 
 // 国际化函数
 import { T as $T } from '@/i18n'
@@ -373,7 +374,7 @@ async function handleConfigChange (name: string) {
   const aliasList = getAliasList()
   const allKeys = Object.keys(supportedPicBedList[name].configOptions)
   const resultMap:IStringKeyMap = {}
-  const reg = /^[\u4e00-\u9fff_a-zA-Z0-9-]+$/
+  const reg = /^[\p{Unified_Ideograph}_a-zA-Z0-9-]+$/u
   for (const key of allKeys) {
     const resultKey = name + '.' + key
     if (supportedPicBedList[name].configOptions[key].required) {

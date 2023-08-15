@@ -59,7 +59,7 @@
               class="icon"
               size="25px"
             >
-              <DocumentAdd />
+              <Upload />
             </el-icon>
           </el-tooltip>
         </el-button>
@@ -80,7 +80,7 @@
               size="25px"
               style="margin-left: 5px;"
             >
-              <Upload />
+              <UploadFilled />
             </el-icon>
           </el-tooltip>
         </el-button>
@@ -497,7 +497,7 @@ https://www.baidu.com/img/bd_logo1.png"
               shadow="hover"
             >
               <el-image
-                v-if="!item.isDir && currentPicBedName !== 'webdavplist' && currentPicBedName !== 'local'"
+                v-if="!item.isDir && currentPicBedName !== 'webdavplist'"
                 :src="isShowThumbnail && item.isImage ?
                   item.url
                   : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)"
@@ -526,13 +526,6 @@ https://www.baidu.com/img/bd_logo1.png"
                 :url="item.url"
                 @click="handleClickFile(item)"
               />
-              <ImageLocal
-                v-else-if="!item.isDir && currentPicBedName === 'local'"
-                :is-show-thumbnail="isShowThumbnail"
-                :item="item"
-                :local-path="item.key"
-                @click="handleClickFile(item)"
-              />
               <el-image
                 v-else
                 :src="require('./assets/icons/folder.webp')"
@@ -554,7 +547,7 @@ https://www.baidu.com/img/bd_logo1.png"
                     :underline="false"
                     :type="item.checked ? 'primary' : 'info'"
                   >
-                    {{ formatFileName(item.fileName ?? '', 8) }}
+                    {{ formatFileName(item.fileName ?? '', 15) }}
                   </el-link>
                 </el-tooltip>
               </div>
@@ -1422,7 +1415,7 @@ import { ref, reactive, watch, onBeforeMount, computed, onBeforeUnmount } from '
 import { useRoute } from 'vue-router'
 
 // Element Plus 图标
-import { InfoFilled, Grid, Fold, Close, Folder, FolderAdd, Upload, CircleClose, Loading, CopyDocument, Edit, DocumentAdd, Link, Refresh, ArrowRight, HomeFilled, Document, Coin, Download, DeleteFilled, Sort, FolderOpened } from '@element-plus/icons-vue'
+import { InfoFilled, Grid, Fold, Close, Folder, FolderAdd, Upload, CircleClose, Loading, CopyDocument, Edit, UploadFilled, Link, Refresh, ArrowRight, HomeFilled, Document, Coin, Download, DeleteFilled, Sort, FolderOpened } from '@element-plus/icons-vue'
 
 // 状态管理相关
 import { useManageStore } from '../store/manageStore'
@@ -1492,7 +1485,6 @@ import { videoExt } from '../utils/videofile'
 
 // 组件
 import ImageWebdav from '@/components/ImageWebdav.vue'
-import ImageLocal from '@/components/ImageLocal.vue'
 
 // 国际化函数
 import { T as $T } from '@/i18n'
@@ -2113,6 +2105,16 @@ async function initCustomDomainList () {
       currentCustomDomain.value = endpoint
     }
     handleChangeCustomUrl()
+  } else if (currentPicBedName.value === 'local') {
+    const currentConfigs = await getConfig<any>('picBed')
+    const currentConfig = currentConfigs[configMap.alias]
+    const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
+    if (currentTransformedConfig[configMap.bucketName] && currentTransformedConfig[configMap.bucketName]?.customUrl) {
+      currentCustomDomain.value = currentTransformedConfig[configMap.bucketName].customUrl ?? ''
+    } else {
+      currentCustomDomain.value = ''
+    }
+    handleChangeCustomUrl()
   }
 }
 
@@ -2535,7 +2537,7 @@ function handleCreateFolder () {
   ElMessageBox.prompt($T('MANAGE_BUCKET_CREATE_FOLDER_BOX_TITLE'), $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_TIP'), {
     confirmButtonText: $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_CONFIRM'),
     cancelButtonText: $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_CANCEL'),
-    inputPattern: /^[\u4e00-\u9fff_a-zA-Z0-9/]+$/,
+    inputPattern: /^[\p{Unified_Ideograph}_a-zA-Z0-9-]+$/u,
     inputErrorMessage: $T('MANAGE_BUCKET_CREATE_FOLDER_ERROR_MSG')
   }).then(async ({ value }) => {
     let formatedPath = value
@@ -2801,7 +2803,6 @@ async function getBucketFileListBackStage () {
     param.baseDir = configMap.baseDir
     param.webPath = configMap.webPath
   }
-  console.log(param)
   ipcRenderer.send('getBucketListBackstage', configMap.alias, param)
   ipcRenderer.on('refreshFileTransferList', (evt: IpcRendererEvent, data) => {
     fileTransferStore.refreshFileTransferList(data)
@@ -3445,7 +3446,7 @@ const columns: Column<any>[] = [
             <div
               style="font-size: 14px;color: #303133;font-family: Arial, Helvetica, sans-serif;"
             >
-              {formatFileName(item.fileName ?? '')}
+              {formatFileName(item.fileName ?? '', 40)}
             </div>
           </ElTooltip>
         </div>
