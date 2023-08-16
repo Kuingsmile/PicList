@@ -196,10 +196,10 @@ const handlePluginUninstall = async (fullName: string) => {
   dispose()
 }
 
-const handlePluginUpdate = async (fullName: string) => {
+const handlePluginUpdate = async (fullName: string | string[]) => {
   const window = windowManager.get(IWindowList.SETTING_WINDOW)!
   const dispose = handleNPMError()
-  const res = await picgo.pluginHandler.update([fullName])
+  const res = await picgo.pluginHandler.update(typeof fullName === 'string' ? [fullName] : fullName)
   if (res.success) {
     window.webContents.send('updateSuccess', res.body[0])
   } else {
@@ -210,6 +210,13 @@ const handlePluginUpdate = async (fullName: string) => {
   }
   window.webContents.send('hideLoading')
   dispose()
+}
+
+const handleUpdateAllPlugin = () => {
+  ipcMain.on('updateAllPlugin', async (event: IpcMainEvent, list: string[]) => {
+    console.log(list)
+    handlePluginUpdate(list)
+  })
 }
 
 const handleNPMError = (): IDispose => {
@@ -419,6 +426,7 @@ export default {
     handlePicGoGetConfig()
     handlePicGoGalleryDB()
     handleImportLocalPlugin()
+    handleUpdateAllPlugin()
     handleOpenFile()
     handleOpenWindow()
     handleI18n()

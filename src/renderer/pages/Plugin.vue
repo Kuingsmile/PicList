@@ -14,6 +14,17 @@
         </el-icon>
       </el-tooltip>
       <el-tooltip
+        :content="updateAllToolTip"
+        placement="left"
+      >
+        <el-icon
+          class="el-icon-update"
+          @click="handleUpdateAllPlugin"
+        >
+          <Refresh />
+        </el-icon>
+      </el-tooltip>
+      <el-tooltip
         :content="importLocalPluginToolTip"
         placement="left"
       >
@@ -211,7 +222,7 @@
 </template>
 <script lang="ts" setup>
 // Element Plus 图标
-import { Close, Download, Goods, Remove, Tools } from '@element-plus/icons-vue'
+import { Close, Download, Refresh, Goods, Remove, Tools } from '@element-plus/icons-vue'
 
 // 国际化函数
 import { T as $T } from '@/i18n/index'
@@ -243,7 +254,7 @@ import {
 } from '#/events/constants'
 
 // Vue 相关
-import { computed, ref, onBeforeMount, onBeforeUnmount, watch, onMounted, reactive } from 'vue'
+import { computed, ref, onBeforeMount, onBeforeUnmount, watch, onMounted, reactive, toRaw } from 'vue'
 
 // 数据发送工具函数
 import { getConfig, saveConfig, sendRPC, sendToMain } from '@/utils/dataSender'
@@ -270,6 +281,7 @@ const needReload = ref(false)
 const latestVersionMap = reactive<{ [key: string]: string }>({})
 const pluginListToolTip = $T('PLUGIN_LIST')
 const importLocalPluginToolTip = $T('PLUGIN_IMPORT_LOCAL')
+const updateAllToolTip = $T('PLUGIN_UPDATE_ALL')
 // const id = ref('')
 const os = ref('')
 const defaultLogo = ref(`this.src="file://${__static.replace(/\\/g, '/')}/roundLogo.png"`)
@@ -591,6 +603,10 @@ function handleImportLocalPlugin () {
   loading.value = true
 }
 
+function handleUpdateAllPlugin () {
+  sendToMain('updateAllPlugin', toRaw(pluginNameList.value))
+}
+
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
   ipcRenderer.removeAllListeners('pluginList')
@@ -644,9 +660,19 @@ $darwinBg = #172426
       transition color .2s ease-in-out
       &:hover
         color #49B1F5
+    i.el-icon-update
+      position absolute
+      right 35px
+      top 8px
+      font-size 20px
+      vertical-align middle
+      cursor pointer
+      transition color .2s ease-in-out
+      &:hover
+        color #49B1F5
     i.el-icon-download
       position absolute
-      right 0
+      right 5px
       top 8px
       font-size 20px
       vertical-align middle

@@ -323,6 +323,7 @@ PLUGIN_INSTALLED: Installed
 PLUGIN_DOING_SOMETHING: Doing...
 PLUGIN_LIST: Plugin List
 PLUGIN_IMPORT_LOCAL: Import Local Plugins
+PLUGIN_UPDATE_ALL: Update All Plugins
 
 # tips
 
