@@ -562,7 +562,7 @@ function handleConfigImport (alias: string) {
 
 async function getCurrentConfigList () {
   const configList = await getPicBedsConfig<any>('uploader') ?? {}
-  const pbList = ['aliyun', 'aws-s3', 'github', 'imgur', 'local', 'qiniu', 'smms', 'tcyun', 'upyun', 'webdavplist']
+  const pbList = ['aliyun', 'aws-s3', 'github', 'imgur', 'local', 'qiniu', 'sftpplist', 'smms', 'tcyun', 'upyun', 'webdavplist']
 
   const filteredConfigList = pbList.flatMap((pb) => {
     const config = configList[pb]
@@ -593,7 +593,13 @@ function initArray (arrayT: string | string[], defaultValue: string[]) {
 }
 
 async function transUpToManage (config: IUploaderConfigListItem, picBedName: string, autoImportPicBed: string[]) {
-  const alias = `${picBedName === 'webdavplist' ? 'webdav' : picBedName}-${config._configName ?? 'Default'}-imp`
+  const alias = `${picBedName === 'webdavplist'
+    ? 'webdav'
+    : picBedName === 'sftpplist'
+      ? 'sftp'
+      : picBedName === 'aws-s3'
+        ? 's3plist'
+        : picBedName}-${config._configName ?? 'Default'}-imp`
   if (!autoImportPicBed.includes(picBedName) || isImported(alias)) return
   const commonConfig = {
     alias,
@@ -728,10 +734,30 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
       })
       delete resultMap.paging
       break
+    case 'sftpplist':
+      if (!config.host) return
+      Object.assign(resultMap, {
+        ...commonConfig,
+        picBedName: 'sftp',
+        host: config.host,
+        port: config.port || 22,
+        username: config.username,
+        password: config.password,
+        privateKey: config.privateKey,
+        passphrase: config.passphrase,
+        baseDir: config.uploadPath || '/',
+        webPath: config.webPath || '',
+        customUrl: config.customUrl || '',
+        fileMode: config.fileMode || '0664',
+        dirMode: config.dirMode || '0775'
+      })
+      delete resultMap.paging
+      break
     case 'aws-s3':
       if (!config.accessKeyID || !config.secretAccessKey) return
       Object.assign(resultMap, {
         ...commonConfig,
+        picBedName: 's3plist',
         accessKeyId: config.accessKeyID,
         secretAccessKey: config.secretAccessKey,
         endpoint: config.endpoint || '',

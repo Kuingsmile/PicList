@@ -52,15 +52,17 @@ export function renameFileNameWithCustomString (oldName: string, customFormat: s
   }, customFormat) + ext
 }
 
-export function renameFile (typeMap : IStringKeyMap, oldName: string): string {
-  if (typeMap.timestampRename) {
-    return renameFileNameWithTimestamp(oldName)
-  } else if (typeMap.randomStringRename) {
-    return renameFileNameWithRandomString(oldName, 20)
-  } else if (typeMap.customRename) {
-    return renameFileNameWithCustomString(oldName, typeMap.customRenameFormat)
+export function renameFile ({ timestampRename, randomStringRename, customRename, customRenameFormat }: IStringKeyMap, oldName = ''): string {
+  switch (true) {
+    case timestampRename:
+      return renameFileNameWithTimestamp(oldName)
+    case randomStringRename:
+      return renameFileNameWithRandomString(oldName, 20)
+    case customRename:
+      return renameFileNameWithCustomString(oldName, customRenameFormat)
+    default:
+      return oldName
   }
-  return oldName
 }
 
 export async function formatLink (url: string, fileName: string, type: string, format?: string) : Promise<string> {

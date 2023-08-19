@@ -336,16 +336,17 @@ watch(route, async (newRoute) => {
 const getCurrentActiveBucket = computed(() => bucketNameList.value.length === 0 ? '' : bucketNameList.value[0])
 
 const urlMap : IStringKeyMap = {
-  smms: 'https://smms.app',
+  aliyun: 'https://oss.console.aliyun.com',
   github: 'https://github.com',
   imgur: 'https://imgur.com',
-  aliyun: 'https://oss.console.aliyun.com',
+  local: 'https://piclist.cn',
   qiniu: 'https://portal.qiniu.com',
+  s3plist: 'https://aws.amazon.com/cn/s3/',
+  sftp: 'https://github.com/imba97/picgo-plugin-sftp-uploader',
+  smms: 'https://smms.app',
   tcyun: 'https://console.cloud.tencent.com/cos',
   upyun: 'https://console.upyun.com',
-  s3plist: 'https://aws.amazon.com/cn/s3/',
-  webdavplist: 'https://baike.baidu.com/item/WebDAV/4610909',
-  local: 'https://piclist.cn'
+  webdavplist: 'https://baike.baidu.com/item/WebDAV/4610909'
 }
 
 const showNewIconList = ['aliyun', 'qiniu', 'tcyun']
@@ -360,6 +361,7 @@ const menuTitleMap:IStringKeyMap = {
   tcyun: bucketT,
   upyun: bucketT,
   s3plist: bucketT,
+  sftp: '',
   smms: galleryT,
   imgur: galleryT,
   github: repositoryT,

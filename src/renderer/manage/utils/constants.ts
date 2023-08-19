@@ -22,7 +22,7 @@ const itemsPerPageRule = [
     trigger: 'change'
   },
   {
-    validator: (rule: any, value: any, callback: any) => {
+    validator: (_rule: any, value: any, callback: any) => {
       if (value < 20 || value > 1000) {
         callback(new Error($T('MANAGE_CONSTANT_ITEMS_PAGE_RULE_MESSAGE_C')))
       } else {
@@ -40,7 +40,7 @@ const aliasRule = [
     trigger: 'blur'
   },
   {
-    validator: (rule: any, value: any, callback: any) => {
+    validator: (_rule: any, value: any, callback: any) => {
       const reg = /^[\u4e00-\u9fff_a-zA-Z0-9-]+$/
       if (!reg.test(value)) {
         callback(new Error($T('MANAGE_CONSTANT_ALIAS_RULE_MESSAGE_B')))
@@ -469,7 +469,7 @@ export const supportedPicBedList: IStringKeyMap = {
             trigger: 'change'
           },
           {
-            validator: (rule: any, value: any, callback: any) => {
+            validator: (_rule: any, value: any, callback: any) => {
               if (value) {
                 const customUrlList = value.split(',')
                 const customUrlValid = customUrlList.every((customUrl: string) => {
@@ -722,7 +722,7 @@ export const supportedPicBedList: IStringKeyMap = {
         tooltip: $T('MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_TOOLTIP'),
         rule: [
           {
-            validator: (rule: any, value: any, callback: any) => {
+            validator: (_rule: any, value: any, callback: any) => {
               if (value) {
                 if (!/^https?:\/\/.+/.test(value)) {
                   callback(new Error($T('MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_RULE_MESSAGE')))
@@ -786,7 +786,7 @@ export const supportedPicBedList: IStringKeyMap = {
         default: '',
         rule: [
           {
-            validator: (rule: any, value: any, callback: any) => {
+            validator: (_rule: any, value: any, callback: any) => {
               if (!value) {
                 callback(new Error($T('MANAGE_CONSTANT_LOCAL_BASE_DIR_RULE_MESSAGE')))
               } else {
@@ -804,7 +804,7 @@ export const supportedPicBedList: IStringKeyMap = {
         tooltip: $T('MANAGE_CONSTANT_LOCAL_CUSTOM_URL_TOOLTIP'),
         rule: [
           {
-            validator: (rule: any, value: any, callback: any) => {
+            validator: (_rule: any, value: any, callback: any) => {
               if (value) {
                 if (!/^https?:\/\/.+/.test(value)) {
                   callback(new Error($T('MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_RULE_MESSAGE')))
@@ -841,5 +841,139 @@ export const supportedPicBedList: IStringKeyMap = {
     options: ['alias', 'baseDir', 'customUrl', 'bucketName', 'webPath'],
     refLink: 'https://piclist.cn',
     referenceText: $T('MANAGE_CONSTANT_LOCAL_REFER_TEXT')
+  },
+  sftp: {
+    name: $T('MANAGE_CONSTANT_SFTP_NAME'),
+    icon: 'sftp',
+    configOptions: {
+      alias: {
+        required: true,
+        description: $T('MANAGE_CONSTANT_SFTP_ALIAS_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SFTP_ALIAS_PLACEHOLDER'),
+        type: 'string',
+        rule: aliasRule,
+        default: 'sftp-A',
+        tooltip: aliasTooltip
+      },
+      host: {
+        required: true,
+        description: $T('MANAGE_CONSTANT_SFTP_HOST_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SFTP_HOST_PLACEHOLDER'),
+        type: 'string',
+        rule: defaultBaseRule('host'),
+        default: ''
+      },
+      port: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_SFTP_PORT_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SFTP_PORT_PLACEHOLDER'),
+        type: 'number',
+        default: 22
+      },
+      username: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_SFTP_USERNAME_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SFTP_USERNAME_PLACEHOLDER'),
+        type: 'string',
+        default: ''
+      },
+      password: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_SFTP_PASSWORD_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SFTP_PASSWORD_PLACEHOLDER'),
+        type: 'string',
+        default: ''
+      },
+      privateKey: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_SFTP_PRIVATE_KEY_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SFTP_PRIVATE_KEY_PLACEHOLDER'),
+        type: 'string',
+        default: ''
+      },
+      passphrase: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_SFTP_PASSPHRASE_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SFTP_PASSPHRASE_PLACEHOLDER'),
+        type: 'string',
+        default: ''
+      },
+      fileMode: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_SFTP_FILE_PERMISSIONS_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SFTP_FILE_PERMISSIONS_PLACEHOLDER'),
+        type: 'string',
+        default: '0664'
+      },
+      dirMode: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_SFTP_DIR_PERMISSIONS_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SFTP_DIR_PERMISSIONS_PLACEHOLDER'),
+        type: 'string',
+        default: '0755'
+      },
+      baseDir: {
+        required: true,
+        description: $T('MANAGE_CONSTANT_SFTP_BASE_DIR_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SFTP_BASE_DIR_PLACEHOLDER'),
+        type: 'string',
+        default: '',
+        rule: [
+          {
+            validator: (_rule: any, value: any, callback: any) => {
+              if (!value) {
+                callback(new Error($T('MANAGE_CONSTANT_SFTP_BASE_DIR_RULE_MESSAGE')))
+              } else {
+                callback()
+              }
+            }
+          }
+        ]
+      },
+      customUrl: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_SFTP_CUSTOM_URL_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SFTP_CUSTOM_URL_PLACEHOLDER'),
+        type: 'string',
+        tooltip: $T('MANAGE_CONSTANT_SFTP_CUSTOM_URL_TOOLTIP'),
+        rule: [
+          {
+            validator: (_rule: any, value: any, callback: any) => {
+              if (value) {
+                if (!/^https?:\/\/.+/.test(value)) {
+                  callback(new Error($T('MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_RULE_MESSAGE')))
+                } else {
+                  callback()
+                }
+              } else {
+                callback()
+              }
+            },
+            trigger: 'change'
+          }
+        ]
+      },
+      bucketName: {
+        required: true,
+        description: $T('MANAGE_CONSTANT_SFTP_BUCKET_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_SFTP_BUCKET_PLACEHOLDER'),
+        type: 'string',
+        default: 'sftp',
+        disabled: true,
+        tooltip: $T('MANAGE_CONSTANT_SFTP_BUCKET_TOOLTIP')
+      },
+      webPath: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_SFTP_WEB_PATH'),
+        placeholder: $T('MANAGE_CONSTANT_SFTP_WEB_PATH_PLACEHOLDER'),
+        type: 'string',
+        tooltip: $T('MANAGE_CONSTANT_SFTP_WEB_PATH_TOOLTIP'),
+        default: ''
+      }
+    },
+    explain: $T('MANAGE_CONSTANT_SFTP_EXPLAIN'),
+    options: ['alias', 'host', 'port', 'username', 'password', 'privateKey', 'passphrase', 'fileMode', 'dirMode', 'baseDir', 'customUrl', 'bucketName', 'webPath'],
+    refLink: 'https://github.com/imba97/picgo-plugin-sftp-uploader',
+    referenceText: $T('MANAGE_CONSTANT_SFTP_REFER_TEXT')
   }
 }
