@@ -4,6 +4,7 @@ import ImgurApi from './imgur'
 import LocalApi from './local'
 import QiniuApi from './qiniu'
 import S3plistApi from './s3plist'
+import SftpApi from './sftp'
 import SmmsApi from './smms'
 import TcyunApi from './tcyun'
 import UpyunApi from './upyun'
@@ -16,6 +17,7 @@ export default {
   LocalApi,
   QiniuApi,
   S3plistApi,
+  SftpApi,
   SmmsApi,
   TcyunApi,
   UpyunApi,

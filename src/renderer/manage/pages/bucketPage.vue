@@ -497,7 +497,7 @@ https://www.baidu.com/img/bd_logo1.png"
               shadow="hover"
             >
               <el-image
-                v-if="!item.isDir && currentPicBedName !== 'webdavplist'"
+                v-if="!item.isDir && currentPicBedName !== 'webdavplist' && currentPicBedName !== 'sftp'"
                 :src="isShowThumbnail && item.isImage ?
                   item.url
                   : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)"
@@ -519,11 +519,18 @@ https://www.baidu.com/img/bd_logo1.png"
                 </template>
               </el-image>
               <ImageWebdav
-                v-else-if="!item.isDir && currentPicBedName === 'webdavplist'"
+                v-else-if="!item.isDir && currentPicBedName === 'webdavplist' && item.isImage"
                 :is-show-thumbnail="isShowThumbnail"
                 :item="item"
                 :headers="getBase64ofWebdav()"
                 :url="item.url"
+                @click="handleClickFile(item)"
+              />
+              <el-image
+                v-else-if="!item.isDir"
+                :src="require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)"
+                fit="contain"
+                style="height: 100px;width: 100%;margin: 0 auto;"
                 @click="handleClickFile(item)"
               />
               <el-image
@@ -1578,7 +1585,7 @@ const lastChoosed = ref<number>(-1)
 const customDomainList = ref([] as any[])
 const currentCustomDomain = ref('')
 const isShowCustomDomainSelectList = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value))
-const isShowCustomDomainInput = computed(() => ['aliyun', 'qiniu', 'tcyun', 's3plist', 'webdavplist', 'local'].includes(currentPicBedName.value))
+const isShowCustomDomainInput = computed(() => ['aliyun', 'qiniu', 'tcyun', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value))
 const isAutoCustomDomain = computed(() => manageStore.config.picBed[configMap.alias].isAutoCustomUrl === undefined ? true : manageStore.config.picBed[configMap.alias].isAutoCustomUrl)
 // 文件预览相关
 const isShowMarkDownDialog = ref(false)
@@ -1589,7 +1596,7 @@ const isShowVideoFileDialog = ref(false)
 const videoFileUrl = ref('')
 const videoPlayerHeaders = ref({})
 // 重命名相关
-const isShowRenameFileIcon = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist', 'local'].includes(currentPicBedName.value))
+const isShowRenameFileIcon = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value))
 const isShowBatchRenameDialog = ref(false)
 const batchRenameMatch = ref('')
 const batchRenameReplace = ref('')
@@ -1607,9 +1614,9 @@ const isAutoRefresh = computed(() => manageStore.config.settings.isAutoRefresh ?
 const isIgnoreCase = computed(() => manageStore.config.settings.isIgnoreCase ?? false)
 
 // 新建文件夹相关
-const isShowCreateNewFolder = computed(() => ['aliyun', 'github', 'local', 'qiniu', 'tcyun', 's3plist', 'upyun', 'webdavplist'].includes(currentPicBedName.value))
+const isShowCreateNewFolder = computed(() => ['aliyun', 'github', 'local', 'qiniu', 'tcyun', 's3plist', 'upyun', 'webdavplist', 'sftp'].includes(currentPicBedName.value))
 
-const isShowPresignedUrl = computed(() => ['aliyun', 'github', 'qiniu', 's3plist', 'tcyun', 'webdavplist'].includes(currentPicBedName.value))
+const isShowPresignedUrl = computed(() => ['aliyun', 'github', 'qiniu', 's3plist', 'tcyun', 'webdavplist', 'sftp'].includes(currentPicBedName.value))
 
 // 上传相关函数
 
@@ -2000,7 +2007,7 @@ async function handleChangeCustomUrl () {
     isShowLoadingPage.value = true
     await resetParam(true)
     isShowLoadingPage.value = false
-  } else if (['aliyun', 'tcyun', 'qiniu', 's3plist', 'webdavplist'].includes(currentPicBedName.value)) {
+  } else if (['aliyun', 'tcyun', 'qiniu', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value)) {
     const currentConfigs = await getConfig<any>('picBed')
     const currentConfig = currentConfigs[configMap.alias]
     const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
@@ -2105,7 +2112,7 @@ async function initCustomDomainList () {
       currentCustomDomain.value = endpoint
     }
     handleChangeCustomUrl()
-  } else if (currentPicBedName.value === 'local') {
+  } else if (currentPicBedName.value === 'local' || currentPicBedName.value === 'sftp') {
     const currentConfigs = await getConfig<any>('picBed')
     const currentConfig = currentConfigs[configMap.alias]
     const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
@@ -2799,7 +2806,8 @@ async function getBucketFileListBackStage () {
   const fileTransferStore = useFileTransferStore()
   fileTransferStore.resetFileTransferList()
   if (currentPicBedName.value === 'webdavplist' ||
-    currentPicBedName.value === 'local') {
+    currentPicBedName.value === 'local' ||
+    currentPicBedName.value === 'sftp') {
     param.baseDir = configMap.baseDir
     param.webPath = configMap.webPath
   }

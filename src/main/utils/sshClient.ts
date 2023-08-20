@@ -1,4 +1,4 @@
-import { NodeSSH, Config } from 'node-ssh-no-cpu-features'
+import { NodeSSH, Config, SSHExecCommandResponse } from 'node-ssh-no-cpu-features'
 import { ISftpPlistConfig } from 'piclist/dist/types'
 
 class SSHClient {
@@ -53,6 +53,31 @@ class SSHClient {
   private async exec (script: string): Promise<boolean> {
     const execResult = await SSHClient.client.execCommand(script)
     return execResult.code === 0
+  }
+
+  async execCommand (script: string): Promise<SSHExecCommandResponse> {
+    const execResult = await SSHClient.client.execCommand(script)
+    return execResult || { code: 1, stdout: '', stderr: '' }
+  }
+
+  async getFile (local: string, remote: string): Promise<boolean> {
+    if (!this._isConnected) {
+      throw new Error('SSH 未连接')
+    }
+    try {
+      remote = this.changeWinStylePathToUnix(remote)
+      local = this.changeWinStylePathToUnix(local)
+      console.log(`remote: ${remote}, local: ${local}`)
+      await SSHClient.client.getFile(local, remote)
+      return true
+    } catch (err: any) {
+      console.log(err)
+      return false
+    }
+  }
+
+  get isConnected (): boolean {
+    return SSHClient.client.isConnected()
   }
 
   public close (): void {

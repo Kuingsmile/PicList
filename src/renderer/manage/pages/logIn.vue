@@ -730,7 +730,14 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
         ...commonConfig,
         baseDir: config.path,
         webPath: config.webpath || '',
-        customUrl: config.customUrl || ''
+        customUrl: config.customUrl || '',
+        transformedConfig: JSON.stringify({
+          local: {
+            customUrl: config.customUrl || '',
+            baseDir: config.path,
+            webPath: config.webpath || ''
+          }
+        })
       })
       delete resultMap.paging
       break
@@ -749,7 +756,22 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
         webPath: config.webPath || '',
         customUrl: config.customUrl || '',
         fileMode: config.fileMode || '0664',
-        dirMode: config.dirMode || '0775'
+        dirMode: config.dirMode || '0775',
+        transformedConfig: JSON.stringify({
+          sftp: {
+            host: config.host,
+            port: config.port || 22,
+            username: config.username,
+            password: config.password,
+            privateKey: config.privateKey,
+            passphrase: config.passphrase,
+            baseDir: config.uploadPath || '/',
+            webPath: config.webPath || '',
+            customUrl: config.customUrl || '',
+            fileMode: config.fileMode || '0664',
+            dirMode: config.dirMode || '0775'
+          }
+        })
       })
       delete resultMap.paging
       break

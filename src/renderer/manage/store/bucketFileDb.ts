@@ -27,19 +27,19 @@ export class FileCacheDb extends Dexie {
   qiniu: Table<IFileCache, string>
   smms: Table<IFileCache, string>
   s3plist: Table<IFileCache, string>
-  sftpplist: Table<IFileCache, string>
+  sftp: Table<IFileCache, string>
   upyun: Table<IFileCache, string>
   webdavplist: Table<IFileCache, string>
 
   constructor () {
     super('bucketFileDb')
-    const tableNames = ['aliyun', 'github', 'imgur', 'local', 'qiniu', 's3plist', 'sftpplist', 'smms', 'tcyun', 'upyun', 'webdavplist']
+    const tableNames = ['aliyun', 'github', 'imgur', 'local', 'qiniu', 's3plist', 'sftp', 'smms', 'tcyun', 'upyun', 'webdavplist']
 
     const tableNamesMap = tableNames.reduce((acc, cur) => {
       acc[cur] = '&key, value'
       return acc
     }, {} as IStringKeyMap)
-    this.version(4).stores(tableNamesMap)
+    this.version(5).stores(tableNamesMap)
     this.aliyun = this.table('aliyun')
     this.github = this.table('github')
     this.imgur = this.table('imgur')
@@ -47,7 +47,7 @@ export class FileCacheDb extends Dexie {
     this.qiniu = this.table('qiniu')
     this.tcyun = this.table('tcyun')
     this.s3plist = this.table('s3plist')
-    this.sftpplist = this.table('sftpplist')
+    this.sftp = this.table('sftp')
     this.smms = this.table('smms')
     this.upyun = this.table('upyun')
     this.webdavplist = this.table('webdavplist')

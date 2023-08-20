@@ -68,6 +68,8 @@ export class ManageApi extends EventEmitter implements ManageApiType {
         return new API.SmmsApi(this.currentPicBedConfig.token, this.logger)
       case 's3plist':
         return new API.S3plistApi(this.currentPicBedConfig.accessKeyId, this.currentPicBedConfig.secretAccessKey, this.currentPicBedConfig.endpoint, this.currentPicBedConfig.sslEnabled, this.currentPicBedConfig.s3ForcePathStyle, this.currentPicBedConfig.proxy, this.logger)
+      case 'sftp':
+        return new API.SftpApi(this.currentPicBedConfig.host, this.currentPicBedConfig.port, this.currentPicBedConfig.username, this.currentPicBedConfig.password, this.currentPicBedConfig.privateKey, this.currentPicBedConfig.passphrase, this.currentPicBedConfig.fileMode, this.currentPicBedConfig.dirMode, this.logger)
       case 'tcyun':
         return new API.TcyunApi(this.currentPicBedConfig.secretId, this.currentPicBedConfig.secretKey, this.logger)
       case 'upyun':
@@ -174,6 +176,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'smms':
       case 'webdavplist':
       case 'local':
+      case 'sftp':
         return [{
           Name: name,
           Location: name,
@@ -313,6 +316,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 's3plist':
       case 'webdavplist':
       case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           return await client.getBucketListRecursively(param!)
@@ -357,6 +361,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 's3plist':
       case 'webdavplist':
       case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           return await client.getBucketListBackstage(param!)
@@ -428,6 +433,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 's3plist':
       case 'webdavplist':
       case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           const res = await client.deleteBucketFile(param!)
@@ -454,6 +460,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 's3plist':
       case 'webdavplist':
       case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           return await client.deleteBucketFolder(param!)
@@ -478,6 +485,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 's3plist':
       case 'webdavplist':
       case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           return await client.renameBucketFile(param!)
@@ -505,6 +513,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 's3plist':
       case 'webdavplist':
       case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           const res = await client.downloadBucketFile(param!)
@@ -538,6 +547,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 's3plist':
       case 'webdavplist':
       case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           return await client.createBucketFolder(param!)
@@ -565,6 +575,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 's3plist':
       case 'webdavplist':
       case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           return await client.uploadBucketFile(param!)
