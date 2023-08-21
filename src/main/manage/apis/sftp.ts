@@ -325,6 +325,9 @@ class SftpApi {
     let result = false
     try {
       await this.connectClient()
+      if (key.replace(/^\/+/, '') === '' || key.includes('*')) {
+        throw new Error('禁止删除')
+      }
       const res = await this.ctx.execCommand(`rm -rf "/${key.replace(/^\/+/, '')}"`)
       this.ctx.close()
       result = this.isRequestSuccess(res.code)
