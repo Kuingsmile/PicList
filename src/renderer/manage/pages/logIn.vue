@@ -790,6 +790,7 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
         sslEnabled: config.endpoint ? config.endpoint.startsWith('https') : false,
         aclForUpload: 'public-read',
         s3ForcePathStyle: config.pathStyleAccess,
+        dogeCloudSupport: false,
         transformedConfig: JSON.stringify(
           config.urlPrefix
             ? {

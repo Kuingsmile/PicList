@@ -56,11 +56,18 @@ import path from 'path'
 // 取消下载任务的加载文件列表、刷新下载文件传输列表
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
+// dogecloudApi
+import { dogecloudApi, DogecloudToken, getTempToken } from '../utils/dogeAPI'
+
 class S3plistApi {
   baseOptions: S3ClientConfig
   logger: ManageLogger
   agent: any
   proxy: string | undefined
+  dogeCloudSupport: boolean
+  accessKeyId: string
+  secretAccessKey: string
+  bucketName: string
 
   constructor (
     accessKeyId: string,
@@ -69,8 +76,14 @@ class S3plistApi {
     sslEnabled: boolean,
     s3ForcePathStyle: boolean,
     proxy: string | undefined,
-    logger: ManageLogger
+    logger: ManageLogger,
+    dogeCloudSupport: boolean = false,
+    bucketName: string = ''
   ) {
+    this.accessKeyId = accessKeyId
+    this.secretAccessKey = secretAccessKey
+    this.dogeCloudSupport = dogeCloudSupport
+    this.bucketName = bucketName
     this.baseOptions = {
       credentials: {
         accessKeyId,
@@ -83,6 +96,19 @@ class S3plistApi {
     }
     this.logger = logger
     this.proxy = formatHttpProxy(proxy, 'string') as string | undefined
+  }
+
+  async getDogeCloudToken () {
+    if (!this.dogeCloudSupport) return
+    const token = await getTempToken(this.accessKeyId, this.secretAccessKey) as DogecloudToken
+    if (Object.keys(token).length === 0) {
+      throw new Error('manage.setting.dogeCloudTokenError')
+    }
+    this.baseOptions.credentials = {
+      accessKeyId: token.accessKeyId,
+      secretAccessKey: token.secretAccessKey,
+      sessionToken: token.sessionToken
+    }
   }
 
   setAgent (proxy: string | undefined, sslEnabled: boolean) : NodeHttpHandler {
@@ -149,6 +175,26 @@ class S3plistApi {
      * 获取存储桶列表
     */
   async getBucketList (): Promise<any> {
+    if (this.dogeCloudSupport) {
+      try {
+        const res = await dogecloudApi('/oss/bucket/list.json', {}, false, this.accessKeyId, this.secretAccessKey)
+        for (const item of res.buckets) {
+          if (item.name === this.bucketName || item.s3Bucket === this.bucketName) {
+            return [
+              {
+                Name: item.s3Bucket,
+                CreationDate: item.ctime,
+                Location: item.region
+              }
+            ]
+          }
+        }
+        return []
+      } catch (error) {
+        this.logParam(error, 'getBucketList')
+      }
+      return []
+    }
     const options = Object.assign({}, this.baseOptions) as S3ClientConfig
     const result: IStringKeyMap[] = []
     const endpoint = options.endpoint as string || ''
@@ -216,7 +262,7 @@ class S3plistApi {
     try {
       do {
         const options = Object.assign({}, this.baseOptions) as S3ClientConfig
-        options.region = region || 'us-east-1'
+        options.region = String(region) || 'us-east-1'
         const client = new S3Client(options)
         const command = new ListObjectsV2Command({
           Bucket: bucket,
@@ -255,6 +301,7 @@ class S3plistApi {
   async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: bucket, bucketConfig: { Location: region }, prefix, cancelToken } = configMap
+    await this.getDogeCloudToken()
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `https://${bucket}.s3.amazonaws.com`
     let marker
@@ -274,7 +321,7 @@ class S3plistApi {
     try {
       do {
         const options = Object.assign({}, this.baseOptions) as S3ClientConfig
-        options.region = region || 'us-east-1'
+        options.region = String(region) || 'us-east-1'
         const client = new S3Client(options)
         const command = new ListObjectsV2Command({
           Bucket: bucket,
@@ -316,6 +363,7 @@ class S3plistApi {
 
   async getBucketFileList (configMap: IStringKeyMap): Promise<any> {
     const { bucketName: bucket, bucketConfig: { Location: region }, prefix, marker, itemsPerPage } = configMap
+    await this.getDogeCloudToken()
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `https://${bucket}.s3.amazonaws.com`
     const result = {
@@ -325,7 +373,7 @@ class S3plistApi {
       success: false
     }
     try {
-      const options = Object.assign({}, { ...this.baseOptions, region: region || 'us-east-1' }) as S3ClientConfig
+      const options = Object.assign({}, { ...this.baseOptions, region: String(region) || 'us-east-1' }) as S3ClientConfig
       const client = new S3Client(options)
       const command = new ListObjectsV2Command({
         Bucket: bucket,
@@ -362,9 +410,10 @@ class S3plistApi {
     */
   async renameBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, oldKey, newKey } = configMap
+    await this.getDogeCloudToken()
     let result = false
     try {
-      const options = Object.assign({}, { ...this.baseOptions, region: region || 'us-east-1' }) as S3ClientConfig
+      const options = Object.assign({}, { ...this.baseOptions, region: String(region) || 'us-east-1' }) as S3ClientConfig
       const client = new S3Client(options)
       const command = new CopyObjectCommand({
         Bucket: bucketName,
@@ -403,10 +452,11 @@ class S3plistApi {
   */
   async deleteBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, key } = configMap
+    await this.getDogeCloudToken()
     let result = false
     try {
       const options = Object.assign({}, this.baseOptions) as S3ClientConfig
-      options.region = region || 'us-east-1'
+      options.region = String(region) || 'us-east-1'
       const client = new S3Client(options)
       const command = new DeleteObjectCommand({
         Bucket: bucketName,
@@ -430,6 +480,7 @@ class S3plistApi {
   */
   async deleteBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, key } = configMap
+    await this.getDogeCloudToken()
     let marker
     let result = false
     let IsTruncated
@@ -441,7 +492,7 @@ class S3plistApi {
     try {
       do {
         const options = Object.assign({}, this.baseOptions) as S3ClientConfig
-        options.region = region || 'us-east-1'
+        options.region = String(region) || 'us-east-1'
         const client = new S3Client(options)
         const command = new ListObjectsV2Command({
           Bucket: bucketName,
@@ -476,7 +527,7 @@ class S3plistApi {
       if (allFileList.Contents.length > 0) {
         const cycle = Math.ceil(allFileList.Contents.length / 1000)
         const options = Object.assign({}, this.baseOptions) as S3ClientConfig
-        options.region = region || 'us-east-1'
+        options.region = String(region) || 'us-east-1'
         const client = new S3Client(options)
         for (let i = 0; i < cycle; i++) {
           const deleteList = allFileList.Contents.slice(i * 1000, (i + 1) * 1000)
@@ -518,9 +569,10 @@ class S3plistApi {
      */
   async getPreSignedUrl (configMap: IStringKeyMap): Promise<string> {
     const { bucketName, region, key, expires } = configMap
+    await this.getDogeCloudToken()
     try {
       const options = Object.assign({}, this.baseOptions) as S3ClientConfig
-      options.region = region || 'us-east-1'
+      options.region = String(region) || 'us-east-1'
       const client = new S3Client(options)
       const signedUrl = await getSignedUrl(client, new GetObjectCommand({
         Bucket: bucketName,
@@ -541,10 +593,11 @@ class S3plistApi {
    */
   async createBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, key } = configMap
+    await this.getDogeCloudToken()
     let result = false
     try {
       const options = Object.assign({}, this.baseOptions) as S3ClientConfig
-      options.region = region || 'us-east-1'
+      options.region = String(region) || 'us-east-1'
       const client = new S3Client(options)
       const command = new PutObjectCommand({
         Bucket: bucketName,
@@ -582,10 +635,11 @@ class S3plistApi {
     const allowedAcl = ['private', 'public-read', 'public-read-write', 'aws-exec-read', 'authenticated-read', 'bucket-owner-read', 'bucket-owner-full-control']
     for (const item of fileArray) {
       const { bucketName, region, key, filePath, fileName, aclForUpload } = item
+      await this.getDogeCloudToken()
       const options = Object.assign({}, this.baseOptions) as S3ClientConfig
-      options.region = region || 'us-east-1'
+      options.region = String(region) || 'us-east-1'
       const client = new S3Client(options)
-      const id = `${bucketName}-${region}-${key}-${filePath}`
+      const id = `${bucketName}-${String(region)}-${key}-${filePath}`
       if (instance.getUploadTask(id)) {
         continue
       }
@@ -598,7 +652,7 @@ class S3plistApi {
         sourceFilePath: filePath,
         targetFilePath: key,
         targetFileBucket: bucketName,
-        targetFileRegion: region
+        targetFileRegion: String(region)
       })
       const parallelUploads3 = new Upload({
         client,
@@ -661,7 +715,7 @@ class S3plistApi {
     for (const item of fileArray) {
       const { bucketName, region, key, fileName, customUrl } = item
       const savedFilePath = path.join(downloadPath, fileName)
-      const id = `${bucketName}-${region}-${key}-${savedFilePath}`
+      const id = `${bucketName}-${String(region)}-${key}-${savedFilePath}`
       if (instance.getDownloadTask(id)) {
         continue
       }
@@ -674,7 +728,7 @@ class S3plistApi {
       })
       const preSignedUrl = await this.getPreSignedUrl({
         bucketName,
-        region,
+        region: String(region),
         key,
         expires: 36000,
         customUrl

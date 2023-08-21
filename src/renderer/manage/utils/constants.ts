@@ -642,6 +642,13 @@ export const supportedPicBedList: IStringKeyMap = {
         default: '/',
         tooltip: baseDirTooltip
       },
+      dogeCloudSupport: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_S3_DOGE_CLOUD_SUPPORT_DESC'),
+        default: false,
+        type: 'boolean',
+        tooltip: $T('MANAGE_CONSTANT_S3_DOGE_CLOUD_SUPPORT_TOOLTIP')
+      },
       paging: {
         required: true,
         description: $T('MANAGE_CONSTANT_S3_PAGING_DESC'),
@@ -659,7 +666,7 @@ export const supportedPicBedList: IStringKeyMap = {
       }
     },
     explain: $T('MANAGE_CONSTANT_S3_EXPLAIN'),
-    options: ['alias', 'accessKeyId', 'secretAccessKey', 'endpoint', 'sslEnabled', 's3ForcePathStyle', 'proxy', 'aclForUpload', 'bucketName', 'baseDir', 'paging', 'itemsPerPage'],
+    options: ['alias', 'accessKeyId', 'secretAccessKey', 'endpoint', 'sslEnabled', 's3ForcePathStyle', 'proxy', 'aclForUpload', 'bucketName', 'baseDir', 'dogeCloudSupport', 'paging', 'itemsPerPage'],
     refLink: 'https://github.com/wayjam/picgo-plugin-s3',
     referenceText: $T('MANAGE_CONSTANT_S3_REFER_TEXT')
   },

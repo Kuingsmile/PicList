@@ -67,7 +67,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'smms':
         return new API.SmmsApi(this.currentPicBedConfig.token, this.logger)
       case 's3plist':
-        return new API.S3plistApi(this.currentPicBedConfig.accessKeyId, this.currentPicBedConfig.secretAccessKey, this.currentPicBedConfig.endpoint, this.currentPicBedConfig.sslEnabled, this.currentPicBedConfig.s3ForcePathStyle, this.currentPicBedConfig.proxy, this.logger)
+        return new API.S3plistApi(this.currentPicBedConfig.accessKeyId, this.currentPicBedConfig.secretAccessKey, this.currentPicBedConfig.endpoint, this.currentPicBedConfig.sslEnabled, this.currentPicBedConfig.s3ForcePathStyle, this.currentPicBedConfig.proxy, this.logger, this.currentPicBedConfig.dogeCloudSupport || false, this.currentPicBedConfig.bucketName || '')
       case 'sftp':
         return new API.SftpApi(this.currentPicBedConfig.host, this.currentPicBedConfig.port, this.currentPicBedConfig.username, this.currentPicBedConfig.password, this.currentPicBedConfig.privateKey, this.currentPicBedConfig.passphrase, this.currentPicBedConfig.fileMode, this.currentPicBedConfig.dirMode, this.logger)
       case 'tcyun':
