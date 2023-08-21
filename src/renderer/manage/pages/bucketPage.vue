@@ -1616,7 +1616,7 @@ const isIgnoreCase = computed(() => manageStore.config.settings.isIgnoreCase ?? 
 // 新建文件夹相关
 const isShowCreateNewFolder = computed(() => ['aliyun', 'github', 'local', 'qiniu', 'tcyun', 's3plist', 'upyun', 'webdavplist', 'sftp'].includes(currentPicBedName.value))
 
-const isShowPresignedUrl = computed(() => ['aliyun', 'github', 'qiniu', 's3plist', 'tcyun', 'webdavplist', 'sftp'].includes(currentPicBedName.value))
+const isShowPresignedUrl = computed(() => ['aliyun', 'github', 'qiniu', 's3plist', 'tcyun', 'webdavplist'].includes(currentPicBedName.value))
 
 // 上传相关函数
 
@@ -3047,11 +3047,11 @@ function singleRename () {
           })
         })
       }
+      ElMessage.success($T('MANAGE_BUCKET_RENAME_SUCCESS'))
     } else {
       ElMessage.error($T('MANAGE_BUCKET_RENAME_ERROR_MSG'))
     }
-  }
-  )
+  })
 }
 
 async function getPreSignedUrl (item: any) {

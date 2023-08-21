@@ -842,6 +842,7 @@ MANAGE_BUCKET_DELETE_SUCCESS: Deletion successful
 MANAGE_BUCKET_DELETE_FAIL: Deletion failed
 MANAGE_BUCKET_DELETE_CANCEL: Deletion has been cancelled
 MANAGE_BUCKET_RENAME_INFO_MSG: The new file name is the same as the original file name, no need to rename
+MANAGE_BUCKET_RENAME_SUCCESS: Rename successful
 MANAGE_BUCKET_RENAME_ERROR_MSG: Rename failed
 MANAGE_BUCKET_DOWNLOAD_COLUMN_FILENAME: File name
 MANAGE_BUCKET_DOWNLOAD_COLUMN_FINISHTIME: Completion time

@@ -43,7 +43,7 @@ class SSHClient {
     }
     try {
       remote = this.changeWinStylePathToUnix(remote)
-      const script = `rm -f ${remote}`
+      const script = `rm -f "${remote}"`
       return await this.exec(script)
     } catch (err: any) {
       return false

@@ -262,10 +262,9 @@ class SftpApi {
       this.ctx.close()
       if (this.isRequestSuccess(res.code)) {
         const formatedLSRes = this.formatLSResult(res.stdout, prefix)
-        console.log(formatedLSRes)
         if (formatedLSRes.length) {
           formatedLSRes.forEach((item: listDirResult) => {
-            const relativePath = path.relative(baseDir, item.key)
+            const relativePath = path.relative(baseDir, item.key.startsWith('/') ? item.key : `/${item.key}`)
             const relative = webPath && urlPrefix + `/${path.join(webPath, relativePath)}`.replace(/\\/g, '/').replace(/\/+/g, '/')
             if (item.isDir) {
               result.fullList.push(this.formatFolder(item, webPath ? relative : urlPrefix, !!webPath))
@@ -298,7 +297,7 @@ class SftpApi {
     let result = false
     try {
       await this.connectClient()
-      const res = await this.ctx.execCommand(`mv -f ${oldKey} ${newKey}`)
+      const res = await this.ctx.execCommand(`mv -f "/${oldKey.replace(/^\/+/, '')}" "/${newKey.replace(/^\/+/, '')}"`)
       this.ctx.close()
       result = this.isRequestSuccess(res.code)
     } catch (error) {
@@ -312,7 +311,7 @@ class SftpApi {
     let result = false
     try {
       await this.connectClient()
-      const res = await this.ctx.execCommand(`rm -f ${key}`)
+      const res = await this.ctx.execCommand(`rm -f "/${key.replace(/^\/+/, '')}"`)
       this.ctx.close()
       result = this.isRequestSuccess(res.code)
     } catch (error) {
@@ -326,7 +325,7 @@ class SftpApi {
     let result = false
     try {
       await this.connectClient()
-      const res = await this.ctx.execCommand(`rm -rf ${key}`)
+      const res = await this.ctx.execCommand(`rm -rf "/${key.replace(/^\/+/, '')}"`)
       this.ctx.close()
       result = this.isRequestSuccess(res.code)
     } catch (error) {
@@ -370,7 +369,7 @@ class SftpApi {
     let result = false
     try {
       await this.connectClient()
-      const res = await this.ctx.execCommand(`mkdir -p ${key}`)
+      const res = await this.ctx.execCommand(`mkdir -p "/${key.replace(/^\/+/, '')}"`)
       this.ctx.close()
       result = this.isRequestSuccess(res.code)
     } catch (error) {

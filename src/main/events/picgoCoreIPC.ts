@@ -214,7 +214,6 @@ const handlePluginUpdate = async (fullName: string | string[]) => {
 
 const handleUpdateAllPlugin = () => {
   ipcMain.on('updateAllPlugin', async (event: IpcMainEvent, list: string[]) => {
-    console.log(list)
     handlePluginUpdate(list)
   })
 }
