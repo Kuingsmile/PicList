@@ -1,4 +1,5 @@
 import { NodeSSH, Config, SSHExecCommandResponse } from 'node-ssh-no-cpu-features'
+import path from 'path'
 import { ISftpPlistConfig } from 'piclist/dist/types'
 
 class SSHClient {
@@ -67,9 +68,65 @@ class SSHClient {
     try {
       remote = this.changeWinStylePathToUnix(remote)
       local = this.changeWinStylePathToUnix(local)
-      console.log(`remote: ${remote}, local: ${local}`)
-      await SSHClient.client.getFile(local, remote)
+      await SSHClient.client.getFile(local, remote, undefined, {
+        concurrency: 1
+      })
       return true
+    } catch (err: any) {
+      console.log(err)
+      return false
+    }
+  }
+
+  async putFile (local: string, remote: string, config: {
+    fileMode?: string
+    dirMode?: string
+  } = {}): Promise<boolean> {
+    if (!this._isConnected) {
+      throw new Error('SSH 未连接')
+    }
+    try {
+      remote = this.changeWinStylePathToUnix(remote)
+      await this.mkdir(path.dirname(remote).replace(/^\/+|\/+$/g, ''), config)
+      await SSHClient.client.putFile(local, remote)
+      const fileMode = config.fileMode || '0644'
+      if (fileMode !== '0644') {
+        const script = `chmod ${fileMode} "${remote}"`
+        return await this.exec(script)
+      }
+      return true
+    } catch (err: any) {
+      console.log(err)
+      return false
+    }
+  }
+
+  async mkdir (dirPath: string, config: {
+    dirMode?: string
+  } = {}): Promise<boolean> {
+    if (!this._isConnected) {
+      throw new Error('SSH 未连接')
+    }
+    try {
+      const directoryMode = config.dirMode || '0755'
+      if (directoryMode === '0755') {
+        const script = `mkdir -p "${dirPath}"`
+        return await this.exec(script)
+      } else {
+        const dirs = dirPath.split('/')
+        let currentPath = ''
+        for (const dir of dirs) {
+          if (dir) {
+            currentPath += `/${dir}`
+            const script = `mkdir "${currentPath}" && chmod ${directoryMode} "${currentPath}"`
+            const result = await this.exec(script)
+            if (!result) {
+              return false
+            }
+          }
+        }
+        return true
+      }
     } catch (err: any) {
       console.log(err)
       return false

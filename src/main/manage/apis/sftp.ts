@@ -5,7 +5,7 @@ import ManageLogger from '../utils/logger'
 import SSHClient from '~/main/utils/sshClient'
 
 // 错误格式化函数、新的下载器、并发异步任务池
-import { formatError, ConcurrencyPromisePool } from '../utils/common'
+import { formatError } from '../utils/common'
 
 // 是否为图片的判断函数
 import { isImage } from '@/manage/utils/common'
@@ -20,7 +20,7 @@ import { IWindowList } from '#/types/enum'
 import { ipcMain, IpcMainEvent } from 'electron'
 
 // 上传下载任务队列
-import UpDownTaskQueue, { commonTaskStatus } from '../datastore/upDownTaskQueue'
+import UpDownTaskQueue, { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '../datastore/upDownTaskQueue'
 
 // 路径处理库
 import path from 'path'
@@ -187,7 +187,7 @@ class SftpApi {
     }
     try {
       await this.connectClient()
-      res = await this.ctx.execCommand(`cd ${prefix} && ls -la --time-style=long-iso`)
+      res = await this.ctx.execCommand(`cd "${prefix}" && ls -la --time-style=long-iso`)
       this.ctx.close()
       if (this.isRequestSuccess(res.code)) {
         const formatedLSRes = this.formatLSResult(res.stdout, prefix)
@@ -258,7 +258,7 @@ class SftpApi {
     }
     try {
       await this.connectClient()
-      res = await this.ctx.execCommand(`cd ${prefix} && ls -la --time-style=long-iso`)
+      res = await this.ctx.execCommand(`cd "${prefix}" && ls -la --time-style=long-iso`)
       this.ctx.close()
       if (this.isRequestSuccess(res.code)) {
         const formatedLSRes = this.formatLSResult(res.stdout, prefix)
@@ -352,14 +352,39 @@ class SftpApi {
         targetFilePath: key,
         targetFileBucket: bucketName,
         targetFileRegion: region,
-        noProgress: true
+        noProgress: false
       })
-      instance.updateUploadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.failed,
-        finishTime: new Date().toLocaleString()
-      })
+      try {
+        await this.connectClient()
+        const res = await this.ctx.putFile(filePath, `/${key.replace(/^\/+/, '')}`, {
+          fileMode: this.fileMode,
+          dirMode: this.dirMode
+        })
+        this.ctx.close()
+        if (res) {
+          instance.updateUploadTask({
+            id,
+            progress: 100,
+            status: uploadTaskSpecialStatus.uploaded,
+            finishTime: new Date().toLocaleString()
+          })
+        } else {
+          instance.updateUploadTask({
+            id,
+            progress: 0,
+            status: commonTaskStatus.failed,
+            finishTime: new Date().toLocaleString()
+          })
+        }
+      } catch (error) {
+        this.logParam(error, 'uploadBucketFile')
+        instance.updateUploadTask({
+          id,
+          progress: 0,
+          status: commonTaskStatus.failed,
+          finishTime: new Date().toLocaleString()
+        })
+      }
     }
     return true
   }
@@ -379,9 +404,8 @@ class SftpApi {
   }
 
   async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
+    const { downloadPath, fileArray } = configMap
     const instance = UpDownTaskQueue.getInstance()
-    const promises = [] as any
     for (const item of fileArray) {
       const { alias, bucketName, region, key, fileName } = item
       const savedFilePath = path.join(downloadPath, fileName)
@@ -396,11 +420,35 @@ class SftpApi {
         sourceFileName: fileName,
         targetFilePath: savedFilePath
       })
+      try {
+        await this.connectClient()
+        const res = await this.ctx.getFile(savedFilePath, `/${key.replace(/^\/+/, '')}`)
+        this.ctx.close()
+        if (res) {
+          instance.updateDownloadTask({
+            id,
+            progress: 100,
+            status: downloadTaskSpecialStatus.downloaded,
+            finishTime: new Date().toLocaleString()
+          })
+        } else {
+          instance.updateDownloadTask({
+            id,
+            progress: 0,
+            status: commonTaskStatus.failed,
+            finishTime: new Date().toLocaleString()
+          })
+        }
+      } catch (error) {
+        this.logParam(error, 'downloadBucketFile')
+        instance.updateDownloadTask({
+          id,
+          progress: 0,
+          status: commonTaskStatus.failed,
+          finishTime: new Date().toLocaleString()
+        })
+      }
     }
-    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
-    pool.all(promises).catch((error) => {
-      this.logParam(error, 'downloadBucketFile')
-    })
     return true
   }
 }
