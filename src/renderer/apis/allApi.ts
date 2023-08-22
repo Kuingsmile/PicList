@@ -11,6 +11,7 @@ import UpyunApi from './upyun'
 import WebdavApi from './webdav'
 import DogeCloudApi from './dogecloud'
 import HuaweicloudApi from './huaweiyun'
+import AlistApi from './alist'
 
 const apiMap: IStringKeyMap = {
   aliyun: AliyunApi,
@@ -25,7 +26,8 @@ const apiMap: IStringKeyMap = {
   upyun: UpyunApi,
   webdavplist: WebdavApi,
   dogecloud: DogeCloudApi,
-  'huaweicloud-uploader': HuaweicloudApi
+  'huaweicloud-uploader': HuaweicloudApi,
+  alist: AlistApi
 }
 
 export default class ALLApi {
