@@ -27,8 +27,13 @@ PicList所有新功能的添加没有影响到PicGo的原有功能，所以你�
 - SM.MS
 - Imgur
 - GitHub
-- Webdav
+- WebDav
 - Aws S3
+- 本地路径
+- 内置SFTP
+- 多吉云
+- 华为云 OBS
+- Alist
 
 ## 4. 能否支持上传视频文件
 
@@ -47,6 +52,7 @@ PicList本体支持了如下图床：
 - `Imgur`
 - `Webdav`
 - `本地图床`
+- `SFTP`
 
 PicList计划整合和优化现有插件，内置更多的常用图床。
 

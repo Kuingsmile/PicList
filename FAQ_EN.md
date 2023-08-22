@@ -29,6 +29,11 @@ Currently, the supported image hosting platforms are:
 - GitHub
 - Webdav
 - Aws S3
+- Local path
+- Built-in SFTP
+- Doge Cloud
+- Huawei Cloud OBS
+- Alist
 
 ## 4. Is it possible to upload video files?
 
@@ -46,7 +51,8 @@ PicList itself supports the following image hosting platforms:
 - Aliyun OSS
 - Imgur
 - Webdav
-- local path
+- Local path
+- SFTP
 
 PicList plans to integrate and optimize existing plugins and embed more commonly used image hosting platforms.
 

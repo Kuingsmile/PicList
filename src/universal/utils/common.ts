@@ -10,8 +10,7 @@ export const isUrlEncode = (url: string): boolean => {
   url = url || ''
   try {
     return url !== decodeURI(url)
-  } catch (e) {
-    // if some error caught, try to let it go
+  } catch {
     return false
   }
 }

@@ -24,7 +24,6 @@ yarn dev
 
 5. 与图床管理功能相关的代码请在`src/main/manage`和`src/renderer/manage`目录下添加。
 
-
 ## i18n
 
 1. 在 `public/i18n/` 下面创建一种语言的 `yml` 文件，例如 `zh-Hans.yml`。然后参考 `zh-CN.yml` 或者 `en.yml` 编写语言文件。并注意，PicList 会通过语言文件中的 `LANG_DISPLAY_LABEL` 向用户展示该语言的名称。

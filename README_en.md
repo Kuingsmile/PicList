@@ -16,7 +16,8 @@
 
 [简体中文](https://github.com/Kuingsmile/PicList/blob/dev/README.md) | English
 
-PicList is a cloud storage platform management and file upload tool based on PicGo, which has been deeply redeveloped. It retains all the functions of PicGo, adds the function of synchronous cloud deletion to the album, and adds a complete cloud storage management function, including cloud directory viewing, file search, batch upload and download, and file deletion, copying multiple formats of file links and image/markdown/text/video preview, etc. Additionally, there are several other feature improvements and additions.
+
+PicList is an efficient cloud storage and image hosting platform management tool. Building upon the foundation of PicGo, it has been deeply modified and enhanced. Not only does it retain all of PicGo's features, but it also adds many new ones. For instance, the album now supports synchronized deletion of files in the cloud. Built-in image hosting options have been expanded to include WebDav, local image hosting, and SFTP. Additionally, PicList introduces comprehensive cloud storage management functions, including cloud directory viewing, file search, batch uploading, downloading, and file deletion, copying links in various formats, and previews for images, markdown, text, and videos. Moreover, it boasts a more powerful album function and numerous other improvements and enhancements.
 
 ## How to migrate from PicGo
 
@@ -30,19 +31,19 @@ if you want to use PicList-core, please go to [https://github.com/Kuingsmile/Pic
 
 ## Features
 
-- Maintain all the functions of PicGo, compatible with the existing PicGo plug-in system, including the combination with typora, obsidian and other software
-- Add support for webdav upload, imgur account upload, local path upload, etc.
-- Synchronous cloud deletion of pictures in the album, advanced search and sorting features have been added, along with the ability to bulk modify URLs.
-- Built-in watermark addition, image compression, image scaling, image rotation and image format conversion functions, support custom configuration, and can be called through CLI command line
-- Add the configuration of multi-device synchronization function.
-- Add
-- Support management of all cloud storage platforms, can be online to view the cloud directory, file search, batch upload, batch download, delete files and other operations
+- Retains all the features of PicGo and is compatible with the vast majority of existing PicGo plugins, including integrations with software like Typora and Obsidian.
+- Added multiple built-in image hosting platforms, such as WebDav, local image hosting, and SFTP. The original built-in imgur image host now also supports account login for uploading.
+- Within the album, you can synchronize the deletion of cloud images. This is supported across all built-in image hosts and multiple plugins.
+- The album now offers advanced search and sorting features, as well as batch URL modification.
+- Built-in tools for adding watermarks, compressing images, scaling images, rotating images, and converting image formats are now available. Advanced renaming is also supported.
+- Configuration can be synchronized to Github or Gitee repositories.
+- Manages over ten types of image hosting platforms, allowing online viewing of cloud directories, file searching, batch uploading, batch downloading, file deletion, and more.
 - Support previewing multiple formats of files, including pictures, videos, plain text files and markdown files, etc. For the specific formats supported, please refer to [Supported file format list](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)
-- Support batch cloud file renaming based on regular expressions
-- The management interface uses the built-in database cache directory to accelerate the directory loading speed
-- Support automatic update, no need to download manually every time, support multiple startup mode selection, and more function details are added and optimized
-- Optimized the PicGo interface, unlocked the window size limit, and beautified the interface layout
-- The installation package of the mac platform has been signed, and the installation package has been corrupted from the source to solve the daily problem of PicGo's installation package has been corrupted
+- Supports the use of regular expressions for batch renaming of cloud files.
+- For private storage buckets, pre-signed link copying for sharing is available.
+- Software auto-updates are available, along with multiple startup modes, and many other feature details have been added and optimized.
+- The PicGo interface has been enhanced, window size restrictions have been unlocked, and some interface layouts have been beautified.
+- The installation package for the Mac platform is now signed, addressing the recurring issue on PicGo where the installation package was reported as damaged.
 
 ### How to use in Typora
 
@@ -50,11 +51,7 @@ if you want to use PicList-core, please go to [https://github.com/Kuingsmile/Pic
 
 **Typora 1.6.0-dev and above versions now support PicList natively**
 
-download link:
-
-[Windows Version](https://download.typora.io/windows/typora-setup-x64-1.6.0-dev.exe)
-
-[Mac OS Version](https://download.typora.io/mac/Typora-1.6.0-dev.dmg)
+[download link](https://typora.io/releases/all)
 
 #### **Version < 1.6.0-dev**
 
@@ -76,7 +73,7 @@ The verification of the upload option may have problems, you can ignore it, and 
 
 ### How to use in Obsidian
 
-Search and install `Image auto upload Plugin` in the community plugin, then enter the plugin settings page, modify the default uploader to `PicGo(app)`, set `PicGo server` to `http://127.0.0.1:36677/upload`, as shown below:
+In the community plugins, search for and install the Image auto upload Plugin. Next, go to the plugin settings page and change the default uploader to PicGo(app). Set the PicGo server to http://127.0.0.1:36677/upload as shown in the image below. Additionally, this plugin also supports cloud-based deletion through PicList. To use this feature, enter http://127.0.0.1:36677/delete in the deletion interface.
 
 ![image](https://user-images.githubusercontent.com/96409857/226522718-8378c480-9fb4-4785-87e1-d59808862016.png)
 
@@ -94,10 +91,15 @@ Search and install `Image auto upload Plugin` in the community plugin, then ente
 | S3 API compatible platform |          ✔️           |            ✔️             |
 |           WebDAV           |          ✔️           |            ✔️             |
 |           Local            |          ✔️           |            ✔️             |
+|       Built-in SFTP        |          ✔️           |            ✔️             |
+|         Doge Cloud         |          ✔️           |            ✔️             |
 
-|                            Plugin                            | Album cloud deletion |
-| :----------------------------------------------------------: | :------------------: |
-| [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3) |          ✔️           |
+|                                           Plugin                                           | Album cloud deletion |
+| :----------------------------------------------------------------------------------------: | :------------------: |
+|                [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3)                |          ✔️           |
+|           [picgo-plugin-alist](https://github.com/jinzhi0123/picgo-plugin-alist)           |          ✔️           |
+| [picgo-plugin-huawei-uploader](https://github.com/YunfengGao/picgo-plugin-huawei-uploader) |          ✔️           |
+|         [picgo-plugin-dogecloud](https://github.com/w4j1e/picgo-plugin-dogecloud)          |          ✔️           |
 
 ## Download and install
 
@@ -135,13 +137,12 @@ Thank you again for your support for PicList.
 
 ## Application screenshot
 
-![image](https://user-images.githubusercontent.com/96409857/222900642-f1d04a41-f025-4f3c-b838-bae770e0b929.png)
-![image](https://user-images.githubusercontent.com/96409857/222900656-6bb33045-6672-4c4d-ac34-1b9ba86011cc.png)
-![image](https://user-images.githubusercontent.com/96409857/220510112-e524f270-ab56-4e8b-bfb2-eb0a77e559ef.png)
-![image](https://user-images.githubusercontent.com/96409857/220510176-8a3f9f19-9182-4b56-b943-fc408ef63f22.png)
-![image](https://user-images.githubusercontent.com/96409857/220510302-f193fc77-db1b-4817-81ff-3ab1c3a1f4d3.png)
-![image](https://user-images.githubusercontent.com/96409857/220510371-a2fad42e-8063-4014-a691-ca5b66b8cc60.png)
-![image](https://user-images.githubusercontent.com/96409857/220510427-b85ffc0a-55cf-43f1-b1b0-ba7776a75de2.png)
+![image](https://github.com/Kuingsmile/PicList/assets/96409857/1b76c0c4-753c-4d66-aa24-f805f9c2da15)
+![image](https://github.com/Kuingsmile/PicList/assets/96409857/56cf838a-a2eb-40af-96d4-1ffea25400af)
+![image](https://github.com/Kuingsmile/PicList/assets/96409857/bca7688a-e07f-4e80-9edd-c224298fa8ab)
+![image](https://github.com/Kuingsmile/PicList/assets/96409857/3e48e03d-b0b2-49e2-92a6-a52e0884677d)
+![image](https://github.com/Kuingsmile/PicList/assets/96409857/29de0046-1aef-4b28-95a6-b26c6e297c6f)
+![image](https://github.com/Kuingsmile/PicList/assets/96409857/e1c04488-2d3a-4e8f-aa26-ce41d0a383e2)
 
 ## WeChat group
 
@@ -152,8 +153,8 @@ Thank you again for your support for PicList.
 1. You need to have Node, Git environment, and understand the related knowledge of npm.
 2. git clone [https://github.com/Kuingsmile/PicList.git](https://github.com/Kuingsmile/PicList.git) and enter the project.
    `yarn` download dependencies
-   Note that if you don't have yarn, please go to the official website to download and install it before using it. Using npm install will cause unknown errors!
-3. Mac needs Xcode environment, Windows needs VS environment.
+   Note that if you don't have `yarn`, please go to the official website to download and install it before using it. Using `npm install` will cause unknown errors!
+3. Mac needs `Xcode` environment, Windows needs `VS` environment.
 4. If you need to contribute code, you can refer to [contribution guide](https://github.com/Kuingsmile/PicList/blob/dev/CONTRIBUTING_EN.md)
 
 ### Development mode
@@ -162,6 +163,7 @@ Enter `yarn run dev` to enter development mode, which has hot reload feature. Ho
 
 `ctrl+c` # Exit development mode
 `yarn run dev` # Re-enter development mode
+
 Note: After the development mode is running, the application icon of PicList will appear in the application area of the taskbar in the lower right corner of the bottom bar.
 
 ### Production mode
