@@ -88,7 +88,7 @@ import SSHClient from '../utils/sshClient'
 // Sftp 配置类型声明
 import { ISftpPlistConfig } from 'piclist'
 
-import { removeFileFromS3InMain } from '~/main/utils/deleteFunc'
+import { removeFileFromS3InMain, removeFileFromDogeInMain, removeFileFromHuaweiInMain } from '~/main/utils/deleteFunc'
 
 const STORE_PATH = app.getPath('userData')
 
@@ -185,6 +185,16 @@ export default {
 
     ipcMain.handle('delete-aws-s3-file', async (_evt: IpcMainInvokeEvent, configMap: IStringKeyMap) => {
       const result = await removeFileFromS3InMain(configMap)
+      return result
+    })
+
+    ipcMain.handle('delete-doge-file', async (_evt: IpcMainInvokeEvent, configMap: IStringKeyMap) => {
+      const result = await removeFileFromDogeInMain(configMap)
+      return result
+    })
+
+    ipcMain.handle('delete-huaweicloud-file', async (_evt: IpcMainInvokeEvent, configMap: IStringKeyMap) => {
+      const result = await removeFileFromHuaweiInMain(configMap)
       return result
     })
 

@@ -54,7 +54,7 @@ export async function getTempToken (accessKey: string, secretKey: string): Promi
       Credentials: {
         'doge-token': {
           token,
-          expires: Date.now() + 7200000
+          expires: data.ExpiredAt * 1000
         }
       }
     })

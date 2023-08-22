@@ -476,7 +476,6 @@ function handleSelectMenu (bucketName: string) {
     webPath: currentPicBedConfig.webPath || ''
   }
   currentSelectedBucket.value = bucketName
-  console.log(configMap)
   router.push({
     path: '/main-page/manage-main-page/manage-bucket-page',
     query: {
