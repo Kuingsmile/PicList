@@ -1,3 +1,50 @@
+# :tada: 2.5.0 (2023-08-23)
+
+
+### :sparkles: Features
+
+* add cloud delete support for alist v3 plugin ([16bc8ec](https://github.com/Kuingsmile/PicList/commit/16bc8ec))
+* add error handling for webdav image preview component ([c36a5b8](https://github.com/Kuingsmile/PicList/commit/c36a5b8))
+* add imagelocal component ([9d63799](https://github.com/Kuingsmile/PicList/commit/9d63799))
+* add notification for single rename of manage page ([19f2b18](https://github.com/Kuingsmile/PicList/commit/19f2b18))
+* add remote delete support for huawei obs and doge cloud ([746360b](https://github.com/Kuingsmile/PicList/commit/746360b))
+* add support for dogeCloud manage ([3040f4b](https://github.com/Kuingsmile/PicList/commit/3040f4b)), closes [#73](https://github.com/Kuingsmile/PicList/issues/73)
+* add update all plugins ([3e32cbb](https://github.com/Kuingsmile/PicList/commit/3e32cbb))
+* add update progress bar and some optimization ([5173488](https://github.com/Kuingsmile/PicList/commit/5173488)), closes [#83](https://github.com/Kuingsmile/PicList/issues/83)
+* add webPath for webdav picBed manage ([33b36d6](https://github.com/Kuingsmile/PicList/commit/33b36d6))
+* finish the implemention of sftp manage ([c7e81eb](https://github.com/Kuingsmile/PicList/commit/c7e81eb))
+* migrate from aws-sdk v2 to v3 ([13852a5](https://github.com/Kuingsmile/PicList/commit/13852a5))
+* optimize filename display ([2336483](https://github.com/Kuingsmile/PicList/commit/2336483))
+* optimize manage page UI, add new version check for plugin page ([e8189b0](https://github.com/Kuingsmile/PicList/commit/e8189b0))
+
+
+### :bug: Bug Fixes
+
+* add local path picbed into delete api of http server ([f585bb4](https://github.com/Kuingsmile/PicList/commit/f585bb4))
+* file sort order will not changed after force refresh now ([52f0fce](https://github.com/Kuingsmile/PicList/commit/52f0fce))
+* fix a bug of webdav image preview component ([f6c9a78](https://github.com/Kuingsmile/PicList/commit/f6c9a78))
+* fix an issue related with layout style ([083917e](https://github.com/Kuingsmile/PicList/commit/083917e))
+* fix s3 upload task function ([78be49d](https://github.com/Kuingsmile/PicList/commit/78be49d))
+* fix some bugs of manage page ([6f40c09](https://github.com/Kuingsmile/PicList/commit/6f40c09))
+
+
+### :pencil: Documentation
+
+* update documents ([1dcf54f](https://github.com/Kuingsmile/PicList/commit/1dcf54f))
+* update FAQ ([562f3c2](https://github.com/Kuingsmile/PicList/commit/562f3c2))
+
+
+### :package: Chore
+
+* chore work ([837027e](https://github.com/Kuingsmile/PicList/commit/837027e))
+
+
+### :zap: Performance Improvements
+
+* optimize the performance of main page ([4093a49](https://github.com/Kuingsmile/PicList/commit/4093a49))
+
+
+
 ## :tada: 1.9.9 (2023-08-01)
 
 
