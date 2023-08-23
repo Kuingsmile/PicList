@@ -497,7 +497,7 @@ https://www.baidu.com/img/bd_logo1.png"
               shadow="hover"
             >
               <el-image
-                v-if="!item.isDir && currentPicBedName !== 'webdavplist' && currentPicBedName !== 'sftp'"
+                v-if="!item.isDir && currentPicBedName !== 'webdavplist' && currentPicBedName !== 'sftp' && currentPicBedName !== 'local'"
                 :src="isShowThumbnail && item.isImage ?
                   item.url
                   : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)"
@@ -524,6 +524,13 @@ https://www.baidu.com/img/bd_logo1.png"
                 :item="item"
                 :headers="getBase64ofWebdav()"
                 :url="item.url"
+                @click="handleClickFile(item)"
+              />
+              <ImageLocal
+                v-else-if="!item.isDir && currentPicBedName === 'local' && item.isImage"
+                :is-show-thumbnail="isShowThumbnail"
+                :item="item"
+                :local-path="item.key"
                 @click="handleClickFile(item)"
               />
               <el-image
@@ -1492,6 +1499,7 @@ import { videoExt } from '../utils/videofile'
 
 // 组件
 import ImageWebdav from '@/components/ImageWebdav.vue'
+import ImageLocal from '@/components/ImageLocal.vue'
 
 // 国际化函数
 import { T as $T } from '@/i18n'
