@@ -36,6 +36,12 @@ const config = {
           .clear()
           .add('main') // fix some modules will use browser target
           .add('module')
+        config.module
+          .rule('node')
+          .test(/\.node$/)
+          .use('node-loader')
+          .loader('node-loader')
+          .end()
       },
       builderOptions: {
         productName: 'PicList',
@@ -111,7 +117,8 @@ const config = {
         linux: {
           icon: 'build/icons/',
           asarUnpack: [
-            '**/node_modules/sharp/**'
+            '**/node_modules/sharp/**',
+            '**/node_modules/ssh2-no-cpu-features/**'
           ]
         },
         snap: {

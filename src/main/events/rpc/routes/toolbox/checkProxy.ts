@@ -1,10 +1,21 @@
+// External dependencies
 import fs from 'fs-extra'
-import { IToolboxItemCheckStatus, IToolboxItemType } from '~/universal/types/enum'
-import { sendToolboxResWithType } from './utils'
-import tunnel from 'tunnel'
-import { dbPathChecker } from '~/main/apis/core/datastore/dbChecker'
-import { IConfig } from 'piclist'
 import axios, { AxiosRequestConfig } from 'axios'
+import tunnel from 'tunnel'
+
+// Electron modules
+
+// Custom utilities and modules
+import { dbPathChecker } from '~/main/apis/core/datastore/dbChecker'
+import { sendToolboxResWithType } from './utils'
+
+// Custom types/enums
+import { IToolboxItemCheckStatus, IToolboxItemType } from '~/universal/types/enum'
+
+// External utility functions
+
+// Custom types/enums
+import { IConfig } from 'piclist'
 import { T } from '~/main/i18n'
 
 const getProxy = (proxyStr: string): AxiosRequestConfig['proxy'] | false => {

@@ -1,20 +1,37 @@
-import windowManager from 'apis/app/window/windowManager'
-import { IWindowList } from '#/types/enum'
+// External dependencies
+import pkg from 'root/package.json'
+
+// Electron modules
 import { Menu, BrowserWindow, app, dialog } from 'electron'
+
+// Custom utilities and modules
+import windowManager from 'apis/app/window/windowManager'
 import getPicBeds from '~/main/utils/getPicBeds'
 import picgo from '@core/picgo'
-import {
-  uploadClipboardFiles
-} from '~/main/apis/app/uploader/apis'
-import pkg from 'root/package.json'
 import GuiApi from 'apis/gui'
-import { PICGO_CONFIG_PLUGIN, PICGO_HANDLE_PLUGIN_DONE, PICGO_HANDLE_PLUGIN_ING, PICGO_TOGGLE_PLUGIN, SHOW_MAIN_PAGE_DONATION, SHOW_MAIN_PAGE_QRCODE } from '~/universal/events/constants'
 import picgoCoreIPC from '~/main/events/picgoCoreIPC'
-import { PicGo as PicGoCore } from 'piclist'
-import { T } from '~/main/i18n'
 import { changeCurrentUploader } from '~/main/utils/handleUploaderConfig'
 import db from '~/main/apis/core/datastore'
 import clipboardPoll from '~/main/utils/clipboardPoll'
+
+// Custom types/enums
+import { IWindowList } from '#/types/enum'
+
+// External utility functions
+import {
+  uploadClipboardFiles
+} from '~/main/apis/app/uploader/apis'
+import {
+  PICGO_CONFIG_PLUGIN,
+  PICGO_HANDLE_PLUGIN_DONE,
+  PICGO_HANDLE_PLUGIN_ING,
+  PICGO_TOGGLE_PLUGIN,
+  SHOW_MAIN_PAGE_DONATION,
+  SHOW_MAIN_PAGE_QRCODE
+} from '~/universal/events/constants'
+import { PicGo as PicGoCore } from 'piclist'
+import { T } from '~/main/i18n'
+
 interface GuiMenuItem {
   label: string
   handle: (arg0: PicGoCore, arg1: GuiApi) => Promise<void>

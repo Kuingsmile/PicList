@@ -29,8 +29,8 @@ const uploadFile = async () => {
             secretAccessKey: SECRET_KEY
           },
           endpoint: `https://${ACCOUNT_ID}.r2.cloudflarestorage.com`,
-          sslEnabled: true,
-          region: 'us-east-1'
+          tls: true,
+          region: 'auto'
         }
         const client = new S3Client.S3Client(options)
         const parallelUploads3 = new Upload.Upload({

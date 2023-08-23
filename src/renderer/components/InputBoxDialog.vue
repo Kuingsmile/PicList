@@ -34,6 +34,8 @@ import {
 } from '~/universal/events/constants'
 import $bus from '@/utils/bus'
 import { sendToMain } from '@/utils/dataSender'
+import { T as $T } from '@/i18n/index'
+
 const inputBoxValue = ref('')
 const showInputBoxVisible = ref(false)
 const inputBoxOptions = reactive({

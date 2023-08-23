@@ -10,8 +10,7 @@ export const isUrlEncode = (url: string): boolean => {
   url = url || ''
   try {
     return url !== decodeURI(url)
-  } catch (e) {
-    // if some error caught, try to let it go
+  } catch {
     return false
   }
 }
@@ -43,4 +42,25 @@ export const isDev = process.env.NODE_ENV === 'development'
 
 export const trimValues = <T extends IStringKeyMap>(obj: T): {[K in keyof T]: T[K] extends string ? string : T[K]} => {
   return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, typeof value === 'string' ? value.trim() : value])) as {[K in keyof T]: T[K] extends string ? string : T[K]}
+}
+
+export function isNeedToShorten (alias: string, cutOff: number = 20) {
+  let totalLen = 0
+  for (const s of alias) {
+    totalLen += s.charCodeAt(0) > 255 ? 2 : 1
+  }
+  return totalLen > cutOff
+}
+
+export function safeSliceF (str:string, total: number) {
+  let result = ''
+  let totalLen = 0
+  for (const s of str) {
+    if (totalLen >= total) {
+      break
+    }
+    result += s
+    totalLen += s.charCodeAt(0) > 255 ? 2 : 1
+  }
+  return result
 }

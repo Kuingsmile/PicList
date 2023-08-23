@@ -1,3 +1,14 @@
+// External dependencies
+import { app } from 'electron'
+
+// Electron modules
+
+// Custom utilities and modules
+import bus from '@core/bus'
+import db from '~/main/apis/core/datastore'
+import picgo from '~/main/apis/core/picgo'
+import { T } from '~/main/i18n'
+import { remoteNoticeHandler } from '../remoteNotice'
 import {
   SETTING_WINDOW_URL,
   TRAY_WINDOW_URL,
@@ -5,15 +16,13 @@ import {
   RENAME_WINDOW_URL,
   TOOLBOX_WINDOW_URL
 } from './constants'
+
+// Custom types/enums
 import { IRemoteNoticeTriggerHook, IWindowList } from '#/types/enum'
-import bus from '@core/bus'
+
+// External utility functions
 import { CREATE_APP_MENU } from '@core/bus/constants'
-import db from '~/main/apis/core/datastore'
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/events/constants'
-import { app } from 'electron'
-import { remoteNoticeHandler } from '../remoteNotice'
-import picgo from '~/main/apis/core/picgo'
-import { T } from '~/main/i18n'
 
 const windowList = new Map<IWindowList, IWindowListItem>()
 

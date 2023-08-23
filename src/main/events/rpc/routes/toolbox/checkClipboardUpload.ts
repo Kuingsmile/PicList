@@ -1,9 +1,18 @@
+// External dependencies
 import fs from 'fs-extra'
 import path from 'path'
+
+// Electron modules
+
+// Custom utilities and modules
 import { dbPathChecker, defaultConfigPath } from '~/main/apis/core/datastore/dbChecker'
-import { IToolboxItemCheckStatus, IToolboxItemType } from '~/universal/types/enum'
-import { CLIPBOARD_IMAGE_FOLDER } from '~/universal/utils/static'
 import { sendToolboxResWithType } from './utils'
+
+// Custom types/enums
+import { IToolboxItemCheckStatus, IToolboxItemType } from '~/universal/types/enum'
+
+// External utility functions
+import { CLIPBOARD_IMAGE_FOLDER } from '~/universal/utils/static'
 import { T } from '~/main/i18n'
 
 const sendToolboxRes = sendToolboxResWithType(IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD)

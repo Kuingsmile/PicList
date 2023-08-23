@@ -290,6 +290,26 @@
                   />
                 </el-form-item>
                 <el-form-item
+                  v-if="form.autoImport"
+                  :label="$T('SETTINGS_AUTO_IMPORT_SELECT_PICBED')"
+                >
+                  <el-select
+                    v-model="form.autoImportPicBed"
+                    multiple
+                    size="small"
+                    style="width: 50%"
+                    :placeholder="$T('SETTINGS_AUTO_IMPORT_SELECT_PICBED')"
+                    @change="handleAutoImportPicBedChange"
+                  >
+                    <el-option
+                      v-for="item in picBed"
+                      :key="item.type"
+                      :label="item.name"
+                      :value="item.type"
+                    />
+                  </el-select>
+                </el-form-item>
+                <el-form-item
                   :label="$T('SETTINGS_SYNC_DELETE_CLOUD')"
                 >
                   <el-switch
@@ -1448,24 +1468,51 @@
   </div>
 </template>
 <script lang="ts" setup>
+// @ts-ignore
 import { ElForm, ElMessage as $message, ElMessage, ElMessageBox, FormRules } from 'element-plus'
+
+// Element Plus 图标
 import { Reading, Close, Edit, InfoFilled } from '@element-plus/icons-vue'
+
+// 根目录 package.json
 import pkg from 'root/package.json'
+
+// 事件常量
 import { PICGO_OPEN_FILE, OPEN_URL, GET_PICBEDS, HIDE_DOCK } from '#/events/constants'
+import { IRPCActionType } from '~/universal/types/enum'
+
+// Electron 相关
 import {
   ipcRenderer
 } from 'electron'
+
+// 国际化管理器
 import { i18nManager, T as $T } from '@/i18n/index'
+
+// 工具函数
 import { enforceNumber } from '~/universal/utils/common'
 import { getLatestVersion } from '#/utils/getLatestVersion'
 import { compare } from 'compare-versions'
-import { STABLE_RELEASE_URL } from '#/utils/static'
+
+// Vue 相关
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, toRaw } from 'vue'
-import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
+
+// 数据发送工具函数
+import { getConfig, saveConfig, sendRPC, sendToMain } from '@/utils/dataSender'
+
+// Vue Router 相关
 import { useRouter } from 'vue-router'
+
+// 路由配置常量
 import { SHORTKEY_PAGE } from '@/router/config'
+
+// Piclist 相关类型声明
 import { IConfig, IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
+
+// 数据发送工具函数
 import { invokeToMain } from '@/manage/utils/dataSender'
+
+// 内置重命名格式表
 import { buildInRenameFormatTable } from '../manage/utils/common'
 
 const imageProcessDialogVisible = ref(false)
@@ -1595,6 +1642,7 @@ const form = reactive<ISettingForm>({
   customMiniIcon: '',
   isHideDock: false,
   autoImport: false,
+  autoImportPicBed: [],
   encodeOutputURL: false,
   isAutoListenClipboard: false,
   useShortUrl: false,
@@ -1740,7 +1788,7 @@ async function initData () {
     form.miniWindowOntop = settings.miniWindowOntop || false
     form.autoCloseMiniWindow = settings.autoCloseMiniWindow || false
     form.autoCloseMainWindow = settings.autoCloseMainWindow || false
-    form.logLevel = initLogLevel(settings.logLevel || [])
+    form.logLevel = initArray(settings.logLevel || [], ['all'])
     form.autoCopyUrl = settings.autoCopy === undefined ? true : settings.autoCopy
     form.checkBetaUpdate = settings.checkBetaUpdate === undefined ? true : settings.checkBetaUpdate
     form.useBuiltinClipboard = settings.useBuiltinClipboard === undefined ? true : settings.useBuiltinClipboard
@@ -1749,6 +1797,7 @@ async function initData () {
     form.encodeOutputURL = settings.encodeOutputURL === undefined ? false : settings.encodeOutputURL
     form.deleteCloudFile = settings.deleteCloudFile || false
     form.autoImport = settings.autoImport || false
+    form.autoImportPicBed = initArray(settings.autoImportPicBed || [], [])
     form.isCustomMiniIcon = settings.isCustomMiniIcon || false
     form.customMiniIcon = settings.customMiniIcon || ''
     form.isHideDock = settings.isHideDock || false
@@ -1794,15 +1843,15 @@ async function initData () {
   }
 }
 
-function initLogLevel (logLevel: string | string[]) {
-  if (!Array.isArray(logLevel)) {
-    if (logLevel && logLevel.length > 0) {
-      logLevel = [logLevel]
+function initArray (arrayT: string | string[], defaultValue: string[]) {
+  if (!Array.isArray(arrayT)) {
+    if (arrayT && arrayT.length > 0) {
+      arrayT = [arrayT]
     } else {
-      logLevel = ['all']
+      arrayT = defaultValue
     }
   }
-  return logLevel
+  return arrayT
 }
 
 function getPicBeds (event: Event, picBeds: IPicBedType[]) {
@@ -1918,6 +1967,10 @@ function autoImportChange (val: ICheckBoxValueType) {
   saveConfig('settings.autoImport', val)
 }
 
+function handleAutoImportPicBedChange (val: string[]) {
+  saveConfig('settings.autoImportPicBed', val)
+}
+
 function handleHideDockChange (val: ICheckBoxValueType) {
   if (val && currentStartMode.value === 'no-tray') {
     ElMessage.warning($T('SETTINGS_ISHIDEDOCK_TIPS'))
@@ -1996,7 +2049,7 @@ async function checkUpdate () {
 
 function confirmCheckVersion () {
   if (needUpdate.value) {
-    sendToMain(OPEN_URL, STABLE_RELEASE_URL)
+    sendRPC(IRPCActionType.RELOAD_APP)
   }
   checkUpdateVisible.value = false
 }
@@ -2057,9 +2110,9 @@ async function handleMiniIconPath (evt: Event) {
   const result = await invokeToMain('openFileSelectDialog')
   if (result && result[0]) {
     form.customMiniIcon = result[0]
+    saveConfig('settings.customMiniIcon', form.customMiniIcon)
+    $message.info($T('TIPS_NEED_RELOAD'))
   }
-  saveConfig('settings.customMiniIcon', form.customMiniIcon)
-  $message.info($T('TIPS_NEED_RELOAD'))
 }
 
 function handleIsCustomMiniIcon (val: ICheckBoxValueType) {

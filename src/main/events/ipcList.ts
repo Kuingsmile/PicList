@@ -1,3 +1,4 @@
+// Electron 相关
 import {
   app,
   ipcMain,
@@ -8,16 +9,38 @@ import {
   screen,
   IpcMainInvokeEvent
 } from 'electron'
+
+// 窗口管理器
 import windowManager from 'apis/app/window/windowManager'
+
+// 枚举类型声明
 import { IWindowList } from '#/types/enum'
+
+// 上传器
 import uploader from 'apis/app/uploader'
+
+// 粘贴模板函数
 import pasteTemplate from '~/main/utils/pasteTemplate'
+
+// 数据存储库和类型声明
 import db, { GalleryDB } from '~/main/apis/core/datastore'
+
+// 服务器模块
 import server from '~/main/server'
+
+// 获取图片床模块
 import getPicBeds from '~/main/utils/getPicBeds'
+
+// 快捷键处理器
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
+
+// 全局事件总线
 import bus from '@core/bus'
+
+// 文件系统库
 import fs from 'fs-extra'
+
+// 事件常量
 import {
   TOGGLE_SHORTKEY_MODIFIED_MODE,
   OPEN_DEVTOOLS,
@@ -34,22 +57,45 @@ import {
   GET_PICBEDS,
   HIDE_DOCK
 } from '#/events/constants'
+
+// 上传剪贴板文件和已选文件的函数
 import {
   uploadClipboardFiles,
   uploadChoosedFiles
 } from '~/main/apis/app/uploader/apis'
+
+// 核心 IPC 模块
 import picgoCoreIPC from './picgoCoreIPC'
+
+// 处理复制的 URL 和生成短链接的函数
 import { handleCopyUrl, generateShortUrl } from '~/main/utils/common'
+
+// 构建主页面、迷你页面、插件页面、图片床列表的菜单函数
 import { buildMainPageMenu, buildMiniPageMenu, buildPluginPageMenu, buildPicBedListMenu } from './remotes/menu'
+
+// 路径处理库
 import path from 'path'
+
+// i18n 模块
 import { T } from '~/main/i18n'
+
+// 同步设置的上传和下载文件函数
 import { uploadFile, downloadFile } from '../utils/syncSettings'
+
+// SSH 客户端模块
+import SSHClient from '../utils/sshClient'
+
+// Sftp 配置类型声明
+import { ISftpPlistConfig } from 'piclist'
+
+import { removeFileFromS3InMain, removeFileFromDogeInMain, removeFileFromHuaweiInMain } from '~/main/utils/deleteFunc'
 
 const STORE_PATH = app.getPath('userData')
 
 export default {
   listen () {
     picgoCoreIPC.listen()
+    // Upload Related IPC
     // from macOS tray
     ipcMain.on('uploadClipboardFiles', async () => {
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
@@ -85,6 +131,7 @@ export default {
       return uploadChoosedFiles(evt.sender, files)
     })
 
+    // ShortKey Related IPC
     ipcMain.on('updateShortKey', (evt: IpcMainEvent, item: IShortKeyConfig, oldKey: string, from: string) => {
       const result = shortKeyHandler.updateShortKey(item, oldKey, from)
       evt.sender.send('updateShortKeyResponse', result)
@@ -120,6 +167,39 @@ export default {
       }
     })
 
+    // Gallery image cloud delete IPC
+    ipcMain.handle('delete-sftp-file', async (_evt: IpcMainInvokeEvent, config: ISftpPlistConfig, fileName: string) => {
+      try {
+        const client = SSHClient.instance
+        await client.connect(config)
+        const uploadPath = `/${(config.uploadPath || '')}/`.replace(/\/+/g, '/')
+        const remote = path.join(uploadPath, fileName)
+        const deleteResult = await client.deleteFile(remote)
+        client.close()
+        return deleteResult
+      } catch (err: any) {
+        console.error(err)
+        return false
+      }
+    })
+
+    ipcMain.handle('delete-aws-s3-file', async (_evt: IpcMainInvokeEvent, configMap: IStringKeyMap) => {
+      const result = await removeFileFromS3InMain(configMap)
+      return result
+    })
+
+    ipcMain.handle('delete-doge-file', async (_evt: IpcMainInvokeEvent, configMap: IStringKeyMap) => {
+      const result = await removeFileFromDogeInMain(configMap)
+      return result
+    })
+
+    ipcMain.handle('delete-huaweicloud-file', async (_evt: IpcMainInvokeEvent, configMap: IStringKeyMap) => {
+      const result = await removeFileFromHuaweiInMain(configMap)
+      return result
+    })
+
+    // migrate from PicGo
+
     ipcMain.handle('migrateFromPicGo', async () => {
       const picGoConfigPath = STORE_PATH.replace('piclist', 'picgo')
       const fileToMigration = [
@@ -146,6 +226,8 @@ export default {
         return false
       }
     })
+
+    // PicList Setting page IPC
 
     ipcMain.on('updateCustomLink', () => {
       const notification = new Notification({
@@ -211,6 +293,8 @@ export default {
       const isAlwaysOnTop = mainWindow.isAlwaysOnTop()
       mainWindow.setAlwaysOnTop(!isAlwaysOnTop)
     })
+
+    // Window operation API
 
     ipcMain.on('openSettingWindow', () => {
       windowManager.get(IWindowList.SETTING_WINDOW)!.show()

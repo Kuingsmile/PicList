@@ -29,6 +29,11 @@ Currently, the supported image hosting platforms are:
 - GitHub
 - Webdav
 - Aws S3
+- Local path
+- Built-in SFTP
+- Doge Cloud
+- Huawei Cloud OBS
+- Alist
 
 ## 4. Is it possible to upload video files?
 
@@ -46,6 +51,8 @@ PicList itself supports the following image hosting platforms:
 - Aliyun OSS
 - Imgur
 - Webdav
+- Local path
+- SFTP
 
 PicList plans to integrate and optimize existing plugins and embed more commonly used image hosting platforms.
 
@@ -104,3 +111,15 @@ The font file download address: [https://release.piclist.cn/simhei.ttf](https://
 ## 13. Upload failed when using aws-s3 plugin to upload to cloudflare R2
 
 R2's endpoint address will be blocked by GFW sni. After checking piclist.log, adding the corresponding IP address to the proxy list can solve the problem.
+
+## 14. Are all PicGo plugins compatible with PicList?
+
+PicList is compatible with most PicGo plugins. However, since PicList uses an updated version of electron, it is not compatible with the old version of the sharp library, so some plugins may not work.
+
+Known plugins that cannot be used are:
+
+- picgo-plugin-watermark (built-in)
+- picgo-plugin-pic-migrater (this plugin will verify the version of PicGo and cannot be used, please use the pic-migrater-piclist plugin)
+- picgo-plugin-auto-delete (built-in)
+
+Welcome everyone to test other plugins. If there are plugins that cannot be used, please open an issue for feedback.

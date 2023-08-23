@@ -1,4 +1,8 @@
+// External dependencies
 import fs from 'fs-extra'
+import { cloneDeep } from 'lodash'
+
+// Electron modules
 import {
   app,
   Menu,
@@ -9,6 +13,8 @@ import {
   screen,
   nativeTheme
 } from 'electron'
+
+// Custom utilities and modules
 import uploader from 'apis/app/uploader'
 import db, { GalleryDB } from '~/main/apis/core/datastore'
 import windowManager from 'apis/app/window/windowManager'
@@ -22,7 +28,7 @@ import { buildPicBedListMenu } from '~/main/events/remotes/menu'
 import clipboardPoll from '~/main/utils/clipboardPoll'
 import picgo from '../../core/picgo'
 import { uploadClipboardFiles } from '../uploader/apis'
-import { cloneDeep } from 'lodash'
+
 let contextMenu: Menu | null
 let tray: Tray | null
 

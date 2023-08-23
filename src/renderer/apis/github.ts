@@ -20,7 +20,7 @@ export default class GithubApi {
 
   private static createKey (path: string | undefined, fileName: string): string {
     return path && path !== '/'
-      ? `${path.replace(/^\//, '').replace(/\/$/, '')}/${fileName}`
+      ? `${path.replace(/^\/+|\/+$/, '')}/${fileName}`
       : fileName
   }
 

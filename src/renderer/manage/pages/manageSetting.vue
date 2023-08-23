@@ -513,14 +513,29 @@
 </template>
 
 <script lang="ts" setup>
+// Element Plus 图标
 import { InfoFilled, Folder } from '@element-plus/icons-vue'
+
+// Vue 相关
 import { ref, reactive, onBeforeMount, watch, onBeforeUnmount } from 'vue'
+
+// 数据发送工具函数
 import { getConfig, saveConfig, invokeToMain } from '../utils/dataSender'
+
+// Element Plus 消息组件
 import { ElMessage } from 'element-plus'
+
+// 状态管理相关
 import { useManageStore } from '../store/manageStore'
 import { fileCacheDbInstance } from '../store/bucketFileDb'
+
+// 工具函数
 import { formatFileSize, customRenameFormatTable } from '../utils/common'
+
+// 国际化函数
 import { T as $T } from '@/i18n'
+
+// 静态路径选择
 import { selectDownloadFolder } from '../utils/static'
 
 const manageStore = useManageStore()
@@ -597,21 +612,21 @@ async function initData () {
   form.timestampRename = config.settings.timestampRename ?? false
   form.randomStringRename = config.settings.randomStringRename ?? false
   form.customRename = config.settings.customRename ?? false
-  customRenameFormat.value = config.settings.customRenameFormat ?? '{filename}'
-  customPasteFormat.value = config.settings.customPasteFormat ?? '$url'
-  pasteFormat.value = config.settings.pasteFormat ?? 'markdown'
-  downloadDir.value = config.settings.downloadDir ?? ''
   form.isAutoRefresh = config.settings.isAutoRefresh ?? false
   form.isShowThumbnail = config.settings.isShowThumbnail ?? false
   form.isShowList = config.settings.isShowList ?? false
   form.isIgnoreCase = config.settings.isIgnoreCase ?? false
   form.isForceCustomUrlHttps = config.settings.isForceCustomUrlHttps ?? true
   form.isEncodeUrl = config.settings.isEncodeUrl ?? false
-  PreSignedExpire.value = config.settings.PreSignedExpire ?? 14400
-  maxDownloadFileCount.value = config.settings.maxDownloadFileCount ?? 5
   form.isUploadKeepDirStructure = config.settings.isUploadKeepDirStructure ?? true
   form.isDownloadFileKeepDirStructure = config.settings.isDownloadKeepDirStructure ?? false
   form.isDownloadFolderKeepDirStructure = config.settings.isDownloadFolderKeepDirStructure ?? true
+  PreSignedExpire.value = config.settings.PreSignedExpire ?? 14400
+  maxDownloadFileCount.value = config.settings.maxDownloadFileCount ?? 5
+  customRenameFormat.value = config.settings.customRenameFormat ?? '{filename}'
+  customPasteFormat.value = config.settings.customPasteFormat ?? '$url'
+  pasteFormat.value = config.settings.pasteFormat ?? 'markdown'
+  downloadDir.value = config.settings.downloadDir ?? ''
 }
 
 async function handleDownloadDirClick () {

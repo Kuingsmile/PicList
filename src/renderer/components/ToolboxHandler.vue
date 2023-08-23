@@ -10,6 +10,7 @@
 </template>
 <script lang="ts" setup>
 import { IToolboxItemCheckStatus } from '~/universal/types/enum'
+
 interface IProps {
   status: IToolboxItemCheckStatus
   value: any

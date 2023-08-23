@@ -24,7 +24,7 @@ export default class AliyunApi {
 
   private static getKey (fileName: string, path?: string): string {
     return path && path !== '/'
-      ? `${path.replace(/^\//, '').replace(/\/$/, '')}/${fileName}`
+      ? `${path.replace(/^\/+|\/+$/, '')}/${fileName}`
       : fileName
   }
 
@@ -33,7 +33,7 @@ export default class AliyunApi {
     try {
       const client = AliyunApi.createClient(config)
       const key = AliyunApi.getKey(fileName, config.path)
-      const result = await client.delete(key) as any
+      const result = await client.delete(key)
       return result.res.status === 204
     } catch (error) {
       console.error(error)

@@ -1,16 +1,34 @@
+// HTTP 请求库
 import got from 'got'
+
+// 日志记录器
 import { ManageLogger } from '../utils/logger'
+
+// HTTP 代理格式化函数、是否为图片的判断函数
 import { formatHttpProxy, isImage } from '~/renderer/manage/utils/common'
+
+// 窗口管理器
 import windowManager from 'apis/app/window/windowManager'
+
+// 枚举类型声明
 import { IWindowList } from '#/types/enum'
+
+// Electron 相关
 import { ipcMain, IpcMainEvent } from 'electron'
+
+// got 上传函数、路径处理函数、新的下载器、获取请求代理、获取请求选项、并发异步任务池、错误格式化函数
 import { gotUpload, trimPath, NewDownloader, getAgent, getOptions, ConcurrencyPromisePool, formatError } from '../utils/common'
-import UpDownTaskQueue,
-{
-  commonTaskStatus
-} from '../datastore/upDownTaskQueue'
+
+// 上传下载任务队列
+import UpDownTaskQueue, { commonTaskStatus } from '../datastore/upDownTaskQueue'
+
+// 文件系统库
 import fs from 'fs-extra'
+
+// 路径处理库
 import path from 'path'
+
+// 取消下载任务的加载文件列表、刷新下载文件传输列表
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
 
 class GithubApi {
@@ -35,12 +53,7 @@ class GithubApi {
   }
 
   formatFolder (item: any, slicedPrefix: string) {
-    let key = ''
-    if (slicedPrefix === '') {
-      key = `${item.path}/`
-    } else {
-      key = `${slicedPrefix}/${item.path}/`
-    }
+    const key = `${slicedPrefix ? `${slicedPrefix}/` : ''}${item.path}/`
     return {
       ...item,
       Key: key,
@@ -57,27 +70,18 @@ class GithubApi {
 
   formatFile (item: any, slicedPrefix: string, branch: string, repo: string, cdnUrl: string | undefined) {
     let rawUrl = ''
-    if (cdnUrl) {
-      const placeholder = ['{username}', '{repo}', '{branch}', '{path}']
-      if (placeholder.some(item => cdnUrl.includes(item))) {
-        rawUrl = cdnUrl.replace('{username}', this.username)
-          .replace('{repo}', repo)
-          .replace('{branch}', branch)
-          .replace('{path}', `${slicedPrefix}/${item.path}`)
-      } else {
-        rawUrl = `${cdnUrl}/${slicedPrefix}/${item.path}`
-      }
-    } else {
-      rawUrl = `https://raw.githubusercontent.com/${this.username}/${repo}/${branch}/${slicedPrefix}/${item.path}`
-    }
+    const placeholders = ['{username}', '{repo}', '{branch}', '{path}']
+    const key = slicedPrefix === '' ? item.path : `${slicedPrefix}/${item.path}`
+    rawUrl = cdnUrl
+      ? placeholders.some(item => cdnUrl.includes(item))
+        ? placeholders.reduce((url, ph) => {
+          const value = ph === '{username}' ? this.username : ph === '{repo}' ? repo : ph === '{branch}' ? branch : ph === '{path}' ? `${slicedPrefix}/${item.path}` : ''
+          return url.replaceAll(ph, value)
+        }, cdnUrl)
+        : `${cdnUrl}/${key}`
+      : `https://raw.githubusercontent.com/${this.username}/${repo}/${branch}/${key}`
     rawUrl = rawUrl.replace(/(?<!https?:)\/{2,}/g, '/')
-    let key = ''
-    if (slicedPrefix === '') {
-      key = item.path
-    } else {
-      key = `${slicedPrefix}/${item.path}`
-    }
-    const result = {
+    return {
       ...item,
       Key: key,
       key,
@@ -88,12 +92,9 @@ class GithubApi {
       checked: false,
       match: false,
       isImage: isImage(item.path),
-      rawUrl
+      rawUrl: item.url,
+      url: rawUrl
     }
-    const temp = result.rawUrl
-    result.rawUrl = result.url
-    result.url = temp
-    return result
   }
 
   /**
@@ -151,7 +152,7 @@ class GithubApi {
   async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: repo, customUrl: branch, prefix, cancelToken, cdnUrl } = configMap
-    const slicedPrefix = prefix.replace(/^\//, '').replace(/\/$/, '')
+    const slicedPrefix = prefix.replace(/(^\/+|\/+$)/g, '')
     const cancelTask = [false]
     ipcMain.on(cancelDownloadLoadingFileList, (_evt: IpcMainEvent, token: string) => {
       if (token === cancelToken) {
@@ -202,7 +203,7 @@ class GithubApi {
   async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: repo, customUrl: branch, prefix, cancelToken, cdnUrl } = configMap
-    const slicedPrefix = prefix.replace(/^\//, '').replace(/\/$/, '')
+    const slicedPrefix = prefix.replace(/(^\/+|\/+$)/g, '')
     const cancelTask = [false]
     ipcMain.on('cancelLoadingFileList', (_evt: IpcMainEvent, token: string) => {
       if (token === cancelToken) {
@@ -269,37 +270,35 @@ class GithubApi {
   */
   async deleteBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName: repo, githubBranch: branch, key } = configMap
+    // get sha of the branch
     const refRes = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/git/refs/heads/${branch}`,
       getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy)
     ) as any
-    if (refRes.statusCode !== 200) {
-      return false
-    }
+    if (refRes.statusCode !== 200) return false
     const refSha = refRes.body.object.sha
+    // get sha of the root tree
     const rootRes = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/branches/${branch}`,
       getOptions('GET', undefined, undefined, 'json', undefined, undefined, this.proxy)
     ) as any
-    if (rootRes.statusCode !== 200) {
-      return false
-    }
+    if (rootRes.statusCode !== 200) return false
     const rootSha = rootRes.body.commit.commit.tree.sha
     // TODO: if there are more than 10000 files in the folder, it will be truncated
     // Rare cases, not considered for now
+    // get sha of the folder tree
     const treeRes = await got(
-      `${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${key.replace(/^\//, '').replace(/\/$/, '')}`,
+      `${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${key.replace(/(^\/+|\/+$)/g, '')}`,
       getOptions('GET', this.commonHeaders, {
         recursive: true
       }, 'json', undefined, undefined, this.proxy)
     ) as any
-    if (treeRes.statusCode !== 200) {
-      return false
-    }
+    if (treeRes.statusCode !== 200) return false
     const oldTree = treeRes.body.tree
+    // create a new tree
     const newTree = oldTree.filter((item: any) => item.type === 'blob')
       .map((item:any) => ({
-        path: `${key.replace(/^\//, '').replace(/\/$/, '')}/${item.path}`,
+        path: `${key.replace(/(^\/+|\/+$)/g, '')}/${item.path}`,
         mode: item.mode,
         type: item.type,
         sha: null
@@ -311,10 +310,9 @@ class GithubApi {
         tree: newTree
       }), undefined, this.proxy)
     ) as any
-    if (newTreeShaRes.statusCode !== 201) {
-      return false
-    }
+    if (newTreeShaRes.statusCode !== 201) return false
     const newTreeSha = newTreeShaRes.body.sha
+    // create a new commit
     const commitRes = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/git/commits`,
       getOptions('POST', this.commonHeaders, undefined, 'json', JSON.stringify({
@@ -323,20 +321,16 @@ class GithubApi {
         parents: [refSha]
       }), undefined, this.proxy)
     ) as any
-    if (commitRes.statusCode !== 201) {
-      return false
-    }
+    if (commitRes.statusCode !== 201) return false
     const commitSha = commitRes.body.sha
+    // update the branch
     const updateRefRes = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/git/refs/heads/${branch}`,
       getOptions('PATCH', this.commonHeaders, undefined, 'json', JSON.stringify({
         sha: commitSha
       }), undefined, this.proxy)
     ) as any
-    if (updateRefRes.statusCode !== 200) {
-      return false
-    }
-    return true
+    return updateRefRes.statusCode === 200
   }
 
   /**
@@ -352,20 +346,14 @@ class GithubApi {
      */
   async getPreSignedUrl (configMap: IStringKeyMap): Promise<string> {
     const { bucketName: repo, customUrl: branch, key, rawUrl, githubPrivate: isPrivate } = configMap
-    if (!isPrivate) {
-      return rawUrl
-    }
+    if (!isPrivate) return rawUrl
     const res = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/contents/${key}`,
       getOptions('GET', this.commonHeaders, {
         ref: branch
       }, 'json', undefined, undefined, this.proxy)
     ) as any
-    if (res.statusCode === 200) {
-      return res.body.download_url
-    } else {
-      return ''
-    }
+    return res.statusCode === 200 ? res.body.download_url : ''
   }
 
   /**

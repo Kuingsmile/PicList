@@ -1,14 +1,24 @@
-// get notice from remote
-// such as some notices for users; some updates for users
+// External dependencies
+import axios from 'axios'
 import fs from 'fs-extra'
-import { app, clipboard, dialog, shell } from 'electron'
-import { IRemoteNoticeActionType, IRemoteNoticeTriggerCount, IRemoteNoticeTriggerHook } from '#/types/enum'
-import { lte, gte } from 'semver'
 import path from 'path'
 
-import axios from 'axios'
+// Electron modules
+import { app, clipboard, dialog, shell } from 'electron'
+
+// Custom modules and utilities
 import windowManager from '../window/windowManager'
 import { showNotification } from '~/main/utils/common'
+
+// Custom types/enums
+import {
+  IRemoteNoticeActionType,
+  IRemoteNoticeTriggerCount,
+  IRemoteNoticeTriggerHook
+} from '#/types/enum'
+
+// External utility functions
+import { gte, lte } from 'semver'
 
 // for test
 const REMOTE_NOTICE_URL = 'https://release.piclist.cn/remote-notice.json'
@@ -37,7 +47,6 @@ class RemoteNoticeHandler {
       const localCountStorage: IRemoteNoticeLocalCountStorage = fs.readJSONSync(REMOTE_NOTICE_LOCAL_STORAGE_PATH, 'utf8')
       this.remoteNoticeLocalCountStorage = localCountStorage
     } catch (e) {
-      console.log(e)
       this.remoteNoticeLocalCountStorage = localCountStorage
     }
   }

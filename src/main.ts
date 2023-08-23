@@ -1,25 +1,43 @@
+
+// Vue 相关
 import { createApp } from 'vue'
 import App from './renderer/App.vue'
 import router from './renderer/router'
 import ElementUI from 'element-plus'
 import 'element-plus/dist/index.css'
-import { webFrame } from 'electron'
 import VueLazyLoad from 'vue3-lazyload'
-import axios from 'axios'
-import { mainMixin } from './renderer/utils/mainMixin'
-import { dragMixin } from '@/utils/mixin'
-import db from './renderer/utils/db'
-import { i18nManager, T } from './renderer/i18n/index'
-import { getConfig, saveConfig, sendToMain, triggerRPC } from '@/utils/dataSender'
-import { store } from '@/store'
 import vue3PhotoPreview from 'vue3-photo-preview'
 import 'vue3-photo-preview/dist/index.css'
+import VueVideoPlayer from '@videojs-player/vue'
+
+// Electron 相关
+import { webFrame } from 'electron'
+
+// Axios
+import axios from 'axios'
+
+// Mixins
+import { mainMixin } from './renderer/utils/mainMixin'
+import { dragMixin } from '@/utils/mixin'
+
+// 数据库
+import db from './renderer/utils/db'
+
+// 国际化
+import { i18nManager, T } from './renderer/i18n/index'
+
+// 工具函数
+import { getConfig, saveConfig, sendToMain, triggerRPC } from '@/utils/dataSender'
+
+// 状态管理
+import { store } from '@/store'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+
+// 代码高亮
 import 'highlight.js/styles/atom-one-dark.css'
 import hljsVuePlugin from '@highlightjs/vue-plugin'
 import hljsCommon from 'highlight.js/lib/common'
-import VueVideoPlayer from '@videojs-player/vue'
 import 'video.js/dist/video-js.css'
 
 webFrame.setVisualZoomLevelLimits(1, 1)
@@ -34,7 +52,9 @@ app.config.globalProperties.$builtInPicBed = [
   'upyun',
   'aliyun',
   'github',
-  'webdavplist'
+  'webdavplist',
+  'local',
+  'sftpplist'
 ]
 app.config.unwrapInjectedRef = true
 

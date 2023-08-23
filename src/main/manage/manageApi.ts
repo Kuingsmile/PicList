@@ -54,22 +54,26 @@ export class ManageApi extends EventEmitter implements ManageApiType {
   createClient () {
     const name = this.currentPicBedConfig.picBedName
     switch (name) {
-      case 'tcyun':
-        return new API.TcyunApi(this.currentPicBedConfig.secretId, this.currentPicBedConfig.secretKey, this.logger)
       case 'aliyun':
         return new API.AliyunApi(this.currentPicBedConfig.accessKeyId, this.currentPicBedConfig.accessKeySecret, this.logger)
-      case 'qiniu':
-        return new API.QiniuApi(this.currentPicBedConfig.accessKey, this.currentPicBedConfig.secretKey, this.logger)
-      case 'upyun':
-        return new API.UpyunApi(this.currentPicBedConfig.bucketName, this.currentPicBedConfig.operator, this.currentPicBedConfig.password, this.logger)
-      case 'smms':
-        return new API.SmmsApi(this.currentPicBedConfig.token, this.logger)
       case 'github':
         return new API.GithubApi(this.currentPicBedConfig.token, this.currentPicBedConfig.githubUsername, this.currentPicBedConfig.proxy, this.logger)
       case 'imgur':
         return new API.ImgurApi(this.currentPicBedConfig.imgurUserName, this.currentPicBedConfig.accessToken, this.currentPicBedConfig.proxy, this.logger)
+      case 'local':
+        return new API.LocalApi(this.logger)
+      case 'qiniu':
+        return new API.QiniuApi(this.currentPicBedConfig.accessKey, this.currentPicBedConfig.secretKey, this.logger)
+      case 'smms':
+        return new API.SmmsApi(this.currentPicBedConfig.token, this.logger)
       case 's3plist':
-        return new API.S3plistApi(this.currentPicBedConfig.accessKeyId, this.currentPicBedConfig.secretAccessKey, this.currentPicBedConfig.endpoint, this.currentPicBedConfig.sslEnabled, this.currentPicBedConfig.s3ForcePathStyle, this.currentPicBedConfig.proxy, this.logger)
+        return new API.S3plistApi(this.currentPicBedConfig.accessKeyId, this.currentPicBedConfig.secretAccessKey, this.currentPicBedConfig.endpoint, this.currentPicBedConfig.sslEnabled, this.currentPicBedConfig.s3ForcePathStyle, this.currentPicBedConfig.proxy, this.logger, this.currentPicBedConfig.dogeCloudSupport || false, this.currentPicBedConfig.bucketName || '')
+      case 'sftp':
+        return new API.SftpApi(this.currentPicBedConfig.host, this.currentPicBedConfig.port, this.currentPicBedConfig.username, this.currentPicBedConfig.password, this.currentPicBedConfig.privateKey, this.currentPicBedConfig.passphrase, this.currentPicBedConfig.fileMode, this.currentPicBedConfig.dirMode, this.logger)
+      case 'tcyun':
+        return new API.TcyunApi(this.currentPicBedConfig.secretId, this.currentPicBedConfig.secretKey, this.logger)
+      case 'upyun':
+        return new API.UpyunApi(this.currentPicBedConfig.bucketName, this.currentPicBedConfig.operator, this.currentPicBedConfig.password, this.logger)
       case 'webdavplist':
         return new API.WebdavplistApi(this.currentPicBedConfig.endpoint, this.currentPicBedConfig.username, this.currentPicBedConfig.password, this.currentPicBedConfig.sslEnabled, this.currentPicBedConfig.proxy, this.logger)
       default:
@@ -104,9 +108,8 @@ export class ManageApi extends EventEmitter implements ManageApiType {
   getConfig<T> (name?: string): T {
     if (!name) {
       return this._config as unknown as T
-    } else {
-      return get(this._config, name)
     }
+    return get(this._config, name)
   }
 
   saveConfig (config: IStringKeyMap): void {
@@ -149,6 +152,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
     param?: IStringKeyMap | undefined
   ): Promise<any> {
     let client
+    const name = this.currentPicBedConfig.picBedName.replace('plist', '')
     switch (this.currentPicBedConfig.picBedName) {
       case 'tcyun':
       case 'aliyun':
@@ -170,15 +174,12 @@ export class ManageApi extends EventEmitter implements ManageApiType {
           CreationDate: new Date().toISOString()
         }]
       case 'smms':
-        return [{
-          Name: 'smms',
-          Location: 'smms',
-          CreationDate: new Date().toISOString()
-        }]
       case 'webdavplist':
+      case 'local':
+      case 'sftp':
         return [{
-          Name: 'webdav',
-          Location: 'webdav',
+          Name: name,
+          Location: name,
           CreationDate: new Date().toISOString()
         }]
       default:
@@ -314,6 +315,8 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'imgur':
       case 's3plist':
       case 'webdavplist':
+      case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           return await client.getBucketListRecursively(param!)
@@ -357,6 +360,8 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'imgur':
       case 's3plist':
       case 'webdavplist':
+      case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           return await client.getBucketListBackstage(param!)
@@ -427,6 +432,8 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'imgur':
       case 's3plist':
       case 'webdavplist':
+      case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           const res = await client.deleteBucketFile(param!)
@@ -452,6 +459,8 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'github':
       case 's3plist':
       case 'webdavplist':
+      case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           return await client.deleteBucketFolder(param!)
@@ -475,6 +484,8 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'upyun':
       case 's3plist':
       case 'webdavplist':
+      case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           return await client.renameBucketFile(param!)
@@ -501,6 +512,8 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'imgur':
       case 's3plist':
       case 'webdavplist':
+      case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           const res = await client.downloadBucketFile(param!)
@@ -533,6 +546,8 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'github':
       case 's3plist':
       case 'webdavplist':
+      case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           return await client.createBucketFolder(param!)
@@ -559,6 +574,8 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'imgur':
       case 's3plist':
       case 'webdavplist':
+      case 'local':
+      case 'sftp':
         try {
           client = this.createClient() as any
           return await client.uploadBucketFile(param!)

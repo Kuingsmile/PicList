@@ -16,7 +16,7 @@
 
 简体中文 | [English](https://github.com/Kuingsmile/PicList/blob/dev/README_en.md)
 
-PicList是一款云存储/图床平台管理和文件上传工具，基于PicGo的进行了深度二次开发，保留了PicGo的所有功能的同时，为相册添加了同步云端删除功能，同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件链接和图片/markdown/文本/视频预览等，另外还有更加强大的相册和多项功能新增或优化。
+PicList是一款高效的云存储和图床平台管理工具，在PicGo的基础上经过深度的二次开发，不仅完整保留了PicGo的所有功能，还增添了许多新的feature。例如相册支持同步云端删除文件，内置图床额外添加了WebDav、本地图床和SFTP等。PicList同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件链接和图片/markdown/文本/视频预览等，另外还有更加强大的相册和多项功能新增或优化。
 
 ## 如何从PicGo迁移
 
@@ -30,16 +30,17 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 
 ## 特色功能
 
-- 保留了PicGo的所有功能，兼容已有的PicGo插件系统，包括和typora、obsidian等的搭配
-- 新增了对webdav上传，imgur账户上传，本地文件夹上传等的支持
-- 相册中可同步删除云端图片，同时新增了高级搜索和排序，批量修改URL等功能
-- 内置水印添加、图片压缩、图片缩放、图片旋转和图片格式转换等功能，支持自定义配置，且可以通过CLI命令行调用
-- 新增配置多端同步功能
-- 支持管理所有图床，可以在线进行云端目录查看、文件搜索、批量上传、批量下载、删除文件等
+- 保留了PicGo的所有功能，兼容绝大部分已有的PicGo插件，包括和Typora、Obsidian等软件的搭配
+- 新增了多个内置图床，如WebDav、本地图床和SFTP等，原内置imgur图床额外支持登录账号上传
+- 相册中可同步删除云端图片，支持所有内置图床和多个插件
+- 相册新增了高级搜索和排序，批量修改URL等功能
+- 内置水印添加、图片压缩、图片缩放、图片旋转和图片格式转换等功能，同时支持高级重命名
+- 支持配置同步至Github或Gitee仓库
+- 支持管理十余种图床，可以在线进行云端目录查看、文件搜索、批量上传、批量下载、删除文件等
 - 支持预览多种格式的文件，包括图片、视频、纯文本文件和markdown文件等，具体支持的格式请参考[支持的文件格式列表](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)
-- 支持正则表达式的批量云端文件重命名
+- 支持启用正则表达式的批量云端文件重命名
 - 对于私有存储桶等支持复制预签名链接进行分享
-- 支持自动更新，无需每次手动下载，支持多种启动模式选择，还有更多功能细节新增和优化
+- 支持软件自动更新，支持多种启动模式，还有更多功能细节新增和优化
 - 优化了PicGo的界面，解锁了窗口大小限制，同时美化了部分界面布局
 - mac平台安装包已签名，从源头解决了PicGo上的安装包已损坏的日经问题
 
@@ -49,10 +50,7 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 
 **Typora 1.6.0-dev以及以上版本现在已经原生支持PicList了**
 
-下载地址：
-
-[Windows 版本](https://download.typora.io/windows/typora-setup-x64-1.6.0-dev.exe "windows")
-[Mac OS版本](https://download.typora.io/mac/Typora-1.6.0-dev.dmg "macOS")
+[下载地址](https://typora.io/releases/all)
 
 #### 1.6.0版本以下
 
@@ -74,7 +72,7 @@ MacOS:
 
 ### 如何在Obsidian中使用
 
-在社区插件中搜索安装 `Image auto upload Plugin`，然后进入插件设置页面，修改默认上传器为 `PicGo(app)`，设置 `PicGo server`为 `http://127.0.0.1:36677/upload`即可，如下图所示：
+在社区插件中搜索安装 `Image auto upload Plugin`，然后进入插件设置页面，修改默认上传器为 `PicGo(app)`，设置 `PicGo server`为 `http://127.0.0.1:36677/upload`即可，如下图所示, 此外该插件还额外支持通过PicList进行云端删除，请在删除接口内填入 `http://127.0.0.1:36677/delete`：
 
 ![image](https://user-images.githubusercontent.com/96409857/226522718-8378c480-9fb4-4785-87e1-d59808862016.png)
 
@@ -92,10 +90,15 @@ MacOS:
 | S3 API兼容平台 |     ✔️      |     ✔️      |
 |     WebDAV     |     ✔️      |     ✔️      |
 |   本地文件夹   |     ✔️      |     ✔️      |
+|    内置SFTP    |     ✔️      |     ✔️      |
+|     多吉云     |     ✔️      |     ✔️      |
 
-|                             插件                             | 相册云删除 |
-| :----------------------------------------------------------: | :--------: |
-| [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3) |     ✔️      |
+|                                            插件                                            | 相册云删除 |
+| :----------------------------------------------------------------------------------------: | :--------: |
+|                [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3)                |     ✔️      |
+|           [picgo-plugin-alist](https://github.com/jinzhi0123/picgo-plugin-alist)           |     ✔️      |
+| [picgo-plugin-huawei-uploader](https://github.com/YunfengGao/picgo-plugin-huawei-uploader) |     ✔️      |
+|         [picgo-plugin-dogecloud](https://github.com/w4j1e/picgo-plugin-dogecloud)          |     ✔️      |
 
 ## 下载安装
 
@@ -115,29 +118,14 @@ brew install piclist --cask
 brew uninstall piclist
 ```
 
-### Mac特殊说明
-
-如果macOS系统安装完PicList显示「文件已损坏」或者安装完打开没有反应，请升级到PicList V1.4.1以上版本。
-
-从V1.4.1版本开始，所有的mac安装包均经过了我的开发者证书签名，不会再被macOS系统识别为「恶意软件」，不会再出现「文件已损坏」的提示。
-
-### Mac App Store
-
-由于Mac App Store的沙盒机制，导致多项功能无法正常使用，因此不再支持Mac App Store的安装方式。
-
-如果您已经通过Mac App Store购买了PicList，请添加我的微信 `pku_sq_ma`，我会为您退费。
-
-再次感谢您对PicList的支持。
-
 ## 应用截图
 
-![image](https://user-images.githubusercontent.com/96409857/222900642-f1d04a41-f025-4f3c-b838-bae770e0b929.png)
-![image](https://user-images.githubusercontent.com/96409857/222900656-6bb33045-6672-4c4d-ac34-1b9ba86011cc.png)
-![image](https://user-images.githubusercontent.com/96409857/220510112-e524f270-ab56-4e8b-bfb2-eb0a77e559ef.png)
-![image](https://user-images.githubusercontent.com/96409857/220510176-8a3f9f19-9182-4b56-b943-fc408ef63f22.png)
-![image](https://user-images.githubusercontent.com/96409857/220510302-f193fc77-db1b-4817-81ff-3ab1c3a1f4d3.png)
-![image](https://user-images.githubusercontent.com/96409857/220510371-a2fad42e-8063-4014-a691-ca5b66b8cc60.png)
-![image](https://user-images.githubusercontent.com/96409857/220510427-b85ffc0a-55cf-43f1-b1b0-ba7776a75de2.png)
+![image](https://github.com/Kuingsmile/PicList/assets/96409857/1b76c0c4-753c-4d66-aa24-f805f9c2da15)
+![image](https://github.com/Kuingsmile/PicList/assets/96409857/56cf838a-a2eb-40af-96d4-1ffea25400af)
+![image](https://github.com/Kuingsmile/PicList/assets/96409857/bca7688a-e07f-4e80-9edd-c224298fa8ab)
+![image](https://github.com/Kuingsmile/PicList/assets/96409857/3e48e03d-b0b2-49e2-92a6-a52e0884677d)
+![image](https://github.com/Kuingsmile/PicList/assets/96409857/29de0046-1aef-4b28-95a6-b26c6e297c6f)
+![image](https://github.com/Kuingsmile/PicList/assets/96409857/e1c04488-2d3a-4e8f-aa26-ce41d0a383e2)
 
 ## 微信交流群
 
@@ -148,8 +136,8 @@ brew uninstall piclist
 1. 你需要有 Node、Git 环境，了解 npm 的相关知识。
 2. git clone [https://github.com/Kuingsmile/PicList.git](https://github.com/Kuingsmile/PicList.git) 并进入项目。
    `yarn` 下载依赖
-   注意如果你没有yarn，请去 官网 下载安装后再使用。 用 npm install 将导致未知错误！
-3. Mac 需要有 Xcode 环境，Windows 需要有 VS 环境。
+   注意如果你没有`yarn`，请去 官网 下载安装后再使用。 用 `npm install` 将导致未知错误！
+3. Mac 需要有 `Xcode` 环境，Windows 需要有 `VS` 环境。
 4. 如果需要贡献代码，可以参考[贡献指南](https://github.com/Kuingsmile/PicList/blob/dev/CONTRIBUTING.md)。
 
 ### 开发模式
@@ -158,6 +146,7 @@ brew uninstall piclist
 
 `ctrl+c` # 退出开发模式
 `yarn run dev` # 重新进入开发模式
+
 注：Windows 开发模式运行之后会在底部任务栏的右下角应用区出现 PicList 的应用图标。
 
 ### 生产模式

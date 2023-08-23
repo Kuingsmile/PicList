@@ -92,15 +92,33 @@
   </div>
 </template>
 <script lang="ts" setup>
+// Element Plus 图标
 import { Edit, Delete, Plus } from '@element-plus/icons-vue'
+
+// 数据发送工具函数
 import { saveConfig, triggerRPC } from '@/utils/dataSender'
+
+// 时间处理库
 import dayjs from 'dayjs'
+
+// 枚举类型声明
 import { IRPCActionType } from '~/universal/types/enum'
+
+// 国际化函数
 import { T as $T } from '@/i18n/index'
+
+// Vue Router 相关
 import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router'
+
+// Vue 生命周期钩子
 import { onBeforeMount, ref } from 'vue'
+
+// 路由配置常量
 import { PICBEDS_PAGE, UPLOADER_CONFIG_PAGE } from '@/router/config'
+
+// 状态管理
 import { useStore } from '@/hooks/useStore'
+
 const $router = useRouter()
 const $route = useRoute()
 

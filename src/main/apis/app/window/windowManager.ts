@@ -1,7 +1,12 @@
-import {
-  BrowserWindow
-} from 'electron'
+// External dependencies
 import windowList from './windowList'
+
+// Electron modules
+import { BrowserWindow } from 'electron'
+
+// Custom utilities and modules
+
+// Custom types/enums
 import { IWindowList } from '#/types/enum'
 
 class WindowManager implements IWindowManager {

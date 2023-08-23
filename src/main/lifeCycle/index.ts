@@ -16,10 +16,6 @@ import busEventList from '~/main/events/busEventList'
 import { IRemoteNoticeTriggerHook, IWindowList } from '#/types/enum'
 import windowManager from 'apis/app/window/windowManager'
 import {
-  updateShortKeyFromVersion212,
-  migrateGalleryFromVersion230
-} from '~/main/migrate'
-import {
   uploadChoosedFiles,
   uploadClipboardFiles
 } from 'apis/app/uploader/apis'
@@ -29,7 +25,7 @@ import {
 import server from '~/main/server/index'
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import { getUploadFiles } from '~/main/utils/handleArgv'
-import db, { GalleryDB } from '~/main/apis/core/datastore'
+import db from '~/main/apis/core/datastore'
 import bus from '@core/bus'
 import logger from 'apis/core/picgo/logger'
 import picgo from 'apis/core/picgo'
@@ -62,9 +58,8 @@ const handleStartUpFiles = (argv: string[], cwd: string) => {
       uploadChoosedFiles(win.webContents, files)
     }
     return true
-  } else {
-    return false
   }
+  return false
 }
 
 autoUpdater.setFeedURL({
@@ -90,7 +85,17 @@ autoUpdater.on('update-available', (info: UpdateInfo) => {
       autoUpdater.downloadUpdate()
     }
     db.set('settings.showUpdateTip', !result.checkboxChecked)
+  }).catch((err) => {
+    logger.error(err)
   })
+})
+
+autoUpdater.on('download-progress', (progressObj) => {
+  const percent = {
+    progress: progressObj.percent
+  }
+  const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+  window.webContents.send('updateProgress', percent)
 })
 
 autoUpdater.on('update-downloaded', () => {
@@ -100,9 +105,13 @@ autoUpdater.on('update-downloaded', () => {
     buttons: ['Yes', 'No'],
     message: T('TIPS_UPDATE_DOWNLOADED')
   }).then((result) => {
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    window.webContents.send('updateProgress', { progress: 100 })
     if (result.response === 0) {
       autoUpdater.quitAndInstall()
     }
+  }).catch((err) => {
+    logger.error(err)
   })
 })
 
@@ -122,8 +131,6 @@ class LifeCycle {
     UpDownTaskQueue.getInstance()
     manageIpcList.listen()
     busEventList.listen()
-    updateShortKeyFromVersion212(db, db.get('settings.shortKey'))
-    await migrateGalleryFromVersion230(db, GalleryDB.getInstance(), picgo)
   }
 
   private onReady () {

@@ -21,14 +21,11 @@ function beforeOpen () {
  */
 function resolveMacWorkFlow () {
   const dest = `${os.homedir()}/Library/Services/Upload pictures with PicList.workflow`
-  if (fs.existsSync(dest)) {
-    return true
-  } else {
-    try {
-      fs.copySync(path.join(__static, 'Upload pictures with PicList.workflow'), dest)
-    } catch (e) {
-      console.log(e)
-    }
+  if (fs.existsSync(dest)) return true
+  try {
+    fs.copySync(path.join(__static, 'Upload pictures with PicList.workflow'), dest)
+  } catch (e) {
+    console.log(e)
   }
 }
 

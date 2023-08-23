@@ -20,6 +20,7 @@ interface ISettingForm {
   customMiniIcon: string,
   isHideDock: boolean,
   autoImport: boolean,
+  autoImportPicBed: string[],
   encodeOutputURL: boolean,
   isAutoListenClipboard: boolean,
   useShortUrl: boolean,

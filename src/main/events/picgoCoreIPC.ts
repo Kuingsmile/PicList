@@ -1,5 +1,5 @@
+// External dependencies
 import path from 'path'
-import GuiApi from 'apis/gui'
 import {
   dialog,
   shell,
@@ -7,7 +7,11 @@ import {
   ipcMain,
   clipboard
 } from 'electron'
-import { IPasteStyle, IPicGoHelperType, IWindowList } from '#/types/enum'
+
+// Electron modules
+
+// Custom utilities and modules
+import GuiApi from 'apis/gui'
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import picgo from '@core/picgo'
 import { handleStreamlinePluginName, simpleClone } from '~/universal/utils/common'
@@ -15,6 +19,16 @@ import { IGuiMenuItem, PicGo as PicGoCore } from 'piclist'
 import windowManager from 'apis/app/window/windowManager'
 import { showNotification } from '~/main/utils/common'
 import { dbPathChecker } from 'apis/core/datastore/dbChecker'
+import { GalleryDB } from 'apis/core/datastore'
+import pasteTemplate from '../utils/pasteTemplate'
+import { i18nManager, T } from '~/main/i18n'
+import { rpcServer } from './rpc'
+
+// Custom types/enums
+import { IPasteStyle, IPicGoHelperType, IWindowList } from '#/types/enum'
+import { IObject, IFilter } from '@picgo/store/dist/types'
+
+// External utility functions
 import {
   PICGO_SAVE_CONFIG,
   PICGO_GET_CONFIG,
@@ -31,12 +45,6 @@ import {
   SET_CURRENT_LANGUAGE,
   GET_CURRENT_LANGUAGE
 } from '#/events/constants'
-
-import { GalleryDB } from 'apis/core/datastore'
-import { IObject, IFilter } from '@picgo/store/dist/types'
-import pasteTemplate from '../utils/pasteTemplate'
-import { i18nManager, T } from '~/main/i18n'
-import { rpcServer } from './rpc'
 
 // eslint-disable-next-line
 const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require
@@ -188,10 +196,10 @@ const handlePluginUninstall = async (fullName: string) => {
   dispose()
 }
 
-const handlePluginUpdate = async (fullName: string) => {
+const handlePluginUpdate = async (fullName: string | string[]) => {
   const window = windowManager.get(IWindowList.SETTING_WINDOW)!
   const dispose = handleNPMError()
-  const res = await picgo.pluginHandler.update([fullName])
+  const res = await picgo.pluginHandler.update(typeof fullName === 'string' ? [fullName] : fullName)
   if (res.success) {
     window.webContents.send('updateSuccess', res.body[0])
   } else {
@@ -202,6 +210,12 @@ const handlePluginUpdate = async (fullName: string) => {
   }
   window.webContents.send('hideLoading')
   dispose()
+}
+
+const handleUpdateAllPlugin = () => {
+  ipcMain.on('updateAllPlugin', async (event: IpcMainEvent, list: string[]) => {
+    handlePluginUpdate(list)
+  })
 }
 
 const handleNPMError = (): IDispose => {
@@ -411,6 +425,7 @@ export default {
     handlePicGoGetConfig()
     handlePicGoGalleryDB()
     handleImportLocalPlugin()
+    handleUpdateAllPlugin()
     handleOpenFile()
     handleOpenWindow()
     handleI18n()

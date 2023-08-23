@@ -92,30 +92,9 @@ export class ManageLogger implements ILogger {
   ): void {
     try {
       if (this.checkLogLevel(type, this.logLevel)) {
-        let log = `${dayjs().format(
-          'YYYY-MM-DD HH:mm:ss'
-        )} [PicList ${type.toUpperCase()}] `
+        let log = `${dayjs().format('YYYY-MM-DD HH:mm:ss')} [PicList ${type.toUpperCase()}] `
         msg.forEach((item: ILogArgvTypeWithError) => {
-          if (item instanceof Error && type === 'error') {
-            log += `\n------Error Stack Begin------\n${util.format(
-              item?.stack
-            )}\n-------Error Stack End------- `
-          } else {
-            if (typeof item === 'object') {
-              if (item?.stack) {
-                log = log + `\n------Error Stack Begin------\n${util.format(
-                  item.stack
-                )}\n-------Error Stack End------- `
-              }
-              item = JSON.stringify(item, (key, value) => {
-                if (key === 'stack') {
-                  return undefined
-                }
-                return value
-              }, 2)
-            }
-            log += `${item as string} `
-          }
+          log += this.formatLogItem(item, type)
         })
         log += '\n'
         fs.appendFileSync(logPath, log)
@@ -123,6 +102,22 @@ export class ManageLogger implements ILogger {
     } catch (e) {
       console.error('[PicList Error] on writing log file', e)
     }
+  }
+
+  private formatLogItem (item: ILogArgvTypeWithError, type: string): string {
+    let result = ''
+    if (item instanceof Error && type === 'error') {
+      result += `\n------Error Stack Begin------\n${util.format(item?.stack)}\n-------Error Stack End------- `
+    } else {
+      if (typeof item === 'object') {
+        if (item?.stack) {
+          result += `\n------Error Stack Begin------\n${util.format(item.stack)}\n-------Error Stack End------- `
+        }
+        item = JSON.stringify(item, (key, value) => (key === 'stack' ? undefined : value), 2)
+      }
+      result += `${item as string} `
+    }
+    return result
   }
 
   private checkLogLevel (
@@ -134,9 +129,8 @@ export class ManageLogger implements ILogger {
     }
     if (Array.isArray(level)) {
       return level.some((item: string) => item === type || item === 'all')
-    } else {
-      return type === level
     }
+    return type === level
   }
 
   success (...msq: ILogArgvType[]): void {

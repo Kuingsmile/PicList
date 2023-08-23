@@ -1,6 +1,11 @@
+// External dependencies
+import { app, clipboard, shell } from 'electron'
+
+// Electron modules
+
+// Custom utilities and modules
 import { IRPCActionType } from '~/universal/types/enum'
 import { RPCRouter } from '../router'
-import { app, clipboard, shell } from 'electron'
 
 const systemRouter = new RPCRouter()
 

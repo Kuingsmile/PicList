@@ -1,9 +1,20 @@
+// UUID
 import { v4 as uuidv4 } from 'uuid'
+
+// 路径处理库
 import path from 'path'
+
+// 加密库
 import crypto from 'crypto'
+
+// 可用图标列表
 import { availableIconList } from './icon'
+
+// 数据发送工具函数
 import { getConfig } from './dataSender'
-import { handleUrlEncode } from '~/universal/utils/common'
+
+// 工具函数
+import { handleUrlEncode, safeSliceF, isNeedToShorten } from '~/universal/utils/common'
 
 export function randomStringGenerator (length: number): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -41,15 +52,17 @@ export function renameFileNameWithCustomString (oldName: string, customFormat: s
   }, customFormat) + ext
 }
 
-export function renameFile (typeMap : IStringKeyMap, oldName: string): string {
-  if (typeMap.timestampRename) {
-    return renameFileNameWithTimestamp(oldName)
-  } else if (typeMap.randomStringRename) {
-    return renameFileNameWithRandomString(oldName, 20)
-  } else if (typeMap.customRename) {
-    return renameFileNameWithCustomString(oldName, typeMap.customRenameFormat)
+export function renameFile ({ timestampRename, randomStringRename, customRename, customRenameFormat }: IStringKeyMap, oldName = ''): string {
+  switch (true) {
+    case timestampRename:
+      return renameFileNameWithTimestamp(oldName)
+    case randomStringRename:
+      return renameFileNameWithRandomString(oldName, 20)
+    case customRename:
+      return renameFileNameWithCustomString(oldName, customRenameFormat)
+    default:
+      return oldName
   }
-  return oldName
 }
 
 export async function formatLink (url: string, fileName: string, type: string, format?: string) : Promise<string> {
@@ -92,7 +105,7 @@ export function formatFileName (fileName: string, length: number = 20) {
   let ext = path.extname(fileName)
   ext = ext.length > 5 ? ext.slice(ext.length - 5) : ext
   const name = path.basename(fileName, ext)
-  return name.length > length ? `${name.slice(0, length)}...${ext}` : fileName
+  return isNeedToShorten(fileName, length) ? `${safeSliceF(name, length - 3 - ext.length)}...${ext}` : fileName
 }
 
 export const getExtension = (fileName: string) => path.extname(fileName).slice(1)
@@ -123,7 +136,7 @@ export interface IHTTPProxy {
 }
 
 export const formatHttpProxy = (proxy: string | undefined, type: 'object' | 'string'): IHTTPProxy | undefined | string => {
-  if (proxy === undefined || proxy === '') return undefined
+  if (!proxy) return undefined
   if (/^https?:\/\//.test(proxy)) {
     const { protocol, hostname, port } = new URL(proxy)
     return type === 'string'
@@ -133,16 +146,15 @@ export const formatHttpProxy = (proxy: string | undefined, type: 'object' | 'str
         port: Number(port),
         protocol: protocol.slice(0, -1)
       }
-  } else {
-    const [host, port] = proxy.split(':')
-    return type === 'string'
-      ? `http://${host}:${port}`
-      : {
-        host,
-        port: port ? Number(port) : 80,
-        protocol: 'http'
-      }
   }
+  const [host, port] = proxy.split(':')
+  return type === 'string'
+    ? `http://${host}:${port}`
+    : {
+      host,
+      port: port ? Number(port) : 80,
+      protocol: 'http'
+    }
 }
 
 export const svg = `

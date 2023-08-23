@@ -14,6 +14,17 @@
         </el-icon>
       </el-tooltip>
       <el-tooltip
+        :content="updateAllToolTip"
+        placement="left"
+      >
+        <el-icon
+          class="el-icon-update"
+          @click="handleUpdateAllPlugin"
+        >
+          <Refresh />
+        </el-icon>
+      </el-tooltip>
+      <el-tooltip
         :content="importLocalPluginToolTip"
         placement="left"
       >
@@ -58,8 +69,8 @@
         :xs="24"
         :sm="pluginList.length === 1 ? 24 : 12"
         :md="pluginList.length === 1 ? 24 : 12"
-        :lg="pluginList.length === 1 ? 24 : 6"
-        :xl="pluginList.length === 1 ? 24 : 6"
+        :lg="pluginList.length === 1 ? 24 : 12"
+        :xl="pluginList.length === 1 ? 24 : 12"
       >
         <div
           class="plugin-item"
@@ -85,7 +96,17 @@
               class="plugin-item__name"
               @click="openHomepage(item.homepage)"
             >
-              {{ item.name }} <small>{{ ' ' + item.version }}</small>
+              {{ item.name }} <small>{{ ' ' + item.version }}</small> &nbsp;
+              <!-- 升级提示 -->
+              <el-tag
+                v-if="latestVersionMap[item.fullName] && latestVersionMap[item.fullName] !== item.version"
+                type="success"
+                size="small"
+                round
+                effect="plain"
+              >
+                new
+              </el-tag>
             </div>
             <div
               class="plugin-item__desc"
@@ -134,7 +155,7 @@
                       class="el-icon-setting"
                       @click="buildContextMenu(item)"
                     >
-                      <Setting />
+                      <Tools />
                     </el-icon>
                     <el-icon
                       v-else
@@ -200,15 +221,28 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { Close, Download, Goods, Remove, Setting } from '@element-plus/icons-vue'
+// Element Plus 图标
+import { Close, Download, Refresh, Goods, Remove, Tools } from '@element-plus/icons-vue'
+
+// 国际化函数
 import { T as $T } from '@/i18n/index'
+
+// 组件
 import ConfigForm from '@/components/ConfigFormForPlugin.vue'
+
+// Lodash 函数节流
 import { debounce, DebouncedFunc } from 'lodash'
+
+// Electron 相关
 import {
   ipcRenderer,
   IpcRendererEvent
 } from 'electron'
+
+// 工具函数
 import { handleStreamlinePluginName } from '~/universal/utils/common'
+
+// 事件常量
 import {
   OPEN_URL,
   PICGO_CONFIG_PLUGIN,
@@ -218,10 +252,20 @@ import {
   GET_PICBEDS,
   PICGO_HANDLE_PLUGIN_DONE
 } from '#/events/constants'
-import { computed, ref, onBeforeMount, onBeforeUnmount, watch, onMounted } from 'vue'
+
+// Vue 相关
+import { computed, ref, onBeforeMount, onBeforeUnmount, watch, onMounted, reactive, toRaw } from 'vue'
+
+// 数据发送工具函数
 import { getConfig, saveConfig, sendRPC, sendToMain } from '@/utils/dataSender'
+
+// Element Plus 消息框组件
 import { ElMessageBox } from 'element-plus'
+
+// Axios
 import axios from 'axios'
+
+// 枚举类型声明
 import { IRPCActionType } from '~/universal/types/enum'
 
 const $confirm = ElMessageBox.confirm
@@ -234,8 +278,10 @@ const dialogVisible = ref(false)
 const pluginNameList = ref<string[]>([])
 const loading = ref(true)
 const needReload = ref(false)
+const latestVersionMap = reactive<{ [key: string]: string }>({})
 const pluginListToolTip = $T('PLUGIN_LIST')
 const importLocalPluginToolTip = $T('PLUGIN_IMPORT_LOCAL')
+const updateAllToolTip = $T('PLUGIN_UPDATE_ALL')
 // const id = ref('')
 const os = ref('')
 const defaultLogo = ref(`this.src="file://${__static.replace(/\\/g, '/')}/roundLogo.png"`)
@@ -269,6 +315,15 @@ watch(dialogVisible, (val: boolean) => {
   }
 })
 
+async function getLatestVersionOfPlugIn (pluginName: string) {
+  try {
+    const res = await axios.get(`https://registry.npmjs.com/${pluginName}`)
+    latestVersionMap[pluginName] = res.data['dist-tags'].latest
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 onBeforeMount(async () => {
   os.value = process.platform
   ipcRenderer.on('hideLoading', () => {
@@ -285,6 +340,9 @@ onBeforeMount(async () => {
   ipcRenderer.on('pluginList', (evt: IpcRendererEvent, list: IPicGoPlugin[]) => {
     pluginList.value = list
     pluginNameList.value = list.map(item => item.fullName)
+    for (const item of pluginList.value) {
+      getLatestVersionOfPlugIn(item.fullName)
+    }
     loading.value = false
   })
   ipcRenderer.on('installPlugin', (evt: IpcRendererEvent, { success, body }: {
@@ -545,6 +603,10 @@ function handleImportLocalPlugin () {
   loading.value = true
 }
 
+function handleUpdateAllPlugin () {
+  sendToMain('updateAllPlugin', toRaw(pluginNameList.value))
+}
+
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
   ipcRenderer.removeAllListeners('pluginList')
@@ -598,9 +660,19 @@ $darwinBg = #172426
       transition color .2s ease-in-out
       &:hover
         color #49B1F5
+    i.el-icon-update
+      position absolute
+      right 35px
+      top 8px
+      font-size 20px
+      vertical-align middle
+      cursor pointer
+      transition color .2s ease-in-out
+      &:hover
+        color #49B1F5
     i.el-icon-download
       position absolute
-      right 0
+      right 5px
       top 8px
       font-size 20px
       vertical-align middle

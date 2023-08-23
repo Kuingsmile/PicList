@@ -151,6 +151,7 @@ interface IPicGoPlugin {
   guiMenu?: any[]
   ing: boolean
   hasInstall?: boolean
+  [propName: string]: any
 }
 
 interface IPicGoPluginConfig {

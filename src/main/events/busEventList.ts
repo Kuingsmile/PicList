@@ -1,4 +1,9 @@
+// External dependencies
 import bus from '@core/bus'
+
+// Electron modules
+
+// Custom utilities and modules
 import {
   uploadClipboardFiles,
   uploadChoosedFiles
@@ -6,8 +11,12 @@ import {
 import {
   createMenu
 } from 'apis/app/system'
-import { IWindowList } from '#/types/enum'
 import windowManager from 'apis/app/window/windowManager'
+
+// Custom types/enums
+import { IWindowList } from '#/types/enum'
+
+// External utility functions
 import {
   UPLOAD_WITH_FILES,
   UPLOAD_WITH_FILES_RESPONSE,
@@ -19,6 +28,7 @@ import {
   GET_SETTING_WINDOW_ID_RESPONSE,
   CREATE_APP_MENU
 } from '@core/bus/constants'
+
 function initEventCenter () {
   const eventList: any = {
     'picgo:upload': uploadClipboardFiles,

@@ -1,10 +1,15 @@
+// External dependencies
+import fs from 'fs-extra'
+import { cloneDeep } from 'lodash'
+
+// Electron modules
 import {
   Notification,
   WebContents
 } from 'electron'
+
+// Custom utilities and modules
 import windowManager from 'apis/app/window/windowManager'
-import { IWindowList } from '#/types/enum'
-import uploader from '.'
 import pasteTemplate from '~/main/utils/pasteTemplate'
 import db, { GalleryDB } from '~/main/apis/core/datastore'
 import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/main/utils/common'
@@ -12,8 +17,13 @@ import { T } from '~/main/i18n/index'
 import ALLApi from '@/apis/allApi'
 import picgo from '@core/picgo'
 import GuiApi from '../../gui'
-import fs from 'fs-extra'
-import { cloneDeep } from 'lodash'
+import uploader from '.'
+import { IWindowList } from '#/types/enum'
+import { picBedsCanbeDeleted } from '#/utils/static'
+import path from 'path'
+import SSHClient from '~/main/utils/sshClient'
+import { ISftpPlistConfig } from 'piclist'
+import { getRawData } from '~/renderer/utils/common'
 
 const handleClipboardUploading = async (): Promise<false | ImgInfo[]> => {
   const useBuiltinClipboard = db.get('settings.useBuiltinClipboard') === undefined ? true : !!db.get('settings.useBuiltinClipboard')
@@ -120,9 +130,23 @@ export const uploadChoosedFiles = async (webContents: WebContents, files: IFileW
   }
 }
 
+async function deleteWebdavFile (config: ISftpPlistConfig, fileName: string) {
+  try {
+    const client = SSHClient.instance
+    await client.connect(config)
+    const uploadPath = `/${(config.uploadPath || '')}/`.replace(/\/+/g, '/')
+    const remote = path.join(uploadPath, fileName)
+    const deleteResult = await client.deleteFile(remote)
+    client.close()
+    return deleteResult
+  } catch (err: any) {
+    console.error(err)
+    return false
+  }
+}
+
 export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> => {
   const result = []
-  const picBedsCanbeDeleted = ['smms', 'github', 'imgur', 'tcyun', 'aliyun', 'qiniu', 'upyun', 'aws-s3', 'webdavplist']
   for (const item of list) {
     if (item.id) {
       try {
@@ -130,23 +154,23 @@ export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> =>
         const file = await dbStore.removeById(item.id)
         if (await picgo.getConfig('settings.deleteCloudFile')) {
           if (item.type !== undefined && picBedsCanbeDeleted.includes(item.type)) {
-            setTimeout(() => {
-              ALLApi.delete(item).then((value: boolean) => {
-                if (value) {
-                  const notification = new Notification({
-                    title: T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
-                    body: T('GALLERY_SYNC_DELETE_NOTICE_SUCCEED')
-                  })
-                  notification.show()
-                } else {
-                  const notification = new Notification({
-                    title: T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
-                    body: T('GALLERY_SYNC_DELETE_NOTICE_FAILED')
-                  })
-                  notification.show()
-                }
+            const noteFunc = (value: boolean) => {
+              const notification = new Notification({
+                title: T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
+                body: T(value ? 'GALLERY_SYNC_DELETE_NOTICE_SUCCEED' : 'GALLERY_SYNC_DELETE_NOTICE_FAILED')
               })
-            }, 0)
+              notification.show()
+            }
+            if (item.type === 'webdavplist') {
+              const { fileName, config } = item
+              setTimeout(() => {
+                deleteWebdavFile(getRawData(config), fileName || '').then(noteFunc)
+              }, 0)
+            } else {
+              setTimeout(() => {
+                ALLApi.delete(item).then(noteFunc)
+              }, 0)
+            }
           }
         }
         setTimeout(() => {

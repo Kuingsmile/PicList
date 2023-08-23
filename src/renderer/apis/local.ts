@@ -8,7 +8,7 @@ export default class LocalApi {
   static async delete (configMap: IConfigMap): Promise<boolean> {
     const { hash } = configMap
     if (!hash) {
-      console.error('SmmsApi.delete: invalid params')
+      console.error('Local.delete: invalid params')
       return false
     }
 

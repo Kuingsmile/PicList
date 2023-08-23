@@ -47,6 +47,15 @@
         </el-icon>
       </div>
     </div>
+    <el-progress
+      v-if="progressShow"
+      :percentage="progressPercentage"
+      :stroke-width="7"
+      :text-inside="true"
+      :show-text="false"
+      status="success"
+      class="progress-bar"
+    />
     <el-row
       style="padding-top: 22px;"
       class="main-content"
@@ -105,7 +114,7 @@
           </el-sub-menu>
           <el-menu-item :index="routerConfig.SETTING_PAGE">
             <el-icon>
-              <Setting />
+              <Tools />
             </el-icon>
             <span>{{ $T('PICLIST_SETTINGS') }}</span>
           </el-menu-item>
@@ -233,9 +242,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-// import { Component, Vue, Watch } from 'vue-property-decorator'
+// Element Plus 图标
 import {
-  Setting,
+  Tools,
   UploadFilled,
   PictureFilled,
   Menu,
@@ -248,20 +257,42 @@ import {
   Link,
   ArrowUpBold
 } from '@element-plus/icons-vue'
+
+// Element Plus 消息框组件
 import { ElMessage as $message, ElMessageBox } from 'element-plus'
+
+// 国际化函数
 import { T as $T } from '@/i18n/index'
+
+// Vue 相关
 import { ref, onBeforeUnmount, Ref, onBeforeMount, watch, nextTick, reactive } from 'vue'
+
+// Vue Router 相关
 import { onBeforeRouteUpdate, useRouter } from 'vue-router'
+
+// 二维码组件
 import QrcodeVue from 'qrcode.vue'
+
+// Lodash pick 函数
 import pick from 'lodash/pick'
+
+// 根目录 package.json
 import pkg from 'root/package.json'
+
+// 路由配置常量
 import * as config from '@/router/config'
+
+// Electron 相关
 import {
   ipcRenderer,
   IpcRendererEvent,
   clipboard
 } from 'electron'
+
+// 输入框对话框组件
 import InputBoxDialog from '@/components/InputBoxDialog.vue'
+
+// 事件常量
 import {
   MINIMIZE_WINDOW,
   CLOSE_WINDOW,
@@ -271,8 +302,13 @@ import {
   GET_PICBEDS,
   OPEN_URL
 } from '~/universal/events/constants'
+
+// 数据发送工具函数
 import { getConfig, sendToMain } from '@/utils/dataSender'
+
+// Piclist 配置类型声明
 import { IConfig } from 'piclist'
+
 const version = ref(process.env.NODE_ENV === 'production' ? pkg.version : 'Dev')
 const routerConfig = reactive(config)
 const defaultActive = ref(routerConfig.UPLOAD_PAGE)
@@ -284,8 +320,10 @@ const qrcodeVisible = ref(false)
 const picBedConfigString = ref('')
 const choosedPicBedForQRCode: Ref<string[]> = ref([])
 const isAlwaysOnTop = ref(false)
-
 const keepAlivePages = $router.getRoutes().filter(item => item.meta.keepAlive).map(item => item.name as string)
+
+const progressShow = ref(false)
+const progressPercentage = ref(0)
 
 onBeforeMount(() => {
   os.value = process.platform
@@ -297,6 +335,10 @@ onBeforeMount(() => {
   })
   ipcRenderer.on(SHOW_MAIN_PAGE_DONATION, () => {
     visible.value = true
+  })
+  ipcRenderer.on('updateProgress', (_event: IpcRendererEvent, data: { progress: number}) => {
+    progressShow.value = data.progress !== 100 && data.progress !== 0
+    progressPercentage.value = data.progress
   })
 })
 
@@ -393,6 +435,9 @@ onBeforeRouteUpdate(async (to) => {
 
 onBeforeUnmount(() => {
   ipcRenderer.removeListener(GET_PICBEDS, getPicBeds)
+  ipcRenderer.removeAllListeners(SHOW_MAIN_PAGE_QRCODE)
+  ipcRenderer.removeAllListeners(SHOW_MAIN_PAGE_DONATION)
+  ipcRenderer.removeAllListeners('updateProgress')
 })
 
 </script>

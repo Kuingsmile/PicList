@@ -1,10 +1,10 @@
-ea/*
+/*
  *UI布局和部分样式代码参考了https://github.com/willnewii/qiniuClient
  *感谢作者@willnewii
  */
 <template>
   <div
-    v-loading="showLoadingPage"
+    v-loading="isShowLoadingPage"
     :element-loading-text="$T('MANAGE_BUCKET_PAGE_LOADING_TEXT')"
     :element-loading-spinner="svg"
     element-loading-svg-view-box="0, 0, 50, 50"
@@ -15,22 +15,22 @@ ea/*
         style="flex-grow: 1;margin-left: 16px"
       >
         <el-select
-          v-if="showCustomUrlSelectList && customUrlList.length > 1 && isAutoCustomUrl"
-          v-model="currentCustomUrl"
+          v-if="isShowCustomDomainSelectList && customDomainList.length > 1 && isAutoCustomDomain"
+          v-model="currentCustomDomain"
           :placeholder="$T('MANAGE_BUCKET_PAGE_CUSTOM_URL_SELECT_PLACEHOLDER')"
           style="width: 200px;"
           @change="handleChangeCustomUrl"
         >
           <el-option
-            v-for="item in customUrlList"
+            v-for="item in customDomainList"
             :key="item"
             :label="item.label"
             :value="item.value"
           />
         </el-select>
         <el-input
-          v-else-if="showCustomUrlInput"
-          v-model="currentCustomUrl"
+          v-else-if="isShowCustomDomainInput"
+          v-model="currentCustomDomain"
           :placeholder="$T('MANAGE_BUCKET_PAGE_CUSTOM_URL_INPUT_PLACEHOLDER')"
           style="width: 200px;"
           @blur="handleChangeCustomUrl"
@@ -39,9 +39,9 @@ ea/*
           v-else
           :underline="false"
           type="primary"
-          @click="copyToClipboard(currentCustomUrl)"
+          @click="copyToClipboard(currentCustomDomain)"
         >
-          {{ currentCustomUrl }}
+          {{ currentCustomDomain }}
         </el-link>
       </div>
       <div
@@ -59,7 +59,7 @@ ea/*
               class="icon"
               size="25px"
             >
-              <DocumentAdd />
+              <Upload />
             </el-icon>
           </el-tooltip>
         </el-button>
@@ -80,13 +80,13 @@ ea/*
               size="25px"
               style="margin-left: 5px;"
             >
-              <Upload />
+              <UploadFilled />
             </el-icon>
           </el-tooltip>
         </el-button>
       </div>
       <div
-        v-if="showCreateNewFolder"
+        v-if="isShowCreateNewFolder"
       >
         <el-button
           type="text"
@@ -167,9 +167,9 @@ ea/*
                 <Link />
               </el-icon>
               <template #dropdown>
-                <template v-if="showPresignedUrl">
+                <template v-if="isShowPresignedUrl">
                   <el-dropdown-item
-                    v-for="i in [...linkArray, { key: 'preSignURL', value: 'preSignedUrl' }]"
+                    v-for="i in [...linkFormatArray, { key: 'preSignURL', value: 'preSignedUrl' }]"
                     :key="i.key"
                     @click="handleBatchCopyLink(i.value)"
                   >
@@ -177,7 +177,7 @@ ea/*
                   </el-dropdown-item>
                 </template>
                 <el-dropdown-item
-                  v-for="i in linkArray"
+                  v-for="i in linkFormatArray"
                   v-else
                   :key="i.value+i.key"
                   @click="handleBatchCopyLink(i.value)"
@@ -402,18 +402,18 @@ ea/*
       >
         <el-button
           :icon="Grid"
-          :type="showFileStyle === 'grid' ? 'primary' : 'info'"
+          :type="layoutStyle === 'grid' ? 'primary' : 'info'"
           @click="handleViewChange('grid')"
         />
         <el-button
           :icon="Fold"
-          :type="showFileStyle === 'list' ? 'primary' : 'info'"
+          :type="layoutStyle === 'list' ? 'primary' : 'info'"
           @click="handleViewChange('list')"
         />
       </el-button-group>
       <el-input-number
         v-if="paging"
-        v-model="currentPage"
+        v-model="currentPageNumber"
         :min="1"
         size="small"
         :disabled="!paging"
@@ -451,7 +451,7 @@ https://www.baidu.com/img/bd_logo1.png"
       </template>
     </el-dialog>
     <div
-      v-show="showFileStyle === 'list'"
+      v-show="layoutStyle === 'list'"
       class="layout-table"
       style="margin: 0 15px 15px 15px;overflow-y: auto;overflow-x: hidden;height: 80vh;"
     >
@@ -460,7 +460,7 @@ https://www.baidu.com/img/bd_logo1.png"
           #default="{ height, width }"
         >
           <el-table-v2
-            ref="elTable"
+            ref="fileTable"
             :columns="columns "
             :data="currentPageFilesInfo"
             :row-class="rowClass"
@@ -471,7 +471,7 @@ https://www.baidu.com/img/bd_logo1.png"
       </el-auto-resizer>
     </div>
     <div
-      v-show="showFileStyle === 'grid'"
+      v-show="layoutStyle === 'grid'"
       class="layout-grid"
       style="margin: 0 15px 15px 15px;overflow-y: auto;overflow-x: hidden;height: 80vh;"
     >
@@ -497,7 +497,7 @@ https://www.baidu.com/img/bd_logo1.png"
               shadow="hover"
             >
               <el-image
-                v-if="!item.isDir && currentPicBedName !== 'webdavplist'"
+                v-if="!item.isDir && currentPicBedName !== 'webdavplist' && currentPicBedName !== 'sftp' && currentPicBedName !== 'local'"
                 :src="isShowThumbnail && item.isImage ?
                   item.url
                   : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)"
@@ -519,11 +519,25 @@ https://www.baidu.com/img/bd_logo1.png"
                 </template>
               </el-image>
               <ImageWebdav
-                v-else-if="!item.isDir && currentPicBedName === 'webdavplist'"
+                v-else-if="!item.isDir && currentPicBedName === 'webdavplist' && item.isImage"
                 :is-show-thumbnail="isShowThumbnail"
                 :item="item"
                 :headers="getBase64ofWebdav()"
                 :url="item.url"
+                @click="handleClickFile(item)"
+              />
+              <ImageLocal
+                v-else-if="!item.isDir && currentPicBedName === 'local' && item.isImage"
+                :is-show-thumbnail="isShowThumbnail"
+                :item="item"
+                :local-path="item.key"
+                @click="handleClickFile(item)"
+              />
+              <el-image
+                v-else-if="!item.isDir"
+                :src="require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)"
+                fit="contain"
+                style="height: 100px;width: 100%;margin: 0 auto;"
                 @click="handleClickFile(item)"
               />
               <el-image
@@ -547,7 +561,7 @@ https://www.baidu.com/img/bd_logo1.png"
                     :underline="false"
                     :type="item.checked ? 'primary' : 'info'"
                   >
-                    {{ formatFileName(item.fileName ?? '', 8) }}
+                    {{ formatFileName(item.fileName ?? '', 15) }}
                   </el-link>
                 </el-tooltip>
               </div>
@@ -558,8 +572,8 @@ https://www.baidu.com/img/bd_logo1.png"
               >
                 <el-row>
                   <el-icon
-                    v-if="!item.isDir && showRenameFileIcon"
-                    size="20"
+                    v-if="!item.isDir && isShowRenameFileIcon"
+                    size="15"
                     style="cursor: pointer;"
                     color="#409EFF"
                     @click="handleRenameFile(item)"
@@ -568,7 +582,7 @@ https://www.baidu.com/img/bd_logo1.png"
                   </el-icon>
                   <el-icon
                     v-if="item.isDir"
-                    size="20"
+                    size="15"
                     style="cursor: pointer;"
                     color="crimson"
                     @click="handleFolderBatchDownload(item)"
@@ -578,7 +592,7 @@ https://www.baidu.com/img/bd_logo1.png"
                   <el-dropdown>
                     <template #default>
                       <el-icon
-                        size="20"
+                        size="15"
                         style="cursor: pointer;"
                         color="#409EFF"
                         @click="async () => {
@@ -633,7 +647,7 @@ https://www.baidu.com/img/bd_logo1.png"
                           {{ $T('MANAGE_BUCKET_URL_FORMAT_CUSTOM') }}
                         </el-dropdown-item>
                         <el-dropdown-item
-                          v-if="showPresignedUrl"
+                          v-if="isShowPresignedUrl"
                           @click="async () => {
                             copyToClipboard(await getPreSignedUrl(item))
                           }"
@@ -644,7 +658,7 @@ https://www.baidu.com/img/bd_logo1.png"
                     </template>
                   </el-dropdown>
                   <el-icon
-                    size="20"
+                    size="15"
                     style="cursor: pointer;"
                     color="#409EFF"
                     @click="handleShowFileInfo(item)"
@@ -652,7 +666,7 @@ https://www.baidu.com/img/bd_logo1.png"
                     <Document />
                   </el-icon>
                   <el-icon
-                    size="20"
+                    size="15"
                     style="cursor: pointer;"
                     color="#FFB6C1"
                     @click="handleDeleteFile(item)"
@@ -672,12 +686,12 @@ https://www.baidu.com/img/bd_logo1.png"
       </el-col>
     </div>
     <el-image-viewer
-      v-if="showImagePreview"
+      v-if="isShowImagePreview"
       :url-list="ImagePreviewList"
       :initial-index="getCurrentPreviewIndex"
       infinite
       hide-on-click-modal
-      @close="showImagePreview = false"
+      @close="isShowImagePreview = false"
     />
     <el-dialog
       v-model="isShowFileInfo"
@@ -690,7 +704,7 @@ https://www.baidu.com/img/bd_logo1.png"
         <el-button
           type="primary"
           plain
-          @click="copyToClipboard(JSON.stringify(showedFileInfo,null,2))"
+          @click="copyToClipboard(JSON.stringify(currentShowedFileInfo,null,2))"
         >
           <template #icon>
             <el-icon>
@@ -701,7 +715,7 @@ https://www.baidu.com/img/bd_logo1.png"
         </el-button>
       </template>
       <el-row
-        v-for="(value, key) in showedFileInfo"
+        v-for="(value, key) in currentShowedFileInfo"
         :key="key"
         :gutter="20"
         :style="{ margin: '10px 0', textAlign: 'center', fontFamily: 'Arial, Helvetica, sans-serif' }"
@@ -766,11 +780,11 @@ https://www.baidu.com/img/bd_logo1.png"
       </template>
       <div
         id="upload-area"
-        :class="{ 'is-dragover': dragover }"
+        :class="{ 'is-dragover': isDragover }"
         styel="position: fixed;bottom: 0;right: 0;heigth: 100%;width: 100%;"
         @drop.prevent="onDrop"
-        @dragover.prevent="dragover = true"
-        @dragleave.prevent="dragover = false"
+        @dragover.prevent="isDragover = true"
+        @dragleave.prevent="isDragover = false"
         @click="openFileSelectDialog"
       >
         <div
@@ -1408,16 +1422,37 @@ https://www.baidu.com/img/bd_logo1.png"
 </template>
 
 <script lang="tsx" setup>
+// Vue 相关
 import { ref, reactive, watch, onBeforeMount, computed, onBeforeUnmount } from 'vue'
+
+// Vue Router 相关
 import { useRoute } from 'vue-router'
-import { InfoFilled, Grid, Fold, Close, Folder, FolderAdd, Upload, CircleClose, Loading, CopyDocument, Edit, DocumentAdd, Link, Refresh, ArrowRight, HomeFilled, Document, Coin, Download, DeleteFilled, Sort, FolderOpened } from '@element-plus/icons-vue'
+
+// Element Plus 图标
+import { InfoFilled, Grid, Fold, Close, Folder, FolderAdd, Upload, CircleClose, Loading, CopyDocument, Edit, UploadFilled, Link, Refresh, ArrowRight, HomeFilled, Document, Coin, Download, DeleteFilled, Sort, FolderOpened } from '@element-plus/icons-vue'
+
+// 状态管理相关
 import { useManageStore } from '../store/manageStore'
+
+// 工具函数
 import { customRenameFormatTable, customStrMatch, customStrReplace, renameFile, formatLink, formatFileName, getFileIconPath, formatFileSize, getExtension, isValidUrl, svg } from '../utils/common'
+
+// 静态工具函数
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '../utils/static'
+
+// Electron 相关
 import { ipcRenderer, clipboard, IpcRendererEvent } from 'electron'
+
+// 数据库操作
 import { fileCacheDbInstance } from '../store/bucketFileDb'
+
+// 工具函数
 import { trimPath } from '~/main/manage/utils/common'
+
+// Axios
 import axios from 'axios'
+
+// Element Plus 组件
 import {
   ElMessage, ElMessageBox, ElNotification,
   ElButton,
@@ -1434,18 +1469,42 @@ import {
   ElTag,
   ElCard
 } from 'element-plus'
+
+// 类型声明
 import type { Column, RowClassNameGetter } from 'element-plus'
+
+// 状态管理相关
 import { useFileTransferStore, useDownloadFileTransferStore } from '@/manage/store/manageStore'
+
+// UUID
 import { v4 as uuidv4 } from 'uuid'
+
+// 路径处理库
 import path from 'path'
-import { IUploadTask, IDownloadTask } from '~/main/manage/datastore/upDownTaskQueue'
+
+// 文件系统库
 import fs from 'fs-extra'
+
+// 数据发送工具函数
 import { getConfig, saveConfig } from '../utils/dataSender'
+
+// Markdown 解析库
 import { marked } from 'marked'
+
+// 文本文件扩展名列表
 import { textFileExt } from '../utils/textfile'
+
+// 视频文件扩展名列表
 import { videoExt } from '../utils/videofile'
+
+// 组件
 import ImageWebdav from '@/components/ImageWebdav.vue'
+import ImageLocal from '@/components/ImageLocal.vue'
+
+// 国际化函数
 import { T as $T } from '@/i18n'
+
+import { IUploadTask, IDownloadTask } from '~/main/manage/datastore/upDownTaskQueue'
 
 /*
 configMap:{
@@ -1459,7 +1518,7 @@ configMap:{
 }
 */
 
-const linkArray = [
+const linkFormatArray = [
   { key: 'Url', value: 'url' },
   { key: 'Markdown', value: 'markdown' },
   { key: 'Markdown-link', value: 'markdown-with-link' },
@@ -1468,50 +1527,75 @@ const linkArray = [
   { key: 'Custom', value: 'custom' }
 ]
 
+// 路由相关
+const route = useRoute()
+// 页面状态变量相关
 const manageStore = useManageStore()
+const configMap = reactive(JSON.parse(route.query.configMap as string))
+// 页面布局控制
+const isLoadingData = ref(false)
+const isShowLoadingPage = ref(false)
+const isShowImagePreview = ref(false)
+const layoutStyle = ref<'list' | 'grid'>('grid')
+// 文件信息相关
+const fileTable = ref(null as any)
+const isShowFileInfo = ref(false)
+const currentShowedFileInfo = ref({} as any)
+// 分页相关
+const currentPageNumber = ref(1)
 const pagingMarker = ref('')
 const pagingMarkerStack = reactive([] as string[])
-const currentPrefix = ref('/')
-const currentPage = ref(1)
-const fileSortNameReverse = ref(false)
-const fileSortTimeReverse = ref(false)
-const fileSortSizeReverse = ref(false)
-const fileSortExtReverse = ref(false)
 const currentPageFilesInfo = reactive([] as any[])
-const currentDownloadFileList = reactive([] as any[])
-const route = useRoute()
-const configMap = reactive(JSON.parse(route.query.configMap as string))
-const selectedItems = reactive([] as any[])
+// 当前路径前缀
+const currentPrefix = ref('/')
+// 文件排序控制
+const fileSortExtReverse = ref(false)
+const fileSortNameReverse = ref(false)
+const fileSortSizeReverse = ref(false)
+const fileSortTimeReverse = ref(false)
+// 页面搜索相关
 const searchText = ref('')
-const urlToUpload = ref('')
+const selectedItems = reactive([] as any[])
+// 上传页面相关
+const isDragover = ref(false)
+const tableData = reactive([] as any[])
+const isShowUploadPanel = ref(false)
+const activeUpLoadTab = ref('uploading')
+const uploadTaskList = ref([] as IUploadTask[])
+const refreshUploadTaskId = ref<NodeJS.Timer | null>(null)
+const uploadPanelFilesList = ref([] as any[])
+const cancelToken = ref('')
+const isLoadingUploadPanelFiles = ref(false)
+const isUploadKeepDirStructure = computed(() => manageStore.config.settings.isUploadKeepDirStructure ?? true)
+const uploadingTaskList = computed(() => uploadTaskList.value.filter(item => ['uploading', 'queuing', 'paused'].includes(item.status)))
+const uploadedTaskList = computed(() => uploadTaskList.value.filter(item => ['uploaded', 'failed', 'canceled'].includes(item.status)))
+// 下载页面相关
+const isShowDownloadPanel = ref(false)
+const isLoadingDownloadData = ref(false)
+const activeDownLoadTab = ref('downloading')
+const currentDownloadFileList = reactive([] as any[])
+const downloadTaskList = ref([] as IDownloadTask[])
+const refreshDownloadTaskId = ref<NodeJS.Timer | null>(null)
+const downloadCancelToken = ref('')
+const downloadingTaskList = computed(() => downloadTaskList.value.filter(item => ['downloading', 'queuing', 'paused'].includes(item.status)))
+const downloadedTaskList = computed(() => downloadTaskList.value.filter(item => ['downloaded', 'failed', 'canceled'].includes(item.status)))
+// 上传文件相关
 const dialogVisible = ref(false)
-const showLoadingPage = ref(false)
-const showImagePreview = ref(false)
+const urlToUpload = ref('')
+// 图片预览相关
 const previewedImage = ref('')
-const isShowFileInfo = ref(false)
-const showedFileInfo = ref({} as any)
-const elTable = ref(null as any)
+const ImagePreviewList = computed(() => currentPageFilesInfo.filter(item => item.isImage).map(item => item.url))
+const getCurrentPreviewIndex = computed(() => ImagePreviewList.value.indexOf(previewedImage.value))
+// 快捷键相关
 const isShiftKeyPress = ref<boolean>(false)
 const lastChoosed = ref<number>(-1)
-const isLoadingData = ref(false)
-const isLoadingDownloadData = ref(false)
-const cancelToken = ref('')
-const downloadCancelToken = ref('')
-const isShowUploadPanel = ref(false)
-const isShowDownloadPanel = ref(false)
-const dragover = ref(false)
-const activeUpLoadTab = ref('uploading')
-const activeDownLoadTab = ref('downloading')
-// 上传任务列表
-const uploadTaskList = ref([] as IUploadTask[])
-const downloadTaskList = ref([] as IDownloadTask[])
-const refreshUploadTaskId = ref<NodeJS.Timer | null>(null)
-const refreshDownloadTaskId = ref<NodeJS.Timer | null>(null)
-const uploadPanelFilesList = ref([] as any[])
-const isLoadingUploadPanelFiles = ref(false)
-const tableData = reactive([] as any[])
-const customUrlList = ref([] as any[])
-const currentCustomUrl = ref('')
+// 自定义域名相关
+const customDomainList = ref([] as any[])
+const currentCustomDomain = ref('')
+const isShowCustomDomainSelectList = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value))
+const isShowCustomDomainInput = computed(() => ['aliyun', 'qiniu', 'tcyun', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value))
+const isAutoCustomDomain = computed(() => manageStore.config.picBed[configMap.alias].isAutoCustomUrl === undefined ? true : manageStore.config.picBed[configMap.alias].isAutoCustomUrl)
+// 文件预览相关
 const isShowMarkDownDialog = ref(false)
 const markDownContent = ref('')
 const isShowTextFileDialog = ref(false)
@@ -1519,8 +1603,8 @@ const textfileContent = ref('')
 const isShowVideoFileDialog = ref(false)
 const videoFileUrl = ref('')
 const videoPlayerHeaders = ref({})
-const showFileStyle = ref<'list' | 'grid'>('grid')
-const isUploadKeepDirStructure = computed(() => manageStore.config.settings.isUploadKeepDirStructure ?? true)
+// 重命名相关
+const isShowRenameFileIcon = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value))
 const isShowBatchRenameDialog = ref(false)
 const batchRenameMatch = ref('')
 const batchRenameReplace = ref('')
@@ -1528,41 +1612,29 @@ const isRenameIncludeExt = ref(false)
 const isSingleRename = ref(false)
 const itemToBeRenamed = ref({} as any)
 
-const showCustomUrlSelectList = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value))
+// 当前页面信息相关
+const currentPicBedName = computed<string>(() => manageStore.config.picBed[configMap.alias].picBedName)
+const paging = computed(() => manageStore.config.picBed[configMap.alias].paging)
+const itemsPerPage = computed(() => manageStore.config.picBed[configMap.alias].itemsPerPage)
+const calculateAllFileSize = computed(() => formatFileSize(currentPageFilesInfo.reduce((total: any, item: { fileSize: any }) => total + item.fileSize, 0)) || '0')
+const isShowThumbnail = computed(() => manageStore.config.settings.isShowThumbnail ?? false)
+const isAutoRefresh = computed(() => manageStore.config.settings.isAutoRefresh ?? false)
+const isIgnoreCase = computed(() => manageStore.config.settings.isIgnoreCase ?? false)
 
-const showCustomUrlInput = computed(() => ['aliyun', 'qiniu', 'tcyun', 's3plist', 'webdavplist'].includes(currentPicBedName.value))
+// 新建文件夹相关
+const isShowCreateNewFolder = computed(() => ['aliyun', 'github', 'local', 'qiniu', 'tcyun', 's3plist', 'upyun', 'webdavplist', 'sftp'].includes(currentPicBedName.value))
 
-const showCreateNewFolder = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 'github', 's3plist', 'webdavplist'].includes(currentPicBedName.value))
+const isShowPresignedUrl = computed(() => ['aliyun', 'github', 'qiniu', 's3plist', 'tcyun', 'webdavplist'].includes(currentPicBedName.value))
 
-const showRenameFileIcon = computed(() => ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist'].includes(currentPicBedName.value))
-
-const showPresignedUrl = computed(() => ['tcyun', 'aliyun', 'qiniu', 'github', 's3plist', 'webdavplist'].includes(currentPicBedName.value))
-
-const uploadingTaskList = computed(() => uploadTaskList.value.filter(item => ['uploading', 'queuing', 'paused'].includes(item.status)))
-
-const uploadedTaskList = computed(() => uploadTaskList.value.filter(item => ['uploaded', 'failed', 'canceled'].includes(item.status)))
-
-const downloadingTaskList = computed(() => downloadTaskList.value.filter(item => ['downloading', 'queuing', 'paused'].includes(item.status)))
-
-const downloadedTaskList = computed(() => downloadTaskList.value.filter(item => ['downloaded', 'failed', 'canceled'].includes(item.status)))
-
-const isAutoCustomUrl = computed(() => manageStore.config.picBed[configMap.alias].isAutoCustomUrl === undefined ? true : manageStore.config.picBed[configMap.alias].isAutoCustomUrl)
+// 上传相关函数
 
 function handleUploadKeepDirChange (val: any) {
   saveConfig('settings.isUploadKeepDirStructure', !!val)
   manageStore.refreshConfig()
 }
 
-function handleViewChange (val: 'list' | 'grid') {
-  saveConfig('settings.isShowList', val === 'list')
-  showFileStyle.value = val
-}
-
-function getBase64ofWebdav () {
-  const headers = {
-    Authorization: 'Basic ' + Buffer.from(`${manageStore.config.picBed[configMap.alias].username}:${manageStore.config.picBed[configMap.alias].password}`).toString('base64')
-  }
-  return headers
+function showUploadDialog () {
+  isShowUploadPanel.value = true
 }
 
 function startRefreshUploadTask () {
@@ -1573,6 +1645,16 @@ function startRefreshUploadTask () {
   }, 300)
 }
 
+function stopRefreshUploadTask () {
+  refreshUploadTaskId.value && clearInterval(refreshUploadTaskId.value)
+}
+
+// 下载相关函数
+
+function showDownloadDialog () {
+  isShowDownloadPanel.value = true
+}
+
 function startRefreshDownloadTask () {
   refreshDownloadTaskId.value = setInterval(() => {
     ipcRenderer.invoke('getDownloadTaskList').then((res: any) => {
@@ -1581,20 +1663,25 @@ function startRefreshDownloadTask () {
   }, 300)
 }
 
-const stopRefreshUploadTask = () => refreshUploadTaskId.value && clearInterval(refreshUploadTaskId.value)
-
-const stopRefreshDownloadTask = () => refreshDownloadTaskId.value && clearInterval(refreshDownloadTaskId.value)
-
-const ImagePreviewList = computed(() => currentPageFilesInfo.filter(item => item.isImage).map(item => item.url))
-
-const getCurrentPreviewIndex = computed(() => ImagePreviewList.value.indexOf(previewedImage.value))
-
-const showUploadDialog = () => {
-  isShowUploadPanel.value = true
+function stopRefreshDownloadTask () {
+  refreshDownloadTaskId.value && clearInterval(refreshDownloadTaskId.value)
 }
-const showDownloadDialog = () => {
-  isShowDownloadPanel.value = true
+
+// 界面相关
+
+function handleViewChange (val: 'list' | 'grid') {
+  saveConfig('settings.isShowList', val === 'list')
+  layoutStyle.value = val
 }
+
+function getBase64ofWebdav () {
+  const headers = {
+    Authorization: 'Basic ' + Buffer.from(`${manageStore.config.picBed[configMap.alias].username}:${manageStore.config.picBed[configMap.alias].password}`).toString('base64')
+  }
+  return headers
+}
+
+// 上传文件选择相关
 
 function openFileSelectDialog () {
   ipcRenderer.invoke('openFileSelectDialog').then((res: any) => {
@@ -1620,7 +1707,7 @@ function openFileSelectDialog () {
 }
 
 function onDrop (e: DragEvent) {
-  dragover.value = false
+  isDragover.value = false
   const items = e.dataTransfer?.items
   if (items) {
     webkitReadDataTransfer(e.dataTransfer as DataTransfer)
@@ -1793,7 +1880,7 @@ function uploadFiles () {
       filePath: item.path,
       fileSize: item.size,
       fileName: item.rawName,
-      githubBranch: currentCustomUrl.value,
+      githubBranch: currentCustomDomain.value,
       aclForUpload: manageStore.config.picBed[configMap.alias].aclForUpload
     })
   })
@@ -1802,11 +1889,6 @@ function uploadFiles () {
 
 function handleCopyUploadingTaskInfo () {
   clipboard.writeText(JSON.stringify(uploadTaskList.value, null, 2))
-  ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
-}
-
-function handleCopyDownloadingTaskInfo () {
-  clipboard.writeText(JSON.stringify(downloadTaskList.value, null, 2))
   ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
 }
 
@@ -1820,6 +1902,13 @@ function handleDeleteAllUploadedTask () {
   ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
+// 下载任务相关
+
+function handleCopyDownloadingTaskInfo () {
+  clipboard.writeText(JSON.stringify(downloadTaskList.value, null, 2))
+  ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
+}
+
 function handleDeleteDownloadedTask () {
   ipcRenderer.send('deleteDownloadedTask')
   ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
@@ -1830,11 +1919,15 @@ function handleDeleteAllDownloadedTask () {
   ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
-const handleOpenDownloadedFolder = () => ipcRenderer.send('OpenDownloadedFolder', manageStore.config.settings.downloadDir)
+function handleOpenDownloadedFolder () {
+  ipcRenderer.send('OpenDownloadedFolder', manageStore.config.settings.downloadDir)
+}
+
+// 文件列表相关
 
 function handleShowFileInfo (item: any) {
   isShowFileInfo.value = true
-  showedFileInfo.value = item
+  currentShowedFileInfo.value = item
 }
 
 async function handleBreadcrumbClick (index: number) {
@@ -1844,9 +1937,9 @@ async function handleBreadcrumbClick (index: number) {
     ipcRenderer.send('cancelLoadingFileList', cancelToken.value)
   }
   configMap.prefix = targetPrefix
-  showLoadingPage.value = true
+  isShowLoadingPage.value = true
   resetParam(false)
-  showLoadingPage.value = false
+  isShowLoadingPage.value = false
 }
 
 async function handleClickFile (item: any) {
@@ -1858,16 +1951,16 @@ async function handleClickFile (item: any) {
   }
   if (item.isImage) {
     previewedImage.value = item.url
-    showImagePreview.value = true
+    isShowImagePreview.value = true
   } else if (item.isDir) {
     if (isLoadingData.value) {
       isLoadingData.value = false
       ipcRenderer.send('cancelLoadingFileList', cancelToken.value)
     }
     configMap.prefix = `/${item.key}`
-    showLoadingPage.value = true
+    isShowLoadingPage.value = true
     await resetParam(false)
-    showLoadingPage.value = false
+    isShowLoadingPage.value = false
   } else if (item.fileName.endsWith('.md')) {
     try {
       ElMessage({
@@ -1906,21 +1999,11 @@ async function handleClickFile (item: any) {
   }
 }
 
-const currentPicBedName = computed<string>(() => manageStore.config.picBed[configMap.alias].picBedName)
-
-const paging = computed(() => manageStore.config.picBed[configMap.alias].paging)
-
-const itemsPerPage = computed(() => manageStore.config.picBed[configMap.alias].itemsPerPage)
-
-const calculateAllFileSize = computed(() => formatFileSize(currentPageFilesInfo.reduce((total: any, item: { fileSize: any }) => total + item.fileSize, 0)) || '0')
-
-const isShowThumbnail = computed(() => manageStore.config.settings.isShowThumbnail ?? false)
-const isAutoRefresh = computed(() => manageStore.config.settings.isAutoRefresh ?? false)
-const isIgnoreCase = computed(() => manageStore.config.settings.isIgnoreCase ?? false)
+// 自定义域名相关
 
 async function handleChangeCustomUrl () {
   if (currentPicBedName.value === 'github') {
-    showLoadingPage.value = true
+    isShowLoadingPage.value = true
     if (isLoadingData.value) {
       ElNotification({
         title: $T('MANAGE_BUCKET_CHANGE_CUSTOM_URL_TITLE'),
@@ -1929,18 +2012,18 @@ async function handleChangeCustomUrl () {
         duration: 2000
       })
     }
-    showLoadingPage.value = true
+    isShowLoadingPage.value = true
     await resetParam(true)
-    showLoadingPage.value = false
-  } else if (['aliyun', 'tcyun', 'qiniu', 's3plist', 'webdavplist'].includes(currentPicBedName.value)) {
+    isShowLoadingPage.value = false
+  } else if (['aliyun', 'tcyun', 'qiniu', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value)) {
     const currentConfigs = await getConfig<any>('picBed')
     const currentConfig = currentConfigs[configMap.alias]
     const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
     if (currentTransformedConfig[configMap.bucketName]) {
-      currentTransformedConfig[configMap.bucketName].customUrl = currentCustomUrl.value
+      currentTransformedConfig[configMap.bucketName].customUrl = currentCustomDomain.value
     } else {
       currentTransformedConfig[configMap.bucketName] = {
-        customUrl: currentCustomUrl.value
+        customUrl: currentCustomDomain.value
       }
     }
     currentConfig.transformedConfig = JSON.stringify(currentTransformedConfig)
@@ -1949,8 +2032,8 @@ async function handleChangeCustomUrl () {
   }
 }
 
-// when the current picBed is github, the customUrlList is used to store the github repo branches
-async function initCustomUrlList () {
+// when the current picBed is github, the customDomainList is used to store the github repo branches
+async function initCustomDomainList () {
   if ((['aliyun', 'tcyun', 'qiniu'].includes(currentPicBedName.value) &&
     (manageStore.config.picBed[configMap.alias].isAutoCustomUrl === undefined || manageStore.config.picBed[configMap.alias].isAutoCustomUrl === true)) ||
     ['github', 'smms', 'upyun', 'imgur'].includes(currentPicBedName.value)) {
@@ -1968,46 +2051,46 @@ async function initCustomUrlList () {
     }
     const res = await ipcRenderer.invoke('getBucketDomain', configMap.alias, param)
     if (res.length > 0) {
-      customUrlList.value.length = 0
+      customDomainList.value.length = 0
       res.forEach((item: any) => {
         if (!/^https?:\/\//.test(item) && currentPicBedName.value !== 'github') {
           item = manageStore.config.settings.isForceCustomUrlHttps ? `https://${item}` : `http://${item}`
         }
-        customUrlList.value.push({
+        customDomainList.value.push({
           label: item,
           value: item
         })
       })
-      defaultUrl !== '' && currentPicBedName.value !== 'github' && customUrlList.value.push({
+      defaultUrl !== '' && currentPicBedName.value !== 'github' && customDomainList.value.push({
         label: defaultUrl,
         value: defaultUrl
       })
-      currentCustomUrl.value = customUrlList.value[0].value
+      currentCustomDomain.value = customDomainList.value[0].value
     } else {
-      customUrlList.value.length = 0
-      customUrlList.value = [
+      customDomainList.value.length = 0
+      customDomainList.value = [
         {
           label: defaultUrl,
           value: defaultUrl
         }
       ]
-      currentCustomUrl.value = defaultUrl
+      currentCustomDomain.value = defaultUrl
     }
   } else if (['aliyun', 'tcyun', 'qiniu'].includes(currentPicBedName.value)) {
     const currentConfigs = await getConfig<any>('picBed')
     const currentConfig = currentConfigs[configMap.alias]
     const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
     if (currentTransformedConfig[configMap.bucketName]) {
-      currentCustomUrl.value = currentTransformedConfig[configMap.bucketName].customUrl ?? ''
+      currentCustomDomain.value = currentTransformedConfig[configMap.bucketName].customUrl ?? ''
     } else {
-      currentCustomUrl.value = ''
+      currentCustomDomain.value = ''
     }
   } else if (currentPicBedName.value === 's3plist') {
     const currentConfigs = await getConfig<any>('picBed')
     const currentConfig = currentConfigs[configMap.alias]
     const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
     if (currentTransformedConfig[configMap.bucketName]) {
-      currentCustomUrl.value = currentTransformedConfig[configMap.bucketName].customUrl ?? ''
+      currentCustomDomain.value = currentTransformedConfig[configMap.bucketName].customUrl ?? ''
     } else {
       if (manageStore.config.picBed[configMap.alias].endpoint) {
         const endpoint = manageStore.config.picBed[configMap.alias].endpoint
@@ -2017,9 +2100,9 @@ async function initCustomUrlList () {
         } else {
           url = new URL(manageStore.config.picBed[configMap.alias].sslEnabled ? 'https://' + endpoint : 'http://' + endpoint)
         }
-        currentCustomUrl.value = `${url.protocol}//${configMap.bucketName}.${url.hostname}`
+        currentCustomDomain.value = `${url.protocol}//${configMap.bucketName}.${url.hostname}`
       } else {
-        currentCustomUrl.value = `https://${configMap.bucketName}.s3.amazonaws.com`
+        currentCustomDomain.value = `https://${configMap.bucketName}.s3.amazonaws.com`
       }
     }
     handleChangeCustomUrl()
@@ -2028,17 +2111,29 @@ async function initCustomUrlList () {
     const currentConfig = currentConfigs[configMap.alias]
     const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
     if (currentTransformedConfig[configMap.bucketName] && currentTransformedConfig[configMap.bucketName]?.customUrl) {
-      currentCustomUrl.value = currentTransformedConfig[configMap.bucketName].customUrl
+      currentCustomDomain.value = currentTransformedConfig[configMap.bucketName].customUrl
     } else {
       let endpoint = manageStore.config.picBed[configMap.alias].endpoint
       if (!/^https?:\/\//.test(endpoint)) {
         endpoint = 'http://' + endpoint
       }
-      currentCustomUrl.value = endpoint
+      currentCustomDomain.value = endpoint
+    }
+    handleChangeCustomUrl()
+  } else if (currentPicBedName.value === 'local' || currentPicBedName.value === 'sftp') {
+    const currentConfigs = await getConfig<any>('picBed')
+    const currentConfig = currentConfigs[configMap.alias]
+    const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
+    if (currentTransformedConfig[configMap.bucketName] && currentTransformedConfig[configMap.bucketName]?.customUrl) {
+      currentCustomDomain.value = currentTransformedConfig[configMap.bucketName].customUrl ?? ''
+    } else {
+      currentCustomDomain.value = ''
     }
     handleChangeCustomUrl()
   }
 }
+
+// 重置
 
 async function resetParam (force: boolean = false) {
   if (isLoadingData.value) {
@@ -2052,18 +2147,22 @@ async function resetParam (force: boolean = false) {
   cancelToken.value = ''
   pagingMarker.value = ''
   currentPrefix.value = configMap.prefix
-  currentPage.value = 1
+  currentPageNumber.value = 1
   currentPageFilesInfo.length = 0
   currentDownloadFileList.length = 0
   selectedItems.length = 0
   searchText.value = ''
   urlToUpload.value = ''
   dialogVisible.value = false
-  showImagePreview.value = false
+  isShowImagePreview.value = false
   previewedImage.value = ''
   isShowFileInfo.value = false
   lastChoosed.value = -1
-  showFileStyle.value = manageStore.config.settings.isShowList ? 'list' : 'grid'
+  layoutStyle.value = await getConfig('settings.isShowList') ? 'list' : 'grid'
+  fileSortExtReverse.value = false
+  fileSortNameReverse.value = false
+  fileSortSizeReverse.value = false
+  fileSortTimeReverse.value = false
   if (!isAutoRefresh.value && !force && !paging.value) {
     const cachedData = await searchExistFileList()
     if (cachedData.length > 0) {
@@ -2072,7 +2171,7 @@ async function resetParam (force: boolean = false) {
       if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
         sortFile(sortType)
       }
-      showLoadingPage.value = false
+      isShowLoadingPage.value = false
       return
     }
   }
@@ -2080,13 +2179,7 @@ async function resetParam (force: boolean = false) {
     const res = await getBucketFileList() as IStringKeyMap
     if (res.success) {
       res.fullList.sort((a: any, b: any) => {
-        if (a.isDir && !b.isDir) {
-          return -1
-        } else if (!a.isDir && b.isDir) {
-          return 1
-        } else {
-          return a.fileName.localeCompare(b.fileName)
-        }
+        return b.isDir - a.isDir || a.fileName.localeCompare(b.fileName)
       })
       currentPageFilesInfo.push(...res.fullList)
       const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
@@ -2096,7 +2189,7 @@ async function resetParam (force: boolean = false) {
       if (res.isTruncated && paging.value) {
         pagingMarkerStack.push(pagingMarker.value)
         pagingMarker.value = res.nextMarker
-      } else if (paging.value && currentPage.value > 1) {
+      } else if (paging.value && currentPageNumber.value > 1) {
         ElNotification({
           title: $T('MANAGE_BUCKET_LAST_PAGE_TITLE'),
           message: $T('MANAGE_BUCKET_LAST_PAGE_MSG'),
@@ -2123,15 +2216,14 @@ async function resetParam (force: boolean = false) {
 }
 
 watch(route, async (newRoute) => {
-  if (newRoute.query.configMap) {
-    showLoadingPage.value = true
-    const query = newRoute.query.configMap as string
-    for (const key in JSON.parse(query)) {
-      configMap[key] = JSON.parse(query)[key]
-    }
-    await initCustomUrlList()
+  const queryConfigMap = newRoute.query.configMap as string
+  if (queryConfigMap) {
+    isShowLoadingPage.value = true
+    const parsedConfigMap = JSON.parse(queryConfigMap)
+    Object.assign(configMap, parsedConfigMap)
+    await initCustomDomainList()
     await resetParam(false)
-    showLoadingPage.value = false
+    isShowLoadingPage.value = false
   }
 })
 
@@ -2145,102 +2237,71 @@ async function forceRefreshFileList () {
     })
     return
   }
-  showLoadingPage.value = true
+  isShowLoadingPage.value = true
   await resetParam(true)
-  showLoadingPage.value = false
+  isShowLoadingPage.value = false
 }
 
-watch(currentPage, () => {
-  if (typeof currentPage.value !== 'number' || currentPage.value === null) {
-    currentPage.value = 1
+watch(currentPageNumber, () => {
+  if (typeof currentPageNumber.value !== 'number') {
+    currentPageNumber.value = 1
   }
 })
 
 const changePage = async (cur: number | undefined, prev: number | undefined) => {
   if (!cur || !prev) {
-    currentPage.value = 1
-  } else {
-    if (cur > prev) {
-      showLoadingPage.value = true
-      currentPage.value = prev + 1
-      currentPageFilesInfo.length = 0
-      selectedItems.length = 0
-      searchText.value = ''
-      urlToUpload.value = ''
-      dialogVisible.value = false
-      const res = await getBucketFileList() as IStringKeyMap
-      showLoadingPage.value = false
-      if (res.success) {
-        res.fullList.sort((a: any) => {
-          return a.isDir ? -1 : 1
-        })
-        currentPageFilesInfo.push(...res.fullList)
-        const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
-        if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
-          sortFile(sortType)
-        }
-        if (res.isTruncated) {
-          pagingMarkerStack.push(pagingMarker.value)
-          pagingMarker.value = res.nextMarker
-        } else {
-          ElNotification({
-            title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-            message: $T('MANAGE_BUCKET_LAST_PAGE_MSG'),
-            type: 'success',
-            duration: 1000
-          })
-        }
-      } else {
-        ElNotification({
-          title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-          message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
-          type: 'error',
-          duration: 1000
-        })
-      }
-    } else if (cur < prev) {
-      showLoadingPage.value = true
-      currentPage.value = prev - 1
-      currentPageFilesInfo.length = 0
-      selectedItems.length = 0
-      searchText.value = ''
-      urlToUpload.value = ''
-      dialogVisible.value = false
-      pagingMarker.value = pagingMarkerStack[pagingMarkerStack.length - 2]
-      pagingMarkerStack.pop()
-      pagingMarkerStack.pop()
-      const res = await getBucketFileList() as IStringKeyMap
-      showLoadingPage.value = false
-      if (res.success) {
-        res.fullList.sort((a: any) => {
-          return a.isDir ? -1 : 1
-        })
-        currentPageFilesInfo.push(...res.fullList)
-        const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
-        if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
-          sortFile(sortType)
-        }
-        if (paging.value) {
-          if (res.isTruncated) {
-            pagingMarkerStack.push(pagingMarker.value)
-            pagingMarker.value = res.nextMarker
-          } else {
-            ElNotification({
-              title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-              message: $T('MANAGE_BUCKET_LAST_PAGE_MSG'),
-              type: 'success',
-              duration: 1000
-            })
-          }
-        }
-      } else {
-        ElNotification({
-          title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-          message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
-          type: 'error',
-          duration: 1000
-        })
-      }
+    currentPageNumber.value = 1
+    return
+  }
+  const isForwardNavigation = cur > prev
+  const newPageNumber = isForwardNavigation ? prev + 1 : prev - 1
+  const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
+
+  isShowLoadingPage.value = true
+  currentPageNumber.value = newPageNumber
+  currentPageFilesInfo.length = 0
+  selectedItems.length = 0
+  searchText.value = ''
+  urlToUpload.value = ''
+  dialogVisible.value = false
+
+  if (!isForwardNavigation) {
+    pagingMarker.value = pagingMarkerStack[pagingMarkerStack.length - 2]
+    pagingMarkerStack.pop()
+    pagingMarkerStack.pop()
+  }
+
+  const res = await getBucketFileList() as IStringKeyMap
+  isShowLoadingPage.value = false
+
+  if (!res.success) {
+    ElNotification({
+      title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+      message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
+      type: 'error',
+      duration: 1000
+    })
+    return
+  }
+
+  res.fullList.sort((a: any) => (a.isDir ? -1 : 1))
+  currentPageFilesInfo.push(...res.fullList)
+
+  if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
+    sortFile(sortType)
+  }
+
+  if (!(cur < prev && !paging.value)) {
+    if (res.isTruncated) {
+      pagingMarkerStack.push(pagingMarker.value)
+      pagingMarker.value = res.nextMarker
+    } else {
+      ElNotification({
+        title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+        message: $T('MANAGE_BUCKET_LAST_PAGE_MSG'),
+        type: 'success',
+        duration: 1000
+      })
     }
   }
 }
@@ -2248,36 +2309,21 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
 watch(searchText, () => searchAndSort())
 
 function searchAndSort () {
-  elTable.value.scrollToRow(0)
+  fileTable.value.scrollToRow(0)
+
+  const shouldIgnoreCase = isIgnoreCase.value
+
+  currentPageFilesInfo.forEach((item: any) => {
+    const fileName = shouldIgnoreCase ? item.fileName.toLowerCase() : item.fileName
+    const search = shouldIgnoreCase ? searchText.value.toLowerCase() : searchText.value
+    item.match = searchText.value ? fileName.includes(search) : true
+  })
+
   if (searchText.value) {
-    if (isIgnoreCase.value) {
-      currentPageFilesInfo.forEach((item: any) => {
-        if (item.fileName.toLowerCase().includes(searchText.value.toLowerCase())) {
-          item.match = true
-        } else {
-          item.match = false
-        }
-      })
-      currentPageFilesInfo.sort((a: any, b: any) => {
-        return b.match - a.match
-      })
-    } else {
-      currentPageFilesInfo.forEach((item: any) => {
-        if (item.fileName.includes(searchText.value)) {
-          item.match = true
-        } else {
-          item.match = false
-        }
-      })
-      currentPageFilesInfo.sort((a: any, b: any) => {
-        return b.match - a.match
-      })
-    }
+    currentPageFilesInfo.sort((a: any, b: any) => b.match - a.match)
   } else {
-    currentPageFilesInfo.forEach((item: any) => {
-      item.match = true
-    })
-    sortFile(localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || 'init')
+    const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || 'init'
+    sortFile(sortType)
   }
 }
 
@@ -2334,13 +2380,7 @@ function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
       break
     case 'init':
       currentPageFilesInfo.sort((a: any, b: any) => {
-        if (a.isDir && !b.isDir) {
-          return -1
-        } else if (!a.isDir && b.isDir) {
-          return 1
-        } else {
-          return a.fileName.localeCompare(b.fileName)
-        }
+        return b.isDir - a.isDir || a.fileName.localeCompare(b.fileName)
       })
   }
 }
@@ -2369,20 +2409,18 @@ function handleCheckChangeOther (item: any) {
 }
 
 function handleCheckChange (item: any) {
+  const index = currentPageFilesInfo.findIndex((i: any) => i.fileName === item.fileName)
   if (item.checked) {
     if (lastChoosed.value !== -1 && isShiftKeyPress.value) {
-      const index = currentPageFilesInfo.findIndex((i: any) => i.fileName === item.fileName)
-      const start = Math.min(lastChoosed.value, index)
-      const end = Math.max(lastChoosed.value, index)
+      const [start, end] = [lastChoosed.value, index].sort((a, b) => a - b)
       for (let i = start + 1; i <= end; i++) {
         currentPageFilesInfo[i].checked = true
         selectedItems.push(currentPageFilesInfo[i])
       }
-      lastChoosed.value = index
     } else {
-      lastChoosed.value = currentPageFilesInfo.findIndex((i: any) => i.fileName === item.fileName)
       selectedItems.push(item)
     }
+    lastChoosed.value = index
   } else {
     selectedItems.splice(selectedItems.findIndex((i: any) => i.fileName === item.fileName), 1)
   }
@@ -2408,11 +2446,11 @@ async function handleFolderBatchDownload (item: any) {
         Location: configMap.bucketConfig.Location
       },
       paging: paging.value,
-      prefix: `/${item.key.replace(/\/+$/, '').replace(/^\/+/, '')}/`,
+      prefix: `/${item.key.replace(/^\/+|\/+$/, '')}/`,
       marker: pagingMarker.value,
       itemsPerPage: itemsPerPage.value,
-      customUrl: currentCustomUrl.value,
-      currentPage: currentPage.value,
+      customUrl: currentCustomDomain.value,
+      currentPage: currentPageNumber.value,
       cancelToken: cancelToken.value,
       cdnUrl: configMap.cdnUrl
     }
@@ -2443,8 +2481,8 @@ async function handleFolderBatchDownload (item: any) {
                 bucketName: configMap.bucketName,
                 region: configMap.bucketConfig.Location,
                 key: item.key,
-                fileName: [undefined, true].includes(manageStore.config.settings.isDownloadFolderKeepDirStructure) ? `/${item.key.replace(/\/+$/, '').replace(/^\/+/, '')}` : item.fileName,
-                customUrl: currentCustomUrl.value,
+                fileName: [undefined, true].includes(manageStore.config.settings.isDownloadFolderKeepDirStructure) ? `/${item.key.replace(/^\/+|\/+$/, '')}` : item.fileName,
+                customUrl: currentCustomDomain.value,
                 downloadUrl: item.downloadUrl,
                 githubUrl: item.url,
                 githubPrivate: configMap.bucketConfig.private
@@ -2486,8 +2524,8 @@ async function handleBatchDownload () {
         bucketName: configMap.bucketName,
         region: configMap.bucketConfig.Location,
         key: item.key,
-        fileName: manageStore.config.settings.isDownloadFileKeepDirStructure ? `/${item.key.replace(/\/+$/, '').replace(/^\/+/, '')}` : item.fileName,
-        customUrl: currentCustomUrl.value,
+        fileName: manageStore.config.settings.isDownloadFileKeepDirStructure ? `/${item.key.replace(/^\/+|\/+$/, '')}` : item.fileName,
+        customUrl: currentCustomDomain.value,
         downloadUrl: item.downloadUrl,
         githubUrl: item.url,
         githubPrivate: configMap.bucketConfig.private
@@ -2500,42 +2538,21 @@ async function handleBatchDownload () {
 }
 
 function handleCheckAllChange () {
-  if (searchText.value === '') {
-    if (selectedItems.length === currentPageFilesInfo.length) {
-      selectedItems.length = 0
-      currentPageFilesInfo.forEach((item: any) => {
-        item.checked = false
-      })
-    } else {
-      selectedItems.length = 0
-      selectedItems.push(...currentPageFilesInfo)
-      currentPageFilesInfo.forEach((item: any) => {
-        item.checked = true
-      })
-    }
-  } else {
-    if (selectedItems.length === currentPageFilesInfo.filter((item: any) => item.match).length) {
-      selectedItems.length = 0
-      currentPageFilesInfo.forEach((item: any) => {
-        item.checked = false
-      })
-    } else {
-      selectedItems.length = 0
-      currentPageFilesInfo.forEach((item: any) => {
-        if (item.match) {
-          item.checked = true
-          selectedItems.push(item)
-        }
-      })
-    }
-  }
+  const isSearchEmpty = searchText.value === ''
+  const itemsToCheck = isSearchEmpty ? currentPageFilesInfo : currentPageFilesInfo.filter((item: any) => item.match)
+  const allSelected = selectedItems.length === itemsToCheck.length
+  selectedItems.length = 0
+  currentPageFilesInfo.forEach((item: any) => {
+    item.checked = !allSelected && (isSearchEmpty || item.match)
+    if (item.checked) selectedItems.push(item)
+  })
 }
 
 function handleCreateFolder () {
   ElMessageBox.prompt($T('MANAGE_BUCKET_CREATE_FOLDER_BOX_TITLE'), $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_TIP'), {
     confirmButtonText: $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_CONFIRM'),
     cancelButtonText: $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_CANCEL'),
-    inputPattern: /^[\u4e00-\u9fa5_a-zA-Z0-9/]+$/,
+    inputPattern: /^[\p{Unified_Ideograph}_a-zA-Z0-9-]+$/u,
     inputErrorMessage: $T('MANAGE_BUCKET_CREATE_FOLDER_ERROR_MSG')
   }).then(async ({ value }) => {
     let formatedPath = value
@@ -2545,7 +2562,7 @@ function handleCreateFolder () {
       bucketName: configMap.bucketName,
       region: configMap.bucketConfig.Location,
       key: currentPrefix.value.slice(1) + formatedPath + '/',
-      githubBranch: currentCustomUrl.value
+      githubBranch: currentCustomDomain.value
     }
     const res = await ipcRenderer.invoke('createBucketFolder', configMap.alias, param)
     if (res) {
@@ -2556,7 +2573,7 @@ function handleCreateFolder () {
   }).catch(() => {})
 }
 
-const showUrlDialog = () => {
+function showUrlDialog () {
   dialogVisible.value = true
 }
 
@@ -2646,7 +2663,7 @@ async function BatchRename () {
         region: configMap.bucketConfig.Location,
         oldKey: item.key,
         newKey: (item.key.slice(0, item.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/'),
-        customUrl: currentCustomUrl.value
+        customUrl: currentCustomDomain.value
       }
       ipcRenderer.invoke('renameBucketFile', configMap.alias, param).then((res: any) => {
         if (res) {
@@ -2666,7 +2683,7 @@ async function BatchRename () {
             item.fileName = item.newName
           }
           item.key = (item.key.slice(0, item.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/')
-          item.url = `${currentCustomUrl.value}${currentPrefix.value}${item.newName}`
+          item.url = `${currentCustomDomain.value}${currentPrefix.value}${item.newName}`
           item.formatedTime = new Date().toLocaleString()
           if (!paging.value) {
             const table = fileCacheDbInstance.table(currentPicBedName.value)
@@ -2682,7 +2699,7 @@ async function BatchRename () {
                     i.fileName = item.newName
                   }
                   i.key = (i.key.slice(0, i.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/')
-                  i.url = `${currentCustomUrl.value}${currentPrefix.value}${item.newName}`
+                  i.url = `${currentCustomDomain.value}${currentPrefix.value}${item.newName}`
                   i.formatedTime = new Date().toLocaleString()
                 }
               })
@@ -2788,14 +2805,20 @@ async function getBucketFileListBackStage () {
     prefix: currentPrefix.value,
     marker: pagingMarker.value,
     itemsPerPage: itemsPerPage.value,
-    customUrl: currentCustomUrl.value,
-    currentPage: currentPage.value,
+    customUrl: currentCustomDomain.value,
+    currentPage: currentPageNumber.value,
     cancelToken: cancelToken.value,
     cdnUrl: configMap.cdnUrl
-  }
+  } as IStringKeyMap
   isLoadingData.value = true
   const fileTransferStore = useFileTransferStore()
   fileTransferStore.resetFileTransferList()
+  if (currentPicBedName.value === 'webdavplist' ||
+    currentPicBedName.value === 'local' ||
+    currentPicBedName.value === 'sftp') {
+    param.baseDir = configMap.baseDir
+    param.webPath = configMap.webPath
+  }
   ipcRenderer.send('getBucketListBackstage', configMap.alias, param)
   ipcRenderer.on('refreshFileTransferList', (evt: IpcRendererEvent, data) => {
     fileTransferStore.refreshFileTransferList(data)
@@ -2803,13 +2826,7 @@ async function getBucketFileListBackStage () {
   const interval = setInterval(() => {
     const currentFileList = fileTransferStore.getFileTransferList()
     currentFileList.sort((a: any, b: any) => {
-      if (a.isDir && !b.isDir) {
-        return -1
-      } else if (!a.isDir && b.isDir) {
-        return 1
-      } else {
-        return a.fileName.localeCompare(b.fileName)
-      }
+      return b.isDir - a.isDir || a.fileName.localeCompare(b.fileName)
     })
     currentPageFilesInfo.length = 0
     currentPageFilesInfo.push(...currentFileList)
@@ -2856,55 +2873,44 @@ async function getBucketFileList () {
     prefix: currentPrefix.value,
     marker: pagingMarker.value,
     itemsPerPage: itemsPerPage.value,
-    customUrl: currentCustomUrl.value,
-    currentPage: currentPage.value
+    customUrl: currentCustomDomain.value,
+    currentPage: currentPageNumber.value
   }
-  const res = await ipcRenderer.invoke('getBucketFileList', configMap.alias, param)
-  return res
+  return await ipcRenderer.invoke('getBucketFileList', configMap.alias, param)
 }
 
 function handleBatchDeleteInfo () {
-  ElMessageBox.confirm(`${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_A')} ${selectedItems.length} ${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_B')}`, $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_MSG'), {
+  const confirmTitle = `${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_A')} ${selectedItems.length} ${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_B')}`
+  ElMessageBox.confirm(confirmTitle, $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_MSG'), {
     confirmButtonText: $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CONFIRM'),
     cancelButtonText: $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CANCEL'),
     type: 'warning',
     center: true,
     draggable: true
   }).then(async () => {
-    const copyedSelectedItems = JSON.parse(JSON.stringify(selectedItems))
+    const copiedSelectedItems = JSON.parse(JSON.stringify(selectedItems))
     let successCount = 0
     let failCount = 0
-    let res = false
-    for (let i = 0; i < copyedSelectedItems.length; i++) {
-      if (!copyedSelectedItems[i].isDir) {
-        const param = {
-          // tcyun
-          bucketName: configMap.bucketName,
-          region: configMap.bucketConfig.Location,
-          key: copyedSelectedItems[i].key,
-          DeleteHash: copyedSelectedItems[i].sha,
-          githubBranch: currentCustomUrl.value
-        }
-        res = await ipcRenderer.invoke('deleteBucketFile', configMap.alias, param)
-      } else {
-        const param = {
-          // tcyun
-          bucketName: configMap.bucketName,
-          region: configMap.bucketConfig.Location,
-          key: copyedSelectedItems[i].key,
-          githubBranch: currentCustomUrl.value,
-          DeleteHash: copyedSelectedItems[i].sha
-        }
-        res = await ipcRenderer.invoke('deleteBucketFolder', configMap.alias, param)
+
+    for (const item of copiedSelectedItems) {
+      const param = {
+        bucketName: configMap.bucketName,
+        region: configMap.bucketConfig.Location,
+        key: item.key,
+        DeleteHash: item.sha,
+        githubBranch: currentCustomDomain.value
       }
-      if (res) {
+      const result = item.isDir
+        ? await ipcRenderer.invoke('deleteBucketFolder', configMap.alias, param)
+        : await ipcRenderer.invoke('deleteBucketFile', configMap.alias, param)
+      if (result) {
         successCount++
-        currentPageFilesInfo.splice(currentPageFilesInfo.findIndex((j: any) => j.key === copyedSelectedItems[i].key), 1)
-        selectedItems.splice(selectedItems.findIndex((j: any) => j.key === copyedSelectedItems[i].key), 1)
+        currentPageFilesInfo.splice(currentPageFilesInfo.findIndex((j: any) => j.key === item.key), 1)
+        selectedItems.splice(selectedItems.findIndex((j: any) => j.key === item.key), 1)
         if (!paging.value) {
           const table = fileCacheDbInstance.table(currentPicBedName.value)
           table.where('key').equals(getTableKeyOfDb()).modify((l: any) => {
-            l.value.fullList.splice(l.value.fullList.findIndex((j: any) => j.key === copyedSelectedItems[i].key), 1)
+            l.value.fullList.splice(l.value.fullList.findIndex((j: any) => j.key === item.key), 1)
           })
         }
       } else {
@@ -2944,31 +2950,22 @@ function handleDeleteFile (item: any) {
     draggable: true
   }).then(async () => {
     let res = false
-    if (!item.isDir) {
-      const param = {
-        // tcyun
-        bucketName: configMap.bucketName,
-        region: configMap.bucketConfig.Location,
-        key: item.key,
-        DeleteHash: item.sha,
-        githubBranch: currentCustomUrl.value
-      }
-      res = await ipcRenderer.invoke('deleteBucketFile', configMap.alias, param)
-    } else {
-      const param = {
-        // tcyun
-        bucketName: configMap.bucketName,
-        region: configMap.bucketConfig.Location,
-        key: item.key,
-        DeleteHash: item.sha,
-        githubBranch: currentCustomUrl.value
-      }
+    const param = {
+      bucketName: configMap.bucketName,
+      region: configMap.bucketConfig.Location,
+      key: item.key,
+      DeleteHash: item.sha,
+      githubBranch: currentCustomDomain.value
+    }
+    if (item.isDir) {
       ElNotification.info({
         title: $T('MANAGE_BUCKET_DELETE_ERROR_MSG_TITLE'),
         message: $T('MANAGE_BUCKET_DELETE_ERROR_MSG_MSG'),
         duration: 1000
       })
       res = await ipcRenderer.invoke('deleteBucketFolder', configMap.alias, param)
+    } else {
+      res = await ipcRenderer.invoke('deleteBucketFile', configMap.alias, param)
     }
     if (res) {
       ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
@@ -3018,7 +3015,7 @@ function singleRename () {
     region: configMap.bucketConfig.Location,
     oldKey: item.key,
     newKey: (item.key.slice(0, item.key.lastIndexOf('/') + 1) + itemToBeRenamed.value.newName).replaceAll('//', '/'),
-    customUrl: currentCustomUrl.value
+    customUrl: currentCustomDomain.value
   }
   ipcRenderer.invoke('renameBucketFile', configMap.alias, param).then((res: any) => {
     if (res) {
@@ -3036,7 +3033,7 @@ function singleRename () {
         item.fileName = itemToBeRenamed.value.newName
       }
       item.key = (item.key.slice(0, item.key.lastIndexOf('/') + 1) + itemToBeRenamed.value.newName).replaceAll('//', '/')
-      item.url = `${currentCustomUrl.value}${currentPrefix.value}${itemToBeRenamed.value.newName}`
+      item.url = `${currentCustomDomain.value}${currentPrefix.value}${itemToBeRenamed.value.newName}`
       item.formatedTime = new Date().toLocaleString()
       if (!paging.value) {
         const table = fileCacheDbInstance.table(currentPicBedName.value)
@@ -3052,17 +3049,17 @@ function singleRename () {
                 i.fileName = itemToBeRenamed.value.newName
               }
               i.key = (i.key.slice(0, i.key.lastIndexOf('/') + 1) + itemToBeRenamed.value.newName).replaceAll('//', '/')
-              i.url = `${currentCustomUrl.value}${currentPrefix.value}${itemToBeRenamed.value.newName}`
+              i.url = `${currentCustomDomain.value}${currentPrefix.value}${itemToBeRenamed.value.newName}`
               i.formatedTime = new Date().toLocaleString()
             }
           })
         })
       }
+      ElMessage.success($T('MANAGE_BUCKET_RENAME_SUCCESS'))
     } else {
       ElMessage.error($T('MANAGE_BUCKET_RENAME_ERROR_MSG'))
     }
-  }
-  )
+  })
 }
 
 async function getPreSignedUrl (item: any) {
@@ -3071,7 +3068,7 @@ async function getPreSignedUrl (item: any) {
     bucketName: configMap.bucketName,
     region: configMap.bucketConfig.Location,
     key: item.key,
-    customUrl: currentCustomUrl.value,
+    customUrl: currentCustomDomain.value,
     expires: manageStore.config.settings.PreSignedExpire,
     githubPrivate: configMap.bucketConfig.private,
     rawUrl: item.url
@@ -3089,7 +3086,7 @@ function getTableKeyOfDb () {
   let tableKey
   if (currentPicBedName.value === 'github') {
     // customUrl is branch
-    tableKey = `${configMap.alias}@${configMap.bucketConfig.githubUsername}@${configMap.bucketName}@${currentCustomUrl.value}@${currentPrefix.value}`
+    tableKey = `${configMap.alias}@${configMap.bucketConfig.githubUsername}@${configMap.bucketName}@${currentCustomDomain.value}@${currentPrefix.value}`
   } else {
     tableKey = `${configMap.alias}@${configMap.bucketName}@${currentPrefix.value}`
   }
@@ -3098,8 +3095,7 @@ function getTableKeyOfDb () {
 
 async function searchExistFileList () {
   const table = fileCacheDbInstance.table(currentPicBedName.value)
-  const res = await table.where('key').equals(getTableKeyOfDb()).toArray()
-  return res
+  return await table.where('key').equals(getTableKeyOfDb()).toArray()
 }
 
 function handleDetectShiftKey (event: KeyboardEvent) {
@@ -3368,7 +3364,9 @@ const upLoadTaskColumns: Column<any>[] = [
   }
 ]
 
-const rowClass = ({ rowData }: Parameters<RowClassNameGetter<any>>[0]) => rowData.checked ? 'file-list-row-checked' : ''
+function rowClass ({ rowData }: Parameters<RowClassNameGetter<any>>[0]) {
+  return rowData.checked ? 'file-list-row-checked' : ''
+}
 
 const columns: Column<any>[] = [
   {
@@ -3464,7 +3462,7 @@ const columns: Column<any>[] = [
             <div
               style="font-size: 14px;color: #303133;font-family: Arial, Helvetica, sans-serif;"
             >
-              {formatFileName(item.fileName ?? '')}
+              {formatFileName(item.fileName ?? '', 40)}
             </div>
           </ElTooltip>
         </div>
@@ -3477,10 +3475,10 @@ const columns: Column<any>[] = [
     width: 30,
     cellRenderer: ({ rowData: item }) => (
       item.match || !searchText.value
-        ? item.isDir || !showRenameFileIcon.value
+        ? item.isDir || !isShowRenameFileIcon.value
           ? item.isDir
             ? <ElIcon
-              size="20"
+              size="15"
               style="cursor: pointer;"
               color="#409EFF"
               // @ts-ignore
@@ -3490,7 +3488,7 @@ const columns: Column<any>[] = [
             </ElIcon>
             : <template></template>
           : <ElIcon
-            size="20"
+            size="15"
             style="cursor: pointer;"
             color="#409EFF"
             // @ts-ignore
@@ -3517,7 +3515,7 @@ const columns: Column<any>[] = [
             {{
               default: () => (
                 <ElIcon
-                  size="20"
+                  size="15"
                   style="cursor: pointer;"
                   color="#409EFF"
                   // @ts-ignore
@@ -3558,7 +3556,7 @@ const columns: Column<any>[] = [
                   >
                     Custom
                   </ElDropdownItem>
-                  { showPresignedUrl.value
+                  { isShowPresignedUrl.value
                     ? <ElDropdownItem
                       onClick={async () => {
                         const res = await getPreSignedUrl(item)
@@ -3589,7 +3587,7 @@ const columns: Column<any>[] = [
           hide-after={150}
         >
           <ElIcon
-            size="20"
+            size="15"
             style="cursor: pointer;"
             color="#409EFF"
             // @ts-ignore
@@ -3664,10 +3662,10 @@ const columns: Column<any>[] = [
 
 onBeforeMount(async () => {
   await manageStore.refreshConfig()
-  showLoadingPage.value = true
-  await initCustomUrlList()
+  isShowLoadingPage.value = true
+  await initCustomDomainList()
   await resetParam(false)
-  showLoadingPage.value = false
+  isShowLoadingPage.value = false
   document.addEventListener('keydown', handleDetectShiftKey)
   document.addEventListener('keyup', handleDetectShiftKey)
 })

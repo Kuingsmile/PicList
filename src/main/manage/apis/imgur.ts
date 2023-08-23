@@ -1,17 +1,27 @@
-import got from 'got'
-import ManageLogger from '../utils/logger'
-import { getAgent, getOptions, NewDownloader, gotUpload, getFileMimeType, ConcurrencyPromisePool, formatError } from '../utils/common'
-import windowManager from 'apis/app/window/windowManager'
-import { IWindowList } from '#/types/enum'
-import { ipcMain, IpcMainEvent } from 'electron'
-import { formatHttpProxy, isImage } from '~/renderer/manage/utils/common'
-import path from 'path'
-import UpDownTaskQueue,
-{
-  commonTaskStatus
-} from '../datastore/upDownTaskQueue'
-import FormData from 'form-data'
+// External dependencies
 import fs from 'fs-extra'
+import FormData from 'form-data'
+import got from 'got'
+import path from 'path'
+
+// Electron modules
+import { ipcMain, IpcMainEvent } from 'electron'
+
+// Custom utilities and modules
+import { IWindowList } from '#/types/enum'
+import {
+  ConcurrencyPromisePool,
+  formatError,
+  getFileMimeType,
+  getOptions,
+  getAgent,
+  gotUpload,
+  NewDownloader
+} from '../utils/common'
+import ManageLogger from '../utils/logger'
+import windowManager from 'apis/app/window/windowManager'
+import { formatHttpProxy, isImage } from '~/renderer/manage/utils/common'
+import UpDownTaskQueue, { commonTaskStatus } from '../datastore/upDownTaskQueue'
 
 class ImgurApi {
   userName: string
@@ -35,17 +45,19 @@ class ImgurApi {
   }
 
   formatFile (item: any) {
+    const fileName = path.basename(item.link)
+    const isImg = isImage(fileName)
     return {
       ...item,
-      Key: path.basename(item.link),
-      key: path.basename(item.link),
+      Key: fileName,
+      key: fileName,
       fileName: `${item.name}${path.extname(item.link)}`,
       formatedTime: new Date(item.datetime * 1000).toLocaleString(),
       fileSize: item.size,
       isDir: false,
       checked: false,
       match: false,
-      isImage: isImage(path.basename(item.link)),
+      isImage: isImg,
       url: item.link,
       sha: item.deletehash
     }
@@ -69,16 +81,12 @@ class ImgurApi {
       result.push(...res.body.data)
       initPage++
     } while (res.body.data.length > 0)
-    const finalResult = [] as any[]
-    for (let i = 0; i < result.length; i++) {
-      const item = result[i]
-      finalResult.push({
-        ...item,
-        Name: item.title,
-        Location: item.id,
-        CreationDate: item.datetime
-      })
-    }
+    const finalResult = result.map((item: any) => ({
+      ...item,
+      Name: item.title,
+      Location: item.id,
+      CreationDate: item.datetime
+    })) as any[]
     finalResult.push({
       Name: '全部',
       Location: 'unclassified',
