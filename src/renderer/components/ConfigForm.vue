@@ -25,10 +25,31 @@
       <el-form-item
         v-for="(item, index) in configList"
         :key="item.name + index"
-        :label="item.alias || item.name"
         :required="item.required"
         :prop="item.name"
       >
+        <template #label>
+          <el-row align="middle">
+            {{ item.alias || item.name }}
+            <template v-if="item.tips">
+              <el-tooltip
+                class="item"
+                effect="dark"
+                placement="right"
+              >
+                <template #content>
+                  <span
+                    class="config-form-common-tips"
+                    v-html="transformMarkdownToHTML(item.tips)"
+                  />
+                </template>
+                <el-icon class="ml-[4px] cursor-pointer hover:text-blue">
+                  <QuestionFilled />
+                </el-icon>
+              </el-tooltip>
+            </template>
+          </el-row>
+        </template>
         <el-input
           v-if="item.type === 'input' || item.type === 'password'"
           v-model="ruleForm[item.name]"
@@ -64,8 +85,8 @@
         <el-switch
           v-else-if="item.type === 'confirm'"
           v-model="ruleForm[item.name]"
-          active-text="yes"
-          inactive-text="no"
+          :active-text="item.confirmText || 'yes'"
+          :inactive-text="item.cancelText || 'no'"
         />
       </el-form-item>
       <slot />
@@ -79,6 +100,8 @@ import { getConfig } from '@/utils/dataSender'
 import { useRoute } from 'vue-router'
 import type { FormInstance } from 'element-plus'
 import { T as $T } from '@/i18n'
+import { QuestionFilled } from '@element-plus/icons-vue'
+import { marked } from 'marked'
 
 interface IProps {
   config: any[]
@@ -116,6 +139,14 @@ async function validate (): Promise<IStringKeyMap | false> {
       }
     })
   })
+}
+
+function transformMarkdownToHTML (markdown: string) {
+  try {
+    return marked.parse(markdown)
+  } catch (e) {
+    return markdown
+  }
 }
 
 function getConfigType () {
@@ -182,6 +213,10 @@ defineExpose({
 })
 </script>
 <style lang='stylus'>
+.config-form-common-tips
+  a
+    color #409EFF
+    text-decoration none
 #config-form
   .el-form
     label

@@ -1971,7 +1971,7 @@ async function handleClickFile (item: any) {
       const fileUrl = item.url
       const res = await axios.get(fileUrl, options)
       const content = res.data
-      markDownContent.value = marked(content)
+      markDownContent.value = marked.parse(content)
       isShowMarkDownDialog.value = true
     } catch (error) {
       ElMessage.error($T('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))

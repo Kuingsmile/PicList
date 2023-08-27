@@ -1,4 +1,6 @@
 import { isReactive, isRef, toRaw, unref } from 'vue'
+import { sendToMain } from './dataSender'
+import { OPEN_URL } from '~/universal/events/constants'
 
 /**
  * get raw data from reactive or ref
@@ -15,4 +17,8 @@ export const getRawData = (args: any): any => {
     return data
   }
   return args
+}
+
+export const openURL = (url: string) => {
+  sendToMain(OPEN_URL, url)
 }

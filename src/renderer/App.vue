@@ -20,7 +20,9 @@ import type { IConfig } from 'piclist'
 // 其他工具
 import bus from './utils/bus'
 import { FORCE_UPDATE } from '~/universal/events/constants'
+import { useATagClick } from './hooks/useATagClick'
 
+useATagClick()
 const store = useStore()
 onBeforeMount(async () => {
   const config = await getConfig<IConfig>()
