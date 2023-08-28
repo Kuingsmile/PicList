@@ -3512,6 +3512,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/upyun@^3.4.0":
+  version "3.4.0"
+  resolved "https://registry.npmjs.org/@types/upyun/-/upyun-3.4.0.tgz#1f32321ad602ce8314d10f36373e3e43238c4fe1"
+  integrity sha512-rO0YXtVPL5r57qYClRFKjIEi84fyRzZQijGkemUbcS2FZ8eXspAxDarzgDJF++B+jKkF2Ojn2WIhFoRrWWK/dw==
+  dependencies:
+    "@types/node" "*"
+
 "@types/uuid@^9.0.2":
   version "9.0.2"
   resolved "https://registry.npmjs.org/@types/uuid/-/uuid-9.0.2.tgz#ede1d1b1e451548d44919dc226253e32a6952c4b"
