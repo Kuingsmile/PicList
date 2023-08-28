@@ -90,7 +90,7 @@ export const supportedPicBedList: IStringKeyMap = {
     },
     explain: $T('MANAGE_CONSTANT_SMMS_EXPLAIN'),
     options: ['alias', 'token', 'paging'],
-    refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=%e5%8f%82%e6%95%b0%e8%af%b4%e6%98%8e-6',
+    refLink: 'https://piclist.cn/manage.html#smms',
     referenceText: $T('MANAGE_CONSTANT_SMMS_REFER_TEXT')
   },
   qiniu: {
@@ -160,7 +160,7 @@ export const supportedPicBedList: IStringKeyMap = {
     },
     explain: $T('MANAGE_CONSTANT_QINIU_EXPLAIN'),
     options: ['alias', 'accessKey', 'secretKey', 'bucketName', 'baseDir', 'isAutoCustomUrl', 'paging', 'itemsPerPage'],
-    refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=%e5%8f%82%e6%95%b0%e8%af%b4%e6%98%8e-3',
+    refLink: 'https://piclist.cn/manage.html#%E4%B8%83%E7%89%9B%E4%BA%91',
     referenceText: $T('MANAGE_CONSTANT_QINIU_REFER_TEXT')
   },
   github: {
@@ -265,7 +265,7 @@ export const supportedPicBedList: IStringKeyMap = {
     },
     explain: $T('MANAGE_CONSTANT_GITHUB_EXPLAIN'),
     options: ['alias', 'token', 'githubUsername', 'proxy', 'customUrl'],
-    refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=%e5%8f%82%e6%95%b0%e8%af%b4%e6%98%8e-9',
+    refLink: 'https://piclist.cn/manage.html#github',
     referenceText: $T('MANAGE_CONSTANT_GITHUB_REFER_TEXT')
   },
   aliyun: {
@@ -335,7 +335,7 @@ export const supportedPicBedList: IStringKeyMap = {
     },
     explain: $T('MANAGE_CONSTANT_ALIYUN_EXPLAIN'),
     options: ['alias', 'accessKeyId', 'accessKeySecret', 'bucketName', 'baseDir', 'isAutoCustomUrl', 'paging', 'itemsPerPage'],
-    refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=%e5%8f%82%e6%95%b0%e8%af%b4%e6%98%8e-1',
+    refLink: 'https://piclist.cn/manage.html#%E9%98%BF%E9%87%8C%E4%BA%91oss',
     referenceText: $T('MANAGE_CONSTANT_ALIYUN_REFER_TEXT')
   },
   tcyun: {
@@ -413,7 +413,7 @@ export const supportedPicBedList: IStringKeyMap = {
     },
     explain: $T('MANAGE_CONSTANT_TENCENT_EXPLAIN'),
     options: ['alias', 'secretId', 'secretKey', 'appId', 'bucketName', 'baseDir', 'isAutoCustomUrl', 'paging', 'itemsPerPage'],
-    refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=%e5%8f%82%e6%95%b0%e8%af%b4%e6%98%8e-2',
+    refLink: 'https://piclist.cn/manage.html#%E8%85%BE%E8%AE%AF%E4%BA%91',
     referenceText: $T('MANAGE_CONSTANT_TENCENT_REFER_TEXT')
   },
   upyun: {
@@ -512,7 +512,7 @@ export const supportedPicBedList: IStringKeyMap = {
     },
     explain: $T('MANAGE_CONSTANT_UPYUN_EXPLAIN'),
     options: ['alias', 'bucketName', 'operator', 'password', 'baseDir', 'customUrl', 'paging', 'itemsPerPage'],
-    refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=%e5%8f%82%e6%95%b0%e8%af%b4%e6%98%8e-4',
+    refLink: 'https://piclist.cn/manage.html#%E5%8F%88%E6%8B%8D%E4%BA%91',
     referenceText: $T('MANAGE_CONSTANT_UPYUN_REFER_TEXT')
   },
   imgur: {
@@ -552,7 +552,7 @@ export const supportedPicBedList: IStringKeyMap = {
     },
     explain: $T('MANAGE_CONSTANT_IMGUR_EXPLAIN'),
     options: ['alias', 'imgurUserName', 'accessToken', 'proxy'],
-    refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=imgur%e5%9b%be%e5%ba%8a-1',
+    refLink: 'https://piclist.cn/manage.html#imgur',
     referenceText: $T('MANAGE_CONSTANT_IMGUR_REFER_TEXT')
   },
   s3plist: {
@@ -667,7 +667,7 @@ export const supportedPicBedList: IStringKeyMap = {
     },
     explain: $T('MANAGE_CONSTANT_S3_EXPLAIN'),
     options: ['alias', 'accessKeyId', 'secretAccessKey', 'endpoint', 'sslEnabled', 's3ForcePathStyle', 'proxy', 'aclForUpload', 'bucketName', 'baseDir', 'dogeCloudSupport', 'paging', 'itemsPerPage'],
-    refLink: 'https://github.com/wayjam/picgo-plugin-s3',
+    refLink: 'https://piclist.cn/manage.html#s3',
     referenceText: $T('MANAGE_CONSTANT_S3_REFER_TEXT')
   },
   webdavplist: {
@@ -769,7 +769,7 @@ export const supportedPicBedList: IStringKeyMap = {
     },
     explain: $T('MANAGE_CONSTANT_WEBDAV_EXPLAIN'),
     options: ['alias', 'endpoint', 'username', 'password', 'bucketName', 'baseDir', 'customUrl', 'webPath', 'proxy', 'sslEnabled'],
-    refLink: 'https://pichoro.horosama.com/#/PicHoroDocs/configure?id=webdav',
+    refLink: 'https://piclist.cn/manage.html#webdav',
     referenceText: $T('MANAGE_CONSTANT_WEBDAV_REFER_TEXT')
   },
   local: {
@@ -846,7 +846,7 @@ export const supportedPicBedList: IStringKeyMap = {
     },
     explain: $T('MANAGE_CONSTANT_LOCAL_EXPLAIN'),
     options: ['alias', 'baseDir', 'customUrl', 'bucketName', 'webPath'],
-    refLink: 'https://piclist.cn',
+    refLink: 'https://piclist.cn/manage.html#%E6%9C%AC%E5%9C%B0%E5%AD%98%E5%82%A8',
     referenceText: $T('MANAGE_CONSTANT_LOCAL_REFER_TEXT')
   },
   sftp: {
@@ -980,7 +980,7 @@ export const supportedPicBedList: IStringKeyMap = {
     },
     explain: $T('MANAGE_CONSTANT_SFTP_EXPLAIN'),
     options: ['alias', 'host', 'port', 'username', 'password', 'privateKey', 'passphrase', 'fileMode', 'dirMode', 'baseDir', 'customUrl', 'bucketName', 'webPath'],
-    refLink: 'https://github.com/imba97/picgo-plugin-sftp-uploader',
+    refLink: 'https://piclist.cn/manage.html#sftp',
     referenceText: $T('MANAGE_CONSTANT_SFTP_REFER_TEXT')
   }
 }
