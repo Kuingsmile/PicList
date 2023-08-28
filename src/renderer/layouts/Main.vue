@@ -124,7 +124,7 @@
             </el-icon>
             <span>{{ $T('PLUGIN_SETTINGS') }}</span>
           </el-menu-item>
-          <el-menu-item index="MANUAL">
+          <el-menu-item :index="routerConfig.DocumentPage">
             <el-icon>
               <Link />
             </el-icon>
@@ -259,7 +259,7 @@ import {
 } from '@element-plus/icons-vue'
 
 // Element Plus 消息框组件
-import { ElMessage as $message, ElMessageBox } from 'element-plus'
+import { ElMessage as $message } from 'element-plus'
 
 // 国际化函数
 import { T as $T } from '@/i18n/index'
@@ -299,15 +299,11 @@ import {
   SHOW_MAIN_PAGE_MENU,
   SHOW_MAIN_PAGE_QRCODE,
   SHOW_MAIN_PAGE_DONATION,
-  GET_PICBEDS,
-  OPEN_URL
+  GET_PICBEDS
 } from '~/universal/events/constants'
 
 // 数据发送工具函数
 import { getConfig, sendToMain } from '@/utils/dataSender'
-
-// Piclist 配置类型声明
-import { IConfig } from 'piclist'
 
 const version = ref(process.env.NODE_ENV === 'production' ? pkg.version : 'Dev')
 const routerConfig = reactive(config)
@@ -357,27 +353,6 @@ const handleGetPicPeds = () => {
 }
 
 const handleSelect = (index: string) => {
-  if (index === 'MANUAL') {
-    ElMessageBox.confirm($T('OPEN_MANUAL_LINK_HINT'), $T('OPEN_MANUAL_LINK'), {
-      confirmButtonText: $T('CONFIRM'),
-      cancelButtonText: $T('CANCEL'),
-      type: 'warning',
-      center: true
-    }).then(async () => {
-      let language = 'zh-CN'
-      const config = (await getConfig<IConfig>())!
-      if (config !== undefined) {
-        const settings = config.settings || {}
-        language = settings.language ?? 'zh-CN'
-      }
-      if (language === 'zh-CN' || language === 'zh-TW') {
-        sendToMain(OPEN_URL, 'https://piclist.cn/configure.html')
-      } else {
-        sendToMain(OPEN_URL, 'https://piclist.cn/en/configure.html')
-      }
-    }).catch(() => {})
-    return
-  }
   defaultActive.value = index
   const type = index.match(routerConfig.UPLOADER_CONFIG_PAGE)
   if (type === null) {
