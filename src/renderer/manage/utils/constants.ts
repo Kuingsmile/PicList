@@ -494,6 +494,20 @@ export const supportedPicBedList: IStringKeyMap = {
           }
         ]
       },
+      antiLeechToken: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_UPYUN_ANTI_LEECH_TOKEN_DESC'),
+        placeholder: $T('MANAGE_CONSTANT_UPYUN_ANTI_LEECH_TOKEN_PLACEHOLDER'),
+        type: 'string',
+        default: '',
+        tooltip: $T('MANAGE_CONSTANT_UPYUN_ANTI_LEECH_TOKEN_TOOLTIP')
+      },
+      expireTime: {
+        required: false,
+        description: $T('MANAGE_CONSTANT_UPYUN_EXPIRE_TIME_DESC'),
+        type: 'number',
+        default: 0
+      },
       paging: {
         required: true,
         description: $T('MANAGE_CONSTANT_UPYUN_PAGING'),
@@ -511,7 +525,7 @@ export const supportedPicBedList: IStringKeyMap = {
       }
     },
     explain: $T('MANAGE_CONSTANT_UPYUN_EXPLAIN'),
-    options: ['alias', 'bucketName', 'operator', 'password', 'baseDir', 'customUrl', 'paging', 'itemsPerPage'],
+    options: ['alias', 'bucketName', 'operator', 'password', 'baseDir', 'customUrl', 'paging', 'itemsPerPage', 'antiLeechToken', 'expireTime'],
     refLink: 'https://piclist.cn/manage.html#%E5%8F%88%E6%8B%8D%E4%BA%91',
     referenceText: $T('MANAGE_CONSTANT_UPYUN_REFER_TEXT')
   },

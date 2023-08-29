@@ -685,6 +685,8 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
         operator: config.operator,
         password: config.password,
         bucketName: config.bucket,
+        antiLeechToken: config.antiLeechToken,
+        expireTime: config.expireTime,
         baseDir: '/',
         customUrl: config.url,
         transformedConfig: JSON.stringify({

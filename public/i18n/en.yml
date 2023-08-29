@@ -527,6 +527,10 @@ MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_DESC: Acceleration domain name - requir
 MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_PLACEHOLDER: 'Please start with http:// or https://'
 MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_RULE_MESSAGE_A: Acceleration domain name cannot be empty
 MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_RULE_MESSAGE_B: 'Please start the custom domain name with http:// or https://'
+MANAGE_CONSTANT_UPYUN_ANTI_LEECH_TOKEN_DESC: Anti-leech key - optional
+MANAGE_CONSTANT_UPYUN_ANTI_LEECH_TOKEN_PLACEHOLDER: Please enter the anti-leech key
+MANAGE_CONSTANT_UPYUN_ANTI_LEECH_TOKEN_TOOLTIP: If you do not need to use anti-leech, please leave it blank
+MANAGE_CONSTANT_UPYUN_EXPIRE_TIME_DESC: Expiration time(s) - optional
 MANAGE_CONSTANT_UPYUN_PAGING: Whether to enable pagination
 MANAGE_CONSTANT_UPYUN_ITEMS_PAGE: Number of items displayed per page
 MANAGE_CONSTANT_UPYUN_EXPLAIN: It is necessary to fill in the acceleration domain name of Upyun image bed, otherwise it cannot be used normally.
