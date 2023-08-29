@@ -17,8 +17,7 @@ interface IConfig {
 }
 
 export default class ImgurApi {
-  static baseUrl: 'https://api.imgur.com/3'
-
+  static baseUrl = 'https://api.imgur.com/3'
   private static async makeRequest (
     method: 'delete',
     url: string,

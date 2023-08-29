@@ -4,6 +4,9 @@
   <a href="https://github.com/Kuingsmile/PicList/actions">
     <img src="https://img.shields.io/badge/code%20style-standard-green.svg?style=flat-square" alt="">
   </a>
+  <a href="https://github.com/Kuingsmile/PicList/releases">
+    <img src="https://img.shields.io/github/downloads/Kuingsmile/PicList/total.svg?style=flat-square" alt="">
+  </a>
   <a href="https://github.com/Kuingsmile/PicList/actions">
     <img src="https://github.com/Kuingsmile/PicList/actions/workflows/manually.yml/badge.svg" alt="">
   </a>

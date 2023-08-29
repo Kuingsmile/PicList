@@ -75,7 +75,10 @@ export async function removeFileFromS3InMain (configMap: IStringKeyMap, dogeMode
   try {
     const { imgUrl, config: { accessKeyID, secretAccessKey, bucketName, region, endpoint, pathStyleAccess, rejectUnauthorized, proxy } } = configMap
     const url = new URL(!/^https?:\/\//.test(imgUrl) ? `http://${imgUrl}` : imgUrl)
-    const fileKey = url.pathname.replace(/^\/+/, '')
+    let fileKey = url.pathname.replace(/^\/+/, '')
+    if (pathStyleAccess) {
+      fileKey = fileKey.replace(/^[^/]+\//, '')
+    }
     const endpointUrl: string | undefined = endpoint
       ? /^https?:\/\//.test(endpoint)
         ? endpoint

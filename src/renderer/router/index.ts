@@ -80,6 +80,11 @@ export default createRouter({
           name: config.PLUGIN_PAGE
         },
         {
+          path: 'documents',
+          component: () => import(/* webpackChunkName: "DocumentPage" */ '@/pages/DocumentPage.vue'),
+          name: config.DocumentPage
+        },
+        {
           path: 'shortKey',
           component: () => import(/* webpackChunkName: "ShortkeyPage" */ '@/pages/ShortKey.vue'),
           name: config.SHORTKEY_PAGE

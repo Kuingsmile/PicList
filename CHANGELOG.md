@@ -1,3 +1,27 @@
+## :tada: 2.5.1 (2023-08-29)
+
+
+### :sparkles: Features
+
+* add anti leech token for upyun ([4894f09](https://github.com/Kuingsmile/PicList/commit/4894f09))
+* add ts support for upyun ([95faa5b](https://github.com/Kuingsmile/PicList/commit/95faa5b))
+* update manage config page reflink ([636596a](https://github.com/Kuingsmile/PicList/commit/636596a))
+* using webview to show manual website ([bc7a446](https://github.com/Kuingsmile/PicList/commit/bc7a446))
+
+
+### :bug: Bug Fixes
+
+* fix an issue where files uploaded to minio using s3 plugin can't be deleted remotely ([80db40b](https://github.com/Kuingsmile/PicList/commit/80db40b))
+* fix custom domain error of minio ([0c8ea83](https://github.com/Kuingsmile/PicList/commit/0c8ea83))
+* fix ImgurApi.baseUrl  is undefined ([7ada948](https://github.com/Kuingsmile/PicList/commit/7ada948))
+
+
+### :pencil: Documentation
+
+* add download counts for docs ([3085385](https://github.com/Kuingsmile/PicList/commit/3085385))
+
+
+
 # :tada: 2.5.0 (2023-08-23)
 
 

@@ -1,4 +1,3 @@
-// @ts-ignore
 import Upyun from 'upyun'
 
 export default class UpyunApi {

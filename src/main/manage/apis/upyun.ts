@@ -1,5 +1,3 @@
-// 忽略 TypeScript 错误
-// @ts-ignore
 import Upyun from 'upyun'
 
 // 加密函数、获取文件 MIME 类型、新的下载器、got 上传函数、并发异步任务池、错误格式化函数

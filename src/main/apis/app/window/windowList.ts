@@ -71,6 +71,7 @@ const settingWindowOptions = {
   transparent: true,
   titleBarStyle: 'hidden',
   webPreferences: {
+    webviewTag: true,
     backgroundThrottling: false,
     nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
     contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
