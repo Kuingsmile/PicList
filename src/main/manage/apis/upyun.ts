@@ -59,7 +59,7 @@ class UpyunApi {
   }
 
   getAntiLeechParam (key: string): string {
-    const uri = `/${encodeURIComponent(key)}`.replace(/%2F/g, '/').replace(/^\/+/g, '/')
+    const uri = `/${key}`.replace(/%2F/g, '/').replace(/^\/+/g, '/')
     const now = Math.round(new Date().getTime() / 1000)
     const expire = this.expireTime ? now + parseInt(this.expireTime.toString(), 10) : now + 1800
     const sign = md5(`${this.antiLeechToken}&${expire}&${uri}`, 'hex')

@@ -12488,10 +12488,10 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/piclist/-/piclist-1.0.0.tgz#71674a3905e77c9325d5cda6529e025253df15b0"
-  integrity sha512-8KP+9gZOCZpQOZIRIFVO/WeWv8kjY0GOo3bTskF8BAaQfUl6lJi2AkG435nVDSfKidt14v53ZfohNn3jpXX9Hg==
+piclist@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/piclist/-/piclist-1.0.1.tgz#6d15ec44393de38b32ba34d041511324ec7dda55"
+  integrity sha512-c68ijE5Gj3E29KEc1B6F75pluldHLJvkvYmoWhNpYg1hOXGTlxepZCZm8Wp/a9NVjT8jh3zfX1fmpbFGjpOOug==
   dependencies:
     "@picgo/i18n" "^1.0.0"
     "@picgo/store" "^2.0.4"
