@@ -19,7 +19,6 @@
 
 [简体中文](https://github.com/Kuingsmile/PicList/blob/dev/README.md) | English
 
-
 PicList is an efficient cloud storage and image hosting platform management tool. Building upon the foundation of PicGo, it has been deeply modified and enhanced. Not only does it retain all of PicGo's features, but it also adds many new ones. For instance, the album now supports synchronized deletion of files in the cloud. Built-in image hosting options have been expanded to include WebDav, local image hosting, and SFTP. Additionally, PicList introduces comprehensive cloud storage management functions, including cloud directory viewing, file search, batch uploading, downloading, and file deletion, copying links in various formats, and previews for images, markdown, text, and videos. Moreover, it boasts a more powerful album function and numerous other improvements and enhancements.
 
 ## How to migrate from PicGo
@@ -47,6 +46,10 @@ if you want to use PicList-core, please go to [https://github.com/Kuingsmile/Pic
 - Software auto-updates are available, along with multiple startup modes, and many other feature details have been added and optimized.
 - The PicGo interface has been enhanced, window size restrictions have been unlocked, and some interface layouts have been beautified.
 - The installation package for the Mac platform is now signed, addressing the recurring issue on PicGo where the installation package was reported as damaged.
+
+### How to use in VScode
+
+Please install my matching plugin [VS-PicList](https://marketplace.visualstudio.com/items?itemName=Kuingsmile.vs-piclist), compared with the vs-picgo plugin, the plugin directly depends on the PicList desktop software, supports a variety of uploads and direct cloud deletion in Vscode and other functions.
 
 ### How to use in Typora
 
@@ -177,6 +180,7 @@ If you need to build it yourself, you can start building with `yarn run build`. 
 
 - [PicList-Core](https://github.com/Kuingsmile/PicList-Core) : A core library based on PicGo-Core for CLI operations and project development
 - [PicHoro](https://github.com/Kuingsmile/PicHoro): A mobile APP that works with PicList
+- [VS-PicList](https://github.com/Kuingsmile/vs-PicList/): A VScode plugin that works with PicList
 
 ## License
 
@@ -193,4 +197,3 @@ Copyright (c) 2023-present Kuingsmile
 - Star  [![GitHub stars](https://img.shields.io/github/stars/kuingsmile/PicList?logo=github&style=social)](https://github.com/kuingsmile/PicList/stargazers)
 
 [![Stargazers over time](https://starchart.cc/kuingsmile/PicList.svg)](https://github.com/kuingsmile/PicList/stargazers)
-

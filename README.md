@@ -47,6 +47,10 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 - 优化了PicGo的界面，解锁了窗口大小限制，同时美化了部分界面布局
 - mac平台安装包已签名，从源头解决了PicGo上的安装包已损坏的日经问题
 
+### 如何在Vscode中使用
+
+请安装我的配套插件 [VS-PicList](https://marketplace.visualstudio.com/items?itemName=Kuingsmile.vs-piclist),相比于vs-picgo插件，该插件直接依赖于PicList桌面端软件，支持多样上传和直接在Vscode中进行云端删除等功能。
+
 ### 如何在Typora中使用
 
 #### **1.6.0版本及以上**
@@ -166,6 +170,7 @@ brew uninstall piclist
 
 - [PicList-Core](https://github.com/Kuingsmile/PicList-Core) : 基于 PicGo-Core 二次开发的核心库，用于 CLI 操作和项目开发
 - [PicHoro](https://github.com/Kuingsmile/PicHoro): 与 PicList 搭配使用的手机端 APP
+- [VS-PicList](https://github.com/Kuingsmile/vs-PicList/): 与 PicList 搭配使用的VScode插件
 
 ## License
 
