@@ -3383,10 +3383,10 @@
   resolved "https://registry.npmmirror.com/@types/lodash/-/lodash-4.14.182.tgz#05301a4d5e62963227eaafe0ce04dd77c54ea5c2"
   integrity sha512-/THyiqyQAP9AfARo4pF+aCGcyiQ94tX/Is2I7HofNRqoYLgN1PBoOWu2/zTA5zMxzP5EFutMtWtGAFRKUe961Q==
 
-"@types/lowdb@^1.0.11":
-  version "1.0.11"
-  resolved "https://registry.npmjs.org/@types/lowdb/-/lowdb-1.0.11.tgz#d8336a635ea0dbd48a7f6f62fb9fccc5ec358ae3"
-  integrity sha512-h99VMxvTuz+VsXUVCCJo4dsps4vbkXwvU71TpmxDoiBU24bJ0VBygIHgmMm+UPoQIFihmV6euRik4z8J7XDJWg==
+"@types/lowdb@^1.0.12":
+  version "1.0.12"
+  resolved "https://registry.npmjs.org/@types/lowdb/-/lowdb-1.0.12.tgz#e9828264cb5cc5ccd5462c437a9a625d34088f7f"
+  integrity sha512-m/hOfY7nuwo9V3yApvR6aJ3uZP6iNC74S7Bx5BWz0L7IrzjKyzUur/jEdlYWBWWVjmkCz+ECK9nk8UJoQa8aZw==
   dependencies:
     "@types/lodash" "*"
 
@@ -3548,17 +3548,17 @@
   dependencies:
     "@types/node" "*"
 
-"@types/upyun@^3.4.0":
-  version "3.4.0"
-  resolved "https://registry.npmjs.org/@types/upyun/-/upyun-3.4.0.tgz#1f32321ad602ce8314d10f36373e3e43238c4fe1"
-  integrity sha512-rO0YXtVPL5r57qYClRFKjIEi84fyRzZQijGkemUbcS2FZ8eXspAxDarzgDJF++B+jKkF2Ojn2WIhFoRrWWK/dw==
+"@types/upyun@^3.4.1":
+  version "3.4.1"
+  resolved "https://registry.npmjs.org/@types/upyun/-/upyun-3.4.1.tgz#a444410981ec1650cfc2de75e927b6ad51477951"
+  integrity sha512-LxOHwixMpymvqjdofOx1QHH0COcTGiE3HWMtRpTgicVOsmlVxOPlSXQOc1Kznzz4AYhXzp/rFv7hAcnoCRehew==
   dependencies:
     "@types/node" "*"
 
-"@types/uuid@^9.0.2":
-  version "9.0.2"
-  resolved "https://registry.npmjs.org/@types/uuid/-/uuid-9.0.2.tgz#ede1d1b1e451548d44919dc226253e32a6952c4b"
-  integrity sha512-kNnC1GFBLuhImSnV7w4njQkUiJi0ZXUycu1rUaouPqiKlXkh77JKgdRnTAp1x5eBwcIwbtI+3otwzuIDEuDoxQ==
+"@types/uuid@^9.0.3":
+  version "9.0.3"
+  resolved "https://registry.npmjs.org/@types/uuid/-/uuid-9.0.3.tgz#6cdd939b4316b4f81625de9f06028d848c4a1533"
+  integrity sha512-taHQQH/3ZyI3zP8M/puluDEIEvtQHVYcC6y3N8ijFtAd28+Ey/G4sg1u2gB01S8MwybLOKAp9/yCMu/uR5l3Ug==
 
 "@types/verror@^1.10.3":
   version "1.10.5"
@@ -10598,10 +10598,10 @@ launch-editor@^2.2.1, launch-editor@^2.3.0:
     picocolors "^1.0.0"
     shell-quote "^1.6.1"
 
-layerr@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.npmjs.org/layerr/-/layerr-0.1.2.tgz#16c8e7fb042d3595ab15492bdad088f31d7afd15"
-  integrity sha512-ob5kTd9H3S4GOG2nVXyQhOu9O8nBgP555XxWPkJI0tR0JeRilfyTp8WtPdIJHLXBmHMSdEq5+KMxiYABeScsIQ==
+layerr@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.npmjs.org/layerr/-/layerr-2.0.1.tgz#0c98e6f599de4f76b75c7a6522c54b8c6c591ff0"
+  integrity sha512-z0730CwG/JO24evdORnyDkwG1Q7b7mF2Tp1qRQ0YvrMMARbt1DFG694SOv439Gm7hYKolyZyaB49YIrYIfZBdg==
 
 lazy-val@^1.0.4, lazy-val@^1.0.5:
   version "1.0.5"
@@ -11260,10 +11260,10 @@ minimatch@^3.0.5, minimatch@^3.1.1, minimatch@^3.1.2:
   dependencies:
     brace-expansion "^1.1.7"
 
-minimatch@^5.1.0:
-  version "5.1.6"
-  resolved "https://registry.npmjs.org/minimatch/-/minimatch-5.1.6.tgz#1cfcb8cf5522ea69952cd2af95ae09477f122a96"
-  integrity sha512-lKwV/1brpG6mBUFHtb7NUmtABCb2WZZmm2wNiOA5hAb8VdCS4B3dtMWyvcoViccwAW/COERjXLt0zP1zXUN26g==
+minimatch@^7.4.6:
+  version "7.4.6"
+  resolved "https://registry.npmjs.org/minimatch/-/minimatch-7.4.6.tgz#845d6f254d8f4a5e4fd6baf44d5f10c8448365fb"
+  integrity sha512-sBz8G/YjVniEz6lKPNpKxXwazJe4c19fEfV2GDMX6AjFz+MX9uDWIZW8XreVhkFW3fkIdTv/gxWr/Kks5FFAVw==
   dependencies:
     brace-expansion "^2.0.1"
 
@@ -15519,10 +15519,10 @@ uri-js@^4.2.2:
   dependencies:
     punycode "^2.1.0"
 
-url-join@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.npmjs.org/url-join/-/url-join-4.0.1.tgz#b642e21a2646808ffa178c4c5fda39844e12cde7"
-  integrity sha512-jk1+QP6ZJqyOiuEI9AEWQfju/nB2Pw466kbA0LEZljHwKeMgd9WrAEgEGxjPDD2+TNbbb37rTyhEfrCXfuKXnA==
+url-join@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.npmjs.org/url-join/-/url-join-5.0.0.tgz#c2f1e5cbd95fa91082a93b58a1f42fecb4bdbcf1"
+  integrity sha512-n2huDr9h9yzd6exQVnH/jU5mr+Pfx08LRXXZhkLLetAMESRj+anQsTAh940iMrIetKAmry9coFuZQ2jY8/p3WA==
 
 url-parse-lax@^3.0.0:
   version "3.0.0"
@@ -15892,10 +15892,10 @@ web-streams-polyfill@^3.0.3:
   resolved "https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.2.1.tgz#71c2718c52b45fd49dbeee88634b3a60ceab42a6"
   integrity sha512-e0MO3wdXWKrLbL0DgGnUV7WHVuw9OUvL4hjgnPkIeEvESk74gAITi5G606JtZPp39cd8HA9VQzCIvA49LpPN5Q==
 
-webdav@^5.2.3:
-  version "5.2.3"
-  resolved "https://registry.npmjs.org/webdav/-/webdav-5.2.3.tgz#73f5ddfef170ea594a63620b99081e4db6d90860"
-  integrity sha512-u5wqJULZhB7IwO3qVD9r0ikt6SMHZ4P4YYtLJ6JrCmSoZuW6KvanXWJAA4LZDm548lK7aCNUsy0VxbBKBXAGrg==
+webdav@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.npmjs.org/webdav/-/webdav-5.3.0.tgz#0be7690003884a250f7595ee42e583c71f01661d"
+  integrity sha512-xRu/URZGCxDPXmT+9Gu6tNGvlETBwjcuz69lx/6Qlq/0q3Gu2GSVyRt+mP0vTlLFfaY3xZ5O/SPTQ578tC/45Q==
   dependencies:
     "@buttercup/fetch" "^0.1.1"
     base-64 "^1.0.0"
@@ -15903,12 +15903,12 @@ webdav@^5.2.3:
     fast-xml-parser "^4.2.4"
     he "^1.2.0"
     hot-patcher "^2.0.0"
-    layerr "^0.1.2"
+    layerr "^2.0.1"
     md5 "^2.3.0"
-    minimatch "^5.1.0"
+    minimatch "^7.4.6"
     nested-property "^4.0.0"
     path-posix "^1.0.0"
-    url-join "^4.0.1"
+    url-join "^5.0.0"
     url-parse "^1.5.10"
 
 webidl-conversions@^3.0.0:
