@@ -1,5 +1,5 @@
 import { isReactive, isRef, toRaw, unref } from 'vue'
-import { sendToMain } from './dataSender'
+import { ipcRenderer } from 'electron'
 import { OPEN_URL } from '~/universal/events/constants'
 
 /**
@@ -17,6 +17,11 @@ export const getRawData = (args: any): any => {
     return data
   }
   return args
+}
+
+function sendToMain (channel: string, ...args: any[]) {
+  const data = getRawData(args)
+  ipcRenderer.send(channel, ...data)
 }
 
 export const openURL = (url: string) => {

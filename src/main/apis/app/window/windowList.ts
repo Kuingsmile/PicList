@@ -8,7 +8,6 @@ import bus from '@core/bus'
 import db from '~/main/apis/core/datastore'
 import picgo from '~/main/apis/core/picgo'
 import { T } from '~/main/i18n'
-import { remoteNoticeHandler } from '../remoteNotice'
 import {
   SETTING_WINDOW_URL,
   TRAY_WINDOW_URL,
@@ -18,7 +17,7 @@ import {
 } from './constants'
 
 // Custom types/enums
-import { IRemoteNoticeTriggerHook, IWindowList } from '#/types/enum'
+import { IWindowList } from '#/types/enum'
 
 // External utility functions
 import { CREATE_APP_MENU } from '@core/bus/constants'
@@ -175,9 +174,6 @@ windowList.set(IWindowList.SETTING_WINDOW, {
   multiple: false,
   options: () => settingWindowOptions,
   callback (window, windowManager) {
-    window.once('show', () => {
-      remoteNoticeHandler.triggerHook(IRemoteNoticeTriggerHook.SETTING_WINDOW_OPEN)
-    })
     window.loadURL(handleWindowParams(SETTING_WINDOW_URL))
     window.on('closed', () => {
       bus.emit(TOGGLE_SHORTKEY_MODIFIED_MODE, false)

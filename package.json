@@ -30,7 +30,8 @@
     "upload-beta": "node ./scripts/upload-beta.js",
     "link": "node ./scripts/link.js",
     "sha256": "node ./scripts/gen-sha256.js",
-    "ncu": "node ./scripts/check-dep.js"
+    "ncu": "node ./scripts/check-dep.js",
+    "lint:dpdm": "dpdm -T --tsconfig ./tsconfig.json --no-tree --no-warning --exit-code circular:1 src/background.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.400.0",
@@ -115,6 +116,7 @@
     "conventional-changelog": "^5.0.0",
     "cz-customizable": "^7.0.0",
     "dotenv": "^16.3.1",
+    "dpdm": "^3.13.1",
     "electron": "^22.0.2",
     "electron-devtools-installer": "^3.2.0",
     "eslint": "^8.48.0",
