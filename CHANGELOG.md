@@ -1,3 +1,25 @@
+## :tada: 2.5.2 (2023-09-04)
+
+
+### :sparkles: Features
+
+* add antileechtoken and expiretime for upyun manage ([ea61614](https://github.com/Kuingsmile/PicList/commit/ea61614))
+* add vs-piclist, a vscode plugin works with piclist ([373dfa2](https://github.com/Kuingsmile/PicList/commit/373dfa2))
+* update piclist core ([0eb7bac](https://github.com/Kuingsmile/PicList/commit/0eb7bac))
+
+
+### :bug: Bug Fixes
+
+* fix upload failed error of aliyun upyun and github ([320ac73](https://github.com/Kuingsmile/PicList/commit/320ac73))
+* remove circular dependency ([9ef5136](https://github.com/Kuingsmile/PicList/commit/9ef5136))
+
+
+### :package: Chore
+
+* update readme ([0a02b96](https://github.com/Kuingsmile/PicList/commit/0a02b96))
+
+
+
 ## :tada: 2.5.1 (2023-08-29)
 
 
