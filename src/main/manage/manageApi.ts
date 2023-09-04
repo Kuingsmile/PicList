@@ -73,7 +73,7 @@ export class ManageApi extends EventEmitter implements ManageApiType {
       case 'tcyun':
         return new API.TcyunApi(this.currentPicBedConfig.secretId, this.currentPicBedConfig.secretKey, this.logger)
       case 'upyun':
-        return new API.UpyunApi(this.currentPicBedConfig.bucketName, this.currentPicBedConfig.operator, this.currentPicBedConfig.password, this.logger)
+        return new API.UpyunApi(this.currentPicBedConfig.bucketName, this.currentPicBedConfig.operator, this.currentPicBedConfig.password, this.logger, this.currentPicBedConfig.antiLeechToken, this.currentPicBedConfig.expireTime)
       case 'webdavplist':
         return new API.WebdavplistApi(this.currentPicBedConfig.endpoint, this.currentPicBedConfig.username, this.currentPicBedConfig.password, this.currentPicBedConfig.sslEnabled, this.currentPicBedConfig.proxy, this.logger)
       default:

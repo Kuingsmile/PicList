@@ -42,16 +42,29 @@ class UpyunApi {
   bucket: string
   operator: string
   password: string
+  antiLeechToken: string
+  expireTime: number
   stopMarker = 'g2gCZAAEbmV4dGQAA2VvZg'
   logger: ManageLogger
 
-  constructor (bucket: string, operator: string, password: string, logger: ManageLogger) {
+  constructor (bucket: string, operator: string, password: string, logger: ManageLogger, antiLeechToken?: string, expireTime?: number) {
     this.ser = new Upyun.Service(bucket, operator, password)
     this.cli = new Upyun.Client(this.ser)
     this.bucket = bucket
     this.operator = operator
     this.password = password
     this.logger = logger
+    this.antiLeechToken = antiLeechToken || ''
+    this.expireTime = expireTime || 24 * 60 * 60
+  }
+
+  getAntiLeechParam (key: string): string {
+    const uri = `/${key}`.replace(/%2F/g, '/').replace(/^\/+/g, '/')
+    const now = Math.round(new Date().getTime() / 1000)
+    const expire = this.expireTime ? now + parseInt(this.expireTime.toString(), 10) : now + 1800
+    const sign = md5(`${this.antiLeechToken}&${expire}&${uri}`, 'hex')
+    const upt = `${sign.substring(12, 20)}${expire}`
+    return `_upt=${upt}`
   }
 
   formatFolder (item: any, slicedPrefix: string) {
@@ -72,6 +85,10 @@ class UpyunApi {
 
   formatFile (item: any, slicedPrefix: string, urlPrefix: string) {
     const key = `${slicedPrefix}${item.name}`
+    let url = `${urlPrefix}/${key}`
+    if (this.antiLeechToken) {
+      url = `${url}?${this.getAntiLeechParam(key)}`
+    }
     return {
       ...item,
       fileName: item.name,
@@ -81,7 +98,7 @@ class UpyunApi {
       checked: false,
       match: false,
       isImage: isImage(item.name),
-      url: `${urlPrefix}/${key}`,
+      url,
       key
     }
   }

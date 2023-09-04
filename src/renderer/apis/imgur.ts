@@ -21,16 +21,13 @@ export default class ImgurApi {
   private static async makeRequest (
     method: 'delete',
     url: string,
-    config: IConfig,
-    logError: boolean = true
+    config: IConfig
   ): Promise<boolean> {
     try {
       const response: AxiosResponse = await axios[method](url, config)
       return response.status === 200
     } catch (error) {
-      if (logError) {
-        console.error(error)
-      }
+      console.error(error)
       return false
     }
   }
