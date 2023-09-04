@@ -21,7 +21,7 @@ export function saveConfig (config: IObj | string, value?: any) {
 export function getConfig<T> (key?: string): Promise<T | undefined> {
   return new Promise((resolve) => {
     const callbackId = uuid()
-    const callback = (event: IpcRendererEvent, config: T | undefined, returnCallbackId: string) => {
+    const callback = (_event: IpcRendererEvent, config: T | undefined, returnCallbackId: string) => {
       if (returnCallbackId === callbackId) {
         resolve(config)
         ipcRenderer.removeListener(PICGO_GET_CONFIG, callback)
@@ -39,7 +39,7 @@ export function getConfig<T> (key?: string): Promise<T | undefined> {
 export function triggerRPC<T> (action: IRPCActionType, ...args: any[]): Promise<T | null> {
   return new Promise((resolve) => {
     const callbackId = uuid()
-    const callback = (event: IpcRendererEvent, data: T | null, returnActionType: IRPCActionType, returnCallbackId: string) => {
+    const callback = (_event: IpcRendererEvent, data: T | null, returnActionType: IRPCActionType, returnCallbackId: string) => {
       if (returnCallbackId === callbackId && returnActionType === action) {
         resolve(data)
         ipcRenderer.removeListener(RPC_ACTIONS, callback)
@@ -61,9 +61,6 @@ export function sendRPC (action: IRPCActionType, ...args: any[]): void {
   ipcRenderer.send(RPC_ACTIONS, action, data)
 }
 
-/**
- * @deprecated will be replaced by sendRPC in the future
- */
 export function sendToMain (channel: string, ...args: any[]) {
   const data = getRawData(args)
   ipcRenderer.send(channel, ...data)

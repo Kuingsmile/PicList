@@ -56,7 +56,6 @@ app.config.globalProperties.$builtInPicBed = [
   'local',
   'sftpplist'
 ]
-app.config.unwrapInjectedRef = true
 
 app.config.globalProperties.$$db = db
 app.config.globalProperties.$http = axios
