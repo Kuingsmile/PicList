@@ -144,7 +144,7 @@ const buildMainPageMenu = (win: BrowserWindow) => {
     {
       label: T('SHOW_DEVTOOLS'),
       click () {
-        win?.webContents?.openDevTools()
+        win?.webContents?.openDevTools({ mode: 'detach' })
       }
     }
   ]
