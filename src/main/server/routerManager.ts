@@ -7,6 +7,8 @@ import windowManager from 'apis/app/window/windowManager'
 import { uploadChoosedFiles, uploadClipboardFiles, deleteChoosedFiles } from 'apis/app/uploader/apis'
 import path from 'path'
 import { dbPathDir } from 'apis/core/datastore/dbChecker'
+import picgo from '@core/picgo'
+import { changeCurrentUploader } from '../utils/handleUploaderConfig'
 
 const STORE_PATH = dbPathDir()
 const LOG_PATH = path.join(STORE_PATH, 'piclist.log')
@@ -16,12 +18,39 @@ const deleteErrorMessage = `delete error. see ${LOG_PATH} for more detail.`
 
 router.post('/upload', async ({
   response,
-  list = []
+  list = [],
+  urlparams
 } : {
   response: IHttpResponse,
-  list?: string[]
+  list?: string[],
+  urlparams?: URLSearchParams
 }): Promise<void> => {
   try {
+    const picbed = urlparams?.get('picbed')
+    let currentPicBedType = ''
+    let currentPicBedConfig = {} as IStringKeyMap
+    let currentPicBedConfigId = ''
+    let needRestore = false
+    if (picbed) {
+      const configName = urlparams?.get('configName') || 'Default'
+      const currentPicBed = picgo.getConfig<IStringKeyMap>('picBed') || {} as IStringKeyMap
+      currentPicBedType = currentPicBed?.current
+      currentPicBedConfig = currentPicBed?.[currentPicBedType]
+      currentPicBedConfigId = currentPicBedConfig?._id
+      if (picbed === currentPicBedType && configName === currentPicBedConfig._configName) {
+        // do nothing
+      } else {
+        needRestore = true
+        const picBeds = picgo.getConfig<IStringKeyMap>('uploader')
+        const currentPicBedList = picBeds?.[picbed]?.configList
+        if (currentPicBedList) {
+          const currentConfig = currentPicBedList?.find((item: any) => item._configName === configName)
+          if (currentConfig) {
+            changeCurrentUploader(picbed, currentConfig, currentConfig._id)
+          }
+        }
+      }
+    }
     if (list.length === 0) {
       // upload with clipboard
       logger.info('[PicList Server] upload clipboard file')
@@ -82,6 +111,9 @@ router.post('/upload', async ({
           }
         })
       }
+    }
+    if (needRestore) {
+      changeCurrentUploader(currentPicBedType, currentPicBedConfig, currentPicBedConfigId)
     }
   } catch (err: any) {
     logger.error(err)

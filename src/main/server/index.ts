@@ -44,8 +44,9 @@ class Server {
     }
 
     if (request.method === 'POST') {
-      if (!routers.getHandler(request.url!)) {
-        logger.warn(`[PicList Server] don't support [${request.url}] url`)
+      const [url, query] = request.url!.split('?')
+      if (!routers.getHandler(url!)) {
+        logger.warn(`[PicList Server] don't support [${url}] url`)
         handleResponse({
           response,
           statusCode: 404,
@@ -73,10 +74,11 @@ class Server {
             })
           }
           logger.info('[PicList Server] get the request', body)
-          const handler = routers.getHandler(request.url!)
+          const handler = routers.getHandler(url!)?.handler
           handler!({
             ...postObj,
-            response
+            response,
+            urlparams: query ? new URLSearchParams(query) : undefined
           })
         })
       }
