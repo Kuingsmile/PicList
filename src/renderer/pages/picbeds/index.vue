@@ -10,14 +10,26 @@
       >
         <div
           class="view-title"
-          @click="handleNameClick"
         >
-          {{ picBedName }} {{ $T('SETTINGS') }}
+          <span
+            class="view-title-text"
+            @click="handleNameClick"
+          >
+            {{ picBedName }} {{ $T('SETTINGS') }}</span>
           <el-icon
             v-if="linkToLogInList.includes(picBedName)"
           >
             <Link />
           </el-icon>
+          <el-button
+            type="primary"
+            round
+            size="small"
+            style="margin-left: 6px"
+            @click="handleCopyApi"
+          >
+            {{ $T('UPLOAD_PAGE_COPY_UPLOAD_API') }}
+          </el-button>
         </div>
         <config-form
           v-if="config.length > 0"
@@ -95,7 +107,7 @@ import { ref, onBeforeUnmount, onBeforeMount } from 'vue'
 import { T as $T } from '@/i18n/index'
 
 // 数据发送工具函数
-import { sendToMain, triggerRPC } from '@/utils/dataSender'
+import { getConfig, sendToMain, triggerRPC } from '@/utils/dataSender'
 
 // Vue Router 相关
 import { useRoute, useRouter } from 'vue-router'
@@ -105,6 +117,7 @@ import ConfigForm from '@/components/ConfigForm.vue'
 
 // Electron 相关
 import {
+  clipboard,
   ipcRenderer,
   IpcRendererEvent
 } from 'electron'
@@ -119,7 +132,7 @@ import { Link } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 
 // Element Plus 下拉菜单组件
-import { ElDropdown } from 'element-plus'
+import { ElDropdown, ElMessage } from 'element-plus'
 
 const type = ref('')
 const config = ref<IPicGoPluginConfig[]>([])
@@ -187,7 +200,7 @@ const handleReset = async () => {
   $router.back()
 }
 
-const linkToLogInList = ['github', 'tcyun', 'aliyun', 'smms', 'qiniu', 'imgur', 'upyun', 'githubPlus']
+const linkToLogInList = ['GitHub', '腾讯云COS', '阿里云OSS', 'SM.MS', '七牛云', 'Imgur', '又拍云', 'githubPlus']
 
 function handleNameClick () {
   switch ($route.params.type) {
@@ -218,7 +231,30 @@ function handleNameClick () {
   }
 }
 
-function getPicBeds (event: IpcRendererEvent, _config: IPicGoPluginConfig[], name: string) {
+async function handleCopyApi () {
+  try {
+    const serverConfig = await getConfig<IStringKeyMap>('settings.server') || {
+      port: 36677,
+      host: '127.0.0.1'
+    }
+    const { port, host } = serverConfig
+    const uploader = await getConfig('uploader') as IStringKeyMap || {}
+    const picBedConfigList = uploader[$route.params.type as string].configList || []
+    const picBedConfig = picBedConfigList.find((item: IUploaderConfigListItem) => item._id === $route.params.configId)
+    if (!picBedConfig) {
+      ElMessage.error('No config found')
+      return
+    }
+    const apiUrl = `http://${host}:${port}/upload?picbed=${$route.params.type}&configName=${picBedConfig?._configName}`
+    clipboard.writeText(apiUrl)
+    ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS') + ' ' + apiUrl)
+  } catch (error) {
+    console.log(error)
+    ElMessage.error('Copy failed')
+  }
+}
+
+function getPicBeds (_event: IpcRendererEvent, _config: IPicGoPluginConfig[], name: string) {
   config.value = _config
   picBedName.value = name
 }
@@ -245,7 +281,7 @@ export default {
     height 100%
     overflow-y auto
     overflow-x hidden
-  .view-title
+  .view-title-text
     &:hover
       cursor pointer
       color #409EFF

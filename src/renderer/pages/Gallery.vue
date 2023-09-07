@@ -682,59 +682,45 @@ async function copy (item: ImgInfo) {
 }
 
 function remove (item: ImgInfo) {
-  if (item.id) {
-    $confirm($T('TIPS_REMOVE_LINK'), $T('TIPS_NOTICE'), {
-      confirmButtonText: $T('CONFIRM'),
-      cancelButtonText: $T('CANCEL'),
-      type: 'warning'
-    }).then(async () => {
-      const file = await $$db.getById(item.id!)
-      if (await getConfig('settings.deleteCloudFile')) {
-        if (item.type !== undefined && picBedsCanbeDeleted.includes(item.type)) {
-          const result = await ALLApi.delete(item)
-          if (result) {
-            ElNotification({
-              title: $T('GALLERY_SYNC_DELETE_NOTICE_TITLE'),
-              message: `${item.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_SUCCEED')}`,
-              type: 'success'
-            })
-            await $$db.removeById(item.id!)
-            sendToMain('removeFiles', [file])
-            const obj = {
-              title: $T('OPERATION_SUCCEED'),
-              body: ''
-            }
-            const myNotification = new Notification(obj.title, obj)
-            myNotification.onclick = () => {
-              return true
-            }
-            updateGallery()
-          } else {
-            ElNotification({
-              title: $T('GALLERY_SYNC_DELETE_NOTICE_TITLE'),
-              message: `${item.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_FAILED')}`,
-              type: 'error'
-            })
-          }
-        }
+  if (!item.id) return
+  $confirm($T('TIPS_REMOVE_LINK'), $T('TIPS_NOTICE'), {
+    confirmButtonText: $T('CONFIRM'),
+    cancelButtonText: $T('CANCEL'),
+    type: 'warning'
+  }).then(async () => {
+    const file = await $$db.getById(item.id!)
+    if (await getConfig('settings.deleteCloudFile') && picBedsCanbeDeleted.includes(item?.type || 'placeholder')) {
+      const result = await ALLApi.delete(item)
+      if (result) {
+        ElNotification({
+          title: $T('GALLERY_SYNC_DELETE_NOTICE_TITLE'),
+          message: `${item.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_SUCCEED')}`,
+          type: 'success'
+        })
       } else {
-        await $$db.removeById(item.id!)
-        sendToMain('removeFiles', [file])
-        const obj = {
-          title: $T('OPERATION_SUCCEED'),
-          body: ''
-        }
-        const myNotification = new Notification(obj.title, obj)
-        myNotification.onclick = () => {
-          return true
-        }
-        updateGallery()
+        ElNotification({
+          title: $T('GALLERY_SYNC_DELETE_NOTICE_TITLE'),
+          message: `${item.fileName} ${$T('GALLERY_SYNC_DELETE_NOTICE_FAILED')}`,
+          type: 'error'
+        })
+        return true
       }
-    }).catch((e) => {
-      console.log(e)
+    }
+    await $$db.removeById(item.id!)
+    sendToMain('removeFiles', [file])
+    const obj = {
+      title: $T('OPERATION_SUCCEED'),
+      body: ''
+    }
+    const myNotification = new Notification(obj.title, obj)
+    myNotification.onclick = () => {
       return true
-    })
-  }
+    }
+    updateGallery()
+  }).catch((e) => {
+    console.log(e)
+    return true
+  })
 }
 
 function handleDeleteCloudFile (val: ICheckBoxValueType) {
