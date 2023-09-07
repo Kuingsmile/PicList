@@ -1,3 +1,20 @@
+## :tada: 2.5.3 (2023-09-07)
+
+
+### :sparkles: Features
+
+* add telegra.ph picbed support ([dd6bfe6](https://github.com/Kuingsmile/PicList/commit/dd6bfe6))
+* add vertically and horizontally flip treat options for image processing ([cb76a34](https://github.com/Kuingsmile/PicList/commit/cb76a34))
+* optimize api copy ([08b45bc](https://github.com/Kuingsmile/PicList/commit/08b45bc))
+* upload api now support url query picbed and configname ([2fcec70](https://github.com/Kuingsmile/PicList/commit/2fcec70)), closes [#93](https://github.com/Kuingsmile/PicList/issues/93)
+
+
+### :pencil: Documentation
+
+* update readme ([f9a3f24](https://github.com/Kuingsmile/PicList/commit/f9a3f24))
+
+
+
 ## :tada: 2.5.2 (2023-09-04)
 
 
