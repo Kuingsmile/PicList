@@ -1370,6 +1370,24 @@
           </el-select>
         </el-form-item>
         <el-form-item
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISFLIP')"
+        >
+          <el-switch
+            v-model="compressForm.isFlip"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
+        <el-form-item
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISFLOP')"
+        >
+          <el-switch
+            v-model="compressForm.isFlop"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          />
+        </el-form-item>
+        <el-form-item
           :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISRESIZE')"
         >
           <el-switch
@@ -1566,7 +1584,9 @@ const compressForm = reactive<any>({
   reSizePercent: 50,
   isRotate: false,
   rotateDegree: 0,
-  isRemoveExif: false
+  isRemoveExif: false,
+  isFlip: false,
+  isFlop: false
 })
 
 function closeDialog () {
@@ -1595,6 +1615,8 @@ async function initForm () {
     compressForm.isRotate = compress.isRotate ?? false
     compressForm.rotateDegree = compress.rotateDegree ?? 0
     compressForm.isRemoveExif = compress.isRemoveExif ?? false
+    compressForm.isFlip = compress.isFlip ?? false
+    compressForm.isFlop = compress.isFlop ?? false
   }
   if (watermark) {
     waterMarkForm.isAddWatermark = watermark.isAddWatermark ?? false
