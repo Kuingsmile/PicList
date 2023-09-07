@@ -241,6 +241,10 @@ async function handleCopyApi () {
     const uploader = await getConfig('uploader') as IStringKeyMap || {}
     const picBedConfigList = uploader[$route.params.type as string].configList || []
     const picBedConfig = picBedConfigList.find((item: IUploaderConfigListItem) => item._id === $route.params.configId)
+    if (!picBedConfig) {
+      ElMessage.error('No config found')
+      return
+    }
     const apiUrl = `http://${host}:${port}/upload?picbed=${$route.params.type}&configName=${picBedConfig?._configName}`
     clipboard.writeText(apiUrl)
     ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS') + ' ' + apiUrl)
