@@ -2447,6 +2447,22 @@
     lodash-id "^0.14.0"
     write-file-atomic "^4.0.1"
 
+"@picgo/store@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.npmjs.org/@picgo/store/-/store-2.1.0.tgz#542cd37c2f4f139a9701d602322e7971fa8aa6df"
+  integrity sha512-oD/+4hGaioSVqWmaV5/LEXJ/xfpDrwUYPDGgJx3gEYoNPG2IdIZiO++asSZsafAc03TGPlvtR3L9eOTqPaKj9w==
+  dependencies:
+    "@commonify/lowdb" "^3.0.0"
+    "@commonify/steno" "^2.1.0"
+    "@types/bson" "^4.0.1"
+    "@types/graceful-fs" "^4.1.3"
+    "@types/lodash" "^4.14.182"
+    comment-json "^4.2.3"
+    fflate "^0.7.3"
+    lodash "^4.17.21"
+    lodash-id "^0.14.0"
+    write-file-atomic "^4.0.1"
+
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
   resolved "https://registry.npmjs.org/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
@@ -12532,13 +12548,13 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.npmjs.org/piclist/-/piclist-1.0.3.tgz#391c0a5fcdbed35a397c01a730711a4066a5511b"
-  integrity sha512-X9bBb3FbuyoYZx0BFriYU0lZdO1avbehUf7qhWMIwOdzTfY1eMtkJoNglVZ3pAfrugF2BofKco1NbUtKLfFGVA==
+piclist@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/piclist/-/piclist-1.0.4.tgz#527529ab8c1b9f22e366464255a1389a2a685a2d"
+  integrity sha512-60r6wUQNx82aZUMgEjnldQHHJikge1T+KPo0Oe3hUVS1YgJzjj8+iW/sWTMA8UN9Zu0YS6o3cRPyQuIllDGF+g==
   dependencies:
     "@picgo/i18n" "^1.0.0"
-    "@picgo/store" "^2.0.4"
+    "@picgo/store" "^2.1.0"
     axios "^1.5.0"
     chalk "^2.4.1"
     commander "^8.1.0"
