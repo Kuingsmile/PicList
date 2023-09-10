@@ -503,7 +503,7 @@ const batchRenameMatch = ref('')
 const batchRenameReplace = ref('')
 const mathcedCount = computed(() => {
   const matchedFiles = [] as any[]
-  images.value.forEach((item: any) => {
+  filterList.value.forEach((item: any) => {
     if (customStrMatch(item.imgUrl, batchRenameMatch.value)) {
       matchedFiles.push(item)
     }
@@ -939,7 +939,7 @@ function handleBatchRename () {
     return
   }
   let matchedFiles = [] as any[]
-  images.value.forEach((item: any) => {
+  filterList.value.forEach((item: any) => {
     if (customStrMatch(item.imgUrl, batchRenameMatch.value)) {
       matchedFiles.push(item)
     }
