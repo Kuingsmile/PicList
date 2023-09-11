@@ -194,6 +194,7 @@
         c: configName
       })"
       width="70%"
+      append-to-body
     >
       <config-form
         :id="configName"

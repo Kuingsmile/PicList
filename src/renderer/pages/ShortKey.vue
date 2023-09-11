@@ -81,6 +81,7 @@
       v-model="keyBindingVisible"
       :title="$T('SHORTCUT_CHANGE_UPLOAD')"
       :modal-append-to-body="false"
+      append-to-body
     >
       <el-form
         label-position="top"

@@ -294,6 +294,7 @@
       :title="$T('CHANGE_IMAGE_URL')"
       width="500px"
       :modal-append-to-body="false"
+      append-to-body
     >
       <el-input v-model="imgInfo.imgUrl" />
       <template #footer>
@@ -315,6 +316,7 @@
       align-center
       draggable
       destroy-on-close
+      append-to-body
     >
       <el-link
         :underline="false"

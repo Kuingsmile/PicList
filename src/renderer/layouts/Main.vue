@@ -165,6 +165,7 @@
       :title="$T('SPONSOR_PICLIST')"
       width="70%"
       top="10vh"
+      append-to-body
     >
       {{ $T('PICLIST_SPONSOR_TEXT') }}
       <el-row class="support">
@@ -198,6 +199,7 @@
       :title="$T('PICBED_QRCODE')"
       :modal-append-to-body="false"
       lock-scroll
+      append-to-body
     >
       <el-form
         label-position="left"
