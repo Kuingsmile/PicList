@@ -5,6 +5,8 @@
       <el-tooltip
         :content="pluginListToolTip"
         placement="right"
+        :persistent="false"
+        teleported
       >
         <el-icon
           class="el-icon-goods"
@@ -16,6 +18,8 @@
       <el-tooltip
         :content="updateAllToolTip"
         placement="left"
+        :persistent="false"
+        teleported
       >
         <el-icon
           class="el-icon-update"
@@ -30,6 +34,8 @@
       >
         <el-icon
           class="el-icon-download"
+          :persistent="false"
+          teleported
           @click="handleImportLocalPlugin"
         >
           <Download />

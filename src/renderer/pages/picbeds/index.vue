@@ -68,6 +68,7 @@
                   placement="top"
                   style="color: #fff; font-size: 12px;width: 100%;"
                   :disabled="picBedConfigList.length === 0"
+                  teleported
                 >
                   {{ $T('MANAGE_LOGIN_PAGE_PANE_IMPORT') }}
                   <template #dropdown>

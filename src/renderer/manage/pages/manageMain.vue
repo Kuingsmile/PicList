@@ -27,6 +27,8 @@
             effect="dark"
             :content="$T('MANAGE_MAIN_PAGE_NEW_BUCKET')"
             placement="right"
+            :persistent="false"
+            teleported
             popper-class="layout__menu__button__divider__tooltip"
           >
             <el-icon
@@ -143,6 +145,7 @@
     <el-dialog
       v-model="picBedSwitchDialogVisible"
       top="30vh"
+      append-to-body
     >
       <div
         class="choice-cos"
@@ -195,6 +198,7 @@
     <el-drawer
       v-model="nweBucketDrawerVisible"
       class="layout__addNewBucket"
+      append-to-body
     >
       <el-form
         label-position="top"
@@ -240,6 +244,8 @@
             v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'select'"
             v-model="newBucketConfigResult[currentPicBedName+'.'+option]"
             size="large"
+            :persistent="false"
+            teleported
           >
             <el-option
               v-for="item in Object.keys(newBucketConfig[currentPicBedName].configOptions[option].options)"

@@ -10,6 +10,7 @@ import {
 import {
   createProtocol
 } from 'vue-cli-plugin-electron-builder/lib'
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import beforeOpen from '~/main/utils/beforeOpen'
 import ipcList from '~/main/events/ipcList'
 import busEventList from '~/main/events/busEventList'
@@ -137,6 +138,13 @@ class LifeCycle {
     const readyFunction = async () => {
       console.log('on ready')
       createProtocol('picgo')
+      if (isDevelopment && !process.env.IS_TEST) {
+        try {
+          await installExtension(VUEJS_DEVTOOLS)
+        } catch (e: any) {
+          console.error('Vue Devtools failed to install:', e.toString())
+        }
+      }
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
       const isAutoListenClipboard = db.get('settings.isAutoListenClipboard') || false

@@ -42,6 +42,8 @@
                 size="small"
                 style="width: 100%"
                 :placeholder="$T('CHOOSE_SHOWED_PICBED')"
+                :persistent="false"
+                teleported
               >
                 <el-option
                   v-for="item in picBed"
@@ -60,6 +62,7 @@
                 start-placeholder="Start date"
                 end-placeholder="End date"
                 size="small"
+                teleported
               />
             </el-col>
             <el-col :span="1">
@@ -75,6 +78,8 @@
                 size="small"
                 style="width: 100%"
                 :placeholder="$T('CHOOSE_PASTE_FORMAT')"
+                :persistent="false"
+                teleported
                 @change="handlePasteStyleChange"
               >
                 <el-option
@@ -91,6 +96,8 @@
                 size="small"
                 style="width: 100%"
                 placeholder="Choose"
+                :persistent="false"
+                teleported
                 @change="handleUseShortUrlChange"
               >
                 <el-option
@@ -102,7 +109,9 @@
               </el-select>
             </el-col>
             <el-col :span="2">
-              <el-dropdown>
+              <el-dropdown
+                teleported
+              >
                 <el-button
                   size="small"
                   type="primary"
@@ -328,6 +337,8 @@
             effect="dark"
             :content="$T('MANAGE_BUCKET_RENAME_FILE_INPUT_A_TIPS')"
             placement="right"
+            :persistent="false"
+            teleported
           >
             <el-icon
               color="#409EFF"
@@ -352,6 +363,8 @@
             effect="light"
             placement="right"
             width="280"
+            :persistent="false"
+            teleported
           >
             <template #reference>
               <el-icon

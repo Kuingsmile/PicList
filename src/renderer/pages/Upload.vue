@@ -12,6 +12,8 @@
             placement="top"
             effect="light"
             :content="$T('UPLOAD_VIEW_HINT')"
+            :persistent="false"
+            teleported
           >
             <span
               id="upload-view-title"
@@ -170,8 +172,7 @@
         >
           <el-switch
             v-model="waterMarkForm.isAddWatermark"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -193,8 +194,7 @@
         >
           <el-switch
             v-model="waterMarkForm.isFullScreenWatermark"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -265,8 +265,7 @@
         >
           <el-switch
             v-model="compressForm.isRemoveExif"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -284,15 +283,18 @@
         >
           <el-switch
             v-model="compressForm.isConvert"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
           v-show="compressForm.isConvert"
           :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT')"
         >
-          <el-select v-model="compressForm.convertFormat">
+          <el-select
+            v-model="compressForm.convertFormat"
+            :persistent="false"
+            teleported
+          >
             <el-option
               v-for="item in availableFormat"
               :key="item"
@@ -306,8 +308,7 @@
         >
           <el-switch
             v-model="compressForm.isFlip"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -315,8 +316,7 @@
         >
           <el-switch
             v-model="compressForm.isFlop"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -324,8 +324,7 @@
         >
           <el-switch
             v-model="compressForm.isReSize"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -352,8 +351,7 @@
         >
           <el-switch
             v-model="compressForm.skipReSizeOfSmallImg"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -362,8 +360,7 @@
         >
           <el-switch
             v-model="compressForm.skipReSizeOfSmallImg"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -371,8 +368,7 @@
         >
           <el-switch
             v-model="compressForm.isReSizeByPercent"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -389,8 +385,7 @@
         >
           <el-switch
             v-model="compressForm.isRotate"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item

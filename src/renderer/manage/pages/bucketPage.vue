@@ -19,6 +19,8 @@
           v-model="currentCustomDomain"
           :placeholder="$T('MANAGE_BUCKET_PAGE_CUSTOM_URL_SELECT_PLACEHOLDER')"
           style="width: 200px;"
+          :persistent="false"
+          teleported
           @change="handleChangeCustomUrl"
         >
           <el-option
@@ -54,6 +56,8 @@
             effect="dark"
             :content="$T('MANAGE_BUCKET_PAGE_UPLOAD_FILES_TOOLTIP')"
             placement="bottom"
+            :persistent="false"
+            teleported
           >
             <el-icon
               class="icon"
@@ -74,6 +78,8 @@
             effect="dark"
             :content="$T('MANAGE_BUCKET_PAGE_UPLOAD_FROM_URL_TOOLTIP')"
             placement="bottom"
+            :persistent="false"
+            teleported
           >
             <el-icon
               class="icon"
@@ -97,6 +103,8 @@
             effect="dark"
             :content="$T('MANAGE_BUCKET_PAGE_CREATE_FOLDER_TOOLTIP')"
             placement="bottom"
+            :persistent="false"
+            teleported
           >
             <el-icon
               class="icon"
@@ -117,6 +125,8 @@
             effect="dark"
             :content="$T('MANAGE_BUCKET_PAGE_DOWNLOAD_TOOLTIP')"
             placement="bottom"
+            :persistent="false"
+            teleported
           >
             <el-icon
               class="icon"
@@ -137,6 +147,8 @@
             effect="dark"
             :content="$T('MANAGE_BUCKET_PAGE_BATCH_RENAME_TOOLTIP')"
             placement="bottom"
+            :persistent="false"
+            teleported
           >
             <el-icon
               class="icon"
@@ -155,8 +167,12 @@
             effect="dark"
             :content="$T('MANAGE_BUCKET_PAGE_BATCH_COPY_URL_TOOLTIP')"
             placement="right"
+            :persistent="false"
+            teleported
           >
-            <el-dropdown>
+            <el-dropdown
+              teleported
+            >
               <el-icon
                 class="icon"
                 size="25px"
@@ -196,6 +212,8 @@
             effect="dark"
             :content="$T('MANAGE_BUCKET_PAGE_COPY_FILE_INFO_TOOLTIP')"
             placement="bottom"
+            :persistent="false"
+            teleported
           >
             <el-icon
               class="icon"
@@ -219,6 +237,8 @@
             effect="dark"
             :content="$T('MANAGE_BUCKET_PAGE_FORCE_REFRESH_TOOLTIP')"
             placement="bottom"
+            :persistent="false"
+            teleported
           >
             <el-icon
               id="refresh"
@@ -237,7 +257,6 @@
         style="margin-left: 10px;width: 200px;"
         clearable
         size="small"
-        @clear="searchText = ''"
       />
     </div>
     <div class="header-dir-view">
@@ -299,7 +318,7 @@
         </div>
       </div>
       <div
-        v-show="selectedItems.length === 0"
+        v-if="selectedItems.length === 0"
         class="header-buttom-view"
       >
         <el-button
@@ -314,7 +333,7 @@
         </el-button>
       </div>
       <div
-        v-show="selectedItems.length > 0"
+        v-if="selectedItems.length > 0"
         class="header-buttom-view"
       >
         <el-button
@@ -368,7 +387,9 @@
           {{ `${$T('MANAGE_BUCKET_DELETE_BTN')}${selectedItems.length}` }}
         </el-button>
       </div>
-      <el-dropdown>
+      <el-dropdown
+        teleported
+      >
         <el-button
           size="small"
           type="primary"
@@ -392,6 +413,9 @@
           </el-dropdown-item>
           <el-dropdown-item @click="sortFile('check')">
             {{ $T('MANAGE_BUCKET_SORT_SELECTED') }}
+          </el-dropdown-item>
+          <el-dropdown-item @click="sortFile('init')">
+            {{ $T('MANAGE_BUCKET_INIT') }}
           </el-dropdown-item>
         </template>
       </el-dropdown>
@@ -428,6 +452,7 @@
       draggable
       center
       align-center
+      append-to-body
     >
       <el-input
         v-model="urlToUpload"
@@ -451,7 +476,7 @@ https://www.baidu.com/img/bd_logo1.png"
       </template>
     </el-dialog>
     <div
-      v-show="layoutStyle === 'list'"
+      v-if="layoutStyle === 'list'"
       class="layout-table"
       style="margin: 0 15px 15px 15px;overflow-y: auto;overflow-x: hidden;height: 80vh;"
     >
@@ -462,7 +487,7 @@ https://www.baidu.com/img/bd_logo1.png"
           <el-table-v2
             ref="fileTable"
             :columns="columns "
-            :data="currentPageFilesInfo"
+            :data="filterList"
             :row-class="rowClass"
             :width="width"
             :height="height"
@@ -471,7 +496,7 @@ https://www.baidu.com/img/bd_logo1.png"
       </el-auto-resizer>
     </div>
     <div
-      v-show="layoutStyle === 'grid'"
+      v-if="layoutStyle === 'grid'"
       class="layout-grid"
       style="margin: 0 15px 15px 15px;overflow-y: auto;overflow-x: hidden;height: 80vh;"
     >
@@ -482,7 +507,7 @@ https://www.baidu.com/img/bd_logo1.png"
           :gutter="16"
         >
           <el-col
-            v-for="(item,index) in currentPageFilesInfo"
+            v-for="(item,index) in filterList"
             :key="index"
             :xs="24"
             :sm="12"
@@ -491,7 +516,6 @@ https://www.baidu.com/img/bd_logo1.png"
             :xl="2"
           >
             <el-card
-              v-if="item.match || !searchText"
               :body-style="{ padding: '0px', height: '150px', width: '100%', background: item.checked ? '#f2f2f2' : '#fff' }"
               style="margin-bottom: 10px;"
               shadow="hover"
@@ -555,6 +579,8 @@ https://www.baidu.com/img/bd_logo1.png"
                   placement="top"
                   effect="light"
                   :content="item.fileName"
+                  :persistent="false"
+                  teleported
                 >
                   <el-link
                     style="font-size: 12px;font-family: Arial, Helvetica, sans-serif;"
@@ -589,7 +615,9 @@ https://www.baidu.com/img/bd_logo1.png"
                   >
                     <Download />
                   </el-icon>
-                  <el-dropdown>
+                  <el-dropdown
+                    teleported
+                  >
                     <template #default>
                       <el-icon
                         size="15"
@@ -677,7 +705,7 @@ https://www.baidu.com/img/bd_logo1.png"
                 <el-checkbox
                   v-model="item.checked"
                   size="large"
-                  @change="handleCheckChange(item)"
+                  @change="handleCheckChangeOther(item)"
                 />
               </el-row>
             </el-card>
@@ -699,6 +727,7 @@ https://www.baidu.com/img/bd_logo1.png"
       center
       align-center
       draggable
+      append-to-body
     >
       <template #header>
         <el-button
@@ -767,6 +796,7 @@ https://www.baidu.com/img/bd_logo1.png"
     <el-drawer
       v-model="isShowUploadPanel"
       size="60%"
+      append-to-body
       @open="startRefreshUploadTask"
       @close="stopRefreshUploadTask"
     >
@@ -788,7 +818,7 @@ https://www.baidu.com/img/bd_logo1.png"
         @click="openFileSelectDialog"
       >
         <div
-          v-show="!tableData.length"
+          v-if="!tableData.length"
           id="upload-dragger"
           style="position: relative;top: 0;right: 0;heigth: 100%;width: 100%;display: flex;justify-content: center;align-items: center;"
         >
@@ -841,6 +871,7 @@ https://www.baidu.com/img/bd_logo1.png"
       <el-tabs
         v-model="activeUpLoadTab"
         stretch
+        lazy
       >
         <el-tab-pane
           name="uploading"
@@ -1007,12 +1038,14 @@ https://www.baidu.com/img/bd_logo1.png"
       v-model="isShowDownloadPanel"
       :title="$T('MANAGE_BUCKET_DOWNLOAD_PAGE_TITLE')"
       size="60%"
+      append-to-body
       @open="startRefreshDownloadTask"
       @close="stopRefreshDownloadTask"
     >
       <el-tabs
         v-model="activeDownLoadTab"
         stretch
+        lazy
       >
         <el-tab-pane
           name="downloading"
@@ -1209,6 +1242,7 @@ https://www.baidu.com/img/bd_logo1.png"
       close-on-press-escape
       show-close
       destroy-on-close
+      append-to-body
     >
       <div
         style="-webkit-user-select: text"
@@ -1233,6 +1267,7 @@ https://www.baidu.com/img/bd_logo1.png"
       close-on-press-escape
       show-close
       destroy-on-close
+      append-to-body
     >
       <highlightjs
         style="-webkit-user-select: text;"
@@ -1258,6 +1293,7 @@ https://www.baidu.com/img/bd_logo1.png"
       close-on-press-escape
       show-close
       destroy-on-close
+      append-to-body
     >
       <video-player
         :src="videoFileUrl"
@@ -1285,6 +1321,7 @@ https://www.baidu.com/img/bd_logo1.png"
       align-center
       draggable
       destroy-on-close
+      append-to-body
       @close="() => {
         isSingleRename = false
         isRenameIncludeExt = false
@@ -1295,11 +1332,13 @@ https://www.baidu.com/img/bd_logo1.png"
         style="margin-bottom: 10px;"
       >
         <span>
-          {{ $T('MANAGE_BUCKET_RENAME_FILE_INPUT_A') }}
+          {{ $T('MANAGE_BUCKET_RENAME_FILE_INPUT_A') }}  - Matched: {{ matchedFilesNumber }}
           <el-tooltip
             effect="dark"
             :content="$T('MANAGE_BUCKET_RENAME_FILE_INPUT_A_TIPS')"
             placement="right"
+            :persistent="false"
+            teleported
           >
             <el-icon
               color="#409EFF"
@@ -1324,6 +1363,8 @@ https://www.baidu.com/img/bd_logo1.png"
             effect="light"
             placement="right"
             width="280"
+            :persistent="false"
+            teleported
           >
             <template #reference>
               <el-icon
@@ -1381,6 +1422,8 @@ https://www.baidu.com/img/bd_logo1.png"
             effect="dark"
             :content="$T('MANAGE_BUCKET_RENAME_FILE_EXT_TIPS')"
             placement="right"
+            :persistent="false"
+            teleported
           >
             <el-icon
               color="#409EFF"
@@ -1527,6 +1570,8 @@ const linkFormatArray = [
   { key: 'Custom', value: 'custom' }
 ]
 
+type sortTypeList = 'name' | 'size' | 'time' | 'ext' | 'check' | 'init'
+
 // 路由相关
 const route = useRoute()
 // 页面状态变量相关
@@ -1555,7 +1600,6 @@ const fileSortSizeReverse = ref(false)
 const fileSortTimeReverse = ref(false)
 // 页面搜索相关
 const searchText = ref('')
-const selectedItems = reactive([] as any[])
 // 上传页面相关
 const isDragover = ref(false)
 const tableData = reactive([] as any[])
@@ -1584,7 +1628,13 @@ const dialogVisible = ref(false)
 const urlToUpload = ref('')
 // 图片预览相关
 const previewedImage = ref('')
-const ImagePreviewList = computed(() => currentPageFilesInfo.filter(item => item.isImage).map(item => item.url))
+const filterList = computed(() => {
+  return getList()
+})
+const selectedItems = computed(() => filterList.value.filter(item => item.checked))
+
+const ImagePreviewList = computed(() => filterList.value.filter(item => item.isImage).map(item => item.url))
+
 const getCurrentPreviewIndex = computed(() => ImagePreviewList.value.indexOf(previewedImage.value))
 // 快捷键相关
 const isShiftKeyPress = ref<boolean>(false)
@@ -1625,6 +1675,19 @@ const isIgnoreCase = computed(() => manageStore.config.settings.isIgnoreCase ?? 
 const isShowCreateNewFolder = computed(() => ['aliyun', 'github', 'local', 'qiniu', 'tcyun', 's3plist', 'upyun', 'webdavplist', 'sftp'].includes(currentPicBedName.value))
 
 const isShowPresignedUrl = computed(() => ['aliyun', 'github', 'qiniu', 's3plist', 'tcyun', 'webdavplist'].includes(currentPicBedName.value))
+
+function getList () {
+  if (!searchText.value) {
+    return currentPageFilesInfo
+  }
+  return currentPageFilesInfo.filter((item: any) => {
+    if (isIgnoreCase.value) {
+      return item.fileName.toLowerCase().includes(searchText.value.toLowerCase())
+    } else {
+      return item.fileName.includes(searchText.value)
+    }
+  })
+}
 
 // 上传相关函数
 
@@ -1762,7 +1825,7 @@ function webkitReadDataTransfer (dataTransfer: DataTransfer) {
             entry.file((file: any) => {
               readFiles(file, entry.fullPath)
             }, (err: any) => {
-              console.log(err)
+              console.error(err)
             })
           } else if (entry.isDirectory) {
             readDirectory(entry.createReader())
@@ -1773,7 +1836,7 @@ function webkitReadDataTransfer (dataTransfer: DataTransfer) {
         decrement()
       }
     }, (err: any) => {
-      console.log(err)
+      console.error(err)
     })
   }
 
@@ -2155,7 +2218,6 @@ async function resetParam (force: boolean = false) {
   currentPageNumber.value = 1
   currentPageFilesInfo.length = 0
   currentDownloadFileList.length = 0
-  selectedItems.length = 0
   searchText.value = ''
   urlToUpload.value = ''
   dialogVisible.value = false
@@ -2172,10 +2234,8 @@ async function resetParam (force: boolean = false) {
     const cachedData = await searchExistFileList()
     if (cachedData.length > 0) {
       currentPageFilesInfo.push(...cachedData[0].value.fullList)
-      const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
-      if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
-        sortFile(sortType)
-      }
+      const sortType = localStorage.getItem('sortType') as sortTypeList || 'init'
+      sortFile(sortType)
       isShowLoadingPage.value = false
       return
     }
@@ -2183,14 +2243,9 @@ async function resetParam (force: boolean = false) {
   if (paging.value) {
     const res = await getBucketFileList() as IStringKeyMap
     if (res.success) {
-      res.fullList.sort((a: any, b: any) => {
-        return b.isDir - a.isDir || a.fileName.localeCompare(b.fileName)
-      })
       currentPageFilesInfo.push(...res.fullList)
-      const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
-      if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
-        sortFile(sortType)
-      }
+      const sortType = localStorage.getItem('sortType') as sortTypeList || 'init'
+      sortFile(sortType)
       if (res.isTruncated && paging.value) {
         pagingMarkerStack.push(pagingMarker.value)
         pagingMarker.value = res.nextMarker
@@ -2260,12 +2315,11 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
   }
   const isForwardNavigation = cur > prev
   const newPageNumber = isForwardNavigation ? prev + 1 : prev - 1
-  const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
+  const sortType = localStorage.getItem('sortType') as sortTypeList || 'init'
 
   isShowLoadingPage.value = true
   currentPageNumber.value = newPageNumber
   currentPageFilesInfo.length = 0
-  selectedItems.length = 0
   searchText.value = ''
   urlToUpload.value = ''
   dialogVisible.value = false
@@ -2289,12 +2343,9 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
     return
   }
 
-  res.fullList.sort((a: any) => (a.isDir ? -1 : 1))
   currentPageFilesInfo.push(...res.fullList)
 
-  if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
-    sortFile(sortType)
-  }
+  sortFile(sortType)
 
   if (!(cur < prev && !paging.value)) {
     if (res.isTruncated) {
@@ -2311,27 +2362,6 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
   }
 }
 
-watch(searchText, () => searchAndSort())
-
-function searchAndSort () {
-  fileTable.value.scrollToRow(0)
-
-  const shouldIgnoreCase = isIgnoreCase.value
-
-  currentPageFilesInfo.forEach((item: any) => {
-    const fileName = shouldIgnoreCase ? item.fileName.toLowerCase() : item.fileName
-    const search = shouldIgnoreCase ? searchText.value.toLowerCase() : searchText.value
-    item.match = searchText.value ? fileName.includes(search) : true
-  })
-
-  if (searchText.value) {
-    currentPageFilesInfo.sort((a: any, b: any) => b.match - a.match)
-  } else {
-    const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || 'init'
-    sortFile(sortType)
-  }
-}
-
 function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
   switch (type) {
     case 'name':
@@ -2340,9 +2370,8 @@ function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
       currentPageFilesInfo.sort((a: any, b: any) => {
         if (fileSortNameReverse.value) {
           return a.fileName.localeCompare(b.fileName)
-        } else {
-          return b.fileName.localeCompare(a.fileName)
         }
+        return b.fileName.localeCompare(a.fileName)
       })
       break
     case 'size':
@@ -2351,9 +2380,8 @@ function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
       currentPageFilesInfo.sort((a: any, b: any) => {
         if (fileSortSizeReverse.value) {
           return a.fileSize - b.fileSize
-        } else {
-          return b.fileSize - a.fileSize
         }
+        return b.fileSize - a.fileSize
       })
       break
     case 'time':
@@ -2362,9 +2390,8 @@ function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
       currentPageFilesInfo.sort((a: any, b: any) => {
         if (fileSortTimeReverse.value) {
           return new Date(a.formatedTime).getTime() - new Date(b.formatedTime).getTime()
-        } else {
-          return new Date(b.formatedTime).getTime() - new Date(a.formatedTime).getTime()
         }
+        return new Date(b.formatedTime).getTime() - new Date(a.formatedTime).getTime()
       })
       break
     case 'ext':
@@ -2373,17 +2400,18 @@ function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
       currentPageFilesInfo.sort((a: any, b: any) => {
         if (fileSortExtReverse.value) {
           return getExtension(a.fileName).localeCompare(getExtension(b.fileName))
-        } else {
-          return getExtension(b.fileName).localeCompare(getExtension(a.fileName))
         }
+        return getExtension(b.fileName).localeCompare(getExtension(a.fileName))
       })
       break
     case 'check':
+      localStorage.setItem('sortType', 'check')
       currentPageFilesInfo.sort((a: any, b: any) => {
         return b.checked - a.checked
       })
       break
     case 'init':
+      localStorage.setItem('sortType', 'init')
       currentPageFilesInfo.sort((a: any, b: any) => {
         return b.isDir - a.isDir || a.fileName.localeCompare(b.fileName)
       })
@@ -2394,41 +2422,16 @@ function handleCancelCheck () {
   currentPageFilesInfo.forEach((item: any) => {
     item.checked = false
   })
-  selectedItems.length = 0
 }
 
 function handleReverseCheck () {
   currentPageFilesInfo.forEach((item: any) => {
     item.checked = !item.checked
-    if (item.checked) {
-      selectedItems.push(item)
-    } else {
-      selectedItems.splice(selectedItems.findIndex((i: any) => i.fileName === item.fileName), 1)
-    }
   })
 }
 
 function handleCheckChangeOther (item: any) {
   item.checked = !item.checked
-  handleCheckChange(item)
-}
-
-function handleCheckChange (item: any) {
-  const index = currentPageFilesInfo.findIndex((i: any) => i.fileName === item.fileName)
-  if (item.checked) {
-    if (lastChoosed.value !== -1 && isShiftKeyPress.value) {
-      const [start, end] = [lastChoosed.value, index].sort((a, b) => a - b)
-      for (let i = start + 1; i <= end; i++) {
-        currentPageFilesInfo[i].checked = true
-        selectedItems.push(currentPageFilesInfo[i])
-      }
-    } else {
-      selectedItems.push(item)
-    }
-    lastChoosed.value = index
-  } else {
-    selectedItems.splice(selectedItems.findIndex((i: any) => i.fileName === item.fileName), 1)
-  }
 }
 
 async function handleFolderBatchDownload (item: any) {
@@ -2522,7 +2525,7 @@ async function handleBatchDownload () {
     maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount ? manageStore.config.settings.maxDownloadFileCount : 5,
     fileArray: [] as any[]
   }
-  selectedItems.forEach((item: any) => {
+  selectedItems.value.forEach((item: any) => {
     if (!item.isDir) {
       param.fileArray.push({
         alias: configMap.alias,
@@ -2543,13 +2546,9 @@ async function handleBatchDownload () {
 }
 
 function handleCheckAllChange () {
-  const isSearchEmpty = searchText.value === ''
-  const itemsToCheck = isSearchEmpty ? currentPageFilesInfo : currentPageFilesInfo.filter((item: any) => item.match)
-  const allSelected = selectedItems.length === itemsToCheck.length
-  selectedItems.length = 0
-  currentPageFilesInfo.forEach((item: any) => {
-    item.checked = !allSelected && (isSearchEmpty || item.match)
-    if (item.checked) selectedItems.push(item)
+  const allSelected = selectedItems.value.length === filterList.value.length
+  filterList.value.forEach((item: any) => {
+    item.checked = !allSelected
   })
 }
 
@@ -2618,6 +2617,25 @@ function handleBatchRenameFile () {
   isSingleRename.value = false
   isShowBatchRenameDialog.value = true
 }
+
+const matchedFilesNumber = computed(() => {
+  if (!batchRenameMatch.value) {
+    return 0
+  }
+  const matchedFiles = [] as any[]
+  currentPageFilesInfo.forEach((item: any) => {
+    if (isRenameIncludeExt.value) {
+      if (customStrMatch(item.fileName, batchRenameMatch.value) && !item.isDir) {
+        matchedFiles.push(item)
+      }
+    } else {
+      if (customStrMatch(item.fileName.split('.')[0], batchRenameMatch.value) && !item.isDir) {
+        matchedFiles.push(item)
+      }
+    }
+  })
+  return matchedFiles.length
+})
 
 async function BatchRename () {
   isShowBatchRenameDialog.value = false
@@ -2745,25 +2763,25 @@ async function BatchRename () {
 }
 
 function handleBatchCopyInfo () {
-  if (selectedItems.length === 0) {
+  if (selectedItems.value.length === 0) {
     ElMessage.warning($T('MANAGE_BUCKET_BATCH_COPY_INFO_ERROR_MSG'))
     return
   }
   const result = {} as IStringKeyMap
-  selectedItems.forEach((item: any) => {
+  selectedItems.value.forEach((item: any) => {
     result[item.fileName] = item
   })
   clipboard.writeText(JSON.stringify(result, null, 2))
-  ElMessage.success(`${$T('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_A')} ${selectedItems.length} ${$T('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_B')}`)
+  ElMessage.success(`${$T('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_A')} ${selectedItems.value.length} ${$T('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_B')}`)
 }
 
 async function handleBatchCopyLink (type: string) {
-  if (!selectedItems.length) {
+  if (!selectedItems.value.length) {
     ElMessage.warning($T('MANAGE_BUCKET_BATCH_COPY_URL_ERROR_MSG'))
     return
   }
   const result = [] as string[]
-  for (const item of selectedItems) {
+  for (const item of selectedItems.value) {
     if (!item.isDir) {
       const preSignedUrl = type === 'preSignedUrl' ? await getPreSignedUrl(item) : null
       const url = await formatLink(preSignedUrl || item.url, item.fileName, type, manageStore.config.settings.customPasteFormat)
@@ -2830,15 +2848,9 @@ async function getBucketFileListBackStage () {
   })
   const interval = setInterval(() => {
     const currentFileList = fileTransferStore.getFileTransferList()
-    currentFileList.sort((a: any, b: any) => {
-      return b.isDir - a.isDir || a.fileName.localeCompare(b.fileName)
-    })
-    currentPageFilesInfo.length = 0
-    currentPageFilesInfo.push(...currentFileList)
-    const sortType = localStorage.getItem('sortType') as 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' || ''
-    if (['name', 'time', 'size', 'ext'].includes(sortType as string)) {
-      sortFile(sortType)
-    }
+    currentPageFilesInfo.splice(0, currentPageFilesInfo.length, ...currentFileList)
+    const sortType = localStorage.getItem('sortType') as sortTypeList || 'init'
+    sortFile(sortType)
     const table = fileCacheDbInstance.table(currentPicBedName.value)
     table.put({
       key: getTableKeyOfDb(),
@@ -2885,7 +2897,7 @@ async function getBucketFileList () {
 }
 
 function handleBatchDeleteInfo () {
-  const confirmTitle = `${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_A')} ${selectedItems.length} ${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_B')}`
+  const confirmTitle = `${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_A')} ${selectedItems.value.length} ${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_B')}`
   ElMessageBox.confirm(confirmTitle, $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_MSG'), {
     confirmButtonText: $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CONFIRM'),
     cancelButtonText: $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CANCEL'),
@@ -2893,7 +2905,7 @@ function handleBatchDeleteInfo () {
     center: true,
     draggable: true
   }).then(async () => {
-    const copiedSelectedItems = JSON.parse(JSON.stringify(selectedItems))
+    const copiedSelectedItems = JSON.parse(JSON.stringify(selectedItems.value))
     let successCount = 0
     let failCount = 0
 
@@ -2911,7 +2923,6 @@ function handleBatchDeleteInfo () {
       if (result) {
         successCount++
         currentPageFilesInfo.splice(currentPageFilesInfo.findIndex((j: any) => j.key === item.key), 1)
-        selectedItems.splice(selectedItems.findIndex((j: any) => j.key === item.key), 1)
         if (!paging.value) {
           const table = fileCacheDbInstance.table(currentPicBedName.value)
           table.where('key').equals(getTableKeyOfDb()).modify((l: any) => {
@@ -2975,7 +2986,6 @@ function handleDeleteFile (item: any) {
     if (res) {
       ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
       currentPageFilesInfo.splice(currentPageFilesInfo.findIndex((i: any) => i.key === item.key), 1)
-      selectedItems.splice(selectedItems.findIndex((i: any) => i.key === item.key), 1)
       if (!paging.value) {
         const table = fileCacheDbInstance.table(currentPicBedName.value)
         table.where('key').equals(getTableKeyOfDb()).modify((l: any) => {
@@ -2998,7 +3008,7 @@ function handleRenameFile (item: any) {
 }
 
 function singleRename () {
-  const index = currentPageFilesInfo.findIndex((i: any) => i === itemToBeRenamed.value)
+  const index = filterList.value.findIndex((i: any) => i === itemToBeRenamed.value)
   isShowBatchRenameDialog.value = false
   if (batchRenameMatch.value === '') {
     batchRenameMatch.value = '.+'
@@ -3380,13 +3390,11 @@ const columns: Column<any>[] = [
     dataKey: 'checked',
     width: 30,
     cellRenderer: ({ rowData: item }) => (
-      item.match || !searchText.value
-        ? <ElCheckbox
-          v-model={item.checked}
-          onChange={() => handleCheckChange(item)}
-        >
-        </ElCheckbox>
-        : <template></template>
+      <ElCheckbox
+        v-model={item.checked}
+        onChange={() => handleCheckChangeOther(item)}
+      >
+      </ElCheckbox>
     )
   },
   {
@@ -3394,60 +3402,60 @@ const columns: Column<any>[] = [
     title: '',
     width: 30,
     cellRenderer: ({ rowData: item }) => (
-      item.match || !searchText.value
-        ? <ElPopover
-          trigger="hover"
-          width="200"
-          disabled={!item.isImage}
-          placement="right"
-        >
-          {{
-            reference: () => (
-              !item.isDir
-                ? <ElImage
-                  src={isShowThumbnail.value ? item.isImage ? item.url : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`) : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)}
-                  fit="contain"
-                  style={{ width: '20px', height: '20px' }}
-                >
-                  {{
-                    placeholder: () => <ElIcon>
-                      <Loading />
-                    </ElIcon>,
-                    error: () =>
-                      <ElImage
-                        src={require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)}
-                        fit="contain"
-                        style={{ width: '20px', height: '20px' }}
-                      />
-                  }}
-                </ElImage>
-                : <ElImage
-                  src={require('./assets/icons/folder.webp')}
-                  fit="contain"
-                  style={{ width: '20px', height: '20px' }}
-                />
-            ),
-            default: () => (
-              <ElImage
-                src={item.url}
+      <ElPopover
+        trigger="hover"
+        width="200"
+        disabled={!item.isImage}
+        placement="right"
+        persistent={false}
+        teleported={true}
+      >
+        {{
+          reference: () => (
+            !item.isDir
+              ? <ElImage
+                src={isShowThumbnail.value ? item.isImage ? item.url : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`) : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)}
                 fit="contain"
+                style={{ width: '20px', height: '20px' }}
               >
                 {{
-                  placeholder: () => (<ElIcon>
+                  placeholder: () => <ElIcon>
                     <Loading />
-                  </ElIcon>
-                  ),
-                  error: () => (
-                    <ElIcon>
-                      <CircleClose />
-                    </ElIcon>
-                  )
+                  </ElIcon>,
+                  error: () =>
+                    <ElImage
+                      src={require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)}
+                      fit="contain"
+                      style={{ width: '20px', height: '20px' }}
+                    />
                 }}
               </ElImage>
-            )
-          }}
-        </ElPopover>
-        : <template></template>
+              : <ElImage
+                src={require('./assets/icons/folder.webp')}
+                fit="contain"
+                style={{ width: '20px', height: '20px' }}
+              />
+          ),
+          default: () => (
+            <ElImage
+              src={item.isImage ? item.url : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`) }
+              fit="contain"
+            >
+              {{
+                placeholder: () => (<ElIcon>
+                  <Loading />
+                </ElIcon>
+                ),
+                error: () => (
+                  <ElIcon>
+                    <CircleClose />
+                  </ElIcon>
+                )
+              }}
+            </ElImage>
+          )
+        }}
+      </ElPopover>
     )
   },
   {
@@ -3456,22 +3464,20 @@ const columns: Column<any>[] = [
     dataKey: 'fileName',
     width: 300,
     cellRenderer: ({ cellData: fileName, rowData: item }) => (
-      item.match || !searchText.value
-        ? <div
-          onClick={() => handleClickFile(item)}
+      <div
+        onClick={() => handleClickFile(item)}
+      >
+        <ElTooltip
+          placement="top"
+          content={fileName}
         >
-          <ElTooltip
-            placement="top"
-            content={fileName}
+          <div
+            style="font-size: 14px;color: #303133;font-family: Arial, Helvetica, sans-serif;"
           >
-            <div
-              style="font-size: 14px;color: #303133;font-family: Arial, Helvetica, sans-serif;"
-            >
-              {formatFileName(item.fileName ?? '', 40)}
-            </div>
-          </ElTooltip>
-        </div>
-        : <template></template>
+            {formatFileName(item.fileName ?? '', 40)}
+          </div>
+        </ElTooltip>
+      </div>
     )
   },
   {
@@ -3479,29 +3485,27 @@ const columns: Column<any>[] = [
     title: '',
     width: 30,
     cellRenderer: ({ rowData: item }) => (
-      item.match || !searchText.value
-        ? item.isDir || !isShowRenameFileIcon.value
-          ? item.isDir
-            ? <ElIcon
-              size="15"
-              style="cursor: pointer;"
-              color="#409EFF"
-              // @ts-ignore
-              onClick={() => handleFolderBatchDownload(item)}
-            >
-              <Download />
-            </ElIcon>
-            : <template></template>
-          : <ElIcon
+      item.isDir || !isShowRenameFileIcon.value
+        ? item.isDir
+          ? <ElIcon
             size="15"
             style="cursor: pointer;"
             color="#409EFF"
             // @ts-ignore
-            onClick={() => handleRenameFile(item)}
+            onClick={() => handleFolderBatchDownload(item)}
           >
-            <Edit />
+            <Download />
           </ElIcon>
-        : <template></template>
+          : <template></template>
+        : <ElIcon
+          size="15"
+          style="cursor: pointer;"
+          color="#409EFF"
+          // @ts-ignore
+          onClick={() => handleRenameFile(item)}
+        >
+          <Edit />
+        </ElIcon>
     )
   },
   {
@@ -3509,74 +3513,74 @@ const columns: Column<any>[] = [
     title: '',
     width: 30,
     cellRenderer: ({ rowData: item }) => (
-      item.match || !searchText.value
-        ? <ElTooltip
-          placement="top"
-          content={$T('MANAGE_BUCKET_FILE_COLUMN_COPY_URL')}
-          effect='light'
-          hide-after={150}
+      <ElTooltip
+        placement="top"
+        content={$T('MANAGE_BUCKET_FILE_COLUMN_COPY_URL')}
+        effect='light'
+        hide-after={150}
+      >
+        <ElDropdown
+          teleported={true}
         >
-          <ElDropdown>
-            {{
-              default: () => (
-                <ElIcon
-                  size="15"
-                  style="cursor: pointer;"
-                  color="#409EFF"
-                  // @ts-ignore
-                  onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, manageStore.config.settings.pasteFormat ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))}
+          {{
+            default: () => (
+              <ElIcon
+                size="15"
+                style="cursor: pointer;"
+                color="#409EFF"
+                // @ts-ignore
+                onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, manageStore.config.settings.pasteFormat ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))}
+              >
+                <CopyDocument />
+              </ElIcon>
+            ),
+            dropdown: () => (
+              <ElDropdownMenu>
+                <ElDropdownItem
+                  onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'url'))}
                 >
-                  <CopyDocument />
-                </ElIcon>
-              ),
-              dropdown: () => (
-                <ElDropdownMenu>
-                  <ElDropdownItem
-                    onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'url'))}
-                  >
                     Url
-                  </ElDropdownItem>
-                  <ElDropdownItem
-                    onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'markdown'))}
-                  >
+                </ElDropdownItem>
+                <ElDropdownItem
+                  onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'markdown'))}
+                >
                     Markdown
-                  </ElDropdownItem>
-                  <ElDropdownItem
-                    onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'markdown-with-link'))}
-                  >
+                </ElDropdownItem>
+                <ElDropdownItem
+                  onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'markdown-with-link'))}
+                >
                     Markdown-link
-                  </ElDropdownItem>
-                  <ElDropdownItem
-                    onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'html'))}
-                  >
+                </ElDropdownItem>
+                <ElDropdownItem
+                  onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'html'))}
+                >
                     Html
-                  </ElDropdownItem>
-                  <ElDropdownItem
-                    onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'bbcode'))}
-                  >
+                </ElDropdownItem>
+                <ElDropdownItem
+                  onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'bbcode'))}
+                >
                     BBCode
-                  </ElDropdownItem>
-                  <ElDropdownItem
-                    onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'custom', manageStore.config.settings.customPasteFormat))}
-                  >
+                </ElDropdownItem>
+                <ElDropdownItem
+                  onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'custom', manageStore.config.settings.customPasteFormat))}
+                >
                     Custom
-                  </ElDropdownItem>
-                  { isShowPresignedUrl.value
-                    ? <ElDropdownItem
-                      onClick={async () => {
-                        const res = await getPreSignedUrl(item)
-                        copyToClipboard(res)
-                      }}
-                    >
+                </ElDropdownItem>
+                { isShowPresignedUrl.value
+                  ? <ElDropdownItem
+                    onClick={async () => {
+                      const res = await getPreSignedUrl(item)
+                      copyToClipboard(res)
+                    }}
+                  >
                     preSignURL
-                    </ElDropdownItem>
-                    : <template></template>}
-                </ElDropdownMenu>
-              )
-            }}
-          </ElDropdown>
-        </ElTooltip>
-        : <template></template>
+                  </ElDropdownItem>
+                  : <template></template>}
+              </ElDropdownMenu>
+            )
+          }}
+        </ElDropdown>
+      </ElTooltip>
     )
   },
   {
@@ -3584,34 +3588,30 @@ const columns: Column<any>[] = [
     title: '',
     width: 30,
     cellRenderer: ({ rowData: item }) => (
-      item.match || !searchText.value
-        ? <ElTooltip
-          placement="top"
-          content={$T('MANAGE_BUCKET_FILE_COLUMN_INFO')}
-          effect='light'
-          hide-after={150}
+      <ElTooltip
+        placement="top"
+        content={$T('MANAGE_BUCKET_FILE_COLUMN_INFO')}
+        effect='light'
+        hide-after={150}
+      >
+        <ElIcon
+          size="15"
+          style="cursor: pointer;"
+          color="#409EFF"
+          // @ts-ignore
+          onClick={() => handleShowFileInfo(item)}
         >
-          <ElIcon
-            size="15"
-            style="cursor: pointer;"
-            color="#409EFF"
-            // @ts-ignore
-            onClick={() => handleShowFileInfo(item)}
-          >
-            <Document />
-          </ElIcon>
-        </ElTooltip>
-        : <template></template>
+          <Document />
+        </ElIcon>
+      </ElTooltip>
     )
   },
   {
     key: 'placeholder',
     title: '',
     width: 30,
-    cellRenderer: ({ rowData: item }) => (
-      item.match || !searchText.value
-        ? <span></span>
-        : <template></template>
+    cellRenderer: () => (
+      <span></span>
     )
   },
   {
@@ -3620,14 +3620,12 @@ const columns: Column<any>[] = [
     width: 100,
     dataKey: 'fileSize',
     cellRenderer: ({ cellData: fileSize, rowData: item }) => (
-      item.match || !searchText.value
-        ? <div
-          style="font-size: 14px;color: #303133;font-family: Arial, Helvetica, sans-serif;height: 100%;display: flex;align-items: center;"
-          onClick={() => handleCheckChangeOther(item)}
-        >
-          {formatFileSize(fileSize)}
-        </div>
-        : <template></template>
+      <div
+        style="font-size: 14px;color: #303133;font-family: Arial, Helvetica, sans-serif;height: 100%;display: flex;align-items: center;"
+        onClick={() => handleCheckChangeOther(item)}
+      >
+        {formatFileSize(fileSize)}
+      </div>
     )
   },
   {
@@ -3636,14 +3634,12 @@ const columns: Column<any>[] = [
     width: 200,
     dataKey: 'formatedTime',
     cellRenderer: ({ cellData: formatedTime, rowData: item }) => (
-      item.match || !searchText.value
-        ? <div
-          style="font-size: 14px;color: #303133;font-family: Arial, Helvetica, sans-serif;height: 100%;display: flex;align-items: center;"
-          onClick={() => handleCheckChangeOther(item)}
-        >
-          {formatedTime}
-        </div>
-        : <template></template>
+      <div
+        style="font-size: 14px;color: #303133;font-family: Arial, Helvetica, sans-serif;height: 100%;display: flex;align-items: center;"
+        onClick={() => handleCheckChangeOther(item)}
+      >
+        {formatedTime}
+      </div>
     )
   },
   {
@@ -3651,16 +3647,14 @@ const columns: Column<any>[] = [
     title: '',
     width: 30,
     cellRenderer: ({ rowData: item }) => (
-      item.match || !searchText.value
-        ? <ElIcon
-          style="cursor: pointer;"
-          color="red"
-          // @ts-ignore
-          onClick={() => handleDeleteFile(item)}
-        >
-          <DeleteFilled />
-        </ElIcon>
-        : <template></template>
+      <ElIcon
+        style="cursor: pointer;"
+        color="red"
+        // @ts-ignore
+        onClick={() => handleDeleteFile(item)}
+      >
+        <DeleteFilled />
+      </ElIcon>
     )
   }
 ]

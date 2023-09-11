@@ -213,6 +213,8 @@
             v-model="choosedPicBedForQRCode"
             multiple
             collapse-tags
+            :persistent="false"
+            teleported
           >
             <el-option
               v-for="item in picBed"

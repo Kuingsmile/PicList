@@ -18,6 +18,7 @@
       stretch
       style="height: calc(100vh - 50px);width: 100%;overflow-x: hidden;top: 50px;position: absolute;"
       tab-position="left"
+      lazy
     >
       <el-tab-pane
         name="system"
@@ -43,6 +44,8 @@
                     size="small"
                     style="width: 50%"
                     :placeholder="$T('SETTINGS_CHOOSE_LANGUAGE')"
+                    :persistent="false"
+                    teleported
                     @change="handleLanguageChange"
                   >
                     <el-option
@@ -61,6 +64,8 @@
                     size="small"
                     style="width: 50%"
                     :placeholder="$T('SETTINGS_START_MODE')"
+                    :persistent="false"
+                    teleported
                     @change="handleStartModeChange"
                   >
                     <el-option
@@ -299,6 +304,8 @@
                     size="small"
                     style="width: 50%"
                     :placeholder="$T('SETTINGS_AUTO_IMPORT_SELECT_PICBED')"
+                    :persistent="false"
+                    teleported
                     @change="handleAutoImportPicBedChange"
                   >
                     <el-option
@@ -434,6 +441,8 @@
                     size="small"
                     style="width: 50%"
                     :placeholder="$T('SETTINGS_SHORT_URL_SERVER')"
+                    :persistent="false"
+                    teleported
                     @change="handleShortUrlServerChange"
                   >
                     <el-option
@@ -487,6 +496,8 @@
                         effect="dark"
                         :content="$T('BUILTIN_CLIPBOARD_TIPS')"
                         placement="right"
+                        :persistent="false"
+                        teleported
                       >
                         <el-icon style="margin-left: 4px">
                           <QuestionFilled />
@@ -864,6 +875,8 @@
             effect="light"
             placement="right"
             width="350"
+            :persistent="false"
+            teleported
           >
             <template #reference>
               <el-icon
@@ -958,6 +971,8 @@
             multiple
             collapse-tags
             style="width: 100%;"
+            :persistent="false"
+            teleported
           >
             <el-option
               v-for="(value, key) of logLevel"
@@ -1080,6 +1095,8 @@
           <el-select
             v-model="sync.type"
             style="width: 100%;"
+            :persistent="false"
+            teleported
           >
             <el-option
               v-for="typeitem of syncType"
@@ -1248,8 +1265,7 @@
         >
           <el-switch
             v-model="waterMarkForm.isAddWatermark"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -1271,8 +1287,7 @@
         >
           <el-switch
             v-model="waterMarkForm.isFullScreenWatermark"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -1343,8 +1358,7 @@
         >
           <el-switch
             v-model="compressForm.isRemoveExif"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -1362,15 +1376,18 @@
         >
           <el-switch
             v-model="compressForm.isConvert"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
           v-show="compressForm.isConvert"
           :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT')"
         >
-          <el-select v-model="compressForm.convertFormat">
+          <el-select
+            v-model="compressForm.convertFormat"
+            :persistent="false"
+            teleported
+          >
             <el-option
               v-for="item in availableFormat"
               :key="item"
@@ -1384,8 +1401,7 @@
         >
           <el-switch
             v-model="compressForm.isFlip"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -1393,8 +1409,7 @@
         >
           <el-switch
             v-model="compressForm.isFlop"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -1402,8 +1417,7 @@
         >
           <el-switch
             v-model="compressForm.isReSize"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -1430,8 +1444,7 @@
         >
           <el-switch
             v-model="compressForm.skipReSizeOfSmallImg"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -1440,8 +1453,7 @@
         >
           <el-switch
             v-model="compressForm.skipReSizeOfSmallImg"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -1449,8 +1461,7 @@
         >
           <el-switch
             v-model="compressForm.isReSizeByPercent"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -1467,8 +1478,7 @@
         >
           <el-switch
             v-model="compressForm.isRotate"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
