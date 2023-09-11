@@ -502,11 +502,8 @@ const isShowBatchRenameDialog = ref(false)
 const batchRenameMatch = ref('')
 const batchRenameReplace = ref('')
 const mathcedCount = computed(() => {
-  const matchedFiles = [] as any[]
-  filterList.value.forEach((item: any) => {
-    if (customStrMatch(item.imgUrl, batchRenameMatch.value)) {
-      matchedFiles.push(item)
-    }
+  const matchedFiles = filterList.value.filter((item: any) => {
+    return customStrMatch(item.imgUrl, batchRenameMatch.value)
   })
   return matchedFiles.length
 })

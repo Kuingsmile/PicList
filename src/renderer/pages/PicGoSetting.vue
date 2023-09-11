@@ -1248,7 +1248,7 @@
         >
           <el-radio-group v-model="waterMarkForm.watermarkType">
             <el-radio label="text">
-              {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_WMTYPE_TEXT') }}}
+              {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_WMTYPE_TEXT') }}
             </el-radio>
             <el-radio label="image">
               {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_WMTYPE_IMAGE') }}
