@@ -641,6 +641,7 @@
       :title="$T('SETTINGS_CUSTOM_LINK_FORMAT')"
       :modal-append-to-body="false"
       center
+      append-to-body
     >
       <el-form
         ref="$customLink"
@@ -691,6 +692,7 @@
       :modal-append-to-body="false"
       width="70%"
       center
+      append-to-body
     >
       <el-form
         label-position="right"
@@ -747,6 +749,7 @@
       :modal-append-to-body="false"
       width="70%"
       center
+      append-to-body
     >
       <el-form
         label-position="right"
@@ -802,6 +805,7 @@
       :title="$T('SETTINGS_CHECK_UPDATE')"
       :modal-append-to-body="false"
       center
+      append-to-body
     >
       <div>
         {{ $T('SETTINGS_CURRENT_VERSION') }}: {{ version }}
@@ -835,6 +839,7 @@
       align-center
       draggable
       destroy-on-close
+      append-to-body
     >
       <el-link
         :underline="false"
@@ -927,6 +932,7 @@
       :modal-append-to-body="false"
       width="500px"
       center
+      append-to-body
     >
       <el-form
         label-position="right"
@@ -997,6 +1003,7 @@
       :title="$T('SETTINGS_SET_PICGO_SERVER')"
       :modal-append-to-body="false"
       center
+      append-to-body
     >
       <div class="notice-text">
         {{ $T('SETTINGS_TIPS_SERVER_NOTICE') }}
@@ -1058,6 +1065,7 @@
       :title="$T('SETTINGS_SYNC_CONFIG_TITLE')"
       :modal-append-to-body="false"
       center
+      append-to-body
     >
       <div class="notice-text">
         {{ $T('SETTINGS_SYNC_CONFIG_NOTE') }}
@@ -1151,6 +1159,7 @@
       :title="$T('SETTINGS_UP_DOWN_DESC')"
       :modal-append-to-body="false"
       center
+      append-to-body
     >
       <el-form
         label-position="right"
@@ -1225,6 +1234,7 @@
       draggable
       center
       align-center
+      append-to-body
     >
       <el-form
         label-position="top"

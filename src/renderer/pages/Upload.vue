@@ -156,6 +156,7 @@
       draggable
       center
       align-center
+      append-to-body
     >
       <el-form
         label-position="top"
