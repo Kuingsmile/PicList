@@ -6,15 +6,16 @@
       stretch
       style="height: calc(100vh - 50px);width: 100%;overflow-x: hidden;"
       tab-position="left"
+      lazy
       @tab-change="getExistingConfig(activeName)"
     >
       <el-tab-pane
         name="login"
         :label="$T('MANAGE_LOGIN_PAGE_PANE_NAME')"
         style="width: 100%;overflow-y: scroll;height: calc(100vh - 50px);"
+        lazy
       >
         <el-alert
-          v-loading="isLoading"
           :title="$T('MANAGE_LOGIN_PAGE_PANE_DESC')"
           type="success"
           show-icon
@@ -42,6 +43,8 @@
                 placement="top"
                 :width="300"
                 trigger="click"
+                :persistent="false"
+                teleported
               >
                 <el-table
                   :data="formObjToTableData(item.config)"
@@ -75,6 +78,8 @@
                       :content="item.alias"
                       placement="top"
                       :disabled="isNeedToShorten(item.alias)"
+                      :persistent="false"
+                      teleported
                     >
                       {{ isNeedToShorten(item.alias) ? safeSliceF(item.alias, 17) + '...' : item.alias }}
                     </el-tooltip>
@@ -152,6 +157,8 @@
                 effect="dark"
                 :content="supportedPicBedList[item.icon].configOptions[option].tooltip"
                 placement="right"
+                :persistent="false"
+                teleported
               >
                 <el-icon
                   color="#409EFF"
@@ -169,8 +176,7 @@
             <el-switch
               v-else-if="supportedPicBedList[item.icon].configOptions[option].type === 'boolean'"
               v-model="configResult[item.icon + '.' + option]"
-              active-color="#13ce66"
-              inactive-color="#ff4949"
+              style="--el-switch-on-color: #13ce66;--el-switch-off-color: #ff4949;"
             />
             <el-input
               v-else-if="supportedPicBedList[item.icon].configOptions[option].type === 'number'"
@@ -181,6 +187,8 @@
               v-else-if="supportedPicBedList[item.icon].configOptions[option].type === 'select'"
               v-model="configResult[item.icon + '.' + option]"
               :placeholder="$T('MANAGE_LOGIN_PAGE_PANE_SELECT_PLACEHOLDER')"
+              :persistent="false"
+              teleported
             >
               <el-option
                 v-for="i in Object.entries(supportedPicBedList[item.icon].configOptions[option].selectOptions)"
@@ -198,6 +206,7 @@
             style="margin-left: 10vw"
             placement="top"
             :disabled="currentAliasList.length === 0"
+            teleported
           >
             {{ $T('MANAGE_LOGIN_PAGE_PANE_IMPORT') }}
             <template #dropdown>
@@ -298,7 +307,6 @@ import { T as $T } from '@/i18n'
 const manageStore = useManageStore()
 const router = useRouter()
 
-const isLoading = ref(false)
 const activeName = ref('login')
 
 const configResult:IStringKeyMap = reactive({})
@@ -820,9 +828,8 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
   importedNewConfig[alias] = resultMap
 }
 
-onMounted(async () => {
-  await getCurrentConfigList()
-  getAllConfigAliasArray()
+onMounted(() => {
+  getCurrentConfigList()
 })
 
 </script>

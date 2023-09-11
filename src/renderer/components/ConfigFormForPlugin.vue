@@ -39,6 +39,8 @@
           v-else-if="item.type === 'list' && item.choices"
           v-model="ruleForm[item.name]"
           :placeholder="item.message || item.name"
+          :persistent="false"
+          teleported
         >
           <el-option
             v-for="choice in item.choices"
@@ -53,6 +55,8 @@
           :placeholder="item.message || item.name"
           multiple
           collapse-tags
+          :persistent="false"
+          teleported
         >
           <el-option
             v-for="choice in item.choices"

@@ -42,6 +42,8 @@
                 size="small"
                 style="width: 100%"
                 :placeholder="$T('CHOOSE_SHOWED_PICBED')"
+                :persistent="false"
+                teleported
               >
                 <el-option
                   v-for="item in picBed"
@@ -60,6 +62,7 @@
                 start-placeholder="Start date"
                 end-placeholder="End date"
                 size="small"
+                teleported
               />
             </el-col>
             <el-col :span="1">
@@ -75,6 +78,8 @@
                 size="small"
                 style="width: 100%"
                 :placeholder="$T('CHOOSE_PASTE_FORMAT')"
+                :persistent="false"
+                teleported
                 @change="handlePasteStyleChange"
               >
                 <el-option
@@ -91,6 +96,8 @@
                 size="small"
                 style="width: 100%"
                 placeholder="Choose"
+                :persistent="false"
+                teleported
                 @change="handleUseShortUrlChange"
               >
                 <el-option
@@ -102,7 +109,9 @@
               </el-select>
             </el-col>
             <el-col :span="2">
-              <el-dropdown>
+              <el-dropdown
+                teleported
+              >
                 <el-button
                   size="small"
                   type="primary"
@@ -294,6 +303,7 @@
       :title="$T('CHANGE_IMAGE_URL')"
       width="500px"
       :modal-append-to-body="false"
+      append-to-body
     >
       <el-input v-model="imgInfo.imgUrl" />
       <template #footer>
@@ -315,6 +325,7 @@
       align-center
       draggable
       destroy-on-close
+      append-to-body
     >
       <el-link
         :underline="false"
@@ -326,6 +337,8 @@
             effect="dark"
             :content="$T('MANAGE_BUCKET_RENAME_FILE_INPUT_A_TIPS')"
             placement="right"
+            :persistent="false"
+            teleported
           >
             <el-icon
               color="#409EFF"
@@ -350,6 +363,8 @@
             effect="light"
             placement="right"
             width="280"
+            :persistent="false"
+            teleported
           >
             <template #reference>
               <el-icon
@@ -502,11 +517,8 @@ const isShowBatchRenameDialog = ref(false)
 const batchRenameMatch = ref('')
 const batchRenameReplace = ref('')
 const mathcedCount = computed(() => {
-  const matchedFiles = [] as any[]
-  images.value.forEach((item: any) => {
-    if (customStrMatch(item.imgUrl, batchRenameMatch.value)) {
-      matchedFiles.push(item)
-    }
+  const matchedFiles = filterList.value.filter((item: any) => {
+    return customStrMatch(item.imgUrl, batchRenameMatch.value)
   })
   return matchedFiles.length
 })
@@ -939,7 +951,7 @@ function handleBatchRename () {
     return
   }
   let matchedFiles = [] as any[]
-  images.value.forEach((item: any) => {
+  filterList.value.forEach((item: any) => {
     if (customStrMatch(item.imgUrl, batchRenameMatch.value)) {
       matchedFiles.push(item)
     }

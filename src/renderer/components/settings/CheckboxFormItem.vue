@@ -9,6 +9,8 @@
             effect="dark"
             :content="props.tooltips"
             placement="right"
+            :persistent="false"
+            teleported
           >
             <el-icon style="margin-left: 4px">
               <QuestionFilled />

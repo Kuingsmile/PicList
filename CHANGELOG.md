@@ -1,3 +1,20 @@
+# :tada: 2.6.0 (2023-09-11)
+
+
+### :sparkles: Features
+
+* batch rename in gallery will not modify un-matched files ([079b034](https://github.com/Kuingsmile/PicList/commit/079b034))
+* optimize memory use and loading and searching speed of manage page for 30 fold ([fb070e7](https://github.com/Kuingsmile/PicList/commit/fb070e7))
+* optimize title text jump action of upload page ([dfb6f76](https://github.com/Kuingsmile/PicList/commit/dfb6f76))
+
+
+### :zap: Performance Improvements
+
+* fix memory leak of main page ([5392d9e](https://github.com/Kuingsmile/PicList/commit/5392d9e))
+* fix memory leak of uoload and setting page ([219cbbb](https://github.com/Kuingsmile/PicList/commit/219cbbb))
+
+
+
 ## :tada: 2.5.3 (2023-09-07)
 
 

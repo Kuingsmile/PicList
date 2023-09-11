@@ -3,6 +3,7 @@
     v-model="showInputBoxVisible"
     :title="inputBoxOptions.title || $T('INPUT')"
     :modal-append-to-body="false"
+    append-to-body
   >
     <el-input
       v-model="inputBoxValue"

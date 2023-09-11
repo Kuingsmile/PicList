@@ -249,7 +249,7 @@ SETTINGS_SYNC_CONFIG_SELECT_BOTH: Both configuration and gallery files
 SETTINGS_SYNC_CONFIG_GITHUB_USERNAME:  username
 SETTINGS_SYNC_CONFIG_GITEE_USERNAME:  username
 SETTINGS_SYNC_CONFIG_GITHUB_REPO:  repository (private)
-SETTINGS_SYNC_CONFIG_GITEE_REPO:  repository (private)
+SETTINGS_SYNC_CONFIG_GITEE_REPO:  repository path
 SETTINGS_SYNC_CONFIG_GITHUB_BRANCH:  branch
 SETTINGS_SYNC_CONFIG_GITEE_BRANCH:  branch
 SETTINGS_SYNC_CONFIG_GITHUB_TOKEN:  Token
@@ -676,7 +676,7 @@ MANAGE_CONSTANT_SFTP_BUCKET_PLACEHOLDER: 'e.g. bucket1'
 MANAGE_CONSTANT_SFTP_BUCKET_TOOLTIP: This cannot be modified, only for software compatibility consideration
 
 MANAGE_LOGIN_PAGE_PANE_NAME: Saved Config
-MANAGE_LOGIN_PAGE_PANE_DESC: Click on the icon or alias to view details, Enter to view the file page, Delete to remove the configuration
+MANAGE_LOGIN_PAGE_PANE_DESC: Click on the icon or alias to view details
 MANAGE_LOGIN_PAGE_PANE_LOADING: Importing...
 MANAGE_LOGIN_PAGE_PANE_KEY_NAME: Configuration
 MANAGE_LOGIN_PAGE_PANE_KEY_VALUE: Value
@@ -725,6 +725,7 @@ MANAGE_BUCKET_SORT_SIZE: Size
 MANAGE_BUCKET_SORT_TYPE: Type
 MANAGE_BUCKET_SORT_TIME: Time
 MANAGE_BUCKET_SORT_SELECTED: Selected status
+MANAGE_BUCKET_INIT: Init
 MANAGE_BUCKET_URL_UPLOAD_DIALOG_TITLE: Please enter URL(s), support multiple URLs separated by line breaks
 MANAGE_BUCKET_URL_UPLOAD_DIALOG_CONFIRM: Confirm
 MANAGE_BUCKET_URL_UPLOAD_DIALOG_CANCEL: Cancel

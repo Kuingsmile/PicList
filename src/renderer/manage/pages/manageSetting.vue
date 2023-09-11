@@ -34,6 +34,8 @@
                     effect="dark"
                     :content="$T('MANAGE_SETTING_AUTO_FRESH_TIPS')"
                     placement="right"
+                    :persistent="false"
+                    teleported
                   >
                     <el-icon>
                       <InfoFilled />
@@ -43,9 +45,7 @@
               </template>
               <el-switch
                 v-model="form.isAutoRefresh"
-                style="position:absolute;right: 0;"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
+                style="position:absolute;right: 0;--el-switch-on-color: #13ce66;--el-switch-off-color: #ff4949;"
                 @change="handleIsAutoRefreshChange"
               />
             </el-form-item>
@@ -66,6 +66,8 @@
                     effect="dark"
                     :content="$T('MANAGE_SETTING_CLEAR_CACHE_TIPS')"
                     placement="right"
+                    :persistent="false"
+                    teleported
                   >
                     <el-icon>
                       <InfoFilled />
@@ -78,6 +80,8 @@
                 :confirm-button-text="$T('CONFIRM')"
                 :cancel-button-text="$T('CANCEL')"
                 hide-icon
+                :persistent="false"
+                teleported
                 @confirm="handleClearDb"
               >
                 <template #reference>
@@ -101,9 +105,7 @@
               </template>
               <el-switch
                 v-model="form.isShowThumbnail"
-                style="position:absolute;right: 0;"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
+                style="position:absolute;right: 0;--el-switch-on-color: #13ce66;--el-switch-off-color: #ff4949;"
                 @change="handleIsShowThumbnailChange"
               />
             </el-form-item>
@@ -117,11 +119,9 @@
               </template>
               <el-switch
                 v-model="form.isShowList"
-                style="position:absolute;right: 0;"
+                style="position:absolute;right: 0;--el-switch-on-color: #13ce66;--el-switch-off-color: #ff4949;"
                 :active-text="$T('MANAGE_SETTING_SHOW_FILE_LIST_TYPE_LIST')"
                 :inactive-text="$T('MANAGE_SETTING_SHOW_FILE_LIST_TYPE_CARD')"
-                active-color="#13ce66"
-                inactive-color="orange"
                 @change="handleIsShowListChange"
               />
             </el-form-item>
@@ -135,6 +135,8 @@
                     effect="dark"
                     :content="$T('MANAGE_SETTING_FORCE_CUSTOM_URL_HTTPS_TIPS')"
                     placement="right"
+                    :persistent="false"
+                    teleported
                   >
                     <el-icon>
                       <InfoFilled />
@@ -144,9 +146,7 @@
               </template>
               <el-switch
                 v-model="form.isForceCustomUrlHttps"
-                style="position:absolute;right: 0;"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
+                style="position:absolute;right: 0;--el-switch-on-color: #13ce66;--el-switch-off-color: #ff4949;"
                 @change="handleIsForceCustomUrlHttpsChange"
               />
             </el-form-item>
@@ -160,6 +160,8 @@
                     effect="dark"
                     :content="$T('MANAGE_SETTING_ENCODE_URL_WHEN_COPY_TIPS')"
                     placement="right"
+                    :persistent="false"
+                    teleported
                   >
                     <el-icon>
                       <InfoFilled />
@@ -169,9 +171,7 @@
               </template>
               <el-switch
                 v-model="form.isEncodeUrl"
-                style="position:absolute;right: 0;"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
+                style="position:absolute;right: 0;--el-switch-on-color: #13ce66;--el-switch-off-color: #ff4949;"
                 @change="handleIsEncodeUrlChange"
               />
             </el-form-item>
@@ -185,6 +185,8 @@
                     effect="dark"
                     :content="$T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_UPLOAD_TIPS')"
                     placement="right"
+                    :persistent="false"
+                    teleported
                   >
                     <el-icon>
                       <InfoFilled />
@@ -194,9 +196,7 @@
               </template>
               <el-switch
                 v-model="form.isUploadKeepDirStructure"
-                style="position:absolute;right: 0;"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
+                style="position:absolute;right: 0;--el-switch-on-color: #13ce66;--el-switch-off-color: #ff4949;"
                 @change="handleIsUploadKeepDirStructureChange"
               />
             </el-form-item>
@@ -212,6 +212,8 @@
                     effect="dark"
                     :content="$T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_FILE_TIPS')"
                     placement="right"
+                    :persistent="false"
+                    teleported
                   >
                     <el-icon>
                       <InfoFilled />
@@ -221,9 +223,7 @@
               </template>
               <el-switch
                 v-model="form.isDownloadFileKeepDirStructure"
-                style="position:absolute;right: 0;"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
+                style="position:absolute;right: 0;--el-switch-on-color: #13ce66;--el-switch-off-color: #ff4949;"
                 @change="handleIsDownloadFileKeepDirStructureChange"
               />
             </el-form-item>
@@ -239,6 +239,8 @@
                     effect="dark"
                     :content="$T('MANAGE_SETTING_KEEP_FOLDER_STRUCTURE_DOWNLOAD_FILE_TIPS')"
                     placement="right"
+                    :persistent="false"
+                    teleported
                   >
                     <el-icon>
                       <InfoFilled />
@@ -248,9 +250,7 @@
               </template>
               <el-switch
                 v-model="form.isDownloadFolderKeepDirStructure"
-                style="position:absolute;right: 0;"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
+                style="position:absolute;right: 0;--el-switch-on-color: #13ce66;--el-switch-off-color: #ff4949;"
                 @change="handleIsDownloadFolderKeepDirStructureChange"
               />
             </el-form-item>
@@ -264,6 +264,8 @@
                     effect="dark"
                     :content="$T('MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TIPS')"
                     placement="right"
+                    :persistent="false"
+                    teleported
                   >
                     <el-icon>
                       <InfoFilled />
@@ -290,6 +292,8 @@
                     effect="dark"
                     :content="$T('MANAGE_SETTING_SEARCH_IGNORE_CASE_TIPS')"
                     placement="right"
+                    :persistent="false"
+                    teleported
                   >
                     <el-icon>
                       <InfoFilled />
@@ -299,9 +303,7 @@
               </template>
               <el-switch
                 v-model="form.isIgnoreCase"
-                style="position:absolute;right: 0;"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
+                style="position:absolute;right: 0;--el-switch-on-color: #13ce66;--el-switch-off-color: #ff4949;"
                 @change="handleisIgnoreCaseChange"
               />
             </el-form-item>
@@ -315,6 +317,8 @@
                     effect="dark"
                     :content="$T('MANAGE_SETTING_TIMESTAMP_RENAME_TIPS')"
                     placement="right"
+                    :persistent="false"
+                    teleported
                   >
                     <el-icon>
                       <InfoFilled />
@@ -324,9 +328,7 @@
               </template>
               <el-switch
                 v-model="form.timestampRename"
-                style="position:absolute;right: 0;"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
+                style="position:absolute;right: 0;--el-switch-on-color: #13ce66;--el-switch-off-color: #ff4949;"
                 @change="handleTimestampRenameChange"
               />
             </el-form-item>
@@ -340,6 +342,8 @@
                     effect="dark"
                     :content="$T('MANAGE_SETTING_RANDOM_STRING_RENAME_TIPS')"
                     placement="right"
+                    :persistent="false"
+                    teleported
                   >
                     <el-icon>
                       <InfoFilled />
@@ -349,9 +353,7 @@
               </template>
               <el-switch
                 v-model="form.randomStringRename"
-                style="position:absolute;right: 0;"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
+                style="position:absolute;right: 0;--el-switch-on-color: #13ce66;--el-switch-off-color: #ff4949;"
                 @change="handleRandomStringRenameChange"
               />
             </el-form-item>
@@ -365,6 +367,8 @@
                     effect="dark"
                     :content="$T('MANAGE_SETTING_CUSTOM_RENAME_TIPS')"
                     placement="right"
+                    :persistent="false"
+                    teleported
                   >
                     <el-icon>
                       <InfoFilled />
@@ -374,9 +378,7 @@
               </template>
               <el-switch
                 v-model="form.customRename"
-                style="position:absolute;right: 0;"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
+                style="position:absolute;right: 0;--el-switch-on-color: #13ce66;--el-switch-off-color: #ff4949;"
                 @change="handleCustomRenameChange"
               />
             </el-form-item>

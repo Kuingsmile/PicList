@@ -12,12 +12,14 @@
             placement="top"
             effect="light"
             :content="$T('UPLOAD_VIEW_HINT')"
+            :persistent="false"
+            teleported
           >
             <span
               id="upload-view-title"
               @click="handlePicBedNameClick(picBedName, picBedConfigName)"
             >
-              {{ picBedName }} - {{ picBedConfigName }}
+              {{ picBedName }} - {{ picBedConfigName || 'Default' }}
             </span>
           </el-tooltip>
           <el-icon
@@ -156,6 +158,7 @@
       draggable
       center
       align-center
+      append-to-body
     >
       <el-form
         label-position="top"
@@ -169,8 +172,7 @@
         >
           <el-switch
             v-model="waterMarkForm.isAddWatermark"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -192,8 +194,7 @@
         >
           <el-switch
             v-model="waterMarkForm.isFullScreenWatermark"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -264,8 +265,7 @@
         >
           <el-switch
             v-model="compressForm.isRemoveExif"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -283,15 +283,18 @@
         >
           <el-switch
             v-model="compressForm.isConvert"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
           v-show="compressForm.isConvert"
           :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT')"
         >
-          <el-select v-model="compressForm.convertFormat">
+          <el-select
+            v-model="compressForm.convertFormat"
+            :persistent="false"
+            teleported
+          >
             <el-option
               v-for="item in availableFormat"
               :key="item"
@@ -305,8 +308,7 @@
         >
           <el-switch
             v-model="compressForm.isFlip"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -314,8 +316,7 @@
         >
           <el-switch
             v-model="compressForm.isFlop"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -323,8 +324,7 @@
         >
           <el-switch
             v-model="compressForm.isReSize"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -351,8 +351,7 @@
         >
           <el-switch
             v-model="compressForm.skipReSizeOfSmallImg"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -361,8 +360,7 @@
         >
           <el-switch
             v-model="compressForm.skipReSizeOfSmallImg"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -370,8 +368,7 @@
         >
           <el-switch
             v-model="compressForm.isReSizeByPercent"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -388,8 +385,7 @@
         >
           <el-switch
             v-model="compressForm.isRotate"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;"
           />
         </el-form-item>
         <el-form-item
@@ -449,7 +445,7 @@ import {
 import { ElMessage as $message } from 'element-plus'
 
 // 数据发送工具函数
-import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
+import { getConfig, saveConfig, sendToMain, triggerRPC } from '@/utils/dataSender'
 
 // 类型声明
 import { IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
@@ -459,6 +455,7 @@ import { useRouter } from 'vue-router'
 
 // 路由配置常量
 import { PICBEDS_PAGE } from '@/router/config'
+import { IRPCActionType } from '~/universal/types/enum'
 
 const $router = useRouter()
 
@@ -602,16 +599,18 @@ function onProgressChange (val: number) {
   }
 }
 
-async function handlePicBedNameClick (picBedName: string, picBedConfigName: string) {
+async function handlePicBedNameClick (_picBedName: string, picBedConfigName: string | undefined) {
+  const formatedpicBedConfigName = picBedConfigName || 'Default'
   const currentPicBed = await getConfig<string>('picBed.current')
   const currentPicBedConfig = await getConfig<any[]>(`uploader.${currentPicBed}`) as any || {}
-  const configList = currentPicBedConfig.configList || []
-  const config = configList.find((item: any) => item._configName === picBedConfigName)
+  const configList = await triggerRPC<IUploaderConfigItem>(IRPCActionType.GET_PICBED_CONFIG_LIST, currentPicBed)
+  const currentConfigList = configList?.configList ?? []
+  const config = currentConfigList.find((item: any) => item._configName === formatedpicBedConfigName)
   $router.push({
     name: PICBEDS_PAGE,
     params: {
       type: currentPicBed,
-      configId: config._id
+      configId: config?._id || ''
     },
     query: {
       defaultConfigId: currentPicBedConfig.defaultId || ''
