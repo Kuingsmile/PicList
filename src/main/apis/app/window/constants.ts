@@ -19,3 +19,7 @@ export const RENAME_WINDOW_URL = process.env.NODE_ENV === 'development'
 export const TOOLBOX_WINDOW_URL = process.env.NODE_ENV === 'development'
   ? `${(process.env.WEBPACK_DEV_SERVER_URL as string)}#toolbox-page`
   : 'picgo://./index.html#toolbox-page'
+
+export const MANUAL_WINDOW_URL = process.env.NODE_ENV === 'development'
+  ? `${(process.env.WEBPACK_DEV_SERVER_URL as string)}#documents`
+  : 'picgo://./index.html#documents'

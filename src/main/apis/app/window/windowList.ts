@@ -13,7 +13,8 @@ import {
   TRAY_WINDOW_URL,
   MINI_WINDOW_URL,
   RENAME_WINDOW_URL,
-  TOOLBOX_WINDOW_URL
+  TOOLBOX_WINDOW_URL,
+  MANUAL_WINDOW_URL
 } from './constants'
 
 // Custom types/enums
@@ -56,6 +57,27 @@ const trayWindowOptions = {
     webSecurity: false
   }
 }
+
+const manualWindowOptions = {
+  height: 800,
+  width: 1200,
+  show: false,
+  frame: true,
+  center: true,
+  fullscreenable: true,
+  resizable: true,
+  title: 'Manual',
+  vibrancy: 'ultra-dark',
+  transparent: false,
+  webPreferences: {
+    webviewTag: true,
+    backgroundThrottling: false,
+    nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
+    contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+    nodeIntegrationInWorker: true,
+    webSecurity: false
+  }
+} as IBrowserWindowOptions
 
 const settingWindowOptions = {
   height: defaultWindowHeight,
@@ -166,6 +188,16 @@ windowList.set(IWindowList.TRAY_WINDOW, {
     window.on('blur', () => {
       window.hide()
     })
+  }
+})
+
+windowList.set(IWindowList.MANUAL_WINDOW, {
+  isValid: true,
+  multiple: false,
+  options: () => manualWindowOptions,
+  callback (window) {
+    window.loadURL(handleWindowParams(MANUAL_WINDOW_URL))
+    window.focus()
   }
 })
 

@@ -306,6 +306,10 @@ export default {
       }
     })
 
+    ipcMain.on('openManualWindow', () => {
+      windowManager.get(IWindowList.MANUAL_WINDOW)!.show()
+    })
+
     ipcMain.on('openMiniWindow', () => {
       const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
       const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
