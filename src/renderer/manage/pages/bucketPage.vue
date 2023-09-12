@@ -705,7 +705,6 @@ https://www.baidu.com/img/bd_logo1.png"
                 <el-checkbox
                   v-model="item.checked"
                   size="large"
-                  @change="handleCheckChangeOther(item)"
                 />
               </el-row>
             </el-card>
@@ -3392,7 +3391,6 @@ const columns: Column<any>[] = [
     cellRenderer: ({ rowData: item }) => (
       <ElCheckbox
         v-model={item.checked}
-        onChange={() => handleCheckChangeOther(item)}
       >
       </ElCheckbox>
     )
