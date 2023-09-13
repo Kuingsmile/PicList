@@ -358,6 +358,10 @@ const handleGetPicPeds = () => {
 
 const handleSelect = (index: string) => {
   defaultActive.value = index
+  if (index === routerConfig.DocumentPage) {
+    ipcRenderer.send('openManualWindow')
+    return
+  }
   const type = index.match(routerConfig.UPLOADER_CONFIG_PAGE)
   if (type === null) {
     $router.push({

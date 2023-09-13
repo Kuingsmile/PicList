@@ -1,16 +1,20 @@
-import { createClient } from 'webdav'
+import { AuthType, WebDAVClientOptions, createClient } from 'webdav'
 import { formatEndpoint } from '~/main/manage/utils/common'
 
 export default class WebdavApi {
   static async delete (configMap: IStringKeyMap): Promise<boolean> {
-    const { fileName, config: { host, username, password, path, sslEnabled } } = configMap
+    const { fileName, config: { host, username, password, path, sslEnabled, authType } } = configMap
     const endpoint = formatEndpoint(host, sslEnabled)
+    const options: WebDAVClientOptions = {
+      username,
+      password
+    }
+    if (authType === 'digest') {
+      options.authType = AuthType.Digest
+    }
     const ctx = createClient(
       endpoint,
-      {
-        username,
-        password
-      }
+      options
     )
     let key
     if (path === '/' || !path) {

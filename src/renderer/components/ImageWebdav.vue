@@ -23,6 +23,8 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { getFileIconPath } from '@/manage/utils/common'
 import { Loading } from '@element-plus/icons-vue'
+import { getAuthHeader } from '@/manage/utils/digestAuth'
+import { formatEndpoint } from '~/main/manage/utils/common'
 
 const base64Url = ref('')
 const success = ref(false)
@@ -41,7 +43,7 @@ const props = defineProps(
       type: String,
       required: true
     },
-    headers: {
+    config: {
       type: Object,
       required: true
     }
@@ -56,9 +58,31 @@ const imageSource = computed(() => {
 
 const iconPath = computed(() => require(`../manage/pages/assets/icons/${getFileIconPath(props.item.fileName ?? '')}`))
 
+async function getheaderOfWebdav (key: string) {
+  let headers = {} as any
+  if (props.config.authType === 'digest') {
+    const authHeader = await getAuthHeader(
+      'GET',
+      formatEndpoint(props.config.endpoint, props.config.sslEnabled || false),
+      `/${key.replace(/^\//, '')}`,
+      props.config.username,
+      props.config.password
+    )
+    headers = {
+      Authorization: authHeader
+    }
+  } else {
+    headers = {
+      Authorization: 'Basic ' + Buffer.from(`${props.config.username}:${props.config.password}`).toString('base64')
+    }
+  }
+  return headers
+}
+
 const fetchImage = async () => {
   try {
-    const res = await fetch(props.url, { method: 'GET', headers: props.headers })
+    const headers = await getheaderOfWebdav(props.item.key)
+    const res = await fetch(props.url, { method: 'GET', headers })
     if (res.status >= 200 && res.status < 300) {
       const blob = await res.blob()
       success.value = true
@@ -72,7 +96,7 @@ const fetchImage = async () => {
   }
 }
 
-watch(() => [props.url, props.headers], fetchImage, { deep: true })
+watch(() => [props.url, props.item], fetchImage, { deep: true })
 
 onMounted(fetchImage)
 

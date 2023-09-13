@@ -1,3 +1,19 @@
+## :tada: 2.6.1 (2023-09-13)
+
+
+### :sparkles: Features
+
+* gif will be converted to animated webp now ([09a636f](https://github.com/Kuingsmile/PicList/commit/09a636f))
+* manual page now open in a new window ([b197b32](https://github.com/Kuingsmile/PicList/commit/b197b32))
+* webdav picbed now support digest auth ([2e655a4](https://github.com/Kuingsmile/PicList/commit/2e655a4))
+
+
+### :bug: Bug Fixes
+
+* fix an issue of check box in manage page ([d776600](https://github.com/Kuingsmile/PicList/commit/d776600))
+
+
+
 # :tada: 2.6.0 (2023-09-11)
 
 

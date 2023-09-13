@@ -576,17 +576,20 @@ async function getCurrentConfigList () {
     const config = configList[pb]
     return config?.configList?.length ? config.configList.map((item: any) => ({ ...item, type: pb })) : []
   })
-  await getAllConfigAliasArray()
+
   const autoImport = await getPicBedsConfig<boolean>('settings.autoImport') || false
-  if (!autoImport) return
-  const autoImportPicBed = initArray(await getPicBedsConfig<string | string[]>('settings.autoImportPicBed') || '', [])
-  await Promise.all(filteredConfigList.flatMap((config) => transUpToManage(config, config.type, autoImportPicBed)))
-  if (Object.keys(importedNewConfig).length > 0) {
-    const oldConfig = await getConfig<any>('picBed')
-    const newConfig = { ...oldConfig, ...importedNewConfig }
-    saveConfig('picBed', newConfig)
-    await manageStore.refreshConfig()
+  if (autoImport) {
+    const autoImportPicBed = initArray(await getPicBedsConfig<string | string[]>('settings.autoImportPicBed') || '', [])
+    await Promise.all(filteredConfigList.flatMap((config) => transUpToManage(config, config.type, autoImportPicBed)))
+    if (Object.keys(importedNewConfig).length > 0) {
+      const oldConfig = await getConfig<any>('picBed')
+      const newConfig = { ...oldConfig, ...importedNewConfig }
+      saveConfig('picBed', newConfig)
+      await manageStore.refreshConfig()
+    }
   }
+
+  await getAllConfigAliasArray()
 }
 
 function isImported (alias: string) {
@@ -721,6 +724,7 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
         webPath: config.webpath || '',
         customUrl: config.customUrl || '',
         sslEnabled: !!config.sslEnabled,
+        authType: config.authType || 'basic',
         proxy: '',
         transformedConfig: JSON.stringify({
           webdav: {

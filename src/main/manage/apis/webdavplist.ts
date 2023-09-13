@@ -2,7 +2,7 @@
 import ManageLogger from '../utils/logger'
 
 // WebDAV 客户端库
-import { createClient, WebDAVClient, FileStat, ProgressEvent } from 'webdav'
+import { createClient, WebDAVClient, FileStat, ProgressEvent, AuthType, WebDAVClientOptions } from 'webdav'
 
 // 错误格式化函数、端点地址格式化函数、获取内部代理、新的下载器、并发异步任务池
 import { formatError, formatEndpoint, getInnerAgent, NewDownloader, ConcurrencyPromisePool } from '../utils/common'
@@ -34,6 +34,7 @@ import path from 'path'
 
 // 取消下载任务的加载文件列表、刷新下载文件传输列表
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/manage/utils/static'
+import { getAuthHeader } from '@/manage/utils/digestAuth'
 
 class WebdavplistApi {
   endpoint: string
@@ -42,29 +43,35 @@ class WebdavplistApi {
   sslEnabled: boolean
   proxy: string | undefined
   proxyStr: string | undefined
+  authType: 'basic' | 'digest' | undefined
   logger: ManageLogger
   agent: https.Agent | http.Agent
   ctx: WebDAVClient
 
-  constructor (endpoint: string, username: string, password: string, sslEnabled: boolean, proxy: string | undefined, logger: ManageLogger) {
+  constructor (endpoint: string, username: string, password: string, sslEnabled: boolean, proxy: string | undefined, authType: 'basic' | 'digest' | undefined, logger: ManageLogger) {
     this.endpoint = formatEndpoint(endpoint, sslEnabled)
     this.username = username
     this.password = password
     this.sslEnabled = sslEnabled
     this.proxy = proxy
     this.proxyStr = formatHttpProxy(proxy, 'string') as string | undefined
+    this.authType = authType || 'basic'
     this.logger = logger
     this.agent = getInnerAgent(proxy, sslEnabled).agent
+    const options: WebDAVClientOptions = {
+      username: this.username,
+      password: this.password,
+      maxBodyLength: 4 * 1024 * 1024 * 1024,
+      maxContentLength: 4 * 1024 * 1024 * 1024,
+      httpsAgent: sslEnabled ? this.agent : undefined,
+      httpAgent: !sslEnabled ? this.agent : undefined
+    }
+    if (this.authType === 'digest') {
+      options.authType = AuthType.Digest
+    }
     this.ctx = createClient(
       this.endpoint,
-      {
-        username: this.username,
-        password: this.password,
-        maxBodyLength: 4 * 1024 * 1024 * 1024,
-        maxContentLength: 4 * 1024 * 1024 * 1024,
-        httpsAgent: sslEnabled ? this.agent : undefined,
-        httpAgent: !sslEnabled ? this.agent : undefined
-      }
+      options
     )
   }
 
@@ -275,7 +282,7 @@ class WebdavplistApi {
       })
       this.ctx.putFileContents(
         key,
-        fs.createReadStream(filePath),
+        this.authType === 'digest' ? fs.readFileSync(filePath) : fs.createReadStream(filePath),
         {
           overwrite: true,
           onUploadProgress: (progressEvent: ProgressEvent) => {
@@ -347,12 +354,21 @@ class WebdavplistApi {
         sourceFileName: fileName,
         targetFilePath: savedFilePath
       })
-      const preSignedUrl = await this.getPreSignedUrl({
+      let preSignedUrl = await this.getPreSignedUrl({
         key
       })
-      const base64Str = Buffer.from(`${this.username}:${this.password}`).toString('base64')
-      const headers = {
-        Authorization: `Basic ${base64Str}`
+      let headers = {} as IStringKeyMap
+      if (this.authType === 'basic' || !this.authType) {
+        const base64Str = Buffer.from(`${this.username}:${this.password}`).toString('base64')
+        headers = {
+          Authorization: `Basic ${base64Str}`
+        }
+      } else if (this.authType === 'digest') {
+        const authHeader = await getAuthHeader('GET', this.endpoint, `/${key.replace(/^\/+/, '')}`, this.username, this.password)
+        headers = {
+          Authorization: authHeader
+        }
+        preSignedUrl = `${this.endpoint}/${key.replace(/^\/+/, '')}`
       }
       promises.push(() => new Promise((resolve, reject) => {
         NewDownloader(instance, preSignedUrl, id, savedFilePath, this.logger, this.proxyStr, headers)
