@@ -546,7 +546,7 @@ https://www.baidu.com/img/bd_logo1.png"
                 v-else-if="!item.isDir && currentPicBedName === 'webdavplist' && item.isImage"
                 :is-show-thumbnail="isShowThumbnail"
                 :item="item"
-                :headers="getBase64ofWebdav()"
+                :config="handleGetWebdavConfig()"
                 :url="item.url"
                 @click="handleClickFile(item)"
               />
@@ -718,6 +718,7 @@ https://www.baidu.com/img/bd_logo1.png"
       :initial-index="getCurrentPreviewIndex"
       infinite
       hide-on-click-modal
+      teleported
       @close="isShowImagePreview = false"
     />
     <el-dialog
@@ -1542,6 +1543,7 @@ import { videoExt } from '../utils/videofile'
 // 组件
 import ImageWebdav from '@/components/ImageWebdav.vue'
 import ImageLocal from '@/components/ImageLocal.vue'
+import ImageWebdavTsx from '@/components/ImageWebdavTsx'
 
 // 国际化函数
 import { T as $T } from '@/i18n'
@@ -1660,6 +1662,8 @@ const batchRenameReplace = ref('')
 const isRenameIncludeExt = ref(false)
 const isSingleRename = ref(false)
 const itemToBeRenamed = ref({} as any)
+let fileTransferInterval: NodeJS.Timer | null = null
+let downloadInterval: NodeJS.Timer | null = null
 
 // 当前页面信息相关
 const currentPicBedName = computed<string>(() => manageStore.config.picBed[configMap.alias].picBedName)
@@ -1711,6 +1715,10 @@ function stopRefreshUploadTask () {
   refreshUploadTaskId.value && clearInterval(refreshUploadTaskId.value)
 }
 
+function handleGetWebdavConfig () {
+  return manageStore.config.picBed[configMap.alias]
+}
+
 // 下载相关函数
 
 function showDownloadDialog () {
@@ -1734,13 +1742,6 @@ function stopRefreshDownloadTask () {
 function handleViewChange (val: 'list' | 'grid') {
   saveConfig('settings.isShowList', val === 'list')
   layoutStyle.value = val
-}
-
-function getBase64ofWebdav () {
-  const headers = {
-    Authorization: 'Basic ' + Buffer.from(`${manageStore.config.picBed[configMap.alias].username}:${manageStore.config.picBed[configMap.alias].password}`).toString('base64')
-  }
-  return headers
 }
 
 // 上传文件选择相关
@@ -2468,13 +2469,13 @@ async function handleFolderBatchDownload (item: any) {
     ipcRenderer.on(refreshDownloadFileTransferList, (evt: IpcRendererEvent, data) => {
       downloadFileTransferStore.refreshDownloadFileTransferList(data)
     })
-    const interval = setInterval(() => {
+    downloadInterval = setInterval(() => {
       const currentFileList = downloadFileTransferStore.getDownloadFileTransferList()
       currentDownloadFileList.length = 0
       currentDownloadFileList.push(...currentFileList)
-      if (downloadFileTransferStore.isFinished()) {
-        clearInterval(interval)
+      if (downloadFileTransferStore.isFinished() && downloadInterval) {
         isLoadingDownloadData.value = false
+        clearInterval(downloadInterval)
         if (downloadFileTransferStore.isSuccess()) {
           ElNotification.success({
             title: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
@@ -2845,7 +2846,7 @@ async function getBucketFileListBackStage () {
   ipcRenderer.on('refreshFileTransferList', (evt: IpcRendererEvent, data) => {
     fileTransferStore.refreshFileTransferList(data)
   })
-  const interval = setInterval(() => {
+  fileTransferInterval = setInterval(() => {
     const currentFileList = fileTransferStore.getFileTransferList()
     currentPageFilesInfo.splice(0, currentPageFilesInfo.length, ...currentFileList)
     const sortType = localStorage.getItem('sortType') as sortTypeList || 'init'
@@ -2857,9 +2858,9 @@ async function getBucketFileListBackStage () {
         fullList: currentPageFilesInfo
       }))
     })
-    if (fileTransferStore.isFinished()) {
-      clearInterval(interval)
+    if (fileTransferStore.isFinished() && fileTransferInterval) {
       isLoadingData.value = false
+      clearInterval(fileTransferInterval)
       if (fileTransferStore.isSuccess()) {
         ElNotification.success({
           title: $T('MANAGE_BUCKET_GET_FILE_BS_NOT_TITLE'),
@@ -3411,23 +3412,36 @@ const columns: Column<any>[] = [
         {{
           reference: () => (
             !item.isDir
-              ? <ElImage
-                src={isShowThumbnail.value ? item.isImage ? item.url : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`) : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)}
-                fit="contain"
-                style={{ width: '20px', height: '20px' }}
-              >
-                {{
-                  placeholder: () => <ElIcon>
-                    <Loading />
-                  </ElIcon>,
-                  error: () =>
-                    <ElImage
-                      src={require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)}
-                      fit="contain"
-                      style={{ width: '20px', height: '20px' }}
-                    />
-                }}
-              </ElImage>
+              ? currentPicBedName.value !== 'webdavplist'
+                ? <ElImage
+                  src={isShowThumbnail.value ? item.isImage ? item.url : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`) : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)}
+                  fit="contain"
+                  style={{ width: '20px', height: '20px' }}
+                >
+                  {{
+                    placeholder: () => <ElIcon>
+                      <Loading />
+                    </ElIcon>,
+                    error: () =>
+                      <ElImage
+                        src={require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)}
+                        fit="contain"
+                        style={{ width: '20px', height: '20px' }}
+                      />
+                  }}
+                </ElImage>
+                : item.isImage
+                  ? <ImageWebdavTsx
+                    isShowThumbnail={isShowThumbnail.value}
+                    item={item}
+                    config={handleGetWebdavConfig()}
+                    url={item.url}
+                  />
+                  : <ElImage
+                    src={require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)}
+                    fit="contain"
+                    style={{ width: '20px', height: '20px' }}
+                  ></ElImage>
               : <ElImage
                 src={require('./assets/icons/folder.webp')}
                 fit="contain"
@@ -3435,22 +3449,29 @@ const columns: Column<any>[] = [
               />
           ),
           default: () => (
-            <ElImage
-              src={item.isImage ? item.url : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`) }
-              fit="contain"
-            >
-              {{
-                placeholder: () => (<ElIcon>
-                  <Loading />
-                </ElIcon>
-                ),
-                error: () => (
-                  <ElIcon>
-                    <CircleClose />
+            currentPicBedName.value === 'webdavplist' && item.isImage
+              ? <ImageWebdavTsx
+                isShowThumbnail={isShowThumbnail.value}
+                item={item}
+                config={handleGetWebdavConfig()}
+                url={item.url}
+              />
+              : <ElImage
+                src={item.isImage ? item.url : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`) }
+                fit="contain"
+              >
+                {{
+                  placeholder: () => (<ElIcon>
+                    <Loading />
                   </ElIcon>
-                )
-              }}
-            </ElImage>
+                  ),
+                  error: () => (
+                    <ElIcon>
+                      <CircleClose />
+                    </ElIcon>
+                  )
+                }}
+              </ElImage>
           )
         }}
       </ElPopover>
@@ -3670,6 +3691,10 @@ onBeforeMount(async () => {
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleDetectShiftKey)
   document.removeEventListener('keyup', handleDetectShiftKey)
+  fileTransferInterval && clearInterval(fileTransferInterval)
+  downloadInterval && clearInterval(downloadInterval)
+  refreshUploadTaskId.value && clearInterval(refreshUploadTaskId.value)
+  refreshDownloadTaskId.value && clearInterval(refreshDownloadTaskId.value)
   if (isLoadingData.value) {
     ipcRenderer.send('cancelLoadingFileList', cancelToken.value)
   }

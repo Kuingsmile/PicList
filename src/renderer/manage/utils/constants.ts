@@ -779,10 +779,20 @@ export const supportedPicBedList: IStringKeyMap = {
         default: true,
         type: 'boolean',
         tooltip: $T('MANAGE_CONSTANT_WEBDAV_SSL_TOOLTIP')
+      },
+      authType: {
+        required: true,
+        description: $T('MANAGE_CONSTANT_WEBDAV_AUTH_TYPE_DESC'),
+        default: 'basic',
+        type: 'select',
+        selectOptions: {
+          basic: 'Basic',
+          digest: 'Digest'
+        }
       }
     },
     explain: $T('MANAGE_CONSTANT_WEBDAV_EXPLAIN'),
-    options: ['alias', 'endpoint', 'username', 'password', 'bucketName', 'baseDir', 'customUrl', 'webPath', 'proxy', 'sslEnabled'],
+    options: ['alias', 'endpoint', 'username', 'password', 'bucketName', 'baseDir', 'customUrl', 'webPath', 'proxy', 'sslEnabled', 'authType'],
     refLink: 'https://piclist.cn/manage.html#webdav',
     referenceText: $T('MANAGE_CONSTANT_WEBDAV_REFER_TEXT')
   },

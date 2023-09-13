@@ -617,6 +617,7 @@ MANAGE_CONSTANT_WEBDAV_PROXY_PLACEHOLDER: 'e.g. http://127.0.0.1:1080'
 MANAGE_CONSTANT_WEBDAV_PROXY_TOOLTIP: If special network environment is required to access, please use proxy
 MANAGE_CONSTANT_WEBDAV_SSL_DESC: Use HTTPS Connection
 MANAGE_CONSTANT_WEBDAV_SSL_TOOLTIP: Depending on the configuration of your WebDAV server, if your server does not support HTTPS, please turn off this option
+MANAGE_CONSTANT_WEBDAV_AUTH_TYPE_DESC: Authentication Type
 MANAGE_CONSTANT_WEBDAV_EXPLAIN: 'WebDAV Configuration'
 MANAGE_CONSTANT_WEBDAV_REFER_TEXT: 'Refer to:'
 
