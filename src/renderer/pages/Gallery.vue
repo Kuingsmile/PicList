@@ -262,7 +262,7 @@
               class="gallery-list__file-name"
               :title="item.fileName"
             >
-              {{ item.fileName }}
+              {{ formatFileName(item.fileName || '') }}
             </div>
             <el-row
               class="gallery-list__tool-panel"
@@ -477,6 +477,7 @@ import ALLApi from '@/apis/allApi'
 // 工具函数
 import { customRenameFormatTable, customStrMatch, customStrReplace } from '../manage/utils/common'
 import { picBedsCanbeDeleted } from '#/utils/static'
+import path from 'path'
 
 const images = ref<ImgInfo[]>([])
 const dialogVisible = ref(false)
@@ -577,6 +578,10 @@ const isAllSelected = computed(() => {
     })
   }
 })
+
+function formatFileName (name: string) {
+  return path.basename(name)
+}
 
 function getPicBeds (event: IpcRendererEvent, picBeds: IPicBedType[]) {
   picBed.value = picBeds
