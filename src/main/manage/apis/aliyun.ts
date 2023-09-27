@@ -163,7 +163,7 @@ class AliyunApi {
 
     if (res?.status === 200) {
       const parser = new XMLParser()
-      const result = parser.parse(res.data) as IStringKeyMap
+      const result = parser.parse(res.data)
 
       if (result.ListCnameResult?.Cname) {
         const cnames = Array.isArray(result.ListCnameResult.Cname)
