@@ -944,7 +944,7 @@ export const supportedPicBedList: IStringKeyMap = {
         default: '0755'
       },
       baseDir: {
-        required: true,
+        required: false,
         description: $T('MANAGE_CONSTANT_SFTP_BASE_DIR_DESC'),
         placeholder: $T('MANAGE_CONSTANT_SFTP_BASE_DIR_PLACEHOLDER'),
         type: 'string',

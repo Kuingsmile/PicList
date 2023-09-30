@@ -130,13 +130,13 @@ export const uploadChoosedFiles = async (webContents: WebContents, files: IFileW
   }
 }
 
-async function deleteWebdavFile (config: ISftpPlistConfig, fileName: string) {
+async function deleteSFTPFile (config: ISftpPlistConfig, fileName: string) {
   try {
     const client = SSHClient.instance
     await client.connect(config)
     const uploadPath = `/${(config.uploadPath || '')}/`.replace(/\/+/g, '/')
     const remote = path.join(uploadPath, fileName)
-    const deleteResult = await client.deleteFile(remote)
+    const deleteResult = await client.deleteFileSFTP(config, remote)
     client.close()
     return deleteResult
   } catch (err: any) {
@@ -161,10 +161,10 @@ export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> =>
               })
               notification.show()
             }
-            if (item.type === 'webdavplist') {
+            if (item.type === 'sftpplist') {
               const { fileName, config } = item
               setTimeout(() => {
-                deleteWebdavFile(getRawData(config), fileName || '').then(noteFunc)
+                deleteSFTPFile(getRawData(config), fileName || '').then(noteFunc)
               }, 0)
             } else {
               setTimeout(() => {
