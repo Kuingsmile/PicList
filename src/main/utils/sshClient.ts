@@ -1,6 +1,9 @@
+// @ts-nocheck
 import { NodeSSH, Config, SSHExecCommandResponse } from 'node-ssh-no-cpu-features'
 import path from 'path'
 import { ISftpPlistConfig } from 'piclist/dist/types'
+import { Client } from 'ssh2-no-cpu-features'
+import fs from 'fs-extra'
 
 class SSHClient {
   // eslint-disable-next-line no-use-before-define
@@ -38,16 +41,35 @@ class SSHClient {
     }
   }
 
-  public async deleteFile (remote: string): Promise<boolean> {
-    if (!this._isConnected) {
-      throw new Error('SSH 未连接')
-    }
+  public async deleteFileSFTP (config: ISftpPlistConfig, remote: string): Promise<boolean> {
     try {
+      const client = new Client()
+      const { username, password, privateKey, passphrase } = config
+      const loginInfo: Config = privateKey
+        ? { username, privateKey: fs.readFileSync(privateKey), passphrase: passphrase || undefined }
+        : { username, password }
       remote = this.changeWinStylePathToUnix(remote)
       if (remote === '/' || remote.includes('*')) return false
-      const script = `rm -f "${remote}"`
-      return await this.exec(script)
+      const promise = new Promise((resolve, reject) => {
+        client.on('ready', () => {
+          client.sftp((err, sftp) => {
+            if (err) reject(false)
+            sftp.unlink(remote, (err) => {
+              if (err) reject(false)
+              client.end()
+              resolve(true)
+            })
+          })
+        }).connect({
+          host: config.host,
+          port: Number(config.port) || 22,
+          ...loginInfo
+        })
+      }
+      )
+      return await promise
     } catch (err: any) {
+      console.log(err)
       return false
     }
   }

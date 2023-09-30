@@ -174,7 +174,7 @@ export default {
         await client.connect(config)
         const uploadPath = `/${(config.uploadPath || '')}/`.replace(/\/+/g, '/')
         const remote = path.join(uploadPath, fileName)
-        const deleteResult = await client.deleteFile(remote)
+        const deleteResult = await client.deleteFileSFTP(config, remote)
         client.close()
         return deleteResult
       } catch (err: any) {

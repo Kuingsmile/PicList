@@ -12639,10 +12639,10 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/piclist/-/piclist-1.1.2.tgz#b008fd8814cd24e10a165cf056fe1b3f32aad140"
-  integrity sha512-QSdd9UERrDTkwrBTGu9uYHPIfBY+AZ4deEeKwe4VmTTVhpNi1J/zoAQPVwqpWv7JHktHPh5S2pDb4z9IdEVoNg==
+piclist@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/piclist/-/piclist-1.1.4.tgz#11a1bf77afe83d245cf86980a9457a3e03341618"
+  integrity sha512-GnFUsLlBO3DvLAsZxudD7AWNtqNfaCTtMhQnTaBuqgMweLNE+7/Pjvxyv3rzI9wXpbs+Ylemff4uaKvWy2t2kw==
   dependencies:
     "@picgo/i18n" "^1.0.0"
     "@picgo/store" "^2.1.0"
@@ -14567,7 +14567,7 @@ sprintf-js@~1.0.2:
 
 ssh2-no-cpu-features@^1.0.0:
   version "1.0.0"
-  resolved "https://registry.npmjs.org/ssh2-no-cpu-features/-/ssh2-no-cpu-features-1.0.0.tgz#641a8ea5331638ea9bfdee9e53f38ebfc46bf8cf"
+  resolved "https://registry.yarnpkg.com/ssh2-no-cpu-features/-/ssh2-no-cpu-features-1.0.0.tgz#641a8ea5331638ea9bfdee9e53f38ebfc46bf8cf"
   integrity sha512-94HbS6PbjOvGYnWQ0OFlGLWp3yw6BfSAmpVlCRvsqqyfWa86gCorpnXFJLLJklnfCbp6UiZhEKzm3W+8vKCHqw==
   dependencies:
     asn1 "^0.2.6"
