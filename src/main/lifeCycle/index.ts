@@ -45,6 +45,7 @@ import path from 'path'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/universal/utils/static'
 import fs from 'fs-extra'
 import { startFileServer } from '../fileServer'
+import axios from 'axios'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const handleStartUpFiles = (argv: string[], cwd: string) => {
@@ -71,14 +72,23 @@ autoUpdater.setFeedURL({
 
 autoUpdater.autoDownload = false
 
-autoUpdater.on('update-available', (info: UpdateInfo) => {
+autoUpdater.on('update-available', async (info: UpdateInfo) => {
+  const lang = db.get('settings.language') || 'zh-CN'
+  let updateLog = ''
+  try {
+    const url = lang === 'zh-CN' ? 'https://release.piclist.cn/currentVersion.md' : 'https://release.piclist.cn/currentVersion_en.md'
+    const res = await axios.get(url)
+    updateLog = res.data
+  } catch (e: any) {
+    logger.error(e)
+  }
   dialog.showMessageBox({
     type: 'info',
     title: T('FIND_NEW_VERSION'),
     buttons: ['Yes', 'No'],
     message: T('TIPS_FIND_NEW_VERSION', {
       v: info.version
-    }),
+    }) + '\n\n' + updateLog,
     checkboxLabel: T('NO_MORE_NOTICE'),
     checkboxChecked: false
   }).then((result) => {
