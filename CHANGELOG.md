@@ -1,3 +1,24 @@
+## :tada: 2.6.2 (2023-09-30)
+
+
+### :sparkles: Features
+
+* optimize filename display in gallery page ([0abfeff](https://github.com/Kuingsmile/piclist/commit/0abfeff))
+* update dialog will show change log now ([ef1812a](https://github.com/Kuingsmile/piclist/commit/ef1812a))
+
+
+### :bug: Bug Fixes
+
+* fix sftp delete error when the user don't have ssh permission ([819dfbb](https://github.com/Kuingsmile/piclist/commit/819dfbb)), closes [#100](https://github.com/Kuingsmile/piclist/issues/100)
+* fix type error caused by fast-xml-parser ([0f100e5](https://github.com/Kuingsmile/piclist/commit/0f100e5))
+
+
+### :pencil: Documentation
+
+* update changelog ([d3ac2c5](https://github.com/Kuingsmile/piclist/commit/d3ac2c5))
+
+
+
 ## :tada: 2.6.1 (2023-09-13)
 
 
