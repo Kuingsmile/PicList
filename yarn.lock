@@ -8330,10 +8330,10 @@ fast-xml-parser@^4.2.4:
   dependencies:
     strnum "^1.0.5"
 
-fast-xml-parser@^4.3.1:
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-4.3.1.tgz#4f89c31e4c392d6e3d68b299733cad0c2d50d495"
-  integrity sha512-viVv3xb8D+SiS1W4cv4tva3bni08kAkx0gQnWrykMM8nXPc1FxqZPU00dCEVjkiCg4HoXd2jC4x29Nzg/l2DAA==
+fast-xml-parser@^4.3.2:
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-4.3.2.tgz#761e641260706d6e13251c4ef8e3f5694d4b0d79"
+  integrity sha512-rmrXUXwbJedoXkStenj1kkljNF7ugn5ZjR9FJcwmCfcCbtOMDghPajbc+Tck6vE6F5XsDmx+Pr2le9fw8+pXBg==
   dependencies:
     strnum "^1.0.5"
 
@@ -12639,10 +12639,10 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^1.1.4:
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/piclist/-/piclist-1.1.4.tgz#11a1bf77afe83d245cf86980a9457a3e03341618"
-  integrity sha512-GnFUsLlBO3DvLAsZxudD7AWNtqNfaCTtMhQnTaBuqgMweLNE+7/Pjvxyv3rzI9wXpbs+Ylemff4uaKvWy2t2kw==
+piclist@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/piclist/-/piclist-1.2.0.tgz#f71d9777bdcd829d8bfb13ba54863abfe15da06a"
+  integrity sha512-tcgDa032AVh6IckJzHzS7pKXUxYTo3e0Zbv+ysuExMPafY1/vrgDdvmv8GzFS8ZGAT1rtoUBLJXlQdCY7RNHmA==
   dependencies:
     "@picgo/i18n" "^1.0.0"
     "@picgo/store" "^2.1.0"
