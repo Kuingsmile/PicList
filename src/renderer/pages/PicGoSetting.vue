@@ -1746,7 +1746,7 @@ const logLevel = {
 
 const server = ref({
   port: 36677,
-  host: '127.0.0.1',
+  host: '0.0.0.0',
   enable: true
 })
 
@@ -1859,7 +1859,7 @@ async function initData () {
     mainWindowHeight.value = settings.mainWindowHeight || 800
     server.value = settings.server || {
       port: 36677,
-      host: '127.0.0.1',
+      host: '0.0.0.0',
       enable: true
     }
     advancedRename.value = config.buildIn?.rename || {
@@ -2305,7 +2305,7 @@ async function cancelServerSetting () {
   serverVisible.value = false
   server.value = await getConfig('settings.server') || {
     port: 36677,
-    host: '127.0.0.1',
+    host: '0.0.0.0',
     enable: true
   }
 }

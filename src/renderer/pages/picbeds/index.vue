@@ -238,7 +238,10 @@ async function handleCopyApi () {
       port: 36677,
       host: '127.0.0.1'
     }
-    const { port, host } = serverConfig
+    let { port, host } = serverConfig
+    if (host === '0.0.0.0') {
+      host = '127.0.0.1'
+    }
     const uploader = await getConfig('uploader') as IStringKeyMap || {}
     const picBedConfigList = uploader[$route.params.type as string].configList || []
     const picBedConfig = picBedConfigList.find((item: IUploaderConfigListItem) => item._id === $route.params.configId)
