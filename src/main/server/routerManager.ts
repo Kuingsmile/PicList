@@ -9,6 +9,11 @@ import path from 'path'
 import { dbPathDir } from 'apis/core/datastore/dbChecker'
 import picgo from '@core/picgo'
 import { changeCurrentUploader } from '../utils/handleUploaderConfig'
+import { app } from 'electron'
+import fs from 'fs-extra'
+
+const appPath = app.getPath('userData')
+const serverTempDir = path.join(appPath, 'serverTemp')
 
 const STORE_PATH = dbPathDir()
 const LOG_PATH = path.join(STORE_PATH, 'piclist.log')
@@ -112,6 +117,7 @@ router.post('/upload', async ({
         })
       }
     }
+    fs.emptyDirSync(serverTempDir)
     if (needRestore) {
       changeCurrentUploader(currentPicBedType, currentPicBedConfig, currentPicBedConfigId)
     }
