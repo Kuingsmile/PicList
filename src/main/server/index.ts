@@ -40,10 +40,13 @@ class Server {
     const result = this.checkIfConfigIsValid(config)
     if (result) {
       this.config = config
+      if (this.config.host === '127.0.0.1') {
+        this.config.host = '0.0.0.0'
+      }
     } else {
       config = {
         port: 36677,
-        host: '127.0.0.1',
+        host: '0.0.0.0',
         enable: true
       }
       this.config = config
@@ -141,7 +144,7 @@ class Server {
 
   // port as string is a bug
   private listen = (port: number | string) => {
-    logger.info(`[PicList Server] is listening at ${port}`)
+    logger.info(`[PicList Server] is listening at ${port} of ${this.config.host}`)
     if (typeof port === 'string') {
       port = parseInt(port, 10)
     }
@@ -177,6 +180,9 @@ class Server {
 
   restart () {
     this.config = picgo.getConfig('settings.server')
+    if (this.config.host === '127.0.0.1') {
+      this.config.host = '0.0.0.0'
+    }
     this.shutdown()
     this.startup()
   }

@@ -27,7 +27,7 @@ PicList `V1.5.0`以上版本提供 `一键迁移`功能，进入 `设置`页面�
 
 ## PicList-Core
 
-PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](https://github.com/Kuingsmile/PicList-Core)，为云端删除等功能做了适配，同时，新增了水印添加和图片压缩/缩放/旋转/格式转换等功能，可以通过CLI命令行调用，还有一些其他的功能改动。
+PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](https://github.com/Kuingsmile/PicList-Core)，为云端删除等功能做了适配，同时，新增了水印添加和图片压缩/缩放/旋转/格式转换等功能，可以通过CLI命令行调用，支持通过`picgo-server`命令开启上传服务器，还有一些其他的功能改动。
 
 如果您希望使用PicList-core，请前往[https://github.com/Kuingsmile/PicList-Core](https://github.com/Kuingsmile/PicList-Core)，或者前往[npm官方地址](https://www.npmjs.com/package/piclist)查看安装说明。
 
@@ -38,6 +38,7 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 - 相册中可同步删除云端图片，支持所有内置图床和多个插件
 - 相册新增了高级搜索和排序，批量修改URL等功能
 - 内置水印添加、图片压缩、图片缩放、图片旋转和图片格式转换等功能，同时支持高级重命名
+- 上传接口支持表单上传文件，可多电脑共用
 - 支持配置同步至Github或Gitee仓库
 - 支持管理十余种图床，可以在线进行云端目录查看、文件搜索、批量上传、批量下载、删除文件等
 - 支持预览多种格式的文件，包括图片、视频、纯文本文件和markdown文件等，具体支持的格式请参考[支持的文件格式列表](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)

@@ -27,7 +27,7 @@ PicList `V1.5.0` and above versions provide the `one-click migration` function. 
 
 ## PicList-Core
 
-The core of PicList is based on the original PicGo-Core [PicList-core](https://github.com/Kuingsmile/PicList-Core), which is adapted for cloud deletion and other functions, and adds watermark addition and image compression / scaling / rotation / format conversion functions, which can be called through CLI command line, as well as some other function changes.
+The core of PicList is based on the original PicGo-Core [PicList-core](https://github.com/Kuingsmile/PicList-Core), which is adapted for cloud deletion and other functions, and adds watermark addition and image compression / scaling / rotation / format conversion functions, which can be called through CLI command line, support starting the built-in upload server through `picgo-server`，as well as some other function changes.
 
 if you want to use PicList-core, please go to [https://github.com/Kuingsmile/PicList-Core](https://github.com/Kuingsmile/PicList-Core), or go to [npm official address](https://www.npmjs.com/package/piclist) to view the installation instructions.
 
@@ -38,6 +38,7 @@ if you want to use PicList-core, please go to [https://github.com/Kuingsmile/Pic
 - Within the album, you can synchronize the deletion of cloud images. This is supported across all built-in image hosts and multiple plugins.
 - The album now offers advanced search and sorting features, as well as batch URL modification.
 - Built-in tools for adding watermarks, compressing images, scaling images, rotating images, and converting image formats are now available. Advanced renaming is also supported.
+- Upload interface supports form upload files, can be shared by multiple computers
 - Configuration can be synchronized to Github or Gitee repositories.
 - Manages over ten types of image hosting platforms, allowing online viewing of cloud directories, file searching, batch uploading, batch downloading, file deletion, and more.
 - Support previewing multiple formats of files, including pictures, videos, plain text files and markdown files, etc. For the specific formats supported, please refer to [Supported file format list](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)
