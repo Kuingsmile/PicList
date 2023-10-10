@@ -80,7 +80,7 @@ The verification of the upload option may have problems, you can ignore it, and 
 
 ### How to use in Obsidian
 
-In the community plugins, search for and install the Image auto upload Plugin. Next, go to the plugin settings page and change the default uploader to PicGo(app). Set the PicGo server to http://127.0.0.1:36677/upload as shown in the image below. Additionally, this plugin also supports cloud-based deletion through PicList. To use this feature, enter http://127.0.0.1:36677/delete in the deletion interface.
+In the community plugins, search for and install the Image auto upload Plugin. Next, go to the plugin settings page and change the default uploader to PicGo(app). Set the PicGo server to `http://127.0.0.1:36677/upload` as shown in the image below. Additionally, this plugin also supports cloud-based deletion through PicList. To use this feature, enter `http://127.0.0.1:36677/delete` in the deletion interface.
 
 ![image](https://user-images.githubusercontent.com/96409857/226522718-8378c480-9fb4-4785-87e1-d59808862016.png)
 
