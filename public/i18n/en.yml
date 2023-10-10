@@ -200,8 +200,10 @@ SETTINGS_TIPS_SERVER_NOTICE: If you don't know what is the server's function, pl
 SETTINGS_ENABLE_SERVER: Enable Server
 SETTINGS_SET_SERVER_HOST: Set Server Host
 SETTINGS_SET_SERVER_PORT: Set Server Port
+SETTINGS_SET_SERVER_KEY: Set Auth Key
 SETTINGS_TIP_PLACEHOLDER_HOST: Default:127.0.0.1
 SETTINGS_TIP_PLACEHOLDER_PORT: Default:36677
+SETTINGS_TIP_PLACEHOLDER_KEY: This key is used to avoid malicious requests, through urlParams '?key=xxx' to pass
 SETTINGS_LOG_LEVEL_ALL: All
 SETTINGS_LOG_LEVEL_SUCCESS: Success
 SETTINGS_LOG_LEVEL_ERROR: Error

@@ -1,3 +1,26 @@
+## :tada: 2.6.3 (2023-10-10)
+
+
+### :sparkles: Features
+
+* add authoration key for built-in server ([06c518d](https://github.com/Kuingsmile/piclist/commit/06c518d))
+* build-in server support formdata now ([615cbc5](https://github.com/Kuingsmile/piclist/commit/615cbc5)), closes [#103](https://github.com/Kuingsmile/piclist/issues/103)
+* built-in server will listen to 0.0.0.0 other than 127.0.0.1 ([54d289c](https://github.com/Kuingsmile/piclist/commit/54d289c))
+
+
+### :bug: Bug Fixes
+
+* fix an issue of watermark ([64952e1](https://github.com/Kuingsmile/piclist/commit/64952e1)), closes [#102](https://github.com/Kuingsmile/piclist/issues/102)
+* fix local path picbed upload error ([392e178](https://github.com/Kuingsmile/piclist/commit/392e178))
+* fix upload api copy error after changing to 0.0.0.0 ([7e40808](https://github.com/Kuingsmile/piclist/commit/7e40808))
+
+
+### :pencil: Documentation
+
+* update docs ([573265c](https://github.com/Kuingsmile/piclist/commit/573265c))
+
+
+
 ## :tada: 2.6.2 (2023-09-30)
 
 

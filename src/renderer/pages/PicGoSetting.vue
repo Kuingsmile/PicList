@@ -1055,6 +1055,16 @@
               :placeholder="$T('SETTINGS_TIP_PLACEHOLDER_PORT')"
             />
           </el-form-item>
+          <el-form-item
+            :label="$T('SETTINGS_SET_SERVER_KEY')"
+          >
+            <el-input
+              v-model="form.serverKey"
+              type="input"
+              :placeholder="$T('SETTINGS_TIP_PLACEHOLDER_KEY')"
+              @change="handleServerKeyChange"
+            />
+          </el-form-item>
         </template>
       </el-form>
       <template #footer>
@@ -1691,7 +1701,8 @@ const form = reactive<ISettingForm>({
   shortUrlServer: 'c1n',
   yourlsDomain: '',
   yourlsSignature: '',
-  deleteLocalFile: false
+  deleteLocalFile: false,
+  serverKey: ''
 })
 
 const languageList = i18nManager.languageList.map(item => ({
@@ -1746,7 +1757,7 @@ const logLevel = {
 
 const server = ref({
   port: 36677,
-  host: '127.0.0.1',
+  host: '0.0.0.0',
   enable: true
 })
 
@@ -1848,6 +1859,7 @@ async function initData () {
     form.yourlsDomain = settings.yourlsDomain || ''
     form.yourlsSignature = settings.yourlsSignature || ''
     form.deleteLocalFile = settings.deleteLocalFile || false
+    form.serverKey = settings.serverKey || ''
     currentLanguage.value = settings.language ?? 'zh-CN'
     currentStartMode.value = settings.startMode || 'quiet'
     customLink.value = settings.customLink || '![$fileName]($url)'
@@ -1859,7 +1871,7 @@ async function initData () {
     mainWindowHeight.value = settings.mainWindowHeight || 800
     server.value = settings.server || {
       port: 36677,
-      host: '127.0.0.1',
+      host: '0.0.0.0',
       enable: true
     }
     advancedRename.value = config.buildIn?.rename || {
@@ -2100,6 +2112,10 @@ function cancelCheckVersion () {
   checkUpdateVisible.value = false
 }
 
+function handleServerKeyChange (val: string) {
+  saveConfig('settings.serverKey', val)
+}
+
 function handleUploadNotification (val: ICheckBoxValueType) {
   saveConfig({
     'settings.uploadNotification': val
@@ -2305,7 +2321,7 @@ async function cancelServerSetting () {
   serverVisible.value = false
   server.value = await getConfig('settings.server') || {
     port: 36677,
-    host: '127.0.0.1',
+    host: '0.0.0.0',
     enable: true
   }
 }
