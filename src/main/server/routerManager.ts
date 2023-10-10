@@ -32,6 +32,18 @@ router.post('/upload', async ({
 }): Promise<void> => {
   try {
     const picbed = urlparams?.get('picbed')
+    const passedKey = urlparams?.get('key')
+    const serverKey = picgo.getConfig('settings.serverKey') || ''
+    if (serverKey && passedKey !== serverKey) {
+      handleResponse({
+        response,
+        body: {
+          success: false,
+          message: 'server key is not correct'
+        }
+      })
+      return
+    }
     let currentPicBedType = ''
     let currentPicBedConfig = {} as IStringKeyMap
     let currentPicBedConfigId = ''

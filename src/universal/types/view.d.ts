@@ -27,7 +27,8 @@ interface ISettingForm {
   shortUrlServer: string,
   yourlsDomain: string,
   yourlsSignature: string,
-  deleteLocalFile: boolean
+  deleteLocalFile: boolean,
+  serverKey: string
 }
 
 interface IShortKeyMap {
