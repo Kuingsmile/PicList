@@ -89,7 +89,6 @@
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@electron/notarize": "^2.1.0",
-    "@picgo/bump-version": "^1.1.2",
     "@types/ali-oss": "^6.16.9",
     "@types/electron-devtools-installer": "^2.2.3",
     "@types/fs-extra": "^11.0.2",
@@ -128,6 +127,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-vue": "^9.17.0",
     "husky": "^3.1.0",
+    "node-bump-version": "^1.0.0",
     "node-loader": "^2.0.0",
     "npm-check-updates": "^16.14.5",
     "stylus": "^0.59.0",
@@ -137,7 +137,7 @@
   },
   "commitlint": {
     "extends": [
-      "./node_modules/@picgo/bump-version/commitlint-picgo"
+      "./node_modules/node-bump-version/commitlint-node"
     ]
   },
   "config": {
@@ -145,7 +145,7 @@
       "path": "./node_modules/cz-customizable"
     },
     "cz-customizable": {
-      "config": "./node_modules/@picgo/bump-version/.cz-config.js"
+      "config": "./node_modules/node-bump-version/.cz-config.js"
     }
   },
   "husky": {
