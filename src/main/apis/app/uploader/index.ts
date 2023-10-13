@@ -18,7 +18,7 @@ import {
 import picgo from '@core/picgo'
 import db from '~/main/apis/core/datastore'
 import windowManager from 'apis/app/window/windowManager'
-import { showNotification, getClipboardFilePath } from '~/main/utils/common'
+import { showNotification, getClipboardFilePath, calcDurationRange } from '~/main/utils/common'
 import logger from '@core/picgo/logger'
 import { T } from '~/main/i18n'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/universal/utils/static'
@@ -30,7 +30,8 @@ import { IWindowList } from '#/types/enum'
 import { IPicGo } from 'piclist'
 import {
   GET_RENAME_FILE_NAME,
-  RENAME_FILE_NAME
+  RENAME_FILE_NAME,
+  TALKING_DATA_EVENT
 } from '~/universal/events/constants'
 
 const waitForRename = (window: BrowserWindow, id: number): Promise<string|null> => {
@@ -46,6 +47,20 @@ const waitForRename = (window: BrowserWindow, id: number): Promise<string|null> 
       windowManager.deleteById(windowId)
     })
   })
+}
+
+const handleTalkingData = (webContents: WebContents, options: IAnalyticsData) => {
+  const data: ITalkingDataOptions = {
+    EventId: 'upload',
+    Label: options.type,
+    MapKv: {
+      by: options.fromClipboard ? 'clipboard' : 'files', // 上传剪贴板图片还是选择的文文件
+      count: options.count, // 上传的数量
+      duration: calcDurationRange(options.duration || 0), // 上传耗时
+      type: options.type
+    }
+  }
+  webContents.send(TALKING_DATA_EVENT, data)
 }
 
 class Uploader {
@@ -142,8 +157,17 @@ class Uploader {
 
   async upload (img?: IUploadOption): Promise<ImgInfo[]|false> {
     try {
+      const startTime = Date.now()
       const output = await picgo.upload(img)
       if (Array.isArray(output) && output.some((item: ImgInfo) => item.imgUrl)) {
+        if (this.webContents) {
+          handleTalkingData(this.webContents, {
+            fromClipboard: !img,
+            type: db.get('picBed.uploader') || db.get('picBed.current') || 'smms',
+            count: img ? img.length : 1,
+            duration: Date.now() - startTime
+          } as IAnalyticsData)
+        }
         output.forEach((item: ImgInfo) => {
           item.config = JSON.parse(JSON.stringify(db.get(`picBed.${item.type}`)))
         })
