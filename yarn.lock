@@ -11441,10 +11441,10 @@ node-addon-api@^6.1.0:
   resolved "https://registry.npmjs.org/node-addon-api/-/node-addon-api-6.1.0.tgz#ac8470034e58e67d0c6f1204a18ae6995d9c0d76"
   integrity sha512-+eawOlIgy680F0kBzPUNFhMZGtJ1YmqM6l4+Crf4IkImjYrO/mqPwRMh352g23uIaQKFItcQ64I7KMaJxHgAVA==
 
-node-bump-version@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/node-bump-version/-/node-bump-version-1.0.0.tgz#dfbed779fed5c2ff00dfabfbbbc0d63c2ea7d0c8"
-  integrity sha512-1AF0C+Dk5LUAc3OnK6zEu4FsccRon89FuRqYRPZcrHWDv33qrVrJIsHQAbcKu5QJsT3lzvvioMQ4qMbf1SZsqg==
+node-bump-version@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/node-bump-version/-/node-bump-version-1.0.2.tgz#38bf7892507f92b2bc08082c9963125875edd3bf"
+  integrity sha512-ixq+E+LMAmLbS4J9U+GlfMxtrOcibKSegHwEMAKQZ4lsGSM+SXJocdSDKdCkUhn3lHg8YnZMGBdKJxAhtzE6vQ==
   dependencies:
     "@commitlint/cli" "^17.7.2"
     commitizen "^4.3.0"
@@ -11453,6 +11453,7 @@ node-bump-version@^1.0.0:
     eslint-plugin-n "^16.2.0"
     husky "^1.3.1"
     ora "^5.4.1"
+    q "^1.5.1"
 
 node-domexception@^1.0.0:
   version "1.0.0"
@@ -12930,6 +12931,11 @@ pupa@^3.1.0:
   integrity sha512-FLpr4flz5xZTSJxSeaheeMKN/EDzMdK7b8PTOC6a5PYFKTucWbdqjgqaEyH0shFiSJrVB1+Qqi4Tk19ccU6Aug==
   dependencies:
     escape-goat "^4.0.0"
+
+q@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
+  integrity sha512-kV/CThkXo6xyFEZUugw/+pIOywXcDbFYgSct5cT3gqlbkBE1SJdwy6UQoZvodiWF/ckQLZyDE/Bu1M6gVu5lVw==
 
 qiniu@^7.9.0:
   version "7.9.0"
