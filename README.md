@@ -100,6 +100,7 @@ In the community plugins, search for and install the Image auto upload Plugin. N
 |           Local            |          ✔️           |            ✔️             |
 |       Built-in SFTP        |          ✔️           |            ✔️             |
 |         Doge Cloud         |          ✔️           |            ✔️             |
+|    PicList(Lasso-Doll)     |          ✔️           |            ✔️             |
 
 |                                           Plugin                                           | Album cloud deletion |
 | :----------------------------------------------------------------------------------------: | :------------------: |
