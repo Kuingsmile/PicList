@@ -1,6 +1,6 @@
 {
   "name": "piclist",
-  "version": "2.6.3",
+  "version": "2.6.4",
   "author": {
     "name": "Kuingsmile",
     "email": "pkukuing@gmail.com"
@@ -52,7 +52,7 @@
     "cos-nodejs-sdk-v5": "^2.12.4",
     "dexie": "^3.2.4",
     "electron-updater": "^6.1.4",
-    "element-plus": "2.3.14",
+    "element-plus": "2.4.0",
     "epipebomb": "^1.0.0",
     "fast-xml-parser": "^4.3.2",
     "form-data": "^4.0.0",
@@ -68,8 +68,8 @@
     "multer": "^1.4.5-lts.1",
     "node-ssh-no-cpu-features": "^1.0.1",
     "nodejs-file-downloader": "^4.12.1",
-    "piclist": "^1.3.4",
-    "pinia": "^2.1.6",
+    "piclist": "^1.6.0",
+    "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.0",
     "qiniu": "^7.9.0",
     "qrcode.vue": "^3.4.1",
@@ -89,7 +89,6 @@
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@electron/notarize": "^2.1.0",
-    "@picgo/bump-version": "^1.1.2",
     "@types/ali-oss": "^6.16.9",
     "@types/electron-devtools-installer": "^2.2.3",
     "@types/fs-extra": "^11.0.2",
@@ -105,8 +104,8 @@
     "@types/upyun": "^3.4.1",
     "@types/uuid": "^9.0.3",
     "@types/write-file-atomic": "^4.0.1",
-    "@typescript-eslint/eslint-plugin": "^6.7.4",
-    "@typescript-eslint/parser": "^6.7.4",
+    "@typescript-eslint/eslint-plugin": "^6.7.5",
+    "@typescript-eslint/parser": "^6.7.5",
     "@vue/cli-plugin-babel": "^5.0.8",
     "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-plugin-router": "^5.0.8",
@@ -128,8 +127,9 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-vue": "^9.17.0",
     "husky": "^3.1.0",
+    "node-bump-version": "^1.0.2",
     "node-loader": "^2.0.0",
-    "npm-check-updates": "^16.14.5",
+    "npm-check-updates": "^16.14.6",
     "stylus": "^0.59.0",
     "stylus-loader": "^7.1.3",
     "typescript": "^4.9.5",
@@ -137,7 +137,7 @@
   },
   "commitlint": {
     "extends": [
-      "./node_modules/@picgo/bump-version/commitlint-picgo"
+      "./node_modules/node-bump-version/commitlint-node"
     ]
   },
   "config": {
@@ -145,7 +145,7 @@
       "path": "./node_modules/cz-customizable"
     },
     "cz-customizable": {
-      "config": "./node_modules/@picgo/bump-version/.cz-config.js"
+      "config": "./node_modules/node-bump-version/.cz-config.js"
     }
   },
   "husky": {

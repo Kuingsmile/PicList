@@ -569,6 +569,7 @@ function handleConfigImport (alias: string) {
 }
 
 async function getCurrentConfigList () {
+  await manageStore.refreshConfig()
   const configList = await getPicBedsConfig<any>('uploader') ?? {}
   const pbList = ['aliyun', 'aws-s3', 'github', 'imgur', 'local', 'qiniu', 'sftpplist', 'smms', 'tcyun', 'upyun', 'webdavplist']
 

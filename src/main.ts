@@ -6,6 +6,7 @@ import router from './renderer/router'
 import ElementUI from 'element-plus'
 import 'element-plus/dist/index.css'
 import VueLazyLoad from 'vue3-lazyload'
+import { initTalkingData } from './renderer/utils/analytic'
 import vue3PhotoPreview from 'vue3-photo-preview'
 import 'vue3-photo-preview/dist/index.css'
 import VueVideoPlayer from '@videojs-player/vue'
@@ -83,3 +84,5 @@ console.log(hljsCommon.highlightAuto('<h1>Highlight.js has been registered succe
 app.use(hljsVuePlugin)
 app.use(VueVideoPlayer)
 app.mount('#app')
+
+initTalkingData()

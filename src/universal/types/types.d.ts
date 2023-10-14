@@ -128,6 +128,12 @@ interface IBounds {
   y: number
 }
 
+interface ITalkingDataOptions {
+  EventId: string
+  Label?: string
+  MapKv?: IStringKeyMap
+}
+
 // PicGo Types
 type ICtx = import('piclist').PicGo
 interface IPicGoPlugin {

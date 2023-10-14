@@ -1,3 +1,31 @@
+## :tada: 2.6.4 (2023-10-14)
+
+
+### :sparkles: Features
+
+* add piclist itself as a picbed ([9f49fc0](https://github.com/Kuingsmile/piclist/commit/9f49fc0))
+* **custom:** add tk analytic ([e8ea905](https://github.com/Kuingsmile/piclist/commit/e8ea905))
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix bump version error ([6f8e4e1](https://github.com/Kuingsmile/piclist/commit/6f8e4e1))
+* fix font file download logic ([32de515](https://github.com/Kuingsmile/piclist/commit/32de515))
+* fix macos right click menu file bug ([75601e7](https://github.com/Kuingsmile/piclist/commit/75601e7))
+* fix manage config file sync bug ([47b61e6](https://github.com/Kuingsmile/piclist/commit/47b61e6))
+
+
+### :pencil: Documentation
+
+* **custom:** update docs ([d1780f2](https://github.com/Kuingsmile/piclist/commit/d1780f2))
+
+
+### :package: Chore
+
+* **custom:** migrate to node-bump-version ([567af45](https://github.com/Kuingsmile/piclist/commit/567af45))
+
+
+
 ## :tada: 2.6.3 (2023-10-10)
 
 
