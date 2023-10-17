@@ -598,6 +598,18 @@
                     {{ $T('SETTINGS_CLICK_TO_SET') }}
                   </el-button>
                 </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_SET_SERVER_AES_KEY')"
+                >
+                  <el-input
+                    v-model.trim="form.aesPassword"
+                    type="input"
+                    :placeholder="$T('SETTINGS_SET_SERVER_AES_KEY')"
+                    size="small"
+                    style="width: 50%"
+                    @change="handleAesPasswordChange"
+                  />
+                </el-form-item>
               </el-form>
             </el-row>
           </el-col>
@@ -1702,7 +1714,8 @@ const form = reactive<ISettingForm>({
   yourlsDomain: '',
   yourlsSignature: '',
   deleteLocalFile: false,
-  serverKey: ''
+  serverKey: '',
+  aesPassword: ''
 })
 
 const languageList = i18nManager.languageList.map(item => ({
@@ -1860,6 +1873,7 @@ async function initData () {
     form.yourlsSignature = settings.yourlsSignature || ''
     form.deleteLocalFile = settings.deleteLocalFile || false
     form.serverKey = settings.serverKey || ''
+    form.aesPassword = settings.aesPassword || 'PicList-aesPassword'
     currentLanguage.value = settings.language ?? 'zh-CN'
     currentStartMode.value = settings.startMode || 'quiet'
     customLink.value = settings.customLink || '![$fileName]($url)'
@@ -2208,6 +2222,10 @@ function handleYourlsDomainChange (val: string) {
 
 function handleYourlsSignatureChange (val: string) {
   saveConfig('settings.yourlsSignature', val)
+}
+
+function handleAesPasswordChange (val: string) {
+  saveConfig('settings.aesPassword', val || 'PicList-aesPassword')
 }
 
 function confirmLogLevelSetting () {

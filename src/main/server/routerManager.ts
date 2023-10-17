@@ -11,6 +11,7 @@ import picgo from '@core/picgo'
 import { changeCurrentUploader } from '../utils/handleUploaderConfig'
 import { app } from 'electron'
 import fs from 'fs-extra'
+import { AESHelper } from '../utils/aesHelper'
 
 const appPath = app.getPath('userData')
 const serverTempDir = path.join(appPath, 'serverTemp')
@@ -76,12 +77,18 @@ router.post('/upload', async ({
       const fullResult = result.fullResult
       logger.info('[PicList Server] upload result:', res)
       if (res) {
+        const treatedFullResult = {
+          isAESEncrypted: 1,
+          AESEncryptedData: new AESHelper().encrypt(JSON.stringify(fullResult)),
+          ...fullResult
+        }
+        delete treatedFullResult.config
         handleResponse({
           response,
           body: {
             success: true,
             result: [res],
-            fullResult: [fullResult]
+            fullResult: [treatedFullResult]
           }
         })
       } else {
@@ -107,7 +114,13 @@ router.post('/upload', async ({
         return item.url
       })
       const fullResult = result.map((item: any) => {
-        return item.fullResult
+        const treatedItem = {
+          isAESEncrypted: 1,
+          AESEncryptedData: new AESHelper().encrypt(JSON.stringify(item.fullResult)),
+          ...item.fullResult
+        }
+        delete treatedItem.config
+        return treatedItem
       })
       logger.info('[PicList Server] upload result', res.join(' ; '))
       if (res.length) {
@@ -163,7 +176,17 @@ router.post('/delete', async ({
     return
   }
   try {
-    const result = await deleteChoosedFiles(list)
+    // 区分是否是aes加密的数据，如果不是直接传入list，如果是，解密后再传入
+    const treatList = list.map(item => {
+      if (item.isAESEncrypted) {
+        const aesHelper = new AESHelper()
+        const data = aesHelper.decrypt(item.AESEncryptedData)
+        return JSON.parse(data)
+      } else {
+        return item
+      }
+    })
+    const result = await deleteChoosedFiles(treatList)
     const successCount = result.filter(item => item).length
     const failCount = result.filter(item => !item).length
     if (successCount) {
