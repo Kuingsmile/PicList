@@ -1,3 +1,24 @@
+## :tada: 2.6.5 (2023-10-18)
+
+
+### :sparkles: Features
+
+* **custom:** remove sensitive info in reponse field ([d9f25ac](https://github.com/Kuingsmile/piclist/commit/d9f25ac))
+* **custom:** upload api now return encrypted full result ([0189715](https://github.com/Kuingsmile/piclist/commit/0189715))
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix an issue working with watt toolkit of github picbed ([10ec712](https://github.com/Kuingsmile/piclist/commit/10ec712)), closes [#106](https://github.com/Kuingsmile/piclist/issues/106)
+* **custom:** fix upload error when filename contains nested path of webdav sftp and local ([92284ac](https://github.com/Kuingsmile/piclist/commit/92284ac))
+
+
+### :pencil: Documentation
+
+* **custom:** update docs ([65cfe6e](https://github.com/Kuingsmile/piclist/commit/65cfe6e))
+
+
+
 ## :tada: 2.6.4 (2023-10-14)
 
 
