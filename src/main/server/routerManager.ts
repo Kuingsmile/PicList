@@ -78,8 +78,8 @@ router.post('/upload', async ({
       logger.info('[PicList Server] upload result:', res)
       if (res) {
         const treatedFullResult = {
-          isAESEncrypted: 1,
-          AESEncryptedData: new AESHelper().encrypt(JSON.stringify(fullResult)),
+          isEncrypted: 1,
+          EncryptedData: new AESHelper().encrypt(JSON.stringify(fullResult)),
           ...fullResult
         }
         delete treatedFullResult.config
@@ -115,8 +115,8 @@ router.post('/upload', async ({
       })
       const fullResult = result.map((item: any) => {
         const treatedItem = {
-          isAESEncrypted: 1,
-          AESEncryptedData: new AESHelper().encrypt(JSON.stringify(item.fullResult)),
+          isEncrypted: 1,
+          EncryptedData: new AESHelper().encrypt(JSON.stringify(item.fullResult)),
           ...item.fullResult
         }
         delete treatedItem.config
@@ -176,11 +176,11 @@ router.post('/delete', async ({
     return
   }
   try {
-    // 区分是否是aes加密的数据，如果不是直接传入list，如果是，解密后再传入
+    // 区分是否是加密的数据，如果不是直接传入list，如果是，解密后再传入
     const treatList = list.map(item => {
-      if (item.isAESEncrypted) {
+      if (item.isEncrypted) {
         const aesHelper = new AESHelper()
-        const data = aesHelper.decrypt(item.AESEncryptedData)
+        const data = aesHelper.decrypt(item.EncryptedData)
         return JSON.parse(data)
       } else {
         return item
