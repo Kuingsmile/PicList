@@ -14,7 +14,8 @@ interface SyncConfig {
   repo: string
   branch: string
   token: string
-  proxy?: string,
+  endpoint?: string
+  proxy?: string
   interval?: number
 }
 
@@ -81,7 +82,7 @@ async function uploadLocalToRemote (syncConfig: SyncConfig, fileName: string) {
       logger.error(error)
       return false
     }
-  } else {
+  } else if (type === 'github') {
     const octokit = getOctokit(syncConfig)
     try {
       const res = await octokit.rest.repos.createOrUpdateFileContents({
@@ -91,6 +92,25 @@ async function uploadLocalToRemote (syncConfig: SyncConfig, fileName: string) {
         message: `upload ${fileName} from PicList`,
         content: fs.readFileSync(localFilePath, { encoding: 'base64' }),
         branch
+      })
+      return res.status >= 200 && res.status < 300
+    } catch (error: any) {
+      logger.error(error)
+      return false
+    }
+  } else {
+    const { endpoint = '' } = syncConfig
+    const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
+    try {
+      const headers = {
+        Authorization: `token ${token}`
+      }
+      const res = await axios.post(apiUrl, {
+        message: `upload ${fileName} from PicList`,
+        content: fs.readFileSync(localFilePath, { encoding: 'base64' }),
+        branch
+      }, {
+        headers
       })
       return res.status >= 200 && res.status < 300
     } catch (error: any) {
@@ -132,9 +152,8 @@ async function updateLocalToRemote (syncConfig: SyncConfig, fileName: string) {
       return true
     }
     return false
-  } else {
+  } else if (type === 'github') {
     const octokit = getOctokit(syncConfig)
-
     const shaRes = await octokit.rest.repos.getContent({
       owner: username,
       repo,
@@ -156,6 +175,29 @@ async function updateLocalToRemote (syncConfig: SyncConfig, fileName: string) {
       sha
     })
     return res.status === 200
+  } else {
+    const { endpoint = '' } = syncConfig
+    const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
+    const headers = {
+      Authorization: `token ${token}`
+    }
+    const shaRes = await axios.get(apiUrl, {
+      headers
+    })
+    if (shaRes.status < 200 || shaRes.status > 300) {
+      throw new Error('get sha failed')
+    }
+    const data = shaRes.data as any
+    const sha = data.sha
+    const res = await axios.put(apiUrl, {
+      message: `update ${fileName} from PicList`,
+      content: fs.readFileSync(localFilePath, { encoding: 'base64' }),
+      branch,
+      sha
+    }, {
+      headers
+    })
+    return res.status >= 200 && res.status < 300
   }
 }
 
@@ -163,20 +205,25 @@ async function downloadRemoteToLocal (syncConfig: SyncConfig, fileName: string) 
   const localFilePath = path.join(STORE_PATH, fileName)
   const { username, repo, branch, token, proxy, type } = syncConfig
   if (type === 'gitee') {
-    const url = `https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`
-    const res = await axios.get(url, {
-      params: {
-        access_token: token,
-        ref: branch
+    try {
+      const url = `https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`
+      const res = await axios.get(url, {
+        params: {
+          access_token: token,
+          ref: branch
+        }
+      })
+      if (res.status >= 200 && res.status < 300) {
+        const content = res.data.content
+        await fs.writeFile(localFilePath, Buffer.from(content, 'base64'))
+        return true
       }
-    })
-    if (res.status >= 200 && res.status < 300) {
-      const content = res.data.content
-      await fs.writeFile(localFilePath, Buffer.from(content, 'base64'))
-      return true
+      return false
+    } catch (error: any) {
+      logger.error(error)
+      return false
     }
-    return false
-  } else {
+  } else if (type === 'github') {
     const octokit = getOctokit(syncConfig)
     try {
       const res = await octokit.rest.repos.getContent({
@@ -203,6 +250,29 @@ async function downloadRemoteToLocal (syncConfig: SyncConfig, fileName: string) 
           await fs.writeFile(localFilePath, JSON.stringify(downloadRes.data, null, 2))
           return true
         }
+      }
+      return false
+    } catch (error: any) {
+      logger.error(error)
+      return false
+    }
+  } else {
+    const { endpoint = '' } = syncConfig
+    const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
+    try {
+      const headers = {
+        Authorization: `token ${token}`
+      }
+      const res = await axios.get(apiUrl, {
+        headers,
+        params: {
+          ref: branch
+        }
+      })
+      if (res.status >= 200 && res.status < 300) {
+        const content = res.data.content
+        await fs.writeFile(localFilePath, Buffer.from(content, 'base64'))
+        return true
       }
       return false
     } catch (error: any) {
