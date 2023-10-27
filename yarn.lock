@@ -5074,10 +5074,10 @@ axios@^0.27.2:
     follow-redirects "^1.14.9"
     form-data "^4.0.0"
 
-axios@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.5.1.tgz#11fbaa11fc35f431193a9564109c88c1f27b585f"
-  integrity sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==
+axios@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.0.tgz#f1e5292f26b2fd5c2e66876adc5b06cdbd7d2102"
+  integrity sha512-EZ1DYihju9pwVB+jg67ogm+Tmqc6JmhamRN6I4Zt8DfZu5lbcQGw3ozH9lFejSJgs/ibaef3A9PMXPLeefFGJg==
   dependencies:
     follow-redirects "^1.15.0"
     form-data "^4.0.0"
@@ -12350,14 +12350,14 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^1.6.4:
-  version "1.6.4"
-  resolved "https://registry.yarnpkg.com/piclist/-/piclist-1.6.4.tgz#97c89ec38b5033b8b5b4126d193d845190e7d489"
-  integrity sha512-TUhCH2yduUxUQK82dOA15soXdADQK3yo72TqanX3BJBJjveYxyfp/d0SDhs9qIeXLsVKfI/rgI0JV5HytoIfIw==
+piclist@^1.6.5:
+  version "1.6.5"
+  resolved "https://registry.yarnpkg.com/piclist/-/piclist-1.6.5.tgz#d53c78f07c152a3a07617e5ba061ebe18b18e62a"
+  integrity sha512-PFErxuBPL/xRzKVwmwG1e2FaUbdvHRW8ChedrkCAcRUOH9V8n3sgxZm/k03c6l3fOooEhwTZep4oDwV6lt/LyQ==
   dependencies:
     "@picgo/i18n" "^1.0.0"
     "@picgo/store" "^2.1.0"
-    axios "^1.5.1"
+    axios "^1.6.0"
     chalk "^2.4.1"
     commander "^8.1.0"
     cross-spawn "^7.0.3"
