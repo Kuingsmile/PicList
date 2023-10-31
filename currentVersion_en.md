@@ -1,8 +1,9 @@
 ✨ Features
 
-- Now the upload interface no longer returns the `config` field in plain text, but an encrypted string, and the key can be set by yourself
+- Now the configuration synchronization supports the use of Gitea
+- Now when the converted image format is the same as the original format, it will not be converted
+- Optimized the deletion processing when using Cloudflare R2 as the image bed
 
 🐛 Bug Fixes
 
-- Fix the problem that the webdav, local and sftp image beds will fail to upload when the file name contains a secondary directory
-- Fix the problem that the github image bed will fail to upload when using the watt toolkit acceleration
+- Fixed the issue where the error log was not correctly recorded when synchronizing configurations using Gitee and downloading files
