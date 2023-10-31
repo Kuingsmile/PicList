@@ -1129,39 +1129,49 @@
           </el-select>
         </el-form-item>
         <el-form-item
-          :label="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_USERNAME') : $T('SETTINGS_SYNC_CONFIG_GITEE_USERNAME')"
+          v-if="sync.type === 'gitea'"
+          :label="$T('SETTINGS_SYNC_CONFIG_GITEA_HOST')"
+        >
+          <el-input
+            v-model.trim="sync.endpoint"
+            type="input"
+            :placeholder="$T('SETTINGS_SYNC_CONFIG_GITEA_HOST')"
+          />
+        </el-form-item>
+        <el-form-item
+          :label="$T(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_USERNAME` as any)"
         >
           <el-input
             v-model.trim="sync.username"
             type="input"
-            :placeholder="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_USERNAME_PLACEHOLDER') : $T('SETTINGS_SYNC_CONFIG_GITEE_USERNAME_PLACEHOLDER')"
+            :placeholder="$T(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_USERNAME_PLACEHOLDER` as any)"
           />
         </el-form-item>
         <el-form-item
-          :label="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_REPO') : $T('SETTINGS_SYNC_CONFIG_GITEE_REPO')"
+          :label="$T(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_REPO` as any)"
         >
           <el-input
             v-model.trim="sync.repo"
             type="input"
-            :placeholder="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_REPO_PLACEHOLDER') : $T('SETTINGS_SYNC_CONFIG_GITEE_REPO_PLACEHOLDER')"
+            :placeholder="$T(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_REPO_PLACEHOLDER` as any)"
           />
         </el-form-item>
         <el-form-item
-          :label="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_BRANCH') : $T('SETTINGS_SYNC_CONFIG_GITEE_BRANCH')"
+          :label="$T(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_BRANCH` as any)"
         >
           <el-input
             v-model.trim="sync.branch"
             type="input"
-            :placeholder="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_BRANCH_PLACEHOLDER') : $T('SETTINGS_SYNC_CONFIG_GITEE_BRANCH_PLACEHOLDER')"
+            :placeholder="$T(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_BRANCH_PLACEHOLDER` as any)"
           />
         </el-form-item>
         <el-form-item
-          :label="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_TOKEN') : $T('SETTINGS_SYNC_CONFIG_GITEE_TOKEN')"
+          :label="$T(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_TOKEN` as any)"
         >
           <el-input
             v-model.trim="sync.token"
             type="input"
-            :placeholder="sync.type === 'github' ? $T('SETTINGS_SYNC_CONFIG_GITHUB_TOKEN_PLACEHOLDER') : $T('SETTINGS_SYNC_CONFIG_GITEE_TOKEN_PLACEHOLDER')"
+            :placeholder="$T(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_TOKEN_PLACEHOLDER` as any)"
           />
         </el-form-item>
         <el-form-item
@@ -1785,6 +1795,7 @@ const sync = ref({
   repo: '',
   branch: '',
   token: '',
+  endpoint: '',
   proxy: '',
   interval: 60
 })
@@ -1797,6 +1808,10 @@ const syncType = [
   {
     label: 'Gitee',
     value: 'gitee'
+  },
+  {
+    label: 'Gitea',
+    value: 'gitea'
   }
 ]
 
@@ -1808,6 +1823,7 @@ async function cancelSyncSetting () {
     repo: '',
     branch: '',
     token: '',
+    endpoint: '',
     proxy: '',
     interval: 60
   }
@@ -1904,6 +1920,7 @@ async function initData () {
       repo: '',
       branch: '',
       token: '',
+      endpoint: '',
       proxy: '',
       interval: 60
     }

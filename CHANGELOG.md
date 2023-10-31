@@ -1,3 +1,24 @@
+## :tada: 2.6.6 (2023-10-31)
+
+
+### :sparkles: Features
+
+* **custom:** image format convert will be skipped according to raw format ([9ad13d4](https://github.com/Kuingsmile/piclist/commit/9ad13d4)), closes [#109](https://github.com/Kuingsmile/piclist/issues/109)
+* **custom:** optimize detele function for aws s3 ([b7b86b2](https://github.com/Kuingsmile/piclist/commit/b7b86b2))
+* **custom:** support gitea for setting file sync ([95f1035](https://github.com/Kuingsmile/piclist/commit/95f1035))
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix sandbox error under dev mode ([2dc96f6](https://github.com/Kuingsmile/piclist/commit/2dc96f6))
+
+
+### :pencil: Documentation
+
+* **custom:** update docs ([f0f696a](https://github.com/Kuingsmile/piclist/commit/f0f696a))
+
+
+
 ## :tada: 2.6.5 (2023-10-18)
 
 

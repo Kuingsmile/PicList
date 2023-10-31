@@ -73,7 +73,8 @@ async function getDogeToken (accessKey: string, secretKey: string): Promise<{} |
 
 export async function removeFileFromS3InMain (configMap: IStringKeyMap, dogeMode: boolean = false) {
   try {
-    const { imgUrl, config: { accessKeyID, secretAccessKey, bucketName, region, endpoint, pathStyleAccess, rejectUnauthorized, proxy } } = configMap
+    const { imgUrl, config: { accessKeyID, secretAccessKey, bucketName, endpoint, pathStyleAccess, rejectUnauthorized, proxy } } = configMap
+    let { config: { region } } = configMap
     const url = new URL(!/^https?:\/\//.test(imgUrl) ? `http://${imgUrl}` : imgUrl)
     let fileKey = url.pathname.replace(/^\/+/, '')
     if (pathStyleAccess) {
@@ -84,6 +85,9 @@ export async function removeFileFromS3InMain (configMap: IStringKeyMap, dogeMode
         ? endpoint
         : `http://${endpoint}`
       : undefined
+    if (endpointUrl && endpointUrl.includes('cloudflarestorage')) {
+      region = region || 'auto'
+    }
     const sslEnabled = endpointUrl ? endpointUrl.startsWith('https') : true
     const agent = getAgent(proxy, sslEnabled)
     const commonOptions: AgentOptions = {
