@@ -151,7 +151,8 @@ export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> =>
     if (item.id) {
       try {
         const dbStore = GalleryDB.getInstance()
-        const file = await dbStore.removeById(item.id)
+        const file = await dbStore.getById(item.id)
+        await dbStore.removeById(item.id)
         if (await picgo.getConfig('settings.deleteCloudFile')) {
           if (item.type !== undefined && picBedsCanbeDeleted.includes(item.type)) {
             const noteFunc = (value: boolean) => {
