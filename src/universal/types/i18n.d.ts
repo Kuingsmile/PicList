@@ -292,7 +292,6 @@ interface ILocales {
   SETTINGS_TAB_UPLOAD: string
   SETTINGS_TAB_ADVANCED: string
   SETTINGS_TAB_UPDATE: string
-  SETTINGS_GENERAL_TEMP_DIR_PATH: string
   SHORTCUT_NAME: string
   SHORTCUT_BIND: string
   SHORTCUT_STATUS: string

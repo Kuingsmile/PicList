@@ -296,7 +296,6 @@ SETTINGS_TAB_SYNC_CONFIG: Sync and Configuration
 SETTINGS_TAB_UPLOAD: Upload
 SETTINGS_TAB_ADVANCED: Advanced
 SETTINGS_TAB_UPDATE: Update
-SETTINGS_GENERAL_TEMP_DIR_PATH: Temporary directory path
 # shortcut-page
 
 BUILTIN_CLIPBOARD_TIPS: Use builtin clipboard function to upload instead of using scripts

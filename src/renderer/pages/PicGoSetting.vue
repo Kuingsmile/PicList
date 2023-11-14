@@ -194,18 +194,6 @@
                     {{ $T('SETTINGS_CLICK_TO_SET') }}
                   </el-button>
                 </el-form-item>
-                <el-form-item
-                  :label="$T('SETTINGS_GENERAL_TEMP_DIR_PATH')"
-                >
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="handleTempDirPath"
-                  >
-                    {{ $T('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
               </el-form>
             </el-row>
           </el-col>
@@ -1737,8 +1725,7 @@ const form = reactive<ISettingForm>({
   yourlsSignature: '',
   deleteLocalFile: false,
   serverKey: '',
-  aesPassword: '',
-  tempDirPath: ''
+  aesPassword: ''
 })
 
 const languageList = i18nManager.languageList.map(item => ({
@@ -1903,7 +1890,6 @@ async function initData () {
     form.deleteLocalFile = settings.deleteLocalFile || false
     form.serverKey = settings.serverKey || ''
     form.aesPassword = settings.aesPassword || 'PicList-aesPassword'
-    form.tempDirPath = settings.tempDirPath || ''
     currentLanguage.value = settings.language ?? 'zh-CN'
     currentStartMode.value = settings.startMode || 'quiet'
     customLink.value = settings.customLink || '![$fileName]($url)'
@@ -2207,15 +2193,6 @@ function handleAutoCloseMiniWindowChange (val: ICheckBoxValueType) {
 function handleMiniWindowOntop (val: ICheckBoxValueType) {
   saveConfig('settings.miniWindowOntop', val)
   $message.info($T('TIPS_NEED_RELOAD'))
-}
-
-async function handleTempDirPath (evt: Event) {
-  const result = await invokeToMain('openDirectorySelectDialog')
-  if (result) {
-    form.tempDirPath = result
-    saveConfig('settings.tempDirPath', form.tempDirPath)
-    $message.info($T('TIPS_NEED_RELOAD'))
-  }
 }
 
 async function handleMiniIconPath (evt: Event) {

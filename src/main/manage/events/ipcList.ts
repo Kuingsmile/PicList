@@ -67,13 +67,6 @@ export const manageIpcList = {
       return res
     })
 
-    ipcMain.handle('openDirectorySelectDialog', async () => {
-      const res = await dialog.showOpenDialog({
-        properties: ['openDirectory']
-      })
-      return res.filePaths[0]
-    })
-
     ipcMain.handle('openFileSelectDialog', async () => {
       const res = await dialog.showOpenDialog({
         properties: ['openFile', 'multiSelections']

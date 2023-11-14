@@ -49,14 +49,7 @@ export function isInputConfigValid (config: any): boolean {
 export const getFileMimeType = (filePath: string): string => mime.lookup(filePath) || 'application/octet-stream'
 
 const getTempDirPath = () => {
-  const defaultPath = path.join(app.getPath('downloads'), 'piclistTemp')
-  try {
-    const configFilePath = path.join(app.getPath('userData'), 'data.json')
-    const { settings: { tempDirPath = '' } = {} } = fs.readJSONSync(configFilePath) || {}
-    return tempDirPath ? path.join(tempDirPath, 'piclistTemp') : defaultPath
-  } catch (e) {
-    return defaultPath
-  }
+  return path.join(app.getPath('temp'), 'piclistTemp')
 }
 
 const checkTempFolderExist = async (tempPath: string) => {
