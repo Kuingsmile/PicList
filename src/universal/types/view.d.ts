@@ -29,7 +29,8 @@ interface ISettingForm {
   yourlsSignature: string,
   deleteLocalFile: boolean,
   serverKey: string,
-  aesPassword: string
+  aesPassword: string,
+  tempDirPath: string,
 }
 
 interface IShortKeyMap {
