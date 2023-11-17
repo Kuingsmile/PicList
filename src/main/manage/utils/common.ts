@@ -48,8 +48,11 @@ export function isInputConfigValid (config: any): boolean {
 
 export const getFileMimeType = (filePath: string): string => mime.lookup(filePath) || 'application/octet-stream'
 
-const checkTempFolderExist = async () => {
-  const tempPath = path.join(app.getPath('downloads'), 'piclistTemp')
+const getTempDirPath = () => {
+  return path.join(app.getPath('temp'), 'piclistTemp')
+}
+
+const checkTempFolderExist = async (tempPath: string) => {
   try {
     await fs.access(tempPath)
   } catch (e) {
@@ -58,8 +61,8 @@ const checkTempFolderExist = async () => {
 }
 
 export const downloadFileFromUrl = async (urls: string[]) => {
-  const tempPath = path.join(app.getPath('downloads'), 'piclistTemp')
-  await checkTempFolderExist()
+  const tempPath = getTempDirPath()
+  await checkTempFolderExist(tempPath)
   const result = [] as string[]
   for (let i = 0; i < urls.length; i++) {
     const finishDownload = promisify(Stream.finished)
@@ -78,7 +81,7 @@ export const downloadFileFromUrl = async (urls: string[]) => {
   return result
 }
 
-export const clearTempFolder = () => fs.emptyDirSync(path.join(app.getPath('downloads'), 'piclistTemp'))
+export const clearTempFolder = () => fs.emptyDirSync(getTempDirPath())
 
 export const md5 = (str: string, code: 'hex' | 'base64'): string => crypto.createHash('md5').update(str).digest(code)
 

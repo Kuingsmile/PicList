@@ -1,3 +1,23 @@
+## :tada: 2.6.7 (2023-11-17)
+
+
+### :sparkles: Features
+
+* **custom:** add new config field temp dir path ([e968a65](https://github.com/Kuingsmile/piclist/commit/e968a65)), closes [#112](https://github.com/Kuingsmile/piclist/issues/112)
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix delete event error in server api ([5658ce6](https://github.com/Kuingsmile/piclist/commit/5658ce6))
+
+
+### :pencil: Documentation
+
+* **custom:** add docs for upload service using piclist due to a potential typora bug ([02dc71b](https://github.com/Kuingsmile/piclist/commit/02dc71b))
+* **custom:** update docs ([c897c23](https://github.com/Kuingsmile/piclist/commit/c897c23))
+
+
+
 ## :tada: 2.6.6 (2023-10-31)
 
 

@@ -20,9 +20,14 @@
   "stylusSupremacy.sortProperties": "grouped",
   "stylusSupremacy.quoteChar": "\"",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "githubPullRequests.ignoredPullRequestBranches": [
     "dev"
-  ]
+  ],
+  "[go]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
+  }
 }

@@ -56,7 +56,9 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 
 #### **1.6.0版本及以上**
 
-**Typora 1.6.0-dev以及以上版本现在已经原生支持PicList了**
+**Typora 1.6.0-dev以及以上版本现在已经原生支持PicList了** 
+
+目前Typora中需要同时设置上传服务PicList和PicGo（app）的路径为PicList的安装路径，这可能源于Typora的bug。
 
 [下载地址](https://typora.io/releases/all)
 

@@ -58,6 +58,8 @@ Please install my matching plugin [VS-PicList](https://marketplace.visualstudio.
 
 **Typora 1.6.0-dev and above versions now support PicList natively**
 
+Now you need to set the upload service PicList and PicGo (app) to the installation path of PicList at the same time, which may be due to a bug in Typora.
+
 [download link](https://typora.io/releases/all)
 
 #### **Version < 1.6.0-dev**

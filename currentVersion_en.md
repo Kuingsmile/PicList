@@ -1,9 +1,8 @@
 ✨ Features
 
-- Now the configuration synchronization supports the use of Gitea
-- Now when the converted image format is the same as the original format, it will not be converted
-- Optimized the deletion processing when using Cloudflare R2 as the image bed
+- Update core library version
+- Now the default cache directory will be created in the system temp path
 
 🐛 Bug Fixes
 
-- Fixed the issue where the error log was not correctly recorded when synchronizing configurations using Gitee and downloading files
+- Fixed the problem that the album delete event cannot be triggered correctly when using the built-in server delete interface
