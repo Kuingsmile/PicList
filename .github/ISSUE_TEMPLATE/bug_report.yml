@@ -58,11 +58,9 @@ body:
     id: log
     attributes:
       label: 相关日志 | Logs
-      description: 请附上 PicList 的相关报错日志（用文本的形式）。报错日志可以在 PicList 设置 -> 设置日志文件 -> 点击打开 后找到 | Please attach PicList's relevant error log (in text form). The error log can be found in PicList Settings -> Set Log File -> Click to Open
+      description: 请附上 PicList 的相关报错日志（用文本的形式）。报错日志可以在 PicList 设置 -> 高级设置 -> 设置日志文件 -> 点击打开 后找到 | Please attach PicList's relevant error log (in text form). The error log can be found in PicList Settings -> Advanced -> Set Log File -> Click to Open
   - type: markdown
     attributes:
       value: |
         最后，喜欢 PicList 的话不妨给它点个 star~
-        如果可以的话，请我喝杯咖啡？首页有赞助二维码，谢谢你的支持！ 
         Finally, if you like PicList, give it a star~
-        Buy me a cup of coffee if you can? There is a sponsorship QR code on the homepage, thank you for your support!
