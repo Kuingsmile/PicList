@@ -96,7 +96,7 @@ class Server {
             }
             // @ts-ignore
             const list = request.files.map(file => file.path)
-
+            logger.info('[PicList Server] get a formData request')
             const handler = routers.getHandler(url)?.handler
             if (handler) {
               handler({
