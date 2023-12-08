@@ -48,6 +48,8 @@ if you want to use PicList-core, please go to [https://github.com/Kuingsmile/Pic
 - The PicGo interface has been enhanced, window size restrictions have been unlocked, and some interface layouts have been beautified.
 - The installation package for the Mac platform is now signed, addressing the recurring issue on PicGo where the installation package was reported as damaged.
 
+## How to use
+
 ### How to use in VScode
 
 Please install my matching plugin [VS-PicList](https://marketplace.visualstudio.com/items?itemName=Kuingsmile.vs-piclist), compared with the vs-picgo plugin, the plugin directly depends on the PicList desktop software, supports a variety of uploads and direct cloud deletion in Vscode and other functions.
@@ -85,6 +87,49 @@ The verification of the upload option may have problems, you can ignore it, and 
 In the community plugins, search for and install the Image auto upload Plugin. Next, go to the plugin settings page and change the default uploader to PicGo(app). Set the PicGo server to `http://127.0.0.1:36677/upload` as shown in the image below. Additionally, this plugin also supports cloud-based deletion through PicList. To use this feature, enter `http://127.0.0.1:36677/delete` in the deletion interface.
 
 ![image](https://user-images.githubusercontent.com/96409857/226522718-8378c480-9fb4-4785-87e1-d59808862016.png)
+
+### How to use in docker
+
+#### docker run
+
+Change the `./piclist` to your own path, and change the `piclist123456` to your own secret key.
+
+```bash
+docker run -d \
+  --name piclist \
+  --restart always \
+  -p 36677:36677 \
+  -v "./piclist:/root/.piclist" \
+  kuingsmile/piclist:latest \
+  node /usr/local/bin/picgo-server -k piclist123456
+```
+
+#### docker-compose
+
+download `docker-compose.yml` from piclist-core repo, or copy the following content to `docker-compose.yml`:
+
+```yaml
+version: '3.3'
+
+services:
+  node:
+    image: 'kuingsmile/piclist:latest'
+    container_name: piclist
+    restart: always
+    ports:
+      - 36677:36677
+    volumes:
+      - './piclist:/root/.piclist'
+    command: node /usr/local/bin/picgo-server -k piclist123456
+```
+
+You can change the `volumes` to your own path and change the `command` to your own secret key.
+
+Then run:
+
+```bash
+docker-compose up -d
+```
 
 ## Supported platforms
 

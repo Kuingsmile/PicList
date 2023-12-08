@@ -1,3 +1,25 @@
+## :tada: 2.6.8 (2023-12-08)
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix gallery page url copy bug ([3063612](https://github.com/Kuingsmile/piclist/commit/3063612))
+* **custom:** fix log record of uploader ([f901811](https://github.com/Kuingsmile/piclist/commit/f901811))
+
+
+### :pencil: Documentation
+
+* **custom:** add support for docker ([2de1a1f](https://github.com/Kuingsmile/piclist/commit/2de1a1f)), closes [#118](https://github.com/Kuingsmile/piclist/issues/118)
+* **custom:** update change log ([29dc103](https://github.com/Kuingsmile/piclist/commit/29dc103))
+
+
+### :package: Chore
+
+* **custom:** update issue template ([1bd7df3](https://github.com/Kuingsmile/piclist/commit/1bd7df3))
+* **custom:** update workflow file ([c29d40b](https://github.com/Kuingsmile/piclist/commit/c29d40b))
+
+
+
 ## :tada: 2.6.7 (2023-11-17)
 
 

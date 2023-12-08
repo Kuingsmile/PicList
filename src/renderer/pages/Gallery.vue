@@ -684,7 +684,7 @@ function handleClose () {
 }
 
 async function copy (item: ImgInfo) {
-  item.config = JSON.parse(JSON.stringify(item.config))
+  item.config = JSON.parse(JSON.stringify(item.config) || '{}')
   const copyLink = await ipcRenderer.invoke(PASTE_TEXT, item)
   const obj = {
     title: $T('COPY_LINK_SUCCEED'),

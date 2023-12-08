@@ -22,7 +22,7 @@ body:
       label: 前置阅读 | Pre-reading
       description: 我已经自行查找、阅读以下内容（阅读了请打勾） | I have searched and read the following on my own (Please tick after reading)
       options:
-        - label: "[文档/Doc](https://picgo.github.io/PicGo-Doc/)"
+        - label: "[文档/Doc](https://piclist.cn/)"
           required: true
         - label: "[Issues](https://github.com/Kuingsmile/PicList/issues?q=is%3Aissue+sort%3Aupdated-desc+is%3Aclosed)"
           required: true
@@ -58,6 +58,4 @@ body:
     attributes:
       value: |
         最后，喜欢 PicList 的话不妨给它点个 star~
-        如果可以的话，请我喝杯咖啡？首页有赞助二维码，谢谢你的支持！ 
         Finally, if you like PicList, give it a star~
-        Buy me a cup of coffee if you can? There is a sponsorship QR code on the homepage, thank you for your support!

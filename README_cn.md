@@ -48,6 +48,8 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 - 优化了PicGo的界面，解锁了窗口大小限制，同时美化了部分界面布局
 - mac平台安装包已签名，从源头解决了PicGo上的安装包已损坏的日经问题
 
+## 如何使用
+
 ### 如何在Vscode中使用
 
 请安装我的配套插件 [VS-PicList](https://marketplace.visualstudio.com/items?itemName=Kuingsmile.vs-piclist),相比于vs-picgo插件，该插件直接依赖于PicList桌面端软件，支持多样上传和直接在Vscode中进行云端删除等功能。
@@ -85,6 +87,49 @@ MacOS:
 在社区插件中搜索安装 `Image auto upload Plugin`，然后进入插件设置页面，修改默认上传器为 `PicGo(app)`，设置 `PicGo server`为 `http://127.0.0.1:36677/upload`即可，如下图所示, 此外该插件还额外支持通过PicList进行云端删除，请在删除接口内填入 `http://127.0.0.1:36677/delete`：
 
 ![image](https://user-images.githubusercontent.com/96409857/226522718-8378c480-9fb4-4785-87e1-d59808862016.png)
+
+### 如何在Docker中使用
+
+#### docker run
+
+修改`./piclist`为你自己的路径，修改`piclist123456`为你自己的密钥。
+
+```bash
+docker run -d \
+  --name piclist \
+  --restart always \
+  -p 36677:36677 \
+  -v "./piclist:/root/.piclist" \
+  kuingsmile/piclist:latest \
+  node /usr/local/bin/picgo-server -k piclist123456
+```
+
+#### docker-compose
+
+从piclist-core仓库下载`docker-compose.yml`文件，或者复制以下内容到`docker-compose.yml`文件中：
+
+```yaml
+version: '3.3'
+
+services:
+  node:
+    image: 'kuingsmile/piclist:latest'
+    container_name: piclist
+    restart: always
+    ports:
+      - 36677:36677
+    volumes:
+      - './piclist:/root/.piclist'
+    command: node /usr/local/bin/picgo-server -k piclist123456
+```
+
+你可以修改`volumes`为你自己的路径，修改`command`为你自己的密钥。
+
+然后运行
+
+```bash
+docker-compose up -d
+```
 
 ## 已支持平台
 

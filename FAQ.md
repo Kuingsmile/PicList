@@ -116,3 +116,46 @@ PicList兼容绝大部分的PicGo插件。然而由于PicList使用了更新的e
 - picgo-plugin-auto-delete (已经内置)
 
 欢迎大家测试其他插件，如果有无法使用的插件，欢迎开issue反馈。
+
+## 15. 如何通过Docker运行PicList-core?
+
+### docker run
+
+修改`./piclist`为你自己的路径，修改`piclist123456`为你自己的密钥。
+
+```bash
+docker run -d \
+  --name piclist \
+  --restart always \
+  -p 36677:36677 \
+  -v "./piclist:/root/.piclist" \
+  kuingsmile/piclist:latest \
+  node /usr/local/bin/picgo-server -k piclist123456
+```
+
+### docker-compose
+
+下载piclist-core仓库的`docker-compose.yml`文件，或者复制以下内容到`docker-compose.yml`文件中：
+
+```yaml
+version: '3.3'
+
+services:
+  node:
+    image: 'kuingsmile/piclist:latest'
+    container_name: piclist
+    restart: always
+    ports:
+      - 36677:36677
+    volumes:
+      - './piclist:/root/.piclist'
+    command: node /usr/local/bin/picgo-server -k piclist123456
+```
+
+你可以修改`volumes`为你自己的路径，修改`command`为你自己的密钥。
+
+然后运行
+
+```bash
+docker-compose up -d
+```
