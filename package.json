@@ -37,7 +37,7 @@
     "@aws-sdk/client-s3": "^3.421.0",
     "@aws-sdk/lib-storage": "^3.421.0",
     "@aws-sdk/s3-request-presigner": "^3.421.0",
-    "@element-plus/icons-vue": "^2.1.0",
+    "@element-plus/icons-vue": "^2.3.1",
     "@highlightjs/vue-plugin": "^2.1.0",
     "@nodelib/fs.walk": "^2.0.0",
     "@octokit/rest": "^19.0.7",
