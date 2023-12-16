@@ -77,7 +77,7 @@
                       effect="light"
                       :content="item.alias"
                       placement="top"
-                      :disabled="isNeedToShorten(item.alias)"
+                      :disabled="!isNeedToShorten(item.alias)"
                       :persistent="false"
                       teleported
                     >
