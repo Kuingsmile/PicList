@@ -15,7 +15,6 @@ interface ILocales {
   QUICK_UPLOAD: string
   UPLOAD_BY_CLIPBOARD: string
   HIDE_WINDOW: string
-  SPONSOR_PICLIST: string
   SHOW_PICBED_QRCODE: string
   PICBED_QRCODE: string
   ENABLE: string
@@ -65,8 +64,6 @@ interface ILocales {
   PICLIST_SETTINGS: string
   PLUGIN_SETTINGS: string
   PICLIST_SPONSOR_TEXT: string
-  ALIPAY: string
-  WECHATPAY: string
   CHOOSE_PICBED: string
   COPY_PICBED_CONFIG: string
   COPY_PICBED_CONFIG_SUCCEED: string

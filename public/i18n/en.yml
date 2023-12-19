@@ -14,7 +14,6 @@ UPLOADING: Uploading
 QUICK_UPLOAD: Quick Upload
 UPLOAD_BY_CLIPBOARD: Upload by Clipboard
 HIDE_WINDOW: Hide Window
-SPONSOR_PICLIST: Sponsor PicList
 SHOW_PICBED_QRCODE: Show Picbed Qrcode
 PICBED_QRCODE: Picbed Qrcode
 ENABLE: Enable
@@ -67,8 +66,6 @@ PICBEDS_MANAGE: Picbeds Manage
 PICLIST_SETTINGS: Settings
 PLUGIN_SETTINGS: Plugins
 PICLIST_SPONSOR_TEXT: If you like it, please don't forget to buy me a cup of coffee.
-ALIPAY: Alipay
-WECHATPAY: Wechat Pay
 CHOOSE_PICBED: Choose Picbed
 COPY_PICBED_CONFIG: Copy Picbed Config
 COPY_PICBED_CONFIG_SUCCEED: Copy Picbed Config Succeed
