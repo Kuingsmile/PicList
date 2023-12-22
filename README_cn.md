@@ -183,10 +183,6 @@ brew uninstall piclist
 ![image](https://github.com/Kuingsmile/PicList/assets/96409857/29de0046-1aef-4b28-95a6-b26c6e297c6f)
 ![image](https://github.com/Kuingsmile/PicList/assets/96409857/e1c04488-2d3a-4e8f-aa26-ce41d0a383e2)
 
-## 微信交流群
-
-<img src="https://pichoro.msq.pub/wechat.png" alt="" width="350" height="350" />
-
 ## 开发说明
 
 1. 你需要有 Node、Git 环境，了解 npm 的相关知识。

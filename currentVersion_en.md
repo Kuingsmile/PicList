@@ -1,11 +1,12 @@
+Happy New Year! 🎉
+
 ✨ Features
 
-- Support the remote server mode of the vscode plug-in vs-piclist
-- Related update: Docker deployment for PicList-core is now supported.
-- The upload interface adds additional records to distinguish upload behavior
-- Core library version update
+- Optimized the text display of the file browsing page of the management interface
+- Now supports more types of text file preview
+- Now there will be additional confirmation before removing the configuration to avoid accidental deletion
+- Removed the sponsorship window~~
 
 🐛 Bug Fixes
 
-- Fix the problem that some plug-in upload image URLs cannot be copied normally in the album
-- Fixed the problem of incorrect log record fields during the upload image selection process
+- Fixed the display bug of the management interface entry page
