@@ -976,6 +976,30 @@
           </el-button>
         </el-form-item>
         <el-form-item
+          :label="$T('SETTINGS_GUI_LOG_FILE')"
+        >
+          <el-button
+            type="primary"
+            round
+            size="small"
+            @click="openFile('piclist-gui-local.log')"
+          >
+            {{ $T('SETTINGS_CLICK_TO_OPEN') }}
+          </el-button>
+        </el-form-item>
+        <el-form-item
+          :label="$T('SETTINGS_MANAGE_LOG_FILE')"
+        >
+          <el-button
+            type="primary"
+            round
+            size="small"
+            @click="openFile('manage.log')"
+          >
+            {{ $T('SETTINGS_CLICK_TO_OPEN') }}
+          </el-button>
+        </el-form-item>
+        <el-form-item
           :label="$T('SETTINGS_LOG_LEVEL')"
         >
           <el-select

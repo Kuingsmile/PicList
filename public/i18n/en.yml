@@ -190,6 +190,8 @@ SETTINGS_NEWEST_VERSION: Newest Version
 SETTINGS_GETING: Getting...
 SETTINGS_TIPS_HAS_NEW_VERSION: PicList has a new version, please click confirm to open download page
 SETTINGS_LOG_FILE: Log File
+SETTINGS_GUI_LOG_FILE: GUI Log File
+SETTINGS_MANAGE_LOG_FILE: Manage Log File
 SETTINGS_LOG_LEVEL: Log Level
 SETTINGS_LOG_FILE_SIZE: Log File Size
 SETTINGS_SET_PICGO_SERVER: Set PicGo Server
