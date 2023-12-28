@@ -1,3 +1,36 @@
+# :tada: 2.7.0 (2023-12-28)
+
+
+### :sparkles: Features
+
+* **custom:** add delete configuration confirm check ([5fb756c](https://github.com/Kuingsmile/piclist/commit/5fb756c))
+* **custom:** add more log file quick open item ([1884dba](https://github.com/Kuingsmile/piclist/commit/1884dba))
+* **custom:** add preview support for more types of text file ([2c46dca](https://github.com/Kuingsmile/piclist/commit/2c46dca))
+* **custom:** optimize display of manage page ([8306013](https://github.com/Kuingsmile/piclist/commit/8306013))
+* **custom:** remove sponsor from menu ([28e6f47](https://github.com/Kuingsmile/piclist/commit/28e6f47))
+
+
+### :bug: Bug Fixes
+
+* **custom:** exclude svg file from remove exif step ([f1084e5](https://github.com/Kuingsmile/piclist/commit/f1084e5)), closes [#123](https://github.com/Kuingsmile/piclist/issues/123)
+* **custom:** fix chinease char encode error ([1fbd7a7](https://github.com/Kuingsmile/piclist/commit/1fbd7a7))
+* **custom:** fix tooltip disabled state in login.vue ([99ab80f](https://github.com/Kuingsmile/piclist/commit/99ab80f))
+* **custom:** hide rename button if not supported ([e99f789](https://github.com/Kuingsmile/piclist/commit/e99f789)), closes [#122](https://github.com/Kuingsmile/piclist/issues/122)
+
+
+### :pencil: Documentation
+
+* **custom:** update docs ([c060261](https://github.com/Kuingsmile/piclist/commit/c060261))
+* **custom:** update docs ([d0df3ec](https://github.com/Kuingsmile/piclist/commit/d0df3ec))
+* **custom:** update version log ([157d0ff](https://github.com/Kuingsmile/piclist/commit/157d0ff))
+
+
+### :package: Chore
+
+* **custom:** remove usused files ([a7b7d94](https://github.com/Kuingsmile/piclist/commit/a7b7d94))
+
+
+
 ## :tada: 2.6.8 (2023-12-08)
 
 
