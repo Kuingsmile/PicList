@@ -24,17 +24,9 @@ export const handleUrlEncode = (url: string): string => isUrlEncode(url) ? url :
  * 2. @xxx/picgo-plugin-yyy -> yyy
  * @param name pluginFullName
  */
-export const handleStreamlinePluginName = (name: string) => {
-  if (/^@[^/]+\/picgo-plugin-/.test(name)) {
-    return name.replace(/^@[^/]+\/picgo-plugin-/, '')
-  } else {
-    return name.replace(/picgo-plugin-/, '')
-  }
-}
+export const handleStreamlinePluginName = (name: string) => name.replace(/(@[^/]+\/)?picgo-plugin-/, '')
 
-export const simpleClone = (obj: any) => {
-  return JSON.parse(JSON.stringify(obj))
-}
+export const simpleClone = (obj: any) => JSON.parse(JSON.stringify(obj))
 
 export const enforceNumber = (num: number | string) => isNaN(+num) ? 0 : +num
 
@@ -44,12 +36,8 @@ export const trimValues = <T extends IStringKeyMap>(obj: T): {[K in keyof T]: T[
   return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, typeof value === 'string' ? value.trim() : value])) as {[K in keyof T]: T[K] extends string ? string : T[K]}
 }
 
-export function isNeedToShorten (alias: string, cutOff: number = 20) {
-  let totalLen = 0
-  for (const s of alias) {
-    totalLen += s.charCodeAt(0) > 255 ? 2 : 1
-  }
-  return totalLen > cutOff
+export function isNeedToShorten (alias: string, cutOff = 20) {
+  return [...alias].reduce((len, char) => len + (char.charCodeAt(0) > 255 ? 2 : 1), 0) > cutOff
 }
 
 export function safeSliceF (str:string, total: number) {

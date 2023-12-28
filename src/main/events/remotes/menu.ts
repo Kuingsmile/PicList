@@ -26,7 +26,6 @@ import {
   PICGO_HANDLE_PLUGIN_DONE,
   PICGO_HANDLE_PLUGIN_ING,
   PICGO_TOGGLE_PLUGIN,
-  SHOW_MAIN_PAGE_DONATION,
   SHOW_MAIN_PAGE_QRCODE
 } from '~/universal/events/constants'
 import { PicGo as PicGoCore } from 'piclist'
@@ -120,12 +119,6 @@ const buildMainPageMenu = (win: BrowserWindow) => {
           message: 'PicList',
           detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`
         })
-      }
-    },
-    {
-      label: T('SPONSOR_PICLIST'),
-      click () {
-        win?.webContents?.send(SHOW_MAIN_PAGE_DONATION)
       }
     },
     {

@@ -7,6 +7,7 @@ import {
   ipcMain,
   clipboard
 } from 'electron'
+import fs from 'fs-extra'
 
 // Electron modules
 
@@ -371,6 +372,9 @@ const handlePicGoGalleryDB = () => {
 const handleOpenFile = () => {
   ipcMain.on(PICGO_OPEN_FILE, (event: IpcMainEvent, fileName: string) => {
     const abFilePath = path.join(STORE_PATH, fileName)
+    if (!fs.existsSync(abFilePath)) {
+      fs.writeFileSync(abFilePath, '')
+    }
     shell.openPath(abFilePath)
   })
 }

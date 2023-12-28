@@ -1,14 +1,16 @@
+Happy New Year! 🎉
+
 ✨ Features
 
-- Support the remote server mode of the vscode plug-in vs-piclist
-- Related update: Docker deployment for PicList-core is now supported.
-- The upload interface adds additional records to distinguish upload behavior
-- Core library version update
+- Now the option to remove exif information will no longer incorrectly process svg images
+- Added a shortcut to open the log file of the management function and the GUI interface log file
+- Now supports more types of text file preview
+- Now there will be extra confirmation before removing the configuration to avoid accidental deletion
+- Now if the corresponding image bed does not support the rename operation, the rename button will not be displayed
+- Optimized the text display of the file browsing page of the management interface
+- Removed the sponsorship window~~
 
 🐛 Bug Fixes
 
-- 修复了相册内无法正常复制部分插件上传的图片URL的问题
-- 修复了上传图床选择过程中的log记录字段错误的问题
-
-- Fix the problem that some plug-in upload image URLs cannot be copied normally in the album
-- Fixed the problem of incorrect log record fields during the upload image selection process
+- Fixed the problem of garbled Chinese file names in form upload mode
+- Fixed the display bug of the management interface entry page

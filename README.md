@@ -199,10 +199,6 @@ Thank you again for your support for PicList.
 ![image](https://github.com/Kuingsmile/PicList/assets/96409857/29de0046-1aef-4b28-95a6-b26c6e297c6f)
 ![image](https://github.com/Kuingsmile/PicList/assets/96409857/e1c04488-2d3a-4e8f-aa26-ce41d0a383e2)
 
-## WeChat group
-
-<img src="https://pichoro.msq.pub/wechat.png" alt="" width="350" height="350" />
-
 ## Development instructions
 
 1. You need to have Node, Git environment, and understand the related knowledge of npm.

@@ -139,6 +139,7 @@
         </el-button>
       </div>
       <div
+        v-if="isShowRenameFileIcon"
         @click="handleBatchRenameFile"
       >
         <el-button type="text">

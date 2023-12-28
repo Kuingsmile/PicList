@@ -161,37 +161,6 @@
       </el-col>
     </el-row>
     <el-dialog
-      v-model="visible"
-      :title="$T('SPONSOR_PICLIST')"
-      width="70%"
-      top="10vh"
-      append-to-body
-    >
-      {{ $T('PICLIST_SPONSOR_TEXT') }}
-      <el-row class="support">
-        <el-col :span="12">
-          <img
-            width="200"
-            src="https://pichoro.msq.pub/images/zhifubao_money.jpg"
-            :alt="$T('ALIPAY')"
-          >
-          <div class="support-title">
-            {{ $T('ALIPAY') }}
-          </div>
-        </el-col>
-        <el-col :span="12">
-          <img
-            width="200"
-            src="https://pichoro.msq.pub/images/wechat_money.jpg"
-            :alt="$T('WECHATPAY')"
-          >
-          <div class="support-title">
-            {{ $T('WECHATPAY') }}
-          </div>
-        </el-col>
-      </el-row>
-    </el-dialog>
-    <el-dialog
       v-model="qrcodeVisible"
       class="qrcode-dialog"
       top="3vh"
@@ -302,7 +271,6 @@ import {
   CLOSE_WINDOW,
   SHOW_MAIN_PAGE_MENU,
   SHOW_MAIN_PAGE_QRCODE,
-  SHOW_MAIN_PAGE_DONATION,
   GET_PICBEDS
 } from '~/universal/events/constants'
 
@@ -312,7 +280,6 @@ import { getConfig, sendToMain } from '@/utils/dataSender'
 const version = ref(process.env.NODE_ENV === 'production' ? pkg.version : 'Dev')
 const routerConfig = reactive(config)
 const defaultActive = ref(routerConfig.UPLOAD_PAGE)
-const visible = ref(false)
 const os = ref('')
 const $router = useRouter()
 const picBed: Ref<IPicBedType[]> = ref([])
@@ -332,9 +299,6 @@ onBeforeMount(() => {
   handleGetPicPeds()
   ipcRenderer.on(SHOW_MAIN_PAGE_QRCODE, () => {
     qrcodeVisible.value = true
-  })
-  ipcRenderer.on(SHOW_MAIN_PAGE_DONATION, () => {
-    visible.value = true
   })
   ipcRenderer.on('updateProgress', (_event: IpcRendererEvent, data: { progress: number}) => {
     progressShow.value = data.progress !== 100 && data.progress !== 0
@@ -419,7 +383,6 @@ onBeforeRouteUpdate(async (to) => {
 onBeforeUnmount(() => {
   ipcRenderer.removeListener(GET_PICBEDS, getPicBeds)
   ipcRenderer.removeAllListeners(SHOW_MAIN_PAGE_QRCODE)
-  ipcRenderer.removeAllListeners(SHOW_MAIN_PAGE_DONATION)
   ipcRenderer.removeAllListeners('updateProgress')
 })
 

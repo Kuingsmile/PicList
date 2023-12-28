@@ -10,7 +10,7 @@
             :src="require(`./assets/${currentPagePicBedConfig.picBedName}.webp`)"
             class="layout__menu__button__item__icon"
           >
-          {{ '-' + supportedPicBedList[currentPagePicBedConfig.picBedName].name + '-' }}
+          {{ supportedPicBedList[currentPagePicBedConfig.picBedName].name }}
         </span>
       </div>
       <el-divider

@@ -77,7 +77,7 @@
                       effect="light"
                       :content="item.alias"
                       placement="top"
-                      :disabled="isNeedToShorten(item.alias)"
+                      :disabled="!isNeedToShorten(item.alias)"
                       :persistent="false"
                       teleported
                     >
@@ -277,7 +277,7 @@ import { supportedPicBedList } from '../utils/constants'
 import { Delete, Edit, Pointer, InfoFilled } from '@element-plus/icons-vue'
 
 // Element Plus 消息组件
-import { ElMessage, ElNotification } from 'element-plus'
+import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 
 // 数据发送工具函数
 import { getConfig, saveConfig, removeConfig } from '../utils/dataSender'
@@ -489,34 +489,40 @@ const handleConfigReset = (name: string) => {
 }
 
 const handleConfigRemove = (name: string) => {
-  const commonNoticeConfig = {
-    title: $T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
-    duration: 2000,
-    customClass: 'notification',
-    offset: 100
-  }
-  try {
-    removeConfig('picBed', name)
-    ElNotification(
-      {
-        ...commonNoticeConfig,
-        message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_C')}${name}`,
-        type: 'success',
-        position: 'bottom-right'
-      }
-    )
-    manageStore.refreshConfig()
-    getAllConfigAliasArray()
-  } catch (error) {
-    ElNotification(
-      {
-        ...commonNoticeConfig,
-        message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_D')}${name}${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_E')}`,
-        type: 'error',
-        position: 'bottom-right'
-      }
-    )
-  }
+  ElMessageBox.confirm($T('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_TITLE'), $T('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_TIP'), {
+    confirmButtonText: $T('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_CONFIRM'),
+    cancelButtonText: $T('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_CANCEL'),
+    type: 'warning'
+  }).then(async () => {
+    const commonNoticeConfig = {
+      title: $T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
+      duration: 2000,
+      customClass: 'notification',
+      offset: 100
+    }
+    try {
+      removeConfig('picBed', name)
+      ElNotification(
+        {
+          ...commonNoticeConfig,
+          message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_C')}${name}`,
+          type: 'success',
+          position: 'bottom-right'
+        }
+      )
+      manageStore.refreshConfig()
+      getAllConfigAliasArray()
+    } catch (error) {
+      ElNotification(
+        {
+          ...commonNoticeConfig,
+          message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_D')}${name}${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_E')}`,
+          type: 'error',
+          position: 'bottom-right'
+        }
+      )
+    }
+  })
 }
 
 const getAllConfigAliasArray = async () => {
