@@ -68,7 +68,7 @@
     "multer": "^1.4.5-lts.1",
     "node-ssh-no-cpu-features": "^1.0.1",
     "nodejs-file-downloader": "^4.12.1",
-    "piclist": "^1.7.0",
+    "piclist": "^1.7.1",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.0",
     "proxy-agent": "^5.0.0",

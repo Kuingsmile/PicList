@@ -55,7 +55,10 @@ app.config.globalProperties.$builtInPicBed = [
   'github',
   'webdavplist',
   'local',
-  'sftpplist'
+  'sftpplist',
+  'telegraphplist',
+  'piclist',
+  'lskyplist'
 ]
 
 app.config.globalProperties.$$db = db
