@@ -30,6 +30,7 @@ interface ISettingForm {
   deleteLocalFile: boolean,
   serverKey: string,
   aesPassword: string,
+  manualPageOpen: string
 }
 
 interface IShortKeyMap {

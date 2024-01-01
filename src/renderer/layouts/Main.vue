@@ -124,7 +124,9 @@
             </el-icon>
             <span>{{ $T('PLUGIN_SETTINGS') }}</span>
           </el-menu-item>
-          <el-menu-item :index="routerConfig.DocumentPage">
+          <el-menu-item
+            :index="routerConfig.DocumentPage"
+          >
             <el-icon>
               <Link />
             </el-icon>
@@ -232,7 +234,7 @@ import {
 } from '@element-plus/icons-vue'
 
 // Element Plus 消息框组件
-import { ElMessage as $message } from 'element-plus'
+import { ElMessage as $message, ElMessageBox } from 'element-plus'
 
 // 国际化函数
 import { T as $T } from '@/i18n/index'
@@ -275,7 +277,8 @@ import {
 } from '~/universal/events/constants'
 
 // 数据发送工具函数
-import { getConfig, sendToMain } from '@/utils/dataSender'
+import { getConfig, saveConfig, sendToMain } from '@/utils/dataSender'
+import { openURL } from '@/utils/common'
 
 const version = ref(process.env.NODE_ENV === 'production' ? pkg.version : 'Dev')
 const routerConfig = reactive(config)
@@ -320,10 +323,29 @@ const handleGetPicPeds = () => {
   sendToMain(GET_PICBEDS)
 }
 
-const handleSelect = (index: string) => {
+const handleSelect = async (index: string) => {
   defaultActive.value = index
   if (index === routerConfig.DocumentPage) {
-    ipcRenderer.send('openManualWindow')
+    const manualPageOpenSetting = await getConfig('settings.manualPageOpen')
+    const openManual = () => ipcRenderer.send('openManualWindow')
+    const openExternal = () => openURL('https://piclist.cn/app.html')
+
+    if (!manualPageOpenSetting) {
+      ElMessageBox.confirm($T('MANUAL_PAGE_OPEN_TIP'), $T('MANUAL_PAGE_OPEN_TIP_TITLE'), {
+        confirmButtonText: $T('MANUAL_PAGE_OPEN_BY_BROWSER'),
+        cancelButtonText: $T('MANUAL_PAGE_OPEN_BY_BUILD_IN'),
+        type: 'info',
+        center: true
+      }).then(() => {
+        saveConfig('settings.manualPageOpen', 'browser')
+        openExternal()
+      }).catch(() => {
+        saveConfig('settings.manualPageOpen', 'window')
+        openManual()
+      })
+    } else {
+      manualPageOpenSetting === 'window' ? openManual() : openExternal()
+    }
     return
   }
   const type = index.match(routerConfig.UPLOADER_CONFIG_PAGE)

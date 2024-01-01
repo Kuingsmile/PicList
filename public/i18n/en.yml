@@ -50,6 +50,11 @@ TOOLBOX_CHECK_PROXY_PROXY_IS_NOT_WORKING: Proxy settings unavailable
 TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_TIPS: "The temporary folder path for clipboard pictures is: ${path}"
 TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_NOT_EXIST_TIPS: "The temporary folder for clipboard pictures does not exist: ${path}"
 TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_ERROR_TIPS: "Please create the folder yourself: ${path}"
+MANUAL_PAGE_OPEN_TIP: Please select the way to open the manual
+MANUAL_PAGE_OPEN_TIP_TITLE: Tips
+MANUAL_PAGE_OPEN_BY_BROWSER: Browser
+MANUAL_PAGE_OPEN_BY_BUILD_IN: Built-in
+MANUAL_PAGE_OPEN_SETTING_TIP: Select the way to open the manual
 
 # ---renderer i18n begin---
 

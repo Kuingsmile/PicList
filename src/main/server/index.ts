@@ -23,14 +23,12 @@ const multerStorage = multer.diskStorage({
     cb(null, serverTempDir)
   },
   filename: function (_req: any, file: { originalname: any }, cb: (arg0: null, arg1: any) => void) {
-    console.log(file.originalname)
     // eslint-disable-next-line no-control-regex
     if (!/[^\u0000-\u00ff]/.test(file.originalname)) {
       file.originalname = Buffer.from(file.originalname, 'latin1').toString(
         'utf8'
       )
     }
-    console.log(file.originalname)
     cb(null, file.originalname)
   }
 })
