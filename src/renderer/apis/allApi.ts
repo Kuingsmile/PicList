@@ -13,6 +13,7 @@ import DogeCloudApi from './dogecloud'
 import HuaweicloudApi from './huaweiyun'
 import AlistApi from './alist'
 import PiclistApi from './piclist'
+import LskyplistApi from './lskyplist'
 
 const apiMap: IStringKeyMap = {
   aliyun: AliyunApi,
@@ -29,7 +30,8 @@ const apiMap: IStringKeyMap = {
   dogecloud: DogeCloudApi,
   'huaweicloud-uploader': HuaweicloudApi,
   alist: AlistApi,
-  piclist: PiclistApi
+  piclist: PiclistApi,
+  lskyplist: LskyplistApi
 }
 
 export default class ALLApi {
