@@ -327,8 +327,9 @@ const handleSelect = async (index: string) => {
   defaultActive.value = index
   if (index === routerConfig.DocumentPage) {
     const manualPageOpenSetting = await getConfig('settings.manualPageOpen')
+    const lang = await getConfig('settings.language') || 'zh-CN'
     const openManual = () => ipcRenderer.send('openManualWindow')
-    const openExternal = () => openURL('https://piclist.cn/app.html')
+    const openExternal = () => openURL(lang === 'zh-CN' ? 'https://piclist.cn/app.html' : 'https://piclist.cn/en/app.html')
 
     if (!manualPageOpenSetting) {
       ElMessageBox.confirm($T('MANUAL_PAGE_OPEN_TIP'), $T('MANUAL_PAGE_OPEN_TIP_TITLE'), {
