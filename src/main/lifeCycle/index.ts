@@ -5,7 +5,8 @@ import {
   protocol,
   Notification,
   dialog,
-  screen
+  screen,
+  shell
 } from 'electron'
 import {
   createProtocol
@@ -84,7 +85,7 @@ autoUpdater.on('update-available', async (info: UpdateInfo) => {
   dialog.showMessageBox({
     type: 'info',
     title: T('FIND_NEW_VERSION'),
-    buttons: ['Yes', 'No'],
+    buttons: ['Yes', 'Go to download page'],
     message: T('TIPS_FIND_NEW_VERSION', {
       v: info.version
     }) + '\n\n' + updateLog,
@@ -93,6 +94,8 @@ autoUpdater.on('update-available', async (info: UpdateInfo) => {
   }).then((result) => {
     if (result.response === 0) {
       autoUpdater.downloadUpdate()
+    } else {
+      shell.openExternal('https://github.com/Kuingsmile/PicList/releases/latest')
     }
     db.set('settings.showUpdateTip', !result.checkboxChecked)
   }).catch((err) => {
