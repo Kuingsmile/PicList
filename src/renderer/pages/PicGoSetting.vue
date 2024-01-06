@@ -1473,6 +1473,17 @@
           </el-select>
         </el-form-item>
         <el-form-item
+          v-show="compressForm.isConvert"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT_SPECIFIC')"
+        >
+          <el-input
+            v-model="compressForm.formatConvertObj"
+            placeholder="{&quot;jpg&quot;: &quot;png&quot;, &quot;png&quot;: &quot;jpg&quot;}"
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4}"
+          />
+        </el-form-item>
+        <el-form-item
           :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISFLIP')"
         >
           <el-switch
@@ -1664,6 +1675,8 @@ const waterMarkPositionMap = new Map([
   ['centre', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_CENTER')]
 ])
 
+const imageExtList = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'tif', 'svg', 'ico', 'avif', 'heif', 'heic']
+
 const availableFormat = ['avif', 'dz', 'fits', 'gif', 'heif', 'input', 'jpeg', 'jpg', 'jp2', 'jxl', 'magick', 'openslide', 'pdf', 'png', 'ppm', 'raw', 'svg', 'tiff', 'tif', 'v', 'webp']
 
 const waterMarkForm = reactive<any>({
@@ -1686,13 +1699,15 @@ const compressForm = reactive<any>({
   isReSize: false,
   reSizeWidth: 500,
   reSizeHeight: 500,
+  skipReSizeOfSmallImg: false,
   isReSizeByPercent: false,
   reSizePercent: 50,
   isRotate: false,
   rotateDegree: 0,
   isRemoveExif: false,
   isFlip: false,
-  isFlop: false
+  isFlop: false,
+  formatConvertObj: '{}'
 })
 
 function closeDialog () {
@@ -1700,6 +1715,17 @@ function closeDialog () {
 }
 
 function handleSaveConfig () {
+  let formatConvertObj = {}
+  try {
+    formatConvertObj = JSON.parse(compressForm.formatConvertObj)
+  } catch (error) {
+  }
+  const formatConvertObjEntries = Object.entries(formatConvertObj)
+  const formatConvertObjEntriesFilter = formatConvertObjEntries.filter((item: any) => {
+    return imageExtList.includes(item[0]) && availableFormat.includes(item[1])
+  })
+  const formatConvertObjFilter = Object.fromEntries(formatConvertObjEntriesFilter)
+  compressForm.formatConvertObj = formatConvertObjFilter
   saveConfig('buildIn.compress', toRaw(compressForm))
   saveConfig('buildIn.watermark', toRaw(waterMarkForm))
   closeDialog()
@@ -1723,6 +1749,11 @@ async function initForm () {
     compressForm.isRemoveExif = compress.isRemoveExif ?? false
     compressForm.isFlip = compress.isFlip ?? false
     compressForm.isFlop = compress.isFlop ?? false
+    try {
+      compressForm.formatConvertObj = JSON.stringify(compress.formatConvertObj ?? {})
+    } catch (error) {
+      compressForm.formatConvertObj = '{}'
+    }
   }
   if (watermark) {
     waterMarkForm.isAddWatermark = watermark.isAddWatermark ?? false
