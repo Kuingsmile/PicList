@@ -34,12 +34,12 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 ## 特色功能
 
 - 保留了PicGo的所有功能，兼容绝大部分已有的PicGo插件，包括和Typora、Obsidian等软件的搭配
-- 新增了多个内置图床，如WebDav、本地图床、SFTP和Telegra.ph等，原内置imgur图床额外支持登录账号上传
+- 新增了多个内置图床，如WebDav、兰空图床、本地图床、SFTP和Telegra.ph等，原内置imgur图床额外支持登录账号上传
 - 相册中可同步删除云端图片，支持所有内置图床和多个插件
 - 相册新增了高级搜索和排序，批量修改URL等功能
 - 内置水印添加、图片压缩、图片缩放、图片旋转和图片格式转换等功能，同时支持高级重命名
 - 上传接口支持表单上传文件，可多电脑共用
-- 支持配置同步至Github或Gitee仓库
+- 支持配置同步至Github/Gitee/Gitea仓库
 - 支持管理十余种图床，可以在线进行云端目录查看、文件搜索、批量上传、批量下载、删除文件等
 - 支持预览多种格式的文件，包括图片、视频、纯文本文件和markdown文件等，具体支持的格式请参考[支持的文件格式列表](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)
 - 支持启用正则表达式的批量云端文件重命名
@@ -60,7 +60,7 @@ PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](htt
 
 **Typora 1.6.0-dev以及以上版本现在已经原生支持PicList了** 
 
-目前Typora中需要同时设置上传服务PicList和PicGo（app）的路径为PicList的安装路径，这可能源于Typora的bug。
+目前Typora中需要同时设置上传服务PicList和PicGo（app）的路径为PicList的安装路径，已经在最新的Dev版本中修复。
 
 [下载地址](https://typora.io/releases/all)
 
@@ -148,6 +148,8 @@ docker-compose up -d
 |    内置SFTP    |     ✔️      |     ✔️      |
 |     多吉云     |     ✔️      |     ✔️      |
 | PicList(套娃)  |     ✔️      |     ✔️      |
+|   Telegra.ph   |     ✔️      |     x      |
+|    兰空图床    |     ✔️      |     ✔️      |
 
 |                                            插件                                            | 相册云删除 |
 | :----------------------------------------------------------------------------------------: | :--------: |

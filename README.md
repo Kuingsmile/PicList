@@ -34,12 +34,12 @@ if you want to use PicList-core, please go to [https://github.com/Kuingsmile/Pic
 ## Features
 
 - Retains all the features of PicGo and is compatible with the vast majority of existing PicGo plugins, including integrations with software like Typora and Obsidian.
-- Added multiple built-in image hosting platforms, such as WebDav, local image hosting, SFTP and Telegra.ph. The original built-in imgur image host now also supports account login for uploading.
+- Added multiple built-in image hosting platforms, such as WebDav, Lsky Pro, local image hosting, SFTP and Telegra.ph. The original built-in imgur image host now also supports account login for uploading.
 - Within the album, you can synchronize the deletion of cloud images. This is supported across all built-in image hosts and multiple plugins.
 - The album now offers advanced search and sorting features, as well as batch URL modification.
 - Built-in tools for adding watermarks, compressing images, scaling images, rotating images, and converting image formats are now available. Advanced renaming is also supported.
 - Upload interface supports form upload files, can be shared by multiple computers
-- Configuration can be synchronized to Github or Gitee repositories.
+- Configuration can be synchronized to Github/Gitee/Gitea repositories.
 - Manages over ten types of image hosting platforms, allowing online viewing of cloud directories, file searching, batch uploading, batch downloading, file deletion, and more.
 - Support previewing multiple formats of files, including pictures, videos, plain text files and markdown files, etc. For the specific formats supported, please refer to [Supported file format list](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)
 - Supports the use of regular expressions for batch renaming of cloud files.
@@ -60,7 +60,7 @@ Please install my matching plugin [VS-PicList](https://marketplace.visualstudio.
 
 **Typora 1.6.0-dev and above versions now support PicList natively**
 
-Now you need to set the upload service PicList and PicGo (app) to the installation path of PicList at the same time, which may be due to a bug in Typora.
+Now you need to set the upload service PicList and PicGo (app) to the installation path of PicList at the same time, it has been fixed in latest dev version.
 
 [download link](https://typora.io/releases/all)
 
@@ -148,6 +148,8 @@ docker-compose up -d
 |       Built-in SFTP        |          ✔️           |            ✔️             |
 |         Doge Cloud         |          ✔️           |            ✔️             |
 |    PicList(Lasso-Doll)     |          ✔️           |            ✔️             |
+|         Telegra.ph         |          ✔️           |            ×             |
+|          Lsky Pro          |          ✔️           |            ✔️             |
 
 |                                           Plugin                                           | Album cloud deletion |
 | :----------------------------------------------------------------------------------------: | :------------------: |
