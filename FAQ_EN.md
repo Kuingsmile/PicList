@@ -34,6 +34,7 @@ Currently, the supported image hosting platforms are:
 - Doge Cloud
 - Huawei Cloud OBS
 - Alist
+- Lsky Pro
 
 ## 4. Is it possible to upload video files?
 
@@ -53,6 +54,9 @@ PicList itself supports the following image hosting platforms:
 - Webdav
 - Local path
 - SFTP
+- Telegra.ph
+- Lsky Pro
+- PicList (nested)
 
 PicList plans to integrate and optimize existing plugins and embed more commonly used image hosting platforms.
 
