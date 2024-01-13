@@ -3,6 +3,7 @@
 - Add built-in Lsky Pro image bed upload and delete support
 - Webdav image bed now supports setting URL parameter suffix
 - Now you can specify the converted format for each image format
+- Now enable the mozJPEG encoder by default to reduce file size
 - Now the open manual page will ask for the open method
 - Optimize the prompt of the rename option
 - The update prompt window now provides an option to jump to the version release page to download manually
