@@ -1,16 +1,13 @@
-Happy New Year! 🎉
-
 ✨ Features
 
-- Now the option to remove exif information will no longer incorrectly process svg images
-- Added a shortcut to open the log file of the management function and the GUI interface log file
-- Now supports more types of text file preview
-- Now there will be extra confirmation before removing the configuration to avoid accidental deletion
-- Now if the corresponding image bed does not support the rename operation, the rename button will not be displayed
-- Optimized the text display of the file browsing page of the management interface
-- Removed the sponsorship window~~
+- Add built-in Lsky Pro image bed upload and delete support
+- Webdav image bed now supports setting URL parameter suffix
+- Now you can specify the converted format for each image format
+- Now the open manual page will ask for the open method
+- Optimize the prompt of the rename option
+- The update prompt window now provides an option to jump to the version release page to download manually
 
 🐛 Bug Fixes
 
-- Fixed the problem of garbled Chinese file names in form upload mode
-- Fixed the display bug of the management interface entry page
+- Fixed the problem that uploading images with the same file name to the sftp image bed will report an error
+- Fixed the problem that the file name is incorrect when converting the format of the imgur image bed to webp
