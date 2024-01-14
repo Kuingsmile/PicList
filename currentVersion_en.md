@@ -12,3 +12,4 @@
 
 - Fixed the problem that uploading images with the same file name to the sftp image bed will report an error
 - Fixed the problem that the file name is incorrect when converting the format of the imgur image bed to webp
+- Fixed some i18n errors
