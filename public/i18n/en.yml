@@ -50,6 +50,11 @@ TOOLBOX_CHECK_PROXY_PROXY_IS_NOT_WORKING: Proxy settings unavailable
 TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_TIPS: "The temporary folder path for clipboard pictures is: ${path}"
 TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_NOT_EXIST_TIPS: "The temporary folder for clipboard pictures does not exist: ${path}"
 TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_ERROR_TIPS: "Please create the folder yourself: ${path}"
+MANUAL_PAGE_OPEN_TIP: Please select the way to open the manual
+MANUAL_PAGE_OPEN_TIP_TITLE: Tips
+MANUAL_PAGE_OPEN_BY_BROWSER: Browser
+MANUAL_PAGE_OPEN_BY_BUILD_IN: Built-in
+MANUAL_PAGE_OPEN_SETTING_TIP: Select the way to open the manual
 
 # ---renderer i18n begin---
 
@@ -115,6 +120,7 @@ UPLOAD_PAGE_IMAGE_PROCESS_ISREMOVEEXIF: Remove EXIF Info
 UPLOAD_PAGE_IMAGE_PROCESS_QUALITY: Compression Quality
 UPLOAD_PAGE_IMAGE_PROCESS_ISCONVERT: Convert Format
 UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT: Destination Format
+UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT_SPECIFIC: 'Specific Format, Please enter in json format, e.g. {"png": "jpg"}'
 UPLOAD_PAGE_IMAGE_PROCESS_ISFLIP: Whether to flip vertically
 UPLOAD_PAGE_IMAGE_PROCESS_ISFLOP: Whether to flip horizontally
 UPLOAD_PAGE_IMAGE_PROCESS_ISRESIZE: Resize to fixed size
@@ -169,7 +175,7 @@ SETTINGS_CLOSE_MINI_WINDOW_SYNC: Close Mini Window When open Main Window
 SETTINGS_CLOSE_MAIN_WINDOW_SYNC: Close Main Window When open Mini Window
 SETTINGS_ACCEPT_BETA_UPDATE: Accept Beta Update
 SETTINGS_LAUNCH_ON_BOOT: Launch On Boot
-SETTINGS_RENAME_BEFORE_UPLOAD: Rename Before Upload
+SETTINGS_RENAME_BEFORE_UPLOAD: Manual Rename
 SETTINGS_TIMESTAMP_RENAME: Timestamp Rename
 SETTINGS_ADVANCED_RENAME: Advanced Rename
 SETTINGS_ADVANCED_RENAME_ENABLE: Enable Advanced Rename

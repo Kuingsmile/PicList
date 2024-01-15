@@ -10,7 +10,7 @@
 
 PicList项目fork自PicGo项目，基于PicGo进行了二次开发，同时核心功能内核PicGo-Core也进行了二次开发，重命名为[PicList-Core](https://github.com/Kuingsmile/PicList-Core)。
 
-PicList所有新功能的添加没有影响到PicGo的原有功能，所以你可以在PicList中使用PicGo的所有插件。同时仍然可以配合typora、obsidian等软件进行使用。
+PicList所有新功能的添加没有影响到PicGo的原有功能，所以你可以在PicList中使用PicGo的大部分插件。同时仍然可以配合typora、obsidian等软件进行使用。
 
 ## 2. 使用图床管理功能时，出现无法获取目录等错误
 
@@ -34,6 +34,7 @@ PicList所有新功能的添加没有影响到PicGo的原有功能，所以你�
 - 多吉云
 - 华为云 OBS
 - Alist
+- 兰空图床
 
 ## 4. 能否支持上传视频文件
 
@@ -53,6 +54,9 @@ PicList本体支持了如下图床：
 - `Webdav`
 - `本地图床`
 - `SFTP`
+- `Telegra.ph`
+- `兰空图床`
+- `PicList(套娃)`
 
 PicList计划整合和优化现有插件，内置更多的常用图床。
 

@@ -21,5 +21,6 @@ export const picBedsCanbeDeleted = [
   'dogecloud',
   'huaweicloud-uploader',
   'alist',
-  'piclist'
+  'piclist',
+  'lskyplist'
 ]

@@ -93,6 +93,26 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item
+                  :label="$T('MANUAL_PAGE_OPEN_SETTING_TIP')"
+                >
+                  <el-select
+                    v-model="form.manualPageOpen"
+                    size="small"
+                    style="width: 50%"
+                    :placeholder="$T('MANUAL_PAGE_OPEN_SETTING_TIP')"
+                    :persistent="false"
+                    teleported
+                    @change="handleManualPageOpenChange"
+                  >
+                    <el-option
+                      v-for="item in manualPageOpenList"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </el-form-item>
+                <el-form-item
                   v-if="os === 'darwin'"
                   :label="$T('SETTINGS_ISHIDEDOCK')"
                 >
@@ -1453,6 +1473,17 @@
           </el-select>
         </el-form-item>
         <el-form-item
+          v-show="compressForm.isConvert"
+          :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT_SPECIFIC')"
+        >
+          <el-input
+            v-model="compressForm.formatConvertObj"
+            placeholder="{&quot;jpg&quot;: &quot;png&quot;, &quot;png&quot;: &quot;jpg&quot;}"
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4}"
+          />
+        </el-form-item>
+        <el-form-item
           :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISFLIP')"
         >
           <el-switch
@@ -1622,6 +1653,16 @@ const shortUrlServerList = [{
 }
 ]
 
+const manualPageOpenList = [{
+  label: $T('MANUAL_PAGE_OPEN_BY_BUILD_IN'),
+  value: 'window'
+},
+{
+  label: $T('MANUAL_PAGE_OPEN_BY_BROWSER'),
+  value: 'browser'
+}
+]
+
 const waterMarkPositionMap = new Map([
   ['north', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP')],
   ['northeast', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP_RIGHT')],
@@ -1633,6 +1674,8 @@ const waterMarkPositionMap = new Map([
   ['east', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_RIGHT')],
   ['centre', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_CENTER')]
 ])
+
+const imageExtList = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'tif', 'svg', 'ico', 'avif', 'heif', 'heic']
 
 const availableFormat = ['avif', 'dz', 'fits', 'gif', 'heif', 'input', 'jpeg', 'jpg', 'jp2', 'jxl', 'magick', 'openslide', 'pdf', 'png', 'ppm', 'raw', 'svg', 'tiff', 'tif', 'v', 'webp']
 
@@ -1656,13 +1699,15 @@ const compressForm = reactive<any>({
   isReSize: false,
   reSizeWidth: 500,
   reSizeHeight: 500,
+  skipReSizeOfSmallImg: false,
   isReSizeByPercent: false,
   reSizePercent: 50,
   isRotate: false,
   rotateDegree: 0,
   isRemoveExif: false,
   isFlip: false,
-  isFlop: false
+  isFlop: false,
+  formatConvertObj: '{}'
 })
 
 function closeDialog () {
@@ -1670,6 +1715,17 @@ function closeDialog () {
 }
 
 function handleSaveConfig () {
+  let formatConvertObj = {}
+  try {
+    formatConvertObj = JSON.parse(compressForm.formatConvertObj)
+  } catch (error) {
+  }
+  const formatConvertObjEntries = Object.entries(formatConvertObj)
+  const formatConvertObjEntriesFilter = formatConvertObjEntries.filter((item: any) => {
+    return imageExtList.includes(item[0]) && availableFormat.includes(item[1])
+  })
+  const formatConvertObjFilter = Object.fromEntries(formatConvertObjEntriesFilter)
+  compressForm.formatConvertObj = formatConvertObjFilter
   saveConfig('buildIn.compress', toRaw(compressForm))
   saveConfig('buildIn.watermark', toRaw(waterMarkForm))
   closeDialog()
@@ -1693,6 +1749,11 @@ async function initForm () {
     compressForm.isRemoveExif = compress.isRemoveExif ?? false
     compressForm.isFlip = compress.isFlip ?? false
     compressForm.isFlop = compress.isFlop ?? false
+    try {
+      compressForm.formatConvertObj = JSON.stringify(compress.formatConvertObj ?? {})
+    } catch (error) {
+      compressForm.formatConvertObj = '{}'
+    }
   }
   if (watermark) {
     waterMarkForm.isAddWatermark = watermark.isAddWatermark ?? false
@@ -1749,7 +1810,8 @@ const form = reactive<ISettingForm>({
   yourlsSignature: '',
   deleteLocalFile: false,
   serverKey: '',
-  aesPassword: ''
+  aesPassword: '',
+  manualPageOpen: 'browser'
 })
 
 const languageList = i18nManager.languageList.map(item => ({
@@ -1914,6 +1976,7 @@ async function initData () {
     form.deleteLocalFile = settings.deleteLocalFile || false
     form.serverKey = settings.serverKey || ''
     form.aesPassword = settings.aesPassword || 'PicList-aesPassword'
+    form.manualPageOpen = settings.manualPageOpen || 'window'
     currentLanguage.value = settings.language ?? 'zh-CN'
     currentStartMode.value = settings.startMode || 'quiet'
     customLink.value = settings.customLink || '![$fileName]($url)'
@@ -2425,6 +2488,12 @@ function handleStartModeChange (val: 'quiet' | 'mini' | 'main' | 'no-tray') {
   }
   saveConfig({
     'settings.startMode': val
+  })
+}
+
+function handleManualPageOpenChange (val: string) {
+  saveConfig({
+    'settings.manualPageOpen': val
   })
 }
 
