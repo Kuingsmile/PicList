@@ -1,3 +1,32 @@
+## :tada: 2.7.1 (2024-01-15)
+
+
+### :sparkles: Features
+
+* **custom:** add manual page open setting ([e4f957d](https://github.com/Kuingsmile/piclist/commit/e4f957d))
+* **custom:** add new option to open download page when new version available ([bbbfbda](https://github.com/Kuingsmile/piclist/commit/bbbfbda)), closes [#128](https://github.com/Kuingsmile/piclist/issues/128)
+* **custom:** add options setting for webdav ([2dde06d](https://github.com/Kuingsmile/piclist/commit/2dde06d)), closes [#131](https://github.com/Kuingsmile/piclist/issues/131)
+* **custom:** add support for lskypro uploader ([531b387](https://github.com/Kuingsmile/piclist/commit/531b387))
+* **custom:** enable mozJPEG encoder by default ([98abeaa](https://github.com/Kuingsmile/piclist/commit/98abeaa))
+* **custom:** manual url will be based on lanaguage setting ([9338fc6](https://github.com/Kuingsmile/piclist/commit/9338fc6))
+* **custom:** support build-in lsky sync delete ([4c03260](https://github.com/Kuingsmile/piclist/commit/4c03260))
+* **custom:** support specific format option for image conversion ([9083a1c](https://github.com/Kuingsmile/piclist/commit/9083a1c)), closes [#124](https://github.com/Kuingsmile/piclist/issues/124)
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix i18n error ([2a8c435](https://github.com/Kuingsmile/piclist/commit/2a8c435))
+* **custom:** fix sftp upload error when file name is the same ([269a7bf](https://github.com/Kuingsmile/piclist/commit/269a7bf)), closes [#129](https://github.com/Kuingsmile/piclist/issues/129)
+
+
+### :pencil: Documentation
+
+* **custom:** update docs ([7055f5b](https://github.com/Kuingsmile/piclist/commit/7055f5b))
+* **custom:** update FAQ ([fc0ac6c](https://github.com/Kuingsmile/piclist/commit/fc0ac6c))
+* **custom:** update new version changelog ([3e09dc4](https://github.com/Kuingsmile/piclist/commit/3e09dc4))
+
+
+
 # :tada: 2.7.0 (2023-12-28)
 
 
