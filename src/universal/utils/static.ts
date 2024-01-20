@@ -22,5 +22,6 @@ export const picBedsCanbeDeleted = [
   'huaweicloud-uploader',
   'alist',
   'piclist',
-  'lskyplist'
+  'lskyplist',
+  'aws-s3-plist'
 ]
