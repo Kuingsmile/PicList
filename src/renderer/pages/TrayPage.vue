@@ -140,6 +140,9 @@ async function copyTheLink (item: ImgInfo) {
 
 async function pasteTemplate (style: IPasteStyle, item: ImgInfo, customLink: string | undefined) {
   let url = item.url || item.imgUrl
+  if (item.type === 'aws-s3' || item.type === 'aws-s3-plist') {
+    url = item.imgUrl || item.url || ''
+  }
   if ((await getConfig('settings.encodeOutputURL')) === true) {
     url = handleUrlEncode(url)
   }

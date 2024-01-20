@@ -24,7 +24,10 @@ export const formatCustomLink = (customLink: string, item: ImgInfo) => {
 
 export default async (style: IPasteStyle, item: ImgInfo, customLink: string | undefined) => {
   let url = item.url || item.imgUrl
-  url = handleUrlEncodeWithSetting(item.url || item.imgUrl)
+  if (item.type === 'aws-s3' || item.type === 'aws-s3-plist') {
+    url = item.imgUrl || item.url || ''
+  }
+  url = handleUrlEncodeWithSetting(url)
   const useShortUrl = db.get('settings.useShortUrl') || false
   if (useShortUrl) {
     url = await generateShortUrl(url)
