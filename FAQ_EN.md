@@ -45,6 +45,7 @@ Yes. With the newly added image hosting management function, you can upload file
 PicList itself supports the following image hosting platforms:
 
 - Qiniu Cloud
+- AWS S3 compatible platform
 - Tencent Cloud COS
 - Upyun
 - GitHub
