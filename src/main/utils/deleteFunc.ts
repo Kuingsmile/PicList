@@ -73,8 +73,11 @@ async function getDogeToken (accessKey: string, secretKey: string): Promise<{} |
 
 export async function removeFileFromS3InMain (configMap: IStringKeyMap, dogeMode: boolean = false) {
   try {
-    const { imgUrl, config: { accessKeyID, secretAccessKey, bucketName, endpoint, pathStyleAccess, rejectUnauthorized, proxy } } = configMap
-    let { config: { region } } = configMap
+    const { url: rawUrl, type, config: { accessKeyID, secretAccessKey, bucketName, endpoint, pathStyleAccess, rejectUnauthorized, proxy } } = configMap
+    let { imgUrl, config: { region } } = configMap
+    if (type === 'aws-s3' || type === 'aws-s3-plist') {
+      imgUrl = rawUrl || imgUrl || ''
+    }
     const url = new URL(!/^https?:\/\//.test(imgUrl) ? `http://${imgUrl}` : imgUrl)
     let fileKey = url.pathname.replace(/^\/+/, '')
     if (pathStyleAccess) {
