@@ -1,3 +1,28 @@
+## :tada: 2.7.2 (2024-01-23)
+
+
+### :sparkles: Features
+
+* **custom:** add build-in aws s3 support, add endpoint for upyun ([efc6a16](https://github.com/Kuingsmile/piclist/commit/efc6a16)), closes [#143](https://github.com/Kuingsmile/piclist/issues/143) [#134](https://github.com/Kuingsmile/piclist/issues/134)
+* **custom:** add new area support for qiniu cloud ([89fc032](https://github.com/Kuingsmile/piclist/commit/89fc032))
+* **custom:** manage page auto import support build-in s3 ([48ec494](https://github.com/Kuingsmile/piclist/commit/48ec494))
+* **custom:** support build-in s3 remote delete ([d1e2792](https://github.com/Kuingsmile/piclist/commit/d1e2792))
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix gallery copy bug of aws-s3 ([0e81ccd](https://github.com/Kuingsmile/piclist/commit/0e81ccd))
+* **custom:** fix s3 remote delete bug when url is modified locally ([58248bc](https://github.com/Kuingsmile/piclist/commit/58248bc))
+* **custom:** update formatConvertObj to use JSON.stringify ([719e74f](https://github.com/Kuingsmile/piclist/commit/719e74f))
+
+
+### :pencil: Documentation
+
+* **custom:** update FAQ ([c6dc1ea](https://github.com/Kuingsmile/piclist/commit/c6dc1ea))
+* **custom:** update version changelog ([9e69702](https://github.com/Kuingsmile/piclist/commit/9e69702))
+
+
+
 ## :tada: 2.7.1 (2024-01-15)
 
 

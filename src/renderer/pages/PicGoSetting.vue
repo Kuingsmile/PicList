@@ -1725,7 +1725,7 @@ function handleSaveConfig () {
     return imageExtList.includes(item[0]) && availableFormat.includes(item[1])
   })
   const formatConvertObjFilter = Object.fromEntries(formatConvertObjEntriesFilter)
-  compressForm.formatConvertObj = formatConvertObjFilter
+  compressForm.formatConvertObj = JSON.stringify(formatConvertObjFilter)
   saveConfig('buildIn.compress', toRaw(compressForm))
   saveConfig('buildIn.watermark', toRaw(waterMarkForm))
   closeDialog()

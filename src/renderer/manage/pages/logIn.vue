@@ -577,7 +577,7 @@ function handleConfigImport (alias: string) {
 async function getCurrentConfigList () {
   await manageStore.refreshConfig()
   const configList = await getPicBedsConfig<any>('uploader') ?? {}
-  const pbList = ['aliyun', 'aws-s3', 'github', 'imgur', 'local', 'qiniu', 'sftpplist', 'smms', 'tcyun', 'upyun', 'webdavplist']
+  const pbList = ['aliyun', 'aws-s3', 'aws-s3-plist', 'github', 'imgur', 'local', 'qiniu', 'sftpplist', 'smms', 'tcyun', 'upyun', 'webdavplist']
 
   const filteredConfigList = pbList.flatMap((pb) => {
     const config = configList[pb]
@@ -615,7 +615,7 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
     ? 'webdav'
     : picBedName === 'sftpplist'
       ? 'sftp'
-      : picBedName === 'aws-s3'
+      : picBedName === 'aws-s3' || picBedName === 'aws-s3-plist'
         ? 's3plist'
         : picBedName}-${config._configName ?? 'Default'}-imp`
   if (!autoImportPicBed.includes(picBedName) || isImported(alias)) return
@@ -797,6 +797,7 @@ async function transUpToManage (config: IUploaderConfigListItem, picBedName: str
       delete resultMap.paging
       break
     case 'aws-s3':
+    case 'aws-s3-plist':
       if (!config.accessKeyID || !config.secretAccessKey) return
       Object.assign(resultMap, {
         ...commonConfig,

@@ -1,15 +1,17 @@
 ✨ Features
 
-- Add built-in Lsky Pro image bed upload and delete support
-- Webdav image bed now supports setting URL parameter suffix
-- Now you can specify the converted format for each image format
-- Now enable the mozJPEG encoder by default to reduce file size
-- Now the open manual page will ask for the open method
-- Optimize the prompt of the rename option
-- The update prompt window now provides an option to jump to the version release page to download manually
+- Add support for built-in S3 API compatible platform
+- Upyun now supports custom interface addresses
+- Qiniu Cloud new bucket supports `Asia-Pacific-Hanoi`
 
 🐛 Bug Fixes
 
-- Fixed the problem that uploading images with the same file name to the sftp image bed will report an error
-- Fixed the problem that the file name is incorrect when converting the format of the imgur image bed to webp
-- Fixed some i18n errors
+- 修复了修改s3图床相册链接后，拷贝图片链接没有对应修改的问题
+- 修复了修改s3图床相册连接后，云端删除失效的问题
+- 修复了设置精细转换格式时的序列化错误
+- 修复了界面翻译错误
+
+- Fix the problem that the copied image link is not modified after modifying the s3 album link
+- Fixed the problem that the cloud deletion is invalid after modifying the s3 album connection
+- Fixed serialization error when setting fine conversion format
+- Fixed interface translation error

@@ -111,7 +111,7 @@
     "@aws-sdk/util-utf8-browser" "^3.0.0"
     tslib "^1.11.1"
 
-"@aws-sdk/client-s3@^3.421.0":
+"@aws-sdk/client-s3@3.421.0", "@aws-sdk/client-s3@^3.421.0":
   version "3.421.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.421.0.tgz#cf0e4a5e394c55463839b405af9dc6e3271509e4"
   integrity sha512-vUXTY4toeHDf5EY2kOn04Ww9vTW2IVGy4+cymFp1cz5QT7g9KKj4Okj5DMdPld2y7wjgc+J/viTWEf26By49vw==
@@ -333,7 +333,7 @@
     "@smithy/types" "^2.3.3"
     tslib "^2.5.0"
 
-"@aws-sdk/lib-storage@^3.421.0":
+"@aws-sdk/lib-storage@3.421.0", "@aws-sdk/lib-storage@^3.421.0":
   version "3.421.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/lib-storage/-/lib-storage-3.421.0.tgz#9ac29ae1823209afcedd8442b97dc888ca5751e2"
   integrity sha512-m3zgZhTUfCp2vFWJA4azHgqaFB/OaWgdumYxPHr0JKbjBkGRFyQ90dmRtzVhROOIwI+GxKYxMi1HXhDU6FwsdQ==
@@ -487,7 +487,7 @@
     "@smithy/util-middleware" "^2.0.2"
     tslib "^2.5.0"
 
-"@aws-sdk/s3-request-presigner@^3.421.0":
+"@aws-sdk/s3-request-presigner@3.421.0", "@aws-sdk/s3-request-presigner@^3.421.0":
   version "3.421.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/s3-request-presigner/-/s3-request-presigner-3.421.0.tgz#1ceb8a3a38a596d10ff16c5f7cb798dc307b780e"
   integrity sha512-qQB6DRV81SZ4Q9JQL8/X4QH1aTyefeKIkmc3KH5QtP5PZJAKOoU4kqIXTFrUFCPan3CjWQw565ZR0usgR6RynQ==
@@ -2788,6 +2788,17 @@
     "@smithy/types" "^2.1.0"
     tslib "^2.5.0"
 
+"@smithy/node-http-handler@2.1.6", "@smithy/node-http-handler@^2.1.6":
+  version "2.1.6"
+  resolved "https://registry.yarnpkg.com/@smithy/node-http-handler/-/node-http-handler-2.1.6.tgz#c2913363bbf28f315461bd54ef9a5394f1686776"
+  integrity sha512-NspvD3aCwiUNtoSTcVHz0RZz1tQ/SaRIe1KPF+r0mAdCZ9eWuhIeJT8ZNPYa1ITn7/Lgg64IyFjqPynZ8KnYQw==
+  dependencies:
+    "@smithy/abort-controller" "^2.0.10"
+    "@smithy/protocol-http" "^3.0.6"
+    "@smithy/querystring-builder" "^2.0.10"
+    "@smithy/types" "^2.3.4"
+    tslib "^2.5.0"
+
 "@smithy/node-http-handler@^2.1.5":
   version "2.1.5"
   resolved "https://registry.npmjs.org/@smithy/node-http-handler/-/node-http-handler-2.1.5.tgz#b1ad4c4b7cdbb5774aeeaaf0bd14b78c6c267460"
@@ -2797,17 +2808,6 @@
     "@smithy/protocol-http" "^3.0.5"
     "@smithy/querystring-builder" "^2.0.9"
     "@smithy/types" "^2.3.3"
-    tslib "^2.5.0"
-
-"@smithy/node-http-handler@^2.1.6":
-  version "2.1.6"
-  resolved "https://registry.yarnpkg.com/@smithy/node-http-handler/-/node-http-handler-2.1.6.tgz#c2913363bbf28f315461bd54ef9a5394f1686776"
-  integrity sha512-NspvD3aCwiUNtoSTcVHz0RZz1tQ/SaRIe1KPF+r0mAdCZ9eWuhIeJT8ZNPYa1ITn7/Lgg64IyFjqPynZ8KnYQw==
-  dependencies:
-    "@smithy/abort-controller" "^2.0.10"
-    "@smithy/protocol-http" "^3.0.6"
-    "@smithy/querystring-builder" "^2.0.10"
-    "@smithy/types" "^2.3.4"
     tslib "^2.5.0"
 
 "@smithy/property-provider@^2.0.0", "@smithy/property-provider@^2.0.2":
@@ -3142,6 +3142,16 @@
   integrity sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==
   dependencies:
     defer-to-connect "^2.0.1"
+
+"@tokenizer/token@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@tokenizer/token/-/token-0.1.1.tgz#f0d92c12f87079ddfd1b29f614758b9696bc29e3"
+  integrity sha512-XO6INPbZCxdprl+9qa/AAbFFOMzzwqYxpjPgLICrMD6C2FCw6qfJOPcBk6JqqPLSaZ/Qx87qn4rpPmPMwaAK6w==
+
+"@tokenizer/token@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@tokenizer/token/-/token-0.3.0.tgz#fe98a93fe789247e998c75e74e9c7c63217aa276"
+  integrity sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -8203,6 +8213,16 @@ file-entry-cache@^6.0.1:
   dependencies:
     flat-cache "^3.0.4"
 
+file-type@16.2.0:
+  version "16.2.0"
+  resolved "https://registry.yarnpkg.com/file-type/-/file-type-16.2.0.tgz#d4f1da71ddda758db7f15f93adfaed09ce9e2715"
+  integrity sha512-1Wwww3mmZCMmLjBfslCluwt2mxH80GsAXYrvPnfQ42G1EGWag336kB1iyCgyn7UXiKY3cJrNykXPrCwA7xb5Ag==
+  dependencies:
+    readable-web-to-node-stream "^3.0.0"
+    strtok3 "^6.0.3"
+    token-types "^2.0.0"
+    typedarray-to-buffer "^3.1.5"
+
 file-type@^3.8.0:
   version "3.9.0"
   resolved "https://registry.npmjs.org/file-type/-/file-type-3.9.0.tgz#257a078384d1db8087bc449d107d52a52672b9e9"
@@ -9334,7 +9354,7 @@ hpack.js@^2.1.6:
     readable-stream "^2.0.1"
     wbuf "^1.1.0"
 
-hpagent@^1.2.0:
+hpagent@1.2.0, hpagent@^1.2.0:
   version "1.2.0"
   resolved "https://registry.npmjs.org/hpagent/-/hpagent-1.2.0.tgz#0ae417895430eb3770c03443456b8d90ca464903"
   integrity sha512-A91dYTeIB6NoXG+PxTQpCCDDnfHsW9kc06Lvpu1TEe9gnd6ZFeiBoRO9JvzEv6xK7EX97/dUE8g/vBMTqTS3CA==
@@ -9585,7 +9605,7 @@ icss-utils@^5.0.0, icss-utils@^5.1.0:
   resolved "https://registry.npmjs.org/icss-utils/-/icss-utils-5.1.0.tgz#c6be6858abd013d768e98366ae47e25d5887b1ae"
   integrity sha512-soFhflCVWLfRNOPU3iv5Z9VUdT44xFRbzjLsEzSr5AQmgqPMTHdU3PMT1Cf1ssx8fLNJDA1juftYl+PUcv3MqA==
 
-ieee754@^1.1.13, ieee754@^1.1.4:
+ieee754@^1.1.13, ieee754@^1.1.4, ieee754@^1.2.1:
   version "1.2.1"
   resolved "https://registry.npmjs.org/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
   integrity sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==
@@ -11067,6 +11087,11 @@ mime@1.6.0:
   resolved "https://registry.npmjs.org/mime/-/mime-1.6.0.tgz#32cd9e5c64553bd58d19a568af452acff04981b1"
   integrity sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==
 
+mime@2.5.2:
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/mime/-/mime-2.5.2.tgz#6e3dc6cc2b9510643830e5f19d5cb753da5eeabe"
+  integrity sha512-tqkh47FzKeCPD2PUiPB6pkbMzsCasjxAfC62/Wap5qrUWcb+sFasXUC5I3gYM5iBM8v/Qpn4UK0x+j0iHyFPDg==
+
 mime@^2.4.4, mime@^2.4.5, mime@^2.5.2:
   version "2.6.0"
   resolved "https://registry.npmjs.org/mime/-/mime-2.6.0.tgz#a2a682a95cd4d0cb1d6257e28f83da7e35800367"
@@ -12352,6 +12377,11 @@ pause-stream@~0.0.11:
   dependencies:
     through "~2.3"
 
+peek-readable@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/peek-readable/-/peek-readable-4.1.0.tgz#4ece1111bf5c2ad8867c314c81356847e8a62e72"
+  integrity sha512-ZI3LnwUv5nOGbQzD9c2iDG6toheuXSZP5esSHBjopsXH4dg19soufvpUGA3uohi5anFtGb2lhAVdHzH6R/Evvg==
+
 pend@~1.2.0:
   version "1.2.0"
   resolved "https://registry.npmjs.org/pend/-/pend-1.2.0.tgz#7a57eb550a6783f9115331fcf4663d5c8e007a50"
@@ -12362,13 +12392,17 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^1.7.6:
-  version "1.7.6"
-  resolved "https://registry.yarnpkg.com/piclist/-/piclist-1.7.6.tgz#687796a2a933d692fe226f04999547ab87743d8a"
-  integrity sha512-6e2gRCrTMWZnpKcWKa0dZSGkgn/0FAd66/UXsGeJcZsegbPNvUNM4/bhWfe74kHKp/Aenb9bzwtMx6HEwUOPUA==
+piclist@^1.7.7:
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/piclist/-/piclist-1.7.7.tgz#fa4bcd08e623859a678dd20160e512b83650bf87"
+  integrity sha512-GBusAPlEAcGMkp91tCZ4hX3oHVevQMJxagmFPWaIwj1G6FY/twKtnO/BiGoLcz1DwiZpxglWx5zPWw4IM7beLg==
   dependencies:
+    "@aws-sdk/client-s3" "3.421.0"
+    "@aws-sdk/lib-storage" "3.421.0"
+    "@aws-sdk/s3-request-presigner" "3.421.0"
     "@picgo/i18n" "^1.0.0"
     "@picgo/store" "^2.1.0"
+    "@smithy/node-http-handler" "2.1.6"
     axios "^1.6.2"
     chalk "^2.4.1"
     commander "^8.1.0"
@@ -12376,15 +12410,18 @@ piclist@^1.7.6:
     dayjs "^1.11.10"
     download-git-repo "^3.0.2"
     ejs "^2.6.1"
+    file-type "16.2.0"
     form-data "^4.0.0"
     fs-extra "^11.2.0"
     globby "^11.1.0"
     heic-convert "^1.2.4"
+    hpagent "1.2.0"
     image-size "^1.0.2"
     inquirer "^6.0.0"
     is-wsl "^2.2.0"
     js-yaml "^4.1.0"
     lodash "^4.17.21"
+    mime "2.5.2"
     mime-types "2.1.35"
     minimatch "^3.0.4"
     minimist "^1.2.8"
@@ -13236,6 +13273,13 @@ readable-stream@^3.0.6, readable-stream@^3.4.0, readable-stream@^3.5.0:
     inherits "^2.0.3"
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"
+
+readable-web-to-node-stream@^3.0.0:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/readable-web-to-node-stream/-/readable-web-to-node-stream-3.0.2.tgz#5d52bb5df7b54861fd48d015e93a2cb87b3ee0bb"
+  integrity sha512-ePeK6cc1EcKLEhJFt/AebMCLL+GgSKhuygrZ/GLaKZYEecIgIECf4UaUuaByiGtzckwR4ain9VzUh95T1exYGw==
+  dependencies:
+    readable-stream "^3.6.0"
 
 readdirp@~3.6.0:
   version "3.6.0"
@@ -14583,6 +14627,14 @@ strnum@^1.0.5:
   resolved "https://registry.npmjs.org/strnum/-/strnum-1.0.5.tgz#5c4e829fe15ad4ff0d20c3db5ac97b73c9b072db"
   integrity sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==
 
+strtok3@^6.0.3:
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/strtok3/-/strtok3-6.3.0.tgz#358b80ffe6d5d5620e19a073aa78ce947a90f9a0"
+  integrity sha512-fZtbhtvI9I48xDSywd/somNqgUHl2L2cstmXCCif0itOf96jeW18MBSyrLuNicYQVkvpOxkZtkzujiTJ9LW5Jw==
+  dependencies:
+    "@tokenizer/token" "^0.3.0"
+    peek-readable "^4.1.0"
+
 stylehacks@^5.1.1:
   version "5.1.1"
   resolved "https://registry.npmjs.org/stylehacks/-/stylehacks-5.1.1.tgz#7934a34eb59d7152149fa69d6e9e56f2fc34bcc9"
@@ -14898,6 +14950,14 @@ toidentifier@1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/toidentifier/-/toidentifier-1.0.1.tgz#3be34321a88a820ed1bd80dfaa33e479fbb8dd35"
   integrity sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==
+
+token-types@^2.0.0:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/token-types/-/token-types-2.1.1.tgz#bd585d64902aaf720b8979d257b4b850b4d45c45"
+  integrity sha512-wnQcqlreS6VjthyHO3Y/kpK/emflxDBNhlNUPfh7wE39KnuDdOituXomIbyI79vBtF0Ninpkh72mcuRHo+RG3Q==
+  dependencies:
+    "@tokenizer/token" "^0.1.1"
+    ieee754 "^1.2.1"
 
 totalist@^1.0.0:
   version "1.1.0"

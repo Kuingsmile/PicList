@@ -18,6 +18,7 @@ import LskyplistApi from './lskyplist'
 const apiMap: IStringKeyMap = {
   aliyun: AliyunApi,
   'aws-s3': AwsS3Api,
+  'aws-s3-plist': AwsS3Api,
   github: GithubApi,
   imgur: ImgurApi,
   local: LocalApi,

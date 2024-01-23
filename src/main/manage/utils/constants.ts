@@ -37,7 +37,8 @@ const QiniuAreaCodeName : IStringKeyMap = {
   z2: '华南-广东',
   na0: '北美-洛杉矶',
   as0: '亚太-新加坡',
-  'ap-northeast-1': '亚太-首尔'
+  'ap-northeast-1': '亚太-首尔',
+  'ap-southeast-2': '亚太-河内'
 }
 
 const TencentAreaCodeName : IStringKeyMap = {

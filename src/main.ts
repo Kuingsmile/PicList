@@ -58,7 +58,8 @@ app.config.globalProperties.$builtInPicBed = [
   'sftpplist',
   'telegraphplist',
   'piclist',
-  'lskyplist'
+  'lskyplist',
+  'aws-s3-plist'
 ]
 
 app.config.globalProperties.$$db = db

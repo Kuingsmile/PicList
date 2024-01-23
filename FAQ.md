@@ -45,6 +45,7 @@ PicList所有新功能的添加没有影响到PicGo的原有功能，所以你�
 PicList本体支持了如下图床：
 
 - `七牛图床`
+- `AWS S3 兼容平台`
 - `腾讯云 COS`
 - `又拍云`
 - `GitHub`
@@ -125,7 +126,7 @@ PicList兼容绝大部分的PicGo插件。然而由于PicList使用了更新的e
 
 ### docker run
 
-修改`./piclist`为你自己的路径，修改`piclist123456`为你自己的密钥。
+修改 `./piclist`为你自己的路径，修改 `piclist123456`为你自己的密钥。
 
 ```bash
 docker run -d \
@@ -139,7 +140,7 @@ docker run -d \
 
 ### docker-compose
 
-下载piclist-core仓库的`docker-compose.yml`文件，或者复制以下内容到`docker-compose.yml`文件中：
+下载piclist-core仓库的 `docker-compose.yml`文件，或者复制以下内容到 `docker-compose.yml`文件中：
 
 ```yaml
 version: '3.3'
@@ -156,7 +157,7 @@ services:
     command: node /usr/local/bin/picgo-server -k piclist123456
 ```
 
-你可以修改`volumes`为你自己的路径，修改`command`为你自己的密钥。
+你可以修改 `volumes`为你自己的路径，修改 `command`为你自己的密钥。
 
 然后运行
 
