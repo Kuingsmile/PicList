@@ -1477,7 +1477,7 @@
           :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT_SPECIFIC')"
         >
           <el-input
-            v-model="compressForm.formatConvertObj"
+            v-model="formatConvertObj"
             placeholder="{&quot;jpg&quot;: &quot;png&quot;, &quot;png&quot;: &quot;jpg&quot;}"
             type="textarea"
             :autosize="{ minRows: 2, maxRows: 4}"
@@ -1692,6 +1692,8 @@ const waterMarkForm = reactive<any>({
   watermarkPosition: 'southeast'
 })
 
+const formatConvertObj = ref('{}')
+
 const compressForm = reactive<any>({
   quality: 100,
   isConvert: false,
@@ -1706,8 +1708,7 @@ const compressForm = reactive<any>({
   rotateDegree: 0,
   isRemoveExif: false,
   isFlip: false,
-  isFlop: false,
-  formatConvertObj: '{}'
+  isFlop: false
 })
 
 function closeDialog () {
@@ -1715,17 +1716,18 @@ function closeDialog () {
 }
 
 function handleSaveConfig () {
-  let formatConvertObj = {}
+  let iformatConvertObj = {}
   try {
-    formatConvertObj = JSON.parse(compressForm.formatConvertObj)
+    iformatConvertObj = JSON.parse(formatConvertObj.value)
   } catch (error) {
   }
-  const formatConvertObjEntries = Object.entries(formatConvertObj)
+  const formatConvertObjEntries = Object.entries(iformatConvertObj)
   const formatConvertObjEntriesFilter = formatConvertObjEntries.filter((item: any) => {
     return imageExtList.includes(item[0]) && availableFormat.includes(item[1])
   })
   const formatConvertObjFilter = Object.fromEntries(formatConvertObjEntriesFilter)
-  compressForm.formatConvertObj = JSON.stringify(formatConvertObjFilter)
+  formatConvertObj.value = JSON.stringify(formatConvertObjFilter)
+  compressForm.formatConvertObj = formatConvertObjFilter
   saveConfig('buildIn.compress', toRaw(compressForm))
   saveConfig('buildIn.watermark', toRaw(waterMarkForm))
   closeDialog()
@@ -1750,9 +1752,13 @@ async function initForm () {
     compressForm.isFlip = compress.isFlip ?? false
     compressForm.isFlop = compress.isFlop ?? false
     try {
-      compressForm.formatConvertObj = JSON.stringify(compress.formatConvertObj ?? {})
+      if (typeof compress.formatConvertObj === 'object') {
+        formatConvertObj.value = JSON.stringify(compress.formatConvertObj)
+      } else {
+        formatConvertObj.value = compress.formatConvertObj ?? '{}'
+      }
     } catch (error) {
-      compressForm.formatConvertObj = '{}'
+      formatConvertObj.value = '{}'
     }
   }
   if (watermark) {
