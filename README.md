@@ -229,6 +229,12 @@ If you need to build it yourself, you can start building with `yarn run build`. 
 - [PicHoro](https://github.com/Kuingsmile/PicHoro): A mobile APP that works with PicList
 - [VS-PicList](https://github.com/Kuingsmile/vs-PicList/): A VScode plugin that works with PicList
 
+## Communication group
+
+If you have any questions, you can join the WeChat group for communication.
+
+![image](https://pichoro.msq.pub/wechat.png)
+
 ## License
 
 This project is open source under the MIT license. Welcome everyone to use and contribute code. Thank you for the open source spirit of the original author Molunerfinn.

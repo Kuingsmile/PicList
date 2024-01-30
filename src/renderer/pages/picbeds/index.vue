@@ -16,9 +16,7 @@
             @click="handleNameClick"
           >
             {{ picBedName }} {{ $T('SETTINGS') }}</span>
-          <el-icon
-            v-if="linkToLogInList.includes(picBedName)"
-          >
+          <el-icon>
             <Link />
           </el-icon>
           <el-button
@@ -201,34 +199,29 @@ const handleReset = async () => {
   $router.back()
 }
 
-const linkToLogInList = ['GitHub', '腾讯云COS', '阿里云OSS', 'SM.MS', '七牛云', 'Imgur', '又拍云', 'githubPlus']
-
 function handleNameClick () {
-  switch ($route.params.type) {
-    case 'github':
-    case 'githubPlus':
-      sendToMain(OPEN_URL, 'https://github.com')
-      break
-    case 'tcyun':
-      sendToMain(OPEN_URL, 'https://cloud.tencent.com/login')
-      break
-    case 'aliyun':
-      sendToMain(OPEN_URL, 'https://account.aliyun.com/login/login.htm')
-      break
-    case 'smms':
-      sendToMain(OPEN_URL, 'https://smms.app')
-      break
-    case 'qiniu':
-      sendToMain(OPEN_URL, 'https://portal.qiniu.com')
-      break
-    case 'imgur':
-      sendToMain(OPEN_URL, 'https://imgur.com')
-      break
-    case 'upyun':
-      sendToMain(OPEN_URL, 'https://console.upyun.com')
-      break
-    default:
-      break
+  const typeUrlMap: IStringKeyMap = {
+    github: 'https://piclist.cn/configure.html#github%E5%9B%BE%E5%BA%8A',
+    githubPlus: 'https://piclist.cn/configure.html#github%E5%9B%BE%E5%BA%8A',
+    tcyun: 'https://piclist.cn/configure.html#%E8%85%BE%E8%AE%AF%E4%BA%91cos',
+    aliyun: 'https://piclist.cn/configure.html#%E9%98%BF%E9%87%8C%E4%BA%91oss',
+    smms: 'https://piclist.cn/configure.html#sm-ms',
+    qiniu: 'https://piclist.cn/configure.html#%E4%B8%83%E7%89%9B%E4%BA%91',
+    imgur: 'https://piclist.cn/configure.html#imgur',
+    upyun: 'https://piclist.cn/configure.html#%E5%8F%88%E6%8B%8D%E4%BA%91',
+    'aws-s3-plist': 'https://piclist.cn/configure.html#%E5%86%85%E7%BD%AEaws-s3',
+    'aws-s3': 'https://piclist.cn/configure.html#%E5%86%85%E7%BD%AEaws-s3',
+    local: 'https://piclist.cn/configure.html#%E6%9C%AC%E5%9C%B0%E5%9B%BE%E5%BA%8A',
+    lskyplist: 'https://piclist.cn/configure.html#%E5%85%B0%E7%A9%BA%E5%9B%BE%E5%BA%8A',
+    sftpplist: 'https://piclist.cn/configure.html#%E5%86%85%E7%BD%AEsftp',
+    telegraphplist: 'https://piclist.cn/configure.html#telegra-ph',
+    webdavplist: 'https://piclist.cn/configure.html#webdav',
+    piclist: 'https://piclist.cn/configure.html#piclist',
+    lankong: 'https://github.com/hellodk34/picgo-plugin-lankong'
+  }
+  const url = typeUrlMap[$route.params.type as string]
+  if (url) {
+    sendToMain(OPEN_URL, url)
   }
 }
 

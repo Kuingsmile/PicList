@@ -219,6 +219,12 @@ brew uninstall piclist
 - [PicHoro](https://github.com/Kuingsmile/PicHoro): 与 PicList 搭配使用的手机端 APP
 - [VS-PicList](https://github.com/Kuingsmile/vs-PicList/): 与 PicList 搭配使用的VScode插件
 
+## 交流群
+
+如果有任何问题，可以加入微信群进行交流。
+
+![image](https://pichoro.msq.pub/wechat.png)
+
 ## License
 
 本项目基于MIT协议开源，欢迎大家使用和贡献代码，感谢原作者Molunerfinn的开源精神。
