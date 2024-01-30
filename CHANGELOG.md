@@ -1,3 +1,23 @@
+## :tada: 2.7.3 (2024-01-30)
+
+
+### :sparkles: Features
+
+* **custom:** support picbed name click to config page ([48cfaab](https://github.com/Kuingsmile/piclist/commit/48cfaab))
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix format convert bug ([ea82600](https://github.com/Kuingsmile/piclist/commit/ea82600))
+
+
+### :pencil: Documentation
+
+* **custom:** add wechat group ([d87a014](https://github.com/Kuingsmile/piclist/commit/d87a014))
+* **custom:** update changelog ([3c9f13a](https://github.com/Kuingsmile/piclist/commit/3c9f13a))
+
+
+
 ## :tada: 2.7.2 (2024-01-23)
 
 
