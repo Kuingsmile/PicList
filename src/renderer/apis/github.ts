@@ -19,9 +19,10 @@ export default class GithubApi {
   }
 
   private static createKey (path: string | undefined, fileName: string): string {
+    const formatedFileName = fileName.replace(/%2F/g, '/')
     return path && path !== '/'
-      ? `${path.replace(/^\/+|\/+$/, '')}/${fileName}`
-      : fileName
+      ? `${path.replace(/^\/+|\/+$/, '')}/${formatedFileName}`
+      : formatedFileName
   }
 
   static async delete (configMap: IConfigMap): Promise<boolean> {
