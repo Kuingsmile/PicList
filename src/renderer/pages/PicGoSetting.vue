@@ -1,5 +1,5 @@
 <template>
-  <div id="picgo-setting">
+  <div id="piclist-setting">
     <el-row
       class="view-title"
       align="middle"
@@ -2535,7 +2535,7 @@ export default {
       color #49B1F5
 .el-tabs__item
   color:white
-#picgo-setting
+#piclist-setting
   height 100%
   position absolute
   left 142px

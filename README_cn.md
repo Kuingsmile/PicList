@@ -92,7 +92,7 @@ MacOS:
 
 #### docker run
 
-修改`./piclist`为你自己的路径，修改`piclist123456`为你自己的密钥。
+修改`./piclist`为你自己的配置文件`config.json`所在的路径，修改`piclist123456`为你自己的密钥。
 
 ```bash
 docker run -d \
@@ -123,7 +123,7 @@ services:
     command: node /usr/local/bin/picgo-server -k piclist123456
 ```
 
-你可以修改`volumes`为你自己的路径，修改`command`为你自己的密钥。
+你可以修改`./piclist`为你自己的配置文件`config.json`所在的路径，修改`command`为你自己的密钥。
 
 然后运行
 
