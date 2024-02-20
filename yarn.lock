@@ -12392,10 +12392,10 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^1.7.10:
-  version "1.7.10"
-  resolved "https://registry.yarnpkg.com/piclist/-/piclist-1.7.10.tgz#2374a86d13aacdc9950b15390a84d0a92e6b8761"
-  integrity sha512-oGTlY6pNyf7YjTecFAQOUlgjfbhwwxKHQ3wyp5/peHKdeKv0PpIbRIHb61y0OhZjS+hWSnTvv5yL86GQUMwkyg==
+piclist@^1.7.11:
+  version "1.7.11"
+  resolved "https://registry.yarnpkg.com/piclist/-/piclist-1.7.11.tgz#b809d51182d3be674881d0ed4f405c4f83c900f9"
+  integrity sha512-C4elwc0TfjNvzJwkIATeoSQFy8xa4PuibmROkoUS9wWkmc8aEMudnDNvVTywpg2c5nv8sUzrCm4CMnmFlKNHQA==
   dependencies:
     "@aws-sdk/client-s3" "3.421.0"
     "@aws-sdk/lib-storage" "3.421.0"
