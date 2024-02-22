@@ -53,8 +53,10 @@ class SSHClient {
       const promise = new Promise((resolve, reject) => {
         client.on('ready', () => {
           client.sftp((err, sftp) => {
+            // eslint-disable-next-line prefer-promise-reject-errors
             if (err) reject(false)
             sftp.unlink(remote, (err) => {
+              // eslint-disable-next-line prefer-promise-reject-errors
               if (err) reject(false)
               client.end()
               resolve(true)
