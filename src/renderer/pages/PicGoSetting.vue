@@ -1,5 +1,5 @@
 <template>
-  <div id="picgo-setting">
+  <div id="piclist-setting">
     <el-row
       class="view-title"
       align="middle"
@@ -279,6 +279,18 @@
                     round
                     size="small"
                     @click="openFile('data.json')"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_OPEN') }}
+                  </el-button>
+                </el-form-item>
+                <el-form-item
+                  :label="$T('SETTINGS_CONFIG_FILE_PATH')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="openDirectory()"
                   >
                     {{ $T('SETTINGS_CLICK_TO_OPEN') }}
                   </el-button>
@@ -582,6 +594,18 @@
                 label-width="50%"
                 size="small"
               >
+                <el-form-item
+                  :label="$T('SETTINGS_LOG_FILE_PATH')"
+                >
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    @click="openDirectory()"
+                  >
+                    {{ $T('SETTINGS_CLICK_TO_OPEN') }}
+                  </el-button>
+                </el-form-item>
                 <el-form-item
                   :label="$T('SETTINGS_SET_LOG_FILE')"
                 >
@@ -1603,7 +1627,7 @@ import { Reading, Close, Edit, InfoFilled } from '@element-plus/icons-vue'
 import pkg from 'root/package.json'
 
 // 事件常量
-import { PICGO_OPEN_FILE, OPEN_URL, GET_PICBEDS, HIDE_DOCK } from '#/events/constants'
+import { PICGO_OPEN_FILE, PICGO_OPEN_DIRECTORY, OPEN_URL, GET_PICBEDS, HIDE_DOCK } from '#/events/constants'
 import { IRPCActionType } from '~/universal/types/enum'
 
 // Electron 相关
@@ -2044,6 +2068,10 @@ function getPicBeds (event: Event, picBeds: IPicBedType[]) {
 
 function openFile (file: string) {
   sendToMain(PICGO_OPEN_FILE, file)
+}
+
+function openDirectory (directory?: string, inStorePath = true) {
+  sendToMain(PICGO_OPEN_DIRECTORY, directory, inStorePath)
 }
 
 function openLogSetting () {
@@ -2535,7 +2563,7 @@ export default {
       color #49B1F5
 .el-tabs__item
   color:white
-#picgo-setting
+#piclist-setting
   height 100%
   position absolute
   left 142px

@@ -8,20 +8,20 @@ export const C1 = Buffer.from(C1N, 'base64').toString()
 
 export const picBedsCanbeDeleted = [
   'aliyun',
+  'alist',
   'aws-s3',
+  'aws-s3-plist',
+  'dogecloud',
   'github',
+  'huaweicloud-uploader',
   'imgur',
   'local',
+  'lskyplist',
+  'piclist',
+  'qiniu',
   'sftpplist',
   'smms',
-  'qiniu',
   'tcyun',
   'upyun',
-  'webdavplist',
-  'dogecloud',
-  'huaweicloud-uploader',
-  'alist',
-  'piclist',
-  'lskyplist',
-  'aws-s3-plist'
+  'webdavplist'
 ]

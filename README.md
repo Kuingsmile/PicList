@@ -92,7 +92,7 @@ In the community plugins, search for and install the Image auto upload Plugin. N
 
 #### docker run
 
-Change the `./piclist` to your own path, and change the `piclist123456` to your own secret key.
+Change the `./piclist` to your own path, this is the path where you put your `config.json` file, and change the `piclist123456` to your own secret key.
 
 ```bash
 docker run -d \
@@ -123,7 +123,7 @@ services:
     command: node /usr/local/bin/picgo-server -k piclist123456
 ```
 
-You can change the `volumes` to your own path and change the `command` to your own secret key.
+You can change the `./piclist` to your own path, this is the path where you put your `config.json` file, and change the `command` to your own secret key.
 
 Then run:
 
@@ -231,9 +231,7 @@ If you need to build it yourself, you can start building with `yarn run build`. 
 
 ## Communication group
 
-If you have any questions, you can join the WeChat group for communication.
-
-![image](https://pichoro.msq.pub/wechat.png)
+If you have any questions, you can join the WeChat group for communication. The group is currently full, please add WeChat `pku_sq_ma` and note `PicList`, and I will add you to the group.
 
 ## License
 

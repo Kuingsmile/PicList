@@ -1,3 +1,27 @@
+## :tada: 2.7.4 (2024-02-25)
+
+
+### :sparkles: Features
+
+* **custom:** add new set item to open config file path ([4be82e0](https://github.com/Kuingsmile/piclist/commit/4be82e0))
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix buildin s3 config item bug ([914ec15](https://github.com/Kuingsmile/piclist/commit/914ec15))
+* **custom:** fix config import name error ([4c70946](https://github.com/Kuingsmile/piclist/commit/4c70946))
+* **custom:** fix typo ([d3fdfca](https://github.com/Kuingsmile/piclist/commit/d3fdfca))
+* **custom:** optimize github remote delete ([0767fbc](https://github.com/Kuingsmile/piclist/commit/0767fbc)), closes [#158](https://github.com/Kuingsmile/piclist/issues/158)
+
+
+### :pencil: Documentation
+
+* **custom:** update chagelog ([3fc3f92](https://github.com/Kuingsmile/piclist/commit/3fc3f92))
+* **custom:** update docs for docker usage ([21cc115](https://github.com/Kuingsmile/piclist/commit/21cc115))
+* **custom:** update wechat group info ([faeeed7](https://github.com/Kuingsmile/piclist/commit/faeeed7))
+
+
+
 ## :tada: 2.7.3 (2024-01-30)
 
 

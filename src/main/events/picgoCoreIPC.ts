@@ -40,6 +40,7 @@ import {
   PICGO_GET_BY_ID_DB,
   PICGO_REMOVE_BY_ID_DB,
   PICGO_OPEN_FILE,
+  PICGO_OPEN_DIRECTORY,
   PASTE_TEXT,
   OPEN_WINDOW,
   GET_LANGUAGE_LIST,
@@ -379,6 +380,18 @@ const handleOpenFile = () => {
   })
 }
 
+const handleOpenDirectory = () => {
+  ipcMain.on(PICGO_OPEN_DIRECTORY, (event: IpcMainEvent, dirPath?: string, inStorePath: boolean = true) => {
+    if (inStorePath) {
+      dirPath = path.join(STORE_PATH, dirPath || '')
+    }
+    if (!dirPath || !fs.existsSync(dirPath)) {
+      return
+    }
+    shell.openPath(dirPath)
+  })
+}
+
 const handleOpenWindow = () => {
   ipcMain.on(OPEN_WINDOW, (event: IpcMainEvent, windowName: IWindowList) => {
     const window = windowManager.get(windowName)
@@ -431,6 +444,7 @@ export default {
     handleImportLocalPlugin()
     handleUpdateAllPlugin()
     handleOpenFile()
+    handleOpenDirectory()
     handleOpenWindow()
     handleI18n()
     handleRPCActions()

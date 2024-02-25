@@ -185,7 +185,7 @@ async function handleConfigImport (configItem: IUploaderConfigListItem) {
       $configForm.value?.updateRuleForm(key, value)
     }
   }
-  $configForm.value?.updateRuleForm('_configName', dayjs(_updatedAt).format('YYYYMMDDHHmmss'))
+  $configForm.value?.updateRuleForm('_configName', dayjs().format('YYYYMMDDHHmmss'))
 }
 
 const handleReset = async () => {
@@ -227,14 +227,7 @@ function handleNameClick () {
 
 async function handleCopyApi () {
   try {
-    const serverConfig = await getConfig<IStringKeyMap>('settings.server') || {
-      port: 36677,
-      host: '127.0.0.1'
-    }
-    let { port, host } = serverConfig
-    if (host === '0.0.0.0') {
-      host = '127.0.0.1'
-    }
+    const { port = 36677, host = '127.0.0.1' } = await getConfig<IStringKeyMap>('settings.server') || {}
     const serverKey = await getConfig('settings.serverKey') || ''
     const uploader = await getConfig('uploader') as IStringKeyMap || {}
     const picBedConfigList = uploader[$route.params.type as string].configList || []
@@ -243,12 +236,9 @@ async function handleCopyApi () {
       ElMessage.error('No config found')
       return
     }
-    let apiUrl = `http://${host}:${port}/upload?picbed=${$route.params.type}&configName=${picBedConfig?._configName}`
-    if (serverKey) {
-      apiUrl += `&key=${serverKey}`
-    }
+    const apiUrl = `http://${host === '0.0.0.0' ? '127.0.0.1' : host}:${port}/upload?picbed=${$route.params.type}&configName=${picBedConfig._configName}${serverKey ? `&key=${serverKey}` : ''}`
     clipboard.writeText(apiUrl)
-    ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS') + ' ' + apiUrl)
+    ElMessage.success(`${$T('MANAGE_BUCKET_COPY_SUCCESS')} ${apiUrl}`)
   } catch (error) {
     console.log(error)
     ElMessage.error('Copy failed')
