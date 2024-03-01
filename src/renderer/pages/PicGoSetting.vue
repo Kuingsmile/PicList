@@ -486,6 +486,18 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item
+                  v-if="form.useShortUrl && form.shortUrlServer === 'c1n'"
+                  :label="$T('SETTINGS_SHORT_URL_C1N_TOKEN')"
+                >
+                  <el-input
+                    v-model="form.c1nToken"
+                    size="small"
+                    style="width: 50%"
+                    :placeholder="$T('SETTINGS_SHORT_URL_C1N_TOKEN')"
+                    @change="handleC1nTokenChange"
+                  />
+                </el-form-item>
+                <el-form-item
                   v-if="form.useShortUrl && form.shortUrlServer === 'yourls'"
                   :label="$T('SETTINGS_SHORT_URL_YOURLS_DOMAIN')"
                 >
@@ -1836,6 +1848,7 @@ const form = reactive<ISettingForm>({
   isAutoListenClipboard: false,
   useShortUrl: false,
   shortUrlServer: 'c1n',
+  c1nToken: '',
   yourlsDomain: '',
   yourlsSignature: '',
   deleteLocalFile: false,
@@ -2001,6 +2014,7 @@ async function initData () {
     form.isHideDock = settings.isHideDock || false
     form.useShortUrl = settings.useShortUrl || false
     form.shortUrlServer = settings.shortUrlServer || 'c1n'
+    form.c1nToken = settings.c1nToken || ''
     form.yourlsDomain = settings.yourlsDomain || ''
     form.yourlsSignature = settings.yourlsSignature || ''
     form.deleteLocalFile = settings.deleteLocalFile || false
@@ -2352,6 +2366,10 @@ function handleUseShortUrl (val: ICheckBoxValueType) {
 
 function handleShortUrlServerChange (val: string) {
   saveConfig('settings.shortUrlServer', val)
+}
+
+function handleC1nTokenChange (val: string) {
+  saveConfig('settings.c1nToken', val)
 }
 
 function handleYourlsDomainChange (val: string) {

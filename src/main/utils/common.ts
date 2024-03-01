@@ -4,7 +4,6 @@ import { clipboard, Notification, dialog } from 'electron'
 import { handleUrlEncode } from '~/universal/utils/common'
 import axios from 'axios'
 import FormData from 'form-data'
-import { C1 } from '#/utils/static'
 import logger from '../apis/core/picgo/logger'
 
 export const handleCopyUrl = (str: string): void => {
@@ -132,18 +131,22 @@ export const generateShortUrl = async (url: string) => {
   if (server === 'c1n') {
     const form = new FormData()
     form.append('url', url)
-    const C = Buffer.from(C1, 'base64').toString()
+    const c1nToken = db.get('settings.c1nToken') || ''
+    if (!c1nToken) {
+      logger.warn('c1n token is not set')
+      return url
+    }
     try {
       const res = await axios.post(c1nApi, form, {
         headers: {
-          token: C
+          token: c1nToken
         }
       })
       if (res.status >= 200 && res.status < 300 && res.data?.code === 0) {
         return res.data.data
       }
     } catch (e: any) {
-      console.log(e)
+      logger.error(e)
     }
   } else if (server === 'yourls') {
     let domain = db.get('settings.yourlsDomain') || ''
@@ -161,7 +164,7 @@ export const generateShortUrl = async (url: string) => {
         if (e.response.data.message.indexOf('already exists in database') !== -1) {
           return e.response.data.shorturl
         }
-        console.log(e)
+        logger.error(e)
       }
     } else {
       logger.warn('Yourls server or signature is not set')

@@ -24,6 +24,7 @@ interface ISettingForm {
   encodeOutputURL: boolean,
   isAutoListenClipboard: boolean,
   useShortUrl: boolean,
+  c1nToken: string,
   shortUrlServer: string,
   yourlsDomain: string,
   yourlsSignature: string,
