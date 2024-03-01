@@ -221,7 +221,9 @@ brew uninstall piclist
 
 ## 交流群
 
-如果有任何问题，可以加入微信群进行交流，目前群已满，请添加微信号`pku_sq_ma`，备注`PicList`，我会拉你入群。
+如果有任何问题，可以加入微信群进行交流.
+
+![wechat](https://pichoro.msq.pub/wechat.png)
 
 ## License
 
