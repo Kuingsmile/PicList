@@ -4,7 +4,7 @@
 
 ## 常见问题
 
-> 本软件的上传工具部分来自PicGo，基本没有改动，请参考PicGo的 [使用文档](https://picgo.github.io/PicGo-Doc/zh/guide/getting-started.html#%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B)
+> 常规配置问题请参考 [官方文档](https://piclist.cn)
 
 ## 1. PicList和PicGo有什么关系？
 
