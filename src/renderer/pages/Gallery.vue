@@ -22,7 +22,28 @@
           :active-text="$T('SETTINGS_OPEN')"
           :inactive-text="$T('SETTINGS_CLOSE')"
           @change="handleDeleteCloudFile"
-        /></span>
+        />
+        <el-button
+          type="text"
+          @click="refreshPage"
+        >
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :content="$T('REFRESH')"
+            placement="bottom"
+            :persistent="false"
+            teleported
+          >
+            <el-icon
+              size="25"
+              style="cursor: pointer; margin-left: 10px;"
+            >
+              <Refresh />
+            </el-icon>
+          </el-tooltip>
+        </el-button>
+      </span>
     </div>
     <transition name="el-zoom-in-top">
       <el-row v-show="handleBarActive">
@@ -447,7 +468,7 @@ import { PASTE_TEXT, GET_PICBEDS } from '#/events/constants'
 import { CheckboxValueType, ElMessageBox, ElNotification, ElMessage } from 'element-plus'
 
 // Element Plus 图标
-import { InfoFilled, Close, CaretBottom, Document, Edit, Delete, CaretTop, Sort } from '@element-plus/icons-vue'
+import { InfoFilled, Close, CaretBottom, Document, Edit, Delete, CaretTop, Sort, Refresh } from '@element-plus/icons-vue'
 
 // Electron 相关
 import {
@@ -651,6 +672,10 @@ function handleChooseImage (val: CheckboxValueType, index: number) {
     }
     lastChoosed.value = index
   }
+}
+
+function refreshPage () {
+  ipcRenderer.send('refreshSettingWindow')
 }
 
 function clearChoosedList () {

@@ -335,6 +335,11 @@ export default {
       settingWindow.hide()
     })
 
+    ipcMain.on('refreshSettingWindow', () => {
+      const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
+      settingWindow.webContents.reloadIgnoringCache()
+    })
+
     //  from mini window
     ipcMain.on('syncPicBed', () => {
       if (windowManager.has(IWindowList.SETTING_WINDOW)) {

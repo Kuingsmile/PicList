@@ -63,6 +63,7 @@ UPLOAD_AREA: Upload
 UPLOAD_VIEW_HINT: Click to open picbeds settings
 MANAGE_PAGE: Manage
 GALLERY: Gallery
+REFRESH: Refresh
 MANUAL: Manual
 OPEN_MANUAL_LINK: Manual
 OPEN_MANUAL_LINK_HINT: Will open the manual link in your browser, do you want to continue?
