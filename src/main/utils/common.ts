@@ -169,6 +169,23 @@ export const generateShortUrl = async (url: string) => {
     } else {
       logger.warn('Yourls server or signature is not set')
     }
+  } else if (server === 'cf_worker') {
+    let cfWorkerHost = db.get('settings.cfWorkerHost') || ''
+    cfWorkerHost = cfWorkerHost.replace(/\/$/, '')
+    if (cfWorkerHost) {
+      try {
+        const res = await axios.post(cfWorkerHost, {
+          url
+        })
+        if (res.data.status === 200 && res.data.key.startsWith('/')) {
+          return `${cfWorkerHost}${res.data.key}`
+        }
+      } catch (e: any) {
+        logger.error(e)
+      }
+    } else {
+      logger.warn('CF Worker host is not set')
+    }
   }
   return url
 }

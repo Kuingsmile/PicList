@@ -522,6 +522,18 @@
                   />
                 </el-form-item>
                 <el-form-item
+                  v-if="form.useShortUrl && form.shortUrlServer === 'cf_worker'"
+                  :label="$T('SETTINGS_SHORT_URL_CF_WORKER_HOST')"
+                >
+                  <el-input
+                    v-model="form.cfWorkerHost"
+                    size="small"
+                    style="width: 50%"
+                    :placeholder="$T('SETTINGS_SHORT_URL_CF_WORKER_HOST')"
+                    @change="handleCfWorkerHostChange"
+                  />
+                </el-form-item>
+                <el-form-item
                   :label="$T('SETTINGS_ENCODE_OUTPUT_URL')"
                 >
                   <el-switch
@@ -1686,6 +1698,10 @@ const shortUrlServerList = [{
 {
   label: 'yourls',
   value: 'yourls'
+},
+{
+  label: 'xyTom/Url-Shorten-Worker',
+  value: 'cf_worker'
 }
 ]
 
@@ -1851,6 +1867,7 @@ const form = reactive<ISettingForm>({
   c1nToken: '',
   yourlsDomain: '',
   yourlsSignature: '',
+  cfWorkerHost: '',
   deleteLocalFile: false,
   serverKey: '',
   aesPassword: '',
@@ -2017,6 +2034,7 @@ async function initData () {
     form.c1nToken = settings.c1nToken || ''
     form.yourlsDomain = settings.yourlsDomain || ''
     form.yourlsSignature = settings.yourlsSignature || ''
+    form.cfWorkerHost = settings.cfWorkerHost || ''
     form.deleteLocalFile = settings.deleteLocalFile || false
     form.serverKey = settings.serverKey || ''
     form.aesPassword = settings.aesPassword || 'PicList-aesPassword'
@@ -2378,6 +2396,10 @@ function handleYourlsDomainChange (val: string) {
 
 function handleYourlsSignatureChange (val: string) {
   saveConfig('settings.yourlsSignature', val)
+}
+
+function handleCfWorkerHostChange (val: string) {
+  saveConfig('settings.cfWorkerHost', val)
 }
 
 function handleAesPasswordChange (val: string) {

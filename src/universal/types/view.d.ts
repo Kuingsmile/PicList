@@ -28,6 +28,7 @@ interface ISettingForm {
   shortUrlServer: string,
   yourlsDomain: string,
   yourlsSignature: string,
+  cfWorkerHost: string,
   deleteLocalFile: boolean,
   serverKey: string,
   aesPassword: string,
