@@ -1,6 +1,7 @@
 💥 Breaking Change
 
-- 由于[C1N短网址](https://www.c1n.cn/)的收费策略即将修改，预期可使用API的团队版在1000元/年左右，作者承担费用压力较大，现在修改为自己提供API token
+- 由于[C1N短网址](https://www.c1n.cn/)的收费策略修改，预期可使用API的团队版在1000元/年，作者承担费用压力较大，现在修改为自己提供API token
+- 原软件内置提供的c1n token即时失效
 
 ✨ Features
 

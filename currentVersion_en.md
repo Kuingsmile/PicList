@@ -1,6 +1,7 @@
 💥 Breaking Change
 
 - Due to the upcoming changes in the charging policy of [C1N short URL](https://www.c1n.cn/), the expected team version that can use the API will be around 1000 yuan/year, and the author bears a greater pressure on the cost. Now it is changed to provide the API token by yourself
+- The c1n token provided by the original software is immediately invalid
 
 ✨ Features
 
