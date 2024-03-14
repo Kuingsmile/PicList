@@ -221,9 +221,9 @@ brew uninstall piclist
 
 ## 交流群
 
-如果有任何问题，可以加入微信群进行交流.
+如果有任何问题，可以加入TG群进行交流.
 
-![wechat](https://pichoro.msq.pub/wechat.png)
+[PicList交流群](https://t.me/+rq8y7wsj7Pg5ZTg1)
 
 ## License
 

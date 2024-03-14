@@ -231,9 +231,9 @@ If you need to build it yourself, you can start building with `yarn run build`. 
 
 ## Communication group
 
-If you have any questions, you can join the WeChat group for communication. 
+If you have any questions, you can join the TG group for communication.
 
-![wechat](https://pichoro.msq.pub/wechat.png)
+[PicList TG Group](https://t.me/+rq8y7wsj7Pg5ZTg1)
 
 ## License
 
