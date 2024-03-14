@@ -486,6 +486,18 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item
+                  v-if="form.useShortUrl && form.shortUrlServer === 'c1n'"
+                  :label="$T('SETTINGS_SHORT_URL_C1N_TOKEN')"
+                >
+                  <el-input
+                    v-model="form.c1nToken"
+                    size="small"
+                    style="width: 50%"
+                    :placeholder="$T('SETTINGS_SHORT_URL_C1N_TOKEN')"
+                    @change="handleC1nTokenChange"
+                  />
+                </el-form-item>
+                <el-form-item
                   v-if="form.useShortUrl && form.shortUrlServer === 'yourls'"
                   :label="$T('SETTINGS_SHORT_URL_YOURLS_DOMAIN')"
                 >
@@ -507,6 +519,18 @@
                     style="width: 50%"
                     :placeholder="$T('SETTINGS_SHORT_URL_YOURLS_SIGNATURE')"
                     @change="handleYourlsSignatureChange"
+                  />
+                </el-form-item>
+                <el-form-item
+                  v-if="form.useShortUrl && form.shortUrlServer === 'cf_worker'"
+                  :label="$T('SETTINGS_SHORT_URL_CF_WORKER_HOST')"
+                >
+                  <el-input
+                    v-model="form.cfWorkerHost"
+                    size="small"
+                    style="width: 50%"
+                    :placeholder="$T('SETTINGS_SHORT_URL_CF_WORKER_HOST')"
+                    @change="handleCfWorkerHostChange"
                   />
                 </el-form-item>
                 <el-form-item
@@ -1674,6 +1698,10 @@ const shortUrlServerList = [{
 {
   label: 'yourls',
   value: 'yourls'
+},
+{
+  label: 'xyTom/Url-Shorten-Worker',
+  value: 'cf_worker'
 }
 ]
 
@@ -1836,8 +1864,10 @@ const form = reactive<ISettingForm>({
   isAutoListenClipboard: false,
   useShortUrl: false,
   shortUrlServer: 'c1n',
+  c1nToken: '',
   yourlsDomain: '',
   yourlsSignature: '',
+  cfWorkerHost: '',
   deleteLocalFile: false,
   serverKey: '',
   aesPassword: '',
@@ -2001,8 +2031,10 @@ async function initData () {
     form.isHideDock = settings.isHideDock || false
     form.useShortUrl = settings.useShortUrl || false
     form.shortUrlServer = settings.shortUrlServer || 'c1n'
+    form.c1nToken = settings.c1nToken || ''
     form.yourlsDomain = settings.yourlsDomain || ''
     form.yourlsSignature = settings.yourlsSignature || ''
+    form.cfWorkerHost = settings.cfWorkerHost || ''
     form.deleteLocalFile = settings.deleteLocalFile || false
     form.serverKey = settings.serverKey || ''
     form.aesPassword = settings.aesPassword || 'PicList-aesPassword'
@@ -2354,12 +2386,20 @@ function handleShortUrlServerChange (val: string) {
   saveConfig('settings.shortUrlServer', val)
 }
 
+function handleC1nTokenChange (val: string) {
+  saveConfig('settings.c1nToken', val)
+}
+
 function handleYourlsDomainChange (val: string) {
   saveConfig('settings.yourlsDomain', val)
 }
 
 function handleYourlsSignatureChange (val: string) {
   saveConfig('settings.yourlsSignature', val)
+}
+
+function handleCfWorkerHostChange (val: string) {
+  saveConfig('settings.cfWorkerHost', val)
 }
 
 function handleAesPasswordChange (val: string) {

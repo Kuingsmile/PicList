@@ -1,10 +1,15 @@
+💥 Breaking Change
+
+- Due to the upcoming changes in the charging policy of [C1N short URL](https://www.c1n.cn/), the expected team version that can use the API will be around 1000 yuan/year, and the author bears a greater pressure on the cost. Now it is changed to provide the API token by yourself
+- The c1n token provided by the original software is immediately invalid
+
 ✨ Features
 
-- Add new options in the settings interface to quickly enter the configuration file and log directory
-- Optimized the processing of special paths for cloud deletion of github image bed
+- Added support for the cf workers short link project [xyTom/Url-Shorten-Worker](https://github.com/xyTom/Url-Shorten-Worker)
+- Now the album page supports forced cache refresh
+- Optimized the upload processing of files without extension names for Aliyun image bed
+- Optimized error log recording for short URL function
 
 🐛 Bug Fixes
 
-- Fix the problem that the default image bed name does not change with the current time when importing the configuration
-- Fix the problem that the disable storage bucket prefix setting of the built-in s3 image bed does not take effect correctly
-- Fix some translation errors in traditional Chinese
+- Fixed the file name error when uploading buffer

@@ -231,7 +231,9 @@ If you need to build it yourself, you can start building with `yarn run build`. 
 
 ## Communication group
 
-If you have any questions, you can join the WeChat group for communication. The group is currently full, please add WeChat `pku_sq_ma` and note `PicList`, and I will add you to the group.
+If you have any questions, you can join the WeChat group for communication. 
+
+![wechat](https://pichoro.msq.pub/wechat.png)
 
 ## License
 

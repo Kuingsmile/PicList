@@ -4,7 +4,7 @@ This FAQ has been modified from PicGo's FAQ, and thanks to the author Molunerfin
 
 ## Common Questions
 
-> The upload tool of this software is mainly derived from PicGo, with minimal changes. Please refer to PicGo's [user manual](https://picgo.github.io/PicGo-Doc/zh/guide/getting-started.html#%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B) for more information.
+> Please refer to [user manual](https://piclist.cn) for general configuration issues.
 
 ## 1. What is the relationship between PicList and PicGo?
 
@@ -79,17 +79,18 @@ Or right-click the PicList icon in the dock and select "Open Main Window."
 
 1. PicList 自带的图床都经过测试，上传出错一般都不是 PicList 自身的原因。如果你用的是 GitHub 图床请参考上面的第 7 点。
 2. 检查 PicList 的日志（报错日志可以在 PicList 设置 -> 设置日志文件 -> 点击打开 后找到），看看 `[PicList Error]` 的报错信息里有什么关键信息
+
    1. 先自行搜索 error 里的报错信息，往往你能百度或者谷歌出问题原因，不必开 issue。
    2. 如果有带有 `401` 、`403` 等 `40X` 状态码字样的，不用怀疑，就是你配置写错了，仔细检查配置，看看是否多了空格之类的。
    3. 如果带有 `HttpError`、`RequestError` 、 `socket hang up` 等字样的说明这是网络问题，我无法帮你解决网络问题，请检查你自己的网络，是否有代理，DNS 设置是否正常等。
 3. 通常网络问题引起的上传失败都是因为代理设置不当导致的。如果开启了系统代理，建议同时也在 PicList 的代理设置中设置对应的HTTP代理。
+4. PicList's built-in image hosting platforms have been tested, and upload errors are generally not caused by PicList itself. If you are using the GitHub image hosting platform, please refer to the 7th point above.
+5. Check PicList's log (the error log can be found by clicking "Open" in PicList Settings -> Set Log File ->), and see if there is any key information in the `[PicList Error]` error message
 
-1. PicList's built-in image hosting platforms have been tested, and upload errors are generally not caused by PicList itself. If you are using the GitHub image hosting platform, please refer to the 7th point above.
-2. Check PicList's log (the error log can be found by clicking "Open" in PicList Settings -> Set Log File ->), and see if there is any key information in the `[PicList Error]` error message
    1. First search for the error message in the error message by yourself, and you can often Baidu or Google the cause of the problem, so you don't need to open an issue.
    2. If there are `401`, `403` and other `40X` status code words, don't doubt it, it means that your configuration is wrong, check the configuration carefully to see if there are extra spaces, etc.
    3. If there are words such as `HttpError`, `RequestError`, `socket hang up`, etc., it means that this is a network problem, and I cannot help you solve the network problem. Please check your own network, whether there is a proxy, whether the DNS setting is normal, etc.
-3. Usually, upload failures caused by network problems are caused by improper proxy settings. If the system proxy is turned on, it is recommended to set the corresponding HTTP proxy in the proxy settings of PicList at the same time.
+6. Usually, upload failures caused by network problems are caused by improper proxy settings. If the system proxy is turned on, it is recommended to set the corresponding HTTP proxy in the proxy settings of PicList at the same time.
 
 ## 10. After installing the macOS version, there is no main interface
 
