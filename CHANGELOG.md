@@ -1,3 +1,24 @@
+# :tada: 2.8.0 (2024-03-14)
+
+
+### :sparkles: Features
+
+* **custom:** add c1n token setting ([1fdc8fc](https://github.com/Kuingsmile/piclist/commit/1fdc8fc))
+* **custom:** add support for cf worker short url service ([9c6504c](https://github.com/Kuingsmile/piclist/commit/9c6504c)), closes [#170](https://github.com/Kuingsmile/piclist/issues/170)
+* **custom:** optimize aliyun upload ([2373c64](https://github.com/Kuingsmile/piclist/commit/2373c64))
+* **custom:** support force refresh gallery page ([cafb4d5](https://github.com/Kuingsmile/piclist/commit/cafb4d5))
+
+
+### :pencil: Documentation
+
+* **custom:** prepare for v2.8.0 ([ac2cb0d](https://github.com/Kuingsmile/piclist/commit/ac2cb0d))
+* **custom:** update docs ([8d46c9c](https://github.com/Kuingsmile/piclist/commit/8d46c9c))
+* **custom:** update FAQ ([3e17647](https://github.com/Kuingsmile/piclist/commit/3e17647))
+* **custom:** update wechat ([2c1f40a](https://github.com/Kuingsmile/piclist/commit/2c1f40a))
+* **custom:** update wechat group ([dcf5121](https://github.com/Kuingsmile/piclist/commit/dcf5121))
+
+
+
 ## :tada: 2.7.4 (2024-02-25)
 
 
