@@ -11,6 +11,8 @@ import multer from 'multer'
 import { app } from 'electron'
 import path from 'path'
 import fs from 'fs-extra'
+import { marked } from 'marked'
+import { markdownContent } from './apiDoc'
 
 const appPath = app.getPath('userData')
 const serverTempDir = path.join(appPath, 'serverTemp')
@@ -141,6 +143,11 @@ class Server {
           })
         }
       }
+    } else if (request.method === 'GET') {
+      response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
+      const htmlContent = marked(markdownContent)
+      response.write(htmlContent)
+      response.end()
     } else {
       logger.warn(`[PicList Server] don't support [${request.method}] method`)
       response.statusCode = 404
