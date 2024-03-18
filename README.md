@@ -235,6 +235,8 @@ If you have any questions, you can join the TG group for communication.
 
 [PicList TG Group](https://t.me/+rq8y7wsj7Pg5ZTg1)
 
+![tg](https://pichoro.msq.pub/wechat.png)
+
 ## License
 
 This project is open source under the MIT license. Welcome everyone to use and contribute code. Thank you for the open source spirit of the original author Molunerfinn.

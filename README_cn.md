@@ -225,6 +225,8 @@ brew uninstall piclist
 
 [PicList交流群](https://t.me/+rq8y7wsj7Pg5ZTg1)
 
+![tg](https://pichoro.msq.pub/wechat.png)
+
 ## License
 
 本项目基于MIT协议开源，欢迎大家使用和贡献代码，感谢原作者Molunerfinn的开源精神。
