@@ -13,7 +13,7 @@ PicList内置了一个小型的服务器，用于接收来自其他应用或其�
 
 发送请求时添加URL查询参数\`key\`即可，例如：\`http://xxx:36677/upload?key=xxx\`。
 
-### 表单上传 <Badge type="tip" text="2.6.3+" />
+### 表单上传
 
 - 请求方法: \`POST\`
 - url: \`http://127.0.0.1:36677/upload\` （此处以默认配置为例）
@@ -29,11 +29,12 @@ PicList内置了一个小型的服务器，用于接收来自其他应用或其�
 
 即可上传。
 
-::: tip Tip
+### configName和picbed参数
+
 PicList支持通过设置\`picbed\`和\`configName\`两个URL查询参数来指定上传图床和配置文件。例如：
 \`http://127.0.0.1:36677/upload?picbed=aws-s3&configName=piclist-test\`
+
 该配置将会使用\`aws-s3\`图床，并且使用\`piclist-test\`配置文件。
-:::
 
 返回的数据：
 
