@@ -14,6 +14,8 @@ import fs from 'fs-extra'
 import { marked } from 'marked'
 import { markdownContent } from './apiDoc'
 
+const DEFAULT_PORT = 36677
+const DEFAULT_HOST = '0.0.0.0'
 const appPath = app.getPath('userData')
 const serverTempDir = path.join(appPath, 'serverTemp')
 
@@ -44,115 +46,115 @@ class Server {
   private config: IServerConfig
 
   constructor () {
-    let config = picgo.getConfig<IServerConfig>('settings.server')
-    const result = this.checkIfConfigIsValid(config)
-    if (result) {
-      this.config = config
-      if (this.config.host === '127.0.0.1') {
-        this.config.host = '0.0.0.0'
-      }
-    } else {
-      config = {
-        port: 36677,
-        host: '0.0.0.0',
-        enable: true
-      }
-      this.config = config
-      picgo.saveConfig({
-        'settings.server': config
-      })
-    }
+    this.config = this.getConfigWithDefaults()
     this.httpServer = http.createServer(this.handleRequest)
   }
 
-  private checkIfConfigIsValid (config: IObj | undefined) {
+  getConfigWithDefaults () {
+    let config = picgo.getConfig<IServerConfig>('settings.server')
+    if (!this.isValidConfig(config)) {
+      config = { port: DEFAULT_PORT, host: DEFAULT_HOST, enable: true }
+      picgo.saveConfig({ 'settings.server': config })
+    }
+    config.host = config.host === '127.0.0.1' ? '0.0.0.0' : config.host
+    return config
+  }
+
+  private isValidConfig (config: IObj | undefined) {
     return config && config.port && config.host && (config.enable !== undefined)
   }
 
   private handleRequest = (request: http.IncomingMessage, response: http.ServerResponse) => {
-    if (request.method === 'OPTIONS') {
-      handleResponse({
-        response
-      })
-      return
+    switch (request.method) {
+      case 'OPTIONS':
+        handleResponse({ response })
+        break
+      case 'POST':
+        this.handlePostRequest(request, response)
+        break
+      case 'GET':
+        this.handleGetRequest(request, response)
+        break
+      default:
+        logger.warn(`[PicList Server] don't support [${request.method}] method`)
+        response.statusCode = 405
+        response.end()
     }
+  }
 
-    if (request.method === 'POST') {
-      const [url, query] = request.url!.split('?')
-      if (!routers.getHandler(url!)) {
-        logger.warn(`[PicList Server] don't support [${url}] url`)
-        handleResponse({
-          response,
-          statusCode: 404,
-          body: {
-            success: false
+  private handlePostRequest = (request: http.IncomingMessage, response: http.ServerResponse) => {
+    const [url, query] = request.url!.split('?')
+    if (!routers.getHandler(url!)) {
+      logger.warn(`[PicList Server] don't support [${url}] url`)
+      handleResponse({
+        response,
+        statusCode: 404,
+        body: {
+          success: false
+        }
+      })
+    } else {
+      if (request.headers['content-type'] && request.headers['content-type'].startsWith('multipart/form-data')) {
+        // @ts-ignore
+        uploadMulter.any()(request, response, (err: any) => {
+          if (err) {
+            logger.info('[PicList Server]', err)
+            return handleResponse({
+              response,
+              body: {
+                success: false,
+                message: 'Error processing formData'
+              }
+            })
           }
-        })
-      } else {
-        if (request.headers['content-type'] && request.headers['content-type'].startsWith('multipart/form-data')) {
           // @ts-ignore
-          uploadMulter.any()(request, response, (err: any) => {
-            if (err) {
-              logger.info('[PicList Server]', err)
-              return handleResponse({
-                response,
-                body: {
-                  success: false,
-                  message: 'Error processing formData'
-                }
-              })
-            }
-            // @ts-ignore
-            const list = request.files.map(file => file.path)
-            logger.info('[PicList Server] get a formData request')
-            const handler = routers.getHandler(url)?.handler
-            if (handler) {
-              handler({
-                list,
-                response,
-                urlparams: query ? new URLSearchParams(query) : undefined
-              })
-            }
-          })
-        } else {
-          let body: string = ''
-          let postObj: IObj
-          request.on('data', chunk => {
-            body += chunk
-          })
-          request.on('end', () => {
-            try {
-              postObj = (body === '') ? {} : JSON.parse(body)
-            } catch (err: any) {
-              logger.error('[PicList Server]', err)
-              return handleResponse({
-                response,
-                body: {
-                  success: false,
-                  message: 'Not sending data in JSON format'
-                }
-              })
-            }
-            logger.info('[PicList Server] get the request', body)
-            const handler = routers.getHandler(url!)?.handler
-            handler!({
-              ...postObj,
+          const list = request.files.map(file => file.path)
+          logger.info('[PicList Server] get a formData request')
+          const handler = routers.getHandler(url)?.handler
+          if (handler) {
+            handler({
+              list,
               response,
               urlparams: query ? new URLSearchParams(query) : undefined
             })
+          }
+        })
+      } else {
+        let body: string = ''
+        let postObj: IObj
+        request.on('data', chunk => {
+          body += chunk
+        })
+        request.on('end', () => {
+          try {
+            postObj = (body === '') ? {} : JSON.parse(body)
+          } catch (err: any) {
+            logger.error('[PicList Server]', err)
+            return handleResponse({
+              response,
+              body: {
+                success: false,
+                message: 'Not sending data in JSON format'
+              }
+            })
+          }
+          logger.info('[PicList Server] get the request', body)
+          const handler = routers.getHandler(url!)?.handler
+          handler!({
+            ...postObj,
+            response,
+            urlparams: query ? new URLSearchParams(query) : undefined
           })
-        }
+        })
       }
-    } else if (request.method === 'GET') {
-      response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
-      const htmlContent = marked(markdownContent)
-      response.write(htmlContent)
-      response.end()
-    } else {
-      logger.warn(`[PicList Server] don't support [${request.method}] method`)
-      response.statusCode = 404
-      response.end()
     }
+  }
+
+  private handleGetRequest = (_request: http.IncomingMessage, response: http.ServerResponse) => {
+    response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
+    const htmlContent = marked(markdownContent)
+    response.write(htmlContent)
+    response.end()
   }
 
   // port as string is a bug
@@ -173,12 +175,13 @@ class Server {
           // to solve the auto number problem
           this.listen((port as number) + 1)
         }
+      } else {
+        logger.error('[PicList Server]', err)
       }
     })
   }
 
   startup () {
-    console.log('startup', this.config.enable)
     if (this.config.enable) {
       this.listen(this.config.port)
     }
@@ -192,11 +195,8 @@ class Server {
   }
 
   restart () {
-    this.config = picgo.getConfig('settings.server')
-    if (this.config.host === '127.0.0.1') {
-      this.config.host = '0.0.0.0'
-    }
     this.shutdown()
+    this.config = this.getConfigWithDefaults()
     this.startup()
   }
 }
