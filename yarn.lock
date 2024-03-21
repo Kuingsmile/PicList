@@ -5079,12 +5079,12 @@ axios@^0.27.2:
     follow-redirects "^1.14.9"
     form-data "^4.0.0"
 
-axios@^1.6.2:
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.2.tgz#de67d42c755b571d3e698df1b6504cde9b0ee9f2"
-  integrity sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==
+axios@^1.6.8:
+  version "1.6.8"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.8.tgz#66d294951f5d988a00e87a0ffb955316a619ea66"
+  integrity sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==
   dependencies:
-    follow-redirects "^1.15.0"
+    follow-redirects "^1.15.6"
     form-data "^4.0.0"
     proxy-from-env "^1.1.0"
 
@@ -8382,10 +8382,15 @@ follow-redirects@^1.0.0:
   resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.14.6.tgz#8cfb281bbc035b3c067d6cd975b0f6ade6e855cd"
   integrity sha512-fhUl5EwSJbbl8AR+uYL2KQDxLkdSjZGR36xy46AO7cOMTrCMON6Sa28FmAnC2tRTDbd/Uuzz3aJBv7EBN7JH8A==
 
-follow-redirects@^1.14.8, follow-redirects@^1.14.9, follow-redirects@^1.15.0, follow-redirects@^1.15.1:
+follow-redirects@^1.14.8, follow-redirects@^1.14.9, follow-redirects@^1.15.1:
   version "1.15.2"
   resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.15.2.tgz#b460864144ba63f2681096f274c4e57026da2c13"
   integrity sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==
+
+follow-redirects@^1.15.6:
+  version "1.15.6"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.6.tgz#7f815c0cda4249c74ff09e95ef97c23b5fd0399b"
+  integrity sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==
 
 for-each@^0.3.3:
   version "0.3.3"
@@ -12392,10 +12397,10 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^1.7.12:
-  version "1.7.12"
-  resolved "https://registry.yarnpkg.com/piclist/-/piclist-1.7.12.tgz#e26e234452dfa9b08c8e2e03896e195b8f74ce88"
-  integrity sha512-UZa3tHrhk3iJxXs8kTJyYJFsWW+o0JO2xXL7Xb0wMKkmXsRs2VyjD02cLkhCiYL/lkTmv1tcWWyQYAw3gcJshA==
+piclist@^1.7.13:
+  version "1.7.13"
+  resolved "https://registry.yarnpkg.com/piclist/-/piclist-1.7.13.tgz#27ef4d4a5a7a6313fa7a102d1bf5857a18a2b74b"
+  integrity sha512-yDFfXnbitzzaTkOO6Me/l2osc4njGtrXwV/Mw8d+wWkWwfvRxqWp5tenTdXODxWIf8qF947H7UcuedSyHfloSA==
   dependencies:
     "@aws-sdk/client-s3" "3.421.0"
     "@aws-sdk/lib-storage" "3.421.0"
@@ -12403,7 +12408,7 @@ piclist@^1.7.12:
     "@picgo/i18n" "^1.0.0"
     "@picgo/store" "^2.1.0"
     "@smithy/node-http-handler" "2.1.6"
-    axios "^1.6.2"
+    axios "^1.6.8"
     chalk "^2.4.1"
     commander "^8.1.0"
     cross-spawn "^7.0.3"
