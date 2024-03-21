@@ -164,10 +164,11 @@ class Server {
       port = parseInt(port, 10)
     }
     this.httpServer.listen(port, this.config.host).on('error', async (err: ErrnoException) => {
-      if (err.errno === 'EADDRINUSE') {
+      if (err.code === 'EADDRINUSE') {
         try {
           // make sure the system has a PicGo Server instance
           await axios.post(ensureHTTPLink(`${this.config.host}:${port}/heartbeat`))
+          logger.info(`[PicList Server] server is already running at ${port}`)
           this.shutdown(true)
         } catch (e) {
           logger.warn(`[PicList Server] ${port} is busy, trying with port ${(port as number) + 1}`)
