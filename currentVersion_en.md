@@ -1,15 +1,10 @@
-💥 Breaking Change
-
-- Due to the upcoming changes in the charging policy of [C1N short URL](https://www.c1n.cn/), the expected team version that can use the API will be around 1000 yuan/year, and the author bears a greater pressure on the cost. Now it is changed to provide the API token by yourself
-- The c1n token provided by the original software is immediately invalid
-
 ✨ Features
 
-- Added support for the cf workers short link project [xyTom/Url-Shorten-Worker](https://github.com/xyTom/Url-Shorten-Worker)
-- Now the album page supports forced cache refresh
-- Optimized the upload processing of files without extension names for Aliyun image bed
-- Optimized error log recording for short URL function
+- Now the API document will be displayed when the browser accesses the 36677 upload port
+- When an unsupported http request method is used, the service interface now returns a 405 error code
+- Now the image processing process will record error logs
 
 🐛 Bug Fixes
 
-- Fixed the file name error when uploading buffer
+- Fix the bug that the image watermark function does not take effect when the watermark text is not set
+- Fixed the problem that the port detection function did not work properly when the server port was occupied
