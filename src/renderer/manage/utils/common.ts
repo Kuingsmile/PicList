@@ -29,14 +29,25 @@ export function renameFileNameWithRandomString (oldName: string, length: number 
   return `${randomStringGenerator(length)}${path.extname(oldName)}`
 }
 
+function renameFormatHelper (num: number): string {
+  return num.toString().length === 1 ? `0${num}` : num.toString()
+}
+
+function getMd5 (input: crypto.BinaryLike): string {
+  return crypto.createHash('md5').update(input).digest('hex')
+}
+
 export function renameFileNameWithCustomString (oldName: string, customFormat: string, affixFileName?: string): string {
+  const date = new Date()
+  const year = date.getFullYear().toString()
+  const fileBaseName = path.basename(oldName, path.extname(oldName))
   const conversionMap : {[key: string]: () => string} = {
-    '{Y}': () => new Date().getFullYear().toString(),
-    '{y}': () => new Date().getFullYear().toString().slice(2),
-    '{m}': () => (new Date().getMonth() + 1).toString().length === 1 ? `0${new Date().getMonth() + 1}` : (new Date().getMonth() + 1).toString(),
-    '{d}': () => new Date().getDate().toString().length === 1 ? `0${new Date().getDate()}` : new Date().getDate().toString(),
-    '{md5}': () => crypto.createHash('md5').update(path.basename(oldName, path.extname(oldName))).digest('hex'),
-    '{md5-16}': () => crypto.createHash('md5').update(path.basename(oldName, path.extname(oldName))).digest('hex').slice(0, 16),
+    '{Y}': () => year,
+    '{y}': () => year.slice(2),
+    '{m}': () => renameFormatHelper(date.getMonth() + 1),
+    '{d}': () => renameFormatHelper(date.getDate()),
+    '{md5}': () => getMd5(fileBaseName),
+    '{md5-16}': () => getMd5(fileBaseName).slice(0, 16),
     '{str-10}': () => randomStringGenerator(10),
     '{str-20}': () => randomStringGenerator(20),
     '{filename}': () => affixFileName ? path.basename(affixFileName, path.extname(affixFileName)) : path.basename(oldName, path.extname(oldName)),
