@@ -4,18 +4,13 @@ import { isReactive, isRef, toRaw, unref } from 'vue'
 import { RPC_ACTIONS, RPC_ACTIONS_INVOKE } from '#/events/constants'
 import { IRPCActionType } from '#/types/enum'
 
-const isDevelopment = process.env.NODE_ENV !== 'production'
-
 export const handleTalkingDataEvent = (data: ITalkingDataOptions) => {
-  const { EventId, Label = '', MapKv = {} } = data
-  MapKv.from = window.location.href
   try {
+    const { EventId, Label = '', MapKv = {} } = data
+    MapKv.from = window.location.href
     window.TDAPP.onEvent(EventId, Label, MapKv)
   } catch (e) {
     console.error(e)
-  }
-  if (isDevelopment) {
-    console.log('talkingData', data)
   }
 }
 
@@ -41,26 +36,14 @@ export function sendToMain(channel: string, ...args: any[]) {
   ipcRenderer.send(channel, ...data)
 }
 
-/**
- * send a rpc request & do not need to wait for the response
- *
- * or the response will be handled by other listener
- */
 export function sendRPC(action: IRPCActionType, ...args: any[]): void {
-  const data = getRawData(args)
-  ipcRenderer.send(RPC_ACTIONS, action, data)
+  ipcRenderer.send(RPC_ACTIONS, action, getRawData(args))
 }
 
 export function sendRpcSync(action: IRPCActionType, ...args: any[]) {
-  const data = getRawData(args)
-  return ipcRenderer.sendSync(RPC_ACTIONS, action, data)
+  return ipcRenderer.sendSync(RPC_ACTIONS, action, getRawData(args))
 }
 
-/**
- * trigger RPC action
- * TODO: create an isolate rpc handler
- */
 export async function triggerRPC<T>(action: IRPCActionType, ...args: any[]): Promise<T | undefined> {
-  const data = getRawData(args)
-  return await ipcRenderer.invoke(RPC_ACTIONS_INVOKE, action, data)
+  return await ipcRenderer.invoke(RPC_ACTIONS_INVOKE, action, getRawData(args))
 }

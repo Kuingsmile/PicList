@@ -66,14 +66,15 @@ export function encodeFilePath(filePath: string) {
 export const getExtension = (fileName: string) => path.extname(fileName).slice(1)
 
 export const isImage = (fileName: string) =>
-  ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ico', 'svg'].includes(getExtension(fileName))
+  ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ico', 'svg', 'avif'].includes(getExtension(fileName))
 
-export const formatEndpoint = (endpoint: string, sslEnabled: boolean): string =>
-  !/^https?:\/\//.test(endpoint)
-    ? `${sslEnabled ? 'https' : 'http'}://${endpoint}`
-    : sslEnabled
-      ? endpoint.replace('http://', 'https://')
-      : endpoint.replace('https://', 'http://')
+export const formatEndpoint = (endpoint: string, sslEnabled: boolean): string => {
+  const hasProtocol = /^https?:\/\//.test(endpoint)
+  if (!hasProtocol) {
+    return `${sslEnabled ? 'https' : 'http'}://${endpoint}`
+  }
+  return sslEnabled ? endpoint.replace(/^http:\/\//, 'https://') : endpoint.replace(/^https:\/\//, 'http://')
+}
 
 export const trimPath = (path: string) => path.replace(/^\/+|\/+$/g, '').replace(/\/+/g, '/')
 

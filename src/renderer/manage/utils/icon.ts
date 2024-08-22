@@ -21,6 +21,7 @@ export const availableIconList = [
   'au',
   'avc',
   'avi',
+  'avif',
   'avs',
   'bak',
   'bas',

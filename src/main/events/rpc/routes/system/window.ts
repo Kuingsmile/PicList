@@ -2,7 +2,13 @@ import { app, BrowserWindow } from 'electron'
 
 import windowManager from 'apis/app/window/windowManager'
 
-import { buildMainPageMenu, buildMiniPageMenu, buildPicBedListMenu, buildPluginPageMenu } from '~/events/remotes/menu'
+import {
+  buildMainPageMenu,
+  buildMiniPageMenu,
+  buildPicBedListMenu,
+  buildPluginPageMenu,
+  buildSecondPicBedMenu
+} from '~/events/remotes/menu'
 import { openMiniWindow } from '~/utils/windowHelper'
 
 import { IRPCActionType, IWindowList } from '#/types/enum'
@@ -78,6 +84,16 @@ export default [
     handler: async () => {
       const window = windowManager.get(IWindowList.SETTING_WINDOW)!
       const menu = buildPicBedListMenu()
+      menu.popup({
+        window
+      })
+    }
+  },
+  {
+    action: IRPCActionType.SHOW_SECOND_UPLOADER_MENU,
+    handler: async () => {
+      const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+      const menu = buildSecondPicBedMenu()
       menu.popup({
         window
       })

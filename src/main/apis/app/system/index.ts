@@ -16,7 +16,7 @@ import db, { GalleryDB } from '@core/datastore'
 import picgo from '@core/picgo'
 
 import uploader from 'apis/app/uploader'
-import { uploadClipboardFiles } from 'apis/app/uploader/apis'
+import { handleSecondaryUpload, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
 
 import { buildPicBedListMenu } from '~/events/remotes/menu'
@@ -309,6 +309,7 @@ export function createTray(tooltip: string) {
       const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
       const rawInput = cloneDeep(files)
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
+      await handleSecondaryUpload(trayWindow.webContents, files, 'tray')
       const imgs = await uploader.setWebContents(trayWindow.webContents).upload(files)
       const deleteLocalFile = db.get(configPaths.settings.deleteLocalFile) || false
       if (imgs !== false) {

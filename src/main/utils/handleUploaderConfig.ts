@@ -56,6 +56,25 @@ export const getPicBedConfig = (type: string) => {
   }
 }
 
+export const changeSecondUploader = (type: string, config?: IStringKeyMap, id?: string) => {
+  if (!type) {
+    return
+  }
+  if (id) {
+    picgo.saveConfig({
+      [configPaths.picBed.secondUploaderId]: id
+    })
+  }
+  if (config) {
+    picgo.saveConfig({
+      [configPaths.picBed.secondUploaderConfig]: config
+    })
+  }
+  picgo.saveConfig({
+    [configPaths.picBed.secondUploader]: type
+  })
+}
+
 export const changeCurrentUploader = (type: string, config?: IStringKeyMap, id?: string) => {
   if (!type) {
     return

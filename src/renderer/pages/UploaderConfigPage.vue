@@ -80,13 +80,13 @@ import { saveConfig } from '@/utils/dataSender'
 import { T as $T } from '@/i18n/index'
 import { useStore } from '@/hooks/useStore'
 import { PICBEDS_PAGE, UPLOADER_CONFIG_PAGE } from '@/router/config'
+import { sendRPC, triggerRPC } from '@/utils/common'
 
 import { IRPCActionType } from '#/types/enum'
 import { configPaths } from '#/utils/configPaths'
-import { sendRPC, triggerRPC } from '@/utils/common'
 
-const $router = useRouter()
-const $route = useRoute()
+const router = useRouter()
+const route = useRoute()
 
 const type = ref('')
 const curConfigList = ref<IStringKeyMap[]>([])
@@ -113,7 +113,7 @@ onBeforeRouteUpdate((to, _, next) => {
 })
 
 onBeforeMount(() => {
-  type.value = $route.params.type as string
+  type.value = route.params.type as string
   getCurrentConfigList()
 })
 
@@ -124,7 +124,7 @@ async function getCurrentConfigList() {
 }
 
 function openEditPage(configId: string) {
-  $router.push({
+  router.push({
     name: PICBEDS_PAGE,
     params: {
       type: type.value,
@@ -137,7 +137,7 @@ function openEditPage(configId: string) {
 }
 
 function formatTime(time: number): string {
-  return dayjs(time).format('YY/MM/DD HH:mm')
+  return dayjs(time).format('YY-MM-DD HH:mm')
 }
 
 async function deleteConfig(id: string) {
@@ -148,7 +148,7 @@ async function deleteConfig(id: string) {
 }
 
 function addNewConfig() {
-  $router.push({
+  router.push({
     name: PICBEDS_PAGE,
     params: {
       type: type.value,

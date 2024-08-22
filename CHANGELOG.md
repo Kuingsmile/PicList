@@ -1,3 +1,26 @@
+## :tada: 2.9.3 (2024-08-22)
+
+
+### :sparkles: Features
+
+* **custom:** add advanced picbed manual link ([26149ad](https://github.com/Kuingsmile/piclist/commit/26149ad))
+* **custom:** remove some dev output ([a046b40](https://github.com/Kuingsmile/piclist/commit/a046b40))
+* **custom:** support avif picture preview ([630eb03](https://github.com/Kuingsmile/piclist/commit/630eb03))
+* **custom:** support secondary picbed upload ([8962a46](https://github.com/Kuingsmile/piclist/commit/8962a46)), closes [#226](https://github.com/Kuingsmile/piclist/issues/226)
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix piclist picbed bugs ([893da24](https://github.com/Kuingsmile/piclist/commit/893da24)), closes [#236](https://github.com/Kuingsmile/piclist/issues/236)
+* **custom:** fix type error ([6bf6d6b](https://github.com/Kuingsmile/piclist/commit/6bf6d6b))
+
+
+### :pencil: Documentation
+
+* **custom:** prepare for new version ([0007d9a](https://github.com/Kuingsmile/piclist/commit/0007d9a))
+
+
+
 ## :tada: 2.9.2 (2024-07-30)
 
 

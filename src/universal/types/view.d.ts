@@ -37,6 +37,7 @@ interface ISettingForm {
   proxy: string
   mainWindowWidth: number
   mainWindowHeight: number
+  enableSecondUploader: boolean
 }
 
 interface IShortKeyMap {

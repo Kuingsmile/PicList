@@ -31,6 +31,7 @@ export const picBedsCanbeDeleted = [
 
 export const picBedManualUrlList: IStringKeyMap = {
   zh_cn: {
+    advancedpiclist: 'https://piclist.cn/configure.html#%E9%AB%98%E7%BA%A7%E8%87%AA%E5%AE%9A%E4%B9%89',
     aliyun: 'https://piclist.cn/configure.html#%E9%98%BF%E9%87%8C%E4%BA%91oss',
     alistplist: 'https://piclist.cn/configure.html#alist',
     'aws-s3': 'https://piclist.cn/configure.html#%E5%86%85%E7%BD%AEaws-s3',
@@ -51,6 +52,7 @@ export const picBedManualUrlList: IStringKeyMap = {
     webdavplist: 'https://piclist.cn/configure.html#webdav'
   },
   en: {
+    advancedpiclist: 'https://piclist.cn/en/configure.html#advanced',
     aliyun: 'https://piclist.cn/en/configure.html#alibaba-cloud',
     alistplist: 'https://piclist.cn/en/configure.html#alist',
     'aws-s3': 'https://piclist.cn/en/configure.html#built-in-aws-s3',

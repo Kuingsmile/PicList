@@ -15,17 +15,12 @@ import { manageRouter } from '~/events/rpc/routes/manage'
 import { IRPCActionType, IRPCType } from '#/types/enum'
 import { RPC_ACTIONS, RPC_ACTIONS_INVOKE } from '#/events/constants'
 
-const isDevelopment = process.env.NODE_ENV !== 'production'
-
 class RPCServer implements IRPCServer {
   private routes: IRPCRoutes = new Map()
   private routesWithResponse: IRPCRoutes = new Map()
 
   private rpcEventHandler = async (event: IpcMainEvent, action: IRPCActionType, args: any[]) => {
     try {
-      if (isDevelopment) {
-        console.log(`action: ${action} args: ${JSON.stringify(args)}`)
-      }
       const route = this.routes.get(action)
       await route?.handler?.(event, args)
     } catch (e: any) {
@@ -35,9 +30,6 @@ class RPCServer implements IRPCServer {
 
   private rpcEventHandlerWithResponse = async (event: IpcMainInvokeEvent, action: IRPCActionType, args: any[]) => {
     try {
-      if (isDevelopment) {
-        console.log(`action: ${action} args: ${JSON.stringify(args)}`)
-      }
       const route = this.routesWithResponse.get(action)
       return await route?.handler?.(event, args)
     } catch (e: any) {

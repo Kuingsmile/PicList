@@ -2,11 +2,12 @@
 
 ### 图片
 
-|                          格式                           |     描述     |                              格式                               |        描述        |
-| :-----------------------------------------------------: | :----------: | :-------------------------------------------------------------: | :----------------: |
-|  [.bmp](https://en.wikipedia.org/wiki/BMP_file_format)  | 位图文件格式 |        [.jpeg/.jpg](https://en.wikipedia.org/wiki/JPEG)         | 联合照片专家组格式 |
-|        [.gif](https://en.wikipedia.org/wiki/GIF)        | 图形交换格式 | [.png](https://en.wikipedia.org/wiki/Portable_Network_Graphics) | 可移植网络图形格式 |
-| [.ico](https://en.wikipedia.org/wiki/ICO_(file_format)) | 图标文件格式 |       [.webp](https://developers.google.com/speed/webp/)        |      WebP格式      |
+| 格式  |     描述     |    格式    |        描述        |
+| :---: | :----------: | :--------: | :----------------: |
+| .bmp  | 位图文件格式 | .jpeg/.jpg | 联合照片专家组格式 |
+| .gif  | 图形交换格式 |    .png    | 可移植网络图形格式 |
+| .ico  | 图标文件格式 |   .webp    |      WebP格式      |
+| .svg  | 可缩放矢量图 |   .avif    |      AVIF格式      |
 
 ### 文本
 

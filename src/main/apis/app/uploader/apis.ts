@@ -14,6 +14,7 @@ import pasteTemplate from '~/utils/pasteTemplate'
 
 import { IPasteStyle, IWindowList } from '#/types/enum'
 import { configPaths } from '#/utils/configPaths'
+import { changeCurrentUploader } from '~/utils/handleUploaderConfig'
 
 const handleClipboardUploading = async (): Promise<false | ImgInfo[]> => {
   const useBuiltinClipboard =
@@ -28,6 +29,7 @@ const handleClipboardUploading = async (): Promise<false | ImgInfo[]> => {
 }
 
 export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
+  await handleSecondaryUpload(undefined, undefined, 'clipboard')
   const img = await handleClipboardUploading()
   if (img !== false) {
     if (img.length > 0) {
@@ -84,6 +86,7 @@ export const uploadChoosedFiles = async (
 ): Promise<IStringKeyMap[]> => {
   const input = files.map(item => item.path)
   const rawInput = cloneDeep(input)
+  await handleSecondaryUpload(webContents, input)
   const imgs = await uploader.setWebContents(webContents).upload(input)
   const result = []
   if (imgs !== false) {
@@ -130,5 +133,67 @@ export const uploadChoosedFiles = async (
     return result
   } else {
     return []
+  }
+}
+
+export const handleSecondaryUpload = async (
+  webContents?: WebContents,
+  input?: string[],
+  uploadType: 'clipboard' | 'file' | 'tray' = 'file'
+): Promise<void> => {
+  const enableSecondUploader = db.get(configPaths.settings.enableSecondUploader) || false
+  let currentPicBedType = ''
+  let currentPicBedConfig = {} as IStringKeyMap
+  let currentPicBedConfigId = ''
+  let needRestore = false
+  if (enableSecondUploader) {
+    const secondUploader = db.get(configPaths.picBed.secondUploader)
+    const secondUploaderConfig = db.get(configPaths.picBed.secondUploaderConfig)
+    const secondUploaderId = db.get(configPaths.picBed.secondUploaderId)
+    const currentPicBed = db.get('picBed') || ({} as IStringKeyMap)
+    currentPicBedType = currentPicBed.uploader || currentPicBed.current || 'smms'
+    currentPicBedConfig = currentPicBed[currentPicBedType] || ({} as IStringKeyMap)
+    currentPicBedConfigId = currentPicBedConfig._id
+    if (
+      secondUploader === currentPicBedType &&
+      secondUploaderConfig._configName === currentPicBedConfig._configName &&
+      secondUploaderId === currentPicBedConfigId
+    ) {
+      picgo.log.info('second uploader is the same as current uploader')
+    } else {
+      needRestore = true
+      let secondImgs: ImgInfo[] | false = false
+      changeCurrentUploader(secondUploader, secondUploaderConfig, secondUploaderId)
+      if (uploadType === 'clipboard') {
+        secondImgs = await handleClipboardUploading()
+      } else {
+        secondImgs = await uploader.setWebContents(webContents!).upload(input)
+      }
+      if (secondImgs !== false) {
+        const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
+        if (uploadType === 'clipboard') {
+          if (secondImgs.length > 0) {
+            await GalleryDB.getInstance().insert(secondImgs[0])
+            trayWindow?.webContents?.send('clipboardFiles', [])
+            trayWindow?.webContents?.send('uploadFiles', secondImgs)
+          }
+        } else {
+          for (let i = 0; i < secondImgs.length; i++) {
+            await GalleryDB.getInstance().insert(secondImgs[i])
+          }
+          if (uploadType === 'tray') {
+            trayWindow?.webContents?.send('dragFiles', secondImgs)
+          } else {
+            trayWindow?.webContents?.send('uploadFiles', secondImgs)
+          }
+        }
+        if (windowManager.has(IWindowList.SETTING_WINDOW) && uploadType !== 'tray') {
+          windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
+        }
+      }
+    }
+  }
+  if (needRestore) {
+    changeCurrentUploader(currentPicBedType, currentPicBedConfig, currentPicBedConfigId)
   }
 }

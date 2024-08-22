@@ -215,6 +215,18 @@
                     <el-option v-for="item in picBedGlobal" :key="item.type" :label="item.name" :value="item.type" />
                   </el-select>
                 </el-form-item>
+                <el-form-item :label="$T('SETTINGS_ENABLE_SECOND_PICBED')">
+                  <el-switch
+                    v-model="formOfSetting.enableSecondUploader"
+                    :active-text="$T('SETTINGS_OPEN')"
+                    :inactive-text="$T('SETTINGS_CLOSE')"
+                  />
+                </el-form-item>
+                <el-form-item :label="$T('SETTINGS_SET_SECOND_PICBED')">
+                  <el-button type="primary" round size="small" @click="handleChangeSecondPicBed">
+                    {{ $T('SETTINGS_CLICK_TO_SET') }}
+                  </el-button>
+                </el-form-item>
                 <el-form-item :label="$T('SETTINGS_SYNC_DELETE_CLOUD')">
                   <el-switch
                     v-model="formOfSetting.deleteCloudFile"
@@ -1048,7 +1060,8 @@ const formOfSetting = ref<ISettingForm>({
   registry: '',
   proxy: '',
   mainWindowWidth: 1200,
-  mainWindowHeight: 800
+  mainWindowHeight: 800,
+  enableSecondUploader: false
 })
 
 const proxy = ref('')
@@ -1080,7 +1093,8 @@ const autoWatchKeys = [
   'proxy',
   'autoCopy',
   'encodeOutputURL',
-  'useShortUrl'
+  'useShortUrl',
+  'enableSecondUploader'
 ]
 
 const addWatch = () => {
@@ -1257,6 +1271,10 @@ function initArray(arrayT: string | string[], defaultValue: string[]) {
     }
   }
   return arrayT
+}
+
+async function handleChangeSecondPicBed() {
+  sendRPC(IRPCActionType.SHOW_SECOND_UPLOADER_MENU)
 }
 
 function openFile(file: string) {

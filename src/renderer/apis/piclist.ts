@@ -6,6 +6,8 @@ export default class PiclistApi {
   static async delete(configMap: IStringKeyMap): Promise<boolean> {
     const { config, fullResult } = configMap
     const { host, port } = config
+    if (!fullResult) return true
+
     if (!host) {
       deleteLog(fullResult, 'Piclist', false, 'PiclistApi.delete: invalid params')
       return false

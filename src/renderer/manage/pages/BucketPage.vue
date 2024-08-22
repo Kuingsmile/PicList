@@ -1292,7 +1292,7 @@ const tableData = reactive([] as any[])
 const isShowUploadPanel = ref(false)
 const activeUpLoadTab = ref('uploading')
 const uploadTaskList = ref([] as IUploadTask[])
-const refreshUploadTaskId = ref<NodeJS.Timer | null>(null)
+const refreshUploadTaskId = ref<NodeJS.Timeout | undefined>(undefined)
 const uploadPanelFilesList = ref([] as any[])
 const cancelToken = ref('')
 const isLoadingUploadPanelFiles = ref(false)
@@ -1309,7 +1309,7 @@ const isLoadingDownloadData = ref(false)
 const activeDownLoadTab = ref('downloading')
 const currentDownloadFileList = reactive([] as any[])
 const downloadTaskList = ref([] as IDownloadTask[])
-const refreshDownloadTaskId = ref<NodeJS.Timer | null>(null)
+const refreshDownloadTaskId = ref<NodeJS.Timeout | undefined>(undefined)
 const downloadCancelToken = ref('')
 const downloadingTaskList = computed(() =>
   downloadTaskList.value.filter(item => ['downloading', 'queuing', 'paused'].includes(item.status))
@@ -1365,8 +1365,8 @@ const batchRenameReplace = ref('')
 const isRenameIncludeExt = ref(false)
 const isSingleRename = ref(false)
 const itemToBeRenamed = ref({} as any)
-let fileTransferInterval: NodeJS.Timer | null = null
-let downloadInterval: NodeJS.Timer | null = null
+let fileTransferInterval: NodeJS.Timeout | undefined
+let downloadInterval: NodeJS.Timeout | undefined
 
 // 当前页面信息相关
 const currentPicBedName = computed<string>(() => manageStore.config.picBed[configMap.alias].picBedName)

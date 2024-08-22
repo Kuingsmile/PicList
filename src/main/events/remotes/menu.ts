@@ -13,7 +13,7 @@ import { T } from '~/i18n'
 import clipboardPoll from '~/utils/clipboardPoll'
 import { setTrayToolTip } from '~/utils/common'
 import getPicBeds from '~/utils/getPicBeds'
-import { changeCurrentUploader } from '~/utils/handleUploaderConfig'
+import { changeCurrentUploader, changeSecondUploader } from '~/utils/handleUploaderConfig'
 
 import {
   PICGO_CONFIG_PLUGIN,
@@ -137,6 +137,59 @@ const buildMainPageMenu = (win: BrowserWindow) => {
     }
   ] as Array<MenuItemConstructorOptions | MenuItem>
   return Menu.buildFromTemplate(template)
+}
+
+const buildSecondPicBedMenu = () => {
+  const picBeds = getPicBeds()
+  const secondUploader = picgo.getConfig(configPaths.picBed.secondUploader)
+  const defaultSecondUploaderId = picgo.getConfig(configPaths.picBed.secondUploaderId)
+  const currentPicBedName = picBeds.find(item => item.type === secondUploader)?.name
+  const picBedConfigList = picgo.getConfig<IUploaderConfig>('uploader')
+  const currentPicBedMenuItem = [
+    {
+      label: `${T('CURRENT_SECOND_PICBED')} - ${currentPicBedName || 'None'}`,
+      enabled: false
+    },
+    {
+      type: 'separator'
+    }
+  ]
+  let submenu = picBeds
+    .filter(item => item.visible)
+    .map(item => {
+      const configList = picBedConfigList?.[item.type]?.configList
+      const hasSubmenu = !!configList
+      return {
+        label: item.name,
+        type: !hasSubmenu ? 'checkbox' : undefined,
+        checked: !hasSubmenu ? secondUploader === item.type : undefined,
+        submenu: hasSubmenu
+          ? configList.map(config => {
+              return {
+                label: config._configName || 'Default',
+                // if only one config, use checkbox, or radio will checked as default
+                // see: https://github.com/electron/electron/issues/21292
+                type: 'checkbox',
+                checked: config._id === defaultSecondUploaderId && item.type === secondUploader,
+                click: function () {
+                  changeSecondUploader(item.type, config, config._id)
+                }
+              }
+            })
+          : undefined,
+        click: !hasSubmenu
+          ? function () {
+              picgo.saveConfig({
+                [configPaths.picBed.secondUploader]: item.type
+              })
+            }
+          : undefined
+      }
+    })
+  // @ts-expect-error submenu type
+  submenu = currentPicBedMenuItem.concat(submenu)
+  // @ts-expect-error submenu type
+  return Menu.buildFromTemplate(submenu)
 }
 
 const buildPicBedListMenu = () => {
@@ -339,4 +392,4 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
   return Menu.buildFromTemplate(menu)
 }
 
-export { buildMiniPageMenu, buildMainPageMenu, buildPicBedListMenu, buildPluginPageMenu }
+export { buildMiniPageMenu, buildMainPageMenu, buildPicBedListMenu, buildPluginPageMenu, buildSecondPicBedMenu }

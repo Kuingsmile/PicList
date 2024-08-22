@@ -17,6 +17,7 @@ import pasteTemplate from '~/utils/pasteTemplate'
 import { SHOW_INPUT_BOX } from '#/events/constants'
 import { IPasteStyle } from '#/types/enum'
 import { configPaths } from '#/utils/configPaths'
+import { handleSecondaryUpload } from '../app/uploader/apis'
 
 // Cross-process support may be required in the future
 class GuiApi implements IGuiApi {
@@ -78,6 +79,7 @@ class GuiApi implements IGuiApi {
     this.windowId = await getWindowId()
     const webContents = this.getWebcontentsByWindowId(this.windowId)
     const rawInput = cloneDeep(input)
+    await handleSecondaryUpload(webContents!, input)
     const imgs = await uploader.setWebContents(webContents!).upload(input)
     if (imgs !== false) {
       const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN

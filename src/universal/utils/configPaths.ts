@@ -107,6 +107,9 @@ export const configPaths = {
   picBed: {
     current: 'picBed.current',
     uploader: 'picBed.uploader',
+    secondUploader: 'picBed.secondUploader',
+    secondUploaderId: 'picBed.secondUploaderId',
+    secondUploaderConfig: 'picBed.secondUploaderConfig',
     proxy: 'picBed.proxy',
     transformer: 'picBed.transformer',
     list: 'picBed.list'
@@ -165,7 +168,8 @@ export const configPaths = {
     useBuiltinClipboard: 'settings.useBuiltinClipboard',
     autoStart: 'settings.autoStart',
     autoImport: 'settings.autoImport',
-    autoImportPicBed: 'settings.autoImportPicBed'
+    autoImportPicBed: 'settings.autoImportPicBed',
+    enableSecondUploader: 'settings.enableSecondUploader'
   },
   needReload: 'needReload',
   picgoPlugins: 'picgoPlugins',

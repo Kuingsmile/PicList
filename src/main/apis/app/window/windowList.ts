@@ -233,19 +233,9 @@ windowList.set(IWindowList.RENAME_WINDOW, {
     window.loadURL(handleWindowParams(RENAME_WINDOW_URL))
     const currentWindow = windowManager.getAvailableWindow(true)
     if (currentWindow && currentWindow.isVisible()) {
-      // bounds: { x: 821, y: 75, width: 800, height: 450 }
-      const bounds = currentWindow.getBounds()
-      let positionX = bounds.x + bounds.width / 2 - 150
-      let positionY
-      // if is the settingWindow
-      if (bounds.height > 400) {
-        positionY = bounds.y + bounds.height / 2 - 88
-      } else {
-        // if is the miniWindow
-        positionY = bounds.y + bounds.height / 2
-      }
-      positionX = Math.floor(positionX)
-      positionY = Math.floor(positionY)
+      const { x, y, width, height } = currentWindow.getBounds()
+      const positionX = Math.floor(x + width / 2 - 150)
+      const positionY = Math.floor(y + height / 2 - (height > 400 ? 88 : 0))
       window.setPosition(positionX, positionY, false)
     }
   }
@@ -259,16 +249,9 @@ windowList.set(IWindowList.TOOLBOX_WINDOW, {
     window.loadURL(TOOLBOX_WINDOW_URL)
     const currentWindow = windowManager.getAvailableWindow(true)
     if (currentWindow && currentWindow.isVisible()) {
-      const bounds = currentWindow.getBounds()
-      let positionX = bounds.x + bounds.width / 2 - 400
-      let positionY
-      if (bounds.height > 400) {
-        positionY = bounds.y + bounds.height / 2 - 225
-      } else {
-        positionY = bounds.y + bounds.height / 2
-      }
-      positionX = Math.floor(positionX)
-      positionY = Math.floor(positionY)
+      const { x, y, width, height } = currentWindow.getBounds()
+      const positionX = Math.floor(x + width / 2 - 400)
+      const positionY = Math.floor(y + height / 2 - (height > 400 ? 225 : 0))
       window.setPosition(positionX, positionY, false)
     }
   }
