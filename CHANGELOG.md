@@ -1,3 +1,25 @@
+## :tada: 2.9.4 (2024-10-22)
+
+
+### :sparkles: Features
+
+* **custom:** change default short key ([64fba8a](https://github.com/Kuingsmile/piclist/commit/64fba8a))
+* **custom:** optimize second uploader ([0565ce3](https://github.com/Kuingsmile/piclist/commit/0565ce3)), closes [#241](https://github.com/Kuingsmile/piclist/issues/241) [#238](https://github.com/Kuingsmile/piclist/issues/238)
+* **custom:** remove telegra.ph ([59ed79a](https://github.com/Kuingsmile/piclist/commit/59ed79a))
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix gallery image delete bug ([d6f48e5](https://github.com/Kuingsmile/piclist/commit/d6f48e5)), closes [#239](https://github.com/Kuingsmile/piclist/issues/239)
+* **custom:** fix webdav url bug ([07cf63a](https://github.com/Kuingsmile/piclist/commit/07cf63a)), closes [#243](https://github.com/Kuingsmile/piclist/issues/243)
+
+
+### :pencil: Documentation
+
+* **custom:** prepare for 2.9.4 ([4b12e42](https://github.com/Kuingsmile/piclist/commit/4b12e42))
+
+
+
 ## :tada: 2.9.3 (2024-08-22)
 
 

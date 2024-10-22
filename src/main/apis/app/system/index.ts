@@ -309,8 +309,16 @@ export function createTray(tooltip: string) {
       const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
       const rawInput = cloneDeep(files)
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
-      await handleSecondaryUpload(trayWindow.webContents, files, 'tray')
-      const imgs = await uploader.setWebContents(trayWindow.webContents).upload(files)
+      const { needRestore, ctx } = await handleSecondaryUpload(trayWindow.webContents, files, 'tray')
+      let imgs: ImgInfo[] | false = false
+      if (needRestore) {
+        const res = await uploader
+          .setWebContents(trayWindow.webContents)
+          .uploadReturnCtx(ctx ? ctx.processedInput : files, true)
+        imgs = res ? res.output : false
+      } else {
+        imgs = await uploader.setWebContents(trayWindow.webContents).upload(files)
+      }
       const deleteLocalFile = db.get(configPaths.settings.deleteLocalFile) || false
       if (imgs !== false) {
         const pasteText: string[] = []

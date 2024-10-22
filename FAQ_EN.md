@@ -55,7 +55,6 @@ PicList itself supports the following image hosting platforms:
 - Webdav
 - Local path
 - SFTP
-- Telegra.ph
 - Lsky Pro
 - PicList (nested)
 

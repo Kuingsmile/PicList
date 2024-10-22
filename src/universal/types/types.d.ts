@@ -296,11 +296,6 @@ interface shortKeyHandlerMap {
   handle: IShortKeyHandler
 }
 
-// PicBeds
-interface ITelegraphConfig {
-  proxy?: string
-}
-
 interface ILocalConfig {
   path: string
   customUrl?: string

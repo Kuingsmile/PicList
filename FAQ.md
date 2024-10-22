@@ -55,7 +55,6 @@ PicList本体支持了如下图床：
 - `Webdav`
 - `本地图床`
 - `SFTP`
-- `Telegra.ph`
 - `兰空图床`
 - `PicList(套娃)`
 

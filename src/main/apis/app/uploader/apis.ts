@@ -15,6 +15,7 @@ import pasteTemplate from '~/utils/pasteTemplate'
 import { IPasteStyle, IWindowList } from '#/types/enum'
 import { configPaths } from '#/utils/configPaths'
 import { changeCurrentUploader } from '~/utils/handleUploaderConfig'
+import { IPicGo } from 'piclist'
 
 const handleClipboardUploading = async (): Promise<false | ImgInfo[]> => {
   const useBuiltinClipboard =
@@ -28,9 +29,27 @@ const handleClipboardUploading = async (): Promise<false | ImgInfo[]> => {
   return await uploader.setWebContents(win!.webContents).upload()
 }
 
+const handleClipboardUploadingReturnCtx = async (img?: IUploadOption, skipProcess = false): Promise<false | IPicGo> => {
+  const useBuiltinClipboard =
+    db.get(configPaths.settings.useBuiltinClipboard) === undefined
+      ? true
+      : !!db.get(configPaths.settings.useBuiltinClipboard)
+  const win = windowManager.getAvailableWindow()
+  if (useBuiltinClipboard) {
+    return await uploader.setWebContents(win!.webContents).uploadWithBuildInClipboardReturnCtx(img, skipProcess)
+  }
+  return await uploader.setWebContents(win!.webContents).uploadReturnCtx(img, skipProcess)
+}
+
 export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
-  await handleSecondaryUpload(undefined, undefined, 'clipboard')
-  const img = await handleClipboardUploading()
+  const { needRestore, ctx } = await handleSecondaryUpload(undefined, undefined, 'clipboard')
+  let img: ImgInfo[] | false = false
+  if (needRestore) {
+    const res = await handleClipboardUploadingReturnCtx(ctx ? ctx.processedInput : undefined, true)
+    img = res ? res.output : false
+  } else {
+    img = await handleClipboardUploading()
+  }
   if (img !== false) {
     if (img.length > 0) {
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
@@ -86,8 +105,14 @@ export const uploadChoosedFiles = async (
 ): Promise<IStringKeyMap[]> => {
   const input = files.map(item => item.path)
   const rawInput = cloneDeep(input)
-  await handleSecondaryUpload(webContents, input)
-  const imgs = await uploader.setWebContents(webContents).upload(input)
+  const { needRestore, ctx } = await handleSecondaryUpload(webContents, input)
+  let imgs: ImgInfo[] | false = false
+  if (needRestore) {
+    const res = await uploader.setWebContents(webContents).uploadReturnCtx(ctx ? ctx.processedInput : input, true)
+    imgs = res ? res.output : false
+  } else {
+    imgs = await uploader.setWebContents(webContents).upload(input)
+  }
   const result = []
   if (imgs !== false) {
     const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
@@ -140,12 +165,13 @@ export const handleSecondaryUpload = async (
   webContents?: WebContents,
   input?: string[],
   uploadType: 'clipboard' | 'file' | 'tray' = 'file'
-): Promise<void> => {
+): Promise<{ needRestore: boolean; ctx: IPicGo | false }> => {
   const enableSecondUploader = db.get(configPaths.settings.enableSecondUploader) || false
   let currentPicBedType = ''
   let currentPicBedConfig = {} as IStringKeyMap
   let currentPicBedConfigId = ''
   let needRestore = false
+  let ctx: IPicGo | false = false
   if (enableSecondUploader) {
     const secondUploader = db.get(configPaths.picBed.secondUploader)
     const secondUploaderConfig = db.get(configPaths.picBed.secondUploaderConfig)
@@ -165,10 +191,11 @@ export const handleSecondaryUpload = async (
       let secondImgs: ImgInfo[] | false = false
       changeCurrentUploader(secondUploader, secondUploaderConfig, secondUploaderId)
       if (uploadType === 'clipboard') {
-        secondImgs = await handleClipboardUploading()
+        ctx = await handleClipboardUploadingReturnCtx(undefined)
       } else {
-        secondImgs = await uploader.setWebContents(webContents!).upload(input)
+        ctx = await uploader.setWebContents(webContents!).uploadReturnCtx(input)
       }
+      secondImgs = ctx ? ctx.output : false
       if (secondImgs !== false) {
         const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
         if (uploadType === 'clipboard') {
@@ -195,5 +222,9 @@ export const handleSecondaryUpload = async (
   }
   if (needRestore) {
     changeCurrentUploader(currentPicBedType, currentPicBedConfig, currentPicBedConfigId)
+  }
+  return {
+    needRestore,
+    ctx
   }
 }

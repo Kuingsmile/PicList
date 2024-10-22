@@ -149,6 +149,69 @@ class Uploader {
     }
   }
 
+  async uploadWithBuildInClipboardReturnCtx(img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
+    let filePath = ''
+    try {
+      const imgPath = getClipboardFilePath()
+      if (!imgPath) {
+        const nativeImage = clipboard.readImage()
+        if (nativeImage.isEmpty()) {
+          return false
+        }
+        const buffer = nativeImage.toPNG()
+        const baseDir = picgo.baseDir
+        const fileName = `${dayjs().format('YYYYMMDDHHmmSSS')}.png`
+        filePath = path.join(baseDir, CLIPBOARD_IMAGE_FOLDER, fileName)
+        await writeFile(filePath, buffer)
+        return await this.uploadReturnCtx(img ?? [filePath], skipProcess)
+      } else {
+        return await this.uploadReturnCtx(img ?? [imgPath], skipProcess)
+      }
+    } catch (e: any) {
+      logger.error(e)
+      return false
+    } finally {
+      if (filePath) {
+        fs.remove(filePath)
+      }
+    }
+  }
+
+  async uploadReturnCtx(img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
+    try {
+      const startTime = Date.now()
+      const ctx = await picgo.uploadReturnCtx(img, skipProcess)
+      if (Array.isArray(ctx.output) && ctx.output.some((item: ImgInfo) => item.imgUrl)) {
+        if (this.webContents) {
+          handleTalkingData(this.webContents, {
+            fromClipboard: !img,
+            type: db.get(configPaths.picBed.uploader) || db.get(configPaths.picBed.current) || 'smms',
+            count: img ? img.length : 1,
+            duration: Date.now() - startTime
+          } as IAnalyticsData)
+        }
+        ctx.output.forEach((item: ImgInfo) => {
+          item.config = JSON.parse(JSON.stringify(db.get(`picBed.${item.type}`)))
+        })
+        return ctx
+      } else {
+        return false
+      }
+    } catch (e: any) {
+      logger.error(e)
+      setTimeout(() => {
+        showNotification({
+          title: T('UPLOAD_FAILED'),
+          body: util.format(e.stack),
+          clickToCopy: true
+        })
+      }, 500)
+      return false
+    } finally {
+      ipcMain.removeAllListeners(GET_RENAME_FILE_NAME)
+    }
+  }
+
   async upload(img?: IUploadOption): Promise<ImgInfo[] | false> {
     try {
       const startTime = Date.now()

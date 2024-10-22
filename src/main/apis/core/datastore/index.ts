@@ -35,7 +35,7 @@ class ConfigStore {
     if (!this.#db.has(configPaths.settings.shortKey._path)) {
       this.#db.set(configPaths.settings.shortKey['picgo:upload'], {
         enable: true,
-        key: 'CommandOrControl+Shift+P',
+        key: 'CommandOrControl+Alt+P',
         name: 'upload',
         label: T('QUICK_UPLOAD')
       })

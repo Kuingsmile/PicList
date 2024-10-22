@@ -34,7 +34,7 @@ if you want to use PicList-core, please go to [https://github.com/Kuingsmile/Pic
 ## Features
 
 - Retains all the features of PicGo and is compatible with the vast majority of existing PicGo plugins, including integrations with software like Typora and Obsidian.
-- Added multiple built-in image hosting platforms, such as WebDav, Lsky Pro, local image hosting, SFTP and Telegra.ph. The original built-in imgur image host now also supports account login for uploading.
+- Added multiple built-in image hosting platforms, such as WebDav, Lsky Pro, local image hosting, SFTP. The original built-in imgur image host now also supports account login for uploading.
 - Within the album, you can synchronize the deletion of cloud images. This is supported across all built-in image hosts and multiple plugins.
 - The album now offers advanced search and sorting features, as well as batch URL modification.
 - Built-in tools for adding watermarks, compressing images, scaling images, rotating images, and converting image formats are now available. Advanced renaming is also supported.
@@ -139,7 +139,6 @@ docker-compose up -d
 |       Built-in SFTP        |          ✔️           |            ✔️             |
 |         Doge Cloud         |          ✔️           |            ✔️             |
 |    PicList(Lasso-Doll)     |          ✔️           |            ✔️             |
-|         Telegra.ph         |          ✔️           |            ×             |
 |          Lsky Pro          |          ✔️           |            ✔️             |
 |    Custom API platform     |          ×           |            ×             |
 

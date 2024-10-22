@@ -25,7 +25,6 @@ export interface IConfigStruct {
     webdavplist?: IWebdavPlistConfig
     local?: ILocalConfig
     sftpplist?: ISftpPlistConfig
-    telegraphplist?: ITelegraphConfig
     lskyplist?: ILskyConfig
     'aws-s3-plist': IAwsS3PListUserConfig
     proxy?: string

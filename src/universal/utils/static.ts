@@ -47,7 +47,6 @@ export const picBedManualUrlList: IStringKeyMap = {
     qiniu: 'https://piclist.cn/configure.html#%E4%B8%83%E7%89%9B%E4%BA%91',
     sftpplist: 'https://piclist.cn/configure.html#%E5%86%85%E7%BD%AEsftp',
     smms: 'https://piclist.cn/configure.html#sm-ms',
-    telegraphplist: 'https://piclist.cn/configure.html#telegra-ph',
     upyun: 'https://piclist.cn/configure.html#%E5%8F%88%E6%8B%8D%E4%BA%91',
     webdavplist: 'https://piclist.cn/configure.html#webdav'
   },
@@ -68,7 +67,6 @@ export const picBedManualUrlList: IStringKeyMap = {
     qiniu: 'https://piclist.cn/en/configure.html#qiniu-cloud',
     sftpplist: 'https://piclist.cn/en/configure.html#built-in-sftp',
     smms: 'https://piclist.cn/en/configure.html#sm-ms',
-    telegraphplist: 'https://piclist.cn/en/configure.html#telegra-ph',
     upyun: 'https://piclist.cn/en/configure.html#upyun',
     webdavplist: 'https://piclist.cn/en/configure.html#webdav'
   }

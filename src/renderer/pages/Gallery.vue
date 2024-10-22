@@ -428,9 +428,7 @@ function handleDetectShiftKey(event: KeyboardEvent) {
 }
 
 const filterList = computed(() => {
-  const start = new Date().getTime()
   const res = getGallery()
-  console.log(`filterList: ${new Date().getTime() - start}ms`)
   return res
 })
 
@@ -487,9 +485,7 @@ function getGallery(): IGalleryItem[] {
 }
 
 async function updateGallery() {
-  const start = new Date().getTime()
   images.value = (await $$db.get({ orderBy: 'desc' }))!.data
-  console.log(`updateGallery: ${new Date().getTime() - start}ms`)
 }
 
 watch(
@@ -698,6 +694,9 @@ function multiRemove() {
                       duration: multiRemoveNumber > 5 ? 1000 : 2000
                     })
                   }
+                } else {
+                  files.push(file)
+                  await $$db.removeById(key)
                 }
               }
             }

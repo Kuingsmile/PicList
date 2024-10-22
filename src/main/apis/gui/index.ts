@@ -79,8 +79,14 @@ class GuiApi implements IGuiApi {
     this.windowId = await getWindowId()
     const webContents = this.getWebcontentsByWindowId(this.windowId)
     const rawInput = cloneDeep(input)
-    await handleSecondaryUpload(webContents!, input)
-    const imgs = await uploader.setWebContents(webContents!).upload(input)
+    const { needRestore, ctx } = await handleSecondaryUpload(webContents!, input)
+    let imgs: ImgInfo[] | false = false
+    if (needRestore) {
+      const res = await uploader.setWebContents(webContents!).uploadReturnCtx(ctx ? ctx.processedInput : input, true)
+      imgs = res ? res.output : false
+    } else {
+      imgs = await uploader.setWebContents(webContents!).upload(input)
+    }
     if (imgs !== false) {
       const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
       const deleteLocalFile = db.get(configPaths.settings.deleteLocalFile) || false
