@@ -201,6 +201,7 @@ const generateCFWORKERShortUrl = async (url: string) => {
   try {
     const res = await axios.post(cfWorkerHost, { url })
     if (res.data?.status === 200 && res.data?.key?.startsWith('/')) {
+      cfWorkerHost = cfWorkerHost.replace(/\/.*$/, '')
       return `${cfWorkerHost}${res.data.key}`
     }
   } catch (e: any) {
