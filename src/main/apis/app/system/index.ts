@@ -326,7 +326,13 @@ export function createTray(tooltip: string) {
           if (deleteLocalFile) {
             await fs.remove(rawInput[i])
           }
-          pasteText.push(await pasteTemplate(pasteStyle, imgs[i], db.get(configPaths.settings.customLink)))
+          const [pasteTextItem, shortUrl] = await pasteTemplate(
+            pasteStyle,
+            imgs[i],
+            db.get(configPaths.settings.customLink)
+          )
+          imgs[i].shortUrl = shortUrl
+          pasteText.push(pasteTextItem)
           const isShowResultNotification =
             db.get(configPaths.settings.uploadResultNotification) === undefined
               ? true
@@ -334,7 +340,7 @@ export function createTray(tooltip: string) {
           if (isShowResultNotification) {
             const notification = new Notification({
               title: T('UPLOAD_SUCCEED'),
-              body: imgs[i].imgUrl!
+              body: shortUrl || imgs[i].imgUrl!
               // icon: files[i]
             })
             setTimeout(() => {

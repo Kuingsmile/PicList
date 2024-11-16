@@ -27,11 +27,11 @@ const galleryRoutes = [
       const [item, copy = true] = args
       const pasteStyle = picgo.getConfig<IPasteStyle>(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
       const customLink = picgo.getConfig<string>(configPaths.settings.customLink)
-      const txt = await pasteTemplate(pasteStyle, item, customLink)
+      const [txt, shortUrl] = await pasteTemplate(pasteStyle, item, customLink)
       if (copy) {
         clipboard.writeText(txt)
       }
-      return txt
+      return [txt, shortUrl]
     },
     type: IRPCType.INVOKE
   },

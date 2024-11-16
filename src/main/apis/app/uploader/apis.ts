@@ -54,7 +54,9 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
     if (img.length > 0) {
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
       const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
-      handleCopyUrl(await pasteTemplate(pasteStyle, img[0], db.get(configPaths.settings.customLink)))
+      const [pastedText, shortUrl] = await pasteTemplate(pasteStyle, img[0], db.get(configPaths.settings.customLink))
+      img[0].shortUrl = shortUrl
+      handleCopyUrl(pastedText)
       const isShowResultNotification =
         db.get(configPaths.settings.uploadResultNotification) === undefined
           ? true
@@ -62,7 +64,7 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
       if (isShowResultNotification) {
         const notification = new Notification({
           title: T('UPLOAD_SUCCEED'),
-          body: img[0].imgUrl!
+          body: shortUrl || img[0].imgUrl!
           // icon: img[0].imgUrl
         })
         setTimeout(() => {
@@ -128,7 +130,13 @@ export const uploadChoosedFiles = async (
             picgo.log.error(err)
           })
       }
-      pasteText.push(await pasteTemplate(pasteStyle, imgs[i], db.get(configPaths.settings.customLink)))
+      const [pasteTextItem, shortUrl] = await pasteTemplate(
+        pasteStyle,
+        imgs[i],
+        db.get(configPaths.settings.customLink)
+      )
+      imgs[i].shortUrl = shortUrl
+      pasteText.push(pasteTextItem)
       const isShowResultNotification =
         db.get(configPaths.settings.uploadResultNotification) === undefined
           ? true
@@ -136,7 +144,7 @@ export const uploadChoosedFiles = async (
       if (isShowResultNotification) {
         const notification = new Notification({
           title: T('UPLOAD_SUCCEED'),
-          body: imgs[i].imgUrl!
+          body: shortUrl || imgs[i].imgUrl!
           // icon: files[i].path
         })
         setTimeout(() => {

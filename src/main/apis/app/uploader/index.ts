@@ -1,9 +1,9 @@
 import dayjs from 'dayjs'
 import { BrowserWindow, clipboard, ipcMain, Notification, WebContents } from 'electron'
 import fs from 'fs-extra'
-import util from 'util'
 import path from 'path'
 import { IPicGo } from 'piclist'
+import util from 'util'
 import writeFile from 'write-file-atomic'
 
 import windowManager from 'apis/app/window/windowManager'
@@ -22,7 +22,6 @@ import { CLIPBOARD_IMAGE_FOLDER } from '#/utils/static'
 
 const waitForRename = (window: BrowserWindow, id: number): Promise<string | null> => {
   return new Promise(resolve => {
-    const windowId = window.id
     ipcMain.once(`${RENAME_FILE_NAME}${id}`, (_: Event, newName: string) => {
       resolve(newName)
       window.close()
@@ -30,20 +29,21 @@ const waitForRename = (window: BrowserWindow, id: number): Promise<string | null
     window.on('close', () => {
       resolve(null)
       ipcMain.removeAllListeners(`${RENAME_FILE_NAME}${id}`)
-      windowManager.deleteById(windowId)
+      windowManager.deleteById(window.id)
     })
   })
 }
 
 const handleTalkingData = (webContents: WebContents, options: IAnalyticsData) => {
+  const { type, fromClipboard, count, duration } = options
   const data: ITalkingDataOptions = {
     EventId: 'upload',
-    Label: options.type,
+    Label: type,
     MapKv: {
-      by: options.fromClipboard ? 'clipboard' : 'files',
-      count: options.count,
-      duration: calcDurationRange(options.duration || 0),
-      type: options.type
+      by: fromClipboard ? 'clipboard' : 'files',
+      count,
+      duration: calcDurationRange(duration || 0),
+      type
     }
   }
   webContents.send(TALKING_DATA_EVENT, data)
@@ -58,8 +58,7 @@ class Uploader {
 
   init() {
     picgo.on(ICOREBuildInEvent.NOTIFICATION, (message: Electron.NotificationConstructorOptions | undefined) => {
-      const notification = new Notification(message)
-      notification.show()
+      new Notification(message).show()
     })
 
     picgo.on(ICOREBuildInEvent.UPLOAD_PROGRESS, (progress: any) => {
@@ -84,15 +83,11 @@ class Uploader {
           await Promise.all(
             ctx.output.map(async (item, index) => {
               let name: undefined | string | null
-              let fileName: string | undefined
-              if (autoRename) {
-                fileName = dayjs().add(index, 'ms').format('YYYYMMDDHHmmSSS') + item.extname
-              } else {
-                fileName = item.fileName
-              }
+              const fileName = autoRename
+                ? `${dayjs().add(index, 'ms').format('YYYYMMDDHHmmSSS')}${item.extname}`
+                : item.fileName
               if (rename) {
                 const window = windowManager.create(IWindowList.RENAME_WINDOW)!
-                logger.info('create rename window')
                 ipcMain.on(GET_RENAME_FILE_NAME, evt => {
                   try {
                     if (evt.sender.id === window.webContents.id) {
@@ -118,61 +113,52 @@ class Uploader {
     return this
   }
 
+  private async getClipboardImagePath(): Promise<string | false> {
+    const imgPath = getClipboardFilePath()
+    if (imgPath) return imgPath
+
+    const nativeImage = clipboard.readImage()
+    if (nativeImage.isEmpty()) return false
+
+    const buffer = nativeImage.toPNG()
+    const baseDir = picgo.baseDir
+    const fileName = `${dayjs().format('YYYYMMDDHHmmSSS')}.png`
+    const filePath = path.join(baseDir, CLIPBOARD_IMAGE_FOLDER, fileName)
+    await writeFile(filePath, buffer)
+    return filePath
+  }
+
   /**
    * use electron's clipboard image to upload
    */
   async uploadWithBuildInClipboard(): Promise<ImgInfo[] | false> {
-    let filePath = ''
+    let imgPath: string | false = false
     try {
-      const imgPath = getClipboardFilePath()
-      if (!imgPath) {
-        const nativeImage = clipboard.readImage()
-        if (nativeImage.isEmpty()) {
-          return false
-        }
-        const buffer = nativeImage.toPNG()
-        const baseDir = picgo.baseDir
-        const fileName = `${dayjs().format('YYYYMMDDHHmmSSS')}.png`
-        filePath = path.join(baseDir, CLIPBOARD_IMAGE_FOLDER, fileName)
-        await writeFile(filePath, buffer)
-        return await this.upload([filePath])
-      } else {
-        return await this.upload([imgPath])
-      }
+      imgPath = await this.getClipboardImagePath()
+      if (!imgPath) return false
+      return await this.upload([imgPath])
     } catch (e: any) {
       logger.error(e)
       return false
     } finally {
-      if (filePath) {
-        fs.remove(filePath)
+      if (imgPath) {
+        fs.remove(imgPath)
       }
     }
   }
 
   async uploadWithBuildInClipboardReturnCtx(img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
-    let filePath = ''
+    let imgPath: string | false = false
     try {
-      const imgPath = getClipboardFilePath()
-      if (!imgPath) {
-        const nativeImage = clipboard.readImage()
-        if (nativeImage.isEmpty()) {
-          return false
-        }
-        const buffer = nativeImage.toPNG()
-        const baseDir = picgo.baseDir
-        const fileName = `${dayjs().format('YYYYMMDDHHmmSSS')}.png`
-        filePath = path.join(baseDir, CLIPBOARD_IMAGE_FOLDER, fileName)
-        await writeFile(filePath, buffer)
-        return await this.uploadReturnCtx(img ?? [filePath], skipProcess)
-      } else {
-        return await this.uploadReturnCtx(img ?? [imgPath], skipProcess)
-      }
+      imgPath = await this.getClipboardImagePath()
+      if (!imgPath) return false
+      return await this.uploadReturnCtx(img ?? [imgPath], skipProcess)
     } catch (e: any) {
       logger.error(e)
       return false
     } finally {
-      if (filePath) {
-        fs.remove(filePath)
+      if (imgPath) {
+        fs.remove(imgPath)
       }
     }
   }
@@ -181,22 +167,22 @@ class Uploader {
     try {
       const startTime = Date.now()
       const ctx = await picgo.uploadReturnCtx(img, skipProcess)
-      if (Array.isArray(ctx.output) && ctx.output.some((item: ImgInfo) => item.imgUrl)) {
-        if (this.webContents) {
-          handleTalkingData(this.webContents, {
-            fromClipboard: !img,
-            type: db.get(configPaths.picBed.uploader) || db.get(configPaths.picBed.current) || 'smms',
-            count: img ? img.length : 1,
-            duration: Date.now() - startTime
-          } as IAnalyticsData)
-        }
-        ctx.output.forEach((item: ImgInfo) => {
-          item.config = JSON.parse(JSON.stringify(db.get(`picBed.${item.type}`)))
-        })
-        return ctx
-      } else {
-        return false
+      if (!Array.isArray(ctx.output) || !ctx.output.some((item: ImgInfo) => item.imgUrl)) return false
+
+      if (this.webContents) {
+        handleTalkingData(this.webContents, {
+          fromClipboard: !img,
+          type: db.get(configPaths.picBed.uploader) || db.get(configPaths.picBed.current) || 'smms',
+          count: img ? img.length : 1,
+          duration: Date.now() - startTime
+        } as IAnalyticsData)
       }
+
+      ctx.output.forEach((item: ImgInfo) => {
+        item.config = JSON.parse(JSON.stringify(db.get(`picBed.${item.type}`)))
+      })
+
+      return ctx
     } catch (e: any) {
       logger.error(e)
       setTimeout(() => {
@@ -216,22 +202,20 @@ class Uploader {
     try {
       const startTime = Date.now()
       const output = await picgo.upload(img)
-      if (Array.isArray(output) && output.some((item: ImgInfo) => item.imgUrl)) {
-        if (this.webContents) {
-          handleTalkingData(this.webContents, {
-            fromClipboard: !img,
-            type: db.get(configPaths.picBed.uploader) || db.get(configPaths.picBed.current) || 'smms',
-            count: img ? img.length : 1,
-            duration: Date.now() - startTime
-          } as IAnalyticsData)
-        }
-        output.forEach((item: ImgInfo) => {
-          item.config = JSON.parse(JSON.stringify(db.get(`picBed.${item.type}`)))
-        })
-        return output.filter(item => item.imgUrl)
-      } else {
-        return false
+      if (!Array.isArray(output) || !output.some((item: ImgInfo) => item.imgUrl)) return false
+
+      if (this.webContents) {
+        handleTalkingData(this.webContents, {
+          fromClipboard: !img,
+          type: db.get(configPaths.picBed.uploader) || db.get(configPaths.picBed.current) || 'smms',
+          count: img ? img.length : 1,
+          duration: Date.now() - startTime
+        } as IAnalyticsData)
       }
+      output.forEach((item: ImgInfo) => {
+        item.config = JSON.parse(JSON.stringify(db.get(`picBed.${item.type}`)))
+      })
+      return output.filter(item => item.imgUrl)
     } catch (e: any) {
       logger.error(e)
       setTimeout(() => {

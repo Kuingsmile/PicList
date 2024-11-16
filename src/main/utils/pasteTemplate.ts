@@ -32,7 +32,7 @@ export default async (style: IPasteStyle, item: ImgInfo, customLink: string | un
   url = handleUrlEncodeWithSetting(url)
   const useShortUrl = db.get(configPaths.settings.useShortUrl) || false
   if (useShortUrl) {
-    url = await generateShortUrl(url)
+    url = item.shortUrl && item.shortUrl !== url ? item.shortUrl : await generateShortUrl(url)
   }
   const _customLink = customLink || '![$fileName]($url)'
   const tpl = {
@@ -45,5 +45,5 @@ export default async (style: IPasteStyle, item: ImgInfo, customLink: string | un
       url
     })
   }
-  return tpl[style]
+  return [tpl[style], useShortUrl ? url : '']
 }

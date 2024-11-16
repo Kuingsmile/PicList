@@ -1,20 +1,20 @@
 # FAQ
 
-该FAQ修改自PicGo的FAQ，感谢PicGo的作者Molunerfinn。
+本 FAQ 修改自 PicGo 的 FAQ，感谢 PicGo 的作者 Molunerfinn。
 
 ## 常见问题
 
 > 常规配置问题请参考 [官方文档](https://piclist.cn)
 
-## 1. PicList和PicGo有什么关系？
+## 1. PicList 和 PicGo 有什么关系？
 
-PicList项目fork自PicGo项目，基于PicGo进行了二次开发，同时核心功能内核PicGo-Core也进行了二次开发，重命名为[PicList-Core](https://github.com/Kuingsmile/PicList-Core)。
+PicList 项目是从 PicGo 项目 fork 而来，基于 PicGo 进行了二次开发。同时，核心功能内核 PicGo-Core 也进行了二次开发，并重命名为 [PicList-Core](https://github.com/Kuingsmile/PicList-Core)。
 
-PicList所有新功能的添加没有影响到PicGo的原有功能，所以你可以在PicList中使用PicGo的大部分插件。同时仍然可以配合typora、obsidian等软件进行使用。
+PicList 添加的所有新功能未影响 PicGo 的原有功能，因此你可以在 PicList 中使用 PicGo 的大部分插件。同时，仍然可以配合 Typora、Obsidian 等软件使用。
 
 ## 2. 使用图床管理功能时，出现无法获取目录等错误
 
-请查看日志文件 `manage.log`，此外，各平台的API调用基本都有每小时次数限制，如果出现错误，请稍后再试。
+请查看日志文件 `manage.log`。此外，各平台的 API 调用基本都有每小时次数限制，如果出现错误，请稍后再试。
 
 ## 3. 支持哪些图床远端同步删除
 
@@ -40,7 +40,7 @@ PicList所有新功能的添加没有影响到PicGo的原有功能，所以你�
 
 可以，通过新添加的图床管理功能，你可以上传任意格式的文件，包括视频文件。同时，在管理界面内上传时，使用分片上传/流式上传等方式，相对于PicGo内置的转换为base64的方式，上传更快，更稳定。
 
-## 5. 能否支持某某某图床
+## 5. 能否支持xxx图床
 
 PicList本体支持了如下图床：
 
@@ -57,6 +57,7 @@ PicList本体支持了如下图床：
 - `SFTP`
 - `兰空图床`
 - `PicList(套娃)`
+- `高级自定义图床`
 
 PicList计划整合和优化现有插件，内置更多的常用图床。
 
@@ -91,7 +92,7 @@ GitHub 服务器和国内 GFW 的问题会导致有时上传成功，有时上�
 
 ## 11. macOS系统安装完PicList显示「文件已损坏」或者安装完打开没有反应
 
-请升级PicList 1.4.1或以上版本，自1.4.1开始，PicList已经经过Apple的签名，不会再出现这种情况。
+请升级至 PicList 1.4.1 或以上版本。
 
 ## 12. 水印没有正常添加
 

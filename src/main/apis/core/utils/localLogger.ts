@@ -21,14 +21,10 @@ const checkLogFileIsLarge = (logPath: string): CheckLogFileResult => {
         logFileSizeLimit: DEFAULT_LOG_FILE_SIZE_LIMIT
       }
     }
-    return {
-      isLarge: false
-    }
+    return { isLarge: false }
   } catch (e) {
     console.log(e)
-    return {
-      isLarge: true
-    }
+    return { isLarge: true }
   }
 }
 
@@ -49,9 +45,7 @@ const recreateLogFile = (logPath: string): void => {
 const getLogger = (logPath: string, logType: string) => {
   let hasUncathcedError = false
   try {
-    if (!fs.existsSync(logPath)) {
-      fs.ensureFileSync(logPath)
-    }
+    fs.ensureFileSync(logPath)
     if (checkLogFileIsLarge(logPath).isLarge) {
       recreateLogFile(logPath)
     }

@@ -40,7 +40,9 @@ const trayRoutes = [
       const img = await uploader.setWebContents(trayWindow.webContents).uploadWithBuildInClipboard()
       if (img !== false) {
         const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
-        handleCopyUrl(await pasteTemplate(pasteStyle, img[0], db.get(configPaths.settings.customLink)))
+        const [pasteText, shortUrl] = await pasteTemplate(pasteStyle, img[0], db.get(configPaths.settings.customLink))
+        img[0].shortUrl = shortUrl
+        handleCopyUrl(pasteText)
         const isShowResultNotification =
           db.get(configPaths.settings.uploadResultNotification) === undefined
             ? true
@@ -48,7 +50,7 @@ const trayRoutes = [
         if (isShowResultNotification) {
           const notification = new Notification({
             title: T('UPLOAD_SUCCEED'),
-            body: img[0].imgUrl!
+            body: shortUrl || img[0].imgUrl!
             // icon: file[0]
             // icon: img[0].imgUrl
           })

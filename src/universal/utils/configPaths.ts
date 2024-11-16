@@ -71,6 +71,8 @@ export interface IConfigStruct {
     cfWorkerHost: string
     yourlsDomain: string
     yourlsSignature: string
+    sinkDomain: string
+    sinkToken: string
     isSilentNotice: boolean
     proxy: string
     registry: string
@@ -153,6 +155,8 @@ export const configPaths = {
     cfWorkerHost: 'settings.cfWorkerHost',
     yourlsDomain: 'settings.yourlsDomain',
     yourlsSignature: 'settings.yourlsSignature',
+    sinkDomain: 'settings.sinkDomain',
+    sinkToken: 'settings.sinkToken',
     isSilentNotice: 'settings.isSilentNotice',
     proxy: 'settings.proxy',
     registry: 'settings.registry',

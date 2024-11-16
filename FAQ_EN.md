@@ -57,6 +57,7 @@ PicList itself supports the following image hosting platforms:
 - SFTP
 - Lsky Pro
 - PicList (nested)
+- Advanced custom image hosting
 
 PicList plans to integrate and optimize existing plugins and embed more commonly used image hosting platforms.
 
@@ -92,7 +93,7 @@ Or right-click on the icon of PicList in the Docker bar to find the menu of "Ope
 
 ## 11. After installing PicList on macOS, it shows "The file is damaged" or there is no response after installing and opening
 
-Please upgrade PicList to version 1.4.1 or above. Starting from 1.4.1, PicList has been signed by Apple and will not have this problem again.
+Please upgrade PicList to version 1.4.1 or above.
 
 ## 12. Watermark is not added normally
 

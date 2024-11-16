@@ -241,7 +241,8 @@ export enum II18nLanguage {
 export enum IShortUrlServer {
   C1N = 'c1n',
   YOURLS = 'yourls',
-  CFWORKER = 'cf_worker'
+  CFWORKER = 'cf_worker',
+  SINK = 'sink'
 }
 
 export enum commonTaskStatus {

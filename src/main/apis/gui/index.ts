@@ -95,7 +95,13 @@ class GuiApi implements IGuiApi {
         if (deleteLocalFile) {
           await fs.remove(rawInput[i])
         }
-        pasteText.push(await pasteTemplate(pasteStyle, imgs[i], db.get(configPaths.settings.customLink)))
+        const [pasteTextItem, shortUrl] = await pasteTemplate(
+          pasteStyle,
+          imgs[i],
+          db.get(configPaths.settings.customLink)
+        )
+        imgs[i].shortUrl = shortUrl
+        pasteText.push(pasteTextItem)
         const isShowResultNotification =
           db.get(configPaths.settings.uploadResultNotification) === undefined
             ? true
@@ -103,7 +109,7 @@ class GuiApi implements IGuiApi {
         if (isShowResultNotification) {
           const notification = new Notification({
             title: T('UPLOAD_SUCCEED'),
-            body: imgs[i].imgUrl as string
+            body: shortUrl || (imgs[i].imgUrl! as string)
             // icon: imgs[i].imgUrl
           })
           setTimeout(() => {

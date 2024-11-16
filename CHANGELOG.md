@@ -1,3 +1,26 @@
+## :tada: 2.9.5 (2024-11-16)
+
+
+### :sparkles: Features
+
+* **custom:** add support for sink ([b843278](https://github.com/Kuingsmile/piclist/commit/b843278)), closes [#254](https://github.com/Kuingsmile/piclist/issues/254)
+* **custom:** optimize short url ([fd5316a](https://github.com/Kuingsmile/piclist/commit/fd5316a)), closes [#252](https://github.com/Kuingsmile/piclist/issues/252)
+* **custom:** support use presigned url for image preview ([4209838](https://github.com/Kuingsmile/piclist/commit/4209838)), closes [#265](https://github.com/Kuingsmile/piclist/issues/265)
+
+
+### :bug: Bug Fixes
+
+* **custom:** await RPC call for download directory selection ([2079faa](https://github.com/Kuingsmile/piclist/commit/2079faa))
+* **custom:** quality must be an int between 1-100 ([cd48b24](https://github.com/Kuingsmile/piclist/commit/cd48b24))
+
+
+### :pencil: Documentation
+
+* **custom:** prepare for 2.9.5 ([c5aaa37](https://github.com/Kuingsmile/piclist/commit/c5aaa37))
+* **custom:** update FAQ ([a9eed2d](https://github.com/Kuingsmile/piclist/commit/a9eed2d))
+
+
+
 ## :tada: 2.9.4 (2024-10-22)
 
 

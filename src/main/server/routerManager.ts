@@ -54,6 +54,7 @@ router.post(
       const picbed = urlparams?.get('picbed')
       const passedKey = urlparams?.get('key')
       const serverKey = picgo.getConfig<string>(configPaths.settings.serverKey) || ''
+      const useShortUrl = picgo.getConfig<boolean>(configPaths.settings.useShortUrl)
       if (serverKey && passedKey !== serverKey) {
         handleResponse({
           response,
@@ -92,8 +93,9 @@ router.post(
         // upload with clipboard
         logger.info('[PicList Server] upload clipboard file')
         const result = await uploadClipboardFiles()
-        const res = result.url
+        const res = useShortUrl ? result.fullResult.shortUrl || result.url : result.url
         const fullResult = result.fullResult
+        fullResult.imgUrl = useShortUrl ? fullResult.shortUrl || fullResult.imgUrl : fullResult.imgUrl
         logger.info('[PicList Server] upload result:', res)
         if (res) {
           const treatedFullResult = {
@@ -130,7 +132,7 @@ router.post(
         const win = windowManager.getAvailableWindow()
         const result = await uploadChoosedFiles(win.webContents, pathList)
         const res = result.map(item => {
-          return item.url
+          return useShortUrl ? item.fullResult.shortUrl || item.url : item.url
         })
         const fullResult = result.map((item: any) => {
           const treatedItem = {
@@ -139,6 +141,7 @@ router.post(
             ...item.fullResult
           }
           delete treatedItem.config
+          treatedItem.imgUrl = useShortUrl ? treatedItem.shortUrl || treatedItem.imgUrl : treatedItem.imgUrl
           return treatedItem
         })
         logger.info('[PicList Server] upload result', res.join(' ; '))

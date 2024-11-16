@@ -546,15 +546,21 @@ function handleClose() {
 
 async function copy(item: ImgInfo) {
   item.config = JSON.parse(JSON.stringify(item.config) || '{}')
-  const copyLink = await triggerRPC<string>(IRPCActionType.GALLERY_PASTE_TEXT, item)
+  const result = await triggerRPC<[string, string]>(IRPCActionType.GALLERY_PASTE_TEXT, item)
+  if (result && result[1] && item.id) {
+    await $$db.updateById(item.id, {
+      shortUrl: result[1]
+    })
+  }
   const obj = {
     title: $T('COPY_LINK_SUCCEED'),
-    body: copyLink
+    body: result ? result[0] : ''
   }
   const myNotification = new Notification(obj.title, obj)
   myNotification.onclick = () => {
     return true
   }
+  updateGallery()
 }
 
 function remove(item: ImgInfo) {
@@ -743,8 +749,13 @@ async function multiCopy() {
       if (choosedList[key]) {
         const item = await $$db.getById<ImgInfo>(key)
         if (item) {
-          const txt = await triggerRPC<string>(IRPCActionType.GALLERY_PASTE_TEXT, item)
-          copyString.push(txt!)
+          const result = await triggerRPC<string>(IRPCActionType.GALLERY_PASTE_TEXT, item)
+          copyString.push(result ? result[0] : '')
+          if (result && result[1] && item.id) {
+            await $$db.updateById(item.id, {
+              shortUrl: result[1]
+            })
+          }
           choosedList[key] = false
         }
       }
@@ -758,6 +769,7 @@ async function multiCopy() {
     myNotification.onclick = () => {
       return true
     }
+    updateGallery()
   }
 }
 

@@ -63,7 +63,7 @@
       <el-switch v-model="compressForm.isRemoveExif" :style="switchStyle" />
     </el-form-item>
     <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_QUALITY')">
-      <el-input-number v-model="compressForm.quality" :min="0" :max="100" :step="1" />
+      <el-input-number v-model="compressForm.quality" :min="1" :max="100" :step="1" />
     </el-form-item>
     <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISCONVERT')">
       <el-switch v-model="compressForm.isConvert" :style="switchStyle" />

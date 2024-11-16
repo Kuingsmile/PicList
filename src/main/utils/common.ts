@@ -210,6 +210,34 @@ const generateCFWORKERShortUrl = async (url: string) => {
   return url
 }
 
+const generateSinkShortUrl = async (url: string) => {
+  let sinkDomain = db.get(configPaths.settings.sinkDomain) || ''
+  const sinkToken = db.get(configPaths.settings.sinkToken) || ''
+  if (!sinkDomain || !sinkToken) {
+    logger.warn('Sink domain or token is not set')
+    return url
+  }
+  if (!/^https?:\/\//.test(sinkDomain)) {
+    sinkDomain = `http://${sinkDomain}`
+  }
+  if (sinkDomain.endsWith('/')) {
+    sinkDomain = sinkDomain.slice(0, -1)
+  }
+  try {
+    const res = await axios.post(
+      `${sinkDomain}/api/link/create`,
+      { url },
+      { headers: { Authorization: `Bearer ${sinkToken}` } }
+    )
+    if (res.data?.link?.slug) {
+      return `${sinkDomain}/${res.data.link.slug}`
+    }
+  } catch (e: any) {
+    logger.error(e)
+  }
+  return url
+}
+
 export const generateShortUrl = async (url: string) => {
   const server = db.get(configPaths.settings.shortUrlServer) || IShortUrlServer.C1N
   switch (server) {
@@ -219,6 +247,8 @@ export const generateShortUrl = async (url: string) => {
       return generateYOURLSShortUrl(url)
     case IShortUrlServer.CFWORKER:
       return generateCFWORKERShortUrl(url)
+    case IShortUrlServer.SINK:
+      return generateSinkShortUrl(url)
     default:
       return url
   }

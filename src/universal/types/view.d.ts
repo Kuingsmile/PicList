@@ -26,6 +26,8 @@ interface ISettingForm {
   yourlsDomain: string
   yourlsSignature: string
   cfWorkerHost: string
+  sinkDomain: string
+  sinkToken: string
   deleteLocalFile: boolean
   serverKey: string
   aesPassword: string

@@ -391,12 +391,7 @@ https://www.baidu.com/img/bd_logo1.png"
               shadow="hover"
             >
               <el-image
-                v-if="
-                  !item.isDir &&
-                  currentPicBedName !== 'webdavplist' &&
-                  currentPicBedName !== 'sftp' &&
-                  currentPicBedName !== 'local'
-                "
+                v-if="!item.isDir && !['webdavplist', 'sftp', 'local', 's3plist'].includes(currentPicBedName)"
                 :src="
                   isShowThumbnail && item.isImage
                     ? item.url
@@ -419,6 +414,39 @@ https://www.baidu.com/img/bd_logo1.png"
                   />
                 </template>
               </el-image>
+              <el-image
+                v-else-if="!item.isDir && currentPicBedName === 's3plist' && !isUsePreSignedUrl"
+                :src="
+                  isShowThumbnail && item.isImage
+                    ? item.url
+                    : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)
+                "
+                fit="contain"
+                style="height: 100px; width: 100%; margin: 0 auto"
+                @click="handleClickFile(item)"
+              >
+                <template #placeholder>
+                  <el-icon>
+                    <Loading />
+                  </el-icon>
+                </template>
+                <template #error>
+                  <el-image
+                    :src="require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)"
+                    fit="contain"
+                    style="height: 100px; width: 100%; margin: 0 auto"
+                  />
+                </template>
+              </el-image>
+              <ImagePreSign
+                v-else-if="!item.isDir && currentPicBedName === 's3plist' && isUsePreSignedUrl"
+                :is-show-thumbnail="isShowThumbnail"
+                :item="item"
+                :alias="configMap.alias"
+                :url="item.url"
+                :config="handleGetS3Config(item)"
+                @click="handleClickFile(item)"
+              />
               <ImageWebdav
                 v-else-if="!item.isDir && currentPicBedName === 'webdavplist' && item.isImage"
                 :is-show-thumbnail="isShowThumbnail"
@@ -1222,8 +1250,10 @@ import { textFileExt } from '@/manage/utils/textfile'
 import { videoExt } from '@/manage/utils/videofile'
 
 import ImageWebdav from '@/components/ImageWebdav.vue'
+import ImagePreSign from '@/components/ImagePreSign.vue'
 import ImageLocal from '@/components/ImageLocal.vue'
 import ImageWebdavTsx from '@/components/ImageWebdavTsx'
+import ImagePreSignTsx from '@/components/ImagePreSignTsx'
 
 import { T as $T } from '@/i18n'
 
@@ -1231,7 +1261,7 @@ import { getExtension, trimPath } from '#/utils/common'
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
 import { IUploadTask, IDownloadTask } from '#/types/manage'
 import { sendRPC, triggerRPC } from '@/utils/common'
-import { IRPCActionType } from 'root/src/universal/types/enum'
+import { IRPCActionType } from '#/types/enum'
 
 /*
 configMap:{
@@ -1378,6 +1408,7 @@ const calculateAllFileSize = computed(
     '0'
 )
 const isShowThumbnail = computed(() => manageStore.config.settings.isShowThumbnail ?? false)
+const isUsePreSignedUrl = computed(() => manageStore.config.settings.isUsePreSignedUrl ?? false)
 const isAutoRefresh = computed(() => manageStore.config.settings.isAutoRefresh ?? false)
 const isIgnoreCase = computed(() => manageStore.config.settings.isIgnoreCase ?? false)
 
@@ -2901,6 +2932,18 @@ function singleRename() {
   })
 }
 
+function handleGetS3Config(item: any) {
+  return {
+    bucketName: configMap.bucketName,
+    region: configMap.bucketConfig.Location,
+    key: item.key,
+    customUrl: currentCustomDomain.value,
+    expires: manageStore.config.settings.PreSignedExpire,
+    githubPrivate: configMap.bucketConfig.private,
+    rawUrl: item.url
+  }
+}
+
 async function getPreSignedUrl(item: any) {
   const param = {
     // tcyun
@@ -3180,32 +3223,42 @@ const columns: Column<any>[] = [
           reference: () =>
             !item.isDir ? (
               currentPicBedName.value !== 'webdavplist' ? (
-                <ElImage
-                  src={
-                    isShowThumbnail.value
-                      ? item.isImage
-                        ? item.url
+                currentPicBedName.value === 's3plist' && item.isImage && isUsePreSignedUrl.value ? (
+                  <ImagePreSignTsx
+                    isShowThumbnail={isShowThumbnail.value}
+                    item={item}
+                    config={handleGetS3Config(item)}
+                    url={item.url}
+                    alias={configMap.alias}
+                  />
+                ) : (
+                  <ElImage
+                    src={
+                      isShowThumbnail.value
+                        ? item.isImage
+                          ? item.url
+                          : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)
                         : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)
-                      : require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)
-                  }
-                  fit='contain'
-                  style={{ width: '20px', height: '20px' }}
-                >
-                  {{
-                    placeholder: () => (
-                      <ElIcon>
-                        <Loading />
-                      </ElIcon>
-                    ),
-                    error: () => (
-                      <ElImage
-                        src={require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)}
-                        fit='contain'
-                        style={{ width: '20px', height: '20px' }}
-                      />
-                    )
-                  }}
-                </ElImage>
+                    }
+                    fit='contain'
+                    style={{ width: '20px', height: '20px' }}
+                  >
+                    {{
+                      placeholder: () => (
+                        <ElIcon>
+                          <Loading />
+                        </ElIcon>
+                      ),
+                      error: () => (
+                        <ElImage
+                          src={require(`./assets/icons/${getFileIconPath(item.fileName ?? '')}`)}
+                          fit='contain'
+                          style={{ width: '20px', height: '20px' }}
+                        />
+                      )
+                    }}
+                  </ElImage>
+                )
               ) : item.isImage ? (
                 <ImageWebdavTsx
                   isShowThumbnail={isShowThumbnail.value}
@@ -3234,6 +3287,14 @@ const columns: Column<any>[] = [
                 item={item}
                 config={handleGetWebdavConfig()}
                 url={item.url}
+              />
+            ) : currentPicBedName.value === 's3plist' && item.isImage && isUsePreSignedUrl.value ? (
+              <ImagePreSignTsx
+                isShowThumbnail={isShowThumbnail.value}
+                item={item}
+                config={handleGetS3Config(item)}
+                url={item.url}
+                alias={configMap.alias}
               />
             ) : (
               <ElImage

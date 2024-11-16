@@ -1,6 +1,6 @@
 {
   "name": "piclist",
-  "version": "2.9.4",
+  "version": "2.9.5",
   "author": {
     "name": "Kuingsmile",
     "email": "pkukuing@gmail.com"
@@ -67,7 +67,7 @@
     "multer": "^1.4.5-lts.1",
     "node-ssh-no-cpu-features": "^2.0.0",
     "nodejs-file-downloader": "^4.12.1",
-    "piclist": "^1.9.6",
+    "piclist": "^1.9.7",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
     "proxy-agent": "^5.0.0",

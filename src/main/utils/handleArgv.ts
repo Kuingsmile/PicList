@@ -9,61 +9,25 @@ interface IResultFileObject {
 }
 type Result = IResultFileObject[]
 
-interface IHandleArgvResult {
-  success: boolean
-  fileList?: string[]
-}
-
-const handleArgv = (argv: string[]): IHandleArgvResult => {
-  const uploadIndex = argv.indexOf('upload')
-  if (uploadIndex !== -1) {
-    const fileList = argv.slice(1 + uploadIndex)
-    return {
-      success: true,
-      fileList
-    }
-  }
-  return {
-    success: false
-  }
-}
-
 const getUploadFiles = (argv = process.argv, cwd = process.cwd(), logger: Logger) => {
-  const { success, fileList } = handleArgv(argv)
-  if (!success) {
-    return []
-  } else {
-    if (fileList?.length === 0) {
-      return null // for uploading images in clipboard
-    } else if ((fileList?.length || 0) > 0) {
-      const result = fileList!
-        .map(item => {
-          if (isUrl(item)) {
-            return {
-              path: item
-            }
-          }
-          if (path.isAbsolute(item)) {
-            return {
-              path: item
-            }
-          } else {
-            const tempPath = path.join(cwd, item)
-            if (fs.existsSync(tempPath)) {
-              return {
-                path: tempPath
-              }
-            } else {
-              logger.warn(`cli -> can't get file: ${tempPath}, invalid path`)
-              return null
-            }
-          }
-        })
-        .filter(item => item !== null) as Result
-      return result
-    }
-  }
-  return []
+  const uploadIndex = argv.indexOf('upload')
+  if (uploadIndex === -1) return []
+  const fileList = argv.slice(uploadIndex + 1)
+
+  if (fileList.length === 0) return null // for uploading images in clipboard
+
+  return fileList
+    .map(item => {
+      if (isUrl(item) || path.isAbsolute(item)) return { path: item }
+
+      const resolvedPath = path.join(cwd, item)
+      if (fs.existsSync(resolvedPath)) {
+        return { path: resolvedPath }
+      }
+      logger.warn(`cli -> can't get file: ${resolvedPath}, invalid path`)
+      return null
+    })
+    .filter(item => item !== null) as Result
 }
 
 export { getUploadFiles }

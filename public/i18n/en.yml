@@ -121,7 +121,7 @@ UPLOAD_PAGE_IMAGE_PROCESS_WMCOLOR: Watermark Color, Please select from the color
 UPLOAD_PAGE_IMAGE_PROCESS_WMPATH: Watermark Image Path (leave blank to use default image)
 UPLOAD_PAGE_IMAGE_PROCESS_WMPOSITION: Watermark Position
 UPLOAD_PAGE_IMAGE_PROCESS_ISREMOVEEXIF: Remove EXIF Info
-UPLOAD_PAGE_IMAGE_PROCESS_QUALITY: Compression Quality
+UPLOAD_PAGE_IMAGE_PROCESS_QUALITY: Compression Quality(1-100)
 UPLOAD_PAGE_IMAGE_PROCESS_ISCONVERT: Convert Format
 UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT: Destination Format
 UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT_SPECIFIC: 'Specific Format, Please enter in json format, e.g. {"png": "jpg"}'
@@ -263,6 +263,8 @@ SETTINGS_SHORT_URL_C1N_TOKEN: C1N Token
 SETTINGS_SHORT_URL_YOURLS_DOMAIN: YOURLS domain
 SETTINGS_SHORT_URL_YOURLS_SIGNATURE: YOURLS signature
 SETTINGS_SHORT_URL_CF_WORKER_HOST: Cloudflare Worker Host
+SETTINGS_SHORT_SINK_DOMAIN: sink domain
+SETTINGS_SHORT_SINK_TOKEN: sink token
 SETTINGS_DELETE_LOCAL_FILE_AFTER_UPLOAD: Delete local file after upload
 SETTINGS_SYNC_CONFIG: Settings Sync Configuration
 SETTINGS_SYNC_CONFIG_TITLE: Sync Settings
@@ -390,6 +392,7 @@ MANAGE_SETTING_CLEAR_CACHE_TIPS: After clearing, the file list will be reloaded 
 MANAGE_SETTING_CLEAR_CACHE_PROMPT: Are you sure you want to clear the file list cache database?
 MANAGE_SETTING_CLEAR_CACHE_BUTTON: Clear
 MANAGE_SETTING_ISSHOWTHUMBNAIL_TITLE: Display the original image instead of format icon (requires public access permissions)
+MANAGE_SETTING_ISUSEPRESIGNEDURL_TITLE: Use presigned URL for image display
 MANAGE_SETTING_ISSHOWLIST_TITLE: Default display mode for the file list
 MANAGE_SETTING_ISSHOWLIST_ON: List
 MANAGE_SETTING_ISSHOWLIST_OFF: Card
