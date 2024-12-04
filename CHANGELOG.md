@@ -1,3 +1,18 @@
+## :tada: 2.9.6 (2024-12-04)
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix auto name bug ([84be430](https://github.com/Kuingsmile/piclist/commit/84be430))
+* **custom:** fix plugin search bug ([3455c08](https://github.com/Kuingsmile/piclist/commit/3455c08)), closes [#269](https://github.com/Kuingsmile/piclist/issues/269)
+
+
+### :pencil: Documentation
+
+* **custom:** prepare for new version ([a6a2f9a](https://github.com/Kuingsmile/piclist/commit/a6a2f9a))
+
+
+
 ## :tada: 2.9.5 (2024-11-16)
 
 

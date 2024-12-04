@@ -227,6 +227,9 @@ interface INPMSearchResultObject {
     author: {
       name: string
     }
+    publisher: {
+      username: string
+    }
     links: {
       npm: string
       homepage: string

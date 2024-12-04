@@ -84,7 +84,7 @@ class Uploader {
             ctx.output.map(async (item, index) => {
               let name: undefined | string | null
               const fileName = autoRename
-                ? `${dayjs().add(index, 'ms').format('YYYYMMDDHHmmSSS')}${item.extname}`
+                ? `${dayjs().add(index, 'ms').format('YYYYMMDDHHmmssSSS')}${item.extname}`
                 : item.fileName
               if (rename) {
                 const window = windowManager.create(IWindowList.RENAME_WINDOW)!
@@ -122,7 +122,7 @@ class Uploader {
 
     const buffer = nativeImage.toPNG()
     const baseDir = picgo.baseDir
-    const fileName = `${dayjs().format('YYYYMMDDHHmmSSS')}.png`
+    const fileName = `${dayjs().format('YYYYMMDDHHmmssSSS')}.png`
     const filePath = path.join(baseDir, CLIPBOARD_IMAGE_FOLDER, fileName)
     await writeFile(filePath, buffer)
     return filePath

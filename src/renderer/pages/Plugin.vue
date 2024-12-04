@@ -413,23 +413,24 @@ function _getSearchResult(val: string) {
 }
 
 function handleSearchResult(item: INPMSearchResultObject) {
-  const name = handleStreamlinePluginName(item.package.name)
+  const pkg = item.package
+  const name = handleStreamlinePluginName(pkg.name)
   let gui = false
-  if (item.package.keywords && item.package.keywords.length > 0) {
-    if (item.package.keywords.includes('picgo-gui-plugin')) {
+  if (pkg.keywords && pkg.keywords.length > 0) {
+    if (pkg.keywords.includes('picgo-gui-plugin')) {
       gui = true
     }
   }
   return {
     name,
-    fullName: item.package.name,
-    author: item.package.author.name,
-    description: item.package.description,
-    logo: `https://cdn.jsdelivr.net/npm/${item.package.name}/logo.png`,
+    fullName: pkg.name,
+    author: pkg.author?.name || pkg.publisher?.username || 'unknown',
+    description: pkg.description,
+    logo: `https://cdn.jsdelivr.net/npm/${pkg.name}/logo.png`,
     config: {},
-    homepage: item.package.links ? item.package.links.homepage : '',
-    hasInstall: pluginNameList.value.some(plugin => plugin === item.package.name),
-    version: item.package.version,
+    homepage: pkg.links ? pkg.links.homepage : '',
+    hasInstall: pluginNameList.value.some(plugin => plugin === pkg.name),
+    version: pkg.version,
     gui,
     ing: false // installing or uninstalling
   }
