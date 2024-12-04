@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14]
+        os: [macos-13]
 
     # create steps
     steps:
@@ -36,7 +36,7 @@ jobs:
 
       # step2: sign
       - name: Install the Apple certificates
-        if: matrix.os == 'macos-14'
+        if: matrix.os == 'macos-13'
         run: |
           PP_PATH=$RUNNER_TEMP/build/piclistmas.provisionprofile
           echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH

@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14]
+        os: [macos-13]
 
     # create steps
     steps:
@@ -36,7 +36,7 @@ jobs:
 
       # step2: sign
       - name: Install the Apple certificates
-        if: matrix.os == 'macos-14'
+        if: matrix.os == 'macos-13'
         run: |
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
@@ -49,7 +49,7 @@ jobs:
 
       # step3: yarn
       - name: Yarn install macos
-        if: matrix.os == 'macos-14'
+        if: matrix.os == 'macos-13'
         run: |
           yarn
           yarn global add xvfb-maybe
