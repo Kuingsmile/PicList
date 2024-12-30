@@ -1,3 +1,19 @@
+## :tada: 2.9.7 (2024-12-30)
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix file delete bug ([e2e802b](https://github.com/Kuingsmile/piclist/commit/e2e802b))
+* **custom:** fix start mode in mac and win ([8815089](https://github.com/Kuingsmile/piclist/commit/8815089)), closes [#281](https://github.com/Kuingsmile/piclist/issues/281)
+* **custom:** fix webdav rename bug ([2bdd2d5](https://github.com/Kuingsmile/piclist/commit/2bdd2d5)), closes [#278](https://github.com/Kuingsmile/piclist/issues/278)
+
+
+### :pencil: Documentation
+
+* **custom:** prepare for new version ([24d8b01](https://github.com/Kuingsmile/piclist/commit/24d8b01))
+
+
+
 ## :tada: 2.9.6 (2024-12-04)
 
 

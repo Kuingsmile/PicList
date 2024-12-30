@@ -1258,6 +1258,10 @@ async function initData() {
   formOfSetting.value.autoImportPicBed = initArray(settings.autoImportPicBed || [], [])
   currentLanguage.value = valueToOptionItem(settings.language || 'zh-CN', languageList)
   currentStartMode.value = valueToOptionItem(settings.startMode || ISartMode.QUIET, startModeList)
+  if (osGlobal.value === 'darwin' && currentStartMode.value.value === ISartMode.MINI) {
+    currentStartMode.value = valueToOptionItem(ISartMode.QUIET, startModeList)
+    saveConfig(configPaths.settings.startMode, ISartMode.QUIET)
+  }
   currentManualPageOpen.value = valueToOptionItem(settings.manualPageOpen || 'window', manualPageOpenList)
   currentShortUrlServer.value = valueToOptionItem(settings.shortUrlServer || 'c1n', shortUrlServerList)
   customLink.value = settings.customLink || '![$fileName]($url)'

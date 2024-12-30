@@ -141,7 +141,7 @@ class Uploader {
       logger.error(e)
       return false
     } finally {
-      if (imgPath) {
+      if (imgPath && imgPath.startsWith(path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER))) {
         fs.remove(imgPath)
       }
     }
@@ -157,7 +157,7 @@ class Uploader {
       logger.error(e)
       return false
     } finally {
-      if (imgPath) {
+      if (imgPath && imgPath.startsWith(path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER))) {
         fs.remove(imgPath)
       }
     }

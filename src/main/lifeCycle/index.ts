@@ -169,7 +169,10 @@ class LifeCycle {
         db.set(configPaths.settings.isListeningClipboard, false)
       }
       const isHideDock = db.get(configPaths.settings.isHideDock) || false
-      const startMode = db.get(configPaths.settings.startMode) || ISartMode.QUIET
+      let startMode = db.get(configPaths.settings.startMode) || ISartMode.QUIET
+      if (process.platform === 'darwin' && startMode === ISartMode.MINI) {
+        startMode = ISartMode.QUIET
+      }
       const currentPicBed = db.get(configPaths.picBed.uploader) || db.get(configPaths.picBed.current) || 'smms'
       const currentPicBedConfig = db.get(`picBed.${currentPicBed}`)?._configName || 'Default'
       const tooltip = `${currentPicBed} ${currentPicBedConfig}`
@@ -201,7 +204,7 @@ class LifeCycle {
       }
       await remoteNoticeHandler.init()
       remoteNoticeHandler.triggerHook(IRemoteNoticeTriggerHook.APP_START)
-      if (startMode === ISartMode.MINI) {
+      if (startMode === ISartMode.MINI && process.platform !== 'darwin') {
         windowManager.create(IWindowList.MINI_WINDOW)
         const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
         miniWindow.removeAllListeners()
