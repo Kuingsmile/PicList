@@ -15,15 +15,6 @@
         style="width: 100%; overflow-y: scroll; height: calc(100vh - 50px)"
         lazy
       >
-        <el-alert
-          :title="$T('MANAGE_LOGIN_PAGE_PANE_DESC')"
-          type="success"
-          show-icon
-          center
-          :element-loading-text="$T('MANAGE_LOGIN_PAGE_PANE_LOADING')"
-          :element-loading-spinner="svg"
-          element-loading-svg-view-box="0, 0, 150, 150"
-        />
         <el-row>
           <el-col v-for="item in sortedAllConfigAliasMap" :key="item" :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
             <el-card class="box-card" style="margin: 10px 0" shadow="hover">
@@ -210,7 +201,7 @@ import { useRouter } from 'vue-router'
 import { useManageStore } from '@/manage/store/manageStore'
 import { supportedPicBedList } from '@/manage/utils/constants'
 import { getConfig, saveConfig, removeConfig } from '@/manage/utils/dataSender'
-import { formObjToTableData, svg } from '@/manage/utils/common'
+import { formObjToTableData } from '@/manage/utils/common'
 
 import { getConfig as getPicBedsConfig } from '@/utils/dataSender'
 import { T as $T } from '@/i18n'

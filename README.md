@@ -1,88 +1,133 @@
 <div align="center">
-  <img src="https://imgx.horosama.com/admin_uploads/2022/10/2022_10_05_633d79e401694.png" alt="">
+  <img src="https://imgx.horosama.com/admin_uploads/2022/10/2022_10_05_633d79e401694.png" alt="PicList Logo">
   <h1>PicList</h1>
+  <p><strong>Powerful cloud storage and image hosting management tool</strong></p>
   <a href="https://github.com/Kuingsmile/PicList/actions">
-    <img src="https://img.shields.io/badge/code%20style-standard-green.svg?style=flat-square" alt="">
+    <img src="https://img.shields.io/badge/code%20style-standard-green.svg?style=flat-square" alt="Code Style">
   </a>
   <a href="https://github.com/Kuingsmile/PicList/releases">
-    <img src="https://img.shields.io/github/downloads/Kuingsmile/PicList/total.svg?style=flat-square" alt="">
-  </a>
-  <a href="https://github.com/Kuingsmile/PicList/actions">
-    <img src="https://github.com/Kuingsmile/PicList/actions/workflows/manually.yml/badge.svg" alt="">
+    <img src="https://img.shields.io/github/downloads/Kuingsmile/PicList/total.svg?style=flat-square" alt="Downloads">
   </a>
   <a href="https://github.com/Kuingsmile/PicList/releases/latest">
-    <img src="https://img.shields.io/github/release/Kuingsmile/PicList.svg?style=flat-square" alt="">
+    <img src="https://img.shields.io/github/release/Kuingsmile/PicList.svg?style=flat-square" alt="Release">
   </a>
 </div>
 
-![Alt](https://repobeats.axiom.co/api/embed/9e4ec90b7b50f8e9c10d77439e49e26b303fabed.svg "Repobeats analytics image")
+![Repository Stats](https://repobeats.axiom.co/api/embed/9e4ec90b7b50f8e9c10d77439e49e26b303fabed.svg "Repobeats analytics image")
 
 [简体中文](https://github.com/Kuingsmile/PicList/blob/dev/README_cn.md) | English
 
-PicList is an efficient cloud storage and image hosting platform management tool. Building upon the foundation of PicGo, it has been deeply modified and enhanced. Not only does it retain all of PicGo's features, but it also adds many new ones. For instance, the album now supports synchronized deletion of files in the cloud. Built-in image hosting options have been expanded to include WebDav, local image hosting, and SFTP. Additionally, PicList introduces comprehensive cloud storage management functions, including cloud directory viewing, file search, batch uploading, downloading, and file deletion, copying links in various formats, and previews for images, markdown, text, and videos. Moreover, it boasts a more powerful album function and numerous other improvements and enhancements.
+## 📑 Table of Contents
 
-## How to migrate from PicGo
+- [📑 Table of Contents](#-table-of-contents)
+- [Introduction](#introduction)
+- [How to Migrate from PicGo](#how-to-migrate-from-picgo)
+- [PicList-Core](#piclist-core)
+- [Key Features](#key-features)
+- [Integration Guides](#integration-guides)
+  - [VSCode Integration](#vscode-integration)
+  - [Typora Integration](#typora-integration)
+    - [**Version 1.6.0-dev and above**](#version-160-dev-and-above)
+    - [**Version \< 1.6.0-dev**](#version--160-dev)
+  - [Obsidian Integration](#obsidian-integration)
+  - [Docker Integration](#docker-integration)
+    - [Using docker run](#using-docker-run)
+    - [Using docker-compose](#using-docker-compose)
+- [Supported Platforms](#supported-platforms)
+- [Download and Install](#download-and-install)
+  - [Direct Download](#direct-download)
+  - [Scoop (Windows)](#scoop-windows)
+  - [Homebrew (macOS)](#homebrew-macos)
+  - [Mac Special Instructions](#mac-special-instructions)
+- [Screenshots](#screenshots)
+- [Development](#development)
+  - [Prerequisites](#prerequisites)
+  - [Getting Started](#getting-started)
+  - [Development Mode](#development-mode)
+  - [Production Build](#production-build)
+- [Related Projects](#related-projects)
+- [Community](#community)
+- [License](#license)
+- [Star Me](#star-me)
 
-PicList `V1.5.0` and above versions provide the `one-click migration` function. Enter the `Settings` page, and then click the right button on the `Migrate from PicGo` option to migrate. Please restart the application to take effect after migration.
+## Introduction
+
+PicList is an efficient cloud storage and image hosting management tool built upon PicGo with extensive enhancements. It combines complete image hosting capabilities with comprehensive cloud storage management features, offering:
+
+- All original PicGo functionality plus compatibility with most PicGo plugins
+- Extended built-in image hosting platforms (WebDav, local hosting, SFTP, etc.)
+- Cloud-synchronized file deletion in album view
+- Comprehensive cloud storage management with file operations, search, and previews
+- Built-in image processing tools (watermarks, compression, scaling, rotation, format conversion)
+
+## How to Migrate from PicGo
+
+PicList `V1.5.0` and above provide a `one-click migration` function. Enter the `Settings` page, click the button next to `Migrate from PicGo`, then restart the application for changes to take effect.
 
 ## PicList-Core
 
-The core of PicList is based on the original PicGo-Core [PicList-core](https://github.com/Kuingsmile/PicList-Core), which is adapted for cloud deletion and other functions, and adds watermark addition and image compression / scaling / rotation / format conversion functions, which can be called through CLI command line, support starting the built-in upload server through `picgo-server`，as well as some other function changes.
+PicList uses a modified version of PicGo-Core called [PicList-core](https://github.com/Kuingsmile/PicList-Core), adapted for cloud deletion and extended with features like:
 
-if you want to use PicList-core, please go to [https://github.com/Kuingsmile/PicList-Core](https://github.com/Kuingsmile/PicList-Core), or go to [npm official address](https://www.npmjs.com/package/piclist) to view the installation instructions.
+- Watermark addition
+- Image compression, scaling, rotation, and format conversion
+- CLI command support
+- Built-in upload server via `picgo-server` command
 
-## Features
+To use PicList-core separately, visit [GitHub repo](https://github.com/Kuingsmile/PicList-Core) or the [npm package](https://www.npmjs.com/package/piclist).
 
-- Retains all the features of PicGo and is compatible with the vast majority of existing PicGo plugins, including integrations with software like Typora and Obsidian.
-- Added multiple built-in image hosting platforms, such as WebDav, Lsky Pro, local image hosting, SFTP. The original built-in imgur image host now also supports account login for uploading.
-- Within the album, you can synchronize the deletion of cloud images. This is supported across all built-in image hosts and multiple plugins.
-- The album now offers advanced search and sorting features, as well as batch URL modification.
-- Built-in tools for adding watermarks, compressing images, scaling images, rotating images, and converting image formats are now available. Advanced renaming is also supported.
-- Upload interface supports form upload files, can be shared by multiple computers
-- Configuration can be synchronized to Github/Gitee/Gitea repositories.
-- Manages over ten types of image hosting platforms, allowing online viewing of cloud directories, file searching, batch uploading, batch downloading, file deletion, and more.
-- Support previewing multiple formats of files, including pictures, videos, plain text files and markdown files, etc. For the specific formats supported, please refer to [Supported file format list](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)
-- Supports the use of regular expressions for batch renaming of cloud files.
-- For private storage buckets, pre-signed link copying for sharing is available.
-- Software auto-updates are available, along with multiple startup modes, and many other feature details have been added and optimized.
-- The PicGo interface has been enhanced, window size restrictions have been unlocked, and some interface layouts have been beautified.
-- The installation package for the Mac platform is now signed, addressing the recurring issue on PicGo where the installation package was reported as damaged.
+## Key Features
 
-## How to use
+- **Complete Compatibility**: Works with Typora, Obsidian, and most PicGo plugins
+- **Extended Platform Support**: Added WebDav, Lsky Pro, local hosting, SFTP, and account-based Imgur uploads
+- **Cloud-Sync Album**: Delete images from storage alongside local entries
+- **Advanced Album Features**: Search, sort, and batch URL modification
+- **Built-in Image Tools**: Add watermarks, compress, scale, rotate, and convert formats
+- **Form Upload**: Share across multiple computers
+- **Config Synchronization**: Save settings to GitHub/Gitee/Gitea repositories
+- **Cloud Management**: Browse directories, search files, batch operations, and more
+- **Multi-format Previews**: View images, videos, text files, and Markdown files (see [supported formats](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md))
+- **Batch Operations**: Rename cloud files with regular expressions
+- **Link Sharing**: Generate pre-signed URLs for private storage buckets
+- **Usability Improvements**: Auto-updates, multiple startup modes, UI enhancements, and more
 
-### How to use in VScode
+## Integration Guides
 
-Please install my matching plugin [VS-PicList](https://marketplace.visualstudio.com/items?itemName=Kuingsmile.vs-piclist), compared with the vs-picgo plugin, the plugin directly depends on the PicList desktop software, supports a variety of uploads and direct cloud deletion in Vscode and other functions.
+### VSCode Integration
 
-### How to use in Typora
+Install the [VS-PicList](https://marketplace.visualstudio.com/items?itemName=Kuingsmile.vs-piclist) plugin, which integrates directly with PicList desktop software and supports a variety of uploads and cloud deletion operations in VSCode.
+
+### Typora Integration
 
 #### **Version 1.6.0-dev and above**
 
-**Typora 1.6.0-dev and above versions now support PicList natively if you set language of Typora to Chinese.**
+**Typora 1.6.0-dev and later versions natively support PicList.** For versions below 1.10.6, set Typora's language to Chinese.
 
-If your Typora version is lower than 1.8.0, you need to set the upload service PicList and PicGo (app) to the installation path of PicList at the same time.
+If your Typora version is below 1.8.0, set both the PicList and PicGo (app) upload service paths to your PicList installation path.
 
-[download link](https://typora.io/releases/all)
+[Typora download link](https://typora.io/releases/all)
 
 #### **Version < 1.6.0-dev**
 
-For windows, Enter the Typora settings page, select the image, set the upload service to `PicGo(app)`, and then fill in the installation path of PicList in `PicGo path`, as shown below:
+For Windows, in Typora settings:
+1. Set upload service to `PicGo(app)`
+2. Set `PicGo path` to your PicList installation path
 
-![image](https://user-images.githubusercontent.com/96409857/226522101-b3531b7b-534c-4149-b527-8738d4ebb041.png)
+![Typora configuration](https://user-images.githubusercontent.com/96409857/226522101-b3531b7b-534c-4149-b527-8738d4ebb041.png)
 
-Or, you can also use the `npm install piclist` command to install PicList-core, and then set the upload service to `PicGo-Core(command line)`.
+Alternatively, install PicList-core with `npm install piclist` and set the upload service to `PicGo-Core (command line)`.
 
-### How to use in Obsidian
+### Obsidian Integration
 
-In the community plugins, search for and install the Image auto upload Plugin. Next, go to the plugin settings page and change the default uploader to PicGo(app). Set the PicGo server to `http://127.0.0.1:36677/upload` as shown in the image below. Additionally, this plugin also supports cloud-based deletion through PicList. To use this feature, enter `http://127.0.0.1:36677/delete` in the deletion interface.
+1. Install the "Image auto upload Plugin" from community plugins
+2. Set the default uploader to PicGo(app)
+3. Configure PicGo server as `http://127.0.0.1:36677/upload`
+4. For cloud deletion support, set the deletion interface to `http://127.0.0.1:36677/delete`
 
-![image](https://user-images.githubusercontent.com/96409857/226522718-8378c480-9fb4-4785-87e1-d59808862016.png)
+![Obsidian configuration](https://user-images.githubusercontent.com/96409857/226522718-8378c480-9fb4-4785-87e1-d59808862016.png)
 
-### How to use in docker
+### Docker Integration
 
-#### docker run
-
-Change the `./piclist` to your own path, this is the path where you put your `config.json` file, and change the `piclist123456` to your own secret key.
+#### Using docker run
 
 ```bash
 docker run -d \
@@ -93,10 +138,9 @@ docker run -d \
   kuingsmile/piclist:latest \
   node /usr/local/bin/picgo-server -k piclist123456
 ```
+Change `./piclist` to your config directory path and `piclist123456` to your preferred secret key.
 
-#### docker-compose
-
-download `docker-compose.yml` from piclist-core repo, or copy the following content to `docker-compose.yml`:
+#### Using docker-compose
 
 ```yaml
 version: '3.3'
@@ -113,17 +157,11 @@ services:
     command: node /usr/local/bin/picgo-server -k piclist123456
 ```
 
-You can change the `./piclist` to your own path, this is the path where you put your `config.json` file, and change the `command` to your own secret key.
+Run with `docker-compose up -d`
 
-Then run:
+## Supported Platforms
 
-```bash
-docker-compose up -d
-```
-
-## Supported platforms
-
-|          Platform          | Album cloud deletion | Cloud storage management |
+|          Platform          | Album Cloud Deletion | Cloud Storage Management |
 | :------------------------: | :------------------: | :----------------------: |
 |       Built-in AList       |          ✔️           |            ✔️             |
 |           SM.MS            |          ✔️           |            ✔️             |
@@ -142,103 +180,122 @@ docker-compose up -d
 |          Lsky Pro          |          ✔️           |            ✔️             |
 |    Custom API platform     |          ×           |            ×             |
 
-|                                           Plugin                                           | Album cloud deletion |
-| :----------------------------------------------------------------------------------------: | :------------------: |
-|                [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3)                |          ✔️           |
-|           [picgo-plugin-alist](https://github.com/jinzhi0123/picgo-plugin-alist)           |          ✔️           |
-| [picgo-plugin-huawei-uploader](https://github.com/YunfengGao/picgo-plugin-huawei-uploader) |          ✔️           |
-|         [picgo-plugin-dogecloud](https://github.com/w4j1e/picgo-plugin-dogecloud)          |          ✔️           |
+**Supported Plugins with Cloud Deletion:**
 
-## Download and install
+- [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3)
+- [picgo-plugin-alist](https://github.com/jinzhi0123/picgo-plugin-alist)
+- [picgo-plugin-huawei-uploader](https://github.com/YunfengGao/picgo-plugin-huawei-uploader)
+- [picgo-plugin-dogecloud](https://github.com/w4j1e/picgo-plugin-dogecloud)
 
-[https://github.com/Kuingsmile/PicList/releases/latest](https://github.com/Kuingsmile/PicList/releases/latest)
+## Download and Install
 
-### Scoop
+### Direct Download
 
-Thanks to [scoop-lemon](https://github.com/hoilc/scoop-lemon), you can use Scoop to install PicList, just execute the following command:
+[Download the latest release](https://github.com/Kuingsmile/PicList/releases/latest)
+
+### Scoop (Windows)
 
 ```bash
 scoop bucket add lemon https://github.com/hoilc/scoop-lemon
 scoop install lemon/piclist
 ```
 
-### Homebrew
-
-MacOS users can now use Homebrew to install PicList, just execute the following command:
+### Homebrew (macOS)
 
 ```bash
+# Install
 brew install piclist --cask
-```
 
-Uninstall:
-
-```bash
+# Uninstall
 brew uninstall piclist
 ```
 
-### Mac special instructions
+### Mac Special Instructions
 
-If the macOS system installs PicList and displays "file is damaged" or installs and opens without response, please upgrade to PicList V1.4.1 or above.
+If you encounter "file is damaged" messages or have issues opening on macOS, upgrade to PicList V1.4.1 or above. All Mac installation packages since V1.4.1 are signed with a developer certificate and won't trigger "malicious software" warnings.
 
-After V1.4.1, all mac installation packages have been signed by my developer certificate, will not be recognized by the macOS system as "malicious software", will not appear "file is damaged" prompt.
+## Screenshots
 
-## Application screenshot
+![Upload interface](https://github.com/Kuingsmile/PicList/assets/96409857/1b76c0c4-753c-4d66-aa24-f805f9c2da15)
+![Album view](https://github.com/Kuingsmile/PicList/assets/96409857/56cf838a-a2eb-40af-96d4-1ffea25400af)
+![Cloud management](https://github.com/Kuingsmile/PicList/assets/96409857/bca7688a-e07f-4e80-9edd-c224298fa8ab)
+![Settings](https://github.com/Kuingsmile/PicList/assets/96409857/3e48e03d-b0b2-49e2-92a6-a52e0884677d)
+![Image editing](https://github.com/Kuingsmile/PicList/assets/96409857/29de0046-1aef-4b28-95a6-b26c6e297c6f)
+![File preview](https://github.com/Kuingsmile/PicList/assets/96409857/e1c04488-2d3a-4e8f-aa26-ce41d0a383e2)
 
-![image](https://github.com/Kuingsmile/PicList/assets/96409857/1b76c0c4-753c-4d66-aa24-f805f9c2da15)
-![image](https://github.com/Kuingsmile/PicList/assets/96409857/56cf838a-a2eb-40af-96d4-1ffea25400af)
-![image](https://github.com/Kuingsmile/PicList/assets/96409857/bca7688a-e07f-4e80-9edd-c224298fa8ab)
-![image](https://github.com/Kuingsmile/PicList/assets/96409857/3e48e03d-b0b2-49e2-92a6-a52e0884677d)
-![image](https://github.com/Kuingsmile/PicList/assets/96409857/29de0046-1aef-4b28-95a6-b26c6e297c6f)
-![image](https://github.com/Kuingsmile/PicList/assets/96409857/e1c04488-2d3a-4e8f-aa26-ce41d0a383e2)
+## Development
 
-## Development instructions
+### Prerequisites
 
-1. You need to have Node, Git environment, and understand the related knowledge of npm.
-2. git clone [https://github.com/Kuingsmile/PicList.git](https://github.com/Kuingsmile/PicList.git) and enter the project.
-   `yarn` download dependencies
-   Note that if you don't have `yarn`, please go to the official website to download and install it before using it. Using `npm install` will cause unknown errors!
-3. Mac needs `Xcode` environment, Windows needs `VS` environment.
-4. If you need to contribute code, you can refer to [contribution guide](https://github.com/Kuingsmile/PicList/blob/dev/CONTRIBUTING_EN.md)
+1. Node.js and Git environment
+2. Knowledge of npm
+3. Xcode for Mac or Visual Studio for Windows
 
-### Development mode
+### Getting Started
 
-Enter `yarn run dev` to enter development mode, which has hot reload feature. However, it should be noted that the development mode is unstable and there will be process crashes. At this time, you need to:
+```bash
+git clone https://github.com/Kuingsmile/PicList.git
+cd PicList
+yarn  # Do not use npm install
+```
 
-`ctrl+c` # Exit development mode
-`yarn run dev` # Re-enter development mode
+To contribute, see the [contribution guide](https://github.com/Kuingsmile/PicList/blob/dev/CONTRIBUTING_EN.md).
 
-Note: After the development mode is running, the application icon of PicList will appear in the application area of the taskbar in the lower right corner of the bottom bar.
+### Development Mode
 
-### Production mode
+```bash
+yarn run dev
+```
 
-If you need to build it yourself, you can start building with `yarn run build`. After the build is successful, the corresponding installation file will appear in the `dist_electron` directory.
+Development mode has hot-reload but may be unstable. If the process crashes, exit with `Ctrl+C` and restart.
 
-## Other related
+Note: The PicList application icon will appear in your taskbar/system tray while in development mode.
 
-- [PicList-Core](https://github.com/Kuingsmile/PicList-Core) : A core library based on PicGo-Core for CLI operations and project development
-- [PicHoro](https://github.com/Kuingsmile/PicHoro): A mobile APP that works with PicList
-- [VS-PicList](https://github.com/Kuingsmile/vs-PicList/): A VScode plugin that works with PicList
+### Production Build
 
-## Communication group
+```bash
+yarn run build
+```
 
-If you have any questions, you can join the TG group for communication.
+The built installer will be available in the `dist_electron` directory.
+
+For network issues with electron-builder, set the mirror:
+
+**Linux/macOS:**
+```bash
+export ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+```
+
+**Windows:**
+```cmd
+set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
+```
+
+## Related Projects
+
+- [PicList-Core](https://github.com/Kuingsmile/PicList-Core): Core library based on PicGo-Core for CLI and development
+- [PicHoro](https://github.com/Kuingsmile/PicHoro): Mobile app companion for PicList
+- [VS-PicList](https://github.com/Kuingsmile/vs-PicList/): VSCode plugin for PicList
+
+## Community
+
+Join our Telegram group for questions and discussion:
 
 [PicList TG Group](https://t.me/+rq8y7wsj7Pg5ZTg1)
 
-![tg](https://pichoro.msq.pub/wechat.png)
+![TG QR Code](https://pichoro.msq.pub/wechat.png)
 
 ## License
 
-This project is open source under the MIT license. Welcome everyone to use and contribute code. Thank you for the open source spirit of the original author Molunerfinn.
+This project is open source under the MIT license.
 
 [MIT](https://opensource.org/licenses/MIT)
 
-Copyright (c) 2017-present Molunerfinn
-
+Copyright (c) 2017-present Molunerfinn  
 Copyright (c) 2023-present Kuingsmile
 
 ## Star Me
 
-- Star  [![GitHub stars](https://img.shields.io/github/stars/kuingsmile/PicList?logo=github&style=social)](https://github.com/kuingsmile/PicList/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/kuingsmile/PicList?logo=github&style=social)](https://github.com/kuingsmile/PicList/stargazers)
 
 [![Stargazers over time](https://starchart.cc/kuingsmile/PicList.svg)](https://github.com/kuingsmile/PicList/stargazers)

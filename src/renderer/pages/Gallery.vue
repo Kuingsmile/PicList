@@ -165,7 +165,7 @@
       <el-col :span="22" :offset="1">
         <el-row :gutter="16">
           <photo-slider
-            :items="filterList"
+            :items="filterListWithCacheBust"
             :visible="gallerySliderControl.visible"
             :index="gallerySliderControl.index"
             :should-transition="true"
@@ -186,7 +186,7 @@
             <div class="gallery-list__item" @click="zoomImage(index)">
               <img
                 v-lazy="{
-                  src: item.galleryPath || item.imgUrl
+                  src: addCacheBustParam(item.galleryPath) || addCacheBustParam(item.imgUrl)
                 }"
                 class="gallery-list__item-img"
               />
@@ -430,6 +430,39 @@ function handleDetectShiftKey(event: KeyboardEvent) {
 const filterList = computed(() => {
   const res = getGallery()
   return res
+})
+
+const addCacheBustParam = (url: string | undefined) => {
+  if (!url) {
+    return ''
+  }
+  if (!(url.startsWith('http://') || url.startsWith('https://'))) {
+    return url
+  }
+  try {
+    const separator = url.includes('?') ? '&' : '?'
+    return `${url}${separator}cbplist=${new Date().getTime()}`
+  } catch (e) {
+    return url
+  }
+}
+
+const filterListWithCacheBust = computed(() => {
+  const newList = filterList.value.map(item => {
+    const newItem = { ...item }
+    if (newItem.imgUrl) {
+      newItem.imgUrl = addCacheBustParam(newItem.imgUrl)
+    }
+
+    if (newItem.galleryPath) {
+      newItem.galleryPath = addCacheBustParam(newItem.galleryPath)
+    }
+
+    newItem.src = addCacheBustParam(newItem.src || newItem.galleryPath || newItem.imgUrl || '')
+
+    return newItem
+  })
+  return newList
 })
 
 const isAllSelected = computed(() => {

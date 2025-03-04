@@ -142,7 +142,9 @@ export default [
     action: IRPCActionType.REFRESH_SETTING_WINDOW,
     handler: async () => {
       const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
-      settingWindow.webContents.reloadIgnoringCache()
+      settingWindow.webContents.session.clearCache().then(() => {
+        settingWindow.webContents.reloadIgnoringCache()
+      })
     }
   }
 ]

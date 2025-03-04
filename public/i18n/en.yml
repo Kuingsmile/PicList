@@ -715,7 +715,6 @@ MANAGE_CONSTANT_SFTP_BUCKET_PLACEHOLDER: 'e.g. bucket1'
 MANAGE_CONSTANT_SFTP_BUCKET_TOOLTIP: This cannot be modified, only for software compatibility consideration
 
 MANAGE_LOGIN_PAGE_PANE_NAME: Saved Config
-MANAGE_LOGIN_PAGE_PANE_DESC: Click on the icon or alias to view details
 MANAGE_LOGIN_PAGE_PANE_LOADING: Importing...
 MANAGE_LOGIN_PAGE_PANE_KEY_NAME: Configuration
 MANAGE_LOGIN_PAGE_PANE_KEY_VALUE: Value

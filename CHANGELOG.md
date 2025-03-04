@@ -1,3 +1,26 @@
+## :tada: 2.9.8 (2025-03-04)
+
+
+### :bug: Bug Fixes
+
+* **custom:** fix alist url bug ([6a66260](https://github.com/Kuingsmile/piclist/commit/6a66260))
+* **custom:** fix cache issues in gallery image ([9a93314](https://github.com/Kuingsmile/piclist/commit/9a93314)), closes [#288](https://github.com/Kuingsmile/piclist/issues/288)
+
+
+### :package: Chore
+
+* **custom:** change eslint setting ([da75b4b](https://github.com/Kuingsmile/piclist/commit/da75b4b))
+
+
+### :pencil: Documentation
+
+* **custom:** new readme.md ([c85b6a4](https://github.com/Kuingsmile/piclist/commit/c85b6a4))
+* **custom:** prepare for new version ([601e89a](https://github.com/Kuingsmile/piclist/commit/601e89a))
+* **custom:** update readme ([0da3b12](https://github.com/Kuingsmile/piclist/commit/0da3b12))
+* **custom:** update typora setting instructions ([58991e3](https://github.com/Kuingsmile/piclist/commit/58991e3))
+
+
+
 ## :tada: 2.9.7 (2024-12-30)
 
 

@@ -1,25 +1,64 @@
 <div align="center">
-  <img src="https://imgx.horosama.com/admin_uploads/2022/10/2022_10_05_633d79e401694.png" alt="">
+  <img src="https://imgx.horosama.com/admin_uploads/2022/10/2022_10_05_633d79e401694.png" alt="PicList Logo">
   <h1>PicList</h1>
+  <p><strong>强大的云存储与图床管理工具</strong></p>
   <a href="https://github.com/Kuingsmile/PicList/actions">
-    <img src="https://img.shields.io/badge/code%20style-standard-green.svg?style=flat-square" alt="">
+    <img src="https://img.shields.io/badge/code%20style-standard-green.svg?style=flat-square" alt="Code Style">
   </a>
   <a href="https://github.com/Kuingsmile/PicList/releases">
-    <img src="https://img.shields.io/github/downloads/Kuingsmile/PicList/total.svg?style=flat-square" alt="">
-  </a>
-  <a href="https://github.com/Kuingsmile/PicList/actions">
-    <img src="https://github.com/Kuingsmile/PicList/actions/workflows/manually.yml/badge.svg" alt="">
+    <img src="https://img.shields.io/github/downloads/Kuingsmile/PicList/total.svg?style=flat-square" alt="Downloads">
   </a>
   <a href="https://github.com/Kuingsmile/PicList/releases/latest">
-    <img src="https://img.shields.io/github/release/Kuingsmile/PicList.svg?style=flat-square" alt="">
+    <img src="https://img.shields.io/github/release/Kuingsmile/PicList.svg?style=flat-square" alt="Release">
   </a>
 </div>
 
-![Alt](https://repobeats.axiom.co/api/embed/9e4ec90b7b50f8e9c10d77439e49e26b303fabed.svg "Repobeats analytics image")
+![仓库统计](https://repobeats.axiom.co/api/embed/9e4ec90b7b50f8e9c10d77439e49e26b303fabed.svg "Repobeats analytics image")
 
 简体中文 | [English](https://github.com/Kuingsmile/PicList/blob/dev/README.md)
 
-PicList是一款高效的云存储和图床平台管理工具，在PicGo的基础上经过深度的二次开发，不仅完整保留了PicGo的所有功能，还增添了许多新的feature。例如相册支持同步云端删除文件，内置图床额外添加了WebDav、本地图床和SFTP等。PicList同时增加了完整的云存储管理功能，包括云端目录查看、文件搜索、批量上传下载和删除文件，复制多种格式文件链接和图片/markdown/文本/视频预览等，另外还有更加强大的相册和多项功能新增或优化。
+## 📑 目录
+
+- [📑 目录](#-目录)
+- [简介](#简介)
+- [如何从PicGo迁移](#如何从picgo迁移)
+- [PicList-Core](#piclist-core)
+- [特色功能](#特色功能)
+- [如何使用](#如何使用)
+  - [如何在VSCode中使用](#如何在vscode中使用)
+  - [如何在Typora中使用](#如何在typora中使用)
+    - [**1.6.0版本及以上**](#160版本及以上)
+    - [**1.6.0版本以下**](#160版本以下)
+  - [如何在Obsidian中使用](#如何在obsidian中使用)
+  - [如何在Docker中使用](#如何在docker中使用)
+    - [使用docker run命令](#使用docker-run命令)
+    - [使用docker-compose](#使用docker-compose)
+- [已支持平台](#已支持平台)
+- [下载安装](#下载安装)
+  - [直接下载](#直接下载)
+  - [Scoop（Windows）](#scoopwindows)
+  - [Homebrew（macOS）](#homebrewmacos)
+  - [Mac特殊说明](#mac特殊说明)
+- [应用截图](#应用截图)
+- [开发说明](#开发说明)
+  - [前提条件](#前提条件)
+  - [开始开发](#开始开发)
+  - [开发模式](#开发模式)
+  - [生产构建](#生产构建)
+- [其它相关](#其它相关)
+- [交流群](#交流群)
+- [License](#license)
+- [Star Me](#star-me)
+
+## 简介
+
+PicList是一款高效的云存储和图床平台管理工具，基于PicGo深度二次开发，提供完整的图床功能和全面的云存储管理能力，主要特点包括：
+
+- 完整保留PicGo所有功能，兼容大部分PicGo插件
+- 扩展了内置图床平台，如WebDav、本地图床和SFTP等
+- 相册支持同步云端删除文件
+- 全面的云存储管理功能，包括文件操作、搜索和预览
+- 内置图像处理工具，如水印、压缩、缩放、旋转和格式转换
 
 ## 如何从PicGo迁移
 
@@ -27,64 +66,69 @@ PicList `V1.5.0`以上版本提供 `一键迁移`功能，进入 `设置`页面�
 
 ## PicList-Core
 
-PicList的内核使用的是原版PicGo-Core基础上修改的[PicList-core](https://github.com/Kuingsmile/PicList-Core)，为云端删除等功能做了适配，同时，新增了水印添加和图片压缩/缩放/旋转/格式转换等功能，可以通过CLI命令行调用，支持通过`picgo-server`命令开启上传服务器，还有一些其他的功能改动。
+PicList的内核使用[PicList-core](https://github.com/Kuingsmile/PicList-Core)，这是基于原版PicGo-Core修改的版本，具有以下增强功能：
 
-如果您希望使用PicList-core，请前往[https://github.com/Kuingsmile/PicList-Core](https://github.com/Kuingsmile/PicList-Core)，或者前往[npm官方地址](https://www.npmjs.com/package/piclist)查看安装说明。
+- 水印添加
+- 图片压缩、缩放、旋转和格式转换
+- CLI命令行支持
+- 通过`picgo-server`命令启动上传服务器
+
+如果您希望单独使用PicList-core，请访问[GitHub仓库](https://github.com/Kuingsmile/PicList-Core)或[npm包](https://www.npmjs.com/package/piclist)。
 
 ## 特色功能
 
-- 保留了PicGo的所有功能，兼容绝大部分已有的PicGo插件，包括和Typora、Obsidian等软件的搭配
-- 新增了多个内置图床，如WebDav、兰空图床、本地图床、SFTP等，原内置imgur图床额外支持登录账号上传
-- 相册中可同步删除云端图片，支持所有内置图床和多个插件
-- 相册新增了高级搜索和排序，批量修改URL等功能
-- 内置水印添加、图片压缩、图片缩放、图片旋转和图片格式转换等功能，同时支持高级重命名
-- 上传接口支持表单上传文件，可多电脑共用
-- 支持配置同步至Github/Gitee/Gitea仓库
-- 支持管理十余种图床，可以在线进行云端目录查看、文件搜索、批量上传、批量下载、删除文件等
-- 支持预览多种格式的文件，包括图片、视频、纯文本文件和markdown文件等，具体支持的格式请参考[支持的文件格式列表](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)
-- 支持启用正则表达式的批量云端文件重命名
-- 对于私有存储桶等支持复制预签名链接进行分享
-- 支持软件自动更新，支持多种启动模式，还有更多功能细节新增和优化
-- 优化了PicGo的界面，解锁了窗口大小限制，同时美化了部分界面布局
-- mac平台安装包已签名，从源头解决了PicGo上的安装包已损坏的日经问题
+- **完全兼容性**：适用于Typora、Obsidian和大多数PicGo插件
+- **扩展平台支持**：新增WebDav、兰空图床、本地图床、SFTP等，原内置imgur图床额外支持账号登录上传
+- **云端同步相册**：支持同步删除云端图片，兼容所有内置图床和多个插件
+- **高级相册功能**：高级搜索、排序和批量URL修改
+- **内置图像工具**：水印添加、图片压缩、图片缩放、图片旋转和格式转换，支持高级重命名
+- **表单上传**：支持多电脑共享使用
+- **配置同步**：支持配置同步至GitHub/Gitee/Gitea仓库
+- **云存储管理**：云端目录查看、文件搜索、批量操作等功能
+- **多格式预览**：支持预览图片、视频、文本和Markdown文件（查看[支持的文件格式列表](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)）
+- **批量操作**：支持使用正则表达式批量重命名云端文件
+- **链接分享**：为私有存储桶生成预签名链接
+- **易用性改进**：软件自动更新、多种启动模式、界面优化等
 
 ## 如何使用
 
-### 如何在Vscode中使用
+### 如何在VSCode中使用
 
-请安装我的配套插件 [VS-PicList](https://marketplace.visualstudio.com/items?itemName=Kuingsmile.vs-piclist),相比于vs-picgo插件，该插件直接依赖于PicList桌面端软件，支持多样上传和直接在Vscode中进行云端删除等功能。
+安装[VS-PicList](https://marketplace.visualstudio.com/items?itemName=Kuingsmile.vs-piclist)插件，与vs-picgo插件相比，该插件直接依赖于PicList桌面端软件，支持多种上传方式和直接在VSCode中进行云端删除等功能。
 
 ### 如何在Typora中使用
 
 #### **1.6.0版本及以上**
 
-**Typora 1.6.0-dev以及以上版本现在已经原生支持PicList了, 但你需要将Typora的语言设置为中文**
+**Typora 1.6.0-dev以及以上版本已原生支持PicList**。在1.10.6版本以下中，需要将Typora的语言设置为中文。
 
-1.8.0以下版本的Typora中需要同时设置上传服务PicList和PicGo（app）的路径为PicList的安装路径。
+如果您使用的是1.8.0以下版本的Typora，需要同时设置PicList和PicGo(app)上传服务的路径为PicList的安装路径。
 
-[下载地址](https://typora.io/releases/all)
+[Typora下载链接](https://typora.io/releases/all)
 
-#### 1.6.0版本以下
+#### **1.6.0版本以下**
 
-Windows:
+Windows系统：
+1. 进入Typora设置页面，选择"图像"
+2. 将上传服务设置为`PicGo(app)`
+3. 在`PicGo路径`中填写PicList的安装路径
 
-进入Typora设置界面，选择图像，将上传服务设置为 `PicGo(app)`，然后在 `PicGo路径`中填写PicList的安装路径，如下图所示：
+![Typora配置](https://user-images.githubusercontent.com/96409857/226522101-b3531b7b-534c-4149-b527-8738d4ebb041.png)
 
-![image](https://user-images.githubusercontent.com/96409857/226522101-b3531b7b-534c-4149-b527-8738d4ebb041.png)
-
-或者，您也可以使用 `npm install piclist`命令安装PicList-core，然后上传服务设置为 `PicGo-Core(command line)`。
+或者，您也可以使用`npm install piclist`命令安装PicList-core，然后将上传服务设置为`PicGo-Core(command line)`。
 
 ### 如何在Obsidian中使用
 
-在社区插件中搜索安装 `Image auto upload Plugin`，然后进入插件设置页面，修改默认上传器为 `PicGo(app)`，设置 `PicGo server`为 `http://127.0.0.1:36677/upload`即可，如下图所示, 此外该插件还额外支持通过PicList进行云端删除，请在删除接口内填入 `http://127.0.0.1:36677/delete`：
+1. 在社区插件中搜索安装`Image auto upload Plugin`
+2. 进入插件设置页面，将默认上传器修改为`PicGo(app)`
+3. 设置`PicGo server`为`http://127.0.0.1:36677/upload`
+4. 如需启用云端删除功能，请在删除接口中填入`http://127.0.0.1:36677/delete`
 
-![image](https://user-images.githubusercontent.com/96409857/226522718-8378c480-9fb4-4785-87e1-d59808862016.png)
+![Obsidian配置](https://user-images.githubusercontent.com/96409857/226522718-8378c480-9fb4-4785-87e1-d59808862016.png)
 
 ### 如何在Docker中使用
 
-#### docker run
-
-修改`./piclist`为你自己的配置文件`config.json`所在的路径，修改`piclist123456`为你自己的密钥。
+#### 使用docker run命令
 
 ```bash
 docker run -d \
@@ -96,9 +140,9 @@ docker run -d \
   node /usr/local/bin/picgo-server -k piclist123456
 ```
 
-#### docker-compose
+请将`./piclist`修改为您的配置文件`config.json`所在路径，将`piclist123456`修改为您自己的密钥。
 
-从piclist-core仓库下载`docker-compose.yml`文件，或者复制以下内容到`docker-compose.yml`文件中：
+#### 使用docker-compose
 
 ```yaml
 version: '3.3'
@@ -115,13 +159,7 @@ services:
     command: node /usr/local/bin/picgo-server -k piclist123456
 ```
 
-你可以修改`./piclist`为你自己的配置文件`config.json`所在的路径，修改`command`为你自己的密钥。
-
-然后运行
-
-```bash
-docker-compose up -d
-```
+使用`docker-compose up -d`命令启动。
 
 ## 已支持平台
 
@@ -144,96 +182,112 @@ docker-compose up -d
 |    兰空图床    |     ✔️      |     ✔️      |
 |   自定义图床   |     x      |     x      |
 
-|                                            插件                                            | 相册云删除 |
-| :----------------------------------------------------------------------------------------: | :--------: |
-|                [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3)                |     ✔️      |
-|           [picgo-plugin-alist](https://github.com/jinzhi0123/picgo-plugin-alist)           |     ✔️      |
-| [picgo-plugin-huawei-uploader](https://github.com/YunfengGao/picgo-plugin-huawei-uploader) |     ✔️      |
-|         [picgo-plugin-dogecloud](https://github.com/w4j1e/picgo-plugin-dogecloud)          |     ✔️      |
+**支持云删除功能的插件：**
+
+- [picgo-plugin-s3](https://github.com/wayjam/picgo-plugin-s3)
+- [picgo-plugin-alist](https://github.com/jinzhi0123/picgo-plugin-alist)
+- [picgo-plugin-huawei-uploader](https://github.com/YunfengGao/picgo-plugin-huawei-uploader)
+- [picgo-plugin-dogecloud](https://github.com/w4j1e/picgo-plugin-dogecloud)
 
 ## 下载安装
 
-[https://github.com/Kuingsmile/PicList/releases/latest](https://github.com/Kuingsmile/PicList/releases/latest)
+### 直接下载
 
-### Scoop
+[下载最新版本](https://github.com/Kuingsmile/PicList/releases/latest)
 
-感谢[scoop-lemon](https://github.com/hoilc/scoop-lemon)，你可以使用Scoop来安装PicList，只需要执行以下命令即可：
+### Scoop（Windows）
 
 ```bash
 scoop bucket add lemon https://github.com/hoilc/scoop-lemon
 scoop install lemon/piclist
 ```
 
-### Homebrew
-
-MacOS用户现在可以使用Homebrew来安装PicList了，只需要执行以下命令即可：
+### Homebrew（macOS）
 
 ```bash
+# 安装
 brew install piclist --cask
-```
 
-卸载命令：
-
-```bash
+# 卸载
 brew uninstall piclist
 ```
 
 ### Mac特殊说明
 
-如果macOS系统安装PicList后显示“文件已损坏”或者安装后打开无响应，请升级到PicList V1.4.1或以上版本。
+如果macOS系统安装PicList后显示"文件已损坏"或安装后打开无响应，请升级到PicList V1.4.1或以上版本。
 
-V1.4.1之后，所有mac安装包都已经使用我的开发者证书签名，不会被macOS系统识别为“恶意软件”，不会出现“文件已损坏”提示。
+V1.4.1之后，所有mac安装包都已使用开发者证书签名，不会被macOS系统识别为"恶意软件"，不会出现"文件已损坏"提示。
 
 ## 应用截图
 
-![image](https://github.com/Kuingsmile/PicList/assets/96409857/1b76c0c4-753c-4d66-aa24-f805f9c2da15)
-![image](https://github.com/Kuingsmile/PicList/assets/96409857/56cf838a-a2eb-40af-96d4-1ffea25400af)
-![image](https://github.com/Kuingsmile/PicList/assets/96409857/bca7688a-e07f-4e80-9edd-c224298fa8ab)
-![image](https://github.com/Kuingsmile/PicList/assets/96409857/3e48e03d-b0b2-49e2-92a6-a52e0884677d)
-![image](https://github.com/Kuingsmile/PicList/assets/96409857/29de0046-1aef-4b28-95a6-b26c6e297c6f)
-![image](https://github.com/Kuingsmile/PicList/assets/96409857/e1c04488-2d3a-4e8f-aa26-ce41d0a383e2)
+![上传界面](https://github.com/Kuingsmile/PicList/assets/96409857/1b76c0c4-753c-4d66-aa24-f805f9c2da15)
+![相册视图](https://github.com/Kuingsmile/PicList/assets/96409857/56cf838a-a2eb-40af-96d4-1ffea25400af)
+![云存储管理](https://github.com/Kuingsmile/PicList/assets/96409857/bca7688a-e07f-4e80-9edd-c224298fa8ab)
+![设置页面](https://github.com/Kuingsmile/PicList/assets/96409857/3e48e03d-b0b2-49e2-92a6-a52e0884677d)
+![图像编辑](https://github.com/Kuingsmile/PicList/assets/96409857/29de0046-1aef-4b28-95a6-b26c6e297c6f)
+![文件预览](https://github.com/Kuingsmile/PicList/assets/96409857/e1c04488-2d3a-4e8f-aa26-ce41d0a383e2)
 
 ## 开发说明
 
-1. 你需要有 Node、Git 环境，了解 npm 的相关知识。
-2. git clone [https://github.com/Kuingsmile/PicList.git](https://github.com/Kuingsmile/PicList.git) 并进入项目。
-   `yarn` 下载依赖
-   注意如果你没有`yarn`，请去 官网 下载安装后再使用。 用 `npm install` 将导致未知错误！
-3. Mac 需要有 `Xcode` 环境，Windows 需要有 `VS` 环境。
-4. 如果需要贡献代码，可以参考[贡献指南](https://github.com/Kuingsmile/PicList/blob/dev/CONTRIBUTING.md)。
+### 前提条件
+
+1. 需要Node.js和Git环境
+2. 了解npm相关知识
+3. Mac需要Xcode环境，Windows需要Visual Studio环境
+
+### 开始开发
+
+```bash
+git clone https://github.com/Kuingsmile/PicList.git
+cd PicList
+yarn  # 不要使用npm install
+```
+
+如需贡献代码，请参考[贡献指南](https://github.com/Kuingsmile/PicList/blob/dev/CONTRIBUTING.md)。
 
 ### 开发模式
 
-输入 `yarn run dev` 进入开发模式，开发模式具有热重载特性。不过需要注意的是，开发模式不稳定，会有进程崩溃的情况。此时需要：
+```bash
+yarn run dev
+```
 
-`ctrl+c` # 退出开发模式
-`yarn run dev` # 重新进入开发模式
+开发模式具有热重载特性，但可能不稳定。如果进程崩溃，请用`Ctrl+C`退出并重新启动。
 
-注：Windows 开发模式运行之后会在底部任务栏的右下角应用区出现 PicList 的应用图标。
+注意：开发模式运行后，PicList的应用图标会出现在任务栏/系统托盘中。
 
-### 生产模式
+### 生产构建
 
-如果你需要自行构建，可以 `yarn run build` 开始进行构建。构建成功后，会在 `dist_electron` 目录里出现构建成功的相应安装文件。
+```bash
+yarn run build
+```
 
-注意：如果你的网络环境不太好，可能会出现 `electron-builder` 下载 electron 二进制文件失败的情况。这个时候需要在 `npm run electron:build` 之前指定一下 electron 的源为国内源：
+构建成功后，安装文件将出现在`dist_electron`目录中。
 
-`export ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"`
+如果遇到网络问题导致electron-builder下载失败，可以设置镜像源：
 
-**在 Windows 上，则可以使用 `set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/` （无需引号）**
+**Linux/macOS:**
+```bash
+export ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+```
+
+**Windows:**
+```cmd
+set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
+```
 
 ## 其它相关
 
-- [PicList-Core](https://github.com/Kuingsmile/PicList-Core) : 基于 PicGo-Core 二次开发的核心库，用于 CLI 操作和项目开发
-- [PicHoro](https://github.com/Kuingsmile/PicHoro): 与 PicList 搭配使用的手机端 APP
-- [VS-PicList](https://github.com/Kuingsmile/vs-PicList/): 与 PicList 搭配使用的VScode插件
+- [PicList-Core](https://github.com/Kuingsmile/PicList-Core)：基于PicGo-Core的核心库，用于CLI操作和项目开发
+- [PicHoro](https://github.com/Kuingsmile/PicHoro)：配合PicList使用的手机APP
+- [VS-PicList](https://github.com/Kuingsmile/vs-PicList/)：配合PicList使用的VSCode插件
 
 ## 交流群
 
-如果有任何问题，可以加入TG群进行交流.
+如有任何问题，欢迎加入TG群进行交流：
 
 [PicList交流群](https://t.me/+rq8y7wsj7Pg5ZTg1)
 
-![tg](https://pichoro.msq.pub/wechat.png)
+![TG群二维码](https://pichoro.msq.pub/wechat.png)
 
 ## License
 
@@ -241,12 +295,11 @@ V1.4.1之后，所有mac安装包都已经使用我的开发者证书签名，�
 
 [MIT](https://opensource.org/licenses/MIT)
 
-Copyright (c) 2017-present Molunerfinn
-
+Copyright (c) 2017-present Molunerfinn  
 Copyright (c) 2023-present Kuingsmile
 
 ## Star Me
 
-- Star 趋势  [![GitHub stars](https://img.shields.io/github/stars/kuingsmile/PicList?logo=github&style=social)](https://github.com/kuingsmile/PicList/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/kuingsmile/PicList?logo=github&style=social)](https://github.com/kuingsmile/PicList/stargazers)
 
 [![Stargazers over time](https://starchart.cc/kuingsmile/PicList.svg)](https://github.com/kuingsmile/PicList/stargazers)
