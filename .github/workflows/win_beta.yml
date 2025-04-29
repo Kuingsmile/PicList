@@ -1,7 +1,7 @@
 # main.yml
 
 # Workflow's name
-name: Win Build
+name: Win Beta Build
 
 # Workflow's trigger
 on:
@@ -39,6 +39,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '16.x'
+          architecture: 'x64'
 
       - name: Yarn install windows
         if: matrix.os == 'windows-11-arm'
