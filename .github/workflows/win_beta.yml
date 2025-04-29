@@ -45,6 +45,7 @@ jobs:
         if: matrix.os == 'windows-11-arm'
         run: |
           yarn
+          yarn run lint:fix
           yarn global add xvfb-maybe
 
       - name: Build  & release app
