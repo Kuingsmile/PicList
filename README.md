@@ -21,6 +21,7 @@
 
 - [📑 Table of Contents](#-table-of-contents)
 - [Introduction](#introduction)
+- [Official Website](#official-website)
 - [How to Migrate from PicGo](#how-to-migrate-from-picgo)
 - [PicList-Core](#piclist-core)
 - [Key Features](#key-features)
@@ -59,6 +60,12 @@ PicList is an efficient cloud storage and image hosting management tool built up
 - Cloud-synchronized file deletion in album view
 - Comprehensive cloud storage management with file operations, search, and previews
 - Built-in image processing tools (watermarks, compression, scaling, rotation, format conversion)
+
+## Official Website
+
+Please visit the [PicList official website piclist.cn](https://piclist.cn) for more information.
+
+You can also visit the [DeepWiki of PicList](https://deepwiki.com/Kuingsmile/PicList) to learn more about the project architecture and development.
 
 ## How to Migrate from PicGo
 
