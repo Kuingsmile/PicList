@@ -67,7 +67,7 @@
     "multer": "^1.4.5-lts.1",
     "node-ssh-no-cpu-features": "^2.0.0",
     "nodejs-file-downloader": "^4.12.1",
-    "piclist": "^1.9.11",
+    "piclist": "^1.9.12",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
     "proxy-agent": "^5.0.0",
@@ -97,7 +97,7 @@
     "@types/lowdb": "^1.0.15",
     "@types/mime-types": "^2.1.4",
     "@types/multer": "^1.4.11",
-    "@types/node": "^22.0.0",
+    "@types/node": "^18.19.110",
     "@types/semver": "^7.5.6",
     "@types/tunnel": "^0.0.7",
     "@types/upyun": "^3.4.3",
@@ -149,7 +149,7 @@
     }
   },
   "resolutions": {
-    "@types/node": "^16.10.2",
+    "@types/node": "^18.19.110",
     "vue-cli-plugin-electron-builder/**/electron-builder": "23.3.3"
   }
 }
