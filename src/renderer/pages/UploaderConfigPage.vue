@@ -3,61 +3,60 @@
     <div class="view-title">
       {{ $T('SETTINGS') }}
     </div>
-    <div class="config-list-container">
-      <el-row :gutter="20" justify="start" class="config-list">
-        <el-col
-          v-for="item in curConfigList"
-          :key="item._id"
-          class="config-item-col"
-          :xs="24"
-          :sm="curConfigList.length === 1 ? 24 : 12"
-          :md="curConfigList.length === 1 ? 24 : 12"
-          :lg="curConfigList.length === 1 ? 12 : 8"
-          :xl="curConfigList.length === 1 ? 12 : 6"
+    <el-row :gutter="15" justify="space-between" align="middle" type="flex" class="config-list">
+      <el-col
+        v-for="item in curConfigList"
+        :key="item._id"
+        class="config-item-col"
+        :xs="24"
+        :sm="curConfigList.length === 1 ? 24 : 12"
+        :md="curConfigList.length === 1 ? 24 : 12"
+        :lg="curConfigList.length === 1 ? 12 : 6"
+        :xl="curConfigList.length === 1 ? 12 : 3"
+      >
+        <div
+          :class="`config-item ${defaultConfigId === item._id ? 'selected' : ''}`"
+          @click="() => selectItem(item._id)"
         >
-          <div
-            :class="`config-card ${defaultConfigId === item._id ? 'selected' : ''}`"
-            @click="() => selectItem(item._id)"
-          >
-            <div class="config-card-content">
-              <div class="config-name">{{ item._configName }}</div>
-              <div class="config-update-time">{{ formatTime(item._updatedAt) }}</div>
-            </div>
-            <div v-if="defaultConfigId === item._id" class="default-badge">
-              {{ $T('SELECTED_SETTING_HINT') }}
-            </div>
-            <div class="config-card-actions">
-              <el-button class="action-btn edit-btn" circle type="primary" @click.stop="openEditPage(item._id)">
-                <el-icon><Edit /></el-icon>
-              </el-button>
-              <el-button
-                class="action-btn delete-btn"
-                circle
-                type="danger"
-                :disabled="curConfigList.length <= 1"
-                @click.stop="() => deleteConfig(item._id)"
-              >
-                <el-icon><Delete /></el-icon>
-              </el-button>
-            </div>
+          <div class="config-name">
+            {{ item._configName }}
           </div>
-        </el-col>
-        <el-col
-          class="config-item-col"
-          :xs="24"
-          :sm="curConfigList.length === 1 ? 24 : 12"
-          :md="curConfigList.length === 1 ? 24 : 12"
-          :lg="curConfigList.length === 1 ? 12 : 8"
-          :xl="curConfigList.length === 1 ? 12 : 6"
-        >
-          <div class="config-card add-card" @click="addNewConfig">
-            <el-icon class="add-icon"><Plus /></el-icon>
-            <span class="add-text">{{ $T('SETTINGS') }}</span>
+          <div class="config-update-time">
+            {{ formatTime(item._updatedAt) }}
           </div>
-        </el-col>
-      </el-row>
-    </div>
-    <div class="set-default-container">
+          <div v-if="defaultConfigId === item._id" class="default-text">
+            {{ $T('SELECTED_SETTING_HINT') }}
+          </div>
+          <div class="operation-container">
+            <el-icon class="el-icon-edit" @click="openEditPage(item._id)">
+              <Edit />
+            </el-icon>
+            <el-icon
+              class="el-icon-delete"
+              :class="curConfigList.length <= 1 ? 'disabled' : ''"
+              @click.stop="() => deleteConfig(item._id)"
+            >
+              <Delete />
+            </el-icon>
+          </div>
+        </div>
+      </el-col>
+      <el-col
+        class="config-item-col"
+        :xs="24"
+        :sm="curConfigList.length === 1 ? 24 : 12"
+        :md="curConfigList.length === 1 ? 24 : 12"
+        :lg="curConfigList.length === 1 ? 12 : 6"
+        :xl="curConfigList.length === 1 ? 12 : 3"
+      >
+        <div class="config-item config-item-add" @click="addNewConfig">
+          <el-icon class="el-icon-plus">
+            <Plus />
+          </el-icon>
+        </div>
+      </el-col>
+    </el-row>
+    <el-row type="flex" justify="center" :span="24" class="set-default-container">
       <el-button
         class="set-default-btn"
         type="success"
@@ -67,7 +66,7 @@
       >
         {{ $T('SETTINGS_SET_DEFAULT_PICBED') }}
       </el-button>
-    </div>
+    </el-row>
   </div>
 </template>
 
@@ -181,15 +180,6 @@ export default {
 }
 </script>
 <style lang="stylus">
-$transitionDefault = all 0.25s cubic-bezier(0.4, 0, 0.2, 1)
-$borderRadius = 8px
-$cardBg = rgba(55, 60, 70, 0.55)
-$hoverBg = rgba(50, 54, 62, 0.7)
-$selectedBorder = #409EFF
-$cardShadow = 0 3px 8px rgba(0, 0, 0, 0.25)
-$cardShadowHover = 0 5px 15px rgba(0, 0, 0, 0.35)
-$normalBorder = rgba(150, 150, 150, 0.25)
-
 #config-list-view
   position absolute
   min-height 100%
@@ -197,160 +187,72 @@ $normalBorder = rgba(150, 150, 150, 0.25)
   right 0
   overflow-x hidden
   overflow-y auto
-  padding 0 20px 90px
+  padding-bottom 50px
   box-sizing border-box
-  display flex
-  flex-direction column
-
-  .view-title
-    color #eee
-    font-size 24px
-    font-weight 500
-    margin 20px 0
-    text-align center
-    letter-spacing 0.5px
-
-  .config-list-container
-    flex 1
-    width 100%
-    box-sizing border-box
-
   .config-list
-    margin 0
-    width 100%
-
-  .config-item-col
-    margin-bottom 20px
-
-  .config-card
-    position relative
-    height 110px
-    border-radius $borderRadius
-    background $cardBg
-    backdrop-filter blur(5px)
-    box-shadow $cardShadow
-    transition $transitionDefault
-    cursor pointer
-    overflow hidden
-    display flex
-    align-items center
-    justify-content space-between
-    padding 0 15px 0 20px
-    border 1px solid $normalBorder
-
-    &:hover
-      transform translateY(-3px)
-      box-shadow $cardShadowHover
-      background $hoverBg
-
-    &.selected
-      border 1px solid $selectedBorder
-      background rgba(64, 158, 255, 0.15) // Slightly more visible selected state
-
-    .default-badge
-      position absolute
-      right 0
-      top 0
-      font-size 11px
-      font-weight 600
-      padding 4px 10px
-      background $selectedBorder
-      color #fff
-      z-index 5
-      border-bottom-left-radius $borderRadius
-
-    .config-card-content
-      flex-grow 1
-      padding 15px 0
-      overflow hidden
+    flex-wrap wrap
+    width: 98%
+    .config-item
+      height 85px
+      margin-bottom 20px
+      border-radius 4px
+      cursor pointer
+      box-sizing border-box
+      padding 8px
+      background rgba(130, 130, 130, .2)
+      border 1px solid transparent
+      box-shadow 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04)
       position relative
-
       .config-name
-        color #fff
+        color #eee
         font-size 16px
-        font-weight 500
-        margin-bottom 10px
-        white-space nowrap
-        overflow hidden
-        text-overflow ellipsis
-
       .config-update-time
         color #aaa
         font-size 14px
-
-    .config-card-actions
-      display flex
-      flex-direction row
-      gap 10px
-      align-items center
-
-      .action-btn
-        transition $transitionDefault
-        border none
-        width 32px
-        height 32px
+        margin-top 10px
+      .default-text
+        color #67C23A
+        font-size 12px
+        margin-top 5px
+      .operation-container
+        position absolute
+        right 5px
+        top 8px
+        left 0
+        font-size 18pxc
+        word-break break-all
         display flex
         align-items center
-        justify-content center
-
-        &.edit-btn
-          &:hover
-            transform scale(1.1)
-
-        &.delete-btn
-          &:hover:not(:disabled)
-            transform scale(1.1)
-
-          &:disabled
-            opacity 0.5
-            cursor not-allowed
-
-  .add-card
-    display flex
-    flex-direction column
-    align-items center
-    justify-content center
-    background rgba(50, 54, 62, 0.4)
-    border 1px dashed rgba(255, 255, 255, 0.4)
-
-    &:hover
-      border-color rgba(255, 255, 255, 0.8)
-      background rgba(64, 158, 255, 0.15)
-
-      .add-icon
-        transform rotate(90deg)
-
-    .add-icon
-      font-size 32px
-      color #eee
-      margin-bottom 8px
-      transition $transitionDefault
-
-    .add-text
-      color #eee
-      font-size 14px
-
+        color #eee
+        .el-icon-edit
+          right 20px
+          position absolute
+          top 2px
+          margin-right 10px
+          cursor pointer
+        .el-icon-delete
+          position absolute
+          top 2px
+          margin-right 10px
+          right 0
+          cursor pointer
+        .el-icon-edit
+          margin-right 10px
+        .disabled
+          cursor not-allowed
+          color #aaa
+    .config-item-add
+      display: flex
+      justify-content: center
+      align-items: center
+      color: #eee
+      font-size: 28px
+    .selected
+      border 1px solid #409EFF
   .set-default-container
-    position fixed
-    bottom 0
-    left 162px
-    right 0
-    display flex
-    justify-content center
-    align-items center
-    padding 15px 0
-    height 70px
-    background linear-gradient(to top, rgba(30, 34, 42, 0.95) 0%, rgba(30, 34, 42, 0.8) 60%, rgba(30, 34, 42, 0) 100%)
-    z-index 10
-
+    position absolute
+    bottom 10px
+    width 100%
     .set-default-btn
       width 250px
-      height 40px
-      font-weight 500
-      transition $transitionDefault
-      margin-bottom 0
-
-      &:not(:disabled):hover
-        transform translateY(-2px)
-        box-shadow 0 4px 12px rgba(0, 0, 0, 0.3)
 </style>

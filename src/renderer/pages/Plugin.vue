@@ -1,144 +1,122 @@
 <template>
   <div id="plugin-view">
-    <div class="view-header">
-      <div class="view-title">
-        <span>{{ $T('PLUGIN_SETTINGS') }}</span>
-        <div class="view-actions">
-          <el-tooltip :content="pluginListToolTip" placement="top" :persistent="false" teleported>
-            <el-button class="action-button" circle @click="goAwesomeList">
-              <el-icon><Goods /></el-icon>
-            </el-button>
-          </el-tooltip>
-          <el-tooltip :content="updateAllToolTip" placement="top" :persistent="false" teleported>
-            <el-button class="action-button" circle @click="handleUpdateAllPlugin">
-              <el-icon><Refresh /></el-icon>
-            </el-button>
-          </el-tooltip>
-          <el-tooltip :content="importLocalPluginToolTip" placement="top" :persistent="false" teleported>
-            <el-button class="action-button" circle @click="handleImportLocalPlugin">
-              <el-icon><Download /></el-icon>
-            </el-button>
-          </el-tooltip>
-        </div>
-      </div>
-      <div class="search-bar">
-        <el-input v-model="searchText" :placeholder="$T('PLUGIN_SEARCH_PLACEHOLDER')" size="large" class="search-input">
-          <template #prefix>
-            <el-icon class="search-icon"><Search /></el-icon>
-          </template>
-          <template #suffix>
-            <el-icon v-if="searchText" class="clear-icon" @click="cleanSearch">
-              <Close />
-            </el-icon>
-          </template>
-        </el-input>
-      </div>
+    <div class="view-title">
+      {{ $T('PLUGIN_SETTINGS') }} -
+      <el-tooltip :content="pluginListToolTip" placement="right" :persistent="false" teleported>
+        <el-icon class="el-icon-goods" @click="goAwesomeList">
+          <Goods />
+        </el-icon>
+      </el-tooltip>
+      <el-tooltip :content="updateAllToolTip" placement="left" :persistent="false" teleported>
+        <el-icon class="el-icon-update" @click="handleUpdateAllPlugin">
+          <Refresh />
+        </el-icon>
+      </el-tooltip>
+      <el-tooltip :content="importLocalPluginToolTip" placement="left">
+        <el-icon class="el-icon-download" :persistent="false" teleported @click="handleImportLocalPlugin">
+          <Download />
+        </el-icon>
+      </el-tooltip>
     </div>
-
-    <div id="pluginList" v-loading="loading" class="plugin-list" element-loading-text="Loading...">
-      <el-row :gutter="16">
-        <el-col
-          v-for="item in pluginList"
-          :key="item.fullName"
-          class="plugin-item__container"
-          :xs="24"
-          :sm="12"
-          :md="8"
-          :lg="8"
-          :xl="6"
-        >
-          <div class="plugin-card" :class="{ disabled: !item.enabled, darwin: osGlobal === 'darwin' }">
-            <div v-if="!item.gui" class="cli-only-badge">CLI</div>
-            <div class="plugin-header">
-              <img class="plugin-logo" :src="item.logo" :onerror="defaultLogo" />
-              <div class="plugin-title" @click="openHomepage(item.homepage)">
-                <div class="plugin-name">
-                  {{ item.name }}
-                  <el-tag
-                    v-if="latestVersionMap[item.fullName] && latestVersionMap[item.fullName] !== item.version"
-                    type="success"
-                    size="small"
-                    effect="dark"
-                    class="version-tag"
-                  >
-                    new
-                  </el-tag>
-                </div>
-                <div class="plugin-version">v{{ item.version }}</div>
-              </div>
+    <el-row class="handle-bar" :class="{ 'cut-width': pluginList.length > 6 }">
+      <el-input v-model="searchText" :placeholder="$T('PLUGIN_SEARCH_PLACEHOLDER')" size="small">
+        <template #suffix>
+          <el-icon class="el-input__icon" style="cursor: pointer" @click="cleanSearch">
+            <close />
+          </el-icon>
+        </template>
+      </el-input>
+    </el-row>
+    <el-row id="pluginList" v-loading="loading" :gutter="10" class="plugin-list">
+      <el-col
+        v-for="item in pluginList"
+        :key="item.fullName"
+        class="plugin-item__container"
+        :xs="24"
+        :sm="pluginList.length === 1 ? 24 : 12"
+        :md="pluginList.length === 1 ? 24 : 12"
+        :lg="pluginList.length === 1 ? 24 : 12"
+        :xl="pluginList.length === 1 ? 24 : 12"
+      >
+        <div class="plugin-item" :class="{ darwin: osGlobal === 'darwin' }">
+          <div v-if="!item.gui" class="cli-only-badge" title="CLI only">CLI</div>
+          <img class="plugin-item__logo" :src="item.logo" :onerror="defaultLogo" />
+          <div class="plugin-item__content" :class="{ disabled: !item.enabled }">
+            <div class="plugin-item__name" @click="openHomepage(item.homepage)">
+              {{ item.name }} <small>{{ ' ' + item.version }}</small> &nbsp;
+              <!-- 升级提示 -->
+              <el-tag
+                v-if="latestVersionMap[item.fullName] && latestVersionMap[item.fullName] !== item.version"
+                type="success"
+                size="small"
+                round
+                effect="plain"
+              >
+                new
+              </el-tag>
             </div>
-
-            <div class="plugin-description" :title="item.description">
+            <div class="plugin-item__desc" :title="item.description">
               {{ item.description }}
             </div>
-
-            <div class="plugin-footer">
-              <div class="plugin-author">
-                <el-icon><User /></el-icon>
+            <div class="plugin-item__info-bar">
+              <span class="plugin-item__author">
                 {{ item.author.replace(/<.*>/, '') }}
-              </div>
-
-              <div class="plugin-actions">
+              </span>
+              <span class="plugin-item__config">
                 <template v-if="searchText">
                   <template v-if="!item.hasInstall">
-                    <el-button
-                      v-if="!item.ing"
-                      type="primary"
-                      size="small"
-                      :loading="item.ing"
-                      @click="installPlugin(item)"
-                    >
+                    <span v-if="!item.ing" class="config-button install" @click="installPlugin(item)">
                       {{ $T('PLUGIN_INSTALL') }}
-                    </el-button>
-                    <el-button v-else type="info" size="small" loading>
+                    </span>
+                    <span v-else-if="item.ing" class="config-button ing">
                       {{ $T('PLUGIN_INSTALLING') }}
-                    </el-button>
+                    </span>
                   </template>
-                  <el-button v-else type="success" size="small" disabled>
+                  <span v-else class="config-button ing">
                     {{ $T('PLUGIN_INSTALLED') }}
-                  </el-button>
+                  </span>
                 </template>
                 <template v-else>
-                  <el-button v-if="item.ing" type="info" size="small" loading>
+                  <span v-if="item.ing" class="config-button ing">
                     {{ $T('PLUGIN_DOING_SOMETHING') }}
-                  </el-button>
+                  </span>
                   <template v-else>
-                    <el-button v-if="item.enabled" type="primary" size="small" circle @click="buildContextMenu(item)">
-                      <el-icon><Tools /></el-icon>
-                    </el-button>
-                    <el-button v-else type="danger" size="small" circle @click="buildContextMenu(item)">
-                      <el-icon><Remove /></el-icon>
-                    </el-button>
+                    <el-icon v-if="item.enabled" class="el-icon-setting" @click="buildContextMenu(item)">
+                      <Tools />
+                    </el-icon>
+                    <el-icon v-else class="el-icon-remove-outline" @click="buildContextMenu(item)">
+                      <Remove />
+                    </el-icon>
                   </template>
                 </template>
-              </div>
+              </span>
             </div>
           </div>
-        </el-col>
-      </el-row>
-    </div>
-
-    <div v-show="needReload" class="reload-mask">
-      <el-button type="primary" size="large" @click="reloadApp">
-        <el-icon class="reload-icon"><Refresh /></el-icon>
+        </div>
+      </el-col>
+    </el-row>
+    <el-row v-show="needReload" class="reload-mask" :class="{ 'cut-width': pluginList.length > 6 }" justify="center">
+      <el-button type="primary" size="small" round @click="reloadApp">
         {{ $T('TIPS_NEED_RELOAD') }}
       </el-button>
-    </div>
-
+    </el-row>
     <el-dialog
       v-model="dialogVisible"
       :modal-append-to-body="false"
-      :title="$T('CONFIG_THING', { c: configName })"
+      :title="
+        $T('CONFIG_THING', {
+          c: configName
+        })
+      "
       width="70%"
-      class="config-dialog"
       append-to-body
     >
       <config-form :id="configName" ref="$configForm" :config="config" :type="currentType" color-mode="white" />
       <template #footer>
-        <el-button @click="dialogVisible = false">
+        <el-button round @click="dialogVisible = false">
           {{ $T('CANCEL') }}
         </el-button>
-        <el-button type="primary" @click="handleConfirmConfig">
+        <el-button type="primary" round @click="handleConfirmConfig">
           {{ $T('CONFIRM') }}
         </el-button>
       </template>
@@ -151,7 +129,7 @@ import axios from 'axios'
 import { ipcRenderer, IpcRendererEvent } from 'electron'
 import { ElMessageBox } from 'element-plus'
 import { debounce, DebouncedFunc } from 'lodash'
-import { Close, Download, Refresh, Goods, Remove, Tools, Search, User } from '@element-plus/icons-vue'
+import { Close, Download, Refresh, Goods, Remove, Tools } from '@element-plus/icons-vue'
 import { computed, ref, onBeforeMount, onBeforeUnmount, watch, onMounted, reactive, toRaw } from 'vue'
 
 import ConfigForm from '@/components/ConfigFormForPlugin.vue'
@@ -331,8 +309,7 @@ async function buildContextMenu(plugin: IPicGoPlugin) {
 function handleResize() {
   const myDiv = document.getElementById('pluginList') as HTMLElement
   const windowHeight = window.innerHeight
-  const headerHeight = 120 // Adjusted for new header layout
-  const newHeight = windowHeight - headerHeight - 30
+  const newHeight = windowHeight * 0.75
   myDiv.style.height = newHeight + 'px'
 }
 
@@ -515,283 +492,171 @@ export default {
 }
 </script>
 <style lang="stylus">
-$primaryColor = #409EFF
-$dangerColor = #F56C6C
-$successColor = #67C23A
-$warningColor = #E6A23C
-$infoColor = #909399
-$textColor = #FFFFFF
-$subtextColor = #E8EAED
-$disabledColor = #A0A0A0
-$cardBg = rgba(55, 60, 70, 0.55)
-$headerBg = rgba(35, 40, 50, 0.9)
-$hoverBg = rgba(65, 70, 85, 0.9)
-$borderRadius = 8px
-$transitionEase = all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
-$boxShadow = 0 4px 12px rgba(0, 0, 0, 0.2)
-$hoverShadow = 0 8px 16px rgba(0, 0, 0, 0.3)
-
+$darwinBg = #172426
 #plugin-view
   position absolute
   left 142px
   right 0
-  height 100%
-  padding 0 16px
-  box-sizing border-box
-  overflow hidden
-  color $textColor
-
-  .view-header
-    position sticky
-    top 0
-    z-index 90
-    padding 16px 0
-    background linear-gradient(to bottom, rgba(30, 34, 42, 0.95), rgba(30, 34, 42, 0.85))
-    backdrop-filter blur(8px)
-    border-bottom 1px solid rgba(255, 255, 255, 0.1)
-
-  .view-title
-    display flex
-    justify-content space-between
-    align-items center
-    margin-bottom 16px
-    font-size 24px
-    font-weight 600
-
-    span
-      flex 1
-
-    .view-actions
-      display flex
-      gap 8px
-
-      .action-button
-        background rgba(255, 255, 255, 0.1)
-        border none
-        color $textColor
-        transition $transitionEase
-
-        &:hover
-          background rgba(255, 255, 255, 0.2)
-          transform translateY(-2px)
-
-  .search-bar
-    margin-bottom 8px
-
-    .search-input
-      .el-input__wrapper
-        background rgba(255, 255, 255, 0.1)
-        border-radius $borderRadius
-        border none
-        box-shadow none !important
-        transition $transitionEase
-
-        &:hover, &:focus-within
-          background rgba(255, 255, 255, 0.15)
-
-      .el-input__inner
-        color $textColor
-
-      .search-icon
-        color $disabledColor
-
-      .clear-icon
-        color $disabledColor
-        cursor pointer
-        transition $transitionEase
-
-        &:hover
-          color $textColor
-
+  .el-loading-mask
+    background-color rgba(0, 0, 0, 0.8)
   .plugin-list
-    height calc(100vh - 175px)
-    overflow-y auto
-    overflow-x hidden
-    padding 16px 0  // Increased padding from 8px to 16px
-    scroll-behavior smooth
-
-    .el-row
-      margin-bottom 0 !important  // Ensure el-row doesn't add its own margins
-
+    align-content flex-start
+    height: 600px;
+    box-sizing: border-box;
+    padding: 8px 15px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: absolute;
+    top: 70px;
+    left: 5px;
+    transition: all 0.2s ease-in-out 0.1s;
+    width: 100%
     .el-loading-mask
-      background-color rgba(0, 0, 0, 0.8)
-      backdrop-filter blur(4px)
-
-  .plugin-item__container
-    margin-bottom 24px  // Increased from 16px to provide more space between rows
-
-    .plugin-card
-      background $cardBg
-      border-radius $borderRadius
-      padding 16px
-      min-height 220px
-      box-shadow $boxShadow
-      transition $transitionEase
-      display flex
-      flex-direction column
-      position relative
-      overflow hidden
-      border 1px solid rgba(255, 255, 255, 0.1)  // Added subtle border
-
+      left: 20px
+      width: calc(100% - 40px)
+  .view-title
+    color #eee
+    font-size 20px
+    text-align center
+    margin 10px auto
+    position relative
+    i.el-icon-goods
+      margin-left 4px
+      font-size 20px
+      vertical-align middle
+      cursor pointer
+      transition color .2s ease-in-out
       &:hover
-        transform translateY(-3px)
-        box-shadow $hoverShadow
-        background $hoverBg
-        border-color rgba(255, 255, 255, 0.2)  // Brighter border on hover
-
-    &.disabled
-      opacity 0.7
-
-      &:before
-        content ""
-        position absolute
-        top 0
-        left 0
-        right 0
-        bottom 0
-        background rgba(0, 0, 0, 0.3)
-        z-index 1
-        pointer-events none
-
+        color #49B1F5
+    i.el-icon-update
+      position absolute
+      right 35px
+      top 8px
+      font-size 20px
+      vertical-align middle
+      cursor pointer
+      transition color .2s ease-in-out
+      &:hover
+        color #49B1F5
+    i.el-icon-download
+      position absolute
+      right 5px
+      top 8px
+      font-size 20px
+      vertical-align middle
+      cursor pointer
+      transition color .2s ease-in-out
+      &:hover
+        color #49B1F5
+  .handle-bar
+    margin-bottom 20px
+    &.cut-width
+      padding-right: 8px
+  .el-input__inner
+    border-radius 0
+  .plugin-item
+    box-sizing border-box
+    height 80px
+    background #444
+    padding 8px
+    user-select text
+    transition all .2s ease-in-out
+    position relative
+    &__container
+      height 80px
+      margin-bottom 10px
     .cli-only-badge
       position absolute
-      right 0
+      right 0px
       top 0
-      font-size 11px
-      font-weight 600
-      padding 4px 10px
-      background $warningColor
-      color #fff
-      z-index 5
-      border-bottom-left-radius $borderRadius
-
-  .plugin-header
-    display flex
-    align-items center
-    margin-bottom 12px
-
-    .plugin-logo
-      width 48px
-      height 48px
-      border-radius 12px
-      object-fit cover
-      background rgba(0, 0, 0, 0.2)
-      box-shadow 0 2px 6px rgba(0, 0, 0, 0.2)
-
-    .plugin-title
-      margin-left 12px
-      cursor pointer
-      transition $transitionEase
-
+      font-size 12px
+      padding 3px 8px
+      background #49B1F5
+      color #eee
+    &.darwin
+      background transparentify($darwinBg, #000, 0.75)
       &:hover
-        color $primaryColor
-
-      .plugin-name
-        font-size 16px
-        font-weight 600
-        display flex
-        align-items center
-        max-width 200px
-        overflow hidden
-        text-overflow ellipsis
-        white-space nowrap
-
-        .version-tag
-          margin-left 8px
-          font-size 10px
-          height 18px
-          line-height 1
-          padding 2px 6px
-          border-radius 10px
-
-      .plugin-version
-        font-size 12px
-        color $disabledColor
-        margin-top 2px
-
-  .plugin-description
-    flex 1
-    font-size 14px
-    line-height 1.5
-    margin-bottom 16px
-    display -webkit-box
-    -webkit-line-clamp 3
-    -webkit-box-orient vertical
-    overflow hidden
-    color rgba(255, 255, 255, 0.95)
-    font-weight 400
-
-  .plugin-footer
-    display flex
-    justify-content space-between
-    align-items center
-    margin-top auto
-    padding-top 12px
-    border-top 1px solid rgba(255, 255, 255, 0.1)
-
-    .plugin-author
-      font-size 13px
-      color $disabledColor
+        background transparentify($darwinBg, #000, 0.85)
+    &:hover
+      background #333
+    &__logo
+      width 64px
+      height 64px
+      float left
+    &__content
+      float left
+      width calc(100% - 72px)
+      height 64px
+      color #ddd
+      margin-left 8px
       display flex
-      align-items center
-      max-width 60%
+      flex-direction column
+      justify-content space-between
+      &.disabled
+        color #aaa
+    &__name
+      font-size 16px
+      height 22px
+      line-height 22px
+      font-weight 600
+      cursor pointer
+      text-overflow ellipsis
+      white-space nowrap
+      overflow hidden
+      transition all .2s ease-in-out
+      &:hover
+        color: #1B9EF3
+    &__desc
+      font-size 14px
+      height 21px
+      line-height 21px
       overflow hidden
       text-overflow ellipsis
       white-space nowrap
-
-      .el-icon
-        margin-right 6px
-        font-size 14px
-
-    .plugin-actions
-      display flex
-      gap 8px
-
+    &__info-bar
+      font-size 14px
+      height 21px
+      line-height 28px
+      position relative
+    &__author
+      overflow hidden
+      text-overflow ellipsis
+      white-space nowrap
+    &__config
+      float right
+      font-size 16px
+      cursor pointer
+      transition all .2s ease-in-out
+      &:hover
+        color: #1B9EF3
+    .config-button
+      font-size 12px
+      color #ddd
+      background #222
+      padding 1px 8px
+      height 18px
+      line-height 18px
+      text-align center
+      position absolute
+      top 4px
+      right 20px
+      transition all .2s ease-in-out
+      &.reload
+        right 0px
+      &.ing
+        right 0px
+      &.install
+        right 0px
+        &:hover
+          background: #1B9EF3
+          color #fff
   .reload-mask
-    position fixed
-    bottom 0
-    left 142px
-    right 0
-    padding 16px
-    background rgba(0, 0, 0, 0.7)
-    display flex
-    justify-content center
-    align-items center
-    backdrop-filter blur(8px)
-    z-index 100
-    box-shadow 0 -2px 10px rgba(0, 0, 0, 0.3)
-    animation slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1)
-
-    .reload-icon
-      margin-right 8px
-
-  .config-dialog
-    .el-dialog__header
-      border-bottom 1px solid rgba(255, 255, 255, 0.1)
-      padding-bottom 16px
-
-    .el-dialog__footer
-      border-top 1px solid rgba(255, 255, 255, 0.1)
-      padding-top 16px
-
-  @keyframes slideUp
-    from
-      transform translateY(100%)
-    to
-      transform translateY(0)
-
-  // Scrollbar styling
-  *::-webkit-scrollbar
-    width 6px
-    height 6px
-
-  *::-webkit-scrollbar-thumb
-    border-radius 10px
-    background rgba(255, 255, 255, 0.2)
-
-    &:hover
-      background rgba(255, 255, 255, 0.3)
-
-  *::-webkit-scrollbar-track
-    background-color transparent
+    position absolute
+    width calc(100% - 40px)
+    bottom -320px
+    text-align center
+    background rgba(0,0,0,0.4)
+    padding 10px 0
+    &.cut-width
+      width calc(100% - 48px)
 </style>

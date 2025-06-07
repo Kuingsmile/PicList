@@ -1,27 +1,19 @@
 <template>
-  <div id="gallery-view" :style="handleBarActive ? 'height: 95%;' : 'height: 95%;'">
+  <div id="gallery-view" :style="handleBarActive ? 'height: 85%;' : 'height: 95%;'">
     <div class="view-title">
-      <div class="left-controls">
-        <span class="gallery-sync-delete">
-          {{ $T('GALLERY_SYNC_DELETE') }}
-          <el-switch
-            v-model="deleteCloud"
-            :active-text="$T('SETTINGS_OPEN')"
-            :inactive-text="$T('SETTINGS_CLOSE')"
-            @change="handleDeleteCloudFile"
-          />
-        </span>
-      </div>
-
-      <div class="title-content">
-        {{ $T('GALLERY') }} - {{ filterList.length }}
-        <el-icon class="cursor-pointer toggle-icon" @click="toggleHandleBar">
-          <CaretBottom v-show="!handleBarActive" />
-          <CaretTop v-show="handleBarActive" />
-        </el-icon>
-      </div>
-
-      <div class="right-controls">
+      {{ $T('GALLERY') }} - {{ filterList.length }}
+      <el-icon style="margin-left: 4px" class="cursor-pointer" @click="toggleHandleBar">
+        <CaretBottom v-show="!handleBarActive" />
+        <CaretTop v-show="handleBarActive" />
+      </el-icon>
+      <span style="position: absolute; right: 0; top: 0; margin-right: 20px; font-size: 0.8em; color: #fff">
+        {{ $T('GALLERY_SYNC_DELETE') }}
+        <el-switch
+          v-model="deleteCloud"
+          :active-text="$T('SETTINGS_OPEN')"
+          :inactive-text="$T('SETTINGS_CLOSE')"
+          @change="handleDeleteCloudFile"
+        />
         <el-button type="primary" :link="true" @click="refreshPage">
           <el-tooltip
             class="item"
@@ -31,12 +23,12 @@
             :persistent="false"
             teleported
           >
-            <el-icon size="22">
+            <el-icon size="25" style="cursor: pointer; margin-left: 10px">
               <Refresh />
             </el-icon>
           </el-tooltip>
         </el-button>
-      </div>
+      </span>
     </div>
     <transition name="el-zoom-in-top">
       <el-row v-show="handleBarActive">
@@ -976,96 +968,41 @@ export default {
       display none
   &__Counter
     margin-top 20px
-    font-weight 500
-    color #f5f5f7
-
 .view-title
-  color #f5f5f7
-  font-size 22px
+  color #eee
+  font-size 20px
   text-align center
-  margin 16px auto 22px
-  font-weight 500
-  position relative
-  display flex
-  justify-content space-between
-  align-items center
-  padding 0 20px
-
-  .title-content
-    display flex
-    align-items center
-    justify-content center
-    flex-grow 1
-
-  .toggle-icon
-    margin-left 8px
-    transition all .3s cubic-bezier(0.4, 0, 0.2, 1)
-
-    &:hover
-      color #49B1F5
-      transform scale(1.1)
-
-  .left-controls, .right-controls
-    min-width 200px
-    display flex
-    align-items center
-
-  .left-controls
-    justify-content flex-start
-
-  .right-controls
-    justify-content flex-end
-
-  .gallery-sync-delete
-    display flex
-    align-items center
+  margin 10px auto
+  .sub-title
     font-size 14px
-    background rgba(48, 48, 48, 0.7)
-    padding 6px 12px
-    border-radius 8px
-    backdrop-filter blur(5px)
-    box-shadow 0 2px 8px rgba(0, 0, 0, 0.15)
-
-    .el-switch
-      margin-left 10px
-
+  .el-icon-caret-bottom
+    cursor: pointer
+    transition all .2s ease-in-out
+    &.active
+      transform: rotate(180deg)
 #gallery-view
   position absolute
   left 142px
   right 0
-  height 95%
-  transition all .3s cubic-bezier(0.4, 0, 0.2, 1)
-
+  height 85%
   .cursor-pointer
     cursor pointer
-
 .item-base
-  background #363636
+  background #2E2E2E
   text-align center
+  padding 5px 0
   cursor pointer
   font-size 13px
-  transition all .3s cubic-bezier(0.4, 0, 0.2, 1)
-  height 28px
-  box-sizing border-box
-  border-radius 16px
-  font-weight 500
-  box-shadow 0 2px 8px rgba(0, 0, 0, 0.15)
-  display flex
-  align-items center
-  justify-content center
-  width 100%
-  padding 0 10px
-
+  transition all .2s ease-in-out
+  height: 28px
+  box-sizing: border-box
   &.copy
     cursor not-allowed
-    background #49b1f5
+    background #49B1F5
     &.active
       cursor pointer
       background #1B9EF3
       color #fff
-      box-shadow 0 4px 12px rgba(27, 158, 243, 0.3)
-      transform translateY(-1px)
-
   &.delete
     cursor not-allowed
     background #F47466
@@ -1073,9 +1010,6 @@ export default {
       cursor pointer
       background #F15140
       color #fff
-      box-shadow 0 4px 12px rgba(241, 81, 64, 0.3)
-      transform translateY(-1px)
-
   &.all-pick
     cursor not-allowed
     background #69C282
@@ -1083,60 +1017,37 @@ export default {
       cursor pointer
       background #44B363
       color #fff
-      box-shadow 0 4px 12px rgba(68, 179, 99, 0.3)
-      transform translateY(-1px)
-
-.handle-bar
-  .item-base
-    min-width 80px
-    white-space nowrap
-    overflow hidden
-    text-overflow ellipsis
-
-  .el-col:nth-child(n+4):nth-child(-n+7)
-    padding-left: 6px
-    padding-right: 6px
-
 #gallery-view
   .round
-    border-radius 16px
-
+    border-radius 14px
   .pull-right
     float right
-
   .gallery-list
-    height calc(100% - 60px)
+    height 100%
     box-sizing border-box
-    padding 12px 0
+    padding 8px 0
     overflow-y auto
-    overflow-x hidden
+    overflow-x auto
     position absolute
-    top 60px
-    transition all .3s cubic-bezier(0.4, 0, 0.2, 1)
+    top: 38px
+    transition all .2s ease-in-out .1s
     width 100%
-
     &.small
-      height calc(100% - 180px)
-      top 180px
-      margin-top 0
-      bottom 0 // Ensure it extends to the bottom
-
+      height: 100%
+      top: 113px
     &__img
+      // height 150px
       position relative
-      margin-bottom 16px
-
+      margin-bottom 8px
     &__item
       width 100%
-      height 130px
-      transition all .3s cubic-bezier(0.4, 0, 0.2, 1)
+      height 120px
+      transition all .2s ease-in-out
       cursor pointer
-      margin-bottom 8px
+      margin-bottom 4px
       overflow hidden
       display flex
-      border-radius 8px
-      box-shadow 0 3px 12px rgba(0, 0, 0, 0.15)
-      background #2a2a2a
-
+      margin-bottom 6px
       &-fake
         position absolute
         top 0
@@ -1144,209 +1055,40 @@ export default {
         opacity 0
         width 100%
         z-index -1
-
       &:hover
-        transform scale(1.05)
-        box-shadow 0 6px 16px rgba(0, 0, 0, 0.2)
-
+        transform scale(1.1)
       &-img
         width 100%
         object-fit contain
-        padding 4px
-
     &__tool-panel
-      color #f0f0f0
-      margin 0 2px 8px 2px
+      color #ddd
+      margin-bottom 4px
       display flex
-      align-items center
-      background rgba(42, 42, 42, 0.7)
-      border-radius 6px
-      padding 4px 8px
-      backdrop-filter blur(5px)
-      box-shadow 0 2px 8px rgba(0, 0, 0, 0.1)
-
       .el-checkbox
         height 16px
-
       i
         cursor pointer
         transition all .2s ease-in-out
-        margin-right 8px
-        font-size 16px
-
+        margin-right 4px
         &.document
           &:hover
             color #49B1F5
-            transform scale(1.2)
-
         &.edit
           &:hover
             color #69C282
-            transform scale(1.2)
-
         &.delete
           &:hover
             color #F15140
-            transform scale(1.2)
-
     &__file-name
       overflow hidden
       text-overflow ellipsis
       white-space nowrap
-      color #f0f0f0
+      color #ddd
       font-size 14px
-      margin-bottom 6px
+      margin-bottom 4px
       text-align center
       align-self center
-      font-weight 500
-      padding 0 4px
-
   .handle-bar
-    color #f0f0f0
-    margin-bottom 16px
-    background rgba(48, 48, 48, 0.7)
-    border-radius 10px
-    padding 8px 12px 10px
-    backdrop-filter blur(10px)
-    box-shadow 0 4px 16px rgba(0, 0, 0, 0.2)
-    position relative
-    z-index 2
-    align-items center
-
-    .el-row
-      margin-bottom 0 !important
-
-    .el-col
-      display flex
-      align-items center
-      min-height 28px
-      padding-top: 2px
-      padding-bottom: 2px
-
-    .el-input, .el-select, .el-date-picker
-      .el-input__wrapper
-        padding 0 8px
-        line-height 1.4
-        height 28px
-
-    .el-button
-      height 28px
-      padding 6px 12px
-
-    .item-base
-      height 28px
-      display flex
-      align-items center
-      justify-content center
-      padding 0
-
-    &:last-child
-      margin-bottom 30px
-      &:after
-        content ""
-        position absolute
-        left 0
-        right 0
-        bottom -20px
-        height 8px
-
-  .handle-bar + .handle-bar
-    margin-top 0
-    margin-bottom 14px
-    padding-top 0
-    border-top none
-    position relative
-
-    &:before
-      content ""
-      position absolute
-      left 10%
-      right 10%
-      top -6px
-      height 1px
-      background rgba(255, 255, 255, 0.1)
-      border-radius 1px
-
-  .handle-bar-container
-    position relative
-
-    &:after
-      content ""
-      position absolute
-      left 5%
-      right 5%
-      bottom -10px
-      height 2px
-      background linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent)
-      border-radius 2px
-      z-index 2
-
-.el-select,
-.el-input,
-.el-date-editor
-  .el-input__wrapper
-    background rgba(60, 60, 60, 0.7) !important
-    border-radius 8px !important
-    box-shadow none !important
-    border 1px solid rgba(100, 100, 100, 0.3) !important
-
-    &:hover, &:focus
-      border-color rgba(73, 177, 245, 0.5) !important
-      box-shadow 0 0 0 1px rgba(73, 177, 245, 0.1) !important
-
-.el-button
-  border-radius 8px
-  transition all .3s cubic-bezier(0.4, 0, 0.2, 1)
-
-  &:hover
-    transform translateY(-1px)
-    box-shadow 0 4px 12px rgba(0, 0, 0, 0.15)
-
-.el-dialog
-  border-radius 12px
-  overflow hidden
-  box-shadow 0 20px 40px rgba(0, 0, 0, 0.3)
-
-  .el-dialog__header
-    background #363636
-    margin 0
-    padding 16px 20px
-
-  .el-dialog__body
-    padding 24px
-
-  .el-dialog__footer
-    padding 16px 20px
-    background #2a2a2a
-
-::-webkit-scrollbar
-  width 8px
-  height 8px
-
-::-webkit-scrollbar-track
-  background rgba(40, 40, 40, 0.8)
-  border-radius 4px
-
-::-webkit-scrollbar-thumb
-  background rgba(120, 120, 120, 0.8)
-  border-radius 4px
-
-  &:hover
-    background rgba(140, 140, 140, 0.8)
-
-// Ensure transitions are smooth for the gallery area adjusting to handle bar visibility
-.el-zoom-in-top-enter-active,
-.el-zoom-in-top-leave-active
-  transition all .3s cubic-bezier(0.4, 0, 0.2, 1)
-  position relative
-  z-index 3
-
-.el-zoom-in-top-enter-from,
-.el-zoom-in-top-leave-to
-  opacity 0
-  transform translateY(-20px)
-
-// Optimize the transition when toggling the handle bar
-.gallery-list
-  transition all .35s cubic-bezier(0.4, 0, 0.2, 1) 0.05s // Slight delay to allow handle bar to animate first
+    color #ddd
+    margin-bottom 10px
 </style>
