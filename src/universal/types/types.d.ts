@@ -47,6 +47,13 @@ interface ISyncConfig {
   endpoint?: string
   proxy?: string
   interval?: number
+  // WebDAV specific fields
+  webdavEndpoint?: string
+  webdavUsername?: string
+  webdavPassword?: string
+  webdavAuthType?: 'basic' | 'digest'
+  webdavSslEnabled?: boolean
+  webdavSavePath?: string
 }
 
 // Image && PicBed
