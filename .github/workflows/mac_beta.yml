@@ -36,9 +36,9 @@ jobs:
 
       # step3: install node env
       - name: Install Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '16.x'
+          node-version: '18.17.0'
 
       - name: Install system deps
         if: matrix.os == 'ubuntu-latest'
