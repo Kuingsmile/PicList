@@ -180,7 +180,8 @@ export const configPaths = {
   buildIn: {
     compress: 'buildIn.compress',
     watermark: 'buildIn.watermark',
-    rename: 'buildIn.rename'
+    rename: 'buildIn.rename',
+    skipProcess: 'buildIn.skipProcess'
   },
   debug: 'debug',
   PICGO_ENV: 'PICGO_ENV'

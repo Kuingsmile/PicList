@@ -6,6 +6,12 @@
     size="default"
     :model="waterMarkForm"
   >
+    <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_SKIP_PROCESS_EXT_LIST')">
+      <el-input v-model="skipProcessForm.skipProcessExtList" type="textarea" :autosize="{ minRows: 2, maxRows: 4 }" />
+      <div class="text-xs text-gray-500">
+        {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_SKIP_PROCESS_EXT_LIST_TIPS') }}
+      </div>
+    </el-form-item>
     <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISADDWM')">
       <el-switch v-model="waterMarkForm.isAddWatermark" :style="switchStyle" />
     </el-form-item>
@@ -189,6 +195,7 @@ const waterMarkForm = reactive<IBuildInWaterMarkOptions>({
   watermarkImagePath: '',
   watermarkPosition: 'southeast'
 })
+
 const compressForm = reactive<IBuildInCompressOptions>({
   quality: 100,
   isConvert: false,
@@ -207,8 +214,13 @@ const compressForm = reactive<IBuildInCompressOptions>({
 })
 const formatConvertObj = ref('{}')
 
+const skipProcessForm = reactive({
+  skipProcessExtList: 'zip,rar,7z,tar,gz,tar.gz,tar.bz2,tar.xz'
+})
+
 const waterMarkFormKeys = Object.keys(waterMarkForm) as (keyof typeof waterMarkForm)[]
 const compressFormKeys = Object.keys(compressForm) as (keyof typeof compressForm)[]
+const skipProcessFormKeys = Object.keys(skipProcessForm) as (keyof typeof skipProcessForm)[]
 
 const switchStyle = '--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;'
 
@@ -226,12 +238,14 @@ function handleSaveConfig() {
   compressForm.formatConvertObj = formatConvertObjFilter
   saveConfig(configPaths.buildIn.compress, toRaw(compressForm))
   saveConfig(configPaths.buildIn.watermark, toRaw(waterMarkForm))
+  saveConfig(configPaths.buildIn.skipProcess, toRaw(skipProcessForm))
   closeDialog()
 }
 
 async function initData() {
   const compress = await getConfig<any>(configPaths.buildIn.compress)
   const watermark = await getConfig<any>(configPaths.buildIn.watermark)
+  const skipProcess = await getConfig<any>(configPaths.buildIn.skipProcess)
   if (compress) {
     compressFormKeys.forEach(key => {
       compressForm[key] = compress[key] ?? compressForm[key]
@@ -251,6 +265,11 @@ async function initData() {
       waterMarkForm[key] = watermark[key] ?? waterMarkForm[key]
     })
     waterMarkForm.watermarkColor = watermark.watermarkColor === '' ? '#CCCCCC73' : watermark.watermarkColor
+  }
+  if (skipProcess) {
+    skipProcessFormKeys.forEach(key => {
+      skipProcessForm[key] = skipProcess[key] ?? skipProcessForm[key]
+    })
   }
 }
 
