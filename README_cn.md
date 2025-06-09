@@ -116,6 +116,7 @@ PicList的内核使用[PicList-core](https://github.com/Kuingsmile/PicList-Core)
 #### **1.6.0版本以下**
 
 Windows系统：
+
 1. 进入Typora设置页面，选择"图像"
 2. 将上传服务设置为`PicGo(app)`
 3. 在`PicGo路径`中填写PicList的安装路径
@@ -273,11 +274,13 @@ yarn run build
 如果遇到网络问题导致electron-builder下载失败，可以设置镜像源：
 
 **Linux/macOS:**
+
 ```bash
 export ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
 ```
 
 **Windows:**
+
 ```cmd
 set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
 ```

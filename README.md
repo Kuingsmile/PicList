@@ -116,6 +116,7 @@ If your Typora version is below 1.8.0, set both the PicList and PicGo (app) uplo
 #### **Version < 1.6.0-dev**
 
 For Windows, in Typora settings:
+
 1. Set upload service to `PicGo(app)`
 2. Set `PicGo path` to your PicList installation path
 
@@ -145,6 +146,7 @@ docker run -d \
   kuingsmile/piclist:latest \
   node /usr/local/bin/picgo-server -k piclist123456
 ```
+
 Change `./piclist` to your config directory path and `piclist123456` to your preferred secret key.
 
 #### Using docker-compose
@@ -269,11 +271,13 @@ The built installer will be available in the `dist_electron` directory.
 For network issues with electron-builder, set the mirror:
 
 **Linux/macOS:**
+
 ```bash
 export ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
 ```
 
 **Windows:**
+
 ```cmd
 set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
 ```
