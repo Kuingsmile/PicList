@@ -99,6 +99,9 @@ export interface IConfigStruct {
       enable: boolean
       format: string
     }
+    skipProcess: {
+      skipProcessExtList: string
+    }
   }
   debug: boolean
   PICGO_ENV: string
