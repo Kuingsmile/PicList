@@ -8,7 +8,7 @@ const version = process.argv[2] || pkg.version
 
 // Configuration
 const BASE_URL = `https://github.com/Kuingsmile/PicList/releases/download/v${version}`
-const DOWNLOAD_DIR = process.argv[3] || path.join(os.homedir(), 'Downloads')
+const DOWNLOAD_DIR = process.argv[3] || 'R:\\Temp' || path.join(os.homedir(), 'Downloads')
 // File information
 const files = [
   {
