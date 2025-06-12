@@ -47,6 +47,13 @@ interface ISyncConfig {
   endpoint?: string
   proxy?: string
   interval?: number
+  // WebDAV specific fields
+  webdavEndpoint?: string
+  webdavUsername?: string
+  webdavPassword?: string
+  webdavAuthType?: 'basic' | 'digest'
+  webdavSslEnabled?: boolean
+  webdavSavePath?: string
 }
 
 // Image && PicBed
@@ -310,25 +317,26 @@ interface IAliYunConfig {
   accessKeySecret: string
   bucket: string
   area: string
-  path: string
-  customUrl: string
-  options: string
+  path?: string
+  webPath?: string
+  customUrl?: string
+  options?: string
 }
 
 interface IGitHubConfig {
   repo: string
   token: string
-  path: string
-  customUrl: string
+  path?: string
+  customUrl?: string
   branch: string
 }
 
 interface IImgurConfig {
-  clientId: string
-  proxy: string
-  username: string
-  accessToken: string
-  album: string
+  clientId?: string
+  proxy?: string
+  username?: string
+  accessToken?: string
+  album?: string
 }
 
 interface IQiniuConfig {
@@ -337,8 +345,8 @@ interface IQiniuConfig {
   bucket: string
   url: string
   area: 'z0' | 'z1' | 'z2' | 'na0' | 'as0' | string
-  options: string
-  path: string
+  options?: string
+  path?: string
 }
 
 interface ISMMSConfig {
@@ -353,23 +361,24 @@ interface ITcYunConfig {
   appId: string
   endpoint: string
   area: string
-  path: string
-  customUrl: string
+  path?: string
+  webPath?: string
+  customUrl?: string
   version: 'v4' | 'v5'
-  options: string
-  slim: boolean
+  options?: string
+  slim?: boolean
 }
 
 interface IUpYunConfig {
   bucket: string
   operator: string
   password: string
-  options: string
-  path: string
+  options?: string
+  path?: string
   url: string
-  antiLeechToken: string
-  expireTime: number
-  endpoint: string
+  antiLeechToken?: string
+  expireTime?: number
+  endpoint?: string
 }
 
 interface IWebdavPlistConfig {
@@ -377,11 +386,11 @@ interface IWebdavPlistConfig {
   sslEnabled: boolean
   username: string
   password: string
-  path: string
-  webpath: string
-  customUrl: string
+  path?: string
+  webpath?: string
+  customUrl?: string
   authType: string
-  options: string
+  options?: string
 }
 
 interface ISftpPlistConfig {

@@ -3,14 +3,9 @@
 require('dotenv').config()
 
 const { notarize } = require('@electron/notarize')
-const {
-  ELECTRON_SKIP_NOTARIZATION,
-  XCODE_APP_LOADER_EMAIL,
-  XCODE_APP_LOADER_PASSWORD,
-  XCODE_TEAM_ID
-} = process.env
+const { ELECTRON_SKIP_NOTARIZATION, XCODE_APP_LOADER_EMAIL, XCODE_APP_LOADER_PASSWORD, XCODE_TEAM_ID } = process.env
 
-async function main (context) {
+async function main(context) {
   const { electronPlatformName, appOutDir } = context
 
   if (

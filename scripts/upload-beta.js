@@ -45,7 +45,7 @@ const uploadFile = async () => {
             }
           }
         })
-        parallelUploads3.on('httpUploadProgress', (progress) => {
+        parallelUploads3.on('httpUploadProgress', progress => {
           const progressBar = Math.round((progress.loaded / progress.total) * 100)
           process.stdout.write(`\r${progressBar}% ${fileName}`)
         })

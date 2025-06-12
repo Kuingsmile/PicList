@@ -858,9 +858,10 @@
       draggable
       append-to-body
     >
-      <div class="notice-text">
+      <div class="notice-text" style="align-items: center; display: flex; justify-content: center">
         {{ $T('SETTINGS_SYNC_CONFIG_NOTE') }}
       </div>
+      <el-divider />
       <el-form label-position="right" label-width="120px">
         <el-form-item :label="$T('SETTINGS_SYNC_CONFIG_SELECT_TYPE')">
           <el-select v-model="sync.type" style="width: 100%" :persistent="false" teleported>
@@ -875,19 +876,65 @@
         <el-form-item v-if="sync.type === 'gitea'" :label="$T('SETTINGS_SYNC_CONFIG_GITEA_HOST')">
           <el-input v-model.trim="sync.endpoint" type="input" :placeholder="$T('SETTINGS_SYNC_CONFIG_GITEA_HOST')" />
         </el-form-item>
-        <el-form-item
-          v-for="inputItem in ['username', 'repo', 'branch', 'token']"
-          :key="inputItem"
-          :label="$T(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_${inputItem.toUpperCase()}` as any)"
-        >
+        <el-form-item v-if="sync.type === 'webdav'" :label="$T('SETTINGS_SYNC_CONFIG_WEBDAV_ENDPOINT')">
           <el-input
-            v-model.trim="sync[inputItem as any]"
+            v-model.trim="sync.webdavEndpoint"
             type="input"
-            :placeholder="
-              $T(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_${inputItem.toUpperCase()}_PLACEHOLDER` as any)
-            "
+            :placeholder="$T('SETTINGS_SYNC_CONFIG_WEBDAV_ENDPOINT_PLACEHOLDER')"
           />
         </el-form-item>
+        <template v-if="sync.type !== 'webdav'">
+          <el-form-item
+            v-for="inputItem in ['username', 'repo', 'branch', 'token']"
+            :key="inputItem"
+            :label="$T(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_${inputItem.toUpperCase()}` as any)"
+          >
+            <el-input
+              v-model.trim="sync[inputItem as any]"
+              type="input"
+              :placeholder="
+                $T(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_${inputItem.toUpperCase()}_PLACEHOLDER` as any)
+              "
+            />
+          </el-form-item>
+        </template>
+        <template v-if="sync.type === 'webdav'">
+          <el-form-item :label="$T('SETTINGS_SYNC_CONFIG_WEBDAV_USERNAME')">
+            <el-input
+              v-model.trim="sync.webdavUsername"
+              type="input"
+              :placeholder="$T('SETTINGS_SYNC_CONFIG_WEBDAV_USERNAME_PLACEHOLDER')"
+            />
+          </el-form-item>
+          <el-form-item :label="$T('SETTINGS_SYNC_CONFIG_WEBDAV_PASSWORD')">
+            <el-input
+              v-model.trim="sync.webdavPassword"
+              type="password"
+              show-password
+              :placeholder="$T('SETTINGS_SYNC_CONFIG_WEBDAV_PASSWORD_PLACEHOLDER')"
+            />
+          </el-form-item>
+          <el-form-item :label="$T('SETTINGS_SYNC_CONFIG_WEBDAV_SAVE_PATH')">
+            <el-input
+              v-model.trim="sync.webdavSavePath"
+              type="input"
+              :placeholder="$T('SETTINGS_SYNC_CONFIG_WEBDAV_SAVE_PATH_PLACEHOLDER')"
+            />
+          </el-form-item>
+          <el-form-item :label="$T('SETTINGS_SYNC_CONFIG_WEBDAV_AUTH_TYPE')">
+            <el-select v-model="sync.webdavAuthType" style="width: 100%" :persistent="false" teleported>
+              <el-option label="Basic" value="basic" />
+              <el-option label="Digest" value="digest" />
+            </el-select>
+          </el-form-item>
+          <el-form-item :label="$T('SETTINGS_SYNC_CONFIG_WEBDAV_SSL_ENABLED')">
+            <el-switch
+              v-model="sync.webdavSslEnabled"
+              :active-text="$T('SETTINGS_OPEN')"
+              :inactive-text="$T('SETTINGS_CLOSE')"
+            />
+          </el-form-item>
+        </template>
         <el-form-item v-if="sync.type === 'github'" :label="$T('SETTINGS_SYNC_CONFIG_PROXY')">
           <el-input
             v-model.trim="sync.proxy"
@@ -1207,10 +1254,15 @@ const sync = ref<any>({
   token: '',
   endpoint: '',
   proxy: '',
-  interval: 60
+  interval: 60,
+  // WebDAV-specific fields
+  password: '',
+  authType: 'basic',
+  sslEnabled: true,
+  webdavSavePath: ''
 })
 
-const syncType = ['github', 'gitee', 'gitea']
+const syncType = ['github', 'gitee', 'gitea', 'webdav']
 
 async function cancelSyncSetting() {
   syncVisible.value = false
@@ -1222,7 +1274,14 @@ async function cancelSyncSetting() {
     token: '',
     endpoint: '',
     proxy: '',
-    interval: 60
+    interval: 60,
+    // WebDAV-specific fields
+    webdavEndpoint: '',
+    webdavUsername: '',
+    webdavPassword: '',
+    webdavAuthType: 'basic',
+    webdavSslEnabled: true,
+    webdavSavePath: ''
   }
 }
 
@@ -1289,7 +1348,14 @@ async function initData() {
     token: '',
     endpoint: '',
     proxy: '',
-    interval: 60
+    interval: 60,
+    // WebDAV-specific fields
+    webdavEndpoint: '',
+    webdavUsername: '',
+    webdavPassword: '',
+    webdavAuthType: 'basic',
+    webdavSslEnabled: true,
+    webdavSavePath: ''
   }
   formOfSetting.value.logFileSizeLimit = enforceNumber(settings.logFileSizeLimit) || 10
   addProxyWatch()

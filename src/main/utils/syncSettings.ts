@@ -4,11 +4,13 @@ import fs from 'fs-extra'
 import { HttpsProxyAgent } from 'hpagent'
 import path from 'path'
 import { Octokit } from '@octokit/rest'
+import { createClient, AuthType, WebDAVClientOptions } from 'webdav'
 
 import db from '@core/datastore'
 import logger from '@core/picgo/logger'
 
 import { configPaths } from '#/utils/configPaths'
+import { formatEndpoint } from '#/utils/common'
 
 const STORE_PATH = app.getPath('userData')
 
@@ -53,7 +55,30 @@ function getOctokit(syncConfig: ISyncConfig) {
   })
 }
 
-const isSyncConfigValidate = ({ type, username, repo, branch, token }: ISyncConfig) => {
+const isSyncConfigValidate = ({
+  type,
+  username,
+  repo,
+  branch,
+  token,
+  webdavEndpoint,
+  webdavUsername,
+  webdavPassword,
+  webdavAuthType,
+  webdavSslEnabled,
+  webdavSavePath
+}: ISyncConfig) => {
+  if (type === 'webdav') {
+    return (
+      type &&
+      webdavEndpoint &&
+      webdavUsername &&
+      webdavPassword &&
+      webdavAuthType !== undefined &&
+      webdavSslEnabled !== undefined &&
+      webdavSavePath !== undefined
+    )
+  }
   return type && username && repo && branch && token
 }
 
@@ -96,6 +121,29 @@ async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
         }
         const res = await axios.post(apiUrl, defaultConfig, { headers })
         return isHttpResSuccess(res)
+      }
+      case 'webdav': {
+        const {
+          webdavEndpoint = '',
+          webdavUsername,
+          webdavPassword,
+          webdavAuthType = 'basic',
+          webdavSslEnabled = true,
+          webdavSavePath = ''
+        } = syncConfig
+        const webdavEndpointF = formatEndpoint(webdavEndpoint, webdavSslEnabled)
+        const options: WebDAVClientOptions = {
+          username: webdavUsername,
+          password: webdavPassword
+        }
+        if (webdavAuthType === 'digest') {
+          options.authType = AuthType.Digest
+        }
+        const client = createClient(webdavEndpointF, options)
+        const fileContent = fs.readFileSync(localFilePath)
+        const remoteFilePath = webdavSavePath ? path.join(webdavSavePath, fileName) : fileName
+        await client.putFileContents(remoteFilePath, fileContent, { overwrite: true })
+        return true
       }
       default:
         return false
@@ -188,6 +236,29 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
       )
       return isHttpResSuccess(res)
     }
+    case 'webdav': {
+      const {
+        webdavEndpoint = '',
+        webdavUsername,
+        webdavPassword,
+        webdavAuthType = 'basic',
+        webdavSslEnabled = true,
+        webdavSavePath = ''
+      } = syncConfig
+      const webdavEndpointF = formatEndpoint(webdavEndpoint, webdavSslEnabled)
+      const options: WebDAVClientOptions = {
+        username: webdavUsername,
+        password: webdavPassword
+      }
+      if (webdavAuthType === 'digest') {
+        options.authType = AuthType.Digest
+      }
+      const client = createClient(webdavEndpointF, options)
+      const fileContent = fs.readFileSync(localFilePath)
+      const remoteFilePath = webdavSavePath ? path.join(webdavSavePath, fileName) : fileName
+      await client.putFileContents(remoteFilePath, fileContent, { overwrite: true })
+      return true
+    }
     default:
       return false
   }
@@ -277,6 +348,29 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) 
             ref: branch
           }
         })
+      }
+      case 'webdav': {
+        const {
+          webdavEndpoint = '',
+          webdavUsername,
+          webdavPassword,
+          webdavAuthType = 'basic',
+          webdavSslEnabled = true,
+          webdavSavePath = ''
+        } = syncConfig
+        const webdavEndpointF = formatEndpoint(webdavEndpoint, webdavSslEnabled)
+        const options: WebDAVClientOptions = {
+          username: webdavUsername,
+          password: webdavPassword
+        }
+        if (webdavAuthType === 'digest') {
+          options.authType = AuthType.Digest
+        }
+        const client = createClient(webdavEndpointF, options)
+        const remoteFilePath = webdavSavePath ? path.join(webdavSavePath, fileName) : fileName
+        const fileContent = await client.getFileContents(remoteFilePath)
+        await fs.writeFile(localFilePath, fileContent as Buffer)
+        return true
       }
       default:
         return false

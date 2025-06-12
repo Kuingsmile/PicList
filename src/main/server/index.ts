@@ -53,7 +53,6 @@ class Server {
       config = { port: DEFAULT_PORT, host: DEFAULT_HOST, enable: true }
       picgo.saveConfig({ [configPaths.settings.server]: config })
     }
-    config.host = config.host === '127.0.0.1' ? '0.0.0.0' : config.host
     return config
   }
 

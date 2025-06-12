@@ -1,3 +1,42 @@
+## :tada: 2.9.9 (2025-06-12)
+
+
+### :sparkles: Features
+
+* **custom:** add support of skip process ([0f75afe](https://github.com/Kuingsmile/piclist/commit/0f75afe))
+* **custom:** add WebDAV sync configuration options ([d5f137e](https://github.com/Kuingsmile/piclist/commit/d5f137e))
+* **custom:** always copy workflow file for macos ([3a25da9](https://github.com/Kuingsmile/piclist/commit/3a25da9))
+* **custom:** enhance Gallery page layout and styling for improved user experience ([060e215](https://github.com/Kuingsmile/piclist/commit/060e215))
+* **custom:** enhance upload page UI and functionality ([89f8d4c](https://github.com/Kuingsmile/piclist/commit/89f8d4c))
+* **custom:** make configuration properties optional for various services ([36706f9](https://github.com/Kuingsmile/piclist/commit/36706f9))
+* **custom:** refactor plugin page ([a06b7e8](https://github.com/Kuingsmile/piclist/commit/a06b7e8))
+* **custom:** remove auto replace of localhost to 0.0.0.0 ([9deda85](https://github.com/Kuingsmile/piclist/commit/9deda85))
+* **custom:** reorder watermark position mapping for improved clarity ([711a89a](https://github.com/Kuingsmile/piclist/commit/711a89a))
+* **custom:** update core ([e17b578](https://github.com/Kuingsmile/piclist/commit/e17b578)), closes [#329](https://github.com/Kuingsmile/piclist/issues/329)
+* **custom:** update styles for improved UI in Plugin and UploaderConfig pages ([11c694d](https://github.com/Kuingsmile/piclist/commit/11c694d))
+
+
+### :pencil: Documentation
+
+* **custom:** add official website section to README files ([ea0d19c](https://github.com/Kuingsmile/piclist/commit/ea0d19c))
+* **custom:** update release notes for v2.9.9 with new features and important changes ([9080535](https://github.com/Kuingsmile/piclist/commit/9080535))
+
+
+### :package: Chore
+
+* **custom:** add lint fix ([b0a4454](https://github.com/Kuingsmile/piclist/commit/b0a4454))
+* **custom:** add windows arm test workflow ([205f1ce](https://github.com/Kuingsmile/piclist/commit/205f1ce))
+* **custom:** test arm64 workflow ([c715f25](https://github.com/Kuingsmile/piclist/commit/c715f25))
+* **custom:** update scripts ([5c42690](https://github.com/Kuingsmile/piclist/commit/5c42690))
+* **custom:** upgrade setup-node action to v4 in CI workflows ([8ca0bbc](https://github.com/Kuingsmile/piclist/commit/8ca0bbc))
+
+
+### :back: Revert
+
+* **custom:** revert UI chage, delayed to next major version ([8b92501](https://github.com/Kuingsmile/piclist/commit/8b92501))
+
+
+
 ## :tada: 2.9.8 (2025-03-04)
 
 

@@ -1,7 +1,7 @@
 const ncu = require('npm-check-updates')
 const axios = require('axios')
 
-async function getRepositoryInfo (packageName) {
+async function getRepositoryInfo(packageName) {
   try {
     const { data } = await axios.get(`https://registry.npmjs.org/${packageName}`)
     const repository = data.repository
@@ -17,7 +17,7 @@ async function getRepositoryInfo (packageName) {
   return null
 }
 
-async function checkUpdates () {
+async function checkUpdates() {
   const updated = await ncu.run({
     packageFile: './package.json',
     upgrade: false

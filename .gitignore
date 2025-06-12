@@ -26,3 +26,4 @@ scripts/generateYmlFile.js
 /dist_electron
 /docs
 cloc.exe
+desktop.ini

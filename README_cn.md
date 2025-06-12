@@ -21,6 +21,7 @@
 
 - [📑 目录](#-目录)
 - [简介](#简介)
+- [官方网址](#官方网址)
 - [如何从PicGo迁移](#如何从picgo迁移)
 - [PicList-Core](#piclist-core)
 - [特色功能](#特色功能)
@@ -59,6 +60,12 @@ PicList是一款高效的云存储和图床平台管理工具，基于PicGo深�
 - 相册支持同步云端删除文件
 - 全面的云存储管理功能，包括文件操作、搜索和预览
 - 内置图像处理工具，如水印、压缩、缩放、旋转和格式转换
+
+## 官方网址
+
+请访问 [PicList官网 piclist.cn](https://piclist.cn) 获取更多信息。
+
+此外，你也可以访问[DeepWiki of PicList](https://deepwiki.com/Kuingsmile/PicList)了解更多关于项目架构和开发的内容。
 
 ## 如何从PicGo迁移
 
@@ -109,6 +116,7 @@ PicList的内核使用[PicList-core](https://github.com/Kuingsmile/PicList-Core)
 #### **1.6.0版本以下**
 
 Windows系统：
+
 1. 进入Typora设置页面，选择"图像"
 2. 将上传服务设置为`PicGo(app)`
 3. 在`PicGo路径`中填写PicList的安装路径
@@ -266,11 +274,13 @@ yarn run build
 如果遇到网络问题导致electron-builder下载失败，可以设置镜像源：
 
 **Linux/macOS:**
+
 ```bash
 export ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
 ```
 
 **Windows:**
+
 ```cmd
 set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
 ```

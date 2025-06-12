@@ -12,8 +12,7 @@ const obj = yaml.load(langFile)
 
 const keys = Object.keys(obj)
 
-const types =
-`interface ILocales {
+const types = `interface ILocales {
   ${keys.map(key => `${key}: string`).join('\n  ')}
 }
 type ILocalesKey = keyof ILocales

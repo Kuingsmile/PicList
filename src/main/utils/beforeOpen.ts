@@ -44,7 +44,6 @@ function copyFileOutsideOfElectronAsar(sourceInAsarArchive: string, destOutsideA
  */
 function resolveMacWorkFlow() {
   const dest = `${os.homedir()}/Library/Services/Upload pictures with PicList.workflow`
-  if (fs.existsSync(dest)) return true
   try {
     copyFileOutsideOfElectronAsar(path.join(__static, 'Upload pictures with PicList.workflow'), dest)
   } catch (e) {

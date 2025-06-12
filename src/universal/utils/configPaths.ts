@@ -99,6 +99,9 @@ export interface IConfigStruct {
       enable: boolean
       format: string
     }
+    skipProcess: {
+      skipProcessExtList: string
+    }
   }
   debug: boolean
   PICGO_ENV: string
@@ -180,7 +183,8 @@ export const configPaths = {
   buildIn: {
     compress: 'buildIn.compress',
     watermark: 'buildIn.watermark',
-    rename: 'buildIn.rename'
+    rename: 'buildIn.rename',
+    skipProcess: 'buildIn.skipProcess'
   },
   debug: 'debug',
   PICGO_ENV: 'PICGO_ENV'
