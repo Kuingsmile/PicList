@@ -1,7 +1,6 @@
 import axios from 'axios'
 import path from 'path'
 
-import { getConfig, saveConfig } from '@/utils/dataSender'
 import { deleteFailedLog, deleteLog } from '#/utils/deleteLog'
 
 interface IConfigMap {
@@ -16,23 +15,12 @@ interface IConfigMap {
 }
 
 const getAListToken = async (url: string, username: string, password: string) => {
-  const tokenStore = await getConfig<IStringKeyMap>('picgo-plugin-buildin-alistplist')
-  if (tokenStore && tokenStore.refreshedAt && Date.now() - tokenStore.refreshedAt < 3600000 && tokenStore.token) {
-    return tokenStore.token
-  }
   const res = await axios.post(`${url}/api/auth/login`, {
     username,
     password
   })
   if (res.data.code === 200 && res.data.message === 'success') {
-    const token = res.data.data.token
-    saveConfig({
-      'picgo-plugin-buildin-alistplist': {
-        token,
-        refreshedAt: Date.now()
-      }
-    })
-    return token
+    return res.data.data.token
   }
 }
 
