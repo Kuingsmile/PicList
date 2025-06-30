@@ -79,6 +79,20 @@ autoUpdater.on('update-available', async (info: UpdateInfo) => {
   } catch (e: any) {
     logger.error(e)
   }
+
+  const maxLogLength = 800
+  let displayLog = updateLog
+  let truncatedNote = ''
+
+  if (updateLog.length > maxLogLength) {
+    const truncatePoint = updateLog.lastIndexOf('\n', maxLogLength)
+    displayLog = updateLog.substring(0, truncatePoint > 0 ? truncatePoint : maxLogLength)
+    truncatedNote =
+      lang === II18nLanguage.ZH_CN
+        ? '\n\n... (更多详情请查看完整更新日志)'
+        : '\n\n... (See full changelog for more details)'
+  }
+
   dialog
     .showMessageBox({
       type: 'info',
@@ -89,7 +103,8 @@ autoUpdater.on('update-available', async (info: UpdateInfo) => {
           v: info.version
         }) +
         '\n\n' +
-        updateLog,
+        displayLog +
+        truncatedNote,
       checkboxLabel: T('NO_MORE_NOTICE'),
       checkboxChecked: false
     })
