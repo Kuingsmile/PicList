@@ -1,20 +1,16 @@
-LANG_DISPLAY_LABEL: 'English'
 ABOUT: About
 OPEN_MAIN_WINDOW: Open Main Window
 OPEN_MINI_WINDOW: Open Mini Window
 HIDE_MINI_WINDOW: Hide Mini Window
 CHOOSE_DEFAULT_PICBED: Choose Default Picbed
-OPEN_UPDATE_HELPER: Open Update Helper
 RELOAD_APP: Reload App
 UPLOAD_FAILED: Upload Failed
 UPLOAD_SUCCEED: Upload Succeed
 UPLOAD_PROGRESS: Upload Progress
-OPERATION_FAILED: Operation Failed
 OPERATION_SUCCEED: Operation Succeed
 UPLOADING: Uploading
 QUICK_UPLOAD: Quick Upload
 UPLOAD_BY_CLIPBOARD: Upload by Clipboard
-HIDE_WINDOW: Hide Window
 SHOW_PICBED_QRCODE: Show Picbed Qrcode
 PICBED_QRCODE: Picbed Qrcode
 ENABLE: Enable
@@ -30,10 +26,10 @@ START_WATCH_CLIPBOARD: Start Watch Clipboard
 STOP_WATCH_CLIPBOARD: Stop Watch Clipboard
 OPEN_TOOLBOX: Open Toolbox
 TOOLBOX: Toolbox
-TOOLBOX_TITLE: Troubleshoot PicList runtime issues  
+TOOLBOX_TITLE: Troubleshoot PicList runtime issues
 TOOLBOX_SUB_TITLE: Scan the following items immediately to fix usage issues
 TOOLBOX_CHECK_CONFIG_FILE_BROKEN: Check if the configuration file is damaged
-TOOLBOX_CHECK_GALLERY_FILE_BROKEN: Check if the album file is damaged 
+TOOLBOX_CHECK_GALLERY_FILE_BROKEN: Check if the album file is damaged
 TOOLBOX_CHECK_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD: Check if there is a problem with clipboard picture upload
 TOOLBOX_CHECK_PROBLEM_WITH_PROXY: Check if the proxy settings are normal
 TOOLBOX_FIX_DONE_NEED_RELOAD: Repair completed, need to restart to take effect, restart or not
@@ -42,39 +38,31 @@ TOOLBOX_START_SCAN: Start scanning
 TOOLBOX_RE_SCAN: Re scanning
 TOOLBOX_START_FIX: Start fixing
 TOOLBOX_SUCCESS_TIPS: Congratulations, no problems were found
-TOOLBOX_CHECK_CONFIG_FILE_PATH_TIPS: "The configuration file path is: ${path}"
+TOOLBOX_CHECK_CONFIG_FILE_PATH_TIPS: 'The configuration file path is: ${path}'
 TOOLBOX_CHECK_CONFIG_FILE_BROKEN_TIPS: The configuration file is damaged
-TOOLBOX_CHECK_GALLERY_FILE_PATH_TIPS: "The album file path is: ${path}"
+TOOLBOX_CHECK_GALLERY_FILE_PATH_TIPS: 'The album file path is: ${path}'
 TOOLBOX_CHECK_GALLERY_FILE_BROKEN_TIPS: The album file is damaged
 TOOLBOX_CHECK_PROXY_SUCCESS_TIPS: Proxy settings normal
 TOOLBOX_CHECK_PROXY_NO_PROXY_TIPS: No proxy settings
 TOOLBOX_CHECK_PROXY_PROXY_IS_NOT_CORRECT: Proxy settings incorrect
 TOOLBOX_CHECK_PROXY_PROXY_IS_NOT_WORKING: Proxy settings unavailable
-TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_TIPS: "The temporary folder path for clipboard pictures is: ${path}"
-TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_NOT_EXIST_TIPS: "The temporary folder for clipboard pictures does not exist: ${path}"
-TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_ERROR_TIPS: "Please create the folder yourself: ${path}"
+TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_TIPS: 'The temporary folder path for clipboard pictures is: ${path}'
+TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_NOT_EXIST_TIPS: 'The temporary folder for clipboard pictures does not exist: ${path}'
+TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_ERROR_TIPS: 'Please create the folder yourself: ${path}'
 MANUAL_PAGE_OPEN_TIP: Please select the way to open the manual
 MANUAL_PAGE_OPEN_TIP_TITLE: Tips
 MANUAL_PAGE_OPEN_BY_BROWSER: Browser
 MANUAL_PAGE_OPEN_BY_BUILD_IN: Built-in Window
 MANUAL_PAGE_OPEN_SETTING_TIP: Select the way to open the manual
-
-# ---renderer i18n begin---
-
-CHOOSE_YOUR_DEFAULT_PICBED: 'Choose ${d} as your default picbed:'
 UPLOAD_AREA: Upload
 UPLOAD_VIEW_HINT: Click to open picbeds settings
 MANAGE_PAGE: Manage
 GALLERY: Gallery
 REFRESH: Refresh
 MANUAL: Manual
-OPEN_MANUAL_LINK: Manual
-OPEN_MANUAL_LINK_HINT: Will open the manual link in your browser, do you want to continue?
 PICBEDS_SETTINGS: Picbeds
-PICBEDS_MANAGE: Picbeds Manage
 PICLIST_SETTINGS: Settings
 PLUGIN_SETTINGS: Plugins
-PICLIST_SPONSOR_TEXT: If you like it, please don't forget to buy me a cup of coffee.
 CHOOSE_PICBED: Choose Picbed
 COPY_PICBED_CONFIG: Copy Picbed Config
 COPY_PICBED_CONFIG_SUCCEED: Copy Picbed Config Succeed
@@ -84,7 +72,6 @@ CONFIRM: Confirm
 RESET_PICBED_CONFIG: Reset
 CHOOSE_SHOWED_PICBED: Choose Showed Picbed
 CHOOSE_PASTE_FORMAT: Choose Paste Format
-SEARCH: Search
 COPY: Copy
 DELETE: Delete
 SELECT_ALL: Select All
@@ -93,18 +80,15 @@ CHANGE_IMAGE_URL_SUCCEED: Change Image URL Succeed
 COPY_LINK_SUCCEED: Copy Link Succeed
 BATCH_COPY_LINK_SUCCEED: Batch Copy Link Succeed
 FILE_RENAME: File Rename
-COPY_FILE_PATH: Copy file path
 OPEN_FILE_PATH: Open file path
 GALLERY_SYNC_DELETE: Cloud Sync Delete
 GALLERY_SYNC_DELETE_NOTICE_TITLE: Notice
 GALLERY_SYNC_DELETE_NOTICE_SUCCEED: Cloud Delete Succeed
 GALLERY_SYNC_DELETE_NOTICE_FAILED: Cloud Delete Failed
 GALLERY_CHANGE_URL: Rename
-GALLERY_CHANGE_URL_TITLE: Batch Change Image URL
 GALLERY_SEARCH_FILENAME: Search by Filename
 GALLERY_SEARCH_URL: Search by URL
 GALLERY_MATCHED: ' Matched: '
-
 UPLOAD_PAGE_COPY_UPLOAD_API: Copy Upload API
 UPLOAD_PAGE_IMAGE_PROCESS_NAME: Image Processing
 UPLOAD_PAGE_IMAGE_PROCESS_DIALOG_TITLE: Image Processing Settings
@@ -127,7 +111,6 @@ UPLOAD_PAGE_IMAGE_PROCESS_QUALITY: Compression Quality(1-100)
 UPLOAD_PAGE_IMAGE_PROCESS_ISCONVERT: Convert Format
 UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT: Destination Format
 UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT_SPECIFIC: 'Specific Format, Please enter in json format, e.g. {"png": "jpg"}'
-UPLOAD_PAGE_IMAGE_PROCESS_TRANSFORMATION: Image Rotate Setting
 UPLOAD_PAGE_IMAGE_PROCESS_ISFLIP: Whether to flip vertically
 UPLOAD_PAGE_IMAGE_PROCESS_ISFLOP: Whether to flip horizontally
 UPLOAD_PAGE_IMAGE_PROCESS_ISRESIZE: Resize to fixed size
@@ -152,8 +135,6 @@ UPLOAD_PAGE_IMAGE_PROCESS_POSITION_BOTTOM_RIGHT: bottom right
 UPLOAD_PAGE_IMAGE_PROCESS_POSITION_CENTER: center
 UPLOAD_SHORT_URL: Short
 UPLOAD_NORMAL_URL: Long
-# settings
-
 SETTINGS: Settings
 SETTINGS_OPEN_CONFIG_FILE: Open Config File
 SETTINGS_MIGRATE_FROM_PICGO: Migrate from PicGo
@@ -180,7 +161,6 @@ SETTINGS_OPEN: Open
 SETTINGS_CLOSE: Close
 SETTINGS_CLOSE_MINI_WINDOW_SYNC: Close Mini Window When open Main Window
 SETTINGS_CLOSE_MAIN_WINDOW_SYNC: Close Main Window When open Mini Window
-SETTINGS_ACCEPT_BETA_UPDATE: Accept Beta Update
 SETTINGS_LAUNCH_ON_BOOT: Launch On Boot
 SETTINGS_RENAME_BEFORE_UPLOAD: Manual Rename
 SETTINGS_TIMESTAMP_RENAME: Timestamp Rename
@@ -247,10 +227,8 @@ SELECTED_SETTING_HINT: Selected
 SETTINGS_MAIN_WINDOW_SIZE: Default Main Window Size
 SETTINGS_MAIN_WINDOW_SIZE_WIDTH: Default Main Window Width
 SETTINGS_MAIN_WINDOW_WIDTH_HINT: 'Default: 1200'
-SETTINGS_MAIN_WINDOW_WIDTH_RULE: Window Width must be greater than 100
 SETTINGS_MAIN_WINDOW_SIZE_HEIGHT: Default Main Window Height
 SETTINGS_MAIN_WINDOW_HEIGHT_HINT: 'Default: 800'
-SETTINGS_MAIN_WINDOW_HEIGHT_RULE: Window Height must be greater than 100
 SETTINGS_RAW_PICGO_SIZE: Raw PicGo Size
 SETTINGS_CUSTOM_MINI_ICON_PATH: Custom Mini Window Icon Path
 SETTINGS_CUSTOM_MINI_ICON: Custom Mini Window Icon
@@ -278,20 +256,19 @@ SETTINGS_SYNC_CONFIG_SELECT_CONFIG: Configuration files only
 SETTINGS_SYNC_CONFIG_SELECT_GALLERY: Gallery files only
 SETTINGS_SYNC_CONFIG_SELECT_BOTH: Both configuration and gallery files
 SETTINGS_SYNC_CONFIG_GITEA_HOST: Gitea Host
-SETTINGS_SYNC_CONFIG_GITHUB_USERNAME:  username
+SETTINGS_SYNC_CONFIG_GITHUB_USERNAME: username
 SETTINGS_SYNC_CONFIG_GITEA_USERNAME: username
-SETTINGS_SYNC_CONFIG_GITEE_USERNAME:  username
-SETTINGS_SYNC_CONFIG_GITHUB_REPO:  repository (private)
-SETTINGS_SYNC_CONFIG_GITEA_REPO:  repository
-SETTINGS_SYNC_CONFIG_GITEE_REPO:  repository path
-SETTINGS_SYNC_CONFIG_GITHUB_BRANCH:  branch
-SETTINGS_SYNC_CONFIG_GITEA_BRANCH:  branch
-SETTINGS_SYNC_CONFIG_GITEE_BRANCH:  branch
-SETTINGS_SYNC_CONFIG_GITHUB_TOKEN:  Token
-SETTINGS_SYNC_CONFIG_GITEA_TOKEN:  Token
-SETTINGS_SYNC_CONFIG_GITEE_TOKEN:  Token
+SETTINGS_SYNC_CONFIG_GITEE_USERNAME: username
+SETTINGS_SYNC_CONFIG_GITHUB_REPO: repository (private)
+SETTINGS_SYNC_CONFIG_GITEA_REPO: repository
+SETTINGS_SYNC_CONFIG_GITEE_REPO: repository path
+SETTINGS_SYNC_CONFIG_GITHUB_BRANCH: branch
+SETTINGS_SYNC_CONFIG_GITEA_BRANCH: branch
+SETTINGS_SYNC_CONFIG_GITEE_BRANCH: branch
+SETTINGS_SYNC_CONFIG_GITHUB_TOKEN: Token
+SETTINGS_SYNC_CONFIG_GITEA_TOKEN: Token
+SETTINGS_SYNC_CONFIG_GITEE_TOKEN: Token
 SETTINGS_SYNC_CONFIG_PROXY: Proxy
-SETTINGS_SYNC_CONFIG_INTERVAL: Interval(min)
 SETTINGS_SYNC_CONFIG_GITHUB_USERNAME_PLACEHOLDER: Please enter GitHub username
 SETTINGS_SYNC_CONFIG_GITEA_USERNAME_PLACEHOLDER: Please enter Gitea username
 SETTINGS_SYNC_CONFIG_GITEE_USERNAME_PLACEHOLDER: Please enter Gitee username
@@ -316,7 +293,6 @@ SETTINGS_SYNC_CONFIG_WEBDAV_SSL_ENABLED: Enable SSL/HTTPS
 SETTINGS_SYNC_CONFIG_WEBDAV_SAVE_PATH: Save Path
 SETTINGS_SYNC_CONFIG_WEBDAV_SAVE_PATH_PLACEHOLDER: Please select save path for sync files
 SETTINGS_UP_DOWN_DESC: Upload and download configuration files
-SETTINGS_UP_DOWN_TITLE: Please use this after filled the synchronization configuration
 SETTINGS_SYNC_UPLOAD: Upload
 SETTINGS_SYNC_DOWNLOAD: Download
 SETTINGS_SYNC_UPLOAD_ALL: Upload all
@@ -334,8 +310,6 @@ SETTINGS_TAB_SYNC_CONFIG: Configuration
 SETTINGS_TAB_UPLOAD: Upload
 SETTINGS_TAB_ADVANCED: Advanced
 SETTINGS_TAB_UPDATE: Update
-# shortcut-page
-
 BUILTIN_CLIPBOARD_TIPS: Use builtin clipboard function to upload instead of using scripts
 SHORTCUT_NAME: Shortcut Name
 SHORTCUT_BIND: Shortcut Binding
@@ -348,27 +322,16 @@ SHORTCUT_ENABLE: Enable
 SHORTCUT_DISABLE: Disable
 SHORTCUT_EDIT: Edit
 SHORTCUT_CHANGE_UPLOAD: Change Upload Shortcut
-
-# tray-page
-
 WAIT_TO_UPLOAD: Wait to Upload
 ALREADY_UPLOAD: Already Uploaded
-
-# upload-page
-
-PICTURE_UPLOAD: Picture Upload
 DRAG_FILE_TO_HERE: Drag file to here, or
 CLICK_TO_UPLOAD: click to upload
 LINK_FORMAT: Link Format
-CUSTOM: Custom
 CLIPBOARD_PICTURE: Clipboard
 TIPS_DRAG_VALID_PICTURE_OR_URL: Drag valid picture or url to here
 TIPS_INPUT_URL: Input URL
 TIPS_HTTP_PREFIX: http:// or https://
 TIPS_INPUT_VALID_URL: Input valid URL
-
-# plugins
-
 PLUGIN_SEARCH_PLACEHOLDER: Search picgo plugins on npm, or click the button to view the awesome plugins list
 PLUGIN_INSTALL: Install
 PLUGIN_INSTALLING: Installing...
@@ -377,9 +340,6 @@ PLUGIN_DOING_SOMETHING: Doing...
 PLUGIN_LIST: Plugin List
 PLUGIN_IMPORT_LOCAL: Import Local Plugins
 PLUGIN_UPDATE_ALL: Update All Plugins
-
-# tips
-
 TIPS_REMOVE_LINK: This operation will remove the picture from the album, continue?
 TIPS_WILL_REMOVE_CHOOSED_IMAGES: This operation will remove the picture from the album, continue?
 TIPS_MUST_CONTAINS_URL: Must contains $url or $fileName or $extName
@@ -389,13 +349,7 @@ TIPS_PLEASE_CHOOSE_LOG_LEVEL: Please choose log level
 TIPS_SET_SUCCEED: Set successfully
 TIPS_RESET_SUCCEED: Reset successfully
 TIPS_PLUGIN_NOT_GUI_IMPLEMENT: This plugin is not optimized for the GUI, continue?
-TIPS_CLICK_NOTIFICATION_TO_RELOAD: Click notification to reload app
 TIPS_GET_PLUGIN_LIST_FAILED: Get plugin list failed
-
-# manage page
-
-# manageSetting
-
 MANAGE_SETTING_TITLE: Manage Setting
 MANAGE_SETTING_ISAUTOREFRESH_TITLE: Auto refresh file list when entering new directory
 MANAGE_SETTING_ISAUTOREFRESH_TIPS: Only applies to non-paginated mode, data is cached to indexdb to speed up loading speed
@@ -419,7 +373,7 @@ MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_C: will preserve the directo
 MANAGE_SETTING_ISDOWNLOADFOLDERKEEPDIRSTRUCTURE_TITLE_D: ' Folder '
 MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TIPS: After enabling, the original directory structure will be preserved
 MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TITLE: Maximum number of files to download simultaneously (1-9999)
-MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TIPS: Not work on Tencent 
+MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TIPS: Not work on Tencent
 MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_INPUT_TIPS: Please enter the maximum number of files to download simultaneously
 MANAGE_SETTING_ISIGNORECASE_TITLE: Should file search be case-insensitive
 MANAGE_SETTING_ISIGNORECASE_TIPS: After enabling, the search will be case-insensitive
@@ -452,10 +406,7 @@ MANAGE_SETTING_CLEAR_CACHE_SUCCESS: Cleared successfully
 MANAGE_SETTING_CLEAR_CACHE_FAILED: Clear failed
 MANAGE_SETTING_ISENCODEURL_TITLE: Encode URL when copy
 MANAGE_SETTING_ISENCODEURL_TIPS: After enabling, the URL will be encoded when copying
-# Empty
 MANAGE_NO_DATA: No data
-
-# Main Page
 MANAGE_MAIN_PAGE_NEW_BUCKET: New Bucket
 MANAGE_MAIN_PAGE_BACK_TO_HOME: Home
 MANAGE_MAIN_PAGE_SWITCH_PICBED: Switch
@@ -467,8 +418,6 @@ MANAGE_MAIN_PAGE_TIPS_FAILED: Create failed
 MANAGE_MAIN_PAGE_BUCKET: Bucket
 MANAGE_MAIN_PAGE_GALLERY: Album
 MANAGE_MAIN_PAGE_REPOSITORY: Repo
-
-# manage constant
 MANAGE_CONSTANT_BASE_RULE: 'Please enter '
 MANAGE_CONSTANT_ITEMS_PAGE_RULE_MESSAGE_A: Please enter the number of items displayed per page.
 MANAGE_CONSTANT_ITEMS_PAGE_RULE_MESSAGE_B: The number of items displayed per page must be a number.
@@ -479,17 +428,15 @@ MANAGE_CONSTANT_ALIAS_TOOLTIP: The alias can only contain Chinese, English, numb
 MANAGE_CONSTANT_ITEMS_PAGE_TOOLTIP: The number of items displayed per page must be between 20 and 1000.
 MANAGE_CONSTANT_PAGING_TOOLTIP: When paging is turned off, the directory list will use database caching to optimize performance.
 MANAGE_CONSTANT_BUCKET_NAME_TOOLTIP: Separated by commas, e.g., bucket1,bucket2,bucket3, and corresponding to the starting directory order one by one.
-MANAGE_CONSTANT_BASE_DIR_TOOLTIP: 'Separated by commas, e.g., /dir1,/dir2,/dir3, corresponding to the storage bucket order one by one.'
+MANAGE_CONSTANT_BASE_DIR_TOOLTIP: Separated by commas, e.g., /dir1,/dir2,/dir3, corresponding to the storage bucket order one by one.
 MANAGE_CONSTANT_IS_AUTO_CUSTOM_URL_TOOLTIP: When turned on, the domainbound to bucket will be automatically obtained. Else, it can be manually filled in.
-
 MANAGE_CONSTANT_SMMS_ALIAS_DESC: Alias - required
 MANAGE_CONSTANT_SMMS_ALIAS_PLACEHOLDER: Unique identifier of this configuration
 MANAGE_CONSTANT_SMMS_TOKEN_DESC: Token - required
 MANAGE_CONSTANT_SMMS_TOKEN_PLACEHOLDER: Please fill in your token
 MANAGE_CONSTANT_SMMS_PAGING_DESC: Whether to enable pagination
-MANAGE_CONSTANT_SMMS_EXPLAIN: 'For users in mainland China, please visit the backup domain https://smms.app. Do not upload images in large quantities.'
+MANAGE_CONSTANT_SMMS_EXPLAIN: For users in mainland China, please visit the backup domain https://smms.app. Do not upload images in large quantities.
 MANAGE_CONSTANT_SMMS_REFER_TEXT: 'Refer to: '
-
 MANAGE_CONSTANT_QINIU_NAME: Qiniu
 MANAGE_CONSTANT_QINIU_ALIAS_DESC: Alias - Required
 MANAGE_CONSTANT_QINIU_ALIAS_PLACEHOLDER: Unique identifier for this configuration
@@ -506,32 +453,29 @@ MANAGE_CONSTANT_QINIU_PAGING_DESC: Enable pagination
 MANAGE_CONSTANT_QINIU_ITEMS_PAGE_DESC: Number of items displayed per page
 MANAGE_CONSTANT_QINIU_EXPLAIN: When configuring space name and base directory, they can be set using English comma separation. The order must be consistent and missing or empty items will use the default value.
 MANAGE_CONSTANT_QINIU_REFER_TEXT: 'Refer to: '
-
 MANAGE_CONSTANT_GITHUB_ALIAS_DESC: Alias - Required
 MANAGE_CONSTANT_GITHUB_ALIAS_PLACEHOLDER: Unique identifier for this configuration
 MANAGE_CONSTANT_GITHUB_TOKEN_DESC: Token - Required
 MANAGE_CONSTANT_GITHUB_TOKEN_PLACEHOLDER: Please enter the Token
-MANAGE_CONSTANT_GITHUB_TOKEN_TIPS: 'Please provide a token with full repo permissions'
+MANAGE_CONSTANT_GITHUB_TOKEN_TIPS: Please provide a token with full repo permissions
 MANAGE_CONSTANT_GITHUB_USER_DESC: Username - Required
 MANAGE_CONSTANT_GITHUB_USER_PLACEHOLDER: Please enter the Username
 MANAGE_CONSTANT_GITHUB_USER_RULE_MESSAGE: Username
 MANAGE_CONSTANT_GITHUB_PROXY_DESC: Proxy address - Optional
 MANAGE_CONSTANT_GITHUB_PROXY_PLACEHOLDER: 'For example: http://127.0.0.1:1080'
-MANAGE_CONSTANT_GITHUB_PROXY_TIPS: 'If the access speed is slow, you can try configuring a proxy'
+MANAGE_CONSTANT_GITHUB_PROXY_TIPS: If the access speed is slow, you can try configuring a proxy
 MANAGE_CONSTANT_GITHUB_PAGING_DESC: Enable pagination
 MANAGE_CONSTANT_GITHUB_CUSTOM_URL_DESC: CDN acceleration domain name - Optional
-MANAGE_CONSTANT_GITHUB_CUSTOM_URL_PLACEHOLDER: 'Support using {username}, {repo}, {branch}, and {path} as replacement placeholders'
+MANAGE_CONSTANT_GITHUB_CUSTOM_URL_PLACEHOLDER: Support using {username}, {repo}, {branch}, and {path} as replacement placeholders
 MANAGE_CONSTANT_GITHUB_CUSTOM_URL_TIPS: 'For example: https://cdn.staticaly.com/gh/{username}/{repo}@{branch}/{path}'
-MANAGE_CONSTANT_GITHUB_CUSTOM_URL_RULE_MESSAGE_A: 'The acceleration domain name must start with http:// or https://'
+MANAGE_CONSTANT_GITHUB_CUSTOM_URL_RULE_MESSAGE_A: The acceleration domain name must start with http:// or https://
 MANAGE_CONSTANT_GITHUB_CUSTOM_URL_RULE_MESSAGE_B: The braces in the acceleration domain name must appear in pairs
 MANAGE_CONSTANT_GITHUB_EXPLAIN: There is an hourly limit for API calls, and uploading files larger than 100M is not supported
 MANAGE_CONSTANT_GITHUB_REFER_TEXT: 'Refer to:'
-
 MANAGE_CONSTANT_ALIYUN_NAME: Ali Cloud
 MANAGE_CONSTANT_ALIYUN_ALIAS_DESC: Alias - required
 MANAGE_CONSTANT_ALIYUN_ALIAS_PLACEHOLDER: The unique identifier of this configuration
 MANAGE_CONSTANT_ALIYUN_ACCESS_KEY_ID_DESC: AccessKeyId - required
-MANAGE_CONSTANT_ALIYUN_ACCESS_KEY_ID_PLACEHOLDER: Please fill in AccessKeyId
 MANAGE_CONSTANT_ALIYUN_ACCESS_KEY_SECRET_DESC: AccessKeySecret - required
 MANAGE_CONSTANT_ALIYUN_ACCESS_KEY_SECRET_PLACEHOLDER: Please fill in AccessKeySecret
 MANAGE_CONSTANT_ALIYUN_BUCKET_DESC: Bucket name - optional
@@ -543,7 +487,6 @@ MANAGE_CONSTANT_ALIYUN_PAGING_DESC: Whether to enable pagination
 MANAGE_CONSTANT_ALIYUN_ITEMS_PAGE_DESC: Number of items displayed per page
 MANAGE_CONSTANT_ALIYUN_EXPLAIN: When configuring bucket name and base directory, they can be set using English comma separation. The order must be consistent and missing or empty items will use the default value.
 MANAGE_CONSTANT_ALIYUN_REFER_TEXT: 'Refer to: '
-
 MANAGE_CONSTANT_TENCENT_NAME: Tencent
 MANAGE_CONSTANT_TENCENT_ALIAS_DESC: Alias - Required
 MANAGE_CONSTANT_TENCENT_ALIAS_PLACEHOLDER: Unique identifier for this configuration
@@ -563,7 +506,6 @@ MANAGE_CONSTANT_TENCENT_PAGING_DESC: Enable paging
 MANAGE_CONSTANT_TENCENT_ITEMS_PAGE_DESC: Number of items to display per page
 MANAGE_CONSTANT_TENCENT_EXPLAIN: When configuring bucket name and base directory, they can be set using English comma separation. The order must be consistent and missing or empty items will use the default value.
 MANAGE_CONSTANT_TENCENT_REFER_TEXT: 'Refer to: '
-
 MANAGE_CONSTANT_UPYUN_NAME: Upyun
 MANAGE_CONSTANT_UPYUN_ALIAS_DESC: Alias - required
 MANAGE_CONSTANT_UPYUN_ALIAS_PLACEHOLDER: Unique identifier of the configuration
@@ -578,9 +520,9 @@ MANAGE_CONSTANT_UPYUN_OPERATOR_PWD_RULE: Operator password
 MANAGE_CONSTANT_UPYUN_BASE_DIR_DESC: Base directory - optional
 MANAGE_CONSTANT_UPYUN_BASE_DIR_PLACEHOLDER: Initial directory when reading files
 MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_DESC: Acceleration domain name - required
-MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_PLACEHOLDER: 'Please start with http:// or https://'
+MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_PLACEHOLDER: Please start with http:// or https://
 MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_RULE_MESSAGE_A: Acceleration domain name cannot be empty
-MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_RULE_MESSAGE_B: 'Please start the custom domain name with http:// or https://'
+MANAGE_CONSTANT_UPYUN_IS_AUTO_CUSTOM_URL_RULE_MESSAGE_B: Please start the custom domain name with http:// or https://
 MANAGE_CONSTANT_UPYUN_ANTI_LEECH_TOKEN_DESC: Anti-leech key - optional
 MANAGE_CONSTANT_UPYUN_ANTI_LEECH_TOKEN_PLACEHOLDER: Please enter the anti-leech key
 MANAGE_CONSTANT_UPYUN_ANTI_LEECH_TOKEN_TOOLTIP: If you do not need to use anti-leech, please leave it blank
@@ -589,7 +531,6 @@ MANAGE_CONSTANT_UPYUN_PAGING: Whether to enable pagination
 MANAGE_CONSTANT_UPYUN_ITEMS_PAGE: Number of items displayed per page
 MANAGE_CONSTANT_UPYUN_EXPLAIN: It is necessary to fill in the acceleration domain name of Upyun image bed, otherwise it cannot be used normally.
 MANAGE_CONSTANT_UPYUN_REFER_TEXT: 'Refer to: '
-
 MANAGE_CONSTANT_IMGUR_NAME: Imgur
 MANAGE_CONSTANT_IMGUR_ALIAS_DESC: Alias - required
 MANAGE_CONSTANT_IMGUR_ALIAS_PLACEHOLDER: Unique identifier of the configuration
@@ -603,7 +544,6 @@ MANAGE_CONSTANT_IMGUR_PROXY_PLACEHOLDER: 'For example: http://127.0.0.1:1080'
 MANAGE_CONSTANT_IMGUR_PROXY_TOOLTIP: Please use a proxy in mainland China, otherwise it cannot be used normally
 MANAGE_CONSTANT_IMGUR_EXPLAIN: Please use a proxy in mainland China, API calls have restrictions, please pay attention to usage frequency
 MANAGE_CONSTANT_IMGUR_REFER_TEXT: 'Refer to: '
-
 MANAGE_CONSTANT_S3_NAME: S3-Compatible
 MANAGE_CONSTANT_S3_ALIAS_DESC: Alias - Required
 MANAGE_CONSTANT_S3_ALIAS_PLACEHOLDER: Unique identifier for this configuration
@@ -629,7 +569,7 @@ MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_AUTHENTICATED_READ: Authenticated read
 MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_BUCKET_OWNER_READ: Bucket owner read
 MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_BUCKET_OWNER_FULL_CONTROL: Bucket owner full control
 MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_OPTIONS_AWS_EXEC_READ: AWS execution read
-MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_TOOLTIP: 'Permission options for uploaded files'
+MANAGE_CONSTANT_S3_ACL_FOR_UPLOAD_TOOLTIP: Permission options for uploaded files
 MANAGE_CONSTANT_S3_BUCKET_DESC: Bucket name - Optional
 MANAGE_CONSTANT_S3_BUCKET_PLACEHOLDER: English comma-separated list, e.g. bucket1,bucket2
 MANAGE_CONSTANT_S3_BASE_DIR_DESC: Base directory - Optional
@@ -640,95 +580,86 @@ MANAGE_CONSTANT_S3_PAGING_DESC: Enable pagination
 MANAGE_CONSTANT_S3_ITEMS_PAGE_DESC: Items per page
 MANAGE_CONSTANT_S3_EXPLAIN: When configuring bucket name and base directory, they can be set using English comma separation. The order must be consistent and missing or empty items will use the default value.
 MANAGE_CONSTANT_S3_REFER_TEXT: 'Refer to: '
-
-MANAGE_CONSTANT_WEBDAV_NAME: WebDAV
 MANAGE_CONSTANT_WEBDAV_ALIAS_DESC: Alias - Required
 MANAGE_CONSTANT_WEBDAV_ALIAS_PLACEHOLDER: Unique identifier for this configuration
 MANAGE_CONSTANT_WEBDAV_HOST_DESC: Address - Required
-MANAGE_CONSTANT_WEBDAV_HOST_PLACEHOLDER: 'e.g. https://example.com/dav'
+MANAGE_CONSTANT_WEBDAV_HOST_PLACEHOLDER: e.g. https://example.com/dav
 MANAGE_CONSTANT_WEBDAV_HOST_TOOLTIP: Please enter the complete WebDAV address
 MANAGE_CONSTANT_WEBDAV_USERNAME_DESC: Username - Required
 MANAGE_CONSTANT_WEBDAV_USERNAME_PLACEHOLDER: Please enter your username
 MANAGE_CONSTANT_WEBDAV_BUCKET_DESC: Special Configuration
-MANAGE_CONSTANT_WEBDAV_BUCKET_PLACEHOLDER: 'e.g. bucket1'
+MANAGE_CONSTANT_WEBDAV_BUCKET_PLACEHOLDER: e.g. bucket1
 MANAGE_CONSTANT_WEBDAV_BUCKET_TOOLTIP: This cannot be modified, only for software compatibility consideration
 MANAGE_CONSTANT_WEBDAV_PASSWORD_DESC: Password - Required
 MANAGE_CONSTANT_WEBDAV_PASSWORD_PLACEHOLDER: Please enter your password
 MANAGE_CONSTANT_WEBDAV_BASE_DIR_DESC: Base Directory - Optional
-MANAGE_CONSTANT_WEBDAV_BASE_DIR_PLACEHOLDER: 'e.g. /dir1'
+MANAGE_CONSTANT_WEBDAV_BASE_DIR_PLACEHOLDER: e.g. /dir1
 MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_DESC: Custom Domain - Optional
-MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_PLACEHOLDER: 'e.g. https://example.com'
+MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_PLACEHOLDER: e.g. https://example.com
 MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_TOOLTIP: If your WebDAV server supports custom domains, please fill in
-MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_RULE_MESSAGE: 'Custom domain should start with http:// or https://'
+MANAGE_CONSTANT_WEBDAV_CUSTOM_URL_RULE_MESSAGE: Custom domain should start with http:// or https://
 MANAGE_CONSTANT_WEBDAV_WEB_PATH: Web Path - Optional
-MANAGE_CONSTANT_WEBDAV_WEB_PATH_PLACEHOLDER: 'e.g. test/ttc'
-MANAGE_CONSTANT_WEBDAV_WEB_PATH_TOOLTIP: 'Used to generate URL'
+MANAGE_CONSTANT_WEBDAV_WEB_PATH_PLACEHOLDER: e.g. test/ttc
+MANAGE_CONSTANT_WEBDAV_WEB_PATH_TOOLTIP: Used to generate URL
 MANAGE_CONSTANT_WEBDAV_PROXY_DESC: Proxy - Optional
-MANAGE_CONSTANT_WEBDAV_PROXY_PLACEHOLDER: 'e.g. http://127.0.0.1:1080'
+MANAGE_CONSTANT_WEBDAV_PROXY_PLACEHOLDER: e.g. http://127.0.0.1:1080
 MANAGE_CONSTANT_WEBDAV_PROXY_TOOLTIP: If special network environment is required to access, please use proxy
 MANAGE_CONSTANT_WEBDAV_SSL_DESC: Use HTTPS Connection
 MANAGE_CONSTANT_WEBDAV_SSL_TOOLTIP: Depending on the configuration of your WebDAV server, if your server does not support HTTPS, please turn off this option
 MANAGE_CONSTANT_WEBDAV_AUTH_TYPE_DESC: Authentication Type
-MANAGE_CONSTANT_WEBDAV_EXPLAIN: 'WebDAV Configuration'
+MANAGE_CONSTANT_WEBDAV_EXPLAIN: WebDAV Configuration
 MANAGE_CONSTANT_WEBDAV_REFER_TEXT: 'Refer to:'
-
 MANAGE_CONSTANT_LOCAL_NAME: Local
 MANAGE_CONSTANT_LOCAL_ALIAS_DESC: Alias - Required
 MANAGE_CONSTANT_LOCAL_ALIAS_PLACEHOLDER: Unique identifier for this configuration
 MANAGE_CONSTANT_LOCAL_BASE_DIR_DESC: Base directory - Required
-MANAGE_CONSTANT_LOCAL_BASE_DIR_PLACEHOLDER: 'e.g. /dir1'
+MANAGE_CONSTANT_LOCAL_BASE_DIR_PLACEHOLDER: e.g. /dir1
 MANAGE_CONSTANT_LOCAL_CUSTOM_URL_DESC: Custom Domain - Optional
-MANAGE_CONSTANT_LOCAL_CUSTOM_URL_PLACEHOLDER: 'e.g. https://example.com'
+MANAGE_CONSTANT_LOCAL_CUSTOM_URL_PLACEHOLDER: e.g. https://example.com
 MANAGE_CONSTANT_LOCAL_CUSTOM_URL_TOOLTIP: If your local path supports custom domains, please fill in
 MANAGE_CONSTANT_LOCAL_WEB_PATH: Web Path - Optional
-MANAGE_CONSTANT_LOCAL_WEB_PATH_PLACEHOLDER: 'e.g. test/ttc'
-MANAGE_CONSTANT_LOCAL_WEB_PATH_TOOLTIP: 'Used to generate URL'
-MANAGE_CONSTANT_LOCAL_EXPLAIN: 'Local Configuration'
+MANAGE_CONSTANT_LOCAL_WEB_PATH_PLACEHOLDER: e.g. test/ttc
+MANAGE_CONSTANT_LOCAL_WEB_PATH_TOOLTIP: Used to generate URL
+MANAGE_CONSTANT_LOCAL_EXPLAIN: Local Configuration
 MANAGE_CONSTANT_LOCAL_REFER_TEXT: 'Refer to:'
 MANAGE_CONSTANT_LOCAL_BASE_DIR_RULE_MESSAGE: baseDir cannot be empty
 MANAGE_CONSTANT_LOCAL_BUCKET_DESC: Special Configuration
-MANAGE_CONSTANT_LOCAL_BUCKET_PLACEHOLDER: 'bucket1'
+MANAGE_CONSTANT_LOCAL_BUCKET_PLACEHOLDER: bucket1
 MANAGE_CONSTANT_LOCAL_BUCKET_TOOLTIP: This cannot be modified, only for software compatibility consideration
-
 MANAGE_CONSTANT_SFTP_NAME: SFTP
 MANAGE_CONSTANT_SFTP_ALIAS_DESC: Alias - Required
 MANAGE_CONSTANT_SFTP_ALIAS_PLACEHOLDER: Unique identifier for this configuration
 MANAGE_CONSTANT_SFTP_HOST_DESC: SSH Host - Required
-MANAGE_CONSTANT_SFTP_HOST_PLACEHOLDER: 'e.g. 233.233.233.233'
+MANAGE_CONSTANT_SFTP_HOST_PLACEHOLDER: e.g. 233.233.233.233
 MANAGE_CONSTANT_SFTP_PORT_DESC: SSH Port - Required
-MANAGE_CONSTANT_SFTP_PORT_PLACEHOLDER: 'e.g. 22'
+MANAGE_CONSTANT_SFTP_PORT_PLACEHOLDER: e.g. 22
 MANAGE_CONSTANT_SFTP_USERNAME_DESC: Username
 MANAGE_CONSTANT_SFTP_USERNAME_PLACEHOLDER: Please enter your username
 MANAGE_CONSTANT_SFTP_PASSWORD_DESC: Password
 MANAGE_CONSTANT_SFTP_PASSWORD_PLACEHOLDER: Please enter your password
 MANAGE_CONSTANT_SFTP_PRIVATE_KEY_DESC: Private Key
 MANAGE_CONSTANT_SFTP_PRIVATE_KEY_PLACEHOLDER: Please enter your private key
-MANAGE_CONSTANT_SFTP_PRIVATE_KEY_TOOLTIP: 'e.g. /home/user/.ssh/id_rsa'
 MANAGE_CONSTANT_SFTP_PASSPHRASE_DESC: Private Key Password
 MANAGE_CONSTANT_SFTP_PASSPHRASE_PLACEHOLDER: Please enter your private key password
 MANAGE_CONSTANT_SFTP_BASE_DIR_DESC: Base Directory
-MANAGE_CONSTANT_SFTP_BASE_DIR_PLACEHOLDER: 'e.g. /dir1'
+MANAGE_CONSTANT_SFTP_BASE_DIR_PLACEHOLDER: e.g. /dir1
 MANAGE_CONSTANT_SFTP_CUSTOM_URL_DESC: Custom Domain
-MANAGE_CONSTANT_SFTP_CUSTOM_URL_PLACEHOLDER: 'e.g. https://example.com'
+MANAGE_CONSTANT_SFTP_CUSTOM_URL_PLACEHOLDER: e.g. https://example.com
 MANAGE_CONSTANT_SFTP_CUSTOM_URL_TOOLTIP: If your SFTP server supports custom domains, please fill in
 MANAGE_CONSTANT_SFTP_WEB_PATH: Web Path
-MANAGE_CONSTANT_SFTP_WEB_PATH_PLACEHOLDER: 'e.g. test/ttc'
-MANAGE_CONSTANT_SFTP_WEB_PATH_TOOLTIP: 'Used to generate URL'
+MANAGE_CONSTANT_SFTP_WEB_PATH_PLACEHOLDER: e.g. test/ttc
+MANAGE_CONSTANT_SFTP_WEB_PATH_TOOLTIP: Used to generate URL
 MANAGE_CONSTANT_SFTP_FILE_PERMISSIONS_DESC: File mode
-MANAGE_CONSTANT_SFTP_FILE_PERMISSIONS_PLACEHOLDER: 'e.g. 0644'
-MANAGE_CONSTANT_SFTP_FILE_PERMISSIONS_TOOLTIP: 'Used to set the permissions of uploaded files'
+MANAGE_CONSTANT_SFTP_FILE_PERMISSIONS_PLACEHOLDER: e.g. 0644
 MANAGE_CONSTANT_SFTP_DIR_PERMISSIONS_DESC: Directory mode
-MANAGE_CONSTANT_SFTP_DIR_PERMISSIONS_PLACEHOLDER: 'e.g. 0755'
-MANAGE_CONSTANT_SFTP_DIR_PERMISSIONS_TOOLTIP: 'Used to set the permissions of uploaded directories'
-MANAGE_CONSTANT_SFTP_EXPLAIN: 'SFTP Configuration'
+MANAGE_CONSTANT_SFTP_DIR_PERMISSIONS_PLACEHOLDER: e.g. 0755
+MANAGE_CONSTANT_SFTP_EXPLAIN: SFTP Configuration
 MANAGE_CONSTANT_SFTP_REFER_TEXT: 'Refer to:'
 MANAGE_CONSTANT_SFTP_BASE_DIR_RULE_MESSAGE: baseDir cannot be empty
 MANAGE_CONSTANT_SFTP_BUCKET_DESC: Special Configuration
-MANAGE_CONSTANT_SFTP_BUCKET_PLACEHOLDER: 'e.g. bucket1'
+MANAGE_CONSTANT_SFTP_BUCKET_PLACEHOLDER: e.g. bucket1
 MANAGE_CONSTANT_SFTP_BUCKET_TOOLTIP: This cannot be modified, only for software compatibility consideration
-
 MANAGE_LOGIN_PAGE_PANE_NAME: Saved Config
-MANAGE_LOGIN_PAGE_PANE_LOADING: Importing...
 MANAGE_LOGIN_PAGE_PANE_KEY_NAME: Configuration
 MANAGE_LOGIN_PAGE_PANE_KEY_VALUE: Value
 MANAGE_LOGIN_PAGE_PANE_ENTER: Enter
@@ -739,9 +670,9 @@ MANAGE_LOGIN_PAGE_PANE_SAVE: Save
 MANAGE_LOGIN_PAGE_PANE_RESET: Reset
 MANAGE_LOGIN_PAGE_PANE_TABLE_TITLE: Existing configurations, click to copy corresponding cell data
 MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_MESSAGE_A: Please fill in
-MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_ALIAS_MESSAGE: 'The alias can only contain Chinese, English, numbers, underscores, and hyphens'
-MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_ITEMS_PER_PAGE_MESSAGE: 'The number of items per page must be between 20-1000'
-MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_CUSTOM_URL_MESSAGE: 'Custom domain name should start with http:// or https://'
+MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_ALIAS_MESSAGE: The alias can only contain Chinese, English, numbers, underscores, and hyphens
+MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_ITEMS_PER_PAGE_MESSAGE: The number of items per page must be between 20-1000
+MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_CUSTOM_URL_MESSAGE: Custom domain name should start with http:// or https://
 MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME: Notice
 MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE: 'Alias overwritten: '
 MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_B: 'Alias saved: '
@@ -753,7 +684,6 @@ MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_TITLE: Are you sure to delete this?
 MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_TIP: Tip
 MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_CONFIRM: Confirm
 MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_CANCEL: Cancel
-
 MANAGE_BUCKET_PAGE_LOADING_TEXT: Loading...
 MANAGE_BUCKET_PAGE_CUSTOM_URL_SELECT_PLACEHOLDER: Please select a custom domain
 MANAGE_BUCKET_PAGE_CUSTOM_URL_INPUT_PLACEHOLDER: Please enter a custom domain
@@ -833,15 +763,13 @@ MANAGE_BUCKET_RENAME_FILE_CONFIRM: Confirm
 MANAGE_BUCKET_COPY_SUCCESS: Copy success
 MANAGE_BUCKET_START_LOADING_MESSAGE: Start getting files
 MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL: Failed to get file content
-MANAGE_BUCKET_CHANGE_CUSTOM_URL_TITLE: Tip
-MANAGE_BUCKET_CHANGE_CUSTOM_URL_MSG: Loading file list, please try again later
 MANAGE_BUCKET_LAST_PAGE_TITLE: Tip
 MANAGE_BUCKET_LAST_PAGE_MSG: This is the last page
 MANAGE_BUCKET_GET_LIST_FAIL_TITLE: Tip
 MANAGE_BUCKET_GET_LIST_FAIL_MSG: Failed to get file list
 MANAGE_BUCKET_GET_LIST_FAIL_MSG2: Getting file list in the background, please do not switch pages
 MANAGE_BUCKET_GET_LIST_FAIL_MSG3: Loading file list, please try again later
-MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TITLE: 'Are you sure you want to download this folder?'
+MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TITLE: Are you sure you want to download this folder?
 MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP: Tip
 MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CONFIRM: Confirm
 MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CANCEL: Cancel
@@ -937,7 +865,6 @@ MANAGE_BUCKET_FILE_COLUMN_COPY_URL: Copy link
 MANAGE_BUCKET_FILE_COLUMN_INFO: File Info
 MANAGE_BUCKET_FILE_COLUMN_FILESIZE: Size
 MANAGE_BUCKET_FILE_COLUMN_TIME: Time
-
 MANAGE_NEW_BUCKET_TCYUN_NAME: Tencent Cloud
 MANAGE_NEW_BUCKET_TCYUN_BUCKETNAME_DESC: Bucket Name
 MANAGE_NEW_BUCKET_TCYUN_BUCKETNAME_PLACEHOLDER: Please enter the Bucket name
@@ -978,12 +905,7 @@ MANAGE_NEW_BUCKET_S3PLIST_ACL_PUBLIC_RW: Public Read and Write
 MANAGE_NEW_BUCKET_S3PLIST_ACL_PUBLIC_R: Public Read
 MANAGE_NEW_BUCKET_S3PLIST_ACL_PRIVATE: Private
 MANAGE_NEW_BUCKET_S3PLIST_ACL_AUTHENTICATED_READ: Authenticated Read
-# ---renderer i18n end---
-
-# plugins
-PLUGIN_INSTALL_SUCCEED: Plugin install succeed
 PLUGIN_INSTALL_FAILED: Plugin install failed
-PLUGIN_UNINSTALL_SUCCEED: Plugin uninstall succeed
 PLUGIN_UNINSTALL_FAILED: Plugin uninstall failed
 PLUGIN_UPDATE_SUCCEED: Plugin update succeed
 PLUGIN_UPDATE_FAILED: Plugin update failed
@@ -993,22 +915,16 @@ ENABLE_PLUGIN: Enable Plugin
 DISABLE_PLUGIN: Disable Plugin
 UNINSTALL_PLUGIN: Uninstall Plugin
 UPDATE_PLUGIN: Update Plugin
-
-# tips
 TIPS_NOTICE: Tips
 TIPS_WARNING: Warning
 TIPS_ERROR: Error
 TIPS_INSTALL_NODE_AND_RELOAD_PICGO: Please install Node.js and restart PicList to continue
 TIPS_PLUGIN_REMOVE_GALLERY_ITEM: Plugin is trying to remove some images from the album gallery, continue?
-TIPS_PLUGIN_OVERWRITE_GALLERY: Plugin is trying to overwrite the album gallery, continue?
 TIPS_UPLOAD_NOT_PICTURES: The latest clipboard item is not a picture
 TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_DEFAULT: PicList config file broken, has been restored to default
 TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_BACKUP: PicList config file broken, has been restored to backup
 TIPS_PICGO_BACKUP_FILE_VERSION: 'Backup file version: ${v}'
 TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR: Custom config file parse error, please check the path content
-TIPS_SHORTCUT_MODIFIED_SUCCEED: Shortcut modified successfully
-TIPS_SHORTCUT_MODIFIED_CONFLICT: Shortcut conflict, please reset
-TIPS_CUSTOM_LINK_STYLE_MODIFIED_SUCCEED: Custom link style modified successfully
 TIPS_FIND_NEW_VERSION: Find new version ${v}, update many new features, do you want to download the latest version in the background?
 UPDATE_DOWNLOADED: Update downloaded
 TIPS_UPDATE_DOWNLOADED: The update has been downloaded and will be installed on the next app restart. Would you like to restart now?
