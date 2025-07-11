@@ -1,0 +1,326 @@
+name: 'I18n Check - Find Unused Translation Keys'
+
+on:
+  workflow_dispatch:
+    inputs:
+      auto_fix:
+        description: 'Automatically remove unused keys and create PR'
+        required: false
+        default: false
+        type: boolean
+  pull_request:
+    branches: [ main, dev ]
+    paths:
+      - 'src/**/*.vue'
+      - 'src/**/*.ts'
+      - 'src/**/*.js'
+      - 'public/i18n/**/*.yml'
+      - 'scripts/find-unused-i18n.mjs'
+      - '.github/workflows/i18n-check.yml'
+  push:
+    branches: [ main, dev ]
+    paths:
+      - 'public/i18n/**/*.yml'
+
+env:
+  NODE_OPTIONS: '--max-old-space-size=4096'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  i18n-check:
+    name: Check for Unused I18n Keys
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run i18n unused keys check
+        id: i18n-check
+        run: |
+          echo "Running i18n unused keys analysis..."
+          
+          # Run the script and capture output
+          OUTPUT=$(node scripts/find-unused-i18n.mjs 2>&1)
+          EXIT_CODE=$?
+          
+          # Save the output to a file for the job summary
+          echo "$OUTPUT" > i18n-check-output.txt
+          
+          # Also output to console
+          echo "$OUTPUT"
+          
+          # Check if there are unused keys by looking for the specific pattern in output
+          if echo "$OUTPUT" | grep -q "🗑️  Unused I18n Keys:"; then
+            echo "unused_keys_found=true" >> $GITHUB_OUTPUT
+            echo "❌ Found unused i18n keys!"
+            exit 1
+          else
+            echo "unused_keys_found=false" >> $GITHUB_OUTPUT
+            echo "✅ No unused i18n keys found!"
+            exit 0
+          fi
+
+      - name: Generate Job Summary
+        if: always()
+        run: |
+          echo "## 🌐 I18n Keys Analysis Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f i18n-check-output.txt ]; then
+            echo "### 📊 Analysis Results" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat i18n-check-output.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ steps.i18n-check.outputs.unused_keys_found }}" = "true" ]; then
+            echo "### ❌ Action Required" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Unused i18n keys were found. Consider:" >> $GITHUB_STEP_SUMMARY
+            echo "- Removing unused keys from locale files" >> $GITHUB_STEP_SUMMARY
+            echo "- Verifying that the keys are actually unused" >> $GITHUB_STEP_SUMMARY
+            echo "- Adding usage for keys that should be kept" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ✅ All Clear" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "No unused i18n keys found. Great job maintaining clean translations! 🎉" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 💡 Tips" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Run \`yarn i18n:check\` locally to check for unused keys" >> $GITHUB_STEP_SUMMARY
+          echo "- Run \`yarn i18n:check:verbose\` for detailed usage information" >> $GITHUB_STEP_SUMMARY
+          echo "- This check runs automatically on PRs that modify Vue, TS, JS, or i18n files" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload analysis results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n-analysis-results
+          path: i18n-check-output.txt
+          retention-days: 7
+
+      - name: Comment on PR (if unused keys found)
+        if: github.event_name == 'pull_request' && steps.i18n-check.outputs.unused_keys_found == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let output = '';
+            try {
+              output = fs.readFileSync('i18n-check-output.txt', 'utf8');
+            } catch (error) {
+              output = 'Unable to read analysis output';
+            }
+            
+            const body = `## 🌐 I18n Analysis Report
+            
+            ❌ **Unused i18n keys were found in this PR**
+            
+            <details>
+            <summary>📊 Click to view detailed analysis</summary>
+            
+            \`\`\`
+            ${output}
+            \`\`\`
+            </details>
+            
+            ### 🔧 Action Required
+            
+            Please review the unused keys listed above and consider:
+            - **Removing** keys that are truly unused
+            - **Verifying** that the detection is correct (some dynamic key usage might not be detected)
+            - **Adding usage** for keys that should be kept
+            
+            ### 💡 Local Testing
+            
+            You can run this analysis locally using:
+            \`\`\`bash
+            yarn i18n:check          # Basic check
+            yarn i18n:check:verbose  # Detailed output with usage examples
+            \`\`\`
+            
+            ---
+            *This comment was automatically generated by the I18n Check workflow.*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+  locale-consistency-check:
+    name: Check Locale File Consistency
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check locale files consistency
+        run: |
+          echo "Checking if all locale files have the same structure..."
+          
+          # Run the i18n script in verbose mode to also check for inconsistencies
+          node scripts/find-unused-i18n.mjs --verbose > locale-check.txt 2>&1
+          
+          # Check if there are inconsistencies reported
+          if grep -q "⚠️  Locale Inconsistencies:" locale-check.txt; then
+            echo "❌ Found locale inconsistencies!"
+            cat locale-check.txt
+            exit 1
+          else
+            echo "✅ All locale files are consistent!"
+          fi
+
+      - name: Generate Consistency Report
+        if: always()
+        run: |
+          echo "## 🔄 Locale Consistency Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if grep -q "⚠️  Locale Inconsistencies:" locale-check.txt 2>/dev/null; then
+            echo "### ❌ Inconsistencies Found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Some keys exist in one locale but not others:" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat locale-check.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ✅ All Locale Files Consistent" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All locale files have matching key structures. Perfect! 🎉" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  auto-fix:
+    name: Auto-fix Unused I18n Keys
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.auto_fix == 'true'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check for unused keys before deletion
+        id: check-before
+        run: |
+          echo "Checking for unused keys..."
+          
+          # Check if there are unused keys
+          if node scripts/find-unused-i18n.mjs | grep -q "🗑️  Unused I18n Keys:"; then
+            echo "unused_keys_found=true" >> $GITHUB_OUTPUT
+            echo "✅ Found unused keys to clean up"
+          else
+            echo "unused_keys_found=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No unused keys found"
+          fi
+
+      - name: Delete unused keys
+        if: steps.check-before.outputs.unused_keys_found == 'true'
+        run: |
+          echo "🗑️ Removing unused i18n keys..."
+          node scripts/find-unused-i18n.mjs --delete
+
+      - name: Regenerate TypeScript types
+        if: steps.check-before.outputs.unused_keys_found == 'true'
+        run: |
+          echo "🔄 Regenerating TypeScript types..."
+          yarn i18n
+
+      - name: Create Pull Request
+        if: steps.check-before.outputs.unused_keys_found == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'feat(i18n): remove unused translation keys'
+          title: '🗑️ Remove unused i18n translation keys'
+          body: |
+            ## 🗑️ Automated I18n Cleanup
+            
+            This PR automatically removes unused translation keys that were detected by the i18n analysis script.
+            
+            ### ✨ Changes Made
+            
+            - Removed unused translation keys from all locale files
+            - Regenerated TypeScript type definitions
+            
+            ### 🔍 Analysis Details
+            
+            The unused keys were identified by scanning the entire codebase for i18n usage patterns including:
+            - `$T('KEY')` - Template usage
+            - `T('KEY')` - Script usage  
+            - `i18nManager.T('KEY')` - Direct manager usage
+            - Dynamic patterns with template literals
+            
+            ### ⚠️ Review Required
+            
+            Please review the changes to ensure:
+            - No keys were removed that are used in ways not detected by the script
+            - All locale files maintain consistency
+            - The TypeScript types were properly regenerated
+            
+            ---
+            *This PR was automatically created by the I18n Auto-fix workflow.*
+          branch: feat/cleanup-unused-i18n-keys
+          delete-branch: true
+
+      - name: Generate Summary
+        run: |
+          if [ "${{ steps.check-before.outputs.unused_keys_found }}" = "true" ]; then
+            echo "## 🗑️ I18n Auto-fix Completed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Successfully removed unused translation keys and created a pull request." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 📝 Next Steps" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "1. Review the created pull request" >> $GITHUB_STEP_SUMMARY
+            echo "2. Verify that no important keys were removed" >> $GITHUB_STEP_SUMMARY
+            echo "3. Test the application to ensure everything works correctly" >> $GITHUB_STEP_SUMMARY
+            echo "4. Merge the pull request when ready" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ℹ️ No Action Needed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "No unused i18n keys were found. Your translations are already clean! 🎉" >> $GITHUB_STEP_SUMMARY
+          fi
