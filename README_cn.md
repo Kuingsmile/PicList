@@ -38,6 +38,7 @@
 - [下载安装](#下载安装)
   - [直接下载](#直接下载)
   - [Scoop（Windows）](#scoopwindows)
+  - [Winget (Windows)](#winget-windows)
   - [Homebrew（macOS）](#homebrewmacos)
   - [Mac特殊说明](#mac特殊说明)
 - [应用截图](#应用截图)
@@ -208,6 +209,12 @@ services:
 ```bash
 scoop bucket add lemon https://github.com/hoilc/scoop-lemon
 scoop install lemon/piclist
+```
+
+### Winget (Windows)
+
+```bash
+winget install Kuingsmile.PicList
 ```
 
 ### Homebrew（macOS）

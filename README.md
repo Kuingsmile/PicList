@@ -38,6 +38,7 @@
 - [Download and Install](#download-and-install)
   - [Direct Download](#direct-download)
   - [Scoop (Windows)](#scoop-windows)
+  - [Winget (Windows)](#winget-windows)
   - [Homebrew (macOS)](#homebrew-macos)
   - [Mac Special Instructions](#mac-special-instructions)
 - [Screenshots](#screenshots)
@@ -207,6 +208,12 @@ Run with `docker-compose up -d`
 ```bash
 scoop bucket add lemon https://github.com/hoilc/scoop-lemon
 scoop install lemon/piclist
+```
+
+### Winget (Windows)
+
+```bash
+winget install Kuingsmile.PicList
 ```
 
 ### Homebrew (macOS)
