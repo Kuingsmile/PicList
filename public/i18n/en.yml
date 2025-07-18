@@ -1,3 +1,4 @@
+LANG_DISPLAY_LABEL: 'English'
 ABOUT: About
 OPEN_MAIN_WINDOW: Open Main Window
 OPEN_MINI_WINDOW: Open Mini Window
@@ -8,6 +9,7 @@ UPLOAD_FAILED: Upload Failed
 UPLOAD_SUCCEED: Upload Succeed
 UPLOAD_PROGRESS: Upload Progress
 OPERATION_SUCCEED: Operation Succeed
+OPERATION_FAILED: Operation Failed
 UPLOADING: Uploading
 QUICK_UPLOAD: Quick Upload
 UPLOAD_BY_CLIPBOARD: Upload by Clipboard
@@ -924,6 +926,8 @@ TIPS_UPLOAD_NOT_PICTURES: The latest clipboard item is not a picture
 TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_DEFAULT: PicList config file broken, has been restored to default
 TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_BACKUP: PicList config file broken, has been restored to backup
 TIPS_PICGO_BACKUP_FILE_VERSION: 'Backup file version: ${v}'
+TIPS_SHORTCUT_MODIFIED_SUCCEED: Shortcut modified successfully
+TIPS_SHORTCUT_MODIFIED_CONFLICT: Shortcut conflict, please reset
 TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR: Custom config file parse error, please check the path content
 TIPS_FIND_NEW_VERSION: Find new version ${v}, update many new features, do you want to download the latest version in the background?
 UPDATE_DOWNLOADED: Update downloaded

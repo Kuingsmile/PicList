@@ -141,7 +141,15 @@ async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
         }
         const client = createClient(webdavEndpointF, options)
         const fileContent = fs.readFileSync(localFilePath)
-        const remoteFilePath = webdavSavePath ? path.join(webdavSavePath, fileName) : fileName
+        const remoteFilePath = webdavSavePath
+          ? `${webdavSavePath}/${fileName}`.replace(/^\/+|\/+$/g, '').replace(/\/\/+/g, '/')
+          : fileName
+        console.log('remoteFilePath', remoteFilePath)
+        const remoteDir = path.dirname(remoteFilePath)
+        console.log('remoteDir', remoteDir)
+        if (remoteDir !== '/') {
+          await client.createDirectory(remoteDir, { recursive: true })
+        }
         await client.putFileContents(remoteFilePath, fileContent, { overwrite: true })
         return true
       }
@@ -255,7 +263,13 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
       }
       const client = createClient(webdavEndpointF, options)
       const fileContent = fs.readFileSync(localFilePath)
-      const remoteFilePath = webdavSavePath ? path.join(webdavSavePath, fileName) : fileName
+      const remoteFilePath = webdavSavePath
+        ? `${webdavSavePath}/${fileName}`.replace(/^\/+|\/+$/g, '').replace(/\/\/+/g, '/')
+        : fileName
+      const remoteDir = path.dirname(remoteFilePath)
+      if (remoteDir !== '/') {
+        await client.createDirectory(remoteDir, { recursive: true })
+      }
       await client.putFileContents(remoteFilePath, fileContent, { overwrite: true })
       return true
     }
