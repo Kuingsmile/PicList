@@ -144,9 +144,7 @@ async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
         const remoteFilePath = webdavSavePath
           ? `${webdavSavePath}/${fileName}`.replace(/^\/+|\/+$/g, '').replace(/\/\/+/g, '/')
           : fileName
-        console.log('remoteFilePath', remoteFilePath)
         const remoteDir = path.dirname(remoteFilePath)
-        console.log('remoteDir', remoteDir)
         if (remoteDir !== '/') {
           await client.createDirectory(remoteDir, { recursive: true })
         }
