@@ -1,14 +1,16 @@
-const crypto = require('node:crypto')
-const os = require('node:os')
-const path = require('node:path')
-const axios = require('axios')
-const fs = require('fs-extra')
-const pkg = require('../package.json')
+import crypto from 'node:crypto'
+import os from 'node:os'
+import path from 'node:path'
+
+import axios from 'axios'
+import fs from 'fs-extra'
+
+import pkg from '../package.json' with { type: 'json'}
 const version = process.argv[2] || pkg.version
 
 // Configuration
 const BASE_URL = `https://github.com/Kuingsmile/PicList/releases/download/v${version}`
-const DOWNLOAD_DIR = process.argv[3] || 'R:\\Temp' || path.join(os.homedir(), 'Downloads')
+const DOWNLOAD_DIR = process.argv[3] || path.join(os.homedir(), 'Downloads')
 // File information
 const files = [
   {

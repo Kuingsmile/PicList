@@ -1,4 +1,4 @@
-const pkg = require('../package.json')
+import pkg from '../package.json' with { type: 'json' }
 const version = pkg.version
 // TODO: use the same name format
 const generateURL = (platform, ext, prefix = 'PicList-') => {
