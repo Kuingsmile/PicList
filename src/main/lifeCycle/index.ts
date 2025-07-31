@@ -1,25 +1,29 @@
-import axios from 'axios'
-import fs from 'fs-extra'
-import { app, globalShortcut, protocol, Notification, dialog, screen, shell } from 'electron'
-import { UpdateInfo, autoUpdater } from 'electron-updater'
-import path from 'path'
-import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
+import '~/lifeCycle/errorHandler'
+
+import path from 'node:path'
 
 import bus from '@core/bus'
 import db from '@core/datastore'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
-
 import { remoteNoticeHandler } from 'apis/app/remoteNotice'
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import { createTray, setDockMenu } from 'apis/app/system'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
+import axios from 'axios'
+import { app, dialog, globalShortcut, Notification, protocol, screen, shell } from 'electron'
+import updater from 'electron-updater'
+import fs from 'fs-extra'
 
+import { II18nLanguage, IRemoteNoticeTriggerHook, ISartMode, IWindowList } from '#/types/enum'
+import { configPaths } from '#/utils/configPaths'
+import { notificationList } from '#/utils/notification'
+import { CLIPBOARD_IMAGE_FOLDER } from '#/utils/static'
 import busEventList from '~/events/busEventList'
+import { rpcServer } from '~/events/rpc'
 import { startFileServer, stopFileServer } from '~/fileServer'
 import { T } from '~/i18n'
-import '~/lifeCycle/errorHandler'
 import fixPath from '~/lifeCycle/fixPath'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import getManageApi from '~/manage/Main'
@@ -31,11 +35,6 @@ import clipboardPoll from '~/utils/clipboardPoll'
 import { getUploadFiles } from '~/utils/handleArgv'
 import { initI18n } from '~/utils/handleI18n'
 import updateChecker from '~/utils/updateChecker'
-
-import { II18nLanguage, IRemoteNoticeTriggerHook, ISartMode, IWindowList } from '#/types/enum'
-import { configPaths } from '#/utils/configPaths'
-import { CLIPBOARD_IMAGE_FOLDER } from '#/utils/static'
-import { rpcServer } from '~/events/rpc'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -58,15 +57,15 @@ const handleStartUpFiles = (argv: string[], cwd: string) => {
   return false
 }
 
-autoUpdater.setFeedURL({
+updater.autoUpdater.setFeedURL({
   provider: 'generic',
   url: 'https://release.piclist.cn/latest',
   channel: 'latest'
 })
 
-autoUpdater.autoDownload = false
+updater.autoUpdater.autoDownload = false
 
-autoUpdater.on('update-available', async (info: UpdateInfo) => {
+updater.autoUpdater.on('update-available', async (info: updater.UpdateInfo) => {
   const lang = db.get(configPaths.settings.language) || II18nLanguage.ZH_CN
   let updateLog = ''
   try {
@@ -110,7 +109,7 @@ autoUpdater.on('update-available', async (info: UpdateInfo) => {
     })
     .then(result => {
       if (result.response === 0) {
-        autoUpdater.downloadUpdate()
+        updater.autoUpdater.downloadUpdate()
       } else {
         shell.openExternal('https://github.com/Kuingsmile/PicList/releases/latest')
       }
@@ -121,7 +120,7 @@ autoUpdater.on('update-available', async (info: UpdateInfo) => {
     })
 })
 
-autoUpdater.on('download-progress', progressObj => {
+updater.autoUpdater.on('download-progress', progressObj => {
   const percent = {
     progress: progressObj.percent
   }
@@ -129,7 +128,7 @@ autoUpdater.on('download-progress', progressObj => {
   window.webContents.send('updateProgress', percent)
 })
 
-autoUpdater.on('update-downloaded', () => {
+updater.autoUpdater.on('update-downloaded', () => {
   dialog
     .showMessageBox({
       type: 'info',
@@ -141,7 +140,7 @@ autoUpdater.on('update-downloaded', () => {
       const window = windowManager.get(IWindowList.SETTING_WINDOW)!
       window.webContents.send('updateProgress', { progress: 100 })
       if (result.response === 0) {
-        autoUpdater.quitAndInstall()
+        updater.autoUpdater.quitAndInstall()
       }
     })
     .catch(err => {
@@ -149,12 +148,12 @@ autoUpdater.on('update-downloaded', () => {
     })
 })
 
-autoUpdater.on('error', err => {
+updater.autoUpdater.on('error', err => {
   console.log(err)
 })
 
 class LifeCycle {
-  async #beforeReady() {
+  async #beforeReady () {
     protocol.registerSchemesAsPrivileged([{ scheme: 'picgo', privileges: { secure: true, standard: true } }])
     // fix the $PATH in macOS & linux
     fixPath()
@@ -166,9 +165,8 @@ class LifeCycle {
     busEventList.listen()
   }
 
-  #onReady() {
+  #onReady () {
     const readyFunction = async () => {
-      createProtocol('picgo')
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
       const isAutoListenClipboard = db.get(configPaths.settings.isAutoListenClipboard) || false
@@ -192,7 +190,7 @@ class LifeCycle {
       const currentPicBedConfig = db.get(`picBed.${currentPicBed}`)?._configName || 'Default'
       const tooltip = `${currentPicBed} ${currentPicBedConfig}`
       if (process.platform === 'darwin') {
-        isHideDock ? app.dock.hide() : setDockMenu()
+        isHideDock ? app.dock?.hide() : setDockMenu()
         startMode !== ISartMode.NO_TRAY && createTray(tooltip)
       } else {
         createTray(tooltip)
@@ -210,9 +208,9 @@ class LifeCycle {
         handleStartUpFiles(process.argv, process.cwd())
       }
 
-      if (global.notificationList && global.notificationList?.length > 0) {
-        while (global.notificationList?.length) {
-          const option = global.notificationList.pop()
+      if (notificationList && notificationList.length > 0) {
+        while (notificationList.length) {
+          const option = notificationList.pop()
           const notice = new Notification(option!)
           notice.show()
         }
@@ -252,7 +250,7 @@ class LifeCycle {
     app.whenReady().then(readyFunction)
   }
 
-  #onRunning() {
+  #onRunning () {
     app.on('second-instance', (_, commandLine, workingDirectory) => {
       logger.info('detect second instance')
       const result = handleStartUpFiles(commandLine, workingDirectory)
@@ -267,7 +265,6 @@ class LifeCycle {
       }
     })
     app.on('activate', () => {
-      createProtocol('picgo')
       if (!windowManager.has(IWindowList.TRAY_WINDOW)) {
         windowManager.create(IWindowList.TRAY_WINDOW)
       }
@@ -287,7 +284,7 @@ class LifeCycle {
     }
   }
 
-  #onQuit() {
+  #onQuit () {
     app.on('window-all-closed', () => {
       if (process.platform !== 'darwin') {
         app.quit()
@@ -319,7 +316,7 @@ class LifeCycle {
     }
   }
 
-  async launchApp() {
+  async launchApp () {
     const gotTheLock = app.requestSingleInstanceLock()
     if (!gotTheLock) {
       app.quit()

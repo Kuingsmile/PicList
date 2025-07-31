@@ -1,6 +1,5 @@
-import { autoUpdater } from 'electron-updater'
-
 import db from '@core/datastore'
+import updater from 'electron-updater'
 
 import { configPaths } from '#/utils/configPaths'
 
@@ -12,7 +11,7 @@ const updateChecker = async () => {
   }
   if (showTip) {
     try {
-      await autoUpdater.checkForUpdatesAndNotify()
+      await updater.autoUpdater.checkForUpdatesAndNotify()
     } catch (err) {}
   }
 }

@@ -1,5 +1,6 @@
-import { AliyunAreaCodeName, QiniuAreaCodeName, TencentAreaCodeName } from '~/manage/utils/constants'
 import { T as $T } from '@/i18n'
+import { IStringKeyMap } from '#/types/types'
+import { AliyunAreaCodeName, QiniuAreaCodeName, TencentAreaCodeName } from '~/manage/utils/constants'
 
 export const newBucketConfig: IStringKeyMap = {
   tcyun: {

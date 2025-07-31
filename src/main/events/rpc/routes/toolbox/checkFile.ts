@@ -1,14 +1,14 @@
+import path from 'node:path'
+
+import { DB_PATH, GalleryDB } from '@core/datastore'
+import { dbPathChecker } from '@core/datastore/dbChecker'
 import { IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
-import path from 'path'
-
-import { dbPathChecker } from '@core/datastore/dbChecker'
-import { GalleryDB, DB_PATH } from '@core/datastore'
-
-import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
-import { T } from '~/i18n'
 
 import { IToolboxItemCheckStatus, IToolboxItemType } from '#/types/enum'
+import { IToolboxCheckerMap, IToolboxFixMap } from '#/types/rpc'
+import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
+import { T } from '~/i18n'
 
 export const checkFileMap: IToolboxCheckerMap<
   IToolboxItemType.IS_CONFIG_FILE_BROKEN | IToolboxItemType.IS_GALLERY_FILE_BROKEN

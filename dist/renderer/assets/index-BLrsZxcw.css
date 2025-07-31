@@ -1,0 +1,83 @@
+.config-form-common-tips a {
+  color: #409eff;
+  text-decoration: none;
+}
+#config-form .el-form label {
+  line-height: 22px;
+  padding-bottom: 0;
+}
+#config-form .el-form-item {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #777;
+  padding-bottom: 16px;
+}
+#config-form .el-form-item:last-child {
+  border-bottom: none;
+}
+#config-form .el-form-item__content {
+  justify-content: flex-end;
+}
+#config-form .el-form .el-button-group {
+  width: 100%;
+}
+#config-form .el-form .el-button-group .el-button {
+  width: 50%;
+}
+#config-form .el-form .el-radio-group {
+  margin-left: 25px;
+}
+#config-form .el-form .el-switch__label.is-active {
+  color: #409eff;
+}
+#config-form.white .el-form-item {
+  border-bottom: 1px solid #ddd;
+}
+#picbeds-page {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: absolute;
+  left: 142px;
+  right: 0;
+}
+#picbeds-page .setting-list {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#picbeds-page .view-title-text:hover {
+  cursor: pointer;
+  color: #409eff;
+}
+#picbeds-page .el-form label {
+  line-height: 22px;
+  padding-bottom: 0;
+  color: #eee;
+}
+#picbeds-page .el-form-item {
+  margin-bottom: 16px;
+}
+#picbeds-page .el-form .el-button-group {
+  width: 100%;
+}
+#picbeds-page .el-form .el-button-group .el-button {
+  width: calc(33.3333% - 10px);
+}
+#picbeds-page .el-form .el-radio-group {
+  margin-left: 25px;
+}
+#picbeds-page .el-form .el-switch__label {
+  color: #eee;
+}
+#picbeds-page .el-form .el-switch__label.is-active {
+  color: #409eff;
+}
+#picbeds-page .notice {
+  color: #eee;
+  text-align: center;
+  margin-bottom: 10px;
+}
+#picbeds-page .single {
+  text-align: center;
+}

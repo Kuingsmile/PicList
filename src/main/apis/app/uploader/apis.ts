@@ -1,21 +1,19 @@
-import { Notification, WebContents } from 'electron'
-import fs from 'fs-extra'
-import { cloneDeep } from 'lodash'
-
-import picgo from '@core/picgo'
 import db, { GalleryDB } from '@core/datastore'
-
+import picgo from '@core/picgo'
 import uploader from 'apis/app/uploader'
 import windowManager from 'apis/app/window/windowManager'
-
-import { T } from '~/i18n/index'
-import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/utils/common'
-import pasteTemplate from '~/utils/pasteTemplate'
+import { Notification, WebContents } from 'electron'
+import fs from 'fs-extra'
+import { cloneDeep } from 'lodash-es'
+import { IPicGo } from 'piclist'
 
 import { IPasteStyle, IWindowList } from '#/types/enum'
+import { IFileWithPath, ImgInfo, IStringKeyMap, IUploadOption } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
+import { T } from '~/i18n/index'
+import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 import { changeCurrentUploader } from '~/utils/handleUploaderConfig'
-import { IPicGo } from 'piclist'
+import pasteTemplate from '~/utils/pasteTemplate'
 
 const handleClipboardUploading = async (): Promise<false | ImgInfo[]> => {
   const useBuiltinClipboard =
@@ -213,8 +211,8 @@ export const handleSecondaryUpload = async (
             trayWindow?.webContents?.send('uploadFiles', secondImgs)
           }
         } else {
-          for (let i = 0; i < secondImgs.length; i++) {
-            await GalleryDB.getInstance().insert(secondImgs[i])
+          for (const secondImgsItem of secondImgs) {
+            await GalleryDB.getInstance().insert(secondImgsItem)
           }
           if (uploadType === 'tray') {
             trayWindow?.webContents?.send('dragFiles', secondImgs)

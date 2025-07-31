@@ -1,16 +1,12 @@
-import { ipcRenderer } from 'electron'
-
-import { getRawData, triggerRPC } from '@/utils/common'
-import { removeFileFromS3InMain } from '~/utils/deleteFunc'
-import { deleteFailedLog } from '#/utils/deleteLog'
+import { getRawData } from '@/utils/common'
 import { IRPCActionType } from '#/types/enum'
+import { IStringKeyMap } from '#/types/types'
+import { deleteFailedLog } from '#/utils/deleteLog'
 
 export default class AwsS3Api {
-  static async delete(configMap: IStringKeyMap): Promise<boolean> {
+  static async delete (configMap: IStringKeyMap): Promise<boolean> {
     try {
-      return ipcRenderer
-        ? (await triggerRPC(IRPCActionType.GALLERY_DELETE_AWS_S3_FILE, getRawData(configMap))) || false
-        : await removeFileFromS3InMain(getRawData(configMap))
+      return (await window.electron.triggerRPC(IRPCActionType.GALLERY_DELETE_AWS_S3_FILE, getRawData(configMap))) || false
     } catch (error: any) {
       deleteFailedLog(configMap.fileName, 'AWS S3', error)
       return false

@@ -1,11 +1,12 @@
-import { app } from 'electron'
-import fs from 'fs-extra'
-import dayjs from 'dayjs'
-import path from 'path'
-import writeFile from 'write-file-atomic'
+import path from 'node:path'
 
 import { getLogger } from '@core/utils/localLogger'
+import dayjs from 'dayjs'
+import { app } from 'electron'
+import fs from 'fs-extra'
+import writeFile from 'write-file-atomic'
 
+import { notificationList } from '#/utils/notification'
 import { T } from '~/i18n'
 
 const STORE_PATH = app.getPath('userData')
@@ -22,10 +23,7 @@ const errorMsg = {
   brokenButBackup: T('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_BACKUP')
 }
 
-/** ensure notification list */
-if (!global.notificationList) global.notificationList = []
-
-function dbChecker() {
+function dbChecker () {
   if (process.type !== 'renderer') {
     // db save bak
     try {
@@ -63,16 +61,16 @@ function dbChecker() {
           optionsTpl.body = `${errorMsg.brokenButBackup}\n${T('TIPS_PICGO_BACKUP_FILE_VERSION', {
             v: dayjs(stats.mtime).format('YYYY-MM-DD HH:mm:ss')
           })}`
-          global.notificationList?.push(optionsTpl)
+          notificationList.push(optionsTpl)
           return
         } catch (e) {
           optionsTpl.body = errorMsg.broken
-          global.notificationList?.push(optionsTpl)
+          notificationList.push(optionsTpl)
           return
         }
       }
       optionsTpl.body = errorMsg.broken
-      global.notificationList?.push(optionsTpl)
+      notificationList.push(optionsTpl)
       return
     }
     writeFile.sync(configFileBackupPath, configFile, { encoding: 'utf-8' })
@@ -82,7 +80,7 @@ function dbChecker() {
 /**
  * Get config path
  */
-function dbPathChecker(): string {
+function dbPathChecker (): string {
   if (_configFilePath) {
     return _configFilePath
   }
@@ -113,7 +111,7 @@ function dbPathChecker(): string {
         title: T('TIPS_NOTICE'),
         body: T('TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR')
       }
-      global.notificationList?.push(optionsTpl)
+      notificationList.push(optionsTpl)
       hasCheckPath = true
     }
     logger('error', e)
@@ -122,11 +120,11 @@ function dbPathChecker(): string {
   }
 }
 
-function dbPathDir() {
+function dbPathDir () {
   return path.dirname(dbPathChecker())
 }
 
-function getGalleryDBPath(): {
+function getGalleryDBPath (): {
   dbPath: string
   dbBackupPath: string
 } {

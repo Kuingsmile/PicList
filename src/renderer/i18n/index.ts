@@ -1,54 +1,45 @@
-import { ipcRenderer } from 'electron'
-import { ObjectAdapter, I18n } from '@picgo/i18n'
+import { ILocales, ILocalesKey } from 'root/src/universal/types/i18n'
 
-import { sendRPC, sendRpcSync } from '@/utils/common'
-
+import { updatePageReloadCount } from '@/utils/global'
 import { SET_CURRENT_LANGUAGE } from '#/events/constants'
 import { builtinI18nList } from '#/i18n'
 import { IRPCActionType } from '#/types/enum'
-import { updatePageReloadCount } from '@/utils/global'
+import { II18nItem, IStringKeyMap } from '#/types/types'
 
 export class I18nManager {
-  #i18n: I18n | null = null
   #i18nFileList: II18nItem[] = builtinI18nList
 
-  constructor() {
+  constructor () {
     this.#getCurrentLanguage()
     this.#getLanguageList()
-    ipcRenderer.on(SET_CURRENT_LANGUAGE, (_, lang: string, locales: ILocales) => {
+    window.electron.ipcRendererOn(SET_CURRENT_LANGUAGE, (_, lang: string, locales: ILocales) => {
       this.#setLocales(lang, locales)
       updatePageReloadCount()
     })
   }
 
-  #getLanguageList() {
-    this.#i18nFileList = sendRpcSync(IRPCActionType.GET_LANGUAGE_LIST)
+  #getLanguageList () {
+    this.#i18nFileList = window.electron.sendRpcSync(IRPCActionType.GET_LANGUAGE_LIST)
   }
 
-  #getCurrentLanguage() {
-    const [lang, locales] = sendRpcSync(IRPCActionType.GET_CURRENT_LANGUAGE)
+  #getCurrentLanguage () {
+    const [lang, locales] = window.electron.sendRpcSync(IRPCActionType.GET_CURRENT_LANGUAGE)
     this.#setLocales(lang, locales)
   }
 
-  #setLocales(lang: string, locales: ILocales) {
-    const objectAdapter = new ObjectAdapter({
-      [lang]: locales
-    })
-    this.#i18n = new I18n({
-      adapter: objectAdapter,
-      defaultLanguage: lang
-    })
+  #setLocales (lang: string, locales: ILocales) {
+    window.i18n.setLocales(lang, locales)
   }
 
-  T(key: ILocalesKey, args: IStringKeyMap = {}): string {
-    return this.#i18n?.translate(key, args) || key
+  T (key: ILocalesKey, args: IStringKeyMap = {}): string {
+    return window.i18n?.translate(key, args) || key
   }
 
-  setCurrentLanguage(lang: string) {
-    sendRPC(IRPCActionType.SET_CURRENT_LANGUAGE, lang)
+  setCurrentLanguage (lang: string) {
+    window.electron.sendRPC(IRPCActionType.SET_CURRENT_LANGUAGE, lang)
   }
 
-  get languageList() {
+  get languageList () {
     return this.#i18nFileList
   }
 }

@@ -1,5 +1,4 @@
 import { RPCRouter } from '~/events/rpc/router'
-
 import advancedRoutes from '~/events/rpc/routes/setting/advanced'
 import configureRoutes from '~/events/rpc/routes/setting/configure'
 import mainAppRoutes from '~/events/rpc/routes/setting/mainApp'

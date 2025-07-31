@@ -1,4 +1,5 @@
-import { IRPCType, IRPCActionType } from '#/types/enum'
+import { IRPCActionType, IRPCType } from '#/types/enum'
+import { IRPCHandler, IRPCRouter, IRPCRoutes } from '#/types/rpc'
 
 interface IBatchAddParams {
   action: IRPCActionType
@@ -20,7 +21,7 @@ export class RPCRouter implements IRPCRouter {
     return this
   }
 
-  routes() {
+  routes () {
     return this.routeMap
   }
 }

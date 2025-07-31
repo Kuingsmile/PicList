@@ -1,23 +1,24 @@
+import path from 'node:path'
+
+import windowManager from 'apis/app/window/windowManager'
 import COS from 'cos-nodejs-sdk-v5'
 import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
-import path from 'path'
 
-import windowManager from 'apis/app/window/windowManager'
-
+import { commonTaskStatus, downloadTaskSpecialStatus, IWindowList, uploadTaskSpecialStatus } from '#/types/enum'
+import { IStringKeyMap } from '#/types/types'
+import { handleUrlEncode } from '#/utils/common'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { formatError, getFileMimeType } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
-import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
-
-import { handleUrlEncode, isImage } from '#/utils/common'
-import { commonTaskStatus, downloadTaskSpecialStatus, IWindowList, uploadTaskSpecialStatus } from '#/types/enum'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import { isImage } from '~/utils/common'
 
 class TcyunApi {
   ctx: COS
   logger: ManageLogger
 
-  constructor(secretId: string, secretKey: string, logger: ManageLogger) {
+  constructor (secretId: string, secretKey: string, logger: ManageLogger) {
     this.ctx = new COS({
       SecretId: secretId,
       SecretKey: secretKey
@@ -25,7 +26,7 @@ class TcyunApi {
     this.logger = logger
   }
 
-  formatFolder(item: { Prefix: string }, slicedPrefix: string, urlPrefix: string) {
+  formatFolder (item: { Prefix: string }, slicedPrefix: string, urlPrefix: string) {
     return {
       ...item,
       key: item.Prefix,
@@ -40,7 +41,7 @@ class TcyunApi {
     }
   }
 
-  formatFile(item: COS.CosObject, slicedPrefix: string, urlPrefix: string): any {
+  formatFile (item: COS.CosObject, slicedPrefix: string, urlPrefix: string): any {
     return {
       ...item,
       key: item.Key,
@@ -58,7 +59,7 @@ class TcyunApi {
   /**
    * 获取存储桶列表
    */
-  async getBucketList(): Promise<any> {
+  async getBucketList (): Promise<any> {
     const res = await this.ctx.getService({})
     return res?.Buckets || []
   }
@@ -66,7 +67,7 @@ class TcyunApi {
   /**
    * 获取自定义域名
    */
-  async getBucketDomain(param: IStringKeyMap): Promise<any> {
+  async getBucketDomain (param: IStringKeyMap): Promise<any> {
     const { bucketName, region } = param
     const res = await this.ctx.getBucketDomain({
       Bucket: bucketName,
@@ -87,7 +88,7 @@ class TcyunApi {
    * @description
    * acl: private | publicRead | publicReadWrite
    */
-  async createBucket(configMap: IStringKeyMap): Promise<boolean> {
+  async createBucket (configMap: IStringKeyMap): Promise<boolean> {
     const res = await this.ctx.putBucket({
       ACL: configMap.acl,
       Bucket: configMap.BucketName,
@@ -96,7 +97,7 @@ class TcyunApi {
     return res?.statusCode === 200
   }
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
+  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const {
       bucketName: bucket,
@@ -117,7 +118,7 @@ class TcyunApi {
       }
     })
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       success: false,
       finished: false
     }
@@ -150,7 +151,7 @@ class TcyunApi {
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
+  async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const {
       bucketName: bucket,
@@ -172,7 +173,7 @@ class TcyunApi {
     })
     let res = {} as COS.GetBucketResult
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       success: false,
       finished: false
     }
@@ -221,7 +222,7 @@ class TcyunApi {
    *  customUrl: string
    * }
    */
-  async getBucketFileList(configMap: IStringKeyMap): Promise<any> {
+  async getBucketFileList (configMap: IStringKeyMap): Promise<any> {
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
@@ -272,7 +273,7 @@ class TcyunApi {
    * newKey: string
    * }
    */
-  async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async renameBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, oldKey, newKey } = configMap
     const copyRes = await this.ctx.putObjectCopy({
       Bucket: bucketName,
@@ -301,7 +302,7 @@ class TcyunApi {
    * key: string
    * }
    */
-  async deleteBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, key } = configMap
     const res = await this.ctx.deleteObject({
       Bucket: bucketName,
@@ -315,7 +316,7 @@ class TcyunApi {
    * 删除文件夹
    * @param configMap
    */
-  async deleteBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, key } = configMap
     let marker
     let res: any
@@ -346,8 +347,7 @@ class TcyunApi {
           region,
           key: item.Prefix
         }))
-      )
-        return false
+      ) { return false }
     }
     const cycles = Math.ceil(allFileList.Contents.length / 1000)
     for (let i = 0; i < cycles; i++) {
@@ -372,7 +372,7 @@ class TcyunApi {
    * customUrl: string
    * }
    */
-  async getPreSignedUrl(configMap: IStringKeyMap): Promise<string> {
+  async getPreSignedUrl (configMap: IStringKeyMap): Promise<string> {
     const { bucketName, region, key, expires, customUrl } = configMap
     const res = this.ctx.getObjectUrl(
       {
@@ -391,7 +391,7 @@ class TcyunApi {
    * 高级上传文件
    * @param configMap
    */
-  async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async uploadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { fileArray } = configMap
     // fileArray = [{
     //   bucketName: string,
@@ -471,7 +471,7 @@ class TcyunApi {
    * 新建文件夹
    * @param configMap
    */
-  async createBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
+  async createBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, key } = configMap
     const res = await this.ctx.putObject({
       Bucket: bucketName,
@@ -486,7 +486,7 @@ class TcyunApi {
    * 下载文件
    * @param configMap
    */
-  async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { downloadPath, fileArray } = configMap
     // fileArray = [{
     //   bucketName: string,

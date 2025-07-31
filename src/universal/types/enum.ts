@@ -1,10 +1,4 @@
-export enum IChalkType {
-  success = 'green',
-  info = 'blue',
-  warn = 'yellow',
-  error = 'red'
-}
-
+/* eslint-disable no-unused-vars */
 export enum ILogType {
   success = 'success',
   info = 'info',
@@ -103,7 +97,7 @@ export enum IRPCActionType {
   MAIN_WINDOW_ON_TOP = 'MAIN_WINDOW_ON_TOP',
   UPDATE_MINI_WINDOW_ICON = 'UPDATE_MINI_WINDOW_ICON',
   REFRESH_SETTING_WINDOW = 'REFRESH_SETTING_WINDOW',
-
+  GET_PLATFORM = 'GET_PLATFORM',
   // picbed RPC
   PICBED_GET_PICBED_CONFIG = 'PICBED_GET_PICBED_CONFIG',
   PICBED_GET_CONFIG_LIST = 'PICBED_GET_CONFIG_LIST',

@@ -1,10 +1,9 @@
-import { ElImage, ElIcon } from 'element-plus'
-import { defineComponent, ref, onMounted, watch, computed } from 'vue'
 import { Loading } from '@element-plus/icons-vue'
+import { ElIcon, ElImage } from 'element-plus'
+import { computed, defineComponent, onMounted, ref, watch } from 'vue'
 
 import { getFileIconPath } from '@/manage/utils/common'
 import { getAuthHeader } from '@/manage/utils/digestAuth'
-
 import { formatEndpoint } from '#/utils/common'
 
 export default defineComponent({
@@ -27,20 +26,20 @@ export default defineComponent({
     }
   },
 
-  setup(props) {
+  setup (props) {
     const base64Url = ref('')
     const success = ref(false)
 
     const imageSource = computed(() => {
       return props.isShowThumbnail && props.item.isImage && success.value
         ? base64Url.value
-        : require(`../manage/pages/assets/icons/${getFileIconPath(props.item.fileName ?? '')}`)
+        : `/assets/icons/${getFileIconPath(props.item.fileName ?? '')}`
     })
     const iconPath = computed(() =>
-      require(`../manage/pages/assets/icons/${getFileIconPath(props.item.fileName ?? '')}`)
+      `/assets/icons/${getFileIconPath(props.item.fileName ?? '')}`
     )
 
-    async function getWebdavHeader(key: string) {
+    async function getWebdavHeader (key: string) {
       let headers = {} as any
       if (props.config.authType === 'digest') {
         const authHeader = await getAuthHeader(

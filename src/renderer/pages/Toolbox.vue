@@ -3,7 +3,10 @@
     <el-row>
       <el-row class="toolbox-header">
         <el-row>
-          <img class="toolbox-header__logo" :src="defaultLogo" />
+          <img
+            class="toolbox-header__logo"
+            :src="defaultLogo"
+          >
           <el-row class="toolbox-header__text">
             <el-row class="toolbox-header__title">
               {{ $T('TOOLBOX_TITLE') }}
@@ -15,7 +18,12 @@
         </el-row>
         <el-row>
           <template v-if="progress !== 100">
-            <el-button type="primary" round :disabled="isLoading" @click="handleCheck">
+            <el-button
+              type="primary"
+              round
+              :disabled="isLoading"
+              @click="handleCheck"
+            >
               {{ $T('TOOLBOX_START_SCAN') }}
             </el-button>
           </template>
@@ -26,14 +34,23 @@
           </template>
           <template v-else-if="!isAllSuccess">
             <template v-if="canFixLength !== 0">
-              <el-button type="primary" round @click="handleFix">
+              <el-button
+                type="primary"
+                round
+                @click="handleFix"
+              >
                 {{ $T('TOOLBOX_START_FIX') }}
               </el-button>
             </template>
             <template v-else>
               <div class="toolbox-cant-fix toolbox-tips">
                 {{ $T('TOOLBOX_CANT_AUTO_FIX') }}
-                <el-button type="primary" round class="toolbox-cant-fix__btn" @click="handleCheck">
+                <el-button
+                  type="primary"
+                  round
+                  class="toolbox-cant-fix__btn"
+                  @click="handleCheck"
+                >
                   {{ $T('TOOLBOX_RE_SCAN') }}
                 </el-button>
               </div>
@@ -43,11 +60,23 @@
       </el-row>
     </el-row>
     <el-row class="progress">
-      <el-progress :percentage="progress" :format="format" />
+      <el-progress
+        :percentage="progress"
+        :format="format"
+      />
     </el-row>
-    <el-collapse v-model="activeTypes" accordion>
-      <el-collapse-item v-for="(item, key) in fixList" :key="key" :name="key">
-        <template #title> {{ item.title }} <toolbox-status-icon :status="item.status" /> </template>
+    <el-collapse
+      v-model="activeTypes"
+      accordion
+    >
+      <el-collapse-item
+        v-for="(item, key) in fixList"
+        :key="key"
+        :name="key"
+      >
+        <template #title>
+          {{ item.title }} <toolbox-status-icon :status="item.status" />
+        </template>
         <div class="toolbox-item-msg">
           {{ item.msg || '' }}
           <template v-if="item.handler && item.handlerText && item.value">
@@ -66,26 +95,25 @@
 
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { computed, reactive, ref } from 'vue'
+import { IToolboxCheckRes } from 'root/src/universal/types/rpc'
+import { IToolboxMap } from 'root/src/universal/types/view'
+import { computed, onUnmounted, reactive, ref } from 'vue'
 
-import ToolboxStatusIcon from '@/components/ToolboxStatusIcon.vue'
 import ToolboxHandler from '@/components/ToolboxHandler.vue'
-import { useIPC } from '@/hooks/useIPC'
+import ToolboxStatusIcon from '@/components/ToolboxStatusIcon.vue'
 import { T as $T } from '@/i18n'
-
-import { IToolboxItemType, IToolboxItemCheckStatus, IRPCActionType } from '#/types/enum'
-import { sendRPC, triggerRPC } from '@/utils/common'
+import { IRPCActionType, IToolboxItemCheckStatus, IToolboxItemType } from '#/types/enum'
 
 const $confirm = ElMessageBox.confirm
-const defaultLogo = ref(`file://${__static.replace(/\\/g, '/')}/roundLogo.png`)
+const defaultLogo = ref('/roundLogo.png')
 const activeTypes = ref<IToolboxItemType[]>([])
 const fixList = reactive<IToolboxMap>({
   [IToolboxItemType.IS_CONFIG_FILE_BROKEN]: {
     title: $T('TOOLBOX_CHECK_CONFIG_FILE_BROKEN'),
     status: IToolboxItemCheckStatus.INIT,
     handlerText: $T('SETTINGS_OPEN_CONFIG_FILE'),
-    handler(value: string) {
-      sendRPC(IRPCActionType.OPEN_FILE, value)
+    handler (value: string) {
+      window.electron.sendRPC(IRPCActionType.OPEN_FILE, value)
     }
   },
   [IToolboxItemType.IS_GALLERY_FILE_BROKEN]: {
@@ -96,8 +124,8 @@ const fixList = reactive<IToolboxMap>({
     title: $T('TOOLBOX_CHECK_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD'), // picgo-image-clipboard folder
     status: IToolboxItemCheckStatus.INIT,
     handlerText: $T('OPEN_FILE_PATH'),
-    handler(value: string) {
-      sendRPC(IRPCActionType.OPEN_FILE, value)
+    handler (value: string) {
+      window.electron.sendRPC(IRPCActionType.OPEN_FILE, value)
     }
   },
   [IToolboxItemType.HAS_PROBLEM_WITH_PROXY]: {
@@ -139,16 +167,16 @@ const canFixLength = computed(() => {
 
 const format = (_percentage: number) => ''
 
-const ipc = useIPC()
-
-ipc.on(IRPCActionType.TOOLBOX_CHECK_RES, (_event: any, { type, msg = '', status, value = '' }: IToolboxCheckRes) => {
+const toolboxCheckResHandler = (_event: any, { type, msg = '', status, value = '' }: IToolboxCheckRes) => {
   fixList[type].status = status
   fixList[type].msg = msg
   fixList[type].value = value
   if (status === IToolboxItemCheckStatus.ERROR) {
     activeTypes.value.push(type)
   }
-})
+}
+
+window.electron.ipcRendererOn(IRPCActionType.TOOLBOX_CHECK_RES, toolboxCheckResHandler)
 
 const handleCheck = () => {
   activeTypes.value = []
@@ -157,7 +185,7 @@ const handleCheck = () => {
     fixList[key as IToolboxItemType].msg = ''
     fixList[key as IToolboxItemType].value = ''
   })
-  sendRPC(IRPCActionType.TOOLBOX_CHECK)
+  window.electron.sendRPC(IRPCActionType.TOOLBOX_CHECK)
 }
 
 const handleFix = async () => {
@@ -168,7 +196,7 @@ const handleFix = async () => {
         return status === IToolboxItemCheckStatus.ERROR && !fixList[key as IToolboxItemType].hasNoFixMethod
       })
       .map(async key => {
-        return triggerRPC<IToolboxCheckRes>(IRPCActionType.TOOLBOX_CHECK_FIX, key as IToolboxItemType)
+        return window.electron.triggerRPC<IToolboxCheckRes>(IRPCActionType.TOOLBOX_CHECK_FIX, key as IToolboxItemType)
       })
   )
 
@@ -188,10 +216,14 @@ const handleFix = async () => {
     type: 'info'
   })
     .then(() => {
-      sendRPC(IRPCActionType.RELOAD_APP)
+      window.electron.sendRPC(IRPCActionType.RELOAD_APP)
     })
     .catch(() => {})
 }
+
+onUnmounted(() => {
+  window.electron.ipcRendererRemoveListener(IRPCActionType.TOOLBOX_CHECK_RES, toolboxCheckResHandler)
+})
 </script>
 <script lang="ts">
 export default {

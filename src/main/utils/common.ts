@@ -1,14 +1,21 @@
-import axios from 'axios'
-import { clipboard, Notification, dialog, Tray } from 'electron'
-import FormData from 'form-data'
-import fs from 'fs-extra'
+import path from 'node:path'
 
 import db from '@core/datastore'
 import logger from '@core/picgo/logger'
+import axios from 'axios'
+import { clipboard, dialog, Notification, Tray } from 'electron'
+import FormData from 'form-data'
+import fs from 'fs-extra'
 
 import { IShortUrlServer } from '#/types/enum'
+import { IPrivateShowNotificationOption, IShowMessageBoxResult } from '#/types/types'
 import { handleUrlEncode } from '#/utils/common'
 import { configPaths } from '#/utils/configPaths'
+
+const getExtension = (fileName: string) => path.extname(fileName).slice(1)
+
+export const isImage = (fileName: string) =>
+  ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ico', 'svg', 'avif'].includes(getExtension(fileName))
 
 export let tray: Tray
 
@@ -18,7 +25,7 @@ export const setTray = (t: Tray) => {
 
 export const getTray = () => tray
 
-export function setTrayToolTip(title: string): void {
+export function setTrayToolTip (title: string): void {
   if (tray) {
     tray.setToolTip(title)
   }
@@ -64,7 +71,7 @@ export const showNotification = (
 }
 
 export const showMessageBox = (options: any) => {
-  return new Promise<IShowMessageBoxResult>(async resolve => {
+  return new Promise<IShowMessageBoxResult>(resolve => {
     dialog.showMessageBox(options).then(res => {
       resolve({
         result: res.response,

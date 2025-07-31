@@ -1,0 +1,43 @@
+#mini-page {
+  background: #409eff;
+  color: #fff;
+  height: 100vh;
+  width: 100vw;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 100vh;
+  font-size: 40px;
+  background-size: 90vh 90vw;
+  background-position: center center;
+  background-repeat: no-repeat;
+  position: relative;
+  border: 4px solid #fff;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+#mini-page.linux {
+  border-radius: 0;
+  background-size: 100vh 100vw;
+}
+#mini-page #upload-area {
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+  transition: all 0.2s ease-in-out;
+}
+#mini-page #upload-area.linux {
+  border-radius: 0;
+}
+#mini-page #upload-area.uploading {
+  background: linear-gradient(to top, #409eff 50%, #fff 51%);
+  background-size: 200%;
+}
+#mini-page #upload-area #upload-dragger {
+  height: 100%;
+}
+#mini-page #upload-area.is-dragover {
+  background: rgba(0,0,0,0.3);
+}
+#mini-page #file-uploader {
+  display: none;
+}

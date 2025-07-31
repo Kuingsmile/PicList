@@ -1,0 +1,42 @@
+#shortcut-page .shortcut-page-table-border {
+  border-color: #777;
+}
+#shortcut-page .el-dialog__body {
+  padding: 10px 20px;
+}
+#shortcut-page .el-dialog__body .el-form-item {
+  margin-bottom: 0;
+}
+#shortcut-page .el-button.disabled {
+  color: #f56c6c;
+}
+#shortcut-page .el-button.edit {
+  color: #67c23a;
+}
+#shortcut-page .el-button--text {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+#shortcut-page .el-table {
+  background-color: transparent;
+  color: #ddd;
+}
+#shortcut-page .el-table::before {
+  background-color: #777;
+}
+#shortcut-page .el-table thead {
+  color: #bbb;
+}
+#shortcut-page .el-table th,
+#shortcut-page .el-table tr {
+  background-color: transparent;
+}
+#shortcut-page .el-table__body tr.el-table__row--striped td {
+  background: transparent;
+}
+#shortcut-page .el-table--enable-row-hover .el-table__body tr:hover>td {
+  background: #333;
+}
+#shortcut-page .el-button+.el-button {
+  margin-left: 4px;
+}

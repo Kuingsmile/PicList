@@ -1,3 +1,5 @@
+import { IStringKeyMap } from '#/types/types'
+
 const AliyunAreaCodeName: IStringKeyMap = {
   'oss-cn-hangzhou': '华东1(杭州)',
   'oss-cn-shanghai': '华东2(上海)',

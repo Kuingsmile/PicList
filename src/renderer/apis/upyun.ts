@@ -1,5 +1,4 @@
-import Upyun from 'upyun'
-
+import { IUpYunConfig, PartialKeys } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '#/utils/deleteLog'
 
 interface IConfigMap {
@@ -8,14 +7,14 @@ interface IConfigMap {
 }
 
 export default class UpyunApi {
-  static async delete(configMap: IConfigMap): Promise<boolean> {
+  static async delete (configMap: IConfigMap): Promise<boolean> {
     const {
       fileName,
       config: { bucket, operator, password, path }
     } = configMap
     try {
-      const service = new Upyun.Service(bucket, operator, password)
-      const client = new Upyun.Client(service)
+      const service = new window.node.Upyun.Service(bucket, operator, password)
+      const client = new window.node.Upyun.Client(service)
       let key
       if (path === '/' || !path) {
         key = fileName

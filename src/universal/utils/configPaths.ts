@@ -1,5 +1,8 @@
+import type { IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
+
 import { II18nLanguage, IPasteStyle, ISartMode, IShortUrlServer } from '#/types/enum'
-import { IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
+
+import { IAliYunConfig, IAwsS3PListUserConfig, IGitHubConfig, IImgurConfig, ILocalConfig, ILskyConfig, IPicBedType, IQiniuConfig, IServerConfig, ISftpPlistConfig, IShortKeyConfig, ISMMSConfig, ISyncConfig, ITcYunConfig, IUploaderConfig, IUpYunConfig, IWebdavPlistConfig } from '../types/types'
 
 export type ISartModeValues = (typeof ISartMode)[keyof typeof ISartMode]
 export type IPasteStyleValues = (typeof IPasteStyle)[keyof typeof IPasteStyle]

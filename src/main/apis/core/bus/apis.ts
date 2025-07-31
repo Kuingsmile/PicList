@@ -1,4 +1,3 @@
-import bus from '@core/bus/index'
 import {
   GET_SETTING_WINDOW_ID,
   GET_SETTING_WINDOW_ID_RESPONSE,
@@ -9,6 +8,9 @@ import {
   UPLOAD_WITH_FILES,
   UPLOAD_WITH_FILES_RESPONSE
 } from '@core/bus/constants'
+import bus from '@core/bus/index'
+
+import { IFileWithPath } from '#/types/types'
 
 export const uploadWithClipboardFiles = (): Promise<{
   success: boolean

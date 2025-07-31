@@ -1,0 +1,68 @@
+.toolbox-status-icon {
+  margin-left: 8px;
+}
+.toolbox {
+  padding: 0 40px;
+}
+.toolbox-header {
+  width: 100%;
+  color: #eee;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0px;
+}
+.toolbox-header__logo {
+  width: 64px;
+  height: 64px;
+  margin-right: 20px;
+}
+.toolbox-header__text {
+  flex-direction: column;
+  justify-content: center;
+}
+.toolbox-header__title {
+  color: #ddd;
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+.toolbox-header__sub-title {
+  color: #aaa;
+  font-size: 16px;
+}
+.toolbox .progress {
+  width: 100%;
+}
+.toolbox .progress .el-progress--line {
+  width: 100%;
+}
+.toolbox .progress .el-progress__text {
+  min-width: 0;
+}
+.toolbox .el-collapse {
+  margin-top: 20px;
+  --el-collapse-border-color: #777;
+  --el-collapse-header-height: 48px;
+  --el-collapse-header-bg-color: transparent;
+  --el-collapse-header-text-color: #ddd;
+  --el-collapse-header-font-size: 13px;
+  --el-collapse-content-bg-color: transparent;
+  --el-collapse-content-font-size: 13px;
+  --el-collapse-content-text-color: #ddd;
+}
+.toolbox .el-collapse-item__content {
+  padding-bottom: 12px;
+}
+.toolbox-item-msg {
+  color: #aaa;
+}
+.toolbox-tips {
+  padding: 12px 0;
+}
+.toolbox-cant-fix {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.toolbox-cant-fix__btn {
+  margin-left: 8px;
+}

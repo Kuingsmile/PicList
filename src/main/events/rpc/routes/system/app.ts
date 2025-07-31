@@ -1,14 +1,19 @@
-import { app, shell } from 'electron'
-
 import picgo from '@core/picgo'
-
 import windowManager from 'apis/app/window/windowManager'
+import { app, IpcMainEvent, shell } from 'electron'
+import { IIPCEvent } from 'root/src/universal/types/rpc'
+
+import { SET_CURRENT_LANGUAGE } from '#/events/constants'
+import { IRPCActionType, IWindowList } from '#/types/enum'
 import { i18nManager } from '~/i18n'
 
-import { IRPCActionType, IWindowList } from '#/types/enum'
-import { SET_CURRENT_LANGUAGE } from '#/events/constants'
-
 export default [
+  {
+    action: IRPCActionType.GET_PLATFORM,
+    handler: async (event: IIPCEvent) => {
+      (event as IpcMainEvent).returnValue = process.platform
+    }
+  },
   {
     action: IRPCActionType.RELOAD_APP,
     handler: async () => {
@@ -31,14 +36,14 @@ export default [
   {
     action: IRPCActionType.GET_LANGUAGE_LIST,
     handler: async (event: IIPCEvent) => {
-      event.returnValue = i18nManager.languageList
+      (event as IpcMainEvent).returnValue = i18nManager.languageList
     }
   },
   {
     action: IRPCActionType.GET_CURRENT_LANGUAGE,
     handler: async (event: IIPCEvent) => {
       const { lang, locales } = i18nManager.getCurrentLocales()
-      event.returnValue = [lang, locales]
+      ;(event as IpcMainEvent).returnValue = [lang, locales]
     }
   },
   {

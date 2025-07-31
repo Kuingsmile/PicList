@@ -1,11 +1,13 @@
-import { clipboard } from 'electron'
-
 import { GalleryDB } from '@core/datastore'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
-import { IFilter, IObject } from '@picgo/store/dist/types'
 import GuiApi from 'apis/gui'
+import { clipboard } from 'electron'
 
+import { ICOREBuildInEvent, IPasteStyle, IRPCActionType, IRPCType } from '#/types/enum'
+import { IIPCEvent } from '#/types/rpc'
+import { ILogType, ImgInfo, ISftpPlistConfig, IStringKeyMap } from '#/types/types'
+import { configPaths } from '#/utils/configPaths'
 import { RPCRouter } from '~/events/rpc/router'
 import {
   removeFileFromDogeInMain,
@@ -14,10 +16,16 @@ import {
   removeFileFromSFTPInMain
 } from '~/utils/deleteFunc'
 import pasteTemplate from '~/utils/pasteTemplate'
+interface IFilter {
+  orderBy?: 'asc' | 'desc'
+  limit?: number
+  offset?: number
+}
 
-import { ICOREBuildInEvent, IPasteStyle, IRPCActionType, IRPCType } from '#/types/enum'
-import { configPaths } from '#/utils/configPaths'
-
+interface IObject {
+  id?: string
+  [propName: string]: any
+}
 const galleryRouter = new RPCRouter()
 
 const galleryRoutes = [

@@ -1,5 +1,3 @@
-import fs from 'fs-extra'
-
 import { deleteFailedLog, deleteLog } from '#/utils/deleteLog'
 
 interface IConfigMap {
@@ -7,7 +5,7 @@ interface IConfigMap {
 }
 
 export default class LocalApi {
-  static async delete(configMap: IConfigMap): Promise<boolean> {
+  static async delete (configMap: IConfigMap): Promise<boolean> {
     const { hash } = configMap
     if (!hash) {
       deleteLog(hash, 'Local', false, 'Local.delete: invalid params')
@@ -15,7 +13,7 @@ export default class LocalApi {
     }
 
     try {
-      await fs.remove(hash)
+      await window.node.fs.remove(hash)
       deleteLog(hash, 'Local')
       return true
     } catch (error: any) {

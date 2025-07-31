@@ -1,27 +1,27 @@
+import path from 'node:path'
+
+import windowManager from 'apis/app/window/windowManager'
 import axios from 'axios'
 import { ipcMain, IpcMainEvent } from 'electron'
 import FormData from 'form-data'
 import fs from 'fs-extra'
-import path from 'path'
 import Upyun from 'upyun'
 
-import windowManager from 'apis/app/window/windowManager'
-
+import { commonTaskStatus, IWindowList } from '#/types/enum'
+import { IStringKeyMap } from '#/types/types'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import {
-  md5,
-  hmacSha1Base64,
-  getFileMimeType,
-  NewDownloader,
-  gotUpload,
   ConcurrencyPromisePool,
-  formatError
+  formatError,
+  getFileMimeType,
+  gotUpload,
+  hmacSha1Base64,
+  md5,
+  NewDownloader
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
-import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
-
-import { commonTaskStatus, IWindowList } from '#/types/enum'
-import { isImage } from '#/utils/common'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import { isImage } from '~/utils/common'
 
 class UpyunApi {
   ser: Upyun.Service
@@ -34,7 +34,7 @@ class UpyunApi {
   stopMarker = 'g2gCZAAEbmV4dGQAA2VvZg'
   logger: ManageLogger
 
-  constructor(
+  constructor (
     bucket: string,
     operator: string,
     password: string,
@@ -52,7 +52,7 @@ class UpyunApi {
     this.expireTime = expireTime || 24 * 60 * 60
   }
 
-  getAntiLeechParam(key: string): string {
+  getAntiLeechParam (key: string): string {
     const uri = `/${key}`.replace(/%2F/g, '/').replace(/^\/+/g, '/')
     const now = Math.round(new Date().getTime() / 1000)
     const expire = this.expireTime ? now + parseInt(this.expireTime.toString(), 10) : now + 1800
@@ -61,7 +61,7 @@ class UpyunApi {
     return `_upt=${upt}`
   }
 
-  formatFolder(item: any, slicedPrefix: string, urlPrefix: string) {
+  formatFolder (item: any, slicedPrefix: string, urlPrefix: string) {
     const key = `${slicedPrefix}${item.name}/`
     let url = `${urlPrefix}/${key}`
     if (this.antiLeechToken) {
@@ -82,7 +82,7 @@ class UpyunApi {
     }
   }
 
-  formatFile(item: any, slicedPrefix: string, urlPrefix: string) {
+  formatFile (item: any, slicedPrefix: string, urlPrefix: string) {
     const key = `${slicedPrefix}${item.name}`
     let url = `${urlPrefix}/${key}`
     if (this.antiLeechToken) {
@@ -102,7 +102,7 @@ class UpyunApi {
     }
   }
 
-  authorization(method: string, uri: string, contentMd5: string, operator: string, password: string) {
+  authorization (method: string, uri: string, contentMd5: string, operator: string, password: string) {
     return `UPYUN ${operator}:${hmacSha1Base64(
       md5(password, 'hex'),
       `${method.toUpperCase()}&${encodeURI(uri)}&${new Date().toUTCString()}${contentMd5 ? `&${contentMd5}` : ''}`
@@ -112,11 +112,11 @@ class UpyunApi {
   /**
    * 获取空间列表
    */
-  async getBucketList(): Promise<any> {
+  async getBucketList (): Promise<any> {
     return this.bucket
   }
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
+  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: bucket, prefix, cancelToken } = configMap
     const slicedPrefix = prefix.slice(1)
@@ -130,7 +130,7 @@ class UpyunApi {
     })
     let res = {} as any
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       success: false,
       finished: false
     }
@@ -168,7 +168,7 @@ class UpyunApi {
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
+  async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: bucket, prefix, cancelToken } = configMap
     const slicedPrefix = prefix.slice(1)
@@ -183,7 +183,7 @@ class UpyunApi {
     })
     let res = {} as any
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       success: false,
       finished: false
     }
@@ -227,13 +227,13 @@ class UpyunApi {
    *  customUrl: string
    * }
    */
-  async getBucketFileList(configMap: IStringKeyMap): Promise<any> {
+  async getBucketFileList (configMap: IStringKeyMap): Promise<any> {
     const { bucketName: bucket, prefix, marker, itemsPerPage } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `http://${bucket}.test.upcdn.net`
     let res = {} as any
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       isTruncated: false,
       nextMarker: '',
       success: false
@@ -264,7 +264,7 @@ class UpyunApi {
    * newKey: string
    * }
    */
-  async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async renameBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const oldKey = configMap.oldKey
     let newKey = configMap.newKey
     const method = 'PUT'
@@ -297,7 +297,7 @@ class UpyunApi {
    * key: string
    * }
    */
-  async deleteBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { key } = configMap
     const res = await this.cli.deleteFile(key)
     return res
@@ -307,7 +307,7 @@ class UpyunApi {
    * delete bucket folder
    * @param configMap
    */
-  async deleteBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { key } = configMap
     let marker = ''
     let isTruncated
@@ -341,9 +341,8 @@ class UpyunApi {
     } while (isTruncated)
     if (allFileList.Contents.length > 0) {
       let success = false
-      for (let i = 0; i < allFileList.Contents.length; i++) {
-        const item = allFileList.Contents[i]
-        success = await this.cli.deleteFile(item.key)
+      for (const allFileListItem of allFileList.Contents) {
+        success = await this.cli.deleteFile(allFileListItem.key)
         if (!success) {
           return false
         }
@@ -371,7 +370,7 @@ class UpyunApi {
    * axiso:onUploadProgress not work in nodejs , use got instead
    * @param configMap
    */
-  async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async uploadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { fileArray } = configMap
     const instance = UpDownTaskQueue.getInstance()
     fileArray.forEach((item: any) => {
@@ -427,7 +426,7 @@ class UpyunApi {
    * 新建文件夹
    * @param configMap
    */
-  async createBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
+  async createBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { key } = configMap
     const res = await this.cli.makeDir(`/${key}`)
     return res
@@ -437,7 +436,7 @@ class UpyunApi {
    * 下载文件
    * @param configMap
    */
-  async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any

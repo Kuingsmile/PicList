@@ -1,8 +1,10 @@
-import axios from 'axios'
-import crypto from 'crypto'
-import querystring from 'querystring'
+import crypto from 'node:crypto'
+import querystring from 'node:querystring'
 
 import picgo from '@core/picgo'
+import axios from 'axios'
+
+import { IObj } from '#/types/types'
 
 export interface DogecloudToken {
   accessKeyId: string
@@ -10,7 +12,7 @@ export interface DogecloudToken {
   sessionToken: string
 }
 
-export async function dogecloudApi(
+export async function dogecloudApi (
   apiPath: string,
   data = {},
   jsonMode: boolean = false,
@@ -43,7 +45,7 @@ export async function dogecloudApi(
   }
 }
 
-export async function getTempToken(accessKey: string, secretKey: string): Promise<IObj | DogecloudToken> {
+export async function getTempToken (accessKey: string, secretKey: string): Promise<IObj | DogecloudToken> {
   const dogeTempToken = (await picgo.getConfig('Credentials.doge-token')) || ({} as any)
   if (dogeTempToken.token && dogeTempToken.expires > Date.now() + 7200000) {
     return dogeTempToken.token

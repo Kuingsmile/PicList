@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 
 import picgo from '@core/picgo'
 
@@ -14,7 +14,7 @@ export class AESHelper {
     'sha512'
   )
 
-  encrypt(plainText: string) {
+  encrypt (plainText: string) {
     const iv = crypto.randomBytes(16)
     const cipher = crypto.createCipheriv('aes-256-cbc', this.key, iv)
     let encrypted = cipher.update(plainText, 'utf8', 'hex')
@@ -22,7 +22,7 @@ export class AESHelper {
     return `${iv.toString('hex')}:${encrypted}`
   }
 
-  decrypt(encryptedData: string) {
+  decrypt (encryptedData: string) {
     const [ivHex, encryptedText] = encryptedData.split(':')
     if (!ivHex || !encryptedText) return '{}'
 

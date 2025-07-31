@@ -1,6 +1,8 @@
 import mitt from 'mitt'
+
 import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '#/events/constants'
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 type IEvent = {
   [SHOW_INPUT_BOX_RESPONSE]: string
   [SHOW_INPUT_BOX]: {

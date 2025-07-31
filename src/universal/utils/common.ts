@@ -1,4 +1,4 @@
-import path from 'path'
+import { IHTTPProxy, IStringKeyMap } from '#/types/types'
 
 export const isUrl = (url: string): boolean => {
   try {
@@ -32,8 +32,6 @@ export const simpleClone = (obj: any) => JSON.parse(JSON.stringify(obj))
 
 export const enforceNumber = (num: number | string) => (isNaN(+num) ? 0 : +num)
 
-export const isDev = process.env.NODE_ENV === 'development'
-
 export const trimValues = <T extends IStringKeyMap>(
   obj: T
 ): { [K in keyof T]: T[K] extends string ? string : T[K] } => {
@@ -42,11 +40,11 @@ export const trimValues = <T extends IStringKeyMap>(
   ) as { [K in keyof T]: T[K] extends string ? string : T[K] }
 }
 
-export function isNeedToShorten(alias: string, cutOff = 20) {
+export function isNeedToShorten (alias: string, cutOff = 20) {
   return [...alias].reduce((len, char) => len + (char.charCodeAt(0) > 255 ? 2 : 1), 0) > cutOff
 }
 
-export function safeSliceF(str: string, total: number) {
+export function safeSliceF (str: string, total: number) {
   let result = ''
   let totalLen = 0
   for (const s of str) {
@@ -59,14 +57,9 @@ export function safeSliceF(str: string, total: number) {
   return result
 }
 
-export function encodeFilePath(filePath: string) {
+export function encodeFilePath (filePath: string) {
   return filePath.replace(/\\/g, '/').split('/').map(encodeURIComponent).join('/')
 }
-
-export const getExtension = (fileName: string) => path.extname(fileName).slice(1)
-
-export const isImage = (fileName: string) =>
-  ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ico', 'svg', 'avif'].includes(getExtension(fileName))
 
 export const formatEndpoint = (endpoint: string, sslEnabled: boolean): string => {
   const hasProtocol = /^https?:\/\//.test(endpoint)

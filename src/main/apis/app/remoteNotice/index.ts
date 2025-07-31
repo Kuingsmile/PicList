@@ -1,12 +1,14 @@
+import path from 'node:path'
+
+import windowManager from 'apis/app/window/windowManager'
 import axios from 'axios'
 import { app, clipboard, dialog, shell } from 'electron'
 import fs from 'fs-extra'
-import path from 'path'
 import { gte, lte } from 'semver'
 
-import windowManager from 'apis/app/window/windowManager'
-import { showNotification } from '~/utils/common'
 import { IRemoteNoticeActionType, IRemoteNoticeTriggerCount, IRemoteNoticeTriggerHook } from '#/types/enum'
+import { IRemoteNotice, IRemoteNoticeAction, IRemoteNoticeLocalCountStorage } from '#/types/types'
+import { showNotification } from '~/utils/common'
 
 // for test
 const REMOTE_NOTICE_URL = 'https://release.piclist.cn/remote-notice.json'
@@ -21,12 +23,12 @@ class RemoteNoticeHandler {
   private remoteNotice: IRemoteNotice | null = null
   private remoteNoticeLocalCountStorage: IRemoteNoticeLocalCountStorage | null = null
 
-  async init() {
+  async init () {
     this.remoteNotice = await this.getRemoteNoticeInfo()
     this.initLocalCountStorage()
   }
 
-  private initLocalCountStorage() {
+  private initLocalCountStorage () {
     const localCountStorage = {}
     if (!fs.existsSync(REMOTE_NOTICE_LOCAL_STORAGE_PATH)) {
       fs.writeFileSync(REMOTE_NOTICE_LOCAL_STORAGE_PATH, JSON.stringify({}))
@@ -42,14 +44,14 @@ class RemoteNoticeHandler {
     }
   }
 
-  private saveLocalCountStorage(newData?: IRemoteNoticeLocalCountStorage) {
+  private saveLocalCountStorage (newData?: IRemoteNoticeLocalCountStorage) {
     if (newData) {
       this.remoteNoticeLocalCountStorage = newData
     }
     fs.writeFileSync(REMOTE_NOTICE_LOCAL_STORAGE_PATH, JSON.stringify(this.remoteNoticeLocalCountStorage))
   }
 
-  private async getRemoteNoticeInfo(): Promise<IRemoteNotice | null> {
+  private async getRemoteNoticeInfo (): Promise<IRemoteNotice | null> {
     try {
       const noticeInfo = (await axios({
         method: 'get',
@@ -66,7 +68,7 @@ class RemoteNoticeHandler {
    * if the notice is not shown or is always shown, then show the notice
    * @param action
    */
-  private checkActionCount(action: IRemoteNoticeAction) {
+  private checkActionCount (action: IRemoteNoticeAction) {
     try {
       if (!this.remoteNoticeLocalCountStorage) {
         return true
@@ -100,7 +102,7 @@ class RemoteNoticeHandler {
     }
   }
 
-  private async doActions(actions: IRemoteNoticeAction[]) {
+  private async doActions (actions: IRemoteNoticeAction[]) {
     for (const action of actions) {
       if (this.checkActionCount(action)) {
         switch (action.type) {
@@ -115,7 +117,7 @@ class RemoteNoticeHandler {
               body: action.data?.content || '',
               clickToCopy: !!action.data?.copyToClipboard,
               copyContent: action.data?.copyToClipboard || '',
-              clickFn() {
+              clickFn () {
                 if (action.data?.url) {
                   shell.openExternal(action.data.url)
                 }
@@ -161,7 +163,7 @@ class RemoteNoticeHandler {
     }
   }
 
-  triggerHook(hook: IRemoteNoticeTriggerHook) {
+  triggerHook (hook: IRemoteNoticeTriggerHook) {
     if (!this.remoteNotice || !this.remoteNotice.list) {
       return
     }

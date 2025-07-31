@@ -1,17 +1,18 @@
+import { Agent } from 'node:https'
+import path from 'node:path'
+
+import windowManager from 'apis/app/window/windowManager'
 import axios, { AxiosInstance } from 'axios'
 import { ipcMain, IpcMainEvent } from 'electron'
 import FormData from 'form-data'
 import fs from 'fs-extra'
-import path from 'path'
-
-import windowManager from 'apis/app/window/windowManager'
-
-import { getFileMimeType, gotUpload, NewDownloader, ConcurrencyPromisePool, formatError } from '~/manage/utils/common'
-import { ManageLogger } from '~/manage/utils/logger'
-import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 
 import { commonTaskStatus, IWindowList } from '#/types/enum'
-import { isImage } from '#/utils/common'
+import { IStringKeyMap } from '#/types/types'
+import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import { ConcurrencyPromisePool, formatError, getFileMimeType, gotUpload, NewDownloader } from '~/manage/utils/common'
+import { ManageLogger } from '~/manage/utils/logger'
+import { isImage } from '~/utils/common'
 
 class SmmsApi {
   baseUrl = 'https://smms.app/api/v2'
@@ -20,7 +21,7 @@ class SmmsApi {
   logger: ManageLogger
   timeout = 30000
 
-  constructor(token: string, logger: ManageLogger) {
+  constructor (token: string, logger: ManageLogger) {
     this.token = token
     this.axiosInstance = axios.create({
       baseURL: this.baseUrl,
@@ -28,7 +29,7 @@ class SmmsApi {
       headers: {
         Authorization: this.token
       },
-      httpsAgent: new (require('https').Agent)({
+      httpsAgent: new Agent({
         keepAlive: true,
         timeout: this.timeout
       })
@@ -36,7 +37,7 @@ class SmmsApi {
     this.logger = logger
   }
 
-  formatFile(item: any) {
+  formatFile (item: any) {
     return {
       ...item,
       Key: item.path,
@@ -53,7 +54,7 @@ class SmmsApi {
     }
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
+  async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { cancelToken } = configMap
     let marker = 1
@@ -66,7 +67,7 @@ class SmmsApi {
     })
     let res = {} as any
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       success: false,
       finished: false
     }
@@ -122,9 +123,9 @@ class SmmsApi {
    *  customUrl: string
    * }
    */
-  async getBucketFileList({ currentPage }: IStringKeyMap): Promise<any> {
+  async getBucketFileList ({ currentPage }: IStringKeyMap): Promise<any> {
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       isTruncated: false,
       nextMarker: '',
       success: false
@@ -161,7 +162,7 @@ class SmmsApi {
    * DeleteHash: string
    * }
    */
-  async deleteBucketFile({ DeleteHash }: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFile ({ DeleteHash }: IStringKeyMap): Promise<boolean> {
     const res = await this.axiosInstance(`/delete/${DeleteHash}`, {
       method: 'GET',
       params: {
@@ -176,7 +177,7 @@ class SmmsApi {
    * 上传文件
    * @param configMap
    */
-  async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async uploadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { fileArray } = configMap
     const instance = UpDownTaskQueue.getInstance()
     for (const item of fileArray) {
@@ -213,7 +214,7 @@ class SmmsApi {
    * 下载文件
    * @param configMap
    */
-  async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any

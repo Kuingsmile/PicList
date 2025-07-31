@@ -14,29 +14,36 @@
     >
       <img
         v-if="!dragover && !isShowingProgress"
-        :src="logoPath ? logoPath : require('../assets/squareLogo.png')"
+        :src="logoPath ? logoPath : '/squareLogo.png'"
         style="width: 100%; height: 100%; border-radius: 50%"
-      />
-      <div id="upload-dragger" @dblclick="openUploadWindow">
-        <input id="file-uploader" type="file" multiple @change="onChange" />
+      >
+      <div
+        id="upload-dragger"
+        @dblclick="openUploadWindow"
+      >
+        <input
+          id="file-uploader"
+          type="file"
+          multiple
+          @change="onChange"
+        >
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { IpcRendererEvent } from 'electron'
 import { ElMessage as $message } from 'element-plus'
-import { ipcRenderer, IpcRendererEvent } from 'electron'
-import { IConfig } from 'piclist'
-import { onBeforeUnmount, onBeforeMount, ref, watch } from 'vue'
+import type { IConfig } from 'piclist'
+import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
 import { T as $T } from '@/i18n/index'
-import { sendRPC, triggerRPC } from '@/utils/common'
 import { getConfig } from '@/utils/dataSender'
 import { osGlobal } from '@/utils/global'
-
-import { isUrl } from '#/utils/common'
 import { IRPCActionType } from '#/types/enum'
+import { IFileWithPath } from '#/types/types'
+import { isUrl } from '#/utils/common'
 
 const logoPath = ref('')
 const dragover = ref(false)
@@ -48,30 +55,34 @@ const wY = ref(-1)
 const screenX = ref(-1)
 const screenY = ref(-1)
 
-async function initLogoPath() {
+async function initLogoPath () {
   const config = await getConfig<IConfig>()
   if (config) {
     if (config.settings?.isCustomMiniIcon && config.settings?.customMiniIcon) {
       logoPath.value =
         'data:image/jpg;base64,' +
-        (await triggerRPC(IRPCActionType.MANAGE_CONVERT_PATH_TO_BASE64, config.settings.customMiniIcon))
+        (await window.electron.triggerRPC(IRPCActionType.MANAGE_CONVERT_PATH_TO_BASE64, config.settings.customMiniIcon))
     }
   }
 }
 
+const uploadProgressHandler = (_: IpcRendererEvent, _progress: number) => {
+  if (_progress !== -1) {
+    isShowingProgress.value = true
+    progress.value = _progress
+  } else {
+    progress.value = 100
+  }
+}
+
+const updateMiniIconHandler = async () => {
+  await initLogoPath()
+}
+
 onBeforeMount(async () => {
   await initLogoPath()
-  ipcRenderer.on('uploadProgress', (_: IpcRendererEvent, _progress: number) => {
-    if (_progress !== -1) {
-      isShowingProgress.value = true
-      progress.value = _progress
-    } else {
-      progress.value = 100
-    }
-  })
-  ipcRenderer.on('updateMiniIcon', async () => {
-    await initLogoPath()
-  })
+  window.electron.ipcRendererOn('uploadProgress', uploadProgressHandler)
+  window.electron.ipcRendererOn('updateMiniIcon', updateMiniIconHandler)
   window.addEventListener('mousedown', handleMouseDown, false)
   window.addEventListener('mousemove', handleMouseMove, false)
   window.addEventListener('mouseup', handleMouseUp, false)
@@ -88,7 +99,7 @@ watch(progress, val => {
   }
 })
 
-function onDrop(e: DragEvent) {
+function onDrop (e: DragEvent) {
   dragover.value = false
 
   // send files first
@@ -101,7 +112,7 @@ function onDrop(e: DragEvent) {
     } else if (items[0].type === 'text/plain') {
       const str = e.dataTransfer!.getData(items[0].type)
       if (isUrl(str)) {
-        sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [{ path: str }])
+        window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [{ path: str }])
       } else {
         $message.error($T('TIPS_DRAG_VALID_PICTURE_OR_URL'))
       }
@@ -109,13 +120,13 @@ function onDrop(e: DragEvent) {
   }
 }
 
-function handleURLDrag(items: DataTransferItemList, dataTransfer: DataTransfer) {
+function handleURLDrag (items: DataTransferItemList, dataTransfer: DataTransfer) {
   // text/html
   // Use this data to get a more precise URL
   const urlString = dataTransfer.getData(items[1].type)
   const urlMatch = urlString.match(/<img.*src="(.*?)"/)
   if (urlMatch) {
-    sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [
+    window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [
       {
         path: urlMatch[1]
       }
@@ -125,30 +136,30 @@ function handleURLDrag(items: DataTransferItemList, dataTransfer: DataTransfer) 
   }
 }
 
-function openUploadWindow() {
+function openUploadWindow () {
   // @ts-expect-error file-uploader
   document.getElementById('file-uploader').click()
 }
 
-function onChange(e: any) {
+function onChange (e: any) {
   ipcSendFiles(e.target.files)
   // @ts-expect-error file-uploader
   document.getElementById('file-uploader').value = ''
 }
 
-function ipcSendFiles(files: FileList) {
+function ipcSendFiles (files: FileList) {
   const sendFiles: IFileWithPath[] = []
   Array.from(files).forEach(item => {
     const obj = {
       name: item.name,
-      path: item.path
+      path: item.webkitRelativePath
     }
     sendFiles.push(obj)
   })
-  sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, sendFiles)
+  window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, sendFiles)
 }
 
-function handleMouseDown(e: MouseEvent) {
+function handleMouseDown (e: MouseEvent) {
   draggingState.value = true
   wX.value = e.pageX
   wY.value = e.pageY
@@ -156,13 +167,13 @@ function handleMouseDown(e: MouseEvent) {
   screenY.value = e.screenY
 }
 
-function handleMouseMove(e: MouseEvent) {
+function handleMouseMove (e: MouseEvent) {
   e.preventDefault()
   e.stopPropagation()
   if (draggingState.value) {
     const xLoc = e.screenX - wX.value
     const yLoc = e.screenY - wY.value
-    sendRPC(IRPCActionType.SET_MINI_WINDOW_POS, {
+    window.electron.sendRPC(IRPCActionType.SET_MINI_WINDOW_POS, {
       x: xLoc,
       y: yLoc,
       width: 64,
@@ -171,7 +182,7 @@ function handleMouseMove(e: MouseEvent) {
   }
 }
 
-function handleMouseUp(e: MouseEvent) {
+function handleMouseUp (e: MouseEvent) {
   draggingState.value = false
   if (screenX.value === e.screenX && screenY.value === e.screenY) {
     if (e.button === 0) {
@@ -183,13 +194,13 @@ function handleMouseUp(e: MouseEvent) {
   }
 }
 
-function openContextMenu() {
-  sendRPC(IRPCActionType.SHOW_MINI_PAGE_MENU)
+function openContextMenu () {
+  window.electron.sendRPC(IRPCActionType.SHOW_MINI_PAGE_MENU)
 }
 
 onBeforeUnmount(() => {
-  ipcRenderer.removeAllListeners('uploadProgress')
-  ipcRenderer.removeAllListeners('updateMiniIcon')
+  window.electron.ipcRendererRemoveListener('uploadProgress', uploadProgressHandler)
+  window.electron.ipcRendererRemoveListener('updateMiniIcon', updateMiniIconHandler)
   window.removeEventListener('mousedown', handleMouseDown, false)
   window.removeEventListener('mousemove', handleMouseMove, false)
   window.removeEventListener('mouseup', handleMouseUp, false)

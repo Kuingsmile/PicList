@@ -1,18 +1,17 @@
-import { ipcMain, IpcMainEvent } from 'electron'
-import path from 'path'
+import path from 'node:path'
 
 import windowManager from 'apis/app/window/windowManager'
-
-import SSHClient from '~/utils/sshClient'
-
-import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
-import { formatError } from '~/manage/utils/common'
-import ManageLogger from '~/manage/utils/logger'
+import { ipcMain, IpcMainEvent } from 'electron'
 
 import { commonTaskStatus, downloadTaskSpecialStatus, IWindowList, uploadTaskSpecialStatus } from '#/types/enum'
 import { Undefinable } from '#/types/manage'
-import { isImage } from '#/utils/common'
+import { IStringKeyMap } from '#/types/types'
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import { formatError } from '~/manage/utils/common'
+import ManageLogger from '~/manage/utils/logger'
+import { isImage } from '~/utils/common'
+import SSHClient from '~/utils/sshClient'
 
 interface listDirResult {
   permissions: string
@@ -45,7 +44,7 @@ class SftpApi {
     passphrase: string
   }
 
-  constructor(
+  constructor (
     host: string,
     port: Undefinable<number>,
     username: Undefinable<string>,
@@ -95,7 +94,7 @@ class SftpApi {
     return `0${result}`
   }
 
-  formatFolder(item: listDirResult, urlPrefix: string, isWebPath = false) {
+  formatFolder (item: listDirResult, urlPrefix: string, isWebPath = false) {
     const key = item.key
     let url: string
     if (isWebPath) {
@@ -122,7 +121,7 @@ class SftpApi {
     }
   }
 
-  formatFile(item: listDirResult, urlPrefix: string, isWebPath = false) {
+  formatFile (item: listDirResult, urlPrefix: string, isWebPath = false) {
     const key = item.key
     return {
       ...item,
@@ -152,7 +151,7 @@ class SftpApi {
     }
   }
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
+  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { prefix, customUrl, cancelToken } = configMap
     const urlPrefix = customUrl || `${this.host}:${this.port}`
@@ -165,7 +164,7 @@ class SftpApi {
     })
     let res = {} as any
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       success: false,
       finished: false
     }
@@ -192,7 +191,7 @@ class SftpApi {
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
-  formatLSResult(res: string, cwd: string): listDirResult[] {
+  formatLSResult (res: string, cwd: string): listDirResult[] {
     const result = [] as listDirResult[]
     const resArray = res.trim().split('\n')
     resArray.slice(resArray[0].startsWith('total') ? 1 : 0).forEach((item: string) => {
@@ -218,7 +217,7 @@ class SftpApi {
     return result
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
+  async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { prefix, customUrl, cancelToken, baseDir } = configMap
     let urlPrefix = customUrl || `${this.host}:${this.port}`
@@ -236,7 +235,7 @@ class SftpApi {
     })
     let res = {} as any
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       success: false,
       finished: false
     }
@@ -277,7 +276,7 @@ class SftpApi {
     ipcMain.removeAllListeners('cancelLoadingFileList')
   }
 
-  async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async renameBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { oldKey, newKey } = configMap
     let result = false
     try {
@@ -291,7 +290,7 @@ class SftpApi {
     return result
   }
 
-  async deleteBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { key } = configMap
     let result = false
     try {
@@ -305,7 +304,7 @@ class SftpApi {
     return result
   }
 
-  async deleteBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { key } = configMap
     let result = false
     try {
@@ -322,7 +321,7 @@ class SftpApi {
     return result
   }
 
-  async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async uploadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { fileArray } = configMap
     const instance = UpDownTaskQueue.getInstance()
     for (const item of fileArray) {
@@ -377,7 +376,7 @@ class SftpApi {
     return true
   }
 
-  async createBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
+  async createBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { key } = configMap
     let result = false
     try {
@@ -391,7 +390,7 @@ class SftpApi {
     return result
   }
 
-  async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { downloadPath, fileArray } = configMap
     const instance = UpDownTaskQueue.getInstance()
     for (const item of fileArray) {

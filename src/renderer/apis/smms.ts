@@ -1,5 +1,4 @@
-import axios, { AxiosResponse } from 'axios'
-
+import { ISMMSConfig } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '#/utils/deleteLog'
 
 interface IConfigMap {
@@ -10,7 +9,7 @@ interface IConfigMap {
 export default class SmmsApi {
   static readonly #baseUrl = 'https://smms.app/api/v2'
 
-  static async delete(configMap: IConfigMap): Promise<boolean> {
+  static async delete (configMap: IConfigMap): Promise<boolean> {
     const { hash, config } = configMap
     if (!hash || !config || !config.token) {
       deleteLog(hash, 'Smms', false, 'SmmsApi.delete: invalid params')
@@ -20,7 +19,7 @@ export default class SmmsApi {
     const { token } = config
 
     try {
-      const response: AxiosResponse = await axios.get(`${SmmsApi.#baseUrl}/delete/${hash}`, {
+      const response: any = await window.node.axios.get(`${SmmsApi.#baseUrl}/delete/${hash}`, {
         headers: {
           Authorization: token
         },

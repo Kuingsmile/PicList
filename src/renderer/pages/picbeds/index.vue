@@ -1,26 +1,60 @@
 <template>
   <div id="picbeds-page">
-    <el-row :gutter="20" class="setting-list">
-      <el-col :span="22" :offset="1">
+    <el-row
+      :gutter="20"
+      class="setting-list"
+    >
+      <el-col
+        :span="22"
+        :offset="1"
+      >
         <div class="view-title">
-          <span class="view-title-text" @click="handleNameClick"> {{ picBedName }} {{ $T('SETTINGS') }}</span>
+          <span
+            class="view-title-text"
+            @click="handleNameClick"
+          > {{ picBedName }} {{ $T('SETTINGS') }}</span>
           <el-icon>
             <Link />
           </el-icon>
-          <el-button type="primary" round size="small" style="margin-left: 6px" @click="handleCopyApi">
+          <el-button
+            type="primary"
+            round
+            size="small"
+            style="margin-left: 6px"
+            @click="handleCopyApi"
+          >
             {{ $T('UPLOAD_PAGE_COPY_UPLOAD_API') }}
           </el-button>
         </div>
-        <config-form v-if="config.length > 0" :id="type" ref="$configForm" :config="config" type="uploader">
+        <config-form
+          v-if="config.length > 0"
+          :id="type"
+          ref="$configForm"
+          :config="config"
+          type="uploader"
+        >
           <el-form-item>
             <el-button-group>
-              <el-button type="info" round @click="handleReset">
+              <el-button
+                type="info"
+                round
+                @click="handleReset"
+              >
                 {{ $T('RESET_PICBED_CONFIG') }}
               </el-button>
-              <el-button type="success" round @click="handleConfirm">
+              <el-button
+                type="success"
+                round
+                @click="handleConfirm"
+              >
                 {{ $T('CONFIRM') }}
               </el-button>
-              <el-button round type="warning" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
+              <el-button
+                round
+                type="warning"
+                @mouseenter="handleMouseEnter"
+                @mouseleave="handleMouseLeave"
+              >
                 <el-dropdown
                   ref="$dropdown"
                   placement="top"
@@ -30,7 +64,11 @@
                 >
                   {{ $T('MANAGE_LOGIN_PAGE_PANE_IMPORT') }}
                   <template #dropdown>
-                    <el-dropdown-item v-for="i in picBedConfigList" :key="i._id" @click="handleConfigImport(i)">
+                    <el-dropdown-item
+                      v-for="i in picBedConfigList"
+                      :key="i._id"
+                      @click="handleConfigImport(i)"
+                    >
                       {{ i._configName }}
                     </el-dropdown-item>
                   </template>
@@ -39,7 +77,10 @@
             </el-button-group>
           </el-form-item>
         </config-form>
-        <div v-else class="single">
+        <div
+          v-else
+          class="single"
+        >
           <div class="notice">
             {{ $T('SETTINGS_NOT_CONFIG_OPTIONS') }}
           </div>
@@ -50,19 +91,17 @@
 </template>
 
 <script lang="ts" setup>
-import dayjs from 'dayjs'
-import { clipboard } from 'electron'
-import { ElDropdown, ElMessage } from 'element-plus'
 import { Link } from '@element-plus/icons-vue'
-import { ref, onBeforeMount } from 'vue'
+import dayjs from 'dayjs'
+import { ElDropdown, ElMessage } from 'element-plus'
+import { onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import ConfigForm from '@/components/ConfigForm.vue'
 import { T as $T } from '@/i18n/index'
-import { sendRPC, triggerRPC } from '@/utils/common'
 import { getConfig } from '@/utils/dataSender'
-
 import { II18nLanguage, IRPCActionType } from '#/types/enum'
+import { IPicGoPluginConfig, IStringKeyMap, IUploaderConfigItem, IUploaderConfigListItem } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
 import { picBedManualUrlList } from '#/utils/static'
 
@@ -84,7 +123,7 @@ onBeforeMount(async () => {
 const handleConfirm = async () => {
   const result = (await $configForm.value?.validate()) || false
   if (result !== false) {
-    await triggerRPC<void>(IRPCActionType.UPLOADER_UPDATE_CONFIG, type.value, result?._id, result)
+    await window.electron.triggerRPC<void>(IRPCActionType.UPLOADER_UPDATE_CONFIG, type.value, result?._id, result)
     const successNotification = new Notification($T('SETTINGS_RESULT'), {
       body: $T('TIPS_SET_SUCCEED')
     })
@@ -95,27 +134,27 @@ const handleConfirm = async () => {
   }
 }
 
-function handleMouseEnter() {
+function handleMouseEnter () {
   $dropdown.value?.handleOpen()
 }
 
-function handleMouseLeave() {
+function handleMouseLeave () {
   $dropdown.value?.handleClose()
 }
 
-async function getPicBeds() {
-  const result = await triggerRPC<any>(IRPCActionType.PICBED_GET_PICBED_CONFIG, $route.params.type)
+async function getPicBeds () {
+  const result = await window.electron.triggerRPC<any>(IRPCActionType.PICBED_GET_PICBED_CONFIG, $route.params.type)
   config.value = result.config
   picBedName.value = result.name
 }
 
-async function getPicBedConfigList() {
-  const res = (await triggerRPC<IUploaderConfigItem>(IRPCActionType.PICBED_GET_CONFIG_LIST, type.value)) || undefined
+async function getPicBedConfigList () {
+  const res = (await window.electron.triggerRPC<IUploaderConfigItem>(IRPCActionType.PICBED_GET_CONFIG_LIST, type.value)) || undefined
   const configList = res?.configList || []
   picBedConfigList.value = configList.filter(item => item._id !== $route.params.configId)
 }
 
-async function handleConfigImport(configItem: IUploaderConfigListItem) {
+async function handleConfigImport (configItem: IUploaderConfigListItem) {
   const { _id, _configName, _updatedAt, _createdAt, ...rest } = configItem
   for (const key in rest) {
     if (Object.prototype.hasOwnProperty.call(rest, key)) {
@@ -127,7 +166,7 @@ async function handleConfigImport(configItem: IUploaderConfigListItem) {
 }
 
 const handleReset = async () => {
-  await triggerRPC<void>(IRPCActionType.UPLOADER_RESET_CONFIG, type.value, $route.params.configId)
+  await window.electron.triggerRPC<void>(IRPCActionType.UPLOADER_RESET_CONFIG, type.value, $route.params.configId)
   const successNotification = new Notification($T('SETTINGS_RESULT'), {
     body: $T('TIPS_RESET_SUCCEED')
   })
@@ -137,15 +176,15 @@ const handleReset = async () => {
   $router.back()
 }
 
-async function handleNameClick() {
+async function handleNameClick () {
   const lang = (await getConfig(configPaths.settings.language)) || II18nLanguage.ZH_CN
   const url = picBedManualUrlList[lang === II18nLanguage.EN ? 'en' : 'zh_cn'][$route.params.type as string]
   if (url) {
-    sendRPC(IRPCActionType.OPEN_URL, url)
+    window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
   }
 }
 
-async function handleCopyApi() {
+async function handleCopyApi () {
   try {
     const { port = 36677, host = '127.0.0.1' } = (await getConfig<IStringKeyMap>(configPaths.settings.server)) || {}
     const serverKey = (await getConfig(configPaths.settings.serverKey)) || ''
@@ -157,7 +196,7 @@ async function handleCopyApi() {
       return
     }
     const apiUrl = `http://${host === '0.0.0.0' ? '127.0.0.1' : host}:${port}/upload?picbed=${$route.params.type}&configName=${picBedConfig._configName}${serverKey ? `&key=${serverKey}` : ''}`
-    clipboard.writeText(apiUrl)
+    window.electron.clipboard.writeText(apiUrl)
     ElMessage.success(`${$T('MANAGE_BUCKET_COPY_SUCCESS')} ${apiUrl}`)
   } catch (error) {
     console.log(error)

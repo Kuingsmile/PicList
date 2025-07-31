@@ -1,22 +1,23 @@
+import crypto from 'node:crypto'
+import http from 'node:http'
+import https from 'node:https'
+import path from 'node:path'
+import { Stream } from 'node:stream'
+import { promisify } from 'node:util'
+
 import axios from 'axios'
-import crypto from 'crypto'
 import { app } from 'electron'
 import fs from 'fs-extra'
 import got, { OptionsOfTextResponseBody, RequestError } from 'got'
-import { HttpsProxyAgent, HttpProxyAgent } from 'hpagent'
-import http from 'http'
-import https from 'https'
+import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
 import mime from 'mime-types'
 import Downloader from 'nodejs-file-downloader'
-import path from 'path'
-import { Stream } from 'stream'
-import { promisify } from 'util'
-
-import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
-import { ManageLogger } from '~/manage/utils/logger'
 
 import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '#/types/enum'
+import { IHTTPProxy, IStringKeyMap } from '#/types/types'
 import { formatHttpProxy } from '#/utils/common'
+import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import { ManageLogger } from '~/manage/utils/logger'
 
 export const getFSFile = async (filePath: string, stream: boolean = false): Promise<IStringKeyMap> => {
   try {
@@ -33,7 +34,7 @@ export const getFSFile = async (filePath: string, stream: boolean = false): Prom
   }
 }
 
-export function isInputConfigValid(config: any): boolean {
+export function isInputConfigValid (config: any): boolean {
   return typeof config === 'object' && !Array.isArray(config) && Object.keys(config).length > 0
 }
 
@@ -55,14 +56,14 @@ export const downloadFileFromUrl = async (urls: string[]) => {
   const tempPath = getTempDirPath()
   await checkTempFolderExist(tempPath)
   const result = [] as string[]
-  for (let i = 0; i < urls.length; i++) {
+  for (const url of urls) {
     const finishDownload = promisify(Stream.finished)
-    const fileName = path.basename(urls[i]).split('?')[0]
+    const fileName = path.basename(url).split('?')[0]
     const filePath = path.join(tempPath, fileName)
     const writer = fs.createWriteStream(filePath)
     const res = await axios({
       method: 'get',
-      url: urls[i],
+      url,
       responseType: 'stream'
     })
     res.data.pipe(writer)
@@ -279,7 +280,7 @@ export const getInnerAgent = (proxy: any, sslEnabled: boolean = true) => {
       }
 }
 
-export function getOptions(
+export function getOptions (
   method?: string,
   headers?: IStringKeyMap,
   searchParams?: IStringKeyMap,
@@ -308,14 +309,14 @@ export class ConcurrencyPromisePool {
   runningNum: number
   results: any[]
 
-  constructor(limit: number) {
+  constructor (limit: number) {
     this.limit = limit
     this.queue = []
     this.runningNum = 0
     this.results = []
   }
 
-  all(promises: any[] = []) {
+  all (promises: any[] = []) {
     return new Promise((resolve, reject) => {
       for (const promise of promises) {
         this._run(promise, resolve, reject)
@@ -323,7 +324,7 @@ export class ConcurrencyPromisePool {
     })
   }
 
-  _run(promise: any, resolve: any, reject: any) {
+  _run (promise: any, resolve: any, reject: any) {
     if (this.runningNum >= this.limit) {
       this.queue.push(promise)
       return

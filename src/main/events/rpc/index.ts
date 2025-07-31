@@ -1,8 +1,11 @@
+import logger from '@core/picgo/logger'
 import { ipcMain, IpcMainEvent, IpcMainInvokeEvent } from 'electron'
 
-import logger from '@core/picgo/logger'
-
+import { RPC_ACTIONS, RPC_ACTIONS_INVOKE } from '#/events/constants'
+import { IRPCActionType, IRPCType } from '#/types/enum'
+import { IRPCRoutes, IRPCServer } from '#/types/rpc'
 import { galleryRouter } from '~/events/rpc/routes/gallery'
+import { manageRouter } from '~/events/rpc/routes/manage'
 import { picbedRouter } from '~/events/rpc/routes/picbed'
 import { pluginRouter } from '~/events/rpc/routes/plugin'
 import { settingRouter } from '~/events/rpc/routes/setting'
@@ -10,10 +13,6 @@ import { systemRouter } from '~/events/rpc/routes/system'
 import { toolboxRouter } from '~/events/rpc/routes/toolbox'
 import { trayRouter } from '~/events/rpc/routes/tray'
 import { uploadRouter } from '~/events/rpc/routes/upload'
-import { manageRouter } from '~/events/rpc/routes/manage'
-
-import { IRPCActionType, IRPCType } from '#/types/enum'
-import { RPC_ACTIONS, RPC_ACTIONS_INVOKE } from '#/events/constants'
 
 class RPCServer implements IRPCServer {
   private routes: IRPCRoutes = new Map()
@@ -38,12 +37,12 @@ class RPCServer implements IRPCServer {
     }
   }
 
-  start() {
+  start () {
     ipcMain.on(RPC_ACTIONS, this.rpcEventHandler)
     ipcMain.handle(RPC_ACTIONS_INVOKE, this.rpcEventHandlerWithResponse)
   }
 
-  use(routes: IRPCRoutes) {
+  use (routes: IRPCRoutes) {
     for (const [action, route] of routes) {
       if (route.type === IRPCType.SEND) {
         this.routes.set(action, route)
@@ -53,7 +52,7 @@ class RPCServer implements IRPCServer {
     }
   }
 
-  stop() {
+  stop () {
     ipcMain.off(RPC_ACTIONS, this.rpcEventHandler)
   }
 }

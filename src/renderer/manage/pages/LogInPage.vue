@@ -16,9 +16,27 @@
         lazy
       >
         <el-row>
-          <el-col v-for="item in sortedAllConfigAliasMap" :key="item" :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
-            <el-card class="box-card" style="margin: 10px 0" shadow="hover">
-              <el-popover placement="top" :width="300" trigger="click" :persistent="false" teleported>
+          <el-col
+            v-for="item in sortedAllConfigAliasMap"
+            :key="item"
+            :xs="24"
+            :sm="12"
+            :md="8"
+            :lg="6"
+            :xl="4"
+          >
+            <el-card
+              class="box-card"
+              style="margin: 10px 0"
+              shadow="hover"
+            >
+              <el-popover
+                placement="top"
+                :width="300"
+                trigger="click"
+                :persistent="false"
+                teleported
+              >
                 <el-table
                   :data="formObjToTableData(item.config)"
                   style="width: 100%"
@@ -26,8 +44,15 @@
                   :header-cell-style="{ 'text-align': 'center' }"
                   :cell-style="{ 'text-align': 'center' }"
                 >
-                  <el-table-column prop="key" :label="$T('MANAGE_LOGIN_PAGE_PANE_KEY_NAME')" width="100" />
-                  <el-table-column prop="value" :label="$T('MANAGE_LOGIN_PAGE_PANE_KEY_VALUE')" />
+                  <el-table-column
+                    prop="key"
+                    :label="$T('MANAGE_LOGIN_PAGE_PANE_KEY_NAME')"
+                    width="100"
+                  />
+                  <el-table-column
+                    prop="value"
+                    :label="$T('MANAGE_LOGIN_PAGE_PANE_KEY_VALUE')"
+                  />
                 </el-table>
                 <template #reference>
                   <el-button
@@ -40,7 +65,10 @@
                     "
                   >
                     <template #icon>
-                      <img :src="require(`./assets/${item.picBedName}.webp`)" style="width: 25px; height: 25px" />
+                      <img
+                        :src="`/assets/${item.picBedName}.webp`"
+                        style="width: 25px; height: 25px"
+                      >
                     </template>
                     <el-tooltip
                       effect="light"
@@ -55,13 +83,23 @@
                   </el-button>
                 </template>
               </el-popover>
-              <br />
-              <br />
+              <br>
+              <br>
               <el-button-group>
-                <el-button type="primary" :icon="Pointer" plain @click="handleConfigClick(item)">
+                <el-button
+                  type="primary"
+                  :icon="Pointer"
+                  plain
+                  @click="handleConfigClick(item)"
+                >
                   {{ $T('MANAGE_LOGIN_PAGE_PANE_ENTER') }}
                 </el-button>
-                <el-button type="warning" :icon="Delete" plain @click="handleConfigRemove(item.alias)">
+                <el-button
+                  type="warning"
+                  :icon="Delete"
+                  plain
+                  @click="handleConfigRemove(item.alias)"
+                >
                   {{ $T('MANAGE_LOGIN_PAGE_PANE_DELETE') }}
                 </el-button>
               </el-button-group>
@@ -78,11 +116,23 @@
         lazy
         style="width: 100%; overflow-y: scroll; height: calc(100vh - 50px)"
       >
-        <el-alert :title="item.explain" type="info" show-icon center :closable="false" />
-        <el-alert center :closable="false">
+        <el-alert
+          :title="item.explain"
+          type="info"
+          show-icon
+          center
+          :closable="false"
+        />
+        <el-alert
+          center
+          :closable="false"
+        >
           <div>
             {{ item.referenceText }}
-            <a style="color: blue; cursor: pointer" @click="handleReferenceClick(item.refLink)">{{ item.refLink }}</a>
+            <a
+              style="color: blue; cursor: pointer"
+              @click="handleReferenceClick(item.refLink)"
+            >{{ item.refLink }}</a>
           </div>
         </el-alert>
         <el-form
@@ -156,20 +206,41 @@
           >
             {{ $T('MANAGE_LOGIN_PAGE_PANE_IMPORT') }}
             <template #dropdown>
-              <el-dropdown-item v-for="i in currentAliasList" :key="i" @click="handleConfigImport(i)">
+              <el-dropdown-item
+                v-for="i in currentAliasList"
+                :key="i"
+                @click="handleConfigImport(i)"
+              >
                 {{ i }}
               </el-dropdown-item>
             </template>
           </el-dropdown>
-          <el-button type="primary" style="margin-left: 10vw" :icon="Edit" plain @click="handleConfigChange(item.icon)">
+          <el-button
+            type="primary"
+            style="margin-left: 10vw"
+            :icon="Edit"
+            plain
+            @click="handleConfigChange(item.icon)"
+          >
             {{ $T('MANAGE_LOGIN_PAGE_PANE_SAVE') }}
           </el-button>
-          <el-button type="danger" style="margin-left: 10vw" :icon="Delete" plain @click="handleConfigReset(item.icon)">
+          <el-button
+            type="danger"
+            style="margin-left: 10vw"
+            :icon="Delete"
+            plain
+            @click="handleConfigReset(item.icon)"
+          >
             {{ $T('MANAGE_LOGIN_PAGE_PANE_RESET') }}
           </el-button>
         </div>
-        <br />
-        <el-alert :title="$T('MANAGE_LOGIN_PAGE_PANE_TABLE_TITLE')" type="success" center :closable="false" />
+        <br>
+        <el-alert
+          :title="$T('MANAGE_LOGIN_PAGE_PANE_TABLE_TITLE')"
+          type="success"
+          center
+          :closable="false"
+        />
         <el-table
           :data="dataForTable"
           style="width: 100%; margin-top: 10px"
@@ -192,20 +263,19 @@
 </template>
 
 <script lang="ts" setup>
-import { shell } from 'electron'
+import { Delete, Edit, InfoFilled, Pointer } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
-import { Delete, Edit, Pointer, InfoFilled } from '@element-plus/icons-vue'
-import { reactive, ref, onMounted, computed } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { useManageStore } from '@/manage/store/manageStore'
-import { supportedPicBedList } from '@/manage/utils/constants'
-import { getConfig, saveConfig, removeConfig } from '@/manage/utils/dataSender'
-import { formObjToTableData } from '@/manage/utils/common'
-
-import { getConfig as getPicBedsConfig } from '@/utils/dataSender'
 import { T as $T } from '@/i18n'
-
+import { useManageStore } from '@/manage/store/manageStore'
+import { formObjToTableData } from '@/manage/utils/common'
+import { supportedPicBedList } from '@/manage/utils/constants'
+import { getConfig, removeConfig, saveConfig } from '@/manage/utils/dataSender'
+import { getConfig as getPicBedsConfig } from '@/utils/dataSender'
+import { IRPCActionType } from '#/types/enum'
+import { IStringKeyMap, IUploaderConfigListItem } from '#/types/types'
 import { formatEndpoint, isNeedToShorten, safeSliceF } from '#/utils/common'
 
 const manageStore = useManageStore()
@@ -228,7 +298,7 @@ const sortedAllConfigAliasMap = computed(() => {
 
 const importedNewConfig: IStringKeyMap = {}
 
-function ruleMap(options: IStringKeyMap) {
+function ruleMap (options: IStringKeyMap) {
   const rule: any = {}
   Object.keys(options).forEach(key => {
     const item = options[key].options
@@ -246,13 +316,13 @@ function ruleMap(options: IStringKeyMap) {
   return rule
 }
 
-function getDataForTable() {
+function getDataForTable () {
   for (const key in existingConfiguration) {
     dataForTable.push({ ...(existingConfiguration[key] as IStringKeyMap) })
   }
 }
 
-async function getExistingConfig(name: string) {
+async function getExistingConfig (name: string) {
   if (name === 'login') {
     getAllConfigAliasArray()
     return
@@ -278,11 +348,11 @@ async function getExistingConfig(name: string) {
   handleConfigImport(currentAliasList[0])
 }
 
-function getAliasList() {
+function getAliasList () {
   return Object.values(existingConfiguration).map(item => item.alias)
 }
 
-async function handleConfigChange(name: string) {
+async function handleConfigChange (name: string) {
   const aliasList = getAliasList()
   const allKeys = Object.keys(supportedPicBedList[name].configOptions)
   const resultMap: IStringKeyMap = {}
@@ -456,7 +526,7 @@ const handleCellClick = (row: any, column: any) => {
   ElMessage.success(`${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_COPY_SUCCESS')}${row[column.property]}`)
 }
 
-const handleReferenceClick = (url: string) => shell.openExternal(url)
+const handleReferenceClick = (url: string) => window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
 
 const handleConfigClick = async (item: any) => {
   const alias = item.alias
@@ -474,7 +544,7 @@ const handleConfigClick = async (item: any) => {
   })
 }
 
-function handleConfigImport(alias: string) {
+function handleConfigImport (alias: string) {
   const selectedConfig = existingConfiguration[alias]
   if (!selectedConfig) return
 
@@ -485,7 +555,7 @@ function handleConfigImport(alias: string) {
   })
 }
 
-async function getCurrentConfigList() {
+async function getCurrentConfigList () {
   await manageStore.refreshConfig()
   const configList = (await getPicBedsConfig<any>('uploader')) ?? {}
   const pbList = [
@@ -526,18 +596,18 @@ async function getCurrentConfigList() {
   await getAllConfigAliasArray()
 }
 
-function isImported(alias: string) {
+function isImported (alias: string) {
   return Object.values(allConfigAliasMap).some(item => item.alias === alias)
 }
 
-function initArray(arrayT: string | string[], defaultValue: string[]) {
+function initArray (arrayT: string | string[], defaultValue: string[]) {
   if (!Array.isArray(arrayT)) {
     arrayT = arrayT ? [arrayT] : defaultValue
   }
   return arrayT
 }
 
-async function transUpToManage(config: IUploaderConfigListItem, picBedName: string, autoImportPicBed: string[]) {
+async function transUpToManage (config: IUploaderConfigListItem, picBedName: string, autoImportPicBed: string[]) {
   const alias = `${
     picBedName === 'webdavplist'
       ? 'webdav'

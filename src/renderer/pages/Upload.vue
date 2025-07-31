@@ -1,14 +1,29 @@
 <template>
   <div id="upload-view">
-    <el-row :gutter="16" align="middle">
+    <el-row
+      :gutter="16"
+      align="middle"
+    >
       <el-col :span="24">
         <div class="view-title">
-          <el-tooltip placement="top" effect="light" :content="$T('UPLOAD_VIEW_HINT')" :persistent="false" teleported>
-            <span id="upload-view-title" @click="handlePicBedNameClick(picBedName, picBedConfigName)">
+          <el-tooltip
+            placement="top"
+            effect="light"
+            :content="$T('UPLOAD_VIEW_HINT')"
+            :persistent="false"
+            teleported
+          >
+            <span
+              id="upload-view-title"
+              @click="handlePicBedNameClick(picBedName, picBedConfigName)"
+            >
               {{ picBedName }} - {{ picBedConfigName || 'Default' }}
             </span>
           </el-tooltip>
-          <el-icon style="cursor: pointer; margin-left: 4px" @click="handleChangePicBed">
+          <el-icon
+            style="cursor: pointer; margin-left: 4px"
+            @click="handleChangePicBed"
+          >
             <CaretBottom />
           </el-icon>
           <el-button
@@ -29,7 +44,10 @@
           @dragover.prevent="dragover = true"
           @dragleave.prevent="dragover = false"
         >
-          <div id="upload-dragger" @click="openUplodWindow">
+          <div
+            id="upload-dragger"
+            @click="openUplodWindow"
+          >
             <el-icon>
               <UploadFilled />
             </el-icon>
@@ -37,7 +55,12 @@
               {{ $T('DRAG_FILE_TO_HERE') }}
               <span>{{ $T('CLICK_TO_UPLOAD') }}</span>
             </div>
-            <input id="file-uploader" type="file" multiple @change="onChange" />
+            <input
+              id="file-uploader"
+              type="file"
+              multiple
+              @change="onChange"
+            >
           </div>
         </div>
         <el-progress
@@ -52,16 +75,35 @@
             <div class="paste-style__text">
               {{ $T('LINK_FORMAT') }}
             </div>
-            <el-radio-group v-model="pasteStyle" size="small" @change="handlePasteStyleChange">
-              <el-radio-button v-for="(item, key) in pasteFormatList" :key="key" :value="key" :title="item">
+            <el-radio-group
+              v-model="pasteStyle"
+              size="small"
+              @change="handlePasteStyleChange"
+            >
+              <el-radio-button
+                v-for="(item, key) in pasteFormatList"
+                :key="key"
+                :value="key"
+                :title="item"
+              >
                 {{ key }}
               </el-radio-button>
             </el-radio-group>
-            <el-radio-group v-model="useShortUrl" size="small" @change="handleUseShortUrlChange">
-              <el-radio-button :value="true" style="border-radius: 5px">
+            <el-radio-group
+              v-model="useShortUrl"
+              size="small"
+              @change="handleUseShortUrlChange"
+            >
+              <el-radio-button
+                :value="true"
+                style="border-radius: 5px"
+              >
                 {{ $T('UPLOAD_SHORT_URL') }}
               </el-radio-button>
-              <el-radio-button :value="false" style="border-radius: 5px">
+              <el-radio-button
+                :value="false"
+                style="border-radius: 5px"
+              >
                 {{ $T('UPLOAD_NORMAL_URL') }}
               </el-radio-button>
             </el-radio-group>
@@ -109,25 +151,24 @@
 </template>
 
 <script lang="ts" setup>
-import { ipcRenderer, IpcRendererEvent } from 'electron'
+import { CaretBottom, UploadFilled } from '@element-plus/icons-vue'
+import type { IpcRendererEvent } from 'electron'
 import { ElMessage as $message } from 'element-plus'
-import { UploadFilled, CaretBottom } from '@element-plus/icons-vue'
-import { ref, onBeforeMount, onBeforeUnmount, watch } from 'vue'
+import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
 import { T as $T } from '@/i18n'
 import { PICBEDS_PAGE } from '@/router/config'
 import $bus from '@/utils/bus'
-import { sendRPC, triggerRPC } from '@/utils/common'
 import { getConfig, saveConfig } from '@/utils/dataSender'
+import { useDragEventListeners } from '@/utils/drag'
 import { picBedGlobal, updatePicBedGlobal } from '@/utils/global'
-
 import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '#/events/constants'
 import { IPasteStyle, IRPCActionType } from '#/types/enum'
+import { IFileWithPath, IUploaderConfigItem } from '#/types/types'
 import { isUrl } from '#/utils/common'
 import { configPaths } from '#/utils/configPaths'
-import { useDragEventListeners } from '@/utils/drag'
 
 useDragEventListeners()
 const $router = useRouter()
@@ -154,23 +195,27 @@ watch(picBedGlobal, () => {
   getDefaultPicBed()
 })
 
+const uploadProgressHandler = (_event: IpcRendererEvent, _progress: number) => {
+  if (_progress !== -1) {
+    showProgress.value = true
+    progress.value = _progress
+  } else {
+    progress.value = 100
+    showError.value = true
+  }
+}
+
+const syncPicBedHandler = () => {
+  getDefaultPicBed()
+}
+
 onBeforeMount(() => {
   updatePicBedGlobal()
-  ipcRenderer.on('uploadProgress', (_event: IpcRendererEvent, _progress: number) => {
-    if (_progress !== -1) {
-      showProgress.value = true
-      progress.value = _progress
-    } else {
-      progress.value = 100
-      showError.value = true
-    }
-  })
+  window.electron.ipcRendererOn('uploadProgress', uploadProgressHandler)
   getUseShortUrl()
   getPasteStyle()
   getDefaultPicBed()
-  ipcRenderer.on('syncPicBed', () => {
-    getDefaultPicBed()
-  })
+  window.electron.ipcRendererOn('syncPicBed', syncPicBedHandler)
   $bus.on(SHOW_INPUT_BOX_RESPONSE, handleInputBoxValue)
 })
 
@@ -180,7 +225,7 @@ const handleImageProcess = () => {
 
 watch(progress, onProgressChange)
 
-function onProgressChange(val: number) {
+function onProgressChange (val: number) {
   if (val === 100) {
     setTimeout(() => {
       showProgress.value = false
@@ -192,11 +237,11 @@ function onProgressChange(val: number) {
   }
 }
 
-async function handlePicBedNameClick(_picBedName: string, picBedConfigName: string | undefined) {
+async function handlePicBedNameClick (_picBedName: string, picBedConfigName: string | undefined) {
   const formatedpicBedConfigName = picBedConfigName || 'Default'
   const currentPicBed = await getConfig<string>(configPaths.picBed.current)
   const currentPicBedConfig = ((await getConfig<any[]>(`uploader.${currentPicBed}`)) as any) || {}
-  const configList = await triggerRPC<IUploaderConfigItem>(IRPCActionType.PICBED_GET_CONFIG_LIST, currentPicBed)
+  const configList = await window.electron.triggerRPC<IUploaderConfigItem>(IRPCActionType.PICBED_GET_CONFIG_LIST, currentPicBed)
   const currentConfigList = configList?.configList ?? []
   const config = currentConfigList.find((item: any) => item._configName === formatedpicBedConfigName)
   $router.push({
@@ -213,11 +258,11 @@ async function handlePicBedNameClick(_picBedName: string, picBedConfigName: stri
 
 onBeforeUnmount(() => {
   $bus.off(SHOW_INPUT_BOX_RESPONSE)
-  ipcRenderer.removeAllListeners('uploadProgress')
-  ipcRenderer.removeAllListeners('syncPicBed')
+  window.electron.ipcRendererRemoveListener('uploadProgress', uploadProgressHandler)
+  window.electron.ipcRendererRemoveListener('syncPicBed', syncPicBedHandler)
 })
 
-function onDrop(e: DragEvent) {
+function onDrop (e: DragEvent) {
   dragover.value = false
 
   // send files first
@@ -230,7 +275,7 @@ function onDrop(e: DragEvent) {
     } else if (items[0].type === 'text/plain') {
       const str = e.dataTransfer.getData(items[0].type)
       if (isUrl(str)) {
-        sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [{ path: str }])
+        window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [{ path: str }])
       } else {
         $message.error($T('TIPS_DRAG_VALID_PICTURE_OR_URL'))
       }
@@ -238,13 +283,13 @@ function onDrop(e: DragEvent) {
   }
 }
 
-function handleURLDrag(items: DataTransferItemList, dataTransfer: DataTransfer) {
+function handleURLDrag (items: DataTransferItemList, dataTransfer: DataTransfer) {
   // text/html
   // Use this data to get a more precise URL
   const urlString = dataTransfer.getData(items[1].type)
   const urlMatch = urlString.match(/<img.*src="(.*?)"/)
   if (urlMatch) {
-    sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [
+    window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [
       {
         path: urlMatch[1]
       }
@@ -254,53 +299,53 @@ function handleURLDrag(items: DataTransferItemList, dataTransfer: DataTransfer) 
   }
 }
 
-function openUplodWindow() {
+function openUplodWindow () {
   document.getElementById('file-uploader')!.click()
 }
 
-function onChange(e: any) {
+function onChange (e: any) {
   ipcSendFiles(e.target.files)
   ;(document.getElementById('file-uploader') as HTMLInputElement).value = ''
 }
 
-function ipcSendFiles(files: FileList) {
+function ipcSendFiles (files: FileList) {
   const sendFiles: IFileWithPath[] = []
   Array.from(files).forEach(item => {
     const obj = {
       name: item.name,
-      path: item.path
+      path: item.webkitRelativePath
     }
     sendFiles.push(obj)
   })
-  sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, sendFiles)
+  window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, sendFiles)
 }
 
-async function getPasteStyle() {
+async function getPasteStyle () {
   pasteStyle.value = (await getConfig(configPaths.settings.pasteStyle)) || IPasteStyle.MARKDOWN
   pasteFormatList.value.Custom = (await getConfig(configPaths.settings.customLink)) || '![$fileName]($url)'
 }
 
-async function getUseShortUrl() {
+async function getUseShortUrl () {
   useShortUrl.value = (await getConfig(configPaths.settings.useShortUrl)) || false
 }
 
-async function handleUseShortUrlChange() {
+async function handleUseShortUrlChange () {
   saveConfig({
     [configPaths.settings.useShortUrl]: useShortUrl.value
   })
 }
 
-function handlePasteStyleChange(val: string | number | boolean | undefined) {
+function handlePasteStyleChange (val: string | number | boolean | undefined) {
   saveConfig({
     [configPaths.settings.pasteStyle]: val || IPasteStyle.MARKDOWN
   })
 }
 
-function uploadClipboardFiles() {
-  sendRPC(IRPCActionType.UPLOAD_CLIPBOARD_FILES_FROM_UPLOAD_PAGE)
+function uploadClipboardFiles () {
+  window.electron.sendRPC(IRPCActionType.UPLOAD_CLIPBOARD_FILES_FROM_UPLOAD_PAGE)
 }
 
-async function uploadURLFiles() {
+async function uploadURLFiles () {
   const str = await navigator.clipboard.readText()
   $bus.emit(SHOW_INPUT_BOX, {
     value: isUrl(str) ? str : '',
@@ -309,10 +354,10 @@ async function uploadURLFiles() {
   })
 }
 
-function handleInputBoxValue(val: string) {
+function handleInputBoxValue (val: string) {
   if (val === '') return
   if (isUrl(val)) {
-    sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [
+    window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [
       {
         path: val
       }
@@ -322,7 +367,7 @@ function handleInputBoxValue(val: string) {
   }
 }
 
-async function getDefaultPicBed() {
+async function getDefaultPicBed () {
   const currentPicBed = await getConfig<string>(configPaths.picBed.current)
   picBedGlobal.value.forEach(item => {
     if (item.type === currentPicBed) {
@@ -332,8 +377,8 @@ async function getDefaultPicBed() {
   picBedConfigName.value = (await getConfig<string>(`picBed.${currentPicBed}._configName`)) || ''
 }
 
-async function handleChangePicBed() {
-  sendRPC(IRPCActionType.SHOW_UPLOAD_PAGE_MENU)
+async function handleChangePicBed () {
+  window.electron.sendRPC(IRPCActionType.SHOW_UPLOAD_PAGE_MENU)
 }
 </script>
 

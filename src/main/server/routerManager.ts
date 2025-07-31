@@ -1,24 +1,22 @@
-import { app } from 'electron'
-import fs from 'fs-extra'
-import http from 'http'
-import { marked } from 'marked'
-import path from 'path'
+import http from 'node:http'
+import path from 'node:path'
 
 import { dbPathDir } from '@core/datastore/dbChecker'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
-
-import { AESHelper } from '~/utils/aesHelper'
-import { changeCurrentUploader } from '~/utils/handleUploaderConfig'
-
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
+import { app } from 'electron'
+import fs from 'fs-extra'
+import { marked } from 'marked'
 
+import { IHttpResponse, IStringKeyMap } from '#/types/types'
+import { configPaths } from '#/utils/configPaths'
 import { markdownContent } from '~/server/apiDoc'
 import router from '~/server/router'
 import { deleteChoosedFiles, handleResponse } from '~/server/utils'
-
-import { configPaths } from '#/utils/configPaths'
+import { AESHelper } from '~/utils/aesHelper'
+import { changeCurrentUploader } from '~/utils/handleUploaderConfig'
 
 const appPath = app.getPath('userData')
 const serverTempDir = path.join(appPath, 'serverTemp')
@@ -29,7 +27,7 @@ const LOG_PATH = path.join(STORE_PATH, 'piclist.log')
 const errorMessage = `upload error. see ${LOG_PATH} for more detail.`
 const deleteErrorMessage = `delete error. see ${LOG_PATH} for more detail.`
 
-async function responseForGet({ response }: { response: http.ServerResponse }) {
+async function responseForGet ({ response }: { response: http.ServerResponse }) {
   response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
   const htmlContent = marked(markdownContent)
   response.write(htmlContent)

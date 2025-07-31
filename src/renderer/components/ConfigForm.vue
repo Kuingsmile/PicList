@@ -1,8 +1,26 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
-  <div id="config-form" :class="props.colorMode === 'white' ? 'white' : ''">
-    <el-form ref="$form" label-position="left" label-width="50%" :model="ruleForm" size="small">
-      <el-form-item :label="$T('UPLOADER_CONFIG_NAME')" required prop="_configName">
-        <el-input v-model="ruleForm._configName" type="input" :placeholder="$T('UPLOADER_CONFIG_PLACEHOLDER')" />
+  <div
+    id="config-form"
+    :class="props.colorMode === 'white' ? 'white' : ''"
+  >
+    <el-form
+      ref="$form"
+      label-position="left"
+      label-width="50%"
+      :model="ruleForm"
+      size="small"
+    >
+      <el-form-item
+        :label="$T('UPLOADER_CONFIG_NAME')"
+        required
+        prop="_configName"
+      >
+        <el-input
+          v-model="ruleForm._configName"
+          type="input"
+          :placeholder="$T('UPLOADER_CONFIG_PLACEHOLDER')"
+        />
       </el-form-item>
       <!-- dynamic config -->
       <el-form-item
@@ -15,9 +33,18 @@
           <el-row align="middle">
             {{ item.alias || item.name }}
             <template v-if="item.tips">
-              <el-tooltip class="item" effect="dark" placement="right" :persistent="false" teleported>
+              <el-tooltip
+                class="item"
+                effect="dark"
+                placement="right"
+                :persistent="false"
+                teleported
+              >
                 <template #content>
-                  <span class="config-form-common-tips" v-html="transformMarkdownToHTML(item.tips)" />
+                  <span
+                    class="config-form-common-tips"
+                    v-html="transformMarkdownToHTML(item.tips)"
+                  />
                 </template>
                 <el-icon class="ml-[4px] cursor-pointer hover:text-blue">
                   <InfoFilled />
@@ -75,14 +102,16 @@
 </template>
 
 <script lang="ts" setup>
-import type { FormInstance } from 'element-plus'
-import { cloneDeep, union } from 'lodash'
-import { marked } from 'marked'
-import { reactive, ref, watch, toRefs } from 'vue'
-import { useRoute } from 'vue-router'
 import { InfoFilled } from '@element-plus/icons-vue'
+import type { FormInstance } from 'element-plus'
+import { cloneDeep, union } from 'lodash-es'
+import { marked } from 'marked'
+import { reactive, ref, toRefs, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
+import { T as $T } from '@/i18n/index'
 import { getConfig } from '@/utils/dataSender'
+import { IPicGoPluginConfig, IStringKeyMap } from '#/types/types'
 
 interface IProps {
   config: any[]
@@ -109,11 +138,11 @@ watch(
   }
 )
 
-function handleConfigChange(val: any) {
+function handleConfigChange (val: any) {
   handleConfig(val)
 }
 
-async function validate(): Promise<IStringKeyMap | false> {
+async function validate (): Promise<IStringKeyMap | false> {
   return new Promise(resolve => {
     $form.value?.validate((valid: boolean) => {
       if (valid) {
@@ -125,7 +154,7 @@ async function validate(): Promise<IStringKeyMap | false> {
   })
 }
 
-function transformMarkdownToHTML(markdown: string) {
+function transformMarkdownToHTML (markdown: string) {
   try {
     return marked.parse(markdown)
   } catch (e) {
@@ -133,7 +162,7 @@ function transformMarkdownToHTML(markdown: string) {
   }
 }
 
-function getConfigType() {
+function getConfigType () {
   switch (props.type) {
     case 'plugin': {
       return props.id
@@ -149,7 +178,7 @@ function getConfigType() {
   }
 }
 
-async function handleConfig(val: IPicGoPluginConfig[]) {
+async function handleConfig (val: IPicGoPluginConfig[]) {
   const config = await getCurConfigFormData()
   const configId = $route.params.configId
   Object.assign(ruleForm, config)
@@ -175,13 +204,13 @@ async function handleConfig(val: IPicGoPluginConfig[]) {
   }
 }
 
-async function getCurConfigFormData() {
+async function getCurConfigFormData () {
   const configId = $route.params.configId
   const curTypeConfigList = (await getConfig<IStringKeyMap[]>(`uploader.${props.id}.configList`)) || []
   return curTypeConfigList.find(i => i._id === configId) || {}
 }
 
-function updateRuleForm(key: string, value: any) {
+function updateRuleForm (key: string, value: any) {
   try {
     ruleForm[key] = value
   } catch (e) {

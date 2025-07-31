@@ -1,5 +1,8 @@
 <template>
-  <el-icon :color="color" class="toolbox-status-icon">
+  <el-icon
+    :color="color"
+    class="toolbox-status-icon"
+  >
     <template v-if="props.status === IToolboxItemCheckStatus.SUCCESS">
       <SuccessFilled />
     </template>

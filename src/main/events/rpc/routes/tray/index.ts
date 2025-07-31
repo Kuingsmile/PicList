@@ -1,20 +1,15 @@
-import { Notification } from 'electron'
-
-import { RPCRouter } from '~/events/rpc/router'
-import { generateShortUrl, setTrayToolTip, handleCopyUrl } from '~/utils/common'
-
-import { IRPCActionType, IRPCType, IPasteStyle, IWindowList } from '#/types/enum'
-
 import db, { GalleryDB } from '@core/datastore'
-
 import uploader from 'apis/app/uploader'
 import windowManager from 'apis/app/window/windowManager'
+import { Notification } from 'electron'
 
-import { T } from '~/i18n'
-
-import pasteTemplate from '~/utils/pasteTemplate'
-
+import { IPasteStyle, IRPCActionType, IRPCType, IWindowList } from '#/types/enum'
+import { IIPCEvent } from '#/types/rpc'
 import { configPaths } from '#/utils/configPaths'
+import { RPCRouter } from '~/events/rpc/router'
+import { T } from '~/i18n'
+import { generateShortUrl, handleCopyUrl, setTrayToolTip } from '~/utils/common'
+import pasteTemplate from '~/utils/pasteTemplate'
 
 const trayRouter = new RPCRouter()
 

@@ -1,5 +1,4 @@
-import { Octokit } from '@octokit/rest'
-
+import { IGitHubConfig, PartialKeys } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '#/utils/deleteLog'
 
 interface IConfigMap {
@@ -9,18 +8,18 @@ interface IConfigMap {
 }
 
 export default class GithubApi {
-  static #createOctokit(token: string) {
-    return new Octokit({
+  static #createOctokit (token: string) {
+    return new window.node.Octokit({
       auth: token
     })
   }
 
-  static #createKey(path: string | undefined, fileName: string): string {
+  static #createKey (path: string | undefined, fileName: string): string {
     const formatedFileName = fileName.replace(/%2F/g, '/')
     return path && path !== '/' ? `${path.replace(/^\/+|\/+$/, '')}/${formatedFileName}` : formatedFileName
   }
 
-  static async delete(configMap: IConfigMap): Promise<boolean> {
+  static async delete (configMap: IConfigMap): Promise<boolean> {
     const {
       fileName,
       hash,

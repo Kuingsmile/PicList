@@ -1,12 +1,25 @@
 <template>
   <div id="manage-setting">
-    <el-row class="view-title" align="middle" justify="center" style="font-size: 20px; color: black">
+    <el-row
+      class="view-title"
+      align="middle"
+      justify="center"
+      style="font-size: 20px; color: black"
+    >
       {{ $T('MANAGE_SETTING_TITLE') }}
     </el-row>
     <el-row class="setting-list">
-      <el-col :span="20" :offset="2">
+      <el-col
+        :span="20"
+        :offset="2"
+      >
         <el-row style="width: 100%">
-          <el-form label-position="left" label-width="50%" size="default" style="position: relative; width: 100%">
+          <el-form
+            label-position="left"
+            label-width="50%"
+            size="default"
+            style="position: relative; width: 100%"
+          >
             <el-form-item>
               <template #label>
                 <span style="position: absolute; left: 0">
@@ -37,7 +50,11 @@
                 @confirm="handleClearDb"
               >
                 <template #reference>
-                  <el-button type="primary" plain style="position: absolute; right: 0">
+                  <el-button
+                    type="primary"
+                    plain
+                    style="position: absolute; right: 0"
+                  >
                     {{ $T('MANAGE_SETTING_CLEAR_CACHE_BUTTON') }}
                   </el-button>
                 </template>
@@ -82,7 +99,7 @@
                 width="150"
               />
             </el-table>
-            <br v-if="form.customRename" />
+            <br v-if="form.customRename">
             <DynamicSwitch
               v-for="item in switchFieldsSpecialList"
               :key="item.configName"
@@ -142,12 +159,19 @@
                 :step="1"
               />
             </el-form-item>
-            <el-link style="margin-top: 10px; margin-bottom: 10px; color: #409eff" :underline="false">
+            <el-link
+              style="margin-top: 10px; margin-bottom: 10px; color: #409eff"
+              :underline="false"
+            >
               {{ $T('MANAGE_SETTING_CHOOSE_COPY_FORMAT_TITLE') }}
             </el-link>
-            <br />
+            <br>
             <el-radio-group v-model="form.pasteFormat">
-              <el-radio v-for="item in pasteFormatList" :key="item" :value="item">
+              <el-radio
+                v-for="item in pasteFormatList"
+                :key="item"
+                :value="item"
+              >
                 {{ $T(`MANAGE_SETTING_CHOOSE_COPY_FORMAT_${item.toUpperCase().replace(/-/g, '_')}` as any) }}
               </el-radio>
             </el-radio-group>
@@ -165,7 +189,10 @@
               style="width: 100%"
             />
             <div>
-              <el-link style="margin-top: 10px; margin-bottom: 10px; color: #409eff" :underline="false">
+              <el-link
+                style="margin-top: 10px; margin-bottom: 10px; color: #409eff"
+                :underline="false"
+              >
                 {{ $T('MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_TITLE') }}
               </el-link>
             </div>
@@ -176,7 +203,10 @@
               style="width: 100%; margin-top: 10px"
             >
               <template #append>
-                <el-button type="primary" @click="handleDownloadDirClick">
+                <el-button
+                  type="primary"
+                  @click="handleDownloadDirClick"
+                >
                   <el-icon>
                     <Folder />
                   </el-icon>
@@ -193,19 +223,17 @@
 </template>
 
 <script lang="ts" setup>
+import { Folder, InfoFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { InfoFilled, Folder } from '@element-plus/icons-vue'
-import { ref, onBeforeMount, watch } from 'vue'
-
-import DynamicSwitch from '@/manage/components/DynamicSwitch.vue'
-import { fileCacheDbInstance } from '@/manage/store/bucketFileDb'
-import { formatFileSize, customRenameFormatTable } from '@/manage/utils/common'
-import { getConfig, saveConfig } from '@/manage/utils/dataSender'
+import { IRPCActionType } from 'root/src/universal/types/enum'
+import { onBeforeMount, ref, watch } from 'vue'
 
 import { T as $T } from '@/i18n'
-
-import { triggerRPC } from '@/utils/common'
-import { IRPCActionType } from 'root/src/universal/types/enum'
+import DynamicSwitch from '@/manage/components/DynamicSwitch.vue'
+import { fileCacheDbInstance } from '@/manage/store/bucketFileDb'
+import { customRenameFormatTable, formatFileSize } from '@/manage/utils/common'
+import { getConfig, saveConfig } from '@/manage/utils/dataSender'
+import { IStringKeyMap } from '#/types/types'
 
 const form = ref<IStringKeyMap>({
   timestampRename: false,
@@ -315,15 +343,15 @@ const switchFieldsSpecialList = [
   }
 ]
 
-async function initData() {
+async function initData () {
   const config = (await getConfig()) as IStringKeyMap
   settingsKeys.forEach(key => {
     form.value[key] = config.settings[key] ?? form.value[key]
   })
 }
 
-async function handleDownloadDirClick() {
-  const result = await triggerRPC<any>(IRPCActionType.MANAGE_SELECT_DOWNLOAD_FOLDER)
+async function handleDownloadDirClick () {
+  const result = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_SELECT_DOWNLOAD_FOLDER)
   if (result) {
     form.value.downloadDir = result
   }
@@ -334,7 +362,7 @@ const handleCellClick = (row: any, column: any) => {
   ElMessage.success(`${$T('MANAGE_SETTING_COPY_MESSAGE')}${row[column.property]}`)
 }
 
-function handleClearDb() {
+function handleClearDb () {
   fileCacheDbInstance
     .delete()
     .then(() => {
@@ -346,7 +374,7 @@ function handleClearDb() {
     })
 }
 
-async function getIndexDbSize() {
+async function getIndexDbSize () {
   const size = (await navigator.storage.estimate()).usage ?? 0
   const quota = (await navigator.storage.estimate()).quota ?? 0
   dbSize.value = size

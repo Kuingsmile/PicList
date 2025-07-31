@@ -1,7 +1,6 @@
-import { AuthType, WebDAVClientOptions, createClient } from 'webdav'
-
-import { deleteFailedLog, deleteLog } from '#/utils/deleteLog'
+import { IWebdavPlistConfig, PartialKeys } from '#/types/types'
 import { formatEndpoint } from '#/utils/common'
+import { deleteFailedLog, deleteLog } from '#/utils/deleteLog'
 
 interface IConfigMap {
   fileName: string
@@ -9,20 +8,20 @@ interface IConfigMap {
 }
 
 export default class WebdavApi {
-  static async delete(configMap: IConfigMap): Promise<boolean> {
+  static async delete (configMap: IConfigMap): Promise<boolean> {
     const {
       fileName,
       config: { host, username, password, path, sslEnabled, authType }
     } = configMap
     const endpoint = formatEndpoint(host, sslEnabled)
-    const options: WebDAVClientOptions = {
+    const options: any = {
       username,
       password
     }
     if (authType === 'digest') {
-      options.authType = AuthType.Digest
+      options.authType = window.node.webdav.AuthType.Digest
     }
-    const ctx = createClient(endpoint, options)
+    const ctx = window.node.webdav.createClient(endpoint, options)
     let key
     if (path === '/' || !path) {
       key = fileName

@@ -1,23 +1,25 @@
+import { fileURLToPath } from 'node:url'
+
+import bus from '@core/bus'
+import { CREATE_APP_MENU } from '@core/bus/constants'
+import db from '@core/datastore'
 import { app } from 'electron'
+
+import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/events/constants'
+import { IWindowListItem } from '#/types/electron'
+import { IWindowList } from '#/types/enum'
+import { IBrowserWindowOptions } from '#/types/types'
+import { configPaths } from '#/utils/configPaths'
+import { T } from '~/i18n'
 
 import {
   MANUAL_WINDOW_URL,
   MINI_WINDOW_URL,
   RENAME_WINDOW_URL,
   SETTING_WINDOW_URL,
-  TRAY_WINDOW_URL,
-  TOOLBOX_WINDOW_URL
+  TOOLBOX_WINDOW_URL,
+  TRAY_WINDOW_URL
 } from './constants'
-
-import bus from '@core/bus'
-import { CREATE_APP_MENU } from '@core/bus/constants'
-import db from '@core/datastore'
-
-import { T } from '~/i18n'
-
-import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/events/constants'
-import { IWindowList } from '#/types/enum'
-import { configPaths } from '#/utils/configPaths'
 
 const windowList = new Map<IWindowList, IWindowListItem>()
 
@@ -33,6 +35,7 @@ const getDefaultWindowSizes = (): { width: number; height: number } => {
     height: mainWindowHeight || 800
   }
 }
+const preloadPath = fileURLToPath(new URL('../preload/index.mjs', import.meta.url))
 
 const { width: defaultWindowWidth, height: defaultWindowHeight } = getDefaultWindowSizes()
 
@@ -46,8 +49,10 @@ const trayWindowOptions = {
   transparent: true,
   vibrancy: 'ultra-dark',
   webPreferences: {
-    nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
-    contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+    sandbox: false,
+    preload: preloadPath,
+    nodeIntegration: false,
+    contextIsolation: true,
     nodeIntegrationInWorker: true,
     backgroundThrottling: false,
     webSecurity: false
@@ -66,10 +71,12 @@ const manualWindowOptions = {
   vibrancy: 'ultra-dark',
   transparent: false,
   webPreferences: {
+    sandbox: false,
     webviewTag: true,
     backgroundThrottling: false,
-    nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
-    contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+    preload: preloadPath,
+    nodeIntegration: false,
+    contextIsolation: true,
     nodeIntegrationInWorker: true,
     webSecurity: false
   }
@@ -88,10 +95,12 @@ const settingWindowOptions = {
   transparent: true,
   titleBarStyle: 'hidden',
   webPreferences: {
+    sandbox: false,
     webviewTag: true,
     backgroundThrottling: false,
-    nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
-    contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+    preload: preloadPath,
+    nodeIntegration: false,
+    contextIsolation: true,
     nodeIntegrationInWorker: true,
     webSecurity: false
   }
@@ -102,7 +111,7 @@ if (process.platform !== 'darwin') {
   settingWindowOptions.frame = false
   settingWindowOptions.backgroundColor = '#3f3c37'
   settingWindowOptions.transparent = false
-  settingWindowOptions.icon = `${__static}/logo.png`
+  settingWindowOptions.icon = '.resources/logo.png'
 }
 
 const miniWindowOptions = {
@@ -114,11 +123,13 @@ const miniWindowOptions = {
   skipTaskbar: true,
   resizable: false,
   transparent: process.platform !== 'linux',
-  icon: `${__static}/logo.png`,
+  icon: './resources/logo.png',
   webPreferences: {
+    sandbox: false,
+    preload: preloadPath,
+    nodeIntegration: false,
+    contextIsolation: true,
     backgroundThrottling: false,
-    nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
-    contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
     nodeIntegrationInWorker: true
   }
 } as IBrowserWindowOptions
@@ -135,8 +146,10 @@ const renameWindowOptions = {
   resizable: false,
   vibrancy: 'ultra-dark',
   webPreferences: {
-    nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
-    contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+    sandbox: false,
+    preload: preloadPath,
+    nodeIntegration: false,
+    contextIsolation: true,
     nodeIntegrationInWorker: true,
     backgroundThrottling: false
   }
@@ -159,11 +172,13 @@ const toolboxWindowOptions = {
   resizable: false,
   title: `PicList ${T('TOOLBOX')}`,
   vibrancy: 'ultra-dark',
-  icon: `${__static}/logo.png`,
+  icon: './resources/logo.png',
   webPreferences: {
+    sandbox: false,
     backgroundThrottling: false,
-    nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
-    contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+    preload: preloadPath,
+    nodeIntegration: false,
+    contextIsolation: true,
     nodeIntegrationInWorker: true,
     webSecurity: false
   }
@@ -179,7 +194,7 @@ windowList.set(IWindowList.TRAY_WINDOW, {
   isValid: process.platform !== 'linux',
   multiple: false,
   options: () => trayWindowOptions,
-  callback(window) {
+  callback (window) {
     window.loadURL(handleWindowParams(TRAY_WINDOW_URL))
     window.on('blur', () => {
       window.hide()
@@ -191,7 +206,7 @@ windowList.set(IWindowList.MANUAL_WINDOW, {
   isValid: true,
   multiple: false,
   options: () => manualWindowOptions,
-  callback(window) {
+  callback (window) {
     window.loadURL(handleWindowParams(MANUAL_WINDOW_URL))
     window.focus()
   }
@@ -201,8 +216,9 @@ windowList.set(IWindowList.SETTING_WINDOW, {
   isValid: true,
   multiple: false,
   options: () => settingWindowOptions,
-  callback(window, windowManager) {
+  callback (window, windowManager) {
     window.loadURL(handleWindowParams(SETTING_WINDOW_URL))
+    window.webContents.openDevTools({ mode: 'detach' })
     window.on('closed', () => {
       bus.emit(TOGGLE_SHORTKEY_MODIFIED_MODE, false)
       if (process.platform === 'linux') {
@@ -220,7 +236,7 @@ windowList.set(IWindowList.MINI_WINDOW, {
   isValid: process.platform !== 'darwin',
   multiple: false,
   options: () => miniWindowOptions,
-  callback(window) {
+  callback (window) {
     window.loadURL(handleWindowParams(MINI_WINDOW_URL))
   }
 })
@@ -229,7 +245,7 @@ windowList.set(IWindowList.RENAME_WINDOW, {
   isValid: true,
   multiple: true,
   options: () => renameWindowOptions,
-  async callback(window, windowManager) {
+  async callback (window, windowManager) {
     window.loadURL(handleWindowParams(RENAME_WINDOW_URL))
     const currentWindow = windowManager.getAvailableWindow(true)
     if (currentWindow && currentWindow.isVisible()) {
@@ -245,7 +261,7 @@ windowList.set(IWindowList.TOOLBOX_WINDOW, {
   isValid: true,
   multiple: false,
   options: () => toolboxWindowOptions,
-  async callback(window, windowManager) {
+  async callback (window, windowManager) {
     window.loadURL(TOOLBOX_WINDOW_URL)
     const currentWindow = windowManager.getAvailableWindow(true)
     if (currentWindow && currentWindow.isVisible()) {

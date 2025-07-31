@@ -1,5 +1,7 @@
 import { ILogger } from 'piclist/dist/types'
+
 import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from './enum'
+import { IStringKeyMap } from './types'
 
 // common type
 export type Undefinable<T> = T | undefined

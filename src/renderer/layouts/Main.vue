@@ -1,8 +1,13 @@
 <template>
   <div id="main-page">
     <div class="fake-title-bar">
-      <div class="fake-title-bar__title">PicList - {{ version }}</div>
-      <div v-if="osGlobal !== 'darwin'" class="handle-bar">
+      <div class="fake-title-bar__title">
+        PicList - {{ version }}
+      </div>
+      <div
+        v-if="osGlobal !== 'darwin'"
+        class="handle-bar"
+      >
         <el-icon
           class="minus"
           :color="isAlwaysOnTop ? '#409EFF' : '#fff'"
@@ -12,13 +17,30 @@
         >
           <ArrowUpBold />
         </el-icon>
-        <el-icon class="minus" color="#fff" size="20" style="margin-right: 10px" @click="minimizeWindow">
+        <el-icon
+          class="minus"
+          color="#fff"
+          size="20"
+          style="margin-right: 10px"
+          @click="minimizeWindow"
+        >
           <SemiSelect />
         </el-icon>
-        <el-icon class="plus" color="orange" size="20" style="margin-right: 10px" @click="openMiniWindow">
+        <el-icon
+          class="plus"
+          color="orange"
+          size="20"
+          style="margin-right: 10px"
+          @click="openMiniWindow"
+        >
           <ArrowDownBold />
         </el-icon>
-        <el-icon class="close" color="#fff" size="20" @click="closeWindow">
+        <el-icon
+          class="close"
+          color="#fff"
+          size="20"
+          @click="closeWindow"
+        >
           <CloseBold />
         </el-icon>
       </div>
@@ -32,9 +54,17 @@
       status="success"
       class="progress-bar"
     />
-    <el-row style="padding-top: 22px" class="main-content">
+    <el-row
+      style="padding-top: 22px"
+      class="main-content"
+    >
       <el-col class="side-bar-menu">
-        <el-menu class="picgo-sidebar" :default-active="defaultActive" :unique-opened="true" @select="handleSelect">
+        <el-menu
+          class="picgo-sidebar"
+          :default-active="defaultActive"
+          :unique-opened="true"
+          @select="handleSelect"
+        >
           <el-menu-item :index="routerConfig.UPLOAD_PAGE">
             <el-icon>
               <UploadFilled />
@@ -53,7 +83,12 @@
             </el-icon>
             <span>{{ $T('GALLERY') }}</span>
           </el-menu-item>
-          <el-sub-menu index="sub-menu" :show-timeout="0" :hide-timeout="0" :popper-offset="0">
+          <el-sub-menu
+            index="sub-menu"
+            :show-timeout="0"
+            :hide-timeout="0"
+            :popper-offset="0"
+          >
             <template #title>
               <el-icon>
                 <Menu />
@@ -89,13 +124,24 @@
             <span>{{ $T('MANUAL') }}</span>
           </el-menu-item>
         </el-menu>
-        <el-icon class="info-window" @click="openMenu">
+        <el-icon
+          class="info-window"
+          @click="openMenu"
+        >
           <InfoFilled />
         </el-icon>
       </el-col>
-      <el-col :span="21" :offset="3" style="height: 100%" class="main-wrapper">
+      <el-col
+        :span="21"
+        :offset="3"
+        style="height: 100%"
+        class="main-wrapper"
+      >
         <router-view v-slot="{ Component }">
-          <transition name="picgo-fade" mode="out-in">
+          <transition
+            name="picgo-fade"
+            mode="out-in"
+          >
             <keep-alive :include="keepAlivePages">
               <component :is="Component" />
             </keep-alive>
@@ -113,10 +159,25 @@
       lock-scroll
       append-to-body
     >
-      <el-form label-position="left" label-width="70px" size="small">
+      <el-form
+        label-position="left"
+        label-width="70px"
+        size="small"
+      >
         <el-form-item :label="$T('CHOOSE_PICBED')">
-          <el-select v-model="choosedPicBedForQRCode" multiple collapse-tags :persistent="false" teleported>
-            <el-option v-for="item in picBedGlobal" :key="item.type" :label="item.name" :value="item.type" />
+          <el-select
+            v-model="choosedPicBedForQRCode"
+            multiple
+            collapse-tags
+            :persistent="false"
+            teleported
+          >
+            <el-option
+              v-for="item in picBedGlobal"
+              :key="item.type"
+              :label="item.name"
+              :value="item.type"
+            />
           </el-select>
           <el-button
             v-show="choosedPicBedForQRCode.length > 0"
@@ -130,7 +191,11 @@
         </el-form-item>
       </el-form>
       <div class="qrcode-container">
-        <qrcode-vue v-show="choosedPicBedForQRCode.length > 0" :size="280" :value="picBedConfigString" />
+        <qrcode-vue
+          v-show="choosedPicBedForQRCode.length > 0"
+          :size="280"
+          :value="picBedConfigString"
+        />
       </div>
     </el-dialog>
     <input-box-dialog />
@@ -139,40 +204,37 @@
 
 <script lang="ts" setup>
 import {
-  Tools,
-  UploadFilled,
-  PictureFilled,
-  Menu,
-  Share,
-  InfoFilled,
-  SemiSelect,
   ArrowDownBold,
+  ArrowUpBold,
   CloseBold,
-  PieChart,
+  InfoFilled,
   Link,
-  ArrowUpBold
+  Menu,
+  PictureFilled,
+  PieChart,
+  SemiSelect,
+  Share,
+  Tools,
+  UploadFilled
 } from '@element-plus/icons-vue'
-import { ipcRenderer, IpcRendererEvent, clipboard } from 'electron'
+import type { IpcRendererEvent } from 'electron'
 import { ElMessage as $message, ElMessageBox } from 'element-plus'
-import pick from 'lodash/pick'
+import { pick } from 'lodash-es'
 import QrcodeVue from 'qrcode.vue'
-import { ref, onBeforeUnmount, Ref, onBeforeMount, watch, nextTick, reactive } from 'vue'
+import pkg from 'root/package.json'
+import { nextTick, onBeforeMount, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue'
 import { onBeforeRouteUpdate, useRouter } from 'vue-router'
 
 import InputBoxDialog from '@/components/InputBoxDialog.vue'
 import { T as $T } from '@/i18n/index'
 import * as config from '@/router/config'
 import { getConfig, saveConfig } from '@/utils/dataSender'
-import { sendRPC } from '@/utils/common'
 import { osGlobal, picBedGlobal, updatePicBedGlobal } from '@/utils/global'
-
 import { SHOW_MAIN_PAGE_QRCODE } from '#/events/constants'
-import { configPaths, manualPageOpenType } from '#/utils/configPaths'
 import { II18nLanguage, IRPCActionType } from '#/types/enum'
+import { configPaths, manualPageOpenType } from '#/utils/configPaths'
 
-import pkg from 'root/package.json'
-
-const version = ref(process.env.NODE_ENV === 'production' ? pkg.version : 'Dev')
+const version = ref(pkg.version)
 const routerConfig = reactive(config)
 const defaultActive = ref(routerConfig.UPLOAD_PAGE)
 const $router = useRouter()
@@ -188,15 +250,18 @@ const keepAlivePages = $router
 const isShowprogress = ref(false)
 const progress = ref(0)
 
+const qrCodeHandler = () => {
+  qrcodeVisible.value = true
+}
+
+const uploadProcessHandler = (_event: IpcRendererEvent, data: { progress: number }) => {
+  isShowprogress.value = data.progress !== 100 && data.progress !== 0
+  progress.value = data.progress
+}
 onBeforeMount(() => {
   updatePicBedGlobal()
-  ipcRenderer.on(SHOW_MAIN_PAGE_QRCODE, () => {
-    qrcodeVisible.value = true
-  })
-  ipcRenderer.on('updateProgress', (_event: IpcRendererEvent, data: { progress: number }) => {
-    isShowprogress.value = data.progress !== 100 && data.progress !== 0
-    progress.value = data.progress
-  })
+  window.electron.ipcRendererOn(SHOW_MAIN_PAGE_QRCODE, qrCodeHandler)
+  window.electron.ipcRendererOn('updateProgress', uploadProcessHandler)
 })
 
 watch(
@@ -218,9 +283,9 @@ const handleSelect = async (index: string) => {
   if (index === routerConfig.DocumentPage) {
     const manualPageOpenSetting = await getConfig<manualPageOpenType>(configPaths.settings.manualPageOpen)
     const lang = (await getConfig(configPaths.settings.language)) || II18nLanguage.ZH_CN
-    const openManual = () => sendRPC(IRPCActionType.OPEN_MANUAL_WINDOW)
+    const openManual = () => window.electron.sendRPC(IRPCActionType.OPEN_MANUAL_WINDOW)
     const openExternal = () =>
-      sendRPC(
+      window.electron.sendRPC(
         IRPCActionType.OPEN_URL,
         lang === II18nLanguage.ZH_CN ? 'https://piclist.cn/app.html' : 'https://piclist.cn/en/app.html'
       )
@@ -261,30 +326,30 @@ const handleSelect = async (index: string) => {
   }
 }
 
-function minimizeWindow() {
-  sendRPC(IRPCActionType.MINIMIZE_WINDOW)
+function minimizeWindow () {
+  window.electron.sendRPC(IRPCActionType.MINIMIZE_WINDOW)
 }
 
-function closeWindow() {
-  sendRPC(IRPCActionType.CLOSE_WINDOW)
+function closeWindow () {
+  window.electron.sendRPC(IRPCActionType.CLOSE_WINDOW)
 }
 
-function openMenu() {
-  sendRPC(IRPCActionType.SHOW_MAIN_PAGE_MENU)
+function openMenu () {
+  window.electron.sendRPC(IRPCActionType.SHOW_MAIN_PAGE_MENU)
 }
 
-function openMiniWindow() {
-  sendRPC(IRPCActionType.OPEN_MINI_WINDOW)
+function openMiniWindow () {
+  window.electron.sendRPC(IRPCActionType.OPEN_MINI_WINDOW)
 }
 
-function handleCopyPicBedConfig() {
-  clipboard.writeText(picBedConfigString.value)
+function handleCopyPicBedConfig () {
+  window.electron.clipboard.writeText(picBedConfigString.value)
   $message.success($T('COPY_PICBED_CONFIG_SUCCEED'))
 }
 
-function setAlwaysOnTop() {
+function setAlwaysOnTop () {
   isAlwaysOnTop.value = !isAlwaysOnTop.value
-  sendRPC(IRPCActionType.MAIN_WINDOW_ON_TOP)
+  window.electron.sendRPC(IRPCActionType.MAIN_WINDOW_ON_TOP)
 }
 
 onBeforeRouteUpdate(async to => {
@@ -296,8 +361,8 @@ onBeforeRouteUpdate(async to => {
 })
 
 onBeforeUnmount(() => {
-  ipcRenderer.removeAllListeners(SHOW_MAIN_PAGE_QRCODE)
-  ipcRenderer.removeAllListeners('updateProgress')
+  window.electron.ipcRendererRemoveListener(SHOW_MAIN_PAGE_QRCODE, qrCodeHandler)
+  window.electron.ipcRendererRemoveListener('updateProgress', uploadProcessHandler)
 })
 </script>
 <script lang="ts">

@@ -13,7 +13,6 @@
 import { onMounted, ref } from 'vue'
 
 import { getConfig } from '@/utils/dataSender'
-
 import { II18nLanguage } from '#/types/enum'
 import { configPaths } from '#/utils/configPaths'
 

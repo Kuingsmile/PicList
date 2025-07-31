@@ -1,28 +1,27 @@
-import dayjs from 'dayjs'
-import { BrowserWindow, clipboard, ipcMain, Notification, WebContents } from 'electron'
-import fs from 'fs-extra'
-import path from 'path'
-import { IPicGo } from 'piclist'
-import util from 'util'
-import writeFile from 'write-file-atomic'
-
-import windowManager from 'apis/app/window/windowManager'
+import path from 'node:path'
+import util from 'node:util'
 
 import db from '@core/datastore'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
-
-import { T } from '~/i18n'
-import { showNotification, getClipboardFilePath, calcDurationRange } from '~/utils/common'
+import windowManager from 'apis/app/window/windowManager'
+import dayjs from 'dayjs'
+import { BrowserWindow, clipboard, ipcMain, IpcMainEvent, Notification, WebContents } from 'electron'
+import fs from 'fs-extra'
+import { IPicGo } from 'piclist'
+import writeFile from 'write-file-atomic'
 
 import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME, TALKING_DATA_EVENT } from '#/events/constants'
 import { ICOREBuildInEvent, IWindowList } from '#/types/enum'
+import { IAnalyticsData, ImgInfo, ITalkingDataOptions, IUploadOption } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
 import { CLIPBOARD_IMAGE_FOLDER } from '#/utils/static'
+import { T } from '~/i18n'
+import { calcDurationRange, getClipboardFilePath, showNotification } from '~/utils/common'
 
 const waitForRename = (window: BrowserWindow, id: number): Promise<string | null> => {
   return new Promise(resolve => {
-    ipcMain.once(`${RENAME_FILE_NAME}${id}`, (_: Event, newName: string) => {
+    ipcMain.once(`${RENAME_FILE_NAME}${id}`, (_: IpcMainEvent, newName: string) => {
       resolve(newName)
       window.close()
     })
@@ -52,12 +51,12 @@ const handleTalkingData = (webContents: WebContents, options: IAnalyticsData) =>
 class Uploader {
   private webContents: WebContents | null = null
 
-  constructor() {
+  constructor () {
     this.init()
   }
 
-  init() {
-    picgo.on(ICOREBuildInEvent.NOTIFICATION, (message: Electron.NotificationConstructorOptions | undefined) => {
+  init () {
+    picgo.on(ICOREBuildInEvent.NOTIFICATION, (message: any) => {
       new Notification(message).show()
     })
 
@@ -88,7 +87,7 @@ class Uploader {
                 : item.fileName
               if (rename) {
                 const window = windowManager.create(IWindowList.RENAME_WINDOW)!
-                ipcMain.on(GET_RENAME_FILE_NAME, evt => {
+                ipcMain.on(GET_RENAME_FILE_NAME, (evt, _) => {
                   try {
                     if (evt.sender.id === window.webContents.id) {
                       logger.info('rename window ready, wait for rename...')
@@ -108,12 +107,12 @@ class Uploader {
     })
   }
 
-  setWebContents(webContents: WebContents) {
+  setWebContents (webContents: WebContents) {
     this.webContents = webContents
     return this
   }
 
-  private async getClipboardImagePath(): Promise<string | false> {
+  private async getClipboardImagePath (): Promise<string | false> {
     const imgPath = getClipboardFilePath()
     if (imgPath) return imgPath
 
@@ -131,7 +130,7 @@ class Uploader {
   /**
    * use electron's clipboard image to upload
    */
-  async uploadWithBuildInClipboard(): Promise<ImgInfo[] | false> {
+  async uploadWithBuildInClipboard (): Promise<ImgInfo[] | false> {
     let imgPath: string | false = false
     try {
       imgPath = await this.getClipboardImagePath()
@@ -147,7 +146,7 @@ class Uploader {
     }
   }
 
-  async uploadWithBuildInClipboardReturnCtx(img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
+  async uploadWithBuildInClipboardReturnCtx (img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
     let imgPath: string | false = false
     try {
       imgPath = await this.getClipboardImagePath()
@@ -163,7 +162,7 @@ class Uploader {
     }
   }
 
-  async uploadReturnCtx(img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
+  async uploadReturnCtx (img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
     try {
       const startTime = Date.now()
       const ctx = await picgo.uploadReturnCtx(img, skipProcess)
@@ -198,7 +197,7 @@ class Uploader {
     }
   }
 
-  async upload(img?: IUploadOption): Promise<ImgInfo[] | false> {
+  async upload (img?: IUploadOption): Promise<ImgInfo[] | false> {
     try {
       const startTime = Date.now()
       const output = await picgo.upload(img)

@@ -1,0 +1,82 @@
+.layout {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+.layout__menu {
+  background: #fff;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  border-bottom-right-radius: 4px;
+  z-index: 1;
+  width: 130px;
+  position: relative;
+}
+.layout__menu__button {
+  font-weight: bold;
+  text-align: left;
+  padding-left: 0px;
+  padding-top: 10px;
+}
+.layout__menu__button__item {
+  color: #2d8cf0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.layout__menu__button__item:hover {
+  cursor: pointer;
+  color: #ffa500;
+}
+.layout__menu__button__item__icon {
+  width: 25px;
+  height: 25px;
+}
+.layout__menu__button__divider__icon:hover {
+  cursor: pointer;
+  color: #ffa500;
+}
+.layout__menu__list {
+  flex: 1;
+  overflow-y: auto;
+}
+.layout__menu__list__item {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  color: #2d8cf0;
+  align-items: center;
+  justify-content: center;
+}
+.layout__menu__list__item:hover {
+  cursor: pointer;
+  color: #ffa500;
+}
+.layout__menu__list__item__icon {
+  width: 25px;
+  height: 25px;
+}
+.layout__menu__setting {
+  position: relative;
+  overflow: hidden;
+}
+.layout__menu__setting__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  color: #000;
+  justify-content: center;
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.layout__menu__setting__item:hover {
+  cursor: pointer;
+  color: #ffa500;
+}
+.layout__menu__setting__item__icon {
+  width: 25px;
+  height: 25px;
+}

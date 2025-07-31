@@ -1,5 +1,4 @@
 import axios from 'axios'
-import path from 'path'
 
 import { deleteFailedLog, deleteLog } from '#/utils/deleteLog'
 
@@ -14,7 +13,7 @@ interface IConfigMap {
 }
 
 export default class AlistApi {
-  static async delete(configMap: IConfigMap): Promise<boolean> {
+  static async delete (configMap: IConfigMap): Promise<boolean> {
     const { fileName, config } = configMap
     try {
       const { version, url, uploadPath, token } = config
@@ -30,8 +29,8 @@ export default class AlistApi {
           Authorization: token
         },
         data: {
-          dir: path.join('/', uploadPath, path.dirname(fileName)),
-          names: [path.basename(fileName)]
+          dir: window.node.path.join('/', uploadPath, window.node.path.dirname(fileName)),
+          names: [window.node.path.basename(fileName)]
         }
       })
       if (result.data.code === 200) {

@@ -1,25 +1,26 @@
+import path from 'node:path'
+
+import windowManager from 'apis/app/window/windowManager'
 import { ipcMain, IpcMainEvent } from 'electron'
 import FormData from 'form-data'
 import fs from 'fs-extra'
 import got from 'got'
-import path from 'path'
 
-import windowManager from 'apis/app/window/windowManager'
-
+import { commonTaskStatus, IWindowList } from '#/types/enum'
+import { IStringKeyMap } from '#/types/types'
+import { formatHttpProxy } from '#/utils/common'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import {
   ConcurrencyPromisePool,
   formatError,
+  getAgent,
   getFileMimeType,
   getOptions,
-  getAgent,
   gotUpload,
   NewDownloader
 } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
-
-import { commonTaskStatus, IWindowList } from '#/types/enum'
-import { formatHttpProxy, isImage } from '#/utils/common'
+import { isImage } from '~/utils/common'
 
 class ImgurApi {
   userName: string
@@ -31,7 +32,7 @@ class ImgurApi {
   idHeaders: any
   baseUrl = 'https://api.imgur.com/3'
 
-  constructor(userName: string, accessToken: string, proxy: any, logger: ManageLogger) {
+  constructor (userName: string, accessToken: string, proxy: any, logger: ManageLogger) {
     this.userName = userName
     this.accessToken = accessToken.startsWith('Bearer ') ? accessToken : `Bearer ${accessToken}`
     this.proxy = proxy
@@ -42,7 +43,7 @@ class ImgurApi {
     }
   }
 
-  formatFile(item: any) {
+  formatFile (item: any) {
     const fileName = path.basename(item.link)
     const isImg = isImage(fileName)
     return {
@@ -64,7 +65,7 @@ class ImgurApi {
   /**
    * get repo list
    */
-  async getBucketList(): Promise<any> {
+  async getBucketList (): Promise<any> {
     let initPage = 0
     let res
     const result = [] as any[]
@@ -93,7 +94,7 @@ class ImgurApi {
     return finalResult
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
+  async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const {
       bucketConfig: { Location: albumHash },
@@ -108,7 +109,7 @@ class ImgurApi {
     })
     let res = {} as any
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       success: false,
       finished: false
     }
@@ -153,7 +154,7 @@ class ImgurApi {
     ipcMain.removeAllListeners('cancelLoadingFileList')
   }
 
-  async deleteBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { DeleteHash: deleteHash } = configMap
     const res = (await got(
       `${this.baseUrl}/account/${this.userName}/image/${deleteHash}`,
@@ -166,7 +167,7 @@ class ImgurApi {
    * 上传文件
    * @param configMap
    */
-  async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async uploadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { fileArray } = configMap
     const instance = UpDownTaskQueue.getInstance()
     fileArray.forEach((item: any) => {
@@ -226,7 +227,7 @@ class ImgurApi {
    * 下载文件
    * @param configMap
    */
-  async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any

@@ -4,7 +4,10 @@
       {{ $T('SETTINGS_SET_SHORTCUT') }}
     </div>
     <el-row>
-      <el-col :span="20" :offset="2">
+      <el-col
+        :span="20"
+        :offset="2"
+      >
         <el-table
           class="shortcut-page-table-border"
           :data="list"
@@ -17,20 +20,33 @@
               {{ scope.row.label ? scope.row.label : scope.row.name }}
             </template>
           </el-table-column>
-          <el-table-column width="160px" :label="$T('SHORTCUT_BIND')" prop="key" />
+          <el-table-column
+            width="160px"
+            :label="$T('SHORTCUT_BIND')"
+            prop="key"
+          />
           <el-table-column :label="$T('SHORTCUT_STATUS')">
             <template #default="scope">
-              <el-tag size="small" :type="scope.row.enable ? 'success' : 'danger'">
+              <el-tag
+                size="small"
+                :type="scope.row.enable ? 'success' : 'danger'"
+              >
                 {{ scope.row.enable ? $T('SHORTCUT_ENABLED') : $T('SHORTCUT_DISABLED') }}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column :label="$T('SHORTCUT_SOURCE')" width="100px">
+          <el-table-column
+            :label="$T('SHORTCUT_SOURCE')"
+            width="100px"
+          >
             <template #default="scope">
               {{ calcOriginShowName(scope.row.from) }}
             </template>
           </el-table-column>
-          <el-table-column :label="$T('SHORTCUT_HANDLE')" width="100px">
+          <el-table-column
+            :label="$T('SHORTCUT_HANDLE')"
+            width="100px"
+          >
             <template #default="scope">
               <el-row>
                 <el-button
@@ -65,7 +81,10 @@
       :modal-append-to-body="false"
       append-to-body
     >
-      <el-form label-position="top" label-width="80px">
+      <el-form
+        label-position="top"
+        label-width="80px"
+      >
         <el-form-item>
           <el-input
             v-model="shortKey"
@@ -76,10 +95,17 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button round @click="cancelKeyBinding">
+        <el-button
+          round
+          @click="cancelKeyBinding"
+        >
           {{ $T('CANCEL') }}
         </el-button>
-        <el-button type="primary" round @click="confirmKeyBinding">
+        <el-button
+          type="primary"
+          round
+          @click="confirmKeyBinding"
+        >
           {{ $T('CONFIRM') }}
         </el-button>
       </template>
@@ -88,15 +114,14 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeUnmount, onBeforeMount, ref, watch } from 'vue'
+import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
 import { T as $T } from '@/i18n'
-import { sendRPC, triggerRPC } from '@/utils/common'
 import { getConfig } from '@/utils/dataSender'
 import keyBinding from '@/utils/key-binding'
-
-import { configPaths } from '#/utils/configPaths'
 import { IRPCActionType } from '#/types/enum'
+import { IShortKeyConfig, IShortKeyConfigs } from '#/types/types'
+import { configPaths } from '#/utils/configPaths'
 
 const list = ref<IShortKeyConfig[]>([])
 const keyBindingVisible = ref(false)
@@ -115,45 +140,45 @@ onBeforeMount(async () => {
 })
 
 watch(keyBindingVisible, (val: boolean) => {
-  sendRPC(IRPCActionType.SHORTKEY_TOGGLE_SHORTKEY_MODIFIED_MODE, val)
+  window.electron.sendRPC(IRPCActionType.SHORTKEY_TOGGLE_SHORTKEY_MODIFIED_MODE, val)
 })
 
-function calcOrigin(item: string) {
+function calcOrigin (item: string) {
   const [origin] = item.split(':')
   return origin
 }
 
-function calcOriginShowName(item: string) {
+function calcOriginShowName (item: string) {
   return item.replace('picgo-plugin-', '')
 }
 
-function toggleEnable(item: IShortKeyConfig) {
+function toggleEnable (item: IShortKeyConfig) {
   const status = !item.enable
   item.enable = status
-  sendRPC(IRPCActionType.SHORTKEY_BIND_OR_UNBIND, item, item.from)
+  window.electron.sendRPC(IRPCActionType.SHORTKEY_BIND_OR_UNBIND, item, item.from)
 }
 
-function keyDetect(event: KeyboardEvent) {
+function keyDetect (event: KeyboardEvent) {
   shortKey.value = keyBinding(event).join('+')
 }
 
-async function openKeyBindingDialog(config: IShortKeyConfig, index: number) {
+async function openKeyBindingDialog (config: IShortKeyConfig, index: number) {
   command.value = `${config.from}:${config.name}`
   shortKey.value = (await getConfig(`settings.shortKey.${command.value}.key`)) || ''
   currentIndex.value = index
   keyBindingVisible.value = true
 }
 
-async function cancelKeyBinding() {
+async function cancelKeyBinding () {
   keyBindingVisible.value = false
   shortKey.value = (await getConfig<string>(`settings.shortKey.${command.value}.key`)) || ''
 }
 
-async function confirmKeyBinding() {
+async function confirmKeyBinding () {
   const oldKey = await getConfig<string>(`settings.shortKey.${command.value}.key`)
-  const config = Object.assign({}, list.value[currentIndex.value])
+  const config = { ...list.value[currentIndex.value] }
   config.key = shortKey.value
-  const result = await triggerRPC<boolean>(IRPCActionType.SHORTKEY_UPDATE, config, oldKey, config.from)
+  const result = await window.electron.triggerRPC<boolean>(IRPCActionType.SHORTKEY_UPDATE, config, oldKey, config.from)
   if (result) {
     keyBindingVisible.value = false
     list.value[currentIndex.value].key = shortKey.value
@@ -161,7 +186,7 @@ async function confirmKeyBinding() {
 }
 
 onBeforeUnmount(() => {
-  sendRPC(IRPCActionType.SHORTKEY_TOGGLE_SHORTKEY_MODIFIED_MODE, false)
+  window.electron.sendRPC(IRPCActionType.SHORTKEY_TOGGLE_SHORTKEY_MODIFIED_MODE, false)
 })
 </script>
 

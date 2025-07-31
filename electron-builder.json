@@ -1,0 +1,100 @@
+{
+  "productName": "PicList",
+  "appId": "com.kuingsmile.piclist",
+  "afterSign": "scripts/notarize.js",
+  "directories": {
+    "output": "release/${version}",
+    "buildResources": "build"
+  },
+  "files": [
+    "dist/**/*",
+    "resources/**/*",
+    "package.json"
+  ],
+  "extraResources": [
+    {
+      "from": "resources",
+      "to": "resources",
+      "filter": ["**/*"]
+    }
+  ],
+  "publish": [
+    {
+      "provider": "s3",
+      "bucket": "piclist-dl",
+      "region": "auto",
+      "acl": "private",
+      "endpoint": "https://7ab4ed5cb1f4052a13d3b573876ecf33.r2.cloudflarestorage.com",
+      "path": "/latest"
+    },
+    {
+      "provider": "github",
+      "owner": "Kuingsmile",
+      "repo": "PicList",
+      "releaseType": "draft"
+    }
+  ],
+  "dmg": {
+    "sign": false,
+    "contents": [
+      {
+        "x": 410,
+        "y": 150,
+        "type": "link",
+        "path": "/Applications"
+      },
+      {
+        "x": 130,
+        "y": 150,
+        "type": "file"
+      }
+    ]
+  },
+  "mac": {
+    "icon": "resources/icon.icns",
+    "extendInfo": {
+      "LSUIElement": 0
+    },
+    "target": [
+      {
+        "target": "default",
+        "arch": [
+          "universal",
+          "x64",
+          "arm64"
+        ]
+      }
+    ],
+    "artifactName": "PicList-${version}-${arch}.${ext}"
+  },
+  "win": {
+    "icon": "resources/icon.ico",
+    "artifactName": "PicList-Setup-${version}-${arch}.exe",
+    "verifyUpdateCodeSignature": false,
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64",
+          "ia32"
+        ]
+      }
+    ]
+  },
+  "nsis": {
+    "shortcutName": "PicList",
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "include": "build/installer.nsh"
+  },
+  "linux": {
+    "icon": "resources/",
+    "asarUnpack": [
+      "**/node_modules/sharp/**",
+      "**/node_modules/ssh2-no-cpu-features/**"
+    ]
+  },
+  "snap": {
+    "publish": ["github"]
+  }
+}

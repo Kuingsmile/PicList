@@ -1,24 +1,24 @@
+import path from 'node:path'
+
 import OSS from 'ali-oss'
+import windowManager from 'apis/app/window/windowManager'
 import axios from 'axios'
 import { ipcMain, IpcMainEvent } from 'electron'
-import { XMLParser } from 'fast-xml-parser'
-import path from 'path'
-
-import windowManager from 'apis/app/window/windowManager'
-
-import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
-import { ManageLogger } from '~/manage/utils/logger'
-import {
-  hmacSha1Base64,
-  getFileMimeType,
-  formatError,
-  NewDownloader,
-  ConcurrencyPromisePool
-} from '~/manage/utils/common'
+import * as fastxml from 'fast-xml-parser'
 
 import { commonTaskStatus, IWindowList, uploadTaskSpecialStatus } from '#/types/enum'
-import { isImage } from '#/utils/common'
+import { IStringKeyMap } from '#/types/types'
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import {
+  ConcurrencyPromisePool,
+  formatError,
+  getFileMimeType,
+  hmacSha1Base64,
+  NewDownloader
+} from '~/manage/utils/common'
+import { ManageLogger } from '~/manage/utils/logger'
+import { isImage } from '~/utils/common'
 
 // 坑爹阿里云 返回数据类型标注和实际各种不一致
 class AliyunApi {
@@ -28,7 +28,7 @@ class AliyunApi {
   timeOut = 30000
   logger: ManageLogger
 
-  constructor(accessKeyId: string, accessKeySecret: string, logger: ManageLogger) {
+  constructor (accessKeyId: string, accessKeySecret: string, logger: ManageLogger) {
     this.ctx = new OSS({
       accessKeyId,
       accessKeySecret,
@@ -39,7 +39,7 @@ class AliyunApi {
     this.logger = logger
   }
 
-  formatFolder(item: string, slicedPrefix: string, urlPrefix: string): any {
+  formatFolder (item: string, slicedPrefix: string, urlPrefix: string): any {
     return {
       key: item,
       url: `${urlPrefix}/${item}`,
@@ -54,7 +54,7 @@ class AliyunApi {
     }
   }
 
-  formatFile(item: OSS.ObjectMeta, slicedPrefix: string, urlPrefix: string): any {
+  formatFile (item: OSS.ObjectMeta, slicedPrefix: string, urlPrefix: string): any {
     const fileName = item.name.replace(slicedPrefix, '')
     return {
       ...item,
@@ -71,7 +71,7 @@ class AliyunApi {
     }
   }
 
-  getCanonicalizedOSSHeaders(headers: IStringKeyMap) {
+  getCanonicalizedOSSHeaders (headers: IStringKeyMap) {
     const lowerCaseHeaders = Object.keys(headers).reduce((acc, key) => {
       acc[key.toLowerCase()] = headers[key]
       return acc
@@ -84,7 +84,7 @@ class AliyunApi {
     return canonicalizedOSSHeaders
   }
 
-  authorization(
+  authorization (
     method: string,
     canonicalizedResource: string,
     headers: IStringKeyMap,
@@ -96,7 +96,7 @@ class AliyunApi {
     return `OSS ${this.accessKeyId}:${hmacSha1Base64(this.accessKeySecret, stringToSign)}`
   }
 
-  getNewCtx(region: string, bucket: string) {
+  getNewCtx (region: string, bucket: string) {
     return new OSS({
       accessKeyId: this.accessKeyId,
       accessKeySecret: this.accessKeySecret,
@@ -109,7 +109,7 @@ class AliyunApi {
   /**
    * 获取存储桶列表
    */
-  async getBucketList(): Promise<any> {
+  async getBucketList (): Promise<any> {
     const getBuckets = async (marker?: string) => {
       const res = (await this.ctx.listBuckets({
         marker,
@@ -143,7 +143,7 @@ class AliyunApi {
   /**
    * 获取自定义域名
    */
-  async getBucketDomain(param: IStringKeyMap): Promise<any> {
+  async getBucketDomain (param: IStringKeyMap): Promise<any> {
     const headers = {
       Date: new Date().toUTCString()
     }
@@ -159,7 +159,7 @@ class AliyunApi {
     })
 
     if (res?.status === 200) {
-      const parser = new XMLParser()
+      const parser = new fastxml.XMLParser()
       const result = parser.parse(res.data)
 
       if (result.ListCnameResult?.Cname) {
@@ -186,7 +186,7 @@ class AliyunApi {
    * @description
    * acl: private | publicRead | publicReadWrite
    */
-  async createBucket(configMap: IStringKeyMap): Promise<boolean> {
+  async createBucket (configMap: IStringKeyMap): Promise<boolean> {
     const client = new OSS({
       accessKeyId: this.accessKeyId,
       accessKeySecret: this.accessKeySecret,
@@ -207,7 +207,7 @@ class AliyunApi {
     return res?.res?.status === 200
   }
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
+  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const {
       bucketName: bucket,
@@ -227,7 +227,7 @@ class AliyunApi {
     })
     let res = {} as any
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       success: false,
       finished: false
     }
@@ -262,7 +262,7 @@ class AliyunApi {
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
+  async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const {
       bucketName: bucket,
@@ -282,7 +282,7 @@ class AliyunApi {
     })
     let res = {} as any
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       success: false,
       finished: false
     }
@@ -336,7 +336,7 @@ class AliyunApi {
    *  customUrl: string
    * }
    */
-  async getBucketFileList(configMap: IStringKeyMap): Promise<any> {
+  async getBucketFileList (configMap: IStringKeyMap): Promise<any> {
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
@@ -393,7 +393,7 @@ class AliyunApi {
    * newKey: string
    * }
    */
-  async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async renameBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, oldKey, newKey } = configMap
     const client = this.getNewCtx(region, bucketName)
     const copyRes = (await client.copy(newKey, oldKey)) as any
@@ -413,7 +413,7 @@ class AliyunApi {
    * key: string
    * }
    */
-  async deleteBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, key } = configMap
     const client = this.getNewCtx(region, bucketName)
     const res = (await client.delete(key)) as any
@@ -424,7 +424,7 @@ class AliyunApi {
    * 删除文件夹
    * @param configMap
    */
-  async deleteBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, key } = configMap
     const client = this.getNewCtx(region, bucketName)
     let marker
@@ -486,7 +486,7 @@ class AliyunApi {
    * customUrl: string
    * }
    */
-  async getPreSignedUrl(configMap: IStringKeyMap): Promise<string> {
+  async getPreSignedUrl (configMap: IStringKeyMap): Promise<string> {
     const { bucketName, region, key, expires, customUrl } = configMap
     const client = this.getNewCtx(region, bucketName)
     const res = client.signatureUrl(key, {
@@ -499,7 +499,7 @@ class AliyunApi {
    * 上传文件
    * @param configMap
    */
-  async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async uploadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { fileArray } = configMap
     // fileArray = [{
     //   bucketName: string,
@@ -586,7 +586,7 @@ class AliyunApi {
    * 新建文件夹
    * @param configMap
    */
-  async createBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
+  async createBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, key } = configMap
     const client = this.getNewCtx(region, bucketName)
     const res = (await client.put(key, Buffer.from(''))) as any
@@ -597,7 +597,7 @@ class AliyunApi {
    * 下载文件
    * @param configMap
    */
-  async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any

@@ -1,11 +1,12 @@
+import path from 'node:path'
+
+import { getLogger } from '@core/utils/localLogger'
 import dayjs from 'dayjs'
 import { app } from 'electron'
 import fs from 'fs-extra'
-import path from 'path'
 import writeFile from 'write-file-atomic'
 
-import { getLogger } from '@core/utils/localLogger'
-
+import { notificationList } from '#/utils/notification'
 import { T } from '~/i18n'
 
 const STORE_PATH = app.getPath('userData')
@@ -20,10 +21,7 @@ const errorMsg = {
   brokenButBackup: T('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_BACKUP')
 }
 
-/** ensure notification list */
-if (!global.notificationList) global.notificationList = []
-
-function manageDbChecker() {
+function manageDbChecker () {
   if (process.type !== 'renderer') {
     const manageConfigFilePath = managePathChecker()
     if (!fs.existsSync(manageConfigFilePath)) {
@@ -53,16 +51,16 @@ function manageDbChecker() {
           optionsTpl.body = `${errorMsg.brokenButBackup}\n${T('TIPS_PICGO_BACKUP_FILE_VERSION', {
             v: dayjs(stats.mtime).format('YYYY-MM-DD HH:mm:ss')
           })}`
-          global.notificationList.push(optionsTpl)
+          notificationList.push(optionsTpl)
           return
         } catch (e) {
           optionsTpl.body = errorMsg.broken
-          global.notificationList.push(optionsTpl)
+          notificationList.push(optionsTpl)
           return
         }
       }
       optionsTpl.body = errorMsg.broken
-      global.notificationList.push(optionsTpl)
+      notificationList.push(optionsTpl)
       return
     }
     writeFile.sync(manageConfigFileBackupPath, configFile, {
@@ -74,7 +72,7 @@ function manageDbChecker() {
 /**
  * Get manage config path
  */
-function managePathChecker(): string {
+function managePathChecker (): string {
   if (_configFilePath) {
     return _configFilePath
   }
@@ -106,7 +104,7 @@ function managePathChecker(): string {
         title: T('TIPS_NOTICE'),
         body: T('TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR')
       }
-      global.notificationList?.push(optionsTpl)
+      notificationList?.push(optionsTpl)
       hasCheckPath = true
     }
     logger('error', e)
@@ -115,8 +113,8 @@ function managePathChecker(): string {
   }
 }
 
-function managePathDir() {
+function managePathDir () {
   return path.dirname(managePathChecker())
 }
 
-export { managePathChecker, managePathDir, manageDbChecker }
+export { manageDbChecker, managePathChecker, managePathDir }

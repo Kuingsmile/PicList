@@ -3,7 +3,7 @@
     :src="
       isShowThumbnail && item.isImage
         ? base64Image
-        : require(`../manage/pages/assets/icons/${getFileIconPath(item.fileName ?? '')}`)
+        : `/assets/icons/${getFileIconPath(item.fileName ?? '')}`
     "
     fit="contain"
     style="height: 100px; width: 100%; margin: 0 auto"
@@ -15,7 +15,7 @@
     </template>
     <template #error>
       <el-image
-        :src="require(`../manage/pages/assets/icons/${getFileIconPath(item.fileName ?? '')}`)"
+        :src="`/assets/icons/${getFileIconPath(item.fileName ?? '')}`"
         fit="contain"
         style="height: 100px; width: 100%; margin: 0 auto"
       />
@@ -24,11 +24,9 @@
 </template>
 
 <script lang="ts" setup>
-import fs from 'fs-extra'
-import mime from 'mime-types'
-import path from 'path'
-import { ref, onBeforeMount } from 'vue'
+
 import { Loading } from '@element-plus/icons-vue'
+import { onBeforeMount, ref } from 'vue'
 
 import { getFileIconPath } from '@/manage/utils/common'
 
@@ -43,9 +41,9 @@ const props = defineProps<{
 }>()
 
 const createBase64Image = async () => {
-  const filePath = path.normalize(props.localPath)
-  const base64 = await fs.readFile(filePath, 'base64')
-  base64Image.value = `data:${mime.lookup(filePath) || 'image/png'};base64,${base64}`
+  const filePath = window.node.path.normalize(props.localPath)
+  const base64 = await window.node.fs.readFile(filePath, 'base64')
+  base64Image.value = `data:${window.node.mime.lookup(filePath) || 'image/png'};base64,${base64}`
 }
 
 onBeforeMount(async () => {

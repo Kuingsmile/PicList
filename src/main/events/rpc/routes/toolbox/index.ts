@@ -1,10 +1,11 @@
+import { IpcMainEvent } from 'electron'
+
+import { IRPCActionType, IRPCType, IToolboxItemType } from '#/types/enum'
+import { IToolboxCheckArgs, IToolboxCheckerMap, IToolboxFixMap } from '#/types/rpc'
+import { RPCRouter } from '~/events/rpc/router'
 import { checkClipboardUploadMap, fixClipboardUploadMap } from '~/events/rpc/routes/toolbox/checkClipboardUpload'
 import { checkFileMap, fixFileMap } from '~/events/rpc/routes/toolbox/checkFile'
 import { checkProxyMap } from '~/events/rpc/routes/toolbox/checkProxy'
-import { RPCRouter } from '~/events/rpc/router'
-
-import { IRPCActionType, IRPCType, IToolboxItemType } from '#/types/enum'
-import { IpcMainEvent } from 'electron'
 
 const toolboxRouter = new RPCRouter()
 
@@ -22,7 +23,7 @@ const toolboxFixMap: Partial<IToolboxFixMap<IToolboxItemType>> = {
 toolboxRouter
   .add(
     IRPCActionType.TOOLBOX_CHECK,
-    async (event, args) => {
+    async (event: any, args: IToolboxCheckArgs) => {
       const [type] = args as IToolboxCheckArgs
       if (type) {
         const handler = toolboxCheckMap[type]
@@ -43,7 +44,7 @@ toolboxRouter
   )
   .add(
     IRPCActionType.TOOLBOX_CHECK_FIX,
-    async (event, args) => {
+    async (event: any, args: IToolboxCheckArgs) => {
       const [type] = args as IToolboxCheckArgs
       const handler = toolboxFixMap[type]
       if (handler) {

@@ -1,5 +1,7 @@
 import Dexie, { Table } from 'dexie'
 
+import { IStringKeyMap } from '#/types/types'
+
 /*
  * create a database for bucket file cache
  *database name: bucketFileDb
@@ -31,7 +33,7 @@ export class FileCacheDb extends Dexie {
   upyun: Table<IFileCache, string>
   webdavplist: Table<IFileCache, string>
 
-  constructor() {
+  constructor () {
     super('bucketFileDb')
     const tableNames = [
       'aliyun',

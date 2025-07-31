@@ -1,42 +1,38 @@
-import { BrowserWindow, dialog, ipcMain, Notification } from 'electron'
-import fs from 'fs-extra'
-import { cloneDeep } from 'lodash'
-import { DBStore } from '@picgo/store'
-
-import { getWindowId, getSettingWindowId } from '@core/bus/apis'
-
+import { getSettingWindowId, getWindowId } from '@core/bus/apis'
 import db, { GalleryDB } from '@core/datastore'
 import { dbPathChecker, defaultConfigPath, getGalleryDBPath } from '@core/datastore/dbChecker'
-
+import { DBStore } from '@piclist/store'
 import uploader from 'apis/app/uploader'
+import { handleSecondaryUpload } from 'apis/app/uploader/apis'
+import { BrowserWindow, dialog, ipcMain, IpcMainEvent, MessageBoxOptions, Notification } from 'electron'
+import fs from 'fs-extra'
+import { cloneDeep } from 'lodash-es'
 
+import { SHOW_INPUT_BOX } from '#/events/constants'
+import { IPasteStyle } from '#/types/enum'
+import { IGuiApi, ImgInfo, IShowFileExplorerOption, IShowInputBoxOption, IShowMessageBoxOption, IShowMessageBoxResult, IShowNotificationOption, IUploadOption } from '#/types/types'
+import { configPaths } from '#/utils/configPaths'
 import { T } from '~/i18n'
 import { handleCopyUrl } from '~/utils/common'
 import pasteTemplate from '~/utils/pasteTemplate'
 
-import { SHOW_INPUT_BOX } from '#/events/constants'
-import { IPasteStyle } from '#/types/enum'
-import { configPaths } from '#/utils/configPaths'
-import { handleSecondaryUpload } from '../app/uploader/apis'
-
 // Cross-process support may be required in the future
 class GuiApi implements IGuiApi {
-  // eslint-disable-next-line no-use-before-define
   private static instance: GuiApi
   private windowId: number = -1
   private settingWindowId: number = -1
-  private constructor() {
+  private constructor () {
     console.log('init guiapi')
   }
 
-  static getInstance(): GuiApi {
+  static getInstance (): GuiApi {
     if (!GuiApi.instance) {
       GuiApi.instance = new GuiApi()
     }
     return GuiApi.instance
   }
 
-  private async showSettingWindow() {
+  private async showSettingWindow () {
     this.settingWindowId = await getSettingWindowId()
     const settingWindow = BrowserWindow.fromId(this.settingWindowId)
     if (settingWindow?.isVisible()) {
@@ -50,11 +46,11 @@ class GuiApi implements IGuiApi {
     })
   }
 
-  private getWebcontentsByWindowId(id: number) {
+  private getWebcontentsByWindowId (id: number) {
     return BrowserWindow.fromId(id)?.webContents
   }
 
-  async showInputBox(
+  async showInputBox (
     options: IShowInputBoxOption = {
       title: '',
       placeholder: ''
@@ -63,19 +59,19 @@ class GuiApi implements IGuiApi {
     await this.showSettingWindow()
     this.getWebcontentsByWindowId(this.settingWindowId)?.send(SHOW_INPUT_BOX, options)
     return new Promise<string>(resolve => {
-      ipcMain.once(SHOW_INPUT_BOX, (_: Event, value: string) => {
+      ipcMain.once(SHOW_INPUT_BOX, (_: IpcMainEvent, value: string) => {
         resolve(value)
       })
     })
   }
 
-  async showFileExplorer(options: IShowFileExplorerOption = {}) {
+  async showFileExplorer (options: IShowFileExplorerOption = {}) {
     this.windowId = await getWindowId()
     const res = await dialog.showOpenDialog(BrowserWindow.fromId(this.windowId)!, options)
     return res.filePaths || []
   }
 
-  async upload(input: IUploadOption) {
+  async upload (input: IUploadOption) {
     this.windowId = await getWindowId()
     const webContents = this.getWebcontentsByWindowId(this.windowId)
     const rawInput = cloneDeep(input)
@@ -126,7 +122,7 @@ class GuiApi implements IGuiApi {
     return []
   }
 
-  showNotification(
+  showNotification (
     options: IShowNotificationOption = {
       title: '',
       body: ''
@@ -139,7 +135,7 @@ class GuiApi implements IGuiApi {
     notification.show()
   }
 
-  showMessageBox(
+  showMessageBox (
     options: IShowMessageBoxOption = {
       title: '',
       message: '',
@@ -147,12 +143,14 @@ class GuiApi implements IGuiApi {
       buttons: ['Yes', 'No']
     }
   ) {
-    return new Promise<IShowMessageBoxResult>(async resolve => {
-      this.windowId = await getWindowId()
-      dialog.showMessageBox(BrowserWindow.fromId(this.windowId)!, options).then(res => {
-        resolve({
-          result: res.response,
-          checkboxChecked: res.checkboxChecked
+    return new Promise<IShowMessageBoxResult>(resolve => {
+      getWindowId().then(id => {
+        this.windowId = id
+        dialog.showMessageBox(BrowserWindow.fromId(id)!, options as MessageBoxOptions).then(res => {
+          resolve({
+            result: res.response,
+            checkboxChecked: res.checkboxChecked
+          })
         })
       })
     })
@@ -161,7 +159,7 @@ class GuiApi implements IGuiApi {
   /**
    * get picgo config/data path
    */
-  async getConfigPath() {
+  async getConfigPath () {
     const currentConfigPath = dbPathChecker()
     const galleryDBPath = getGalleryDBPath().dbPath
     return {
@@ -171,12 +169,12 @@ class GuiApi implements IGuiApi {
     }
   }
 
-  get galleryDB(): DBStore {
+  get galleryDB (): DBStore {
     return new Proxy<DBStore>(GalleryDB.getInstance(), {
-      get(target, prop: keyof DBStore) {
+      get (target, prop: keyof DBStore) {
         if (prop === 'overwrite') {
           return new Proxy(GalleryDB.getInstance().overwrite, {
-            apply(target, ctx, args) {
+            apply (target, ctx, args) {
               return new Promise(resolve => {
                 const guiApi = GuiApi.getInstance()
                 guiApi
@@ -199,7 +197,7 @@ class GuiApi implements IGuiApi {
         }
         if (prop === 'removeById') {
           return new Proxy(GalleryDB.getInstance().removeById, {
-            apply(target, ctx, args) {
+            apply (target, ctx, args) {
               return new Promise(resolve => {
                 const guiApi = GuiApi.getInstance()
                 guiApi

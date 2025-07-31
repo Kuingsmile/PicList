@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es2019", // https://github.com/TypeStrong/ts-loader/issues/1061
-    "module": "esnext",
+    "target": "esnext",
+    "module": "ESNext",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
@@ -13,15 +13,10 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
-      "webpack-env",
-      "element-plus/global",
-      "vue3-photo-preview",
       "node"
     ],
     "typeRoots": [
-      "./src/universal/types/",
       "./node_modules/@types",
-      "./node_modules",
     ],
     "paths": {
       "@/*": [
@@ -44,10 +39,10 @@
       ]
     },
     "lib": [
-      "esnext",
+      "ESNext",
       "dom",
       "dom.iterable",
-      "scripthost"
+      "ScriptHost"
     ]
   },
   "include": [
@@ -55,12 +50,12 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "tests/**/*.tsx",
+    "electron.vite.config.*"
   ],
   "exclude": [
-    "node_modules"
-  ],
-  "vueCompilerOptions": {
-    "target": 3,
-  }
+    "node_modules",
+    "dist",
+    "out"
+  ]
 }

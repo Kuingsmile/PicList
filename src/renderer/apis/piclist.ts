@@ -1,9 +1,8 @@
-import axios, { AxiosResponse } from 'axios'
-
-import { deleteFailedLog, deleteLog } from '#/utils/deleteLog'
+import { IStringKeyMap } from '#/types/types'
+import { deleteFailedLog, deleteLog } from '~/utils/deleteLog'
 
 export default class PiclistApi {
-  static async delete(configMap: IStringKeyMap): Promise<boolean> {
+  static async delete (configMap: IStringKeyMap): Promise<boolean> {
     const { config, fullResult } = configMap
     const { host, port } = config
     if (!fullResult) return true
@@ -16,7 +15,7 @@ export default class PiclistApi {
     const url = `http://${host || '127.0.0.1'}:${port || 36677}/delete`
 
     try {
-      const response: AxiosResponse = await axios.post(url, {
+      const response: any = await window.node.axios.post(url, {
         list: [fullResult]
       })
       if (response.status === 200 && response.data?.success) {

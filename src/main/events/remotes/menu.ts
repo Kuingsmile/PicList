@@ -1,19 +1,11 @@
-import { app, dialog, BrowserWindow, Menu, shell, MenuItemConstructorOptions, MenuItem } from 'electron'
-import { PicGo as PicGoCore } from 'piclist'
-
 import db from '@core/datastore'
 import picgo from '@core/picgo'
-
 import { uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
 import GuiApi from 'apis/gui'
-
-import { handlePluginUninstall, handlePluginUpdate } from '~/events/rpc/routes/plugin/utils'
-import { T } from '~/i18n'
-import clipboardPoll from '~/utils/clipboardPoll'
-import { setTrayToolTip } from '~/utils/common'
-import getPicBeds from '~/utils/getPicBeds'
-import { changeCurrentUploader, changeSecondUploader } from '~/utils/handleUploaderConfig'
+import { app, BrowserWindow, dialog, Menu, MenuItem, MenuItemConstructorOptions, shell } from 'electron'
+import { PicGo as PicGoCore } from 'piclist'
+import pkg from 'root/package.json'
 
 import {
   PICGO_CONFIG_PLUGIN,
@@ -23,9 +15,14 @@ import {
   SHOW_MAIN_PAGE_QRCODE
 } from '#/events/constants'
 import { IWindowList } from '#/types/enum'
+import { IPicGoPlugin, IUploaderConfig } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
-
-import pkg from 'root/package.json'
+import { handlePluginUninstall, handlePluginUpdate } from '~/events/rpc/routes/plugin/utils'
+import { T } from '~/i18n'
+import clipboardPoll from '~/utils/clipboardPoll'
+import { setTrayToolTip } from '~/utils/common'
+import getPicBeds from '~/utils/getPicBeds'
+import { changeCurrentUploader, changeSecondUploader } from '~/utils/handleUploaderConfig'
 import { openMainWindow } from '~/utils/windowHelper'
 
 interface GuiMenuItem {
@@ -37,7 +34,7 @@ const buildMiniPageMenu = () => {
   const isListeningClipboard = db.get(configPaths.settings.isListeningClipboard) || false
   const ClipboardWatcher = clipboardPoll
   const submenu = buildPicBedListMenu()
-  const template: Array<MenuItemConstructorOptions | MenuItem> = [
+  const template: (MenuItemConstructorOptions | MenuItem)[] = [
     {
       label: T('OPEN_MAIN_WINDOW'),
       click: openMainWindow
@@ -49,19 +46,19 @@ const buildMiniPageMenu = () => {
     },
     {
       label: T('UPLOAD_BY_CLIPBOARD'),
-      click() {
+      click () {
         uploadClipboardFiles()
       }
     },
     {
       label: T('HIDE_MINI_WINDOW'),
-      click() {
+      click () {
         BrowserWindow.getFocusedWindow()!.hide()
       }
     },
     {
       label: T('START_WATCH_CLIPBOARD'),
-      click() {
+      click () {
         db.set(configPaths.settings.isListeningClipboard, true)
         ClipboardWatcher.startListening()
         ClipboardWatcher.on('change', () => {
@@ -74,7 +71,7 @@ const buildMiniPageMenu = () => {
     },
     {
       label: T('STOP_WATCH_CLIPBOARD'),
-      click() {
+      click () {
         db.set(configPaths.settings.isListeningClipboard, false)
         ClipboardWatcher.stopListening()
         ClipboardWatcher.removeAllListeners()
@@ -84,7 +81,7 @@ const buildMiniPageMenu = () => {
     },
     {
       label: T('RELOAD_APP'),
-      click() {
+      click () {
         app.relaunch()
         app.exit(0)
       }
@@ -101,7 +98,7 @@ const buildMainPageMenu = (win: BrowserWindow) => {
   const template = [
     {
       label: T('ABOUT'),
-      click() {
+      click () {
         dialog.showMessageBox({
           title: 'PicList',
           message: 'PicList',
@@ -111,31 +108,31 @@ const buildMainPageMenu = (win: BrowserWindow) => {
     },
     {
       label: T('SHOW_PICBED_QRCODE'),
-      click() {
+      click () {
         win?.webContents?.send(SHOW_MAIN_PAGE_QRCODE)
       }
     },
     {
       label: T('OPEN_TOOLBOX'),
-      click() {
+      click () {
         const window = windowManager.create(IWindowList.TOOLBOX_WINDOW)
         window?.show()
       }
     },
     {
       label: T('SHOW_DEVTOOLS'),
-      click() {
+      click () {
         win?.webContents?.openDevTools({ mode: 'detach' })
       }
     },
     {
       label: T('FEEDBACK'),
-      click() {
+      click () {
         const url = 'https://github.com/Kuingsmile/PicList/issues'
         shell.openExternal(url)
       }
     }
-  ] as Array<MenuItemConstructorOptions | MenuItem>
+  ] as (MenuItemConstructorOptions | MenuItem)[]
   return Menu.buildFromTemplate(template)
 }
 
@@ -179,10 +176,10 @@ const buildSecondPicBedMenu = () => {
           : undefined,
         click: !hasSubmenu
           ? function () {
-              picgo.saveConfig({
-                [configPaths.picBed.secondUploader]: item.type
-              })
-            }
+            picgo.saveConfig({
+              [configPaths.picBed.secondUploader]: item.type
+            })
+          }
           : undefined
       }
     })
@@ -236,15 +233,15 @@ const buildPicBedListMenu = () => {
           : undefined,
         click: !hasSubmenu
           ? function () {
-              picgo.saveConfig({
-                [configPaths.picBed.current]: item.type,
-                [configPaths.picBed.uploader]: item.type
-              })
-              if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-                windowManager.get(IWindowList.SETTING_WINDOW)!.webContents.send('syncPicBed')
-              }
-              setTrayToolTip(item.type)
+            picgo.saveConfig({
+              [configPaths.picBed.current]: item.type,
+              [configPaths.picBed.uploader]: item.type
+            })
+            if (windowManager.has(IWindowList.SETTING_WINDOW)) {
+              windowManager.get(IWindowList.SETTING_WINDOW)!.webContents.send('syncPicBed')
             }
+            setTrayToolTip(item.type)
+          }
           : undefined
       }
     })
@@ -281,7 +278,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
     {
       label: T('ENABLE_PLUGIN'),
       enabled: !plugin.enabled,
-      click() {
+      click () {
         picgo.saveConfig({
           [`picgoPlugins.${plugin.fullName}`]: true
         })
@@ -292,7 +289,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
     {
       label: T('DISABLE_PLUGIN'),
       enabled: plugin.enabled,
-      click() {
+      click () {
         picgo.saveConfig({
           [`picgoPlugins.${plugin.fullName}`]: false
         })
@@ -310,7 +307,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
     },
     {
       label: T('UNINSTALL_PLUGIN'),
-      click() {
+      click () {
         const window = windowManager.get(IWindowList.SETTING_WINDOW)!
         window.webContents.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
         handlePluginUninstall(plugin.fullName)
@@ -318,20 +315,20 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
     },
     {
       label: T('UPDATE_PLUGIN'),
-      click() {
+      click () {
         const window = windowManager.get(IWindowList.SETTING_WINDOW)!
         window.webContents.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
         handlePluginUpdate(plugin.fullName)
       }
     }
-  ] as Array<MenuItemConstructorOptions | MenuItem>
+  ] as (MenuItemConstructorOptions | MenuItem)[]
   for (const i in plugin.config) {
     if (plugin.config[i].config.length > 0) {
       const obj = {
         label: T('CONFIG_THING', {
           c: `${i} - ${plugin.config[i].fullName || plugin.config[i].name}`
         }),
-        click() {
+        click () {
           const window = windowManager.get(IWindowList.SETTING_WINDOW)!
           const currentType = i
           const configName = plugin.config[i].fullName || plugin.config[i].name
@@ -349,7 +346,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
     const pluginTransformer = plugin.config.transformer.name
     const obj = {
       label: `${currentTransformer === pluginTransformer ? T('DISABLE') : T('ENABLE')}transformer - ${plugin.config.transformer.name}`,
-      click() {
+      click () {
         const transformer = plugin.config.transformer.name
         const currentTransformer = picgo.getConfig<string>(configPaths.picBed.transformer) || 'path'
         if (currentTransformer === transformer) {
@@ -374,8 +371,8 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
     for (const i of plugin.guiMenu) {
       menu.push({
         label: i.label,
-        click() {
-          const picgPlugin = picgo.pluginLoader.getPlugin(plugin.fullName)
+        async click () {
+          const picgPlugin = await picgo.pluginLoader.getPlugin(plugin.fullName)
           if (picgPlugin?.guiMenu?.(picgo)?.length) {
             const menu: GuiMenuItem[] = picgPlugin.guiMenu(picgo)
             menu.forEach(item => {
@@ -392,4 +389,4 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
   return Menu.buildFromTemplate(menu)
 }
 
-export { buildMiniPageMenu, buildMainPageMenu, buildPicBedListMenu, buildPluginPageMenu, buildSecondPicBedMenu }
+export { buildMainPageMenu, buildMiniPageMenu, buildPicBedListMenu, buildPluginPageMenu, buildSecondPicBedMenu }

@@ -2,15 +2,22 @@
   <div class="layout">
     <div class="layout__menu">
       <div class="layout__menu__button">
-        <span class="layout__menu__button__item" @click="openPicBedUrl">
+        <span
+          class="layout__menu__button__item"
+          @click="openPicBedUrl"
+        >
           <img
-            :src="require(`./assets/${currentPagePicBedConfig.picBedName}.webp`)"
+            :src="`/assets/${currentPagePicBedConfig.picBedName}.webp`"
             class="layout__menu__button__item__icon"
-          />
+          >
           {{ supportedPicBedList[currentPagePicBedConfig.picBedName].name }}
         </span>
       </div>
-      <el-divider content-position="left" class="layout__menu__button__divider" border-style="none">
+      <el-divider
+        content-position="left"
+        class="layout__menu__button__divider"
+        border-style="none"
+      >
         <span style="font-size: 14px; color: #909399">
           {{ menuTitleMap[currentPicBedName] }}
           <el-tooltip
@@ -42,7 +49,11 @@
         active-text-color="#409EFF"
         @select="handleSelectMenu"
       >
-        <el-menu-item v-for="item of bucketNameList" :key="item" :index="item">
+        <el-menu-item
+          v-for="item of bucketNameList"
+          :key="item"
+          :index="item"
+        >
           <span
             class="layout__menu__list__item"
             :style="{
@@ -77,8 +88,15 @@
           </span>
         </el-menu-item>
       </el-menu>
-      <el-menu class="layout__menu__setting" style="width: 120px">
-        <el-menu-item index="changePicBed" style="height: 40px" @click="switchPicBed('main')">
+      <el-menu
+        class="layout__menu__setting"
+        style="width: 120px"
+      >
+        <el-menu-item
+          index="changePicBed"
+          style="height: 40px"
+          @click="switchPicBed('main')"
+        >
           <span class="layout__menu__setting__item">
             <el-icon class="layout__menu__setting__item__icon">
               <HomeFilled />
@@ -86,7 +104,11 @@
             {{ $T('MANAGE_MAIN_PAGE_BACK_TO_HOME') }}
           </span>
         </el-menu-item>
-        <el-menu-item index="changePicBed" style="height: 40px" @click="changePicBed">
+        <el-menu-item
+          index="changePicBed"
+          style="height: 40px"
+          @click="changePicBed"
+        >
           <span class="layout__menu__setting__item">
             <el-icon class="layout__menu__setting__item__icon">
               <Switch />
@@ -94,7 +116,11 @@
             {{ $T('MANAGE_MAIN_PAGE_SWITCH_PICBED') }}
           </span>
         </el-menu-item>
-        <el-menu-item index="bucketPageSetting" style="height: 40px" @click="openBucketPageSetting">
+        <el-menu-item
+          index="bucketPageSetting"
+          style="height: 40px"
+          @click="openBucketPageSetting"
+        >
           <span class="layout__menu__setting__item">
             <el-icon class="layout__menu__setting__item__icon">
               <Tools />
@@ -104,17 +130,31 @@
         </el-menu-item>
       </el-menu>
     </div>
-    <div class="layout__content" style="height: 100%; background-color: transparent; flex: 1; width: 0">
+    <div
+      class="layout__content"
+      style="height: 100%; background-color: transparent; flex: 1; width: 0"
+    >
       <router-view />
     </div>
-    <el-dialog v-model="picBedSwitchDialogVisible" top="30vh" append-to-body>
+    <el-dialog
+      v-model="picBedSwitchDialogVisible"
+      top="30vh"
+      append-to-body
+    >
       <div
         class="choice-cos"
         style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-around"
       >
         <el-card shadow="hover">
-          <div style="text-align: center; display: flex; flex-direction: column" @click="switchPicBed('main')">
-            <el-icon color="red" size="25px" style="margin: 0 auto">
+          <div
+            style="text-align: center; display: flex; flex-direction: column"
+            @click="switchPicBed('main')"
+          >
+            <el-icon
+              color="red"
+              size="25px"
+              style="margin: 0 auto"
+            >
               <ChromeFilled />
             </el-icon>
             <span style="font-size: 13px; margin-top: 5px; color: red">
@@ -122,10 +162,17 @@
             </span>
           </div>
         </el-card>
-        <el-card v-for="item in allPicBedConfigure" :key="item" shadow="hover">
-          <div style="text-align: center; display: flex; flex-direction: column" @click="switchPicBed(item.alias)">
+        <el-card
+          v-for="item in allPicBedConfigure"
+          :key="item"
+          shadow="hover"
+        >
+          <div
+            style="text-align: center; display: flex; flex-direction: column"
+            @click="switchPicBed(item.alias)"
+          >
             <el-image
-              :src="require(`./assets/${item.picBedName}.webp`)"
+              :src="`/assets/${item.picBedName}.webp`"
               class="layout__addNewBucket__icon"
               style="width: 25px; height: 25px; margin: 0 auto"
             />
@@ -136,7 +183,11 @@
         </el-card>
       </div>
     </el-dialog>
-    <el-drawer v-model="nweBucketDrawerVisible" class="layout__addNewBucket" append-to-body>
+    <el-drawer
+      v-model="nweBucketDrawerVisible"
+      class="layout__addNewBucket"
+      append-to-body
+    >
       <el-form
         label-position="top"
         require-asterisk-position="right"
@@ -147,7 +198,7 @@
       >
         <div style="position: relative; height: 10vh; width: 100%">
           <el-image
-            :src="require(`./assets/${currentPicBedName}.webp`)"
+            :src="`/assets/${currentPicBedName}.webp`"
             class="layout__addNewBucket__icon"
             style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)"
           />
@@ -162,7 +213,7 @@
           <el-input
             v-if="
               newBucketConfig[currentPicBedName].configOptions[option].component === 'input' &&
-              currentPicBedName !== 'tcyun'
+                currentPicBedName !== 'tcyun'
             "
             v-model.trim="newBucketConfigResult[currentPicBedName + '.' + option]"
             :placeholder="newBucketConfig[currentPicBedName].configOptions[option].placeholder"
@@ -170,7 +221,7 @@
           <el-input
             v-if="
               currentPicBedName === 'tcyun' &&
-              newBucketConfig[currentPicBedName].configOptions[option].component === 'input'
+                newBucketConfig[currentPicBedName].configOptions[option].component === 'input'
             "
             v-model.trim="newBucketConfigResult[currentPicBedName + '.' + option]"
             :placeholder="newBucketConfig[currentPicBedName].configOptions[option].placeholder"
@@ -216,29 +267,27 @@
 </template>
 
 <script lang="ts" setup>
-import { shell } from 'electron'
-import { ElNotification } from 'element-plus'
-import {
-  CirclePlus,
-  SuccessFilled,
-  Folder,
-  Switch,
-  Tools,
-  ChromeFilled,
-  HomeFilled,
-  FolderOpened
-} from '@element-plus/icons-vue'
-import path from 'path'
-import { ref, reactive, computed, onBeforeMount, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
 
-import { supportedPicBedList } from '@/manage/utils/constants'
-import { useManageStore } from '@/manage/store/manageStore'
-import { newBucketConfig } from '@/manage/utils/newBucketConfig'
+import {
+  ChromeFilled,
+  CirclePlus,
+  Folder,
+  FolderOpened,
+  HomeFilled,
+  SuccessFilled,
+  Switch,
+  Tools
+} from '@element-plus/icons-vue'
+import { ElNotification } from 'element-plus'
+import { IRPCActionType } from 'root/src/universal/types/enum'
+import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import { T as $T } from '@/i18n'
-import { triggerRPC } from '@/utils/common'
-import { IRPCActionType } from 'root/src/universal/types/enum'
+import { useManageStore } from '@/manage/store/manageStore'
+import { supportedPicBedList } from '@/manage/utils/constants'
+import { newBucketConfig } from '@/manage/utils/newBucketConfig'
+import { IStringKeyMap } from '#/types/types'
 
 const manageStore = useManageStore() as any
 const route = useRoute()
@@ -307,9 +356,9 @@ const menuTitleMap: IStringKeyMap = {
 
 const rules = ruleMap(newBucketConfig)
 
-const openPicBedUrl = () => shell.openExternal(urlMap[currentPagePicBedConfig.picBedName])
+const openPicBedUrl = () => window.electron.sendRPC(IRPCActionType.OPEN_URL, urlMap[currentPagePicBedConfig.picBedName])
 
-function ruleMap(options: IStringKeyMap) {
+function ruleMap (options: IStringKeyMap) {
   return Object.keys(options).reduce((result, key) => {
     options[key].options.forEach((option: string) => {
       const keyName = `${key}.${option}`
@@ -325,11 +374,11 @@ function ruleMap(options: IStringKeyMap) {
   }, {} as IStringKeyMap)
 }
 
-function openNewBucketDrawer() {
+function openNewBucketDrawer () {
   nweBucketDrawerVisible.value = true
 }
 
-function createNewBucket(picBedName: string) {
+function createNewBucket (picBedName: string) {
   const configOptions = newBucketConfig[picBedName].configOptions
   const resultMap: IStringKeyMap = Object.keys(configOptions).reduce((result, key) => {
     const resultKey = `${picBedName}.${key}`
@@ -349,7 +398,7 @@ function createNewBucket(picBedName: string) {
     resultMap.BucketName = `${resultMap.BucketName}-${currentPagePicBedConfig.appId}`
   }
   resultMap.endpoint = currentPagePicBedConfig.endpoint
-  triggerRPC(IRPCActionType.MANAGE_CREATE_BUCKET, currentAlias, resultMap).then((result: any) => {
+  window.electron.triggerRPC(IRPCActionType.MANAGE_CREATE_BUCKET, currentAlias, resultMap).then((result: any) => {
     if (result) {
       ElNotification({
         title: $T('MANAGE_MAIN_PAGE_TIPS'),
@@ -370,12 +419,12 @@ function createNewBucket(picBedName: string) {
   })
 }
 
-async function getBucketList() {
+async function getBucketList () {
   bucketList.value = {}
   bucketNameList.value = []
   isLoadingBucketList.value = true
 
-  const result = await triggerRPC<any>(IRPCActionType.MANAGE_GET_BUCKET_LIST, currentAlias.value)
+  const result = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_GET_BUCKET_LIST, currentAlias.value)
   isLoadingBucketList.value = false
 
   if (result.length > 0) {
@@ -386,17 +435,17 @@ async function getBucketList() {
   }
 }
 
-function transPathToUnix(filePath: string | undefined) {
+function transPathToUnix (filePath: string | undefined) {
   if (!filePath) return ''
-  return process.platform === 'win32'
+  return window.electron.sendRpcSync(IRPCActionType.GET_PLATFORM) === 'win32'
     ? filePath
-        .split(path.sep)
-        .join(path.posix.sep)
+        .split(window.node.path.sep)
+        .join(window.node.path.posix.sep)
         .replace(/^\/+|\/+$/g, '')
     : filePath.replace(/^\/+|\/+$/g, '')
 }
 
-function handleSelectMenu(bucketName: string) {
+function handleSelectMenu (bucketName: string) {
   const currentPicBedConfig = manageStore.config.picBed[currentAlias.value]
   const transformedConfig = JSON.parse(currentPicBedConfig.transformedConfig ?? '{}')
 
@@ -429,7 +478,7 @@ function handleSelectMenu(bucketName: string) {
   })
 }
 
-function switchPicBed(picBedAlias: string) {
+function switchPicBed (picBedAlias: string) {
   if (picBedAlias === 'main') {
     router.push({
       path: '/main-page/manage-login-page'
@@ -460,11 +509,11 @@ function switchPicBed(picBedAlias: string) {
   }
 }
 
-function changePicBed() {
+function changePicBed () {
   picBedSwitchDialogVisible.value = true
 }
 
-function openBucketPageSetting() {
+function openBucketPageSetting () {
   router.push({
     path: '/main-page/manage-main-page/manage-setting-page'
   })

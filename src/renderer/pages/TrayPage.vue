@@ -1,16 +1,33 @@
 <template>
   <div id="tray-page">
-    <div class="open-main-window" @click="openSettingWindow">
+    <div
+      class="open-main-window"
+      @click="openSettingWindow"
+    >
       {{ $T('OPEN_MAIN_WINDOW') }}
     </div>
     <div class="content">
-      <div v-if="clipboardFiles.length > 0" class="wait-upload-img">
+      <div
+        v-if="clipboardFiles.length > 0"
+        class="wait-upload-img"
+      >
         <div class="list-title">
           {{ $T('WAIT_TO_UPLOAD') }}
         </div>
-        <div v-for="(item, index) in clipboardFiles" :key="index" class="img-list">
-          <div class="upload-img__container" :class="{ upload: uploadFlag }" @click="uploadClipboardFiles">
-            <img :src="item.imgUrl" class="upload-img" />
+        <div
+          v-for="(item, index) in clipboardFiles"
+          :key="index"
+          class="img-list"
+        >
+          <div
+            class="upload-img__container"
+            :class="{ upload: uploadFlag }"
+            @click="uploadClipboardFiles"
+          >
+            <img
+              :src="item.imgUrl"
+              class="upload-img"
+            >
           </div>
         </div>
       </div>
@@ -18,10 +35,23 @@
         <div class="list-title">
           {{ $T('ALREADY_UPLOAD') }}
         </div>
-        <div v-for="item in files" :key="item.imgUrl" class="img-list">
-          <div class="upload-img__container" @click="copyTheLink(item)">
-            <img v-lazy="item.imgUrl" class="upload-img" />
-            <div class="upload-img__title" :title="item.fileName">
+        <div
+          v-for="item in files"
+          :key="item.imgUrl"
+          class="img-list"
+        >
+          <div
+            class="upload-img__container"
+            @click="copyTheLink(item)"
+          >
+            <img
+              v-lazy="item.imgUrl"
+              class="upload-img"
+            >
+            <div
+              class="upload-img__title"
+              :title="item.fileName"
+            >
               {{ item.fileName }}
             </div>
           </div>
@@ -32,20 +62,22 @@
 </template>
 
 <script lang="ts" setup>
-import { clipboard, ipcRenderer } from 'electron'
-import { reactive, ref, onBeforeUnmount, onBeforeMount } from 'vue'
-import { IResult } from '@picgo/store/dist/types'
+import type { IpcRendererEvent } from 'electron'
+import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 
 import { T as $T } from '@/i18n/index'
-import { sendRPC, triggerRPC } from '@/utils/common'
 import { getConfig } from '@/utils/dataSender'
-
 import $$db from '@/utils/db'
-
 import { IPasteStyle, IRPCActionType, IWindowList } from '#/types/enum'
+import { ImgInfo } from '#/types/types'
 import { handleUrlEncode } from '#/utils/common'
 import { configPaths } from '#/utils/configPaths'
 
+type IResult<T> = T & {
+  id: string
+  createdAt: number
+  updatedAt: number
+}
 const files = ref<IResult<ImgInfo>[]>([])
 const notification = reactive({
   title: $T('COPY_LINK_SUCCEED'),
@@ -55,11 +87,11 @@ const notification = reactive({
 const clipboardFiles = ref<ImgInfo[]>([])
 const uploadFlag = ref(false)
 
-function openSettingWindow() {
-  sendRPC(IRPCActionType.OPEN_WINDOW, IWindowList.SETTING_WINDOW)
+function openSettingWindow () {
+  window.electron.sendRPC(IRPCActionType.OPEN_WINDOW, IWindowList.SETTING_WINDOW)
 }
 
-async function getData() {
+async function getData () {
   files.value = (await $$db.get<ImgInfo>({ orderBy: 'desc', limit: 5 }))!.data
 }
 
@@ -82,18 +114,18 @@ const formatCustomLink = (customLink: string, item: ImgInfo) => {
   return customLink
 }
 
-async function copyTheLink(item: ImgInfo) {
+async function copyTheLink (item: ImgInfo) {
   const pasteStyle = (await getConfig<IPasteStyle>(configPaths.settings.pasteStyle)) || IPasteStyle.MARKDOWN
   const customLink = await getConfig<string>(configPaths.settings.customLink)
   const txt = await pasteTemplate(pasteStyle, item, customLink)
-  clipboard.writeText(txt)
+  window.electron.clipboard.writeText(txt)
   const myNotification = new Notification(notification.title, notification)
   myNotification.onclick = () => {
     return true
   }
 }
 
-async function pasteTemplate(style: IPasteStyle, item: ImgInfo, customLink: string | undefined) {
+async function pasteTemplate (style: IPasteStyle, item: ImgInfo, customLink: string | undefined) {
   let url = item.url || item.imgUrl
   if (item.type === 'aws-s3' || item.type === 'aws-s3-plist') {
     url = item.imgUrl || item.url || ''
@@ -103,7 +135,7 @@ async function pasteTemplate(style: IPasteStyle, item: ImgInfo, customLink: stri
   }
   const useShortUrl = (await getConfig(configPaths.settings.useShortUrl)) || false
   if (useShortUrl) {
-    url = (await triggerRPC<string>(IRPCActionType.TRAY_GET_SHORT_URL, url)) || url
+    url = (await window.electron.triggerRPC<string>(IRPCActionType.TRAY_GET_SHORT_URL, url)) || url
   }
   notification.body = url
   const _customLink = customLink || '![$fileName]($url)'
@@ -120,7 +152,7 @@ async function pasteTemplate(style: IPasteStyle, item: ImgInfo, customLink: stri
   return tpl[style]
 }
 
-function disableDragFile() {
+function disableDragFile () {
   window.addEventListener(
     'dragover',
     e => {
@@ -139,47 +171,54 @@ function disableDragFile() {
   )
 }
 
-function uploadClipboardFiles() {
+function uploadClipboardFiles () {
   if (uploadFlag.value) {
     return
   }
   uploadFlag.value = true
-  sendRPC(IRPCActionType.TRAY_UPLOAD_CLIPBOARD_FILES)
+  window.electron.sendRPC(IRPCActionType.TRAY_UPLOAD_CLIPBOARD_FILES)
+}
+
+const dragFilesHandler = async (_: IpcRendererEvent, _files: string[]) => {
+  for (const file of _files) {
+    await $$db.insert(file)
+  }
+  files.value = (await $$db.get<ImgInfo>({
+    orderBy: 'desc',
+    limit: 5
+  }))!.data
+}
+
+const clipboardFilesHandler = (_: IpcRendererEvent, files: ImgInfo[]) => {
+  clipboardFiles.value = files
+}
+
+const uploadFilesHandler = async () => {
+  files.value = (await $$db.get<ImgInfo>({
+    orderBy: 'desc',
+    limit: 5
+  }))!.data
+  uploadFlag.value = false
+}
+
+const updateFilesHandler = () => {
+  getData()
 }
 
 onBeforeMount(() => {
   disableDragFile()
   getData()
-  ipcRenderer.on('dragFiles', async (_: Event, _files: string[]) => {
-    for (let i = 0; i < _files.length; i++) {
-      const item = _files[i]
-      await $$db.insert(item)
-    }
-    files.value = (await $$db.get<ImgInfo>({
-      orderBy: 'desc',
-      limit: 5
-    }))!.data
-  })
-  ipcRenderer.on('clipboardFiles', (_: Event, files: ImgInfo[]) => {
-    clipboardFiles.value = files
-  })
-  ipcRenderer.on('uploadFiles', async () => {
-    files.value = (await $$db.get<ImgInfo>({
-      orderBy: 'desc',
-      limit: 5
-    }))!.data
-    uploadFlag.value = false
-  })
-  ipcRenderer.on('updateFiles', () => {
-    getData()
-  })
+  window.electron.ipcRendererOn('dragFiles', dragFilesHandler)
+  window.electron.ipcRendererOn('clipboardFiles', clipboardFilesHandler)
+  window.electron.ipcRendererOn('uploadFiles', uploadFilesHandler)
+  window.electron.ipcRendererOn('updateFiles', updateFilesHandler)
 })
 
 onBeforeUnmount(() => {
-  ipcRenderer.removeAllListeners('dragFiles')
-  ipcRenderer.removeAllListeners('clipboardFiles')
-  ipcRenderer.removeAllListeners('uploadFiles')
-  ipcRenderer.removeAllListeners('updateFiles')
+  window.electron.ipcRendererRemoveListener('dragFiles', dragFilesHandler)
+  window.electron.ipcRendererRemoveListener('clipboardFiles', clipboardFilesHandler)
+  window.electron.ipcRendererRemoveListener('uploadFiles', uploadFilesHandler)
+  window.electron.ipcRendererRemoveListener('updateFiles', updateFilesHandler)
 })
 </script>
 

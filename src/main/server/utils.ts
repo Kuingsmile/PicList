@@ -1,18 +1,16 @@
-import { Notification } from 'electron'
-
+import db, { GalleryDB } from '@core/datastore'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
-import db, { GalleryDB } from '@core/datastore'
-
 import windowManager from 'apis/app/window/windowManager'
+import ALLApi from 'apis/delete/allApi'
+import GuiApi from 'apis/gui'
+import { Notification } from 'electron'
 
-import GuiApi from '~/apis/gui'
-import { T } from '~/i18n/index'
+import { ICOREBuildInEvent, IWindowList } from '#/types/enum'
+import { IHttpResponse, ImgInfo, IObj } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
 import { picBedsCanbeDeleted } from '#/utils/static'
-import { ICOREBuildInEvent, IWindowList } from '#/types/enum'
-
-import ALLApi from '@/apis/allApi'
+import { T } from '~/i18n/index'
 
 export const handleResponse = ({
   response,

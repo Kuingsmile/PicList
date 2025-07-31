@@ -1,17 +1,17 @@
-import axios from 'axios'
-import { app } from 'electron'
-import fs from 'fs-extra'
-import http from 'http'
-import multer from 'multer'
-import path from 'path'
+import http from 'node:http'
+import path from 'node:path'
 
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
+import axios from 'axios'
+import { app } from 'electron'
+import fs from 'fs-extra'
+import multer from 'multer'
 
-import routers from '~/server/routerManager'
-import { handleResponse, ensureHTTPLink } from '~/server/utils'
-
+import { ErrnoException, IObj, IServerConfig } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
+import routers from '~/server/routerManager'
+import { ensureHTTPLink, handleResponse } from '~/server/utils'
 
 const DEFAULT_PORT = 36677
 const DEFAULT_HOST = '0.0.0.0'
@@ -26,7 +26,6 @@ const multerStorage = multer.diskStorage({
     cb(null, serverTempDir)
   },
   filename: function (_req: any, file: { originalname: any }, cb: (arg0: null, arg1: any) => void) {
-    // eslint-disable-next-line no-control-regex
     if (!/[^\u0000-\u00ff]/.test(file.originalname)) {
       file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8')
     }
@@ -42,12 +41,12 @@ class Server {
   #httpServer: http.Server
   #config: IServerConfig
 
-  constructor() {
+  constructor () {
     this.#config = this.getConfigWithDefaults()
     this.#httpServer = http.createServer(this.#handleRequest)
   }
 
-  getConfigWithDefaults() {
+  getConfigWithDefaults () {
     let config = picgo.getConfig<IServerConfig>(configPaths.settings.server)
     if (!this.#isValidConfig(config)) {
       config = { port: DEFAULT_PORT, host: DEFAULT_HOST, enable: true }
@@ -56,7 +55,7 @@ class Server {
     return config
   }
 
-  #isValidConfig(config: IObj | undefined) {
+  #isValidConfig (config: IObj | undefined) {
     return config && config.port && config.host && config.enable !== undefined
   }
 
@@ -199,20 +198,20 @@ class Server {
     })
   }
 
-  startup() {
+  startup () {
     if (this.#config.enable) {
       this.#listen(this.#config.port)
     }
   }
 
-  shutdown(hasStarted?: boolean) {
+  shutdown (hasStarted?: boolean) {
     this.#httpServer.close()
     if (!hasStarted) {
       logger.info('[PicList Server] shutdown')
     }
   }
 
-  restart() {
+  restart () {
     this.shutdown()
     this.#config = this.getConfigWithDefaults()
     this.startup()

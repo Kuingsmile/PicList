@@ -1,8 +1,6 @@
-import { ipcRenderer } from 'electron'
 import { isReactive, isRef, toRaw, unref } from 'vue'
 
-import { RPC_ACTIONS, RPC_ACTIONS_INVOKE } from '#/events/constants'
-import { IRPCActionType } from '#/types/enum'
+import { ITalkingDataOptions } from '#/types/types'
 
 export const handleTalkingDataEvent = (data: ITalkingDataOptions) => {
   try {
@@ -29,21 +27,4 @@ export const getRawData = (args: any): any => {
     return data
   }
   return args
-}
-
-export function sendToMain(channel: string, ...args: any[]) {
-  const data = getRawData(args)
-  ipcRenderer.send(channel, ...data)
-}
-
-export function sendRPC(action: IRPCActionType, ...args: any[]): void {
-  ipcRenderer.send(RPC_ACTIONS, action, getRawData(args))
-}
-
-export function sendRpcSync(action: IRPCActionType, ...args: any[]) {
-  return ipcRenderer.sendSync(RPC_ACTIONS, action, getRawData(args))
-}
-
-export async function triggerRPC<T>(action: IRPCActionType, ...args: any[]): Promise<T | undefined> {
-  return await ipcRenderer.invoke(RPC_ACTIONS_INVOKE, action, getRawData(args))
 }

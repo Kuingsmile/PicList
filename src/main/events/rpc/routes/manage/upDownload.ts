@@ -1,9 +1,10 @@
+import path from 'node:path'
+
 import { app, dialog, shell } from 'electron'
 import fs from 'fs-extra'
-import path from 'path'
 
 import { IRPCActionType, IRPCType } from '#/types/enum'
-
+import { IIPCEvent } from '#/types/rpc'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { downloadFileFromUrl } from '~/manage/utils/common'
 

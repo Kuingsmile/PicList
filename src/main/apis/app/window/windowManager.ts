@@ -1,13 +1,14 @@
+import windowList from 'apis/app/window/windowList'
 import { BrowserWindow } from 'electron'
 
-import windowList from 'apis/app/window/windowList'
+import { IWindowListItem, IWindowManager } from '#/types/electron'
 import { IWindowList } from '#/types/enum'
 
 class WindowManager implements IWindowManager {
   #windowMap: Map<IWindowList | string, BrowserWindow> = new Map()
   #windowIdMap: Map<number, IWindowList | string> = new Map()
 
-  create(name: IWindowList) {
+  create (name: IWindowList) {
     const windowConfig: IWindowListItem = windowList.get(name)!
     if (!windowConfig.isValid) return null
 
@@ -29,14 +30,14 @@ class WindowManager implements IWindowManager {
     return window
   }
 
-  get(name: IWindowList) {
+  get (name: IWindowList) {
     if (this.has(name)) {
       return this.#windowMap.get(name)!
     }
     return this.create(name)
   }
 
-  has(name: IWindowList) {
+  has (name: IWindowList) {
     return this.#windowMap.has(name)
   }
 
@@ -48,7 +49,7 @@ class WindowManager implements IWindowManager {
     }
   }
 
-  getAvailableWindow(isSkipMiniWindow = false) {
+  getAvailableWindow (isSkipMiniWindow = false) {
     const miniWindow = this.#windowMap.get(IWindowList.MINI_WINDOW)
     if (miniWindow && miniWindow.isVisible() && !isSkipMiniWindow) {
       return miniWindow

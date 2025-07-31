@@ -1,5 +1,8 @@
 <template>
-  <div id="app" :key="pageReloadCount">
+  <div
+    id="app"
+    :key="pageReloadCount"
+  >
     <router-view />
   </div>
 </template>
@@ -8,8 +11,8 @@
 import type { IConfig } from 'piclist'
 import { onBeforeMount } from 'vue'
 
-import { useStore } from '@/hooks/useStore'
 import { useATagClick } from '@/hooks/useATagClick'
+import { useStore } from '@/hooks/useStore'
 import { getConfig } from '@/utils/dataSender'
 import { pageReloadCount } from '@/utils/global'
 

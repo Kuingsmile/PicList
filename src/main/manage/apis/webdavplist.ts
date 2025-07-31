@@ -1,21 +1,21 @@
-import { ipcMain, IpcMainEvent } from 'electron'
-import fs from 'fs-extra'
-import http from 'http'
-import https from 'https'
-import path from 'path'
-import { createClient, WebDAVClient, FileStat, ProgressEvent, AuthType, WebDAVClientOptions } from 'webdav'
+import http from 'node:http'
+import https from 'node:https'
+import path from 'node:path'
 
 import windowManager from 'apis/app/window/windowManager'
-
-import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
-import { formatError, getInnerAgent, NewDownloader, ConcurrencyPromisePool } from '~/manage/utils/common'
-import ManageLogger from '~/manage/utils/logger'
-
-import { getAuthHeader } from '@/manage/utils/digestAuth'
+import { ipcMain, IpcMainEvent } from 'electron'
+import fs from 'fs-extra'
+import { AuthType, createClient, FileStat, ProgressEvent, WebDAVClient, WebDAVClientOptions } from 'webdav'
 
 import { commonTaskStatus, IWindowList, uploadTaskSpecialStatus } from '#/types/enum'
-import { isImage, formatEndpoint, formatHttpProxy } from '#/utils/common'
+import { IStringKeyMap } from '#/types/types'
+import { formatEndpoint, formatHttpProxy } from '#/utils/common'
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import { ConcurrencyPromisePool, formatError, getInnerAgent, NewDownloader } from '~/manage/utils/common'
+import ManageLogger from '~/manage/utils/logger'
+import { isImage } from '~/utils/common'
+import { getAuthHeader } from '~/utils/digestAuth'
 
 class WebdavplistApi {
   endpoint: string
@@ -29,7 +29,7 @@ class WebdavplistApi {
   agent: https.Agent | http.Agent
   ctx: WebDAVClient
 
-  constructor(
+  constructor (
     endpoint: string,
     username: string,
     password: string,
@@ -63,7 +63,7 @@ class WebdavplistApi {
 
   logParam = (error: any, method: string) => this.logger.error(formatError(error, { class: 'WebdavplistApi', method }))
 
-  formatFolder(item: FileStat, urlPrefix: string, isWebPath = false) {
+  formatFolder (item: FileStat, urlPrefix: string, isWebPath = false) {
     const key = item.filename.replace(/^\/+/, '')
     return {
       ...item,
@@ -80,7 +80,7 @@ class WebdavplistApi {
     }
   }
 
-  formatFile(item: FileStat, urlPrefix: string, isWebPath = false) {
+  formatFile (item: FileStat, urlPrefix: string, isWebPath = false) {
     const key = item.filename.replace(/^\/+/, '')
     return {
       ...item,
@@ -99,7 +99,7 @@ class WebdavplistApi {
 
   isRequestSuccess = (code: number) => code >= 200 && code < 300
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
+  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { prefix, customUrl, cancelToken } = configMap
     const urlPrefix = customUrl || this.endpoint
@@ -112,7 +112,7 @@ class WebdavplistApi {
     })
     let res = {} as any
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       success: false,
       finished: false
     }
@@ -139,7 +139,7 @@ class WebdavplistApi {
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
+  async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { prefix, customUrl, cancelToken, baseDir } = configMap
     let urlPrefix = customUrl || this.endpoint
@@ -157,7 +157,7 @@ class WebdavplistApi {
     })
     let res = {} as any
     const result = {
-      fullList: <any>[],
+      fullList: [] as any,
       success: false,
       finished: false
     }
@@ -198,7 +198,7 @@ class WebdavplistApi {
     ipcMain.removeAllListeners('cancelLoadingFileList')
   }
 
-  async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async renameBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { oldKey, newKey } = configMap
     let result = false
     try {
@@ -210,7 +210,7 @@ class WebdavplistApi {
     return result
   }
 
-  async deleteBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { key } = configMap
     let result = false
     try {
@@ -222,7 +222,7 @@ class WebdavplistApi {
     return result
   }
 
-  async deleteBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { key } = configMap
     let result = false
     try {
@@ -234,7 +234,7 @@ class WebdavplistApi {
     return result
   }
 
-  async getPreSignedUrl(configMap: IStringKeyMap): Promise<string> {
+  async getPreSignedUrl (configMap: IStringKeyMap): Promise<string> {
     const { key } = configMap
     let result = ''
     try {
@@ -246,7 +246,7 @@ class WebdavplistApi {
     return result
   }
 
-  async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async uploadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { fileArray } = configMap
     const instance = UpDownTaskQueue.getInstance()
     for (const item of fileArray) {
@@ -307,7 +307,7 @@ class WebdavplistApi {
     return true
   }
 
-  async createBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
+  async createBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
     const { key } = configMap
     let result = false
     try {
@@ -321,7 +321,7 @@ class WebdavplistApi {
     return result
   }
 
-  async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
+  async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
     const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any

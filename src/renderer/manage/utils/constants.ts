@@ -1,4 +1,5 @@
 import { T as $T } from '@/i18n'
+import { IStringKeyMap } from '#/types/types'
 
 const defaultBaseRule = (name: string) => {
   return [
@@ -228,10 +229,10 @@ export const supportedPicBedList: IStringKeyMap = {
                 const isBracketsValid = customUrlList.every((customUrl: string) => {
                   const bracketPaired = (str: string) => {
                     const stack = []
-                    for (let i = 0; i < str.length; i++) {
-                      if (str[i] === '{') {
-                        stack.push(str[i])
-                      } else if (str[i] === '}') {
+                    for (const i of str) {
+                      if (i === '{') {
+                        stack.push(i)
+                      } else if (i === '}') {
                         if (stack.length === 0) {
                           return false
                         }

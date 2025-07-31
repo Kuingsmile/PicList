@@ -1,4 +1,6 @@
 import { IRPCActionType, IRPCType } from '#/types/enum'
+import { IIPCEvent } from '#/types/rpc'
+import { IObj } from '#/types/types'
 import getManageApi from '~/manage/Main'
 
 const manageApi = getManageApi()

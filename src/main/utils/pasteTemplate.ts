@@ -1,9 +1,9 @@
 import db from '@core/datastore'
 
-import { generateShortUrl, handleUrlEncodeWithSetting } from '~/utils/common'
-
 import { IPasteStyle } from '#/types/enum'
+import { ImgInfo } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
+import { generateShortUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 
 export const formatCustomLink = (customLink: string, item: ImgInfo) => {
   const fileName = item.fileName!.replace(new RegExp(`\\${item.extname}$`), '')

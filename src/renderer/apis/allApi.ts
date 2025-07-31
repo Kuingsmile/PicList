@@ -15,6 +15,7 @@ import SmmsApi from '@/apis/smms'
 import TcyunApi from '@/apis/tcyun'
 import UpyunApi from '@/apis/upyun'
 import WebdavApi from '@/apis/webdav'
+import { IStringKeyMap } from '#/types/types'
 
 const apiMap: IStringKeyMap = {
   alist: AlistApi,
@@ -38,7 +39,7 @@ const apiMap: IStringKeyMap = {
 }
 
 export default class ALLApi {
-  static async delete(configMap: IStringKeyMap): Promise<boolean> {
+  static async delete (configMap: IStringKeyMap): Promise<boolean> {
     const api = apiMap[configMap.type]
     return api ? await api.delete(configMap) : false
   }

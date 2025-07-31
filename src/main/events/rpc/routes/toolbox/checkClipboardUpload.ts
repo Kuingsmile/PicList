@@ -1,14 +1,13 @@
-import fs from 'fs-extra'
-import path from 'path'
+import path from 'node:path'
 
 import { dbPathChecker, defaultConfigPath } from '@core/datastore/dbChecker'
-
-import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
-import { T } from '~/i18n'
+import fs from 'fs-extra'
 
 import { IToolboxItemCheckStatus, IToolboxItemType } from '#/types/enum'
-
+import { IToolboxCheckerMap, IToolboxFixMap } from '#/types/rpc'
 import { CLIPBOARD_IMAGE_FOLDER } from '#/utils/static'
+import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
+import { T } from '~/i18n'
 
 const sendToolboxRes = sendToolboxResWithType(IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD)
 

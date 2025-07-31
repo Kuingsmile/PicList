@@ -1,3 +1,5 @@
+import { II18nItem } from '../types/types'
+
 export const builtinI18nList: II18nItem[] = [
   {
     label: '简体中文',

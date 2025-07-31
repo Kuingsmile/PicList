@@ -1,10 +1,8 @@
-import axios, { AxiosResponse } from 'axios'
-import https from 'https'
-
+import { IStringKeyMap } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '#/utils/deleteLog'
 
 export default class LskyplistApi {
-  static async delete(configMap: IStringKeyMap): Promise<boolean> {
+  static async delete (configMap: IStringKeyMap): Promise<boolean> {
     const { hash, config } = configMap
     if (!hash || !config || !config.token) {
       deleteLog(hash, 'Lskyplist', false, 'LskyplistApi.delete: invalid params')
@@ -22,11 +20,11 @@ export default class LskyplistApi {
       Authorization: token || undefined
     }
 
-    const requestAgent = new https.Agent({
+    const requestAgent = new window.node.https.Agent({
       rejectUnauthorized: false
     })
     try {
-      const response: AxiosResponse = await axios.delete(`${host}/api/v1/images/${hash}`, {
+      const response: any = await window.node.axios.delete(`${host}/api/v1/images/${hash}`, {
         headers: v2Headers,
         timeout: 30000,
         httpsAgent: requestAgent

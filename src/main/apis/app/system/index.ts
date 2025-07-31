@@ -1,3 +1,8 @@
+import db, { GalleryDB } from '@core/datastore'
+import picgo from '@core/picgo'
+import uploader from 'apis/app/uploader'
+import { handleSecondaryUpload, uploadClipboardFiles } from 'apis/app/uploader/apis'
+import windowManager from 'apis/app/window/windowManager'
 import {
   app,
   clipboard,
@@ -10,31 +15,23 @@ import {
   Tray
 } from 'electron'
 import fs from 'fs-extra'
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
+import pkg from 'root/package.json'
 
-import db, { GalleryDB } from '@core/datastore'
-import picgo from '@core/picgo'
-
-import uploader from 'apis/app/uploader'
-import { handleSecondaryUpload, uploadClipboardFiles } from 'apis/app/uploader/apis'
-import windowManager from 'apis/app/window/windowManager'
-
+import { IPasteStyle, IWindowList } from '#/types/enum'
+import { IBounds, ImgInfo } from '#/types/types'
+import { configPaths } from '#/utils/configPaths'
 import { buildPicBedListMenu } from '~/events/remotes/menu'
 import { T } from '~/i18n'
 import clipboardPoll from '~/utils/clipboardPoll'
 import { ensureFilePath, handleCopyUrl, setTray, tray } from '~/utils/common'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/utils/getMacOSVersion'
 import pasteTemplate from '~/utils/pasteTemplate'
-
-import { configPaths } from '#/utils/configPaths'
-import { IPasteStyle, IWindowList } from '#/types/enum'
-
-import pkg from 'root/package.json'
 import { hideMiniWindow, openMainWindow, openMiniWindow } from '~/utils/windowHelper'
 
 let contextMenu: Menu | null
 
-export function setDockMenu() {
+export function setDockMenu () {
   const isListeningClipboard = db.get(configPaths.settings.isListeningClipboard) || false
   const dockMenu = Menu.buildFromTemplate([
     {
@@ -43,7 +40,7 @@ export function setDockMenu() {
     },
     {
       label: T('START_WATCH_CLIPBOARD'),
-      click() {
+      click () {
         db.set(configPaths.settings.isListeningClipboard, true)
         clipboardPoll.startListening()
         clipboardPoll.on('change', () => {
@@ -56,7 +53,7 @@ export function setDockMenu() {
     },
     {
       label: T('STOP_WATCH_CLIPBOARD'),
-      click() {
+      click () {
         db.set(configPaths.settings.isListeningClipboard, false)
         clipboardPoll.stopListening()
         clipboardPoll.removeAllListeners()
@@ -65,10 +62,10 @@ export function setDockMenu() {
       visible: isListeningClipboard
     }
   ])
-  app.dock.setMenu(dockMenu)
+  app.dock?.setMenu(dockMenu)
 }
 
-export function createMenu() {
+export function createMenu () {
   const submenu = buildPicBedListMenu()
   const appMenu = Menu.buildFromTemplate([
     {
@@ -77,7 +74,7 @@ export function createMenu() {
         { label: T('OPEN_MAIN_WINDOW'), click: openMainWindow },
         {
           label: T('RELOAD_APP'),
-          click() {
+          click () {
             app.relaunch()
             app.exit(0)
           }
@@ -105,7 +102,7 @@ export function createMenu() {
   Menu.setApplicationMenu(appMenu)
 }
 
-export function createContextMenu() {
+export function createContextMenu () {
   const ClipboardWatcher = clipboardPoll
   const isListeningClipboard = db.get(configPaths.settings.isListeningClipboard) || false
   const isMiniWindowVisible =
@@ -130,7 +127,7 @@ export function createContextMenu() {
 
   if (process.platform === 'darwin' || process.platform === 'win32') {
     const submenu = buildPicBedListMenu()
-    const template: Array<MenuItemConstructorOptions | MenuItem> = [
+    const template: (MenuItemConstructorOptions | MenuItem)[] = [
       { label: T('OPEN_MAIN_WINDOW'), click: openMainWindow },
       { label: T('CHOOSE_DEFAULT_PICBED'), type: 'submenu', submenu },
       {
@@ -145,7 +142,7 @@ export function createContextMenu() {
       },
       {
         label: T('RELOAD_APP'),
-        click() {
+        click () {
           app.relaunch()
           app.exit(0)
         }
@@ -158,7 +155,7 @@ export function createContextMenu() {
         0,
         {
           label: T('OPEN_MINI_WINDOW'),
-          click() {
+          click () {
             openMiniWindow(false)
           },
           visible: !isMiniWindowVisible
@@ -183,7 +180,7 @@ export function createContextMenu() {
       { label: T('OPEN_MAIN_WINDOW'), click: openMainWindow },
       {
         label: T('OPEN_MINI_WINDOW'),
-        click() {
+        click () {
           openMiniWindow(false)
         },
         visible: !isMiniWindowVisible
@@ -205,7 +202,7 @@ export function createContextMenu() {
       },
       {
         label: T('ABOUT'),
-        click() {
+        click () {
           dialog.showMessageBox({
             title: 'PicList',
             message: 'PicList',
@@ -222,13 +219,13 @@ export function createContextMenu() {
 const getTrayIcon = () => {
   if (process.platform === 'darwin') {
     const isMacOSGreaterThan11 = isMacOSVersionGreaterThanOrEqualTo('11')
-    return isMacOSGreaterThan11 ? `${__static}/menubar-newdarwinTemplate.png` : `${__static}/menubar.png`
+    return isMacOSGreaterThan11 ? './resources/menubar-newdarwinTemplate.png' : './resources/menubar.png'
   } else {
-    return `${__static}/menubar-nodarwin.png`
+    return './resources/menubar-nodarwin.png'
   }
 }
 
-export function createTray(tooltip: string) {
+export function createTray (tooltip: string) {
   const menubarPic = getTrayIcon()
   setTray(new Tray(menubarPic))
   tray.setToolTip(tooltip)
@@ -241,6 +238,7 @@ export function createTray(tooltip: string) {
       createContextMenu()
       tray!.popUpContextMenu(contextMenu!)
     })
+
     tray.on('click', (_, bounds) => {
       if (process.platform === 'darwin') {
         toggleWindow(bounds)
@@ -293,9 +291,9 @@ export function createTray(tooltip: string) {
 
     tray.on('drag-enter', () => {
       if (nativeTheme.shouldUseDarkColors) {
-        tray!.setImage(`${__static}/upload-dark.png`)
+        tray!.setImage('./resources/upload-dark.png')
       } else {
-        tray!.setImage(`${__static}/upload.png`)
+        tray!.setImage('./resources/upload.png')
       }
     })
 
@@ -305,54 +303,56 @@ export function createTray(tooltip: string) {
 
     // drop-files only be supported in macOS
     // so the tray window must be available
-    tray.on('drop-files', async (_: Event, files: string[]) => {
-      const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
-      const rawInput = cloneDeep(files)
-      const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
-      const { needRestore, ctx } = await handleSecondaryUpload(trayWindow.webContents, files, 'tray')
-      let imgs: ImgInfo[] | false = false
-      if (needRestore) {
-        const res = await uploader
-          .setWebContents(trayWindow.webContents)
-          .uploadReturnCtx(ctx ? ctx.processedInput : files, true)
-        imgs = res ? res.output : false
-      } else {
-        imgs = await uploader.setWebContents(trayWindow.webContents).upload(files)
-      }
-      const deleteLocalFile = db.get(configPaths.settings.deleteLocalFile) || false
-      if (imgs !== false) {
-        const pasteText: string[] = []
-        for (let i = 0; i < imgs.length; i++) {
-          if (deleteLocalFile) {
-            await fs.remove(rawInput[i])
-          }
-          const [pasteTextItem, shortUrl] = await pasteTemplate(
-            pasteStyle,
-            imgs[i],
-            db.get(configPaths.settings.customLink)
-          )
-          imgs[i].shortUrl = shortUrl
-          pasteText.push(pasteTextItem)
-          const isShowResultNotification =
+    if (process.platform === 'darwin') {
+      (tray as any).on('drop-files', async (_: Event, files: string[]) => {
+        const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
+        const rawInput = cloneDeep(files)
+        const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
+        const { needRestore, ctx } = await handleSecondaryUpload(trayWindow.webContents, files, 'tray')
+        let imgs: ImgInfo[] | false = false
+        if (needRestore) {
+          const res = await uploader
+            .setWebContents(trayWindow.webContents)
+            .uploadReturnCtx(ctx ? ctx.processedInput : files, true)
+          imgs = res ? res.output : false
+        } else {
+          imgs = await uploader.setWebContents(trayWindow.webContents).upload(files)
+        }
+        const deleteLocalFile = db.get(configPaths.settings.deleteLocalFile) || false
+        if (imgs !== false) {
+          const pasteText: string[] = []
+          for (let i = 0; i < imgs.length; i++) {
+            if (deleteLocalFile) {
+              await fs.remove(rawInput[i])
+            }
+            const [pasteTextItem, shortUrl] = await pasteTemplate(
+              pasteStyle,
+              imgs[i],
+              db.get(configPaths.settings.customLink)
+            )
+            imgs[i].shortUrl = shortUrl
+            pasteText.push(pasteTextItem)
+            const isShowResultNotification =
             db.get(configPaths.settings.uploadResultNotification) === undefined
               ? true
               : !!db.get(configPaths.settings.uploadResultNotification)
-          if (isShowResultNotification) {
-            const notification = new Notification({
-              title: T('UPLOAD_SUCCEED'),
-              body: shortUrl || imgs[i].imgUrl!
+            if (isShowResultNotification) {
+              const notification = new Notification({
+                title: T('UPLOAD_SUCCEED'),
+                body: shortUrl || imgs[i].imgUrl!
               // icon: files[i]
-            })
-            setTimeout(() => {
-              notification.show()
-            }, i * 100)
+              })
+              setTimeout(() => {
+                notification.show()
+              }, i * 100)
+            }
+            await GalleryDB.getInstance().insert(imgs[i])
           }
-          await GalleryDB.getInstance().insert(imgs[i])
+          handleCopyUrl(pasteText.join('\n'))
+          trayWindow.webContents.send('dragFiles', imgs)
         }
-        handleCopyUrl(pasteText.join('\n'))
-        trayWindow.webContents.send('dragFiles', imgs)
-      }
-    })
+      })
+    }
     // toggleWindow()
   } else if (process.platform === 'linux') {
     // click事件在Ubuntu上无法触发，Unity不支持（在Mac和Windows上可以触发）

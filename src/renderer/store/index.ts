@@ -1,4 +1,5 @@
-import { reactive, InjectionKey, readonly, App, UnwrapRef } from 'vue'
+import { App, InjectionKey, reactive, readonly, UnwrapRef } from 'vue'
+
 import { saveConfig } from '@/utils/dataSender'
 import { configPaths } from '#/utils/configPaths'
 
@@ -28,7 +29,7 @@ const setDefaultPicBed = (type: string) => {
 }
 
 export const store = {
-  install(app: App) {
+  install (app: App) {
     app.provide(storeKey, {
       state: readonly(state),
       setDefaultPicBed

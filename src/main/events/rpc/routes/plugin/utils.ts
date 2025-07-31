@@ -1,23 +1,21 @@
-import { dialog, shell } from 'electron'
-import { IGuiMenuItem, PicGo as PicGoCore } from 'piclist'
-import path from 'path'
+import path from 'node:path'
 
 import { dbPathDir } from '@core/datastore/dbChecker'
 import picgo from '@core/picgo'
-
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import windowManager from 'apis/app/window/windowManager'
+import { dialog, shell } from 'electron'
+import fs from 'fs-extra'
+import { IGuiMenuItem, PicGo as PicGoCore } from 'piclist'
 
+import { ICOREBuildInEvent, IPicGoHelperType, IWindowList } from '#/types/enum'
+import { IIPCEvent } from '#/types/rpc'
+import { IDispose, IPicGoPlugin } from '#/types/types'
+import { handleStreamlinePluginName, simpleClone } from '#/utils/common'
 import { T } from '~/i18n'
 import { showNotification } from '~/utils/common'
 
-import { handleStreamlinePluginName, simpleClone } from '#/utils/common'
-import { ICOREBuildInEvent, IPicGoHelperType, IWindowList } from '#/types/enum'
-
 const STORE_PATH = dbPathDir()
-
-// eslint-disable-next-line
-const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require
 
 // get uploader or transformer config
 const getConfig = (name: string, type: IPicGoHelperType, ctx: PicGoCore) => {
@@ -47,13 +45,17 @@ const handleConfigWithFunction = (config: any[]) => {
   return config
 }
 
-const getPluginList = (): IPicGoPlugin[] => {
+const getPluginList = async (): Promise<IPicGoPlugin[]> => {
   const pluginList = picgo.pluginLoader.getFullList()
   const list = []
   for (const i in pluginList) {
-    const plugin = picgo.pluginLoader.getPlugin(pluginList[i])!
+    const plugin = (await picgo.pluginLoader.getPlugin(pluginList[i]))!
     const pluginPath = path.join(STORE_PATH, `/node_modules/${pluginList[i]}`)
-    const pluginPKG = requireFunc(path.join(pluginPath, 'package.json'))
+    const pluginPKGPath = path.join(pluginPath, 'package.json')
+    if (!fs.existsSync(pluginPKGPath)) {
+      continue
+    }
+    const pluginPKG = fs.readJSONSync(pluginPKGPath, 'utf8')
     const uploaderName = plugin.uploader || ''
     const transformerName = plugin.transformer || ''
     let menu: Omit<IGuiMenuItem, 'handle'>[] = []
@@ -156,7 +158,7 @@ export const handlePluginUninstall = async (fullName: string) => {
 
 export const pluginGetListFunc = async (event: IIPCEvent) => {
   try {
-    const list = simpleClone(getPluginList())
+    const list = simpleClone(await getPluginList())
     // here can just send JS Object not function
     // or will cause [Failed to serialize arguments] error
     event.sender.send('pluginList', list)
@@ -180,7 +182,7 @@ export const pluginInstallFunc = async (event: IIPCEvent, args: [fullName: strin
     errMsg: res.success ? '' : res.body
   })
   if (res.success) {
-    shortKeyHandler.registerPluginShortKey(res.body[0])
+    await shortKeyHandler.registerPluginShortKey(res.body[0])
   } else {
     showNotification({
       title: T('PLUGIN_INSTALL_FAILED'),
@@ -201,7 +203,7 @@ export const pluginImportLocalFunc = async (event: IIPCEvent) => {
     const res = await picgo.pluginHandler.install(filePaths)
     if (res.success) {
       try {
-        const list = simpleClone(getPluginList())
+        const list = simpleClone(await getPluginList())
         event.sender.send('pluginList', list)
       } catch (e: any) {
         event.sender.send('pluginList', [])

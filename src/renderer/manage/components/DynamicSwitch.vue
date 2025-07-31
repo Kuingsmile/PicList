@@ -2,10 +2,21 @@
   <el-form-item>
     <template #label>
       <span style="position: absolute; left: 0">
-        <span v-for="(segment, index) in segments" :key="index" :style="segment.style">
+        <span
+          v-for="(segment, index) in segments"
+          :key="index"
+          :style="segment.style"
+        >
           {{ segment.text }}
         </span>
-        <el-tooltip v-if="tooltip" :content="tooltip" effect="dark" placement="right" :persistent="false" teleported>
+        <el-tooltip
+          v-if="tooltip"
+          :content="tooltip"
+          effect="dark"
+          placement="right"
+          :persistent="false"
+          teleported
+        >
           <el-icon>
             <InfoFilled />
           </el-icon>

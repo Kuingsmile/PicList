@@ -1,7 +1,6 @@
 import { RPCRouter } from '~/events/rpc/router'
-
-import configRoutes from '~/events/rpc/routes/manage/config'
 import bucketRoutes from '~/events/rpc/routes/manage/bucket'
+import configRoutes from '~/events/rpc/routes/manage/config'
 import upDownLoadRoutes from '~/events/rpc/routes/manage/upDownload'
 
 const manageRouter = new RPCRouter()

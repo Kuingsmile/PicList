@@ -1,16 +1,15 @@
+import { dbPathChecker } from '@core/datastore/dbChecker'
 import axios, { AxiosRequestConfig } from 'axios'
 import fs from 'fs-extra'
 import { IConfig } from 'piclist'
 import tunnel from 'tunnel'
 
-import { dbPathChecker } from '@core/datastore/dbChecker'
-
+import { IToolboxItemCheckStatus, IToolboxItemType } from '#/types/enum'
+import { IToolboxCheckerMap } from '#/types/rpc'
 import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
 import { T } from '~/i18n'
 
-import { IToolboxItemCheckStatus, IToolboxItemType } from '#/types/enum'
-
-function getProxy(proxyStr: string): AxiosRequestConfig['proxy'] | null {
+function getProxy (proxyStr: string): AxiosRequestConfig['proxy'] | null {
   if (proxyStr) {
     try {
       const proxyOptions = new URL(proxyStr)
