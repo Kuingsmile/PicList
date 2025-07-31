@@ -1,6 +1,7 @@
+import qiniu from 'qiniu'
+
 import { IQiniuConfig, PartialKeys } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '~/utils/deleteLog'
-
 interface IConfigMap {
   fileName: string
   config: PartialKeys<IQiniuConfig, 'path'>
@@ -12,10 +13,10 @@ export default class QiniuApi {
       fileName,
       config: { accessKey, secretKey, bucket, path }
     } = configMap
-    const mac = new window.node.qiniu.auth.digest.Mac(accessKey, secretKey)
-    const qiniuConfig = new window.node.qiniu.conf.Config()
+    const mac = new qiniu.auth.digest.Mac(accessKey, secretKey)
+    const qiniuConfig = new qiniu.conf.Config()
     try {
-      const bucketManager = new window.node.qiniu.rs.BucketManager(mac, qiniuConfig)
+      const bucketManager = new qiniu.rs.BucketManager(mac, qiniuConfig)
       const formattedPath = path?.replace(/^\/+|\/+$/, '') || ''
       const key = path === '/' || !path ? fileName : `${formattedPath}/${fileName}`
       const res = (await new Promise((resolve, reject) => {

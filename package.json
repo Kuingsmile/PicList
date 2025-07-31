@@ -22,7 +22,7 @@
     "build:linux": "electron-vite build && electron-builder --linux",
     "bump": "bump-version",
     "cz": "git-cz",
-    "dev": "electron-vite dev",
+    "dev": "electron-vite dev --watch",
     "i18n": "node ./scripts/gen-i18n-types.js",
     "i18n:check": "node ./scripts/find-unused-i18n.js",
     "i18n:check:verbose": "node ./scripts/find-unused-i18n.js --verbose",

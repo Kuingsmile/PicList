@@ -12,6 +12,7 @@ import { IBrowserWindowOptions } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
 import { T } from '~/i18n'
 
+import logo from '../../../../../resources/logo.png?asset'
 import {
   MANUAL_WINDOW_URL,
   MINI_WINDOW_URL,
@@ -111,7 +112,7 @@ if (process.platform !== 'darwin') {
   settingWindowOptions.frame = false
   settingWindowOptions.backgroundColor = '#3f3c37'
   settingWindowOptions.transparent = false
-  settingWindowOptions.icon = '.resources/logo.png'
+  settingWindowOptions.icon = '../../../../../resources/logo.png'
 }
 
 const miniWindowOptions = {
@@ -123,7 +124,7 @@ const miniWindowOptions = {
   skipTaskbar: true,
   resizable: false,
   transparent: process.platform !== 'linux',
-  icon: './resources/logo.png',
+  icon: logo,
   webPreferences: {
     sandbox: false,
     preload: preloadPath,
@@ -172,7 +173,7 @@ const toolboxWindowOptions = {
   resizable: false,
   title: `PicList ${T('TOOLBOX')}`,
   vibrancy: 'ultra-dark',
-  icon: './resources/logo.png',
+  icon: logo,
   webPreferences: {
     sandbox: false,
     backgroundThrottling: false,

@@ -68,10 +68,11 @@ export function digestAuthHeader (
 
 export async function getAuthHeader (method: string, host: string, uri: string, username: string, password: string) {
   try {
-    await window.node.axios.get(`${host}${uri}`)
-  } catch (error: any) {
-    if (error.response.status === 401 && error.response.headers['www-authenticate']) {
-      return digestAuthHeader(method, uri, error.response.headers['www-authenticate'], username, password)
+    const response = await fetch(`${host}${uri}`)
+    if (response.status === 401 && response.headers.get('www-authenticate')) {
+      return digestAuthHeader(method, uri, response.headers.get('www-authenticate')!, username, password)
     }
+  } catch (error: any) {
+    console.error('Network error:', error)
   }
 }

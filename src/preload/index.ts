@@ -1,17 +1,12 @@
-// TODO Octokit axios webdav
+// TODO axios
 import crypto from 'node:crypto'
-import https from 'node:https'
 import path from 'node:path'
 
 import { I18n, ObjectAdapter } from '@piclist/i18n'
-import OSS from 'ali-oss'
-import COS from 'cos-nodejs-sdk-v5'
 import { clipboard, contextBridge, ipcRenderer, webFrame } from 'electron'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
 import mime from 'mime-types'
-import qiniu from 'qiniu'
-import Upyun from 'upyun'
 import { isReactive, isRef, toRaw, unref } from 'vue'
 
 import { RPC_ACTIONS, RPC_ACTIONS_INVOKE } from '#/events/constants'
@@ -92,20 +87,6 @@ try {
     crypto: {
       randomBytes: crypto.randomBytes,
       createHash: crypto.createHash
-    },
-    https: {
-      Agent: https.Agent
-    },
-    qiniu: {
-      auth: qiniu.auth,
-      rs: qiniu.rs,
-      conf: qiniu.conf
-    },
-    COS,
-    OSS,
-    Upyun: {
-      Service: Upyun.Service,
-      Client: Upyun.Client
     },
     yaml: {
       load: yaml.load

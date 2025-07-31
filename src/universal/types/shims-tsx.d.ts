@@ -1,19 +1,11 @@
 import crypto from 'node:crypto'
-import https from 'node:https'
 import path from 'node:path'
 
-import { Octokit } from '@octokit/rest'
-import OSS from 'ali-oss'
-import axios from 'axios'
-import COS from 'cos-nodejs-sdk-v5'
 import { clipboard } from 'electron'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
 import mime from 'mime-types'
-import qiniu from 'qiniu'
-import Upyun from 'upyun'
 import { VNode } from 'vue'
-import { AuthType, createClient } from 'webdav'
 
 import { IpcRendererListener } from '#/types/electron'
 import { IRPCActionType } from '#/types/enum'
@@ -62,36 +54,14 @@ declare global {
         readFile: typeof fs.readFile
         statSync: typeof fs.statSync
       }
-      https: {
-        Agent: typeof https.Agent
-      }
-      qiniu: {
-        auth: typeof qiniu.auth
-        rs: typeof qiniu.rs
-        conf: typeof qiniu.conf
-      }
-      COS: typeof COS
-      OSS: typeof OSS
-      Upyun: {
-        Service: typeof Upyun.Service
-        Client: typeof Upyun.Client
-      }
-      Octokit: typeof Octokit
-      axios: {
-        get: typeof axios.get
-        delete: typeof axios.delete
-        post: typeof axios.post
-      }
+
       yaml: {
         load: typeof yaml.load
       }
       mime: {
         lookup: typeof mime.lookup
       }
-      webdav: {
-        createClient: typeof createClient
-        AuthType: typeof AuthType
-      }
+
     }
     i18n: {
       setLocales: (lang: string, locales: ILocales) => void

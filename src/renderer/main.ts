@@ -33,8 +33,8 @@ app.config.globalProperties.sendToMain = window.electron.sendToMain
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 app.use(VueLazyLoad, {
-  loading: 'file://loading.jpg',
-  error: 'file://unknown-file-type.svg',
+  loading: '/loading.jpg',
+  error: '/unknown-file-type.svg',
   delay: 500
 })
 app.use(ElementUI)

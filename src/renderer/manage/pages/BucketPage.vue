@@ -2122,8 +2122,8 @@ async function handleClickFile (item: any) {
         type: 'success'
       })
       const fileUrl = item.url
-      const res = await window.node.axios.get(fileUrl, options)
-      const content = res.data
+      const res = await fetch(fileUrl, options)
+      const content = await res.text()
       markDownContent.value = await marked.parse(content)
       isShowMarkDownDialog.value = true
     } catch (error) {
@@ -2140,8 +2140,8 @@ async function handleClickFile (item: any) {
         type: 'success'
       })
       const fileUrl = item.url
-      const res = await window.node.axios.get(fileUrl, options)
-      textfileContent.value = res.data
+      const res = await fetch(fileUrl, options)
+      textfileContent.value = await res.text()
       isShowTextFileDialog.value = true
     } catch (error) {
       ElMessage.error($T('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))

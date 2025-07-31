@@ -4,6 +4,7 @@ import { IRPCActionType, IRPCType } from '#/types/enum'
 import { IIPCEvent } from '#/types/rpc'
 import { IStringKeyMap } from '#/types/types'
 import { RPCRouter } from '~/events/rpc/router'
+import deleteRoutes from '~/events/rpc/routes/picbed/delete'
 import {
   deleteUploaderConfig,
   getUploaderConfigList,
@@ -94,6 +95,8 @@ const picbedRoutes = [
   }
 ]
 
-picbedRouter.addBatch(picbedRoutes)
+const picBedsRoutes = [...picbedRoutes, ...deleteRoutes]
+
+picbedRouter.addBatch(picBedsRoutes)
 
 export { picbedRouter }

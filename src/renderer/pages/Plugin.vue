@@ -248,7 +248,7 @@ import {
   PICGO_TOGGLE_PLUGIN
 } from '#/events/constants'
 import { IRPCActionType } from '#/types/enum'
-import { INPMSearchResult, INPMSearchResultObject, IPicGoPlugin } from '#/types/types'
+import { INPMSearchResultObject, IPicGoPlugin } from '#/types/types'
 import { handleStreamlinePluginName } from '#/utils/common'
 import { configPaths } from '#/utils/configPaths'
 
@@ -299,8 +299,9 @@ watch(dialogVisible, (val: boolean) => {
 
 async function getLatestVersionOfPlugIn (pluginName: string) {
   try {
-    const res = await window.node.axios.get(`https://registry.npmjs.com/${pluginName}`)
-    latestVersionMap[pluginName] = res.data['dist-tags'].latest
+    const res = await fetch(`https://registry.npmjs.com/${pluginName}`)
+    const data = await res.json()
+    latestVersionMap[pluginName] = data['dist-tags'].latest
   } catch (err) {
     console.error(err)
   }
@@ -510,10 +511,10 @@ async function handleConfirmConfig () {
 }
 
 function _getSearchResult (val: string) {
-  window.node.axios
-    .get(`https://registry.npmjs.com/-/v1/search?text=${val}`)
-    .then((res: INPMSearchResult) => {
-      pluginList.value = res.data.objects
+  fetch(`https://registry.npmjs.com/-/v1/search?text=${val}`)
+    .then(async (res: Response) => {
+      const data = await res.json()
+      pluginList.value = data.objects
         .filter((item: INPMSearchResultObject) => {
           return item.package.name.includes('picgo-plugin-')
         })
@@ -522,7 +523,7 @@ function _getSearchResult (val: string) {
         })
       loading.value = false
     })
-    .catch(err => {
+    .catch((err: any) => {
       console.log(err)
       loading.value = false
     })

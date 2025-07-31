@@ -29,6 +29,11 @@ import { isMacOSVersionGreaterThanOrEqualTo } from '~/utils/getMacOSVersion'
 import pasteTemplate from '~/utils/pasteTemplate'
 import { hideMiniWindow, openMainWindow, openMiniWindow } from '~/utils/windowHelper'
 
+import menubarPng from '../../../../../resources/menubar.png?asset'
+import menubarNewDarwinTemplate from '../../../../../resources/menubar-newdarwinTemplate.png?asset'
+import menubarNodarwin from '../../../../../resources/menubar-nodarwin.png?asset'
+import uploadPng from '../../../../../resources/upload.png?asset'
+import uploadDarkPng from '../../../../../resources/upload-dark.png?asset'
 let contextMenu: Menu | null
 
 export function setDockMenu () {
@@ -219,9 +224,9 @@ export function createContextMenu () {
 const getTrayIcon = () => {
   if (process.platform === 'darwin') {
     const isMacOSGreaterThan11 = isMacOSVersionGreaterThanOrEqualTo('11')
-    return isMacOSGreaterThan11 ? './resources/menubar-newdarwinTemplate.png' : './resources/menubar.png'
+    return isMacOSGreaterThan11 ? menubarNewDarwinTemplate : menubarPng
   } else {
-    return './resources/menubar-nodarwin.png'
+    return menubarNodarwin
   }
 }
 
@@ -291,9 +296,9 @@ export function createTray (tooltip: string) {
 
     tray.on('drag-enter', () => {
       if (nativeTheme.shouldUseDarkColors) {
-        tray!.setImage('./resources/upload-dark.png')
+        tray!.setImage(uploadDarkPng)
       } else {
-        tray!.setImage('./resources/upload.png')
+        tray!.setImage(uploadPng)
       }
     })
 
