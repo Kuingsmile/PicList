@@ -4,8 +4,8 @@ const S3Client = require('@aws-sdk/client-s3')
 const Upload = require('@aws-sdk/lib-storage')
 const pkg = require('../package.json')
 const configList = require('./config')
-const fs = require('fs')
-const path = require('path')
+const fs = require('node:fs')
+const path = require('node:path')
 
 const BUCKET = 'piclist-dl'
 const VERSION = pkg.version

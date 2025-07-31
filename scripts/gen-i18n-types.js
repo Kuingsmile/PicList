@@ -1,21 +1,27 @@
-const yaml = require('js-yaml')
-const path = require('path')
-const fs = require('fs')
-const languageFileName = 'zh-CN.yml' // use zh-CN for type is OK
-const i18nFolder = path.join(__dirname, '../public/i18n')
-const typeFolder = path.join(__dirname, '../src/universal/types')
-const languageFile = path.join(i18nFolder, languageFileName)
+import { readFileSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const langFile = fs.readFileSync(languageFile, 'utf8')
+import { load } from 'js-yaml'
+const languageFileName = 'zh-CN.yml'
 
-const obj = yaml.load(langFile)
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+const i18nFolder = join(__dirname, '../public/i18n')
+const typeFolder = join(__dirname, '../src/universal/types')
+const languageFile = join(i18nFolder, languageFileName)
+
+const langFile = readFileSync(languageFile, 'utf8')
+
+const obj = load(langFile)
 
 const keys = Object.keys(obj)
 
-const types = `interface ILocales {
+const types = `export interface ILocales {
   ${keys.map(key => `${key}: string`).join('\n  ')}
 }
-type ILocalesKey = keyof ILocales
+export type ILocalesKey = keyof ILocales
 `
 
-fs.writeFileSync(path.join(typeFolder, 'i18n.d.ts'), types)
+writeFileSync(join(typeFolder, 'i18n.ts'), types)

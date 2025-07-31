@@ -59,7 +59,7 @@ const win32 = [
   }
 ]
 
-module.exports = {
+export default {
   darwin,
   linux,
   win32

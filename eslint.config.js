@@ -11,7 +11,7 @@ export default tseslint.config(
     files: ['./src/*.{ts,tsx,cts,mts,js,cjs,mjs}', './scripts/*.{ts,js,mjs}', './test/*.{ts,js,mjs}']
   },
   {
-    ignores: ['**/node_modules/**', '**/out/**', '**/webpack.config.js', 'vitest.workspace.mjs']
+    ignores: ['**/node_modules/**', '**/out/**', '**/webpack.config.js', 'vitest.workspace.mjs', '**/dist/**']
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,

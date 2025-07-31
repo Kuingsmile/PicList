@@ -1,6 +1,6 @@
-const crypto = require('crypto')
-const os = require('os')
-const path = require('path')
+const crypto = require('node:crypto')
+const os = require('node:os')
+const path = require('node:path')
 const axios = require('axios')
 const fs = require('fs-extra')
 const pkg = require('../package.json')
@@ -24,7 +24,7 @@ const files = [
 /**
  * Create progress bar string
  */
-function getProgressBar(current, total, length = 20) {
+function getProgressBar (current, total, length = 20) {
   const progress = Math.round((current / total) * length)
   const percentage = Math.round((current / total) * 100)
   const bar = '█'.repeat(progress) + '░'.repeat(length - progress)
@@ -34,7 +34,7 @@ function getProgressBar(current, total, length = 20) {
 /**
  * Format bytes to human-readable format
  */
-function formatBytes(bytes, decimals = 2) {
+function formatBytes (bytes, decimals = 2) {
   if (bytes === 0) return '0 Bytes'
   const k = 1024
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
@@ -45,7 +45,7 @@ function formatBytes(bytes, decimals = 2) {
 /**
  * Download file and calculate SHA256 hash
  */
-async function downloadAndHash(fileInfo) {
+async function downloadAndHash (fileInfo) {
   const { url, name } = fileInfo
   const filePath = path.join(DOWNLOAD_DIR, name)
 
@@ -101,7 +101,7 @@ async function downloadAndHash(fileInfo) {
 /**
  * Main function
  */
-async function main() {
+async function main () {
   console.log(`Generating SHA256 hashes for PicList v${version}`)
   console.log(`Download directory: ${DOWNLOAD_DIR}`)
 
