@@ -27,3 +27,5 @@ scripts/generateYmlFile.js
 /docs
 cloc.exe
 desktop.ini
+/dist
+/out
