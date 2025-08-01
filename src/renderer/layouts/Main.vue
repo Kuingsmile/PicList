@@ -1,519 +1,297 @@
 <template>
-  <div id="main-page">
-    <div class="fake-title-bar">
-      <div class="fake-title-bar__title">
-        PicList - {{ version }}
-      </div>
-      <div
-        v-if="osGlobal !== 'darwin'"
-        class="handle-bar"
-      >
-        <el-icon
-          class="minus"
-          :color="isAlwaysOnTop ? '#409EFF' : '#fff'"
-          size="20"
-          style="margin-right: 10px"
-          @click="setAlwaysOnTop"
-        >
-          <ArrowUpBold />
-        </el-icon>
-        <el-icon
-          class="minus"
-          color="#fff"
-          size="20"
-          style="margin-right: 10px"
-          @click="minimizeWindow"
-        >
-          <SemiSelect />
-        </el-icon>
-        <el-icon
-          class="plus"
-          color="orange"
-          size="20"
-          style="margin-right: 10px"
-          @click="openMiniWindow"
-        >
-          <ArrowDownBold />
-        </el-icon>
-        <el-icon
-          class="close"
-          color="#fff"
-          size="20"
-          @click="closeWindow"
-        >
-          <CloseBold />
-        </el-icon>
-      </div>
+  <div
+    id="main"
+    class="app-container"
+  >
+    <TitleBar />
+    <div class="app-background">
+      <div class="bg-gradient-primary" />
+      <div class="bg-gradient-secondary" />
     </div>
-    <el-progress
-      v-if="isShowprogress"
-      :percentage="progress"
-      :stroke-width="7"
-      :text-inside="true"
-      :show-text="false"
-      status="success"
-      class="progress-bar"
-    />
-    <el-row
-      style="padding-top: 22px"
-      class="main-content"
-    >
-      <el-col class="side-bar-menu">
-        <el-menu
-          class="picgo-sidebar"
-          :default-active="defaultActive"
-          :unique-opened="true"
-          @select="handleSelect"
-        >
-          <el-menu-item :index="routerConfig.UPLOAD_PAGE">
-            <el-icon>
-              <UploadFilled />
-            </el-icon>
-            <span>{{ $t('UPLOAD_AREA') }}</span>
-          </el-menu-item>
-          <el-menu-item :index="routerConfig.MANAGE_LOGIN_PAGE">
-            <el-icon>
-              <PieChart />
-            </el-icon>
-            <span>{{ $t('MANAGE_PAGE') }}</span>
-          </el-menu-item>
-          <el-menu-item :index="routerConfig.GALLERY_PAGE">
-            <el-icon>
-              <PictureFilled />
-            </el-icon>
-            <span>{{ $t('GALLERY') }}</span>
-          </el-menu-item>
-          <el-sub-menu
-            index="sub-menu"
-            :show-timeout="0"
-            :hide-timeout="0"
-            :popper-offset="0"
-          >
-            <template #title>
-              <el-icon>
-                <Menu />
-              </el-icon>
-              <span>{{ $t('PICBEDS_SETTINGS') }}</span>
-            </template>
-            <template v-for="item in picBedGlobal">
-              <el-menu-item
-                v-if="item.visible"
-                :key="item.type"
-                :index="`${routerConfig.UPLOADER_CONFIG_PAGE}-${item.type}`"
-              >
-                <span>{{ item.name }}</span>
-              </el-menu-item>
-            </template>
-          </el-sub-menu>
-          <el-menu-item :index="routerConfig.SETTING_PAGE">
-            <el-icon>
-              <Tools />
-            </el-icon>
-            <span>{{ $t('PICLIST_SETTINGS') }}</span>
-          </el-menu-item>
-          <el-menu-item :index="routerConfig.PLUGIN_PAGE">
-            <el-icon>
-              <Share />
-            </el-icon>
-            <span>{{ $t('PLUGIN_SETTINGS') }}</span>
-          </el-menu-item>
-          <el-menu-item :index="routerConfig.DocumentPage">
-            <el-icon>
-              <Link />
-            </el-icon>
-            <span>{{ $t('MANUAL') }}</span>
-          </el-menu-item>
-        </el-menu>
-        <el-icon
-          class="info-window"
-          @click="openMenu"
-        >
-          <InfoFilled />
-        </el-icon>
-      </el-col>
-      <el-col
-        :span="21"
-        :offset="3"
-        style="height: 100%"
-        class="main-wrapper"
-      >
-        <router-view v-slot="{ Component }">
+    <Navigation />
+    <main class="main-content">
+      <div class="content-container">
+        <router-view v-slot="{ Component, route }">
           <transition
-            name="picgo-fade"
+            name="page"
             mode="out-in"
           >
             <keep-alive :include="keepAlivePages">
-              <component :is="Component" />
+              <component
+                :is="Component"
+                :key="route.path"
+              />
             </keep-alive>
           </transition>
         </router-view>
-      </el-col>
-    </el-row>
-    <el-dialog
-      v-model="qrcodeVisible"
-      class="qrcode-dialog"
-      top="3vh"
-      width="60%"
-      :title="$t('PICBED_QRCODE')"
-      :modal-append-to-body="false"
-      lock-scroll
-      append-to-body
-    >
-      <el-form
-        label-position="left"
-        label-width="70px"
-        size="small"
-      >
-        <el-form-item :label="$t('CHOOSE_PICBED')">
-          <el-select
-            v-model="choosedPicBedForQRCode"
-            multiple
-            collapse-tags
-            :persistent="false"
-            teleported
-          >
-            <el-option
-              v-for="item in picBedGlobal"
-              :key="item.type"
-              :label="item.name"
-              :value="item.type"
-            />
-          </el-select>
-          <el-button
-            v-show="choosedPicBedForQRCode.length > 0"
-            type="primary"
-            round
-            class="copy-picbed-config"
-            @click="handleCopyPicBedConfig"
-          >
-            {{ $t('COPY_PICBED_CONFIG') }}
-          </el-button>
-        </el-form-item>
-      </el-form>
-      <div class="qrcode-container">
-        <qrcode-vue
-          v-show="choosedPicBedForQRCode.length > 0"
-          :size="280"
-          :value="picBedConfigString"
-        />
       </div>
-    </el-dialog>
-    <input-box-dialog />
+    </main>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {
-  ArrowDownBold,
-  ArrowUpBold,
-  CloseBold,
-  InfoFilled,
-  Link,
-  Menu,
-  PictureFilled,
-  PieChart,
-  SemiSelect,
-  Share,
-  Tools,
-  UploadFilled
-} from '@element-plus/icons-vue'
-import type { IpcRendererEvent } from 'electron'
-import { ElMessage as $message, ElMessageBox } from 'element-plus'
-import { pick } from 'lodash-es'
-import QrcodeVue from 'qrcode.vue'
-import pkg from 'root/package.json'
-import { nextTick, onBeforeMount, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { onBeforeRouteUpdate, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
-import InputBoxDialog from '@/components/InputBoxDialog.vue'
-import * as config from '@/router/config'
-import { getConfig, saveConfig } from '@/utils/dataSender'
-import { osGlobal, picBedGlobal, updatePicBedGlobal } from '@/utils/global'
-import { SHOW_MAIN_PAGE_QRCODE } from '#/events/constants'
-import { II18nLanguage, IRPCActionType } from '#/types/enum'
-import { configPaths, manualPageOpenType } from '#/utils/configPaths'
+import Navigation from '@/components/NavigationPage.vue'
+import TitleBar from '@/components/ui/TitleBar.vue'
 
-const { t } = useI18n()
-const version = ref(pkg.version)
-const routerConfig = reactive(config)
-const defaultActive = ref(routerConfig.UPLOAD_PAGE)
 const $router = useRouter()
-const qrcodeVisible = ref(false)
-const picBedConfigString = ref('')
-const choosedPicBedForQRCode: Ref<string[]> = ref([])
-const isAlwaysOnTop = ref(false)
 const keepAlivePages = $router
   .getRoutes()
   .filter(item => item.meta.keepAlive)
   .map(item => item.name as string)
 
-const isShowprogress = ref(false)
-const progress = ref(0)
-
-const qrCodeHandler = () => {
-  qrcodeVisible.value = true
-}
-
-const uploadProcessHandler = (_event: IpcRendererEvent, data: { progress: number }) => {
-  isShowprogress.value = data.progress !== 100 && data.progress !== 0
-  progress.value = data.progress
-}
-onBeforeMount(() => {
-  updatePicBedGlobal()
-  window.electron.ipcRendererOn(SHOW_MAIN_PAGE_QRCODE, qrCodeHandler)
-  window.electron.ipcRendererOn('updateProgress', uploadProcessHandler)
-})
-
-watch(
-  () => choosedPicBedForQRCode,
-  val => {
-    if (val.value.length > 0) {
-      nextTick(async () => {
-        const picBedConfig = await getConfig('picBed')
-        const config = pick(picBedConfig, ...choosedPicBedForQRCode.value)
-        picBedConfigString.value = JSON.stringify(config)
-      })
-    }
-  },
-  { deep: true }
-)
-
-const handleSelect = async (index: string) => {
-  defaultActive.value = index
-  if (index === routerConfig.DocumentPage) {
-    const manualPageOpenSetting = await getConfig<manualPageOpenType>(configPaths.settings.manualPageOpen)
-    const lang = (await getConfig(configPaths.settings.language)) || II18nLanguage.ZH_CN
-    const openManual = () => window.electron.sendRPC(IRPCActionType.OPEN_MANUAL_WINDOW)
-    const openExternal = () =>
-      window.electron.sendRPC(
-        IRPCActionType.OPEN_URL,
-        lang === II18nLanguage.ZH_CN ? 'https://piclist.cn/app.html' : 'https://piclist.cn/en/app.html'
-      )
-
-    if (!manualPageOpenSetting) {
-      ElMessageBox.confirm(t('MANUAL_PAGE_OPEN_TIP'), t('MANUAL_PAGE_OPEN_TIP_TITLE'), {
-        confirmButtonText: t('MANUAL_PAGE_OPEN_BY_BROWSER'),
-        cancelButtonText: t('MANUAL_PAGE_OPEN_BY_BUILD_IN'),
-        type: 'info',
-        center: true
-      })
-        .then(() => {
-          saveConfig(configPaths.settings.manualPageOpen, 'browser')
-          openExternal()
-        })
-        .catch(() => {
-          saveConfig(configPaths.settings.manualPageOpen, 'window')
-          openManual()
-        })
-    } else {
-      manualPageOpenSetting === 'window' ? openManual() : openExternal()
-    }
-    return
-  }
-  const type = index.match(routerConfig.UPLOADER_CONFIG_PAGE)
-  if (type === null) {
-    $router.push({
-      name: index
-    })
-  } else {
-    const type = index.replace(`${routerConfig.UPLOADER_CONFIG_PAGE}-`, '')
-    $router.push({
-      name: routerConfig.UPLOADER_CONFIG_PAGE,
-      params: {
-        type
-      }
-    })
-  }
-}
-
-function minimizeWindow () {
-  window.electron.sendRPC(IRPCActionType.MINIMIZE_WINDOW)
-}
-
-function closeWindow () {
-  window.electron.sendRPC(IRPCActionType.CLOSE_WINDOW)
-}
-
-function openMenu () {
-  window.electron.sendRPC(IRPCActionType.SHOW_MAIN_PAGE_MENU)
-}
-
-function openMiniWindow () {
-  window.electron.sendRPC(IRPCActionType.OPEN_MINI_WINDOW)
-}
-
-function handleCopyPicBedConfig () {
-  window.electron.clipboard.writeText(picBedConfigString.value)
-  $message.success(t('COPY_PICBED_CONFIG_SUCCEED'))
-}
-
-function setAlwaysOnTop () {
-  isAlwaysOnTop.value = !isAlwaysOnTop.value
-  window.electron.sendRPC(IRPCActionType.MAIN_WINDOW_ON_TOP)
-}
-
-onBeforeRouteUpdate(async to => {
-  if (to.params.type) {
-    defaultActive.value = `${routerConfig.UPLOADER_CONFIG_PAGE}-${to.params.type}`
-  } else {
-    defaultActive.value = to.name as string
-  }
-})
-
-onBeforeUnmount(() => {
-  window.electron.ipcRendererRemoveListener(SHOW_MAIN_PAGE_QRCODE, qrCodeHandler)
-  window.electron.ipcRendererRemoveListener('updateProgress', uploadProcessHandler)
-})
 </script>
+
 <script lang="ts">
 export default {
   name: 'MainPage'
 }
 </script>
-<style lang="stylus">
-$darwinBg = transparentify(#172426, #000, 0.7)
-.setting-list-scroll
-  height 800px
-  overflow-y auto
-  overflow-x hidden
-  margin-right 0!important
-.picgo-fade
-  &-enter,
-  &-leave,
-  &-leave-active
-    opacity 0
-  &-enter-active,
-  &-leave-active
-    transition all 150ms linear
-.view-title
-  color #eee
-  font-size 20px
-  text-align center
-  margin 10px auto
-#main-page
-  height 100%
-  .qrcode-dialog
-    .qrcode-container
-      display flex
-      justify-content center
-    .el-dialog__body
-      padding-top 10px
-    .copy-picbed-config
-      margin-left 10px
-  .fake-title-bar
-    -webkit-app-region drag
-    height h = 22px
-    width 100%
-    text-align center
-    color #eee
-    font-size 12px
-    line-height h
-    position fixed
-    z-index 100
-    &.darwin
-      background transparent
-      background-image linear-gradient(
-        to right,
-        transparent 0%,
-        transparent 167px,
-        $darwinBg 167px,
-        $darwinBg 100%
-      )
-      .fake-title-bar__title
-        padding-left 167px
-    .handle-bar
-      position absolute
-      top 2px
-      right 4px
-      z-index 10000
-      -webkit-app-region no-drag
-      .el-icon
-        cursor pointer
-        font-size 16px
-        margin-left 5px
-      .el-icon.minus
-        &:hover
-          color #409EFF
-      .el-icon.close
-        &:hover
-          color #F15140
-      .el-icon.plus
-        &:hover
-          color #69C282
-  .main-wrapper
-    &.darwin
-      background $darwinBg
-  .side-bar-menu
-    position fixed
-    height calc(100vh - 22px)
-    overflow-x hidden
-    overflow-y auto
-    width 142px
-    .info-window
-      cursor pointer
-      position fixed
-      bottom 4px
-      left 4px
-      cursor poiter
-      color #878d99
-      transition .2s all ease-in-out
-      &:hover
-        color #409EFF
-  .el-menu
-    border-right none
-    background transparent
-    width 142px
-    &-item
-      color #eee
-      position relative
-      &:focus,
-      &:hover
-        color #fff
-        background transparent
-      &.is-active
-        color active-color = #409EFF
-        &:before
-          content ''
-          position absolute
-          width 1px
-          height 20px
-          right 0
-          top 18px
-          background active-color
-  .el-sub-menu__title
-    color #eee
-    &:hover
-      background transparent
-      span
-        color #fff
-  .el-sub-menu
-    .el-menu-item
-      min-width 142px
-      &.is-active
-        &:before
-          top 16px
-  .main-content
-    padding-top 22px
-    position relative
-    height calc(100vh - 22px)
-    z-index 10
-  .el-dialog__body
-    padding 20px
-  .support
-    text-align center
-    &-title
-      text-align center
-      color #878d99
-  .align-center
-    input
-      text-align center
-  *::-webkit-scrollbar
-    width 2px
-    height 8px
-  *::-webkit-scrollbar-thumb
-    border-radius 4px
-    background #6f6f6f
-  *::-webkit-scrollbar-track
-    background-color transparent
+
+<style>
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
+
+  --color-text-primary: #1d1d1f;
+  --color-text-secondary: #6e6e73;
+  --color-text-tertiary: #86868b;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f5f5f7;
+  --color-background-tertiary: #fbfbfd;
+  --color-surface: rgba(255, 255, 255, 0.8);
+  --color-surface-elevated: rgba(255, 255, 255, 0.95);
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-border-secondary: rgba(0, 0, 0, 0.05);
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-accent: #007aff;
+  --color-accent-hover: #0056b3;
+  --color-success: #34c759;
+  --color-warning: #ff9500;
+  --color-danger: #ff3b30;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-medium: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+:root.dark,
+:root.auto.dark {
+  --color-text-primary: #f5f5f7;
+  --color-text-secondary: #a1a1a6;
+  --color-text-tertiary: #86868b;
+  --color-background-primary: #000000;
+  --color-background-secondary: #1c1c1e;
+  --color-background-tertiary: #2c2c2e;
+  --color-surface: rgba(28, 28, 30, 0.8);
+  --color-surface-elevated: rgba(44, 44, 46, 0.95);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-secondary: rgba(255, 255, 255, 0.05);
+  --color-primary: #6366f1;
+  --color-primary-hover: #818cf8;
+  --color-accent: #0a84ff;
+  --color-accent-hover: #409cff;
+}
+
+:root.dark,
+:root.auto.dark {
+  .nav-item {
+    color: var(--color-text-secondary);
+  }
+
+  .nav-item.active {
+    color: var(--color-accent);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-text-primary);
+  }
+
+  p,
+  span,
+  div {
+    color: inherit;
+  }
+
+  svg {
+    color: inherit;
+  }
+
+  input,
+  select,
+  textarea {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    color: var(--color-text-primary);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-text-tertiary);
+  }
+
+  button {
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+  }
+
+  button:hover {
+    background: var(--color-surface-elevated);
+  }
+}
+
+body {
+  color: var(--color-text-primary);
+  background-color: var(--color-background-primary);
+  font-family: inherit;
+  overflow: hidden;
+}
+
+.app-container {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  background-color: var(--color-background-primary);
+  padding-top: 32px;
+}
+
+.app-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.bg-gradient-primary {
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(0, 122, 255, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.bg-gradient-secondary {
+  position: absolute;
+  bottom: -40%;
+  left: -20%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(175, 82, 222, 0.03) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.main-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  height: 100vh;
+  overflow: scroll;
+  background-color: var(--color-background-secondary);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.main-content::-webkit-scrollbar {
+  display: none;
+}
+
+.content-container {
+  height: 100%;
+  padding: 0.3 rem;
+  max-width: none;
+  margin: 0;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(24px) scale(0.98);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(1.02);
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 6px;
+  border: 3px solid var(--color-background-primary);
+  transition: background-color var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text-tertiary);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--color-background-primary);
+}
+
+::selection {
+  background-color: rgba(0, 122, 255, 0.2);
+  color: var(--color-text-primary);
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 </style>

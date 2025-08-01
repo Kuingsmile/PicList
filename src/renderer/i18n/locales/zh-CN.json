@@ -1,4 +1,40 @@
 {
+  "app": {
+    "title": "PicList"
+  },
+  "titleBar": {
+    "alwaysOnTop": "置顶",
+    "close": "关闭",
+    "minimize": "最小化",
+    "miniWindow": "迷你窗口"
+  },
+  "navigation": {
+    "upload": "上传",
+    "manage": "管理",
+    "gallery": "相册",
+    "settings": "设置",
+    "plugins": "插件",
+    "manual": "手册",
+    "picbed": "图床",
+    "close": "关闭",
+    "copyPicBedConfig": "复制图床设置",
+    "selected": "已选中",
+    "moreOptions": "更多选项",
+    "picBedQrCode": "图床配置二维码",
+    "choosePicBed": "选择图床",
+    "selectPicBeds": "请选择图床"
+  },
+  "settings": {
+    "theme": {
+      "light": "浅色",
+      "dark": "深色",
+      "auto": "自动",
+      "lightDesc": "明亮模式",
+      "darkDesc": "黑暗模式",
+      "autoDesc": "自动模式",
+      "toggle": "切换主题"
+    }
+  },
   "OPEN_MAIN_WINDOW": "打开主窗口",
   "OPERATION_SUCCEED": "操作成功",
   "QUICK_UPLOAD": "快捷上传",
@@ -21,7 +57,6 @@
   "MANUAL_PAGE_OPEN_BY_BROWSER": "浏览器",
   "MANUAL_PAGE_OPEN_BY_BUILD_IN": "内置窗口",
   "MANUAL_PAGE_OPEN_SETTING_TIP": "选择手册打开方式",
-  "UPLOAD_AREA": "上传",
   "UPLOAD_VIEW_HINT": "点击打开图床设置",
   "MANAGE_PAGE": "管理",
   "GALLERY": "相册",
@@ -432,8 +467,8 @@
   "MANAGE_CONSTANT_GITHUB_PROXY_TIPS": "如果访问速度较慢，可以尝试配置代理",
   "MANAGE_CONSTANT_GITHUB_PAGING_DESC": "是否开启分页",
   "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_DESC": "CDN加速域名-可选",
-  "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_PLACEHOLDER": "支持使用{username}、{repo}、{branch}和{path}作为替换占位符，用于适配不同仓库和分支",
-  "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_TIPS": "例如: https://cdn.staticaly.com/gh/{username}/{repo}@{branch}/{path}",
+  "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_PLACEHOLDER": "支持使用{'{'}username{'}'}、{'{'}repo{'}'}、{'{'}branch{'}'}和{'{'}path{'}'}作为替换占位符，用于适配不同仓库和分支",
+  "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_TIPS": "例如：`https://cdn.staticaly.com/gh/{'{'}username{'}'}/{'{'}repo{'}'}{'@'}{'{'}branch{'}'}/{'{'}path{'}'}`",
   "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_RULE_MESSAGE_A": "加速域名请以http://或https://开头",
   "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_RULE_MESSAGE_B": "加速域名中的大括号必须成对出现",
   "MANAGE_CONSTANT_GITHUB_EXPLAIN": "API调用有每小时上限，此外不支持上传超过100M的文件",

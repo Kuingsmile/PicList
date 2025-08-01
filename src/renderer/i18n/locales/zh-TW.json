@@ -1,4 +1,40 @@
 {
+  "app": {
+    "title": "PicList"
+  },
+  "titleBar": {
+    "alwaysOnTop": "置頂",
+    "close": "關閉",
+    "minimize": "最小化",
+    "miniWindow": "迷你視窗"
+  },
+  "navigation": {
+    "upload": "上傳",
+    "manage": "管理",
+    "gallery": "相簿",
+    "settings": "設定",
+    "plugins": "插件",
+    "manual": "手冊",
+    "picbed": "圖床",
+    "close": "關閉",
+    "copyPicBedConfig": "複製圖床設定",
+    "selected": "已選中",
+    "moreOptions": "更多選項",
+    "picBedQrCode": "圖床配置 QRCODE",
+    "choosePicBed": "選擇圖床",
+    "selectPicBeds": "請選擇圖床"
+  },
+  "settings": {
+    "theme": {
+      "light": "淺色",
+      "dark": "深色",
+      "auto": "自動",
+      "lightDesc": "明亮模式",
+      "darkDesc": "黑暗模式",
+      "autoDesc": "自動模式",
+      "toggle": "切換主題"
+    }
+  },
   "OPEN_MAIN_WINDOW": "打開主視窗",
   "OPERATION_SUCCEED": "操作成功",
   "QUICK_UPLOAD": "快速上傳",
@@ -21,7 +57,6 @@
   "MANUAL_PAGE_OPEN_BY_BROWSER": "瀏覽器",
   "MANUAL_PAGE_OPEN_BY_BUILD_IN": "內置窗口",
   "MANUAL_PAGE_OPEN_SETTING_TIP": "選擇打開手冊方式",
-  "UPLOAD_AREA": "上傳",
   "UPLOAD_VIEW_HINT": "點擊打開圖床設定",
   "MANAGE_PAGE": "管理",
   "GALLERY": "相簿",
@@ -432,8 +467,8 @@
   "MANAGE_CONSTANT_GITHUB_PROXY_TIPS": "如果訪問速度較慢，可以嘗試配置代理",
   "MANAGE_CONSTANT_GITHUB_PAGING_DESC": "是否開啟分頁",
   "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_DESC": "CDN加速域名-可選",
-  "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_PLACEHOLDER": "支持使用{username}、{repo}、{branch}和{path}作為替換占位符，用於適配不同倉庫和分支",
-  "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_TIPS": "例如: https://cdn.staticaly.com/gh/{username}/{repo}@{branch}/{path}",
+  "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_PLACEHOLDER": "支持使用{'{'}username{'}'}、{'{'}repo{'}'}、{'{'}branch{'}'}和{'{'}path{'}'}作為替換占位符，用於適配不同倉庫和分支",
+  "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_TIPS": "例如：`https://cdn.staticaly.com/gh/{'{'}username{'}'}/{'{'}repo{'}'}{'@'}{'{'}branch{'}'}/{'{'}path{'}'}`",
   "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_RULE_MESSAGE_A": "加速域名請以http://或https://開頭",
   "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_RULE_MESSAGE_B": "加速域名中的大括號必須成對出現",
   "MANAGE_CONSTANT_GITHUB_EXPLAIN": "API調用有每小時上限，此外不支持上傳超過100M的文件",

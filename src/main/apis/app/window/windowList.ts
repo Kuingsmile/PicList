@@ -24,8 +24,6 @@ import {
 
 const windowList = new Map<IWindowList, IWindowListItem>()
 
-const handleWindowParams = (windowURL: string) => windowURL
-
 const getDefaultWindowSizes = (): { width: number; height: number } => {
   const [mainWindowWidth, mainWindowHeight] = db.get([
     configPaths.settings.mainWindowWidth,
@@ -92,8 +90,8 @@ const settingWindowOptions = {
   fullscreenable: true,
   resizable: true,
   title: 'PicList',
-  vibrancy: 'ultra-dark',
-  transparent: true,
+  transparent: false,
+  backgroundColor: '#ebeef5',
   titleBarStyle: 'hidden',
   webPreferences: {
     sandbox: false,
@@ -108,10 +106,7 @@ const settingWindowOptions = {
 } as IBrowserWindowOptions
 
 if (process.platform !== 'darwin') {
-  settingWindowOptions.show = false
   settingWindowOptions.frame = false
-  settingWindowOptions.backgroundColor = '#3f3c37'
-  settingWindowOptions.transparent = false
   settingWindowOptions.icon = '../../../../../resources/logo.png'
 }
 
@@ -196,7 +191,7 @@ windowList.set(IWindowList.TRAY_WINDOW, {
   multiple: false,
   options: () => trayWindowOptions,
   callback (window) {
-    window.loadURL(handleWindowParams(TRAY_WINDOW_URL))
+    window.loadURL(TRAY_WINDOW_URL)
     window.on('blur', () => {
       window.hide()
     })
@@ -208,7 +203,7 @@ windowList.set(IWindowList.MANUAL_WINDOW, {
   multiple: false,
   options: () => manualWindowOptions,
   callback (window) {
-    window.loadURL(handleWindowParams(MANUAL_WINDOW_URL))
+    window.loadURL(MANUAL_WINDOW_URL)
     window.focus()
   }
 })
@@ -218,7 +213,7 @@ windowList.set(IWindowList.SETTING_WINDOW, {
   multiple: false,
   options: () => settingWindowOptions,
   callback (window, windowManager) {
-    window.loadURL(handleWindowParams(SETTING_WINDOW_URL))
+    window.loadURL(SETTING_WINDOW_URL)
     window.webContents.openDevTools({ mode: 'detach' })
     window.on('closed', () => {
       bus.emit(TOGGLE_SHORTKEY_MODIFIED_MODE, false)
@@ -238,7 +233,7 @@ windowList.set(IWindowList.MINI_WINDOW, {
   multiple: false,
   options: () => miniWindowOptions,
   callback (window) {
-    window.loadURL(handleWindowParams(MINI_WINDOW_URL))
+    window.loadURL(MINI_WINDOW_URL)
   }
 })
 
@@ -247,7 +242,7 @@ windowList.set(IWindowList.RENAME_WINDOW, {
   multiple: true,
   options: () => renameWindowOptions,
   async callback (window, windowManager) {
-    window.loadURL(handleWindowParams(RENAME_WINDOW_URL))
+    window.loadURL(RENAME_WINDOW_URL)
     const currentWindow = windowManager.getAvailableWindow(true)
     if (currentWindow && currentWindow.isVisible()) {
       const { x, y, width, height } = currentWindow.getBounds()

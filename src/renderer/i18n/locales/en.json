@@ -1,4 +1,39 @@
 {
+  "app": {
+    "title": "PicList"
+  },
+  "titleBar": {
+    "alwaysOnTop": "Always On Top",
+    "close": "Close",
+    "minimize": "Minimize",
+    "miniWindow": "Mini Window"
+  },
+  "navigation": {
+    "upload": "Upload",
+    "manage": "Manage",
+    "gallery": "Gallery",
+    "settings": "Settings",
+    "plugins": "Plugins",
+    "picbed": "PicBed",
+    "close": "Close",
+    "copyPicBedConfig": "Copy PicBed Config",
+    "selected": "Selected",
+    "moreOptions": "More Options",
+    "picBedQrCode": "PicBed QR Code",
+    "choosePicBed": "Choose PicBed",
+    "selectPicBeds": "Select PicBeds"
+  },
+  "settings": {
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "Auto",
+      "lightDesc": "Light Mode",
+      "darkDesc": "Dark Mode",
+      "autoDesc": "Auto Mode",
+      "toggle": "Toggle Theme"
+    }
+  },
   "OPEN_MAIN_WINDOW": "Open Main Window",
   "OPERATION_SUCCEED": "Operation Succeed",
   "QUICK_UPLOAD": "Quick Upload",
@@ -21,7 +56,6 @@
   "MANUAL_PAGE_OPEN_BY_BROWSER": "Browser",
   "MANUAL_PAGE_OPEN_BY_BUILD_IN": "Built-in Window",
   "MANUAL_PAGE_OPEN_SETTING_TIP": "Select the way to open the manual",
-  "UPLOAD_AREA": "Upload",
   "UPLOAD_VIEW_HINT": "Click to open picbeds settings",
   "MANAGE_PAGE": "Manage",
   "GALLERY": "Gallery",
@@ -432,8 +466,8 @@
   "MANAGE_CONSTANT_GITHUB_PROXY_TIPS": "If the access speed is slow, you can try configuring a proxy",
   "MANAGE_CONSTANT_GITHUB_PAGING_DESC": "Enable pagination",
   "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_DESC": "CDN acceleration domain name - Optional",
-  "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_PLACEHOLDER": "Support using {username}, {repo}, {branch}, and {path} as replacement placeholders",
-  "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_TIPS": "For example: https://cdn.staticaly.com/gh/{username}/{repo}@{branch}/{path}",
+  "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_PLACEHOLDER": "Support using {'{'}username{'}'}, {'{'}repo{'}'}, {'{'}branch{'}'}, and {'{'}path{'}'} as replacement placeholders",
+  "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_TIPS": "eg. https://cdn.staticaly.com/gh/{'{'}username{'}'}/{'{'}repo{'}'}{'@'}{'{'}branch{'}'}/{'{'}path{'}'}",
   "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_RULE_MESSAGE_A": "The acceleration domain name must start with http:// or https://",
   "MANAGE_CONSTANT_GITHUB_CUSTOM_URL_RULE_MESSAGE_B": "The braces in the acceleration domain name must appear in pairs",
   "MANAGE_CONSTANT_GITHUB_EXPLAIN": "There is an hourly limit for API calls, and uploading files larger than 100M is not supported",

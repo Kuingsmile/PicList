@@ -34,6 +34,7 @@ app.config.globalProperties.sendRPC = window.electron.sendRPC
 app.config.globalProperties.sendToMain = window.electron.sendToMain
 
 const i18n = createI18n<MessageSchema, 'en' | 'zh-CN' | 'zh-TW'>({
+  legacy: false,
   locale: localStorage.getItem('currentLanguage') || 'zh-CN',
   fallbackLocale: 'zh-CN',
   messages: {
@@ -58,3 +59,7 @@ app.use(pinia)
 app.use(hljsVuePlugin)
 app.use(VueVideoPlayer)
 app.mount('#app')
+
+export {
+  i18n
+}

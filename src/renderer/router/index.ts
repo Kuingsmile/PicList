@@ -1,110 +1,122 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
+import MainPage from '@/layouts/Main.vue'
+import ManageBucketPage from '@/manage/pages/BucketPage.vue'
+import ManageEmptyPage from '@/manage/pages/EmptyPage.vue'
+import ManageLoginPage from '@/manage/pages/LogInPage.vue'
+import ManageMainPage from '@/manage/pages/ManageMain.vue'
+import ManageSettingPage from '@/manage/pages/ManageSetting.vue'
+import GalleryPage from '@/pages/Gallery.vue'
+import MiniPage from '@/pages/MiniPage.vue'
+import PicBedsPage from '@/pages/picbeds/index.vue'
+import SettingPage from '@/pages/PicGoSetting.vue'
+import PluginPage from '@/pages/Plugin.vue'
+import RenamePage from '@/pages/RenamePage.vue'
+import ShortKeyPage from '@/pages/ShortKey.vue'
+import Toolbox from '@/pages/Toolbox.vue'
+import TrayPage from '@/pages/TrayPage.vue'
+import UploadPage from '@/pages/Upload.vue'
+import UploaderConfigPage from '@/pages/UploaderConfigPage.vue'
 import * as config from '@/router/config'
 
 export default createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes: [
     {
       path: '/',
       name: config.TRAY_PAGE,
-      component: () => import('@/pages/TrayPage.vue')
+      component: TrayPage
     },
     {
       path: '/rename-page',
       name: config.RENAME_PAGE,
-      component: () => import('@/pages/RenamePage.vue')
+      component: RenamePage
     },
     {
       path: '/mini-page',
       name: config.MINI_PAGE,
-      component: () => import('@/pages/MiniPage.vue')
+      component: MiniPage
     },
     {
       path: '/main-page',
       name: config.MAIN_PAGE,
-      component: () => import('@/layouts/Main.vue'),
+      component: MainPage,
       children: [
         {
           path: 'upload',
-          component: () => import('@/pages/Upload.vue'),
+          component: UploadPage,
           name: config.UPLOAD_PAGE
         },
         {
           path: 'manage-main-page',
           name: config.MANAGE_MAIN_PAGE,
-          component: () => import('@/manage/pages/ManageMain.vue'),
+          component: ManageMainPage,
           children: [
             {
               path: '',
               name: config.MANAGE_EMPTY_PAGE,
-              component: () => import('@/manage/pages/EmptyPage.vue')
+              component: ManageEmptyPage
             },
             {
               path: 'manage-setting-page',
               name: config.MANAGE_SETTING_PAGE,
-              component: () => import('@/manage/pages/ManageSetting.vue')
+              component: ManageSettingPage
             },
             {
               path: 'manage-bucket-page',
               name: config.MANAGE_BUCKET_PAGE,
-              component: () => import('@/manage/pages/BucketPage.vue')
+              component: ManageBucketPage
             }
           ]
         },
         {
           path: 'manage-login-page',
           name: config.MANAGE_LOGIN_PAGE,
-          component: () => import('@/manage/pages/LogInPage.vue')
+          component: ManageLoginPage
         },
         {
           path: 'picbeds/:type/:configId?',
           name: config.PICBEDS_PAGE,
-          component: () => import('@/pages/picbeds/index.vue')
+          component: PicBedsPage
         },
         {
           path: 'gallery',
-          component: () => import('@/pages/Gallery.vue'),
+          component: GalleryPage,
           name: config.GALLERY_PAGE,
           meta: {
             keepAlive: true
           }
         },
         {
-          path: 'setting',
+          path: 'settings',
           name: config.SETTING_PAGE,
-          component: () => import('@/pages/PicGoSetting.vue')
+          component: SettingPage
         },
         {
-          path: 'plugin',
-          component: () => import('@/pages/Plugin.vue'),
+          path: 'plugins',
+          component: PluginPage,
           name: config.PLUGIN_PAGE
         },
         {
           path: 'shortKey',
-          component: () => import('@/pages/ShortKey.vue'),
+          component: ShortKeyPage,
           name: config.SHORTKEY_PAGE
         },
         {
           path: 'uploader-config-page/:type',
-          component: () => import('@/pages/UploaderConfigPage.vue'),
+          component: UploaderConfigPage,
           name: config.UPLOADER_CONFIG_PAGE
         }
       ]
     },
     {
-      path: '/documents',
-      component: () => import('@/pages/DocumentPage.vue'),
-      name: config.DocumentPage
-    },
-    {
       path: '/toolbox-page',
       name: config.TOOLBOX_CONFIG_PAGE,
-      component: () => import('@/pages/Toolbox.vue')
+      component: Toolbox
     },
     {
       path: '/:pathMatch(.*)*',
-      redirect: '/'
+      redirect: '/main-page/upload'
     }
   ]
 })

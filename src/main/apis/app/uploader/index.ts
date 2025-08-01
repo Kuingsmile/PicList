@@ -8,7 +8,7 @@ import windowManager from 'apis/app/window/windowManager'
 import dayjs from 'dayjs'
 import { BrowserWindow, clipboard, ipcMain, IpcMainEvent, Notification, WebContents } from 'electron'
 import fs from 'fs-extra'
-import { IPicGo } from 'piclist'
+import type { IPicGo } from 'piclist'
 import writeFile from 'write-file-atomic'
 
 import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '#/events/constants'

@@ -1,10 +1,24 @@
-import { useI18n } from 'vue-i18n'
+import { createI18n } from 'vue-i18n'
 
+import en from '@/i18n/locales/en.json'
+import zhCN from '@/i18n/locales/zh-CN.json'
+import zhTW from '@/i18n/locales/zh-TW.json'
 import { IStringKeyMap } from '#/types/types'
 
 import { AliyunAreaCodeName, QiniuAreaCodeName, TencentAreaCodeName } from './bucketConfigCons'
+type MessageSchema = typeof en
 
-const { t } = useI18n()
+const i18n = createI18n<MessageSchema, 'en' | 'zh-CN' | 'zh-TW'>({
+  legacy: false,
+  locale: localStorage.getItem('currentLanguage') || 'zh-CN',
+  fallbackLocale: 'zh-CN',
+  messages: {
+    en,
+    'zh-CN': zhCN,
+    'zh-TW': zhTW
+  }
+})
+const { t } = i18n.global
 
 export const newBucketConfig: IStringKeyMap = {
   tcyun: {
