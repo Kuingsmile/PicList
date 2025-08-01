@@ -22,6 +22,7 @@ declare global {
   }
   export interface Window {
     electron: {
+      platform: string
       setVisualZoomLevelLimits: (min: number, max: number) => void
       sendRpcSync: (action: IRPCActionType, ...args: any[]) => any
       triggerRPC: <T>(action: IRPCActionType, ...args: any[]) => Promise<T | undefined>

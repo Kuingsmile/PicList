@@ -1417,12 +1417,12 @@ const languageList = [
   }
 ]
 
-const startModeList = Object.values(ISartMode).map(item => ({
+const startModeList = computed(() => Object.values(ISartMode).map(item => ({
   label: t(`SETTINGS_START_MODE_${item.toUpperCase().replace(/-/g, '_')}` as any),
   value: item
-}))
+})))
 
-const manualPageOpenList = [
+const manualPageOpenList = computed(() => [
   {
     label: t('MANUAL_PAGE_OPEN_BY_BUILD_IN'),
     value: 'window'
@@ -1431,7 +1431,7 @@ const manualPageOpenList = [
     label: t('MANUAL_PAGE_OPEN_BY_BROWSER'),
     value: 'browser'
   }
-]
+])
 
 const showPicBedList = computed(
   () =>
@@ -1676,12 +1676,12 @@ async function initData () {
   formOfSetting.value.logLevel = initArray(settings.logLevel || [], ['all'])
   formOfSetting.value.autoImportPicBed = initArray(settings.autoImportPicBed || [], [])
   currentLanguage.value = valueToOptionItem(settings.language || 'zh-CN', languageList)
-  currentStartMode.value = valueToOptionItem(settings.startMode || ISartMode.QUIET, startModeList)
+  currentStartMode.value = valueToOptionItem(settings.startMode || ISartMode.QUIET, startModeList.value)
   if (osGlobal.value === 'darwin' && currentStartMode.value.value === ISartMode.MINI) {
-    currentStartMode.value = valueToOptionItem(ISartMode.QUIET, startModeList)
+    currentStartMode.value = valueToOptionItem(ISartMode.QUIET, startModeList.value)
     saveConfig(configPaths.settings.startMode, ISartMode.QUIET)
   }
-  currentManualPageOpen.value = valueToOptionItem(settings.manualPageOpen || 'window', manualPageOpenList)
+  currentManualPageOpen.value = valueToOptionItem(settings.manualPageOpen || 'window', manualPageOpenList.value)
   currentShortUrlServer.value = valueToOptionItem(settings.shortUrlServer || 'c1n', shortUrlServerList)
   customLink.value = settings.customLink || '![$fileName]($url)'
   proxy.value = picBed.proxy || ''
@@ -2040,7 +2040,7 @@ function handleStartModeChange (val: ISartModeValues) {
   if (val === ISartMode.NO_TRAY) {
     if (formOfSetting.value.isHideDock) {
       ElMessage.warning(t('SETTINGS_ISHIDEDOCK_TIPS'))
-      currentStartMode.value = valueToOptionItem(ISartMode.QUIET, startModeList)
+      currentStartMode.value = valueToOptionItem(ISartMode.QUIET, startModeList.value)
       return
     }
     $message.info(t('TIPS_NEED_RELOAD'))

@@ -1,17 +1,11 @@
 import picgo from '@core/picgo'
-import { app, IpcMainEvent, shell } from 'electron'
+import { app, shell } from 'electron'
 
 import { IRPCActionType } from '#/types/enum'
 import { IIPCEvent } from '#/types/rpc'
 import { i18nManager } from '~/i18n'
 
 export default [
-  {
-    action: IRPCActionType.GET_PLATFORM,
-    handler: async (event: IIPCEvent) => {
-      (event as IpcMainEvent).returnValue = process.platform
-    }
-  },
   {
     action: IRPCActionType.RELOAD_APP,
     handler: async () => {

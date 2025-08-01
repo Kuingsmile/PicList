@@ -438,7 +438,7 @@ async function getBucketList () {
 
 function transPathToUnix (filePath: string | undefined) {
   if (!filePath) return ''
-  return window.electron.sendRpcSync(IRPCActionType.GET_PLATFORM) === 'win32'
+  return window.electron.platform === 'win32'
     ? filePath
         .split(window.node.path.sep)
         .join(window.node.path.posix.sep)

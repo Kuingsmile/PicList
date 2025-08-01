@@ -4,8 +4,8 @@ import path from 'node:path'
 import { dbPathChecker } from '@core/datastore/dbChecker'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
-import { ILocales } from 'root/src/universal/types/i18n'
 
+import { ILocales } from '#/types/i18n'
 import { i18nManager } from '~/i18n'
 
 const configPath = dbPathChecker()

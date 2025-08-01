@@ -49,6 +49,7 @@ try {
     clipboard: {
       writeText: clipboard.writeText
     },
+    platform: process.platform,
     sendRpcSync,
     triggerRPC,
     sendToMain,

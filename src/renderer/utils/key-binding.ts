@@ -1,5 +1,3 @@
-import { IRPCActionType } from '#/types/enum'
-
 const isSpecialKey = (key: string) => {
   const keyArr = ['Shift', 'Control', 'Alt', 'Meta']
 
@@ -7,7 +5,7 @@ const isSpecialKey = (key: string) => {
 }
 
 const keyBinding = (event: KeyboardEvent) => {
-  const meta = window.electron.sendRpcSync(IRPCActionType.GET_PLATFORM) === 'darwin' ? 'Cmd' : 'Super'
+  const meta = window.electron.platform === 'darwin' ? 'Cmd' : 'Super'
   const specialKey = {
     Ctrl: event.ctrlKey,
     Shift: event.shiftKey,
