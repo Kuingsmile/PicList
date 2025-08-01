@@ -7,7 +7,7 @@ import tunnel from 'tunnel'
 import { IToolboxItemCheckStatus, IToolboxItemType } from '#/types/enum'
 import { IToolboxCheckerMap } from '#/types/rpc'
 import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
-import { T } from '~/i18n'
+import { T as $t } from '~/i18n'
 
 function getProxy (proxyStr: string): AxiosRequestConfig['proxy'] | null {
   if (proxyStr) {
@@ -39,7 +39,7 @@ export const checkProxyMap: IToolboxCheckerMap<IToolboxItemType.HAS_PROBLEM_WITH
       if (!config) {
         return sendToolboxRes(event, {
           status: IToolboxItemCheckStatus.SUCCESS,
-          msg: T('TOOLBOX_CHECK_PROXY_NO_PROXY_TIPS')
+          msg: $t('TOOLBOX_CHECK_PROXY_NO_PROXY_TIPS')
         })
       }
 
@@ -47,14 +47,14 @@ export const checkProxyMap: IToolboxCheckerMap<IToolboxItemType.HAS_PROBLEM_WITH
       if (!proxy) {
         return sendToolboxRes(event, {
           status: IToolboxItemCheckStatus.SUCCESS,
-          msg: T('TOOLBOX_CHECK_PROXY_NO_PROXY_TIPS')
+          msg: $t('TOOLBOX_CHECK_PROXY_NO_PROXY_TIPS')
         })
       } else {
         const proxyOptions = getProxy(proxy)
         if (!proxyOptions) {
           return sendToolboxRes(event, {
             status: IToolboxItemCheckStatus.ERROR,
-            msg: T('TOOLBOX_CHECK_PROXY_PROXY_IS_NOT_CORRECT')
+            msg: $t('TOOLBOX_CHECK_PROXY_PROXY_IS_NOT_CORRECT')
           })
         } else {
           const httpsAgent = tunnel.httpsOverHttp({
@@ -69,13 +69,13 @@ export const checkProxyMap: IToolboxCheckerMap<IToolboxItemType.HAS_PROBLEM_WITH
             })
             return sendToolboxRes(event, {
               status: IToolboxItemCheckStatus.SUCCESS,
-              msg: T('TOOLBOX_CHECK_PROXY_SUCCESS_TIPS')
+              msg: $t('TOOLBOX_CHECK_PROXY_SUCCESS_TIPS')
             })
           } catch (e) {
             console.log(e)
             return sendToolboxRes(event, {
               status: IToolboxItemCheckStatus.ERROR,
-              msg: T('TOOLBOX_CHECK_PROXY_PROXY_IS_NOT_WORKING')
+              msg: $t('TOOLBOX_CHECK_PROXY_PROXY_IS_NOT_WORKING')
             })
           }
         }
@@ -84,7 +84,7 @@ export const checkProxyMap: IToolboxCheckerMap<IToolboxItemType.HAS_PROBLEM_WITH
 
     sendToolboxRes(event, {
       status: IToolboxItemCheckStatus.SUCCESS,
-      msg: T('TOOLBOX_CHECK_PROXY_NO_PROXY_TIPS')
+      msg: $t('TOOLBOX_CHECK_PROXY_NO_PROXY_TIPS')
     })
   }
 }

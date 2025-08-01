@@ -18,7 +18,7 @@ import { IWindowList } from '#/types/enum'
 import { IPicGoPlugin, IUploaderConfig } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
 import { handlePluginUninstall, handlePluginUpdate } from '~/events/rpc/routes/plugin/utils'
-import { T } from '~/i18n'
+import { T as $t } from '~/i18n'
 import clipboardPoll from '~/utils/clipboardPoll'
 import { setTrayToolTip } from '~/utils/common'
 import getPicBeds from '~/utils/getPicBeds'
@@ -36,28 +36,28 @@ const buildMiniPageMenu = () => {
   const submenu = buildPicBedListMenu()
   const template: (MenuItemConstructorOptions | MenuItem)[] = [
     {
-      label: T('OPEN_MAIN_WINDOW'),
+      label: $t('OPEN_MAIN_WINDOW'),
       click: openMainWindow
     },
     {
-      label: T('CHOOSE_DEFAULT_PICBED'),
+      label: $t('CHOOSE_DEFAULT_PICBED'),
       type: 'submenu',
       submenu
     },
     {
-      label: T('UPLOAD_BY_CLIPBOARD'),
+      label: $t('UPLOAD_BY_CLIPBOARD'),
       click () {
         uploadClipboardFiles()
       }
     },
     {
-      label: T('HIDE_MINI_WINDOW'),
+      label: $t('HIDE_MINI_WINDOW'),
       click () {
         BrowserWindow.getFocusedWindow()!.hide()
       }
     },
     {
-      label: T('START_WATCH_CLIPBOARD'),
+      label: $t('START_WATCH_CLIPBOARD'),
       click () {
         db.set(configPaths.settings.isListeningClipboard, true)
         ClipboardWatcher.startListening()
@@ -70,7 +70,7 @@ const buildMiniPageMenu = () => {
       visible: !isListeningClipboard
     },
     {
-      label: T('STOP_WATCH_CLIPBOARD'),
+      label: $t('STOP_WATCH_CLIPBOARD'),
       click () {
         db.set(configPaths.settings.isListeningClipboard, false)
         ClipboardWatcher.stopListening()
@@ -80,7 +80,7 @@ const buildMiniPageMenu = () => {
       visible: isListeningClipboard
     },
     {
-      label: T('RELOAD_APP'),
+      label: $t('RELOAD_APP'),
       click () {
         app.relaunch()
         app.exit(0)
@@ -88,7 +88,7 @@ const buildMiniPageMenu = () => {
     },
     {
       role: 'quit',
-      label: T('QUIT')
+      label: $t('QUIT')
     }
   ]
   return Menu.buildFromTemplate(template)
@@ -97,7 +97,7 @@ const buildMiniPageMenu = () => {
 const buildMainPageMenu = (win: BrowserWindow) => {
   const template = [
     {
-      label: T('ABOUT'),
+      label: $t('ABOUT'),
       click () {
         dialog.showMessageBox({
           title: 'PicList',
@@ -107,26 +107,26 @@ const buildMainPageMenu = (win: BrowserWindow) => {
       }
     },
     {
-      label: T('SHOW_PICBED_QRCODE'),
+      label: $t('SHOW_PICBED_QRCODE'),
       click () {
         win?.webContents?.send(SHOW_MAIN_PAGE_QRCODE)
       }
     },
     {
-      label: T('OPEN_TOOLBOX'),
+      label: $t('OPEN_TOOLBOX'),
       click () {
         const window = windowManager.create(IWindowList.TOOLBOX_WINDOW)
         window?.show()
       }
     },
     {
-      label: T('SHOW_DEVTOOLS'),
+      label: $t('SHOW_DEVTOOLS'),
       click () {
         win?.webContents?.openDevTools({ mode: 'detach' })
       }
     },
     {
-      label: T('FEEDBACK'),
+      label: $t('FEEDBACK'),
       click () {
         const url = 'https://github.com/Kuingsmile/PicList/issues'
         shell.openExternal(url)
@@ -144,7 +144,7 @@ const buildSecondPicBedMenu = () => {
   const picBedConfigList = picgo.getConfig<IUploaderConfig>('uploader')
   const currentPicBedMenuItem = [
     {
-      label: `${T('CURRENT_SECOND_PICBED')} - ${currentPicBedName || 'None'}`,
+      label: `${$t('CURRENT_SECOND_PICBED')} - ${currentPicBedName || 'None'}`,
       enabled: false
     },
     {
@@ -196,7 +196,7 @@ const buildPicBedListMenu = () => {
   const picBedConfigList = picgo.getConfig<IUploaderConfig>('uploader')
   const currentPicBedMenuItem = [
     {
-      label: `${T('CURRENT_PICBED')} - ${currentPicBedName}`,
+      label: `${$t('CURRENT_PICBED')} - ${currentPicBedName}`,
       enabled: false
     },
     {
@@ -276,7 +276,7 @@ const handleRestoreState = (item: string, name: string): void => {
 const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
   const menu = [
     {
-      label: T('ENABLE_PLUGIN'),
+      label: $t('ENABLE_PLUGIN'),
       enabled: !plugin.enabled,
       click () {
         picgo.saveConfig({
@@ -287,7 +287,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
       }
     },
     {
-      label: T('DISABLE_PLUGIN'),
+      label: $t('DISABLE_PLUGIN'),
       enabled: plugin.enabled,
       click () {
         picgo.saveConfig({
@@ -306,7 +306,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
       }
     },
     {
-      label: T('UNINSTALL_PLUGIN'),
+      label: $t('UNINSTALL_PLUGIN'),
       click () {
         const window = windowManager.get(IWindowList.SETTING_WINDOW)!
         window.webContents.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
@@ -314,7 +314,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
       }
     },
     {
-      label: T('UPDATE_PLUGIN'),
+      label: $t('UPDATE_PLUGIN'),
       click () {
         const window = windowManager.get(IWindowList.SETTING_WINDOW)!
         window.webContents.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
@@ -325,7 +325,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
   for (const i in plugin.config) {
     if (plugin.config[i].config.length > 0) {
       const obj = {
-        label: T('CONFIG_THING', {
+        label: $t('CONFIG_THING', {
           c: `${i} - ${plugin.config[i].fullName || plugin.config[i].name}`
         }),
         click () {
@@ -345,7 +345,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
     const currentTransformer = picgo.getConfig<string>(configPaths.picBed.transformer) || 'path'
     const pluginTransformer = plugin.config.transformer.name
     const obj = {
-      label: `${currentTransformer === pluginTransformer ? T('DISABLE') : T('ENABLE')}transformer - ${plugin.config.transformer.name}`,
+      label: `${currentTransformer === pluginTransformer ? $t('DISABLE') : $t('ENABLE')}transformer - ${plugin.config.transformer.name}`,
       click () {
         const transformer = plugin.config.transformer.name
         const currentTransformer = picgo.getConfig<string>(configPaths.picBed.transformer) || 'path'

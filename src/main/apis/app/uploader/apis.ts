@@ -10,7 +10,7 @@ import { IPicGo } from 'piclist'
 import { IPasteStyle, IWindowList } from '#/types/enum'
 import { IFileWithPath, ImgInfo, IStringKeyMap, IUploadOption } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
-import { T } from '~/i18n/index'
+import { T as $t } from '~/i18n/index'
 import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 import { changeCurrentUploader } from '~/utils/handleUploaderConfig'
 import pasteTemplate from '~/utils/pasteTemplate'
@@ -61,7 +61,7 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
           : !!db.get(configPaths.settings.uploadResultNotification)
       if (isShowResultNotification) {
         const notification = new Notification({
-          title: T('UPLOAD_SUCCEED'),
+          title: $t('UPLOAD_SUCCEED'),
           body: shortUrl || img[0].imgUrl!
           // icon: img[0].imgUrl
         })
@@ -82,8 +82,8 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
       }
     } else {
       const notification = new Notification({
-        title: T('UPLOAD_FAILED'),
-        body: T('TIPS_UPLOAD_NOT_PICTURES')
+        title: $t('UPLOAD_FAILED'),
+        body: $t('TIPS_UPLOAD_NOT_PICTURES')
       })
       notification.show()
       return {
@@ -141,7 +141,7 @@ export const uploadChoosedFiles = async (
           : !!db.get(configPaths.settings.uploadResultNotification)
       if (isShowResultNotification) {
         const notification = new Notification({
-          title: T('UPLOAD_SUCCEED'),
+          title: $t('UPLOAD_SUCCEED'),
           body: shortUrl || imgs[i].imgUrl!
           // icon: files[i].path
         })

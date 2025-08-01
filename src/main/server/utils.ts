@@ -10,7 +10,7 @@ import { ICOREBuildInEvent, IWindowList } from '#/types/enum'
 import { IHttpResponse, ImgInfo, IObj } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
 import { picBedsCanbeDeleted } from '#/utils/static'
-import { T } from '~/i18n/index'
+import { T as $t } from '~/i18n/index'
 
 export const handleResponse = ({
   response,
@@ -54,8 +54,8 @@ export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> =>
           if (item.type !== undefined && picBedsCanbeDeleted.includes(item.type)) {
             const noteFunc = (value: boolean) => {
               const notification = new Notification({
-                title: T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
-                body: T(value ? 'GALLERY_SYNC_DELETE_NOTICE_SUCCEED' : 'GALLERY_SYNC_DELETE_NOTICE_FAILED')
+                title: $t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
+                body: $t(value ? 'GALLERY_SYNC_DELETE_NOTICE_SUCCEED' : 'GALLERY_SYNC_DELETE_NOTICE_FAILED')
               })
               notification.show()
             }

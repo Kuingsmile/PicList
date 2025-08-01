@@ -1,20 +1,13 @@
 import { GalleryDB } from '@core/datastore'
 import picgo from '@core/picgo'
-import logger from '@core/picgo/logger'
 import GuiApi from 'apis/gui'
 import { clipboard } from 'electron'
 
 import { ICOREBuildInEvent, IPasteStyle, IRPCActionType, IRPCType } from '#/types/enum'
 import { IIPCEvent } from '#/types/rpc'
-import { ILogType, ImgInfo, ISftpPlistConfig, IStringKeyMap } from '#/types/types'
+import { ImgInfo } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
 import { RPCRouter } from '~/events/rpc/router'
-import {
-  removeFileFromDogeInMain,
-  removeFileFromHuaweiInMain,
-  removeFileFromS3InMain,
-  removeFileFromSFTPInMain
-} from '~/utils/deleteFunc'
 import pasteTemplate from '~/utils/pasteTemplate'
 interface IFilter {
   orderBy?: 'asc' | 'desc'
@@ -96,43 +89,6 @@ const galleryRoutes = [
     handler: async (_: IIPCEvent, args: [value: IObject[]]) => {
       const dbStore = GalleryDB.getInstance()
       return await dbStore.insertMany(args[0])
-    },
-    type: IRPCType.INVOKE
-  },
-  {
-    action: IRPCActionType.GALLERY_LOG_DELETE_MSG,
-    handler: async (_: IIPCEvent, args: [msg: string, logLevel: ILogType]) => {
-      const [msg, logLevel] = args
-      console.log(msg, logLevel)
-      logger[logLevel](msg)
-    }
-  },
-  {
-    action: IRPCActionType.GALLERY_DELETE_SFTP_FILE,
-    handler: async (_: IIPCEvent, args: [config: ISftpPlistConfig, fileName: string]) => {
-      const [config, fileName] = args
-      return await removeFileFromSFTPInMain(config, fileName)
-    },
-    type: IRPCType.INVOKE
-  },
-  {
-    action: IRPCActionType.GALLERY_DELETE_AWS_S3_FILE,
-    handler: async (_: IIPCEvent, args: [configMap: IStringKeyMap]) => {
-      return await removeFileFromS3InMain(args[0])
-    },
-    type: IRPCType.INVOKE
-  },
-  {
-    action: IRPCActionType.GALLERY_DELETE_DOGE_FILE,
-    handler: async (_: IIPCEvent, args: [configMap: IStringKeyMap]) => {
-      return await removeFileFromDogeInMain(args[0])
-    },
-    type: IRPCType.INVOKE
-  },
-  {
-    action: IRPCActionType.GALLERY_DELETE_HUAWEI_OSS_FILE,
-    handler: async (_: IIPCEvent, args: [configMap: IStringKeyMap]) => {
-      return await removeFileFromHuaweiInMain(args[0])
     },
     type: IRPCType.INVOKE
   }

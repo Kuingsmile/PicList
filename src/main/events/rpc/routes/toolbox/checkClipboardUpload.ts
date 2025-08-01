@@ -7,7 +7,7 @@ import { IToolboxItemCheckStatus, IToolboxItemType } from '#/types/enum'
 import { IToolboxCheckerMap, IToolboxFixMap } from '#/types/rpc'
 import { CLIPBOARD_IMAGE_FOLDER } from '#/utils/static'
 import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
-import { T } from '~/i18n'
+import { T as $t } from '~/i18n'
 
 const sendToolboxRes = sendToolboxResWithType(IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD)
 
@@ -25,7 +25,7 @@ export const checkClipboardUploadMap: IToolboxCheckerMap<IToolboxItemType.HAS_PR
       if (fs.existsSync(clipboardImagePath)) {
         sendToolboxRes(event, {
           status: IToolboxItemCheckStatus.SUCCESS,
-          msg: T('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_TIPS', {
+          msg: $t('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_TIPS', {
             path: clipboardImagePath
           }),
           value: clipboardImagePath
@@ -33,7 +33,7 @@ export const checkClipboardUploadMap: IToolboxCheckerMap<IToolboxItemType.HAS_PR
       } else {
         sendToolboxRes(event, {
           status: IToolboxItemCheckStatus.ERROR,
-          msg: T('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_NOT_EXIST_TIPS', {
+          msg: $t('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_NOT_EXIST_TIPS', {
             path: clipboardImagePath
           }),
           value: path.dirname(clipboardImagePath)
@@ -42,7 +42,7 @@ export const checkClipboardUploadMap: IToolboxCheckerMap<IToolboxItemType.HAS_PR
     } else {
       sendToolboxRes(event, {
         status: IToolboxItemCheckStatus.ERROR,
-        msg: T('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_NOT_EXIST_TIPS', {
+        msg: $t('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_NOT_EXIST_TIPS', {
           path: defaultClipboardImagePath
         }),
         value: path.dirname(defaultClipboardImagePath)
@@ -66,7 +66,7 @@ export const fixClipboardUploadMap: IToolboxFixMap<IToolboxItemType.HAS_PROBLEM_
       return {
         type: IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD,
         status: IToolboxItemCheckStatus.ERROR,
-        msg: T('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_ERROR_TIPS', {
+        msg: $t('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_ERROR_TIPS', {
           path: clipboardImagePath
         }),
         value: path.dirname(clipboardImagePath)

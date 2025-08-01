@@ -6,7 +6,7 @@
       justify="center"
       style="font-size: 20px; color: black"
     >
-      {{ $T('MANAGE_SETTING_TITLE') }}
+      {{ $t('MANAGE_SETTING_TITLE') }}
     </el-row>
     <el-row class="setting-list">
       <el-col
@@ -23,13 +23,13 @@
             <el-form-item>
               <template #label>
                 <span style="position: absolute; left: 0">
-                  <span>{{ $T('MANAGE_SETTING_CLEAR_CACHE_TITLE') }} </span>
+                  <span>{{ $t('MANAGE_SETTING_CLEAR_CACHE_TITLE') }} </span>
                   <span style="color: #ff4949">{{ formatFileSize(dbSize) === '' ? 0 : formatFileSize(dbSize) }} </span>
-                  <span> &nbsp;{{ $T('MANAGE_SETTING_CLEAR_CACHE_FREE_TITLE') }} </span>
+                  <span> &nbsp;{{ $t('MANAGE_SETTING_CLEAR_CACHE_FREE_TITLE') }} </span>
                   <span style="color: #ff4949">{{ dbSizeAvailableRate }} %</span>
                   <el-tooltip
                     effect="dark"
-                    :content="$T('MANAGE_SETTING_CLEAR_CACHE_TIPS')"
+                    :content="$t('MANAGE_SETTING_CLEAR_CACHE_TIPS')"
                     placement="right"
                     :persistent="false"
                     teleported
@@ -41,9 +41,9 @@
                 </span>
               </template>
               <el-popconfirm
-                :title="$T('MANAGE_SETTING_CLEAR_CACHE_PROMPT')"
-                :confirm-button-text="$T('CONFIRM')"
-                :cancel-button-text="$T('CANCEL')"
+                :title="$t('MANAGE_SETTING_CLEAR_CACHE_PROMPT')"
+                :confirm-button-text="$t('CONFIRM')"
+                :cancel-button-text="$t('CANCEL')"
                 hide-icon
                 :persistent="false"
                 teleported
@@ -55,7 +55,7 @@
                     plain
                     style="position: absolute; right: 0"
                   >
-                    {{ $T('MANAGE_SETTING_CLEAR_CACHE_BUTTON') }}
+                    {{ $t('MANAGE_SETTING_CLEAR_CACHE_BUTTON') }}
                   </el-button>
                 </template>
               </el-popconfirm>
@@ -75,12 +75,12 @@
               style="margin-top: 10px; margin-bottom: 10px; color: #409eff"
               :underline="false"
             >
-              {{ $T('MANAGE_SETTING_CUSTOM_PATTERN_TITLE') }}
+              {{ $t('MANAGE_SETTING_CUSTOM_PATTERN_TITLE') }}
             </el-link>
             <el-input
               v-if="form.customRename"
               v-model="form.customRenameFormat"
-              :placeholder="$T('MANAGE_SETTING_CUSTOM_PATTERN_TIPS')"
+              :placeholder="$t('MANAGE_SETTING_CUSTOM_PATTERN_TIPS')"
               style="width: 100%"
             />
             <el-table
@@ -95,7 +95,7 @@
                 v-for="prop in ['placeholder', 'description', 'placeholderB', 'descriptionB']"
                 :key="prop"
                 :prop="prop"
-                :label="$T('MANAGE_SETTING_CUSTOM_PATTERN_TABLE_TITLE' as any)"
+                :label="$t('MANAGE_SETTING_CUSTOM_PATTERN_TABLE_TITLE' as any)"
                 width="150"
               />
             </el-table>
@@ -111,10 +111,10 @@
             <el-form-item>
               <template #label>
                 <span style="position: absolute; left: 0">
-                  {{ $T('MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TITLE') }}
+                  {{ $t('MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TITLE') }}
                   <el-tooltip
                     effect="dark"
-                    :content="$T('MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TIPS')"
+                    :content="$t('MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TIPS')"
                     placement="right"
                     :persistent="false"
                     teleported
@@ -128,7 +128,7 @@
               <el-input-number
                 v-model="form.maxDownloadFileCount"
                 style="position: absolute; right: 0"
-                :placeholder="$T('MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_INPUT_TIPS')"
+                :placeholder="$t('MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_INPUT_TIPS')"
                 :min="1"
                 :max="9999"
                 :step="1"
@@ -137,10 +137,10 @@
             <el-form-item>
               <template #label>
                 <span style="position: absolute; left: 0">
-                  {{ $T('MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TITLE') }}
+                  {{ $t('MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TITLE') }}
                   <el-tooltip
                     effect="dark"
-                    :content="$T('MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TIPS')"
+                    :content="$t('MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TIPS')"
                     placement="right"
                     :persistent="false"
                     teleported
@@ -154,7 +154,7 @@
               <el-input-number
                 v-model="form.PreSignedExpire"
                 style="position: absolute; right: 0"
-                :placeholder="$T('MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TIPS')"
+                :placeholder="$t('MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TIPS')"
                 :min="1"
                 :step="1"
               />
@@ -163,7 +163,7 @@
               style="margin-top: 10px; margin-bottom: 10px; color: #409eff"
               :underline="false"
             >
-              {{ $T('MANAGE_SETTING_CHOOSE_COPY_FORMAT_TITLE') }}
+              {{ $t('MANAGE_SETTING_CHOOSE_COPY_FORMAT_TITLE') }}
             </el-link>
             <br>
             <el-radio-group v-model="form.pasteFormat">
@@ -172,7 +172,7 @@
                 :key="item"
                 :value="item"
               >
-                {{ $T(`MANAGE_SETTING_CHOOSE_COPY_FORMAT_${item.toUpperCase().replace(/-/g, '_')}` as any) }}
+                {{ $t(`MANAGE_SETTING_CHOOSE_COPY_FORMAT_${item.toUpperCase().replace(/-/g, '_')}` as any) }}
               </el-radio>
             </el-radio-group>
             <el-link
@@ -180,12 +180,12 @@
               style="margin-top: 10px; margin-bottom: 10px; color: #409eff"
               :underline="false"
             >
-              {{ $T('MANAGE_SETTING_CUSTOM_COPY_FORMAT_TITLE') }}
+              {{ $t('MANAGE_SETTING_CUSTOM_COPY_FORMAT_TITLE') }}
             </el-link>
             <el-input
               v-if="form.pasteFormat === 'custom'"
               v-model="form.customPasteFormat"
-              :placeholder="$T('MANAGE_SETTING_CUSTOM_COPY_FORMAT_TIPS')"
+              :placeholder="$t('MANAGE_SETTING_CUSTOM_COPY_FORMAT_TIPS')"
               style="width: 100%"
             />
             <div>
@@ -193,13 +193,13 @@
                 style="margin-top: 10px; margin-bottom: 10px; color: #409eff"
                 :underline="false"
               >
-                {{ $T('MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_TITLE') }}
+                {{ $t('MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_TITLE') }}
               </el-link>
             </div>
             <el-input
               v-model="form.downloadDir"
               disabled
-              :placeholder="$T('MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_TIPS')"
+              :placeholder="$t('MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_TIPS')"
               style="width: 100%; margin-top: 10px"
             >
               <template #append>
@@ -210,7 +210,7 @@
                   <el-icon>
                     <Folder />
                   </el-icon>
-                  {{ $T('MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_BUTTON') }}
+                  {{ $t('MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_BUTTON') }}
                 </el-button>
               </template>
             </el-input>
@@ -227,14 +227,15 @@ import { Folder, InfoFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { IRPCActionType } from 'root/src/universal/types/enum'
 import { onBeforeMount, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { T as $T } from '@/i18n'
 import DynamicSwitch from '@/manage/components/DynamicSwitch.vue'
 import { fileCacheDbInstance } from '@/manage/store/bucketFileDb'
 import { customRenameFormatTable, formatFileSize } from '@/manage/utils/common'
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { IStringKeyMap } from '#/types/types'
 
+const { t } = useI18n()
 const form = ref<IStringKeyMap>({
   timestampRename: false,
   randomStringRename: false,
@@ -291,16 +292,16 @@ const switchFieldsConfigList = switchFieldsList.map(item => ({
   configName: item,
   segments: [
     {
-      text: $T(`MANAGE_SETTING_${item.toUpperCase()}_TITLE` as any),
+      text: t(`MANAGE_SETTING_${item.toUpperCase()}_TITLE` as any),
       style: 'color: black;'
     }
   ],
-  tooltip: switchFieldsNoTipsList.includes(item) ? undefined : $T(`MANAGE_SETTING_${item.toUpperCase()}_TIPS` as any),
+  tooltip: switchFieldsNoTipsList.includes(item) ? undefined : t(`MANAGE_SETTING_${item.toUpperCase()}_TIPS` as any),
   activeText: switchFieldsHasActiveTextList.includes(item)
-    ? $T(`MANAGE_SETTING_${item.toUpperCase()}_ON` as any)
+    ? t(`MANAGE_SETTING_${item.toUpperCase()}_ON` as any)
     : undefined,
   inactiveText: switchFieldsHasActiveTextList.includes(item)
-    ? $T(`MANAGE_SETTING_${item.toUpperCase()}_OFF` as any)
+    ? t(`MANAGE_SETTING_${item.toUpperCase()}_OFF` as any)
     : undefined
 }))
 
@@ -309,37 +310,37 @@ const switchFieldsSpecialList = [
     configName: 'isDownloadFileKeepDirStructure',
     segments: [
       {
-        text: $T('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_A'),
+        text: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_A'),
         style: 'color: black;'
       },
       {
-        text: $T('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_B'),
+        text: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_B'),
         style: 'color: orange;'
       },
       {
-        text: $T('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_C'),
+        text: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_C'),
         style: 'color: black;'
       }
     ],
-    tooltip: $T('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TIPS')
+    tooltip: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TIPS')
   },
   {
     configName: 'isDownloadFolderKeepDirStructure',
     segments: [
       {
-        text: $T('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_A'),
+        text: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_A'),
         style: 'color: black;'
       },
       {
-        text: $T('MANAGE_SETTING_ISDOWNLOADFOLDERKEEPDIRSTRUCTURE_TITLE_D'),
+        text: t('MANAGE_SETTING_ISDOWNLOADFOLDERKEEPDIRSTRUCTURE_TITLE_D'),
         style: 'color: coral;'
       },
       {
-        text: $T('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_C'),
+        text: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_C'),
         style: 'color: black;'
       }
     ],
-    tooltip: $T('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TIPS')
+    tooltip: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TIPS')
   }
 ]
 
@@ -359,7 +360,7 @@ async function handleDownloadDirClick () {
 
 const handleCellClick = (row: any, column: any) => {
   navigator.clipboard.writeText(row[column.property])
-  ElMessage.success(`${$T('MANAGE_SETTING_COPY_MESSAGE')}${row[column.property]}`)
+  ElMessage.success(`${t('MANAGE_SETTING_COPY_MESSAGE')}${row[column.property]}`)
 }
 
 function handleClearDb () {
@@ -367,10 +368,10 @@ function handleClearDb () {
     .delete()
     .then(() => {
       getIndexDbSize()
-      ElMessage.success($T('MANAGE_SETTING_CLEAR_CACHE_SUCCESS'))
+      ElMessage.success(t('MANAGE_SETTING_CLEAR_CACHE_SUCCESS'))
     })
     .catch(() => {
-      ElMessage.error($T('MANAGE_SETTING_CLEAR_CACHE_FAILED'))
+      ElMessage.error(t('MANAGE_SETTING_CLEAR_CACHE_FAILED'))
     })
 }
 

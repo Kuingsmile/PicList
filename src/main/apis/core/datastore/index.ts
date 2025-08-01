@@ -4,7 +4,7 @@ import fs from 'fs-extra'
 import { IConfig } from 'piclist'
 
 import { configPaths } from '#/utils/configPaths'
-import { T } from '~/i18n'
+import { T as $t } from '~/i18n'
 interface IJSON {
   [propsName: string]: string | number | IJSON
 }
@@ -37,7 +37,7 @@ class ConfigStore {
         enable: true,
         key: 'CommandOrControl+Alt+P',
         name: 'upload',
-        label: T('QUICK_UPLOAD')
+        label: $t('QUICK_UPLOAD')
       })
     }
     this.read()

@@ -3,7 +3,7 @@
 <template>
   <div
     v-loading="isShowLoadingPage"
-    :element-loading-text="$T('MANAGE_BUCKET_PAGE_LOADING_TEXT')"
+    :element-loading-text="$t('MANAGE_BUCKET_PAGE_LOADING_TEXT')"
     :element-loading-spinner="svg"
     element-loading-svg-view-box="0, 0, 50, 50"
     element-loading-background="rgba(122, 122, 122, 0.5)"
@@ -13,7 +13,7 @@
         <el-select
           v-if="isShowCustomDomainSelectList && customDomainList.length > 1 && isAutoCustomDomain"
           v-model="currentCustomDomain"
-          :placeholder="$T('MANAGE_BUCKET_PAGE_CUSTOM_URL_SELECT_PLACEHOLDER')"
+          :placeholder="$t('MANAGE_BUCKET_PAGE_CUSTOM_URL_SELECT_PLACEHOLDER')"
           style="width: 200px"
           :persistent="false"
           teleported
@@ -29,7 +29,7 @@
         <el-input
           v-else-if="isShowCustomDomainInput"
           v-model="currentCustomDomain"
-          :placeholder="$T('MANAGE_BUCKET_PAGE_CUSTOM_URL_INPUT_PLACEHOLDER')"
+          :placeholder="$t('MANAGE_BUCKET_PAGE_CUSTOM_URL_INPUT_PLACEHOLDER')"
           style="width: 200px"
           @blur="handleChangeCustomUrlInput"
         />
@@ -53,7 +53,7 @@
           <el-tooltip
             class="item"
             effect="dark"
-            :content="$T('MANAGE_BUCKET_PAGE_UPLOAD_FILES_TOOLTIP')"
+            :content="$t('MANAGE_BUCKET_PAGE_UPLOAD_FILES_TOOLTIP')"
             placement="bottom"
             :persistent="false"
             teleported
@@ -76,7 +76,7 @@
           <el-tooltip
             class="item"
             effect="dark"
-            :content="$T('MANAGE_BUCKET_PAGE_UPLOAD_FROM_URL_TOOLTIP')"
+            :content="$t('MANAGE_BUCKET_PAGE_UPLOAD_FROM_URL_TOOLTIP')"
             placement="bottom"
             :persistent="false"
             teleported
@@ -100,7 +100,7 @@
           <el-tooltip
             class="item"
             effect="dark"
-            :content="$T('MANAGE_BUCKET_PAGE_CREATE_FOLDER_TOOLTIP')"
+            :content="$t('MANAGE_BUCKET_PAGE_CREATE_FOLDER_TOOLTIP')"
             placement="bottom"
             :persistent="false"
             teleported
@@ -123,7 +123,7 @@
           <el-tooltip
             class="item"
             effect="dark"
-            :content="$T('MANAGE_BUCKET_PAGE_DOWNLOAD_TOOLTIP')"
+            :content="$t('MANAGE_BUCKET_PAGE_DOWNLOAD_TOOLTIP')"
             placement="bottom"
             :persistent="false"
             teleported
@@ -149,7 +149,7 @@
           <el-tooltip
             class="item"
             effect="dark"
-            :content="$T('MANAGE_BUCKET_PAGE_BATCH_RENAME_TOOLTIP')"
+            :content="$t('MANAGE_BUCKET_PAGE_BATCH_RENAME_TOOLTIP')"
             placement="bottom"
             :persistent="false"
             teleported
@@ -172,7 +172,7 @@
           <el-tooltip
             class="item"
             effect="dark"
-            :content="$T('MANAGE_BUCKET_PAGE_BATCH_COPY_URL_TOOLTIP')"
+            :content="$t('MANAGE_BUCKET_PAGE_BATCH_COPY_URL_TOOLTIP')"
             placement="right"
             :persistent="false"
             teleported
@@ -218,7 +218,7 @@
           <el-tooltip
             class="item"
             effect="dark"
-            :content="$T('MANAGE_BUCKET_PAGE_COPY_FILE_INFO_TOOLTIP')"
+            :content="$t('MANAGE_BUCKET_PAGE_COPY_FILE_INFO_TOOLTIP')"
             placement="bottom"
             :persistent="false"
             teleported
@@ -244,7 +244,7 @@
           <el-tooltip
             class="item"
             effect="dark"
-            :content="$T('MANAGE_BUCKET_PAGE_FORCE_REFRESH_TOOLTIP')"
+            :content="$t('MANAGE_BUCKET_PAGE_FORCE_REFRESH_TOOLTIP')"
             placement="bottom"
             :persistent="false"
             teleported
@@ -262,7 +262,7 @@
       </div>
       <el-input
         v-model="searchText"
-        :placeholder="$T('MANAGE_BUCKET_PAGE_SEARCH_PLACEHOLDER')"
+        :placeholder="$t('MANAGE_BUCKET_PAGE_SEARCH_PLACEHOLDER')"
         style="margin-left: 10px; width: 200px"
         clearable
         size="small"
@@ -295,7 +295,7 @@
             @click="handleBreadcrumbClick(index)"
           >
             <el-link>
-              {{ item === '' ? $T('MANAGE_BUCKET_PAGE_ROOT_FOLDER') : item }}
+              {{ item === '' ? $t('MANAGE_BUCKET_PAGE_ROOT_FOLDER') : item }}
             </el-link>
           </el-breadcrumb-item>
         </template>
@@ -310,7 +310,7 @@
           "
         >
           <el-link>
-            {{ $T('MANAGE_BUCKET_PAGE_ROOT_FOLDER') }}
+            {{ $t('MANAGE_BUCKET_PAGE_ROOT_FOLDER') }}
           </el-link>
         </el-breadcrumb-item>
       </el-breadcrumb>
@@ -325,7 +325,7 @@
             >
               <Document />
             </el-icon>
-            <span style="margin-right: 5px; padding-left: 5px">{{ `${$T('MANAGE_BUCKET_PAGE_FILE_NUMBER')}${currentPageFilesInfo.length}` }}
+            <span style="margin-right: 5px; padding-left: 5px">{{ `${$t('MANAGE_BUCKET_PAGE_FILE_NUMBER')}${currentPageFilesInfo.length}` }}
             </span>
           </span>
           <span>
@@ -335,7 +335,7 @@
             >
               <Coin />
             </el-icon>
-            <span style="padding-left: 5px">{{ `${$T('MANAGE_BUCKET_PAGE_FILE_SIZE')}${calculateAllFileSize}` }}</span>
+            <span style="padding-left: 5px">{{ `${$t('MANAGE_BUCKET_PAGE_FILE_SIZE')}${calculateAllFileSize}` }}</span>
           </span>
         </div>
       </div>
@@ -351,7 +351,7 @@
           style="margin-right: 2px"
           @click="handleCheckAllChange"
         >
-          {{ $T('MANAGE_BUCKET_PAGE_SELECT_ALL') }}
+          {{ $t('MANAGE_BUCKET_PAGE_SELECT_ALL') }}
         </el-button>
       </div>
       <div
@@ -366,7 +366,7 @@
           style="margin-right: 2px"
           @click="handleCancelCheck"
         >
-          {{ $T('MANAGE_BUCKET_PAGE_SELECT_NONE') }}
+          {{ $t('MANAGE_BUCKET_PAGE_SELECT_NONE') }}
         </el-button>
         <el-button
           class="btn"
@@ -376,7 +376,7 @@
           style="margin-right: 2px"
           @click="handleReverseCheck"
         >
-          {{ $T('MANAGE_BUCKET_PAGE_SELECT_INVERT') }}
+          {{ $t('MANAGE_BUCKET_PAGE_SELECT_INVERT') }}
         </el-button>
         <el-button
           class="btn"
@@ -386,7 +386,7 @@
           style="margin-right: 2px"
           @click="handleCheckAllChange"
         >
-          {{ $T('MANAGE_BUCKET_PAGE_SELECT_ALL') }}
+          {{ $t('MANAGE_BUCKET_PAGE_SELECT_ALL') }}
         </el-button>
         <el-button
           class="btn"
@@ -397,7 +397,7 @@
           style="margin-right: 2px"
           @click="handleBatchDownload"
         >
-          {{ `${$T('MANAGE_BUCKET_DOWNLOAD_BTN')}(${selectedItems.filter(item => item.isDir === false).length})` }}
+          {{ `${$t('MANAGE_BUCKET_DOWNLOAD_BTN')}(${selectedItems.filter(item => item.isDir === false).length})` }}
         </el-button>
         <el-button
           class="btn"
@@ -406,7 +406,7 @@
           :icon="DeleteFilled"
           @click="handleBatchDeleteInfo"
         >
-          {{ `${$T('MANAGE_BUCKET_DELETE_BTN')}${selectedItems.length}` }}
+          {{ `${$t('MANAGE_BUCKET_DELETE_BTN')}${selectedItems.length}` }}
         </el-button>
       </div>
       <el-dropdown teleported>
@@ -416,7 +416,7 @@
           plain
           :icon="Sort"
         >
-          {{ $T('MANAGE_BUCKET_SORT_TITLE') }}
+          {{ $t('MANAGE_BUCKET_SORT_TITLE') }}
         </el-button>
         <template #dropdown>
           <el-dropdown-item
@@ -424,7 +424,7 @@
             :key="item"
             @click="sortFile(item as any)"
           >
-            {{ $T(`MANAGE_BUCKET_SORT_${item.toUpperCase()}` as any) }}
+            {{ $t(`MANAGE_BUCKET_SORT_${item.toUpperCase()}` as any) }}
           </el-dropdown-item>
         </template>
       </el-dropdown>
@@ -456,7 +456,7 @@
     </div>
     <el-dialog
       v-model="dialogVisible"
-      :title="$T('MANAGE_BUCKET_URL_UPLOAD_DIALOG_TITLE')"
+      :title="$t('MANAGE_BUCKET_URL_UPLOAD_DIALOG_TITLE')"
       width="50%"
       draggable
       center
@@ -473,14 +473,14 @@ https://www.baidu.com/img/bd_logo1.png"
       />
       <template #footer>
         <el-button @click="dialogVisible = false">
-          {{ $T('MANAGE_BUCKET_URL_UPLOAD_DIALOG_CANCEL') }}
+          {{ $t('MANAGE_BUCKET_URL_UPLOAD_DIALOG_CANCEL') }}
         </el-button>
         <el-button
           type="primary"
           style="font-size: 12px; font-weight: 500"
           @click="handleUploadFromUrl"
         >
-          {{ $T('MANAGE_BUCKET_URL_UPLOAD_DIALOG_CONFIRM') }}
+          {{ $t('MANAGE_BUCKET_URL_UPLOAD_DIALOG_CONFIRM') }}
         </el-button>
       </template>
     </el-dialog>
@@ -687,7 +687,7 @@ https://www.baidu.com/img/bd_logo1.png"
                           :key="format"
                           @click="copyLink(item, format)"
                         >
-                          {{ $T(`MANAGE_BUCKET_URL_FORMAT_${format.toUpperCase().replace(/-/g, '_')}` as any) }}
+                          {{ $t(`MANAGE_BUCKET_URL_FORMAT_${format.toUpperCase().replace(/-/g, '_')}` as any) }}
                         </el-dropdown-item>
                         <el-dropdown-item
                           v-if="isShowPresignedUrl"
@@ -697,7 +697,7 @@ https://www.baidu.com/img/bd_logo1.png"
                             }
                           "
                         >
-                          {{ $T('MANAGE_BUCKET_URL_FORMAT_PRESIGN') }}
+                          {{ $t('MANAGE_BUCKET_URL_FORMAT_PRESIGN') }}
                         </el-dropdown-item>
                       </el-dropdown-menu>
                     </template>
@@ -740,7 +740,7 @@ https://www.baidu.com/img/bd_logo1.png"
     />
     <el-dialog
       v-model="isShowFileInfo"
-      :title="$T('MANAGE_BUCKET_FILE_INFO_TITLE')"
+      :title="$t('MANAGE_BUCKET_FILE_INFO_TITLE')"
       center
       align-center
       draggable
@@ -757,7 +757,7 @@ https://www.baidu.com/img/bd_logo1.png"
               <Document />
             </el-icon>
           </template>
-          {{ $T('MANAGE_BUCKET_FILE_INFO_COPY_TIPS') }}
+          {{ $t('MANAGE_BUCKET_FILE_INFO_COPY_TIPS') }}
         </el-button>
       </template>
       <el-row
@@ -795,7 +795,7 @@ https://www.baidu.com/img/bd_logo1.png"
         style="font-size: 12px; font-weight: 500"
         :loading="isLoadingData"
       >
-        {{ $T('MANAGE_BUCKET_FILE_LIST_LOADING') }}
+        {{ $t('MANAGE_BUCKET_FILE_LIST_LOADING') }}
       </el-button>
     </el-affix>
     <el-affix
@@ -809,7 +809,7 @@ https://www.baidu.com/img/bd_logo1.png"
         style="font-size: 12px; font-weight: 500"
         :loading="isLoadingDownloadData"
       >
-        {{ $T('MANAGE_BUCKET_FILE_LIST_DOWNLOAD_PRE') }}
+        {{ $t('MANAGE_BUCKET_FILE_LIST_DOWNLOAD_PRE') }}
       </el-button>
     </el-affix>
     <el-drawer
@@ -822,8 +822,8 @@ https://www.baidu.com/img/bd_logo1.png"
       <template #header>
         <el-switch
           v-model="isUploadKeepDirStructure"
-          :active-text="$T('MANAGE_BUCKET_KEEP_FOLDER_STRUCTURE')"
-          :inactive-text="$T('MANAGE_BUCKET_NOT_KEEP_FOLDER_STRUCTURE')"
+          :active-text="$t('MANAGE_BUCKET_KEEP_FOLDER_STRUCTURE')"
+          :inactive-text="$t('MANAGE_BUCKET_NOT_KEEP_FOLDER_STRUCTURE')"
           @change="handleUploadKeepDirChange"
         />
       </template>
@@ -862,7 +862,7 @@ https://www.baidu.com/img/bd_logo1.png"
               flex-direction: column;
             "
           >
-            {{ $T('MANAGE_BUCKET_UPLOAD_AREA_TITLE') }}
+            {{ $t('MANAGE_BUCKET_UPLOAD_AREA_TITLE') }}
             <span
               style="
                 color: #409eff;
@@ -874,7 +874,7 @@ https://www.baidu.com/img/bd_logo1.png"
                 flex-direction: column;
               "
             >
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_TEXT') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_TEXT') }}
             </span>
           </div>
         </div>
@@ -904,8 +904,8 @@ https://www.baidu.com/img/bd_logo1.png"
           >
             {{
               isLoadingUploadPanelFiles
-                ? $T('MANAGE_BUCKET_UPLOAD_AREA_BTN_LOADING')
-                : $T('MANAGE_BUCKET_UPLOAD_AREA_BTN')
+                ? $t('MANAGE_BUCKET_UPLOAD_AREA_BTN_LOADING')
+                : $t('MANAGE_BUCKET_UPLOAD_AREA_BTN')
             }}
           </el-button>
           <span>
@@ -915,7 +915,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :disabled="isLoadingUploadPanelFiles"
               @click="clearTableData"
             >
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR') }}
             </el-button>
           </span>
         </el-button-group>
@@ -928,7 +928,7 @@ https://www.baidu.com/img/bd_logo1.png"
         <el-tab-pane name="uploading">
           <template #label>
             <span>
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_STATUS_UPLOADING') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_STATUS_UPLOADING') }}
             </span>
             <el-badge
               v-if="uploadingTaskList.length"
@@ -944,7 +944,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Document"
               @click="handleCopyUploadingTaskInfo"
             >
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -952,7 +952,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handleDeleteUploadedTask"
             >
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -960,7 +960,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handleDeleteAllUploadedTask"
             >
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
             </el-button>
           </el-button-group>
           <div style="height: 500px">
@@ -979,7 +979,7 @@ https://www.baidu.com/img/bd_logo1.png"
         <el-tab-pane name="finished">
           <template #label>
             <span>
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_SUCCESS') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_SUCCESS') }}
             </span>
             <el-badge
               v-if="uploadedTaskList.filter(item => item.status === 'uploaded').length"
@@ -995,7 +995,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Document"
               @click="handleCopyUploadingTaskInfo"
             >
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1003,7 +1003,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handleDeleteUploadedTask"
             >
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1011,7 +1011,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handleDeleteAllUploadedTask"
             >
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
             </el-button>
           </el-button-group>
           <div style="height: 500px">
@@ -1030,7 +1030,7 @@ https://www.baidu.com/img/bd_logo1.png"
         <el-tab-pane name="failed">
           <template #label>
             <span>
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_FAILED') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_FAILED') }}
             </span>
             <el-badge
               v-if="uploadedTaskList.filter(item => item.status !== 'uploaded').length"
@@ -1046,7 +1046,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Document"
               @click="handleCopyUploadingTaskInfo"
             >
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1054,7 +1054,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handleDeleteUploadedTask"
             >
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1062,7 +1062,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handleDeleteAllUploadedTask"
             >
-              {{ $T('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
             </el-button>
           </el-button-group>
           <div style="height: 500px">
@@ -1082,7 +1082,7 @@ https://www.baidu.com/img/bd_logo1.png"
     </el-drawer>
     <el-drawer
       v-model="isShowDownloadPanel"
-      :title="$T('MANAGE_BUCKET_DOWNLOAD_PAGE_TITLE')"
+      :title="$t('MANAGE_BUCKET_DOWNLOAD_PAGE_TITLE')"
       size="60%"
       append-to-body
       @open="startRefreshDownloadTask"
@@ -1096,7 +1096,7 @@ https://www.baidu.com/img/bd_logo1.png"
         <el-tab-pane name="downloading">
           <template #label>
             <span>
-              {{ $T('MANAGE_BUCKET_DOWNLOADING') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOADING') }}
             </span>
             <el-badge
               v-if="downloadingTaskList.length"
@@ -1112,7 +1112,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Document"
               @click="handleCopyDownloadingTaskInfo"
             >
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1120,7 +1120,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handleDeleteDownloadedTask"
             >
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1128,7 +1128,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handleDeleteAllDownloadedTask"
             >
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1136,7 +1136,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Folder"
               @click="handleOpenDownloadedFolder"
             >
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
             </el-button>
           </el-button-group>
           <div style="height: 600px">
@@ -1155,7 +1155,7 @@ https://www.baidu.com/img/bd_logo1.png"
         <el-tab-pane name="finished">
           <template #label>
             <span>
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_SUCCESS') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_SUCCESS') }}
             </span>
             <el-badge
               v-if="downloadedTaskList.filter(item => item.status === 'downloaded').length"
@@ -1171,7 +1171,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Document"
               @click="handleCopyDownloadingTaskInfo"
             >
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1179,7 +1179,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handleDeleteDownloadedTask"
             >
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1187,7 +1187,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handleDeleteAllDownloadedTask"
             >
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1195,7 +1195,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Folder"
               @click="handleOpenDownloadedFolder"
             >
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
             </el-button>
           </el-button-group>
           <div style="height: 600px">
@@ -1214,7 +1214,7 @@ https://www.baidu.com/img/bd_logo1.png"
         <el-tab-pane name="failed">
           <template #label>
             <span>
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_FAILED') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_FAILED') }}
             </span>
             <el-badge
               v-if="downloadedTaskList.filter(item => item.status !== 'downloaded').length"
@@ -1230,7 +1230,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Document"
               @click="handleCopyDownloadingTaskInfo"
             >
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1238,7 +1238,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handleDeleteDownloadedTask"
             >
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1246,7 +1246,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="DeleteFilled"
               @click="handleDeleteAllDownloadedTask"
             >
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
             </el-button>
             <el-button
               type="primary"
@@ -1254,7 +1254,7 @@ https://www.baidu.com/img/bd_logo1.png"
               :icon="Folder"
               @click="handleOpenDownloadedFolder"
             >
-              {{ $T('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
+              {{ $t('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
             </el-button>
           </el-button-group>
           <div style="height: 600px">
@@ -1274,7 +1274,7 @@ https://www.baidu.com/img/bd_logo1.png"
     </el-drawer>
     <el-dialog
       v-model="isShowMarkDownDialog"
-      :title="$T('MANAGE_BUCKET_MARKDOWN_PREVIEW')"
+      :title="$t('MANAGE_BUCKET_MARKDOWN_PREVIEW')"
       center
       align-center
       draggable
@@ -1303,7 +1303,7 @@ https://www.baidu.com/img/bd_logo1.png"
     </el-dialog>
     <el-dialog
       v-model="isShowTextFileDialog"
-      :title="$T('MANAGE_BUCKET_MARKDOWN_PREVIEW')"
+      :title="$t('MANAGE_BUCKET_MARKDOWN_PREVIEW')"
       center
       align-center
       draggable
@@ -1333,7 +1333,7 @@ https://www.baidu.com/img/bd_logo1.png"
     </el-dialog>
     <el-dialog
       v-model="isShowVideoFileDialog"
-      :title="$T('MANAGE_BUCKET_PLAY')"
+      :title="$t('MANAGE_BUCKET_PLAY')"
       center
       align-center
       draggable
@@ -1368,7 +1368,7 @@ https://www.baidu.com/img/bd_logo1.png"
     </el-dialog>
     <el-dialog
       v-model="isShowBatchRenameDialog"
-      :title="$T('MANAGE_BUCKET_RENAME_FILE')"
+      :title="$t('MANAGE_BUCKET_RENAME_FILE')"
       center
       align-center
       draggable
@@ -1386,11 +1386,11 @@ https://www.baidu.com/img/bd_logo1.png"
         style="margin-bottom: 10px"
       >
         <span>
-          {{ $T('MANAGE_BUCKET_RENAME_FILE_INPUT_A') }} - Matched:
+          {{ $t('MANAGE_BUCKET_RENAME_FILE_INPUT_A') }} - Matched:
           {{ matchedFilesNumber }}
           <el-tooltip
             effect="dark"
-            :content="$T('MANAGE_BUCKET_RENAME_FILE_INPUT_A_TIPS')"
+            :content="$t('MANAGE_BUCKET_RENAME_FILE_INPUT_A_TIPS')"
             placement="right"
             :persistent="false"
             teleported
@@ -1403,7 +1403,7 @@ https://www.baidu.com/img/bd_logo1.png"
       </el-link>
       <el-input
         v-model="batchRenameMatch"
-        :placeholder="$T('MANAGE_BUCKET_RENAME_FILE_INPUT_A_PLACEHOLDER')"
+        :placeholder="$t('MANAGE_BUCKET_RENAME_FILE_INPUT_A_PLACEHOLDER')"
         clearable
       />
       <el-link
@@ -1411,7 +1411,7 @@ https://www.baidu.com/img/bd_logo1.png"
         style="margin-bottom: 10px; margin-top: 10px"
       >
         <span>
-          {{ $T('MANAGE_BUCKET_RENAME_FILE_INPUT_B') }}
+          {{ $t('MANAGE_BUCKET_RENAME_FILE_INPUT_B') }}
           <el-popover
             effect="light"
             placement="right"
@@ -1452,7 +1452,7 @@ https://www.baidu.com/img/bd_logo1.png"
                 align="center"
                 label-style="width: 100px;"
               >
-                {{ $T('MANAGE_BUCKET_RENAME_FILE_TABLE_IID') }}
+                {{ $t('MANAGE_BUCKET_RENAME_FILE_TABLE_IID') }}
               </el-descriptions-item>
             </el-descriptions>
           </el-popover>
@@ -1468,10 +1468,10 @@ https://www.baidu.com/img/bd_logo1.png"
         style="margin-bottom: 10px; margin-top: 10px"
       >
         <span>
-          {{ $T('MANAGE_BUCKET_RENAME_FILE_EXT') }}
+          {{ $t('MANAGE_BUCKET_RENAME_FILE_EXT') }}
           <el-tooltip
             effect="dark"
-            :content="$T('MANAGE_BUCKET_RENAME_FILE_EXT_TIPS')"
+            :content="$t('MANAGE_BUCKET_RENAME_FILE_EXT_TIPS')"
             placement="right"
             :persistent="false"
             teleported
@@ -1485,8 +1485,8 @@ https://www.baidu.com/img/bd_logo1.png"
       <br>
       <el-switch
         v-model="isRenameIncludeExt"
-        :active-text="$T('MANAGE_BUCKET_RENAME_FILE_EXT_YES')"
-        :inactive-text="$T('MANAGE_BUCKET_RENAME_FILE_EXT_NO')"
+        :active-text="$t('MANAGE_BUCKET_RENAME_FILE_EXT_YES')"
+        :inactive-text="$t('MANAGE_BUCKET_RENAME_FILE_EXT_NO')"
       />
       <div style="margin-top: 10px; align-items: center; display: flex; justify-content: flex-end">
         <el-button
@@ -1500,7 +1500,7 @@ https://www.baidu.com/img/bd_logo1.png"
             }
           "
         >
-          {{ $T('MANAGE_BUCKET_RENAME_FILE_CANCEL') }}
+          {{ $t('MANAGE_BUCKET_RENAME_FILE_CANCEL') }}
         </el-button>
         <el-button
           type="primary"
@@ -1508,7 +1508,7 @@ https://www.baidu.com/img/bd_logo1.png"
           :icon="Edit"
           @click="isSingleRename ? singleRename() : BatchRename()"
         >
-          {{ $T('MANAGE_BUCKET_RENAME_FILE_CONFIRM') }}
+          {{ $t('MANAGE_BUCKET_RENAME_FILE_CONFIRM') }}
         </el-button>
       </div>
     </el-dialog>
@@ -1564,6 +1564,7 @@ import {
 import { marked } from 'marked'
 import { v4 as uuidv4 } from 'uuid'
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 import ImageLocal from '@/components/ImageLocal.vue'
@@ -1571,7 +1572,6 @@ import ImagePreSign from '@/components/ImagePreSign.vue'
 import ImagePreSignTsx from '@/components/ImagePreSignTsx'
 import ImageWebdav from '@/components/ImageWebdav.vue'
 import ImageWebdavTsx from '@/components/ImageWebdavTsx'
-import { T as $T } from '@/i18n'
 import { fileCacheDbInstance } from '@/manage/store/bucketFileDb'
 import { useDownloadFileTransferStore, useFileTransferStore, useManageStore } from '@/manage/store/manageStore'
 import {
@@ -1595,6 +1595,7 @@ import { IStringKeyMap } from '#/types/types'
 import { trimPath } from '#/utils/common'
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
 
+const { t } = useI18n()
 /*
 configMap:{
     prefix: string, -> baseDir
@@ -2038,34 +2039,34 @@ function uploadFiles () {
 
 function handleCopyUploadingTaskInfo () {
   window.electron.clipboard.writeText(JSON.stringify(uploadTaskList.value, null, 2))
-  ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
+  ElMessage.success(t('MANAGE_BUCKET_COPY_SUCCESS'))
 }
 
 function handleDeleteUploadedTask () {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_UPLOADED_TASK)
-  ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
+  ElMessage.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
 function handleDeleteAllUploadedTask () {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_ALL_UPLOADED_TASK)
-  ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
+  ElMessage.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
 // 下载任务相关
 
 function handleCopyDownloadingTaskInfo () {
   window.electron.clipboard.writeText(JSON.stringify(downloadTaskList.value, null, 2))
-  ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
+  ElMessage.success(t('MANAGE_BUCKET_COPY_SUCCESS'))
 }
 
 function handleDeleteDownloadedTask () {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_DOWNLOADED_TASK)
-  ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
+  ElMessage.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
 function handleDeleteAllDownloadedTask () {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_ALL_DOWNLOADED_TASK)
-  ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
+  ElMessage.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
 function handleOpenDownloadedFolder () {
@@ -2117,7 +2118,7 @@ async function handleClickFile (item: any) {
   } else if (item.fileName.endsWith('.md')) {
     try {
       ElMessage({
-        message: $T('MANAGE_BUCKET_START_LOADING_MESSAGE'),
+        message: t('MANAGE_BUCKET_START_LOADING_MESSAGE'),
         duration: 300,
         type: 'success'
       })
@@ -2127,7 +2128,7 @@ async function handleClickFile (item: any) {
       markDownContent.value = await marked.parse(content)
       isShowMarkDownDialog.value = true
     } catch (error) {
-      ElMessage.error($T('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))
+      ElMessage.error(t('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))
     }
   } else if (
     textFileExt.includes(window.node.path.extname(item.fileName).toLowerCase()) ||
@@ -2135,7 +2136,7 @@ async function handleClickFile (item: any) {
   ) {
     try {
       ElMessage({
-        message: $T('MANAGE_BUCKET_START_LOADING_MESSAGE'),
+        message: t('MANAGE_BUCKET_START_LOADING_MESSAGE'),
         duration: 300,
         type: 'success'
       })
@@ -2144,7 +2145,7 @@ async function handleClickFile (item: any) {
       textfileContent.value = await res.text()
       isShowTextFileDialog.value = true
     } catch (error) {
-      ElMessage.error($T('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))
+      ElMessage.error(t('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))
     }
   } else if (videoExt.includes(window.node.path.extname(item.fileName).toLowerCase())) {
     videoFileUrl.value = item.url
@@ -2344,16 +2345,16 @@ async function resetParam (force: boolean = false) {
         pagingMarker.value = res.nextMarker
       } else if (paging.value && currentPageNumber.value > 1) {
         ElNotification({
-          title: $T('MANAGE_BUCKET_LAST_PAGE_TITLE'),
-          message: $T('MANAGE_BUCKET_LAST_PAGE_MSG'),
+          title: t('MANAGE_BUCKET_LAST_PAGE_TITLE'),
+          message: t('MANAGE_BUCKET_LAST_PAGE_MSG'),
           type: 'success',
           duration: 500
         })
       }
     } else {
       ElNotification({
-        title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-        message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
+        title: t('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+        message: t('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
         type: 'error',
         duration: 2000
       })
@@ -2361,8 +2362,8 @@ async function resetParam (force: boolean = false) {
   } else {
     getBucketFileListBackStage()
     ElNotification.info({
-      title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-      message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG2'),
+      title: t('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+      message: t('MANAGE_BUCKET_GET_LIST_FAIL_MSG2'),
       duration: 1000
     })
   }
@@ -2383,8 +2384,8 @@ watch(route, async newRoute => {
 async function forceRefreshFileList () {
   if (isLoadingData.value) {
     ElNotification({
-      title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-      message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG3'),
+      title: t('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+      message: t('MANAGE_BUCKET_GET_LIST_FAIL_MSG3'),
       type: 'error',
       duration: 1000
     })
@@ -2428,8 +2429,8 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
 
   if (!res.success) {
     ElNotification({
-      title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-      message: $T('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
+      title: t('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+      message: t('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
       type: 'error',
       duration: 1000
     })
@@ -2446,8 +2447,8 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
       pagingMarker.value = res.nextMarker
     } else {
       ElNotification({
-        title: $T('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-        message: $T('MANAGE_BUCKET_LAST_PAGE_MSG'),
+        title: t('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
+        message: t('MANAGE_BUCKET_LAST_PAGE_MSG'),
         type: 'success',
         duration: 1000
       })
@@ -2528,9 +2529,9 @@ function handleCheckChangeOther (item: any) {
 }
 
 async function handleFolderBatchDownload (item: any) {
-  ElMessageBox.confirm($T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TITLE'), $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'), {
-    confirmButtonText: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CONFIRM'),
-    cancelButtonText: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CANCEL'),
+  ElMessageBox.confirm(t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TITLE'), t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'), {
+    confirmButtonText: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CONFIRM'),
+    cancelButtonText: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CANCEL'),
     type: 'warning'
   })
     .then(async () => {
@@ -2574,8 +2575,8 @@ async function handleFolderBatchDownload (item: any) {
           clearInterval(downloadInterval)
           if (downloadFileTransferStore.isSuccess()) {
             ElNotification.success({
-              title: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
-              message: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_SUCCESS'),
+              title: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
+              message: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_SUCCESS'),
               duration: 500
             })
             if (currentDownloadFileList.length) {
@@ -2599,8 +2600,8 @@ async function handleFolderBatchDownload (item: any) {
             isShowDownloadPanel.value = true
           } else {
             ElNotification.error({
-              title: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
-              message: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_FAIL'),
+              title: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
+              message: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_FAIL'),
               duration: 500
             })
           }
@@ -2610,8 +2611,8 @@ async function handleFolderBatchDownload (item: any) {
     })
     .catch(() => {
       ElNotification.info({
-        title: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
-        message: $T('MANAGE_BUCKET_DOWNLOAD_FOLDER_CANCEL'),
+        title: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
+        message: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_CANCEL'),
         duration: 500
       })
     })
@@ -2656,11 +2657,11 @@ function handleCheckAllChange () {
 }
 
 function handleCreateFolder () {
-  ElMessageBox.prompt($T('MANAGE_BUCKET_CREATE_FOLDER_BOX_TITLE'), $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_TIP'), {
-    confirmButtonText: $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_CONFIRM'),
-    cancelButtonText: $T('MANAGE_BUCKET_CREATE_FOLDER_BOX_CANCEL'),
+  ElMessageBox.prompt(t('MANAGE_BUCKET_CREATE_FOLDER_BOX_TITLE'), t('MANAGE_BUCKET_CREATE_FOLDER_BOX_TIP'), {
+    confirmButtonText: t('MANAGE_BUCKET_CREATE_FOLDER_BOX_CONFIRM'),
+    cancelButtonText: t('MANAGE_BUCKET_CREATE_FOLDER_BOX_CANCEL'),
     inputPattern: /^[\p{Unified_Ideograph}_a-zA-Z0-9-]+$/u,
-    inputErrorMessage: $T('MANAGE_BUCKET_CREATE_FOLDER_ERROR_MSG')
+    inputErrorMessage: t('MANAGE_BUCKET_CREATE_FOLDER_ERROR_MSG')
   })
     .then(async ({ value }) => {
       let formatedPath = value
@@ -2674,9 +2675,9 @@ function handleCreateFolder () {
       }
       const res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_CREATE_BUCKET_FOLDER, configMap.alias, param)
       if (res) {
-        ElMessage.success($T('MANAGE_BUCKET_CREATE_FOLDER_SUCCESS'))
+        ElMessage.success(t('MANAGE_BUCKET_CREATE_FOLDER_SUCCESS'))
       } else {
-        ElMessage.error($T('MANAGE_BUCKET_CREATE_FOLDER_FAIL'))
+        ElMessage.error(t('MANAGE_BUCKET_CREATE_FOLDER_FAIL'))
       }
     })
     .catch(() => {})
@@ -2695,12 +2696,12 @@ async function handleUploadFromUrl () {
     }
   })
   if (urlList.length === 0) {
-    ElMessage.warning($T('MANAGE_BUCKET_UPLOAD_URL_ERROR_MSQ'))
+    ElMessage.warning(t('MANAGE_BUCKET_UPLOAD_URL_ERROR_MSQ'))
     return
   }
   ElNotification({
-    title: $T('MANAGE_BUCKET_UPLOAD_URL_NOT_TITLE'),
-    message: $T('MANAGE_BUCKET_UPLOAD_URL_NOT_MSG'),
+    title: t('MANAGE_BUCKET_UPLOAD_URL_NOT_TITLE'),
+    message: t('MANAGE_BUCKET_UPLOAD_URL_NOT_MSG'),
     type: 'success',
     duration: 1000
   })
@@ -2745,7 +2746,7 @@ const matchedFilesNumber = computed(() => {
 async function BatchRename () {
   isShowBatchRenameDialog.value = false
   if (batchRenameMatch.value === '') {
-    ElMessage.warning($T('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG'))
+    ElMessage.warning(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG'))
     return
   }
   let matchedFiles = [] as any[]
@@ -2761,7 +2762,7 @@ async function BatchRename () {
     }
   })
   if (matchedFiles.length === 0) {
-    ElMessage.warning($T('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG2'))
+    ElMessage.warning(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG2'))
     return
   }
   for (const item of matchedFiles) {
@@ -2780,7 +2781,7 @@ async function BatchRename () {
   }
   matchedFiles = matchedFiles.filter((item: any) => item.fileName !== item.newName)
   if (matchedFiles.length === 0) {
-    ElMessage.warning($T('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG3'))
+    ElMessage.warning(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG3'))
     return
   }
   for (let i = 0; i < matchedFiles.length; i++) {
@@ -2854,11 +2855,11 @@ async function BatchRename () {
   }
   if (duplicateFilesNum > 0) {
     ElMessageBox.confirm(
-      `${$T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_A')} ${duplicateFilesNum} ${$T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_B')}`,
-      $T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_C'),
+      `${t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_A')} ${duplicateFilesNum} ${t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_B')}`,
+      t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_C'),
       {
-        confirmButtonText: $T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CONFIRM'),
-        cancelButtonText: $T('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CANCEL'),
+        confirmButtonText: t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CONFIRM'),
+        cancelButtonText: t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CANCEL'),
         type: 'warning'
       }
     )
@@ -2869,12 +2870,12 @@ async function BatchRename () {
         }
         Promise.allSettled(promiseList).then(() => {
           ElMessage.success(
-            `${$T('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_A')} ${successCount},${$T('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_B')} ${failCount}`
+            `${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_A')} ${successCount},${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_B')} ${failCount}`
           )
         })
       })
       .catch(() => {
-        ElMessage.info($T('MANAGE_BUCKET_BATCH_RENAME_CANCEL'))
+        ElMessage.info(t('MANAGE_BUCKET_BATCH_RENAME_CANCEL'))
       })
   } else {
     const promiseList = [] as any[]
@@ -2883,7 +2884,7 @@ async function BatchRename () {
     }
     Promise.allSettled(promiseList).then(() => {
       ElMessage.success(
-        `${$T('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_A')} ${successCount},${$T('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_B')} ${failCount}`
+        `${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_A')} ${successCount},${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_B')} ${failCount}`
       )
     })
   }
@@ -2891,7 +2892,7 @@ async function BatchRename () {
 
 function handleBatchCopyInfo () {
   if (selectedItems.value.length === 0) {
-    ElMessage.warning($T('MANAGE_BUCKET_BATCH_COPY_INFO_ERROR_MSG'))
+    ElMessage.warning(t('MANAGE_BUCKET_BATCH_COPY_INFO_ERROR_MSG'))
     return
   }
   const result = {} as IStringKeyMap
@@ -2900,7 +2901,7 @@ function handleBatchCopyInfo () {
   })
   window.electron.clipboard.writeText(JSON.stringify(result, null, 2))
   ElMessage.success(
-    `${$T('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_A')} ${selectedItems.value.length} ${$T('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_B')}`
+    `${t('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_A')} ${selectedItems.value.length} ${t('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_B')}`
   )
 }
 
@@ -2910,7 +2911,7 @@ async function copyLink (item: any, type: string) {
 
 async function handleBatchCopyLink (type: string) {
   if (!selectedItems.value.length) {
-    ElMessage.warning($T('MANAGE_BUCKET_BATCH_COPY_URL_ERROR_MSG'))
+    ElMessage.warning(t('MANAGE_BUCKET_BATCH_COPY_URL_ERROR_MSG'))
     return
   }
   const result = [] as string[]
@@ -2928,38 +2929,38 @@ async function handleBatchCopyLink (type: string) {
   }
   window.electron.clipboard.writeText(result.join('\n'))
   ElMessage.success(
-    `${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_A')} ${result.length} ${$T('MANAGE_BUCKET_BATCH_COPY_URL_MSG_B')}`
+    `${t('MANAGE_BUCKET_BATCH_COPY_URL_MSG_A')} ${result.length} ${t('MANAGE_BUCKET_BATCH_COPY_URL_MSG_B')}`
   )
 }
 
 function cancelLoading () {
-  ElMessageBox.confirm($T('MANAGE_BUCKET_CANCEL_LOADING_TITLE'), $T('MANAGE_BUCKET_CANCEL_LOADING_MSG'), {
-    confirmButtonText: $T('MANAGE_BUCKET_CANCEL_LOADING_CONFIRM'),
-    cancelButtonText: $T('MANAGE_BUCKET_CANCEL_LOADING_CANCEL'),
+  ElMessageBox.confirm(t('MANAGE_BUCKET_CANCEL_LOADING_TITLE'), t('MANAGE_BUCKET_CANCEL_LOADING_MSG'), {
+    confirmButtonText: t('MANAGE_BUCKET_CANCEL_LOADING_CONFIRM'),
+    cancelButtonText: t('MANAGE_BUCKET_CANCEL_LOADING_CANCEL'),
     type: 'warning'
   })
     .then(() => {
       isLoadingData.value = false
       window.electron.sendToMain('cancelLoadingFileList', cancelToken.value)
-      ElMessage.success($T('MANAGE_BUCKET_CANCEL_LOADING_SUCCESS'))
+      ElMessage.success(t('MANAGE_BUCKET_CANCEL_LOADING_SUCCESS'))
     })
     .catch(() => {})
 }
 
 function cancelDownloadLoading () {
   ElMessageBox.confirm(
-    $T('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_TITLE'),
-    $T('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_MSG'),
+    t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_TITLE'),
+    t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_MSG'),
     {
-      confirmButtonText: $T('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_CONFIRM'),
-      cancelButtonText: $T('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_CANCEL'),
+      confirmButtonText: t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_CONFIRM'),
+      cancelButtonText: t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_CANCEL'),
       type: 'warning'
     }
   )
     .then(() => {
       isLoadingData.value = false
       window.electron.sendToMain(cancelDownloadLoadingFileList, downloadCancelToken.value)
-      ElMessage.success($T('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_SUCCESS'))
+      ElMessage.success(t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_SUCCESS'))
     })
     .catch(() => {})
 }
@@ -3012,14 +3013,14 @@ async function getBucketFileListBackStage () {
       clearInterval(fileTransferInterval)
       if (fileTransferStore.isSuccess()) {
         ElNotification.success({
-          title: $T('MANAGE_BUCKET_GET_FILE_BS_NOT_TITLE'),
-          message: $T('MANAGE_BUCKET_GET_FILE_BS_NOT_MSG'),
+          title: t('MANAGE_BUCKET_GET_FILE_BS_NOT_TITLE'),
+          message: t('MANAGE_BUCKET_GET_FILE_BS_NOT_MSG'),
           duration: 500
         })
       } else {
         ElNotification.error({
-          title: $T('MANAGE_BUCKET_GET_FILE_BS_NOT_TITLE'),
-          message: $T('MANAGE_BUCKET_GET_FILE_BS_NOT_MSG2'),
+          title: t('MANAGE_BUCKET_GET_FILE_BS_NOT_TITLE'),
+          message: t('MANAGE_BUCKET_GET_FILE_BS_NOT_MSG2'),
           duration: 500
         })
       }
@@ -3046,10 +3047,10 @@ async function getBucketFileList () {
 }
 
 function handleBatchDeleteInfo () {
-  const confirmTitle = `${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_A')} ${selectedItems.value.length} ${$T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_B')}`
-  ElMessageBox.confirm(confirmTitle, $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_MSG'), {
-    confirmButtonText: $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CONFIRM'),
-    cancelButtonText: $T('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CANCEL'),
+  const confirmTitle = `${t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_A')} ${selectedItems.value.length} ${t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_B')}`
+  ElMessageBox.confirm(confirmTitle, t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_MSG'), {
+    confirmButtonText: t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CONFIRM'),
+    cancelButtonText: t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CANCEL'),
     type: 'warning',
     center: true,
     draggable: true
@@ -3094,36 +3095,36 @@ function handleBatchDeleteInfo () {
       }
       if (successCount === 0) {
         ElNotification.error({
-          title: $T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_TITLE'),
-          message: $T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG'),
+          title: t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_TITLE'),
+          message: t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG'),
           duration: 1000
         })
       } else if (failCount === 0) {
         ElNotification.success({
-          title: $T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_TITLE'),
-          message: $T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
+          title: t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_TITLE'),
+          message: t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
           duration: 1000
         })
       } else {
         ElNotification.warning({
-          title: $T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_TITLE'),
-          message: `${$T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2')} ${successCount}, ${$T('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG3')} ${failCount}`,
+          title: t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_TITLE'),
+          message: `${t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2')} ${successCount}, ${t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG3')} ${failCount}`,
           duration: 1000
         })
       }
     })
     .catch(() => {
-      ElMessage.info($T('MANAGE_BUCKET_BATCH_DELETE_CANCEL'))
+      ElMessage.info(t('MANAGE_BUCKET_BATCH_DELETE_CANCEL'))
     })
 }
 
 function handleDeleteFile (item: any) {
   ElMessageBox.confirm(
-    `${$T('MANAGE_BUCKET_DELETE_CONFIRM_TITLE')} ${item.isDir ? $T('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FOLDER') : $T('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FILE')} ${item.fileName} ${item.isDir ? $T('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FOLDER_A') : ''}, ${$T('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_C')}`,
-    $T('MANAGE_BUCKET_DELETE_CONFIRM_MSG'),
+    `${t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE')} ${item.isDir ? t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FOLDER') : t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FILE')} ${item.fileName} ${item.isDir ? t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FOLDER_A') : ''}, ${t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_C')}`,
+    t('MANAGE_BUCKET_DELETE_CONFIRM_MSG'),
     {
-      confirmButtonText: $T('MANAGE_BUCKET_DELETE_CONFIRM_CONFIRM'),
-      cancelButtonText: $T('MANAGE_BUCKET_DELETE_CONFIRM_CANCEL'),
+      confirmButtonText: t('MANAGE_BUCKET_DELETE_CONFIRM_CONFIRM'),
+      cancelButtonText: t('MANAGE_BUCKET_DELETE_CONFIRM_CANCEL'),
       type: 'warning',
       center: true,
       draggable: true
@@ -3140,8 +3141,8 @@ function handleDeleteFile (item: any) {
       }
       if (item.isDir) {
         ElNotification.info({
-          title: $T('MANAGE_BUCKET_DELETE_ERROR_MSG_TITLE'),
-          message: $T('MANAGE_BUCKET_DELETE_ERROR_MSG_MSG'),
+          title: t('MANAGE_BUCKET_DELETE_ERROR_MSG_TITLE'),
+          message: t('MANAGE_BUCKET_DELETE_ERROR_MSG_MSG'),
           duration: 1000
         })
         res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FOLDER, configMap.alias, param)
@@ -3149,7 +3150,7 @@ function handleDeleteFile (item: any) {
         res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FILE, configMap.alias, param)
       }
       if (res) {
-        ElMessage.success($T('MANAGE_BUCKET_DELETE_SUCCESS'))
+        ElMessage.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
         currentPageFilesInfo.splice(
           currentPageFilesInfo.findIndex((i: any) => i.key === item.key),
           1
@@ -3167,11 +3168,11 @@ function handleDeleteFile (item: any) {
             })
         }
       } else {
-        ElMessage.error($T('MANAGE_BUCKET_DELETE_FAIL'))
+        ElMessage.error(t('MANAGE_BUCKET_DELETE_FAIL'))
       }
     })
     .catch(() => {
-      ElMessage.info($T('MANAGE_BUCKET_DELETE_CANCEL'))
+      ElMessage.info(t('MANAGE_BUCKET_DELETE_CANCEL'))
     })
 }
 
@@ -3201,7 +3202,7 @@ function singleRename () {
       itemToBeRenamed.value.fileName.split('.')[1]
   }
   if (itemToBeRenamed.value.newName === itemToBeRenamed.value.fileName) {
-    ElMessage.info($T('MANAGE_BUCKET_RENAME_INFO_MSG'))
+    ElMessage.info(t('MANAGE_BUCKET_RENAME_INFO_MSG'))
     return
   }
   itemToBeRenamed.value.newName = itemToBeRenamed.value.newName.replaceAll('{auto}', '1')
@@ -3261,9 +3262,9 @@ function singleRename () {
             })
           })
       }
-      ElMessage.success($T('MANAGE_BUCKET_RENAME_SUCCESS'))
+      ElMessage.success(t('MANAGE_BUCKET_RENAME_SUCCESS'))
     } else {
-      ElMessage.error($T('MANAGE_BUCKET_RENAME_ERROR_MSG'))
+      ElMessage.error(t('MANAGE_BUCKET_RENAME_ERROR_MSG'))
     }
   })
 }
@@ -3296,7 +3297,7 @@ async function getPreSignedUrl (item: any) {
 
 function copyToClipboard (text: string) {
   window.electron.clipboard.writeText(text)
-  ElMessage.success($T('MANAGE_BUCKET_COPY_SUCCESS'))
+  ElMessage.success(t('MANAGE_BUCKET_COPY_SUCCESS'))
 }
 
 function getTableKeyOfDb () {
@@ -3328,7 +3329,7 @@ function handleDetectShiftKey (event: KeyboardEvent) {
 const downloadedTaskColumns: Column<any>[] = [
   {
     key: 'name',
-    title: $T('MANAGE_BUCKET_DOWNLOAD_COLUMN_FILENAME'),
+    title: t('MANAGE_BUCKET_DOWNLOAD_COLUMN_FILENAME'),
     dataKey: 'sourceFileName',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3347,7 +3348,7 @@ const downloadedTaskColumns: Column<any>[] = [
   },
   {
     key: 'finishTime',
-    title: $T('MANAGE_BUCKET_DOWNLOAD_COLUMN_FINISHTIME'),
+    title: t('MANAGE_BUCKET_DOWNLOAD_COLUMN_FINISHTIME'),
     dataKey: 'finishTime',
     width: 200,
     cellRenderer: ({ rowData: item }) => (
@@ -3356,18 +3357,18 @@ const downloadedTaskColumns: Column<any>[] = [
   },
   {
     key: 'status',
-    title: $T('MANAGE_BUCKET_DOWNLOAD_COLUMN_STATUS'),
+    title: t('MANAGE_BUCKET_DOWNLOAD_COLUMN_STATUS'),
     width: 100,
     cellRenderer: ({ rowData: item }) =>
       item.status === 'downloaded'
         ? (
         <ElTag type='success' style='font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-          {$T('MANAGE_BUCKET_DOWNLOAD_COLUMN_STATUS_SUCCESS')}
+          {t('MANAGE_BUCKET_DOWNLOAD_COLUMN_STATUS_SUCCESS')}
         </ElTag>
           )
         : (
         <ElTag type='danger' style='font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-          {$T('MANAGE_BUCKET_DOWNLOAD_COLUMN_STATUS_FAIL')}
+          {t('MANAGE_BUCKET_DOWNLOAD_COLUMN_STATUS_FAIL')}
         </ElTag>
           )
   }
@@ -3376,7 +3377,7 @@ const downloadedTaskColumns: Column<any>[] = [
 const uploadedTaskColumns: Column<any>[] = [
   {
     key: 'name',
-    title: $T('MANAGE_BUCKET_UPLOAD_COLUMN_FILENAME'),
+    title: t('MANAGE_BUCKET_UPLOAD_COLUMN_FILENAME'),
     dataKey: 'sourceFileName',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3389,7 +3390,7 @@ const uploadedTaskColumns: Column<any>[] = [
   },
   {
     key: 'targetFilePath',
-    title: $T('MANAGE_BUCKET_UPLOAD_COLUMN_TARGETFILEPATH'),
+    title: t('MANAGE_BUCKET_UPLOAD_COLUMN_TARGETFILEPATH'),
     dataKey: 'targetFilePath',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3402,7 +3403,7 @@ const uploadedTaskColumns: Column<any>[] = [
   },
   {
     key: 'finishTime',
-    title: $T('MANAGE_BUCKET_UPLOAD_COLUMN_FINISHTIME'),
+    title: t('MANAGE_BUCKET_UPLOAD_COLUMN_FINISHTIME'),
     dataKey: 'finishTime',
     width: 200,
     cellRenderer: ({ rowData: item }) => (
@@ -3411,18 +3412,18 @@ const uploadedTaskColumns: Column<any>[] = [
   },
   {
     key: 'status',
-    title: $T('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS'),
+    title: t('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS'),
     width: 100,
     cellRenderer: ({ rowData: item }) =>
       item.status === 'uploaded'
         ? (
         <ElTag type='success' style='font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-          {$T('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS_SUCCESS')}
+          {t('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS_SUCCESS')}
         </ElTag>
           )
         : (
         <ElTag type='danger' style='font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-          {$T('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS_FAIL')}
+          {t('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS_FAIL')}
         </ElTag>
           )
   }
@@ -3431,7 +3432,7 @@ const uploadedTaskColumns: Column<any>[] = [
 const downloadingTaskColumns: Column<any>[] = [
   {
     key: 'name',
-    title: $T('MANAGE_BUCKET_DOWNLOADING_COLUMN_FILENAME'),
+    title: t('MANAGE_BUCKET_DOWNLOADING_COLUMN_FILENAME'),
     dataKey: 'sourceFileName',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3442,7 +3443,7 @@ const downloadingTaskColumns: Column<any>[] = [
   },
   {
     key: 'progress',
-    title: $T('MANAGE_BUCKET_DOWNLOADING_COLUMN_PROGRESS'),
+    title: t('MANAGE_BUCKET_DOWNLOADING_COLUMN_PROGRESS'),
     dataKey: 'progress',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3454,7 +3455,7 @@ const downloadingTaskColumns: Column<any>[] = [
 const uploadingTaskColumns: Column<any>[] = [
   {
     key: 'name',
-    title: $T('MANAGE_BUCKET_UPLOADING_COLUMN_FILENAME'),
+    title: t('MANAGE_BUCKET_UPLOADING_COLUMN_FILENAME'),
     dataKey: 'sourceFileName',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3465,7 +3466,7 @@ const uploadingTaskColumns: Column<any>[] = [
   },
   {
     key: 'progress',
-    title: $T('MANAGE_BUCKET_UPLOADING_COLUMN_PROGRESS'),
+    title: t('MANAGE_BUCKET_UPLOADING_COLUMN_PROGRESS'),
     dataKey: 'progress',
     width: 300,
     cellRenderer: ({ rowData: item }) => (
@@ -3484,7 +3485,7 @@ const uploadingTaskColumns: Column<any>[] = [
 const upLoadTaskColumns: Column<any>[] = [
   {
     key: 'name',
-    title: $T('MANAGE_BUCKET_UPLOADED_COLUMN_FILENAME'),
+    title: t('MANAGE_BUCKET_UPLOADED_COLUMN_FILENAME'),
     dataKey: 'name',
     width: 300,
     cellRenderer: ({ rowData: item }) =>
@@ -3512,7 +3513,7 @@ const upLoadTaskColumns: Column<any>[] = [
   },
   {
     key: 'fileSize',
-    title: $T('MANAGE_BUCKET_UPLOADED_COLUMN_FILESIZE'),
+    title: t('MANAGE_BUCKET_UPLOADED_COLUMN_FILESIZE'),
     dataKey: 'fileSize',
     width: 100,
     cellRenderer: ({ rowData: item }) => (
@@ -3523,7 +3524,7 @@ const upLoadTaskColumns: Column<any>[] = [
   },
   {
     key: 'fileNumber',
-    title: $T('MANAGE_BUCKET_UPLOADED_COLUMN_FILENUM'),
+    title: t('MANAGE_BUCKET_UPLOADED_COLUMN_FILENUM'),
     width: 100,
     cellRenderer: ({ rowData: item }) =>
       !item.isFolder
@@ -3677,7 +3678,7 @@ const columns: Column<any>[] = [
   },
   {
     key: 'fileName',
-    title: $T('MANAGE_BUCKET_FILE_COLUMN_FILENAME'),
+    title: t('MANAGE_BUCKET_FILE_COLUMN_FILENAME'),
     dataKey: 'fileName',
     width: 300,
     cellRenderer: ({ cellData: fileName, rowData: item }) => (
@@ -3718,7 +3719,7 @@ const columns: Column<any>[] = [
     title: '',
     width: 30,
     cellRenderer: ({ rowData: item }) => (
-      <ElTooltip placement='top' content={$T('MANAGE_BUCKET_FILE_COLUMN_COPY_URL')} effect='light' hide-after={150}>
+      <ElTooltip placement='top' content={t('MANAGE_BUCKET_FILE_COLUMN_COPY_URL')} effect='light' hide-after={150}>
         <ElDropdown teleported={true}>
           {{
             default: () => (
@@ -3800,7 +3801,7 @@ const columns: Column<any>[] = [
     title: '',
     width: 30,
     cellRenderer: ({ rowData: item }) => (
-      <ElTooltip placement='top' content={$T('MANAGE_BUCKET_FILE_COLUMN_INFO')} effect='light' hide-after={150}>
+      <ElTooltip placement='top' content={t('MANAGE_BUCKET_FILE_COLUMN_INFO')} effect='light' hide-after={150}>
         <ElIcon size='15' style='cursor: pointer;' color='#409EFF' onClick={() => handleShowFileInfo(item)}>
           <Document />
         </ElIcon>
@@ -3815,7 +3816,7 @@ const columns: Column<any>[] = [
   },
   {
     key: 'fileSize',
-    title: $T('MANAGE_BUCKET_FILE_COLUMN_FILESIZE'),
+    title: t('MANAGE_BUCKET_FILE_COLUMN_FILESIZE'),
     width: 100,
     dataKey: 'fileSize',
     cellRenderer: ({ cellData: fileSize, rowData: item }) => (
@@ -3829,7 +3830,7 @@ const columns: Column<any>[] = [
   },
   {
     key: 'formatedTime',
-    title: $T('MANAGE_BUCKET_FILE_COLUMN_TIME'),
+    title: t('MANAGE_BUCKET_FILE_COLUMN_TIME'),
     width: 200,
     dataKey: 'formatedTime',
     cellRenderer: ({ cellData: formatedTime, rowData: item }) => (

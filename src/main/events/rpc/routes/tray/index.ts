@@ -7,7 +7,7 @@ import { IPasteStyle, IRPCActionType, IRPCType, IWindowList } from '#/types/enum
 import { IIPCEvent } from '#/types/rpc'
 import { configPaths } from '#/utils/configPaths'
 import { RPCRouter } from '~/events/rpc/router'
-import { T } from '~/i18n'
+import { T as $t } from '~/i18n'
 import { generateShortUrl, handleCopyUrl, setTrayToolTip } from '~/utils/common'
 import pasteTemplate from '~/utils/pasteTemplate'
 
@@ -44,7 +44,7 @@ const trayRoutes = [
             : !!db.get(configPaths.settings.uploadResultNotification)
         if (isShowResultNotification) {
           const notification = new Notification({
-            title: T('UPLOAD_SUCCEED'),
+            title: $t('UPLOAD_SUCCEED'),
             body: shortUrl || img[0].imgUrl!
             // icon: file[0]
             // icon: img[0].imgUrl

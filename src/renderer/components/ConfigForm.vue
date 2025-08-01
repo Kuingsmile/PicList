@@ -12,14 +12,14 @@
       size="small"
     >
       <el-form-item
-        :label="$T('UPLOADER_CONFIG_NAME')"
+        :label="$t('UPLOADER_CONFIG_NAME')"
         required
         prop="_configName"
       >
         <el-input
           v-model="ruleForm._configName"
           type="input"
-          :placeholder="$T('UPLOADER_CONFIG_PLACEHOLDER')"
+          :placeholder="$t('UPLOADER_CONFIG_PLACEHOLDER')"
         />
       </el-form-item>
       <!-- dynamic config -->
@@ -109,7 +109,6 @@ import { marked } from 'marked'
 import { reactive, ref, toRefs, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-import { T as $T } from '@/i18n/index'
 import { getConfig } from '@/utils/dataSender'
 import { IPicGoPluginConfig, IStringKeyMap } from '#/types/types'
 

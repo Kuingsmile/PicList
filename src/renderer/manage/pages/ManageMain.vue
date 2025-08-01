@@ -23,7 +23,7 @@
           <el-tooltip
             v-if="showNewIconList.includes(currentPicBedName)"
             effect="dark"
-            :content="$T('MANAGE_MAIN_PAGE_NEW_BUCKET')"
+            :content="$t('MANAGE_MAIN_PAGE_NEW_BUCKET')"
             placement="right"
             :persistent="false"
             teleported
@@ -101,7 +101,7 @@
             <el-icon class="layout__menu__setting__item__icon">
               <HomeFilled />
             </el-icon>
-            {{ $T('MANAGE_MAIN_PAGE_BACK_TO_HOME') }}
+            {{ $t('MANAGE_MAIN_PAGE_BACK_TO_HOME') }}
           </span>
         </el-menu-item>
         <el-menu-item
@@ -113,7 +113,7 @@
             <el-icon class="layout__menu__setting__item__icon">
               <Switch />
             </el-icon>
-            {{ $T('MANAGE_MAIN_PAGE_SWITCH_PICBED') }}
+            {{ $t('MANAGE_MAIN_PAGE_SWITCH_PICBED') }}
           </span>
         </el-menu-item>
         <el-menu-item
@@ -125,7 +125,7 @@
             <el-icon class="layout__menu__setting__item__icon">
               <Tools />
             </el-icon>
-            {{ $T('MANAGE_MAIN_PAGE_SETTING') }}
+            {{ $t('MANAGE_MAIN_PAGE_SETTING') }}
           </span>
         </el-menu-item>
       </el-menu>
@@ -158,7 +158,7 @@
               <ChromeFilled />
             </el-icon>
             <span style="font-size: 13px; margin-top: 5px; color: red">
-              {{ $T('MANAGE_MAIN_PAGE_BACK_TO_HOME') }}
+              {{ $t('MANAGE_MAIN_PAGE_BACK_TO_HOME') }}
             </span>
           </div>
         </el-card>
@@ -258,7 +258,7 @@
             style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)"
             @click="createNewBucket(currentPicBedName)"
           >
-            {{ $T('MANAGE_MAIN_PAGE_SUBMIT') }}
+            {{ $t('MANAGE_MAIN_PAGE_SUBMIT') }}
           </el-button>
         </div>
       </el-form>
@@ -281,14 +281,15 @@ import {
 import { ElNotification } from 'element-plus'
 import { IRPCActionType } from 'root/src/universal/types/enum'
 import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
-import { T as $T } from '@/i18n'
 import { useManageStore } from '@/manage/store/manageStore'
 import { supportedPicBedList } from '@/manage/utils/constants'
 import { newBucketConfig } from '@/manage/utils/newBucketConfig'
 import { IStringKeyMap } from '#/types/types'
 
+const { t } = useI18n()
 const manageStore = useManageStore() as any
 const route = useRoute()
 const router = useRouter()
@@ -336,9 +337,9 @@ const urlMap: IStringKeyMap = {
 
 const showNewIconList = ['aliyun', 'qiniu', 'tcyun', 's3plist']
 
-const bucketT = $T('MANAGE_MAIN_PAGE_BUCKET')
-const galleryT = $T('MANAGE_MAIN_PAGE_GALLERY')
-const repositoryT = $T('MANAGE_MAIN_PAGE_REPOSITORY')
+const bucketT = t('MANAGE_MAIN_PAGE_BUCKET')
+const galleryT = t('MANAGE_MAIN_PAGE_GALLERY')
+const repositoryT = t('MANAGE_MAIN_PAGE_REPOSITORY')
 
 const menuTitleMap: IStringKeyMap = {
   aliyun: bucketT,
@@ -401,8 +402,8 @@ function createNewBucket (picBedName: string) {
   window.electron.triggerRPC(IRPCActionType.MANAGE_CREATE_BUCKET, currentAlias, resultMap).then((result: any) => {
     if (result) {
       ElNotification({
-        title: $T('MANAGE_MAIN_PAGE_TIPS'),
-        message: $T('MANAGE_MAIN_PAGE_TIPS_SUCCESS'),
+        title: t('MANAGE_MAIN_PAGE_TIPS'),
+        message: t('MANAGE_MAIN_PAGE_TIPS_SUCCESS'),
         type: 'success'
       })
       nweBucketDrawerVisible.value = false
@@ -411,8 +412,8 @@ function createNewBucket (picBedName: string) {
       }, 2000)
     } else {
       ElNotification({
-        title: $T('MANAGE_MAIN_PAGE_TIPS'),
-        message: $T('MANAGE_MAIN_PAGE_TIPS_FAILED'),
+        title: t('MANAGE_MAIN_PAGE_TIPS'),
+        message: t('MANAGE_MAIN_PAGE_TIPS_FAILED'),
         type: 'error'
       })
     }

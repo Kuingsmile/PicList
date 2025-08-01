@@ -6,12 +6,12 @@ import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/events/constants'
 import { IRPCActionType, IRPCType } from '#/types/enum'
 import { IIPCEvent } from '#/types/rpc'
 import { IShortKeyConfig } from '#/types/types'
-import { T } from '~/i18n'
+import { T as $t } from '~/i18n'
 
 const notificationFunc = (result: boolean) => {
   const notification = new Notification({
-    title: T(`OPERATION_${result ? 'SUCCEED' : 'FAILED'}`),
-    body: T(`TIPS_SHORTCUT_MODIFIED_${result ? 'SUCCEED' : 'CONFLICT'}`)
+    title: $t(`OPERATION_${result ? 'SUCCEED' : 'FAILED'}`),
+    body: $t(`TIPS_SHORTCUT_MODIFIED_${result ? 'SUCCEED' : 'CONFLICT'}`)
   })
   notification.show()
 }

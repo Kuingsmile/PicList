@@ -1,7 +1,7 @@
 <template>
   <div id="config-list-view">
     <div class="view-title">
-      {{ $T('SETTINGS') }}
+      {{ $t('SETTINGS') }}
     </div>
     <el-row
       :gutter="15"
@@ -34,7 +34,7 @@
             v-if="defaultConfigId === item._id"
             class="default-text"
           >
-            {{ $T('SELECTED_SETTING_HINT') }}
+            {{ $t('SELECTED_SETTING_HINT') }}
           </div>
           <div class="operation-container">
             <el-icon
@@ -84,7 +84,7 @@
         :disabled="store?.state.defaultPicBed === type"
         @click="setDefaultPicBed(type)"
       >
-        {{ $T('SETTINGS_SET_DEFAULT_PICBED') }}
+        {{ $t('SETTINGS_SET_DEFAULT_PICBED') }}
       </el-button>
     </el-row>
   </div>
@@ -94,16 +94,17 @@
 import { Delete, Edit, Plus } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { onBeforeMount, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 
 import { useStore } from '@/hooks/useStore'
-import { T as $T } from '@/i18n/index'
 import { PICBEDS_PAGE, UPLOADER_CONFIG_PAGE } from '@/router/config'
 import { saveConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '#/types/enum'
 import { IStringKeyMap, IUploaderConfigItem } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
 
+const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 
@@ -185,8 +186,8 @@ function setDefaultPicBed (type: string) {
   store?.setDefaultPicBed(type)
   const currentConfigName = curConfigList.value.find(item => item._id === defaultConfigId.value)?._configName
   window.electron.sendRPC(IRPCActionType.TRAY_SET_TOOL_TIP, `${type} ${currentConfigName || ''}`)
-  const successNotification = new Notification($T('SETTINGS_DEFAULT_PICBED'), {
-    body: $T('TIPS_SET_SUCCEED')
+  const successNotification = new Notification(t('SETTINGS_DEFAULT_PICBED'), {
+    body: t('TIPS_SET_SUCCEED')
   })
   successNotification.onclick = () => {
     return true

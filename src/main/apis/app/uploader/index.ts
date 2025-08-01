@@ -11,13 +11,13 @@ import fs from 'fs-extra'
 import { IPicGo } from 'piclist'
 import writeFile from 'write-file-atomic'
 
-import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME, TALKING_DATA_EVENT } from '#/events/constants'
+import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '#/events/constants'
 import { ICOREBuildInEvent, IWindowList } from '#/types/enum'
-import { IAnalyticsData, ImgInfo, ITalkingDataOptions, IUploadOption } from '#/types/types'
+import { ImgInfo, IUploadOption } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
 import { CLIPBOARD_IMAGE_FOLDER } from '#/utils/static'
-import { T } from '~/i18n'
-import { calcDurationRange, getClipboardFilePath, showNotification } from '~/utils/common'
+import { T as $t } from '~/i18n'
+import { getClipboardFilePath, showNotification } from '~/utils/common'
 
 const waitForRename = (window: BrowserWindow, id: number): Promise<string | null> => {
   return new Promise(resolve => {
@@ -31,21 +31,6 @@ const waitForRename = (window: BrowserWindow, id: number): Promise<string | null
       windowManager.deleteById(window.id)
     })
   })
-}
-
-const handleTalkingData = (webContents: WebContents, options: IAnalyticsData) => {
-  const { type, fromClipboard, count, duration } = options
-  const data: ITalkingDataOptions = {
-    EventId: 'upload',
-    Label: type,
-    MapKv: {
-      by: fromClipboard ? 'clipboard' : 'files',
-      count,
-      duration: calcDurationRange(duration || 0),
-      type
-    }
-  }
-  webContents.send(TALKING_DATA_EVENT, data)
 }
 
 class Uploader {
@@ -67,8 +52,8 @@ class Uploader {
     picgo.on(ICOREBuildInEvent.BEFORE_TRANSFORM, () => {
       if (db.get(configPaths.settings.uploadNotification)) {
         const notification = new Notification({
-          title: T('UPLOAD_PROGRESS'),
-          body: T('UPLOADING')
+          title: $t('UPLOAD_PROGRESS'),
+          body: $t('UPLOADING')
         })
         notification.show()
       }
@@ -164,18 +149,8 @@ class Uploader {
 
   async uploadReturnCtx (img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
     try {
-      const startTime = Date.now()
       const ctx = await picgo.uploadReturnCtx(img, skipProcess)
       if (!Array.isArray(ctx.output) || !ctx.output.some((item: ImgInfo) => item.imgUrl)) return false
-
-      if (this.webContents) {
-        handleTalkingData(this.webContents, {
-          fromClipboard: !img,
-          type: db.get(configPaths.picBed.uploader) || db.get(configPaths.picBed.current) || 'smms',
-          count: img ? img.length : 1,
-          duration: Date.now() - startTime
-        } as IAnalyticsData)
-      }
 
       ctx.output.forEach((item: ImgInfo) => {
         item.config = JSON.parse(JSON.stringify(db.get(`picBed.${item.type}`)))
@@ -186,7 +161,7 @@ class Uploader {
       logger.error(e)
       setTimeout(() => {
         showNotification({
-          title: T('UPLOAD_FAILED'),
+          title: $t('UPLOAD_FAILED'),
           body: util.format(e.stack),
           clickToCopy: true
         })
@@ -199,18 +174,8 @@ class Uploader {
 
   async upload (img?: IUploadOption): Promise<ImgInfo[] | false> {
     try {
-      const startTime = Date.now()
       const output = await picgo.upload(img)
       if (!Array.isArray(output) || !output.some((item: ImgInfo) => item.imgUrl)) return false
-
-      if (this.webContents) {
-        handleTalkingData(this.webContents, {
-          fromClipboard: !img,
-          type: db.get(configPaths.picBed.uploader) || db.get(configPaths.picBed.current) || 'smms',
-          count: img ? img.length : 1,
-          duration: Date.now() - startTime
-        } as IAnalyticsData)
-      }
       output.forEach((item: ImgInfo) => {
         item.config = JSON.parse(JSON.stringify(db.get(`picBed.${item.type}`)))
       })
@@ -219,7 +184,7 @@ class Uploader {
       logger.error(e)
       setTimeout(() => {
         showNotification({
-          title: T('UPLOAD_FAILED'),
+          title: $t('UPLOAD_FAILED'),
           body: util.format(e.stack),
           clickToCopy: true
         })

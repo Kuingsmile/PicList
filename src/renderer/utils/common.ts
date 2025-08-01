@@ -1,17 +1,5 @@
 import { isReactive, isRef, toRaw, unref } from 'vue'
 
-import { ITalkingDataOptions } from '#/types/types'
-
-export const handleTalkingDataEvent = (data: ITalkingDataOptions) => {
-  try {
-    const { EventId, Label = '', MapKv = {} } = data
-    MapKv.from = window.location.href
-    window.TDAPP.onEvent(EventId, Label, MapKv)
-  } catch (e) {
-    console.error(e)
-  }
-}
-
 /**
  * get raw data from reactive or ref
  */

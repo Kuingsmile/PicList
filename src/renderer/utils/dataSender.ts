@@ -1,5 +1,4 @@
-import { IRPCActionType } from 'root/src/universal/types/enum'
-
+import { IRPCActionType } from '#/types/enum'
 import { IObj } from '#/types/types'
 
 export function saveConfig (config: IObj | string, value?: any) {

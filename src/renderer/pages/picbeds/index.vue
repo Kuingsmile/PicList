@@ -12,7 +12,7 @@
           <span
             class="view-title-text"
             @click="handleNameClick"
-          > {{ picBedName }} {{ $T('SETTINGS') }}</span>
+          > {{ picBedName }} {{ $t('SETTINGS') }}</span>
           <el-icon>
             <Link />
           </el-icon>
@@ -23,7 +23,7 @@
             style="margin-left: 6px"
             @click="handleCopyApi"
           >
-            {{ $T('UPLOAD_PAGE_COPY_UPLOAD_API') }}
+            {{ $t('UPLOAD_PAGE_COPY_UPLOAD_API') }}
           </el-button>
         </div>
         <config-form
@@ -40,14 +40,14 @@
                 round
                 @click="handleReset"
               >
-                {{ $T('RESET_PICBED_CONFIG') }}
+                {{ $t('RESET_PICBED_CONFIG') }}
               </el-button>
               <el-button
                 type="success"
                 round
                 @click="handleConfirm"
               >
-                {{ $T('CONFIRM') }}
+                {{ $t('CONFIRM') }}
               </el-button>
               <el-button
                 round
@@ -62,7 +62,7 @@
                   :disabled="picBedConfigList.length === 0"
                   teleported
                 >
-                  {{ $T('MANAGE_LOGIN_PAGE_PANE_IMPORT') }}
+                  {{ $t('MANAGE_LOGIN_PAGE_PANE_IMPORT') }}
                   <template #dropdown>
                     <el-dropdown-item
                       v-for="i in picBedConfigList"
@@ -82,7 +82,7 @@
           class="single"
         >
           <div class="notice">
-            {{ $T('SETTINGS_NOT_CONFIG_OPTIONS') }}
+            {{ $t('SETTINGS_NOT_CONFIG_OPTIONS') }}
           </div>
         </div>
       </el-col>
@@ -95,16 +95,17 @@ import { Link } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { ElDropdown, ElMessage } from 'element-plus'
 import { onBeforeMount, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import ConfigForm from '@/components/ConfigForm.vue'
-import { T as $T } from '@/i18n/index'
 import { getConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType } from '#/types/enum'
 import { IPicGoPluginConfig, IStringKeyMap, IUploaderConfigItem, IUploaderConfigListItem } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
 import { picBedManualUrlList } from '#/utils/static'
 
+const { t } = useI18n()
 const type = ref('')
 const config = ref<IPicGoPluginConfig[]>([])
 const picBedConfigList = ref<IUploaderConfigListItem[]>([])
@@ -124,8 +125,8 @@ const handleConfirm = async () => {
   const result = (await $configForm.value?.validate()) || false
   if (result !== false) {
     await window.electron.triggerRPC<void>(IRPCActionType.UPLOADER_UPDATE_CONFIG, type.value, result?._id, result)
-    const successNotification = new Notification($T('SETTINGS_RESULT'), {
-      body: $T('TIPS_SET_SUCCEED')
+    const successNotification = new Notification(t('SETTINGS_RESULT'), {
+      body: t('TIPS_SET_SUCCEED')
     })
     successNotification.onclick = () => {
       return true
@@ -167,8 +168,8 @@ async function handleConfigImport (configItem: IUploaderConfigListItem) {
 
 const handleReset = async () => {
   await window.electron.triggerRPC<void>(IRPCActionType.UPLOADER_RESET_CONFIG, type.value, $route.params.configId)
-  const successNotification = new Notification($T('SETTINGS_RESULT'), {
-    body: $T('TIPS_RESET_SUCCEED')
+  const successNotification = new Notification(t('SETTINGS_RESULT'), {
+    body: t('TIPS_RESET_SUCCEED')
   })
   successNotification.onclick = () => {
     return true
@@ -197,7 +198,7 @@ async function handleCopyApi () {
     }
     const apiUrl = `http://${host === '0.0.0.0' ? '127.0.0.1' : host}:${port}/upload?picbed=${$route.params.type}&configName=${picBedConfig._configName}${serverKey ? `&key=${serverKey}` : ''}`
     window.electron.clipboard.writeText(apiUrl)
-    ElMessage.success(`${$T('MANAGE_BUCKET_COPY_SUCCESS')} ${apiUrl}`)
+    ElMessage.success(`${t('MANAGE_BUCKET_COPY_SUCCESS')} ${apiUrl}`)
   } catch (error) {
     console.log(error)
     ElMessage.error('Copy failed')

@@ -69,19 +69,19 @@
             <el-icon>
               <UploadFilled />
             </el-icon>
-            <span>{{ $T('UPLOAD_AREA') }}</span>
+            <span>{{ $t('UPLOAD_AREA') }}</span>
           </el-menu-item>
           <el-menu-item :index="routerConfig.MANAGE_LOGIN_PAGE">
             <el-icon>
               <PieChart />
             </el-icon>
-            <span>{{ $T('MANAGE_PAGE') }}</span>
+            <span>{{ $t('MANAGE_PAGE') }}</span>
           </el-menu-item>
           <el-menu-item :index="routerConfig.GALLERY_PAGE">
             <el-icon>
               <PictureFilled />
             </el-icon>
-            <span>{{ $T('GALLERY') }}</span>
+            <span>{{ $t('GALLERY') }}</span>
           </el-menu-item>
           <el-sub-menu
             index="sub-menu"
@@ -93,7 +93,7 @@
               <el-icon>
                 <Menu />
               </el-icon>
-              <span>{{ $T('PICBEDS_SETTINGS') }}</span>
+              <span>{{ $t('PICBEDS_SETTINGS') }}</span>
             </template>
             <template v-for="item in picBedGlobal">
               <el-menu-item
@@ -109,19 +109,19 @@
             <el-icon>
               <Tools />
             </el-icon>
-            <span>{{ $T('PICLIST_SETTINGS') }}</span>
+            <span>{{ $t('PICLIST_SETTINGS') }}</span>
           </el-menu-item>
           <el-menu-item :index="routerConfig.PLUGIN_PAGE">
             <el-icon>
               <Share />
             </el-icon>
-            <span>{{ $T('PLUGIN_SETTINGS') }}</span>
+            <span>{{ $t('PLUGIN_SETTINGS') }}</span>
           </el-menu-item>
           <el-menu-item :index="routerConfig.DocumentPage">
             <el-icon>
               <Link />
             </el-icon>
-            <span>{{ $T('MANUAL') }}</span>
+            <span>{{ $t('MANUAL') }}</span>
           </el-menu-item>
         </el-menu>
         <el-icon
@@ -154,7 +154,7 @@
       class="qrcode-dialog"
       top="3vh"
       width="60%"
-      :title="$T('PICBED_QRCODE')"
+      :title="$t('PICBED_QRCODE')"
       :modal-append-to-body="false"
       lock-scroll
       append-to-body
@@ -164,7 +164,7 @@
         label-width="70px"
         size="small"
       >
-        <el-form-item :label="$T('CHOOSE_PICBED')">
+        <el-form-item :label="$t('CHOOSE_PICBED')">
           <el-select
             v-model="choosedPicBedForQRCode"
             multiple
@@ -186,7 +186,7 @@
             class="copy-picbed-config"
             @click="handleCopyPicBedConfig"
           >
-            {{ $T('COPY_PICBED_CONFIG') }}
+            {{ $t('COPY_PICBED_CONFIG') }}
           </el-button>
         </el-form-item>
       </el-form>
@@ -223,10 +223,10 @@ import { pick } from 'lodash-es'
 import QrcodeVue from 'qrcode.vue'
 import pkg from 'root/package.json'
 import { nextTick, onBeforeMount, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate, useRouter } from 'vue-router'
 
 import InputBoxDialog from '@/components/InputBoxDialog.vue'
-import { T as $T } from '@/i18n/index'
 import * as config from '@/router/config'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { osGlobal, picBedGlobal, updatePicBedGlobal } from '@/utils/global'
@@ -234,6 +234,7 @@ import { SHOW_MAIN_PAGE_QRCODE } from '#/events/constants'
 import { II18nLanguage, IRPCActionType } from '#/types/enum'
 import { configPaths, manualPageOpenType } from '#/utils/configPaths'
 
+const { t } = useI18n()
 const version = ref(pkg.version)
 const routerConfig = reactive(config)
 const defaultActive = ref(routerConfig.UPLOAD_PAGE)
@@ -291,9 +292,9 @@ const handleSelect = async (index: string) => {
       )
 
     if (!manualPageOpenSetting) {
-      ElMessageBox.confirm($T('MANUAL_PAGE_OPEN_TIP'), $T('MANUAL_PAGE_OPEN_TIP_TITLE'), {
-        confirmButtonText: $T('MANUAL_PAGE_OPEN_BY_BROWSER'),
-        cancelButtonText: $T('MANUAL_PAGE_OPEN_BY_BUILD_IN'),
+      ElMessageBox.confirm(t('MANUAL_PAGE_OPEN_TIP'), t('MANUAL_PAGE_OPEN_TIP_TITLE'), {
+        confirmButtonText: t('MANUAL_PAGE_OPEN_BY_BROWSER'),
+        cancelButtonText: t('MANUAL_PAGE_OPEN_BY_BUILD_IN'),
         type: 'info',
         center: true
       })
@@ -344,7 +345,7 @@ function openMiniWindow () {
 
 function handleCopyPicBedConfig () {
   window.electron.clipboard.writeText(picBedConfigString.value)
-  $message.success($T('COPY_PICBED_CONFIG_SUCCEED'))
+  $message.success(t('COPY_PICBED_CONFIG_SUCCEED'))
 }
 
 function setAlwaysOnTop () {

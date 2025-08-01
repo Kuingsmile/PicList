@@ -9,10 +9,10 @@
           >
           <el-row class="toolbox-header__text">
             <el-row class="toolbox-header__title">
-              {{ $T('TOOLBOX_TITLE') }}
+              {{ $t('TOOLBOX_TITLE') }}
             </el-row>
             <el-row class="toolbox-header__sub-title">
-              {{ $T('TOOLBOX_SUB_TITLE') }}
+              {{ $t('TOOLBOX_SUB_TITLE') }}
             </el-row>
           </el-row>
         </el-row>
@@ -24,12 +24,12 @@
               :disabled="isLoading"
               @click="handleCheck"
             >
-              {{ $T('TOOLBOX_START_SCAN') }}
+              {{ $t('TOOLBOX_START_SCAN') }}
             </el-button>
           </template>
           <template v-else-if="isAllSuccess">
             <div class="toolbox-tips">
-              {{ $T('TOOLBOX_SUCCESS_TIPS') }}
+              {{ $t('TOOLBOX_SUCCESS_TIPS') }}
             </div>
           </template>
           <template v-else-if="!isAllSuccess">
@@ -39,19 +39,19 @@
                 round
                 @click="handleFix"
               >
-                {{ $T('TOOLBOX_START_FIX') }}
+                {{ $t('TOOLBOX_START_FIX') }}
               </el-button>
             </template>
             <template v-else>
               <div class="toolbox-cant-fix toolbox-tips">
-                {{ $T('TOOLBOX_CANT_AUTO_FIX') }}
+                {{ $t('TOOLBOX_CANT_AUTO_FIX') }}
                 <el-button
                   type="primary"
                   round
                   class="toolbox-cant-fix__btn"
                   @click="handleCheck"
                 >
-                  {{ $T('TOOLBOX_RE_SCAN') }}
+                  {{ $t('TOOLBOX_RE_SCAN') }}
                 </el-button>
               </div>
             </template>
@@ -95,41 +95,42 @@
 
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { IToolboxCheckRes } from 'root/src/universal/types/rpc'
-import { IToolboxMap } from 'root/src/universal/types/view'
 import { computed, onUnmounted, reactive, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import ToolboxHandler from '@/components/ToolboxHandler.vue'
 import ToolboxStatusIcon from '@/components/ToolboxStatusIcon.vue'
-import { T as $T } from '@/i18n'
 import { IRPCActionType, IToolboxItemCheckStatus, IToolboxItemType } from '#/types/enum'
+import { IToolboxCheckRes } from '#/types/rpc'
+import { IToolboxMap } from '#/types/view'
 
+const { t } = useI18n()
 const $confirm = ElMessageBox.confirm
 const defaultLogo = ref('/roundLogo.png')
 const activeTypes = ref<IToolboxItemType[]>([])
 const fixList = reactive<IToolboxMap>({
   [IToolboxItemType.IS_CONFIG_FILE_BROKEN]: {
-    title: $T('TOOLBOX_CHECK_CONFIG_FILE_BROKEN'),
+    title: t('TOOLBOX_CHECK_CONFIG_FILE_BROKEN'),
     status: IToolboxItemCheckStatus.INIT,
-    handlerText: $T('SETTINGS_OPEN_CONFIG_FILE'),
+    handlerText: t('SETTINGS_OPEN_CONFIG_FILE'),
     handler (value: string) {
       window.electron.sendRPC(IRPCActionType.OPEN_FILE, value)
     }
   },
   [IToolboxItemType.IS_GALLERY_FILE_BROKEN]: {
-    title: $T('TOOLBOX_CHECK_GALLERY_FILE_BROKEN'),
+    title: t('TOOLBOX_CHECK_GALLERY_FILE_BROKEN'),
     status: IToolboxItemCheckStatus.INIT
   },
   [IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD]: {
-    title: $T('TOOLBOX_CHECK_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD'), // picgo-image-clipboard folder
+    title: t('TOOLBOX_CHECK_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD'), // picgo-image-clipboard folder
     status: IToolboxItemCheckStatus.INIT,
-    handlerText: $T('OPEN_FILE_PATH'),
+    handlerText: t('OPEN_FILE_PATH'),
     handler (value: string) {
       window.electron.sendRPC(IRPCActionType.OPEN_FILE, value)
     }
   },
   [IToolboxItemType.HAS_PROBLEM_WITH_PROXY]: {
-    title: $T('TOOLBOX_CHECK_PROBLEM_WITH_PROXY'),
+    title: t('TOOLBOX_CHECK_PROBLEM_WITH_PROXY'),
     status: IToolboxItemCheckStatus.INIT,
     hasNoFixMethod: true
   }
@@ -210,9 +211,9 @@ const handleFix = async () => {
       }
     })
 
-  $confirm($T('TOOLBOX_FIX_DONE_NEED_RELOAD'), $T('TIPS_NOTICE'), {
-    confirmButtonText: $T('CONFIRM'),
-    cancelButtonText: $T('CANCEL'),
+  $confirm(t('TOOLBOX_FIX_DONE_NEED_RELOAD'), t('TIPS_NOTICE'), {
+    confirmButtonText: t('CONFIRM'),
+    cancelButtonText: t('CANCEL'),
     type: 'info'
   })
     .then(() => {

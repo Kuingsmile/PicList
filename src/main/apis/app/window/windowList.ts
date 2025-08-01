@@ -10,7 +10,7 @@ import { IWindowListItem } from '#/types/electron'
 import { IWindowList } from '#/types/enum'
 import { IBrowserWindowOptions } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
-import { T } from '~/i18n'
+import { T as $t } from '~/i18n'
 
 import logo from '../../../../../resources/logo.png?asset'
 import {
@@ -171,7 +171,7 @@ const toolboxWindowOptions = {
   center: true,
   fullscreenable: false,
   resizable: false,
-  title: `PicList ${T('TOOLBOX')}`,
+  title: `PicList ${$t('TOOLBOX')}`,
   vibrancy: 'ultra-dark',
   icon: logo,
   webPreferences: {

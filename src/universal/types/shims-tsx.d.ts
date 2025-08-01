@@ -67,8 +67,5 @@ declare global {
       setLocales: (lang: string, locales: ILocales) => void
       translate: (key: ILocalesKey, args?: IStringKeyMap) => string
     }
-    TDAPP: {
-      onEvent: (EventId: string, Label?: string, MapKv?: IStringKeyMap) => void
-    }
   }
 }

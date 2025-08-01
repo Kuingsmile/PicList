@@ -1,7 +1,7 @@
 <template>
   <div id="plugin-view">
     <div class="view-title">
-      {{ $T('PLUGIN_SETTINGS') }} -
+      {{ $t('PLUGIN_SETTINGS') }} -
       <el-tooltip
         :content="pluginListToolTip"
         placement="right"
@@ -48,7 +48,7 @@
     >
       <el-input
         v-model="searchText"
-        :placeholder="$T('PLUGIN_SEARCH_PLACEHOLDER')"
+        :placeholder="$t('PLUGIN_SEARCH_PLACEHOLDER')"
         size="small"
       >
         <template #suffix>
@@ -132,20 +132,20 @@
                       class="config-button install"
                       @click="installPlugin(item)"
                     >
-                      {{ $T('PLUGIN_INSTALL') }}
+                      {{ $t('PLUGIN_INSTALL') }}
                     </span>
                     <span
                       v-else-if="item.ing"
                       class="config-button ing"
                     >
-                      {{ $T('PLUGIN_INSTALLING') }}
+                      {{ $t('PLUGIN_INSTALLING') }}
                     </span>
                   </template>
                   <span
                     v-else
                     class="config-button ing"
                   >
-                    {{ $T('PLUGIN_INSTALLED') }}
+                    {{ $t('PLUGIN_INSTALLED') }}
                   </span>
                 </template>
                 <template v-else>
@@ -153,7 +153,7 @@
                     v-if="item.ing"
                     class="config-button ing"
                   >
-                    {{ $T('PLUGIN_DOING_SOMETHING') }}
+                    {{ $t('PLUGIN_DOING_SOMETHING') }}
                   </span>
                   <template v-else>
                     <el-icon
@@ -190,14 +190,14 @@
         round
         @click="reloadApp"
       >
-        {{ $T('TIPS_NEED_RELOAD') }}
+        {{ $t('TIPS_NEED_RELOAD') }}
       </el-button>
     </el-row>
     <el-dialog
       v-model="dialogVisible"
       :modal-append-to-body="false"
       :title="
-        $T('CONFIG_THING', {
+        $t('CONFIG_THING', {
           c: configName
         })
       "
@@ -216,14 +216,14 @@
           round
           @click="dialogVisible = false"
         >
-          {{ $T('CANCEL') }}
+          {{ $t('CANCEL') }}
         </el-button>
         <el-button
           type="primary"
           round
           @click="handleConfirmConfig"
         >
-          {{ $T('CONFIRM') }}
+          {{ $t('CONFIRM') }}
         </el-button>
       </template>
     </el-dialog>
@@ -236,9 +236,9 @@ import type { IpcRendererEvent } from 'electron'
 import { ElMessageBox } from 'element-plus'
 import { debounce, DebouncedFunc } from 'lodash-es'
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, reactive, ref, toRaw, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import ConfigForm from '@/components/ConfigFormForPlugin.vue'
-import { T as $T } from '@/i18n/index'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { osGlobal, updatePicBedGlobal } from '@/utils/global'
 import {
@@ -252,6 +252,7 @@ import { INPMSearchResultObject, IPicGoPlugin } from '#/types/types'
 import { handleStreamlinePluginName } from '#/utils/common'
 import { configPaths } from '#/utils/configPaths'
 
+const { t } = useI18n()
 const $confirm = ElMessageBox.confirm
 const searchText = ref('')
 const pluginList = ref<IPicGoPlugin[]>([])
@@ -263,9 +264,9 @@ const pluginNameList = ref<string[]>([])
 const loading = ref(true)
 const needReload = ref(false)
 const latestVersionMap = reactive<{ [key: string]: string }>({})
-const pluginListToolTip = $T('PLUGIN_LIST')
-const importLocalPluginToolTip = $T('PLUGIN_IMPORT_LOCAL')
-const updateAllToolTip = $T('PLUGIN_UPDATE_ALL')
+const pluginListToolTip = t('PLUGIN_LIST')
+const importLocalPluginToolTip = t('PLUGIN_IMPORT_LOCAL')
+const updateAllToolTip = t('PLUGIN_UPDATE_ALL')
 const defaultLogo = ref('this.src=\'/roundLogo.png\'')
 const $configForm = ref<InstanceType<typeof ConfigForm> | null>(null)
 const npmSearchText = computed(() => {
@@ -440,9 +441,9 @@ function getPluginList () {
 
 function installPlugin (item: IPicGoPlugin) {
   if (!item.gui) {
-    $confirm($T('TIPS_PLUGIN_NOT_GUI_IMPLEMENT'), $T('TIPS_NOTICE'), {
-      confirmButtonText: $T('CONFIRM'),
-      cancelButtonText: $T('CANCEL'),
+    $confirm(t('TIPS_PLUGIN_NOT_GUI_IMPLEMENT'), t('TIPS_NOTICE'), {
+      confirmButtonText: t('CONFIRM'),
+      cancelButtonText: t('CANCEL'),
       type: 'warning'
     })
       .then(() => {
@@ -467,8 +468,8 @@ async function handleReload () {
     needReload: true
   })
   needReload.value = true
-  const successNotification = new Notification($T('PLUGIN_UPDATE_SUCCEED'), {
-    body: $T('TIPS_NEED_RELOAD')
+  const successNotification = new Notification(t('PLUGIN_UPDATE_SUCCEED'), {
+    body: t('TIPS_NEED_RELOAD')
   })
   successNotification.onclick = () => {
     reloadApp()
@@ -499,8 +500,8 @@ async function handleConfirmConfig () {
         })
         break
     }
-    const successNotification = new Notification($T('SETTINGS_RESULT'), {
-      body: $T('TIPS_SET_SUCCEED')
+    const successNotification = new Notification(t('SETTINGS_RESULT'), {
+      body: t('TIPS_SET_SUCCEED')
     })
     successNotification.onclick = () => {
       return true

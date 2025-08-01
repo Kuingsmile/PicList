@@ -12,7 +12,7 @@ import { ICOREBuildInEvent, IPicGoHelperType, IWindowList } from '#/types/enum'
 import { IIPCEvent } from '#/types/rpc'
 import { IDispose, IPicGoPlugin } from '#/types/types'
 import { handleStreamlinePluginName, simpleClone } from '#/utils/common'
-import { T } from '~/i18n'
+import { T as $t } from '~/i18n'
 import { showNotification } from '~/utils/common'
 
 const STORE_PATH = dbPathDir()
@@ -108,8 +108,8 @@ const handleNPMError = (): IDispose => {
     if (msg === 'NPM is not installed') {
       dialog
         .showMessageBox({
-          title: T('TIPS_ERROR'),
-          message: T('TIPS_INSTALL_NODE_AND_RELOAD_PICGO'),
+          title: $t('TIPS_ERROR'),
+          message: $t('TIPS_INSTALL_NODE_AND_RELOAD_PICGO'),
           buttons: ['Yes']
         })
         .then(res => {
@@ -131,7 +131,7 @@ export const handlePluginUpdate = async (fullName: string | string[]) => {
     window.webContents.send('updateSuccess', res.body[0])
   } else {
     showNotification({
-      title: T('PLUGIN_UPDATE_FAILED'),
+      title: $t('PLUGIN_UPDATE_FAILED'),
       body: res.body as string
     })
   }
@@ -148,7 +148,7 @@ export const handlePluginUninstall = async (fullName: string) => {
     shortKeyHandler.unregisterPluginShortKey(res.body[0])
   } else {
     showNotification({
-      title: T('PLUGIN_UNINSTALL_FAILED'),
+      title: $t('PLUGIN_UNINSTALL_FAILED'),
       body: res.body as string
     })
   }
@@ -165,7 +165,7 @@ export const pluginGetListFunc = async (event: IIPCEvent) => {
   } catch (e: any) {
     event.sender.send('pluginList', [])
     showNotification({
-      title: T('TIPS_GET_PLUGIN_LIST_FAILED'),
+      title: $t('TIPS_GET_PLUGIN_LIST_FAILED'),
       body: e.message
     })
     picgo.log.error(e)
@@ -185,7 +185,7 @@ export const pluginInstallFunc = async (event: IIPCEvent, args: [fullName: strin
     await shortKeyHandler.registerPluginShortKey(res.body[0])
   } else {
     showNotification({
-      title: T('PLUGIN_INSTALL_FAILED'),
+      title: $t('PLUGIN_INSTALL_FAILED'),
       body: res.body as string
     })
   }
@@ -208,17 +208,17 @@ export const pluginImportLocalFunc = async (event: IIPCEvent) => {
       } catch (e: any) {
         event.sender.send('pluginList', [])
         showNotification({
-          title: T('TIPS_GET_PLUGIN_LIST_FAILED'),
+          title: $t('TIPS_GET_PLUGIN_LIST_FAILED'),
           body: e.message
         })
       }
       showNotification({
-        title: T('PLUGIN_IMPORT_SUCCEED'),
+        title: $t('PLUGIN_IMPORT_SUCCEED'),
         body: ''
       })
     } else {
       showNotification({
-        title: T('PLUGIN_IMPORT_FAILED'),
+        title: $t('PLUGIN_IMPORT_FAILED'),
         body: res.body as string
       })
     }

@@ -1,7 +1,6 @@
 import crypto from 'node:crypto'
 import path from 'node:path'
 
-import { I18n, ObjectAdapter } from '@piclist/i18n'
 import { clipboard, contextBridge, ipcRenderer, webFrame } from 'electron'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
@@ -11,10 +10,6 @@ import { isReactive, isRef, toRaw, unref } from 'vue'
 import { RPC_ACTIONS, RPC_ACTIONS_INVOKE } from '#/events/constants'
 import { IpcRendererListener } from '#/types/electron'
 import { IRPCActionType } from '#/types/enum'
-import { ILocales, ILocalesKey } from '#/types/i18n'
-import { IStringKeyMap } from '#/types/types'
-
-let i18nObj: I18n | null = null
 
 export const getRawData = (args: any): any => {
   if (isRef(args)) return unref(args)
@@ -92,21 +87,6 @@ try {
     },
     mime: {
       lookup: mime.lookup
-    }
-  })
-
-  contextBridge.exposeInMainWorld('i18n', {
-    setLocales: (lang: string, locales: ILocales) => {
-      const objectAdapter = new ObjectAdapter({
-        [lang]: locales
-      })
-      i18nObj = new I18n({
-        adapter: objectAdapter,
-        defaultLanguage: lang
-      })
-    },
-    translate: (key: ILocalesKey, args: IStringKeyMap = {}): string => {
-      return i18nObj?.translate(key, args) || key
     }
   })
 } catch (error) {

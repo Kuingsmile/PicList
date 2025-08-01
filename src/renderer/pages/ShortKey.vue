@@ -1,7 +1,7 @@
 <template>
   <div id="shortcut-page">
     <div class="view-title">
-      {{ $T('SETTINGS_SET_SHORTCUT') }}
+      {{ $t('SETTINGS_SET_SHORTCUT') }}
     </div>
     <el-row>
       <el-col
@@ -15,28 +15,28 @@
           header-cell-class-name="shortcut-page-table-border"
           cell-class-name="shortcut-page-table-border"
         >
-          <el-table-column :label="$T('SHORTCUT_NAME')">
+          <el-table-column :label="$t('SHORTCUT_NAME')">
             <template #default="scope">
               {{ scope.row.label ? scope.row.label : scope.row.name }}
             </template>
           </el-table-column>
           <el-table-column
             width="160px"
-            :label="$T('SHORTCUT_BIND')"
+            :label="$t('SHORTCUT_BIND')"
             prop="key"
           />
-          <el-table-column :label="$T('SHORTCUT_STATUS')">
+          <el-table-column :label="$t('SHORTCUT_STATUS')">
             <template #default="scope">
               <el-tag
                 size="small"
                 :type="scope.row.enable ? 'success' : 'danger'"
               >
-                {{ scope.row.enable ? $T('SHORTCUT_ENABLED') : $T('SHORTCUT_DISABLED') }}
+                {{ scope.row.enable ? $t('SHORTCUT_ENABLED') : $t('SHORTCUT_DISABLED') }}
               </el-tag>
             </template>
           </el-table-column>
           <el-table-column
-            :label="$T('SHORTCUT_SOURCE')"
+            :label="$t('SHORTCUT_SOURCE')"
             width="100px"
           >
             <template #default="scope">
@@ -44,7 +44,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            :label="$T('SHORTCUT_HANDLE')"
+            :label="$t('SHORTCUT_HANDLE')"
             width="100px"
           >
             <template #default="scope">
@@ -58,7 +58,7 @@
                   :link="true"
                   @click="toggleEnable(scope.row)"
                 >
-                  {{ scope.row.enable ? $T('SHORTCUT_DISABLE') : $T('SHORTCUT_ENABLE') }}
+                  {{ scope.row.enable ? $t('SHORTCUT_DISABLE') : $t('SHORTCUT_ENABLE') }}
                 </el-button>
                 <el-button
                   class="edit"
@@ -67,7 +67,7 @@
                   :link="true"
                   @click="openKeyBindingDialog(scope.row, scope.$index)"
                 >
-                  {{ $T('SHORTCUT_EDIT') }}
+                  {{ $t('SHORTCUT_EDIT') }}
                 </el-button>
               </el-row>
             </template>
@@ -77,7 +77,7 @@
     </el-row>
     <el-dialog
       v-model="keyBindingVisible"
-      :title="$T('SHORTCUT_CHANGE_UPLOAD')"
+      :title="$t('SHORTCUT_CHANGE_UPLOAD')"
       :modal-append-to-body="false"
       append-to-body
     >
@@ -99,14 +99,14 @@
           round
           @click="cancelKeyBinding"
         >
-          {{ $T('CANCEL') }}
+          {{ $t('CANCEL') }}
         </el-button>
         <el-button
           type="primary"
           round
           @click="confirmKeyBinding"
         >
-          {{ $T('CONFIRM') }}
+          {{ $t('CONFIRM') }}
         </el-button>
       </template>
     </el-dialog>
@@ -116,7 +116,6 @@
 <script lang="ts" setup>
 import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
-import { T as $T } from '@/i18n'
 import { getConfig } from '@/utils/dataSender'
 import keyBinding from '@/utils/key-binding'
 import { IRPCActionType } from '#/types/enum'

@@ -153,12 +153,6 @@ export interface IBounds {
   y: number
 }
 
-export interface ITalkingDataOptions {
-  EventId: string
-  Label?: string
-  MapKv?: IStringKeyMap
-}
-
 // PicGo Types
 export type ICtx = PicGo
 export interface IPicGoPlugin {
@@ -455,13 +449,6 @@ export interface IAppNotification {
   title: string
   body: string
   icon?: string
-}
-
-export interface IAnalyticsData {
-  fromClipboard: boolean
-  type: string
-  count: number
-  duration?: number // 耗时
 }
 
 export interface IStringKeyMap {

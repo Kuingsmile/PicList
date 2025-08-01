@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="showInputBoxVisible"
-    :title="inputBoxOptions.title || $T('INPUT')"
+    :title="inputBoxOptions.title || $t('INPUT')"
     :modal-append-to-body="false"
     append-to-body
   >
@@ -14,14 +14,14 @@
         round
         @click="handleInputBoxCancel"
       >
-        {{ $T('CANCEL') }}
+        {{ $t('CANCEL') }}
       </el-button>
       <el-button
         type="primary"
         round
         @click="handleInputBoxConfirm"
       >
-        {{ $T('CONFIRM') }}
+        {{ $t('CONFIRM') }}
       </el-button>
     </template>
   </el-dialog>
@@ -31,7 +31,6 @@
 import type { IpcRendererEvent } from 'electron'
 import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 
-import { T as $T } from '@/i18n/index'
 import $bus from '@/utils/bus'
 import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '#/events/constants'
 import { IShowInputBoxOption } from '#/types/types'

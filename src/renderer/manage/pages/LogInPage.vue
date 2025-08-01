@@ -11,7 +11,7 @@
     >
       <el-tab-pane
         name="login"
-        :label="$T('MANAGE_LOGIN_PAGE_PANE_NAME')"
+        :label="$t('MANAGE_LOGIN_PAGE_PANE_NAME')"
         style="width: 100%; overflow-y: scroll; height: calc(100vh - 50px)"
         lazy
       >
@@ -46,12 +46,12 @@
                 >
                   <el-table-column
                     prop="key"
-                    :label="$T('MANAGE_LOGIN_PAGE_PANE_KEY_NAME')"
+                    :label="$t('MANAGE_LOGIN_PAGE_PANE_KEY_NAME')"
                     width="100"
                   />
                   <el-table-column
                     prop="value"
-                    :label="$T('MANAGE_LOGIN_PAGE_PANE_KEY_VALUE')"
+                    :label="$t('MANAGE_LOGIN_PAGE_PANE_KEY_VALUE')"
                   />
                 </el-table>
                 <template #reference>
@@ -92,7 +92,7 @@
                   plain
                   @click="handleConfigClick(item)"
                 >
-                  {{ $T('MANAGE_LOGIN_PAGE_PANE_ENTER') }}
+                  {{ $t('MANAGE_LOGIN_PAGE_PANE_ENTER') }}
                 </el-button>
                 <el-button
                   type="warning"
@@ -100,7 +100,7 @@
                   plain
                   @click="handleConfigRemove(item.alias)"
                 >
-                  {{ $T('MANAGE_LOGIN_PAGE_PANE_DELETE') }}
+                  {{ $t('MANAGE_LOGIN_PAGE_PANE_DELETE') }}
                 </el-button>
               </el-button-group>
             </el-card>
@@ -182,7 +182,7 @@
             <el-select
               v-else-if="supportedPicBedList[item.icon].configOptions[option].type === 'select'"
               v-model="configResult[item.icon + '.' + option]"
-              :placeholder="$T('MANAGE_LOGIN_PAGE_PANE_SELECT_PLACEHOLDER')"
+              :placeholder="$t('MANAGE_LOGIN_PAGE_PANE_SELECT_PLACEHOLDER')"
               :persistent="false"
               teleported
             >
@@ -204,7 +204,7 @@
             :disabled="currentAliasList.length === 0"
             teleported
           >
-            {{ $T('MANAGE_LOGIN_PAGE_PANE_IMPORT') }}
+            {{ $t('MANAGE_LOGIN_PAGE_PANE_IMPORT') }}
             <template #dropdown>
               <el-dropdown-item
                 v-for="i in currentAliasList"
@@ -222,7 +222,7 @@
             plain
             @click="handleConfigChange(item.icon)"
           >
-            {{ $T('MANAGE_LOGIN_PAGE_PANE_SAVE') }}
+            {{ $t('MANAGE_LOGIN_PAGE_PANE_SAVE') }}
           </el-button>
           <el-button
             type="danger"
@@ -231,12 +231,12 @@
             plain
             @click="handleConfigReset(item.icon)"
           >
-            {{ $T('MANAGE_LOGIN_PAGE_PANE_RESET') }}
+            {{ $t('MANAGE_LOGIN_PAGE_PANE_RESET') }}
           </el-button>
         </div>
         <br>
         <el-alert
-          :title="$T('MANAGE_LOGIN_PAGE_PANE_TABLE_TITLE')"
+          :title="$t('MANAGE_LOGIN_PAGE_PANE_TABLE_TITLE')"
           type="success"
           center
           :closable="false"
@@ -266,9 +266,9 @@
 import { Delete, Edit, InfoFilled, Pointer } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import { computed, onMounted, reactive, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-import { T as $T } from '@/i18n'
 import { useManageStore } from '@/manage/store/manageStore'
 import { formObjToTableData } from '@/manage/utils/common'
 import { supportedPicBedList } from '@/manage/utils/constants'
@@ -278,6 +278,7 @@ import { IRPCActionType } from '#/types/enum'
 import { IStringKeyMap, IUploaderConfigListItem } from '#/types/types'
 import { formatEndpoint, isNeedToShorten, safeSliceF } from '#/utils/common'
 
+const { t } = useI18n()
 const manageStore = useManageStore()
 const router = useRouter()
 
@@ -362,13 +363,13 @@ async function handleConfigChange (name: string) {
     if (supportedPicBedList[name].configOptions[key].required) {
       if (supportedPicBedList[name].configOptions[key].type !== 'boolean' && !configResult[resultKey]) {
         ElMessage.error(
-          `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_MESSAGE_A')} ${supportedPicBedList[name].configOptions[key].description}`
+          `${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_MESSAGE_A')} ${supportedPicBedList[name].configOptions[key].description}`
         )
         return
       }
     }
     if (key === 'alias' && configResult[resultKey] !== undefined && !reg.test(configResult[resultKey])) {
-      ElMessage.error($T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_ALIAS_MESSAGE'))
+      ElMessage.error(t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_ALIAS_MESSAGE'))
       return
     }
     if (
@@ -376,13 +377,13 @@ async function handleConfigChange (name: string) {
       configResult[resultKey] !== undefined &&
       (configResult[resultKey] < 20 || configResult[resultKey] > 1000)
     ) {
-      ElMessage.error($T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_ITEMS_PER_PAGE_MESSAGE'))
+      ElMessage.error(t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_ITEMS_PER_PAGE_MESSAGE'))
       return
     }
     if (key === 'customUrl' && configResult[resultKey] !== undefined && configResult[resultKey] !== '') {
       if (name !== 'upyun') {
         if (!/^https?:\/\//.test(configResult[resultKey])) {
-          ElMessage.error($T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_CUSTOM_URL_MESSAGE'))
+          ElMessage.error(t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_CUSTOM_URL_MESSAGE'))
           return
         }
       }
@@ -438,8 +439,8 @@ async function handleConfigChange (name: string) {
   getDataForTable()
   if (aliasList.includes(resultMap.alias)) {
     ElNotification({
-      title: $T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
-      message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE')}${resultMap.alias}`,
+      title: t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
+      message: `${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE')}${resultMap.alias}`,
       type: 'warning',
       duration: 500,
       customClass: 'notification',
@@ -447,8 +448,8 @@ async function handleConfigChange (name: string) {
     })
   } else {
     ElNotification({
-      title: $T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
-      message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_B')}${resultMap.alias}`,
+      title: t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
+      message: `${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_B')}${resultMap.alias}`,
       type: 'success',
       duration: 2000,
       customClass: 'notification',
@@ -471,16 +472,16 @@ const handleConfigReset = (name: string) => {
 
 const handleConfigRemove = (name: string) => {
   ElMessageBox.confirm(
-    $T('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_TITLE'),
-    $T('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_TIP'),
+    t('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_TITLE'),
+    t('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_TIP'),
     {
-      confirmButtonText: $T('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_CONFIRM'),
-      cancelButtonText: $T('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_CANCEL'),
+      confirmButtonText: t('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_CONFIRM'),
+      cancelButtonText: t('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_CANCEL'),
       type: 'warning'
     }
   ).then(async () => {
     const commonNoticeConfig = {
-      title: $T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
+      title: t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
       duration: 2000,
       customClass: 'notification',
       offset: 100
@@ -489,7 +490,7 @@ const handleConfigRemove = (name: string) => {
       removeConfig('picBed', name)
       ElNotification({
         ...commonNoticeConfig,
-        message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_C')}${name}`,
+        message: `${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_C')}${name}`,
         type: 'success',
         position: 'bottom-right'
       })
@@ -498,7 +499,7 @@ const handleConfigRemove = (name: string) => {
     } catch (error) {
       ElNotification({
         ...commonNoticeConfig,
-        message: `${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_D')}${name}${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_E')}`,
+        message: `${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_D')}${name}${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_E')}`,
         type: 'error',
         position: 'bottom-right'
       })
@@ -523,7 +524,7 @@ const getAllConfigAliasArray = async () => {
 
 const handleCellClick = (row: any, column: any) => {
   navigator.clipboard.writeText(row[column.property])
-  ElMessage.success(`${$T('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_COPY_SUCCESS')}${row[column.property]}`)
+  ElMessage.success(`${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_COPY_SUCCESS')}${row[column.property]}`)
 }
 
 const handleReferenceClick = (url: string) => window.electron.sendRPC(IRPCActionType.OPEN_URL, url)

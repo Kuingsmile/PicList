@@ -22,7 +22,7 @@ import { IPasteStyle, IWindowList } from '#/types/enum'
 import { IBounds, ImgInfo } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
 import { buildPicBedListMenu } from '~/events/remotes/menu'
-import { T } from '~/i18n'
+import { T as $t } from '~/i18n'
 import clipboardPoll from '~/utils/clipboardPoll'
 import { ensureFilePath, handleCopyUrl, setTray, tray } from '~/utils/common'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/utils/getMacOSVersion'
@@ -40,11 +40,11 @@ export function setDockMenu () {
   const isListeningClipboard = db.get(configPaths.settings.isListeningClipboard) || false
   const dockMenu = Menu.buildFromTemplate([
     {
-      label: T('OPEN_MAIN_WINDOW'),
+      label: $t('OPEN_MAIN_WINDOW'),
       click: openMainWindow
     },
     {
-      label: T('START_WATCH_CLIPBOARD'),
+      label: $t('START_WATCH_CLIPBOARD'),
       click () {
         db.set(configPaths.settings.isListeningClipboard, true)
         clipboardPoll.startListening()
@@ -57,7 +57,7 @@ export function setDockMenu () {
       visible: !isListeningClipboard
     },
     {
-      label: T('STOP_WATCH_CLIPBOARD'),
+      label: $t('STOP_WATCH_CLIPBOARD'),
       click () {
         db.set(configPaths.settings.isListeningClipboard, false)
         clipboardPoll.stopListening()
@@ -76,9 +76,9 @@ export function createMenu () {
     {
       label: 'PicList',
       submenu: [
-        { label: T('OPEN_MAIN_WINDOW'), click: openMainWindow },
+        { label: $t('OPEN_MAIN_WINDOW'), click: openMainWindow },
         {
-          label: T('RELOAD_APP'),
+          label: $t('RELOAD_APP'),
           click () {
             app.relaunch()
             app.exit(0)
@@ -86,7 +86,7 @@ export function createMenu () {
         }
       ]
     },
-    { label: T('CHOOSE_DEFAULT_PICBED'), type: 'submenu', submenu },
+    { label: $t('CHOOSE_DEFAULT_PICBED'), type: 'submenu', submenu },
     {
       label: 'Edit',
       submenu: [
@@ -100,8 +100,8 @@ export function createMenu () {
       ]
     },
     {
-      label: T('QUIT'),
-      submenu: [{ label: T('QUIT'), role: 'quit' }]
+      label: $t('QUIT'),
+      submenu: [{ label: $t('QUIT'), role: 'quit' }]
     }
   ])
   Menu.setApplicationMenu(appMenu)
@@ -133,40 +133,40 @@ export function createContextMenu () {
   if (process.platform === 'darwin' || process.platform === 'win32') {
     const submenu = buildPicBedListMenu()
     const template: (MenuItemConstructorOptions | MenuItem)[] = [
-      { label: T('OPEN_MAIN_WINDOW'), click: openMainWindow },
-      { label: T('CHOOSE_DEFAULT_PICBED'), type: 'submenu', submenu },
+      { label: $t('OPEN_MAIN_WINDOW'), click: openMainWindow },
+      { label: $t('CHOOSE_DEFAULT_PICBED'), type: 'submenu', submenu },
       {
-        label: T('START_WATCH_CLIPBOARD'),
+        label: $t('START_WATCH_CLIPBOARD'),
         click: startWatchClipboard,
         visible: !isListeningClipboard
       },
       {
-        label: T('STOP_WATCH_CLIPBOARD'),
+        label: $t('STOP_WATCH_CLIPBOARD'),
         click: stopWatchClipboard,
         visible: isListeningClipboard
       },
       {
-        label: T('RELOAD_APP'),
+        label: $t('RELOAD_APP'),
         click () {
           app.relaunch()
           app.exit(0)
         }
       },
-      { label: T('QUIT'), role: 'quit' }
+      { label: $t('QUIT'), role: 'quit' }
     ]
     if (process.platform === 'win32') {
       template.splice(
         2,
         0,
         {
-          label: T('OPEN_MINI_WINDOW'),
+          label: $t('OPEN_MINI_WINDOW'),
           click () {
             openMiniWindow(false)
           },
           visible: !isMiniWindowVisible
         },
         {
-          label: T('HIDE_MINI_WINDOW'),
+          label: $t('HIDE_MINI_WINDOW'),
           click: hideMiniWindow,
           visible: isMiniWindowVisible
         }
@@ -182,31 +182,31 @@ export function createContextMenu () {
     // 目前的实现无法正常工作
 
     contextMenu = Menu.buildFromTemplate([
-      { label: T('OPEN_MAIN_WINDOW'), click: openMainWindow },
+      { label: $t('OPEN_MAIN_WINDOW'), click: openMainWindow },
       {
-        label: T('OPEN_MINI_WINDOW'),
+        label: $t('OPEN_MINI_WINDOW'),
         click () {
           openMiniWindow(false)
         },
         visible: !isMiniWindowVisible
       },
       {
-        label: T('HIDE_MINI_WINDOW'),
+        label: $t('HIDE_MINI_WINDOW'),
         click: hideMiniWindow,
         visible: isMiniWindowVisible
       },
       {
-        label: T('START_WATCH_CLIPBOARD'),
+        label: $t('START_WATCH_CLIPBOARD'),
         click: startWatchClipboard,
         visible: !isListeningClipboard
       },
       {
-        label: T('STOP_WATCH_CLIPBOARD'),
+        label: $t('STOP_WATCH_CLIPBOARD'),
         click: stopWatchClipboard,
         visible: isListeningClipboard
       },
       {
-        label: T('ABOUT'),
+        label: $t('ABOUT'),
         click () {
           dialog.showMessageBox({
             title: 'PicList',
@@ -216,7 +216,7 @@ export function createContextMenu () {
           })
         }
       },
-      { label: T('QUIT'), role: 'quit' }
+      { label: $t('QUIT'), role: 'quit' }
     ])
   }
 }
@@ -343,7 +343,7 @@ export function createTray (tooltip: string) {
               : !!db.get(configPaths.settings.uploadResultNotification)
             if (isShowResultNotification) {
               const notification = new Notification({
-                title: T('UPLOAD_SUCCEED'),
+                title: $t('UPLOAD_SUCCEED'),
                 body: shortUrl || imgs[i].imgUrl!
               // icon: files[i]
               })

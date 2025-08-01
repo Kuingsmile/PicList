@@ -6,7 +6,7 @@
       @submit.prevent
     >
       <el-form-item
-        :label="$T('FILE_RENAME')"
+        :label="$t('FILE_RENAME')"
         prop="fileName"
         :rules="[{ required: true, message: 'file name is required', trigger: 'blur' }]"
       >
@@ -35,7 +35,7 @@
           size="small"
           @click="cancel"
         >
-          {{ $T('CANCEL') }}
+          {{ $t('CANCEL') }}
         </el-button>
         <el-button
           type="primary"
@@ -43,7 +43,7 @@
           size="small"
           @click="confirmName"
         >
-          {{ $T('CONFIRM') }}
+          {{ $t('CONFIRM') }}
         </el-button>
       </div>
     </el-row>
@@ -56,7 +56,6 @@ import type { IpcRendererEvent } from 'electron'
 import type { FormInstance } from 'element-plus'
 import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 
-import { T as $T } from '@/i18n/index'
 import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '#/events/constants'
 
 const id = ref<string | null>(null)

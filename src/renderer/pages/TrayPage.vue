@@ -4,7 +4,7 @@
       class="open-main-window"
       @click="openSettingWindow"
     >
-      {{ $T('OPEN_MAIN_WINDOW') }}
+      {{ $t('OPEN_MAIN_WINDOW') }}
     </div>
     <div class="content">
       <div
@@ -12,7 +12,7 @@
         class="wait-upload-img"
       >
         <div class="list-title">
-          {{ $T('WAIT_TO_UPLOAD') }}
+          {{ $t('WAIT_TO_UPLOAD') }}
         </div>
         <div
           v-for="(item, index) in clipboardFiles"
@@ -33,7 +33,7 @@
       </div>
       <div class="uploaded-img">
         <div class="list-title">
-          {{ $T('ALREADY_UPLOAD') }}
+          {{ $t('ALREADY_UPLOAD') }}
         </div>
         <div
           v-for="item in files"
@@ -64,14 +64,16 @@
 <script lang="ts" setup>
 import type { IpcRendererEvent } from 'electron'
 import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { T as $T } from '@/i18n/index'
 import { getConfig } from '@/utils/dataSender'
 import $$db from '@/utils/db'
 import { IPasteStyle, IRPCActionType, IWindowList } from '#/types/enum'
 import { ImgInfo } from '#/types/types'
 import { handleUrlEncode } from '#/utils/common'
 import { configPaths } from '#/utils/configPaths'
+
+const { t } = useI18n()
 
 type IResult<T> = T & {
   id: string
@@ -80,7 +82,7 @@ type IResult<T> = T & {
 }
 const files = ref<IResult<ImgInfo>[]>([])
 const notification = reactive({
-  title: $T('COPY_LINK_SUCCEED'),
+  title: t('COPY_LINK_SUCCEED'),
   body: ''
 })
 

@@ -8,7 +8,7 @@ const languageFileName = 'zh-CN.yml'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-const i18nFolder = join(__dirname, '../public/i18n')
+const i18nFolder = join(__dirname, '../resources/i18n')
 const typeFolder = join(__dirname, '../src/universal/types')
 const languageFile = join(i18nFolder, languageFileName)
 

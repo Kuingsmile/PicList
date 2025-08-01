@@ -6,17 +6,17 @@
     size="default"
     :model="waterMarkForm"
   >
-    <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_SKIP_PROCESS_EXT_LIST')">
+    <el-form-item :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_SKIP_PROCESS_EXT_LIST')">
       <el-input
         v-model="skipProcessForm.skipProcessExtList"
         type="textarea"
         :autosize="{ minRows: 2, maxRows: 4 }"
       />
       <div class="text-xs text-gray-500">
-        {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_SKIP_PROCESS_EXT_LIST_TIPS') }}
+        {{ $t('UPLOAD_PAGE_IMAGE_PROCESS_SKIP_PROCESS_EXT_LIST_TIPS') }}
       </div>
     </el-form-item>
-    <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISADDWM')">
+    <el-form-item :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_ISADDWM')">
       <el-switch
         v-model="waterMarkForm.isAddWatermark"
         :style="switchStyle"
@@ -24,20 +24,20 @@
     </el-form-item>
     <el-form-item
       v-show="waterMarkForm.isAddWatermark"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMTYPE')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_WMTYPE')"
     >
       <el-radio-group v-model="waterMarkForm.watermarkType">
         <el-radio value="text">
-          {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_WMTYPE_TEXT') }}
+          {{ $t('UPLOAD_PAGE_IMAGE_PROCESS_WMTYPE_TEXT') }}
         </el-radio>
         <el-radio value="image">
-          {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_WMTYPE_IMAGE') }}
+          {{ $t('UPLOAD_PAGE_IMAGE_PROCESS_WMTYPE_IMAGE') }}
         </el-radio>
       </el-radio-group>
     </el-form-item>
     <el-form-item
       v-show="waterMarkForm.isAddWatermark"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISFULLSCREEN_WM')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_ISFULLSCREEN_WM')"
     >
       <el-switch
         v-model="waterMarkForm.isFullScreenWatermark"
@@ -46,7 +46,7 @@
     </el-form-item>
     <el-form-item
       v-show="waterMarkForm.isAddWatermark"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMDEGREE')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_WMDEGREE')"
     >
       <el-input-number
         v-model="waterMarkForm.watermarkDegree"
@@ -55,19 +55,19 @@
     </el-form-item>
     <el-form-item
       v-show="waterMarkForm.isAddWatermark && waterMarkForm.watermarkType === 'text'"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMTEXT')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_WMTEXT')"
     >
       <el-input v-model="waterMarkForm.watermarkText" />
     </el-form-item>
     <el-form-item
       v-show="waterMarkForm.isAddWatermark && waterMarkForm.watermarkType === 'text'"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMTEXT_FONT_PATH')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_WMTEXT_FONT_PATH')"
     >
       <el-input v-model="waterMarkForm.watermarkFontPath" />
     </el-form-item>
     <el-form-item
       v-show="waterMarkForm.isAddWatermark"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMRATIO')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_WMRATIO')"
     >
       <el-input-number
         v-model="waterMarkForm.watermarkScaleRatio"
@@ -78,7 +78,7 @@
     </el-form-item>
     <el-form-item
       v-show="waterMarkForm.isAddWatermark && waterMarkForm.watermarkType === 'text'"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMCOLOR')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_WMCOLOR')"
     >
       <el-color-picker
         v-model="waterMarkForm.watermarkColor"
@@ -87,13 +87,13 @@
     </el-form-item>
     <el-form-item
       v-show="waterMarkForm.isAddWatermark && waterMarkForm.watermarkType === 'image'"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMPATH')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_WMPATH')"
     >
       <el-input v-model="waterMarkForm.watermarkImagePath" />
     </el-form-item>
     <el-form-item
       v-show="waterMarkForm.isAddWatermark"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_WMPOSITION')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_WMPOSITION')"
     >
       <el-radio-group v-model="waterMarkForm.watermarkPosition">
         <el-radio
@@ -105,13 +105,13 @@
         </el-radio>
       </el-radio-group>
     </el-form-item>
-    <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISREMOVEEXIF')">
+    <el-form-item :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_ISREMOVEEXIF')">
       <el-switch
         v-model="compressForm.isRemoveExif"
         :style="switchStyle"
       />
     </el-form-item>
-    <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_QUALITY')">
+    <el-form-item :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_QUALITY')">
       <el-input-number
         v-model="compressForm.quality"
         :min="1"
@@ -119,7 +119,7 @@
         :step="1"
       />
     </el-form-item>
-    <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISCONVERT')">
+    <el-form-item :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_ISCONVERT')">
       <el-switch
         v-model="compressForm.isConvert"
         :style="switchStyle"
@@ -127,7 +127,7 @@
     </el-form-item>
     <el-form-item
       v-show="compressForm.isConvert"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT')"
     >
       <el-select
         v-model="compressForm.convertFormat"
@@ -144,7 +144,7 @@
     </el-form-item>
     <el-form-item
       v-show="compressForm.isConvert"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT_SPECIFIC')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_CONVERTFORMAT_SPECIFIC')"
     >
       <el-input
         v-model="formatConvertObj"
@@ -153,19 +153,19 @@
         :autosize="{ minRows: 2, maxRows: 4 }"
       />
     </el-form-item>
-    <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISFLIP')">
+    <el-form-item :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_ISFLIP')">
       <el-switch
         v-model="compressForm.isFlip"
         :style="switchStyle"
       />
     </el-form-item>
-    <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISFLOP')">
+    <el-form-item :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_ISFLOP')">
       <el-switch
         v-model="compressForm.isFlop"
         :style="switchStyle"
       />
     </el-form-item>
-    <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISRESIZE')">
+    <el-form-item :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_ISRESIZE')">
       <el-switch
         v-model="compressForm.isReSize"
         :style="switchStyle"
@@ -173,7 +173,7 @@
     </el-form-item>
     <el-form-item
       v-show="compressForm.isReSize"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_RESIZEWIDTH')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_RESIZEWIDTH')"
     >
       <el-input-number
         v-model="compressForm.reSizeWidth"
@@ -182,7 +182,7 @@
     </el-form-item>
     <el-form-item
       v-show="compressForm.isReSize"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_RESIZEHEIGHT')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_RESIZEHEIGHT')"
     >
       <el-input-number
         v-model="compressForm.reSizeHeight"
@@ -191,7 +191,7 @@
     </el-form-item>
     <el-form-item
       v-show="compressForm.isReSize && compressForm.reSizeHeight! > 0 && compressForm.reSizeWidth === 0"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_SKIPRESIZEOfSMALLIMG_HEIGHT')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_SKIPRESIZEOfSMALLIMG_HEIGHT')"
     >
       <el-switch
         v-model="compressForm.skipReSizeOfSmallImg"
@@ -200,14 +200,14 @@
     </el-form-item>
     <el-form-item
       v-show="compressForm.isReSize && compressForm.reSizeWidth! > 0 && compressForm.reSizeHeight === 0"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_SKIPRESIZEOfSMALLIMG_WIDTH')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_SKIPRESIZEOfSMALLIMG_WIDTH')"
     >
       <el-switch
         v-model="compressForm.skipReSizeOfSmallImg"
         :style="switchStyle"
       />
     </el-form-item>
-    <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISRESIZEBYPERCENT')">
+    <el-form-item :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_ISRESIZEBYPERCENT')">
       <el-switch
         v-model="compressForm.isReSizeByPercent"
         :style="switchStyle"
@@ -215,14 +215,14 @@
     </el-form-item>
     <el-form-item
       v-show="compressForm.isReSizeByPercent"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_RESIZEPERCENT')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_RESIZEPERCENT')"
     >
       <el-input-number
         v-model="compressForm.reSizePercent"
         :min="0"
       />
     </el-form-item>
-    <el-form-item :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ISROTATE')">
+    <el-form-item :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_ISROTATE')">
       <el-switch
         v-model="compressForm.isRotate"
         :style="switchStyle"
@@ -230,7 +230,7 @@
     </el-form-item>
     <el-form-item
       v-show="compressForm.isRotate"
-      :label="$T('UPLOAD_PAGE_IMAGE_PROCESS_ROTATEDEGREE')"
+      :label="$t('UPLOAD_PAGE_IMAGE_PROCESS_ROTATEDEGREE')"
     >
       <el-input-number
         v-model="compressForm.rotateDegree"
@@ -242,10 +242,10 @@
         type="primary"
         @click="handleSaveConfig"
       >
-        {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_CONFIRM') }}
+        {{ $t('UPLOAD_PAGE_IMAGE_PROCESS_CONFIRM') }}
       </el-button>
       <el-button @click="closeDialog">
-        {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_CANCEL') }}
+        {{ $t('UPLOAD_PAGE_IMAGE_PROCESS_CANCEL') }}
       </el-button>
     </el-form-item>
   </el-form>
@@ -254,23 +254,23 @@
 <script lang="ts" setup>
 import type { IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
 import { onBeforeMount, reactive, ref, toRaw } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { T as $T } from '@/i18n/index'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { configPaths } from '#/utils/configPaths'
-
+const { t } = useI18n()
 const imageProcessDialogVisible = defineModel<boolean>()
 
 const waterMarkPositionMap = new Map([
-  ['north', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP')],
-  ['northeast', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP_RIGHT')],
-  ['southeast', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_BOTTOM_RIGHT')],
-  ['south', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_BOTTOM')],
-  ['southwest', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_BOTTOM_LEFT')],
-  ['northwest', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP_LEFT')],
-  ['west', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_LEFT')],
-  ['east', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_RIGHT')],
-  ['centre', $T('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_CENTER')]
+  ['north', t('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP')],
+  ['northeast', t('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP_RIGHT')],
+  ['southeast', t('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_BOTTOM_RIGHT')],
+  ['south', t('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_BOTTOM')],
+  ['southwest', t('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_BOTTOM_LEFT')],
+  ['northwest', t('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_TOP_LEFT')],
+  ['west', t('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_LEFT')],
+  ['east', t('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_RIGHT')],
+  ['centre', t('UPLOAD_PAGE_IMAGE_PROCESS_POSITION_CENTER')]
 ])
 const imageExtList = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'tif', 'svg', 'ico', 'avif', 'heif', 'heic']
 const availableFormat = [

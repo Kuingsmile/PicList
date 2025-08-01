@@ -81,20 +81,6 @@ export const showMessageBox = (options: any) => {
   })
 }
 
-export const calcDurationRange = (duration: number) => {
-  if (duration < 1000) return 500
-  if (duration < 1500) return 1000
-  if (duration < 3000) return 2000
-  if (duration < 5000) return 3000
-  if (duration < 7000) return 5000
-  if (duration < 10000) return 8000
-  if (duration < 12000) return 10000
-  if (duration < 20000) return 15000
-  if (duration < 30000) return 20000
-  // max range
-  return 100000
-}
-
 /**
  * macOS public.file-url will get encoded file path,
  * so we need to decode it

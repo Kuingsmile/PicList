@@ -9,7 +9,7 @@
           <el-tooltip
             placement="top"
             effect="light"
-            :content="$T('UPLOAD_VIEW_HINT')"
+            :content="$t('UPLOAD_VIEW_HINT')"
             :persistent="false"
             teleported
           >
@@ -34,7 +34,7 @@
             style="margin-left: 6px"
             @click="handleImageProcess"
           >
-            {{ $T('UPLOAD_PAGE_IMAGE_PROCESS_NAME') }}
+            {{ $t('UPLOAD_PAGE_IMAGE_PROCESS_NAME') }}
           </el-button>
         </div>
         <div
@@ -52,8 +52,8 @@
               <UploadFilled />
             </el-icon>
             <div class="upload-dragger__text">
-              {{ $T('DRAG_FILE_TO_HERE') }}
-              <span>{{ $T('CLICK_TO_UPLOAD') }}</span>
+              {{ $t('DRAG_FILE_TO_HERE') }}
+              <span>{{ $t('CLICK_TO_UPLOAD') }}</span>
             </div>
             <input
               id="file-uploader"
@@ -73,7 +73,7 @@
         <div class="paste-style">
           <div class="el-col-12">
             <div class="paste-style__text">
-              {{ $T('LINK_FORMAT') }}
+              {{ $t('LINK_FORMAT') }}
             </div>
             <el-radio-group
               v-model="pasteStyle"
@@ -98,19 +98,19 @@
                 :value="true"
                 style="border-radius: 5px"
               >
-                {{ $T('UPLOAD_SHORT_URL') }}
+                {{ $t('UPLOAD_SHORT_URL') }}
               </el-radio-button>
               <el-radio-button
                 :value="false"
                 style="border-radius: 5px"
               >
-                {{ $T('UPLOAD_NORMAL_URL') }}
+                {{ $t('UPLOAD_NORMAL_URL') }}
               </el-radio-button>
             </el-radio-group>
           </div>
           <div class="el-col-8">
             <div class="paste-style__text">
-              {{ $T('QUICK_UPLOAD') }}
+              {{ $t('QUICK_UPLOAD') }}
             </div>
             <el-button
               type="primary"
@@ -120,7 +120,7 @@
               style="width: 50%"
               @click="uploadClipboardFiles"
             >
-              {{ $T('CLIPBOARD_PICTURE') }}
+              {{ $t('CLIPBOARD_PICTURE') }}
             </el-button>
             <el-button
               type="primary"
@@ -138,7 +138,7 @@
     </el-row>
     <el-dialog
       v-model="imageProcessDialogVisible"
-      :title="$T('UPLOAD_PAGE_IMAGE_PROCESS_DIALOG_TITLE')"
+      :title="$t('UPLOAD_PAGE_IMAGE_PROCESS_DIALOG_TITLE')"
       width="50%"
       draggable
       center
@@ -155,10 +155,10 @@ import { CaretBottom, UploadFilled } from '@element-plus/icons-vue'
 import type { IpcRendererEvent } from 'electron'
 import { ElMessage as $message } from 'element-plus'
 import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
-import { T as $T } from '@/i18n'
 import { PICBEDS_PAGE } from '@/router/config'
 import $bus from '@/utils/bus'
 import { getConfig, saveConfig } from '@/utils/dataSender'
@@ -170,6 +170,7 @@ import { IFileWithPath, IUploaderConfigItem } from '#/types/types'
 import { isUrl } from '#/utils/common'
 import { configPaths } from '#/utils/configPaths'
 
+const { t } = useI18n()
 useDragEventListeners()
 const $router = useRouter()
 
@@ -277,7 +278,7 @@ function onDrop (e: DragEvent) {
       if (isUrl(str)) {
         window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [{ path: str }])
       } else {
-        $message.error($T('TIPS_DRAG_VALID_PICTURE_OR_URL'))
+        $message.error(t('TIPS_DRAG_VALID_PICTURE_OR_URL'))
       }
     }
   }
@@ -295,7 +296,7 @@ function handleURLDrag (items: DataTransferItemList, dataTransfer: DataTransfer)
       }
     ])
   } else {
-    $message.error($T('TIPS_DRAG_VALID_PICTURE_OR_URL'))
+    $message.error(t('TIPS_DRAG_VALID_PICTURE_OR_URL'))
   }
 }
 
@@ -349,8 +350,8 @@ async function uploadURLFiles () {
   const str = await navigator.clipboard.readText()
   $bus.emit(SHOW_INPUT_BOX, {
     value: isUrl(str) ? str : '',
-    title: $T('TIPS_INPUT_URL'),
-    placeholder: $T('TIPS_HTTP_PREFIX')
+    title: t('TIPS_INPUT_URL'),
+    placeholder: t('TIPS_HTTP_PREFIX')
   })
 }
 
@@ -363,7 +364,7 @@ function handleInputBoxValue (val: string) {
       }
     ])
   } else {
-    $message.error($T('TIPS_INPUT_VALID_URL'))
+    $message.error(t('TIPS_INPUT_VALID_URL'))
   }
 }
 

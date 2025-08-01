@@ -12,7 +12,7 @@ import { SHOW_INPUT_BOX } from '#/events/constants'
 import { IPasteStyle } from '#/types/enum'
 import { IGuiApi, ImgInfo, IShowFileExplorerOption, IShowInputBoxOption, IShowMessageBoxOption, IShowMessageBoxResult, IShowNotificationOption, IUploadOption } from '#/types/types'
 import { configPaths } from '#/utils/configPaths'
-import { T } from '~/i18n'
+import { T as $t } from '~/i18n'
 import { handleCopyUrl } from '~/utils/common'
 import pasteTemplate from '~/utils/pasteTemplate'
 
@@ -104,7 +104,7 @@ class GuiApi implements IGuiApi {
             : !!db.get(configPaths.settings.uploadResultNotification)
         if (isShowResultNotification) {
           const notification = new Notification({
-            title: T('UPLOAD_SUCCEED'),
+            title: $t('UPLOAD_SUCCEED'),
             body: shortUrl || (imgs[i].imgUrl! as string)
             // icon: imgs[i].imgUrl
           })
@@ -179,8 +179,8 @@ class GuiApi implements IGuiApi {
                 const guiApi = GuiApi.getInstance()
                 guiApi
                   .showMessageBox({
-                    title: T('TIPS_WARNING'),
-                    message: T('TIPS_PLUGIN_REMOVE_GALLERY_ITEM'),
+                    title: $t('TIPS_WARNING'),
+                    message: $t('TIPS_PLUGIN_REMOVE_GALLERY_ITEM'),
                     type: 'info',
                     buttons: ['Yes', 'No']
                   })
@@ -202,8 +202,8 @@ class GuiApi implements IGuiApi {
                 const guiApi = GuiApi.getInstance()
                 guiApi
                   .showMessageBox({
-                    title: T('TIPS_WARNING'),
-                    message: T('TIPS_PLUGIN_REMOVE_GALLERY_ITEM'),
+                    title: $t('TIPS_WARNING'),
+                    message: $t('TIPS_PLUGIN_REMOVE_GALLERY_ITEM'),
                     type: 'info',
                     buttons: ['Yes', 'No']
                   })

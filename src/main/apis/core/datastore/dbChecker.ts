@@ -7,7 +7,7 @@ import fs from 'fs-extra'
 import writeFile from 'write-file-atomic'
 
 import { notificationList } from '#/utils/notification'
-import { T } from '~/i18n'
+import { T as $t } from '~/i18n'
 
 const STORE_PATH = app.getPath('userData')
 
@@ -19,8 +19,8 @@ let _configFilePath = ''
 let hasCheckPath = false
 
 const errorMsg = {
-  broken: T('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_DEFAULT'),
-  brokenButBackup: T('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_BACKUP')
+  broken: $t('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_DEFAULT'),
+  brokenButBackup: $t('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_BACKUP')
 }
 
 function dbChecker () {
@@ -41,7 +41,7 @@ function dbChecker () {
     }
     let configFile: string = '{}'
     const optionsTpl = {
-      title: T('TIPS_NOTICE'),
+      title: $t('TIPS_NOTICE'),
       body: ''
     }
     // config save bak
@@ -58,7 +58,7 @@ function dbChecker () {
           JSON.parse(configFile)
           writeFile.sync(configFilePath, configFile, { encoding: 'utf-8' })
           const stats = fs.statSync(configFileBackupPath)
-          optionsTpl.body = `${errorMsg.brokenButBackup}\n${T('TIPS_PICGO_BACKUP_FILE_VERSION', {
+          optionsTpl.body = `${errorMsg.brokenButBackup}\n${$t('TIPS_PICGO_BACKUP_FILE_VERSION', {
             v: dayjs(stats.mtime).format('YYYY-MM-DD HH:mm:ss')
           })}`
           notificationList.push(optionsTpl)
@@ -108,8 +108,8 @@ function dbPathChecker (): string {
     const logger = getLogger(piclistLogPath, 'PicList')
     if (!hasCheckPath) {
       const optionsTpl = {
-        title: T('TIPS_NOTICE'),
-        body: T('TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR')
+        title: $t('TIPS_NOTICE'),
+        body: $t('TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR')
       }
       notificationList.push(optionsTpl)
       hasCheckPath = true

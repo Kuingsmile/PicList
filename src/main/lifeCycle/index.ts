@@ -23,7 +23,7 @@ import { CLIPBOARD_IMAGE_FOLDER } from '#/utils/static'
 import busEventList from '~/events/busEventList'
 import { rpcServer } from '~/events/rpc'
 import { startFileServer, stopFileServer } from '~/fileServer'
-import { T } from '~/i18n'
+import { T as $t } from '~/i18n'
 import fixPath from '~/lifeCycle/fixPath'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import getManageApi from '~/manage/Main'
@@ -95,16 +95,16 @@ updater.autoUpdater.on('update-available', async (info: updater.UpdateInfo) => {
   dialog
     .showMessageBox({
       type: 'info',
-      title: T('FIND_NEW_VERSION'),
+      title: $t('FIND_NEW_VERSION'),
       buttons: ['Yes', 'Go to download page'],
       message:
-        T('TIPS_FIND_NEW_VERSION', {
+        $t('TIPS_FIND_NEW_VERSION', {
           v: info.version
         }) +
         '\n\n' +
         displayLog +
         truncatedNote,
-      checkboxLabel: T('NO_MORE_NOTICE'),
+      checkboxLabel: $t('NO_MORE_NOTICE'),
       checkboxChecked: false
     })
     .then(result => {
@@ -132,9 +132,9 @@ updater.autoUpdater.on('update-downloaded', () => {
   dialog
     .showMessageBox({
       type: 'info',
-      title: T('UPDATE_DOWNLOADED'),
+      title: $t('UPDATE_DOWNLOADED'),
       buttons: ['Yes', 'No'],
-      message: T('TIPS_UPDATE_DOWNLOADED')
+      message: $t('TIPS_UPDATE_DOWNLOADED')
     })
     .then(result => {
       const window = windowManager.get(IWindowList.SETTING_WINDOW)!
