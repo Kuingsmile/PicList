@@ -227,7 +227,15 @@ class LifeCycle {
         const { width, height } = screen.getPrimaryDisplay().workAreaSize
         const lastPosition = db.get(configPaths.settings.miniWindowPosition)
         if (lastPosition) {
-          miniWindow.setPosition(lastPosition[0], lastPosition[1])
+          if (lastPosition[0] < 0 || lastPosition[0] > width || lastPosition[1] < 0 || lastPosition[1] > height) {
+            miniWindow.setPosition(width - 100, height - 100)
+            db.set(configPaths.settings.miniWindowPosition, [width - 100, height - 100])
+          } else if (lastPosition[0] + miniWindow.getSize()[0] > width || lastPosition[1] + miniWindow.getSize()[1] > height) {
+            miniWindow.setPosition(width - miniWindow.getSize()[0], height - miniWindow.getSize()[1])
+            db.set(configPaths.settings.miniWindowPosition, [width - miniWindow.getSize()[0], height - miniWindow.getSize()[1]])
+          } else {
+            miniWindow.setPosition(lastPosition[0], lastPosition[1])
+          }
         } else {
           miniWindow.setPosition(width - 100, height - 100)
         }

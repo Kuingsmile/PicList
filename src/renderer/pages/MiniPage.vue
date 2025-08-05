@@ -16,6 +16,8 @@
         v-if="!dragover && !isShowingProgress"
         :src="logoPath ? logoPath : '/squareLogo.png'"
         style="width: 100%; height: 100%; border-radius: 50%"
+        draggable="false"
+        @dragstart.prevent
       >
       <div
         id="upload-dragger"
@@ -214,7 +216,6 @@ export default {
 </script>
 <style lang="stylus">
 #mini-page
-  background #409EFF
   color #FFF
   height 100vh
   width 100vw
@@ -226,7 +227,6 @@ export default {
   background-position center center
   background-repeat no-repeat
   position relative
-  border 4px solid #fff
   box-sizing border-box
   cursor pointer
   &.linux
@@ -236,7 +236,6 @@ export default {
     height 100%
     width 100%
     border-radius 50%
-    transition all .2s ease-in-out
     &.linux
       border-radius 0
     &.uploading

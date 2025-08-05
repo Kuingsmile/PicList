@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import bus from '@core/bus'
 import { CREATE_APP_MENU } from '@core/bus/constants'
 import db from '@core/datastore'
-import { app } from 'electron'
+import { app, BrowserWindow, Rectangle } from 'electron'
 
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/events/constants'
 import { IWindowListItem } from '#/types/electron'
@@ -26,6 +26,21 @@ const getDefaultWindowSizes = (): { width: number; height: number } => {
     width: mainWindowWidth || 1200,
     height: mainWindowHeight || 800
   }
+}
+
+function setMiniWindowShape (win: BrowserWindow) {
+  const radius = 32
+  const shape: Rectangle[] = []
+
+  for (let y = -radius; y <= radius; y++) {
+    for (let x = -radius; x <= radius; x++) {
+      if (x * x + y * y <= radius * radius) {
+        shape.push({ x: radius + x, y: radius + y, width: 1, height: 1 })
+      }
+    }
+  }
+
+  win.setShape(shape)
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -211,6 +226,7 @@ windowList.set(IWindowList.MINI_WINDOW, {
         hash: 'mini-page'
       })
     }
+    setMiniWindowShape(window)
   }
 })
 
