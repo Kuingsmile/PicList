@@ -30,12 +30,6 @@ export default [
     }
   },
   {
-    action: IRPCActionType.OPEN_MANUAL_WINDOW,
-    handler: async () => {
-      windowManager.get(IWindowList.MANUAL_WINDOW)!.show()
-    }
-  },
-  {
     action: IRPCActionType.OPEN_MINI_WINDOW,
     handler: async () => {
       openMiniWindow()

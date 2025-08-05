@@ -11,14 +11,12 @@
 import type { IConfig } from 'piclist'
 import { onBeforeMount, onMounted } from 'vue'
 
-import { useATagClick } from '@/hooks/useATagClick'
 import { useStore } from '@/hooks/useStore'
 import { getConfig } from '@/utils/dataSender'
 import { pageReloadCount } from '@/utils/global'
 
 import { useAppStore } from './hooks/appStore'
 
-useATagClick()
 const store = useStore()
 const appStore = useAppStore()
 

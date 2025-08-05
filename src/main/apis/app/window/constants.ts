@@ -1,10 +1,5 @@
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-export const MANUAL_WINDOW_URL =
-  process.env.NODE_ENV === 'development'
-    ? 'http://localhost:3000/documents'
-    : 'index.html/documents'
-
 export const MINI_WINDOW_URL = isDevelopment
   ? 'http://localhost:3000/mini-page'
   : 'index.html/mini-page'

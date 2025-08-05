@@ -728,7 +728,7 @@ onBeforeMount(() => {
 
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
-  width: 4px;
+  display: none;
 }
 
 ::-webkit-scrollbar-track {
@@ -737,7 +737,7 @@ onBeforeMount(() => {
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
-  border-radius: 3px;
+  border-radius: 0px;
 }
 
 ::-webkit-scrollbar-thumb:hover {

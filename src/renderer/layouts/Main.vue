@@ -5,8 +5,7 @@
   >
     <TitleBar />
     <div class="app-background">
-      <div class="bg-gradient-primary" />
-      <div class="bg-gradient-secondary" />
+      <div class="bg-gradient" />
     </div>
     <Navigation />
     <main class="main-content">
@@ -73,11 +72,13 @@ export default {
   --color-surface: rgba(255, 255, 255, 0.8);
   --color-surface-elevated: rgba(255, 255, 255, 0.95);
   --color-border: rgba(0, 0, 0, 0.1);
+  --color-border-darker: #cdd0d6;
   --color-border-secondary: rgba(0, 0, 0, 0.05);
   --color-primary: #6366f1;
   --color-primary-hover: #4f46e5;
   --color-accent: #007aff;
   --color-accent-hover: #0056b3;
+  --color-blue-common: #409eff;
   --color-success: #34c759;
   --color-warning: #ff9500;
   --color-danger: #ff3b30;
@@ -122,13 +123,6 @@ export default {
 
 :root.dark,
 :root.auto.dark {
-  .nav-item {
-    color: var(--color-text-secondary);
-  }
-
-  .nav-item.active {
-    color: var(--color-accent);
-  }
 
   h1,
   h2,
@@ -195,23 +189,13 @@ body {
   pointer-events: none;
 }
 
-.bg-gradient-primary {
-  position: absolute;
-  top: -50%;
-  right: -30%;
-  width: 80%;
-  height: 80%;
-  background: radial-gradient(circle, rgba(0, 122, 255, 0.05) 0%, transparent 70%);
-  border-radius: 50%;
-}
-
-.bg-gradient-secondary {
+.bg-gradient {
   position: absolute;
   bottom: -40%;
   left: -20%;
   width: 60%;
   height: 60%;
-  background: radial-gradient(circle, rgba(175, 82, 222, 0.03) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(199, 131, 233, 0.05) 0%, transparent 70%);
   border-radius: 50%;
 }
 

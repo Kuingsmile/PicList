@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import bus from '@core/bus'
@@ -13,14 +14,6 @@ import { configPaths } from '#/utils/configPaths'
 import { T as $t } from '~/i18n'
 
 import logo from '../../../../../resources/logo.png?asset'
-import {
-  MANUAL_WINDOW_URL,
-  MINI_WINDOW_URL,
-  RENAME_WINDOW_URL,
-  SETTING_WINDOW_URL,
-  TOOLBOX_WINDOW_URL,
-  TRAY_WINDOW_URL
-} from './constants'
 
 const windowList = new Map<IWindowList, IWindowListItem>()
 
@@ -34,6 +27,8 @@ const getDefaultWindowSizes = (): { width: number; height: number } => {
     height: mainWindowHeight || 800
   }
 }
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const preloadPath = fileURLToPath(new URL('../preload/index.mjs', import.meta.url))
 
 const { width: defaultWindowWidth, height: defaultWindowHeight } = getDefaultWindowSizes()
@@ -57,29 +52,6 @@ const trayWindowOptions = {
     webSecurity: false
   }
 }
-
-const manualWindowOptions = {
-  height: 800,
-  width: 1200,
-  show: false,
-  frame: true,
-  center: true,
-  fullscreenable: true,
-  resizable: true,
-  title: 'Manual',
-  vibrancy: 'ultra-dark',
-  transparent: false,
-  webPreferences: {
-    sandbox: false,
-    webviewTag: true,
-    backgroundThrottling: false,
-    preload: preloadPath,
-    nodeIntegration: false,
-    contextIsolation: true,
-    nodeIntegrationInWorker: true,
-    webSecurity: false
-  }
-} as IBrowserWindowOptions
 
 const settingWindowOptions = {
   height: defaultWindowHeight,
@@ -167,7 +139,7 @@ const toolboxWindowOptions = {
   fullscreenable: false,
   resizable: false,
   title: `PicList ${$t('TOOLBOX')}`,
-  vibrancy: 'ultra-dark',
+  backgroundColor: '#ebeef5',
   icon: logo,
   webPreferences: {
     sandbox: false,
@@ -191,20 +163,15 @@ windowList.set(IWindowList.TRAY_WINDOW, {
   multiple: false,
   options: () => trayWindowOptions,
   callback (window) {
-    window.loadURL(TRAY_WINDOW_URL)
+    if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
+      console.log('load setting window from renderer url')
+      window.loadURL(process.env.ELECTRON_RENDERER_URL)
+    } else {
+      window.loadFile(path.join(__dirname, '../render/index.html'))
+    }
     window.on('blur', () => {
       window.hide()
     })
-  }
-})
-
-windowList.set(IWindowList.MANUAL_WINDOW, {
-  isValid: true,
-  multiple: false,
-  options: () => manualWindowOptions,
-  callback (window) {
-    window.loadURL(MANUAL_WINDOW_URL)
-    window.focus()
   }
 })
 
@@ -213,8 +180,14 @@ windowList.set(IWindowList.SETTING_WINDOW, {
   multiple: false,
   options: () => settingWindowOptions,
   callback (window, windowManager) {
-    window.loadURL(SETTING_WINDOW_URL)
-    window.webContents.openDevTools({ mode: 'detach' })
+    if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
+      console.log('load setting window from renderer url')
+      window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#main-page/upload`)
+    } else {
+      window.loadFile(path.join(__dirname, '../render/index.html'), {
+        hash: 'main-page/upload'
+      })
+    }
     window.on('closed', () => {
       bus.emit(TOGGLE_SHORTKEY_MODIFIED_MODE, false)
       if (process.platform === 'linux') {
@@ -233,7 +206,13 @@ windowList.set(IWindowList.MINI_WINDOW, {
   multiple: false,
   options: () => miniWindowOptions,
   callback (window) {
-    window.loadURL(MINI_WINDOW_URL)
+    if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
+      window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#mini-page`)
+    } else {
+      window.loadFile(path.join(__dirname, '../render/index.html'), {
+        hash: 'mini-page'
+      })
+    }
   }
 })
 
@@ -242,7 +221,14 @@ windowList.set(IWindowList.RENAME_WINDOW, {
   multiple: true,
   options: () => renameWindowOptions,
   async callback (window, windowManager) {
-    window.loadURL(RENAME_WINDOW_URL)
+    if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
+      console.log('load setting window from renderer url')
+      window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#rename-page`)
+    } else {
+      window.loadFile(path.join(__dirname, '../render/index.html'), {
+        hash: 'rename-page'
+      })
+    }
     const currentWindow = windowManager.getAvailableWindow(true)
     if (currentWindow && currentWindow.isVisible()) {
       const { x, y, width, height } = currentWindow.getBounds()
@@ -258,7 +244,14 @@ windowList.set(IWindowList.TOOLBOX_WINDOW, {
   multiple: false,
   options: () => toolboxWindowOptions,
   async callback (window, windowManager) {
-    window.loadURL(TOOLBOX_WINDOW_URL)
+    if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
+      console.log('load setting window from renderer url')
+      window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#toolbox-page`)
+    } else {
+      window.loadFile(path.join(__dirname, '../render/index.html'), {
+        hash: 'toolbox-page'
+      })
+    }
     const currentWindow = windowManager.getAvailableWindow(true)
     if (currentWindow && currentWindow.isVisible()) {
       const { x, y, width, height } = currentWindow.getBounds()

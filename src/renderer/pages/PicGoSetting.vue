@@ -1344,7 +1344,7 @@
     </el-dialog>
     <el-dialog
       v-model="imageProcessDialogVisible"
-      :title="$t('UPLOAD_PAGE_IMAGE_PROCESS_DIALOG_TITLE')"
+      :title="$t('pages.imageProcess.title')"
       width="50%"
       draggable
       center

@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 import MainPage from '@/layouts/Main.vue'
 import ManageBucketPage from '@/manage/pages/BucketPage.vue'
@@ -20,7 +20,7 @@ import UploaderConfigPage from '@/pages/UploaderConfigPage.vue'
 import * as config from '@/router/config'
 
 export default createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: [
     {
       path: '/',
