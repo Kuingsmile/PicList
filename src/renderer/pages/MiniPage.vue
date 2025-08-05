@@ -153,7 +153,7 @@ function ipcSendFiles (files: FileList) {
   Array.from(files).forEach(item => {
     const obj = {
       name: item.name,
-      path: item.webkitRelativePath
+      path: window.electron.showFilePath(item)
     }
     sendFiles.push(obj)
   })

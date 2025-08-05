@@ -32,7 +32,8 @@ declare global {
       ipcRendererRemoveListener: (channel: string, listener: IpcRendererListener) => void
       clipboard: {
         writeText: typeof clipboard.writeText
-      }
+      },
+      showFilePath: (file: File) => string
     }
     node: {
       path: {

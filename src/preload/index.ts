@@ -1,7 +1,7 @@
 import crypto from 'node:crypto'
 import path from 'node:path'
 
-import { clipboard, contextBridge, ipcRenderer, webFrame } from 'electron'
+import { clipboard, contextBridge, ipcRenderer, webFrame, webUtils } from 'electron'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
 import mime from 'mime-types'
@@ -59,6 +59,9 @@ try {
     },
     ipcRendererRemoveListener: (channel: string, listener: IpcRendererListener) => {
       ipcRenderer.removeListener(channel, listener)
+    },
+    showFilePath (file: File) {
+      return webUtils.getPathForFile(file)
     }
   })
 

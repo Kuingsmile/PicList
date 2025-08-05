@@ -164,7 +164,6 @@ windowList.set(IWindowList.TRAY_WINDOW, {
   options: () => trayWindowOptions,
   callback (window) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
-      console.log('load setting window from renderer url')
       window.loadURL(process.env.ELECTRON_RENDERER_URL)
     } else {
       window.loadFile(path.join(__dirname, '../render/index.html'))
@@ -181,7 +180,6 @@ windowList.set(IWindowList.SETTING_WINDOW, {
   options: () => settingWindowOptions,
   callback (window, windowManager) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
-      console.log('load setting window from renderer url')
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#main-page/upload`)
     } else {
       window.loadFile(path.join(__dirname, '../render/index.html'), {
@@ -222,7 +220,6 @@ windowList.set(IWindowList.RENAME_WINDOW, {
   options: () => renameWindowOptions,
   async callback (window, windowManager) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
-      console.log('load setting window from renderer url')
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#rename-page`)
     } else {
       window.loadFile(path.join(__dirname, '../render/index.html'), {
@@ -245,7 +242,6 @@ windowList.set(IWindowList.TOOLBOX_WINDOW, {
   options: () => toolboxWindowOptions,
   async callback (window, windowManager) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
-      console.log('load setting window from renderer url')
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#toolbox-page`)
     } else {
       window.loadFile(path.join(__dirname, '../render/index.html'), {

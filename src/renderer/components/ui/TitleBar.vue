@@ -42,7 +42,7 @@
             @click="setAlwaysOnTop"
           >
             <PinIcon
-              :color="isAlwaysOnTop ? '#CE6769' : '#000'"
+              :color="isAlwaysOnTop ? '#CE6769' : '#6B7280'"
               :size="14"
             />
           </button>
