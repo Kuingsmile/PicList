@@ -1,5 +1,5 @@
-import { IRPCActionType } from '#/types/enum'
-import { IObj } from '#/types/types'
+import { IRPCActionType } from '@/utils/enum'
+import type { IObj } from '#/types/types'
 
 export function saveConfig (config: IObj | string, value?: any) {
   const configObj = typeof config === 'string' ? { [config]: value } : config

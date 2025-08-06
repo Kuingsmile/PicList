@@ -128,6 +128,50 @@
         "isResizeByPercentHint": "優先級更高",
         "resizePercent": "調整比例 (輸入 50 表示 50%)"
       }
+    },
+    "settings": {
+      "title": "設定",
+      "description": "配置 PicList 應用程序",
+      "docs": "文檔",
+      "clickToSet": "點擊設置",
+      "system": {
+        "title": "通用",
+        "languageAndAppearance": "語言和外觀",
+        "chooseLanguage": "選擇語言",
+        "startMode": "啟動模式",
+        "quietMode": "靜默模式",
+        "miniMode": "迷你窗口",
+        "mainMode": "主窗口",
+        "noTrayMode": "隱藏托盤",
+        "windowBehavior": "窗口行為",
+        "isHideDock": "是否隱藏 Dock 圖標",
+        "mainWindowSize": "設置主窗口大小(需重啟)",
+        "autoCloseMiniWindow": "打開主窗口時關閉迷你窗口",
+        "autoCloseMainWindow": "打開迷你窗口時關閉主窗口",
+        "miniWindowOnTop": "迷你窗口置頂",
+        "isCustomMiniIcon": "是否自定義迷你窗口圖標",
+        "customMiniIconPath": "自定義迷你窗口圖標路徑",
+        "startupAndShortcuts": "啟動和快捷鍵",
+        "autoLaunch": "開機自啟",
+        "setShortCuts": "設置快捷鍵"
+      },
+      "sync": {
+        "title": "配置/同步",
+        "syncConfiguration": "同步配置",
+        "syncEndpointConfig": "同步方案配置",
+        "upDownloadSettings": "上傳下載配置文件",
+        "migrateFromPicGo": "從PicGo遷移",
+        "fileManagement": "文件管理"
+      },
+      "upload": {
+        "title": "上傳"
+      },
+      "advanced": {
+        "title": "高級"
+      },
+      "update": {
+        "title": "更新"
+      }
     }
   },
   "OPEN_MAIN_WINDOW": "打開主視窗",
@@ -145,15 +189,8 @@
   "TOOLBOX_RE_SCAN": "重新掃描",
   "TOOLBOX_START_FIX": "開始修復",
   "TOOLBOX_SUCCESS_TIPS": "恭喜你,沒有檢查出問題",
-  "MANUAL_PAGE_OPEN_TIP": "請選擇打開方式",
-  "MANUAL_PAGE_OPEN_TIP_TITLE": "Tips",
-  "MANUAL_PAGE_OPEN_BY_BROWSER": "瀏覽器",
-  "MANUAL_PAGE_OPEN_BY_BUILD_IN": "內置窗口",
-  "MANUAL_PAGE_OPEN_SETTING_TIP": "選擇打開手冊方式",
   "UPLOAD_VIEW_HINT": "點擊打開圖床設定",
   "REFRESH": "刷新",
-  "MANUAL": "手冊",
-  "PICLIST_SETTINGS": "設定",
   "PLUGIN_SETTINGS": "插件",
   "CHOOSE_PICBED": "選擇圖床",
   "COPY_PICBED_CONFIG": "複製圖床設定",
@@ -191,11 +228,6 @@
   "SETTINGS_MIGRATE_FROM_PICGO_CONTENT": "即將導入PicGo的設定文件和相冊, 這將會覆蓋當前的設定, 是否繼續?",
   "SETTINGS_MIGRATE_FROM_PICGO_SUCCESS": "導入成功, 請重啟應用",
   "SETTINGS_MIGRATE_FROM_PICGO_FAILED": "導入失敗",
-  "SETTINGS_START_MODE": "啟動模式",
-  "SETTINGS_START_MODE_MINI": "mini視窗",
-  "SETTINGS_START_MODE_MAIN": "主視窗",
-  "SETTINGS_START_MODE_QUIET": "靜默啟動",
-  "SETTINGS_START_MODE_NO_TRAY": "隐藏托盘",
   "SETTINGS_CLICK_TO_OPEN": "點擊打開",
   "SETTINGS_SET_LOG_FILE": "設定記錄檔案",
   "SETTINGS_CLICK_TO_SET": "點擊設定",
@@ -355,11 +387,6 @@
   "SETTINGS_SYNC_MANAGE_CONFIG": "管理配置",
   "SETTINGS_AUTO_IMPORT": "管理頁面自動導入配置",
   "SETTINGS_AUTO_IMPORT_SELECT_PICBED": "選擇需要開啟自動導入的圖床",
-  "SETTINGS_TAB_SYSTEM": "系統設置",
-  "SETTINGS_TAB_SYNC_CONFIG": "同步與配置",
-  "SETTINGS_TAB_UPLOAD": "上傳設置",
-  "SETTINGS_TAB_ADVANCED": "高級設置",
-  "SETTINGS_TAB_UPDATE": "更新",
   "SHORTCUT_NAME": "快捷鍵名稱",
   "SHORTCUT_BIND": "快捷鍵綁定",
   "SHORTCUT_STATUS": "狀態",

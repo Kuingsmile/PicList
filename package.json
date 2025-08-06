@@ -27,6 +27,7 @@
     "link": "node ./scripts/link.js",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src/",
     "lint:dpdm": "dpdm -T --tsconfig ./tsconfig.json --no-tree --no-warning --exit-code circular:1 src/main/index.ts",
+    "lint:dpdm:renderer": "dpdm -T --tsconfig ./tsconfig.json --no-tree --no-warning --exit-code circular:1 src/renderer/main.ts",
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts,.tsx,.vue src/",
     "ncu": "node ./scripts/check-dep.js",
     "postinstall": "electron-builder install-app-deps",

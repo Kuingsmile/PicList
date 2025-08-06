@@ -4,10 +4,23 @@ import { I18n, ObjectAdapter } from '@piclist/i18n'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
 
-import { builtinI18nList } from '#/i18n'
-import { ILocales, ILocalesKey } from '#/types/i18n'
-import { II18nItem, IStringKeyMap } from '#/types/types'
+import type { ILocales, ILocalesKey } from '#/types/i18n'
+import type { II18nItem, IStringKeyMap } from '#/types/types'
 
+const builtinI18nList: II18nItem[] = [
+  {
+    label: '简体中文',
+    value: 'zh-CN'
+  },
+  {
+    label: '繁體中文',
+    value: 'zh-TW'
+  },
+  {
+    label: 'English',
+    value: 'en'
+  }
+]
 class I18nManager {
   private i18n: I18n | null = null
   private builtinI18nFolder = path.join('./resources', 'i18n')

@@ -1,5 +1,5 @@
-import { IRPCActionType } from '#/types/enum'
-import { IGalleryDB } from '#/types/extra-vue'
+import { IRPCActionType } from '@/utils/enum'
+import type { IGalleryDB } from '#/types/extra-vue'
 
 interface IFilter {
   orderBy?: 'asc' | 'desc'
@@ -23,7 +23,7 @@ interface IObject {
  }
 
 export class GalleryDB implements IGalleryDB {
-  async #actionHandler<T>(method: IRPCActionType, ...args: any[]): Promise<T | undefined> {
+  async #actionHandler<T>(method: string, ...args: any[]): Promise<T | undefined> {
     return await window.electron.triggerRPC<T>(method, ...args)
   }
 

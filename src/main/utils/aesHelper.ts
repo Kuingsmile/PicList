@@ -2,12 +2,11 @@ import crypto from 'node:crypto'
 
 import picgo from '@core/picgo'
 
-import { configPaths } from '#/utils/configPaths'
-import { DEFAULT_AES_PASSWORD } from '#/utils/static'
+import { configPaths } from '~/utils/configPaths'
 
 export class AESHelper {
   private key: Buffer = crypto.pbkdf2Sync(
-    picgo.getConfig<string>(configPaths.settings.aesPassword) || DEFAULT_AES_PASSWORD,
+    picgo.getConfig<string>(configPaths.settings.aesPassword) || 'aesPassword',
     Buffer.from('a8b3c4d2e4f5098712345678feedc0de', 'hex'),
     100000,
     32,

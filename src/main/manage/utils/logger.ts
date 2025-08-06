@@ -6,11 +6,11 @@ import dayjs from 'dayjs'
 import fs from 'fs-extra'
 import { ILogColor, ILogger } from 'piclist/dist/types'
 
-import { ILogType } from '#/types/enum'
-import { IManageApiType, Undefinable } from '#/types/manage'
-import { ILogArgvType, ILogArgvTypeWithError } from '#/types/types'
-import { enforceNumber } from '#/utils/common'
-import { configPaths } from '#/utils/configPaths'
+import type { IManageApiType, Undefinable } from '#/types/manage'
+import type { ILogArgvType, ILogArgvTypeWithError } from '#/types/types'
+import { enforceNumber } from '~/utils/common'
+import { configPaths } from '~/utils/configPaths'
+import { ILogType } from '~/utils/enum'
 
 export class ManageLogger implements ILogger {
   readonly #level = {
@@ -28,7 +28,7 @@ export class ManageLogger implements ILogger {
     this.#ctx = ctx
   }
 
-  #handleLog (type: ILogType, ...msg: ILogArgvTypeWithError[]): void {
+  #handleLog (type: string, ...msg: ILogArgvTypeWithError[]): void {
     const logHeader = chalk[this.#level[type] as ILogColor](`[PicList ${type.toUpperCase()}]`)
     console.log(logHeader, ...msg)
     this.#logLevel = this.#ctx.getConfig(configPaths.settings.logLevel)

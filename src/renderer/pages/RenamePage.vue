@@ -56,7 +56,7 @@ import type { IpcRendererEvent } from 'electron'
 import type { FormInstance } from 'element-plus'
 import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 
-import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '#/events/constants'
+import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '@/utils/constant'
 
 const id = ref<string | null>(null)
 const formRef = ref<FormInstance>()

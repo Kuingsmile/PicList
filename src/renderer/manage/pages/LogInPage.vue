@@ -273,10 +273,10 @@ import { useManageStore } from '@/manage/store/manageStore'
 import { formObjToTableData } from '@/manage/utils/common'
 import { supportedPicBedList } from '@/manage/utils/constants'
 import { getConfig, removeConfig, saveConfig } from '@/manage/utils/dataSender'
+import { formatEndpoint, isNeedToShorten, safeSliceF } from '@/utils/common'
 import { getConfig as getPicBedsConfig } from '@/utils/dataSender'
-import { IRPCActionType } from '#/types/enum'
-import { IStringKeyMap, IUploaderConfigListItem } from '#/types/types'
-import { formatEndpoint, isNeedToShorten, safeSliceF } from '#/utils/common'
+import { IRPCActionType } from '@/utils/enum'
+import type { IStringKeyMap, IUploaderConfigListItem } from '#/types/types'
 
 const { t } = useI18n()
 const manageStore = useManageStore()

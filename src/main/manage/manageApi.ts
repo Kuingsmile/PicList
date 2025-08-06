@@ -7,15 +7,15 @@ import { ipcMain } from 'electron'
 import fs from 'fs-extra'
 import { get, set, unset } from 'lodash-es'
 
-import { IWindowList } from '#/types/enum'
-import { IManageApiType, IManageConfigType, IManageError, IPicBedMangeConfig } from '#/types/manage'
-import { IStringKeyMap } from '#/types/types'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import type { IManageApiType, IManageConfigType, IManageError, IPicBedMangeConfig } from '#/types/manage'
+import type { IStringKeyMap } from '#/types/types'
 import API from '~/manage/apis/api'
 import ManageDB from '~/manage/datastore/db'
 import { managePathChecker } from '~/manage/datastore/dbChecker'
 import { formatError, isInputConfigValid } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
+import { IWindowList } from '~/utils/enum'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
 
 export class ManageApi extends EventEmitter implements IManageApiType {
   private _config!: Partial<IManageConfigType>

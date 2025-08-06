@@ -6,9 +6,9 @@ import shortKeyService from 'apis/app/shortKey/shortKeyService'
 import GuiApi from 'apis/gui'
 import { globalShortcut } from 'electron'
 
-import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/events/constants'
-import { IKeyCommandType, IPluginShortKeyConfig, IShortKeyConfig, IShortKeyConfigs, IShortKeyHandler } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
+import type { IKeyCommandType, IPluginShortKeyConfig, IShortKeyConfig, IShortKeyConfigs, IShortKeyHandler } from '#/types/types'
+import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '~/events/constant'
+import { configPaths } from '~/utils/configPaths'
 
 class ShortKeyHandler {
   private isInModifiedMode: boolean = false

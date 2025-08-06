@@ -110,7 +110,7 @@ import { reactive, ref, toRefs, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { getConfig } from '@/utils/dataSender'
-import { IPicGoPluginConfig, IStringKeyMap } from '#/types/types'
+import type { IPicGoPluginConfig, IStringKeyMap } from '#/types/types'
 
 interface IProps {
   config: any[]

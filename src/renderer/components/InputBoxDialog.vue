@@ -32,8 +32,8 @@ import type { IpcRendererEvent } from 'electron'
 import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 
 import $bus from '@/utils/bus'
-import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '#/events/constants'
-import { IShowInputBoxOption } from '#/types/types'
+import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
+import type { IShowInputBoxOption } from '#/types/types'
 
 const inputBoxValue = ref('')
 const showInputBoxVisible = ref(false)

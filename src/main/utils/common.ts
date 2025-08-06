@@ -6,11 +6,28 @@ import axios from 'axios'
 import { clipboard, dialog, Notification, Tray } from 'electron'
 import FormData from 'form-data'
 import fs from 'fs-extra'
+import { isReactive, isRef, toRaw, unref } from 'vue'
 
-import { IShortUrlServer } from '#/types/enum'
-import { IPrivateShowNotificationOption, IShowMessageBoxResult } from '#/types/types'
-import { handleUrlEncode } from '#/utils/common'
-import { configPaths } from '#/utils/configPaths'
+import type { IHTTPProxy, IPrivateShowNotificationOption, IShowMessageBoxResult, IStringKeyMap } from '#/types/types'
+import { configPaths } from '~/utils/configPaths'
+import { IShortUrlServer } from '~/utils/enum'
+
+/**
+ * get raw data from reactive or ref
+ */
+export const getRawData = (args: any): any => {
+  if (isRef(args)) return unref(args)
+  if (isReactive(args)) return toRaw(args)
+  if (Array.isArray(args)) return args.map(getRawData)
+  if (typeof args === 'object' && args !== null) {
+    const data = {} as Record<string, any>
+    for (const key in args) {
+      data[key] = getRawData(args[key])
+    }
+    return data
+  }
+  return args
+}
 
 const getExtension = (fileName: string) => path.extname(fileName).slice(1)
 
@@ -122,9 +139,6 @@ export const getClipboardFilePath = (): string => {
 
   return ''
 }
-
-export const handleUrlEncodeWithSetting = (url: string) =>
-  db.get(configPaths.settings.encodeOutputURL) ? handleUrlEncode(url) : url
 
 const c1nApi = 'https://c1n.cn/link/short'
 
@@ -246,3 +260,76 @@ export const generateShortUrl = async (url: string) => {
       return url
   }
 }
+
+export const isUrl = (url: string): boolean => {
+  try {
+    return Boolean(new URL(url))
+  } catch {
+    return false
+  }
+}
+
+export const isUrlEncode = (url: string): boolean => {
+  url = url || ''
+  try {
+    return url !== decodeURI(url)
+  } catch {
+    return false
+  }
+}
+
+export const handleUrlEncode = (url: string): string => (isUrlEncode(url) ? url : encodeURI(url))
+
+export const handleUrlEncodeWithSetting = (url: string) =>
+  db.get(configPaths.settings.encodeOutputURL) ? handleUrlEncode(url) : url
+
+export const handleStreamlinePluginName = (name: string) => name.replace(/(@[^/]+\/)?picgo-plugin-/, '')
+export const simpleClone = (obj: any) => JSON.parse(JSON.stringify(obj))
+export const enforceNumber = (num: number | string) => (isNaN(+num) ? 0 : +num)
+
+export const trimValues = <T extends IStringKeyMap>(
+  obj: T
+): { [K in keyof T]: T[K] extends string ? string : T[K] } => {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [key, typeof value === 'string' ? value.trim() : value])
+  ) as { [K in keyof T]: T[K] extends string ? string : T[K] }
+}
+
+export const formatEndpoint = (endpoint: string, sslEnabled: boolean): string => {
+  const hasProtocol = /^https?:\/\//.test(endpoint)
+  if (!hasProtocol) {
+    return `${sslEnabled ? 'https' : 'http'}://${endpoint}`
+  }
+  return sslEnabled ? endpoint.replace(/^http:\/\//, 'https://') : endpoint.replace(/^https:\/\//, 'http://')
+}
+
+export const formatHttpProxy = (
+  proxy: string | undefined,
+  type: 'object' | 'string'
+): IHTTPProxy | undefined | string => {
+  if (!proxy) return undefined
+  if (/^https?:\/\//.test(proxy)) {
+    const { protocol, hostname, port } = new URL(proxy)
+    return type === 'string'
+      ? `${protocol}//${hostname}:${port}`
+      : {
+          host: hostname,
+          port: Number(port),
+          protocol: protocol.slice(0, -1)
+        }
+  }
+  const [host, port] = proxy.split(':')
+  return type === 'string'
+    ? `http://${host}:${port}`
+    : {
+        host,
+        port: port ? Number(port) : 80,
+        protocol: 'http'
+      }
+}
+
+export function encodeFilePath (filePath: string) {
+  return filePath.replace(/\\/g, '/').split('/').map(encodeURIComponent).join('/')
+}
+
+export const trimPath = (path: string) => path.replace(/^\/+|\/+$/g, '').replace(/\/+/g, '/')

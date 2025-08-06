@@ -5,13 +5,13 @@ import { dbPathChecker } from '@core/datastore/dbChecker'
 import type { IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 
-import { IToolboxItemCheckStatus, IToolboxItemType } from '#/types/enum'
 import type { IToolboxCheckerMap, IToolboxFixMap } from '#/types/rpc'
 import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
 import { T as $t } from '~/i18n'
+import { IToolboxItemCheckStatus, IToolboxItemType } from '~/utils/enum'
 
 export const checkFileMap: IToolboxCheckerMap<
-  IToolboxItemType.IS_CONFIG_FILE_BROKEN | IToolboxItemType.IS_GALLERY_FILE_BROKEN
+  string
 > = {
   [IToolboxItemType.IS_CONFIG_FILE_BROKEN]: async (event: IpcMainEvent) => {
     const sendToolboxRes = sendToolboxResWithType(IToolboxItemType.IS_CONFIG_FILE_BROKEN)
@@ -63,7 +63,7 @@ export const checkFileMap: IToolboxCheckerMap<
 }
 
 export const fixFileMap: IToolboxFixMap<
-  IToolboxItemType.IS_CONFIG_FILE_BROKEN | IToolboxItemType.IS_GALLERY_FILE_BROKEN
+  string
 > = {
   [IToolboxItemType.IS_CONFIG_FILE_BROKEN]: async () => {
     try {

@@ -4,7 +4,7 @@ import logger from '@core/picgo/logger'
 import { app } from 'electron'
 import fs from 'fs-extra'
 
-import { IRPCActionType, IRPCType } from '#/types/enum'
+import { IRPCActionType, IRPCType } from '~/utils/enum'
 import { downloadFile, uploadFile } from '~/utils/syncSettings'
 
 const STORE_PATH = app.getPath('userData')

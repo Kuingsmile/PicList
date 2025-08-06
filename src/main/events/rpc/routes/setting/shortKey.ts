@@ -2,11 +2,11 @@ import bus from '@core/bus'
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import { Notification } from 'electron'
 
-import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/events/constants'
-import { IRPCActionType, IRPCType } from '#/types/enum'
-import { IIPCEvent } from '#/types/rpc'
-import { IShortKeyConfig } from '#/types/types'
+import type { IIPCEvent } from '#/types/rpc'
+import type { IShortKeyConfig } from '#/types/types'
+import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '~/events/constant'
 import { T as $t } from '~/i18n'
+import { IRPCActionType, IRPCType } from '~/utils/enum'
 
 const notificationFunc = (result: boolean) => {
   const notification = new Notification({

@@ -3,17 +3,17 @@ import path from 'node:path'
 import { dbPathChecker, defaultConfigPath } from '@core/datastore/dbChecker'
 import fs from 'fs-extra'
 
-import { IToolboxItemCheckStatus, IToolboxItemType } from '#/types/enum'
-import { IToolboxCheckerMap, IToolboxFixMap } from '#/types/rpc'
-import { CLIPBOARD_IMAGE_FOLDER } from '#/utils/static'
+import type { IToolboxCheckerMap, IToolboxFixMap } from '#/types/rpc'
 import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
 import { T as $t } from '~/i18n'
+import { IToolboxItemCheckStatus, IToolboxItemType } from '~/utils/enum'
+import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 
 const sendToolboxRes = sendToolboxResWithType(IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD)
 
 const defaultClipboardImagePath = path.join(defaultConfigPath, CLIPBOARD_IMAGE_FOLDER)
 
-export const checkClipboardUploadMap: IToolboxCheckerMap<IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD> = {
+export const checkClipboardUploadMap: IToolboxCheckerMap<string> = {
   [IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD]: async event => {
     sendToolboxRes(event, {
       status: IToolboxItemCheckStatus.LOADING
@@ -51,7 +51,7 @@ export const checkClipboardUploadMap: IToolboxCheckerMap<IToolboxItemType.HAS_PR
   }
 }
 
-export const fixClipboardUploadMap: IToolboxFixMap<IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD> = {
+export const fixClipboardUploadMap: IToolboxFixMap<string> = {
   [IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD]: async () => {
     const configFilePath = dbPathChecker()
     const dirPath = path.dirname(configFilePath)

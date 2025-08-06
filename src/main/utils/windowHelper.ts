@@ -2,8 +2,8 @@ import db from '@core/datastore'
 import windowManager from 'apis/app/window/windowManager'
 import { screen } from 'electron'
 
-import { IWindowList } from '#/types/enum'
-import { configPaths } from '#/utils/configPaths'
+import { configPaths } from '~/utils/configPaths'
+import { IWindowList } from '~/utils/enum'
 
 export function openMiniWindow (hideSettingWindow: boolean = true) {
   const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!

@@ -2,8 +2,19 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { getConfig } from '@/manage/utils/dataSender'
 import { availableIconList } from '@/manage/utils/icon'
-import { IStringKeyMap } from '#/types/types'
-import { handleUrlEncode, isNeedToShorten, safeSliceF } from '#/utils/common'
+import { isNeedToShorten, safeSliceF } from '@/utils/common'
+import type { IStringKeyMap } from '#/types/types'
+
+export const isUrlEncode = (url: string): boolean => {
+  url = url || ''
+  try {
+    return url !== decodeURI(url)
+  } catch {
+    return false
+  }
+}
+
+export const handleUrlEncode = (url: string): string => (isUrlEncode(url) ? url : encodeURI(url))
 
 export function randomStringGenerator (length: number): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'

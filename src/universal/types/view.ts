@@ -1,5 +1,3 @@
-import { IToolboxItemCheckStatus, IToolboxItemType } from '#/types/enum'
-
 export interface ISettingForm {
   showUpdateTip: boolean
   autoStart: boolean
@@ -46,7 +44,7 @@ export interface ISettingForm {
 
 export interface IToolboxItem {
   title: string
-  status: IToolboxItemCheckStatus
+  status: string
   msg?: string
   value?: any // for handler
   hasNoFixMethod?: boolean
@@ -54,4 +52,4 @@ export interface IToolboxItem {
   handlerText?: string
 }
 
-export type IToolboxMap = Record<IToolboxItemType, IToolboxItem>
+export type IToolboxMap = Record<string, IToolboxItem>

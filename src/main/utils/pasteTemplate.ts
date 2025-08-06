@@ -1,9 +1,8 @@
 import db from '@core/datastore'
 
-import { IPasteStyle } from '#/types/enum'
-import { ImgInfo } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
+import type { ImgInfo } from '#/types/types'
 import { generateShortUrl, handleUrlEncodeWithSetting } from '~/utils/common'
+import { configPaths } from '~/utils/configPaths'
 
 export const formatCustomLink = (customLink: string, item: ImgInfo) => {
   const fileName = item.fileName!.replace(new RegExp(`\\${item.extname}$`), '')
@@ -24,7 +23,7 @@ export const formatCustomLink = (customLink: string, item: ImgInfo) => {
   return customLink
 }
 
-export default async (style: IPasteStyle, item: ImgInfo, customLink: string | undefined) => {
+export default async (style: string, item: ImgInfo, customLink: string | undefined) => {
   let url = item.url || item.imgUrl
   if (item.type === 'aws-s3' || item.type === 'aws-s3-plist') {
     url = item.imgUrl || item.url || ''
@@ -35,7 +34,7 @@ export default async (style: IPasteStyle, item: ImgInfo, customLink: string | un
     url = item.shortUrl && item.shortUrl !== url ? item.shortUrl : await generateShortUrl(url)
   }
   const _customLink = customLink || '![$fileName]($url)'
-  const tpl = {
+  const tpl: Record<string, string> = {
     markdown: `![](${url})`,
     HTML: `<img src="${url}"/>`,
     URL: url,

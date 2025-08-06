@@ -13,11 +13,11 @@ import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
 import mime from 'mime-types'
 import Downloader from 'nodejs-file-downloader'
 
-import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '#/types/enum'
-import { IHTTPProxy, IStringKeyMap } from '#/types/types'
-import { formatHttpProxy } from '#/utils/common'
+import type { IHTTPProxy, IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ManageLogger } from '~/manage/utils/logger'
+import { formatHttpProxy } from '~/utils/common'
+import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 export const getFSFile = async (filePath: string, stream: boolean = false): Promise<IStringKeyMap> => {
   try {

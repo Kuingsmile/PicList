@@ -4,10 +4,10 @@ import fs from 'fs-extra'
 import { IConfig } from 'piclist'
 import tunnel from 'tunnel'
 
-import { IToolboxItemCheckStatus, IToolboxItemType } from '#/types/enum'
-import { IToolboxCheckerMap } from '#/types/rpc'
+import type { IToolboxCheckerMap } from '#/types/rpc'
 import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
 import { T as $t } from '~/i18n'
+import { IToolboxItemCheckStatus, IToolboxItemType } from '~/utils/enum'
 
 function getProxy (proxyStr: string): AxiosRequestConfig['proxy'] | null {
   if (proxyStr) {
@@ -25,7 +25,7 @@ function getProxy (proxyStr: string): AxiosRequestConfig['proxy'] | null {
 
 const sendToolboxRes = sendToolboxResWithType(IToolboxItemType.HAS_PROBLEM_WITH_PROXY)
 
-export const checkProxyMap: IToolboxCheckerMap<IToolboxItemType.HAS_PROBLEM_WITH_PROXY> = {
+export const checkProxyMap: IToolboxCheckerMap<string> = {
   [IToolboxItemType.HAS_PROBLEM_WITH_PROXY]: async event => {
     sendToolboxRes(event, {
       status: IToolboxItemCheckStatus.LOADING

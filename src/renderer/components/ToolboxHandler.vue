@@ -11,10 +11,9 @@
 </template>
 
 <script lang="ts" setup>
-import { IToolboxItemCheckStatus } from '#/types/enum'
 
 interface IProps {
-  status: IToolboxItemCheckStatus
+  status: string
   value: any
   handlerText: string
   handler: (value: any) => void | Promise<void>

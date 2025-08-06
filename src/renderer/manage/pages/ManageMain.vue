@@ -279,7 +279,6 @@ import {
   Tools
 } from '@element-plus/icons-vue'
 import { ElNotification } from 'element-plus'
-import { IRPCActionType } from 'root/src/universal/types/enum'
 import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -287,7 +286,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useManageStore } from '@/manage/store/manageStore'
 import { supportedPicBedList } from '@/manage/utils/constants'
 import { newBucketConfig } from '@/manage/utils/newBucketConfig'
-import { IStringKeyMap } from '#/types/types'
+import { IRPCActionType } from '@/utils/enum'
+import type { IStringKeyMap } from '#/types/types'
 
 const { t } = useI18n()
 const manageStore = useManageStore() as any

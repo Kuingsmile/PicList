@@ -1,6 +1,6 @@
-import { IRPCActionType } from '#/types/enum'
 import server from '~/server'
 import webServer from '~/server/webServer'
+import { IRPCActionType } from '~/utils/enum'
 
 export default [
   {

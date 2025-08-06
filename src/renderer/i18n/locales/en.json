@@ -128,6 +128,50 @@
         "isResizeByPercentHint": "Higher priority",
         "resizePercent": "Resize Percentage (Enter 50 for 50%)"
       }
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Configure the PicList application",
+      "docs": "Documentation",
+      "clickToSet": "Click to set",
+      "system": {
+        "title": "General",
+        "languageAndAppearance": "Language and Appearance",
+        "chooseLanguage": "Choose Language",
+        "startMode": "Startup Mode",
+        "quietMode": "Quiet Mode",
+        "miniMode": "Mini Window",
+        "mainMode": "Main Window",
+        "noTrayMode": "Hide Tray",
+        "windowBehavior": "Window Behavior",
+        "isHideDock": "Hide Dock Icon",
+        "mainWindowSize": "Set Main Window Size (Requires Restart)",
+        "autoCloseMiniWindow": "Close Mini Window when Opening Main Window",
+        "autoCloseMainWindow": "Close Main Window when Opening Mini Window",
+        "miniWindowOnTop": "Mini Window Always on Top",
+        "isCustomMiniIcon": "Custom Mini Window Icon",
+        "customMiniIconPath": "Custom Mini Window Icon Path",
+        "startupAndShortcuts": "Startup and Shortcuts",
+        "autoLaunch": "Auto Launch",
+        "setShortCuts": "Set Shortcuts"
+      },
+      "sync": {
+        "title": "Configuration/Sync",
+        "syncConfiguration": "Sync Configuration",
+        "syncEndpointConfig": "Sync Endpoint Configuration",
+        "upDownloadSettings": "Upload/Download Settings",
+        "migrateFromPicGo": "Migrate from PicGo",
+        "fileManagement": "File Management"
+      },
+      "upload": {
+        "title": "Upload"
+      },
+      "advanced": {
+        "title": "Advanced"
+      },
+      "update": {
+        "title": "Update"
+      }
     }
   },
   "OPEN_MAIN_WINDOW": "Open Main Window",
@@ -145,15 +189,8 @@
   "TOOLBOX_RE_SCAN": "Re scanning",
   "TOOLBOX_START_FIX": "Start fixing",
   "TOOLBOX_SUCCESS_TIPS": "Congratulations, no problems were found",
-  "MANUAL_PAGE_OPEN_TIP": "Please select the way to open the manual",
-  "MANUAL_PAGE_OPEN_TIP_TITLE": "Tips",
-  "MANUAL_PAGE_OPEN_BY_BROWSER": "Browser",
-  "MANUAL_PAGE_OPEN_BY_BUILD_IN": "Built-in Window",
-  "MANUAL_PAGE_OPEN_SETTING_TIP": "Select the way to open the manual",
   "UPLOAD_VIEW_HINT": "Click to open picbeds settings",
   "REFRESH": "Refresh",
-  "MANUAL": "Manual",
-  "PICLIST_SETTINGS": "Settings",
   "PLUGIN_SETTINGS": "Plugins",
   "CHOOSE_PICBED": "Choose Picbed",
   "COPY_PICBED_CONFIG": "Copy Picbed Config",
@@ -191,11 +228,6 @@
   "SETTINGS_MIGRATE_FROM_PICGO_CONTENT": "Migrate from PicGo will overwrite your current settings and gallery, do you want to continue?",
   "SETTINGS_MIGRATE_FROM_PICGO_SUCCESS": "Import succeed, please restart PicList",
   "SETTINGS_MIGRATE_FROM_PICGO_FAILED": "Import failed",
-  "SETTINGS_START_MODE": "Default Start Mode",
-  "SETTINGS_START_MODE_MINI": "Mini Window",
-  "SETTINGS_START_MODE_MAIN": "Main Window",
-  "SETTINGS_START_MODE_NO_TRAY": "No Tray",
-  "SETTINGS_START_MODE_QUIET": "Quiet Mode",
   "SETTINGS_CLICK_TO_OPEN": "Click to Open",
   "SETTINGS_SET_LOG_FILE": "Set Log File",
   "SETTINGS_CLICK_TO_SET": "Click to Set",
@@ -354,11 +386,6 @@
   "SETTINGS_SYNC_MANAGE_CONFIG": "Manage configuration",
   "SETTINGS_AUTO_IMPORT": "Auto import config in manage page",
   "SETTINGS_AUTO_IMPORT_SELECT_PICBED": "Select picbed",
-  "SETTINGS_TAB_SYSTEM": "System",
-  "SETTINGS_TAB_SYNC_CONFIG": "Configuration",
-  "SETTINGS_TAB_UPLOAD": "Upload",
-  "SETTINGS_TAB_ADVANCED": "Advanced",
-  "SETTINGS_TAB_UPDATE": "Update",
   "BUILTIN_CLIPBOARD_TIPS": "Use builtin clipboard function to upload instead of using scripts",
   "SHORTCUT_NAME": "Shortcut Name",
   "SHORTCUT_BIND": "Shortcut Binding",

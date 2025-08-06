@@ -4,7 +4,7 @@ import { debounce } from 'lodash-es'
 import { PicGo } from 'piclist'
 import pkg from 'root/package.json'
 
-import { IStringKeyMap } from '#/types/types'
+import type { IStringKeyMap } from '#/types/types'
 
 const CONFIG_PATH = dbPathChecker()
 

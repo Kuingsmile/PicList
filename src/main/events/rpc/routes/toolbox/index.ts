@@ -1,21 +1,21 @@
 import { IpcMainEvent } from 'electron'
 
-import { IRPCActionType, IRPCType, IToolboxItemType } from '#/types/enum'
-import { IToolboxCheckArgs, IToolboxCheckerMap, IToolboxFixMap } from '#/types/rpc'
+import type { IToolboxCheckArgs, IToolboxCheckerMap, IToolboxFixMap } from '#/types/rpc'
 import { RPCRouter } from '~/events/rpc/router'
 import { checkClipboardUploadMap, fixClipboardUploadMap } from '~/events/rpc/routes/toolbox/checkClipboardUpload'
 import { checkFileMap, fixFileMap } from '~/events/rpc/routes/toolbox/checkFile'
 import { checkProxyMap } from '~/events/rpc/routes/toolbox/checkProxy'
+import { IRPCActionType, IRPCType } from '~/utils/enum'
 
 const toolboxRouter = new RPCRouter()
 
-const toolboxCheckMap: Partial<IToolboxCheckerMap<IToolboxItemType>> = {
+const toolboxCheckMap: Partial<IToolboxCheckerMap<string>> = {
   ...checkFileMap,
   ...checkClipboardUploadMap,
   ...checkProxyMap
 }
 
-const toolboxFixMap: Partial<IToolboxFixMap<IToolboxItemType>> = {
+const toolboxFixMap: Partial<IToolboxFixMap<string>> = {
   ...fixFileMap,
   ...fixClipboardUploadMap
 }
@@ -33,7 +33,7 @@ toolboxRouter
       } else {
         // do check all
         for (const key in toolboxCheckMap) {
-          const handler = toolboxCheckMap[key as IToolboxItemType]
+          const handler = toolboxCheckMap[key]
           if (handler) {
             handler(event as IpcMainEvent)
           }

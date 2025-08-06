@@ -19,10 +19,10 @@
 import { CircleCloseFilled, Loading, SuccessFilled } from '@element-plus/icons-vue'
 import { computed } from 'vue'
 
-import { IToolboxItemCheckStatus } from '#/types/enum'
+import { IToolboxItemCheckStatus } from '@/utils/enum'
 
 interface IProps {
-  status: IToolboxItemCheckStatus
+  status: string
 }
 
 const props = defineProps<IProps>()

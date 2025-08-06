@@ -1,14 +1,14 @@
 import windowList from 'apis/app/window/windowList'
 import { BrowserWindow } from 'electron'
 
-import { IWindowListItem, IWindowManager } from '#/types/electron'
-import { IWindowList } from '#/types/enum'
+import type { IWindowListItem, IWindowManager } from '#/types/electron'
+import { IWindowList } from '~/utils/enum'
 
 class WindowManager implements IWindowManager {
-  #windowMap: Map<IWindowList | string, BrowserWindow> = new Map()
-  #windowIdMap: Map<number, IWindowList | string> = new Map()
+  #windowMap: Map< string, BrowserWindow> = new Map()
+  #windowIdMap: Map<number, string> = new Map()
 
-  create (name: IWindowList) {
+  create (name: string) {
     const windowConfig: IWindowListItem = windowList.get(name)!
     if (!windowConfig.isValid) return null
 
@@ -30,14 +30,14 @@ class WindowManager implements IWindowManager {
     return window
   }
 
-  get (name: IWindowList) {
+  get (name: string) {
     if (this.has(name)) {
       return this.#windowMap.get(name)!
     }
     return this.create(name)
   }
 
-  has (name: IWindowList) {
+  has (name: string) {
     return this.#windowMap.has(name)
   }
 

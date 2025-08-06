@@ -3,7 +3,7 @@ import { ElIcon, ElImage } from 'element-plus'
 import { computed, defineComponent, onMounted, ref, watch } from 'vue'
 
 import { getFileIconPath } from '@/manage/utils/common'
-import { IRPCActionType } from '#/types/enum'
+import { IRPCActionType } from '@/utils/enum'
 
 export default defineComponent({
   props: {

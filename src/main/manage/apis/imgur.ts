@@ -6,9 +6,7 @@ import FormData from 'form-data'
 import fs from 'fs-extra'
 import got from 'got'
 
-import { commonTaskStatus, IWindowList } from '#/types/enum'
-import { IStringKeyMap } from '#/types/types'
-import { formatHttpProxy } from '#/utils/common'
+import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import {
   ConcurrencyPromisePool,
@@ -20,7 +18,8 @@ import {
   NewDownloader
 } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
-import { isImage } from '~/utils/common'
+import { formatHttpProxy, isImage } from '~/utils/common'
+import { commonTaskStatus, IWindowList } from '~/utils/enum'
 
 class ImgurApi {
   userName: string

@@ -475,13 +475,13 @@ import { onBeforeRouteUpdate } from 'vue-router'
 
 import ALLApi from '@/apis/allApi'
 import { customRenameFormatTable, customStrMatch, customStrReplace } from '@/manage/utils/common'
+import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import $$db from '@/utils/db'
+import { IPasteStyle, IRPCActionType } from '@/utils/enum'
 import { picBedGlobal } from '@/utils/global'
-import { IPasteStyle, IRPCActionType } from '#/types/enum'
-import { ICheckBoxValueType, IGalleryItem, ImgInfo, IObj, IObjT } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
-import { picBedsCanbeDeleted } from '#/utils/static'
+import { picBedsCanbeDeleted } from '@/utils/static'
+import type { ICheckBoxValueType, IGalleryItem, ImgInfo, IObj, IObjT } from '#/types/types'
 
 const { t } = useI18n()
 type IResult<T> = T & {

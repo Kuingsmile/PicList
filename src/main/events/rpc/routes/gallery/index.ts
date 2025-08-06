@@ -3,11 +3,11 @@ import picgo from '@core/picgo'
 import GuiApi from 'apis/gui'
 import { clipboard } from 'electron'
 
-import { ICOREBuildInEvent, IPasteStyle, IRPCActionType, IRPCType } from '#/types/enum'
-import { IIPCEvent } from '#/types/rpc'
-import { ImgInfo } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
+import type { IIPCEvent } from '#/types/rpc'
+import type { ImgInfo } from '#/types/types'
 import { RPCRouter } from '~/events/rpc/router'
+import { configPaths } from '~/utils/configPaths'
+import { ICOREBuildInEvent, IPasteStyle, IRPCActionType, IRPCType } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
 interface IFilter {
   orderBy?: 'asc' | 'desc'
@@ -26,7 +26,7 @@ const galleryRoutes = [
     action: IRPCActionType.GALLERY_PASTE_TEXT,
     handler: async (_: IIPCEvent, args: [item: ImgInfo, copy?: boolean]) => {
       const [item, copy = true] = args
-      const pasteStyle = picgo.getConfig<IPasteStyle>(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
+      const pasteStyle = picgo.getConfig<string>(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
       const customLink = picgo.getConfig<string>(configPaths.settings.customLink)
       const [txt, shortUrl] = await pasteTemplate(pasteStyle, item, customLink)
       if (copy) {

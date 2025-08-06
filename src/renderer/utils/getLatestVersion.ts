@@ -1,5 +1,5 @@
-import { IStringKeyMap } from '#/types/types'
-import { RELEASE_URL, RELEASE_URL_BACKUP } from '#/utils/static'
+import { RELEASE_URL, RELEASE_URL_BACKUP } from '@/utils/static'
+import type { IStringKeyMap } from '#/types/types'
 
 export const getLatestVersion = async (): Promise<string> => {
   try {

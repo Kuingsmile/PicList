@@ -1,10 +1,10 @@
 import picgo from '@core/picgo'
 
-import { IRPCActionType, IRPCType } from '#/types/enum'
-import { IIPCEvent } from '#/types/rpc'
-import { IStringKeyMap } from '#/types/types'
+import type { IIPCEvent } from '#/types/rpc'
+import type { IStringKeyMap } from '#/types/types'
 import { RPCRouter } from '~/events/rpc/router'
 import deleteRoutes from '~/events/rpc/routes/picbed/delete'
+import { IRPCActionType, IRPCType } from '~/utils/enum'
 import {
   deleteUploaderConfig,
   getUploaderConfigList,

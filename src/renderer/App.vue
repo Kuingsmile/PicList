@@ -4,6 +4,7 @@
     :key="pageReloadCount"
   >
     <router-view />
+    <UIServiceProvider />
   </div>
 </template>
 
@@ -11,11 +12,12 @@
 import type { IConfig } from 'piclist'
 import { onBeforeMount, onMounted } from 'vue'
 
+import UIServiceProvider from '@/components/ui/UIServiceProvider.vue'
 import { useStore } from '@/hooks/useStore'
 import { getConfig } from '@/utils/dataSender'
 import { pageReloadCount } from '@/utils/global'
 
-import { useAppStore } from './hooks/appStore'
+import { useAppStore } from './hooks/useAppStore'
 
 const store = useStore()
 const appStore = useAppStore()

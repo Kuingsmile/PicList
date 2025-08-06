@@ -1,9 +1,9 @@
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 
-import { IRPCActionType, IRPCType } from '#/types/enum'
-import { IIPCEvent } from '#/types/rpc'
-import { IFileWithPath } from '#/types/types'
+import type { IIPCEvent } from '#/types/rpc'
+import type { IFileWithPath } from '#/types/types'
 import { RPCRouter } from '~/events/rpc/router'
+import { IRPCActionType, IRPCType } from '~/utils/enum'
 import getPicBeds from '~/utils/getPicBeds'
 
 const uploadRouter = new RPCRouter()

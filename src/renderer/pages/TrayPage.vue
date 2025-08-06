@@ -66,12 +66,12 @@ import type { IpcRendererEvent } from 'electron'
 import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { handleUrlEncode } from '@/utils/common'
+import { configPaths } from '@/utils/configPaths'
 import { getConfig } from '@/utils/dataSender'
 import $$db from '@/utils/db'
-import { IPasteStyle, IRPCActionType, IWindowList } from '#/types/enum'
-import { ImgInfo } from '#/types/types'
-import { handleUrlEncode } from '#/utils/common'
-import { configPaths } from '#/utils/configPaths'
+import { IPasteStyle, IRPCActionType, IWindowList } from '@/utils/enum'
+import type { ImgInfo } from '#/types/types'
 
 const { t } = useI18n()
 
@@ -117,7 +117,7 @@ const formatCustomLink = (customLink: string, item: ImgInfo) => {
 }
 
 async function copyTheLink (item: ImgInfo) {
-  const pasteStyle = (await getConfig<IPasteStyle>(configPaths.settings.pasteStyle)) || IPasteStyle.MARKDOWN
+  const pasteStyle = (await getConfig<string>(configPaths.settings.pasteStyle)) || IPasteStyle.MARKDOWN
   const customLink = await getConfig<string>(configPaths.settings.customLink)
   const txt = await pasteTemplate(pasteStyle, item, customLink)
   window.electron.clipboard.writeText(txt)
@@ -127,7 +127,7 @@ async function copyTheLink (item: ImgInfo) {
   }
 }
 
-async function pasteTemplate (style: IPasteStyle, item: ImgInfo, customLink: string | undefined) {
+async function pasteTemplate (style: string, item: ImgInfo, customLink: string | undefined) {
   let url = item.url || item.imgUrl
   if (item.type === 'aws-s3' || item.type === 'aws-s3-plist') {
     url = item.imgUrl || item.url || ''
@@ -141,7 +141,7 @@ async function pasteTemplate (style: IPasteStyle, item: ImgInfo, customLink: str
   }
   notification.body = url
   const _customLink = customLink || '![$fileName]($url)'
-  const tpl = {
+  const tpl: Record<string, string> = {
     markdown: `![](${url})`,
     HTML: `<img src="${url}"/>`,
     URL: url,

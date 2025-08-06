@@ -218,14 +218,14 @@ import { pick } from 'lodash-es'
 import { BadgeInfoIcon, CheckIcon, ChevronDownIcon, CopyIcon, DatabaseIcon, FolderIcon, PieChartIcon, PlugIcon, Settings, UploadIcon } from 'lucide-vue-next'
 import QrcodeVue from 'qrcode.vue'
 import pkg from 'root/package.json'
-import { SHOW_MAIN_PAGE_QRCODE } from 'root/src/universal/events/constants'
 import { computed, nextTick, onBeforeMount, reactive, Ref, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import * as config from '@/router/config'
+import { SHOW_MAIN_PAGE_QRCODE } from '@/utils/constant'
 import { getConfig } from '@/utils/dataSender'
+import { IRPCActionType } from '@/utils/enum'
 import { picBedGlobal, updatePicBedGlobal } from '@/utils/global'
-import { IRPCActionType } from '#/types/enum'
 
 import ThemeSwitcher from './ui/ThemeSwitcher.vue'
 const version = ref(pkg.version)

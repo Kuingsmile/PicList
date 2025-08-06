@@ -1,6 +1,6 @@
 import Dexie, { Table } from 'dexie'
 
-import { IStringKeyMap } from '#/types/types'
+import type { IStringKeyMap } from '#/types/types'
 
 /*
  * create a database for bucket file cache

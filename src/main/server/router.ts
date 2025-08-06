@@ -1,4 +1,4 @@
-import { routeHandler } from '#/types/types'
+import type { routeHandler } from '#/types/types'
 
 type HttpMethod = 'GET' | 'POST'
 

@@ -6,9 +6,9 @@ import { app, clipboard, dialog, shell } from 'electron'
 import fs from 'fs-extra'
 import { gte, lte } from 'semver'
 
-import { IRemoteNoticeActionType, IRemoteNoticeTriggerCount, IRemoteNoticeTriggerHook } from '#/types/enum'
-import { IRemoteNotice, IRemoteNoticeAction, IRemoteNoticeLocalCountStorage } from '#/types/types'
+import type { IRemoteNotice, IRemoteNoticeAction, IRemoteNoticeLocalCountStorage } from '#/types/types'
 import { showNotification } from '~/utils/common'
+import { IRemoteNoticeActionType, IRemoteNoticeTriggerCount } from '~/utils/enum'
 
 // for test
 const REMOTE_NOTICE_URL = 'https://release.piclist.cn/remote-notice.json'
@@ -163,7 +163,7 @@ class RemoteNoticeHandler {
     }
   }
 
-  triggerHook (hook: IRemoteNoticeTriggerHook) {
+  triggerHook (hook: string) {
     if (!this.remoteNotice || !this.remoteNotice.list) {
       return
     }

@@ -22,7 +22,7 @@ import router from '@/router'
 import { store } from '@/store'
 import db from '@/utils/db'
 
-type MessageSchema = typeof en
+type MessageSchema = typeof zhCN
 
 window.electron.setVisualZoomLevelLimits(1, 1)
 
@@ -33,7 +33,7 @@ app.config.globalProperties.triggerRPC = window.electron.triggerRPC
 app.config.globalProperties.sendRPC = window.electron.sendRPC
 app.config.globalProperties.sendToMain = window.electron.sendToMain
 
-const i18n = createI18n<MessageSchema, 'en' | 'zh-CN' | 'zh-TW'>({
+const i18n = createI18n<[MessageSchema], 'en' | 'zh-CN' | 'zh-TW'>({
   legacy: false,
   locale: localStorage.getItem('currentLanguage') || 'zh-CN',
   fallbackLocale: 'zh-CN',

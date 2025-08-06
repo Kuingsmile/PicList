@@ -8,17 +8,16 @@ import { dialog, shell } from 'electron'
 import fs from 'fs-extra'
 import { IGuiMenuItem, PicGo as PicGoCore } from 'piclist'
 
-import { ICOREBuildInEvent, IPicGoHelperType, IWindowList } from '#/types/enum'
-import { IIPCEvent } from '#/types/rpc'
-import { IDispose, IPicGoPlugin } from '#/types/types'
-import { handleStreamlinePluginName, simpleClone } from '#/utils/common'
+import type { IIPCEvent } from '#/types/rpc'
+import type { IDispose, IPicGoPlugin } from '#/types/types'
 import { T as $t } from '~/i18n'
-import { showNotification } from '~/utils/common'
+import { handleStreamlinePluginName, showNotification, simpleClone } from '~/utils/common'
+import { ICOREBuildInEvent, IPicGoHelperType, IWindowList } from '~/utils/enum'
 
 const STORE_PATH = dbPathDir()
 
 // get uploader or transformer config
-const getConfig = (name: string, type: IPicGoHelperType, ctx: PicGoCore) => {
+const getConfig = (name: string, type: keyof typeof IPicGoHelperType, ctx: PicGoCore) => {
   let config: any[] = []
   if (name === '') {
     return config
@@ -86,11 +85,11 @@ const getPluginList = async (): Promise<IPicGoPlugin[]> => {
         },
         uploader: {
           name: uploaderName,
-          config: handleConfigWithFunction(getConfig(uploaderName, IPicGoHelperType.uploader, picgo))
+          config: handleConfigWithFunction(getConfig(uploaderName, IPicGoHelperType.uploader as keyof typeof IPicGoHelperType, picgo))
         },
         transformer: {
           name: transformerName,
-          config: handleConfigWithFunction(getConfig(uploaderName, IPicGoHelperType.transformer, picgo))
+          config: handleConfigWithFunction(getConfig(uploaderName, IPicGoHelperType.transformer as keyof typeof IPicGoHelperType, picgo))
         }
       },
       enabled: picgo.getConfig(`picgoPlugins.${pluginList[i]}`),

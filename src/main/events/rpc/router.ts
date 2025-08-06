@@ -1,15 +1,15 @@
-import { IRPCActionType, IRPCType } from '#/types/enum'
-import { IRPCHandler, IRPCRouter, IRPCRoutes } from '#/types/rpc'
+import type { IRPCHandler, IRPCRouter, IRPCRoutes } from '#/types/rpc'
+import { IRPCType } from '~/utils/enum'
 
 interface IBatchAddParams {
-  action: IRPCActionType
+  action: string
   handler: IRPCHandler<any>
-  type?: IRPCType
+  type?: string
 }
 
 export class RPCRouter implements IRPCRouter {
   private routeMap: IRPCRoutes = new Map()
-  add = <T>(action: IRPCActionType, handler: IRPCHandler<T>, type: IRPCType = IRPCType.SEND): this => {
+  add = <T>(action: string, handler: IRPCHandler<T>, type: string = IRPCType.SEND): this => {
     this.routeMap.set(action, { handler, type })
     return this
   }

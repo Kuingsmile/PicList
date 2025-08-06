@@ -78,7 +78,7 @@ import type { IpcRendererEvent } from 'electron'
 import { MinusIcon, PinIcon, ShrinkIcon, XIcon } from 'lucide-vue-next'
 import { onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
-import { IRPCActionType } from '#/types/enum'
+import { IRPCActionType } from '@/utils/enum'
 
 const isShowprogress = ref(false)
 const progress = ref(0)

@@ -36,16 +36,16 @@
 
 <script lang="ts" setup>
 import type { IpcRendererEvent } from 'electron'
-import { ElMessage as $message } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import type { IConfig } from 'piclist'
 import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { isUrl } from '@/utils/common'
 import { getConfig } from '@/utils/dataSender'
+import { IRPCActionType } from '@/utils/enum'
 import { osGlobal } from '@/utils/global'
-import { IRPCActionType } from '#/types/enum'
-import { IFileWithPath } from '#/types/types'
-import { isUrl } from '#/utils/common'
+import type { IFileWithPath } from '#/types/types'
 
 const { t } = useI18n()
 const logoPath = ref('')
@@ -117,7 +117,7 @@ function onDrop (e: DragEvent) {
       if (isUrl(str)) {
         window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [{ path: str }])
       } else {
-        $message.error(t('TIPS_DRAG_VALID_PICTURE_OR_URL'))
+        ElMessage.error(t('TIPS_DRAG_VALID_PICTURE_OR_URL'))
       }
     }
   }
@@ -135,7 +135,7 @@ function handleURLDrag (items: DataTransferItemList, dataTransfer: DataTransfer)
       }
     ])
   } else {
-    $message.error(t('TIPS_DRAG_VALID_PICTURE_OR_URL'))
+    ElMessage.error(t('TIPS_DRAG_VALID_PICTURE_OR_URL'))
   }
 }
 

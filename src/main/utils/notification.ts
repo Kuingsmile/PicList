@@ -1,3 +1,3 @@
-import { IAppNotification } from '#/types/types'
+import type { IAppNotification } from '#/types/types'
 
 export const notificationList: IAppNotification[] = []

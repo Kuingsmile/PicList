@@ -9,9 +9,9 @@ import fs from 'fs-extra'
 import { HttpsProxyAgent } from 'hpagent'
 import { AuthType, createClient, WebDAVClientOptions } from 'webdav'
 
-import { ISyncConfig } from '#/types/types'
-import { formatEndpoint } from '#/utils/common'
-import { configPaths } from '#/utils/configPaths'
+import type { ISyncConfig } from '#/types/types'
+import { formatEndpoint } from '~/utils/common'
+import { configPaths } from '~/utils/configPaths'
 
 const STORE_PATH = app.getPath('userData')
 

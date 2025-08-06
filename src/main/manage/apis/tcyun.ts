@@ -5,14 +5,13 @@ import COS from 'cos-nodejs-sdk-v5'
 import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 
-import { commonTaskStatus, downloadTaskSpecialStatus, IWindowList, uploadTaskSpecialStatus } from '#/types/enum'
-import { IStringKeyMap } from '#/types/types'
-import { handleUrlEncode } from '#/utils/common'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { formatError, getFileMimeType } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
-import { isImage } from '~/utils/common'
+import { handleUrlEncode, isImage } from '~/utils/common'
+import { commonTaskStatus, downloadTaskSpecialStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
 
 class TcyunApi {
   ctx: COS

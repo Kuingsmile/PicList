@@ -8,12 +8,12 @@ import { BrowserWindow, dialog, ipcMain, IpcMainEvent, MessageBoxOptions, Notifi
 import fs from 'fs-extra'
 import { cloneDeep } from 'lodash-es'
 
-import { SHOW_INPUT_BOX } from '#/events/constants'
-import { IPasteStyle } from '#/types/enum'
-import { IGuiApi, ImgInfo, IShowFileExplorerOption, IShowInputBoxOption, IShowMessageBoxOption, IShowMessageBoxResult, IShowNotificationOption, IUploadOption } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
+import type { IGuiApi, ImgInfo, IShowFileExplorerOption, IShowInputBoxOption, IShowMessageBoxOption, IShowMessageBoxResult, IShowNotificationOption, IUploadOption } from '#/types/types'
+import { SHOW_INPUT_BOX } from '~/events/constant'
 import { T as $t } from '~/i18n'
 import { handleCopyUrl } from '~/utils/common'
+import { configPaths } from '~/utils/configPaths'
+import { IPasteStyle } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
 
 // Cross-process support may be required in the future

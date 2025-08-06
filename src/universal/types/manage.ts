@@ -1,7 +1,6 @@
 import { ILogger } from 'piclist/dist/types'
 
-import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from './enum'
-import { IStringKeyMap } from './types'
+import { IStringKeyMap } from '#/types/types'
 
 // common type
 export type Undefinable<T> = T | undefined
@@ -152,14 +151,10 @@ export interface IManageConfigType {
   }
   [others: string]: any
 }
-
-type uploadTaskStatus = commonTaskStatus | uploadTaskSpecialStatus
-type downloadTaskStatus = commonTaskStatus | downloadTaskSpecialStatus
-
 export interface IUploadTask {
   id: string
   progress: number
-  status: uploadTaskStatus
+  status: any
   sourceFilePath: string
   sourceFileName: string
   targetFilePath: string
@@ -174,7 +169,7 @@ export interface IUploadTask {
 export interface IDownloadTask {
   id: string
   progress: number
-  status: downloadTaskStatus
+  status: any
   sourceFileUrl?: string
   sourceFileName?: string
   sourceConfig?: IStringKeyMap

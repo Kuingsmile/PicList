@@ -1,1365 +1,1658 @@
 <template>
-  <div id="piclist-setting">
-    <el-row
-      class="view-title"
-      align="middle"
-      justify="center"
-    >
-      {{ $t('PICLIST_SETTINGS') }} -
-      <el-icon
-        class="el-icon-document"
-        @click="goConfigPage"
-      >
-        <Reading />
-      </el-icon>
-    </el-row>
-    <el-tabs
-      v-model="activeName"
-      stretch
-      style="height: calc(100vh - 50px); width: 100%; overflow-x: hidden; top: 50px; position: absolute"
-      tab-position="left"
-      lazy
-    >
-      <el-tab-pane
-        name="system"
-        :label="$t('SETTINGS_TAB_SYSTEM')"
-        style="height: 100%; overflow-y: scroll; height: calc(100vh - 50px); color: #fff"
-      >
-        <el-row class="setting-list">
-          <el-col
-            :span="22"
-            :offset="1"
-          >
-            <el-row style="width: 100%">
-              <el-form
-                label-position="left"
-                label-width="50%"
-                size="small"
-              >
-                <el-form-item :label="$t('SETTINGS_CHOOSE_LANGUAGE')">
-                  <el-select
-                    v-model="currentLanguage"
-                    size="small"
-                    style="width: 50%"
-                    :placeholder="$t('SETTINGS_CHOOSE_LANGUAGE')"
-                    :persistent="false"
-                    teleported
-                    @change="handleLanguageChange"
-                  >
-                    <el-option
-                      v-for="item in languageList"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_START_MODE')">
-                  <el-select
-                    v-model="currentStartMode"
-                    size="small"
-                    style="width: 50%"
-                    :placeholder="$t('SETTINGS_START_MODE')"
-                    :persistent="false"
-                    teleported
-                    @change="handleStartModeChange"
-                  >
-                    <el-option
-                      key="quiet"
-                      :label="$t('SETTINGS_START_MODE_QUIET')"
-                      :value="'quiet'"
-                    />
-                    <el-option
-                      v-if="osGlobal !== 'darwin'"
-                      key="mini"
-                      :label="$t('SETTINGS_START_MODE_MINI')"
-                      :value="'mini'"
-                    />
-                    <el-option
-                      v-if="osGlobal === 'darwin'"
-                      key="no-tray"
-                      :label="$t('SETTINGS_START_MODE_NO_TRAY')"
-                      :value="'no-tray'"
-                    />
-                    <el-option
-                      key="main"
-                      :label="$t('SETTINGS_START_MODE_MAIN')"
-                      :value="'main'"
-                    />
-                  </el-select>
-                </el-form-item>
-                <el-form-item :label="$t('MANUAL_PAGE_OPEN_SETTING_TIP')">
-                  <el-select
-                    v-model="currentManualPageOpen"
-                    size="small"
-                    style="width: 50%"
-                    :placeholder="$t('MANUAL_PAGE_OPEN_SETTING_TIP')"
-                    :persistent="false"
-                    teleported
-                    @change="handleManualPageOpenChange"
-                  >
-                    <el-option
-                      v-for="item in manualPageOpenList"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </el-form-item>
-                <el-form-item
-                  v-if="osGlobal === 'darwin'"
-                  :label="$t('SETTINGS_ISHIDEDOCK')"
-                >
-                  <el-switch
-                    v-model="formOfSetting.isHideDock"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                    @change="handleHideDockChange"
-                  />
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_MAIN_WINDOW_SIZE')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="mainWindowSizeVisible = true"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item
-                  v-if="osGlobal !== 'darwin'"
-                  :label="$t('SETTINGS_CLOSE_MINI_WINDOW_SYNC')"
-                >
-                  <el-switch
-                    v-model="formOfSetting.autoCloseMiniWindow"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item
-                  v-if="osGlobal !== 'darwin'"
-                  :label="$t('SETTINGS_CLOSE_MAIN_WINDOW_SYNC')"
-                >
-                  <el-switch
-                    v-model="formOfSetting.autoCloseMainWindow"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item
-                  v-if="osGlobal !== 'darwin'"
-                  :label="$t('SETTINGS_MINI_WINDOW_ON_TOP')"
-                >
-                  <el-switch
-                    v-model="formOfSetting.miniWindowOntop"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                    @change="handleMiniWindowOntop"
-                  />
-                </el-form-item>
-                <el-form-item
-                  v-if="osGlobal !== 'darwin'"
-                  :label="$t('SETTINGS_CUSTOM_MINI_ICON')"
-                >
-                  <el-switch
-                    v-model="formOfSetting.isCustomMiniIcon"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item
-                  v-if="osGlobal !== 'darwin' && formOfSetting.isCustomMiniIcon"
-                  :label="$t('SETTINGS_CUSTOM_MINI_ICON_PATH')"
-                >
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="handleMiniIconPath"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_LAUNCH_ON_BOOT')">
-                  <el-switch
-                    v-model="formOfSetting.autoStart"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                    @change="handleAutoStartChange"
-                  />
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_SET_SHORTCUT')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="goShortCutPage"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-              </el-form>
-            </el-row>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-      <el-tab-pane
-        name="syncAndConfigure"
-        :label="$t('SETTINGS_TAB_SYNC_CONFIG')"
-        style="height: 100%; overflow-y: scroll; height: calc(100vh - 50px); color: #fff"
-      >
-        <el-row class="setting-list">
-          <el-col
-            :span="22"
-            :offset="1"
-          >
-            <el-row style="width: 100%">
-              <el-form
-                label-position="left"
-                label-width="50%"
-                size="small"
-              >
-                <el-form-item :label="$t('SETTINGS_SYNC_CONFIG')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="syncVisible = true"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_UP_DOWN_DESC')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="upDownConfigVisible = true"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_MIGRATE_FROM_PICGO')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="handleMigrateFromPicGo"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_OPEN_CONFIG_FILE')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="openFile('data.json')"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_OPEN') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_CONFIG_FILE_PATH')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="openDirectory()"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_OPEN') }}
-                  </el-button>
-                </el-form-item>
-              </el-form>
-            </el-row>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-      <el-tab-pane
-        name="upload"
-        :label="$t('SETTINGS_TAB_UPLOAD')"
-        style="height: 100%; overflow-y: scroll; height: calc(100vh - 50px); color: #fff"
-      >
-        <el-row class="setting-list">
-          <el-col
-            :span="22"
-            :offset="1"
-          >
-            <el-row style="width: 100%">
-              <el-form
-                label-position="left"
-                label-width="50%"
-                size="small"
-              >
-                <el-form-item :label="$t('SETTINGS_AUTO_IMPORT')">
-                  <el-switch
-                    v-model="formOfSetting.autoImport"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item
-                  v-if="formOfSetting.autoImport"
-                  :label="$t('SETTINGS_AUTO_IMPORT_SELECT_PICBED')"
-                >
-                  <el-select
-                    v-model="formOfSetting.autoImportPicBed"
-                    multiple
-                    size="small"
-                    style="width: 50%"
-                    :placeholder="$t('SETTINGS_AUTO_IMPORT_SELECT_PICBED')"
-                    :persistent="false"
-                    teleported
-                  >
-                    <el-option
-                      v-for="item in picBedGlobal"
-                      :key="item.type"
-                      :label="item.name"
-                      :value="item.type"
-                    />
-                  </el-select>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_ENABLE_SECOND_PICBED')">
-                  <el-switch
-                    v-model="formOfSetting.enableSecondUploader"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_SET_SECOND_PICBED')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="handleChangeSecondPicBed"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_SYNC_DELETE_CLOUD')">
-                  <el-switch
-                    v-model="formOfSetting.deleteCloudFile"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_OPEN_UPLOAD_TIPS')">
-                  <el-switch
-                    v-model="formOfSetting.uploadNotification"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_OPEN_UPLOAD_RESULT_TIPS')">
-                  <el-switch
-                    v-model="formOfSetting.uploadResultNotification"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_COMPRESS_AND_WATERMARK')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="imageProcessDialogVisible = true"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_RENAME_BEFORE_UPLOAD')">
-                  <el-switch
-                    v-model="formOfSetting.rename"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_TIMESTAMP_RENAME')">
-                  <el-switch
-                    v-model="formOfSetting.autoRename"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_ADVANCED_RENAME')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="advancedRenameVisible = true"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_DELETE_LOCAL_FILE_AFTER_UPLOAD')">
-                  <el-switch
-                    v-model="formOfSetting.deleteLocalFile"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_AUTO_COPY_URL_AFTER_UPLOAD')">
-                  <el-switch
-                    v-model="formOfSetting.autoCopy"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_CUSTOM_LINK_FORMAT')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="customLinkVisible = true"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_SHORT_URL')">
-                  <el-switch
-                    v-model="formOfSetting.useShortUrl"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item
-                  v-if="formOfSetting.useShortUrl"
-                  :label="$t('SETTINGS_SHORT_URL_SERVER')"
-                >
-                  <el-select
-                    v-model="currentShortUrlServer"
-                    size="small"
-                    style="width: 50%"
-                    :placeholder="$t('SETTINGS_SHORT_URL_SERVER')"
-                    :persistent="false"
-                    teleported
-                    @change="handleShortUrlServerChange"
-                  >
-                    <el-option
-                      v-for="item in shortUrlServerList"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </el-form-item>
-                <el-form-item
-                  v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'c1n'"
-                  :label="$t('SETTINGS_SHORT_URL_C1N_TOKEN')"
-                >
-                  <el-input
-                    v-model="formOfSetting.c1nToken"
-                    size="small"
-                    style="width: 50%"
-                    :placeholder="$t('SETTINGS_SHORT_URL_C1N_TOKEN')"
-                  />
-                </el-form-item>
-                <el-form-item
-                  v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'yourls'"
-                  :label="$t('SETTINGS_SHORT_URL_YOURLS_DOMAIN')"
-                >
-                  <el-input
-                    v-model="formOfSetting.yourlsDomain"
-                    size="small"
-                    style="width: 50%"
-                    :placeholder="$t('SETTINGS_SHORT_URL_YOURLS_DOMAIN')"
-                  />
-                </el-form-item>
-                <el-form-item
-                  v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'yourls'"
-                  :label="$t('SETTINGS_SHORT_URL_YOURLS_SIGNATURE')"
-                >
-                  <el-input
-                    v-model="formOfSetting.yourlsSignature"
-                    size="small"
-                    style="width: 50%"
-                    :placeholder="$t('SETTINGS_SHORT_URL_YOURLS_SIGNATURE')"
-                  />
-                </el-form-item>
-                <el-form-item
-                  v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'cf_worker'"
-                  :label="$t('SETTINGS_SHORT_URL_CF_WORKER_HOST')"
-                >
-                  <el-input
-                    v-model="formOfSetting.cfWorkerHost"
-                    size="small"
-                    style="width: 50%"
-                    :placeholder="$t('SETTINGS_SHORT_URL_CF_WORKER_HOST')"
-                  />
-                </el-form-item>
-                <el-form-item
-                  v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'sink'"
-                  :label="$t('SETTINGS_SHORT_SINK_DOMAIN')"
-                >
-                  <el-input
-                    v-model="formOfSetting.sinkDomain"
-                    size="small"
-                    style="width: 50%"
-                    :placeholder="$t('SETTINGS_SHORT_SINK_DOMAIN')"
-                  />
-                </el-form-item>
-                <el-form-item
-                  v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'sink'"
-                  :label="$t('SETTINGS_SHORT_SINK_TOKEN')"
-                >
-                  <el-input
-                    v-model="formOfSetting.sinkToken"
-                    size="small"
-                    style="width: 50%"
-                    :placeholder="$t('SETTINGS_SHORT_SINK_TOKEN')"
-                  />
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_ENCODE_OUTPUT_URL')">
-                  <el-switch
-                    v-model="formOfSetting.encodeOutputURL"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item>
-                  <template #label>
-                    <el-row align="middle">
-                      {{ $t('SETTINGS_USE_BUILTIN_CLIPBOARD_UPLOAD') }}
-                      <el-tooltip
-                        class="item"
-                        effect="dark"
-                        :content="$t('BUILTIN_CLIPBOARD_TIPS')"
-                        placement="right"
-                        :persistent="false"
-                        teleported
-                      >
-                        <el-icon style="margin-left: 4px">
-                          <InfoFilled />
-                        </el-icon>
-                      </el-tooltip>
-                    </el-row>
-                  </template>
-                  <el-switch
-                    v-model="formOfSetting.useBuiltinClipboard"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_WATCH_CLIPBOARD')">
-                  <el-switch
-                    v-model="formOfSetting.isAutoListenClipboard"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-                <el-form-item
-                  :style="{ marginRight: '-64px' }"
-                  :label="$t('CHOOSE_SHOWED_PICBED')"
-                >
-                  <el-checkbox-group
-                    v-model="showPicBedList"
-                    @change="handleShowPicBedListChange"
-                  >
-                    <el-checkbox
-                      v-for="item in picBedGlobal"
-                      :key="item.name"
-                      :label="item.name"
-                      :value="item.name"
-                    />
-                  </el-checkbox-group>
-                </el-form-item>
-                <el-divider border-style="none" />
-                <el-form-item />
-              </el-form>
-            </el-row>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-      <el-tab-pane
-        name="advanced"
-        :label="$t('SETTINGS_TAB_ADVANCED')"
-        style="height: 100%; overflow-y: scroll; height: calc(100vh - 50px); color: #fff"
-      >
-        <el-row class="setting-list">
-          <el-col
-            :span="22"
-            :offset="1"
-          >
-            <el-row style="width: 100%">
-              <el-form
-                label-position="left"
-                label-width="50%"
-                size="small"
-              >
-                <el-form-item :label="$t('SETTINGS_LOG_FILE_PATH')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="openDirectory()"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_OPEN') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_SET_LOG_FILE')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="openLogSetting"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_SET_PROXY_AND_MIRROR')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="proxyVisible = true"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_SET_WEB_SERVER')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="webServerVisible = true"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_SET_SERVER')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="serverVisible = true"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_SET') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_SET_SERVER_AES_KEY')">
-                  <el-input
-                    v-model.trim="formOfSetting.aesPassword"
-                    type="input"
-                    :placeholder="$t('SETTINGS_SET_SERVER_AES_KEY')"
-                    size="small"
-                    style="width: 50%"
-                    @change="handleAesPasswordChange"
-                  />
-                </el-form-item>
-              </el-form>
-            </el-row>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-      <el-tab-pane
-        name="upadte"
-        :label="$t('SETTINGS_TAB_UPDATE')"
-        style="height: 100%; overflow-y: scroll; height: calc(100vh - 50px)"
-      >
-        <el-row class="setting-list">
-          <el-col
-            :span="22"
-            :offset="1"
-          >
-            <el-row style="width: 100%">
-              <el-form
-                label-position="left"
-                label-width="50%"
-                size="small"
-              >
-                <el-form-item :label="$t('SETTINGS_CHECK_UPDATE')">
-                  <el-button
-                    type="primary"
-                    round
-                    size="small"
-                    @click="checkUpdate"
-                  >
-                    {{ $t('SETTINGS_CLICK_TO_CHECK') }}
-                  </el-button>
-                </el-form-item>
-                <el-form-item :label="$t('SETTINGS_OPEN_UPDATE_HELPER')">
-                  <el-switch
-                    v-model="formOfSetting.showUpdateTip"
-                    :active-text="$t('SETTINGS_OPEN')"
-                    :inactive-text="$t('SETTINGS_CLOSE')"
-                  />
-                </el-form-item>
-              </el-form>
-            </el-row>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-    </el-tabs>
-    <el-dialog
-      v-model="customLinkVisible"
-      :title="$t('SETTINGS_CUSTOM_LINK_FORMAT')"
-      :modal-append-to-body="false"
-      center
-      draggable
-      append-to-body
-    >
-      <el-form
-        ref="$customLink"
-        label-position="top"
-        :model="customLink"
-        :rules="rules"
-        size="small"
-      >
-        <el-form-item prop="value">
-          <div class="custom-title">
-            {{ $t('SETTINGS_TIPS_PLACEHOLDER_URL') }}
-            <br>
-            {{ $t('SETTINGS_TIPS_PLACEHOLDER_FILENAME') }}
-            <br>
-            {{ $t('SETTINGS_TIPS_PLACEHOLDER_EXTNAME') }}
+  <div>
+    <div class="piclist-settings">
+      <!-- Header -->
+      <div class="settings-header">
+        <div class="header-content">
+          <Settings
+            :size="24"
+            class="header-icon"
+          />
+          <div>
+            <h1>{{ t('pages.settings.title') }}</h1>
+            <p>{{ t('pages.settings.description') }}</p>
           </div>
-          <el-input
-            v-model="customLink.value"
-            class="align-center"
-            :autofocus="true"
-          />
-        </el-form-item>
-      </el-form>
-      <div>{{ $t('SETTINGS_TIPS_SUCH_AS') }}[$fileName]($url)</div>
-      <template #footer>
-        <el-button
-          round
-          @click="cancelCustomLink"
-        >
-          {{ $t('CANCEL') }}
-        </el-button>
-        <el-button
-          type="primary"
-          round
-          @click="confirmCustomLink"
-        >
-          {{ $t('CONFIRM') }}
-        </el-button>
-      </template>
-    </el-dialog>
-    <el-dialog
-      v-model="proxyVisible"
-      :title="$t('SETTINGS_SET_PROXY_AND_MIRROR')"
-      :modal-append-to-body="false"
-      width="70%"
-      center
-      draggable
-      append-to-body
-    >
-      <el-form
-        label-position="right"
-        label-width="120px"
-      >
-        <el-form-item :label="$t('SETTINGS_UPLOAD_PROXY')">
-          <el-input
-            v-model="proxy"
-            clearable
-            :autofocus="true"
-            :placeholder="`${$t('SETTINGS_TIPS_SUCH_AS')}：http://127.0.0.1:1080`"
-          />
-        </el-form-item>
-        <el-form-item :label="$t('SETTINGS_PLUGIN_INSTALL_PROXY')">
-          <el-input
-            v-model="formOfSetting.proxy"
-            clearable
-            :placeholder="`${$t('SETTINGS_TIPS_SUCH_AS')}：http://127.0.0.1:1080`"
-          />
-        </el-form-item>
-        <el-form-item :label="$t('SETTINGS_PLUGIN_INSTALL_MIRROR')">
-          <el-input
-            v-model="formOfSetting.registry"
-            clearable
-            :placeholder="`${$t('SETTINGS_TIPS_SUCH_AS')}：https://registry.npmmirror.com`"
-          />
-        </el-form-item>
-      </el-form>
-    </el-dialog>
-    <el-dialog
-      v-model="mainWindowSizeVisible"
-      :title="$t('SETTINGS_MAIN_WINDOW_SIZE')"
-      :modal-append-to-body="false"
-      width="70%"
-      center
-      draggable
-      append-to-body
-    >
-      <el-form
-        label-position="right"
-        label-width="120px"
-      >
-        <el-form-item :label="$t('SETTINGS_MAIN_WINDOW_SIZE_WIDTH')">
-          <el-input
-            v-model="formOfSetting.mainWindowWidth"
-            :autofocus="true"
-            :placeholder="$t('SETTINGS_MAIN_WINDOW_WIDTH_HINT')"
-          />
-        </el-form-item>
-        <el-form-item :label="$t('SETTINGS_MAIN_WINDOW_SIZE_HEIGHT')">
-          <el-input
-            v-model="formOfSetting.mainWindowHeight"
-            :autofocus="true"
-            :placeholder="$t('SETTINGS_MAIN_WINDOW_HEIGHT_HINT')"
-          />
-        </el-form-item>
-        <el-form-item :label="$t('SETTINGS_RAW_PICGO_SIZE')">
-          <el-switch
-            v-model="rawPicGoSize"
-            :active-text="$t('SETTINGS_OPEN')"
-            :inactive-text="$t('SETTINGS_CLOSE')"
-          />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button
-          round
-          @click="cancelWindowSize"
-        >
-          {{ $t('CANCEL') }}
-        </el-button>
-        <el-button
-          type="primary"
-          round
-          @click="confirmWindowSize"
-        >
-          {{ $t('CONFIRM') }}
-        </el-button>
-      </template>
-    </el-dialog>
-    <el-dialog
-      v-model="checkUpdateVisible"
-      :title="$t('SETTINGS_CHECK_UPDATE')"
-      :modal-append-to-body="false"
-      center
-      draggable
-      append-to-body
-    >
-      <div>{{ $t('SETTINGS_CURRENT_VERSION') }}: {{ version }}</div>
-      <div>
-        {{ $t('SETTINGS_NEWEST_VERSION') }}:
-        {{ latestVersion ? latestVersion : `${$t('SETTINGS_GETING')}...` }}
-      </div>
-      <div v-if="needUpdate">
-        {{ $t('SETTINGS_TIPS_HAS_NEW_VERSION') }}
-      </div>
-      <template #footer>
-        <el-button
-          round
-          @click="cancelCheckVersion"
-        >
-          {{ $t('CANCEL') }}
-        </el-button>
-        <el-button
-          type="primary"
-          round
-          @click="confirmCheckVersion"
-        >
-          {{ $t('CONFIRM') }}
-        </el-button>
-      </template>
-    </el-dialog>
-    <el-dialog
-      v-model="advancedRenameVisible"
-      :title="$t('SETTINGS_ADVANCED_RENAME')"
-      center
-      align-center
-      draggable
-      destroy-on-close
-      append-to-body
-    >
-      <el-link
-        :underline="false"
-        style="margin-bottom: 10px"
-      >
-        {{ $t('SETTINGS_ADVANCED_RENAME_ENABLE') }}
-      </el-link>
-      <br>
-      <el-switch
-        v-model="advancedRename.enable"
-        :active-text="$t('SETTINGS_OPEN')"
-        :inactive-text="$t('SETTINGS_CLOSE')"
-      />
-      <br>
-      <el-link
-        :underline="false"
-        style="margin-bottom: 10px; margin-top: 10px"
-      >
-        <span>
-          {{ $t('SETTINGS_ADVANCED_RENAME_FORMAT') }}
-          <el-popover
-            effect="light"
-            placement="right"
-            width="350"
-            :persistent="false"
-            teleported
+        </div>
+        <div class="header-actions">
+          <button
+            class="btn btn-secondary"
+            @click="goConfigPage"
           >
-            <template #reference>
-              <el-icon color="#409EFF">
-                <InfoFilled />
-              </el-icon>
-            </template>
-            <el-descriptions
-              :column="1"
-              style="width: 320px"
-              border
+            <BookOpen :size="16" />
+            {{ t('pages.settings.docs') }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="tab-navigation">
+        <button
+          v-for="tab in tabs"
+          :key="tab.id"
+          class="tab-button"
+          :class="{ active: activeName === tab.id }"
+          @click="activeName = tab.id as 'system' | 'sync' | 'upload' | 'advanced' | 'update'"
+        >
+          <component
+            :is="tab.icon"
+            :size="18"
+          />
+          <span>{{ tab.label }}</span>
+        </button>
+      </div>
+
+      <!-- Settings Content -->
+      <div class="settings-content">
+        <!-- System Settings Tab -->
+        <div
+          v-if="activeName === 'system'"
+          class="tab-content"
+        >
+          <div class="settings-section">
+            <h2>{{ t('pages.settings.system.languageAndAppearance') }}</h2>
+            <p>{{ ' ' }}</p>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>{{ t('pages.settings.system.chooseLanguage') }}</label>
+                <select
+                  v-model="currentLanguage"
+                  class="form-select"
+                >
+                  <option
+                    v-for="item in languageList"
+                    :key="item.value"
+                    :value="item.value"
+                  >
+                    {{ item.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>{{ t('pages.settings.system.startMode') }}</label>
+                <select
+                  v-model="currentStartMode"
+                  class="form-select"
+                >
+                  <option value="quiet">
+                    {{ t('pages.settings.system.quietMode') }}
+                  </option>
+                  <option
+                    v-if="osGlobal !== 'darwin'"
+                    value="mini"
+                  >
+                    {{ t('pages.settings.system.miniMode') }}
+                  </option>
+                  <option
+                    v-if="osGlobal === 'darwin'"
+                    value="no-tray"
+                  >
+                    {{ t('pages.settings.system.noTrayMode') }}
+                  </option>
+                  <option value="main">
+                    {{ t('pages.settings.system.mainMode') }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2>{{ t('pages.settings.system.windowBehavior') }}</h2>
+            <p>{{ ' ' }}</p>
+            <div
+              v-if="osGlobal === 'darwin'"
+              class="form-group"
             >
-              <el-descriptions-item
-                v-for="(item, index) in buildInRenameFormatTable"
-                :key="index"
-                :label="item.placeholder"
-                align="center"
-                label-style="width: 100px;"
+              <label class="switch-label">
+                <input
+                  v-model="formOfSetting.isHideDock"
+                  type="checkbox"
+                  class="switch-input"
+                  @change="handleHideDockChange(formOfSetting.isHideDock)"
+                >
+                <span class="switch-slider" />
+                <div class="switch-content">
+                  <div class="switch-title">{{ t('pages.settings.system.isHideDock') }}</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label>{{ t('pages.settings.system.mainWindowSize') }}</label>
+              <button
+                class="btn btn-secondary"
+                @click="mainWindowSizeVisible = true"
               >
-                {{ item.description }}
-              </el-descriptions-item>
-              <el-descriptions-item
-                v-for="(item, index) in buildInRenameFormatTable.slice(0, buildInRenameFormatTable.length - 1)"
-                :key="index"
-                :label="item.placeholderB"
-                align="center"
-                label-style="width: 100px;"
+                <Monitor :size="16" />
+                {{ t('pages.settings.clickToSet') }}
+              </button>
+            </div>
+
+            <div
+              v-if="osGlobal !== 'darwin'"
+              class="form-group"
+            >
+              <label class="switch-label">
+                <input
+                  v-model="formOfSetting.autoCloseMiniWindow"
+                  type="checkbox"
+                  class="switch-input"
+                >
+                <span class="switch-slider" />
+                <div class="switch-content">
+                  <div class="switch-title">{{ t('pages.settings.system.autoCloseMiniWindow') }}</div>
+                </div>
+              </label>
+            </div>
+
+            <div
+              v-if="osGlobal !== 'darwin'"
+              class="form-group"
+            >
+              <label class="switch-label">
+                <input
+                  v-model="formOfSetting.autoCloseMainWindow"
+                  type="checkbox"
+                  class="switch-input"
+                >
+                <span class="switch-slider" />
+                <div class="switch-content">
+                  <div class="switch-title">{{ t('pages.settings.system.autoCloseMainWindow') }}</div>
+                </div>
+              </label>
+            </div>
+
+            <div
+              v-if="osGlobal !== 'darwin'"
+              class="form-group"
+            >
+              <label class="switch-label">
+                <input
+                  v-model="formOfSetting.miniWindowOntop"
+                  type="checkbox"
+                  class="switch-input"
+                  @change="handleMiniWindowOntop(formOfSetting.miniWindowOntop)"
+                >
+                <span class="switch-slider" />
+                <div class="switch-content">
+                  <div class="switch-title">{{ t('pages.settings.system.miniWindowOnTop') }}</div>
+                </div>
+              </label>
+            </div>
+
+            <div
+              v-if="osGlobal !== 'darwin'"
+              class="form-group"
+            >
+              <label class="switch-label">
+                <input
+                  v-model="formOfSetting.isCustomMiniIcon"
+                  type="checkbox"
+                  class="switch-input"
+                >
+                <span class="switch-slider" />
+                <div class="switch-content">
+                  <div class="switch-title">{{ t('pages.settings.system.isCustomMiniIcon') }}</div>
+                </div>
+              </label>
+            </div>
+
+            <div
+              v-if="osGlobal !== 'darwin' && formOfSetting.isCustomMiniIcon"
+              class="form-group"
+            >
+              <label>{{ t('pages.settings.system.customMiniIconPath') }}</label>
+              <button
+                class="btn btn-secondary"
+                @click="handleMiniIconPath"
               >
-                {{ item.descriptionB }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </el-popover>
-        </span>
-      </el-link>
-      <el-input
-        v-model="advancedRename.format"
-        placeholder="Ex. {Y}-{m}-{uuid}"
-        clearable
-      />
-      <div style="margin-top: 10px; align-items: center; display: flex; justify-content: flex-end">
-        <el-button
-          type="danger"
-          style="margin-right: 30px"
-          plain
-          :icon="Close"
-          @click="handleCancelAdvancedRename"
+                <ImageIcon :size="16" />
+                {{ t('pages.settings.clickToSet') }}
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2>{{ t('pages.settings.system.startupAndShortcuts') }}</h2>
+            <p>{{ ' ' }}</p>
+            <div class="form-group">
+              <label class="switch-label">
+                <input
+                  v-model="formOfSetting.autoStart"
+                  type="checkbox"
+                  class="switch-input"
+                  @change="handleAutoStartChange(formOfSetting.autoStart)"
+                >
+                <span class="switch-slider" />
+                <div class="switch-content">
+                  <div class="switch-title">{{ t('pages.settings.system.autoLaunch') }}</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label>{{ t('pages.settings.system.setShortCuts') }}</label>
+              <button
+                class="btn btn-secondary"
+                @click="goShortCutPage"
+              >
+                <Keyboard :size="16" />
+                {{ t('pages.settings.clickToSet') }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sync & Configure Tab -->
+        <div
+          v-if="activeName === 'sync'"
+          class="tab-content"
         >
-          {{ $t('CANCEL') }}
-        </el-button>
-        <el-button
-          type="primary"
-          plain
-          :icon="Edit"
-          @click="handleSaveAdvancedRename"
+          <div class="settings-section">
+            <h2>{{ t('pages.settings.sync.syncConfiguration') }}</h2>
+            <p>{{ ' ' }}</p>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>{{ t('pages.settings.sync.syncEndpointConfig') }}</label>
+                <button
+                  class="btn btn-primary"
+                  @click="syncVisible = true"
+                >
+                  <RotateCcw :size="16" />
+                  {{ t('pages.settings.clickToSet') }}
+                </button>
+              </div>
+
+              <div class="form-group">
+                <label>{{ t('pages.settings.sync.upDownloadSettings') }}</label>
+                <button
+                  class="btn btn-primary"
+                  @click="upDownConfigVisible = true"
+                >
+                  <Download :size="16" />
+                  {{ t('pages.settings.clickToSet') }}
+                </button>
+              </div>
+
+              <div class="form-group">
+                <label>{{ t('pages.settings.sync.migrateFromPicGo') }}</label>
+                <button
+                  class="btn btn-secondary"
+                  @click="handleMigrateFromPicGo"
+                >
+                  <Import :size="16" />
+                  {{ t('pages.settings.clickToSet') }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2>{{ t('pages.settings.sync.fileManagement') }}</h2>
+            <p>{{ ' ' }}</p>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>{{ t('pages.settings.sync.openConfigFile') }}</label>
+                <button
+                  class="btn btn-secondary"
+                  @click="openFile('data.json')"
+                >
+                  <FileText :size="16" />
+                  {{ t('pages.settings.clickToOpen') }}
+                </button>
+              </div>
+
+              <div class="form-group">
+                <label>{{ t('pages.settings.sync.openConfigFileDir') }}</label>
+                <button
+                  class="btn btn-secondary"
+                  @click="openDirectory()"
+                >
+                  <FolderOpen :size="16" />
+                  {{ t('pages.settings.clickToOpen') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Upload Settings Tab -->
+        <div
+          v-if="activeName === 'upload'"
+          class="tab-content"
         >
-          {{ $t('CONFIRM') }}
-        </el-button>
+          <div class="settings-section">
+            <h2>{{ t('pages.settings.upload.uploadBehavior') }}</h2>
+            <p>{{ ' ' }}</p>
+
+            <div class="form-group">
+              <label class="switch-label">
+                <input
+                  v-model="formOfSetting.autoImport"
+                  type="checkbox"
+                  class="switch-input"
+                >
+                <span class="switch-slider" />
+                <div class="switch-content">
+                  <div class="switch-title">{{ t('pages.settings.sync.autoImportInManage') }}</div>
+                  <div class="switch-description">{{ t('SETTINGS_AUTO_IMPORT_DESC') || 'Automatically import images to selected image beds' }}</div>
+                </div>
+              </label>
+            </div>
+
+            <div
+              v-if="formOfSetting.autoImport"
+              class="form-group"
+            >
+              <label>{{ t('SETTINGS_AUTO_IMPORT_SELECT_PICBED') }}</label>
+              <div class="checkbox-group">
+                <label
+                  v-for="item in picBedGlobal"
+                  :key="item.type"
+                  class="checkbox-option"
+                >
+                  <input
+                    v-model="formOfSetting.autoImportPicBed"
+                    type="checkbox"
+                    :value="item.type"
+                    class="checkbox-input"
+                  >
+                  <span class="checkbox-indicator" />
+                  <span class="checkbox-label">{{ item.name }}</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="switch-label">
+                <input
+                  v-model="formOfSetting.enableSecondUploader"
+                  type="checkbox"
+                  class="switch-input"
+                >
+                <span class="switch-slider" />
+                <div class="switch-content">
+                  <div class="switch-title">{{ t('SETTINGS_ENABLE_SECOND_PICBED') }}</div>
+                  <div class="switch-description">{{ t('SETTINGS_ENABLE_SECOND_PICBED_DESC') || 'Enable secondary image bed for redundancy' }}</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label>{{ t('SETTINGS_SET_SECOND_PICBED') }}</label>
+              <button
+                class="btn btn-secondary"
+                @click="handleChangeSecondPicBed"
+              >
+                <CloudUpload :size="16" />
+                {{ t('SETTINGS_CLICK_TO_SET') }}
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2>{{ t('SETTINGS_UPLOAD_PROCESSING') || 'Upload Processing' }}</h2>
+            <p>{{ t('SETTINGS_UPLOAD_PROCESSING_DESC') || 'Configure file processing, naming and format options' }}</p>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.deleteCloudFile"
+                    type="checkbox"
+                    class="switch-input"
+                  >
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('SETTINGS_SYNC_DELETE_CLOUD') }}</div>
+                    <div class="switch-description">{{ t('SETTINGS_SYNC_DELETE_CLOUD_DESC') || 'Delete cloud file when local file is deleted' }}</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.rename"
+                    type="checkbox"
+                    class="switch-input"
+                  >
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('SETTINGS_RENAME_BEFORE_UPLOAD') }}</div>
+                    <div class="switch-description">{{ t('SETTINGS_RENAME_BEFORE_UPLOAD_DESC') || 'Rename files before uploading' }}</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.autoRename"
+                    type="checkbox"
+                    class="switch-input"
+                  >
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('SETTINGS_TIMESTAMP_RENAME') }}</div>
+                    <div class="switch-description">{{ t('SETTINGS_TIMESTAMP_RENAME_DESC') || 'Add timestamp to file names' }}</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label>{{ t('SETTINGS_ADVANCED_RENAME') }}</label>
+                <button
+                  class="btn btn-secondary"
+                  @click="advancedRenameVisible = true"
+                >
+                  <Edit :size="16" />
+                  {{ t('SETTINGS_CLICK_TO_SET') }}
+                </button>
+              </div>
+
+              <div class="form-group">
+                <label>{{ t('SETTINGS_COMPRESS_AND_WATERMARK') }}</label>
+                <button
+                  class="btn btn-secondary"
+                  @click="imageProcessDialogVisible = true"
+                >
+                  <ImageIcon :size="16" />
+                  {{ t('SETTINGS_CLICK_TO_SET') }}
+                </button>
+              </div>
+
+              <div class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.deleteLocalFile"
+                    type="checkbox"
+                    class="switch-input"
+                  >
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('SETTINGS_DELETE_LOCAL_FILE_AFTER_UPLOAD') }}</div>
+                    <div class="switch-description">{{ t('SETTINGS_DELETE_LOCAL_FILE_DESC') || 'Delete local file after successful upload' }}</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2>{{ t('SETTINGS_NOTIFICATIONS_CLIPBOARD') || 'Notifications & Clipboard' }}</h2>
+            <p>{{ t('SETTINGS_NOTIFICATIONS_CLIPBOARD_DESC') || 'Configure notifications and clipboard behavior' }}</p>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.uploadNotification"
+                    type="checkbox"
+                    class="switch-input"
+                  >
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('SETTINGS_OPEN_UPLOAD_TIPS') }}</div>
+                    <div class="switch-description">{{ t('SETTINGS_UPLOAD_TIPS_DESC') || 'Show notification when uploading starts' }}</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.uploadResultNotification"
+                    type="checkbox"
+                    class="switch-input"
+                  >
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('SETTINGS_OPEN_UPLOAD_RESULT_TIPS') }}</div>
+                    <div class="switch-description">{{ t('SETTINGS_UPLOAD_RESULT_DESC') || 'Show notification when upload completes' }}</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.autoCopy"
+                    type="checkbox"
+                    class="switch-input"
+                  >
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('SETTINGS_AUTO_COPY_URL_AFTER_UPLOAD') }}</div>
+                    <div class="switch-description">{{ t('SETTINGS_AUTO_COPY_DESC') || 'Automatically copy URL to clipboard after upload' }}</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.useBuiltinClipboard"
+                    type="checkbox"
+                    class="switch-input"
+                  >
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('SETTINGS_USE_BUILTIN_CLIPBOARD_UPLOAD') }}</div>
+                    <div class="switch-description">{{ t('BUILTIN_CLIPBOARD_TIPS') || 'Use built-in clipboard monitoring for uploads' }}</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.isAutoListenClipboard"
+                    type="checkbox"
+                    class="switch-input"
+                  >
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('SETTINGS_WATCH_CLIPBOARD') }}</div>
+                    <div class="switch-description">{{ t('SETTINGS_WATCH_CLIPBOARD_DESC') || 'Monitor clipboard for automatic uploads' }}</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2>{{ t('SETTINGS_URL_FORMAT') || 'URL Format & Links' }}</h2>
+            <p>{{ t('SETTINGS_URL_FORMAT_DESC') || 'Configure output URL format and short URL options' }}</p>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>{{ t('SETTINGS_CUSTOM_LINK_FORMAT') }}</label>
+                <button
+                  class="btn btn-secondary"
+                  @click="customLinkVisible = true"
+                >
+                  <Link :size="16" />
+                  {{ t('SETTINGS_CLICK_TO_SET') }}
+                </button>
+              </div>
+
+              <div class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.useShortUrl"
+                    type="checkbox"
+                    class="switch-input"
+                  >
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('SETTINGS_SHORT_URL') }}</div>
+                    <div class="switch-description">{{ t('SETTINGS_SHORT_URL_DESC') || 'Generate short URLs for uploaded images' }}</div>
+                  </div>
+                </label>
+              </div>
+
+              <div
+                v-if="formOfSetting.useShortUrl"
+                class="form-group"
+              >
+                <label>{{ t('SETTINGS_SHORT_URL_SERVER') }}</label>
+                <select
+                  v-model="currentShortUrlServer"
+                  class="form-select"
+                  @change="handleShortUrlServerChange(currentShortUrlServer.value)"
+                >
+                  <option
+                    v-for="item in shortUrlServerList"
+                    :key="item.value"
+                    :value="item.value"
+                  >
+                    {{ item.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div
+                v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'c1n'"
+                class="form-group"
+              >
+                <label>{{ t('SETTINGS_SHORT_URL_C1N_TOKEN') }}</label>
+                <input
+                  v-model="formOfSetting.c1nToken"
+                  type="text"
+                  class="form-input"
+                  :placeholder="t('SETTINGS_SHORT_URL_C1N_TOKEN')"
+                >
+              </div>
+
+              <div class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.encodeOutputURL"
+                    type="checkbox"
+                    class="switch-input"
+                  >
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('SETTINGS_ENCODE_OUTPUT_URL') }}</div>
+                    <div class="switch-description">{{ t('SETTINGS_ENCODE_OUTPUT_URL_DESC') || 'URL-encode special characters in output URLs' }}</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2>{{ t('CHOOSE_SHOWED_PICBED') }}</h2>
+            <p>{{ t('CHOOSE_SHOWED_PICBED_DESC') || 'Select which image beds to display in the interface' }}</p>
+
+            <div class="checkbox-group">
+              <label
+                v-for="item in picBedGlobal"
+                :key="item.name"
+                class="checkbox-option"
+              >
+                <input
+                  v-model="showPicBedList"
+                  type="checkbox"
+                  :value="item.name"
+                  class="checkbox-input"
+                  @change="handleShowPicBedListChange(showPicBedList)"
+                >
+                <span class="checkbox-indicator" />
+                <span class="checkbox-label">{{ item.name }}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced Settings Tab -->
+        <div
+          v-if="activeName === 'advanced'"
+          class="tab-content"
+        >
+          <div class="settings-section">
+            <h2>{{ t('SETTINGS_LOGGING') || 'Logging' }}</h2>
+            <p>{{ t('SETTINGS_LOGGING_DESC') || 'Configure application logging and debug options' }}</p>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>{{ t('SETTINGS_LOG_FILE_PATH') }}</label>
+                <button
+                  class="btn btn-secondary"
+                  @click="openDirectory()"
+                >
+                  <FolderOpen :size="16" />
+                  {{ t('SETTINGS_CLICK_TO_OPEN') }}
+                </button>
+              </div>
+
+              <div class="form-group">
+                <label>{{ t('SETTINGS_SET_LOG_FILE') }}</label>
+                <button
+                  class="btn btn-secondary"
+                  @click="openLogSetting"
+                >
+                  <FileText :size="16" />
+                  {{ t('SETTINGS_CLICK_TO_SET') }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2>{{ t('SETTINGS_NETWORK_PROXY') || 'Network & Proxy' }}</h2>
+            <p>{{ t('SETTINGS_NETWORK_PROXY_DESC') || 'Configure proxy settings and network mirrors' }}</p>
+
+            <div class="form-group">
+              <label>{{ t('SETTINGS_SET_PROXY_AND_MIRROR') }}</label>
+              <button
+                class="btn btn-secondary"
+                @click="proxyVisible = true"
+              >
+                <Globe :size="16" />
+                {{ t('SETTINGS_CLICK_TO_SET') }}
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2>{{ t('SETTINGS_SERVER_CONFIGURATION') || 'Server Configuration' }}</h2>
+            <p>{{ t('SETTINGS_SERVER_CONFIGURATION_DESC') || 'Configure web server and API server settings' }}</p>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>{{ t('SETTINGS_SET_WEB_SERVER') }}</label>
+                <button
+                  class="btn btn-secondary"
+                  @click="webServerVisible = true"
+                >
+                  <Server :size="16" />
+                  {{ t('SETTINGS_CLICK_TO_SET') }}
+                </button>
+              </div>
+
+              <div class="form-group">
+                <label>{{ t('SETTINGS_SET_SERVER') }}</label>
+                <button
+                  class="btn btn-secondary"
+                  @click="serverVisible = true"
+                >
+                  <Settings :size="16" />
+                  {{ t('SETTINGS_CLICK_TO_SET') }}
+                </button>
+              </div>
+
+              <div class="form-group">
+                <label>{{ t('SETTINGS_SET_SERVER_AES_KEY') }}</label>
+                <input
+                  v-model.trim="formOfSetting.aesPassword"
+                  type="text"
+                  class="form-input"
+                  :placeholder="t('SETTINGS_SET_SERVER_AES_KEY')"
+                  @change="handleAesPasswordChange(formOfSetting.aesPassword)"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Update Settings Tab -->
+        <div
+          v-if="activeName === 'update'"
+          class="tab-content"
+        >
+          <div class="settings-section">
+            <h2>{{ t('SETTINGS_APPLICATION_UPDATES') || 'Application Updates' }}</h2>
+            <p>{{ t('SETTINGS_APPLICATION_UPDATES_DESC') || 'Check for updates and configure update notifications' }}</p>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>{{ t('SETTINGS_CHECK_UPDATE') }}</label>
+                <button
+                  class="btn btn-primary"
+                  @click="checkUpdate"
+                >
+                  <RefreshCw :size="16" />
+                  {{ t('SETTINGS_CLICK_TO_CHECK') }}
+                </button>
+              </div>
+
+              <div class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.showUpdateTip"
+                    type="checkbox"
+                    class="switch-input"
+                  >
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('SETTINGS_OPEN_UPDATE_HELPER') }}</div>
+                    <div class="switch-description">{{ t('SETTINGS_UPDATE_HELPER_DESC') || 'Show notifications when updates are available' }}</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </el-dialog>
-    <el-dialog
-      v-model="logFileVisible"
-      :title="$t('SETTINGS_SET_LOG_FILE')"
-      :modal-append-to-body="false"
-      width="500px"
-      center
-      draggable
-      append-to-body
-    >
-      <el-form
-        label-position="right"
-        label-width="150px"
-      >
-        <el-form-item :label="$t('SETTINGS_LOG_FILE')">
-          <el-button
-            type="primary"
-            round
-            size="small"
-            @click="openFile('piclist.log')"
-          >
-            {{ $t('SETTINGS_CLICK_TO_OPEN') }}
-          </el-button>
-        </el-form-item>
-        <el-form-item :label="$t('SETTINGS_GUI_LOG_FILE')">
-          <el-button
-            type="primary"
-            round
-            size="small"
-            @click="openFile('piclist-gui-local.log')"
-          >
-            {{ $t('SETTINGS_CLICK_TO_OPEN') }}
-          </el-button>
-        </el-form-item>
-        <el-form-item :label="$t('SETTINGS_MANAGE_LOG_FILE')">
-          <el-button
-            type="primary"
-            round
-            size="small"
-            @click="openFile('manage.log')"
-          >
-            {{ $t('SETTINGS_CLICK_TO_OPEN') }}
-          </el-button>
-        </el-form-item>
-        <el-form-item :label="$t('SETTINGS_LOG_LEVEL')">
-          <el-select
-            v-model="formOfSetting.logLevel"
-            multiple
-            collapse-tags
-            style="width: 100%"
-            :persistent="false"
-            teleported
-          >
-            <el-option
-              v-for="(value, key) of logLevel"
-              :key="key"
-              :label="value"
-              :value="key"
-              :disabled="handleLevelDisabled(key)"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="`${$t('SETTINGS_LOG_FILE_SIZE')} (MB)`">
-          <el-input-number
-            v-model="formOfSetting.logFileSizeLimit"
-            style="width: 100%"
-            :placeholder="`${$t('SETTINGS_TIPS_SUCH_AS')}：10`"
-            :controls="false"
-            :min="1"
-          />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button
-          round
-          @click="cancelLogLevelSetting"
-        >
-          {{ $t('CANCEL') }}
-        </el-button>
-        <el-button
-          type="primary"
-          round
-          @click="confirmLogLevelSetting"
-        >
-          {{ $t('CONFIRM') }}
-        </el-button>
-      </template>
-    </el-dialog>
-    <el-dialog
-      v-model="serverVisible"
-      class="server-dialog"
-      width="60%"
-      :title="$t('SETTINGS_SET_PICGO_SERVER')"
-      :modal-append-to-body="false"
-      center
-      draggable
-      append-to-body
-    >
-      <div class="notice-text">
-        {{ $t('SETTINGS_TIPS_SERVER_NOTICE') }}
-      </div>
-      <el-form
-        label-position="right"
-        label-width="120px"
-      >
-        <el-form-item :label="$t('SETTINGS_ENABLE_SERVER')">
-          <el-switch
-            v-model="server.enable"
-            :active-text="$t('SETTINGS_OPEN')"
-            :inactive-text="$t('SETTINGS_CLOSE')"
-          />
-        </el-form-item>
-        <template v-if="server.enable">
-          <el-form-item :label="$t('SETTINGS_SET_SERVER_HOST')">
-            <el-input
-              v-model="server.host"
-              type="input"
-              :placeholder="$t('SETTINGS_TIP_PLACEHOLDER_HOST')"
-            />
-          </el-form-item>
-          <el-form-item :label="$t('SETTINGS_SET_SERVER_PORT')">
-            <el-input
-              v-model="server.port"
-              type="number"
-              :placeholder="$t('SETTINGS_TIP_PLACEHOLDER_PORT')"
-            />
-          </el-form-item>
-          <el-form-item :label="$t('SETTINGS_SET_SERVER_KEY')">
-            <el-input
-              v-model="formOfSetting.serverKey"
-              type="input"
-              :placeholder="$t('SETTINGS_TIP_PLACEHOLDER_KEY')"
-            />
-          </el-form-item>
-        </template>
-      </el-form>
-      <template #footer>
-        <el-button
-          round
-          @click="cancelServerSetting"
-        >
-          {{ $t('CANCEL') }}
-        </el-button>
-        <el-button
-          type="primary"
-          round
-          @click="confirmServerSetting"
-        >
-          {{ $t('CONFIRM') }}
-        </el-button>
-      </template>
-    </el-dialog>
-    <el-dialog
-      v-model="webServerVisible"
-      class="server-dialog"
-      width="60%"
-      :title="$t('SETTINGS_SET_WEB_SERVER')"
-      :modal-append-to-body="false"
-      align-center
-      draggable
-      append-to-body
-      @close="confirmWebServerSetting"
-    >
-      <div class="notice-text">
-        {{ $t('SETTINGS_TIPS_WEB_SERVER_NOTICE') }}
-      </div>
-      <el-form
-        label-position="right"
-        label-width="180px"
-      >
-        <el-form-item :label="$t('SETTINGS_SET_ENABLE_WEB_SERVER')">
-          <el-switch
-            v-model="formOfSetting.enableWebServer"
-            :active-text="$t('SETTINGS_OPEN')"
-            :inactive-text="$t('SETTINGS_CLOSE')"
-          />
-        </el-form-item>
-        <template v-if="formOfSetting.enableWebServer">
-          <el-form-item :label="$t('SETTINGS_SET_WEB_SERVER_HOST')">
-            <el-input
-              v-model="formOfSetting.webServerHost"
-              type="input"
-              :placeholder="$t('SETTINGS_TIP_PLACEHOLDER_WEB_HOST')"
-            />
-          </el-form-item>
-          <el-form-item :label="$t('SETTINGS_SET_WEB_SERVER_PORT')">
-            <el-input-number
-              v-model="formOfSetting.webServerPort"
-              :min="1"
-              :max="65535"
-              :placeholder="$t('SETTINGS_TIP_PLACEHOLDER_WEB_PORT')"
-              @change="handleWebServerPortChange"
-            />
-          </el-form-item>
-          <el-form-item :label="$t('SETTINGS_SET_WEB_SERVER_PATH')">
-            <el-input
-              v-model="formOfSetting.webServerPath"
-              type="input"
-              :placeholder="$t('SETTINGS_SET_WEB_SERVER_PATH')"
-            />
-          </el-form-item>
-        </template>
-      </el-form>
-    </el-dialog>
-    <el-dialog
-      v-model="syncVisible"
-      class="server-dialog"
-      width="60%"
-      :title="$t('SETTINGS_SYNC_CONFIG_TITLE')"
-      :modal-append-to-body="false"
-      center
-      draggable
-      append-to-body
+    </div>
+
+    <!-- Dialogs -->
+    <div
+      v-if="customLinkVisible"
+      class="dialog-overlay"
+      @click="customLinkVisible = false"
     >
       <div
-        class="notice-text"
-        style="align-items: center; display: flex; justify-content: center"
+        class="dialog"
+        @click.stop
       >
-        {{ $t('SETTINGS_SYNC_CONFIG_NOTE') }}
+        <div class="dialog-header">
+          <h3 class="dialog-title">
+            {{ t('SETTINGS_CUSTOM_LINK_FORMAT') }}
+          </h3>
+          <button
+            class="dialog-close"
+            @click="customLinkVisible = false"
+          >
+            ×
+          </button>
+        </div>
+        <div class="dialog-content">
+          <div class="notice-text">
+            {{ t('SETTINGS_TIPS_PLACEHOLDER_URL') }}<br>
+            {{ t('SETTINGS_TIPS_PLACEHOLDER_FILENAME') }}<br>
+            {{ t('SETTINGS_TIPS_PLACEHOLDER_EXTNAME') }}
+          </div>
+          <div class="form-group">
+            <input
+              v-model="customLink.value"
+              type="text"
+              class="form-input"
+              :placeholder="'![$fileName]($url)'"
+            >
+          </div>
+          <small>{{ t('SETTINGS_TIPS_SUCH_AS') }}: ![$fileName]($url)</small>
+        </div>
+        <div class="dialog-footer">
+          <button
+            class="btn btn-secondary"
+            @click="cancelCustomLink"
+          >
+            {{ t('CANCEL') }}
+          </button>
+          <button
+            class="btn btn-primary"
+            @click="confirmCustomLink"
+          >
+            {{ t('CONFIRM') }}
+          </button>
+        </div>
       </div>
-      <el-divider />
-      <el-form
-        label-position="right"
-        label-width="120px"
-      >
-        <el-form-item :label="$t('SETTINGS_SYNC_CONFIG_SELECT_TYPE')">
-          <el-select
-            v-model="sync.type"
-            style="width: 100%"
-            :persistent="false"
-            teleported
-          >
-            <el-option
-              v-for="typeitem of syncType"
-              :key="typeitem"
-              :label="typeitem.slice(0, 1).toUpperCase() + typeitem.slice(1)"
-              :value="typeitem"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item
-          v-if="sync.type === 'gitea'"
-          :label="$t('SETTINGS_SYNC_CONFIG_GITEA_HOST')"
-        >
-          <el-input
-            v-model.trim="sync.endpoint"
-            type="input"
-            :placeholder="$t('SETTINGS_SYNC_CONFIG_GITEA_HOST')"
-          />
-        </el-form-item>
-        <el-form-item
-          v-if="sync.type === 'webdav'"
-          :label="$t('SETTINGS_SYNC_CONFIG_WEBDAV_ENDPOINT')"
-        >
-          <el-input
-            v-model.trim="sync.webdavEndpoint"
-            type="input"
-            :placeholder="$t('SETTINGS_SYNC_CONFIG_WEBDAV_ENDPOINT_PLACEHOLDER')"
-          />
-        </el-form-item>
-        <template v-if="sync.type !== 'webdav'">
-          <el-form-item
-            v-for="inputItem in ['username', 'repo', 'branch', 'token']"
-            :key="inputItem"
-            :label="$t(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_${inputItem.toUpperCase()}` as any)"
-          >
-            <el-input
-              v-model.trim="sync[inputItem as any]"
-              type="input"
-              :placeholder="
-                $t(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_${inputItem.toUpperCase()}_PLACEHOLDER` as any)
-              "
-            />
-          </el-form-item>
-        </template>
-        <template v-if="sync.type === 'webdav'">
-          <el-form-item :label="$t('SETTINGS_SYNC_CONFIG_WEBDAV_USERNAME')">
-            <el-input
-              v-model.trim="sync.webdavUsername"
-              type="input"
-              :placeholder="$t('SETTINGS_SYNC_CONFIG_WEBDAV_USERNAME_PLACEHOLDER')"
-            />
-          </el-form-item>
-          <el-form-item :label="$t('SETTINGS_SYNC_CONFIG_WEBDAV_PASSWORD')">
-            <el-input
-              v-model.trim="sync.webdavPassword"
-              type="password"
-              show-password
-              :placeholder="$t('SETTINGS_SYNC_CONFIG_WEBDAV_PASSWORD_PLACEHOLDER')"
-            />
-          </el-form-item>
-          <el-form-item :label="$t('SETTINGS_SYNC_CONFIG_WEBDAV_SAVE_PATH')">
-            <el-input
-              v-model.trim="sync.webdavSavePath"
-              type="input"
-              :placeholder="$t('SETTINGS_SYNC_CONFIG_WEBDAV_SAVE_PATH_PLACEHOLDER')"
-            />
-          </el-form-item>
-          <el-form-item :label="$t('SETTINGS_SYNC_CONFIG_WEBDAV_AUTH_TYPE')">
-            <el-select
-              v-model="sync.webdavAuthType"
-              style="width: 100%"
-              :persistent="false"
-              teleported
-            >
-              <el-option
-                label="Basic"
-                value="basic"
-              />
-              <el-option
-                label="Digest"
-                value="digest"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item :label="$t('SETTINGS_SYNC_CONFIG_WEBDAV_SSL_ENABLED')">
-            <el-switch
-              v-model="sync.webdavSslEnabled"
-              :active-text="$t('SETTINGS_OPEN')"
-              :inactive-text="$t('SETTINGS_CLOSE')"
-            />
-          </el-form-item>
-        </template>
-        <el-form-item
-          v-if="sync.type === 'github'"
-          :label="$t('SETTINGS_SYNC_CONFIG_PROXY')"
-        >
-          <el-input
-            v-model.trim="sync.proxy"
-            type="input"
-            :placeholder="$t('SETTINGS_SYNC_CONFIG_PROXY_PLACEHOLDER')"
-          />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button
-          round
-          @click="cancelSyncSetting"
-        >
-          {{ $t('CANCEL') }}
-        </el-button>
-        <el-button
-          type="primary"
-          round
-          @click="confirmSyncSetting"
-        >
-          {{ $t('CONFIRM') }}
-        </el-button>
-      </template>
-    </el-dialog>
-    <el-dialog
-      v-model="upDownConfigVisible"
-      class="server-dialog"
-      width="60%"
-      :title="$t('SETTINGS_UP_DOWN_DESC')"
-      :modal-append-to-body="false"
-      center
-      draggable
-      append-to-body
+    </div>
+
+    <!-- Proxy Settings Dialog -->
+    <div
+      v-if="proxyVisible"
+      class="dialog-overlay"
+      @click="proxyVisible = false"
     >
-      <el-form
-        label-position="right"
-        label-width="120px"
+      <div
+        class="dialog"
+        @click.stop
       >
-        <el-form-item :label="$t('SETTINGS_SYNC_UPLOAD')">
-          <el-button-group>
-            <el-button
-              v-for="item in syncTaskList.slice(0, 3)"
-              :key="item.task"
-              type="primary"
-              plain
-              size="small"
-              @click="syncTaskFn(item.task, item.number)"
+        <div class="dialog-header">
+          <h3 class="dialog-title">
+            {{ t('SETTINGS_NETWORK_PROXY') }}
+          </h3>
+          <button
+            class="dialog-close"
+            @click="proxyVisible = false"
+          >
+            ×
+          </button>
+        </div>
+        <div class="dialog-content">
+          <div class="form-group">
+            <label>{{ t('SETTINGS_UPLOAD_PROXY') }}</label>
+            <input
+              v-model="proxy"
+              type="text"
+              class="form-input"
+              :placeholder="`${t('SETTINGS_TIPS_SUCH_AS')}：http://127.0.0.1:1080`"
             >
-              {{ item.label }}
-            </el-button>
-          </el-button-group>
-        </el-form-item>
-        <el-form-item :label="$t('SETTINGS_SYNC_DOWNLOAD')">
-          <el-button-group>
-            <el-button
-              v-for="item in syncTaskList.slice(3)"
-              :key="item.task"
-              type="primary"
-              plain
-              size="small"
-              @click="syncTaskFn(item.task, item.number)"
+          </div>
+          <div class="form-group">
+            <label>{{ t('SETTINGS_PLUGIN_INSTALL_PROXY') }}</label>
+            <input
+              v-model="formOfSetting.proxy"
+              type="text"
+              class="form-input"
+              :placeholder="`${t('SETTINGS_TIPS_SUCH_AS')}：http://127.0.0.1:1080`"
             >
-              {{ item.label }}
-            </el-button>
-          </el-button-group>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
-    <el-dialog
-      v-model="imageProcessDialogVisible"
-      :title="$t('pages.imageProcess.title')"
-      width="50%"
-      draggable
-      center
-      align-center
-      append-to-body
+          </div>
+          <div class="form-group">
+            <label>{{ t('SETTINGS_PLUGIN_INSTALL_MIRROR') }}</label>
+            <input
+              v-model="formOfSetting.registry"
+              type="text"
+              class="form-input"
+              :placeholder="`${t('SETTINGS_TIPS_SUCH_AS')}：https://registry.npmmirror.com`"
+            >
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button
+            class="btn btn-secondary"
+            @click="proxyVisible = false"
+          >
+            {{ t('CANCEL') }}
+          </button>
+          <button
+            class="btn btn-primary"
+            @click="proxyVisible = false"
+          >
+            {{ t('CONFIRM') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Window Size Dialog -->
+    <div
+      v-if="mainWindowSizeVisible"
+      class="dialog-overlay"
+      @click="cancelWindowSize"
     >
-      <ImageProcessSetting v-model="imageProcessDialogVisible" />
-    </el-dialog>
+      <div
+        class="dialog"
+        @click.stop
+      >
+        <div class="dialog-header">
+          <h3 class="dialog-title">
+            {{ t('SETTINGS_MAIN_WINDOW_SIZE') }}
+          </h3>
+          <button
+            class="dialog-close"
+            @click="cancelWindowSize"
+          >
+            ×
+          </button>
+        </div>
+        <div class="dialog-content">
+          <div class="form-group">
+            <label>{{ t('SETTINGS_MAIN_WINDOW_SIZE_WIDTH') }}</label>
+            <input
+              v-model="formOfSetting.mainWindowWidth"
+              type="number"
+              class="form-input"
+              :placeholder="t('SETTINGS_MAIN_WINDOW_WIDTH_HINT')"
+            >
+          </div>
+          <div class="form-group">
+            <label>{{ t('SETTINGS_MAIN_WINDOW_SIZE_HEIGHT') }}</label>
+            <input
+              v-model="formOfSetting.mainWindowHeight"
+              type="number"
+              class="form-input"
+              :placeholder="t('SETTINGS_MAIN_WINDOW_HEIGHT_HINT')"
+            >
+          </div>
+          <div class="form-group">
+            <label class="switch-label">
+              <input
+                v-model="rawPicGoSize"
+                type="checkbox"
+                class="switch-input"
+              >
+              <span class="switch-slider" />
+              <div class="switch-content">
+                <div class="switch-title">{{ t('SETTINGS_RAW_PICGO_SIZE') }}</div>
+                <div class="switch-description">{{ t('SETTINGS_USE_DEFAULT_PICGO_SIZE') || 'Use default PicGo window size' }}</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button
+            class="btn btn-secondary"
+            @click="cancelWindowSize"
+          >
+            {{ t('CANCEL') }}
+          </button>
+          <button
+            class="btn btn-primary"
+            @click="confirmWindowSize"
+          >
+            {{ t('CONFIRM') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Check Update Dialog -->
+    <div
+      v-if="checkUpdateVisible"
+      class="dialog-overlay"
+      @click="cancelCheckVersion"
+    >
+      <div
+        class="dialog"
+        @click.stop
+      >
+        <div class="dialog-header">
+          <h3 class="dialog-title">
+            {{ t('SETTINGS_CHECK_UPDATE') }}
+          </h3>
+          <button
+            class="dialog-close"
+            @click="cancelCheckVersion"
+          >
+            ×
+          </button>
+        </div>
+        <div class="dialog-content">
+          <div class="update-info">
+            <div>{{ t('SETTINGS_CURRENT_VERSION') }}: {{ version }}</div>
+            <div>
+              {{ t('SETTINGS_NEWEST_VERSION') }}:
+              {{ latestVersion ? latestVersion : `${t('SETTINGS_GETING')}...` }}
+            </div>
+            <div
+              v-if="needUpdate"
+              class="update-notice"
+            >
+              {{ t('SETTINGS_TIPS_HAS_NEW_VERSION') }}
+            </div>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button
+            class="btn btn-secondary"
+            @click="cancelCheckVersion"
+          >
+            {{ t('CANCEL') }}
+          </button>
+          <button
+            class="btn btn-primary"
+            @click="confirmCheckVersion"
+          >
+            {{ t('CONFIRM') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Rename Dialog -->
+    <div
+      v-if="advancedRenameVisible"
+      class="dialog-overlay"
+      @click="handleCancelAdvancedRename"
+    >
+      <div
+        class="dialog"
+        @click.stop
+      >
+        <div class="dialog-header">
+          <h3 class="dialog-title">
+            {{ t('SETTINGS_ADVANCED_RENAME') }}
+          </h3>
+          <button
+            class="dialog-close"
+            @click="handleCancelAdvancedRename"
+          >
+            ×
+          </button>
+        </div>
+        <div class="dialog-content">
+          <div class="form-group">
+            <label class="switch-label">
+              <input
+                v-model="advancedRename.enable"
+                type="checkbox"
+                class="switch-input"
+              >
+              <span class="switch-slider" />
+              <div class="switch-content">
+                <div class="switch-title">{{ t('SETTINGS_ADVANCED_RENAME_ENABLE') }}</div>
+                <div class="switch-description">{{ t('SETTINGS_ADVANCED_RENAME_ENABLE_DESC') || 'Enable advanced file renaming' }}</div>
+              </div>
+            </label>
+          </div>
+          <div class="form-group">
+            <label>{{ t('SETTINGS_ADVANCED_RENAME_FORMAT') }}</label>
+            <input
+              v-model="advancedRename.format"
+              type="text"
+              class="form-input"
+              placeholder="Ex. {Y}-{m}-{uuid}"
+            >
+            <small class="form-help">{{ t('SETTINGS_ADVANCED_RENAME_FORMAT_HELP') || 'Use placeholders like {Y}, {m}, {d}, {filename}, {uuid}' }}</small>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button
+            class="btn btn-secondary"
+            @click="handleCancelAdvancedRename"
+          >
+            {{ t('CANCEL') }}
+          </button>
+          <button
+            class="btn btn-primary"
+            @click="handleSaveAdvancedRename"
+          >
+            {{ t('CONFIRM') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Log Settings Dialog -->
+    <div
+      v-if="logFileVisible"
+      class="dialog-overlay"
+      @click="cancelLogLevelSetting"
+    >
+      <div
+        class="dialog"
+        @click.stop
+      >
+        <div class="dialog-header">
+          <h3 class="dialog-title">
+            {{ t('SETTINGS_SET_LOG_FILE') }}
+          </h3>
+          <button
+            class="dialog-close"
+            @click="cancelLogLevelSetting"
+          >
+            ×
+          </button>
+        </div>
+        <div class="dialog-content">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>{{ t('SETTINGS_LOG_FILE') }}</label>
+              <button
+                class="btn btn-secondary"
+                @click="openFile('piclist.log')"
+              >
+                <FileText :size="16" />
+                {{ t('SETTINGS_CLICK_TO_OPEN') }}
+              </button>
+            </div>
+            <div class="form-group">
+              <label>{{ t('SETTINGS_GUI_LOG_FILE') }}</label>
+              <button
+                class="btn btn-secondary"
+                @click="openFile('piclist-gui-local.log')"
+              >
+                <FileText :size="16" />
+                {{ t('SETTINGS_CLICK_TO_OPEN') }}
+              </button>
+            </div>
+            <div class="form-group">
+              <label>{{ t('SETTINGS_MANAGE_LOG_FILE') }}</label>
+              <button
+                class="btn btn-secondary"
+                @click="openFile('manage.log')"
+              >
+                <FileText :size="16" />
+                {{ t('SETTINGS_CLICK_TO_OPEN') }}
+              </button>
+            </div>
+            <div class="form-group">
+              <label>{{ t('SETTINGS_LOG_LEVEL') }}</label>
+              <select
+                v-model="formOfSetting.logLevel"
+                multiple
+                class="form-select"
+              >
+                <option
+                  v-for="(value, key) of logLevel"
+                  :key="key"
+                  :value="key"
+                  :disabled="handleLevelDisabled(key)"
+                >
+                  {{ value }}
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>{{ t('SETTINGS_LOG_FILE_SIZE') }} (MB)</label>
+              <input
+                v-model="formOfSetting.logFileSizeLimit"
+                type="number"
+                class="form-input"
+                :placeholder="`${t('SETTINGS_TIPS_SUCH_AS')}：10`"
+                min="1"
+              >
+            </div>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button
+            class="btn btn-secondary"
+            @click="cancelLogLevelSetting"
+          >
+            {{ t('CANCEL') }}
+          </button>
+          <button
+            class="btn btn-primary"
+            @click="confirmLogLevelSetting"
+          >
+            {{ t('CONFIRM') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Server Settings Dialog -->
+    <div
+      v-if="serverVisible"
+      class="dialog-overlay"
+      @click="cancelServerSetting"
+    >
+      <div
+        class="dialog"
+        @click.stop
+      >
+        <div class="dialog-header">
+          <h3 class="dialog-title">
+            {{ t('SETTINGS_SET_PICGO_SERVER') }}
+          </h3>
+          <button
+            class="dialog-close"
+            @click="cancelServerSetting"
+          >
+            ×
+          </button>
+        </div>
+        <div class="dialog-content">
+          <div class="notice-text">
+            {{ t('SETTINGS_TIPS_SERVER_NOTICE') }}
+          </div>
+          <div class="form-group">
+            <label class="switch-label">
+              <input
+                v-model="server.enable"
+                type="checkbox"
+                class="switch-input"
+              >
+              <span class="switch-slider" />
+              <div class="switch-content">
+                <div class="switch-title">{{ t('SETTINGS_ENABLE_SERVER') }}</div>
+                <div class="switch-description">{{ t('SETTINGS_ENABLE_SERVER_DESC') || 'Enable PicGo server for external access' }}</div>
+              </div>
+            </label>
+          </div>
+          <template v-if="server.enable">
+            <div class="form-group">
+              <label>{{ t('SETTINGS_SET_SERVER_HOST') }}</label>
+              <input
+                v-model="server.host"
+                type="text"
+                class="form-input"
+                :placeholder="t('SETTINGS_TIP_PLACEHOLDER_HOST')"
+              >
+            </div>
+            <div class="form-group">
+              <label>{{ t('SETTINGS_SET_SERVER_PORT') }}</label>
+              <input
+                v-model="server.port"
+                type="number"
+                class="form-input"
+                :placeholder="t('SETTINGS_TIP_PLACEHOLDER_PORT')"
+              >
+            </div>
+            <div class="form-group">
+              <label>{{ t('SETTINGS_SET_SERVER_KEY') }}</label>
+              <input
+                v-model="formOfSetting.serverKey"
+                type="text"
+                class="form-input"
+                :placeholder="t('SETTINGS_TIP_PLACEHOLDER_KEY')"
+              >
+            </div>
+          </template>
+        </div>
+        <div class="dialog-footer">
+          <button
+            class="btn btn-secondary"
+            @click="cancelServerSetting"
+          >
+            {{ t('CANCEL') }}
+          </button>
+          <button
+            class="btn btn-primary"
+            @click="confirmServerSetting"
+          >
+            {{ t('CONFIRM') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Web Server Settings Dialog -->
+    <div
+      v-if="webServerVisible"
+      class="dialog-overlay"
+      @click="confirmWebServerSetting"
+    >
+      <div
+        class="dialog"
+        @click.stop
+      >
+        <div class="dialog-header">
+          <h3 class="dialog-title">
+            {{ t('SETTINGS_SET_WEB_SERVER') }}
+          </h3>
+          <button
+            class="dialog-close"
+            @click="confirmWebServerSetting"
+          >
+            ×
+          </button>
+        </div>
+        <div class="dialog-content">
+          <div class="notice-text">
+            {{ t('SETTINGS_TIPS_WEB_SERVER_NOTICE') }}
+          </div>
+          <div class="form-group">
+            <label class="switch-label">
+              <input
+                v-model="formOfSetting.enableWebServer"
+                type="checkbox"
+                class="switch-input"
+              >
+              <span class="switch-slider" />
+              <div class="switch-content">
+                <div class="switch-title">{{ t('SETTINGS_SET_ENABLE_WEB_SERVER') }}</div>
+                <div class="switch-description">{{ t('SETTINGS_WEB_SERVER_DESC') || 'Enable web interface for remote access' }}</div>
+              </div>
+            </label>
+          </div>
+          <template v-if="formOfSetting.enableWebServer">
+            <div class="form-group">
+              <label>{{ t('SETTINGS_SET_WEB_SERVER_HOST') }}</label>
+              <input
+                v-model="formOfSetting.webServerHost"
+                type="text"
+                class="form-input"
+                :placeholder="t('SETTINGS_TIP_PLACEHOLDER_WEB_HOST')"
+              >
+            </div>
+            <div class="form-group">
+              <label>{{ t('SETTINGS_SET_WEB_SERVER_PORT') }}</label>
+              <input
+                v-model.number="formOfSetting.webServerPort"
+                type="number"
+                class="form-input"
+                min="1"
+                max="65535"
+                :placeholder="t('SETTINGS_TIP_PLACEHOLDER_WEB_PORT')"
+              >
+            </div>
+            <div class="form-group">
+              <label>{{ t('SETTINGS_SET_WEB_SERVER_PATH') }}</label>
+              <input
+                v-model="formOfSetting.webServerPath"
+                type="text"
+                class="form-input"
+                :placeholder="t('SETTINGS_SET_WEB_SERVER_PATH')"
+              >
+            </div>
+          </template>
+        </div>
+        <div class="dialog-footer">
+          <button
+            class="btn btn-secondary"
+            @click="confirmWebServerSetting"
+          >
+            {{ t('CLOSE') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sync Configuration Dialog -->
+    <div
+      v-if="syncVisible"
+      class="dialog-overlay"
+      @click="cancelSyncSetting"
+    >
+      <div
+        class="dialog large"
+        @click.stop
+      >
+        <div class="dialog-header">
+          <h3 class="dialog-title">
+            {{ t('SETTINGS_SYNC_CONFIG_TITLE') }}
+          </h3>
+          <button
+            class="dialog-close"
+            @click="cancelSyncSetting"
+          >
+            ×
+          </button>
+        </div>
+        <div class="dialog-content">
+          <div class="notice-text">
+            {{ t('SETTINGS_SYNC_CONFIG_NOTE') }}
+          </div>
+          <div class="form-group">
+            <label>{{ t('SETTINGS_SYNC_CONFIG_SELECT_TYPE') }}</label>
+            <select
+              v-model="sync.type"
+              class="form-select"
+            >
+              <option
+                v-for="typeitem of syncType"
+                :key="typeitem"
+                :value="typeitem"
+              >
+                {{ typeitem.slice(0, 1).toUpperCase() + typeitem.slice(1) }}
+              </option>
+            </select>
+          </div>
+          <div
+            v-if="sync.type === 'gitea'"
+            class="form-group"
+          >
+            <label>{{ t('SETTINGS_SYNC_CONFIG_GITEA_HOST') }}</label>
+            <input
+              v-model.trim="sync.endpoint"
+              type="text"
+              class="form-input"
+              :placeholder="t('SETTINGS_SYNC_CONFIG_GITEA_HOST')"
+            >
+          </div>
+          <div
+            v-if="sync.type === 'webdav'"
+            class="form-group"
+          >
+            <label>{{ t('SETTINGS_SYNC_CONFIG_WEBDAV_ENDPOINT') }}</label>
+            <input
+              v-model.trim="sync.webdavEndpoint"
+              type="text"
+              class="form-input"
+              :placeholder="t('SETTINGS_SYNC_CONFIG_WEBDAV_ENDPOINT_PLACEHOLDER')"
+            >
+          </div>
+          <template v-if="sync.type !== 'webdav'">
+            <div
+              v-for="inputItem in ['username', 'repo', 'branch', 'token']"
+              :key="inputItem"
+              class="form-group"
+            >
+              <label>{{ t(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_${inputItem.toUpperCase()}` as any) }}</label>
+              <input
+                v-model.trim="sync[inputItem as any]"
+                type="text"
+                class="form-input"
+                :placeholder="t(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_${inputItem.toUpperCase()}_PLACEHOLDER` as any)"
+              >
+            </div>
+          </template>
+          <template v-if="sync.type === 'webdav'">
+            <div class="form-group">
+              <label>{{ t('SETTINGS_SYNC_CONFIG_WEBDAV_USERNAME') }}</label>
+              <input
+                v-model.trim="sync.webdavUsername"
+                type="text"
+                class="form-input"
+                :placeholder="t('SETTINGS_SYNC_CONFIG_WEBDAV_USERNAME_PLACEHOLDER')"
+              >
+            </div>
+            <div class="form-group">
+              <label>{{ t('SETTINGS_SYNC_CONFIG_WEBDAV_PASSWORD') }}</label>
+              <input
+                v-model.trim="sync.webdavPassword"
+                type="password"
+                class="form-input"
+                :placeholder="t('SETTINGS_SYNC_CONFIG_WEBDAV_PASSWORD_PLACEHOLDER')"
+              >
+            </div>
+            <div class="form-group">
+              <label>{{ t('SETTINGS_SYNC_CONFIG_WEBDAV_SAVE_PATH') }}</label>
+              <input
+                v-model.trim="sync.webdavSavePath"
+                type="text"
+                class="form-input"
+                :placeholder="t('SETTINGS_SYNC_CONFIG_WEBDAV_SAVE_PATH_PLACEHOLDER')"
+              >
+            </div>
+            <div class="form-group">
+              <label>{{ t('SETTINGS_SYNC_CONFIG_WEBDAV_AUTH_TYPE') }}</label>
+              <select
+                v-model="sync.webdavAuthType"
+                class="form-select"
+              >
+                <option value="basic">
+                  Basic
+                </option>
+                <option value="digest">
+                  Digest
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="switch-label">
+                <input
+                  v-model="sync.webdavSslEnabled"
+                  type="checkbox"
+                  class="switch-input"
+                >
+                <span class="switch-slider" />
+                <div class="switch-content">
+                  <div class="switch-title">{{ t('SETTINGS_SYNC_CONFIG_WEBDAV_SSL_ENABLED') }}</div>
+                  <div class="switch-description">{{ t('SETTINGS_SSL_ENABLED_DESC') || 'Enable SSL/TLS encryption' }}</div>
+                </div>
+              </label>
+            </div>
+          </template>
+          <div
+            v-if="sync.type === 'github'"
+            class="form-group"
+          >
+            <label>{{ t('SETTINGS_SYNC_CONFIG_PROXY') }}</label>
+            <input
+              v-model.trim="sync.proxy"
+              type="text"
+              class="form-input"
+              :placeholder="t('SETTINGS_SYNC_CONFIG_PROXY_PLACEHOLDER')"
+            >
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button
+            class="btn btn-secondary"
+            @click="cancelSyncSetting"
+          >
+            {{ t('CANCEL') }}
+          </button>
+          <button
+            class="btn btn-primary"
+            @click="confirmSyncSetting"
+          >
+            {{ t('CONFIRM') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload/Download Config Dialog -->
+    <div
+      v-if="upDownConfigVisible"
+      class="dialog-overlay"
+      @click="upDownConfigVisible = false"
+    >
+      <div
+        class="dialog"
+        @click.stop
+      >
+        <div class="dialog-header">
+          <h3 class="dialog-title">
+            {{ t('SETTINGS_UP_DOWN_DESC') }}
+          </h3>
+          <button
+            class="dialog-close"
+            @click="upDownConfigVisible = false"
+          >
+            ×
+          </button>
+        </div>
+        <div class="dialog-content">
+          <div class="form-group">
+            <label>{{ t('SETTINGS_SYNC_UPLOAD') }}</label>
+            <div class="button-group">
+              <button
+                v-for="item in syncTaskList.slice(0, 3)"
+                :key="item.task"
+                class="btn btn-primary"
+                @click="syncTaskFn(item.task, item.number)"
+              >
+                {{ item.label }}
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>{{ t('SETTINGS_SYNC_DOWNLOAD') }}</label>
+            <div class="button-group">
+              <button
+                v-for="item in syncTaskList.slice(3)"
+                :key="item.task"
+                class="btn btn-primary"
+                @click="syncTaskFn(item.task, item.number)"
+              >
+                {{ item.label }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button
+            class="btn btn-secondary"
+            @click="upDownConfigVisible = false"
+          >
+            {{ t('CLOSE') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Process Dialog -->
+    <div
+      v-if="imageProcessDialogVisible"
+      class="dialog-overlay"
+      @click="imageProcessDialogVisible = false"
+    >
+      <div
+        class="dialog large"
+        @click.stop
+      >
+        <div class="dialog-header">
+          <h3 class="dialog-title">
+            {{ t('pages.imageProcess.title') }}
+          </h3>
+          <button
+            class="dialog-close"
+            @click="imageProcessDialogVisible = false"
+          >
+            ×
+          </button>
+        </div>
+        <div class="dialog-content">
+          <ImageProcessSetting v-model="imageProcessDialogVisible" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Close, Edit, InfoFilled, Reading } from '@element-plus/icons-vue'
 import { compare } from 'compare-versions'
-import { ElForm, ElMessage as $message, ElMessage, ElMessageBox, FormRules } from 'element-plus'
+import { ElForm } from 'element-plus'
+import {
+  BookOpen,
+  CloudUpload,
+  Download,
+  Edit,
+  FileText,
+  FolderOpen,
+  Globe,
+  Image as ImageIcon,
+  Import,
+  Keyboard,
+  Link,
+  Monitor,
+  RefreshCw,
+  RotateCcw,
+  Server,
+  Settings
+} from 'lucide-vue-next'
 import type { IConfig } from 'piclist'
 import pkg from 'root/package.json'
 import { ISettingForm } from 'root/src/universal/types/view'
@@ -1368,20 +1661,52 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
+import useConfirm from '@/hooks/useConfirm'
+import useMessage from '@/hooks/useMessage'
 import { setCurrentLanguage } from '@/i18n'
-import { buildInRenameFormatTable } from '@/manage/utils/common'
 import { SHORTKEY_PAGE } from '@/router/config'
+import { enforceNumber } from '@/utils/common'
+import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
+import { II18nLanguage, IRPCActionType, ISartMode } from '@/utils/enum'
 import { getLatestVersion } from '@/utils/getLatestVersion'
 import { osGlobal, picBedGlobal, updatePicBedGlobal } from '@/utils/global'
-import { II18nLanguage, IRPCActionType, ISartMode } from '#/types/enum'
-import { ICheckBoxValueType } from '#/types/types'
-import { enforceNumber } from '#/utils/common'
-import { configPaths, ISartModeValues } from '#/utils/configPaths'
+import type { ICheckBoxValueType } from '#/types/types'
 
 const { t, locale } = useI18n()
 const $router = useRouter()
-const activeName = ref<'system' | 'syncAndConfigure' | 'upload' | 'advanced' | 'upadte'>('system')
+const { confirm } = useConfirm()
+const message = useMessage()
+const activeName = ref<'system' | 'sync' | 'upload' | 'advanced' | 'update'>('system')
+
+// Tab configuration
+const tabs = computed(() => [
+  {
+    id: 'system',
+    label: t('pages.settings.system.title'),
+    icon: Settings
+  },
+  {
+    id: 'sync',
+    label: t('pages.settings.sync.title'),
+    icon: RotateCcw
+  },
+  {
+    id: 'upload',
+    label: t('pages.settings.upload.title'),
+    icon: CloudUpload
+  },
+  {
+    id: 'advanced',
+    label: t('pages.settings.advanced.title'),
+    icon: Server
+  },
+  {
+    id: 'update',
+    label: t('pages.settings.update.title'),
+    icon: RefreshCw
+  }
+])
 
 const shortUrlServerList = [
   {
@@ -1417,22 +1742,6 @@ const languageList = [
   }
 ]
 
-const startModeList = computed(() => Object.values(ISartMode).map(item => ({
-  label: t(`SETTINGS_START_MODE_${item.toUpperCase().replace(/-/g, '_')}` as any),
-  value: item
-})))
-
-const manualPageOpenList = computed(() => [
-  {
-    label: t('MANUAL_PAGE_OPEN_BY_BUILD_IN'),
-    value: 'window'
-  },
-  {
-    label: t('MANUAL_PAGE_OPEN_BY_BROWSER'),
-    value: 'browser'
-  }
-])
-
 const showPicBedList = computed(
   () =>
     picBedGlobal.value
@@ -1446,14 +1755,6 @@ const showPicBedList = computed(
 )
 
 const $customLink = ref<InstanceType<typeof ElForm> | null>(null)
-
-const customLinkRule = (_: any, value: string, callback: (arg0?: Error) => void) => {
-  if (!/\$url/.test(value) && !/\$fileName/.test(value) && !/\$extName/.test(value)) {
-    return callback(new Error(t('TIPS_MUST_CONTAINS_URL')))
-  } else {
-    return callback()
-  }
-}
 
 const formOfSetting = ref<ISettingForm>({
   showUpdateTip: true,
@@ -1513,6 +1814,7 @@ const autoWatchKeys = [
   'autoRename',
   'enableWebServer',
   'webServerHost',
+  'webServerPort',
   'webServerPath',
   'serverKey',
   'uploadNotification',
@@ -1545,6 +1847,25 @@ const addWatch = () => {
       }
     )
   })
+
+  watch(currentLanguage, (newVal) => {
+    console.log('newVal', newVal)
+    if (newVal) {
+      handleLanguageChange(newVal)
+    }
+  })
+
+  watch(currentStartMode, (newVal) => {
+    if (newVal && newVal.value) {
+      handleStartModeChange(newVal.value)
+    }
+  })
+
+  watch(currentShortUrlServer, (newVal) => {
+    if (newVal && newVal.value) {
+      handleShortUrlServerChange(newVal.value)
+    }
+  })
 }
 
 const addProxyWatch = () => {
@@ -1561,7 +1882,6 @@ const valueToOptionItem = (value: any, list: { label: string; value: any }[]) =>
 
 const currentLanguage = ref()
 const currentStartMode = ref()
-const currentManualPageOpen = ref()
 const currentShortUrlServer = ref()
 
 const logFileVisible = ref(false)
@@ -1580,10 +1900,6 @@ const rawPicGoSize = ref(false)
 
 const customLink = reactive({
   value: '![$fileName]($url)'
-})
-
-const rules = reactive<FormRules>({
-  value: [{ validator: customLinkRule, trigger: 'blur' }]
 })
 
 const logLevel = {
@@ -1675,13 +1991,12 @@ async function initData () {
   })
   formOfSetting.value.logLevel = initArray(settings.logLevel || [], ['all'])
   formOfSetting.value.autoImportPicBed = initArray(settings.autoImportPicBed || [], [])
-  currentLanguage.value = valueToOptionItem(settings.language || 'zh-CN', languageList)
-  currentStartMode.value = valueToOptionItem(settings.startMode || ISartMode.QUIET, startModeList.value)
-  if (osGlobal.value === 'darwin' && currentStartMode.value.value === ISartMode.MINI) {
-    currentStartMode.value = valueToOptionItem(ISartMode.QUIET, startModeList.value)
+  currentLanguage.value = settings.language || 'zh-CN'
+  currentStartMode.value = settings.startMode || ISartMode.QUIET
+  if (osGlobal.value === 'darwin' && currentStartMode.value === ISartMode.MINI) {
+    currentStartMode.value = ISartMode.QUIET
     saveConfig(configPaths.settings.startMode, ISartMode.QUIET)
   }
-  currentManualPageOpen.value = valueToOptionItem(settings.manualPageOpen || 'window', manualPageOpenList.value)
   currentShortUrlServer.value = valueToOptionItem(settings.shortUrlServer || 'c1n', shortUrlServerList)
   customLink.value = settings.customLink || '![$fileName]($url)'
   proxy.value = picBed.proxy || ''
@@ -1741,12 +2056,6 @@ function openFile (file: string) {
   window.electron.sendRPC(IRPCActionType.PICLIST_OPEN_FILE, file)
 }
 
-function handleManualPageOpenChange (val: string) {
-  saveConfig({
-    [configPaths.settings.manualPageOpen]: val
-  })
-}
-
 function openDirectory (directory?: string, inStorePath = true) {
   window.electron.sendRPC(IRPCActionType.PICLIST_OPEN_DIRECTORY, directory, inStorePath)
 }
@@ -1789,29 +2098,30 @@ function handleSaveAdvancedRename () {
 }
 
 function handleMigrateFromPicGo () {
-  ElMessageBox.confirm(t('SETTINGS_MIGRATE_FROM_PICGO_CONTENT'), t('SETTINGS_MIGRATE_FROM_PICGO_TITLE'), {
+  confirm({
+    title: t('SETTINGS_MIGRATE_FROM_PICGO_TITLE'),
+    message: t('SETTINGS_MIGRATE_FROM_PICGO_CONTENT'),
+    type: 'warning',
     confirmButtonText: t('CONFIRM'),
     cancelButtonText: t('CANCEL'),
-    type: 'warning',
     center: true
   })
-    .then(() => {
-      window.electron.triggerRPC<boolean>(IRPCActionType.CONFIGURE_MIGRATE_FROM_PICGO)
-        .then(() => {
-          ElMessage.success(t('SETTINGS_MIGRATE_FROM_PICGO_SUCCESS'))
-        })
-        .catch(() => {
-          ElMessage.error(t('SETTINGS_MIGRATE_FROM_PICGO_FAILED'))
-        })
-    })
-    .catch(() => {
-      return false
+    .then((result) => {
+      if (result) {
+        window.electron.triggerRPC<boolean>(IRPCActionType.CONFIGURE_MIGRATE_FROM_PICGO)
+          .then(() => {
+            message.success(t('SETTINGS_MIGRATE_FROM_PICGO_SUCCESS'))
+          })
+          .catch(() => {
+            message.error(t('SETTINGS_MIGRATE_FROM_PICGO_FAILED'))
+          })
+      }
     })
 }
 
 function handleHideDockChange (val: ICheckBoxValueType) {
-  if (val && currentStartMode.value.value === ISartMode.NO_TRAY) {
-    ElMessage.warning(t('SETTINGS_ISHIDEDOCK_TIPS'))
+  if (val && currentStartMode.value === ISartMode.NO_TRAY) {
+    message.warning(t('SETTINGS_ISHIDEDOCK_TIPS'))
     formOfSetting.value.isHideDock = false
     return
   }
@@ -1857,10 +2167,6 @@ function confirmCheckVersion () {
 
 function cancelCheckVersion () {
   checkUpdateVisible.value = false
-}
-
-function handleWebServerPortChange (val?: number, _?: number) {
-  saveConfig(configPaths.settings.webServerPort, Number(val) || 37777)
 }
 
 function confirmWebServerSetting () {
@@ -1917,7 +2223,8 @@ function handleAesPasswordChange (val: string) {
 
 function confirmLogLevelSetting () {
   if (formOfSetting.value.logLevel.length === 0) {
-    return $message.error(t('TIPS_PLEASE_CHOOSE_LOG_LEVEL'))
+    message.error(t('TIPS_PLEASE_CHOOSE_LOG_LEVEL'))
+    return
   }
   saveConfig({
     [configPaths.settings.logLevel]: formOfSetting.value.logLevel,
@@ -1943,9 +2250,9 @@ async function cancelLogLevelSetting () {
 
 function syncMessage (failed: number, taskType: 'UPLOAD' | 'DOWNLOAD') {
   if (failed) {
-    $message.error(t(`SETTINGS_SYNC_${taskType}_FAILED`, { failed }))
+    message.error(t(`SETTINGS_SYNC_${taskType}_FAILED`, { failed }))
   } else {
-    $message.success(t(`SETTINGS_SYNC_${taskType}_SUCCESS`))
+    message.success(t(`SETTINGS_SYNC_${taskType}_SUCCESS`))
   }
 }
 
@@ -1982,7 +2289,7 @@ const syncTaskList = [
   }
 ]
 
-async function syncTaskFn (task: IRPCActionType, number: number) {
+async function syncTaskFn (task: string, number: number) {
   const failed = number - ((await window.electron.triggerRPC<number>(task)) || 0)
   syncMessage(failed, task.includes('UPLOAD') ? 'UPLOAD' : 'DOWNLOAD')
 }
@@ -2036,14 +2343,14 @@ function handleLanguageChange (val: string) {
   // updatePicBedGlobal()
 }
 
-function handleStartModeChange (val: ISartModeValues) {
+function handleStartModeChange (val: string) {
   if (val === ISartMode.NO_TRAY) {
     if (formOfSetting.value.isHideDock) {
-      ElMessage.warning(t('SETTINGS_ISHIDEDOCK_TIPS'))
-      currentStartMode.value = valueToOptionItem(ISartMode.QUIET, startModeList.value)
+      message.warning(t('SETTINGS_ISHIDEDOCK_TIPS'))
+      currentStartMode.value = ISartMode.QUIET
       return
     }
-    $message.info(t('TIPS_NEED_RELOAD'))
+    message.info(t('TIPS_NEED_RELOAD'))
   }
   saveConfig({
     [configPaths.settings.startMode]: val
@@ -2068,92 +2375,5 @@ export default {
   name: 'SettingPage'
 }
 </script>
-<style lang="stylus">
-.el-message
-  left 60%
-.view-title
-  .el-icon-document
-    margin-left 8px
-    cursor pointer
-    transition color .2s ease-in-out
-    &:hover
-      color #49B1F5
-.el-tabs__item
-  color:white
-#piclist-setting
-  height 100%
-  position absolute
-  left 142px
-  right 0
-  .sub-title
-    font-size 14px
-  .setting-list
-    height 100%
-    box-sizing border-box
-    overflow-y auto
-    overflow-x hidden
-    width 100%
-  .setting-list
-    .el-form
-      width: 100%
-      &-item
-        display: flex
-        justify-content space-between
-        padding-top 8px
-        padding-bottom 8px
-        border-bottom 1px solid darken(#eee, 50%)
-        margin-bottom 0
-        &:last-child
-          border-bottom none
-        &::after
-          display none
-        &::before
-          display none
-        &__content
-          display flex
-          justify-content flex-end
-          flex-basis: 50%
-      .el-form-item__label
-        line-height 32px
-        padding-bottom 0
-        color #eee
-        flex-basis: 50%
-        flex-shrink: 0
-      .el-form-item__custom-label
-        display flex
-        align-items center
-      .el-button-group
-        width 100%
-        .el-button
-          width 50%
-      .el-radio-group
-        margin-left 25px
-      .el-switch__label
-        color #eee
-        &.is-active
-          color #409EFF
-      .el-icon-question
-        margin-left 4px
-        color #eee
-        cursor pointer
-        transition .2s color ease-in-out
-        &:hover
-          color #409EFF
-      .el-checkbox-group
-        label
-          margin-right 30px
-          width 100px
-      .el-checkbox+.el-checkbox
-        margin-right 30px
-        margin-left 0
-      .confirm-button
-        width 100%
-  .server-dialog
-    .notice-text
-      text-align center
-      color: #49B1F5
-    .el-dialog__body
-      padding-top: 0
-    .el-form-item
-      margin-bottom: 10px
-</style>
+
+<style scoped src="./css/PicgoSetting.css"></style>

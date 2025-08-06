@@ -65,3 +65,5 @@ TIPS_FIND_NEW_VERSION: 發現新版本${v}，更新了很多功能，是否後�
 UPDATE_DOWNLOADED: 更新已下載
 TIPS_UPDATE_DOWNLOADED: 更新已下載，将在下次啟動時安裝，是否立即重啟？
 QUIT: 退出
+OPERATION_SUCCEED: "操作成功"
+OPERATION_FAILED: "操作失敗"

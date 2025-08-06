@@ -7,20 +7,20 @@ import { app, BrowserWindow, dialog, Menu, MenuItem, MenuItemConstructorOptions,
 import { PicGo as PicGoCore } from 'piclist'
 import pkg from 'root/package.json'
 
+import type { IPicGoPlugin, IUploaderConfig } from '#/types/types'
 import {
   PICGO_CONFIG_PLUGIN,
   PICGO_HANDLE_PLUGIN_DONE,
   PICGO_HANDLE_PLUGIN_ING,
   PICGO_TOGGLE_PLUGIN,
   SHOW_MAIN_PAGE_QRCODE
-} from '#/events/constants'
-import { IWindowList } from '#/types/enum'
-import { IPicGoPlugin, IUploaderConfig } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
+} from '~/events/constant'
 import { handlePluginUninstall, handlePluginUpdate } from '~/events/rpc/routes/plugin/utils'
 import { T as $t } from '~/i18n'
 import clipboardPoll from '~/utils/clipboardPoll'
 import { setTrayToolTip } from '~/utils/common'
+import { configPaths } from '~/utils/configPaths'
+import { IWindowList } from '~/utils/enum'
 import getPicBeds from '~/utils/getPicBeds'
 import { changeCurrentUploader, changeSecondUploader } from '~/utils/handleUploaderConfig'
 import { openMainWindow } from '~/utils/windowHelper'

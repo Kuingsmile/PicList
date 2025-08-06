@@ -1,5 +1,6 @@
-import { IRPCActionType } from 'root/src/universal/types/enum'
 import { onMounted, onUnmounted } from 'vue'
+
+import { IRPCActionType } from '@/utils/enum'
 
 export function useATagClick () {
   const handleATagClick = (e: MouseEvent) => {

@@ -3,7 +3,7 @@ import { createI18n } from 'vue-i18n'
 import en from '@/i18n/locales/en.json'
 import zhCN from '@/i18n/locales/zh-CN.json'
 import zhTW from '@/i18n/locales/zh-TW.json'
-import { IStringKeyMap } from '#/types/types'
+import type { IStringKeyMap } from '#/types/types'
 type MessageSchema = typeof en
 
 const i18n = createI18n<MessageSchema, 'en' | 'zh-CN' | 'zh-TW'>({

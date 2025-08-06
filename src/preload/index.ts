@@ -7,9 +7,7 @@ import yaml from 'js-yaml'
 import mime from 'mime-types'
 import { isReactive, isRef, toRaw, unref } from 'vue'
 
-import { RPC_ACTIONS, RPC_ACTIONS_INVOKE } from '#/events/constants'
-import { IpcRendererListener } from '#/types/electron'
-import { IRPCActionType } from '#/types/enum'
+import type { IpcRendererListener } from '#/types/electron'
 
 export const getRawData = (args: any): any => {
   if (isRef(args)) return unref(args)
@@ -29,16 +27,16 @@ function sendToMain (channel: string, ...args: any[]) {
   ipcRenderer.send(channel, ...getRawData(args))
 }
 
-function sendRPC (action: IRPCActionType, ...args: any[]): void {
-  ipcRenderer.send(RPC_ACTIONS, action, getRawData(args))
+function sendRPC (action: string, ...args: any[]): void {
+  ipcRenderer.send('RPC_ACTIONS', action, getRawData(args))
 }
 
-async function triggerRPC<T> (action: IRPCActionType, ...args: any[]): Promise<T | undefined> {
-  return await ipcRenderer.invoke(RPC_ACTIONS_INVOKE, action, getRawData(args))
+async function triggerRPC<T> (action: string, ...args: any[]): Promise<T | undefined> {
+  return await ipcRenderer.invoke('RPC_ACTIONS_INVOKE', action, getRawData(args))
 }
 
-function sendRpcSync (action: IRPCActionType, ...args: any[]): any {
-  return ipcRenderer.sendSync(RPC_ACTIONS, action, getRawData(args))
+function sendRpcSync (action: string, ...args: any[]): any {
+  return ipcRenderer.sendSync('RPC_ACTIONS', action, getRawData(args))
 }
 
 try {

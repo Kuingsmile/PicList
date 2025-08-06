@@ -128,6 +128,55 @@
         "isResizeByPercentHint": "优先级更高",
         "resizePercent": "调整比例 (输入 50 表示 50%)"
       }
+    },
+    "settings": {
+      "title": "设置",
+      "description": "配置 PicList 应用程序",
+      "docs": "文档",
+      "clickToSet": "点击设置",
+      "clickToOpen": "点击打开",
+      "system": {
+        "title": "通用",
+        "languageAndAppearance": "语言和外观",
+        "chooseLanguage": "选择语言",
+        "startMode": "启动模式",
+        "quietMode": "静默模式",
+        "miniMode": "迷你窗口",
+        "mainMode": "主窗口",
+        "noTrayMode": "隐藏托盘",
+        "windowBehavior": "窗口行为",
+        "isHideDock": "是否隐藏 Dock 图标",
+        "mainWindowSize": "设置主窗口大小(需重启)",
+        "autoCloseMiniWindow": "打开主窗口时关闭迷你窗口",
+        "autoCloseMainWindow": "打开迷你窗口时关闭主窗口",
+        "miniWindowOnTop": "迷你窗口置顶",
+        "isCustomMiniIcon": "是否自定义迷你窗口图标",
+        "customMiniIconPath": "自定义迷你窗口图标路径",
+        "startupAndShortcuts": "启动和快捷键",
+        "autoLaunch": "开机自启",
+        "setShortCuts": "设置快捷键"
+      },
+      "sync": {
+        "title": "配置/同步",
+        "syncConfiguration": "同步配置",
+        "syncEndpointConfig": "同步方案配置",
+        "upDownloadSettings": "上传下载配置文件",
+        "migrateFromPicGo": "从PicGo迁移",
+        "fileManagement": "文件管理",
+        "openConfigFile": "打开配置文件",
+        "openConfigFileDir": "打开配置文件目录",
+        "autoImportInManage": "管理页面自动导入配置"
+      },
+      "upload": {
+        "title": "上传",
+        "uploadBehavior": "上传行为"
+      },
+      "advanced": {
+        "title": "高级"
+      },
+      "update": {
+        "title": "更新"
+      }
     }
   },
   "OPEN_MAIN_WINDOW": "打开主窗口",
@@ -145,15 +194,8 @@
   "TOOLBOX_RE_SCAN": "重新扫描",
   "TOOLBOX_START_FIX": "开始修复",
   "TOOLBOX_SUCCESS_TIPS": "恭喜你，没有检查出问题",
-  "MANUAL_PAGE_OPEN_TIP": "请选择打开方式",
-  "MANUAL_PAGE_OPEN_TIP_TITLE": "Tips",
-  "MANUAL_PAGE_OPEN_BY_BROWSER": "浏览器",
-  "MANUAL_PAGE_OPEN_BY_BUILD_IN": "内置窗口",
-  "MANUAL_PAGE_OPEN_SETTING_TIP": "选择手册打开方式",
   "UPLOAD_VIEW_HINT": "点击打开图床设置",
   "REFRESH": "刷新",
-  "MANUAL": "手册",
-  "PICLIST_SETTINGS": "设置",
   "PLUGIN_SETTINGS": "插件",
   "CHOOSE_PICBED": "选择图床",
   "COPY_PICBED_CONFIG": "复制图床配置",
@@ -191,11 +233,6 @@
   "SETTINGS_MIGRATE_FROM_PICGO_CONTENT": "即将导入PicGo的配置文件和相册, 这将覆盖当前的配置文件和相册, 是否继续?",
   "SETTINGS_MIGRATE_FROM_PICGO_SUCCESS": "导入成功, 请重启PicList生效",
   "SETTINGS_MIGRATE_FROM_PICGO_FAILED": "导入失败",
-  "SETTINGS_START_MODE": "启动模式",
-  "SETTINGS_START_MODE_MINI": "mini窗口",
-  "SETTINGS_START_MODE_MAIN": "主窗口",
-  "SETTINGS_START_MODE_NO_TRAY": "隐藏托盘",
-  "SETTINGS_START_MODE_QUIET": "静默启动",
   "SETTINGS_CLICK_TO_OPEN": "点击打开",
   "SETTINGS_SET_LOG_FILE": "设置日志文件",
   "SETTINGS_CLICK_TO_SET": "点击设置",
@@ -355,11 +392,6 @@
   "SETTINGS_SYNC_MANAGE_CONFIG": "管理配置",
   "SETTINGS_AUTO_IMPORT": "管理页面自动导入配置",
   "SETTINGS_AUTO_IMPORT_SELECT_PICBED": "选择需要开启自动导入的图床",
-  "SETTINGS_TAB_SYSTEM": "系统设置",
-  "SETTINGS_TAB_SYNC_CONFIG": "同步与配置",
-  "SETTINGS_TAB_UPLOAD": "上传设置",
-  "SETTINGS_TAB_ADVANCED": "高级设置",
-  "SETTINGS_TAB_UPDATE": "更新",
   "SHORTCUT_NAME": "快捷键名称",
   "SHORTCUT_BIND": "快捷键绑定",
   "SHORTCUT_STATUS": "状态",

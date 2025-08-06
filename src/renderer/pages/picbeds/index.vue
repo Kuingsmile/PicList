@@ -99,11 +99,11 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import ConfigForm from '@/components/ConfigForm.vue'
+import { configPaths } from '@/utils/configPaths'
 import { getConfig } from '@/utils/dataSender'
-import { II18nLanguage, IRPCActionType } from '#/types/enum'
-import { IPicGoPluginConfig, IStringKeyMap, IUploaderConfigItem, IUploaderConfigListItem } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
-import { picBedManualUrlList } from '#/utils/static'
+import { II18nLanguage, IRPCActionType } from '@/utils/enum'
+import { picBedManualUrlList } from '@/utils/static'
+import type { IPicGoPluginConfig, IStringKeyMap, IUploaderConfigItem, IUploaderConfigListItem } from '#/types/types'
 
 const { t } = useI18n()
 const type = ref('')

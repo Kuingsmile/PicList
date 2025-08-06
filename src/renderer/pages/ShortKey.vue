@@ -116,11 +116,11 @@
 <script lang="ts" setup>
 import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
+import { configPaths } from '@/utils/configPaths'
 import { getConfig } from '@/utils/dataSender'
+import { IRPCActionType } from '@/utils/enum'
 import keyBinding from '@/utils/key-binding'
-import { IRPCActionType } from '#/types/enum'
-import { IShortKeyConfig, IShortKeyConfigs } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
+import type { IShortKeyConfig, IShortKeyConfigs } from '#/types/types'
 
 const list = ref<IShortKeyConfig[]>([])
 const keyBindingVisible = ref(false)

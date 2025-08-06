@@ -27,15 +27,14 @@ import windowManager from 'apis/app/window/windowManager'
 import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 
-import { commonTaskStatus, IWindowList, uploadTaskSpecialStatus } from '#/types/enum'
-import { IStringKeyMap } from '#/types/types'
-import { formatEndpoint, formatHttpProxy } from '#/utils/common'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ConcurrencyPromisePool, formatError, getAgent, getFileMimeType, NewDownloader } from '~/manage/utils/common'
 import { dogecloudApi, DogecloudToken, getTempToken } from '~/manage/utils/dogeAPI'
 import { ManageLogger } from '~/manage/utils/logger'
-import { isImage } from '~/utils/common'
+import { formatEndpoint, formatHttpProxy, isImage } from '~/utils/common'
+import { commonTaskStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
 
 class S3plistApi {
   baseOptions: S3ClientConfig

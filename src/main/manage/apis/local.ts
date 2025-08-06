@@ -5,13 +5,13 @@ import windowManager from 'apis/app/window/windowManager'
 import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 
-import { commonTaskStatus, downloadTaskSpecialStatus, IWindowList, uploadTaskSpecialStatus } from '#/types/enum'
-import { IStringKeyMap } from '#/types/types'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { formatError } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
+import { commonTaskStatus, downloadTaskSpecialStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
 
 class LocalApi {
   logger: ManageLogger

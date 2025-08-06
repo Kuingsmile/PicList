@@ -239,18 +239,18 @@ import { computed, onBeforeMount, onBeforeUnmount, onMounted, reactive, ref, toR
 import { useI18n } from 'vue-i18n'
 
 import ConfigForm from '@/components/ConfigFormForPlugin.vue'
-import { getConfig, saveConfig } from '@/utils/dataSender'
-import { osGlobal, updatePicBedGlobal } from '@/utils/global'
+import { handleStreamlinePluginName } from '@/utils/common'
+import { configPaths } from '@/utils/configPaths'
 import {
   PICGO_CONFIG_PLUGIN,
   PICGO_HANDLE_PLUGIN_DONE,
   PICGO_HANDLE_PLUGIN_ING,
   PICGO_TOGGLE_PLUGIN
-} from '#/events/constants'
-import { IRPCActionType } from '#/types/enum'
-import { INPMSearchResultObject, IPicGoPlugin } from '#/types/types'
-import { handleStreamlinePluginName } from '#/utils/common'
-import { configPaths } from '#/utils/configPaths'
+} from '@/utils/constant'
+import { getConfig, saveConfig } from '@/utils/dataSender'
+import { IRPCActionType } from '@/utils/enum'
+import { osGlobal, updatePicBedGlobal } from '@/utils/global'
+import type { INPMSearchResultObject, IPicGoPlugin } from '#/types/types'
 
 const { t } = useI18n()
 const $confirm = ElMessageBox.confirm

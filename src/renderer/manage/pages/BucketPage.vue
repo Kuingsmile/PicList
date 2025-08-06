@@ -1589,11 +1589,11 @@ import {
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { textFileExt } from '@/manage/utils/textfile'
 import { videoExt } from '@/manage/utils/videofile'
-import { IRPCActionType } from '#/types/enum'
-import { IDownloadTask, IUploadTask } from '#/types/manage'
-import { IStringKeyMap } from '#/types/types'
-import { trimPath } from '#/utils/common'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import { trimPath } from '@/utils/common'
+import { IRPCActionType } from '@/utils/enum'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/utils/static'
+import type { IDownloadTask, IUploadTask } from '#/types/manage'
+import type { IStringKeyMap } from '#/types/types'
 
 const { t } = useI18n()
 /*

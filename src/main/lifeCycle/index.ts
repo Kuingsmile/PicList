@@ -16,10 +16,6 @@ import { app, dialog, globalShortcut, Notification, protocol, screen, shell } fr
 import updater from 'electron-updater'
 import fs from 'fs-extra'
 
-import { II18nLanguage, IRemoteNoticeTriggerHook, ISartMode, IWindowList } from '#/types/enum'
-import { configPaths } from '#/utils/configPaths'
-import { notificationList } from '#/utils/notification'
-import { CLIPBOARD_IMAGE_FOLDER } from '#/utils/static'
 import busEventList from '~/events/busEventList'
 import { rpcServer } from '~/events/rpc'
 import { startFileServer, stopFileServer } from '~/fileServer'
@@ -32,8 +28,12 @@ import server from '~/server/index'
 import webServer from '~/server/webServer'
 import beforeOpen from '~/utils/beforeOpen'
 import clipboardPoll from '~/utils/clipboardPoll'
+import { configPaths } from '~/utils/configPaths'
+import { II18nLanguage, IRemoteNoticeTriggerHook, ISartMode, IWindowList } from '~/utils/enum'
 import { getUploadFiles } from '~/utils/handleArgv'
 import { initI18n } from '~/utils/handleI18n'
+import { notificationList } from '~/utils/notification'
+import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 import updateChecker from '~/utils/updateChecker'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -169,6 +169,8 @@ class LifeCycle {
     const readyFunction = async () => {
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
+      const setwin = windowManager.get(IWindowList.SETTING_WINDOW)
+      setwin?.webContents?.openDevTools({ mode: 'detach' })
       const isAutoListenClipboard = db.get(configPaths.settings.isAutoListenClipboard) || false
       const ClipboardWatcher = clipboardPoll
       if (isAutoListenClipboard) {

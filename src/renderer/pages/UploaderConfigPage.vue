@@ -99,10 +99,10 @@ import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 
 import { useStore } from '@/hooks/useStore'
 import { PICBEDS_PAGE, UPLOADER_CONFIG_PAGE } from '@/router/config'
+import { configPaths } from '@/utils/configPaths'
 import { saveConfig } from '@/utils/dataSender'
-import { IRPCActionType } from '#/types/enum'
-import { IStringKeyMap, IUploaderConfigItem } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
+import { IRPCActionType } from '@/utils/enum'
+import type { IStringKeyMap, IUploaderConfigItem } from '#/types/types'
 
 const { t } = useI18n()
 const router = useRouter()

@@ -7,12 +7,12 @@ import { ipcMain, IpcMainEvent } from 'electron'
 import FormData from 'form-data'
 import fs from 'fs-extra'
 
-import { commonTaskStatus, IWindowList } from '#/types/enum'
-import { IStringKeyMap } from '#/types/types'
+import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ConcurrencyPromisePool, formatError, getFileMimeType, gotUpload, NewDownloader } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
+import { commonTaskStatus, IWindowList } from '~/utils/enum'
 
 class SmmsApi {
   baseUrl = 'https://smms.app/api/v2'

@@ -1,10 +1,9 @@
 import picgo from '@core/picgo'
 import { v4 as uuid } from 'uuid'
 
-import { IPicGoPluginConfig, IPicGoPluginOriginConfig, IStringKeyMap, IUploaderConfigItem, IUploaderConfigListItem } from '#/types/types'
-import { trimValues } from '#/utils/common'
-import { configPaths } from '#/utils/configPaths'
-import { setTrayToolTip } from '~/utils/common'
+import type { IPicGoPluginConfig, IPicGoPluginOriginConfig, IStringKeyMap, IUploaderConfigItem, IUploaderConfigListItem } from '#/types/types'
+import { setTrayToolTip, trimValues } from '~/utils/common'
+import { configPaths } from '~/utils/configPaths'
 
 export const handleConfigWithFunction = (config: IPicGoPluginOriginConfig[]): IPicGoPluginConfig[] => {
   for (const i in config) {

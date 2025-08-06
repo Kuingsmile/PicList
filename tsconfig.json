@@ -17,6 +17,7 @@
     ],
     "typeRoots": [
       "./node_modules/@types",
+      "./src/universal/types/"
     ],
     "paths": {
       "@/*": [
@@ -49,6 +50,7 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
+    "src/**/*.d.ts",
     "tests/**/*.ts",
     "tests/**/*.tsx",
     "electron.vite.config.*"

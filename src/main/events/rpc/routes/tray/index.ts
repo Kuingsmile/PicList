@@ -3,12 +3,12 @@ import uploader from 'apis/app/uploader'
 import windowManager from 'apis/app/window/windowManager'
 import { Notification } from 'electron'
 
-import { IPasteStyle, IRPCActionType, IRPCType, IWindowList } from '#/types/enum'
-import { IIPCEvent } from '#/types/rpc'
-import { configPaths } from '#/utils/configPaths'
+import type { IIPCEvent } from '#/types/rpc'
 import { RPCRouter } from '~/events/rpc/router'
 import { T as $t } from '~/i18n'
 import { generateShortUrl, handleCopyUrl, setTrayToolTip } from '~/utils/common'
+import { configPaths } from '~/utils/configPaths'
+import { IPasteStyle, IRPCActionType, IRPCType, IWindowList } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
 
 const trayRouter = new RPCRouter()

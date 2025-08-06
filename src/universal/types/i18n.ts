@@ -66,5 +66,7 @@ export interface ILocales {
   UPDATE_DOWNLOADED: string
   TIPS_UPDATE_DOWNLOADED: string
   QUIT: string
+  OPERATION_SUCCEED: string
+  OPERATION_FAILED: string
 }
 export type ILocalesKey = keyof ILocales

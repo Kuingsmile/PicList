@@ -3,15 +3,15 @@ import path from 'node:path'
 import windowManager from 'apis/app/window/windowManager'
 import { ipcMain, IpcMainEvent } from 'electron'
 
-import { commonTaskStatus, downloadTaskSpecialStatus, IWindowList, uploadTaskSpecialStatus } from '#/types/enum'
-import { Undefinable } from '#/types/manage'
-import { IStringKeyMap } from '#/types/types'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import type { Undefinable } from '#/types/manage'
+import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { formatError } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
+import { commonTaskStatus, downloadTaskSpecialStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
 import SSHClient from '~/utils/sshClient'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
 
 interface listDirResult {
   permissions: string

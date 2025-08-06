@@ -2,7 +2,7 @@ import https from 'node:https'
 
 import axios, { AxiosResponse } from 'axios'
 
-import { IStringKeyMap } from '#/types/types'
+import type { IStringKeyMap } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '~/utils/deleteLog'
 
 export default class LskyplistApi {

@@ -6,16 +6,16 @@ import { CREATE_APP_MENU } from '@core/bus/constants'
 import db from '@core/datastore'
 import { app, BrowserWindow, Rectangle } from 'electron'
 
-import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/events/constants'
-import { IWindowListItem } from '#/types/electron'
-import { IWindowList } from '#/types/enum'
-import { IBrowserWindowOptions } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
+import type { IWindowListItem } from '#/types/electron'
+import type { IBrowserWindowOptions } from '#/types/types'
+import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '~/events/constant'
 import { T as $t } from '~/i18n'
+import { configPaths } from '~/utils/configPaths'
+import { IWindowList } from '~/utils/enum'
 
 import logo from '../../../../../resources/logo.png?asset'
 
-const windowList = new Map<IWindowList, IWindowListItem>()
+const windowList = new Map<string, IWindowListItem>()
 
 const getDefaultWindowSizes = (): { width: number; height: number } => {
   const [mainWindowWidth, mainWindowHeight] = db.get([

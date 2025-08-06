@@ -24,7 +24,7 @@ import { Loading } from '@element-plus/icons-vue'
 import { computed, onMounted, ref, watch } from 'vue'
 
 import { getFileIconPath } from '@/manage/utils/common'
-import { IRPCActionType } from '#/types/enum'
+import { IRPCActionType } from '@/utils/enum'
 
 const preSignedUrl = ref('')
 

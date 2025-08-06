@@ -1,8 +1,8 @@
 import ALLApi from 'apis/delete/allApi'
 
-import { IRPCActionType, IRPCType } from '#/types/enum'
-import { IIPCEvent } from '#/types/rpc'
-import { ImgInfo } from '#/types/types'
+import type { IIPCEvent } from '#/types/rpc'
+import type { ImgInfo } from '#/types/types'
+import { IRPCActionType, IRPCType } from '~/utils/enum'
 
 export default [
   {

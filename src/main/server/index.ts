@@ -8,10 +8,10 @@ import { app } from 'electron'
 import fs from 'fs-extra'
 import multer from 'multer'
 
-import { ErrnoException, IObj, IServerConfig } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
+import type { ErrnoException, IObj, IServerConfig } from '#/types/types'
 import routers from '~/server/routerManager'
 import { ensureHTTPLink, handleResponse } from '~/server/utils'
+import { configPaths } from '~/utils/configPaths'
 
 const DEFAULT_PORT = 36677
 const DEFAULT_HOST = '0.0.0.0'

@@ -100,14 +100,14 @@ import { useI18n } from 'vue-i18n'
 
 import ToolboxHandler from '@/components/ToolboxHandler.vue'
 import ToolboxStatusIcon from '@/components/ToolboxStatusIcon.vue'
-import { IRPCActionType, IToolboxItemCheckStatus, IToolboxItemType } from '#/types/enum'
-import { IToolboxCheckRes } from '#/types/rpc'
-import { IToolboxMap } from '#/types/view'
+import { IRPCActionType, IToolboxItemCheckStatus, IToolboxItemType } from '@/utils/enum'
+import type { IToolboxCheckRes } from '#/types/rpc'
+import type { IToolboxMap } from '#/types/view'
 
 const { t } = useI18n()
 const $confirm = ElMessageBox.confirm
 const defaultLogo = ref('/roundLogo.png')
-const activeTypes = ref<IToolboxItemType[]>([])
+const activeTypes = ref<string[]>([])
 const fixList = reactive<IToolboxMap>({
   [IToolboxItemType.IS_CONFIG_FILE_BROKEN]: {
     title: t('TOOLBOX_CHECK_CONFIG_FILE_BROKEN'),
@@ -139,7 +139,7 @@ const fixList = reactive<IToolboxMap>({
 const progress = computed(() => {
   const total = Object.keys(fixList).length
   const done = Object.keys(fixList).filter(key => {
-    const status = fixList[key as IToolboxItemType].status
+    const status = fixList[key].status
     return status !== IToolboxItemCheckStatus.INIT && status !== IToolboxItemCheckStatus.LOADING
   }).length
   return (done / total) * 100
@@ -147,22 +147,22 @@ const progress = computed(() => {
 
 const isAllSuccess = computed(() => {
   return Object.keys(fixList).every(key => {
-    const status = fixList[key as IToolboxItemType].status
+    const status = fixList[key].status
     return status === IToolboxItemCheckStatus.SUCCESS
   })
 })
 
 const isLoading = computed(() => {
   return Object.keys(fixList).some(key => {
-    const status = fixList[key as IToolboxItemType].status
+    const status = fixList[key].status
     return status === IToolboxItemCheckStatus.LOADING
   })
 })
 
 const canFixLength = computed(() => {
   return Object.keys(fixList).filter(key => {
-    const status = fixList[key as IToolboxItemType].status
-    return status === IToolboxItemCheckStatus.ERROR && !fixList[key as IToolboxItemType].hasNoFixMethod
+    const status = fixList[key].status
+    return status === IToolboxItemCheckStatus.ERROR && !fixList[key].hasNoFixMethod
   }).length
 })
 
@@ -182,9 +182,9 @@ window.electron.ipcRendererOn(IRPCActionType.TOOLBOX_CHECK_RES, toolboxCheckResH
 const handleCheck = () => {
   activeTypes.value = []
   Object.keys(fixList).forEach(key => {
-    fixList[key as IToolboxItemType].status = IToolboxItemCheckStatus.LOADING
-    fixList[key as IToolboxItemType].msg = ''
-    fixList[key as IToolboxItemType].value = ''
+    fixList[key].status = IToolboxItemCheckStatus.LOADING
+    fixList[key].msg = ''
+    fixList[key].value = ''
   })
   window.electron.sendRPC(IRPCActionType.TOOLBOX_CHECK)
 }
@@ -193,11 +193,11 @@ const handleFix = async () => {
   const fixRes = await Promise.all(
     Object.keys(fixList)
       .filter(key => {
-        const status = fixList[key as IToolboxItemType].status
-        return status === IToolboxItemCheckStatus.ERROR && !fixList[key as IToolboxItemType].hasNoFixMethod
+        const status = fixList[key].status
+        return status === IToolboxItemCheckStatus.ERROR && !fixList[key].hasNoFixMethod
       })
       .map(async key => {
-        return window.electron.triggerRPC<IToolboxCheckRes>(IRPCActionType.TOOLBOX_CHECK_FIX, key as IToolboxItemType)
+        return window.electron.triggerRPC<IToolboxCheckRes>(IRPCActionType.TOOLBOX_CHECK_FIX, key)
       })
   )
 

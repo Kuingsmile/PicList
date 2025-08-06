@@ -11,13 +11,13 @@ import fs from 'fs-extra'
 import type { IPicGo } from 'piclist'
 import writeFile from 'write-file-atomic'
 
-import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '#/events/constants'
-import { ICOREBuildInEvent, IWindowList } from '#/types/enum'
-import { ImgInfo, IUploadOption } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
-import { CLIPBOARD_IMAGE_FOLDER } from '#/utils/static'
+import type { ImgInfo, IUploadOption } from '#/types/types'
+import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '~/events/constant'
 import { T as $t } from '~/i18n'
 import { getClipboardFilePath, showNotification } from '~/utils/common'
+import { configPaths } from '~/utils/configPaths'
+import { ICOREBuildInEvent, IWindowList } from '~/utils/enum'
+import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 
 const waitForRename = (window: BrowserWindow, id: number): Promise<string | null> => {
   return new Promise(resolve => {

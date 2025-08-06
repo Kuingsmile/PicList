@@ -7,9 +7,7 @@ import FormData from 'form-data'
 import fs from 'fs-extra'
 import Upyun from 'upyun'
 
-import { commonTaskStatus, IWindowList } from '#/types/enum'
-import { IStringKeyMap } from '#/types/types'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import {
   ConcurrencyPromisePool,
@@ -22,6 +20,8 @@ import {
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
+import { commonTaskStatus, IWindowList } from '~/utils/enum'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
 
 class UpyunApi {
   ser: Upyun.Service

@@ -5,10 +5,7 @@ import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 import got from 'got'
 
-import { commonTaskStatus, IWindowList } from '#/types/enum'
-import { IStringKeyMap } from '#/types/types'
-import { formatHttpProxy, trimPath } from '#/utils/common'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import {
   ConcurrencyPromisePool,
@@ -19,7 +16,9 @@ import {
   NewDownloader
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
-import { isImage } from '~/utils/common'
+import { formatHttpProxy, isImage, trimPath } from '~/utils/common'
+import { commonTaskStatus, IWindowList } from '~/utils/enum'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
 
 class GithubApi {
   token: string

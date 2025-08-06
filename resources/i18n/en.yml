@@ -65,3 +65,5 @@ TIPS_FIND_NEW_VERSION: Find new version ${v}, update many new features, do you w
 UPDATE_DOWNLOADED: Update downloaded
 TIPS_UPDATE_DOWNLOADED: The update has been downloaded and will be installed on the next app restart. Would you like to restart now?
 QUIT: Quit
+OPERATION_SUCCEED: "Operation Succeed"
+OPERATION_FAILED: "Operation Failed"

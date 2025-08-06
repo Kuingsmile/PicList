@@ -1,7 +1,7 @@
 import { JSONStore } from '@piclist/store'
 
-import { IManageApiType, IManageConfigType } from '#/types/manage'
-import { IStringKeyMap } from '#/types/types'
+import type { IManageApiType, IManageConfigType } from '#/types/manage'
+import type { IStringKeyMap } from '#/types/types'
 interface IJSON {
   [propsName: string]: string | number | IJSON
 }

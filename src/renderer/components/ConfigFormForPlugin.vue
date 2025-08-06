@@ -83,7 +83,7 @@ import { cloneDeep, union } from 'lodash-es'
 import { reactive, ref, watch } from 'vue'
 
 import { getConfig } from '@/utils/dataSender'
-import { IPicGoPluginConfig, IStringKeyMap } from '#/types/types'
+import type { IPicGoPluginConfig, IStringKeyMap } from '#/types/types'
 
 interface IProps {
   config: any[]

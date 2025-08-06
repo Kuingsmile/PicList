@@ -225,7 +225,6 @@
 <script lang="ts" setup>
 import { Folder, InfoFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { IRPCActionType } from 'root/src/universal/types/enum'
 import { onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -233,7 +232,8 @@ import DynamicSwitch from '@/manage/components/DynamicSwitch.vue'
 import { fileCacheDbInstance } from '@/manage/store/bucketFileDb'
 import { customRenameFormatTable, formatFileSize } from '@/manage/utils/common'
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
-import { IStringKeyMap } from '#/types/types'
+import { IRPCActionType } from '@/utils/enum'
+import type { IStringKeyMap } from '#/types/types'
 
 const { t } = useI18n()
 const form = ref<IStringKeyMap>({

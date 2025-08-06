@@ -1,6 +1,6 @@
 import { Octokit } from '@octokit/rest'
 
-import { IGitHubConfig, PartialKeys } from '#/types/types'
+import type { IGitHubConfig, PartialKeys } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '~/utils/deleteLog'
 
 interface IConfigMap {

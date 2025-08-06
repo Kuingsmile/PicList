@@ -5,9 +5,7 @@ import axios from 'axios'
 import { ipcMain, IpcMainEvent } from 'electron'
 import qiniu from 'qiniu'
 
-import { commonTaskStatus, IWindowList, uploadTaskSpecialStatus } from '#/types/enum'
-import { IStringKeyMap } from '#/types/types'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import {
   ConcurrencyPromisePool,
@@ -18,6 +16,8 @@ import {
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
+import { commonTaskStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
 
 class QiniuApi {
   mac: qiniu.auth.digest.Mac

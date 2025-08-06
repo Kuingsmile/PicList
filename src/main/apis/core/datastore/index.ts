@@ -1,10 +1,10 @@
 import { dbPathChecker, dbPathDir, getGalleryDBPath } from '@core/datastore/dbChecker'
 import { DBStore, JSONStore } from '@piclist/store'
 import fs from 'fs-extra'
-import { IConfig } from 'piclist'
+import type { IConfig } from 'piclist'
 
-import { configPaths } from '#/utils/configPaths'
 import { T as $t } from '~/i18n'
+import { configPaths } from '~/utils/configPaths'
 interface IJSON {
   [propsName: string]: string | number | IJSON
 }

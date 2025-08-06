@@ -7,15 +7,14 @@ import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 import { AuthType, createClient, FileStat, ProgressEvent, WebDAVClient, WebDAVClientOptions } from 'webdav'
 
-import { commonTaskStatus, IWindowList, uploadTaskSpecialStatus } from '#/types/enum'
-import { IStringKeyMap } from '#/types/types'
-import { formatEndpoint, formatHttpProxy } from '#/utils/common'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '#/utils/static'
+import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ConcurrencyPromisePool, formatError, getInnerAgent, NewDownloader } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
-import { isImage } from '~/utils/common'
+import { formatEndpoint, formatHttpProxy, isImage } from '~/utils/common'
 import { getAuthHeader } from '~/utils/digestAuth'
+import { commonTaskStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
+import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
 
 class WebdavplistApi {
   endpoint: string

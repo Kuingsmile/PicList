@@ -1,4 +1,4 @@
-import { IStringKeyMap } from '#/types/types'
+import type { IStringKeyMap } from '#/types/types'
 import AlistApi from '~/apis/delete/alist'
 import AlistplistApi from '~/apis/delete/alistplist'
 import AliyunApi from '~/apis/delete/aliyun'

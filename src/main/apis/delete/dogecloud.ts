@@ -1,5 +1,5 @@
-import { getRawData } from '@/utils/common'
-import { IStringKeyMap } from '#/types/types'
+import type { IStringKeyMap } from '#/types/types'
+import { getRawData } from '~/utils/common'
 import { removeFileFromDogeInMain } from '~/utils/deleteFunc'
 import { deleteFailedLog } from '~/utils/deleteLog'
 

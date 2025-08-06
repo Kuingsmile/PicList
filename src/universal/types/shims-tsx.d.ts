@@ -1,3 +1,5 @@
+// src/global.d.ts
+
 import crypto from 'node:crypto'
 import path from 'node:path'
 
@@ -8,7 +10,6 @@ import mime from 'mime-types'
 import { VNode } from 'vue'
 
 import { IpcRendererListener } from '#/types/electron'
-import { IRPCActionType } from '#/types/enum'
 import { ILocales, ILocalesKey } from '#/types/i18n'
 import { IStringKeyMap } from '#/types/types'
 
@@ -24,10 +25,10 @@ declare global {
     electron: {
       platform: string
       setVisualZoomLevelLimits: (min: number, max: number) => void
-      sendRpcSync: (action: IRPCActionType, ...args: any[]) => any
-      triggerRPC: <T>(action: IRPCActionType, ...args: any[]) => Promise<T | undefined>
+      sendRpcSync: (action: string, ...args: any[]) => any
+      triggerRPC: <T>(action: string, ...args: any[]) => Promise<T | undefined>
       sendToMain: (channel: string, ...args: any[]) => void
-      sendRPC: (action: IRPCActionType, ...args: any[]) => void
+      sendRPC: (action: string, ...args: any[]) => void
       ipcRendererOn: (channel: string, listener: IpcRendererListener) => void
       ipcRendererRemoveListener: (channel: string, listener: IpcRendererListener) => void
       clipboard: {

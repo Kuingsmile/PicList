@@ -6,11 +6,11 @@ import ALLApi from 'apis/delete/allApi'
 import GuiApi from 'apis/gui'
 import { Notification } from 'electron'
 
-import { ICOREBuildInEvent, IWindowList } from '#/types/enum'
-import { IHttpResponse, ImgInfo, IObj } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
-import { picBedsCanbeDeleted } from '#/utils/static'
+import type { IHttpResponse, ImgInfo, IObj } from '#/types/types'
 import { T as $t } from '~/i18n/index'
+import { configPaths } from '~/utils/configPaths'
+import { ICOREBuildInEvent, IWindowList } from '~/utils/enum'
+import { picBedsCanbeDeleted } from '~/utils/static'
 
 export const handleResponse = ({
   response,

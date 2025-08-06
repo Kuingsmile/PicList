@@ -10,12 +10,12 @@ import { app } from 'electron'
 import fs from 'fs-extra'
 import { marked } from 'marked'
 
-import { IHttpResponse, IStringKeyMap } from '#/types/types'
-import { configPaths } from '#/utils/configPaths'
+import type { IHttpResponse, IStringKeyMap } from '#/types/types'
 import { markdownContent } from '~/server/apiDoc'
 import router from '~/server/router'
 import { deleteChoosedFiles, handleResponse } from '~/server/utils'
 import { AESHelper } from '~/utils/aesHelper'
+import { configPaths } from '~/utils/configPaths'
 import { changeCurrentUploader } from '~/utils/handleUploaderConfig'
 
 const appPath = app.getPath('userData')

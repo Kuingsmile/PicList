@@ -511,8 +511,8 @@ import type { IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
 import { computed, onBeforeMount, reactive, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
-import { configPaths } from '#/utils/configPaths'
 
 const { t } = useI18n()
 const imageProcessDialogVisible = defineModel<boolean>()

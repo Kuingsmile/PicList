@@ -5,9 +5,9 @@ import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
 import fs from 'fs-extra'
 
-import { IStringKeyMap } from '#/types/types'
-import { encodeFilePath } from '#/utils/common'
-import { configPaths } from '#/utils/configPaths'
+import type { IStringKeyMap } from '#/types/types'
+import { encodeFilePath } from '~/utils/common'
+import { configPaths } from '~/utils/configPaths'
 
 const defaultPath = process.platform === 'win32' ? 'C:\\Users' : '/'
 

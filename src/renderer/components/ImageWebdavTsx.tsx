@@ -4,7 +4,7 @@ import { computed, defineComponent, onMounted, ref, watch } from 'vue'
 
 import { getFileIconPath } from '@/manage/utils/common'
 import { getAuthHeader } from '@/manage/utils/digestAuth'
-import { formatEndpoint } from '#/utils/common'
+import { formatEndpoint } from '@/utils/common'
 
 export default defineComponent({
   props: {

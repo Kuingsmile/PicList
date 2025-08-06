@@ -1,8 +1,7 @@
-import { ServerResponse } from 'node:http'
+import type { ServerResponse } from 'node:http'
 
 import type { PicGo } from 'piclist'
 
-import { IRemoteNoticeActionType, IRemoteNoticeTriggerCount, IRemoteNoticeTriggerHook } from '#/types/enum'
 export interface IObj {
   [propName: string]: any
 }
@@ -483,12 +482,12 @@ export interface IRemoteNotice {
 }
 
 export interface IRemoteNoticeAction {
-  type: IRemoteNoticeActionType
+  type: string
   // trigger time
-  hooks: IRemoteNoticeTriggerHook[]
+  hooks: string[]
   id: string
   // trigger count: always or once; default: once
-  triggerCount: IRemoteNoticeTriggerCount
+  triggerCount: string
 
   data?: {
     title?: string

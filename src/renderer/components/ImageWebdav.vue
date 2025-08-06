@@ -25,7 +25,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 
 import { getFileIconPath } from '@/manage/utils/common'
 import { getAuthHeader } from '@/manage/utils/digestAuth'
-import { formatEndpoint } from '#/utils/common'
+import { formatEndpoint } from '@/utils/common'
 
 const base64Url = ref('')
 const success = ref(false)

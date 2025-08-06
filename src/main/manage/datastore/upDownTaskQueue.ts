@@ -6,8 +6,8 @@ import path from 'node:path'
 import { app } from 'electron'
 import fs from 'fs-extra'
 
-import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '#/types/enum'
-import { IDownloadTask, IUploadTask } from '#/types/manage'
+import type { IDownloadTask, IUploadTask } from '#/types/manage'
+import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 class UpDownTaskQueue {
   private static instance: UpDownTaskQueue

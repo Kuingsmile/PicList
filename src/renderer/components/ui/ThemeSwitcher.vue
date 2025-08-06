@@ -3,7 +3,7 @@ import { Monitor, Moon, Sun } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useAppStore } from '@/hooks/appStore'
+import { useAppStore } from '@/hooks/useAppStore'
 
 const { t } = useI18n()
 const appStore = useAppStore()

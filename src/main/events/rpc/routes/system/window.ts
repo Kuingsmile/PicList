@@ -1,9 +1,8 @@
 import windowManager from 'apis/app/window/windowManager'
 import { app, BrowserWindow } from 'electron'
 
-import { IRPCActionType, IWindowList } from '#/types/enum'
-import { IIPCEvent } from '#/types/rpc'
-import { IMiniWindowPos, IPicGoPlugin } from '#/types/types'
+import type { IIPCEvent } from '#/types/rpc'
+import type { IMiniWindowPos, IPicGoPlugin } from '#/types/types'
 import {
   buildMainPageMenu,
   buildMiniPageMenu,
@@ -11,6 +10,7 @@ import {
   buildPluginPageMenu,
   buildSecondPicBedMenu
 } from '~/events/remotes/menu'
+import { IRPCActionType, IWindowList } from '~/utils/enum'
 import { openMiniWindow } from '~/utils/windowHelper'
 
 export default [
@@ -22,7 +22,7 @@ export default [
   },
   {
     action: IRPCActionType.OPEN_WINDOW,
-    handler: async (_: IIPCEvent, args: [windowName: IWindowList]) => {
+    handler: async (_: IIPCEvent, args: [windowName: string]) => {
       const window = windowManager.get(args[0])
       if (window) {
         window.show()

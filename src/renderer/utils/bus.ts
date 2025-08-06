@@ -1,6 +1,6 @@
 import mitt from 'mitt'
 
-import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '#/events/constants'
+import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 type IEvent = {

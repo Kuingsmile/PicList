@@ -1,8 +1,7 @@
 // https://stackoverflow.com/questions/45420448/how-to-import-external-type-into-global-d-ts-file
 import type { BrowserWindow, IpcRendererEvent } from 'electron'
 
-import { IWindowList } from './enum'
-import type { IBrowserWindowOptions } from './types'
+import type { IBrowserWindowOptions } from '#/types/types'
 
 export interface IWindowListItem {
   isValid: boolean
@@ -12,9 +11,9 @@ export interface IWindowListItem {
 }
 
 export interface IWindowManager {
-  create: (name: IWindowList) => BrowserWindow | null
-  get: (name: IWindowList) => BrowserWindow | null
-  has: (name: IWindowList) => boolean
+  create: (name: string) => BrowserWindow | null
+  get: (name: string) => BrowserWindow | null
+  has: (name: string) => boolean
   // delete: (name: IWindowList) => void
   deleteById: (id: number) => void
   getAvailableWindow: (isSkipMiniWindow?: boolean) => BrowserWindow

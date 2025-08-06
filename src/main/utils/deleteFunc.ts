@@ -9,7 +9,7 @@ import { NodeHttpHandler } from '@smithy/node-http-handler'
 import axios from 'axios'
 import { ISftpPlistConfig } from 'piclist'
 
-import { IObj, IStringKeyMap } from '#/types/types'
+import type { IObj, IStringKeyMap } from '#/types/types'
 import { getAgent } from '~/manage/utils/common'
 import SSHClient from '~/utils/sshClient'
 
