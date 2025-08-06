@@ -489,7 +489,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -498,10 +498,12 @@
 
 .dialog {
   background: var(--color-surface);
-  border-radius: 12px;
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xl);
   padding: 1.5rem;
-  max-width: 500px;
-  width: 90%;
+  max-width: 90vw;
+  width: 80vw;
   max-height: 80vh;
   overflow-y: auto;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
@@ -542,6 +544,14 @@
 
 .dialog-content {
   margin-bottom: 1.5rem;
+  padding: 0.2rem;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.dialog-content::-webkit-scrollbar {
+  display: none;
 }
 
 .dialog-footer {
@@ -561,13 +571,13 @@
 
 /* Notice Text */
 .notice-text {
-  background: rgba(64, 158, 255, 0.1);
-  color: #409eff;
+  background: rgba(0, 128, 255, 0.1);
+  color: #1c2630ff;
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
   text-align: center;
-  font-size: 0.875rem;
+  font-size: 0.925rem;
 }
 
 /* Small text */
@@ -673,4 +683,131 @@ small {
 :root.dark .dialog,
 :root.auto.dark .dialog {
   background: var(--color-background-tertiary);
+}
+
+/* Placeholder Help Styles */
+.placeholder-help {
+  background: var(--color-background-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0;
+  margin-top: 0.75rem;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.placeholder-category {
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.placeholder-category:last-child {
+  border-bottom: none;
+}
+
+.category-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  padding: 0.875rem 1rem 0.5rem;
+  background: linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
+  border-bottom: 1px solid var(--color-border-light);
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.placeholder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0;
+  padding: 0.5rem 0;
+}
+
+.placeholder-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0;
+  margin: 0;
+}
+
+.placeholder-item:hover {
+  background: rgba(var(--color-accent-rgb), 0.08);
+  transform: translateX(2px);
+}
+
+.placeholder-item code {
+  background: linear-gradient(135deg, var(--color-accent) 0%, #667eea 100%);
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  margin-right: 0.875rem;
+  min-width: 80px;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.placeholder-item span {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  flex: 1;
+}
+
+/* Scrollbar styling for macOS feel */
+.placeholder-help::-webkit-scrollbar {
+  width: 6px;
+}
+
+.placeholder-help::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.placeholder-help::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.placeholder-help::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* Dark theme adjustments */
+:root.dark .placeholder-help,
+:root.auto.dark .placeholder-help {
+  background: var(--color-background-secondary);
+  border-color: var(--color-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+:root.dark .category-title,
+:root.auto.dark .category-title {
+  background: linear-gradient(135deg, var(--color-background-tertiary) 0%, var(--color-background-secondary) 100%);
+  border-bottom-color: var(--color-border);
+}
+
+:root.dark .placeholder-category,
+:root.auto.dark .placeholder-category {
+  border-bottom-color: var(--color-border);
+}
+
+:root.dark .placeholder-item:hover,
+:root.auto.dark .placeholder-item:hover {
+  background: rgba(var(--color-accent-rgb), 0.12);
+}
+
+:root.dark .placeholder-item code,
+:root.auto.dark .placeholder-item code {
+  background: linear-gradient(135deg, var(--color-accent) 0%, #764ba2 100%);
+  border-color: rgba(255, 255, 255, 0.15);
 }

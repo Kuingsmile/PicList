@@ -195,11 +195,6 @@ html, body {
   transition: var(--transition-medium);
 }
 
-.upload-zone:hover .upload-icon,
-.upload-zone.drag-active .upload-icon {
-  transform: scale(1.1);
-}
-
 .upload-text {
   display: flex;
   flex-direction: column;
@@ -492,7 +487,6 @@ html, body {
   border: 1px solid var(--color-border);
   border-radius: 50%;
   cursor: pointer;
-  transition: var(--transition-fast);
   color: var(--color-text-secondary);
 }
 
@@ -526,16 +520,6 @@ html, body {
   transform: translateY(-10px);
 }
 
-.modal-enter-active,
-.modal-leave-active {
-  transition: all var(--transition-medium);
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {

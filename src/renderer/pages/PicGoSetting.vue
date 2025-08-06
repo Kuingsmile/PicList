@@ -4,20 +4,14 @@
       <!-- Header -->
       <div class="settings-header">
         <div class="header-content">
-          <Settings
-            :size="24"
-            class="header-icon"
-          />
+          <Settings :size="24" class="header-icon" />
           <div>
             <h1>{{ t('pages.settings.title') }}</h1>
             <p>{{ t('pages.settings.description') }}</p>
           </div>
         </div>
         <div class="header-actions">
-          <button
-            class="btn btn-secondary"
-            @click="goConfigPage"
-          >
+          <button class="btn btn-secondary" @click="goConfigPage">
             <BookOpen :size="16" />
             {{ t('pages.settings.docs') }}
           </button>
@@ -33,10 +27,7 @@
           :class="{ active: activeName === tab.id }"
           @click="activeName = tab.id as 'system' | 'sync' | 'upload' | 'advanced' | 'update'"
         >
-          <component
-            :is="tab.icon"
-            :size="18"
-          />
+          <component :is="tab.icon" :size="18" />
           <span>{{ tab.label }}</span>
         </button>
       </div>
@@ -44,25 +35,15 @@
       <!-- Settings Content -->
       <div class="settings-content">
         <!-- System Settings Tab -->
-        <div
-          v-if="activeName === 'system'"
-          class="tab-content"
-        >
+        <div v-if="activeName === 'system'" class="tab-content">
           <div class="settings-section">
             <h2>{{ t('pages.settings.system.languageAndAppearance') }}</h2>
             <p>{{ ' ' }}</p>
             <div class="form-grid">
               <div class="form-group">
                 <label>{{ t('pages.settings.system.chooseLanguage') }}</label>
-                <select
-                  v-model="currentLanguage"
-                  class="form-select"
-                >
-                  <option
-                    v-for="item in languageList"
-                    :key="item.value"
-                    :value="item.value"
-                  >
+                <select v-model="currentLanguage" class="form-select">
+                  <option v-for="item in languageList" :key="item.value" :value="item.value">
                     {{ item.label }}
                   </option>
                 </select>
@@ -70,23 +51,14 @@
 
               <div class="form-group">
                 <label>{{ t('pages.settings.system.startMode') }}</label>
-                <select
-                  v-model="currentStartMode"
-                  class="form-select"
-                >
+                <select v-model="currentStartMode" class="form-select">
                   <option value="quiet">
                     {{ t('pages.settings.system.quietMode') }}
                   </option>
-                  <option
-                    v-if="osGlobal !== 'darwin'"
-                    value="mini"
-                  >
+                  <option v-if="osGlobal !== 'darwin'" value="mini">
                     {{ t('pages.settings.system.miniMode') }}
                   </option>
-                  <option
-                    v-if="osGlobal === 'darwin'"
-                    value="no-tray"
-                  >
+                  <option v-if="osGlobal === 'darwin'" value="no-tray">
                     {{ t('pages.settings.system.noTrayMode') }}
                   </option>
                   <option value="main">
@@ -100,155 +72,117 @@
           <div class="settings-section">
             <h2>{{ t('pages.settings.system.windowBehavior') }}</h2>
             <p>{{ ' ' }}</p>
-            <div
-              v-if="osGlobal === 'darwin'"
-              class="form-group"
-            >
-              <label class="switch-label">
-                <input
-                  v-model="formOfSetting.isHideDock"
-                  type="checkbox"
-                  class="switch-input"
-                  @change="handleHideDockChange(formOfSetting.isHideDock)"
-                >
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <div class="switch-title">{{ t('pages.settings.system.isHideDock') }}</div>
-                </div>
-              </label>
-            </div>
+            <div class="form-grid">
+              <div v-if="osGlobal === 'darwin'" class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.isHideDock"
+                    type="checkbox"
+                    class="switch-input"
+                    @change="handleHideDockChange(formOfSetting.isHideDock)"
+                  />
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('pages.settings.system.isHideDock') }}</div>
+                  </div>
+                </label>
+              </div>
 
-            <div class="form-group">
-              <label>{{ t('pages.settings.system.mainWindowSize') }}</label>
-              <button
-                class="btn btn-secondary"
-                @click="mainWindowSizeVisible = true"
-              >
-                <Monitor :size="16" />
-                {{ t('pages.settings.clickToSet') }}
-              </button>
-            </div>
+              <div class="form-group">
+                <label>{{ t('pages.settings.system.mainWindowSize') }}</label>
+                <button class="btn btn-secondary" @click="mainWindowSizeVisible = true">
+                  <Monitor :size="16" />
+                  {{ t('pages.settings.clickToSet') }}
+                </button>
+              </div>
 
-            <div
-              v-if="osGlobal !== 'darwin'"
-              class="form-group"
-            >
-              <label class="switch-label">
-                <input
-                  v-model="formOfSetting.autoCloseMiniWindow"
-                  type="checkbox"
-                  class="switch-input"
-                >
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <div class="switch-title">{{ t('pages.settings.system.autoCloseMiniWindow') }}</div>
-                </div>
-              </label>
-            </div>
+              <div v-if="osGlobal !== 'darwin'" class="form-group">
+                <label class="switch-label">
+                  <input v-model="formOfSetting.autoCloseMiniWindow" type="checkbox" class="switch-input" />
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('pages.settings.system.autoCloseMiniWindow') }}</div>
+                  </div>
+                </label>
+              </div>
 
-            <div
-              v-if="osGlobal !== 'darwin'"
-              class="form-group"
-            >
-              <label class="switch-label">
-                <input
-                  v-model="formOfSetting.autoCloseMainWindow"
-                  type="checkbox"
-                  class="switch-input"
-                >
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <div class="switch-title">{{ t('pages.settings.system.autoCloseMainWindow') }}</div>
-                </div>
-              </label>
-            </div>
+              <div v-if="osGlobal !== 'darwin'" class="form-group">
+                <label class="switch-label">
+                  <input v-model="formOfSetting.autoCloseMainWindow" type="checkbox" class="switch-input" />
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('pages.settings.system.autoCloseMainWindow') }}</div>
+                  </div>
+                </label>
+              </div>
 
-            <div
-              v-if="osGlobal !== 'darwin'"
-              class="form-group"
-            >
-              <label class="switch-label">
-                <input
-                  v-model="formOfSetting.miniWindowOntop"
-                  type="checkbox"
-                  class="switch-input"
-                  @change="handleMiniWindowOntop(formOfSetting.miniWindowOntop)"
-                >
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <div class="switch-title">{{ t('pages.settings.system.miniWindowOnTop') }}</div>
-                </div>
-              </label>
-            </div>
+              <div v-if="osGlobal !== 'darwin'" class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.miniWindowOntop"
+                    type="checkbox"
+                    class="switch-input"
+                    @change="handleMiniWindowOntop(formOfSetting.miniWindowOntop)"
+                  />
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('pages.settings.system.miniWindowOnTop') }}</div>
+                  </div>
+                </label>
+              </div>
 
-            <div
-              v-if="osGlobal !== 'darwin'"
-              class="form-group"
-            >
-              <label class="switch-label">
-                <input
-                  v-model="formOfSetting.isCustomMiniIcon"
-                  type="checkbox"
-                  class="switch-input"
-                >
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <div class="switch-title">{{ t('pages.settings.system.isCustomMiniIcon') }}</div>
-                </div>
-              </label>
-            </div>
+              <div v-if="osGlobal !== 'darwin'" class="form-group">
+                <label class="switch-label">
+                  <input v-model="formOfSetting.isCustomMiniIcon" type="checkbox" class="switch-input" />
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('pages.settings.system.isCustomMiniIcon') }}</div>
+                  </div>
+                </label>
+              </div>
 
-            <div
-              v-if="osGlobal !== 'darwin' && formOfSetting.isCustomMiniIcon"
-              class="form-group"
-            >
-              <label>{{ t('pages.settings.system.customMiniIconPath') }}</label>
-              <button
-                class="btn btn-secondary"
-                @click="handleMiniIconPath"
-              >
-                <ImageIcon :size="16" />
-                {{ t('pages.settings.clickToSet') }}
-              </button>
+              <div v-if="osGlobal !== 'darwin' && formOfSetting.isCustomMiniIcon" class="form-group">
+                <label>{{ t('pages.settings.system.customMiniIconPath') }}</label>
+                <button class="btn btn-secondary" @click="handleMiniIconPath">
+                  <ImageIcon :size="16" />
+                  {{ t('pages.settings.clickToSet') }}
+                </button>
+              </div>
             </div>
           </div>
-
           <div class="settings-section">
             <h2>{{ t('pages.settings.system.startupAndShortcuts') }}</h2>
             <p>{{ ' ' }}</p>
-            <div class="form-group">
-              <label class="switch-label">
-                <input
-                  v-model="formOfSetting.autoStart"
-                  type="checkbox"
-                  class="switch-input"
-                  @change="handleAutoStartChange(formOfSetting.autoStart)"
-                >
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <div class="switch-title">{{ t('pages.settings.system.autoLaunch') }}</div>
-                </div>
-              </label>
-            </div>
 
-            <div class="form-group">
-              <label>{{ t('pages.settings.system.setShortCuts') }}</label>
-              <button
-                class="btn btn-secondary"
-                @click="goShortCutPage"
-              >
-                <Keyboard :size="16" />
-                {{ t('pages.settings.clickToSet') }}
-              </button>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="switch-label">
+                  <input
+                    v-model="formOfSetting.autoStart"
+                    type="checkbox"
+                    class="switch-input"
+                    @change="handleAutoStartChange(formOfSetting.autoStart)"
+                  />
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('pages.settings.system.autoLaunch') }}</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label>{{ t('pages.settings.system.setShortCuts') }}</label>
+                <button class="btn btn-secondary" @click="goShortCutPage">
+                  <Keyboard :size="16" />
+                  {{ t('pages.settings.clickToSet') }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Sync & Configure Tab -->
-        <div
-          v-if="activeName === 'sync'"
-          class="tab-content"
-        >
+        <div v-if="activeName === 'sync'" class="tab-content">
           <div class="settings-section">
             <h2>{{ t('pages.settings.sync.syncConfiguration') }}</h2>
             <p>{{ ' ' }}</p>
@@ -256,10 +190,7 @@
             <div class="form-grid">
               <div class="form-group">
                 <label>{{ t('pages.settings.sync.syncEndpointConfig') }}</label>
-                <button
-                  class="btn btn-primary"
-                  @click="syncVisible = true"
-                >
+                <button class="btn btn-primary" @click="syncVisible = true">
                   <RotateCcw :size="16" />
                   {{ t('pages.settings.clickToSet') }}
                 </button>
@@ -267,10 +198,7 @@
 
               <div class="form-group">
                 <label>{{ t('pages.settings.sync.upDownloadSettings') }}</label>
-                <button
-                  class="btn btn-primary"
-                  @click="upDownConfigVisible = true"
-                >
+                <button class="btn btn-primary" @click="upDownConfigVisible = true">
                   <Download :size="16" />
                   {{ t('pages.settings.clickToSet') }}
                 </button>
@@ -278,10 +206,7 @@
 
               <div class="form-group">
                 <label>{{ t('pages.settings.sync.migrateFromPicGo') }}</label>
-                <button
-                  class="btn btn-secondary"
-                  @click="handleMigrateFromPicGo"
-                >
+                <button class="btn btn-secondary" @click="handleMigrateFromPicGo">
                   <Import :size="16" />
                   {{ t('pages.settings.clickToSet') }}
                 </button>
@@ -296,10 +221,7 @@
             <div class="form-grid">
               <div class="form-group">
                 <label>{{ t('pages.settings.sync.openConfigFile') }}</label>
-                <button
-                  class="btn btn-secondary"
-                  @click="openFile('data.json')"
-                >
+                <button class="btn btn-secondary" @click="openFile('data.json')">
                   <FileText :size="16" />
                   {{ t('pages.settings.clickToOpen') }}
                 </button>
@@ -307,10 +229,7 @@
 
               <div class="form-group">
                 <label>{{ t('pages.settings.sync.openConfigFileDir') }}</label>
-                <button
-                  class="btn btn-secondary"
-                  @click="openDirectory()"
-                >
+                <button class="btn btn-secondary" @click="openDirectory()">
                   <FolderOpen :size="16" />
                   {{ t('pages.settings.clickToOpen') }}
                 </button>
@@ -319,162 +238,116 @@
           </div>
         </div>
         <!-- Upload Settings Tab -->
-        <div
-          v-if="activeName === 'upload'"
-          class="tab-content"
-        >
+        <div v-if="activeName === 'upload'" class="tab-content">
           <div class="settings-section">
             <h2>{{ t('pages.settings.upload.uploadBehavior') }}</h2>
             <p>{{ ' ' }}</p>
-
-            <div class="form-group">
-              <label class="switch-label">
-                <input
-                  v-model="formOfSetting.autoImport"
-                  type="checkbox"
-                  class="switch-input"
-                >
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <div class="switch-title">{{ t('pages.settings.sync.autoImportInManage') }}</div>
-                  <div class="switch-description">{{ t('SETTINGS_AUTO_IMPORT_DESC') || 'Automatically import images to selected image beds' }}</div>
-                </div>
-              </label>
-            </div>
-
-            <div
-              v-if="formOfSetting.autoImport"
-              class="form-group"
-            >
-              <label>{{ t('SETTINGS_AUTO_IMPORT_SELECT_PICBED') }}</label>
-              <div class="checkbox-group">
-                <label
-                  v-for="item in picBedGlobal"
-                  :key="item.type"
-                  class="checkbox-option"
-                >
-                  <input
-                    v-model="formOfSetting.autoImportPicBed"
-                    type="checkbox"
-                    :value="item.type"
-                    class="checkbox-input"
-                  >
-                  <span class="checkbox-indicator" />
-                  <span class="checkbox-label">{{ item.name }}</span>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="switch-label">
+                  <input v-model="formOfSetting.autoImport" type="checkbox" class="switch-input" />
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('pages.settings.upload.autoImportInManage') }}</div>
+                    <div class="switch-description">{{ t('pages.settings.upload.autoImportInManageHint') }}</div>
+                  </div>
                 </label>
               </div>
-            </div>
 
-            <div class="form-group">
-              <label class="switch-label">
-                <input
-                  v-model="formOfSetting.enableSecondUploader"
-                  type="checkbox"
-                  class="switch-input"
-                >
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <div class="switch-title">{{ t('SETTINGS_ENABLE_SECOND_PICBED') }}</div>
-                  <div class="switch-description">{{ t('SETTINGS_ENABLE_SECOND_PICBED_DESC') || 'Enable secondary image bed for redundancy' }}</div>
+              <div v-if="formOfSetting.autoImport" class="form-group">
+                <label>{{ t('pages.settings.upload.autoImportPicBed') }}</label>
+                <div class="checkbox-group">
+                  <label v-for="item in picBedGlobal" :key="item.type" class="checkbox-option">
+                    <input
+                      v-model="formOfSetting.autoImportPicBed"
+                      type="checkbox"
+                      :value="item.type"
+                      class="checkbox-input"
+                    />
+                    <span class="checkbox-indicator" />
+                    <span class="checkbox-label">{{ item.name }}</span>
+                  </label>
                 </div>
-              </label>
-            </div>
+              </div>
 
-            <div class="form-group">
-              <label>{{ t('SETTINGS_SET_SECOND_PICBED') }}</label>
-              <button
-                class="btn btn-secondary"
-                @click="handleChangeSecondPicBed"
-              >
-                <CloudUpload :size="16" />
-                {{ t('SETTINGS_CLICK_TO_SET') }}
-              </button>
+              <div class="form-group">
+                <label class="switch-label">
+                  <input v-model="formOfSetting.enableSecondUploader" type="checkbox" class="switch-input" />
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('pages.settings.upload.enableSecondPicBed') }}</div>
+                    <div class="switch-description">{{ t('pages.settings.upload.enableSecondPicBedHint') }}</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label>{{ t('pages.settings.upload.setSecondPicBed') }}</label>
+                <button class="btn btn-secondary" @click="handleChangeSecondPicBed">
+                  <CloudUpload :size="16" />
+                  {{ t('pages.settings.clickToSet') }}
+                </button>
+              </div>
             </div>
           </div>
-
           <div class="settings-section">
-            <h2>{{ t('SETTINGS_UPLOAD_PROCESSING') || 'Upload Processing' }}</h2>
-            <p>{{ t('SETTINGS_UPLOAD_PROCESSING_DESC') || 'Configure file processing, naming and format options' }}</p>
+            <h2>{{ t('pages.settings.upload.uploadProcessing') }}</h2>
+            <p>{{ ' ' }}</p>
 
             <div class="form-grid">
               <div class="form-group">
                 <label class="switch-label">
-                  <input
-                    v-model="formOfSetting.deleteCloudFile"
-                    type="checkbox"
-                    class="switch-input"
-                  >
+                  <input v-model="formOfSetting.deleteCloudFile" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
-                    <div class="switch-title">{{ t('SETTINGS_SYNC_DELETE_CLOUD') }}</div>
-                    <div class="switch-description">{{ t('SETTINGS_SYNC_DELETE_CLOUD_DESC') || 'Delete cloud file when local file is deleted' }}</div>
+                    <div class="switch-title">{{ t('pages.settings.upload.deleteCloud') }}</div>
                   </div>
                 </label>
               </div>
 
               <div class="form-group">
                 <label class="switch-label">
-                  <input
-                    v-model="formOfSetting.rename"
-                    type="checkbox"
-                    class="switch-input"
-                  >
+                  <input v-model="formOfSetting.rename" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
-                    <div class="switch-title">{{ t('SETTINGS_RENAME_BEFORE_UPLOAD') }}</div>
-                    <div class="switch-description">{{ t('SETTINGS_RENAME_BEFORE_UPLOAD_DESC') || 'Rename files before uploading' }}</div>
+                    <div class="switch-title">{{ t('pages.settings.upload.manualRname') }}</div>
                   </div>
                 </label>
               </div>
 
               <div class="form-group">
                 <label class="switch-label">
-                  <input
-                    v-model="formOfSetting.autoRename"
-                    type="checkbox"
-                    class="switch-input"
-                  >
+                  <input v-model="formOfSetting.autoRename" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
-                    <div class="switch-title">{{ t('SETTINGS_TIMESTAMP_RENAME') }}</div>
-                    <div class="switch-description">{{ t('SETTINGS_TIMESTAMP_RENAME_DESC') || 'Add timestamp to file names' }}</div>
+                    <div class="switch-title">{{ t('pages.settings.upload.timestampRname') }}</div>
+                    <div class="switch-description">{{ 'YYYYMMDDHHmmssSSS' }}</div>
                   </div>
                 </label>
               </div>
 
               <div class="form-group">
-                <label>{{ t('SETTINGS_ADVANCED_RENAME') }}</label>
-                <button
-                  class="btn btn-secondary"
-                  @click="advancedRenameVisible = true"
-                >
+                <label>{{ t('pages.settings.upload.advancedRname') }}</label>
+                <button class="btn btn-secondary" @click="advancedRenameVisible = true">
                   <Edit :size="16" />
-                  {{ t('SETTINGS_CLICK_TO_SET') }}
+                  {{ t('pages.settings.clickToSet') }}
                 </button>
               </div>
 
               <div class="form-group">
-                <label>{{ t('SETTINGS_COMPRESS_AND_WATERMARK') }}</label>
-                <button
-                  class="btn btn-secondary"
-                  @click="imageProcessDialogVisible = true"
-                >
+                <label>{{ t('pages.settings.upload.imageProcessing') }}</label>
+                <button class="btn btn-secondary" @click="imageProcessDialogVisible = true">
                   <ImageIcon :size="16" />
-                  {{ t('SETTINGS_CLICK_TO_SET') }}
+                  {{ t('pages.settings.clickToSet') }}
                 </button>
               </div>
 
               <div class="form-group">
                 <label class="switch-label">
-                  <input
-                    v-model="formOfSetting.deleteLocalFile"
-                    type="checkbox"
-                    class="switch-input"
-                  >
+                  <input v-model="formOfSetting.deleteLocalFile" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
-                    <div class="switch-title">{{ t('SETTINGS_DELETE_LOCAL_FILE_AFTER_UPLOAD') }}</div>
-                    <div class="switch-description">{{ t('SETTINGS_DELETE_LOCAL_FILE_DESC') || 'Delete local file after successful upload' }}</div>
+                    <div class="switch-title">{{ t('pages.settings.upload.deleteLocalFileAfterUpload') }}</div>
                   </div>
                 </label>
               </div>
@@ -482,81 +355,59 @@
           </div>
 
           <div class="settings-section">
-            <h2>{{ t('SETTINGS_NOTIFICATIONS_CLIPBOARD') || 'Notifications & Clipboard' }}</h2>
-            <p>{{ t('SETTINGS_NOTIFICATIONS_CLIPBOARD_DESC') || 'Configure notifications and clipboard behavior' }}</p>
+            <h2>{{ t('pages.settings.upload.clipboardAndNotification') }}</h2>
+            <p>{{ ' ' }}</p>
 
             <div class="form-grid">
               <div class="form-group">
                 <label class="switch-label">
-                  <input
-                    v-model="formOfSetting.uploadNotification"
-                    type="checkbox"
-                    class="switch-input"
-                  >
+                  <input v-model="formOfSetting.uploadNotification" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
-                    <div class="switch-title">{{ t('SETTINGS_OPEN_UPLOAD_TIPS') }}</div>
-                    <div class="switch-description">{{ t('SETTINGS_UPLOAD_TIPS_DESC') || 'Show notification when uploading starts' }}</div>
+                    <div class="switch-title">{{ t('pages.settings.upload.enableUploadNotification') }}</div>
                   </div>
                 </label>
               </div>
 
               <div class="form-group">
                 <label class="switch-label">
-                  <input
-                    v-model="formOfSetting.uploadResultNotification"
-                    type="checkbox"
-                    class="switch-input"
-                  >
+                  <input v-model="formOfSetting.uploadResultNotification" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
-                    <div class="switch-title">{{ t('SETTINGS_OPEN_UPLOAD_RESULT_TIPS') }}</div>
-                    <div class="switch-description">{{ t('SETTINGS_UPLOAD_RESULT_DESC') || 'Show notification when upload completes' }}</div>
+                    <div class="switch-title">{{ t('pages.settings.upload.enableUploadResultNotification') }}</div>
                   </div>
                 </label>
               </div>
 
               <div class="form-group">
                 <label class="switch-label">
-                  <input
-                    v-model="formOfSetting.autoCopy"
-                    type="checkbox"
-                    class="switch-input"
-                  >
+                  <input v-model="formOfSetting.autoCopy" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
-                    <div class="switch-title">{{ t('SETTINGS_AUTO_COPY_URL_AFTER_UPLOAD') }}</div>
-                    <div class="switch-description">{{ t('SETTINGS_AUTO_COPY_DESC') || 'Automatically copy URL to clipboard after upload' }}</div>
+                    <div class="switch-title">{{ t('pages.settings.upload.autoCopyUrlAfterUpload') }}</div>
                   </div>
                 </label>
               </div>
 
               <div class="form-group">
                 <label class="switch-label">
-                  <input
-                    v-model="formOfSetting.useBuiltinClipboard"
-                    type="checkbox"
-                    class="switch-input"
-                  >
+                  <input v-model="formOfSetting.useBuiltinClipboard" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
-                    <div class="switch-title">{{ t('SETTINGS_USE_BUILTIN_CLIPBOARD_UPLOAD') }}</div>
-                    <div class="switch-description">{{ t('BUILTIN_CLIPBOARD_TIPS') || 'Use built-in clipboard monitoring for uploads' }}</div>
+                    <div class="switch-title">{{ t('pages.settings.upload.useBuiltInClipboardUpload') }}</div>
+                    <div class="switch-description">
+                      {{ t('pages.settings.upload.useBuiltInClipboardUploadHint') }}
+                    </div>
                   </div>
                 </label>
               </div>
 
               <div class="form-group">
                 <label class="switch-label">
-                  <input
-                    v-model="formOfSetting.isAutoListenClipboard"
-                    type="checkbox"
-                    class="switch-input"
-                  >
+                  <input v-model="formOfSetting.isAutoListenClipboard" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
-                    <div class="switch-title">{{ t('SETTINGS_WATCH_CLIPBOARD') }}</div>
-                    <div class="switch-description">{{ t('SETTINGS_WATCH_CLIPBOARD_DESC') || 'Monitor clipboard for automatic uploads' }}</div>
+                    <div class="switch-title">{{ t('pages.settings.upload.isAutoListenClipboard') }}</div>
                   </div>
                 </label>
               </div>
@@ -564,80 +415,107 @@
           </div>
 
           <div class="settings-section">
-            <h2>{{ t('SETTINGS_URL_FORMAT') || 'URL Format & Links' }}</h2>
-            <p>{{ t('SETTINGS_URL_FORMAT_DESC') || 'Configure output URL format and short URL options' }}</p>
+            <h2>{{ t('pages.settings.upload.urlFormatAndLinkType') }}</h2>
+            <p>{{ ' ' }}</p>
 
             <div class="form-grid">
               <div class="form-group">
-                <label>{{ t('SETTINGS_CUSTOM_LINK_FORMAT') }}</label>
-                <button
-                  class="btn btn-secondary"
-                  @click="customLinkVisible = true"
-                >
+                <label>{{ t('pages.settings.upload.customLinkFormat') }}</label>
+                <button class="btn btn-secondary" @click="customLinkVisible = true">
                   <Link :size="16" />
-                  {{ t('SETTINGS_CLICK_TO_SET') }}
+                  {{ t('pages.settings.clickToSet') }}
                 </button>
               </div>
 
               <div class="form-group">
                 <label class="switch-label">
-                  <input
-                    v-model="formOfSetting.useShortUrl"
-                    type="checkbox"
-                    class="switch-input"
-                  >
+                  <input v-model="formOfSetting.useShortUrl" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
-                    <div class="switch-title">{{ t('SETTINGS_SHORT_URL') }}</div>
-                    <div class="switch-description">{{ t('SETTINGS_SHORT_URL_DESC') || 'Generate short URLs for uploaded images' }}</div>
+                    <div class="switch-title">{{ t('pages.settings.upload.enableShortUrl') }}</div>
                   </div>
                 </label>
               </div>
 
-              <div
-                v-if="formOfSetting.useShortUrl"
-                class="form-group"
-              >
-                <label>{{ t('SETTINGS_SHORT_URL_SERVER') }}</label>
+              <div v-if="formOfSetting.useShortUrl" class="form-group">
+                <label>{{ t('pages.settings.upload.shortUrlServer') }}</label>
                 <select
                   v-model="currentShortUrlServer"
                   class="form-select"
-                  @change="handleShortUrlServerChange(currentShortUrlServer.value)"
+                  @change="handleShortUrlServerChange(currentShortUrlServer)"
                 >
-                  <option
-                    v-for="item in shortUrlServerList"
-                    :key="item.value"
-                    :value="item.value"
-                  >
+                  <option v-for="item in shortUrlServerList" :key="item.value" :value="item.value">
                     {{ item.label }}
                   </option>
                 </select>
               </div>
 
-              <div
-                v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'c1n'"
-                class="form-group"
-              >
-                <label>{{ t('SETTINGS_SHORT_URL_C1N_TOKEN') }}</label>
+              <div v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'c1n'" class="form-group">
+                <label>{{ t('pages.settings.upload.c1nToken') }}</label>
                 <input
                   v-model="formOfSetting.c1nToken"
                   type="text"
                   class="form-input"
-                  :placeholder="t('SETTINGS_SHORT_URL_C1N_TOKEN')"
-                >
+                  :placeholder="t('pages.settings.upload.c1nToken')"
+                />
+              </div>
+
+              <div v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'yourls'" class="form-group">
+                <label>{{ t('pages.settings.upload.yourlsDomain') }}</label>
+                <input
+                  v-model="formOfSetting.yourlsDomain"
+                  type="text"
+                  class="form-input"
+                  :placeholder="t('pages.settings.upload.yourlsDomain')"
+                />
+              </div>
+
+              <div v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'yourls'" class="form-group">
+                <label>{{ t('pages.settings.upload.yourlsSignature') }}</label>
+                <input
+                  v-model="formOfSetting.yourlsSignature"
+                  type="text"
+                  class="form-input"
+                  :placeholder="t('pages.settings.upload.yourlsSignature')"
+                />
+              </div>
+
+              <div v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'cf_worker'" class="form-group">
+                <label>{{ t('pages.settings.upload.cfWorkerHost') }}</label>
+                <input
+                  v-model="formOfSetting.cfWorkerHost"
+                  type="text"
+                  class="form-input"
+                  :placeholder="t('pages.settings.upload.cfWorkerHost')"
+                />
+              </div>
+
+              <div v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'sink'" class="form-group">
+                <label>{{ t('pages.settings.upload.sinkDomain') }}</label>
+                <input
+                  v-model="formOfSetting.sinkDomain"
+                  type="text"
+                  class="form-input"
+                  :placeholder="t('pages.settings.upload.sinkDomain')"
+                />
+              </div>
+
+              <div v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'sink'" class="form-group">
+                <label>{{ t('pages.settings.upload.sinkToken') }}</label>
+                <input
+                  v-model="formOfSetting.sinkToken"
+                  type="text"
+                  class="form-input"
+                  :placeholder="t('pages.settings.upload.sinkToken')"
+                />
               </div>
 
               <div class="form-group">
                 <label class="switch-label">
-                  <input
-                    v-model="formOfSetting.encodeOutputURL"
-                    type="checkbox"
-                    class="switch-input"
-                  >
+                  <input v-model="formOfSetting.encodeOutputURL" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
-                    <div class="switch-title">{{ t('SETTINGS_ENCODE_OUTPUT_URL') }}</div>
-                    <div class="switch-description">{{ t('SETTINGS_ENCODE_OUTPUT_URL_DESC') || 'URL-encode special characters in output URLs' }}</div>
+                    <div class="switch-title">{{ t('pages.settings.upload.encodeOutputUrl') }}</div>
                   </div>
                 </label>
               </div>
@@ -645,22 +523,11 @@
           </div>
 
           <div class="settings-section">
-            <h2>{{ t('CHOOSE_SHOWED_PICBED') }}</h2>
-            <p>{{ t('CHOOSE_SHOWED_PICBED_DESC') || 'Select which image beds to display in the interface' }}</p>
+            <h2>{{ t('pages.settings.upload.chooseShowedPicBed') }}</h2>
 
             <div class="checkbox-group">
-              <label
-                v-for="item in picBedGlobal"
-                :key="item.name"
-                class="checkbox-option"
-              >
-                <input
-                  v-model="showPicBedList"
-                  type="checkbox"
-                  :value="item.name"
-                  class="checkbox-input"
-                  @change="handleShowPicBedListChange(showPicBedList)"
-                >
+              <label v-for="item in picBedGlobal" :key="item.name" class="checkbox-option">
+                <input v-model="showPicBedList" type="checkbox" :value="item.name" class="checkbox-input" />
                 <span class="checkbox-indicator" />
                 <span class="checkbox-label">{{ item.name }}</span>
               </label>
@@ -669,128 +536,102 @@
         </div>
 
         <!-- Advanced Settings Tab -->
-        <div
-          v-if="activeName === 'advanced'"
-          class="tab-content"
-        >
+        <div v-if="activeName === 'advanced'" class="tab-content">
           <div class="settings-section">
-            <h2>{{ t('SETTINGS_LOGGING') || 'Logging' }}</h2>
-            <p>{{ t('SETTINGS_LOGGING_DESC') || 'Configure application logging and debug options' }}</p>
+            <h2>{{ t('pages.settings.advanced.logging') }}</h2>
+            <p>{{ ' ' }}</p>
 
             <div class="form-grid">
               <div class="form-group">
-                <label>{{ t('SETTINGS_LOG_FILE_PATH') }}</label>
-                <button
-                  class="btn btn-secondary"
-                  @click="openDirectory()"
-                >
+                <label>{{ t('pages.settings.advanced.logFilePath') }}</label>
+                <button class="btn btn-secondary" @click="openDirectory()">
                   <FolderOpen :size="16" />
-                  {{ t('SETTINGS_CLICK_TO_OPEN') }}
+                  {{ t('pages.settings.clickToOpen') }}
                 </button>
               </div>
 
               <div class="form-group">
-                <label>{{ t('SETTINGS_SET_LOG_FILE') }}</label>
-                <button
-                  class="btn btn-secondary"
-                  @click="openLogSetting"
-                >
+                <label>{{ t('pages.settings.advanced.setLog') }}</label>
+                <button class="btn btn-secondary" @click="openLogSetting">
                   <FileText :size="16" />
-                  {{ t('SETTINGS_CLICK_TO_SET') }}
+                  {{ t('pages.settings.clickToSet') }}
                 </button>
               </div>
             </div>
           </div>
 
           <div class="settings-section">
-            <h2>{{ t('SETTINGS_NETWORK_PROXY') || 'Network & Proxy' }}</h2>
-            <p>{{ t('SETTINGS_NETWORK_PROXY_DESC') || 'Configure proxy settings and network mirrors' }}</p>
+            <h2>{{ t('pages.settings.advanced.networkAndProxy') }}</h2>
+            <p>{{ ' ' }}</p>
 
             <div class="form-group">
-              <label>{{ t('SETTINGS_SET_PROXY_AND_MIRROR') }}</label>
-              <button
-                class="btn btn-secondary"
-                @click="proxyVisible = true"
-              >
+              <label>{{ t('pages.settings.advanced.setProxyAndMirror') }}</label>
+              <button class="btn btn-secondary" @click="proxyVisible = true">
                 <Globe :size="16" />
-                {{ t('SETTINGS_CLICK_TO_SET') }}
+                {{ t('pages.settings.clickToSet') }}
               </button>
             </div>
           </div>
 
           <div class="settings-section">
-            <h2>{{ t('SETTINGS_SERVER_CONFIGURATION') || 'Server Configuration' }}</h2>
-            <p>{{ t('SETTINGS_SERVER_CONFIGURATION_DESC') || 'Configure web server and API server settings' }}</p>
+            <h2>{{ t('pages.settings.advanced.serverSettings') }}</h2>
+            <p>{{ ' ' }}</p>
 
             <div class="form-grid">
               <div class="form-group">
-                <label>{{ t('SETTINGS_SET_WEB_SERVER') }}</label>
-                <button
-                  class="btn btn-secondary"
-                  @click="webServerVisible = true"
-                >
+                <label>{{ t('pages.settings.advanced.webServerSettings') }}</label>
+                <button class="btn btn-secondary" @click="webServerVisible = true">
                   <Server :size="16" />
-                  {{ t('SETTINGS_CLICK_TO_SET') }}
+                  {{ t('pages.settings.clickToSet') }}
                 </button>
               </div>
 
               <div class="form-group">
-                <label>{{ t('SETTINGS_SET_SERVER') }}</label>
-                <button
-                  class="btn btn-secondary"
-                  @click="serverVisible = true"
-                >
+                <label>{{ t('pages.settings.advanced.uploadServer') }}</label>
+                <button class="btn btn-secondary" @click="serverVisible = true">
                   <Settings :size="16" />
-                  {{ t('SETTINGS_CLICK_TO_SET') }}
+                  {{ t('pages.settings.clickToSet') }}
                 </button>
               </div>
 
               <div class="form-group">
-                <label>{{ t('SETTINGS_SET_SERVER_AES_KEY') }}</label>
+                <label>{{ t('pages.settings.advanced.serverEncryptionKey') }}</label>
                 <input
                   v-model.trim="formOfSetting.aesPassword"
                   type="text"
                   class="form-input"
-                  :placeholder="t('SETTINGS_SET_SERVER_AES_KEY')"
+                  :placeholder="t('pages.settings.advanced.serverEncryptionKey')"
                   @change="handleAesPasswordChange(formOfSetting.aesPassword)"
-                >
+                />
               </div>
             </div>
           </div>
         </div>
 
         <!-- Update Settings Tab -->
-        <div
-          v-if="activeName === 'update'"
-          class="tab-content"
-        >
+        <div v-if="activeName === 'update'" class="tab-content">
           <div class="settings-section">
-            <h2>{{ t('SETTINGS_APPLICATION_UPDATES') || 'Application Updates' }}</h2>
-            <p>{{ t('SETTINGS_APPLICATION_UPDATES_DESC') || 'Check for updates and configure update notifications' }}</p>
+            <h2>{{ t('pages.settings.update.applicationUpdates') }}</h2>
+            <p>{{ ' ' }}</p>
 
             <div class="form-grid">
               <div class="form-group">
-                <label>{{ t('SETTINGS_CHECK_UPDATE') }}</label>
-                <button
-                  class="btn btn-primary"
-                  @click="checkUpdate"
-                >
+                <label>{{ t('pages.settings.update.checkUpdate') }}</label>
+                <button class="btn btn-primary" @click="checkUpdate">
                   <RefreshCw :size="16" />
-                  {{ t('SETTINGS_CLICK_TO_CHECK') }}
+                  {{ t('pages.settings.update.clickToCheck') }}
                 </button>
               </div>
 
               <div class="form-group">
                 <label class="switch-label">
-                  <input
-                    v-model="formOfSetting.showUpdateTip"
-                    type="checkbox"
-                    class="switch-input"
-                  >
+                  <input v-model="formOfSetting.showUpdateTip" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
-                    <div class="switch-title">{{ t('SETTINGS_OPEN_UPDATE_HELPER') }}</div>
-                    <div class="switch-description">{{ t('SETTINGS_UPDATE_HELPER_DESC') || 'Show notifications when updates are available' }}</div>
+                    <div class="switch-title">{{ t('pages.settings.update.openUpdateHelper') }}</div>
+                    <div class="switch-description">
+                      {{ t('pages.settings.update.openUpdateHelperDesc') }}
+                    </div>
                   </div>
                 </label>
               </div>
@@ -801,772 +642,580 @@
     </div>
 
     <!-- Dialogs -->
-    <div
-      v-if="customLinkVisible"
-      class="dialog-overlay"
-      @click="customLinkVisible = false"
-    >
-      <div
-        class="dialog"
-        @click.stop
-      >
+    <div v-if="customLinkVisible" class="dialog-overlay" @click="customLinkVisible = false">
+      <div class="dialog" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
-            {{ t('SETTINGS_CUSTOM_LINK_FORMAT') }}
+            {{ t('pages.settings.upload.customLinkFormat') }}
           </h3>
-          <button
-            class="dialog-close"
-            @click="customLinkVisible = false"
-          >
-            ×
-          </button>
+          <button class="dialog-close" @click="customLinkVisible = false">×</button>
         </div>
         <div class="dialog-content">
           <div class="notice-text">
-            {{ t('SETTINGS_TIPS_PLACEHOLDER_URL') }}<br>
-            {{ t('SETTINGS_TIPS_PLACEHOLDER_FILENAME') }}<br>
-            {{ t('SETTINGS_TIPS_PLACEHOLDER_EXTNAME') }}
+            {{ t('pages.settings.upload.urlPlaceholder') }}<br />
+            {{ t('pages.settings.upload.fileNamePlaceholder') }}<br />
+            {{ t('pages.settings.upload.extNamePlaceholder') }}
           </div>
           <div class="form-group">
-            <input
-              v-model="customLink.value"
-              type="text"
-              class="form-input"
-              :placeholder="'![$fileName]($url)'"
-            >
+            <input v-model="customLink.value" type="text" class="form-input" :placeholder="'![$fileName]($url)'" />
           </div>
-          <small>{{ t('SETTINGS_TIPS_SUCH_AS') }}: ![$fileName]($url)</small>
+          <small> ![$fileName]($url)</small>
         </div>
         <div class="dialog-footer">
-          <button
-            class="btn btn-secondary"
-            @click="cancelCustomLink"
-          >
-            {{ t('CANCEL') }}
+          <button class="btn btn-secondary" @click="cancelCustomLink">
+            {{ t('common.cancel') }}
           </button>
-          <button
-            class="btn btn-primary"
-            @click="confirmCustomLink"
-          >
-            {{ t('CONFIRM') }}
+          <button class="btn btn-primary" @click="confirmCustomLink">
+            {{ t('common.confirm') }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Proxy Settings Dialog -->
-    <div
-      v-if="proxyVisible"
-      class="dialog-overlay"
-      @click="proxyVisible = false"
-    >
-      <div
-        class="dialog"
-        @click.stop
-      >
+    <div v-if="proxyVisible" class="dialog-overlay" @click="proxyVisible = false">
+      <div class="dialog" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
-            {{ t('SETTINGS_NETWORK_PROXY') }}
+            {{ t('pages.settings.advanced.setProxyAndMirror') }}
           </h3>
-          <button
-            class="dialog-close"
-            @click="proxyVisible = false"
-          >
-            ×
-          </button>
+          <button class="dialog-close" @click="proxyVisible = false">×</button>
         </div>
         <div class="dialog-content">
           <div class="form-group">
-            <label>{{ t('SETTINGS_UPLOAD_PROXY') }}</label>
-            <input
-              v-model="proxy"
-              type="text"
-              class="form-input"
-              :placeholder="`${t('SETTINGS_TIPS_SUCH_AS')}：http://127.0.0.1:1080`"
-            >
+            <label>{{ t('pages.settings.advanced.uploadProxy') }}</label>
+            <input v-model="proxy" type="text" class="form-input" placeholder="http://127.0.0.1:1080" />
           </div>
           <div class="form-group">
-            <label>{{ t('SETTINGS_PLUGIN_INSTALL_PROXY') }}</label>
-            <input
-              v-model="formOfSetting.proxy"
-              type="text"
-              class="form-input"
-              :placeholder="`${t('SETTINGS_TIPS_SUCH_AS')}：http://127.0.0.1:1080`"
-            >
+            <label>{{ t('pages.settings.advanced.pluginInstallProxy') }}</label>
+            <input v-model="formOfSetting.proxy" type="text" class="form-input" placeholder="http://127.0.0.1:1080" />
           </div>
           <div class="form-group">
-            <label>{{ t('SETTINGS_PLUGIN_INSTALL_MIRROR') }}</label>
+            <label>{{ t('pages.settings.advanced.pluginInstallMirror') }}</label>
             <input
               v-model="formOfSetting.registry"
               type="text"
               class="form-input"
-              :placeholder="`${t('SETTINGS_TIPS_SUCH_AS')}：https://registry.npmmirror.com`"
-            >
+              placeholder="https://registry.npmmirror.com"
+            />
           </div>
         </div>
         <div class="dialog-footer">
-          <button
-            class="btn btn-secondary"
-            @click="proxyVisible = false"
-          >
-            {{ t('CANCEL') }}
+          <button class="btn btn-secondary" @click="proxyVisible = false">
+            {{ t('common.cancel') }}
           </button>
-          <button
-            class="btn btn-primary"
-            @click="proxyVisible = false"
-          >
-            {{ t('CONFIRM') }}
+          <button class="btn btn-primary" @click="proxyVisible = false">
+            {{ t('common.confirm') }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Main Window Size Dialog -->
-    <div
-      v-if="mainWindowSizeVisible"
-      class="dialog-overlay"
-      @click="cancelWindowSize"
-    >
-      <div
-        class="dialog"
-        @click.stop
-      >
+    <div v-if="mainWindowSizeVisible" class="dialog-overlay" @click="cancelWindowSize">
+      <div class="dialog" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
-            {{ t('SETTINGS_MAIN_WINDOW_SIZE') }}
+            {{ t('pages.settings.system.setMainWindowSize') }}
           </h3>
-          <button
-            class="dialog-close"
-            @click="cancelWindowSize"
-          >
-            ×
-          </button>
+          <button class="dialog-close" @click="cancelWindowSize">×</button>
         </div>
         <div class="dialog-content">
           <div class="form-group">
-            <label>{{ t('SETTINGS_MAIN_WINDOW_SIZE_WIDTH') }}</label>
+            <label>{{ t('pages.settings.system.mainWindowWidth') }}</label>
             <input
               v-model="formOfSetting.mainWindowWidth"
               type="number"
               class="form-input"
-              :placeholder="t('SETTINGS_MAIN_WINDOW_WIDTH_HINT')"
-            >
+              placeholder="1200"
+            />
           </div>
           <div class="form-group">
-            <label>{{ t('SETTINGS_MAIN_WINDOW_SIZE_HEIGHT') }}</label>
+            <label>{{ t('pages.settings.system.mainWindowHeight') }}</label>
             <input
               v-model="formOfSetting.mainWindowHeight"
               type="number"
               class="form-input"
-              :placeholder="t('SETTINGS_MAIN_WINDOW_HEIGHT_HINT')"
-            >
+              placeholder="800"
+            />
           </div>
           <div class="form-group">
             <label class="switch-label">
-              <input
-                v-model="rawPicGoSize"
-                type="checkbox"
-                class="switch-input"
-              >
+              <input v-model="rawPicGoSize" type="checkbox" class="switch-input" />
               <span class="switch-slider" />
               <div class="switch-content">
-                <div class="switch-title">{{ t('SETTINGS_RAW_PICGO_SIZE') }}</div>
-                <div class="switch-description">{{ t('SETTINGS_USE_DEFAULT_PICGO_SIZE') || 'Use default PicGo window size' }}</div>
+                <div class="switch-title">{{ t('pages.settings.system.rawPicGoSize') }}</div>
+                <div class="switch-description">
+                  {{ t('pages.settings.system.rawPicGoSizeHint') }}
+                </div>
               </div>
             </label>
           </div>
         </div>
         <div class="dialog-footer">
-          <button
-            class="btn btn-secondary"
-            @click="cancelWindowSize"
-          >
-            {{ t('CANCEL') }}
+          <button class="btn btn-secondary" @click="cancelWindowSize">
+            {{ t('common.cancel') }}
           </button>
-          <button
-            class="btn btn-primary"
-            @click="confirmWindowSize"
-          >
-            {{ t('CONFIRM') }}
+          <button class="btn btn-primary" @click="confirmWindowSize">
+            {{ t('common.confirm') }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Check Update Dialog -->
-    <div
-      v-if="checkUpdateVisible"
-      class="dialog-overlay"
-      @click="cancelCheckVersion"
-    >
-      <div
-        class="dialog"
-        @click.stop
-      >
+    <div v-if="checkUpdateVisible" class="dialog-overlay" @click="cancelCheckVersion">
+      <div class="dialog" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
-            {{ t('SETTINGS_CHECK_UPDATE') }}
+            {{ t('pages.settings.update.checkUpdate') }}
           </h3>
-          <button
-            class="dialog-close"
-            @click="cancelCheckVersion"
-          >
-            ×
-          </button>
+          <button class="dialog-close" @click="cancelCheckVersion">×</button>
         </div>
         <div class="dialog-content">
           <div class="update-info">
-            <div>{{ t('SETTINGS_CURRENT_VERSION') }}: {{ version }}</div>
+            <div>{{ t('pages.settings.update.currentVersion', { version }) }}</div>
             <div>
-              {{ t('SETTINGS_NEWEST_VERSION') }}:
-              {{ latestVersion ? latestVersion : `${t('SETTINGS_GETING')}...` }}
+              {{ t('pages.settings.update.newestVersion') }}:
+              {{ latestVersion ? latestVersion : `${t('pages.settings.update.getting')}` }}
             </div>
-            <div
-              v-if="needUpdate"
-              class="update-notice"
-            >
-              {{ t('SETTINGS_TIPS_HAS_NEW_VERSION') }}
+            <div v-if="needUpdate" class="update-notice">
+              {{ t('pages.settings.update.hasNewVersion') }}
             </div>
           </div>
         </div>
         <div class="dialog-footer">
-          <button
-            class="btn btn-secondary"
-            @click="cancelCheckVersion"
-          >
-            {{ t('CANCEL') }}
+          <button class="btn btn-secondary" @click="cancelCheckVersion">
+            {{ t('common.cancel') }}
           </button>
-          <button
-            class="btn btn-primary"
-            @click="confirmCheckVersion"
-          >
-            {{ t('CONFIRM') }}
+          <button class="btn btn-primary" @click="confirmCheckVersion">
+            {{ t('common.confirm') }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Advanced Rename Dialog -->
-    <div
-      v-if="advancedRenameVisible"
-      class="dialog-overlay"
-      @click="handleCancelAdvancedRename"
-    >
-      <div
-        class="dialog"
-        @click.stop
-      >
+    <div v-if="advancedRenameVisible" class="dialog-overlay" @click="handleCancelAdvancedRename">
+      <div class="dialog" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
-            {{ t('SETTINGS_ADVANCED_RENAME') }}
+            {{ t('pages.settings.upload.advancedRname') }}
           </h3>
-          <button
-            class="dialog-close"
-            @click="handleCancelAdvancedRename"
-          >
-            ×
-          </button>
+          <button class="dialog-close" @click="handleCancelAdvancedRename">×</button>
         </div>
         <div class="dialog-content">
           <div class="form-group">
             <label class="switch-label">
-              <input
-                v-model="advancedRename.enable"
-                type="checkbox"
-                class="switch-input"
-              >
+              <input v-model="advancedRename.enable" type="checkbox" class="switch-input" />
               <span class="switch-slider" />
               <div class="switch-content">
-                <div class="switch-title">{{ t('SETTINGS_ADVANCED_RENAME_ENABLE') }}</div>
-                <div class="switch-description">{{ t('SETTINGS_ADVANCED_RENAME_ENABLE_DESC') || 'Enable advanced file renaming' }}</div>
+                <div class="switch-title">{{ t('pages.settings.upload.enableAdvancedRname') }}</div>
               </div>
             </label>
           </div>
           <div class="form-group">
-            <label>{{ t('SETTINGS_ADVANCED_RENAME_FORMAT') }}</label>
-            <input
-              v-model="advancedRename.format"
-              type="text"
-              class="form-input"
-              placeholder="Ex. {Y}-{m}-{uuid}"
-            >
-            <small class="form-help">{{ t('SETTINGS_ADVANCED_RENAME_FORMAT_HELP') || 'Use placeholders like {Y}, {m}, {d}, {filename}, {uuid}' }}</small>
+            <label>{{ t('pages.settings.upload.advancedRnameFormat') }}</label>
+            <input v-model="advancedRename.format" type="text" class="form-input" placeholder="Ex. {Y}-{m}-{uuid}" />
+          </div>
+          <div class="form-group">
+            <label>{{ t('pages.settings.upload.availablePlaceholders') }}</label>
+            <div class="placeholder-help">
+              <div class="placeholder-category">
+                <div class="category-title">{{ t('pages.settings.upload.placeholder.categoryTime')}}</div>
+                <div class="placeholder-grid">
+                  <div class="placeholder-item">
+                    <code>{Y}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.year4') }}</span>
+                  </div>
+                  <div class="placeholder-item">
+                    <code>{y}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.year2') }}</span>
+                  </div>
+                  <div class="placeholder-item">
+                    <code>{m}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.month') }}</span>
+                  </div>
+                  <div class="placeholder-item">
+                    <code>{d}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.date') }}</span>
+                  </div>
+                  <div class="placeholder-item">
+                    <code>{h}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.hour') }}</span>
+                  </div>
+                  <div class="placeholder-item">
+                    <code>{i}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.minute') }}</span>
+                  </div>
+                  <div class="placeholder-item">
+                    <code>{s}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.second') }}</span>
+                  </div>
+                  <div class="placeholder-item">
+                    <code>{ms}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.millisecond') }}</span>
+                  </div>
+                  <div class="placeholder-item">
+                    <code>{timestamp}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.timestamp') }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="placeholder-category">
+                <div class="category-title">{{ t('pages.settings.upload.placeholder.categoryHash') }}</div>
+                <div class="placeholder-grid">
+                  <div class="placeholder-item">
+                    <code>{md5}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.md5') }}</span>
+                  </div>
+                  <div class="placeholder-item">
+                    <code>{md5-16}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.md5-16') }}</span>
+                  </div>
+                  <div class="placeholder-item">
+                    <code>{uuid}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.uuid') }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="placeholder-category">
+                <div class="category-title">{{ t('pages.settings.upload.placeholder.categoryFile') }}</div>
+                <div class="placeholder-grid">
+                  <div class="placeholder-item">
+                    <code>{filename}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.filename') }}</span>
+                  </div>
+                  <div class="placeholder-item">
+                    <code>{localFolder:&lt;n&gt;}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.localFolder') }}</span>
+                  </div>
+                  <div class="placeholder-item">
+                    <code>{str-&lt;n&gt;}</code>
+                    <span>{{ t('pages.settings.upload.placeholder.randomString') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="dialog-footer">
-          <button
-            class="btn btn-secondary"
-            @click="handleCancelAdvancedRename"
-          >
-            {{ t('CANCEL') }}
+          <button class="btn btn-secondary" @click="handleCancelAdvancedRename">
+            {{ t('common.cancel') }}
           </button>
-          <button
-            class="btn btn-primary"
-            @click="handleSaveAdvancedRename"
-          >
-            {{ t('CONFIRM') }}
+          <button class="btn btn-primary" @click="handleSaveAdvancedRename">
+            {{ t('common.confirm') }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Log Settings Dialog -->
-    <div
-      v-if="logFileVisible"
-      class="dialog-overlay"
-      @click="cancelLogLevelSetting"
-    >
-      <div
-        class="dialog"
-        @click.stop
-      >
+    <div v-if="logFileVisible" class="dialog-overlay" @click="cancelLogLevelSetting">
+      <div class="dialog" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
-            {{ t('SETTINGS_SET_LOG_FILE') }}
+            {{ t('pages.settings.advanced.setLog') }}
           </h3>
-          <button
-            class="dialog-close"
-            @click="cancelLogLevelSetting"
-          >
-            ×
-          </button>
+          <button class="dialog-close" @click="cancelLogLevelSetting">×</button>
         </div>
         <div class="dialog-content">
           <div class="form-grid">
             <div class="form-group">
-              <label>{{ t('SETTINGS_LOG_FILE') }}</label>
-              <button
-                class="btn btn-secondary"
-                @click="openFile('piclist.log')"
-              >
+              <label>{{ t('pages.settings.advanced.logFile') }}</label>
+              <button class="btn btn-secondary" @click="openFile('piclist.log')">
                 <FileText :size="16" />
-                {{ t('SETTINGS_CLICK_TO_OPEN') }}
+                {{ t('pages.settings.clickToOpen') }}
               </button>
             </div>
             <div class="form-group">
-              <label>{{ t('SETTINGS_GUI_LOG_FILE') }}</label>
-              <button
-                class="btn btn-secondary"
-                @click="openFile('piclist-gui-local.log')"
-              >
+              <label>{{ t('pages.settings.advanced.guiLogFile') }}</label>
+              <button class="btn btn-secondary" @click="openFile('piclist-gui-local.log')">
                 <FileText :size="16" />
-                {{ t('SETTINGS_CLICK_TO_OPEN') }}
+                {{ t('pages.settings.clickToOpen') }}
               </button>
             </div>
             <div class="form-group">
-              <label>{{ t('SETTINGS_MANAGE_LOG_FILE') }}</label>
-              <button
-                class="btn btn-secondary"
-                @click="openFile('manage.log')"
-              >
+              <label>{{ t('pages.settings.advanced.manageLogFile') }}</label>
+              <button class="btn btn-secondary" @click="openFile('manage.log')">
                 <FileText :size="16" />
-                {{ t('SETTINGS_CLICK_TO_OPEN') }}
+                {{ t('pages.settings.clickToOpen') }}
               </button>
             </div>
             <div class="form-group">
-              <label>{{ t('SETTINGS_LOG_LEVEL') }}</label>
-              <select
-                v-model="formOfSetting.logLevel"
-                multiple
-                class="form-select"
-              >
-                <option
-                  v-for="(value, key) of logLevel"
-                  :key="key"
-                  :value="key"
-                  :disabled="handleLevelDisabled(key)"
-                >
+              <label>{{ t('pages.settings.advanced.logLevel') }}</label>
+              <select v-model="formOfSetting.logLevel" multiple class="form-select">
+                <option v-for="(value, key) of logLevel" :key="key" :value="key" :disabled="handleLevelDisabled(key)">
                   {{ value }}
                 </option>
               </select>
             </div>
             <div class="form-group">
-              <label>{{ t('SETTINGS_LOG_FILE_SIZE') }} (MB)</label>
+              <label>{{ t('pages.settings.advanced.logFileSize') }} (MB)</label>
               <input
                 v-model="formOfSetting.logFileSizeLimit"
                 type="number"
                 class="form-input"
-                :placeholder="`${t('SETTINGS_TIPS_SUCH_AS')}：10`"
+                placeholder="10"
                 min="1"
-              >
+              />
             </div>
           </div>
         </div>
         <div class="dialog-footer">
-          <button
-            class="btn btn-secondary"
-            @click="cancelLogLevelSetting"
-          >
-            {{ t('CANCEL') }}
+          <button class="btn btn-secondary" @click="cancelLogLevelSetting">
+            {{ t('common.cancel') }}
           </button>
-          <button
-            class="btn btn-primary"
-            @click="confirmLogLevelSetting"
-          >
-            {{ t('CONFIRM') }}
+          <button class="btn btn-primary" @click="confirmLogLevelSetting">
+            {{ t('common.confirm') }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Server Settings Dialog -->
-    <div
-      v-if="serverVisible"
-      class="dialog-overlay"
-      @click="cancelServerSetting"
-    >
-      <div
-        class="dialog"
-        @click.stop
-      >
+    <div v-if="serverVisible" class="dialog-overlay" @click="cancelServerSetting">
+      <div class="dialog" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
-            {{ t('SETTINGS_SET_PICGO_SERVER') }}
+            {{ t('pages.settings.advanced.uploadServer') }}
           </h3>
-          <button
-            class="dialog-close"
-            @click="cancelServerSetting"
-          >
-            ×
-          </button>
+          <button class="dialog-close" @click="cancelServerSetting">×</button>
         </div>
         <div class="dialog-content">
           <div class="notice-text">
-            {{ t('SETTINGS_TIPS_SERVER_NOTICE') }}
+            {{ t('pages.settings.advanced.serverSettingsNotice') }}
           </div>
           <div class="form-group">
             <label class="switch-label">
-              <input
-                v-model="server.enable"
-                type="checkbox"
-                class="switch-input"
-              >
+              <input v-model="server.enable" type="checkbox" class="switch-input" />
               <span class="switch-slider" />
               <div class="switch-content">
-                <div class="switch-title">{{ t('SETTINGS_ENABLE_SERVER') }}</div>
-                <div class="switch-description">{{ t('SETTINGS_ENABLE_SERVER_DESC') || 'Enable PicGo server for external access' }}</div>
+                <div class="switch-title">{{ t('pages.settings.advanced.enableServer') }}</div>
               </div>
             </label>
           </div>
           <template v-if="server.enable">
             <div class="form-group">
-              <label>{{ t('SETTINGS_SET_SERVER_HOST') }}</label>
-              <input
-                v-model="server.host"
-                type="text"
-                class="form-input"
-                :placeholder="t('SETTINGS_TIP_PLACEHOLDER_HOST')"
-              >
+              <label>{{ t('pages.settings.advanced.serverHost') }}</label>
+              <input v-model="server.host" type="text" class="form-input" placeholder="127.0.0.1" />
             </div>
             <div class="form-group">
-              <label>{{ t('SETTINGS_SET_SERVER_PORT') }}</label>
-              <input
-                v-model="server.port"
-                type="number"
-                class="form-input"
-                :placeholder="t('SETTINGS_TIP_PLACEHOLDER_PORT')"
-              >
+              <label>{{ t('pages.settings.advanced.serverPort') }}</label>
+              <input v-model="server.port" type="number" class="form-input" placeholder="36677" />
             </div>
             <div class="form-group">
-              <label>{{ t('SETTINGS_SET_SERVER_KEY') }}</label>
+              <label>{{ t('pages.settings.advanced.serverKey') }}</label>
               <input
                 v-model="formOfSetting.serverKey"
                 type="text"
                 class="form-input"
-                :placeholder="t('SETTINGS_TIP_PLACEHOLDER_KEY')"
-              >
+                :placeholder="t('pages.settings.advanced.serverKeyPlaceholder')"
+              />
             </div>
           </template>
         </div>
         <div class="dialog-footer">
-          <button
-            class="btn btn-secondary"
-            @click="cancelServerSetting"
-          >
-            {{ t('CANCEL') }}
+          <button class="btn btn-secondary" @click="cancelServerSetting">
+            {{ t('common.cancel') }}
           </button>
-          <button
-            class="btn btn-primary"
-            @click="confirmServerSetting"
-          >
-            {{ t('CONFIRM') }}
+          <button class="btn btn-primary" @click="confirmServerSetting">
+            {{ t('common.confirm') }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Web Server Settings Dialog -->
-    <div
-      v-if="webServerVisible"
-      class="dialog-overlay"
-      @click="confirmWebServerSetting"
-    >
-      <div
-        class="dialog"
-        @click.stop
-      >
+    <div v-if="webServerVisible" class="dialog-overlay" @click="confirmWebServerSetting">
+      <div class="dialog" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
-            {{ t('SETTINGS_SET_WEB_SERVER') }}
+            {{ t('pages.settings.advanced.webServerSettings') }}
           </h3>
-          <button
-            class="dialog-close"
-            @click="confirmWebServerSetting"
-          >
-            ×
-          </button>
+          <button class="dialog-close" @click="confirmWebServerSetting">×</button>
         </div>
         <div class="dialog-content">
           <div class="notice-text">
-            {{ t('SETTINGS_TIPS_WEB_SERVER_NOTICE') }}
+            {{ t('pages.settings.advanced.webServerNotice') }}
           </div>
           <div class="form-group">
             <label class="switch-label">
-              <input
-                v-model="formOfSetting.enableWebServer"
-                type="checkbox"
-                class="switch-input"
-              >
+              <input v-model="formOfSetting.enableWebServer" type="checkbox" class="switch-input" />
               <span class="switch-slider" />
               <div class="switch-content">
-                <div class="switch-title">{{ t('SETTINGS_SET_ENABLE_WEB_SERVER') }}</div>
-                <div class="switch-description">{{ t('SETTINGS_WEB_SERVER_DESC') || 'Enable web interface for remote access' }}</div>
+                <div class="switch-title">{{ t('pages.settings.advanced.enableWebServer') }}</div>
               </div>
             </label>
           </div>
           <template v-if="formOfSetting.enableWebServer">
             <div class="form-group">
-              <label>{{ t('SETTINGS_SET_WEB_SERVER_HOST') }}</label>
+              <label>{{ t('pages.settings.advanced.webServerHost') }}</label>
               <input
                 v-model="formOfSetting.webServerHost"
                 type="text"
                 class="form-input"
-                :placeholder="t('SETTINGS_TIP_PLACEHOLDER_WEB_HOST')"
-              >
+                :placeholder="t('pages.settings.advanced.webServerPlaceholderHost')"
+              />
             </div>
             <div class="form-group">
-              <label>{{ t('SETTINGS_SET_WEB_SERVER_PORT') }}</label>
+              <label>{{ t('pages.settings.advanced.webServerPort') }}</label>
               <input
                 v-model.number="formOfSetting.webServerPort"
                 type="number"
                 class="form-input"
                 min="1"
                 max="65535"
-                :placeholder="t('SETTINGS_TIP_PLACEHOLDER_WEB_PORT')"
-              >
+                :placeholder="t('pages.settings.advanced.webServerPlaceholderPort')"
+              />
             </div>
             <div class="form-group">
-              <label>{{ t('SETTINGS_SET_WEB_SERVER_PATH') }}</label>
-              <input
-                v-model="formOfSetting.webServerPath"
-                type="text"
-                class="form-input"
-                :placeholder="t('SETTINGS_SET_WEB_SERVER_PATH')"
-              >
+              <label>{{ t('pages.settings.advanced.webServerPath') }}</label>
+              <input v-model="formOfSetting.webServerPath" type="text" class="form-input" />
             </div>
           </template>
         </div>
         <div class="dialog-footer">
-          <button
-            class="btn btn-secondary"
-            @click="confirmWebServerSetting"
-          >
-            {{ t('CLOSE') }}
+          <button class="btn btn-secondary" @click="confirmWebServerSetting">
+            {{ t('common.close') }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Sync Configuration Dialog -->
-    <div
-      v-if="syncVisible"
-      class="dialog-overlay"
-      @click="cancelSyncSetting"
-    >
-      <div
-        class="dialog large"
-        @click.stop
-      >
+    <div v-if="syncVisible" class="dialog-overlay" @click="cancelSyncSetting">
+      <div class="dialog large" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
-            {{ t('SETTINGS_SYNC_CONFIG_TITLE') }}
+            {{ t('pages.settings.sync.syncEndpointConfig') }}
           </h3>
-          <button
-            class="dialog-close"
-            @click="cancelSyncSetting"
-          >
-            ×
-          </button>
+          <button class="dialog-close" @click="cancelSyncSetting">×</button>
         </div>
         <div class="dialog-content">
           <div class="notice-text">
-            {{ t('SETTINGS_SYNC_CONFIG_NOTE') }}
+            {{ t('pages.settings.sync.syncConfigNote') }}
           </div>
           <div class="form-group">
-            <label>{{ t('SETTINGS_SYNC_CONFIG_SELECT_TYPE') }}</label>
-            <select
-              v-model="sync.type"
-              class="form-select"
-            >
-              <option
-                v-for="typeitem of syncType"
-                :key="typeitem"
-                :value="typeitem"
-              >
+            <label>{{ t('pages.settings.sync.selectType') }}</label>
+            <select v-model="sync.type" class="form-select">
+              <option v-for="typeitem of syncType" :key="typeitem" :value="typeitem">
                 {{ typeitem.slice(0, 1).toUpperCase() + typeitem.slice(1) }}
               </option>
             </select>
           </div>
-          <div
-            v-if="sync.type === 'gitea'"
-            class="form-group"
-          >
-            <label>{{ t('SETTINGS_SYNC_CONFIG_GITEA_HOST') }}</label>
+          <div v-if="sync.type === 'gitea'" class="form-group">
+            <label>{{ t('pages.settings.sync.giteaHost') }}</label>
             <input
               v-model.trim="sync.endpoint"
               type="text"
               class="form-input"
-              :placeholder="t('SETTINGS_SYNC_CONFIG_GITEA_HOST')"
-            >
+              :placeholder="t('pages.settings.sync.giteaHost')"
+            />
           </div>
-          <div
-            v-if="sync.type === 'webdav'"
-            class="form-group"
-          >
-            <label>{{ t('SETTINGS_SYNC_CONFIG_WEBDAV_ENDPOINT') }}</label>
+          <div v-if="sync.type === 'webdav'" class="form-group">
+            <label>{{ t('pages.settings.sync.webdavEndpoint') }}</label>
             <input
               v-model.trim="sync.webdavEndpoint"
               type="text"
               class="form-input"
-              :placeholder="t('SETTINGS_SYNC_CONFIG_WEBDAV_ENDPOINT_PLACEHOLDER')"
-            >
+              :placeholder="t('pages.settings.sync.webdavEndpoint')"
+            />
           </div>
           <template v-if="sync.type !== 'webdav'">
-            <div
-              v-for="inputItem in ['username', 'repo', 'branch', 'token']"
-              :key="inputItem"
-              class="form-group"
-            >
-              <label>{{ t(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_${inputItem.toUpperCase()}` as any) }}</label>
+            <div v-for="inputItem in ['username', 'repo', 'branch', 'token']" :key="inputItem" class="form-group">
+              <label>{{
+                t(`pages.settings.sync.${sync.type.toLowerCase()}.${inputItem.toLowerCase()}`)
+              }}</label>
               <input
                 v-model.trim="sync[inputItem as any]"
                 type="text"
                 class="form-input"
-                :placeholder="t(`SETTINGS_SYNC_CONFIG_${sync.type.toUpperCase()}_${inputItem.toUpperCase()}_PLACEHOLDER` as any)"
-              >
+                :placeholder="
+                  t(`pages.settings.sync.${sync.type.toLowerCase()}.${inputItem.toLowerCase()}`)
+                "
+              />
             </div>
           </template>
           <template v-if="sync.type === 'webdav'">
             <div class="form-group">
-              <label>{{ t('SETTINGS_SYNC_CONFIG_WEBDAV_USERNAME') }}</label>
+              <label>{{ t('pages.settings.sync.webdav.username') }}</label>
               <input
                 v-model.trim="sync.webdavUsername"
                 type="text"
                 class="form-input"
-                :placeholder="t('SETTINGS_SYNC_CONFIG_WEBDAV_USERNAME_PLACEHOLDER')"
-              >
+                :placeholder="t('pages.settings.sync.webdav.username')"
+              />
             </div>
             <div class="form-group">
-              <label>{{ t('SETTINGS_SYNC_CONFIG_WEBDAV_PASSWORD') }}</label>
+              <label>{{ t('pages.settings.sync.webdav.password') }}</label>
               <input
                 v-model.trim="sync.webdavPassword"
-                type="password"
                 class="form-input"
-                :placeholder="t('SETTINGS_SYNC_CONFIG_WEBDAV_PASSWORD_PLACEHOLDER')"
-              >
+                :placeholder="t('pages.settings.sync.webdav.password')"
+              />
             </div>
             <div class="form-group">
-              <label>{{ t('SETTINGS_SYNC_CONFIG_WEBDAV_SAVE_PATH') }}</label>
+              <label>{{ t('pages.settings.sync.webdav.savePath') }}</label>
               <input
                 v-model.trim="sync.webdavSavePath"
                 type="text"
                 class="form-input"
-                :placeholder="t('SETTINGS_SYNC_CONFIG_WEBDAV_SAVE_PATH_PLACEHOLDER')"
-              >
+                :placeholder="t('pages.settings.sync.webdav.savePath')"
+              />
             </div>
             <div class="form-group">
-              <label>{{ t('SETTINGS_SYNC_CONFIG_WEBDAV_AUTH_TYPE') }}</label>
-              <select
-                v-model="sync.webdavAuthType"
-                class="form-select"
-              >
-                <option value="basic">
-                  Basic
-                </option>
-                <option value="digest">
-                  Digest
-                </option>
+              <label>{{ t('pages.settings.sync.webdav.authType') }}</label>
+              <select v-model="sync.webdavAuthType" class="form-select">
+                <option value="basic">Basic</option>
+                <option value="digest">Digest</option>
               </select>
             </div>
             <div class="form-group">
               <label class="switch-label">
-                <input
-                  v-model="sync.webdavSslEnabled"
-                  type="checkbox"
-                  class="switch-input"
-                >
+                <input v-model="sync.webdavSslEnabled" type="checkbox" class="switch-input" />
                 <span class="switch-slider" />
                 <div class="switch-content">
-                  <div class="switch-title">{{ t('SETTINGS_SYNC_CONFIG_WEBDAV_SSL_ENABLED') }}</div>
-                  <div class="switch-description">{{ t('SETTINGS_SSL_ENABLED_DESC') || 'Enable SSL/TLS encryption' }}</div>
+                  <div class="switch-title">{{ t('pages.settings.sync.webdav.enableSSL') }}</div>
                 </div>
               </label>
             </div>
           </template>
-          <div
-            v-if="sync.type === 'github'"
-            class="form-group"
-          >
-            <label>{{ t('SETTINGS_SYNC_CONFIG_PROXY') }}</label>
+          <div v-if="sync.type === 'github'" class="form-group">
+            <label>{{ t('pages.settings.sync.syncConfigProxy') }}</label>
             <input
               v-model.trim="sync.proxy"
               type="text"
               class="form-input"
-              :placeholder="t('SETTINGS_SYNC_CONFIG_PROXY_PLACEHOLDER')"
-            >
+              :placeholder="t('pages.settings.sync.syncConfigProxy')"
+            />
           </div>
         </div>
         <div class="dialog-footer">
-          <button
-            class="btn btn-secondary"
-            @click="cancelSyncSetting"
-          >
-            {{ t('CANCEL') }}
+          <button class="btn btn-secondary" @click="cancelSyncSetting">
+            {{ t('common.cancel') }}
           </button>
-          <button
-            class="btn btn-primary"
-            @click="confirmSyncSetting"
-          >
-            {{ t('CONFIRM') }}
+          <button class="btn btn-primary" @click="confirmSyncSetting">
+            {{ t('common.confirm') }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Upload/Download Config Dialog -->
-    <div
-      v-if="upDownConfigVisible"
-      class="dialog-overlay"
-      @click="upDownConfigVisible = false"
-    >
-      <div
-        class="dialog"
-        @click.stop
-      >
+    <div v-if="upDownConfigVisible" class="dialog-overlay" @click="upDownConfigVisible = false">
+      <div class="dialog" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
-            {{ t('SETTINGS_UP_DOWN_DESC') }}
+            {{ t('pages.settings.sync.upDownloadSettings') }}
           </h3>
-          <button
-            class="dialog-close"
-            @click="upDownConfigVisible = false"
-          >
-            ×
-          </button>
+          <button class="dialog-close" @click="upDownConfigVisible = false">×</button>
         </div>
         <div class="dialog-content">
           <div class="form-group">
-            <label>{{ t('SETTINGS_SYNC_UPLOAD') }}</label>
+            <label>{{ t('pages.settings.sync.uploadSettings') }}</label>
             <div class="button-group">
               <button
                 v-for="item in syncTaskList.slice(0, 3)"
@@ -1579,7 +1228,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label>{{ t('SETTINGS_SYNC_DOWNLOAD') }}</label>
+            <label>{{ t('pages.settings.sync.downloadSettings') }}</label>
             <div class="button-group">
               <button
                 v-for="item in syncTaskList.slice(3)"
@@ -1593,36 +1242,21 @@
           </div>
         </div>
         <div class="dialog-footer">
-          <button
-            class="btn btn-secondary"
-            @click="upDownConfigVisible = false"
-          >
-            {{ t('CLOSE') }}
+          <button class="btn btn-secondary" @click="upDownConfigVisible = false">
+            {{ t('common.close') }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Image Process Dialog -->
-    <div
-      v-if="imageProcessDialogVisible"
-      class="dialog-overlay"
-      @click="imageProcessDialogVisible = false"
-    >
-      <div
-        class="dialog large"
-        @click.stop
-      >
+    <div v-if="imageProcessDialogVisible" class="dialog-overlay" @click="imageProcessDialogVisible = false">
+      <div class="dialog large" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
             {{ t('pages.imageProcess.title') }}
           </h3>
-          <button
-            class="dialog-close"
-            @click="imageProcessDialogVisible = false"
-          >
-            ×
-          </button>
+          <button class="dialog-close" @click="imageProcessDialogVisible = false">×</button>
         </div>
         <div class="dialog-content">
           <ImageProcessSetting v-model="imageProcessDialogVisible" />
@@ -1634,7 +1268,6 @@
 
 <script lang="ts" setup>
 import { compare } from 'compare-versions'
-import { ElForm } from 'element-plus'
 import {
   BookOpen,
   CloudUpload,
@@ -1678,83 +1311,29 @@ const $router = useRouter()
 const { confirm } = useConfirm()
 const message = useMessage()
 const activeName = ref<'system' | 'sync' | 'upload' | 'advanced' | 'update'>('system')
+const showPicBedList = ref<string[]>([])
 
 // Tab configuration
 const tabs = computed(() => [
-  {
-    id: 'system',
-    label: t('pages.settings.system.title'),
-    icon: Settings
-  },
-  {
-    id: 'sync',
-    label: t('pages.settings.sync.title'),
-    icon: RotateCcw
-  },
-  {
-    id: 'upload',
-    label: t('pages.settings.upload.title'),
-    icon: CloudUpload
-  },
-  {
-    id: 'advanced',
-    label: t('pages.settings.advanced.title'),
-    icon: Server
-  },
-  {
-    id: 'update',
-    label: t('pages.settings.update.title'),
-    icon: RefreshCw
-  }
+  { id: 'system', label: t('pages.settings.system.title'), icon: Settings },
+  { id: 'sync', label: t('pages.settings.sync.title'), icon: RotateCcw },
+  { id: 'upload', label: t('pages.settings.upload.title'), icon: CloudUpload },
+  { id: 'advanced', label: t('pages.settings.advanced.title'), icon: Server },
+  { id: 'update', label: t('pages.settings.update.title'), icon: RefreshCw }
 ])
 
 const shortUrlServerList = [
-  {
-    label: 'c1n',
-    value: 'c1n'
-  },
-  {
-    label: 'yourls',
-    value: 'yourls'
-  },
-  {
-    label: 'xyTom/Url-Shorten-Worker',
-    value: 'cf_worker'
-  },
-  {
-    label: 'ccbikai/Sink',
-    value: 'sink'
-  }
+  { label: 'c1n', value: 'c1n' },
+  { label: 'yourls', value: 'yourls' },
+  { label: 'xyTom/Url-Shorten-Worker', value: 'cf_worker' },
+  { label: 'ccbikai/Sink', value: 'sink' }
 ]
 
 const languageList = [
-  {
-    label: '简体中文',
-    value: 'zh-CN'
-  },
-  {
-    label: '繁體中文',
-    value: 'zh-TW'
-  },
-  {
-    label: 'English',
-    value: 'en'
-  }
+  { label: '简体中文', value: 'zh-CN' },
+  { label: '繁體中文', value: 'zh-TW' },
+  { label: 'English', value: 'en' }
 ]
-
-const showPicBedList = computed(
-  () =>
-    picBedGlobal.value
-      .map(item => {
-        if (item.visible) {
-          return item.name
-        }
-        return null
-      })
-      .filter(item => item) as string[]
-)
-
-const $customLink = ref<InstanceType<typeof ElForm> | null>(null)
 
 const formOfSetting = ref<ISettingForm>({
   showUpdateTip: true,
@@ -1841,43 +1420,34 @@ const addWatch = () => {
     watch(
       () => formOfSetting.value[key as keyof ISettingForm],
       value => {
-        saveConfig({
-          [`settings.${key}`]: value
-        })
+        saveConfig({ [`settings.${key}`]: value })
       }
     )
   })
 
-  watch(currentLanguage, (newVal) => {
-    console.log('newVal', newVal)
+  watch(currentLanguage, newVal => {
     if (newVal) {
       handleLanguageChange(newVal)
     }
   })
 
-  watch(currentStartMode, (newVal) => {
-    if (newVal && newVal.value) {
-      handleStartModeChange(newVal.value)
+  watch(currentStartMode, newVal => {
+    if (newVal) {
+      handleStartModeChange(newVal)
     }
   })
 
-  watch(currentShortUrlServer, (newVal) => {
-    if (newVal && newVal.value) {
-      handleShortUrlServerChange(newVal.value)
+  watch(currentShortUrlServer, newVal => {
+    if (newVal) {
+      handleShortUrlServerChange(newVal)
     }
   })
 }
 
 const addProxyWatch = () => {
   watch(proxy, value => {
-    saveConfig({
-      'picBed.proxy': value
-    })
+    saveConfig({ 'picBed.proxy': value })
   })
-}
-
-const valueToOptionItem = (value: any, list: { label: string; value: any }[]) => {
-  return list.find(item => item.value === value) || list[0]
 }
 
 const currentLanguage = ref()
@@ -1898,29 +1468,20 @@ const imageProcessDialogVisible = ref(false)
 
 const rawPicGoSize = ref(false)
 
-const customLink = reactive({
-  value: '![$fileName]($url)'
-})
+const customLink = reactive({ value: '![$fileName]($url)' })
 
 const logLevel = {
-  all: t('SETTINGS_LOG_LEVEL_ALL'),
-  success: t('SETTINGS_LOG_LEVEL_SUCCESS'),
-  error: t('SETTINGS_LOG_LEVEL_ERROR'),
-  info: t('SETTINGS_LOG_LEVEL_INFO'),
-  warn: t('SETTINGS_LOG_LEVEL_WARN'),
-  none: t('SETTINGS_LOG_LEVEL_NONE')
+  all: t('pages.settings.advanced.logLevelList.all'),
+  success: t('pages.settings.advanced.logLevelList.success'),
+  error: t('pages.settings.advanced.logLevelList.error'),
+  info: t('pages.settings.advanced.logLevelList.info'),
+  warn: t('pages.settings.advanced.logLevelList.warn'),
+  none: t('pages.settings.advanced.logLevelList.none')
 }
 
-const server = ref({
-  port: 36677,
-  host: '0.0.0.0',
-  enable: true
-})
+const server = ref({ port: 36677, host: '0.0.0.0', enable: true })
 
-const advancedRename = ref({
-  enable: false,
-  format: '{filename}'
-})
+const advancedRename = ref({ enable: false, format: '{filename}' })
 
 const sync = ref<any>({
   type: 'github',
@@ -1940,7 +1501,7 @@ const sync = ref<any>({
 
 const syncType = ['github', 'gitee', 'gitea', 'webdav']
 
-async function cancelSyncSetting () {
+async function cancelSyncSetting() {
   syncVisible.value = false
   sync.value = (await getConfig(configPaths.settings.sync)) || {
     type: 'github',
@@ -1961,10 +1522,8 @@ async function cancelSyncSetting () {
   }
 }
 
-function confirmSyncSetting () {
-  saveConfig({
-    [configPaths.settings.sync]: sync.value
-  })
+function confirmSyncSetting() {
+  saveConfig({ [configPaths.settings.sync]: sync.value })
   syncVisible.value = false
 }
 
@@ -1982,10 +1541,11 @@ onBeforeMount(() => {
   initData()
 })
 
-async function initData () {
+async function initData() {
   const config = (await getConfig<IConfig>()) || ({} as IConfig)
   const settings = config.settings || {}
   const picBed = config.picBed
+  showPicBedList.value = picBedGlobal.value.filter(item => item.visible).map(item => item.name)
   formKeys.forEach(key => {
     ;(formOfSetting.value as any)[key] = settings[key] ?? formOfSetting.value[key]
   })
@@ -1997,23 +1557,14 @@ async function initData () {
     currentStartMode.value = ISartMode.QUIET
     saveConfig(configPaths.settings.startMode, ISartMode.QUIET)
   }
-  currentShortUrlServer.value = valueToOptionItem(settings.shortUrlServer || 'c1n', shortUrlServerList)
+  currentShortUrlServer.value = settings.shortUrlServer || 'c1n'
   customLink.value = settings.customLink || '![$fileName]($url)'
   proxy.value = picBed.proxy || ''
-  server.value = settings.server || {
-    port: 36677,
-    host: '0.0.0.0',
-    enable: true
-  }
-  advancedRename.value = config.buildIn?.rename || {
-    enable: false,
-    format: '{filename}'
-  }
+  server.value = settings.server || { port: 36677, host: '0.0.0.0', enable: true }
+  advancedRename.value = config.buildIn?.rename || { enable: false, format: '{filename}' }
   if (advancedRename.value.enable) {
     formOfSetting.value.autoRename = false
-    saveConfig({
-      [configPaths.settings.autoRename]: false
-    })
+    saveConfig({ [configPaths.settings.autoRename]: false })
   }
   sync.value = settings.sync || {
     type: 'github',
@@ -2037,7 +1588,7 @@ async function initData () {
   addWatch()
 }
 
-function initArray (arrayT: string | string[], defaultValue: string[]) {
+function initArray(arrayT: string | string[], defaultValue: string[]) {
   if (!Array.isArray(arrayT)) {
     if (arrayT && arrayT.length > 0) {
       arrayT = [arrayT]
@@ -2048,47 +1599,40 @@ function initArray (arrayT: string | string[], defaultValue: string[]) {
   return arrayT
 }
 
-async function handleChangeSecondPicBed () {
+async function handleChangeSecondPicBed() {
   window.electron.sendRPC(IRPCActionType.SHOW_SECOND_UPLOADER_MENU)
 }
 
-function openFile (file: string) {
+function openFile(file: string) {
   window.electron.sendRPC(IRPCActionType.PICLIST_OPEN_FILE, file)
 }
 
-function openDirectory (directory?: string, inStorePath = true) {
+function openDirectory(directory?: string, inStorePath = true) {
   window.electron.sendRPC(IRPCActionType.PICLIST_OPEN_DIRECTORY, directory, inStorePath)
 }
 
-function openLogSetting () {
+function openLogSetting() {
   logFileVisible.value = true
 }
 
-async function cancelCustomLink () {
+async function cancelCustomLink() {
   customLinkVisible.value = false
   customLink.value = (await getConfig<string>(configPaths.settings.customLink)) || '![$fileName]($url)'
 }
 
-function confirmCustomLink () {
-  $customLink.value?.validate((valid: boolean) => {
-    if (valid) {
-      saveConfig(configPaths.settings.customLink, customLink.value)
-      customLinkVisible.value = false
-    }
-  })
+function confirmCustomLink() {
+  saveConfig(configPaths.settings.customLink, customLink.value)
+  customLinkVisible.value = false
 }
 
-async function handleCancelAdvancedRename () {
+async function handleCancelAdvancedRename() {
   advancedRenameVisible.value = false
   advancedRename.value = toRaw(
-    (await getConfig<any>(configPaths.buildIn.rename)) || {
-      enable: false,
-      format: '{filename}'
-    }
+    (await getConfig<any>(configPaths.buildIn.rename)) || { enable: false, format: '{filename}' }
   )
 }
 
-function handleSaveAdvancedRename () {
+function handleSaveAdvancedRename() {
   saveConfig(configPaths.buildIn.rename, toRaw(advancedRename.value))
   if (advancedRename.value.enable) {
     formOfSetting.value.autoRename = false
@@ -2097,31 +1641,31 @@ function handleSaveAdvancedRename () {
   advancedRenameVisible.value = false
 }
 
-function handleMigrateFromPicGo () {
+function handleMigrateFromPicGo() {
   confirm({
-    title: t('SETTINGS_MIGRATE_FROM_PICGO_TITLE'),
-    message: t('SETTINGS_MIGRATE_FROM_PICGO_CONTENT'),
+    title: t('pages.settings.sync.mirgrateTitle'),
+    message: t('pages.settings.sync.mirgrateContent'),
     type: 'warning',
-    confirmButtonText: t('CONFIRM'),
-    cancelButtonText: t('CANCEL'),
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     center: true
+  }).then(result => {
+    if (result) {
+      window.electron
+        .triggerRPC<boolean>(IRPCActionType.CONFIGURE_MIGRATE_FROM_PICGO)
+        .then(() => {
+          message.success(t('pages.settings.sync.mirgrateSuccess'))
+        })
+        .catch(() => {
+          message.error(t('pages.settings.sync.mirgrateFailed'))
+        })
+    }
   })
-    .then((result) => {
-      if (result) {
-        window.electron.triggerRPC<boolean>(IRPCActionType.CONFIGURE_MIGRATE_FROM_PICGO)
-          .then(() => {
-            message.success(t('SETTINGS_MIGRATE_FROM_PICGO_SUCCESS'))
-          })
-          .catch(() => {
-            message.error(t('SETTINGS_MIGRATE_FROM_PICGO_FAILED'))
-          })
-      }
-    })
 }
 
-function handleHideDockChange (val: ICheckBoxValueType) {
+function handleHideDockChange(val: ICheckBoxValueType) {
   if (val && currentStartMode.value === ISartMode.NO_TRAY) {
-    message.warning(t('SETTINGS_ISHIDEDOCK_TIPS'))
+    message.warning(t('pages.settings.system.hideDockHint'))
     formOfSetting.value.isHideDock = false
     return
   }
@@ -2129,65 +1673,62 @@ function handleHideDockChange (val: ICheckBoxValueType) {
   window.electron.sendRPC(IRPCActionType.HIDE_DOCK, val)
 }
 
-function handleShowPicBedListChange (val: ICheckBoxValueType[]) {
-  const list = picBedGlobal.value.map(item => {
-    if (!val.includes(item.name)) {
-      item.visible = false
-    } else {
-      item.visible = true
-    }
-    return item
-  })
-  saveConfig({
-    [configPaths.picBed.list]: list
-  })
+watch(showPicBedList, val => {
+  handleShowPicBedListChange(val)
+})
+
+function handleShowPicBedListChange(val: ICheckBoxValueType[]) {
+  console.log('handleShowPicBedListChange', val)
+  const list = picBedGlobal.value.map(item => ({ ...item, visible: val.includes(item.name) }))
+  saveConfig({ [configPaths.picBed.list]: list })
   updatePicBedGlobal()
 }
 
-function handleAutoStartChange (val: ICheckBoxValueType) {
+function handleAutoStartChange(val: ICheckBoxValueType) {
   saveConfig(configPaths.settings.autoStart, val)
   window.electron.sendRPC(IRPCActionType.PICLIST_AUTO_START, val)
 }
 
-function compareVersion2Update (current: string, latest: string): boolean {
+function compareVersion2Update(current: string, latest: string): boolean {
   return compare(current, latest, '<')
 }
 
-async function checkUpdate () {
+async function checkUpdate() {
   checkUpdateVisible.value = true
-  latestVersion.value = (await getLatestVersion()) || t('TIPS_NETWORK_ERROR')
+  latestVersion.value = (await getLatestVersion()) || t('pages.settings.update.networkError')
 }
 
-function confirmCheckVersion () {
+function confirmCheckVersion() {
   if (needUpdate.value) {
     window.electron.sendRPC(IRPCActionType.RELOAD_APP)
   }
   checkUpdateVisible.value = false
 }
 
-function cancelCheckVersion () {
+function cancelCheckVersion() {
   checkUpdateVisible.value = false
 }
 
-function confirmWebServerSetting () {
+function confirmWebServerSetting() {
   if (formOfSetting.value.enableWebServer) {
     window.electron.sendRPC(IRPCActionType.ADVANCED_RESTART_WEB_SERVER)
   } else {
     window.electron.sendRPC(IRPCActionType.ADVANCED_STOP_WEB_SERVER)
   }
+  webServerVisible.value = false
 }
 
-async function getMainWindowSize () {
+async function getMainWindowSize() {
   formOfSetting.value.mainWindowWidth = (await getConfig<number>(configPaths.settings.mainWindowWidth)) || 1200
   formOfSetting.value.mainWindowHeight = (await getConfig<number>(configPaths.settings.mainWindowHeight)) || 800
 }
 
-async function cancelWindowSize () {
+async function cancelWindowSize() {
   mainWindowSizeVisible.value = false
   await getMainWindowSize()
 }
 
-async function confirmWindowSize () {
+async function confirmWindowSize() {
   mainWindowSizeVisible.value = false
   const width = enforceNumber(formOfSetting.value.mainWindowWidth)
   const height = enforceNumber(formOfSetting.value.mainWindowHeight)
@@ -2198,12 +1739,12 @@ async function confirmWindowSize () {
   await getMainWindowSize()
 }
 
-function handleMiniWindowOntop (val: ICheckBoxValueType) {
+function handleMiniWindowOntop(val: ICheckBoxValueType) {
   saveConfig(configPaths.settings.miniWindowOntop, val)
   window.electron.sendRPC(IRPCActionType.MINI_WINDOW_ON_TOP, val)
 }
 
-async function handleMiniIconPath (_: Event) {
+async function handleMiniIconPath(_: Event) {
   const result = await window.electron.triggerRPC<string[]>(IRPCActionType.MANAGE_OPEN_FILE_SELECT_DIALOG)
   if (result && result[0]) {
     formOfSetting.value.customMiniIcon = result[0]
@@ -2212,18 +1753,18 @@ async function handleMiniIconPath (_: Event) {
   }
 }
 
-function handleShortUrlServerChange (val: string) {
+function handleShortUrlServerChange(val: string) {
   formOfSetting.value.shortUrlServer = val
   saveConfig(configPaths.settings.shortUrlServer, val)
 }
 
-function handleAesPasswordChange (val: string) {
+function handleAesPasswordChange(val: string) {
   saveConfig(configPaths.settings.aesPassword, val || 'PicList-aesPassword')
 }
 
-function confirmLogLevelSetting () {
+function confirmLogLevelSetting() {
   if (formOfSetting.value.logLevel.length === 0) {
-    message.error(t('TIPS_PLEASE_CHOOSE_LOG_LEVEL'))
+    message.error(t('pages.settings.advanced.chooseLogLevel'))
     return
   }
   saveConfig({
@@ -2233,7 +1774,7 @@ function confirmLogLevelSetting () {
   logFileVisible.value = false
 }
 
-async function cancelLogLevelSetting () {
+async function cancelLogLevelSetting() {
   logFileVisible.value = false
   let logLevel = await getConfig<string | string[]>(configPaths.settings.logLevel)
   const logFileSizeLimit = (await getConfig<number>(configPaths.settings.logFileSizeLimit)) || 10
@@ -2248,71 +1789,41 @@ async function cancelLogLevelSetting () {
   formOfSetting.value.logFileSizeLimit = logFileSizeLimit
 }
 
-function syncMessage (failed: number, taskType: 'UPLOAD' | 'DOWNLOAD') {
+function syncMessage(failed: number) {
   if (failed) {
-    message.error(t(`SETTINGS_SYNC_${taskType}_FAILED`, { failed }))
+    message.error(t(`pages.settings.sync.syncResult.failed`))
   } else {
-    message.success(t(`SETTINGS_SYNC_${taskType}_SUCCESS`))
+    message.success(t(`pages.settings.sync.syncResult.success`))
   }
 }
 
 const syncTaskList = [
-  {
-    task: IRPCActionType.CONFIGURE_UPLOAD_COMMON_CONFIG,
-    label: t('SETTINGS_SYNC_COMMON_CONFIG'),
-    number: 2
-  },
-  {
-    task: IRPCActionType.CONFIGURE_UPLOAD_MANAGE_CONFIG,
-    label: t('SETTINGS_SYNC_MANAGE_CONFIG'),
-    number: 2
-  },
-  {
-    task: IRPCActionType.CONFIGURE_UPLOAD_ALL_CONFIG,
-    label: t('SETTINGS_SYNC_UPLOAD_ALL'),
-    number: 4
-  },
-  {
-    task: IRPCActionType.CONFIGURE_DOWNLOAD_COMMON_CONFIG,
-    label: t('SETTINGS_SYNC_COMMON_CONFIG'),
-    number: 2
-  },
-  {
-    task: IRPCActionType.CONFIGURE_DOWNLOAD_MANAGE_CONFIG,
-    label: t('SETTINGS_SYNC_MANAGE_CONFIG'),
-    number: 2
-  },
-  {
-    task: IRPCActionType.CONFIGURE_DOWNLOAD_ALL_CONFIG,
-    label: t('SETTINGS_SYNC_DOWNLOAD_ALL'),
-    number: 4
-  }
+  { task: IRPCActionType.CONFIGURE_UPLOAD_COMMON_CONFIG, label: t('pages.settings.sync.commonConfig'), number: 2 },
+  { task: IRPCActionType.CONFIGURE_UPLOAD_MANAGE_CONFIG, label: t('pages.settings.sync.manageConfig'), number: 2 },
+  { task: IRPCActionType.CONFIGURE_UPLOAD_ALL_CONFIG, label: t('pages.settings.sync.allConfig'), number: 4 },
+  { task: IRPCActionType.CONFIGURE_DOWNLOAD_COMMON_CONFIG, label: t('pages.settings.sync.commonConfig'), number: 2 },
+  { task: IRPCActionType.CONFIGURE_DOWNLOAD_MANAGE_CONFIG, label: t('pages.settings.sync.manageConfig'), number: 2 },
+  { task: IRPCActionType.CONFIGURE_DOWNLOAD_ALL_CONFIG, label: t('pages.settings.sync.allConfig'), number: 4 }
 ]
 
-async function syncTaskFn (task: string, number: number) {
+async function syncTaskFn(task: string, number: number) {
   const failed = number - ((await window.electron.triggerRPC<number>(task)) || 0)
-  syncMessage(failed, task.includes('UPLOAD') ? 'UPLOAD' : 'DOWNLOAD')
+  syncMessage(failed)
 }
 
-function confirmServerSetting () {
+function confirmServerSetting() {
   server.value.port = parseInt(server.value.port as unknown as string, 10)
-  saveConfig({
-    [configPaths.settings.server]: server.value
-  })
+  saveConfig({ [configPaths.settings.server]: server.value })
   serverVisible.value = false
   window.electron.sendRPC(IRPCActionType.ADVANCED_UPDATE_SERVER)
 }
 
-async function cancelServerSetting () {
+async function cancelServerSetting() {
   serverVisible.value = false
-  server.value = (await getConfig(configPaths.settings.server)) || {
-    port: 36677,
-    host: '0.0.0.0',
-    enable: true
-  }
+  server.value = (await getConfig(configPaths.settings.server)) || { port: 36677, host: '0.0.0.0', enable: true }
 }
 
-function handleLevelDisabled (val: string) {
+function handleLevelDisabled(val: string) {
   const currentLevel = val
   let flagLevel
   const result = formOfSetting.value.logLevel.some((item: string) => {
@@ -2333,47 +1844,39 @@ function handleLevelDisabled (val: string) {
   return false
 }
 
-function handleLanguageChange (val: string) {
+function handleLanguageChange(val: string) {
   locale.value = val
   setCurrentLanguage(val)
-  saveConfig({
-    [configPaths.settings.language]: val
-  })
+  saveConfig({ [configPaths.settings.language]: val })
   localStorage.setItem('currentLanguage', val)
   // updatePicBedGlobal()
 }
 
-function handleStartModeChange (val: string) {
+function handleStartModeChange(val: string) {
   if (val === ISartMode.NO_TRAY) {
     if (formOfSetting.value.isHideDock) {
-      message.warning(t('SETTINGS_ISHIDEDOCK_TIPS'))
+      message.warning(t('pages.settings.system.hideDockHint'))
       currentStartMode.value = ISartMode.QUIET
       return
     }
-    message.info(t('TIPS_NEED_RELOAD'))
+    message.info(t('pages.settings.system.needRestart'))
   }
-  saveConfig({
-    [configPaths.settings.startMode]: val
-  })
+  saveConfig({ [configPaths.settings.startMode]: val })
 }
 
-async function goConfigPage () {
+async function goConfigPage() {
   const lang = (await getConfig(configPaths.settings.language)) || II18nLanguage.ZH_CN
   const url =
     lang === II18nLanguage.ZH_CN ? 'https://piclist.cn/configure.html' : 'https://piclist.cn/en/configure.html'
   window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
 }
 
-function goShortCutPage () {
-  $router.push({
-    name: SHORTKEY_PAGE
-  })
+function goShortCutPage() {
+  $router.push({ name: SHORTKEY_PAGE })
 }
 </script>
 <script lang="ts">
-export default {
-  name: 'SettingPage'
-}
+export default { name: 'SettingPage' }
 </script>
 
 <style scoped src="./css/PicgoSetting.css"></style>
