@@ -74,7 +74,7 @@ const getPluginList = async (): Promise<IPicGoPlugin[]> => {
       fullName: pluginList[i],
       author: pluginPKG.author.name || pluginPKG.author,
       description: pluginPKG.description,
-      logo: 'file://' + path.join(pluginPath, 'logo.png').split(path.sep).join('/'),
+      logo: path.join(pluginPath, 'logo.png').split(path.sep).join('/'),
       version: pluginPKG.version,
       gui,
       config: {

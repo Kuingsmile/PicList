@@ -1,245 +1,314 @@
 <template>
-  <div id="plugin-view">
-    <div class="view-title">
-      {{ $t('PLUGIN_SETTINGS') }} -
-      <el-tooltip
-        :content="pluginListToolTip"
-        placement="right"
-        :persistent="false"
-        teleported
-      >
-        <el-icon
-          class="el-icon-goods"
-          @click="goAwesomeList"
-        >
-          <Goods />
-        </el-icon>
-      </el-tooltip>
-      <el-tooltip
-        :content="updateAllToolTip"
-        placement="left"
-        :persistent="false"
-        teleported
-      >
-        <el-icon
-          class="el-icon-update"
-          @click="handleUpdateAllPlugin"
-        >
-          <Refresh />
-        </el-icon>
-      </el-tooltip>
-      <el-tooltip
-        :content="importLocalPluginToolTip"
-        placement="left"
-      >
-        <el-icon
-          class="el-icon-download"
-          :persistent="false"
-          teleported
-          @click="handleImportLocalPlugin"
-        >
-          <Download />
-        </el-icon>
-      </el-tooltip>
-    </div>
-    <el-row
-      class="handle-bar"
-      :class="{ 'cut-width': pluginList.length > 6 }"
-    >
-      <el-input
-        v-model="searchText"
-        :placeholder="$t('PLUGIN_SEARCH_PLACEHOLDER')"
-        size="small"
-      >
-        <template #suffix>
-          <el-icon
-            class="el-input__icon"
-            style="cursor: pointer"
-            @click="cleanSearch"
-          >
-            <close />
-          </el-icon>
-        </template>
-      </el-input>
-    </el-row>
-    <el-row
-      id="pluginList"
-      v-loading="loading"
-      :gutter="10"
-      class="plugin-list"
-    >
-      <el-col
-        v-for="item in pluginList"
-        :key="item.fullName"
-        class="plugin-item__container"
-        :xs="24"
-        :sm="pluginList.length === 1 ? 24 : 12"
-        :md="pluginList.length === 1 ? 24 : 12"
-        :lg="pluginList.length === 1 ? 24 : 12"
-        :xl="pluginList.length === 1 ? 24 : 12"
-      >
-        <div
-          class="plugin-item"
-          :class="{ darwin: osGlobal === 'darwin' }"
-        >
-          <div
-            v-if="!item.gui"
-            class="cli-only-badge"
-            title="CLI only"
-          >
-            CLI
+  <div class="plugin-container">
+    <!-- Header Card -->
+    <div class="plugin-card header-card">
+      <div class="card-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <DatabaseIcon :size="24" />
           </div>
-          <img
-            class="plugin-item__logo"
-            :src="item.logo"
-            :onerror="defaultLogo"
-          >
-          <div
-            class="plugin-item__content"
-            :class="{ disabled: !item.enabled }"
-          >
-            <div
-              class="plugin-item__name"
-              @click="openHomepage(item.homepage)"
-            >
-              {{ item.name }} <small>{{ ' ' + item.version }}</small> &nbsp;
-              <!-- 升级提示 -->
-              <el-tag
-                v-if="latestVersionMap[item.fullName] && latestVersionMap[item.fullName] !== item.version"
-                type="success"
-                size="small"
-                round
-                effect="plain"
-              >
-                new
-              </el-tag>
-            </div>
-            <div
-              class="plugin-item__desc"
-              :title="item.description"
-            >
-              {{ item.description }}
-            </div>
-            <div class="plugin-item__info-bar">
-              <span class="plugin-item__author">
-                {{ item.author.replace(/<.*>/, '') }}
-              </span>
-              <span class="plugin-item__config">
-                <template v-if="searchText">
-                  <template v-if="!item.hasInstall">
-                    <span
-                      v-if="!item.ing"
-                      class="config-button install"
-                      @click="installPlugin(item)"
-                    >
-                      {{ $t('PLUGIN_INSTALL') }}
-                    </span>
-                    <span
-                      v-else-if="item.ing"
-                      class="config-button ing"
-                    >
-                      {{ $t('PLUGIN_INSTALLING') }}
-                    </span>
-                  </template>
-                  <span
-                    v-else
-                    class="config-button ing"
-                  >
-                    {{ $t('PLUGIN_INSTALLED') }}
-                  </span>
-                </template>
-                <template v-else>
-                  <span
-                    v-if="item.ing"
-                    class="config-button ing"
-                  >
-                    {{ $t('PLUGIN_DOING_SOMETHING') }}
-                  </span>
-                  <template v-else>
-                    <el-icon
-                      v-if="item.enabled"
-                      class="el-icon-setting"
-                      @click="buildContextMenu(item)"
-                    >
-                      <Tools />
-                    </el-icon>
-                    <el-icon
-                      v-else
-                      class="el-icon-remove-outline"
-                      @click="buildContextMenu(item)"
-                    >
-                      <Remove />
-                    </el-icon>
-                  </template>
-                </template>
-              </span>
-            </div>
+          <div>
+            <h1>{{ t('pages.plugin.title') }}</h1>
+            <p>{{ t('pages.plugin.description') }}</p>
           </div>
         </div>
-      </el-col>
-    </el-row>
-    <el-row
-      v-show="needReload"
-      class="reload-mask"
-      :class="{ 'cut-width': pluginList.length > 6 }"
-      justify="center"
-    >
-      <el-button
-        type="primary"
-        size="small"
-        round
-        @click="reloadApp"
+        <div class="header-actions">
+          <button
+            class="action-button secondary"
+            :title="t('pages.plugin.importLocal')"
+            @click="handleImportLocalPlugin"
+          >
+            <DownloadIcon :size="16" />
+            {{ t('pages.plugin.importLocal') }}
+          </button>
+          <button
+            class="action-button secondary"
+            :title="t('pages.plugin.updateAll')"
+            @click="handleUpdateAllPlugin"
+          >
+            <RefreshCwIcon :size="16" />
+            {{ t('pages.plugin.updateAll') }}
+          </button>
+          <button
+            class="action-button"
+            :title="t('pages.plugin.pluginList')"
+            @click="goAwesomeList"
+          >
+            <ExternalLinkIcon :size="16" />
+            {{ t('pages.plugin.list') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Card -->
+    <div class="plugin-card search-card">
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <SearchIcon
+            class="search-icon"
+            :size="20"
+          />
+          <input
+            v-model="searchText"
+            type="text"
+            class="search-input"
+            :placeholder="t('pages.plugin.searchPlaceholder')"
+          >
+          <button
+            v-if="searchText"
+            class="clear-button"
+            @click="cleanSearch"
+          >
+            <XIcon :size="16" />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reload Notice -->
+    <transition name="notice">
+      <div
+        v-if="needReload"
+        class="plugin-card notice-card"
       >
-        {{ $t('TIPS_NEED_RELOAD') }}
-      </el-button>
-    </el-row>
-    <el-dialog
-      v-model="dialogVisible"
-      :modal-append-to-body="false"
-      :title="
-        $t('CONFIG_THING', {
-          c: configName
-        })
-      "
-      width="70%"
-      append-to-body
+        <div class="notice-content">
+          <AlertCircleIcon
+            class="notice-icon"
+            :size="20"
+          />
+          <span class="notice-text">{{ t('pages.plugin.needRestart') }}</span>
+          <button
+            class="action-button small"
+            @click="reloadApp"
+          >
+            {{ t('pages.plugin.restartApp') }}
+          </button>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Loading Overlay -->
+    <div
+      v-if="loading"
+      class="loading-overlay"
     >
-      <config-form
-        :id="configName"
-        ref="$configForm"
-        :config="config"
-        :type="currentType"
-        color-mode="white"
-      />
-      <template #footer>
-        <el-button
-          round
-          @click="dialogVisible = false"
+      <div class="loading-spinner" />
+      <span class="loading-text">{{ t('pages.plugin.loading') }}</span>
+    </div>
+
+    <!-- Plugin Grid -->
+    <div class="plugin-grid">
+      <div
+        v-for="item in pluginList"
+        :key="item.fullName"
+        class="plugin-card plugin-item-card"
+        :class="{ disabled: !item.enabled && !searchText }"
+      >
+        <!-- Plugin Badge -->
+        <div
+          v-if="!item.gui"
+          class="cli-badge"
         >
-          {{ $t('CANCEL') }}
-        </el-button>
-        <el-button
-          type="primary"
-          round
-          @click="handleConfirmConfig"
+          CLI
+        </div>
+
+        <!-- Update Badge -->
+        <div
+          v-if="latestVersionMap[item.fullName] && latestVersionMap[item.fullName] !== item.version"
+          class="update-badge"
         >
-          {{ $t('CONFIRM') }}
-        </el-button>
-      </template>
-    </el-dialog>
+          NEW
+        </div>
+
+        <!-- Plugin Header -->
+        <div class="plugin-header">
+          <img
+            class="plugin-logo"
+            :src="item.logo"
+            :onerror="defaultLogo"
+            alt=""
+          >
+          <div class="plugin-info">
+            <h3
+              class="plugin-name"
+              @click="openHomepage(item.homepage)"
+            >
+              {{ item.name }}
+              <span class="plugin-version">v{{ item.version }}</span>
+            </h3>
+            <p class="plugin-author">
+              {{ item.author.replace(/<.*>/, '') }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Plugin Description -->
+        <div class="plugin-description">
+          <p :title="item.description">
+            {{ item.description }}
+          </p>
+        </div>
+
+        <!-- Plugin Actions -->
+        <div class="plugin-actions">
+          <template v-if="searchText">
+            <template v-if="!item.hasInstall">
+              <button
+                v-if="!item.ing"
+                class="plugin-button install-button"
+                @click="installPlugin(item)"
+              >
+                <DownloadIcon :size="16" />
+                {{ t('pages.plugin.install') }}
+              </button>
+              <button
+                v-else
+                class="plugin-button installing-button"
+                disabled
+              >
+                <div class="button-spinner" />
+                {{ t('pages.plugin.installing') }}
+              </button>
+            </template>
+            <button
+              v-else
+              class="plugin-button installed-button"
+              disabled
+            >
+              <CheckIcon :size="16" />
+              {{ t('pages.plugin.installed') }}
+            </button>
+          </template>
+          <template v-else>
+            <button
+              v-if="item.ing"
+              class="plugin-button processing-button"
+              disabled
+            >
+              <div class="button-spinner" />
+              {{ t('pages.plugin.doingSomething') }}
+            </button>
+            <template v-else>
+              <button
+                v-if="item.enabled"
+                class="plugin-button settings-button"
+                @click="buildContextMenu(item)"
+              >
+                <SettingsIcon :size="16" />
+                {{ t('pages.plugin.settings') }}
+              </button>
+              <button
+                v-else
+                class="plugin-button disabled-button"
+                @click="buildContextMenu(item)"
+              >
+                <XCircleIcon :size="16" />
+                {{ t('pages.plugin.disabled') }}
+              </button>
+            </template>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      v-if="!loading && pluginList.length === 0"
+      class="plugin-card empty-state"
+    >
+      <div class="empty-content">
+        <PackageIcon
+          class="empty-icon"
+          :size="48"
+        />
+        <h3>{{ searchText ? t('pages.plugin.noPluginsFound') : t('pages.plugin.NoPluginsInstalled') }}</h3>
+        <p>{{ searchText ? t('pages.plugin.tryDifferentSearch') : t('pages.plugin.installPluginsToGetStarted') }}</p>
+        <button
+          v-if="!searchText"
+          class="action-button"
+          @click="goAwesomeList"
+        >
+          <ExternalLinkIcon :size="16" />
+          {{ t('pages.plugin.browsePlugins') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Config Modal -->
+    <transition name="modal">
+      <div
+        v-if="dialogVisible"
+        class="modal-overlay"
+        @click="dialogVisible = false"
+      >
+        <div
+          class="modal-container"
+          @click.stop
+        >
+          <div class="modal-header">
+            <h2 class="modal-title">
+              {{ t('pages.plugin.configThing', { c: configName }) }}
+            </h2>
+            <button
+              class="modal-close"
+              @click="dialogVisible = false"
+            >
+              <XIcon :size="20" />
+            </button>
+          </div>
+          <div class="modal-content">
+            <config-form
+              :id="configName"
+              ref="$configForm"
+              :config="config"
+              :type="currentType"
+              color-mode="white"
+              mode="plugin"
+              :show-tooltips="false"
+            />
+          </div>
+          <div class="modal-footer">
+            <button
+              class="btn btn-secondary"
+              @click="dialogVisible = false"
+            >
+              {{ t('common.cancel') }}
+            </button>
+            <button
+              class="btn btn-primary"
+              @click="handleConfirmConfig"
+            >
+              {{ t('common.confirm') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Close, Download, Goods, Refresh, Remove, Tools } from '@element-plus/icons-vue'
 import type { IpcRendererEvent } from 'electron'
-import { ElMessageBox } from 'element-plus'
 import { debounce, DebouncedFunc } from 'lodash-es'
+import {
+  AlertCircleIcon,
+  CheckIcon,
+  DatabaseIcon,
+  DownloadIcon,
+  ExternalLinkIcon,
+  PackageIcon,
+  RefreshCwIcon,
+  SearchIcon,
+  SettingsIcon,
+  XCircleIcon,
+  XIcon
+} from 'lucide-vue-next'
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, reactive, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import ConfigForm from '@/components/ConfigFormForPlugin.vue'
-import { handleStreamlinePluginName } from '@/utils/common'
+import ConfigForm from '@/components/UnifiedConfigForm.vue'
+import { getRawData, handleStreamlinePluginName } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
 import {
   PICGO_CONFIG_PLUGIN,
@@ -249,11 +318,10 @@ import {
 } from '@/utils/constant'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
-import { osGlobal, updatePicBedGlobal } from '@/utils/global'
+import { updatePicBedGlobal } from '@/utils/global'
 import type { INPMSearchResultObject, IPicGoPlugin } from '#/types/types'
 
 const { t } = useI18n()
-const $confirm = ElMessageBox.confirm
 const searchText = ref('')
 const pluginList = ref<IPicGoPlugin[]>([])
 const config = ref<any[]>([])
@@ -264,11 +332,9 @@ const pluginNameList = ref<string[]>([])
 const loading = ref(true)
 const needReload = ref(false)
 const latestVersionMap = reactive<{ [key: string]: string }>({})
-const pluginListToolTip = t('PLUGIN_LIST')
-const importLocalPluginToolTip = t('PLUGIN_IMPORT_LOCAL')
-const updateAllToolTip = t('PLUGIN_UPDATE_ALL')
 const defaultLogo = ref('this.src=\'/roundLogo.png\'')
 const $configForm = ref<InstanceType<typeof ConfigForm> | null>(null)
+
 const npmSearchText = computed(() => {
   return searchText.value.match('picgo-plugin-')
     ? searchText.value
@@ -276,11 +342,11 @@ const npmSearchText = computed(() => {
       ? `picgo-plugin-${searchText.value}`
       : searchText.value
 })
+
 let getSearchResult: DebouncedFunc<(val: string) => void>
 
 watch(npmSearchText, (val: string) => {
   if (val) {
-    loading.value = true
     pluginList.value = []
     getSearchResult(val)
   } else {
@@ -290,11 +356,9 @@ watch(npmSearchText, (val: string) => {
 
 watch(dialogVisible, (val: boolean) => {
   if (val) {
-    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
-    document.querySelector('.main-content.el-row').style.zIndex = 101
+    document.body.style.overflow = 'hidden'
   } else {
-    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
-    document.querySelector('.main-content.el-row').style.zIndex = 10
+    document.body.style.overflow = 'auto'
   }
 })
 
@@ -393,7 +457,6 @@ const picgoHandlePluginIngHandler = (_: IpcRendererEvent, fullName: string) => {
       item.ing = true
     }
   })
-  loading.value = true
 }
 
 const picgoTogglePluginHandler = (_: IpcRendererEvent, fullName: string, enabled: boolean) => {
@@ -421,14 +484,11 @@ onBeforeMount(async () => {
 })
 
 async function buildContextMenu (plugin: IPicGoPlugin) {
-  window.electron.sendRPC(IRPCActionType.SHOW_PLUGIN_PAGE_MENU, plugin)
+  window.electron.sendRPC(IRPCActionType.SHOW_PLUGIN_PAGE_MENU, getRawData(plugin))
 }
 
 function handleResize () {
-  const myDiv = document.getElementById('pluginList') as HTMLElement
-  const windowHeight = window.innerHeight
-  const newHeight = windowHeight * 0.75
-  myDiv.style.height = newHeight + 'px'
+  // No longer needed with new layout
 }
 
 onMounted(() => {
@@ -441,18 +501,10 @@ function getPluginList () {
 
 function installPlugin (item: IPicGoPlugin) {
   if (!item.gui) {
-    $confirm(t('TIPS_PLUGIN_NOT_GUI_IMPLEMENT'), t('TIPS_NOTICE'), {
-      confirmButtonText: t('CONFIRM'),
-      cancelButtonText: t('CANCEL'),
-      type: 'warning'
-    })
-      .then(() => {
-        item.ing = true
-        window.electron.sendRPC(IRPCActionType.PLUGIN_INSTALL, item.fullName)
-      })
-      .catch(() => {
-        console.log('Install canceled')
-      })
+    if (confirm(t('pages.plugin.notGuiImplement'))) {
+      item.ing = true
+      window.electron.sendRPC(IRPCActionType.PLUGIN_INSTALL, item.fullName)
+    }
   } else {
     item.ing = true
     window.electron.sendRPC(IRPCActionType.PLUGIN_INSTALL, item.fullName)
@@ -468,11 +520,13 @@ async function handleReload () {
     needReload: true
   })
   needReload.value = true
-  const successNotification = new Notification(t('PLUGIN_UPDATE_SUCCEED'), {
-    body: t('TIPS_NEED_RELOAD')
-  })
-  successNotification.onclick = () => {
-    reloadApp()
+  if ('Notification' in window) {
+    const successNotification = new Notification(t('pages.plugin.updateSuccess'), {
+      body: t('pages.plugin.needRestart')
+    })
+    successNotification.onclick = () => {
+      reloadApp()
+    }
   }
 }
 
@@ -500,11 +554,13 @@ async function handleConfirmConfig () {
         })
         break
     }
-    const successNotification = new Notification(t('SETTINGS_RESULT'), {
-      body: t('TIPS_SET_SUCCEED')
-    })
-    successNotification.onclick = () => {
-      return true
+    if ('Notification' in window) {
+      const successNotification = new Notification(t('SETTINGS_RESULT'), {
+        body: t('pages.plugin.setSuccess')
+      })
+      successNotification.onclick = () => {
+        return true
+      }
     }
     dialogVisible.value = false
     getPluginList()
@@ -605,179 +661,16 @@ onBeforeUnmount(() => {
   window.electron.ipcRendererRemoveListener(PICGO_CONFIG_PLUGIN, picgoConfigPluginHandler)
   window.electron.ipcRendererRemoveListener(PICGO_HANDLE_PLUGIN_ING, picgoHandlePluginIngHandler)
   window.electron.ipcRendererRemoveListener(PICGO_TOGGLE_PLUGIN, picgoTogglePluginHandler)
+
+  // Reset body overflow
+  document.body.style.overflow = 'auto'
 })
 </script>
+
 <script lang="ts">
 export default {
   name: 'PluginPage'
 }
 </script>
-<style lang="stylus">
-$darwinBg = #172426
-#plugin-view
-  position absolute
-  left 142px
-  right 0
-  .el-loading-mask
-    background-color rgba(0, 0, 0, 0.8)
-  .plugin-list
-    align-content flex-start
-    height: 600px;
-    box-sizing: border-box;
-    padding: 8px 15px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    position: absolute;
-    top: 70px;
-    left: 5px;
-    transition: all 0.2s ease-in-out 0.1s;
-    width: 100%
-    .el-loading-mask
-      left: 20px
-      width: calc(100% - 40px)
-  .view-title
-    color #eee
-    font-size 20px
-    text-align center
-    margin 10px auto
-    position relative
-    i.el-icon-goods
-      margin-left 4px
-      font-size 20px
-      vertical-align middle
-      cursor pointer
-      transition color .2s ease-in-out
-      &:hover
-        color #49B1F5
-    i.el-icon-update
-      position absolute
-      right 35px
-      top 8px
-      font-size 20px
-      vertical-align middle
-      cursor pointer
-      transition color .2s ease-in-out
-      &:hover
-        color #49B1F5
-    i.el-icon-download
-      position absolute
-      right 5px
-      top 8px
-      font-size 20px
-      vertical-align middle
-      cursor pointer
-      transition color .2s ease-in-out
-      &:hover
-        color #49B1F5
-  .handle-bar
-    margin-bottom 20px
-    &.cut-width
-      padding-right: 8px
-  .el-input__inner
-    border-radius 0
-  .plugin-item
-    box-sizing border-box
-    height 80px
-    background #444
-    padding 8px
-    user-select text
-    transition all .2s ease-in-out
-    position relative
-    &__container
-      height 80px
-      margin-bottom 10px
-    .cli-only-badge
-      position absolute
-      right 0px
-      top 0
-      font-size 12px
-      padding 3px 8px
-      background #49B1F5
-      color #eee
-    &.darwin
-      background transparentify($darwinBg, #000, 0.75)
-      &:hover
-        background transparentify($darwinBg, #000, 0.85)
-    &:hover
-      background #333
-    &__logo
-      width 64px
-      height 64px
-      float left
-    &__content
-      float left
-      width calc(100% - 72px)
-      height 64px
-      color #ddd
-      margin-left 8px
-      display flex
-      flex-direction column
-      justify-content space-between
-      &.disabled
-        color #aaa
-    &__name
-      font-size 16px
-      height 22px
-      line-height 22px
-      font-weight 600
-      cursor pointer
-      text-overflow ellipsis
-      white-space nowrap
-      overflow hidden
-      transition all .2s ease-in-out
-      &:hover
-        color: #1B9EF3
-    &__desc
-      font-size 14px
-      height 21px
-      line-height 21px
-      overflow hidden
-      text-overflow ellipsis
-      white-space nowrap
-    &__info-bar
-      font-size 14px
-      height 21px
-      line-height 28px
-      position relative
-    &__author
-      overflow hidden
-      text-overflow ellipsis
-      white-space nowrap
-    &__config
-      float right
-      font-size 16px
-      cursor pointer
-      transition all .2s ease-in-out
-      &:hover
-        color: #1B9EF3
-    .config-button
-      font-size 12px
-      color #ddd
-      background #222
-      padding 1px 8px
-      height 18px
-      line-height 18px
-      text-align center
-      position absolute
-      top 4px
-      right 20px
-      transition all .2s ease-in-out
-      &.reload
-        right 0px
-      &.ing
-        right 0px
-      &.install
-        right 0px
-        &:hover
-          background: #1B9EF3
-          color #fff
-  .reload-mask
-    position absolute
-    width calc(100% - 40px)
-    bottom -320px
-    text-align center
-    background rgba(0,0,0,0.4)
-    padding 10px 0
-    &.cut-width
-      width calc(100% - 48px)
-</style>
+
+<style scoped src="./css/PluginPage.css"></style>

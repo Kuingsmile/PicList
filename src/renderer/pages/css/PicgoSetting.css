@@ -740,11 +740,11 @@ small {
 }
 
 .placeholder-item code {
-  background: linear-gradient(135deg, var(--color-accent) 0%, #667eea 100%);
+  background: var(--color-blue-common);
   color: white;
   padding: 0.3rem 0.6rem;
   border-radius: 8px;
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-family: 'SF Mono', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   margin-right: 0.875rem;
   min-width: 80px;
@@ -808,6 +808,6 @@ small {
 
 :root.dark .placeholder-item code,
 :root.auto.dark .placeholder-item code {
-  background: linear-gradient(135deg, var(--color-accent) 0%, #764ba2 100%);
+  background: var(--color-blue-common);
   border-color: rgba(255, 255, 255, 0.15);
 }

@@ -1,7 +1,7 @@
 {
   "app": { "title": "PicList" },
   "titleBar": { "alwaysOnTop": "置頂", "close": "關閉", "minimize": "最小化", "miniWindow": "迷你視窗" },
-  "common": { "confirm": "確認", "cancel": "取消", "close": "關閉" },
+  "common": { "confirm": "確認", "cancel": "取消", "close": "關閉", "reset": "重置", "import": "匯入" },
   "navigation": {
     "upload": "上傳",
     "manage": "管理",
@@ -215,6 +215,7 @@
         "enableAdvancedRname": "開啟高級重命名",
         "advancedRnameFormat": "高級重命名格式",
         "availablePlaceholders": "可用占位符",
+        "copySuccess": "複製成功: {content}",
         "placeholder": {
           "categoryTime": "時間相關",
           "categoryHash": "哈希相關",
@@ -315,6 +316,91 @@
         "hasNewVersion": "PicList 更新啦，請點擊確定重啟觸發更新",
         "networkError": "網絡錯誤，請檢查網絡連接"
       }
+    },
+    "plugin": {
+      "title": "插件",
+      "description": "PicList 插件管理頁面",
+      "importLocal": "匯入本地插件",
+      "updateAll": "更新全部插件",
+      "list": "插件列表",
+      "searchPlaceholder": "搜尋 npm 上的 PicGo 插件，或者點擊上方按鈕查看優秀插件列表",
+      "needRestart": "需要重啟生效",
+      "restartApp": "重啟應用",
+      "loading": "載入中...",
+      "install": "安裝",
+      "installing": "安裝中",
+      "installed": "已安裝",
+      "doingSomething": "進行中",
+      "settings": "設定",
+      "disabled": "已停用",
+      "noPluginsFound": "未找到插件",
+      "tryDifferentSearch": "嘗試不同的搜尋關鍵詞",
+      "NoPluginsInstalled": "尚未安裝任何插件",
+      "installPluginsToGetStarted": "請先安裝插件以開始使用",
+      "browsePlugins": "瀏覽插件",
+      "configThing": "配置 {c}",
+      "pluginList": "插件列表",
+      "notGuiImplement": "該插件未針對圖形介面進行優化，是否繼續安裝？",
+      "updateSuccess": "插件更新成功",
+      "setSuccess": "設定成功"
+    },
+    "inputBox": {
+      "title": "輸入框"
+    },
+    "configForm": {
+      "configName": "配置名稱",
+      "configNamePlaceholder": "請輸入配置名稱"
+    },
+    "rename": {
+      "placeholder": "請輸入新的檔案名稱"
+    },
+    "shortKey": {
+      "title": "快捷鍵",
+      "name": "快捷鍵名稱",
+      "bind": "快捷鍵綁定",
+      "status": "狀態",
+      "source": "來源",
+      "handle": "操作",
+      "noBinding": "未綁定",
+      "enable": "啟用",
+      "disable": "停用",
+      "enabled": "已啟用",
+      "disabled": "已停用",
+      "edit": "編輯",
+      "changeUpload": "修改上傳快捷鍵",
+      "keyBinding": "按鍵綁定",
+      "pressKeys": "按下要設定的快捷鍵",
+      "pressHint": "點擊輸入框並按下你想要綁定的按鍵"
+    },
+    "picBedConfigs": {
+      "title": "配置",
+      "viewDoc": "查看文件",
+      "copyAPI": "複製 API 位址",
+      "noConfigOptions": "暫無配置項",
+      "setSuccess": "設定成功",
+      "setFailedInfo": "設定失敗，請檢查配置項是否正確",
+      "loadConfigFailed": "載入配置失敗，請檢查配置文件是否正確",
+      "loadPicBedListFailed": "載入圖床列表失敗",
+      "importConfigSuccess": "匯入配置成功",
+      "importConfigFailed": "匯入配置失敗",
+      "resetSuccess": "重設成功",
+      "resetFailed": "重設失敗，請檢查配置項是否正確",
+      "viewDocFailed": "查看文件失敗",
+      "noConfigs": "配置為空",
+      "copyAPISucceed": "複製 API 位址成功",
+      "copyAPIFailed": "複製 API 位址失敗"
+    },
+    "uploaderConfig": {
+      "title": "圖床配置",
+      "selected": "已選取",
+      "edit": "編輯",
+      "delete": "刪除",
+      "addNew": "新增",
+      "setAsDefault": "設為預設圖床",
+      "setSuccess": "設定成功",
+      "deleteTitle": "通知",
+      "deleteConfirm": "確認刪除圖床配置嗎？",
+      "deleteSuccess": "刪除成功"
     }
   },
   "OPEN_MAIN_WINDOW": "打開主視窗",
@@ -334,7 +420,6 @@
   "TOOLBOX_SUCCESS_TIPS": "恭喜你,沒有檢查出問題",
   "UPLOAD_VIEW_HINT": "點擊打開圖床設定",
   "REFRESH": "刷新",
-  "PLUGIN_SETTINGS": "插件",
   "CHOOSE_PICBED": "選擇圖床",
   "COPY_PICBED_CONFIG": "複製圖床設定",
   "COPY_PICBED_CONFIG_SUCCEED": "複製圖床設定成功",
@@ -391,14 +476,6 @@
   "WAIT_TO_UPLOAD": "等待上傳",
   "ALREADY_UPLOAD": "已上傳",
   "TIPS_DRAG_VALID_PICTURE_OR_URL": "請拖入合法的圖片檔案或者圖片URL地址",
-  "PLUGIN_SEARCH_PLACEHOLDER": "搜尋npm上的PicGo插件，或者點擊上方按鈕查看優秀插件列表",
-  "PLUGIN_INSTALL": "安裝",
-  "PLUGIN_INSTALLING": "安裝中",
-  "PLUGIN_INSTALLED": "已安裝",
-  "PLUGIN_DOING_SOMETHING": "進行中",
-  "PLUGIN_LIST": "插件列表",
-  "PLUGIN_IMPORT_LOCAL": "導入本地插件",
-  "PLUGIN_UPDATE_ALL": "更新全部插件",
   "TIPS_REMOVE_LINK": "此操作將在相簿中移除該圖片，是否繼續？",
   "TIPS_WILL_REMOVE_CHOOSED_IMAGES": "將在相簿中移除剛才選中的 ${m} 張圖片，是否繼續？",
   "TIPS_MUST_CONTAINS_URL": "必須含有$url 或 $fileName 或 $extName",
@@ -407,7 +484,6 @@
   "TIPS_PLEASE_CHOOSE_LOG_LEVEL": "請選擇記錄等級",
   "TIPS_SET_SUCCEED": "設定成功",
   "TIPS_RESET_SUCCEED": "重置成功",
-  "TIPS_PLUGIN_NOT_GUI_IMPLEMENT": "該插件未對GUI進行優化，是否繼續安裝？",
   "MANAGE_SETTING_TITLE": "管理設定",
   "MANAGE_SETTING_ISAUTOREFRESH_TITLE": "每次進入新目錄時，是否自動重新整理檔案列表",
   "MANAGE_SETTING_ISAUTOREFRESH_TIPS": "僅對不分頁模式有效，預設會在載入後自動快取至資料庫以提升下次載入速度",
@@ -963,6 +1039,5 @@
   "MANAGE_NEW_BUCKET_S3PLIST_ACL_PUBLIC_R": "公共讀",
   "MANAGE_NEW_BUCKET_S3PLIST_ACL_PRIVATE": "私有",
   "MANAGE_NEW_BUCKET_S3PLIST_ACL_AUTHENTICATED_READ": "授權讀",
-  "PLUGIN_UPDATE_SUCCEED": "插件更新成功",
   "TIPS_NOTICE": "注意"
 }

@@ -122,12 +122,12 @@ if (db.get(configPaths.settings.miniWindowOntop)) {
 }
 
 const renameWindowOptions = {
-  height: 175,
-  width: 300,
+  height: 250,
+  width: 350,
   show: true,
   fullscreenable: false,
-  resizable: false,
-  vibrancy: 'ultra-dark',
+  icon: logo,
+  resizable: true,
   webPreferences: {
     sandbox: false,
     preload: preloadPath,

@@ -144,16 +144,18 @@ export default {
 
 .message-toast {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   margin-bottom: 0.5rem;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   max-width: 24rem;
+  min-width: 20rem;
   pointer-events: all;
   background: white;
   border: 1px solid rgb(229 231 235);
+  word-wrap: break-word;
 }
 
 :root.dark .message-toast,
@@ -196,6 +198,7 @@ export default {
 
 .message-icon {
   flex-shrink: 0;
+  margin-top: 0.125rem;
 }
 
 .message-content {
@@ -203,6 +206,11 @@ export default {
   color: rgb(75 85 99);
   font-size: 0.875rem;
   line-height: 1.25rem;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  min-width: 0;
 }
 
 :root.dark .message-content,
@@ -220,6 +228,8 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
 }
 
 .message-close:hover {

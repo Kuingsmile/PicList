@@ -1,7 +1,7 @@
 {
   "app": { "title": "PicList" },
   "titleBar": { "alwaysOnTop": "置顶", "close": "关闭", "minimize": "最小化", "miniWindow": "迷你窗口" },
-  "common": { "confirm": "确认", "cancel": "取消", "close": "关闭" },
+  "common": { "confirm": "确认", "cancel": "取消", "close": "关闭", "reset": "重置", "import": "导入" },
   "navigation": {
     "upload": "上传",
     "manage": "管理",
@@ -215,6 +215,7 @@
         "enableAdvancedRname": "开启高级重命名",
         "advancedRnameFormat": "高级重命名格式",
         "availablePlaceholders": "可用占位符",
+        "copySuccess": "复制成功: {content}",
         "placeholder": {
           "categoryTime": "时间相关",
           "categoryHash": "哈希相关",
@@ -315,6 +316,91 @@
         "hasNewVersion": "PicList 更新啦，请点击确定重启触发更新",
         "networkError": "网络错误，请检查网络连接"
       }
+    },
+    "plugin": {
+      "title": "插件",
+      "description": "PicList 插件管理页面",
+      "importLocal": "导入本地插件",
+      "updateAll": "更新全部插件",
+      "list": "插件列表",
+      "searchPlaceholder": "搜索 npm 上的 PicGo 插件，或者点击上方按钮查看优秀插件列表",
+      "needRestart": "需要重启生效",
+      "restartApp": "重启应用",
+      "loading": "加载中...",
+      "install": "安装",
+      "installing": "安装中",
+      "installed": "已安装",
+      "doingSomething": "进行中",
+      "settings": "设置",
+      "disabled": "已禁用",
+      "noPluginsFound": "未找到插件",
+      "tryDifferentSearch": "尝试不同的搜索关键词",
+      "NoPluginsInstalled": "暂无已安装插件",
+      "installPluginsToGetStarted": "请先安装插件以开始使用",
+      "browsePlugins": "浏览插件",
+      "configThing": "配置 {c}",
+      "pluginList": "插件列表",
+      "notGuiImplement": "该插件未对可视化界面进行优化, 是否继续安装?",
+      "updateSuccess": "插件更新成功",
+      "setSuccess": "设置成功"
+    },
+    "inputBox": {
+      "title": "输入框"
+    },
+    "configForm": {
+      "configName": "配置名",
+      "configNamePlaceholder": "请输入配置名称"
+    },
+    "rename": {
+      "placeholder": "请输入新的文件名"
+    },
+    "shortKey": {
+      "title": "快捷键",
+      "name": "快捷键名称",
+      "bind": "快捷键绑定",
+      "status": "状态",
+      "source": "来源",
+      "handle": "操作",
+      "noBinding": "未绑定",
+      "enable": "启用",
+      "disable": "禁用",
+      "enabled": "已启用",
+      "disabled": "已禁用",
+      "edit": "编辑",
+      "changeUpload": "修改上传快捷键",
+      "keyBinding": "按键绑定",
+      "pressKeys": "按下要设置的快捷键",
+      "pressHint": "点击输入框并按下你想要绑定的按键"
+    },
+    "picBedConfigs": {
+      "title": "配置",
+      "viewDoc": "查看文档",
+      "copyAPI": "复制API地址",
+      "noConfigOptions": "暂无配置项",
+      "setSuccess": "设置成功",
+      "setFailedInfo": "设置失败, 请检查配置项是否正确",
+      "loadConfigFailed": "加载配置失败, 请检查配置文件是否正确",
+      "loadPicBedListFailed": "加载图床列表失败",
+      "importConfigSuccess": "导入配置成功",
+      "importConfigFailed": "导入配置失败",
+      "resetSuccess": "重置成功",
+      "resetFailed": "重置失败, 请检查配置项是否正确",
+      "viewDocFailed": "查看文档失败",
+      "noConfigs": "配置为空",
+      "copyAPISucceed": "复制API地址成功",
+      "copyAPIFailed": "复制API地址失败"
+    },
+    "uploaderConfig": {
+      "title": "图床配置",
+      "selected": "已选中",
+      "edit": "编辑",
+      "delete": "删除",
+      "addNew": "新增",
+      "setAsDefault": "设为默认图床",
+      "setSuccess": "设置成功",
+      "deleteTitle": "通知",
+      "deleteConfirm": "确认删除图床配置吗？",
+      "deleteSuccess": "删除成功"
     }
   },
   "OPEN_MAIN_WINDOW": "打开主窗口",
@@ -334,7 +420,6 @@
   "TOOLBOX_SUCCESS_TIPS": "恭喜你，没有检查出问题",
   "UPLOAD_VIEW_HINT": "点击打开图床设置",
   "REFRESH": "刷新",
-  "PLUGIN_SETTINGS": "插件",
   "CHOOSE_PICBED": "选择图床",
   "COPY_PICBED_CONFIG": "复制图床配置",
   "COPY_PICBED_CONFIG_SUCCEED": "复制图床配置成功",
@@ -391,14 +476,6 @@
   "WAIT_TO_UPLOAD": "等待上传",
   "ALREADY_UPLOAD": "已上传",
   "TIPS_DRAG_VALID_PICTURE_OR_URL": "请拖入合法的图片文件或者图片URL地址",
-  "PLUGIN_SEARCH_PLACEHOLDER": "搜索npm上的PicGo插件，或者点击上方按钮查看优秀插件列表",
-  "PLUGIN_INSTALL": "安装",
-  "PLUGIN_INSTALLING": "安装中",
-  "PLUGIN_INSTALLED": "已安装",
-  "PLUGIN_DOING_SOMETHING": "进行中",
-  "PLUGIN_LIST": "插件列表",
-  "PLUGIN_IMPORT_LOCAL": "导入本地插件",
-  "PLUGIN_UPDATE_ALL": "更新全部插件",
   "TIPS_REMOVE_LINK": "此操作将把该图片移出相册, 是否继续?",
   "TIPS_WILL_REMOVE_CHOOSED_IMAGES": "将在相册中移除刚才选中的 ${m} 张图片，是否继续？",
   "TIPS_MUST_CONTAINS_URL": "必须含有$url 或 $fileName 或 $extName",
@@ -407,7 +484,6 @@
   "TIPS_PLEASE_CHOOSE_LOG_LEVEL": "请选择日志记录等级",
   "TIPS_SET_SUCCEED": "设置成功",
   "TIPS_RESET_SUCCEED": "重置成功",
-  "TIPS_PLUGIN_NOT_GUI_IMPLEMENT": "该插件未对可视化界面进行优化, 是否继续安装?",
   "MANAGE_SETTING_TITLE": "管理页面设置",
   "MANAGE_SETTING_ISAUTOREFRESH_TITLE": "每次进入新目录时，是否自动刷新文件列表",
   "MANAGE_SETTING_ISAUTOREFRESH_TIPS": "仅对不分页模式有效，默认在加载过一次后自动缓存到数据库来加快下次加载速度",
@@ -963,6 +1039,5 @@
   "MANAGE_NEW_BUCKET_S3PLIST_ACL_PUBLIC_R": "公共读",
   "MANAGE_NEW_BUCKET_S3PLIST_ACL_PRIVATE": "私有",
   "MANAGE_NEW_BUCKET_S3PLIST_ACL_AUTHENTICATED_READ": "授权读",
-  "PLUGIN_UPDATE_SUCCEED": "插件更新成功",
   "TIPS_NOTICE": "注意"
 }

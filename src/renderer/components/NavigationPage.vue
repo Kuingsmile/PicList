@@ -65,7 +65,7 @@
         :title="$t('navigation.moreOptions')"
         @click="openMenu"
       >
-        <BadgeInfoIcon :size="20" />
+        <Info :size="20" />
       </button>
     </div>
   </nav>
@@ -215,7 +215,7 @@ import {
 } from '@headlessui/vue'
 import { ElMessage as $message } from 'element-plus'
 import { pick } from 'lodash-es'
-import { BadgeInfoIcon, CheckIcon, ChevronDownIcon, CopyIcon, DatabaseIcon, FolderIcon, PieChartIcon, PlugIcon, Settings, UploadIcon } from 'lucide-vue-next'
+import { CheckIcon, ChevronDownIcon, CopyIcon, DatabaseIcon, FolderIcon, Info, PieChartIcon, PlugIcon, Settings, UploadIcon } from 'lucide-vue-next'
 import QrcodeVue from 'qrcode.vue'
 import pkg from 'root/package.json'
 import { computed, nextTick, onBeforeMount, reactive, Ref, ref, watch } from 'vue'

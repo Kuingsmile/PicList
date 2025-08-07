@@ -200,13 +200,13 @@
 
 <script lang="ts" setup>
 import type { IpcRendererEvent } from 'electron'
-import { ElMessage as $message } from 'element-plus'
 import { ChevronDownIcon, ClipboardIcon, DatabaseIcon, LinkIcon, Settings, UploadCloudIcon, XIcon } from 'lucide-vue-next'
 import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
+import useMessage from '@/hooks/useMessage'
 import { PICBEDS_PAGE } from '@/router/config'
 import $bus from '@/utils/bus'
 import { isUrl } from '@/utils/common'
@@ -221,6 +221,7 @@ import type { IFileWithPath, IUploaderConfigItem } from '#/types/types'
 useDragEventListeners()
 const $router = useRouter()
 const { t } = useI18n()
+const message = useMessage()
 
 const imageProcessDialogVisible = ref(false)
 const useShortUrl = ref(false)
@@ -327,7 +328,7 @@ function onDrop (e: DragEvent) {
       if (isUrl(str)) {
         window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [{ path: str }])
       } else {
-        $message.error(t('pages.upload.dragValidPictureOrUrl'))
+        message.error(t('pages.upload.dragValidPictureOrUrl'))
       }
     }
   }
@@ -345,7 +346,7 @@ function handleURLDrag (items: DataTransferItemList, dataTransfer: DataTransfer)
       }
     ])
   } else {
-    $message.error(t('pages.upload.dragValidPictureOrUrl'))
+    message.error(t('pages.upload.dragValidPictureOrUrl'))
   }
 }
 
@@ -415,7 +416,7 @@ function handleInputBoxValue (val: string) {
       }
     ])
   } else {
-    $message.error(t('pages.upload.inputValidUrl'))
+    message.error(t('pages.upload.inputValidUrl'))
   }
 }
 

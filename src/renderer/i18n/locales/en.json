@@ -1,7 +1,7 @@
 {
   "app": { "title": "PicList" },
   "titleBar": { "alwaysOnTop": "Always On Top", "close": "Close", "minimize": "Minimize", "miniWindow": "Mini Window" },
-  "common": { "confirm": "Confirm", "cancel": "Cancel", "close": "Close" },
+  "common": { "confirm": "Confirm", "cancel": "Cancel", "close": "Close", "reset": "Reset", "import": "Import" },
   "navigation": {
     "upload": "Upload",
     "manage": "Manage",
@@ -220,6 +220,7 @@
         "enableAdvancedRname": "Enable Advanced Rename",
         "advancedRnameFormat": "Advanced Rename Format",
         "availablePlaceholders": "Available Placeholders",
+        "copySuccess": "Copy Successful: {content}",
         "placeholder": {
           "categoryTime": "Time Related",
           "categoryHash": "Hash Related",
@@ -320,6 +321,91 @@
         "hasNewVersion": "PicList has been updated, please click OK to restart and trigger the update",
         "networkError": "Network error, please check your network connection"
       }
+    },
+    "plugin": {
+      "title": "Plugins",
+      "description": "PicList Plugin Management",
+      "importLocal": "Import Local Plugin",
+      "updateAll": "Update All Plugins",
+      "list": "Plugin List",
+      "searchPlaceholder": "Search for PicGo plugins on npm, or click the button above to view the excellent plugin list",
+      "needRestart": "Need Restart to Take Effect",
+      "restartApp": "Restart Application",
+      "loading": "Loading...",
+      "install": "Install",
+      "installing": "Installing...",
+      "installed": "Installed",
+      "doingSomething": "Doing Something...",
+      "settings": "Settings",
+      "disabled": "Disabled",
+      "noPluginsFound": "No Plugins Found",
+      "tryDifferentSearch": "Try Different Search Keywords",
+      "NoPluginsInstalled": "No Plugins Installed",
+      "installPluginsToGetStarted": "Please install plugins to get started",
+      "browsePlugins": "Browse Plugins",
+      "configThing": "Config {c}",
+      "pluginList": "Plugin List",
+      "notGuiImplement": "This plugin does not have a GUI implementation, continue?",
+      "updateSuccess": "Update Success",
+      "setSuccess": "Set Success"
+    },
+    "inputBox": {
+      "title": "Input Box"
+    },
+    "configForm": {
+      "configName": "Config Name",
+      "configNamePlaceholder": "Please enter config name"
+    },
+    "rename": {
+      "placeholder": "Please enter new file name"
+    },
+    "shortKey": {
+      "title": "Shortcut Key",
+      "name": "Shortcut Key Name",
+      "bind": "Shortcut Key Binding",
+      "status": "Status",
+      "source": "Source",
+      "handle": "Action",
+      "noBinding": "Not Bound",
+      "enable": "Enable",
+      "disable": "Disable",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "edit": "Edit",
+      "changeUpload": "Change Upload Shortcut",
+      "keyBinding": "Key Binding",
+      "pressKeys": "Press the keys to set the shortcut",
+      "pressHint": "Click the input box and press the keys you want to bind"
+    },
+    "picBedConfigs": {
+      "title": "Config",
+      "viewDoc": "View Document",
+      "copyAPI": "Copy API Address",
+      "noConfigOptions": "No Config Options",
+      "setSuccess": "Set Success",
+      "setFailedInfo": "Set Failed, Please Check If Config Options Are Correct",
+      "loadConfigFailed": "Load Config Failed, Please Check If Config File Is Correct",
+      "loadPicBedListFailed": "Load PicBed List Failed",
+      "importConfigSuccess": "Import Config Success",
+      "importConfigFailed": "Import Config Failed",
+      "resetSuccess": "Reset Success",
+      "resetFailed": "Reset Failed, Please Check If Config Options Are Correct",
+      "viewDocFailed": "View Document Failed",
+      "noConfigs": "No Configs",
+      "copyAPISucceed": "Copy API Address Succeed",
+      "copyAPIFailed": "Copy API Address Failed"
+    },
+    "uploaderConfig": {
+      "title": "PicBed Config",
+      "selected": "Selected",
+      "edit": "Edit",
+      "delete": "Delete",
+      "addNew": "Add New",
+      "setAsDefault": "Set as Default PicBed",
+      "setSuccess": "Set Success",
+      "deleteTitle": "Notification",
+      "deleteConfirm": "Are you sure you want to delete this PicBed config?",
+      "deleteSuccess": "Delete Success"
     }
   },
   "OPEN_MAIN_WINDOW": "Open Main Window",
@@ -339,7 +425,6 @@
   "TOOLBOX_SUCCESS_TIPS": "Congratulations, no problems were found",
   "UPLOAD_VIEW_HINT": "Click to open picbeds settings",
   "REFRESH": "Refresh",
-  "PLUGIN_SETTINGS": "Plugins",
   "CHOOSE_PICBED": "Choose Picbed",
   "COPY_PICBED_CONFIG": "Copy Picbed Config",
   "COPY_PICBED_CONFIG_SUCCEED": "Copy Picbed Config Succeed",
@@ -396,14 +481,6 @@
   "WAIT_TO_UPLOAD": "Wait to Upload",
   "ALREADY_UPLOAD": "Already Uploaded",
   "TIPS_DRAG_VALID_PICTURE_OR_URL": "Drag valid picture or url to here",
-  "PLUGIN_SEARCH_PLACEHOLDER": "Search picgo plugins on npm, or click the button to view the awesome plugins list",
-  "PLUGIN_INSTALL": "Install",
-  "PLUGIN_INSTALLING": "Installing...",
-  "PLUGIN_INSTALLED": "Installed",
-  "PLUGIN_DOING_SOMETHING": "Doing...",
-  "PLUGIN_LIST": "Plugin List",
-  "PLUGIN_IMPORT_LOCAL": "Import Local Plugins",
-  "PLUGIN_UPDATE_ALL": "Update All Plugins",
   "TIPS_REMOVE_LINK": "This operation will remove the picture from the album, continue?",
   "TIPS_WILL_REMOVE_CHOOSED_IMAGES": "This operation will remove the picture from the album, continue?",
   "TIPS_MUST_CONTAINS_URL": "Must contains $url or $fileName or $extName",
@@ -412,7 +489,6 @@
   "TIPS_PLEASE_CHOOSE_LOG_LEVEL": "Please choose log level",
   "TIPS_SET_SUCCEED": "Set successfully",
   "TIPS_RESET_SUCCEED": "Reset successfully",
-  "TIPS_PLUGIN_NOT_GUI_IMPLEMENT": "This plugin is not optimized for the GUI, continue?",
   "MANAGE_SETTING_TITLE": "Manage Setting",
   "MANAGE_SETTING_ISAUTOREFRESH_TITLE": "Auto refresh file list when entering new directory",
   "MANAGE_SETTING_ISAUTOREFRESH_TIPS": "Only applies to non-paginated mode, data is cached to indexdb to speed up loading speed",
@@ -968,6 +1044,5 @@
   "MANAGE_NEW_BUCKET_S3PLIST_ACL_PUBLIC_R": "Public Read",
   "MANAGE_NEW_BUCKET_S3PLIST_ACL_PRIVATE": "Private",
   "MANAGE_NEW_BUCKET_S3PLIST_ACL_AUTHENTICATED_READ": "Authenticated Read",
-  "PLUGIN_UPDATE_SUCCEED": "Plugin update succeed",
   "TIPS_NOTICE": "Tips"
 }

@@ -1,5 +1,9 @@
 <template>
-  <div id="main" class="app-container">
+  <div
+    id="main"
+    class="app-container"
+  >
+    <InputBoxDialog />
     <TitleBar />
     <div class="app-background">
       <div class="bg-gradient" />
@@ -8,9 +12,15 @@
     <main class="main-content">
       <div class="content-container">
         <router-view v-slot="{ Component, route }">
-          <transition name="page" mode="out-in">
+          <transition
+            name="page"
+            mode="out-in"
+          >
             <keep-alive :include="keepAlivePages">
-              <component :is="Component" :key="route.path" />
+              <component
+                :is="Component"
+                :key="route.path"
+              />
             </keep-alive>
           </transition>
         </router-view>
@@ -22,6 +32,7 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
 
+import InputBoxDialog from '@/components/InputBoxDialog.vue'
 import Navigation from '@/components/NavigationPage.vue'
 import TitleBar from '@/components/ui/TitleBar.vue'
 
@@ -68,7 +79,7 @@ export default { name: 'MainPage' }
   --color-accent-hover: #0056b3;
   --color-blue-common: #409eff;
   --color-success: #34c759;
-  --color-warning: #ff9500;
+  --color-warning: #f1930f;
   --color-danger: #ff3b30;
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);

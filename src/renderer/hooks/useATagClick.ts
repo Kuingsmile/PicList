@@ -6,8 +6,11 @@ export function useATagClick () {
   const handleATagClick = (e: MouseEvent) => {
     if (e.target instanceof HTMLAnchorElement) {
       if (e.target.href) {
-        e.preventDefault()
-        window.electron.sendRPC(IRPCActionType.OPEN_URL, e.target.href)
+        // avoid opening localhost development URLs in external browser
+        if (!e.target.href.startsWith('http://localhost:3000')) {
+          e.preventDefault()
+          window.electron.sendRPC(IRPCActionType.OPEN_URL, e.target.href)
+        }
       }
     }
   }

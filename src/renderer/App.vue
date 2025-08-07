@@ -13,11 +13,13 @@ import type { IConfig } from 'piclist'
 import { onBeforeMount, onMounted } from 'vue'
 
 import UIServiceProvider from '@/components/ui/UIServiceProvider.vue'
+import { useATagClick } from '@/hooks/useATagClick'
 import { useStore } from '@/hooks/useStore'
 import { getConfig } from '@/utils/dataSender'
 import { pageReloadCount } from '@/utils/global'
 
 import { useAppStore } from './hooks/useAppStore'
+useATagClick()
 
 const store = useStore()
 const appStore = useAppStore()

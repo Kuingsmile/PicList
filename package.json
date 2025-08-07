@@ -121,6 +121,7 @@
     "dpdm": "^3.14.0",
     "electron": "^36.7.3",
     "electron-builder": "^26.0.12",
+    "electron-devtools-installer": "^4.0.0",
     "electron-vite": "^4.0.0",
     "eslint": "^9.32.0",
     "eslint-plugin-prettier": "^5.5.3",

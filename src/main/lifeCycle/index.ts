@@ -13,6 +13,7 @@ import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis
 import windowManager from 'apis/app/window/windowManager'
 import axios from 'axios'
 import { app, dialog, globalShortcut, Notification, protocol, screen, shell } from 'electron'
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import updater from 'electron-updater'
 import fs from 'fs-extra'
 
@@ -167,10 +168,17 @@ class LifeCycle {
 
   #onReady () {
     const readyFunction = async () => {
+      if (process.env.NODE_ENV !== 'production') {
+        installExtension(VUEJS_DEVTOOLS).then(name => {
+          console.log(`Added Extension: ${JSON.stringify(name)}`)
+        }).catch(err => {
+          console.log('An error occurred: ', err)
+        })
+        const setwin = windowManager.get(IWindowList.SETTING_WINDOW)
+        setwin?.webContents?.openDevTools({ mode: 'detach' })
+      }
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
-      const setwin = windowManager.get(IWindowList.SETTING_WINDOW)
-      setwin?.webContents?.openDevTools({ mode: 'detach' })
       const isAutoListenClipboard = db.get(configPaths.settings.isAutoListenClipboard) || false
       const ClipboardWatcher = clipboardPoll
       if (isAutoListenClipboard) {
