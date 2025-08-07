@@ -1,136 +1,176 @@
 <template>
-  <div class="toolbox">
-    <el-row>
-      <el-row class="toolbox-header">
-        <el-row>
+  <div class="toolbox-container">
+    <!-- Header Card -->
+    <div class="toolbox-card header-card">
+      <div class="card-header">
+        <div class="header-content">
           <img
-            class="toolbox-header__logo"
+            class="header-logo"
             :src="defaultLogo"
+            alt="Toolbox Logo"
           >
-          <el-row class="toolbox-header__text">
-            <el-row class="toolbox-header__title">
-              {{ $t('TOOLBOX_TITLE') }}
-            </el-row>
-            <el-row class="toolbox-header__sub-title">
-              {{ $t('TOOLBOX_SUB_TITLE') }}
-            </el-row>
-          </el-row>
-        </el-row>
-        <el-row>
+          <div class="header-text">
+            <h1 class="header-title">
+              {{ t('pages.toolbox.title') }}
+            </h1>
+            <p class="header-subtitle">
+              {{ t('pages.toolbox.description') }}
+            </p>
+          </div>
+        </div>
+        <div class="header-actions">
           <template v-if="progress !== 100">
-            <el-button
-              type="primary"
-              round
+            <button
+              class="action-button"
+              :class="{ disabled: isLoading }"
               :disabled="isLoading"
               @click="handleCheck"
             >
-              {{ $t('TOOLBOX_START_SCAN') }}
-            </el-button>
+              <span>{{ t('pages.toolbox.startScan') }}</span>
+            </button>
           </template>
           <template v-else-if="isAllSuccess">
-            <div class="toolbox-tips">
-              {{ $t('TOOLBOX_SUCCESS_TIPS') }}
+            <div class="success-tips">
+              {{ t('pages.toolbox.success') }}
             </div>
           </template>
           <template v-else-if="!isAllSuccess">
             <template v-if="canFixLength !== 0">
-              <el-button
-                type="primary"
-                round
+              <button
+                class="action-button"
                 @click="handleFix"
               >
-                {{ $t('TOOLBOX_START_FIX') }}
-              </el-button>
+                <span>{{ t('pages.toolbox.startFix') }}</span>
+              </button>
             </template>
             <template v-else>
-              <div class="toolbox-cant-fix toolbox-tips">
-                {{ $t('TOOLBOX_CANT_AUTO_FIX') }}
-                <el-button
-                  type="primary"
-                  round
-                  class="toolbox-cant-fix__btn"
+              <div class="cant-fix-container">
+                <span class="cant-fix-text">{{ $t('pages.toolbox.autoFixFail') }}</span>
+                <button
+                  class="action-button secondary small"
                   @click="handleCheck"
                 >
-                  {{ $t('TOOLBOX_RE_SCAN') }}
-                </el-button>
+                  <span>{{ t('pages.toolbox.reScan') }}</span>
+                </button>
               </div>
             </template>
           </template>
-        </el-row>
-      </el-row>
-    </el-row>
-    <el-row class="progress">
-      <el-progress
-        :percentage="progress"
-        :format="format"
-      />
-    </el-row>
-    <el-collapse
-      v-model="activeTypes"
-      accordion
-    >
-      <el-collapse-item
-        v-for="(item, key) in fixList"
-        :key="key"
-        :name="key"
-      >
-        <template #title>
-          {{ item.title }} <toolbox-status-icon :status="item.status" />
-        </template>
-        <div class="toolbox-item-msg">
-          {{ item.msg || '' }}
-          <template v-if="item.handler && item.handlerText && item.value">
-            <toolbox-handler
-              :value="item.value"
-              :status="item.status"
-              :handler="item.handler"
-              :handler-text="item.handlerText"
-            />
-          </template>
         </div>
-      </el-collapse-item>
-    </el-collapse>
+      </div>
+    </div>
+
+    <!-- Progress Card -->
+    <div class="toolbox-card progress-card">
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div
+            class="progress-fill"
+            :style="{ width: `${progress}%` }"
+          />
+        </div>
+        <span class="progress-text">{{ Math.round(progress) }}%</span>
+      </div>
+    </div>
+
+    <!-- Items Card -->
+    <div class="toolbox-card items-card">
+      <div class="items-list">
+        <div
+          v-for="(item, key) in fixList"
+          :key="key"
+          class="item"
+          :class="{
+            'item-active': activeTypes.includes(key),
+            'item-error': item.status === IToolboxItemCheckStatus.ERROR,
+            'item-success': item.status === IToolboxItemCheckStatus.SUCCESS,
+            'item-loading': item.status === IToolboxItemCheckStatus.LOADING
+          }"
+        >
+          <div
+            class="item-header"
+            @click="toggleItem(key)"
+          >
+            <div class="item-title">
+              <span>{{ item.title }}</span>
+              <toolbox-status-icon :status="item.status" />
+            </div>
+            <div class="item-chevron">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="6,9 12,15 18,9" />
+              </svg>
+            </div>
+          </div>
+          <transition name="item-content">
+            <div
+              v-if="activeTypes.includes(key)"
+              class="item-content"
+            >
+              <div class="item-message">
+                {{ item.msg || '' }}
+              </div>
+              <template v-if="item.handler && item.handlerText && item.value">
+                <div class="item-actions">
+                  <toolbox-handler
+                    :value="item.value"
+                    :status="item.status"
+                    :handler="item.handler"
+                    :handler-text="item.handlerText"
+                  />
+                </div>
+              </template>
+            </div>
+          </transition>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ElMessageBox } from 'element-plus'
 import { computed, onUnmounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ToolboxHandler from '@/components/ToolboxHandler.vue'
 import ToolboxStatusIcon from '@/components/ToolboxStatusIcon.vue'
+import useConfirm from '@/hooks/useConfirm'
 import { IRPCActionType, IToolboxItemCheckStatus, IToolboxItemType } from '@/utils/enum'
 import type { IToolboxCheckRes } from '#/types/rpc'
 import type { IToolboxMap } from '#/types/view'
 
 const { t } = useI18n()
-const $confirm = ElMessageBox.confirm
+const { confirm } = useConfirm()
 const defaultLogo = ref('/roundLogo.png')
 const activeTypes = ref<string[]>([])
 const fixList = reactive<IToolboxMap>({
   [IToolboxItemType.IS_CONFIG_FILE_BROKEN]: {
-    title: t('TOOLBOX_CHECK_CONFIG_FILE_BROKEN'),
+    title: t('pages.toolbox.checkConfigFileBroken'),
     status: IToolboxItemCheckStatus.INIT,
-    handlerText: t('SETTINGS_OPEN_CONFIG_FILE'),
+    handlerText: t('pages.toolbox.openConfigFile'),
     handler (value: string) {
       window.electron.sendRPC(IRPCActionType.OPEN_FILE, value)
     }
   },
   [IToolboxItemType.IS_GALLERY_FILE_BROKEN]: {
-    title: t('TOOLBOX_CHECK_GALLERY_FILE_BROKEN'),
+    title: t('pages.toolbox.checkGalleryFileBroken'),
     status: IToolboxItemCheckStatus.INIT
   },
   [IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD]: {
-    title: t('TOOLBOX_CHECK_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD'), // picgo-image-clipboard folder
+    title: t('pages.toolbox.checkProblemWithClipboardPicUpload'), // picgo-image-clipboard folder
     status: IToolboxItemCheckStatus.INIT,
-    handlerText: t('OPEN_FILE_PATH'),
+    handlerText: t('pages.toolbox.openFilePath'),
     handler (value: string) {
       window.electron.sendRPC(IRPCActionType.OPEN_FILE, value)
     }
   },
   [IToolboxItemType.HAS_PROBLEM_WITH_PROXY]: {
-    title: t('TOOLBOX_CHECK_PROBLEM_WITH_PROXY'),
+    title: t('pages.toolbox.checkProblemWithProxy'),
     status: IToolboxItemCheckStatus.INIT,
     hasNoFixMethod: true
   }
@@ -166,7 +206,14 @@ const canFixLength = computed(() => {
   }).length
 })
 
-const format = (_percentage: number) => ''
+const toggleItem = (key: string) => {
+  const index = activeTypes.value.indexOf(key)
+  if (index > -1) {
+    activeTypes.value.splice(index, 1)
+  } else {
+    activeTypes.value.push(key)
+  }
+}
 
 const toolboxCheckResHandler = (_event: any, { type, msg = '', status, value = '' }: IToolboxCheckRes) => {
   fixList[type].status = status
@@ -211,15 +258,17 @@ const handleFix = async () => {
       }
     })
 
-  $confirm(t('TOOLBOX_FIX_DONE_NEED_RELOAD'), t('TIPS_NOTICE'), {
-    confirmButtonText: t('CONFIRM'),
-    cancelButtonText: t('CANCEL'),
-    type: 'info'
+  confirm({
+    title: t('pages.toolbox.fixDoneNeedReload'),
+    message: t('pages.toolbox.notice'),
+    type: 'warning',
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    center: true
+  }).then(result => {
+    if (!result) return
+    window.electron.sendRPC(IRPCActionType.RELOAD_APP)
   })
-    .then(() => {
-      window.electron.sendRPC(IRPCActionType.RELOAD_APP)
-    })
-    .catch(() => {})
 }
 
 onUnmounted(() => {
@@ -231,55 +280,5 @@ export default {
   name: 'ToolBoxPage'
 }
 </script>
-<style lang="stylus">
-.toolbox
-  padding 0 40px
-  &-header
-    width 100%
-    color #eee
-    justify-content space-between
-    align-items center
-    padding 20px 0px
-    &__logo
-      width 64px
-      height 64px
-      margin-right 20px
-    &__text
-      flex-direction column
-      justify-content center
-    &__title
-      color #ddd
-      font-size 20px
-      margin-bottom 4px
-    &__sub-title
-      color #aaa
-      font-size 16px
-  .progress
-    width 100%
-    .el-progress--line
-      width 100%
-    .el-progress__text
-      min-width 0
-  .el-collapse
-    margin-top 20px
-    --el-collapse-border-color: #777;
-    --el-collapse-header-height: 48px;
-    --el-collapse-header-bg-color: transparent;
-    --el-collapse-header-text-color: #ddd;
-    --el-collapse-header-font-size: 13px;
-    --el-collapse-content-bg-color: transparent;
-    --el-collapse-content-font-size: 13px;
-    --el-collapse-content-text-color: #ddd;
-    &-item__content
-      padding-bottom: 12px
-  &-item-msg
-    color: #aaa
-  &-tips
-    padding: 12px 0
-  &-cant-fix
-    display flex
-    justify-content center
-    align-items center
-    &__btn
-      margin-left: 8px
-</style>
+
+<style scoped src="./css/ToolboxPage.css"></style>

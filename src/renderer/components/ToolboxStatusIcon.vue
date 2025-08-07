@@ -1,22 +1,13 @@
 <template>
-  <el-icon
-    :color="color"
+  <component
+    :is="icon"
     class="toolbox-status-icon"
-  >
-    <template v-if="props.status === IToolboxItemCheckStatus.SUCCESS">
-      <SuccessFilled />
-    </template>
-    <template v-if="props.status === IToolboxItemCheckStatus.ERROR">
-      <CircleCloseFilled />
-    </template>
-    <template v-if="props.status === IToolboxItemCheckStatus.LOADING">
-      <Loading />
-    </template>
-  </el-icon>
+    :style="{ color }"
+  />
 </template>
 
 <script lang="ts" setup>
-import { CircleCloseFilled, Loading, SuccessFilled } from '@element-plus/icons-vue'
+import { CircleCheck, Loader2, TriangleAlert } from 'lucide-vue-next'
 import { computed } from 'vue'
 
 import { IToolboxItemCheckStatus } from '@/utils/enum'
@@ -37,6 +28,19 @@ const color = computed(() => {
       return '#909399'
   }
 })
+
+const icon = computed(() => {
+  switch (props.status) {
+    case IToolboxItemCheckStatus.SUCCESS:
+      return CircleCheck
+    case IToolboxItemCheckStatus.ERROR:
+      return TriangleAlert
+    case IToolboxItemCheckStatus.LOADING:
+      return Loader2
+    default:
+      return null
+  }
+})
 </script>
 <script lang="ts">
 export default {
@@ -45,6 +49,12 @@ export default {
 </script>
 <style lang="stylus">
 .toolbox-status-icon {
-  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  transition: var(--transition-fast);
 }
 </style>

@@ -1,0 +1,296 @@
+/* Container */
+.config-container {
+  padding: 1rem;
+  width: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* Card Base */
+.config-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transition: var(--transition-medium);
+  box-shadow: var(--shadow-sm);
+}
+
+.config-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border);
+}
+
+/* Header Card */
+.header-card .card-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+/* Main Card */
+.main-card {
+  background: var( --color-background-tertiary);
+  padding: 1.5rem;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .config-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .config-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+/* Config Items */
+.config-item {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: var(--transition-medium);
+  position: relative;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.config-item:hover {
+  background: var(--color-surface);
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.config-item.selected {
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.config-content {
+  flex: 1;
+  margin-right: 2rem;
+}
+
+.config-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.config-update-time {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.default-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  background: var(--color-accent);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.config-actions {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  color: var(--color-text-secondary);
+}
+
+.action-btn:hover {
+  background: var(--color-surface);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.edit-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.delete-btn:hover:not(.disabled) {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.delete-btn.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Add New Config Item */
+.config-item-add {
+  border: 2px dashed var(--color-border);
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+}
+
+.config-item-add:hover {
+  border-color: var(--color-accent);
+  background: var(--color-surface-elevated);
+  transform: translateY(-2px);
+}
+
+.add-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-text-secondary);
+  transition: var(--transition-fast);
+}
+
+.config-item-add:hover .add-content {
+  color: var(--color-accent);
+}
+
+.add-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Actions Card */
+.actions-card {
+  border-radius: var(--radius-lg);
+}
+
+.card-actions {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.primary-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-family: inherit;
+  min-width: 200px;
+  justify-content: center;
+}
+
+.primary-button:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.primary-button:disabled {
+  background: var(--color-border);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .config-container {
+    padding: 0.75rem;
+    gap: 1rem;
+  }
+
+  .header-card .card-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .main-card {
+    padding: 1rem;
+  }
+
+  .config-item {
+    padding: 1rem;
+    min-height: 100px;
+  }
+
+  .config-actions {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .action-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .primary-button {
+    padding: 0.75rem 1.5rem;
+    min-width: 180px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .config-container {
+    padding: 1.5rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
