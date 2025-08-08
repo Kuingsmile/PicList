@@ -3,7 +3,7 @@
     <div class="title-bar">
       <div class="app-title">
         <div class="app-text">
-          {{ $t('app.title') }}
+          {{ t('app.title') }}
         </div>
         <div class="app-version">
           v{{ version }}
@@ -40,7 +40,7 @@
           <div class="nav-icon-container">
             <DatabaseIcon :size="18" />
           </div>
-          <span class="nav-label">{{ $t('navigation.picbed') }}</span>
+          <span class="nav-label">{{ t('navigation.picbed') }}</span>
           <ChevronDownIcon
             :size="16"
             class="submenu-arrow"
@@ -62,7 +62,7 @@
     <div class="sidebar-footer">
       <button
         class="footer-button"
-        :title="$t('navigation.moreOptions')"
+        :title="t('navigation.moreOptions')"
         @click="openMenu"
       >
         <Info :size="20" />
@@ -103,12 +103,12 @@
         >
           <DialogPanel class="dialog-panel">
             <DialogTitle class="dialog-title">
-              {{ $t('navigation.picBedQrCode') }}
+              {{ t('navigation.picBedQrCode') }}
             </DialogTitle>
 
             <div class="dialog-content">
               <div class="form-group">
-                <label class="form-label">{{ $t('navigation.choosePicBed') }}</label>
+                <label class="form-label">{{ t('navigation.choosePicBed') }}</label>
                 <Listbox
                   v-model="choosedPicBedForQRCode"
                   multiple
@@ -119,13 +119,13 @@
                         v-if="choosedPicBedForQRCode.length === 0"
                         class="placeholder"
                       >
-                        {{ $t('navigation.selectPicBeds') }}
+                        {{ t('navigation.selectPicBeds') }}
                       </span>
                       <span
                         v-else
                         class="selected-count"
                       >
-                        {{ choosedPicBedForQRCode.length }} {{ $t('navigation.selected') }}
+                        {{ choosedPicBedForQRCode.length }} {{ t('navigation.selected') }}
                       </span>
                       <ChevronDownIcon
                         :size="16"
@@ -167,7 +167,7 @@
                   @click="handleCopyPicBedConfig"
                 >
                   <CopyIcon :size="16" />
-                  {{ $t('navigation.copyPicBedConfig') }}
+                  {{ t('navigation.copyPicBedConfig') }}
                 </button>
               </div>
 
@@ -264,7 +264,7 @@ function openMenu () {
 
 function handleCopyPicBedConfig () {
   window.electron.clipboard.writeText(picBedConfigString.value)
-  $message.success(t('COPY_PICBED_CONFIG_SUCCEED'))
+  $message.success(t('navigation.copySuccess'))
 }
 
 const navigationItems = computed(() => [

@@ -15,7 +15,8 @@
     "moreOptions": "More Options",
     "picBedQrCode": "PicBed QR Code",
     "choosePicBed": "Choose PicBed",
-    "selectPicBeds": "Select PicBeds"
+    "selectPicBeds": "Select PicBeds",
+    "copySuccess": "Copy Success"
   },
   "settings": {
     "theme": {
@@ -347,6 +348,7 @@
       "pluginList": "Plugin List",
       "notGuiImplement": "This plugin does not have a GUI implementation, continue?",
       "updateSuccess": "Update Success",
+      "setResult": "Set Result",
       "setSuccess": "Set Success"
     },
     "inputBox": {
@@ -476,35 +478,14 @@
       "inputRegexTip": "Please enter the matching string",
       "noMatch": "No matching items found",
       "noItemsNeedRename": "No items need to be renamed"
+    },
+    "tray": {
+      "openMainWindow": "Open Main Window",
+      "waitForUpload": "Waiting for Upload",
+      "uploaded": "Uploaded",
+      "copySuccess": "Copy Success"
     }
   },
-  "OPEN_MAIN_WINDOW": "Open Main Window",
-  "OPERATION_SUCCEED": "Operation Succeed",
-  "REFRESH": "Refresh",
-  "CHOOSE_PICBED": "Choose Picbed",
-  "COPY_PICBED_CONFIG": "Copy Picbed Config",
-  "COPY_PICBED_CONFIG_SUCCEED": "Copy Picbed Config Succeed",
-  "INPUT": "Input",
-  "CANCEL": "Cancel",
-  "CONFIRM": "Confirm",
-  "RESET_PICBED_CONFIG": "Reset",
-  "CHOOSE_SHOWED_PICBED": "Choose Showed Picbed",
-  "CHOOSE_PASTE_FORMAT": "Choose Paste Format",
-  "COPY": "Copy",
-  "DELETE": "Delete",
-  "SELECT_ALL": "Select All",
-  "COPY_LINK_SUCCEED": "Copy Link Succeed",
-  "SETTINGS": "Settings",
-  "SETTINGS_OPEN": "Open",
-  "SETTINGS_CLOSE": "Close",
-  "SETTINGS_RESULT": "Result",
-  "UPLOADER_CONFIG_PLACEHOLDER": "Please Enter Configuration Name",
-  "SELECTED_SETTING_HINT": "Selected",
-  "WAIT_TO_UPLOAD": "Wait to Upload",
-  "ALREADY_UPLOAD": "Already Uploaded",
-  "TIPS_DRAG_VALID_PICTURE_OR_URL": "Drag valid picture or url to here",
-  "TIPS_SET_SUCCEED": "Set successfully",
-  "TIPS_RESET_SUCCEED": "Reset successfully",
   "MANAGE_SETTING_TITLE": "Manage Setting",
   "MANAGE_SETTING_ISAUTOREFRESH_TITLE": "Auto refresh file list when entering new directory",
   "MANAGE_SETTING_ISAUTOREFRESH_TIPS": "Only applies to non-paginated mode, data is cached to indexdb to speed up loading speed",

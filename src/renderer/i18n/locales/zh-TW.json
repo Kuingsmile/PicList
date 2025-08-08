@@ -15,7 +15,8 @@
     "moreOptions": "更多選項",
     "picBedQrCode": "圖床配置 QRCODE",
     "choosePicBed": "選擇圖床",
-    "selectPicBeds": "請選擇圖床"
+    "selectPicBeds": "請選擇圖床",
+    "copySuccess": "複製成功"
   },
   "settings": {
     "theme": {
@@ -342,6 +343,7 @@
       "pluginList": "插件列表",
       "notGuiImplement": "該插件未針對圖形介面進行優化，是否繼續安裝？",
       "updateSuccess": "插件更新成功",
+      "setResult": "設定結果",
       "setSuccess": "設定成功"
     },
     "inputBox": {
@@ -468,38 +470,17 @@
       "listView": "列表",
       "gridView": "網格",
       "isAlwaysForceReload": "無快取",
-      "inputRegexTip": "请输入匹配字符串",
-      "noMatch": "未找到匹配项",
-      "noItemsNeedRename": "没有需要重命名的项目"
+      "inputRegexTip": "請輸入匹配字串",
+      "noMatch": "未找到匹配項",
+      "noItemsNeedRename": "沒有需要重命名的項目"
+    },
+    "tray": {
+      "openMainWindow": "打開主窗口",
+      "waitForUpload": "等待上傳",
+      "uploaded": "已上傳",
+      "copySuccess": "複製成功"
     }
   },
-  "OPEN_MAIN_WINDOW": "打開主視窗",
-  "OPERATION_SUCCEED": "操作成功",
-  "REFRESH": "刷新",
-  "CHOOSE_PICBED": "選擇圖床",
-  "COPY_PICBED_CONFIG": "複製圖床設定",
-  "COPY_PICBED_CONFIG_SUCCEED": "複製圖床設定成功",
-  "INPUT": "輸入框",
-  "CANCEL": "取消",
-  "CONFIRM": "確定",
-  "RESET_PICBED_CONFIG": "重置",
-  "CHOOSE_SHOWED_PICBED": "請選擇顯示的圖床",
-  "CHOOSE_PASTE_FORMAT": "請選擇貼上的格式",
-  "COPY": "複製",
-  "DELETE": "刪除",
-  "SELECT_ALL": "全選",
-  "COPY_LINK_SUCCEED": "複製連結成功",
-  "SETTINGS": "設定",
-  "SETTINGS_OPEN": "開",
-  "SETTINGS_CLOSE": "關",
-  "SETTINGS_RESULT": "設定結果",
-  "UPLOADER_CONFIG_PLACEHOLDER": "請輸入配置名稱",
-  "SELECTED_SETTING_HINT": "已選中",
-  "WAIT_TO_UPLOAD": "等待上傳",
-  "ALREADY_UPLOAD": "已上傳",
-  "TIPS_DRAG_VALID_PICTURE_OR_URL": "請拖入合法的圖片檔案或者圖片URL地址",
-  "TIPS_SET_SUCCEED": "設定成功",
-  "TIPS_RESET_SUCCEED": "重置成功",
   "MANAGE_SETTING_TITLE": "管理設定",
   "MANAGE_SETTING_ISAUTOREFRESH_TITLE": "每次進入新目錄時，是否自動重新整理檔案列表",
   "MANAGE_SETTING_ISAUTOREFRESH_TIPS": "僅對不分頁模式有效，預設會在載入後自動快取至資料庫以提升下次載入速度",

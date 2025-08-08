@@ -15,7 +15,8 @@
     "moreOptions": "更多选项",
     "picBedQrCode": "图床配置二维码",
     "choosePicBed": "选择图床",
-    "selectPicBeds": "请选择图床"
+    "selectPicBeds": "请选择图床",
+    "copySuccess": "复制成功"
   },
   "settings": {
     "theme": {
@@ -342,6 +343,7 @@
       "pluginList": "插件列表",
       "notGuiImplement": "该插件未对可视化界面进行优化, 是否继续安装?",
       "updateSuccess": "插件更新成功",
+      "setResult": "设置结果",
       "setSuccess": "设置成功"
     },
     "inputBox": {
@@ -471,35 +473,14 @@
       "inputRegexTip": "请输入匹配字符串",
       "noMatch": "未找到匹配项",
       "noItemsNeedRename": "没有需要重命名的项目"
+    },
+    "tray": {
+      "openMainWindow": "打开主窗口",
+      "waitForUpload": "等待上传",
+      "uploaded": "已上传",
+      "copySuccess": "复制成功"
     }
   },
-  "OPEN_MAIN_WINDOW": "打开主窗口",
-  "OPERATION_SUCCEED": "操作成功",
-  "REFRESH": "刷新",
-  "CHOOSE_PICBED": "选择图床",
-  "COPY_PICBED_CONFIG": "复制图床配置",
-  "COPY_PICBED_CONFIG_SUCCEED": "复制图床配置成功",
-  "INPUT": "输入框",
-  "CANCEL": "取消",
-  "CONFIRM": "确定",
-  "RESET_PICBED_CONFIG": "重置",
-  "CHOOSE_SHOWED_PICBED": "请选择显示的图床",
-  "CHOOSE_PASTE_FORMAT": "请选择粘贴的格式",
-  "COPY": "复制",
-  "DELETE": "删除",
-  "SELECT_ALL": "全选",
-  "COPY_LINK_SUCCEED": "复制链接成功",
-  "SETTINGS": "设置",
-  "SETTINGS_OPEN": "开",
-  "SETTINGS_CLOSE": "关",
-  "SETTINGS_RESULT": "设置结果",
-  "UPLOADER_CONFIG_PLACEHOLDER": "请输入配置名称",
-  "SELECTED_SETTING_HINT": "已选中",
-  "WAIT_TO_UPLOAD": "等待上传",
-  "ALREADY_UPLOAD": "已上传",
-  "TIPS_DRAG_VALID_PICTURE_OR_URL": "请拖入合法的图片文件或者图片URL地址",
-  "TIPS_SET_SUCCEED": "设置成功",
-  "TIPS_RESET_SUCCEED": "重置成功",
   "MANAGE_SETTING_TITLE": "管理页面设置",
   "MANAGE_SETTING_ISAUTOREFRESH_TITLE": "每次进入新目录时，是否自动刷新文件列表",
   "MANAGE_SETTING_ISAUTOREFRESH_TIPS": "仅对不分页模式有效，默认在加载过一次后自动缓存到数据库来加快下次加载速度",

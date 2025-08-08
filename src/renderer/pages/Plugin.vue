@@ -555,7 +555,7 @@ async function handleConfirmConfig () {
         break
     }
     if ('Notification' in window) {
-      const successNotification = new Notification(t('SETTINGS_RESULT'), {
+      const successNotification = new Notification(t('pages.plugin.setResult'), {
         body: t('pages.plugin.setSuccess')
       })
       successNotification.onclick = () => {

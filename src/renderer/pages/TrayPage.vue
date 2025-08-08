@@ -1,58 +1,117 @@
 <template>
   <div id="tray-page">
+    <!-- Header -->
     <div
-      class="open-main-window"
+      class="tray-header"
       @click="openSettingWindow"
     >
-      {{ $t('OPEN_MAIN_WINDOW') }}
+      <div class="header-content">
+        <span class="header-text">
+          {{ t('pages.tray.openMainWindow') }}
+        </span>
+      </div>
+      <div class="header-arrow">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </div>
     </div>
-    <div class="content">
+
+    <!-- Content -->
+    <div class="tray-content">
+      <!-- Clipboard Files Section -->
       <div
         v-if="clipboardFiles.length > 0"
-        class="wait-upload-img"
+        class="section"
       >
-        <div class="list-title">
-          {{ $t('WAIT_TO_UPLOAD') }}
+        <div class="section-header">
+          <div class="section-title">
+            {{ t('pages.tray.waitForUpload') }}
+          </div>
+          <div class="section-badge">
+            {{ clipboardFiles.length }}
+          </div>
         </div>
-        <div
-          v-for="(item, index) in clipboardFiles"
-          :key="index"
-          class="img-list"
-        >
+        <div class="image-grid">
           <div
-            class="upload-img__container"
-            :class="{ upload: uploadFlag }"
+            v-for="(item, index) in clipboardFiles"
+            :key="index"
+            class="image-item"
+            :class="{ uploading: uploadFlag }"
             @click="uploadClipboardFiles"
           >
-            <img
-              :src="item.imgUrl"
-              class="upload-img"
-            >
+            <div class="image-container">
+              <img
+                :src="item.imgUrl"
+                class="image"
+                @error="onImageError"
+              >
+              <div
+                v-if="uploadFlag"
+                class="upload-overlay"
+              >
+                <div class="spinner" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="uploaded-img">
-        <div class="list-title">
-          {{ $t('ALREADY_UPLOAD') }}
+
+      <!-- Uploaded Files Section -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">
+            {{ t('pages.tray.uploaded') }}
+          </div>
         </div>
-        <div
-          v-for="item in files"
-          :key="item.imgUrl"
-          class="img-list"
-        >
+        <div class="image-grid">
           <div
-            class="upload-img__container"
+            v-for="item in files"
+            :key="item.imgUrl"
+            class="image-item"
             @click="copyTheLink(item)"
           >
-            <img
-              v-lazy="item.imgUrl"
-              class="upload-img"
-            >
-            <div
-              class="upload-img__title"
-              :title="item.fileName"
-            >
-              {{ item.fileName }}
+            <div class="image-container">
+              <img
+                v-lazy="item.imgUrl"
+                class="image"
+                @error="onImageError"
+              >
+              <div class="image-overlay">
+                <div
+                  class="image-title"
+                  :title="item.fileName"
+                >
+                  {{ item.fileName }}
+                </div>
+                <div class="copy-indicator">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect
+                      x="9"
+                      y="9"
+                      width="13"
+                      height="13"
+                      rx="2"
+                      ry="2"
+                    />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -82,7 +141,7 @@ type IResult<T> = T & {
 }
 const files = ref<IResult<ImgInfo>[]>([])
 const notification = reactive({
-  title: t('COPY_LINK_SUCCEED'),
+  title: t('pages.tray.copySuccess'),
   body: ''
 })
 
@@ -94,7 +153,7 @@ function openSettingWindow () {
 }
 
 async function getData () {
-  files.value = (await $$db.get<ImgInfo>({ orderBy: 'desc', limit: 5 }))!.data
+  files.value = (await $$db.get<ImgInfo>({ orderBy: 'desc', limit: 10 }))!.data
 }
 
 const formatCustomLink = (customLink: string, item: ImgInfo) => {
@@ -181,6 +240,11 @@ function uploadClipboardFiles () {
   window.electron.sendRPC(IRPCActionType.TRAY_UPLOAD_CLIPBOARD_FILES)
 }
 
+function onImageError (event: Event) {
+  const img = event.target as HTMLImageElement
+  img.style.display = 'none'
+}
+
 const dragFilesHandler = async (_: IpcRendererEvent, _files: string[]) => {
   for (const file of _files) {
     await $$db.insert(file)
@@ -207,9 +271,9 @@ const updateFilesHandler = () => {
   getData()
 }
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
   disableDragFile()
-  getData()
+  await getData()
   window.electron.ipcRendererOn('dragFiles', dragFilesHandler)
   window.electron.ipcRendererOn('clipboardFiles', clipboardFilesHandler)
   window.electron.ipcRendererOn('uploadFiles', uploadFilesHandler)
@@ -230,88 +294,242 @@ export default {
 }
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
+/* Global styles */
 body::-webkit-scrollbar
   width 0px
+
 #tray-page
-  background-color transparent
-  .open-main-window
-    background #000
-    height 20px
-    line-height 20px
-    text-align center
-    color #858585
-    font-size 12px
-    cursor pointer
-    transition all .2s ease-in-out
+  width 196px
+  height 350px
+  background rgba(255, 255, 255, 0.95)
+  backdrop-filter blur(20px)
+  display flex
+  flex-direction column
+  overflow hidden
+  font-family -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif
+
+/* Header */
+.tray-header
+  background var(--color-text-tertiary)
+  padding 8px 12px
+  cursor pointer
+  transition all 0.2s ease
+  display flex
+  align-items center
+  justify-content space-between
+  min-height 32px
+  border-radius 0 0 8px 8px
+
+  &:hover
+    transform translateY(-1px)
+    box-shadow 0 4px 6px rgba(102, 126, 234, 0.3)
+
+.header-content
+  display flex
+  align-items center
+  gap 8px
+  flex 1
+
+.header-text
+  color white
+  font-size 11px
+  font-weight 500
+  opacity 0.95
+
+.header-arrow
+  color white
+  opacity 0.8
+  transition transform 0.2s ease
+  display flex
+  align-items center
+
+.tray-header:hover .header-arrow
+  transform translateX(2px)
+
+/* Content */
+.tray-content
+  flex 1
+  padding 8px
+  overflow-y auto
+  overflow-x hidden
+
+.tray-content::-webkit-scrollbar
+  width 4px
+
+.tray-content::-webkit-scrollbar-track
+  background rgba(0, 0, 0, 0.05)
+  border-radius 2px
+
+.tray-content::-webkit-scrollbar-thumb
+  background rgba(0, 0, 0, 0.2)
+  border-radius 2px
+
+  &:hover
+    background rgba(0, 0, 0, 0.3)
+
+/* Section */
+.section
+  margin-bottom 12px
+
+  &:last-child
+    margin-bottom 0
+
+.section-header
+  display flex
+  align-items center
+  justify-content space-between
+  margin-bottom 6px
+  padding 0 2px
+
+.section-title
+  font-size 10px
+  font-weight 600
+  color #666
+  text-transform uppercase
+  letter-spacing 0.5px
+
+.section-badge
+  background rgba(102, 126, 234, 0.1)
+  color #667eea
+  font-size 9px
+  font-weight 600
+  padding 2px 6px
+  border-radius 8px
+  min-width 16px
+  text-align center
+
+/* Image Grid */
+.image-grid
+  display grid
+  grid-template-columns repeat(2, 1fr)
+  gap 6px
+
+.image-item
+  position relative
+  cursor pointer
+  border-radius 6px
+  overflow hidden
+  transition all 0.2s ease
+  background rgba(255, 255, 255, 0.8)
+  border 1px solid rgba(0, 0, 0, 0.08)
+
+  &:hover
+    transform translateY(-2px)
+    box-shadow 0 4px 12px rgba(0, 0, 0, 0.15)
+    border-color rgba(102, 126, 234, 0.3)
+
+  &.uploading
+    cursor not-allowed
+    opacity 0.7
+
+.image-container
+  position relative
+  width 100%
+  height 60px
+  overflow hidden
+
+.image
+  width 100%
+  height 100%
+  object-fit cover
+  transition transform 0.2s ease
+
+.image-item:hover .image
+  transform scale(1.05)
+
+/* Upload Overlay */
+.upload-overlay
+  position absolute
+  top 0
+  left 0
+  right 0
+  bottom 0
+  background rgba(255, 255, 255, 0.9)
+  display flex
+  align-items center
+  justify-content center
+
+.spinner
+  width 16px
+  height 16px
+  border 2px solid rgba(102, 126, 234, 0.2)
+  border-left-color #667eea
+  border-radius 50%
+  animation spin 1s linear infinite
+
+@keyframes spin
+  0%
+    transform rotate(0deg)
+  100%
+    transform rotate(360deg)
+
+/* Image Overlay */
+.image-overlay
+  position absolute
+  bottom 0
+  left 0
+  right 0
+  background linear-gradient(transparent, rgba(0, 0, 0, 0.7))
+  padding 6px 4px 4px
+  display flex
+  align-items flex-end
+  justify-content space-between
+  transform translateY(100%)
+  transition transform 0.2s ease
+
+.image-item:hover .image-overlay
+  transform translateY(0)
+
+.image-title
+  color white
+  font-size 9px
+  font-weight 500
+  max-width 60px
+  overflow hidden
+  text-overflow ellipsis
+  white-space nowrap
+  line-height 1.2
+
+.copy-indicator
+  color white
+  opacity 0.8
+  display flex
+  align-items center
+
+/* Responsive adjustments for very small content */
+@media (max-width: 200px)
+  .image-grid
+    grid-template-columns 1fr
+
+  .header-text
+    font-size 10px
+
+  .section-title
+    font-size 9px
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark)
+  #tray-page
+    background rgba(30, 30, 30, 0.95)
+    color #fff
+
+  .section-title
+    color #999
+
+  .image-item
+    background rgba(40, 40, 40, 0.8)
+    border-color rgba(255, 255, 255, 0.1)
+
     &:hover
-      color: #fff;
-      background #49B1F5
-  .list-title
-    text-align center
-    color #858585
-    font-size 12px
-    padding 6px 0
-    position relative
-    &:before
-      content ''
-      position absolute
-      height 1px
-      width calc(100% - 36px)
-      bottom 0
-      left 18px
-      background #858585
-  // .header-arrow
-  //   position absolute
-  //   top 12px
-  //   left 50%
-  //   margin-left -10px
-  //   width: 0;
-  //   height: 0;
-  //   border-left: 10px solid transparent
-  //   border-right: 10px solid transparent
-  //   border-bottom: 10px solid rgba(255,255,255, 1)
-  .content
-    position absolute
-    top 20px
-    width 100%
-  .img-list
-    padding 4px 8px
-    display flex
-    justify-content space-between
-    align-items center
-    // height 45px
-    cursor pointer
-    transition all .2s ease-in-out
+      border-color rgba(102, 126, 234, 0.5)
+
+  .tray-content::-webkit-scrollbar-track
+    background rgba(255, 255, 255, 0.05)
+
+  .tray-content::-webkit-scrollbar-thumb
+    background rgba(255, 255, 255, 0.2)
+
     &:hover
-      background #49B1F5
-      .upload-img__index
-        color #fff
-    .upload-img__container
-      display flex
-      flex-direction column
-      justify-content center
-      align-items center
-  .upload-img
-    max-width 100%
-    object-fit scale-down
-    margin 0 auto
-    &__container
-      display flex
-      flex-direction column
-      justify-content center
-      align-items center
-      width 100%
-      padding 8px 8px 4px
-      height 100%
-      &.upload
-        cursor not-allowed
-    &__title
-      text-align center
-      overflow hidden
-      text-overflow ellipsis
-      white-space nowrap
-      color #ddd
-      font-size 14px
-      margin-top 4px
+      background rgba(255, 255, 255, 0.3)
 </style>
