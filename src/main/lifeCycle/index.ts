@@ -174,8 +174,6 @@ class LifeCycle {
         }).catch(err => {
           console.log('An error occurred: ', err)
         })
-        const setwin = windowManager.get(IWindowList.SETTING_WINDOW)
-        setwin?.webContents?.openDevTools({ mode: 'detach' })
       }
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)

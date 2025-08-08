@@ -637,17 +637,6 @@ html, body {
   transform: translateY(-1rem);
 }
 
-.modal-enter-active,
-.modal-leave-active {
-  transition: all var(--transition-medium);
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .plugin-container {

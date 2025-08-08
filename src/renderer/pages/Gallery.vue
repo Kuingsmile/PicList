@@ -1,513 +1,731 @@
 <template>
-  <div
-    id="gallery-view"
-    :style="handleBarActive ? 'height: 85%;' : 'height: 95%;'"
-  >
-    <div class="view-title">
-      {{ $t('GALLERY') }} - {{ filterList.length }}
-      <el-icon
-        style="margin-left: 4px"
-        class="cursor-pointer"
-        @click="toggleHandleBar"
-      >
-        <CaretBottom v-show="!handleBarActive" />
-        <CaretTop v-show="handleBarActive" />
-      </el-icon>
-      <span style="position: absolute; right: 0; top: 0; margin-right: 20px; font-size: 0.8em; color: #fff">
-        {{ $t('GALLERY_SYNC_DELETE') }}
-        <el-switch
-          v-model="deleteCloud"
-          :active-text="$t('SETTINGS_OPEN')"
-          :inactive-text="$t('SETTINGS_CLOSE')"
-          @change="handleDeleteCloudFile"
-        />
-        <el-button
-          type="primary"
-          :link="true"
-          @click="refreshPage"
-        >
-          <el-tooltip
-            class="item"
-            effect="dark"
-            :content="$t('REFRESH')"
-            placement="bottom"
-            :persistent="false"
-            teleported
-          >
-            <el-icon
-              size="25"
-              style="cursor: pointer; margin-left: 10px"
-            >
-              <Refresh />
-            </el-icon>
-          </el-tooltip>
-        </el-button>
-      </span>
-    </div>
-    <transition name="el-zoom-in-top">
-      <el-row v-show="handleBarActive">
-        <el-col
-          :span="22"
-          :offset="1"
-        >
-          <el-row
-            class="handle-bar"
-            :gutter="16"
-          >
-            <el-col :span="5">
-              <el-select
-                v-model="choosedPicBed"
-                multiple
-                collapse-tags
-                size="small"
-                style="width: 100%"
-                :placeholder="$t('CHOOSE_SHOWED_PICBED')"
-                :persistent="false"
-                teleported
+  <div class="gallery-container">
+    <!-- Header Card -->
+    <div class="gallery-card header-card">
+      <div class="card-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <DatabaseIcon :size="24" />
+          </div>
+          <div>
+            <h1>{{ t('pages.gallery.title') }}</h1>
+            <p>{{ filterList.length }} {{ t('pages.gallery.images') }}</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <div class="sync-delete-toggle">
+            <span class="toggle-label">{{ t('pages.gallery.isAlwaysForceReload') }}</span>
+            <label class="custom-switch">
+              <input
+                v-model="isAlwaysForceReload"
+                type="checkbox"
+                @change="handleIsAlwaysForceReload"
               >
-                <el-option
-                  v-for="item in picBedGlobal"
-                  :key="item.type"
-                  :label="item.name"
-                  :value="item.type"
-                />
-              </el-select>
-            </el-col>
-            <el-col :span="10">
-              <el-date-picker
-                v-model="dateRange"
-                type="daterange"
-                unlink-panels
-                range-separator="To"
-                start-placeholder="Start date"
-                end-placeholder="End date"
-                size="small"
-                teleported
-              />
-            </el-col>
-            <el-col :span="1">
-              <el-divider
-                direction="vertical"
-                style="height: 100%"
-                border-style="hidden"
-              />
-            </el-col>
-            <el-col :span="3">
-              <el-select
+              <span class="switch-slider" />
+            </label>
+          </div>
+          <div class="sync-delete-toggle">
+            <span class="toggle-label">{{ t('pages.gallery.syncDelete') }}</span>
+            <label class="custom-switch">
+              <input
+                v-model="deleteCloud"
+                type="checkbox"
+                @change="handleDeleteCloudFile"
+              >
+              <span class="switch-slider" />
+            </label>
+          </div>
+          <button
+            class="action-button view-mode-toggle"
+            :title="getViewModeLabel()"
+            @click="toggleViewMode"
+          >
+            <component
+              :is="getViewModeIcon()"
+              :size="16"
+            />
+            {{ getViewModeLabel() }}
+          </button>
+          <button
+            class="action-button"
+            @click="toggleHandleBar"
+          >
+            <ChevronDownIcon
+              v-if="!handleBarActive"
+              :size="16"
+            />
+            <ChevronUpIcon
+              v-else
+              :size="16"
+            />
+            {{ handleBarActive ? t('pages.gallery.hideFilters') : t('pages.gallery.showFilters') }}
+          </button>
+          <button
+            class="action-button"
+            @click="refreshPage"
+          >
+            <RefreshCwIcon :size="16" />
+            {{ t('pages.gallery.refresh') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Controls Card -->
+    <transition name="filter-slide">
+      <div
+        v-show="handleBarActive"
+        class="gallery-card filter-card"
+      >
+        <div class="filter-content">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label class="filter-label">{{ t('pages.gallery.picBedType') }}</label>
+              <div class="custom-multiselect">
+                <button
+                  class="multiselect-trigger"
+                  :class="{ active: picBedDropdownOpen }"
+                  @click="togglePicBedDropdown($event)"
+                >
+                  <span v-if="choosedPicBed.length === 0">{{ t('pages.gallery.chooseShowedPicBed') }}</span>
+                  <span v-else>{{ choosedPicBed.length }} {{ t('pages.gallery.selected') }}</span>
+                  <ChevronDownIcon :size="16" />
+                </button>
+                <div
+                  v-show="picBedDropdownOpen"
+                  class="multiselect-dropdown"
+                >
+                  <label
+                    v-for="item in picBedGlobal"
+                    :key="item.type"
+                    class="multiselect-option"
+                  >
+                    <input
+                      v-model="choosedPicBed"
+                      type="checkbox"
+                      :value="item.type"
+                    >
+                    {{ item.name }}
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">{{ t('pages.gallery.dateRange') }}</label>
+              <div class="date-range-picker">
+                <input
+                  v-model="dateRangeStart"
+                  type="date"
+                  class="date-input"
+                  placeholder="Start date"
+                >
+                <span class="date-separator">-</span>
+                <input
+                  v-model="dateRangeEnd"
+                  type="date"
+                  class="date-input"
+                  placeholder="End date"
+                >
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">{{ t('pages.gallery.pasteFormat') }}</label>
+              <select
                 v-model="pasteStyle"
-                size="small"
-                style="width: 100%"
-                :placeholder="$t('CHOOSE_PASTE_FORMAT')"
-                :persistent="false"
-                teleported
+                class="custom-select"
                 @change="handlePasteStyleChange"
               >
-                <el-option
+                <option
                   v-for="(value, key) in pasteStyleMap"
                   :key="key"
-                  :label="key"
                   :value="value"
-                />
-              </el-select>
-            </el-col>
-            <el-col :span="3">
-              <el-select
+                >
+                  {{ key }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">{{ t('pages.gallery.urlType') }}</label>
+              <select
                 v-model="useShortUrl"
-                size="small"
-                style="width: 100%"
-                placeholder="Choose"
-                :persistent="false"
-                teleported
+                class="custom-select"
                 @change="handleUseShortUrlChange"
               >
-                <el-option
+                <option
                   v-for="(value, key) in shortURLMap"
                   :key="key"
-                  :label="key"
                   :value="value"
-                />
-              </el-select>
-            </el-col>
-            <el-col :span="2">
-              <el-dropdown teleported>
-                <el-button
-                  size="small"
-                  type="primary"
-                  :icon="Sort"
                 >
-                  {{ $t('MANAGE_BUCKET_SORT_TITLE') }}
-                </el-button>
-                <template #dropdown>
-                  <el-dropdown-item @click="sortFile('name')">
-                    {{ $t('MANAGE_BUCKET_SORT_NAME') }}
-                  </el-dropdown-item>
-                  <el-dropdown-item @click="sortFile('ext')">
-                    {{ $t('MANAGE_BUCKET_SORT_EXT') }}
-                  </el-dropdown-item>
-                  <el-dropdown-item @click="sortFile('time')">
-                    {{ $t('MANAGE_BUCKET_SORT_TIME') }}
-                  </el-dropdown-item>
-                  <el-dropdown-item @click="sortFile('check')">
-                    {{ $t('MANAGE_BUCKET_SORT_CHECK') }}
-                  </el-dropdown-item>
-                </template>
-              </el-dropdown>
-            </el-col>
-          </el-row>
-          <el-row
-            class="handle-bar"
-            :gutter="16"
-          >
-            <el-col :span="5">
-              <el-input
-                v-model="searchText"
-                :placeholder="$t('GALLERY_SEARCH_FILENAME')"
-                size="small"
-              >
-                <template #suffix>
-                  <el-icon
-                    class="el-input__icon"
-                    style="cursor: pointer"
-                    @click="cleanSearch"
+                  {{ key }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">{{ t('pages.gallery.sort') }}</label>
+              <div class="sort-dropdown">
+                <button
+                  class="sort-button"
+                  :class="{ active: sortDropdownOpen }"
+                  @click="toggleSortDropdown($event)"
+                >
+                  <SortAscIcon :size="14" />
+                  {{ t('pages.gallery.sort') }}
+                  <ChevronDownIcon :size="14" />
+                </button>
+                <div
+                  v-show="sortDropdownOpen"
+                  class="sort-options"
+                >
+                  <button
+                    v-for="key in ['name', 'ext', 'time', 'check']"
+                    :key="key"
+                    class="sort-option"
+                    @click="sortFile(key as any)"
                   >
-                    <close />
-                  </el-icon>
-                </template>
-              </el-input>
-            </el-col>
-            <el-col :span="6">
-              <el-input
-                v-model="searchTextURL"
-                :placeholder="$t('GALLERY_SEARCH_URL')"
-                size="small"
-              >
-                <template #suffix>
-                  <el-icon
-                    class="el-input__icon"
-                    style="cursor: pointer"
-                    @click="cleanSearchUrl"
-                  >
-                    <close />
-                  </el-icon>
-                </template>
-              </el-input>
-            </el-col>
-            <el-col :span="1">
-              <el-divider
-                direction="vertical"
-                style="height: 100%"
-                border-style="hidden"
-              />
-            </el-col>
-            <el-col :span="3">
-              <div
-                class="item-base copy round"
+                    {{ t(`pages.gallery.sortBy.${key}`) }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Second Row - Search and Actions -->
+          <div class="filter-row">
+            <div class="search-group">
+              <div class="search-input-wrapper">
+                <SearchIcon
+                  :size="16"
+                  class="search-icon"
+                />
+                <input
+                  v-model="searchText"
+                  type="text"
+                  class="search-input"
+                  :placeholder="$t('pages.gallery.searchFilename')"
+                >
+                <button
+                  v-if="searchText"
+                  class="clear-button"
+                  @click="cleanSearch"
+                >
+                  <XIcon :size="14" />
+                </button>
+              </div>
+            </div>
+
+            <div class="search-group">
+              <div class="search-input-wrapper">
+                <LinkIcon
+                  :size="16"
+                  class="search-icon"
+                />
+                <input
+                  v-model="searchTextURL"
+                  type="text"
+                  class="search-input"
+                  :placeholder="t('pages.gallery.searchUrl')"
+                >
+                <button
+                  v-if="searchTextURL"
+                  class="clear-button"
+                  @click="cleanSearchUrl"
+                >
+                  <XIcon :size="14" />
+                </button>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <button
+                class="action-btn copy-btn"
                 :class="{ active: isMultiple(choosedList) }"
                 @click="multiCopy"
               >
-                {{ $t('COPY') }}
-              </div>
-            </el-col>
-            <el-col :span="3">
-              <div
-                class="item-base all-pick round"
+                <ClipboardIcon :size="16" />
+                {{ t('pages.gallery.copy') }}
+              </button>
+              <button
+                class="action-btn edit-btn"
                 :class="{ active: filterList.length > 0 }"
                 @click="() => (isShowBatchRenameDialog = true)"
               >
-                {{ $t('GALLERY_CHANGE_URL') }}
-              </div>
-            </el-col>
-            <el-col :span="3">
-              <div
-                class="item-base delete round"
+                <EditIcon :size="16" />
+                {{ t('pages.gallery.edit') }}
+              </button>
+              <button
+                class="action-btn delete-btn"
                 :class="{ active: isMultiple(choosedList) }"
                 @click="multiRemove"
               >
-                {{ $t('DELETE') }}
-              </div>
-            </el-col>
-            <el-col :span="3">
-              <div
-                class="item-base all-pick round"
+                <TrashIcon :size="16" />
+                {{ t('pages.gallery.delete') }}
+              </button>
+              <button
+                class="action-btn select-btn"
                 :class="{ active: filterList.length > 0 }"
                 @click="toggleSelectAll"
               >
-                {{ isAllSelected ? $t('CANCEL') : $t('SELECT_ALL') }}
-              </div>
-            </el-col>
-          </el-row>
-        </el-col>
-      </el-row>
+                <CheckSquareIcon :size="16" />
+                {{ isAllSelected ? t('pages.gallery.cancel') : t('pages.gallery.selectAll') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </transition>
-    <el-row
-      class="gallery-list"
-      :class="{ small: handleBarActive }"
-    >
-      <el-col
-        :span="22"
-        :offset="1"
+
+    <!-- Gallery Grid -->
+    <div class="gallery-card gallery-content">
+      <div
+        v-if="filterList.length === 0"
+        class="empty-state"
       >
-        <el-row :gutter="16">
-          <photo-slider
-            :items="filterListWithCacheBust"
-            :visible="gallerySliderControl.visible"
-            :index="gallerySliderControl.index"
-            :should-transition="true"
-            @change-index="zoomImage"
-            @click-mask="handleClose"
-            @close-modal="handleClose"
-          />
-          <el-col
-            v-for="(item, index) in filterList"
-            :key="item.id"
-            :xs="24"
-            :sm="12"
-            :md="8"
-            :lg="4"
-            :xl="2"
-            class="gallery-list__img"
+        <ImageIcon
+          :size="64"
+          class="empty-icon"
+        />
+        <h3>{{ t('pages.gallery.noImagesFound') }}</h3>
+        <p>{{ t('pages.gallery.tryAdjustingFilters') }}</p>
+      </div>
+
+      <VirtualScroller
+        v-else
+        :key="componentKey"
+        ref="virtualScrollerRef"
+        v-model:view-mode="viewMode"
+        class="virtual-gallery-scroller"
+        :items="filterList"
+        :item-height="itemHeight"
+        :grid-items="4"
+        :grid-breakpoints="gridBreakpoints"
+        key-field="key"
+        :page-mode="true"
+        :buffer-factor="0.5"
+        :item-padding="8"
+      >
+        <template #default="{ item, index }">
+          <div
+            class="gallery-item"
+            :class="{ selected: choosedList[item.id || ''] }"
           >
             <div
-              class="gallery-list__item"
+              class="image-container"
               @click="zoomImage(index)"
             >
               <img
-                v-lazy="{
-                  src: addCacheBustParam(item.galleryPath) || addCacheBustParam(item.imgUrl)
-                }"
-                class="gallery-list__item-img"
+                :src="imageErrorStates[item.key || '']
+                  ? '/errorLoading.png'
+                  : isAlwaysForceReload ? addCacheBustParam(item.src) : item.src"
+                class="gallery-image"
+                :class="{ loading: !imageLoadStates[item.key || ''] }"
+                @load="onImageLoad(item.key || '')"
+                @error="onImageError(item.key || '')"
               >
+              <div
+                v-if="!imageLoadStates[item.key || '']"
+                class="image-loader"
+              >
+                <div class="loader-spinner" />
+              </div>
             </div>
+
+            <div class="image-info">
+              <div
+                class="image-name"
+                :title="item.fileName"
+              >
+                {{ formatFileName(item.fileName || '') }}
+              </div>
+
+              <div class="image-actions">
+                <div class="action-icons">
+                  <button
+                    :title="t('pages.gallery.copy')"
+                    class="icon-button copy-icon"
+                    @click.stop="copy(item)"
+                  >
+                    <ClipboardIcon :size="16" />
+                  </button>
+                  <button
+                    :title="t('pages.gallery.edit')"
+                    class="icon-button edit-icon"
+                    @click.stop="openDialog(item)"
+                  >
+                    <EditIcon :size="16" />
+                  </button>
+                  <button
+                    :title="t('pages.gallery.delete')"
+                    class="icon-button delete-icon"
+                    @click.stop="remove(item, index)"
+                  >
+                    <TrashIcon :size="16" />
+                  </button>
+                </div>
+
+                <label class="custom-checkbox">
+                  <input
+                    v-model="choosedList[item.id ? item.id : '']"
+                    type="checkbox"
+                    @change="(e) => handleChooseImage((e.target as HTMLInputElement).checked, index)"
+                  >
+                  <span class="checkbox-mark" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </template>
+      </VirtualScroller>
+    </div>
+
+    <!-- Custom Image Preview Modal -->
+    <transition name="modal">
+      <div
+        v-if="gallerySliderControl.visible"
+        class="image-preview-modal"
+        tabindex="0"
+        @click.stop
+        @wheel="handleImageWheel"
+        @keydown="handleKeydown"
+      >
+        <div class="modal-backdrop" />
+        <div class="modal-content">
+          <button
+            class="modal-close"
+            @click="handleClose"
+          >
+            <XIcon :size="24" />
+          </button>
+
+          <!-- Zoom controls -->
+          <div class="zoom-controls">
+            <button
+              class="zoom-btn"
+              :disabled="imagePreviewState.scale <= 0.1"
+              @click="zoomOut"
+            >
+              <span>-</span>
+            </button>
+            <span class="zoom-level">{{ Math.round(imagePreviewState.scale * 100) }}%</span>
+            <button
+              class="zoom-btn"
+              :disabled="imagePreviewState.scale >= 5"
+              @click="zoomIn"
+            >
+              <span>+</span>
+            </button>
+            <button
+              class="zoom-btn reset-btn"
+              @click="resetImageTransform"
+            >
+              Reset
+            </button>
+          </div>
+
+          <div class="image-navigation">
+            <button
+              class="nav-button prev"
+              :disabled="gallerySliderControl.index === 0"
+              @click.stop="navigateImage(-1)"
+            >
+              <ChevronLeftIcon :size="24" />
+            </button>
+
             <div
-              class="gallery-list__file-name"
-              :title="item.fileName"
+              class="image-viewer"
+              @mousedown="handleImageMouseDown"
+              @mousemove="handleImageMouseMove"
+              @mouseup="handleImageMouseUp"
+              @mouseleave="handleImageMouseUp"
+              @touchstart="handleImageTouchStart"
+              @touchmove="handleImageTouchMove"
+              @touchend="handleImageTouchEnd"
             >
-              {{ formatFileName(item.fileName || '') }}
+              <img
+                ref="previewImageRef"
+                :src="currentPreviewImage?.src"
+                :alt="currentPreviewImage?.intro"
+                class="preview-image"
+                :style="imageTransformStyle"
+                @dragstart.prevent
+                @contextmenu.prevent
+              >
             </div>
-            <el-row
-              class="gallery-list__tool-panel"
-              justify="space-between"
-              align="middle"
+
+            <button
+              class="nav-button next"
+              :disabled="gallerySliderControl.index === filterList.length - 1"
+              @click.stop="navigateImage(1)"
             >
-              <el-row>
-                <el-icon
-                  class="cursor-pointer document"
-                  @click="copy(item)"
-                >
-                  <Document />
-                </el-icon>
-                <el-icon
-                  class="cursor-pointer edit"
-                  @click="openDialog(item)"
-                >
-                  <Edit />
-                </el-icon>
-                <el-icon
-                  class="cursor-pointer delete"
-                  @click="remove(item)"
-                >
-                  <Delete />
-                </el-icon>
-              </el-row>
-              <el-checkbox
-                v-model="choosedList[item.id ? item.id : '']"
-                @change="(val: string | number | boolean) => handleChooseImage(val, index)"
-              />
-            </el-row>
-          </el-col>
-        </el-row>
-      </el-col>
-    </el-row>
-    <el-dialog
-      v-model="dialogVisible"
-      :title="$t('CHANGE_IMAGE_URL')"
-      width="500px"
-      :modal-append-to-body="false"
-      append-to-body
-    >
-      <el-input v-model="imgInfo.imgUrl" />
-      <template #footer>
-        <el-button @click="dialogVisible = false">
-          {{ $t('CANCEL') }}
-        </el-button>
-        <el-button
-          type="primary"
-          @click="confirmModify"
-        >
-          {{ $t('CONFIRM') }}
-        </el-button>
-      </template>
-    </el-dialog>
-    <el-dialog
-      v-model="isShowBatchRenameDialog"
-      :title="$t('CHANGE_IMAGE_URL')"
-      center
-      align-center
-      draggable
-      destroy-on-close
-      append-to-body
-    >
-      <el-link
-        :underline="false"
-        style="margin-bottom: 10px"
-      >
-        <span>
-          {{ $t('MANAGE_BUCKET_RENAME_FILE_INPUT_A') + $t('GALLERY_MATCHED') + mathcedCount + ' ' }}
-          <el-tooltip
-            effect="dark"
-            :content="$t('MANAGE_BUCKET_RENAME_FILE_INPUT_A_TIPS')"
-            placement="right"
-            :persistent="false"
-            teleported
-          >
-            <el-icon color="#409EFF">
-              <InfoFilled />
-            </el-icon>
-          </el-tooltip>
-        </span>
-      </el-link>
-      <el-input
-        v-model="batchRenameMatch"
-        :placeholder="$t('MANAGE_BUCKET_RENAME_FILE_INPUT_A_PLACEHOLDER')"
-        clearable
-      />
-      <el-link
-        :underline="false"
-        style="margin-bottom: 10px; margin-top: 10px"
-      >
-        <span>
-          {{ $t('MANAGE_BUCKET_RENAME_FILE_INPUT_B') }}
-          <el-popover
-            effect="light"
-            placement="right"
-            width="280"
-            :persistent="false"
-            teleported
-          >
-            <template #reference>
-              <el-icon color="#409EFF">
-                <InfoFilled />
-              </el-icon>
-            </template>
-            <el-descriptions
-              :column="1"
-              style="width: 250px"
-              border
-            >
-              <el-descriptions-item
-                v-for="(item, index) in customRenameFormatTable"
-                :key="index"
-                :label="item.placeholder"
-                align="center"
-                label-style="width: 100px;"
-              >
-                {{ item.description }}
-              </el-descriptions-item>
-              <el-descriptions-item
-                v-for="(item, index) in customRenameFormatTable.slice(0, customRenameFormatTable.length - 1)"
-                :key="index"
-                :label="item.placeholderB"
-                align="center"
-                label-style="width: 100px;"
-              >
-                {{ item.descriptionB }}
-              </el-descriptions-item>
-              <el-descriptions-item
-                label="{auto}"
-                align="center"
-                label-style="width: 100px;"
-              >
-                {{ $t('MANAGE_BUCKET_RENAME_FILE_TABLE_IID') }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </el-popover>
-        </span>
-      </el-link>
-      <el-input
-        v-model="batchRenameReplace"
-        placeholder="Ex. {Y}-{m}-{uuid}"
-        clearable
-      />
-      <div style="margin-top: 10px; align-items: center; display: flex; justify-content: flex-end">
-        <el-button
-          type="danger"
-          style="margin-right: 30px"
-          plain
-          :icon="Close"
-          @click="
-            () => {
-              isShowBatchRenameDialog = false
-            }
-          "
-        >
-          {{ $t('MANAGE_BUCKET_RENAME_FILE_CANCEL') }}
-        </el-button>
-        <el-button
-          type="primary"
-          plain
-          :icon="Edit"
-          @click="handleBatchRename()"
-        >
-          {{ $t('MANAGE_BUCKET_RENAME_FILE_CONFIRM') }}
-        </el-button>
+              <ChevronRightIcon :size="24" />
+            </button>
+          </div>
+
+          <div class="image-details">
+            <h3>{{ currentPreviewImage?.intro }}</h3>
+            <div class="image-counter">
+              {{ gallerySliderControl.index + 1 }} / {{ filterList.length }}
+            </div>
+            <div class="image-help-text">
+              {{ t('pages.gallery.previewHelp') }}
+            </div>
+          </div>
+        </div>
       </div>
-    </el-dialog>
+    </transition>
+
+    <!-- Edit URL Modal -->
+    <transition name="modal">
+      <div
+        v-if="dialogVisible"
+        class="modal-overlay"
+        @click="dialogVisible = false"
+      >
+        <div
+          class="modal-container"
+          @click.stop
+        >
+          <div class="modal-header">
+            <h3>{{ t('pages.gallery.changeImageUrl') }}</h3>
+            <button
+              class="modal-close-btn"
+              @click="dialogVisible = false"
+            >
+              <XIcon :size="20" />
+            </button>
+          </div>
+          <div class="modal-body">
+            <input
+              v-model="imgInfo.imgUrl"
+              type="text"
+              class="form-input"
+              placeholder="Enter new URL"
+            >
+          </div>
+          <div class="modal-footer">
+            <button
+              class="btn-secondary"
+              @click="dialogVisible = false"
+            >
+              {{ t('common.cancel') }}
+            </button>
+            <button
+              class="btn-primary"
+              @click="confirmModify"
+            >
+              {{ t('common.confirm') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Batch Rename Modal -->
+    <transition name="modal">
+      <div
+        v-if="isShowBatchRenameDialog"
+        class="modal-overlay"
+        @click="isShowBatchRenameDialog = false"
+      >
+        <div
+          class="modal-container large"
+          @click.stop
+        >
+          <div class="modal-header">
+            <h3>{{ t('pages.gallery.batchEditUrl') }}</h3>
+            <button
+              class="modal-close-btn"
+              @click="isShowBatchRenameDialog = false"
+            >
+              <XIcon :size="20" />
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label">
+                {{ t('pages.gallery.regexPattern', { matched: matchedCount || 0 }) }}
+              </label>
+              <input
+                v-model="batchRenameMatch"
+                type="text"
+                class="form-input"
+                :placeholder="t('pages.gallery.regexPatternPlaceholder')"
+              >
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                {{ t('pages.gallery.replacedWith') }}
+                <button
+                  class="info-button"
+                  @click="showFormatInfo = !showFormatInfo"
+                >
+                  <InfoIcon :size="16" />
+                </button>
+              </label>
+              <input
+                v-model="batchRenameReplace"
+                type="text"
+                class="form-input"
+                placeholder="Ex. {Y}-{m}-{uuid}"
+              >
+            </div>
+
+            <!-- Format Info Panel -->
+            <div
+              v-if="showFormatInfo"
+              class="form-group"
+            >
+              <label>{{ t('pages.settings.upload.availablePlaceholders') }}</label>
+              <div class="placeholder-help">
+                <div class="placeholder-category">
+                  <div class="category-title">
+                    {{ t('pages.settings.upload.placeholder.categoryTime') }}
+                  </div>
+                  <div class="placeholder-grid">
+                    <div
+                      v-for="item in advancedRenameList.categoryTime"
+                      :key="item.value"
+                      class="placeholder-item"
+                      @click="copyPlaceholder(item.value)"
+                    >
+                      <code>{{ item.value }}</code>
+                      <span>{{ item.label }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="placeholder-category">
+                  <div class="category-title">
+                    {{ t('pages.settings.upload.placeholder.categoryHash') }}
+                  </div>
+                  <div class="placeholder-grid">
+                    <div
+                      v-for="item in advancedRenameList.categoryHash"
+                      :key="item.value"
+                      class="placeholder-item"
+                      @click="copyPlaceholder(item.value)"
+                    >
+                      <code>{{ item.value }}</code>
+                      <span>{{ item.label }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="placeholder-category">
+                  <div class="category-title">
+                    {{ t('pages.settings.upload.placeholder.categoryFile') }}
+                  </div>
+                  <div class="placeholder-grid">
+                    <div
+                      v-for="item in advancedRenameList.categoryFile"
+                      :key="item.value"
+                      class="placeholder-item"
+                      @click="copyPlaceholder(item.value)"
+                    >
+                      <code>{{ item.value }}</code>
+                      <span>{{ item.label }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              class="btn-secondary"
+              @click="isShowBatchRenameDialog = false"
+            >
+              {{ t('common.cancel') }}
+            </button>
+            <button
+              class="btn-primary"
+              @click="handleBatchRename()"
+            >
+              {{ t('common.confirm') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script lang="ts" setup>
-
 import {
-  CaretBottom,
-  CaretTop,
-  Close,
-  Delete,
-  Document,
-  Edit,
-  InfoFilled,
-  Refresh,
-  Sort
-} from '@element-plus/icons-vue'
-import { CheckboxValueType, ElMessage, ElMessageBox, ElNotification } from 'element-plus'
+  CheckSquareIcon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronUpIcon,
+  ClipboardIcon,
+  DatabaseIcon,
+  EditIcon,
+  GridIcon,
+  ImageIcon,
+  InfoIcon,
+  LinkIcon,
+  ListIcon,
+  RefreshCwIcon,
+  SearchIcon,
+  SortAscIcon,
+  TrashIcon,
+  XIcon
+} from 'lucide-vue-next'
 import { computed, nextTick, onActivated, onBeforeMount, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate } from 'vue-router'
 
 import ALLApi from '@/apis/allApi'
-import { customRenameFormatTable, customStrMatch, customStrReplace } from '@/manage/utils/common'
+import VirtualScroller from '@/components/VirtualScroller.vue'
+import useConfirm from '@/hooks/useConfirm'
+import useMessage from '@/hooks/useMessage'
+import { customStrMatch, customStrReplace } from '@/manage/utils/common'
+import { getRawData } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import $$db from '@/utils/db'
 import { IPasteStyle, IRPCActionType } from '@/utils/enum'
 import { picBedGlobal } from '@/utils/global'
 import { picBedsCanbeDeleted } from '@/utils/static'
-import type { ICheckBoxValueType, IGalleryItem, ImgInfo, IObj, IObjT } from '#/types/types'
+import type { IGalleryItem, ImgInfo, IObj, IObjT } from '#/types/types'
 
 const { t } = useI18n()
+const message = useMessage()
+const { confirm } = useConfirm()
+
 type IResult<T> = T & {
   id: string
   createdAt: number
   updatedAt: number
 }
+
 const images = ref<ImgInfo[]>([])
+const virtualScrollerRef = ref<InstanceType<typeof VirtualScroller>>()
+const previewImageRef = ref<HTMLImageElement>()
 const dialogVisible = ref(false)
 const imgInfo = reactive({
   id: '',
   imgUrl: ''
 })
-const $confirm = ElMessageBox.confirm
 const choosedList: IObjT<boolean> = reactive({})
 const gallerySliderControl = reactive({
   visible: false,
   index: 0
 })
 const deleteCloud = ref<boolean>(false)
+const isAlwaysForceReload = ref<boolean>(false)
 const choosedPicBed = ref<string[]>([])
 const lastChoosed = ref<number>(-1)
 const isShiftKeyPress = ref<boolean>(false)
 const searchText = ref<string>('')
 const searchTextURL = ref<string>('')
-const handleBarActive = ref<boolean>(true)
+const debouncedSearchText = ref<string>('')
+const debouncedSearchTextURL = ref<string>('')
+const handleBarActive = ref<boolean>(false)
 const pasteStyle = ref<string>('')
 const pasteStyleMap = {
   Markdown: 'markdown',
@@ -518,8 +736,8 @@ const pasteStyleMap = {
 }
 const useShortUrl = ref<string>('')
 const shortURLMap = {
-  [t('UPLOAD_SHORT_URL')]: t('UPLOAD_SHORT_URL'),
-  [t('UPLOAD_NORMAL_URL')]: t('UPLOAD_NORMAL_URL')
+  [t('pages.gallery.shortUrl')]: t('pages.gallery.shortUrl'),
+  [t('pages.gallery.longUrl')]: t('pages.gallery.longUrl')
 }
 const fileSortNameReverse = ref(false)
 const fileSortTimeReverse = ref(false)
@@ -527,13 +745,339 @@ const fileSortExtReverse = ref(false)
 const isShowBatchRenameDialog = ref(false)
 const batchRenameMatch = ref('')
 const batchRenameReplace = ref('')
-const dateRange = ref('')
+const dateRangeStart = ref('')
+const dateRangeEnd = ref('')
+const picBedDropdownOpen = ref(false)
+const sortDropdownOpen = ref(false)
+const showFormatInfo = ref(false)
+const viewMode = ref<'list' | 'grid'>('grid')
+const componentKey = ref(0)
+const itemHeight = 300
+const gridBreakpoints = [
+  { min: 0, cols: 1 },
+  { min: 380, cols: 2 },
+  { min: 768, cols: 3 },
+  { min: 1024, cols: 4 },
+  { min: 1280, cols: 6 },
+  { min: 1536, cols: 7 }
+]
 
-const mathcedCount = computed(() => {
+const imageLoadStates = reactive<Record<string, boolean>>({})
+const imageErrorStates = reactive<Record<string, boolean>>({})
+
+const imagePreviewState = reactive({
+  scale: 1,
+  translateX: 0,
+  translateY: 0,
+  isDragging: false,
+  startX: 0,
+  startY: 0,
+  startTranslateX: 0,
+  startTranslateY: 0,
+  isSwipeMode: false,
+  swipeStartX: 0,
+  swipeThreshold: 100
+})
+
+const advancedRenameList = {
+  categoryTime: [
+    { label: t('pages.settings.upload.placeholder.year4'), value: '{Y}' },
+    { label: t('pages.settings.upload.placeholder.year2'), value: '{y}' },
+    { label: t('pages.settings.upload.placeholder.month'), value: '{m}' },
+    { label: t('pages.settings.upload.placeholder.date'), value: '{d}' },
+    { label: t('pages.settings.upload.placeholder.hour'), value: '{h}' },
+    { label: t('pages.settings.upload.placeholder.minute'), value: '{i}' },
+    { label: t('pages.settings.upload.placeholder.second'), value: '{s}' },
+    { label: t('pages.settings.upload.placeholder.millisecond'), value: '{ms}' },
+    { label: t('pages.settings.upload.placeholder.timestamp'), value: '{timestamp}' }
+  ],
+  categoryHash: [
+    { label: t('pages.settings.upload.placeholder.md5'), value: '{md5}' },
+    { label: t('pages.settings.upload.placeholder.md5-16'), value: '{md5-16}' },
+    { label: t('pages.settings.upload.placeholder.uuid'), value: '{uuid}' }
+  ],
+  categoryFile: [
+    { label: t('pages.settings.upload.placeholder.filename'), value: '{filename}' },
+    { label: t('pages.settings.upload.placeholder.localFolder'), value: '{localFolder:n}' },
+    { label: t('pages.settings.upload.placeholder.randomString'), value: '{str-n}' }
+  ]
+}
+
+const matchedCount = computed(() => {
   return filterList.value.filter((item: any) => {
     return customStrMatch(item.imgUrl, batchRenameMatch.value)
   }).length
 })
+
+const dateRange = computed({
+  get: () => {
+    if (dateRangeStart.value && dateRangeEnd.value) {
+      return [dateRangeStart.value, dateRangeEnd.value]
+    }
+    return ''
+  },
+  set: (value: string | string[]) => {
+    if (Array.isArray(value)) {
+      dateRangeStart.value = value[0] || ''
+      dateRangeEnd.value = value[1] || ''
+    } else {
+      dateRangeStart.value = ''
+      dateRangeEnd.value = ''
+    }
+  }
+})
+
+function copyPlaceholder (placeholder: string) {
+  window.electron.clipboard.writeText(placeholder)
+  message.success(t('pages.settings.upload.copySuccess', { content: placeholder }))
+}
+
+const filterList = computed(() => {
+  return getGallery()
+})
+
+const isAllSelected = computed(() => {
+  return Object.values(choosedList).length > 0 && filterList.value.every(item => choosedList[item.id!])
+})
+
+const currentPreviewImage = computed(() => {
+  const item = filterList.value[gallerySliderControl.index]
+  if (!item) return null
+  const cacheBustedItem = { ...item }
+  if (isAlwaysForceReload.value) {
+    if (cacheBustedItem.imgUrl) {
+      cacheBustedItem.imgUrl = addCacheBustParam(cacheBustedItem.imgUrl)
+    }
+    if (cacheBustedItem.galleryPath) {
+      cacheBustedItem.galleryPath = addCacheBustParam(cacheBustedItem.galleryPath)
+    }
+  }
+  const src = cacheBustedItem.src || cacheBustedItem.galleryPath || cacheBustedItem.imgUrl || ''
+  cacheBustedItem.src = isAlwaysForceReload.value ? addCacheBustParam(src) : src
+  return cacheBustedItem
+})
+
+const imageTransformStyle = computed(() => {
+  return {
+    transform: `translate(${imagePreviewState.translateX}px, ${imagePreviewState.translateY}px) scale(${imagePreviewState.scale})`,
+    cursor: imagePreviewState.isDragging ? 'grabbing' : (imagePreviewState.scale > 1 ? 'grab' : 'default'),
+    transition: imagePreviewState.isDragging ? 'none' : 'transform 0.2s ease-out'
+  }
+})
+
+function onImageLoad (id: string) {
+  imageLoadStates[id] = true
+}
+
+function onImageError (id: string) {
+  imageLoadStates[id] = false
+  imageErrorStates[id] = true
+}
+
+function togglePicBedDropdown (event?: Event) {
+  picBedDropdownOpen.value = !picBedDropdownOpen.value
+  if (sortDropdownOpen.value) sortDropdownOpen.value = false
+
+  if (picBedDropdownOpen.value && event) {
+    nextTick(() => {
+      const trigger = event.target as HTMLElement
+      const dropdown = trigger.parentElement?.querySelector('.multiselect-dropdown') as HTMLElement
+      if (dropdown && trigger) {
+        const rect = trigger.getBoundingClientRect()
+        dropdown.style.top = `${rect.bottom + 2}px`
+        dropdown.style.left = `${rect.left}px`
+        dropdown.style.width = `${Math.max(rect.width, 200)}px`
+      }
+    })
+  }
+}
+
+function toggleSortDropdown (event?: Event) {
+  sortDropdownOpen.value = !sortDropdownOpen.value
+  if (picBedDropdownOpen.value) picBedDropdownOpen.value = false
+
+  if (sortDropdownOpen.value && event) {
+    nextTick(() => {
+      const trigger = event.target as HTMLElement
+      const dropdown = trigger.parentElement?.querySelector('.sort-options') as HTMLElement
+      if (dropdown && trigger) {
+        const rect = trigger.getBoundingClientRect()
+        dropdown.style.top = `${rect.bottom + 2}px`
+        dropdown.style.left = `${rect.left}px`
+        dropdown.style.width = `${Math.max(rect.width, 160)}px`
+      }
+    })
+  }
+}
+
+function navigateImage (direction: number) {
+  const newIndex = gallerySliderControl.index + direction
+  if (newIndex >= 0 && newIndex < filterList.value.length) {
+    gallerySliderControl.index = newIndex
+    resetImageTransform()
+  }
+}
+
+function resetImageTransform () {
+  imagePreviewState.scale = 1
+  imagePreviewState.translateX = 0
+  imagePreviewState.translateY = 0
+  imagePreviewState.isDragging = false
+}
+
+function zoomIn () {
+  const newScale = Math.min(imagePreviewState.scale * 1.2, 5)
+  imagePreviewState.scale = newScale
+}
+
+function zoomOut () {
+  const newScale = Math.max(imagePreviewState.scale / 1.2, 0.1)
+  imagePreviewState.scale = newScale
+
+  if (newScale === 1) {
+    imagePreviewState.translateX = 0
+    imagePreviewState.translateY = 0
+  }
+}
+
+function handleImageWheel (event: WheelEvent) {
+  event.preventDefault()
+  const delta = event.deltaY > 0 ? -1 : 1
+  const zoomFactor = 1.1
+  const newScale = delta > 0
+    ? Math.min(imagePreviewState.scale * zoomFactor, 5)
+    : Math.max(imagePreviewState.scale / zoomFactor, 0.1)
+
+  imagePreviewState.scale = newScale
+
+  if (newScale === 1) {
+    imagePreviewState.translateX = 0
+    imagePreviewState.translateY = 0
+  }
+}
+
+function handleKeydown (event: KeyboardEvent) {
+  switch (event.key) {
+    case 'ArrowLeft':
+      event.preventDefault()
+      navigateImage(-1)
+      break
+    case 'ArrowRight':
+      event.preventDefault()
+      navigateImage(1)
+      break
+    case 'Escape':
+      event.preventDefault()
+      handleClose()
+      break
+    case '=':
+    case '+':
+      event.preventDefault()
+      zoomIn()
+      break
+    case '-':
+      event.preventDefault()
+      zoomOut()
+      break
+    case '0':
+      event.preventDefault()
+      resetImageTransform()
+      break
+  }
+}
+
+function handleImageMouseDown (event: MouseEvent) {
+  if (imagePreviewState.scale <= 1) {
+    imagePreviewState.isSwipeMode = true
+    imagePreviewState.swipeStartX = event.clientX
+  } else {
+    imagePreviewState.isDragging = true
+    imagePreviewState.startX = event.clientX
+    imagePreviewState.startY = event.clientY
+    imagePreviewState.startTranslateX = imagePreviewState.translateX
+    imagePreviewState.startTranslateY = imagePreviewState.translateY
+  }
+  event.preventDefault()
+}
+
+function handleImageMouseMove (event: MouseEvent) {
+  if (imagePreviewState.isDragging && imagePreviewState.scale > 1) {
+    const deltaX = event.clientX - imagePreviewState.startX
+    const deltaY = event.clientY - imagePreviewState.startY
+    imagePreviewState.translateX = imagePreviewState.startTranslateX + deltaX
+    imagePreviewState.translateY = imagePreviewState.startTranslateY + deltaY
+  }
+}
+
+function handleImageMouseUp (event: MouseEvent) {
+  if (imagePreviewState.isSwipeMode) {
+    const deltaX = event.clientX - imagePreviewState.swipeStartX
+    if (Math.abs(deltaX) > imagePreviewState.swipeThreshold) {
+      if (deltaX > 0) {
+        navigateImage(-1)
+      } else {
+        navigateImage(1)
+      }
+    }
+    imagePreviewState.isSwipeMode = false
+  }
+  imagePreviewState.isDragging = false
+}
+
+function handleImageTouchStart (event: TouchEvent) {
+  const touch = event.touches[0]
+  if (imagePreviewState.scale <= 1) {
+    imagePreviewState.isSwipeMode = true
+    imagePreviewState.swipeStartX = touch.clientX
+  } else {
+    imagePreviewState.isDragging = true
+    imagePreviewState.startX = touch.clientX
+    imagePreviewState.startY = touch.clientY
+    imagePreviewState.startTranslateX = imagePreviewState.translateX
+    imagePreviewState.startTranslateY = imagePreviewState.translateY
+  }
+  event.preventDefault()
+}
+
+function handleImageTouchMove (event: TouchEvent) {
+  if (imagePreviewState.isDragging && imagePreviewState.scale > 1) {
+    const touch = event.touches[0]
+    const deltaX = touch.clientX - imagePreviewState.startX
+    const deltaY = touch.clientY - imagePreviewState.startY
+    imagePreviewState.translateX = imagePreviewState.startTranslateX + deltaX
+    imagePreviewState.translateY = imagePreviewState.startTranslateY + deltaY
+  }
+  event.preventDefault()
+}
+
+function handleImageTouchEnd (event: TouchEvent) {
+  if (imagePreviewState.isSwipeMode && event.changedTouches.length > 0) {
+    const touch = event.changedTouches[0]
+    const deltaX = touch.clientX - imagePreviewState.swipeStartX
+    if (Math.abs(deltaX) > imagePreviewState.swipeThreshold) {
+      if (deltaX > 0) {
+        navigateImage(-1)
+      } else {
+        navigateImage(1)
+      }
+    }
+    imagePreviewState.isSwipeMode = false
+  }
+  imagePreviewState.isDragging = false
+}
+
+function toggleViewMode () {
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
+  localStorage.setItem('galleryViewMode', viewMode.value)
+}
+
+function getViewModeIcon () {
+  return viewMode.value === 'list' ? ListIcon : GridIcon
+}
+
+function getViewModeLabel () {
+  return t(`pages.gallery.${viewMode.value}View`)
+}
 
 onBeforeRouteUpdate((to, from) => {
   if (from.name === 'gallery') {
@@ -544,31 +1088,35 @@ onBeforeRouteUpdate((to, from) => {
   }
 })
 
-async function initDeleteCloud () {
+async function initConf () {
+  viewMode.value = localStorage.getItem('galleryViewMode') as 'list' | 'grid' || 'grid'
+  pasteStyle.value = (await getConfig(configPaths.settings.pasteStyle)) || IPasteStyle.MARKDOWN
+  useShortUrl.value = (await getConfig(configPaths.settings.useShortUrl))
+    ? t('pages.gallery.shortUrl')
+    : t('pages.gallery.longUrl')
+  isAlwaysForceReload.value = (await getConfig<boolean>(configPaths.settings.isAlwaysForceReload)) || false
   deleteCloud.value = (await getConfig<boolean>(configPaths.settings.deleteCloudFile)) || false
 }
+
 const updateGalleryHandler = () => {
   nextTick(async () => {
     updateGallery()
   })
 }
-onBeforeMount(async () => {
-  window.electron.ipcRendererOn('updateGallery', updateGalleryHandler)
-  updateGallery()
-  document.addEventListener('keydown', handleDetectShiftKey)
-  document.addEventListener('keyup', handleDetectShiftKey)
-})
+
+function handleOutsideClick (event: Event) {
+  const target = event.target as Element
+  if (!target.closest('.custom-multiselect') && !target.closest('.sort-dropdown')) {
+    picBedDropdownOpen.value = false
+    sortDropdownOpen.value = false
+  }
+}
 
 function handleDetectShiftKey (event: KeyboardEvent) {
   if (event.key === 'Shift') {
     isShiftKeyPress.value = event.type === 'keydown'
   }
 }
-
-const filterList = computed(() => {
-  const res = getGallery()
-  return res
-})
 
 const addCacheBustParam = (url: string | undefined) => {
   if (!url) {
@@ -585,34 +1133,12 @@ const addCacheBustParam = (url: string | undefined) => {
   }
 }
 
-const filterListWithCacheBust = computed(() => {
-  const newList = filterList.value.map(item => {
-    const newItem = { ...item }
-    if (newItem.imgUrl) {
-      newItem.imgUrl = addCacheBustParam(newItem.imgUrl)
-    }
-
-    if (newItem.galleryPath) {
-      newItem.galleryPath = addCacheBustParam(newItem.galleryPath)
-    }
-
-    newItem.src = addCacheBustParam(newItem.src || newItem.galleryPath || newItem.imgUrl || '')
-
-    return newItem
-  })
-  return newList
-})
-
-const isAllSelected = computed(() => {
-  return Object.values(choosedList).length > 0 && filterList.value.every(item => choosedList[item.id!])
-})
-
 function formatFileName (name: string) {
   return window.node.path.basename(name)
 }
 
 function getGallery (): IGalleryItem[] {
-  if (searchText.value || choosedPicBed.value.length > 0 || searchTextURL.value || dateRange.value) {
+  if (debouncedSearchText.value || choosedPicBed.value.length > 0 || debouncedSearchTextURL.value || dateRange.value) {
     return images.value
       .filter(item => {
         let isInChoosedPicBed = true
@@ -622,33 +1148,33 @@ function getGallery (): IGalleryItem[] {
         if (choosedPicBed.value.length > 0) {
           isInChoosedPicBed = choosedPicBed.value.some(type => type === item.type)
         }
-        if (searchText.value) {
-          isIncludesSearchText = customStrMatch(item.fileName || '', searchText.value)
+        if (debouncedSearchText.value) {
+          isIncludesSearchText = customStrMatch(item.fileName || '', debouncedSearchText.value)
         }
-        if (searchTextURL.value) {
-          isIncludesSearchTextURL = customStrMatch(item.imgUrl || '', searchTextURL.value)
+        if (debouncedSearchTextURL.value) {
+          isIncludesSearchTextURL = customStrMatch(item.imgUrl || '', debouncedSearchTextURL.value)
         }
         if (dateRange.value) {
-          const [start, end] = dateRange.value
+          const [start, end] = dateRange.value as string[]
           const date = new Date(item.updatedAt).getTime()
           isIncludesDateRange = date >= new Date(start).getTime() && date <= new Date(end).getTime() + 86400000
         }
         return isIncludesSearchText && isInChoosedPicBed && isIncludesSearchTextURL && isIncludesDateRange
       })
-      .map(item => {
+      .map((item, index) => {
         return {
           ...item,
           src: item.galleryPath || item.imgUrl || '',
-          key: item.id || `${Date.now()}`,
+          key: item.id || `item-${index}-${Date.now()}`,
           intro: item.fileName || ''
         }
       })
   } else {
-    return images.value.map(item => {
+    return images.value.map((item, index) => {
       return {
         ...item,
         src: item.galleryPath || item.imgUrl || '',
-        key: item.id || `${Date.now()}`,
+        key: item.id || `item-${index}-${Date.now()}`,
         intro: item.fileName || ''
       }
     })
@@ -656,19 +1182,49 @@ function getGallery (): IGalleryItem[] {
 }
 
 async function updateGallery () {
-  images.value = (await $$db.get({ orderBy: 'desc' }))!.data
+  const newList = (await $$db.get({ orderBy: 'desc' }))!.data
+  const newIds = new Set(newList.map(it => it.id))
+  Object.keys(imageLoadStates).forEach(k => {
+    if (!newIds.has(k)) delete imageLoadStates[k]
+  })
+  images.value = newList
+  nextTick(() => {
+    virtualScrollerRef.value?.scrollToTop()
+  })
 }
 
-watch(
-  () => filterList,
-  () => {
-    clearChoosedList()
-  }
-)
+watch(filterList, () => { clearChoosedList() })
 
-function handleChooseImage (val: CheckboxValueType, index: number) {
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+let searchURLDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
+watch(searchText, (newVal) => {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+  searchDebounceTimer = setTimeout(() => {
+    debouncedSearchText.value = newVal
+    nextTick(() => {
+      virtualScrollerRef.value?.scrollToTop()
+    })
+  }, 300)
+})
+
+watch(searchTextURL, (newVal) => {
+  if (searchURLDebounceTimer) clearTimeout(searchURLDebounceTimer)
+  searchURLDebounceTimer = setTimeout(() => {
+    debouncedSearchTextURL.value = newVal
+    nextTick(() => {
+      virtualScrollerRef.value?.scrollToTop()
+    })
+  }, 300)
+})
+
+function handleChooseImage (val: boolean, index: number) {
+  const currentItem = filterList.value[index]
+  if (currentItem && currentItem.id) {
+    choosedList[currentItem.id] = val
+  }
+
   if (val === true) {
-    handleBarActive.value = true
     if (lastChoosed.value !== -1 && isShiftKeyPress.value) {
       const min = Math.min(lastChoosed.value, index)
       const max = Math.max(lastChoosed.value, index)
@@ -688,7 +1244,7 @@ function refreshPage () {
 function clearChoosedList () {
   isShiftKeyPress.value = false
   Object.keys(choosedList).forEach(key => {
-    choosedList[key] = false
+    delete choosedList[key]
   })
   lastChoosed.value = -1
 }
@@ -696,94 +1252,80 @@ function clearChoosedList () {
 function zoomImage (index: number) {
   gallerySliderControl.index = index
   gallerySliderControl.visible = true
-  changeZIndexForGallery(true)
-}
+  resetImageTransform()
 
-function changeZIndexForGallery (isOpen: boolean) {
-  if (isOpen) {
-    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
-    document.querySelector('.main-content.el-row').style.zIndex = 101
-  } else {
-    // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
-    document.querySelector('.main-content.el-row').style.zIndex = 10
-  }
+  nextTick(() => {
+    const modal = document.querySelector('.image-preview-modal') as HTMLElement
+    if (modal) {
+      modal.focus()
+    }
+  })
 }
 
 function handleClose () {
   gallerySliderControl.index = 0
   gallerySliderControl.visible = false
-  changeZIndexForGallery(false)
+  resetImageTransform()
 }
 
 async function copy (item: ImgInfo) {
   item.config = JSON.parse(JSON.stringify(item.config) || '{}')
-  const result = await window.electron.triggerRPC<[string, string]>(IRPCActionType.GALLERY_PASTE_TEXT, item)
+  const result = await window.electron.triggerRPC<[string, string]>(IRPCActionType.GALLERY_PASTE_TEXT, getRawData(item))
   if (result && result[1] && item.id) {
     await $$db.updateById(item.id, {
       shortUrl: result[1]
     })
+    updateGallery()
   }
-  const obj = {
-    title: t('COPY_LINK_SUCCEED'),
-    body: result ? result[0] : ''
-  }
-  const myNotification = new Notification(obj.title, obj)
-  myNotification.onclick = () => {
-    return true
-  }
-  updateGallery()
+  window.electron.clipboard.writeText(result ? result[0] : '')
+  message.success(t('pages.gallery.copyLinkSucceed'))
 }
 
-function remove (item: ImgInfo) {
+function remove (item: ImgInfo, _: number) {
   if (!item.id) return
-  $confirm(t('TIPS_REMOVE_LINK'), t('TIPS_NOTICE'), {
-    confirmButtonText: t('CONFIRM'),
-    cancelButtonText: t('CANCEL'),
-    type: 'warning'
-  })
-    .then(async () => {
-      const file = await $$db.getById(item.id!)
-      if (
-        (await getConfig(configPaths.settings.deleteCloudFile)) &&
-        picBedsCanbeDeleted.includes(item?.type || 'placeholder')
-      ) {
-        const result = await ALLApi.delete(item)
-        if (result) {
-          ElNotification({
-            title: t('GALLERY_SYNC_DELETE_NOTICE_TITLE'),
-            message: `${item.fileName} ${t('GALLERY_SYNC_DELETE_NOTICE_SUCCEED')}`,
-            type: 'success'
-          })
-        } else {
-          ElNotification({
-            title: t('GALLERY_SYNC_DELETE_NOTICE_TITLE'),
-            message: `${item.fileName} ${t('GALLERY_SYNC_DELETE_NOTICE_FAILED')}`,
-            type: 'error'
-          })
-          return true
-        }
-      }
-      await $$db.removeById(item.id!)
-      window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_FILES, [file])
-      const obj = {
-        title: t('OPERATION_SUCCEED'),
-        body: ''
-      }
-      const myNotification = new Notification(obj.title, obj)
-      myNotification.onclick = () => {
+
+  confirm({
+    title: t('pages.gallery.notice'),
+    message: t('pages.gallery.confirmRemove'),
+    type: 'warning',
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    center: true
+  }).then(async result => {
+    if (!result) return
+    const file = await $$db.getById(item.id!)
+    const isNeedDeleteCloudFile = await getConfig(configPaths.settings.deleteCloudFile) && picBedsCanbeDeleted.includes(item?.type || 'placeholder')
+    if (isNeedDeleteCloudFile) {
+      const result = await ALLApi.delete(getRawData(item))
+      if (result) {
+        message.success(`${item.fileName} ${t('pages.gallery.cloudDeleteSucceed')}`)
+      } else {
+        message.error(`${item.fileName} ${t('pages.gallery.cloudDeleteFailed')}`)
         return true
       }
-      updateGallery()
-    })
-    .catch(e => {
-      console.log(e)
-      return true
-    })
+    }
+    await $$db.removeById(item.id!)
+    const args = getRawData(file)
+    window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_FILES, [args])
+    updateGallery()
+    if (!isNeedDeleteCloudFile) {
+      message.success(t('pages.gallery.operationSucceed'))
+    }
+  })
 }
 
-function handleDeleteCloudFile (val: ICheckBoxValueType) {
+function handleIsAlwaysForceReload (event: Event) {
+  const ev = (event.target as HTMLInputElement).checked
+  isAlwaysForceReload.value = ev
   saveConfig({
-    [configPaths.settings.deleteCloudFile]: val
+    [configPaths.settings.isAlwaysForceReload]: ev
+  })
+  window.electron.sendRPC(IRPCActionType.REFRESH_SETTING_WINDOW)
+}
+
+function handleDeleteCloudFile (event: Event) {
+  saveConfig({
+    [configPaths.settings.deleteCloudFile]: (event.target as HTMLInputElement).checked
   })
 }
 
@@ -797,14 +1339,7 @@ async function confirmModify () {
   await $$db.updateById(imgInfo.id, {
     imgUrl: imgInfo.imgUrl
   })
-  const obj = {
-    title: t('CHANGE_IMAGE_URL_SUCCEED'),
-    body: imgInfo.imgUrl
-  }
-  const myNotification = new Notification(obj.title, obj)
-  myNotification.onclick = () => {
-    return true
-  }
+  message.success(t('pages.gallery.operationSucceed'))
   dialogVisible.value = false
   updateGallery()
 }
@@ -831,115 +1366,84 @@ function toggleSelectAll () {
 function multiRemove () {
   const multiRemoveNumber = Object.values(choosedList).filter(item => item).length
   if (multiRemoveNumber) {
-    $confirm(
-      t('TIPS_WILL_REMOVE_CHOOSED_IMAGES', {
-        m: multiRemoveNumber
-      }),
-      t('TIPS_NOTICE'),
-      {
-        confirmButtonText: t('CONFIRM'),
-        cancelButtonText: t('CANCEL'),
-        type: 'warning'
-      }
-    )
-      .then(async () => {
-        const files: IResult<ImgInfo>[] = []
-        const imageIDList = Object.keys(choosedList)
-        const isDeleteCloudFile = await getConfig(configPaths.settings.deleteCloudFile)
-        if (isDeleteCloudFile) {
-          for (const imageIDListItem of imageIDList) {
-            const key = imageIDListItem
-            if (choosedList[key]) {
-              const file = await $$db.getById<ImgInfo>(key)
-              if (file) {
-                if (file.type !== undefined && picBedsCanbeDeleted.includes(file.type)) {
-                  const result = await ALLApi.delete(file)
-                  if (result) {
-                    ElNotification({
-                      title: t('GALLERY_SYNC_DELETE'),
-                      message: `${file.fileName} ${t('GALLERY_SYNC_DELETE_NOTICE_SUCCEED')}`,
-                      type: 'success',
-                      duration: multiRemoveNumber > 5 ? 1000 : 2000
-                    })
-                    files.push(file)
-                    await $$db.removeById(key)
-                  } else {
-                    ElNotification({
-                      title: t('GALLERY_SYNC_DELETE'),
-                      message: `${file.fileName} ${t('GALLERY_SYNC_DELETE_NOTICE_FAILED')}`,
-                      type: 'error',
-                      duration: multiRemoveNumber > 5 ? 1000 : 2000
-                    })
-                  }
-                } else {
+    confirm({
+      title: t('pages.gallery.notice'),
+      message: t('pages.gallery.confirmRemove'),
+      type: 'warning',
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      center: true
+    }).then(async result => {
+      if (!result) return
+      const files: IResult<ImgInfo>[] = []
+      const imageIDList = Object.keys(choosedList)
+      const isDeleteCloudFile = await getConfig(configPaths.settings.deleteCloudFile)
+      if (isDeleteCloudFile) {
+        for (const imageIDListItem of imageIDList) {
+          const key = imageIDListItem
+          if (choosedList[key]) {
+            const file = await $$db.getById<ImgInfo>(key)
+            if (file) {
+              if (file.type !== undefined && picBedsCanbeDeleted.includes(file.type)) {
+                const result = await ALLApi.delete(file)
+                if (result) {
+                  message.success(`${file.fileName} ${t('pages.gallery.cloudDeleteSucceed')}`, {
+                    duration: multiRemoveNumber > 5 ? 1000 : 2000
+                  })
                   files.push(file)
                   await $$db.removeById(key)
+                } else {
+                  message.error(`${file.fileName} ${t('pages.gallery.cloudDeleteFailed')}`, {
+                    duration: multiRemoveNumber > 5 ? 1000 : 2000
+                  })
                 }
-              }
-            }
-          }
-        } else {
-          for (const imageIDListItem of imageIDList) {
-            const key = imageIDListItem
-            if (choosedList[key]) {
-              const file = await $$db.getById<ImgInfo>(key)
-              if (file) {
+              } else {
                 files.push(file)
                 await $$db.removeById(key)
               }
             }
           }
         }
-        clearChoosedList()
-        // TODO: check this
-        // choosedList = {} // 只有删除才能将这个置空
-        const obj = {
-          title: t('OPERATION_SUCCEED'),
-          body: ''
+      } else {
+        for (const imageIDListItem of imageIDList) {
+          const key = imageIDListItem
+          if (choosedList[key]) {
+            const file = await $$db.getById<ImgInfo>(key)
+            if (file) {
+              files.push(file)
+              await $$db.removeById(key)
+            }
+          }
         }
-        window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_FILES, files)
-        const myNotification = new Notification(obj.title, obj)
-        myNotification.onclick = () => {
-          return true
-        }
-        updateGallery()
-      })
-      .catch(() => {
-        return true
-      })
+      }
+      clearChoosedList()
+
+      window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_FILES, getRawData(files))
+      updateGallery()
+      message.success(t('pages.gallery.operationSucceed'))
+    })
   }
 }
 
 async function multiCopy () {
   if (Object.values(choosedList).some(item => item)) {
     const copyString: string[] = []
-    // choosedList -> { [id]: true or false }; true means choosed. false means not choosed.
     const imageIDList = Object.keys(choosedList)
     for (const imageIDListItem of imageIDList) {
-      const key = imageIDListItem
-      if (choosedList[key]) {
-        const item = await $$db.getById<ImgInfo>(key)
-        if (item) {
-          const result = await window.electron.triggerRPC<string>(IRPCActionType.GALLERY_PASTE_TEXT, item)
-          copyString.push(result ? result[0] : '')
-          if (result && result[1] && item.id) {
-            await $$db.updateById(item.id, {
-              shortUrl: result[1]
-            })
-          }
-          choosedList[key] = false
+      const item = await $$db.getById<ImgInfo>(imageIDListItem)
+      if (item) {
+        const result = await window.electron.triggerRPC<string>(IRPCActionType.GALLERY_PASTE_TEXT, getRawData(item))
+        copyString.push(result ? result[0] : '')
+        if (result && result[1] && item.id) {
+          await $$db.updateById(item.id, {
+            shortUrl: result[1]
+          })
         }
       }
     }
-    const obj = {
-      title: t('BATCH_COPY_LINK_SUCCEED'),
-      body: copyString.join('\n')
-    }
-    const myNotification = new Notification(obj.title, obj)
     window.electron.clipboard.writeText(copyString.join('\n'))
-    myNotification.onclick = () => {
-      return true
-    }
+    clearChoosedList()
+    message.success(t('pages.gallery.copyLinkSucceed'))
     updateGallery()
   }
 }
@@ -948,17 +1452,22 @@ function toggleHandleBar () {
   handleBarActive.value = !handleBarActive.value
 }
 
-async function handlePasteStyleChange (val: string) {
+async function handlePasteStyleChange (event: Event) {
+  const target = event.target as HTMLSelectElement
+  const val = target.value
   saveConfig(configPaths.settings.pasteStyle, val)
   pasteStyle.value = val
 }
 
-function handleUseShortUrlChange (value: string) {
-  saveConfig(configPaths.settings.useShortUrl, value === t('UPLOAD_SHORT_URL'))
+function handleUseShortUrlChange (event: Event) {
+  const target = event.target as HTMLSelectElement
+  const value = target.value
+  saveConfig(configPaths.settings.useShortUrl, value === t('pages.gallery.shortUrl'))
   useShortUrl.value = value
 }
 
 function sortFile (type: 'name' | 'time' | 'ext' | 'check') {
+  sortDropdownOpen.value = false
   switch (type) {
     case 'name':
       fileSortNameReverse.value = !fileSortNameReverse.value
@@ -1007,7 +1516,7 @@ function sortFile (type: 'name' | 'time' | 'ext' | 'check') {
 function handleBatchRename () {
   isShowBatchRenameDialog.value = false
   if (batchRenameMatch.value === '') {
-    ElMessage.warning(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG'))
+    message.warning(t('pages.gallery.inputRegexTip'))
     return
   }
   let matchedFiles = [] as any[]
@@ -1017,7 +1526,7 @@ function handleBatchRename () {
     }
   })
   if (matchedFiles.length === 0) {
-    ElMessage.warning(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG2'))
+    message.warning(t('pages.gallery.noMatch'))
     return
   }
   for (const matchedFile of matchedFiles) {
@@ -1025,7 +1534,7 @@ function handleBatchRename () {
   }
   matchedFiles = matchedFiles.filter((item: any) => item.imgUrl !== item.newUrl)
   if (matchedFiles.length === 0) {
-    ElMessage.warning(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG3'))
+    message.warning(t('pages.gallery.noItemsNeedRename'))
   }
   for (let i = 0; i < matchedFiles.length; i++) {
     matchedFiles[i].newUrl = matchedFiles[i].newUrl.replaceAll('{auto}', (i + 1).toString())
@@ -1045,14 +1554,7 @@ function handleBatchRename () {
     }
     Promise.all(promiseList)
       .then(() => {
-        const obj = {
-          title: t('OPERATION_SUCCEED'),
-          body: ''
-        }
-        const myNotification = new Notification(obj.title, obj)
-        myNotification.onclick = () => {
-          return true
-        }
+        message.success(t('pages.gallery.operationSucceed'))
         updateGallery()
       })
       .catch(() => {
@@ -1060,173 +1562,63 @@ function handleBatchRename () {
       })
   }
   if (duplicateFilesNum > 0) {
-    ElMessageBox.confirm(
-      `${t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_A')} ${duplicateFilesNum} ${t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_B')}`,
-      t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_C'),
-      {
-        confirmButtonText: t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CONFIRM'),
-        cancelButtonText: t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CANCEL'),
-        type: 'warning'
-      }
-    )
-      .then(() => {
-        rename()
-      })
-      .catch(() => {
-        ElMessage.info(t('MANAGE_BUCKET_BATCH_RENAME_CANCEL'))
-      })
+    confirm({
+      title: t('pages.gallery.notice'),
+      message: t('pages.gallery.haveDuplicate'),
+      type: 'warning',
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      center: true
+    }).then(result => {
+      if (!result) return
+      rename()
+    }).catch(() => {
+      message.info(t('pages.gallery.canceled'))
+    })
   } else {
     rename()
   }
 }
 
-onBeforeUnmount(() => {
+onBeforeMount(async () => {
+  window.electron.ipcRendererOn('updateGallery', updateGalleryHandler)
+  updateGallery()
+  document.addEventListener('keydown', handleDetectShiftKey)
+  document.addEventListener('keyup', handleDetectShiftKey)
+  document.addEventListener('click', handleOutsideClick)
+})
+
+onBeforeUnmount(async () => {
   window.electron.ipcRendererRemoveListener('updateGallery', updateGalleryHandler)
+  document.removeEventListener('click', handleOutsideClick)
+  document.removeEventListener('keydown', handleDetectShiftKey)
+  document.removeEventListener('keyup', handleDetectShiftKey)
+
+  // Clear timers
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+  if (searchURLDebounceTimer) clearTimeout(searchURLDebounceTimer)
+  isAlwaysForceReload.value = await getConfig(configPaths.settings.isAlwaysForceReload) || false
 })
 
 onActivated(async () => {
-  pasteStyle.value = (await getConfig(configPaths.settings.pasteStyle)) || IPasteStyle.MARKDOWN
-  useShortUrl.value = (await getConfig(configPaths.settings.useShortUrl))
-    ? t('UPLOAD_SHORT_URL')
-    : t('UPLOAD_NORMAL_URL')
-  initDeleteCloud()
+  await initConf()
+  nextTick(() => {
+    if (virtualScrollerRef.value && typeof virtualScrollerRef.value.refresh === 'function') {
+      virtualScrollerRef.value.refresh()
+    } else {
+      componentKey.value++
+    }
+  })
 })
 </script>
 
 <script lang="ts">
 export default {
-  name: 'GalleryPage'
+  name: 'GalleryPage',
+  components: {
+    VirtualScroller
+  }
 }
 </script>
 
-<style lang="stylus">
-.PhotoSlider
-  &__BannerIcon
-    &:nth-child(1)
-      display none
-  &__Counter
-    margin-top 20px
-.view-title
-  color #eee
-  font-size 20px
-  text-align center
-  margin 10px auto
-  .sub-title
-    font-size 14px
-  .el-icon-caret-bottom
-    cursor: pointer
-    transition all .2s ease-in-out
-    &.active
-      transform: rotate(180deg)
-#gallery-view
-  position absolute
-  left 142px
-  right 0
-  height 85%
-  .cursor-pointer
-    cursor pointer
-.item-base
-  background #2E2E2E
-  text-align center
-  padding 5px 0
-  cursor pointer
-  font-size 13px
-  transition all .2s ease-in-out
-  height: 28px
-  box-sizing: border-box
-  &.copy
-    cursor not-allowed
-    background #49B1F5
-    &.active
-      cursor pointer
-      background #1B9EF3
-      color #fff
-  &.delete
-    cursor not-allowed
-    background #F47466
-    &.active
-      cursor pointer
-      background #F15140
-      color #fff
-  &.all-pick
-    cursor not-allowed
-    background #69C282
-    &.active
-      cursor pointer
-      background #44B363
-      color #fff
-#gallery-view
-  .round
-    border-radius 14px
-  .pull-right
-    float right
-  .gallery-list
-    height 100%
-    box-sizing border-box
-    padding 8px 0
-    overflow-y auto
-    overflow-x auto
-    position absolute
-    top: 38px
-    transition all .2s ease-in-out .1s
-    width 100%
-    &.small
-      height: 100%
-      top: 113px
-    &__img
-      // height 150px
-      position relative
-      margin-bottom 8px
-    &__item
-      width 100%
-      height 120px
-      transition all .2s ease-in-out
-      cursor pointer
-      margin-bottom 4px
-      overflow hidden
-      display flex
-      margin-bottom 6px
-      &-fake
-        position absolute
-        top 0
-        left 0
-        opacity 0
-        width 100%
-        z-index -1
-      &:hover
-        transform scale(1.1)
-      &-img
-        width 100%
-        object-fit contain
-    &__tool-panel
-      color #ddd
-      margin-bottom 4px
-      display flex
-      .el-checkbox
-        height 16px
-      i
-        cursor pointer
-        transition all .2s ease-in-out
-        margin-right 4px
-        &.document
-          &:hover
-            color #49B1F5
-        &.edit
-          &:hover
-            color #69C282
-        &.delete
-          &:hover
-            color #F15140
-    &__file-name
-      overflow hidden
-      text-overflow ellipsis
-      white-space nowrap
-      color #ddd
-      font-size 14px
-      margin-bottom 4px
-      text-align center
-      align-self center
-  .handle-bar
-    color #ddd
-    margin-bottom 10px
-</style>
+<style scoped src="./css/Gallery.css"></style>

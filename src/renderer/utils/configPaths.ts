@@ -33,6 +33,7 @@ export interface IConfigStruct {
     shortKey: {
       [key: string]: IShortKeyConfig
     }
+    isAlwaysForceReload: boolean
     logLevel: string[]
     logPath: string
     logFileSizeLimit: number
@@ -120,6 +121,7 @@ export const configPaths = {
       _path: 'settings.shortKey',
       'picgo:upload': 'settings.shortKey[picgo:upload]'
     },
+    isAlwaysForceReload: 'settings.isAlwaysForceReload',
     logLevel: 'settings.logLevel',
     logPath: 'settings.logPath',
     logFileSizeLimit: 'settings.logFileSizeLimit',

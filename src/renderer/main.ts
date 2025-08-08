@@ -1,5 +1,4 @@
 import 'element-plus/dist/index.css'
-import 'vue3-photo-preview/dist/index.css'
 import 'video.js/dist/video-js.css'
 import 'highlight.js/styles/stackoverflow-light.css'
 import 'highlight.js/lib/common'
@@ -12,7 +11,6 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { createApp } from 'vue'
 import { createI18n } from 'vue-i18n'
 import VueLazyLoad from 'vue3-lazyload'
-import vue3PhotoPreview from 'vue3-photo-preview'
 
 import App from '@/App.vue'
 import en from '@/i18n/locales/en.json'
@@ -54,7 +52,6 @@ app.use(i18n)
 app.use(ElementUI)
 app.use(router)
 app.use(store)
-app.use(vue3PhotoPreview)
 app.use(pinia)
 app.use(hljsVuePlugin)
 app.use(VueVideoPlayer)

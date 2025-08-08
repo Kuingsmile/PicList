@@ -356,28 +356,6 @@
   text-align: center;
 }
 
-/* Transitions */
-.modal-enter-active,
-.modal-leave-active {
-  transition: all 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-  transform: scale(0.9);
-}
-
-.modal-enter-active .modal-content,
-.modal-leave-active .modal-content {
-  transition: all 0.3s ease;
-}
-
-.modal-enter-from .modal-content,
-.modal-leave-to .modal-content {
-  transform: translateY(-20px);
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .shortkey-container {

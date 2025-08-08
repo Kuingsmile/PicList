@@ -259,8 +259,8 @@ const handleFix = async () => {
     })
 
   confirm({
-    title: t('pages.toolbox.fixDoneNeedReload'),
-    message: t('pages.toolbox.notice'),
+    title: t('pages.toolbox.notice'),
+    message: t('pages.toolbox.fixDoneNeedReload'),
     type: 'warning',
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),

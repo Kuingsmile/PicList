@@ -729,14 +729,12 @@ small {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   line-height: 1.4;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 0;
   margin: 0;
 }
 
 .placeholder-item:hover {
   background: rgba(var(--color-accent-rgb), 0.08);
-  transform: translateX(2px);
 }
 
 .placeholder-item code {
