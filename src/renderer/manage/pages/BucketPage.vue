@@ -1,1566 +1,1527 @@
 <!-- eslint-disable vue/no-v-html -->
-/* *UI布局和部分样式代码参考了https://github.com/willnewii/qiniuClient *感谢作者@willnewii */
 <template>
   <div
-    v-loading="isShowLoadingPage"
-    :element-loading-text="$t('MANAGE_BUCKET_PAGE_LOADING_TEXT')"
-    :element-loading-spinner="svg"
-    element-loading-svg-view-box="0, 0, 50, 50"
-    element-loading-background="rgba(122, 122, 122, 0.5)"
+    ref="bucketContainerRef"
+    class="bucket-container"
+    :class="{ 'content-fullscreen': isContentFullscreen }"
+    @scroll="handleBucketContainerScroll"
   >
-    <div class="layout-header">
-      <div style="flex-grow: 1; margin-left: 16px">
-        <el-select
-          v-if="isShowCustomDomainSelectList && customDomainList.length > 1 && isAutoCustomDomain"
-          v-model="currentCustomDomain"
-          :placeholder="$t('MANAGE_BUCKET_PAGE_CUSTOM_URL_SELECT_PLACEHOLDER')"
-          style="width: 200px"
-          :persistent="false"
-          teleported
-          @change="handleChangeCustomUrlInput"
-        >
-          <el-option
-            v-for="item in customDomainList"
-            :key="item"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-        <el-input
-          v-else-if="isShowCustomDomainInput"
-          v-model="currentCustomDomain"
-          :placeholder="$t('MANAGE_BUCKET_PAGE_CUSTOM_URL_INPUT_PLACEHOLDER')"
-          style="width: 200px"
-          @blur="handleChangeCustomUrlInput"
-        />
-        <el-link
-          v-else
-          :underline="false"
-          type="primary"
-          @click="copyToClipboard(currentCustomDomain)"
-        >
-          {{ currentCustomDomain }}
-        </el-link>
-      </div>
-      <div
-        style="display: flex"
-        @click="showUploadDialog"
-      >
-        <el-button
-          type="primary"
-          :link="true"
-        >
-          <el-tooltip
-            class="item"
-            effect="dark"
-            :content="$t('MANAGE_BUCKET_PAGE_UPLOAD_FILES_TOOLTIP')"
-            placement="bottom"
-            :persistent="false"
-            teleported
+    <!-- Header Card -->
+    <div
+      v-if="!isContentFullscreen"
+      class="bucket-card header-card"
+    >
+      <div class="card-header">
+        <div class="header-left">
+          <!-- Custom Domain Input/Select -->
+          <div
+            v-if="isShowCustomDomainSelectList && customDomainList.length > 1 && isAutoCustomDomain"
+            class="custom-domain-select"
           >
-            <el-icon
-              class="icon"
-              size="25px"
+            <select
+              v-model="currentCustomDomain"
+              class="select-input"
+              @change="handleChangeCustomUrlInput"
             >
-              <Upload />
-            </el-icon>
-          </el-tooltip>
-        </el-button>
-      </div>
-      <div>
-        <el-button
-          type="primary"
-          :link="true"
-          @click="showUrlDialog"
-        >
-          <el-tooltip
-            class="item"
-            effect="dark"
-            :content="$t('MANAGE_BUCKET_PAGE_UPLOAD_FROM_URL_TOOLTIP')"
-            placement="bottom"
-            :persistent="false"
-            teleported
-          >
-            <el-icon
-              class="icon"
-              size="25px"
-              style="margin-left: 5px"
-            >
-              <UploadFilled />
-            </el-icon>
-          </el-tooltip>
-        </el-button>
-      </div>
-      <div v-if="isShowCreateNewFolder">
-        <el-button
-          type="primary"
-          :link="true"
-          @click="handleCreateFolder"
-        >
-          <el-tooltip
-            class="item"
-            effect="dark"
-            :content="$t('MANAGE_BUCKET_PAGE_CREATE_FOLDER_TOOLTIP')"
-            placement="bottom"
-            :persistent="false"
-            teleported
-          >
-            <el-icon
-              class="icon"
-              size="25px"
-              style="margin-left: 5px"
-            >
-              <FolderAdd />
-            </el-icon>
-          </el-tooltip>
-        </el-button>
-      </div>
-      <div @click="showDownloadDialog">
-        <el-button
-          type="primary"
-          :link="true"
-        >
-          <el-tooltip
-            class="item"
-            effect="dark"
-            :content="$t('MANAGE_BUCKET_PAGE_DOWNLOAD_TOOLTIP')"
-            placement="bottom"
-            :persistent="false"
-            teleported
-          >
-            <el-icon
-              class="icon"
-              size="25px"
-              style="margin-left: 5px"
-            >
-              <Download />
-            </el-icon>
-          </el-tooltip>
-        </el-button>
-      </div>
-      <div
-        v-if="isShowRenameFileIcon"
-        @click="handleBatchRenameFile"
-      >
-        <el-button
-          type="primary"
-          :link="true"
-        >
-          <el-tooltip
-            class="item"
-            effect="dark"
-            :content="$t('MANAGE_BUCKET_PAGE_BATCH_RENAME_TOOLTIP')"
-            placement="bottom"
-            :persistent="false"
-            teleported
-          >
-            <el-icon
-              class="icon"
-              size="25px"
-              style="margin-left: 5px"
-            >
-              <Edit />
-            </el-icon>
-          </el-tooltip>
-        </el-button>
-      </div>
-      <div>
-        <el-button
-          type="primary"
-          :link="true"
-        >
-          <el-tooltip
-            class="item"
-            effect="dark"
-            :content="$t('MANAGE_BUCKET_PAGE_BATCH_COPY_URL_TOOLTIP')"
-            placement="right"
-            :persistent="false"
-            teleported
-          >
-            <el-dropdown teleported>
-              <el-icon
-                class="icon"
-                size="25px"
-                :color="selectedItems.length > 0 ? '#409EFF' : 'gray'"
-                style="margin-left: 10px"
-                @click="handleBatchCopyLink(manageStore.config.settings.pasteFormat)"
+              <option
+                value=""
+                disabled
               >
-                <Link />
-              </el-icon>
-              <template #dropdown>
-                <template v-if="isShowPresignedUrl">
-                  <el-dropdown-item
-                    v-for="i in [...linkFormatArray, { key: 'preSignURL', value: 'preSignedUrl' }]"
-                    :key="i.key"
-                    @click="handleBatchCopyLink(i.value)"
-                  >
-                    {{ i.key }}
-                  </el-dropdown-item>
-                </template>
-                <el-dropdown-item
-                  v-for="i in linkFormatArray"
-                  v-else
-                  :key="i.value + i.key"
-                  @click="handleBatchCopyLink(i.value)"
-                >
-                  {{ i.key }}
-                </el-dropdown-item>
-              </template>
-            </el-dropdown>
-          </el-tooltip>
-        </el-button>
-      </div>
-      <div>
-        <el-button
-          type="primary"
-          :link="true"
-        >
-          <el-tooltip
-            class="item"
-            effect="dark"
-            :content="$t('MANAGE_BUCKET_PAGE_COPY_FILE_INFO_TOOLTIP')"
-            placement="bottom"
-            :persistent="false"
-            teleported
+                {{ $t('MANAGE_BUCKET_PAGE_CUSTOM_URL_SELECT_PLACEHOLDER') }}
+              </option>
+              <option
+                v-for="item in customDomainList"
+                :key="item.value"
+                :value="item.value"
+              >
+                {{ item.label }}
+              </option>
+            </select>
+            <ChevronDownIcon class="select-arrow" />
+          </div>
+          <input
+            v-else-if="isShowCustomDomainInput"
+            v-model="currentCustomDomain"
+            type="text"
+            class="custom-domain-input"
+            :placeholder="$t('MANAGE_BUCKET_PAGE_CUSTOM_URL_INPUT_PLACEHOLDER')"
+            @blur="handleChangeCustomUrlInput"
           >
-            <el-icon
-              class="icon"
-              size="25px"
-              :color="selectedItems.length > 0 ? '#409EFF' : 'gray'"
-              style="margin-left: 10px"
+          <a
+            v-else
+            class="custom-domain-link"
+            @click="copyToClipboard(currentCustomDomain)"
+          >
+            {{ currentCustomDomain }}
+          </a>
+        </div>
+
+        <div class="header-actions">
+          <!-- Upload Files -->
+          <div class="tooltip">
+            <button
+              class="action-button primary"
+              @click="showUploadDialog"
+            >
+              <UploadIcon class="action-icon" />
+              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_UPLOAD_FILES_TOOLTIP') }}</span>
+            </button>
+          </div>
+
+          <!-- Upload from URL -->
+          <div class="tooltip">
+            <button
+              class="action-button primary"
+              @click="showUrlDialog"
+            >
+              <LinkIcon class="action-icon" />
+              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_UPLOAD_FROM_URL_TOOLTIP') }}</span>
+            </button>
+          </div>
+
+          <!-- Create Folder -->
+          <div
+            v-if="isShowCreateNewFolder"
+            class="tooltip"
+          >
+            <button
+              class="action-button primary"
+              @click="handleCreateFolder"
+            >
+              <FolderPlusIcon class="action-icon" />
+              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_CREATE_FOLDER_TOOLTIP') }}</span>
+            </button>
+          </div>
+
+          <!-- Download -->
+          <div class="tooltip">
+            <button
+              class="action-button primary"
+              @click="showDownloadDialog"
+            >
+              <DownloadIcon class="action-icon" />
+              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_DOWNLOAD_TOOLTIP') }}</span>
+            </button>
+          </div>
+
+          <!-- Batch Rename -->
+          <div
+            v-if="isShowRenameFileIcon"
+            class="tooltip"
+          >
+            <button
+              class="action-button primary"
+              @click="handleBatchRenameFile"
+            >
+              <EditIcon class="action-icon" />
+              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_BATCH_RENAME_TOOLTIP') }}</span>
+            </button>
+          </div>
+
+          <!-- Copy URL -->
+          <div class="dropdown">
+            <button
+              class="action-button primary"
+              :class="{ 'action-button': selectedItems.length === 0 }"
+              @click="handleBatchCopyLink(manageStore.config.settings.pasteFormat)"
+            >
+              <CopyIcon class="action-icon" />
+            </button>
+            <div
+              v-if="copyDropdownOpen"
+              class="dropdown-content"
+            >
+              <div
+                v-for="i in linkFormatArray"
+                :key="i.key"
+                class="dropdown-item"
+                @click="handleBatchCopyLink(i.value)"
+              >
+                {{ i.key }}
+              </div>
+              <div
+                v-if="isShowPresignedUrl"
+                class="dropdown-item"
+                @click="handleBatchCopyLink('preSignURL')"
+              >
+                preSignURL
+              </div>
+            </div>
+          </div>
+
+          <!-- Copy File Info -->
+          <div class="tooltip">
+            <button
+              class="action-button primary"
+              :class="{ disabled: selectedItems.length === 0 }"
               @click="handleBatchCopyInfo"
             >
-              <Document />
-            </el-icon>
-          </el-tooltip>
-        </el-button>
-      </div>
-      <div>
-        <el-button
-          type="primary"
-          :link="true"
-          @click="forceRefreshFileList"
-        >
-          <el-tooltip
-            class="item"
-            effect="dark"
-            :content="$t('MANAGE_BUCKET_PAGE_FORCE_REFRESH_TOOLTIP')"
-            placement="bottom"
-            :persistent="false"
-            teleported
-          >
-            <el-icon
-              id="refresh"
-              class="icon"
-              size="25px"
-              style="margin-left: 10px; color: red"
+              <InfoIcon class="action-icon" />
+              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_COPY_FILE_INFO_TOOLTIP') }}</span>
+            </button>
+          </div>
+
+          <!-- Refresh -->
+          <div class="tooltip">
+            <button
+              class="action-button secondary"
+              @click="forceRefreshFileList"
             >
-              <Refresh />
-            </el-icon>
-          </el-tooltip>
-        </el-button>
-      </div>
-      <el-input
-        v-model="searchText"
-        :placeholder="$t('MANAGE_BUCKET_PAGE_SEARCH_PLACEHOLDER')"
-        style="margin-left: 10px; width: 200px"
-        clearable
-        size="small"
-      />
-    </div>
-    <div class="header-dir-view">
-      <el-breadcrumb
-        :separator-icon="ArrowRight"
-        style="margin-top: 2px"
-      >
-        <el-breadcrumb-item style="flex-shrink: 0">
-          <el-icon
-            :size="16"
-            style="margin-right: 5px"
+              <RefreshCwIcon class="action-icon" />
+              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_FORCE_REFRESH_TOOLTIP') }}</span>
+            </button>
+          </div>
+
+          <!-- Search -->
+          <input
+            v-model="searchText"
+            type="text"
+            class="search-input"
+            :placeholder="$t('MANAGE_BUCKET_PAGEcroARCH_PLACEHOLDER')"
           >
-            <HomeFilled />
-          </el-icon>
-        </el-breadcrumb-item>
+        </div>
+      </div>
+    </div>
+
+    <!-- Breadcrumb Card -->
+    <div
+      v-if="!isContentFullscreen"
+      class="bucket-card breadcrumb-card"
+    >
+      <div class="breadcrumb-container">
+        <HomeIcon class="action-icon" />
         <template v-if="configMap.prefix !== '/'">
-          <el-breadcrumb-item
+          <template
             v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')"
             :key="index"
-            style="
-              flex-shrink: 0;
-              font-size: 12px;
-              color: #606266;
-              font-family: Arial, Helvetica, sans-serif;
-              cursor: pointer;
-            "
-            @click="handleBreadcrumbClick(index)"
           >
-            <el-link>
+            <ChevronRightIcon class="breadcrumb-separator" />
+            <button
+              class="breadcrumb-item"
+              @click="handleBreadcrumbClick(index)"
+            >
               {{ item === '' ? $t('MANAGE_BUCKET_PAGE_ROOT_FOLDER') : item }}
-            </el-link>
-          </el-breadcrumb-item>
-        </template>
-        <el-breadcrumb-item
-          v-else
-          style="
-            flex-shrink: 0;
-            font-size: 12px;
-            color: #606266;
-            font-family: Arial, Helvetica, sans-serif;
-            cursor: pointer;
-          "
-        >
-          <el-link>
-            {{ $t('MANAGE_BUCKET_PAGE_ROOT_FOLDER') }}
-          </el-link>
-        </el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
-    <div class="dir-layout">
-      <div style="flex-grow: 1; flex-shrink: 1; overflow-x: auto; margin-right: 10px">
-        <div class="header-info-view">
-          <span>
-            <el-icon
-              :size="14"
-              style="margin-right: 5px"
-            >
-              <Document />
-            </el-icon>
-            <span style="margin-right: 5px; padding-left: 5px">{{ `${$t('MANAGE_BUCKET_PAGE_FILE_NUMBER')}${currentPageFilesInfo.length}` }}
-            </span>
-          </span>
-          <span>
-            <el-icon
-              :size="14"
-              style="margin-right: 5px"
-            >
-              <Coin />
-            </el-icon>
-            <span style="padding-left: 5px">{{ `${$t('MANAGE_BUCKET_PAGE_FILE_SIZE')}${calculateAllFileSize}` }}</span>
-          </span>
-        </div>
-      </div>
-      <div
-        v-if="selectedItems.length === 0"
-        class="header-buttom-view"
-      >
-        <el-button
-          class="btn"
-          size="small"
-          type="primary"
-          plain
-          style="margin-right: 2px"
-          @click="handleCheckAllChange"
-        >
-          {{ $t('MANAGE_BUCKET_PAGE_SELECT_ALL') }}
-        </el-button>
-      </div>
-      <div
-        v-if="selectedItems.length > 0"
-        class="header-buttom-view"
-      >
-        <el-button
-          class="btn"
-          size="small"
-          type="warning"
-          plain
-          style="margin-right: 2px"
-          @click="handleCancelCheck"
-        >
-          {{ $t('MANAGE_BUCKET_PAGE_SELECT_NONE') }}
-        </el-button>
-        <el-button
-          class="btn"
-          size="small"
-          type="primary"
-          plain
-          style="margin-right: 2px"
-          @click="handleReverseCheck"
-        >
-          {{ $t('MANAGE_BUCKET_PAGE_SELECT_INVERT') }}
-        </el-button>
-        <el-button
-          class="btn"
-          size="small"
-          type="primary"
-          plain
-          style="margin-right: 2px"
-          @click="handleCheckAllChange"
-        >
-          {{ $t('MANAGE_BUCKET_PAGE_SELECT_ALL') }}
-        </el-button>
-        <el-button
-          class="btn"
-          size="small"
-          type="success"
-          plain
-          :icon="Download"
-          style="margin-right: 2px"
-          @click="handleBatchDownload"
-        >
-          {{ `${$t('MANAGE_BUCKET_DOWNLOAD_BTN')}(${selectedItems.filter(item => item.isDir === false).length})` }}
-        </el-button>
-        <el-button
-          class="btn"
-          size="small"
-          type="danger"
-          :icon="DeleteFilled"
-          @click="handleBatchDeleteInfo"
-        >
-          {{ `${$t('MANAGE_BUCKET_DELETE_BTN')}${selectedItems.length}` }}
-        </el-button>
-      </div>
-      <el-dropdown teleported>
-        <el-button
-          size="small"
-          type="primary"
-          plain
-          :icon="Sort"
-        >
-          {{ $t('MANAGE_BUCKET_SORT_TITLE') }}
-        </el-button>
-        <template #dropdown>
-          <el-dropdown-item
-            v-for="item in sortTypeList"
-            :key="item"
-            @click="sortFile(item as any)"
-          >
-            {{ $t(`MANAGE_BUCKET_SORT_${item.toUpperCase()}` as any) }}
-          </el-dropdown-item>
-        </template>
-      </el-dropdown>
-      <el-button-group
-        size="small"
-        style="margin-left: 10px; width: 80px; flex-shrink: 0"
-        type="primary"
-      >
-        <el-button
-          :icon="Grid"
-          :type="layoutStyle === 'grid' ? 'primary' : 'info'"
-          @click="handleViewChange('grid')"
-        />
-        <el-button
-          :icon="Fold"
-          :type="layoutStyle === 'list' ? 'primary' : 'info'"
-          @click="handleViewChange('list')"
-        />
-      </el-button-group>
-      <el-input-number
-        v-if="paging"
-        v-model="currentPageNumber"
-        :min="1"
-        size="small"
-        :disabled="!paging"
-        style="margin-left: 10px; flex-shrink: 0"
-        @change="changePage"
-      />
-    </div>
-    <el-dialog
-      v-model="dialogVisible"
-      :title="$t('MANAGE_BUCKET_URL_UPLOAD_DIALOG_TITLE')"
-      width="50%"
-      draggable
-      center
-      align-center
-      append-to-body
-    >
-      <el-input
-        v-model="urlToUpload"
-        placeholder="https://www.baidu.com/img/bd_logo1.png
-https://www.baidu.com/img/bd_logo1.png"
-        style="margin-bottom: 10px"
-        type="textarea"
-        :autosize="{ minRows: 3, maxRows: 5 }"
-      />
-      <template #footer>
-        <el-button @click="dialogVisible = false">
-          {{ $t('MANAGE_BUCKET_URL_UPLOAD_DIALOG_CANCEL') }}
-        </el-button>
-        <el-button
-          type="primary"
-          style="font-size: 12px; font-weight: 500"
-          @click="handleUploadFromUrl"
-        >
-          {{ $t('MANAGE_BUCKET_URL_UPLOAD_DIALOG_CONFIRM') }}
-        </el-button>
-      </template>
-    </el-dialog>
-    <div
-      v-if="layoutStyle === 'list'"
-      class="layout-table"
-      style="margin: 0 15px 15px 15px; overflow-y: auto; overflow-x: hidden; height: 80vh"
-    >
-      <el-auto-resizer>
-        <template #default="{ height, width }">
-          <el-table-v2
-            ref="fileTable"
-            :columns="columns"
-            :data="filterList"
-            :row-class="rowClass"
-            :width="width"
-            :height="height"
-          />
-        </template>
-      </el-auto-resizer>
-    </div>
-    <div
-      v-if="layoutStyle === 'grid'"
-      class="layout-grid"
-      style="margin: 0 15px 15px 15px; overflow-y: auto; overflow-x: hidden; height: 80vh"
-    >
-      <el-col :span="24">
-        <el-row :gutter="16">
-          <el-col
-            v-for="(item, index) in filterList"
-            :key="index"
-            :xs="24"
-            :sm="12"
-            :md="8"
-            :lg="3"
-            :xl="2"
-          >
-            <el-card
-              :body-style="{
-                padding: '0px',
-                height: '150px',
-                width: '100%',
-                background: item.checked ? '#f2f2f2' : '#fff'
-              }"
-              style="margin-bottom: 10px"
-              shadow="hover"
-            >
-              <el-image
-                v-if="!item.isDir && !['webdavplist', 'sftp', 'local', 's3plist'].includes(currentPicBedName)"
-                :src="
-                  isShowThumbnail && item.isImage
-                    ? item.url
-                    : `/assets/icons/${getFileIconPath(item.fileName ?? '')}`
-                "
-                fit="contain"
-                style="height: 100px; width: 100%; margin: 0 auto"
-                @click="handleClickFile(item)"
-              >
-                <template #placeholder>
-                  <el-icon>
-                    <Loading />
-                  </el-icon>
-                </template>
-                <template #error>
-                  <el-image
-                    :src="`/assets/icons/${getFileIconPath(item.fileName ?? '')}`"
-                    fit="contain"
-                    style="height: 100px; width: 100%; margin: 0 auto"
-                  />
-                </template>
-              </el-image>
-              <el-image
-                v-else-if="!item.isDir && currentPicBedName === 's3plist' && !isUsePreSignedUrl"
-                :src="
-                  isShowThumbnail && item.isImage
-                    ? item.url
-                    : `/assets/icons/${getFileIconPath(item.fileName ?? '')}`
-                "
-                fit="contain"
-                style="height: 100px; width: 100%; margin: 0 auto"
-                @click="handleClickFile(item)"
-              >
-                <template #placeholder>
-                  <el-icon>
-                    <Loading />
-                  </el-icon>
-                </template>
-                <template #error>
-                  <el-image
-                    :src="`/assets/icons/${getFileIconPath(item.fileName ?? '')}`"
-                    fit="contain"
-                    style="height: 100px; width: 100%; margin: 0 auto"
-                  />
-                </template>
-              </el-image>
-              <ImagePreSign
-                v-else-if="!item.isDir && currentPicBedName === 's3plist' && isUsePreSignedUrl"
-                :is-show-thumbnail="isShowThumbnail"
-                :item="item"
-                :alias="configMap.alias"
-                :url="item.url"
-                :config="handleGetS3Config(item)"
-                @click="handleClickFile(item)"
-              />
-              <ImageWebdav
-                v-else-if="!item.isDir && currentPicBedName === 'webdavplist' && item.isImage"
-                :is-show-thumbnail="isShowThumbnail"
-                :item="item"
-                :config="handleGetWebdavConfig()"
-                :url="item.url"
-                @click="handleClickFile(item)"
-              />
-              <ImageLocal
-                v-else-if="!item.isDir && currentPicBedName === 'local' && item.isImage"
-                :is-show-thumbnail="isShowThumbnail"
-                :item="item"
-                :local-path="item.key"
-                @click="handleClickFile(item)"
-              />
-              <el-image
-                v-else-if="!item.isDir"
-                :src="`/assets/icons/${getFileIconPath(item.fileName ?? '')}`"
-                fit="contain"
-                style="height: 100px; width: 100%; margin: 0 auto"
-                @click="handleClickFile(item)"
-              />
-              <el-image
-                v-else
-                :src="`/assets/icons/folder.webp`"
-                fit="contain"
-                style="height: 100px; width: 100%; margin: 0 auto"
-                @click="handleClickFile(item)"
-              />
-              <div
-                style="align-items: center; display: flex; justify-content: center"
-                @click="copyToClipboard(item.fileName ?? '')"
-              >
-                <el-tooltip
-                  placement="top"
-                  effect="light"
-                  :content="item.fileName"
-                  :persistent="false"
-                  teleported
-                >
-                  <el-link
-                    style="font-size: 12px; font-family: Arial, Helvetica, sans-serif"
-                    :underline="false"
-                    :type="item.checked ? 'primary' : 'info'"
-                  >
-                    {{ formatFileName(item.fileName ?? '', 15) }}
-                  </el-link>
-                </el-tooltip>
-              </div>
-              <el-row
-                style="display: flex"
-                justify="space-between"
-                align="middle"
-              >
-                <el-row>
-                  <el-icon
-                    v-if="!item.isDir && isShowRenameFileIcon"
-                    size="15"
-                    style="cursor: pointer"
-                    color="#409EFF"
-                    @click="handleRenameFile(item)"
-                  >
-                    <Edit />
-                  </el-icon>
-                  <el-icon
-                    v-if="item.isDir"
-                    size="15"
-                    style="cursor: pointer"
-                    color="crimson"
-                    @click="handleFolderBatchDownload(item)"
-                  >
-                    <Download />
-                  </el-icon>
-                  <el-dropdown teleported>
-                    <template #default>
-                      <el-icon
-                        size="15"
-                        style="cursor: pointer"
-                        color="#409EFF"
-                        @click="
-                          async () => {
-                            copyToClipboard(
-                              await formatLink(
-                                item.url,
-                                item.fileName,
-                                manageStore.config.settings.pasteFormat ?? '$markdown',
-                                manageStore.config.settings.customPasteFormat ?? '$url'
-                              )
-                            )
-                          }
-                        "
-                      >
-                        <CopyDocument />
-                      </el-icon>
-                    </template>
-                    <template #dropdown>
-                      <el-dropdown-menu>
-                        <el-dropdown-item
-                          v-for="format in linkFormatList"
-                          :key="format"
-                          @click="copyLink(item, format)"
-                        >
-                          {{ $t(`MANAGE_BUCKET_URL_FORMAT_${format.toUpperCase().replace(/-/g, '_')}` as any) }}
-                        </el-dropdown-item>
-                        <el-dropdown-item
-                          v-if="isShowPresignedUrl"
-                          @click="
-                            async () => {
-                              copyToClipboard(await getPreSignedUrl(item))
-                            }
-                          "
-                        >
-                          {{ $t('MANAGE_BUCKET_URL_FORMAT_PRESIGN') }}
-                        </el-dropdown-item>
-                      </el-dropdown-menu>
-                    </template>
-                  </el-dropdown>
-                  <el-icon
-                    size="15"
-                    style="cursor: pointer"
-                    color="#409EFF"
-                    @click="handleShowFileInfo(item)"
-                  >
-                    <Document />
-                  </el-icon>
-                  <el-icon
-                    size="15"
-                    style="cursor: pointer"
-                    color="#FFB6C1"
-                    @click="handleDeleteFile(item)"
-                  >
-                    <DeleteFilled />
-                  </el-icon>
-                </el-row>
-                <el-checkbox
-                  v-model="item.checked"
-                  size="large"
-                />
-              </el-row>
-            </el-card>
-          </el-col>
-        </el-row>
-      </el-col>
-    </div>
-    <el-image-viewer
-      v-if="isShowImagePreview"
-      :url-list="ImagePreviewList"
-      :initial-index="getCurrentPreviewIndex"
-      infinite
-      hide-on-click-modal
-      teleported
-      @close="isShowImagePreview = false"
-    />
-    <el-dialog
-      v-model="isShowFileInfo"
-      :title="$t('MANAGE_BUCKET_FILE_INFO_TITLE')"
-      center
-      align-center
-      draggable
-      append-to-body
-    >
-      <template #header>
-        <el-button
-          type="primary"
-          plain
-          @click="copyToClipboard(JSON.stringify(currentShowedFileInfo, null, 2))"
-        >
-          <template #icon>
-            <el-icon>
-              <Document />
-            </el-icon>
+            </button>
           </template>
-          {{ $t('MANAGE_BUCKET_FILE_INFO_COPY_TIPS') }}
-        </el-button>
-      </template>
-      <el-row
-        v-for="(value, key) in currentShowedFileInfo"
-        :key="key"
-        :gutter="20"
-        :style="{
-          margin: '10px 0',
-          textAlign: 'center',
-          fontFamily: 'Arial, Helvetica, sans-serif'
-        }"
-      >
-        <el-col
-          :span="6"
-          @click="copyToClipboard(JSON.stringify({ [key]: value }))"
-        >
-          <span style="font-weight: 500">{{ key }}:</span>
-        </el-col>
-        <el-col
-          :span="18"
-          @click="copyToClipboard(value)"
-        >
-          <span style="font-weight: 500; word-break: break-all">{{ value }}</span>
-        </el-col>
-      </el-row>
-    </el-dialog>
-    <el-affix
-      v-if="isLoadingData"
-      style="position: fixed; bottom: 25px; right: 0"
-      @click="cancelLoading"
+        </template>
+        <template v-else>
+          <span class="breadcrumb-item current">
+            {{ $t('MANAGE_BUCKET_PAGE_ROOT_FOLDER') }}
+          </span>
+        </template>
+      </div>
+    </div>
+
+    <!-- Control Panel Card -->
+    <div
+      v-if="!isContentFullscreen"
+      class="bucket-card control-panel-card"
     >
-      <el-button
-        type="warning"
-        icon="el-icon-loading"
-        style="font-size: 12px; font-weight: 500"
-        :loading="isLoadingData"
-      >
-        {{ $t('MANAGE_BUCKET_FILE_LIST_LOADING') }}
-      </el-button>
-    </el-affix>
-    <el-affix
-      v-if="isLoadingDownloadData"
-      style="position: fixed; top: 50px; right: 0px"
-      @click="cancelDownloadLoading"
-    >
-      <el-button
-        type="warning"
-        icon="el-icon-loading"
-        style="font-size: 12px; font-weight: 500"
-        :loading="isLoadingDownloadData"
-      >
-        {{ $t('MANAGE_BUCKET_FILE_LIST_DOWNLOAD_PRE') }}
-      </el-button>
-    </el-affix>
-    <el-drawer
-      v-model="isShowUploadPanel"
-      size="60%"
-      append-to-body
-      @open="startRefreshUploadTask"
-      @close="stopRefreshUploadTask"
-    >
-      <template #header>
-        <el-switch
-          v-model="isUploadKeepDirStructure"
-          :active-text="$t('MANAGE_BUCKET_KEEP_FOLDER_STRUCTURE')"
-          :inactive-text="$t('MANAGE_BUCKET_NOT_KEEP_FOLDER_STRUCTURE')"
-          @change="handleUploadKeepDirChange"
-        />
-      </template>
-      <div
-        id="upload-area"
-        :class="{ 'is-dragover': isDragover }"
-        styel="position: fixed;bottom: 0;right: 0;heigth: 100%;width: 100%;"
-        @drop.prevent="onDrop"
-        @dragover.prevent="isDragover = true"
-        @dragleave.prevent="isDragover = false"
-        @click="openFileSelectDialog"
-      >
-        <div
-          v-if="!tableData.length"
-          id="upload-dragger"
-          style="
-            position: relative;
-            top: 0;
-            right: 0;
-            height: 100%;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          "
-        >
-          <div
-            class="upload-dragger__text"
-            style="
-              color: orange;
-              font-size: 2.5vh;
-              font-family: Arial, Helvetica, sans-serif;
-              align-items: center;
-              display: flex;
-              justify-content: center;
-              flex-direction: column;
-            "
-          >
-            {{ $t('MANAGE_BUCKET_UPLOAD_AREA_TITLE') }}
-            <span
-              style="
-                color: #409eff;
-                font-size: 2.5vh;
-                font-family: Arial, Helvetica, sans-serif;
-                align-items: center;
-                display: flex;
-                justify-content: center;
-                flex-direction: column;
-              "
-            >
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_TEXT') }}
-            </span>
+      <div class="control-panel">
+        <div class="control-left">
+          <!-- File Info -->
+          <div class="file-info">
+            <div class="file-info-item">
+              <FileIcon class="action-icon" />
+              <span>{{ `${$t('MANAGE_BUCKET_PAGE_FILE_NUMBER')}${currentPageFilesInfo.length}` }}</span>
+            </div>
+            <div class="file-info-item">
+              <HardDriveIcon class="action-icon" />
+              <span>{{ `${$t('MANAGE_BUCKET_PAGE_FILE_SIZE')}${calculateAllFileSize}` }}</span>
+            </div>
           </div>
         </div>
-        <el-auto-resizer v-if="tableData.length">
-          <template #default="{ height, width }">
-            <el-table-v2
-              :columns="upLoadTaskColumns"
-              :data="
-                tableData.sort((a, b) =>
-                  b.isFolder - a.isFolder === 0 ? b.filesList.length - a.filesList.length : b.isFolder - a.isFolder
-                )
-              "
-              :width="width"
-              :height="height"
-            />
-          </template>
-        </el-auto-resizer>
-      </div>
-      <div style="display: flex; justify-content: center; align-items: center">
-        <el-button-group>
-          <el-button
-            type="success"
-            plain
-            :loading="isLoadingUploadPanelFiles"
-            :disabled="isLoadingUploadPanelFiles || !tableData.length"
-            @click="uploadFiles"
+
+        <div class="control-center">
+          <!-- Selection Controls -->
+          <div v-if="selectedItems.length === 0">
+            <button
+              class="action-button secondary"
+              @click="handleCheckAllChange"
+            >
+              {{ $t('MANAGE_BUCKET_PAGE_SELECT_ALL') }}
+            </button>
+          </div>
+          <div
+            v-else
+            class="control-center"
           >
-            {{
-              isLoadingUploadPanelFiles
-                ? $t('MANAGE_BUCKET_UPLOAD_AREA_BTN_LOADING')
-                : $t('MANAGE_BUCKET_UPLOAD_AREA_BTN')
-            }}
-          </el-button>
-          <span>
-            <el-button
-              type="warning"
-              plain
+            <button
+              class="action-button secondary"
+              @click="handleCancelCheck"
+            >
+              {{ $t('MANAGE_BUCKET_PAGE_SELECT_NONE') }}
+            </button>
+            <button
+              class="action-button secondary"
+              @click="handleReverseCheck"
+            >
+              {{ $t('MANAGE_BUCKET_PAGE_SELECT_INVERT') }}
+            </button>
+            <button
+              class="action-button secondary"
+              @click="handleCheckAllChange"
+            >
+              {{ $t('MANAGE_BUCKET_PAGE_SELECT_ALL') }}
+            </button>
+            <button
+              class="action-button primary"
+              @click="handleBatchDownload"
+            >
+              <DownloadIcon class="action-icon" />
+              {{ `${$t('MANAGE_BUCKET_DOWNLOAD_BTN')}(${selectedItems.filter(item => item.isDir === false).length})` }}
+            </button>
+            <button
+              class="action-button danger"
+              @click="handleBatchDeleteInfo"
+            >
+              <Trash2Icon class="action-icon" />
+              {{ `${$t('MANAGE_BUCKET_DELETE_BTN')}${selectedItems.length}` }}
+            </button>
+          </div>
+
+          <!-- Sort Dropdown -->
+          <div class="dropdown">
+            <button
+              class="dropdown-button"
+              @click="sortDropdownOpen = !sortDropdownOpen"
+            >
+              <ArrowUpDownIcon class="action-icon" />
+              {{ $t('MANAGE_BUCKET_SORT_TITLE') }}
+              <ChevronDownIcon class="action-icon" />
+            </button>
+            <div
+              v-if="sortDropdownOpen"
+              class="dropdown-content"
+            >
+              <div
+                v-for="item in sortTypeList"
+                :key="item"
+                class="dropdown-item"
+                @click="sortFile(item as any)"
+              >
+                {{ $t(`MANAGE_BUCKET_SORT_${item.toUpperCase()}` as any) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-right">
+          <!-- Fullscreen Toggle -->
+          <div class="tooltip">
+            <button
+              class="action-button secondary"
+              @click="toggleContentFullscreen"
+            >
+              <ExpandIcon
+                v-if="!isContentFullscreen"
+                class="action-icon"
+              />
+              <ShrinkIcon
+                v-else
+                class="action-icon"
+              />
+              <span class="tooltip-text">
+                {{ isContentFullscreen ? $t('MANAGE_BUCKET_PAGE_EXIT_FULLSCREEN_TOOLTIP') : $t('MANAGE_BUCKET_PAGE_FULLSCREEN_TOOLTIP') }}
+              </span>
+            </button>
+          </div>
+
+          <!-- View Toggle -->
+          <!--
+          <div class="view-toggle">
+            <button
+              class="view-toggle-button"
+              :class="{ active: layoutStyle === 'grid' }"
+              @click="handleViewChange('grid')"
+            >
+              <GridIcon class="action-icon" />
+            </button>
+            <button
+              class="view-toggle-button"
+              :class="{ active: layoutStyle === 'list' }"
+              @click="handleViewChange('list')"
+            >
+              <ListIcon class="action-icon" />
+            </button>
+          </div>
+          -->
+
+          <!-- Pagination -->
+          <input
+            v-if="paging"
+            v-model="currentPageNumber"
+            type="number"
+            min="1"
+            class="page-input"
+            :disabled="!paging"
+            @input="handlePageNumberInput"
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Card -->
+    <div class="bucket-card content-card">
+      <!-- Fullscreen Header (only visible in fullscreen mode) -->
+      <div
+        v-if="isContentFullscreen"
+        class="fullscreen-header"
+      >
+        <div class="fullscreen-header-left">
+          <div class="fullscreen-breadcrumb">
+            <HomeIcon class="action-icon" />
+            <template v-if="configMap.prefix !== '/'">
+              <template
+                v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')"
+                :key="index"
+              >
+                <ChevronRightIcon class="breadcrumb-separator" />
+                <button
+                  class="breadcrumb-item"
+                  @click="handleBreadcrumbClick(index)"
+                >
+                  {{ item === '' ? $t('MANAGE_BUCKET_PAGE_ROOT_FOLDER') : item }}
+                </button>
+              </template>
+            </template>
+            <template v-else>
+              <span class="breadcrumb-item current">
+                {{ $t('MANAGE_BUCKET_PAGE_ROOT_FOLDER') }}
+              </span>
+            </template>
+          </div>
+        </div>
+
+        <div class="fullscreen-header-center">
+          <div class="file-info">
+            <div class="file-info-item">
+              <FileIcon class="action-icon" />
+              <span>{{ `${$t('MANAGE_BUCKET_PAGE_FILE_NUMBER')}${currentPageFilesInfo.length}` }}</span>
+            </div>
+            <div class="file-info-item">
+              <span>{{ `${$t('MANAGE_BUCKET_PAGE_FILE_SIZE')}${calculateAllFileSize}` }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="fullscreen-header-right">
+          <!-- Search -->
+          <input
+            v-model="searchText"
+            type="text"
+            class="search-input"
+            :placeholder="$t('MANAGE_BUCKET_PAGE_SEARCH_PLACEHOLDER')"
+          >
+
+          <!-- Exit Fullscreen -->
+          <div class="tooltip">
+            <button
+              class="action-button secondary"
+              @click="toggleContentFullscreen"
+            >
+              <ShrinkIcon class="action-icon" />
+              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_EXIT_FULLSCREEN_TOOLTIP') }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-area">
+        <!-- Virtual Scroller -->
+        <div class="virtual-scroller-container">
+          <VirtualScroller
+            ref="virtualScrollerRef"
+            :items="filterList"
+            :item-height="layoutStyle === 'grid' ? 240 : 70"
+            :view-mode="layoutStyle"
+            :grid-breakpoints="gridBreakpoints"
+            :page-mode="true"
+            :buffer-factor="0.5"
+            key-field="key"
+            :item-padding="8"
+          >
+            <template #default="{ item, index }">
+              <!-- Grid View -->
+              <div
+                v-if="layoutStyle === 'grid'"
+                class="file-grid-item"
+                :class="{ selected: item.checked }"
+                @click="handleClickFile(item)"
+              >
+                <div class="file-preview">
+                  <!-- Image Preview -->
+                  <template v-if="!item.isDir && !['webdavplist', 'sftp', 'local', 's3plist'].includes(currentPicBedName)">
+                    <img
+                      v-if="isShowThumbnail && item.isImage"
+                      :src="item.url"
+                      class="file-image"
+                      @error="() => {}"
+                    >
+                    <img
+                      v-else
+                      :src="`/assets/icons/${getFileIconPath(item.fileName ?? '')}`"
+                      class="file-image"
+                    >
+                  </template>
+
+                  <!-- S3 PreSign Image -->
+                  <ImagePreSign
+                    v-else-if="!item.isDir && currentPicBedName === 's3plist' && isUsePreSignedUrl"
+                    :is-show-thumbnail="isShowThumbnail"
+                    :item="item"
+                    :alias="configMap.alias"
+                    :url="item.url"
+                    :config="handleGetS3Config(item)"
+                  />
+
+                  <!-- WebDAV Image -->
+                  <ImageWebdav
+                    v-else-if="!item.isDir && currentPicBedName === 'webdavplist' && item.isImage"
+                    :is-show-thumbnail="isShowThumbnail"
+                    :item="item"
+                    :config="handleGetWebdavConfig()"
+                    :url="item.url"
+                  />
+
+                  <!-- Local Image -->
+                  <ImageLocal
+                    v-else-if="!item.isDir && currentPicBedName === 'local' && item.isImage"
+                    :is-show-thumbnail="isShowThumbnail"
+                    :item="item"
+                    :local-path="item.key"
+                  />
+
+                  <!-- Default File Icon -->
+                  <template v-else-if="!item.isDir">
+                    <img
+                      :src="`/assets/icons/${getFileIconPath(item.fileName ?? '')}`"
+                      class="file-image"
+                    >
+                  </template>
+
+                  <!-- Folder Icon -->
+                  <template v-else>
+                    <FolderIcon class="file-icon" />
+                  </template>
+                </div>
+
+                <div class="file-info-section">
+                  <div
+                    class="file-name"
+                    @click.stop="copyToClipboard(item.fileName ?? '')"
+                  >
+                    {{ formatFileName(item.fileName ?? '', 25) }}
+                  </div>
+                  <div class="file-meta">
+                    <span>{{ formatFileSize(item.fileSize) }}</span>
+                    <span>{{ item.formatedTime }}</span>
+                  </div>
+                  <div class="file-actions">
+                    <div class="file-action-group">
+                      <!-- Rename -->
+                      <button
+                        v-if="!item.isDir && isShowRenameFileIcon"
+                        class="file-action-button"
+                        @click.stop="handleRenameFile(item)"
+                      >
+                        <EditIcon class="action-icon" />
+                      </button>
+
+                      <!-- Download Folder -->
+                      <button
+                        v-if="item.isDir"
+                        class="file-action-button"
+                        @click.stop="handleFolderBatchDownload(item)"
+                      >
+                        <DownloadIcon class="action-icon" />
+                      </button>
+
+                      <!-- Copy Link Dropdown -->
+                      <div class="file-actions-dropdown">
+                        <button
+                          class="file-action-button"
+                          @click.stop="toggleCopyDropdown(index)"
+                        >
+                          <CopyIcon class="action-icon" />
+                        </button>
+                        <div
+                          v-if="copyDropdownIndex === index"
+                          class="file-actions-dropdown-content"
+                        >
+                          <div
+                            v-for="format in linkFormatList"
+                            :key="format"
+                            class="file-actions-dropdown-item"
+                            @click.stop="copyLink(item, format)"
+                          >
+                            {{ $t(`MANAGE_BUCKET_URL_FORMAT_${format.toUpperCase().replace(/-/g, '_')}` as any) }}
+                          </div>
+                          <div
+                            v-if="isShowPresignedUrl"
+                            class="file-actions-dropdown-item"
+                            @click.stop="async () => copyToClipboard(await getPreSignedUrl(item))"
+                          >
+                            {{ $t('MANAGE_BUCKET_URL_FORMAT_PRESIGN') }}
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- File Info -->
+                      <button
+                        class="file-action-button"
+                        @click.stop="handleShowFileInfo(item)"
+                      >
+                        <InfoIcon class="action-icon" />
+                      </button>
+
+                      <!-- Delete -->
+                      <button
+                        class="file-action-button danger"
+                        @click.stop="handleDeleteFile(item)"
+                      >
+                        <Trash2Icon class="action-icon" />
+                      </button>
+                    </div>
+
+                    <!-- Checkbox -->
+                    <input
+                      v-model="item.checked"
+                      type="checkbox"
+                      class="file-checkbox"
+                      @click.stop
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- List View -->
+              <div
+                v-else
+                class="file-list-item"
+                :class="{ selected: item.checked }"
+                @click="handleCheckChangeOther(item)"
+              >
+                <!-- Checkbox -->
+                <input
+                  v-model="item.checked"
+                  type="checkbox"
+                  class="file-list-checkbox file-checkbox"
+                  @click.stop
+                >
+
+                <!-- Icon -->
+                <div class="file-list-icon">
+                  <template v-if="!item.isDir">
+                    <img
+                      v-if="isShowThumbnail && item.isImage"
+                      :src="item.url"
+                      class="file-image"
+                      style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px;"
+                      @error="() => {}"
+                    >
+                    <img
+                      v-else
+                      :src="`/assets/icons/${getFileIconPath(item.fileName ?? '')}`"
+                      style="width: 32px; height: 32px; object-fit: contain;"
+                    >
+                  </template>
+                  <FolderIcon
+                    v-else
+                    class="file-icon"
+                    style="width: 32px; height: 32px;"
+                  />
+                </div>
+
+                <!-- File Info -->
+                <div
+                  class="file-list-info"
+                  @click.stop="handleClickFile(item)"
+                >
+                  <div class="file-list-name">
+                    {{ formatFileName(item.fileName ?? '', 40) }}
+                  </div>
+                  <div class="file-list-meta">
+                    <span>{{ formatFileSize(item.fileSize) }}</span>
+                    <span>{{ item.formatedTime }}</span>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="file-list-actions">
+                  <!-- Rename -->
+                  <button
+                    v-if="!item.isDir && isShowRenameFileIcon"
+                    class="file-action-button"
+                    @click.stop="handleRenameFile(item)"
+                  >
+                    <EditIcon class="action-icon" />
+                  </button>
+
+                  <!-- Download Folder -->
+                  <button
+                    v-if="item.isDir"
+                    class="file-action-button"
+                    @click.stop="handleFolderBatchDownload(item)"
+                  >
+                    <DownloadIcon class="action-icon" />
+                  </button>
+
+                  <!-- Copy Link -->
+                  <button
+                    class="file-action-button"
+                    @click.stop="async () => copyToClipboard(await formatLink(item.url, item.fileName, manageStore.config.settings.pasteFormat ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))"
+                  >
+                    <CopyIcon class="action-icon" />
+                  </button>
+
+                  <!-- File Info -->
+                  <button
+                    class="file-action-button"
+                    @click.stop="handleShowFileInfo(item)"
+                  >
+                    <InfoIcon class="action-icon" />
+                  </button>
+
+                  <!-- Delete -->
+                  <button
+                    class="file-action-button danger"
+                    @click.stop="handleDeleteFile(item)"
+                  >
+                    <Trash2Icon class="action-icon" />
+                  </button>
+                </div>
+              </div>
+            </template>
+          </VirtualScroller>
+        </div>
+      </div>
+    </div>
+
+    <!-- URL Upload Dialog -->
+    <div
+      v-if="dialogVisible"
+      class="modal-overlay"
+      @click="dialogVisible = false"
+    >
+      <div
+        class="modal-container"
+        style="width: 500px;"
+        @click.stop
+      >
+        <div class="modal-header">
+          <h3 class="modal-title">
+            {{ $t('MANAGE_BUCKET_URL_UPLOAD_DIALOG_TITLE') }}
+          </h3>
+          <button
+            class="modal-close"
+            @click="dialogVisible = false"
+          >
+            <XIcon class="action-icon" />
+          </button>
+        </div>
+        <div class="modal-content">
+          <div class="form-group">
+            <textarea
+              v-model="urlToUpload"
+              class="form-input form-textarea"
+              placeholder="https://www.baidu.com/img/bd_logo1.png&#10;https://www.baidu.com/img/bd_logo1.png"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="action-button secondary"
+            @click="dialogVisible = false"
+          >
+            {{ $t('MANAGE_BUCKET_URL_UPLOAD_DIALOG_CANCEL') }}
+          </button>
+          <button
+            class="action-button primary"
+            @click="handleUploadFromUrl"
+          >
+            {{ $t('MANAGE_BUCKET_URL_UPLOAD_DIALOG_CONFIRM') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Preview -->
+    <div
+      v-if="isShowImagePreview"
+      class="modal-overlay"
+      @click="isShowImagePreview = false"
+    >
+      <div
+        class="modal-container"
+        style="max-width: 90vw; max-height: 90vh;"
+        @click.stop
+      >
+        <div class="modal-header">
+          <h3 class="modal-title">
+            Image Preview
+          </h3>
+          <button
+            class="modal-close"
+            @click="isShowImagePreview = false"
+          >
+            <XIcon class="action-icon" />
+          </button>
+        </div>
+        <div class="modal-content">
+          <img
+            :src="ImagePreviewList[getCurrentPreviewIndex]"
+            style="max-width: 100%; max-height: 70vh; object-fit: contain;"
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- File Info Dialog -->
+    <div
+      v-if="isShowFileInfo"
+      class="modal-overlay"
+      @click="isShowFileInfo = false"
+    >
+      <div
+        class="modal-container"
+        style="width: 600px;"
+        @click.stop
+      >
+        <div class="modal-header">
+          <h3 class="modal-title">
+            {{ $t('MANAGE_BUCKET_FILE_INFO_TITLE') }}
+          </h3>
+          <button
+            class="action-button primary"
+            @click="copyToClipboard(JSON.stringify(currentShowedFileInfo, null, 2))"
+          >
+            <CopyIcon class="action-icon" />
+            {{ $t('MANAGE_BUCKET_FILE_INFO_COPY_TIPS') }}
+          </button>
+          <button
+            class="modal-close"
+            @click="isShowFileInfo = false"
+          >
+            <XIcon class="action-icon" />
+          </button>
+        </div>
+        <div class="modal-content">
+          <div
+            v-for="(value, key) in currentShowedFileInfo"
+            :key="key"
+            style="display: flex; margin-bottom: 1rem; gap: 1rem;"
+          >
+            <div
+              style="flex: 0 0 30%; font-weight: 500; cursor: pointer;"
+              @click="copyToClipboard(JSON.stringify({ [key]: value }))"
+            >
+              {{ key }}:
+            </div>
+            <div
+              style="flex: 1; word-break: break-all; cursor: pointer;"
+              @click="copyToClipboard(value)"
+            >
+              {{ value }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Batch Rename Dialog -->
+    <div
+      v-if="isShowBatchRenameDialog"
+      class="modal-overlay"
+      @click="isShowBatchRenameDialog = false"
+    >
+      <div
+        class="modal-container"
+        style="width: 600px;"
+        @click.stop
+      >
+        <div class="modal-header">
+          <h3 class="modal-title">
+            {{ $t('MANAGE_BUCKET_RENAME_FILE') }}
+          </h3>
+          <button
+            class="modal-close"
+            @click="isShowBatchRenameDialog = false"
+          >
+            <XIcon class="action-icon" />
+          </button>
+        </div>
+        <div class="modal-content">
+          <div class="form-group">
+            <label class="form-label">
+              {{ $t('MANAGE_BUCKET_RENAME_FILE_INPUT_A') }} - Matched: {{ matchedFilesNumber }}
+              <div class="tooltip">
+                <InfoIcon class="action-icon" />
+                <span class="tooltip-text">{{ $t('MANAGE_BUCKET_RENAME_FILE_INPUT_A_TIPS') }}</span>
+              </div>
+            </label>
+            <input
+              v-model="batchRenameMatch"
+              type="text"
+              class="form-input"
+              :placeholder="$t('MANAGE_BUCKET_RENAME_FILE_INPUT_A_PLACEHOLDER')"
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              {{ $t('MANAGE_BUCKET_RENAME_FILE_INPUT_B') }}
+              <div class="tooltip">
+                <InfoIcon class="action-icon" />
+                <span class="tooltip-text">Format placeholders available</span>
+              </div>
+            </label>
+            <input
+              v-model="batchRenameReplace"
+              type="text"
+              class="form-input"
+              placeholder="Ex. {Y}-{m}-{uuid}"
+            >
+          </div>
+
+          <div class="form-group">
+            <div class="switch-container">
+              <label class="switch">
+                <input
+                  v-model="isRenameIncludeExt"
+                  type="checkbox"
+                >
+                <span class="switch-slider" />
+              </label>
+              <span class="switch-label">
+                {{ isRenameIncludeExt ? $t('MANAGE_BUCKET_RENAME_FILE_EXT_YES') : $t('MANAGE_BUCKET_RENAME_FILE_EXT_NO') }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="action-button secondary"
+            @click="isShowBatchRenameDialog = false"
+          >
+            {{ $t('MANAGE_BUCKET_RENAME_FILE_CANCEL') }}
+          </button>
+          <button
+            class="action-button primary"
+            @click="isSingleRename ? singleRename() : BatchRename()"
+          >
+            <EditIcon class="action-icon" />
+            {{ $t('MANAGE_BUCKET_RENAME_FILE_CONFIRM') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Indicators -->
+    <div
+      v-if="isLoadingData"
+      class="modal-overlay"
+      style="position: fixed; bottom: 25px; right: 25px; background: none; pointer-events: none;"
+    >
+      <button
+        class="action-button warning"
+        style="pointer-events: auto;"
+        @click="cancelLoading"
+      >
+        <div class="loading-spinner" />
+        {{ $t('MANAGE_BUCKET_FILE_LIST_LOADING') }}
+      </button>
+    </div>
+
+    <div
+      v-if="isLoadingDownloadData"
+      class="modal-overlay"
+      style="position: fixed; top: 50px; right: 25px; background: none; pointer-events: none;"
+    >
+      <button
+        class="action-button warning"
+        style="pointer-events: auto;"
+        @click="cancelDownloadLoading"
+      >
+        <div class="loading-spinner" />
+        {{ $t('MANAGE_BUCKET_FILE_LIST_DOWNLOAD_PRE') }}
+      </button>
+    </div>
+    <!-- Upload Drawer -->
+    <div
+      v-if="isShowUploadPanel"
+      class="drawer-overlay"
+      :class="{ open: isShowUploadPanel }"
+      @click="isShowUploadPanel = false"
+    >
+      <div
+        class="drawer-container"
+        @click.stop
+      >
+        <div class="drawer-header">
+          <h3 class="drawer-title">
+            Upload Files
+          </h3>
+          <div class="switch-container">
+            <label class="switch">
+              <input
+                v-model="isUploadKeepDirStructure"
+                type="checkbox"
+                @change="handleUploadKeepDirChange"
+              >
+              <span class="switch-slider" />
+            </label>
+            <span class="switch-label">
+              {{ isUploadKeepDirStructure ? $t('MANAGE_BUCKET_KEEP_FOLDER_STRUCTURE') : $t('MANAGE_BUCKET_NOT_KEEP_FOLDER_STRUCTURE') }}
+            </span>
+          </div>
+          <button
+            class="modal-close"
+            @click="isShowUploadPanel = false"
+          >
+            <XIcon class="action-icon" />
+          </button>
+        </div>
+
+        <div class="drawer-content">
+          <div
+            v-if="!tableData.length"
+            class="upload-area"
+            :class="{ dragover: isDragover }"
+            @drop.prevent="onDrop"
+            @dragover.prevent="isDragover = true"
+            @dragleave.prevent="isDragover = false"
+            @click="openFileSelectDialog"
+          >
+            <div class="upload-area-text">
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_TITLE') }}
+            </div>
+            <div class="upload-area-subtext">
+              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_TEXT') }}
+            </div>
+          </div>
+
+          <!-- Upload File List -->
+          <div v-if="tableData.length">
+            <VirtualScroller
+              :items="tableData.sort((a, b) => b.isFolder - a.isFolder === 0 ? b.filesList.length - a.filesList.length : b.isFolder - a.isFolder)"
+              :item-height="60"
+              :height="300"
+              view-mode="list"
+            >
+              <template #default="{ item }">
+                <div class="file-list-item">
+                  <div class="file-list-icon">
+                    <FolderIcon
+                      v-if="item.isFolder"
+                      class="file-icon"
+                    />
+                    <FileIcon
+                      v-else
+                      class="file-icon"
+                    />
+                  </div>
+                  <div class="file-list-info">
+                    <div class="file-list-name">
+                      {{ formatFileName(item.name) }}
+                    </div>
+                    <div class="file-list-meta">
+                      <span>{{ formatFileSize(item.fileSize) }}</span>
+                      <span v-if="item.isFolder">
+                        {{ item.filesList.length }} files
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </VirtualScroller>
+          </div>
+
+          <!-- Upload Actions -->
+          <div
+            v-if="tableData.length"
+            style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;"
+          >
+            <button
+              class="action-button primary"
+              :disabled="isLoadingUploadPanelFiles"
+              @click="uploadFiles"
+            >
+              <UploadIcon class="action-icon" />
+              {{ isLoadingUploadPanelFiles ? $t('MANAGE_BUCKET_UPLOAD_AREA_BTN_LOADING') : $t('MANAGE_BUCKET_UPLOAD_AREA_BTN') }}
+            </button>
+            <button
+              class="action-button secondary"
               :disabled="isLoadingUploadPanelFiles"
               @click="clearTableData"
             >
+              <Trash2Icon class="action-icon" />
               {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR') }}
-            </el-button>
-          </span>
-        </el-button-group>
+            </button>
+          </div>
+
+          <!-- Upload Tasks Tabs -->
+          <div class="tabs-container">
+            <div class="tabs-header">
+              <button
+                class="tab-button"
+                :class="{ active: activeUpLoadTab === 'uploading' }"
+                @click="activeUpLoadTab = 'uploading'"
+              >
+                {{ $t('MANAGE_BUCKET_UPLOAD_AREA_STATUS_UPLOADING') }}
+                <span
+                  v-if="uploadingTaskList.length"
+                  class="tab-badge"
+                >
+                  {{ uploadingTaskList.length }}
+                </span>
+              </button>
+              <button
+                class="tab-button"
+                :class="{ active: activeUpLoadTab === 'finished' }"
+                @click="activeUpLoadTab = 'finished'"
+              >
+                {{ $t('MANAGE_BUCKET_UPLOAD_AREA_SUCCESS') }}
+                <span
+                  v-if="uploadedTaskList.filter(item => item.status === 'uploaded').length"
+                  class="tab-badge"
+                >
+                  {{ uploadedTaskList.filter(item => item.status === 'uploaded').length }}
+                </span>
+              </button>
+              <button
+                class="tab-button"
+                :class="{ active: activeUpLoadTab === 'failed' }"
+                @click="activeUpLoadTab = 'failed'"
+              >
+                {{ $t('MANAGE_BUCKET_UPLOAD_AREA_FAILED') }}
+                <span
+                  v-if="uploadedTaskList.filter(item => item.status !== 'uploaded').length"
+                  class="tab-badge"
+                >
+                  {{ uploadedTaskList.filter(item => item.status !== 'uploaded').length }}
+                </span>
+              </button>
+            </div>
+
+            <div class="tab-content">
+              <!-- Uploading Tab -->
+              <div
+                v-if="activeUpLoadTab === 'uploading'"
+                class="tab-panel"
+              >
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                  <button
+                    class="action-button secondary"
+                    @click="handleCopyUploadingTaskInfo"
+                  >
+                    <CopyIcon class="action-icon" />
+                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
+                  </button>
+                  <button
+                    class="action-button secondary"
+                    @click="handleDeleteUploadedTask"
+                  >
+                    <Trash2Icon class="action-icon" />
+                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
+                  </button>
+                  <button
+                    class="action-button secondary"
+                    @click="handleDeleteAllUploadedTask"
+                  >
+                    <Trash2Icon class="action-icon" />
+                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
+                  </button>
+                </div>
+                <VirtualScroller
+                  :items="uploadingTaskList"
+                  :item-height="60"
+                  :height="400"
+                  view-mode="list"
+                >
+                  <template #default="{ item }">
+                    <div class="file-list-item">
+                      <div class="file-list-info">
+                        <div class="file-list-name">
+                          {{ formatFileName(item.sourceFileName) }}
+                        </div>
+                        <div class="progress-bar">
+                          <div
+                            class="progress-fill"
+                            :style="{ width: `${item.progress || 50}%` }"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </VirtualScroller>
+              </div>
+
+              <!-- Finished Tab -->
+              <div
+                v-if="activeUpLoadTab === 'finished'"
+                class="tab-panel"
+              >
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                  <button
+                    class="action-button secondary"
+                    @click="handleCopyUploadingTaskInfo"
+                  >
+                    <CopyIcon class="action-icon" />
+                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
+                  </button>
+                  <button
+                    class="action-button secondary"
+                    @click="handleDeleteUploadedTask"
+                  >
+                    <Trash2Icon class="action-icon" />
+                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
+                  </button>
+                  <button
+                    class="action-button secondary"
+                    @click="handleDeleteAllUploadedTask"
+                  >
+                    <Trash2Icon class="action-icon" />
+                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
+                  </button>
+                </div>
+                <VirtualScroller
+                  :items="uploadedTaskList.filter(item => item.status === 'uploaded')"
+                  :item-height="60"
+                  :height="400"
+                  view-mode="list"
+                >
+                  <template #default="{ item }">
+                    <div class="file-list-item">
+                      <div class="file-list-info">
+                        <div class="file-list-name">
+                          {{ formatFileName(item.sourceFileName) }}
+                        </div>
+                        <div class="file-list-meta">
+                          <span>{{ item.finishTime }}</span>
+                          <span
+                            class="badge success"
+                          >
+                            {{ $t('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS_SUCCESS') }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </VirtualScroller>
+              </div>
+
+              <!-- Failed Tab -->
+              <div
+                v-if="activeUpLoadTab === 'failed'"
+                class="tab-panel"
+              >
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                  <button
+                    class="action-button secondary"
+                    @click="handleCopyUploadingTaskInfo"
+                  >
+                    <CopyIcon class="action-icon" />
+                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
+                  </button>
+                  <button
+                    class="action-button secondary"
+                    @click="handleDeleteUploadedTask"
+                  >
+                    <Trash2Icon class="action-icon" />
+                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
+                  </button>
+                  <button
+                    class="action-button secondary"
+                    @click="handleDeleteAllUploadedTask"
+                  >
+                    <Trash2Icon class="action-icon" />
+                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
+                  </button>
+                </div>
+                <VirtualScroller
+                  :items="uploadedTaskList.filter(item => item.status !== 'uploaded')"
+                  :item-height="60"
+                  :height="400"
+                  view-mode="list"
+                >
+                  <template #default="{ item }">
+                    <div class="file-list-item">
+                      <div class="file-list-info">
+                        <div class="file-list-name">
+                          {{ formatFileName(item.sourceFileName) }}
+                        </div>
+                        <div class="file-list-meta">
+                          <span>{{ item.finishTime }}</span>
+                          <span
+                            class="badge error"
+                          >
+                            {{ $t('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS_FAIL') }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </VirtualScroller>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <el-tabs
-        v-model="activeUpLoadTab"
-        stretch
-        lazy
-      >
-        <el-tab-pane name="uploading">
-          <template #label>
-            <span>
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_STATUS_UPLOADING') }}
-            </span>
-            <el-badge
-              v-if="uploadingTaskList.length"
-              :value="uploadingTaskList.length"
-              :max="9999"
-              type="primary"
-            />
-          </template>
-          <el-button-group size="small">
-            <el-button
-              type="primary"
-              plain
-              :icon="Document"
-              @click="handleCopyUploadingTaskInfo"
-            >
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="DeleteFilled"
-              @click="handleDeleteUploadedTask"
-            >
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="DeleteFilled"
-              @click="handleDeleteAllUploadedTask"
-            >
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
-            </el-button>
-          </el-button-group>
-          <div style="height: 500px">
-            <el-auto-resizer>
-              <template #default="{ height, width }">
-                <el-table-v2
-                  :columns="uploadingTaskColumns"
-                  :data="uploadingTaskList"
-                  :width="width"
-                  :height="height"
-                />
-              </template>
-            </el-auto-resizer>
-          </div>
-        </el-tab-pane>
-        <el-tab-pane name="finished">
-          <template #label>
-            <span>
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_SUCCESS') }}
-            </span>
-            <el-badge
-              v-if="uploadedTaskList.filter(item => item.status === 'uploaded').length"
-              :value="uploadedTaskList.filter(item => item.status === 'uploaded').length"
-              :max="9999"
-              type="success"
-            />
-          </template>
-          <el-button-group size="small">
-            <el-button
-              type="primary"
-              plain
-              :icon="Document"
-              @click="handleCopyUploadingTaskInfo"
-            >
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="DeleteFilled"
-              @click="handleDeleteUploadedTask"
-            >
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="DeleteFilled"
-              @click="handleDeleteAllUploadedTask"
-            >
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
-            </el-button>
-          </el-button-group>
-          <div style="height: 500px">
-            <el-auto-resizer>
-              <template #default="{ height, width }">
-                <el-table-v2
-                  :columns="uploadedTaskColumns"
-                  :data="uploadedTaskList.filter(item => item.status === 'uploaded')"
-                  :width="width"
-                  :height="height"
-                />
-              </template>
-            </el-auto-resizer>
-          </div>
-        </el-tab-pane>
-        <el-tab-pane name="failed">
-          <template #label>
-            <span>
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_FAILED') }}
-            </span>
-            <el-badge
-              v-if="uploadedTaskList.filter(item => item.status !== 'uploaded').length"
-              :value="uploadedTaskList.filter(item => item.status !== 'uploaded').length"
-              :max="9999"
-              type="danger"
-            />
-          </template>
-          <el-button-group size="small">
-            <el-button
-              type="primary"
-              plain
-              :icon="Document"
-              @click="handleCopyUploadingTaskInfo"
-            >
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="DeleteFilled"
-              @click="handleDeleteUploadedTask"
-            >
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="DeleteFilled"
-              @click="handleDeleteAllUploadedTask"
-            >
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
-            </el-button>
-          </el-button-group>
-          <div style="height: 500px">
-            <el-auto-resizer>
-              <template #default="{ height, width }">
-                <el-table-v2
-                  :columns="uploadedTaskColumns"
-                  :data="uploadedTaskList.filter(item => item.status !== 'uploaded')"
-                  :width="width"
-                  :height="height"
-                />
-              </template>
-            </el-auto-resizer>
-          </div>
-        </el-tab-pane>
-      </el-tabs>
-    </el-drawer>
-    <el-drawer
-      v-model="isShowDownloadPanel"
-      :title="$t('MANAGE_BUCKET_DOWNLOAD_PAGE_TITLE')"
-      size="60%"
-      append-to-body
-      @open="startRefreshDownloadTask"
-      @close="stopRefreshDownloadTask"
-    >
-      <el-tabs
-        v-model="activeDownLoadTab"
-        stretch
-        lazy
-      >
-        <el-tab-pane name="downloading">
-          <template #label>
-            <span>
-              {{ $t('MANAGE_BUCKET_DOWNLOADING') }}
-            </span>
-            <el-badge
-              v-if="downloadingTaskList.length"
-              :value="downloadingTaskList.length"
-              type="primary"
-              :max="9999"
-            />
-          </template>
-          <el-button-group size="small">
-            <el-button
-              type="primary"
-              plain
-              :icon="Document"
-              @click="handleCopyDownloadingTaskInfo"
-            >
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="DeleteFilled"
-              @click="handleDeleteDownloadedTask"
-            >
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="DeleteFilled"
-              @click="handleDeleteAllDownloadedTask"
-            >
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="Folder"
-              @click="handleOpenDownloadedFolder"
-            >
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
-            </el-button>
-          </el-button-group>
-          <div style="height: 600px">
-            <el-auto-resizer>
-              <template #default="{ height, width }">
-                <el-table-v2
-                  :columns="downloadingTaskColumns"
-                  :data="downloadingTaskList"
-                  :width="width"
-                  :height="height"
-                />
-              </template>
-            </el-auto-resizer>
-          </div>
-        </el-tab-pane>
-        <el-tab-pane name="finished">
-          <template #label>
-            <span>
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_SUCCESS') }}
-            </span>
-            <el-badge
-              v-if="downloadedTaskList.filter(item => item.status === 'downloaded').length"
-              :value="downloadedTaskList.filter(item => item.status === 'downloaded').length"
-              :max="9999"
-              type="success"
-            />
-          </template>
-          <el-button-group size="small">
-            <el-button
-              type="primary"
-              plain
-              :icon="Document"
-              @click="handleCopyDownloadingTaskInfo"
-            >
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="DeleteFilled"
-              @click="handleDeleteDownloadedTask"
-            >
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="DeleteFilled"
-              @click="handleDeleteAllDownloadedTask"
-            >
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="Folder"
-              @click="handleOpenDownloadedFolder"
-            >
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
-            </el-button>
-          </el-button-group>
-          <div style="height: 600px">
-            <el-auto-resizer>
-              <template #default="{ height, width }">
-                <el-table-v2
-                  :columns="downloadedTaskColumns"
-                  :data="downloadedTaskList.filter(item => item.status === 'downloaded')"
-                  :width="width"
-                  :height="height"
-                />
-              </template>
-            </el-auto-resizer>
-          </div>
-        </el-tab-pane>
-        <el-tab-pane name="failed">
-          <template #label>
-            <span>
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_FAILED') }}
-            </span>
-            <el-badge
-              v-if="downloadedTaskList.filter(item => item.status !== 'downloaded').length"
-              :value="downloadedTaskList.filter(item => item.status !== 'downloaded').length"
-              :max="9999"
-              type="warning"
-            />
-          </template>
-          <el-button-group size="small">
-            <el-button
-              type="primary"
-              plain
-              :icon="Document"
-              @click="handleCopyDownloadingTaskInfo"
-            >
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="DeleteFilled"
-              @click="handleDeleteDownloadedTask"
-            >
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="DeleteFilled"
-              @click="handleDeleteAllDownloadedTask"
-            >
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
-            </el-button>
-            <el-button
-              type="primary"
-              plain
-              :icon="Folder"
-              @click="handleOpenDownloadedFolder"
-            >
-              {{ $t('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
-            </el-button>
-          </el-button-group>
-          <div style="height: 600px">
-            <el-auto-resizer>
-              <template #default="{ height, width }">
-                <el-table-v2
-                  :columns="downloadedTaskColumns"
-                  :data="downloadedTaskList.filter(item => item.status !== 'downloaded')"
-                  :width="width"
-                  :height="height"
-                />
-              </template>
-            </el-auto-resizer>
-          </div>
-        </el-tab-pane>
-      </el-tabs>
-    </el-drawer>
-    <el-dialog
-      v-model="isShowMarkDownDialog"
-      :title="$t('MANAGE_BUCKET_MARKDOWN_PREVIEW')"
-      center
-      align-center
-      draggable
-      fullscreen
-      close-on-press-escape
-      show-close
-      destroy-on-close
-      append-to-body
+    </div>
+
+    <!-- Download Drawer -->
+    <div
+      v-if="isShowDownloadPanel"
+      class="drawer-overlay"
+      :class="{ open: isShowDownloadPanel }"
+      @click="isShowDownloadPanel = false"
     >
       <div
-        style="-webkit-user-select: text; user-select: text"
-        v-html="markDownContent"
-      />
-      <el-button
-        type="danger"
-        :icon="Close"
-        size="large"
-        style="position: fixed; bottom: 10px; right: 15px"
-        circle
-        @click="
-          () => {
-            isShowMarkDownDialog = false
-          }
-        "
-      />
-    </el-dialog>
-    <el-dialog
-      v-model="isShowTextFileDialog"
-      :title="$t('MANAGE_BUCKET_MARKDOWN_PREVIEW')"
-      center
-      align-center
-      draggable
-      fullscreen
-      close-on-press-escape
-      show-close
-      destroy-on-close
-      append-to-body
-    >
-      <highlightjs
-        style="-webkit-user-select: text; user-select: text"
-        language="js"
-        :code="textfileContent"
-      />
-      <el-button
-        type="danger"
-        :icon="Close"
-        size="large"
-        style="position: fixed; bottom: 10px; right: 15px"
-        circle
-        @click="
-          () => {
-            isShowTextFileDialog = false
-          }
-        "
-      />
-    </el-dialog>
-    <el-dialog
-      v-model="isShowVideoFileDialog"
-      :title="$t('MANAGE_BUCKET_PLAY')"
-      center
-      align-center
-      draggable
-      fullscreen
-      close-on-press-escape
-      show-close
-      destroy-on-close
-      append-to-body
-    >
-      <video-player
-        :src="videoFileUrl"
-        :headers="videoPlayerHeaders"
-        controls
-        :loop="true"
-        :volume="0.6"
-        :autoplay="true"
-        :width="1100"
-        :height="700"
-      />
-      <el-button
-        type="danger"
-        :icon="Close"
-        size="large"
-        style="position: fixed; bottom: 10px; right: 15px"
-        circle
-        @click="
-          () => {
-            isShowVideoFileDialog = false
-          }
-        "
-      />
-    </el-dialog>
-    <el-dialog
-      v-model="isShowBatchRenameDialog"
-      :title="$t('MANAGE_BUCKET_RENAME_FILE')"
-      center
-      align-center
-      draggable
-      destroy-on-close
-      append-to-body
-      @close="
-        () => {
-          isSingleRename = false
-          isRenameIncludeExt = false
-        }
-      "
-    >
-      <el-link
-        :underline="false"
-        style="margin-bottom: 10px"
+        class="drawer-container"
+        @click.stop
       >
-        <span>
-          {{ $t('MANAGE_BUCKET_RENAME_FILE_INPUT_A') }} - Matched:
-          {{ matchedFilesNumber }}
-          <el-tooltip
-            effect="dark"
-            :content="$t('MANAGE_BUCKET_RENAME_FILE_INPUT_A_TIPS')"
-            placement="right"
-            :persistent="false"
-            teleported
+        <div class="drawer-header">
+          <h3 class="drawer-title">
+            {{ $t('MANAGE_BUCKET_DOWNLOAD_PAGE_TITLE') }}
+          </h3>
+          <button
+            class="modal-close"
+            @click="isShowDownloadPanel = false"
           >
-            <el-icon color="#409EFF">
-              <InfoFilled />
-            </el-icon>
-          </el-tooltip>
-        </span>
-      </el-link>
-      <el-input
-        v-model="batchRenameMatch"
-        :placeholder="$t('MANAGE_BUCKET_RENAME_FILE_INPUT_A_PLACEHOLDER')"
-        clearable
-      />
-      <el-link
-        :underline="false"
-        style="margin-bottom: 10px; margin-top: 10px"
-      >
-        <span>
-          {{ $t('MANAGE_BUCKET_RENAME_FILE_INPUT_B') }}
-          <el-popover
-            effect="light"
-            placement="right"
-            width="280"
-            :persistent="false"
-            teleported
-          >
-            <template #reference>
-              <el-icon color="#409EFF">
-                <InfoFilled />
-              </el-icon>
-            </template>
-            <el-descriptions
-              :column="1"
-              style="width: 250px"
-              border
-            >
-              <el-descriptions-item
-                v-for="(item, index) in customRenameFormatTable"
-                :key="index"
-                :label="item.placeholder"
-                align="center"
-                label-style="width: 100px;"
+            <XIcon class="action-icon" />
+          </button>
+        </div>
+
+        <div class="drawer-content">
+          <!-- Download Tasks Tabs -->
+          <div class="tabs-container">
+            <div class="tabs-header">
+              <button
+                class="tab-button"
+                :class="{ active: activeDownLoadTab === 'downloading' }"
+                @click="activeDownLoadTab = 'downloading'"
               >
-                {{ item.description }}
-              </el-descriptions-item>
-              <el-descriptions-item
-                v-for="(item, index) in customRenameFormatTable.slice(0, customRenameFormatTable.length - 1)"
-                :key="index"
-                :label="item.placeholderB"
-                align="center"
-                label-style="width: 100px;"
+                {{ $t('MANAGE_BUCKET_DOWNLOADING') }}
+                <span
+                  v-if="downloadingTaskList.length"
+                  class="tab-badge"
+                >
+                  {{ downloadingTaskList.length }}
+                </span>
+              </button>
+              <button
+                class="tab-button"
+                :class="{ active: activeDownLoadTab === 'finished' }"
+                @click="activeDownLoadTab = 'finished'"
               >
-                {{ item.descriptionB }}
-              </el-descriptions-item>
-              <el-descriptions-item
-                label="{auto}"
-                align="center"
-                label-style="width: 100px;"
+                {{ $t('MANAGE_BUCKET_DOWNLOAD_SUCCESS') }}
+                <span
+                  v-if="downloadedTaskList.filter(item => item.status === 'downloaded').length"
+                  class="tab-badge"
+                >
+                  {{ downloadedTaskList.filter(item => item.status === 'downloaded').length }}
+                </span>
+              </button>
+              <button
+                class="tab-button"
+                :class="{ active: activeDownLoadTab === 'failed' }"
+                @click="activeDownLoadTab = 'failed'"
               >
-                {{ $t('MANAGE_BUCKET_RENAME_FILE_TABLE_IID') }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </el-popover>
-        </span>
-      </el-link>
-      <el-input
-        v-model="batchRenameReplace"
-        placeholder="Ex. {Y}-{m}-{uuid}"
-        clearable
-      />
-      <el-link
-        :underline="false"
-        style="margin-bottom: 10px; margin-top: 10px"
-      >
-        <span>
-          {{ $t('MANAGE_BUCKET_RENAME_FILE_EXT') }}
-          <el-tooltip
-            effect="dark"
-            :content="$t('MANAGE_BUCKET_RENAME_FILE_EXT_TIPS')"
-            placement="right"
-            :persistent="false"
-            teleported
-          >
-            <el-icon color="#409EFF">
-              <InfoFilled />
-            </el-icon>
-          </el-tooltip>
-        </span>
-      </el-link>
-      <br>
-      <el-switch
-        v-model="isRenameIncludeExt"
-        :active-text="$t('MANAGE_BUCKET_RENAME_FILE_EXT_YES')"
-        :inactive-text="$t('MANAGE_BUCKET_RENAME_FILE_EXT_NO')"
-      />
-      <div style="margin-top: 10px; align-items: center; display: flex; justify-content: flex-end">
-        <el-button
-          type="danger"
-          style="margin-right: 30px"
-          plain
-          :icon="Close"
-          @click="
-            () => {
-              isShowBatchRenameDialog = false
-            }
-          "
-        >
-          {{ $t('MANAGE_BUCKET_RENAME_FILE_CANCEL') }}
-        </el-button>
-        <el-button
-          type="primary"
-          plain
-          :icon="Edit"
-          @click="isSingleRename ? singleRename() : BatchRename()"
-        >
-          {{ $t('MANAGE_BUCKET_RENAME_FILE_CONFIRM') }}
-        </el-button>
+                {{ $t('MANAGE_BUCKET_DOWNLOAD_FAILED') }}
+                <span
+                  v-if="downloadedTaskList.filter(item => item.status !== 'downloaded').length"
+                  class="tab-badge"
+                >
+                  {{ downloadedTaskList.filter(item => item.status !== 'downloaded').length }}
+                </span>
+              </button>
+            </div>
+
+            <!-- Download Tabs Content -->
+            <div class="tab-content">
+              <!-- Similar structure for download tabs... -->
+              <div
+                v-if="activeDownLoadTab === 'downloading'"
+                class="tab-panel"
+              >
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                  <button
+                    class="action-button secondary"
+                    @click="handleCopyDownloadingTaskInfo"
+                  >
+                    <CopyIcon class="action-icon" />
+                    {{ $t('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
+                  </button>
+                  <button
+                    class="action-button secondary"
+                    @click="handleDeleteDownloadedTask"
+                  >
+                    <Trash2Icon class="action-icon" />
+                    {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
+                  </button>
+                  <button
+                    class="action-button secondary"
+                    @click="handleDeleteAllDownloadedTask"
+                  >
+                    <Trash2Icon class="action-icon" />
+                    {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
+                  </button>
+                  <button
+                    class="action-button secondary"
+                    @click="handleOpenDownloadedFolder"
+                  >
+                    <FolderIcon class="action-icon" />
+                    {{ $t('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
+                  </button>
+                </div>
+                <VirtualScroller
+                  :items="downloadingTaskList"
+                  :item-height="60"
+                  :height="500"
+                  view-mode="list"
+                >
+                  <template #default="{ item }">
+                    <div class="file-list-item">
+                      <div class="file-list-info">
+                        <div class="file-list-name">
+                          {{ formatFileName(item.sourceFileName) }}
+                        </div>
+                        <div class="progress-bar">
+                          <div
+                            class="progress-fill"
+                            :style="{ width: `${item.progress}%` }"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </VirtualScroller>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </el-dialog>
+    </div>
+
+    <!-- Markdown Preview Dialog -->
+    <div
+      v-if="isShowMarkDownDialog"
+      class="modal-overlay"
+      @click="isShowMarkDownDialog = false"
+    >
+      <div
+        class="modal-container"
+        style="width: 90vw; height: 90vh;"
+        @click.stop
+      >
+        <div class="modal-header">
+          <h3 class="modal-title">
+            {{ $t('MANAGE_BUCKET_MARKDOWN_PREVIEW') }}
+          </h3>
+          <button
+            class="modal-close"
+            @click="isShowMarkDownDialog = false"
+          >
+            <XIcon class="action-icon" />
+          </button>
+        </div>
+        <div
+          class="modal-content"
+          style="user-select: text;"
+          v-html="markDownContent"
+        />
+      </div>
+    </div>
+
+    <!-- Text File Preview Dialog -->
+    <div
+      v-if="isShowTextFileDialog"
+      class="modal-overlay"
+      @click="isShowTextFileDialog = false"
+    >
+      <div
+        class="modal-container"
+        style="width: 90vw; height: 90vh;"
+        @click.stop
+      >
+        <div class="modal-header">
+          <h3 class="modal-title">
+            {{ $t('MANAGE_BUCKET_MARKDOWN_PREVIEW') }}
+          </h3>
+          <button
+            class="modal-close"
+            @click="isShowTextFileDialog = false"
+          >
+            <XIcon class="action-icon" />
+          </button>
+        </div>
+        <div class="modal-content">
+          <pre style="user-select: text; white-space: pre-wrap; font-family: monospace;">{{ textfileContent }}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Player Dialog -->
+    <div
+      v-if="isShowVideoFileDialog"
+      class="modal-overlay"
+      @click="isShowVideoFileDialog = false"
+    >
+      <div
+        class="modal-container"
+        style="width: 90vw; height: 90vh;"
+        @click.stop
+      >
+        <div class="modal-header">
+          <h3 class="modal-title">
+            {{ $t('MANAGE_BUCKET_PLAY') }}
+          </h3>
+          <button
+            class="modal-close"
+            @click="isShowVideoFileDialog = false"
+          >
+            <XIcon class="action-icon" />
+          </button>
+        </div>
+        <div class="modal-content">
+          <video
+            :src="videoFileUrl"
+            controls
+            loop
+            autoplay
+            style="width: 100%; height: auto; max-height: 70vh;"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-<script lang="tsx" setup>
+<script lang="ts" setup>
 
-import {
-  ArrowRight,
-  CircleClose,
-  Close,
-  Coin,
-  CopyDocument,
-  DeleteFilled,
-  Document,
-  Download,
-  Edit,
-  Fold,
-  Folder,
-  FolderAdd,
-  FolderOpened,
-  Grid,
-  HomeFilled,
-  InfoFilled,
-  Link,
-  Loading,
-  Refresh,
-  Sort,
-  Upload,
-  UploadFilled
-} from '@element-plus/icons-vue'
 import type { IpcRendererEvent } from 'electron'
-import type { Column, RowClassNameGetter } from 'element-plus'
 import {
-  ElButton,
-  ElCard,
-  ElCheckbox,
-  ElDropdown,
-  ElDropdownItem,
-  ElDropdownMenu,
-  ElIcon,
-  ElImage,
-  ElLink,
-  ElMessage,
-  ElMessageBox,
-  ElNotification,
-  ElPopover,
-  ElProgress,
-  ElTag,
-  ElTooltip
-} from 'element-plus'
+  ArrowUpDownIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  CopyIcon,
+  DownloadIcon,
+  EditIcon,
+  ExpandIcon,
+  FileIcon,
+  FolderIcon,
+  FolderPlusIcon,
+  HardDriveIcon,
+  HomeIcon,
+  InfoIcon,
+  LinkIcon,
+  RefreshCwIcon,
+  ShrinkIcon,
+  Trash2Icon,
+  UploadIcon,
+  XIcon
+} from 'lucide-vue-next'
 import { marked } from 'marked'
 import { v4 as uuidv4 } from 'uuid'
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, watch } from 'vue'
@@ -1569,13 +1530,13 @@ import { useRoute } from 'vue-router'
 
 import ImageLocal from '@/components/ImageLocal.vue'
 import ImagePreSign from '@/components/ImagePreSign.vue'
-import ImagePreSignTsx from '@/components/ImagePreSignTsx'
 import ImageWebdav from '@/components/ImageWebdav.vue'
-import ImageWebdavTsx from '@/components/ImageWebdavTsx'
+import VirtualScroller from '@/components/VirtualScroller.vue'
+import useConfirm from '@/hooks/useConfirm'
+import useMessage from '@/hooks/useMessage'
 import { fileCacheDbInstance } from '@/manage/store/bucketFileDb'
 import { useDownloadFileTransferStore, useFileTransferStore, useManageStore } from '@/manage/store/manageStore'
 import {
-  customRenameFormatTable,
   customStrMatch,
   customStrReplace,
   formatFileName,
@@ -1583,8 +1544,7 @@ import {
   formatLink,
   getFileIconPath,
   isValidUrl,
-  renameFile,
-  svg
+  renameFile
 } from '@/manage/utils/common'
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { textFileExt } from '@/manage/utils/textfile'
@@ -1596,6 +1556,8 @@ import type { IDownloadTask, IUploadTask } from '#/types/manage'
 import type { IStringKeyMap } from '#/types/types'
 
 const { t } = useI18n()
+const message = useMessage()
+const confirm = useConfirm()
 /*
 configMap:{
     prefix: string, -> baseDir
@@ -1631,8 +1593,24 @@ const isLoadingData = ref(false)
 const isShowLoadingPage = ref(false)
 const isShowImagePreview = ref(false)
 const layoutStyle = ref<'list' | 'grid'>('grid')
+// Refs for scroll handling
+const virtualScrollerRef = ref()
+const bucketContainerRef = ref()
+// 全屏控制变量
+const isContentFullscreen = ref(false)
+// 新增的UI控制变量
+const copyDropdownOpen = ref(false)
+const sortDropdownOpen = ref(false)
+const copyDropdownIndex = ref(-1)
+const gridBreakpoints = ref([
+  { min: 0, cols: 1 },
+  { min: 380, cols: 2 },
+  { min: 768, cols: 3 },
+  { min: 1024, cols: 4 },
+  { min: 1280, cols: 5 },
+  { min: 1536, cols: 6 }
+])
 // 文件信息相关
-const fileTable = ref(null as any)
 const isShowFileInfo = ref(false)
 const currentShowedFileInfo = ref({} as any)
 // 分页相关
@@ -1820,9 +1798,31 @@ function stopRefreshDownloadTask () {
 
 // 界面相关
 
+/* 暂时禁用
 function handleViewChange (val: 'list' | 'grid') {
   saveConfig('settings.isShowList', val === 'list')
   layoutStyle.value = val
+}
+*/
+
+// 全屏切换功能
+function toggleContentFullscreen () {
+  isContentFullscreen.value = !isContentFullscreen.value
+}
+
+// 处理外层容器滚动
+let scrollTimeout: ReturnType<typeof setTimeout> | undefined
+function handleBucketContainerScroll () {
+  // 节流处理，避免频繁调用
+  if (scrollTimeout) {
+    clearTimeout(scrollTimeout)
+  }
+  scrollTimeout = setTimeout(() => {
+    // 调用虚拟滚动器的刷新方法来更新可见区域
+    if (virtualScrollerRef.value) {
+      virtualScrollerRef.value.refresh()
+    }
+  }, 16) // ~60fps
 }
 
 // 上传文件选择相关
@@ -2039,34 +2039,34 @@ function uploadFiles () {
 
 function handleCopyUploadingTaskInfo () {
   window.electron.clipboard.writeText(JSON.stringify(uploadTaskList.value, null, 2))
-  ElMessage.success(t('MANAGE_BUCKET_COPY_SUCCESS'))
+  message.success(t('MANAGE_BUCKET_COPY_SUCCESS'))
 }
 
 function handleDeleteUploadedTask () {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_UPLOADED_TASK)
-  ElMessage.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
+  message.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
 function handleDeleteAllUploadedTask () {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_ALL_UPLOADED_TASK)
-  ElMessage.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
+  message.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
 // 下载任务相关
 
 function handleCopyDownloadingTaskInfo () {
   window.electron.clipboard.writeText(JSON.stringify(downloadTaskList.value, null, 2))
-  ElMessage.success(t('MANAGE_BUCKET_COPY_SUCCESS'))
+  message.success(t('MANAGE_BUCKET_COPY_SUCCESS'))
 }
 
 function handleDeleteDownloadedTask () {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_DOWNLOADED_TASK)
-  ElMessage.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
+  message.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
 function handleDeleteAllDownloadedTask () {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_ALL_DOWNLOADED_TASK)
-  ElMessage.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
+  message.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
 }
 
 function handleOpenDownloadedFolder () {
@@ -2117,35 +2117,27 @@ async function handleClickFile (item: any) {
     isShowLoadingPage.value = false
   } else if (item.fileName.endsWith('.md')) {
     try {
-      ElMessage({
-        message: t('MANAGE_BUCKET_START_LOADING_MESSAGE'),
-        duration: 300,
-        type: 'success'
-      })
+      message.success(t('MANAGE_BUCKET_START_LOADING_MESSAGE'))
       const fileUrl = item.url
       const res = await fetch(fileUrl, options)
       const content = await res.text()
       markDownContent.value = await marked.parse(content)
       isShowMarkDownDialog.value = true
     } catch (error) {
-      ElMessage.error(t('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))
+      message.error(t('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))
     }
   } else if (
     textFileExt.includes(window.node.path.extname(item.fileName).toLowerCase()) ||
     textFileExt.includes(item.fileName.toLowerCase())
   ) {
     try {
-      ElMessage({
-        message: t('MANAGE_BUCKET_START_LOADING_MESSAGE'),
-        duration: 300,
-        type: 'success'
-      })
+      message.success(t('MANAGE_BUCKET_START_LOADING_MESSAGE'))
       const fileUrl = item.url
       const res = await fetch(fileUrl, options)
       textfileContent.value = await res.text()
       isShowTextFileDialog.value = true
     } catch (error) {
-      ElMessage.error(t('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))
+      message.error(t('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))
     }
   } else if (videoExt.includes(window.node.path.extname(item.fileName).toLowerCase())) {
     videoFileUrl.value = item.url
@@ -2318,7 +2310,7 @@ async function resetParam (force: boolean = false) {
   previewedImage.value = ''
   isShowFileInfo.value = false
   lastChoosed.value = -1
-  layoutStyle.value = (await getConfig('settings.isShowList')) ? 'list' : 'grid'
+  layoutStyle.value = 'grid'
   fileSortExtReverse.value = false
   fileSortNameReverse.value = false
   fileSortSizeReverse.value = false
@@ -2344,28 +2336,14 @@ async function resetParam (force: boolean = false) {
         pagingMarkerStack.push(pagingMarker.value)
         pagingMarker.value = res.nextMarker
       } else if (paging.value && currentPageNumber.value > 1) {
-        ElNotification({
-          title: t('MANAGE_BUCKET_LAST_PAGE_TITLE'),
-          message: t('MANAGE_BUCKET_LAST_PAGE_MSG'),
-          type: 'success',
-          duration: 500
-        })
+        message.success(t('MANAGE_BUCKET_LAST_PAGE_MSG'))
       }
     } else {
-      ElNotification({
-        title: t('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-        message: t('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
-        type: 'error',
-        duration: 2000
-      })
+      message.error(t('MANAGE_BUCKET_GET_LIST_FAIL_MSG'))
     }
   } else {
     getBucketFileListBackStage()
-    ElNotification.info({
-      title: t('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-      message: t('MANAGE_BUCKET_GET_LIST_FAIL_MSG2'),
-      duration: 1000
-    })
+    message.info(t('MANAGE_BUCKET_GET_LIST_FAIL_MSG2'))
   }
 }
 
@@ -2383,12 +2361,7 @@ watch(route, async newRoute => {
 
 async function forceRefreshFileList () {
   if (isLoadingData.value) {
-    ElNotification({
-      title: t('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-      message: t('MANAGE_BUCKET_GET_LIST_FAIL_MSG3'),
-      type: 'error',
-      duration: 1000
-    })
+    message.error(t('MANAGE_BUCKET_GET_LIST_FAIL_MSG3'))
     return
   }
   isShowLoadingPage.value = true
@@ -2402,57 +2375,29 @@ watch(currentPageNumber, () => {
   }
 })
 
-const changePage = async (cur: number | undefined, prev: number | undefined) => {
-  if (!cur || !prev) {
-    currentPageNumber.value = 1
-    return
+// Watch upload panel visibility to start/stop refresh task
+watch(isShowUploadPanel, (newValue) => {
+  if (newValue) {
+    startRefreshUploadTask()
+  } else {
+    stopRefreshUploadTask()
   }
-  const isForwardNavigation = cur > prev
-  const newPageNumber = isForwardNavigation ? prev + 1 : prev - 1
-  const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
+})
 
-  isShowLoadingPage.value = true
-  currentPageNumber.value = newPageNumber
-  currentPageFilesInfo.length = 0
-  searchText.value = ''
-  urlToUpload.value = ''
-  dialogVisible.value = false
-
-  if (!isForwardNavigation) {
-    pagingMarker.value = pagingMarkerStack[pagingMarkerStack.length - 2]
-    pagingMarkerStack.pop()
-    pagingMarkerStack.pop()
+// Watch download panel visibility to start/stop refresh task
+watch(isShowDownloadPanel, (newValue) => {
+  if (newValue) {
+    startRefreshDownloadTask()
+  } else {
+    stopRefreshDownloadTask()
   }
+})
 
-  const res = (await getBucketFileList()) as IStringKeyMap
-  isShowLoadingPage.value = false
-
-  if (!res.success) {
-    ElNotification({
-      title: t('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-      message: t('MANAGE_BUCKET_GET_LIST_FAIL_MSG'),
-      type: 'error',
-      duration: 1000
-    })
-    return
-  }
-
-  currentPageFilesInfo.push(...res.fullList)
-
-  sortFile(sortType)
-
-  if (!(cur < prev && !paging.value)) {
-    if (res.isTruncated) {
-      pagingMarkerStack.push(pagingMarker.value)
-      pagingMarker.value = res.nextMarker
-    } else {
-      ElNotification({
-        title: t('MANAGE_BUCKET_GET_LIST_FAIL_TITLE'),
-        message: t('MANAGE_BUCKET_LAST_PAGE_MSG'),
-        type: 'success',
-        duration: 1000
-      })
-    }
+const handlePageNumberInput = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const value = parseInt(target.value, 10)
+  if (!isNaN(value) && value > 0) {
+    currentPageNumber.value = value
   }
 }
 
@@ -2529,93 +2474,82 @@ function handleCheckChangeOther (item: any) {
 }
 
 async function handleFolderBatchDownload (item: any) {
-  ElMessageBox.confirm(t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TITLE'), t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'), {
-    confirmButtonText: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CONFIRM'),
-    cancelButtonText: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CANCEL'),
-    type: 'warning'
-  })
-    .then(async () => {
-      const defaultDownloadPath = await window.electron.triggerRPC<string>(IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER)
-      const param = {
-        downloadPath: manageStore.config.settings.downloadDir ?? defaultDownloadPath,
-        maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount
-          ? manageStore.config.settings.maxDownloadFileCount
-          : 5,
-        fileArray: [] as any[]
-      }
-      cancelToken.value = uuidv4()
-      const paramGet = {
-        // tcyun
-        bucketName: configMap.bucketName,
-        bucketConfig: {
-          Location: configMap.bucketConfig.Location
-        },
-        paging: paging.value,
-        prefix: `/${item.key.replace(/^\/+|\/+$/, '')}/`,
-        marker: pagingMarker.value,
-        itemsPerPage: itemsPerPage.value,
-        customUrl: currentCustomDomain.value,
-        currentPage: currentPageNumber.value,
-        cancelToken: cancelToken.value,
-        cdnUrl: configMap.cdnUrl
-      }
-      isLoadingDownloadData.value = true
-      const downloadFileTransferStore = useDownloadFileTransferStore()
-      downloadFileTransferStore.resetDownloadFileTransferList()
-      window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_RECURSIVELY, configMap.alias, paramGet)
-      window.electron.ipcRendererOn(refreshDownloadFileTransferList, (_: IpcRendererEvent, data) => {
-        downloadFileTransferStore.refreshDownloadFileTransferList(data)
-      })
-      downloadInterval = setInterval(() => {
-        const currentFileList = downloadFileTransferStore.getDownloadFileTransferList()
-        currentDownloadFileList.length = 0
-        currentDownloadFileList.push(...currentFileList)
-        if (downloadFileTransferStore.isFinished() && downloadInterval) {
-          isLoadingDownloadData.value = false
-          clearInterval(downloadInterval)
-          if (downloadFileTransferStore.isSuccess()) {
-            ElNotification.success({
-              title: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
-              message: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_SUCCESS'),
-              duration: 500
-            })
-            if (currentDownloadFileList.length) {
-              currentDownloadFileList.forEach((item: any) => {
-                param.fileArray.push({
-                  alias: configMap.alias,
-                  bucketName: configMap.bucketName,
-                  region: configMap.bucketConfig.Location,
-                  key: item.key,
-                  fileName: [undefined, true].includes(manageStore.config.settings.isDownloadFolderKeepDirStructure)
-                    ? `/${item.key.replace(/^\/+|\/+$/, '')}`
-                    : item.fileName,
-                  customUrl: currentCustomDomain.value,
-                  downloadUrl: item.downloadUrl,
-                  githubUrl: item.url,
-                  githubPrivate: configMap.bucketConfig.private
-                })
+  try {
+    await confirm.confirm({
+      message: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
+      title: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TITLE'),
+      confirmButtonText: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CONFIRM'),
+      cancelButtonText: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CANCEL'),
+      type: 'warning'
+    })
+    const defaultDownloadPath = await window.electron.triggerRPC<string>(IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER)
+    const param = {
+      downloadPath: manageStore.config.settings.downloadDir ?? defaultDownloadPath,
+      maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount
+        ? manageStore.config.settings.maxDownloadFileCount
+        : 5,
+      fileArray: [] as any[]
+    }
+    cancelToken.value = uuidv4()
+    const paramGet = {
+      // tcyun
+      bucketName: configMap.bucketName,
+      bucketConfig: {
+        Location: configMap.bucketConfig.Location
+      },
+      paging: paging.value,
+      prefix: `/${item.key.replace(/^\/+|\/+$/, '')}/`,
+      marker: pagingMarker.value,
+      itemsPerPage: itemsPerPage.value,
+      customUrl: currentCustomDomain.value,
+      currentPage: currentPageNumber.value,
+      cancelToken: cancelToken.value,
+      cdnUrl: configMap.cdnUrl
+    }
+    isLoadingDownloadData.value = true
+    const downloadFileTransferStore = useDownloadFileTransferStore()
+    downloadFileTransferStore.resetDownloadFileTransferList()
+    window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_RECURSIVELY, configMap.alias, paramGet)
+    window.electron.ipcRendererOn(refreshDownloadFileTransferList, (_: IpcRendererEvent, data) => {
+      downloadFileTransferStore.refreshDownloadFileTransferList(data)
+    })
+    downloadInterval = setInterval(() => {
+      const currentFileList = downloadFileTransferStore.getDownloadFileTransferList()
+      currentDownloadFileList.length = 0
+      currentDownloadFileList.push(...currentFileList)
+      if (downloadFileTransferStore.isFinished() && downloadInterval) {
+        isLoadingDownloadData.value = false
+        clearInterval(downloadInterval)
+        if (downloadFileTransferStore.isSuccess()) {
+          message.success(t('MANAGE_BUCKET_DOWNLOAD_FOLDER_SUCCESS'))
+          if (currentDownloadFileList.length) {
+            currentDownloadFileList.forEach((item: any) => {
+              param.fileArray.push({
+                alias: configMap.alias,
+                bucketName: configMap.bucketName,
+                region: configMap.bucketConfig.Location,
+                key: item.key,
+                fileName: [undefined, true].includes(manageStore.config.settings.isDownloadFolderKeepDirStructure)
+                  ? `/${item.key.replace(/^\/+|\/+$/, '')}`
+                  : item.fileName,
+                customUrl: currentCustomDomain.value,
+                downloadUrl: item.downloadUrl,
+                githubUrl: item.url,
+                githubPrivate: configMap.bucketConfig.private
               })
-            }
-            window.electron.sendRPC(IRPCActionType.MANAGE_DOWNLOAD_BUCKET_FILE, configMap.alias, param)
-            isShowDownloadPanel.value = true
-          } else {
-            ElNotification.error({
-              title: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
-              message: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_FAIL'),
-              duration: 500
             })
           }
-          downloadFileTransferStore.resetDownloadFileTransferList()
+          window.electron.sendRPC(IRPCActionType.MANAGE_DOWNLOAD_BUCKET_FILE, configMap.alias, param)
+          isShowDownloadPanel.value = true
+        } else {
+          message.error(t('MANAGE_BUCKET_DOWNLOAD_FOLDER_FAIL'))
         }
-      }, 500)
-    })
-    .catch(() => {
-      ElNotification.info({
-        title: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
-        message: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_CANCEL'),
-        duration: 500
-      })
-    })
+        downloadFileTransferStore.resetDownloadFileTransferList()
+      }
+    }, 500)
+  } catch {
+    message.info(t('MANAGE_BUCKET_DOWNLOAD_FOLDER_CANCEL'))
+  }
 }
 
 async function handleBatchDownload () {
@@ -2656,14 +2590,10 @@ function handleCheckAllChange () {
   })
 }
 
-function handleCreateFolder () {
-  ElMessageBox.prompt(t('MANAGE_BUCKET_CREATE_FOLDER_BOX_TITLE'), t('MANAGE_BUCKET_CREATE_FOLDER_BOX_TIP'), {
-    confirmButtonText: t('MANAGE_BUCKET_CREATE_FOLDER_BOX_CONFIRM'),
-    cancelButtonText: t('MANAGE_BUCKET_CREATE_FOLDER_BOX_CANCEL'),
-    inputPattern: /^[\p{Unified_Ideograph}_a-zA-Z0-9-]+$/u,
-    inputErrorMessage: t('MANAGE_BUCKET_CREATE_FOLDER_ERROR_MSG')
-  })
-    .then(async ({ value }) => {
+async function handleCreateFolder () {
+  const value = window.prompt(`${t('MANAGE_BUCKET_CREATE_FOLDER_BOX_TITLE')}\n${t('MANAGE_BUCKET_CREATE_FOLDER_BOX_TIP')}`)
+  if (value) {
+    try {
       let formatedPath = value
       formatedPath = trimPath(formatedPath)
       const param = {
@@ -2675,12 +2605,14 @@ function handleCreateFolder () {
       }
       const res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_CREATE_BUCKET_FOLDER, configMap.alias, param)
       if (res) {
-        ElMessage.success(t('MANAGE_BUCKET_CREATE_FOLDER_SUCCESS'))
+        message.success(t('MANAGE_BUCKET_CREATE_FOLDER_SUCCESS'))
       } else {
-        ElMessage.error(t('MANAGE_BUCKET_CREATE_FOLDER_FAIL'))
+        message.error(t('MANAGE_BUCKET_CREATE_FOLDER_FAIL'))
       }
-    })
-    .catch(() => {})
+    } catch (error) {
+      message.error(t('MANAGE_BUCKET_CREATE_FOLDER_FAIL'))
+    }
+  }
 }
 
 function showUrlDialog () {
@@ -2696,15 +2628,10 @@ async function handleUploadFromUrl () {
     }
   })
   if (urlList.length === 0) {
-    ElMessage.warning(t('MANAGE_BUCKET_UPLOAD_URL_ERROR_MSQ'))
+    message.error(t('MANAGE_BUCKET_UPLOAD_URL_ERROR_MSQ'))
     return
   }
-  ElNotification({
-    title: t('MANAGE_BUCKET_UPLOAD_URL_NOT_TITLE'),
-    message: t('MANAGE_BUCKET_UPLOAD_URL_NOT_MSG'),
-    type: 'success',
-    duration: 1000
-  })
+  message.success(t('MANAGE_BUCKET_UPLOAD_URL_NOT_MSG'))
   const res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DOWNLOAD_FILE_FROM_URL, urlList)
   for (const item of res) {
     const fPath = item.replace(/\\/g, '/')
@@ -2746,7 +2673,7 @@ const matchedFilesNumber = computed(() => {
 async function BatchRename () {
   isShowBatchRenameDialog.value = false
   if (batchRenameMatch.value === '') {
-    ElMessage.warning(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG'))
+    message.error(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG'))
     return
   }
   let matchedFiles = [] as any[]
@@ -2762,7 +2689,7 @@ async function BatchRename () {
     }
   })
   if (matchedFiles.length === 0) {
-    ElMessage.warning(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG2'))
+    message.error(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG2'))
     return
   }
   for (const item of matchedFiles) {
@@ -2781,7 +2708,7 @@ async function BatchRename () {
   }
   matchedFiles = matchedFiles.filter((item: any) => item.fileName !== item.newName)
   if (matchedFiles.length === 0) {
-    ElMessage.warning(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG3'))
+    message.error(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG3'))
     return
   }
   for (let i = 0; i < matchedFiles.length; i++) {
@@ -2854,36 +2781,33 @@ async function BatchRename () {
     })
   }
   if (duplicateFilesNum > 0) {
-    ElMessageBox.confirm(
-      `${t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_A')} ${duplicateFilesNum} ${t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_B')}`,
-      t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_C'),
-      {
+    try {
+      await confirm.confirm({
+        message: `${t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_A')} ${duplicateFilesNum} ${t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_B')}`,
+        title: t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_C'),
         confirmButtonText: t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CONFIRM'),
         cancelButtonText: t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CANCEL'),
         type: 'warning'
+      })
+      const promiseList = [] as any[]
+      for (const item of matchedFiles) {
+        promiseList.push(renamefunc(item))
       }
-    )
-      .then(() => {
-        const promiseList = [] as any[]
-        for (const item of matchedFiles) {
-          promiseList.push(renamefunc(item))
-        }
-        Promise.allSettled(promiseList).then(() => {
-          ElMessage.success(
-            `${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_A')} ${successCount},${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_B')} ${failCount}`
-          )
-        })
+      Promise.allSettled(promiseList).then(() => {
+        message.success(
+          `${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_A')} ${successCount},${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_B')} ${failCount}`
+        )
       })
-      .catch(() => {
-        ElMessage.info(t('MANAGE_BUCKET_BATCH_RENAME_CANCEL'))
-      })
+    } catch {
+      message.info(t('MANAGE_BUCKET_BATCH_RENAME_CANCEL'))
+    }
   } else {
     const promiseList = [] as any[]
     for (const item of matchedFiles) {
       promiseList.push(renamefunc(item))
     }
     Promise.allSettled(promiseList).then(() => {
-      ElMessage.success(
+      message.success(
         `${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_A')} ${successCount},${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_B')} ${failCount}`
       )
     })
@@ -2892,7 +2816,7 @@ async function BatchRename () {
 
 function handleBatchCopyInfo () {
   if (selectedItems.value.length === 0) {
-    ElMessage.warning(t('MANAGE_BUCKET_BATCH_COPY_INFO_ERROR_MSG'))
+    message.warning(t('MANAGE_BUCKET_BATCH_COPY_INFO_ERROR_MSG'))
     return
   }
   const result = {} as IStringKeyMap
@@ -2900,7 +2824,7 @@ function handleBatchCopyInfo () {
     result[item.fileName] = item
   })
   window.electron.clipboard.writeText(JSON.stringify(result, null, 2))
-  ElMessage.success(
+  message.success(
     `${t('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_A')} ${selectedItems.value.length} ${t('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_B')}`
   )
 }
@@ -2911,7 +2835,7 @@ async function copyLink (item: any, type: string) {
 
 async function handleBatchCopyLink (type: string) {
   if (!selectedItems.value.length) {
-    ElMessage.warning(t('MANAGE_BUCKET_BATCH_COPY_URL_ERROR_MSG'))
+    message.warning(t('MANAGE_BUCKET_BATCH_COPY_URL_ERROR_MSG'))
     return
   }
   const result = [] as string[]
@@ -2928,41 +2852,43 @@ async function handleBatchCopyLink (type: string) {
     }
   }
   window.electron.clipboard.writeText(result.join('\n'))
-  ElMessage.success(
+  message.success(
     `${t('MANAGE_BUCKET_BATCH_COPY_URL_MSG_A')} ${result.length} ${t('MANAGE_BUCKET_BATCH_COPY_URL_MSG_B')}`
   )
 }
 
-function cancelLoading () {
-  ElMessageBox.confirm(t('MANAGE_BUCKET_CANCEL_LOADING_TITLE'), t('MANAGE_BUCKET_CANCEL_LOADING_MSG'), {
-    confirmButtonText: t('MANAGE_BUCKET_CANCEL_LOADING_CONFIRM'),
-    cancelButtonText: t('MANAGE_BUCKET_CANCEL_LOADING_CANCEL'),
-    type: 'warning'
-  })
-    .then(() => {
-      isLoadingData.value = false
-      window.electron.sendToMain('cancelLoadingFileList', cancelToken.value)
-      ElMessage.success(t('MANAGE_BUCKET_CANCEL_LOADING_SUCCESS'))
+async function cancelLoading () {
+  try {
+    await confirm.confirm({
+      message: t('MANAGE_BUCKET_CANCEL_LOADING_MSG'),
+      title: t('MANAGE_BUCKET_CANCEL_LOADING_TITLE'),
+      confirmButtonText: t('MANAGE_BUCKET_CANCEL_LOADING_CONFIRM'),
+      cancelButtonText: t('MANAGE_BUCKET_CANCEL_LOADING_CANCEL'),
+      type: 'warning'
     })
-    .catch(() => {})
+    isLoadingData.value = false
+    window.electron.sendToMain('cancelLoadingFileList', cancelToken.value)
+    message.success(t('MANAGE_BUCKET_CANCEL_LOADING_SUCCESS'))
+  } catch {
+    // User cancelled
+  }
 }
 
-function cancelDownloadLoading () {
-  ElMessageBox.confirm(
-    t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_TITLE'),
-    t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_MSG'),
-    {
+async function cancelDownloadLoading () {
+  try {
+    await confirm.confirm({
+      message: t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_MSG'),
+      title: t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_TITLE'),
       confirmButtonText: t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_CONFIRM'),
       cancelButtonText: t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_CANCEL'),
       type: 'warning'
-    }
-  )
-    .then(() => {
-      isLoadingData.value = false
-      window.electron.sendToMain(cancelDownloadLoadingFileList, downloadCancelToken.value)
-      ElMessage.success(t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_SUCCESS'))
     })
-    .catch(() => {})
+    isLoadingData.value = false
+    window.electron.sendToMain(cancelDownloadLoadingFileList, downloadCancelToken.value)
+    message.success(t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_SUCCESS'))
+  } catch {
+    // User cancelled
+  }
 }
 
 async function getBucketFileListBackStage () {
@@ -3012,17 +2938,9 @@ async function getBucketFileListBackStage () {
       isLoadingData.value = false
       clearInterval(fileTransferInterval)
       if (fileTransferStore.isSuccess()) {
-        ElNotification.success({
-          title: t('MANAGE_BUCKET_GET_FILE_BS_NOT_TITLE'),
-          message: t('MANAGE_BUCKET_GET_FILE_BS_NOT_MSG'),
-          duration: 500
-        })
+        message.success(t('MANAGE_BUCKET_GET_FILE_BS_NOT_MSG'))
       } else {
-        ElNotification.error({
-          title: t('MANAGE_BUCKET_GET_FILE_BS_NOT_TITLE'),
-          message: t('MANAGE_BUCKET_GET_FILE_BS_NOT_MSG2'),
-          duration: 500
-        })
+        message.error(t('MANAGE_BUCKET_GET_FILE_BS_NOT_MSG2'))
       }
       fileTransferStore.resetFileTransferList()
     }
@@ -3046,92 +2964,22 @@ async function getBucketFileList () {
   return await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_GET_BUCKET_FILE_LIST, configMap.alias, param)
 }
 
-function handleBatchDeleteInfo () {
+async function handleBatchDeleteInfo () {
   const confirmTitle = `${t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_A')} ${selectedItems.value.length} ${t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_B')}`
-  ElMessageBox.confirm(confirmTitle, t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_MSG'), {
-    confirmButtonText: t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CONFIRM'),
-    cancelButtonText: t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CANCEL'),
-    type: 'warning',
-    center: true,
-    draggable: true
-  })
-    .then(async () => {
-      const copiedSelectedItems = JSON.parse(JSON.stringify(selectedItems.value))
-      let successCount = 0
-      let failCount = 0
-
-      for (const item of copiedSelectedItems) {
-        const param = {
-          bucketName: configMap.bucketName,
-          region: configMap.bucketConfig.Location,
-          key: item.key,
-          DeleteHash: item.sha,
-          githubBranch: currentCustomDomain.value
-        }
-        const result = item.isDir
-          ? await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FOLDER, configMap.alias, param)
-          : await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FILE, configMap.alias, param)
-        if (result) {
-          successCount++
-          currentPageFilesInfo.splice(
-            currentPageFilesInfo.findIndex((j: any) => j.key === item.key),
-            1
-          )
-          if (!paging.value) {
-            const table = fileCacheDbInstance.table(currentPicBedName.value)
-            table
-              .where('key')
-              .equals(getTableKeyOfDb())
-              .modify((l: any) => {
-                l.value.fullList.splice(
-                  l.value.fullList.findIndex((j: any) => j.key === item.key),
-                  1
-                )
-              })
-          }
-        } else {
-          failCount++
-        }
-      }
-      if (successCount === 0) {
-        ElNotification.error({
-          title: t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_TITLE'),
-          message: t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG'),
-          duration: 1000
-        })
-      } else if (failCount === 0) {
-        ElNotification.success({
-          title: t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_TITLE'),
-          message: t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
-          duration: 1000
-        })
-      } else {
-        ElNotification.warning({
-          title: t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_TITLE'),
-          message: `${t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2')} ${successCount}, ${t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG3')} ${failCount}`,
-          duration: 1000
-        })
-      }
-    })
-    .catch(() => {
-      ElMessage.info(t('MANAGE_BUCKET_BATCH_DELETE_CANCEL'))
-    })
-}
-
-function handleDeleteFile (item: any) {
-  ElMessageBox.confirm(
-    `${t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE')} ${item.isDir ? t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FOLDER') : t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FILE')} ${item.fileName} ${item.isDir ? t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FOLDER_A') : ''}, ${t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_C')}`,
-    t('MANAGE_BUCKET_DELETE_CONFIRM_MSG'),
-    {
-      confirmButtonText: t('MANAGE_BUCKET_DELETE_CONFIRM_CONFIRM'),
-      cancelButtonText: t('MANAGE_BUCKET_DELETE_CONFIRM_CANCEL'),
+  try {
+    await confirm.confirm({
+      message: t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_MSG'),
+      title: confirmTitle,
+      confirmButtonText: t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CONFIRM'),
+      cancelButtonText: t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CANCEL'),
       type: 'warning',
-      center: true,
-      draggable: true
-    }
-  )
-    .then(async () => {
-      let res = false
+      center: true
+    })
+    const copiedSelectedItems = JSON.parse(JSON.stringify(selectedItems.value))
+    let successCount = 0
+    let failCount = 0
+
+    for (const item of copiedSelectedItems) {
       const param = {
         bucketName: configMap.bucketName,
         region: configMap.bucketConfig.Location,
@@ -3139,20 +2987,13 @@ function handleDeleteFile (item: any) {
         DeleteHash: item.sha,
         githubBranch: currentCustomDomain.value
       }
-      if (item.isDir) {
-        ElNotification.info({
-          title: t('MANAGE_BUCKET_DELETE_ERROR_MSG_TITLE'),
-          message: t('MANAGE_BUCKET_DELETE_ERROR_MSG_MSG'),
-          duration: 1000
-        })
-        res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FOLDER, configMap.alias, param)
-      } else {
-        res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FILE, configMap.alias, param)
-      }
-      if (res) {
-        ElMessage.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
+      const result = item.isDir
+        ? await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FOLDER, configMap.alias, param)
+        : await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FILE, configMap.alias, param)
+      if (result) {
+        successCount++
         currentPageFilesInfo.splice(
-          currentPageFilesInfo.findIndex((i: any) => i.key === item.key),
+          currentPageFilesInfo.findIndex((j: any) => j.key === item.key),
           1
         )
         if (!paging.value) {
@@ -3162,18 +3003,75 @@ function handleDeleteFile (item: any) {
             .equals(getTableKeyOfDb())
             .modify((l: any) => {
               l.value.fullList.splice(
-                l.value.fullList.findIndex((i: any) => i.key === item.key),
+                l.value.fullList.findIndex((j: any) => j.key === item.key),
                 1
               )
             })
         }
       } else {
-        ElMessage.error(t('MANAGE_BUCKET_DELETE_FAIL'))
+        failCount++
       }
+    }
+    if (successCount === 0) {
+      message.error(t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG'))
+    } else if (failCount === 0) {
+      message.success(t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'))
+    } else {
+      message.warning(`${t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2')} ${successCount}, ${t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG3')} ${failCount}`)
+    }
+  } catch {
+    message.info(t('MANAGE_BUCKET_BATCH_DELETE_CANCEL'))
+  }
+}
+
+async function handleDeleteFile (item: any) {
+  try {
+    await confirm.confirm({
+      message: `${t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE')} ${item.isDir ? t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FOLDER') : t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FILE')} ${item.fileName} ${item.isDir ? t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FOLDER_A') : ''}, ${t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_C')}`,
+      title: t('MANAGE_BUCKET_DELETE_CONFIRM_MSG'),
+      confirmButtonText: t('MANAGE_BUCKET_DELETE_CONFIRM_CONFIRM'),
+      cancelButtonText: t('MANAGE_BUCKET_DELETE_CONFIRM_CANCEL'),
+      type: 'warning',
+      center: true
     })
-    .catch(() => {
-      ElMessage.info(t('MANAGE_BUCKET_DELETE_CANCEL'))
-    })
+    let res = false
+    const param = {
+      bucketName: configMap.bucketName,
+      region: configMap.bucketConfig.Location,
+      key: item.key,
+      DeleteHash: item.sha,
+      githubBranch: currentCustomDomain.value
+    }
+    if (item.isDir) {
+      message.info(t('MANAGE_BUCKET_DELETE_ERROR_MSG_MSG'))
+      res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FOLDER, configMap.alias, param)
+    } else {
+      res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FILE, configMap.alias, param)
+    }
+    if (res) {
+      message.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
+      currentPageFilesInfo.splice(
+        currentPageFilesInfo.findIndex((i: any) => i.key === item.key),
+        1
+      )
+      if (!paging.value) {
+        const table = fileCacheDbInstance.table(currentPicBedName.value)
+        table
+          .where('key')
+          .equals(getTableKeyOfDb())
+          .modify((l: any) => {
+            l.value.fullList.splice(
+              l.value.fullList.findIndex((i: any) => i.key === item.key),
+              1
+            )
+          })
+      }
+    } else {
+      message.error(t('MANAGE_BUCKET_DELETE_FAIL'))
+    }
+  } catch {
+    message.info(t('MANAGE_BUCKET_DELETE_CANCEL'))
+  }
 }
 
 function handleRenameFile (item: any) {
@@ -3202,7 +3100,7 @@ function singleRename () {
       itemToBeRenamed.value.fileName.split('.')[1]
   }
   if (itemToBeRenamed.value.newName === itemToBeRenamed.value.fileName) {
-    ElMessage.info(t('MANAGE_BUCKET_RENAME_INFO_MSG'))
+    message.info(t('MANAGE_BUCKET_RENAME_INFO_MSG'))
     return
   }
   itemToBeRenamed.value.newName = itemToBeRenamed.value.newName.replaceAll('{auto}', '1')
@@ -3262,9 +3160,9 @@ function singleRename () {
             })
           })
       }
-      ElMessage.success(t('MANAGE_BUCKET_RENAME_SUCCESS'))
+      message.success(t('MANAGE_BUCKET_RENAME_SUCCESS'))
     } else {
-      ElMessage.error(t('MANAGE_BUCKET_RENAME_ERROR_MSG'))
+      message.error(t('MANAGE_BUCKET_RENAME_ERROR_MSG'))
     }
   })
 }
@@ -3297,7 +3195,16 @@ async function getPreSignedUrl (item: any) {
 
 function copyToClipboard (text: string) {
   window.electron.clipboard.writeText(text)
-  ElMessage.success(t('MANAGE_BUCKET_COPY_SUCCESS'))
+  // ElMessage.success(t('MANAGE_BUCKET_COPY_SUCCESS'))
+  console.log('Copied to clipboard:', text)
+}
+
+function toggleCopyDropdown (index: number) {
+  if (copyDropdownIndex.value === index) {
+    copyDropdownIndex.value = -1
+  } else {
+    copyDropdownIndex.value = index
+  }
 }
 
 function getTableKeyOfDb () {
@@ -3324,535 +3231,13 @@ function handleDetectShiftKey (event: KeyboardEvent) {
       isShiftKeyPress.value = false
     }
   }
+
+  // F11 键切换全屏模式
+  if (event.key === 'F11' && event.type === 'keydown') {
+    event.preventDefault() // 阻止浏览器默认的全屏行为
+    toggleContentFullscreen()
+  }
 }
-
-const downloadedTaskColumns: Column<any>[] = [
-  {
-    key: 'name',
-    title: t('MANAGE_BUCKET_DOWNLOAD_COLUMN_FILENAME'),
-    dataKey: 'sourceFileName',
-    width: 300,
-    cellRenderer: ({ rowData: item }) => (
-      <div
-        onClick={() => {
-          window.electron.sendRPC(IRPCActionType.MANAGE_OPEN_LOCAL_FILE, item.targetFilePath)
-        }}
-      >
-        <ElTooltip effect='dark' content={item.sourceFileName} placement='top'>
-          <ElLink style='color: black;font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-            {formatFileName(item.sourceFileName)}
-          </ElLink>
-        </ElTooltip>
-      </div>
-    )
-  },
-  {
-    key: 'finishTime',
-    title: t('MANAGE_BUCKET_DOWNLOAD_COLUMN_FINISHTIME'),
-    dataKey: 'finishTime',
-    width: 200,
-    cellRenderer: ({ rowData: item }) => (
-      <span style='color: black;font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>{item.finishTime}</span>
-    )
-  },
-  {
-    key: 'status',
-    title: t('MANAGE_BUCKET_DOWNLOAD_COLUMN_STATUS'),
-    width: 100,
-    cellRenderer: ({ rowData: item }) =>
-      item.status === 'downloaded'
-        ? (
-        <ElTag type='success' style='font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-          {t('MANAGE_BUCKET_DOWNLOAD_COLUMN_STATUS_SUCCESS')}
-        </ElTag>
-          )
-        : (
-        <ElTag type='danger' style='font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-          {t('MANAGE_BUCKET_DOWNLOAD_COLUMN_STATUS_FAIL')}
-        </ElTag>
-          )
-  }
-]
-
-const uploadedTaskColumns: Column<any>[] = [
-  {
-    key: 'name',
-    title: t('MANAGE_BUCKET_UPLOAD_COLUMN_FILENAME'),
-    dataKey: 'sourceFileName',
-    width: 300,
-    cellRenderer: ({ rowData: item }) => (
-      <ElTooltip effect='dark' content={item.sourceFileName} placement='top'>
-        <span style='color: black;font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-          {formatFileName(item.sourceFileName)}
-        </span>
-      </ElTooltip>
-    )
-  },
-  {
-    key: 'targetFilePath',
-    title: t('MANAGE_BUCKET_UPLOAD_COLUMN_TARGETFILEPATH'),
-    dataKey: 'targetFilePath',
-    width: 300,
-    cellRenderer: ({ rowData: item }) => (
-      <ElTooltip effect='dark' content={item.targetFilePath} placement='top'>
-        <span style='color: black;font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-          {formatFileName(item.targetFilePath)}
-        </span>
-      </ElTooltip>
-    )
-  },
-  {
-    key: 'finishTime',
-    title: t('MANAGE_BUCKET_UPLOAD_COLUMN_FINISHTIME'),
-    dataKey: 'finishTime',
-    width: 200,
-    cellRenderer: ({ rowData: item }) => (
-      <span style='color: black;font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>{item.finishTime}</span>
-    )
-  },
-  {
-    key: 'status',
-    title: t('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS'),
-    width: 100,
-    cellRenderer: ({ rowData: item }) =>
-      item.status === 'uploaded'
-        ? (
-        <ElTag type='success' style='font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-          {t('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS_SUCCESS')}
-        </ElTag>
-          )
-        : (
-        <ElTag type='danger' style='font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-          {t('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS_FAIL')}
-        </ElTag>
-          )
-  }
-]
-
-const downloadingTaskColumns: Column<any>[] = [
-  {
-    key: 'name',
-    title: t('MANAGE_BUCKET_DOWNLOADING_COLUMN_FILENAME'),
-    dataKey: 'sourceFileName',
-    width: 300,
-    cellRenderer: ({ rowData: item }) => (
-      <span style='color: black;font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-        {formatFileName(item.sourceFileName)}
-      </span>
-    )
-  },
-  {
-    key: 'progress',
-    title: t('MANAGE_BUCKET_DOWNLOADING_COLUMN_PROGRESS'),
-    dataKey: 'progress',
-    width: 300,
-    cellRenderer: ({ rowData: item }) => (
-      <ElProgress percentage={item.progress} status='success' strokeWidth={20} textInside style='width: 100%;' />
-    )
-  }
-]
-
-const uploadingTaskColumns: Column<any>[] = [
-  {
-    key: 'name',
-    title: t('MANAGE_BUCKET_UPLOADING_COLUMN_FILENAME'),
-    dataKey: 'sourceFileName',
-    width: 300,
-    cellRenderer: ({ rowData: item }) => (
-      <span style='color: black;font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-        {formatFileName(item.sourceFileName)}
-      </span>
-    )
-  },
-  {
-    key: 'progress',
-    title: t('MANAGE_BUCKET_UPLOADING_COLUMN_PROGRESS'),
-    dataKey: 'progress',
-    width: 300,
-    cellRenderer: ({ rowData: item }) => (
-      <ElProgress
-        percentage={item.progress ? item.progress : 50}
-        status='success'
-        strokeWidth={20}
-        textInside
-        style='width: 100%;'
-        indeterminate={!!item.noProgress}
-      />
-    )
-  }
-]
-
-const upLoadTaskColumns: Column<any>[] = [
-  {
-    key: 'name',
-    title: t('MANAGE_BUCKET_UPLOADED_COLUMN_FILENAME'),
-    dataKey: 'name',
-    width: 300,
-    cellRenderer: ({ rowData: item }) =>
-      item.isFolder
-        ? (
-        <span>
-          <ElIcon color='#409EFF' style='position: relative;left: -5px;'>
-            <FolderOpened />
-          </ElIcon>
-          <span style='font-weight: bold;color: black;font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-            {formatFileName(item.name)}
-          </span>
-        </span>
-          )
-        : (
-        <span>
-          <ElIcon color='#409EFF'>
-            <Document />
-          </ElIcon>
-          <span style='color: black;font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-            {formatFileName(item.name)}
-          </span>
-        </span>
-          )
-  },
-  {
-    key: 'fileSize',
-    title: t('MANAGE_BUCKET_UPLOADED_COLUMN_FILESIZE'),
-    dataKey: 'fileSize',
-    width: 100,
-    cellRenderer: ({ rowData: item }) => (
-      <span style='color: black;font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-        {formatFileSize(item.fileSize)}
-      </span>
-    )
-  },
-  {
-    key: 'fileNumber',
-    title: t('MANAGE_BUCKET_UPLOADED_COLUMN_FILENUM'),
-    width: 100,
-    cellRenderer: ({ rowData: item }) =>
-      !item.isFolder
-        ? (
-        <template></template>
-          )
-        : (
-        <span style='color: black;font-size: 14px;font-family: Arial, Helvetica, sans-serif;'>
-          {item.filesList.length}
-        </span>
-          )
-  }
-]
-
-function rowClass ({ rowData }: Parameters<RowClassNameGetter<any>>[0]) {
-  return rowData.checked ? 'file-list-row-checked' : ''
-}
-
-const columns: Column<any>[] = [
-  {
-    key: 'checked',
-    title: '',
-    dataKey: 'checked',
-    width: 30,
-    cellRenderer: ({ rowData: item }) => <ElCheckbox v-model={item.checked}></ElCheckbox>
-  },
-  {
-    key: 'icon',
-    title: '',
-    width: 30,
-    cellRenderer: ({ rowData: item }) => (
-      <ElPopover
-        trigger='hover'
-        width='200'
-        disabled={!item.isImage}
-        placement='right'
-        persistent={false}
-        teleported={true}
-      >
-        {{
-          reference: () =>
-            !item.isDir
-              ? (
-                  currentPicBedName.value !== 'webdavplist'
-                    ? (
-                        currentPicBedName.value === 's3plist' && item.isImage && isUsePreSignedUrl.value
-                          ? (
-                  <ImagePreSignTsx
-                    isShowThumbnail={isShowThumbnail.value}
-                    item={item}
-                    config={handleGetS3Config(item)}
-                    url={item.url}
-                    alias={configMap.alias}
-                  />
-                            )
-                          : (
-                  <ElImage
-                    src={
-                      isShowThumbnail.value
-                        ? item.isImage
-                          ? item.url
-                          : `/assets/icons/${getFileIconPath(item.fileName ?? '')}`
-                        : `/assets/icons/${getFileIconPath(item.fileName ?? '')}`
-                    }
-                    fit='contain'
-                    style={{ width: '20px', height: '20px' }}
-                  >
-                    {{
-                      placeholder: () => (
-                        <ElIcon>
-                          <Loading />
-                        </ElIcon>
-                      ),
-                      error: () => (
-                        <ElImage
-                          src={`/assets/icons/${getFileIconPath(item.fileName ?? '')}`}
-                          fit='contain'
-                          style={{ width: '20px', height: '20px' }}
-                        />
-                      )
-                    }}
-                  </ElImage>
-                            )
-                      )
-                    : item.isImage
-                      ? (
-                <ImageWebdavTsx
-                  isShowThumbnail={isShowThumbnail.value}
-                  item={item}
-                  config={handleGetWebdavConfig()}
-                  url={item.url}
-                />
-                        )
-                      : (
-                <ElImage
-                  src={`/assets/icons/${getFileIconPath(item.fileName ?? '')}`}
-                  fit='contain'
-                  style={{ width: '20px', height: '20px' }}
-                ></ElImage>
-                        )
-                )
-              : (
-              <ElImage
-                src={'/assets/icons/folder.webp'}
-                fit='contain'
-                style={{ width: '20px', height: '20px' }}
-              />
-                ),
-          default: () =>
-            currentPicBedName.value === 'webdavplist' && item.isImage
-              ? (
-              <ImageWebdavTsx
-                isShowThumbnail={isShowThumbnail.value}
-                item={item}
-                config={handleGetWebdavConfig()}
-                url={item.url}
-              />
-                )
-              : currentPicBedName.value === 's3plist' && item.isImage && isUsePreSignedUrl.value
-                ? (
-              <ImagePreSignTsx
-                isShowThumbnail={isShowThumbnail.value}
-                item={item}
-                config={handleGetS3Config(item)}
-                url={item.url}
-                alias={configMap.alias}
-              />
-                  )
-                : (
-              <ElImage
-                src={item.isImage ? item.url : `/assets/icons/${getFileIconPath(item.fileName ?? '')}`}
-                fit='contain'
-              >
-                {{
-                  placeholder: () => (
-                    <ElIcon>
-                      <Loading />
-                    </ElIcon>
-                  ),
-                  error: () => (
-                    <ElIcon>
-                      <CircleClose />
-                    </ElIcon>
-                  )
-                }}
-              </ElImage>
-                  )
-        }}
-      </ElPopover>
-    )
-  },
-  {
-    key: 'fileName',
-    title: t('MANAGE_BUCKET_FILE_COLUMN_FILENAME'),
-    dataKey: 'fileName',
-    width: 300,
-    cellRenderer: ({ cellData: fileName, rowData: item }) => (
-      <div onClick={() => handleClickFile(item)}>
-        <ElTooltip placement='top' content={fileName}>
-          <div style='font-size: 14px;color: #303133;font-family: Arial, Helvetica, sans-serif;'>
-            {formatFileName(item.fileName ?? '', 40)}
-          </div>
-        </ElTooltip>
-      </div>
-    )
-  },
-  {
-    key: 'rename',
-    title: '',
-    width: 30,
-    cellRenderer: ({ rowData: item }) =>
-      item.isDir || !isShowRenameFileIcon.value
-        ? (
-            item.isDir
-              ? (
-          <ElIcon size='15' style='cursor: pointer;' color='#409EFF' onClick={() => handleFolderBatchDownload(item)}>
-            <Download />
-          </ElIcon>
-                )
-              : (
-          <template></template>
-                )
-          )
-        : (
-        <ElIcon size='15' style='cursor: pointer;' color='#409EFF' onClick={() => handleRenameFile(item)}>
-          <Edit />
-        </ElIcon>
-          )
-  },
-  {
-    key: 'copy',
-    title: '',
-    width: 30,
-    cellRenderer: ({ rowData: item }) => (
-      <ElTooltip placement='top' content={t('MANAGE_BUCKET_FILE_COLUMN_COPY_URL')} effect='light' hide-after={150}>
-        <ElDropdown teleported={true}>
-          {{
-            default: () => (
-              <ElIcon
-                size='15'
-                style='cursor: pointer;'
-                color='#409EFF'
-                onClick={async () =>
-                  copyToClipboard(
-                    await formatLink(
-                      item.url,
-                      item.fileName,
-                      manageStore.config.settings.pasteFormat ?? '$markdown',
-                      manageStore.config.settings.customPasteFormat ?? '$url'
-                    )
-                  )
-                }
-              >
-                <CopyDocument />
-              </ElIcon>
-            ),
-            dropdown: () => (
-              <ElDropdownMenu>
-                <ElDropdownItem onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'url'))}>
-                  Url
-                </ElDropdownItem>
-                <ElDropdownItem
-                  onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'markdown'))}
-                >
-                  Markdown
-                </ElDropdownItem>
-                <ElDropdownItem
-                  onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'markdown-with-link'))}
-                >
-                  Markdown-link
-                </ElDropdownItem>
-                <ElDropdownItem
-                  onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'html'))}
-                >
-                  Html
-                </ElDropdownItem>
-                <ElDropdownItem
-                  onClick={async () => copyToClipboard(await formatLink(item.url, item.fileName, 'bbcode'))}
-                >
-                  BBCode
-                </ElDropdownItem>
-                <ElDropdownItem
-                  onClick={async () =>
-                    copyToClipboard(
-                      await formatLink(item.url, item.fileName, 'custom', manageStore.config.settings.customPasteFormat)
-                    )
-                  }
-                >
-                  Custom
-                </ElDropdownItem>
-                {isShowPresignedUrl.value
-                  ? (
-                  <ElDropdownItem
-                    onClick={async () => {
-                      const res = await getPreSignedUrl(item)
-                      copyToClipboard(res)
-                    }}
-                  >
-                    preSignURL
-                  </ElDropdownItem>
-                    )
-                  : (
-                  <template></template>
-                    )}
-              </ElDropdownMenu>
-            )
-          }}
-        </ElDropdown>
-      </ElTooltip>
-    )
-  },
-  {
-    key: 'info',
-    title: '',
-    width: 30,
-    cellRenderer: ({ rowData: item }) => (
-      <ElTooltip placement='top' content={t('MANAGE_BUCKET_FILE_COLUMN_INFO')} effect='light' hide-after={150}>
-        <ElIcon size='15' style='cursor: pointer;' color='#409EFF' onClick={() => handleShowFileInfo(item)}>
-          <Document />
-        </ElIcon>
-      </ElTooltip>
-    )
-  },
-  {
-    key: 'placeholder',
-    title: '',
-    width: 30,
-    cellRenderer: () => <span></span>
-  },
-  {
-    key: 'fileSize',
-    title: t('MANAGE_BUCKET_FILE_COLUMN_FILESIZE'),
-    width: 100,
-    dataKey: 'fileSize',
-    cellRenderer: ({ cellData: fileSize, rowData: item }) => (
-      <div
-        style='font-size: 14px;color: #303133;font-family: Arial, Helvetica, sans-serif;height: 100%;display: flex;align-items: center;'
-        onClick={() => handleCheckChangeOther(item)}
-      >
-        {formatFileSize(fileSize)}
-      </div>
-    )
-  },
-  {
-    key: 'formatedTime',
-    title: t('MANAGE_BUCKET_FILE_COLUMN_TIME'),
-    width: 200,
-    dataKey: 'formatedTime',
-    cellRenderer: ({ cellData: formatedTime, rowData: item }) => (
-      <div
-        style='font-size: 14px;color: #303133;font-family: Arial, Helvetica, sans-serif;height: 100%;display: flex;align-items: center;'
-        onClick={() => handleCheckChangeOther(item)}
-      >
-        {formatedTime}
-      </div>
-    )
-  },
-  {
-    key: 'delete',
-    title: '',
-    width: 30,
-    cellRenderer: ({ rowData: item }) => (
-      <ElIcon style='cursor: pointer;' color='red' onClick={() => handleDeleteFile(item)}>
-        <DeleteFilled />
-      </ElIcon>
-    )
-  }
-]
 
 onBeforeMount(async () => {
   await manageStore.refreshConfig()
@@ -3882,71 +3267,4 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style lang="stylus">
-.layout-header
-  background-color #fff
-  box-shadow 2px 2px 1px rgba(0, 0, 0, .1)
-  flex-shrink 0
-  display flex
-  align-items center
-  padding right 15px
-.dir-layout
-  display: flex
-  flex-direction: row
-  align-items: center
-  padding: 5px 10px
-  flex-shrink: 0
-.header-dir-view
-  display: flex
-  flex-direction: row
-  align-items: center
-  padding: 5px 10px
-  flex-shrink: 0
-  flex-grow: 1
-  flex-shrink: 1
-  overflow-x: auto
-.header-info-view
-  display: flex;
-  flex-direction: row
-  align-items: center
-  flex-shrink: 0
-  margin-right: 10px
-  font-weight: 500
-  font-size: 12px
-.header-buttom-view
-  display: flex
-  flex-direction: row
-  flex-shrink: 0
-.btn
-  margin-right: 10px
-.file-item
-  :hover
-    background-color Beige
-.file-list-font
-  font-size 14px
-  color #303133
-  font-family Arial, Helvetica, sans-serif
-.file-list-row-checked
-  background-color Beige
-#refresh
-  :hover
-    animation rotate 1s linear infinite reverse
-#upload-area
-  height 40%
-  border 2px dashed #dddddd
-  border-radius 8px
-  text-align center
-  width 100%
-  margin 0 auto
-  color #dddddd
-  cursor pointer
-  transition all .2s ease-in-out
-  align-items center
-  #upload-dragger
-    height 100%
-    item-align center
-  &.is-dragover,
-  &:hover
-    border 2px dashed #A4D8FA
-    color #A4D8FA
-</style>
+<style src="./css/BucketPage.css" scoped></style>

@@ -1,288 +1,347 @@
 <template>
-  <div class="layout">
-    <div class="layout__menu">
-      <div class="layout__menu__button">
-        <span
-          class="layout__menu__button__item"
-          @click="openPicBedUrl"
-        >
-          <img
-            :src="`/assets/${currentPagePicBedConfig.picBedName}.webp`"
-            class="layout__menu__button__item__icon"
+  <div class="manage-container">
+    <!-- Header Card -->
+    <div class="manage-card header-card">
+      <div class="card-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <img
+              :src="`/assets/${currentPagePicBedConfig.picBedName}.webp`"
+              class="header-icon-img"
+            >
+          </div>
+          <div class="header-text">
+            <h2 class="header-title">
+              {{ supportedPicBedList[currentPagePicBedConfig.picBedName].name }}
+            </h2>
+            <p class="header-subtitle">
+              {{ menuTitleMap[currentPicBedName] }}
+            </p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button
+            class="action-button secondary"
+            @click="openPicBedUrl"
           >
-          {{ supportedPicBedList[currentPagePicBedConfig.picBedName].name }}
-        </span>
-      </div>
-      <el-divider
-        content-position="left"
-        class="layout__menu__button__divider"
-        border-style="none"
-      >
-        <span style="font-size: 14px; color: #909399">
-          {{ menuTitleMap[currentPicBedName] }}
-          <el-tooltip
+            <ExternalLinkIcon class="button-icon" />
+            {{ t('pages.manage.main.openPicBedUrl') }}
+          </button>
+          <button
             v-if="showNewIconList.includes(currentPicBedName)"
-            effect="dark"
-            :content="$t('MANAGE_MAIN_PAGE_NEW_BUCKET')"
-            placement="right"
-            :persistent="false"
-            teleported
-            popper-class="layout__menu__button__divider__tooltip"
+            class="action-button primary"
+            @click="openNewBucketDrawer"
           >
-            <el-icon
-              class="layout__menu__button__divider__icon"
-              color="red"
-              style="top: 2px"
-              @click="openNewBucketDrawer()"
-            >
-              <CirclePlus />
-            </el-icon>
-          </el-tooltip>
-        </span>
-      </el-divider>
-      <div />
-      <el-menu
-        v-loading="isLoadingBucketList"
-        class="layout__menu__list"
-        :default-active="getCurrentActiveBucket"
-        style="width: 120px"
-        active-text-color="#409EFF"
-        @select="handleSelectMenu"
-      >
-        <el-menu-item
-          v-for="item of bucketNameList"
-          :key="item"
-          :index="item"
-        >
-          <span
-            class="layout__menu__list__item"
-            :style="{
-              color: item === currentSelectedBucket ? '#409EFF' : '#606266'
-            }"
-          >
-            <el-icon
-              v-if="currentSelectedBucket === item && currentPicBedName !== 'github'"
-              class="layout__menu__list__item__icon"
-              color="#409EFF"
-              style="top: 2px"
-            >
-              <FolderOpened />
-            </el-icon>
-            <el-icon
-              v-else-if="currentPicBedName !== 'github'"
-              class="layout__menu__list__item__icon"
-              color="#606266"
-              style="top: 2px"
-            >
-              <Folder />
-            </el-icon>
-            {{
-              currentPicBedName === 'tcyun'
-                ? item.slice(0, item.length - 11)
-                : currentPicBedName === 'github'
-                  ? item.length > 10
-                    ? `${item.slice(0, 5)}..${item.slice(-5)}`
-                    : item
-                  : item
-            }}
-          </span>
-        </el-menu-item>
-      </el-menu>
-      <el-menu
-        class="layout__menu__setting"
-        style="width: 120px"
-      >
-        <el-menu-item
-          index="changePicBed"
-          style="height: 40px"
-          @click="switchPicBed('main')"
-        >
-          <span class="layout__menu__setting__item">
-            <el-icon class="layout__menu__setting__item__icon">
-              <HomeFilled />
-            </el-icon>
-            {{ $t('MANAGE_MAIN_PAGE_BACK_TO_HOME') }}
-          </span>
-        </el-menu-item>
-        <el-menu-item
-          index="changePicBed"
-          style="height: 40px"
-          @click="changePicBed"
-        >
-          <span class="layout__menu__setting__item">
-            <el-icon class="layout__menu__setting__item__icon">
-              <Switch />
-            </el-icon>
-            {{ $t('MANAGE_MAIN_PAGE_SWITCH_PICBED') }}
-          </span>
-        </el-menu-item>
-        <el-menu-item
-          index="bucketPageSetting"
-          style="height: 40px"
-          @click="openBucketPageSetting"
-        >
-          <span class="layout__menu__setting__item">
-            <el-icon class="layout__menu__setting__item__icon">
-              <Tools />
-            </el-icon>
-            {{ $t('MANAGE_MAIN_PAGE_SETTING') }}
-          </span>
-        </el-menu-item>
-      </el-menu>
+            <PlusIcon class="button-icon" />
+            {{ t('pages.manage.main.newBucket') }}
+          </button>
+        </div>
+      </div>
     </div>
+
+    <!-- Main Content Card -->
+    <div class="manage-card main-card">
+      <div class="main-layout">
+        <div class="sidebar">
+          <div class="sidebar-header">
+            <h3 class="sidebar-title">
+              {{ menuTitleMap[currentPicBedName] }}
+            </h3>
+          </div>
+
+          <div class="sidebar-content">
+            <div
+              v-if="isLoadingBucketList"
+              class="loading-container"
+            >
+              <div class="loading-spinner" />
+              <span class="loading-text">{{ t('pages.manage.main.loading') }}</span>
+            </div>
+            <div
+              v-else
+              class="menu-list"
+            >
+              <div
+                v-for="item in bucketNameList"
+                :key="item"
+                class="menu-item"
+                :class="{ active: item === currentSelectedBucket }"
+                @click="handleSelectMenu(item)"
+              >
+                <FolderIcon
+                  v-if="currentSelectedBucket === item && currentPicBedName !== 'github'"
+                  class="menu-icon active"
+                />
+                <FolderIcon
+                  v-else-if="currentPicBedName !== 'github'"
+                  class="menu-icon"
+                />
+                <GitBranchIcon
+                  v-else-if="currentPicBedName === 'github'"
+                  class="menu-icon"
+                />
+                <span class="menu-text">
+                  {{
+                    currentPicBedName === 'tcyun'
+                      ? item.slice(0, item.length - 11)
+                      : currentPicBedName === 'github'
+                        ? item.length > 10
+                          ? `${item.slice(0, 5)}..${item.slice(-5)}`
+                          : item
+                        : item
+                  }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-footer">
+            <div class="footer-actions">
+              <button
+                class="footer-action-item"
+                @click="switchPicBed('main')"
+              >
+                <HomeIcon class="action-icon" />
+                <span class="action-text">{{ t('pages.manage.main.backToHome') }}</span>
+              </button>
+              <button
+                class="footer-action-item"
+                @click="changePicBed"
+              >
+                <ArrowLeftRightIcon class="action-icon" />
+                <span class="action-text">{{ t('pages.manage.main.switchPicBed') }}</span>
+              </button>
+              <button
+                class="footer-action-item"
+                @click="openBucketPageSetting"
+              >
+                <SettingsIcon class="action-icon" />
+                <span class="action-text">{{ t('pages.manage.main.settings') }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <router-view />
+        </div>
+      </div>
+    </div>
+
+    <!-- PicBed Switch Dialog -->
     <div
-      class="layout__content"
-      style="height: 100%; background-color: transparent; flex: 1; width: 0"
-    >
-      <router-view />
-    </div>
-    <el-dialog
-      v-model="picBedSwitchDialogVisible"
-      top="30vh"
-      append-to-body
+      v-if="picBedSwitchDialogVisible"
+      class="dialog-overlay"
+      @click="picBedSwitchDialogVisible = false"
     >
       <div
-        class="choice-cos"
-        style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-around"
+        class="dialog-container"
+        @click.stop
       >
-        <el-card shadow="hover">
-          <div
-            style="text-align: center; display: flex; flex-direction: column"
-            @click="switchPicBed('main')"
+        <div class="dialog-header">
+          <h3 class="dialog-title">
+            {{ t('pages.manage.main.switchPicBed') }}
+          </h3>
+          <button
+            class="dialog-close"
+            @click="picBedSwitchDialogVisible = false"
           >
-            <el-icon
-              color="red"
-              size="25px"
-              style="margin: 0 auto"
+            <XIcon class="close-icon" />
+          </button>
+        </div>
+        <div class="dialog-content">
+          <div class="choice-cos">
+            <!-- Back to main card -->
+            <div
+              class="picbed-card main-card"
+              @click="switchPicBed('main')"
             >
-              <ChromeFilled />
-            </el-icon>
-            <span style="font-size: 13px; margin-top: 5px; color: red">
-              {{ $t('MANAGE_MAIN_PAGE_BACK_TO_HOME') }}
-            </span>
+              <div class="card-icon">
+                <HomeIcon class="main-icon" />
+              </div>
+              <div class="card-content">
+                <div class="card-title main-title">
+                  {{ $t('pages.manage.main.backToHome') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- PicBed cards -->
+            <div
+              v-for="(config, alias) in allPicBedConfigure"
+              :key="String(alias)"
+              class="picbed-card"
+              :class="{ active: String(alias) === currentAlias }"
+              @click="switchPicBed(String(alias))"
+            >
+              <div class="card-icon">
+                <img
+                  :src="`/assets/${config.picBedName}.webp`"
+                  class="picbed-icon"
+                >
+              </div>
+              <div class="card-content">
+                <div class="card-title">
+                  {{ config.alias }}
+                </div>
+              </div>
+              <div
+                v-if="String(alias) === currentAlias"
+                class="check-icon"
+              >
+                <CheckIcon />
+              </div>
+            </div>
           </div>
-        </el-card>
-        <el-card
-          v-for="item in allPicBedConfigure"
-          :key="item"
-          shadow="hover"
-        >
-          <div
-            style="text-align: center; display: flex; flex-direction: column"
-            @click="switchPicBed(item.alias)"
-          >
-            <el-image
-              :src="`/assets/${item.picBedName}.webp`"
-              class="layout__addNewBucket__icon"
-              style="width: 25px; height: 25px; margin: 0 auto"
-            />
-            <span style="font-size: 13px; margin-top: 5px; color: cornflowerblue">
-              {{ item.alias }}
-            </span>
-          </div>
-        </el-card>
+        </div>
       </div>
-    </el-dialog>
-    <el-drawer
-      v-model="nweBucketDrawerVisible"
-      class="layout__addNewBucket"
-      append-to-body
+    </div>
+
+    <!-- New Bucket Drawer -->
+    <div
+      v-if="nweBucketDrawerVisible"
+      class="drawer-overlay"
+      @click="nweBucketDrawerVisible = false"
     >
-      <el-form
-        label-position="top"
-        require-asterisk-position="right"
-        label-width="10vw"
-        size="default"
-        :model="newBucketConfigResult"
-        :rules="rules"
+      <div
+        class="drawer-container"
+        @click.stop
       >
-        <div style="position: relative; height: 10vh; width: 100%">
-          <el-image
-            :src="`/assets/${currentPicBedName}.webp`"
-            class="layout__addNewBucket__icon"
-            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)"
-          />
+        <div class="drawer-header">
+          <h3 class="drawer-title">
+            {{ t('pages.manage.main.newBucket') }}
+          </h3>
+          <button
+            class="drawer-close"
+            @click="nweBucketDrawerVisible = false"
+          >
+            <XIcon class="close-icon" />
+          </button>
         </div>
-        <el-divider border-style="none" />
-        <el-form-item
-          v-for="option in newBucketConfig[currentPicBedName].options"
-          :key="option"
-          :prop="currentPicBedName + '.' + option"
-          :label="newBucketConfig[currentPicBedName].configOptions[option].description"
-        >
-          <el-input
-            v-if="
-              newBucketConfig[currentPicBedName].configOptions[option].component === 'input' &&
-                currentPicBedName !== 'tcyun'
-            "
-            v-model.trim="newBucketConfigResult[currentPicBedName + '.' + option]"
-            :placeholder="newBucketConfig[currentPicBedName].configOptions[option].placeholder"
-          />
-          <el-input
-            v-if="
-              currentPicBedName === 'tcyun' &&
-                newBucketConfig[currentPicBedName].configOptions[option].component === 'input'
-            "
-            v-model.trim="newBucketConfigResult[currentPicBedName + '.' + option]"
-            :placeholder="newBucketConfig[currentPicBedName].configOptions[option].placeholder"
-          >
-            <template #append>
-              {{ '-' + currentPagePicBedConfig.appId }}
-            </template>
-          </el-input>
-          <el-select
-            v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'select'"
-            v-model="newBucketConfigResult[currentPicBedName + '.' + option]"
-            size="large"
-            :persistent="false"
-            teleported
-          >
-            <el-option
-              v-for="item in Object.keys(newBucketConfig[currentPicBedName].configOptions[option].options)"
-              :key="item"
-              :label="newBucketConfig[currentPicBedName].configOptions[option].options[item]"
-              :value="item"
-            />
-          </el-select>
-          <el-switch
-            v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'switch'"
-            v-model="newBucketConfigResult[currentPicBedName + '.' + option]"
-            :active-value="true"
-            :inactive-value="false"
-          />
-        </el-form-item>
-        <div style="position: relative; height: 10vh; width: 100%; z-index: 1">
-          <el-button
-            :icon="SuccessFilled"
-            type="primary"
-            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)"
-            @click="createNewBucket(currentPicBedName)"
-          >
-            {{ $t('MANAGE_MAIN_PAGE_SUBMIT') }}
-          </el-button>
+        <div class="drawer-content">
+          <form @submit.prevent="createNewBucket(currentPicBedName)">
+            <div class="form-header">
+              <div class="form-icon">
+                <img
+                  :src="`/assets/${currentPicBedName}.webp`"
+                  class="picbed-form-icon"
+                >
+              </div>
+            </div>
+
+            <div class="form-divider" />
+
+            <div
+              v-for="option in newBucketConfig[currentPicBedName].options"
+              :key="option"
+              class="form-group"
+            >
+              <label class="form-label">
+                {{ newBucketConfig[currentPicBedName].configOptions[option].description }}
+              </label>
+
+              <!-- Input field -->
+              <input
+                v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'input' && currentPicBedName !== 'tcyun'"
+                v-model.trim="newBucketConfigResult[currentPicBedName + '.' + option]"
+                type="text"
+                class="form-input"
+                :placeholder="newBucketConfig[currentPicBedName].configOptions[option].placeholder"
+              >
+
+              <!-- TCyun special input with append -->
+              <div
+                v-if="currentPicBedName === 'tcyun' && newBucketConfig[currentPicBedName].configOptions[option].component === 'input'"
+                class="input-group"
+              >
+                <input
+                  v-model.trim="newBucketConfigResult[currentPicBedName + '.' + option]"
+                  type="text"
+                  class="form-input group-input"
+                  :placeholder="newBucketConfig[currentPicBedName].configOptions[option].placeholder"
+                >
+                <span class="input-append">{{ '-' + currentPagePicBedConfig.appId }}</span>
+              </div>
+
+              <!-- Select field -->
+              <div
+                v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'select'"
+                class="select-wrapper"
+              >
+                <select
+                  v-model="newBucketConfigResult[currentPicBedName + '.' + option]"
+                  class="form-select"
+                >
+                  <option
+                    v-for="(label, value) in newBucketConfig[currentPicBedName].configOptions[option].options"
+                    :key="value"
+                    :value="value"
+                  >
+                    {{ label }}
+                  </option>
+                </select>
+                <ChevronDownIcon class="select-arrow" />
+              </div>
+
+              <!-- Switch field -->
+              <label
+                v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'switch'"
+                class="switch-label"
+              >
+                <input
+                  v-model="newBucketConfigResult[currentPicBedName + '.' + option]"
+                  type="checkbox"
+                  class="switch-input"
+                  :true-value="true"
+                  :false-value="false"
+                >
+                <span class="switch-slider">
+                  <span class="switch-button" />
+                </span>
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                class="action-button secondary"
+                @click="nweBucketDrawerVisible = false"
+              >
+                {{ $t('common.cancel') }}
+              </button>
+              <button
+                type="submit"
+                class="action-button primary"
+              >
+                <CheckIcon class="button-icon" />
+                {{ t('common.submit') }}
+              </button>
+            </div>
+          </form>
         </div>
-      </el-form>
-    </el-drawer>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-
 import {
-  ChromeFilled,
-  CirclePlus,
-  Folder,
-  FolderOpened,
-  HomeFilled,
-  SuccessFilled,
-  Switch,
-  Tools
-} from '@element-plus/icons-vue'
-import { ElNotification } from 'element-plus'
-import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
+  ArrowLeftRightIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ExternalLinkIcon,
+  FolderIcon,
+  GitBranchIcon,
+  HomeIcon,
+  PlusIcon,
+  SettingsIcon,
+  XIcon
+} from 'lucide-vue-next'
+import { onBeforeMount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
+import useMessage from '@/hooks/useMessage'
 import { useManageStore } from '@/manage/store/manageStore'
 import { supportedPicBedList } from '@/manage/utils/constants'
 import { newBucketConfig } from '@/manage/utils/newBucketConfig'
@@ -293,6 +352,7 @@ const { t } = useI18n()
 const manageStore = useManageStore() as any
 const route = useRoute()
 const router = useRouter()
+const message = useMessage()
 
 const currentAlias = ref(route.query.alias as string)
 const currentPicBedName = ref(route.query.picBedName as string)
@@ -309,17 +369,16 @@ const isLoadingBucketList = ref(false)
 const nweBucketDrawerVisible = ref(false)
 const picBedSwitchDialogVisible = ref(false)
 
-watch(route, async newRoute => {
+watch(route, async (newRoute) => {
   if (newRoute.fullPath.split('?')[0] === '/main-page/manage-main-page') {
+    console.log('route changed')
     currentAlias.value = newRoute.query.alias as string
     currentPicBedName.value = newRoute.query.picBedName as string
     allPicBedConfigure = JSON.parse(newRoute.query.allPicBedConfigure as string)
     currentPagePicBedConfig = reactive(JSON.parse(newRoute.query.config as string))
     await getBucketList()
   }
-})
-
-const getCurrentActiveBucket = computed(() => (bucketNameList.value.length === 0 ? '' : bucketNameList.value[0]))
+}, { deep: true })
 
 const urlMap: IStringKeyMap = {
   aliyun: 'https://oss.console.aliyun.com',
@@ -337,9 +396,9 @@ const urlMap: IStringKeyMap = {
 
 const showNewIconList = ['aliyun', 'qiniu', 'tcyun', 's3plist']
 
-const bucketT = t('MANAGE_MAIN_PAGE_BUCKET')
-const galleryT = t('MANAGE_MAIN_PAGE_GALLERY')
-const repositoryT = t('MANAGE_MAIN_PAGE_REPOSITORY')
+const bucketT = t('pages.manage.main.bucket')
+const galleryT = t('pages.manage.main.gallery')
+const repositoryT = t('pages.manage.main.repo')
 
 const menuTitleMap: IStringKeyMap = {
   aliyun: bucketT,
@@ -355,25 +414,7 @@ const menuTitleMap: IStringKeyMap = {
   local: ''
 }
 
-const rules = ruleMap(newBucketConfig)
-
 const openPicBedUrl = () => window.electron.sendRPC(IRPCActionType.OPEN_URL, urlMap[currentPagePicBedConfig.picBedName])
-
-function ruleMap (options: IStringKeyMap) {
-  return Object.keys(options).reduce((result, key) => {
-    options[key].options.forEach((option: string) => {
-      const keyName = `${key}.${option}`
-      const configOption = options[key].configOptions[option]
-      if (configOption.rule) {
-        result[keyName] = configOption.rule
-      }
-      if (configOption.default) {
-        newBucketConfigResult[keyName] = configOption.default
-      }
-    })
-    return result
-  }, {} as IStringKeyMap)
-}
 
 function openNewBucketDrawer () {
   nweBucketDrawerVisible.value = true
@@ -390,7 +431,7 @@ function createNewBucket (picBedName: string) {
       resultValue === '' && defaultValue !== undefined
         ? defaultValue
         : resultValue === undefined
-          ? defaultValue ?? ''
+          ? ''
           : resultValue
 
     return result
@@ -399,23 +440,17 @@ function createNewBucket (picBedName: string) {
     resultMap.BucketName = `${resultMap.BucketName}-${currentPagePicBedConfig.appId}`
   }
   resultMap.endpoint = currentPagePicBedConfig.endpoint
-  window.electron.triggerRPC(IRPCActionType.MANAGE_CREATE_BUCKET, currentAlias, resultMap).then((result: any) => {
+  window.electron.triggerRPC(IRPCActionType.MANAGE_CREATE_BUCKET, currentAlias.value, resultMap).then((result: any) => {
     if (result) {
-      ElNotification({
-        title: t('MANAGE_MAIN_PAGE_TIPS'),
-        message: t('MANAGE_MAIN_PAGE_TIPS_SUCCESS'),
-        type: 'success'
-      })
+      // Show success notification
+      message.success(t('pages.manage.main.createSuccess'))
       nweBucketDrawerVisible.value = false
       setTimeout(() => {
         getBucketList()
       }, 2000)
     } else {
-      ElNotification({
-        title: t('MANAGE_MAIN_PAGE_TIPS'),
-        message: t('MANAGE_MAIN_PAGE_TIPS_FAILED'),
-        type: 'error'
-      })
+      // Show error notification
+      message.error(t('pages.manage.main.createFailed'))
     }
   })
 }
@@ -427,7 +462,6 @@ async function getBucketList () {
 
   const result = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_GET_BUCKET_LIST, currentAlias.value)
   isLoadingBucketList.value = false
-
   if (result.length > 0) {
     result.forEach((item: any) => {
       bucketList.value[item.Name] = item
@@ -474,7 +508,11 @@ function handleSelectMenu (bucketName: string) {
   router.push({
     path: '/main-page/manage-main-page/manage-bucket-page',
     query: {
-      configMap: JSON.stringify(configMap)
+      configMap: JSON.stringify(configMap),
+      alias: currentAlias.value,
+      picBedName: currentPicBedName.value,
+      config: JSON.stringify(currentPagePicBedConfig),
+      allPicBedConfigure: JSON.stringify(allPicBedConfigure)
     }
   })
 }
@@ -515,8 +553,15 @@ function changePicBed () {
 }
 
 function openBucketPageSetting () {
+  console.log('Open Bucket Page Setting')
   router.push({
-    path: '/main-page/manage-main-page/manage-setting-page'
+    path: '/main-page/manage-main-page/manage-setting-page',
+    query: {
+      alias: currentAlias.value,
+      picBedName: currentPicBedName.value,
+      config: JSON.stringify(currentPagePicBedConfig),
+      allPicBedConfigure: JSON.stringify(allPicBedConfigure)
+    }
   })
 }
 
@@ -525,74 +570,4 @@ onBeforeMount(() => {
 })
 </script>
 
-<style lang="stylus">
-.layout
-  height 100%
-  display flex
-  flex-direction row
-  &__menu
-    background: #fff
-    color: #fff
-    display: flex
-    flex-direction: column
-    border-bottom-right-radius: 4px
-    z-index 1
-    width: 130px
-    position: relative
-    &__button
-      font-weight: bold;
-      text-align: left;
-      padding-left: 0px;
-      padding-top: 10px;
-      &__item
-        color:#2d8cf0
-        width: 100%
-        height: 100%
-        display: flex
-        align-items: center
-        justify-content: center
-        &:hover
-          cursor: pointer
-          color: orange
-        &__icon
-          width: 25px
-          height: 25px
-       &__divider
-        &__icon
-          &:hover
-            cursor: pointer
-            color: orange
-    &__list
-      flex: 1
-      overflow-y: auto
-      &__item
-        width: 100%
-        height: 100%
-        display: flex
-        color: #2d8cf0
-        align-items: center
-        justify-content: center
-        &:hover
-          cursor: pointer
-          color: orange
-        &__icon
-          width: 25px
-          height: 25px
-    &__setting
-      position relative
-      overflow hidden
-      &__item
-        width: 100%
-        display: flex
-        align-items: center
-        color: #000
-        justify-content: center
-        font-size: 12px
-        font-family: Arial, Helvetica, sans-serif
-        &:hover
-          cursor: pointer
-          color: orange
-        &__icon
-          width: 25px
-          height: 25px
-</style>
+<style src="./css/ManageMain.css" scoped></style>

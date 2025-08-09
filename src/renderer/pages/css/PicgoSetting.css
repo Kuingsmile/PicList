@@ -613,7 +613,7 @@ small {
 /* Dark mode adjustments */
 :root.dark .piclist-settings,
 :root.auto.dark .piclist-settings {
-  background: var(--color-background-primary);
+  background: var(--color-background-secondary);
 }
 
 :root.dark .settings-header,

@@ -1,234 +1,253 @@
 <template>
-  <div id="manage-setting">
-    <el-row
-      class="view-title"
-      align="middle"
-      justify="center"
-      style="font-size: 20px; color: black"
-    >
-      {{ $t('MANAGE_SETTING_TITLE') }}
-    </el-row>
-    <el-row class="setting-list">
-      <el-col
-        :span="20"
-        :offset="2"
-      >
-        <el-row style="width: 100%">
-          <el-form
-            label-position="left"
-            label-width="50%"
-            size="default"
-            style="position: relative; width: 100%"
-          >
-            <el-form-item>
-              <template #label>
-                <span style="position: absolute; left: 0">
-                  <span>{{ $t('MANAGE_SETTING_CLEAR_CACHE_TITLE') }} </span>
-                  <span style="color: #ff4949">{{ formatFileSize(dbSize) === '' ? 0 : formatFileSize(dbSize) }} </span>
-                  <span> &nbsp;{{ $t('MANAGE_SETTING_CLEAR_CACHE_FREE_TITLE') }} </span>
-                  <span style="color: #ff4949">{{ dbSizeAvailableRate }} %</span>
-                  <el-tooltip
-                    effect="dark"
-                    :content="$t('MANAGE_SETTING_CLEAR_CACHE_TIPS')"
-                    placement="right"
-                    :persistent="false"
-                    teleported
-                  >
-                    <el-icon>
-                      <InfoFilled />
-                    </el-icon>
-                  </el-tooltip>
-                </span>
-              </template>
-              <el-popconfirm
-                :title="$t('MANAGE_SETTING_CLEAR_CACHE_PROMPT')"
-                :confirm-button-text="$t('CONFIRM')"
-                :cancel-button-text="$t('CANCEL')"
-                hide-icon
-                :persistent="false"
-                teleported
-                @confirm="handleClearDb"
+  <div class="manage-setting-container">
+    <!-- Cache Info Card -->
+    <div class="setting-card content-card">
+      <div class="card-content">
+        <div class="setting-section">
+          <div class="form-group">
+            <div class="form-control">
+              <button
+                type="button"
+                class="action-button warning"
+                @click="handleConfirmClearDb"
               >
-                <template #reference>
-                  <el-button
-                    type="primary"
-                    plain
-                    style="position: absolute; right: 0"
-                  >
-                    {{ $t('MANAGE_SETTING_CLEAR_CACHE_BUTTON') }}
-                  </el-button>
-                </template>
-              </el-popconfirm>
-            </el-form-item>
-            <DynamicSwitch
-              v-for="item in switchFieldsConfigList"
-              :key="item.configName"
-              v-model="form[item.configName]"
-              :segments="item.segments"
-              :tooltip="item.tooltip"
-              :config-name="item.configName"
-              :active-text="item.activeText"
-              :inactive-text="item.inactiveText"
-            />
-            <el-link
-              v-if="form.customRename"
-              style="margin-top: 10px; margin-bottom: 10px; color: #409eff"
-              :underline="false"
-            >
-              {{ $t('MANAGE_SETTING_CUSTOM_PATTERN_TITLE') }}
-            </el-link>
-            <el-input
-              v-if="form.customRename"
-              v-model="form.customRenameFormat"
-              :placeholder="$t('MANAGE_SETTING_CUSTOM_PATTERN_TIPS')"
-              style="width: 100%"
-            />
-            <el-table
-              v-if="form.customRename"
-              :data="customRenameFormatTable"
-              style="width: 100%; margin-top: 10px; margin-left: 10%"
-              :header-cell-style="{ 'text-align': 'center' }"
-              :cell-style="{ 'text-align': 'center' }"
-              @cell-click="handleCellClick"
-            >
-              <el-table-column
-                v-for="prop in ['placeholder', 'description', 'placeholderB', 'descriptionB']"
-                :key="prop"
-                :prop="prop"
-                :label="$t('MANAGE_SETTING_CUSTOM_PATTERN_TABLE_TITLE' as any)"
-                width="150"
-              />
-            </el-table>
-            <br v-if="form.customRename">
-            <DynamicSwitch
-              v-for="item in switchFieldsSpecialList"
-              :key="item.configName"
-              v-model="form[item.configName]"
-              :segments="item.segments"
-              :tooltip="item.tooltip"
-              :config-name="item.configName"
-            />
-            <el-form-item>
-              <template #label>
-                <span style="position: absolute; left: 0">
-                  {{ $t('MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TITLE') }}
-                  <el-tooltip
-                    effect="dark"
-                    :content="$t('MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_TIPS')"
-                    placement="right"
-                    :persistent="false"
-                    teleported
-                  >
-                    <el-icon>
-                      <InfoFilled />
-                    </el-icon>
-                  </el-tooltip>
-                </span>
-              </template>
-              <el-input-number
-                v-model="form.maxDownloadFileCount"
-                style="position: absolute; right: 0"
-                :placeholder="$t('MANAGE_SETTING_MAX_DOWNLOAD_FILE_SIZE_INPUT_TIPS')"
-                :min="1"
-                :max="9999"
-                :step="1"
-              />
-            </el-form-item>
-            <el-form-item>
-              <template #label>
-                <span style="position: absolute; left: 0">
-                  {{ $t('MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TITLE') }}
-                  <el-tooltip
-                    effect="dark"
-                    :content="$t('MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TIPS')"
-                    placement="right"
-                    :persistent="false"
-                    teleported
-                  >
-                    <el-icon>
-                      <InfoFilled />
-                    </el-icon>
-                  </el-tooltip>
-                </span>
-              </template>
-              <el-input-number
-                v-model="form.PreSignedExpire"
-                style="position: absolute; right: 0"
-                :placeholder="$t('MANAGE_SETTING_PRESIGNED_URL_EXPIRE_TIPS')"
-                :min="1"
-                :step="1"
-              />
-            </el-form-item>
-            <el-link
-              style="margin-top: 10px; margin-bottom: 10px; color: #409eff"
-              :underline="false"
-            >
-              {{ $t('MANAGE_SETTING_CHOOSE_COPY_FORMAT_TITLE') }}
-            </el-link>
-            <br>
-            <el-radio-group v-model="form.pasteFormat">
-              <el-radio
-                v-for="item in pasteFormatList"
-                :key="item"
-                :value="item"
-              >
-                {{ $t(`MANAGE_SETTING_CHOOSE_COPY_FORMAT_${item.toUpperCase().replace(/-/g, '_')}` as any) }}
-              </el-radio>
-            </el-radio-group>
-            <el-link
-              v-if="form.pasteFormat === 'custom'"
-              style="margin-top: 10px; margin-bottom: 10px; color: #409eff"
-              :underline="false"
-            >
-              {{ $t('MANAGE_SETTING_CUSTOM_COPY_FORMAT_TITLE') }}
-            </el-link>
-            <el-input
-              v-if="form.pasteFormat === 'custom'"
-              v-model="form.customPasteFormat"
-              :placeholder="$t('MANAGE_SETTING_CUSTOM_COPY_FORMAT_TIPS')"
-              style="width: 100%"
-            />
-            <div>
-              <el-link
-                style="margin-top: 10px; margin-bottom: 10px; color: #409eff"
-                :underline="false"
-              >
-                {{ $t('MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_TITLE') }}
-              </el-link>
+                <Trash2Icon :size="16" />
+                {{ t('pages.manage.setting.clearCache', { percent: dbSizeAvailableRate, size: formatFileSize(dbSize) || 0 }) }}
+              </button>
             </div>
-            <el-input
-              v-model="form.downloadDir"
-              disabled
-              :placeholder="$t('MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_TIPS')"
-              style="width: 100%; margin-top: 10px"
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- General Settings Card -->
+    <div class="setting-card content-card">
+      <div class="card-content">
+        <div class="setting-section">
+          <CustomSwitch
+            v-for="item in switchFieldsConfigList"
+            :key="item.configName"
+            v-model="form[item.configName]"
+            :segments="item.segments"
+            :tooltip="item.tooltip"
+            :active-text="item.activeText"
+            :inactive-text="item.inactiveText"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Rename Pattern Card -->
+    <div
+      v-if="form.customRename"
+      class="setting-card content-card"
+    >
+      <div class="card-content">
+        <div class="setting-section">
+          <div class="section-header">
+            <h4 class="section-title">
+              {{ t('pages.manage.setting.customRenameTableTitle') }}
+            </h4>
+          </div>
+          <div class="form-group">
+            <input
+              v-model="form.customRenameFormat"
+              type="text"
+              class="form-input"
+              :placeholder="t('pages.manage.setting.customRenameTablePlaceholder')"
             >
-              <template #append>
-                <el-button
-                  type="primary"
-                  @click="handleDownloadDirClick"
+          </div>
+
+          <!-- Pattern Reference Table -->
+          <div class="pattern-table-container">
+            <table class="pattern-table">
+              <thead>
+                <tr>
+                  <th>{{ t('pages.manage.setting.placeholder') }}</th>
+                  <th>{{ t('pages.manage.setting.description') }}</th>
+                  <th>{{ t('pages.manage.setting.placeholder') }}</th>
+                  <th>{{ t('pages.manage.setting.description') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(row, index) in customRenameFormatTable"
+                  :key="index"
                 >
-                  <el-icon>
-                    <Folder />
-                  </el-icon>
-                  {{ $t('MANAGE_SETTING_CHOOSE_DOWNLOAD_FOLDER_BUTTON') }}
-                </el-button>
-              </template>
-            </el-input>
-          </el-form>
-          <el-divider border-style="none" />
-        </el-row>
-      </el-col>
-    </el-row>
+                  <td
+                    class="clickable"
+                    @click="handleCellClick(row, { property: 'placeholder' })"
+                  >
+                    {{ row.placeholder }}
+                  </td>
+                  <td>{{ row.description }}</td>
+                  <td
+                    class="clickable"
+                    @click="handleCellClick(row, { property: 'placeholderB' })"
+                  >
+                    {{ row.placeholderB }}
+                  </td>
+                  <td>{{ row.descriptionB }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Special Settings Card -->
+    <div class="setting-card content-card">
+      <div class="card-content">
+        <div class="setting-section">
+          <!-- Special Switch Fields -->
+          <CustomSwitch
+            v-for="item in switchFieldsSpecialList"
+            :key="item.configName"
+            v-model="form[item.configName]"
+            :segments="item.segments"
+            :tooltip="item.tooltip"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Download Settings Card -->
+    <div class="setting-card content-card">
+      <div class="card-content">
+        <div class="setting-section">
+          <!-- Max Download File Count -->
+          <div class="form-group">
+            <div class="form-label-wrapper">
+              <span class="form-label">
+                {{ t('pages.manage.setting.maxDownLoadFileLimit') }}
+              </span>
+            </div>
+            <div class="form-control">
+              <input
+                v-model.number="form.maxDownloadFileCount"
+                type="number"
+                class="form-input number-input"
+                :placeholder="t('pages.manage.setting.maxDownLoadFileLimitDesc')"
+                min="1"
+                max="9999"
+                step="1"
+              >
+            </div>
+          </div>
+
+          <!-- PreSigned URL Expire -->
+          <div class="form-group">
+            <div class="form-label-wrapper">
+              <span class="form-label">
+                {{ t('pages.manage.setting.preSignedUrlExpire') }}
+              </span>
+            </div>
+            <div class="form-control">
+              <input
+                v-model.number="form.PreSignedExpire"
+                type="number"
+                class="form-input number-input"
+                :placeholder="t('pages.manage.setting.preSignedUrlExpireDesc')"
+                min="1"
+                step="1"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Copy Format Card -->
+    <div class="setting-card content-card">
+      <div class="card-content">
+        <div class="setting-section">
+          <div class="section-header">
+            <h4 class="section-title">
+              {{ t('pages.manage.setting.copyFormat.title') }}
+            </h4>
+          </div>
+          <div class="radio-group">
+            <label
+              v-for="item in pasteFormatList"
+              :key="item"
+              class="radio-option"
+            >
+              <input
+                v-model="form.pasteFormat"
+                type="radio"
+                :value="item"
+                class="radio-input"
+              >
+              <span class="radio-custom" />
+              <span class="radio-text">
+                {{ t(`pages.manage.setting.copyFormat.${item}`) }}
+              </span>
+            </label>
+          </div>
+
+          <!-- Custom Copy Format -->
+          <div
+            class="form-group"
+          >
+            <div class="form-label-wrapper">
+              <span class="form-label">
+                {{ t('pages.manage.setting.copyFormat.customTitle') }}
+              </span>
+            </div>
+            <input
+              v-model="form.customPasteFormat"
+              type="text"
+              class="form-input"
+              :placeholder="t('pages.manage.setting.copyFormat.customTips')"
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Download Folder Card -->
+    <div class="setting-card content-card">
+      <div class="card-content">
+        <div class="setting-section">
+          <div class="section-header">
+            <h4 class="section-title">
+              {{ t('pages.manage.setting.selectDownloadFolderTitle') }}
+            </h4>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <input
+                v-model="form.downloadDir"
+                type="text"
+                class="form-input group-input"
+                disabled
+                :placeholder="t('pages.manage.setting.defaultDownloadFolder')"
+              >
+              <button
+                type="button"
+                class="input-append-button"
+                @click="handleDownloadDirClick"
+              >
+                <FolderIcon :size="16" />
+                {{ t('pages.manage.setting.browse') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Folder, InfoFilled } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { FolderIcon, Trash2Icon } from 'lucide-vue-next'
 import { onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import DynamicSwitch from '@/manage/components/DynamicSwitch.vue'
+import useConfirm from '@/hooks/useConfirm'
+import useMessage from '@/hooks/useMessage'
+import CustomSwitch from '@/manage/components/CustomSwitch.vue'
 import { fileCacheDbInstance } from '@/manage/store/bucketFileDb'
 import { customRenameFormatTable, formatFileSize } from '@/manage/utils/common'
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
@@ -236,13 +255,14 @@ import { IRPCActionType } from '@/utils/enum'
 import type { IStringKeyMap } from '#/types/types'
 
 const { t } = useI18n()
+const message = useMessage()
+const { confirm } = useConfirm()
 const form = ref<IStringKeyMap>({
   timestampRename: false,
   randomStringRename: false,
   customRename: false,
   isAutoRefresh: false,
   isShowThumbnail: false,
-  isShowList: false,
   isUsePreSignedUrl: false,
   isIgnoreCase: false,
   isForceCustomUrlHttps: false,
@@ -275,7 +295,6 @@ settingsKeys.forEach(key => {
 const switchFieldsList = [
   'isAutoRefresh',
   'isShowThumbnail',
-  'isShowList',
   'isUsePreSignedUrl',
   'isForceCustomUrlHttps',
   'isEncodeUrl',
@@ -285,23 +304,23 @@ const switchFieldsList = [
   'randomStringRename',
   'customRename'
 ]
-const switchFieldsNoTipsList = ['isShowThumbnail', 'isShowList', 'isUsePreSignedUrl']
-const switchFieldsHasActiveTextList = ['isShowList']
+const switchFieldsNoTipsList = ['isShowThumbnail', 'isUsePreSignedUrl']
+const switchFieldsHasActiveTextList = [] as string[]
 
 const switchFieldsConfigList = switchFieldsList.map(item => ({
   configName: item,
   segments: [
     {
-      text: t(`MANAGE_SETTING_${item.toUpperCase()}_TITLE` as any),
-      style: 'color: black;'
+      text: t(`pages.manage.setting.${item}Title` as any),
+      style: 'color: var(--color-text-primary);'
     }
   ],
-  tooltip: switchFieldsNoTipsList.includes(item) ? undefined : t(`MANAGE_SETTING_${item.toUpperCase()}_TIPS` as any),
+  tooltip: switchFieldsNoTipsList.includes(item) ? undefined : t(`pages.manage.setting.${item}Tips` as any),
   activeText: switchFieldsHasActiveTextList.includes(item)
-    ? t(`MANAGE_SETTING_${item.toUpperCase()}_ON` as any)
+    ? t(`pages.manage.setting.${item}On` as any)
     : undefined,
   inactiveText: switchFieldsHasActiveTextList.includes(item)
-    ? t(`MANAGE_SETTING_${item.toUpperCase()}_OFF` as any)
+    ? t(`pages.manage.setting.${item}Off` as any)
     : undefined
 }))
 
@@ -310,37 +329,37 @@ const switchFieldsSpecialList = [
     configName: 'isDownloadFileKeepDirStructure',
     segments: [
       {
-        text: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_A'),
-        style: 'color: black;'
+        text: t('pages.manage.setting.download'),
+        style: 'color: var(--color-text-primary);'
       },
       {
-        text: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_B'),
+        text: t('pages.manage.setting.file'),
         style: 'color: orange;'
       },
       {
-        text: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_C'),
-        style: 'color: black;'
+        text: t('pages.manage.setting.keepDirStructure'),
+        style: 'color: var(--color-text-primary);'
       }
     ],
-    tooltip: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TIPS')
+    tooltip: t('pages.manage.setting.keepDirStructureDesc')
   },
   {
     configName: 'isDownloadFolderKeepDirStructure',
     segments: [
       {
-        text: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_A'),
-        style: 'color: black;'
+        text: t('pages.manage.setting.download'),
+        style: 'color: var(--color-text-primary);'
       },
       {
-        text: t('MANAGE_SETTING_ISDOWNLOADFOLDERKEEPDIRSTRUCTURE_TITLE_D'),
-        style: 'color: coral;'
+        text: t('pages.manage.setting.folder'),
+        style: 'color: orange;'
       },
       {
-        text: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TITLE_C'),
-        style: 'color: black;'
+        text: t('pages.manage.setting.keepDirStructure'),
+        style: 'color: var(--color-text-primary);'
       }
     ],
-    tooltip: t('MANAGE_SETTING_ISDOWNLOADFILEKEEPDIRSTRUCTURE_TIPS')
+    tooltip: t('pages.manage.setting.keepDirStructureDesc')
   }
 ]
 
@@ -360,18 +379,33 @@ async function handleDownloadDirClick () {
 
 const handleCellClick = (row: any, column: any) => {
   navigator.clipboard.writeText(row[column.property])
-  ElMessage.success(`${t('MANAGE_SETTING_COPY_MESSAGE')}${row[column.property]}`)
+  message.success(`${t('pages.manage.setting.copySuccess', { name: row[column.property] })}`)
 }
 
-function handleClearDb () {
+function handleConfirmClearDb () {
+  confirm({
+    title: t('pages.manage.setting.notice'),
+    message: t('pages.manage.setting.clearCacheMsg'),
+    type: 'warning',
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    center: true
+  }).then(result => {
+    if (result) {
+      confirmClearDb()
+    }
+  })
+}
+
+function confirmClearDb () {
   fileCacheDbInstance
     .delete()
     .then(() => {
       getIndexDbSize()
-      ElMessage.success(t('MANAGE_SETTING_CLEAR_CACHE_SUCCESS'))
+      message.success(t('pages.manage.setting.clearSuccess'))
     })
     .catch(() => {
-      ElMessage.error(t('MANAGE_SETTING_CLEAR_CACHE_FAILED'))
+      message.error(t('pages.manage.setting.clearFailed'))
     })
 }
 
@@ -388,8 +422,4 @@ onBeforeMount(() => {
 })
 </script>
 
-<style lang="stylus">
-#manage-setting
-  height 100%
-  overflow-y auto
-</style>
+<style scoped src="./css/ManageSetting.css"></style>

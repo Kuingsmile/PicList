@@ -63,6 +63,7 @@ const props = withDefaults(defineProps<{
 const containerRef = ref<HTMLElement | null>(null)
 const containerHeight = ref<number>(props.pageMode ? 0 : props.height)
 const containerWidth = ref<number>(0)
+const parentScrollListeners = ref<HTMLElement[]>([])
 
 const itemsRef = ref<Item[]>(props.items)
 watch(() => props.items, v => { itemsRef.value = v })
@@ -124,7 +125,7 @@ const viewportStyle = computed(() => {
 const itemStyle = computed(() =>
   isGridMode.value
     ? {}
-    : { height: `${props.itemHeight}px`, padding: `${props.itemPadding}px` }
+    : { height: `${props.itemHeight}px` }
 )
 
 function handleScroll () {
@@ -133,7 +134,34 @@ function handleScroll () {
   updateScrollTop(c.scrollTop)
 }
 
+function handlePageScroll () {
+  if (!props.pageMode) return
+  // Throttle the scroll handler for better performance
+  const now = Date.now()
+  if (now - lastScrollTime.value < 16) return // ~60fps
+  lastScrollTime.value = now
+
+  updateContainerMetrics()
+  // When in page mode, recalculate visible items based on viewport intersection
+  const el = containerRef.value
+  if (!el) return
+
+  const rect = el.getBoundingClientRect()
+  const viewportHeight = window.innerHeight
+
+  // Calculate the intersection with the viewport
+  const intersectionTop = Math.max(0, -rect.top)
+  const intersectionBottom = Math.min(rect.height, viewportHeight - rect.top)
+  const intersectionHeight = Math.max(0, intersectionBottom - intersectionTop)
+
+  if (intersectionHeight > 0) {
+    // Update the virtual scroll position based on the intersection
+    updateScrollTop(intersectionTop)
+  }
+}
+
 let ro: ResizeObserver | null = null
+const lastScrollTime = ref(0)
 
 function updateContainerMetrics () {
   const el = containerRef.value
@@ -152,7 +180,20 @@ onMounted(() => {
   if (!el) return
   ro = new ResizeObserver(updateContainerMetrics)
   ro.observe(el)
-  if (props.pageMode) ro.observe(document.documentElement)
+  if (props.pageMode) {
+    ro.observe(document.documentElement)
+    // Listen to scroll events on the window for page mode
+    window.addEventListener('scroll', handlePageScroll, { passive: true })
+    // Also listen to scroll events on potential scroll containers
+    let parent = el.parentElement
+    while (parent) {
+      if (parent.scrollHeight > parent.clientHeight) {
+        parent.addEventListener('scroll', handlePageScroll, { passive: true })
+        parentScrollListeners.value.push(parent)
+      }
+      parent = parent.parentElement
+    }
+  }
   updateContainerMetrics()
   if (props.pageMode) {
     window.addEventListener('resize', updateContainerMetrics, { passive: true })
@@ -162,6 +203,14 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (ro) ro.disconnect()
   window.removeEventListener('resize', updateContainerMetrics)
+  if (props.pageMode) {
+    window.removeEventListener('scroll', handlePageScroll)
+    // Clean up parent scroll listeners
+    parentScrollListeners.value.forEach(parent => {
+      parent.removeEventListener('scroll', handlePageScroll)
+    })
+    parentScrollListeners.value = []
+  }
 })
 
 function scrollTo (index: number) { scrollToItem(index) }
@@ -177,6 +226,10 @@ function refresh () {
   updateContainerMetrics()
   if (containerRef.value) {
     updateScrollTop(containerRef.value.scrollTop)
+  }
+  // Also trigger page scroll calculation in page mode
+  if (props.pageMode) {
+    handlePageScroll()
   }
 }
 
@@ -203,9 +256,11 @@ defineExpose({ scrollTo, scrollToTop, scrollToBottom, setViewMode, toggleViewMod
   inset: 0 auto auto 0;
   will-change: transform;
   backface-visibility: hidden;
+  width: 100%;
 }
 
 .virtual-scroller-viewport.is-grid {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(var(--items-per-row, 1), minmax(0, 1fr));
   grid-auto-rows: var(--row-height, 1px);

@@ -1185,7 +1185,7 @@ small {
 /* Dark mode adjustments */
 :root.dark .image-process-settings,
 :root.auto.dark .image-process-settings {
-  background: var(--color-background-primary);
+  background: var(--color-background-secondary);
 }
 
 :root.dark .settings-header,
