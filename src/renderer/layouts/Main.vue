@@ -81,6 +81,8 @@ export default { name: 'MainPage' }
   --color-success: #34c759;
   --color-warning: #f1930f;
   --color-danger: #ff3b30;
+  --color-error: #ff3b30;
+  --color-error-surface: rgba(255, 59, 48, 0.1);
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.06);

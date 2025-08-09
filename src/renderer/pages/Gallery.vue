@@ -5,7 +5,7 @@
       <div class="card-header">
         <div class="header-content">
           <div class="header-icon">
-            <DatabaseIcon :size="24" />
+            <ImagesIcon :size="24" />
           </div>
           <div>
             <h1>{{ t('pages.gallery.title') }}</h1>
@@ -662,10 +662,10 @@ import {
   ChevronRightIcon,
   ChevronUpIcon,
   ClipboardIcon,
-  DatabaseIcon,
   EditIcon,
   GridIcon,
   ImageIcon,
+  ImagesIcon,
   InfoIcon,
   LinkIcon,
   ListIcon,

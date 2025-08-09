@@ -6,8 +6,8 @@ import { app } from 'electron'
 import fs from 'fs-extra'
 import writeFile from 'write-file-atomic'
 
-import { notificationList } from '~/utils/notification'
 import { T as $t } from '~/i18n'
+import { notificationList } from '~/utils/notification'
 
 const STORE_PATH = app.getPath('userData')
 const manageConfigFilePath = path.join(STORE_PATH, 'manage.json')

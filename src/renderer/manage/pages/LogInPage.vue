@@ -1,279 +1,393 @@
 <template>
-  <div class="layout">
-    <el-tabs
-      v-model="activeName"
-      type="border-card"
-      stretch
-      style="height: calc(100vh - 50px); width: 100%; overflow-x: hidden"
-      tab-position="left"
-      lazy
-      @tab-change="getExistingConfig(activeName)"
-    >
-      <el-tab-pane
-        name="login"
-        :label="$t('MANAGE_LOGIN_PAGE_PANE_NAME')"
-        style="width: 100%; overflow-y: scroll; height: calc(100vh - 50px)"
-        lazy
-      >
-        <el-row>
-          <el-col
-            v-for="item in sortedAllConfigAliasMap"
-            :key="item"
-            :xs="24"
-            :sm="12"
-            :md="8"
-            :lg="6"
-            :xl="4"
+  <div class="login-container">
+    <!-- Header Card -->
+    <div class="login-card header-card">
+      <div class="card-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <DatabaseIcon :size="24" />
+          </div>
+          <div>
+            <h1>{{ t('pages.manage.login.title') }}</h1>
+            <p>{{ sortedAllConfigAliasMap.length }} {{ t('pages.manage.login.savedConfigs') }}</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button
+            class="action-button"
+            @click="refreshConfigs"
           >
-            <el-card
-              class="box-card"
-              style="margin: 10px 0"
-              shadow="hover"
+            <RefreshCwIcon :size="16" />
+            {{ t('pages.manage.login.refresh') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="login-card tabs-card">
+      <div class="tabs-container">
+        <div class="tabs-nav-wrapper">
+          <div
+            ref="tabsNav"
+            class="tabs-nav"
+          >
+            <button
+              v-for="item in tabItems"
+              :key="item.key"
+              class="tab-button"
+              :class="{ active: activeName === item.key }"
+              @click="handleTabChange(item.key)"
             >
-              <el-popover
-                placement="top"
-                :width="300"
-                trigger="click"
-                :persistent="false"
-                teleported
+              <FolderIcon
+                v-if="item.key === 'login'"
+                :size="16"
+              />
+              <img
+                v-else
+                :src="`/assets/${item.key}.webp`"
+                class="tab-icon"
+                :alt="item.name"
               >
-                <el-table
-                  :data="formObjToTableData(item.config)"
-                  style="width: 100%"
-                  size="small"
-                  :header-cell-style="{ 'text-align': 'center' }"
-                  :cell-style="{ 'text-align': 'center' }"
+              <span>{{ item.name }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="login-card content-card">
+      <div class="tab-content">
+        <!-- Main Config List Tab -->
+        <div
+          v-if="activeName === 'login'"
+          class="config-list-container"
+        >
+          <div
+            v-if="sortedAllConfigAliasMap.length === 0"
+            class="empty-state"
+          >
+            <div class="empty-icon">
+              <DatabaseIcon :size="48" />
+            </div>
+            <h3>{{ t('pages.manage.login.noConfigs') }}</h3>
+            <p>{{ t('pages.manage.login.noConfigsDesc') }}</p>
+          </div>
+          <div
+            v-else
+            class="config-grid"
+          >
+            <div
+              v-for="item in sortedAllConfigAliasMap"
+              :key="item.alias"
+              class="config-item"
+            >
+              <div class="config-header">
+                <img
+                  :src="`/assets/${item.picBedName}.webp`"
+                  class="config-icon"
+                  :alt="item.picBedName"
                 >
-                  <el-table-column
-                    prop="key"
-                    :label="$t('MANAGE_LOGIN_PAGE_PANE_KEY_NAME')"
-                    width="100"
+                <div class="config-info">
+                  <h4 class="config-alias">
+                    {{ item.alias }}
+                  </h4>
+                  <p class="config-type">
+                    {{ supportedPicBedList[item.picBedName]?.name || item.picBedName }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="config-details">
+                <button
+                  class="details-button"
+                  @click="toggleConfigDetails(item.alias)"
+                >
+                  <InfoIcon :size="14" />
+                  {{ t('pages.manage.login.viewDetails') }}
+                  <ChevronDownIcon
+                    :size="14"
+                    :class="{ rotated: expandedConfigs.includes(item.alias) }"
                   />
-                  <el-table-column
-                    prop="value"
-                    :label="$t('MANAGE_LOGIN_PAGE_PANE_KEY_VALUE')"
-                  />
-                </el-table>
-                <template #reference>
-                  <el-button
-                    style="
-                      width: 100%;
-                      text-align: center;
-                      overflow: hidden;
-                      text-overflow: ellipsis;
-                      white-space: nowrap;
-                    "
+                </button>
+
+                <div
+                  v-if="expandedConfigs.includes(item.alias)"
+                  class="config-table"
+                >
+                  <div
+                    v-for="tableItem in formObjToTableData(item.config)"
+                    :key="tableItem.key"
+                    class="table-row"
+                    @click="copyToClipboard(tableItem.value)"
                   >
-                    <template #icon>
-                      <img
-                        :src="`/assets/${item.picBedName}.webp`"
-                        style="width: 25px; height: 25px"
-                      >
-                    </template>
-                    <el-tooltip
-                      effect="light"
-                      :content="item.alias"
-                      placement="top"
-                      :disabled="!isNeedToShorten(item.alias)"
-                      :persistent="false"
-                      teleported
-                    >
-                      {{ isNeedToShorten(item.alias) ? safeSliceF(item.alias, 17) + '...' : item.alias }}
-                    </el-tooltip>
-                  </el-button>
-                </template>
-              </el-popover>
-              <br>
-              <br>
-              <el-button-group>
-                <el-button
-                  type="primary"
-                  :icon="Pointer"
-                  plain
+                    <span class="table-key">{{ tableItem.key }}</span>
+                    <span class="table-value">{{ tableItem.value }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="config-actions">
+                <button
+                  class="action-button primary"
                   @click="handleConfigClick(item)"
                 >
-                  {{ $t('MANAGE_LOGIN_PAGE_PANE_ENTER') }}
-                </el-button>
-                <el-button
-                  type="warning"
-                  :icon="Delete"
-                  plain
+                  <PointerIcon :size="16" />
+                  {{ t('pages.manage.login.enter') }}
+                </button>
+                <button
+                  class="action-button danger"
                   @click="handleConfigRemove(item.alias)"
                 >
-                  {{ $t('MANAGE_LOGIN_PAGE_PANE_DELETE') }}
-                </el-button>
-              </el-button-group>
-            </el-card>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-      <el-tab-pane
-        v-for="item in supportedPicBedList"
-        :key="item.name"
-        :label="item.name"
-        :name="item.icon"
-        class="tab-pane"
-        lazy
-        style="width: 100%; overflow-y: scroll; height: calc(100vh - 50px)"
-      >
-        <el-alert
-          :title="item.explain"
-          type="info"
-          show-icon
-          center
-          :closable="false"
-        />
-        <el-alert
-          center
-          :closable="false"
-        >
-          <div>
-            {{ item.referenceText }}
-            <a
-              style="color: blue; cursor: pointer"
-              @click="handleReferenceClick(item.refLink)"
-            >{{ item.refLink }}</a>
+                  <TrashIcon :size="16" />
+                  {{ t('pages.manage.login.delete') }}
+                </button>
+              </div>
+            </div>
           </div>
-        </el-alert>
-        <el-form
-          label-position="top"
-          require-asterisk-position="right"
-          label-width="10vw"
-          size="default"
-          :rules="rules"
-          :model="configResult"
-        >
-          <el-form-item
-            v-for="option in supportedPicBedList[item.icon].options"
-            :key="option"
-            :prop="item.icon + '.' + option"
-          >
-            <template #label>
-              {{ supportedPicBedList[item.icon].configOptions[option].description }}
-              <el-tooltip
-                v-if="!!supportedPicBedList[item.icon].configOptions[option].tooltip"
-                effect="dark"
-                :content="supportedPicBedList[item.icon].configOptions[option].tooltip"
-                placement="right"
-                :persistent="false"
-                teleported
-              >
-                <el-icon color="#409EFF">
-                  <InfoFilled />
-                </el-icon>
-              </el-tooltip>
-            </template>
-            <el-input
-              v-if="supportedPicBedList[item.icon].configOptions[option].type === 'string'"
-              v-model.trim="configResult[item.icon + '.' + option]"
-              :placeholder="supportedPicBedList[item.icon].configOptions[option].placeholder"
-              :disabled="!!supportedPicBedList[item.icon].configOptions[option].disabled"
-            />
-            <el-switch
-              v-else-if="supportedPicBedList[item.icon].configOptions[option].type === 'boolean'"
-              v-model="configResult[item.icon + '.' + option]"
-              style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-            />
-            <el-input
-              v-else-if="supportedPicBedList[item.icon].configOptions[option].type === 'number'"
-              v-model.number="configResult[item.icon + '.' + option]"
-              :placeholder="supportedPicBedList[item.icon].configOptions[option].placeholder"
-            />
-            <el-select
-              v-else-if="supportedPicBedList[item.icon].configOptions[option].type === 'select'"
-              v-model="configResult[item.icon + '.' + option]"
-              :placeholder="$t('MANAGE_LOGIN_PAGE_PANE_SELECT_PLACEHOLDER')"
-              :persistent="false"
-              teleported
-            >
-              <el-option
-                v-for="i in Object.entries(supportedPicBedList[item.icon].configOptions[option].selectOptions)"
-                :key="i[0]"
-                :label="i[1] as string"
-                :value="i[0]"
-              />
-            </el-select>
-          </el-form-item>
-        </el-form>
-        <div style="margin: 0 auto; position: relative; left: 10%; right: 50%">
-          <el-dropdown
-            split-button
-            type="success"
-            style="margin-left: 10vw"
-            placement="top"
-            :disabled="currentAliasList.length === 0"
-            teleported
-          >
-            {{ $t('MANAGE_LOGIN_PAGE_PANE_IMPORT') }}
-            <template #dropdown>
-              <el-dropdown-item
-                v-for="i in currentAliasList"
-                :key="i"
-                @click="handleConfigImport(i)"
-              >
-                {{ i }}
-              </el-dropdown-item>
-            </template>
-          </el-dropdown>
-          <el-button
-            type="primary"
-            style="margin-left: 10vw"
-            :icon="Edit"
-            plain
-            @click="handleConfigChange(item.icon)"
-          >
-            {{ $t('MANAGE_LOGIN_PAGE_PANE_SAVE') }}
-          </el-button>
-          <el-button
-            type="danger"
-            style="margin-left: 10vw"
-            :icon="Delete"
-            plain
-            @click="handleConfigReset(item.icon)"
-          >
-            {{ $t('MANAGE_LOGIN_PAGE_PANE_RESET') }}
-          </el-button>
         </div>
-        <br>
-        <el-alert
-          :title="$t('MANAGE_LOGIN_PAGE_PANE_TABLE_TITLE')"
-          type="success"
-          center
-          :closable="false"
-        />
-        <el-table
-          :data="dataForTable"
-          style="width: 100%; margin-top: 10px"
-          :header-cell-style="{ 'text-align': 'center' }"
-          :cell-style="{ 'text-align': 'center' }"
-          @cell-click="handleCellClick"
+
+        <!-- PicBed Configuration Tabs -->
+        <div
+          v-else
+          class="picbed-config-container"
         >
-          <el-table-column
-            v-for="option in supportedPicBedList[item.icon].options"
-            :key="option"
-            :prop="option"
-            :label="supportedPicBedList[item.icon].configOptions[option].description"
-            sortable
-            show-overflow-tooltip
-          />
-        </el-table>
-      </el-tab-pane>
-    </el-tabs>
+          <div
+            v-if="supportedPicBedList[activeName]"
+            class="picbed-config"
+          >
+            <!-- Info Section -->
+            <div class="info-section">
+              <div class="info-card primary">
+                <InfoIcon :size="20" />
+                <p>{{ supportedPicBedList[activeName].explain }}</p>
+              </div>
+              <div class="info-card reference">
+                <LinkIcon :size="20" />
+                <p>
+                  {{ supportedPicBedList[activeName].referenceText }}
+                  <button
+                    class="link-button"
+                    @click="handleReferenceClick(supportedPicBedList[activeName].refLink)"
+                  >
+                    {{ supportedPicBedList[activeName].refLink }}
+                  </button>
+                </p>
+              </div>
+            </div>
+
+            <!-- Configuration Form -->
+            <div class="config-form">
+              <div
+                v-for="option in supportedPicBedList[activeName].options"
+                :key="option"
+                class="form-group"
+                :class="{ 'has-error': formErrors[activeName + '.' + option] }"
+              >
+                <label class="form-label">
+                  {{ supportedPicBedList[activeName].configOptions[option].description }}
+                  <span
+                    v-if="supportedPicBedList[activeName].configOptions[option].required"
+                    class="required-marker"
+                  >*</span>
+                  <button
+                    v-if="supportedPicBedList[activeName].configOptions[option].tooltip"
+                    class="tooltip-button"
+                    :title="supportedPicBedList[activeName].configOptions[option].tooltip"
+                  >
+                    <InfoIcon :size="14" />
+                  </button>
+                </label>
+
+                <!-- String Input -->
+                <input
+                  v-if="supportedPicBedList[activeName].configOptions[option].type === 'string'"
+                  v-model.trim="configResult[activeName + '.' + option]"
+                  type="text"
+                  class="form-input"
+                  :class="{ error: formErrors[activeName + '.' + option] }"
+                  :placeholder="supportedPicBedList[activeName].configOptions[option].placeholder"
+                  :disabled="!!supportedPicBedList[activeName].configOptions[option].disabled"
+                  @blur="validateField(activeName, option)"
+                  @input="clearFieldError(activeName + '.' + option)"
+                >
+
+                <!-- Boolean Switch -->
+                <label
+                  v-else-if="supportedPicBedList[activeName].configOptions[option].type === 'boolean'"
+                  class="custom-switch"
+                >
+                  <input
+                    v-model="configResult[activeName + '.' + option]"
+                    type="checkbox"
+                    @change="validateField(activeName, option)"
+                  >
+                  <span class="switch-slider" />
+                </label>
+
+                <!-- Number Input -->
+                <input
+                  v-else-if="supportedPicBedList[activeName].configOptions[option].type === 'number'"
+                  v-model.number="configResult[activeName + '.' + option]"
+                  type="number"
+                  class="form-input"
+                  :class="{ error: formErrors[activeName + '.' + option] }"
+                  :placeholder="supportedPicBedList[activeName].configOptions[option].placeholder"
+                  @blur="validateField(activeName, option)"
+                  @input="clearFieldError(activeName + '.' + option)"
+                >
+
+                <!-- Select Dropdown -->
+                <div
+                  v-else-if="supportedPicBedList[activeName].configOptions[option].type === 'select'"
+                  class="custom-select"
+                >
+                  <select
+                    v-model="configResult[activeName + '.' + option]"
+                    class="form-select"
+                    :class="{ error: formErrors[activeName + '.' + option] }"
+                    @change="validateField(activeName, option)"
+                  >
+                    <option value="">
+                      {{ t('pages.manage.login.selectPlaceholder') }}
+                    </option>
+                    <option
+                      v-for="[key, value] in Object.entries(supportedPicBedList[activeName].configOptions[option].selectOptions)"
+                      :key="key"
+                      :value="key"
+                    >
+                      {{ value }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Error Message -->
+                <div
+                  v-if="formErrors[activeName + '.' + option]"
+                  class="error-message"
+                >
+                  {{ formErrors[activeName + '.' + option] }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-section">
+              <div class="import-section">
+                <div
+                  v-if="currentAliasList.length > 0"
+                  class="dropdown-container"
+                >
+                  <button
+                    class="dropdown-trigger action-button secondary"
+                    @click="toggleImportDropdown"
+                  >
+                    <DownloadIcon :size="16" />
+                    {{ t('pages.manage.login.import') }}
+                    <ChevronDownIcon :size="16" />
+                  </button>
+                  <div
+                    v-if="importDropdownOpen"
+                    class="dropdown-menu"
+                  >
+                    <button
+                      v-for="alias in currentAliasList"
+                      :key="alias"
+                      class="dropdown-item"
+                      @click="handleConfigImport(alias)"
+                    >
+                      {{ alias }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="main-actions">
+                <button
+                  class="action-button primary"
+                  @click="handleConfigChange(activeName)"
+                >
+                  <SaveIcon :size="16" />
+                  {{ t('pages.manage.login.save') }}
+                </button>
+                <button
+                  class="action-button danger"
+                  @click="handleConfigReset(activeName)"
+                >
+                  <RotateCcwIcon :size="16" />
+                  {{ t('pages.manage.login.reset') }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Existing Configurations Table -->
+            <div
+              v-if="dataForTable.length > 0"
+              class="config-table-section"
+            >
+              <h3>{{ t('pages.manage.login.configTabTitle') }}</h3>
+              <div class="responsive-table">
+                <table class="config-table">
+                  <thead>
+                    <tr>
+                      <th
+                        v-for="option in supportedPicBedList[activeName].options"
+                        :key="option"
+                      >
+                        {{ supportedPicBedList[activeName].configOptions[option].description }}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="(row, index) in dataForTable"
+                      :key="index"
+                    >
+                      <td
+                        v-for="option in supportedPicBedList[activeName].options"
+                        :key="option"
+                        @click="copyToClipboard(row[option])"
+                      >
+                        {{ row[option] }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Delete, Edit, InfoFilled, Pointer } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
+import {
+  ChevronDownIcon,
+  DatabaseIcon,
+  DownloadIcon,
+  FolderIcon,
+  InfoIcon,
+  LinkIcon,
+  PointerIcon,
+  RefreshCwIcon,
+  RotateCcwIcon,
+  SaveIcon,
+  TrashIcon
+} from 'lucide-vue-next'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
+import useConfirm from '@/hooks/useConfirm'
+import useMessage from '@/hooks/useMessage'
 import { useManageStore } from '@/manage/store/manageStore'
 import { formObjToTableData } from '@/manage/utils/common'
 import { supportedPicBedList } from '@/manage/utils/constants'
 import { getConfig, removeConfig, saveConfig } from '@/manage/utils/dataSender'
-import { formatEndpoint, isNeedToShorten, safeSliceF } from '@/utils/common'
+import { formatEndpoint } from '@/utils/common'
 import { getConfig as getPicBedsConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
 import type { IStringKeyMap, IUploaderConfigListItem } from '#/types/types'
@@ -281,15 +395,20 @@ import type { IStringKeyMap, IUploaderConfigListItem } from '#/types/types'
 const { t } = useI18n()
 const manageStore = useManageStore()
 const router = useRouter()
+const message = useMessage()
+const { confirm } = useConfirm()
 
 const activeName = ref('login')
+const expandedConfigs = ref<string[]>([])
+const importDropdownOpen = ref(false)
+const tabsNav = ref<HTMLElement>()
 
 const configResult: IStringKeyMap = reactive({})
 const existingConfiguration = reactive({} as IStringKeyMap)
 const dataForTable = reactive([] as any[])
 const allConfigAliasMap = reactive({} as IStringKeyMap)
 const currentAliasList = reactive([] as string[])
-const rules = ruleMap(supportedPicBedList)
+const formErrors = reactive({} as IStringKeyMap)
 
 const sortedAllConfigAliasMap = computed(() => {
   return Object.values(allConfigAliasMap).sort((a, b) => {
@@ -297,24 +416,125 @@ const sortedAllConfigAliasMap = computed(() => {
   })
 })
 
-const importedNewConfig: IStringKeyMap = {}
+const tabItems = computed(() => {
+  const items = [
+    {
+      key: 'login',
+      name: t('pages.manage.login.savedConfigs'),
+      icon: null,
+      iconComponent: FolderIcon
+    }
+  ]
 
-function ruleMap (options: IStringKeyMap) {
-  const rule: any = {}
-  Object.keys(options).forEach(key => {
-    const item = options[key].options
-    item.forEach((option: string) => {
-      const configOptions = options[key].configOptions[option]
-      const keyName = `${key}.${option}`
-      if (configOptions.rule) {
-        rule[keyName] = configOptions.rule
-      }
-      if (configOptions.default) {
-        configResult[keyName] = configOptions.default
-      }
+  Object.values(supportedPicBedList).forEach((item: any) => {
+    items.push({
+      key: item.icon,
+      name: item.name,
+      icon: item.icon,
+      iconComponent: null as any
     })
   })
-  return rule
+
+  return items
+})
+
+const importedNewConfig: IStringKeyMap = {}
+
+const notifyUser = (msg: string, type: 'success' | 'error' | 'warning' = 'success') => {
+  message[type](`${msg}`)
+}
+
+const validateField = (picBedName: string, optionKey: string) => {
+  const fieldKey = `${picBedName}.${optionKey}`
+  const configOption = supportedPicBedList[picBedName]?.configOptions?.[optionKey]
+  const value = configResult[fieldKey]
+
+  if (!configOption) return
+
+  delete formErrors[fieldKey]
+
+  if (configOption.required) {
+    if (configOption.type === 'boolean') {
+    } else if (!value || value === '') {
+      formErrors[fieldKey] = t('pages.manage.constant.pleaseInput', { name: configOption.description })
+      return
+    }
+  }
+
+  if (configOption.rule && Array.isArray(configOption.rule)) {
+    for (const rule of configOption.rule) {
+      if (rule.validator) {
+        try {
+          rule.validator(rule, value, (error: Error | null) => {
+            if (error) {
+              formErrors[fieldKey] = error.message
+            }
+          })
+        } catch (e) {
+          console.error('Validation error:', e)
+        }
+      } else if (rule.type === 'number' && value !== undefined && value !== '') {
+        if (isNaN(Number(value))) {
+          formErrors[fieldKey] = rule.message || t('pages.manage.constant.itemsPPBeNumber')
+          return
+        }
+      }
+    }
+  }
+
+  if (optionKey === 'alias' && value) {
+    const reg = /^[\p{Unified_Ideograph}_a-zA-Z0-9-]+$/u
+    if (!reg.test(value)) {
+      formErrors[fieldKey] = t('pages.manage.login.aliasMsg')
+    }
+  }
+
+  if (optionKey === 'itemsPerPage' && value !== undefined && value !== '') {
+    const numValue = Number(value)
+    if (numValue < 20 || numValue > 1000) {
+      formErrors[fieldKey] = t('pages.manage.login.itemsPerPageMsg')
+    }
+  }
+}
+
+const clearFieldError = (fieldKey: string) => {
+  delete formErrors[fieldKey]
+}
+
+const validateAllFields = (picBedName: string): boolean => {
+  const options = supportedPicBedList[picBedName]?.options || []
+  let isValid = true
+
+  for (const option of options) {
+    validateField(picBedName, option)
+    if (formErrors[`${picBedName}.${option}`]) {
+      isValid = false
+    }
+  }
+
+  return isValid
+}
+
+const initializeDefaultValues = (picBedName: string) => {
+  if (!supportedPicBedList[picBedName]) return
+
+  const options = supportedPicBedList[picBedName].options || []
+  for (const option of options) {
+    const fieldKey = `${picBedName}.${option}`
+    const configOption = supportedPicBedList[picBedName].configOptions[option]
+
+    if (configResult[fieldKey] === undefined || configResult[fieldKey] === '') {
+      if (configOption.default !== undefined) {
+        configResult[fieldKey] = configOption.default
+      } else if (configOption.type === 'boolean') {
+        configResult[fieldKey] = false
+      } else if (configOption.type === 'number') {
+        configResult[fieldKey] = 0
+      } else {
+        configResult[fieldKey] = ''
+      }
+    }
+  }
 }
 
 function getDataForTable () {
@@ -339,7 +559,7 @@ async function getExistingConfig (name: string) {
     for (const key in result) {
       if (result[key].picBedName === name) {
         existingConfiguration[key] = result[key]
-        currentAliasList.push(key)
+        currentAliasList.push(result[key].alias)
       }
     }
   }
@@ -354,40 +574,25 @@ function getAliasList () {
 }
 
 async function handleConfigChange (name: string) {
+  if (!validateAllFields(name)) {
+    notifyUser(t('pages.manage.login.noRequiredMsg'), 'error')
+    return
+  }
+
   const aliasList = getAliasList()
   const allKeys = Object.keys(supportedPicBedList[name].configOptions)
   const resultMap: IStringKeyMap = {}
-  const reg = /^[\p{Unified_Ideograph}_a-zA-Z0-9-]+$/u
+
   for (const key of allKeys) {
     const resultKey = name + '.' + key
-    if (supportedPicBedList[name].configOptions[key].required) {
-      if (supportedPicBedList[name].configOptions[key].type !== 'boolean' && !configResult[resultKey]) {
-        ElMessage.error(
-          `${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_MESSAGE_A')} ${supportedPicBedList[name].configOptions[key].description}`
-        )
-        return
-      }
-    }
-    if (key === 'alias' && configResult[resultKey] !== undefined && !reg.test(configResult[resultKey])) {
-      ElMessage.error(t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_ALIAS_MESSAGE'))
-      return
-    }
-    if (
-      key === 'itemsPerPage' &&
-      configResult[resultKey] !== undefined &&
-      (configResult[resultKey] < 20 || configResult[resultKey] > 1000)
-    ) {
-      ElMessage.error(t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_ITEMS_PER_PAGE_MESSAGE'))
-      return
-    }
+    console.log('Config change detected for:', resultKey)
+
     if (key === 'customUrl' && configResult[resultKey] !== undefined && configResult[resultKey] !== '') {
       if (name !== 'upyun') {
-        if (!/^https?:\/\//.test(configResult[resultKey])) {
-          ElMessage.error(t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_CUSTOM_URL_MESSAGE'))
-          return
-        }
+        configResult[resultKey] = formatEndpoint(configResult[resultKey], false)
       }
     }
+
     if (supportedPicBedList[name].configOptions[key].default !== undefined && configResult[resultKey] === '') {
       resultMap[key] = supportedPicBedList[name].configOptions[key].default
     } else if (configResult[resultKey] === undefined) {
@@ -411,20 +616,12 @@ async function handleConfigChange (name: string) {
     const password = resultMap.password?.split(',')
     for (let i = 0; i < bucketName.length; i++) {
       if (bucketName[i]) {
-        resultMap.transformedConfig = {
-          ...resultMap.transformedConfig,
-          [bucketName[i]]: {
-            baseDir: baseDir && baseDir[i] ? baseDir[i] : '/',
-            area: area && area[i] ? area[i] : '',
-            customUrl:
-              customUrl && customUrl[i]
-                ? /^https?:\/\//.test(customUrl[i])
-                  ? customUrl[i]
-                  : 'http://' + customUrl[i]
-                : '',
-            operator: operator && operator[i] ? operator[i] : '',
-            password: password && password[i] ? password[i] : ''
-          }
+        resultMap.transformedConfig[bucketName[i]] = {
+          baseDir: baseDir?.[i] || '/',
+          area: area?.[i] || '',
+          customUrl: customUrl?.[i] || '',
+          operator: operator?.[i] || '',
+          password: password?.[i] || ''
         }
       }
     }
@@ -438,71 +635,55 @@ async function handleConfigChange (name: string) {
   dataForTable.length = 0
   getDataForTable()
   if (aliasList.includes(resultMap.alias)) {
-    ElNotification({
-      title: t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
-      message: `${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE')}${resultMap.alias}`,
-      type: 'warning',
-      duration: 500,
-      customClass: 'notification',
-      offset: 100
-    })
+    notifyUser(
+      `${t('pages.manage.login.configChangeMsg')}${resultMap.alias}`,
+      'warning'
+    )
   } else {
-    ElNotification({
-      title: t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
-      message: `${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_B')}${resultMap.alias}`,
-      type: 'success',
-      duration: 2000,
-      customClass: 'notification',
-      offset: 100
-    })
+    notifyUser(
+      `${t('pages.manage.login.configSaveMsg')}${resultMap.alias}`,
+      'success'
+    )
   }
 }
 
 const handleConfigReset = (name: string) => {
-  const keys = Object.keys(configResult).filter(key => key.startsWith(name))
+  const keys = Object.keys(formErrors).filter(key => key.startsWith(name))
   keys.forEach(key => {
-    const optionKey = key.split('.')[1]
-    const configOption = supportedPicBedList[name]?.configOptions?.[optionKey]
-
-    if (configOption) {
-      configResult[key] = configOption.default || ''
-    }
+    delete formErrors[key]
   })
+
+  const configKeys = Object.keys(configResult).filter(key => key.startsWith(name))
+  configKeys.forEach(key => {
+    delete configResult[key]
+  })
+
+  initializeDefaultValues(name)
 }
 
-const handleConfigRemove = (name: string) => {
-  ElMessageBox.confirm(
-    t('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_TITLE'),
-    t('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_TIP'),
-    {
-      confirmButtonText: t('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_CONFIRM'),
-      cancelButtonText: t('MANAGE_LOGIN_PAGE_PANE_DELETE_CONFIG_CANCEL'),
-      type: 'warning'
-    }
-  ).then(async () => {
-    const commonNoticeConfig = {
-      title: t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_NAME'),
-      duration: 2000,
-      customClass: 'notification',
-      offset: 100
-    }
+const handleConfigRemove = async (name: string) => {
+  confirm({
+    title: t('pages.manage.login.tips'),
+    message: t('pages.manage.login.confirmDeleteConfig'),
+    type: 'warning',
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    center: true
+  }).then(result => {
+    if (!result) return
     try {
       removeConfig('picBed', name)
-      ElNotification({
-        ...commonNoticeConfig,
-        message: `${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_C')}${name}`,
-        type: 'success',
-        position: 'bottom-right'
-      })
+      notifyUser(
+        t('pages.manage.login.deleteConfigSuccessMsg'),
+        'success'
+      )
       manageStore.refreshConfig()
       getAllConfigAliasArray()
     } catch (error) {
-      ElNotification({
-        ...commonNoticeConfig,
-        message: `${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_D')}${name}${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_NOTICE_MESSAGE_E')}`,
-        type: 'error',
-        position: 'bottom-right'
-      })
+      notifyUser(
+        t('pages.manage.login.deleteConfigFailedMsg'),
+        'error'
+      )
     }
   })
 }
@@ -516,15 +697,15 @@ const getAllConfigAliasArray = async () => {
   Object.entries(result).forEach(([, value]: [string, any], index) => {
     allConfigAliasMap[index] = {
       alias: value.alias,
-      picBedName: value.picBedName,
-      config: value
+      config: value,
+      picBedName: value.picBedName
     }
   })
 }
 
-const handleCellClick = (row: any, column: any) => {
-  navigator.clipboard.writeText(row[column.property])
-  ElMessage.success(`${t('MANAGE_LOGIN_PAGE_PANE_CONFIG_CHANGE_COPY_SUCCESS')}${row[column.property]}`)
+const copyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text)
+  notifyUser(`${t('pages.manage.login.copySuccess', { text })}`, 'success')
 }
 
 const handleReferenceClick = (url: string) => window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
@@ -538,8 +719,8 @@ const handleConfigClick = async (item: any) => {
     path: '/main-page/manage-main-page',
     query: {
       alias,
-      picBedName,
       config,
+      picBedName,
       allPicBedConfigure: JSON.stringify(result)
     }
   })
@@ -555,6 +736,41 @@ function handleConfigImport (alias: string) {
     }
   })
 }
+
+const handleTabChange = (tabName: string) => {
+  activeName.value = tabName
+  getExistingConfig(tabName)
+
+  for (const key in formErrors) {
+    delete formErrors[key]
+  }
+
+  if (tabName !== 'login') {
+    initializeDefaultValues(tabName)
+  }
+}
+
+const toggleConfigDetails = (alias: string) => {
+  const index = expandedConfigs.value.indexOf(alias)
+  if (index > -1) {
+    expandedConfigs.value.splice(index, 1)
+  } else {
+    expandedConfigs.value.push(alias)
+  }
+}
+
+const toggleImportDropdown = () => {
+  importDropdownOpen.value = !importDropdownOpen.value
+}
+
+const refreshConfigs = () => {
+  getAllConfigAliasArray()
+  notifyUser('Configurations refreshed', 'success')
+}
+
+onMounted(() => {
+  getCurrentConfigList()
+})
 
 async function getCurrentConfigList () {
   await manageStore.refreshConfig()
@@ -849,16 +1065,4 @@ onMounted(() => {
 })
 </script>
 
-<style lang="stylus">
-.layout
-  background-color #fff
-  position absolute
-  left 162px
-  right 0
-  &.el-tabs
-    border 0
-    border-style none
-.loginpage
-  &:hover
-    background-color: Beige
-</style>
+<style scoped src="./css/LoginPage.css"></style>
