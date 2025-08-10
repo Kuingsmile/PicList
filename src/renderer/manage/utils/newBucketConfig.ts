@@ -22,29 +22,29 @@ const { t } = i18n.global
 
 export const newBucketConfig: IStringKeyMap = {
   tcyun: {
-    name: t('MANAGE_NEW_BUCKET_TCYUN_NAME'),
+    name: t('pages.manage.newBucket.tcyun.name'),
     icon: 'tcyun',
     configOptions: {
       BucketName: {
         required: true,
-        description: t('MANAGE_NEW_BUCKET_TCYUN_BUCKETNAME_DESC'),
-        placeholder: t('MANAGE_NEW_BUCKET_TCYUN_BUCKETNAME_PLACEHOLDER'),
+        description: t('pages.manage.newBucket.bucketDesc'),
+        placeholder: t('pages.manage.newBucket.bucketPlaceholder'),
         paraType: 'string',
         component: 'input',
         default: 'piclist',
         rule: [
           {
             required: true,
-            message: t('MANAGE_NEW_BUCKET_TCYUN_BUCKETNAME_RULE_MSG_A'),
+            message: t('pages.manage.newBucket.bucketNoEmpty'),
             trigger: 'blur'
           },
           {
-            validator: (rule: any, value: any, callback: any) => {
+            validator: (_: any, value: any, callback: any) => {
               const reg = /^[a-z0-9][a-z0-9-]{1,21}[a-z0-9]$/
               if (value.length > 23) {
-                callback(new Error(t('MANAGE_NEW_BUCKET_TCYUN_BUCKETNAME_RULE_MSG_B')))
+                callback(new Error(t('pages.manage.newBucket.tcyun.bucketLengthMsg')))
               } else if (!reg.test(value)) {
-                callback(new Error(t('MANAGE_NEW_BUCKET_TCYUN_BUCKETNAME_RULE_MSG_C')))
+                callback(new Error(t('pages.manage.newBucket.tcyun.bucketCharMsg')))
               } else {
                 callback()
               }
@@ -55,7 +55,7 @@ export const newBucketConfig: IStringKeyMap = {
       },
       region: {
         required: true,
-        description: t('MANAGE_NEW_BUCKET_TCYUN_REGION'),
+        description: t('pages.manage.newBucket.region'),
         paraType: 'string',
         component: 'select',
         default: 'ap-nanjing',
@@ -63,43 +63,43 @@ export const newBucketConfig: IStringKeyMap = {
       },
       acl: {
         required: true,
-        description: t('MANAGE_NEW_BUCKET_TCYUN_ACL_DESC'),
+        description: t('pages.manage.newBucket.acl.title'),
         paraType: 'string',
         component: 'select',
         default: 'private',
         options: {
-          private: t('MANAGE_NEW_BUCKET_TCYUN_ACL_PRIVATE'),
-          'public-read': t('MANAGE_NEW_BUCKET_TCYUN_ACL_PUBLIC_R'),
-          'public-read-write': t('MANAGE_NEW_BUCKET_TCYUN_ACL_PUBLIC_RW')
+          private: t('pages.manage.newBucket.acl.private'),
+          publicRead: t('pages.manage.newBucket.acl.publicRead'),
+          publicReadWrite: t('pages.manage.newBucket.acl.publicReadWrite')
         }
       }
     },
     options: ['BucketName', 'region', 'acl']
   },
   aliyun: {
-    name: t('MANAGE_NEW_BUCKET_ALIYUN_NAME'),
+    name: t('pages.manage.newBucket.aliyun.name'),
     icon: 'aliyun',
     configOptions: {
       BucketName: {
         required: true,
-        description: t('MANAGE_NEW_BUCKET_ALIYUN_BUCKETNAME_DESC'),
-        placeholder: t('MANAGE_NEW_BUCKET_ALIYUN_BUCKETNAME_PLACEHOLDER'),
+        description: t('pages.manage.newBucket.bucketDesc'),
+        placeholder: t('pages.manage.newBucket.bucketPlaceholder'),
         paraType: 'string',
         component: 'input',
         default: 'piclist',
         rule: [
           {
             required: true,
-            message: t('MANAGE_NEW_BUCKET_ALIYUN_BUCKETNAME_RULE_MSG_A'),
+            message: t('pages.manage.newBucket.bucketNoEmpty'),
             trigger: 'blur'
           },
           {
             validator: (rule: any, value: any, callback: any) => {
               const reg = /^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/
               if (value.length > 63) {
-                callback(new Error(t('MANAGE_NEW_BUCKET_ALIYUN_BUCKETNAME_RULE_MSG_B')))
+                callback(new Error(t('pages.manage.newBucket.aliyun.bucketLengthMsg')))
               } else if (!reg.test(value)) {
-                callback(new Error(t('MANAGE_NEW_BUCKET_ALIYUN_BUCKETNAME_RULE_MSG_C')))
+                callback(new Error(t('pages.manage.newBucket.aliyun.bucketCharMsg')))
               } else {
                 callback()
               }
@@ -110,7 +110,7 @@ export const newBucketConfig: IStringKeyMap = {
       },
       region: {
         required: true,
-        description: t('MANAGE_NEW_BUCKET_ALIYUN_REGION'),
+        description: t('pages.manage.newBucket.region'),
         paraType: 'string',
         component: 'select',
         default: 'oss-cn-hangzhou',
@@ -118,43 +118,43 @@ export const newBucketConfig: IStringKeyMap = {
       },
       acl: {
         required: true,
-        description: t('MANAGE_NEW_BUCKET_ALIYUN_ACL_DESC'),
+        description: t('pages.manage.newBucket.acl.title'),
         paraType: 'string',
         component: 'select',
         default: 'private',
         options: {
-          private: t('MANAGE_NEW_BUCKET_ALIYUN_ACL_PRIVATE'),
-          publicRead: t('MANAGE_NEW_BUCKET_ALIYUN_ACL_PUBLIC_R'),
-          publicReadWrite: t('MANAGE_NEW_BUCKET_ALIYUN_ACL_PUBLIC_RW')
+          private: t('pages.manage.newBucket.acl.private'),
+          publicRead: t('pages.manage.newBucket.acl.publicRead'),
+          publicReadWrite: t('pages.manage.newBucket.acl.publicReadWrite')
         }
       }
     },
     options: ['BucketName', 'region', 'acl']
   },
   qiniu: {
-    name: t('MANAGE_NEW_BUCKET_QINIU_NAME'),
+    name: t('pages.manage.newBucket.qiniu.name'),
     icon: 'qiniu',
     configOptions: {
       BucketName: {
         required: true,
-        description: t('MANAGE_NEW_BUCKET_QINIU_BUCKETNAME_DESC'),
-        placeholder: t('MANAGE_NEW_BUCKET_QINIU_BUCKETNAME_PLACEHOLDER'),
+        description: t('pages.manage.newBucket.bucketDesc'),
+        placeholder: t('pages.manage.newBucket.bucketPlaceholder'),
         paraType: 'string',
         component: 'input',
         default: 'piclist',
         rule: [
           {
             required: true,
-            message: t('MANAGE_NEW_BUCKET_QINIU_BUCKETNAME_RULE_MSG_A'),
+            message: t('pages.manage.newBucket.bucketNoEmpty'),
             trigger: 'blur'
           },
           {
-            validator: (rule: any, value: any, callback: any) => {
+            validator: (_: any, value: any, callback: any) => {
               const reg = /^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/
               if (value.length > 63) {
-                callback(new Error(t('MANAGE_NEW_BUCKET_QINIU_BUCKETNAME_RULE_MSG_B')))
+                callback(new Error(t('pages.manage.newBucket.qiniu.bucketLengthMsg')))
               } else if (!reg.test(value)) {
-                callback(new Error(t('MANAGE_NEW_BUCKET_QINIU_BUCKETNAME_RULE_MSG_C')))
+                callback(new Error(t('pages.manage.newBucket.qiniu.bucketCharMsg')))
               } else {
                 callback()
               }
@@ -165,7 +165,7 @@ export const newBucketConfig: IStringKeyMap = {
       },
       region: {
         required: true,
-        description: t('MANAGE_NEW_BUCKET_QINIU_REGION'),
+        description: t('pages.manage.newBucket.region'),
         paraType: 'string',
         component: 'select',
         default: 'z0',
@@ -173,7 +173,7 @@ export const newBucketConfig: IStringKeyMap = {
       },
       acl: {
         required: true,
-        description: t('MANAGE_NEW_BUCKET_QINIU_ACL_DESC'),
+        description: t('pages.manage.newBucket.qiniu.publicAccess'),
         paraType: 'boolean',
         component: 'switch',
         default: false
@@ -182,42 +182,42 @@ export const newBucketConfig: IStringKeyMap = {
     options: ['BucketName', 'region', 'acl']
   },
   s3plist: {
-    name: t('MANAGE_NEW_BUCKET_S3PLIST_NAME'),
+    name: t('pages.manage.newBucket.s3.name'),
     icon: 's3plist',
     configOptions: {
       BucketName: {
         required: true,
-        description: t('MANAGE_NEW_BUCKET_S3PLIST_BUCKETNAME_DESC'),
-        placeholder: t('MANAGE_NEW_BUCKET_S3PLIST_BUCKETNAME_PLACEHOLDER'),
+        description: t('pages.manage.newBucket.bucketDesc'),
+        placeholder: t('pages.manage.newBucket.bucketPlaceholder'),
         paraType: 'string',
         component: 'input',
         default: 'piclist',
         rule: [
           {
             required: true,
-            message: t('MANAGE_NEW_BUCKET_S3PLIST_BUCKETNAME_RULE_MSG_A'),
+            message: t('pages.manage.newBucket.bucketNoEmpty'),
             trigger: 'blur'
           }
         ]
       },
       region: {
         required: true,
-        description: t('MANAGE_NEW_BUCKET_S3PLIST_REGION'),
+        description: t('pages.manage.newBucket.region'),
         paraType: 'string',
         component: 'input',
         default: 'us-east-1'
       },
       acl: {
         required: true,
-        description: t('MANAGE_NEW_BUCKET_S3PLIST_ACL_DESC'),
+        description: t('pages.manage.newBucket.acl.title'),
         paraType: 'string',
         component: 'select',
         default: 'private',
         options: {
-          private: t('MANAGE_NEW_BUCKET_S3PLIST_ACL_PRIVATE'),
-          'public-read': t('MANAGE_NEW_BUCKET_S3PLIST_ACL_PUBLIC_R'),
-          'public-read-write': t('MANAGE_NEW_BUCKET_S3PLIST_ACL_PUBLIC_RW'),
-          'authenticated-read': t('MANAGE_NEW_BUCKET_S3PLIST_ACL_AUTHENTICATED_READ')
+          private: t('pages.manage.newBucket.acl.private'),
+          'public-read': t('pages.manage.newBucket.acl.publicRead'),
+          'public-read-write': t('pages.manage.newBucket.acl.publicReadWrite'),
+          'authenticated-read': t('pages.manage.newBucket.acl.authenticatedRead')
         }
       }
     },

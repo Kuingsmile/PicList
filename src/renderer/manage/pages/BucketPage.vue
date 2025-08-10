@@ -27,7 +27,7 @@
                 value=""
                 disabled
               >
-                {{ $t('MANAGE_BUCKET_PAGE_CUSTOM_URL_SELECT_PLACEHOLDER') }}
+                {{ t('pages.manage.bucket.selectCustomDomain') }}
               </option>
               <option
                 v-for="item in customDomainList"
@@ -44,7 +44,7 @@
             v-model="currentCustomDomain"
             type="text"
             class="custom-domain-input"
-            :placeholder="$t('MANAGE_BUCKET_PAGE_CUSTOM_URL_INPUT_PLACEHOLDER')"
+            :placeholder="t('pages.manage.bucket.inputCustomDomain')"
             @blur="handleChangeCustomUrlInput"
           >
           <a
@@ -64,7 +64,7 @@
               @click="showUploadDialog"
             >
               <UploadIcon class="action-icon" />
-              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_UPLOAD_FILES_TOOLTIP') }}</span>
+              <span class="tooltip-text">{{ t('pages.manage.bucket.uploadFiles') }}</span>
             </button>
           </div>
 
@@ -75,7 +75,7 @@
               @click="showUrlDialog"
             >
               <LinkIcon class="action-icon" />
-              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_UPLOAD_FROM_URL_TOOLTIP') }}</span>
+              <span class="tooltip-text">{{ t('pages.manage.bucket.uploadFromUrl') }}</span>
             </button>
           </div>
 
@@ -89,7 +89,7 @@
               @click="handleCreateFolder"
             >
               <FolderPlusIcon class="action-icon" />
-              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_CREATE_FOLDER_TOOLTIP') }}</span>
+              <span class="tooltip-text">{{ t('pages.manage.bucket.createFolder') }}</span>
             </button>
           </div>
 
@@ -100,7 +100,7 @@
               @click="showDownloadDialog"
             >
               <DownloadIcon class="action-icon" />
-              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_DOWNLOAD_TOOLTIP') }}</span>
+              <span class="tooltip-text">{{ t('pages.manage.bucket.downloadPage') }}</span>
             </button>
           </div>
 
@@ -114,7 +114,7 @@
               @click="handleBatchRenameFile"
             >
               <EditIcon class="action-icon" />
-              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_BATCH_RENAME_TOOLTIP') }}</span>
+              <span class="tooltip-text">{{ t('pages.manage.bucket.batchRename') }}</span>
             </button>
           </div>
 
@@ -157,7 +157,7 @@
               @click="handleBatchCopyInfo"
             >
               <InfoIcon class="action-icon" />
-              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_COPY_FILE_INFO_TOOLTIP') }}</span>
+              <span class="tooltip-text">{{ t('pages.manage.bucket.copyFileIno') }}</span>
             </button>
           </div>
 
@@ -168,7 +168,7 @@
               @click="forceRefreshFileList"
             >
               <RefreshCwIcon class="action-icon" />
-              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_FORCE_REFRESH_TOOLTIP') }}</span>
+              <span class="tooltip-text">{{ t('pages.manage.bucket.forceRefreshFileList') }}</span>
             </button>
           </div>
 
@@ -177,7 +177,7 @@
             v-model="searchText"
             type="text"
             class="search-input"
-            :placeholder="$t('MANAGE_BUCKET_PAGEcroARCH_PLACEHOLDER')"
+            :placeholder="t('pages.manage.bucket.searchPlaceholder')"
           >
         </div>
       </div>
@@ -200,13 +200,13 @@
               class="breadcrumb-item"
               @click="handleBreadcrumbClick(index)"
             >
-              {{ item === '' ? $t('MANAGE_BUCKET_PAGE_ROOT_FOLDER') : item }}
+              {{ item === '' ? t('pages.manage.bucket.rootFolder') : item }}
             </button>
           </template>
         </template>
         <template v-else>
           <span class="breadcrumb-item current">
-            {{ $t('MANAGE_BUCKET_PAGE_ROOT_FOLDER') }}
+            {{ t('pages.manage.bucket.rootFolder') }}
           </span>
         </template>
       </div>
@@ -223,11 +223,11 @@
           <div class="file-info">
             <div class="file-info-item">
               <FileIcon class="action-icon" />
-              <span>{{ `${$t('MANAGE_BUCKET_PAGE_FILE_NUMBER')}${currentPageFilesInfo.length}` }}</span>
+              <span>{{ `${t('pages.manage.bucket.fileNum', { num: currentPageFilesInfo.length })}` }}</span>
             </div>
             <div class="file-info-item">
               <HardDriveIcon class="action-icon" />
-              <span>{{ `${$t('MANAGE_BUCKET_PAGE_FILE_SIZE')}${calculateAllFileSize}` }}</span>
+              <span>{{ `${t('pages.manage.bucket.pageFileSize', { size: calculateAllFileSize })}` }}</span>
             </div>
           </div>
         </div>
@@ -239,7 +239,7 @@
               class="action-button secondary"
               @click="handleCheckAllChange"
             >
-              {{ $t('MANAGE_BUCKET_PAGE_SELECT_ALL') }}
+              {{ t('pages.manage.bucket.selectAll') }}
             </button>
           </div>
           <div
@@ -250,33 +250,33 @@
               class="action-button secondary"
               @click="handleCancelCheck"
             >
-              {{ $t('MANAGE_BUCKET_PAGE_SELECT_NONE') }}
+              {{ t('pages.manage.bucket.cancel') }}
             </button>
             <button
               class="action-button secondary"
               @click="handleReverseCheck"
             >
-              {{ $t('MANAGE_BUCKET_PAGE_SELECT_INVERT') }}
+              {{ t('pages.manage.bucket.reverseSelect') }}
             </button>
             <button
               class="action-button secondary"
               @click="handleCheckAllChange"
             >
-              {{ $t('MANAGE_BUCKET_PAGE_SELECT_ALL') }}
+              {{ t('pages.manage.bucket.selectAll') }}
             </button>
             <button
               class="action-button primary"
               @click="handleBatchDownload"
             >
               <DownloadIcon class="action-icon" />
-              {{ `${$t('MANAGE_BUCKET_DOWNLOAD_BTN')}(${selectedItems.filter(item => item.isDir === false).length})` }}
+              {{ `${t('pages.manage.bucket.downloadBtn', { num: selectedItems.filter(item => item.isDir === false).length })}` }}
             </button>
             <button
               class="action-button danger"
               @click="handleBatchDeleteInfo"
             >
               <Trash2Icon class="action-icon" />
-              {{ `${$t('MANAGE_BUCKET_DELETE_BTN')}${selectedItems.length}` }}
+              {{ `${t('pages.manage.bucket.removeBtn', { num: selectedItems.length })}` }}
             </button>
           </div>
 
@@ -287,7 +287,7 @@
               @click="sortDropdownOpen = !sortDropdownOpen"
             >
               <ArrowUpDownIcon class="action-icon" />
-              {{ $t('MANAGE_BUCKET_SORT_TITLE') }}
+              {{ t('pages.manage.bucket.sort.title') }}
               <ChevronDownIcon class="action-icon" />
             </button>
             <div
@@ -300,7 +300,7 @@
                 class="dropdown-item"
                 @click="sortFile(item as any)"
               >
-                {{ $t(`MANAGE_BUCKET_SORT_${item.toUpperCase()}` as any) }}
+                {{ t(`pages.manage.bucket.sort.${item}`) }}
               </div>
             </div>
           </div>
@@ -322,7 +322,7 @@
                 class="action-icon"
               />
               <span class="tooltip-text">
-                {{ isContentFullscreen ? $t('MANAGE_BUCKET_PAGE_EXIT_FULLSCREEN_TOOLTIP') : $t('MANAGE_BUCKET_PAGE_FULLSCREEN_TOOLTIP') }}
+                {{ isContentFullscreen ? t('pages.manage.bucket.exitFullScreen') : t('pages.manage.bucket.enterFullScreen') }}
               </span>
             </button>
           </div>
@@ -381,13 +381,13 @@
                   class="breadcrumb-item"
                   @click="handleBreadcrumbClick(index)"
                 >
-                  {{ item === '' ? $t('MANAGE_BUCKET_PAGE_ROOT_FOLDER') : item }}
+                  {{ item === '' ? t('pages.manage.bucket.rootFolder') : item }}
                 </button>
               </template>
             </template>
             <template v-else>
               <span class="breadcrumb-item current">
-                {{ $t('MANAGE_BUCKET_PAGE_ROOT_FOLDER') }}
+                {{ t('pages.manage.bucket.rootFolder') }}
               </span>
             </template>
           </div>
@@ -397,10 +397,10 @@
           <div class="file-info">
             <div class="file-info-item">
               <FileIcon class="action-icon" />
-              <span>{{ `${$t('MANAGE_BUCKET_PAGE_FILE_NUMBER')}${currentPageFilesInfo.length}` }}</span>
+              <span>{{ `${t('pages.manage.bucket.fileNum', { num: currentPageFilesInfo.length })}` }}</span>
             </div>
             <div class="file-info-item">
-              <span>{{ `${$t('MANAGE_BUCKET_PAGE_FILE_SIZE')}${calculateAllFileSize}` }}</span>
+              <span>{{ `${t('pages.manage.bucket.pageFileSize', { size: calculateAllFileSize })}` }}</span>
             </div>
           </div>
         </div>
@@ -411,7 +411,7 @@
             v-model="searchText"
             type="text"
             class="search-input"
-            :placeholder="$t('MANAGE_BUCKET_PAGE_SEARCH_PLACEHOLDER')"
+            :placeholder="t('pages.manage.bucket.searchPlaceholder')"
           >
 
           <!-- Exit Fullscreen -->
@@ -421,7 +421,7 @@
               @click="toggleContentFullscreen"
             >
               <ShrinkIcon class="action-icon" />
-              <span class="tooltip-text">{{ $t('MANAGE_BUCKET_PAGE_EXIT_FULLSCREEN_TOOLTIP') }}</span>
+              <span class="tooltip-text">{{ t('pages.manage.bucket.exitFullScreen') }}</span>
             </button>
           </div>
         </div>
@@ -555,14 +555,14 @@
                             class="file-actions-dropdown-item"
                             @click.stop="copyLink(item, format)"
                           >
-                            {{ $t(`MANAGE_BUCKET_URL_FORMAT_${format.toUpperCase().replace(/-/g, '_')}` as any) }}
+                            {{ t(`pages.manage.bucket.linkFormat.${format}`) }}
                           </div>
                           <div
                             v-if="isShowPresignedUrl"
                             class="file-actions-dropdown-item"
                             @click.stop="async () => copyToClipboard(await getPreSignedUrl(item))"
                           >
-                            {{ $t('MANAGE_BUCKET_URL_FORMAT_PRESIGN') }}
+                            {{ t('pages.manage.bucket.linkFormat.presign') }}
                           </div>
                         </div>
                       </div>
@@ -711,7 +711,7 @@
       >
         <div class="modal-header">
           <h3 class="modal-title">
-            {{ $t('MANAGE_BUCKET_URL_UPLOAD_DIALOG_TITLE') }}
+            {{ t('pages.manage.bucket.urlUploadTitle') }}
           </h3>
           <button
             class="modal-close"
@@ -734,13 +734,13 @@
             class="action-button secondary"
             @click="dialogVisible = false"
           >
-            {{ $t('MANAGE_BUCKET_URL_UPLOAD_DIALOG_CANCEL') }}
+            {{ t('common.cancel') }}
           </button>
           <button
             class="action-button primary"
             @click="handleUploadFromUrl"
           >
-            {{ $t('MANAGE_BUCKET_URL_UPLOAD_DIALOG_CONFIRM') }}
+            {{ t('common.confirm') }}
           </button>
         </div>
       </div>
@@ -790,14 +790,14 @@
       >
         <div class="modal-header">
           <h3 class="modal-title">
-            {{ $t('MANAGE_BUCKET_FILE_INFO_TITLE') }}
+            {{ t('pages.manage.bucket.fileInfo') }}
           </h3>
           <button
             class="action-button primary"
             @click="copyToClipboard(JSON.stringify(currentShowedFileInfo, null, 2))"
           >
             <CopyIcon class="action-icon" />
-            {{ $t('MANAGE_BUCKET_FILE_INFO_COPY_TIPS') }}
+            {{ t('pages.manage.bucket.copyFileInfoInJson') }}
           </button>
           <button
             class="modal-close"
@@ -842,7 +842,7 @@
       >
         <div class="modal-header">
           <h3 class="modal-title">
-            {{ $t('MANAGE_BUCKET_RENAME_FILE') }}
+            {{ t('pages.manage.bucket.renameFile') }}
           </h3>
           <button
             class="modal-close"
@@ -854,27 +854,23 @@
         <div class="modal-content">
           <div class="form-group">
             <label class="form-label">
-              {{ $t('MANAGE_BUCKET_RENAME_FILE_INPUT_A') }} - Matched: {{ matchedFilesNumber }}
+              {{ t('pages.manage.bucket.matchedPattern', { num: matchedFilesNumber }) }}
               <div class="tooltip">
                 <InfoIcon class="action-icon" />
-                <span class="tooltip-text">{{ $t('MANAGE_BUCKET_RENAME_FILE_INPUT_A_TIPS') }}</span>
+                <span class="tooltip-text">{{ t('pages.manage.bucket.regexPatternTips') }}</span>
               </div>
             </label>
             <input
               v-model="batchRenameMatch"
               type="text"
               class="form-input"
-              :placeholder="$t('MANAGE_BUCKET_RENAME_FILE_INPUT_A_PLACEHOLDER')"
+              :placeholder="t('pages.manage.bucket.regexPlaceholder')"
             >
           </div>
 
           <div class="form-group">
             <label class="form-label">
-              {{ $t('MANAGE_BUCKET_RENAME_FILE_INPUT_B') }}
-              <div class="tooltip">
-                <InfoIcon class="action-icon" />
-                <span class="tooltip-text">Format placeholders available</span>
-              </div>
+              {{ t('pages.manage.bucket.replaceInput') }}
             </label>
             <input
               v-model="batchRenameReplace"
@@ -894,7 +890,7 @@
                 <span class="switch-slider" />
               </label>
               <span class="switch-label">
-                {{ isRenameIncludeExt ? $t('MANAGE_BUCKET_RENAME_FILE_EXT_YES') : $t('MANAGE_BUCKET_RENAME_FILE_EXT_NO') }}
+                {{ isRenameIncludeExt ? t('pages.manage.bucket.includeExt') : t('pages.manage.bucket.excludeExt') }}
               </span>
             </div>
           </div>
@@ -904,14 +900,13 @@
             class="action-button secondary"
             @click="isShowBatchRenameDialog = false"
           >
-            {{ $t('MANAGE_BUCKET_RENAME_FILE_CANCEL') }}
+            {{ t('common.cancel') }}
           </button>
           <button
             class="action-button primary"
             @click="isSingleRename ? singleRename() : BatchRename()"
           >
-            <EditIcon class="action-icon" />
-            {{ $t('MANAGE_BUCKET_RENAME_FILE_CONFIRM') }}
+            {{ t('common.confirm') }}
           </button>
         </div>
       </div>
@@ -929,7 +924,7 @@
         @click="cancelLoading"
       >
         <div class="loading-spinner" />
-        {{ $t('MANAGE_BUCKET_FILE_LIST_LOADING') }}
+        {{ t('pages.manage.bucket.loading') }}
       </button>
     </div>
 
@@ -944,7 +939,7 @@
         @click="cancelDownloadLoading"
       >
         <div class="loading-spinner" />
-        {{ $t('MANAGE_BUCKET_FILE_LIST_DOWNLOAD_PRE') }}
+        {{ t('pages.manage.bucket.prepareDownload') }}
       </button>
     </div>
     <!-- Upload Drawer -->
@@ -972,7 +967,7 @@
               <span class="switch-slider" />
             </label>
             <span class="switch-label">
-              {{ isUploadKeepDirStructure ? $t('MANAGE_BUCKET_KEEP_FOLDER_STRUCTURE') : $t('MANAGE_BUCKET_NOT_KEEP_FOLDER_STRUCTURE') }}
+              {{ isUploadKeepDirStructure ? t('pages.manage.bucket.keepDirStructure') : t('pages.manage.bucket.noKeepDirStructure') }}
             </span>
           </div>
           <button
@@ -994,10 +989,10 @@
             @click="openFileSelectDialog"
           >
             <div class="upload-area-text">
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_TITLE') }}
+              {{ t('pages.manage.bucket.dragUpload') }}
             </div>
             <div class="upload-area-subtext">
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_TEXT') }}
+              {{ t('pages.manage.bucket.clickUpload') }}
             </div>
           </div>
 
@@ -1048,7 +1043,7 @@
               @click="uploadFiles"
             >
               <UploadIcon class="action-icon" />
-              {{ isLoadingUploadPanelFiles ? $t('MANAGE_BUCKET_UPLOAD_AREA_BTN_LOADING') : $t('MANAGE_BUCKET_UPLOAD_AREA_BTN') }}
+              {{ isLoadingUploadPanelFiles ? t('pages.manage.bucket.readingDir') : t('pages.manage.bucket.upload') }}
             </button>
             <button
               class="action-button secondary"
@@ -1056,7 +1051,7 @@
               @click="clearTableData"
             >
               <Trash2Icon class="action-icon" />
-              {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR') }}
+              {{ t('pages.manage.bucket.clear') }}
             </button>
           </div>
 
@@ -1068,7 +1063,7 @@
                 :class="{ active: activeUpLoadTab === 'uploading' }"
                 @click="activeUpLoadTab = 'uploading'"
               >
-                {{ $t('MANAGE_BUCKET_UPLOAD_AREA_STATUS_UPLOADING') }}
+                {{ t('pages.manage.bucket.uploading') }}
                 <span
                   v-if="uploadingTaskList.length"
                   class="tab-badge"
@@ -1081,7 +1076,7 @@
                 :class="{ active: activeUpLoadTab === 'finished' }"
                 @click="activeUpLoadTab = 'finished'"
               >
-                {{ $t('MANAGE_BUCKET_UPLOAD_AREA_SUCCESS') }}
+                {{ t('pages.manage.bucket.success') }}
                 <span
                   v-if="uploadedTaskList.filter(item => item.status === 'uploaded').length"
                   class="tab-badge"
@@ -1094,7 +1089,7 @@
                 :class="{ active: activeUpLoadTab === 'failed' }"
                 @click="activeUpLoadTab = 'failed'"
               >
-                {{ $t('MANAGE_BUCKET_UPLOAD_AREA_FAILED') }}
+                {{ t('pages.manage.bucket.failed') }}
                 <span
                   v-if="uploadedTaskList.filter(item => item.status !== 'uploaded').length"
                   class="tab-badge"
@@ -1116,21 +1111,21 @@
                     @click="handleCopyUploadingTaskInfo"
                   >
                     <CopyIcon class="action-icon" />
-                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
+                    {{ t('pages.manage.bucket.copyUploadTask') }}
                   </button>
                   <button
                     class="action-button secondary"
                     @click="handleDeleteUploadedTask"
                   >
                     <Trash2Icon class="action-icon" />
-                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
+                    {{ t('pages.manage.bucket.clearFinishedTasks') }}
                   </button>
                   <button
                     class="action-button secondary"
                     @click="handleDeleteAllUploadedTask"
                   >
                     <Trash2Icon class="action-icon" />
-                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
+                    {{ t('pages.manage.bucket.clearAll') }}
                   </button>
                 </div>
                 <VirtualScroller
@@ -1168,21 +1163,21 @@
                     @click="handleCopyUploadingTaskInfo"
                   >
                     <CopyIcon class="action-icon" />
-                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
+                    {{ t('pages.manage.bucket.copyUploadTask') }}
                   </button>
                   <button
                     class="action-button secondary"
                     @click="handleDeleteUploadedTask"
                   >
                     <Trash2Icon class="action-icon" />
-                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
+                    {{ t('pages.manage.bucket.clearFinishedTasks') }}
                   </button>
                   <button
                     class="action-button secondary"
                     @click="handleDeleteAllUploadedTask"
                   >
                     <Trash2Icon class="action-icon" />
-                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
+                    {{ t('pages.manage.bucket.clearAll') }}
                   </button>
                 </div>
                 <VirtualScroller
@@ -1202,7 +1197,7 @@
                           <span
                             class="badge success"
                           >
-                            {{ $t('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS_SUCCESS') }}
+                            {{ t('pages.manage.bucket.success') }}
                           </span>
                         </div>
                       </div>
@@ -1222,21 +1217,21 @@
                     @click="handleCopyUploadingTaskInfo"
                   >
                     <CopyIcon class="action-icon" />
-                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_COPY_TASK') }}
+                    {{ t('pages.manage.bucket.copyUploadTask') }}
                   </button>
                   <button
                     class="action-button secondary"
                     @click="handleDeleteUploadedTask"
                   >
                     <Trash2Icon class="action-icon" />
-                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_UPLOADED_TASK') }}
+                    {{ t('pages.manage.bucket.clearFinishedTasks') }}
                   </button>
                   <button
                     class="action-button secondary"
                     @click="handleDeleteAllUploadedTask"
                   >
                     <Trash2Icon class="action-icon" />
-                    {{ $t('MANAGE_BUCKET_UPLOAD_AREA_CLEAR_ALL_TASK') }}
+                    {{ t('pages.manage.bucket.clearAll') }}
                   </button>
                 </div>
                 <VirtualScroller
@@ -1256,7 +1251,7 @@
                           <span
                             class="badge error"
                           >
-                            {{ $t('MANAGE_BUCKET_UPLOAD_COLUMN_STATUS_FAIL') }}
+                            {{ t('pages.manage.bucket.failed') }}
                           </span>
                         </div>
                       </div>
@@ -1283,7 +1278,7 @@
       >
         <div class="drawer-header">
           <h3 class="drawer-title">
-            {{ $t('MANAGE_BUCKET_DOWNLOAD_PAGE_TITLE') }}
+            {{ t('pages.manage.bucket.downloadPage') }}
           </h3>
           <button
             class="modal-close"
@@ -1302,7 +1297,7 @@
                 :class="{ active: activeDownLoadTab === 'downloading' }"
                 @click="activeDownLoadTab = 'downloading'"
               >
-                {{ $t('MANAGE_BUCKET_DOWNLOADING') }}
+                {{ t('pages.manage.bucket.downloading') }}
                 <span
                   v-if="downloadingTaskList.length"
                   class="tab-badge"
@@ -1315,7 +1310,7 @@
                 :class="{ active: activeDownLoadTab === 'finished' }"
                 @click="activeDownLoadTab = 'finished'"
               >
-                {{ $t('MANAGE_BUCKET_DOWNLOAD_SUCCESS') }}
+                {{ t('pages.manage.bucket.success') }}
                 <span
                   v-if="downloadedTaskList.filter(item => item.status === 'downloaded').length"
                   class="tab-badge"
@@ -1328,7 +1323,7 @@
                 :class="{ active: activeDownLoadTab === 'failed' }"
                 @click="activeDownLoadTab = 'failed'"
               >
-                {{ $t('MANAGE_BUCKET_DOWNLOAD_FAILED') }}
+                {{ t('pages.manage.bucket.failed') }}
                 <span
                   v-if="downloadedTaskList.filter(item => item.status !== 'downloaded').length"
                   class="tab-badge"
@@ -1351,28 +1346,28 @@
                     @click="handleCopyDownloadingTaskInfo"
                   >
                     <CopyIcon class="action-icon" />
-                    {{ $t('MANAGE_BUCKET_DOWNLOAD_COPY_TASK') }}
+                    {{ t('pages.manage.bucket.copyDownloadTask') }}
                   </button>
                   <button
                     class="action-button secondary"
                     @click="handleDeleteDownloadedTask"
                   >
                     <Trash2Icon class="action-icon" />
-                    {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_DOWNLOADED_TASK') }}
+                    {{ t('pages.manage.bucket.clearFinishedTasks') }}
                   </button>
                   <button
                     class="action-button secondary"
                     @click="handleDeleteAllDownloadedTask"
                   >
                     <Trash2Icon class="action-icon" />
-                    {{ $t('MANAGE_BUCKET_DOWNLOAD_CLEAR_ALL_TASK') }}
+                    {{ t('pages.manage.bucket.clearAll') }}
                   </button>
                   <button
                     class="action-button secondary"
                     @click="handleOpenDownloadedFolder"
                   >
                     <FolderIcon class="action-icon" />
-                    {{ $t('MANAGE_BUCKET_DOWNLOAD_OPEN_FOLDER') }}
+                    {{ t('pages.manage.bucket.openDownloadFolder') }}
                   </button>
                 </div>
                 <VirtualScroller
@@ -1417,7 +1412,7 @@
       >
         <div class="modal-header">
           <h3 class="modal-title">
-            {{ $t('MANAGE_BUCKET_MARKDOWN_PREVIEW') }}
+            {{ t('pages.manage.bucket.preview') }}
           </h3>
           <button
             class="modal-close"
@@ -1447,7 +1442,7 @@
       >
         <div class="modal-header">
           <h3 class="modal-title">
-            {{ $t('MANAGE_BUCKET_MARKDOWN_PREVIEW') }}
+            {{ t('pages.manage.bucket.preview') }}
           </h3>
           <button
             class="modal-close"
@@ -1475,7 +1470,7 @@
       >
         <div class="modal-header">
           <h3 class="modal-title">
-            {{ $t('MANAGE_BUCKET_PLAY') }}
+            {{ t('pages.manage.bucket.play') }}
           </h3>
           <button
             class="modal-close"
@@ -1805,24 +1800,20 @@ function handleViewChange (val: 'list' | 'grid') {
 }
 */
 
-// 全屏切换功能
 function toggleContentFullscreen () {
   isContentFullscreen.value = !isContentFullscreen.value
 }
 
-// 处理外层容器滚动
 let scrollTimeout: ReturnType<typeof setTimeout> | undefined
 function handleBucketContainerScroll () {
-  // 节流处理，避免频繁调用
   if (scrollTimeout) {
     clearTimeout(scrollTimeout)
   }
   scrollTimeout = setTimeout(() => {
-    // 调用虚拟滚动器的刷新方法来更新可见区域
     if (virtualScrollerRef.value) {
       virtualScrollerRef.value.refresh()
     }
-  }, 16) // ~60fps
+  }, 16)
 }
 
 // 上传文件选择相关
@@ -2039,34 +2030,34 @@ function uploadFiles () {
 
 function handleCopyUploadingTaskInfo () {
   window.electron.clipboard.writeText(JSON.stringify(uploadTaskList.value, null, 2))
-  message.success(t('MANAGE_BUCKET_COPY_SUCCESS'))
+  message.success(t('pages.manage.bucket.copySuccess'))
 }
 
 function handleDeleteUploadedTask () {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_UPLOADED_TASK)
-  message.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
+  message.success(t('pages.manage.bucket.deleteSuccess'))
 }
 
 function handleDeleteAllUploadedTask () {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_ALL_UPLOADED_TASK)
-  message.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
+  message.success(t('pages.manage.bucket.deleteSuccess'))
 }
 
 // 下载任务相关
 
 function handleCopyDownloadingTaskInfo () {
   window.electron.clipboard.writeText(JSON.stringify(downloadTaskList.value, null, 2))
-  message.success(t('MANAGE_BUCKET_COPY_SUCCESS'))
+  message.success(t('pages.manage.bucket.copySuccess'))
 }
 
 function handleDeleteDownloadedTask () {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_DOWNLOADED_TASK)
-  message.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
+  message.success(t('pages.manage.bucket.deleteSuccess'))
 }
 
 function handleDeleteAllDownloadedTask () {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_ALL_DOWNLOADED_TASK)
-  message.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
+  message.success(t('pages.manage.bucket.deleteSuccess'))
 }
 
 function handleOpenDownloadedFolder () {
@@ -2117,27 +2108,27 @@ async function handleClickFile (item: any) {
     isShowLoadingPage.value = false
   } else if (item.fileName.endsWith('.md')) {
     try {
-      message.success(t('MANAGE_BUCKET_START_LOADING_MESSAGE'))
+      message.success(t('pages.manage.bucket.startLoadingFile'))
       const fileUrl = item.url
       const res = await fetch(fileUrl, options)
       const content = await res.text()
       markDownContent.value = await marked.parse(content)
       isShowMarkDownDialog.value = true
     } catch (error) {
-      message.error(t('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))
+      message.error(t('pages.manage.bucket.loadingFailed'))
     }
   } else if (
     textFileExt.includes(window.node.path.extname(item.fileName).toLowerCase()) ||
     textFileExt.includes(item.fileName.toLowerCase())
   ) {
     try {
-      message.success(t('MANAGE_BUCKET_START_LOADING_MESSAGE'))
+      message.success(t('pages.manage.bucket.startLoadingFile'))
       const fileUrl = item.url
       const res = await fetch(fileUrl, options)
       textfileContent.value = await res.text()
       isShowTextFileDialog.value = true
     } catch (error) {
-      message.error(t('MANAGE_BUCKET_END_LOADING_MESSAGE_FAIL'))
+      message.error(t('pages.manage.bucket.loadingFailed'))
     }
   } else if (videoExt.includes(window.node.path.extname(item.fileName).toLowerCase())) {
     videoFileUrl.value = item.url
@@ -2336,14 +2327,14 @@ async function resetParam (force: boolean = false) {
         pagingMarkerStack.push(pagingMarker.value)
         pagingMarker.value = res.nextMarker
       } else if (paging.value && currentPageNumber.value > 1) {
-        message.success(t('MANAGE_BUCKET_LAST_PAGE_MSG'))
+        message.success(t('pages.manage.bucket.lastPageMsg'))
       }
     } else {
-      message.error(t('MANAGE_BUCKET_GET_LIST_FAIL_MSG'))
+      message.error(t('pages.manage.bucket.getFileListFailed'))
     }
   } else {
     getBucketFileListBackStage()
-    message.info(t('MANAGE_BUCKET_GET_LIST_FAIL_MSG2'))
+    message.info(t('pages.manage.bucket.getInBackground'))
   }
 }
 
@@ -2361,7 +2352,7 @@ watch(route, async newRoute => {
 
 async function forceRefreshFileList () {
   if (isLoadingData.value) {
-    message.error(t('MANAGE_BUCKET_GET_LIST_FAIL_MSG3'))
+    message.error(t('pages.manage.bucket.isLoadingMsg'))
     return
   }
   isShowLoadingPage.value = true
@@ -2475,13 +2466,14 @@ function handleCheckChangeOther (item: any) {
 
 async function handleFolderBatchDownload (item: any) {
   try {
-    await confirm.confirm({
-      message: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TIP'),
-      title: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_TITLE'),
-      confirmButtonText: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CONFIRM'),
-      cancelButtonText: t('MANAGE_BUCKET_DOWNLOAD_FOLDER_BOX_CANCEL'),
+    const result = await confirm.confirm({
+      message: t('pages.manage.bucket.notice'),
+      title: t('pages.manage.bucket.downloadFolderNotice'),
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
+    if (!result) return
     const defaultDownloadPath = await window.electron.triggerRPC<string>(IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER)
     const param = {
       downloadPath: manageStore.config.settings.downloadDir ?? defaultDownloadPath,
@@ -2521,7 +2513,7 @@ async function handleFolderBatchDownload (item: any) {
         isLoadingDownloadData.value = false
         clearInterval(downloadInterval)
         if (downloadFileTransferStore.isSuccess()) {
-          message.success(t('MANAGE_BUCKET_DOWNLOAD_FOLDER_SUCCESS'))
+          message.success(t('pages.manage.bucket.getDownloadListSuccess'))
           if (currentDownloadFileList.length) {
             currentDownloadFileList.forEach((item: any) => {
               param.fileArray.push({
@@ -2542,13 +2534,13 @@ async function handleFolderBatchDownload (item: any) {
           window.electron.sendRPC(IRPCActionType.MANAGE_DOWNLOAD_BUCKET_FILE, configMap.alias, param)
           isShowDownloadPanel.value = true
         } else {
-          message.error(t('MANAGE_BUCKET_DOWNLOAD_FOLDER_FAIL'))
+          message.error(t('pages.manage.bucket.getDownloadListFailed'))
         }
         downloadFileTransferStore.resetDownloadFileTransferList()
       }
     }, 500)
   } catch {
-    message.info(t('MANAGE_BUCKET_DOWNLOAD_FOLDER_CANCEL'))
+    message.info(t('pages.manage.bucket.canceled'))
   }
 }
 
@@ -2591,7 +2583,7 @@ function handleCheckAllChange () {
 }
 
 async function handleCreateFolder () {
-  const value = window.prompt(`${t('MANAGE_BUCKET_CREATE_FOLDER_BOX_TITLE')}\n${t('MANAGE_BUCKET_CREATE_FOLDER_BOX_TIP')}`)
+  const value = window.prompt(`${t('pages.manage.bucket.inputFolderTitle')}\n${t('pages.manage.bucket.createFolder')}`)
   if (value) {
     try {
       let formatedPath = value
@@ -2605,12 +2597,12 @@ async function handleCreateFolder () {
       }
       const res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_CREATE_BUCKET_FOLDER, configMap.alias, param)
       if (res) {
-        message.success(t('MANAGE_BUCKET_CREATE_FOLDER_SUCCESS'))
+        message.success(t('pages.manage.bucket.createSuccess'))
       } else {
-        message.error(t('MANAGE_BUCKET_CREATE_FOLDER_FAIL'))
+        message.error(t('pages.manage.bucket.createFailed'))
       }
     } catch (error) {
-      message.error(t('MANAGE_BUCKET_CREATE_FOLDER_FAIL'))
+      message.error(t('pages.manage.bucket.createFailed'))
     }
   }
 }
@@ -2628,10 +2620,10 @@ async function handleUploadFromUrl () {
     }
   })
   if (urlList.length === 0) {
-    message.error(t('MANAGE_BUCKET_UPLOAD_URL_ERROR_MSQ'))
+    message.error(t('pages.manage.bucket.inputValidUrlMsg'))
     return
   }
-  message.success(t('MANAGE_BUCKET_UPLOAD_URL_NOT_MSG'))
+  message.success(t('pages.manage.bucket.startUploadMsg'))
   const res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DOWNLOAD_FILE_FROM_URL, urlList)
   for (const item of res) {
     const fPath = item.replace(/\\/g, '/')
@@ -2673,7 +2665,7 @@ const matchedFilesNumber = computed(() => {
 async function BatchRename () {
   isShowBatchRenameDialog.value = false
   if (batchRenameMatch.value === '') {
-    message.error(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG'))
+    message.error(t('pages.manage.bucket.inputPatternMsg'))
     return
   }
   let matchedFiles = [] as any[]
@@ -2689,7 +2681,7 @@ async function BatchRename () {
     }
   })
   if (matchedFiles.length === 0) {
-    message.error(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG2'))
+    message.error(t('pages.manage.bucket.noMatchedFile'))
     return
   }
   for (const item of matchedFiles) {
@@ -2708,7 +2700,7 @@ async function BatchRename () {
   }
   matchedFiles = matchedFiles.filter((item: any) => item.fileName !== item.newName)
   if (matchedFiles.length === 0) {
-    message.error(t('MANAGE_BUCKET_BATCH_RENAME_ERROR_MSG3'))
+    message.error(t('pages.manage.bucket.noFileNeedRename'))
     return
   }
   for (let i = 0; i < matchedFiles.length; i++) {
@@ -2782,24 +2774,26 @@ async function BatchRename () {
   }
   if (duplicateFilesNum > 0) {
     try {
-      await confirm.confirm({
-        message: `${t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_A')} ${duplicateFilesNum} ${t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_B')}`,
-        title: t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_MSG_C'),
-        confirmButtonText: t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CONFIRM'),
-        cancelButtonText: t('MANAGE_BUCKET_BATCH_RENAME_REPEATED_CANCEL'),
-        type: 'warning'
+      const result = await confirm.confirm({
+        message: `${t('pages.manage.bucket.fileDupNotice', { number: duplicateFilesNum })}`,
+        title: t('pages.manage.bucket.notice'),
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning',
+        center: true
       })
+      if (!result) return
       const promiseList = [] as any[]
       for (const item of matchedFiles) {
         promiseList.push(renamefunc(item))
       }
       Promise.allSettled(promiseList).then(() => {
         message.success(
-          `${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_A')} ${successCount},${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_B')} ${failCount}`
+          `${t('pages.manage.bucket.renameResultMsg', { success: successCount, failed: failCount })}`
         )
       })
     } catch {
-      message.info(t('MANAGE_BUCKET_BATCH_RENAME_CANCEL'))
+      message.info(t('pages.manage.bucket.canceled'))
     }
   } else {
     const promiseList = [] as any[]
@@ -2808,7 +2802,7 @@ async function BatchRename () {
     }
     Promise.allSettled(promiseList).then(() => {
       message.success(
-        `${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_A')} ${successCount},${t('MANAGE_BUCKET_BATCH_RENAME_RESULT_MSG_B')} ${failCount}`
+        `${t('pages.manage.bucket.renameResultMsg', { success: successCount, failed: failCount })}`
       )
     })
   }
@@ -2816,7 +2810,7 @@ async function BatchRename () {
 
 function handleBatchCopyInfo () {
   if (selectedItems.value.length === 0) {
-    message.warning(t('MANAGE_BUCKET_BATCH_COPY_INFO_ERROR_MSG'))
+    message.warning(t('pages.manage.bucket.selectFileMsg'))
     return
   }
   const result = {} as IStringKeyMap
@@ -2825,7 +2819,7 @@ function handleBatchCopyInfo () {
   })
   window.electron.clipboard.writeText(JSON.stringify(result, null, 2))
   message.success(
-    `${t('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_A')} ${selectedItems.value.length} ${t('MANAGE_BUCKET_BATCH_COPY_INFO_MSG_B')}`
+    `${t('pages.manage.bucket.copySuccess')}`
   )
 }
 
@@ -2835,7 +2829,7 @@ async function copyLink (item: any, type: string) {
 
 async function handleBatchCopyLink (type: string) {
   if (!selectedItems.value.length) {
-    message.warning(t('MANAGE_BUCKET_BATCH_COPY_URL_ERROR_MSG'))
+    message.warning(t('pages.manage.bucket.selectFileMsg'))
     return
   }
   const result = [] as string[]
@@ -2853,41 +2847,45 @@ async function handleBatchCopyLink (type: string) {
   }
   window.electron.clipboard.writeText(result.join('\n'))
   message.success(
-    `${t('MANAGE_BUCKET_BATCH_COPY_URL_MSG_A')} ${result.length} ${t('MANAGE_BUCKET_BATCH_COPY_URL_MSG_B')}`
+    `${t('pages.manage.bucket.copySuccess')}`
   )
 }
 
 async function cancelLoading () {
   try {
-    await confirm.confirm({
-      message: t('MANAGE_BUCKET_CANCEL_LOADING_MSG'),
-      title: t('MANAGE_BUCKET_CANCEL_LOADING_TITLE'),
-      confirmButtonText: t('MANAGE_BUCKET_CANCEL_LOADING_CONFIRM'),
-      cancelButtonText: t('MANAGE_BUCKET_CANCEL_LOADING_CANCEL'),
-      type: 'warning'
+    const result = await confirm.confirm({
+      message: t('pages.manage.bucket.notice'),
+      title: t('pages.manage.bucket.stopGetFileListMsg'),
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      type: 'warning',
+      center: true
     })
+    if (!result) return
     isLoadingData.value = false
     window.electron.sendToMain('cancelLoadingFileList', cancelToken.value)
-    message.success(t('MANAGE_BUCKET_CANCEL_LOADING_SUCCESS'))
-  } catch {
-    // User cancelled
+    message.success(t('pages.manage.bucket.stopSuccessMsg'))
+  } catch (e) {
+    console.error(e)
   }
 }
 
 async function cancelDownloadLoading () {
   try {
-    await confirm.confirm({
-      message: t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_MSG'),
-      title: t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_TITLE'),
-      confirmButtonText: t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_CONFIRM'),
-      cancelButtonText: t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_CANCEL'),
-      type: 'warning'
+    const result = await confirm.confirm({
+      message: t('pages.manage.bucket.notice'),
+      title: t('pages.manage.bucket.stopGetDownloadListMsg'),
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      type: 'warning',
+      center: true
     })
+    if (!result) return
     isLoadingData.value = false
     window.electron.sendToMain(cancelDownloadLoadingFileList, downloadCancelToken.value)
-    message.success(t('MANAGE_BUCKET_CANCEL_DOWNLOAD_LOADING_SUCCESS'))
-  } catch {
-    // User cancelled
+    message.success(t('pages.manage.bucket.stopSuccessMsg'))
+  } catch (e) {
+    console.error(e)
   }
 }
 
@@ -2938,9 +2936,9 @@ async function getBucketFileListBackStage () {
       isLoadingData.value = false
       clearInterval(fileTransferInterval)
       if (fileTransferStore.isSuccess()) {
-        message.success(t('MANAGE_BUCKET_GET_FILE_BS_NOT_MSG'))
+        message.success(t('pages.manage.bucket.getFileListSuccess'))
       } else {
-        message.error(t('MANAGE_BUCKET_GET_FILE_BS_NOT_MSG2'))
+        message.error(t('pages.manage.bucket.partFileListFailed'))
       }
       fileTransferStore.resetFileTransferList()
     }
@@ -2965,16 +2963,16 @@ async function getBucketFileList () {
 }
 
 async function handleBatchDeleteInfo () {
-  const confirmTitle = `${t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_A')} ${selectedItems.value.length} ${t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_TITLE_B')}`
   try {
-    await confirm.confirm({
-      message: t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_MSG'),
-      title: confirmTitle,
-      confirmButtonText: t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CONFIRM'),
-      cancelButtonText: t('MANAGE_BUCKET_BATCH_DELETE_CONFIRM_CANCEL'),
+    const result = await confirm.confirm({
+      message: t('pages.manage.bucket.willDeleteMsg', { num: selectedItems.value.length }),
+      title: t('pages.manage.bucket.notice'),
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning',
       center: true
     })
+    if (!result) return
     const copiedSelectedItems = JSON.parse(JSON.stringify(selectedItems.value))
     let successCount = 0
     let failCount = 0
@@ -3013,27 +3011,28 @@ async function handleBatchDeleteInfo () {
       }
     }
     if (successCount === 0) {
-      message.error(t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG'))
+      message.error(t('pages.manage.bucket.deleteFailed'))
     } else if (failCount === 0) {
-      message.success(t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'))
+      message.success(t('pages.manage.bucket.deleteSuccess'))
     } else {
-      message.warning(`${t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2')} ${successCount}, ${t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG3')} ${failCount}`)
+      message.warning(`${t('pages.manage.bucket.deleteMultiMsg', { success: successCount, failed: failCount })}`)
     }
   } catch {
-    message.info(t('MANAGE_BUCKET_BATCH_DELETE_CANCEL'))
+    message.info(t('pages.manage.bucket.canceled'))
   }
 }
 
 async function handleDeleteFile (item: any) {
   try {
-    await confirm.confirm({
-      message: `${t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE')} ${item.isDir ? t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FOLDER') : t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FILE')} ${item.fileName} ${item.isDir ? t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_FOLDER_A') : ''}, ${t('MANAGE_BUCKET_DELETE_CONFIRM_TITLE_C')}`,
-      title: t('MANAGE_BUCKET_DELETE_CONFIRM_MSG'),
-      confirmButtonText: t('MANAGE_BUCKET_DELETE_CONFIRM_CONFIRM'),
-      cancelButtonText: t('MANAGE_BUCKET_DELETE_CONFIRM_CANCEL'),
+    const result = await confirm.confirm({
+      message: `${t('pages.manage.bucket.deleteMsg')}`,
+      title: t('pages.manage.bucket.notice'),
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning',
       center: true
     })
+    if (!result) return
     let res = false
     const param = {
       bucketName: configMap.bucketName,
@@ -3043,13 +3042,13 @@ async function handleDeleteFile (item: any) {
       githubBranch: currentCustomDomain.value
     }
     if (item.isDir) {
-      message.info(t('MANAGE_BUCKET_DELETE_ERROR_MSG_MSG'))
+      message.info(t('pages.manage.bucket.deletingMsg'))
       res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FOLDER, configMap.alias, param)
     } else {
       res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FILE, configMap.alias, param)
     }
     if (res) {
-      message.success(t('MANAGE_BUCKET_DELETE_SUCCESS'))
+      message.success(t('pages.manage.bucket.deleteSuccess'))
       currentPageFilesInfo.splice(
         currentPageFilesInfo.findIndex((i: any) => i.key === item.key),
         1
@@ -3067,10 +3066,10 @@ async function handleDeleteFile (item: any) {
           })
       }
     } else {
-      message.error(t('MANAGE_BUCKET_DELETE_FAIL'))
+      message.error(t('pages.manage.bucket.deleteFailed'))
     }
   } catch {
-    message.info(t('MANAGE_BUCKET_DELETE_CANCEL'))
+    message.info(t('pages.manage.bucket.canceled'))
   }
 }
 
@@ -3100,7 +3099,7 @@ function singleRename () {
       itemToBeRenamed.value.fileName.split('.')[1]
   }
   if (itemToBeRenamed.value.newName === itemToBeRenamed.value.fileName) {
-    message.info(t('MANAGE_BUCKET_RENAME_INFO_MSG'))
+    message.info(t('pages.manage.bucket.noNeedToRename'))
     return
   }
   itemToBeRenamed.value.newName = itemToBeRenamed.value.newName.replaceAll('{auto}', '1')
@@ -3160,9 +3159,9 @@ function singleRename () {
             })
           })
       }
-      message.success(t('MANAGE_BUCKET_RENAME_SUCCESS'))
+      message.success(t('pages.manage.bucket.renameSuccess'))
     } else {
-      message.error(t('MANAGE_BUCKET_RENAME_ERROR_MSG'))
+      message.error(t('pages.manage.bucket.renameFailed'))
     }
   })
 }
@@ -3195,8 +3194,7 @@ async function getPreSignedUrl (item: any) {
 
 function copyToClipboard (text: string) {
   window.electron.clipboard.writeText(text)
-  // ElMessage.success(t('MANAGE_BUCKET_COPY_SUCCESS'))
-  console.log('Copied to clipboard:', text)
+  message.success(t('pages.manage.bucket.copySuccess'))
 }
 
 function toggleCopyDropdown (index: number) {

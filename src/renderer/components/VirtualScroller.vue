@@ -136,26 +136,22 @@ function handleScroll () {
 
 function handlePageScroll () {
   if (!props.pageMode) return
-  // Throttle the scroll handler for better performance
   const now = Date.now()
-  if (now - lastScrollTime.value < 16) return // ~60fps
+  if (now - lastScrollTime.value < 16) return
   lastScrollTime.value = now
 
   updateContainerMetrics()
-  // When in page mode, recalculate visible items based on viewport intersection
   const el = containerRef.value
   if (!el) return
 
   const rect = el.getBoundingClientRect()
   const viewportHeight = window.innerHeight
 
-  // Calculate the intersection with the viewport
   const intersectionTop = Math.max(0, -rect.top)
   const intersectionBottom = Math.min(rect.height, viewportHeight - rect.top)
   const intersectionHeight = Math.max(0, intersectionBottom - intersectionTop)
 
   if (intersectionHeight > 0) {
-    // Update the virtual scroll position based on the intersection
     updateScrollTop(intersectionTop)
   }
 }
@@ -182,9 +178,7 @@ onMounted(() => {
   ro.observe(el)
   if (props.pageMode) {
     ro.observe(document.documentElement)
-    // Listen to scroll events on the window for page mode
     window.addEventListener('scroll', handlePageScroll, { passive: true })
-    // Also listen to scroll events on potential scroll containers
     let parent = el.parentElement
     while (parent) {
       if (parent.scrollHeight > parent.clientHeight) {
@@ -205,7 +199,6 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', updateContainerMetrics)
   if (props.pageMode) {
     window.removeEventListener('scroll', handlePageScroll)
-    // Clean up parent scroll listeners
     parentScrollListeners.value.forEach(parent => {
       parent.removeEventListener('scroll', handlePageScroll)
     })
@@ -227,7 +220,6 @@ function refresh () {
   if (containerRef.value) {
     updateScrollTop(containerRef.value.scrollTop)
   }
-  // Also trigger page scroll calculation in page mode
   if (props.pageMode) {
     handlePageScroll()
   }
