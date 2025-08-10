@@ -1490,6 +1490,61 @@
         </div>
       </div>
     </div>
+
+    <!-- Create Folder Dialog -->
+    <div
+      v-if="isShowCreateFolderDialog"
+      class="modal-overlay"
+      @click="isShowCreateFolderDialog = false"
+    >
+      <div
+        class="modal-container"
+        style="width: 400px;"
+        @click.stop
+      >
+        <div class="modal-header">
+          <h3 class="modal-title">
+            {{ t('pages.manage.bucket.createFolder') }}
+          </h3>
+          <button
+            class="modal-close"
+            @click="isShowCreateFolderDialog = false"
+          >
+            <XIcon class="action-icon" />
+          </button>
+        </div>
+        <div class="modal-content">
+          <div class="form-group">
+            <label class="form-label">
+              {{ t('pages.manage.bucket.inputFolderTitle') }}
+            </label>
+            <input
+              ref="folderNameInput"
+              v-model="newFolderName"
+              type="text"
+              class="form-input"
+              :placeholder="t('pages.manage.bucket.inputFolderTitle')"
+              @keyup.enter="confirmCreateFolder"
+            >
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="action-button secondary"
+            @click="isShowCreateFolderDialog = false"
+          >
+            {{ t('common.cancel') }}
+          </button>
+          <button
+            class="action-button primary"
+            :disabled="!newFolderName.trim()"
+            @click="confirmCreateFolder"
+          >
+            {{ t('common.confirm') }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -1519,7 +1574,7 @@ import {
 } from 'lucide-vue-next'
 import { marked } from 'marked'
 import { v4 as uuidv4 } from 'uuid'
-import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
@@ -1693,6 +1748,10 @@ const textfileContent = ref('')
 const isShowVideoFileDialog = ref(false)
 const videoFileUrl = ref('')
 const videoPlayerHeaders = ref({})
+// 创建文件夹相关
+const isShowCreateFolderDialog = ref(false)
+const newFolderName = ref('')
+const folderNameInput = ref()
 // 重命名相关
 const isShowRenameFileIcon = computed(() =>
   ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value)
@@ -2300,6 +2359,8 @@ async function resetParam (force: boolean = false) {
   isShowImagePreview.value = false
   previewedImage.value = ''
   isShowFileInfo.value = false
+  isShowCreateFolderDialog.value = false
+  newFolderName.value = ''
   lastChoosed.value = -1
   layoutStyle.value = 'grid'
   fileSortExtReverse.value = false
@@ -2583,27 +2644,40 @@ function handleCheckAllChange () {
 }
 
 async function handleCreateFolder () {
-  const value = window.prompt(`${t('pages.manage.bucket.inputFolderTitle')}\n${t('pages.manage.bucket.createFolder')}`)
-  if (value) {
-    try {
-      let formatedPath = value
-      formatedPath = trimPath(formatedPath)
-      const param = {
-        // tcyun
-        bucketName: configMap.bucketName,
-        region: configMap.bucketConfig.Location,
-        key: currentPrefix.value.slice(1) + formatedPath + '/',
-        githubBranch: currentCustomDomain.value
-      }
-      const res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_CREATE_BUCKET_FOLDER, configMap.alias, param)
-      if (res) {
-        message.success(t('pages.manage.bucket.createSuccess'))
-      } else {
-        message.error(t('pages.manage.bucket.createFailed'))
-      }
-    } catch (error) {
+  newFolderName.value = ''
+  isShowCreateFolderDialog.value = true
+  await nextTick()
+  if (folderNameInput.value) {
+    folderNameInput.value.focus()
+  }
+}
+
+async function confirmCreateFolder () {
+  const value = newFolderName.value.trim()
+  if (!value) {
+    return
+  }
+
+  isShowCreateFolderDialog.value = false
+
+  try {
+    let formatedPath = value
+    formatedPath = trimPath(formatedPath)
+    const param = {
+      // tcyun
+      bucketName: configMap.bucketName,
+      region: configMap.bucketConfig.Location,
+      key: currentPrefix.value.slice(1) + formatedPath + '/',
+      githubBranch: currentCustomDomain.value
+    }
+    const res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_CREATE_BUCKET_FOLDER, configMap.alias, param)
+    if (res) {
+      message.success(t('pages.manage.bucket.createSuccess'))
+    } else {
       message.error(t('pages.manage.bucket.createFailed'))
     }
+  } catch (error) {
+    message.error(t('pages.manage.bucket.createFailed'))
   }
 }
 
