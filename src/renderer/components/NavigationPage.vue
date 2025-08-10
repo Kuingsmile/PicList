@@ -213,7 +213,6 @@ import {
   TransitionChild,
   TransitionRoot
 } from '@headlessui/vue'
-import { ElMessage as $message } from 'element-plus'
 import { pick } from 'lodash-es'
 import { CheckIcon, ChevronDownIcon, CopyIcon, DatabaseIcon, FolderIcon, Info, PieChartIcon, PlugIcon, Settings, UploadIcon } from 'lucide-vue-next'
 import QrcodeVue from 'qrcode.vue'
@@ -221,6 +220,7 @@ import pkg from 'root/package.json'
 import { computed, nextTick, onBeforeMount, reactive, Ref, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import useMessage from '@/hooks/useMessage'
 import * as config from '@/router/config'
 import { SHOW_MAIN_PAGE_QRCODE } from '@/utils/constant'
 import { getConfig } from '@/utils/dataSender'
@@ -231,6 +231,7 @@ import ThemeSwitcher from './ui/ThemeSwitcher.vue'
 const version = ref(pkg.version)
 
 const { t } = useI18n()
+const message = useMessage()
 const routerConfig = reactive(config)
 const qrcodeVisible = ref(false)
 const choosedPicBedForQRCode: Ref<string[]> = ref([])
@@ -264,7 +265,7 @@ function openMenu () {
 
 function handleCopyPicBedConfig () {
   window.electron.clipboard.writeText(picBedConfigString.value)
-  $message.success(t('navigation.copySuccess'))
+  message.success(t('navigation.copySuccess'))
 }
 
 const navigationItems = computed(() => [

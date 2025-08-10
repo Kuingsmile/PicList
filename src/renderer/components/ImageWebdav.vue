@@ -1,26 +1,29 @@
 <template>
-  <el-image
-    :src="imageSource"
-    fit="contain"
-    style="height: 100px; width: 100%; margin: 0 auto"
-  >
-    <template #placeholder>
-      <el-icon>
-        <Loading />
-      </el-icon>
-    </template>
-    <template #error>
-      <el-image
-        :src="iconPath"
-        fit="contain"
-        style="height: 100px; width: 100%; margin: 0 auto"
-      />
-    </template>
-  </el-image>
+  <div class="image-container">
+    <div
+      v-if="isLoading"
+      class="loading-placeholder"
+    >
+      <div class="loading-spinner" />
+    </div>
+    <img
+      v-else-if="!hasError"
+      :src="imageSource"
+      alt=""
+      class="image"
+      @load="handleImageLoad"
+      @error="handleImageError"
+    >
+    <img
+      v-else
+      :src="iconPath"
+      alt=""
+      class="image"
+    >
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { Loading } from '@element-plus/icons-vue'
 import { computed, onMounted, ref, watch } from 'vue'
 
 import { getFileIconPath } from '@/manage/utils/common'
@@ -29,6 +32,8 @@ import { formatEndpoint } from '@/utils/common'
 
 const base64Url = ref('')
 const success = ref(false)
+const isLoading = ref(true)
+const hasError = ref(false)
 
 const props = defineProps<{
   item: {
@@ -72,22 +77,78 @@ async function getWebdavHeader (key: string) {
 
 const fetchImage = async () => {
   try {
+    isLoading.value = true
+    hasError.value = false
     const headers = await getWebdavHeader(props.item.key)
     const res = await fetch(props.url, { method: 'GET', headers })
     if (res.status >= 200 && res.status < 300) {
       const blob = await res.blob()
       success.value = true
       base64Url.value = URL.createObjectURL(blob)
+      isLoading.value = false
     } else {
       throw new Error('Network response was not ok.')
     }
   } catch (err) {
     success.value = false
+    hasError.value = true
+    isLoading.value = false
     console.log(err)
   }
+}
+
+const handleImageLoad = () => {
+  isLoading.value = false
+  hasError.value = false
+}
+
+const handleImageError = () => {
+  isLoading.value = false
+  hasError.value = true
 }
 
 watch(() => [props.url, props.item], fetchImage, { deep: true })
 
 onMounted(fetchImage)
 </script>
+
+<style scoped>
+.image-container {
+  height: 100px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.image {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.loading-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e4e7ed;
+  border-top: 2px solid #409eff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>

@@ -1,11 +1,9 @@
-import 'element-plus/dist/index.css'
 import 'video.js/dist/video-js.css'
 import 'highlight.js/styles/stackoverflow-light.css'
 import 'highlight.js/lib/common'
 
 import hljsVuePlugin from '@highlightjs/vue-plugin'
 import VueVideoPlayer from '@videojs-player/vue'
-import ElementUI from 'element-plus'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { createApp } from 'vue'
@@ -49,7 +47,6 @@ app.use(VueLazyLoad, {
   delay: 500
 })
 app.use(i18n)
-app.use(ElementUI)
 app.use(router)
 app.use(store)
 app.use(pinia)
