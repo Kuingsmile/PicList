@@ -44,9 +44,9 @@ jobs:
 
       # step3: install node env
       - name: Install Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '16.x'
+          node-version: '22.x'
 
       - name: Install system deps
         if: matrix.os == 'ubuntu-latest'
@@ -57,6 +57,7 @@ jobs:
       - name: Yarn install macos
         if: matrix.os == 'macos-13'
         run: |
+          yarn config set ignore-engines true
           yarn
           yarn global add xvfb-maybe
           npm rebuild --platform=darwin --arch=arm64 sharp
@@ -64,12 +65,14 @@ jobs:
       - name: Yarn install windows
         if: matrix.os == 'windows-latest'
         run: |
+          yarn config set ignore-engines true
           yarn
           yarn global add xvfb-maybe
         
       - name: Yarn install linux
         if: matrix.os == 'ubuntu-latest'
         run: |
+          yarn config set ignore-engines true
           yarn
           yarn global add xvfb-maybe
 

@@ -1,0 +1,117 @@
+# test-build.yml
+
+# Workflow's name
+name: Test Build
+
+# Workflow's trigger
+on:
+  workflow_dispatch:
+
+env:
+  ELECTRON_OUTPUT_PATH: ./dist_electron
+
+jobs:
+  test-build:
+    name: Test Build for ${{ matrix.os }}
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-13, windows-latest]
+
+    steps:
+      - name: Set up git config
+        run: |
+          git config --global core.autocrlf false
+
+      - name: Check out git repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install system deps
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils
+
+      - name: Install dependencies (macOS)
+        if: matrix.os == 'macos-13'
+        run: |
+          yarn config set ignore-engines true
+          yarn install
+          npm rebuild --platform=darwin --arch=arm64 sharp
+
+      - name: Install dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          yarn config set ignore-engines true
+          yarn install
+        
+      - name: Install dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          yarn config set ignore-engines true
+          yarn install
+
+      - name: Build application (Windows)
+        if: matrix.os == 'windows-latest'
+        run: yarn build:win
+        env:
+          ELECTRON_SKIP_NOTARIZATION: true
+
+      - name: Build application (macOS)
+        if: matrix.os == 'macos-13'
+        run: yarn build:mac
+        env:
+          ELECTRON_SKIP_NOTARIZATION: true
+
+      - name: Build application (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: yarn build:linux
+        env:
+          ELECTRON_SKIP_NOTARIZATION: true
+
+      - name: Upload Windows artifacts
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: piclist-windows-${{ github.sha }}
+          path: |
+            dist_electron/*.exe
+            dist_electron/*.msi
+            dist_electron/*.zip
+          retention-days: 30
+
+      - name: Upload macOS artifacts
+        if: matrix.os == 'macos-13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: piclist-macos-${{ github.sha }}
+          path: |
+            dist_electron/*.dmg
+            dist_electron/*.zip
+            dist_electron/*.pkg
+          retention-days: 30
+
+      - name: Upload Linux artifacts
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: piclist-linux-${{ github.sha }}
+          path: |
+            dist_electron/*.AppImage
+            dist_electron/*.deb
+            dist_electron/*.rpm
+            dist_electron/*.tar.gz
+          retention-days: 30
+
+      - name: List build output (Debug)
+        run: |
+          echo "Contents of dist_electron directory:"
+          ls -la dist_electron/ || echo "dist_electron directory not found"

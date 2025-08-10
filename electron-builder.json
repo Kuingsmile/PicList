@@ -3,15 +3,10 @@
   "appId": "com.kuingsmile.piclist",
   "afterSign": "scripts/notarize.cjs",
   "directories": {
-    "output": "release/${version}",
+    "output": "dist_electron",
     "buildResources": "build"
   },
-  "files": [
-    "out/**/*",
-    "dist/**/*",
-    "resources/**/*",
-    "package.json"
-  ],
+  "files": ["out/**/*", "dist/**/*", "resources/**/*", "package.json"],
   "extraResources": [
     {
       "from": "resources",
@@ -59,11 +54,7 @@
     "target": [
       {
         "target": "default",
-        "arch": [
-          "universal",
-          "x64",
-          "arm64"
-        ]
+        "arch": ["universal", "x64", "arm64"]
       }
     ],
     "artifactName": "PicList-${version}-${arch}.${ext}"
@@ -75,10 +66,7 @@
     "target": [
       {
         "target": "nsis",
-        "arch": [
-          "x64",
-          "ia32"
-        ]
+        "arch": ["x64", "ia32"]
       }
     ]
   },
@@ -90,10 +78,7 @@
   },
   "linux": {
     "icon": "resources/",
-    "asarUnpack": [
-      "**/node_modules/sharp/**",
-      "**/node_modules/ssh2-no-cpu-features/**"
-    ]
+    "asarUnpack": ["**/node_modules/sharp/**", "**/node_modules/ssh2-no-cpu-features/**"]
   },
   "snap": {
     "publish": ["github"]
