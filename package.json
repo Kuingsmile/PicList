@@ -36,6 +36,7 @@
     "preview": "electron-vite preview",
     "release": "electron-vite build && electron-builder --publish always",
     "sha256": "node ./scripts/gen-sha256.js",
+    "test": "vitest",
     "upload-beta": "node ./scripts/upload-beta.cjs",
     "upload-dist": "node ./scripts/upload-dist-to-r2.cjs"
   },
@@ -133,6 +134,7 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.39.0",
     "vite": "^7.1.0",
+    "vitest": "^3.2.4",
     "vue-eslint-parser": "^10.2.0",
     "vue-tsc": "^3.0.5"
   },

@@ -345,6 +345,6 @@ class LifeCycle {
   }
 }
 
-const bootstrap = new LifeCycle()
+const lifeCycle = new LifeCycle()
 
-export { bootstrap }
+export { lifeCycle }
