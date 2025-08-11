@@ -384,7 +384,7 @@
     "picBedConfigs": {
       "title": "配置",
       "viewDoc": "查看文档",
-      "copyAPI": "复制API地址",
+      "copyAPI": "复制上传API",
       "noConfigOptions": "暂无配置项",
       "setSuccess": "设置成功",
       "setFailedInfo": "设置失败, 请检查配置项是否正确",

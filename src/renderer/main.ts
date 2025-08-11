@@ -53,7 +53,3 @@ app.use(pinia)
 app.use(hljsVuePlugin)
 app.use(VueVideoPlayer)
 app.mount('#app')
-
-export {
-  i18n
-}

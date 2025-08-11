@@ -3,12 +3,12 @@ import path from 'node:path'
 import db from '@core/datastore'
 import logger from '@core/picgo/logger'
 import axios from 'axios'
-import { clipboard, dialog, Notification, Tray } from 'electron'
+import { clipboard, Notification, Tray } from 'electron'
 import FormData from 'form-data'
 import fs from 'fs-extra'
 import { isReactive, isRef, toRaw, unref } from 'vue'
 
-import type { IHTTPProxy, IPrivateShowNotificationOption, IShowMessageBoxResult, IStringKeyMap } from '#/types/types'
+import type { IHTTPProxy, IPrivateShowNotificationOption, IStringKeyMap } from '#/types/types'
 import { configPaths } from '~/utils/configPaths'
 import { IShortUrlServer } from '~/utils/enum'
 
@@ -87,17 +87,6 @@ export const showNotification = (
   notification.show()
 }
 
-export const showMessageBox = (options: any) => {
-  return new Promise<IShowMessageBoxResult>(resolve => {
-    dialog.showMessageBox(options).then(res => {
-      resolve({
-        result: res.response,
-        checkboxChecked: res.checkboxChecked
-      })
-    })
-  })
-}
-
 /**
  * macOS public.file-url will get encoded file path,
  * so we need to decode it
@@ -142,7 +131,7 @@ export const getClipboardFilePath = (): string => {
 
 const c1nApi = 'https://c1n.cn/link/short'
 
-const generateC1NShortUrl = async (url: string) => {
+const createC1NShortUrl = async (url: string) => {
   const c1nToken = db.get(configPaths.settings.c1nToken) || ''
   if (!c1nToken) {
     logger.warn('c1n token is not set')
@@ -165,7 +154,7 @@ const generateC1NShortUrl = async (url: string) => {
   return url
 }
 
-const generateYOURLSShortUrl = async (url: string) => {
+const createYOURLSShortLink = async (url: string) => {
   let domain = db.get(configPaths.settings.yourlsDomain) || ''
   const signature = db.get(configPaths.settings.yourlsSignature) || ''
 
@@ -197,7 +186,7 @@ const generateYOURLSShortUrl = async (url: string) => {
   return url
 }
 
-const generateCFWORKERShortUrl = async (url: string) => {
+const createShortUrlForCFWorker = async (url: string) => {
   let cfWorkerHost = db.get(configPaths.settings.cfWorkerHost) || ''
   cfWorkerHost = cfWorkerHost.replace(/\/$/, '')
   if (!cfWorkerHost) {
@@ -217,7 +206,7 @@ const generateCFWORKERShortUrl = async (url: string) => {
   return url
 }
 
-const generateSinkShortUrl = async (url: string) => {
+const createShortUrlFromSink = async (url: string) => {
   let sinkDomain = db.get(configPaths.settings.sinkDomain) || ''
   const sinkToken = db.get(configPaths.settings.sinkToken) || ''
   if (!sinkDomain || !sinkToken) {
@@ -249,13 +238,13 @@ export const generateShortUrl = async (url: string) => {
   const server = db.get(configPaths.settings.shortUrlServer) || IShortUrlServer.C1N
   switch (server) {
     case IShortUrlServer.C1N:
-      return generateC1NShortUrl(url)
+      return createC1NShortUrl(url)
     case IShortUrlServer.YOURLS:
-      return generateYOURLSShortUrl(url)
+      return createYOURLSShortLink(url)
     case IShortUrlServer.CFWORKER:
-      return generateCFWORKERShortUrl(url)
+      return createShortUrlForCFWorker(url)
     case IShortUrlServer.SINK:
-      return generateSinkShortUrl(url)
+      return createShortUrlFromSink(url)
     default:
       return url
   }

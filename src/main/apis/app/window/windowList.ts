@@ -122,7 +122,7 @@ if (db.get(configPaths.settings.miniWindowOntop)) {
 }
 
 const renameWindowOptions = {
-  height: 250,
+  height: 270,
   width: 350,
   show: true,
   fullscreenable: false,

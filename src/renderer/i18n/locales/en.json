@@ -389,7 +389,7 @@
     "picBedConfigs": {
       "title": "Config",
       "viewDoc": "View Document",
-      "copyAPI": "Copy API Address",
+      "copyAPI": "Copy Upload API",
       "noConfigOptions": "No Config Options",
       "setSuccess": "Set Success",
       "setFailedInfo": "Set Failed, Please Check If Config Options Are Correct",

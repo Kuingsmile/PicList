@@ -19,6 +19,7 @@ import { getConfig } from '@/utils/dataSender'
 import { pageReloadCount } from '@/utils/global'
 
 import { useAppStore } from './hooks/useAppStore'
+
 useATagClick()
 
 const store = useStore()

@@ -4,10 +4,11 @@ import https from 'node:https'
 import path from 'node:path'
 import querystring from 'node:querystring'
 
-import { DeleteObjectCommand, S3Client, S3ClientConfig } from '@aws-sdk/client-s3'
+import type { S3ClientConfig } from '@aws-sdk/client-s3'
+import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { NodeHttpHandler } from '@smithy/node-http-handler'
 import axios from 'axios'
-import { ISftpPlistConfig } from 'piclist'
+import type { ISftpPlistConfig } from 'piclist'
 
 import type { IObj, IStringKeyMap } from '#/types/types'
 import { getAgent } from '~/manage/utils/common'

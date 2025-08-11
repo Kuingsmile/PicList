@@ -41,6 +41,7 @@
     <!-- Main Upload Card -->
     <div class="upload-card main-card">
       <div
+        id="upload-area"
         class="upload-zone"
         :class="{ 'drag-active': dragover }"
         @drop.prevent="onDrop"
