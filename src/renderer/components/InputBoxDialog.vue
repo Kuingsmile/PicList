@@ -50,7 +50,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { IpcRendererEvent } from 'electron'
 import { X } from 'lucide-vue-next'
 import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -67,12 +66,9 @@ const inputBoxOptions = reactive({
   placeholder: ''
 })
 
-onBeforeMount(() => {
-  window.electron.ipcRendererOn(SHOW_INPUT_BOX, ipcEventHandler)
-  $bus.on(SHOW_INPUT_BOX, initInputBoxValue)
-})
+let removeInputBoxListenerCallback: (() => void) = () => {}
 
-function ipcEventHandler (_: IpcRendererEvent, options: IShowInputBoxOption) {
+function handleIpcInputBoxEvent (options: IShowInputBoxOption) {
   initInputBoxValue(options)
 }
 
@@ -96,16 +92,23 @@ function handleInputBoxConfirm () {
   $bus.emit(SHOW_INPUT_BOX_RESPONSE, inputBoxValue.value)
 }
 
+onBeforeMount(() => {
+  removeInputBoxListenerCallback = window.electron.ipcRendererOn(SHOW_INPUT_BOX, handleIpcInputBoxEvent)
+  $bus.on(SHOW_INPUT_BOX, initInputBoxValue)
+})
+
 onBeforeUnmount(() => {
-  window.electron.ipcRendererRemoveListener(SHOW_INPUT_BOX, ipcEventHandler)
+  removeInputBoxListenerCallback()
   $bus.off(SHOW_INPUT_BOX)
 })
 </script>
+
 <script lang="ts">
 export default {
   name: 'InputBoxDialog'
 }
 </script>
+
 <style scoped>
 .inputbox-overlay {
   position: fixed;

@@ -74,7 +74,6 @@
 </template>
 
 <script setup lang="ts">
-import type { IpcRendererEvent } from 'electron'
 import { MinusIcon, PinIcon, ShrinkIcon, XIcon } from 'lucide-vue-next'
 import { onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
@@ -100,7 +99,8 @@ function openMiniWindow () {
 function closeWindow () {
   window.electron.sendRPC(IRPCActionType.CLOSE_WINDOW)
 }
-const uploadProcessHandler = (_event: IpcRendererEvent, data: { progress: number }) => {
+
+const uploadProcessHandler = (data: { progress: number }) => {
   isShowprogress.value = data.progress !== 100 && data.progress !== 0
   progress.value = data.progress
 }
@@ -110,7 +110,7 @@ onBeforeMount(() => {
 })
 
 onBeforeUnmount(() => {
-  window.electron.ipcRendererRemoveListener('updateProgress', uploadProcessHandler)
+  window.electron.ipcRendererRemoveAllListeners('updateProgress')
 })
 </script>
 

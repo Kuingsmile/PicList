@@ -1,13 +1,11 @@
 import crypto from 'node:crypto'
 import path from 'node:path'
 
-import { clipboard, contextBridge, ipcRenderer, webFrame, webUtils } from 'electron'
+import { clipboard, contextBridge, ipcRenderer, IpcRendererEvent, webFrame, webUtils } from 'electron'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
 import mime from 'mime-types'
 import { isReactive, isRef, toRaw, unref } from 'vue'
-
-import type { IpcRendererListener } from '#/types/electron'
 
 export const getRawData = (args: any): any => {
   if (isRef(args)) return unref(args)
@@ -52,11 +50,18 @@ try {
     triggerRPC,
     sendToMain,
     sendRPC,
-    ipcRendererOn: (channel: string, listener: IpcRendererListener) => {
-      ipcRenderer.on(channel, listener)
+    ipcRendererOn: (channel: string, listener: (...args: any[]) => void) => {
+      const subscription = (_: IpcRendererEvent, ...args: any[]) => listener(...args)
+      ipcRenderer.on(channel, subscription)
+      return () => {
+        ipcRenderer.removeListener(channel, subscription)
+      }
     },
-    ipcRendererRemoveListener: (channel: string, listener: IpcRendererListener) => {
-      ipcRenderer.removeListener(channel, listener)
+    ipcRendererCountListeners: (channel: string): number => {
+      return ipcRenderer.listenerCount(channel)
+    },
+    ipcRendererRemoveAllListeners: (channel: string) => {
+      ipcRenderer.removeAllListeners(channel)
     },
     showFilePath (file: File) {
       return webUtils.getPathForFile(file)

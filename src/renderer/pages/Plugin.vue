@@ -289,7 +289,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { IpcRendererEvent } from 'electron'
 import { debounce, DebouncedFunc } from 'lodash-es'
 import {
   AlertCircleIcon,
@@ -304,7 +303,7 @@ import {
   XCircleIcon,
   XIcon
 } from 'lucide-vue-next'
-import { computed, onBeforeMount, onBeforeUnmount, onMounted, reactive, ref, toRaw, watch } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ConfigForm from '@/components/UnifiedConfigForm.vue'
@@ -376,7 +375,7 @@ const hideLoadingHandler = () => {
   loading.value = false
 }
 
-const picgoHandlePluginDoneHandler = (_: IpcRendererEvent, fullName: string) => {
+const picgoHandlePluginDoneHandler = (fullName: string) => {
   pluginList.value.forEach(item => {
     if (item.fullName === fullName || item.name === fullName) {
       item.ing = false
@@ -385,7 +384,7 @@ const picgoHandlePluginDoneHandler = (_: IpcRendererEvent, fullName: string) => 
   loading.value = false
 }
 
-const pluginListHandler = (_: IpcRendererEvent, list: IPicGoPlugin[]) => {
+const pluginListHandler = (list: IPicGoPlugin[]) => {
   pluginList.value = list
   pluginNameList.value = list.map(item => item.fullName)
   for (const item of pluginList.value) {
@@ -395,7 +394,6 @@ const pluginListHandler = (_: IpcRendererEvent, list: IPicGoPlugin[]) => {
 }
 
 const installPluginHandler = (
-  _: IpcRendererEvent,
   {
     success,
     body
@@ -413,7 +411,7 @@ const installPluginHandler = (
   })
 }
 
-const updateSuccessHandler = (_: IpcRendererEvent, plugin: string) => {
+const updateSuccessHandler = (plugin: string) => {
   loading.value = false
   pluginList.value.forEach(item => {
     if (item.fullName === plugin) {
@@ -426,7 +424,7 @@ const updateSuccessHandler = (_: IpcRendererEvent, plugin: string) => {
   getPluginList()
 }
 
-const uninstallSuccessHandler = (_: IpcRendererEvent, plugin: string) => {
+const uninstallSuccessHandler = (plugin: string) => {
   loading.value = false
   pluginList.value = pluginList.value.filter(item => {
     if (item.fullName === plugin) {
@@ -444,14 +442,14 @@ const uninstallSuccessHandler = (_: IpcRendererEvent, plugin: string) => {
   pluginNameList.value = pluginNameList.value.filter(item => item !== plugin)
 }
 
-const picgoConfigPluginHandler = (_: IpcRendererEvent, _currentType: 'plugin' | 'transformer' | 'uploader', _configName: string, _config: any) => {
+const picgoConfigPluginHandler = (_currentType: 'plugin' | 'transformer' | 'uploader', _configName: string, _config: any) => {
   currentType.value = _currentType
   configName.value = _configName
   config.value = _config
   dialogVisible.value = true
 }
 
-const picgoHandlePluginIngHandler = (_: IpcRendererEvent, fullName: string) => {
+const picgoHandlePluginIngHandler = (fullName: string) => {
   pluginList.value.forEach(item => {
     if (item.fullName === fullName || item.name === fullName) {
       item.ing = true
@@ -459,7 +457,7 @@ const picgoHandlePluginIngHandler = (_: IpcRendererEvent, fullName: string) => {
   })
 }
 
-const picgoTogglePluginHandler = (_: IpcRendererEvent, fullName: string, enabled: boolean) => {
+const picgoTogglePluginHandler = (fullName: string, enabled: boolean) => {
   const plugin = pluginList.value.find(item => item.fullName === fullName)
   if (plugin) {
     plugin.enabled = enabled
@@ -468,32 +466,9 @@ const picgoTogglePluginHandler = (_: IpcRendererEvent, fullName: string, enabled
   }
 }
 
-onBeforeMount(async () => {
-  window.electron.ipcRendererOn('hideLoading', hideLoadingHandler)
-  window.electron.ipcRendererOn(PICGO_HANDLE_PLUGIN_DONE, picgoHandlePluginDoneHandler)
-  window.electron.ipcRendererOn('pluginList', pluginListHandler)
-  window.electron.ipcRendererOn('installPlugin', installPluginHandler)
-  window.electron.ipcRendererOn('updateSuccess', updateSuccessHandler)
-  window.electron.ipcRendererOn('uninstallSuccess', uninstallSuccessHandler)
-  window.electron.ipcRendererOn(PICGO_CONFIG_PLUGIN, picgoConfigPluginHandler)
-  window.electron.ipcRendererOn(PICGO_HANDLE_PLUGIN_ING, picgoHandlePluginIngHandler)
-  window.electron.ipcRendererOn(PICGO_TOGGLE_PLUGIN, picgoTogglePluginHandler)
-  getPluginList()
-  getSearchResult = debounce(_getSearchResult, 50)
-  needReload.value = (await getConfig<boolean>(configPaths.needReload)) || false
-})
-
 async function buildContextMenu (plugin: IPicGoPlugin) {
   window.electron.sendRPC(IRPCActionType.SHOW_PLUGIN_PAGE_MENU, getRawData(plugin))
 }
-
-function handleResize () {
-  // No longer needed with new layout
-}
-
-onMounted(() => {
-  window.addEventListener('resize', handleResize)
-})
 
 function getPluginList () {
   window.electron.sendRPC(IRPCActionType.PLUGIN_GET_LIST)
@@ -650,17 +625,31 @@ function handleUpdateAllPlugin () {
   window.electron.sendRPC(IRPCActionType.PLUGIN_UPDATE_ALL, toRaw(pluginNameList.value))
 }
 
+onBeforeMount(async () => {
+  window.electron.ipcRendererOn('hideLoading', hideLoadingHandler)
+  window.electron.ipcRendererOn(PICGO_HANDLE_PLUGIN_DONE, picgoHandlePluginDoneHandler)
+  window.electron.ipcRendererOn('pluginList', pluginListHandler)
+  window.electron.ipcRendererOn('installPlugin', installPluginHandler)
+  window.electron.ipcRendererOn('updateSuccess', updateSuccessHandler)
+  window.electron.ipcRendererOn('uninstallSuccess', uninstallSuccessHandler)
+  window.electron.ipcRendererOn(PICGO_CONFIG_PLUGIN, picgoConfigPluginHandler)
+  window.electron.ipcRendererOn(PICGO_HANDLE_PLUGIN_ING, picgoHandlePluginIngHandler)
+  window.electron.ipcRendererOn(PICGO_TOGGLE_PLUGIN, picgoTogglePluginHandler)
+  getPluginList()
+  getSearchResult = debounce(_getSearchResult, 50)
+  needReload.value = (await getConfig<boolean>(configPaths.needReload)) || false
+})
+
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
-  window.electron.ipcRendererRemoveListener('pluginList', pluginListHandler)
-  window.electron.ipcRendererRemoveListener('installPlugin', installPluginHandler)
-  window.electron.ipcRendererRemoveListener('uninstallSuccess', uninstallSuccessHandler)
-  window.electron.ipcRendererRemoveListener('updateSuccess', updateSuccessHandler)
-  window.electron.ipcRendererRemoveListener('hideLoading', hideLoadingHandler)
-  window.electron.ipcRendererRemoveListener(PICGO_HANDLE_PLUGIN_DONE, picgoHandlePluginDoneHandler)
-  window.electron.ipcRendererRemoveListener(PICGO_CONFIG_PLUGIN, picgoConfigPluginHandler)
-  window.electron.ipcRendererRemoveListener(PICGO_HANDLE_PLUGIN_ING, picgoHandlePluginIngHandler)
-  window.electron.ipcRendererRemoveListener(PICGO_TOGGLE_PLUGIN, picgoTogglePluginHandler)
+  window.electron.ipcRendererRemoveAllListeners('pluginList')
+  window.electron.ipcRendererRemoveAllListeners('installPlugin')
+  window.electron.ipcRendererRemoveAllListeners('uninstallSuccess')
+  window.electron.ipcRendererRemoveAllListeners('updateSuccess')
+  window.electron.ipcRendererRemoveAllListeners('hideLoading')
+  window.electron.ipcRendererRemoveAllListeners(PICGO_HANDLE_PLUGIN_DONE)
+  window.electron.ipcRendererRemoveAllListeners(PICGO_CONFIG_PLUGIN)
+  window.electron.ipcRendererRemoveAllListeners(PICGO_HANDLE_PLUGIN_ING)
+  window.electron.ipcRendererRemoveAllListeners(PICGO_TOGGLE_PLUGIN)
 
   // Reset body overflow
   document.body.style.overflow = 'auto'

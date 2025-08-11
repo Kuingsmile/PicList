@@ -35,7 +35,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { IpcRendererEvent } from 'electron'
 import type { IConfig } from 'piclist'
 import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
@@ -55,6 +54,8 @@ const wY = ref(-1)
 const screenX = ref(-1)
 const screenY = ref(-1)
 
+let removeListeners: () => void = () => {}
+
 async function initLogoPath () {
   const config = await getConfig<IConfig>()
   if (config) {
@@ -66,10 +67,10 @@ async function initLogoPath () {
   }
 }
 
-const uploadProgressHandler = (_: IpcRendererEvent, _progress: number) => {
-  if (_progress !== -1) {
+const uploadProgressHandler = (p: number) => {
+  if (p !== -1) {
     isShowingProgress.value = true
-    progress.value = _progress
+    progress.value = p
   } else {
     progress.value = 100
   }
@@ -78,15 +79,6 @@ const uploadProgressHandler = (_: IpcRendererEvent, _progress: number) => {
 const updateMiniIconHandler = async () => {
   await initLogoPath()
 }
-
-onBeforeMount(async () => {
-  await initLogoPath()
-  window.electron.ipcRendererOn('uploadProgress', uploadProgressHandler)
-  window.electron.ipcRendererOn('updateMiniIcon', updateMiniIconHandler)
-  window.addEventListener('mousedown', handleMouseDown, false)
-  window.addEventListener('mousemove', handleMouseMove, false)
-  window.addEventListener('mouseup', handleMouseUp, false)
-})
 
 watch(progress, val => {
   if (val === 100) {
@@ -194,9 +186,18 @@ function openContextMenu () {
   window.electron.sendRPC(IRPCActionType.SHOW_MINI_PAGE_MENU)
 }
 
+onBeforeMount(async () => {
+  await initLogoPath()
+  removeListeners = window.electron.ipcRendererOn('uploadProgress', uploadProgressHandler)
+  window.electron.ipcRendererOn('updateMiniIcon', updateMiniIconHandler)
+  window.addEventListener('mousedown', handleMouseDown, false)
+  window.addEventListener('mousemove', handleMouseMove, false)
+  window.addEventListener('mouseup', handleMouseUp, false)
+})
+
 onBeforeUnmount(() => {
-  window.electron.ipcRendererRemoveListener('uploadProgress', uploadProgressHandler)
-  window.electron.ipcRendererRemoveListener('updateMiniIcon', updateMiniIconHandler)
+  removeListeners()
+  window.electron.ipcRendererRemoveAllListeners('updateMiniIcon')
   window.removeEventListener('mousedown', handleMouseDown, false)
   window.removeEventListener('mousemove', handleMouseMove, false)
   window.removeEventListener('mouseup', handleMouseUp, false)

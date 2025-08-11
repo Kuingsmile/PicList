@@ -1589,7 +1589,7 @@ onBeforeMount(async () => {
 })
 
 onBeforeUnmount(async () => {
-  window.electron.ipcRendererRemoveListener('updateGallery', updateGalleryHandler)
+  window.electron.ipcRendererRemoveAllListeners('updateGallery')
   document.removeEventListener('click', handleOutsideClick)
   document.removeEventListener('keydown', handleDetectShiftKey)
   document.removeEventListener('keyup', handleDetectShiftKey)

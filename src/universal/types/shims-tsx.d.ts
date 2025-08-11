@@ -9,7 +9,6 @@ import yaml from 'js-yaml'
 import mime from 'mime-types'
 import { VNode } from 'vue'
 
-import { IpcRendererListener } from '#/types/electron'
 import { ILocales, ILocalesKey } from '#/types/i18n'
 import { IStringKeyMap } from '#/types/types'
 
@@ -29,8 +28,9 @@ declare global {
       triggerRPC: <T>(action: string, ...args: any[]) => Promise<T | undefined>
       sendToMain: (channel: string, ...args: any[]) => void
       sendRPC: (action: string, ...args: any[]) => void
-      ipcRendererOn: (channel: string, listener: IpcRendererListener) => void
-      ipcRendererRemoveListener: (channel: string, listener: IpcRendererListener) => void
+      ipcRendererOn: (channel: string, listener: (...args: any[]) => void) => () => void
+      ipcRendererCountListeners: (channel: string) => number
+      ipcRendererRemoveAllListeners: (channel: string) => void
       clipboard: {
         writeText: typeof clipboard.writeText
       },

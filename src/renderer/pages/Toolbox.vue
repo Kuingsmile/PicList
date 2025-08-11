@@ -215,7 +215,7 @@ const toggleItem = (key: string) => {
   }
 }
 
-const toolboxCheckResHandler = (_event: any, { type, msg = '', status, value = '' }: IToolboxCheckRes) => {
+const toolboxCheckResHandler = ({ type, msg = '', status, value = '' }: IToolboxCheckRes) => {
   fixList[type].status = status
   fixList[type].msg = msg
   fixList[type].value = value
@@ -272,7 +272,7 @@ const handleFix = async () => {
 }
 
 onUnmounted(() => {
-  window.electron.ipcRendererRemoveListener(IRPCActionType.TOOLBOX_CHECK_RES, toolboxCheckResHandler)
+  window.electron.ipcRendererRemoveAllListeners(IRPCActionType.TOOLBOX_CHECK_RES)
 })
 </script>
 <script lang="ts">

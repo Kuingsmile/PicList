@@ -1550,7 +1550,6 @@
 
 <script lang="ts" setup>
 
-import type { IpcRendererEvent } from 'electron'
 import {
   ArrowUpDownIcon,
   ChevronDownIcon,
@@ -2563,7 +2562,7 @@ async function handleFolderBatchDownload (item: any) {
     const downloadFileTransferStore = useDownloadFileTransferStore()
     downloadFileTransferStore.resetDownloadFileTransferList()
     window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_RECURSIVELY, configMap.alias, paramGet)
-    window.electron.ipcRendererOn(refreshDownloadFileTransferList, (_: IpcRendererEvent, data) => {
+    window.electron.ipcRendererOn(refreshDownloadFileTransferList, (data) => {
       downloadFileTransferStore.refreshDownloadFileTransferList(data)
     })
     downloadInterval = setInterval(() => {
@@ -2989,7 +2988,7 @@ async function getBucketFileListBackStage () {
     param.webPath = configMap.webPath
   }
   window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_BACKSTAGE, configMap.alias, param)
-  window.electron.ipcRendererOn('refreshFileTransferList', (_: IpcRendererEvent, data) => {
+  window.electron.ipcRendererOn('refreshFileTransferList', (data) => {
     fileTransferStore.refreshFileTransferList(data)
   })
   fileTransferInterval = setInterval(() => {
@@ -3334,8 +3333,8 @@ onBeforeUnmount(() => {
   if (isLoadingDownloadData.value) {
     window.electron.sendToMain(cancelDownloadLoadingFileList, downloadCancelToken.value)
   }
-  window.electron.ipcRendererRemoveListener('refreshFileTransferList', () => {})
-  window.electron.ipcRendererRemoveListener(refreshDownloadFileTransferList, () => {})
+  window.electron.ipcRendererRemoveAllListeners('refreshFileTransferList')
+  window.electron.ipcRendererRemoveAllListeners(refreshDownloadFileTransferList)
 })
 </script>
 

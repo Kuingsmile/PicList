@@ -57,7 +57,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { IpcRendererEvent } from 'electron'
 import { XIcon } from 'lucide-vue-next'
 import { nextTick, onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -74,7 +73,7 @@ const form = reactive({
   originName: ''
 })
 
-const handleFileName = (_: IpcRendererEvent, newName: string, _originName: string, _id: string) => {
+const handleFileName = (newName: string, _originName: string, _id: string) => {
   form.fileName = newName
   form.originName = _originName
   id.value = _id
@@ -85,10 +84,6 @@ const handleFileName = (_: IpcRendererEvent, newName: string, _originName: strin
 }
 
 window.electron.ipcRendererOn(RENAME_FILE_NAME, handleFileName)
-
-onBeforeMount(() => {
-  window.electron.sendToMain(GET_RENAME_FILE_NAME, '')
-})
 
 function validateFileName (fileName: string): string {
   if (!fileName.trim()) {
@@ -133,9 +128,14 @@ function clearValidationError () {
   }
 }
 
-onBeforeUnmount(() => {
-  window.electron.ipcRendererRemoveListener(RENAME_FILE_NAME, handleFileName)
+onBeforeMount(() => {
+  window.electron.sendToMain(GET_RENAME_FILE_NAME, '')
 })
+
+onBeforeUnmount(() => {
+  window.electron.ipcRendererRemoveAllListeners(RENAME_FILE_NAME)
+})
+
 </script>
 <script lang="ts">
 export default {

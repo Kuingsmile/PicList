@@ -13,7 +13,7 @@
               <span class="provider-name">{{ picBedName }}</span>
               <span class="provider-config">{{ picBedConfigName || 'Default' }}</span>
             </div>
-            <ChevronDownIcon
+            <EditIcon
               :size="16"
               class="provider-arrow"
             />
@@ -31,7 +31,7 @@
             class="action-button"
             @click="handleChangePicBed"
           >
-            <DatabaseIcon :size="16" />
+            <ArrowLeftRightIcon :size="16" />
             <span>{{ t('pages.upload.changePicBed') }}</span>
           </button>
         </div>
@@ -173,7 +173,7 @@
       <div
         v-if="imageProcessDialogVisible"
         class="modal-overlay"
-        @click="imageProcessDialogVisible = false"
+        @click.stop
       >
         <div
           class="modal-container"
@@ -200,8 +200,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { IpcRendererEvent } from 'electron'
-import { ChevronDownIcon, ClipboardIcon, DatabaseIcon, LinkIcon, Settings, UploadCloudIcon, XIcon } from 'lucide-vue-next'
+import { ArrowLeftRightIcon, ClipboardIcon, EditIcon, LinkIcon, Settings, UploadCloudIcon, XIcon } from 'lucide-vue-next'
 import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -247,29 +246,22 @@ watch(picBedGlobal, () => {
   getDefaultPicBed()
 })
 
-const uploadProgressHandler = (_event: IpcRendererEvent, _progress: number) => {
-  if (_progress !== -1) {
+let removeUploadProgressListenerCallback: (() => void) = () => {}
+let removeSyncPicBedListenerCallback: (() => void) = () => {}
+
+function uploadProgressHandler (p: number): void {
+  if (p !== -1) {
     showProgress.value = true
-    progress.value = _progress
+    progress.value = p
   } else {
     progress.value = 100
     showError.value = true
   }
 }
 
-const syncPicBedHandler = () => {
+function syncPicBedHandler (): void {
   getDefaultPicBed()
 }
-
-onBeforeMount(() => {
-  updatePicBedGlobal()
-  window.electron.ipcRendererOn('uploadProgress', uploadProgressHandler)
-  getUseShortUrl()
-  getPasteStyle()
-  getDefaultPicBed()
-  window.electron.ipcRendererOn('syncPicBed', syncPicBedHandler)
-  $bus.on(SHOW_INPUT_BOX_RESPONSE, handleInputBoxValue)
-})
 
 const handleImageProcess = () => {
   imageProcessDialogVisible.value = true
@@ -307,12 +299,6 @@ async function handlePicBedNameClick (_picBedName: string, picBedConfigName: str
     }
   })
 }
-
-onBeforeUnmount(() => {
-  $bus.off(SHOW_INPUT_BOX_RESPONSE)
-  window.electron.ipcRendererRemoveListener('uploadProgress', uploadProgressHandler)
-  window.electron.ipcRendererRemoveListener('syncPicBed', syncPicBedHandler)
-})
 
 function onDrop (e: DragEvent) {
   dragover.value = false
@@ -434,6 +420,23 @@ async function getDefaultPicBed () {
 async function handleChangePicBed () {
   window.electron.sendRPC(IRPCActionType.SHOW_UPLOAD_PAGE_MENU)
 }
+
+onBeforeUnmount(() => {
+  $bus.off(SHOW_INPUT_BOX_RESPONSE)
+  removeUploadProgressListenerCallback()
+  removeSyncPicBedListenerCallback()
+})
+
+onBeforeMount(() => {
+  updatePicBedGlobal()
+  getUseShortUrl()
+  getPasteStyle()
+  getDefaultPicBed()
+  removeUploadProgressListenerCallback = window.electron.ipcRendererOn('uploadProgress', uploadProgressHandler)
+  removeSyncPicBedListenerCallback = window.electron.ipcRendererOn('syncPicBed', syncPicBedHandler)
+  $bus.on(SHOW_INPUT_BOX_RESPONSE, handleInputBoxValue)
+})
+
 </script>
 
 <script lang="ts">

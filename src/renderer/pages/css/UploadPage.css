@@ -107,7 +107,6 @@ html, body {
 
 .provider-button:hover .provider-arrow {
   color: var(--color-accent);
-  transform: rotate(180deg);
 }
 
 .header-actions {

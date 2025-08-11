@@ -156,21 +156,20 @@ function formatTime (time: number): string {
 }
 
 async function deleteConfig (id: string) {
-  confirm({
+  const result = await confirm({
     title: t('pages.uploaderConfig.deleteTitle'),
     message: t('pages.uploaderConfig.deleteConfirm'),
     type: 'warning',
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
     center: true
-  }).then(async result => {
-    if (!result) return
-    const res = await window.electron.triggerRPC<IUploaderConfigItem>(IRPCActionType.PICBED_DELETE_CONFIG, type.value, id)
-    if (!res) return
-    curConfigList.value = res.configList
-    defaultConfigId.value = res.defaultId
-    message.success(t('pages.uploaderConfig.deleteSuccess'))
   })
+  if (!result) return
+  const res = await window.electron.triggerRPC<IUploaderConfigItem>(IRPCActionType.PICBED_DELETE_CONFIG, type.value, id)
+  if (!res) return
+  curConfigList.value = res.configList
+  defaultConfigId.value = res.defaultId
+  message.success(t('pages.uploaderConfig.deleteSuccess'))
 }
 
 function addNewConfig () {

@@ -2,7 +2,10 @@
   <nav class="navigation">
     <div class="title-bar">
       <div class="app-title">
-        <div class="app-text">
+        <div
+          class="app-text"
+          @click="openGithubPage"
+        >
           {{ t('app.title') }}
         </div>
         <div class="app-version">
@@ -79,18 +82,6 @@
       class="qr-dialog"
       @close="qrcodeVisible = false"
     >
-      <TransitionChild
-        as="template"
-        enter="duration-300 ease-out"
-        enter-from="opacity-0"
-        enter-to="opacity-100"
-        leave="duration-200 ease-in"
-        leave-from="opacity-100"
-        leave-to="opacity-0"
-      >
-        <div class="dialog-overlay" />
-      </TransitionChild>
-
       <div class="dialog-container">
         <TransitionChild
           as="template"
@@ -217,7 +208,7 @@ import { pick } from 'lodash-es'
 import { CheckIcon, ChevronDownIcon, CopyIcon, DatabaseIcon, FolderIcon, Info, PieChartIcon, PlugIcon, Settings, UploadIcon } from 'lucide-vue-next'
 import QrcodeVue from 'qrcode.vue'
 import pkg from 'root/package.json'
-import { computed, nextTick, onBeforeMount, reactive, Ref, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import useMessage from '@/hooks/useMessage'
@@ -236,6 +227,8 @@ const routerConfig = reactive(config)
 const qrcodeVisible = ref(false)
 const choosedPicBedForQRCode: Ref<string[]> = ref([])
 const picBedConfigString = ref('')
+
+let removeIpcListener: () => void = () => {}
 
 watch(
   () => choosedPicBedForQRCode,
@@ -280,9 +273,17 @@ const navigationItems = computed(() => [
   }
 ])
 
+function openGithubPage () {
+  window.electron.sendRPC(IRPCActionType.OPEN_URL, 'https://github.com/Kuingsmile/PicList')
+}
+
 onBeforeMount(() => {
   updatePicBedGlobal()
-  window.electron.ipcRendererOn(SHOW_MAIN_PAGE_QRCODE, qrCodeHandler)
+  removeIpcListener = window.electron.ipcRendererOn(SHOW_MAIN_PAGE_QRCODE, qrCodeHandler)
+})
+
+onBeforeUnmount(() => {
+  removeIpcListener()
 })
 
 </script>
@@ -331,6 +332,11 @@ onBeforeMount(() => {
   font-weight: 700;
   color: var(--color-text-primary);
   letter-spacing: -0.025em;
+}
+
+.app-text:hover {
+  cursor: pointer;
+  color: var(--color-blue-common);
 }
 
 .app-version {
@@ -536,14 +542,9 @@ onBeforeMount(() => {
   inset: 0;
   z-index: 50;
   display: flex;
+  overflow-y: auto;
   align-items: center;
   justify-content: center;
-}
-
-.dialog-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
 }
 
 .dialog-container {
@@ -561,7 +562,7 @@ onBeforeMount(() => {
 .dialog-panel {
   width: 100%;
   max-width: 500px;
-  background: var(--color-surface);
+  background: var(--color-background-primary);
   border-radius: 16px;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-md);
@@ -634,11 +635,11 @@ onBeforeMount(() => {
   right: 0;
   z-index: 10;
   margin-top: 4px;
-  background: var(--color-surface);
+  background: var(--color-background-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-md);
-  max-height: 200px;
+  max-height: 300px;
   overflow-y: auto;
 }
 

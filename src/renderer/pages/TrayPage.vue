@@ -121,7 +121,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { IpcRendererEvent } from 'electron'
 import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -245,7 +244,7 @@ function onImageError (event: Event) {
   img.style.display = 'none'
 }
 
-const dragFilesHandler = async (_: IpcRendererEvent, _files: string[]) => {
+const dragFilesHandler = async (_files: string[]) => {
   for (const file of _files) {
     await $$db.insert(file)
   }
@@ -255,7 +254,7 @@ const dragFilesHandler = async (_: IpcRendererEvent, _files: string[]) => {
   }))!.data
 }
 
-const clipboardFilesHandler = (_: IpcRendererEvent, files: ImgInfo[]) => {
+const clipboardFilesHandler = (files: ImgInfo[]) => {
   clipboardFiles.value = files
 }
 
@@ -281,10 +280,10 @@ onBeforeMount(async () => {
 })
 
 onBeforeUnmount(() => {
-  window.electron.ipcRendererRemoveListener('dragFiles', dragFilesHandler)
-  window.electron.ipcRendererRemoveListener('clipboardFiles', clipboardFilesHandler)
-  window.electron.ipcRendererRemoveListener('uploadFiles', uploadFilesHandler)
-  window.electron.ipcRendererRemoveListener('updateFiles', updateFilesHandler)
+  window.electron.ipcRendererRemoveAllListeners('dragFiles')
+  window.electron.ipcRendererRemoveAllListeners('clipboardFiles')
+  window.electron.ipcRendererRemoveAllListeners('uploadFiles')
+  window.electron.ipcRendererRemoveAllListeners('updateFiles')
 })
 </script>
 
