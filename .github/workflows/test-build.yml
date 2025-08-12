@@ -85,41 +85,40 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: Upload Windows artifacts
+      - name: Upload Windows executables with original names
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: piclist-windows-${{ github.sha }}
+          name: windows-executables
           path: |
-            dist_electron/*.exe
-            dist_electron/*.msi
-            dist_electron/*.zip
+            dist_electron/PicList-Setup-*.exe
+            dist_electron/*.exe.blockmap
           retention-days: 30
+          if-no-files-found: error
 
-      - name: Upload macOS artifacts
+      - name: Upload macOS packages with original names
         if: matrix.os == 'macos-13'
         uses: actions/upload-artifact@v4
         with:
-          name: piclist-macos-${{ github.sha }}
+          name: macos-packages
           path: |
-            dist_electron/*.dmg
-            dist_electron/*.zip
-            dist_electron/*.pkg
+            dist_electron/PicList-*.dmg
+            dist_electron/PicList-*.zip
+            dist_electron/*.dmg.blockmap
+            dist_electron/*.zip.blockmap
           retention-days: 30
+          if-no-files-found: error
 
-      - name: Upload Linux artifacts
+      - name: Upload Linux packages with original names
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: piclist-linux-${{ github.sha }}
+          name: linux-packages
           path: |
-            dist_electron/*.AppImage
-            dist_electron/*.deb
-            dist_electron/*.rpm
-            dist_electron/*.tar.gz
+            dist_electron/PicList-*.AppImage
+            dist_electron/PicList-*.snap
+            dist_electron/PicList-*.deb
+            dist_electron/PicList-*.rpm
+            dist_electron/PicList-*.tar.gz
           retention-days: 30
-
-      - name: List build output (Debug)
-        run: |
-          echo "Contents of dist_electron directory:"
-          ls -la dist_electron/ || echo "dist_electron directory not found"
+          if-no-files-found: ignore
