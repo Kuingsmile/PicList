@@ -126,7 +126,7 @@
           <img
             class="plugin-logo"
             :src="item.logo"
-            :onerror="defaultLogo"
+            :onerror="setSrc"
             alt=""
           >
           <div class="plugin-info">
@@ -331,8 +331,12 @@ const pluginNameList = ref<string[]>([])
 const loading = ref(true)
 const needReload = ref(false)
 const latestVersionMap = reactive<{ [key: string]: string }>({})
-const defaultLogo = ref('this.src=\'/roundLogo.png\'')
 const $configForm = ref<InstanceType<typeof ConfigForm> | null>(null)
+
+function setSrc (e: Event) {
+  const target = e.target as HTMLImageElement
+  target.src = import.meta.env.BASE_URL + 'roundLogo.png'
+}
 
 const npmSearchText = computed(() => {
   return searchText.value.match('picgo-plugin-')

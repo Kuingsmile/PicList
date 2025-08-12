@@ -45,7 +45,7 @@
               />
               <img
                 v-else
-                :src="`/assets/${item.key}.webp`"
+                :src="`./assets/${item.key}.webp`"
                 class="tab-icon"
                 :alt="item.name"
               >
@@ -85,7 +85,7 @@
             >
               <div class="config-header">
                 <img
-                  :src="`/assets/${item.picBedName}.webp`"
+                  :src="`./assets/${item.picBedName}.webp`"
                   class="config-icon"
                   :alt="item.picBedName"
                 >

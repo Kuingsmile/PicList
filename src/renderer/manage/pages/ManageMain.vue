@@ -6,7 +6,7 @@
         <div class="header-content">
           <div class="header-icon">
             <img
-              :src="`/assets/${currentPagePicBedConfig.picBedName}.webp`"
+              :src="`./assets/${currentPagePicBedConfig.picBedName}.webp`"
               class="header-icon-img"
             >
           </div>
@@ -176,7 +176,7 @@
             >
               <div class="card-icon">
                 <img
-                  :src="`/assets/${config.picBedName}.webp`"
+                  :src="`./assets/${config.picBedName}.webp`"
                   class="picbed-icon"
                 >
               </div>
@@ -223,7 +223,7 @@
             <div class="form-header">
               <div class="form-icon">
                 <img
-                  :src="`/assets/${currentPicBedName}.webp`"
+                  :src="`./assets/${currentPicBedName}.webp`"
                   class="picbed-form-icon"
                 >
               </div>

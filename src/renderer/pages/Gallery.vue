@@ -318,7 +318,7 @@
             >
               <img
                 :src="imageErrorStates[item.key || '']
-                  ? '/errorLoading.png'
+                  ? './errorLoading.png'
                   : isAlwaysForceReload ? addCacheBustParam(item.src) : item.src"
                 class="gallery-image"
                 :class="{ loading: !imageLoadStates[item.key || ''] }"

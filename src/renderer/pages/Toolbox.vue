@@ -146,8 +146,8 @@ import type { IToolboxMap } from '#/types/view'
 
 const { t } = useI18n()
 const { confirm } = useConfirm()
-const defaultLogo = ref('/roundLogo.png')
 const activeTypes = ref<string[]>([])
+const defaultLogo = computed(() => `${import.meta.env.BASE_URL}roundLogo.png`)
 const fixList = reactive<IToolboxMap>({
   [IToolboxItemType.IS_CONFIG_FILE_BROKEN]: {
     title: t('pages.toolbox.checkConfigFileBroken'),

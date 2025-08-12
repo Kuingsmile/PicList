@@ -7,7 +7,7 @@
       <div class="title-left">
         <div class="app-icon">
           <img
-            src="/roundLogo.png"
+            :src="defaultLogo"
             alt="App Icon"
             width="20"
             height="20"
@@ -75,13 +75,14 @@
 
 <script setup lang="ts">
 import { MinusIcon, PinIcon, ShrinkIcon, XIcon } from 'lucide-vue-next'
-import { onBeforeMount, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
 import { IRPCActionType } from '@/utils/enum'
 
 const isShowprogress = ref(false)
 const progress = ref(0)
 const isAlwaysOnTop = ref(false)
+const defaultLogo = computed(() => `${import.meta.env.BASE_URL}roundLogo.png`)
 
 function setAlwaysOnTop () {
   isAlwaysOnTop.value = !isAlwaysOnTop.value

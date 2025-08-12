@@ -460,7 +460,7 @@
                     >
                     <img
                       v-else
-                      :src="`/assets/icons/${getFileIconPath(item.fileName ?? '')}`"
+                      :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
                       class="file-image"
                     >
                   </template>
@@ -495,7 +495,7 @@
                   <!-- Default File Icon -->
                   <template v-else-if="!item.isDir">
                     <img
-                      :src="`/assets/icons/${getFileIconPath(item.fileName ?? '')}`"
+                      :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
                       class="file-image"
                     >
                   </template>
@@ -622,7 +622,7 @@
                     >
                     <img
                       v-else
-                      :src="`/assets/icons/${getFileIconPath(item.fileName ?? '')}`"
+                      :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
                       style="width: 32px; height: 32px; object-fit: contain;"
                     >
                   </template>

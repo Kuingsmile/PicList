@@ -48,10 +48,10 @@ const props = defineProps<{
 const imageSource = computed(() => {
   return props.isShowThumbnail && props.item.isImage
     ? preSignedUrl.value
-    : `/assets/icons/${getFileIconPath(props.item.fileName ?? '')}`
+    : `./assets/icons/${getFileIconPath(props.item.fileName ?? '')}`
 })
 
-const iconPath = computed(() => `/assets/icons/${getFileIconPath(props.item.fileName ?? '')}`)
+const iconPath = computed(() => `./assets/icons/${getFileIconPath(props.item.fileName ?? '')}`)
 
 async function getUrl () {
   try {

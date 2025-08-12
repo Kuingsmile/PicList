@@ -11,7 +11,7 @@
       :src="
         isShowThumbnail && item.isImage
           ? base64Image
-          : `/assets/icons/${getFileIconPath(item.fileName ?? '')}`
+          : `./assets/icons/${getFileIconPath(item.fileName ?? '')}`
       "
       alt=""
       class="image"
@@ -20,7 +20,7 @@
     >
     <img
       v-else
-      :src="`/assets/icons/${getFileIconPath(item.fileName ?? '')}`"
+      :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
       alt=""
       class="image"
     >

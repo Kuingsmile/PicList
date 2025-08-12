@@ -7,7 +7,6 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 export default defineConfig({
   main: {
-    // Main process configuration
     plugins: [
       externalizeDepsPlugin()
     ],
@@ -23,7 +22,6 @@ export default defineConfig({
     }
   },
   preload: {
-    // Preload scripts configuration
     plugins: [externalizeDepsPlugin(),
       VueI18nPlugin({
       /* options */
@@ -41,12 +39,8 @@ export default defineConfig({
     }
   },
   renderer: {
-    // Renderer process configuration
     root: resolve('src/renderer'),
-    publicDir: resolve('./public'),
-    build: {
-      outDir: resolve('dist/renderer')
-    },
+    base: './',
     resolve: {
       alias: {
         '@': resolve('src/renderer'),

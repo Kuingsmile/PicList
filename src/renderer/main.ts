@@ -42,8 +42,8 @@ const i18n = createI18n<[MessageSchema], 'en' | 'zh-CN' | 'zh-TW'>({
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 app.use(VueLazyLoad, {
-  loading: '/loading.jpg',
-  error: '/unknown-file-type.svg',
+  loading: './loading.jpg',
+  error: './unknown-file-type.svg',
   delay: 500
 })
 app.use(i18n)
