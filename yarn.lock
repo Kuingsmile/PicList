@@ -8744,8 +8744,10 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-"piclist@file:../piclist-core":
-  version "1.9.14"
+piclist@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/piclist/-/piclist-2.0.0.tgz#6b854e37a419b5898e90fb6d800b32f4e6b5de27"
+  integrity sha512-tmNS47dSjq89oxYXCwnC5eoFiQ+YVKCc5jiipxLq91Gx8AKyAlJk/m1SIt4Hccu+xckwSfidAM9jG6h3Zu+iuA==
   dependencies:
     "@aws-sdk/client-s3" "3.864.0"
     "@aws-sdk/lib-storage" "3.864.0"
