@@ -159,7 +159,7 @@
   padding: 0.5rem 1rem;
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-md);
-  background: var(--color-background-secondary);
+  background: var( --color-surface-elevated);
   color: var(--color-text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
@@ -233,7 +233,7 @@
 }
 
 .config-item {
-  background: var(--color-background-secondary);
+  background: var( --color-surface-elevated);
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-lg);
   padding: 1.25rem;

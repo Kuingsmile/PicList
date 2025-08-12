@@ -622,7 +622,7 @@ small {
 :root.auto.dark .settings-header,
 :root.auto.dark .tab-navigation,
 :root.auto.dark .settings-section {
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
   border-color: var(--color-border);
 }
 

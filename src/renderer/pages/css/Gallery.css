@@ -619,7 +619,7 @@ input:checked + .switch-slider:before {
   position: relative;
   aspect-ratio: 16/9;
   overflow: hidden;
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
 }
 
 .gallery-image {
@@ -1284,7 +1284,7 @@ input:checked + .switch-slider:before {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
 }
 
 .virtual-gallery-scroller .image-info {

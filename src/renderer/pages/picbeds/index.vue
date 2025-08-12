@@ -328,12 +328,12 @@ export default {
 }
 
 .page-content {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--color-background-secondary);
   border-radius: 16px;
   backdrop-filter: blur(20px);
   box-shadow:
-    0 8px 16px rgba(0, 0, 0, 0.12),
-    0 2px 12px rgba(0, 0, 0, 0.08);
+    0 8px 8px rgba(0, 0, 0, 0.12),
+    0 4px 8px rgba(0, 0, 0, 0.08);
   overflow: auto;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -345,7 +345,7 @@ export default {
   justify-content: space-between;
   padding: 2rem 2rem 1.5rem;
   border-bottom: 1px solid rgba(229, 231, 235, 0.8);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.8) 100%);
+  background: var(--color-background-secondary);
 }
 
 .header-title-section {
@@ -640,13 +640,13 @@ export default {
 
 :root.dark .page-content,
 :root.auto.dark .page-content {
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   border-color: rgba(75, 85, 99, 0.3);
 }
 
 :root.dark .page-header,
 :root.auto.dark .page-header {
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   border-color: rgba(75, 85, 99, 0.3);
 }
 

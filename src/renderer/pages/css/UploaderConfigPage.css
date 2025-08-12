@@ -42,7 +42,7 @@
 
 /* Main Card */
 .main-card {
-  background: var( --color-background-tertiary);
+  background: var( --color-background-secondary);
   padding: 1.5rem;
 }
 

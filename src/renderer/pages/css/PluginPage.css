@@ -700,7 +700,7 @@ html, body {
 
 :root.dark .plugin-card,
 :root.auto.dark .plugin-card {
-  background: var(--color-surface);
+  background: var(--color-surface-elevated);
   border-color: var(--color-border-secondary);
 }
 
