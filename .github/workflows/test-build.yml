@@ -9,6 +9,8 @@ on:
 
 env:
   ELECTRON_OUTPUT_PATH: ./dist_electron
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
 jobs:
   test-build:
@@ -64,18 +66,24 @@ jobs:
         run: yarn build:win
         env:
           ELECTRON_SKIP_NOTARIZATION: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Build application (macOS)
         if: matrix.os == 'macos-13'
         run: yarn build:mac
         env:
           ELECTRON_SKIP_NOTARIZATION: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Build application (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: yarn build:linux
         env:
           ELECTRON_SKIP_NOTARIZATION: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Upload Windows artifacts
         if: matrix.os == 'windows-latest'
