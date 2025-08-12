@@ -104,7 +104,8 @@
           "bottomLeft": "Bottom Left",
           "bottomRight": "Bottom Right",
           "center": "Center"
-        }
+        },
+        "imageOpacity": "Watermark Opacity"
       },
       "transform": {
         "title": "Transform Settings",

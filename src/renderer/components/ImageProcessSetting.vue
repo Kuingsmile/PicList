@@ -306,6 +306,24 @@
               >
             </div>
 
+            <div
+              v-if="waterMarkForm.watermarkType === 'image'"
+              class="form-group"
+            >
+              <label>{{ $t('pages.imageProcess.watermark.imageOpacity') }}</label>
+              <input
+                v-model.number="waterMarkForm.watermarkImageOpacity"
+                type="range"
+                min="0"
+                max="255"
+                step="1"
+                class="form-range"
+              >
+              <div class="range-value">
+                {{ waterMarkForm.watermarkImageOpacity || 0 }}
+              </div>
+            </div>
+
             <!-- Watermark Position -->
             <div class="form-group">
               <label>{{ $t('pages.imageProcess.watermark.position') }}</label>
@@ -583,7 +601,8 @@ const waterMarkForm = reactive<IBuildInWaterMarkOptions>({
   watermarkScaleRatio: 0.15,
   watermarkColor: '#CCCCCC73',
   watermarkImagePath: '',
-  watermarkPosition: 'southeast'
+  watermarkPosition: 'southeast',
+  watermarkImageOpacity: 255
 })
 
 const compressForm = reactive<IBuildInCompressOptions>({
