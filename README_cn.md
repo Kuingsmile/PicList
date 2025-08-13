@@ -40,7 +40,10 @@
   - [Scoop（Windows）](#scoopwindows)
   - [Winget (Windows)](#winget-windows)
   - [Homebrew（macOS）](#homebrewmacos)
-  - [Mac特殊说明](#mac特殊说明)
+  - [系统版本要求](#系统版本要求)
+    - [Windows](#windows)
+    - [macOS](#macos)
+    - [Linux](#linux)
 - [应用截图](#应用截图)
 - [开发说明](#开发说明)
   - [前提条件](#前提条件)
@@ -140,6 +143,7 @@ Windows系统：
 #### 使用docker run命令
 
 ```bash
+docker pull kuingsmile/piclist:latest
 docker run -d \
   --name piclist \
   --restart always \
@@ -227,26 +231,39 @@ brew install piclist --cask
 brew uninstall piclist
 ```
 
-### Mac特殊说明
+### 系统版本要求
 
-如果macOS系统安装PicList后显示"文件已损坏"或安装后打开无响应，请升级到PicList V1.4.1或以上版本。
+#### Windows
 
-V1.4.1之后，所有mac安装包都已使用开发者证书签名，不会被macOS系统识别为"恶意软件"，不会出现"文件已损坏"提示。
+- **支持的版本**: Windows 10及以上版本
+- **架构**: `ia32` (x86), `x64` (amd64), `arm64`
+
+#### macOS
+
+- **支持的版本**: macOS Big Sur (11)及以上
+- **架构**: Intel (x64)和Apple Silicon (arm64)
+
+#### Linux
+
+- **包括不限于**:
+  - Ubuntu 18.04及更新版本
+  - Fedora 32及更新版本
+  - Debian 10及更新版本
 
 ## 应用截图
 
-![上传界面](https://github.com/Kuingsmile/PicList/assets/96409857/1b76c0c4-753c-4d66-aa24-f805f9c2da15)
-![相册视图](https://github.com/Kuingsmile/PicList/assets/96409857/56cf838a-a2eb-40af-96d4-1ffea25400af)
-![云存储管理](https://github.com/Kuingsmile/PicList/assets/96409857/bca7688a-e07f-4e80-9edd-c224298fa8ab)
-![设置页面](https://github.com/Kuingsmile/PicList/assets/96409857/3e48e03d-b0b2-49e2-92a6-a52e0884677d)
-![图像编辑](https://github.com/Kuingsmile/PicList/assets/96409857/29de0046-1aef-4b28-95a6-b26c6e297c6f)
-![文件预览](https://github.com/Kuingsmile/PicList/assets/96409857/e1c04488-2d3a-4e8f-aa26-ce41d0a383e2)
+![上传界面](./imgs/upload.png)
+![相册视图](./imgs/gallery.png)
+![云存储管理](./imgs/cloud_storage.png)
+![设置页面](./imgs/settings.png)
+![图像编辑](./imgs/image_editing.png)
+![深色主题](./imgs/dark.png)
 
 ## 开发说明
 
 ### 前提条件
 
-1. 需要Node.js和Git环境
+1. 需要Node.js 20+ 和 Git
 2. 了解npm相关知识
 3. Mac需要Xcode环境，Windows需要Visual Studio环境
 

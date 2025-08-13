@@ -40,7 +40,10 @@
   - [Scoop (Windows)](#scoop-windows)
   - [Winget (Windows)](#winget-windows)
   - [Homebrew (macOS)](#homebrew-macos)
-  - [Mac Special Instructions](#mac-special-instructions)
+  - [OS Requirements](#os-requirements)
+    - [Windows](#windows)
+    - [macOS](#macos)
+    - [Linux](#linux)
 - [Screenshots](#screenshots)
 - [Development](#development)
   - [Prerequisites](#prerequisites)
@@ -139,6 +142,7 @@ Alternatively, install PicList-core with `npm install piclist` and set the uploa
 #### Using docker run
 
 ```bash
+docker pull kuingsmile/piclist:latest
 docker run -d \
   --name piclist \
   --restart always \
@@ -226,24 +230,39 @@ brew install piclist --cask
 brew uninstall piclist
 ```
 
-### Mac Special Instructions
+### OS Requirements
 
-If you encounter "file is damaged" messages or have issues opening on macOS, upgrade to PicList V1.4.1 or above. All Mac installation packages since V1.4.1 are signed with a developer certificate and won't trigger "malicious software" warnings.
+#### Windows
+
+- **Supported Versions**: Windows 10 and later
+- **Architectures**: `ia32` (x86), `x64` (amd64), `arm64`
+
+#### macOS
+
+- **Supported Versions**: macOS Big Sur (11) and later
+- **Architectures**: Intel (x64) and Apple Silicon (arm64)
+
+#### Linux
+
+- **Supported Versions**:
+  - Ubuntu 18.04 and later
+  - Fedora 32 and later
+  - Debian 10 and later
 
 ## Screenshots
 
-![Upload interface](https://github.com/Kuingsmile/PicList/assets/96409857/1b76c0c4-753c-4d66-aa24-f805f9c2da15)
-![Album view](https://github.com/Kuingsmile/PicList/assets/96409857/56cf838a-a2eb-40af-96d4-1ffea25400af)
-![Cloud management](https://github.com/Kuingsmile/PicList/assets/96409857/bca7688a-e07f-4e80-9edd-c224298fa8ab)
-![Settings](https://github.com/Kuingsmile/PicList/assets/96409857/3e48e03d-b0b2-49e2-92a6-a52e0884677d)
-![Image editing](https://github.com/Kuingsmile/PicList/assets/96409857/29de0046-1aef-4b28-95a6-b26c6e297c6f)
-![File preview](https://github.com/Kuingsmile/PicList/assets/96409857/e1c04488-2d3a-4e8f-aa26-ce41d0a383e2)
+![Upload interface](./imgs/upload.png)
+![Album view](./imgs/gallery.png)
+![Cloud management](./imgs/cloud_storage.png)
+![Settings](./imgs/settings.png)
+![Image editing](./imgs/image_editing.png)
+![Dark theme](./imgs/dark.png)
 
 ## Development
 
 ### Prerequisites
 
-1. Node.js and Git environment
+1. Node.js 20 + and Git
 2. Knowledge of npm
 3. Xcode for Mac or Visual Studio for Windows
 

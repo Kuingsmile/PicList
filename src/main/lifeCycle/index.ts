@@ -174,9 +174,7 @@ class LifeCycle {
   #onReady () {
     const readyFunction = async () => {
       if (process.env.NODE_ENV !== 'production') {
-        installExtension(VUEJS_DEVTOOLS).then(name => {
-          console.log(`Added Extension: ${JSON.stringify(name)}`)
-        }).catch(err => {
+        installExtension(VUEJS_DEVTOOLS).catch(err => {
           console.log('An error occurred: ', err)
         })
       }
