@@ -73,7 +73,7 @@ jobs:
         run: |
           # Remove arm64 from the arch array, keep only x64
           $config = Get-Content electron-builder.json | ConvertFrom-Json
-          $config.win.target[0].arch = @("x64")
+          $config.win.target[0].arch = @("x64", "ia32")
           $config | ConvertTo-Json -Depth 10 | Set-Content electron-builder.json
 
       - name: Modify electron-builder.json for Windows ARM64
@@ -123,7 +123,7 @@ jobs:
         with:
           name: windows-x64-executables
           path: |
-            dist_electron/PicList-Setup-*.exe
+            dist_electron/*
           retention-days: 30
           if-no-files-found: error
 
@@ -137,23 +137,62 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-      - name: Upload macOS packages with original names
+      - name: Upload macOS packages
         if: matrix.os == 'macos-13'
         uses: actions/upload-artifact@v4
         with:
           name: macos-packages
           path: |
-            dist_electron/PicList-*.dmg
+            dist_electron/*
           retention-days: 30
           if-no-files-found: error
 
-      - name: Upload Linux packages with original names
+      - name: Upload Linux packages
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: linux-packages
           path: |
-            dist_electron/PicList-*.AppImage
-            dist_electron/*.snap
+            dist_electron/*
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Upload Windows x64 yml
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64-yml
+          path: |
+            dist_electron/github/*
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload Windows ARM64 yml
+        if: matrix.os == 'windows-11-arm'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-arm64-yml
+          path: |
+            dist_electron/github/*
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload macOS yml
+        if: matrix.os == 'macos-13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-yml
+          path: |
+            dist_electron/github/*
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload Linux yml
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-yml
+          path: |
+            dist_electron/github/*
           retention-days: 30
           if-no-files-found: ignore

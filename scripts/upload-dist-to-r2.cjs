@@ -47,7 +47,7 @@ const uploadFile = async () => {
       console.warn('platform not supported!', platform)
       return
     }
-    let versionFileHasUploaded = false
+    let versionFileHasUploaded = true
     for (const [index, config] of configList[platform].entries()) {
       const fileName = `${config.appNameWithPrefix}${VERSION}${config.arch}${config.ext}`
       const distPath = path.join(__dirname, '../dist_electron')

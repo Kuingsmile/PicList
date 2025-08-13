@@ -11,6 +11,7 @@ env:
   ELECTRON_OUTPUT_PATH: ./dist_electron
   CSC_LINK: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
   CSC_KEY_PASSWORD: ${{ secrets.P12_PASSWORD }}
+  USE_HARD_LINKS: false
 
 jobs:
   release:
@@ -21,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13, windows-latest]
+        os: [ubuntu-latest, macos-13, windows-latest, windows-11-arm]
 
     steps:
 
@@ -73,6 +74,22 @@ jobs:
           yarn
           yarn global add xvfb-maybe
 
+      - name: Modify electron-builder.json for Windows x64
+        if: matrix.os == 'windows-latest'
+        run: |
+          # Remove arm64 from the arch array, keep only x64
+          $config = Get-Content electron-builder.json | ConvertFrom-Json
+          $config.win.target[0].arch = @("x64", "ia32")
+          $config | ConvertTo-Json -Depth 10 | Set-Content electron-builder.json
+
+      - name: Modify electron-builder.json for Windows ARM64
+        if: matrix.os == 'windows-11-arm'
+        run: |
+          # Remove x64 from the arch array, keep only arm64
+          $config = Get-Content electron-builder.json | ConvertFrom-Json
+          $config.win.target[0].arch = @("arm64")
+          $config | ConvertTo-Json -Depth 10 | Set-Content electron-builder.json
+
       - name: Build  & release app
         run: |
           yarn release
@@ -92,3 +109,85 @@ jobs:
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          USE_HARD_LINKS: false
+
+      - name: Upload Windows x64 executables
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64-executables
+          path: |
+            dist_electron/*
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload Windows ARM64 executables
+        if: matrix.os == 'windows-11-arm'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-arm64-executables
+          path: |
+            dist_electron/*
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload macOS packages
+        if: matrix.os == 'macos-13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-packages
+          path: |
+            dist_electron/*
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload Linux packages
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-packages
+          path: |
+            dist_electron/*
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Upload Windows x64 yml
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64-yml
+          path: |
+            dist_electron/github/*
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload Windows ARM64 yml
+        if: matrix.os == 'windows-11-arm'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-arm64-yml
+          path: |
+            dist_electron/github/*
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload macOS yml
+        if: matrix.os == 'macos-13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-yml
+          path: |
+            dist_electron/github/*
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload Linux yml
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-yml
+          path: |
+            dist_electron/github/*
+          retention-days: 30
+          if-no-files-found: ignore
+
