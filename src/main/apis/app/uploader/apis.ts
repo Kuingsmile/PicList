@@ -69,7 +69,7 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
           notification.show()
         }, 100)
       }
-      await GalleryDB.getInstance().insert(img[0])
+      const inserted = await GalleryDB.getInstance().insert(img[0])
       // trayWindow just be created in mac/windows, not in linux
       trayWindow?.webContents?.send('clipboardFiles', [])
       trayWindow?.webContents?.send('uploadFiles', img)
@@ -77,8 +77,8 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
         windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
       }
       return {
-        url: handleUrlEncodeWithSetting(img[0].imgUrl as string),
-        fullResult: img[0]
+        url: handleUrlEncodeWithSetting(inserted.imgUrl as string),
+        fullResult: inserted
       }
     } else {
       const notification = new Notification({
@@ -149,10 +149,10 @@ export const uploadChoosedFiles = async (
           notification.show()
         }, i * 100)
       }
-      await GalleryDB.getInstance().insert(imgs[i])
+      const inserted = await GalleryDB.getInstance().insert(imgs[i])
       result.push({
-        url: handleUrlEncodeWithSetting(imgs[i].imgUrl!),
-        fullResult: imgs[i]
+        url: handleUrlEncodeWithSetting(inserted.imgUrl!),
+        fullResult: inserted
       })
     }
     handleCopyUrl(pasteText.join('\n'))
