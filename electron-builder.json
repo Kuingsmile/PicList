@@ -6,6 +6,7 @@
     "output": "dist_electron",
     "buildResources": "build"
   },
+  "asarUnpack": ["**/node_modules/sharp/**", "**/node_modules/ssh2-no-cpu-features/**", "**/node_modules/@img/**"],
   "files": ["out/**/*", "dist/**/*", "resources/**/*", "package.json"],
   "extraResources": [
     {
@@ -66,7 +67,7 @@
     "target": [
       {
         "target": "nsis",
-        "arch": ["x64", "ia32"]
+        "arch": ["x64", "arm64"]
       }
     ]
   },
@@ -78,7 +79,7 @@
   },
   "linux": {
     "icon": "resources/",
-    "asarUnpack": ["**/node_modules/sharp/**", "**/node_modules/ssh2-no-cpu-features/**"]
+    "asarUnpack": ["**/node_modules/sharp/**", "**/node_modules/ssh2-no-cpu-features/**", "**/node_modules/@img/**"]
   },
   "snap": {
     "publish": ["github"]

@@ -6,9 +6,6 @@ name: Auto Build
 # Workflow's trigger
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - release
 
 env:
   ELECTRON_OUTPUT_PATH: ./dist_electron
@@ -17,7 +14,7 @@ env:
 
 jobs:
   release:
-    name: build and release electron app
+    name: Build
 
     runs-on: ${{ matrix.os }}
 
@@ -33,7 +30,7 @@ jobs:
           git config --global core.autocrlf false
 
       - name: Check out git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # step2: sign
       - name: Install the Apple certificates
