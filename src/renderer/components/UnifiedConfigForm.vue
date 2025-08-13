@@ -207,16 +207,12 @@ function handleConfigChange (val: any) {
   handleConfig(val)
 }
 
-function validateField (fieldName: string, value: any, config?: IPicGoPluginConfig): string | null {
+function validateField (fieldName: string, value: any, _?: IPicGoPluginConfig): string | null {
   if (fieldName === '_configName') {
     if (!value || value.trim() === '') {
       return 'Configuration name is required'
     }
     return null
-  }
-
-  if (config?.required && (!value || (Array.isArray(value) && value.length === 0))) {
-    return `${config.alias || config.name} is required`
   }
 
   return null
