@@ -16,6 +16,7 @@ const template = `
 #### Windows
 [PicList-Setup-${version}-ia32.exe](${generateURL('-ia32', '.exe', 'PicList-Setup-')})
 [PicList-Setup-${version}-x64.exe](${generateURL('-x64', '.exe', 'PicList-Setup-')})
+[PicList-Setup-${version}-arm64.exe](${generateURL('-arm64', '.exe', 'PicList-Setup-')})
 [PicList-Setup-${version}.exe](${generateURL('', '.exe', 'PicList-Setup-')})
 
 #### Linux

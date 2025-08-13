@@ -56,6 +56,12 @@ const win32 = [
     ext: '.exe',
     arch: '', // 32 & 64
     'version-file': 'latest.yml'
+  },
+  {
+    appNameWithPrefix: 'PicList-Setup-',
+    ext: '.exe',
+    arch: '-arm64',
+    'version-file': 'latest.yml'
   }
 ]
 
