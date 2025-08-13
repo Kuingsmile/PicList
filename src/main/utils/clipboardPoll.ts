@@ -15,7 +15,7 @@ class ClipboardWatcher extends EventEmitter {
     this.timer = null
   }
 
-  startListening (watchDelay = 500) {
+  startListening (watchDelay = 1000) {
     this.stopListening(false)
 
     this.timer = setInterval(() => {

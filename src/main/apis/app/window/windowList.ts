@@ -62,8 +62,8 @@ const trayWindowOptions = {
     preload: preloadPath,
     nodeIntegration: false,
     contextIsolation: true,
-    nodeIntegrationInWorker: true,
-    backgroundThrottling: false,
+    nodeIntegrationInWorker: false,
+    backgroundThrottling: true,
     webSecurity: false
   }
 }
@@ -83,11 +83,11 @@ const settingWindowOptions = {
   webPreferences: {
     sandbox: false,
     webviewTag: true,
-    backgroundThrottling: false,
+    backgroundThrottling: true,
     preload: preloadPath,
     nodeIntegration: false,
     contextIsolation: true,
-    nodeIntegrationInWorker: true,
+    nodeIntegrationInWorker: false,
     webSecurity: false
   }
 } as IBrowserWindowOptions
@@ -112,8 +112,8 @@ const miniWindowOptions = {
     preload: preloadPath,
     nodeIntegration: false,
     contextIsolation: true,
-    backgroundThrottling: false,
-    nodeIntegrationInWorker: true
+    backgroundThrottling: true,
+    nodeIntegrationInWorker: false
   }
 } as IBrowserWindowOptions
 
@@ -133,7 +133,7 @@ const renameWindowOptions = {
     preload: preloadPath,
     nodeIntegration: false,
     contextIsolation: true,
-    nodeIntegrationInWorker: true,
+    nodeIntegrationInWorker: false,
     backgroundThrottling: false
   }
 } as IBrowserWindowOptions
@@ -158,11 +158,11 @@ const toolboxWindowOptions = {
   icon: logo,
   webPreferences: {
     sandbox: false,
-    backgroundThrottling: false,
+    backgroundThrottling: true,
     preload: preloadPath,
     nodeIntegration: false,
     contextIsolation: true,
-    nodeIntegrationInWorker: true,
+    nodeIntegrationInWorker: false,
     webSecurity: false
   }
 } as IBrowserWindowOptions

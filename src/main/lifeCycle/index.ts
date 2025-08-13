@@ -34,6 +34,7 @@ import { II18nLanguage, IRemoteNoticeTriggerHook, ISartMode, IWindowList } from 
 import { getUploadFiles } from '~/utils/handleArgv'
 import { initI18n } from '~/utils/handleI18n'
 import { notificationList } from '~/utils/notification'
+import { MemoryMonitor } from '~/utils/performanceOptimizer'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 import updateChecker from '~/utils/updateChecker'
 
@@ -164,6 +165,10 @@ class LifeCycle {
     initI18n()
     rpcServer.start()
     busEventList.listen()
+
+    if (process.env.NODE_ENV === 'development') {
+      MemoryMonitor.start(30000)
+    }
   }
 
   #onReady () {
@@ -315,6 +320,7 @@ class LifeCycle {
       server.shutdown()
       webServer.stop()
       stopFileServer()
+      MemoryMonitor.stop()
     })
     // Exit cleanly on request from parent process in development mode.
     if (isDevelopment) {

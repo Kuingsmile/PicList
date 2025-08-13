@@ -7,7 +7,10 @@ import { IWindowList } from '~/utils/enum'
 
 export function openMiniWindow (hideSettingWindow: boolean = true) {
   const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
-  miniWindow.removeAllListeners()
+
+  miniWindow.removeAllListeners('close')
+  miniWindow.removeAllListeners('move')
+
   if (db.get(configPaths.settings.miniWindowOntop)) {
     miniWindow.setAlwaysOnTop(true)
   }
