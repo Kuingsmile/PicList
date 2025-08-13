@@ -133,7 +133,7 @@ jobs:
         with:
           name: windows-arm64-executables
           path: |
-            dist_electron/PicList-Setup-*.exe
+            dist_electron/*
           retention-days: 30
           if-no-files-found: error
 
