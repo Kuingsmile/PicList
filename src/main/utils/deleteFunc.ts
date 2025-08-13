@@ -92,7 +92,16 @@ export async function removeFileFromS3InMain (configMap: IStringKeyMap, dogeMode
     const {
       url: rawUrl,
       type,
-      config: { accessKeyID, secretAccessKey, bucketName, endpoint, pathStyleAccess, rejectUnauthorized, proxy }
+      config: {
+        accessKeyID,
+        secretAccessKey,
+        bucketName,
+        endpoint,
+        pathStyleAccess,
+        rejectUnauthorized,
+        proxy,
+        customUrl
+      }
     } = configMap
     let {
       imgUrl,
@@ -101,10 +110,21 @@ export async function removeFileFromS3InMain (configMap: IStringKeyMap, dogeMode
     if (type === 'aws-s3' || type === 'aws-s3-plist') {
       imgUrl = rawUrl || imgUrl || ''
     }
-    const url = new URL(!/^https?:\/\//.test(imgUrl) ? `http://${imgUrl}` : imgUrl)
-    let fileKey = url.pathname.replace(/^\/+/, '')
-    if (pathStyleAccess) {
-      fileKey = fileKey.replace(/^[^/]+\//, '')
+    let fileKey
+    if (customUrl && imgUrl.startsWith(customUrl)) {
+      const customUrlObj = new URL(customUrl)
+      const imgUrlObj = new URL(imgUrl)
+      if (imgUrlObj.pathname.startsWith(customUrlObj.pathname)) {
+        fileKey = imgUrlObj.pathname.substring(customUrlObj.pathname.length).replace(/^\/+/, '')
+      } else {
+        fileKey = imgUrlObj.pathname.replace(/^\/+/, '')
+      }
+    } else {
+      const url = new URL(!/^https?:\/\//.test(imgUrl) ? `http://${imgUrl}` : imgUrl)
+      fileKey = url.pathname.replace(/^\/+/, '')
+      if (pathStyleAccess) {
+        fileKey = fileKey.replace(/^[^/]+\//, '')
+      }
     }
     const endpointUrl: string | undefined = endpoint
       ? /^https?:\/\//.test(endpoint)
