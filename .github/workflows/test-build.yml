@@ -11,6 +11,7 @@ env:
   ELECTRON_OUTPUT_PATH: ./dist_electron
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  USE_HARD_LINKS: false
 
 jobs:
   test-build:
@@ -106,6 +107,7 @@ jobs:
           ELECTRON_SKIP_NOTARIZATION: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          USE_HARD_LINKS: false
 
       - name: Build application (Linux)
         if: matrix.os == 'ubuntu-latest'
