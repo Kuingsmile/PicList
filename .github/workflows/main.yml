@@ -1,9 +1,5 @@
-# main.yml
+name:  Build for release
 
-# Workflow's name
-name: Auto Build
-
-# Workflow's trigger
 on:
   workflow_dispatch:
 
@@ -22,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13, windows-latest, windows-11-arm]
+        os: [ubuntu-latest, macos-13, windows-latest, windows-11-arm, macos-latest]
 
     steps:
 
@@ -35,7 +31,7 @@ jobs:
 
       # step2: sign
       - name: Install the Apple certificates
-        if: matrix.os == 'macos-13'
+        if: matrix.os == 'macos-13' || matrix.os == 'macos-latest'
         run: |
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
@@ -52,16 +48,15 @@ jobs:
           sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils
 
       # step3: yarn
-      - name: Yarn install macos
-        if: matrix.os == 'macos-13'
+      - name: Install dependencies (macOS)
+        if: matrix.os == 'macos-13' || matrix.os == 'macos-latest'
         run: |
           yarn config set ignore-engines true
           yarn
           yarn global add xvfb-maybe
-          npm rebuild --platform=darwin --arch=arm64 sharp
 
-      - name: Yarn install windows
-        if: matrix.os == 'windows-latest'
+      - name: Install dependencies (Windows)
+        if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
         run: |
           yarn config set ignore-engines true
           yarn
@@ -89,6 +84,18 @@ jobs:
           $config = Get-Content electron-builder.json | ConvertFrom-Json
           $config.win.target[0].arch = @("arm64")
           $config | ConvertTo-Json -Depth 10 | Set-Content electron-builder.json
+
+      - name: Modify electron-builder.json for Macos x64
+        if: matrix.os == 'macos-13'
+        run: |
+          # Remove arm64 from the arch array, keep only x64
+          jq '.mac.target[0].arch = ["x64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+
+      - name: Modify electron-builder.json for Macos ARM64
+        if: matrix.os == 'macos-latest'
+        run: |
+          # Remove x64 from the arch array, keep only arm64
+          jq '.mac.target[0].arch = ["arm64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
 
       - name: Build  & release app
         run: |
@@ -131,11 +138,21 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-      - name: Upload macOS packages
+      - name: Upload macOS x64 packages
         if: matrix.os == 'macos-13'
         uses: actions/upload-artifact@v4
         with:
-          name: macos-packages
+          name: macos-x64-packages
+          path: |
+            dist_electron/*
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload macOS ARM64 packages
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64-packages
           path: |
             dist_electron/*
           retention-days: 30
@@ -171,11 +188,21 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-      - name: Upload macOS yml
+      - name: Upload macOS x64 yml
         if: matrix.os == 'macos-13'
         uses: actions/upload-artifact@v4
         with:
-          name: macos-yml
+          name: macos-x64-yml
+          path: |
+            dist_electron/github/*
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload macOS ARM64 yml
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64-yml
           path: |
             dist_electron/github/*
           retention-days: 30

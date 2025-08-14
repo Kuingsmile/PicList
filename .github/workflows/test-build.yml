@@ -1,9 +1,5 @@
-# test-build.yml
-
-# Workflow's name
 name: Test Build
 
-# Workflow's trigger
 on:
   workflow_dispatch:
 
