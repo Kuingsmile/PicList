@@ -40,23 +40,22 @@
 
     <div class="nav-menu">
       <router-link
-        v-for="item in navigationItems"
-        :key="item.path"
-        :to="item.path"
+        :to="navigationItems[0].path"
         class="nav-item"
-        :title="`${item.name}`"
+        :title="`${navigationItems[0].name}`"
       >
         <div class="nav-icon-container">
           <component
-            :is="item.icon"
+            :is="navigationItems[0].icon"
             :size="18"
           />
         </div>
         <span
           v-if="!isCollapsed"
           class="nav-label"
-        >{{ item.name }}</span>
+        >{{ navigationItems[0].name }}</span>
       </router-link>
+
       <Disclosure
         v-if="!isCollapsed"
         v-slot="{ open }"
@@ -94,6 +93,25 @@
           <DatabaseIcon :size="18" />
         </div>
       </div>
+
+      <router-link
+        v-for="item in navigationItems.slice(1)"
+        :key="item.path"
+        :to="item.path"
+        class="nav-item"
+        :title="`${item.name}`"
+      >
+        <div class="nav-icon-container">
+          <component
+            :is="item.icon"
+            :size="18"
+          />
+        </div>
+        <span
+          v-if="!isCollapsed"
+          class="nav-label"
+        >{{ item.name }}</span>
+      </router-link>
     </div>
     <div class="sidebar-footer">
       <button
