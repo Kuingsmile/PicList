@@ -5,6 +5,12 @@ import { useI18n } from 'vue-i18n'
 
 import { useAppStore } from '@/hooks/useAppStore'
 
+interface Props {
+  collapsed?: boolean
+}
+
+defineProps<Props>()
+
 const { t } = useI18n()
 const appStore = useAppStore()
 
@@ -44,6 +50,7 @@ const toggleTheme = () => {
   <div class="theme-switcher">
     <button
       class="theme-toggle-btn"
+      :class="{ collapsed }"
       :title="t('settings.theme.toggle')"
       @click="toggleTheme"
     >
@@ -51,7 +58,10 @@ const toggleTheme = () => {
         :is="currentThemeOption.icon"
         :size="18"
       />
-      <span class="theme-label">{{ currentThemeOption.label }}</span>
+      <span
+        v-if="!collapsed"
+        class="theme-label"
+      >{{ currentThemeOption.label }}</span>
     </button>
   </div>
 </template>
@@ -74,6 +84,13 @@ const toggleTheme = () => {
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn.collapsed {
+  padding: 0.5rem;
+  gap: 0;
+  justify-content: center;
 }
 
 .theme-toggle-btn:hover {
@@ -89,6 +106,12 @@ const toggleTheme = () => {
 @media (max-width: 768px) {
   .theme-label {
     display: none;
+  }
+
+  .theme-toggle-btn {
+    padding: 0.5rem;
+    gap: 0;
+    justify-content: center;
   }
 }
 </style>

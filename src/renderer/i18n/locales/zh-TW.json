@@ -23,7 +23,9 @@
     "picBedQrCode": "圖床配置 QRCODE",
     "choosePicBed": "選擇圖床",
     "selectPicBeds": "請選擇圖床",
-    "copySuccess": "複製成功"
+    "copySuccess": "複製成功",
+    "collapse": "收起側邊欄",
+    "expand": "展開側邊欄"
   },
   "settings": {
     "theme": {

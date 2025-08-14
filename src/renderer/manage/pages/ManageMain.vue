@@ -42,7 +42,11 @@
     <!-- Main Content Card -->
     <div class="manage-card main-card">
       <div class="main-layout">
-        <div class="sidebar">
+        <div
+          ref="sidebar"
+          class="sidebar"
+          :style="{ width: sidebarWidth + 'px' }"
+        >
           <div class="sidebar-header">
             <h3 class="sidebar-title">
               {{ menuTitleMap[currentPicBedName] }}
@@ -80,16 +84,11 @@
                   v-else-if="currentPicBedName === 'github'"
                   class="menu-icon"
                 />
-                <span class="menu-text">
-                  {{
-                    currentPicBedName === 'tcyun'
-                      ? item.slice(0, item.length - 11)
-                      : currentPicBedName === 'github'
-                        ? item.length > 10
-                          ? `${item.slice(0, 5)}..${item.slice(-5)}`
-                          : item
-                        : item
-                  }}
+                <span
+                  class="menu-text"
+                  :title="item"
+                >
+                  {{ truncateText(item, currentPicBedName) }}
                 </span>
               </div>
             </div>
@@ -122,7 +121,18 @@
           </div>
         </div>
 
-        <div class="content-area">
+        <!-- Resize Handle -->
+        <div
+          class="resize-handle"
+          @mousedown="startResize"
+        >
+          <div class="resize-line" />
+        </div>
+
+        <div
+          ref="contentArea"
+          class="content-area"
+        >
           <router-view />
         </div>
       </div>
@@ -337,7 +347,7 @@ import {
   SettingsIcon,
   XIcon
 } from 'lucide-vue-next'
-import { onBeforeMount, reactive, ref, watch } from 'vue'
+import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -357,6 +367,10 @@ const message = useMessage()
 const currentAlias = ref(route.query.alias as string)
 const currentPicBedName = ref(route.query.picBedName as string)
 
+const contentArea = ref<HTMLElement>()
+const sidebarWidth = ref(160)
+const isResizing = ref(false)
+
 let allPicBedConfigure = JSON.parse(route.query.allPicBedConfigure as string)
 let currentPagePicBedConfig = reactive(JSON.parse(route.query.config as string))
 
@@ -369,6 +383,46 @@ const isLoadingBucketList = ref(false)
 const nweBucketDrawerVisible = ref(false)
 const picBedSwitchDialogVisible = ref(false)
 
+const maxTextLength = computed(() => {
+  const fixedSpace = 16 + 12 + 24 + 8
+  const availableWidth = sidebarWidth.value - fixedSpace
+  const estimatedCharWidth = 14 * 0.6
+  const maxChars = Math.floor(availableWidth / estimatedCharWidth)
+  return Math.max(6, Math.min(maxChars, 60))
+})
+
+const truncateText = (text: string, picBedName: string): string => {
+  if (!text) return ''
+
+  if (picBedName === 'tcyun') {
+    const baseName = text.slice(0, text.length - 11)
+    if (baseName.length <= maxTextLength.value) {
+      return baseName
+    }
+    return `${baseName.slice(0, maxTextLength.value - 3)}...`
+  } else if (picBedName === 'github') {
+    if (text.length <= maxTextLength.value) {
+      return text
+    }
+    const minSideLength = 3
+    const totalEllipsis = 2 // '..'
+    const availableForContent = maxTextLength.value - totalEllipsis
+
+    if (availableForContent < minSideLength * 2) {
+      return `${text.slice(0, maxTextLength.value - 3)}...`
+    }
+
+    const prefixLength = Math.ceil(availableForContent / 2)
+    const suffixLength = availableForContent - prefixLength
+    return `${text.slice(0, prefixLength)}..${text.slice(-suffixLength)}`
+  } else {
+    if (text.length <= maxTextLength.value) {
+      return text
+    }
+    return `${text.slice(0, maxTextLength.value - 3)}...`
+  }
+}
+
 watch(route, async (newRoute) => {
   if (newRoute.fullPath.split('?')[0] === '/main-page/manage-main-page') {
     currentAlias.value = newRoute.query.alias as string
@@ -378,6 +432,8 @@ watch(route, async (newRoute) => {
     await getBucketList()
   }
 }, { deep: true })
+
+watch(sidebarWidth, () => {}, { immediate: false })
 
 const urlMap: IStringKeyMap = {
   aliyun: 'https://oss.console.aliyun.com',
@@ -561,6 +617,33 @@ function openBucketPageSetting () {
       allPicBedConfigure: JSON.stringify(allPicBedConfigure)
     }
   })
+}
+
+function startResize (event: MouseEvent) {
+  isResizing.value = true
+  const startX = event.clientX
+  const startWidth = sidebarWidth.value
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isResizing.value) return
+
+    const deltaX = e.clientX - startX
+    const newWidth = Math.max(120, Math.min(400, startWidth + deltaX))
+    sidebarWidth.value = newWidth
+  }
+
+  const handleMouseUp = () => {
+    isResizing.value = false
+    document.removeEventListener('mousemove', handleMouseMove)
+    document.removeEventListener('mouseup', handleMouseUp)
+    document.body.style.cursor = ''
+    document.body.style.userSelect = ''
+  }
+
+  document.addEventListener('mousemove', handleMouseMove)
+  document.addEventListener('mouseup', handleMouseUp)
+  document.body.style.cursor = 'col-resize'
+  document.body.style.userSelect = 'none'
 }
 
 onBeforeMount(() => {

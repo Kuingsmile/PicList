@@ -1,7 +1,13 @@
 <template>
-  <nav class="navigation">
+  <nav
+    class="navigation"
+    :class="{ collapsed: isCollapsed }"
+  >
     <div class="title-bar">
-      <div class="app-title">
+      <div
+        v-if="!isCollapsed"
+        class="app-title"
+      >
         <div
           class="app-text"
           @click="openGithubPage"
@@ -12,10 +18,24 @@
           v{{ version }}
         </div>
       </div>
+      <button
+        :title="isCollapsed ? t('navigation.expand') : t('navigation.collapse')"
+        class="collapse-button"
+        @click="isCollapsed = !isCollapsed"
+      >
+        <ChevronLeftIcon
+          v-if="!isCollapsed"
+          :size="20"
+        />
+        <ChevronRightIcon
+          v-else
+          :size="20"
+        />
+      </button>
     </div>
 
     <div class="theme-section">
-      <ThemeSwitcher />
+      <ThemeSwitcher :collapsed="isCollapsed" />
     </div>
 
     <div class="nav-menu">
@@ -32,9 +52,13 @@
             :size="18"
           />
         </div>
-        <span class="nav-label">{{ item.name }}</span>
+        <span
+          v-if="!isCollapsed"
+          class="nav-label"
+        >{{ item.name }}</span>
       </router-link>
       <Disclosure
+        v-if="!isCollapsed"
         v-slot="{ open }"
         as="div"
         class="nav-submenu"
@@ -61,6 +85,15 @@
           </router-link>
         </DisclosurePanel>
       </Disclosure>
+      <div
+        v-else
+        class="nav-item collapsed-picbed"
+        :title="t('navigation.picbed')"
+      >
+        <div class="nav-icon-container">
+          <DatabaseIcon :size="18" />
+        </div>
+      </div>
     </div>
     <div class="sidebar-footer">
       <button
@@ -205,7 +238,7 @@ import {
   TransitionRoot
 } from '@headlessui/vue'
 import { pick } from 'lodash-es'
-import { CheckIcon, ChevronDownIcon, CopyIcon, DatabaseIcon, FolderIcon, Info, PieChartIcon, PlugIcon, Settings, UploadIcon } from 'lucide-vue-next'
+import { CheckIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon, DatabaseIcon, FolderIcon, Info, PieChartIcon, PlugIcon, Settings, UploadIcon } from 'lucide-vue-next'
 import QrcodeVue from 'qrcode.vue'
 import pkg from 'root/package.json'
 import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue'
@@ -220,6 +253,7 @@ import { picBedGlobal, updatePicBedGlobal } from '@/utils/global'
 
 import ThemeSwitcher from './ui/ThemeSwitcher.vue'
 const version = ref(pkg.version)
+const isCollapsed = ref(false)
 
 const { t } = useI18n()
 const message = useMessage()
@@ -229,6 +263,11 @@ const choosedPicBedForQRCode: Ref<string[]> = ref([])
 const picBedConfigString = ref('')
 
 let removeIpcListener: () => void = () => {}
+
+// Save collapsed state to localStorage when it changes
+watch(isCollapsed, (newValue) => {
+  localStorage.setItem('navigation-collapsed', JSON.stringify(newValue))
+})
 
 watch(
   () => choosedPicBedForQRCode,
@@ -278,6 +317,12 @@ function openGithubPage () {
 }
 
 onBeforeMount(() => {
+  // Load collapsed state from localStorage
+  const savedState = localStorage.getItem('navigation-collapsed')
+  if (savedState !== null) {
+    isCollapsed.value = JSON.parse(savedState)
+  }
+
   updatePicBedGlobal()
   removeIpcListener = window.electron.ipcRendererOn(SHOW_MAIN_PAGE_QRCODE, qrCodeHandler)
 })
@@ -297,6 +342,11 @@ onBeforeUnmount(() => {
   background: var(--color-background-secondary);
   border-right: 1px solid rgb(229 231 235);
   overflow: hidden;
+  transition: width 0.3s ease;
+}
+
+.navigation.collapsed {
+  width: 60px;
 }
 
 :root.dark .navigation,
@@ -312,6 +362,38 @@ onBeforeUnmount(() => {
   padding: 1.25rem 1rem;
   border-bottom: 1px solid var(--color-border);
   background: var(--color-background-secondary);
+  position: relative;
+}
+
+.navigation.collapsed .title-bar {
+  padding: 1rem 0.5rem;
+}
+
+.collapse-button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.collapse-button:hover {
+  background: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+}
+
+.navigation.collapsed .collapse-button {
+  position: static;
+  transform: none;
 }
 
 :root.dark .title-bar,
@@ -380,6 +462,16 @@ onBeforeUnmount(() => {
   font-size: 0.875rem;
   font-weight: 500;
   transition: all 0.2s ease;
+}
+
+.navigation.collapsed .nav-item {
+  padding: 0.75rem 0.5rem;
+  justify-content: center;
+  gap: 0;
+}
+
+.navigation.collapsed .nav-label {
+  display: none;
 }
 
 :root.dark .nav-item,
@@ -526,15 +618,19 @@ onBeforeUnmount(() => {
   color: var(--color-text-primary);
 }
 
-.submenu-item.router-link-active {
-  background: rgb(239 246 255);
-  color: rgb(99 102 241);
+.collapsed-picbed {
+  cursor: default;
 }
 
-:root.dark .submenu-item.router-link-active,
-:root.auto.dark .submenu-item.router-link-active {
-  background: rgb(30 58 138 / 0.2);
-  color: rgb(129 140 248);
+.collapsed-picbed:hover {
+  background: rgb(243 244 246);
+  color: rgb(17 24 39);
+}
+
+:root.dark .collapsed-picbed:hover,
+:root.auto.dark .collapsed-picbed:hover {
+  background: rgb(55 65 81);
+  color: rgb(243 244 246);
 }
 
 .qr-dialog {
@@ -718,7 +814,7 @@ onBeforeUnmount(() => {
 }
 /* Responsive Design */
 @media (max-width: 768px) {
-  .sidebar {
+  .navigation {
     width: 60px;
   }
 
@@ -726,6 +822,13 @@ onBeforeUnmount(() => {
     display: none;
   }
 
+  .app-title {
+    display: none;
+  }
+
+  .collapse-button {
+    display: none;
+  }
 }
 
 /* Scrollbar Styling */

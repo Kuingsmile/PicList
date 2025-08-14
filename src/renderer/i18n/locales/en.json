@@ -23,7 +23,9 @@
     "picBedQrCode": "PicBed QR Code",
     "choosePicBed": "Choose PicBed",
     "selectPicBeds": "Select PicBeds",
-    "copySuccess": "Copy Success"
+    "copySuccess": "Copy Success",
+    "collapse": "Collapse Sidebar",
+    "expand": "Expand Sidebar"
   },
   "settings": {
     "theme": {
