@@ -48,7 +48,7 @@ function copyFileOutsideOfElectronAsar (sourceInAsarArchive: string, destOutside
 function resolveMacWorkFlow () {
   const dest = `${os.homedir()}/Library/Services/Upload pictures with PicList.workflow`
   try {
-    copyFileOutsideOfElectronAsar(path.join(__dirname, '../../resources', 'Upload pictures with PicList.workflow'), dest)
+    copyFileOutsideOfElectronAsar(path.join(__dirname, '../../resources', 'Upload pictures with PicList.workflow').replace('app.asar', 'app.asar.unpacked'), dest)
   } catch (e) {
     console.log(e)
   }
@@ -79,6 +79,7 @@ function resolveClipboardImageGenerator () {
     })
   } else {
     clipboardFiles.forEach(item => {
+      console.log(`Updating ${item.origin} to ${item.dest}`)
       diffFilesAndUpdate(item.origin, item.dest)
     })
   }
@@ -88,7 +89,7 @@ function resolveClipboardImageGenerator () {
 
     return files.map(item => {
       return {
-        origin: path.join(__dirname, '../../resources', item),
+        origin: path.join(__dirname, '../../resources', item).replace('app.asar', 'app.asar.unpacked'),
         dest: path.join(CONFIG_DIR, item)
       }
     })

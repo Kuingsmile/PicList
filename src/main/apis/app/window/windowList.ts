@@ -13,7 +13,7 @@ import { T as $t } from '~/i18n'
 import { configPaths } from '~/utils/configPaths'
 import { IWindowList } from '~/utils/enum'
 
-import logo from '../../../../../resources/logo.png?asset'
+import logo from '../../../../../resources/logo.png?asset&asarUnpack'
 
 const windowList = new Map<string, IWindowListItem>()
 
@@ -94,7 +94,7 @@ const settingWindowOptions = {
 
 if (process.platform !== 'darwin') {
   settingWindowOptions.frame = false
-  settingWindowOptions.icon = '../../../../../resources/logo.png'
+  settingWindowOptions.icon = logo
 }
 
 const miniWindowOptions = {

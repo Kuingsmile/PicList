@@ -26,7 +26,7 @@ const builtinI18nList: II18nItem[] = [
 ]
 class I18nManager {
   private i18n: I18n | null = null
-  private builtinI18nFolder = path.join(__dirname, '../../resources', 'i18n')
+  private builtinI18nFolder = path.join(__dirname, '../../resources', 'i18n').replace('app.asar', 'app.asar.unpacked')
   private outterI18nFolder = ''
   private localesMap: Map<string, ILocales> = new Map()
   private currentLanguage: string = 'zh-CN'
