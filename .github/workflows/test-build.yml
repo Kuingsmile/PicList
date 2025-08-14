@@ -81,17 +81,13 @@ jobs:
         if: matrix.os == 'macos-13'
         run: |
           # Remove arm64 from the arch array, keep only x64
-          $config = Get-Content electron-builder.json | ConvertFrom-Json
-          $config.mac.target[0].arch = @("x64")
-          $config | ConvertTo-Json -Depth 10 | Set-Content electron-builder.json
+          jq '.mac.target[0].arch = ["x64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
 
       - name: Modify electron-builder.json for Macos ARM64
         if: matrix.os == 'macos-latest'
         run: |
           # Remove x64 from the arch array, keep only arm64
-          $config = Get-Content electron-builder.json | ConvertFrom-Json
-          $config.mac.target[0].arch = @("arm64")
-          $config | ConvertTo-Json -Depth 10 | Set-Content electron-builder.json
+          jq '.mac.target[0].arch = ["arm64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
 
       - name: Build application (Windows x64)
         if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
@@ -207,7 +203,7 @@ jobs:
             dist_electron/github/*
           retention-days: 30
           if-no-files-found: error
-          
+
       - name: Upload Linux yml
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
