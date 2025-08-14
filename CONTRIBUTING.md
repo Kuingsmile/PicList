@@ -2,6 +2,11 @@
 
 ## 安装与启动
 
+最低要求：
+
+- Node.js >= 20
+- Yarn >= 1.22
+
 1. 使用 [yarn](https://yarnpkg.com/) 安装依赖
 
 ```bash
@@ -16,12 +21,11 @@ yarn dev
 
 启动项目。
 
-1. 只跟 Electron 主进程相关的代码请在 `src/main` 目录下添加。只跟渲染进程相关的代码请在 `src/renderer` 目录下添加。两个进程都能使用的代码请在 `src/universal` 目录下添加。
-2. 所有的跨进程事件名请在 `src/universal/events/constants.ts` 里添加。
-3. 所有的全局类型定义请在 `src/universal/types/` 里添加，如果是 `enum`，请在 `src/universal/types/enum.ts` 里添加。
-4. 与图床管理功能相关的代码请在 `src/main/manage`和 `src/renderer/manage`目录下添加。
+1. 只跟 Electron 主进程相关的代码请在 `src/main` 目录下添加。只跟渲染进程相关的代码请在 `src/renderer` 目录下添加。需要暴露到渲染进程的代码请在 `src/preload` 目录下添加。
+2. 所有的全局类型定义请在 `src/universal/types/` 里添加。
+3. 与图床管理功能相关的代码请在 `src/main/manage`和 `src/renderer/manage`目录下添加。
 
-## i18n
+## i18n-主进程
 
 1. 在 `public/i18n/` 下面创建一种语言的 `yml` 文件，例如 `zh-Hans.yml`。然后参考 `zh-CN.yml` 或者 `en.yml` 编写语言文件。并注意，PicList 会通过语言文件中的 `LANG_DISPLAY_LABEL` 向用户展示该语言的名称。
 2. 在 `src/universal/i18n/index.ts` 里添加一种默认语言。其中 `label` 就是语言文件中 `LANG_DISPLAY_LABEL` 的值，`value` 是语言文件名。
