@@ -53,7 +53,7 @@
     "target": [
       {
         "target": "default",
-        "arch": ["universal", "x64", "arm64"]
+        "arch": ["x64", "arm64"]
       }
     ],
     "artifactName": "PicList-${version}-${arch}.${ext}"
