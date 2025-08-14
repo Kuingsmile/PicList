@@ -4,7 +4,5 @@ declare module 'ssh2-no-cpu-features' {
 }
 
 declare module 'shell-path' {
-  export const shellPath: {
-    sync: () => string
-  }
+  export const shellPathSync: () => string | null
 }
