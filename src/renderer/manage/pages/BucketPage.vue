@@ -509,6 +509,7 @@
                 <div class="file-info-section">
                   <div
                     class="file-name"
+                    :title="item.fileName"
                     @click.stop="copyToClipboard(item.fileName ?? '')"
                   >
                     {{ formatFileName(item.fileName ?? '', 25) }}

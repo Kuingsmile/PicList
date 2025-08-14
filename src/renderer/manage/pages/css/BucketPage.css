@@ -193,7 +193,7 @@
 }
 
 .action-button.danger:hover {
-  background: var(--color-error-hover);
+  background: var(--color-error);
 }
 
 .action-icon {
