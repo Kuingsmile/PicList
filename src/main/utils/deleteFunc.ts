@@ -88,9 +88,7 @@ async function getDogeToken (accessKey: string, secretKey: string): Promise<IObj
 }
 
 export async function removeFileFromS3InMain (configMap: IStringKeyMap, dogeMode: boolean = false) {
-  console.group('S3 Deletion Debug')
   try {
-    console.log('S3_DELETE: Received configMap:', JSON.stringify(configMap, null, 2))
     const {
       url: rawUrl,
       type,
@@ -102,7 +100,7 @@ export async function removeFileFromS3InMain (configMap: IStringKeyMap, dogeMode
         pathStyleAccess,
         rejectUnauthorized,
         proxy,
-        customUrl
+        urlPrefix
       }
     } = configMap
     let {
@@ -112,26 +110,21 @@ export async function removeFileFromS3InMain (configMap: IStringKeyMap, dogeMode
     if (type === 'aws-s3' || type === 'aws-s3-plist') {
       imgUrl = rawUrl || imgUrl || ''
     }
-    console.log('S3_DELETE: Initial imgUrl:', imgUrl)
-    console.log('S3_DELETE: Custom URL from config:', customUrl)
-
     let fileKey
-    if (customUrl && imgUrl.startsWith(customUrl)) {
-      const customUrlObj = new URL(customUrl)
+    if (urlPrefix && imgUrl.startsWith(urlPrefix)) {
+      const urlPrefixObj = new URL(urlPrefix)
       const imgUrlObj = new URL(imgUrl)
-      if (imgUrlObj.pathname.startsWith(customUrlObj.pathname)) {
-        fileKey = imgUrlObj.pathname.substring(customUrlObj.pathname.length).replace(/^\/+/, '')
+      if (imgUrlObj.pathname.startsWith(urlPrefixObj.pathname)) {
+        fileKey = imgUrlObj.pathname.substring(urlPrefixObj.pathname.length).replace(/^\/+/, '')
       } else {
         fileKey = imgUrlObj.pathname.replace(/^\/+/, '')
       }
-      console.log('S3_DELETE: Calculated fileKey (custom URL path):', fileKey)
     } else {
       const url = new URL(!/^https?:\/\//.test(imgUrl) ? `http://${imgUrl}` : imgUrl)
       fileKey = url.pathname.replace(/^\/+/, '')
       if (pathStyleAccess) {
         fileKey = fileKey.replace(/^[^/]+\//, '')
       }
-      console.log('S3_DELETE: Calculated fileKey (standard path):', fileKey)
     }
     const endpointUrl: string | undefined = endpoint
       ? /^https?:\/\//.test(endpoint)
@@ -187,36 +180,26 @@ export async function removeFileFromS3InMain (configMap: IStringKeyMap, dogeMode
     let result: any
     try {
       fileKey = decodeURIComponent(fileKey)
-      console.log('S3_DELETE: Decoded fileKey:', fileKey)
-    } catch (err: any) {
-      console.error('S3_DELETE: Failed to decode fileKey', err)
-    }
+    } catch (err: any) {}
     try {
       const client = new S3Client(s3Options)
       const command = new DeleteObjectCommand({
         Bucket: bucketName,
         Key: fileKey
       })
-      console.log('S3_DELETE: Sending DeleteObjectCommand with Bucket:', bucketName, 'Key:', fileKey)
       result = await client.send(command)
-      console.log('S3_DELETE: S3 command result:', result)
     } catch (err: any) {
-      console.error('S3_DELETE: First attempt to delete failed. Full error:', err)
       s3Options.region = 'us-east-1'
       const client = new S3Client(s3Options)
       const command = new DeleteObjectCommand({
         Bucket: bucketName,
         Key: fileKey
       })
-      console.log('S3_DELETE: Retrying DeleteObjectCommand with Bucket:', bucketName, 'Key:', fileKey, 'Region: us-east-1')
       result = await client.send(command)
-      console.log('S3_DELETE: S3 retry command result:', result)
     }
-    console.groupEnd()
     return result.$metadata.httpStatusCode === 204
   } catch (err: any) {
-    console.error('S3_DELETE: An unexpected error occurred in removeFileFromS3InMain. Full error:', err)
-    console.groupEnd()
+    console.log(err)
     return false
   }
 }
