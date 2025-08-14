@@ -256,7 +256,7 @@ import {
   TransitionRoot
 } from '@headlessui/vue'
 import { pick } from 'lodash-es'
-import { CheckIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon, DatabaseIcon, FolderIcon, Info, PieChartIcon, PlugIcon, Settings, UploadIcon } from 'lucide-vue-next'
+import { BriefcaseBusiness, CheckIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon, DatabaseIcon, ImagesIcon, Info, PlugIcon, Settings, UploadIcon } from 'lucide-vue-next'
 import QrcodeVue from 'qrcode.vue'
 import pkg from 'root/package.json'
 import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue'
@@ -320,8 +320,8 @@ function handleCopyPicBedConfig () {
 
 const navigationItems = computed(() => [
   { name: t('navigation.upload'), path: '/main-page/upload', icon: UploadIcon },
-  { name: t('navigation.manage'), path: '/main-page/manage-login-page', icon: PieChartIcon },
-  { name: t('navigation.gallery'), path: '/main-page/gallery', icon: FolderIcon },
+  { name: t('navigation.manage'), path: '/main-page/manage-login-page', icon: BriefcaseBusiness },
+  { name: t('navigation.gallery'), path: '/main-page/gallery', icon: ImagesIcon },
   { name: t('navigation.settings'), path: '/main-page/settings', icon: Settings },
   {
     name: t('navigation.plugins'),
