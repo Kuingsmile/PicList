@@ -585,8 +585,6 @@ async function handleConfigChange (name: string) {
 
   for (const key of allKeys) {
     const resultKey = name + '.' + key
-    console.log('Config change detected for:', resultKey)
-
     if (key === 'customUrl' && configResult[resultKey] !== undefined && configResult[resultKey] !== '') {
       if (name !== 'upyun') {
         configResult[resultKey] = formatEndpoint(configResult[resultKey], false)

@@ -3,7 +3,6 @@ import { ref } from 'vue'
 import { IRPCActionType } from '@/utils/enum'
 import type { IPicBedType } from '#/types/types'
 
-console.log('global.ts loaded', window.electron.platform)
 const osGlobal = ref<string>(window.electron.platform)
 
 const picBedGlobal = ref<IPicBedType[]>([])

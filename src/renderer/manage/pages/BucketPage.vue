@@ -2367,7 +2367,6 @@ async function resetParam (force: boolean = false) {
   fileSortSizeReverse.value = false
   fileSortTimeReverse.value = false
   if (!isAutoRefresh.value && !force && !paging.value) {
-    console.log('use cache')
     const cachedData = await searchExistFileList()
     if (cachedData.length > 0) {
       currentPageFilesInfo.push(...cachedData[0].value.fullList)

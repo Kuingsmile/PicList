@@ -151,7 +151,7 @@ updater.autoUpdater.on('update-downloaded', () => {
 })
 
 updater.autoUpdater.on('error', err => {
-  console.log(err)
+  logger.error(err)
 })
 
 class LifeCycle {
@@ -175,7 +175,7 @@ class LifeCycle {
     const readyFunction = async () => {
       if (process.env.NODE_ENV !== 'production') {
         installExtension(VUEJS_DEVTOOLS).catch(err => {
-          console.log('An error occurred: ', err)
+          logger.error('An error occurred: ', err)
         })
       }
       windowManager.create(IWindowList.TRAY_WINDOW)

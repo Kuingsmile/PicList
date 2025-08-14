@@ -6,6 +6,7 @@ import querystring from 'node:querystring'
 
 import type { S3ClientConfig } from '@aws-sdk/client-s3'
 import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import logger from '@core/picgo/logger'
 import { NodeHttpHandler } from '@smithy/node-http-handler'
 import axios from 'axios'
 import type { ISftpPlistConfig } from 'piclist'
@@ -82,7 +83,7 @@ async function getDogeToken (accessKey: string, secretKey: string): Promise<IObj
     )
     return data
   } catch (err: any) {
-    console.log(err)
+    logger.error(err)
     return {}
   }
 }
@@ -179,7 +180,7 @@ export async function removeFileFromS3InMain (configMap: IStringKeyMap, dogeMode
     }
     return result.$metadata.httpStatusCode === 204
   } catch (err: any) {
-    console.log(err)
+    logger.error(err)
     return false
   }
 }
@@ -203,7 +204,7 @@ export async function removeFileFromDogeInMain (configMap: IStringKeyMap) {
     }
     return await removeFileFromS3InMain(newConfigMap, true)
   } catch (err: any) {
-    console.log(err)
+    logger.error(err)
     return false
   }
 }
@@ -241,8 +242,8 @@ export async function removeFileFromHuaweiInMain (configMap: IStringKeyMap) {
       }
     })
     return res.status === 204
-  } catch (error) {
-    console.log(error)
+  } catch (error: any) {
+    logger.error(error)
     return false
   }
 }
@@ -257,7 +258,7 @@ export async function removeFileFromSFTPInMain (config: ISftpPlistConfig, fileNa
     client.close()
     return deleteResult
   } catch (err: any) {
-    console.log(err)
+    logger.error(err)
     return false
   }
 }

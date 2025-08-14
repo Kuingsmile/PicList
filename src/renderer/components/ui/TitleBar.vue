@@ -4,7 +4,10 @@
     data-drag-region
   >
     <div class="title-bar-content">
-      <div class="title-left">
+      <div
+        v-if="osGlobal !== 'darwin'"
+        class="title-left"
+      >
         <div class="app-icon">
           <img
             :src="defaultLogo"
@@ -78,6 +81,7 @@ import { MinusIcon, PinIcon, ShrinkIcon, XIcon } from 'lucide-vue-next'
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
 import { IRPCActionType } from '@/utils/enum'
+import { osGlobal } from '@/utils/global'
 
 const isShowprogress = ref(false)
 const progress = ref(0)

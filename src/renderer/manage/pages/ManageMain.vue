@@ -371,7 +371,6 @@ const picBedSwitchDialogVisible = ref(false)
 
 watch(route, async (newRoute) => {
   if (newRoute.fullPath.split('?')[0] === '/main-page/manage-main-page') {
-    console.log('route changed')
     currentAlias.value = newRoute.query.alias as string
     currentPicBedName.value = newRoute.query.picBedName as string
     allPicBedConfigure = JSON.parse(newRoute.query.allPicBedConfigure as string)
@@ -553,7 +552,6 @@ function changePicBed () {
 }
 
 function openBucketPageSetting () {
-  console.log('Open Bucket Page Setting')
   router.push({
     path: '/main-page/manage-main-page/manage-setting-page',
     query: {

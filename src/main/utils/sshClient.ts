@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import logger from '@core/picgo/logger'
 import fs from 'fs-extra'
 import { Config, NodeSSH, SSHExecCommandResponse } from 'node-ssh-no-cpu-features'
 import { ISftpPlistConfig } from 'piclist/dist/types'
@@ -86,7 +87,7 @@ class SSHClient {
       })
       return (await promise) as boolean
     } catch (err: any) {
-      console.log(err)
+      logger.error(err)
       return false
     }
   }
@@ -113,7 +114,7 @@ class SSHClient {
       })
       return true
     } catch (err: any) {
-      console.log(err)
+      logger.error(err)
       return false
     }
   }
@@ -140,7 +141,7 @@ class SSHClient {
       }
       return true
     } catch (err: any) {
-      console.log(err)
+      logger.error(err)
       return false
     }
   }
@@ -175,7 +176,7 @@ class SSHClient {
         return true
       }
     } catch (err: any) {
-      console.log(err)
+      logger.error(err)
       return false
     }
   }

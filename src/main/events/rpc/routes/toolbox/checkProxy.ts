@@ -72,7 +72,6 @@ export const checkProxyMap: IToolboxCheckerMap<string> = {
               msg: $t('TOOLBOX_CHECK_PROXY_SUCCESS_TIPS')
             })
           } catch (e) {
-            console.log(e)
             return sendToolboxRes(event, {
               status: IToolboxItemCheckStatus.ERROR,
               msg: $t('TOOLBOX_CHECK_PROXY_PROXY_IS_NOT_WORKING')
