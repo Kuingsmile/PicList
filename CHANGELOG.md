@@ -1,3 +1,87 @@
+##  (2025-08-15)
+
+* :arrow_up: Upgrade(custom): upgrade electron 0ae27cf
+* :art: Style(custom): lint code f11a426
+* :art: Style(custom): only upload installer in action 68cf0bc
+* :bug: Fix(custom): fix alist delete bugs when used in api 4ac24c8, closes #337
+* :bug: Fix(custom): fix config form validate issue 7f37dd2
+* :bug: Fix(custom): fix delete api 0feca7b
+* :bug: Fix(custom): fix delete bug when using in render process 89976c7
+* :bug: Fix(custom): fix delete button css 9e243b0
+* :bug: Fix(custom): fix drag upload of upload page 0bf435a
+* :bug: Fix(custom): fix file selection bug in upload page fe945a0
+* :bug: Fix(custom): fix macos build error 6147211
+* :bug: Fix(custom): fix memory leak issues 1a35831
+* :bug: Fix(custom): fix resources path 74a3333
+* :bug: Fix(custom): fix shell-path usage for macos 8102246
+* :bug: Fix(custom): fix static assets bugs 5cfeaad
+* :bug: Fix(custom): fix titlebar in macos 9d4e280
+* :bug: Fix(custom): fix typos f232ca0
+* :bug: Fix(custom): fix webdav backup bug for custom path close #347 6474788, closes #347
+* :bug: Fix(custom): fix window.prompt usage 66469ae
+* :bug: Fix(custom): remove unused files c04fedc
+* :bug: Fix(custom): truncate update log for better readability in dialog 9084a30
+* :construction: WIP(custom): rewrite manage page a0cfd2a
+* :construction: WIP(custom): v3.0.0 migrate to vite and esm 054f4b4
+* :hammer: Refactor(custom): change eol to lf 70c46d6
+* :hammer: Refactor(custom): remove debug code cd76bc7
+* :package: Chore(custom): add arm64 build test 6785e1d
+* :package: Chore(custom): add arm64 support for Windows in config and update download links 11341c0
+* :package: Chore(custom): add build test action file ed02d00
+* :package: Chore(custom): add gitattributes file 992b893
+* :package: Chore(custom): add i18n check scripts and action ce200fe
+* :package: Chore(custom): add token env in action edc7ca4
+* :package: Chore(custom): add winget manifest file 481bba1
+* :package: Chore(custom): allow blank issue 73810b8
+* :package: Chore(custom): modify asarunpack setting 3ebbeb4
+* :package: Chore(custom): modify link and sha256 scripts b7d7bad
+* :package: Chore(custom): remove universal build on macos d3a7f1b
+* :package: Chore(custom): remove unused files 15e2f11
+* :package: Chore(custom): remove unused resource files ff95e0f
+* :package: Chore(custom): skip code sign on arm windows 4ff03ff
+* :package: Chore(custom): update macos arm64 build 72327c0
+* :package: Chore(custom): update release action 15d205b
+* :package: Chore(custom): update release action for arm64 29ca49a
+* :package: Chore(custom): update scripts and migrate to esm af4e814
+* :package: Chore(custom): update test build action d75ec2e
+* :package: Chore(custom): update test build file 1a9ab5b
+* :pencil: Docs(custom): add install from winget 2b23890
+* :pencil: Docs(custom): update 3.0.0 changelog bb881fa
+* :pencil: Docs(custom): update comtributing guide 5738a9f
+* :pencil: Docs(custom): update readme, prepare for 3.0.0 10eec56
+* :sparkles: Feature(custom): add i18n fields bfb7222
+* :sparkles: Feature(custom): add image watermark opacity setting 170c4ef, closes #348
+* :sparkles: Feature(custom): add vitest and optimize performance of aeshelper 112c08d
+* :sparkles: Feature(custom): change login card background ecc3908
+* :sparkles: Feature(custom): change menu icon 35ff316
+* :sparkles: Feature(custom): change menu order of navigation bar edf3ecc
+* :sparkles: Feature(custom): enhance UI styles for Picgo settings and upload page ca95b7a
+* :sparkles: Feature(custom): optimize bucket page background d2f4303
+* :sparkles: Feature(custom): optimize color under dark mode of gallery and setting page b31428a
+* :sparkles: Feature(custom): optimize i18n and platform funcs 70396c3
+* :sparkles: Feature(custom): optimize mini page 32c3eab
+* :sparkles: Feature(custom): optimize upload modal ui 8c80d51
+* :sparkles: Feature(custom): remove use of element-plus b40eeee
+* :sparkles: Feature(custom): rewrite gallery page for better performance fd9dac7
+* :sparkles: Feature(custom): rewrite login page 3cb17aa
+* :sparkles: Feature(custom): rewrite setting page, WIP 4b8bfde
+* :sparkles: Feature(custom): rewrite titlebar and navigation UI 11dd2e7
+* :sparkles: Feature(custom): rewrite toolbox page 6aebfcb
+* :sparkles: Feature(custom): rewrite tray page for macos 1442724
+* :sparkles: Feature(custom): rewrite upload and image process page b1f514e
+* :sparkles: Feature(custom): rewrite upload config and plugin page a9c7cec
+* :sparkles: Feature(custom): split i18n in main and renderer, use vue-i18n 236b7c6
+* :sparkles: Feature(custom): support collapse navi bar d4af5fc
+* :sparkles: Feature(custom): upgrade core to 2.0.0 9cc6704
+* :sparkles: Feature(custom): upload all files for test build fc14559
+* :zap: Perf(custom): add memory monitor and optimiz memory usage f0b0e55
+* fix(s3): Correctly handle file deletion with custom URL (#358) ae366ba, closes #358
+* chore: Remove preload script and associated functionalities from the project f0039b9
+* chore: Update(.gitignore): add desktop.ini, /dist, and /out to ignore list c80587a
+* feat(i18n): remove unused translation keys (#344) 002b6c0, closes #344
+
+
+
 ## :tada: 2.9.9 (2025-06-12)
 
 
