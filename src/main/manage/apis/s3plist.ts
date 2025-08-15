@@ -638,6 +638,15 @@ class S3plistApi {
           }
         }
       }
+      // Explicitly delete the folder object itself to ensure compatibility.
+      const folderDeleteOptions = ({ ...this.baseOptions }) as S3ClientConfig
+      folderDeleteOptions.region = String(region) || 'us-east-1'
+      const folderDeleteClient = new S3Client(folderDeleteOptions)
+      const folderDeleteCommand = new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: key
+      })
+      await folderDeleteClient.send(folderDeleteCommand)
       result = true
       return result
     } catch (error) {

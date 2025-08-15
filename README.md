@@ -251,12 +251,12 @@ brew uninstall piclist
 
 ## Screenshots
 
-![Upload interface](https://github.com/Kuingsmile/PicList/blob/dev/imgs/upload.png?raw=true)
-![Album view](https://github.com/Kuingsmile/PicList/blob/dev/imgs/gallery.png?raw=true)
-![Cloud management](https://github.com/Kuingsmile/PicList/blob/dev/imgs/cloud_storage.png?raw=true)
-![Settings](https://github.com/Kuingsmile/PicList/blob/dev/imgs/settings.png?raw=true)
-![Image editing](https://github.com/Kuingsmile/PicList/blob/dev/imgs/image_editing.png?raw=true)
-![Dark theme](https://github.com/Kuingsmile/PicList/blob/dev/imgs/dark.png?raw=true)
+![Upload interface](./imgs/upload.png)
+![Album view](./imgs/gallery.png)
+![Cloud management](./imgs/cloud_storage.png)
+![Settings](./imgs/settings.png)
+![Image editing](./imgs/image_editing.png)
+![Dark theme](./imgs/dark.png)
 
 ## Development
 

@@ -6,13 +6,15 @@
     "output": "dist_electron",
     "buildResources": "build"
   },
-  "asarUnpack": [
-    "**/node_modules/sharp/**",
-    "**/node_modules/ssh2-no-cpu-features/**",
-    "**/node_modules/@img/**",
-    "resources/**"
+  "asarUnpack": ["**/node_modules/sharp/**", "**/node_modules/ssh2-no-cpu-features/**", "**/node_modules/@img/**"],
+  "files": ["out/**/*", "dist/**/*", "resources/**/*", "package.json"],
+  "extraResources": [
+    {
+      "from": "resources",
+      "to": ".",
+      "filter": ["**/*"]
+    }
   ],
-  "files": ["out/**/*", "resources/**", "package.json"],
   "publish": [
     {
       "provider": "s3",
@@ -76,7 +78,8 @@
     "include": "build/installer.nsh"
   },
   "linux": {
-    "icon": "resources/"
+    "icon": "resources/",
+    "asarUnpack": ["**/node_modules/sharp/**", "**/node_modules/ssh2-no-cpu-features/**", "**/node_modules/@img/**"]
   },
   "snap": {
     "publish": ["github"]

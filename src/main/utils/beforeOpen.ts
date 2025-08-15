@@ -1,6 +1,5 @@
 import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { dbPathChecker } from '@core/datastore/dbChecker'
 import fs from 'fs-extra'
@@ -11,7 +10,6 @@ import { i18nManager } from '~/i18n'
 
 const configPath = dbPathChecker()
 const CONFIG_DIR = path.dirname(configPath)
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 function beforeOpen () {
   if (process.platform === 'darwin') {
@@ -48,7 +46,7 @@ function copyFileOutsideOfElectronAsar (sourceInAsarArchive: string, destOutside
 function resolveMacWorkFlow () {
   const dest = `${os.homedir()}/Library/Services/Upload pictures with PicList.workflow`
   try {
-    copyFileOutsideOfElectronAsar(path.join(__dirname, '../../resources', 'Upload pictures with PicList.workflow').replace('app.asar', 'app.asar.unpacked'), dest)
+    copyFileOutsideOfElectronAsar(path.join('./resources', 'Upload pictures with PicList.workflow'), dest)
   } catch (e) {
     console.log(e)
   }
@@ -79,7 +77,6 @@ function resolveClipboardImageGenerator () {
     })
   } else {
     clipboardFiles.forEach(item => {
-      console.log(`Updating ${item.origin} to ${item.dest}`)
       diffFilesAndUpdate(item.origin, item.dest)
     })
   }
@@ -89,7 +86,7 @@ function resolveClipboardImageGenerator () {
 
     return files.map(item => {
       return {
-        origin: path.join(__dirname, '../../resources', item).replace('app.asar', 'app.asar.unpacked'),
+        origin: path.join('./resources', item),
         dest: path.join(CONFIG_DIR, item)
       }
     })

@@ -252,12 +252,12 @@ brew uninstall piclist
 
 ## 应用截图
 
-![上传界面](https://github.com/Kuingsmile/PicList/blob/dev/imgs/upload.png?raw=true)
-![相册视图](https://github.com/Kuingsmile/PicList/blob/dev/imgs/gallery.png?raw=true)
-![云存储管理](https://github.com/Kuingsmile/PicList/blob/dev/imgs/cloud_storage.png?raw=true)
-![设置页面](https://github.com/Kuingsmile/PicList/blob/dev/imgs/settings.png?raw=true)
-![图像编辑](https://github.com/Kuingsmile/PicList/blob/dev/imgs/image_editing.png?raw=true)
-![深色主题](https://github.com/Kuingsmile/PicList/blob/dev/imgs/dark.png?raw=true)
+![上传界面](./imgs/upload.png)
+![相册视图](./imgs/gallery.png)
+![云存储管理](./imgs/cloud_storage.png)
+![设置页面](./imgs/settings.png)
+![图像编辑](./imgs/image_editing.png)
+![深色主题](./imgs/dark.png)
 
 ## 开发说明
 

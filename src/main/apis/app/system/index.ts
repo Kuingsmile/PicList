@@ -29,11 +29,11 @@ import { isMacOSVersionGreaterThanOrEqualTo } from '~/utils/getMacOSVersion'
 import pasteTemplate from '~/utils/pasteTemplate'
 import { hideMiniWindow, openMainWindow, openMiniWindow } from '~/utils/windowHelper'
 
-import menubarPng from '../../../../../resources/menubar.png?asset&asarUnpack'
-import menubarNewDarwinTemplate from '../../../../../resources/menubar-newdarwinTemplate.png?asset&asarUnpack'
-import menubarNodarwin from '../../../../../resources/menubar-nodarwin.png?asset&asarUnpack'
-import uploadPng from '../../../../../resources/upload.png?asset&asarUnpack'
-import uploadDarkPng from '../../../../../resources/upload-dark.png?asset&asarUnpack'
+import menubarPng from '../../../../../resources/menubar.png?asset'
+import menubarNewDarwinTemplate from '../../../../../resources/menubar-newdarwinTemplate.png?asset'
+import menubarNodarwin from '../../../../../resources/menubar-nodarwin.png?asset'
+import uploadPng from '../../../../../resources/upload.png?asset'
+import uploadDarkPng from '../../../../../resources/upload-dark.png?asset'
 let contextMenu: Menu | null
 
 export function setDockMenu () {

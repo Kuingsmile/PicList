@@ -1,4 +1,4 @@
-import type { IStringKeyMap } from '#/types/types'
+import { IStringKeyMap } from 'root/src/universal/types/types'
 
 export const RELEASE_URL = 'https://api.github.com/repos/Kuingsmile/PicList/releases'
 export const RELEASE_URL_BACKUP = 'https://release.piclist.cn'

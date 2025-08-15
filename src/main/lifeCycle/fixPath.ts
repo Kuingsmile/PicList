@@ -1,4 +1,4 @@
-import { shellPathSync } from 'shell-path'
+import { shellPath } from 'shell-path'
 
 export default function fixPath () {
   if (process.platform === 'win32') {
@@ -6,5 +6,5 @@ export default function fixPath () {
   }
 
   process.env.PATH =
-    shellPathSync() || ['./node_modules/.bin', '/.nodebrew/current/bin', '/usr/local/bin', process.env.PATH].join(':')
+    shellPath.sync() || ['./node_modules/.bin', '/.nodebrew/current/bin', '/usr/local/bin', process.env.PATH].join(':')
 }
