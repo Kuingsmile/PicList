@@ -192,6 +192,7 @@
 /* Content */
 .content-card {
   flex: 1;
+  background: var(--color-background-secondary);
 }
 
 .tab-content {
