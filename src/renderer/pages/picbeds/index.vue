@@ -330,7 +330,6 @@ export default {
 .page-content {
   background: var(--color-background-secondary);
   border-radius: 16px;
-  backdrop-filter: blur(20px);
   box-shadow:
     0 8px 8px rgba(0, 0, 0, 0.12),
     0 4px 8px rgba(0, 0, 0, 0.08);
@@ -584,7 +583,6 @@ export default {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
   display: flex;
   flex-direction: column;
   align-items: center;
