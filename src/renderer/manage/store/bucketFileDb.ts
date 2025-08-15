@@ -33,7 +33,7 @@ export class FileCacheDb extends Dexie {
   upyun: Table<IFileCache, string>
   webdavplist: Table<IFileCache, string>
 
-  constructor () {
+  constructor() {
     super('bucketFileDb')
     const tableNames = [
       'aliyun',

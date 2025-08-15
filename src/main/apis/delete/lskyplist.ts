@@ -6,7 +6,7 @@ import type { IStringKeyMap } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '~/utils/deleteLog'
 
 export default class LskyplistApi {
-  static async delete (configMap: IStringKeyMap): Promise<boolean> {
+  static async delete(configMap: IStringKeyMap): Promise<boolean> {
     const { hash, config } = configMap
     if (!hash || !config || !config.token) {
       deleteLog(hash, 'Lskyplist', false, 'LskyplistApi.delete: invalid params')

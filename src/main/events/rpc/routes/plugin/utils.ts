@@ -85,11 +85,15 @@ const getPluginList = async (): Promise<IPicGoPlugin[]> => {
         },
         uploader: {
           name: uploaderName,
-          config: handleConfigWithFunction(getConfig(uploaderName, IPicGoHelperType.uploader as keyof typeof IPicGoHelperType, picgo))
+          config: handleConfigWithFunction(
+            getConfig(uploaderName, IPicGoHelperType.uploader as keyof typeof IPicGoHelperType, picgo)
+          )
         },
         transformer: {
           name: transformerName,
-          config: handleConfigWithFunction(getConfig(uploaderName, IPicGoHelperType.transformer as keyof typeof IPicGoHelperType, picgo))
+          config: handleConfigWithFunction(
+            getConfig(uploaderName, IPicGoHelperType.transformer as keyof typeof IPicGoHelperType, picgo)
+          )
         }
       },
       enabled: picgo.getConfig(`picgoPlugins.${pluginList[i]}`),

@@ -4,11 +4,7 @@
     <div class="toolbox-card header-card">
       <div class="card-header">
         <div class="header-content">
-          <img
-            class="header-logo"
-            :src="defaultLogo"
-            alt="Toolbox Logo"
-          >
+          <img class="header-logo" :src="defaultLogo" alt="Toolbox Logo" />
           <div class="header-text">
             <h1 class="header-title">
               {{ t('pages.toolbox.title') }}
@@ -20,12 +16,7 @@
         </div>
         <div class="header-actions">
           <template v-if="progress !== 100">
-            <button
-              class="action-button"
-              :class="{ disabled: isLoading }"
-              :disabled="isLoading"
-              @click="handleCheck"
-            >
+            <button class="action-button" :class="{ disabled: isLoading }" :disabled="isLoading" @click="handleCheck">
               <span>{{ t('pages.toolbox.startScan') }}</span>
             </button>
           </template>
@@ -36,20 +27,14 @@
           </template>
           <template v-else-if="!isAllSuccess">
             <template v-if="canFixLength !== 0">
-              <button
-                class="action-button"
-                @click="handleFix"
-              >
+              <button class="action-button" @click="handleFix">
                 <span>{{ t('pages.toolbox.startFix') }}</span>
               </button>
             </template>
             <template v-else>
               <div class="cant-fix-container">
                 <span class="cant-fix-text">{{ $t('pages.toolbox.autoFixFail') }}</span>
-                <button
-                  class="action-button secondary small"
-                  @click="handleCheck"
-                >
+                <button class="action-button secondary small" @click="handleCheck">
                   <span>{{ t('pages.toolbox.reScan') }}</span>
                 </button>
               </div>
@@ -63,10 +48,7 @@
     <div class="toolbox-card progress-card">
       <div class="progress-container">
         <div class="progress-bar">
-          <div
-            class="progress-fill"
-            :style="{ width: `${progress}%` }"
-          />
+          <div class="progress-fill" :style="{ width: `${progress}%` }" />
         </div>
         <span class="progress-text">{{ Math.round(progress) }}%</span>
       </div>
@@ -86,32 +68,19 @@
             'item-loading': item.status === IToolboxItemCheckStatus.LOADING
           }"
         >
-          <div
-            class="item-header"
-            @click="toggleItem(key)"
-          >
+          <div class="item-header" @click="toggleItem(key)">
             <div class="item-title">
               <span>{{ item.title }}</span>
               <toolbox-status-icon :status="item.status" />
             </div>
             <div class="item-chevron">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="6,9 12,15 18,9" />
               </svg>
             </div>
           </div>
           <transition name="item-content">
-            <div
-              v-if="activeTypes.includes(key)"
-              class="item-content"
-            >
+            <div v-if="activeTypes.includes(key)" class="item-content">
               <div class="item-message">
                 {{ item.msg || '' }}
               </div>
@@ -153,7 +122,7 @@ const fixList = reactive<IToolboxMap>({
     title: t('pages.toolbox.checkConfigFileBroken'),
     status: IToolboxItemCheckStatus.INIT,
     handlerText: t('pages.toolbox.openConfigFile'),
-    handler (value: string) {
+    handler(value: string) {
       window.electron.sendRPC(IRPCActionType.OPEN_FILE, value)
     }
   },
@@ -165,7 +134,7 @@ const fixList = reactive<IToolboxMap>({
     title: t('pages.toolbox.checkProblemWithClipboardPicUpload'), // picgo-image-clipboard folder
     status: IToolboxItemCheckStatus.INIT,
     handlerText: t('pages.toolbox.openFilePath'),
-    handler (value: string) {
+    handler(value: string) {
       window.electron.sendRPC(IRPCActionType.OPEN_FILE, value)
     }
   },

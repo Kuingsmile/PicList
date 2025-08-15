@@ -11,7 +11,7 @@ import { configPaths } from '~/utils/configPaths'
 
 const defaultPath = process.platform === 'win32' ? 'C:\\Users' : '/'
 
-function generateDirectoryListingHtml (files: any[], requestPath: any) {
+function generateDirectoryListingHtml(files: any[], requestPath: any) {
   let html = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>Directory Listing</h1><ul>'
   files.forEach((file: string) => {
     const filePath = path.join(requestPath, file)
@@ -21,7 +21,7 @@ function generateDirectoryListingHtml (files: any[], requestPath: any) {
   return html
 }
 
-function serveDirectory (res: http.ServerResponse, filePath: fs.PathLike, requestPath: any) {
+function serveDirectory(res: http.ServerResponse, filePath: fs.PathLike, requestPath: any) {
   fs.readdir(filePath, (err, files) => {
     if (err) {
       res.writeHead(500)
@@ -33,7 +33,7 @@ function serveDirectory (res: http.ServerResponse, filePath: fs.PathLike, reques
   })
 }
 
-function serveFile (res: http.ServerResponse, filePath: fs.PathLike) {
+function serveFile(res: http.ServerResponse, filePath: fs.PathLike) {
   const readStream = fs.createReadStream(filePath)
   readStream.pipe(res)
   readStream.on('error', () => {
@@ -46,12 +46,12 @@ class WebServer {
   #server!: http.Server
   #config!: IStringKeyMap
 
-  constructor () {
+  constructor() {
     this.loadConfig()
     this.initServer()
   }
 
-  loadConfig (): void {
+  loadConfig(): void {
     this.#config = {
       enableWebServer: picgo.getConfig<boolean>(configPaths.settings.enableWebServer) || false,
       webServerHost: picgo.getConfig<string>(configPaths.settings.webServerHost) || '0.0.0.0',
@@ -60,7 +60,7 @@ class WebServer {
     }
   }
 
-  initServer (): void {
+  initServer(): void {
     this.#server = http.createServer((req, res) => {
       const requestPath = req.url?.split('?')[0]
       const filePath = path.join(this.#config.webServerPath, decodeURIComponent(requestPath || ''))
@@ -79,7 +79,7 @@ class WebServer {
     })
   }
 
-  start () {
+  start() {
     if (this.#config.enableWebServer) {
       this.#server
         .listen(
@@ -99,13 +99,13 @@ class WebServer {
     }
   }
 
-  stop () {
+  stop() {
     this.#server.close(() => {
       logger.info('Web server is stopped')
     })
   }
 
-  restart () {
+  restart() {
     this.stop()
     this.loadConfig()
     this.initServer()

@@ -8,11 +8,11 @@ const osGlobal = ref<string>(window.electron.platform)
 const picBedGlobal = ref<IPicBedType[]>([])
 const pageReloadCount = ref(0)
 
-async function updatePicBedGlobal () {
+async function updatePicBedGlobal() {
   picBedGlobal.value = (await window.electron.triggerRPC<IPicBedType[]>(IRPCActionType.MAIN_GET_PICBED))!
 }
 
-async function updatePageReloadCount () {
+async function updatePageReloadCount() {
   pageReloadCount.value++
 }
 

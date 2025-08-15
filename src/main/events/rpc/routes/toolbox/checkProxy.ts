@@ -9,7 +9,7 @@ import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
 import { T as $t } from '~/i18n'
 import { IToolboxItemCheckStatus, IToolboxItemType } from '~/utils/enum'
 
-function getProxy (proxyStr: string): AxiosRequestConfig['proxy'] | null {
+function getProxy(proxyStr: string): AxiosRequestConfig['proxy'] | null {
   if (proxyStr) {
     try {
       const proxyOptions = new URL(proxyStr)

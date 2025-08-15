@@ -15,20 +15,12 @@
                 autofocus
                 @keyup.enter="confirmName"
                 @input="clearValidationError"
-              >
-              <button
-                v-if="form.fileName"
-                type="button"
-                class="input-clear"
-                @click="clearFileName"
-              >
+              />
+              <button v-if="form.fileName" type="button" class="input-clear" @click="clearFileName">
                 <XIcon :size="16" />
               </button>
             </div>
-            <div
-              v-if="validationError"
-              class="validation-error"
-            >
+            <div v-if="validationError" class="validation-error">
               {{ validationError }}
             </div>
           </div>
@@ -36,18 +28,10 @@
 
         <!-- Actions -->
         <div class="form-actions">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            @click="cancel"
-          >
+          <button type="button" class="btn btn-secondary" @click="cancel">
             {{ $t('common.cancel') }}
           </button>
-          <button
-            type="submit"
-            class="btn btn-primary"
-            :disabled="!form.fileName.trim()"
-          >
+          <button type="submit" class="btn btn-primary" :disabled="!form.fileName.trim()">
             {{ $t('common.confirm') }}
           </button>
         </div>
@@ -85,7 +69,7 @@ const handleFileName = (newName: string, _originName: string, _id: string) => {
 
 window.electron.ipcRendererOn(RENAME_FILE_NAME, handleFileName)
 
-function validateFileName (fileName: string): string {
+function validateFileName(fileName: string): string {
   if (!fileName.trim()) {
     return 'File name is required'
   }
@@ -100,7 +84,7 @@ function validateFileName (fileName: string): string {
   return ''
 }
 
-function confirmName () {
+function confirmName() {
   const error = validateFileName(form.fileName)
   if (error) {
     validationError.value = error
@@ -110,11 +94,11 @@ function confirmName () {
   window.electron.sendToMain(`${RENAME_FILE_NAME}${id.value}`, form.fileName)
 }
 
-function cancel () {
+function cancel() {
   window.electron.sendToMain(`${RENAME_FILE_NAME}${id.value}`, form.originName)
 }
 
-function clearFileName () {
+function clearFileName() {
   form.fileName = ''
   validationError.value = ''
   nextTick(() => {
@@ -122,7 +106,7 @@ function clearFileName () {
   })
 }
 
-function clearValidationError () {
+function clearValidationError() {
   if (validationError.value) {
     validationError.value = ''
   }
@@ -135,7 +119,6 @@ onBeforeMount(() => {
 onBeforeUnmount(() => {
   window.electron.ipcRendererRemoveAllListeners(RENAME_FILE_NAME)
 })
-
 </script>
 <script lang="ts">
 export default {
@@ -155,7 +138,9 @@ export default {
 .rename-card {
   background: var(--color-background-primary);
   border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   border: 1px solid var(--color-border);
   width: 100%;
   max-width: 500px;
@@ -329,7 +314,6 @@ export default {
   .form-actions {
     padding: 1rem;
   }
-
 }
 
 /* Focus styles for accessibility */
@@ -346,7 +330,8 @@ export default {
 
 /* Animation for error state */
 @keyframes shake {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0);
   }
   25% {
@@ -364,6 +349,8 @@ export default {
 /* Dark mode adjustments */
 :root.dark .rename-card,
 :root.auto.dark .rename-card {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.3),
+    0 10px 10px -5px rgba(0, 0, 0, 0.2);
 }
 </style>

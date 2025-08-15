@@ -59,7 +59,7 @@ const handleCancel = () => {
 }
 
 const showConfirm = (options: ConfirmOptions): Promise<boolean> => {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     Object.assign(confirmOptions, {
       title: 'Confirm',
       type: 'info',

@@ -21,7 +21,7 @@ class SmmsApi {
   logger: ManageLogger
   timeout = 30000
 
-  constructor (token: string, logger: ManageLogger) {
+  constructor(token: string, logger: ManageLogger) {
     this.token = token
     this.axiosInstance = axios.create({
       baseURL: this.baseUrl,
@@ -37,7 +37,7 @@ class SmmsApi {
     this.logger = logger
   }
 
-  formatFile (item: any) {
+  formatFile(item: any) {
     return {
       ...item,
       Key: item.path,
@@ -54,7 +54,7 @@ class SmmsApi {
     }
   }
 
-  async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
+  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { cancelToken } = configMap
     let marker = 1
@@ -123,7 +123,7 @@ class SmmsApi {
    *  customUrl: string
    * }
    */
-  async getBucketFileList ({ currentPage }: IStringKeyMap): Promise<any> {
+  async getBucketFileList({ currentPage }: IStringKeyMap): Promise<any> {
     const result = {
       fullList: [] as any,
       isTruncated: false,
@@ -162,7 +162,7 @@ class SmmsApi {
    * DeleteHash: string
    * }
    */
-  async deleteBucketFile ({ DeleteHash }: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFile({ DeleteHash }: IStringKeyMap): Promise<boolean> {
     const res = await this.axiosInstance(`/delete/${DeleteHash}`, {
       method: 'GET',
       params: {
@@ -177,7 +177,7 @@ class SmmsApi {
    * 上传文件
    * @param configMap
    */
-  async uploadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
+  async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { fileArray } = configMap
     const instance = UpDownTaskQueue.getInstance()
     for (const item of fileArray) {
@@ -214,7 +214,7 @@ class SmmsApi {
    * 下载文件
    * @param configMap
    */
-  async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
+  async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any

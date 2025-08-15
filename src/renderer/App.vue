@@ -1,8 +1,5 @@
 <template>
-  <div
-    id="app"
-    :key="pageReloadCount"
-  >
+  <div id="app" :key="pageReloadCount">
     <router-view />
     <UIServiceProvider />
   </div>
@@ -39,7 +36,6 @@ onMounted(async () => {
     console.error('Failed to load settings:', error)
   }
 })
-
 </script>
 
 <script lang="ts">

@@ -21,19 +21,11 @@
             <DownloadIcon :size="16" />
             {{ t('pages.plugin.importLocal') }}
           </button>
-          <button
-            class="action-button secondary"
-            :title="t('pages.plugin.updateAll')"
-            @click="handleUpdateAllPlugin"
-          >
+          <button class="action-button secondary" :title="t('pages.plugin.updateAll')" @click="handleUpdateAllPlugin">
             <RefreshCwIcon :size="16" />
             {{ t('pages.plugin.updateAll') }}
           </button>
-          <button
-            class="action-button"
-            :title="t('pages.plugin.pluginList')"
-            @click="goAwesomeList"
-          >
+          <button class="action-button" :title="t('pages.plugin.pluginList')" @click="goAwesomeList">
             <ExternalLinkIcon :size="16" />
             {{ t('pages.plugin.list') }}
           </button>
@@ -45,21 +37,14 @@
     <div class="plugin-card search-card">
       <div class="search-container">
         <div class="search-input-wrapper">
-          <SearchIcon
-            class="search-icon"
-            :size="20"
-          />
+          <SearchIcon class="search-icon" :size="20" />
           <input
             v-model="searchText"
             type="text"
             class="search-input"
             :placeholder="t('pages.plugin.searchPlaceholder')"
-          >
-          <button
-            v-if="searchText"
-            class="clear-button"
-            @click="cleanSearch"
-          >
+          />
+          <button v-if="searchText" class="clear-button" @click="cleanSearch">
             <XIcon :size="16" />
           </button>
         </div>
@@ -68,20 +53,11 @@
 
     <!-- Reload Notice -->
     <transition name="notice">
-      <div
-        v-if="needReload"
-        class="plugin-card notice-card"
-      >
+      <div v-if="needReload" class="plugin-card notice-card">
         <div class="notice-content">
-          <AlertCircleIcon
-            class="notice-icon"
-            :size="20"
-          />
+          <AlertCircleIcon class="notice-icon" :size="20" />
           <span class="notice-text">{{ t('pages.plugin.needRestart') }}</span>
-          <button
-            class="action-button small"
-            @click="reloadApp"
-          >
+          <button class="action-button small" @click="reloadApp">
             {{ t('pages.plugin.restartApp') }}
           </button>
         </div>
@@ -89,10 +65,7 @@
     </transition>
 
     <!-- Loading Overlay -->
-    <div
-      v-if="loading"
-      class="loading-overlay"
-    >
+    <div v-if="loading" class="loading-overlay">
       <div class="loading-spinner" />
       <span class="loading-text">{{ t('pages.plugin.loading') }}</span>
     </div>
@@ -106,12 +79,7 @@
         :class="{ disabled: !item.enabled && !searchText }"
       >
         <!-- Plugin Badge -->
-        <div
-          v-if="!item.gui"
-          class="cli-badge"
-        >
-          CLI
-        </div>
+        <div v-if="!item.gui" class="cli-badge">CLI</div>
 
         <!-- Update Badge -->
         <div
@@ -123,17 +91,9 @@
 
         <!-- Plugin Header -->
         <div class="plugin-header">
-          <img
-            class="plugin-logo"
-            :src="item.logo"
-            :onerror="setSrc"
-            alt=""
-          >
+          <img class="plugin-logo" :src="item.logo" :onerror="setSrc" alt="" />
           <div class="plugin-info">
-            <h3
-              class="plugin-name"
-              @click="openHomepage(item.homepage)"
-            >
+            <h3 class="plugin-name" @click="openHomepage(item.homepage)">
               {{ item.name }}
               <span class="plugin-version">v{{ item.version }}</span>
             </h3>
@@ -154,55 +114,31 @@
         <div class="plugin-actions">
           <template v-if="searchText">
             <template v-if="!item.hasInstall">
-              <button
-                v-if="!item.ing"
-                class="plugin-button install-button"
-                @click="installPlugin(item)"
-              >
+              <button v-if="!item.ing" class="plugin-button install-button" @click="installPlugin(item)">
                 <DownloadIcon :size="16" />
                 {{ t('pages.plugin.install') }}
               </button>
-              <button
-                v-else
-                class="plugin-button installing-button"
-                disabled
-              >
+              <button v-else class="plugin-button installing-button" disabled>
                 <div class="button-spinner" />
                 {{ t('pages.plugin.installing') }}
               </button>
             </template>
-            <button
-              v-else
-              class="plugin-button installed-button"
-              disabled
-            >
+            <button v-else class="plugin-button installed-button" disabled>
               <CheckIcon :size="16" />
               {{ t('pages.plugin.installed') }}
             </button>
           </template>
           <template v-else>
-            <button
-              v-if="item.ing"
-              class="plugin-button processing-button"
-              disabled
-            >
+            <button v-if="item.ing" class="plugin-button processing-button" disabled>
               <div class="button-spinner" />
               {{ t('pages.plugin.doingSomething') }}
             </button>
             <template v-else>
-              <button
-                v-if="item.enabled"
-                class="plugin-button settings-button"
-                @click="buildContextMenu(item)"
-              >
+              <button v-if="item.enabled" class="plugin-button settings-button" @click="buildContextMenu(item)">
                 <SettingsIcon :size="16" />
                 {{ t('pages.plugin.settings') }}
               </button>
-              <button
-                v-else
-                class="plugin-button disabled-button"
-                @click="buildContextMenu(item)"
-              >
+              <button v-else class="plugin-button disabled-button" @click="buildContextMenu(item)">
                 <XCircleIcon :size="16" />
                 {{ t('pages.plugin.disabled') }}
               </button>
@@ -213,22 +149,12 @@
     </div>
 
     <!-- Empty State -->
-    <div
-      v-if="!loading && pluginList.length === 0"
-      class="plugin-card empty-state"
-    >
+    <div v-if="!loading && pluginList.length === 0" class="plugin-card empty-state">
       <div class="empty-content">
-        <PackageIcon
-          class="empty-icon"
-          :size="48"
-        />
+        <PackageIcon class="empty-icon" :size="48" />
         <h3>{{ searchText ? t('pages.plugin.noPluginsFound') : t('pages.plugin.NoPluginsInstalled') }}</h3>
         <p>{{ searchText ? t('pages.plugin.tryDifferentSearch') : t('pages.plugin.installPluginsToGetStarted') }}</p>
-        <button
-          v-if="!searchText"
-          class="action-button"
-          @click="goAwesomeList"
-        >
+        <button v-if="!searchText" class="action-button" @click="goAwesomeList">
           <ExternalLinkIcon :size="16" />
           {{ t('pages.plugin.browsePlugins') }}
         </button>
@@ -237,23 +163,13 @@
 
     <!-- Config Modal -->
     <transition name="modal">
-      <div
-        v-if="dialogVisible"
-        class="modal-overlay"
-        @click="dialogVisible = false"
-      >
-        <div
-          class="modal-container"
-          @click.stop
-        >
+      <div v-if="dialogVisible" class="modal-overlay" @click="dialogVisible = false">
+        <div class="modal-container" @click.stop>
           <div class="modal-header">
             <h2 class="modal-title">
               {{ t('pages.plugin.configThing', { c: configName }) }}
             </h2>
-            <button
-              class="modal-close"
-              @click="dialogVisible = false"
-            >
+            <button class="modal-close" @click="dialogVisible = false">
               <XIcon :size="20" />
             </button>
           </div>
@@ -269,16 +185,10 @@
             />
           </div>
           <div class="modal-footer">
-            <button
-              class="btn btn-secondary"
-              @click="dialogVisible = false"
-            >
+            <button class="btn btn-secondary" @click="dialogVisible = false">
               {{ t('common.cancel') }}
             </button>
-            <button
-              class="btn btn-primary"
-              @click="handleConfirmConfig"
-            >
+            <button class="btn btn-primary" @click="handleConfirmConfig">
               {{ t('common.confirm') }}
             </button>
           </div>
@@ -333,7 +243,7 @@ const needReload = ref(false)
 const latestVersionMap = reactive<{ [key: string]: string }>({})
 const $configForm = ref<InstanceType<typeof ConfigForm> | null>(null)
 
-function setSrc (e: Event) {
+function setSrc(e: Event) {
   const target = e.target as HTMLImageElement
   target.src = import.meta.env.BASE_URL + 'roundLogo.png'
 }
@@ -365,7 +275,7 @@ watch(dialogVisible, (val: boolean) => {
   }
 })
 
-async function getLatestVersionOfPlugIn (pluginName: string) {
+async function getLatestVersionOfPlugIn(pluginName: string) {
   try {
     const res = await fetch(`https://registry.npmjs.com/${pluginName}`)
     const data = await res.json()
@@ -397,15 +307,7 @@ const pluginListHandler = (list: IPicGoPlugin[]) => {
   loading.value = false
 }
 
-const installPluginHandler = (
-  {
-    success,
-    body
-  }: {
-    success: boolean
-    body: string
-  }
-) => {
+const installPluginHandler = ({ success, body }: { success: boolean; body: string }) => {
   loading.value = false
   pluginList.value.forEach(item => {
     if (item.fullName === body) {
@@ -446,7 +348,11 @@ const uninstallSuccessHandler = (plugin: string) => {
   pluginNameList.value = pluginNameList.value.filter(item => item !== plugin)
 }
 
-const picgoConfigPluginHandler = (_currentType: 'plugin' | 'transformer' | 'uploader', _configName: string, _config: any) => {
+const picgoConfigPluginHandler = (
+  _currentType: 'plugin' | 'transformer' | 'uploader',
+  _configName: string,
+  _config: any
+) => {
   currentType.value = _currentType
   configName.value = _configName
   config.value = _config
@@ -470,15 +376,15 @@ const picgoTogglePluginHandler = (fullName: string, enabled: boolean) => {
   }
 }
 
-async function buildContextMenu (plugin: IPicGoPlugin) {
+async function buildContextMenu(plugin: IPicGoPlugin) {
   window.electron.sendRPC(IRPCActionType.SHOW_PLUGIN_PAGE_MENU, getRawData(plugin))
 }
 
-function getPluginList () {
+function getPluginList() {
   window.electron.sendRPC(IRPCActionType.PLUGIN_GET_LIST)
 }
 
-function installPlugin (item: IPicGoPlugin) {
+function installPlugin(item: IPicGoPlugin) {
   if (!item.gui) {
     if (confirm(t('pages.plugin.notGuiImplement'))) {
       item.ing = true
@@ -490,11 +396,11 @@ function installPlugin (item: IPicGoPlugin) {
   }
 }
 
-function reloadApp () {
+function reloadApp() {
   window.electron.sendRPC(IRPCActionType.RELOAD_APP)
 }
 
-async function handleReload () {
+async function handleReload() {
   saveConfig({
     needReload: true
   })
@@ -509,11 +415,11 @@ async function handleReload () {
   }
 }
 
-function cleanSearch () {
+function cleanSearch() {
   searchText.value = ''
 }
 
-async function handleConfirmConfig () {
+async function handleConfirmConfig() {
   const result = (await $configForm.value?.validate()) || false
   if (result !== false) {
     switch (currentType.value) {
@@ -546,7 +452,7 @@ async function handleConfirmConfig () {
   }
 }
 
-function _getSearchResult (val: string) {
+function _getSearchResult(val: string) {
   fetch(`https://registry.npmjs.com/-/v1/search?text=${val}`)
     .then(async (res: Response) => {
       const data = await res.json()
@@ -565,7 +471,7 @@ function _getSearchResult (val: string) {
     })
 }
 
-function handleSearchResult (item: INPMSearchResultObject) {
+function handleSearchResult(item: INPMSearchResultObject) {
   const pkg = item.package
   const name = handleStreamlinePluginName(pkg.name)
   let gui = false
@@ -590,7 +496,7 @@ function handleSearchResult (item: INPMSearchResultObject) {
 }
 
 // restore Uploader & Transformer
-async function handleRestoreState (item: string, name: string) {
+async function handleRestoreState(item: string, name: string) {
   if (item === 'uploader') {
     const current = await getConfig(configPaths.picBed.current)
     if (current === name) {
@@ -610,22 +516,22 @@ async function handleRestoreState (item: string, name: string) {
   }
 }
 
-function openHomepage (url: string) {
+function openHomepage(url: string) {
   if (url) {
     window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
   }
 }
 
-function goAwesomeList () {
+function goAwesomeList() {
   window.electron.sendRPC(IRPCActionType.OPEN_URL, 'https://github.com/PicGo/Awesome-PicGo')
 }
 
-function handleImportLocalPlugin () {
+function handleImportLocalPlugin() {
   window.electron.sendRPC(IRPCActionType.PLUGIN_IMPORT_LOCAL)
   loading.value = true
 }
 
-function handleUpdateAllPlugin () {
+function handleUpdateAllPlugin() {
   window.electron.sendRPC(IRPCActionType.PLUGIN_UPDATE_ALL, toRaw(pluginNameList.value))
 }
 

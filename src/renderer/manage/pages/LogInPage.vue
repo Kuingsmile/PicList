@@ -13,10 +13,7 @@
           </div>
         </div>
         <div class="header-actions">
-          <button
-            class="action-button"
-            @click="refreshConfigs"
-          >
+          <button class="action-button" @click="refreshConfigs">
             <RefreshCwIcon :size="16" />
             {{ t('pages.manage.login.refresh') }}
           </button>
@@ -28,10 +25,7 @@
     <div class="login-card tabs-card">
       <div class="tabs-container">
         <div class="tabs-nav-wrapper">
-          <div
-            ref="tabsNav"
-            class="tabs-nav"
-          >
+          <div ref="tabsNav" class="tabs-nav">
             <button
               v-for="item in tabItems"
               :key="item.key"
@@ -39,16 +33,8 @@
               :class="{ active: activeName === item.key }"
               @click="handleTabChange(item.key)"
             >
-              <FolderIcon
-                v-if="item.key === 'login'"
-                :size="16"
-              />
-              <img
-                v-else
-                :src="`./assets/${item.key}.webp`"
-                class="tab-icon"
-                :alt="item.name"
-              >
+              <FolderIcon v-if="item.key === 'login'" :size="16" />
+              <img v-else :src="`./assets/${item.key}.webp`" class="tab-icon" :alt="item.name" />
               <span>{{ item.name }}</span>
             </button>
           </div>
@@ -60,35 +46,18 @@
     <div class="login-card content-card">
       <div class="tab-content">
         <!-- Main Config List Tab -->
-        <div
-          v-if="activeName === 'login'"
-          class="config-list-container"
-        >
-          <div
-            v-if="sortedAllConfigAliasMap.length === 0"
-            class="empty-state"
-          >
+        <div v-if="activeName === 'login'" class="config-list-container">
+          <div v-if="sortedAllConfigAliasMap.length === 0" class="empty-state">
             <div class="empty-icon">
               <DatabaseIcon :size="48" />
             </div>
             <h3>{{ t('pages.manage.login.noConfigs') }}</h3>
             <p>{{ t('pages.manage.login.noConfigsDesc') }}</p>
           </div>
-          <div
-            v-else
-            class="config-grid"
-          >
-            <div
-              v-for="item in sortedAllConfigAliasMap"
-              :key="item.alias"
-              class="config-item"
-            >
+          <div v-else class="config-grid">
+            <div v-for="item in sortedAllConfigAliasMap" :key="item.alias" class="config-item">
               <div class="config-header">
-                <img
-                  :src="`./assets/${item.picBedName}.webp`"
-                  class="config-icon"
-                  :alt="item.picBedName"
-                >
+                <img :src="`./assets/${item.picBedName}.webp`" class="config-icon" :alt="item.picBedName" />
                 <div class="config-info">
                   <h4 class="config-alias">
                     {{ item.alias }}
@@ -100,22 +69,13 @@
               </div>
 
               <div class="config-details">
-                <button
-                  class="details-button"
-                  @click="toggleConfigDetails(item.alias)"
-                >
+                <button class="details-button" @click="toggleConfigDetails(item.alias)">
                   <InfoIcon :size="14" />
                   {{ t('pages.manage.login.viewDetails') }}
-                  <ChevronDownIcon
-                    :size="14"
-                    :class="{ rotated: expandedConfigs.includes(item.alias) }"
-                  />
+                  <ChevronDownIcon :size="14" :class="{ rotated: expandedConfigs.includes(item.alias) }" />
                 </button>
 
-                <div
-                  v-if="expandedConfigs.includes(item.alias)"
-                  class="config-table"
-                >
+                <div v-if="expandedConfigs.includes(item.alias)" class="config-table">
                   <div
                     v-for="tableItem in formObjToTableData(item.config)"
                     :key="tableItem.key"
@@ -129,17 +89,11 @@
               </div>
 
               <div class="config-actions">
-                <button
-                  class="action-button primary"
-                  @click="handleConfigClick(item)"
-                >
+                <button class="action-button primary" @click="handleConfigClick(item)">
                   <PointerIcon :size="16" />
                   {{ t('pages.manage.login.enter') }}
                 </button>
-                <button
-                  class="action-button danger"
-                  @click="handleConfigRemove(item.alias)"
-                >
+                <button class="action-button danger" @click="handleConfigRemove(item.alias)">
                   <TrashIcon :size="16" />
                   {{ t('pages.manage.login.delete') }}
                 </button>
@@ -149,14 +103,8 @@
         </div>
 
         <!-- PicBed Configuration Tabs -->
-        <div
-          v-else
-          class="picbed-config-container"
-        >
-          <div
-            v-if="supportedPicBedList[activeName]"
-            class="picbed-config"
-          >
+        <div v-else class="picbed-config-container">
+          <div v-if="supportedPicBedList[activeName]" class="picbed-config">
             <!-- Info Section -->
             <div class="info-section">
               <div class="info-card primary">
@@ -167,10 +115,7 @@
                 <LinkIcon :size="20" />
                 <p>
                   {{ supportedPicBedList[activeName].referenceText }}
-                  <button
-                    class="link-button"
-                    @click="handleReferenceClick(supportedPicBedList[activeName].refLink)"
-                  >
+                  <button class="link-button" @click="handleReferenceClick(supportedPicBedList[activeName].refLink)">
                     {{ supportedPicBedList[activeName].refLink }}
                   </button>
                 </p>
@@ -187,10 +132,9 @@
               >
                 <label class="form-label">
                   {{ supportedPicBedList[activeName].configOptions[option].description }}
-                  <span
-                    v-if="supportedPicBedList[activeName].configOptions[option].required"
-                    class="required-marker"
-                  >*</span>
+                  <span v-if="supportedPicBedList[activeName].configOptions[option].required" class="required-marker"
+                    >*</span
+                  >
                   <button
                     v-if="supportedPicBedList[activeName].configOptions[option].tooltip"
                     class="tooltip-button"
@@ -211,7 +155,7 @@
                   :disabled="!!supportedPicBedList[activeName].configOptions[option].disabled"
                   @blur="validateField(activeName, option)"
                   @input="clearFieldError(activeName + '.' + option)"
-                >
+                />
 
                 <!-- Boolean Switch -->
                 <label
@@ -222,7 +166,7 @@
                     v-model="configResult[activeName + '.' + option]"
                     type="checkbox"
                     @change="validateField(activeName, option)"
-                  >
+                  />
                   <span class="switch-slider" />
                 </label>
 
@@ -236,7 +180,7 @@
                   :placeholder="supportedPicBedList[activeName].configOptions[option].placeholder"
                   @blur="validateField(activeName, option)"
                   @input="clearFieldError(activeName + '.' + option)"
-                >
+                />
 
                 <!-- Select Dropdown -->
                 <div
@@ -253,7 +197,9 @@
                       {{ t('pages.manage.login.selectPlaceholder') }}
                     </option>
                     <option
-                      v-for="[key, value] in Object.entries(supportedPicBedList[activeName].configOptions[option].selectOptions)"
+                      v-for="[key, value] in Object.entries(
+                        supportedPicBedList[activeName].configOptions[option].selectOptions
+                      )"
                       :key="key"
                       :value="key"
                     >
@@ -263,10 +209,7 @@
                 </div>
 
                 <!-- Error Message -->
-                <div
-                  v-if="formErrors[activeName + '.' + option]"
-                  class="error-message"
-                >
+                <div v-if="formErrors[activeName + '.' + option]" class="error-message">
                   {{ formErrors[activeName + '.' + option] }}
                 </div>
               </div>
@@ -275,22 +218,13 @@
             <!-- Action Buttons -->
             <div class="action-section">
               <div class="import-section">
-                <div
-                  v-if="currentAliasList.length > 0"
-                  class="dropdown-container"
-                >
-                  <button
-                    class="dropdown-trigger action-button secondary"
-                    @click="toggleImportDropdown"
-                  >
+                <div v-if="currentAliasList.length > 0" class="dropdown-container">
+                  <button class="dropdown-trigger action-button secondary" @click="toggleImportDropdown">
                     <DownloadIcon :size="16" />
                     {{ t('pages.manage.login.import') }}
                     <ChevronDownIcon :size="16" />
                   </button>
-                  <div
-                    v-if="importDropdownOpen"
-                    class="dropdown-menu"
-                  >
+                  <div v-if="importDropdownOpen" class="dropdown-menu">
                     <button
                       v-for="alias in currentAliasList"
                       :key="alias"
@@ -304,17 +238,11 @@
               </div>
 
               <div class="main-actions">
-                <button
-                  class="action-button primary"
-                  @click="handleConfigChange(activeName)"
-                >
+                <button class="action-button primary" @click="handleConfigChange(activeName)">
                   <SaveIcon :size="16" />
                   {{ t('pages.manage.login.save') }}
                 </button>
-                <button
-                  class="action-button danger"
-                  @click="handleConfigReset(activeName)"
-                >
+                <button class="action-button danger" @click="handleConfigReset(activeName)">
                   <RotateCcwIcon :size="16" />
                   {{ t('pages.manage.login.reset') }}
                 </button>
@@ -322,28 +250,19 @@
             </div>
 
             <!-- Existing Configurations Table -->
-            <div
-              v-if="dataForTable.length > 0"
-              class="config-table-section"
-            >
+            <div v-if="dataForTable.length > 0" class="config-table-section">
               <h3>{{ t('pages.manage.login.configTabTitle') }}</h3>
               <div class="responsive-table">
                 <table class="config-table">
                   <thead>
                     <tr>
-                      <th
-                        v-for="option in supportedPicBedList[activeName].options"
-                        :key="option"
-                      >
+                      <th v-for="option in supportedPicBedList[activeName].options" :key="option">
                         {{ supportedPicBedList[activeName].configOptions[option].description }}
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr
-                      v-for="(row, index) in dataForTable"
-                      :key="index"
-                    >
+                    <tr v-for="(row, index) in dataForTable" :key="index">
                       <td
                         v-for="option in supportedPicBedList[activeName].options"
                         :key="option"
@@ -537,13 +456,13 @@ const initializeDefaultValues = (picBedName: string) => {
   }
 }
 
-function getDataForTable () {
+function getDataForTable() {
   for (const key in existingConfiguration) {
     dataForTable.push({ ...(existingConfiguration[key] as IStringKeyMap) })
   }
 }
 
-async function getExistingConfig (name: string) {
+async function getExistingConfig(name: string) {
   if (name === 'login') {
     getAllConfigAliasArray()
     return
@@ -569,11 +488,11 @@ async function getExistingConfig (name: string) {
   handleConfigImport(currentAliasList[0])
 }
 
-function getAliasList () {
+function getAliasList() {
   return Object.values(existingConfiguration).map(item => item.alias)
 }
 
-async function handleConfigChange (name: string) {
+async function handleConfigChange(name: string) {
   if (!validateAllFields(name)) {
     notifyUser(t('pages.manage.login.noRequiredMsg'), 'error')
     return
@@ -633,15 +552,9 @@ async function handleConfigChange (name: string) {
   dataForTable.length = 0
   getDataForTable()
   if (aliasList.includes(resultMap.alias)) {
-    notifyUser(
-      `${t('pages.manage.login.configChangeMsg')}${resultMap.alias}`,
-      'warning'
-    )
+    notifyUser(`${t('pages.manage.login.configChangeMsg')}${resultMap.alias}`, 'warning')
   } else {
-    notifyUser(
-      `${t('pages.manage.login.configSaveMsg')}${resultMap.alias}`,
-      'success'
-    )
+    notifyUser(`${t('pages.manage.login.configSaveMsg')}${resultMap.alias}`, 'success')
   }
 }
 
@@ -671,17 +584,11 @@ const handleConfigRemove = async (name: string) => {
     if (!result) return
     try {
       removeConfig('picBed', name)
-      notifyUser(
-        t('pages.manage.login.deleteConfigSuccessMsg'),
-        'success'
-      )
+      notifyUser(t('pages.manage.login.deleteConfigSuccessMsg'), 'success')
       manageStore.refreshConfig()
       getAllConfigAliasArray()
     } catch (error) {
-      notifyUser(
-        t('pages.manage.login.deleteConfigFailedMsg'),
-        'error'
-      )
+      notifyUser(t('pages.manage.login.deleteConfigFailedMsg'), 'error')
     }
   })
 }
@@ -724,7 +631,7 @@ const handleConfigClick = async (item: any) => {
   })
 }
 
-function handleConfigImport (alias: string) {
+function handleConfigImport(alias: string) {
   const selectedConfig = existingConfiguration[alias]
   if (!selectedConfig) return
 
@@ -770,7 +677,7 @@ onMounted(() => {
   getCurrentConfigList()
 })
 
-async function getCurrentConfigList () {
+async function getCurrentConfigList() {
   await manageStore.refreshConfig()
   const configList = (await getPicBedsConfig<any>('uploader')) ?? {}
   const pbList = [
@@ -811,18 +718,18 @@ async function getCurrentConfigList () {
   await getAllConfigAliasArray()
 }
 
-function isImported (alias: string) {
+function isImported(alias: string) {
   return Object.values(allConfigAliasMap).some(item => item.alias === alias)
 }
 
-function initArray (arrayT: string | string[], defaultValue: string[]) {
+function initArray(arrayT: string | string[], defaultValue: string[]) {
   if (!Array.isArray(arrayT)) {
     arrayT = arrayT ? [arrayT] : defaultValue
   }
   return arrayT
 }
 
-async function transUpToManage (config: IUploaderConfigListItem, picBedName: string, autoImportPicBed: string[]) {
+async function transUpToManage(config: IUploaderConfigListItem, picBedName: string, autoImportPicBed: string[]) {
   const alias = `${
     picBedName === 'webdavplist'
       ? 'webdav'

@@ -39,11 +39,11 @@ export const handleUrlEncode = (url: string): string => (isUrlEncode(url) ? url 
 export const handleStreamlinePluginName = (name: string) => name.replace(/(@[^/]+\/)?picgo-plugin-/, '')
 export const enforceNumber = (num: number | string) => (isNaN(+num) ? 0 : +num)
 
-export function isNeedToShorten (alias: string, cutOff = 20) {
+export function isNeedToShorten(alias: string, cutOff = 20) {
   return [...alias].reduce((len, char) => len + (char.charCodeAt(0) > 255 ? 2 : 1), 0) > cutOff
 }
 
-export function safeSliceF (str: string, total: number) {
+export function safeSliceF(str: string, total: number) {
   let result = ''
   let totalLen = 0
   for (const s of str) {

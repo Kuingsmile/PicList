@@ -11,7 +11,7 @@ interface IConfigMap {
 export default class SmmsApi {
   static readonly #baseUrl = 'https://smms.app/api/v2'
 
-  static async delete (configMap: IConfigMap): Promise<boolean> {
+  static async delete(configMap: IConfigMap): Promise<boolean> {
     const { hash, config } = configMap
     if (!hash || !config || !config.token) {
       deleteLog(hash, 'Smms', false, 'SmmsApi.delete: invalid params')

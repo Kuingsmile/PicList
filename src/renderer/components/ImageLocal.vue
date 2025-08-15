@@ -1,29 +1,17 @@
 <template>
   <div class="image-container">
-    <div
-      v-if="isLoading"
-      class="loading-placeholder"
-    >
+    <div v-if="isLoading" class="loading-placeholder">
       <div class="loading-spinner" />
     </div>
     <img
       v-else-if="!hasError"
-      :src="
-        isShowThumbnail && item.isImage
-          ? base64Image
-          : `./assets/icons/${getFileIconPath(item.fileName ?? '')}`
-      "
+      :src="isShowThumbnail && item.isImage ? base64Image : `./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
       alt=""
       class="image"
       @load="handleImageLoad"
       @error="handleImageError"
-    >
-    <img
-      v-else
-      :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
-      alt=""
-      class="image"
-    >
+    />
+    <img v-else :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`" alt="" class="image" />
   </div>
 </template>
 
@@ -109,7 +97,11 @@ onBeforeMount(async () => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

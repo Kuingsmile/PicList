@@ -16,11 +16,11 @@ interface IObject {
   [propName: string]: any
 }
 
- type IResult<T> = T & {
-   id: string
-   createdAt: number
-   updatedAt: number
- }
+type IResult<T> = T & {
+  id: string
+  createdAt: number
+  updatedAt: number
+}
 
 export class GalleryDB implements IGalleryDB {
   async #actionHandler<T>(method: string, ...args: any[]): Promise<T | undefined> {
@@ -39,7 +39,7 @@ export class GalleryDB implements IGalleryDB {
     return await this.#actionHandler<IResult<T>[]>(IRPCActionType.GALLERY_INSERT_DB_BATCH, value)
   }
 
-  async updateById (id: string, value: IObject): Promise<boolean> {
+  async updateById(id: string, value: IObject): Promise<boolean> {
     return (await this.#actionHandler<boolean>(IRPCActionType.GALLERY_UPDATE_BY_ID_DB, id, value)) || false
   }
 
@@ -47,7 +47,7 @@ export class GalleryDB implements IGalleryDB {
     return await this.#actionHandler<IResult<T> | undefined>(IRPCActionType.GALLERY_GET_BY_ID_DB, id)
   }
 
-  async removeById (id: string): Promise<void> {
+  async removeById(id: string): Promise<void> {
     return await this.#actionHandler<void>(IRPCActionType.GALLERY_REMOVE_BY_ID_DB, id)
   }
 }

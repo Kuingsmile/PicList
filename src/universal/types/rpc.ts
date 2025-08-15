@@ -29,11 +29,9 @@ export interface IRPCRouter {
 
 export type IToolboxChecker<T = any> = (event: IpcMainEvent) => Promise<T>
 
-export type IToolboxCheckerMap<T extends string> =
-Record<T, IToolboxChecker>
+export type IToolboxCheckerMap<T extends string> = Record<T, IToolboxChecker>
 
-export type IToolboxFixMap<T extends string> =
-Record<T, IToolboxChecker<IToolboxCheckRes>>
+export type IToolboxFixMap<T extends string> = Record<T, IToolboxChecker<IToolboxCheckRes>>
 
 export interface IToolboxCheckRes {
   type: string

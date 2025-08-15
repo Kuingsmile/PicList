@@ -48,20 +48,9 @@ const toggleTheme = () => {
 
 <template>
   <div class="theme-switcher">
-    <button
-      class="theme-toggle-btn"
-      :class="{ collapsed }"
-      :title="t('settings.theme.toggle')"
-      @click="toggleTheme"
-    >
-      <component
-        :is="currentThemeOption.icon"
-        :size="18"
-      />
-      <span
-        v-if="!collapsed"
-        class="theme-label"
-      >{{ currentThemeOption.label }}</span>
+    <button class="theme-toggle-btn" :class="{ collapsed }" :title="t('settings.theme.toggle')" @click="toggleTheme">
+      <component :is="currentThemeOption.icon" :size="18" />
+      <span v-if="!collapsed" class="theme-label">{{ currentThemeOption.label }}</span>
     </button>
   </div>
 </template>

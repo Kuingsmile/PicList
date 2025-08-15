@@ -34,7 +34,7 @@ export const getFSFile = async (filePath: string, stream: boolean = false): Prom
   }
 }
 
-export function isInputConfigValid (config: any): boolean {
+export function isInputConfigValid(config: any): boolean {
   return typeof config === 'object' && !Array.isArray(config) && Object.keys(config).length > 0
 }
 
@@ -280,7 +280,7 @@ export const getInnerAgent = (proxy: any, sslEnabled: boolean = true) => {
       }
 }
 
-export function getOptions (
+export function getOptions(
   method?: string,
   headers?: IStringKeyMap,
   searchParams?: IStringKeyMap,
@@ -309,14 +309,14 @@ export class ConcurrencyPromisePool {
   runningNum: number
   results: any[]
 
-  constructor (limit: number) {
+  constructor(limit: number) {
     this.limit = limit
     this.queue = []
     this.runningNum = 0
     this.results = []
   }
 
-  all (promises: any[] = []) {
+  all(promises: any[] = []) {
     return new Promise((resolve, reject) => {
       for (const promise of promises) {
         this._run(promise, resolve, reject)
@@ -324,7 +324,7 @@ export class ConcurrencyPromisePool {
     })
   }
 
-  _run (promise: any, resolve: any, reject: any) {
+  _run(promise: any, resolve: any, reject: any) {
     if (this.runningNum >= this.limit) {
       this.queue.push(promise)
       return

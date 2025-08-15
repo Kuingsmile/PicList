@@ -15,7 +15,7 @@ interface IConfigMap {
 }
 
 export default class AlistApi {
-  static async delete (configMap: IConfigMap): Promise<boolean> {
+  static async delete(configMap: IConfigMap): Promise<boolean> {
     const { fileName, config } = configMap
     try {
       const { version, url, uploadPath, token } = config

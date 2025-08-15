@@ -164,14 +164,14 @@ export interface IPicGoPlugin {
   gui: boolean
   config:
     | {
-      plugin: IPluginMenuConfig
-      uploader: IPluginMenuConfig
-      transformer: IPluginMenuConfig
-      [index: string]: IPluginMenuConfig
-    }
+        plugin: IPluginMenuConfig
+        uploader: IPluginMenuConfig
+        transformer: IPluginMenuConfig
+        [index: string]: IPluginMenuConfig
+      }
     | {
-      [propName: string]: any
-    }
+        [propName: string]: any
+      }
   enabled?: boolean
   homepage: string
   guiMenu?: any[]
@@ -203,13 +203,13 @@ export interface IPicGoPluginOriginConfig {
   alias?: string
   choices?:
     | {
-      name?: string
-      value?: any
-    }[]
+        name?: string
+        value?: any
+      }[]
     | (() => {
-      name?: string
-      value?: any
-    }[])
+        name?: string
+        value?: any
+      }[])
   [propName: string]: any
 }
 

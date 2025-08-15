@@ -8,7 +8,7 @@ interface IConfigMap {
 }
 
 export default class QiniuApi {
-  static async delete (configMap: IConfigMap): Promise<boolean> {
+  static async delete(configMap: IConfigMap): Promise<boolean> {
     const {
       fileName,
       config: { accessKey, secretKey, bucket, path }

@@ -12,7 +12,7 @@ export interface DogecloudToken {
   sessionToken: string
 }
 
-export async function dogecloudApi (
+export async function dogecloudApi(
   apiPath: string,
   data = {},
   jsonMode: boolean = false,
@@ -45,7 +45,7 @@ export async function dogecloudApi (
   }
 }
 
-export async function getTempToken (accessKey: string, secretKey: string): Promise<IObj | DogecloudToken> {
+export async function getTempToken(accessKey: string, secretKey: string): Promise<IObj | DogecloudToken> {
   const dogeTempToken = (await picgo.getConfig('Credentials.doge-token')) || ({} as any)
   if (dogeTempToken.token && dogeTempToken.expires > Date.now() + 7200000) {
     return dogeTempToken.token

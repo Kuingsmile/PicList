@@ -1,42 +1,23 @@
 <template>
-  <div
-    class="title-bar"
-    data-drag-region
-  >
+  <div class="title-bar" data-drag-region>
     <div class="title-bar-content">
-      <div
-        v-if="osGlobal !== 'darwin'"
-        class="title-left"
-      >
+      <div v-if="osGlobal !== 'darwin'" class="title-left">
         <div class="app-icon">
-          <img
-            :src="defaultLogo"
-            alt="App Icon"
-            width="20"
-            height="20"
-          >
+          <img :src="defaultLogo" alt="App Icon" width="20" height="20" />
         </div>
       </div>
 
       <div class="title-center">
         <!-- Progress bar in title bar -->
-        <div
-          v-if="isShowprogress"
-          class="progress-container"
-        >
+        <div v-if="isShowprogress" class="progress-container">
           <div class="progress-bar">
-            <div
-              class="progress-fill"
-              :style="{ width: `${progress}%` }"
-            />
+            <div class="progress-fill" :style="{ width: `${progress}%` }" />
           </div>
           <span class="progress-text">{{ progress }}%</span>
         </div>
       </div>
 
-      <div
-        class="title-right"
-      >
+      <div class="title-right">
         <div class="window-controls">
           <button
             class="control-button pin-button"
@@ -44,30 +25,15 @@
             :title="$t('titleBar.alwaysOnTop')"
             @click="setAlwaysOnTop"
           >
-            <PinIcon
-              :color="isAlwaysOnTop ? '#CE6769' : '#6B7280'"
-              :size="14"
-            />
+            <PinIcon :color="isAlwaysOnTop ? '#CE6769' : '#6B7280'" :size="14" />
           </button>
-          <button
-            class="control-button minimize-button"
-            :title="$t('titleBar.minimize')"
-            @click="minimizeWindow"
-          >
+          <button class="control-button minimize-button" :title="$t('titleBar.minimize')" @click="minimizeWindow">
             <MinusIcon :size="14" />
           </button>
-          <button
-            class="control-button mini-button"
-            :title="$t('titleBar.miniWindow')"
-            @click="openMiniWindow"
-          >
+          <button class="control-button mini-button" :title="$t('titleBar.miniWindow')" @click="openMiniWindow">
             <ShrinkIcon :size="14" />
           </button>
-          <button
-            class="control-button close-button"
-            :title="$t('titleBar.close')"
-            @click="closeWindow"
-          >
+          <button class="control-button close-button" :title="$t('titleBar.close')" @click="closeWindow">
             <XIcon :size="14" />
           </button>
         </div>
@@ -88,20 +54,20 @@ const progress = ref(0)
 const isAlwaysOnTop = ref(false)
 const defaultLogo = computed(() => `${import.meta.env.BASE_URL}roundLogo.png`)
 
-function setAlwaysOnTop () {
+function setAlwaysOnTop() {
   isAlwaysOnTop.value = !isAlwaysOnTop.value
   window.electron.sendRPC(IRPCActionType.MAIN_WINDOW_ON_TOP)
 }
 
-function minimizeWindow () {
+function minimizeWindow() {
   window.electron.sendRPC(IRPCActionType.MINIMIZE_WINDOW)
 }
 
-function openMiniWindow () {
+function openMiniWindow() {
   window.electron.sendRPC(IRPCActionType.OPEN_MINI_WINDOW)
 }
 
-function closeWindow () {
+function closeWindow() {
   window.electron.sendRPC(IRPCActionType.CLOSE_WINDOW)
 }
 
@@ -236,7 +202,7 @@ onBeforeUnmount(() => {
 
 .pin-button.active {
   color: var(--color-accent);
-  background: var(--color-accent)20;
+  background: var(--color-accent) 20;
 }
 
 .close-button:hover {

@@ -16,54 +16,27 @@
           <div class="sync-delete-toggle">
             <span class="toggle-label">{{ t('pages.gallery.isAlwaysForceReload') }}</span>
             <label class="custom-switch">
-              <input
-                v-model="isAlwaysForceReload"
-                type="checkbox"
-                @change="handleIsAlwaysForceReload"
-              >
+              <input v-model="isAlwaysForceReload" type="checkbox" @change="handleIsAlwaysForceReload" />
               <span class="switch-slider" />
             </label>
           </div>
           <div class="sync-delete-toggle">
             <span class="toggle-label">{{ t('pages.gallery.syncDelete') }}</span>
             <label class="custom-switch">
-              <input
-                v-model="deleteCloud"
-                type="checkbox"
-                @change="handleDeleteCloudFile"
-              >
+              <input v-model="deleteCloud" type="checkbox" @change="handleDeleteCloudFile" />
               <span class="switch-slider" />
             </label>
           </div>
-          <button
-            class="action-button view-mode-toggle"
-            :title="getViewModeLabel()"
-            @click="toggleViewMode"
-          >
-            <component
-              :is="getViewModeIcon()"
-              :size="16"
-            />
+          <button class="action-button view-mode-toggle" :title="getViewModeLabel()" @click="toggleViewMode">
+            <component :is="getViewModeIcon()" :size="16" />
             {{ getViewModeLabel() }}
           </button>
-          <button
-            class="action-button"
-            @click="toggleHandleBar"
-          >
-            <ChevronDownIcon
-              v-if="!handleBarActive"
-              :size="16"
-            />
-            <ChevronUpIcon
-              v-else
-              :size="16"
-            />
+          <button class="action-button" @click="toggleHandleBar">
+            <ChevronDownIcon v-if="!handleBarActive" :size="16" />
+            <ChevronUpIcon v-else :size="16" />
             {{ handleBarActive ? t('pages.gallery.hideFilters') : t('pages.gallery.showFilters') }}
           </button>
-          <button
-            class="action-button"
-            @click="refreshPage"
-          >
+          <button class="action-button" @click="refreshPage">
             <RefreshCwIcon :size="16" />
             {{ t('pages.gallery.refresh') }}
           </button>
@@ -73,10 +46,7 @@
 
     <!-- Filter Controls Card -->
     <transition name="filter-slide">
-      <div
-        v-show="handleBarActive"
-        class="gallery-card filter-card"
-      >
+      <div v-show="handleBarActive" class="gallery-card filter-card">
         <div class="filter-content">
           <div class="filter-row">
             <div class="filter-group">
@@ -91,20 +61,9 @@
                   <span v-else>{{ choosedPicBed.length }} {{ t('pages.gallery.selected') }}</span>
                   <ChevronDownIcon :size="16" />
                 </button>
-                <div
-                  v-show="picBedDropdownOpen"
-                  class="multiselect-dropdown"
-                >
-                  <label
-                    v-for="item in picBedGlobal"
-                    :key="item.type"
-                    class="multiselect-option"
-                  >
-                    <input
-                      v-model="choosedPicBed"
-                      type="checkbox"
-                      :value="item.type"
-                    >
+                <div v-show="picBedDropdownOpen" class="multiselect-dropdown">
+                  <label v-for="item in picBedGlobal" :key="item.type" class="multiselect-option">
+                    <input v-model="choosedPicBed" type="checkbox" :value="item.type" />
                     {{ item.name }}
                   </label>
                 </div>
@@ -114,34 +73,16 @@
             <div class="filter-group">
               <label class="filter-label">{{ t('pages.gallery.dateRange') }}</label>
               <div class="date-range-picker">
-                <input
-                  v-model="dateRangeStart"
-                  type="date"
-                  class="date-input"
-                  placeholder="Start date"
-                >
+                <input v-model="dateRangeStart" type="date" class="date-input" placeholder="Start date" />
                 <span class="date-separator">-</span>
-                <input
-                  v-model="dateRangeEnd"
-                  type="date"
-                  class="date-input"
-                  placeholder="End date"
-                >
+                <input v-model="dateRangeEnd" type="date" class="date-input" placeholder="End date" />
               </div>
             </div>
 
             <div class="filter-group">
               <label class="filter-label">{{ t('pages.gallery.pasteFormat') }}</label>
-              <select
-                v-model="pasteStyle"
-                class="custom-select"
-                @change="handlePasteStyleChange"
-              >
-                <option
-                  v-for="(value, key) in pasteStyleMap"
-                  :key="key"
-                  :value="value"
-                >
+              <select v-model="pasteStyle" class="custom-select" @change="handlePasteStyleChange">
+                <option v-for="(value, key) in pasteStyleMap" :key="key" :value="value">
                   {{ key }}
                 </option>
               </select>
@@ -149,16 +90,8 @@
 
             <div class="filter-group">
               <label class="filter-label">{{ t('pages.gallery.urlType') }}</label>
-              <select
-                v-model="useShortUrl"
-                class="custom-select"
-                @change="handleUseShortUrlChange"
-              >
-                <option
-                  v-for="(value, key) in shortURLMap"
-                  :key="key"
-                  :value="value"
-                >
+              <select v-model="useShortUrl" class="custom-select" @change="handleUseShortUrlChange">
+                <option v-for="(value, key) in shortURLMap" :key="key" :value="value">
                   {{ key }}
                 </option>
               </select>
@@ -167,19 +100,12 @@
             <div class="filter-group">
               <label class="filter-label">{{ t('pages.gallery.sort') }}</label>
               <div class="sort-dropdown">
-                <button
-                  class="sort-button"
-                  :class="{ active: sortDropdownOpen }"
-                  @click="toggleSortDropdown($event)"
-                >
+                <button class="sort-button" :class="{ active: sortDropdownOpen }" @click="toggleSortDropdown($event)">
                   <SortAscIcon :size="14" />
                   {{ t('pages.gallery.sort') }}
                   <ChevronDownIcon :size="14" />
                 </button>
-                <div
-                  v-show="sortDropdownOpen"
-                  class="sort-options"
-                >
+                <div v-show="sortDropdownOpen" class="sort-options">
                   <button
                     v-for="key in ['name', 'ext', 'time', 'check']"
                     :key="key"
@@ -197,21 +123,14 @@
           <div class="filter-row">
             <div class="search-group">
               <div class="search-input-wrapper">
-                <SearchIcon
-                  :size="16"
-                  class="search-icon"
-                />
+                <SearchIcon :size="16" class="search-icon" />
                 <input
                   v-model="searchText"
                   type="text"
                   class="search-input"
                   :placeholder="$t('pages.gallery.searchFilename')"
-                >
-                <button
-                  v-if="searchText"
-                  class="clear-button"
-                  @click="cleanSearch"
-                >
+                />
+                <button v-if="searchText" class="clear-button" @click="cleanSearch">
                   <XIcon :size="14" />
                 </button>
               </div>
@@ -219,32 +138,21 @@
 
             <div class="search-group">
               <div class="search-input-wrapper">
-                <LinkIcon
-                  :size="16"
-                  class="search-icon"
-                />
+                <LinkIcon :size="16" class="search-icon" />
                 <input
                   v-model="searchTextURL"
                   type="text"
                   class="search-input"
                   :placeholder="t('pages.gallery.searchUrl')"
-                >
-                <button
-                  v-if="searchTextURL"
-                  class="clear-button"
-                  @click="cleanSearchUrl"
-                >
+                />
+                <button v-if="searchTextURL" class="clear-button" @click="cleanSearchUrl">
                   <XIcon :size="14" />
                 </button>
               </div>
             </div>
 
             <div class="action-buttons">
-              <button
-                class="action-btn copy-btn"
-                :class="{ active: isMultiple(choosedList) }"
-                @click="multiCopy"
-              >
+              <button class="action-btn copy-btn" :class="{ active: isMultiple(choosedList) }" @click="multiCopy">
                 <ClipboardIcon :size="16" />
                 {{ t('pages.gallery.copy') }}
               </button>
@@ -256,19 +164,11 @@
                 <EditIcon :size="16" />
                 {{ t('pages.gallery.edit') }}
               </button>
-              <button
-                class="action-btn delete-btn"
-                :class="{ active: isMultiple(choosedList) }"
-                @click="multiRemove"
-              >
+              <button class="action-btn delete-btn" :class="{ active: isMultiple(choosedList) }" @click="multiRemove">
                 <TrashIcon :size="16" />
                 {{ t('pages.gallery.delete') }}
               </button>
-              <button
-                class="action-btn select-btn"
-                :class="{ active: filterList.length > 0 }"
-                @click="toggleSelectAll"
-              >
+              <button class="action-btn select-btn" :class="{ active: filterList.length > 0 }" @click="toggleSelectAll">
                 <CheckSquareIcon :size="16" />
                 {{ isAllSelected ? t('pages.gallery.cancel') : t('pages.gallery.selectAll') }}
               </button>
@@ -280,14 +180,8 @@
 
     <!-- Gallery Grid -->
     <div class="gallery-card gallery-content">
-      <div
-        v-if="filterList.length === 0"
-        class="empty-state"
-      >
-        <ImageIcon
-          :size="64"
-          class="empty-icon"
-        />
+      <div v-if="filterList.length === 0" class="empty-state">
+        <ImageIcon :size="64" class="empty-icon" />
         <h3>{{ t('pages.gallery.noImagesFound') }}</h3>
         <p>{{ t('pages.gallery.tryAdjustingFilters') }}</p>
       </div>
@@ -308,53 +202,37 @@
         :item-padding="8"
       >
         <template #default="{ item, index }">
-          <div
-            class="gallery-item"
-            :class="{ selected: choosedList[item.id || ''] }"
-          >
-            <div
-              class="image-container"
-              @click="zoomImage(index)"
-            >
+          <div class="gallery-item" :class="{ selected: choosedList[item.id || ''] }">
+            <div class="image-container" @click="zoomImage(index)">
               <img
-                :src="imageErrorStates[item.key || '']
-                  ? './errorLoading.png'
-                  : isAlwaysForceReload ? addCacheBustParam(item.src) : item.src"
+                :src="
+                  imageErrorStates[item.key || '']
+                    ? './errorLoading.png'
+                    : isAlwaysForceReload
+                      ? addCacheBustParam(item.src)
+                      : item.src
+                "
                 class="gallery-image"
                 :class="{ loading: !imageLoadStates[item.key || ''] }"
                 @load="onImageLoad(item.key || '')"
                 @error="onImageError(item.key || '')"
-              >
-              <div
-                v-if="!imageLoadStates[item.key || '']"
-                class="image-loader"
-              >
+              />
+              <div v-if="!imageLoadStates[item.key || '']" class="image-loader">
                 <div class="loader-spinner" />
               </div>
             </div>
 
             <div class="image-info">
-              <div
-                class="image-name"
-                :title="item.fileName"
-              >
+              <div class="image-name" :title="item.fileName">
                 {{ formatFileName(item.fileName || '') }}
               </div>
 
               <div class="image-actions">
                 <div class="action-icons">
-                  <button
-                    :title="t('pages.gallery.copy')"
-                    class="icon-button copy-icon"
-                    @click.stop="copy(item)"
-                  >
+                  <button :title="t('pages.gallery.copy')" class="icon-button copy-icon" @click.stop="copy(item)">
                     <ClipboardIcon :size="16" />
                   </button>
-                  <button
-                    :title="t('pages.gallery.edit')"
-                    class="icon-button edit-icon"
-                    @click.stop="openDialog(item)"
-                  >
+                  <button :title="t('pages.gallery.edit')" class="icon-button edit-icon" @click.stop="openDialog(item)">
                     <EditIcon :size="16" />
                   </button>
                   <button
@@ -370,8 +248,8 @@
                   <input
                     v-model="choosedList[item.id ? item.id : '']"
                     type="checkbox"
-                    @change="(e) => handleChooseImage((e.target as HTMLInputElement).checked, index)"
-                  >
+                    @change="e => handleChooseImage((e.target as HTMLInputElement).checked, index)"
+                  />
                   <span class="checkbox-mark" />
                 </label>
               </div>
@@ -393,36 +271,20 @@
       >
         <div class="modal-backdrop" />
         <div class="modal-content">
-          <button
-            class="modal-close"
-            @click="handleClose"
-          >
+          <button class="modal-close" @click="handleClose">
             <XIcon :size="24" />
           </button>
 
           <!-- Zoom controls -->
           <div class="zoom-controls">
-            <button
-              class="zoom-btn"
-              :disabled="imagePreviewState.scale <= 0.1"
-              @click="zoomOut"
-            >
+            <button class="zoom-btn" :disabled="imagePreviewState.scale <= 0.1" @click="zoomOut">
               <span>-</span>
             </button>
             <span class="zoom-level">{{ Math.round(imagePreviewState.scale * 100) }}%</span>
-            <button
-              class="zoom-btn"
-              :disabled="imagePreviewState.scale >= 5"
-              @click="zoomIn"
-            >
+            <button class="zoom-btn" :disabled="imagePreviewState.scale >= 5" @click="zoomIn">
               <span>+</span>
             </button>
-            <button
-              class="zoom-btn reset-btn"
-              @click="resetImageTransform"
-            >
-              Reset
-            </button>
+            <button class="zoom-btn reset-btn" @click="resetImageTransform">Reset</button>
           </div>
 
           <div class="image-navigation">
@@ -452,7 +314,7 @@
                 :style="imageTransformStyle"
                 @dragstart.prevent
                 @contextmenu.prevent
-              >
+              />
             </div>
 
             <button
@@ -466,9 +328,7 @@
 
           <div class="image-details">
             <h3>{{ currentPreviewImage?.intro }}</h3>
-            <div class="image-counter">
-              {{ gallerySliderControl.index + 1 }} / {{ filterList.length }}
-            </div>
+            <div class="image-counter">{{ gallerySliderControl.index + 1 }} / {{ filterList.length }}</div>
             <div class="image-help-text">
               {{ t('pages.gallery.previewHelp') }}
             </div>
@@ -479,43 +339,22 @@
 
     <!-- Edit URL Modal -->
     <transition name="modal">
-      <div
-        v-if="dialogVisible"
-        class="modal-overlay"
-        @click="dialogVisible = false"
-      >
-        <div
-          class="modal-container"
-          @click.stop
-        >
+      <div v-if="dialogVisible" class="modal-overlay" @click="dialogVisible = false">
+        <div class="modal-container" @click.stop>
           <div class="modal-header">
             <h3>{{ t('pages.gallery.changeImageUrl') }}</h3>
-            <button
-              class="modal-close-btn"
-              @click="dialogVisible = false"
-            >
+            <button class="modal-close-btn" @click="dialogVisible = false">
               <XIcon :size="20" />
             </button>
           </div>
           <div class="modal-body">
-            <input
-              v-model="imgInfo.imgUrl"
-              type="text"
-              class="form-input"
-              placeholder="Enter new URL"
-            >
+            <input v-model="imgInfo.imgUrl" type="text" class="form-input" placeholder="Enter new URL" />
           </div>
           <div class="modal-footer">
-            <button
-              class="btn-secondary"
-              @click="dialogVisible = false"
-            >
+            <button class="btn-secondary" @click="dialogVisible = false">
               {{ t('common.cancel') }}
             </button>
-            <button
-              class="btn-primary"
-              @click="confirmModify"
-            >
+            <button class="btn-primary" @click="confirmModify">
               {{ t('common.confirm') }}
             </button>
           </div>
@@ -525,21 +364,11 @@
 
     <!-- Batch Rename Modal -->
     <transition name="modal">
-      <div
-        v-if="isShowBatchRenameDialog"
-        class="modal-overlay"
-        @click="isShowBatchRenameDialog = false"
-      >
-        <div
-          class="modal-container large"
-          @click.stop
-        >
+      <div v-if="isShowBatchRenameDialog" class="modal-overlay" @click="isShowBatchRenameDialog = false">
+        <div class="modal-container large" @click.stop>
           <div class="modal-header">
             <h3>{{ t('pages.gallery.batchEditUrl') }}</h3>
-            <button
-              class="modal-close-btn"
-              @click="isShowBatchRenameDialog = false"
-            >
+            <button class="modal-close-btn" @click="isShowBatchRenameDialog = false">
               <XIcon :size="20" />
             </button>
           </div>
@@ -553,32 +382,21 @@
                 type="text"
                 class="form-input"
                 :placeholder="t('pages.gallery.regexPatternPlaceholder')"
-              >
+              />
             </div>
 
             <div class="form-group">
               <label class="form-label">
                 {{ t('pages.gallery.replacedWith') }}
-                <button
-                  class="info-button"
-                  @click="showFormatInfo = !showFormatInfo"
-                >
+                <button class="info-button" @click="showFormatInfo = !showFormatInfo">
                   <InfoIcon :size="16" />
                 </button>
               </label>
-              <input
-                v-model="batchRenameReplace"
-                type="text"
-                class="form-input"
-                placeholder="Ex. {Y}-{m}-{uuid}"
-              >
+              <input v-model="batchRenameReplace" type="text" class="form-input" placeholder="Ex. {Y}-{m}-{uuid}" />
             </div>
 
             <!-- Format Info Panel -->
-            <div
-              v-if="showFormatInfo"
-              class="form-group"
-            >
+            <div v-if="showFormatInfo" class="form-group">
               <label>{{ t('pages.settings.upload.availablePlaceholders') }}</label>
               <div class="placeholder-help">
                 <div class="placeholder-category">
@@ -635,16 +453,10 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button
-              class="btn-secondary"
-              @click="isShowBatchRenameDialog = false"
-            >
+            <button class="btn-secondary" @click="isShowBatchRenameDialog = false">
               {{ t('common.cancel') }}
             </button>
-            <button
-              class="btn-primary"
-              @click="handleBatchRename()"
-            >
+            <button class="btn-primary" @click="handleBatchRename()">
               {{ t('common.confirm') }}
             </button>
           </div>
@@ -827,7 +639,7 @@ const dateRange = computed({
   }
 })
 
-function copyPlaceholder (placeholder: string) {
+function copyPlaceholder(placeholder: string) {
   window.electron.clipboard.writeText(placeholder)
   message.success(t('pages.settings.upload.copySuccess', { content: placeholder }))
 }
@@ -860,21 +672,21 @@ const currentPreviewImage = computed(() => {
 const imageTransformStyle = computed(() => {
   return {
     transform: `translate(${imagePreviewState.translateX}px, ${imagePreviewState.translateY}px) scale(${imagePreviewState.scale})`,
-    cursor: imagePreviewState.isDragging ? 'grabbing' : (imagePreviewState.scale > 1 ? 'grab' : 'default'),
+    cursor: imagePreviewState.isDragging ? 'grabbing' : imagePreviewState.scale > 1 ? 'grab' : 'default',
     transition: imagePreviewState.isDragging ? 'none' : 'transform 0.2s ease-out'
   }
 })
 
-function onImageLoad (id: string) {
+function onImageLoad(id: string) {
   imageLoadStates[id] = true
 }
 
-function onImageError (id: string) {
+function onImageError(id: string) {
   imageLoadStates[id] = false
   imageErrorStates[id] = true
 }
 
-function togglePicBedDropdown (event?: Event) {
+function togglePicBedDropdown(event?: Event) {
   picBedDropdownOpen.value = !picBedDropdownOpen.value
   if (sortDropdownOpen.value) sortDropdownOpen.value = false
 
@@ -892,7 +704,7 @@ function togglePicBedDropdown (event?: Event) {
   }
 }
 
-function toggleSortDropdown (event?: Event) {
+function toggleSortDropdown(event?: Event) {
   sortDropdownOpen.value = !sortDropdownOpen.value
   if (picBedDropdownOpen.value) picBedDropdownOpen.value = false
 
@@ -910,7 +722,7 @@ function toggleSortDropdown (event?: Event) {
   }
 }
 
-function navigateImage (direction: number) {
+function navigateImage(direction: number) {
   const newIndex = gallerySliderControl.index + direction
   if (newIndex >= 0 && newIndex < filterList.value.length) {
     gallerySliderControl.index = newIndex
@@ -918,19 +730,19 @@ function navigateImage (direction: number) {
   }
 }
 
-function resetImageTransform () {
+function resetImageTransform() {
   imagePreviewState.scale = 1
   imagePreviewState.translateX = 0
   imagePreviewState.translateY = 0
   imagePreviewState.isDragging = false
 }
 
-function zoomIn () {
+function zoomIn() {
   const newScale = Math.min(imagePreviewState.scale * 1.2, 5)
   imagePreviewState.scale = newScale
 }
 
-function zoomOut () {
+function zoomOut() {
   const newScale = Math.max(imagePreviewState.scale / 1.2, 0.1)
   imagePreviewState.scale = newScale
 
@@ -940,13 +752,12 @@ function zoomOut () {
   }
 }
 
-function handleImageWheel (event: WheelEvent) {
+function handleImageWheel(event: WheelEvent) {
   event.preventDefault()
   const delta = event.deltaY > 0 ? -1 : 1
   const zoomFactor = 1.1
-  const newScale = delta > 0
-    ? Math.min(imagePreviewState.scale * zoomFactor, 5)
-    : Math.max(imagePreviewState.scale / zoomFactor, 0.1)
+  const newScale =
+    delta > 0 ? Math.min(imagePreviewState.scale * zoomFactor, 5) : Math.max(imagePreviewState.scale / zoomFactor, 0.1)
 
   imagePreviewState.scale = newScale
 
@@ -956,7 +767,7 @@ function handleImageWheel (event: WheelEvent) {
   }
 }
 
-function handleKeydown (event: KeyboardEvent) {
+function handleKeydown(event: KeyboardEvent) {
   switch (event.key) {
     case 'ArrowLeft':
       event.preventDefault()
@@ -986,7 +797,7 @@ function handleKeydown (event: KeyboardEvent) {
   }
 }
 
-function handleImageMouseDown (event: MouseEvent) {
+function handleImageMouseDown(event: MouseEvent) {
   if (imagePreviewState.scale <= 1) {
     imagePreviewState.isSwipeMode = true
     imagePreviewState.swipeStartX = event.clientX
@@ -1000,7 +811,7 @@ function handleImageMouseDown (event: MouseEvent) {
   event.preventDefault()
 }
 
-function handleImageMouseMove (event: MouseEvent) {
+function handleImageMouseMove(event: MouseEvent) {
   if (imagePreviewState.isDragging && imagePreviewState.scale > 1) {
     const deltaX = event.clientX - imagePreviewState.startX
     const deltaY = event.clientY - imagePreviewState.startY
@@ -1009,7 +820,7 @@ function handleImageMouseMove (event: MouseEvent) {
   }
 }
 
-function handleImageMouseUp (event: MouseEvent) {
+function handleImageMouseUp(event: MouseEvent) {
   if (imagePreviewState.isSwipeMode) {
     const deltaX = event.clientX - imagePreviewState.swipeStartX
     if (Math.abs(deltaX) > imagePreviewState.swipeThreshold) {
@@ -1024,7 +835,7 @@ function handleImageMouseUp (event: MouseEvent) {
   imagePreviewState.isDragging = false
 }
 
-function handleImageTouchStart (event: TouchEvent) {
+function handleImageTouchStart(event: TouchEvent) {
   const touch = event.touches[0]
   if (imagePreviewState.scale <= 1) {
     imagePreviewState.isSwipeMode = true
@@ -1039,7 +850,7 @@ function handleImageTouchStart (event: TouchEvent) {
   event.preventDefault()
 }
 
-function handleImageTouchMove (event: TouchEvent) {
+function handleImageTouchMove(event: TouchEvent) {
   if (imagePreviewState.isDragging && imagePreviewState.scale > 1) {
     const touch = event.touches[0]
     const deltaX = touch.clientX - imagePreviewState.startX
@@ -1050,7 +861,7 @@ function handleImageTouchMove (event: TouchEvent) {
   event.preventDefault()
 }
 
-function handleImageTouchEnd (event: TouchEvent) {
+function handleImageTouchEnd(event: TouchEvent) {
   if (imagePreviewState.isSwipeMode && event.changedTouches.length > 0) {
     const touch = event.changedTouches[0]
     const deltaX = touch.clientX - imagePreviewState.swipeStartX
@@ -1066,16 +877,16 @@ function handleImageTouchEnd (event: TouchEvent) {
   imagePreviewState.isDragging = false
 }
 
-function toggleViewMode () {
+function toggleViewMode() {
   viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
   localStorage.setItem('galleryViewMode', viewMode.value)
 }
 
-function getViewModeIcon () {
+function getViewModeIcon() {
   return viewMode.value === 'list' ? ListIcon : GridIcon
 }
 
-function getViewModeLabel () {
+function getViewModeLabel() {
   return t(`pages.gallery.${viewMode.value}View`)
 }
 
@@ -1088,8 +899,8 @@ onBeforeRouteUpdate((to, from) => {
   }
 })
 
-async function initConf () {
-  viewMode.value = localStorage.getItem('galleryViewMode') as 'list' | 'grid' || 'grid'
+async function initConf() {
+  viewMode.value = (localStorage.getItem('galleryViewMode') as 'list' | 'grid') || 'grid'
   pasteStyle.value = (await getConfig(configPaths.settings.pasteStyle)) || IPasteStyle.MARKDOWN
   useShortUrl.value = (await getConfig(configPaths.settings.useShortUrl))
     ? t('pages.gallery.shortUrl')
@@ -1104,7 +915,7 @@ const updateGalleryHandler = () => {
   })
 }
 
-function handleOutsideClick (event: Event) {
+function handleOutsideClick(event: Event) {
   const target = event.target as Element
   if (!target.closest('.custom-multiselect') && !target.closest('.sort-dropdown')) {
     picBedDropdownOpen.value = false
@@ -1112,7 +923,7 @@ function handleOutsideClick (event: Event) {
   }
 }
 
-function handleDetectShiftKey (event: KeyboardEvent) {
+function handleDetectShiftKey(event: KeyboardEvent) {
   if (event.key === 'Shift') {
     isShiftKeyPress.value = event.type === 'keydown'
   }
@@ -1133,11 +944,11 @@ const addCacheBustParam = (url: string | undefined) => {
   }
 }
 
-function formatFileName (name: string) {
+function formatFileName(name: string) {
   return window.node.path.basename(name)
 }
 
-function getGallery (): IGalleryItem[] {
+function getGallery(): IGalleryItem[] {
   if (debouncedSearchText.value || choosedPicBed.value.length > 0 || debouncedSearchTextURL.value || dateRange.value) {
     return images.value
       .filter(item => {
@@ -1181,7 +992,7 @@ function getGallery (): IGalleryItem[] {
   }
 }
 
-async function updateGallery () {
+async function updateGallery() {
   const newList = (await $$db.get({ orderBy: 'desc' }))!.data
   const newIds = new Set(newList.map(it => it.id))
   Object.keys(imageLoadStates).forEach(k => {
@@ -1193,12 +1004,14 @@ async function updateGallery () {
   })
 }
 
-watch(filterList, () => { clearChoosedList() })
+watch(filterList, () => {
+  clearChoosedList()
+})
 
 let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
 let searchURLDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
-watch(searchText, (newVal) => {
+watch(searchText, newVal => {
   if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
   searchDebounceTimer = setTimeout(() => {
     debouncedSearchText.value = newVal
@@ -1208,7 +1021,7 @@ watch(searchText, (newVal) => {
   }, 300)
 })
 
-watch(searchTextURL, (newVal) => {
+watch(searchTextURL, newVal => {
   if (searchURLDebounceTimer) clearTimeout(searchURLDebounceTimer)
   searchURLDebounceTimer = setTimeout(() => {
     debouncedSearchTextURL.value = newVal
@@ -1218,7 +1031,7 @@ watch(searchTextURL, (newVal) => {
   }, 300)
 })
 
-function handleChooseImage (val: boolean, index: number) {
+function handleChooseImage(val: boolean, index: number) {
   const currentItem = filterList.value[index]
   if (currentItem && currentItem.id) {
     choosedList[currentItem.id] = val
@@ -1237,11 +1050,11 @@ function handleChooseImage (val: boolean, index: number) {
   }
 }
 
-function refreshPage () {
+function refreshPage() {
   window.electron.sendRPC(IRPCActionType.REFRESH_SETTING_WINDOW)
 }
 
-function clearChoosedList () {
+function clearChoosedList() {
   isShiftKeyPress.value = false
   Object.keys(choosedList).forEach(key => {
     delete choosedList[key]
@@ -1249,7 +1062,7 @@ function clearChoosedList () {
   lastChoosed.value = -1
 }
 
-function zoomImage (index: number) {
+function zoomImage(index: number) {
   gallerySliderControl.index = index
   gallerySliderControl.visible = true
   resetImageTransform()
@@ -1262,13 +1075,13 @@ function zoomImage (index: number) {
   })
 }
 
-function handleClose () {
+function handleClose() {
   gallerySliderControl.index = 0
   gallerySliderControl.visible = false
   resetImageTransform()
 }
 
-async function copy (item: ImgInfo) {
+async function copy(item: ImgInfo) {
   item.config = JSON.parse(JSON.stringify(item.config) || '{}')
   const result = await window.electron.triggerRPC<[string, string]>(IRPCActionType.GALLERY_PASTE_TEXT, getRawData(item))
   if (result && result[1] && item.id) {
@@ -1281,7 +1094,7 @@ async function copy (item: ImgInfo) {
   message.success(t('pages.gallery.copyLinkSucceed'))
 }
 
-function remove (item: ImgInfo, _: number) {
+function remove(item: ImgInfo, _: number) {
   if (!item.id) return
 
   confirm({
@@ -1294,7 +1107,9 @@ function remove (item: ImgInfo, _: number) {
   }).then(async result => {
     if (!result) return
     const file = await $$db.getById(item.id!)
-    const isNeedDeleteCloudFile = await getConfig(configPaths.settings.deleteCloudFile) && picBedsCanbeDeleted.includes(item?.type || 'placeholder')
+    const isNeedDeleteCloudFile =
+      (await getConfig(configPaths.settings.deleteCloudFile)) &&
+      picBedsCanbeDeleted.includes(item?.type || 'placeholder')
     if (isNeedDeleteCloudFile) {
       const result = await ALLApi.delete(getRawData(item))
       if (result) {
@@ -1314,7 +1129,7 @@ function remove (item: ImgInfo, _: number) {
   })
 }
 
-function handleIsAlwaysForceReload (event: Event) {
+function handleIsAlwaysForceReload(event: Event) {
   const ev = (event.target as HTMLInputElement).checked
   isAlwaysForceReload.value = ev
   saveConfig({
@@ -1323,19 +1138,19 @@ function handleIsAlwaysForceReload (event: Event) {
   window.electron.sendRPC(IRPCActionType.REFRESH_SETTING_WINDOW)
 }
 
-function handleDeleteCloudFile (event: Event) {
+function handleDeleteCloudFile(event: Event) {
   saveConfig({
     [configPaths.settings.deleteCloudFile]: (event.target as HTMLInputElement).checked
   })
 }
 
-function openDialog (item: ImgInfo) {
+function openDialog(item: ImgInfo) {
   imgInfo.id = item.id!
   imgInfo.imgUrl = item.imgUrl as string
   dialogVisible.value = true
 }
 
-async function confirmModify () {
+async function confirmModify() {
   await $$db.updateById(imgInfo.id, {
     imgUrl: imgInfo.imgUrl
   })
@@ -1344,26 +1159,26 @@ async function confirmModify () {
   updateGallery()
 }
 
-function cleanSearch () {
+function cleanSearch() {
   searchText.value = ''
 }
 
-function cleanSearchUrl () {
+function cleanSearchUrl() {
   searchTextURL.value = ''
 }
 
-function isMultiple (obj: IObj) {
+function isMultiple(obj: IObj) {
   return Object.values(obj).some(item => item)
 }
 
-function toggleSelectAll () {
+function toggleSelectAll() {
   const result = !isAllSelected.value
   filterList.value.forEach(item => {
     choosedList[item.id!] = result
   })
 }
 
-function multiRemove () {
+function multiRemove() {
   const multiRemoveNumber = Object.values(choosedList).filter(item => item).length
   if (multiRemoveNumber) {
     confirm({
@@ -1425,7 +1240,7 @@ function multiRemove () {
   }
 }
 
-async function multiCopy () {
+async function multiCopy() {
   if (Object.values(choosedList).some(item => item)) {
     const copyString: string[] = []
     const imageIDList = Object.keys(choosedList)
@@ -1448,25 +1263,25 @@ async function multiCopy () {
   }
 }
 
-function toggleHandleBar () {
+function toggleHandleBar() {
   handleBarActive.value = !handleBarActive.value
 }
 
-async function handlePasteStyleChange (event: Event) {
+async function handlePasteStyleChange(event: Event) {
   const target = event.target as HTMLSelectElement
   const val = target.value
   saveConfig(configPaths.settings.pasteStyle, val)
   pasteStyle.value = val
 }
 
-function handleUseShortUrlChange (event: Event) {
+function handleUseShortUrlChange(event: Event) {
   const target = event.target as HTMLSelectElement
   const value = target.value
   saveConfig(configPaths.settings.useShortUrl, value === t('pages.gallery.shortUrl'))
   useShortUrl.value = value
 }
 
-function sortFile (type: 'name' | 'time' | 'ext' | 'check') {
+function sortFile(type: 'name' | 'time' | 'ext' | 'check') {
   sortDropdownOpen.value = false
   switch (type) {
     case 'name':
@@ -1513,7 +1328,7 @@ function sortFile (type: 'name' | 'time' | 'ext' | 'check') {
   }
 }
 
-function handleBatchRename () {
+function handleBatchRename() {
   isShowBatchRenameDialog.value = false
   if (batchRenameMatch.value === '') {
     message.warning(t('pages.gallery.inputRegexTip'))
@@ -1569,12 +1384,14 @@ function handleBatchRename () {
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
       center: true
-    }).then(result => {
-      if (!result) return
-      rename()
-    }).catch(() => {
-      message.info(t('pages.gallery.canceled'))
     })
+      .then(result => {
+        if (!result) return
+        rename()
+      })
+      .catch(() => {
+        message.info(t('pages.gallery.canceled'))
+      })
   } else {
     rename()
   }
@@ -1597,7 +1414,7 @@ onBeforeUnmount(async () => {
   // Clear timers
   if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
   if (searchURLDebounceTimer) clearTimeout(searchURLDebounceTimer)
-  isAlwaysForceReload.value = await getConfig(configPaths.settings.isAlwaysForceReload) || false
+  isAlwaysForceReload.value = (await getConfig(configPaths.settings.isAlwaysForceReload)) || false
 })
 
 onActivated(async () => {

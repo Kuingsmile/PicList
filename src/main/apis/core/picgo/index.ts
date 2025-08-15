@@ -21,7 +21,7 @@ picgo.GUI_VERSION = pkg.version
 
 const originPicGoSaveConfig = picgo.saveConfig.bind(picgo)
 
-function flushDB () {
+function flushDB() {
   db.read(true)
 }
 

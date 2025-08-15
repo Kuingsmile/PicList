@@ -37,12 +37,12 @@ class RPCServer implements IRPCServer {
     }
   }
 
-  start () {
+  start() {
     ipcMain.on(RPC_ACTIONS, this.rpcEventHandler)
     ipcMain.handle(RPC_ACTIONS_INVOKE, this.rpcEventHandlerWithResponse)
   }
 
-  use (routes: IRPCRoutes) {
+  use(routes: IRPCRoutes) {
     for (const [action, route] of routes) {
       if (route.type === IRPCType.SEND) {
         this.routes.set(action, route)
@@ -52,7 +52,7 @@ class RPCServer implements IRPCServer {
     }
   }
 
-  stop () {
+  stop() {
     ipcMain.off(RPC_ACTIONS, this.rpcEventHandler)
   }
 }

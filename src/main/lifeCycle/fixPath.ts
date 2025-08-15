@@ -1,6 +1,6 @@
 import { shellPathSync } from 'shell-path'
 
-export default function fixPath () {
+export default function fixPath() {
   if (process.platform === 'win32') {
     return
   }

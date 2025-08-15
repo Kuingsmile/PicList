@@ -1,8 +1,5 @@
 <template>
-  <div
-    id="main"
-    class="app-container"
-  >
+  <div id="main" class="app-container">
     <InputBoxDialog />
     <TitleBar />
     <div class="app-background">
@@ -12,15 +9,9 @@
     <main class="main-content">
       <div class="content-container">
         <router-view v-slot="{ Component, route }">
-          <transition
-            name="page"
-            mode="out-in"
-          >
+          <transition name="page" mode="out-in">
             <keep-alive :include="keepAlivePages">
-              <component
-                :is="Component"
-                :key="route.path"
-              />
+              <component :is="Component" :key="route.path" />
             </keep-alive>
           </transition>
         </router-view>

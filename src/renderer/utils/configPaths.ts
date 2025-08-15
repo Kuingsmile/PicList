@@ -1,6 +1,24 @@
 import type { IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
 
-import type { IAliYunConfig, IAwsS3PListUserConfig, IGitHubConfig, IImgurConfig, ILocalConfig, ILskyConfig, IPicBedType, IQiniuConfig, IServerConfig, ISftpPlistConfig, IShortKeyConfig, ISMMSConfig, ISyncConfig, ITcYunConfig, IUploaderConfig, IUpYunConfig, IWebdavPlistConfig } from '#/types/types'
+import type {
+  IAliYunConfig,
+  IAwsS3PListUserConfig,
+  IGitHubConfig,
+  IImgurConfig,
+  ILocalConfig,
+  ILskyConfig,
+  IPicBedType,
+  IQiniuConfig,
+  IServerConfig,
+  ISftpPlistConfig,
+  IShortKeyConfig,
+  ISMMSConfig,
+  ISyncConfig,
+  ITcYunConfig,
+  IUploaderConfig,
+  IUpYunConfig,
+  IWebdavPlistConfig
+} from '#/types/types'
 
 export type manualPageOpenType = 'window' | 'browser'
 

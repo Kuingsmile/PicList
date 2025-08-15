@@ -5,7 +5,7 @@ import { screen } from 'electron'
 import { configPaths } from '~/utils/configPaths'
 import { IWindowList } from '~/utils/enum'
 
-export function openMiniWindow (hideSettingWindow: boolean = true) {
+export function openMiniWindow(hideSettingWindow: boolean = true) {
   const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
 
   miniWindow.removeAllListeners('close')
@@ -24,9 +24,15 @@ export function openMiniWindow (hideSettingWindow: boolean = true) {
     if (lastPosition[0] < 0 || lastPosition[0] > width || lastPosition[1] < 0 || lastPosition[1] > height) {
       miniWindow.setPosition(width - 100, height - 100)
       db.set(configPaths.settings.miniWindowPosition, [width - 100, height - 100])
-    } else if (lastPosition[0] + miniWindow.getSize()[0] > width || lastPosition[1] + miniWindow.getSize()[1] > height) {
+    } else if (
+      lastPosition[0] + miniWindow.getSize()[0] > width ||
+      lastPosition[1] + miniWindow.getSize()[1] > height
+    ) {
       miniWindow.setPosition(width - miniWindow.getSize()[0], height - miniWindow.getSize()[1])
-      db.set(configPaths.settings.miniWindowPosition, [width - miniWindow.getSize()[0], height - miniWindow.getSize()[1]])
+      db.set(configPaths.settings.miniWindowPosition, [
+        width - miniWindow.getSize()[0],
+        height - miniWindow.getSize()[1]
+      ])
     } else {
       miniWindow.setPosition(lastPosition[0], lastPosition[1])
     }

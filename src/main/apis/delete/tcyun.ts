@@ -7,14 +7,14 @@ interface IConfigMap {
   config: PartialKeys<ITcYunConfig, 'path'>
 }
 export default class TcyunApi {
-  static #createCOS (SecretId: string, SecretKey: string): COS {
+  static #createCOS(SecretId: string, SecretKey: string): COS {
     return new COS({
       SecretId,
       SecretKey
     })
   }
 
-  static async delete (configMap: IConfigMap): Promise<boolean> {
+  static async delete(configMap: IConfigMap): Promise<boolean> {
     const {
       fileName,
       config: { secretId, secretKey, bucket, area, path }

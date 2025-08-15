@@ -5,10 +5,7 @@
       <div class="card-header">
         <div class="header-content">
           <div class="header-icon">
-            <img
-              :src="`./assets/${currentPagePicBedConfig.picBedName}.webp`"
-              class="header-icon-img"
-            >
+            <img :src="`./assets/${currentPagePicBedConfig.picBedName}.webp`" class="header-icon-img" />
           </div>
           <div class="header-text">
             <h2 class="header-title">
@@ -20,10 +17,7 @@
           </div>
         </div>
         <div class="header-actions">
-          <button
-            class="action-button secondary"
-            @click="openPicBedUrl"
-          >
+          <button class="action-button secondary" @click="openPicBedUrl">
             <ExternalLinkIcon class="button-icon" />
             {{ t('pages.manage.main.openPicBedUrl') }}
           </button>
@@ -42,11 +36,7 @@
     <!-- Main Content Card -->
     <div class="manage-card main-card">
       <div class="main-layout">
-        <div
-          ref="sidebar"
-          class="sidebar"
-          :style="{ width: sidebarWidth + 'px' }"
-        >
+        <div ref="sidebar" class="sidebar" :style="{ width: sidebarWidth + 'px' }">
           <div class="sidebar-header">
             <h3 class="sidebar-title">
               {{ menuTitleMap[currentPicBedName] }}
@@ -54,17 +44,11 @@
           </div>
 
           <div class="sidebar-content">
-            <div
-              v-if="isLoadingBucketList"
-              class="loading-container"
-            >
+            <div v-if="isLoadingBucketList" class="loading-container">
               <div class="loading-spinner" />
               <span class="loading-text">{{ t('pages.manage.main.loading') }}</span>
             </div>
-            <div
-              v-else
-              class="menu-list"
-            >
+            <div v-else class="menu-list">
               <div
                 v-for="item in bucketNameList"
                 :key="item"
@@ -76,18 +60,9 @@
                   v-if="currentSelectedBucket === item && currentPicBedName !== 'github'"
                   class="menu-icon active"
                 />
-                <FolderIcon
-                  v-else-if="currentPicBedName !== 'github'"
-                  class="menu-icon"
-                />
-                <GitBranchIcon
-                  v-else-if="currentPicBedName === 'github'"
-                  class="menu-icon"
-                />
-                <span
-                  class="menu-text"
-                  :title="item"
-                >
+                <FolderIcon v-else-if="currentPicBedName !== 'github'" class="menu-icon" />
+                <GitBranchIcon v-else-if="currentPicBedName === 'github'" class="menu-icon" />
+                <span class="menu-text" :title="item">
                   {{ truncateText(item, currentPicBedName) }}
                 </span>
               </div>
@@ -96,24 +71,15 @@
 
           <div class="sidebar-footer">
             <div class="footer-actions">
-              <button
-                class="footer-action-item"
-                @click="switchPicBed('main')"
-              >
+              <button class="footer-action-item" @click="switchPicBed('main')">
                 <HomeIcon class="action-icon" />
                 <span class="action-text">{{ t('pages.manage.main.backToHome') }}</span>
               </button>
-              <button
-                class="footer-action-item"
-                @click="changePicBed"
-              >
+              <button class="footer-action-item" @click="changePicBed">
                 <ArrowLeftRightIcon class="action-icon" />
                 <span class="action-text">{{ t('pages.manage.main.switchPicBed') }}</span>
               </button>
-              <button
-                class="footer-action-item"
-                @click="openBucketPageSetting"
-              >
+              <button class="footer-action-item" @click="openBucketPageSetting">
                 <SettingsIcon class="action-icon" />
                 <span class="action-text">{{ t('pages.manage.main.settings') }}</span>
               </button>
@@ -122,50 +88,31 @@
         </div>
 
         <!-- Resize Handle -->
-        <div
-          class="resize-handle"
-          @mousedown="startResize"
-        >
+        <div class="resize-handle" @mousedown="startResize">
           <div class="resize-line" />
         </div>
 
-        <div
-          ref="contentArea"
-          class="content-area"
-        >
+        <div ref="contentArea" class="content-area">
           <router-view />
         </div>
       </div>
     </div>
 
     <!-- PicBed Switch Dialog -->
-    <div
-      v-if="picBedSwitchDialogVisible"
-      class="dialog-overlay"
-      @click="picBedSwitchDialogVisible = false"
-    >
-      <div
-        class="dialog-container"
-        @click.stop
-      >
+    <div v-if="picBedSwitchDialogVisible" class="dialog-overlay" @click="picBedSwitchDialogVisible = false">
+      <div class="dialog-container" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
             {{ t('pages.manage.main.switchPicBed') }}
           </h3>
-          <button
-            class="dialog-close"
-            @click="picBedSwitchDialogVisible = false"
-          >
+          <button class="dialog-close" @click="picBedSwitchDialogVisible = false">
             <XIcon class="close-icon" />
           </button>
         </div>
         <div class="dialog-content">
           <div class="choice-cos">
             <!-- Back to main card -->
-            <div
-              class="picbed-card main-card"
-              @click="switchPicBed('main')"
-            >
+            <div class="picbed-card main-card" @click="switchPicBed('main')">
               <div class="card-icon">
                 <HomeIcon class="main-icon" />
               </div>
@@ -185,20 +132,14 @@
               @click="switchPicBed(String(alias))"
             >
               <div class="card-icon">
-                <img
-                  :src="`./assets/${config.picBedName}.webp`"
-                  class="picbed-icon"
-                >
+                <img :src="`./assets/${config.picBedName}.webp`" class="picbed-icon" />
               </div>
               <div class="card-content">
                 <div class="card-title">
                   {{ config.alias }}
                 </div>
               </div>
-              <div
-                v-if="String(alias) === currentAlias"
-                class="check-icon"
-              >
+              <div v-if="String(alias) === currentAlias" class="check-icon">
                 <CheckIcon />
               </div>
             </div>
@@ -208,23 +149,13 @@
     </div>
 
     <!-- New Bucket Drawer -->
-    <div
-      v-if="nweBucketDrawerVisible"
-      class="drawer-overlay"
-      @click="nweBucketDrawerVisible = false"
-    >
-      <div
-        class="drawer-container"
-        @click.stop
-      >
+    <div v-if="nweBucketDrawerVisible" class="drawer-overlay" @click="nweBucketDrawerVisible = false">
+      <div class="drawer-container" @click.stop>
         <div class="drawer-header">
           <h3 class="drawer-title">
             {{ t('pages.manage.main.newBucket') }}
           </h3>
-          <button
-            class="drawer-close"
-            @click="nweBucketDrawerVisible = false"
-          >
+          <button class="drawer-close" @click="nweBucketDrawerVisible = false">
             <XIcon class="close-icon" />
           </button>
         </div>
@@ -232,36 +163,35 @@
           <form @submit.prevent="createNewBucket(currentPicBedName)">
             <div class="form-header">
               <div class="form-icon">
-                <img
-                  :src="`./assets/${currentPicBedName}.webp`"
-                  class="picbed-form-icon"
-                >
+                <img :src="`./assets/${currentPicBedName}.webp`" class="picbed-form-icon" />
               </div>
             </div>
 
             <div class="form-divider" />
 
-            <div
-              v-for="option in newBucketConfig[currentPicBedName].options"
-              :key="option"
-              class="form-group"
-            >
+            <div v-for="option in newBucketConfig[currentPicBedName].options" :key="option" class="form-group">
               <label class="form-label">
                 {{ newBucketConfig[currentPicBedName].configOptions[option].description }}
               </label>
 
               <!-- Input field -->
               <input
-                v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'input' && currentPicBedName !== 'tcyun'"
+                v-if="
+                  newBucketConfig[currentPicBedName].configOptions[option].component === 'input' &&
+                  currentPicBedName !== 'tcyun'
+                "
                 v-model.trim="newBucketConfigResult[currentPicBedName + '.' + option]"
                 type="text"
                 class="form-input"
                 :placeholder="newBucketConfig[currentPicBedName].configOptions[option].placeholder"
-              >
+              />
 
               <!-- TCyun special input with append -->
               <div
-                v-if="currentPicBedName === 'tcyun' && newBucketConfig[currentPicBedName].configOptions[option].component === 'input'"
+                v-if="
+                  currentPicBedName === 'tcyun' &&
+                  newBucketConfig[currentPicBedName].configOptions[option].component === 'input'
+                "
                 class="input-group"
               >
                 <input
@@ -269,7 +199,7 @@
                   type="text"
                   class="form-input group-input"
                   :placeholder="newBucketConfig[currentPicBedName].configOptions[option].placeholder"
-                >
+                />
                 <span class="input-append">{{ '-' + currentPagePicBedConfig.appId }}</span>
               </div>
 
@@ -278,10 +208,7 @@
                 v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'select'"
                 class="select-wrapper"
               >
-                <select
-                  v-model="newBucketConfigResult[currentPicBedName + '.' + option]"
-                  class="form-select"
-                >
+                <select v-model="newBucketConfigResult[currentPicBedName + '.' + option]" class="form-select">
                   <option
                     v-for="(label, value) in newBucketConfig[currentPicBedName].configOptions[option].options"
                     :key="value"
@@ -304,7 +231,7 @@
                   class="switch-input"
                   :true-value="true"
                   :false-value="false"
-                >
+                />
                 <span class="switch-slider">
                   <span class="switch-button" />
                 </span>
@@ -312,17 +239,10 @@
             </div>
 
             <div class="form-actions">
-              <button
-                type="button"
-                class="action-button secondary"
-                @click="nweBucketDrawerVisible = false"
-              >
+              <button type="button" class="action-button secondary" @click="nweBucketDrawerVisible = false">
                 {{ $t('common.cancel') }}
               </button>
-              <button
-                type="submit"
-                class="action-button primary"
-              >
+              <button type="submit" class="action-button primary">
                 <CheckIcon class="button-icon" />
                 {{ t('common.submit') }}
               </button>
@@ -423,15 +343,19 @@ const truncateText = (text: string, picBedName: string): string => {
   }
 }
 
-watch(route, async (newRoute) => {
-  if (newRoute.fullPath.split('?')[0] === '/main-page/manage-main-page') {
-    currentAlias.value = newRoute.query.alias as string
-    currentPicBedName.value = newRoute.query.picBedName as string
-    allPicBedConfigure = JSON.parse(newRoute.query.allPicBedConfigure as string)
-    currentPagePicBedConfig = reactive(JSON.parse(newRoute.query.config as string))
-    await getBucketList()
-  }
-}, { deep: true })
+watch(
+  route,
+  async newRoute => {
+    if (newRoute.fullPath.split('?')[0] === '/main-page/manage-main-page') {
+      currentAlias.value = newRoute.query.alias as string
+      currentPicBedName.value = newRoute.query.picBedName as string
+      allPicBedConfigure = JSON.parse(newRoute.query.allPicBedConfigure as string)
+      currentPagePicBedConfig = reactive(JSON.parse(newRoute.query.config as string))
+      await getBucketList()
+    }
+  },
+  { deep: true }
+)
 
 watch(sidebarWidth, () => {}, { immediate: false })
 
@@ -471,11 +395,11 @@ const menuTitleMap: IStringKeyMap = {
 
 const openPicBedUrl = () => window.electron.sendRPC(IRPCActionType.OPEN_URL, urlMap[currentPagePicBedConfig.picBedName])
 
-function openNewBucketDrawer () {
+function openNewBucketDrawer() {
   nweBucketDrawerVisible.value = true
 }
 
-function createNewBucket (picBedName: string) {
+function createNewBucket(picBedName: string) {
   const configOptions = newBucketConfig[picBedName].configOptions
   const resultMap: IStringKeyMap = Object.keys(configOptions).reduce((result, key) => {
     const resultKey = `${picBedName}.${key}`
@@ -483,11 +407,7 @@ function createNewBucket (picBedName: string) {
     const resultValue = newBucketConfigResult[resultKey]
 
     result[key] =
-      resultValue === '' && defaultValue !== undefined
-        ? defaultValue
-        : resultValue === undefined
-          ? ''
-          : resultValue
+      resultValue === '' && defaultValue !== undefined ? defaultValue : resultValue === undefined ? '' : resultValue
 
     return result
   }, {} as IStringKeyMap)
@@ -510,7 +430,7 @@ function createNewBucket (picBedName: string) {
   })
 }
 
-async function getBucketList () {
+async function getBucketList() {
   bucketList.value = {}
   bucketNameList.value = []
   isLoadingBucketList.value = true
@@ -525,7 +445,7 @@ async function getBucketList () {
   }
 }
 
-function transPathToUnix (filePath: string | undefined) {
+function transPathToUnix(filePath: string | undefined) {
   if (!filePath) return ''
   return window.electron.platform === 'win32'
     ? filePath
@@ -535,7 +455,7 @@ function transPathToUnix (filePath: string | undefined) {
     : filePath.replace(/^\/+|\/+$/g, '')
 }
 
-function handleSelectMenu (bucketName: string) {
+function handleSelectMenu(bucketName: string) {
   const currentPicBedConfig = manageStore.config.picBed[currentAlias.value]
   const transformedConfig = JSON.parse(currentPicBedConfig.transformedConfig ?? '{}')
 
@@ -572,7 +492,7 @@ function handleSelectMenu (bucketName: string) {
   })
 }
 
-function switchPicBed (picBedAlias: string) {
+function switchPicBed(picBedAlias: string) {
   if (picBedAlias === 'main') {
     router.push({
       path: '/main-page/manage-login-page'
@@ -603,11 +523,11 @@ function switchPicBed (picBedAlias: string) {
   }
 }
 
-function changePicBed () {
+function changePicBed() {
   picBedSwitchDialogVisible.value = true
 }
 
-function openBucketPageSetting () {
+function openBucketPageSetting() {
   router.push({
     path: '/main-page/manage-main-page/manage-setting-page',
     query: {
@@ -619,7 +539,7 @@ function openBucketPageSetting () {
   })
 }
 
-function startResize (event: MouseEvent) {
+function startResize(event: MouseEvent) {
   isResizing.value = true
   const startX = event.clientX
   const startWidth = sidebarWidth.value

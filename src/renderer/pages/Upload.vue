@@ -13,24 +13,15 @@
               <span class="provider-name">{{ picBedName }}</span>
               <span class="provider-config">{{ picBedConfigName || 'Default' }}</span>
             </div>
-            <EditIcon
-              :size="16"
-              class="provider-arrow"
-            />
+            <EditIcon :size="16" class="provider-arrow" />
           </button>
         </div>
         <div class="header-actions">
-          <button
-            class="action-button secondary"
-            @click="handleImageProcess"
-          >
+          <button class="action-button secondary" @click="handleImageProcess">
             <Settings :size="16" />
             <span>{{ t('pages.upload.imageProcessName') }}</span>
           </button>
-          <button
-            class="action-button"
-            @click="handleChangePicBed"
-          >
+          <button class="action-button" @click="handleChangePicBed">
             <ArrowLeftRightIcon :size="16" />
             <span>{{ t('pages.upload.changePicBed') }}</span>
           </button>
@@ -65,28 +56,14 @@
             </div>
           </div>
         </div>
-        <input
-          id="file-uploader"
-          ref="fileInput"
-          type="file"
-          multiple
-          style="display: none"
-          @change="onChange"
-        >
+        <input id="file-uploader" ref="fileInput" type="file" multiple style="display: none" @change="onChange" />
       </div>
 
       <!-- Progress Bar -->
       <transition name="progress">
-        <div
-          v-if="showProgress"
-          class="progress-container"
-        >
+        <div v-if="showProgress" class="progress-container">
           <div class="progress-bar">
-            <div
-              class="progress-fill"
-              :class="{ 'progress-error': showError }"
-              :style="{ width: `${progress}%` }"
-            />
+            <div class="progress-fill" :class="{ 'progress-error': showError }" :style="{ width: `${progress}%` }" />
           </div>
           <span class="progress-text">
             {{ showError ? t('pages.upload.uploadFailed') : `${progress}%` }}
@@ -103,17 +80,11 @@
         </h4>
       </div>
       <div class="quick-actions">
-        <button
-          class="quick-action-button"
-          @click="uploadClipboardFiles"
-        >
+        <button class="quick-action-button" @click="uploadClipboardFiles">
           <ClipboardIcon :size="20" />
           <span>{{ t('pages.upload.clipboardPicture') }}</span>
         </button>
-        <button
-          class="quick-action-button"
-          @click="uploadURLFiles"
-        >
+        <button class="quick-action-button" @click="uploadURLFiles">
           <LinkIcon :size="20" />
           <span>{{ t('pages.upload.urlUpload') }}</span>
         </button>
@@ -149,18 +120,10 @@
         <div class="setting-group">
           <label class="setting-label">{{ t('pages.upload.urlType.title') }}</label>
           <div class="url-toggle">
-            <button
-              class="toggle-button"
-              :class="{ active: !useShortUrl }"
-              @click="updateUrlType(false)"
-            >
+            <button class="toggle-button" :class="{ active: !useShortUrl }" @click="updateUrlType(false)">
               <span>{{ t('pages.upload.urlType.normal') }}</span>
             </button>
-            <button
-              class="toggle-button"
-              :class="{ active: useShortUrl }"
-              @click="updateUrlType(true)"
-            >
+            <button class="toggle-button" :class="{ active: useShortUrl }" @click="updateUrlType(true)">
               <span>{{ t('pages.upload.urlType.short') }}</span>
             </button>
           </div>
@@ -170,23 +133,13 @@
 
     <!-- Image Process Dialog -->
     <transition name="modal">
-      <div
-        v-if="imageProcessDialogVisible"
-        class="modal-overlay"
-        @click.stop
-      >
-        <div
-          class="modal-container"
-          @click.stop
-        >
+      <div v-if="imageProcessDialogVisible" class="modal-overlay" @click.stop>
+        <div class="modal-container" @click.stop>
           <div class="modal-header">
             <h3 class="modal-title">
               {{ t('pages.imageProcess.title') }}
             </h3>
-            <button
-              class="modal-close"
-              @click="imageProcessDialogVisible = false"
-            >
+            <button class="modal-close" @click="imageProcessDialogVisible = false">
               <XIcon :size="20" />
             </button>
           </div>
@@ -200,7 +153,15 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowLeftRightIcon, ClipboardIcon, EditIcon, LinkIcon, Settings, UploadCloudIcon, XIcon } from 'lucide-vue-next'
+import {
+  ArrowLeftRightIcon,
+  ClipboardIcon,
+  EditIcon,
+  LinkIcon,
+  Settings,
+  UploadCloudIcon,
+  XIcon
+} from 'lucide-vue-next'
 import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -246,10 +207,10 @@ watch(picBedGlobal, () => {
   getDefaultPicBed()
 })
 
-let removeUploadProgressListenerCallback: (() => void) = () => {}
-let removeSyncPicBedListenerCallback: (() => void) = () => {}
+let removeUploadProgressListenerCallback: () => void = () => {}
+let removeSyncPicBedListenerCallback: () => void = () => {}
 
-function uploadProgressHandler (p: number): void {
+function uploadProgressHandler(p: number): void {
   if (p !== -1) {
     showProgress.value = true
     progress.value = p
@@ -259,7 +220,7 @@ function uploadProgressHandler (p: number): void {
   }
 }
 
-function syncPicBedHandler (): void {
+function syncPicBedHandler(): void {
   getDefaultPicBed()
 }
 
@@ -269,7 +230,7 @@ const handleImageProcess = () => {
 
 watch(progress, onProgressChange)
 
-function onProgressChange (val: number) {
+function onProgressChange(val: number) {
   if (val === 100) {
     setTimeout(() => {
       showProgress.value = false
@@ -281,11 +242,14 @@ function onProgressChange (val: number) {
   }
 }
 
-async function handlePicBedNameClick (_picBedName: string, picBedConfigName: string | undefined) {
+async function handlePicBedNameClick(_picBedName: string, picBedConfigName: string | undefined) {
   const formatedpicBedConfigName = picBedConfigName || 'Default'
   const currentPicBed = await getConfig<string>(configPaths.picBed.current)
   const currentPicBedConfig = ((await getConfig<any[]>(`uploader.${currentPicBed}`)) as any) || {}
-  const configList = await window.electron.triggerRPC<IUploaderConfigItem>(IRPCActionType.PICBED_GET_CONFIG_LIST, currentPicBed)
+  const configList = await window.electron.triggerRPC<IUploaderConfigItem>(
+    IRPCActionType.PICBED_GET_CONFIG_LIST,
+    currentPicBed
+  )
   const currentConfigList = configList?.configList ?? []
   const config = currentConfigList.find((item: any) => item._configName === formatedpicBedConfigName)
   $router.push({
@@ -300,7 +264,7 @@ async function handlePicBedNameClick (_picBedName: string, picBedConfigName: str
   })
 }
 
-function onDrop (e: DragEvent) {
+function onDrop(e: DragEvent) {
   dragover.value = false
 
   // send files first
@@ -321,7 +285,7 @@ function onDrop (e: DragEvent) {
   }
 }
 
-function handleURLDrag (items: DataTransferItemList, dataTransfer: DataTransfer) {
+function handleURLDrag(items: DataTransferItemList, dataTransfer: DataTransfer) {
   // text/html
   // Use this data to get a more precise URL
   const urlString = dataTransfer.getData(items[1].type)
@@ -337,16 +301,16 @@ function handleURLDrag (items: DataTransferItemList, dataTransfer: DataTransfer)
   }
 }
 
-function openUplodWindow () {
+function openUplodWindow() {
   fileInput.value?.click()
 }
 
-function onChange (e: any) {
+function onChange(e: any) {
   ipcSendFiles(e.target.files)
   ;(fileInput.value as HTMLInputElement).value = ''
 }
 
-function ipcSendFiles (files: FileList) {
+function ipcSendFiles(files: FileList) {
   const sendFiles: IFileWithPath[] = []
   Array.from(files).forEach(item => {
     const obj = {
@@ -358,34 +322,34 @@ function ipcSendFiles (files: FileList) {
   window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, sendFiles)
 }
 
-async function getPasteStyle () {
+async function getPasteStyle() {
   pasteStyle.value = (await getConfig(configPaths.settings.pasteStyle)) || IPasteStyle.MARKDOWN
   pasteFormatList.value.Custom = (await getConfig(configPaths.settings.customLink)) || '![$fileName]($url)'
 }
 
-async function getUseShortUrl () {
+async function getUseShortUrl() {
   useShortUrl.value = (await getConfig(configPaths.settings.useShortUrl)) || false
 }
 
-function updatePasteStyle (style: string) {
+function updatePasteStyle(style: string) {
   pasteStyle.value = style
   saveConfig({
     [configPaths.settings.pasteStyle]: style || IPasteStyle.MARKDOWN
   })
 }
 
-function updateUrlType (shortUrl: boolean) {
+function updateUrlType(shortUrl: boolean) {
   useShortUrl.value = shortUrl
   saveConfig({
     [configPaths.settings.useShortUrl]: shortUrl
   })
 }
 
-function uploadClipboardFiles () {
+function uploadClipboardFiles() {
   window.electron.sendRPC(IRPCActionType.UPLOAD_CLIPBOARD_FILES_FROM_UPLOAD_PAGE)
 }
 
-async function uploadURLFiles () {
+async function uploadURLFiles() {
   const str = await navigator.clipboard.readText()
   $bus.emit(SHOW_INPUT_BOX, {
     value: isUrl(str) ? str : '',
@@ -394,7 +358,7 @@ async function uploadURLFiles () {
   })
 }
 
-function handleInputBoxValue (val: string) {
+function handleInputBoxValue(val: string) {
   if (val === '') return
   if (isUrl(val)) {
     window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [
@@ -407,7 +371,7 @@ function handleInputBoxValue (val: string) {
   }
 }
 
-async function getDefaultPicBed () {
+async function getDefaultPicBed() {
   const currentPicBed = await getConfig<string>(configPaths.picBed.current)
   picBedGlobal.value.forEach(item => {
     if (item.type === currentPicBed) {
@@ -417,7 +381,7 @@ async function getDefaultPicBed () {
   picBedConfigName.value = (await getConfig<string>(`picBed.${currentPicBed}._configName`)) || ''
 }
 
-async function handleChangePicBed () {
+async function handleChangePicBed() {
   window.electron.sendRPC(IRPCActionType.SHOW_UPLOAD_PAGE_MENU)
 }
 
@@ -436,7 +400,6 @@ onBeforeMount(() => {
   removeSyncPicBedListenerCallback = window.electron.ipcRendererOn('syncPicBed', syncPicBedHandler)
   $bus.on(SHOW_INPUT_BOX_RESPONSE, handleInputBoxValue)
 })
-
 </script>
 
 <script lang="ts">

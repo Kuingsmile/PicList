@@ -1,72 +1,33 @@
 <template>
-  <div
-    v-if="isOpen"
-    class="messagebox-overlay"
-    @click="onCancel"
-  >
-    <div
-      class="messagebox-container"
-      @click.stop
-    >
+  <div v-if="isOpen" class="messagebox-overlay" @click="onCancel">
+    <div class="messagebox-container" @click.stop>
       <div class="messagebox-header">
         <h3 class="messagebox-title">
           {{ title }}
         </h3>
-        <button
-          v-if="showClose"
-          class="messagebox-close"
-          @click="onCancel"
-        >
-          ×
-        </button>
+        <button v-if="showClose" class="messagebox-close" @click="onCancel">×</button>
       </div>
       <div class="messagebox-content">
-        <div
-          v-if="type"
-          class="messagebox-icon"
-        >
-          <component
-            :is="iconComponent"
-            :size="48"
-          />
+        <div v-if="type" class="messagebox-icon">
+          <component :is="iconComponent" :size="48" />
         </div>
         <div class="messagebox-message">
           <p>{{ message }}</p>
         </div>
       </div>
-      <div
-        v-if="center"
-        class="messagebox-actions center"
-      >
-        <button
-          class="messagebox-btn cancel-btn"
-          @click="onCancel"
-        >
+      <div v-if="center" class="messagebox-actions center">
+        <button class="messagebox-btn cancel-btn" @click="onCancel">
           {{ cancelButtonText }}
         </button>
-        <button
-          class="messagebox-btn confirm-btn"
-          :class="confirmButtonClass"
-          @click="onConfirm"
-        >
+        <button class="messagebox-btn confirm-btn" :class="confirmButtonClass" @click="onConfirm">
           {{ confirmButtonText }}
         </button>
       </div>
-      <div
-        v-else
-        class="messagebox-actions"
-      >
-        <button
-          class="messagebox-btn confirm-btn"
-          :class="confirmButtonClass"
-          @click="onConfirm"
-        >
+      <div v-else class="messagebox-actions">
+        <button class="messagebox-btn confirm-btn" :class="confirmButtonClass" @click="onConfirm">
           {{ confirmButtonText }}
         </button>
-        <button
-          class="messagebox-btn cancel-btn"
-          @click="onCancel"
-        >
+        <button class="messagebox-btn cancel-btn" @click="onCancel">
           {{ cancelButtonText }}
         </button>
       </div>
@@ -164,7 +125,9 @@ export default {
 .messagebox-container {
   background: white;
   border-radius: 0.75rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-width: 32rem;
   width: 90%;
   max-height: 80vh;
@@ -239,19 +202,19 @@ export default {
   color: rgb(107 114 128);
 }
 
-.messagebox-icon svg[data-lucide="alert-triangle"] {
+.messagebox-icon svg[data-lucide='alert-triangle'] {
   color: rgb(245 158 11);
 }
 
-.messagebox-icon svg[data-lucide="info"] {
+.messagebox-icon svg[data-lucide='info'] {
   color: rgb(59 130 246);
 }
 
-.messagebox-icon svg[data-lucide="check-circle"] {
+.messagebox-icon svg[data-lucide='check-circle'] {
   color: rgb(34 197 94);
 }
 
-.messagebox-icon svg[data-lucide="x-circle"] {
+.messagebox-icon svg[data-lucide='x-circle'] {
   color: rgb(239 68 68);
 }
 

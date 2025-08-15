@@ -10,18 +10,18 @@ interface IConfigMap {
 }
 
 export default class GithubApi {
-  static #createOctokit (token: string) {
+  static #createOctokit(token: string) {
     return new Octokit({
       auth: token
     })
   }
 
-  static #createKey (path: string | undefined, fileName: string): string {
+  static #createKey(path: string | undefined, fileName: string): string {
     const formatedFileName = fileName.replace(/%2F/g, '/')
     return path && path !== '/' ? `${path.replace(/^\/+|\/+$/, '')}/${formatedFileName}` : formatedFileName
   }
 
-  static async delete (configMap: IConfigMap): Promise<boolean> {
+  static async delete(configMap: IConfigMap): Promise<boolean> {
     const {
       fileName,
       hash,

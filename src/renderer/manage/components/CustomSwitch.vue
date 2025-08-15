@@ -2,26 +2,12 @@
   <div class="switch-container">
     <div class="switch-label-wrapper">
       <span class="switch-label-text">
-        <span
-          v-for="(segment, index) in segments"
-          :key="index"
-          :style="segment.style"
-        >
+        <span v-for="(segment, index) in segments" :key="index" :style="segment.style">
           {{ segment.text }}
         </span>
-        <div
-          v-if="tooltip"
-          class="tooltip-wrapper"
-        >
-          <div
-            class="info-icon"
-            @click="toggleTooltip"
-          >
-            <svg
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              class="info-svg"
-            >
+        <div v-if="tooltip" class="tooltip-wrapper">
+          <div class="info-icon" @click="toggleTooltip">
+            <svg viewBox="0 0 20 20" fill="currentColor" class="info-svg">
               <path
                 fill-rule="evenodd"
                 d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
@@ -29,10 +15,7 @@
               />
             </svg>
           </div>
-          <div
-            v-show="showTooltip"
-            class="tooltip-content"
-          >
+          <div v-show="showTooltip" class="tooltip-content">
             {{ tooltip }}
           </div>
         </div>
@@ -40,19 +23,12 @@
     </div>
     <div class="switch-control">
       <label class="switch">
-        <input
-          v-model="value"
-          type="checkbox"
-          class="switch-input"
-        >
+        <input v-model="value" type="checkbox" class="switch-input" />
         <span class="switch-slider">
           <span class="switch-button" />
         </span>
       </label>
-      <div
-        v-if="activeText || inactiveText"
-        class="switch-text"
-      >
+      <div v-if="activeText || inactiveText" class="switch-text">
         {{ value ? activeText : inactiveText }}
       </div>
     </div>

@@ -41,12 +41,12 @@ class Server {
   #httpServer: http.Server
   #config: IServerConfig
 
-  constructor () {
+  constructor() {
     this.#config = this.getConfigWithDefaults()
     this.#httpServer = http.createServer(this.#handleRequest)
   }
 
-  getConfigWithDefaults () {
+  getConfigWithDefaults() {
     let config = picgo.getConfig<IServerConfig>(configPaths.settings.server)
     if (!this.#isValidConfig(config)) {
       config = { port: DEFAULT_PORT, host: DEFAULT_HOST, enable: true }
@@ -55,7 +55,7 @@ class Server {
     return config
   }
 
-  #isValidConfig (config: IObj | undefined) {
+  #isValidConfig(config: IObj | undefined) {
     return config && config.port && config.host && config.enable !== undefined
   }
 
@@ -198,20 +198,20 @@ class Server {
     })
   }
 
-  startup () {
+  startup() {
     if (this.#config.enable) {
       this.#listen(this.#config.port)
     }
   }
 
-  shutdown (hasStarted?: boolean) {
+  shutdown(hasStarted?: boolean) {
     this.#httpServer.close()
     if (!hasStarted) {
       logger.info('[PicList Server] shutdown')
     }
   }
 
-  restart () {
+  restart() {
     this.shutdown()
     this.#config = this.getConfigWithDefaults()
     this.startup()

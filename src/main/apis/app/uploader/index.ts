@@ -36,11 +36,11 @@ const waitForRename = (window: BrowserWindow, id: number): Promise<string | null
 class Uploader {
   private webContents: WebContents | null = null
 
-  constructor () {
+  constructor() {
     this.init()
   }
 
-  init () {
+  init() {
     picgo.on(ICOREBuildInEvent.NOTIFICATION, (message: any) => {
       new Notification(message).show()
     })
@@ -92,12 +92,12 @@ class Uploader {
     })
   }
 
-  setWebContents (webContents: WebContents) {
+  setWebContents(webContents: WebContents) {
     this.webContents = webContents
     return this
   }
 
-  private async getClipboardImagePath (): Promise<string | false> {
+  private async getClipboardImagePath(): Promise<string | false> {
     const imgPath = getClipboardFilePath()
     if (imgPath) return imgPath
 
@@ -115,7 +115,7 @@ class Uploader {
   /**
    * use electron's clipboard image to upload
    */
-  async uploadWithBuildInClipboard (): Promise<ImgInfo[] | false> {
+  async uploadWithBuildInClipboard(): Promise<ImgInfo[] | false> {
     let imgPath: string | false = false
     try {
       imgPath = await this.getClipboardImagePath()
@@ -131,7 +131,7 @@ class Uploader {
     }
   }
 
-  async uploadWithBuildInClipboardReturnCtx (img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
+  async uploadWithBuildInClipboardReturnCtx(img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
     let imgPath: string | false = false
     try {
       imgPath = await this.getClipboardImagePath()
@@ -147,7 +147,7 @@ class Uploader {
     }
   }
 
-  async uploadReturnCtx (img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
+  async uploadReturnCtx(img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
     try {
       const ctx = await picgo.uploadReturnCtx(img, skipProcess)
       if (!Array.isArray(ctx.output) || !ctx.output.some((item: ImgInfo) => item.imgUrl)) return false
@@ -172,7 +172,7 @@ class Uploader {
     }
   }
 
-  async upload (img?: IUploadOption): Promise<ImgInfo[] | false> {
+  async upload(img?: IUploadOption): Promise<ImgInfo[] | false> {
     try {
       const output = await picgo.upload(img)
       if (!Array.isArray(output) || !output.some((item: ImgInfo) => item.imgUrl)) return false

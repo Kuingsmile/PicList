@@ -42,7 +42,7 @@ export const setTray = (t: Tray) => {
 
 export const getTray = () => tray
 
-export function setTrayToolTip (title: string): void {
+export function setTrayToolTip(title: string): void {
   if (tray) {
     tray.setToolTip(title)
   }
@@ -316,7 +316,7 @@ export const formatHttpProxy = (
       }
 }
 
-export function encodeFilePath (filePath: string) {
+export function encodeFilePath(filePath: string) {
   return filePath.replace(/\\/g, '/').split('/').map(encodeURIComponent).join('/')
 }
 

@@ -18,17 +18,9 @@
         style="width: 100%; height: 100%; border-radius: 50%"
         draggable="false"
         @dragstart.prevent
-      >
-      <div
-        id="upload-dragger"
-        @dblclick="openUploadWindow"
-      >
-        <input
-          id="file-uploader"
-          type="file"
-          multiple
-          @change="onChange"
-        >
+      />
+      <div id="upload-dragger" @dblclick="openUploadWindow">
+        <input id="file-uploader" type="file" multiple @change="onChange" />
       </div>
     </div>
   </div>
@@ -56,7 +48,7 @@ const screenY = ref(-1)
 
 let removeListeners: () => void = () => {}
 
-async function initLogoPath () {
+async function initLogoPath() {
   const config = await getConfig<IConfig>()
   if (config) {
     if (config.settings?.isCustomMiniIcon && config.settings?.customMiniIcon) {
@@ -91,7 +83,7 @@ watch(progress, val => {
   }
 })
 
-function onDrop (e: DragEvent) {
+function onDrop(e: DragEvent) {
   dragover.value = false
 
   // send files first
@@ -110,7 +102,7 @@ function onDrop (e: DragEvent) {
   }
 }
 
-function handleURLDrag (items: DataTransferItemList, dataTransfer: DataTransfer) {
+function handleURLDrag(items: DataTransferItemList, dataTransfer: DataTransfer) {
   // text/html
   // Use this data to get a more precise URL
   const urlString = dataTransfer.getData(items[1].type)
@@ -124,18 +116,18 @@ function handleURLDrag (items: DataTransferItemList, dataTransfer: DataTransfer)
   }
 }
 
-function openUploadWindow () {
+function openUploadWindow() {
   // @ts-expect-error file-uploader
   document.getElementById('file-uploader').click()
 }
 
-function onChange (e: any) {
+function onChange(e: any) {
   ipcSendFiles(e.target.files)
   // @ts-expect-error file-uploader
   document.getElementById('file-uploader').value = ''
 }
 
-function ipcSendFiles (files: FileList) {
+function ipcSendFiles(files: FileList) {
   const sendFiles: IFileWithPath[] = []
   Array.from(files).forEach(item => {
     const obj = {
@@ -147,7 +139,7 @@ function ipcSendFiles (files: FileList) {
   window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, sendFiles)
 }
 
-function handleMouseDown (e: MouseEvent) {
+function handleMouseDown(e: MouseEvent) {
   draggingState.value = true
   wX.value = e.pageX
   wY.value = e.pageY
@@ -155,7 +147,7 @@ function handleMouseDown (e: MouseEvent) {
   screenY.value = e.screenY
 }
 
-function handleMouseMove (e: MouseEvent) {
+function handleMouseMove(e: MouseEvent) {
   e.preventDefault()
   e.stopPropagation()
   if (draggingState.value) {
@@ -170,7 +162,7 @@ function handleMouseMove (e: MouseEvent) {
   }
 }
 
-function handleMouseUp (e: MouseEvent) {
+function handleMouseUp(e: MouseEvent) {
   draggingState.value = false
   if (screenX.value === e.screenX && screenY.value === e.screenY) {
     if (e.button === 0) {
@@ -182,7 +174,7 @@ function handleMouseUp (e: MouseEvent) {
   }
 }
 
-function openContextMenu () {
+function openContextMenu() {
   window.electron.sendRPC(IRPCActionType.SHOW_MINI_PAGE_MENU)
 }
 

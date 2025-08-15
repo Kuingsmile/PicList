@@ -2,7 +2,7 @@ import { onMounted, onUnmounted } from 'vue'
 
 import { IRPCActionType } from '@/utils/enum'
 
-export function useATagClick () {
+export function useATagClick() {
   const handleATagClick = (e: MouseEvent) => {
     if (e.target instanceof HTMLAnchorElement) {
       if (e.target.href) {

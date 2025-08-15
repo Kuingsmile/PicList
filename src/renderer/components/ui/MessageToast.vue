@@ -1,30 +1,15 @@
 <template>
   <Teleport to="body">
     <div class="message-container">
-      <TransitionGroup
-        name="message"
-        tag="div"
-      >
-        <div
-          v-for="message in messages"
-          :key="message.id"
-          class="message-toast"
-          :class="getMessageClass(message.type)"
-        >
+      <TransitionGroup name="message" tag="div">
+        <div v-for="message in messages" :key="message.id" class="message-toast" :class="getMessageClass(message.type)">
           <div class="message-icon">
-            <component
-              :is="getIconComponent(message.type)"
-              :size="20"
-            />
+            <component :is="getIconComponent(message.type)" :size="20" />
           </div>
           <div class="message-content">
             {{ message.message }}
           </div>
-          <button
-            v-if="message.showClose"
-            class="message-close"
-            @click="removeMessage(message.id)"
-          >
+          <button v-if="message.showClose" class="message-close" @click="removeMessage(message.id)">
             <X :size="16" />
           </button>
         </div>
@@ -149,7 +134,9 @@ export default {
   padding: 0.75rem 1rem;
   margin-bottom: 0.5rem;
   border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   max-width: 24rem;
   min-width: 20rem;
   pointer-events: all;

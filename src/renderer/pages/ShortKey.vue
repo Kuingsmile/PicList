@@ -3,10 +3,7 @@
     <!-- Header -->
     <div class="shortkey-header">
       <div class="header-content">
-        <KeyboardIcon
-          :size="24"
-          class="header-icon"
-        />
+        <KeyboardIcon :size="24" class="header-icon" />
         <div>
           <h1>{{ t('pages.shortKey.title') }}</h1>
           <p>{{ ' ' }}</p>
@@ -28,11 +25,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="(item, index) in list"
-              :key="item.name"
-              class="table-row"
-            >
+            <tr v-for="(item, index) in list" :key="item.name" class="table-row">
               <td class="name-cell">
                 <div class="shortcut-name">
                   {{ item.label ? item.label : item.name }}
@@ -40,21 +33,12 @@
               </td>
               <td class="key-cell">
                 <div class="key-binding">
-                  <kbd
-                    v-if="item.key"
-                    class="key-display"
-                  >{{ item.key }}</kbd>
-                  <span
-                    v-else
-                    class="no-binding"
-                  >{{ t('pages.shortKey.noBinding') }}</span>
+                  <kbd v-if="item.key" class="key-display">{{ item.key }}</kbd>
+                  <span v-else class="no-binding">{{ t('pages.shortKey.noBinding') }}</span>
                 </div>
               </td>
               <td class="status-cell">
-                <span
-                  class="status-badge"
-                  :class="{ 'status-enabled': item.enable, 'status-disabled': !item.enable }"
-                >
+                <span class="status-badge" :class="{ 'status-enabled': item.enable, 'status-disabled': !item.enable }">
                   {{ item.enable ? t('pages.shortKey.enabled') : t('pages.shortKey.disabled') }}
                 </span>
               </td>
@@ -70,10 +54,7 @@
                   >
                     {{ item.enable ? t('pages.shortKey.disable') : t('pages.shortKey.enable') }}
                   </button>
-                  <button
-                    class="btn btn-sm btn-secondary"
-                    @click="openKeyBindingDialog(item, index)"
-                  >
+                  <button class="btn btn-sm btn-secondary" @click="openKeyBindingDialog(item, index)">
                     <Edit :size="14" />
                     {{ t('pages.shortKey.edit') }}
                   </button>
@@ -87,20 +68,13 @@
 
     <!-- Key Binding Modal -->
     <transition name="modal">
-      <div
-        v-if="keyBindingVisible"
-        class="modal-overlay"
-        @click.self="cancelKeyBinding"
-      >
+      <div v-if="keyBindingVisible" class="modal-overlay" @click.self="cancelKeyBinding">
         <div class="modal-content">
           <div class="modal-header">
             <h3 class="modal-title">
               {{ t('pages.shortKey.changeUpload') }}
             </h3>
-            <button
-              class="modal-close"
-              @click="cancelKeyBinding"
-            >
+            <button class="modal-close" @click="cancelKeyBinding">
               <XIcon :size="20" />
             </button>
           </div>
@@ -113,23 +87,17 @@
                 :placeholder="t('pages.shortKey.pressKeys')"
                 readonly
                 @keydown.prevent="keyDetect($event as KeyboardEvent)"
-              >
+              />
               <div class="input-hint">
                 {{ t('pages.shortKey.pressHint') }}
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <button
-              class="btn btn-secondary"
-              @click="cancelKeyBinding"
-            >
+            <button class="btn btn-secondary" @click="cancelKeyBinding">
               {{ $t('CANCEL') }}
             </button>
-            <button
-              class="btn btn-primary"
-              @click="confirmKeyBinding"
-            >
+            <button class="btn btn-primary" @click="confirmKeyBinding">
               {{ $t('common.confirm') }}
             </button>
           </div>
@@ -171,38 +139,38 @@ watch(keyBindingVisible, (val: boolean) => {
   window.electron.sendRPC(IRPCActionType.SHORTKEY_TOGGLE_SHORTKEY_MODIFIED_MODE, val)
 })
 
-function calcOrigin (item: string) {
+function calcOrigin(item: string) {
   const [origin] = item.split(':')
   return origin
 }
 
-function calcOriginShowName (item: string) {
+function calcOriginShowName(item: string) {
   return item.replace('picgo-plugin-', '')
 }
 
-function toggleEnable (item: IShortKeyConfig) {
+function toggleEnable(item: IShortKeyConfig) {
   const status = !item.enable
   item.enable = status
   window.electron.sendRPC(IRPCActionType.SHORTKEY_BIND_OR_UNBIND, item, item.from)
 }
 
-function keyDetect (event: KeyboardEvent) {
+function keyDetect(event: KeyboardEvent) {
   shortKey.value = keyBinding(event).join('+')
 }
 
-async function openKeyBindingDialog (config: IShortKeyConfig, index: number) {
+async function openKeyBindingDialog(config: IShortKeyConfig, index: number) {
   command.value = `${config.from}:${config.name}`
   shortKey.value = (await getConfig(`settings.shortKey.${command.value}.key`)) || ''
   currentIndex.value = index
   keyBindingVisible.value = true
 }
 
-async function cancelKeyBinding () {
+async function cancelKeyBinding() {
   keyBindingVisible.value = false
   shortKey.value = (await getConfig<string>(`settings.shortKey.${command.value}.key`)) || ''
 }
 
-async function confirmKeyBinding () {
+async function confirmKeyBinding() {
   const oldKey = await getConfig<string>(`settings.shortKey.${command.value}.key`)
   const config = { ...list.value[currentIndex.value] }
   config.key = shortKey.value

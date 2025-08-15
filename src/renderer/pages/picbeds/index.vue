@@ -5,65 +5,33 @@
         <!-- Header Section -->
         <div class="page-header">
           <div class="header-title-section">
-            <h1
-              class="page-title"
-              @click="handleNameClick"
-            >
-              {{ picBedName }} {{ t('pages.picBedConfigs.title') }}
-            </h1>
-            <button
-              class="link-button"
-              :title="t('pages.picBedConfigs.viewDoc')"
-              @click="handleNameClick"
-            >
+            <h1 class="page-title" @click="handleNameClick">{{ picBedName }} {{ t('pages.picBedConfigs.title') }}</h1>
+            <button class="link-button" :title="t('pages.picBedConfigs.viewDoc')" @click="handleNameClick">
               <ExternalLink :size="20" />
             </button>
           </div>
-          <button
-            class="action-button primary"
-            @click="handleCopyApi"
-          >
+          <button class="action-button primary" @click="handleCopyApi">
             <Copy :size="20" />
             {{ t('pages.picBedConfigs.copyAPI') }}
           </button>
         </div>
 
         <!-- Config Form Section -->
-        <div
-          v-if="config.length > 0"
-          class="form-section"
-        >
-          <config-form
-            :id="type"
-            ref="$configForm"
-            :config="config"
-            type="uploader"
-            color-mode="white"
-          >
+        <div v-if="config.length > 0" class="form-section">
+          <config-form :id="type" ref="$configForm" :config="config" type="uploader" color-mode="white">
             <!-- Action Buttons -->
             <div class="action-buttons">
-              <button
-                class="action-button secondary"
-                type="button"
-                @click="handleReset"
-              >
+              <button class="action-button secondary" type="button" @click="handleReset">
                 <RotateCcw :size="18" />
                 {{ t('common.reset') }}
               </button>
 
-              <button
-                class="action-button success"
-                type="button"
-                @click="handleConfirm"
-              >
+              <button class="action-button success" type="button" @click="handleConfirm">
                 <Check :size="18" />
                 {{ t('common.confirm') }}
               </button>
 
-              <div
-                v-if="picBedConfigList.length > 0"
-                class="dropdown-wrapper"
-              >
+              <div v-if="picBedConfigList.length > 0" class="dropdown-wrapper">
                 <button
                   class="action-button warning dropdown-trigger"
                   type="button"
@@ -91,11 +59,7 @@
                 </button>
 
                 <transition name="dropdown">
-                  <div
-                    v-show="dropdownVisible"
-                    class="dropdown-menu"
-                    :class="{ 'dropdown-up': true }"
-                  >
+                  <div v-show="dropdownVisible" class="dropdown-menu" :class="{ 'dropdown-up': true }">
                     <button
                       v-for="item in picBedConfigList"
                       :key="item._id"
@@ -112,15 +76,9 @@
         </div>
 
         <!-- Empty State -->
-        <div
-          v-else
-          class="empty-state"
-        >
+        <div v-else class="empty-state">
           <div class="empty-content">
-            <FolderOpen
-              class="empty-icon"
-              :size="48"
-            />
+            <FolderOpen class="empty-icon" :size="48" />
             <h3>{{ t('pages.picBedConfigs.noConfigOptions') }}</h3>
           </div>
         </div>
@@ -128,10 +86,7 @@
     </div>
 
     <!-- Loading Overlay -->
-    <div
-      v-if="loading"
-      class="loading-overlay"
-    >
+    <div v-if="loading" class="loading-overlay">
       <div class="loading-spinner" />
       <span class="loading-text">Loading...</span>
     </div>
@@ -179,11 +134,11 @@ onBeforeMount(async () => {
   }
 })
 
-function toggleDropdown (_: Event) {
+function toggleDropdown(_: Event) {
   dropdownVisible.value = !dropdownVisible.value
 }
 
-function handleDropdownBlur () {
+function handleDropdownBlur() {
   setTimeout(() => {
     dropdownVisible.value = false
   }, 200)
@@ -195,7 +150,12 @@ const handleConfirm = async () => {
     const result = (await $configForm.value?.validate()) || false
     if (result !== false) {
       const rawResult = getRawData(result)
-      await window.electron.triggerRPC<void>(IRPCActionType.UPLOADER_UPDATE_CONFIG, type.value, rawResult?._id, rawResult)
+      await window.electron.triggerRPC<void>(
+        IRPCActionType.UPLOADER_UPDATE_CONFIG,
+        type.value,
+        rawResult?._id,
+        rawResult
+      )
       message.success(t('pages.picBedConfigs.setSuccess'))
       $router.back()
     } else {
@@ -209,7 +169,7 @@ const handleConfirm = async () => {
   }
 }
 
-async function getPicBeds () {
+async function getPicBeds() {
   try {
     const result = await window.electron.triggerRPC<any>(IRPCActionType.PICBED_GET_PICBED_CONFIG, $route.params.type)
     config.value = result.config
@@ -220,9 +180,11 @@ async function getPicBeds () {
   }
 }
 
-async function getPicBedConfigList () {
+async function getPicBedConfigList() {
   try {
-    const res = (await window.electron.triggerRPC<IUploaderConfigItem>(IRPCActionType.PICBED_GET_CONFIG_LIST, type.value)) || undefined
+    const res =
+      (await window.electron.triggerRPC<IUploaderConfigItem>(IRPCActionType.PICBED_GET_CONFIG_LIST, type.value)) ||
+      undefined
     const configList = res?.configList || []
     picBedConfigList.value = configList.filter(item => item._id !== $route.params.configId)
   } catch (error) {
@@ -231,7 +193,7 @@ async function getPicBedConfigList () {
   }
 }
 
-async function handleConfigImport (configItem: IUploaderConfigListItem) {
+async function handleConfigImport(configItem: IUploaderConfigListItem) {
   try {
     const { _id, _configName, _updatedAt, _createdAt, ...rest } = configItem
     for (const key in rest) {
@@ -265,7 +227,7 @@ const handleReset = async () => {
   }
 }
 
-async function handleNameClick () {
+async function handleNameClick() {
   try {
     const lang = (await getConfig(configPaths.settings.language)) || II18nLanguage.ZH_CN
     const url = picBedManualUrlList[lang === II18nLanguage.EN ? 'en' : 'zh_cn'][$route.params.type as string]
@@ -278,7 +240,7 @@ async function handleNameClick () {
   }
 }
 
-async function handleCopyApi () {
+async function handleCopyApi() {
   try {
     const { port = 36677, host = '127.0.0.1' } = (await getConfig<IStringKeyMap>(configPaths.settings.server)) || {}
     const serverKey = (await getConfig(configPaths.settings.serverKey)) || ''
@@ -626,8 +588,12 @@ export default {
 
 /* Animations */
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Dark mode adjustments */

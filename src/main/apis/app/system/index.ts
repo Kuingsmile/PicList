@@ -36,7 +36,7 @@ import uploadPng from '../../../../../resources/upload.png?asset&asarUnpack'
 import uploadDarkPng from '../../../../../resources/upload-dark.png?asset&asarUnpack'
 let contextMenu: Menu | null
 
-export function setDockMenu () {
+export function setDockMenu() {
   const isListeningClipboard = db.get(configPaths.settings.isListeningClipboard) || false
   const dockMenu = Menu.buildFromTemplate([
     {
@@ -45,7 +45,7 @@ export function setDockMenu () {
     },
     {
       label: $t('START_WATCH_CLIPBOARD'),
-      click () {
+      click() {
         db.set(configPaths.settings.isListeningClipboard, true)
         clipboardPoll.startListening()
         clipboardPoll.on('change', () => {
@@ -58,7 +58,7 @@ export function setDockMenu () {
     },
     {
       label: $t('STOP_WATCH_CLIPBOARD'),
-      click () {
+      click() {
         db.set(configPaths.settings.isListeningClipboard, false)
         clipboardPoll.stopListening()
         clipboardPoll.removeAllListeners()
@@ -70,7 +70,7 @@ export function setDockMenu () {
   app.dock?.setMenu(dockMenu)
 }
 
-export function createMenu () {
+export function createMenu() {
   const submenu = buildPicBedListMenu()
   const appMenu = Menu.buildFromTemplate([
     {
@@ -79,7 +79,7 @@ export function createMenu () {
         { label: $t('OPEN_MAIN_WINDOW'), click: openMainWindow },
         {
           label: $t('RELOAD_APP'),
-          click () {
+          click() {
             app.relaunch()
             app.exit(0)
           }
@@ -107,7 +107,7 @@ export function createMenu () {
   Menu.setApplicationMenu(appMenu)
 }
 
-export function createContextMenu () {
+export function createContextMenu() {
   const ClipboardWatcher = clipboardPoll
   const isListeningClipboard = db.get(configPaths.settings.isListeningClipboard) || false
   const isMiniWindowVisible =
@@ -147,7 +147,7 @@ export function createContextMenu () {
       },
       {
         label: $t('RELOAD_APP'),
-        click () {
+        click() {
           app.relaunch()
           app.exit(0)
         }
@@ -160,7 +160,7 @@ export function createContextMenu () {
         0,
         {
           label: $t('OPEN_MINI_WINDOW'),
-          click () {
+          click() {
             openMiniWindow(false)
           },
           visible: !isMiniWindowVisible
@@ -185,7 +185,7 @@ export function createContextMenu () {
       { label: $t('OPEN_MAIN_WINDOW'), click: openMainWindow },
       {
         label: $t('OPEN_MINI_WINDOW'),
-        click () {
+        click() {
           openMiniWindow(false)
         },
         visible: !isMiniWindowVisible
@@ -207,7 +207,7 @@ export function createContextMenu () {
       },
       {
         label: $t('ABOUT'),
-        click () {
+        click() {
           dialog.showMessageBox({
             title: 'PicList',
             message: 'PicList',
@@ -230,7 +230,7 @@ const getTrayIcon = () => {
   }
 }
 
-export function createTray (tooltip: string) {
+export function createTray(tooltip: string) {
   const menubarPic = getTrayIcon()
   setTray(new Tray(menubarPic))
   tray.setToolTip(tooltip)
@@ -309,7 +309,7 @@ export function createTray (tooltip: string) {
     // drop-files only be supported in macOS
     // so the tray window must be available
     if (process.platform === 'darwin') {
-      (tray as any).on('drop-files', async (_: Event, files: string[]) => {
+      ;(tray as any).on('drop-files', async (_: Event, files: string[]) => {
         const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
         const rawInput = cloneDeep(files)
         const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
@@ -338,14 +338,14 @@ export function createTray (tooltip: string) {
             imgs[i].shortUrl = shortUrl
             pasteText.push(pasteTextItem)
             const isShowResultNotification =
-            db.get(configPaths.settings.uploadResultNotification) === undefined
-              ? true
-              : !!db.get(configPaths.settings.uploadResultNotification)
+              db.get(configPaths.settings.uploadResultNotification) === undefined
+                ? true
+                : !!db.get(configPaths.settings.uploadResultNotification)
             if (isShowResultNotification) {
               const notification = new Notification({
                 title: $t('UPLOAD_SUCCEED'),
                 body: shortUrl || imgs[i].imgUrl!
-              // icon: files[i]
+                // icon: files[i]
               })
               setTimeout(() => {
                 notification.show()

@@ -6,24 +6,30 @@ import shortKeyService from 'apis/app/shortKey/shortKeyService'
 import GuiApi from 'apis/gui'
 import { globalShortcut } from 'electron'
 
-import type { IKeyCommandType, IPluginShortKeyConfig, IShortKeyConfig, IShortKeyConfigs, IShortKeyHandler } from '#/types/types'
+import type {
+  IKeyCommandType,
+  IPluginShortKeyConfig,
+  IShortKeyConfig,
+  IShortKeyConfigs,
+  IShortKeyHandler
+} from '#/types/types'
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '~/events/constant'
 import { configPaths } from '~/utils/configPaths'
 
 class ShortKeyHandler {
   private isInModifiedMode: boolean = false
-  constructor () {
+  constructor() {
     bus.on(TOGGLE_SHORTKEY_MODIFIED_MODE, flag => {
       this.isInModifiedMode = flag
     })
   }
 
-  async init () {
+  async init() {
     this.initBuiltInShortKey()
     await this.initPluginsShortKey()
   }
 
-  private initBuiltInShortKey () {
+  private initBuiltInShortKey() {
     const commands = db.get(configPaths.settings.shortKey._path) as IShortKeyConfigs
     Object.keys(commands)
       .filter(item => item.includes('picgo:'))
@@ -38,7 +44,7 @@ class ShortKeyHandler {
       })
   }
 
-  private async initPluginsShortKey () {
+  private async initPluginsShortKey() {
     // get enabled plugin
     const pluginList = picgo.pluginLoader.getList()
     for (const item of pluginList) {
@@ -68,7 +74,7 @@ class ShortKeyHandler {
     }
   }
 
-  private registerShortKey (
+  private registerShortKey(
     config: IShortKeyConfig | IPluginShortKeyConfig,
     command: string,
     handler: IShortKeyHandler,
@@ -97,7 +103,7 @@ class ShortKeyHandler {
   }
 
   // enable or disable shortKey
-  bindOrUnbindShortKey (item: IShortKeyConfig, from: string): boolean {
+  bindOrUnbindShortKey(item: IShortKeyConfig, from: string): boolean {
     const command = `${from}:${item.name}`
     if (item.enable === false) {
       globalShortcut.unregister(item.key)
@@ -121,7 +127,7 @@ class ShortKeyHandler {
   }
 
   // update shortKey bindings
-  updateShortKey (item: IShortKeyConfig, oldKey: string, from: string): boolean {
+  updateShortKey(item: IShortKeyConfig, oldKey: string, from: string): boolean {
     const command = `${from}:${item.name}`
     if (globalShortcut.isRegistered(item.key)) return false
     globalShortcut.unregister(oldKey)
@@ -134,7 +140,7 @@ class ShortKeyHandler {
     return true
   }
 
-  private async handler (command: string) {
+  private async handler(command: string) {
     if (this.isInModifiedMode) {
       return
     }
@@ -150,7 +156,7 @@ class ShortKeyHandler {
     }
   }
 
-  async registerPluginShortKey (pluginName: string) {
+  async registerPluginShortKey(pluginName: string) {
     const plugin = await picgo.pluginLoader.getPlugin(pluginName)
     if (plugin && plugin.commands) {
       if (typeof plugin.commands !== 'function') {
@@ -170,7 +176,7 @@ class ShortKeyHandler {
     }
   }
 
-  unregisterPluginShortKey (pluginName: string) {
+  unregisterPluginShortKey(pluginName: string) {
     const commands = db.get(configPaths.settings.shortKey._path) as IShortKeyConfigs
     const keyList = Object.keys(commands)
       .filter(command => command.includes(pluginName))

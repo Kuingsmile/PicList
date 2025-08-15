@@ -3,26 +3,17 @@
     <!-- Header -->
     <div class="settings-header">
       <div class="header-content">
-        <Settings
-          :size="24"
-          class="header-icon"
-        />
+        <Settings :size="24" class="header-icon" />
         <div>
           <h1>{{ $t('pages.imageProcess.title') }}</h1>
           <p>{{ $t('pages.imageProcess.description') }}</p>
         </div>
       </div>
       <div class="header-actions">
-        <button
-          class="btn btn-secondary"
-          @click="closeDialog"
-        >
+        <button class="btn btn-secondary" @click="closeDialog">
           {{ $t('pages.imageProcess.cancel') }}
         </button>
-        <button
-          class="btn btn-primary"
-          @click="handleSaveConfig"
-        >
+        <button class="btn btn-primary" @click="handleSaveConfig">
           <Save :size="16" />
           {{ $t('pages.imageProcess.confirm') }}
         </button>
@@ -38,10 +29,7 @@
         :class="{ active: activeTab === tab.id }"
         @click="activeTab = tab.id"
       >
-        <component
-          :is="tab.icon"
-          :size="18"
-        />
+        <component :is="tab.icon" :size="18" />
         <span>{{ tab.label }}</span>
       </button>
     </div>
@@ -49,10 +37,7 @@
     <!-- Settings Content -->
     <div class="settings-content">
       <!-- General Settings Tab -->
-      <div
-        v-if="activeTab === 'general'"
-        class="tab-content"
-      >
+      <div v-if="activeTab === 'general'" class="tab-content">
         <div class="settings-section">
           <h2>{{ $t('pages.imageProcess.general.skipProcessExtList') }}</h2>
           <div class="form-group">
@@ -73,11 +58,7 @@
           <div class="form-grid">
             <div class="form-group">
               <label class="switch-label">
-                <input
-                  v-model="compressForm.isRemoveExif"
-                  type="checkbox"
-                  class="switch-input"
-                >
+                <input v-model="compressForm.isRemoveExif" type="checkbox" class="switch-input" />
                 <span class="switch-slider" />
                 <div class="switch-content">
                   <span class="switch-title">{{ $t('pages.imageProcess.general.isRemoveExif') }}</span>
@@ -87,16 +68,8 @@
 
             <div class="form-group">
               <label>{{ $t('pages.imageProcess.general.quality') }}</label>
-              <input
-                v-model.number="compressForm.quality"
-                type="range"
-                min="1"
-                max="100"
-                class="form-range"
-              >
-              <div class="range-value">
-                {{ compressForm.quality }}%
-              </div>
+              <input v-model.number="compressForm.quality" type="range" min="1" max="100" class="form-range" />
+              <div class="range-value">{{ compressForm.quality }}%</div>
             </div>
           </div>
         </div>
@@ -106,11 +79,7 @@
 
           <div class="form-group">
             <label class="switch-label">
-              <input
-                v-model="compressForm.isConvert"
-                type="checkbox"
-                class="switch-input"
-              >
+              <input v-model="compressForm.isConvert" type="checkbox" class="switch-input" />
               <span class="switch-slider" />
               <div class="switch-content">
                 <span class="switch-title">{{ $t('pages.imageProcess.general.isConvert') }}</span>
@@ -118,21 +87,11 @@
             </label>
           </div>
 
-          <div
-            v-if="compressForm.isConvert"
-            class="form-grid"
-          >
+          <div v-if="compressForm.isConvert" class="form-grid">
             <div class="form-group">
               <label>{{ $t('pages.imageProcess.general.destinationFormat') }}</label>
-              <select
-                v-model="compressForm.convertFormat"
-                class="form-input"
-              >
-                <option
-                  v-for="format in availableFormat"
-                  :key="format"
-                  :value="format"
-                >
+              <select v-model="compressForm.convertFormat" class="form-input">
+                <option v-for="format in availableFormat" :key="format" :value="format">
                   {{ format.toUpperCase() }}
                 </option>
               </select>
@@ -144,7 +103,7 @@
                 v-model="formatConvertObj"
                 class="form-textarea"
                 rows="3"
-                placeholder="{&quot;jpg&quot;: &quot;png&quot;, &quot;png&quot;: &quot;jpg&quot;}"
+                placeholder='{"jpg": "png", "png": "jpg"}'
               />
             </div>
           </div>
@@ -152,21 +111,14 @@
       </div>
 
       <!-- Watermark Tab -->
-      <div
-        v-if="activeTab === 'watermark'"
-        class="tab-content"
-      >
+      <div v-if="activeTab === 'watermark'" class="tab-content">
         <div class="settings-section">
           <h2>{{ $t('pages.imageProcess.watermark.title') }}</h2>
           <p>{{ $t('pages.imageProcess.watermark.description') }}</p>
 
           <div class="form-group">
             <label class="switch-label">
-              <input
-                v-model="waterMarkForm.isAddWatermark"
-                type="checkbox"
-                class="switch-input"
-              >
+              <input v-model="waterMarkForm.isAddWatermark" type="checkbox" class="switch-input" />
               <span class="switch-slider" />
               <div class="switch-content">
                 <span class="switch-title">{{ $t('pages.imageProcess.watermark.isAdd') }}</span>
@@ -174,30 +126,17 @@
             </label>
           </div>
 
-          <div
-            v-if="waterMarkForm.isAddWatermark"
-            class="watermark-settings"
-          >
+          <div v-if="waterMarkForm.isAddWatermark" class="watermark-settings">
             <div class="form-group">
               <label>{{ $t('pages.imageProcess.watermark.type') }}</label>
               <div class="radio-group">
                 <label class="radio-option">
-                  <input
-                    v-model="waterMarkForm.watermarkType"
-                    type="radio"
-                    value="text"
-                    class="radio-input"
-                  >
+                  <input v-model="waterMarkForm.watermarkType" type="radio" value="text" class="radio-input" />
                   <span class="radio-indicator" />
                   <span class="radio-label">{{ $t('pages.imageProcess.watermark.text') }}</span>
                 </label>
                 <label class="radio-option">
-                  <input
-                    v-model="waterMarkForm.watermarkType"
-                    type="radio"
-                    value="image"
-                    class="radio-input"
-                  >
+                  <input v-model="waterMarkForm.watermarkType" type="radio" value="image" class="radio-input" />
                   <span class="radio-indicator" />
                   <span class="radio-label">{{ $t('pages.imageProcess.watermark.image') }}</span>
                 </label>
@@ -207,11 +146,7 @@
             <div class="form-grid">
               <div class="form-group">
                 <label class="switch-label">
-                  <input
-                    v-model="waterMarkForm.isFullScreenWatermark"
-                    type="checkbox"
-                    class="switch-input"
-                  >
+                  <input v-model="waterMarkForm.isFullScreenWatermark" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
                     <span class="switch-title">{{ $t('pages.imageProcess.watermark.isFullScreen') }}</span>
@@ -227,10 +162,8 @@
                   min="-360"
                   max="360"
                   class="form-range"
-                >
-                <div class="range-value">
-                  {{ waterMarkForm.watermarkDegree }}°
-                </div>
+                />
+                <div class="range-value">{{ waterMarkForm.watermarkDegree }}°</div>
               </div>
 
               <div class="form-group">
@@ -242,18 +175,13 @@
                   max="1"
                   step="0.01"
                   class="form-range"
-                >
-                <div class="range-value">
-                  {{ Math.round((waterMarkForm.watermarkScaleRatio || 0) * 100) }}%
-                </div>
+                />
+                <div class="range-value">{{ Math.round((waterMarkForm.watermarkScaleRatio || 0) * 100) }}%</div>
               </div>
             </div>
 
             <!-- Text Watermark Settings -->
-            <div
-              v-if="waterMarkForm.watermarkType === 'text'"
-              class="form-grid"
-            >
+            <div v-if="waterMarkForm.watermarkType === 'text'" class="form-grid">
               <div class="form-group">
                 <label>{{ $t('pages.imageProcess.watermark.inputText') }}</label>
                 <input
@@ -261,7 +189,7 @@
                   type="text"
                   class="form-input"
                   :placeholder="$t('pages.imageProcess.watermark.inputTextPlaceholder')"
-                >
+                />
               </div>
 
               <div class="form-group">
@@ -271,45 +199,35 @@
                   type="text"
                   class="form-input"
                   :placeholder="$t('pages.imageProcess.watermark.textFontPathPlaceholder')"
-                >
+                />
               </div>
 
               <div class="form-group">
                 <label>{{ $t('pages.imageProcess.watermark.color') }}</label>
                 <div class="color-input-group">
-                  <input
-                    v-model="waterMarkForm.watermarkColor"
-                    type="color"
-                    class="form-color"
-                  >
+                  <input v-model="waterMarkForm.watermarkColor" type="color" class="form-color" />
                   <input
                     v-model="waterMarkForm.watermarkColor"
                     type="text"
                     class="form-input"
                     placeholder="#CCCCCC73"
-                  >
+                  />
                 </div>
               </div>
             </div>
 
             <!-- Image Watermark Settings -->
-            <div
-              v-if="waterMarkForm.watermarkType === 'image'"
-              class="form-group"
-            >
+            <div v-if="waterMarkForm.watermarkType === 'image'" class="form-group">
               <label>{{ $t('pages.imageProcess.watermark.imagePath') }}</label>
               <input
                 v-model="waterMarkForm.watermarkImagePath"
                 type="text"
                 class="form-input"
                 :placeholder="$t('pages.imageProcess.watermark.imagePathPlaceholder')"
-              >
+              />
             </div>
 
-            <div
-              v-if="waterMarkForm.watermarkType === 'image'"
-              class="form-group"
-            >
+            <div v-if="waterMarkForm.watermarkType === 'image'" class="form-group">
               <label>{{ $t('pages.imageProcess.watermark.imageOpacity') }}</label>
               <input
                 v-model.number="waterMarkForm.watermarkImageOpacity"
@@ -318,7 +236,7 @@
                 max="255"
                 step="1"
                 class="form-range"
-              >
+              />
               <div class="range-value">
                 {{ waterMarkForm.watermarkImageOpacity || 0 }}
               </div>
@@ -345,10 +263,7 @@
       </div>
 
       <!-- Transform Tab -->
-      <div
-        v-if="activeTab === 'transform'"
-        class="tab-content"
-      >
+      <div v-if="activeTab === 'transform'" class="tab-content">
         <div class="settings-section">
           <h2>{{ $t('pages.imageProcess.transform.title') }}</h2>
           <p>{{ $t('pages.imageProcess.transform.description') }}</p>
@@ -356,11 +271,7 @@
           <div class="form-grid">
             <div class="form-group">
               <label class="switch-label">
-                <input
-                  v-model="compressForm.isFlip"
-                  type="checkbox"
-                  class="switch-input"
-                >
+                <input v-model="compressForm.isFlip" type="checkbox" class="switch-input" />
                 <span class="switch-slider" />
                 <div class="switch-content">
                   <span class="switch-title">{{ $t('pages.imageProcess.transform.isFlip') }}</span>
@@ -370,11 +281,7 @@
 
             <div class="form-group">
               <label class="switch-label">
-                <input
-                  v-model="compressForm.isFlop"
-                  type="checkbox"
-                  class="switch-input"
-                >
+                <input v-model="compressForm.isFlop" type="checkbox" class="switch-input" />
                 <span class="switch-slider" />
                 <div class="switch-content">
                   <span class="switch-title">{{ $t('pages.imageProcess.transform.isFlop') }}</span>
@@ -390,11 +297,7 @@
 
           <div class="form-group">
             <label class="switch-label">
-              <input
-                v-model="compressForm.isRotate"
-                type="checkbox"
-                class="switch-input"
-              >
+              <input v-model="compressForm.isRotate" type="checkbox" class="switch-input" />
               <span class="switch-slider" />
               <div class="switch-content">
                 <span class="switch-title">{{ $t('pages.imageProcess.transform.isRotate') }}</span>
@@ -402,21 +305,10 @@
             </label>
           </div>
 
-          <div
-            v-if="compressForm.isRotate"
-            class="form-group"
-          >
+          <div v-if="compressForm.isRotate" class="form-group">
             <label>{{ $t('pages.imageProcess.transform.rotationDegree') }}</label>
-            <input
-              v-model.number="compressForm.rotateDegree"
-              type="range"
-              min="-360"
-              max="360"
-              class="form-range"
-            >
-            <div class="range-value">
-              {{ compressForm.rotateDegree }}°
-            </div>
+            <input v-model.number="compressForm.rotateDegree" type="range" min="-360" max="360" class="form-range" />
+            <div class="range-value">{{ compressForm.rotateDegree }}°</div>
           </div>
         </div>
 
@@ -426,11 +318,7 @@
 
           <div class="form-group">
             <label class="switch-label">
-              <input
-                v-model="compressForm.isReSize"
-                type="checkbox"
-                class="switch-input"
-              >
+              <input v-model="compressForm.isReSize" type="checkbox" class="switch-input" />
               <span class="switch-slider" />
               <div class="switch-content">
                 <span class="switch-title">{{ $t('pages.imageProcess.transform.isResize') }}</span>
@@ -438,42 +326,28 @@
             </label>
           </div>
 
-          <div
-            v-if="compressForm.isReSize"
-            class="resize-settings"
-          >
+          <div v-if="compressForm.isReSize" class="resize-settings">
             <div class="form-grid">
               <div class="form-group">
                 <label>{{ $t('pages.imageProcess.transform.resizeWidth') }}</label>
-                <input
-                  v-model.number="compressForm.reSizeWidth"
-                  type="number"
-                  min="0"
-                  class="form-input"
-                >
+                <input v-model.number="compressForm.reSizeWidth" type="number" min="0" class="form-input" />
               </div>
 
               <div class="form-group">
                 <label>{{ $t('pages.imageProcess.transform.resizeHeight') }}</label>
-                <input
-                  v-model.number="compressForm.reSizeHeight"
-                  type="number"
-                  min="0"
-                  class="form-input"
-                >
+                <input v-model.number="compressForm.reSizeHeight" type="number" min="0" class="form-input" />
               </div>
             </div>
 
             <div
-              v-if="((compressForm.reSizeHeight || 0) > 0 && (compressForm.reSizeWidth || 0) === 0) || ((compressForm.reSizeWidth || 0) > 0 && (compressForm.reSizeHeight || 0) === 0)"
+              v-if="
+                ((compressForm.reSizeHeight || 0) > 0 && (compressForm.reSizeWidth || 0) === 0) ||
+                ((compressForm.reSizeWidth || 0) > 0 && (compressForm.reSizeHeight || 0) === 0)
+              "
               class="form-group"
             >
               <label class="switch-label">
-                <input
-                  v-model="compressForm.skipReSizeOfSmallImg"
-                  type="checkbox"
-                  class="switch-input"
-                >
+                <input v-model="compressForm.skipReSizeOfSmallImg" type="checkbox" class="switch-input" />
                 <span class="switch-slider" />
                 <div class="switch-content">
                   <span class="switch-title">{{ $t('pages.imageProcess.transform.skipResizeOfSmallImgHeight') }}</span>
@@ -488,11 +362,7 @@
 
           <div class="form-group">
             <label class="switch-label">
-              <input
-                v-model="compressForm.isReSizeByPercent"
-                type="checkbox"
-                class="switch-input"
-              >
+              <input v-model="compressForm.isReSizeByPercent" type="checkbox" class="switch-input" />
               <span class="switch-slider" />
               <div class="switch-content">
                 <span class="switch-title">{{ $t('pages.imageProcess.transform.isResizeByPercent') }}</span>
@@ -501,21 +371,10 @@
             </label>
           </div>
 
-          <div
-            v-if="compressForm.isReSizeByPercent"
-            class="form-group"
-          >
+          <div v-if="compressForm.isReSizeByPercent" class="form-group">
             <label>{{ $t('pages.imageProcess.transform.resizePercent') }}</label>
-            <input
-              v-model.number="compressForm.reSizePercent"
-              type="range"
-              min="1"
-              max="500"
-              class="form-range"
-            >
-            <div class="range-value">
-              {{ compressForm.reSizePercent }}%
-            </div>
+            <input v-model.number="compressForm.reSizePercent" type="range" min="1" max="500" class="form-range" />
+            <div class="range-value">{{ compressForm.reSizePercent }}%</div>
           </div>
         </div>
       </div>
@@ -631,7 +490,7 @@ const waterMarkFormKeys = Object.keys(waterMarkForm) as (keyof typeof waterMarkF
 const compressFormKeys = Object.keys(compressForm) as (keyof typeof compressForm)[]
 const skipProcessFormKeys = Object.keys(skipProcessForm) as (keyof typeof skipProcessForm)[]
 
-function handleSaveConfig () {
+function handleSaveConfig() {
   let iformatConvertObj = {}
   try {
     iformatConvertObj = JSON.parse(formatConvertObj.value)
@@ -649,7 +508,7 @@ function handleSaveConfig () {
   closeDialog()
 }
 
-async function initData () {
+async function initData() {
   const compress = await getConfig<any>(configPaths.buildIn.compress)
   const watermark = await getConfig<any>(configPaths.buildIn.watermark)
   const skipProcess = await getConfig<any>(configPaths.buildIn.skipProcess)
@@ -680,7 +539,7 @@ async function initData () {
   }
 }
 
-function closeDialog () {
+function closeDialog() {
   imageProcessDialogVisible.value = false
 }
 

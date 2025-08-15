@@ -17,39 +17,27 @@ export class AESHelper {
 
   readonly key: Buffer
 
-  constructor (password?: string) {
-    const pwd =
-      password ??
-      picgo.getConfig<string>(configPaths.settings.aesPassword) ??
-      'aesPassword'
+  constructor(password?: string) {
+    const pwd = password ?? picgo.getConfig<string>(configPaths.settings.aesPassword) ?? 'aesPassword'
     this.key = AESHelper.#deriveKey(pwd)
   }
 
-  static #deriveKey (password: string): Buffer {
+  static #deriveKey(password: string): Buffer {
     const cached = this.#keyCache.get(password)
     if (cached) return cached
-    const key = crypto.pbkdf2Sync(
-      password,
-      this.#SALT,
-      this.#ITERATIONS,
-      this.#KEYLEN,
-      this.#DIGEST
-    )
+    const key = crypto.pbkdf2Sync(password, this.#SALT, this.#ITERATIONS, this.#KEYLEN, this.#DIGEST)
     this.#keyCache.set(password, key)
     return key
   }
 
-  encrypt (plainText: string): string {
+  encrypt(plainText: string): string {
     const iv = crypto.randomBytes(AESHelper.#IV_LENGTH)
     const cipher = crypto.createCipheriv(AESHelper.#ALGO, this.key, iv)
-    const encrypted = Buffer.concat([
-      cipher.update(plainText, 'utf8'),
-      cipher.final()
-    ])
+    const encrypted = Buffer.concat([cipher.update(plainText, 'utf8'), cipher.final()])
     return `${iv.toString('hex')}${AESHelper.#SEP}${encrypted.toString('hex')}`
   }
 
-  decrypt (encryptedData: string): string {
+  decrypt(encryptedData: string): string {
     if (!encryptedData) return '{}'
 
     const sepIndex = encryptedData.indexOf(AESHelper.#SEP)
@@ -63,10 +51,7 @@ export class AESHelper {
       if (iv.length !== AESHelper.#IV_LENGTH) return '{}'
 
       const decipher = crypto.createDecipheriv(AESHelper.#ALGO, this.key, iv)
-      const decrypted = Buffer.concat([
-        decipher.update(Buffer.from(encryptedHex, 'hex')),
-        decipher.final()
-      ])
+      const decrypted = Buffer.concat([decipher.update(Buffer.from(encryptedHex, 'hex')), decipher.final()])
       return decrypted.toString('utf8')
     } catch {
       return '{}'

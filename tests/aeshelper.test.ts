@@ -88,7 +88,8 @@ describe('AESHelper', () => {
 
     const a = new AESHelper(uniquePwd)
     const b = new AESHelper(uniquePwd)
-    a.encrypt('x'); b.encrypt('y')
+    a.encrypt('x')
+    b.encrypt('y')
 
     const callsForPwd = spy.mock.calls.filter(args => args[0] === uniquePwd)
     expect(callsForPwd.length).toBe(1)

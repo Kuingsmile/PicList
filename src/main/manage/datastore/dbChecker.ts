@@ -21,7 +21,7 @@ const errorMsg = {
   brokenButBackup: $t('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_BACKUP')
 }
 
-function manageDbChecker () {
+function manageDbChecker() {
   if (process.type !== 'renderer') {
     const manageConfigFilePath = managePathChecker()
     if (!fs.existsSync(manageConfigFilePath)) {
@@ -72,7 +72,7 @@ function manageDbChecker () {
 /**
  * Get manage config path
  */
-function managePathChecker (): string {
+function managePathChecker(): string {
   if (_configFilePath) {
     return _configFilePath
   }
@@ -113,7 +113,7 @@ function managePathChecker (): string {
   }
 }
 
-function managePathDir () {
+function managePathDir() {
   return path.dirname(managePathChecker())
 }
 

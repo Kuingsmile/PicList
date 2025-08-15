@@ -13,7 +13,6 @@ import { ILocales, ILocalesKey } from '#/types/i18n'
 import { IStringKeyMap } from '#/types/types'
 
 declare global {
-
   export namespace JSX {
     export interface Element extends VNode {}
     export interface IntrinsicElements {
@@ -33,7 +32,7 @@ declare global {
       ipcRendererRemoveAllListeners: (channel: string) => void
       clipboard: {
         writeText: typeof clipboard.writeText
-      },
+      }
       showFilePath: (file: File) => string
     }
     node: {
@@ -43,7 +42,7 @@ declare global {
         basename: typeof path.basename
         normalize: typeof path.normalize
         extname: typeof path.extname
-        sep: typeof path.sep,
+        sep: typeof path.sep
         posix: {
           sep: typeof path.posix.sep
         }
@@ -64,7 +63,6 @@ declare global {
       mime: {
         lookup: typeof mime.lookup
       }
-
     }
     i18n: {
       setLocales: (lang: string, locales: ILocales) => void

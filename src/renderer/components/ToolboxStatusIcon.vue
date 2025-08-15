@@ -1,9 +1,5 @@
 <template>
-  <component
-    :is="icon"
-    class="toolbox-status-icon"
-    :style="{ color }"
-  />
+  <component :is="icon" class="toolbox-status-icon" :style="{ color }" />
 </template>
 
 <script lang="ts" setup>

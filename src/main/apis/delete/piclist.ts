@@ -4,7 +4,7 @@ import type { IStringKeyMap } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '~/utils/deleteLog'
 
 export default class PiclistApi {
-  static async delete (configMap: IStringKeyMap): Promise<boolean> {
+  static async delete(configMap: IStringKeyMap): Promise<boolean> {
     const { config, fullResult } = configMap
     const { host, port } = config
     if (!fullResult) return true

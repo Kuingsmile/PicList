@@ -33,14 +33,14 @@ class QiniuApi {
     getBucketDomain: 'https://uc.qiniuapi.com/v2/domains'
   }
 
-  constructor (accessKey: string, secretKey: string, logger: ManageLogger) {
+  constructor(accessKey: string, secretKey: string, logger: ManageLogger) {
     this.mac = new qiniu.auth.digest.Mac(accessKey, secretKey)
     this.accessKey = accessKey
     this.secretKey = secretKey
     this.logger = logger
   }
 
-  formatFolder (item: string, slicedPrefix: string, urlPrefix: string) {
+  formatFolder(item: string, slicedPrefix: string, urlPrefix: string) {
     return {
       Key: item,
       key: item,
@@ -54,7 +54,7 @@ class QiniuApi {
     }
   }
 
-  formatFile (item: any, slicedPrefix: string, urlPrefix: string) {
+  formatFile(item: any, slicedPrefix: string, urlPrefix: string) {
     const fileName = item.key.replace(slicedPrefix, '')
     return {
       ...item,
@@ -69,7 +69,7 @@ class QiniuApi {
     }
   }
 
-  authorization (
+  authorization(
     method: string,
     urlPath: string,
     host: string,
@@ -98,7 +98,7 @@ class QiniuApi {
   /**
    * 获取存储桶列表
    */
-  async getBucketList (): Promise<any> {
+  async getBucketList(): Promise<any> {
     const host = this.hostList.getBucketList
     const authorization = qiniu.util.generateAccessToken(this.mac, host, undefined)
     const res = await axios.get(host, {
@@ -128,7 +128,7 @@ class QiniuApi {
   /**
    * 获取存储桶详细信息
    */
-  async getBucketInfo (param: IStringKeyMap): Promise<any> {
+  async getBucketInfo(param: IStringKeyMap): Promise<any> {
     const { bucketName } = param
     const urlPath = `/v2/bucketInfo?bucket=${bucketName}&fs=true`
     const authorization = this.authorization('POST', urlPath, this.host, '', '', 'application/json')
@@ -160,7 +160,7 @@ class QiniuApi {
   /**
    * 获取自定义域名
    */
-  async getBucketDomain (param: IStringKeyMap): Promise<any> {
+  async getBucketDomain(param: IStringKeyMap): Promise<any> {
     const { bucketName } = param
     const host = this.hostList.getBucketDomain
     const authorization = qiniu.util.generateAccessToken(this.mac, `${host}?tbl=${bucketName}`, undefined)
@@ -180,7 +180,7 @@ class QiniuApi {
   /**
    * 修改存储桶权限
    */
-  async setBucketAclPolicy (param: IStringKeyMap): Promise<boolean> {
+  async setBucketAclPolicy(param: IStringKeyMap): Promise<boolean> {
     // 0: 公开访问 1: 私有访问
     const { bucketName } = param
     let { isPrivate } = param
@@ -213,7 +213,7 @@ class QiniuApi {
    * acl: boolean // 是否公开访问
    * }
    */
-  async createBucket (configMap: IStringKeyMap): Promise<boolean> {
+  async createBucket(configMap: IStringKeyMap): Promise<boolean> {
     const { BucketName, region, acl } = configMap
     const urlPath = `/mkbucketv3/${BucketName}/region/${region}`
     const authorization = this.authorization('POST', urlPath, this.host, '', '', 'application/json')
@@ -235,7 +235,7 @@ class QiniuApi {
       : false
   }
 
-  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
+  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: bucket, prefix, cancelToken, customUrl: urlPrefix } = configMap
     let marker = undefined as any
@@ -297,7 +297,7 @@ class QiniuApi {
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
-  async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
+  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: bucket, prefix, cancelToken, customUrl: urlPrefix } = configMap
     let marker = undefined as any
@@ -380,7 +380,7 @@ class QiniuApi {
    *  customUrl: string
    * }
    */
-  async getBucketFileList (configMap: IStringKeyMap): Promise<any> {
+  async getBucketFileList(configMap: IStringKeyMap): Promise<any> {
     const { bucketName: bucket, prefix, marker, itemsPerPage, customUrl: urlPrefix } = configMap
     const slicedPrefix = prefix.slice(1)
     const config = new qiniu.conf.Config()
@@ -440,7 +440,7 @@ class QiniuApi {
    * key: string
    * }
    */
-  async deleteBucketFile (configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, key } = configMap
     const config = new qiniu.conf.Config()
     const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
@@ -463,7 +463,7 @@ class QiniuApi {
    * 删除文件夹
    * @param configMap
    */
-  async deleteBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, key } = configMap
     const config = new qiniu.conf.Config()
     const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
@@ -535,7 +535,7 @@ class QiniuApi {
    * newKey: string
    * }
    */
-  async renameBucketFile (configMap: IStringKeyMap): Promise<boolean> {
+  async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, oldKey, newKey } = configMap
     const config = new qiniu.conf.Config()
     const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
@@ -574,7 +574,7 @@ class QiniuApi {
    * customUrl: string
    * }
    */
-  async getPreSignedUrl (configMap: IStringKeyMap): Promise<string> {
+  async getPreSignedUrl(configMap: IStringKeyMap): Promise<string> {
     const { key, expires, customUrl } = configMap
     const config = new qiniu.conf.Config()
     const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
@@ -588,7 +588,7 @@ class QiniuApi {
    * 上传文件
    * @param configMap
    */
-  async uploadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
+  async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { fileArray } = configMap
     const instance = UpDownTaskQueue.getInstance()
     fileArray.forEach((item: any) => {
@@ -667,7 +667,7 @@ class QiniuApi {
    * 新建文件夹
    * @param configMap
    */
-  async createBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
+  async createBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, key } = configMap
     const putPolicy = new qiniu.rs.PutPolicy({
       scope: `${bucketName}:${key}`
@@ -694,7 +694,7 @@ class QiniuApi {
    * 下载文件
    * @param configMap
    */
-  async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
+  async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any

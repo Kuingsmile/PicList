@@ -155,7 +155,7 @@ updater.autoUpdater.on('error', err => {
 })
 
 class LifeCycle {
-  async #beforeReady () {
+  async #beforeReady() {
     protocol.registerSchemesAsPrivileged([{ scheme: 'picgo', privileges: { secure: true, standard: true } }])
     // fix the $PATH in macOS & linux
     fixPath()
@@ -171,7 +171,7 @@ class LifeCycle {
     }
   }
 
-  #onReady () {
+  #onReady() {
     const readyFunction = async () => {
       if (process.env.NODE_ENV !== 'production') {
         installExtension(VUEJS_DEVTOOLS).catch(err => {
@@ -241,9 +241,15 @@ class LifeCycle {
           if (lastPosition[0] < 0 || lastPosition[0] > width || lastPosition[1] < 0 || lastPosition[1] > height) {
             miniWindow.setPosition(width - 100, height - 100)
             db.set(configPaths.settings.miniWindowPosition, [width - 100, height - 100])
-          } else if (lastPosition[0] + miniWindow.getSize()[0] > width || lastPosition[1] + miniWindow.getSize()[1] > height) {
+          } else if (
+            lastPosition[0] + miniWindow.getSize()[0] > width ||
+            lastPosition[1] + miniWindow.getSize()[1] > height
+          ) {
             miniWindow.setPosition(width - miniWindow.getSize()[0], height - miniWindow.getSize()[1])
-            db.set(configPaths.settings.miniWindowPosition, [width - miniWindow.getSize()[0], height - miniWindow.getSize()[1]])
+            db.set(configPaths.settings.miniWindowPosition, [
+              width - miniWindow.getSize()[0],
+              height - miniWindow.getSize()[1]
+            ])
           } else {
             miniWindow.setPosition(lastPosition[0], lastPosition[1])
           }
@@ -269,7 +275,7 @@ class LifeCycle {
     app.whenReady().then(readyFunction)
   }
 
-  #onRunning () {
+  #onRunning() {
     app.on('second-instance', (_, commandLine, workingDirectory) => {
       logger.info('detect second instance')
       const result = handleStartUpFiles(commandLine, workingDirectory)
@@ -303,7 +309,7 @@ class LifeCycle {
     }
   }
 
-  #onQuit () {
+  #onQuit() {
     app.on('window-all-closed', () => {
       if (process.platform !== 'darwin') {
         app.quit()
@@ -336,7 +342,7 @@ class LifeCycle {
     }
   }
 
-  async launchApp () {
+  async launchApp() {
     const gotTheLock = app.requestSingleInstanceLock()
     if (!gotTheLock) {
       app.quit()

@@ -25,10 +25,7 @@
             <div class="config-update-time">
               {{ formatTime(item._updatedAt) }}
             </div>
-            <div
-              v-if="defaultConfigId === item._id"
-              class="default-badge"
-            >
+            <div v-if="defaultConfigId === item._id" class="default-badge">
               {{ t('pages.uploaderConfig.selected') }}
             </div>
           </div>
@@ -53,10 +50,7 @@
         </div>
 
         <!-- Add New Config Button -->
-        <div
-          class="config-item config-item-add"
-          @click="addNewConfig"
-        >
+        <div class="config-item config-item-add" @click="addNewConfig">
           <div class="add-content">
             <Plus :size="32" />
             <span class="add-text">{{ t('pages.uploaderConfig.addNew') }}</span>
@@ -68,11 +62,7 @@
     <!-- Actions Card -->
     <div class="config-card actions-card">
       <div class="card-actions">
-        <button
-          class="primary-button"
-          :disabled="store?.state.defaultPicBed === type"
-          @click="setDefaultPicBed(type)"
-        >
+        <button class="primary-button" :disabled="store?.state.defaultPicBed === type" @click="setDefaultPicBed(type)">
           <DatabaseIcon :size="16" />
           <span>{{ t('pages.uploaderConfig.setAsDefault') }}</span>
         </button>
@@ -108,7 +98,7 @@ const curConfigList = ref<IStringKeyMap[]>([])
 const defaultConfigId = ref('')
 const store = useStore()
 
-async function selectItem (id: string) {
+async function selectItem(id: string) {
   await window.electron.triggerRPC<void>(IRPCActionType.UPLOADER_SELECT, type.value, id)
   if (store?.state.defaultPicBed === type.value) {
     window.electron.sendRPC(
@@ -132,13 +122,16 @@ onBeforeMount(() => {
   getCurrentConfigList()
 })
 
-async function getCurrentConfigList () {
-  const configList = await window.electron.triggerRPC<IUploaderConfigItem>(IRPCActionType.PICBED_GET_CONFIG_LIST, type.value)
+async function getCurrentConfigList() {
+  const configList = await window.electron.triggerRPC<IUploaderConfigItem>(
+    IRPCActionType.PICBED_GET_CONFIG_LIST,
+    type.value
+  )
   curConfigList.value = configList?.configList ?? []
   defaultConfigId.value = configList?.defaultId ?? ''
 }
 
-function openEditPage (configId: string) {
+function openEditPage(configId: string) {
   router.push({
     name: PICBEDS_PAGE,
     params: {
@@ -151,11 +144,11 @@ function openEditPage (configId: string) {
   })
 }
 
-function formatTime (time: number): string {
+function formatTime(time: number): string {
   return dayjs(time).format('YYYY-MM-DD HH:mm')
 }
 
-async function deleteConfig (id: string) {
+async function deleteConfig(id: string) {
   const result = await confirm({
     title: t('pages.uploaderConfig.deleteTitle'),
     message: t('pages.uploaderConfig.deleteConfirm'),
@@ -172,7 +165,7 @@ async function deleteConfig (id: string) {
   message.success(t('pages.uploaderConfig.deleteSuccess'))
 }
 
-function addNewConfig () {
+function addNewConfig() {
   router.push({
     name: PICBEDS_PAGE,
     params: {
@@ -182,7 +175,7 @@ function addNewConfig () {
   })
 }
 
-function setDefaultPicBed (type: string) {
+function setDefaultPicBed(type: string) {
   saveConfig({
     [configPaths.picBed.current]: type,
     [configPaths.picBed.uploader]: type

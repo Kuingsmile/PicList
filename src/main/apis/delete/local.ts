@@ -7,7 +7,7 @@ interface IConfigMap {
 }
 
 export default class LocalApi {
-  static async delete (configMap: IConfigMap): Promise<boolean> {
+  static async delete(configMap: IConfigMap): Promise<boolean> {
     const { hash } = configMap
     if (!hash) {
       deleteLog(hash, 'Local', false, 'Local.delete: invalid params')

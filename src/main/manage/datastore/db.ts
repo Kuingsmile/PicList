@@ -9,7 +9,7 @@ interface IJSON {
 class ManageDB {
   readonly #ctx: IManageApiType
   readonly #db: JSONStore
-  constructor (ctx: IManageApiType) {
+  constructor(ctx: IManageApiType) {
     this.#ctx = ctx
     this.#db = new JSONStore(this.#ctx.configPath)
     const initParams: IStringKeyMap = {
@@ -28,37 +28,37 @@ class ManageDB {
     }
   }
 
-  read (flush?: boolean): IJSON {
+  read(flush?: boolean): IJSON {
     return this.#db.read(flush)
   }
 
-  get (key: string = ''): any {
+  get(key: string = ''): any {
     this.read(true)
     return this.#db.get(key)
   }
 
-  set (key: string, value: any): void {
+  set(key: string, value: any): void {
     this.read(true)
     return this.#db.set(key, value)
   }
 
-  has (key: string): boolean {
+  has(key: string): boolean {
     this.read(true)
     return this.#db.has(key)
   }
 
-  unset (key: string, value: any): boolean {
+  unset(key: string, value: any): boolean {
     this.read(true)
     return this.#db.unset(key, value)
   }
 
-  saveConfig (config: Partial<IManageConfigType>): void {
+  saveConfig(config: Partial<IManageConfigType>): void {
     Object.keys(config).forEach((name: string) => {
       this.set(name, config[name])
     })
   }
 
-  removeConfig (config: IManageConfigType): void {
+  removeConfig(config: IManageConfigType): void {
     Object.keys(config).forEach((name: string) => {
       this.unset(name, config[name])
     })

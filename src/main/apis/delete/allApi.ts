@@ -39,7 +39,7 @@ const apiMap: IStringKeyMap = {
 }
 
 export default class ALLApi {
-  static async delete (configMap: IStringKeyMap): Promise<boolean> {
+  static async delete(configMap: IStringKeyMap): Promise<boolean> {
     const api = apiMap[configMap.type]
     return api ? await api.delete(configMap) : false
   }

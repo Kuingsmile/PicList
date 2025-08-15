@@ -12,7 +12,7 @@ export const useAppStore = defineStore('app', () => {
   const loading = ref(false)
   const error = ref<string | undefined>()
 
-  function clearError () {
+  function clearError() {
     error.value = undefined
   }
 
@@ -24,7 +24,7 @@ export const useAppStore = defineStore('app', () => {
     applyTheme(settings.value.app.theme || 'light')
   }
 
-  function applyTheme (theme: string) {
+  function applyTheme(theme: string) {
     const root = document.documentElement
     root.classList.remove('light', 'dark', 'auto')
 
@@ -45,13 +45,13 @@ export const useAppStore = defineStore('app', () => {
     }
   }
 
-  function setTheme (theme: 'light' | 'dark' | 'auto') {
+  function setTheme(theme: 'light' | 'dark' | 'auto') {
     settings.value.app.theme = theme
     localStorage.setItem('theme', theme)
     applyTheme(theme)
   }
 
-  function toggleTheme () {
+  function toggleTheme() {
     const currentTheme = settings.value.app.theme || 'light'
     const themes = ['light', 'dark', 'auto'] as const
     const currentIndex = themes.indexOf(currentTheme as any)
@@ -59,7 +59,7 @@ export const useAppStore = defineStore('app', () => {
     setTheme(nextTheme)
   }
 
-  function init () {
+  function init() {
     try {
       loadSettings()
     } catch (err) {
@@ -78,6 +78,5 @@ export const useAppStore = defineStore('app', () => {
     setTheme,
     toggleTheme,
     applyTheme
-
   }
 })

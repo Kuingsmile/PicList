@@ -9,7 +9,7 @@ interface IConfigMap {
 }
 
 export default class UpyunApi {
-  static async delete (configMap: IConfigMap): Promise<boolean> {
+  static async delete(configMap: IConfigMap): Promise<boolean> {
     const {
       fileName,
       config: { bucket, operator, password, path }

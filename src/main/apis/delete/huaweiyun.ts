@@ -4,7 +4,7 @@ import { removeFileFromHuaweiInMain } from '~/utils/deleteFunc'
 import { deleteFailedLog } from '~/utils/deleteLog'
 
 export default class HuaweicloudApi {
-  static async delete (configMap: IStringKeyMap): Promise<boolean> {
+  static async delete(configMap: IStringKeyMap): Promise<boolean> {
     try {
       return await removeFileFromHuaweiInMain(getRawData(configMap))
     } catch (error: any) {

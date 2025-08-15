@@ -1,12 +1,12 @@
 import { EventEmitter } from 'node:events'
 
 class OptimizedBus extends EventEmitter {
-  constructor () {
+  constructor() {
     super()
     this.setMaxListeners(50)
   }
 
-  once (event: string | symbol, listener: (...args: any[]) => void): this {
+  once(event: string | symbol, listener: (...args: any[]) => void): this {
     const wrappedListener = (...args: any[]) => {
       try {
         listener(...args)
@@ -17,7 +17,7 @@ class OptimizedBus extends EventEmitter {
     return super.once(event, wrappedListener)
   }
 
-  cleanupListeners () {
+  cleanupListeners() {
     const events = this.eventNames()
     events.forEach(event => {
       const listenerCount = this.listenerCount(event)

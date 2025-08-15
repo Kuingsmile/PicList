@@ -16,7 +16,7 @@ interface ConfirmService {
 
 const confirmServiceRef = ref<ConfirmService | null>(null)
 
-export function useConfirm () {
+export function useConfirm() {
   const setConfirmService = (service: ConfirmService) => {
     confirmServiceRef.value = service
   }

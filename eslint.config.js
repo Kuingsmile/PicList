@@ -1,5 +1,6 @@
 import eslint from '@eslint/js'
 import standard from '@vue/eslint-config-standard'
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import eslintPluginUnicorn from 'eslint-plugin-unicorn'
 import pluginVue from 'eslint-plugin-vue'
@@ -18,6 +19,7 @@ export default tseslint.config(
   ...tseslint.configs.stylistic,
   ...pluginVue.configs['flat/recommended'],
   ...standard,
+  eslintPluginPrettierRecommended,
   {
     plugins: {
       'simple-import-sort': simpleImportSort,

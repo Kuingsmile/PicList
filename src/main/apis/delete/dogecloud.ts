@@ -4,7 +4,7 @@ import { removeFileFromDogeInMain } from '~/utils/deleteFunc'
 import { deleteFailedLog } from '~/utils/deleteLog'
 
 export default class AwsS3Api {
-  static async delete (configMap: IStringKeyMap): Promise<boolean> {
+  static async delete(configMap: IStringKeyMap): Promise<boolean> {
     try {
       return await removeFileFromDogeInMain(getRawData(configMap))
     } catch (error: any) {

@@ -1,14 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div
-    id="config-form"
-    :class="[{ white: props.colorMode === 'white' }]"
-  >
-    <form
-      ref="$form"
-      class="config-form"
-      @submit.prevent
-    >
+  <div id="config-form" :class="[{ white: props.colorMode === 'white' }]">
+    <form ref="$form" class="config-form" @submit.prevent>
       <!-- Config Name Field -->
       <div class="form-group required">
         <label class="form-label">{{ t('pages.configForm.configName') }}</label>
@@ -20,11 +13,8 @@
             :placeholder="t('pages.configForm.configNamePlaceholder')"
             :class="{ error: validationErrors._configName }"
             @input="clearFieldError('_configName')"
-          >
-          <div
-            v-if="validationErrors._configName"
-            class="error-message"
-          >
+          />
+          <div v-if="validationErrors._configName" class="error-message">
             {{ validationErrors._configName }}
           </div>
         </div>
@@ -39,14 +29,8 @@
       >
         <div class="form-label-wrapper">
           <label class="form-label">{{ item.alias || item.name }}</label>
-          <div
-            v-if="showTooltips && item.tips"
-            class="tooltip-wrapper"
-          >
-            <div
-              class="info-icon"
-              @click="toggleTooltip(item.name + index)"
-            >
+          <div v-if="showTooltips && item.tips" class="tooltip-wrapper">
+            <div class="info-icon" @click="toggleTooltip(item.name + index)">
               <Info :size="20" />
             </div>
             <div
@@ -67,23 +51,17 @@
             :placeholder="item.message || item.name"
             :class="{ error: validationErrors[item.name] }"
             @input="clearFieldError(item.name)"
-          >
+          />
 
           <!-- Select (Single) -->
-          <div
-            v-else-if="item.type === 'list' && item.choices"
-            class="select-wrapper"
-          >
+          <div v-else-if="item.type === 'list' && item.choices" class="select-wrapper">
             <select
               v-model="ruleForm[item.name]"
               class="form-select"
               :class="{ error: validationErrors[item.name] }"
               @change="clearFieldError(item.name)"
             >
-              <option
-                value=""
-                disabled
-              >
+              <option value="" disabled>
                 {{ item.message || item.name }}
               </option>
               <option
@@ -100,15 +78,8 @@
           </div>
 
           <!-- Multi-Select (Checkbox style) -->
-          <div
-            v-else-if="item.type === 'checkbox' && item.choices"
-            class="checkbox-group"
-          >
-            <div
-              v-for="choice in item.choices"
-              :key="choice.value || choice"
-              class="checkbox-item"
-            >
+          <div v-else-if="item.type === 'checkbox' && item.choices" class="checkbox-group">
+            <div v-for="choice in item.choices" :key="choice.value || choice" class="checkbox-item">
               <label class="checkbox-label">
                 <input
                   type="checkbox"
@@ -116,7 +87,7 @@
                   :checked="Array.isArray(ruleForm[item.name]) && ruleForm[item.name].includes(choice.value || choice)"
                   class="checkbox-input"
                   @change="handleCheckboxChange(item.name, choice.value || choice, $event)"
-                >
+                />
                 <span class="checkbox-custom" />
                 <span class="checkbox-text">{{ choice.name || choice.value || choice }}</span>
               </label>
@@ -124,29 +95,23 @@
           </div>
 
           <!-- Switch/Toggle -->
-          <label
-            v-else-if="item.type === 'confirm'"
-            class="switch-label"
-          >
+          <label v-else-if="item.type === 'confirm'" class="switch-label">
             <input
               v-model="ruleForm[item.name]"
               type="checkbox"
               class="switch-input"
               @change="clearFieldError(item.name)"
-            >
+            />
             <span class="switch-slider">
               <span class="switch-button" />
             </span>
             <span class="switch-text">
-              {{ ruleForm[item.name] ? (item.confirmText || 'Yes') : (item.cancelText || 'No') }}
+              {{ ruleForm[item.name] ? item.confirmText || 'Yes' : item.cancelText || 'No' }}
             </span>
           </label>
 
           <!-- Validation Error -->
-          <div
-            v-if="validationErrors[item.name]"
-            class="error-message"
-          >
+          <div v-if="validationErrors[item.name]" class="error-message">
             {{ validationErrors[item.name] }}
           </div>
         </div>
@@ -203,11 +168,11 @@ watch(
   }
 )
 
-function handleConfigChange (val: any) {
+function handleConfigChange(val: any) {
   handleConfig(val)
 }
 
-function validateField (fieldName: string, value: any, _?: IPicGoPluginConfig): string | null {
+function validateField(fieldName: string, value: any, _?: IPicGoPluginConfig): string | null {
   if (fieldName === '_configName') {
     if (!value || value.trim() === '') {
       return 'Configuration name is required'
@@ -218,7 +183,7 @@ function validateField (fieldName: string, value: any, _?: IPicGoPluginConfig): 
   return null
 }
 
-function validateForm (): boolean {
+function validateForm(): boolean {
   const errors: IStringKeyMap = {}
 
   const configNameError = validateField('_configName', ruleForm._configName)
@@ -242,13 +207,13 @@ function validateForm (): boolean {
   return Object.keys(errors).length === 0
 }
 
-function clearFieldError (fieldName: string) {
+function clearFieldError(fieldName: string) {
   if (validationErrors[fieldName]) {
     delete validationErrors[fieldName]
   }
 }
 
-function toggleTooltip (key: string) {
+function toggleTooltip(key: string) {
   visibleTooltips[key] = !visibleTooltips[key]
 
   Object.keys(visibleTooltips).forEach(otherKey => {
@@ -258,7 +223,7 @@ function toggleTooltip (key: string) {
   })
 }
 
-function handleCheckboxChange (fieldName: string, value: any, event: Event) {
+function handleCheckboxChange(fieldName: string, value: any, event: Event) {
   const target = event.target as HTMLInputElement
   const currentValues = Array.isArray(ruleForm[fieldName]) ? [...ruleForm[fieldName]] : []
 
@@ -277,7 +242,7 @@ function handleCheckboxChange (fieldName: string, value: any, event: Event) {
   clearFieldError(fieldName)
 }
 
-async function validate (): Promise<IStringKeyMap | false> {
+async function validate(): Promise<IStringKeyMap | false> {
   return new Promise(resolve => {
     const isValid = validateForm()
     if (isValid) {
@@ -288,7 +253,7 @@ async function validate (): Promise<IStringKeyMap | false> {
   })
 }
 
-function transformMarkdownToHTML (markdown: string) {
+function transformMarkdownToHTML(markdown: string) {
   try {
     return marked.parse(markdown)
   } catch (e) {
@@ -296,7 +261,7 @@ function transformMarkdownToHTML (markdown: string) {
   }
 }
 
-function getConfigType () {
+function getConfigType() {
   switch (props.type) {
     case 'plugin': {
       return props.id
@@ -312,7 +277,7 @@ function getConfigType () {
   }
 }
 
-async function handleConfig (val: IPicGoPluginConfig[]) {
+async function handleConfig(val: IPicGoPluginConfig[]) {
   const config = await getCurConfigFormData()
   const configId = props.mode === 'picbed' ? $route.params.configId : null
 
@@ -325,10 +290,7 @@ async function handleConfig (val: IPicGoPluginConfig[]) {
         let defaultValue = item.default !== undefined ? item.default : item.type === 'checkbox' ? [] : null
 
         if (item.type === 'checkbox') {
-          const defaults =
-            item.choices
-              ?.filter((i: any) => i.checked)
-              .map((i: any) => i.value) || []
+          const defaults = item.choices?.filter((i: any) => i.checked).map((i: any) => i.value) || []
           defaultValue = union(defaultValue, defaults)
         }
 
@@ -343,10 +305,7 @@ async function handleConfig (val: IPicGoPluginConfig[]) {
       let defaultValue = item.default !== undefined ? item.default : item.type === 'checkbox' ? [] : null
 
       if (item.type === 'checkbox') {
-        const defaults =
-          item.choices
-            ?.filter((i: any) => i.checked)
-            .map((i: any) => i.value) || []
+        const defaults = item.choices?.filter((i: any) => i.checked).map((i: any) => i.value) || []
         defaultValue = union(defaultValue, defaults)
       }
 
@@ -360,7 +319,7 @@ async function handleConfig (val: IPicGoPluginConfig[]) {
   }
 }
 
-async function getCurConfigFormData () {
+async function getCurConfigFormData() {
   if (props.mode === 'plugin') {
     return (await getConfig<IStringKeyMap>(`${props.id}`)) || {}
   } else {
@@ -370,7 +329,7 @@ async function getCurConfigFormData () {
   }
 }
 
-function updateRuleForm (key: string, value: any) {
+function updateRuleForm(key: string, value: any) {
   try {
     ruleForm[key] = value
     clearFieldError(key)

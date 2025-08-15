@@ -7,10 +7,7 @@
     @scroll="handleBucketContainerScroll"
   >
     <!-- Header Card -->
-    <div
-      v-if="!isContentFullscreen"
-      class="bucket-card header-card"
-    >
+    <div v-if="!isContentFullscreen" class="bucket-card header-card">
       <div class="card-header">
         <div class="header-left">
           <!-- Custom Domain Input/Select -->
@@ -18,22 +15,11 @@
             v-if="isShowCustomDomainSelectList && customDomainList.length > 1 && isAutoCustomDomain"
             class="custom-domain-select"
           >
-            <select
-              v-model="currentCustomDomain"
-              class="select-input"
-              @change="handleChangeCustomUrlInput"
-            >
-              <option
-                value=""
-                disabled
-              >
+            <select v-model="currentCustomDomain" class="select-input" @change="handleChangeCustomUrlInput">
+              <option value="" disabled>
                 {{ t('pages.manage.bucket.selectCustomDomain') }}
               </option>
-              <option
-                v-for="item in customDomainList"
-                :key="item.value"
-                :value="item.value"
-              >
+              <option v-for="item in customDomainList" :key="item.value" :value="item.value">
                 {{ item.label }}
               </option>
             </select>
@@ -46,12 +32,8 @@
             class="custom-domain-input"
             :placeholder="t('pages.manage.bucket.inputCustomDomain')"
             @blur="handleChangeCustomUrlInput"
-          >
-          <a
-            v-else
-            class="custom-domain-link"
-            @click="copyToClipboard(currentCustomDomain)"
-          >
+          />
+          <a v-else class="custom-domain-link" @click="copyToClipboard(currentCustomDomain)">
             {{ currentCustomDomain }}
           </a>
         </div>
@@ -59,10 +41,7 @@
         <div class="header-actions">
           <!-- Upload Files -->
           <div class="tooltip">
-            <button
-              class="action-button primary"
-              @click="showUploadDialog"
-            >
+            <button class="action-button primary" @click="showUploadDialog">
               <UploadIcon class="action-icon" />
               <span class="tooltip-text">{{ t('pages.manage.bucket.uploadFiles') }}</span>
             </button>
@@ -70,24 +49,15 @@
 
           <!-- Upload from URL -->
           <div class="tooltip">
-            <button
-              class="action-button primary"
-              @click="showUrlDialog"
-            >
+            <button class="action-button primary" @click="showUrlDialog">
               <LinkIcon class="action-icon" />
               <span class="tooltip-text">{{ t('pages.manage.bucket.uploadFromUrl') }}</span>
             </button>
           </div>
 
           <!-- Create Folder -->
-          <div
-            v-if="isShowCreateNewFolder"
-            class="tooltip"
-          >
-            <button
-              class="action-button primary"
-              @click="handleCreateFolder"
-            >
+          <div v-if="isShowCreateNewFolder" class="tooltip">
+            <button class="action-button primary" @click="handleCreateFolder">
               <FolderPlusIcon class="action-icon" />
               <span class="tooltip-text">{{ t('pages.manage.bucket.createFolder') }}</span>
             </button>
@@ -95,24 +65,15 @@
 
           <!-- Download -->
           <div class="tooltip">
-            <button
-              class="action-button primary"
-              @click="showDownloadDialog"
-            >
+            <button class="action-button primary" @click="showDownloadDialog">
               <DownloadIcon class="action-icon" />
               <span class="tooltip-text">{{ t('pages.manage.bucket.downloadPage') }}</span>
             </button>
           </div>
 
           <!-- Batch Rename -->
-          <div
-            v-if="isShowRenameFileIcon"
-            class="tooltip"
-          >
-            <button
-              class="action-button primary"
-              @click="handleBatchRenameFile"
-            >
+          <div v-if="isShowRenameFileIcon" class="tooltip">
+            <button class="action-button primary" @click="handleBatchRenameFile">
               <EditIcon class="action-icon" />
               <span class="tooltip-text">{{ t('pages.manage.bucket.batchRename') }}</span>
             </button>
@@ -127,10 +88,7 @@
             >
               <CopyIcon class="action-icon" />
             </button>
-            <div
-              v-if="copyDropdownOpen"
-              class="dropdown-content"
-            >
+            <div v-if="copyDropdownOpen" class="dropdown-content">
               <div
                 v-for="i in linkFormatArray"
                 :key="i.key"
@@ -139,11 +97,7 @@
               >
                 {{ i.key }}
               </div>
-              <div
-                v-if="isShowPresignedUrl"
-                class="dropdown-item"
-                @click="handleBatchCopyLink('preSignURL')"
-              >
+              <div v-if="isShowPresignedUrl" class="dropdown-item" @click="handleBatchCopyLink('preSignURL')">
                 preSignURL
               </div>
             </div>
@@ -163,10 +117,7 @@
 
           <!-- Refresh -->
           <div class="tooltip">
-            <button
-              class="action-button secondary"
-              @click="forceRefreshFileList"
-            >
+            <button class="action-button secondary" @click="forceRefreshFileList">
               <RefreshCwIcon class="action-icon" />
               <span class="tooltip-text">{{ t('pages.manage.bucket.forceRefreshFileList') }}</span>
             </button>
@@ -178,28 +129,19 @@
             type="text"
             class="search-input"
             :placeholder="t('pages.manage.bucket.searchPlaceholder')"
-          >
+          />
         </div>
       </div>
     </div>
 
     <!-- Breadcrumb Card -->
-    <div
-      v-if="!isContentFullscreen"
-      class="bucket-card breadcrumb-card"
-    >
+    <div v-if="!isContentFullscreen" class="bucket-card breadcrumb-card">
       <div class="breadcrumb-container">
         <HomeIcon class="action-icon" />
         <template v-if="configMap.prefix !== '/'">
-          <template
-            v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')"
-            :key="index"
-          >
+          <template v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')" :key="index">
             <ChevronRightIcon class="breadcrumb-separator" />
-            <button
-              class="breadcrumb-item"
-              @click="handleBreadcrumbClick(index)"
-            >
+            <button class="breadcrumb-item" @click="handleBreadcrumbClick(index)">
               {{ item === '' ? t('pages.manage.bucket.rootFolder') : item }}
             </button>
           </template>
@@ -213,10 +155,7 @@
     </div>
 
     <!-- Control Panel Card -->
-    <div
-      v-if="!isContentFullscreen"
-      class="bucket-card control-panel-card"
-    >
+    <div v-if="!isContentFullscreen" class="bucket-card control-panel-card">
       <div class="control-panel">
         <div class="control-left">
           <!-- File Info -->
@@ -235,46 +174,27 @@
         <div class="control-center">
           <!-- Selection Controls -->
           <div v-if="selectedItems.length === 0">
-            <button
-              class="action-button secondary"
-              @click="handleCheckAllChange"
-            >
+            <button class="action-button secondary" @click="handleCheckAllChange">
               {{ t('pages.manage.bucket.selectAll') }}
             </button>
           </div>
-          <div
-            v-else
-            class="control-center"
-          >
-            <button
-              class="action-button secondary"
-              @click="handleCancelCheck"
-            >
+          <div v-else class="control-center">
+            <button class="action-button secondary" @click="handleCancelCheck">
               {{ t('pages.manage.bucket.cancel') }}
             </button>
-            <button
-              class="action-button secondary"
-              @click="handleReverseCheck"
-            >
+            <button class="action-button secondary" @click="handleReverseCheck">
               {{ t('pages.manage.bucket.reverseSelect') }}
             </button>
-            <button
-              class="action-button secondary"
-              @click="handleCheckAllChange"
-            >
+            <button class="action-button secondary" @click="handleCheckAllChange">
               {{ t('pages.manage.bucket.selectAll') }}
             </button>
-            <button
-              class="action-button primary"
-              @click="handleBatchDownload"
-            >
+            <button class="action-button primary" @click="handleBatchDownload">
               <DownloadIcon class="action-icon" />
-              {{ `${t('pages.manage.bucket.downloadBtn', { num: selectedItems.filter(item => item.isDir === false).length })}` }}
+              {{
+                `${t('pages.manage.bucket.downloadBtn', { num: selectedItems.filter(item => item.isDir === false).length })}`
+              }}
             </button>
-            <button
-              class="action-button danger"
-              @click="handleBatchDeleteInfo"
-            >
+            <button class="action-button danger" @click="handleBatchDeleteInfo">
               <Trash2Icon class="action-icon" />
               {{ `${t('pages.manage.bucket.removeBtn', { num: selectedItems.length })}` }}
             </button>
@@ -282,24 +202,13 @@
 
           <!-- Sort Dropdown -->
           <div class="dropdown">
-            <button
-              class="dropdown-button"
-              @click="sortDropdownOpen = !sortDropdownOpen"
-            >
+            <button class="dropdown-button" @click="sortDropdownOpen = !sortDropdownOpen">
               <ArrowUpDownIcon class="action-icon" />
               {{ t('pages.manage.bucket.sort.title') }}
               <ChevronDownIcon class="action-icon" />
             </button>
-            <div
-              v-if="sortDropdownOpen"
-              class="dropdown-content"
-            >
-              <div
-                v-for="item in sortTypeList"
-                :key="item"
-                class="dropdown-item"
-                @click="sortFile(item as any)"
-              >
+            <div v-if="sortDropdownOpen" class="dropdown-content">
+              <div v-for="item in sortTypeList" :key="item" class="dropdown-item" @click="sortFile(item as any)">
                 {{ t(`pages.manage.bucket.sort.${item}`) }}
               </div>
             </div>
@@ -309,20 +218,15 @@
         <div class="control-right">
           <!-- Fullscreen Toggle -->
           <div class="tooltip">
-            <button
-              class="action-button secondary"
-              @click="toggleContentFullscreen"
-            >
-              <ExpandIcon
-                v-if="!isContentFullscreen"
-                class="action-icon"
-              />
-              <ShrinkIcon
-                v-else
-                class="action-icon"
-              />
+            <button class="action-button secondary" @click="toggleContentFullscreen">
+              <ExpandIcon v-if="!isContentFullscreen" class="action-icon" />
+              <ShrinkIcon v-else class="action-icon" />
               <span class="tooltip-text">
-                {{ isContentFullscreen ? t('pages.manage.bucket.exitFullScreen') : t('pages.manage.bucket.enterFullScreen') }}
+                {{
+                  isContentFullscreen
+                    ? t('pages.manage.bucket.exitFullScreen')
+                    : t('pages.manage.bucket.enterFullScreen')
+                }}
               </span>
             </button>
           </div>
@@ -356,7 +260,7 @@
             class="page-input"
             :disabled="!paging"
             @input="handlePageNumberInput"
-          >
+          />
         </div>
       </div>
     </div>
@@ -364,23 +268,14 @@
     <!-- Content Card -->
     <div class="bucket-card content-card">
       <!-- Fullscreen Header (only visible in fullscreen mode) -->
-      <div
-        v-if="isContentFullscreen"
-        class="fullscreen-header"
-      >
+      <div v-if="isContentFullscreen" class="fullscreen-header">
         <div class="fullscreen-header-left">
           <div class="fullscreen-breadcrumb">
             <HomeIcon class="action-icon" />
             <template v-if="configMap.prefix !== '/'">
-              <template
-                v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')"
-                :key="index"
-              >
+              <template v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')" :key="index">
                 <ChevronRightIcon class="breadcrumb-separator" />
-                <button
-                  class="breadcrumb-item"
-                  @click="handleBreadcrumbClick(index)"
-                >
+                <button class="breadcrumb-item" @click="handleBreadcrumbClick(index)">
                   {{ item === '' ? t('pages.manage.bucket.rootFolder') : item }}
                 </button>
               </template>
@@ -412,14 +307,11 @@
             type="text"
             class="search-input"
             :placeholder="t('pages.manage.bucket.searchPlaceholder')"
-          >
+          />
 
           <!-- Exit Fullscreen -->
           <div class="tooltip">
-            <button
-              class="action-button secondary"
-              @click="toggleContentFullscreen"
-            >
+            <button class="action-button secondary" @click="toggleContentFullscreen">
               <ShrinkIcon class="action-icon" />
               <span class="tooltip-text">{{ t('pages.manage.bucket.exitFullScreen') }}</span>
             </button>
@@ -451,18 +343,11 @@
               >
                 <div class="file-preview">
                   <!-- Image Preview -->
-                  <template v-if="!item.isDir && !['webdavplist', 'sftp', 'local', 's3plist'].includes(currentPicBedName)">
-                    <img
-                      v-if="isShowThumbnail && item.isImage"
-                      :src="item.url"
-                      class="file-image"
-                      @error="() => {}"
-                    >
-                    <img
-                      v-else
-                      :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
-                      class="file-image"
-                    >
+                  <template
+                    v-if="!item.isDir && !['webdavplist', 'sftp', 'local', 's3plist'].includes(currentPicBedName)"
+                  >
+                    <img v-if="isShowThumbnail && item.isImage" :src="item.url" class="file-image" @error="() => {}" />
+                    <img v-else :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`" class="file-image" />
                   </template>
 
                   <!-- S3 PreSign Image -->
@@ -494,10 +379,7 @@
 
                   <!-- Default File Icon -->
                   <template v-else-if="!item.isDir">
-                    <img
-                      :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
-                      class="file-image"
-                    >
+                    <img :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`" class="file-image" />
                   </template>
 
                   <!-- Folder Icon -->
@@ -507,11 +389,7 @@
                 </div>
 
                 <div class="file-info-section">
-                  <div
-                    class="file-name"
-                    :title="item.fileName"
-                    @click.stop="copyToClipboard(item.fileName ?? '')"
-                  >
+                  <div class="file-name" :title="item.fileName" @click.stop="copyToClipboard(item.fileName ?? '')">
                     {{ formatFileName(item.fileName ?? '', 25) }}
                   </div>
                   <div class="file-meta">
@@ -540,16 +418,10 @@
 
                       <!-- Copy Link Dropdown -->
                       <div class="file-actions-dropdown">
-                        <button
-                          class="file-action-button"
-                          @click.stop="toggleCopyDropdown(index)"
-                        >
+                        <button class="file-action-button" @click.stop="toggleCopyDropdown(index)">
                           <CopyIcon class="action-icon" />
                         </button>
-                        <div
-                          v-if="copyDropdownIndex === index"
-                          class="file-actions-dropdown-content"
-                        >
+                        <div v-if="copyDropdownIndex === index" class="file-actions-dropdown-content">
                           <div
                             v-for="format in linkFormatList"
                             :key="format"
@@ -569,29 +441,18 @@
                       </div>
 
                       <!-- File Info -->
-                      <button
-                        class="file-action-button"
-                        @click.stop="handleShowFileInfo(item)"
-                      >
+                      <button class="file-action-button" @click.stop="handleShowFileInfo(item)">
                         <InfoIcon class="action-icon" />
                       </button>
 
                       <!-- Delete -->
-                      <button
-                        class="file-action-button danger"
-                        @click.stop="handleDeleteFile(item)"
-                      >
+                      <button class="file-action-button danger" @click.stop="handleDeleteFile(item)">
                         <Trash2Icon class="action-icon" />
                       </button>
                     </div>
 
                     <!-- Checkbox -->
-                    <input
-                      v-model="item.checked"
-                      type="checkbox"
-                      class="file-checkbox"
-                      @click.stop
-                    >
+                    <input v-model="item.checked" type="checkbox" class="file-checkbox" @click.stop />
                   </div>
                 </div>
               </div>
@@ -604,12 +465,7 @@
                 @click="handleCheckChangeOther(item)"
               >
                 <!-- Checkbox -->
-                <input
-                  v-model="item.checked"
-                  type="checkbox"
-                  class="file-list-checkbox file-checkbox"
-                  @click.stop
-                >
+                <input v-model="item.checked" type="checkbox" class="file-list-checkbox file-checkbox" @click.stop />
 
                 <!-- Icon -->
                 <div class="file-list-icon">
@@ -618,27 +474,20 @@
                       v-if="isShowThumbnail && item.isImage"
                       :src="item.url"
                       class="file-image"
-                      style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px;"
+                      style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px"
                       @error="() => {}"
-                    >
+                    />
                     <img
                       v-else
                       :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
-                      style="width: 32px; height: 32px; object-fit: contain;"
-                    >
+                      style="width: 32px; height: 32px; object-fit: contain"
+                    />
                   </template>
-                  <FolderIcon
-                    v-else
-                    class="file-icon"
-                    style="width: 32px; height: 32px;"
-                  />
+                  <FolderIcon v-else class="file-icon" style="width: 32px; height: 32px" />
                 </div>
 
                 <!-- File Info -->
-                <div
-                  class="file-list-info"
-                  @click.stop="handleClickFile(item)"
-                >
+                <div class="file-list-info" @click.stop="handleClickFile(item)">
                   <div class="file-list-name">
                     {{ formatFileName(item.fileName ?? '', 40) }}
                   </div>
@@ -660,35 +509,35 @@
                   </button>
 
                   <!-- Download Folder -->
-                  <button
-                    v-if="item.isDir"
-                    class="file-action-button"
-                    @click.stop="handleFolderBatchDownload(item)"
-                  >
+                  <button v-if="item.isDir" class="file-action-button" @click.stop="handleFolderBatchDownload(item)">
                     <DownloadIcon class="action-icon" />
                   </button>
 
                   <!-- Copy Link -->
                   <button
                     class="file-action-button"
-                    @click.stop="async () => copyToClipboard(await formatLink(item.url, item.fileName, manageStore.config.settings.pasteFormat ?? '$markdown', manageStore.config.settings.customPasteFormat ?? '$url'))"
+                    @click.stop="
+                      async () =>
+                        copyToClipboard(
+                          await formatLink(
+                            item.url,
+                            item.fileName,
+                            manageStore.config.settings.pasteFormat ?? '$markdown',
+                            manageStore.config.settings.customPasteFormat ?? '$url'
+                          )
+                        )
+                    "
                   >
                     <CopyIcon class="action-icon" />
                   </button>
 
                   <!-- File Info -->
-                  <button
-                    class="file-action-button"
-                    @click.stop="handleShowFileInfo(item)"
-                  >
+                  <button class="file-action-button" @click.stop="handleShowFileInfo(item)">
                     <InfoIcon class="action-icon" />
                   </button>
 
                   <!-- Delete -->
-                  <button
-                    class="file-action-button danger"
-                    @click.stop="handleDeleteFile(item)"
-                  >
+                  <button class="file-action-button danger" @click.stop="handleDeleteFile(item)">
                     <Trash2Icon class="action-icon" />
                   </button>
                 </div>
@@ -700,24 +549,13 @@
     </div>
 
     <!-- URL Upload Dialog -->
-    <div
-      v-if="dialogVisible"
-      class="modal-overlay"
-      @click="dialogVisible = false"
-    >
-      <div
-        class="modal-container"
-        style="width: 500px;"
-        @click.stop
-      >
+    <div v-if="dialogVisible" class="modal-overlay" @click="dialogVisible = false">
+      <div class="modal-container" style="width: 500px" @click.stop>
         <div class="modal-header">
           <h3 class="modal-title">
             {{ t('pages.manage.bucket.urlUploadTitle') }}
           </h3>
-          <button
-            class="modal-close"
-            @click="dialogVisible = false"
-          >
+          <button class="modal-close" @click="dialogVisible = false">
             <XIcon class="action-icon" />
           </button>
         </div>
@@ -731,16 +569,10 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button
-            class="action-button secondary"
-            @click="dialogVisible = false"
-          >
+          <button class="action-button secondary" @click="dialogVisible = false">
             {{ t('common.cancel') }}
           </button>
-          <button
-            class="action-button primary"
-            @click="handleUploadFromUrl"
-          >
+          <button class="action-button primary" @click="handleUploadFromUrl">
             {{ t('common.confirm') }}
           </button>
         </div>
@@ -748,47 +580,26 @@
     </div>
 
     <!-- Image Preview -->
-    <div
-      v-if="isShowImagePreview"
-      class="modal-overlay"
-      @click="isShowImagePreview = false"
-    >
-      <div
-        class="modal-container"
-        style="max-width: 90vw; max-height: 90vh;"
-        @click.stop
-      >
+    <div v-if="isShowImagePreview" class="modal-overlay" @click="isShowImagePreview = false">
+      <div class="modal-container" style="max-width: 90vw; max-height: 90vh" @click.stop>
         <div class="modal-header">
-          <h3 class="modal-title">
-            Image Preview
-          </h3>
-          <button
-            class="modal-close"
-            @click="isShowImagePreview = false"
-          >
+          <h3 class="modal-title">Image Preview</h3>
+          <button class="modal-close" @click="isShowImagePreview = false">
             <XIcon class="action-icon" />
           </button>
         </div>
         <div class="modal-content">
           <img
             :src="ImagePreviewList[getCurrentPreviewIndex]"
-            style="max-width: 100%; max-height: 70vh; object-fit: contain;"
-          >
+            style="max-width: 100%; max-height: 70vh; object-fit: contain"
+          />
         </div>
       </div>
     </div>
 
     <!-- File Info Dialog -->
-    <div
-      v-if="isShowFileInfo"
-      class="modal-overlay"
-      @click="isShowFileInfo = false"
-    >
-      <div
-        class="modal-container"
-        style="width: 600px;"
-        @click.stop
-      >
+    <div v-if="isShowFileInfo" class="modal-overlay" @click="isShowFileInfo = false">
+      <div class="modal-container" style="width: 600px" @click.stop>
         <div class="modal-header">
           <h3 class="modal-title">
             {{ t('pages.manage.bucket.fileInfo') }}
@@ -800,10 +611,7 @@
             <CopyIcon class="action-icon" />
             {{ t('pages.manage.bucket.copyFileInfoInJson') }}
           </button>
-          <button
-            class="modal-close"
-            @click="isShowFileInfo = false"
-          >
+          <button class="modal-close" @click="isShowFileInfo = false">
             <XIcon class="action-icon" />
           </button>
         </div>
@@ -811,18 +619,15 @@
           <div
             v-for="(value, key) in currentShowedFileInfo"
             :key="key"
-            style="display: flex; margin-bottom: 1rem; gap: 1rem;"
+            style="display: flex; margin-bottom: 1rem; gap: 1rem"
           >
             <div
-              style="flex: 0 0 30%; font-weight: 500; cursor: pointer;"
+              style="flex: 0 0 30%; font-weight: 500; cursor: pointer"
               @click="copyToClipboard(JSON.stringify({ [key]: value }))"
             >
               {{ key }}:
             </div>
-            <div
-              style="flex: 1; word-break: break-all; cursor: pointer;"
-              @click="copyToClipboard(value)"
-            >
+            <div style="flex: 1; word-break: break-all; cursor: pointer" @click="copyToClipboard(value)">
               {{ value }}
             </div>
           </div>
@@ -831,24 +636,13 @@
     </div>
 
     <!-- Batch Rename Dialog -->
-    <div
-      v-if="isShowBatchRenameDialog"
-      class="modal-overlay"
-      @click="isShowBatchRenameDialog = false"
-    >
-      <div
-        class="modal-container"
-        style="width: 600px;"
-        @click.stop
-      >
+    <div v-if="isShowBatchRenameDialog" class="modal-overlay" @click="isShowBatchRenameDialog = false">
+      <div class="modal-container" style="width: 600px" @click.stop>
         <div class="modal-header">
           <h3 class="modal-title">
             {{ t('pages.manage.bucket.renameFile') }}
           </h3>
-          <button
-            class="modal-close"
-            @click="isShowBatchRenameDialog = false"
-          >
+          <button class="modal-close" @click="isShowBatchRenameDialog = false">
             <XIcon class="action-icon" />
           </button>
         </div>
@@ -866,28 +660,20 @@
               type="text"
               class="form-input"
               :placeholder="t('pages.manage.bucket.regexPlaceholder')"
-            >
+            />
           </div>
 
           <div class="form-group">
             <label class="form-label">
               {{ t('pages.manage.bucket.replaceInput') }}
             </label>
-            <input
-              v-model="batchRenameReplace"
-              type="text"
-              class="form-input"
-              placeholder="Ex. {Y}-{m}-{uuid}"
-            >
+            <input v-model="batchRenameReplace" type="text" class="form-input" placeholder="Ex. {Y}-{m}-{uuid}" />
           </div>
 
           <div class="form-group">
             <div class="switch-container">
               <label class="switch">
-                <input
-                  v-model="isRenameIncludeExt"
-                  type="checkbox"
-                >
+                <input v-model="isRenameIncludeExt" type="checkbox" />
                 <span class="switch-slider" />
               </label>
               <span class="switch-label">
@@ -897,16 +683,10 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button
-            class="action-button secondary"
-            @click="isShowBatchRenameDialog = false"
-          >
+          <button class="action-button secondary" @click="isShowBatchRenameDialog = false">
             {{ t('common.cancel') }}
           </button>
-          <button
-            class="action-button primary"
-            @click="isSingleRename ? singleRename() : BatchRename()"
-          >
+          <button class="action-button primary" @click="isSingleRename ? singleRename() : BatchRename()">
             {{ t('common.confirm') }}
           </button>
         </div>
@@ -917,13 +697,9 @@
     <div
       v-if="isLoadingData"
       class="modal-overlay"
-      style="position: fixed; bottom: 25px; right: 25px; background: none; pointer-events: none;"
+      style="position: fixed; bottom: 25px; right: 25px; background: none; pointer-events: none"
     >
-      <button
-        class="action-button warning"
-        style="pointer-events: auto;"
-        @click="cancelLoading"
-      >
+      <button class="action-button warning" style="pointer-events: auto" @click="cancelLoading">
         <div class="loading-spinner" />
         {{ t('pages.manage.bucket.loading') }}
       </button>
@@ -932,13 +708,9 @@
     <div
       v-if="isLoadingDownloadData"
       class="modal-overlay"
-      style="position: fixed; top: 50px; right: 25px; background: none; pointer-events: none;"
+      style="position: fixed; top: 50px; right: 25px; background: none; pointer-events: none"
     >
-      <button
-        class="action-button warning"
-        style="pointer-events: auto;"
-        @click="cancelDownloadLoading"
-      >
+      <button class="action-button warning" style="pointer-events: auto" @click="cancelDownloadLoading">
         <div class="loading-spinner" />
         {{ t('pages.manage.bucket.prepareDownload') }}
       </button>
@@ -950,31 +722,25 @@
       :class="{ open: isShowUploadPanel }"
       @click="isShowUploadPanel = false"
     >
-      <div
-        class="drawer-container"
-        @click.stop
-      >
+      <div class="drawer-container" @click.stop>
         <div class="drawer-header">
           <h3 class="drawer-title">
             {{ t('pages.manage.bucket.uploadFile') }}
           </h3>
           <div class="switch-container">
             <label class="switch">
-              <input
-                v-model="isUploadKeepDirStructure"
-                type="checkbox"
-                @change="handleUploadKeepDirChange"
-              >
+              <input v-model="isUploadKeepDirStructure" type="checkbox" @change="handleUploadKeepDirChange" />
               <span class="switch-slider" />
             </label>
             <span class="switch-label">
-              {{ isUploadKeepDirStructure ? t('pages.manage.bucket.keepDirStructure') : t('pages.manage.bucket.noKeepDirStructure') }}
+              {{
+                isUploadKeepDirStructure
+                  ? t('pages.manage.bucket.keepDirStructure')
+                  : t('pages.manage.bucket.noKeepDirStructure')
+              }}
             </span>
           </div>
-          <button
-            class="modal-close"
-            @click="isShowUploadPanel = false"
-          >
+          <button class="modal-close" @click="isShowUploadPanel = false">
             <XIcon class="action-icon" />
           </button>
         </div>
@@ -1000,7 +766,11 @@
           <!-- Upload File List -->
           <div v-if="tableData.length">
             <VirtualScroller
-              :items="tableData.sort((a, b) => b.isFolder - a.isFolder === 0 ? b.filesList.length - a.filesList.length : b.isFolder - a.isFolder)"
+              :items="
+                tableData.sort((a, b) =>
+                  b.isFolder - a.isFolder === 0 ? b.filesList.length - a.filesList.length : b.isFolder - a.isFolder
+                )
+              "
               :item-height="60"
               :height="300"
               view-mode="list"
@@ -1008,14 +778,8 @@
               <template #default="{ item }">
                 <div class="file-list-item">
                   <div class="file-list-icon">
-                    <FolderIcon
-                      v-if="item.isFolder"
-                      class="file-icon"
-                    />
-                    <FileIcon
-                      v-else
-                      class="file-icon"
-                    />
+                    <FolderIcon v-if="item.isFolder" class="file-icon" />
+                    <FileIcon v-else class="file-icon" />
                   </div>
                   <div class="file-list-info">
                     <div class="file-list-name">
@@ -1023,9 +787,7 @@
                     </div>
                     <div class="file-list-meta">
                       <span>{{ formatFileSize(item.fileSize) }}</span>
-                      <span v-if="item.isFolder">
-                        {{ item.filesList.length }} files
-                      </span>
+                      <span v-if="item.isFolder"> {{ item.filesList.length }} files </span>
                     </div>
                   </div>
                 </div>
@@ -1034,23 +796,12 @@
           </div>
 
           <!-- Upload Actions -->
-          <div
-            v-if="tableData.length"
-            style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;"
-          >
-            <button
-              class="action-button primary"
-              :disabled="isLoadingUploadPanelFiles"
-              @click="uploadFiles"
-            >
+          <div v-if="tableData.length" style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem">
+            <button class="action-button primary" :disabled="isLoadingUploadPanelFiles" @click="uploadFiles">
               <UploadIcon class="action-icon" />
               {{ isLoadingUploadPanelFiles ? t('pages.manage.bucket.readingDir') : t('pages.manage.bucket.upload') }}
             </button>
-            <button
-              class="action-button secondary"
-              :disabled="isLoadingUploadPanelFiles"
-              @click="clearTableData"
-            >
+            <button class="action-button secondary" :disabled="isLoadingUploadPanelFiles" @click="clearTableData">
               <Trash2Icon class="action-icon" />
               {{ t('pages.manage.bucket.clear') }}
             </button>
@@ -1065,10 +816,7 @@
                 @click="activeUpLoadTab = 'uploading'"
               >
                 {{ t('pages.manage.bucket.uploading') }}
-                <span
-                  v-if="uploadingTaskList.length"
-                  class="tab-badge"
-                >
+                <span v-if="uploadingTaskList.length" class="tab-badge">
                   {{ uploadingTaskList.length }}
                 </span>
               </button>
@@ -1078,10 +826,7 @@
                 @click="activeUpLoadTab = 'finished'"
               >
                 {{ t('pages.manage.bucket.success') }}
-                <span
-                  v-if="uploadedTaskList.filter(item => item.status === 'uploaded').length"
-                  class="tab-badge"
-                >
+                <span v-if="uploadedTaskList.filter(item => item.status === 'uploaded').length" class="tab-badge">
                   {{ uploadedTaskList.filter(item => item.status === 'uploaded').length }}
                 </span>
               </button>
@@ -1091,10 +836,7 @@
                 @click="activeUpLoadTab = 'failed'"
               >
                 {{ t('pages.manage.bucket.failed') }}
-                <span
-                  v-if="uploadedTaskList.filter(item => item.status !== 'uploaded').length"
-                  class="tab-badge"
-                >
+                <span v-if="uploadedTaskList.filter(item => item.status !== 'uploaded').length" class="tab-badge">
                   {{ uploadedTaskList.filter(item => item.status !== 'uploaded').length }}
                 </span>
               </button>
@@ -1102,39 +844,22 @@
 
             <div class="tab-content">
               <!-- Uploading Tab -->
-              <div
-                v-if="activeUpLoadTab === 'uploading'"
-                class="tab-panel"
-              >
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                  <button
-                    class="action-button secondary"
-                    @click="handleCopyUploadingTaskInfo"
-                  >
+              <div v-if="activeUpLoadTab === 'uploading'" class="tab-panel">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
+                  <button class="action-button secondary" @click="handleCopyUploadingTaskInfo">
                     <CopyIcon class="action-icon" />
                     {{ t('pages.manage.bucket.copyUploadTask') }}
                   </button>
-                  <button
-                    class="action-button secondary"
-                    @click="handleDeleteUploadedTask"
-                  >
+                  <button class="action-button secondary" @click="handleDeleteUploadedTask">
                     <Trash2Icon class="action-icon" />
                     {{ t('pages.manage.bucket.clearFinishedTasks') }}
                   </button>
-                  <button
-                    class="action-button secondary"
-                    @click="handleDeleteAllUploadedTask"
-                  >
+                  <button class="action-button secondary" @click="handleDeleteAllUploadedTask">
                     <Trash2Icon class="action-icon" />
                     {{ t('pages.manage.bucket.clearAll') }}
                   </button>
                 </div>
-                <VirtualScroller
-                  :items="uploadingTaskList"
-                  :item-height="60"
-                  :height="400"
-                  view-mode="list"
-                >
+                <VirtualScroller :items="uploadingTaskList" :item-height="60" :height="400" view-mode="list">
                   <template #default="{ item }">
                     <div class="file-list-item">
                       <div class="file-list-info">
@@ -1142,10 +867,7 @@
                           {{ formatFileName(item.sourceFileName) }}
                         </div>
                         <div class="progress-bar">
-                          <div
-                            class="progress-fill"
-                            :style="{ width: `${item.progress || 50}%` }"
-                          />
+                          <div class="progress-fill" :style="{ width: `${item.progress || 50}%` }" />
                         </div>
                       </div>
                     </div>
@@ -1154,29 +876,17 @@
               </div>
 
               <!-- Finished Tab -->
-              <div
-                v-if="activeUpLoadTab === 'finished'"
-                class="tab-panel"
-              >
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                  <button
-                    class="action-button secondary"
-                    @click="handleCopyUploadingTaskInfo"
-                  >
+              <div v-if="activeUpLoadTab === 'finished'" class="tab-panel">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
+                  <button class="action-button secondary" @click="handleCopyUploadingTaskInfo">
                     <CopyIcon class="action-icon" />
                     {{ t('pages.manage.bucket.copyUploadTask') }}
                   </button>
-                  <button
-                    class="action-button secondary"
-                    @click="handleDeleteUploadedTask"
-                  >
+                  <button class="action-button secondary" @click="handleDeleteUploadedTask">
                     <Trash2Icon class="action-icon" />
                     {{ t('pages.manage.bucket.clearFinishedTasks') }}
                   </button>
-                  <button
-                    class="action-button secondary"
-                    @click="handleDeleteAllUploadedTask"
-                  >
+                  <button class="action-button secondary" @click="handleDeleteAllUploadedTask">
                     <Trash2Icon class="action-icon" />
                     {{ t('pages.manage.bucket.clearAll') }}
                   </button>
@@ -1195,9 +905,7 @@
                         </div>
                         <div class="file-list-meta">
                           <span>{{ item.finishTime }}</span>
-                          <span
-                            class="badge success"
-                          >
+                          <span class="badge success">
                             {{ t('pages.manage.bucket.success') }}
                           </span>
                         </div>
@@ -1208,29 +916,17 @@
               </div>
 
               <!-- Failed Tab -->
-              <div
-                v-if="activeUpLoadTab === 'failed'"
-                class="tab-panel"
-              >
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                  <button
-                    class="action-button secondary"
-                    @click="handleCopyUploadingTaskInfo"
-                  >
+              <div v-if="activeUpLoadTab === 'failed'" class="tab-panel">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
+                  <button class="action-button secondary" @click="handleCopyUploadingTaskInfo">
                     <CopyIcon class="action-icon" />
                     {{ t('pages.manage.bucket.copyUploadTask') }}
                   </button>
-                  <button
-                    class="action-button secondary"
-                    @click="handleDeleteUploadedTask"
-                  >
+                  <button class="action-button secondary" @click="handleDeleteUploadedTask">
                     <Trash2Icon class="action-icon" />
                     {{ t('pages.manage.bucket.clearFinishedTasks') }}
                   </button>
-                  <button
-                    class="action-button secondary"
-                    @click="handleDeleteAllUploadedTask"
-                  >
+                  <button class="action-button secondary" @click="handleDeleteAllUploadedTask">
                     <Trash2Icon class="action-icon" />
                     {{ t('pages.manage.bucket.clearAll') }}
                   </button>
@@ -1249,9 +945,7 @@
                         </div>
                         <div class="file-list-meta">
                           <span>{{ item.finishTime }}</span>
-                          <span
-                            class="badge error"
-                          >
+                          <span class="badge error">
                             {{ t('pages.manage.bucket.failed') }}
                           </span>
                         </div>
@@ -1273,18 +967,12 @@
       :class="{ open: isShowDownloadPanel }"
       @click="isShowDownloadPanel = false"
     >
-      <div
-        class="drawer-container"
-        @click.stop
-      >
+      <div class="drawer-container" @click.stop>
         <div class="drawer-header">
           <h3 class="drawer-title">
             {{ t('pages.manage.bucket.downloadPage') }}
           </h3>
-          <button
-            class="modal-close"
-            @click="isShowDownloadPanel = false"
-          >
+          <button class="modal-close" @click="isShowDownloadPanel = false">
             <XIcon class="action-icon" />
           </button>
         </div>
@@ -1299,10 +987,7 @@
                 @click="activeDownLoadTab = 'downloading'"
               >
                 {{ t('pages.manage.bucket.downloading') }}
-                <span
-                  v-if="downloadingTaskList.length"
-                  class="tab-badge"
-                >
+                <span v-if="downloadingTaskList.length" class="tab-badge">
                   {{ downloadingTaskList.length }}
                 </span>
               </button>
@@ -1312,10 +997,7 @@
                 @click="activeDownLoadTab = 'finished'"
               >
                 {{ t('pages.manage.bucket.success') }}
-                <span
-                  v-if="downloadedTaskList.filter(item => item.status === 'downloaded').length"
-                  class="tab-badge"
-                >
+                <span v-if="downloadedTaskList.filter(item => item.status === 'downloaded').length" class="tab-badge">
                   {{ downloadedTaskList.filter(item => item.status === 'downloaded').length }}
                 </span>
               </button>
@@ -1325,10 +1007,7 @@
                 @click="activeDownLoadTab = 'failed'"
               >
                 {{ t('pages.manage.bucket.failed') }}
-                <span
-                  v-if="downloadedTaskList.filter(item => item.status !== 'downloaded').length"
-                  class="tab-badge"
-                >
+                <span v-if="downloadedTaskList.filter(item => item.status !== 'downloaded').length" class="tab-badge">
                   {{ downloadedTaskList.filter(item => item.status !== 'downloaded').length }}
                 </span>
               </button>
@@ -1337,46 +1016,26 @@
             <!-- Download Tabs Content -->
             <div class="tab-content">
               <!-- Similar structure for download tabs... -->
-              <div
-                v-if="activeDownLoadTab === 'downloading'"
-                class="tab-panel"
-              >
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                  <button
-                    class="action-button secondary"
-                    @click="handleCopyDownloadingTaskInfo"
-                  >
+              <div v-if="activeDownLoadTab === 'downloading'" class="tab-panel">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
+                  <button class="action-button secondary" @click="handleCopyDownloadingTaskInfo">
                     <CopyIcon class="action-icon" />
                     {{ t('pages.manage.bucket.copyDownloadTask') }}
                   </button>
-                  <button
-                    class="action-button secondary"
-                    @click="handleDeleteDownloadedTask"
-                  >
+                  <button class="action-button secondary" @click="handleDeleteDownloadedTask">
                     <Trash2Icon class="action-icon" />
                     {{ t('pages.manage.bucket.clearFinishedTasks') }}
                   </button>
-                  <button
-                    class="action-button secondary"
-                    @click="handleDeleteAllDownloadedTask"
-                  >
+                  <button class="action-button secondary" @click="handleDeleteAllDownloadedTask">
                     <Trash2Icon class="action-icon" />
                     {{ t('pages.manage.bucket.clearAll') }}
                   </button>
-                  <button
-                    class="action-button secondary"
-                    @click="handleOpenDownloadedFolder"
-                  >
+                  <button class="action-button secondary" @click="handleOpenDownloadedFolder">
                     <FolderIcon class="action-icon" />
                     {{ t('pages.manage.bucket.openDownloadFolder') }}
                   </button>
                 </div>
-                <VirtualScroller
-                  :items="downloadingTaskList"
-                  :item-height="60"
-                  :height="500"
-                  view-mode="list"
-                >
+                <VirtualScroller :items="downloadingTaskList" :item-height="60" :height="500" view-mode="list">
                   <template #default="{ item }">
                     <div class="file-list-item">
                       <div class="file-list-info">
@@ -1384,10 +1043,7 @@
                           {{ formatFileName(item.sourceFileName) }}
                         </div>
                         <div class="progress-bar">
-                          <div
-                            class="progress-fill"
-                            :style="{ width: `${item.progress}%` }"
-                          />
+                          <div class="progress-fill" :style="{ width: `${item.progress}%` }" />
                         </div>
                       </div>
                     </div>
@@ -1401,116 +1057,62 @@
     </div>
 
     <!-- Markdown Preview Dialog -->
-    <div
-      v-if="isShowMarkDownDialog"
-      class="modal-overlay"
-      @click="isShowMarkDownDialog = false"
-    >
-      <div
-        class="modal-container"
-        style="width: 90vw; height: 90vh;"
-        @click.stop
-      >
+    <div v-if="isShowMarkDownDialog" class="modal-overlay" @click="isShowMarkDownDialog = false">
+      <div class="modal-container" style="width: 90vw; height: 90vh" @click.stop>
         <div class="modal-header">
           <h3 class="modal-title">
             {{ t('pages.manage.bucket.preview') }}
           </h3>
-          <button
-            class="modal-close"
-            @click="isShowMarkDownDialog = false"
-          >
+          <button class="modal-close" @click="isShowMarkDownDialog = false">
             <XIcon class="action-icon" />
           </button>
         </div>
-        <div
-          class="modal-content"
-          style="user-select: text;"
-          v-html="markDownContent"
-        />
+        <div class="modal-content" style="user-select: text" v-html="markDownContent" />
       </div>
     </div>
 
     <!-- Text File Preview Dialog -->
-    <div
-      v-if="isShowTextFileDialog"
-      class="modal-overlay"
-      @click="isShowTextFileDialog = false"
-    >
-      <div
-        class="modal-container"
-        style="width: 90vw; height: 90vh;"
-        @click.stop
-      >
+    <div v-if="isShowTextFileDialog" class="modal-overlay" @click="isShowTextFileDialog = false">
+      <div class="modal-container" style="width: 90vw; height: 90vh" @click.stop>
         <div class="modal-header">
           <h3 class="modal-title">
             {{ t('pages.manage.bucket.preview') }}
           </h3>
-          <button
-            class="modal-close"
-            @click="isShowTextFileDialog = false"
-          >
+          <button class="modal-close" @click="isShowTextFileDialog = false">
             <XIcon class="action-icon" />
           </button>
         </div>
         <div class="modal-content">
-          <pre style="user-select: text; white-space: pre-wrap; font-family: monospace;">{{ textfileContent }}</pre>
+          <pre style="user-select: text; white-space: pre-wrap; font-family: monospace">{{ textfileContent }}</pre>
         </div>
       </div>
     </div>
 
     <!-- Video Player Dialog -->
-    <div
-      v-if="isShowVideoFileDialog"
-      class="modal-overlay"
-      @click="isShowVideoFileDialog = false"
-    >
-      <div
-        class="modal-container"
-        style="width: 90vw; height: 90vh;"
-        @click.stop
-      >
+    <div v-if="isShowVideoFileDialog" class="modal-overlay" @click="isShowVideoFileDialog = false">
+      <div class="modal-container" style="width: 90vw; height: 90vh" @click.stop>
         <div class="modal-header">
           <h3 class="modal-title">
             {{ t('pages.manage.bucket.play') }}
           </h3>
-          <button
-            class="modal-close"
-            @click="isShowVideoFileDialog = false"
-          >
+          <button class="modal-close" @click="isShowVideoFileDialog = false">
             <XIcon class="action-icon" />
           </button>
         </div>
         <div class="modal-content">
-          <video
-            :src="videoFileUrl"
-            controls
-            loop
-            autoplay
-            style="width: 100%; height: auto; max-height: 70vh;"
-          />
+          <video :src="videoFileUrl" controls loop autoplay style="width: 100%; height: auto; max-height: 70vh" />
         </div>
       </div>
     </div>
 
     <!-- Create Folder Dialog -->
-    <div
-      v-if="isShowCreateFolderDialog"
-      class="modal-overlay"
-      @click="isShowCreateFolderDialog = false"
-    >
-      <div
-        class="modal-container"
-        style="width: 400px;"
-        @click.stop
-      >
+    <div v-if="isShowCreateFolderDialog" class="modal-overlay" @click="isShowCreateFolderDialog = false">
+      <div class="modal-container" style="width: 400px" @click.stop>
         <div class="modal-header">
           <h3 class="modal-title">
             {{ t('pages.manage.bucket.createFolder') }}
           </h3>
-          <button
-            class="modal-close"
-            @click="isShowCreateFolderDialog = false"
-          >
+          <button class="modal-close" @click="isShowCreateFolderDialog = false">
             <XIcon class="action-icon" />
           </button>
         </div>
@@ -1526,21 +1128,14 @@
               class="form-input"
               :placeholder="t('pages.manage.bucket.inputFolderTitle')"
               @keyup.enter="confirmCreateFolder"
-            >
+            />
           </div>
         </div>
         <div class="modal-footer">
-          <button
-            class="action-button secondary"
-            @click="isShowCreateFolderDialog = false"
-          >
+          <button class="action-button secondary" @click="isShowCreateFolderDialog = false">
             {{ t('common.cancel') }}
           </button>
-          <button
-            class="action-button primary"
-            :disabled="!newFolderName.trim()"
-            @click="confirmCreateFolder"
-          >
+          <button class="action-button primary" :disabled="!newFolderName.trim()" @click="confirmCreateFolder">
             {{ t('common.confirm') }}
           </button>
         </div>
@@ -1550,7 +1145,6 @@
 </template>
 
 <script lang="ts" setup>
-
 import {
   ArrowUpDownIcon,
   ChevronDownIcon,
@@ -1792,7 +1386,7 @@ const isShowPresignedUrl = computed(() =>
   ['aliyun', 'github', 'qiniu', 's3plist', 'tcyun', 'webdavplist'].includes(currentPicBedName.value)
 )
 
-function getList () {
+function getList() {
   if (!searchText.value) {
     return currentPageFilesInfo
   }
@@ -1807,16 +1401,16 @@ function getList () {
 
 // 上传相关函数
 
-function handleUploadKeepDirChange (val: any) {
+function handleUploadKeepDirChange(val: any) {
   saveConfig('settings.isUploadKeepDirStructure', !!val)
   manageStore.refreshConfig()
 }
 
-function showUploadDialog () {
+function showUploadDialog() {
   isShowUploadPanel.value = true
 }
 
-function startRefreshUploadTask () {
+function startRefreshUploadTask() {
   refreshUploadTaskId.value = setInterval(() => {
     window.electron.triggerRPC(IRPCActionType.MANAGE_GET_UPLOAD_TASK_LIST).then((res: any) => {
       uploadTaskList.value = res
@@ -1824,21 +1418,21 @@ function startRefreshUploadTask () {
   }, 300)
 }
 
-function stopRefreshUploadTask () {
+function stopRefreshUploadTask() {
   refreshUploadTaskId.value && clearInterval(refreshUploadTaskId.value)
 }
 
-function handleGetWebdavConfig () {
+function handleGetWebdavConfig() {
   return manageStore.config.picBed[configMap.alias]
 }
 
 // 下载相关函数
 
-function showDownloadDialog () {
+function showDownloadDialog() {
   isShowDownloadPanel.value = true
 }
 
-function startRefreshDownloadTask () {
+function startRefreshDownloadTask() {
   refreshDownloadTaskId.value = setInterval(() => {
     window.electron.triggerRPC(IRPCActionType.MANAGE_GET_DOWNLOAD_TASK_LIST).then((res: any) => {
       downloadTaskList.value = res
@@ -1846,7 +1440,7 @@ function startRefreshDownloadTask () {
   }, 300)
 }
 
-function stopRefreshDownloadTask () {
+function stopRefreshDownloadTask() {
   refreshDownloadTaskId.value && clearInterval(refreshDownloadTaskId.value)
 }
 
@@ -1859,12 +1453,12 @@ function handleViewChange (val: 'list' | 'grid') {
 }
 */
 
-function toggleContentFullscreen () {
+function toggleContentFullscreen() {
   isContentFullscreen.value = !isContentFullscreen.value
 }
 
 let scrollTimeout: ReturnType<typeof setTimeout> | undefined
-function handleBucketContainerScroll () {
+function handleBucketContainerScroll() {
   if (scrollTimeout) {
     clearTimeout(scrollTimeout)
   }
@@ -1877,7 +1471,7 @@ function handleBucketContainerScroll () {
 
 // 上传文件选择相关
 
-function openFileSelectDialog () {
+function openFileSelectDialog() {
   window.electron.triggerRPC(IRPCActionType.MANAGE_OPEN_FILE_SELECT_DIALOG).then((res: any) => {
     if (res) {
       res.forEach((item: any) => {
@@ -1900,7 +1494,7 @@ function openFileSelectDialog () {
   })
 }
 
-function onDrop (e: DragEvent) {
+function onDrop(e: DragEvent) {
   isDragover.value = false
   const items = e.dataTransfer?.items
   if (items) {
@@ -1911,7 +1505,7 @@ function onDrop (e: DragEvent) {
  * 作者 前端 - wei
  * 递归读取文件夹
  */
-function webkitReadDataTransfer (dataTransfer: DataTransfer) {
+function webkitReadDataTransfer(dataTransfer: DataTransfer) {
   isLoadingUploadPanelFiles.value = true
   let fileNum = dataTransfer.items.length
   const decrement = () => {
@@ -1947,7 +1541,7 @@ function webkitReadDataTransfer (dataTransfer: DataTransfer) {
     }
   }
 
-  function readDirectory (reader: any) {
+  function readDirectory(reader: any) {
     reader.readEntries(
       (entries: any) => {
         if (entries.length) {
@@ -1977,14 +1571,14 @@ function webkitReadDataTransfer (dataTransfer: DataTransfer) {
     )
   }
 
-  function readFiles (file: any, fullPath: string) {
+  function readFiles(file: any, fullPath: string) {
     file.relativePath = fullPath.substring(1)
     files.push(file)
     decrement()
   }
 }
 
-function handleUploadFiles (files: any[]) {
+function handleUploadFiles(files: any[]) {
   const dirObj = {} as any
   files.forEach(item => {
     if (item.relativePath === item.name) {
@@ -2030,12 +1624,12 @@ function handleUploadFiles (files: any[]) {
   })
 }
 
-function clearTableData () {
+function clearTableData() {
   tableData.length = 0
   uploadPanelFilesList.value = []
 }
 
-function renameFileBeforeUpload (filePath: string): string {
+function renameFileBeforeUpload(filePath: string): string {
   const fileName = window.node.path.basename(filePath)
   const typeMap = {
     timestampRename: manageStore.config.settings.timestampRename,
@@ -2046,7 +1640,7 @@ function renameFileBeforeUpload (filePath: string): string {
   return renameFile(typeMap, fileName)
 }
 
-function uploadFiles () {
+function uploadFiles() {
   const formateduploadPanelFilesList = [] as any[]
   uploadPanelFilesList.value.forEach((item: any) => {
     formateduploadPanelFilesList.push({
@@ -2087,50 +1681,50 @@ function uploadFiles () {
   window.electron.sendRPC(IRPCActionType.MANAGE_UPLOAD_BUCKET_FILE, configMap.alias, param)
 }
 
-function handleCopyUploadingTaskInfo () {
+function handleCopyUploadingTaskInfo() {
   window.electron.clipboard.writeText(JSON.stringify(uploadTaskList.value, null, 2))
   message.success(t('pages.manage.bucket.copySuccess'))
 }
 
-function handleDeleteUploadedTask () {
+function handleDeleteUploadedTask() {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_UPLOADED_TASK)
   message.success(t('pages.manage.bucket.deleteSuccess'))
 }
 
-function handleDeleteAllUploadedTask () {
+function handleDeleteAllUploadedTask() {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_ALL_UPLOADED_TASK)
   message.success(t('pages.manage.bucket.deleteSuccess'))
 }
 
 // 下载任务相关
 
-function handleCopyDownloadingTaskInfo () {
+function handleCopyDownloadingTaskInfo() {
   window.electron.clipboard.writeText(JSON.stringify(downloadTaskList.value, null, 2))
   message.success(t('pages.manage.bucket.copySuccess'))
 }
 
-function handleDeleteDownloadedTask () {
+function handleDeleteDownloadedTask() {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_DOWNLOADED_TASK)
   message.success(t('pages.manage.bucket.deleteSuccess'))
 }
 
-function handleDeleteAllDownloadedTask () {
+function handleDeleteAllDownloadedTask() {
   window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_ALL_DOWNLOADED_TASK)
   message.success(t('pages.manage.bucket.deleteSuccess'))
 }
 
-function handleOpenDownloadedFolder () {
+function handleOpenDownloadedFolder() {
   window.electron.sendRPC(IRPCActionType.MANAGE_OPEN_DOWNLOADED_FOLDER, manageStore.config.settings.downloadDir)
 }
 
 // 文件列表相关
 
-function handleShowFileInfo (item: any) {
+function handleShowFileInfo(item: any) {
   isShowFileInfo.value = true
   currentShowedFileInfo.value = item
 }
 
-async function handleBreadcrumbClick (index: number) {
+async function handleBreadcrumbClick(index: number) {
   const targetPrefix =
     currentPrefix.value
       .split('/')
@@ -2146,7 +1740,7 @@ async function handleBreadcrumbClick (index: number) {
   isShowLoadingPage.value = false
 }
 
-async function handleClickFile (item: any) {
+async function handleClickFile(item: any) {
   const options = {} as any
   if (currentPicBedName.value === 'webdavplist') {
     options.headers = {
@@ -2196,13 +1790,13 @@ async function handleClickFile (item: any) {
   }
 }
 
-async function handleChangeCustomUrlInput () {
+async function handleChangeCustomUrlInput() {
   await handleChangeCustomUrl()
   await forceRefreshFileList()
 }
 // 自定义域名相关
 
-async function handleChangeCustomUrl () {
+async function handleChangeCustomUrl() {
   if (['aliyun', 'tcyun', 'qiniu', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value)) {
     const currentConfigs = await getConfig<any>('picBed')
     const currentConfig = currentConfigs[configMap.alias]
@@ -2221,7 +1815,7 @@ async function handleChangeCustomUrl () {
 }
 
 // when the current picBed is github, the customDomainList is used to store the github repo branches
-async function initCustomDomainList () {
+async function initCustomDomainList() {
   if (
     (['aliyun', 'tcyun', 'qiniu'].includes(currentPicBedName.value) &&
       (manageStore.config.picBed[configMap.alias].isAutoCustomUrl === undefined ||
@@ -2338,7 +1932,7 @@ async function initCustomDomainList () {
 
 // 重置
 
-async function resetParam (force: boolean = false) {
+async function resetParam(force: boolean = false) {
   if (isLoadingData.value) {
     isLoadingData.value = false
     window.electron.sendToMain('cancelLoadingFileList', cancelToken.value)
@@ -2410,7 +2004,7 @@ watch(route, async newRoute => {
   }
 })
 
-async function forceRefreshFileList () {
+async function forceRefreshFileList() {
   if (isLoadingData.value) {
     message.error(t('pages.manage.bucket.isLoadingMsg'))
     return
@@ -2427,7 +2021,7 @@ watch(currentPageNumber, () => {
 })
 
 // Watch upload panel visibility to start/stop refresh task
-watch(isShowUploadPanel, (newValue) => {
+watch(isShowUploadPanel, newValue => {
   if (newValue) {
     startRefreshUploadTask()
   } else {
@@ -2436,7 +2030,7 @@ watch(isShowUploadPanel, (newValue) => {
 })
 
 // Watch download panel visibility to start/stop refresh task
-watch(isShowDownloadPanel, (newValue) => {
+watch(isShowDownloadPanel, newValue => {
   if (newValue) {
     startRefreshDownloadTask()
   } else {
@@ -2452,7 +2046,7 @@ const handlePageNumberInput = (event: Event) => {
   }
 }
 
-function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
+function sortFile(type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
   switch (type) {
     case 'name':
       localStorage.setItem('sortType', 'name')
@@ -2508,23 +2102,23 @@ function sortFile (type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
   }
 }
 
-function handleCancelCheck () {
+function handleCancelCheck() {
   currentPageFilesInfo.forEach((item: any) => {
     item.checked = false
   })
 }
 
-function handleReverseCheck () {
+function handleReverseCheck() {
   currentPageFilesInfo.forEach((item: any) => {
     item.checked = !item.checked
   })
 }
 
-function handleCheckChangeOther (item: any) {
+function handleCheckChangeOther(item: any) {
   item.checked = !item.checked
 }
 
-async function handleFolderBatchDownload (item: any) {
+async function handleFolderBatchDownload(item: any) {
   try {
     const result = await confirm.confirm({
       message: t('pages.manage.bucket.notice'),
@@ -2534,7 +2128,9 @@ async function handleFolderBatchDownload (item: any) {
       type: 'warning'
     })
     if (!result) return
-    const defaultDownloadPath = await window.electron.triggerRPC<string>(IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER)
+    const defaultDownloadPath = await window.electron.triggerRPC<string>(
+      IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER
+    )
     const param = {
       downloadPath: manageStore.config.settings.downloadDir ?? defaultDownloadPath,
       maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount
@@ -2562,7 +2158,7 @@ async function handleFolderBatchDownload (item: any) {
     const downloadFileTransferStore = useDownloadFileTransferStore()
     downloadFileTransferStore.resetDownloadFileTransferList()
     window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_RECURSIVELY, configMap.alias, paramGet)
-    window.electron.ipcRendererOn(refreshDownloadFileTransferList, (data) => {
+    window.electron.ipcRendererOn(refreshDownloadFileTransferList, data => {
       downloadFileTransferStore.refreshDownloadFileTransferList(data)
     })
     downloadInterval = setInterval(() => {
@@ -2604,8 +2200,10 @@ async function handleFolderBatchDownload (item: any) {
   }
 }
 
-async function handleBatchDownload () {
-  const defaultDownloadPath = await window.electron.triggerRPC<string>(IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER)
+async function handleBatchDownload() {
+  const defaultDownloadPath = await window.electron.triggerRPC<string>(
+    IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER
+  )
   const param = {
     downloadPath: manageStore.config.settings.downloadDir ?? defaultDownloadPath,
     maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount
@@ -2635,14 +2233,14 @@ async function handleBatchDownload () {
   isShowDownloadPanel.value = true
 }
 
-function handleCheckAllChange () {
+function handleCheckAllChange() {
   const allSelected = selectedItems.value.length === filterList.value.length
   filterList.value.forEach((item: any) => {
     item.checked = !allSelected
   })
 }
 
-async function handleCreateFolder () {
+async function handleCreateFolder() {
   newFolderName.value = ''
   isShowCreateFolderDialog.value = true
   await nextTick()
@@ -2651,7 +2249,7 @@ async function handleCreateFolder () {
   }
 }
 
-async function confirmCreateFolder () {
+async function confirmCreateFolder() {
   const value = newFolderName.value.trim()
   if (!value) {
     return
@@ -2669,7 +2267,11 @@ async function confirmCreateFolder () {
       key: currentPrefix.value.slice(1) + formatedPath + '/',
       githubBranch: currentCustomDomain.value
     }
-    const res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_CREATE_BUCKET_FOLDER, configMap.alias, param)
+    const res = await window.electron.triggerRPC<any>(
+      IRPCActionType.MANAGE_CREATE_BUCKET_FOLDER,
+      configMap.alias,
+      param
+    )
     if (res) {
       message.success(t('pages.manage.bucket.createSuccess'))
     } else {
@@ -2680,11 +2282,11 @@ async function confirmCreateFolder () {
   }
 }
 
-function showUrlDialog () {
+function showUrlDialog() {
   dialogVisible.value = true
 }
 
-async function handleUploadFromUrl () {
+async function handleUploadFromUrl() {
   dialogVisible.value = false
   const urlList = [] as string[]
   urlToUpload.value.split('\n').forEach((item: string) => {
@@ -2710,7 +2312,7 @@ async function handleUploadFromUrl () {
   isShowUploadPanel.value = true
 }
 
-function handleBatchRenameFile () {
+function handleBatchRenameFile() {
   batchRenameMatch.value = ''
   isSingleRename.value = false
   isShowBatchRenameDialog.value = true
@@ -2735,7 +2337,7 @@ const matchedFilesNumber = computed(() => {
   return matchedFiles.length
 })
 
-async function BatchRename () {
+async function BatchRename() {
   isShowBatchRenameDialog.value = false
   if (batchRenameMatch.value === '') {
     message.error(t('pages.manage.bucket.inputPatternMsg'))
@@ -2759,11 +2361,7 @@ async function BatchRename () {
   }
   for (const item of matchedFiles) {
     if (isRenameIncludeExt.value) {
-      item.newName = customStrReplace(
-        item.fileName,
-        batchRenameMatch.value,
-        batchRenameReplace.value
-      )
+      item.newName = customStrReplace(item.fileName, batchRenameMatch.value, batchRenameReplace.value)
     } else {
       item.newName =
         customStrReplace(item.fileName.split('.')[0], batchRenameMatch.value, batchRenameReplace.value) +
@@ -2795,54 +2393,56 @@ async function BatchRename () {
         newKey: (item.key.slice(0, item.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/'),
         customUrl: currentCustomDomain.value
       }
-      window.electron.triggerRPC<any>(IRPCActionType.MANAGE_RENAME_BUCKET_FILE, configMap.alias, param).then((res: any) => {
-        if (res) {
-          successCount++
-          resolve(true)
-          const oldKey = currentPrefix.value + item.fileName
-          if (pagingMarker.value === oldKey.slice(1)) {
-            pagingMarker.value = currentPrefix.value.slice(1) + item.newName
-          }
-          const oldName = item.fileName
-          if (item.newName.includes('/')) {
-            item.fileName = item.newName.slice(0, item.newName.indexOf('/'))
-            item.isDir = true
-            item.fileSize = 0
-            item.formatedTime = ''
-          } else {
-            item.fileName = item.newName
-          }
-          item.key = (item.key.slice(0, item.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/')
-          item.url = `${currentCustomDomain.value}${currentPrefix.value}${item.newName}`
-          item.formatedTime = new Date().toLocaleString()
-          if (!paging.value) {
-            const table = fileCacheDbInstance.table(currentPicBedName.value)
-            table
-              .where('key')
-              .equals(getTableKeyOfDb())
-              .modify((l: any) => {
-                l.value.fullList.forEach((i: any) => {
-                  if (i.fileName === oldName) {
-                    if (item.newName.includes('/')) {
-                      i.fileName = item.newName.slice(0, item.newName.indexOf('/'))
-                      i.isDir = true
-                      i.fileSize = 0
-                      i.formatedTime = ''
-                    } else {
-                      i.fileName = item.newName
+      window.electron
+        .triggerRPC<any>(IRPCActionType.MANAGE_RENAME_BUCKET_FILE, configMap.alias, param)
+        .then((res: any) => {
+          if (res) {
+            successCount++
+            resolve(true)
+            const oldKey = currentPrefix.value + item.fileName
+            if (pagingMarker.value === oldKey.slice(1)) {
+              pagingMarker.value = currentPrefix.value.slice(1) + item.newName
+            }
+            const oldName = item.fileName
+            if (item.newName.includes('/')) {
+              item.fileName = item.newName.slice(0, item.newName.indexOf('/'))
+              item.isDir = true
+              item.fileSize = 0
+              item.formatedTime = ''
+            } else {
+              item.fileName = item.newName
+            }
+            item.key = (item.key.slice(0, item.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/')
+            item.url = `${currentCustomDomain.value}${currentPrefix.value}${item.newName}`
+            item.formatedTime = new Date().toLocaleString()
+            if (!paging.value) {
+              const table = fileCacheDbInstance.table(currentPicBedName.value)
+              table
+                .where('key')
+                .equals(getTableKeyOfDb())
+                .modify((l: any) => {
+                  l.value.fullList.forEach((i: any) => {
+                    if (i.fileName === oldName) {
+                      if (item.newName.includes('/')) {
+                        i.fileName = item.newName.slice(0, item.newName.indexOf('/'))
+                        i.isDir = true
+                        i.fileSize = 0
+                        i.formatedTime = ''
+                      } else {
+                        i.fileName = item.newName
+                      }
+                      i.key = (i.key.slice(0, i.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/')
+                      i.url = `${currentCustomDomain.value}${currentPrefix.value}${item.newName}`
+                      i.formatedTime = new Date().toLocaleString()
                     }
-                    i.key = (i.key.slice(0, i.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/')
-                    i.url = `${currentCustomDomain.value}${currentPrefix.value}${item.newName}`
-                    i.formatedTime = new Date().toLocaleString()
-                  }
+                  })
                 })
-              })
+            }
+          } else {
+            failCount++
+            reject(error)
           }
-        } else {
-          failCount++
-          reject(error)
-        }
-      })
+        })
     })
   }
   if (duplicateFilesNum > 0) {
@@ -2861,9 +2461,7 @@ async function BatchRename () {
         promiseList.push(renamefunc(item))
       }
       Promise.allSettled(promiseList).then(() => {
-        message.success(
-          `${t('pages.manage.bucket.renameResultMsg', { success: successCount, failed: failCount })}`
-        )
+        message.success(`${t('pages.manage.bucket.renameResultMsg', { success: successCount, failed: failCount })}`)
       })
     } catch {
       message.info(t('pages.manage.bucket.canceled'))
@@ -2874,14 +2472,12 @@ async function BatchRename () {
       promiseList.push(renamefunc(item))
     }
     Promise.allSettled(promiseList).then(() => {
-      message.success(
-        `${t('pages.manage.bucket.renameResultMsg', { success: successCount, failed: failCount })}`
-      )
+      message.success(`${t('pages.manage.bucket.renameResultMsg', { success: successCount, failed: failCount })}`)
     })
   }
 }
 
-function handleBatchCopyInfo () {
+function handleBatchCopyInfo() {
   if (selectedItems.value.length === 0) {
     message.warning(t('pages.manage.bucket.selectFileMsg'))
     return
@@ -2891,16 +2487,14 @@ function handleBatchCopyInfo () {
     result[item.fileName] = item
   })
   window.electron.clipboard.writeText(JSON.stringify(result, null, 2))
-  message.success(
-    `${t('pages.manage.bucket.copySuccess')}`
-  )
+  message.success(`${t('pages.manage.bucket.copySuccess')}`)
 }
 
-async function copyLink (item: any, type: string) {
+async function copyLink(item: any, type: string) {
   copyToClipboard(await formatLink(item.url, item.fileName, type, manageStore.config.settings.customPasteFormat))
 }
 
-async function handleBatchCopyLink (type: string) {
+async function handleBatchCopyLink(type: string) {
   if (!selectedItems.value.length) {
     message.warning(t('pages.manage.bucket.selectFileMsg'))
     return
@@ -2919,12 +2513,10 @@ async function handleBatchCopyLink (type: string) {
     }
   }
   window.electron.clipboard.writeText(result.join('\n'))
-  message.success(
-    `${t('pages.manage.bucket.copySuccess')}`
-  )
+  message.success(`${t('pages.manage.bucket.copySuccess')}`)
 }
 
-async function cancelLoading () {
+async function cancelLoading() {
   try {
     const result = await confirm.confirm({
       message: t('pages.manage.bucket.notice'),
@@ -2943,7 +2535,7 @@ async function cancelLoading () {
   }
 }
 
-async function cancelDownloadLoading () {
+async function cancelDownloadLoading() {
   try {
     const result = await confirm.confirm({
       message: t('pages.manage.bucket.notice'),
@@ -2962,7 +2554,7 @@ async function cancelDownloadLoading () {
   }
 }
 
-async function getBucketFileListBackStage () {
+async function getBucketFileListBackStage() {
   cancelToken.value = uuidv4()
   const param = {
     // tcyun
@@ -2988,7 +2580,7 @@ async function getBucketFileListBackStage () {
     param.webPath = configMap.webPath
   }
   window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_BACKSTAGE, configMap.alias, param)
-  window.electron.ipcRendererOn('refreshFileTransferList', (data) => {
+  window.electron.ipcRendererOn('refreshFileTransferList', data => {
     fileTransferStore.refreshFileTransferList(data)
   })
   fileTransferInterval = setInterval(() => {
@@ -3018,7 +2610,7 @@ async function getBucketFileListBackStage () {
   }, 1000)
 }
 
-async function getBucketFileList () {
+async function getBucketFileList() {
   const param = {
     // tcyun
     bucketName: configMap.bucketName,
@@ -3035,7 +2627,7 @@ async function getBucketFileList () {
   return await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_GET_BUCKET_FILE_LIST, configMap.alias, param)
 }
 
-async function handleBatchDeleteInfo () {
+async function handleBatchDeleteInfo() {
   try {
     const result = await confirm.confirm({
       message: t('pages.manage.bucket.willDeleteMsg', { num: selectedItems.value.length }),
@@ -3095,7 +2687,7 @@ async function handleBatchDeleteInfo () {
   }
 }
 
-async function handleDeleteFile (item: any) {
+async function handleDeleteFile(item: any) {
   try {
     const result = await confirm.confirm({
       message: `${t('pages.manage.bucket.deleteMsg')}`,
@@ -3146,14 +2738,14 @@ async function handleDeleteFile (item: any) {
   }
 }
 
-function handleRenameFile (item: any) {
+function handleRenameFile(item: any) {
   batchRenameMatch.value = window.node.path.basename(item.fileName, window.node.path.extname(item.fileName))
   isSingleRename.value = true
   isShowBatchRenameDialog.value = true
   itemToBeRenamed.value = item
 }
 
-function singleRename () {
+function singleRename() {
   const index = filterList.value.findIndex((i: any) => i === itemToBeRenamed.value)
   isShowBatchRenameDialog.value = false
   if (batchRenameMatch.value === '') {
@@ -3239,7 +2831,7 @@ function singleRename () {
   })
 }
 
-function handleGetS3Config (item: any) {
+function handleGetS3Config(item: any) {
   return {
     bucketName: configMap.bucketName,
     region: configMap.bucketConfig.Location,
@@ -3251,7 +2843,7 @@ function handleGetS3Config (item: any) {
   }
 }
 
-async function getPreSignedUrl (item: any) {
+async function getPreSignedUrl(item: any) {
   const param = {
     // tcyun
     bucketName: configMap.bucketName,
@@ -3265,12 +2857,12 @@ async function getPreSignedUrl (item: any) {
   return await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_GET_PRE_SIGNED_URL, configMap.alias, param)
 }
 
-function copyToClipboard (text: string) {
+function copyToClipboard(text: string) {
   window.electron.clipboard.writeText(text)
   message.success(t('pages.manage.bucket.copySuccess'))
 }
 
-function toggleCopyDropdown (index: number) {
+function toggleCopyDropdown(index: number) {
   if (copyDropdownIndex.value === index) {
     copyDropdownIndex.value = -1
   } else {
@@ -3278,7 +2870,7 @@ function toggleCopyDropdown (index: number) {
   }
 }
 
-function getTableKeyOfDb () {
+function getTableKeyOfDb() {
   let tableKey
   if (currentPicBedName.value === 'github') {
     // customUrl is branch
@@ -3289,12 +2881,12 @@ function getTableKeyOfDb () {
   return tableKey
 }
 
-async function searchExistFileList () {
+async function searchExistFileList() {
   const table = fileCacheDbInstance.table(currentPicBedName.value)
   return await table.where('key').equals(getTableKeyOfDb()).toArray()
 }
 
-function handleDetectShiftKey (event: KeyboardEvent) {
+function handleDetectShiftKey(event: KeyboardEvent) {
   if (event.key === 'Shift') {
     if (event.type === 'keydown') {
       isShiftKeyPress.value = true

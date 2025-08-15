@@ -10,7 +10,7 @@ interface IConfigMap {
 }
 
 export default class WebdavApi {
-  static async delete (configMap: IConfigMap): Promise<boolean> {
+  static async delete(configMap: IConfigMap): Promise<boolean> {
     const {
       fileName,
       config: { host, username, password, path, sslEnabled, authType }

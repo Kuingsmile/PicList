@@ -37,16 +37,16 @@ const getSyncConfig = () => {
 const getProxyagent = (proxy: string | undefined) => {
   return proxy
     ? new HttpsProxyAgent({
-      keepAlive: true,
-      keepAliveMsecs: 1000,
-      rejectUnauthorized: false,
-      proxy: proxy.replace('127.0.0.1', 'localhost'),
-      scheduling: 'lifo'
-    })
+        keepAlive: true,
+        keepAliveMsecs: 1000,
+        rejectUnauthorized: false,
+        proxy: proxy.replace('127.0.0.1', 'localhost'),
+        scheduling: 'lifo'
+      })
     : undefined
 }
 
-function getOctokit (syncConfig: ISyncConfig) {
+function getOctokit(syncConfig: ISyncConfig) {
   const { token, proxy } = syncConfig
   return new Octokit({
     auth: token,
@@ -83,7 +83,7 @@ const isSyncConfigValidate = ({
   return type && username && repo && branch && token
 }
 
-async function uploadLocalToRemote (syncConfig: ISyncConfig, fileName: string) {
+async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
   const localFilePath = path.join(STORE_PATH, fileName)
   if (!fs.existsSync(localFilePath)) {
     return false
@@ -161,7 +161,7 @@ async function uploadLocalToRemote (syncConfig: ISyncConfig, fileName: string) {
   }
 }
 
-async function updateLocalToRemote (syncConfig: ISyncConfig, fileName: string) {
+async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
   const localFilePath = path.join(STORE_PATH, fileName)
   if (!fs.existsSync(localFilePath)) {
     return false
@@ -277,7 +277,7 @@ async function updateLocalToRemote (syncConfig: ISyncConfig, fileName: string) {
   }
 }
 
-async function uploadFile (fileName: string[]): Promise<number> {
+async function uploadFile(fileName: string[]): Promise<number> {
   const syncConfig = getSyncConfig()
   if (!isSyncConfigValidate(syncConfig)) {
     logger.error('sync config is invalid')
@@ -302,7 +302,7 @@ async function uploadFile (fileName: string[]): Promise<number> {
   return count
 }
 
-async function downloadAndWriteFile (url: string, localFilePath: string, config: any, isWriteJson = false) {
+async function downloadAndWriteFile(url: string, localFilePath: string, config: any, isWriteJson = false) {
   const res = await axios.get(url, config)
   if (isHttpResSuccess(res)) {
     await fs.writeFile(
@@ -314,7 +314,7 @@ async function downloadAndWriteFile (url: string, localFilePath: string, config:
   return false
 }
 
-async function downloadRemoteToLocal (syncConfig: ISyncConfig, fileName: string) {
+async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) {
   const localFilePath = path.join(STORE_PATH, fileName)
   const { username, repo, branch, token, proxy, type } = syncConfig
   try {
@@ -394,7 +394,7 @@ async function downloadRemoteToLocal (syncConfig: ISyncConfig, fileName: string)
   }
 }
 
-async function downloadFile (fileName: string[]): Promise<number> {
+async function downloadFile(fileName: string[]): Promise<number> {
   const syncConfig = getSyncConfig()
   if (!isSyncConfigValidate(syncConfig)) {
     logger.error('sync config is invalid')

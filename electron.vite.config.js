@@ -7,9 +7,7 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 export default defineConfig({
   main: {
-    plugins: [
-      externalizeDepsPlugin()
-    ],
+    plugins: [externalizeDepsPlugin()],
     resolve: {
       alias: {
         '@': resolve('src/renderer'),
@@ -22,10 +20,11 @@ export default defineConfig({
     }
   },
   preload: {
-    plugins: [externalizeDepsPlugin(),
+    plugins: [
+      externalizeDepsPlugin(),
       VueI18nPlugin({
-      /* options */
-      // locale messages resource pre-compile option
+        /* options */
+        // locale messages resource pre-compile option
         include: resolve(dirname(fileURLToPath(import.meta.url)), './src/renderer/i18n/locales/**')
       })
     ],

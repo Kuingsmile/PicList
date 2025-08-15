@@ -1,22 +1,12 @@
 <template>
   <Teleport to="body">
-    <div
-      v-if="showInputBoxVisible"
-      class="inputbox-overlay"
-      @click="handleInputBoxCancel"
-    >
-      <div
-        class="inputbox-container"
-        @click.stop
-      >
+    <div v-if="showInputBoxVisible" class="inputbox-overlay" @click="handleInputBoxCancel">
+      <div class="inputbox-container" @click.stop>
         <div class="inputbox-header">
           <h3 class="inputbox-title">
             {{ inputBoxOptions.title || t('pages.inputBox.title') }}
           </h3>
-          <button
-            class="inputbox-close"
-            @click="handleInputBoxCancel"
-          >
+          <button class="inputbox-close" @click="handleInputBoxCancel">
             <X :size="20" />
           </button>
         </div>
@@ -28,19 +18,13 @@
             type="text"
             @keyup.enter="handleInputBoxConfirm"
             @keyup.escape="handleInputBoxCancel"
-          >
+          />
         </div>
         <div class="inputbox-actions">
-          <button
-            class="inputbox-btn cancel-btn"
-            @click="handleInputBoxCancel"
-          >
+          <button class="inputbox-btn cancel-btn" @click="handleInputBoxCancel">
             {{ t('common.cancel') }}
           </button>
-          <button
-            class="inputbox-btn confirm-btn primary"
-            @click="handleInputBoxConfirm"
-          >
+          <button class="inputbox-btn confirm-btn primary" @click="handleInputBoxConfirm">
             {{ t('common.confirm') }}
           </button>
         </div>
@@ -66,27 +50,27 @@ const inputBoxOptions = reactive({
   placeholder: ''
 })
 
-let removeInputBoxListenerCallback: (() => void) = () => {}
+let removeInputBoxListenerCallback: () => void = () => {}
 
-function handleIpcInputBoxEvent (options: IShowInputBoxOption) {
+function handleIpcInputBoxEvent(options: IShowInputBoxOption) {
   initInputBoxValue(options)
 }
 
-function initInputBoxValue (options: IShowInputBoxOption) {
+function initInputBoxValue(options: IShowInputBoxOption) {
   inputBoxValue.value = options.value || ''
   inputBoxOptions.title = options.title || ''
   inputBoxOptions.placeholder = options.placeholder || ''
   showInputBoxVisible.value = true
 }
 
-function handleInputBoxCancel () {
+function handleInputBoxCancel() {
   // TODO: RPCServer
   showInputBoxVisible.value = false
   window.electron.sendToMain(SHOW_INPUT_BOX, '')
   $bus.emit(SHOW_INPUT_BOX_RESPONSE, '')
 }
 
-function handleInputBoxConfirm () {
+function handleInputBoxConfirm() {
   showInputBoxVisible.value = false
   window.electron.sendToMain(SHOW_INPUT_BOX, inputBoxValue.value)
   $bus.emit(SHOW_INPUT_BOX_RESPONSE, inputBoxValue.value)
@@ -126,7 +110,9 @@ export default {
 .inputbox-container {
   background: white;
   border-radius: 0.75rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-width: 32rem;
   width: 90%;
   max-height: 80vh;

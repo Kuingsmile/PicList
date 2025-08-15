@@ -1,16 +1,12 @@
 <template>
   <div class="toolbox-handler">
-    <button
-      class="handler-button"
-      @click="() => props.handler(value)"
-    >
+    <button class="handler-button" @click="() => props.handler(value)">
       {{ props.handlerText }}
     </button>
   </div>
 </template>
 
 <script lang="ts" setup>
-
 interface IProps {
   status: string
   value: any

@@ -10,9 +10,7 @@ import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
 import { T as $t } from '~/i18n'
 import { IToolboxItemCheckStatus, IToolboxItemType } from '~/utils/enum'
 
-export const checkFileMap: IToolboxCheckerMap<
-  string
-> = {
+export const checkFileMap: IToolboxCheckerMap<string> = {
   [IToolboxItemType.IS_CONFIG_FILE_BROKEN]: async (event: IpcMainEvent) => {
     const sendToolboxRes = sendToolboxResWithType(IToolboxItemType.IS_CONFIG_FILE_BROKEN)
     sendToolboxRes(event, {
@@ -62,9 +60,7 @@ export const checkFileMap: IToolboxCheckerMap<
   }
 }
 
-export const fixFileMap: IToolboxFixMap<
-  string
-> = {
+export const fixFileMap: IToolboxFixMap<string> = {
   [IToolboxItemType.IS_CONFIG_FILE_BROKEN]: async () => {
     try {
       fs.unlinkSync(dbPathChecker())

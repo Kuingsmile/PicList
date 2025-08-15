@@ -21,19 +21,19 @@ export const getRawData = (args: any): any => {
   return args
 }
 
-function sendToMain (channel: string, ...args: any[]) {
+function sendToMain(channel: string, ...args: any[]) {
   ipcRenderer.send(channel, ...getRawData(args))
 }
 
-function sendRPC (action: string, ...args: any[]): void {
+function sendRPC(action: string, ...args: any[]): void {
   ipcRenderer.send('RPC_ACTIONS', action, getRawData(args))
 }
 
-async function triggerRPC<T> (action: string, ...args: any[]): Promise<T | undefined> {
+async function triggerRPC<T>(action: string, ...args: any[]): Promise<T | undefined> {
   return await ipcRenderer.invoke('RPC_ACTIONS_INVOKE', action, getRawData(args))
 }
 
-function sendRpcSync (action: string, ...args: any[]): any {
+function sendRpcSync(action: string, ...args: any[]): any {
   return ipcRenderer.sendSync('RPC_ACTIONS', action, getRawData(args))
 }
 
@@ -63,7 +63,7 @@ try {
     ipcRendererRemoveAllListeners: (channel: string) => {
       ipcRenderer.removeAllListeners(channel)
     },
-    showFilePath (file: File) {
+    showFilePath(file: File) {
       return webUtils.getPathForFile(file)
     }
   })

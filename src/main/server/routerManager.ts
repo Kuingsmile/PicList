@@ -27,7 +27,7 @@ const LOG_PATH = path.join(STORE_PATH, 'piclist.log')
 const errorMessage = `upload error. see ${LOG_PATH} for more detail.`
 const deleteErrorMessage = `delete error. see ${LOG_PATH} for more detail.`
 
-async function responseForGet ({ response }: { response: http.ServerResponse }) {
+async function responseForGet({ response }: { response: http.ServerResponse }) {
   response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
   const htmlContent = marked(markdownContent)
   response.write(htmlContent)

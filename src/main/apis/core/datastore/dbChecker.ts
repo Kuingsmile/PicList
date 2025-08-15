@@ -23,7 +23,7 @@ const errorMsg = {
   brokenButBackup: $t('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_BACKUP')
 }
 
-function dbChecker () {
+function dbChecker() {
   if (process.type !== 'renderer') {
     // db save bak
     try {
@@ -80,7 +80,7 @@ function dbChecker () {
 /**
  * Get config path
  */
-function dbPathChecker (): string {
+function dbPathChecker(): string {
   if (_configFilePath) {
     return _configFilePath
   }
@@ -120,11 +120,11 @@ function dbPathChecker (): string {
   }
 }
 
-function dbPathDir () {
+function dbPathDir() {
   return path.dirname(dbPathChecker())
 }
 
-function getGalleryDBPath (): {
+function getGalleryDBPath(): {
   dbPath: string
   dbBackupPath: string
 } {

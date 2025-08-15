@@ -29,7 +29,7 @@ class GithubApi {
   baseUrl = 'https://api.github.com'
   commonHeaders: IStringKeyMap
 
-  constructor (token: string, username: string, proxy: string | undefined, logger: ManageLogger) {
+  constructor(token: string, username: string, proxy: string | undefined, logger: ManageLogger) {
     this.logger = logger
     this.token = token.startsWith('Bearer ') ? token : `Bearer ${token}`.trim()
     this.username = username
@@ -41,7 +41,7 @@ class GithubApi {
     }
   }
 
-  formatFolder (item: any, slicedPrefix: string, branch: string, repo: string, cdnUrl: string | undefined) {
+  formatFolder(item: any, slicedPrefix: string, branch: string, repo: string, cdnUrl: string | undefined) {
     const key = `${slicedPrefix ? `${slicedPrefix}/` : ''}${item.path}/`
     let rawUrl = ''
     const placeholders = ['{username}', '{repo}', '{branch}', '{path}']
@@ -78,7 +78,7 @@ class GithubApi {
     }
   }
 
-  formatFile (item: any, slicedPrefix: string, branch: string, repo: string, cdnUrl: string | undefined) {
+  formatFile(item: any, slicedPrefix: string, branch: string, repo: string, cdnUrl: string | undefined) {
     let rawUrl = ''
     const placeholders = ['{username}', '{repo}', '{branch}', '{path}']
     const key = slicedPrefix === '' ? item.path : `${slicedPrefix}/${item.path}`
@@ -119,7 +119,7 @@ class GithubApi {
   /**
    * get repo list
    */
-  async getBucketList (): Promise<any> {
+  async getBucketList(): Promise<any> {
     let initPage = 1
     let res
     const result = [] as any[]
@@ -156,7 +156,7 @@ class GithubApi {
   /**
    * 获取branch列表
    */
-  async getBucketDomain (param: IStringKeyMap): Promise<any> {
+  async getBucketDomain(param: IStringKeyMap): Promise<any> {
     const { bucketName: repo } = param
     let initPage = 1
     let res
@@ -184,7 +184,7 @@ class GithubApi {
     return result
   }
 
-  async getBucketListRecursively (configMap: IStringKeyMap): Promise<any> {
+  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: repo, customUrl: branch, prefix, cancelToken, cdnUrl } = configMap
     const slicedPrefix = prefix.replace(/(^\/+|\/+$)/g, '')
@@ -235,7 +235,7 @@ class GithubApi {
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
-  async getBucketListBackstage (configMap: IStringKeyMap): Promise<any> {
+  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     const { bucketName: repo, customUrl: branch, prefix, cancelToken, cdnUrl } = configMap
     const slicedPrefix = prefix.replace(/(^\/+|\/+$)/g, '')
@@ -285,7 +285,7 @@ class GithubApi {
    * key: string
    * }
    */
-  async deleteBucketFile (configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName: repo, githubBranch: branch, key, DeleteHash: sha } = configMap
     const body = {
       message: 'deleted by PicList',
@@ -303,7 +303,7 @@ class GithubApi {
    * create a new tree to delete a folder
    * @param configMap
    */
-  async deleteBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName: repo, githubBranch: branch, key } = configMap
     // get sha of the branch
     const refRes = (await got(
@@ -412,7 +412,7 @@ class GithubApi {
    * customUrl: string
    * }
    */
-  async getPreSignedUrl (configMap: IStringKeyMap): Promise<string> {
+  async getPreSignedUrl(configMap: IStringKeyMap): Promise<string> {
     const { bucketName: repo, customUrl: branch, key, rawUrl, githubPrivate: isPrivate } = configMap
     if (!isPrivate) return rawUrl
     const res = (await got(
@@ -436,7 +436,7 @@ class GithubApi {
    * 新建文件夹
    * @param configMap
    */
-  async createBucketFolder (configMap: IStringKeyMap): Promise<boolean> {
+  async createBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName: repo, githubBranch: branch, key } = configMap
     const newFileKey = `${trimPath(key)}/.gitkeep`
     const base64Content = Buffer.from('created by PicList').toString('base64')
@@ -456,7 +456,7 @@ class GithubApi {
    * 上传文件
    * @param configMap
    */
-  async uploadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
+  async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { fileArray } = configMap
     const instance = UpDownTaskQueue.getInstance()
     fileArray.forEach((item: any) => {
@@ -505,7 +505,7 @@ class GithubApi {
    * 下载文件
    * @param configMap
    */
-  async downloadBucketFile (configMap: IStringKeyMap): Promise<boolean> {
+  async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { downloadPath, fileArray, maxDownloadFileCount } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any

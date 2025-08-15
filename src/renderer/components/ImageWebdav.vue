@@ -1,9 +1,6 @@
 <template>
   <div class="image-container">
-    <div
-      v-if="isLoading"
-      class="loading-placeholder"
-    >
+    <div v-if="isLoading" class="loading-placeholder">
       <div class="loading-spinner" />
     </div>
     <img
@@ -13,13 +10,8 @@
       class="image"
       @load="handleImageLoad"
       @error="handleImageError"
-    >
-    <img
-      v-else
-      :src="iconPath"
-      alt=""
-      class="image"
-    >
+    />
+    <img v-else :src="iconPath" alt="" class="image" />
   </div>
 </template>
 
@@ -54,7 +46,7 @@ const imageSource = computed(() => {
 
 const iconPath = computed(() => `./assets/icons/${getFileIconPath(props.item.fileName ?? '')}`)
 
-async function getWebdavHeader (key: string) {
+async function getWebdavHeader(key: string) {
   let headers = {} as any
   if (props.config.authType === 'digest') {
     const authHeader = await getAuthHeader(
@@ -148,7 +140,11 @@ onMounted(fetchImage)
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

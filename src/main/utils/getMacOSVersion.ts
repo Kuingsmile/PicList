@@ -22,7 +22,7 @@ const parseVersion = (plist: string) => {
   return matches[1].replace('10.16', '11')
 }
 
-export function macOSVersion (): string {
+export function macOSVersion(): string {
   if (!isMacOS) return ''
 
   if (!version) {
@@ -43,7 +43,7 @@ if (process.env.NODE_ENV === 'test') {
   macOSVersion._parseVersion = parseVersion
 }
 
-export function isMacOSVersion (semverRange: string) {
+export function isMacOSVersion(semverRange: string) {
   if (!isMacOS) {
     return false
   }
@@ -53,7 +53,7 @@ export function isMacOSVersion (semverRange: string) {
   return semver.satisfies(macOSVersion(), clean(semverRange))
 }
 
-export function isMacOSVersionGreaterThanOrEqualTo (version: string) {
+export function isMacOSVersionGreaterThanOrEqualTo(version: string) {
   if (!isMacOS) {
     return false
   }
@@ -63,7 +63,7 @@ export function isMacOSVersionGreaterThanOrEqualTo (version: string) {
   return semver.gte(macOSVersion(), clean(version))
 }
 
-export function assertMacOSVersion (semverRange: string) {
+export function assertMacOSVersion(semverRange: string) {
   semverRange = semverRange.replace('10.16', '11')
 
   if (!isMacOSVersion(semverRange)) {
@@ -71,7 +71,7 @@ export function assertMacOSVersion (semverRange: string) {
   }
 }
 
-export function assertMacOSVersionGreaterThanOrEqualTo (version: string) {
+export function assertMacOSVersionGreaterThanOrEqualTo(version: string) {
   version = version.replace('10.16', '11')
 
   if (!isMacOSVersionGreaterThanOrEqualTo(version)) {
@@ -79,7 +79,7 @@ export function assertMacOSVersionGreaterThanOrEqualTo (version: string) {
   }
 }
 
-export function assertMacOS () {
+export function assertMacOS() {
   if (!isMacOS) {
     throw new Error('Requires macOS')
   }

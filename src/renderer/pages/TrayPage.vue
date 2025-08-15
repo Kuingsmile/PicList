@@ -1,24 +1,14 @@
 <template>
   <div id="tray-page">
     <!-- Header -->
-    <div
-      class="tray-header"
-      @click="openSettingWindow"
-    >
+    <div class="tray-header" @click="openSettingWindow">
       <div class="header-content">
         <span class="header-text">
           {{ t('pages.tray.openMainWindow') }}
         </span>
       </div>
       <div class="header-arrow">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="m9 18 6-6-6-6" />
         </svg>
       </div>
@@ -27,10 +17,7 @@
     <!-- Content -->
     <div class="tray-content">
       <!-- Clipboard Files Section -->
-      <div
-        v-if="clipboardFiles.length > 0"
-        class="section"
-      >
+      <div v-if="clipboardFiles.length > 0" class="section">
         <div class="section-header">
           <div class="section-title">
             {{ t('pages.tray.waitForUpload') }}
@@ -48,15 +35,8 @@
             @click="uploadClipboardFiles"
           >
             <div class="image-container">
-              <img
-                :src="item.imgUrl"
-                class="image"
-                @error="onImageError"
-              >
-              <div
-                v-if="uploadFlag"
-                class="upload-overlay"
-              >
+              <img :src="item.imgUrl" class="image" @error="onImageError" />
+              <div v-if="uploadFlag" class="upload-overlay">
                 <div class="spinner" />
               </div>
             </div>
@@ -72,42 +52,16 @@
           </div>
         </div>
         <div class="image-grid">
-          <div
-            v-for="item in files"
-            :key="item.imgUrl"
-            class="image-item"
-            @click="copyTheLink(item)"
-          >
+          <div v-for="item in files" :key="item.imgUrl" class="image-item" @click="copyTheLink(item)">
             <div class="image-container">
-              <img
-                v-lazy="item.imgUrl"
-                class="image"
-                @error="onImageError"
-              >
+              <img v-lazy="item.imgUrl" class="image" @error="onImageError" />
               <div class="image-overlay">
-                <div
-                  class="image-title"
-                  :title="item.fileName"
-                >
+                <div class="image-title" :title="item.fileName">
                   {{ item.fileName }}
                 </div>
                 <div class="copy-indicator">
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <rect
-                      x="9"
-                      y="9"
-                      width="13"
-                      height="13"
-                      rx="2"
-                      ry="2"
-                    />
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                   </svg>
                 </div>
@@ -147,11 +101,11 @@ const notification = reactive({
 const clipboardFiles = ref<ImgInfo[]>([])
 const uploadFlag = ref(false)
 
-function openSettingWindow () {
+function openSettingWindow() {
   window.electron.sendRPC(IRPCActionType.OPEN_WINDOW, IWindowList.SETTING_WINDOW)
 }
 
-async function getData () {
+async function getData() {
   files.value = (await $$db.get<ImgInfo>({ orderBy: 'desc', limit: 10 }))!.data
 }
 
@@ -174,7 +128,7 @@ const formatCustomLink = (customLink: string, item: ImgInfo) => {
   return customLink
 }
 
-async function copyTheLink (item: ImgInfo) {
+async function copyTheLink(item: ImgInfo) {
   const pasteStyle = (await getConfig<string>(configPaths.settings.pasteStyle)) || IPasteStyle.MARKDOWN
   const customLink = await getConfig<string>(configPaths.settings.customLink)
   const txt = await pasteTemplate(pasteStyle, item, customLink)
@@ -185,7 +139,7 @@ async function copyTheLink (item: ImgInfo) {
   }
 }
 
-async function pasteTemplate (style: string, item: ImgInfo, customLink: string | undefined) {
+async function pasteTemplate(style: string, item: ImgInfo, customLink: string | undefined) {
   let url = item.url || item.imgUrl
   if (item.type === 'aws-s3' || item.type === 'aws-s3-plist') {
     url = item.imgUrl || item.url || ''
@@ -212,7 +166,7 @@ async function pasteTemplate (style: string, item: ImgInfo, customLink: string |
   return tpl[style]
 }
 
-function disableDragFile () {
+function disableDragFile() {
   window.addEventListener(
     'dragover',
     e => {
@@ -231,7 +185,7 @@ function disableDragFile () {
   )
 }
 
-function uploadClipboardFiles () {
+function uploadClipboardFiles() {
   if (uploadFlag.value) {
     return
   }
@@ -239,7 +193,7 @@ function uploadClipboardFiles () {
   window.electron.sendRPC(IRPCActionType.TRAY_UPLOAD_CLIPBOARD_FILES)
 }
 
-function onImageError (event: Event) {
+function onImageError(event: Event) {
   const img = event.target as HTMLImageElement
   img.style.display = 'none'
 }

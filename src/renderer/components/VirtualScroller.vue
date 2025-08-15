@@ -1,14 +1,6 @@
 <template>
-  <div
-    ref="containerRef"
-    class="virtual-scroller"
-    :style="{ height: `${containerHeight}px` }"
-    @scroll="handleScroll"
-  >
-    <div
-      class="virtual-scroller-content"
-      :style="contentStyles"
-    >
+  <div ref="containerRef" class="virtual-scroller" :style="{ height: `${containerHeight}px` }" @scroll="handleScroll">
+    <div class="virtual-scroller-content" :style="contentStyles">
       <div
         class="virtual-scroller-viewport"
         :class="{ 'is-grid': isGridMode, 'is-list': !isGridMode }"
@@ -16,14 +8,15 @@
       >
         <div
           v-for="realIndex in visibleIndexes"
-          :key="itemsRef[realIndex] && itemsRef[realIndex][props.keyField || 'id'] ? itemsRef[realIndex][props.keyField || 'id'] : realIndex"
+          :key="
+            itemsRef[realIndex] && itemsRef[realIndex][props.keyField || 'id']
+              ? itemsRef[realIndex][props.keyField || 'id']
+              : realIndex
+          "
           class="virtual-scroller-item"
           :style="itemStyle"
         >
-          <slot
-            :item="itemsRef[realIndex]"
-            :index="realIndex"
-          />
+          <slot :item="itemsRef[realIndex]" :index="realIndex" />
         </div>
       </div>
     </div>
@@ -36,29 +29,35 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useVirtualGrid } from '@/hooks/useVirtualGrid'
 
 type Item = any
-interface Breakpoint { min: number; cols: number }
+interface Breakpoint {
+  min: number
+  cols: number
+}
 
-const props = withDefaults(defineProps<{
-  items: Item[]
-  itemHeight: number
-  height?: number
-  gridItems?: number
-  gridBreakpoints?: Breakpoint[]
-  bufferFactor?: number
-  pageMode?: boolean
-  keyField?: string
-  itemPadding?: number
-  viewMode?: 'list' | 'grid'
-}>(), {
-  height: 400,
-  gridItems: 1,
-  gridBreakpoints: () => [],
-  bufferFactor: 0.5,
-  pageMode: false,
-  keyField: 'id',
-  itemPadding: 0,
-  viewMode: 'grid'
-})
+const props = withDefaults(
+  defineProps<{
+    items: Item[]
+    itemHeight: number
+    height?: number
+    gridItems?: number
+    gridBreakpoints?: Breakpoint[]
+    bufferFactor?: number
+    pageMode?: boolean
+    keyField?: string
+    itemPadding?: number
+    viewMode?: 'list' | 'grid'
+  }>(),
+  {
+    height: 400,
+    gridItems: 1,
+    gridBreakpoints: () => [],
+    bufferFactor: 0.5,
+    pageMode: false,
+    keyField: 'id',
+    itemPadding: 0,
+    viewMode: 'grid'
+  }
+)
 
 const containerRef = ref<HTMLElement | null>(null)
 const containerHeight = ref<number>(props.pageMode ? 0 : props.height)
@@ -66,14 +65,22 @@ const containerWidth = ref<number>(0)
 const parentScrollListeners = ref<HTMLElement[]>([])
 
 const itemsRef = ref<Item[]>(props.items)
-watch(() => props.items, v => { itemsRef.value = v })
-
-const localViewMode = ref< 'list' | 'grid'>(props.viewMode)
-watch(() => props.viewMode, v => { localViewMode.value = v })
-
-const sortedBreakpoints = computed<Breakpoint[]>(() =>
-  [...props.gridBreakpoints].sort((a, b) => a.min - b.min)
+watch(
+  () => props.items,
+  v => {
+    itemsRef.value = v
+  }
 )
+
+const localViewMode = ref<'list' | 'grid'>(props.viewMode)
+watch(
+  () => props.viewMode,
+  v => {
+    localViewMode.value = v
+  }
+)
+
+const sortedBreakpoints = computed<Breakpoint[]>(() => [...props.gridBreakpoints].sort((a, b) => a.min - b.min))
 
 const isForcedList = computed(() => localViewMode.value === 'list')
 
@@ -92,19 +99,14 @@ const effectiveCols = computed<number>(() => {
 
 const isGridMode = computed(() => effectiveCols.value > 1)
 
-const {
-  gridCalculations,
-  visibleIndexes,
-  viewportOffset,
-  updateScrollTop,
-  scrollToItem, scrollToTop, scrollToBottom
-} = useVirtualGrid({
-  items: itemsRef,
-  itemHeight: props.itemHeight,
-  containerHeight,
-  gridItems: effectiveCols,
-  bufferFactor: props.bufferFactor
-})
+const { gridCalculations, visibleIndexes, viewportOffset, updateScrollTop, scrollToItem, scrollToTop, scrollToBottom } =
+  useVirtualGrid({
+    items: itemsRef,
+    itemHeight: props.itemHeight,
+    containerHeight,
+    gridItems: effectiveCols,
+    bufferFactor: props.bufferFactor
+  })
 
 const contentStyles = computed(() => ({
   height: `${gridCalculations.value.totalHeight}px`
@@ -122,19 +124,15 @@ const viewportStyle = computed(() => {
   return base
 })
 
-const itemStyle = computed(() =>
-  isGridMode.value
-    ? {}
-    : { height: `${props.itemHeight}px` }
-)
+const itemStyle = computed(() => (isGridMode.value ? {} : { height: `${props.itemHeight}px` }))
 
-function handleScroll () {
+function handleScroll() {
   const c = containerRef.value
   if (!c) return
   updateScrollTop(c.scrollTop)
 }
 
-function handlePageScroll () {
+function handlePageScroll() {
   if (!props.pageMode) return
   const now = Date.now()
   if (now - lastScrollTime.value < 16) return
@@ -159,7 +157,7 @@ function handlePageScroll () {
 let ro: ResizeObserver | null = null
 const lastScrollTime = ref(0)
 
-function updateContainerMetrics () {
+function updateContainerMetrics() {
   const el = containerRef.value
   if (!el) return
   const rect = el.getBoundingClientRect()
@@ -206,16 +204,18 @@ onBeforeUnmount(() => {
   }
 })
 
-function scrollTo (index: number) { scrollToItem(index) }
+function scrollTo(index: number) {
+  scrollToItem(index)
+}
 
-function setViewMode (mode: 'list' | 'grid') {
+function setViewMode(mode: 'list' | 'grid') {
   localViewMode.value = mode
 }
-function toggleViewMode () {
+function toggleViewMode() {
   setViewMode(isGridMode.value ? 'list' : 'grid')
 }
 
-function refresh () {
+function refresh() {
   updateContainerMetrics()
   if (containerRef.value) {
     updateScrollTop(containerRef.value.scrollTop)
@@ -266,5 +266,4 @@ defineExpose({ scrollTo, scrollToTop, scrollToBottom, setViewMode, toggleViewMod
 .virtual-scroller-viewport.is-grid .virtual-scroller-item {
   width: 100%;
 }
-
 </style>

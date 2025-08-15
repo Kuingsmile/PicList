@@ -26,7 +26,7 @@ const getAListToken = async (url: string, username: string, password: string) =>
 }
 
 export default class AListplistApi {
-  static async delete (configMap: IConfigMap): Promise<boolean> {
+  static async delete(configMap: IConfigMap): Promise<boolean> {
     const { fileName, config } = configMap
     try {
       const { url, username, password, uploadPath } = config

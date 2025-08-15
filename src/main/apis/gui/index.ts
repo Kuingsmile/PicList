@@ -8,7 +8,16 @@ import { BrowserWindow, dialog, ipcMain, IpcMainEvent, MessageBoxOptions, Notifi
 import fs from 'fs-extra'
 import { cloneDeep } from 'lodash-es'
 
-import type { IGuiApi, ImgInfo, IShowFileExplorerOption, IShowInputBoxOption, IShowMessageBoxOption, IShowMessageBoxResult, IShowNotificationOption, IUploadOption } from '#/types/types'
+import type {
+  IGuiApi,
+  ImgInfo,
+  IShowFileExplorerOption,
+  IShowInputBoxOption,
+  IShowMessageBoxOption,
+  IShowMessageBoxResult,
+  IShowNotificationOption,
+  IUploadOption
+} from '#/types/types'
 import { SHOW_INPUT_BOX } from '~/events/constant'
 import { T as $t } from '~/i18n'
 import { handleCopyUrl } from '~/utils/common'
@@ -21,18 +30,18 @@ class GuiApi implements IGuiApi {
   private static instance: GuiApi
   private windowId: number = -1
   private settingWindowId: number = -1
-  private constructor () {
+  private constructor() {
     console.log('init guiapi')
   }
 
-  static getInstance (): GuiApi {
+  static getInstance(): GuiApi {
     if (!GuiApi.instance) {
       GuiApi.instance = new GuiApi()
     }
     return GuiApi.instance
   }
 
-  private async showSettingWindow () {
+  private async showSettingWindow() {
     this.settingWindowId = await getSettingWindowId()
     const settingWindow = BrowserWindow.fromId(this.settingWindowId)
     if (settingWindow?.isVisible()) {
@@ -46,11 +55,11 @@ class GuiApi implements IGuiApi {
     })
   }
 
-  private getWebcontentsByWindowId (id: number) {
+  private getWebcontentsByWindowId(id: number) {
     return BrowserWindow.fromId(id)?.webContents
   }
 
-  async showInputBox (
+  async showInputBox(
     options: IShowInputBoxOption = {
       title: '',
       placeholder: ''
@@ -65,13 +74,13 @@ class GuiApi implements IGuiApi {
     })
   }
 
-  async showFileExplorer (options: IShowFileExplorerOption = {}) {
+  async showFileExplorer(options: IShowFileExplorerOption = {}) {
     this.windowId = await getWindowId()
     const res = await dialog.showOpenDialog(BrowserWindow.fromId(this.windowId)!, options)
     return res.filePaths || []
   }
 
-  async upload (input: IUploadOption) {
+  async upload(input: IUploadOption) {
     this.windowId = await getWindowId()
     const webContents = this.getWebcontentsByWindowId(this.windowId)
     const rawInput = cloneDeep(input)
@@ -122,7 +131,7 @@ class GuiApi implements IGuiApi {
     return []
   }
 
-  showNotification (
+  showNotification(
     options: IShowNotificationOption = {
       title: '',
       body: ''
@@ -135,7 +144,7 @@ class GuiApi implements IGuiApi {
     notification.show()
   }
 
-  showMessageBox (
+  showMessageBox(
     options: IShowMessageBoxOption = {
       title: '',
       message: '',
@@ -159,7 +168,7 @@ class GuiApi implements IGuiApi {
   /**
    * get picgo config/data path
    */
-  async getConfigPath () {
+  async getConfigPath() {
     const currentConfigPath = dbPathChecker()
     const galleryDBPath = getGalleryDBPath().dbPath
     return {
@@ -169,12 +178,12 @@ class GuiApi implements IGuiApi {
     }
   }
 
-  get galleryDB (): DBStore {
+  get galleryDB(): DBStore {
     return new Proxy<DBStore>(GalleryDB.getInstance(), {
-      get (target, prop: keyof DBStore) {
+      get(target, prop: keyof DBStore) {
         if (prop === 'overwrite') {
           return new Proxy(GalleryDB.getInstance().overwrite, {
-            apply (target, ctx, args) {
+            apply(target, ctx, args) {
               return new Promise(resolve => {
                 const guiApi = GuiApi.getInstance()
                 guiApi
@@ -197,7 +206,7 @@ class GuiApi implements IGuiApi {
         }
         if (prop === 'removeById') {
           return new Proxy(GalleryDB.getInstance().removeById, {
-            apply (target, ctx, args) {
+            apply(target, ctx, args) {
               return new Promise(resolve => {
                 const guiApi = GuiApi.getInstance()
                 guiApi

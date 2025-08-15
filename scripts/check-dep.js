@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { run } from 'npm-check-updates'
 
-async function getRepositoryInfo (packageName) {
+async function getRepositoryInfo(packageName) {
   try {
     const { data } = await axios.get(`https://registry.npmjs.org/${packageName}`)
     const repository = data.repository
@@ -17,7 +17,7 @@ async function getRepositoryInfo (packageName) {
   return null
 }
 
-async function checkUpdates () {
+async function checkUpdates() {
   const updated = await run({
     packageFile: './package.json',
     upgrade: false

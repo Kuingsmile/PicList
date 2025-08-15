@@ -13,7 +13,7 @@ const configPath = dbPathChecker()
 const CONFIG_DIR = path.dirname(configPath)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-function beforeOpen () {
+function beforeOpen() {
   if (process.platform === 'darwin') {
     resolveMacWorkFlow()
   }
@@ -21,7 +21,7 @@ function beforeOpen () {
   resolveOtherI18nFiles()
 }
 
-function copyFileOutsideOfElectronAsar (sourceInAsarArchive: string, destOutsideAsarArchive: string) {
+function copyFileOutsideOfElectronAsar(sourceInAsarArchive: string, destOutsideAsarArchive: string) {
   if (fs.existsSync(sourceInAsarArchive)) {
     // file will be copied
     if (fs.statSync(sourceInAsarArchive).isFile()) {
@@ -45,16 +45,21 @@ function copyFileOutsideOfElectronAsar (sourceInAsarArchive: string, destOutside
 /**
  * macOS 右键菜单
  */
-function resolveMacWorkFlow () {
+function resolveMacWorkFlow() {
   const dest = `${os.homedir()}/Library/Services/Upload pictures with PicList.workflow`
   try {
-    copyFileOutsideOfElectronAsar(path.join(__dirname, '../../resources', 'Upload pictures with PicList.workflow').replace('app.asar', 'app.asar.unpacked'), dest)
+    copyFileOutsideOfElectronAsar(
+      path
+        .join(__dirname, '../../resources', 'Upload pictures with PicList.workflow')
+        .replace('app.asar', 'app.asar.unpacked'),
+      dest
+    )
   } catch (e) {
     console.log(e)
   }
 }
 
-function diffFilesAndUpdate (filePath1: string, filePath2: string) {
+function diffFilesAndUpdate(filePath1: string, filePath2: string) {
   try {
     const file1 = fs.existsSync(filePath1) && fs.readFileSync(filePath1)
     const file2 = fs.existsSync(filePath1) && fs.readFileSync(filePath2)
@@ -71,7 +76,7 @@ function diffFilesAndUpdate (filePath1: string, filePath2: string) {
 /**
  * 初始化剪贴板生成图片的脚本
  */
-function resolveClipboardImageGenerator () {
+function resolveClipboardImageGenerator() {
   const clipboardFiles = getClipboardFiles()
   if (!fs.pathExistsSync(path.join(CONFIG_DIR, 'windows10.ps1'))) {
     clipboardFiles.forEach(item => {
@@ -84,7 +89,7 @@ function resolveClipboardImageGenerator () {
     })
   }
 
-  function getClipboardFiles () {
+  function getClipboardFiles() {
     const files = ['linux.sh', 'mac.applescript', 'windows.ps1', 'windows10.ps1', 'wsl.sh']
 
     return files.map(item => {
@@ -99,7 +104,7 @@ function resolveClipboardImageGenerator () {
 /**
  * 初始化其他语言文件
  */
-function resolveOtherI18nFiles () {
+function resolveOtherI18nFiles() {
   const i18nFolder = path.join(CONFIG_DIR, 'i18n')
   if (!fs.pathExistsSync(i18nFolder)) {
     fs.mkdirSync(i18nFolder)

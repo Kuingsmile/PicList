@@ -1,7 +1,13 @@
 import picgo from '@core/picgo'
 import { v4 as uuid } from 'uuid'
 
-import type { IPicGoPluginConfig, IPicGoPluginOriginConfig, IStringKeyMap, IUploaderConfigItem, IUploaderConfigListItem } from '#/types/types'
+import type {
+  IPicGoPluginConfig,
+  IPicGoPluginOriginConfig,
+  IStringKeyMap,
+  IUploaderConfigItem,
+  IUploaderConfigListItem
+} from '#/types/types'
 import { setTrayToolTip, trimValues } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 

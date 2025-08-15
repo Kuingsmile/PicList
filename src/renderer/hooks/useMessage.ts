@@ -11,7 +11,7 @@ interface MessageService {
 
 const messageServiceRef = ref<MessageService | null>(null)
 
-export function useMessage () {
+export function useMessage() {
   const setMessageService = (service: MessageService) => {
     messageServiceRef.value = service
   }

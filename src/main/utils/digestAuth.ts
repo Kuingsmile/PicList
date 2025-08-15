@@ -8,11 +8,11 @@ const AUTH_KEY_VALUE_RE = /(\w+)=["']?([^'"]{1,10000})["']?/
 let NC = 0
 const NC_PAD = '00000000'
 
-function md5 (text: crypto.BinaryLike) {
+function md5(text: crypto.BinaryLike) {
   return crypto.createHash('md5').update(text).digest('hex')
 }
 
-export function digestAuthHeader (
+export function digestAuthHeader(
   method: string,
   uri: string,
   wwwAuthenticate: string,
@@ -70,7 +70,7 @@ export function digestAuthHeader (
   return authstring
 }
 
-export async function getAuthHeader (method: string, host: string, uri: string, username: string, password: string) {
+export async function getAuthHeader(method: string, host: string, uri: string, username: string, password: string) {
   try {
     await axios.get(`${host}${uri}`)
   } catch (error: any) {

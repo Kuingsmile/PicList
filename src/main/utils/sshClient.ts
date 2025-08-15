@@ -11,19 +11,19 @@ class SSHClient {
   private static _client: NodeSSH
   private _isConnected = false
 
-  static get instance (): SSHClient {
+  static get instance(): SSHClient {
     return this._instance || (this._instance = new this())
   }
 
-  static get client (): NodeSSH {
+  static get client(): NodeSSH {
     return this._client || (this._client = new NodeSSH())
   }
 
-  private changeWinStylePathToUnix (path: string): string {
+  private changeWinStylePathToUnix(path: string): string {
     return path.replace(/\\/g, '/')
   }
 
-  async connect (config: ISftpPlistConfig): Promise<boolean> {
+  async connect(config: ISftpPlistConfig): Promise<boolean> {
     const { username, password, privateKey, passphrase } = config
     const loginInfo: Config = privateKey
       ? {
@@ -45,7 +45,7 @@ class SSHClient {
     }
   }
 
-  async deleteFileSFTP (config: ISftpPlistConfig, remote: string): Promise<boolean> {
+  async deleteFileSFTP(config: ISftpPlistConfig, remote: string): Promise<boolean> {
     try {
       const client = new Client()
       const { username, password, privateKey, passphrase } = config
@@ -92,17 +92,17 @@ class SSHClient {
     }
   }
 
-  private async exec (script: string): Promise<boolean> {
+  private async exec(script: string): Promise<boolean> {
     const execResult = await SSHClient.client.execCommand(script)
     return execResult.code === 0
   }
 
-  async execCommand (script: string): Promise<SSHExecCommandResponse> {
+  async execCommand(script: string): Promise<SSHExecCommandResponse> {
     const execResult = await SSHClient.client.execCommand(script)
     return execResult || { code: 1, stdout: '', stderr: '' }
   }
 
-  async getFile (local: string, remote: string): Promise<boolean> {
+  async getFile(local: string, remote: string): Promise<boolean> {
     if (!this._isConnected) {
       throw new Error('SSH 未连接')
     }
@@ -119,7 +119,7 @@ class SSHClient {
     }
   }
 
-  async putFile (
+  async putFile(
     local: string,
     remote: string,
     config: {
@@ -146,7 +146,7 @@ class SSHClient {
     }
   }
 
-  async mkdir (
+  async mkdir(
     dirPath: string,
     config: {
       dirMode?: string
@@ -181,11 +181,11 @@ class SSHClient {
     }
   }
 
-  get isConnected (): boolean {
+  get isConnected(): boolean {
     return SSHClient.client.isConnected()
   }
 
-  close (): void {
+  close(): void {
     SSHClient.client.dispose()
     this._isConnected = false
   }

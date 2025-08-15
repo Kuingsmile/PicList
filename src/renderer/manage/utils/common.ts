@@ -16,30 +16,30 @@ export const isUrlEncode = (url: string): boolean => {
 
 export const handleUrlEncode = (url: string): string => (isUrlEncode(url) ? url : encodeURI(url))
 
-export function randomStringGenerator (length: number): string {
+export function randomStringGenerator(length: number): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   return Array.from({ length })
     .map(() => chars.charAt(Math.floor(Math.random() * chars.length)))
     .join('')
 }
 
-export function renameFileNameWithTimestamp (oldName: string): string {
+export function renameFileNameWithTimestamp(oldName: string): string {
   return `${Math.floor(Date.now() / 1000)}${randomStringGenerator(5)}${window.node.path.extname(oldName)}`
 }
 
-export function renameFileNameWithRandomString (oldName: string, length: number = 5): string {
+export function renameFileNameWithRandomString(oldName: string, length: number = 5): string {
   return `${randomStringGenerator(length)}${window.node.path.extname(oldName)}`
 }
 
-function renameFormatHelper (num: number): string {
+function renameFormatHelper(num: number): string {
   return num.toString().length === 1 ? `0${num}` : num.toString()
 }
 
-function getMd5 (input: any): string {
+function getMd5(input: any): string {
   return window.node.crypto.createHash('md5').update(input).digest('hex')
 }
 
-export function renameFileNameWithCustomString (oldName: string, customFormat: string, affixFileName?: string): string {
+export function renameFileNameWithCustomString(oldName: string, customFormat: string, affixFileName?: string): string {
   const date = new Date()
   const year = date.getFullYear().toString()
   const fileBaseName = window.node.path.basename(oldName, window.node.path.extname(oldName))
@@ -80,7 +80,7 @@ export function renameFileNameWithCustomString (oldName: string, customFormat: s
   return newName
 }
 
-export function renameFile (
+export function renameFile(
   { timestampRename, randomStringRename, customRename, customRenameFormat }: IStringKeyMap,
   oldName = ''
 ): string {
@@ -96,7 +96,7 @@ export function renameFile (
   }
 }
 
-export async function formatLink (url: string, fileName: string, type: string, format?: string): Promise<string> {
+export async function formatLink(url: string, fileName: string, type: string, format?: string): Promise<string> {
   const encodedUrl = (await getConfig('settings.isEncodeUrl')) ? handleUrlEncode(url) : url
   switch (type) {
     case 'markdown':
@@ -119,27 +119,27 @@ export async function formatLink (url: string, fileName: string, type: string, f
   }
 }
 
-export function getFileIconPath (fileName: string) {
+export function getFileIconPath(fileName: string) {
   const ext = window.node.path.extname(fileName).slice(1).toLowerCase()
   return availableIconList.includes(ext) ? `${ext}.webp` : 'unknown.webp'
 }
 
 const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
 
-export function formatFileSize (size: number) {
+export function formatFileSize(size: number) {
   if (size === 0) return ''
   const index = Math.floor(Math.log2(size) / 10)
   return `${(size / Math.pow(2, index * 10)).toFixed(2)} ${units[index]}`
 }
 
-export function formatFileName (fileName: string, length: number = 20) {
+export function formatFileName(fileName: string, length: number = 20) {
   let ext = window.node.path.extname(fileName)
   ext = ext.length > 5 ? ext.slice(ext.length - 5) : ext
   const name = window.node.path.basename(fileName, ext)
   return isNeedToShorten(fileName, length) ? `${safeSliceF(name, length - 3 - ext.length)}...${ext}` : fileName
 }
 
-export function formObjToTableData (obj: any) {
+export function formObjToTableData(obj: any) {
   const exclude = [undefined, null, '', 'transformedConfig']
   return Object.keys(obj)
     .filter(key => !exclude.includes(obj[key]))
@@ -150,7 +150,7 @@ export function formObjToTableData (obj: any) {
     .sort((a, b) => a.key.localeCompare(b.key))
 }
 
-export function isValidUrl (str: string) {
+export function isValidUrl(str: string) {
   try {
     return !!new URL(str)
   } catch (e) {
@@ -169,7 +169,7 @@ export const svg = `
   " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
   `
 
-export function customStrMatch (str: string, pattern: string): boolean {
+export function customStrMatch(str: string, pattern: string): boolean {
   if (!str || !pattern) return false
   try {
     const reg = new RegExp(pattern, 'ug')
@@ -180,7 +180,7 @@ export function customStrMatch (str: string, pattern: string): boolean {
   }
 }
 
-export function customStrReplace (str: string, pattern: string, replacement: string): string {
+export function customStrReplace(str: string, pattern: string, replacement: string): string {
   if (!str || !pattern) return str
   replacement = replacement || ''
   let result = str

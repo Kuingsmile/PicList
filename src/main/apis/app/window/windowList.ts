@@ -28,7 +28,7 @@ const getDefaultWindowSizes = (): { width: number; height: number } => {
   }
 }
 
-function setMiniWindowShape (win: BrowserWindow) {
+function setMiniWindowShape(win: BrowserWindow) {
   const radius = 32
   const shape: Rectangle[] = []
 
@@ -177,7 +177,7 @@ windowList.set(IWindowList.TRAY_WINDOW, {
   isValid: process.platform !== 'linux',
   multiple: false,
   options: () => trayWindowOptions,
-  callback (window) {
+  callback(window) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(process.env.ELECTRON_RENDERER_URL)
     } else {
@@ -193,7 +193,7 @@ windowList.set(IWindowList.SETTING_WINDOW, {
   isValid: true,
   multiple: false,
   options: () => settingWindowOptions,
-  callback (window, windowManager) {
+  callback(window, windowManager) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#main-page/upload`)
     } else {
@@ -218,7 +218,7 @@ windowList.set(IWindowList.MINI_WINDOW, {
   isValid: process.platform !== 'darwin',
   multiple: false,
   options: () => miniWindowOptions,
-  callback (window) {
+  callback(window) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#mini-page`)
     } else {
@@ -234,7 +234,7 @@ windowList.set(IWindowList.RENAME_WINDOW, {
   isValid: true,
   multiple: true,
   options: () => renameWindowOptions,
-  async callback (window, windowManager) {
+  async callback(window, windowManager) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#rename-page`)
     } else {
@@ -256,7 +256,7 @@ windowList.set(IWindowList.TOOLBOX_WINDOW, {
   isValid: true,
   multiple: false,
   options: () => toolboxWindowOptions,
-  async callback (window, windowManager) {
+  async callback(window, windowManager) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#toolbox-page`)
     } else {

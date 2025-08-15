@@ -6,13 +6,14 @@
         <div class="setting-section">
           <div class="form-group">
             <div class="form-control">
-              <button
-                type="button"
-                class="action-button warning"
-                @click="handleConfirmClearDb"
-              >
+              <button type="button" class="action-button warning" @click="handleConfirmClearDb">
                 <Trash2Icon :size="16" />
-                {{ t('pages.manage.setting.clearCache', { percent: dbSizeAvailableRate, size: formatFileSize(dbSize) || 0 }) }}
+                {{
+                  t('pages.manage.setting.clearCache', {
+                    percent: dbSizeAvailableRate,
+                    size: formatFileSize(dbSize) || 0
+                  })
+                }}
               </button>
             </div>
           </div>
@@ -38,10 +39,7 @@
     </div>
 
     <!-- Custom Rename Pattern Card -->
-    <div
-      v-if="form.customRename"
-      class="setting-card content-card"
-    >
+    <div v-if="form.customRename" class="setting-card content-card">
       <div class="card-content">
         <div class="setting-section">
           <div class="section-header">
@@ -55,7 +53,7 @@
               type="text"
               class="form-input"
               :placeholder="t('pages.manage.setting.customRenameTablePlaceholder')"
-            >
+            />
           </div>
 
           <!-- Pattern Reference Table -->
@@ -70,21 +68,12 @@
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="(row, index) in customRenameFormatTable"
-                  :key="index"
-                >
-                  <td
-                    class="clickable"
-                    @click="handleCellClick(row, { property: 'placeholder' })"
-                  >
+                <tr v-for="(row, index) in customRenameFormatTable" :key="index">
+                  <td class="clickable" @click="handleCellClick(row, { property: 'placeholder' })">
                     {{ row.placeholder }}
                   </td>
                   <td>{{ row.description }}</td>
-                  <td
-                    class="clickable"
-                    @click="handleCellClick(row, { property: 'placeholderB' })"
-                  >
+                  <td class="clickable" @click="handleCellClick(row, { property: 'placeholderB' })">
                     {{ row.placeholderB }}
                   </td>
                   <td>{{ row.descriptionB }}</td>
@@ -132,7 +121,7 @@
                 min="1"
                 max="9999"
                 step="1"
-              >
+              />
             </div>
           </div>
 
@@ -151,7 +140,7 @@
                 :placeholder="t('pages.manage.setting.preSignedUrlExpireDesc')"
                 min="1"
                 step="1"
-              >
+              />
             </div>
           </div>
         </div>
@@ -168,17 +157,8 @@
             </h4>
           </div>
           <div class="radio-group">
-            <label
-              v-for="item in pasteFormatList"
-              :key="item"
-              class="radio-option"
-            >
-              <input
-                v-model="form.pasteFormat"
-                type="radio"
-                :value="item"
-                class="radio-input"
-              >
+            <label v-for="item in pasteFormatList" :key="item" class="radio-option">
+              <input v-model="form.pasteFormat" type="radio" :value="item" class="radio-input" />
               <span class="radio-custom" />
               <span class="radio-text">
                 {{ t(`pages.manage.setting.copyFormat.${item}`) }}
@@ -187,9 +167,7 @@
           </div>
 
           <!-- Custom Copy Format -->
-          <div
-            class="form-group"
-          >
+          <div class="form-group">
             <div class="form-label-wrapper">
               <span class="form-label">
                 {{ t('pages.manage.setting.copyFormat.customTitle') }}
@@ -200,7 +178,7 @@
               type="text"
               class="form-input"
               :placeholder="t('pages.manage.setting.copyFormat.customTips')"
-            >
+            />
           </div>
         </div>
       </div>
@@ -223,12 +201,8 @@
                 class="form-input group-input"
                 disabled
                 :placeholder="t('pages.manage.setting.defaultDownloadFolder')"
-              >
-              <button
-                type="button"
-                class="input-append-button"
-                @click="handleDownloadDirClick"
-              >
+              />
+              <button type="button" class="input-append-button" @click="handleDownloadDirClick">
                 <FolderIcon :size="16" />
                 {{ t('pages.manage.setting.browse') }}
               </button>
@@ -316,12 +290,8 @@ const switchFieldsConfigList = switchFieldsList.map(item => ({
     }
   ],
   tooltip: switchFieldsNoTipsList.includes(item) ? undefined : t(`pages.manage.setting.${item}Tips` as any),
-  activeText: switchFieldsHasActiveTextList.includes(item)
-    ? t(`pages.manage.setting.${item}On` as any)
-    : undefined,
-  inactiveText: switchFieldsHasActiveTextList.includes(item)
-    ? t(`pages.manage.setting.${item}Off` as any)
-    : undefined
+  activeText: switchFieldsHasActiveTextList.includes(item) ? t(`pages.manage.setting.${item}On` as any) : undefined,
+  inactiveText: switchFieldsHasActiveTextList.includes(item) ? t(`pages.manage.setting.${item}Off` as any) : undefined
 }))
 
 const switchFieldsSpecialList = [
@@ -363,14 +333,14 @@ const switchFieldsSpecialList = [
   }
 ]
 
-async function initData () {
+async function initData() {
   const config = (await getConfig()) as IStringKeyMap
   settingsKeys.forEach(key => {
     form.value[key] = config.settings[key] ?? form.value[key]
   })
 }
 
-async function handleDownloadDirClick () {
+async function handleDownloadDirClick() {
   const result = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_SELECT_DOWNLOAD_FOLDER)
   if (result) {
     form.value.downloadDir = result
@@ -382,7 +352,7 @@ const handleCellClick = (row: any, column: any) => {
   message.success(`${t('pages.manage.setting.copySuccess', { name: row[column.property] })}`)
 }
 
-function handleConfirmClearDb () {
+function handleConfirmClearDb() {
   confirm({
     title: t('pages.manage.setting.notice'),
     message: t('pages.manage.setting.clearCacheMsg'),
@@ -397,7 +367,7 @@ function handleConfirmClearDb () {
   })
 }
 
-function confirmClearDb () {
+function confirmClearDb() {
   fileCacheDbInstance
     .delete()
     .then(() => {
@@ -409,7 +379,7 @@ function confirmClearDb () {
     })
 }
 
-async function getIndexDbSize () {
+async function getIndexDbSize() {
   const size = (await navigator.storage.estimate()).usage ?? 0
   const quota = (await navigator.storage.estimate()).quota ?? 0
   dbSize.value = size

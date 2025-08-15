@@ -1,9 +1,6 @@
 <template>
   <div class="image-container">
-    <div
-      v-if="isLoading"
-      class="loading-placeholder"
-    >
+    <div v-if="isLoading" class="loading-placeholder">
       <div class="loading-spinner" />
     </div>
     <img
@@ -13,13 +10,8 @@
       class="image"
       @load="handleImageLoad"
       @error="handleImageError"
-    >
-    <img
-      v-else
-      :src="iconPath"
-      alt=""
-      class="image"
-    >
+    />
+    <img v-else :src="iconPath" alt="" class="image" />
   </div>
 </template>
 
@@ -53,11 +45,15 @@ const imageSource = computed(() => {
 
 const iconPath = computed(() => `./assets/icons/${getFileIconPath(props.item.fileName ?? '')}`)
 
-async function getUrl () {
+async function getUrl() {
   try {
     isLoading.value = true
     hasError.value = false
-    preSignedUrl.value = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_GET_PRE_SIGNED_URL, props.alias, props.config)
+    preSignedUrl.value = await window.electron.triggerRPC<any>(
+      IRPCActionType.MANAGE_GET_PRE_SIGNED_URL,
+      props.alias,
+      props.config
+    )
     isLoading.value = false
   } catch (error) {
     console.error('Failed to get pre-signed URL:', error)
@@ -117,7 +113,11 @@ onMounted(getUrl)
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
