@@ -40,20 +40,22 @@
 
     <div class="nav-menu">
       <router-link
-        :to="navigationItems[0].path"
+        v-for="item in navigationItems.slice(0, 3)"
+        :key="item.path"
+        :to="item.path"
         class="nav-item"
-        :title="`${navigationItems[0].name}`"
+        :title="`${item.name}`"
       >
         <div class="nav-icon-container">
           <component
-            :is="navigationItems[0].icon"
+            :is="item.icon"
             :size="18"
           />
         </div>
         <span
           v-if="!isCollapsed"
           class="nav-label"
-        >{{ navigationItems[0].name }}</span>
+        >{{ item.name }}</span>
       </router-link>
 
       <Disclosure
@@ -88,6 +90,7 @@
         v-else
         class="nav-item collapsed-picbed"
         :title="t('navigation.picbed')"
+        @click="isCollapsed = !isCollapsed"
       >
         <div class="nav-icon-container">
           <DatabaseIcon :size="18" />
@@ -95,7 +98,7 @@
       </div>
 
       <router-link
-        v-for="item in navigationItems.slice(1)"
+        v-for="item in navigationItems.slice(3)"
         :key="item.path"
         :to="item.path"
         class="nav-item"

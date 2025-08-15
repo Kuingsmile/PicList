@@ -20,11 +20,13 @@ interface IProps {
 
 const props = defineProps<IProps>()
 </script>
+
 <script lang="ts">
 export default {
   name: 'ToolboxHandler'
 }
 </script>
+
 <style lang="stylus">
 .toolbox-handler {
   margin-top: 0.75rem;

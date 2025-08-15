@@ -956,7 +956,7 @@
       >
         <div class="drawer-header">
           <h3 class="drawer-title">
-            Upload Files
+            {{ t('pages.manage.bucket.uploadFile') }}
           </h3>
           <div class="switch-container">
             <label class="switch">

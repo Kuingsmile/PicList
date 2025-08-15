@@ -615,6 +615,7 @@
         "prepareDownload": "正在準備下載，點擊取消",
         "keepDirStructure": "保持目錄結構",
         "noKeepDirStructure": "不保持目錄結構",
+        "uploadFile": "上傳檔案",
         "dragUpload": "拖曳上傳 支援目錄",
         "clickUpload": "或: 點擊選擇檔案",
         "readingDir": "讀取中，請稍候",

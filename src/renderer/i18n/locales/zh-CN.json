@@ -615,6 +615,7 @@
         "prepareDownload": "准备下载中，点击取消",
         "keepDirStructure": "保持目录结构",
         "noKeepDirStructure": "不保持目录结构",
+        "uploadFile": "上传文件",
         "dragUpload": "拖拽上传 支持目录",
         "clickUpload": "或: 点击选择文件",
         "readingDir": "读取中，请稍候",

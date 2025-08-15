@@ -620,6 +620,7 @@
         "prepareDownload": "Preparing to download, click to cancel",
         "keepDirStructure": "Keep directory structure",
         "noKeepDirStructure": "Do not keep directory structure",
+        "uploadFile": "Upload File",
         "dragUpload": "Drag and drop upload supports directories",
         "clickUpload": "Or: Click to select files",
         "readingDir": "Reading, please wait",

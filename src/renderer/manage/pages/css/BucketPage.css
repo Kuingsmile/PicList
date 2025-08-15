@@ -862,7 +862,7 @@ input:checked + .switch-slider:before {
 /* Drawer */
 .drawer-overlay {
   position: fixed;
-  top: 0;
+  top: 32px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -873,7 +873,7 @@ input:checked + .switch-slider:before {
 }
 
 .drawer-container {
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   width: 60%;
   max-width: 800px;
   height: 100%;
