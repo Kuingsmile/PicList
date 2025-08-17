@@ -580,10 +580,10 @@ class S3plistApi {
     }
     try {
       await this.getDogeCloudToken()
+      const options = { ...this.baseOptions } as S3ClientConfig
+      options.region = String(region) || 'us-east-1'
+      const client = new S3Client(options)
       do {
-        const options = { ...this.baseOptions } as S3ClientConfig
-        options.region = String(region) || 'us-east-1'
-        const client = new S3Client(options)
         const command = new ListObjectsV2Command({
           Bucket: bucketName,
           Prefix: key,
@@ -604,21 +604,18 @@ class S3plistApi {
       } while (IsTruncated)
       if (allFileList.CommonPrefixes.length > 0) {
         for (const item of allFileList.CommonPrefixes) {
-          res = await this.deleteBucketFolder({
+          const deleteResult = await this.deleteBucketFolder({
             bucketName,
             region,
             key: item.Prefix
           })
-          if (!res) {
+          if (!deleteResult) {
             return result
           }
         }
       }
       if (allFileList.Contents.length > 0) {
         const cycle = Math.ceil(allFileList.Contents.length / 1000)
-        const options = { ...this.baseOptions } as S3ClientConfig
-        options.region = String(region) || 'us-east-1'
-        const client = new S3Client(options)
         for (let i = 0; i < cycle; i++) {
           const deleteList = allFileList.Contents.slice(i * 1000, (i + 1) * 1000)
           const deleteCommand = new DeleteObjectsCommand({
@@ -638,6 +635,11 @@ class S3plistApi {
           }
         }
       }
+      const deleteObjectCommand = new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: key
+      })
+      await client.send(deleteObjectCommand)
       result = true
       return result
     } catch (error) {
