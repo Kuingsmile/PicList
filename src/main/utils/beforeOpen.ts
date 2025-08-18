@@ -84,7 +84,6 @@ function resolveClipboardImageGenerator() {
     })
   } else {
     clipboardFiles.forEach(item => {
-      console.log(`Updating ${item.origin} to ${item.dest}`)
       diffFilesAndUpdate(item.origin, item.dest)
     })
   }

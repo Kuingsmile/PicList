@@ -1045,6 +1045,12 @@ function handleChooseImage(val: boolean, index: number) {
         const id = filterList.value[i].id!
         choosedList[id] = true
       }
+      try {
+        delete choosedList[currentItem.id!]
+        choosedList[currentItem.id!] = val
+      } catch (e) {
+        console.error(e)
+      }
     }
     lastChoosed.value = index
   }
