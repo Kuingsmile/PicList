@@ -910,7 +910,7 @@
             <div class="form-group">
               <label>{{ t('pages.settings.advanced.logLevel') }}</label>
               <select v-model="formOfSetting.logLevel" multiple class="form-select">
-                <option v-for="(value, key) of logLevel" :key="key" :value="key" :disabled="handleLevelDisabled(key)">
+                <option v-for="(value, key) of logLevel" :key="key" :value="key">
                   {{ value }}
                 </option>
               </select>
@@ -1808,27 +1808,6 @@ function confirmServerSetting() {
 async function cancelServerSetting() {
   serverVisible.value = false
   server.value = (await getConfig(configPaths.settings.server)) || { port: 36677, host: '0.0.0.0', enable: true }
-}
-
-function handleLevelDisabled(val: string) {
-  const currentLevel = val
-  let flagLevel
-  const result = formOfSetting.value.logLevel.some((item: string) => {
-    if (item === 'all' || item === 'none') {
-      flagLevel = item
-    }
-    return item === 'all' || item === 'none'
-  })
-  if (result) {
-    if (currentLevel !== flagLevel) {
-      return true
-    }
-  } else if (formOfSetting.value.logLevel.length > 0) {
-    if (val === 'all' || val === 'none') {
-      return true
-    }
-  }
-  return false
 }
 
 function handleLanguageChange(val: string) {
