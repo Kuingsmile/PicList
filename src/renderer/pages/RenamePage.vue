@@ -73,14 +73,6 @@ function validateFileName(fileName: string): string {
   if (!fileName.trim()) {
     return 'File name is required'
   }
-  const invalidChars = /[<>:"/\\|?*]/g
-  if (invalidChars.test(fileName)) {
-    return 'File name contains invalid characters'
-  }
-  const reservedNames = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i
-  if (reservedNames.test(fileName.trim())) {
-    return 'This is a reserved file name'
-  }
   return ''
 }
 
