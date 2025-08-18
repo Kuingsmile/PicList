@@ -22,18 +22,19 @@
     </div>
 
     <div class="nav-menu">
-      <router-link
+      <div
         v-for="item in navigationItems.slice(0, 3)"
         :key="item.path"
-        :to="item.path"
         class="nav-item"
+        :class="{ 'router-link-active': isPathActive(item.path) }"
         :title="`${item.name}`"
+        @click="navigateToPath(item.path)"
       >
         <div class="nav-icon-container">
           <component :is="item.icon" :size="18" />
         </div>
         <span v-if="!isCollapsed" class="nav-label">{{ item.name }}</span>
-      </router-link>
+      </div>
 
       <Disclosure v-if="!isCollapsed" v-slot="{ open }" as="div" class="nav-submenu">
         <DisclosureButton class="nav-item submenu-trigger">
@@ -44,14 +45,14 @@
           <ChevronDownIcon :size="16" class="submenu-arrow" :class="{ 'rotate-180': open }" />
         </DisclosureButton>
         <DisclosurePanel class="submenu-panel">
-          <router-link
+          <div
             v-for="item in visiblePicBeds"
             :key="item.type"
-            :to="{ name: routerConfig.UPLOADER_CONFIG_PAGE, params: { type: item.type } }"
             class="submenu-item"
+            @click="navigateToUploaderConfig(item.type)"
           >
             <span>{{ item.name }}</span>
-          </router-link>
+          </div>
         </DisclosurePanel>
       </Disclosure>
       <div v-else class="nav-item collapsed-picbed" :title="t('navigation.picbed')" @click="isCollapsed = !isCollapsed">
@@ -60,18 +61,19 @@
         </div>
       </div>
 
-      <router-link
+      <div
         v-for="item in navigationItems.slice(3)"
         :key="item.path"
-        :to="item.path"
         class="nav-item"
+        :class="{ 'router-link-active': isPathActive(item.path) }"
         :title="`${item.name}`"
+        @click="navigateToPath(item.path)"
       >
         <div class="nav-icon-container">
           <component :is="item.icon" :size="18" />
         </div>
         <span v-if="!isCollapsed" class="nav-label">{{ item.name }}</span>
-      </router-link>
+      </div>
     </div>
     <div class="sidebar-footer">
       <button class="footer-button" :title="t('navigation.moreOptions')" @click="openMenu">
@@ -190,6 +192,7 @@ import QrcodeVue from 'qrcode.vue'
 import pkg from 'root/package.json'
 import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 
 import useMessage from '@/hooks/useMessage'
 import * as config from '@/router/config'
@@ -203,6 +206,8 @@ const version = ref(pkg.version)
 const isCollapsed = ref(false)
 
 const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
 const message = useMessage()
 const routerConfig = reactive(config)
 const qrcodeVisible = ref(false)
@@ -243,6 +248,18 @@ function openMenu() {
 function handleCopyPicBedConfig() {
   window.electron.clipboard.writeText(picBedConfigString.value)
   message.success(t('navigation.copySuccess'))
+}
+
+function navigateToPath(path: string) {
+  router.push(path)
+}
+
+function navigateToUploaderConfig(type: string) {
+  router.push({ name: routerConfig.UPLOADER_CONFIG_PAGE, params: { type } })
+}
+
+function isPathActive(path: string): boolean {
+  return route.path === path
 }
 
 const navigationItems = computed(() => [
@@ -406,6 +423,7 @@ onBeforeUnmount(() => {
   font-size: 0.875rem;
   font-weight: 500;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .navigation.collapsed .nav-item {
@@ -555,6 +573,7 @@ onBeforeUnmount(() => {
   font-weight: 500;
   border-radius: 6px;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .submenu-item:hover {
