@@ -84,7 +84,7 @@
             <button
               class="action-button primary"
               :class="{ 'action-button': selectedItems.length === 0 }"
-              @click="handleBatchCopyLink(manageStore.config.settings.pasteFormat)"
+              @click="copyDropdownOpen = !copyDropdownOpen"
             >
               <CopyIcon class="action-icon" />
             </button>
@@ -417,27 +417,34 @@
                       </button>
 
                       <!-- Copy Link Dropdown -->
-                      <div class="file-actions-dropdown">
-                        <button class="file-action-button" @click.stop="toggleCopyDropdown(index)">
+                      <div class="file-actions-dropdown" :data-dropdown-index="index">
+                        <button class="file-action-button" @click.stop="toggleCopyDropdown(index, $event)">
                           <CopyIcon class="action-icon" />
                         </button>
-                        <div v-if="copyDropdownIndex === index" class="file-actions-dropdown-content">
+                        <teleport to="body">
                           <div
-                            v-for="format in linkFormatList"
-                            :key="format"
-                            class="file-actions-dropdown-item"
-                            @click.stop="copyLink(item, format)"
+                            v-if="copyDropdownIndex === index"
+                            class="file-actions-dropdown-content floating"
+                            :style="getDropdownStyle(index)"
+                            data-floating-dropdown
                           >
-                            {{ t(`pages.manage.bucket.linkFormat.${format}`) }}
+                            <div
+                              v-for="format in linkFormatList"
+                              :key="format"
+                              class="file-actions-dropdown-item"
+                              @click.stop="copyLink(item, format)"
+                            >
+                              {{ t(`pages.manage.bucket.linkFormat.${format}`) }}
+                            </div>
+                            <div
+                              v-if="isShowPresignedUrl"
+                              class="file-actions-dropdown-item"
+                              @click.stop="async () => copyToClipboard(await getPreSignedUrl(item))"
+                            >
+                              {{ t('pages.manage.bucket.linkFormat.presign') }}
+                            </div>
                           </div>
-                          <div
-                            v-if="isShowPresignedUrl"
-                            class="file-actions-dropdown-item"
-                            @click.stop="async () => copyToClipboard(await getPreSignedUrl(item))"
-                          >
-                            {{ t('pages.manage.bucket.linkFormat.presign') }}
-                          </div>
-                        </div>
+                        </teleport>
                       </div>
 
                       <!-- File Info -->
@@ -1246,6 +1253,7 @@ const isContentFullscreen = ref(false)
 const copyDropdownOpen = ref(false)
 const sortDropdownOpen = ref(false)
 const copyDropdownIndex = ref(-1)
+const dropdownPositions = ref(new Map<number, { left: boolean; up: boolean }>())
 const gridBreakpoints = ref([
   { min: 0, cols: 1 },
   { min: 380, cols: 2 },
@@ -2492,11 +2500,13 @@ function handleBatchCopyInfo() {
 
 async function copyLink(item: any, type: string) {
   copyToClipboard(await formatLink(item.url, item.fileName, type, manageStore.config.settings.customPasteFormat))
+  copyDropdownIndex.value = -1
 }
 
 async function handleBatchCopyLink(type: string) {
   if (!selectedItems.value.length) {
     message.warning(t('pages.manage.bucket.selectFileMsg'))
+    copyDropdownOpen.value = false
     return
   }
   const result = [] as string[]
@@ -2514,6 +2524,7 @@ async function handleBatchCopyLink(type: string) {
   }
   window.electron.clipboard.writeText(result.join('\n'))
   message.success(`${t('pages.manage.bucket.copySuccess')}`)
+  copyDropdownOpen.value = false
 }
 
 async function cancelLoading() {
@@ -2860,13 +2871,77 @@ async function getPreSignedUrl(item: any) {
 function copyToClipboard(text: string) {
   window.electron.clipboard.writeText(text)
   message.success(t('pages.manage.bucket.copySuccess'))
+  copyDropdownIndex.value = -1
 }
 
-function toggleCopyDropdown(index: number) {
+function toggleCopyDropdown(index: number, event?: MouseEvent) {
   if (copyDropdownIndex.value === index) {
     copyDropdownIndex.value = -1
   } else {
     copyDropdownIndex.value = index
+
+    if (event) {
+      const button = event.currentTarget as HTMLElement
+      const rect = button.getBoundingClientRect()
+      const viewportWidth = window.innerWidth
+      const viewportHeight = window.innerHeight
+
+      const container = bucketContainerRef.value?.$el || bucketContainerRef.value
+      const containerRect = container?.getBoundingClientRect()
+      const dropdownWidth = 160
+      const shouldShowLeft =
+        rect.right > viewportWidth - dropdownWidth ||
+        (containerRect && rect.right > containerRect.right - dropdownWidth)
+
+      const dropdownHeight = 200
+      const shouldShowUp =
+        rect.bottom > viewportHeight - dropdownHeight ||
+        (containerRect && rect.bottom > containerRect.bottom - dropdownHeight)
+
+      dropdownPositions.value.set(index, {
+        left: shouldShowLeft,
+        up: shouldShowUp,
+        x: rect.left,
+        y: rect.top,
+        width: rect.width,
+        height: rect.height
+      } as any)
+    }
+  }
+}
+
+function getDropdownStyle(index: number) {
+  const pos: any = dropdownPositions.value.get(index)
+  if (!pos) return { display: 'none' as const }
+  const estWidth = 180
+  const estHeight = 240
+  let left = pos.left ? pos.x + pos.width - estWidth : pos.x
+  let top = pos.up ? pos.y - estHeight : pos.y + pos.height
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  if (left + estWidth > vw - 4) left = vw - estWidth - 4
+  if (left < 4) left = 4
+  if (top + estHeight > vh - 4) top = vh - estHeight - 4
+  if (top < 4) top = 4
+  return {
+    position: 'fixed' as const,
+    left: left + 'px',
+    top: top + 'px',
+    maxHeight: '240px',
+    zIndex: 4000,
+    minWidth: '140px',
+    maxWidth: '200px'
+  }
+}
+
+function handleClickOutside(event: MouseEvent) {
+  const target = event.target as HTMLElement
+  if (!target.closest('.file-actions-dropdown') && !target.closest('[data-floating-dropdown]')) {
+    copyDropdownIndex.value = -1
+  }
+  if (!target.closest('.dropdown')) {
+    copyDropdownOpen.value = false
+    sortDropdownOpen.value = false
   }
 }
 
@@ -2910,11 +2985,13 @@ onBeforeMount(async () => {
   isShowLoadingPage.value = false
   document.addEventListener('keydown', handleDetectShiftKey)
   document.addEventListener('keyup', handleDetectShiftKey)
+  document.addEventListener('click', handleClickOutside)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleDetectShiftKey)
   document.removeEventListener('keyup', handleDetectShiftKey)
+  document.removeEventListener('click', handleClickOutside)
   fileTransferInterval && clearInterval(fileTransferInterval)
   downloadInterval && clearInterval(downloadInterval)
   refreshUploadTaskId.value && clearInterval(refreshUploadTaskId.value)
