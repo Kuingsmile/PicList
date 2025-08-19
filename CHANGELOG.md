@@ -1,3 +1,16 @@
+##  (2025-08-19)
+
+* :bug: Fix(custom): fix copy button dropdown ui 49e139f, closes #363
+* :bug: Fix(custom): fix copy item order issue 8df94c0, closes #386
+* :bug: Fix(custom): fix loglevel setting e5b35a0
+* :bug: Fix(custom): fix minipage css error 228b965, closes #369
+* :bug: Fix(custom): remove some filename validate rule 89bf29b, closes #366
+* :bug: Fix(custom): remove usage of router-link 6065002
+* :package: Chore(custom): update winget file 284f381
+* :pencil: Docs(custom): update changelog f775492
+
+
+
 ##  (2025-08-15)
 
 * :arrow_up: Upgrade(custom): upgrade electron 0ae27cf
