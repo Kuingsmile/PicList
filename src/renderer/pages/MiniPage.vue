@@ -203,8 +203,12 @@ export default {
 </script>
 
 <style lang="stylus">
+html, body, #app
+  background: transparent
 #mini-page
-  background #409EFF
+  background: #409EFF;
+  border-radius: 32px;
+  overflow: hidden;
   color #FFF
   height 100vh
   width 100vw
@@ -219,6 +223,7 @@ export default {
   border 4px solid #fff
   box-sizing border-box
   cursor pointer
+
   &.linux
     border-radius 0
     background-size 100vh 100vw
@@ -238,4 +243,10 @@ export default {
       background rgba(0,0,0,0.3)
   #file-uploader
     display none
+  #mini-page img
+    width 100%
+    height 100%
+    border-radius 50%
+    display block
+    image-rendering: -webkit-optimize-contrast
 </style>

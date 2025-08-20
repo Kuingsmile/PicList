@@ -28,7 +28,7 @@ const getDefaultWindowSizes = (): { width: number; height: number } => {
   }
 }
 
-function setMiniWindowShape(win: BrowserWindow) {
+export function setMiniWindowShape(win: BrowserWindow) {
   const radius = 32
   const shape: Rectangle[] = []
 
@@ -226,7 +226,6 @@ windowList.set(IWindowList.MINI_WINDOW, {
         hash: 'mini-page'
       })
     }
-    setMiniWindowShape(window)
   }
 })
 
