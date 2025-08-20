@@ -204,7 +204,7 @@
           <div class="dropdown">
             <button class="dropdown-button" @click="sortDropdownOpen = !sortDropdownOpen">
               <ArrowUpDownIcon class="action-icon" />
-              {{ t('pages.manage.bucket.sort.title') }}
+              {{ t(`pages.manage.bucket.sort.${currentSortType}`) }}
               <ChevronDownIcon class="action-icon" />
             </button>
             <div v-if="sortDropdownOpen" class="dropdown-content">
@@ -1236,6 +1236,7 @@ const linkFormatList = ['url', 'markdown', 'markdown-with-link', 'html', 'bbcode
 
 type ISortTypeList = 'name' | 'size' | 'time' | 'ext' | 'check' | 'init'
 const sortTypeList = ['name', 'size', 'time', 'ext', 'check', 'init']
+const currentSortType = ref<ISortTypeList>('name')
 
 // 路由相关
 const route = useRoute()
@@ -2065,6 +2066,7 @@ const handlePageNumberInput = (event: Event) => {
 }
 
 function sortFile(type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
+  currentSortType.value = type
   switch (type) {
     case 'name':
       localStorage.setItem('sortType', 'name')
