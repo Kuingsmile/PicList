@@ -274,7 +274,9 @@
         "sinkDomain": "Sink 域名",
         "sinkToken": "Sink Token",
         "encodeOutputUrl": "输出（复制） URL 时进行转义",
-        "chooseShowedPicBed": "请选择显示在菜单的图床"
+        "chooseShowedPicBed": "请选择显示在菜单的图床",
+        "galleryPicBedFilter": "相册图床过滤器",
+        "galleryPicBedFilterDescription": "选择在相册中显示的图床类型。如果未选择任何图床，将显示所有图床。"
       },
       "advanced": {
         "title": "高级",

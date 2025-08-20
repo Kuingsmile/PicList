@@ -531,6 +531,7 @@ const gallerySliderControl = reactive({
 const deleteCloud = ref<boolean>(false)
 const isAlwaysForceReload = ref<boolean>(false)
 const choosedPicBed = ref<string[]>([])
+const galleryPicBedFilterSetting = ref<string[]>([])
 const lastChoosed = ref<number>(-1)
 const isShiftKeyPress = ref<boolean>(false)
 const searchText = ref<string>('')
@@ -907,6 +908,7 @@ async function initConf() {
     : t('pages.gallery.longUrl')
   isAlwaysForceReload.value = (await getConfig<boolean>(configPaths.settings.isAlwaysForceReload)) || false
   deleteCloud.value = (await getConfig<boolean>(configPaths.settings.deleteCloudFile)) || false
+  galleryPicBedFilterSetting.value = (await getConfig<string[]>(configPaths.settings.galleryPicBedFilter)) || []
 }
 
 const updateGalleryHandler = () => {
@@ -949,7 +951,13 @@ function formatFileName(name: string) {
 }
 
 function getGallery(): IGalleryItem[] {
-  if (debouncedSearchText.value || choosedPicBed.value.length > 0 || debouncedSearchTextURL.value || dateRange.value) {
+  if (
+    debouncedSearchText.value ||
+    choosedPicBed.value.length > 0 ||
+    debouncedSearchTextURL.value ||
+    dateRange.value ||
+    galleryPicBedFilterSetting.value.length > 0
+  ) {
     return images.value
       .filter(item => {
         let isInChoosedPicBed = true
@@ -958,6 +966,8 @@ function getGallery(): IGalleryItem[] {
         let isIncludesDateRange = true
         if (choosedPicBed.value.length > 0) {
           isInChoosedPicBed = choosedPicBed.value.some(type => type === item.type)
+        } else if (galleryPicBedFilterSetting.value.length > 0) {
+          isInChoosedPicBed = galleryPicBedFilterSetting.value.some(type => type === item.type)
         }
         if (debouncedSearchText.value) {
           isIncludesSearchText = customStrMatch(item.fileName || '', debouncedSearchText.value)

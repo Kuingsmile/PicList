@@ -533,6 +533,19 @@
               </label>
             </div>
           </div>
+
+          <div class="settings-section">
+            <h2>{{ t('pages.settings.upload.galleryPicBedFilter') }}</h2>
+            <p>{{ t('pages.settings.upload.galleryPicBedFilterDescription') }}</p>
+
+            <div class="checkbox-group">
+              <label v-for="item in picBedGlobal" :key="`gallery-${item.name}`" class="checkbox-option">
+                <input v-model="galleryPicBedFilterList" type="checkbox" :value="item.type" class="checkbox-input" />
+                <span class="checkbox-indicator" />
+                <span class="checkbox-label">{{ item.name }}</span>
+              </label>
+            </div>
+          </div>
         </div>
 
         <!-- Advanced Settings Tab -->
@@ -1271,6 +1284,7 @@ const { confirm } = useConfirm()
 const message = useMessage()
 const activeName = ref<'system' | 'sync' | 'upload' | 'advanced' | 'update'>('system')
 const showPicBedList = ref<string[]>([])
+const galleryPicBedFilterList = ref<string[]>([])
 
 // Tab configuration
 const tabs = computed(() => [
@@ -1534,6 +1548,7 @@ async function initData() {
   const settings = config.settings || {}
   const picBed = config.picBed
   showPicBedList.value = picBedGlobal.value.filter(item => item.visible).map(item => item.name)
+  galleryPicBedFilterList.value = settings.galleryPicBedFilter || []
   formKeys.forEach(key => {
     ;(formOfSetting.value as any)[key] = settings[key] ?? formOfSetting.value[key]
   })
@@ -1665,10 +1680,18 @@ watch(showPicBedList, val => {
   handleShowPicBedListChange(val)
 })
 
+watch(galleryPicBedFilterList, val => {
+  handleGalleryPicBedFilterChange(val)
+})
+
 function handleShowPicBedListChange(val: ICheckBoxValueType[]) {
   const list = picBedGlobal.value.map(item => ({ ...item, visible: val.includes(item.name) }))
   saveConfig({ [configPaths.picBed.list]: list })
   updatePicBedGlobal()
+}
+
+function handleGalleryPicBedFilterChange(val: ICheckBoxValueType[]) {
+  saveConfig({ [configPaths.settings.galleryPicBedFilter]: val })
 }
 
 function handleAutoStartChange(val: ICheckBoxValueType) {

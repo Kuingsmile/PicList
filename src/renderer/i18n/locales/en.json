@@ -279,7 +279,9 @@
         "sinkDomain": "Sink Domain",
         "sinkToken": "Sink Token",
         "encodeOutputUrl": "Escape output (copy) URL",
-        "chooseShowedPicBed": "Please select the image bed to display in the menu"
+        "chooseShowedPicBed": "Please select the image bed to display in the menu",
+        "galleryPicBedFilter": "Gallery PicBed Filter",
+        "galleryPicBedFilterDescription": "Choose which picbeds to show in the gallery. If none are selected, all picbeds will be shown."
       },
       "advanced": {
         "title": "Advanced",

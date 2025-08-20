@@ -103,6 +103,7 @@ export interface IConfigStruct {
     autoStart: boolean
     autoImport: boolean
     autoImportPicBed: string[]
+    galleryPicBedFilter: string[]
   }
   needReload: boolean
   picgoPlugins: IPicGoPlugins
@@ -190,6 +191,7 @@ export const configPaths = {
     autoStart: 'settings.autoStart',
     autoImport: 'settings.autoImport',
     autoImportPicBed: 'settings.autoImportPicBed',
+    galleryPicBedFilter: 'settings.galleryPicBedFilter',
     enableSecondUploader: 'settings.enableSecondUploader'
   },
   needReload: 'needReload',
