@@ -102,7 +102,7 @@
               <div class="sort-dropdown">
                 <button class="sort-button" :class="{ active: sortDropdownOpen }" @click="toggleSortDropdown($event)">
                   <SortAscIcon :size="14" />
-                  {{ t('pages.gallery.sort') }}
+                  {{ t(`pages.gallery.sortBy.${currentSortField}`) }}
                   <ChevronDownIcon :size="14" />
                 </button>
                 <div v-show="sortDropdownOpen" class="sort-options">
@@ -565,6 +565,7 @@ const sortDropdownOpen = ref(false)
 const showFormatInfo = ref(false)
 const viewMode = ref<'list' | 'grid'>('grid')
 const componentKey = ref(0)
+const currentSortField = ref<'name' | 'time' | 'ext' | 'check'>('name')
 const itemHeight = 300
 const gridBreakpoints = [
   { min: 0, cols: 1 },
@@ -1269,13 +1270,13 @@ async function multiCopy() {
           await $$db.updateById(item.id, {
             shortUrl: result[1]
           })
+          updateGallery()
         }
       }
     }
     window.electron.clipboard.writeText(copyString.join('\n'))
     clearChoosedList()
     message.success(t('pages.gallery.copyLinkSucceed'))
-    updateGallery()
   }
 }
 
@@ -1299,6 +1300,7 @@ function handleUseShortUrlChange(event: Event) {
 
 function sortFile(type: 'name' | 'time' | 'ext' | 'check') {
   sortDropdownOpen.value = false
+  currentSortField.value = type
   switch (type) {
     case 'name':
       fileSortNameReverse.value = !fileSortNameReverse.value
