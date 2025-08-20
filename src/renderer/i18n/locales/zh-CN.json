@@ -128,6 +128,10 @@
         "isResizeByPercent": "启用按比例调整",
         "isResizeByPercentHint": "优先级更高",
         "resizePercent": "调整比例 (输入 50 表示 50%)"
+      },
+      "perPicBed": {
+        "title": "图床独立设置",
+        "description": "为每个图床单独配置设置"
       }
     },
     "settings": {

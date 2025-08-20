@@ -128,6 +128,10 @@
         "isResizeByPercent": "Enable Resize by Percentage",
         "isResizeByPercentHint": "Higher priority",
         "resizePercent": "Resize Percentage (Enter 50 for 50%)"
+      },
+      "perPicBed": {
+        "title": "Per-PicBed Settings",
+        "description": "Configure settings for each PicBed individually"
       }
     },
     "settings": {
