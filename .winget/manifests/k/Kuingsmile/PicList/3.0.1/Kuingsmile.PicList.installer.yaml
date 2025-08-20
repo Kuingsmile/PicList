@@ -7,7 +7,7 @@ InstallerType: nullsoft
 Installers:
 - Architecture: x64
   InstallerUrl: https://github.com/Kuingsmile/PicList/releases/download/v3.0.1/PicList-Setup-3.0.1.exe
-  InstallerSha256: E819AF4D545A344814504C77DCB539CFCD4707E6B63F1FB26C3D365EAF295AC6
+  InstallerSha256: 05ABE953C1352EBFB3E0DE54830F645C5668E8FBECF723A233F335F01CB01F90
 - Architecture: arm64
   InstallerUrl: https://github.com/Kuingsmile/PicList/releases/download/v3.0.1/PicList-Setup-3.0.1-arm64.exe
   InstallerSha256: 0F5001AFD90898CA5477A6CAED5D76A4A6EE89FB9EF6309ACA83298A992A512A

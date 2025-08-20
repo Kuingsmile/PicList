@@ -10,7 +10,7 @@ import { app } from 'electron'
 import fs from 'fs-extra'
 import got, { OptionsOfTextResponseBody, RequestError } from 'got'
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
-import mime from 'mime-types'
+import mime from 'mime'
 import Downloader from 'nodejs-file-downloader'
 
 import type { IHTTPProxy, IStringKeyMap } from '#/types/types'
@@ -38,7 +38,7 @@ export function isInputConfigValid(config: any): boolean {
   return typeof config === 'object' && !Array.isArray(config) && Object.keys(config).length > 0
 }
 
-export const getFileMimeType = (filePath: string): string => mime.lookup(filePath) || 'application/octet-stream'
+export const getFileMimeType = (filePath: string): string => mime.getType(filePath) || 'application/octet-stream'
 
 const getTempDirPath = () => {
   return path.join(app.getPath('temp'), 'piclistTemp')

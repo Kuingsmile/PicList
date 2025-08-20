@@ -8,7 +8,7 @@ const configList = require('./config')
 const fs = require('node:fs')
 const path = require('node:path')
 const yaml = require('js-yaml')
-const mime = require('mime-types')
+const mime = require('mime')
 
 const BUCKET = 'piclist-dl'
 const VERSION = pkg.version
@@ -95,7 +95,7 @@ const uploadFile = async () => {
             Bucket: BUCKET,
             Key: `${versionFileName}`,
             Body: versionFileStream,
-            ContentType: mime.lookup(versionFileName),
+            ContentType: mime.getType(versionFileName),
             Metadata: {
               description: 'uploaded by PicList'
             }
@@ -112,7 +112,7 @@ const uploadFile = async () => {
             Bucket: BUCKET,
             Key: `${FILE_PATH}${versionFileName}`,
             Body: versionFileStream2,
-            ContentType: mime.lookup(versionFileName),
+            ContentType: mime.getType(versionFileName),
             Metadata: {
               description: 'uploaded by PicList'
             }

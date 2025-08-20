@@ -6,7 +6,7 @@ import path from 'node:path'
 import { clipboard } from 'electron'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
-import mime from 'mime-types'
+import mime from 'mime'
 import { VNode } from 'vue'
 
 import { ILocales, ILocalesKey } from '#/types/i18n'
@@ -61,7 +61,7 @@ declare global {
         load: typeof yaml.load
       }
       mime: {
-        lookup: typeof mime.lookup
+        lookup: typeof mime.getType
       }
     }
     i18n: {

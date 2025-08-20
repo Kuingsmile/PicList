@@ -635,6 +635,17 @@
   color: var(--color-accent);
 }
 
+.file-list-path {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  margin-bottom: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.8;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Fira Mono', 'Droid Sans Mono', 'Cascadia Code', 'Courier New', monospace;
+}
+
 .file-list-meta {
   display: flex;
   gap: 1rem;

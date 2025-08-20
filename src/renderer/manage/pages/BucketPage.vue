@@ -792,6 +792,9 @@
                     <div class="file-list-name">
                       {{ formatFileName(item.name) }}
                     </div>
+                    <div v-if="item.fullPath" class="file-list-path">
+                      {{ item.fullPath }}
+                    </div>
                     <div class="file-list-meta">
                       <span>{{ formatFileSize(item.fileSize) }}</span>
                       <span v-if="item.isFolder"> {{ item.filesList.length }} files </span>
@@ -1290,7 +1293,7 @@ const refreshUploadTaskId = ref<NodeJS.Timeout | undefined>(undefined)
 const uploadPanelFilesList = ref([] as any[])
 const cancelToken = ref('')
 const isLoadingUploadPanelFiles = ref(false)
-const isUploadKeepDirStructure = computed(() => manageStore.config.settings.isUploadKeepDirStructure ?? true)
+const isUploadKeepDirStructure = ref(manageStore.config.settings.isUploadKeepDirStructure ?? true)
 const uploadingTaskList = computed(() =>
   uploadTaskList.value.filter(item => ['uploading', 'queuing', 'paused'].includes(item.status))
 )
@@ -1409,8 +1412,8 @@ function getList() {
 
 // 上传相关函数
 
-function handleUploadKeepDirChange(val: any) {
-  saveConfig('settings.isUploadKeepDirStructure', !!val)
+function handleUploadKeepDirChange() {
+  saveConfig('settings.isUploadKeepDirStructure', isUploadKeepDirStructure.value)
   manageStore.refreshConfig()
 }
 
@@ -1487,7 +1490,8 @@ function openFileSelectDialog() {
           fileSize: window.node.fs.statSync(item).size,
           isFolder: false,
           name: window.node.path.basename(item),
-          filesList: []
+          filesList: [],
+          fullPath: item
         })
         const index = uploadPanelFilesList.value.findIndex((file: any) => file.path === item)
         if (index === -1) {
@@ -1524,7 +1528,7 @@ function webkitReadDataTransfer(dataTransfer: DataTransfer) {
         if (index === -1) {
           uploadPanelFilesList.value.push({
             name: item.name,
-            path: item.path,
+            path: window.electron.showFilePath(item),
             size: item.size,
             relativePath: item.relativePath
           })
@@ -1597,11 +1601,10 @@ function handleUploadFiles(files: any[]) {
           filesList: [item.file],
           isFolder: false,
           fileSize: item.size,
-          fullPath: item.path
+          fullPath: window.electron.showFilePath(item)
         })
       }
-    }
-    if (item.relativePath !== item.name) {
+    } else {
       const folderName = item.relativePath.split('/')[0]
       if (dirObj[folderName]) {
         const dirList = dirObj[folderName].filesList || []
@@ -1613,7 +1616,7 @@ function handleUploadFiles(files: any[]) {
         dirObj[folderName] = {
           filesList: [item],
           fileSize: item.size,
-          path: item.path
+          path: window.electron.showFilePath(item)
         }
       }
     }
@@ -2045,6 +2048,13 @@ watch(isShowDownloadPanel, newValue => {
     stopRefreshDownloadTask()
   }
 })
+
+watch(
+  () => manageStore.config.settings.isUploadKeepDirStructure,
+  newValue => {
+    isUploadKeepDirStructure.value = newValue ?? true
+  }
+)
 
 const handlePageNumberInput = (event: Event) => {
   const target = event.target as HTMLInputElement

@@ -4,7 +4,7 @@ import path from 'node:path'
 import { clipboard, contextBridge, ipcRenderer, IpcRendererEvent, webFrame, webUtils } from 'electron'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
-import mime from 'mime-types'
+import mime from 'mime'
 import { isReactive, isRef, toRaw, unref } from 'vue'
 
 export const getRawData = (args: any): any => {
@@ -93,7 +93,7 @@ try {
       load: yaml.load
     },
     mime: {
-      lookup: mime.lookup
+      lookup: mime.getType
     }
   })
 } catch (error) {
