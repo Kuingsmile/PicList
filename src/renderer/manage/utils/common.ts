@@ -16,11 +16,25 @@ export const isUrlEncode = (url: string): boolean => {
 
 export const handleUrlEncode = (url: string): string => (isUrlEncode(url) ? url : encodeURI(url))
 
+const mask = 0b111111
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 export function randomStringGenerator(length: number): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  return Array.from({ length })
-    .map(() => chars.charAt(Math.floor(Math.random() * chars.length)))
-    .join('')
+  const out = new Array(length)
+  let i = 0
+  let pool = 0
+  let bits = 0
+  while (i < length) {
+    if (bits < 6) {
+      pool = (pool << 30) | ((Math.random() * 0x40000000) >>> 0)
+      bits += 30
+      continue
+    }
+    const idx = pool & mask
+    pool >>>= 6
+    bits -= 6
+    if (idx < 62) out[i++] = chars[idx]
+  }
+  return out.join('')
 }
 
 export function renameFileNameWithTimestamp(oldName: string): string {
@@ -157,17 +171,6 @@ export function isValidUrl(str: string) {
     return false
   }
 }
-
-export const svg = `
-  <path class="path" d="
-    M 30 15
-    L 28 17
-    M 25.61 25.61
-    A 15 15, 0, 0, 1, 15 30
-    A 15 15, 0, 1, 1, 27.99 7.5
-    L 15 15
-  " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
-  `
 
 export function customStrMatch(str: string, pattern: string): boolean {
   if (!str || !pattern) return false
