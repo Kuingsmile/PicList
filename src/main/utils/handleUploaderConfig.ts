@@ -218,4 +218,10 @@ export const resetUploaderConfig = (type: string, id: string) => {
   picgo.saveConfig({
     [`uploader.${type}.configList`]: configList
   })
+  const currentDefault = picgo.getConfig<IStringKeyMap>(`picBed.${type}`) ?? {}
+  if (currentDefault._id === id) {
+    picgo.saveConfig({
+      [`picBed.${type}`]: configList
+    })
+  }
 }

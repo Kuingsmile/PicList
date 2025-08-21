@@ -145,7 +145,6 @@ function handleDropdownBlur() {
 }
 
 const handleConfirm = async () => {
-  loading.value = true
   try {
     const result = (await $configForm.value?.validate()) || false
     if (result !== false) {
@@ -164,8 +163,6 @@ const handleConfirm = async () => {
   } catch (error) {
     console.error('Failed to save configuration:', error)
     message.error(t('pages.picBedConfigs.setFailedInfo'))
-  } finally {
-    loading.value = false
   }
 }
 
@@ -212,18 +209,13 @@ async function handleConfigImport(configItem: IUploaderConfigListItem) {
 }
 
 const handleReset = async () => {
-  loading.value = true
   try {
     await window.electron.triggerRPC<void>(IRPCActionType.UPLOADER_RESET_CONFIG, type.value, $route.params.configId)
     message.success(t('pages.picBedConfigs.resetSuccess'))
-    setTimeout(() => {
-      $router.back()
-    }, 1000)
+    $router.back()
   } catch (error) {
     console.error('Failed to reset configuration:', error)
     message.error(t('pages.picBedConfigs.resetFailed'))
-  } finally {
-    loading.value = false
   }
 }
 
