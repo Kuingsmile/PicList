@@ -75,7 +75,7 @@
     "multer": "^2.0.2",
     "node-ssh-no-cpu-features": "^2.0.0",
     "nodejs-file-downloader": "^4.13.0",
-    "piclist": "^2.0.1",
+    "piclist": "^2.0.2",
     "pinia": "^3.0.3",
     "pinia-plugin-persistedstate": "^4.5.0",
     "qiniu": "7.14.0",
