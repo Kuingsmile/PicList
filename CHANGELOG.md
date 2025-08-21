@@ -1,3 +1,19 @@
+##  (2025-08-21)
+
+* :arrow_up: Upgrade(custom): update piclist-core 7b47e2a
+* :bug: Fix(custom): fix drag upload issue and mime error 023250f, closes #373
+* :bug: Fix(custom): fix picbed config  reset issue 934a716, closes #375
+* :bug: Fix(custom): optimize minipage ui #374 c6537c1, closes #374
+* :pencil: Docs(custom): update changelog 7241d63
+* :pencil: Docs(custom): update readme b1fb31d
+* :sparkles: Feature(custom): add gallery picbed filter fbf0dcc, closes #309
+* :sparkles: Feature(custom): add sort type indicate #374 6b45632, closes #374
+* :sparkles: Feature(custom): add support for per-picbed image process setting 870c650
+* :sparkles: Feature(custom): optimize batch copy logic d4313f2, closes #374
+* :zap: Perf(custom): optimize random string generation algorithm dbade21
+
+
+
 ##  (2025-08-19)
 
 * :bug: Fix(custom): fix copy button dropdown ui 49e139f, closes #363
