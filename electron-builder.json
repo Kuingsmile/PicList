@@ -1,6 +1,7 @@
 {
   "productName": "PicList",
   "appId": "com.kuingsmile.piclist",
+  "afterPack": "scripts/removeLocales.cjs",
   "afterSign": "scripts/notarize.cjs",
   "directories": {
     "output": "dist_electron",
