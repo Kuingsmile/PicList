@@ -31,12 +31,9 @@ export default class QiniuApi {
           }
         })
       })) as any
-      if (res?.respInfo?.statusCode === 200) {
-        deleteLog(fileName, 'Qiniu')
-        return true
-      }
-      deleteLog(fileName, 'Qiniu', false)
-      return false
+      const ok = res?.respInfo?.statusCode === 200
+      deleteLog(fileName, 'Qiniu', ok)
+      return ok
     } catch (error: any) {
       deleteFailedLog(fileName, 'Qiniu', error)
       return false

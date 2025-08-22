@@ -33,12 +33,9 @@ export default class LskyplistApi {
         timeout: 30000,
         httpsAgent: requestAgent
       })
-      if (response.status === 200 && response.data.status === true) {
-        deleteLog(hash, 'Lskyplist')
-        return true
-      }
-      deleteLog(hash, 'Lskyplist', false)
-      return false
+      const ok = response.status === 200 && response.data.status === true
+      deleteLog(hash, 'Lskyplist', ok)
+      return ok
     } catch (error: any) {
       deleteFailedLog(hash, 'Lskyplist', error)
       return false

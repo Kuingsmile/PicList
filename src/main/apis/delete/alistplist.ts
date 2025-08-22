@@ -50,12 +50,9 @@ export default class AListplistApi {
           names: [path.basename(fileName)]
         }
       })
-      if (result.data.code === 200) {
-        deleteLog(fileName, 'Alist')
-        return true
-      }
-      deleteLog(fileName, 'Alist', false)
-      return false
+      const ok = result.data.code === 200
+      deleteLog(fileName, 'Alist', ok)
+      return ok
     } catch (error: any) {
       deleteFailedLog(fileName, 'Alist', error)
       return false

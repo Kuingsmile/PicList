@@ -89,144 +89,134 @@ async function getDogeToken(accessKey: string, secretKey: string): Promise<IObj 
 }
 
 export async function removeFileFromS3InMain(configMap: IStringKeyMap, dogeMode: boolean = false) {
-  try {
-    const {
-      url: rawUrl,
-      type,
-      config: {
-        accessKeyID,
-        secretAccessKey,
-        bucketName,
-        endpoint,
-        pathStyleAccess,
-        rejectUnauthorized,
-        proxy,
-        urlPrefix
-      }
-    } = configMap
-    let {
-      imgUrl,
-      config: { region }
-    } = configMap
-    if (type === 'aws-s3' || type === 'aws-s3-plist') {
-      imgUrl = rawUrl || imgUrl || ''
+  const {
+    url: rawUrl,
+    type,
+    config: {
+      accessKeyID,
+      secretAccessKey,
+      bucketName,
+      endpoint,
+      pathStyleAccess,
+      rejectUnauthorized,
+      proxy,
+      urlPrefix
     }
-    let fileKey
-    if (urlPrefix && imgUrl.startsWith(urlPrefix)) {
-      const urlPrefixObj = new URL(urlPrefix)
-      const imgUrlObj = new URL(imgUrl)
-      if (imgUrlObj.pathname.startsWith(urlPrefixObj.pathname)) {
-        fileKey = imgUrlObj.pathname.substring(urlPrefixObj.pathname.length).replace(/^\/+/, '')
-      } else {
-        fileKey = imgUrlObj.pathname.replace(/^\/+/, '')
-      }
-    } else {
-      const url = new URL(!/^https?:\/\//.test(imgUrl) ? `http://${imgUrl}` : imgUrl)
-      fileKey = url.pathname.replace(/^\/+/, '')
-      if (pathStyleAccess) {
-        fileKey = fileKey.replace(/^[^/]+\//, '')
-      }
-    }
-    const endpointUrl: string | undefined = endpoint
-      ? /^https?:\/\//.test(endpoint)
-        ? endpoint
-        : `http://${endpoint}`
-      : undefined
-    if (endpointUrl && endpointUrl.includes('cloudflarestorage')) {
-      region = region || 'auto'
-    }
-    const sslEnabled = endpointUrl ? endpointUrl.startsWith('https') : true
-    const agent = getAgent(proxy, sslEnabled)
-    const commonOptions: AgentOptions = {
-      keepAlive: true,
-      keepAliveMsecs: 1000,
-      scheduling: 'lifo' as 'lifo' | 'fifo' | undefined
-    }
-    const extraOptions = sslEnabled ? { rejectUnauthorized: !!rejectUnauthorized } : {}
-    const handler = sslEnabled
-      ? new NodeHttpHandler({
-          httpsAgent: agent.https
-            ? agent.https
-            : new https.Agent({
-                ...commonOptions,
-                ...extraOptions
-              })
-        })
-      : new NodeHttpHandler({
-          httpAgent: agent.http
-            ? agent.http
-            : new http.Agent({
-                ...commonOptions,
-                ...extraOptions
-              })
-        })
-    const s3Options: S3ClientConfig = {
-      credentials: {
-        accessKeyId: accessKeyID,
-        secretAccessKey
-      },
-      endpoint: endpointUrl,
-      tls: sslEnabled,
-      forcePathStyle: pathStyleAccess,
-      region,
-      requestHandler: handler
-    }
-    if (dogeMode) {
-      s3Options.credentials = {
-        accessKeyId: configMap.config.accessKeyID,
-        secretAccessKey: configMap.config.secretAccessKey,
-        sessionToken: configMap.config.sessionToken
-      }
-    }
-    let result: any
-    try {
-      fileKey = decodeURIComponent(fileKey)
-    } catch (err: any) {}
-    try {
-      const client = new S3Client(s3Options)
-      const command = new DeleteObjectCommand({
-        Bucket: bucketName,
-        Key: fileKey
-      })
-      result = await client.send(command)
-    } catch (err: any) {
-      s3Options.region = 'us-east-1'
-      const client = new S3Client(s3Options)
-      const command = new DeleteObjectCommand({
-        Bucket: bucketName,
-        Key: fileKey
-      })
-      result = await client.send(command)
-    }
-    return result.$metadata.httpStatusCode === 204
-  } catch (err: any) {
-    logger.error(err)
-    return false
+  } = configMap
+  let {
+    imgUrl,
+    config: { region }
+  } = configMap
+  if (type === 'aws-s3' || type === 'aws-s3-plist') {
+    imgUrl = rawUrl || imgUrl || ''
   }
+  let fileKey
+  if (urlPrefix && imgUrl.startsWith(urlPrefix)) {
+    const urlPrefixObj = new URL(urlPrefix)
+    const imgUrlObj = new URL(imgUrl)
+    if (imgUrlObj.pathname.startsWith(urlPrefixObj.pathname)) {
+      fileKey = imgUrlObj.pathname.substring(urlPrefixObj.pathname.length).replace(/^\/+/, '')
+    } else {
+      fileKey = imgUrlObj.pathname.replace(/^\/+/, '')
+    }
+  } else {
+    const url = new URL(!/^https?:\/\//.test(imgUrl) ? `http://${imgUrl}` : imgUrl)
+    fileKey = url.pathname.replace(/^\/+/, '')
+    if (pathStyleAccess) {
+      fileKey = fileKey.replace(/^[^/]+\//, '')
+    }
+  }
+  const endpointUrl: string | undefined = endpoint
+    ? /^https?:\/\//.test(endpoint)
+      ? endpoint
+      : `http://${endpoint}`
+    : undefined
+  if (endpointUrl && endpointUrl.includes('cloudflarestorage')) {
+    region = region || 'auto'
+  }
+  const sslEnabled = endpointUrl ? endpointUrl.startsWith('https') : true
+  const agent = getAgent(proxy, sslEnabled)
+  const commonOptions: AgentOptions = {
+    keepAlive: true,
+    keepAliveMsecs: 1000,
+    scheduling: 'lifo' as 'lifo' | 'fifo' | undefined
+  }
+  const extraOptions = sslEnabled ? { rejectUnauthorized: !!rejectUnauthorized } : {}
+  const handler = sslEnabled
+    ? new NodeHttpHandler({
+        httpsAgent: agent.https
+          ? agent.https
+          : new https.Agent({
+              ...commonOptions,
+              ...extraOptions
+            })
+      })
+    : new NodeHttpHandler({
+        httpAgent: agent.http
+          ? agent.http
+          : new http.Agent({
+              ...commonOptions,
+              ...extraOptions
+            })
+      })
+  const s3Options: S3ClientConfig = {
+    credentials: {
+      accessKeyId: accessKeyID,
+      secretAccessKey
+    },
+    endpoint: endpointUrl,
+    tls: sslEnabled,
+    forcePathStyle: pathStyleAccess,
+    region,
+    requestHandler: handler
+  }
+  if (dogeMode) {
+    s3Options.credentials = {
+      accessKeyId: configMap.config.accessKeyID,
+      secretAccessKey: configMap.config.secretAccessKey,
+      sessionToken: configMap.config.sessionToken
+    }
+  }
+  let result: any
+  try {
+    fileKey = decodeURIComponent(fileKey)
+  } catch (err: any) {}
+  try {
+    const client = new S3Client(s3Options)
+    const command = new DeleteObjectCommand({
+      Bucket: bucketName,
+      Key: fileKey
+    })
+    result = await client.send(command)
+  } catch (err: any) {
+    s3Options.region = 'us-east-1'
+    const client = new S3Client(s3Options)
+    const command = new DeleteObjectCommand({
+      Bucket: bucketName,
+      Key: fileKey
+    })
+    result = await client.send(command)
+  }
+  return result.$metadata.httpStatusCode === 204
 }
 
 export async function removeFileFromDogeInMain(configMap: IStringKeyMap) {
-  try {
-    const {
-      config: { bucketName, AccessKey, SecretKey }
-    } = configMap
-    const token = (await getDogeToken(AccessKey, SecretKey)) as DogecloudTokenFull
-    const bucket = token.Buckets?.find(item => item.name === bucketName || item.s3Bucket === bucketName)
-    const newConfigMap = { ...configMap }
-    newConfigMap.config = {
-      ...newConfigMap.config,
-      accessKeyID: token.Credentials?.accessKeyId,
-      secretAccessKey: token.Credentials?.secretAccessKey,
-      sessionToken: token.Credentials?.sessionToken,
-      endpoint: bucket?.s3Endpoint,
-      region: dogeRegionMap[bucket?.s3Endpoint?.split('.')[1] || 'ap-shanghai'],
-      bucketName: bucket?.s3Bucket
-    }
-    return await removeFileFromS3InMain(newConfigMap, true)
-  } catch (err: any) {
-    logger.error(err)
-    return false
+  const {
+    config: { bucketName, AccessKey, SecretKey }
+  } = configMap
+  const token = (await getDogeToken(AccessKey, SecretKey)) as DogecloudTokenFull
+  const bucket = token.Buckets?.find(item => item.name === bucketName || item.s3Bucket === bucketName)
+  const newConfigMap = { ...configMap }
+  newConfigMap.config = {
+    ...newConfigMap.config,
+    accessKeyID: token.Credentials?.accessKeyId,
+    secretAccessKey: token.Credentials?.secretAccessKey,
+    sessionToken: token.Credentials?.sessionToken,
+    endpoint: bucket?.s3Endpoint,
+    region: dogeRegionMap[bucket?.s3Endpoint?.split('.')[1] || 'ap-shanghai'],
+    bucketName: bucket?.s3Bucket
   }
+  return await removeFileFromS3InMain(newConfigMap, true)
 }
 
 function createHuaweiAuthorization(
@@ -250,35 +240,25 @@ export async function removeFileFromHuaweiInMain(configMap: IStringKeyMap) {
   path = path === '/' ? '' : path
   const date = new Date().toUTCString()
   const authorization = createHuaweiAuthorization(bucketName, path, fileName, accessKeyId, accessKeySecret, date)
-  try {
-    const res = await axios.request({
-      url: `https://${bucketName}.${endpoint}${encodeURI(path)}/${encodeURIComponent(fileName)}`,
-      method: 'DELETE',
-      responseType: 'json',
-      headers: {
-        Host: `${bucketName}.${endpoint}`,
-        Date: date,
-        Authorization: authorization
-      }
-    })
-    return res.status === 204
-  } catch (error: any) {
-    logger.error(error)
-    return false
-  }
+  const res = await axios.request({
+    url: `https://${bucketName}.${endpoint}${encodeURI(path)}/${encodeURIComponent(fileName)}`,
+    method: 'DELETE',
+    responseType: 'json',
+    headers: {
+      Host: `${bucketName}.${endpoint}`,
+      Date: date,
+      Authorization: authorization
+    }
+  })
+  return res.status === 204
 }
 
 export async function removeFileFromSFTPInMain(config: ISftpPlistConfig, fileName: string) {
-  try {
-    const client = SSHClient.instance
-    await client.connect(config)
-    const uploadPath = `/${config.uploadPath || ''}/`.replace(/\/+/g, '/')
-    const remote = path.join(uploadPath, fileName)
-    const deleteResult = await client.deleteFileSFTP(config, remote)
-    client.close()
-    return deleteResult
-  } catch (err: any) {
-    logger.error(err)
-    return false
-  }
+  const client = SSHClient.instance
+  await client.connect(config)
+  const uploadPath = `/${config.uploadPath || ''}/`.replace(/\/+/g, '/')
+  const remote = path.join(uploadPath, fileName)
+  const deleteResult = await client.deleteFileSFTP(config, remote)
+  client.close()
+  return deleteResult
 }

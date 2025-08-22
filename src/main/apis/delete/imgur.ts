@@ -30,12 +30,9 @@ export default class ImgurApi {
         headers: { Authorization },
         timeout: 30000
       })
-      if (response.status === 200) {
-        deleteLog(hash, 'Imgur')
-        return true
-      }
-      deleteLog(hash, 'Imgur', false)
-      return false
+      const ok = response.status === 200
+      deleteLog(hash, 'Imgur', ok)
+      return ok
     } catch (error: any) {
       deleteFailedLog(hash, 'Imgur', error)
       return false

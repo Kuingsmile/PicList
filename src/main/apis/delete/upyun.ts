@@ -24,12 +24,8 @@ export default class UpyunApi {
         key = `${path.replace(/^\/+|\/+$/, '')}/${fileName}`
       }
       const result = await client.deleteFile(key)
-      if (result) {
-        deleteLog(fileName, 'Upyun')
-        return true
-      }
-      deleteLog(fileName, 'Upyun', false)
-      return false
+      deleteLog(fileName, 'Upyun', !!result)
+      return !!result
     } catch (error: any) {
       deleteFailedLog(fileName, 'Upyun', error)
       return false

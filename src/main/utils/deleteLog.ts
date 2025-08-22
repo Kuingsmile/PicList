@@ -1,8 +1,10 @@
+import logger from '@core/picgo/logger'
+
 export const deleteLog = (fileName?: string, type?: string, isSuccess = true, msg?: string) => {
-  console.log(`Delete ${fileName} on ${type} ${isSuccess ? 'success' : 'failed'}, message: ${msg || ''}`)
+  logger.info(`Delete ${fileName} on ${type} ${isSuccess ? 'successfully' : 'failed'} ${msg ? 'msg: ' + msg : ''}`)
 }
 
 export const deleteFailedLog = (fileName: string, type: string, error: any) => {
   deleteLog(fileName, type, false)
-  console.error(error)
+  logger.error(error)
 }

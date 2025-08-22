@@ -32,12 +32,9 @@ export default class TcyunApi {
         Region: area,
         Key: key
       })
-      if (result.statusCode === 204) {
-        deleteLog(fileName, 'Tcyun')
-        return true
-      }
-      deleteLog(fileName, 'Tcyun', false)
-      return false
+      const ok = result.statusCode === 204
+      deleteLog(fileName, 'Tcyun', ok)
+      return ok
     } catch (error: any) {
       deleteFailedLog(fileName, 'Tcyun', error)
       return false

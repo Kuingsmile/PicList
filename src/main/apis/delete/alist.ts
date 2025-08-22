@@ -15,10 +15,8 @@ interface IConfigMap {
 }
 
 export default class AlistApi {
-  static async delete(configMap: IConfigMap): Promise<boolean> {
-    const { fileName, config } = configMap
+  static async delete({ fileName, config: { version, url, uploadPath, token } }: IConfigMap): Promise<boolean> {
     try {
-      const { version, url, uploadPath, token } = config
       if (String(version) === '2') {
         deleteLog(fileName, 'Alist', false, 'Alist version 2 is not supported, deletion is skipped')
         return true
@@ -35,12 +33,9 @@ export default class AlistApi {
           names: [path.basename(fileName)]
         }
       })
-      if (result.data.code === 200) {
-        deleteLog(fileName, 'Alist')
-        return true
-      }
-      deleteLog(fileName, 'Alist', false)
-      return false
+      const ok = result.data.code === 200
+      deleteLog(fileName, 'Alist', ok)
+      return ok
     } catch (error: any) {
       deleteFailedLog(fileName, 'Alist', error)
       return false

@@ -19,12 +19,9 @@ export default class AliyunApi {
       const client = new OSS({ ...config, region: config.area })
       const key = AliyunApi.#getKey(fileName, config.path)
       const result = await client.delete(key)
-      if (result.res.status === 204) {
-        deleteLog(fileName, 'Aliyun')
-        return true
-      }
-      deleteLog(fileName, 'Aliyun', false)
-      return false
+      const ok = result.res.status === 204
+      deleteLog(fileName, 'Aliyun', ok)
+      return ok
     } catch (error: any) {
       deleteFailedLog(fileName, 'Aliyun', error)
       return false

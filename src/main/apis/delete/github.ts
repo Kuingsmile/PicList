@@ -39,12 +39,9 @@ export default class GithubApi {
         sha: hash,
         branch
       })
-      if (status === 200) {
-        deleteLog(fileName, 'GitHub')
-        return true
-      }
-      deleteLog(fileName, 'GitHub', false)
-      return false
+      const ok = status === 200
+      deleteLog(fileName, 'GitHub', ok)
+      return ok
     } catch (error: any) {
       deleteFailedLog(fileName, 'GitHub', error)
       return false

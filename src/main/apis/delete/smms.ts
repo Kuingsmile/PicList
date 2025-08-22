@@ -31,12 +31,9 @@ export default class SmmsApi {
         },
         timeout: 30000
       })
-      if (response.status === 200) {
-        deleteLog(hash, 'Smms')
-        return true
-      }
-      deleteLog(hash, 'Smms', false)
-      return false
+      const ok = response.status === 200
+      deleteLog(hash, 'Smms', ok)
+      return ok
     } catch (error: any) {
       deleteFailedLog(hash, 'Smms', error)
       return false
