@@ -1,7 +1,7 @@
 {
   "productName": "PicList",
   "appId": "com.kuingsmile.piclist",
-  "afterPack": "scripts/removeLocales.cjs",
+  "afterPack": "scripts/afterPack.cjs",
   "afterSign": "scripts/notarize.cjs",
   "directories": {
     "output": "dist_electron",
@@ -13,7 +13,7 @@
     "**/node_modules/@img/**",
     "resources/**"
   ],
-  "files": ["out/**/*", "resources/**", "package.json"],
+  "files": ["out/**/*", "resources/**", "package.json", "!**/node_modules/typescript{,/**}"],
   "publish": [
     {
       "provider": "s3",
