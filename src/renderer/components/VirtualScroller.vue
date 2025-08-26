@@ -155,6 +155,7 @@ function handlePageScroll() {
 }
 
 let ro: ResizeObserver | null = null
+let documentRo: ResizeObserver | null = null
 const lastScrollTime = ref(0)
 
 function updateContainerMetrics() {
@@ -172,13 +173,22 @@ function updateContainerMetrics() {
 onMounted(() => {
   const el = containerRef.value
   if (!el) return
+  
+  // Set up main container ResizeObserver
   ro = new ResizeObserver(updateContainerMetrics)
   ro.observe(el)
+  
   if (props.pageMode) {
-    ro.observe(document.documentElement)
+    // Set up document ResizeObserver separately to avoid conflicts
+    documentRo = new ResizeObserver(updateContainerMetrics)
+    documentRo.observe(document.documentElement)
+    
+    // Add scroll listeners with passive option for better performance
     window.addEventListener('scroll', handlePageScroll, { passive: true })
+    
+    // Find and add scroll listeners to parent elements
     let parent = el.parentElement
-    while (parent) {
+    while (parent && parent !== document.documentElement) {
       if (parent.scrollHeight > parent.clientHeight) {
         parent.addEventListener('scroll', handlePageScroll, { passive: true })
         parentScrollListeners.value.push(parent)
@@ -186,17 +196,32 @@ onMounted(() => {
       parent = parent.parentElement
     }
   }
+  
   updateContainerMetrics()
+  
   if (props.pageMode) {
     window.addEventListener('resize', updateContainerMetrics, { passive: true })
   }
 })
 
 onBeforeUnmount(() => {
-  if (ro) ro.disconnect()
+  // Clean up ResizeObservers
+  if (ro) {
+    ro.disconnect()
+    ro = null
+  }
+  
+  if (documentRo) {
+    documentRo.disconnect()
+    documentRo = null
+  }
+  
+  // Clean up window listeners
   window.removeEventListener('resize', updateContainerMetrics)
+  
   if (props.pageMode) {
     window.removeEventListener('scroll', handlePageScroll)
+    // Clean up parent scroll listeners
     parentScrollListeners.value.forEach(parent => {
       parent.removeEventListener('scroll', handlePageScroll)
     })

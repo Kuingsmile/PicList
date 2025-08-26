@@ -166,8 +166,12 @@ class LifeCycle {
     rpcServer.start()
     busEventList.listen()
 
+    // Start memory monitoring in all environments
+    // More frequent monitoring in development, less frequent in production
     if (process.env.NODE_ENV === 'development') {
-      MemoryMonitor.start(30000)
+      MemoryMonitor.start(30000) // Every 30 seconds in development
+    } else {
+      MemoryMonitor.start(300000) // Every 5 minutes in production
     }
   }
 

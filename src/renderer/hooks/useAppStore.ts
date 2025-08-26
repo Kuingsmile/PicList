@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 
 import type { IStringKeyMap } from '#/types/types'
 
@@ -11,6 +11,10 @@ export const useAppStore = defineStore('app', () => {
   })
   const loading = ref(false)
   const error = ref<string | undefined>()
+
+  // Track media query listener for cleanup
+  let mediaQueryListener: ((e: MediaQueryListEvent) => void) | null = null
+  let mediaQuery: MediaQueryList | null = null
 
   function clearError() {
     error.value = undefined
@@ -24,22 +28,34 @@ export const useAppStore = defineStore('app', () => {
     applyTheme(settings.value.app.theme || 'light')
   }
 
+  function cleanupMediaQueryListener() {
+    if (mediaQuery && mediaQueryListener) {
+      mediaQuery.removeEventListener('change', mediaQueryListener)
+      mediaQuery = null
+      mediaQueryListener = null
+    }
+  }
+
   function applyTheme(theme: string) {
     const root = document.documentElement
     root.classList.remove('light', 'dark', 'auto')
+
+    // Clean up existing listener before adding new one
+    cleanupMediaQueryListener()
 
     if (theme === 'auto') {
       root.classList.add('auto')
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
       root.classList.add(prefersDark ? 'dark' : 'light')
 
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      mediaQuery.addEventListener('change', e => {
+      mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      mediaQueryListener = (e: MediaQueryListEvent) => {
         if (settings.value.app.theme === 'auto') {
           root.classList.remove('light', 'dark')
           root.classList.add(e.matches ? 'dark' : 'light')
         }
-      })
+      }
+      mediaQuery.addEventListener('change', mediaQueryListener)
     } else {
       root.classList.add(theme)
     }
@@ -67,6 +83,11 @@ export const useAppStore = defineStore('app', () => {
       throw err
     }
   }
+
+  // Clean up when store is unmounted
+  onUnmounted(() => {
+    cleanupMediaQueryListener()
+  })
 
   return {
     init,

@@ -17,17 +17,21 @@ import { T as $t } from '~/i18n'
 import { getClipboardFilePath, showNotification } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 import { ICOREBuildInEvent, IWindowList } from '~/utils/enum'
+import { IpcManager } from '~/utils/ipcManager'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 
 const waitForRename = (window: BrowserWindow, id: number): Promise<string | null> => {
   return new Promise(resolve => {
-    ipcMain.once(`${RENAME_FILE_NAME}${id}`, (_: IpcMainEvent, newName: string) => {
+    // Use IpcManager for better cleanup tracking
+    const cleanup = IpcManager.once(`${RENAME_FILE_NAME}${id}`, (_: IpcMainEvent, newName: string) => {
       resolve(newName)
       window.close()
-    })
+    }, `rename-${id}`)
+
     window.on('close', () => {
       resolve(null)
-      ipcMain.removeAllListeners(`${RENAME_FILE_NAME}${id}`)
+      // Clean up the specific rename context
+      IpcManager.cleanupContext(`rename-${id}`)
       windowManager.deleteById(window.id)
     })
   })
@@ -72,17 +76,21 @@ class Uploader {
                 : item.fileName
               if (rename) {
                 const window = windowManager.create(IWindowList.RENAME_WINDOW)!
-                ipcMain.on(GET_RENAME_FILE_NAME, (evt, _) => {
+                const windowId = window.webContents.id
+                
+                // Use IpcManager for safer listener management
+                IpcManager.on(GET_RENAME_FILE_NAME, (evt, _) => {
                   try {
-                    if (evt.sender.id === window.webContents.id) {
+                    if (evt.sender.id === windowId) {
                       logger.info('rename window ready, wait for rename...')
-                      window.webContents.send(RENAME_FILE_NAME, fileName, item.fileName, window.webContents.id)
+                      window.webContents.send(RENAME_FILE_NAME, fileName, item.fileName, windowId)
                     }
                   } catch (e: any) {
                     logger.error(e)
                   }
-                })
-                name = await waitForRename(window, window.webContents.id)
+                }, `rename-window-${windowId}`)
+                
+                name = await waitForRename(window, windowId)
               }
               item.fileName = name || fileName
             })
@@ -168,7 +176,8 @@ class Uploader {
       }, 500)
       return false
     } finally {
-      ipcMain.removeAllListeners(GET_RENAME_FILE_NAME)
+      // Use IpcManager for safer cleanup
+      IpcManager.removeAllListeners(GET_RENAME_FILE_NAME)
     }
   }
 
@@ -191,7 +200,8 @@ class Uploader {
       }, 500)
       return false
     } finally {
-      ipcMain.removeAllListeners(GET_RENAME_FILE_NAME)
+      // Use IpcManager for safer cleanup
+      IpcManager.removeAllListeners(GET_RENAME_FILE_NAME)
     }
   }
 }
