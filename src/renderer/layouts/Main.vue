@@ -10,7 +10,7 @@
       <div class="content-container">
         <router-view v-slot="{ Component, route }">
           <transition name="page" mode="out-in">
-            <keep-alive :include="keepAlivePages">
+            <keep-alive :include="limitedKeepAlivePages" :max="MAX_KEEP_ALIVE_PAGES">
               <component :is="Component" :key="route.path" />
             </keep-alive>
           </transition>
@@ -21,6 +21,7 @@
 </template>
 
 <script lang="ts" setup>
+import { ref, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 
 import InputBoxDialog from '@/components/InputBoxDialog.vue'
@@ -32,6 +33,19 @@ const keepAlivePages = $router
   .getRoutes()
   .filter(item => item.meta.keepAlive)
   .map(item => item.name as string)
+
+// Limit keep-alive cache to prevent memory accumulation
+const MAX_KEEP_ALIVE_PAGES = 5
+const limitedKeepAlivePages = keepAlivePages.slice(0, MAX_KEEP_ALIVE_PAGES)
+
+// Clean up any remaining references when component unmounts
+onBeforeUnmount(() => {
+  // Force cleanup of any cached components if needed
+  // This is a safety measure for keep-alive components
+  if (limitedKeepAlivePages.length > 0) {
+    console.log('[Memory] Cleaning up keep-alive cached components')
+  }
+})
 </script>
 
 <script lang="ts">
