@@ -260,6 +260,7 @@ export interface IShowInputBoxOption {
   value?: string
   title: string
   placeholder: string
+  multiLine?: boolean
 }
 
 export type IShowFileExplorerOption = IObj

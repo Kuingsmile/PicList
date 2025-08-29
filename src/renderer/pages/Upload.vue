@@ -354,20 +354,50 @@ async function uploadURLFiles() {
   $bus.emit(SHOW_INPUT_BOX, {
     value: isUrl(str) ? str : '',
     title: t('pages.upload.inputUrlTip'),
-    placeholder: t('pages.upload.httpPrefixTip')
+    placeholder: t('pages.upload.httpPrefixTip') + '\n' + t('pages.upload.multipleUrlsHint'),
+    multiLine: true
   })
 }
 
 function handleInputBoxValue(val: string) {
   if (val === '') return
-  if (isUrl(val)) {
-    window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [
-      {
-        path: val
-      }
-    ])
-  } else {
-    message.error(t('pages.upload.inputValidUrl'))
+
+  const urls = val
+    .split('\n')
+    .map(url => url.trim())
+    .filter(url => url !== '')
+
+  if (urls.length === 0) return
+
+  const invalidUrls: string[] = []
+  const validUrls: string[] = []
+
+  urls.forEach(url => {
+    if (isUrl(url)) {
+      validUrls.push(url)
+    } else {
+      invalidUrls.push(url)
+    }
+  })
+
+  if (invalidUrls.length > 0) {
+    const errorMessage =
+      invalidUrls.length === 1
+        ? t('pages.upload.inputValidUrl') + ': ' + invalidUrls[0]
+        : t('pages.upload.invalidUrlsFound', {
+            count: invalidUrls.length,
+            urls: invalidUrls.slice(0, 3).join(', ') + (invalidUrls.length > 3 ? '...' : '')
+          })
+    message.error(errorMessage)
+  }
+
+  if (validUrls.length > 0) {
+    const filesToUpload = validUrls.map(url => ({ path: url }))
+    window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, filesToUpload)
+
+    if (validUrls.length > 1) {
+      message.success(t('pages.upload.uploadingMultipleUrls', { count: validUrls.length }))
+    }
   }
 }
 

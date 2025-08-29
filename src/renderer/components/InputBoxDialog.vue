@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div v-if="showInputBoxVisible" class="inputbox-overlay" @click="handleInputBoxCancel">
+    <div v-if="showInputBoxVisible" class="inputbox-overlay">
       <div class="inputbox-container" @click.stop>
         <div class="inputbox-header">
           <h3 class="inputbox-title">
@@ -11,7 +11,17 @@
           </button>
         </div>
         <div class="inputbox-content">
+          <textarea
+            v-if="inputBoxOptions.multiLine"
+            v-model="inputBoxValue"
+            :placeholder="inputBoxOptions.placeholder"
+            class="inputbox-textarea"
+            rows="4"
+            @keyup.ctrl.enter="handleInputBoxConfirm"
+            @keyup.escape="handleInputBoxCancel"
+          />
           <input
+            v-else
             v-model="inputBoxValue"
             :placeholder="inputBoxOptions.placeholder"
             class="inputbox-input"
@@ -47,7 +57,8 @@ const inputBoxValue = ref('')
 const showInputBoxVisible = ref(false)
 const inputBoxOptions = reactive({
   title: '',
-  placeholder: ''
+  placeholder: '',
+  multiLine: false
 })
 
 let removeInputBoxListenerCallback: () => void = () => {}
@@ -60,6 +71,7 @@ function initInputBoxValue(options: IShowInputBoxOption) {
   inputBoxValue.value = options.value || ''
   inputBoxOptions.title = options.title || ''
   inputBoxOptions.placeholder = options.placeholder || ''
+  inputBoxOptions.multiLine = options.multiLine || false
   showInputBoxVisible.value = true
 }
 
@@ -200,6 +212,30 @@ export default {
   color: rgb(156 163 175);
 }
 
+.inputbox-textarea {
+  width: 100%;
+  border: 1px solid rgb(209 213 219);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  color: rgb(17 24 39);
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  outline: none;
+  resize: vertical;
+  min-height: 4rem;
+}
+
+.inputbox-textarea:focus {
+  border-color: rgb(59 130 246);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.inputbox-textarea::placeholder {
+  color: rgb(156 163 175);
+}
+
 :root.dark .inputbox-input,
 :root.auto.dark .inputbox-input {
   background: rgb(55 65 81);
@@ -215,6 +251,24 @@ export default {
 
 :root.dark .inputbox-input::placeholder,
 :root.auto.dark .inputbox-input::placeholder {
+  color: rgb(107 114 128);
+}
+
+:root.dark .inputbox-textarea,
+:root.auto.dark .inputbox-textarea {
+  background: rgb(55 65 81);
+  border-color: rgb(75 85 99);
+  color: rgb(243 244 246);
+}
+
+:root.dark .inputbox-textarea:focus,
+:root.auto.dark .inputbox-textarea:focus {
+  border-color: rgb(59 130 246);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+:root.dark .inputbox-textarea::placeholder,
+:root.auto.dark .inputbox-textarea::placeholder {
   color: rgb(107 114 128);
 }
 

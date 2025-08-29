@@ -9,6 +9,7 @@ type IEvent = {
     value: string
     title: string
     placeholder: string
+    multiLine?: boolean
   }
 }
 

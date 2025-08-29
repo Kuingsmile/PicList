@@ -51,9 +51,12 @@
       "clipboardPicture": "剪貼板圖片",
       "clickToUpload": "點擊上傳",
       "urlUpload": "URL上傳",
-      "inputUrlTip": "請輸入URL",
+      "inputUrlTip": "請輸入URL地址",
       "httpPrefixTip": "以http://或https://開頭",
+      "multipleUrlsHint": "多個URL請分行輸入",
       "inputValidUrl": "請輸入合法的URL",
+      "invalidUrlsFound": "發現無效的URL: {urls}",
+      "uploadingMultipleUrls": "正在上傳 {count} 個URL...",
       "linkFormat": "連結格式",
       "outputFormat": "輸出格式",
       "urlType": { "title": "連結類型", "normal": "長連結", "short": "短連結" }

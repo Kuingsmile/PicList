@@ -51,9 +51,12 @@
       "clipboardPicture": "Clipboard",
       "clickToUpload": "Click to Upload",
       "urlUpload": "URL Upload",
-      "inputUrlTip": "Please enter URL",
+      "inputUrlTip": "Please enter URL(s)",
       "httpPrefixTip": "Starts with http:// or https://",
+      "multipleUrlsHint": "Each URL on a separate line for multiple uploads",
       "inputValidUrl": "Please enter a valid URL",
+      "invalidUrlsFound": "Invalid URLs found: {urls}",
+      "uploadingMultipleUrls": "Uploading {count} URLs...",
       "linkFormat": "Link Format",
       "outputFormat": "Output Format",
       "urlType": { "title": "Link Type", "normal": "Long Link", "short": "Short Link" }
