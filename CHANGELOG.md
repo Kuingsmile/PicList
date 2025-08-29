@@ -1,3 +1,17 @@
+##  (2025-08-29)
+
+* :arrow_up: Upgrade(custom): upgrade electron 34be42d
+* :hammer: Refactor(custom): refactor manage api to be more concise 7df95c8
+* :package: Chore(custom): reduce package size f7e46b0
+* :package: Chore(custom): reduce package size , exclude typescript b74ab0e
+* :package: Chore(custom): update winget manifest file a6d5487
+* :pencil: Docs(custom): prepare for 3.0.3 5c7e4d2
+* :sparkles: Feature(custom): add log for cloud delete 3e98fd4
+* :sparkles: Feature(custom): add release note page 692b402
+* :sparkles: Feature(custom): support upload multiple urls e76b84b
+
+
+
 ##  (2025-08-21)
 
 * :arrow_up: Upgrade(custom): update piclist-core 7b47e2a
