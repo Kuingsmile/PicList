@@ -334,7 +334,20 @@
         "newestVersion": "最新版本",
         "getting": "正在獲取中...",
         "hasNewVersion": "PicList 更新啦，請點擊確定重啟觸發更新",
-        "networkError": "網絡錯誤，請檢查網絡連接"
+        "networkError": "網絡錯誤，請檢查網絡連接",
+        "releaseNotes": "版本說明",
+        "releaseNotesDescription": "查看最新的更改和更新內容",
+        "latestReleaseNotes": "最新版本說明",
+        "refresh": "刷新",
+        "retry": "重試",
+        "loadingReleaseNotes": "正在載入版本說明...",
+        "releaseNotesError": "載入版本說明失敗，請檢查網絡連接。",
+        "noReleaseNotes": "暫無版本說明",
+        "lastUpdated": "最後更新",
+        "justNow": "剛剛",
+        "minutesAgo": "{minutes} 分鐘前",
+        "hoursAgo": "{hours} 小時前",
+        "daysAgo": "{days} 天前"
       }
     },
     "plugin": {

@@ -339,7 +339,20 @@
         "newestVersion": "Newest Version: {version}",
         "getting": "Getting...",
         "hasNewVersion": "PicList has been updated, please click OK to restart and trigger the update",
-        "networkError": "Network error, please check your network connection"
+        "networkError": "Network error, please check your network connection",
+        "releaseNotes": "Release Notes",
+        "releaseNotesDescription": "View the latest changes and updates",
+        "latestReleaseNotes": "Latest Release Notes",
+        "refresh": "Refresh",
+        "retry": "Retry",
+        "loadingReleaseNotes": "Loading release notes...",
+        "releaseNotesError": "Failed to load release notes. Please check your network connection.",
+        "noReleaseNotes": "No release notes available",
+        "lastUpdated": "Last updated",
+        "justNow": "just now",
+        "minutesAgo": "{minutes} minutes ago",
+        "hoursAgo": "{hours} hours ago",
+        "daysAgo": "{days} days ago"
       }
     },
     "plugin": {

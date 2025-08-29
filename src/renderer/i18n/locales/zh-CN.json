@@ -334,7 +334,20 @@
         "newestVersion": "最新版本",
         "getting": "正在获取中...",
         "hasNewVersion": "PicList 更新啦，请点击确定重启触发更新",
-        "networkError": "网络错误，请检查网络连接"
+        "networkError": "网络错误，请检查网络连接",
+        "releaseNotes": "版本说明",
+        "releaseNotesDescription": "查看最新的更改和更新内容",
+        "latestReleaseNotes": "最新版本说明",
+        "refresh": "刷新",
+        "retry": "重试",
+        "loadingReleaseNotes": "正在加载版本说明...",
+        "releaseNotesError": "加载版本说明失败，请检查网络连接。",
+        "noReleaseNotes": "暂无版本说明",
+        "lastUpdated": "最后更新",
+        "justNow": "刚刚",
+        "minutesAgo": "{minutes} 分钟前",
+        "hoursAgo": "{hours} 小时前",
+        "daysAgo": "{days} 天前"
       }
     },
     "plugin": {

@@ -650,6 +650,53 @@
               </div>
             </div>
           </div>
+
+          <!-- Release Notes Card -->
+          <div class="settings-section">
+            <h2>{{ t('pages.settings.update.releaseNotes') }}</h2>
+            <p>{{ t('pages.settings.update.releaseNotesDescription') }}</p>
+
+            <div class="release-notes-card">
+              <div class="release-notes-header">
+                <h3>{{ t('pages.settings.update.latestReleaseNotes') }}</h3>
+                <div class="release-notes-actions">
+                  <button
+                    class="btn btn-secondary btn-sm"
+                    :disabled="fetchingReleaseNotes"
+                    @click="fetchReleaseNotesManually"
+                  >
+                    <RefreshCw :size="14" :class="{ rotate: fetchingReleaseNotes }" />
+                    {{ t('pages.settings.update.refresh') }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="release-notes-content">
+                <div v-if="fetchingReleaseNotes" class="release-notes-loading">
+                  <RefreshCw :size="16" class="rotate" />
+                  {{ t('pages.settings.update.loadingReleaseNotes') }}
+                </div>
+                <div v-else-if="releaseNotes" class="release-notes-text">
+                  <pre class="release-notes-pre">{{ releaseNotes }}</pre>
+                </div>
+                <div v-else-if="releaseNotesError" class="release-notes-error">
+                  {{ releaseNotesError }}
+                  <button class="btn btn-link btn-sm" @click="fetchReleaseNotesManually">
+                    {{ t('pages.settings.update.retry') }}
+                  </button>
+                </div>
+                <div v-else class="release-notes-empty">
+                  {{ t('pages.settings.update.noReleaseNotes') }}
+                </div>
+              </div>
+
+              <div v-if="releaseNotesLastFetch" class="release-notes-footer">
+                <small>
+                  {{ t('pages.settings.update.lastUpdated') }}: {{ formatLastFetchTime(releaseNotesLastFetch) }}
+                </small>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1401,6 +1448,8 @@ const addWatch = () => {
   watch(currentLanguage, newVal => {
     if (newVal) {
       handleLanguageChange(newVal)
+      // Fetch release notes when language changes
+      fetchReleaseNotes(true)
     }
   })
 
@@ -1531,6 +1580,12 @@ function confirmSyncSetting() {
 
 const version = pkg.version
 const latestVersion = ref('')
+const releaseNotes = ref('')
+const releaseNotesError = ref('')
+const releaseNotesLastFetch = ref<Date | null>(null)
+const fetchingReleaseNotes = ref(false)
+
+const RELEASE_NOTES_CACHE_DURATION = 30 * 60 * 1000
 
 const needUpdate = computed(() => {
   if (latestVersion.value) {
@@ -1589,6 +1644,9 @@ async function initData() {
   formOfSetting.value.logFileSizeLimit = enforceNumber(settings.logFileSizeLimit) || 10
   addProxyWatch()
   addWatch()
+
+  // Fetch release notes on initialization
+  fetchReleaseNotes()
 }
 
 function initArray(arrayT: string | string[], defaultValue: string[]) {
@@ -1701,6 +1759,62 @@ function handleAutoStartChange(val: ICheckBoxValueType) {
 
 function compareVersion2Update(current: string, latest: string): boolean {
   return compare(current, latest, '<')
+}
+
+function formatLastFetchTime(date: Date): string {
+  const now = new Date()
+  const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+
+  if (diffInMinutes < 1) {
+    return t('pages.settings.update.justNow')
+  } else if (diffInMinutes < 60) {
+    return t('pages.settings.update.minutesAgo', { minutes: diffInMinutes })
+  } else {
+    const hours = Math.floor(diffInMinutes / 60)
+    if (hours < 24) {
+      return t('pages.settings.update.hoursAgo', { hours })
+    } else {
+      const days = Math.floor(hours / 24)
+      return t('pages.settings.update.daysAgo', { days })
+    }
+  }
+}
+
+async function fetchReleaseNotes(forceRefresh = false): Promise<void> {
+  if (!forceRefresh && releaseNotesLastFetch.value) {
+    const timeSinceLastFetch = Date.now() - releaseNotesLastFetch.value.getTime()
+    if (timeSinceLastFetch < RELEASE_NOTES_CACHE_DURATION) {
+      return
+    }
+  }
+
+  try {
+    fetchingReleaseNotes.value = true
+    releaseNotesError.value = ''
+
+    const isEnglish = currentLanguage.value === 'en'
+    const fileName = isEnglish ? 'currentVersion_en.md' : 'currentVersion.md'
+    const url = `https://raw.githubusercontent.com/Kuingsmile/piclist/dev/${fileName}`
+
+    const response = await fetch(url)
+    if (response.ok) {
+      const content = await response.text()
+      releaseNotes.value = content
+      releaseNotesLastFetch.value = new Date()
+      releaseNotesError.value = ''
+    } else {
+      throw new Error(`HTTP ${response.status}`)
+    }
+  } catch (error) {
+    console.error('Failed to fetch release notes:', error)
+    releaseNotesError.value = t('pages.settings.update.releaseNotesError')
+  } finally {
+    fetchingReleaseNotes.value = false
+  }
+}
+
+async function fetchReleaseNotesManually(): Promise<void> {
+  await fetchReleaseNotes(true)
 }
 
 async function checkUpdate() {

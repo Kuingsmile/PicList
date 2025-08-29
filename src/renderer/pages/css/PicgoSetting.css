@@ -809,3 +809,162 @@ small {
   background: var(--color-blue-common);
   border-color: rgba(255, 255, 255, 0.15);
 }
+
+/* Update info and Release Notes Styles */
+.update-info {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--color-background);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.update-info > div {
+  margin-bottom: 0.5rem;
+  font-size: 0.925rem;
+}
+
+.update-info > div:last-child {
+  margin-bottom: 0;
+}
+
+.update-notice {
+  color: var(--color-success) !important;
+  font-weight: 500;
+}
+
+/* Release Notes Card */
+.release-notes-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.release-notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.release-notes-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.release-notes-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  min-height: auto;
+}
+
+.btn-link {
+  background: transparent;
+  border: none;
+  color: var(--color-accent);
+  text-decoration: underline;
+  padding: 0.25rem;
+}
+
+.btn-link:hover {
+  color: var(--color-accent-hover);
+  background: transparent;
+}
+
+.release-notes-content {
+  background: var(--color-background);
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-accent) transparent;
+}
+
+.release-notes-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.release-notes-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.release-notes-content::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  border-radius: 3px;
+}
+
+.release-notes-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-hover);
+}
+
+.release-notes-loading,
+.release-notes-error,
+.release-notes-empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 0.925rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.release-notes-error {
+  color: var(--color-error);
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.release-notes-text {
+  padding: 0;
+}
+
+.release-notes-pre {
+  margin: 0;
+  padding: 1.5rem;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+}
+
+.release-notes-footer {
+  padding: 0.75rem 1.5rem;
+  background: var(--color-background-secondary);
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.release-notes-footer small {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+}
+
+/* Rotation animation for loading icons */
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rotate {
+  animation: rotate 1s linear infinite;
+}
