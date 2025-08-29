@@ -26,6 +26,36 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   logger: ManageLogger
   currentPicBedConfig: IPicBedMangeConfig
 
+  private readonly ALL_CLIENTS = [
+    'tcyun',
+    'aliyun',
+    'qiniu',
+    'upyun',
+    'smms',
+    'github',
+    'imgur',
+    's3plist',
+    'webdavplist',
+    'local',
+    'sftp'
+  ]
+
+  private readonly CLOUD_STORAGE_CLIENTS = ['tcyun', 'aliyun', 'qiniu', 's3plist']
+  private readonly BASIC_API_CLIENTS = ['tcyun', 'aliyun', 'qiniu', 'github', 'imgur', 's3plist']
+  private readonly FOLDER_SUPPORT_CLIENTS = [
+    'tcyun',
+    'aliyun',
+    'qiniu',
+    'upyun',
+    'github',
+    's3plist',
+    'webdavplist',
+    'local',
+    'sftp'
+  ]
+
+  private readonly FILE_LIST_CLIENTS = ['tcyun', 'aliyun', 'qiniu', 'upyun', 'smms', 's3plist']
+
   constructor(currentPicBed: string = '') {
     super()
     this.currentPicBed = currentPicBed || 'placeholder'
@@ -48,83 +78,101 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     this.logger.error(formatError(err, param))
   }
 
+  private readonly clientFactories = {
+    aliyun: () =>
+      new API.AliyunApi(this.currentPicBedConfig.accessKeyId, this.currentPicBedConfig.accessKeySecret, this.logger),
+    github: () =>
+      new API.GithubApi(
+        this.currentPicBedConfig.token,
+        this.currentPicBedConfig.githubUsername,
+        this.currentPicBedConfig.proxy,
+        this.logger
+      ),
+    imgur: () =>
+      new API.ImgurApi(
+        this.currentPicBedConfig.imgurUserName,
+        this.currentPicBedConfig.accessToken,
+        this.currentPicBedConfig.proxy,
+        this.logger
+      ),
+    local: () => new API.LocalApi(this.logger),
+    qiniu: () => new API.QiniuApi(this.currentPicBedConfig.accessKey, this.currentPicBedConfig.secretKey, this.logger),
+    smms: () => new API.SmmsApi(this.currentPicBedConfig.token, this.logger),
+    s3plist: () =>
+      new API.S3plistApi(
+        this.currentPicBedConfig.accessKeyId,
+        this.currentPicBedConfig.secretAccessKey,
+        this.currentPicBedConfig.endpoint,
+        this.currentPicBedConfig.sslEnabled,
+        this.currentPicBedConfig.s3ForcePathStyle,
+        this.currentPicBedConfig.proxy,
+        this.logger,
+        this.currentPicBedConfig.dogeCloudSupport || false,
+        this.currentPicBedConfig.bucketName || ''
+      ),
+    sftp: () =>
+      new API.SftpApi(
+        this.currentPicBedConfig.host,
+        this.currentPicBedConfig.port,
+        this.currentPicBedConfig.username,
+        this.currentPicBedConfig.password,
+        this.currentPicBedConfig.privateKey,
+        this.currentPicBedConfig.passphrase,
+        this.currentPicBedConfig.fileMode,
+        this.currentPicBedConfig.dirMode,
+        this.logger
+      ),
+    tcyun: () => new API.TcyunApi(this.currentPicBedConfig.secretId, this.currentPicBedConfig.secretKey, this.logger),
+    upyun: () =>
+      new API.UpyunApi(
+        this.currentPicBedConfig.bucketName,
+        this.currentPicBedConfig.operator,
+        this.currentPicBedConfig.password,
+        this.logger,
+        this.currentPicBedConfig.antiLeechToken,
+        this.currentPicBedConfig.expireTime
+      ),
+    webdavplist: () =>
+      new API.WebdavplistApi(
+        this.currentPicBedConfig.endpoint,
+        this.currentPicBedConfig.username,
+        this.currentPicBedConfig.password,
+        this.currentPicBedConfig.sslEnabled,
+        this.currentPicBedConfig.proxy,
+        this.currentPicBedConfig.authType,
+        this.logger
+      )
+  }
+
   createClient() {
-    const name = this.currentPicBedConfig.picBedName
-    switch (name) {
-      case 'aliyun':
-        return new API.AliyunApi(
-          this.currentPicBedConfig.accessKeyId,
-          this.currentPicBedConfig.accessKeySecret,
-          this.logger
-        )
-      case 'github':
-        return new API.GithubApi(
-          this.currentPicBedConfig.token,
-          this.currentPicBedConfig.githubUsername,
-          this.currentPicBedConfig.proxy,
-          this.logger
-        )
-      case 'imgur':
-        return new API.ImgurApi(
-          this.currentPicBedConfig.imgurUserName,
-          this.currentPicBedConfig.accessToken,
-          this.currentPicBedConfig.proxy,
-          this.logger
-        )
-      case 'local':
-        return new API.LocalApi(this.logger)
-      case 'qiniu':
-        return new API.QiniuApi(this.currentPicBedConfig.accessKey, this.currentPicBedConfig.secretKey, this.logger)
-      case 'smms':
-        return new API.SmmsApi(this.currentPicBedConfig.token, this.logger)
-      case 's3plist':
-        return new API.S3plistApi(
-          this.currentPicBedConfig.accessKeyId,
-          this.currentPicBedConfig.secretAccessKey,
-          this.currentPicBedConfig.endpoint,
-          this.currentPicBedConfig.sslEnabled,
-          this.currentPicBedConfig.s3ForcePathStyle,
-          this.currentPicBedConfig.proxy,
-          this.logger,
-          this.currentPicBedConfig.dogeCloudSupport || false,
-          this.currentPicBedConfig.bucketName || ''
-        )
-      case 'sftp':
-        return new API.SftpApi(
-          this.currentPicBedConfig.host,
-          this.currentPicBedConfig.port,
-          this.currentPicBedConfig.username,
-          this.currentPicBedConfig.password,
-          this.currentPicBedConfig.privateKey,
-          this.currentPicBedConfig.passphrase,
-          this.currentPicBedConfig.fileMode,
-          this.currentPicBedConfig.dirMode,
-          this.logger
-        )
-      case 'tcyun':
-        return new API.TcyunApi(this.currentPicBedConfig.secretId, this.currentPicBedConfig.secretKey, this.logger)
-      case 'upyun':
-        return new API.UpyunApi(
-          this.currentPicBedConfig.bucketName,
-          this.currentPicBedConfig.operator,
-          this.currentPicBedConfig.password,
-          this.logger,
-          this.currentPicBedConfig.antiLeechToken,
-          this.currentPicBedConfig.expireTime
-        )
-      case 'webdavplist':
-        return new API.WebdavplistApi(
-          this.currentPicBedConfig.endpoint,
-          this.currentPicBedConfig.username,
-          this.currentPicBedConfig.password,
-          this.currentPicBedConfig.sslEnabled,
-          this.currentPicBedConfig.proxy,
-          this.currentPicBedConfig.authType,
-          this.logger
-        )
-      default:
-        return {} as any
+    const factory = this.clientFactories[this.currentPicBedConfig.picBedName as keyof typeof this.clientFactories]
+    return factory ? factory() : ({} as any)
+  }
+
+  private async executeWithClient<T>(
+    supportedProviders: string[],
+    method: string,
+    operation: (client: any) => Promise<T>,
+    defaultValue: T
+  ): Promise<T> {
+    if (!supportedProviders.includes(this.currentPicBedConfig.picBedName)) {
+      return defaultValue
     }
+    try {
+      const client = this.createClient() as any
+      return await operation(client)
+    } catch (error: any) {
+      this.errorMsg(error, this.getMsgParam(method))
+      return defaultValue
+    }
+  }
+
+  private sendDefaultResult(eventName: string, defaultResult: any) {
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    window.webContents.send(eventName, defaultResult)
+    ipcMain.removeAllListeners(
+      eventName === refreshDownloadFileTransferList ? cancelDownloadLoadingFileList : 'cancelLoadingFileList'
+    )
   }
 
   private getPicBedConfig(picBedName: string): IPicBedMangeConfig {
@@ -190,46 +238,19 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     unset(this.getConfig(key), propName)
   }
 
-  async getBucketList(param?: IStringKeyMap | undefined): Promise<any> {
-    let client
-    const name = this.currentPicBedConfig.picBedName.replace('plist', '')
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'tcyun':
-      case 'aliyun':
-      case 'qiniu':
-      case 'github':
-      case 'imgur':
-      case 's3plist':
-        try {
-          client = this.createClient()
-          return await client.getBucketList()
-        } catch (error: any) {
-          this.errorMsg(error, this.getMsgParam('getBucketList'))
-          return []
-        }
-      case 'upyun':
-        return [
-          {
-            Name: this.currentPicBedConfig.bucketName,
-            Location: 'upyun',
-            CreationDate: new Date().toISOString()
-          }
-        ]
-      case 'smms':
-      case 'webdavplist':
-      case 'local':
-      case 'sftp':
-        return [
-          {
-            Name: name,
-            Location: name,
-            CreationDate: new Date().toISOString()
-          }
-        ]
-      default:
-        console.log(param)
-        return []
+  async getBucketList(_?: IStringKeyMap | undefined): Promise<any> {
+    const staticBuckets = {
+      upyun: [{ Name: this.currentPicBedConfig.bucketName, Location: 'upyun', CreationDate: new Date().toISOString() }],
+      smms: [{ Name: 'smms', Location: 'smms', CreationDate: new Date().toISOString() }],
+      webdavplist: [{ Name: 'webdav', Location: 'webdav', CreationDate: new Date().toISOString() }],
+      local: [{ Name: 'local', Location: 'local', CreationDate: new Date().toISOString() }],
+      sftp: [{ Name: 'sftp', Location: 'sftp', CreationDate: new Date().toISOString() }]
     }
+
+    const staticResult = staticBuckets[this.currentPicBedConfig.picBedName as keyof typeof staticBuckets]
+    if (staticResult) return staticResult
+
+    return this.executeWithClient(this.BASIC_API_CLIENTS, 'getBucketList', client => client.getBucketList(), [])
   }
 
   async getBucketInfo(param?: IStringKeyMap | undefined): Promise<IStringKeyMap | IManageError> {
@@ -238,125 +259,66 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   }
 
   async getBucketDomain(param: IStringKeyMap): Promise<IStringKeyMap | IManageError> {
-    let client
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'tcyun':
-      case 'aliyun':
-      case 'qiniu':
-      case 'github':
-        try {
-          client = this.createClient() as any
-          return await client.getBucketDomain(param)
-        } catch (error: any) {
-          this.errorMsg(error, this.getMsgParam('getBucketDomain'))
-          return []
-        }
-      case 'upyun':
-        return [this.currentPicBedConfig.customUrl]
-      case 'smms':
-        return ['https://smms.app']
-      case 'imgur':
-        return ['https://imgur.com']
-      default:
-        return []
+    const staticDomains = {
+      upyun: [this.currentPicBedConfig.customUrl],
+      smms: ['https://smms.app'],
+      imgur: ['https://imgur.com']
     }
+
+    const staticResult = staticDomains[this.currentPicBedConfig.picBedName as keyof typeof staticDomains]
+    if (staticResult) return staticResult
+
+    const supportedClients = ['tcyun', 'aliyun', 'qiniu', 'github']
+    return this.executeWithClient(supportedClients, 'getBucketDomain', client => client.getBucketDomain(param), [])
   }
 
   async createBucket(param?: IStringKeyMap): Promise<boolean> {
-    let client
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'tcyun':
-      case 'aliyun':
-      case 'qiniu':
-      case 's3plist':
-        try {
-          client = this.createClient() as any
-          return await client.createBucket(param!)
-        } catch (error: any) {
-          this.errorMsg(error, this.getMsgParam('createBucket'))
-          return false
-        }
-      default:
-        return false
-    }
+    return this.executeWithClient(
+      this.CLOUD_STORAGE_CLIENTS,
+      'createBucket',
+      client => client.createBucket(param!),
+      false
+    )
   }
 
-  async deleteBucket(param?: IStringKeyMap): Promise<boolean> {
-    console.log(param)
+  async deleteBucket(_?: IStringKeyMap): Promise<boolean> {
     return false
   }
 
-  async getOperatorList(param?: IStringKeyMap): Promise<string[] | IManageError> {
-    console.log(param)
+  async getOperatorList(_?: IStringKeyMap): Promise<string[] | IManageError> {
     return []
   }
 
-  async addOperator(param?: IStringKeyMap): Promise<boolean> {
-    console.log(param)
+  async addOperator(_?: IStringKeyMap): Promise<boolean> {
     return false
   }
 
-  async deleteOperator(param?: IStringKeyMap): Promise<boolean> {
-    console.log(param)
+  async deleteOperator(_?: IStringKeyMap): Promise<boolean> {
     return false
   }
 
-  async getBucketAclPolicy(param?: IStringKeyMap): Promise<IStringKeyMap | IManageError> {
-    console.log(param)
+  async getBucketAclPolicy(_?: IStringKeyMap): Promise<IStringKeyMap | IManageError> {
     return {}
   }
 
   async setBucketAclPolicy(param?: IStringKeyMap): Promise<boolean> {
-    let client
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'qiniu':
-        try {
-          client = new API.QiniuApi(this.currentPicBedConfig.accessKey, this.currentPicBedConfig.secretKey, this.logger)
-          return await client.setBucketAclPolicy(param!)
-        } catch (error: any) {
-          this.errorMsg(error, this.getMsgParam('setBucketAclPolicy'))
-          return false
-        }
-      default:
-        return false
-    }
+    if (this.currentPicBedConfig.picBedName !== 'qiniu') return false
+    return this.executeWithClient(['qiniu'], 'setBucketAclPolicy', client => client.setBucketAclPolicy(param!), false)
   }
 
   async getBucketListRecursively(param?: IStringKeyMap): Promise<IStringKeyMap | IManageError> {
-    let client
-    let window
-    const defaultResult = {
-      fullList: [],
-      success: false,
-      finished: true
-    }
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'tcyun':
-      case 'aliyun':
-      case 'qiniu':
-      case 'upyun':
-      case 'smms':
-      case 'github':
-      case 'imgur':
-      case 's3plist':
-      case 'webdavplist':
-      case 'local':
-      case 'sftp':
-        try {
-          client = this.createClient() as any
-          return await client.getBucketListRecursively(param!)
-        } catch (error: any) {
-          this.errorMsg(error, this.getMsgParam('getBucketListRecursively'))
-          window = windowManager.get(IWindowList.SETTING_WINDOW)!
-          window.webContents.send(refreshDownloadFileTransferList, defaultResult)
-          ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
-          return {}
-        }
-      default:
-        window = windowManager.get(IWindowList.SETTING_WINDOW)!
-        window.webContents.send(refreshDownloadFileTransferList, defaultResult)
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
-        return {}
+    const defaultResult = { fullList: [], success: false, finished: true }
+
+    try {
+      return await this.executeWithClient(
+        this.ALL_CLIENTS,
+        'getBucketListRecursively',
+        client => client.getBucketListRecursively(param!),
+        defaultResult
+      )
+    } catch (error: any) {
+      this.sendDefaultResult(refreshDownloadFileTransferList, defaultResult)
+      return {}
     }
   }
 
@@ -366,40 +328,18 @@ export class ManageApi extends EventEmitter implements IManageApiType {
    * @returns
    */
   async getBucketListBackstage(param?: IStringKeyMap): Promise<IStringKeyMap | IManageError> {
-    let client
-    let window
-    const defaultResult = {
-      fullList: [],
-      success: false,
-      finished: true
-    }
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'tcyun':
-      case 'aliyun':
-      case 'qiniu':
-      case 'upyun':
-      case 'smms':
-      case 'github':
-      case 'imgur':
-      case 's3plist':
-      case 'webdavplist':
-      case 'local':
-      case 'sftp':
-        try {
-          client = this.createClient() as any
-          return await client.getBucketListBackstage(param!)
-        } catch (error: any) {
-          this.errorMsg(error, this.getMsgParam('getBucketListBackstage'))
-          window = windowManager.get(IWindowList.SETTING_WINDOW)!
-          window.webContents.send('refreshFileTransferList', defaultResult)
-          ipcMain.removeAllListeners('cancelLoadingFileList')
-          return {}
-        }
-      default:
-        window = windowManager.get(IWindowList.SETTING_WINDOW)!
-        window.webContents.send('refreshFileTransferList', defaultResult)
-        ipcMain.removeAllListeners('cancelLoadingFileList')
-        return {}
+    const defaultResult = { fullList: [], success: false, finished: true }
+
+    try {
+      return await this.executeWithClient(
+        this.ALL_CLIENTS,
+        'getBucketListBackstage',
+        client => client.getBucketListBackstage(param!),
+        defaultResult
+      )
+    } catch (error: any) {
+      this.sendDefaultResult('refreshFileTransferList', defaultResult)
+      return {}
     }
   }
 
@@ -413,206 +353,81 @@ export class ManageApi extends EventEmitter implements IManageApiType {
    * fileSize: 文件大小
    **/
   async getBucketFileList(param?: IStringKeyMap): Promise<IStringKeyMap | IManageError> {
-    const defaultResponse = {
-      fullList: [] as any,
-      isTruncated: false,
-      nextMarker: '',
-      success: false
-    }
-    let client
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'tcyun':
-      case 'aliyun':
-      case 'qiniu':
-      case 'upyun':
-      case 'smms':
-      case 's3plist':
-        try {
-          client = this.createClient()
-          return await client.getBucketFileList(param!)
-        } catch (error: any) {
-          this.errorMsg(error, this.getMsgParam('getBucketFileList'))
-          return defaultResponse
-        }
-      default:
-        return defaultResponse
-    }
+    const defaultResponse = { fullList: [] as any, isTruncated: false, nextMarker: '', success: false }
+    return this.executeWithClient(
+      this.FILE_LIST_CLIENTS,
+      'getBucketFileList',
+      client => client.getBucketFileList(param!),
+      defaultResponse
+    )
   }
 
   async deleteBucketFile(param?: IStringKeyMap): Promise<boolean> {
-    let client
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'tcyun':
-      case 'aliyun':
-      case 'qiniu':
-      case 'upyun':
-      case 'smms':
-      case 'github':
-      case 'imgur':
-      case 's3plist':
-      case 'webdavplist':
-      case 'local':
-      case 'sftp':
-        try {
-          client = this.createClient() as any
-          const res = await client.deleteBucketFile(param!)
-          return res
-        } catch (error: any) {
-          this.errorMsg(error, this.getMsgParam('deleteBucketFile'))
-          return false
-        }
-      default:
-        return false
-    }
+    return this.executeWithClient(
+      this.ALL_CLIENTS,
+      'deleteBucketFile',
+      client => client.deleteBucketFile(param!),
+      false
+    )
   }
 
   async deleteBucketFolder(param?: IStringKeyMap): Promise<boolean> {
-    let client
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'tcyun':
-      case 'aliyun':
-      case 'qiniu':
-      case 'upyun':
-      case 'github':
-      case 's3plist':
-      case 'webdavplist':
-      case 'local':
-      case 'sftp':
-        try {
-          client = this.createClient() as any
-          return await client.deleteBucketFolder(param!)
-        } catch (error: any) {
-          this.errorMsg(error, this.getMsgParam('deleteBucketFolder'))
-          return false
-        }
-      default:
-        return false
-    }
+    return this.executeWithClient(
+      this.FOLDER_SUPPORT_CLIENTS,
+      'deleteBucketFolder',
+      client => client.deleteBucketFolder(param!),
+      false
+    )
   }
 
   async renameBucketFile(param?: IStringKeyMap): Promise<boolean> {
-    let client
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'tcyun':
-      case 'aliyun':
-      case 'qiniu':
-      case 'upyun':
-      case 's3plist':
-      case 'webdavplist':
-      case 'local':
-      case 'sftp':
-        try {
-          client = this.createClient() as any
-          return await client.renameBucketFile(param!)
-        } catch (error: any) {
-          this.errorMsg(error, this.getMsgParam('renameBucketFile'))
-          return false
-        }
-      default:
-        return false
-    }
+    const supportedClients = ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist', 'local', 'sftp']
+    return this.executeWithClient(
+      supportedClients,
+      'renameBucketFile',
+      client => client.renameBucketFile(param!),
+      false
+    )
   }
 
   async downloadBucketFile(param?: IStringKeyMap): Promise<boolean> {
-    let client
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'tcyun':
-      case 'aliyun':
-      case 'qiniu':
-      case 'upyun':
-      case 'smms':
-      case 'github':
-      case 'imgur':
-      case 's3plist':
-      case 'webdavplist':
-      case 'local':
-      case 'sftp':
-        try {
-          client = this.createClient() as any
-          const res = await client.downloadBucketFile(param!)
-          return res
-        } catch (error: any) {
-          this.errorMsg(error, this.getMsgParam('downloadBucketFile'))
-          return false
-        }
-      default:
-        return false
-    }
+    return this.executeWithClient(
+      this.ALL_CLIENTS,
+      'downloadBucketFile',
+      client => client.downloadBucketFile(param!),
+      false
+    )
   }
 
-  async copyMoveBucketFile(param?: IStringKeyMap): Promise<boolean> {
-    console.log(param)
+  async copyMoveBucketFile(_?: IStringKeyMap): Promise<boolean> {
     return false
   }
 
   async createBucketFolder(param?: IStringKeyMap): Promise<boolean> {
-    let client
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'tcyun':
-      case 'aliyun':
-      case 'qiniu':
-      case 'upyun':
-      case 'github':
-      case 's3plist':
-      case 'webdavplist':
-      case 'local':
-      case 'sftp':
-        try {
-          client = this.createClient() as any
-          return await client.createBucketFolder(param!)
-        } catch (error) {
-          this.errorMsg(error, this.getMsgParam('createBucketFolder'))
-          return false
-        }
-      default:
-        return false
-    }
+    return this.executeWithClient(
+      this.FOLDER_SUPPORT_CLIENTS,
+      'createBucketFolder',
+      client => client.createBucketFolder(param!),
+      false
+    )
   }
 
   async uploadBucketFile(param?: IStringKeyMap): Promise<boolean> {
-    let client
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'tcyun':
-      case 'aliyun':
-      case 'qiniu':
-      case 'upyun':
-      case 'smms':
-      case 'github':
-      case 'imgur':
-      case 's3plist':
-      case 'webdavplist':
-      case 'local':
-      case 'sftp':
-        try {
-          client = this.createClient() as any
-          return await client.uploadBucketFile(param!)
-        } catch (error: any) {
-          this.errorMsg(error, this.getMsgParam('uploadBucketFile'))
-          return false
-        }
-      default:
-        return false
-    }
+    return this.executeWithClient(
+      this.ALL_CLIENTS,
+      'uploadBucketFile',
+      client => client.uploadBucketFile(param!),
+      false
+    )
   }
 
   async getPreSignedUrl(param?: IStringKeyMap): Promise<string> {
-    let client
-    switch (this.currentPicBedConfig.picBedName) {
-      case 'tcyun':
-      case 'aliyun':
-      case 'qiniu':
-      case 'github':
-      case 's3plist':
-      case 'webdavplist':
-        try {
-          client = this.createClient() as any
-          return await client.getPreSignedUrl(param!)
-        } catch (error: any) {
-          this.errorMsg(error, this.getMsgParam('getPreSignedUrl'))
-          return 'error'
-        }
-      default:
-        return 'error'
-    }
+    const supportedClients = ['tcyun', 'aliyun', 'qiniu', 'github', 's3plist', 'webdavplist']
+    return this.executeWithClient(
+      supportedClients,
+      'getPreSignedUrl',
+      client => client.getPreSignedUrl(param!),
+      'error'
+    )
   }
 }
