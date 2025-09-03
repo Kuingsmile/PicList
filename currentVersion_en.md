@@ -1,8 +1,6 @@
-## 🎉 [v3.0.3] Release Notes
+## 🎉 [v3.0.4] Release Notes
 
-### ✨ New Features
+### 🐛 Bug Fixes
 
-- URL upload now supports uploading multiple links at once, separated by line breaks.
-- Added log records for deleting from the album cloud.
-- The settings-update page now displays release notes.
-- Optimized the package size after packaging and installation, reducing the size by 20% after packaging and 40% after installation.
+- Fixed an issue where images were not displaying correctly and subdirectories could not be accessed when managing WebDAV.
+- Fixed an issue where pagination could not be switched on the management interface.
