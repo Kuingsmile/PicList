@@ -63,6 +63,9 @@ declare global {
       mime: {
         lookup: typeof mime.getType
       }
+      buffer: {
+        from: typeof Buffer.from
+      }
     }
     i18n: {
       setLocales: (lang: string, locales: ILocales) => void

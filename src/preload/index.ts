@@ -94,6 +94,9 @@ try {
     },
     mime: {
       lookup: mime.getType
+    },
+    buffer: {
+      from: Buffer.from
     }
   })
 } catch (error) {
