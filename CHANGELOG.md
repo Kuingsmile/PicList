@@ -1,3 +1,12 @@
+##  (2025-09-03)
+
+* :bug: Fix(custom): fix the paging issue of manage page cf28cc3, closes #385
+* :bug: Fix(custom): fix webdav buffer usage 58ba833, closes #384
+* :package: Chore(custom): update winget to 3.0.3 ef7752b
+* :pencil: Docs(custom): update changelog d73f314
+
+
+
 ##  (2025-08-29)
 
 * :arrow_up: Upgrade(custom): upgrade electron 34be42d
