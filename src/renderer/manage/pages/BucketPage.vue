@@ -2026,11 +2026,59 @@ async function forceRefreshFileList() {
   isShowLoadingPage.value = false
 }
 
-watch(currentPageNumber, () => {
-  if (typeof currentPageNumber.value !== 'number') {
+watch(currentPageNumber, (newVal, oldVal) => {
+  if (typeof newVal !== 'number') {
     currentPageNumber.value = 1
   }
+  // Update previousPageNumber when currentPageNumber changes programmatically
+  if (oldVal && typeof oldVal === 'number') {
+    previousPageNumber.value = oldVal
+  }
 })
+
+const changePage = async (cur: number | undefined, prev: number | undefined) => {
+  if (!cur || !prev) {
+    currentPageNumber.value = 1
+    return
+  }
+  const isForwardNavigation = cur > prev
+  const newPageNumber = isForwardNavigation ? prev + 1 : prev - 1
+  const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
+
+  isShowLoadingPage.value = true
+  currentPageNumber.value = newPageNumber
+  currentPageFilesInfo.length = 0
+  searchText.value = ''
+  urlToUpload.value = ''
+  dialogVisible.value = false
+
+  if (!isForwardNavigation) {
+    pagingMarker.value = pagingMarkerStack[pagingMarkerStack.length - 2]
+    pagingMarkerStack.pop()
+    pagingMarkerStack.pop()
+  }
+
+  const res = (await getBucketFileList()) as IStringKeyMap
+  isShowLoadingPage.value = false
+
+  if (!res.success) {
+    message.error(t('pages.manage.bucket.getFileListFailed'))
+    return
+  }
+
+  currentPageFilesInfo.push(...res.fullList)
+
+  sortFile(sortType)
+
+  if (!(cur < prev && !paging.value)) {
+    if (res.isTruncated) {
+      pagingMarkerStack.push(pagingMarker.value)
+      pagingMarker.value = res.nextMarker
+    } else {
+      message.success(t('pages.manage.bucket.lastPageMsg'))
+    }
+  }
+}
 
 // Watch upload panel visibility to start/stop refresh task
 watch(isShowUploadPanel, newValue => {
@@ -2057,11 +2105,15 @@ watch(
   }
 )
 
-const handlePageNumberInput = (event: Event) => {
+const previousPageNumber = ref(1)
+
+const handlePageNumberInput = async (event: Event) => {
   const target = event.target as HTMLInputElement
   const value = parseInt(target.value, 10)
   if (!isNaN(value) && value > 0) {
     currentPageNumber.value = value
+    await changePage(currentPageNumber.value, previousPageNumber.value)
+    previousPageNumber.value = currentPageNumber.value
   }
 }
 
