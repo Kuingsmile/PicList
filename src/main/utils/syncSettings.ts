@@ -379,10 +379,8 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) 
         if (webdavAuthType === 'digest') {
           options.authType = AuthType.Digest
         }
-        console.log(webdavEndpointF, options)
         const client = createClient(webdavEndpointF, options)
         const remoteFilePath = (webdavSavePath ? path.join(webdavSavePath, fileName) : fileName).replace(/\\/g, '/')
-        console.log('remoteFilePath', remoteFilePath)
         const fileContent = await client.getFileContents(remoteFilePath)
         await fs.writeFile(localFilePath, fileContent as Buffer)
         return true
