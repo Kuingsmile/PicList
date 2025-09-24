@@ -51,7 +51,6 @@
   - [Development Mode](#development-mode)
   - [Production Build](#production-build)
 - [Related Projects](#related-projects)
-- [Community](#community)
 - [License](#license)
 - [Star Me](#star-me)
 
@@ -313,14 +312,6 @@ set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
 - [PicList-Core](https://github.com/Kuingsmile/PicList-Core): Core library based on PicGo-Core for CLI and development
 - [PicHoro](https://github.com/Kuingsmile/PicHoro): Mobile app companion for PicList
 - [VS-PicList](https://github.com/Kuingsmile/vs-PicList/): VSCode plugin for PicList
-
-## Community
-
-Join our Telegram group for questions and discussion:
-
-[PicList TG Group](https://t.me/+rq8y7wsj7Pg5ZTg1)
-
-![TG QR Code](https://pichoro.msq.pub/wechat.png)
 
 ## License
 
