@@ -238,6 +238,8 @@
   gap: 0.25rem;
   font-size: 0.875rem;
   color: var(--color-text-secondary);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
   cursor: pointer;
   transition: var(--transition-fast);
 }
@@ -254,7 +256,7 @@
 
 .breadcrumb-separator {
   color: var(--color-text-tertiary);
-  margin: 0 0.25rem;
+  margin: 0 0.125rem;
 }
 
 /* Control Panel */
