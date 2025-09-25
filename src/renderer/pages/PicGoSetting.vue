@@ -1109,7 +1109,7 @@
     </div>
 
     <!-- Sync Configuration Dialog -->
-    <div v-if="syncVisible" class="dialog-overlay" @click="cancelSyncSetting">
+    <div v-if="syncVisible" class="dialog-overlay">
       <div class="dialog large" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
