@@ -257,7 +257,9 @@
           "localFolder": "Local Folder Structure",
           "filename": "Original File Name",
           "randomString": "Random String (number of digits)",
-          "uuid": "Random UUID"
+          "uuid": "Random UUID",
+          "sha256": "SHA256 Hash",
+          "sha256-n": "SHA256 Hash (First n Digits)"
         },
         "imageProcessing": "Image Processing Settings",
         "deleteLocalFileAfterUpload": "Delete Local File After Upload",

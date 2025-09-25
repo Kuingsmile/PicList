@@ -252,7 +252,9 @@
           "localFolder": "本地文件夹层级",
           "filename": "文件原名",
           "randomString": "number位随机字符串",
-          "uuid": "随机 UUID"
+          "uuid": "随机 UUID",
+          "sha256": "SHA256 哈希",
+          "sha256-n": "SHA256 哈希（前n位）"
         },
         "imageProcessing": "图片预处理设置",
         "deleteLocalFileAfterUpload": "上传后删除本地文件",

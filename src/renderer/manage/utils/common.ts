@@ -53,6 +53,10 @@ function getMd5(input: any): string {
   return window.node.crypto.createHash('md5').update(input).digest('hex')
 }
 
+function getSha256(input: any): string {
+  return window.node.crypto.createHash('sha256').update(input).digest('hex')
+}
+
 export function renameFileNameWithCustomString(oldName: string, customFormat: string, affixFileName?: string): string {
   const date = new Date()
   const year = date.getFullYear().toString()
@@ -68,6 +72,7 @@ export function renameFileNameWithCustomString(oldName: string, customFormat: st
     '{ms}': () => date.getMilliseconds().toString().padStart(3, '0'),
     '{md5}': () => getMd5(fileBaseName),
     '{md5-16}': () => getMd5(fileBaseName).slice(0, 16),
+    '{sha256}': () => getSha256(fileBaseName),
     '{filename}': () =>
       affixFileName
         ? window.node.path.basename(affixFileName, window.node.path.extname(affixFileName))
@@ -87,6 +92,11 @@ export function renameFileNameWithCustomString(oldName: string, customFormat: st
       return acc.replace(new RegExp(cur, 'g'), conversionMap[cur]())
     }, customFormat) + ext
   const strRegex = /{str-(\d+)}/gi
+  const sha256nRegex = /{sha256-(\d+)}/gi
+  newName = newName.replace(sha256nRegex, (_, group1) => {
+    const length = parseInt(group1, 10)
+    return getSha256(fileBaseName).slice(0, length)
+  })
   newName = newName.replace(strRegex, (_, group1) => {
     const length = parseInt(group1, 10)
     return randomStringGenerator(length)
@@ -239,54 +249,11 @@ export const customRenameFormatTable = [
     description: 'number位随机字符串',
     placeholderB: '{filename}',
     descriptionB: '原文件名'
-  }
-]
-
-export const buildInRenameFormatTable = [
-  {
-    placeholder: '{Y}',
-    description: '年份，4位数',
-    placeholderB: '{timestamp}',
-    descriptionB: '时间戳（毫秒）'
   },
   {
-    placeholder: '{y}',
-    description: '年份，2位数',
-    placeholderB: '{md5}',
-    descriptionB: 'md5'
-  },
-  {
-    placeholder: '{m}',
-    description: '月份(01-12)',
-    placeholderB: '{md5-16}',
-    descriptionB: 'md5前16位'
-  },
-  {
-    placeholder: '{d}',
-    description: '日期(01-31)',
-    placeholderB: '{localFolder:<number>}',
-    descriptionB: '本地文件夹层级'
-  },
-  {
-    placeholder: '{h}',
-    description: '小时(00-23)',
-    placeholderB: '{uuid}',
-    descriptionB: 'uuid字符串'
-  },
-  {
-    placeholder: '{i}',
-    description: '分钟(00-59)',
-    placeholderB: '{filename}',
-    descriptionB: '原文件名'
-  },
-  {
-    placeholder: '{s}',
-    description: '秒(00-59)',
-    placeholderB: '{str-number}',
-    descriptionB: 'number位随机字符串'
-  },
-  {
-    placeholder: '{ms}',
-    description: '毫秒(000-999)'
+    placeholder: '{sha256}',
+    description: 'SHA256 哈希',
+    placeholderB: '{sha256-n}',
+    descriptionB: 'SHA256 哈希（前n位）'
   }
 ]

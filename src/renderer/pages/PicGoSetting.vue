@@ -1487,7 +1487,9 @@ const advancedRenameList = {
   categoryHash: [
     { label: t('pages.settings.upload.placeholder.md5'), value: '{md5}' },
     { label: t('pages.settings.upload.placeholder.md5-16'), value: '{md5-16}' },
-    { label: t('pages.settings.upload.placeholder.uuid'), value: '{uuid}' }
+    { label: t('pages.settings.upload.placeholder.uuid'), value: '{uuid}' },
+    { label: t('pages.settings.upload.placeholder.sha256'), value: '{sha256}' },
+    { label: t('pages.settings.upload.placeholder.sha256-n'), value: '{sha256-n}' }
   ],
   categoryFile: [
     { label: t('pages.settings.upload.placeholder.filename'), value: '{filename}' },
