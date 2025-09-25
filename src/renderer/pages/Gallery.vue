@@ -312,6 +312,7 @@
                 :alt="currentPreviewImage?.intro"
                 class="preview-image"
                 :style="imageTransformStyle"
+                @load="onPreviewImageLoad"
                 @dragstart.prevent
                 @contextmenu.prevent
               />
@@ -674,10 +675,24 @@ const currentPreviewImage = computed(() => {
 })
 
 const imageTransformStyle = computed(() => {
+  // Check if image overflows the viewport
+  const imageElement = previewImageRef.value
+  let isDraggable = false
+
+  if (imageElement && imageElement.naturalWidth && imageElement.naturalHeight) {
+    const viewerElement = imageElement.parentElement
+    if (viewerElement) {
+      const viewerRect = viewerElement.getBoundingClientRect()
+      const currentImageWidth = imageElement.naturalWidth * imagePreviewState.scale
+      const currentImageHeight = imageElement.naturalHeight * imagePreviewState.scale
+      isDraggable = currentImageWidth > viewerRect.width + 1 || currentImageHeight > viewerRect.height + 1
+    }
+  }
+
   return {
     transform: `translate(${imagePreviewState.translateX}px, ${imagePreviewState.translateY}px) scale(${imagePreviewState.scale})`,
-    cursor: imagePreviewState.isDragging ? 'grabbing' : imagePreviewState.scale > 1 ? 'grab' : 'default',
-    transition: imagePreviewState.isDragging ? 'none' : 'transform 0.2s ease-out'
+    cursor: imagePreviewState.isDragging ? 'grabbing' : isDraggable ? 'grab' : 'default',
+    transition: 'none'
   }
 })
 
@@ -688,6 +703,12 @@ function onImageLoad(id: string) {
 function onImageError(id: string) {
   imageLoadStates[id] = false
   imageErrorStates[id] = true
+}
+
+function onPreviewImageLoad() {
+  nextTick(() => {
+    resetImageTransform()
+  })
 }
 
 function togglePicBedDropdown(event?: Event) {
@@ -735,24 +756,60 @@ function navigateImage(direction: number) {
 }
 
 function resetImageTransform() {
-  imagePreviewState.scale = 1
+  const optimalScale = calculateOptimalScale()
+  imagePreviewState.scale = optimalScale
   imagePreviewState.translateX = 0
   imagePreviewState.translateY = 0
   imagePreviewState.isDragging = false
 }
 
+function calculateOptimalScale(): number {
+  const imageElement = previewImageRef.value
+  if (!imageElement) {
+    return 1
+  }
+  if (!imageElement.naturalWidth || !imageElement.naturalHeight) {
+    return 1
+  }
+  const viewerElement = imageElement.parentElement
+  if (!viewerElement) {
+    return 1
+  }
+
+  const viewerRect = viewerElement.getBoundingClientRect()
+  const viewerWidth = viewerRect.width
+  const viewerHeight = viewerRect.height
+
+  const imageWidth = imageElement.naturalWidth
+  const imageHeight = imageElement.naturalHeight
+  const scaleX = viewerWidth / imageWidth
+  const scaleY = viewerHeight / imageHeight
+  const optimalScale = Math.min(scaleX, scaleY, 1)
+
+  return optimalScale
+}
+
 function zoomIn() {
-  const newScale = Math.min(imagePreviewState.scale * 1.2, 5)
-  imagePreviewState.scale = newScale
+  zoomToScale(Math.min(imagePreviewState.scale * 1.2, 5))
 }
 
 function zoomOut() {
   const newScale = Math.max(imagePreviewState.scale / 1.2, 0.1)
+  zoomToScale(newScale)
+}
+
+function zoomToScale(newScale: number) {
+  const oldScale = imagePreviewState.scale
   imagePreviewState.scale = newScale
 
-  if (newScale === 1) {
+  const optimalScale = calculateOptimalScale()
+  if (newScale <= optimalScale) {
     imagePreviewState.translateX = 0
     imagePreviewState.translateY = 0
+  } else {
+    const scaleDiff = newScale / oldScale
+    imagePreviewState.translateX *= scaleDiff
+    imagePreviewState.translateY *= scaleDiff
   }
 }
 
@@ -763,12 +820,7 @@ function handleImageWheel(event: WheelEvent) {
   const newScale =
     delta > 0 ? Math.min(imagePreviewState.scale * zoomFactor, 5) : Math.max(imagePreviewState.scale / zoomFactor, 0.1)
 
-  imagePreviewState.scale = newScale
-
-  if (newScale === 1) {
-    imagePreviewState.translateX = 0
-    imagePreviewState.translateY = 0
-  }
+  zoomToScale(newScale)
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -802,7 +854,20 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 function handleImageMouseDown(event: MouseEvent) {
-  if (imagePreviewState.scale <= 1) {
+  const imageElement = previewImageRef.value
+  let isImageLargerThanViewer = false
+
+  if (imageElement && imageElement.naturalWidth && imageElement.naturalHeight) {
+    const viewerElement = imageElement.parentElement
+    if (viewerElement) {
+      const viewerRect = viewerElement.getBoundingClientRect()
+      const currentImageWidth = imageElement.naturalWidth * imagePreviewState.scale
+      const currentImageHeight = imageElement.naturalHeight * imagePreviewState.scale
+      isImageLargerThanViewer = currentImageWidth > viewerRect.width + 1 || currentImageHeight > viewerRect.height + 1
+    }
+  }
+
+  if (!isImageLargerThanViewer) {
     imagePreviewState.isSwipeMode = true
     imagePreviewState.swipeStartX = event.clientX
   } else {
@@ -816,7 +881,7 @@ function handleImageMouseDown(event: MouseEvent) {
 }
 
 function handleImageMouseMove(event: MouseEvent) {
-  if (imagePreviewState.isDragging && imagePreviewState.scale > 1) {
+  if (imagePreviewState.isDragging) {
     const deltaX = event.clientX - imagePreviewState.startX
     const deltaY = event.clientY - imagePreviewState.startY
     imagePreviewState.translateX = imagePreviewState.startTranslateX + deltaX
@@ -841,7 +906,20 @@ function handleImageMouseUp(event: MouseEvent) {
 
 function handleImageTouchStart(event: TouchEvent) {
   const touch = event.touches[0]
-  if (imagePreviewState.scale <= 1) {
+  const imageElement = previewImageRef.value
+  let isImageLargerThanViewer = false
+
+  if (imageElement && imageElement.naturalWidth && imageElement.naturalHeight) {
+    const viewerElement = imageElement.parentElement
+    if (viewerElement) {
+      const viewerRect = viewerElement.getBoundingClientRect()
+      const currentImageWidth = imageElement.naturalWidth * imagePreviewState.scale
+      const currentImageHeight = imageElement.naturalHeight * imagePreviewState.scale
+      isImageLargerThanViewer = currentImageWidth > viewerRect.width + 1 || currentImageHeight > viewerRect.height + 1
+    }
+  }
+
+  if (!isImageLargerThanViewer) {
     imagePreviewState.isSwipeMode = true
     imagePreviewState.swipeStartX = touch.clientX
   } else {
@@ -855,7 +933,7 @@ function handleImageTouchStart(event: TouchEvent) {
 }
 
 function handleImageTouchMove(event: TouchEvent) {
-  if (imagePreviewState.isDragging && imagePreviewState.scale > 1) {
+  if (imagePreviewState.isDragging) {
     const touch = event.touches[0]
     const deltaX = touch.clientX - imagePreviewState.startX
     const deltaY = touch.clientY - imagePreviewState.startY
