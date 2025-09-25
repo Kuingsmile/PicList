@@ -1607,6 +1607,17 @@ async function initData() {
   formKeys.forEach(key => {
     ;(formOfSetting.value as any)[key] = settings[key] ?? formOfSetting.value[key]
   })
+  try {
+    const actualAutoStartStatus = await window.electron.triggerRPC<boolean>(IRPCActionType.PICLIST_AUTO_START_STATUS)
+    if (typeof actualAutoStartStatus === 'boolean') {
+      formOfSetting.value.autoStart = actualAutoStartStatus
+      if (actualAutoStartStatus !== settings.autoStart) {
+        saveConfig({ [configPaths.settings.autoStart]: actualAutoStartStatus })
+      }
+    }
+  } catch (error) {
+    formOfSetting.value.autoStart = settings.autoStart ?? false
+  }
   formOfSetting.value.logLevel = initArray(settings.logLevel || [], ['all'])
   formOfSetting.value.autoImportPicBed = initArray(settings.autoImportPicBed || [], [])
   currentLanguage.value = settings.language || 'zh-CN'

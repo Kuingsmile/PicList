@@ -2,11 +2,12 @@ import path from 'node:path'
 
 import { dbPathDir } from '@core/datastore/dbChecker'
 import picgo from '@core/picgo'
-import { app, IpcMainEvent, shell } from 'electron'
+import { IpcMainEvent, shell } from 'electron'
 import fs from 'fs-extra'
 
 import type { IIPCEvent } from '#/types/rpc'
 import type { IObj } from '#/types/types'
+import { isAutoStartEnabled, setAutoStart } from '~/utils/autoStart'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
 
 const STORE_PATH = dbPathDir()
@@ -59,9 +60,14 @@ export default [
   {
     action: IRPCActionType.PICLIST_AUTO_START,
     handler: async (_: IIPCEvent, args: [val: boolean]) => {
-      app.setLoginItemSettings({
-        openAtLogin: args[0]
-      })
+      await setAutoStart(args[0])
     }
+  },
+  {
+    action: IRPCActionType.PICLIST_AUTO_START_STATUS,
+    handler: async (_: IIPCEvent) => {
+      return await isAutoStartEnabled()
+    },
+    type: IRPCType.INVOKE
   }
 ]
