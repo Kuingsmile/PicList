@@ -92,7 +92,7 @@
     "pinia-plugin-persistedstate": "^4.5.0",
     "qrcode.vue": "^3.6.0",
     "video.js": "^8.23.4",
-    "vue-i18n": "^11.1.11",
+    "vue-i18n": "^11.1.12",
     "vue-router": "^4.5.1",
     "vue3-lazyload": "^0.3.8",
     "@electron/notarize": "^3.1.0",
