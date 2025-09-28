@@ -113,7 +113,7 @@
     "@vue/eslint-config-standard": "^9.0.1",
     "dotenv": "^17.2.2",
     "dpdm": "^3.14.0",
-    "electron": "^38.1.2",
+    "electron": "^38.2.0",
     "electron-builder": "^26.0.12",
     "electron-vite": "^4.0.1",
     "eslint": "^9.36.0",
