@@ -1,3 +1,24 @@
+##  (2025-09-29)
+
+* :arrow_up: Upgrade(custom): upgrade deps bedf124
+* :arrow_up: Upgrade(custom): upgrade deps 5552242
+* :arrow_up: Upgrade(custom): upgrade electron version ce3a281
+* :arrow_up: Upgrade(custom): upgrade vue-i18n caec9bf
+* :bug: Fix(custom): fix auto start on linux 94056a1, closes #394
+* :bug: Fix(custom): fix css under dark mode for bucket page 6538c18
+* :bug: Fix(custom): fix webdav sync issues 0fac111, closes #383
+* :hammer: Refactor(custom): remove unused debug log c5a6b65
+* :package: Chore(custom): remove tg group 5b79e43
+* :package: Chore(custom): remove unused scripts 3f84bc8
+* :package: Chore(custom): update winget file ec878b2
+* :pencil: Docs(custom): update changelog b209046
+* :sparkles: Feature(custom): optimize image preview for gallery page a72750c, closes #386
+* :sparkles: Feature(custom): optimize sync dialog a15befe
+* :sparkles: Feature(custom): rewrite the webserver ui 1f745c3
+* :sparkles: Feature(custom): support sha256 placeholder for rename 730dfe6, closes #393
+
+
+
 ##  (2025-09-03)
 
 * :bug: Fix(custom): fix the paging issue of manage page cf28cc3, closes #385
