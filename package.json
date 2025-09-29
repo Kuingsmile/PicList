@@ -29,7 +29,6 @@
     "lint:dpdm": "dpdm -T --tsconfig ./tsconfig.json --no-tree --no-warning --exit-code circular:1 src/main/index.ts",
     "lint:dpdm:renderer": "dpdm -T --tsconfig ./tsconfig.json --no-tree --no-warning --exit-code circular:1 src/renderer/main.ts",
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts,.tsx,.vue src/ scripts/ .",
-    "ncu": "node ./scripts/check-dep.js",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
     "prebuild": "electron-vite build",
@@ -125,15 +124,14 @@
     "globals": "^16.4.0",
     "husky": "^9.1.7",
     "node-bump-version": "^2.0.0",
-    "npm-check-updates": "^18.3.0",
     "prettier": "^3.6.2",
     "stylus": "^0.64.0",
-    "typescript": "^5.9.2",
+    "typescript": "^5.8.2",
     "typescript-eslint": "^8.44.1",
     "vite": "^7.1.7",
     "vitest": "^3.2.4",
     "vue-eslint-parser": "^10.2.0",
-    "vue-tsc": "^3.0.8"
+    "vue-tsc": "^3.1.0"
   },
   "config": {
     "commitizen": {
