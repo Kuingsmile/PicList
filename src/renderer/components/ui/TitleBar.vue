@@ -119,6 +119,12 @@ onBeforeUnmount(() => {
   color: var(--color-accent);
 }
 
+.app-icon img {
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+}
+
 .app-title {
   font-size: 14px;
   font-weight: 600;
