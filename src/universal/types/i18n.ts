@@ -7,6 +7,7 @@ export interface ILocales {
   CHOOSE_DEFAULT_PICBED: string
   RELOAD_APP: string
   UPLOAD_SUCCEED: string
+  MULTI_UPLOAD_SUCCEED: string
   UPLOAD_FAILED: string
   UPLOAD_PROGRESS: string
   UPLOADING: string

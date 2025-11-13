@@ -118,7 +118,8 @@ export const uploadChoosedFiles = async (
     const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
     const deleteLocalFile = db.get(configPaths.settings.deleteLocalFile) || false
     const pasteText: string[] = []
-    for (let i = 0; i < imgs.length; i++) {
+    const imgLength = imgs.length
+    for (let i = 0; i < imgLength; i++) {
       if (deleteLocalFile) {
         fs.remove(rawInput[i])
           .then(() => {
@@ -140,14 +141,24 @@ export const uploadChoosedFiles = async (
           ? true
           : !!db.get(configPaths.settings.uploadResultNotification)
       if (isShowResultNotification) {
-        const notification = new Notification({
-          title: $t('UPLOAD_SUCCEED'),
-          body: shortUrl || imgs[i].imgUrl!
-          // icon: files[i].path
-        })
-        setTimeout(() => {
-          notification.show()
-        }, i * 100)
+        if (imgLength <= 3) {
+          const notification = new Notification({
+            title: $t('UPLOAD_SUCCEED'),
+            body: shortUrl || imgs[i].imgUrl!
+            // icon: files[i].path
+          })
+          setTimeout(() => {
+            notification.show()
+          }, i * 100)
+        } else if (i === imgLength - 1) {
+          const notification = new Notification({
+            title: $t('MULTI_UPLOAD_SUCCEED', { n: imgLength }),
+            body: ''
+          })
+          setTimeout(() => {
+            notification.show()
+          }, i * 100)
+        }
       }
       const inserted = await GalleryDB.getInstance().insert(imgs[i])
       result.push({

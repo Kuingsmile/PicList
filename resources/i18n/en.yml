@@ -6,6 +6,7 @@ HIDE_MINI_WINDOW: Hide Mini Window
 CHOOSE_DEFAULT_PICBED: Choose Default Picbed
 RELOAD_APP: Reload App
 UPLOAD_SUCCEED: Upload Succeed
+MULTI_UPLOAD_SUCCEED: ${n} Images Uploaded Succeed
 UPLOAD_FAILED: Upload Failed
 UPLOAD_PROGRESS: Upload Progress
 UPLOADING: Uploading
