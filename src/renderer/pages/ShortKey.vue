@@ -152,7 +152,6 @@ function calcOriginShowName(item: string) {
 function toggleEnable(item: IShortKeyConfig) {
   const status = !item.enable
   item.enable = status
-  console.log('Toggling shortKey:', item.name, 'to', status ? 'enabled' : 'disabled')
   window.electron.sendRPC(IRPCActionType.SHORTKEY_BIND_OR_UNBIND, getRawData(item), item.from || '')
 }
 
