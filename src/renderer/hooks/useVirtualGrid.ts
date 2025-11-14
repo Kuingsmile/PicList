@@ -94,6 +94,16 @@ export function useVirtualGrid(options: UseVirtualGridOptions) {
     }
   })
 
+  watch(
+    () => items.value.length,
+    () => {
+      const { totalHeight } = gridCalculations.value
+      if (scrollTop.value > totalHeight - containerHeight.value) {
+        scrollTop.value = Math.max(0, totalHeight - containerHeight.value)
+      }
+    }
+  )
+
   return {
     gridCalculations,
     visibleIndexes,

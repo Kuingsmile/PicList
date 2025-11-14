@@ -1067,7 +1067,7 @@ function getGallery(): IGalleryItem[] {
         return {
           ...item,
           src: item.galleryPath || item.imgUrl || '',
-          key: item.id || `item-${index}-${Date.now()}`,
+          key: item.id || `item-${index}`,
           intro: item.fileName || ''
         }
       })
@@ -1076,7 +1076,7 @@ function getGallery(): IGalleryItem[] {
       return {
         ...item,
         src: item.galleryPath || item.imgUrl || '',
-        key: item.id || `item-${index}-${Date.now()}`,
+        key: item.id || `item-${index}`,
         intro: item.fileName || ''
       }
     })
@@ -1089,9 +1089,14 @@ async function updateGallery() {
   Object.keys(imageLoadStates).forEach(k => {
     if (!newIds.has(k)) delete imageLoadStates[k]
   })
+  Object.keys(imageErrorStates).forEach(k => {
+    if (!newIds.has(k)) delete imageErrorStates[k]
+  })
   images.value = newList
   nextTick(() => {
-    virtualScrollerRef.value?.scrollToTop()
+    if (virtualScrollerRef.value) {
+      virtualScrollerRef.value.refresh()
+    }
   })
 }
 
@@ -1219,7 +1224,10 @@ function remove(item: ImgInfo, _: number) {
     await $$db.removeById(item.id!)
     const args = getRawData(file)
     window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_FILES, [args])
-    updateGallery()
+    await updateGallery()
+    nextTick(() => {
+      virtualScrollerRef.value?.refresh()
+    })
     if (!isNeedDeleteCloudFile) {
       message.success(t('pages.gallery.operationSucceed'))
     }
@@ -1253,7 +1261,10 @@ async function confirmModify() {
   })
   message.success(t('pages.gallery.operationSucceed'))
   dialogVisible.value = false
-  updateGallery()
+  await updateGallery()
+  nextTick(() => {
+    virtualScrollerRef.value?.refresh()
+  })
 }
 
 function cleanSearch() {
@@ -1331,7 +1342,10 @@ function multiRemove() {
       clearChoosedList()
 
       window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_FILES, getRawData(files))
-      updateGallery()
+      await updateGallery()
+      nextTick(() => {
+        virtualScrollerRef.value?.refresh()
+      })
       message.success(t('pages.gallery.operationSucceed'))
     })
   }
@@ -1469,6 +1483,9 @@ function handleBatchRename() {
       .then(() => {
         message.success(t('pages.gallery.operationSucceed'))
         updateGallery()
+        nextTick(() => {
+          virtualScrollerRef.value?.refresh()
+        })
       })
       .catch(() => {
         return true
