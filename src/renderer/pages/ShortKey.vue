@@ -112,6 +112,7 @@ import { Edit, KeyboardIcon, XIcon } from 'lucide-vue-next'
 import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { getRawData } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
 import { getConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
@@ -151,7 +152,8 @@ function calcOriginShowName(item: string) {
 function toggleEnable(item: IShortKeyConfig) {
   const status = !item.enable
   item.enable = status
-  window.electron.sendRPC(IRPCActionType.SHORTKEY_BIND_OR_UNBIND, item, item.from)
+  console.log('Toggling shortKey:', item.name, 'to', status ? 'enabled' : 'disabled')
+  window.electron.sendRPC(IRPCActionType.SHORTKEY_BIND_OR_UNBIND, getRawData(item), item.from || '')
 }
 
 function keyDetect(event: KeyboardEvent) {
