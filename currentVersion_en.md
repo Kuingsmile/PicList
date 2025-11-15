@@ -2,12 +2,12 @@
 
 ### ✨ New Features
 
-- Redesigned the UI for the file server
-- Optimized the zoom ratio and positioning logic when previewing images in the album
-- Advanced renaming now supports the `sha256-n` placeholder
+- Optimized album preview zooming and positioning
+- Multi-image upload: ≤3 individual notifications, >3 aggregated notifications
+- Added webPath parameter setting for GitHub image hosting
 
 ### 🐛 Bug Fixes
 
-- Fixed an issue where downloading configuration files failed on Windows when using WebDAV
-- Fixed an issue where auto-start did not work on Linux
-- Fixed an issue with the color scheme of the management interface directory UI in dark mode
+- Fixed album scrolling overflow/refresh issues
+- Fixed issue where shortcuts could not be disabled
+- Prevented application icon from being dragged or selected
