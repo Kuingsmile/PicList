@@ -93,7 +93,7 @@ PicList的内核使用[PicList-core](https://github.com/Kuingsmile/PicList-Core)
 - **高级相册功能**：高级搜索、排序和批量URL修改
 - **内置图像工具**：水印添加、图片压缩、图片缩放、图片旋转和格式转换，支持高级重命名
 - **表单上传**：支持多电脑共享使用
-- **配置同步**：支持配置同步至GitHub/Gitee/Gitea仓库
+- **配置同步**：支持配置同步至WebDAV/GitHub/Gitee/Gitea仓库
 - **云存储管理**：云端目录查看、文件搜索、批量操作等功能
 - **多格式预览**：支持预览图片、视频、文本和Markdown文件（查看[支持的文件格式列表](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)）
 - **批量操作**：支持使用正则表达式批量重命名云端文件
