@@ -1025,7 +1025,7 @@
 
             <!-- Download Tabs Content -->
             <div class="tab-content">
-              <!-- Similar structure for download tabs... -->
+              <!-- Downloading Tab -->
               <div v-if="activeDownLoadTab === 'downloading'" class="tab-panel">
                 <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
                   <button class="action-button secondary" @click="handleCopyDownloadingTaskInfo">
@@ -1054,6 +1054,94 @@
                         </div>
                         <div class="progress-bar">
                           <div class="progress-fill" :style="{ width: `${item.progress}%` }" />
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </VirtualScroller>
+              </div>
+
+              <!-- Finished Tab -->
+              <div v-if="activeDownLoadTab === 'finished'" class="tab-panel">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
+                  <button class="action-button secondary" @click="handleCopyDownloadingTaskInfo">
+                    <CopyIcon class="action-icon" />
+                    {{ t('pages.manage.bucket.copyDownloadTask') }}
+                  </button>
+                  <button class="action-button secondary" @click="handleDeleteDownloadedTask">
+                    <Trash2Icon class="action-icon" />
+                    {{ t('pages.manage.bucket.clearFinishedTasks') }}
+                  </button>
+                  <button class="action-button secondary" @click="handleDeleteAllDownloadedTask">
+                    <Trash2Icon class="action-icon" />
+                    {{ t('pages.manage.bucket.clearAll') }}
+                  </button>
+                  <button class="action-button secondary" @click="handleOpenDownloadedFolder">
+                    <FolderIcon class="action-icon" />
+                    {{ t('pages.manage.bucket.openDownloadFolder') }}
+                  </button>
+                </div>
+                <VirtualScroller
+                  :items="downloadedTaskList.filter(item => item.status === 'downloaded')"
+                  :item-height="60"
+                  :height="500"
+                  view-mode="list"
+                >
+                  <template #default="{ item }">
+                    <div class="file-list-item">
+                      <div class="file-list-info">
+                        <div class="file-list-name">
+                          {{ formatFileName(item.sourceFileName) }}
+                        </div>
+                        <div class="file-list-meta">
+                          <span>{{ item.finishTime }}</span>
+                          <span class="badge success">
+                            {{ t('pages.manage.bucket.success') }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </VirtualScroller>
+              </div>
+
+              <!-- Failed Tab -->
+              <div v-if="activeDownLoadTab === 'failed'" class="tab-panel">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
+                  <button class="action-button secondary" @click="handleCopyDownloadingTaskInfo">
+                    <CopyIcon class="action-icon" />
+                    {{ t('pages.manage.bucket.copyDownloadTask') }}
+                  </button>
+                  <button class="action-button secondary" @click="handleDeleteDownloadedTask">
+                    <Trash2Icon class="action-icon" />
+                    {{ t('pages.manage.bucket.clearFinishedTasks') }}
+                  </button>
+                  <button class="action-button secondary" @click="handleDeleteAllDownloadedTask">
+                    <Trash2Icon class="action-icon" />
+                    {{ t('pages.manage.bucket.clearAll') }}
+                  </button>
+                  <button class="action-button secondary" @click="handleOpenDownloadedFolder">
+                    <FolderIcon class="action-icon" />
+                    {{ t('pages.manage.bucket.openDownloadFolder') }}
+                  </button>
+                </div>
+                <VirtualScroller
+                  :items="downloadedTaskList.filter(item => item.status !== 'downloaded')"
+                  :item-height="60"
+                  :height="500"
+                  view-mode="list"
+                >
+                  <template #default="{ item }">
+                    <div class="file-list-item">
+                      <div class="file-list-info">
+                        <div class="file-list-name">
+                          {{ formatFileName(item.sourceFileName) }}
+                        </div>
+                        <div class="file-list-meta">
+                          <span>{{ item.finishTime }}</span>
+                          <span class="badge error">
+                            {{ t('pages.manage.bucket.failed') }}
+                          </span>
                         </div>
                       </div>
                     </div>
