@@ -10,4 +10,6 @@
 
 - Fixed album scrolling overflow/refresh issues
 - Fixed issue where shortcuts could not be disabled
+- Fixed issue where downloads failed when files or paths contained special Chinese characters
+- Fixed issue where completed/failed panels in the Manage-Download page displayed incorrectly
 - Prevented application icon from being dragged or selected
