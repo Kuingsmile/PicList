@@ -90,7 +90,7 @@ export const NewDownloader = async (
   headers?: any
 ): Promise<boolean> => {
   const options = {
-    url: preSignedUrl,
+    url: encodeURI(preSignedUrl),
     directory: path.dirname(savedFilePath),
     fileName: path.basename(savedFilePath),
     cloneFiles: false,
