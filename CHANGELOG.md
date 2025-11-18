@@ -1,3 +1,24 @@
+##  (2025-11-18)
+
+* :arrow_up: Upgrade(custom): upgrade aws sdk 30b54cb
+* :arrow_up: Upgrade(custom): upgrade core 0c3a52d
+* :arrow_up: Upgrade(custom): upgrade deps 0e75740
+* :arrow_up: Upgrade(custom): upgrade deps 2dfff83
+* :bug: Fix(custom): add download finished and failed tab contents 1b01455, closes #409
+* :bug: Fix(custom): encode preSignedUrl to ensure valid URL format 631042e, closes #410
+* :bug: Fix(custom): fix an issue shortkey can't be disabled 50a84e9, closes #403
+* :bug: Fix(custom): fix gallery scroll bug 264fbbf
+* :bug: Fix(custom): prevent image dragging and selection in app icon 921744c, closes #400
+* :package: Chore(custom): migrate macos-13 to macos-15 for action c4df225
+* :package: Chore(custom): remove unneeded console.log 86b122c
+* :package: Chore(custom): update winget file 5425714
+* :pencil: Docs(custom): update changelog ffbc44a
+* :pencil: Docs(custom): update changelog for 3.1.0 a272b0a
+* :pencil: Docs(custom): update readme 95bed5e
+* :sparkles: Feature(custom): optimize result notification for multi-upload 9ff9aef, closes #404
+
+
+
 ##  (2025-09-29)
 
 * :arrow_up: Upgrade(custom): upgrade deps bedf124
