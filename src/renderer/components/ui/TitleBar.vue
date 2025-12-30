@@ -27,15 +27,17 @@
           >
             <PinIcon :color="isAlwaysOnTop ? '#CE6769' : '#6B7280'" :size="14" />
           </button>
-          <button class="control-button minimize-button" :title="$t('titleBar.minimize')" @click="minimizeWindow">
-            <MinusIcon :size="14" />
-          </button>
-          <button class="control-button mini-button" :title="$t('titleBar.miniWindow')" @click="openMiniWindow">
-            <ShrinkIcon :size="14" />
-          </button>
-          <button class="control-button close-button" :title="$t('titleBar.close')" @click="closeWindow">
-            <XIcon :size="14" />
-          </button>
+          <template v-if="osGlobal !== 'darwin'">
+            <button class="control-button minimize-button" :title="$t('titleBar.minimize')" @click="minimizeWindow">
+              <MinusIcon :size="14" />
+            </button>
+            <button class="control-button mini-button" :title="$t('titleBar.miniWindow')" @click="openMiniWindow">
+              <ShrinkIcon :size="14" />
+            </button>
+            <button class="control-button close-button" :title="$t('titleBar.close')" @click="closeWindow">
+              <XIcon :size="14" />
+            </button>
+          </template>
         </div>
       </div>
     </div>
