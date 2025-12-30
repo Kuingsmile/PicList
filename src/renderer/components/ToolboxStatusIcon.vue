@@ -40,7 +40,7 @@ const icon = computed(() => {
 </script>
 <script lang="ts">
 export default {
-  name: 'ToolboxStatusIcon'
+  name: 'ToolboxStatusIcon',
 }
 </script>
 <style lang="stylus">

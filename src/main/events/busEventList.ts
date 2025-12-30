@@ -8,7 +8,7 @@ import {
   UPLOAD_WITH_CLIPBOARD_FILES,
   UPLOAD_WITH_CLIPBOARD_FILES_RESPONSE,
   UPLOAD_WITH_FILES,
-  UPLOAD_WITH_FILES_RESPONSE
+  UPLOAD_WITH_FILES_RESPONSE,
 } from '@core/bus/constants'
 import { createMenu } from 'apis/app/system'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
@@ -24,7 +24,7 @@ function initEventCenter() {
     [UPLOAD_WITH_FILES]: busCallUploadFiles,
     [GET_WINDOW_ID]: busCallGetWindowId,
     [GET_SETTING_WINDOW_ID]: busCallGetSettingWindowId,
-    [CREATE_APP_MENU]: createMenu
+    [CREATE_APP_MENU]: createMenu,
   }
   for (const i in eventList) {
     bus.on(i, eventList[i])
@@ -57,5 +57,5 @@ function busCallGetSettingWindowId() {
 export default {
   listen() {
     initEventCenter()
-  }
+  },
 }

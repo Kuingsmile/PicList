@@ -17,7 +17,7 @@ export class ManageLogger implements ILogger {
     [ILogType.success]: 'green',
     [ILogType.info]: 'blue',
     [ILogType.warn]: 'yellow',
-    [ILogType.error]: 'red'
+    [ILogType.error]: 'red',
   }
 
   readonly #ctx: IManageApiType
@@ -67,12 +67,12 @@ export class ManageLogger implements ILogger {
       return {
         isLarge: logFileSize > logFileSizeLimit,
         logFileSize,
-        logFileSizeLimit
+        logFileSizeLimit,
       }
     }
     fs.ensureFileSync(logPath)
     return {
-      isLarge: false
+      isLarge: false,
     }
   }
 

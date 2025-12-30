@@ -11,7 +11,7 @@
                 {{
                   t('pages.manage.setting.clearCache', {
                     percent: dbSizeAvailableRate,
-                    size: formatFileSize(dbSize) || 0
+                    size: formatFileSize(dbSize) || 0,
                   })
                 }}
               </button>
@@ -249,7 +249,7 @@ const form = ref<IStringKeyMap>({
   customPasteFormat: '$url',
   PreSignedExpire: 14400, // seconds
   maxDownloadFileCount: 5,
-  customRenameFormat: '{filename}'
+  customRenameFormat: '{filename}',
 })
 
 const settingsKeys = Object.keys(form.value)
@@ -262,7 +262,7 @@ const pasteFormatList = ['markdown', 'markdown-with-link', 'rawurl', 'html', 'bb
 settingsKeys.forEach(key => {
   watch(
     () => form.value[key],
-    newValue => saveConfig({ [`settings.${key}`]: newValue })
+    newValue => saveConfig({ [`settings.${key}`]: newValue }),
   )
 })
 
@@ -276,7 +276,7 @@ const switchFieldsList = [
   'isIgnoreCase',
   'timestampRename',
   'randomStringRename',
-  'customRename'
+  'customRename',
 ]
 const switchFieldsNoTipsList = ['isShowThumbnail', 'isUsePreSignedUrl']
 const switchFieldsHasActiveTextList = [] as string[]
@@ -286,12 +286,12 @@ const switchFieldsConfigList = switchFieldsList.map(item => ({
   segments: [
     {
       text: t(`pages.manage.setting.${item}Title` as any),
-      style: 'color: var(--color-text-primary);'
-    }
+      style: 'color: var(--color-text-primary);',
+    },
   ],
   tooltip: switchFieldsNoTipsList.includes(item) ? undefined : t(`pages.manage.setting.${item}Tips` as any),
   activeText: switchFieldsHasActiveTextList.includes(item) ? t(`pages.manage.setting.${item}On` as any) : undefined,
-  inactiveText: switchFieldsHasActiveTextList.includes(item) ? t(`pages.manage.setting.${item}Off` as any) : undefined
+  inactiveText: switchFieldsHasActiveTextList.includes(item) ? t(`pages.manage.setting.${item}Off` as any) : undefined,
 }))
 
 const switchFieldsSpecialList = [
@@ -300,37 +300,37 @@ const switchFieldsSpecialList = [
     segments: [
       {
         text: t('pages.manage.setting.download'),
-        style: 'color: var(--color-text-primary);'
+        style: 'color: var(--color-text-primary);',
       },
       {
         text: t('pages.manage.setting.file'),
-        style: 'color: orange;'
+        style: 'color: orange;',
       },
       {
         text: t('pages.manage.setting.keepDirStructure'),
-        style: 'color: var(--color-text-primary);'
-      }
+        style: 'color: var(--color-text-primary);',
+      },
     ],
-    tooltip: t('pages.manage.setting.keepDirStructureDesc')
+    tooltip: t('pages.manage.setting.keepDirStructureDesc'),
   },
   {
     configName: 'isDownloadFolderKeepDirStructure',
     segments: [
       {
         text: t('pages.manage.setting.download'),
-        style: 'color: var(--color-text-primary);'
+        style: 'color: var(--color-text-primary);',
       },
       {
         text: t('pages.manage.setting.folder'),
-        style: 'color: orange;'
+        style: 'color: orange;',
       },
       {
         text: t('pages.manage.setting.keepDirStructure'),
-        style: 'color: var(--color-text-primary);'
-      }
+        style: 'color: var(--color-text-primary);',
+      },
     ],
-    tooltip: t('pages.manage.setting.keepDirStructureDesc')
-  }
+    tooltip: t('pages.manage.setting.keepDirStructureDesc'),
+  },
 ]
 
 async function initData() {
@@ -359,7 +359,7 @@ function handleConfirmClearDb() {
     type: 'warning',
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
-    center: true
+    center: true,
   }).then(result => {
     if (result) {
       confirmClearDb()

@@ -10,14 +10,14 @@ export default class TcyunApi {
   static #createCOS(SecretId: string, SecretKey: string): COS {
     return new COS({
       SecretId,
-      SecretKey
+      SecretKey,
     })
   }
 
   static async delete(configMap: IConfigMap): Promise<boolean> {
     const {
       fileName,
-      config: { secretId, secretKey, bucket, area, path }
+      config: { secretId, secretKey, bucket, area, path },
     } = configMap
     try {
       const cos = TcyunApi.#createCOS(secretId, secretKey)
@@ -30,7 +30,7 @@ export default class TcyunApi {
       const result = await cos.deleteObject({
         Bucket: bucket,
         Region: area,
-        Key: key
+        Key: key,
       })
       const ok = result.statusCode === 204
       deleteLog(fileName, 'Tcyun', ok)

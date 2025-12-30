@@ -61,7 +61,7 @@ export function renameFileNameWithCustomString(oldName: string, customFormat: st
   const date = new Date()
   const year = date.getFullYear().toString()
   const fileBaseName = window.node.path.basename(oldName, window.node.path.extname(oldName))
-  const conversionMap: { [key: string]: () => string } = {
+  const conversionMap: Record<string, () => string> = {
     '{Y}': () => year,
     '{y}': () => year.slice(2),
     '{m}': () => renameFormatHelper(date.getMonth() + 1),
@@ -78,7 +78,7 @@ export function renameFileNameWithCustomString(oldName: string, customFormat: st
         ? window.node.path.basename(affixFileName, window.node.path.extname(affixFileName))
         : window.node.path.basename(oldName, window.node.path.extname(oldName)),
     '{uuid}': () => uuidv4().replace(/-/g, ''),
-    '{timestamp}': () => date.getTime().toString()
+    '{timestamp}': () => date.getTime().toString(),
   }
   if (
     customFormat === undefined ||
@@ -106,7 +106,7 @@ export function renameFileNameWithCustomString(oldName: string, customFormat: st
 
 export function renameFile(
   { timestampRename, randomStringRename, customRename, customRenameFormat }: IStringKeyMap,
-  oldName = ''
+  oldName = '',
 ): string {
   switch (true) {
     case timestampRename:
@@ -169,7 +169,7 @@ export function formObjToTableData(obj: any) {
     .filter(key => !exclude.includes(obj[key]))
     .map(key => ({
       key,
-      value: typeof obj[key] === 'object' ? JSON.stringify(obj[key]) : obj[key]
+      value: typeof obj[key] === 'object' ? JSON.stringify(obj[key]) : obj[key],
     }))
     .sort((a, b) => a.key.localeCompare(b.key))
 }
@@ -177,7 +177,7 @@ export function formObjToTableData(obj: any) {
 export function isValidUrl(str: string) {
   try {
     return !!new URL(str)
-  } catch (e) {
+  } catch (_e) {
     return false
   }
 }
@@ -212,48 +212,48 @@ export const customRenameFormatTable = [
     placeholder: '{Y}',
     description: '年份，4位数',
     placeholderB: '{y}',
-    descriptionB: '年份，2位数'
+    descriptionB: '年份，2位数',
   },
   {
     placeholder: '{m}',
     description: '月份(01-12)',
     placeholderB: '{d}',
-    descriptionB: '日期(01-31)'
+    descriptionB: '日期(01-31)',
   },
   {
     placeholder: '{h}',
     description: '小时(00-23)',
     placeholderB: '{i}',
-    descriptionB: '分钟(00-59)'
+    descriptionB: '分钟(00-59)',
   },
   {
     placeholder: '{s}',
     description: '秒(00-59)',
     placeholderB: '{ms}',
-    descriptionB: '毫秒(000-999)'
+    descriptionB: '毫秒(000-999)',
   },
   {
     placeholder: '{timestamp}',
     description: '时间戳（毫秒）',
     placeholderB: '{uuid}',
-    descriptionB: 'uuid字符串'
+    descriptionB: 'uuid字符串',
   },
   {
     placeholder: '{md5}',
     description: 'md5',
     placeholderB: '{md5-16}',
-    descriptionB: 'md5前16位'
+    descriptionB: 'md5前16位',
   },
   {
     placeholder: '{str-number}',
     description: 'number位随机字符串',
     placeholderB: '{filename}',
-    descriptionB: '原文件名'
+    descriptionB: '原文件名',
   },
   {
     placeholder: '{sha256}',
     description: 'SHA256 哈希',
     placeholderB: '{sha256-n}',
-    descriptionB: 'SHA256 哈希（前n位）'
-  }
+    descriptionB: 'SHA256 哈希（前n位）',
+  },
 ]

@@ -16,7 +16,7 @@ import type {
   IShowMessageBoxOption,
   IShowMessageBoxResult,
   IShowNotificationOption,
-  IUploadOption
+  IUploadOption,
 } from '#/types/types'
 import { SHOW_INPUT_BOX } from '~/events/constant'
 import { T as $t } from '~/i18n'
@@ -62,8 +62,8 @@ class GuiApi implements IGuiApi {
   async showInputBox(
     options: IShowInputBoxOption = {
       title: '',
-      placeholder: ''
-    }
+      placeholder: '',
+    },
   ) {
     await this.showSettingWindow()
     this.getWebcontentsByWindowId(this.settingWindowId)?.send(SHOW_INPUT_BOX, options)
@@ -103,7 +103,7 @@ class GuiApi implements IGuiApi {
         const [pasteTextItem, shortUrl] = await pasteTemplate(
           pasteStyle,
           imgs[i],
-          db.get(configPaths.settings.customLink)
+          db.get(configPaths.settings.customLink),
         )
         imgs[i].shortUrl = shortUrl
         pasteText.push(pasteTextItem)
@@ -114,7 +114,7 @@ class GuiApi implements IGuiApi {
         if (isShowResultNotification) {
           const notification = new Notification({
             title: $t('UPLOAD_SUCCEED'),
-            body: shortUrl || (imgs[i].imgUrl! as string)
+            body: shortUrl || (imgs[i].imgUrl! as string),
             // icon: imgs[i].imgUrl
           })
           setTimeout(() => {
@@ -134,12 +134,12 @@ class GuiApi implements IGuiApi {
   showNotification(
     options: IShowNotificationOption = {
       title: '',
-      body: ''
-    }
+      body: '',
+    },
   ) {
     const notification = new Notification({
       title: options.title,
-      body: options.body
+      body: options.body,
     })
     notification.show()
   }
@@ -149,8 +149,8 @@ class GuiApi implements IGuiApi {
       title: '',
       message: '',
       type: 'info',
-      buttons: ['Yes', 'No']
-    }
+      buttons: ['Yes', 'No'],
+    },
   ) {
     return new Promise<IShowMessageBoxResult>(resolve => {
       getWindowId().then(id => {
@@ -158,7 +158,7 @@ class GuiApi implements IGuiApi {
         dialog.showMessageBox(BrowserWindow.fromId(id)!, options as MessageBoxOptions).then(res => {
           resolve({
             result: res.response,
-            checkboxChecked: res.checkboxChecked
+            checkboxChecked: res.checkboxChecked,
           })
         })
       })
@@ -174,7 +174,7 @@ class GuiApi implements IGuiApi {
     return {
       defaultConfigPath,
       currentConfigPath,
-      galleryDBPath
+      galleryDBPath,
     }
   }
 
@@ -191,7 +191,7 @@ class GuiApi implements IGuiApi {
                     title: $t('TIPS_WARNING'),
                     message: $t('TIPS_PLUGIN_REMOVE_GALLERY_ITEM'),
                     type: 'info',
-                    buttons: ['Yes', 'No']
+                    buttons: ['Yes', 'No'],
                   })
                   .then(res => {
                     if (res.result === 0) {
@@ -201,7 +201,7 @@ class GuiApi implements IGuiApi {
                     }
                   })
               })
-            }
+            },
           })
         }
         if (prop === 'removeById') {
@@ -214,7 +214,7 @@ class GuiApi implements IGuiApi {
                     title: $t('TIPS_WARNING'),
                     message: $t('TIPS_PLUGIN_REMOVE_GALLERY_ITEM'),
                     type: 'info',
-                    buttons: ['Yes', 'No']
+                    buttons: ['Yes', 'No'],
                   })
                   .then(res => {
                     if (res.result === 0) {
@@ -224,11 +224,11 @@ class GuiApi implements IGuiApi {
                     }
                   })
               })
-            }
+            },
           })
         }
         return Reflect.get(target, prop)
-      }
+      },
     })
   }
 }

@@ -17,7 +17,7 @@ export async function dogecloudApi(
   data = {},
   jsonMode: boolean = false,
   accessKey: string,
-  secretKey: string
+  secretKey: string,
 ) {
   const body = jsonMode ? JSON.stringify(data) : querystring.encode(data)
   const sign = crypto
@@ -33,14 +33,14 @@ export async function dogecloudApi(
       responseType: 'json',
       headers: {
         'Content-Type': jsonMode ? 'application/json' : 'application/x-www-form-urlencoded',
-        Authorization: authorization
-      }
+        Authorization: authorization,
+      },
     })
     if (res.data.code !== 200) {
       throw new Error('API Error')
     }
     return res.data.data
-  } catch (err: any) {
+  } catch (_e: any) {
     throw new Error('API Error')
   }
 }
@@ -55,23 +55,23 @@ export async function getTempToken(accessKey: string, secretKey: string): Promis
       '/auth/tmp_token.json',
       {
         channel: 'OSS_FULL',
-        scopes: ['*']
+        scopes: ['*'],
       },
       true,
       accessKey,
-      secretKey
+      secretKey,
     )
     const token = data.Credentials
     picgo.saveConfig({
       Credentials: {
         'doge-token': {
           token,
-          expires: data.ExpiredAt * 1000
-        }
-      }
+          expires: data.ExpiredAt * 1000,
+        },
+      },
     })
     return token
-  } catch (err: any) {
+  } catch (_e: any) {
     return {}
   }
 }

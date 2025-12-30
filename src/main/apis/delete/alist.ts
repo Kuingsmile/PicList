@@ -26,12 +26,12 @@ export default class AlistApi {
         url: `${url}/api/fs/remove`,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: token
+          Authorization: token,
         },
         data: {
           dir: path.join('/', uploadPath, path.dirname(fileName)),
-          names: [path.basename(fileName)]
-        }
+          names: [path.basename(fileName)],
+        },
       })
       const ok = result.data.code === 200
       deleteLog(fileName, 'Alist', ok)

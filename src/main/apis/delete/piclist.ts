@@ -18,7 +18,7 @@ export default class PiclistApi {
 
     try {
       const response: AxiosResponse = await axios.post(url, {
-        list: [fullResult]
+        list: [fullResult],
       })
       const ok = response.status === 200 && response.data?.success
       deleteLog(fullResult, 'Piclist', ok)

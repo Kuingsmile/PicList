@@ -12,7 +12,7 @@ import {
   MenuItemConstructorOptions,
   nativeTheme,
   Notification,
-  Tray
+  Tray,
 } from 'electron'
 import fs from 'fs-extra'
 import { cloneDeep } from 'lodash-es'
@@ -41,7 +41,7 @@ export function setDockMenu() {
   const dockMenu = Menu.buildFromTemplate([
     {
       label: $t('OPEN_MAIN_WINDOW'),
-      click: openMainWindow
+      click: openMainWindow,
     },
     {
       label: $t('START_WATCH_CLIPBOARD'),
@@ -54,7 +54,7 @@ export function setDockMenu() {
         })
         setDockMenu()
       },
-      visible: !isListeningClipboard
+      visible: !isListeningClipboard,
     },
     {
       label: $t('STOP_WATCH_CLIPBOARD'),
@@ -64,8 +64,8 @@ export function setDockMenu() {
         clipboardPoll.removeAllListeners()
         setDockMenu()
       },
-      visible: isListeningClipboard
-    }
+      visible: isListeningClipboard,
+    },
   ])
   app.dock?.setMenu(dockMenu)
 }
@@ -82,9 +82,9 @@ export function createMenu() {
           click() {
             app.relaunch()
             app.exit(0)
-          }
-        }
-      ]
+          },
+        },
+      ],
     },
     { label: $t('CHOOSE_DEFAULT_PICBED'), type: 'submenu', submenu },
     {
@@ -96,13 +96,13 @@ export function createMenu() {
         { label: 'Cut', accelerator: 'CmdOrCtrl+X', role: 'cut' },
         { label: 'Copy', accelerator: 'CmdOrCtrl+C', role: 'copy' },
         { label: 'Paste', accelerator: 'CmdOrCtrl+V', role: 'paste' },
-        { label: 'Select All', accelerator: 'CmdOrCtrl+A', role: 'selectAll' }
-      ]
+        { label: 'Select All', accelerator: 'CmdOrCtrl+A', role: 'selectAll' },
+      ],
     },
     {
       label: $t('QUIT'),
-      submenu: [{ label: $t('QUIT'), role: 'quit' }]
-    }
+      submenu: [{ label: $t('QUIT'), role: 'quit' }],
+    },
   ])
   Menu.setApplicationMenu(appMenu)
 }
@@ -138,21 +138,21 @@ export function createContextMenu() {
       {
         label: $t('START_WATCH_CLIPBOARD'),
         click: startWatchClipboard,
-        visible: !isListeningClipboard
+        visible: !isListeningClipboard,
       },
       {
         label: $t('STOP_WATCH_CLIPBOARD'),
         click: stopWatchClipboard,
-        visible: isListeningClipboard
+        visible: isListeningClipboard,
       },
       {
         label: $t('RELOAD_APP'),
         click() {
           app.relaunch()
           app.exit(0)
-        }
+        },
       },
-      { label: $t('QUIT'), role: 'quit' }
+      { label: $t('QUIT'), role: 'quit' },
     ]
     if (process.platform === 'win32') {
       template.splice(
@@ -163,13 +163,13 @@ export function createContextMenu() {
           click() {
             openMiniWindow(false)
           },
-          visible: !isMiniWindowVisible
+          visible: !isMiniWindowVisible,
         },
         {
           label: $t('HIDE_MINI_WINDOW'),
           click: hideMiniWindow,
-          visible: isMiniWindowVisible
-        }
+          visible: isMiniWindowVisible,
+        },
       )
     }
     contextMenu = Menu.buildFromTemplate(template)
@@ -188,22 +188,22 @@ export function createContextMenu() {
         click() {
           openMiniWindow(false)
         },
-        visible: !isMiniWindowVisible
+        visible: !isMiniWindowVisible,
       },
       {
         label: $t('HIDE_MINI_WINDOW'),
         click: hideMiniWindow,
-        visible: isMiniWindowVisible
+        visible: isMiniWindowVisible,
       },
       {
         label: $t('START_WATCH_CLIPBOARD'),
         click: startWatchClipboard,
-        visible: !isListeningClipboard
+        visible: !isListeningClipboard,
       },
       {
         label: $t('STOP_WATCH_CLIPBOARD'),
         click: stopWatchClipboard,
-        visible: isListeningClipboard
+        visible: isListeningClipboard,
       },
       {
         label: $t('ABOUT'),
@@ -212,11 +212,11 @@ export function createContextMenu() {
             title: 'PicList',
             message: 'PicList',
             buttons: ['Ok'],
-            detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`
+            detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`,
           })
-        }
+        },
       },
-      { label: $t('QUIT'), role: 'quit' }
+      { label: $t('QUIT'), role: 'quit' },
     ])
   }
 }
@@ -258,14 +258,14 @@ export function createTray(tooltip: string) {
               const decodePath = ensureFilePath(imgPath)
               if (decodePath === imgPath) {
                 obj.push({
-                  imgUrl: imgPath
+                  imgUrl: imgPath,
                 })
               } else {
                 if (decodePath !== '') {
                   // 带有中文的路径，无法直接被img.src所使用，会被转义
                   const base64 = await fs.readFile(decodePath.replace('file://', ''), { encoding: 'base64' })
                   obj.push({
-                    imgUrl: `data:image/png;base64,${base64}`
+                    imgUrl: `data:image/png;base64,${base64}`,
                   })
                 }
               }
@@ -274,7 +274,7 @@ export function createTray(tooltip: string) {
               obj.push({
                 width: img.getSize().width,
                 height: img.getSize().height,
-                imgUrl
+                imgUrl,
               })
             }
           }
@@ -333,7 +333,7 @@ export function createTray(tooltip: string) {
             const [pasteTextItem, shortUrl] = await pasteTemplate(
               pasteStyle,
               imgs[i],
-              db.get(configPaths.settings.customLink)
+              db.get(configPaths.settings.customLink),
             )
             imgs[i].shortUrl = shortUrl
             pasteText.push(pasteTextItem)
@@ -344,7 +344,7 @@ export function createTray(tooltip: string) {
             if (isShowResultNotification) {
               const notification = new Notification({
                 title: $t('UPLOAD_SUCCEED'),
-                body: shortUrl || imgs[i].imgUrl!
+                body: shortUrl || imgs[i].imgUrl!,
                 // icon: files[i]
               })
               setTimeout(() => {

@@ -143,12 +143,8 @@ export interface IManageApiType {
 
 /** PicList 存储管理功能配置文件类型定义 */
 export interface IManageConfigType {
-  picBed: {
-    [others: string]: any
-  }
-  settings: {
-    [others: string]: any
-  }
+  picBed: Record<string, any>
+  settings: Record<string, any>
   [others: string]: any
 }
 export interface IUploadTask {

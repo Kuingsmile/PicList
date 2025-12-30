@@ -95,7 +95,7 @@
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary" @click="cancelKeyBinding">
-              {{ $t('CANCEL') }}
+              {{ $t('common.cancel') }}
             </button>
             <button class="btn btn-primary" @click="confirmKeyBinding">
               {{ $t('common.confirm') }}
@@ -131,7 +131,7 @@ onBeforeMount(async () => {
   list.value = Object.keys(shortKeyConfig).map(item => {
     return {
       ...shortKeyConfig[item],
-      from: calcOrigin(item)
+      from: calcOrigin(item),
     }
   })
 })
@@ -189,7 +189,7 @@ onBeforeUnmount(() => {
 
 <script lang="ts">
 export default {
-  name: 'ShortkeyPage'
+  name: 'ShortkeyPage',
 }
 </script>
 

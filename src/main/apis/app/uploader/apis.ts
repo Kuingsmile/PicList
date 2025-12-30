@@ -62,7 +62,7 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
       if (isShowResultNotification) {
         const notification = new Notification({
           title: $t('UPLOAD_SUCCEED'),
-          body: shortUrl || img[0].imgUrl!
+          body: shortUrl || img[0].imgUrl!,
           // icon: img[0].imgUrl
         })
         setTimeout(() => {
@@ -78,30 +78,30 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
       }
       return {
         url: handleUrlEncodeWithSetting(inserted.imgUrl as string),
-        fullResult: inserted
+        fullResult: inserted,
       }
     } else {
       const notification = new Notification({
         title: $t('UPLOAD_FAILED'),
-        body: $t('TIPS_UPLOAD_NOT_PICTURES')
+        body: $t('TIPS_UPLOAD_NOT_PICTURES'),
       })
       notification.show()
       return {
         url: '',
-        fullResult: {}
+        fullResult: {},
       }
     }
   } else {
     return {
       url: '',
-      fullResult: {}
+      fullResult: {},
     }
   }
 }
 
 export const uploadChoosedFiles = async (
   webContents: WebContents,
-  files: IFileWithPath[]
+  files: IFileWithPath[],
 ): Promise<IStringKeyMap[]> => {
   const input = files.map(item => item.path)
   const rawInput = cloneDeep(input)
@@ -132,7 +132,7 @@ export const uploadChoosedFiles = async (
       const [pasteTextItem, shortUrl] = await pasteTemplate(
         pasteStyle,
         imgs[i],
-        db.get(configPaths.settings.customLink)
+        db.get(configPaths.settings.customLink),
       )
       imgs[i].shortUrl = shortUrl
       pasteText.push(pasteTextItem)
@@ -144,7 +144,7 @@ export const uploadChoosedFiles = async (
         if (imgLength <= 3) {
           const notification = new Notification({
             title: $t('UPLOAD_SUCCEED'),
-            body: shortUrl || imgs[i].imgUrl!
+            body: shortUrl || imgs[i].imgUrl!,
             // icon: files[i].path
           })
           setTimeout(() => {
@@ -153,7 +153,7 @@ export const uploadChoosedFiles = async (
         } else if (i === imgLength - 1) {
           const notification = new Notification({
             title: $t('MULTI_UPLOAD_SUCCEED', { n: imgLength }),
-            body: ''
+            body: '',
           })
           setTimeout(() => {
             notification.show()
@@ -163,7 +163,7 @@ export const uploadChoosedFiles = async (
       const inserted = await GalleryDB.getInstance().insert(imgs[i])
       result.push({
         url: handleUrlEncodeWithSetting(inserted.imgUrl!),
-        fullResult: inserted
+        fullResult: inserted,
       })
     }
     handleCopyUrl(pasteText.join('\n'))
@@ -181,7 +181,7 @@ export const uploadChoosedFiles = async (
 export const handleSecondaryUpload = async (
   webContents?: WebContents,
   input?: string[],
-  uploadType: 'clipboard' | 'file' | 'tray' = 'file'
+  uploadType: 'clipboard' | 'file' | 'tray' = 'file',
 ): Promise<{ needRestore: boolean; ctx: IPicGo | false }> => {
   const enableSecondUploader = db.get(configPaths.settings.enableSecondUploader) || false
   let currentPicBedType = ''
@@ -242,6 +242,6 @@ export const handleSecondaryUpload = async (
   }
   return {
     needRestore,
-    ctx
+    ctx,
   }
 }

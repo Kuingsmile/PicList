@@ -29,7 +29,7 @@ const getSyncConfig = () => {
       repo: '',
       branch: '',
       token: '',
-      proxy: ''
+      proxy: '',
     }
   )
 }
@@ -41,7 +41,7 @@ const getProxyagent = (proxy: string | undefined) => {
         keepAliveMsecs: 1000,
         rejectUnauthorized: false,
         proxy: proxy.replace('127.0.0.1', 'localhost'),
-        scheduling: 'lifo'
+        scheduling: 'lifo',
       })
     : undefined
 }
@@ -51,8 +51,8 @@ function getOctokit(syncConfig: ISyncConfig) {
   return new Octokit({
     auth: token,
     request: {
-      agent: getProxyagent(proxy)
-    }
+      agent: getProxyagent(proxy),
+    },
   })
 }
 
@@ -67,7 +67,7 @@ const isSyncConfigValidate = ({
   webdavPassword,
   webdavAuthType,
   webdavSslEnabled,
-  webdavSavePath
+  webdavSavePath,
 }: ISyncConfig) => {
   if (type === 'webdav') {
     return (
@@ -92,7 +92,7 @@ async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
   const defaultConfig = {
     content: readFileAsBase64(localFilePath),
     message: uploadOrUpdateMsg(fileName, false),
-    branch
+    branch,
   }
   try {
     switch (type) {
@@ -100,7 +100,7 @@ async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
         const url = `https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`
         const res = await axios.post(url, {
           ...defaultConfig,
-          access_token: token
+          access_token: token,
         })
         return isHttpResSuccess(res)
       }
@@ -110,7 +110,7 @@ async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
           ...defaultConfig,
           owner: username,
           repo,
-          path: fileName
+          path: fileName,
         })
         return isHttpResSuccess(res)
       }
@@ -118,7 +118,7 @@ async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
         const { endpoint = '' } = syncConfig
         const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
         const headers = {
-          Authorization: `token ${token}`
+          Authorization: `token ${token}`,
         }
         const res = await axios.post(apiUrl, defaultConfig, { headers })
         return isHttpResSuccess(res)
@@ -130,12 +130,12 @@ async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
           webdavPassword,
           webdavAuthType = 'basic',
           webdavSslEnabled = true,
-          webdavSavePath = ''
+          webdavSavePath = '',
         } = syncConfig
         const webdavEndpointF = formatEndpoint(webdavEndpoint, webdavSslEnabled)
         const options: WebDAVClientOptions = {
           username: webdavUsername,
-          password: webdavPassword
+          password: webdavPassword,
         }
         if (webdavAuthType === 'digest') {
           options.authType = AuthType.Digest
@@ -170,7 +170,7 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
   const defaultConfig = {
     branch,
     message: uploadOrUpdateMsg(fileName),
-    content: readFileAsBase64(localFilePath)
+    content: readFileAsBase64(localFilePath),
   }
   switch (type) {
     case 'gitee': {
@@ -178,8 +178,8 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
       const shaRes = await axios.get(url, {
         params: {
           access_token: token,
-          ref: branch
-        }
+          ref: branch,
+        },
       })
       if (!isHttpResSuccess(shaRes)) {
         return false
@@ -191,7 +191,7 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
         repo,
         path: fileName,
         sha,
-        access_token: token
+        access_token: token,
       })
       return isHttpResSuccess(res)
     }
@@ -201,7 +201,7 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
         owner: username,
         repo,
         path: fileName,
-        ref: branch
+        ref: branch,
       })
       if (shaRes.status !== 200) {
         throw new Error('get sha failed')
@@ -213,7 +213,7 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
         owner: username,
         repo,
         path: fileName,
-        sha
+        sha,
       })
       return res.status === 200
     }
@@ -221,10 +221,10 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
       const { endpoint = '' } = syncConfig
       const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
       const headers = {
-        Authorization: `token ${token}`
+        Authorization: `token ${token}`,
       }
       const shaRes = await axios.get(apiUrl, {
-        headers
+        headers,
       })
       if (!isHttpResSuccess(shaRes)) {
         throw new Error('get sha failed')
@@ -235,11 +235,11 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
         apiUrl,
         {
           ...defaultConfig,
-          sha
+          sha,
         },
         {
-          headers
-        }
+          headers,
+        },
       )
       return isHttpResSuccess(res)
     }
@@ -250,12 +250,12 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
         webdavPassword,
         webdavAuthType = 'basic',
         webdavSslEnabled = true,
-        webdavSavePath = ''
+        webdavSavePath = '',
       } = syncConfig
       const webdavEndpointF = formatEndpoint(webdavEndpoint, webdavSslEnabled)
       const options: WebDAVClientOptions = {
         username: webdavUsername,
-        password: webdavPassword
+        password: webdavPassword,
       }
       if (webdavAuthType === 'digest') {
         options.authType = AuthType.Digest
@@ -287,7 +287,7 @@ async function uploadFile(fileName: string[]): Promise<number> {
     let result = false
     try {
       result = await updateLocalToRemote(syncConfig, file)
-    } catch (error: any) {
+    } catch (_e: any) {
       result = await uploadLocalToRemote(syncConfig, file)
     }
     logger.info(`upload ${file} ${result ? 'success' : 'failed'}`)
@@ -307,7 +307,7 @@ async function downloadAndWriteFile(url: string, localFilePath: string, config: 
   if (isHttpResSuccess(res)) {
     await fs.writeFile(
       localFilePath,
-      isWriteJson ? JSON.stringify(res.data, null, 2) : Buffer.from(res.data.content, 'base64')
+      isWriteJson ? JSON.stringify(res.data, null, 2) : Buffer.from(res.data.content, 'base64'),
     )
     return true
   }
@@ -324,8 +324,8 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) 
         return downloadAndWriteFile(url, localFilePath, {
           params: {
             access_token: token,
-            ref: branch
-          }
+            ref: branch,
+          },
         })
       }
       case 'github': {
@@ -334,7 +334,7 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) 
           owner: username,
           repo,
           path: fileName,
-          ref: branch
+          ref: branch,
         })
         if (res.status === 200) {
           const data = res.data as any
@@ -343,9 +343,9 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) 
             downloadUrl,
             localFilePath,
             {
-              httpsAgent: getProxyagent(proxy)
+              httpsAgent: getProxyagent(proxy),
             },
-            true
+            true,
           )
         }
         return false
@@ -355,11 +355,11 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) 
         const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
         return downloadAndWriteFile(apiUrl, localFilePath, {
           headers: {
-            Authorization: `token ${token}`
+            Authorization: `token ${token}`,
           },
           params: {
-            ref: branch
-          }
+            ref: branch,
+          },
         })
       }
       case 'webdav': {
@@ -369,12 +369,12 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) 
           webdavPassword,
           webdavAuthType = 'basic',
           webdavSslEnabled = true,
-          webdavSavePath = ''
+          webdavSavePath = '',
         } = syncConfig
         const webdavEndpointF = formatEndpoint(webdavEndpoint, webdavSslEnabled)
         const options: WebDAVClientOptions = {
           username: webdavUsername,
-          password: webdavPassword
+          password: webdavPassword,
         }
         if (webdavAuthType === 'digest') {
           options.authType = AuthType.Digest

@@ -18,7 +18,7 @@ let hasCheckPath = false
 
 const errorMsg = {
   broken: $t('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_DEFAULT'),
-  brokenButBackup: $t('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_BACKUP')
+  brokenButBackup: $t('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_BACKUP'),
 }
 
 function manageDbChecker() {
@@ -30,30 +30,30 @@ function manageDbChecker() {
     let configFile: string = '{}'
     const optionsTpl = {
       title: $t('TIPS_NOTICE'),
-      body: ''
+      body: '',
     }
     // config save bak
     try {
       configFile = fs.readFileSync(manageConfigFilePath, { encoding: 'utf-8' })
       JSON.parse(configFile)
-    } catch (e) {
+    } catch (_e) {
       fs.unlinkSync(manageConfigFilePath)
       if (fs.existsSync(manageConfigFileBackupPath)) {
         try {
           configFile = fs.readFileSync(manageConfigFileBackupPath, {
-            encoding: 'utf-8'
+            encoding: 'utf-8',
           })
           JSON.parse(configFile)
           writeFile.sync(manageConfigFilePath, configFile, {
-            encoding: 'utf-8'
+            encoding: 'utf-8',
           })
           const stats = fs.statSync(manageConfigFileBackupPath)
           optionsTpl.body = `${errorMsg.brokenButBackup}\n${$t('TIPS_PICGO_BACKUP_FILE_VERSION', {
-            v: dayjs(stats.mtime).format('YYYY-MM-DD HH:mm:ss')
+            v: dayjs(stats.mtime).format('YYYY-MM-DD HH:mm:ss'),
           })}`
           notificationList.push(optionsTpl)
           return
-        } catch (e) {
+        } catch (_e) {
           optionsTpl.body = errorMsg.broken
           notificationList.push(optionsTpl)
           return
@@ -64,7 +64,7 @@ function manageDbChecker() {
       return
     }
     writeFile.sync(manageConfigFileBackupPath, configFile, {
-      encoding: 'utf-8'
+      encoding: 'utf-8',
     })
   }
 }
@@ -85,7 +85,7 @@ function managePathChecker(): string {
   }
   try {
     const configString = fs.readFileSync(defaultManageConfigPath, {
-      encoding: 'utf-8'
+      encoding: 'utf-8',
     })
     const config = JSON.parse(configString)
     const userConfigPath: string = config.configPath || ''
@@ -102,7 +102,7 @@ function managePathChecker(): string {
     if (!hasCheckPath) {
       const optionsTpl = {
         title: $t('TIPS_NOTICE'),
-        body: $t('TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR')
+        body: $t('TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR'),
       }
       notificationList?.push(optionsTpl)
       hasCheckPath = true

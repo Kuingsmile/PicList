@@ -25,7 +25,7 @@ export function useVirtualGrid(options: UseVirtualGridOptions) {
       itemsPerRow,
       totalRows,
       rowHeight,
-      totalHeight
+      totalHeight,
     }
   })
 
@@ -101,7 +101,7 @@ export function useVirtualGrid(options: UseVirtualGridOptions) {
       if (scrollTop.value > totalHeight - containerHeight.value) {
         scrollTop.value = Math.max(0, totalHeight - containerHeight.value)
       }
-    }
+    },
   )
 
   return {
@@ -111,6 +111,6 @@ export function useVirtualGrid(options: UseVirtualGridOptions) {
     updateScrollTop,
     scrollToItem,
     scrollToTop,
-    scrollToBottom
+    scrollToBottom,
   }
 }

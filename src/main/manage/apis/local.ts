@@ -53,7 +53,7 @@ class LocalApi {
       checked: false,
       isImage: false,
       match: false,
-      url: urlPrefix
+      url: urlPrefix,
     }
   }
 
@@ -70,7 +70,7 @@ class LocalApi {
       checked: false,
       match: false,
       isImage: isImage(fileName),
-      url: urlPrefix
+      url: urlPrefix,
     }
   }
 
@@ -89,20 +89,20 @@ class LocalApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     try {
       res = fsWalk.walkSync(this.transBack(prefix), {
         followSymbolicLinks: true,
         fs,
         stats: true,
-        throwErrorOnBrokenSymbolicLink: false
+        throwErrorOnBrokenSymbolicLink: false,
       })
       if (res.length) {
         result.fullList.push(
           ...res
             .filter((item: fsWalk.Entry) => item.stats?.isFile())
-            .map((item: any) => this.formatFile(item, urlPrefix, item.name, item.path, true))
+            .map((item: any) => this.formatFile(item, urlPrefix, item.name, item.path, true)),
         )
         result.success = true
       }
@@ -135,11 +135,11 @@ class LocalApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     try {
       const res = await fs.readdir(prefix, {
-        withFileTypes: true
+        withFileTypes: true,
       })
       if (res.length) {
         let urlPrefixF
@@ -199,7 +199,7 @@ class LocalApi {
     let result = false
     try {
       await fs.rm(this.transBack(key), {
-        recursive: true
+        recursive: true,
       })
       result = true
     } catch (error) {
@@ -226,7 +226,7 @@ class LocalApi {
         targetFilePath: key,
         targetFileBucket: bucketName,
         targetFileRegion: '',
-        noProgress: true
+        noProgress: true,
       })
       try {
         fs.ensureFileSync(this.transBack(key))
@@ -235,7 +235,7 @@ class LocalApi {
           id,
           progress: 100,
           status: uploadTaskSpecialStatus.uploaded,
-          finishTime: new Date().toLocaleString()
+          finishTime: new Date().toLocaleString(),
         })
       } catch (error) {
         this.logParam(error, 'uploadBucketFile')
@@ -243,7 +243,7 @@ class LocalApi {
           id,
           progress: 0,
           status: commonTaskStatus.failed,
-          finishTime: new Date().toLocaleString()
+          finishTime: new Date().toLocaleString(),
         })
       }
     }
@@ -255,7 +255,7 @@ class LocalApi {
     let result = false
     try {
       await fs.mkdir(this.transBack(key), {
-        recursive: true
+        recursive: true,
       })
       result = true
     } catch (error) {
@@ -279,7 +279,7 @@ class LocalApi {
         progress: 0,
         status: commonTaskStatus.queuing,
         sourceFileName: fileName,
-        targetFilePath: savedFilePath
+        targetFilePath: savedFilePath,
       })
       try {
         fs.ensureFileSync(savedFilePath)
@@ -288,7 +288,7 @@ class LocalApi {
           id,
           progress: 100,
           status: downloadTaskSpecialStatus.downloaded,
-          finishTime: new Date().toLocaleString()
+          finishTime: new Date().toLocaleString(),
         })
       } catch (error) {
         this.logParam(error, 'downloadBucketFile')
@@ -296,7 +296,7 @@ class LocalApi {
           id,
           progress: 0,
           status: commonTaskStatus.failed,
-          finishTime: new Date().toLocaleString()
+          finishTime: new Date().toLocaleString(),
         })
       }
     }

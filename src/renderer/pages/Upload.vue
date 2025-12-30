@@ -160,7 +160,7 @@ import {
   LinkIcon,
   Settings,
   UploadCloudIcon,
-  XIcon
+  XIcon,
 } from 'lucide-vue-next'
 import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -200,7 +200,7 @@ const pasteFormatList = ref<Record<string, string>>({
   [IPasteStyle.HTML]: '<img src="url"/>',
   [IPasteStyle.URL]: 'http://test.com/test.png',
   [IPasteStyle.UBB]: '[img]url[/img]',
-  [IPasteStyle.CUSTOM]: ''
+  [IPasteStyle.CUSTOM]: '',
 })
 
 watch(picBedGlobal, () => {
@@ -248,7 +248,7 @@ async function handlePicBedNameClick(_picBedName: string, picBedConfigName: stri
   const currentPicBedConfig = ((await getConfig<any[]>(`uploader.${currentPicBed}`)) as any) || {}
   const configList = await window.electron.triggerRPC<IUploaderConfigItem>(
     IRPCActionType.PICBED_GET_CONFIG_LIST,
-    currentPicBed
+    currentPicBed,
   )
   const currentConfigList = configList?.configList ?? []
   const config = currentConfigList.find((item: any) => item._configName === formatedpicBedConfigName)
@@ -256,11 +256,11 @@ async function handlePicBedNameClick(_picBedName: string, picBedConfigName: stri
     name: PICBEDS_PAGE,
     params: {
       type: currentPicBed,
-      configId: config?._id || ''
+      configId: config?._id || '',
     },
     query: {
-      defaultConfigId: currentPicBedConfig.defaultId || ''
-    }
+      defaultConfigId: currentPicBedConfig.defaultId || '',
+    },
   })
 }
 
@@ -293,8 +293,8 @@ function handleURLDrag(items: DataTransferItemList, dataTransfer: DataTransfer) 
   if (urlMatch) {
     window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [
       {
-        path: urlMatch[1]
-      }
+        path: urlMatch[1],
+      },
     ])
   } else {
     message.error(t('pages.upload.dragValidPictureOrUrl'))
@@ -315,7 +315,7 @@ function ipcSendFiles(files: FileList) {
   Array.from(files).forEach(item => {
     const obj = {
       name: item.name,
-      path: window.electron.showFilePath(item)
+      path: window.electron.showFilePath(item),
     }
     sendFiles.push(obj)
   })
@@ -334,14 +334,14 @@ async function getUseShortUrl() {
 function updatePasteStyle(style: string) {
   pasteStyle.value = style
   saveConfig({
-    [configPaths.settings.pasteStyle]: style || IPasteStyle.MARKDOWN
+    [configPaths.settings.pasteStyle]: style || IPasteStyle.MARKDOWN,
   })
 }
 
 function updateUrlType(shortUrl: boolean) {
   useShortUrl.value = shortUrl
   saveConfig({
-    [configPaths.settings.useShortUrl]: shortUrl
+    [configPaths.settings.useShortUrl]: shortUrl,
   })
 }
 
@@ -355,7 +355,7 @@ async function uploadURLFiles() {
     value: isUrl(str) ? str : '',
     title: t('pages.upload.inputUrlTip'),
     placeholder: t('pages.upload.httpPrefixTip') + '\n' + t('pages.upload.multipleUrlsHint'),
-    multiLine: true
+    multiLine: true,
   })
 }
 
@@ -386,7 +386,7 @@ function handleInputBoxValue(val: string) {
         ? t('pages.upload.inputValidUrl') + ': ' + invalidUrls[0]
         : t('pages.upload.invalidUrlsFound', {
             count: invalidUrls.length,
-            urls: invalidUrls.slice(0, 3).join(', ') + (invalidUrls.length > 3 ? '...' : '')
+            urls: invalidUrls.slice(0, 3).join(', ') + (invalidUrls.length > 3 ? '...' : ''),
           })
     message.error(errorMessage)
   }
@@ -434,7 +434,7 @@ onBeforeMount(() => {
 
 <script lang="ts">
 export default {
-  name: 'UploadPage'
+  name: 'UploadPage',
 }
 </script>
 

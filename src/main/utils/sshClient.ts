@@ -29,14 +29,14 @@ class SSHClient {
       ? {
           username,
           privateKeyPath: privateKey,
-          passphrase: passphrase || undefined
+          passphrase: passphrase || undefined,
         }
       : { username, password }
     try {
       await SSHClient.client.connect({
         host: config.host,
         port: Number(config.port) || 22,
-        ...loginInfo
+        ...loginInfo,
       })
       this._isConnected = true
       return true
@@ -53,7 +53,7 @@ class SSHClient {
         ? {
             username,
             privateKey: fs.readFileSync(privateKey),
-            passphrase: passphrase || undefined
+            passphrase: passphrase || undefined,
           }
         : { username, password }
       remote = this.changeWinStylePathToUnix(remote)
@@ -66,23 +66,21 @@ class SSHClient {
                 err: any,
                 sftp: {
                   unlink: (arg0: string, arg1: (err: any) => void) => void
-                }
+                },
               ) => {
-                // eslint-disable-next-line prefer-promise-reject-errors
                 if (err) reject(false)
                 sftp.unlink(remote, (err: any) => {
-                  // eslint-disable-next-line prefer-promise-reject-errors
                   if (err) reject(false)
                   client.end()
                   resolve(true)
                 })
-              }
+              },
             )
           })
           .connect({
             host: config.host,
             port: Number(config.port) || 22,
-            ...loginInfo
+            ...loginInfo,
           })
       })
       return (await promise) as boolean
@@ -110,7 +108,7 @@ class SSHClient {
       remote = this.changeWinStylePathToUnix(remote)
       local = this.changeWinStylePathToUnix(local)
       await SSHClient.client.getFile(local, remote, undefined, {
-        concurrency: 1
+        concurrency: 1,
       })
       return true
     } catch (err: any) {
@@ -125,7 +123,7 @@ class SSHClient {
     config: {
       fileMode?: string
       dirMode?: string
-    } = {}
+    } = {},
   ): Promise<boolean> {
     if (!this._isConnected) {
       throw new Error('SSH 未连接')
@@ -150,7 +148,7 @@ class SSHClient {
     dirPath: string,
     config: {
       dirMode?: string
-    } = {}
+    } = {},
   ): Promise<boolean> {
     if (!this._isConnected) {
       throw new Error('SSH 未连接')

@@ -36,10 +36,10 @@ class RemoteNoticeHandler {
     try {
       const localCountStorage: IRemoteNoticeLocalCountStorage = fs.readJSONSync(
         REMOTE_NOTICE_LOCAL_STORAGE_PATH,
-        'utf8'
+        'utf8',
       )
       this.remoteNoticeLocalCountStorage = localCountStorage
-    } catch (e) {
+    } catch (_e) {
       this.remoteNoticeLocalCountStorage = localCountStorage
     }
   }
@@ -56,7 +56,7 @@ class RemoteNoticeHandler {
       const noticeInfo = (await axios({
         method: 'get',
         url: REMOTE_NOTICE_URL,
-        responseType: 'json'
+        responseType: 'json',
       }).then(res => res.data)) as IRemoteNotice
       return noticeInfo
     } catch {
@@ -121,7 +121,7 @@ class RemoteNoticeHandler {
                 if (action.data?.url) {
                   shell.openExternal(action.data.url)
                 }
-              }
+              },
             })
             break
           case IRemoteNoticeActionType.OPEN_URL:
@@ -144,7 +144,7 @@ class RemoteNoticeHandler {
                 title: action.data?.title || '',
                 message: action.data?.content || '',
                 type: 'info',
-                buttons: action.data?.buttons?.map(item => item.label) || ['Yes']
+                buttons: action.data?.buttons?.map(item => item.label) || ['Yes'],
               })
               .then(res => {
                 const button = action.data?.buttons?.[res.response]

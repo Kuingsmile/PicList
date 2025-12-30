@@ -12,7 +12,7 @@ const updateChecker = async () => {
   if (showTip) {
     try {
       await updater.autoUpdater.checkForUpdatesAndNotify()
-    } catch (err) {}
+    } catch (_err) {}
   }
 }
 

@@ -153,7 +153,7 @@ const handleConfirm = async () => {
         IRPCActionType.UPLOADER_UPDATE_CONFIG,
         type.value,
         rawResult?._id,
-        rawResult
+        rawResult,
       )
       message.success(t('pages.picBedConfigs.setSuccess'))
       $router.back()
@@ -263,41 +263,41 @@ async function handleCopyApi() {
 
 <script lang="ts">
 export default {
-  name: 'PicbedsPage'
+  name: 'PicbedsPage',
 }
 </script>
 
 <style scoped>
 #picbeds-page {
-  min-height: 100vh;
-  background: var(--color-background-tertiar);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   position: relative;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--color-background-tertiar);
 }
 
 .page-container {
-  max-width: 1000px;
   margin: 0 auto;
   padding: 2rem;
+  max-width: 1000px;
 }
 
 .page-content {
-  background: var(--color-background-secondary);
-  border-radius: 16px;
-  box-shadow:
-    0 8px 8px rgba(0, 0, 0, 0.12),
-    0 4px 8px rgba(0, 0, 0, 0.08);
   overflow: auto;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 16px;
+  background: var(--color-background-secondary);
+  box-shadow:
+    0 8px 8px rgb(0 0 0 / 12%),
+    0 4px 8px rgb(0 0 0 / 8%);
 }
 
 /* Header Section */
 .page-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgb(229 231 235 / 80%);
   padding: 2rem 2rem 1.5rem;
-  border-bottom: 1px solid rgba(229, 231, 235, 0.8);
   background: var(--color-background-secondary);
 }
 
@@ -308,16 +308,15 @@ export default {
 }
 
 .page-title {
+  margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
   color: #1f2937;
-  margin: 0;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   background: linear-gradient(135deg, #1f2937 0%, #4b5563 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  -webkit-text-fill-color: transparent;
 }
 
 .page-title:hover {
@@ -327,38 +326,38 @@ export default {
 
 .link-button {
   display: flex;
-  align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  align-items: center;
   border: none;
   border-radius: 8px;
-  background: rgba(59, 130, 246, 0.1);
+  width: 2rem;
+  height: 2rem;
   color: #3b82f6;
-  cursor: pointer;
+  background: rgb(59 130 246 / 10%);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
 }
 
 .link-button:hover {
-  background: rgba(59, 130, 246, 0.2);
+  background: rgb(59 130 246 / 20%);
   transform: translateY(-1px);
 }
 
 /* Action Buttons */
 .action-button {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  overflow: hidden;
   border: none;
   border-radius: 12px;
+  padding: 0.75rem 1.5rem;
   font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: inherit;
-  position: relative;
-  overflow: hidden;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 0.5rem;
+  cursor: pointer;
 }
 
 .action-button::before {
@@ -368,7 +367,7 @@ export default {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 20%), transparent);
   transition: left 0.6s;
 }
 
@@ -377,48 +376,48 @@ export default {
 }
 
 .action-button.primary {
-  background: var(--color-blue-common);
   color: white;
-  box-shadow: 0 2px 2px rgba(0, 122, 255, 0.3);
+  background: var(--color-blue-common);
+  box-shadow: 0 2px 2px rgb(0 122 255 / 30%);
 }
 
 .action-button.primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0, 122, 255, 0.4);
+  box-shadow: 0 2px 4px rgb(0 122 255 / 40%);
 }
 
 .action-button.secondary {
-  background: var(--color-surface-elevated);
-  color: #475569;
   border: 1px solid #e2e8f0;
+  color: #475569;
+  background: var(--color-surface-elevated);
 }
 
 .action-button.secondary:hover {
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgb(0 0 0 / 10%);
 }
 
 .action-button.success {
-  background: var(--color-success);
   color: white;
-  box-shadow: 0 4px 4px rgba(16, 185, 129, 0.3);
+  background: var(--color-success);
+  box-shadow: 0 4px 4px rgb(16 185 129 / 30%);
 }
 
 .action-button.success:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 6px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 8px 6px rgb(16 185 129 / 40%);
 }
 
 .action-button.warning {
-  background: var(--color-warning);
-  color: white;
   position: relative;
+  color: white;
+  background: var(--color-warning);
 }
 
 .action-button.warning:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 4px 6px rgb(245 158 11 / 30%);
 }
 
 .dropdown-arrow {
@@ -458,17 +457,17 @@ export default {
 .dropdown-menu {
   position: absolute;
   top: 100%;
-  left: 0;
   right: 0;
+  left: 0;
+  z-index: 1000;
+  overflow: hidden;
+  overflow-y: auto;
   margin-top: 0.5rem;
-  background: white;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  overflow: hidden;
-  z-index: 1000;
   max-height: 300px;
-  overflow-y: auto;
+  background: white;
+  box-shadow: 0 8px 32px rgb(0 0 0 / 12%);
 }
 
 .dropdown-menu.dropdown-up {
@@ -480,20 +479,20 @@ export default {
 
 .dropdown-item {
   display: block;
-  width: 100%;
-  padding: 0.75rem 1rem;
   border: none;
-  background: transparent;
-  color: #374151;
+  padding: 0.75rem 1rem;
+  width: 100%;
   font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
   text-align: left;
+  color: #374151;
+  background: transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .dropdown-item:hover {
-  background: #f3f4f6;
   color: #007aff;
+  background: #f3f4f6;
 }
 
 .dropdown-item:last-child {
@@ -507,57 +506,54 @@ export default {
 }
 
 .empty-content {
-  max-width: 400px;
   margin: 0 auto;
+  max-width: 400px;
 }
 
 .empty-icon {
-  color: #9ca3af;
   margin-bottom: 1.5rem;
+  color: #9ca3af;
 }
 
 .empty-content h3 {
+  margin: 0 0 0.5rem;
   font-size: 1.25rem;
   font-weight: 600;
   color: #374151;
-  margin: 0 0 0.5rem;
 }
 
 .empty-content p {
-  color: #6b7280;
   margin: 0;
+  color: #6b7280;
   line-height: 1.6;
 }
 
 /* Loading Overlay */
 .loading-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+  inset: 0;
   z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgb(0 0 0 / 50%);
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .loading-spinner {
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 3px solid rgba(255, 255, 255, 0.3);
+  border: 3px solid rgb(255 255 255 / 30%);
   border-top: 3px solid white;
   border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
   animation: spin 1s linear infinite;
 }
 
 .loading-text {
-  color: white;
   font-size: 0.875rem;
   font-weight: 500;
+  color: white;
 }
 
 /* Transitions */
@@ -583,6 +579,7 @@ export default {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -596,34 +593,33 @@ export default {
 
 :root.dark .page-content,
 :root.auto.dark .page-content {
+  border-color: rgb(75 85 99 / 30%);
   background: var(--color-background-secondary);
-  border-color: rgba(75, 85, 99, 0.3);
 }
 
 :root.dark .page-header,
 :root.auto.dark .page-header {
+  border-color: rgb(75 85 99 / 30%);
   background: var(--color-background-secondary);
-  border-color: rgba(75, 85, 99, 0.3);
 }
 
 :root.dark .page-title,
 :root.auto.dark .page-title {
   background: linear-gradient(135deg, #f9fafb 0%, #d1d5db 100%);
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 :root.dark .dropdown-menu,
 :root.auto.dark .dropdown-menu {
-  background: #374151;
   border-color: #4b5563;
+  background: #374151;
 }
 
 :root.dark .dropdown-menu.dropdown-up,
 :root.auto.dark .dropdown-menu.dropdown-up {
-  background: #374151;
   border-color: #4b5563;
+  background: #374151;
 }
 
 :root.dark .dropdown-item,
@@ -633,12 +629,12 @@ export default {
 
 :root.dark .dropdown-item:hover,
 :root.auto.dark .dropdown-item:hover {
-  background: #4b5563;
   color: #60a5fa;
+  background: #4b5563;
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .page-container {
     padding: 1rem;
   }
@@ -660,19 +656,19 @@ export default {
   }
 
   .action-button {
-    width: 100%;
     justify-content: center;
+    width: 100%;
   }
 
   .toast {
+    top: 1rem;
     right: 1rem;
     left: 1rem;
-    top: 1rem;
     min-width: auto;
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .page-container {
     padding: 0.5rem;
   }

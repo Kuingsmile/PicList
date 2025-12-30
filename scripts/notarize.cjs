@@ -27,7 +27,7 @@ async function main(context) {
     appleId: XCODE_APP_LOADER_EMAIL,
     appleIdPassword: XCODE_APP_LOADER_PASSWORD,
     tool: 'notarytool',
-    teamId: XCODE_TEAM_ID
+    teamId: XCODE_TEAM_ID,
   })
   console.log('Finished Apple notarization.')
 }

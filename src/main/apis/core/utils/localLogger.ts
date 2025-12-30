@@ -21,7 +21,7 @@ const checkLogFileIsLarge = (logPath: string): CheckLogFileResult => {
       return {
         isLarge: logFileSize > DEFAULT_LOG_FILE_SIZE_LIMIT,
         logFileSize,
-        logFileSizeLimit: DEFAULT_LOG_FILE_SIZE_LIMIT
+        logFileSizeLimit: DEFAULT_LOG_FILE_SIZE_LIMIT,
       }
     }
     return { isLarge: false }

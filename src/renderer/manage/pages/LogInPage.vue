@@ -198,7 +198,7 @@
                     </option>
                     <option
                       v-for="[key, value] in Object.entries(
-                        supportedPicBedList[activeName].configOptions[option].selectOptions
+                        supportedPicBedList[activeName].configOptions[option].selectOptions,
                       )"
                       :key="key"
                       :value="key"
@@ -294,7 +294,7 @@ import {
   RefreshCwIcon,
   RotateCcwIcon,
   SaveIcon,
-  TrashIcon
+  TrashIcon,
 } from 'lucide-vue-next'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -341,8 +341,8 @@ const tabItems = computed(() => {
       key: 'login',
       name: t('pages.manage.login.savedConfigs'),
       icon: null,
-      iconComponent: FolderIcon
-    }
+      iconComponent: FolderIcon,
+    },
   ]
 
   Object.values(supportedPicBedList).forEach((item: any) => {
@@ -350,7 +350,7 @@ const tabItems = computed(() => {
       key: item.icon,
       name: item.name,
       icon: item.icon,
-      iconComponent: null as any
+      iconComponent: null as any,
     })
   })
 
@@ -538,7 +538,7 @@ async function handleConfigChange(name: string) {
           area: area?.[i] || '',
           customUrl: customUrl?.[i] || '',
           operator: operator?.[i] || '',
-          password: password?.[i] || ''
+          password: password?.[i] || '',
         }
       }
     }
@@ -579,7 +579,7 @@ const handleConfigRemove = async (name: string) => {
     type: 'warning',
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
-    center: true
+    center: true,
   }).then(result => {
     if (!result) return
     try {
@@ -587,7 +587,7 @@ const handleConfigRemove = async (name: string) => {
       notifyUser(t('pages.manage.login.deleteConfigSuccessMsg'), 'success')
       manageStore.refreshConfig()
       getAllConfigAliasArray()
-    } catch (error) {
+    } catch (_error) {
       notifyUser(t('pages.manage.login.deleteConfigFailedMsg'), 'error')
     }
   })
@@ -603,7 +603,7 @@ const getAllConfigAliasArray = async () => {
     allConfigAliasMap[index] = {
       alias: value.alias,
       config: value,
-      picBedName: value.picBedName
+      picBedName: value.picBedName,
     }
   })
 }
@@ -626,8 +626,8 @@ const handleConfigClick = async (item: any) => {
       alias,
       config,
       picBedName,
-      allPicBedConfigure: JSON.stringify(result)
-    }
+      allPicBedConfigure: JSON.stringify(result),
+    },
   })
 }
 
@@ -692,7 +692,7 @@ async function getCurrentConfigList() {
     'smms',
     'tcyun',
     'upyun',
-    'webdavplist'
+    'webdavplist',
   ]
 
   const filteredConfigList = pbList.flatMap(pb => {
@@ -704,7 +704,7 @@ async function getCurrentConfigList() {
   if (autoImport) {
     const autoImportPicBed = initArray(
       (await getPicBedsConfig<string | string[]>('settings.autoImportPicBed')) || '',
-      []
+      [],
     )
     await Promise.all(filteredConfigList.flatMap(config => transUpToManage(config, config.type, autoImportPicBed)))
     if (Object.keys(importedNewConfig).length > 0) {
@@ -743,7 +743,7 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
   const commonConfig = {
     alias,
     picBedName,
-    paging: true
+    paging: true,
   }
   const resultMap: IStringKeyMap = {}
   switch (picBedName) {
@@ -751,7 +751,7 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
       if (!config.token) return
       Object.assign(resultMap, {
         ...commonConfig,
-        token: config.token
+        token: config.token,
       })
       break
     case 'aliyun':
@@ -768,11 +768,11 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
           config.customUrl
             ? {
                 [config.bucket]: {
-                  customUrl: config.customUrl
-                }
+                  customUrl: config.customUrl,
+                },
               }
-            : {}
-        )
+            : {},
+        ),
       })
       break
     case 'qiniu':
@@ -785,7 +785,7 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
         baseDir: '/',
         isAutoCustomUrl: false,
         transformedConfig: JSON.stringify({ [config.bucket]: config.url }),
-        itemsPerPage: 50
+        itemsPerPage: 50,
       })
       break
     case 'tcyun':
@@ -802,12 +802,12 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
           config.customUrl
             ? {
                 [config.bucket]: {
-                  customUrl: config.customUrl
-                }
+                  customUrl: config.customUrl,
+                },
               }
-            : {}
+            : {},
         ),
-        itemsPerPage: 50
+        itemsPerPage: 50,
       })
       break
     case 'github':
@@ -818,7 +818,7 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
         githubUsername: config.repo.split('/')[0],
         customUrl: '',
         proxy: '',
-        itemsPerPage: 50
+        itemsPerPage: 50,
       })
       break
     case 'upyun':
@@ -838,10 +838,10 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
             baseDir: '/',
             area: '',
             operator: config.operator,
-            password: config.password
-          }
+            password: config.password,
+          },
         }),
-        itemsPerPage: 50
+        itemsPerPage: 50,
       })
       break
     case 'webdavplist':
@@ -864,9 +864,9 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
             password: config.password,
             baseDir: config.path || '/',
             customUrl: config.customUrl || '',
-            area: ''
-          }
-        })
+            area: '',
+          },
+        }),
       })
       delete resultMap.paging
       break
@@ -881,9 +881,9 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
           local: {
             customUrl: config.customUrl || '',
             baseDir: config.path,
-            webPath: config.webpath || ''
-          }
-        })
+            webPath: config.webpath || '',
+          },
+        }),
       })
       delete resultMap.paging
       break
@@ -915,9 +915,9 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
             webPath: config.webPath || '',
             customUrl: config.customUrl || '',
             fileMode: config.fileMode || '0664',
-            dirMode: config.dirMode || '0775'
-          }
-        })
+            dirMode: config.dirMode || '0775',
+          },
+        }),
       })
       delete resultMap.paging
       break
@@ -942,11 +942,11 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
           config.urlPrefix
             ? {
                 [config.bucketName]: {
-                  customUrl: config.urlPrefix
-                }
+                  customUrl: config.urlPrefix,
+                },
               }
-            : {}
-        )
+            : {},
+        ),
       })
       break
     case 'imgur':
@@ -955,7 +955,7 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
         ...commonConfig,
         username: config.username,
         accessToken: config.accessToken,
-        proxy: ''
+        proxy: '',
       })
       delete resultMap.paging
       break

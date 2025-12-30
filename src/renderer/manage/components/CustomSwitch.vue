@@ -56,12 +56,12 @@ const toggleTooltip = () => {
 <style scoped>
 .switch-container {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
-  padding: 1rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  padding: 1rem;
   background: var(--color-surface-elevated);
 }
 
@@ -84,20 +84,20 @@ const toggleTooltip = () => {
 
 .info-icon {
   display: flex;
-  align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  color: var(--color-text-secondary);
-  transition: var(--transition-fast);
+  align-items: center;
   border-radius: 50%;
   padding: 2px;
+  width: 20px;
+  height: 20px;
+  color: var(--color-text-secondary);
+  transition: var(--transition-fast);
+  cursor: pointer;
 }
 
 .info-icon:hover {
   color: var(--color-accent);
-  background: rgba(0, 122, 255, 0.1);
+  background: rgb(0 122 255 / 10%);
 }
 
 .info-svg {
@@ -110,16 +110,16 @@ const toggleTooltip = () => {
   top: 100%;
   left: 0;
   z-index: 1000;
-  min-width: 200px;
-  max-width: 300px;
-  padding: 0.75rem;
-  background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  padding: 0.75rem;
+  min-width: 200px;
+  max-width: 300px;
   font-size: 0.75rem;
-  line-height: 1.4;
   color: var(--color-text-primary);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--shadow-lg);
+  line-height: 1.4;
 }
 
 .switch-control {
@@ -136,33 +136,30 @@ const toggleTooltip = () => {
 }
 
 .switch-input {
-  opacity: 0;
   width: 0;
   height: 0;
+  opacity: 0;
 }
 
 .switch-slider {
   position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--color-border);
+  inset: 0;
   border-radius: 0.75rem;
+  background: var(--color-border);
   transition: var(--transition-fast);
+  cursor: pointer;
 }
 
 .switch-button {
   position: absolute;
   top: 2px;
   left: 2px;
+  border-radius: 50%;
   width: 1.25rem;
   height: 1.25rem;
   background: white;
-  border-radius: 50%;
-  transition: var(--transition-fast);
   box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
 }
 
 .switch-input:checked + .switch-slider {
@@ -174,14 +171,14 @@ const toggleTooltip = () => {
 }
 
 .switch-input:focus + .switch-slider {
-  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+  box-shadow: 0 0 0 2px rgb(0 122 255 / 20%);
 }
 
 .switch-text {
+  min-width: 50px;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text-secondary);
-  min-width: 50px;
 }
 
 .switch-input:checked ~ .switch-text {
@@ -196,7 +193,7 @@ const toggleTooltip = () => {
 
 :root.dark .tooltip-content,
 :root.auto.dark .tooltip-content {
-  background: var(--color-surface-elevated);
   border-color: var(--color-border);
+  background: var(--color-surface-elevated);
 }
 </style>

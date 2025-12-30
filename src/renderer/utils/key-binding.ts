@@ -10,7 +10,7 @@ const keyBinding = (event: KeyboardEvent) => {
     Ctrl: event.ctrlKey,
     Shift: event.shiftKey,
     Alt: event.altKey,
-    [meta]: event.metaKey
+    [meta]: event.metaKey,
   }
 
   const pressKey = []

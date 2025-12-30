@@ -42,7 +42,7 @@ router.post(
   async ({
     response,
     list = [],
-    urlparams
+    urlparams,
   }: {
     response: IHttpResponse
     list?: string[]
@@ -58,8 +58,8 @@ router.post(
           response,
           body: {
             success: false,
-            message: 'server key is uncorrect'
-          }
+            message: 'server key is uncorrect',
+          },
         })
         return
       }
@@ -99,7 +99,7 @@ router.post(
           const treatedFullResult = {
             isEncrypted: 1,
             EncryptedData: new AESHelper().encrypt(JSON.stringify(fullResult)),
-            ...fullResult
+            ...fullResult,
           }
           delete treatedFullResult.config
           handleResponse({
@@ -107,16 +107,16 @@ router.post(
             body: {
               success: true,
               result: [res],
-              fullResult: [treatedFullResult]
-            }
+              fullResult: [treatedFullResult],
+            },
           })
         } else {
           handleResponse({
             response,
             body: {
               success: false,
-              message: errorMessage
-            }
+              message: errorMessage,
+            },
           })
         }
       } else {
@@ -124,7 +124,7 @@ router.post(
         //  upload with files
         const pathList = list.map(item => {
           return {
-            path: item
+            path: item,
           }
         })
         const win = windowManager.getAvailableWindow()
@@ -136,7 +136,7 @@ router.post(
           const treatedItem = {
             isEncrypted: 1,
             EncryptedData: new AESHelper().encrypt(JSON.stringify(item.fullResult)),
-            ...item.fullResult
+            ...item.fullResult,
           }
           delete treatedItem.config
           treatedItem.imgUrl = useShortUrl ? treatedItem.shortUrl || treatedItem.imgUrl : treatedItem.imgUrl
@@ -149,16 +149,16 @@ router.post(
             body: {
               success: true,
               result: res,
-              fullResult
-            }
+              fullResult,
+            },
           })
         } else {
           handleResponse({
             response,
             body: {
               success: false,
-              message: errorMessage
-            }
+              message: errorMessage,
+            },
           })
         }
       }
@@ -172,11 +172,11 @@ router.post(
         response,
         body: {
           success: false,
-          message: errorMessage
-        }
+          message: errorMessage,
+        },
       })
     }
-  }
+  },
 )
 
 router.post(
@@ -187,8 +187,8 @@ router.post(
         response,
         body: {
           success: false,
-          message: 'no file to delete'
-        }
+          message: 'no file to delete',
+        },
       })
       return
     }
@@ -205,8 +205,8 @@ router.post(
         response,
         body: {
           success: !!successCount,
-          message: successCount ? `delete success: ${successCount}, fail: ${failCount}` : deleteErrorMessage
-        }
+          message: successCount ? `delete success: ${successCount}, fail: ${failCount}` : deleteErrorMessage,
+        },
       })
     } catch (err: any) {
       logger.error(err)
@@ -214,11 +214,11 @@ router.post(
         response,
         body: {
           success: false,
-          message: deleteErrorMessage
-        }
+          message: deleteErrorMessage,
+        },
       })
     }
-  }
+  },
 )
 
 router.any('/heartbeat', async ({ response }: { response: IHttpResponse }) => {
@@ -226,8 +226,8 @@ router.any('/heartbeat', async ({ response }: { response: IHttpResponse }) => {
     response,
     body: {
       success: true,
-      result: 'alive'
-    }
+      result: 'alive',
+    },
   })
 })
 

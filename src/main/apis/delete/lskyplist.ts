@@ -21,17 +21,17 @@ export default class LskyplistApi {
 
     const v2Headers = {
       Accept: 'application/json',
-      Authorization: token || undefined
+      Authorization: token || undefined,
     }
 
     const requestAgent = new https.Agent({
-      rejectUnauthorized: false
+      rejectUnauthorized: false,
     })
     try {
       const response: AxiosResponse = await axios.delete(`${host}/api/v1/images/${hash}`, {
         headers: v2Headers,
         timeout: 30000,
-        httpsAgent: requestAgent
+        httpsAgent: requestAgent,
       })
       const ok = response.status === 200 && response.data.status === true
       deleteLog(hash, 'Lskyplist', ok)

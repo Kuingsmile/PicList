@@ -20,11 +20,11 @@ const SECRET_KEY = process.env.R2_SECRET_KEY
 const options = {
   credentials: {
     accessKeyId: SECRET_ID,
-    secretAccessKey: SECRET_KEY
+    secretAccessKey: SECRET_KEY,
   },
   endpoint: `https://${ACCOUNT_ID}.r2.cloudflarestorage.com`,
   tls: true,
-  region: 'auto'
+  region: 'auto',
 }
 
 const removeDupField = path => {
@@ -65,9 +65,9 @@ const uploadFile = async () => {
           Body: fileStream,
           ContentType: 'application/octet-stream',
           Metadata: {
-            description: 'uploaded by PicList'
-          }
-        }
+            description: 'uploaded by PicList',
+          },
+        },
       })
       parallelUploads3.on('httpUploadProgress', progress => {
         const progressBar = Math.round((progress.loaded / progress.total) * 100)
@@ -97,9 +97,9 @@ const uploadFile = async () => {
             Body: versionFileStream,
             ContentType: mime.getType(versionFileName),
             Metadata: {
-              description: 'uploaded by PicList'
-            }
-          }
+              description: 'uploaded by PicList',
+            },
+          },
         })
         console.log('\nUploading version file to root...')
         await uploadVersionFileToRoot.done()
@@ -114,9 +114,9 @@ const uploadFile = async () => {
             Body: versionFileStream2,
             ContentType: mime.getType(versionFileName),
             Metadata: {
-              description: 'uploaded by PicList'
-            }
-          }
+              description: 'uploaded by PicList',
+            },
+          },
         })
         console.log('\nUploading version file to latest...')
         await uploadVersionFileToLatest.done()

@@ -13,7 +13,7 @@ import {
   PICGO_HANDLE_PLUGIN_DONE,
   PICGO_HANDLE_PLUGIN_ING,
   PICGO_TOGGLE_PLUGIN,
-  SHOW_MAIN_PAGE_QRCODE
+  SHOW_MAIN_PAGE_QRCODE,
 } from '~/events/constant'
 import { handlePluginUninstall, handlePluginUpdate } from '~/events/rpc/routes/plugin/utils'
 import { T as $t } from '~/i18n'
@@ -37,24 +37,24 @@ const buildMiniPageMenu = () => {
   const template: (MenuItemConstructorOptions | MenuItem)[] = [
     {
       label: $t('OPEN_MAIN_WINDOW'),
-      click: openMainWindow
+      click: openMainWindow,
     },
     {
       label: $t('CHOOSE_DEFAULT_PICBED'),
       type: 'submenu',
-      submenu
+      submenu,
     },
     {
       label: $t('UPLOAD_BY_CLIPBOARD'),
       click() {
         uploadClipboardFiles()
-      }
+      },
     },
     {
       label: $t('HIDE_MINI_WINDOW'),
       click() {
         BrowserWindow.getFocusedWindow()!.hide()
-      }
+      },
     },
     {
       label: $t('START_WATCH_CLIPBOARD'),
@@ -67,7 +67,7 @@ const buildMiniPageMenu = () => {
         })
         buildMiniPageMenu()
       },
-      visible: !isListeningClipboard
+      visible: !isListeningClipboard,
     },
     {
       label: $t('STOP_WATCH_CLIPBOARD'),
@@ -77,19 +77,19 @@ const buildMiniPageMenu = () => {
         ClipboardWatcher.removeAllListeners()
         buildMiniPageMenu()
       },
-      visible: isListeningClipboard
+      visible: isListeningClipboard,
     },
     {
       label: $t('RELOAD_APP'),
       click() {
         app.relaunch()
         app.exit(0)
-      }
+      },
     },
     {
       role: 'quit',
-      label: $t('QUIT')
-    }
+      label: $t('QUIT'),
+    },
   ]
   return Menu.buildFromTemplate(template)
 }
@@ -102,36 +102,36 @@ const buildMainPageMenu = (win: BrowserWindow) => {
         dialog.showMessageBox({
           title: 'PicList',
           message: 'PicList',
-          detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`
+          detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`,
         })
-      }
+      },
     },
     {
       label: $t('SHOW_PICBED_QRCODE'),
       click() {
         win?.webContents?.send(SHOW_MAIN_PAGE_QRCODE)
-      }
+      },
     },
     {
       label: $t('OPEN_TOOLBOX'),
       click() {
         const window = windowManager.create(IWindowList.TOOLBOX_WINDOW)
         window?.show()
-      }
+      },
     },
     {
       label: $t('SHOW_DEVTOOLS'),
       click() {
         win?.webContents?.openDevTools({ mode: 'detach' })
-      }
+      },
     },
     {
       label: $t('FEEDBACK'),
       click() {
         const url = 'https://github.com/Kuingsmile/PicList/issues'
         shell.openExternal(url)
-      }
-    }
+      },
+    },
   ] as (MenuItemConstructorOptions | MenuItem)[]
   return Menu.buildFromTemplate(template)
 }
@@ -145,11 +145,11 @@ const buildSecondPicBedMenu = () => {
   const currentPicBedMenuItem = [
     {
       label: `${$t('CURRENT_SECOND_PICBED')} - ${currentPicBedName || 'None'}`,
-      enabled: false
+      enabled: false,
     },
     {
-      type: 'separator'
-    }
+      type: 'separator',
+    },
   ]
   let submenu = picBeds
     .filter(item => item.visible)
@@ -168,19 +168,19 @@ const buildSecondPicBedMenu = () => {
                 // see: https://github.com/electron/electron/issues/21292
                 type: 'checkbox',
                 checked: config._id === defaultSecondUploaderId && item.type === secondUploader,
-                click: function () {
+                click() {
                   changeSecondUploader(item.type, config, config._id)
-                }
+                },
               }
             })
           : undefined,
         click: !hasSubmenu
           ? function () {
               picgo.saveConfig({
-                [configPaths.picBed.secondUploader]: item.type
+                [configPaths.picBed.secondUploader]: item.type,
               })
             }
-          : undefined
+          : undefined,
       }
     })
   // @ts-expect-error submenu type
@@ -197,11 +197,11 @@ const buildPicBedListMenu = () => {
   const currentPicBedMenuItem = [
     {
       label: `${$t('CURRENT_PICBED')} - ${currentPicBedName}`,
-      enabled: false
+      enabled: false,
     },
     {
-      type: 'separator'
-    }
+      type: 'separator',
+    },
   ]
   let submenu = picBeds
     .filter(item => item.visible)
@@ -221,13 +221,13 @@ const buildPicBedListMenu = () => {
                 // see: https://github.com/electron/electron/issues/21292
                 type: 'checkbox',
                 checked: config._id === defaultId && item.type === currentPicBed,
-                click: function () {
+                click() {
                   changeCurrentUploader(item.type, config, config._id)
                   if (windowManager.has(IWindowList.SETTING_WINDOW)) {
                     windowManager.get(IWindowList.SETTING_WINDOW)!.webContents.send('syncPicBed')
                   }
                   setTrayToolTip(`${item.type} ${config._configName || 'Default'}`)
-                }
+                },
               }
             })
           : undefined,
@@ -235,14 +235,14 @@ const buildPicBedListMenu = () => {
           ? function () {
               picgo.saveConfig({
                 [configPaths.picBed.current]: item.type,
-                [configPaths.picBed.uploader]: item.type
+                [configPaths.picBed.uploader]: item.type,
               })
               if (windowManager.has(IWindowList.SETTING_WINDOW)) {
                 windowManager.get(IWindowList.SETTING_WINDOW)!.webContents.send('syncPicBed')
               }
               setTrayToolTip(item.type)
             }
-          : undefined
+          : undefined,
       }
     })
   // @ts-expect-error submenu type
@@ -259,7 +259,7 @@ const handleRestoreState = (item: string, name: string): void => {
     if (current === name) {
       picgo.saveConfig({
         [configPaths.picBed.current]: 'smms',
-        [configPaths.picBed.uploader]: 'smms'
+        [configPaths.picBed.uploader]: 'smms',
       })
     }
   }
@@ -267,7 +267,7 @@ const handleRestoreState = (item: string, name: string): void => {
     const current = picgo.getConfig(configPaths.picBed.transformer)
     if (current === name) {
       picgo.saveConfig({
-        [configPaths.picBed.transformer]: 'path'
+        [configPaths.picBed.transformer]: 'path',
       })
     }
   }
@@ -280,18 +280,18 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
       enabled: !plugin.enabled,
       click() {
         picgo.saveConfig({
-          [`picgoPlugins.${plugin.fullName}`]: true
+          [`picgoPlugins.${plugin.fullName}`]: true,
         })
         const window = windowManager.get(IWindowList.SETTING_WINDOW)!
         window.webContents.send(PICGO_TOGGLE_PLUGIN, plugin.fullName, true)
-      }
+      },
     },
     {
       label: $t('DISABLE_PLUGIN'),
       enabled: plugin.enabled,
       click() {
         picgo.saveConfig({
-          [`picgoPlugins.${plugin.fullName}`]: false
+          [`picgoPlugins.${plugin.fullName}`]: false,
         })
         const window = windowManager.get(IWindowList.SETTING_WINDOW)!
         window.webContents.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
@@ -303,7 +303,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
         if (plugin.config.uploader.name) {
           handleRestoreState('uploader', plugin.config.uploader.name)
         }
-      }
+      },
     },
     {
       label: $t('UNINSTALL_PLUGIN'),
@@ -311,7 +311,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
         const window = windowManager.get(IWindowList.SETTING_WINDOW)!
         window.webContents.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
         handlePluginUninstall(plugin.fullName)
-      }
+      },
     },
     {
       label: $t('UPDATE_PLUGIN'),
@@ -319,14 +319,14 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
         const window = windowManager.get(IWindowList.SETTING_WINDOW)!
         window.webContents.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
         handlePluginUpdate(plugin.fullName)
-      }
-    }
+      },
+    },
   ] as (MenuItemConstructorOptions | MenuItem)[]
   for (const i in plugin.config) {
     if (plugin.config[i].config.length > 0) {
       const obj = {
         label: $t('CONFIG_THING', {
-          c: `${i} - ${plugin.config[i].fullName || plugin.config[i].name}`
+          c: `${i} - ${plugin.config[i].fullName || plugin.config[i].name}`,
         }),
         click() {
           const window = windowManager.get(IWindowList.SETTING_WINDOW)!
@@ -334,7 +334,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
           const configName = plugin.config[i].fullName || plugin.config[i].name
           const config = plugin.config[i].config
           window.webContents.send(PICGO_CONFIG_PLUGIN, currentType, configName, config)
-        }
+        },
       }
       menu.push(obj)
     }
@@ -351,14 +351,14 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
         const currentTransformer = picgo.getConfig<string>(configPaths.picBed.transformer) || 'path'
         if (currentTransformer === transformer) {
           picgo.saveConfig({
-            [configPaths.picBed.transformer]: 'path'
+            [configPaths.picBed.transformer]: 'path',
           })
         } else {
           picgo.saveConfig({
-            [configPaths.picBed.transformer]: transformer
+            [configPaths.picBed.transformer]: transformer,
           })
         }
-      }
+      },
     }
     menu.push(obj)
   }
@@ -366,7 +366,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
   // plugin custom menus
   if (plugin.guiMenu) {
     menu.push({
-      type: 'separator'
+      type: 'separator',
     })
     for (const i of plugin.guiMenu) {
       menu.push({
@@ -381,7 +381,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
               }
             })
           }
-        }
+        },
       })
     }
   }

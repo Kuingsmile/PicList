@@ -13,22 +13,22 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const builtinI18nList: II18nItem[] = [
   {
     label: '简体中文',
-    value: 'zh-CN'
+    value: 'zh-CN',
   },
   {
     label: '繁體中文',
-    value: 'zh-TW'
+    value: 'zh-TW',
   },
   {
     label: 'English',
-    value: 'en'
-  }
+    value: 'en',
+  },
 ]
 class I18nManager {
   private i18n: I18n | null = null
   private builtinI18nFolder = path.join(__dirname, '../../resources', 'i18n').replace('app.asar', 'app.asar.unpacked')
   private outterI18nFolder = ''
-  private localesMap: Map<string, ILocales> = new Map()
+  private localesMap = new Map<string, ILocales>()
   private currentLanguage: string = 'zh-CN'
   readonly defaultLanguage: string = 'zh-CN'
   private i18nFileList: II18nItem[] = builtinI18nList
@@ -40,7 +40,7 @@ class I18nManager {
   addI18nFile(file: string, label: string) {
     this.i18nFileList.push({
       label,
-      value: file
+      value: file,
     })
   }
 
@@ -79,11 +79,11 @@ class I18nManager {
 
   private initI18n(lang: string = this.defaultLanguage, locales: ILocales) {
     const objectAdapter = new ObjectAdapter({
-      [lang]: locales
+      [lang]: locales,
     })
     this.i18n = new I18n({
       adapter: objectAdapter,
-      defaultLanguage: lang
+      defaultLanguage: lang,
     })
   }
 
@@ -98,7 +98,7 @@ class I18nManager {
   getCurrentLocales() {
     return {
       lang: this.currentLanguage,
-      locales: this.getLocales(this.currentLanguage)
+      locales: this.getLocales(this.currentLanguage),
     }
   }
 }

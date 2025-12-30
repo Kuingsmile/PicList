@@ -16,7 +16,7 @@ const defaultClipboardImagePath = path.join(defaultConfigPath, CLIPBOARD_IMAGE_F
 export const checkClipboardUploadMap: IToolboxCheckerMap<string> = {
   [IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD]: async event => {
     sendToolboxRes(event, {
-      status: IToolboxItemCheckStatus.LOADING
+      status: IToolboxItemCheckStatus.LOADING,
     })
     const configFilePath = dbPathChecker()
     if (fs.existsSync(configFilePath)) {
@@ -26,29 +26,29 @@ export const checkClipboardUploadMap: IToolboxCheckerMap<string> = {
         sendToolboxRes(event, {
           status: IToolboxItemCheckStatus.SUCCESS,
           msg: $t('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_TIPS', {
-            path: clipboardImagePath
+            path: clipboardImagePath,
           }),
-          value: clipboardImagePath
+          value: clipboardImagePath,
         })
       } else {
         sendToolboxRes(event, {
           status: IToolboxItemCheckStatus.ERROR,
           msg: $t('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_NOT_EXIST_TIPS', {
-            path: clipboardImagePath
+            path: clipboardImagePath,
           }),
-          value: path.dirname(clipboardImagePath)
+          value: path.dirname(clipboardImagePath),
         })
       }
     } else {
       sendToolboxRes(event, {
         status: IToolboxItemCheckStatus.ERROR,
         msg: $t('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_NOT_EXIST_TIPS', {
-          path: defaultClipboardImagePath
+          path: defaultClipboardImagePath,
         }),
-        value: path.dirname(defaultClipboardImagePath)
+        value: path.dirname(defaultClipboardImagePath),
       })
     }
-  }
+  },
 }
 
 export const fixClipboardUploadMap: IToolboxFixMap<string> = {
@@ -60,17 +60,17 @@ export const fixClipboardUploadMap: IToolboxFixMap<string> = {
       fs.mkdirsSync(clipboardImagePath)
       return {
         type: IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD,
-        status: IToolboxItemCheckStatus.SUCCESS
+        status: IToolboxItemCheckStatus.SUCCESS,
       }
-    } catch (e) {
+    } catch (_e) {
       return {
         type: IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD,
         status: IToolboxItemCheckStatus.ERROR,
         msg: $t('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_ERROR_TIPS', {
-          path: clipboardImagePath
+          path: clipboardImagePath,
         }),
-        value: path.dirname(clipboardImagePath)
+        value: path.dirname(clipboardImagePath),
       }
     }
-  }
+  },
 }

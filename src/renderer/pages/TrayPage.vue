@@ -95,7 +95,7 @@ type IResult<T> = T & {
 const files = ref<IResult<ImgInfo>[]>([])
 const notification = reactive({
   title: t('pages.tray.copySuccess'),
-  body: ''
+  body: '',
 })
 
 const clipboardFiles = ref<ImgInfo[]>([])
@@ -116,7 +116,7 @@ const formatCustomLink = (customLink: string, item: ImgInfo) => {
   const formatObj = {
     url,
     fileName,
-    extName
+    extName,
   }
   const keys = Object.keys(formatObj) as ['url', 'fileName', 'extName']
   keys.forEach(item => {
@@ -160,8 +160,8 @@ async function pasteTemplate(style: string, item: ImgInfo, customLink: string | 
     UBB: `[IMG]${url}[/IMG]`,
     Custom: formatCustomLink(_customLink, {
       ...item,
-      url
-    })
+      url,
+    }),
   }
   return tpl[style]
 }
@@ -173,7 +173,7 @@ function disableDragFile() {
       e = e || event
       e.preventDefault()
     },
-    false
+    false,
   )
   window.addEventListener(
     'drop',
@@ -181,7 +181,7 @@ function disableDragFile() {
       e = e || event
       e.preventDefault()
     },
-    false
+    false,
   )
 }
 
@@ -204,7 +204,7 @@ const dragFilesHandler = async (_files: string[]) => {
   }
   files.value = (await $$db.get<ImgInfo>({
     orderBy: 'desc',
-    limit: 5
+    limit: 5,
   }))!.data
 }
 
@@ -215,7 +215,7 @@ const clipboardFilesHandler = (files: ImgInfo[]) => {
 const uploadFilesHandler = async () => {
   files.value = (await $$db.get<ImgInfo>({
     orderBy: 'desc',
-    limit: 5
+    limit: 5,
   }))!.data
   uploadFlag.value = false
 }
@@ -243,7 +243,7 @@ onBeforeUnmount(() => {
 
 <script lang="ts">
 export default {
-  name: 'TrayPage'
+  name: 'TrayPage',
 }
 </script>
 

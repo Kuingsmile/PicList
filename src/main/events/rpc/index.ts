@@ -68,7 +68,7 @@ const routes = [
   toolboxRouter.routes(),
   trayRouter.routes(),
   uploadRouter.routes(),
-  manageRouter.routes()
+  manageRouter.routes(),
 ]
 
 for (const route of routes) {

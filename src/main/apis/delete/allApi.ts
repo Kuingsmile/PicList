@@ -35,7 +35,7 @@ const apiMap: IStringKeyMap = {
   smms: SmmsApi,
   tcyun: TcyunApi,
   upyun: UpyunApi,
-  webdavplist: WebdavApi
+  webdavplist: WebdavApi,
 }
 
 export default class ALLApi {

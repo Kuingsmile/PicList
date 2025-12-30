@@ -12,7 +12,7 @@ const getPicBeds = () => {
       return {
         type: item,
         name: picgo.helper.uploader.get(item)!.name || item,
-        visible: visible ? visible.visible : true
+        visible: visible ? visible.visible : true,
       }
     })
     .sort(a => {

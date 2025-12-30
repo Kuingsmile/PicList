@@ -52,7 +52,7 @@ async function getUrl() {
     preSignedUrl.value = await window.electron.triggerRPC<any>(
       IRPCActionType.MANAGE_GET_PRE_SIGNED_URL,
       props.alias,
-      props.config
+      props.config,
     )
     isLoading.value = false
   } catch (error) {
@@ -79,36 +79,36 @@ onMounted(getUrl)
 
 <style scoped>
 .image-container {
-  height: 100px;
-  width: 100%;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  width: 100%;
+  height: 100px;
 }
 
 .image {
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: contain;
   display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .loading-placeholder {
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   width: 100%;
   height: 100%;
 }
 
 .loading-spinner {
-  width: 24px;
-  height: 24px;
   border: 2px solid #e4e7ed;
   border-top: 2px solid #409eff;
   border-radius: 50%;
+  width: 24px;
+  height: 24px;
   animation: spin 1s linear infinite;
 }
 
@@ -116,6 +116,7 @@ onMounted(getUrl)
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }

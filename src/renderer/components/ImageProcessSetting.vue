@@ -218,7 +218,7 @@
                 input-type="radio"
                 :radio-options="[
                   { value: 'text', label: $t('pages.imageProcess.watermark.text') },
-                  { value: 'image', label: $t('pages.imageProcess.watermark.image') }
+                  { value: 'image', label: $t('pages.imageProcess.watermark.image') },
                 ]"
                 @map-change="
                   (picbedType, value) => safeSetMapValue(waterMarkForm, 'watermarkType', picbedType, value, 'text')
@@ -455,7 +455,7 @@
                 :select-options="
                   Array.from(waterMarkPositionMap.entries()).map(([key, label]) => ({
                     value: key,
-                    label
+                    label,
                   }))
                 "
                 @map-change="
@@ -718,18 +718,18 @@ const tabs = computed(() => [
   {
     id: 'general',
     label: t('pages.imageProcess.generalSettings'),
-    icon: Settings
+    icon: Settings,
   },
   {
     id: 'watermark',
     label: t('pages.imageProcess.watermarkSettings'),
-    icon: Image
+    icon: Image,
   },
   {
     id: 'transform',
     label: t('pages.imageProcess.transformSettings'),
-    icon: RotateCw
-  }
+    icon: RotateCw,
+  },
 ])
 
 const waterMarkPositionMap = new Map([
@@ -741,7 +741,7 @@ const waterMarkPositionMap = new Map([
   ['northwest', t('pages.imageProcess.watermark.positionOptions.topLeft')],
   ['west', t('pages.imageProcess.watermark.positionOptions.left')],
   ['east', t('pages.imageProcess.watermark.positionOptions.right')],
-  ['centre', t('pages.imageProcess.watermark.positionOptions.center')]
+  ['centre', t('pages.imageProcess.watermark.positionOptions.center')],
 ])
 
 const imageExtList = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'tif', 'svg', 'ico', 'avif', 'heif', 'heic']
@@ -766,7 +766,7 @@ const availableFormat = [
   'tiff',
   'tif',
   'v',
-  'webp'
+  'webp',
 ]
 
 const waterMarkForm = reactive<IBuildInWaterMarkOptions>({
@@ -791,7 +791,7 @@ const waterMarkForm = reactive<IBuildInWaterMarkOptions>({
   watermarkPosition: 'southeast',
   watermarkPositionMap: {},
   watermarkImageOpacity: 255,
-  watermarkImageOpacityMap: {}
+  watermarkImageOpacityMap: {},
 })
 
 const compressForm = reactive<IBuildInCompressOptions>({
@@ -824,12 +824,12 @@ const compressForm = reactive<IBuildInCompressOptions>({
   isFlop: false,
   isFlopMap: {},
   formatConvertObj: {},
-  formatConvertObjMap: {}
+  formatConvertObjMap: {},
 })
 const formatConvertObj = ref('{}')
 
 const skipProcessForm = reactive({
-  skipProcessExtList: 'zip,rar,7z,tar,gz,tar.gz,tar.bz2,tar.xz'
+  skipProcessExtList: 'zip,rar,7z,tar,gz,tar.gz,tar.bz2,tar.xz',
 })
 
 // State for showing map settings for each field (now unused - kept for future reference)
@@ -851,7 +851,7 @@ function handleSaveConfig() {
   let iformatConvertObj = {}
   try {
     iformatConvertObj = JSON.parse(formatConvertObj.value)
-  } catch (error) {}
+  } catch (_error) {}
   const formatConvertObjEntries = Object.entries(iformatConvertObj)
   const formatConvertObjEntriesFilter = formatConvertObjEntries.filter((item: any) => {
     return imageExtList.includes(item[0]) && availableFormat.includes(item[1])
@@ -872,7 +872,7 @@ function handleSaveConfig() {
       if (Object.keys(filteredObj).length > 0) {
         processedFormatConvertObjMap[picbedType] = filteredObj
       }
-    } catch (error) {
+    } catch (_error) {
       // Skip invalid JSON strings
     }
   })
@@ -898,7 +898,7 @@ async function initData() {
       } else {
         formatConvertObj.value = compress.formatConvertObj ?? '{}'
       }
-    } catch (error) {
+    } catch (_error) {
       formatConvertObj.value = '{}'
     }
   }
@@ -946,11 +946,11 @@ onBeforeMount(async () => {
 
 <style scoped>
 .image-process-settings {
+  overflow-y: auto;
   padding: 1.5rem;
   min-height: 100vh;
-  background: var(--color-surface);
   color: var(--color-text-primary);
-  overflow-y: auto;
+  background: var(--color-surface);
 }
 
 /* Header */
@@ -958,12 +958,12 @@ onBeforeMount(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--color-surface);
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
 }
 
 .header-content {
@@ -985,8 +985,8 @@ onBeforeMount(async () => {
 
 .settings-header p {
   margin: 0;
-  color: var(--color-text-secondary);
   font-size: 0.875rem;
+  color: var(--color-text-secondary);
 }
 
 .header-actions {
@@ -997,29 +997,29 @@ onBeforeMount(async () => {
 /* Tab Navigation */
 .tab-navigation {
   display: flex;
-  background: var(--color-background-primary);
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 0.25rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--color-border);
+  background: var(--color-background-primary);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
 }
 
 .tab-button {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: transparent;
   border: none;
   border-radius: 8px;
-  color: var(--color-text-secondary);
+  padding: 0.75rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  cursor: pointer;
+  color: var(--color-text-secondary);
+  background: transparent;
   transition: all 0.2s ease;
+  gap: 0.5rem;
+  cursor: pointer;
   flex: 1;
-  justify-content: center;
 }
 
 .tab-button:hover {
@@ -1028,9 +1028,9 @@ onBeforeMount(async () => {
 }
 
 .tab-button.active {
-  background: #409eff;
   color: white;
-  box-shadow: 0 2px 4px rgba(64, 158, 255, 0.3);
+  background: #409eff;
+  box-shadow: 0 2px 4px rgb(64 158 255 / 30%);
 }
 
 /* Settings Content */
@@ -1046,24 +1046,24 @@ onBeforeMount(async () => {
 }
 
 .settings-section {
-  background: var(--color-background-primary);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.5rem;
+  background: var(--color-background-primary);
   box-shadow: 0 2px 8px var(--color-border);
-  border: 1px solid var(--color-border);
 }
 
 .settings-section h2 {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.5rem;
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .settings-section p {
-  margin: 0 0 1.5rem 0;
-  color: var(--color-text-secondary);
+  margin: 0 0 1.5rem;
   font-size: 0.875rem;
+  color: var(--color-text-secondary);
 }
 
 /* Form Elements */
@@ -1075,7 +1075,7 @@ onBeforeMount(async () => {
   margin-bottom: 0;
 }
 
-.form-group > label:not(.switch-label):not(.radio-option) {
+.form-group > label:not(.switch-label, .radio-option) {
   display: block;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
@@ -1085,89 +1085,87 @@ onBeforeMount(async () => {
 
 .form-input,
 .form-textarea {
-  width: 100%;
-  padding: 0.75rem;
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: var(--color-background-primary);
-  color: var(--color-text-primary);
+  padding: 0.75rem;
+  width: 100%;
   font-size: 0.875rem;
+  color: var(--color-text-primary);
+  background: var(--color-background-primary);
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
 
 .form-input:focus,
 .form-textarea:focus {
-  outline: none;
   border-color: var(--color-blue-common);
-  box-shadow: 0 0 0 2px var(--el-color-primary-light-9, rgba(64, 158, 255, 0.2));
+  outline: none;
+  box-shadow: 0 0 0 2px var(--el-color-primary-light-9, rgb(64 158 255 / 20%));
 }
 
 .form-textarea {
-  resize: vertical;
   min-height: 80px;
+  resize: vertical;
 }
 
 .form-range {
+  margin-bottom: 0.5rem;
+  border-radius: 3px;
   width: 100%;
   height: 6px;
-  border-radius: 3px;
   background: #e4e7ed;
   outline: none;
-  margin-bottom: 0.5rem;
-  -webkit-appearance: none;
   appearance: none;
 }
 
 .form-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
   width: 20px;
   height: 20px;
-  border-radius: 50%;
   background: var(--color-blue-common);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
+  appearance: none;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  border: 2px solid #ffffff;
 }
 
 .form-range::-moz-range-thumb {
+  border: 2px solid #ffffff;
+  border-radius: 50%;
   width: 20px;
   height: 20px;
-  border-radius: 50%;
   background: var(--color-blue-common);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   cursor: pointer;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .range-value {
   display: inline-block;
-  padding: 0.25rem 0.5rem;
-  background: var(--color-blue-common);
-  color: white;
+  margin-bottom: 0.5rem;
   border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  min-width: 3rem;
   font-size: 0.75rem;
   font-weight: 500;
-  margin-bottom: 0.5rem;
-  min-width: 3rem;
   text-align: center;
+  color: white;
+  background: var(--color-blue-common);
 }
 
 .form-color {
-  width: 60px;
-  height: 40px;
   border: 1px solid var(--color-border);
   border-radius: 6px;
+  padding: 0;
+  width: 60px;
+  height: 40px;
   background: transparent;
   cursor: pointer;
-  padding: 0;
 }
 
 .form-color:focus {
-  outline: none;
   border-color: var(--color-blue-common);
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(64 158 255 / 20%);
 }
 
 .color-input-group {
@@ -1191,13 +1189,13 @@ onBeforeMount(async () => {
 .switch-label {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  cursor: pointer;
-  padding: 1rem;
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  transition: all 0.2s ease;
+  padding: 1rem;
   background: var(--color-background-primary);
+  transition: all 0.2s ease;
+  gap: 1rem;
+  cursor: pointer;
 }
 
 .switch-label:hover {
@@ -1211,25 +1209,25 @@ onBeforeMount(async () => {
 
 .switch-slider {
   position: relative;
+  border-radius: 12px;
   width: 44px;
   height: 24px;
   background: var(--color-border-darker);
-  border-radius: 12px;
   transition: all 0.3s ease;
   flex-shrink: 0;
 }
 
 .switch-slider::before {
-  content: '';
   position: absolute;
   top: 2px;
   left: 2px;
+  border-radius: 50%;
   width: 20px;
   height: 20px;
   background: #ffffff;
-  border-radius: 50%;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  content: '';
 }
 
 .switch-input:checked + .switch-slider {
@@ -1270,18 +1268,18 @@ onBeforeMount(async () => {
 .radio-option {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  padding: 0.5rem 0.75rem;
   border: 1px solid var(--color-border);
   border-radius: 6px;
-  transition: all 0.2s ease;
+  padding: 0.5rem 0.75rem;
   background: var(--color-background-primary);
+  transition: all 0.2s ease;
+  gap: 0.5rem;
+  cursor: pointer;
 }
 
 .radio-option:hover {
   border-color: var(--color-blue-common);
-  background: rgba(64, 158, 255, 0.1);
+  background: rgb(64 158 255 / 10%);
 }
 
 .radio-input {
@@ -1289,13 +1287,13 @@ onBeforeMount(async () => {
 }
 
 .radio-indicator {
-  width: 16px;
-  height: 16px;
+  position: relative;
   border: 2px solid var(--color-border);
   border-radius: 50%;
-  transition: all 0.2s ease;
-  position: relative;
+  width: 16px;
+  height: 16px;
   background: var(--color-background-primary);
+  transition: all 0.2s ease;
 }
 
 .radio-input:checked + .radio-indicator {
@@ -1304,21 +1302,21 @@ onBeforeMount(async () => {
 }
 
 .radio-input:checked + .radio-indicator::after {
-  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  border-radius: 50%;
   width: 8px;
   height: 8px;
   background: var(--color-blue-common);
-  border-radius: 50%;
+  content: '';
+  transform: translate(-50%, -50%);
 }
 
 .radio-label {
   font-size: 0.875rem;
-  color: var(--color-text-primary);
   font-weight: 500;
+  color: var(--color-text-primary);
 }
 
 /* Position Grid */
@@ -1330,74 +1328,74 @@ onBeforeMount(async () => {
 }
 
 .position-button {
-  padding: 0.75rem;
-  background: var(--color-background-primary);
   border: 1px solid var(--color-border);
   border-radius: 6px;
-  color: var(--color-text-secondary);
+  padding: 0.75rem;
   font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
   font-weight: 500;
+  text-align: center;
+  color: var(--color-text-secondary);
+  background: var(--color-background-primary);
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .position-button:hover {
   border-color: var(--color-blue-common);
   color: var(--color-text-primary);
-  background: rgba(64, 158, 255, 0.1);
+  background: rgb(64 158 255 / 10%);
 }
 
 .position-button.active {
-  background: var(--color-blue-common);
   border-color: var(--color-blue-common);
   color: white;
-  box-shadow: 0 2px 4px rgba(64, 158, 255, 0.3);
+  background: var(--color-blue-common);
+  box-shadow: 0 2px 4px rgb(64 158 255 / 30%);
 }
 
 /* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
   border: 1px solid var(--color-border);
   border-radius: 6px;
-  background: var(--color-background-primary);
-  color: var(--color-text-primary);
+  padding: 0.75rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
   text-decoration: none;
+  color: var(--color-text-primary);
+  background: var(--color-background-primary);
+  transition: all 0.2s ease;
+  gap: 0.5rem;
+  cursor: pointer;
 }
 
 .btn:hover {
-  background: var(--color-background-secondary);
   border-color: var(--color-blue-common);
+  background: var(--color-background-secondary);
 }
 
 .btn-primary {
-  background: var(--color-blue-common);
   border-color: var(--color-blue-common);
   color: white;
+  background: var(--color-blue-common);
 }
 
 .btn-primary:hover {
-  background: var(--color-primary);
   border-color: var(--color-primary);
+  background: var(--color-primary);
 }
 
 .btn-secondary {
-  background: var(--color-background-primary);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
+  background: var(--color-background-primary);
 }
 
 .btn-secondary:hover {
-  background: var(--color-background-secondary);
   border-color: var(--color-border-secondary);
   color: var(--color-text-primary);
+  background: var(--color-background-secondary);
 }
 
 /* Small text */
@@ -1413,12 +1411,12 @@ small {
 .watermark-settings,
 .resize-settings {
   margin-top: 1rem;
-  padding-top: 1rem;
   border-top: 1px solid var(--color-border-secondary);
+  padding-top: 1rem;
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .image-process-settings {
     padding: 1rem;
   }
@@ -1468,17 +1466,17 @@ small {
 :root.auto.dark .settings-header,
 :root.auto.dark .tab-navigation,
 :root.auto.dark .settings-section {
-  background: var(--color-background-tertiary);
   border-color: var(--color-border);
+  background: var(--color-background-tertiary);
 }
 
 :root.dark .form-input,
 :root.dark .form-textarea,
 :root.auto.dark .form-input,
 :root.auto.dark .form-textarea {
-  background: var(--color-surface);
   border-color: var(--color-border);
   color: var(--color-text-primary);
+  background: var(--color-surface);
 }
 
 :root.dark .switch-slider::before,
@@ -1488,24 +1486,25 @@ small {
 
 :root.dark .btn-secondary,
 :root.auto.dark .btn-secondary {
-  background: var(--color-surface);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
+  background: var(--color-surface);
 }
 
 :root.dark .btn-secondary:hover,
 :root.auto.dark .btn-secondary:hover {
-  background: var(--color-background-tertiary);
   border-color: var(--color-border-hover);
   color: var(--color-text-primary);
+  background: var(--color-background-tertiary);
 }
 
 :root.dark .switch-label,
 :root.auto.dark .switch-label {
-  background: var(--color-surface);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
+  background: var(--color-surface);
 }
+
 :root.dark .switch-title,
 :root.auto.dark .switch-title {
   color: var(--color-text-primary);
@@ -1518,9 +1517,9 @@ small {
 
 :root.dark .position-button,
 :root.auto.dark .position-button {
-  background: var(--color-surface);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
+  background: var(--color-surface);
 }
 
 :root.dark .position-button:hover,
@@ -1532,15 +1531,15 @@ small {
 
 :root.dark .position-button.active,
 :root.auto.dark .position-button.active {
-  background: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-text-inverse);
+  background: var(--color-primary);
 }
 
 :root.dark .radio-group,
 :root.auto.dark .radio-group {
-  background: var(--color-background-tertiary);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
+  background: var(--color-background-tertiary);
 }
 </style>

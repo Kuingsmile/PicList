@@ -13,7 +13,7 @@ import {
   getAgent,
   getOptions,
   gotUpload,
-  NewDownloader
+  NewDownloader,
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { formatHttpProxy, isImage, trimPath } from '~/utils/common'
@@ -37,7 +37,7 @@ class GithubApi {
     this.proxyStr = formatHttpProxy(proxy, 'string') as string | undefined
     this.commonHeaders = {
       Authorization: this.token,
-      Accept: 'application/vnd.github+json'
+      Accept: 'application/vnd.github+json',
     }
   }
 
@@ -74,7 +74,7 @@ class GithubApi {
       isDir: true,
       checked: false,
       isImage: false,
-      match: false
+      match: false,
     }
   }
 
@@ -112,7 +112,7 @@ class GithubApi {
       match: false,
       isImage: isImage(item.path),
       rawUrl: item.url,
-      url: rawUrl
+      url: rawUrl,
     }
   }
 
@@ -133,8 +133,8 @@ class GithubApi {
           'json',
           undefined,
           undefined,
-          this.proxy
-        )
+          this.proxy,
+        ),
       )) as any
       if (res.statusCode === 200) {
         res.body.forEach((item: any) => {
@@ -142,7 +142,7 @@ class GithubApi {
             ...item,
             Name: item.name,
             Location: item.id,
-            CreationDate: item.created_at
+            CreationDate: item.created_at,
           })
         })
       } else {
@@ -171,8 +171,8 @@ class GithubApi {
           'json',
           undefined,
           undefined,
-          this.proxy
-        )
+          this.proxy,
+        ),
       )) as any
       if (res.statusCode === 200) {
         res.body.forEach((item: any) => result.push(item.name))
@@ -199,7 +199,7 @@ class GithubApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     const treeQueue = [slicedPrefix]
     while (treeQueue.length) {
@@ -210,7 +210,7 @@ class GithubApi {
       const currentPrefix = treeQueue[0]
       res = (await got(
         `${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${treeQueue.shift()}`,
-        getOptions('GET', this.commonHeaders, {}, 'json', undefined, undefined, this.proxy)
+        getOptions('GET', this.commonHeaders, {}, 'json', undefined, undefined, this.proxy),
       )) as any
       if (res && res.statusCode === 200) {
         const { tree } = res.body
@@ -250,11 +250,11 @@ class GithubApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     res = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${slicedPrefix}`,
-      getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy)
+      getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy),
     )
     if (res && res.statusCode === 200) {
       res.body.tree.forEach((item: any) => {
@@ -290,11 +290,11 @@ class GithubApi {
     const body = {
       message: 'deleted by PicList',
       sha,
-      branch
+      branch,
     }
     const res = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/contents/${key}`,
-      getOptions('DELETE', this.commonHeaders, undefined, 'json', JSON.stringify(body), undefined, this.proxy)
+      getOptions('DELETE', this.commonHeaders, undefined, 'json', JSON.stringify(body), undefined, this.proxy),
     )
     return res.statusCode === 200
   }
@@ -308,14 +308,14 @@ class GithubApi {
     // get sha of the branch
     const refRes = (await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/git/refs/heads/${branch}`,
-      getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy)
+      getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy),
     )) as any
     if (refRes.statusCode !== 200) return false
     const refSha = refRes.body.object.sha
     // get sha of the root tree
     const rootRes = (await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/branches/${branch}`,
-      getOptions('GET', undefined, undefined, 'json', undefined, undefined, this.proxy)
+      getOptions('GET', undefined, undefined, 'json', undefined, undefined, this.proxy),
     )) as any
     if (rootRes.statusCode !== 200) return false
     const rootSha = rootRes.body.commit.commit.tree.sha
@@ -328,13 +328,13 @@ class GithubApi {
         'GET',
         this.commonHeaders,
         {
-          recursive: true
+          recursive: true,
         },
         'json',
         undefined,
         undefined,
-        this.proxy
-      )
+        this.proxy,
+      ),
     )) as any
     if (treeRes.statusCode !== 200) return false
     const oldTree = treeRes.body.tree
@@ -345,7 +345,7 @@ class GithubApi {
         path: `${key.replace(/(^\/+|\/+$)/g, '')}/${item.path}`,
         mode: item.mode,
         type: item.type,
-        sha: null
+        sha: null,
       }))
     const newTreeShaRes = (await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/git/trees`,
@@ -356,11 +356,11 @@ class GithubApi {
         'json',
         JSON.stringify({
           base_tree: rootSha,
-          tree: newTree
+          tree: newTree,
         }),
         undefined,
-        this.proxy
-      )
+        this.proxy,
+      ),
     )) as any
     if (newTreeShaRes.statusCode !== 201) return false
     const newTreeSha = newTreeShaRes.body.sha
@@ -375,11 +375,11 @@ class GithubApi {
         JSON.stringify({
           message: 'deleted by PicList',
           tree: newTreeSha,
-          parents: [refSha]
+          parents: [refSha],
         }),
         undefined,
-        this.proxy
-      )
+        this.proxy,
+      ),
     )) as any
     if (commitRes.statusCode !== 201) return false
     const commitSha = commitRes.body.sha
@@ -392,11 +392,11 @@ class GithubApi {
         undefined,
         'json',
         JSON.stringify({
-          sha: commitSha
+          sha: commitSha,
         }),
         undefined,
-        this.proxy
-      )
+        this.proxy,
+      ),
     )) as any
     return updateRefRes.statusCode === 200
   }
@@ -421,13 +421,13 @@ class GithubApi {
         'GET',
         this.commonHeaders,
         {
-          ref: branch
+          ref: branch,
         },
         'json',
         undefined,
         undefined,
-        this.proxy
-      )
+        this.proxy,
+      ),
     )) as any
     return res.statusCode === 200 ? res.body.download_url : ''
   }
@@ -443,11 +443,11 @@ class GithubApi {
     const body = {
       message: `created a new folder named ${key} by PicList`,
       content: base64Content,
-      branch
+      branch,
     }
     const res = await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/contents/${newFileKey}`,
-      getOptions('PUT', this.commonHeaders, undefined, 'json', JSON.stringify(body), undefined, this.proxy)
+      getOptions('PUT', this.commonHeaders, undefined, 'json', JSON.stringify(body), undefined, this.proxy),
     )
     return res.statusCode === 201
   }
@@ -479,7 +479,7 @@ class GithubApi {
         sourceFilePath: filePath,
         targetFilePath: key,
         targetFileBucket: repo,
-        targetFileRegion: region
+        targetFileRegion: region,
       })
       gotUpload(
         instance,
@@ -488,14 +488,14 @@ class GithubApi {
         JSON.stringify({
           message: 'uploaded by PicList',
           branch,
-          content: base64Content
+          content: base64Content,
         }),
         this.commonHeaders,
         id,
         this.logger,
         30000,
         false,
-        getAgent(this.proxy)
+        getAgent(this.proxy),
       )
     }
     return true
@@ -521,7 +521,7 @@ class GithubApi {
         progress: 0,
         status: commonTaskStatus.queuing,
         sourceFileName: fileName,
-        targetFilePath: savedFilePath
+        targetFilePath: savedFilePath,
       })
       let downloadUrl: string
       if (githubPrivate) {
@@ -530,7 +530,7 @@ class GithubApi {
           customUrl: branch,
           key,
           rawUrl: githubUrl,
-          githubPrivate
+          githubPrivate,
         })
         downloadUrl = preSignedUrl
       } else {
@@ -546,7 +546,7 @@ class GithubApi {
                 reject(res)
               }
             })
-          })
+          }),
       )
     }
     const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
@@ -554,8 +554,8 @@ class GithubApi {
       this.logger.error(
         formatError(error, {
           class: 'GithubApi',
-          method: 'downloadBucketFile'
-        })
+          method: 'downloadBucketFile',
+        }),
       )
     })
     return true

@@ -10,6 +10,6 @@ export default [
     handler: async (_: IIPCEvent, args: [item: ImgInfo]) => {
       return await ALLApi.delete(args[0])
     },
-    type: IRPCType.INVOKE
-  }
+    type: IRPCType.INVOKE,
+  },
 ]

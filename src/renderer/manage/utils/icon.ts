@@ -221,5 +221,5 @@ export const availableIconList = [
   'yaml',
   'yml',
   'z',
-  'zip'
+  'zip',
 ]

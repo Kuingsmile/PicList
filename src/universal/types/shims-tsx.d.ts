@@ -15,9 +15,7 @@ import { IStringKeyMap } from '#/types/types'
 declare global {
   export namespace JSX {
     export interface Element extends VNode {}
-    export interface IntrinsicElements {
-      [elem: string]: any
-    }
+    export type IntrinsicElements = Record<string, any>
   }
   export interface Window {
     electron: {

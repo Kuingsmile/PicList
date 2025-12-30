@@ -6,10 +6,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AESHelper } from '../src/main/utils/aesHelper'
 
 vi.mock('@core/picgo', () => ({
-  default: { getConfig: vi.fn(() => undefined) }
+  default: { getConfig: vi.fn(() => undefined) },
 }))
 vi.mock('~/utils/configPaths', () => ({
-  configPaths: { settings: { aesPassword: 'settings.aesPassword' } }
+  configPaths: { settings: { aesPassword: 'settings.aesPassword' } },
 }))
 
 const HEX_RE = /^[0-9a-f]+$/i

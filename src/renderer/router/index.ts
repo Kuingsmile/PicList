@@ -25,17 +25,17 @@ export default createRouter({
     {
       path: '/',
       name: config.TRAY_PAGE,
-      component: TrayPage
+      component: TrayPage,
     },
     {
       path: '/rename-page',
       name: config.RENAME_PAGE,
-      component: RenamePage
+      component: RenamePage,
     },
     {
       path: '/mini-page',
       name: config.MINI_PAGE,
-      component: MiniPage
+      component: MiniPage,
     },
     {
       path: '/main-page',
@@ -45,7 +45,7 @@ export default createRouter({
         {
           path: 'upload',
           component: UploadPage,
-          name: config.UPLOAD_PAGE
+          name: config.UPLOAD_PAGE,
         },
         {
           path: 'manage-main-page',
@@ -55,68 +55,68 @@ export default createRouter({
             {
               path: '',
               name: config.MANAGE_EMPTY_PAGE,
-              component: ManageEmptyPage
+              component: ManageEmptyPage,
             },
             {
               path: 'manage-setting-page',
               name: config.MANAGE_SETTING_PAGE,
-              component: ManageSettingPage
+              component: ManageSettingPage,
             },
             {
               path: 'manage-bucket-page',
               name: config.MANAGE_BUCKET_PAGE,
-              component: ManageBucketPage
-            }
-          ]
+              component: ManageBucketPage,
+            },
+          ],
         },
         {
           path: 'manage-login-page',
           name: config.MANAGE_LOGIN_PAGE,
-          component: ManageLoginPage
+          component: ManageLoginPage,
         },
         {
           path: 'picbeds/:type/:configId?',
           name: config.PICBEDS_PAGE,
-          component: PicBedsPage
+          component: PicBedsPage,
         },
         {
           path: 'gallery',
           component: GalleryPage,
           name: config.GALLERY_PAGE,
           meta: {
-            keepAlive: true
-          }
+            keepAlive: true,
+          },
         },
         {
           path: 'settings',
           name: config.SETTING_PAGE,
-          component: SettingPage
+          component: SettingPage,
         },
         {
           path: 'plugins',
           component: PluginPage,
-          name: config.PLUGIN_PAGE
+          name: config.PLUGIN_PAGE,
         },
         {
           path: 'shortKey',
           component: ShortKeyPage,
-          name: config.SHORTKEY_PAGE
+          name: config.SHORTKEY_PAGE,
         },
         {
           path: 'uploader-config-page/:type',
           component: UploaderConfigPage,
-          name: config.UPLOADER_CONFIG_PAGE
-        }
-      ]
+          name: config.UPLOADER_CONFIG_PAGE,
+        },
+      ],
     },
     {
       path: '/toolbox-page',
       name: config.TOOLBOX_CONFIG_PAGE,
-      component: Toolbox
+      component: Toolbox,
     },
     {
       path: '/:pathMatch(.*)*',
-      redirect: '/main-page/upload'
-    }
-  ]
+      redirect: '/main-page/upload',
+    },
+  ],
 })

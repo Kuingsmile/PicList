@@ -5,30 +5,30 @@ html, body {
 
 /* Container */
 .upload-container {
+  display: flex;
+  overflow-y: auto;
+  margin: 0;
   padding: 1rem;
   width: 100%;
-  margin: 0;
-  display: flex;
+  min-height: 100vh;
   flex-direction: column;
   gap: 1.25rem;
-  min-height: 100vh;
   box-sizing: border-box;
-  overflow-y: auto;
 }
 
 /* Card Base */
 .upload-card {
-  background: var(--color-background-secondary);
+  overflow: hidden;
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-xl);
-  overflow: hidden;
-  transition: var(--transition-medium);
+  background: var(--color-background-secondary);
   box-shadow: var(--shadow-sm);
+  transition: var(--transition-medium);
 }
 
 .upload-card:hover {
-  box-shadow: var(--shadow-md);
   border-color: var(--color-border);
+  box-shadow: var(--shadow-md);
 }
 
 /* Compact cards styling */
@@ -45,10 +45,10 @@ html, body {
 /* Header Card */
 .header-card .card-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.5rem;
+  align-items: center;
   border-bottom: 1px solid var(--color-border-secondary);
+  padding: 1rem 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
@@ -60,24 +60,24 @@ html, body {
 .provider-button {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: var(--transition-fast);
-  font-family: inherit;
+  padding: 0.75rem 1rem;
   width: auto;
   min-width: 200px;
+  font-family: inherit;
+  background: var(--color-surface-elevated);
+  transition: var(--transition-fast);
+  gap: 0.75rem;
+  cursor: pointer;
   flex-shrink: 0;
 }
 
 .provider-button:hover {
-  background: var(--color-surface);
   border-color: var(--color-accent);
-  transform: translateY(-1px);
+  background: var(--color-surface);
   box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 
 .provider-info {
@@ -119,17 +119,17 @@ html, body {
 .action-button {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  background: var(--color-accent);
-  color: white;
   border: none;
   border-radius: var(--radius-md);
+  padding: 0.625rem 1rem;
   font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition-fast);
   font-family: inherit;
+  font-weight: 500;
+  color: white;
+  background: var(--color-accent);
+  transition: var(--transition-fast);
+  gap: 0.5rem;
+  cursor: pointer;
 }
 
 .action-button:hover {
@@ -139,15 +139,15 @@ html, body {
 }
 
 .action-button.secondary {
-  background: var(--color-surface-elevated);
-  color: var(--color-text-primary);
   border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  background: var(--color-surface-elevated);
 }
 
 .action-button.secondary:hover {
-  background: var(--color-surface);
   border-color: var(--color-accent);
   color: var(--color-accent);
+  background: var(--color-surface);
 }
 
 /* Main Upload Card */
@@ -157,19 +157,19 @@ html, body {
 
 .upload-zone {
   position: relative;
-  padding: 3rem 2rem;
-  cursor: pointer;
-  transition: var(--transition-medium);
+  margin: 1rem;
   border: 2px dashed var(--color-border);
   border-radius: var(--radius-xl);
+  padding: 3rem 2rem;
   background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-background-secondary) 100%);
-  margin: 1rem;
+  transition: var(--transition-medium);
+  cursor: pointer;
 }
 
 .upload-zone:hover,
 .upload-zone.drag-active {
   border-color: var(--color-accent);
-  background: linear-gradient(135deg, var(--color-surface-elevated) 0%, rgba(0, 122, 255, 0.05) 100%);
+  background: linear-gradient(135deg, var(--color-surface-elevated) 0%, rgb(0 122 255 / 5%) 100%);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
@@ -183,14 +183,14 @@ html, body {
 }
 
 .upload-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
   width: 80px;
   height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-accent) 0%, rgba(0, 122, 255, 0.8) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   color: white;
+  background: linear-gradient(135deg, var(--color-accent) 0%, rgb(0 122 255 / 80%) 100%);
   transition: var(--transition-medium);
 }
 
@@ -201,17 +201,17 @@ html, body {
 }
 
 .upload-title {
+  margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin: 0;
   letter-spacing: -0.025em;
 }
 
 .upload-subtitle {
+  margin: 0;
   font-size: 0.875rem;
   color: var(--color-text-secondary);
-  margin: 0;
 }
 
 .upload-formats {
@@ -232,24 +232,24 @@ html, body {
 /* Progress */
 .progress-container {
   margin: 1rem 1.5rem;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-lg);
   padding: 1rem;
   background: var(--color-surface-elevated);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-secondary);
 }
 
 .progress-bar {
-  height: 6px;
-  background: var(--color-border-secondary);
-  border-radius: 3px;
   overflow: hidden;
   margin-bottom: 0.5rem;
+  border-radius: 3px;
+  height: 6px;
+  background: var(--color-border-secondary);
 }
 
 .progress-fill {
+  border-radius: 3px;
   height: 100%;
   background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-primary) 100%);
-  border-radius: 3px;
   transition: width var(--transition-medium);
 }
 
@@ -258,54 +258,54 @@ html, body {
 }
 
 .progress-text {
+  display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-text-secondary);
   text-align: center;
-  display: block;
+  color: var(--color-text-secondary);
 }
 
 /* Quick Actions Card */
 .card-header {
-  padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--color-border-secondary);
+  padding: 1rem 1.5rem;
 }
 
 .card-title {
+  margin: 0;
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin: 0;
   letter-spacing: -0.025em;
 }
 
 .quick-actions {
-  padding: 1rem 1.5rem;
   display: grid;
+  padding: 1rem 1.5rem;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 0.75rem;
 }
 
 .quick-action-button {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1rem;
-  background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: var(--transition-medium);
+  padding: 0.875rem 1rem;
   font-family: inherit;
   text-align: left;
+  background: var(--color-surface-elevated);
+  transition: var(--transition-medium);
+  flex-direction: row;
+  gap: 0.5rem;
+  cursor: pointer;
 }
 
 .quick-action-button:hover {
-  background: var(--color-surface);
   border-color: var(--color-accent);
-  transform: translateY(-2px);
+  background: var(--color-surface);
   box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .quick-action-button span {
@@ -316,8 +316,8 @@ html, body {
 
 /* Settings Card */
 .settings-content {
-  padding: 1.25rem 1.5rem;
   display: flex;
+  padding: 1.25rem 1.5rem;
   flex-direction: column;
   gap: 1.5rem;
 }
@@ -328,7 +328,7 @@ html, body {
   gap: 0.75rem;
 }
 
-@media (min-width: 768px) {
+@media (width >= 768px) {
   .settings-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -341,11 +341,11 @@ html, body {
   }
 }
 
-@media (min-width: 1024px) {
+@media (width >= 1024px) {
   .upload-container {
+    margin: 0 auto;
     padding: 1.5rem 2rem;
     max-width: 1200px;
-    margin: 0 auto;
   }
 
   .quick-actions {
@@ -358,10 +358,10 @@ html, body {
 }
 
 .setting-label {
+  margin: 0;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text-primary);
-  margin: 0;
 }
 
 .format-buttons {
@@ -371,16 +371,16 @@ html, body {
 }
 
 .format-button {
-  padding: 0.4rem 0.75rem;
-  background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  padding: 0.4rem 0.75rem;
   font-size: 0.7rem;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   font-weight: 500;
   color: var(--color-text-secondary);
-  cursor: pointer;
+  background: var(--color-surface-elevated);
   transition: var(--transition-fast);
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  cursor: pointer;
 }
 
 .format-button:hover {
@@ -389,31 +389,31 @@ html, body {
 }
 
 .format-button.active {
-  background: var(--color-accent);
   border-color: var(--color-accent);
   color: white;
+  background: var(--color-accent);
 }
 
 .url-toggle {
   display: flex;
-  background: var(--color-surface-elevated);
+  overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  overflow: hidden;
   width: 100%;
+  background: var(--color-surface-elevated);
 }
 
 .toggle-button {
-  flex: 1;
-  padding: 0.625rem 0.875rem;
-  background: transparent;
   border: none;
+  padding: 0.625rem 0.875rem;
   font-size: 0.8rem;
+  font-family: inherit;
   font-weight: 500;
   color: var(--color-text-secondary);
-  cursor: pointer;
+  background: transparent;
   transition: var(--transition-fast);
-  font-family: inherit;
+  flex: 1;
+  cursor: pointer;
 }
 
 .toggle-button:hover {
@@ -421,8 +421,8 @@ html, body {
 }
 
 .toggle-button.active {
-  background: var(--color-accent);
   color: white;
+  background: var(--color-accent);
 }
 
 .toggle-button:first-child.active {
@@ -438,66 +438,66 @@ html, body {
 /* Modal */
 .modal-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 2rem;
+  align-items: center;
   overflow-y: auto;
+  padding: 2rem;
+  background: rgb(0 0 0 / 50%);
+  inset: 0;
 }
 
 .modal-container {
-  background: var(--color-surface);
-  border-radius: var(--radius-2xl);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-xl);
-  max-width: 90vw;
-  width: 80vw;
-  height: 80vh;
-  max-height: 90vh;
   overflow: hidden;
   margin: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  width: 80vw;
+  max-width: 90vw;
+  height: 80vh;
+  max-height: 90vh;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xl);
 }
 
 .modal-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 1.5rem 2rem;
+  align-items: center;
   border-bottom: 1px solid var(--color-border-secondary);
+  padding: 1.5rem 2rem;
 }
 
 .modal-title {
+  margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin: 0;
 }
 
 .modal-close {
   display: flex;
-  align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: var(--color-surface-elevated);
+  align-items: center;
   border: 1px solid var(--color-border);
   border-radius: 50%;
-  cursor: pointer;
+  width: 32px;
+  height: 32px;
   color: var(--color-text-secondary);
+  background: var(--color-surface-elevated);
+  cursor: pointer;
 }
 
 .modal-close:hover {
-  background: var(--color-surface);
   border-color: var(--color-danger);
   color: var(--color-danger);
+  background: var(--color-surface);
 }
 
 .modal-content {
-  padding: 0.2rem;
   overflow-y: auto;
+  padding: 0.2rem;
   max-height: calc(90vh - 120px);
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -521,7 +521,7 @@ html, body {
 
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .upload-container {
     padding: 0.75rem;
     gap: 1rem;
@@ -547,8 +547,8 @@ html, body {
   }
 
   .upload-zone {
-    padding: 2rem 1rem;
     margin: 0.75rem;
+    padding: 2rem 1rem;
   }
 
   .upload-icon {
@@ -581,7 +581,7 @@ html, body {
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .upload-container {
     padding: 0.5rem;
   }
@@ -605,8 +605,8 @@ html, body {
   }
 
   .provider-button {
-    min-width: unset;
     width: 100%;
+    min-width: unset;
   }
 }
 
@@ -620,14 +620,15 @@ html, body {
 :root.dark .upload-zone.drag-active,
 :root.auto.dark .upload-zone:hover,
 :root.auto.dark .upload-zone.drag-active {
-  background: linear-gradient(135deg, var(--color-surface) 0%, rgba(0, 122, 255, 0.1) 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, rgb(0 122 255 / 10%) 100%);
 }
 
 /* Animation for upload icon */
 @keyframes float {
   0%, 100% {
-    transform: translateY(0px);
+    transform: translateY(0);
   }
+
   50% {
     transform: translateY(-10px);
   }

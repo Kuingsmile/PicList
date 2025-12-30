@@ -103,7 +103,7 @@ async function selectItem(id: string) {
   if (store?.state.defaultPicBed === type.value) {
     window.electron.sendRPC(
       IRPCActionType.TRAY_SET_TOOL_TIP,
-      `${type.value} ${curConfigList.value.find(item => item._id === id)?._configName || ''}`
+      `${type.value} ${curConfigList.value.find(item => item._id === id)?._configName || ''}`,
     )
   }
   defaultConfigId.value = id
@@ -125,7 +125,7 @@ onBeforeMount(() => {
 async function getCurrentConfigList() {
   const configList = await window.electron.triggerRPC<IUploaderConfigItem>(
     IRPCActionType.PICBED_GET_CONFIG_LIST,
-    type.value
+    type.value,
   )
   curConfigList.value = configList?.configList ?? []
   defaultConfigId.value = configList?.defaultId ?? ''
@@ -136,11 +136,11 @@ function openEditPage(configId: string) {
     name: PICBEDS_PAGE,
     params: {
       type: type.value,
-      configId
+      configId,
     },
     query: {
-      defaultConfigId: defaultConfigId.value
-    }
+      defaultConfigId: defaultConfigId.value,
+    },
   })
 }
 
@@ -155,7 +155,7 @@ async function deleteConfig(id: string) {
     type: 'warning',
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
-    center: true
+    center: true,
   })
   if (!result) return
   const res = await window.electron.triggerRPC<IUploaderConfigItem>(IRPCActionType.PICBED_DELETE_CONFIG, type.value, id)
@@ -170,15 +170,15 @@ function addNewConfig() {
     name: PICBEDS_PAGE,
     params: {
       type: type.value,
-      configId: ''
-    }
+      configId: '',
+    },
   })
 }
 
 function setDefaultPicBed(type: string) {
   saveConfig({
     [configPaths.picBed.current]: type,
-    [configPaths.picBed.uploader]: type
+    [configPaths.picBed.uploader]: type,
   })
 
   store?.setDefaultPicBed(type)
@@ -189,7 +189,7 @@ function setDefaultPicBed(type: string) {
 </script>
 <script lang="ts">
 export default {
-  name: 'UploaderConfigPage'
+  name: 'UploaderConfigPage',
 }
 </script>
 

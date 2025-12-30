@@ -20,7 +20,7 @@ class TcyunApi {
   constructor(secretId: string, secretKey: string, logger: ManageLogger) {
     this.ctx = new COS({
       SecretId: secretId,
-      SecretKey: secretKey
+      SecretKey: secretKey,
     })
     this.logger = logger
   }
@@ -36,7 +36,7 @@ class TcyunApi {
       isDir: true,
       checked: false,
       isImage: false,
-      match: false
+      match: false,
     }
   }
 
@@ -51,7 +51,7 @@ class TcyunApi {
       checked: false,
       isImage: isImage(item.Key),
       match: false,
-      url: `${urlPrefix}/${item.Key}`
+      url: `${urlPrefix}/${item.Key}`,
     }
   }
 
@@ -70,7 +70,7 @@ class TcyunApi {
     const { bucketName, region } = param
     const res = await this.ctx.getBucketDomain({
       Bucket: bucketName,
-      Region: region
+      Region: region,
     })
     if (res?.statusCode !== 200 || !res?.DomainRule?.length) return []
     return res.DomainRule.filter((item: any) => item.Status === 'ENABLED').map(item => item.Name)
@@ -91,7 +91,7 @@ class TcyunApi {
     const res = await this.ctx.putBucket({
       ACL: configMap.acl,
       Bucket: configMap.BucketName,
-      Region: configMap.region
+      Region: configMap.region,
     })
     return res?.statusCode === 200
   }
@@ -103,7 +103,7 @@ class TcyunApi {
       bucketConfig: { Location: region },
       prefix,
       customUrl,
-      cancelToken
+      cancelToken,
     } = configMap
     const slicedPrefix = prefix.slice(1, prefix.length)
     const urlPrefix = customUrl || `https://${bucket}.cos.${region}.myqcloud.com`
@@ -119,7 +119,7 @@ class TcyunApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     let res = {} as COS.GetBucketResult
     do {
@@ -127,13 +127,13 @@ class TcyunApi {
         Bucket: bucket,
         Region: region,
         Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
-        Marker: marker
+        Marker: marker,
       })
       if (res?.statusCode === 200) {
         result.fullList.push(
           ...res.Contents.filter(item => parseInt(item.Size) !== 0).map(item =>
-            this.formatFile(item, slicedPrefix, urlPrefix)
-          )
+            this.formatFile(item, slicedPrefix, urlPrefix),
+          ),
         )
         window.webContents.send(refreshDownloadFileTransferList, result)
       } else {
@@ -157,7 +157,7 @@ class TcyunApi {
       bucketConfig: { Location: region },
       prefix,
       customUrl,
-      cancelToken
+      cancelToken,
     } = configMap
     const slicedPrefix = prefix.slice(1, prefix.length)
     const urlPrefix = customUrl || `https://${bucket}.cos.${region}.myqcloud.com`
@@ -174,7 +174,7 @@ class TcyunApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     do {
       res = await this.ctx.getBucket({
@@ -182,14 +182,14 @@ class TcyunApi {
         Region: region,
         Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
         Delimiter: '/',
-        Marker: marker
+        Marker: marker,
       })
       if (res?.statusCode === 200) {
         result.fullList.push(
           ...res.CommonPrefixes.map(item => this.formatFolder(item, slicedPrefix, urlPrefix)),
           ...res.Contents.filter(item => parseInt(item.Size) !== 0).map(item =>
-            this.formatFile(item, slicedPrefix, urlPrefix)
-          )
+            this.formatFile(item, slicedPrefix, urlPrefix),
+          ),
         )
         window.webContents.send('refreshFileTransferList', result)
       } else {
@@ -228,7 +228,7 @@ class TcyunApi {
       prefix,
       customUrl,
       marker,
-      itemsPerPage
+      itemsPerPage,
     } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = customUrl || `https://${bucket}.cos.${region}.myqcloud.com`
@@ -238,26 +238,26 @@ class TcyunApi {
       Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
       Delimiter: '/',
       Marker: marker,
-      MaxKeys: itemsPerPage
+      MaxKeys: itemsPerPage,
     })) as COS.GetBucketResult
     if (res?.statusCode !== 200) {
       return {
         fullList: [],
         isTruncated: false,
         nextMarker: '',
-        success: false
+        success: false,
       }
     }
     const result = {
       fullList: [
         ...res.CommonPrefixes.map(item => this.formatFolder(item, slicedPrefix, urlPrefix)),
         ...res.Contents.filter(item => parseInt(item.Size) !== 0).map(item =>
-          this.formatFile(item, slicedPrefix, urlPrefix)
-        )
+          this.formatFile(item, slicedPrefix, urlPrefix),
+        ),
       ],
       isTruncated: res.IsTruncated === 'true',
       nextMarker: res.NextMarker || '',
-      success: true
+      success: true,
     }
     return result
   }
@@ -278,7 +278,7 @@ class TcyunApi {
       Bucket: bucketName,
       Region: region,
       Key: newKey,
-      CopySource: handleUrlEncode(`${bucketName}.cos.${region}.myqcloud.com/${oldKey}`)
+      CopySource: handleUrlEncode(`${bucketName}.cos.${region}.myqcloud.com/${oldKey}`),
     })
 
     if (copyRes?.statusCode !== 200) return false
@@ -286,7 +286,7 @@ class TcyunApi {
     const deleteRes = await this.ctx.deleteObject({
       Bucket: bucketName,
       Region: region,
-      Key: oldKey
+      Key: oldKey,
     })
 
     return deleteRes?.statusCode === 204
@@ -306,7 +306,7 @@ class TcyunApi {
     const res = await this.ctx.deleteObject({
       Bucket: bucketName,
       Region: region,
-      Key: key
+      Key: key,
     })
     return res?.statusCode === 204
   }
@@ -321,7 +321,7 @@ class TcyunApi {
     let res: any
     const allFileList = {
       CommonPrefixes: [] as any[],
-      Contents: [] as any[]
+      Contents: [] as any[],
     }
     do {
       res = await this.ctx.getBucket({
@@ -330,7 +330,7 @@ class TcyunApi {
         Prefix: key,
         Delimiter: '/',
         MaxKeys: 1000,
-        Marker: marker
+        Marker: marker,
       })
 
       if (res?.statusCode !== 200) return false
@@ -344,7 +344,7 @@ class TcyunApi {
         !(await this.deleteBucketFolder({
           bucketName,
           region,
-          key: item.Prefix
+          key: item.Prefix,
         }))
       ) {
         return false
@@ -355,7 +355,7 @@ class TcyunApi {
       const res = await this.ctx.deleteMultipleObject({
         Bucket: bucketName,
         Region: region,
-        Objects: allFileList.Contents.slice(i * 1000, (i + 1) * 1000).map((item: any) => ({ Key: item.Key }))
+        Objects: allFileList.Contents.slice(i * 1000, (i + 1) * 1000).map((item: any) => ({ Key: item.Key })),
       })
       if (res?.statusCode !== 200) return false
     }
@@ -381,9 +381,9 @@ class TcyunApi {
         Region: region,
         Key: key,
         Expires: expires,
-        Sign: true
+        Sign: true,
       },
-      () => {}
+      () => {},
     )
     return customUrl ? `${customUrl.replace(/\/+$/, '')}/${key}${res.slice(res.indexOf('?'))}` : res
   }
@@ -417,7 +417,7 @@ class TcyunApi {
         sourceFilePath: filePath,
         targetFilePath: key,
         targetFileBucket: bucketName,
-        targetFileRegion: region
+        targetFileRegion: region,
       })
       files.push({
         Bucket: bucketName,
@@ -432,7 +432,7 @@ class TcyunApi {
             id,
             progress: Math.floor(progress.percent * 100),
             status: uploadTaskSpecialStatus.uploading,
-            cancelToken
+            cancelToken,
           })
         },
         onFileFinish: (err: any, data: any) => {
@@ -442,27 +442,27 @@ class TcyunApi {
               progress: 100,
               status: uploadTaskSpecialStatus.uploaded,
               response: typeof data === 'object' ? JSON.stringify(data) : String(data),
-              finishTime: new Date().toLocaleString()
+              finishTime: new Date().toLocaleString(),
             })
           } else {
             this.logger.error(
               formatError(err, {
                 method: 'uploadBucketFile',
-                class: 'TcyunApi'
-              })
+                class: 'TcyunApi',
+              }),
             )
             instance.updateUploadTask({
               id,
               progress: 0,
               status: commonTaskStatus.failed,
               response: typeof err === 'object' ? JSON.stringify(err) : String(err),
-              finishTime: new Date().toLocaleString()
+              finishTime: new Date().toLocaleString(),
             })
           }
-        }
+        },
       })
       this.ctx.uploadFiles({
-        files
+        files,
       })
     }
     return true
@@ -478,7 +478,7 @@ class TcyunApi {
       Bucket: bucketName,
       Region: region,
       Key: key,
-      Body: ''
+      Body: '',
     })
     return res?.statusCode === 200
   }
@@ -507,7 +507,7 @@ class TcyunApi {
         progress: 0,
         status: commonTaskStatus.queuing,
         sourceFileName: fileName,
-        targetFilePath: path.join(downloadPath, fileName)
+        targetFilePath: path.join(downloadPath, fileName),
       })
       fs.ensureDirSync(path.dirname(path.join(downloadPath, fileName)))
       this.ctx
@@ -522,9 +522,9 @@ class TcyunApi {
             instance.updateDownloadTask({
               id,
               progress: Math.floor(progress.percent * 100),
-              status: downloadTaskSpecialStatus.downloading
+              status: downloadTaskSpecialStatus.downloading,
             })
-          }
+          },
         })
         .then((res: any) => {
           instance.updateDownloadTask({
@@ -532,22 +532,22 @@ class TcyunApi {
             progress: res && res.statusCode === 200 ? 100 : 0,
             status: res && res.statusCode === 200 ? downloadTaskSpecialStatus.downloaded : commonTaskStatus.failed,
             response: typeof res === 'object' ? JSON.stringify(res) : String(res),
-            finishTime: new Date().toLocaleString()
+            finishTime: new Date().toLocaleString(),
           })
         })
         .catch((err: any) => {
           this.logger.error(
             formatError(err, {
               method: 'downloadBucketFile',
-              class: 'TcyunApi'
-            })
+              class: 'TcyunApi',
+            }),
           )
           instance.updateDownloadTask({
             id,
             progress: 0,
             status: commonTaskStatus.failed,
             response: typeof err === 'object' ? JSON.stringify(err) : String(err),
-            finishTime: new Date().toLocaleString()
+            finishTime: new Date().toLocaleString(),
           })
         })
     }

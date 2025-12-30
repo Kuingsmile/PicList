@@ -30,7 +30,7 @@ const AliyunAreaCodeName: IStringKeyMap = {
   'oss-eu-central-1': '德国(法兰克福)',
   'oss-eu-west-1': '英国(伦敦)',
   'oss-me-east-1': '阿联酋(迪拜)',
-  'oss-rg-china-mainland': '无地域属性'
+  'oss-rg-china-mainland': '无地域属性',
 }
 
 const QiniuAreaCodeName: IStringKeyMap = {
@@ -41,7 +41,7 @@ const QiniuAreaCodeName: IStringKeyMap = {
   na0: '北美-洛杉矶',
   as0: '亚太-新加坡',
   'ap-northeast-1': '亚太-首尔',
-  'ap-southeast-2': '亚太-河内'
+  'ap-southeast-2': '亚太-河内',
 }
 
 const TencentAreaCodeName: IStringKeyMap = {
@@ -66,7 +66,7 @@ const TencentAreaCodeName: IStringKeyMap = {
   'na-ashburn': '弗吉尼亚(美东)',
   'na-toronto': '多伦多',
   'sa-saopaulo': '圣保罗',
-  'eu-frankfurt': '法兰克福'
+  'eu-frankfurt': '法兰克福',
 }
 
 export { AliyunAreaCodeName, QiniuAreaCodeName, TencentAreaCodeName }

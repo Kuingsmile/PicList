@@ -27,12 +27,12 @@ class SmmsApi {
       baseURL: this.baseUrl,
       timeout: this.timeout,
       headers: {
-        Authorization: this.token
+        Authorization: this.token,
       },
       httpsAgent: new Agent({
         keepAlive: true,
-        timeout: this.timeout
-      })
+        timeout: this.timeout,
+      }),
     })
     this.logger = logger
   }
@@ -50,7 +50,7 @@ class SmmsApi {
       match: false,
       isImage: isImage(item.storename),
       sha: item.hash,
-      downloadUrl: item.url
+      downloadUrl: item.url,
     }
   }
 
@@ -69,17 +69,17 @@ class SmmsApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     do {
       res = await this.axiosInstance('/upload_history', {
         method: 'GET',
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
         },
         params: {
-          page: marker
-        }
+          page: marker,
+        },
       })
       if (res && res.status === 200 && res.data && res.data.success) {
         if (res.data.Count === 0) {
@@ -128,16 +128,16 @@ class SmmsApi {
       fullList: [] as any,
       isTruncated: false,
       nextMarker: '',
-      success: false
+      success: false,
     }
     const res = await this.axiosInstance('/upload_history', {
       method: 'GET',
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
       },
       params: {
-        page: currentPage
-      }
+        page: currentPage,
+      },
     })
     if (res?.status !== 200 || !res?.data?.success) return result
 
@@ -167,8 +167,8 @@ class SmmsApi {
       method: 'GET',
       params: {
         hash: DeleteHash,
-        format: 'json'
-      }
+        format: 'json',
+      },
     })
     return res?.status === 200 && res?.data?.success
   }
@@ -194,13 +194,13 @@ class SmmsApi {
         sourceFilePath: filePath,
         targetFilePath: key,
         targetFileBucket: bucketName,
-        targetFileRegion: region
+        targetFileRegion: region,
       })
       const form = new FormData()
       form.append('format', 'json')
       form.append('smfile', fs.createReadStream(filePath), {
         filename: path.basename(fileName),
-        contentType: getFileMimeType(fileName)
+        contentType: getFileMimeType(fileName),
       })
       const headers = form.getHeaders()
       headers.Authorization = this.token
@@ -230,7 +230,7 @@ class SmmsApi {
         progress: 0,
         status: commonTaskStatus.queuing,
         sourceFileName: fileName,
-        targetFilePath: savedFilePath
+        targetFilePath: savedFilePath,
       })
       promises.push(
         () =>
@@ -242,7 +242,7 @@ class SmmsApi {
                 reject(res)
               }
             })
-          })
+          }),
       )
     }
     const pool = new ConcurrencyPromisePool(maxDownloadFileCount)

@@ -3,7 +3,7 @@ export const IPasteStyle = {
   HTML: 'HTML',
   URL: 'URL',
   UBB: 'UBB',
-  CUSTOM: 'Custom'
+  CUSTOM: 'Custom',
 }
 
 export const IWindowList = {
@@ -11,7 +11,7 @@ export const IWindowList = {
   TRAY_WINDOW: 'TRAY_WINDOW',
   MINI_WINDOW: 'MINI_WINDOW',
   RENAME_WINDOW: 'RENAME_WINDOW',
-  TOOLBOX_WINDOW: 'TOOLBOX_WINDOW'
+  TOOLBOX_WINDOW: 'TOOLBOX_WINDOW',
 }
 
 export const IRPCActionType = {
@@ -133,32 +133,32 @@ export const IRPCActionType = {
   MANAGE_OPEN_DOWNLOADED_FOLDER: 'MANAGE_OPEN_DOWNLOADED_FOLDER',
   MANAGE_OPEN_LOCAL_FILE: 'MANAGE_OPEN_LOCAL_FILE',
   MANAGE_DOWNLOAD_FILE_FROM_URL: 'MANAGE_DOWNLOAD_FILE_FROM_URL',
-  MANAGE_CONVERT_PATH_TO_BASE64: 'MANAGE_CONVERT_PATH_TO_BASE64'
+  MANAGE_CONVERT_PATH_TO_BASE64: 'MANAGE_CONVERT_PATH_TO_BASE64',
 }
 
 export const IToolboxItemType = {
   IS_CONFIG_FILE_BROKEN: 'IS_CONFIG_FILE_BROKEN',
   IS_GALLERY_FILE_BROKEN: 'IS_GALLERY_FILE_BROKEN',
   HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD: 'HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD',
-  HAS_PROBLEM_WITH_PROXY: 'HAS_PROBLEM_WITH_PROXY'
+  HAS_PROBLEM_WITH_PROXY: 'HAS_PROBLEM_WITH_PROXY',
 }
 
 export const IToolboxItemCheckStatus = {
   INIT: 'init',
   LOADING: 'loading',
   SUCCESS: 'success',
-  ERROR: 'error'
+  ERROR: 'error',
 }
 
 export const ISartMode = {
   QUIET: 'quiet',
   MINI: 'mini',
   MAIN: 'main',
-  NO_TRAY: 'no-tray'
+  NO_TRAY: 'no-tray',
 }
 
 export const II18nLanguage = {
   ZH_CN: 'zh-CN',
   ZH_TW: 'zh-TW',
-  EN: 'en'
+  EN: 'en',
 }

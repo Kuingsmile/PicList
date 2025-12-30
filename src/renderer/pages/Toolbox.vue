@@ -65,7 +65,7 @@
             'item-active': activeTypes.includes(key),
             'item-error': item.status === IToolboxItemCheckStatus.ERROR,
             'item-success': item.status === IToolboxItemCheckStatus.SUCCESS,
-            'item-loading': item.status === IToolboxItemCheckStatus.LOADING
+            'item-loading': item.status === IToolboxItemCheckStatus.LOADING,
           }"
         >
           <div class="item-header" @click="toggleItem(key)">
@@ -124,11 +124,11 @@ const fixList = reactive<IToolboxMap>({
     handlerText: t('pages.toolbox.openConfigFile'),
     handler(value: string) {
       window.electron.sendRPC(IRPCActionType.OPEN_FILE, value)
-    }
+    },
   },
   [IToolboxItemType.IS_GALLERY_FILE_BROKEN]: {
     title: t('pages.toolbox.checkGalleryFileBroken'),
-    status: IToolboxItemCheckStatus.INIT
+    status: IToolboxItemCheckStatus.INIT,
   },
   [IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD]: {
     title: t('pages.toolbox.checkProblemWithClipboardPicUpload'), // picgo-image-clipboard folder
@@ -136,13 +136,13 @@ const fixList = reactive<IToolboxMap>({
     handlerText: t('pages.toolbox.openFilePath'),
     handler(value: string) {
       window.electron.sendRPC(IRPCActionType.OPEN_FILE, value)
-    }
+    },
   },
   [IToolboxItemType.HAS_PROBLEM_WITH_PROXY]: {
     title: t('pages.toolbox.checkProblemWithProxy'),
     status: IToolboxItemCheckStatus.INIT,
-    hasNoFixMethod: true
-  }
+    hasNoFixMethod: true,
+  },
 })
 
 const progress = computed(() => {
@@ -214,7 +214,7 @@ const handleFix = async () => {
       })
       .map(async key => {
         return window.electron.triggerRPC<IToolboxCheckRes>(IRPCActionType.TOOLBOX_CHECK_FIX, key)
-      })
+      }),
   )
 
   fixRes
@@ -233,7 +233,7 @@ const handleFix = async () => {
     type: 'warning',
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
-    center: true
+    center: true,
   }).then(result => {
     if (!result) return
     window.electron.sendRPC(IRPCActionType.RELOAD_APP)
@@ -246,7 +246,7 @@ onUnmounted(() => {
 </script>
 <script lang="ts">
 export default {
-  name: 'ToolBoxPage'
+  name: 'ToolBoxPage',
 }
 </script>
 

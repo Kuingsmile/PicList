@@ -8,7 +8,7 @@ export const setAutoStart = async (enable: boolean): Promise<void> => {
   try {
     if (process.platform !== 'linux') {
       app.setLoginItemSettings({
-        openAtLogin: enable
+        openAtLogin: enable,
       })
       return
     }

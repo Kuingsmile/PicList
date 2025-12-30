@@ -61,7 +61,7 @@ const props = withDefaults(defineProps<Props>(), {
   cancelButtonText: 'Cancel',
   showClose: true,
   center: false,
-  type: undefined
+  type: undefined,
 })
 
 const emit = defineEmits<Emits>()
@@ -104,54 +104,51 @@ const onCancel = () => {
 
 <script lang="ts">
 export default {
-  name: 'ConfirmMessageBox'
+  name: 'ConfirmMessageBox',
 }
 </script>
 
 <style scoped>
 .messagebox-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  inset: 0;
   z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgb(0 0 0 / 50%);
 }
 
 .messagebox-container {
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  max-width: 32rem;
-  width: 90%;
-  max-height: 80vh;
   overflow: hidden;
+  border-radius: 0.75rem;
+  width: 90%;
+  max-width: 32rem;
+  max-height: 80vh;
+  background: white;
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 10%),
+    0 10px 10px -5px rgb(0 0 0 / 4%);
 }
 
 :root.dark .messagebox-container,
 :root.auto.dark .messagebox-container {
-  background: rgb(31 41 55);
   border: 1px solid rgb(55 65 81);
+  background: rgb(31 41 55);
 }
 
 .messagebox-header {
-  padding: 1.5rem 1.5rem 0 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1.5rem 1.5rem 0;
 }
 
 .messagebox-title {
+  margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
   color: rgb(17 24 39);
-  margin: 0;
 }
 
 :root.dark .messagebox-title,
@@ -160,23 +157,23 @@ export default {
 }
 
 .messagebox-close {
-  background: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border: none;
-  font-size: 1.5rem;
-  color: rgb(107 114 128);
-  cursor: pointer;
+  border-radius: 0.25rem;
   padding: 0;
   width: 24px;
   height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.25rem;
+  font-size: 1.5rem;
+  color: rgb(107 114 128);
+  background: none;
+  cursor: pointer;
 }
 
 .messagebox-close:hover {
-  background: rgb(243 244 246);
   color: rgb(17 24 39);
+  background: rgb(243 244 246);
 }
 
 :root.dark .messagebox-close,
@@ -186,15 +183,15 @@ export default {
 
 :root.dark .messagebox-close:hover,
 :root.auto.dark .messagebox-close:hover {
-  background: rgb(55 65 81);
   color: rgb(243 244 246);
+  background: rgb(55 65 81);
 }
 
 .messagebox-content {
-  padding: 1rem 1.5rem;
   display: flex;
-  gap: 1rem;
   align-items: flex-start;
+  padding: 1rem 1.5rem;
+  gap: 1rem;
 }
 
 .messagebox-icon {
@@ -223,9 +220,9 @@ export default {
 }
 
 .messagebox-message p {
+  margin: 0;
   color: rgb(107 114 128);
   line-height: 1.6;
-  margin: 0;
 }
 
 :root.dark .messagebox-message p,
@@ -235,9 +232,9 @@ export default {
 
 .messagebox-actions {
   display: flex;
-  gap: 0.75rem;
-  padding: 0 1.5rem 1.5rem 1.5rem;
   justify-content: flex-end;
+  padding: 0 1.5rem 1.5rem;
+  gap: 0.75rem;
 }
 
 .messagebox-actions.center {
@@ -245,19 +242,19 @@ export default {
 }
 
 .messagebox-btn {
-  padding: 0.5rem 1rem;
+  border: none;
   border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  min-width: 4rem;
   font-size: 0.875rem;
   font-weight: 500;
-  border: none;
   cursor: pointer;
-  min-width: 4rem;
 }
 
 .cancel-btn {
-  background: rgb(243 244 246);
-  color: rgb(75 85 99);
   border: 1px solid rgb(209 213 219);
+  color: rgb(75 85 99);
+  background: rgb(243 244 246);
 }
 
 .cancel-btn:hover {
@@ -266,9 +263,9 @@ export default {
 
 :root.dark .cancel-btn,
 :root.auto.dark .cancel-btn {
-  background: rgb(55 65 81);
-  color: rgb(209 213 219);
   border-color: rgb(75 85 99);
+  color: rgb(209 213 219);
+  background: rgb(55 65 81);
 }
 
 :root.dark .cancel-btn:hover,
@@ -277,8 +274,8 @@ export default {
 }
 
 .confirm-btn.primary {
-  background: rgb(59 130 246);
   color: white;
+  background: rgb(59 130 246);
 }
 
 .confirm-btn.primary:hover {
@@ -286,8 +283,8 @@ export default {
 }
 
 .confirm-btn.danger {
-  background: rgb(239 68 68);
   color: white;
+  background: rgb(239 68 68);
 }
 
 .confirm-btn.danger:hover {
@@ -295,8 +292,8 @@ export default {
 }
 
 .confirm-btn.success {
-  background: rgb(34 197 94);
   color: white;
+  background: rgb(34 197 94);
 }
 
 .confirm-btn.success:hover {

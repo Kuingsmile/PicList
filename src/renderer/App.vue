@@ -40,7 +40,7 @@ onMounted(async () => {
 
 <script lang="ts">
 export default {
-  name: 'PicGoApp'
+  name: 'PicGoApp',
 }
 </script>
 

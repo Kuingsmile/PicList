@@ -21,24 +21,24 @@ const themeOptions = computed(() => [
     value: 'light',
     label: t('settings.theme.light'),
     icon: Sun,
-    description: t('settings.theme.lightDesc')
+    description: t('settings.theme.lightDesc'),
   },
   {
     value: 'dark',
     label: t('settings.theme.dark'),
     icon: Moon,
-    description: t('settings.theme.darkDesc')
+    description: t('settings.theme.darkDesc'),
   },
   {
     value: 'auto',
     label: t('settings.theme.auto'),
     icon: Monitor,
-    description: t('settings.theme.autoDesc')
-  }
+    description: t('settings.theme.autoDesc'),
+  },
 ])
 
 const currentThemeOption = computed(
-  () => themeOptions.value.find(option => option.value === currentTheme.value) || themeOptions.value[0]
+  () => themeOptions.value.find(option => option.value === currentTheme.value) || themeOptions.value[0],
 )
 
 const toggleTheme = () => {
@@ -65,26 +65,26 @@ const toggleTheme = () => {
 .theme-toggle-btn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
   border: 1px solid var(--color-border);
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--color-text-secondary);
   border-radius: var(--radius-md);
-  cursor: pointer;
+  padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  background: rgb(255 255 255 / 10%);
   transition: all 0.2s ease;
+  gap: 0.5rem;
+  cursor: pointer;
 }
 
 .theme-toggle-btn.collapsed {
+  justify-content: center;
   padding: 0.5rem;
   gap: 0;
-  justify-content: center;
 }
 
 .theme-toggle-btn:hover {
-  background: var(--color-surface-elevated);
   color: var(--color-text-primary);
+  background: var(--color-surface-elevated);
 }
 
 .theme-label {
@@ -92,15 +92,15 @@ const toggleTheme = () => {
 }
 
 /* Mobile responsive */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .theme-label {
     display: none;
   }
 
   .theme-toggle-btn {
+    justify-content: center;
     padding: 0.5rem;
     gap: 0;
-    justify-content: center;
   }
 }
 </style>

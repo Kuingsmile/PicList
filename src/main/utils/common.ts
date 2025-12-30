@@ -64,12 +64,12 @@ export const showNotification = (
     body: '',
     clickToCopy: false,
     copyContent: '',
-    clickFn: () => {}
-  }
+    clickFn: () => {},
+  },
 ) => {
   const notification = new Notification({
     title: options.title,
-    body: options.body
+    body: options.body,
   })
   const handleClick = () => {
     if (options.clickToCopy) {
@@ -141,8 +141,8 @@ const createC1NShortUrl = async (url: string) => {
     form.append('url', url)
     const res = await axios.post(c1nApi, form, {
       headers: {
-        token: c1nToken
-      }
+        token: c1nToken,
+      },
     })
     if (res.status >= 200 && res.status < 300 && res.data?.code === 0) {
       return res.data.data
@@ -168,7 +168,7 @@ const createYOURLSShortLink = async (url: string) => {
     signature,
     action: 'shorturl',
     format: 'json',
-    url
+    url,
   })
   try {
     const res = await axios.get(`${domain}/yourls-api.php?${params.toString()}`)
@@ -222,7 +222,7 @@ const createShortUrlFromSink = async (url: string) => {
     const res = await axios.post(
       `${sinkDomain}/api/link/create`,
       { url },
-      { headers: { Authorization: `Bearer ${sinkToken}` } }
+      { headers: { Authorization: `Bearer ${sinkToken}` } },
     )
     if (res.data?.link?.slug) {
       return `${sinkDomain}/${res.data.link.slug}`
@@ -276,10 +276,10 @@ export const simpleClone = (obj: any) => JSON.parse(JSON.stringify(obj))
 export const enforceNumber = (num: number | string) => (isNaN(+num) ? 0 : +num)
 
 export const trimValues = <T extends IStringKeyMap>(
-  obj: T
+  obj: T,
 ): { [K in keyof T]: T[K] extends string ? string : T[K] } => {
   return Object.fromEntries(
-    Object.entries(obj).map(([key, value]) => [key, typeof value === 'string' ? value.trim() : value])
+    Object.entries(obj).map(([key, value]) => [key, typeof value === 'string' ? value.trim() : value]),
   ) as { [K in keyof T]: T[K] extends string ? string : T[K] }
 }
 
@@ -293,7 +293,7 @@ export const formatEndpoint = (endpoint: string, sslEnabled: boolean): string =>
 
 export const formatHttpProxy = (
   proxy: string | undefined,
-  type: 'object' | 'string'
+  type: 'object' | 'string',
 ): IHTTPProxy | undefined | string => {
   if (!proxy) return undefined
   if (/^https?:\/\//.test(proxy)) {
@@ -303,7 +303,7 @@ export const formatHttpProxy = (
       : {
           host: hostname,
           port: Number(port),
-          protocol: protocol.slice(0, -1)
+          protocol: protocol.slice(0, -1),
         }
   }
   const [host, port] = proxy.split(':')
@@ -312,7 +312,7 @@ export const formatHttpProxy = (
     : {
         host,
         port: port ? Number(port) : 80,
-        protocol: 'http'
+        protocol: 'http',
       }
 }
 

@@ -12,7 +12,7 @@ interface IConfigMap {
 export default class GithubApi {
   static #createOctokit(token: string) {
     return new Octokit({
-      auth: token
+      auth: token,
     })
   }
 
@@ -25,7 +25,7 @@ export default class GithubApi {
     const {
       fileName,
       hash,
-      config: { repo, token, branch, path }
+      config: { repo, token, branch, path },
     } = configMap
     const [owner, repoName] = repo.split('/')
     const octokit = GithubApi.#createOctokit(token)
@@ -37,7 +37,7 @@ export default class GithubApi {
         path: key,
         message: `delete ${fileName} by PicList`,
         sha: hash,
-        branch
+        branch,
       })
       const ok = status === 200
       deleteLog(fileName, 'GitHub', ok)

@@ -53,7 +53,7 @@ class SftpApi {
     passphrase: Undefinable<string>,
     fileMode: Undefinable<string>,
     dirMode: Undefinable<string>,
-    logger: ManageLogger
+    logger: ManageLogger,
   ) {
     this.host = host
     this.port = Number(port) || 22
@@ -71,7 +71,7 @@ class SftpApi {
       username: this.username,
       password: this.password,
       privateKey: this.privateKey,
-      passphrase: this.passphrase
+      passphrase: this.passphrase,
     }
   }
 
@@ -117,7 +117,7 @@ class SftpApi {
       checked: false,
       isImage: false,
       match: false,
-      url
+      url,
     }
   }
 
@@ -134,7 +134,7 @@ class SftpApi {
       checked: false,
       match: false,
       isImage: isImage(item.filename),
-      url: isWebPath ? urlPrefix : `${urlPrefix}${item.filename}`
+      url: isWebPath ? urlPrefix : `${urlPrefix}${item.filename}`,
     }
   }
 
@@ -166,7 +166,7 @@ class SftpApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     try {
       await this.connectClient()
@@ -211,7 +211,7 @@ class SftpApi {
         size: Number(size) || 0,
         mtime,
         filename,
-        key
+        key,
       })
     })
     return result
@@ -237,7 +237,7 @@ class SftpApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     try {
       await this.connectClient()
@@ -339,13 +339,13 @@ class SftpApi {
         targetFilePath: key,
         targetFileBucket: bucketName,
         targetFileRegion: region,
-        noProgress: false
+        noProgress: false,
       })
       try {
         await this.connectClient()
         const res = await this.ctx.putFile(filePath, `/${key.replace(/^\/+/, '')}`, {
           fileMode: this.fileMode,
-          dirMode: this.dirMode
+          dirMode: this.dirMode,
         })
         this.ctx.close()
         if (res) {
@@ -353,14 +353,14 @@ class SftpApi {
             id,
             progress: 100,
             status: uploadTaskSpecialStatus.uploaded,
-            finishTime: new Date().toLocaleString()
+            finishTime: new Date().toLocaleString(),
           })
         } else {
           instance.updateUploadTask({
             id,
             progress: 0,
             status: commonTaskStatus.failed,
-            finishTime: new Date().toLocaleString()
+            finishTime: new Date().toLocaleString(),
           })
         }
       } catch (error) {
@@ -369,7 +369,7 @@ class SftpApi {
           id,
           progress: 0,
           status: commonTaskStatus.failed,
-          finishTime: new Date().toLocaleString()
+          finishTime: new Date().toLocaleString(),
         })
       }
     }
@@ -405,7 +405,7 @@ class SftpApi {
         progress: 0,
         status: commonTaskStatus.queuing,
         sourceFileName: fileName,
-        targetFilePath: savedFilePath
+        targetFilePath: savedFilePath,
       })
       try {
         await this.connectClient()
@@ -416,14 +416,14 @@ class SftpApi {
             id,
             progress: 100,
             status: downloadTaskSpecialStatus.downloaded,
-            finishTime: new Date().toLocaleString()
+            finishTime: new Date().toLocaleString(),
           })
         } else {
           instance.updateDownloadTask({
             id,
             progress: 0,
             status: commonTaskStatus.failed,
-            finishTime: new Date().toLocaleString()
+            finishTime: new Date().toLocaleString(),
           })
         }
       } catch (error) {
@@ -432,7 +432,7 @@ class SftpApi {
           id,
           progress: 0,
           status: commonTaskStatus.failed,
-          finishTime: new Date().toLocaleString()
+          finishTime: new Date().toLocaleString(),
         })
       }
     }

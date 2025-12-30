@@ -55,8 +55,8 @@ const props = withDefaults(
     pageMode: false,
     keyField: 'id',
     itemPadding: 0,
-    viewMode: 'grid'
-  }
+    viewMode: 'grid',
+  },
 )
 
 const containerRef = ref<HTMLElement | null>(null)
@@ -69,7 +69,7 @@ watch(
   () => props.items,
   v => {
     itemsRef.value = v
-  }
+  },
 )
 
 const localViewMode = ref<'list' | 'grid'>(props.viewMode)
@@ -77,7 +77,7 @@ watch(
   () => props.viewMode,
   v => {
     localViewMode.value = v
-  }
+  },
 )
 
 const sortedBreakpoints = computed<Breakpoint[]>(() => [...props.gridBreakpoints].sort((a, b) => a.min - b.min))
@@ -105,16 +105,16 @@ const { gridCalculations, visibleIndexes, viewportOffset, updateScrollTop, scrol
     itemHeight: props.itemHeight,
     containerHeight,
     gridItems: effectiveCols,
-    bufferFactor: props.bufferFactor
+    bufferFactor: props.bufferFactor,
   })
 
 const contentStyles = computed(() => ({
-  height: `${gridCalculations.value.totalHeight}px`
+  height: `${gridCalculations.value.totalHeight}px`,
 }))
 
 const viewportStyle = computed(() => {
   const base: Record<string, string> = {
-    transform: `translateY(${viewportOffset.value}px)`
+    transform: `translateY(${viewportOffset.value}px)`,
   }
   if (isGridMode.value) {
     base['--items-per-row'] = String(effectiveCols.value)
@@ -173,7 +173,7 @@ onMounted(() => {
   const el = containerRef.value
   if (!el) return
   ro = new ResizeObserver(updateContainerMetrics)
-  ro.observe(el)
+  ro.observe(el as unknown as Element)
   if (props.pageMode) {
     ro.observe(document.documentElement)
     window.addEventListener('scroll', handlePageScroll, { passive: true })
@@ -252,11 +252,11 @@ defineExpose({ scrollTo, scrollToTop, scrollToBottom, setViewMode, toggleViewMod
 }
 
 .virtual-scroller-viewport.is-grid {
-  width: 100%;
   display: grid;
+  width: 100%;
   grid-template-columns: repeat(var(--items-per-row, 1), minmax(0, 1fr));
   grid-auto-rows: var(--row-height, 1px);
-  gap: var(--item-gap, 0px);
+  gap: var(--item-gap, 0);
 }
 
 .virtual-scroller-viewport.is-list .virtual-scroller-item {

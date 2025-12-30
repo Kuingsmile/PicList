@@ -33,7 +33,7 @@ const dogeRegionMap: IStringKeyMap = {
   'ap-shanghai': '0',
   'ap-beijing': '1',
   'ap-guangzhou': '2',
-  'ap-chengdu': '3'
+  'ap-chengdu': '3',
 }
 
 async function dogecloudApi(
@@ -41,7 +41,7 @@ async function dogecloudApi(
   data = {},
   jsonMode: boolean = false,
   accessKey: string,
-  secretKey: string
+  secretKey: string,
 ) {
   const body = jsonMode ? JSON.stringify(data) : querystring.encode(data)
   const sign = crypto
@@ -57,14 +57,14 @@ async function dogecloudApi(
       responseType: 'json',
       headers: {
         'Content-Type': jsonMode ? 'application/json' : 'application/x-www-form-urlencoded',
-        Authorization: authorization
-      }
+        Authorization: authorization,
+      },
     })
     if (res.data.code !== 200) {
       throw new Error('API Error')
     }
     return res.data.data
-  } catch (err: any) {
+  } catch (_err: any) {
     throw new Error('API Error')
   }
 }
@@ -75,11 +75,11 @@ async function getDogeToken(accessKey: string, secretKey: string): Promise<IObj 
       '/auth/tmp_token.json',
       {
         channel: 'OSS_FULL',
-        scopes: ['*']
+        scopes: ['*'],
       },
       true,
       accessKey,
-      secretKey
+      secretKey,
     )
     return data
   } catch (err: any) {
@@ -100,12 +100,12 @@ export async function removeFileFromS3InMain(configMap: IStringKeyMap, dogeMode:
       pathStyleAccess,
       rejectUnauthorized,
       proxy,
-      urlPrefix
-    }
+      urlPrefix,
+    },
   } = configMap
   let {
     imgUrl,
-    config: { region }
+    config: { region },
   } = configMap
   if (type === 'aws-s3' || type === 'aws-s3-plist') {
     imgUrl = rawUrl || imgUrl || ''
@@ -139,7 +139,7 @@ export async function removeFileFromS3InMain(configMap: IStringKeyMap, dogeMode:
   const commonOptions: AgentOptions = {
     keepAlive: true,
     keepAliveMsecs: 1000,
-    scheduling: 'lifo' as 'lifo' | 'fifo' | undefined
+    scheduling: 'lifo' as 'lifo' | 'fifo' | undefined,
   }
   const extraOptions = sslEnabled ? { rejectUnauthorized: !!rejectUnauthorized } : {}
   const handler = sslEnabled
@@ -148,52 +148,52 @@ export async function removeFileFromS3InMain(configMap: IStringKeyMap, dogeMode:
           ? agent.https
           : new https.Agent({
               ...commonOptions,
-              ...extraOptions
-            })
+              ...extraOptions,
+            }),
       })
     : new NodeHttpHandler({
         httpAgent: agent.http
           ? agent.http
           : new http.Agent({
               ...commonOptions,
-              ...extraOptions
-            })
+              ...extraOptions,
+            }),
       })
   const s3Options: S3ClientConfig = {
     credentials: {
       accessKeyId: accessKeyID,
-      secretAccessKey
+      secretAccessKey,
     },
     endpoint: endpointUrl,
     tls: sslEnabled,
     forcePathStyle: pathStyleAccess,
     region,
-    requestHandler: handler
+    requestHandler: handler,
   }
   if (dogeMode) {
     s3Options.credentials = {
       accessKeyId: configMap.config.accessKeyID,
       secretAccessKey: configMap.config.secretAccessKey,
-      sessionToken: configMap.config.sessionToken
+      sessionToken: configMap.config.sessionToken,
     }
   }
   let result: any
   try {
     fileKey = decodeURIComponent(fileKey)
-  } catch (err: any) {}
+  } catch (_err: any) {}
   try {
     const client = new S3Client(s3Options)
     const command = new DeleteObjectCommand({
       Bucket: bucketName,
-      Key: fileKey
+      Key: fileKey,
     })
     result = await client.send(command)
-  } catch (err: any) {
+  } catch (_err: any) {
     s3Options.region = 'us-east-1'
     const client = new S3Client(s3Options)
     const command = new DeleteObjectCommand({
       Bucket: bucketName,
-      Key: fileKey
+      Key: fileKey,
     })
     result = await client.send(command)
   }
@@ -202,7 +202,7 @@ export async function removeFileFromS3InMain(configMap: IStringKeyMap, dogeMode:
 
 export async function removeFileFromDogeInMain(configMap: IStringKeyMap) {
   const {
-    config: { bucketName, AccessKey, SecretKey }
+    config: { bucketName, AccessKey, SecretKey },
   } = configMap
   const token = (await getDogeToken(AccessKey, SecretKey)) as DogecloudTokenFull
   const bucket = token.Buckets?.find(item => item.name === bucketName || item.s3Bucket === bucketName)
@@ -214,7 +214,7 @@ export async function removeFileFromDogeInMain(configMap: IStringKeyMap) {
     sessionToken: token.Credentials?.sessionToken,
     endpoint: bucket?.s3Endpoint,
     region: dogeRegionMap[bucket?.s3Endpoint?.split('.')[1] || 'ap-shanghai'],
-    bucketName: bucket?.s3Bucket
+    bucketName: bucket?.s3Bucket,
   }
   return await removeFileFromS3InMain(newConfigMap, true)
 }
@@ -225,7 +225,7 @@ function createHuaweiAuthorization(
   fileName: string,
   accessKey: string,
   secretKey: string,
-  date: string = new Date().toUTCString()
+  date: string = new Date().toUTCString(),
 ) {
   const strToSign = `DELETE\n\n\n${date}\n/${bucketName}${path}/${fileName}`
   const singature = crypto.createHmac('sha1', secretKey).update(strToSign).digest('base64')
@@ -247,8 +247,8 @@ export async function removeFileFromHuaweiInMain(configMap: IStringKeyMap) {
     headers: {
       Host: `${bucketName}.${endpoint}`,
       Date: date,
-      Authorization: authorization
-    }
+      Authorization: authorization,
+    },
   })
   return res.status === 204
 }

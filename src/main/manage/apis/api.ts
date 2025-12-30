@@ -21,5 +21,5 @@ export default {
   SmmsApi,
   TcyunApi,
   UpyunApi,
-  WebdavplistApi
+  WebdavplistApi,
 }

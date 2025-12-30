@@ -18,7 +18,7 @@ export default [
     handler: async (_: IIPCEvent, args: [key?: string]) => {
       return picgo.getConfig(args[0])
     },
-    type: IRPCType.INVOKE
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.PICLIST_GET_CONFIG_SYNC,
@@ -26,13 +26,13 @@ export default [
       const result = picgo.getConfig(args[0])
       const eventInstance = event as IpcMainEvent
       eventInstance.returnValue = result
-    }
+    },
   },
   {
     action: IRPCActionType.PICLIST_SAVE_CONFIG,
     handler: async (_: IIPCEvent, args: [data: IObj]) => {
       picgo.saveConfig(args[0])
-    }
+    },
   },
   {
     action: IRPCActionType.PICLIST_OPEN_FILE,
@@ -42,12 +42,13 @@ export default [
         fs.writeFileSync(abFilePath, '')
       }
       shell.openPath(abFilePath)
-    }
+    },
   },
   {
     action: IRPCActionType.PICLIST_OPEN_DIRECTORY,
     handler: async (_: IIPCEvent, args: [dirPath?: string, inStorePath?: boolean]) => {
-      let [dirPath, inStorePath = true] = args
+      let [dirPath] = args
+      const [inStorePath = true] = args
       if (inStorePath) {
         dirPath = path.join(STORE_PATH, dirPath || '')
       }
@@ -55,19 +56,19 @@ export default [
         return
       }
       shell.openPath(dirPath)
-    }
+    },
   },
   {
     action: IRPCActionType.PICLIST_AUTO_START,
     handler: async (_: IIPCEvent, args: [val: boolean]) => {
       await setAutoStart(args[0])
-    }
+    },
   },
   {
     action: IRPCActionType.PICLIST_AUTO_START_STATUS,
     handler: async (_: IIPCEvent) => {
       return await isAutoStartEnabled()
     },
-    type: IRPCType.INVOKE
-  }
+    type: IRPCType.INVOKE,
+  },
 ]

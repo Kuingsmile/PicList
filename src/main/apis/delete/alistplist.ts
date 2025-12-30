@@ -18,7 +18,7 @@ interface IConfigMap {
 const getAListToken = async (url: string, username: string, password: string) => {
   const res = await axios.post(`${url}/api/auth/login`, {
     username,
-    password
+    password,
   })
   if (res.data.code === 200 && res.data.message === 'success') {
     return res.data.data.token
@@ -43,12 +43,12 @@ export default class AListplistApi {
         url: `${url}/api/fs/remove`,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: token
+          Authorization: token,
         },
         data: {
           dir: path.join('/', uploadPath, path.dirname(fileName)),
-          names: [path.basename(fileName)]
-        }
+          names: [path.basename(fileName)],
+        },
       })
       const ok = result.data.code === 200
       deleteLog(fileName, 'Alist', ok)

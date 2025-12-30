@@ -13,7 +13,7 @@ export function digestAuthHeader(
   uri: string,
   wwwAuthenticate: string,
   username: string,
-  password: string
+  password: string,
 ) {
   const parts = wwwAuthenticate.split(',')
   const opts = {} as IStringKeyMap

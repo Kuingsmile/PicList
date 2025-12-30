@@ -5,8 +5,8 @@ import type { IWindowListItem, IWindowManager } from '#/types/electron'
 import { IWindowList } from '~/utils/enum'
 
 class WindowManager implements IWindowManager {
-  #windowMap: Map<string, BrowserWindow> = new Map()
-  #windowIdMap: Map<number, string> = new Map()
+  #windowMap = new Map<string, BrowserWindow>()
+  #windowIdMap = new Map<number, string>()
 
   create(name: string) {
     const windowConfig: IWindowListItem = windowList.get(name)!

@@ -35,7 +35,7 @@ class WebdavplistApi {
     sslEnabled: boolean,
     proxy: string | undefined,
     authType: 'basic' | 'digest' | undefined,
-    logger: ManageLogger
+    logger: ManageLogger,
   ) {
     this.endpoint = formatEndpoint(endpoint, sslEnabled)
     this.username = username
@@ -52,7 +52,7 @@ class WebdavplistApi {
       maxBodyLength: 4 * 1024 * 1024 * 1024,
       maxContentLength: 4 * 1024 * 1024 * 1024,
       httpsAgent: sslEnabled ? this.agent : undefined,
-      httpAgent: !sslEnabled ? this.agent : undefined
+      httpAgent: !sslEnabled ? this.agent : undefined,
     }
     if (this.authType === 'digest') {
       options.authType = AuthType.Digest
@@ -75,7 +75,7 @@ class WebdavplistApi {
       checked: false,
       isImage: false,
       match: false,
-      url: isWebPath ? urlPrefix : `${urlPrefix}${item.filename}`
+      url: isWebPath ? urlPrefix : `${urlPrefix}${item.filename}`,
     }
   }
 
@@ -92,7 +92,7 @@ class WebdavplistApi {
       checked: false,
       match: false,
       isImage: isImage(item.basename),
-      url: isWebPath ? urlPrefix : `${urlPrefix}${item.filename}`
+      url: isWebPath ? urlPrefix : `${urlPrefix}${item.filename}`,
     }
   }
 
@@ -113,12 +113,12 @@ class WebdavplistApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     try {
       res = await this.ctx.getDirectoryContents(prefix, {
         deep: true,
-        details: true
+        details: true,
       })
       if (this.isRequestSuccess(res.status)) {
         if (res.data?.length) {
@@ -158,12 +158,12 @@ class WebdavplistApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     try {
       res = await this.ctx.getDirectoryContents(prefix, {
         deep: false,
-        details: true
+        details: true,
       })
       if (this.isRequestSuccess(res.status)) {
         if (res.data?.length) {
@@ -263,7 +263,7 @@ class WebdavplistApi {
         targetFilePath: key,
         targetFileBucket: bucketName,
         targetFileRegion: region,
-        noProgress: true
+        noProgress: true,
       })
       this.ctx
         .putFileContents(key, this.authType === 'digest' ? fs.readFileSync(filePath) : fs.createReadStream(filePath), {
@@ -272,9 +272,9 @@ class WebdavplistApi {
             instance.updateUploadTask({
               id,
               progress: Math.floor((progressEvent.loaded / progressEvent.total) * 100),
-              status: uploadTaskSpecialStatus.uploading
+              status: uploadTaskSpecialStatus.uploading,
             })
-          }
+          },
         })
         .then((res: boolean) => {
           if (res) {
@@ -282,14 +282,14 @@ class WebdavplistApi {
               id,
               progress: 100,
               status: uploadTaskSpecialStatus.uploaded,
-              finishTime: new Date().toLocaleString()
+              finishTime: new Date().toLocaleString(),
             })
           } else {
             instance.updateUploadTask({
               id,
               progress: 0,
               status: commonTaskStatus.failed,
-              finishTime: new Date().toLocaleString()
+              finishTime: new Date().toLocaleString(),
             })
           }
         })
@@ -299,7 +299,7 @@ class WebdavplistApi {
             id,
             progress: 0,
             status: commonTaskStatus.failed,
-            finishTime: new Date().toLocaleString()
+            finishTime: new Date().toLocaleString(),
           })
         })
     }
@@ -311,7 +311,7 @@ class WebdavplistApi {
     let result = false
     try {
       await this.ctx.createDirectory(key, {
-        recursive: true
+        recursive: true,
       })
       result = true
     } catch (error) {
@@ -336,16 +336,16 @@ class WebdavplistApi {
         progress: 0,
         status: commonTaskStatus.queuing,
         sourceFileName: fileName,
-        targetFilePath: savedFilePath
+        targetFilePath: savedFilePath,
       })
       let preSignedUrl = await this.getPreSignedUrl({
-        key
+        key,
       })
       let headers = {} as IStringKeyMap
       if (this.authType === 'basic' || !this.authType) {
         const base64Str = Buffer.from(`${this.username}:${this.password}`).toString('base64')
         headers = {
-          Authorization: `Basic ${base64Str}`
+          Authorization: `Basic ${base64Str}`,
         }
       } else if (this.authType === 'digest') {
         const authHeader = await getAuthHeader(
@@ -353,10 +353,10 @@ class WebdavplistApi {
           this.endpoint,
           `/${key.replace(/^\/+/, '')}`,
           this.username,
-          this.password
+          this.password,
         )
         headers = {
-          Authorization: authHeader
+          Authorization: authHeader,
         }
         preSignedUrl = `${this.endpoint}/${key.replace(/^\/+/, '')}`
       }
@@ -370,9 +370,9 @@ class WebdavplistApi {
                 } else {
                   reject(res)
                 }
-              }
+              },
             )
-          })
+          }),
       )
     }
     const pool = new ConcurrencyPromisePool(maxDownloadFileCount)

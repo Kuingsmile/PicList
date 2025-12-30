@@ -42,8 +42,8 @@ function bootstrapEPIPESuppression() {
 bootstrapEPIPESuppression()
 
 function epipeBomb(stream: any, callback: any) {
-  if (stream == null) stream = process.stdout
-  if (callback == null) callback = process.exit
+  if (stream === null) stream = process.stdout
+  if (callback === null) callback = process.exit
 
   function epipeFilter(err: any) {
     if (err.code === 'EPIPE') return callback()

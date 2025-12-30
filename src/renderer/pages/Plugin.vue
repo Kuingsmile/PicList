@@ -211,7 +211,7 @@ import {
   SearchIcon,
   SettingsIcon,
   XCircleIcon,
-  XIcon
+  XIcon,
 } from 'lucide-vue-next'
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -223,7 +223,7 @@ import {
   PICGO_CONFIG_PLUGIN,
   PICGO_HANDLE_PLUGIN_DONE,
   PICGO_HANDLE_PLUGIN_ING,
-  PICGO_TOGGLE_PLUGIN
+  PICGO_TOGGLE_PLUGIN,
 } from '@/utils/constant'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
@@ -240,7 +240,7 @@ const dialogVisible = ref(false)
 const pluginNameList = ref<string[]>([])
 const loading = ref(true)
 const needReload = ref(false)
-const latestVersionMap = reactive<{ [key: string]: string }>({})
+const latestVersionMap = reactive<Record<string, string>>({})
 const $configForm = ref<InstanceType<typeof ConfigForm> | null>(null)
 
 function setSrc(e: Event) {
@@ -351,7 +351,7 @@ const uninstallSuccessHandler = (plugin: string) => {
 const picgoConfigPluginHandler = (
   _currentType: 'plugin' | 'transformer' | 'uploader',
   _configName: string,
-  _config: any
+  _config: any,
 ) => {
   currentType.value = _currentType
   configName.value = _configName
@@ -402,12 +402,12 @@ function reloadApp() {
 
 async function handleReload() {
   saveConfig({
-    needReload: true
+    needReload: true,
   })
   needReload.value = true
   if ('Notification' in window) {
     const successNotification = new Notification(t('pages.plugin.updateSuccess'), {
-      body: t('pages.plugin.needRestart')
+      body: t('pages.plugin.needRestart'),
     })
     successNotification.onclick = () => {
       reloadApp()
@@ -425,23 +425,23 @@ async function handleConfirmConfig() {
     switch (currentType.value) {
       case 'plugin':
         saveConfig({
-          [`${configName.value}`]: result
+          [`${configName.value}`]: result,
         })
         break
       case 'uploader':
         saveConfig({
-          [`picBed.${configName.value}`]: result
+          [`picBed.${configName.value}`]: result,
         })
         break
       case 'transformer':
         saveConfig({
-          [`transformer.${configName.value}`]: result
+          [`transformer.${configName.value}`]: result,
         })
         break
     }
     if ('Notification' in window) {
       const successNotification = new Notification(t('pages.plugin.setResult'), {
-        body: t('pages.plugin.setSuccess')
+        body: t('pages.plugin.setSuccess'),
       })
       successNotification.onclick = () => {
         return true
@@ -491,7 +491,7 @@ function handleSearchResult(item: INPMSearchResultObject) {
     hasInstall: pluginNameList.value.some(plugin => plugin === pkg.name),
     version: pkg.version,
     gui,
-    ing: false // installing or uninstalling
+    ing: false, // installing or uninstalling
   }
 }
 
@@ -502,7 +502,7 @@ async function handleRestoreState(item: string, name: string) {
     if (current === name) {
       saveConfig({
         [configPaths.picBed.current]: 'smms',
-        [configPaths.picBed.uploader]: 'smms'
+        [configPaths.picBed.uploader]: 'smms',
       })
     }
   }
@@ -510,7 +510,7 @@ async function handleRestoreState(item: string, name: string) {
     const current = await getConfig(configPaths.picBed.transformer)
     if (current === name) {
       saveConfig({
-        [configPaths.picBed.transformer]: 'path'
+        [configPaths.picBed.transformer]: 'path',
       })
     }
   }
@@ -568,7 +568,7 @@ onBeforeUnmount(() => {
 
 <script lang="ts">
 export default {
-  name: 'PluginPage'
+  name: 'PluginPage',
 }
 </script>
 

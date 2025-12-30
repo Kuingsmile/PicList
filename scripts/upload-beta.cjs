@@ -26,11 +26,11 @@ const uploadFile = async () => {
         const options = {
           credentials: {
             accessKeyId: SECRET_ID,
-            secretAccessKey: SECRET_KEY
+            secretAccessKey: SECRET_KEY,
           },
           endpoint: `https://${ACCOUNT_ID}.r2.cloudflarestorage.com`,
           tls: true,
-          region: 'auto'
+          region: 'auto',
         }
         const client = new S3Client.S3Client(options)
         const parallelUploads3 = new Upload.Upload({
@@ -41,9 +41,9 @@ const uploadFile = async () => {
             Body: fileStream,
             ContentType: 'application/octet-stream',
             Metadata: {
-              description: 'uploaded by PicList'
-            }
-          }
+              description: 'uploaded by PicList',
+            },
+          },
         })
         parallelUploads3.on('httpUploadProgress', progress => {
           const progressBar = Math.round((progress.loaded / progress.total) * 100)

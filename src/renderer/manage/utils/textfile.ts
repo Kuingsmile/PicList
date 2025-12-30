@@ -44,5 +44,5 @@ export const textFileExt = [
   '.yaml',
   '.yml',
   '.yarnrc',
-  'license'
+  'license',
 ]

@@ -10,7 +10,7 @@ import {
   getUploaderConfigList,
   resetUploaderConfig,
   selectUploaderConfig,
-  updateUploaderConfig
+  updateUploaderConfig,
 } from '~/utils/handleUploaderConfig'
 
 const picbedRouter = new RPCRouter()
@@ -34,7 +34,7 @@ const picbedRoutes = [
       const config = getUploaderConfigList(args[0])
       return config
     },
-    type: IRPCType.INVOKE
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.PICBED_DELETE_CONFIG,
@@ -43,7 +43,7 @@ const picbedRoutes = [
       const config = deleteUploaderConfig(type, id)
       return config
     },
-    type: IRPCType.INVOKE
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.UPLOADER_SELECT,
@@ -52,7 +52,7 @@ const picbedRoutes = [
       selectUploaderConfig(type, id)
       return true
     },
-    type: IRPCType.INVOKE
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.UPLOADER_UPDATE_CONFIG,
@@ -61,7 +61,7 @@ const picbedRoutes = [
       updateUploaderConfig(type, id, config)
       return true
     },
-    type: IRPCType.INVOKE
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.UPLOADER_RESET_CONFIG,
@@ -70,7 +70,7 @@ const picbedRoutes = [
       resetUploaderConfig(type, id)
       return true
     },
-    type: IRPCType.INVOKE
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.PICBED_GET_PICBED_CONFIG,
@@ -82,17 +82,17 @@ const picbedRoutes = [
         const config = handleConfigWithFunction(_config)
         return {
           config,
-          name
+          name,
         }
       } else {
         return {
           config: [],
-          name
+          name,
         }
       }
     },
-    type: IRPCType.INVOKE
-  }
+    type: IRPCType.INVOKE,
+  },
 ]
 
 const picBedsRoutes = [...picbedRoutes, ...deleteRoutes]

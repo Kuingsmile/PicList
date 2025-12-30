@@ -31,7 +31,7 @@ export function useConfirm() {
 
   return {
     setConfirmService,
-    confirm
+    confirm,
   }
 }
 

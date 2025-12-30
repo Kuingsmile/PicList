@@ -19,11 +19,11 @@ export const handleResponse = ({
     'Content-Type': 'application/json',
     'access-control-allow-headers': '*',
     'access-control-allow-methods': 'POST, GET, OPTIONS',
-    'access-control-allow-origin': '*'
+    'access-control-allow-origin': '*',
   },
   body = {
-    success: false
-  }
+    success: false,
+  },
 }: {
   response: IHttpResponse
   statusCode?: number
@@ -55,7 +55,7 @@ export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> =>
             const noteFunc = (value: boolean) => {
               const notification = new Notification({
                 title: $t('MANAGE_BUCKET_BATCH_DELETE_ERROR_MSG_MSG2'),
-                body: $t(value ? 'GALLERY_SYNC_DELETE_NOTICE_SUCCEED' : 'GALLERY_SYNC_DELETE_NOTICE_FAILED')
+                body: $t(value ? 'GALLERY_SYNC_DELETE_NOTICE_SUCCEED' : 'GALLERY_SYNC_DELETE_NOTICE_FAILED'),
               })
               notification.show()
             }
@@ -68,7 +68,7 @@ export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> =>
           picgo.emit(ICOREBuildInEvent.REMOVE, [file], GuiApi.getInstance())
         }, 500)
         result.push(true)
-      } catch (e) {
+      } catch (_e) {
         result.push(false)
       }
     }

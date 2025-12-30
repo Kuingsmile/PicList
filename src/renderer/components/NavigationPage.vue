@@ -171,7 +171,7 @@ import {
   ListboxOption,
   ListboxOptions,
   TransitionChild,
-  TransitionRoot
+  TransitionRoot,
 } from '@headlessui/vue'
 import { pick } from 'lodash-es'
 import {
@@ -186,7 +186,7 @@ import {
   Info,
   PlugIcon,
   Settings,
-  UploadIcon
+  UploadIcon,
 } from 'lucide-vue-next'
 import QrcodeVue from 'qrcode.vue'
 import pkg from 'root/package.json'
@@ -232,7 +232,7 @@ watch(
       })
     }
   },
-  { deep: true }
+  { deep: true },
 )
 
 const visiblePicBeds = computed(() => picBedGlobal.value.filter(item => item.visible))
@@ -270,8 +270,8 @@ const navigationItems = computed(() => [
   {
     name: t('navigation.plugins'),
     path: '/main-page/plugins',
-    icon: PlugIcon
-  }
+    icon: PlugIcon,
+  },
 ])
 
 function openGithubPage() {
@@ -297,13 +297,13 @@ onBeforeUnmount(() => {
 <style scoped>
 .navigation {
   display: flex;
-  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid rgb(229 231 235);
   width: 150px;
   height: 100vh;
   background: var(--color-background-secondary);
-  border-right: 1px solid rgb(229 231 235);
-  overflow: hidden;
   transition: width 0.3s ease;
+  flex-direction: column;
 }
 
 .navigation.collapsed {
@@ -312,18 +312,18 @@ onBeforeUnmount(() => {
 
 :root.dark .navigation,
 :root.auto.dark .navigation {
-  background: var(--color-background-secondary);
   border-right-color: var(--color-background-secondary);
+  background: var(--color-background-secondary);
 }
 
 .title-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.25rem 1rem;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-background-secondary);
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  padding: 1.25rem 1rem;
+  background: var(--color-background-secondary);
 }
 
 .navigation.collapsed .title-bar {
@@ -332,24 +332,24 @@ onBeforeUnmount(() => {
 
 .collapse-button {
   position: absolute;
-  right: 8px;
   top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  color: var(--color-text-primary);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  right: 8px;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  border: none;
+  border-radius: 4px;
+  padding: 4px;
+  color: var(--color-text-primary);
+  background: transparent;
+  transition: all 0.2s ease;
+  transform: translateY(-50%);
+  cursor: pointer;
 }
 
 .collapse-button:hover {
-  background: var(--color-surface-elevated);
   color: var(--color-text-primary);
+  background: var(--color-surface-elevated);
 }
 
 .navigation.collapsed .collapse-button {
@@ -383,21 +383,21 @@ onBeforeUnmount(() => {
 }
 
 .app-version {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 3px 8px;
   font-size: 10px;
   font-weight: 500;
   color: var(--color-text-secondary);
   background: var(--color-surface-elevated);
-  padding: 3px 8px;
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
 }
 
 .theme-section {
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 0.75rem;
+  align-items: center;
   border-bottom: 1px solid var(--color-border);
+  padding: 0.75rem;
 }
 
 :root.dark .theme-section,
@@ -406,29 +406,29 @@ onBeforeUnmount(() => {
 }
 
 .nav-menu {
-  flex: 1;
-  padding: 1rem 0;
   overflow-y: auto;
+  padding: 1rem 0;
   min-height: 0;
+  flex: 1;
 }
 
 .nav-item {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  align-items: center;
   padding: 0.75rem 1rem;
-  color: rgb(75 85 99);
-  text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
+  text-decoration: none;
+  color: rgb(75 85 99);
   transition: all 0.2s ease;
+  gap: 0.75rem;
   cursor: pointer;
 }
 
 .navigation.collapsed .nav-item {
-  padding: 0.75rem 0.5rem;
   justify-content: center;
+  padding: 0.75rem 0.5rem;
   gap: 0;
 }
 
@@ -442,82 +442,83 @@ onBeforeUnmount(() => {
 }
 
 .nav-item:hover {
-  background: rgb(243 244 246);
   color: rgb(17 24 39);
+  background: rgb(243 244 246);
 }
 
 :root.dark .nav-item:hover,
 :root.auto.dark .nav-item:hover {
-  background: rgb(55 65 81);
   color: rgb(243 244 246);
+  background: rgb(55 65 81);
 }
 
 .nav-item.router-link-active {
-  background: rgb(239 246 255);
-  color: rgb(99 102 241);
   border-right: 3px solid rgb(99 102 241);
+  color: rgb(99 102 241);
+  background: rgb(239 246 255);
 }
 
 :root.dark .nav-item.router-link-active,
 :root.auto.dark .nav-item.router-link-active {
-  background: rgb(30 58 138 / 0.2);
-  color: rgb(129 140 248);
   border-right-color: rgb(129 140 248);
+  color: rgb(129 140 248);
+  background: rgb(30 58 138 / 20%);
 }
 
 .nav-icon-container {
   position: relative;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   width: 20px;
   height: 20px;
   flex-shrink: 0;
 }
+
 .sidebar-footer {
-  padding: 12px;
   border-top: 1px solid var(--color-border);
+  padding: 12px;
 }
 
 .footer-button {
-  cursor: pointer;
   position: fixed;
   bottom: 4px;
   left: 4px;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
   color: var(--color-text-secondary);
   background: transparent;
-  border: none;
-  padding: 8px;
-  border-radius: 6px;
+  cursor: pointer;
 }
 
 .footer-button:hover {
-  background: var(--color-surface-elevated);
   color: var(--color-text-primary);
+  background: var(--color-surface-elevated);
 }
 
 .nav-submenu {
-  margin-top: 4px;
-  justify-content: center;
   position: relative;
+  justify-content: center;
+  margin-top: 4px;
 }
 
 .submenu-trigger {
+  position: relative;
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  align-items: center;
+  border: none;
   padding: 0.75rem 1rem;
-  color: rgb(75 85 99);
-  text-decoration: none;
+  width: 100%;
   font-size: 0.875rem;
   font-weight: 500;
-  transition: all 0.2s ease;
+  text-decoration: none;
+  color: rgb(75 85 99);
   background: transparent;
-  border: none;
-  width: 100%;
+  transition: all 0.2s ease;
+  gap: 0.75rem;
   cursor: pointer;
-  position: relative;
 }
 
 :root.dark .submenu-trigger,
@@ -526,14 +527,14 @@ onBeforeUnmount(() => {
 }
 
 .submenu-trigger:hover {
-  background: rgb(243 244 246);
   color: rgb(17 24 39);
+  background: rgb(243 244 246);
 }
 
 :root.dark .submenu-trigger:hover,
 :root.auto.dark .submenu-trigger:hover {
-  background: rgb(55 65 81);
   color: rgb(243 244 246);
+  background: rgb(55 65 81);
 }
 
 .submenu-trigger .nav-icon-container {
@@ -556,9 +557,9 @@ onBeforeUnmount(() => {
 }
 
 .submenu-panel {
+  display: flex;
   margin-top: 2px;
   padding-left: 2.75rem;
-  display: flex;
   flex-direction: column;
   gap: 4px;
 }
@@ -566,19 +567,19 @@ onBeforeUnmount(() => {
 .submenu-item {
   display: flex;
   align-items: center;
+  border-radius: 6px;
   padding: 0.5rem 1rem;
-  color: var(--color-text-secondary);
-  text-decoration: none;
   font-size: 0.8125rem;
   font-weight: 500;
-  border-radius: 6px;
+  text-decoration: none;
+  color: var(--color-text-secondary);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .submenu-item:hover {
-  background: var(--color-surface-elevated);
   color: var(--color-text-primary);
+  background: var(--color-surface-elevated);
 }
 
 .collapsed-picbed {
@@ -586,54 +587,54 @@ onBeforeUnmount(() => {
 }
 
 .collapsed-picbed:hover {
-  background: rgb(243 244 246);
   color: rgb(17 24 39);
+  background: rgb(243 244 246);
 }
 
 :root.dark .collapsed-picbed:hover,
 :root.auto.dark .collapsed-picbed:hover {
-  background: rgb(55 65 81);
   color: rgb(243 244 246);
+  background: rgb(55 65 81);
 }
 
 .qr-dialog {
   position: fixed;
-  inset: 0;
   z-index: 50;
   display: flex;
-  overflow-y: auto;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+  inset: 0;
 }
 
 .dialog-container {
   position: fixed;
-  inset: 0;
   z-index: 50;
-  overflow-y: auto;
   display: flex;
-  min-height: 100vh;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  overflow-y: auto;
   padding: 16px;
+  min-height: 100vh;
+  inset: 0;
 }
 
 .dialog-panel {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
   width: 100%;
   max-width: 500px;
   background: var(--color-background-primary);
-  border-radius: 16px;
-  border: 1px solid var(--color-border);
   box-shadow: var(--shadow-md);
-  overflow: hidden;
 }
 
 .dialog-title {
+  margin: 0;
   padding: 20px 24px 0;
   font-size: 18px;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin: 0;
 }
 
 .dialog-content {
@@ -658,17 +659,17 @@ onBeforeUnmount(() => {
 
 .listbox-button {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  width: 100%;
-  padding: 12px 16px;
-  background: var(--color-surface);
+  align-items: center;
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
+  padding: 12px 16px;
+  width: 100%;
   font-size: 14px;
   color: var(--color-text-primary);
-  cursor: pointer;
+  background: var(--color-surface);
   transition: var(--transition);
+  cursor: pointer;
 }
 
 .listbox-button:hover {
@@ -690,27 +691,27 @@ onBeforeUnmount(() => {
 .listbox-options {
   position: absolute;
   top: 100%;
-  left: 0;
   right: 0;
+  left: 0;
   z-index: 10;
+  overflow-y: auto;
   margin-top: 4px;
-  background: var(--color-background-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
   max-height: 300px;
-  overflow-y: auto;
+  background: var(--color-background-primary);
+  box-shadow: var(--shadow-md);
 }
 
 .listbox-option {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   padding: 12px 16px;
   font-size: 14px;
   color: var(--color-text-primary);
-  cursor: pointer;
   transition: var(--transition);
+  cursor: pointer;
 }
 
 .listbox-option.active {
@@ -718,24 +719,24 @@ onBeforeUnmount(() => {
 }
 
 .listbox-option.selected {
-  background: var(--color-accent);
   color: white;
+  background: var(--color-accent);
 }
 
 .copy-button {
   display: flex;
   align-items: center;
-  gap: 8px;
   margin-top: 12px;
-  padding: 10px 16px;
-  background: var(--color-accent);
-  color: white;
   border: none;
   border-radius: var(--border-radius);
+  padding: 10px 16px;
   font-size: 14px;
   font-weight: 500;
-  cursor: pointer;
+  color: white;
+  background: var(--color-accent);
   transition: var(--transition);
+  gap: 8px;
+  cursor: pointer;
 }
 
 .copy-button:hover {
@@ -749,34 +750,35 @@ onBeforeUnmount(() => {
 }
 
 .qr-code {
-  border-radius: var(--border-radius);
   overflow: hidden;
+  border-radius: var(--border-radius);
   box-shadow: var(--shadow-sm);
 }
 
 .dialog-actions {
-  padding: 0 24px 20px;
   display: flex;
   justify-content: flex-end;
+  padding: 0 24px 20px;
   gap: 12px;
 }
 
 .cancel-button {
-  padding: 10px 20px;
-  background: var(--color-surface-elevated);
-  color: var(--color-text-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
+  padding: 10px 20px;
   font-size: 14px;
-  cursor: pointer;
+  color: var(--color-text-primary);
+  background: var(--color-surface-elevated);
   transition: var(--transition);
+  cursor: pointer;
 }
 
 .cancel-button:hover {
   background: var(--color-border);
 }
+
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .navigation {
     width: 60px;
   }
@@ -804,8 +806,8 @@ onBeforeUnmount(() => {
 }
 
 ::-webkit-scrollbar-thumb {
+  border-radius: 0;
   background: var(--color-border);
-  border-radius: 0px;
 }
 
 ::-webkit-scrollbar-thumb:hover {

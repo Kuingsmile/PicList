@@ -16,7 +16,7 @@ import {
   gotUpload,
   hmacSha1Base64,
   md5,
-  NewDownloader
+  NewDownloader,
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
@@ -40,7 +40,7 @@ class UpyunApi {
     password: string,
     logger: ManageLogger,
     antiLeechToken?: string,
-    expireTime?: number
+    expireTime?: number,
   ) {
     this.ser = new Upyun.Service(bucket, operator, password)
     this.cli = new Upyun.Client(this.ser)
@@ -78,7 +78,7 @@ class UpyunApi {
       checked: false,
       isImage: false,
       match: false,
-      Key: key
+      Key: key,
     }
   }
 
@@ -98,14 +98,14 @@ class UpyunApi {
       match: false,
       isImage: isImage(item.name),
       url,
-      key
+      key,
     }
   }
 
   authorization(method: string, uri: string, contentMd5: string, operator: string, password: string) {
     return `UPYUN ${operator}:${hmacSha1Base64(
       md5(password, 'hex'),
-      `${method.toUpperCase()}&${encodeURI(uri)}&${new Date().toUTCString()}${contentMd5 ? `&${contentMd5}` : ''}`
+      `${method.toUpperCase()}&${encodeURI(uri)}&${new Date().toUTCString()}${contentMd5 ? `&${contentMd5}` : ''}`,
     )}`
   }
 
@@ -132,7 +132,7 @@ class UpyunApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     const folderQueue = [prefix]
     const getFolderFile = async (folder: any) => {
@@ -141,7 +141,7 @@ class UpyunApi {
       do {
         res = await this.cli.listDir(key, {
           limit: 10000,
-          iter: marker
+          iter: marker,
         })
         if (res) {
           res.files?.forEach((item: any) => {
@@ -185,12 +185,12 @@ class UpyunApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     do {
       res = await this.cli.listDir(prefix, {
         limit: 10000,
-        iter: marker
+        iter: marker,
       })
       if (res) {
         res.files?.forEach((item: any) => {
@@ -236,11 +236,11 @@ class UpyunApi {
       fullList: [] as any,
       isTruncated: false,
       nextMarker: '',
-      success: false
+      success: false,
     }
     res = await this.cli.listDir(prefix, {
       limit: itemsPerPage,
-      iter: marker || ''
+      iter: marker || '',
     })
     if (res) {
       res.files?.forEach((item: any) => {
@@ -278,12 +278,12 @@ class UpyunApi {
       Authorization: authorization,
       'X-Upyun-Move-Source': xUpyunMoveSource,
       'Content-Length': 0,
-      Date: new Date().toUTCString()
+      Date: new Date().toUTCString(),
     }
     const res = await axios({
       method,
       url: `http://v0.api.upyun.com${uri}`,
-      headers
+      headers,
     })
     return res.status === 200
   }
@@ -313,24 +313,24 @@ class UpyunApi {
     let isTruncated
     const allFileList = {
       CommonPrefixes: [] as any[],
-      Contents: [] as any[]
+      Contents: [] as any[],
     }
     do {
       const res = await this.cli.listDir(key, {
         limit: 10000,
-        iter: marker
+        iter: marker,
       })
       if (res) {
         res.files.forEach((item: any) => {
           item.type === 'N' &&
             allFileList.Contents.push({
               ...item,
-              key: `${key}${item.name}`
+              key: `${key}${item.name}`,
             })
           item.type === 'F' &&
             allFileList.CommonPrefixes.push({
               ...item,
-              key: `${key}${item.name}/`
+              key: `${key}${item.name}/`,
             })
         })
         marker = res.next
@@ -351,7 +351,7 @@ class UpyunApi {
     if (allFileList.CommonPrefixes.length > 0) {
       for (const item of allFileList.CommonPrefixes) {
         const res = await this.deleteBucketFolder({
-          key: item.key
+          key: item.key,
         })
         if (!res) {
           return false
@@ -390,7 +390,7 @@ class UpyunApi {
         sourceFilePath: filePath,
         targetFilePath: key,
         targetFileBucket: bucketName,
-        targetFileRegion: region
+        targetFileRegion: region,
       })
       const date = new Date().toUTCString()
       const uri = `/${key}`
@@ -400,7 +400,7 @@ class UpyunApi {
         'save-key': uri,
         expiration: Math.floor(Date.now() / 1000) + 2592000,
         date,
-        'content-length': fileSize
+        'content-length': fileSize,
       }
       const base64Policy = Buffer.from(JSON.stringify(uplpadPolicy)).toString('base64')
       const stringToSign = `${method}&/${bucketName}&${date}&${base64Policy}`
@@ -411,7 +411,7 @@ class UpyunApi {
       form.append('authorization', authorization)
       form.append('file', fs.createReadStream(filePath), {
         filename: path.basename(key),
-        contentType: getFileMimeType(fileName)
+        contentType: getFileMimeType(fileName),
       })
       const headers = form.getHeaders()
       headers.Host = 'v0.api.upyun.com'
@@ -452,7 +452,7 @@ class UpyunApi {
         progress: 0,
         status: commonTaskStatus.queuing,
         sourceFileName: fileName,
-        targetFilePath: savedFilePath
+        targetFilePath: savedFilePath,
       })
       const preSignedUrl = `${customUrl}/${key}`
       promises.push(
@@ -465,7 +465,7 @@ class UpyunApi {
                 reject(res)
               }
             })
-          })
+          }),
       )
     }
     const pool = new ConcurrencyPromisePool(maxDownloadFileCount)

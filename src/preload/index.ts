@@ -43,7 +43,7 @@ try {
       webFrame.setVisualZoomLevelLimits(min, max)
     },
     clipboard: {
-      writeText: clipboard.writeText
+      writeText: clipboard.writeText,
     },
     platform: process.platform,
     sendRpcSync,
@@ -65,7 +65,7 @@ try {
     },
     showFilePath(file: File) {
       return webUtils.getPathForFile(file)
-    }
+    },
   })
 
   contextBridge.exposeInMainWorld('node', {
@@ -77,27 +77,27 @@ try {
       extname: path.extname,
       sep: path.sep,
       posix: {
-        sep: path.posix.sep
-      }
+        sep: path.posix.sep,
+      },
     },
     fs: {
       remove: fs.remove,
       readFile: fs.readFile,
-      statSync: fs.statSync
+      statSync: fs.statSync,
     },
     crypto: {
       randomBytes: crypto.randomBytes,
-      createHash: crypto.createHash
+      createHash: crypto.createHash,
     },
     yaml: {
-      load: yaml.load
+      load: yaml.load,
     },
     mime: {
-      lookup: mime.getType
+      lookup: mime.getType,
     },
     buffer: {
-      from: Buffer.from
-    }
+      from: Buffer.from,
+    },
   })
 } catch (error) {
   console.error(error)

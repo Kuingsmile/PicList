@@ -13,8 +13,8 @@ const i18n = createI18n<MessageSchema, 'en' | 'zh-CN' | 'zh-TW'>({
   messages: {
     en,
     'zh-CN': zhCN,
-    'zh-TW': zhTW
-  }
+    'zh-TW': zhTW,
+  },
 })
 const { t } = i18n.global
 const defaultBaseRule = (name: string) => {
@@ -22,8 +22,8 @@ const defaultBaseRule = (name: string) => {
     {
       required: true,
       message: `${t('pages.manage.constant.pleaseInput', { name })}`,
-      trigger: 'blur'
-    }
+      trigger: 'blur',
+    },
   ]
 }
 
@@ -31,12 +31,12 @@ const itemsPerPageRule = [
   {
     required: true,
     message: t('pages.manage.constant.inputItemsPerPage'),
-    trigger: 'blur'
+    trigger: 'blur',
   },
   {
     type: 'number',
     message: t('pages.manage.constant.itemsPPBeNumber'),
-    trigger: 'change'
+    trigger: 'change',
   },
   {
     validator: (_rule: any, value: any, callback: any) => {
@@ -46,15 +46,15 @@ const itemsPerPageRule = [
         callback()
       }
     },
-    trigger: 'change'
-  }
+    trigger: 'change',
+  },
 ]
 
 const aliasRule = [
   {
     required: true,
     message: t('pages.manage.constant.inputAlias'),
-    trigger: 'blur'
+    trigger: 'blur',
   },
   {
     validator: (_rule: any, value: any, callback: any) => {
@@ -65,8 +65,8 @@ const aliasRule = [
         callback()
       }
     },
-    trigger: 'change'
-  }
+    trigger: 'change',
+  },
 ]
 
 const aliasTooltip = t('pages.manage.constant.aliasTip')
@@ -88,27 +88,27 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'string',
         rule: aliasRule,
         default: 'smms-A',
-        tooltip: aliasTooltip
+        tooltip: aliasTooltip,
       },
       token: {
         required: true,
         description: t('pages.manage.constant.smms.tokenDesc'),
         placeholder: t('pages.manage.constant.smms.tokenPlaceholder'),
         type: 'string',
-        rule: defaultBaseRule('token')
+        rule: defaultBaseRule('token'),
       },
       paging: {
         required: true,
         description: t('pages.manage.constant.pagingDesc'),
         default: true,
         type: 'boolean',
-        tooltip: pagingTooltip
-      }
+        tooltip: pagingTooltip,
+      },
     },
     explain: t('pages.manage.constant.smms.explain'),
     options: ['alias', 'token', 'paging'],
     refLink: 'https://piclist.cn/manage.html#smms',
-    referenceText: t('pages.manage.constant.referText')
+    referenceText: t('pages.manage.constant.referText'),
   },
   qiniu: {
     name: t('pages.manage.constant.qiniu.name'),
@@ -121,28 +121,28 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'string',
         rule: aliasRule,
         default: 'qiniu-A',
-        tooltip: aliasTooltip
+        tooltip: aliasTooltip,
       },
       accessKey: {
         required: true,
         description: t('pages.manage.constant.accessKeyDesc'),
         placeholder: t('pages.manage.constant.accessKeyPlaceholder'),
         type: 'string',
-        rule: defaultBaseRule('accessKey')
+        rule: defaultBaseRule('accessKey'),
       },
       secretKey: {
         required: true,
         description: t('pages.manage.constant.secretKeyDesc'),
         placeholder: t('pages.manage.constant.secretKeyPlaceholder'),
         type: 'string',
-        rule: defaultBaseRule('secretKey')
+        rule: defaultBaseRule('secretKey'),
       },
       bucketName: {
         required: false,
         description: t('pages.manage.constant.bucketDesc'),
         placeholder: t('pages.manage.constant.bucketPlaceholder'),
         type: 'string',
-        tooltip: bucketNameTooltip
+        tooltip: bucketNameTooltip,
       },
       baseDir: {
         required: false,
@@ -150,21 +150,21 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.baseDirPlaceholder'),
         default: '/',
         type: 'string',
-        tooltip: baseDirTooltip
+        tooltip: baseDirTooltip,
       },
       isAutoCustomUrl: {
         required: true,
         description: t('pages.manage.constant.isAutoGetCustomUrl'),
         default: true,
         type: 'boolean',
-        tooltip: isAutoCustomUrlTooltip
+        tooltip: isAutoCustomUrlTooltip,
       },
       paging: {
         required: true,
         description: t('pages.manage.constant.isEnablePaging'),
         default: true,
         type: 'boolean',
-        tooltip: pagingTooltip
+        tooltip: pagingTooltip,
       },
       itemsPerPage: {
         required: true,
@@ -172,13 +172,13 @@ export const supportedPicBedList: IStringKeyMap = {
         default: 50,
         type: 'number',
         rule: itemsPerPageRule,
-        tooltip: itemsPerPageTooltip
-      }
+        tooltip: itemsPerPageTooltip,
+      },
     },
     explain: t('pages.manage.constant.explain'),
     options: ['alias', 'accessKey', 'secretKey', 'bucketName', 'baseDir', 'isAutoCustomUrl', 'paging', 'itemsPerPage'],
     refLink: 'https://piclist.cn/manage.html#%E4%B8%83%E7%89%9B%E4%BA%91',
-    referenceText: t('pages.manage.constant.referText')
+    referenceText: t('pages.manage.constant.referText'),
   },
   github: {
     name: 'GitHub',
@@ -191,7 +191,7 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'string',
         rule: aliasRule,
         default: 'github-A',
-        tooltip: aliasTooltip
+        tooltip: aliasTooltip,
       },
       token: {
         required: true,
@@ -199,28 +199,28 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.github.tokenPlaceholder'),
         type: 'string',
         rule: defaultBaseRule('token'),
-        tooltip: t('pages.manage.constant.github.tokenTips')
+        tooltip: t('pages.manage.constant.github.tokenTips'),
       },
       githubUsername: {
         required: true,
         description: t('pages.manage.constant.userNameDesc'),
         placeholder: t('pages.manage.constant.userNamePlaceholder'),
         type: 'string',
-        rule: defaultBaseRule(t('pages.manage.constant.userNameDesc'))
+        rule: defaultBaseRule(t('pages.manage.constant.userNameDesc')),
       },
       proxy: {
         required: false,
         description: t('pages.manage.constant.proxyDesc'),
         placeholder: t('pages.manage.constant.proxyPlaceholder'),
         type: 'string',
-        tooltip: t('pages.manage.constant.proxyTips')
+        tooltip: t('pages.manage.constant.proxyTips'),
       },
       paging: {
         required: true,
         description: t('pages.manage.constant.isEnablePaging'),
         default: false,
         type: 'boolean',
-        tooltip: pagingTooltip
+        tooltip: pagingTooltip,
       },
       customUrl: {
         required: false,
@@ -275,15 +275,15 @@ export const supportedPicBedList: IStringKeyMap = {
                 callback()
               }
             },
-            trigger: 'change'
-          }
-        ]
-      }
+            trigger: 'change',
+          },
+        ],
+      },
     },
     explain: t('pages.manage.constant.github.explain'),
     options: ['alias', 'token', 'githubUsername', 'proxy', 'customUrl'],
     refLink: 'https://piclist.cn/manage.html#github',
-    referenceText: t('pages.manage.constant.referText')
+    referenceText: t('pages.manage.constant.referText'),
   },
   aliyun: {
     name: t('pages.manage.constant.aliyun.name'),
@@ -296,28 +296,28 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'string',
         rule: aliasRule,
         default: 'aliyun-A',
-        tooltip: aliasTooltip
+        tooltip: aliasTooltip,
       },
       accessKeyId: {
         required: true,
         description: t('pages.manage.constant.accessKeyIdDesc'),
         placeholder: t('pages.manage.constant.accessKeyIdPlaceholder'),
         type: 'string',
-        rule: defaultBaseRule('accessKeyId')
+        rule: defaultBaseRule('accessKeyId'),
       },
       accessKeySecret: {
         required: true,
         description: t('pages.manage.constant.accessKeySecretDesc'),
         placeholder: t('pages.manage.constant.accessKeySecretPlaceholder'),
         type: 'string',
-        rule: defaultBaseRule('accessKeySecret')
+        rule: defaultBaseRule('accessKeySecret'),
       },
       bucketName: {
         required: false,
         description: t('pages.manage.constant.bucketDesc'),
         placeholder: t('pages.manage.constant.bucketPlaceholder'),
         type: 'string',
-        tooltip: bucketNameTooltip
+        tooltip: bucketNameTooltip,
       },
       baseDir: {
         required: false,
@@ -325,21 +325,21 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.baseDirPlaceholder'),
         type: 'string',
         default: '/',
-        tooltip: baseDirTooltip
+        tooltip: baseDirTooltip,
       },
       isAutoCustomUrl: {
         required: true,
         description: t('pages.manage.constant.isAutoGetCustomUrl'),
         default: true,
         type: 'boolean',
-        tooltip: isAutoCustomUrlTooltip
+        tooltip: isAutoCustomUrlTooltip,
       },
       paging: {
         required: true,
         description: t('pages.manage.constant.isEnablePaging'),
         default: true,
         type: 'boolean',
-        tooltip: pagingTooltip
+        tooltip: pagingTooltip,
       },
       itemsPerPage: {
         required: true,
@@ -347,8 +347,8 @@ export const supportedPicBedList: IStringKeyMap = {
         default: 50,
         type: 'number',
         rule: itemsPerPageRule,
-        tooltip: itemsPerPageTooltip
-      }
+        tooltip: itemsPerPageTooltip,
+      },
     },
     explain: t('pages.manage.constant.explain'),
     options: [
@@ -359,10 +359,10 @@ export const supportedPicBedList: IStringKeyMap = {
       'baseDir',
       'isAutoCustomUrl',
       'paging',
-      'itemsPerPage'
+      'itemsPerPage',
     ],
     refLink: 'https://piclist.cn/manage.html#%E9%98%BF%E9%87%8C%E4%BA%91oss',
-    referenceText: t('pages.manage.constant.referText')
+    referenceText: t('pages.manage.constant.referText'),
   },
   tcyun: {
     name: t('pages.manage.constant.tcyun.name'),
@@ -375,21 +375,21 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'string',
         rule: aliasRule,
         default: 'tcyun-A',
-        tooltip: aliasTooltip
+        tooltip: aliasTooltip,
       },
       secretId: {
         required: true,
         description: t('pages.manage.constant.secretIdDesc'),
         placeholder: t('pages.manage.constant.secretIdPlaceholder'),
         type: 'string',
-        rule: defaultBaseRule('secretId')
+        rule: defaultBaseRule('secretId'),
       },
       secretKey: {
         required: true,
         description: t('pages.manage.constant.secretKeyDesc'),
         placeholder: t('pages.manage.constant.secretKeyPlaceholder'),
         type: 'string',
-        rule: defaultBaseRule('secretKey')
+        rule: defaultBaseRule('secretKey'),
       },
       appId: {
         required: true,
@@ -397,14 +397,14 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.tcyun.appIdPlaceholder'),
         type: 'string',
         rule: defaultBaseRule('appId'),
-        tooltip: t('pages.manage.constant.tcyun.appIdTips')
+        tooltip: t('pages.manage.constant.tcyun.appIdTips'),
       },
       bucketName: {
         required: false,
         description: t('pages.manage.constant.bucketDesc'),
         placeholder: t('pages.manage.constant.bucketPlaceholder'),
         type: 'string',
-        tooltip: bucketNameTooltip
+        tooltip: bucketNameTooltip,
       },
       baseDir: {
         required: false,
@@ -412,21 +412,21 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.baseDirPlaceholder'),
         type: 'string',
         default: '/',
-        tooltip: baseDirTooltip
+        tooltip: baseDirTooltip,
       },
       isAutoCustomUrl: {
         required: true,
         description: t('pages.manage.constant.isAutoGetCustomUrl'),
         default: true,
         type: 'boolean',
-        tooltip: isAutoCustomUrlTooltip
+        tooltip: isAutoCustomUrlTooltip,
       },
       paging: {
         required: true,
         description: t('pages.manage.constant.isEnablePaging'),
         default: true,
         type: 'boolean',
-        tooltip: pagingTooltip
+        tooltip: pagingTooltip,
       },
       itemsPerPage: {
         required: true,
@@ -434,8 +434,8 @@ export const supportedPicBedList: IStringKeyMap = {
         default: 50,
         type: 'number',
         rule: itemsPerPageRule,
-        tooltip: itemsPerPageTooltip
-      }
+        tooltip: itemsPerPageTooltip,
+      },
     },
     explain: t('pages.manage.constant.explain'),
     options: [
@@ -447,10 +447,10 @@ export const supportedPicBedList: IStringKeyMap = {
       'baseDir',
       'isAutoCustomUrl',
       'paging',
-      'itemsPerPage'
+      'itemsPerPage',
     ],
     refLink: 'https://piclist.cn/manage.html#%E8%85%BE%E8%AE%AF%E4%BA%91',
-    referenceText: t('pages.manage.constant.referText')
+    referenceText: t('pages.manage.constant.referText'),
   },
   upyun: {
     name: t('pages.manage.constant.upyun.name'),
@@ -463,35 +463,35 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'string',
         rule: aliasRule,
         default: 'upyun-A',
-        tooltip: aliasTooltip
+        tooltip: aliasTooltip,
       },
       bucketName: {
         required: true,
         description: t('pages.manage.constant.upyun.bucketDesc'),
         placeholder: t('pages.manage.constant.upyun.bucketPlaceholder'),
         type: 'string',
-        rule: defaultBaseRule('bucketName')
+        rule: defaultBaseRule('bucketName'),
       },
       operator: {
         required: true,
         description: t('pages.manage.constant.upyun.operatorNameDesc'),
         placeholder: t('pages.manage.constant.upyun.operatorNamePlaceholder'),
         type: 'string',
-        rule: defaultBaseRule(t('pages.manage.constant.upyun.operatorNameDesc'))
+        rule: defaultBaseRule(t('pages.manage.constant.upyun.operatorNameDesc')),
       },
       password: {
         required: true,
         description: t('pages.manage.constant.upyun.operatorPassDesc'),
         placeholder: t('pages.manage.constant.upyun.operatorPassPlaceholder'),
         type: 'string',
-        rule: defaultBaseRule(t('pages.manage.constant.upyun.operatorPassDesc'))
+        rule: defaultBaseRule(t('pages.manage.constant.upyun.operatorPassDesc')),
       },
       baseDir: {
         required: false,
         description: t('pages.manage.constant.upyun.baseDirDesc'),
         placeholder: t('pages.manage.constant.upyun.baseDirPlaceholder'),
         type: 'string',
-        default: '/'
+        default: '/',
       },
       customUrl: {
         required: true,
@@ -502,7 +502,7 @@ export const supportedPicBedList: IStringKeyMap = {
           {
             required: true,
             message: t('pages.manage.constant.upyun.notEmpty'),
-            trigger: 'change'
+            trigger: 'change',
           },
           {
             validator: (_rule: any, value: any, callback: any) => {
@@ -526,9 +526,9 @@ export const supportedPicBedList: IStringKeyMap = {
                 callback()
               }
             },
-            trigger: 'change'
-          }
-        ]
+            trigger: 'change',
+          },
+        ],
       },
       antiLeechToken: {
         required: false,
@@ -536,20 +536,20 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.upyun.antiLeechTokenPlaceholder'),
         type: 'string',
         default: '',
-        tooltip: t('pages.manage.constant.upyun.antiLeechTokenTooltip')
+        tooltip: t('pages.manage.constant.upyun.antiLeechTokenTooltip'),
       },
       expireTime: {
         required: false,
         description: t('pages.manage.constant.upyun.antiLeechExp'),
         type: 'number',
-        default: 0
+        default: 0,
       },
       paging: {
         required: true,
         description: t('pages.manage.constant.isEnablePaging'),
         default: true,
         type: 'boolean',
-        tooltip: pagingTooltip
+        tooltip: pagingTooltip,
       },
       itemsPerPage: {
         required: true,
@@ -557,8 +557,8 @@ export const supportedPicBedList: IStringKeyMap = {
         default: 50,
         type: 'number',
         rule: itemsPerPageRule,
-        tooltip: itemsPerPageTooltip
-      }
+        tooltip: itemsPerPageTooltip,
+      },
     },
     explain: t('pages.manage.constant.upyun.explain'),
     options: [
@@ -571,10 +571,10 @@ export const supportedPicBedList: IStringKeyMap = {
       'paging',
       'itemsPerPage',
       'antiLeechToken',
-      'expireTime'
+      'expireTime',
     ],
     refLink: 'https://piclist.cn/manage.html#%E5%8F%88%E6%8B%8D%E4%BA%91',
-    referenceText: t('pages.manage.constant.referText')
+    referenceText: t('pages.manage.constant.referText'),
   },
   imgur: {
     name: 'Imgur',
@@ -586,14 +586,14 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.aliasPlaceholder'),
         type: 'string',
         rule: aliasRule,
-        default: 'imgur-A'
+        default: 'imgur-A',
       },
       imgurUserName: {
         required: true,
         description: t('pages.manage.constant.userNameDesc'),
         placeholder: t('pages.manage.constant.userNamePlaceholder'),
         type: 'string',
-        rule: defaultBaseRule('imgurUserName')
+        rule: defaultBaseRule('imgurUserName'),
       },
       accessToken: {
         required: true,
@@ -601,20 +601,20 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.imgur.accessTokenPlaceholder'),
         type: 'string',
         rule: defaultBaseRule('accessToken'),
-        tooltip: t('pages.manage.constant.imgur.accessTokenTips')
+        tooltip: t('pages.manage.constant.imgur.accessTokenTips'),
       },
       proxy: {
         required: false,
         description: t('pages.manage.constant.proxyDesc'),
         placeholder: t('pages.manage.constant.proxyPlaceholder'),
         type: 'string',
-        tooltip: t('pages.manage.constant.proxyTips')
-      }
+        tooltip: t('pages.manage.constant.proxyTips'),
+      },
     },
     explain: t('pages.manage.constant.imgur.explain'),
     options: ['alias', 'imgurUserName', 'accessToken', 'proxy'],
     refLink: 'https://piclist.cn/manage.html#imgur',
-    referenceText: t('pages.manage.constant.referText')
+    referenceText: t('pages.manage.constant.referText'),
   },
   s3plist: {
     name: 'S3 API',
@@ -627,49 +627,49 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'string',
         rule: aliasRule,
         default: 's3plist-A',
-        tooltip: aliasTooltip
+        tooltip: aliasTooltip,
       },
       accessKeyId: {
         required: true,
         description: t('pages.manage.constant.accessKeyIdDesc'),
         placeholder: t('pages.manage.constant.accessKeyIdPlaceholder'),
         type: 'string',
-        rule: defaultBaseRule('accessKeyId')
+        rule: defaultBaseRule('accessKeyId'),
       },
       secretAccessKey: {
         required: true,
         description: t('pages.manage.constant.accessKeySecretDesc'),
         placeholder: t('pages.manage.constant.accessKeySecretDesc'),
         type: 'string',
-        rule: defaultBaseRule('secretAccessKey')
+        rule: defaultBaseRule('secretAccessKey'),
       },
       endpoint: {
         required: false,
         description: t('pages.manage.constant.s3.endpointDesc'),
         placeholder: t('pages.manage.constant.s3.endpointPlaceholder'),
         type: 'string',
-        tooltip: t('pages.manage.constant.s3.endpointTips')
+        tooltip: t('pages.manage.constant.s3.endpointTips'),
       },
       sslEnabled: {
         required: true,
         description: t('pages.manage.constant.s3.enableHttps'),
         default: true,
         type: 'boolean',
-        tooltip: t('pages.manage.constant.s3.enableHttpsTip')
+        tooltip: t('pages.manage.constant.s3.enableHttpsTip'),
       },
       s3ForcePathStyle: {
         required: true,
         description: t('pages.manage.constant.s3.enableS3PathStyle'),
         default: false,
         type: 'boolean',
-        tooltip: t('pages.manage.constant.s3.enableS3PathStyleTip')
+        tooltip: t('pages.manage.constant.s3.enableS3PathStyleTip'),
       },
       proxy: {
         required: false,
         description: t('pages.manage.constant.proxyDesc'),
         placeholder: t('pages.manage.constant.proxyPlaceholder'),
         type: 'string',
-        tooltip: t('pages.manage.constant.proxyTips')
+        tooltip: t('pages.manage.constant.proxyTips'),
       },
       aclForUpload: {
         required: true,
@@ -684,16 +684,16 @@ export const supportedPicBedList: IStringKeyMap = {
           'authenticated-read': t('pages.manage.constant.s3.acl.authenticatedRead'),
           'bucket-owner-read': t('pages.manage.constant.s3.acl.bucketOwnerRead'),
           'bucket-owner-full-control': t('pages.manage.constant.s3.acl.bucketOwnerFullControl'),
-          'aws-exec-read': t('pages.manage.constant.s3.acl.awsExecRead')
+          'aws-exec-read': t('pages.manage.constant.s3.acl.awsExecRead'),
         },
-        tooltip: t('pages.manage.constant.s3.aclTips')
+        tooltip: t('pages.manage.constant.s3.aclTips'),
       },
       bucketName: {
         required: false,
         description: t('pages.manage.constant.bucketDesc'),
         placeholder: t('pages.manage.constant.bucketPlaceholder'),
         type: 'string',
-        tooltip: bucketNameTooltip
+        tooltip: bucketNameTooltip,
       },
       baseDir: {
         required: false,
@@ -701,21 +701,21 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.baseDirPlaceholder'),
         type: 'string',
         default: '/',
-        tooltip: baseDirTooltip
+        tooltip: baseDirTooltip,
       },
       dogeCloudSupport: {
         required: false,
         description: t('pages.manage.constant.s3.enableDogeSupport'),
         default: false,
         type: 'boolean',
-        tooltip: t('pages.manage.constant.s3.enableDogeSupportTip')
+        tooltip: t('pages.manage.constant.s3.enableDogeSupportTip'),
       },
       paging: {
         required: true,
         description: t('pages.manage.constant.isEnablePaging'),
         default: true,
         type: 'boolean',
-        tooltip: pagingTooltip
+        tooltip: pagingTooltip,
       },
       itemsPerPage: {
         required: true,
@@ -723,8 +723,8 @@ export const supportedPicBedList: IStringKeyMap = {
         default: 50,
         type: 'number',
         rule: itemsPerPageRule,
-        tooltip: itemsPerPageTooltip
-      }
+        tooltip: itemsPerPageTooltip,
+      },
     },
     explain: t('pages.manage.constant.explain'),
     options: [
@@ -740,10 +740,10 @@ export const supportedPicBedList: IStringKeyMap = {
       'baseDir',
       'dogeCloudSupport',
       'paging',
-      'itemsPerPage'
+      'itemsPerPage',
     ],
     refLink: 'https://piclist.cn/manage.html#s3',
-    referenceText: t('pages.manage.constant.referText')
+    referenceText: t('pages.manage.constant.referText'),
   },
   webdavplist: {
     name: 'WebDAV',
@@ -756,7 +756,7 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'string',
         rule: aliasRule,
         default: 'webdavplist-A',
-        tooltip: aliasTooltip
+        tooltip: aliasTooltip,
       },
       endpoint: {
         required: true,
@@ -764,14 +764,14 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.webdav.hostPlaceholder'),
         type: 'string',
         rule: defaultBaseRule('rootDomain'),
-        tooltip: t('pages.manage.constant.webdav.hostTips')
+        tooltip: t('pages.manage.constant.webdav.hostTips'),
       },
       username: {
         required: true,
         description: t('pages.manage.constant.userNameDesc'),
         placeholder: t('pages.manage.constant.userNamePlaceholder'),
         type: 'string',
-        rule: defaultBaseRule('username')
+        rule: defaultBaseRule('username'),
       },
       bucketName: {
         required: true,
@@ -780,21 +780,21 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'string',
         default: 'webdav',
         disabled: true,
-        tooltip: t('pages.manage.constant.specialTips')
+        tooltip: t('pages.manage.constant.specialTips'),
       },
       password: {
         required: true,
         description: t('pages.manage.constant.passwordDesc'),
         placeholder: t('pages.manage.constant.passwordPlaceholder'),
         type: 'string',
-        rule: defaultBaseRule('password')
+        rule: defaultBaseRule('password'),
       },
       baseDir: {
         required: false,
         description: t('pages.manage.constant.webdav.baseDirDesc'),
         placeholder: t('pages.manage.constant.webdav.baseDirPlaceholder'),
         type: 'string',
-        default: '/'
+        default: '/',
       },
       customUrl: {
         required: false,
@@ -815,9 +815,9 @@ export const supportedPicBedList: IStringKeyMap = {
                 callback()
               }
             },
-            trigger: 'change'
-          }
-        ]
+            trigger: 'change',
+          },
+        ],
       },
       webPath: {
         required: false,
@@ -825,21 +825,21 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.webdav.webPathPlaceholder'),
         type: 'string',
         tooltip: t('pages.manage.constant.webdav.webPathTips'),
-        default: ''
+        default: '',
       },
       proxy: {
         required: false,
         description: t('pages.manage.constant.proxyDesc'),
         placeholder: t('pages.manage.constant.proxyPlaceholder'),
         type: 'string',
-        tooltip: t('pages.manage.constant.proxyTips')
+        tooltip: t('pages.manage.constant.proxyTips'),
       },
       sslEnabled: {
         required: true,
         description: t('pages.manage.constant.webdav.enableHttpsDesc'),
         default: true,
         type: 'boolean',
-        tooltip: t('pages.manage.constant.webdav.enableHttpsTips')
+        tooltip: t('pages.manage.constant.webdav.enableHttpsTips'),
       },
       authType: {
         required: true,
@@ -848,9 +848,9 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'select',
         selectOptions: {
           basic: 'Basic',
-          digest: 'Digest'
-        }
-      }
+          digest: 'Digest',
+        },
+      },
     },
     explain: t('pages.manage.constant.webdav.explain'),
     options: [
@@ -864,10 +864,10 @@ export const supportedPicBedList: IStringKeyMap = {
       'webPath',
       'proxy',
       'sslEnabled',
-      'authType'
+      'authType',
     ],
     refLink: 'https://piclist.cn/manage.html#webdav',
-    referenceText: t('pages.manage.constant.referText')
+    referenceText: t('pages.manage.constant.referText'),
   },
   local: {
     name: t('pages.manage.constant.local.name'),
@@ -880,7 +880,7 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'string',
         rule: aliasRule,
         default: 'local-A',
-        tooltip: aliasTooltip
+        tooltip: aliasTooltip,
       },
       baseDir: {
         required: true,
@@ -896,9 +896,9 @@ export const supportedPicBedList: IStringKeyMap = {
               } else {
                 callback()
               }
-            }
-          }
-        ]
+            },
+          },
+        ],
       },
       customUrl: {
         required: false,
@@ -919,9 +919,9 @@ export const supportedPicBedList: IStringKeyMap = {
                 callback()
               }
             },
-            trigger: 'change'
-          }
-        ]
+            trigger: 'change',
+          },
+        ],
       },
       bucketName: {
         required: true,
@@ -930,7 +930,7 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'string',
         default: 'local',
         disabled: true,
-        tooltip: t('pages.manage.constant.specialTips')
+        tooltip: t('pages.manage.constant.specialTips'),
       },
       webPath: {
         required: false,
@@ -938,13 +938,13 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.local.webPathPlaceholder'),
         type: 'string',
         tooltip: t('pages.manage.constant.local.webPathTips'),
-        default: ''
-      }
+        default: '',
+      },
     },
     explain: t('pages.manage.constant.local.explain'),
     options: ['alias', 'baseDir', 'customUrl', 'bucketName', 'webPath'],
     refLink: 'https://piclist.cn/manage.html#%E6%9C%AC%E5%9C%B0%E5%AD%98%E5%82%A8',
-    referenceText: t('pages.manage.constant.referText')
+    referenceText: t('pages.manage.constant.referText'),
   },
   sftp: {
     name: 'SFTP',
@@ -957,7 +957,7 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'string',
         rule: aliasRule,
         default: 'sftp-A',
-        tooltip: aliasTooltip
+        tooltip: aliasTooltip,
       },
       host: {
         required: true,
@@ -965,56 +965,56 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.sftp.hostPlaceholder'),
         type: 'string',
         rule: defaultBaseRule('host'),
-        default: ''
+        default: '',
       },
       port: {
         required: false,
         description: t('pages.manage.constant.sftp.portDesc'),
         placeholder: t('pages.manage.constant.sftp.portPlaceholder'),
         type: 'number',
-        default: 22
+        default: 22,
       },
       username: {
         required: false,
         description: t('pages.manage.constant.userNameDesc'),
         placeholder: t('pages.manage.constant.userNamePlaceholder'),
         type: 'string',
-        default: ''
+        default: '',
       },
       password: {
         required: false,
         description: t('pages.manage.constant.passwordDesc'),
         placeholder: t('pages.manage.constant.passwordPlaceholder'),
         type: 'string',
-        default: ''
+        default: '',
       },
       privateKey: {
         required: false,
         description: t('pages.manage.constant.sftp.privateKeyDesc'),
         placeholder: t('pages.manage.constant.sftp.privateKeyPlaceholder'),
         type: 'string',
-        default: ''
+        default: '',
       },
       passphrase: {
         required: false,
         description: t('pages.manage.constant.sftp.passphraseDesc'),
         placeholder: t('pages.manage.constant.sftp.passphrasePlaceholder'),
         type: 'string',
-        default: ''
+        default: '',
       },
       fileMode: {
         required: false,
         description: t('pages.manage.constant.sftp.fileModeDesc'),
         placeholder: t('pages.manage.constant.sftp.fileModePlaceholder'),
         type: 'string',
-        default: '0664'
+        default: '0664',
       },
       dirMode: {
         required: false,
         description: t('pages.manage.constant.sftp.dirModeDesc'),
         placeholder: t('pages.manage.constant.sftp.dirModePlaceholder'),
         type: 'string',
-        default: '0755'
+        default: '0755',
       },
       baseDir: {
         required: false,
@@ -1030,9 +1030,9 @@ export const supportedPicBedList: IStringKeyMap = {
               } else {
                 callback()
               }
-            }
-          }
-        ]
+            },
+          },
+        ],
       },
       customUrl: {
         required: false,
@@ -1053,9 +1053,9 @@ export const supportedPicBedList: IStringKeyMap = {
                 callback()
               }
             },
-            trigger: 'change'
-          }
-        ]
+            trigger: 'change',
+          },
+        ],
       },
       bucketName: {
         required: true,
@@ -1064,7 +1064,7 @@ export const supportedPicBedList: IStringKeyMap = {
         type: 'string',
         default: 'sftp',
         disabled: true,
-        tooltip: t('pages.manage.constant.specialTips')
+        tooltip: t('pages.manage.constant.specialTips'),
       },
       webPath: {
         required: false,
@@ -1072,8 +1072,8 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.sftp.webPathPlaceholder'),
         type: 'string',
         tooltip: t('pages.manage.constant.sftp.webPathTips'),
-        default: ''
-      }
+        default: '',
+      },
     },
     explain: t('pages.manage.constant.sftp.explain'),
     options: [
@@ -1089,9 +1089,9 @@ export const supportedPicBedList: IStringKeyMap = {
       'baseDir',
       'customUrl',
       'bucketName',
-      'webPath'
+      'webPath',
     ],
     refLink: 'https://piclist.cn/manage.html#sftp',
-    referenceText: t('pages.manage.constant.referText')
-  }
+    referenceText: t('pages.manage.constant.referText'),
+  },
 }

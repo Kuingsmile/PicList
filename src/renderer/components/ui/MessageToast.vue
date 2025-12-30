@@ -72,7 +72,7 @@ const addMessage = (options: MessageOptions) => {
   const message: MessageItem = {
     id,
     ...options,
-    showClose
+    showClose,
   }
 
   if (duration > 0) {
@@ -108,13 +108,13 @@ defineExpose({
   warning,
   info,
   addMessage,
-  removeMessage
+  removeMessage,
 })
 </script>
 
 <script lang="ts">
 export default {
-  name: 'MessageToast'
+  name: 'MessageToast',
 }
 </script>
 
@@ -130,25 +130,25 @@ export default {
 .message-toast {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
   margin-bottom: 0.5rem;
-  border-radius: 0.5rem;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  max-width: 24rem;
-  min-width: 20rem;
-  pointer-events: all;
-  background: white;
   border: 1px solid rgb(229 231 235);
-  word-wrap: break-word;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  min-width: 20rem;
+  max-width: 24rem;
+  background: white;
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 10%),
+    0 2px 4px -1px rgb(0 0 0 / 6%);
+  gap: 0.75rem;
+  pointer-events: all;
+  overflow-wrap: break-word;
 }
 
 :root.dark .message-toast,
 :root.auto.dark .message-toast {
-  background: rgb(31 41 55);
   border-color: rgb(55 65 81);
+  background: rgb(31 41 55);
 }
 
 .message-info {
@@ -189,15 +189,14 @@ export default {
 }
 
 .message-content {
-  flex: 1;
-  color: rgb(75 85 99);
+  min-width: 0;
   font-size: 0.875rem;
+  color: rgb(75 85 99);
+  flex: 1;
   line-height: 1.25rem;
-  word-wrap: break-word;
   word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  min-width: 0;
 }
 
 :root.dark .message-content,
@@ -206,22 +205,22 @@ export default {
 }
 
 .message-close {
-  background: none;
-  border: none;
-  color: rgb(107 114 128);
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
   display: flex;
-  align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  align-items: center;
   margin-top: 0.125rem;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.25rem;
+  color: rgb(107 114 128);
+  background: none;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .message-close:hover {
-  background: rgb(243 244 246);
   color: rgb(75 85 99);
+  background: rgb(243 244 246);
 }
 
 :root.dark .message-close,
@@ -231,8 +230,8 @@ export default {
 
 :root.dark .message-close:hover,
 :root.auto.dark .message-close:hover {
-  background: rgb(55 65 81);
   color: rgb(209 213 219);
+  background: rgb(55 65 81);
 }
 
 /* Transition animations */

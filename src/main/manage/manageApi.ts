@@ -37,7 +37,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     's3plist',
     'webdavplist',
     'local',
-    'sftp'
+    'sftp',
   ]
 
   private readonly CLOUD_STORAGE_CLIENTS = ['tcyun', 'aliyun', 'qiniu', 's3plist']
@@ -51,7 +51,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     's3plist',
     'webdavplist',
     'local',
-    'sftp'
+    'sftp',
   ]
 
   private readonly FILE_LIST_CLIENTS = ['tcyun', 'aliyun', 'qiniu', 'upyun', 'smms', 's3plist']
@@ -70,7 +70,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     return {
       class: 'ManageApi',
       method,
-      picbedName: this.currentPicBedConfig.picBedName
+      picbedName: this.currentPicBedConfig.picBedName,
     }
   }
 
@@ -86,14 +86,14 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.currentPicBedConfig.token,
         this.currentPicBedConfig.githubUsername,
         this.currentPicBedConfig.proxy,
-        this.logger
+        this.logger,
       ),
     imgur: () =>
       new API.ImgurApi(
         this.currentPicBedConfig.imgurUserName,
         this.currentPicBedConfig.accessToken,
         this.currentPicBedConfig.proxy,
-        this.logger
+        this.logger,
       ),
     local: () => new API.LocalApi(this.logger),
     qiniu: () => new API.QiniuApi(this.currentPicBedConfig.accessKey, this.currentPicBedConfig.secretKey, this.logger),
@@ -108,7 +108,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.currentPicBedConfig.proxy,
         this.logger,
         this.currentPicBedConfig.dogeCloudSupport || false,
-        this.currentPicBedConfig.bucketName || ''
+        this.currentPicBedConfig.bucketName || '',
       ),
     sftp: () =>
       new API.SftpApi(
@@ -120,7 +120,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.currentPicBedConfig.passphrase,
         this.currentPicBedConfig.fileMode,
         this.currentPicBedConfig.dirMode,
-        this.logger
+        this.logger,
       ),
     tcyun: () => new API.TcyunApi(this.currentPicBedConfig.secretId, this.currentPicBedConfig.secretKey, this.logger),
     upyun: () =>
@@ -130,7 +130,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.currentPicBedConfig.password,
         this.logger,
         this.currentPicBedConfig.antiLeechToken,
-        this.currentPicBedConfig.expireTime
+        this.currentPicBedConfig.expireTime,
       ),
     webdavplist: () =>
       new API.WebdavplistApi(
@@ -140,8 +140,8 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.currentPicBedConfig.sslEnabled,
         this.currentPicBedConfig.proxy,
         this.currentPicBedConfig.authType,
-        this.logger
-      )
+        this.logger,
+      ),
   }
 
   createClient() {
@@ -153,7 +153,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     supportedProviders: string[],
     method: string,
     operation: (client: any) => Promise<T>,
-    defaultValue: T
+    defaultValue: T,
   ): Promise<T> {
     if (!supportedProviders.includes(this.currentPicBedConfig.picBedName)) {
       return defaultValue
@@ -171,7 +171,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)!
     window.webContents.send(eventName, defaultResult)
     ipcMain.removeAllListeners(
-      eventName === refreshDownloadFileTransferList ? cancelDownloadLoadingFileList : 'cancelLoadingFileList'
+      eventName === refreshDownloadFileTransferList ? cancelDownloadLoadingFileList : 'cancelLoadingFileList',
     )
   }
 
@@ -244,7 +244,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       smms: [{ Name: 'smms', Location: 'smms', CreationDate: new Date().toISOString() }],
       webdavplist: [{ Name: 'webdav', Location: 'webdav', CreationDate: new Date().toISOString() }],
       local: [{ Name: 'local', Location: 'local', CreationDate: new Date().toISOString() }],
-      sftp: [{ Name: 'sftp', Location: 'sftp', CreationDate: new Date().toISOString() }]
+      sftp: [{ Name: 'sftp', Location: 'sftp', CreationDate: new Date().toISOString() }],
     }
 
     const staticResult = staticBuckets[this.currentPicBedConfig.picBedName as keyof typeof staticBuckets]
@@ -262,7 +262,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     const staticDomains = {
       upyun: [this.currentPicBedConfig.customUrl],
       smms: ['https://smms.app'],
-      imgur: ['https://imgur.com']
+      imgur: ['https://imgur.com'],
     }
 
     const staticResult = staticDomains[this.currentPicBedConfig.picBedName as keyof typeof staticDomains]
@@ -277,7 +277,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       this.CLOUD_STORAGE_CLIENTS,
       'createBucket',
       client => client.createBucket(param!),
-      false
+      false,
     )
   }
 
@@ -314,9 +314,9 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.ALL_CLIENTS,
         'getBucketListRecursively',
         client => client.getBucketListRecursively(param!),
-        defaultResult
+        defaultResult,
       )
-    } catch (error: any) {
+    } catch (_e: any) {
       this.sendDefaultResult(refreshDownloadFileTransferList, defaultResult)
       return {}
     }
@@ -335,9 +335,9 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.ALL_CLIENTS,
         'getBucketListBackstage',
         client => client.getBucketListBackstage(param!),
-        defaultResult
+        defaultResult,
       )
-    } catch (error: any) {
+    } catch (_error: any) {
       this.sendDefaultResult('refreshFileTransferList', defaultResult)
       return {}
     }
@@ -358,7 +358,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       this.FILE_LIST_CLIENTS,
       'getBucketFileList',
       client => client.getBucketFileList(param!),
-      defaultResponse
+      defaultResponse,
     )
   }
 
@@ -367,7 +367,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       this.ALL_CLIENTS,
       'deleteBucketFile',
       client => client.deleteBucketFile(param!),
-      false
+      false,
     )
   }
 
@@ -376,7 +376,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       this.FOLDER_SUPPORT_CLIENTS,
       'deleteBucketFolder',
       client => client.deleteBucketFolder(param!),
-      false
+      false,
     )
   }
 
@@ -386,7 +386,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       supportedClients,
       'renameBucketFile',
       client => client.renameBucketFile(param!),
-      false
+      false,
     )
   }
 
@@ -395,7 +395,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       this.ALL_CLIENTS,
       'downloadBucketFile',
       client => client.downloadBucketFile(param!),
-      false
+      false,
     )
   }
 
@@ -408,7 +408,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       this.FOLDER_SUPPORT_CLIENTS,
       'createBucketFolder',
       client => client.createBucketFolder(param!),
-      false
+      false,
     )
   }
 
@@ -417,7 +417,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       this.ALL_CLIENTS,
       'uploadBucketFile',
       client => client.uploadBucketFile(param!),
-      false
+      false,
     )
   }
 
@@ -427,7 +427,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       supportedClients,
       'getPreSignedUrl',
       client => client.getPreSignedUrl(param!),
-      'error'
+      'error',
     )
   }
 }

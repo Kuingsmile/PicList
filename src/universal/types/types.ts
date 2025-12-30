@@ -2,13 +2,9 @@ import type { ServerResponse } from 'node:http'
 
 import type { PicGo } from 'piclist'
 
-export interface IObj {
-  [propName: string]: any
-}
+export type IObj = Record<string, any>
 
-export interface IObjT<T> {
-  [propName: string]: T
-}
+export type IObjT<T> = Record<string, T>
 
 export interface ErrnoException extends Error {
   errno?: number | string
@@ -99,9 +95,7 @@ export interface IPluginShortKeyConfig {
   handle: IShortKeyHandler
 }
 
-export interface IShortKeyConfigs {
-  [propName: string]: IShortKeyConfig
-}
+export type IShortKeyConfigs = Record<string, IShortKeyConfig>
 
 export interface IOldShortKeyConfigs {
   upload: string
@@ -169,9 +163,7 @@ export interface IPicGoPlugin {
         transformer: IPluginMenuConfig
         [index: string]: IPluginMenuConfig
       }
-    | {
-        [propName: string]: any
-      }
+    | Record<string, any>
   enabled?: boolean
   homepage: string
   guiMenu?: any[]
@@ -451,9 +443,7 @@ export interface IAppNotification {
   icon?: string
 }
 
-export interface IStringKeyMap {
-  [propName: string]: any
-}
+export type IStringKeyMap = Record<string, any>
 
 export type ILogArgvType = string | number
 
@@ -508,9 +498,7 @@ export interface IRemoteNoticeButton {
   action: IRemoteNoticeAction
 }
 
-export interface IRemoteNoticeLocalCountStorage {
-  [id: string]: true | number
-}
+export type IRemoteNoticeLocalCountStorage = Record<string, true | number>
 
 export interface IUploaderListItemMetaInfo {
   _id: string
@@ -519,9 +507,7 @@ export interface IUploaderListItemMetaInfo {
   _createdAt: number
 }
 
-export interface IUploaderConfig {
-  [picBedType: string]: IUploaderConfigItem
-}
+export type IUploaderConfig = Record<string, IUploaderConfigItem>
 
 export interface IUploaderConfigItem {
   configList: IUploaderConfigListItem[]

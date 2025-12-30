@@ -60,7 +60,7 @@ const getPluginList = async (): Promise<IPicGoPlugin[]> => {
     let menu: Omit<IGuiMenuItem, 'handle'>[] = []
     if (plugin.guiMenu) {
       menu = plugin.guiMenu(picgo).map(item => ({
-        label: item.label
+        label: item.label,
       }))
     }
     let gui = false
@@ -81,25 +81,25 @@ const getPluginList = async (): Promise<IPicGoPlugin[]> => {
         plugin: {
           fullName: pluginList[i],
           name: handleStreamlinePluginName(pluginList[i]),
-          config: plugin.config ? handleConfigWithFunction(plugin.config(picgo)) : []
+          config: plugin.config ? handleConfigWithFunction(plugin.config(picgo)) : [],
         },
         uploader: {
           name: uploaderName,
           config: handleConfigWithFunction(
-            getConfig(uploaderName, IPicGoHelperType.uploader as keyof typeof IPicGoHelperType, picgo)
-          )
+            getConfig(uploaderName, IPicGoHelperType.uploader as keyof typeof IPicGoHelperType, picgo),
+          ),
         },
         transformer: {
           name: transformerName,
           config: handleConfigWithFunction(
-            getConfig(uploaderName, IPicGoHelperType.transformer as keyof typeof IPicGoHelperType, picgo)
-          )
-        }
+            getConfig(uploaderName, IPicGoHelperType.transformer as keyof typeof IPicGoHelperType, picgo),
+          ),
+        },
       },
       enabled: picgo.getConfig(`picgoPlugins.${pluginList[i]}`),
       homepage: pluginPKG.homepage ? pluginPKG.homepage : '',
       guiMenu: menu,
-      ing: false
+      ing: false,
     }
     list.push(obj)
   }
@@ -113,7 +113,7 @@ const handleNPMError = (): IDispose => {
         .showMessageBox({
           title: $t('TIPS_ERROR'),
           message: $t('TIPS_INSTALL_NODE_AND_RELOAD_PICGO'),
-          buttons: ['Yes']
+          buttons: ['Yes'],
         })
         .then(res => {
           if (res.response === 0) {
@@ -135,7 +135,7 @@ export const handlePluginUpdate = async (fullName: string | string[]) => {
   } else {
     showNotification({
       title: $t('PLUGIN_UPDATE_FAILED'),
-      body: res.body as string
+      body: res.body as string,
     })
   }
   window.webContents.send('hideLoading')
@@ -152,7 +152,7 @@ export const handlePluginUninstall = async (fullName: string) => {
   } else {
     showNotification({
       title: $t('PLUGIN_UNINSTALL_FAILED'),
-      body: res.body as string
+      body: res.body as string,
     })
   }
   window.webContents.send('hideLoading')
@@ -169,7 +169,7 @@ export const pluginGetListFunc = async (event: IIPCEvent) => {
     event.sender.send('pluginList', [])
     showNotification({
       title: $t('TIPS_GET_PLUGIN_LIST_FAILED'),
-      body: e.message
+      body: e.message,
     })
     picgo.log.error(e)
   }
@@ -182,14 +182,14 @@ export const pluginInstallFunc = async (event: IIPCEvent, args: [fullName: strin
   event.sender.send('installPlugin', {
     success: res.success,
     body: fullName,
-    errMsg: res.success ? '' : res.body
+    errMsg: res.success ? '' : res.body,
   })
   if (res.success) {
     await shortKeyHandler.registerPluginShortKey(res.body[0])
   } else {
     showNotification({
       title: $t('PLUGIN_INSTALL_FAILED'),
-      body: res.body as string
+      body: res.body as string,
     })
   }
   event.sender.send('hideLoading')
@@ -199,7 +199,7 @@ export const pluginInstallFunc = async (event: IIPCEvent, args: [fullName: strin
 export const pluginImportLocalFunc = async (event: IIPCEvent) => {
   const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
   const res = await dialog.showOpenDialog(settingWindow, {
-    properties: ['openDirectory']
+    properties: ['openDirectory'],
   })
   const filePaths = res.filePaths
   if (filePaths.length > 0) {
@@ -212,17 +212,17 @@ export const pluginImportLocalFunc = async (event: IIPCEvent) => {
         event.sender.send('pluginList', [])
         showNotification({
           title: $t('TIPS_GET_PLUGIN_LIST_FAILED'),
-          body: e.message
+          body: e.message,
         })
       }
       showNotification({
         title: $t('PLUGIN_IMPORT_SUCCEED'),
-        body: ''
+        body: '',
       })
     } else {
       showNotification({
         title: $t('PLUGIN_IMPORT_FAILED'),
-        body: res.body as string
+        body: res.body as string,
       })
     }
   }

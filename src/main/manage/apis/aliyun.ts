@@ -13,7 +13,7 @@ import {
   formatError,
   getFileMimeType,
   hmacSha1Base64,
-  NewDownloader
+  NewDownloader,
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
@@ -32,7 +32,7 @@ class AliyunApi {
     this.ctx = new OSS({
       accessKeyId,
       accessKeySecret,
-      secure: true
+      secure: true,
     })
     this.accessKeyId = accessKeyId
     this.accessKeySecret = accessKeySecret
@@ -50,7 +50,7 @@ class AliyunApi {
       checked: false,
       isImage: false,
       match: false,
-      Key: item
+      Key: item,
     }
   }
 
@@ -67,7 +67,7 @@ class AliyunApi {
       match: false,
       isImage: isImage(fileName),
       rawUrl: item.url,
-      url: `${urlPrefix}/${item.name}`
+      url: `${urlPrefix}/${item.name}`,
     }
   }
 
@@ -89,7 +89,7 @@ class AliyunApi {
     canonicalizedResource: string,
     headers: IStringKeyMap,
     contentMd5: string,
-    contentType: string
+    contentType: string,
   ) {
     const date = new Date().toUTCString()
     const stringToSign = `${method.toUpperCase()}\n${contentMd5}\n${contentType}\n${date}\n${this.getCanonicalizedOSSHeaders(headers)}${canonicalizedResource}`
@@ -102,7 +102,7 @@ class AliyunApi {
       accessKeySecret: this.accessKeySecret,
       region,
       bucket,
-      secure: true
+      secure: true,
     })
   }
 
@@ -113,18 +113,18 @@ class AliyunApi {
     const getBuckets = async (marker?: string) => {
       const res = (await this.ctx.listBuckets({
         marker,
-        'max-keys': 1000
+        'max-keys': 1000,
       })) as IStringKeyMap
       if (res?.res?.statusCode !== 200 || !res?.buckets) return { result: [], isTruncated: false }
       const formattedBuckets = res.buckets.map((item: OSS.Bucket) => ({
         Name: item.name,
         Location: item.region,
-        CreationDate: item.creationDate
+        CreationDate: item.creationDate,
       }))
       return {
         result: formattedBuckets,
         isTruncated: res.isTruncated,
-        nextMarker: res.nextMarker
+        nextMarker: res.nextMarker,
       }
     }
     const result: IStringKeyMap[] = []
@@ -145,7 +145,7 @@ class AliyunApi {
    */
   async getBucketDomain(param: IStringKeyMap): Promise<any> {
     const headers = {
-      Date: new Date().toUTCString()
+      Date: new Date().toUTCString(),
     }
     const authorization = this.authorization('GET', `/${param.bucketName}/?cname`, headers, '', '')
 
@@ -154,8 +154,8 @@ class AliyunApi {
       method: 'GET',
       headers: {
         ...headers,
-        Authorization: authorization
-      }
+        Authorization: authorization,
+      },
     })
 
     if (res?.status === 200) {
@@ -191,18 +191,18 @@ class AliyunApi {
       accessKeyId: this.accessKeyId,
       accessKeySecret: this.accessKeySecret,
       region: configMap.region,
-      secure: true
+      secure: true,
     })
     const aclTransMap: IStringKeyMap = {
       private: 'private',
       publicRead: 'public-read',
-      publicReadWrite: 'public-read-write'
+      publicReadWrite: 'public-read-write',
     }
     const res = await client.putBucket(configMap.BucketName, {
       acl: aclTransMap[configMap.acl],
       storageClass: 'Standard',
       dataRedundancyType: 'LRS',
-      timeout: this.timeOut
+      timeout: this.timeOut,
     })
     return res?.res?.status === 200
   }
@@ -213,7 +213,7 @@ class AliyunApi {
       bucketName: bucket,
       bucketConfig: { Location: region },
       prefix,
-      cancelToken
+      cancelToken,
     } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `https://${bucket}.${region}.aliyuncs.com`
@@ -229,7 +229,7 @@ class AliyunApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     const client = this.getNewCtx(region, bucket)
     do {
@@ -237,11 +237,11 @@ class AliyunApi {
         {
           prefix: slicedPrefix === '' ? undefined : slicedPrefix,
           'max-keys': '1000',
-          'continuation-token': marker
+          'continuation-token': marker,
         },
         {
-          timeout: this.timeOut
-        }
+          timeout: this.timeOut,
+        },
       )
       if (res?.res?.statusCode === 200) {
         res?.objects?.forEach((item: OSS.ObjectMeta) => {
@@ -268,7 +268,7 @@ class AliyunApi {
       bucketName: bucket,
       bucketConfig: { Location: region },
       prefix,
-      cancelToken
+      cancelToken,
     } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `https://${bucket}.${region}.aliyuncs.com`
@@ -284,7 +284,7 @@ class AliyunApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     const client = this.getNewCtx(region, bucket)
     do {
@@ -293,11 +293,11 @@ class AliyunApi {
           prefix: slicedPrefix === '' ? undefined : slicedPrefix,
           delimiter: '/',
           'max-keys': '1000',
-          'continuation-token': marker
+          'continuation-token': marker,
         },
         {
-          timeout: this.timeOut
-        }
+          timeout: this.timeOut,
+        },
       )
       if (res?.res?.statusCode === 200) {
         res?.prefixes?.forEach((item: string) => {
@@ -342,7 +342,7 @@ class AliyunApi {
       bucketConfig: { Location: region },
       prefix,
       marker,
-      itemsPerPage
+      itemsPerPage,
     } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `https://${bucket}.${region}.aliyuncs.com`
@@ -353,11 +353,11 @@ class AliyunApi {
         prefix: slicedPrefix || undefined,
         delimiter: '/',
         'max-keys': itemsPerPage.toString(),
-        'continuation-token': marker
+        'continuation-token': marker,
       },
       {
-        timeout: this.timeOut
-      }
+        timeout: this.timeOut,
+      },
     )) as any
     // prefixes can be null
     // objects will be [] when no file
@@ -366,20 +366,20 @@ class AliyunApi {
         fullList: [],
         isTruncated: false,
         nextMarker: '',
-        success: false
+        success: false,
       }
     }
     const fullList = [
       ...(res.prefixes?.map((item: string) => this.formatFolder(item, slicedPrefix, urlPrefix)) || []),
       ...(res.objects
         ?.filter((item: OSS.ObjectMeta) => item.size !== 0)
-        .map((item: OSS.ObjectMeta) => this.formatFile(item, slicedPrefix, urlPrefix)) || [])
+        .map((item: OSS.ObjectMeta) => this.formatFile(item, slicedPrefix, urlPrefix)) || []),
     ]
     return {
       fullList,
       isTruncated: res.isTruncated,
       nextMarker: res.nextContinuationToken || '',
-      success: true
+      success: true,
     }
   }
 
@@ -431,7 +431,7 @@ class AliyunApi {
     let isTruncated
     const allFileList = {
       CommonPrefixes: [] as any[],
-      Contents: [] as any[]
+      Contents: [] as any[],
     }
     do {
       const res = (await client.listV2(
@@ -439,11 +439,11 @@ class AliyunApi {
           prefix: key,
           delimiter: '/',
           'max-keys': '1000',
-          'continuation-token': marker
+          'continuation-token': marker,
         },
         {
-          timeout: this.timeOut
-        }
+          timeout: this.timeOut,
+        },
       )) as any
       if (res?.res.statusCode !== 200) return false
 
@@ -458,7 +458,7 @@ class AliyunApi {
         const successfully = await this.deleteBucketFolder({
           bucketName,
           region,
-          key: item
+          key: item,
         })
         if (!successfully) return false
       }
@@ -467,7 +467,7 @@ class AliyunApi {
       const cycle = Math.ceil(allFileList.Contents.length / 1000)
       for (let i = 0; i < cycle; i++) {
         const deleteRes = (await client.deleteMulti(
-          allFileList.Contents.slice(i * 1000, (i + 1) * 1000).map((item: any) => item.name)
+          allFileList.Contents.slice(i * 1000, (i + 1) * 1000).map((item: any) => item.name),
         )) as any
         if (deleteRes?.res.statusCode !== 200) return false
       }
@@ -490,7 +490,7 @@ class AliyunApi {
     const { bucketName, region, key, expires, customUrl } = configMap
     const client = this.getNewCtx(region, bucketName)
     const res = client.signatureUrl(key, {
-      expires: expires || 3600
+      expires: expires || 3600,
     })
     return customUrl ? `${customUrl.replace(/\/+$/, '')}/${key}${res.slice(res.indexOf('?'))}` : res
   }
@@ -527,7 +527,7 @@ class AliyunApi {
         sourceFilePath: filePath,
         targetFilePath: key,
         targetFileBucket: bucketName,
-        targetFileRegion: region
+        targetFileRegion: region,
       })
       client
         .multipartUpload(key, filePath, {
@@ -538,9 +538,9 @@ class AliyunApi {
             instance.updateUploadTask({
               id,
               progress: Math.floor(p * 100),
-              status: uploadTaskSpecialStatus.uploading
+              status: uploadTaskSpecialStatus.uploading,
             })
-          }
+          },
         })
         .then((res: any) => {
           const id = `${bucketName}-${region}-${key}-${filePath}`
@@ -550,7 +550,7 @@ class AliyunApi {
               progress: 100,
               status: uploadTaskSpecialStatus.uploaded,
               response: JSON.stringify(res),
-              finishTime: new Date().toLocaleString()
+              finishTime: new Date().toLocaleString(),
             })
           } else {
             instance.updateUploadTask({
@@ -558,7 +558,7 @@ class AliyunApi {
               progress: 0,
               status: commonTaskStatus.failed,
               response: JSON.stringify(res),
-              finishTime: new Date().toLocaleString()
+              finishTime: new Date().toLocaleString(),
             })
           }
         })
@@ -566,8 +566,8 @@ class AliyunApi {
           this.logger.error(
             formatError(err, {
               class: 'AliyunApi',
-              method: 'uploadBucketFile'
-            })
+              method: 'uploadBucketFile',
+            }),
           )
           const id = `${bucketName}-${region}-${key}-${filePath}`
           instance.updateUploadTask({
@@ -575,7 +575,7 @@ class AliyunApi {
             progress: 0,
             status: commonTaskStatus.failed,
             response: JSON.stringify(err),
-            finishTime: new Date().toLocaleString()
+            finishTime: new Date().toLocaleString(),
           })
         })
     }
@@ -614,10 +614,10 @@ class AliyunApi {
         progress: 0,
         status: commonTaskStatus.queuing,
         sourceFileName: fileName,
-        targetFilePath: savedFilePath
+        targetFilePath: savedFilePath,
       })
       const preSignedUrl = client.signatureUrl(key, {
-        expires: 60 * 60 * 48
+        expires: 60 * 60 * 48,
       })
       promises.push(
         () =>
@@ -629,7 +629,7 @@ class AliyunApi {
                 reject(res)
               }
             })
-          })
+          }),
       )
     }
     const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
@@ -637,8 +637,8 @@ class AliyunApi {
       this.logger.error(
         formatError(error, {
           class: 'AliyunApi',
-          method: 'downloadBucketFile'
-        })
+          method: 'downloadBucketFile',
+        }),
       )
     })
     return true

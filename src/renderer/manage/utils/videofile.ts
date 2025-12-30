@@ -25,5 +25,5 @@ export const videoExt = [
   '.rm',
   '.rmvb',
   '.wmv',
-  '.mkv'
+  '.mkv',
 ]

@@ -8,7 +8,7 @@ import {
   buildMiniPageMenu,
   buildPicBedListMenu,
   buildPluginPageMenu,
-  buildSecondPicBedMenu
+  buildSecondPicBedMenu,
 } from '~/events/remotes/menu'
 import { IRPCActionType, IWindowList } from '~/utils/enum'
 import { openMiniWindow } from '~/utils/windowHelper'
@@ -18,7 +18,7 @@ export default [
     action: IRPCActionType.HIDE_DOCK,
     handler: async (_: IIPCEvent, args: [value: boolean]) => {
       args[0] ? app.dock?.hide() : app.dock?.show()
-    }
+    },
   },
   {
     action: IRPCActionType.OPEN_WINDOW,
@@ -27,13 +27,13 @@ export default [
       if (window) {
         window.show()
       }
-    }
+    },
   },
   {
     action: IRPCActionType.OPEN_MINI_WINDOW,
     handler: async () => {
       openMiniWindow()
-    }
+    },
   },
   {
     action: IRPCActionType.CLOSE_WINDOW,
@@ -44,14 +44,14 @@ export default [
       } else {
         window?.close()
       }
-    }
+    },
   },
   {
     action: IRPCActionType.MINIMIZE_WINDOW,
     handler: async () => {
       const window = BrowserWindow.getFocusedWindow()
       window?.minimize()
-    }
+    },
   },
   {
     action: IRPCActionType.SHOW_MINI_PAGE_MENU,
@@ -59,9 +59,9 @@ export default [
       const window = windowManager.get(IWindowList.MINI_WINDOW)!
       const menu = buildMiniPageMenu()
       menu.popup({
-        window
+        window,
       })
-    }
+    },
   },
   {
     action: IRPCActionType.SHOW_MAIN_PAGE_MENU,
@@ -69,9 +69,9 @@ export default [
       const window = windowManager.get(IWindowList.SETTING_WINDOW)!
       const menu = buildMainPageMenu(window)
       menu.popup({
-        window
+        window,
       })
-    }
+    },
   },
   {
     action: IRPCActionType.SHOW_UPLOAD_PAGE_MENU,
@@ -79,9 +79,9 @@ export default [
       const window = windowManager.get(IWindowList.SETTING_WINDOW)!
       const menu = buildPicBedListMenu()
       menu.popup({
-        window
+        window,
       })
-    }
+    },
   },
   {
     action: IRPCActionType.SHOW_SECOND_UPLOADER_MENU,
@@ -89,9 +89,9 @@ export default [
       const window = windowManager.get(IWindowList.SETTING_WINDOW)!
       const menu = buildSecondPicBedMenu()
       menu.popup({
-        window
+        window,
       })
-    }
+    },
   },
   {
     action: IRPCActionType.SHOW_PLUGIN_PAGE_MENU,
@@ -99,23 +99,23 @@ export default [
       const window = windowManager.get(IWindowList.SETTING_WINDOW)!
       const menu = buildPluginPageMenu(args[0])
       menu.popup({
-        window
+        window,
       })
-    }
+    },
   },
   {
     action: IRPCActionType.SET_MINI_WINDOW_POS,
     handler: async (_: IIPCEvent, args: [pos: IMiniWindowPos]) => {
       const window = BrowserWindow.getFocusedWindow()
       window?.setBounds(args[0])
-    }
+    },
   },
   {
     action: IRPCActionType.MINI_WINDOW_ON_TOP,
     handler: async (_: IIPCEvent, args: [isOnTop: boolean]) => {
       const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
       miniWindow.setAlwaysOnTop(args[0])
-    }
+    },
   },
   {
     action: IRPCActionType.MAIN_WINDOW_ON_TOP,
@@ -123,14 +123,14 @@ export default [
       const mainWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
       const isAlwaysOnTop = mainWindow.isAlwaysOnTop()
       mainWindow.setAlwaysOnTop(!isAlwaysOnTop)
-    }
+    },
   },
   {
     action: IRPCActionType.UPDATE_MINI_WINDOW_ICON,
     handler: async (_: IIPCEvent, args: [iconPath: string]) => {
       const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
       miniWindow.webContents.send('updateMiniIcon', args[0])
-    }
+    },
   },
   {
     action: IRPCActionType.REFRESH_SETTING_WINDOW,
@@ -139,6 +139,6 @@ export default [
       settingWindow.webContents.session.clearCache().then(() => {
         settingWindow.webContents.reloadIgnoringCache()
       })
-    }
-  }
+    },
+  },
 ]

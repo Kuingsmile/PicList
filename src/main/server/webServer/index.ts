@@ -383,13 +383,13 @@ function generateDirectoryListingHtml(files: any[], requestPath: string, fullPat
         ? new Date(fileInfo.mtime).toLocaleDateString('en-US', {
             year: '2-digit',
             month: 'numeric',
-            day: 'numeric'
+            day: 'numeric',
           }) +
           ' ' +
           new Date(fileInfo.mtime).toLocaleTimeString('en-US', {
             hour: 'numeric',
             minute: '2-digit',
-            hour12: true
+            hour12: true,
           })
         : ''
 
@@ -454,7 +454,7 @@ function sortFiles(files: string[], fullPath: string): any[] {
       let stats
       try {
         stats = fs.statSync(filePath)
-      } catch (err) {
+      } catch (_e) {
         stats = null
       }
 
@@ -462,7 +462,7 @@ function sortFiles(files: string[], fullPath: string): any[] {
         name: file,
         isDirectory: stats ? stats.isDirectory() : false,
         size: stats ? stats.size : 0,
-        mtime: stats ? stats.mtime : null
+        mtime: stats ? stats.mtime : null,
       }
     })
     .sort((a, b) => {
@@ -474,25 +474,25 @@ function sortFiles(files: string[], fullPath: string): any[] {
     })
 }
 
-function generateErrorPage(errorCode: number, errorMessage: string): string {
-  const errorDescriptions: { [key: number]: { title: string; description: string } } = {
+function generateErrorPage(errorCode: number, _e: string): string {
+  const errorDescriptions: Record<number, { title: string; description: string }> = {
     404: {
       title: 'Page Not Found',
-      description: 'The file or directory you are looking for could not be found.'
+      description: 'The file or directory you are looking for could not be found.',
     },
     500: {
       title: 'Server Error',
-      description: 'An internal server error occurred while processing your request.'
+      description: 'An internal server error occurred while processing your request.',
     },
     403: {
       title: 'Access Denied',
-      description: 'You do not have permission to access this resource.'
-    }
+      description: 'You do not have permission to access this resource.',
+    },
   }
 
   const error = errorDescriptions[errorCode] || {
     title: 'Unknown Error',
-    description: 'An unexpected error occurred.'
+    description: 'An unexpected error occurred.',
   }
 
   return `
@@ -622,7 +622,7 @@ function serveFile(res: http.ServerResponse, filePath: fs.PathLike) {
   const readStream = fs.createReadStream(filePath)
 
   const ext = path.extname(filePath.toString()).toLowerCase()
-  const contentTypes: { [key: string]: string } = {
+  const contentTypes: Record<string, string> = {
     '.html': 'text/html',
     '.css': 'text/css',
     '.js': 'application/javascript',
@@ -634,7 +634,7 @@ function serveFile(res: http.ServerResponse, filePath: fs.PathLike) {
     '.svg': 'image/svg+xml',
     '.pdf': 'application/pdf',
     '.txt': 'text/plain',
-    '.md': 'text/markdown'
+    '.md': 'text/markdown',
   }
 
   const contentType = contentTypes[ext] || 'application/octet-stream'
@@ -662,7 +662,7 @@ class WebServer {
       enableWebServer: picgo.getConfig<boolean>(configPaths.settings.enableWebServer) || false,
       webServerHost: picgo.getConfig<string>(configPaths.settings.webServerHost) || '0.0.0.0',
       webServerPort: picgo.getConfig<number>(configPaths.settings.webServerPort) || 37777,
-      webServerPath: picgo.getConfig<string>(configPaths.settings.webServerPath) || defaultPath
+      webServerPath: picgo.getConfig<string>(configPaths.settings.webServerPath) || defaultPath,
     }
   }
 
@@ -678,7 +678,7 @@ class WebServer {
         } else {
           serveFile(res, filePath)
         }
-      } catch (err) {
+      } catch (_e) {
         logger.error(`File not found: ${filePath}`)
         res.writeHead(404, { 'Content-Type': 'text/html' })
         res.end(generateErrorPage(404, 'The requested file or directory was not found'))
@@ -694,9 +694,9 @@ class WebServer {
           this.#config.webServerHost,
           () => {
             logger.info(
-              `Web server is running at http://${this.#config.webServerHost}:${this.#config.webServerPort}, root path is ${this.#config.webServerPath}`
+              `Web server is running at http://${this.#config.webServerHost}:${this.#config.webServerPort}, root path is ${this.#config.webServerPath}`,
             )
-          }
+          },
         )
         .on('error', err => {
           logger.error(err)

@@ -152,7 +152,7 @@ withDefaults(defineProps<Props>(), {
   numberMax: 1000,
   textPlaceholder: '',
   selectOptions: () => [],
-  radioOptions: () => []
+  radioOptions: () => [],
 })
 
 const emit = defineEmits<{
@@ -164,7 +164,7 @@ const showSettings = ref(false)
 const availablePicbeds = computed(() => {
   return picBedGlobal.value.map(picbed => ({
     type: picbed.type,
-    name: picbed.name
+    name: picbed.name,
   }))
 })
 
@@ -195,35 +195,35 @@ function handleMapChange(picbedType: string, value: any) {
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
   border: 1px solid var(--color-border);
   border-radius: 6px;
-  background: var(--color-background-primary);
-  color: var(--color-text-primary);
+  padding: 0.75rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
   text-decoration: none;
+  color: var(--color-text-primary);
+  background: var(--color-background-primary);
+  transition: all 0.2s ease;
+  gap: 0.5rem;
+  cursor: pointer;
   line-height: 1;
 }
 
 .btn:hover {
-  background: var(--color-background-secondary);
   border-color: var(--color-blue-common);
+  background: var(--color-background-secondary);
 }
 
 .btn-secondary {
-  background: var(--color-background-primary);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
+  background: var(--color-background-primary);
 }
 
 .btn-secondary:hover {
-  background: var(--color-background-secondary);
   border-color: var(--color-border-secondary);
   color: var(--color-text-primary);
+  background: var(--color-background-secondary);
 }
 
 .btn-small {
@@ -235,15 +235,15 @@ function handleMapChange(picbedType: string, value: any) {
 /* Settings panel */
 .map-settings-panel {
   margin-top: 1rem;
-  padding: 1rem;
   border: 1px solid var(--color-border);
   border-radius: 8px;
+  padding: 1rem;
   background: var(--color-background-secondary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
 }
 
 .map-settings-panel h4 {
-  margin: 0 0 1rem 0;
+  margin: 0 0 1rem;
   font-size: 1rem;
   font-weight: 600;
   color: var(--color-text-primary);
@@ -258,27 +258,27 @@ function handleMapChange(picbedType: string, value: any) {
 
 .picbed-setting-item {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 0.75rem;
+  align-items: center;
   border: 1px solid var(--color-border);
   border-radius: 6px;
+  padding: 0.75rem;
   background: var(--color-background-primary);
   transition: all 0.2s ease;
 }
 
 .picbed-setting-item:hover {
   border-color: var(--color-blue-common);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 }
 
 .picbed-name {
+  margin: 0;
+  min-width: 0;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text-primary);
-  margin: 0;
   flex: 1;
-  min-width: 0;
 }
 
 /* Switch component */
@@ -290,8 +290,8 @@ function handleMapChange(picbedType: string, value: any) {
 }
 
 .switch-label.small {
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
 
 .switch-input {
@@ -300,25 +300,25 @@ function handleMapChange(picbedType: string, value: any) {
 
 .switch-slider {
   position: relative;
+  border-radius: 12px;
   width: 44px;
   height: 24px;
   background: var(--color-border-darker);
-  border-radius: 12px;
   transition: all 0.3s ease;
   flex-shrink: 0;
 }
 
 .switch-slider::before {
-  content: '';
   position: absolute;
   top: 2px;
   left: 2px;
+  border-radius: 50%;
   width: 20px;
   height: 20px;
   background: #ffffff;
-  border-radius: 50%;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  content: '';
 }
 
 .switch-input:checked + .switch-slider {
@@ -335,60 +335,58 @@ function handleMapChange(picbedType: string, value: any) {
 .form-color {
   border: 1px solid var(--color-border);
   border-radius: 6px;
-  background: var(--color-background-primary);
   color: var(--color-text-primary);
-  transition: all 0.2s ease;
+  background: var(--color-background-primary);
   outline: none;
+  transition: all 0.2s ease;
 }
 
 .form-input:focus,
 .form-color:focus {
   border-color: var(--color-blue-common);
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+  box-shadow: 0 0 0 2px rgb(64 158 255 / 20%);
 }
 
 .form-input.small {
-  width: 100px;
   padding: 0.375rem 0.5rem;
+  width: 100px;
   font-size: 0.875rem;
 }
 
 .form-range.small {
+  border-radius: 3px;
   width: 100px;
   height: 6px;
-  -webkit-appearance: none;
-  appearance: none;
   background: var(--color-border-darker);
-  border-radius: 3px;
+  appearance: none;
 }
 
 .form-range.small::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
   width: 18px;
   height: 18px;
-  border-radius: 50%;
   background: var(--color-blue-common);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
+  appearance: none;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  border: 2px solid #ffffff;
 }
 
 .form-range.small::-moz-range-thumb {
+  border: 2px solid #ffffff;
+  border-radius: 50%;
   width: 18px;
   height: 18px;
-  border-radius: 50%;
   background: var(--color-blue-common);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   cursor: pointer;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .form-color.small {
+  padding: 0;
   width: 40px;
   height: 32px;
   cursor: pointer;
-  padding: 0;
 }
 
 /* Range input container */
@@ -399,15 +397,15 @@ function handleMapChange(picbedType: string, value: any) {
 }
 
 .range-value {
+  border-radius: 4px;
+  padding: 0.125rem 0.25rem;
   min-width: 50px;
   font-size: 0.875rem;
-  color: var(--color-text-secondary);
-  text-align: center;
-  padding: 0.125rem 0.25rem;
-  background: var(--color-blue-common);
-  color: white;
-  border-radius: 4px;
   font-weight: 500;
+  text-align: center;
+  color: var(--color-text-secondary);
+  color: white;
+  background: var(--color-blue-common);
 }
 
 /* Color input group */
@@ -431,19 +429,19 @@ function handleMapChange(picbedType: string, value: any) {
 .radio-option.small {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
   border: 1px solid var(--color-border);
   border-radius: 4px;
-  transition: all 0.2s ease;
-  background: var(--color-background-primary);
+  padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
+  background: var(--color-background-primary);
+  transition: all 0.2s ease;
+  gap: 0.25rem;
+  cursor: pointer;
 }
 
 .radio-option.small:hover {
   border-color: var(--color-blue-common);
-  background: rgba(64, 158, 255, 0.1);
+  background: rgb(64 158 255 / 10%);
 }
 
 .radio-input {
@@ -451,13 +449,13 @@ function handleMapChange(picbedType: string, value: any) {
 }
 
 .radio-indicator {
-  width: 14px;
-  height: 14px;
+  position: relative;
   border: 2px solid var(--color-border);
   border-radius: 50%;
-  transition: all 0.2s ease;
-  position: relative;
+  width: 14px;
+  height: 14px;
   background: var(--color-background-primary);
+  transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
@@ -466,21 +464,21 @@ function handleMapChange(picbedType: string, value: any) {
 }
 
 .radio-input:checked + .radio-indicator::after {
-  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  border-radius: 50%;
   width: 6px;
   height: 6px;
   background: var(--color-blue-common);
-  border-radius: 50%;
+  content: '';
+  transform: translate(-50%, -50%);
 }
 
 .radio-label {
   font-size: inherit;
-  color: var(--color-text-primary);
   font-weight: 500;
+  color: var(--color-text-primary);
 }
 
 /* Select styling */
@@ -498,7 +496,7 @@ select.form-input:focus {
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .picbed-setting-item {
     flex-direction: column;
     align-items: flex-start;
@@ -529,30 +527,30 @@ select.form-input:focus {
 /* Dark mode styles */
 :root.dark .map-settings-panel,
 :root.auto.dark .map-settings-panel {
-  background: var(--color-background-tertiary);
   border-color: var(--color-border);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: var(--color-background-tertiary);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
 }
 
 :root.dark .picbed-setting-item,
 :root.auto.dark .picbed-setting-item {
-  background: var(--color-surface);
   border-color: var(--color-border);
+  background: var(--color-surface);
 }
 
 :root.dark .picbed-setting-item:hover,
 :root.auto.dark .picbed-setting-item:hover {
   border-color: var(--color-primary);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
 }
 
 :root.dark .form-input,
 :root.dark .form-color,
 :root.auto.dark .form-input,
 :root.auto.dark .form-color {
-  background: var(--color-surface);
   border-color: var(--color-border);
   color: var(--color-text-primary);
+  background: var(--color-surface);
 }
 
 :root.dark .form-input:focus,
@@ -560,21 +558,21 @@ select.form-input:focus {
 :root.auto.dark .form-input:focus,
 :root.auto.dark .form-color:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.3);
+  box-shadow: 0 0 0 2px rgb(64 158 255 / 30%);
 }
 
 :root.dark .btn-secondary,
 :root.auto.dark .btn-secondary {
-  background: var(--color-surface);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
+  background: var(--color-surface);
 }
 
 :root.dark .btn-secondary:hover,
 :root.auto.dark .btn-secondary:hover {
-  background: var(--color-background-tertiary);
   border-color: var(--color-border-hover);
   color: var(--color-text-primary);
+  background: var(--color-background-tertiary);
 }
 
 :root.dark .switch-slider::before,
@@ -584,20 +582,20 @@ select.form-input:focus {
 
 :root.dark .radio-option.small,
 :root.auto.dark .radio-option.small {
-  background: var(--color-surface);
   border-color: var(--color-border);
+  background: var(--color-surface);
 }
 
 :root.dark .radio-option.small:hover,
 :root.auto.dark .radio-option.small:hover {
   border-color: var(--color-primary);
-  background: rgba(64, 158, 255, 0.2);
+  background: rgb(64 158 255 / 20%);
 }
 
 :root.dark .radio-indicator,
 :root.auto.dark .radio-indicator {
-  background: var(--color-surface);
   border-color: var(--color-border);
+  background: var(--color-surface);
 }
 
 :root.dark .radio-input:checked + .radio-indicator,

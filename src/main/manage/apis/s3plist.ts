@@ -18,7 +18,7 @@ import {
   PutObjectCommand,
   PutPublicAccessBlockCommand,
   S3Client,
-  S3ClientConfig
+  S3ClientConfig,
 } from '@aws-sdk/client-s3'
 import { Progress, Upload } from '@aws-sdk/lib-storage'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
@@ -55,7 +55,7 @@ class S3plistApi {
     proxy: string | undefined,
     logger: ManageLogger,
     dogeCloudSupport: boolean = false,
-    bucketName: string = ''
+    bucketName: string = '',
   ) {
     this.accessKeyId = accessKeyId
     this.secretAccessKey = secretAccessKey
@@ -64,12 +64,12 @@ class S3plistApi {
     this.baseOptions = {
       credentials: {
         accessKeyId,
-        secretAccessKey
+        secretAccessKey,
       },
       endpoint: endpoint ? formatEndpoint(endpoint, sslEnabled) : undefined,
       tls: sslEnabled,
       forcePathStyle: s3ForcePathStyle,
-      requestHandler: this.setAgent(proxy, sslEnabled)
+      requestHandler: this.setAgent(proxy, sslEnabled),
     }
     this.logger = logger
     this.proxy = formatHttpProxy(proxy, 'string') as string | undefined
@@ -84,7 +84,7 @@ class S3plistApi {
     this.baseOptions.credentials = {
       accessKeyId: token.accessKeyId,
       secretAccessKey: token.secretAccessKey,
-      sessionToken: token.sessionToken
+      sessionToken: token.sessionToken,
     }
   }
 
@@ -93,7 +93,7 @@ class S3plistApi {
     const commonOptions: AgentOptions = {
       keepAlive: true,
       keepAliveMsecs: 1000,
-      scheduling: 'lifo' as 'lifo' | 'fifo' | undefined
+      scheduling: 'lifo' as 'lifo' | 'fifo' | undefined,
     }
     const extraOptions = sslEnabled ? { rejectUnauthorized: false } : {}
     return sslEnabled
@@ -102,16 +102,16 @@ class S3plistApi {
             ? agent.https
             : new https.Agent({
                 ...commonOptions,
-                ...extraOptions
-              })
+                ...extraOptions,
+              }),
         })
       : new NodeHttpHandler({
           httpAgent: agent.http
             ? agent.http
             : new http.Agent({
                 ...commonOptions,
-                ...extraOptions
-              })
+                ...extraOptions,
+              }),
         })
   }
 
@@ -128,7 +128,7 @@ class S3plistApi {
       checked: false,
       isImage: false,
       match: false,
-      key: item.Prefix
+      key: item.Prefix,
     }
   }
 
@@ -144,7 +144,7 @@ class S3plistApi {
       isDir: false,
       checked: false,
       match: false,
-      isImage: isImage(fileName || '')
+      isImage: isImage(fileName || ''),
     }
   }
 
@@ -155,8 +155,8 @@ class S3plistApi {
         BlockPublicAcls: false,
         IgnorePublicAcls: false,
         BlockPublicPolicy: false,
-        RestrictPublicBuckets: false
-      }
+        RestrictPublicBuckets: false,
+      },
     }
     const command = new PutPublicAccessBlockCommand(input)
     const data = await client.send(command)
@@ -193,7 +193,7 @@ class S3plistApi {
       if (endpoint === '' || endpoint.includes('amazonaws')) {
         const createCommand = new CreateBucketCommand({
           Bucket: BucketName,
-          ObjectOwnership: 'BucketOwnerPreferred'
+          ObjectOwnership: 'BucketOwnerPreferred',
         })
         const createData = await client.send(createCommand)
         if (createData.$metadata.httpStatusCode === 200) {
@@ -201,7 +201,7 @@ class S3plistApi {
             await this.putPublicAccess(BucketName, client)
             const putACLCommand = new PutBucketAclCommand({
               Bucket: BucketName,
-              ACL: acl
+              ACL: acl,
             })
             const putACLData = await client.send(putACLCommand)
             if (putACLData.$metadata.httpStatusCode !== 200) {
@@ -216,7 +216,7 @@ class S3plistApi {
       } else {
         const createCommand = new CreateBucketCommand({
           Bucket: BucketName,
-          ACL: acl
+          ACL: acl,
         })
         const createData = await client.send(createCommand)
         if (createData.$metadata.httpStatusCode === 200) {
@@ -244,8 +244,8 @@ class S3plistApi {
               {
                 Name: item.s3Bucket,
                 CreationDate: item.ctime,
-                Location: item.region
-              }
+                Location: item.region,
+              },
             ]
           }
         }
@@ -274,16 +274,16 @@ class S3plistApi {
             ...data.Buckets.map(bucket => ({
               Name: bucket.Name,
               CreationDate: bucket.CreationDate,
-              Location: 'auto'
-            }))
+              Location: 'auto',
+            })),
           )
         } else {
           for (const bucket of data.Buckets) {
             const bucketName = bucket.Name
             const bucketConfig = await client.send(
               new GetBucketLocationCommand({
-                Bucket: bucketName
-              })
+                Bucket: bucketName,
+              }),
             )
             result.push({
               Name: bucketName,
@@ -291,7 +291,7 @@ class S3plistApi {
               Location:
                 bucketConfig.$metadata.httpStatusCode === 200
                   ? bucketConfig.LocationConstraint?.toLowerCase() || 'us-east-1'
-                  : 'us-east-1'
+                  : 'us-east-1',
             })
             if (bucketConfig.$metadata.httpStatusCode !== 200) {
               this.logParam(bucketConfig, 'getBucketList')
@@ -311,7 +311,7 @@ class S3plistApi {
       bucketName: bucket,
       bucketConfig: { Location: region },
       prefix,
-      cancelToken
+      cancelToken,
     } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `https://${bucket}.s3.amazonaws.com`
@@ -327,7 +327,7 @@ class S3plistApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     try {
       do {
@@ -338,7 +338,7 @@ class S3plistApi {
           Bucket: bucket,
           Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
           MaxKeys: 1000,
-          ContinuationToken: marker
+          ContinuationToken: marker,
         })
         res = await client.send(command)
         if (res.$metadata.httpStatusCode === 200) {
@@ -375,7 +375,7 @@ class S3plistApi {
       bucketName: bucket,
       bucketConfig: { Location: region },
       prefix,
-      cancelToken
+      cancelToken,
     } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `https://${bucket}.s3.amazonaws.com`
@@ -391,7 +391,7 @@ class S3plistApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     try {
       await this.getDogeCloudToken()
@@ -404,7 +404,7 @@ class S3plistApi {
           Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
           MaxKeys: 1000,
           ContinuationToken: marker,
-          Delimiter: '/'
+          Delimiter: '/',
         })
         res = await client.send(command)
         if (res.$metadata.httpStatusCode === 200) {
@@ -445,7 +445,7 @@ class S3plistApi {
       bucketConfig: { Location: region },
       prefix,
       marker,
-      itemsPerPage
+      itemsPerPage,
     } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `https://${bucket}.s3.amazonaws.com`
@@ -453,13 +453,13 @@ class S3plistApi {
       fullList: [] as any,
       isTruncated: false,
       nextMarker: '',
-      success: false
+      success: false,
     }
     try {
       await this.getDogeCloudToken()
       const options = {
         ...this.baseOptions,
-        region: String(region) || 'us-east-1'
+        region: String(region) || 'us-east-1',
       } as S3ClientConfig
       const client = new S3Client(options)
       const command = new ListObjectsV2Command({
@@ -467,13 +467,13 @@ class S3plistApi {
         Prefix: slicedPrefix,
         ContinuationToken: marker === '' ? undefined : marker,
         Delimiter: '/',
-        MaxKeys: itemsPerPage
+        MaxKeys: itemsPerPage,
       })
       const data = await client.send(command)
       if (data.$metadata.httpStatusCode === 200) {
         result.fullList = [
           ...(data.CommonPrefixes?.map(item => this.formatFolder(item, slicedPrefix, urlPrefix)) || []),
-          ...(data.Contents?.map(item => this.formatFile(item, slicedPrefix, urlPrefix)) || [])
+          ...(data.Contents?.map(item => this.formatFile(item, slicedPrefix, urlPrefix)) || []),
         ]
         result.isTruncated = data.IsTruncated || false
         result.nextMarker = data.NextContinuationToken || ''
@@ -502,19 +502,19 @@ class S3plistApi {
       await this.getDogeCloudToken()
       const options = {
         ...this.baseOptions,
-        region: String(region) || 'us-east-1'
+        region: String(region) || 'us-east-1',
       } as S3ClientConfig
       const client = new S3Client(options)
       const command = new CopyObjectCommand({
         Bucket: bucketName,
         CopySource: encodeURI(`${bucketName}/${oldKey}`),
-        Key: newKey
+        Key: newKey,
       })
       const data = await client.send(command)
       if (data.$metadata.httpStatusCode === 200) {
         const deleteCommand = new DeleteObjectCommand({
           Bucket: bucketName,
-          Key: oldKey
+          Key: oldKey,
         })
         const deleteData = await client.send(deleteCommand)
         if (deleteData.$metadata.httpStatusCode === 204) {
@@ -550,7 +550,7 @@ class S3plistApi {
       const client = new S3Client(options)
       const command = new DeleteObjectCommand({
         Bucket: bucketName,
-        Key: key
+        Key: key,
       })
       const data = await client.send(command)
       if (data.$metadata.httpStatusCode === 204) {
@@ -576,7 +576,7 @@ class S3plistApi {
     let res
     const allFileList = {
       CommonPrefixes: [] as any[],
-      Contents: [] as any[]
+      Contents: [] as any[],
     }
     try {
       await this.getDogeCloudToken()
@@ -589,7 +589,7 @@ class S3plistApi {
           Prefix: key,
           ContinuationToken: marker === '' ? undefined : marker,
           Delimiter: '/',
-          MaxKeys: 1000
+          MaxKeys: 1000,
         })
         res = (await client.send(command)) as ListObjectsV2CommandOutput
         if (res.$metadata.httpStatusCode === 200) {
@@ -607,7 +607,7 @@ class S3plistApi {
           res = await this.deleteBucketFolder({
             bucketName,
             region,
-            key: item.Prefix
+            key: item.Prefix,
           })
           if (!res) {
             return result
@@ -626,10 +626,10 @@ class S3plistApi {
             Delete: {
               Objects: deleteList.map(item => {
                 return {
-                  Key: item.Key
+                  Key: item.Key,
                 }
-              })
-            }
+              }),
+            },
           })
           res = await client.send(deleteCommand)
           if (res.$metadata.httpStatusCode !== 200) {
@@ -668,11 +668,11 @@ class S3plistApi {
         client,
         new GetObjectCommand({
           Bucket: bucketName,
-          Key: key
+          Key: key,
         }),
         {
-          expiresIn: expires || 3600
-        }
+          expiresIn: expires || 3600,
+        },
       )
       return signedUrl
     } catch (error) {
@@ -695,7 +695,7 @@ class S3plistApi {
       const client = new S3Client(options)
       const command = new PutObjectCommand({
         Bucket: bucketName,
-        Key: key
+        Key: key,
       })
       const data = await client.send(command)
       if (data.$metadata.httpStatusCode === 200) {
@@ -733,7 +733,7 @@ class S3plistApi {
       'aws-exec-read',
       'authenticated-read',
       'bucket-owner-read',
-      'bucket-owner-full-control'
+      'bucket-owner-full-control',
     ]
     for (const item of fileArray) {
       const { bucketName, region, key, filePath, fileName, aclForUpload } = item
@@ -749,7 +749,7 @@ class S3plistApi {
         sourceFilePath: filePath,
         targetFilePath: key,
         targetFileBucket: bucketName,
-        targetFileRegion: String(region)
+        targetFileRegion: String(region),
       })
       try {
         await this.getDogeCloudToken()
@@ -760,7 +760,7 @@ class S3plistApi {
           progress: 0,
           status: commonTaskStatus.failed,
           response: JSON.stringify(error),
-          finishTime: new Date().toLocaleString()
+          finishTime: new Date().toLocaleString(),
         })
         continue
       }
@@ -777,15 +777,15 @@ class S3plistApi {
           ContentType: getFileMimeType(fileName),
           ACL: allowedAcl.includes(aclForUpload) ? aclForUpload : 'private',
           Metadata: {
-            description: 'uploaded by PicList'
-          }
-        }
+            description: 'uploaded by PicList',
+          },
+        },
       })
       parallelUploads3.on('httpUploadProgress', (progress: Progress) => {
         instance.updateUploadTask({
           id,
           progress: progress.loaded && progress.total ? Math.floor((progress.loaded / progress.total) * 100) : 0,
-          status: uploadTaskSpecialStatus.uploading
+          status: uploadTaskSpecialStatus.uploading,
         })
       })
       parallelUploads3
@@ -796,14 +796,14 @@ class S3plistApi {
               id,
               progress: 100,
               status: uploadTaskSpecialStatus.uploaded,
-              finishTime: new Date().toLocaleString()
+              finishTime: new Date().toLocaleString(),
             })
           } else {
             instance.updateUploadTask({
               id,
               progress: 0,
               status: commonTaskStatus.failed,
-              finishTime: new Date().toLocaleString()
+              finishTime: new Date().toLocaleString(),
             })
           }
         })
@@ -814,7 +814,7 @@ class S3plistApi {
             progress: 0,
             status: commonTaskStatus.failed,
             response: JSON.stringify(error),
-            finishTime: new Date().toLocaleString()
+            finishTime: new Date().toLocaleString(),
           })
         })
     }
@@ -841,14 +841,14 @@ class S3plistApi {
         progress: 0,
         status: commonTaskStatus.queuing,
         sourceFileName: fileName,
-        targetFilePath: savedFilePath
+        targetFilePath: savedFilePath,
       })
       const preSignedUrl = await this.getPreSignedUrl({
         bucketName,
         region: String(region),
         key,
         expires: 36000,
-        customUrl
+        customUrl,
       })
       promises.push(
         () =>
@@ -860,7 +860,7 @@ class S3plistApi {
                 reject(res)
               }
             })
-          })
+          }),
       )
     }
     const pool = new ConcurrencyPromisePool(maxDownloadFileCount)

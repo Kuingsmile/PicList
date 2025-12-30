@@ -12,12 +12,12 @@ const toolboxRouter = new RPCRouter()
 const toolboxCheckMap: Partial<IToolboxCheckerMap<string>> = {
   ...checkFileMap,
   ...checkClipboardUploadMap,
-  ...checkProxyMap
+  ...checkProxyMap,
 }
 
 const toolboxFixMap: Partial<IToolboxFixMap<string>> = {
   ...fixFileMap,
-  ...fixClipboardUploadMap
+  ...fixClipboardUploadMap,
 }
 
 toolboxRouter
@@ -40,7 +40,7 @@ toolboxRouter
         }
       }
     },
-    IRPCType.SEND
+    IRPCType.SEND,
   )
   .add(
     IRPCActionType.TOOLBOX_CHECK_FIX,
@@ -51,7 +51,7 @@ toolboxRouter
         return await handler(event as IpcMainEvent)
       }
     },
-    IRPCType.INVOKE
+    IRPCType.INVOKE,
   )
 
 export { toolboxRouter }

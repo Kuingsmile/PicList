@@ -3,7 +3,7 @@ import logger from '@core/picgo/logger'
 import type { IShortKeyHandler } from '#/types/types'
 
 class ShortKeyService {
-  private commandList: Map<string, IShortKeyHandler> = new Map()
+  private commandList = new Map<string, IShortKeyHandler>()
   registerCommand(command: string, handler: IShortKeyHandler) {
     this.commandList.set(command, handler)
   }

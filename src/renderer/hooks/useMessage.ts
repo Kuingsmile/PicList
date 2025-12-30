@@ -53,7 +53,7 @@ export function useMessage() {
     success,
     error,
     warning,
-    info
+    info,
   }
 }
 

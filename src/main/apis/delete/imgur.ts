@@ -28,7 +28,7 @@ export default class ImgurApi {
     try {
       const response: AxiosResponse = await axios.delete(apiUrl, {
         headers: { Authorization },
-        timeout: 30000
+        timeout: 30000,
       })
       const ok = response.status === 200
       deleteLog(hash, 'Imgur', ok)

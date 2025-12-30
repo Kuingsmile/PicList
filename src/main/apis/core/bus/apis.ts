@@ -6,7 +6,7 @@ import {
   UPLOAD_WITH_CLIPBOARD_FILES,
   UPLOAD_WITH_CLIPBOARD_FILES_RESPONSE,
   UPLOAD_WITH_FILES,
-  UPLOAD_WITH_FILES_RESPONSE
+  UPLOAD_WITH_FILES_RESPONSE,
 } from '@core/bus/constants'
 import bus from '@core/bus/index'
 
@@ -21,11 +21,11 @@ export const uploadWithClipboardFiles = (): Promise<{
       if (result) {
         return resolve({
           success: true,
-          result: [result]
+          result: [result],
         })
       } else {
         return resolve({
-          success: false
+          success: false,
         })
       }
     })
@@ -34,7 +34,7 @@ export const uploadWithClipboardFiles = (): Promise<{
 }
 
 export const uploadWithFiles = (
-  pathList: IFileWithPath[]
+  pathList: IFileWithPath[],
 ): Promise<{
   success: boolean
   result?: string[]
@@ -44,11 +44,11 @@ export const uploadWithFiles = (
       if (result.length) {
         return resolve({
           success: true,
-          result
+          result,
         })
       } else {
         return resolve({
-          success: false
+          success: false,
         })
       }
     })

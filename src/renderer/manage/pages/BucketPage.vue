@@ -141,7 +141,7 @@
         <template v-if="configMap.prefix !== '/'">
           <template v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')" :key="index">
             <ChevronRightIcon class="breadcrumb-separator" />
-            <button class="breadcrumb-item" @click="handleBreadcrumbClick(index)">
+            <button class="breadcrumb-item" @click="handleBreadcrumbClick(Number(index))">
               {{ item === '' ? t('pages.manage.bucket.rootFolder') : item }}
             </button>
           </template>
@@ -275,7 +275,7 @@
             <template v-if="configMap.prefix !== '/'">
               <template v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')" :key="index">
                 <ChevronRightIcon class="breadcrumb-separator" />
-                <button class="breadcrumb-item" @click="handleBreadcrumbClick(index)">
+                <button class="breadcrumb-item" @click="handleBreadcrumbClick(Number(index))">
                   {{ item === '' ? t('pages.manage.bucket.rootFolder') : item }}
                 </button>
               </template>
@@ -481,7 +481,7 @@
                       v-if="isShowThumbnail && item.isImage"
                       :src="item.url"
                       class="file-image"
-                      style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px"
+                      style="border-radius: 4px; width: 32px; height: 32px; object-fit: cover"
                       @error="() => {}"
                     />
                     <img
@@ -530,8 +530,8 @@
                             item.url,
                             item.fileName,
                             manageStore.config.settings.pasteFormat ?? '$markdown',
-                            manageStore.config.settings.customPasteFormat ?? '$url'
-                          )
+                            manageStore.config.settings.customPasteFormat ?? '$url',
+                          ),
                         )
                     "
                   >
@@ -704,7 +704,7 @@
     <div
       v-if="isLoadingData"
       class="modal-overlay"
-      style="position: fixed; bottom: 25px; right: 25px; background: none; pointer-events: none"
+      style="position: fixed; right: 25px; bottom: 25px; background: none; pointer-events: none"
     >
       <button class="action-button warning" style="pointer-events: auto" @click="cancelLoading">
         <div class="loading-spinner" />
@@ -775,7 +775,7 @@
             <VirtualScroller
               :items="
                 tableData.sort((a, b) =>
-                  b.isFolder - a.isFolder === 0 ? b.filesList.length - a.filesList.length : b.isFolder - a.isFolder
+                  b.isFolder - a.isFolder === 0 ? b.filesList.length - a.filesList.length : b.isFolder - a.isFolder,
                 )
               "
               :item-height="60"
@@ -1181,7 +1181,7 @@
           </button>
         </div>
         <div class="modal-content">
-          <pre style="user-select: text; white-space: pre-wrap; font-family: monospace">{{ textfileContent }}</pre>
+          <pre style="font-family: monospace; white-space: pre-wrap; user-select: text">{{ textfileContent }}</pre>
         </div>
       </div>
     </div>
@@ -1262,7 +1262,7 @@ import {
   ShrinkIcon,
   Trash2Icon,
   UploadIcon,
-  XIcon
+  XIcon,
 } from 'lucide-vue-next'
 import { marked } from 'marked'
 import { v4 as uuidv4 } from 'uuid'
@@ -1286,7 +1286,7 @@ import {
   formatLink,
   getFileIconPath,
   isValidUrl,
-  renameFile
+  renameFile,
 } from '@/manage/utils/common'
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { textFileExt } from '@/manage/utils/textfile'
@@ -1318,7 +1318,7 @@ const linkFormatArray = [
   { key: 'Markdown-link', value: 'markdown-with-link' },
   { key: 'Html', value: 'html' },
   { key: 'BBCode', value: 'bbcode' },
-  { key: 'Custom', value: 'custom' }
+  { key: 'Custom', value: 'custom' },
 ]
 const linkFormatList = ['url', 'markdown', 'markdown-with-link', 'html', 'bbcode', 'custom']
 
@@ -1352,7 +1352,7 @@ const gridBreakpoints = ref([
   { min: 768, cols: 3 },
   { min: 1024, cols: 4 },
   { min: 1280, cols: 5 },
-  { min: 1536, cols: 6 }
+  { min: 1536, cols: 6 },
 ])
 // 文件信息相关
 const isShowFileInfo = ref(false)
@@ -1377,17 +1377,17 @@ const tableData = reactive([] as any[])
 const isShowUploadPanel = ref(false)
 const activeUpLoadTab = ref('uploading')
 const uploadTaskList = ref([] as IUploadTask[])
-// eslint-disable-next-line no-undef
+
 const refreshUploadTaskId = ref<NodeJS.Timeout | undefined>(undefined)
 const uploadPanelFilesList = ref([] as any[])
 const cancelToken = ref('')
 const isLoadingUploadPanelFiles = ref(false)
 const isUploadKeepDirStructure = ref(manageStore.config.settings.isUploadKeepDirStructure ?? true)
 const uploadingTaskList = computed(() =>
-  uploadTaskList.value.filter(item => ['uploading', 'queuing', 'paused'].includes(item.status))
+  uploadTaskList.value.filter(item => ['uploading', 'queuing', 'paused'].includes(item.status)),
 )
 const uploadedTaskList = computed(() =>
-  uploadTaskList.value.filter(item => ['uploaded', 'failed', 'canceled'].includes(item.status))
+  uploadTaskList.value.filter(item => ['uploaded', 'failed', 'canceled'].includes(item.status)),
 )
 // 下载页面相关
 const isShowDownloadPanel = ref(false)
@@ -1395,14 +1395,14 @@ const isLoadingDownloadData = ref(false)
 const activeDownLoadTab = ref('downloading')
 const currentDownloadFileList = reactive([] as any[])
 const downloadTaskList = ref([] as IDownloadTask[])
-// eslint-disable-next-line no-undef
+
 const refreshDownloadTaskId = ref<NodeJS.Timeout | undefined>(undefined)
 const downloadCancelToken = ref('')
 const downloadingTaskList = computed(() =>
-  downloadTaskList.value.filter(item => ['downloading', 'queuing', 'paused'].includes(item.status))
+  downloadTaskList.value.filter(item => ['downloading', 'queuing', 'paused'].includes(item.status)),
 )
 const downloadedTaskList = computed(() =>
-  downloadTaskList.value.filter(item => ['downloaded', 'failed', 'canceled'].includes(item.status))
+  downloadTaskList.value.filter(item => ['downloaded', 'failed', 'canceled'].includes(item.status)),
 )
 // 上传文件相关
 const dialogVisible = ref(false)
@@ -1424,15 +1424,15 @@ const lastChoosed = ref<number>(-1)
 const customDomainList = ref([] as any[])
 const currentCustomDomain = ref('')
 const isShowCustomDomainSelectList = computed(() =>
-  ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value)
+  ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value),
 )
 const isShowCustomDomainInput = computed(() =>
-  ['aliyun', 'qiniu', 'tcyun', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value)
+  ['aliyun', 'qiniu', 'tcyun', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value),
 )
 const isAutoCustomDomain = computed(() =>
   manageStore.config.picBed[configMap.alias].isAutoCustomUrl === undefined
     ? true
-    : manageStore.config.picBed[configMap.alias].isAutoCustomUrl
+    : manageStore.config.picBed[configMap.alias].isAutoCustomUrl,
 )
 // 文件预览相关
 const isShowMarkDownDialog = ref(false)
@@ -1448,7 +1448,7 @@ const newFolderName = ref('')
 const folderNameInput = ref()
 // 重命名相关
 const isShowRenameFileIcon = computed(() =>
-  ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value)
+  ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value),
 )
 const isShowBatchRenameDialog = ref(false)
 const batchRenameMatch = ref('')
@@ -1456,9 +1456,9 @@ const batchRenameReplace = ref('')
 const isRenameIncludeExt = ref(false)
 const isSingleRename = ref(false)
 const itemToBeRenamed = ref({} as any)
-// eslint-disable-next-line no-undef
+
 let fileTransferInterval: NodeJS.Timeout | undefined
-// eslint-disable-next-line no-undef
+
 let downloadInterval: NodeJS.Timeout | undefined
 
 // 当前页面信息相关
@@ -1468,7 +1468,7 @@ const itemsPerPage = computed(() => manageStore.config.picBed[configMap.alias].i
 const calculateAllFileSize = computed(
   () =>
     formatFileSize(currentPageFilesInfo.reduce((total: any, item: { fileSize: any }) => total + item.fileSize, 0)) ||
-    '0'
+    '0',
 )
 const isShowThumbnail = computed(() => manageStore.config.settings.isShowThumbnail ?? false)
 const isUsePreSignedUrl = computed(() => manageStore.config.settings.isUsePreSignedUrl ?? false)
@@ -1478,12 +1478,12 @@ const isIgnoreCase = computed(() => manageStore.config.settings.isIgnoreCase ?? 
 // 新建文件夹相关
 const isShowCreateNewFolder = computed(() =>
   ['aliyun', 'github', 'local', 'qiniu', 'tcyun', 's3plist', 'upyun', 'webdavplist', 'sftp'].includes(
-    currentPicBedName.value
-  )
+    currentPicBedName.value,
+  ),
 )
 
 const isShowPresignedUrl = computed(() =>
-  ['aliyun', 'github', 'qiniu', 's3plist', 'tcyun', 'webdavplist'].includes(currentPicBedName.value)
+  ['aliyun', 'github', 'qiniu', 's3plist', 'tcyun', 'webdavplist'].includes(currentPicBedName.value),
 )
 
 function getList() {
@@ -1580,14 +1580,14 @@ function openFileSelectDialog() {
           isFolder: false,
           name: window.node.path.basename(item),
           filesList: [],
-          fullPath: item
+          fullPath: item,
         })
         const index = uploadPanelFilesList.value.findIndex((file: any) => file.path === item)
         if (index === -1) {
           uploadPanelFilesList.value.push({
             name: window.node.path.basename(item),
             path: item,
-            size: window.node.fs.statSync(item).size
+            size: window.node.fs.statSync(item).size,
           })
         }
       })
@@ -1619,7 +1619,7 @@ function webkitReadDataTransfer(dataTransfer: DataTransfer) {
             name: item.name,
             path: window.electron.showFilePath(item),
             size: item.size,
-            relativePath: item.relativePath
+            relativePath: item.relativePath,
           })
         }
       })
@@ -1655,7 +1655,7 @@ function webkitReadDataTransfer(dataTransfer: DataTransfer) {
                 },
                 (err: any) => {
                   console.error(err)
-                }
+                },
               )
             } else if (entry.isDirectory) {
               readDirectory(entry.createReader())
@@ -1668,7 +1668,7 @@ function webkitReadDataTransfer(dataTransfer: DataTransfer) {
       },
       (err: any) => {
         console.error(err)
-      }
+      },
     )
   }
 
@@ -1690,7 +1690,7 @@ function handleUploadFiles(files: any[]) {
           filesList: [item.file],
           isFolder: false,
           fileSize: item.size,
-          fullPath: window.electron.showFilePath(item)
+          fullPath: window.electron.showFilePath(item),
         })
       }
     } else {
@@ -1705,7 +1705,7 @@ function handleUploadFiles(files: any[]) {
         dirObj[folderName] = {
           filesList: [item],
           fileSize: item.size,
-          path: window.electron.showFilePath(item)
+          path: window.electron.showFilePath(item),
         }
       }
     }
@@ -1718,7 +1718,7 @@ function handleUploadFiles(files: any[]) {
         filesList: dirObj[key].filesList,
         isFolder: true,
         fileSize: dirObj[key].fileSize,
-        fullPath: dirObj[key].path
+        fullPath: dirObj[key].path,
       })
     }
   })
@@ -1735,7 +1735,7 @@ function renameFileBeforeUpload(filePath: string): string {
     timestampRename: manageStore.config.settings.timestampRename,
     randomStringRename: manageStore.config.settings.randomStringRename,
     customRenameFormat: manageStore.config.settings.customRenameFormat,
-    customRename: manageStore.config.settings.customRename
+    customRename: manageStore.config.settings.customRename,
   }
   return renameFile(typeMap, fileName)
 }
@@ -1748,7 +1748,7 @@ function uploadFiles() {
       path: item.path.replace(/\\/g, '/'),
       size: item.size,
       renamedFileName: renameFileBeforeUpload(item.name),
-      relativePath: item.relativePath ?? ''
+      relativePath: item.relativePath ?? '',
     })
   })
   if (isUploadKeepDirStructure.value) {
@@ -1763,7 +1763,7 @@ function uploadFiles() {
   clearTableData()
   const param = {
     // tcyun
-    fileArray: [] as any[]
+    fileArray: [] as any[],
   }
   formateduploadPanelFilesList.forEach((item: any) => {
     param.fileArray.push({
@@ -1775,7 +1775,7 @@ function uploadFiles() {
       fileSize: item.size,
       fileName: item.rawName,
       githubBranch: currentCustomDomain.value,
-      aclForUpload: manageStore.config.picBed[configMap.alias].aclForUpload
+      aclForUpload: manageStore.config.picBed[configMap.alias].aclForUpload,
     })
   })
   window.electron.sendRPC(IRPCActionType.MANAGE_UPLOAD_BUCKET_FILE, configMap.alias, param)
@@ -1844,7 +1844,7 @@ async function handleClickFile(item: any) {
   const options = {} as any
   if (currentPicBedName.value === 'webdavplist') {
     options.headers = {
-      Authorization: `Basic ${window.node.buffer.from(`${manageStore.config.picBed[configMap.alias].username}:${manageStore.config.picBed[configMap.alias].password}`).toString('base64')}`
+      Authorization: `Basic ${window.node.buffer.from(`${manageStore.config.picBed[configMap.alias].username}:${manageStore.config.picBed[configMap.alias].password}`).toString('base64')}`,
     }
   }
   if (item.isImage) {
@@ -1867,7 +1867,7 @@ async function handleClickFile(item: any) {
       const content = await res.text()
       markDownContent.value = await marked.parse(content)
       isShowMarkDownDialog.value = true
-    } catch (error) {
+    } catch (_error) {
       message.error(t('pages.manage.bucket.loadingFailed'))
     }
   } else if (
@@ -1880,7 +1880,7 @@ async function handleClickFile(item: any) {
       const res = await fetch(fileUrl, options)
       textfileContent.value = await res.text()
       isShowTextFileDialog.value = true
-    } catch (error) {
+    } catch (_error) {
       message.error(t('pages.manage.bucket.loadingFailed'))
     }
   } else if (videoExt.includes(window.node.path.extname(item.fileName).toLowerCase())) {
@@ -1905,7 +1905,7 @@ async function handleChangeCustomUrl() {
       currentTransformedConfig[configMap.bucketName].customUrl = currentCustomDomain.value
     } else {
       currentTransformedConfig[configMap.bucketName] = {
-        customUrl: currentCustomDomain.value
+        customUrl: currentCustomDomain.value,
       }
     }
     currentConfig.transformedConfig = JSON.stringify(currentTransformedConfig)
@@ -1924,7 +1924,7 @@ async function initCustomDomainList() {
   ) {
     const param = {
       bucketName: configMap.bucketName,
-      region: configMap.bucketConfig.Location
+      region: configMap.bucketConfig.Location,
     }
     let defaultUrl = ''
     if (currentPicBedName.value === 'tcyun') {
@@ -1943,14 +1943,14 @@ async function initCustomDomainList() {
         }
         customDomainList.value.push({
           label: item,
-          value: item
+          value: item,
         })
       })
       defaultUrl !== '' &&
         currentPicBedName.value !== 'github' &&
         customDomainList.value.push({
           label: defaultUrl,
-          value: defaultUrl
+          value: defaultUrl,
         })
       currentCustomDomain.value = customDomainList.value[0].value
     } else {
@@ -1958,8 +1958,8 @@ async function initCustomDomainList() {
       customDomainList.value = [
         {
           label: defaultUrl,
-          value: defaultUrl
-        }
+          value: defaultUrl,
+        },
       ]
       currentCustomDomain.value = defaultUrl
     }
@@ -1987,7 +1987,7 @@ async function initCustomDomainList() {
           url = new URL(endpoint)
         } else {
           url = new URL(
-            manageStore.config.picBed[configMap.alias].sslEnabled ? `https://${endpoint}` : `http://${endpoint}`
+            manageStore.config.picBed[configMap.alias].sslEnabled ? `https://${endpoint}` : `http://${endpoint}`,
           )
         }
         if (s3ForcePathStyle) {
@@ -2190,7 +2190,7 @@ watch(
   () => manageStore.config.settings.isUploadKeepDirStructure,
   newValue => {
     isUploadKeepDirStructure.value = newValue ?? true
-  }
+  },
 )
 
 const previousPageNumber = ref(1)
@@ -2285,25 +2285,25 @@ async function handleFolderBatchDownload(item: any) {
       title: t('pages.manage.bucket.downloadFolderNotice'),
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
-      type: 'warning'
+      type: 'warning',
     })
     if (!result) return
     const defaultDownloadPath = await window.electron.triggerRPC<string>(
-      IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER
+      IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER,
     )
     const param = {
       downloadPath: manageStore.config.settings.downloadDir ?? defaultDownloadPath,
       maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount
         ? manageStore.config.settings.maxDownloadFileCount
         : 5,
-      fileArray: [] as any[]
+      fileArray: [] as any[],
     }
     cancelToken.value = uuidv4()
     const paramGet = {
       // tcyun
       bucketName: configMap.bucketName,
       bucketConfig: {
-        Location: configMap.bucketConfig.Location
+        Location: configMap.bucketConfig.Location,
       },
       paging: paging.value,
       prefix: `/${item.key.replace(/^\/+|\/+$/, '')}/`,
@@ -2312,7 +2312,7 @@ async function handleFolderBatchDownload(item: any) {
       customUrl: currentCustomDomain.value,
       currentPage: currentPageNumber.value,
       cancelToken: cancelToken.value,
-      cdnUrl: configMap.cdnUrl
+      cdnUrl: configMap.cdnUrl,
     }
     isLoadingDownloadData.value = true
     const downloadFileTransferStore = useDownloadFileTransferStore()
@@ -2343,7 +2343,7 @@ async function handleFolderBatchDownload(item: any) {
                 customUrl: currentCustomDomain.value,
                 downloadUrl: item.downloadUrl,
                 githubUrl: item.url,
-                githubPrivate: configMap.bucketConfig.private
+                githubPrivate: configMap.bucketConfig.private,
               })
             })
           }
@@ -2362,14 +2362,14 @@ async function handleFolderBatchDownload(item: any) {
 
 async function handleBatchDownload() {
   const defaultDownloadPath = await window.electron.triggerRPC<string>(
-    IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER
+    IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER,
   )
   const param = {
     downloadPath: manageStore.config.settings.downloadDir ?? defaultDownloadPath,
     maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount
       ? manageStore.config.settings.maxDownloadFileCount
       : 5,
-    fileArray: [] as any[]
+    fileArray: [] as any[],
   }
   selectedItems.value.forEach((item: any) => {
     if (!item.isDir) {
@@ -2384,7 +2384,7 @@ async function handleBatchDownload() {
         customUrl: currentCustomDomain.value,
         downloadUrl: item.downloadUrl,
         githubUrl: item.url,
-        githubPrivate: configMap.bucketConfig.private
+        githubPrivate: configMap.bucketConfig.private,
       })
     }
   })
@@ -2425,19 +2425,19 @@ async function confirmCreateFolder() {
       bucketName: configMap.bucketName,
       region: configMap.bucketConfig.Location,
       key: currentPrefix.value.slice(1) + formatedPath + '/',
-      githubBranch: currentCustomDomain.value
+      githubBranch: currentCustomDomain.value,
     }
     const res = await window.electron.triggerRPC<any>(
       IRPCActionType.MANAGE_CREATE_BUCKET_FOLDER,
       configMap.alias,
-      param
+      param,
     )
     if (res) {
       message.success(t('pages.manage.bucket.createSuccess'))
     } else {
       message.error(t('pages.manage.bucket.createFailed'))
     }
-  } catch (error) {
+  } catch (_error) {
     message.error(t('pages.manage.bucket.createFailed'))
   }
 }
@@ -2465,7 +2465,7 @@ async function handleUploadFromUrl() {
     uploadPanelFilesList.value.push({
       name: window.node.path.basename(fPath),
       path: fPath,
-      size: window.node.fs.statSync(fPath).size
+      size: window.node.fs.statSync(fPath).size,
     })
   }
   uploadFiles()
@@ -2538,7 +2538,7 @@ async function BatchRename() {
     matchedFiles[i].newName = matchedFiles[i].newName.replaceAll('{auto}', (i + 1).toString())
   }
   const duplicateFilesNum = matchedFiles.filter(
-    (item: any) => matchedFiles.filter((item2: any) => item2.newName === item.newName).length > 1
+    (item: any) => matchedFiles.filter((item2: any) => item2.newName === item.newName).length > 1,
   ).length
   let successCount = 0
   let failCount = 0
@@ -2551,7 +2551,7 @@ async function BatchRename() {
         region: configMap.bucketConfig.Location,
         oldKey: item.key,
         newKey: (item.key.slice(0, item.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/'),
-        customUrl: currentCustomDomain.value
+        customUrl: currentCustomDomain.value,
       }
       window.electron
         .triggerRPC<any>(IRPCActionType.MANAGE_RENAME_BUCKET_FILE, configMap.alias, param)
@@ -2613,7 +2613,7 @@ async function BatchRename() {
         confirmButtonText: t('common.confirm'),
         cancelButtonText: t('common.cancel'),
         type: 'warning',
-        center: true
+        center: true,
       })
       if (!result) return
       const promiseList = [] as any[]
@@ -2669,7 +2669,7 @@ async function handleBatchCopyLink(type: string) {
         preSignedUrl || item.url,
         item.fileName,
         type,
-        manageStore.config.settings.customPasteFormat
+        manageStore.config.settings.customPasteFormat,
       )
       result.push(url)
     }
@@ -2687,7 +2687,7 @@ async function cancelLoading() {
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
       type: 'warning',
-      center: true
+      center: true,
     })
     if (!result) return
     isLoadingData.value = false
@@ -2706,7 +2706,7 @@ async function cancelDownloadLoading() {
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
       type: 'warning',
-      center: true
+      center: true,
     })
     if (!result) return
     isLoadingData.value = false
@@ -2723,7 +2723,7 @@ async function getBucketFileListBackStage() {
     // tcyun
     bucketName: configMap.bucketName,
     bucketConfig: {
-      Location: configMap.bucketConfig.Location
+      Location: configMap.bucketConfig.Location,
     },
     paging: paging.value,
     prefix: currentPrefix.value,
@@ -2732,7 +2732,7 @@ async function getBucketFileListBackStage() {
     customUrl: currentCustomDomain.value,
     currentPage: currentPageNumber.value,
     cancelToken: cancelToken.value,
-    cdnUrl: configMap.cdnUrl
+    cdnUrl: configMap.cdnUrl,
   } as IStringKeyMap
   isLoadingData.value = true
   const fileTransferStore = useFileTransferStore()
@@ -2756,9 +2756,9 @@ async function getBucketFileListBackStage() {
       key: getTableKeyOfDb(),
       value: JSON.parse(
         JSON.stringify({
-          fullList: currentPageFilesInfo
-        })
-      )
+          fullList: currentPageFilesInfo,
+        }),
+      ),
     })
     if (fileTransferStore.isFinished() && fileTransferInterval) {
       isLoadingData.value = false
@@ -2778,14 +2778,14 @@ async function getBucketFileList() {
     // tcyun
     bucketName: configMap.bucketName,
     bucketConfig: {
-      Location: configMap.bucketConfig.Location
+      Location: configMap.bucketConfig.Location,
     },
     paging: paging.value,
     prefix: currentPrefix.value,
     marker: pagingMarker.value,
     itemsPerPage: itemsPerPage.value,
     customUrl: currentCustomDomain.value,
-    currentPage: currentPageNumber.value
+    currentPage: currentPageNumber.value,
   }
   return await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_GET_BUCKET_FILE_LIST, configMap.alias, param)
 }
@@ -2798,7 +2798,7 @@ async function handleBatchDeleteInfo() {
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
       type: 'warning',
-      center: true
+      center: true,
     })
     if (!result) return
     const copiedSelectedItems = JSON.parse(JSON.stringify(selectedItems.value))
@@ -2811,7 +2811,7 @@ async function handleBatchDeleteInfo() {
         region: configMap.bucketConfig.Location,
         key: item.key,
         DeleteHash: item.sha,
-        githubBranch: currentCustomDomain.value
+        githubBranch: currentCustomDomain.value,
       }
       const result = item.isDir
         ? await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FOLDER, configMap.alias, param)
@@ -2820,7 +2820,7 @@ async function handleBatchDeleteInfo() {
         successCount++
         currentPageFilesInfo.splice(
           currentPageFilesInfo.findIndex((j: any) => j.key === item.key),
-          1
+          1,
         )
         if (!paging.value) {
           const table = fileCacheDbInstance.table(currentPicBedName.value)
@@ -2830,7 +2830,7 @@ async function handleBatchDeleteInfo() {
             .modify((l: any) => {
               l.value.fullList.splice(
                 l.value.fullList.findIndex((j: any) => j.key === item.key),
-                1
+                1,
               )
             })
         }
@@ -2858,7 +2858,7 @@ async function handleDeleteFile(item: any) {
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
       type: 'warning',
-      center: true
+      center: true,
     })
     if (!result) return
     let res = false
@@ -2867,7 +2867,7 @@ async function handleDeleteFile(item: any) {
       region: configMap.bucketConfig.Location,
       key: item.key,
       DeleteHash: item.sha,
-      githubBranch: currentCustomDomain.value
+      githubBranch: currentCustomDomain.value,
     }
     if (item.isDir) {
       message.info(t('pages.manage.bucket.deletingMsg'))
@@ -2879,7 +2879,7 @@ async function handleDeleteFile(item: any) {
       message.success(t('pages.manage.bucket.deleteSuccess'))
       currentPageFilesInfo.splice(
         currentPageFilesInfo.findIndex((i: any) => i.key === item.key),
-        1
+        1,
       )
       if (!paging.value) {
         const table = fileCacheDbInstance.table(currentPicBedName.value)
@@ -2889,7 +2889,7 @@ async function handleDeleteFile(item: any) {
           .modify((l: any) => {
             l.value.fullList.splice(
               l.value.fullList.findIndex((i: any) => i.key === item.key),
-              1
+              1,
             )
           })
       }
@@ -2918,7 +2918,7 @@ function singleRename() {
     itemToBeRenamed.value.newName = customStrReplace(
       itemToBeRenamed.value.fileName,
       batchRenameMatch.value,
-      batchRenameReplace.value
+      batchRenameReplace.value,
     )
   } else {
     itemToBeRenamed.value.newName =
@@ -2938,7 +2938,7 @@ function singleRename() {
     region: configMap.bucketConfig.Location,
     oldKey: item.key,
     newKey: (item.key.slice(0, item.key.lastIndexOf('/') + 1) + itemToBeRenamed.value.newName).replaceAll('//', '/'),
-    customUrl: currentCustomDomain.value
+    customUrl: currentCustomDomain.value,
   }
   window.electron.triggerRPC<any>(IRPCActionType.MANAGE_RENAME_BUCKET_FILE, configMap.alias, param).then((res: any) => {
     if (res) {
@@ -2957,7 +2957,7 @@ function singleRename() {
       }
       item.key = (item.key.slice(0, item.key.lastIndexOf('/') + 1) + itemToBeRenamed.value.newName).replaceAll(
         '//',
-        '/'
+        '/',
       )
       item.url = `${currentCustomDomain.value}${currentPrefix.value}${itemToBeRenamed.value.newName}`
       item.formatedTime = new Date().toLocaleString()
@@ -2979,7 +2979,7 @@ function singleRename() {
                 }
                 i.key = (i.key.slice(0, i.key.lastIndexOf('/') + 1) + itemToBeRenamed.value.newName).replaceAll(
                   '//',
-                  '/'
+                  '/',
                 )
                 i.url = `${currentCustomDomain.value}${currentPrefix.value}${itemToBeRenamed.value.newName}`
                 i.formatedTime = new Date().toLocaleString()
@@ -3002,7 +3002,7 @@ function handleGetS3Config(item: any) {
     customUrl: currentCustomDomain.value,
     expires: manageStore.config.settings.PreSignedExpire,
     githubPrivate: configMap.bucketConfig.private,
-    rawUrl: item.url
+    rawUrl: item.url,
   }
 }
 
@@ -3015,7 +3015,7 @@ async function getPreSignedUrl(item: any) {
     customUrl: currentCustomDomain.value,
     expires: manageStore.config.settings.PreSignedExpire,
     githubPrivate: configMap.bucketConfig.private,
-    rawUrl: item.url
+    rawUrl: item.url,
   }
   return await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_GET_PRE_SIGNED_URL, configMap.alias, param)
 }
@@ -3056,7 +3056,7 @@ function toggleCopyDropdown(index: number, event?: MouseEvent) {
         x: rect.left,
         y: rect.top,
         width: rect.width,
-        height: rect.height
+        height: rect.height,
       } as any)
     }
   }
@@ -3082,7 +3082,7 @@ function getDropdownStyle(index: number) {
     maxHeight: '240px',
     zIndex: 4000,
     minWidth: '140px',
-    maxWidth: '200px'
+    maxWidth: '200px',
   }
 }
 

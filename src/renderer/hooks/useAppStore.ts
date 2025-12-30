@@ -6,8 +6,8 @@ import type { IStringKeyMap } from '#/types/types'
 export const useAppStore = defineStore('app', () => {
   const settings = ref<IStringKeyMap>({
     app: {
-      theme: 'light'
-    }
+      theme: 'light',
+    },
   })
   const loading = ref(false)
   const error = ref<string | undefined>()
@@ -77,6 +77,6 @@ export const useAppStore = defineStore('app', () => {
     clearError,
     setTheme,
     toggleTheme,
-    applyTheme
+    applyTheme,
   }
 })

@@ -486,7 +486,7 @@ import {
   SearchIcon,
   SortAscIcon,
   TrashIcon,
-  XIcon
+  XIcon,
 } from 'lucide-vue-next'
 import { computed, nextTick, onActivated, onBeforeMount, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -522,12 +522,12 @@ const previewImageRef = ref<HTMLImageElement>()
 const dialogVisible = ref(false)
 const imgInfo = reactive({
   id: '',
-  imgUrl: ''
+  imgUrl: '',
 })
 const choosedList: IObjT<boolean> = reactive({})
 const gallerySliderControl = reactive({
   visible: false,
-  index: 0
+  index: 0,
 })
 const deleteCloud = ref<boolean>(false)
 const isAlwaysForceReload = ref<boolean>(false)
@@ -546,12 +546,12 @@ const pasteStyleMap = {
   HTML: 'HTML',
   URL: 'URL',
   UBB: 'UBB',
-  Custom: 'Custom'
+  Custom: 'Custom',
 }
 const useShortUrl = ref<string>('')
 const shortURLMap = {
   [t('pages.gallery.shortUrl')]: t('pages.gallery.shortUrl'),
-  [t('pages.gallery.longUrl')]: t('pages.gallery.longUrl')
+  [t('pages.gallery.longUrl')]: t('pages.gallery.longUrl'),
 }
 const fileSortNameReverse = ref(false)
 const fileSortTimeReverse = ref(false)
@@ -574,7 +574,7 @@ const gridBreakpoints = [
   { min: 768, cols: 3 },
   { min: 1024, cols: 4 },
   { min: 1280, cols: 6 },
-  { min: 1536, cols: 7 }
+  { min: 1536, cols: 7 },
 ]
 
 const imageLoadStates = reactive<Record<string, boolean>>({})
@@ -591,7 +591,7 @@ const imagePreviewState = reactive({
   startTranslateY: 0,
   isSwipeMode: false,
   swipeStartX: 0,
-  swipeThreshold: 100
+  swipeThreshold: 100,
 })
 
 const advancedRenameList = {
@@ -604,20 +604,20 @@ const advancedRenameList = {
     { label: t('pages.settings.upload.placeholder.minute'), value: '{i}' },
     { label: t('pages.settings.upload.placeholder.second'), value: '{s}' },
     { label: t('pages.settings.upload.placeholder.millisecond'), value: '{ms}' },
-    { label: t('pages.settings.upload.placeholder.timestamp'), value: '{timestamp}' }
+    { label: t('pages.settings.upload.placeholder.timestamp'), value: '{timestamp}' },
   ],
   categoryHash: [
     { label: t('pages.settings.upload.placeholder.md5'), value: '{md5}' },
     { label: t('pages.settings.upload.placeholder.md5-16'), value: '{md5-16}' },
     { label: t('pages.settings.upload.placeholder.uuid'), value: '{uuid}' },
     { label: t('pages.settings.upload.placeholder.sha256'), value: '{sha256}' },
-    { label: t('pages.settings.upload.placeholder.sha256-n'), value: '{sha256-n}' }
+    { label: t('pages.settings.upload.placeholder.sha256-n'), value: '{sha256-n}' },
   ],
   categoryFile: [
     { label: t('pages.settings.upload.placeholder.filename'), value: '{filename}' },
     { label: t('pages.settings.upload.placeholder.localFolder'), value: '{localFolder:n}' },
-    { label: t('pages.settings.upload.placeholder.randomString'), value: '{str-n}' }
-  ]
+    { label: t('pages.settings.upload.placeholder.randomString'), value: '{str-n}' },
+  ],
 }
 
 const matchedCount = computed(() => {
@@ -641,7 +641,7 @@ const dateRange = computed({
       dateRangeStart.value = ''
       dateRangeEnd.value = ''
     }
-  }
+  },
 })
 
 function copyPlaceholder(placeholder: string) {
@@ -692,7 +692,7 @@ const imageTransformStyle = computed(() => {
   return {
     transform: `translate(${imagePreviewState.translateX}px, ${imagePreviewState.translateY}px) scale(${imagePreviewState.scale})`,
     cursor: imagePreviewState.isDragging ? 'grabbing' : isDraggable ? 'grab' : 'default',
-    transition: 'none'
+    transition: 'none',
   }
 })
 
@@ -1068,7 +1068,7 @@ function getGallery(): IGalleryItem[] {
           ...item,
           src: item.galleryPath || item.imgUrl || '',
           key: item.id || `item-${index}`,
-          intro: item.fileName || ''
+          intro: item.fileName || '',
         }
       })
   } else {
@@ -1077,7 +1077,7 @@ function getGallery(): IGalleryItem[] {
         ...item,
         src: item.galleryPath || item.imgUrl || '',
         key: item.id || `item-${index}`,
-        intro: item.fileName || ''
+        intro: item.fileName || '',
       }
     })
   }
@@ -1188,7 +1188,7 @@ async function copy(item: ImgInfo) {
   const result = await window.electron.triggerRPC<[string, string]>(IRPCActionType.GALLERY_PASTE_TEXT, getRawData(item))
   if (result && result[1] && item.id) {
     await $$db.updateById(item.id, {
-      shortUrl: result[1]
+      shortUrl: result[1],
     })
     updateGallery()
   }
@@ -1205,7 +1205,7 @@ function remove(item: ImgInfo, _: number) {
     type: 'warning',
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
-    center: true
+    center: true,
   }).then(async result => {
     if (!result) return
     const file = await $$db.getById(item.id!)
@@ -1238,14 +1238,14 @@ function handleIsAlwaysForceReload(event: Event) {
   const ev = (event.target as HTMLInputElement).checked
   isAlwaysForceReload.value = ev
   saveConfig({
-    [configPaths.settings.isAlwaysForceReload]: ev
+    [configPaths.settings.isAlwaysForceReload]: ev,
   })
   window.electron.sendRPC(IRPCActionType.REFRESH_SETTING_WINDOW)
 }
 
 function handleDeleteCloudFile(event: Event) {
   saveConfig({
-    [configPaths.settings.deleteCloudFile]: (event.target as HTMLInputElement).checked
+    [configPaths.settings.deleteCloudFile]: (event.target as HTMLInputElement).checked,
   })
 }
 
@@ -1257,7 +1257,7 @@ function openDialog(item: ImgInfo) {
 
 async function confirmModify() {
   await $$db.updateById(imgInfo.id, {
-    imgUrl: imgInfo.imgUrl
+    imgUrl: imgInfo.imgUrl,
   })
   message.success(t('pages.gallery.operationSucceed'))
   dialogVisible.value = false
@@ -1295,7 +1295,7 @@ function multiRemove() {
       type: 'warning',
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
-      center: true
+      center: true,
     }).then(async result => {
       if (!result) return
       const files: IResult<ImgInfo>[] = []
@@ -1311,13 +1311,13 @@ function multiRemove() {
                 const result = await ALLApi.delete(file)
                 if (result) {
                   message.success(`${file.fileName} ${t('pages.gallery.cloudDeleteSucceed')}`, {
-                    duration: multiRemoveNumber > 5 ? 1000 : 2000
+                    duration: multiRemoveNumber > 5 ? 1000 : 2000,
                   })
                   files.push(file)
                   await $$db.removeById(key)
                 } else {
                   message.error(`${file.fileName} ${t('pages.gallery.cloudDeleteFailed')}`, {
-                    duration: multiRemoveNumber > 5 ? 1000 : 2000
+                    duration: multiRemoveNumber > 5 ? 1000 : 2000,
                   })
                 }
               } else {
@@ -1362,7 +1362,7 @@ async function multiCopy() {
         copyString.push(result ? result[0] : '')
         if (result && result[1] && item.id) {
           await $$db.updateById(item.id, {
-            shortUrl: result[1]
+            shortUrl: result[1],
           })
           updateGallery()
         }
@@ -1467,11 +1467,11 @@ function handleBatchRename() {
     matchedFiles[i].newUrl = matchedFiles[i].newUrl.replaceAll('{auto}', (i + 1).toString())
   }
   const duplicateFilesNum = matchedFiles.filter(
-    (item: any) => matchedFiles.filter((item2: any) => item2.newUrl === item.newUrl).length > 1
+    (item: any) => matchedFiles.filter((item2: any) => item2.newUrl === item.newUrl).length > 1,
   ).length
   const renamefunc = async (item: any) => {
     await $$db.updateById(item.id, {
-      imgUrl: item.newUrl
+      imgUrl: item.newUrl,
     })
   }
   const rename = () => {
@@ -1498,7 +1498,7 @@ function handleBatchRename() {
       type: 'warning',
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
-      center: true
+      center: true,
     })
       .then(result => {
         if (!result) return
@@ -1548,8 +1548,8 @@ onActivated(async () => {
 export default {
   name: 'GalleryPage',
   components: {
-    VirtualScroller
-  }
+    VirtualScroller,
+  },
 }
 </script>
 

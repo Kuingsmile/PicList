@@ -19,7 +19,7 @@ const props = defineProps<IProps>()
 
 <script lang="ts">
 export default {
-  name: 'ToolboxHandler'
+  name: 'ToolboxHandler',
 }
 </script>
 

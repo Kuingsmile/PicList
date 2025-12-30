@@ -48,10 +48,13 @@ export default { name: 'MainPage' }
 }
 
 :root {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 14px;
-  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 400;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizelegibility;
 
   --color-text-primary: #1d1d1f;
   --color-text-secondary: #6e6e73;
@@ -59,11 +62,11 @@ export default { name: 'MainPage' }
   --color-background-primary: #ffffff;
   --color-background-secondary: #f5f5f7;
   --color-background-tertiary: #fbfbfd;
-  --color-surface: rgba(255, 255, 255, 0.8);
-  --color-surface-elevated: rgba(255, 255, 255, 0.95);
-  --color-border: rgba(0, 0, 0, 0.1);
+  --color-surface: rgb(255 255 255 / 80%);
+  --color-surface-elevated: rgb(255 255 255 / 95%);
+  --color-border: rgb(0 0 0 / 10%);
   --color-border-darker: #cdd0d6;
-  --color-border-secondary: rgba(0, 0, 0, 0.05);
+  --color-border-secondary: rgb(0 0 0 / 5%);
   --color-primary: #6366f1;
   --color-primary-hover: #4f46e5;
   --color-accent: #007aff;
@@ -73,26 +76,19 @@ export default { name: 'MainPage' }
   --color-warning: #f1930f;
   --color-danger: #ff3b30;
   --color-error: #ff3b30;
-  --color-error-surface: rgba(255, 59, 48, 0.1);
-
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08), 0 4px 6px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
-
+  --color-error-surface: rgb(255 59 48 / 10%);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 4%), 0 1px 2px rgb(0 0 0 / 6%);
+  --shadow-md: 0 4px 6px rgb(0 0 0 / 5%), 0 2px 4px rgb(0 0 0 / 6%);
+  --shadow-lg: 0 10px 15px rgb(0 0 0 / 8%), 0 4px 6px rgb(0 0 0 / 5%);
+  --shadow-xl: 0 20px 25px rgb(0 0 0 / 10%), 0 10px 10px rgb(0 0 0 / 4%);
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-2xl: 20px;
-
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-medium: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
 }
 
 :root.dark,
@@ -103,10 +99,10 @@ export default { name: 'MainPage' }
   --color-background-primary: #000000;
   --color-background-secondary: #1c1c1e;
   --color-background-tertiary: #2c2c2e;
-  --color-surface: rgba(28, 28, 30, 0.8);
-  --color-surface-elevated: rgba(44, 44, 46, 0.95);
-  --color-border: rgba(255, 255, 255, 0.1);
-  --color-border-secondary: rgba(255, 255, 255, 0.05);
+  --color-surface: rgb(28 28 30 / 80%);
+  --color-surface-elevated: rgb(44 44 46 / 95%);
+  --color-border: rgb(255 255 255 / 10%);
+  --color-border-secondary: rgb(255 255 255 / 5%);
   --color-primary: #6366f1;
   --color-primary-hover: #818cf8;
   --color-accent: #0a84ff;
@@ -137,9 +133,9 @@ export default { name: 'MainPage' }
   input,
   select,
   textarea {
-    background: var(--color-surface);
     border-color: var(--color-border);
     color: var(--color-text-primary);
+    background: var(--color-surface);
   }
 
   input::placeholder,
@@ -148,8 +144,8 @@ export default { name: 'MainPage' }
   }
 
   button {
-    color: var(--color-text-primary);
     border-color: var(--color-border);
+    color: var(--color-text-primary);
   }
 
   button:hover {
@@ -158,19 +154,19 @@ export default { name: 'MainPage' }
 }
 
 body {
+  overflow: hidden;
+  font-family: inherit;
   color: var(--color-text-primary);
   background-color: var(--color-background-primary);
-  font-family: inherit;
-  overflow: hidden;
 }
 
 .app-container {
   position: relative;
-  height: 100vh;
   display: flex;
   overflow: hidden;
-  background-color: var(--color-background-primary);
   padding-top: 32px;
+  height: 100vh;
+  background-color: var(--color-background-primary);
 }
 
 .app-background {
@@ -184,19 +180,19 @@ body {
   position: absolute;
   bottom: -40%;
   left: -20%;
+  border-radius: 50%;
   width: 60%;
   height: 60%;
-  background: radial-gradient(circle, rgba(199, 131, 233, 0.05) 0%, transparent 70%);
-  border-radius: 50%;
+  background: radial-gradient(circle, rgb(199 131 233 / 5%) 0%, transparent 70%);
 }
 
 .main-content {
   position: relative;
   z-index: 1;
-  flex: 1;
-  height: 100vh;
   overflow: scroll;
+  height: 100vh;
   background-color: var(--color-background-secondary);
+  flex: 1;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -206,10 +202,10 @@ body {
 }
 
 .content-container {
-  height: 100%;
+  margin: 0;
   padding: 0.3 rem;
   max-width: none;
-  margin: 0;
+  height: 100%;
 }
 
 ::-webkit-scrollbar {
@@ -222,9 +218,9 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--color-border);
-  border-radius: 6px;
   border: 3px solid var(--color-background-primary);
+  border-radius: 6px;
+  background-color: var(--color-border);
   transition: background-color var(--transition-fast);
 }
 
@@ -237,8 +233,8 @@ body {
 }
 
 ::selection {
-  background-color: rgba(0, 122, 255, 0.2);
   color: var(--color-text-primary);
+  background-color: rgb(0 122 255 / 20%);
 }
 
 :focus {

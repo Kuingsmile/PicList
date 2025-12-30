@@ -20,7 +20,7 @@ let hasCheckPath = false
 
 const errorMsg = {
   broken: $t('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_DEFAULT'),
-  brokenButBackup: $t('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_BACKUP')
+  brokenButBackup: $t('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_BACKUP'),
 }
 
 function dbChecker() {
@@ -42,28 +42,28 @@ function dbChecker() {
     let configFile: string = '{}'
     const optionsTpl = {
       title: $t('TIPS_NOTICE'),
-      body: ''
+      body: '',
     }
     // config save bak
     try {
       configFile = fs.readFileSync(configFilePath, { encoding: 'utf-8' })
       JSON.parse(configFile)
-    } catch (e) {
+    } catch (_e) {
       fs.unlinkSync(configFilePath)
       if (fs.existsSync(configFileBackupPath)) {
         try {
           configFile = fs.readFileSync(configFileBackupPath, {
-            encoding: 'utf-8'
+            encoding: 'utf-8',
           })
           JSON.parse(configFile)
           writeFile.sync(configFilePath, configFile, { encoding: 'utf-8' })
           const stats = fs.statSync(configFileBackupPath)
           optionsTpl.body = `${errorMsg.brokenButBackup}\n${$t('TIPS_PICGO_BACKUP_FILE_VERSION', {
-            v: dayjs(stats.mtime).format('YYYY-MM-DD HH:mm:ss')
+            v: dayjs(stats.mtime).format('YYYY-MM-DD HH:mm:ss'),
           })}`
           notificationList.push(optionsTpl)
           return
-        } catch (e) {
+        } catch (_e) {
           optionsTpl.body = errorMsg.broken
           notificationList.push(optionsTpl)
           return
@@ -92,7 +92,7 @@ function dbPathChecker(): string {
   }
   try {
     const configString = fs.readFileSync(defaultConfigPath, {
-      encoding: 'utf-8'
+      encoding: 'utf-8',
     })
     const config = JSON.parse(configString)
     const userConfigPath: string = config.configPath || ''
@@ -109,7 +109,7 @@ function dbPathChecker(): string {
     if (!hasCheckPath) {
       const optionsTpl = {
         title: $t('TIPS_NOTICE'),
-        body: $t('TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR')
+        body: $t('TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR'),
       }
       notificationList.push(optionsTpl)
       hasCheckPath = true
@@ -133,7 +133,7 @@ function getGalleryDBPath(): {
   const dbBackupPath = path.join(path.dirname(dbPath), 'piclist.bak.db')
   return {
     dbPath,
-    dbBackupPath
+    dbBackupPath,
   }
 }
 

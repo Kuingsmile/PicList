@@ -5,7 +5,6 @@ import logger from '@core/picgo/logger'
 import { clipboard, NativeImage } from 'electron'
 
 class ClipboardWatcher extends EventEmitter {
-  // eslint-disable-next-line no-undef
   timer: NodeJS.Timeout | null
   lastImageHash: string | null
 

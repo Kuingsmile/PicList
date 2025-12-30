@@ -54,7 +54,7 @@ const validationError = ref<string>('')
 
 const form = reactive({
   fileName: '',
-  originName: ''
+  originName: '',
 })
 
 const handleFileName = (newName: string, _originName: string, _id: string) => {
@@ -114,29 +114,29 @@ onBeforeUnmount(() => {
 </script>
 <script lang="ts">
 export default {
-  name: 'RenamePage'
+  name: 'RenamePage',
 }
 </script>
 <style scoped>
 .rename-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 2rem;
   min-height: 100vh;
   background: var(--color-background-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .rename-card {
-  background: var(--color-background-primary);
-  border-radius: 12px;
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
   border: 1px solid var(--color-border);
+  border-radius: 12px;
   width: 100%;
   max-width: 500px;
-  overflow: hidden;
+  background: var(--color-background-primary);
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 10%),
+    0 10px 10px -5px rgb(0 0 0 / 4%);
 }
 
 /* Form */
@@ -167,58 +167,58 @@ export default {
 }
 
 .form-input {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  padding-right: 2.5rem;
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: var(--color-background-primary);
-  color: var(--color-text-primary);
+  padding: 0.875rem 1rem;
+  padding-right: 2.5rem;
+  width: 100%;
   font-size: 0.875rem;
+  color: var(--color-text-primary);
+  background: var(--color-background-primary);
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
 
 .form-input:focus {
-  outline: none;
   border-color: var(--color-blue-common);
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(64 158 255 / 20%);
 }
 
 .form-input.input-error {
   border-color: #f56c6c;
-  box-shadow: 0 0 0 2px rgba(245, 108, 108, 0.2);
+  box-shadow: 0 0 0 2px rgb(245 108 108 / 20%);
 }
 
 .input-clear {
   position: absolute;
-  right: 0.75rem;
   top: 50%;
-  transform: translateY(-50%);
+  right: 0.75rem;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  border: none;
+  border-radius: 4px;
   width: 24px;
   height: 24px;
-  border-radius: 4px;
-  border: none;
-  background: var(--color-background-tertiary);
   color: var(--color-text-secondary);
-  cursor: pointer;
+  background: var(--color-background-tertiary);
   transition: all 0.2s ease;
+  transform: translateY(-50%);
+  cursor: pointer;
 }
 
 .input-clear:hover {
-  background: var(--color-background-secondary);
   color: var(--color-text-primary);
+  background: var(--color-background-secondary);
 }
 
 .validation-error {
+  display: flex;
+  align-items: center;
   margin-top: 0.5rem;
   font-size: 0.75rem;
   color: #f56c6c;
-  display: flex;
-  align-items: center;
   gap: 0.25rem;
 }
 
@@ -234,17 +234,17 @@ export default {
 /* Buttons */
 .btn {
   display: inline-flex;
-  align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  align-items: center;
   border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  min-width: fit-content;
   font-size: 0.875rem;
   font-weight: 500;
-  cursor: pointer;
   transition: all 0.2s ease;
-  min-width: fit-content;
+  gap: 0.5rem;
+  cursor: pointer;
 }
 
 .btn:disabled {
@@ -254,12 +254,12 @@ export default {
 
 .btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 15%);
 }
 
 .btn-primary {
-  background: #409eff;
   color: white;
+  background: #409eff;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -267,18 +267,18 @@ export default {
 }
 
 .btn-secondary {
-  background: var(--color-background-primary);
-  color: var(--color-text-primary);
   border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  background: var(--color-background-primary);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: var(--color-background-secondary);
   border-color: var(--color-accent);
+  background: var(--color-background-secondary);
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .rename-container {
     padding: 1rem;
   }
@@ -293,12 +293,12 @@ export default {
   }
 
   .btn {
-    width: 100%;
     justify-content: center;
+    width: 100%;
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .rename-container {
     padding: 0.75rem;
   }
@@ -326,9 +326,11 @@ export default {
   100% {
     transform: translateX(0);
   }
+
   25% {
     transform: translateX(-4px);
   }
+
   75% {
     transform: translateX(4px);
   }
@@ -342,7 +344,7 @@ export default {
 :root.dark .rename-card,
 :root.auto.dark .rename-card {
   box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.3),
-    0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    0 20px 25px -5px rgb(0 0 0 / 30%),
+    0 10px 10px -5px rgb(0 0 0 / 20%);
 }
 </style>

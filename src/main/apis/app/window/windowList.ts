@@ -20,11 +20,11 @@ const windowList = new Map<string, IWindowListItem>()
 const getDefaultWindowSizes = (): { width: number; height: number } => {
   const [mainWindowWidth, mainWindowHeight] = db.get([
     configPaths.settings.mainWindowWidth,
-    configPaths.settings.mainWindowHeight
+    configPaths.settings.mainWindowHeight,
   ])
   return {
     width: mainWindowWidth || 1200,
-    height: mainWindowHeight || 800
+    height: mainWindowHeight || 800,
   }
 }
 
@@ -64,8 +64,8 @@ const trayWindowOptions = {
     contextIsolation: true,
     nodeIntegrationInWorker: false,
     backgroundThrottling: true,
-    webSecurity: false
-  }
+    webSecurity: false,
+  },
 }
 
 const settingWindowOptions = {
@@ -88,8 +88,8 @@ const settingWindowOptions = {
     nodeIntegration: false,
     contextIsolation: true,
     nodeIntegrationInWorker: false,
-    webSecurity: false
-  }
+    webSecurity: false,
+  },
 } as IBrowserWindowOptions
 
 if (process.platform !== 'darwin') {
@@ -113,8 +113,8 @@ const miniWindowOptions = {
     nodeIntegration: false,
     contextIsolation: true,
     backgroundThrottling: true,
-    nodeIntegrationInWorker: false
-  }
+    nodeIntegrationInWorker: false,
+  },
 } as IBrowserWindowOptions
 
 if (db.get(configPaths.settings.miniWindowOntop)) {
@@ -134,8 +134,8 @@ const renameWindowOptions = {
     nodeIntegration: false,
     contextIsolation: true,
     nodeIntegrationInWorker: false,
-    backgroundThrottling: false
-  }
+    backgroundThrottling: false,
+  },
 } as IBrowserWindowOptions
 
 if (process.platform !== 'darwin') {
@@ -163,8 +163,8 @@ const toolboxWindowOptions = {
     nodeIntegration: false,
     contextIsolation: true,
     nodeIntegrationInWorker: false,
-    webSecurity: false
-  }
+    webSecurity: false,
+  },
 } as IBrowserWindowOptions
 
 if (process.platform !== 'darwin') {
@@ -186,7 +186,7 @@ windowList.set(IWindowList.TRAY_WINDOW, {
     window.on('blur', () => {
       window.hide()
     })
-  }
+  },
 })
 
 windowList.set(IWindowList.SETTING_WINDOW, {
@@ -198,7 +198,7 @@ windowList.set(IWindowList.SETTING_WINDOW, {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#main-page/upload`)
     } else {
       window.loadFile(path.join(__dirname, '../renderer/index.html'), {
-        hash: 'main-page/upload'
+        hash: 'main-page/upload',
       })
     }
     window.on('closed', () => {
@@ -211,7 +211,7 @@ windowList.set(IWindowList.SETTING_WINDOW, {
     })
     bus.emit(CREATE_APP_MENU)
     windowManager.create(IWindowList.MINI_WINDOW)
-  }
+  },
 })
 
 windowList.set(IWindowList.MINI_WINDOW, {
@@ -223,10 +223,10 @@ windowList.set(IWindowList.MINI_WINDOW, {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#mini-page`)
     } else {
       window.loadFile(path.join(__dirname, '../renderer/index.html'), {
-        hash: 'mini-page'
+        hash: 'mini-page',
       })
     }
-  }
+  },
 })
 
 windowList.set(IWindowList.RENAME_WINDOW, {
@@ -238,7 +238,7 @@ windowList.set(IWindowList.RENAME_WINDOW, {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#rename-page`)
     } else {
       window.loadFile(path.join(__dirname, '../renderer/index.html'), {
-        hash: 'rename-page'
+        hash: 'rename-page',
       })
     }
     const currentWindow = windowManager.getAvailableWindow(true)
@@ -248,7 +248,7 @@ windowList.set(IWindowList.RENAME_WINDOW, {
       const positionY = Math.floor(y + height / 2 - (height > 400 ? 88 : 0))
       window.setPosition(positionX, positionY, false)
     }
-  }
+  },
 })
 
 windowList.set(IWindowList.TOOLBOX_WINDOW, {
@@ -260,7 +260,7 @@ windowList.set(IWindowList.TOOLBOX_WINDOW, {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#toolbox-page`)
     } else {
       window.loadFile(path.join(__dirname, '../renderer/index.html'), {
-        hash: 'toolbox-page'
+        hash: 'toolbox-page',
       })
     }
     const currentWindow = windowManager.getAvailableWindow(true)
@@ -270,7 +270,7 @@ windowList.set(IWindowList.TOOLBOX_WINDOW, {
       const positionY = Math.floor(y + height / 2 - (height > 400 ? 225 : 0))
       window.setPosition(positionX, positionY, false)
     }
-  }
+  },
 })
 
 export default windowList

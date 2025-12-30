@@ -89,21 +89,21 @@ onBeforeUnmount(() => {
 .title-bar {
   position: fixed;
   top: 0;
-  left: 0;
   right: 0;
+  left: 0;
+  z-index: 1000;
+  border-bottom: 1px solid var(--color-border);
   height: 32px;
   background: var(--color-background-secondary);
-  border-bottom: 1px solid var(--color-border);
-  z-index: 1000;
   -webkit-app-region: drag;
 }
 
 .title-bar-content {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  height: 100%;
+  align-items: center;
   padding: 0 16px;
+  height: 100%;
 }
 
 .title-left {
@@ -132,11 +132,11 @@ onBeforeUnmount(() => {
 }
 
 .app-version {
+  border-radius: 4px;
+  padding: 2px 6px;
   font-size: 12px;
   color: var(--color-text-secondary);
   background: var(--color-border);
-  padding: 2px 6px;
-  border-radius: 4px;
 }
 
 .title-center {
@@ -155,24 +155,24 @@ onBeforeUnmount(() => {
 }
 
 .progress-bar {
-  flex: 1;
+  overflow: hidden;
+  border-radius: 2px;
   height: 4px;
   background: var(--color-border);
-  border-radius: 2px;
-  overflow: hidden;
+  flex: 1;
 }
 
 .progress-fill {
+  border-radius: 2px;
   height: 100%;
   background: var(--color-success);
-  border-radius: 2px;
   transition: width 0.3s ease;
 }
 
 .progress-text {
+  min-width: 35px;
   font-size: 11px;
   color: var(--color-text-secondary);
-  min-width: 35px;
 }
 
 .title-right {
@@ -189,21 +189,21 @@ onBeforeUnmount(() => {
 
 .control-button {
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  border: none;
+  border-radius: 4px;
   width: 28px;
   height: 20px;
-  border: none;
-  background: transparent;
-  border-radius: 4px;
   color: var(--color-text-secondary);
-  cursor: pointer;
+  background: transparent;
   transition: var(--transition);
+  cursor: pointer;
 }
 
 .control-button:hover {
-  background: var(--color-surface-elevated);
   color: var(--color-text-primary);
+  background: var(--color-surface-elevated);
 }
 
 .pin-button.active {
@@ -212,7 +212,7 @@ onBeforeUnmount(() => {
 }
 
 .close-button:hover {
-  background: var(--color-danger);
   color: white;
+  background: var(--color-danger);
 }
 </style>

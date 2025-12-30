@@ -15,9 +15,9 @@ export default defineConfig({
         root: resolve('./'),
         '#': resolve('src/universal'),
         apis: resolve('src/main/apis'),
-        '@core': resolve('src/main/apis/core')
-      }
-    }
+        '@core': resolve('src/main/apis/core'),
+      },
+    },
   },
   preload: {
     plugins: [
@@ -25,17 +25,17 @@ export default defineConfig({
       VueI18nPlugin({
         /* options */
         // locale messages resource pre-compile option
-        include: resolve(dirname(fileURLToPath(import.meta.url)), './src/renderer/i18n/locales/**')
-      })
+        include: resolve(dirname(fileURLToPath(import.meta.url)), './src/renderer/i18n/locales/**'),
+      }),
     ],
     resolve: {
       alias: {
         '@': resolve('src/renderer'),
         '~': resolve('src/main'),
         root: resolve('./'),
-        '#': resolve('src/universal')
-      }
-    }
+        '#': resolve('src/universal'),
+      },
+    },
   },
   renderer: {
     root: resolve('src/renderer'),
@@ -45,12 +45,12 @@ export default defineConfig({
         '@': resolve('src/renderer'),
         '~': resolve('src/main'),
         root: resolve('./'),
-        '#': resolve('src/universal')
-      }
+        '#': resolve('src/universal'),
+      },
     },
     plugins: [vue()],
     server: {
-      port: 3000
-    }
-  }
+      port: 3000,
+    },
+  },
 })

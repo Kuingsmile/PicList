@@ -12,7 +12,7 @@ export default class UpyunApi {
   static async delete(configMap: IConfigMap): Promise<boolean> {
     const {
       fileName,
-      config: { bucket, operator, password, path }
+      config: { bucket, operator, password, path },
     } = configMap
     try {
       const service = new Upyun.Service(bucket, operator, password)

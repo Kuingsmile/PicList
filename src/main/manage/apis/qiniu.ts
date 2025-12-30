@@ -12,7 +12,7 @@ import {
   formatError,
   getFileMimeType,
   hmacSha1Base64,
-  NewDownloader
+  NewDownloader,
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
@@ -30,7 +30,7 @@ class QiniuApi {
 
   hostList = {
     getBucketList: 'https://uc.qiniuapi.com/buckets',
-    getBucketDomain: 'https://uc.qiniuapi.com/v2/domains'
+    getBucketDomain: 'https://uc.qiniuapi.com/v2/domains',
   }
 
   constructor(accessKey: string, secretKey: string, logger: ManageLogger) {
@@ -50,7 +50,7 @@ class QiniuApi {
       isDir: true,
       checked: false,
       isImage: false,
-      match: false
+      match: false,
     }
   }
 
@@ -65,7 +65,7 @@ class QiniuApi {
       isDir: false,
       checked: false,
       match: false,
-      isImage: isImage(fileName)
+      isImage: isImage(fileName),
     }
   }
 
@@ -76,7 +76,7 @@ class QiniuApi {
     body: string,
     query: string,
     contentType: string,
-    xQiniuHeaders?: IStringKeyMap
+    xQiniuHeaders?: IStringKeyMap,
   ) {
     let signStr = `${method.toUpperCase()} ${urlPath}${query ? `?${query}` : ''}\nHost: ${host}`
 
@@ -104,9 +104,9 @@ class QiniuApi {
     const res = await axios.get(host, {
       headers: {
         Authorization: authorization,
-        'Content-Type': this.commonType
+        'Content-Type': this.commonType,
       },
-      timeout: this.timeout
+      timeout: this.timeout,
     })
     if (res?.status === 200 && res?.data?.length) {
       const result = [] as any[]
@@ -117,7 +117,7 @@ class QiniuApi {
           Name: dataItem,
           Location: info.zone,
           CreationDate: new Date().toISOString(),
-          Private: info.private
+          Private: info.private,
         })
       }
       return result
@@ -137,23 +137,23 @@ class QiniuApi {
       url: `https://${this.host}/v2/bucketInfo`,
       params: {
         bucket: bucketName,
-        fs: true
+        fs: true,
       },
       headers: {
         Authorization: authorization,
         'Content-Type': 'application/json',
-        Host: this.host
+        Host: this.host,
       },
-      timeout: this.timeout
+      timeout: this.timeout,
     })
     return res?.status === 200
       ? {
           success: true,
           private: res.data.private,
-          zone: res.data.zone
+          zone: res.data.zone,
         }
       : {
-          success: false
+          success: false,
         }
   }
 
@@ -166,13 +166,13 @@ class QiniuApi {
     const authorization = qiniu.util.generateAccessToken(this.mac, `${host}?tbl=${bucketName}`, undefined)
     const res = await axios.get(host, {
       params: {
-        tbl: bucketName
+        tbl: bucketName,
       },
       headers: {
         Authorization: authorization,
-        'Content-Type': this.commonType
+        'Content-Type': this.commonType,
       },
-      timeout: this.timeout
+      timeout: this.timeout,
     })
     return res?.status === 200 && res?.data?.length ? res.data : []
   }
@@ -192,14 +192,14 @@ class QiniuApi {
       url: `https://${this.host}/private`,
       params: {
         bucket: bucketName,
-        private: isPrivate
+        private: isPrivate,
       },
       headers: {
         Authorization: authorization,
         'Content-Type': this.commonType,
-        Host: this.host
+        Host: this.host,
       },
-      timeout: this.timeout
+      timeout: this.timeout,
     })
     return res?.status === 200
   }
@@ -223,14 +223,14 @@ class QiniuApi {
       headers: {
         Authorization: authorization,
         'Content-Type': 'application/json',
-        Host: this.host
+        Host: this.host,
       },
-      timeout: this.timeout
+      timeout: this.timeout,
     })
     return res?.status === 200
       ? await this.setBucketAclPolicy({
           bucketName: BucketName,
-          isPrivate: !acl
+          isPrivate: !acl,
         })
       : false
   }
@@ -251,7 +251,7 @@ class QiniuApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     const config = new qiniu.conf.Config()
     const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
@@ -262,7 +262,7 @@ class QiniuApi {
           {
             prefix: slicedPrefix === '' ? undefined : slicedPrefix,
             marker,
-            limit: 1000
+            limit: 1000,
           },
           (err: any, respBody: any, respInfo: any) => {
             if (err) {
@@ -270,10 +270,10 @@ class QiniuApi {
             } else {
               resolve({
                 respBody,
-                respInfo
+                respInfo,
               })
             }
-          }
+          },
         )
       })
       if (res && res.respInfo.statusCode === 200) {
@@ -313,7 +313,7 @@ class QiniuApi {
     const result = {
       fullList: [] as any,
       success: false,
-      finished: false
+      finished: false,
     }
     const config = new qiniu.conf.Config()
     const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
@@ -325,7 +325,7 @@ class QiniuApi {
             prefix: slicedPrefix === '' ? undefined : slicedPrefix,
             delimiter: '/',
             marker,
-            limit: 1000
+            limit: 1000,
           },
           (err: any, respBody: any, respInfo: any) => {
             if (err) {
@@ -333,10 +333,10 @@ class QiniuApi {
             } else {
               resolve({
                 respBody,
-                respInfo
+                respInfo,
               })
             }
-          }
+          },
         )
       })
       if (res && res.respInfo.statusCode === 200) {
@@ -390,7 +390,7 @@ class QiniuApi {
       fullList: [] as any,
       isTruncated: false,
       nextMarker: '',
-      success: false
+      success: false,
     }
     res = await new Promise((resolve, reject) => {
       bucketManager.listPrefix(
@@ -399,7 +399,7 @@ class QiniuApi {
           limit: itemsPerPage,
           prefix: slicedPrefix === '' ? undefined : slicedPrefix,
           marker,
-          delimiter: '/'
+          delimiter: '/',
         },
         (err, respBody, respInfo) => {
           if (err) {
@@ -407,10 +407,10 @@ class QiniuApi {
           } else {
             resolve({
               respBody,
-              respInfo
+              respInfo,
             })
           }
-        }
+        },
       )
     })
     if (res?.respInfo?.statusCode === 200) {
@@ -451,7 +451,7 @@ class QiniuApi {
         } else {
           resolve({
             respBody,
-            respInfo
+            respInfo,
           })
         }
       })
@@ -470,7 +470,7 @@ class QiniuApi {
     let marker = ''
     let isTruncated = true
     const allFileList = {
-      Contents: [] as any[]
+      Contents: [] as any[],
     }
     do {
       const res = (await new Promise((resolve, reject) => {
@@ -479,7 +479,7 @@ class QiniuApi {
           {
             prefix: key,
             marker,
-            limit: 1000
+            limit: 1000,
           },
           (err, respBody, respInfo) => {
             if (err) {
@@ -487,10 +487,10 @@ class QiniuApi {
             } else {
               resolve({
                 respBody,
-                respInfo
+                respInfo,
               })
             }
-          }
+          },
         )
       })) as any
       if (res?.respInfo?.statusCode === 200) {
@@ -515,7 +515,7 @@ class QiniuApi {
           } else {
             resolve({
               respBody,
-              respInfo
+              respInfo,
             })
           }
         })
@@ -546,7 +546,7 @@ class QiniuApi {
         bucketName,
         newKey,
         {
-          force: true
+          force: true,
         },
         (err, respBody, respInfo) => {
           if (err) {
@@ -554,10 +554,10 @@ class QiniuApi {
           } else {
             resolve({
               respBody,
-              respInfo
+              respInfo,
             })
           }
-        }
+        },
       )
     })) as any
     return res?.respInfo?.statusCode === 200
@@ -604,14 +604,14 @@ class QiniuApi {
         sourceFilePath: filePath,
         targetFilePath: key,
         targetFileBucket: bucketName,
-        targetFileRegion: region
+        targetFileRegion: region,
       })
       const config = new qiniu.conf.Config()
       const resumeUploader = new qiniu.resume_up.ResumeUploader(config)
       const putExtra = new qiniu.resume_up.PutExtra()
       const uploadToken = new qiniu.rs.PutPolicy({
         scope: `${bucketName}:${key}`,
-        expires: 36000
+        expires: 36000,
       }).uploadToken(this.mac)
       putExtra.fname = key
       putExtra.params = {}
@@ -623,7 +623,7 @@ class QiniuApi {
         instance.updateUploadTask({
           id: `${bucketName}-${region}-${key}-${filePath}`,
           progress,
-          status: uploadTaskSpecialStatus.uploading
+          status: uploadTaskSpecialStatus.uploading,
         })
       }
       resumeUploader.putFile(uploadToken, key, filePath, putExtra, (respErr, respBody, respInfo) => {
@@ -631,14 +631,14 @@ class QiniuApi {
           this.logger.error(
             formatError(respErr, {
               class: 'Qiniu',
-              method: 'uploadBucketFile'
-            })
+              method: 'uploadBucketFile',
+            }),
           )
           instance.updateUploadTask({
             id: `${bucketName}-${region}-${key}-${filePath}`,
             progress: 0,
             status: commonTaskStatus.failed,
-            finishTime: new Date().toLocaleString()
+            finishTime: new Date().toLocaleString(),
           })
           return
         }
@@ -648,14 +648,14 @@ class QiniuApi {
             progress: 100,
             status: uploadTaskSpecialStatus.uploaded,
             response: JSON.stringify(respBody),
-            finishTime: new Date().toLocaleString()
+            finishTime: new Date().toLocaleString(),
           })
         } else {
           instance.updateUploadTask({
             id: `${bucketName}-${region}-${key}-${filePath}`,
             progress: 0,
             status: commonTaskStatus.failed,
-            finishTime: new Date().toLocaleString()
+            finishTime: new Date().toLocaleString(),
           })
         }
       })
@@ -670,7 +670,7 @@ class QiniuApi {
   async createBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, key } = configMap
     const putPolicy = new qiniu.rs.PutPolicy({
-      scope: `${bucketName}:${key}`
+      scope: `${bucketName}:${key}`,
     })
     const uploadToken = putPolicy.uploadToken(this.mac)
     const FormUploader = new qiniu.form_up.FormUploader()
@@ -682,7 +682,7 @@ class QiniuApi {
         } else {
           resolve({
             respBody,
-            respInfo
+            respInfo,
           })
         }
       })
@@ -710,12 +710,12 @@ class QiniuApi {
         progress: 0,
         status: commonTaskStatus.queuing,
         sourceFileName: fileName,
-        targetFilePath: savedFilePath
+        targetFilePath: savedFilePath,
       })
       const preSignedUrl = await this.getPreSignedUrl({
         key,
         expires: 36000,
-        customUrl
+        customUrl,
       })
       promises.push(
         () =>
@@ -727,7 +727,7 @@ class QiniuApi {
                 reject(res)
               }
             })
-          })
+          }),
       )
     }
     const pool = new ConcurrencyPromisePool(maxDownloadFileCount)

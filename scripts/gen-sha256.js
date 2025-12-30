@@ -15,12 +15,12 @@ const DOWNLOAD_DIR = process.argv[3] || path.join(os.homedir(), 'Downloads')
 const files = [
   {
     name: 'PicList-x64.dmg',
-    url: `${BASE_URL}/PicList-${version}-x64.dmg`
+    url: `${BASE_URL}/PicList-${version}-x64.dmg`,
   },
   {
     name: 'PicList-arm64.dmg',
-    url: `${BASE_URL}/PicList-${version}-arm64.dmg`
-  }
+    url: `${BASE_URL}/PicList-${version}-arm64.dmg`,
+  },
 ]
 
 /**
@@ -57,7 +57,7 @@ async function downloadAndHash(fileInfo) {
     const response = await axios({
       method: 'get',
       url,
-      responseType: 'stream'
+      responseType: 'stream',
     })
 
     const writer = fs.createWriteStream(filePath)

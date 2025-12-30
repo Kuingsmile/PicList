@@ -144,7 +144,7 @@ interface IProps {
 const props = withDefaults(defineProps<IProps>(), {
   colorMode: undefined,
   mode: 'picbed',
-  showTooltips: true
+  showTooltips: true,
 })
 
 const $route = useRoute()
@@ -154,7 +154,7 @@ const { t } = useI18n()
 const configList = ref<IPicGoPluginConfig[]>([])
 const ruleForm = reactive<IStringKeyMap>({})
 const validationErrors = reactive<IStringKeyMap>({})
-const visibleTooltips = reactive<{ [key: string]: boolean }>({})
+const visibleTooltips = reactive<Record<string, boolean>>({})
 
 // Watch for config changes
 watch(
@@ -164,8 +164,8 @@ watch(
   },
   {
     deep: true,
-    immediate: true
-  }
+    immediate: true,
+  },
 )
 
 function handleConfigChange(val: any) {
@@ -256,7 +256,7 @@ async function validate(): Promise<IStringKeyMap | false> {
 function transformMarkdownToHTML(markdown: string) {
   try {
     return marked.parse(markdown)
-  } catch (e) {
+  } catch (_e) {
     return markdown
   }
 }
@@ -341,7 +341,7 @@ function updateRuleForm(key: string, value: any) {
 defineExpose({
   updateRuleForm,
   validate,
-  getConfigType
+  getConfigType,
 })
 </script>
 
@@ -394,18 +394,18 @@ defineExpose({
 
 .info-icon {
   display: flex;
-  align-items: center;
   justify-content: center;
-  cursor: pointer;
-  color: var(--color-text-secondary);
-  transition: var(--transition-fast);
+  align-items: center;
   border-radius: 50%;
   padding: 2px;
+  color: var(--color-text-secondary);
+  transition: var(--transition-fast);
+  cursor: pointer;
 }
 
 .info-icon:hover {
   color: var(--color-accent);
-  background: rgba(0, 122, 255, 0.1);
+  background: rgb(0 122 255 / 10%);
 }
 
 .tooltip-content {
@@ -413,35 +413,35 @@ defineExpose({
   top: 100%;
   left: 0;
   z-index: 1000;
-  min-width: 200px;
-  max-width: 300px;
-  padding: 0.75rem;
-  background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  padding: 0.75rem;
+  min-width: 200px;
+  max-width: 300px;
   font-size: 0.75rem;
-  line-height: 1.4;
   color: var(--color-text-primary);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--shadow-lg);
+  line-height: 1.4;
 }
 
 /* Input Styles */
 .form-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-surface-elevated);
-  color: var(--color-text-primary);
+  padding: 0.75rem 1rem;
+  width: 100%;
   font-size: 0.875rem;
   font-family: inherit;
+  color: var(--color-text-primary);
+  background: var(--color-surface-elevated);
   transition: var(--transition-fast);
 }
 
 .form-input:focus {
-  outline: none;
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(0 122 255 / 20%);
 }
 
 .form-input::placeholder {
@@ -453,7 +453,7 @@ defineExpose({
 }
 
 .form-input.error:focus {
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 0 2px rgb(239 68 68 / 20%);
 }
 
 /* Select Styles */
@@ -462,23 +462,23 @@ defineExpose({
 }
 
 .form-select {
-  width: 100%;
-  padding: 0.75rem 2.5rem 0.75rem 1rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-surface-elevated);
-  color: var(--color-text-primary);
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  width: 100%;
   font-size: 0.875rem;
   font-family: inherit;
+  color: var(--color-text-primary);
+  background: var(--color-surface-elevated);
   transition: var(--transition-fast);
   appearance: none;
   cursor: pointer;
 }
 
 .form-select:focus {
-  outline: none;
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(0 122 255 / 20%);
 }
 
 .form-select.error {
@@ -486,17 +486,17 @@ defineExpose({
 }
 
 .form-select.error:focus {
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 0 2px rgb(239 68 68 / 20%);
 }
 
 .select-arrow {
   position: absolute;
-  right: 1rem;
   top: 50%;
-  transform: translateY(-50%);
+  right: 1rem;
   color: var(--color-text-secondary);
-  pointer-events: none;
   transition: var(--transition-fast);
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 .select-wrapper:hover .select-arrow,
@@ -539,32 +539,32 @@ defineExpose({
 
 .checkbox-custom {
   position: relative;
-  width: 1.25rem;
-  height: 1.25rem;
   border: 2px solid var(--color-border);
   border-radius: var(--radius-sm);
+  width: 1.25rem;
+  height: 1.25rem;
   background: var(--color-surface-elevated);
   transition: var(--transition-fast);
   flex-shrink: 0;
 }
 
 .checkbox-custom::after {
-  content: '';
   position: absolute;
+  top: 0;
   left: 3px;
-  top: 0px;
-  width: 6px;
-  height: 10px;
   border: solid white;
   border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  width: 6px;
+  height: 10px;
   opacity: 0;
   transition: var(--transition-fast);
+  content: '';
+  transform: rotate(45deg);
 }
 
 .checkbox-input:checked + .checkbox-custom {
-  background: var(--color-accent);
   border-color: var(--color-accent);
+  background: var(--color-accent);
 }
 
 .checkbox-input:checked + .checkbox-custom::after {
@@ -572,7 +572,7 @@ defineExpose({
 }
 
 .checkbox-input:focus + .checkbox-custom {
-  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+  box-shadow: 0 0 0 2px rgb(0 122 255 / 20%);
 }
 
 .checkbox-text {
@@ -597,10 +597,10 @@ defineExpose({
 
 .switch-slider {
   position: relative;
+  border-radius: 0.75rem;
   width: 3rem;
   height: 1.5rem;
   background: var(--color-border);
-  border-radius: 0.75rem;
   transition: var(--transition-fast);
   flex-shrink: 0;
 }
@@ -609,12 +609,12 @@ defineExpose({
   position: absolute;
   top: 2px;
   left: 2px;
+  border-radius: 50%;
   width: 1.25rem;
   height: 1.25rem;
   background: white;
-  border-radius: 50%;
-  transition: var(--transition-fast);
   box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
 }
 
 .switch-input:checked + .switch-slider {
@@ -626,7 +626,7 @@ defineExpose({
 }
 
 .switch-input:focus + .switch-slider {
-  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+  box-shadow: 0 0 0 2px rgb(0 122 255 / 20%);
 }
 
 .switch-text {
@@ -640,16 +640,16 @@ defineExpose({
 
 /* Error Message */
 .error-message {
+  margin-top: 0.25rem;
   font-size: 0.75rem;
   color: var(--color-error, #ef4444);
-  margin-top: 0.25rem;
 }
 
 /* White theme adjustments */
 .white .form-input,
 .white .form-select {
+  border-color: #dddddd;
   background: white;
-  border-color: #ddd;
 }
 
 .white .form-input:focus,
@@ -658,21 +658,21 @@ defineExpose({
 }
 
 .white .checkbox-custom {
+  border-color: #dddddd;
   background: white;
-  border-color: #ddd;
 }
 
 .white .switch-slider {
-  background: #ddd;
+  background: #dddddd;
 }
 
 .white .tooltip-content {
+  border-color: #dddddd;
   background: white;
-  border-color: #ddd;
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .config-form {
     gap: 1.25rem;
   }
@@ -697,14 +697,14 @@ defineExpose({
 :root.auto.dark .form-input,
 :root.dark .form-select,
 :root.auto.dark .form-select {
-  background: var(--color-surface-elevated);
   border-color: var(--color-border);
+  background: var(--color-surface-elevated);
 }
 
 :root.dark .checkbox-custom,
 :root.auto.dark .checkbox-custom {
-  background: var(--color-surface-elevated);
   border-color: var(--color-border);
+  background: var(--color-surface-elevated);
 }
 
 :root.dark .switch-slider,
@@ -714,8 +714,8 @@ defineExpose({
 
 :root.dark .tooltip-content,
 :root.auto.dark .tooltip-content {
-  background: var(--color-surface-elevated);
   border-color: var(--color-border);
+  background: var(--color-surface-elevated);
 }
 
 /* Focus styles for accessibility */

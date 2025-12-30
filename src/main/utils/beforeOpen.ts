@@ -35,7 +35,7 @@ function copyFileOutsideOfElectronAsar(sourceInAsarArchive: string, destOutsideA
       fs.readdirSync(sourceInAsarArchive).forEach(function (fileOrFolderName) {
         copyFileOutsideOfElectronAsar(
           `${sourceInAsarArchive}/${fileOrFolderName}`,
-          `${destOutsideAsarArchive}/${fileOrFolderName}`
+          `${destOutsideAsarArchive}/${fileOrFolderName}`,
         )
       })
     }
@@ -52,7 +52,7 @@ function resolveMacWorkFlow() {
       path
         .join(__dirname, '../../resources', 'Upload pictures with PicList.workflow')
         .replace('app.asar', 'app.asar.unpacked'),
-      dest
+      dest,
     )
   } catch (e) {
     console.log(e)
@@ -94,7 +94,7 @@ function resolveClipboardImageGenerator() {
     return files.map(item => {
       return {
         origin: path.join(__dirname, '../../resources', item).replace('app.asar', 'app.asar.unpacked'),
-        dest: path.join(CONFIG_DIR, item)
+        dest: path.join(CONFIG_DIR, item),
       }
     })
   }
@@ -110,7 +110,7 @@ function resolveOtherI18nFiles() {
   }
   i18nManager.setOutterI18nFolder(i18nFolder)
   const i18nFiles = fs.readdirSync(path.join(CONFIG_DIR, 'i18n'), {
-    withFileTypes: true
+    withFileTypes: true,
   })
   i18nFiles.forEach(item => {
     if (item.isFile() && item.name?.endsWith('.yml')) {

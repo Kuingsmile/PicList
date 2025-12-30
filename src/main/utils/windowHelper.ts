@@ -31,7 +31,7 @@ export function openMiniWindow(hideSettingWindow: boolean = true) {
       miniWindow.setPosition(width - miniWindow.getSize()[0], height - miniWindow.getSize()[1])
       db.set(configPaths.settings.miniWindowPosition, [
         width - miniWindow.getSize()[0],
-        height - miniWindow.getSize()[1]
+        height - miniWindow.getSize()[1],
       ])
     } else {
       miniWindow.setPosition(lastPosition[0], lastPosition[1])

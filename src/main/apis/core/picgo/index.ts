@@ -14,7 +14,7 @@ const picgo = await PicGo.create(CONFIG_PATH)
 
 picgo.saveConfig({
   debug: true,
-  PICGO_ENV: 'GUI'
+  PICGO_ENV: 'GUI',
 })
 
 picgo.GUI_VERSION = pkg.version

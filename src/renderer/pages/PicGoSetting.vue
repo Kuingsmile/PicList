@@ -1303,7 +1303,7 @@ import {
   RefreshCw,
   RotateCcw,
   Server,
-  Settings
+  Settings,
 } from 'lucide-vue-next'
 import type { IConfig } from 'piclist'
 import pkg from 'root/package.json'
@@ -1339,20 +1339,20 @@ const tabs = computed(() => [
   { id: 'sync', label: t('pages.settings.sync.title'), icon: RotateCcw },
   { id: 'upload', label: t('pages.settings.upload.title'), icon: CloudUpload },
   { id: 'advanced', label: t('pages.settings.advanced.title'), icon: Server },
-  { id: 'update', label: t('pages.settings.update.title'), icon: RefreshCw }
+  { id: 'update', label: t('pages.settings.update.title'), icon: RefreshCw },
 ])
 
 const shortUrlServerList = [
   { label: 'c1n', value: 'c1n' },
   { label: 'yourls', value: 'yourls' },
   { label: 'xyTom/Url-Shorten-Worker', value: 'cf_worker' },
-  { label: 'ccbikai/Sink', value: 'sink' }
+  { label: 'ccbikai/Sink', value: 'sink' },
 ]
 
 const languageList = [
   { label: '简体中文', value: 'zh-CN' },
   { label: '繁體中文', value: 'zh-TW' },
-  { label: 'English', value: 'en' }
+  { label: 'English', value: 'en' },
 ]
 
 const formOfSetting = ref<ISettingForm>({
@@ -1396,7 +1396,7 @@ const formOfSetting = ref<ISettingForm>({
   proxy: '',
   mainWindowWidth: 1200,
   mainWindowHeight: 800,
-  enableSecondUploader: false
+  enableSecondUploader: false,
 })
 
 const proxy = ref('')
@@ -1432,7 +1432,7 @@ const autoWatchKeys = [
   'autoCopy',
   'encodeOutputURL',
   'useShortUrl',
-  'enableSecondUploader'
+  'enableSecondUploader',
 ]
 
 const addWatch = () => {
@@ -1441,7 +1441,7 @@ const addWatch = () => {
       () => formOfSetting.value[key as keyof ISettingForm],
       value => {
         saveConfig({ [`settings.${key}`]: value })
-      }
+      },
     )
   })
 
@@ -1482,20 +1482,20 @@ const advancedRenameList = {
     { label: t('pages.settings.upload.placeholder.minute'), value: '{i}' },
     { label: t('pages.settings.upload.placeholder.second'), value: '{s}' },
     { label: t('pages.settings.upload.placeholder.millisecond'), value: '{ms}' },
-    { label: t('pages.settings.upload.placeholder.timestamp'), value: '{timestamp}' }
+    { label: t('pages.settings.upload.placeholder.timestamp'), value: '{timestamp}' },
   ],
   categoryHash: [
     { label: t('pages.settings.upload.placeholder.md5'), value: '{md5}' },
     { label: t('pages.settings.upload.placeholder.md5-16'), value: '{md5-16}' },
     { label: t('pages.settings.upload.placeholder.uuid'), value: '{uuid}' },
     { label: t('pages.settings.upload.placeholder.sha256'), value: '{sha256}' },
-    { label: t('pages.settings.upload.placeholder.sha256-n'), value: '{sha256-n}' }
+    { label: t('pages.settings.upload.placeholder.sha256-n'), value: '{sha256-n}' },
   ],
   categoryFile: [
     { label: t('pages.settings.upload.placeholder.filename'), value: '{filename}' },
     { label: t('pages.settings.upload.placeholder.localFolder'), value: '{localFolder:n}' },
-    { label: t('pages.settings.upload.placeholder.randomString'), value: '{str-n}' }
-  ]
+    { label: t('pages.settings.upload.placeholder.randomString'), value: '{str-n}' },
+  ],
 }
 
 function copyPlaceholder(placeholder: string) {
@@ -1529,7 +1529,7 @@ const logLevel = {
   error: t('pages.settings.advanced.logLevelList.error'),
   info: t('pages.settings.advanced.logLevelList.info'),
   warn: t('pages.settings.advanced.logLevelList.warn'),
-  none: t('pages.settings.advanced.logLevelList.none')
+  none: t('pages.settings.advanced.logLevelList.none'),
 }
 
 const server = ref({ port: 36677, host: '0.0.0.0', enable: true })
@@ -1549,7 +1549,7 @@ const sync = ref<any>({
   password: '',
   authType: 'basic',
   sslEnabled: true,
-  webdavSavePath: ''
+  webdavSavePath: '',
 })
 
 const syncType = ['github', 'gitee', 'gitea', 'webdav']
@@ -1571,7 +1571,7 @@ async function cancelSyncSetting() {
     webdavPassword: '',
     webdavAuthType: 'basic',
     webdavSslEnabled: true,
-    webdavSavePath: ''
+    webdavSavePath: '',
   }
 }
 
@@ -1652,7 +1652,7 @@ async function initData() {
     webdavPassword: '',
     webdavAuthType: 'basic',
     webdavSslEnabled: true,
-    webdavSavePath: ''
+    webdavSavePath: '',
   }
   formOfSetting.value.logFileSizeLimit = enforceNumber(settings.logFileSizeLimit) || 10
   addProxyWatch()
@@ -1702,7 +1702,7 @@ function confirmCustomLink() {
 async function handleCancelAdvancedRename() {
   advancedRenameVisible.value = false
   advancedRename.value = toRaw(
-    (await getConfig<any>(configPaths.buildIn.rename)) || { enable: false, format: '{filename}' }
+    (await getConfig<any>(configPaths.buildIn.rename)) || { enable: false, format: '{filename}' },
   )
 }
 
@@ -1722,7 +1722,7 @@ function handleMigrateFromPicGo() {
     type: 'warning',
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
-    center: true
+    center: true,
   }).then(result => {
     if (result) {
       window.electron
@@ -1871,7 +1871,7 @@ async function confirmWindowSize() {
   const height = enforceNumber(formOfSetting.value.mainWindowHeight)
   saveConfig({
     [configPaths.settings.mainWindowWidth]: rawPicGoSize.value ? 800 : width < 100 ? 100 : width,
-    [configPaths.settings.mainWindowHeight]: rawPicGoSize.value ? 450 : height < 100 ? 100 : height
+    [configPaths.settings.mainWindowHeight]: rawPicGoSize.value ? 450 : height < 100 ? 100 : height,
   })
   await getMainWindowSize()
 }
@@ -1906,7 +1906,7 @@ function confirmLogLevelSetting() {
   }
   saveConfig({
     [configPaths.settings.logLevel]: formOfSetting.value.logLevel,
-    [configPaths.settings.logFileSizeLimit]: formOfSetting.value.logFileSizeLimit
+    [configPaths.settings.logFileSizeLimit]: formOfSetting.value.logFileSizeLimit,
   })
   logFileVisible.value = false
 }
@@ -1940,7 +1940,7 @@ const syncTaskList = [
   { task: IRPCActionType.CONFIGURE_UPLOAD_ALL_CONFIG, label: t('pages.settings.sync.allConfig'), number: 4 },
   { task: IRPCActionType.CONFIGURE_DOWNLOAD_COMMON_CONFIG, label: t('pages.settings.sync.commonConfig'), number: 2 },
   { task: IRPCActionType.CONFIGURE_DOWNLOAD_MANAGE_CONFIG, label: t('pages.settings.sync.manageConfig'), number: 2 },
-  { task: IRPCActionType.CONFIGURE_DOWNLOAD_ALL_CONFIG, label: t('pages.settings.sync.allConfig'), number: 4 }
+  { task: IRPCActionType.CONFIGURE_DOWNLOAD_ALL_CONFIG, label: t('pages.settings.sync.allConfig'), number: 4 },
 ]
 
 async function syncTaskFn(task: string, number: number) {

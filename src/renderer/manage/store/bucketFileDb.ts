@@ -46,7 +46,7 @@ export class FileCacheDb extends Dexie {
       'smms',
       'tcyun',
       'upyun',
-      'webdavplist'
+      'webdavplist',
     ]
 
     const tableNamesMap = tableNames.reduce((acc, cur) => {

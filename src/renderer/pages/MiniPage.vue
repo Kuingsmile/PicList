@@ -5,7 +5,7 @@
       :class="{
         'is-dragover': dragover,
         uploading: isShowingProgress,
-        linux: osGlobal === 'linux'
+        linux: osGlobal === 'linux',
       }"
       :style="{ backgroundPosition: '0 ' + progress + '%' }"
       @drop.prevent="onDrop"
@@ -15,7 +15,7 @@
       <img
         v-if="!dragover && !isShowingProgress"
         :src="logoPath ? logoPath : './squareLogo.png'"
-        style="width: 100%; height: 100%; border-radius: 50%"
+        style="border-radius: 50%; width: 100%; height: 100%"
         draggable="false"
         @dragstart.prevent
       />
@@ -110,8 +110,8 @@ function handleURLDrag(items: DataTransferItemList, dataTransfer: DataTransfer) 
   if (urlMatch) {
     window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [
       {
-        path: urlMatch[1]
-      }
+        path: urlMatch[1],
+      },
     ])
   }
 }
@@ -132,7 +132,7 @@ function ipcSendFiles(files: FileList) {
   Array.from(files).forEach(item => {
     const obj = {
       name: item.name,
-      path: window.electron.showFilePath(item)
+      path: window.electron.showFilePath(item),
     }
     sendFiles.push(obj)
   })
@@ -157,7 +157,7 @@ function handleMouseMove(e: MouseEvent) {
       x: xLoc,
       y: yLoc,
       width: 64,
-      height: 64
+      height: 64,
     })
   }
 }
@@ -198,7 +198,7 @@ onBeforeUnmount(() => {
 
 <script lang="ts">
 export default {
-  name: 'MiniPage'
+  name: 'MiniPage',
 }
 </script>
 

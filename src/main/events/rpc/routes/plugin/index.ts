@@ -3,7 +3,7 @@ import {
   pluginGetListFunc,
   pluginImportLocalFunc,
   pluginInstallFunc,
-  pluginUpdateAllFunc
+  pluginUpdateAllFunc,
 } from '~/events/rpc/routes/plugin/utils'
 import { IRPCActionType } from '~/utils/enum'
 
@@ -12,20 +12,20 @@ const pluginRouter = new RPCRouter()
 const pluginRoutes = [
   {
     action: IRPCActionType.PLUGIN_GET_LIST,
-    handler: pluginGetListFunc
+    handler: pluginGetListFunc,
   },
   {
     action: IRPCActionType.PLUGIN_INSTALL,
-    handler: pluginInstallFunc
+    handler: pluginInstallFunc,
   },
   {
     action: IRPCActionType.PLUGIN_IMPORT_LOCAL,
-    handler: pluginImportLocalFunc
+    handler: pluginImportLocalFunc,
   },
   {
     action: IRPCActionType.PLUGIN_UPDATE_ALL,
-    handler: pluginUpdateAllFunc
-  }
+    handler: pluginUpdateAllFunc,
+  },
 ]
 
 pluginRouter.addBatch(pluginRoutes)

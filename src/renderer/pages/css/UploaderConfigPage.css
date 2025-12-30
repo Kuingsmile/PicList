@@ -1,49 +1,49 @@
 /* Container */
 .config-container {
+  display: flex;
+  overflow-y: auto;
+  margin: 0;
   padding: 1rem;
   width: 100%;
-  margin: 0;
-  display: flex;
+  min-height: 100vh;
   flex-direction: column;
   gap: 1.25rem;
-  min-height: 100vh;
   box-sizing: border-box;
-  overflow-y: auto;
 }
 
 /* Card Base */
 .config-card {
-  background: var(--color-surface);
+  overflow: hidden;
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-xl);
-  overflow: hidden;
-  transition: var(--transition-medium);
+  background: var(--color-surface);
   box-shadow: var(--shadow-sm);
+  transition: var(--transition-medium);
 }
 
 .config-card:hover {
-  box-shadow: var(--shadow-md);
   border-color: var(--color-border);
+  box-shadow: var(--shadow-md);
 }
 
 /* Header Card */
 .header-card .card-header {
-  padding: 1.5rem 2rem;
   border-bottom: 1px solid var(--color-border-secondary);
+  padding: 1.5rem 2rem;
 }
 
 .page-title {
+  margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin: 0;
   letter-spacing: -0.025em;
 }
 
 /* Main Card */
 .main-card {
-  background: var( --color-background-secondary);
   padding: 1.5rem;
+  background: var( --color-background-secondary);
 }
 
 .config-grid {
@@ -53,14 +53,14 @@
   width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .config-grid {
     grid-template-columns: 1fr;
     gap: 0.75rem;
   }
 }
 
-@media (min-width: 1200px) {
+@media (width >= 1200px) {
   .config-grid {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.25rem;
@@ -69,24 +69,24 @@
 
 /* Config Items */
 .config-item {
-  background: var(--color-surface-elevated);
+  position: relative;
+  display: flex;
+  justify-content: space-between;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
-  cursor: pointer;
-  transition: var(--transition-medium);
-  position: relative;
   min-height: 120px;
-  display: flex;
+  background: var(--color-surface-elevated);
+  transition: var(--transition-medium);
+  cursor: pointer;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .config-item:hover {
-  background: var(--color-surface);
   border-color: var(--color-accent);
-  transform: translateY(-2px);
+  background: var(--color-surface);
   box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .config-item.selected {
@@ -101,28 +101,28 @@
 }
 
 .config-name {
+  margin-bottom: 0.5rem;
   font-size: 1rem;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: 0.5rem;
   line-height: 1.4;
 }
 
 .config-update-time {
+  margin-bottom: 0.75rem;
   font-size: 0.875rem;
   color: var(--color-text-secondary);
-  margin-bottom: 0.75rem;
 }
 
 .default-badge {
   display: inline-flex;
   align-items: center;
+  border-radius: var(--radius-md);
   padding: 0.25rem 0.75rem;
-  background: var(--color-accent);
-  color: white;
   font-size: 0.75rem;
   font-weight: 500;
-  border-radius: var(--radius-md);
+  color: white;
+  background: var(--color-accent);
   text-transform: uppercase;
   letter-spacing: 0.025em;
 }
@@ -137,16 +137,16 @@
 
 .action-btn {
   display: flex;
-  align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: var(--color-surface-elevated);
+  align-items: center;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: var(--transition-fast);
+  width: 32px;
+  height: 32px;
   color: var(--color-text-secondary);
+  background: var(--color-surface-elevated);
+  transition: var(--transition-fast);
+  cursor: pointer;
 }
 
 .action-btn:hover {
@@ -172,12 +172,12 @@
 
 /* Add New Config Item */
 .config-item-add {
-  border: 2px dashed var(--color-border);
-  background: var(--color-surface);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  border: 2px dashed var(--color-border);
   min-height: 120px;
+  background: var(--color-surface);
 }
 
 .config-item-add:hover {
@@ -210,27 +210,27 @@
 }
 
 .card-actions {
-  padding: 1.25rem 1.5rem;
   display: flex;
   justify-content: center;
+  padding: 1.25rem 1.5rem;
 }
 
 .primary-button {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 2rem;
-  background: var(--color-accent);
-  color: white;
   border: none;
   border-radius: var(--radius-lg);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition-fast);
-  font-family: inherit;
+  padding: 0.875rem 2rem;
   min-width: 200px;
-  justify-content: center;
+  font-size: 0.875rem;
+  font-family: inherit;
+  font-weight: 500;
+  color: white;
+  background: var(--color-accent);
+  transition: var(--transition-fast);
+  gap: 0.5rem;
+  cursor: pointer;
 }
 
 .primary-button:hover:not(:disabled) {
@@ -240,15 +240,15 @@
 }
 
 .primary-button:disabled {
-  background: var(--color-border);
   color: var(--color-text-secondary);
+  background: var(--color-border);
+  box-shadow: none;
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .config-container {
     padding: 0.75rem;
     gap: 1rem;
@@ -287,10 +287,10 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (width >= 1024px) {
   .config-container {
+    margin: 0 auto;
     padding: 1.5rem 2rem;
     max-width: 1200px;
-    margin: 0 auto;
   }
 }

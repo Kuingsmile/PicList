@@ -14,7 +14,7 @@ class ManageDB {
     this.#db = new JSONStore(this.#ctx.configPath)
     const initParams: IStringKeyMap = {
       picBed: {},
-      settings: {}
+      settings: {},
     }
     for (const key in initParams) {
       if (!this.#db.has(key)) {
