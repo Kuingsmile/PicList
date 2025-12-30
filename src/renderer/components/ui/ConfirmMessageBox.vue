@@ -1,42 +1,41 @@
 <template>
-  <div v-if="isOpen" class="messagebox-overlay" @click="onCancel">
-    <div class="messagebox-container" @click.stop>
-      <div class="messagebox-header">
-        <h3 class="messagebox-title">
-          {{ title }}
-        </h3>
-        <button v-if="showClose" class="messagebox-close" @click="onCancel">×</button>
-      </div>
-      <div class="messagebox-content">
-        <div v-if="type" class="messagebox-icon">
-          <component :is="iconComponent" :size="48" />
+  <Transition name="messagebox-fade">
+    <div v-if="isOpen" class="messagebox-overlay" @click="onCancel">
+      <Transition name="messagebox-scale">
+        <div v-if="isOpen" class="messagebox-container" @click.stop>
+          <button v-if="showClose" class="messagebox-close" @click="onCancel">
+            <XIcon :size="20" />
+          </button>
+
+          <div class="messagebox-body">
+            <div class="messagebox-main">
+              <div v-if="type" class="messagebox-icon-wrapper" :class="`messagebox-icon-${type}`">
+                <component :is="iconComponent" :size="24" :stroke-width="2.5" />
+              </div>
+
+              <div class="messagebox-content">
+                <h3 class="messagebox-title">{{ title }}</h3>
+                <p class="messagebox-message">{{ message }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="messagebox-actions" :class="{ center }">
+            <button class="messagebox-btn cancel-btn" @click="onCancel">
+              {{ cancelButtonText }}
+            </button>
+            <button class="messagebox-btn confirm-btn" :class="confirmButtonClass" @click="onConfirm">
+              {{ confirmButtonText }}
+            </button>
+          </div>
         </div>
-        <div class="messagebox-message">
-          <p>{{ message }}</p>
-        </div>
-      </div>
-      <div v-if="center" class="messagebox-actions center">
-        <button class="messagebox-btn cancel-btn" @click="onCancel">
-          {{ cancelButtonText }}
-        </button>
-        <button class="messagebox-btn confirm-btn" :class="confirmButtonClass" @click="onConfirm">
-          {{ confirmButtonText }}
-        </button>
-      </div>
-      <div v-else class="messagebox-actions">
-        <button class="messagebox-btn confirm-btn" :class="confirmButtonClass" @click="onConfirm">
-          {{ confirmButtonText }}
-        </button>
-        <button class="messagebox-btn cancel-btn" @click="onCancel">
-          {{ cancelButtonText }}
-        </button>
-      </div>
+      </Transition>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
-import { AlertTriangle, CheckCircle, Info, XCircle } from 'lucide-vue-next'
+import { AlertTriangle, CheckCircle, Info, X as XIcon, XCircle } from 'lucide-vue-next'
 import { computed } from 'vue'
 
 interface Props {
@@ -109,6 +108,36 @@ export default {
 </script>
 
 <style scoped>
+/* Transitions */
+.messagebox-fade-enter-active,
+.messagebox-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.messagebox-fade-enter-from,
+.messagebox-fade-leave-to {
+  opacity: 0;
+}
+
+.messagebox-scale-enter-active {
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.messagebox-scale-leave-active {
+  transition: all 0.2s ease;
+}
+
+.messagebox-scale-enter-from {
+  opacity: 0;
+  transform: scale(0.9) translateY(-10px);
+}
+
+.messagebox-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* Overlay */
 .messagebox-overlay {
   position: fixed;
   inset: 0;
@@ -116,15 +145,19 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgb(0 0 0 / 50%);
+  padding: 1rem;
+  background: rgb(0 0 0 / 40%);
+  backdrop-filter: blur(4px);
 }
 
+/* Container */
 .messagebox-container {
+  position: relative;
   overflow: hidden;
-  border-radius: 0.75rem;
-  width: 90%;
-  max-width: 32rem;
-  max-height: 80vh;
+  border: 1px solid rgb(229 231 235);
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 26rem;
   background: white;
   box-shadow:
     0 20px 25px -5px rgb(0 0 0 / 10%),
@@ -133,46 +166,30 @@ export default {
 
 :root.dark .messagebox-container,
 :root.auto.dark .messagebox-container {
-  border: 1px solid rgb(55 65 81);
+  border-color: rgb(55 65 81);
   background: rgb(31 41 55);
 }
 
-.messagebox-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 1.5rem 0;
-}
-
-.messagebox-title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: rgb(17 24 39);
-}
-
-:root.dark .messagebox-title,
-:root.auto.dark .messagebox-title {
-  color: rgb(243 244 246);
-}
-
+/* Close Button */
 .messagebox-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
   display: flex;
   justify-content: center;
   align-items: center;
   border: none;
-  border-radius: 0.25rem;
-  padding: 0;
-  width: 24px;
-  height: 24px;
-  font-size: 1.5rem;
+  border-radius: 0.5rem;
+  padding: 0.375rem;
   color: rgb(107 114 128);
-  background: none;
+  background: transparent;
+  transition: all 0.15s ease;
   cursor: pointer;
 }
 
 .messagebox-close:hover {
-  color: rgb(17 24 39);
+  color: rgb(75 85 99);
   background: rgb(243 244 246);
 }
 
@@ -183,58 +200,135 @@ export default {
 
 :root.dark .messagebox-close:hover,
 :root.auto.dark .messagebox-close:hover {
-  color: rgb(243 244 246);
+  color: rgb(209 213 219);
   background: rgb(55 65 81);
 }
 
-.messagebox-content {
+/* Body */
+.messagebox-body {
+  padding: 1.75rem 2rem 1.5rem;
+}
+
+.messagebox-main {
   display: flex;
   align-items: flex-start;
-  padding: 1rem 1.5rem;
   gap: 1rem;
 }
 
-.messagebox-icon {
+/* Icon Wrapper */
+.messagebox-icon-wrapper {
+  display: flex;
   flex-shrink: 0;
-  color: rgb(107 114 128);
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.625rem;
+  width: 3rem;
+  height: 3rem;
+  animation: icon-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.messagebox-icon svg[data-lucide='alert-triangle'] {
+@keyframes icon-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.messagebox-icon-warning {
   color: rgb(245 158 11);
+  background: rgb(254 243 199);
 }
 
-.messagebox-icon svg[data-lucide='info'] {
+:root.dark .messagebox-icon-warning,
+:root.auto.dark .messagebox-icon-warning {
+  color: rgb(251 191 36);
+  background: rgb(120 53 15 / 30%);
+}
+
+.messagebox-icon-info {
   color: rgb(59 130 246);
+  background: rgb(219 234 254);
 }
 
-.messagebox-icon svg[data-lucide='check-circle'] {
+:root.dark .messagebox-icon-info,
+:root.auto.dark .messagebox-icon-info {
+  color: rgb(96 165 250);
+  background: rgb(30 58 138 / 30%);
+}
+
+.messagebox-icon-success {
   color: rgb(34 197 94);
+  background: rgb(220 252 231);
 }
 
-.messagebox-icon svg[data-lucide='x-circle'] {
+:root.dark .messagebox-icon-success,
+:root.auto.dark .messagebox-icon-success {
+  color: rgb(74 222 128);
+  background: rgb(20 83 45 / 30%);
+}
+
+.messagebox-icon-error {
   color: rgb(239 68 68);
+  background: rgb(254 226 226);
+}
+
+:root.dark .messagebox-icon-error,
+:root.auto.dark .messagebox-icon-error {
+  color: rgb(248 113 113);
+  background: rgb(127 29 29 / 30%);
+}
+
+/* Content */
+.messagebox-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.messagebox-title {
+  margin: 0 0 0.375rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: rgb(17 24 39);
+}
+
+:root.dark .messagebox-title,
+:root.auto.dark .messagebox-title {
+  color: rgb(243 244 246);
 }
 
 .messagebox-message {
-  flex: 1;
-}
-
-.messagebox-message p {
   margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
   color: rgb(107 114 128);
-  line-height: 1.6;
 }
 
-:root.dark .messagebox-message p,
-:root.auto.dark .messagebox-message p {
+:root.dark .messagebox-message,
+:root.auto.dark .messagebox-message {
   color: rgb(156 163 175);
 }
 
+/* Actions */
 .messagebox-actions {
   display: flex;
-  justify-content: flex-end;
-  padding: 0 1.5rem 1.5rem;
+  border-top: 1px solid rgb(243 244 246);
+  padding: 1rem 1.5rem;
   gap: 0.75rem;
+}
+
+:root.dark .messagebox-actions,
+:root.auto.dark .messagebox-actions {
+  border-top-color: rgb(55 65 81);
 }
 
 .messagebox-actions.center {
@@ -242,61 +336,110 @@ export default {
 }
 
 .messagebox-btn {
+  flex: 1;
   border: none;
-  border-radius: 0.375rem;
-  padding: 0.5rem 1rem;
-  min-width: 4rem;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 500;
+  transition: all 0.15s ease;
   cursor: pointer;
 }
 
+.messagebox-btn:active {
+  transform: scale(0.98);
+}
+
+/* Cancel Button */
 .cancel-btn {
-  border: 1px solid rgb(209 213 219);
+  border: 1px solid rgb(229 231 235);
   color: rgb(75 85 99);
-  background: rgb(243 244 246);
+  background: white;
 }
 
 .cancel-btn:hover {
-  background: rgb(229 231 235);
+  border-color: rgb(209 213 219);
+  background: rgb(249 250 251);
 }
 
 :root.dark .cancel-btn,
 :root.auto.dark .cancel-btn {
-  border-color: rgb(75 85 99);
+  border-color: rgb(55 65 81);
   color: rgb(209 213 219);
   background: rgb(55 65 81);
 }
 
 :root.dark .cancel-btn:hover,
 :root.auto.dark .cancel-btn:hover {
+  border-color: rgb(75 85 99);
   background: rgb(75 85 99);
 }
 
-.confirm-btn.primary {
+/* Confirm Buttons */
+.confirm-btn {
+  border: none;
   color: white;
-  background: rgb(59 130 246);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
+}
+
+.confirm-btn.primary {
+  background: linear-gradient(135deg, rgb(59 130 246) 0%, rgb(37 99 235) 100%);
 }
 
 .confirm-btn.primary:hover {
-  background: rgb(37 99 235);
+  background: linear-gradient(135deg, rgb(37 99 235) 0%, rgb(29 78 216) 100%);
+  box-shadow: 0 4px 12px rgb(59 130 246 / 40%);
 }
 
 .confirm-btn.danger {
-  color: white;
-  background: rgb(239 68 68);
+  background: linear-gradient(135deg, rgb(239 68 68) 0%, rgb(220 38 38) 100%);
 }
 
 .confirm-btn.danger:hover {
-  background: rgb(220 38 38);
+  background: linear-gradient(135deg, rgb(220 38 38) 0%, rgb(185 28 28) 100%);
+  box-shadow: 0 4px 12px rgb(239 68 68 / 40%);
 }
 
 .confirm-btn.success {
-  color: white;
-  background: rgb(34 197 94);
+  background: linear-gradient(135deg, rgb(34 197 94) 0%, rgb(22 163 74) 100%);
 }
 
 .confirm-btn.success:hover {
-  background: rgb(22 163 74);
+  background: linear-gradient(135deg, rgb(22 163 74) 0%, rgb(21 128 61) 100%);
+  box-shadow: 0 4px 12px rgb(34 197 94 / 40%);
+}
+
+/* Responsive */
+@media (width <= 640px) {
+  .messagebox-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .messagebox-container {
+    border-radius: 1rem 1rem 0 0;
+    max-width: 100%;
+  }
+
+  .messagebox-body {
+    padding: 1.5rem 1.5rem 1.25rem;
+  }
+
+  .messagebox-main {
+    gap: 0.875rem;
+  }
+
+  .messagebox-icon-wrapper {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .messagebox-actions {
+    flex-direction: column-reverse;
+  }
+
+  .messagebox-btn {
+    width: 100%;
+  }
 }
 </style>

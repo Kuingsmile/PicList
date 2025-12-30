@@ -7,6 +7,7 @@ import deleteRoutes from '~/events/rpc/routes/picbed/delete'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
 import {
   deleteUploaderConfig,
+  duplicateUploaderConfig,
   getUploaderConfigList,
   resetUploaderConfig,
   selectUploaderConfig,
@@ -41,6 +42,15 @@ const picbedRoutes = [
     handler: async (_: IIPCEvent, args: [type: string, id: string]) => {
       const [type, id] = args
       const config = deleteUploaderConfig(type, id)
+      return config
+    },
+    type: IRPCType.INVOKE,
+  },
+  {
+    action: IRPCActionType.PICBED_DUPLICATE_CONFIG,
+    handler: async (_: IIPCEvent, args: [type: string, id: string, newName: string]) => {
+      const [type, id, newName] = args
+      const config = duplicateUploaderConfig(type, id, newName)
       return config
     },
     type: IRPCType.INVOKE,

@@ -194,7 +194,6 @@ export default {
   color: rgb(75 85 99);
   flex: 1;
   line-height: 1.25rem;
-  word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
 }

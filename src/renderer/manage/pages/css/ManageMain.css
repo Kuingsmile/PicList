@@ -212,7 +212,7 @@
   min-width: 0;
   font-weight: 500;
   line-height: 1.2;
-  word-break: break-word;
+  overflow-wrap: break-word;
   flex: 1;
 }
 

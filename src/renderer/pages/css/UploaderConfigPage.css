@@ -160,6 +160,11 @@
   color: var(--color-accent);
 }
 
+.duplicate-btn:hover {
+  border-color: var(--color-info);
+  color: var(--color-info);
+}
+
 .delete-btn:hover:not(.disabled) {
   border-color: var(--color-danger);
   color: var(--color-danger);

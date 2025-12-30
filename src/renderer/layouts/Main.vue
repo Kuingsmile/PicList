@@ -107,10 +107,7 @@ export default { name: 'MainPage' }
   --color-primary-hover: #818cf8;
   --color-accent: #0a84ff;
   --color-accent-hover: #409cff;
-}
 
-:root.dark,
-:root.auto.dark {
   h1,
   h2,
   h3,
@@ -203,7 +200,6 @@ body {
 
 .content-container {
   margin: 0;
-  padding: 0.3 rem;
   max-width: none;
   height: 100%;
 }

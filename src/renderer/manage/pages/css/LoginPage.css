@@ -308,6 +308,9 @@
   margin-top: 0.75rem;
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-md);
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
 }
 
 .table-row {
@@ -590,11 +593,6 @@ input:checked + .switch-slider::before {
   border-radius: var(--radius-md);
 }
 
-.config-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-}
 
 .config-table th {
   border-bottom: 1px solid var(--color-border-secondary);

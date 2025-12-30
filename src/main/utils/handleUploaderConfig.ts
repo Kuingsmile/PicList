@@ -151,6 +151,34 @@ export const deleteUploaderConfig = (type: string, id: string): IUploaderConfigI
   }
 }
 
+export const duplicateUploaderConfig = (type: string, id: string, newName: string): IUploaderConfigItem | void => {
+  const { configList, defaultId } = getUploaderConfigList(type)
+  const originalConfig = configList.find((item: IStringKeyMap) => item._id === id)
+  if (!originalConfig) {
+    return
+  }
+
+  const duplicatedConfig: IUploaderConfigListItem = {
+    ...originalConfig,
+    _configName: newName,
+    _id: uuid(),
+    _createdAt: Date.now(),
+    _updatedAt: Date.now(),
+  }
+
+  const updatedConfigList = [...configList, duplicatedConfig]
+  console.log('updatedConfigList', updatedConfigList)
+
+  picgo.saveConfig({
+    [`uploader.${type}.configList`]: updatedConfigList,
+  })
+
+  return {
+    configList: updatedConfigList,
+    defaultId,
+  }
+}
+
 /**
  * upgrade old uploader config to new format
  */

@@ -38,6 +38,13 @@
               <Edit :size="16" />
             </button>
             <button
+              class="action-btn duplicate-btn"
+              :title="t('pages.uploaderConfig.duplicate')"
+              @click.stop="() => duplicateConfig(item._id)"
+            >
+              <Copy :size="16" />
+            </button>
+            <button
               class="action-btn delete-btn"
               :class="curConfigList.length <= 1 ? 'disabled' : ''"
               :title="t('pages.uploaderConfig.delete')"
@@ -73,7 +80,7 @@
 
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { DatabaseIcon, Edit, Plus, Trash2 } from 'lucide-vue-next'
+import { Copy, DatabaseIcon, Edit, Plus, Trash2 } from 'lucide-vue-next'
 import { onBeforeMount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
@@ -82,7 +89,9 @@ import useConfirm from '@/hooks/useConfirm'
 import useMessage from '@/hooks/useMessage'
 import { useStore } from '@/hooks/useStore'
 import { PICBEDS_PAGE, UPLOADER_CONFIG_PAGE } from '@/router/config'
+import $bus from '@/utils/bus'
 import { configPaths } from '@/utils/configPaths'
+import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
 import { saveConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
 import type { IStringKeyMap, IUploaderConfigItem } from '#/types/types'
@@ -146,6 +155,49 @@ function openEditPage(configId: string) {
 
 function formatTime(time: number): string {
   return dayjs(time).format('YYYY-MM-DD HH:mm')
+}
+
+async function duplicateConfig(id: string) {
+  const originalConfig = curConfigList.value.find(item => item._id === id)
+  if (!originalConfig) return
+
+  return new Promise<void>(resolve => {
+    $bus.emit(SHOW_INPUT_BOX, {
+      title: t('pages.uploaderConfig.duplicateTitle'),
+      placeholder: t('pages.uploaderConfig.duplicatePlaceholder'),
+      value: `${originalConfig._configName} - ${t('pages.uploaderConfig.copy')}`,
+    })
+
+    const handleResponse = async (newName: string) => {
+      $bus.off(SHOW_INPUT_BOX_RESPONSE, handleResponse)
+
+      if (!newName) {
+        resolve()
+        return
+      }
+
+      try {
+        const res = await window.electron.triggerRPC<IUploaderConfigItem>(
+          IRPCActionType.PICBED_DUPLICATE_CONFIG,
+          type.value,
+          id,
+          newName,
+        )
+        if (!res) {
+          resolve()
+          return
+        }
+        curConfigList.value = res.configList
+        defaultConfigId.value = res.defaultId
+        message.success(t('pages.uploaderConfig.duplicateSuccess'))
+      } catch (error) {
+        message.error(t('pages.uploaderConfig.duplicateError'))
+      }
+      resolve()
+    }
+
+    $bus.on(SHOW_INPUT_BOX_RESPONSE, handleResponse)
+  })
 }
 
 async function deleteConfig(id: string) {
