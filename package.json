@@ -73,7 +73,7 @@
     "piclist": "^2.0.4",
     "qiniu": "7.14.0",
     "semver": "^7.7.3",
-    "shell-path": "3.0.0",
+    "shell-path": "3.1.0",
     "ssh2-no-cpu-features": "^2.0.0",
     "tunnel": "^0.0.6",
     "upyun": "^3.4.6",
