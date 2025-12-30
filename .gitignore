@@ -1,32 +1,36 @@
+# --- OS Metadata ---
 .DS_Store
-dist/electron/*
-dist/web/*
-build/*
-!build/icons
-!build/installer.nsh
-coverage
-node_modules/
-npm-debug.log
-npm-debug.log.*
-thumbs.db
-remote-notice.json
-!.gitkeep
-yarn-error.log
-docs/dist/
-# local env files
-.env.local
-.env.*.local
-dist_electron/
-test.js
+Thumbs.db
+desktop.ini
+# --- Dependencies ---
+/node_modules/
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# --- Environment & Secrets ---
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+# --- Build & Output ---
+/dist/
+/dist_electron/
+/out/
+/release/
+/coverage/
+docs/dist/
+/build/*
+!/build/icons/
+!/build/installer.nsh
+
+test.js
 scripts/*.yml
 scripts/generateYmlFile.js
 .yarnrc
-#Electron-builder output
-/dist_electron
-/docs
+remote-notice.json
 cloc.exe
-desktop.ini
-/dist
-/out
-/release
+!.gitkeep
