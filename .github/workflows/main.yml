@@ -27,7 +27,7 @@ jobs:
           git config --global core.autocrlf false
 
       - name: Check out git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # step2: sign
       - name: Install the Apple certificates
@@ -38,7 +38,7 @@ jobs:
 
       # step3: install node env
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22.x'
 
