@@ -105,7 +105,7 @@
     "@vitejs/plugin-vue": "^6.0.3",
     "baseline-browser-mapping": "^2.9.11",
     "cross-env": "^10.1.0",
-    "dexie": "^3.2.4",
+    "dexie": "^4.0.0",
     "dotenv": "^17.2.3",
     "dpdm": "^3.14.0",
     "electron": "^39.2.7",
