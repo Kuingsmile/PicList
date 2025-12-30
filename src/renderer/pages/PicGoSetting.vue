@@ -719,7 +719,6 @@
           <div class="form-group">
             <input v-model="customLink.value" type="text" class="form-input" :placeholder="'![$fileName]($url)'" />
           </div>
-          <small> ![$fileName]($url)</small>
         </div>
         <div class="dialog-footer">
           <button class="btn btn-secondary" @click="cancelCustomLink">

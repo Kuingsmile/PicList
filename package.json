@@ -50,6 +50,7 @@
     "@piclist/i18n": "^2.0.0",
     "@piclist/store": "^3.0.0",
     "@smithy/node-http-handler": "^4.4.7",
+    "@vueuse/core": "^14.1.0",
     "ali-oss": "^6.23.0",
     "axios": "^1.13.2",
     "chalk": "^5.6.2",

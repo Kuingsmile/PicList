@@ -45,6 +45,7 @@
       "dateRange": "Date Range",
       "delete": "Delete",
       "edit": "Edit",
+      "gridSize": "Grid Size",
       "gridView": "Grid",
       "haveDuplicate": "There are naming duplicates among the selected images, do you want to continue?",
       "hideFilters": "Filters",

@@ -13,6 +13,18 @@
           </div>
         </div>
         <div class="header-actions">
+          <div class="grid-size-control">
+            <GridIcon :size="14" />
+            <input
+              v-model.number="userGridColumns"
+              type="range"
+              min="1"
+              max="15"
+              step="1"
+              class="grid-slider"
+              :title="t('pages.gallery.gridSize')"
+            />
+          </div>
           <div class="sync-delete-toggle">
             <span class="toggle-label">{{ t('pages.gallery.isAlwaysForceReload') }}</span>
             <label class="custom-switch">
@@ -195,7 +207,7 @@
         :items="filterList"
         :item-height="itemHeight"
         :grid-items="4"
-        :grid-breakpoints="gridBreakpoints"
+        :grid-breakpoints="effectiveGridBreakpoints"
         key-field="key"
         :page-mode="true"
         :buffer-factor="0.5"
@@ -468,6 +480,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useStorage } from '@vueuse/core'
 import {
   CheckSquareIcon,
   ChevronDownIcon,
@@ -564,18 +577,15 @@ const dateRangeEnd = ref('')
 const picBedDropdownOpen = ref(false)
 const sortDropdownOpen = ref(false)
 const showFormatInfo = ref(false)
-const viewMode = ref<'list' | 'grid'>('grid')
+const viewMode = useStorage<'list' | 'grid'>('galleryViewMode', 'grid')
 const componentKey = ref(0)
 const currentSortField = ref<'name' | 'time' | 'ext' | 'check'>('name')
+const userGridColumns = useStorage<number>('galleryGridColumns', 4)
 const itemHeight = 300
-const gridBreakpoints = [
-  { min: 0, cols: 1 },
-  { min: 380, cols: 2 },
-  { min: 768, cols: 3 },
-  { min: 1024, cols: 4 },
-  { min: 1280, cols: 6 },
-  { min: 1536, cols: 7 },
-]
+
+const effectiveGridBreakpoints = computed(() => {
+  return [{ min: 0, cols: userGridColumns.value }]
+})
 
 const imageLoadStates = reactive<Record<string, boolean>>({})
 const imageErrorStates = reactive<Record<string, boolean>>({})
@@ -961,7 +971,6 @@ function handleImageTouchEnd(event: TouchEvent) {
 
 function toggleViewMode() {
   viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
-  localStorage.setItem('galleryViewMode', viewMode.value)
 }
 
 function getViewModeIcon() {
@@ -982,7 +991,6 @@ onBeforeRouteUpdate((to, from) => {
 })
 
 async function initConf() {
-  viewMode.value = (localStorage.getItem('galleryViewMode') as 'list' | 'grid') || 'grid'
   pasteStyle.value = (await getConfig(configPaths.settings.pasteStyle)) || IPasteStyle.MARKDOWN
   useShortUrl.value = (await getConfig(configPaths.settings.useShortUrl))
     ? t('pages.gallery.shortUrl')
@@ -1102,6 +1110,14 @@ async function updateGallery() {
 
 watch(filterList, () => {
   clearChoosedList()
+})
+
+watch(userGridColumns, _ => {
+  nextTick(() => {
+    if (virtualScrollerRef.value) {
+      virtualScrollerRef.value.refresh()
+    }
+  })
 })
 
 let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null

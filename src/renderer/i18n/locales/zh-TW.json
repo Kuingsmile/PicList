@@ -45,6 +45,7 @@
       "dateRange": "日期範圍",
       "delete": "刪除",
       "edit": "編輯",
+      "gridSize": "網格大小",
       "gridView": "網格",
       "haveDuplicate": "已選中的圖片中有命名重複, 是否繼續?",
       "hideFilters": "過濾器",
