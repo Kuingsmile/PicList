@@ -9,15 +9,6 @@
           <p>{{ $t('pages.imageProcess.description') }}</p>
         </div>
       </div>
-      <div class="header-actions">
-        <button class="btn btn-secondary" @click="closeDialog">
-          {{ $t('pages.imageProcess.cancel') }}
-        </button>
-        <button class="btn btn-primary" @click="handleSaveConfig">
-          <Save :size="16" />
-          {{ $t('pages.imageProcess.confirm') }}
-        </button>
-      </div>
     </div>
 
     <!-- Tab Navigation -->
@@ -699,9 +690,9 @@
 </template>
 
 <script lang="ts" setup>
-import { Image, RotateCw, Save, Settings } from 'lucide-vue-next'
+import { Image, RotateCw, Settings } from 'lucide-vue-next'
 import type { IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
-import { computed, onBeforeMount, reactive, ref, toRaw } from 'vue'
+import { computed, onBeforeMount, reactive, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { configPaths } from '@/utils/configPaths'
@@ -711,7 +702,6 @@ import { updatePicBedGlobal } from '@/utils/global'
 import PerPicbedSetting from './PerPicbedSetting.vue'
 
 const { t } = useI18n()
-const imageProcessDialogVisible = defineModel<boolean>()
 const activeTab = ref('general')
 
 const tabs = computed(() => [
@@ -847,6 +837,9 @@ const waterMarkFormKeys = Object.keys(waterMarkForm) as (keyof typeof waterMarkF
 const compressFormKeys = Object.keys(compressForm) as (keyof typeof compressForm)[]
 const skipProcessFormKeys = Object.keys(skipProcessForm) as (keyof typeof skipProcessForm)[]
 
+const isInitialized = ref(false)
+let saveTimeout: ReturnType<typeof setTimeout> | null = null
+
 function handleSaveConfig() {
   let iformatConvertObj = {}
   try {
@@ -881,7 +874,18 @@ function handleSaveConfig() {
   saveConfig(configPaths.buildIn.compress, toRaw(compressForm))
   saveConfig(configPaths.buildIn.watermark, toRaw(waterMarkForm))
   saveConfig(configPaths.buildIn.skipProcess, toRaw(skipProcessForm))
-  closeDialog()
+}
+
+function debouncedSave() {
+  if (!isInitialized.value) return
+
+  if (saveTimeout) {
+    clearTimeout(saveTimeout)
+  }
+
+  saveTimeout = setTimeout(() => {
+    handleSaveConfig()
+  }, 200)
 }
 
 async function initData() {
@@ -915,10 +919,6 @@ async function initData() {
   }
 }
 
-function closeDialog() {
-  imageProcessDialogVisible.value = false
-}
-
 // Helper function for getting map values (now unused - moved to component)
 // function getMapValue(mapObj: Record<string, any> | undefined, picbedType: string, defaultValue: any) {
 //   if (!mapObj) return defaultValue
@@ -941,7 +941,19 @@ function safeSetMapValue(form: any, fieldName: string, picbedType: string, value
 onBeforeMount(async () => {
   await updatePicBedGlobal()
   await initData()
+
+  setTimeout(() => {
+    isInitialized.value = true
+  }, 100)
 })
+
+watch(
+  () => [compressForm, waterMarkForm, skipProcessForm, formatConvertObj.value],
+  () => {
+    debouncedSave()
+  },
+  { deep: true },
+)
 </script>
 
 <style scoped>
