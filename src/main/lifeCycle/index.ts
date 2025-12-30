@@ -39,6 +39,7 @@ import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 import updateChecker from '~/utils/updateChecker'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
+process.noDeprecation = true
 
 const handleStartUpFiles = (argv: string[], cwd: string) => {
   const files = getUploadFiles(argv, cwd, logger)

@@ -4,10 +4,12 @@ import { fileURLToPath } from 'node:url'
 
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import vue from '@vitejs/plugin-vue'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import { defineConfig } from 'electron-vite'
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()],
+    build: {
+      externalizeDeps: true,
+    },
     resolve: {
       alias: {
         '@': resolve('src/renderer'),
@@ -20,14 +22,10 @@ export default defineConfig({
     },
   },
   preload: {
-    plugins: [
-      externalizeDepsPlugin(),
-      VueI18nPlugin({
-        /* options */
-        // locale messages resource pre-compile option
-        include: resolve(dirname(fileURLToPath(import.meta.url)), './src/renderer/i18n/locales/**'),
-      }),
-    ],
+    build: {
+      externalizeDeps: true,
+    },
+    plugins: [],
     resolve: {
       alias: {
         '@': resolve('src/renderer'),
@@ -48,9 +46,16 @@ export default defineConfig({
         '#': resolve('src/universal'),
       },
     },
-    plugins: [vue()],
+    plugins: [
+      vue(),
+      VueI18nPlugin({
+        /* options */
+        // locale messages resource pre-compile option
+        include: resolve(dirname(fileURLToPath(import.meta.url)), './src/renderer/i18n/locales/**'),
+      }),
+    ],
     server: {
-      port: 3000,
+      port: 30303,
     },
   },
 })

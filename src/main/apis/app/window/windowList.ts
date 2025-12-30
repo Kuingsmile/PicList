@@ -43,7 +43,7 @@ export function setMiniWindowShape(win: BrowserWindow) {
   win.setShape(shape)
 }
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const dirname = path.dirname(fileURLToPath(import.meta.url))
 const preloadPath = fileURLToPath(new URL('../preload/index.mjs', import.meta.url))
 
 const { width: defaultWindowWidth, height: defaultWindowHeight } = getDefaultWindowSizes()
@@ -181,7 +181,7 @@ windowList.set(IWindowList.TRAY_WINDOW, {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(process.env.ELECTRON_RENDERER_URL)
     } else {
-      window.loadFile(path.join(__dirname, '../renderer/index.html'))
+      window.loadFile(path.join(dirname, '../renderer/index.html'))
     }
     window.on('blur', () => {
       window.hide()
@@ -197,7 +197,7 @@ windowList.set(IWindowList.SETTING_WINDOW, {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#main-page/upload`)
     } else {
-      window.loadFile(path.join(__dirname, '../renderer/index.html'), {
+      window.loadFile(path.join(dirname, '../renderer/index.html'), {
         hash: 'main-page/upload',
       })
     }
@@ -222,7 +222,7 @@ windowList.set(IWindowList.MINI_WINDOW, {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#mini-page`)
     } else {
-      window.loadFile(path.join(__dirname, '../renderer/index.html'), {
+      window.loadFile(path.join(dirname, '../renderer/index.html'), {
         hash: 'mini-page',
       })
     }
@@ -237,7 +237,7 @@ windowList.set(IWindowList.RENAME_WINDOW, {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#rename-page`)
     } else {
-      window.loadFile(path.join(__dirname, '../renderer/index.html'), {
+      window.loadFile(path.join(dirname, '../renderer/index.html'), {
         hash: 'rename-page',
       })
     }
@@ -259,7 +259,7 @@ windowList.set(IWindowList.TOOLBOX_WINDOW, {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#toolbox-page`)
     } else {
-      window.loadFile(path.join(__dirname, '../renderer/index.html'), {
+      window.loadFile(path.join(dirname, '../renderer/index.html'), {
         hash: 'toolbox-page',
       })
     }

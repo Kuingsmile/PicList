@@ -8,7 +8,7 @@ import yaml from 'js-yaml'
 import type { ILocales, ILocalesKey } from '#/types/i18n'
 import type { II18nItem, IStringKeyMap } from '#/types/types'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const builtinI18nList: II18nItem[] = [
   {
@@ -26,7 +26,7 @@ const builtinI18nList: II18nItem[] = [
 ]
 class I18nManager {
   private i18n: I18n | null = null
-  private builtinI18nFolder = path.join(__dirname, '../../resources', 'i18n').replace('app.asar', 'app.asar.unpacked')
+  private builtinI18nFolder = path.join(dirname, '../../resources', 'i18n').replace('app.asar', 'app.asar.unpacked')
   private outterI18nFolder = ''
   private localesMap = new Map<string, ILocales>()
   private currentLanguage: string = 'zh-CN'

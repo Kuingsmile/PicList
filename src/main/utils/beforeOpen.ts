@@ -11,7 +11,7 @@ import { i18nManager } from '~/i18n'
 
 const configPath = dbPathChecker()
 const CONFIG_DIR = path.dirname(configPath)
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 function beforeOpen() {
   if (process.platform === 'darwin') {
@@ -50,7 +50,7 @@ function resolveMacWorkFlow() {
   try {
     copyFileOutsideOfElectronAsar(
       path
-        .join(__dirname, '../../resources', 'Upload pictures with PicList.workflow')
+        .join(dirname, '../../resources', 'Upload pictures with PicList.workflow')
         .replace('app.asar', 'app.asar.unpacked'),
       dest,
     )
@@ -93,7 +93,7 @@ function resolveClipboardImageGenerator() {
 
     return files.map(item => {
       return {
-        origin: path.join(__dirname, '../../resources', item).replace('app.asar', 'app.asar.unpacked'),
+        origin: path.join(dirname, '../../resources', item).replace('app.asar', 'app.asar.unpacked'),
         dest: path.join(CONFIG_DIR, item),
       }
     })
