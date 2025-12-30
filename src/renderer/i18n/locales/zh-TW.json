@@ -685,6 +685,7 @@
         "commonConfig": "通用配置",
         "downloadSettings": "下載配置",
         "fileManagement": "文件管理",
+        "galleryDB": "相冊數據庫同步",
         "gitea": { "branch": "分支名", "repo": "倉庫名", "token": "訪問令牌", "username": "用戶名" },
         "giteaHost": "Gitea 地址",
         "gitee": {

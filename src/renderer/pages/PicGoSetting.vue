@@ -1224,37 +1224,70 @@
 
     <!-- Upload/Download Config Dialog -->
     <div v-if="upDownConfigVisible" class="dialog-overlay" @click="upDownConfigVisible = false">
-      <div class="dialog" @click.stop>
+      <div class="dialog config-dialog" @click.stop>
         <div class="dialog-header">
-          <h3 class="dialog-title">
-            {{ t('pages.settings.sync.upDownloadSettings') }}
-          </h3>
+          <div class="dialog-header-content">
+            <RotateCcw :size="20" class="dialog-icon" />
+            <h3 class="dialog-title">
+              {{ t('pages.settings.sync.upDownloadSettings') }}
+            </h3>
+          </div>
           <button class="dialog-close" @click="upDownConfigVisible = false">×</button>
         </div>
         <div class="dialog-content">
-          <div class="form-group">
-            <label>{{ t('pages.settings.sync.uploadSettings') }}</label>
-            <div class="button-group">
+          <!-- Upload Settings Section -->
+          <div class="config-section">
+            <div class="config-section-header">
+              <CloudUpload :size="18" />
+              <h4>{{ t('pages.settings.sync.uploadSettings') }}</h4>
+            </div>
+            <div class="config-button-grid">
               <button
                 v-for="item in syncTaskList.slice(0, 3)"
                 :key="item.task"
-                class="btn btn-primary"
+                class="config-button"
                 @click="syncTaskFn(item.task, item.number)"
               >
-                {{ item.label }}
+                <Import :size="16" class="button-icon" />
+                <span>{{ item.label }}</span>
               </button>
             </div>
           </div>
-          <div class="form-group">
-            <label>{{ t('pages.settings.sync.downloadSettings') }}</label>
-            <div class="button-group">
+
+          <!-- Download Settings Section -->
+          <div class="config-section">
+            <div class="config-section-header">
+              <Download :size="18" />
+              <h4>{{ t('pages.settings.sync.downloadSettings') }}</h4>
+            </div>
+            <div class="config-button-grid">
               <button
-                v-for="item in syncTaskList.slice(3)"
+                v-for="item in syncTaskList.slice(3, 6)"
                 :key="item.task"
-                class="btn btn-primary"
+                class="config-button"
                 @click="syncTaskFn(item.task, item.number)"
               >
-                {{ item.label }}
+                <Download :size="16" class="button-icon" />
+                <span>{{ item.label }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Gallery DB Section -->
+          <div class="config-section">
+            <div class="config-section-header">
+              <ImageIcon :size="18" />
+              <h4>{{ t('pages.settings.sync.galleryDB') }}</h4>
+            </div>
+            <div class="config-button-grid full-width">
+              <button
+                v-for="item in syncTaskList.slice(6, 7)"
+                :key="item.task"
+                class="config-button"
+                @click="syncTaskFn(item.task, item.number)"
+              >
+                <RefreshCw :size="16" class="button-icon" />
+                <span>{{ item.label }}</span>
               </button>
             </div>
           </div>
@@ -1940,6 +1973,7 @@ const syncTaskList = [
   { task: IRPCActionType.CONFIGURE_DOWNLOAD_COMMON_CONFIG, label: t('pages.settings.sync.commonConfig'), number: 2 },
   { task: IRPCActionType.CONFIGURE_DOWNLOAD_MANAGE_CONFIG, label: t('pages.settings.sync.manageConfig'), number: 2 },
   { task: IRPCActionType.CONFIGURE_DOWNLOAD_ALL_CONFIG, label: t('pages.settings.sync.allConfig'), number: 4 },
+  { task: IRPCActionType.CONFIGURE_SYNC_GALLERY_DB, label: t('pages.settings.sync.galleryDB'), number: 2 },
 ]
 
 async function syncTaskFn(task: string, number: number) {

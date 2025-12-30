@@ -685,6 +685,7 @@
         "commonConfig": "Common Configuration",
         "downloadSettings": "Download Settings",
         "fileManagement": "File Management",
+        "galleryDB": "Gallery Database Sync",
         "gitea": {
           "branch": "Branch Name",
           "repo": "Repository Name",

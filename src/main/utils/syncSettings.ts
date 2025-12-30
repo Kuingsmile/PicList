@@ -1,3 +1,4 @@
+import os from 'node:os'
 import path from 'node:path'
 
 import db from '@core/datastore'
@@ -10,32 +11,71 @@ import { HttpsProxyAgent } from 'hpagent'
 import { AuthType, createClient, WebDAVClientOptions } from 'webdav'
 
 import type { ISyncConfig } from '#/types/types'
+import { extractData, zipData } from '~/utils/common'
 import { formatEndpoint } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 
 const STORE_PATH = app.getPath('userData')
+const tempDir = path.join(os.tmpdir(), `piclist-sync-tmp`)
+const db1 = path.join(tempDir, 'db1')
+const db2 = path.join(tempDir, 'db2')
+const dbMerged = path.join(tempDir, 'db-merged')
+const galleryDBList = ['piclist.db', 'piclist.bak.db']
 
 const readFileAsBase64 = (filePath: string) => fs.readFileSync(filePath, { encoding: 'base64' })
 
 const isHttpResSuccess = (res: any) => res.status >= 200 && res.status < 300
+
 const uploadOrUpdateMsg = (fileName: string, isUpdate: boolean = true) =>
   isUpdate ? `update ${fileName} from PicList` : `upload ${fileName} from PicList`
 
-const getSyncConfig = () => {
-  return (
-    db.get(configPaths.settings.sync) || {
-      type: 'github',
-      username: '',
-      repo: '',
-      branch: '',
-      token: '',
-      proxy: '',
-    }
-  )
+const emptyDir = async (): Promise<void> => {
+  await fs.emptyDir(tempDir)
+  await fs.emptyDir(db1)
+  await fs.emptyDir(db2)
+  await fs.emptyDir(dbMerged)
 }
 
-const getProxyagent = (proxy: string | undefined) => {
-  return proxy
+const mergeGalleryDB = async (targetFile: string) => {
+  try {
+    const db1Data = await extractData(path.join(db1, targetFile))
+    const db2Data = await extractData(path.join(db2, targetFile))
+    const mergedData: any = {
+      gallery: [],
+      __gallery_KEY__: {},
+    }
+    const db1Ids = new Set<string>(Object.keys(db1Data.__gallery_KEY__ || {}))
+    const db2Ids = new Set<string>(Object.keys(db2Data.__gallery_KEY__ || {}))
+    const idSet = new Set<string>([...db1Ids, ...db2Ids])
+    for (const id of idSet) {
+      if (db2Ids.has(id)) {
+        mergedData.gallery.push(db2Data.gallery.find((item: any) => item.id === id))
+      } else if (db1Ids.has(id)) {
+        mergedData.gallery.push(db1Data.gallery.find((item: any) => item.id === id))
+      }
+    }
+    for (const item of mergedData.gallery) {
+      mergedData.__gallery_KEY__[item.id] = 1
+    }
+    await zipData(mergedData, path.join(dbMerged, targetFile))
+    await fs.copyFile(path.join(dbMerged, targetFile), path.join(STORE_PATH, targetFile))
+  } catch (err: any) {
+    logger.error('merge gallery db failed:', String(err))
+  }
+}
+
+const getSyncConfig = () =>
+  db.get(configPaths.settings.sync) || {
+    type: 'github',
+    username: '',
+    repo: '',
+    branch: '',
+    token: '',
+    proxy: '',
+  }
+
+const getProxyagent = (proxy: string | undefined) =>
+  proxy
     ? new HttpsProxyAgent({
         keepAlive: true,
         keepAliveMsecs: 1000,
@@ -44,17 +84,14 @@ const getProxyagent = (proxy: string | undefined) => {
         scheduling: 'lifo',
       })
     : undefined
-}
 
-function getOctokit(syncConfig: ISyncConfig) {
-  const { token, proxy } = syncConfig
-  return new Octokit({
-    auth: token,
+const getOctokit = (syncConfig: ISyncConfig) =>
+  new Octokit({
+    auth: syncConfig.token,
     request: {
-      agent: getProxyagent(proxy),
+      agent: getProxyagent(syncConfig.proxy),
     },
   })
-}
 
 const isSyncConfigValidate = ({
   type,
@@ -85,10 +122,10 @@ const isSyncConfigValidate = ({
 
 async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
   const localFilePath = path.join(STORE_PATH, fileName)
-  if (!fs.existsSync(localFilePath)) {
-    return false
-  }
+  if (!fs.existsSync(localFilePath)) return false
+
   const { username, repo, branch, token, type } = syncConfig
+
   const defaultConfig = {
     content: readFileAsBase64(localFilePath),
     message: uploadOrUpdateMsg(fileName, false),
@@ -97,8 +134,7 @@ async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
   try {
     switch (type) {
       case 'gitee': {
-        const url = `https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`
-        const res = await axios.post(url, {
+        const res = await axios.post(`https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`, {
           ...defaultConfig,
           access_token: token,
         })
@@ -116,11 +152,15 @@ async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
       }
       case 'gitea': {
         const { endpoint = '' } = syncConfig
-        const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
-        const headers = {
-          Authorization: `token ${token}`,
-        }
-        const res = await axios.post(apiUrl, defaultConfig, { headers })
+        const res = await axios.post(
+          `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`,
+          defaultConfig,
+          {
+            headers: {
+              Authorization: `token ${token}`,
+            },
+          },
+        )
         return isHttpResSuccess(res)
       }
       case 'webdav': {
@@ -136,9 +176,7 @@ async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
         const options: WebDAVClientOptions = {
           username: webdavUsername,
           password: webdavPassword,
-        }
-        if (webdavAuthType === 'digest') {
-          options.authType = AuthType.Digest
+          ...(webdavAuthType === 'digest' ? { authType: AuthType.Digest } : {}),
         }
         const client = createClient(webdavEndpointF, options)
         const fileContent = fs.readFileSync(localFilePath)
@@ -159,6 +197,31 @@ async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
     logger.error(error)
     return false
   }
+}
+
+async function uploadFile(fileName: string[]): Promise<number> {
+  const syncConfig = getSyncConfig()
+  if (!isSyncConfigValidate(syncConfig)) {
+    logger.error('sync config is invalid')
+    return 0
+  }
+  const uploadFunc = async (file: string): Promise<number> => {
+    let result = false
+    try {
+      result = await updateLocalToRemote(syncConfig, file)
+    } catch (_e: any) {
+      result = await uploadLocalToRemote(syncConfig, file)
+    }
+    logger.info(`upload ${file} ${result ? 'success' : 'failed'}`)
+    return result ? 1 : 0
+  }
+
+  let count = 0
+  for (const file of fileName) {
+    count += await uploadFunc(file)
+  }
+
+  return count
 }
 
 async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
@@ -277,31 +340,6 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
   }
 }
 
-async function uploadFile(fileName: string[]): Promise<number> {
-  const syncConfig = getSyncConfig()
-  if (!isSyncConfigValidate(syncConfig)) {
-    logger.error('sync config is invalid')
-    return 0
-  }
-  const uploadFunc = async (file: string): Promise<number> => {
-    let result = false
-    try {
-      result = await updateLocalToRemote(syncConfig, file)
-    } catch (_e: any) {
-      result = await uploadLocalToRemote(syncConfig, file)
-    }
-    logger.info(`upload ${file} ${result ? 'success' : 'failed'}`)
-    return result ? 1 : 0
-  }
-
-  let count = 0
-  for (const file of fileName) {
-    count += await uploadFunc(file)
-  }
-
-  return count
-}
-
 async function downloadAndWriteFile(url: string, localFilePath: string, config: any, isWriteJson = false) {
   const res = await axios.get(url, config)
   if (isHttpResSuccess(res)) {
@@ -314,19 +352,31 @@ async function downloadAndWriteFile(url: string, localFilePath: string, config: 
   return false
 }
 
-async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) {
-  const localFilePath = path.join(STORE_PATH, fileName)
+async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string, galleryMode = false) {
+  const storePath = galleryMode ? db2 : STORE_PATH
+  const localFilePath = path.join(storePath, fileName)
   const { username, repo, branch, token, proxy, type } = syncConfig
   try {
     switch (type) {
       case 'gitee': {
         const url = `https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`
-        return downloadAndWriteFile(url, localFilePath, {
-          params: {
-            access_token: token,
-            ref: branch,
-          },
-        })
+        const config = {
+          params: { access_token: token, ref: branch },
+        }
+        if (galleryMode) {
+          const res = await axios.get(url, config)
+          if (isHttpResSuccess(res)) {
+            const downloadUrl = res.data.download_url
+            const fileRes = await axios.get(downloadUrl, { responseType: 'arraybuffer' })
+            if (isHttpResSuccess(fileRes)) {
+              await fs.writeFile(localFilePath, fileRes.data)
+              return true
+            }
+          }
+          return false
+        } else {
+          return downloadAndWriteFile(url, localFilePath, config)
+        }
       }
       case 'github': {
         const octokit = getOctokit(syncConfig)
@@ -339,28 +389,59 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) 
         if (res.status === 200) {
           const data = res.data as any
           const downloadUrl = data.download_url
-          return downloadAndWriteFile(
-            downloadUrl,
-            localFilePath,
-            {
+          if (galleryMode) {
+            const res = await axios.get(downloadUrl, {
               httpsAgent: getProxyagent(proxy),
-            },
-            true,
-          )
+              responseType: 'arraybuffer',
+            })
+            if (isHttpResSuccess(res)) {
+              await fs.writeFile(localFilePath, res.data)
+              return true
+            } else {
+              return false
+            }
+          } else {
+            return downloadAndWriteFile(
+              downloadUrl,
+              localFilePath,
+              {
+                httpsAgent: getProxyagent(proxy),
+              },
+              true,
+            )
+          }
         }
         return false
       }
       case 'gitea': {
-        const { endpoint = '' } = syncConfig
-        const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
-        return downloadAndWriteFile(apiUrl, localFilePath, {
-          headers: {
-            Authorization: `token ${token}`,
-          },
-          params: {
-            ref: branch,
-          },
-        })
+        const { endpoint = '', token, username, repo, branch } = syncConfig
+        if (galleryMode) {
+          const rawUrl = `${endpoint}/api/v1/repos/${username}/${repo}/raw/${fileName}`
+          const res = await axios.get(rawUrl, {
+            headers: {
+              Authorization: `token ${token}`,
+            },
+            params: {
+              ref: branch,
+            },
+            responseType: 'arraybuffer',
+          })
+          if (isHttpResSuccess(res)) {
+            await fs.writeFile(localFilePath, res.data)
+            return true
+          }
+          return false
+        } else {
+          const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
+          return downloadAndWriteFile(apiUrl, localFilePath, {
+            headers: {
+              Authorization: `token ${token}`,
+            },
+            params: {
+              ref: branch,
+            },
+          })
+        }
       }
       case 'webdav': {
         const {
@@ -394,6 +475,82 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) 
   }
 }
 
+async function checkCloudFileExist(syncConfig: ISyncConfig, fileName: string) {
+  const { username, repo, branch, token, type } = syncConfig
+  try {
+    switch (type) {
+      case 'gitee': {
+        const url = `https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`
+        try {
+          const res = await axios.get(url, {
+            params: { access_token: token, ref: branch },
+          })
+          return isHttpResSuccess(res)
+        } catch (error: any) {
+          if (error.response?.status === 404) return false
+          throw error
+        }
+      }
+      case 'github': {
+        const octokit = getOctokit(syncConfig)
+        try {
+          const res = await octokit.rest.repos.getContent({
+            owner: username,
+            repo,
+            path: fileName,
+            ref: branch,
+          })
+          return res.status === 200
+        } catch (error: any) {
+          if (Number(error.status) === 404) return false
+          throw error
+        }
+      }
+      case 'gitea': {
+        const { endpoint = '' } = syncConfig
+        const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
+        try {
+          const res = await axios.get(apiUrl, {
+            headers: { Authorization: `token ${token}` },
+            params: { ref: branch },
+          })
+          return isHttpResSuccess(res)
+        } catch (error: any) {
+          if (error.response?.status === 404) return false
+          throw error
+        }
+      }
+      case 'webdav': {
+        const {
+          webdavEndpoint = '',
+          webdavUsername,
+          webdavPassword,
+          webdavAuthType = 'basic',
+          webdavSslEnabled = true,
+          webdavSavePath = '',
+        } = syncConfig
+        const webdavEndpointF = formatEndpoint(webdavEndpoint, webdavSslEnabled)
+        const options: WebDAVClientOptions = {
+          username: webdavUsername,
+          password: webdavPassword,
+        }
+        if (webdavAuthType === 'digest') {
+          options.authType = AuthType.Digest
+        }
+        const client = createClient(webdavEndpointF, options)
+        const remoteFilePath = (webdavSavePath ? path.join(webdavSavePath, fileName) : fileName).replace(/\\/g, '/')
+        const exists = await client.exists(remoteFilePath)
+        return exists
+      }
+      default:
+        throw new Error('unsupported sync type')
+    }
+  } catch (error: any) {
+    logger.error(error)
+    throw new Error('check file exist failed')
+  }
+}
+
 async function downloadFile(fileName: string[]): Promise<number> {
   const syncConfig = getSyncConfig()
   if (!isSyncConfigValidate(syncConfig)) {
@@ -410,4 +567,35 @@ async function downloadFile(fileName: string[]): Promise<number> {
   return (await Promise.all(fileName.map(downloadFunc))).reduce((a, b) => a + b, 0)
 }
 
-export { downloadFile, uploadFile }
+async function syncGallery(): Promise<number> {
+  const syncConfig = getSyncConfig()
+  if (!isSyncConfigValidate(syncConfig)) {
+    logger.error('sync config is invalid')
+    return 0
+  }
+  let successCount = 0
+  for (const file of galleryDBList) {
+    await emptyDir()
+    try {
+      const exists = await checkCloudFileExist(syncConfig, file)
+      if (!exists) {
+        await uploadLocalToRemote(syncConfig, file)
+        logger.info(`gallery db ${file} not exist in cloud, upload local file instead`)
+        successCount++
+        continue
+      }
+    } catch (err: any) {
+      logger.error(`check gallery db ${file} exist failed:`, String(err))
+      continue
+    }
+    await downloadRemoteToLocal(syncConfig, file, true)
+    await fs.copyFile(path.join(STORE_PATH, file), path.join(db1, file))
+    await mergeGalleryDB(file)
+    await updateLocalToRemote(syncConfig, file)
+    logger.info(`sync gallery db ${file} success`)
+    successCount++
+  }
+  return successCount
+}
+
+export { downloadFile, syncGallery, uploadFile }

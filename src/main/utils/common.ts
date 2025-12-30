@@ -4,6 +4,7 @@ import db from '@core/datastore'
 import logger from '@core/picgo/logger'
 import axios from 'axios'
 import { clipboard, Notification, Tray } from 'electron'
+import { gunzipSync, gzipSync, strFromU8 } from 'fflate'
 import FormData from 'form-data'
 import fs from 'fs-extra'
 import { isReactive, isRef, toRaw, unref } from 'vue'
@@ -321,3 +322,23 @@ export function encodeFilePath(filePath: string) {
 }
 
 export const trimPath = (path: string) => path.replace(/^\/+|\/+$/g, '').replace(/\/+/g, '/')
+
+export const extractData = async (zipPath: string): Promise<Record<string, any>> => {
+  try {
+    const buffer = await fs.readFile(zipPath)
+    const str = strFromU8(gunzipSync(buffer))
+    return JSON.parse(str)
+  } catch (_err) {
+    throw new Error('Extract failed')
+  }
+}
+
+export const zipData = async (data: Record<string, any>, zipPath: string): Promise<void> => {
+  try {
+    const buffer = Buffer.from(JSON.stringify(data))
+    const compressed = gzipSync(buffer)
+    await fs.writeFile(zipPath, Buffer.from(compressed))
+  } catch (_err) {
+    throw new Error('Zip failed')
+  }
+}

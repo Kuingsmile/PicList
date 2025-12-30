@@ -5,7 +5,7 @@ import { app } from 'electron'
 import fs from 'fs-extra'
 
 import { IRPCActionType, IRPCType } from '~/utils/enum'
-import { downloadFile, uploadFile } from '~/utils/syncSettings'
+import { downloadFile, syncGallery, uploadFile } from '~/utils/syncSettings'
 
 const STORE_PATH = app.getPath('userData')
 
@@ -45,6 +45,13 @@ export default [
     action: IRPCActionType.CONFIGURE_UPLOAD_MANAGE_CONFIG,
     handler: async () => {
       return await uploadFile(manageConfigList)
+    },
+    type: IRPCType.INVOKE,
+  },
+  {
+    action: IRPCActionType.CONFIGURE_SYNC_GALLERY_DB,
+    handler: async () => {
+      return await syncGallery()
     },
     type: IRPCType.INVOKE,
   },
