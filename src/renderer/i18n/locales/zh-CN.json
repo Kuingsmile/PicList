@@ -585,6 +585,7 @@
       }
     },
     "picBedConfigs": {
+      "configSettings": "配置设置",
       "copyAPI": "复制上传API",
       "copyAPIFailed": "复制API地址失败",
       "copyAPISucceed": "复制API地址成功",
@@ -593,13 +594,14 @@
       "loadConfigFailed": "加载配置失败, 请检查配置文件是否正确",
       "loadPicBedListFailed": "加载图床列表失败",
       "noConfigOptions": "暂无配置项",
+      "noConfigOptionsDesc": "该上传器没有可用的配置选项。",
       "noConfigs": "配置为空",
       "resetFailed": "重置失败, 请检查配置项是否正确",
       "resetSuccess": "重置成功",
+      "selectConfig": "选择配置",
       "setFailedInfo": "设置失败, 请检查配置项是否正确",
       "setSuccess": "设置成功",
-      "title": "配置",
-      "viewDoc": "查看文档",
+      "viewDoc": "文档",
       "viewDocFailed": "查看文档失败"
     },
     "plugin": {

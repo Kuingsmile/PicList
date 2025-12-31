@@ -1,101 +1,138 @@
 <template>
-  <div id="picbeds-page">
+  <div class="picbeds-page">
+    <!-- Ambient Background -->
+    <div class="ambient-bg" />
+
     <div class="page-container">
-      <div class="page-content">
-        <!-- Header Section -->
-        <div class="page-header">
-          <div class="header-title-section">
-            <h1 class="page-title" @click="handleNameClick">{{ picBedName }} {{ t('pages.picBedConfigs.title') }}</h1>
-            <button class="link-button" :title="t('pages.picBedConfigs.viewDoc')" @click="handleNameClick">
-              <ExternalLink :size="20" />
-            </button>
+      <header class="page-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <Cloud :size="38" :stroke-width="1.5" />
           </div>
-          <button class="action-button primary" @click="handleCopyApi">
-            <Copy :size="20" />
-            {{ t('pages.picBedConfigs.copyAPI') }}
+          <div class="header-text">
+            <div class="title-row">
+              <h1 class="page-title">
+                {{ picBedName }}
+              </h1>
+              <button class="doc-link-btn" :title="t('pages.picBedConfigs.viewDoc')" @click="handleNameClick">
+                <ExternalLink :size="16" />
+                <span>{{ t('pages.picBedConfigs.viewDoc') }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary btn-glow" @click="handleCopyApi">
+            <Copy :size="16" />
+            <span>{{ t('pages.picBedConfigs.copyAPI') }}</span>
           </button>
         </div>
+      </header>
 
-        <!-- Config Form Section -->
-        <div v-if="config.length > 0" class="form-section">
-          <config-form :id="type" ref="$configForm" :config="config" type="uploader" color-mode="white">
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-              <button class="action-button secondary" type="button" @click="handleReset">
-                <RotateCcw :size="18" />
-                {{ t('common.reset') }}
-              </button>
+      <!-- Main Content Card -->
+      <main class="main-content">
+        <div v-if="config.length > 0" class="config-card">
+          <!-- Card Header -->
+          <div class="card-header">
+            <div class="card-header-icon">
+              <Settings :size="18" />
+            </div>
+            <h2 class="card-title">{{ t('pages.picBedConfigs.configSettings') }}</h2>
+          </div>
 
-              <button class="action-button success" type="button" @click="handleConfirm">
-                <Check :size="18" />
-                {{ t('common.confirm') }}
-              </button>
-
-              <div v-if="picBedConfigList.length > 0" class="dropdown-wrapper">
-                <button
-                  class="action-button warning dropdown-trigger"
-                  type="button"
-                  @click="toggleDropdown"
-                  @blur="handleDropdownBlur"
-                >
-                  <Import :size="18" />
-                  {{ t('common.import') }}
-                  <svg
-                    class="dropdown-arrow"
-                    :class="{ 'dropdown-arrow-up': true }"
-                    width="12"
-                    height="8"
-                    viewBox="0 0 12 8"
-                    fill="none"
-                  >
-                    <path
-                      d="M1 1.5L6 6.5L11 1.5"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
+          <!-- Config Form -->
+          <div class="card-body">
+            <config-form :id="type" ref="$configForm" :config="config" type="uploader" color-mode="white">
+              <!-- Action Buttons -->
+              <div class="action-buttons">
+                <button class="btn btn-outline" type="button" @click="handleReset">
+                  <RotateCcw :size="16" />
+                  <span>{{ t('common.reset') }}</span>
                 </button>
 
-                <transition name="dropdown">
-                  <div v-show="dropdownVisible" class="dropdown-menu" :class="{ 'dropdown-up': true }">
-                    <button
-                      v-for="item in picBedConfigList"
-                      :key="item._id"
-                      class="dropdown-item"
-                      @click="handleConfigImport(item)"
-                    >
-                      {{ item._configName }}
-                    </button>
-                  </div>
-                </transition>
+                <button class="btn btn-success btn-glow" type="button" @click="handleConfirm">
+                  <Check :size="16" />
+                  <span>{{ t('common.confirm') }}</span>
+                </button>
+
+                <div v-if="picBedConfigList.length > 0" class="dropdown-wrapper">
+                  <button
+                    class="btn btn-warning btn-glow dropdown-trigger"
+                    type="button"
+                    @click="toggleDropdown"
+                    @blur="handleDropdownBlur"
+                  >
+                    <Import :size="16" />
+                    <span>{{ t('common.import') }}</span>
+                    <ChevronDown :size="14" class="dropdown-chevron" :class="{ rotated: dropdownVisible }" />
+                  </button>
+
+                  <Transition name="dropdown">
+                    <div v-show="dropdownVisible" class="dropdown-menu">
+                      <div class="dropdown-header">
+                        <span>{{ t('pages.picBedConfigs.selectConfig') }}</span>
+                      </div>
+                      <div class="dropdown-items">
+                        <button
+                          v-for="item in picBedConfigList"
+                          :key="item._id"
+                          class="dropdown-item"
+                          @click="handleConfigImport(item)"
+                        >
+                          <FileJson :size="14" />
+                          <span>{{ item._configName }}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </Transition>
+                </div>
               </div>
-            </div>
-          </config-form>
+            </config-form>
+          </div>
         </div>
 
         <!-- Empty State -->
-        <div v-else class="empty-state">
-          <div class="empty-content">
-            <FolderOpen class="empty-icon" :size="48" />
-            <h3>{{ t('pages.picBedConfigs.noConfigOptions') }}</h3>
+        <div v-else class="empty-state-card">
+          <div class="empty-state">
+            <div class="empty-icon-wrapper">
+              <FolderOpen :size="48" />
+            </div>
+            <h3 class="empty-title">{{ t('pages.picBedConfigs.noConfigOptions') }}</h3>
+            <p class="empty-description">{{ t('pages.picBedConfigs.noConfigOptionsDesc') }}</p>
           </div>
         </div>
-      </div>
+      </main>
     </div>
 
     <!-- Loading Overlay -->
-    <div v-if="loading" class="loading-overlay">
-      <div class="loading-spinner" />
-      <span class="loading-text">Loading...</span>
-    </div>
+    <Transition name="fade">
+      <div v-if="loading" class="loading-overlay">
+        <div class="loading-content">
+          <div class="loading-spinner">
+            <div class="spinner-ring" />
+            <Cloud :size="24" class="spinner-icon" />
+          </div>
+          <span class="loading-text">{{ 'loading' }}</span>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { Check, Copy, ExternalLink, FolderOpen, Import, RotateCcw } from 'lucide-vue-next'
+import {
+  Check,
+  ChevronDown,
+  Cloud,
+  Copy,
+  ExternalLink,
+  FileJson,
+  FolderOpen,
+  Import,
+  RotateCcw,
+  Settings,
+} from 'lucide-vue-next'
 import { onBeforeMount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -267,426 +304,4 @@ export default {
 }
 </script>
 
-<style scoped>
-#picbeds-page {
-  position: relative;
-  min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--color-background-tertiar);
-}
-
-.page-container {
-  margin: 0 auto;
-  padding: 2rem;
-  max-width: 1000px;
-}
-
-.page-content {
-  overflow: auto;
-  border: 1px solid rgb(255 255 255 / 20%);
-  border-radius: 16px;
-  background: var(--color-background-secondary);
-  box-shadow:
-    0 8px 8px rgb(0 0 0 / 12%),
-    0 4px 8px rgb(0 0 0 / 8%);
-}
-
-/* Header Section */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgb(229 231 235 / 80%);
-  padding: 2rem 2rem 1.5rem;
-  background: var(--color-background-secondary);
-}
-
-.header-title-section {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.page-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  background: linear-gradient(135deg, #1f2937 0%, #4b5563 100%);
-  background-clip: text;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  -webkit-text-fill-color: transparent;
-}
-
-.page-title:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.1);
-}
-
-.link-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  border-radius: 8px;
-  width: 2rem;
-  height: 2rem;
-  color: #3b82f6;
-  background: rgb(59 130 246 / 10%);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-}
-
-.link-button:hover {
-  background: rgb(59 130 246 / 20%);
-  transform: translateY(-1px);
-}
-
-/* Action Buttons */
-.action-button {
-  position: relative;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  border: none;
-  border-radius: 12px;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.875rem;
-  font-family: inherit;
-  font-weight: 500;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
-.action-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 20%), transparent);
-  transition: left 0.6s;
-}
-
-.action-button:hover::before {
-  left: 100%;
-}
-
-.action-button.primary {
-  color: white;
-  background: var(--color-blue-common);
-  box-shadow: 0 2px 2px rgb(0 122 255 / 30%);
-}
-
-.action-button.primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgb(0 122 255 / 40%);
-}
-
-.action-button.secondary {
-  border: 1px solid #e2e8f0;
-  color: #475569;
-  background: var(--color-surface-elevated);
-}
-
-.action-button.secondary:hover {
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgb(0 0 0 / 10%);
-}
-
-.action-button.success {
-  color: white;
-  background: var(--color-success);
-  box-shadow: 0 4px 4px rgb(16 185 129 / 30%);
-}
-
-.action-button.success:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 6px rgb(16 185 129 / 40%);
-}
-
-.action-button.warning {
-  position: relative;
-  color: white;
-  background: var(--color-warning);
-}
-
-.action-button.warning:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgb(245 158 11 / 30%);
-}
-
-.dropdown-arrow {
-  margin-left: 0.5rem;
-  transition: transform 0.2s ease;
-}
-
-.dropdown-arrow-up {
-  transform: rotate(180deg);
-}
-
-.dropdown-trigger:hover .dropdown-arrow:not(.dropdown-arrow-up) {
-  transform: rotate(180deg);
-}
-
-.dropdown-trigger:hover .dropdown-arrow.dropdown-arrow-up {
-  transform: rotate(0deg);
-}
-
-/* Form Section */
-.form-section {
-  padding: 2rem;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-  flex-wrap: wrap;
-}
-
-/* Dropdown */
-.dropdown-wrapper {
-  position: relative;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  left: 0;
-  z-index: 1000;
-  overflow: hidden;
-  overflow-y: auto;
-  margin-top: 0.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  max-height: 300px;
-  background: white;
-  box-shadow: 0 8px 32px rgb(0 0 0 / 12%);
-}
-
-.dropdown-menu.dropdown-up {
-  top: auto;
-  bottom: 100%;
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-}
-
-.dropdown-item {
-  display: block;
-  border: none;
-  padding: 0.75rem 1rem;
-  width: 100%;
-  font-size: 0.875rem;
-  text-align: left;
-  color: #374151;
-  background: transparent;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.dropdown-item:hover {
-  color: #007aff;
-  background: #f3f4f6;
-}
-
-.dropdown-item:last-child {
-  border-bottom: none;
-}
-
-/* Empty State */
-.empty-state {
-  padding: 4rem 2rem;
-  text-align: center;
-}
-
-.empty-content {
-  margin: 0 auto;
-  max-width: 400px;
-}
-
-.empty-icon {
-  margin-bottom: 1.5rem;
-  color: #9ca3af;
-}
-
-.empty-content h3 {
-  margin: 0 0 0.5rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #374151;
-}
-
-.empty-content p {
-  margin: 0;
-  color: #6b7280;
-  line-height: 1.6;
-}
-
-/* Loading Overlay */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgb(0 0 0 / 50%);
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.loading-spinner {
-  border: 3px solid rgb(255 255 255 / 30%);
-  border-top: 3px solid white;
-  border-radius: 50%;
-  width: 2.5rem;
-  height: 2.5rem;
-  animation: spin 1s linear infinite;
-}
-
-.loading-text {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: white;
-}
-
-/* Transitions */
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-0.5rem);
-}
-
-.dropdown-up.dropdown-enter-from,
-.dropdown-up.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(0.5rem);
-}
-
-/* Animations */
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Dark mode adjustments */
-:root.dark #picbeds-page,
-:root.auto.dark #picbeds-page {
-  background: var(--color-background-tertiar);
-}
-
-:root.dark .page-content,
-:root.auto.dark .page-content {
-  border-color: rgb(75 85 99 / 30%);
-  background: var(--color-background-secondary);
-}
-
-:root.dark .page-header,
-:root.auto.dark .page-header {
-  border-color: rgb(75 85 99 / 30%);
-  background: var(--color-background-secondary);
-}
-
-:root.dark .page-title,
-:root.auto.dark .page-title {
-  background: linear-gradient(135deg, #f9fafb 0%, #d1d5db 100%);
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-:root.dark .dropdown-menu,
-:root.auto.dark .dropdown-menu {
-  border-color: #4b5563;
-  background: #374151;
-}
-
-:root.dark .dropdown-menu.dropdown-up,
-:root.auto.dark .dropdown-menu.dropdown-up {
-  border-color: #4b5563;
-  background: #374151;
-}
-
-:root.dark .dropdown-item,
-:root.auto.dark .dropdown-item {
-  color: #f9fafb;
-}
-
-:root.dark .dropdown-item:hover,
-:root.auto.dark .dropdown-item:hover {
-  color: #60a5fa;
-  background: #4b5563;
-}
-
-/* Responsive Design */
-@media (width <= 768px) {
-  .page-container {
-    padding: 1rem;
-  }
-
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1.5rem;
-  }
-
-  .header-title-section {
-    width: 100%;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .action-button {
-    justify-content: center;
-    width: 100%;
-  }
-
-  .toast {
-    top: 1rem;
-    right: 1rem;
-    left: 1rem;
-    min-width: auto;
-  }
-}
-
-@media (width <= 480px) {
-  .page-container {
-    padding: 0.5rem;
-  }
-
-  .form-section {
-    padding: 1.5rem;
-  }
-
-  .page-header {
-    padding: 1rem;
-  }
-}
-
-/* Focus styles for accessibility */
-.action-button:focus-visible,
-.link-button:focus-visible,
-.dropdown-item:focus-visible {
-  outline: 2px solid #007aff;
-  outline-offset: 2px;
-}
-</style>
+<style scoped src="./Picbeds.css"></style>

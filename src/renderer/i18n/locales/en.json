@@ -585,6 +585,7 @@
       }
     },
     "picBedConfigs": {
+      "configSettings": "Configuration Settings",
       "copyAPI": "Copy Upload API",
       "copyAPIFailed": "Copy API Address Failed",
       "copyAPISucceed": "Copy API Address Succeed",
@@ -592,14 +593,15 @@
       "importConfigSuccess": "Import Config Success",
       "loadConfigFailed": "Load Config Failed, Please Check If Config File Is Correct",
       "loadPicBedListFailed": "Load PicBed List Failed",
-      "noConfigOptions": "No Config Options",
+      "noConfigOptions": "No Configuration Options",
+      "noConfigOptionsDesc": "This uploader does not have any configuration options available.",
       "noConfigs": "No Configs",
       "resetFailed": "Reset Failed, Please Check If Config Options Are Correct",
       "resetSuccess": "Reset Success",
+      "selectConfig": "Select Configuration",
       "setFailedInfo": "Set Failed, Please Check If Config Options Are Correct",
       "setSuccess": "Set Success",
-      "title": "Config",
-      "viewDoc": "View Document",
+      "viewDoc": "Documentation",
       "viewDocFailed": "View Document Failed"
     },
     "plugin": {
