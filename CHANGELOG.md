@@ -1,3 +1,30 @@
+##  (2025-12-31)
+
+* :bug: Fix(custom): fix an issue eslint not worked as expected b53eccc
+* :bug: Fix(custom): fix gitee sync bug 07c4bd7
+* :construction: WIP(custom): optimize gallery db sync logic and force refresh gallery 0ae680d
+* :construction: WIP(custom): support sync gallery db file 6a8d3f6, closes #355 #417
+* :package: Chore(custom): update gitignore file 4fb5a26
+* :package: Chore(custom): update winget file 33358ce
+* :package: Chore(custom): update workflow 391c52b
+* :pencil: Docs(custom): update docs 5a6ef59
+* :sparkles: Feature(custom): automatically save config change of image process setting 95cc775, closes #412
+* :sparkles: Feature(custom): change the position of save/cancel button in advanced rename page 33ccd4b
+* :sparkles: Feature(custom): optimize image process setting page b5802cf
+* :sparkles: Feature(custom): optimize picbed config edit page 5ce2397
+* :sparkles: Feature(custom): optimize UI of config sync panel and dialog edff735
+* :sparkles: Feature(custom): optimize UI of setting page 0dee36e
+* :sparkles: Feature(custom): optimize uploader config setting page c36c931
+* :sparkles: Feature(custom): support adjust grid size in gallery page a769123, closes #419
+* :sparkles: Feature(custom): support duplicate config and the UI of confirm/input box is optimized c7fd139
+* :sparkles: Feature(custom): upgrade to electron v39 and electron-vite 5.0, suppress derecation notif a4c9237
+* Add renovate.json (#426) 7a2a10a, closes #426
+* Update dependency @smithy/node-http-handler to v4.4.7 (#427) b36cc23, closes #427
+* Update dependency @types/node to v24.10.4 (#428) f8f17fb, closes #428
+* Fix(ui): macos displays Windows title bar (#421) 263a306, closes #421
+
+
+
 ##  (2025-11-18)
 
 * :arrow_up: Upgrade(custom): upgrade aws sdk 30b54cb
