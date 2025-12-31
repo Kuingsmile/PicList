@@ -1082,3 +1082,415 @@ small {
     max-width: 95%;
   }
 }
+
+/* ==================== Sync Panel Styles ==================== */
+
+/* Sync Overview Card */
+.sync-overview-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-background-primary) 100%);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
+  gap: 1.5rem;
+}
+
+.sync-overview-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sync-overview-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 14px;
+  width: 46px;
+  height: 46px;
+  color: white;
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  box-shadow: 0 4px 12px rgb(64 158 255 / 30%);
+}
+
+.sync-overview-info h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.sync-status-text {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  gap: 0.5rem;
+}
+
+.sync-type-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #409eff;
+  background: rgb(64 158 255 / 15%);
+  letter-spacing: 0.02em;
+}
+
+.sync-not-configured {
+  font-style: italic;
+  color: var(--color-text-tertiary);
+}
+
+.sync-config-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Section Header with Icon */
+.section-header-with-icon {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  gap: 0.75rem;
+}
+
+.section-icon {
+  margin-top: 0.125rem;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.section-header-with-icon h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.section-header-with-icon p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* Sync Action Cards */
+.sync-action-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sync-action-card {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0.5rem 1.25rem;
+  background: var(--color-background-tertiary);
+  transition: all 0.25s ease;
+  cursor: pointer;
+  gap: 1rem;
+}
+
+.sync-action-card:hover {
+  border-color: var(--color-accent);
+  background: var(--color-background-secondary);
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgb(64 158 255 / 15%);
+}
+
+.sync-action-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.sync-action-icon.upload {
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+}
+
+.sync-action-icon.migrate {
+  background: linear-gradient(135deg, #67c23a 0%, #95d475 100%);
+}
+
+.sync-action-content {
+  flex: 1;
+}
+
+.sync-action-content h4 {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.sync-action-content p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.sync-action-arrow {
+  color: var(--color-text-tertiary);
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.sync-action-card:hover .sync-action-arrow {
+  color: var(--color-accent);
+  transform: translateX(4px);
+}
+
+/* File Management Section */
+.file-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.file-action-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem 1rem;
+  background: var(--color-background-tertiary);
+  transition: all 0.25s ease;
+  cursor: pointer;
+  gap: 0.75rem;
+}
+
+.file-action-btn:hover {
+  border-style: solid;
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgb(64 158 255 / 8%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgb(64 158 255 / 15%);
+}
+
+.file-action-btn svg {
+  color: var(--color-text-secondary);
+  transition: color 0.25s ease;
+}
+
+.file-action-btn:hover svg {
+  color: var(--color-accent);
+}
+
+.file-action-btn span {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  color: var(--color-text-primary);
+}
+
+/* ==================== Sync Configuration Dialog ==================== */
+
+.sync-config-dialog {
+  width: 90%;
+  max-width: 560px;
+}
+
+.sync-dialog-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  color: white;
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  box-shadow: 0 4px 12px rgb(64 158 255 / 25%);
+  flex-shrink: 0;
+}
+
+.dialog-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.sync-dialog-content {
+  padding: 0.5rem;
+}
+
+/* Sync Type Selector */
+.sync-type-selector {
+  margin-bottom: 1.5rem;
+}
+
+.sync-type-label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.sync-type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.sync-type-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1rem 0.5rem;
+  background: var(--color-background-tertiary);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  gap: 0.5rem;
+}
+
+.sync-type-btn:hover {
+  border-color: var(--color-accent);
+  background: rgb(64 158 255 / 8%);
+}
+
+.sync-type-btn.active {
+  border-color: #409eff;
+  color: #409eff;
+  background: rgb(64 158 255 / 12%);
+  box-shadow: 0 0 0 3px rgb(64 158 255 / 15%);
+}
+
+.sync-type-btn svg {
+  color: var(--color-text-secondary);
+  transition: color 0.2s ease;
+}
+
+.sync-type-btn.active svg,
+.sync-type-btn:hover svg {
+  color: #409eff;
+}
+
+.sync-type-btn span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: inherit;
+}
+
+/* Sync Config Fields */
+.sync-config-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sync-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.sync-field-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.sync-field-group label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.825rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  gap: 0.4rem;
+}
+
+.sync-field-group label svg {
+  color: var(--color-accent);
+}
+
+.sync-ssl-toggle {
+  margin-top: 0.5rem;
+}
+
+/* Dark Mode Adjustments for Sync Panel */
+:root.dark .sync-overview-card,
+:root.auto.dark .sync-overview-card {
+  background: linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
+}
+
+:root.dark .sync-action-card,
+:root.auto.dark .sync-action-card {
+  border-color: var(--color-border);
+  background: var(--color-background-secondary);
+}
+
+:root.dark .sync-action-card:hover,
+:root.auto.dark .sync-action-card:hover {
+  background: var(--color-background-tertiary);
+}
+
+:root.dark .file-action-btn,
+:root.auto.dark .file-action-btn {
+  background: var(--color-background-secondary);
+}
+
+:root.dark .file-action-btn:hover,
+:root.auto.dark .file-action-btn:hover {
+  background: rgb(64 158 255 / 12%);
+}
+
+:root.dark .sync-type-btn,
+:root.auto.dark .sync-type-btn {
+  border-color: var(--color-border);
+  background: var(--color-background-secondary);
+}
+
+:root.dark .sync-type-btn:hover,
+:root.auto.dark .sync-type-btn:hover {
+  background: rgb(64 158 255 / 15%);
+}
+
+:root.dark .sync-type-btn.active,
+:root.auto.dark .sync-type-btn.active {
+  background: rgb(64 158 255 / 20%);
+}
+
+/* Responsive Adjustments */
+@media (width <= 768px) {
+  .sync-overview-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .sync-overview-header {
+    flex-direction: column;
+  }
+
+  .file-action-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sync-type-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sync-fields-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -183,57 +183,92 @@
 
         <!-- Sync & Configure Tab -->
         <div v-if="activeName === 'sync'" class="tab-content">
-          <div class="settings-section">
-            <h2>{{ t('pages.settings.sync.syncConfiguration') }}</h2>
-            <p>{{ ' ' }}</p>
+          <!-- Sync Status Overview -->
+          <div class="sync-overview-card">
+            <div class="sync-overview-header">
+              <div class="sync-overview-icon">
+                <RotateCcw :size="28" />
+              </div>
+              <div class="sync-overview-info">
+                <h2>{{ t('pages.settings.sync.syncConfiguration') }}</h2>
+                <p class="sync-status-text">
+                  <span class="sync-type-badge">{{ sync.type?.toUpperCase() || 'N/A' }}</span>
+                  <span v-if="sync.type !== 'webdav' && sync.username"
+                    >{{ sync.username }}/{{ sync.repo || '...' }}</span
+                  >
+                  <span v-else-if="sync.type === 'webdav' && sync.webdavEndpoint">{{ sync.webdavEndpoint }}</span>
+                  <span v-else class="sync-not-configured">{{ t('pages.settings.sync.notConfigured') }}</span>
+                </p>
+              </div>
+            </div>
+            <button class="btn btn-primary sync-config-btn" @click="syncVisible = true">
+              <Settings :size="16" />
+              {{ t('pages.settings.sync.configureSync') }}
+            </button>
+          </div>
 
-            <div class="form-grid">
-              <div class="form-group">
-                <label>{{ t('pages.settings.sync.syncEndpointConfig') }}</label>
-                <button class="btn btn-primary" @click="syncVisible = true">
-                  <RotateCcw :size="16" />
-                  {{ t('pages.settings.clickToSet') }}
-                </button>
+          <!-- Sync Actions Section -->
+          <div class="settings-section sync-actions-section">
+            <div class="section-header-with-icon">
+              <CloudUpload :size="20" class="section-icon" />
+              <div>
+                <h2>{{ t('pages.settings.sync.syncActions') }}</h2>
+              </div>
+            </div>
+
+            <div class="sync-action-cards">
+              <div class="sync-action-card" @click="upDownConfigVisible = true">
+                <div class="sync-action-icon upload">
+                  <CloudUpload :size="24" />
+                </div>
+                <div class="sync-action-content">
+                  <h4>{{ t('pages.settings.sync.upDownloadSettings') }}</h4>
+                  <p>{{ t('pages.settings.sync.upDownloadDesc') }}</p>
+                </div>
+                <div class="sync-action-arrow">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </div>
               </div>
 
-              <div class="form-group">
-                <label>{{ t('pages.settings.sync.upDownloadSettings') }}</label>
-                <button class="btn btn-primary" @click="upDownConfigVisible = true">
-                  <Download :size="16" />
-                  {{ t('pages.settings.clickToSet') }}
-                </button>
-              </div>
-
-              <div class="form-group">
-                <label>{{ t('pages.settings.sync.migrateFromPicGo') }}</label>
-                <button class="btn btn-secondary" @click="handleMigrateFromPicGo">
-                  <Import :size="16" />
-                  {{ t('pages.settings.clickToSet') }}
-                </button>
+              <div class="sync-action-card" @click="handleMigrateFromPicGo">
+                <div class="sync-action-icon migrate">
+                  <Import :size="24" />
+                </div>
+                <div class="sync-action-content">
+                  <h4>{{ t('pages.settings.sync.migrateFromPicGo') }}</h4>
+                  <p>{{ t('pages.settings.sync.migrateDesc') }}</p>
+                </div>
+                <div class="sync-action-arrow">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="settings-section">
-            <h2>{{ t('pages.settings.sync.fileManagement') }}</h2>
-            <p>{{ ' ' }}</p>
-
-            <div class="form-grid">
-              <div class="form-group">
-                <label>{{ t('pages.settings.sync.openConfigFile') }}</label>
-                <button class="btn btn-secondary" @click="openFile('data.json')">
-                  <FileText :size="16" />
-                  {{ t('pages.settings.clickToOpen') }}
-                </button>
+          <!-- File Management Section -->
+          <div class="settings-section file-management-section">
+            <div class="section-header-with-icon">
+              <FolderOpen :size="20" class="section-icon" />
+              <div>
+                <h2>{{ t('pages.settings.sync.fileManagement') }}</h2>
+                <p>{{ t('pages.settings.sync.fileManagementDesc') }}</p>
               </div>
+            </div>
 
-              <div class="form-group">
-                <label>{{ t('pages.settings.sync.openConfigFileDir') }}</label>
-                <button class="btn btn-secondary" @click="openDirectory()">
-                  <FolderOpen :size="16" />
-                  {{ t('pages.settings.clickToOpen') }}
-                </button>
-              </div>
+            <div class="file-action-grid">
+              <button class="file-action-btn" @click="openFile('data.json')">
+                <FileText :size="20" />
+                <span>{{ t('pages.settings.sync.openConfigFile') }}</span>
+              </button>
+
+              <button class="file-action-btn" @click="openDirectory()">
+                <FolderOpen :size="20" />
+                <span>{{ t('pages.settings.sync.openConfigFileDir') }}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -1109,106 +1144,148 @@
 
     <!-- Sync Configuration Dialog -->
     <div v-if="syncVisible" class="dialog-overlay">
-      <div class="dialog large" @click.stop>
+      <div class="dialog sync-config-dialog" @click.stop>
         <div class="dialog-header">
-          <h3 class="dialog-title">
-            {{ t('pages.settings.sync.syncEndpointConfig') }}
-          </h3>
+          <div class="dialog-header-content">
+            <div class="sync-dialog-icon">
+              <RotateCcw :size="24" />
+            </div>
+            <div>
+              <h3 class="dialog-title">{{ t('pages.settings.sync.syncEndpointConfig') }}</h3>
+            </div>
+          </div>
           <button class="dialog-close" @click="cancelSyncSetting">×</button>
         </div>
-        <div class="dialog-content">
-          <div class="notice-text">
-            {{ t('pages.settings.sync.syncConfigNote') }}
+        <div class="dialog-content sync-dialog-content">
+          <div class="sync-type-selector">
+            <label class="sync-type-label">{{ t('pages.settings.sync.selectType') }}</label>
+            <div class="sync-type-grid">
+              <button
+                v-for="typeitem of syncType"
+                :key="typeitem"
+                :class="['sync-type-btn', { active: sync.type === typeitem }]"
+                @click="sync.type = typeitem"
+              >
+                <GitBranch v-if="typeitem.includes('git')" :size="20" />
+                <Store v-else-if="typeitem === 'webdav'" :size="20" />
+                <span>{{ typeitem.slice(0, 1).toUpperCase() + typeitem.slice(1) }}</span>
+              </button>
+            </div>
           </div>
-          <div class="form-group">
-            <label>{{ t('pages.settings.sync.selectType') }}</label>
-            <select v-model="sync.type" class="form-select">
-              <option v-for="typeitem of syncType" :key="typeitem" :value="typeitem">
-                {{ typeitem.slice(0, 1).toUpperCase() + typeitem.slice(1) }}
-              </option>
-            </select>
-          </div>
-          <div v-if="sync.type === 'gitea'" class="form-group">
-            <label>{{ t('pages.settings.sync.giteaHost') }}</label>
-            <input
-              v-model.trim="sync.endpoint"
-              type="text"
-              class="form-input"
-              :placeholder="t('pages.settings.sync.giteaHost')"
-            />
-          </div>
-          <div v-if="sync.type === 'webdav'" class="form-group">
-            <label>{{ t('pages.settings.sync.webdavEndpoint') }}</label>
-            <input
-              v-model.trim="sync.webdavEndpoint"
-              type="text"
-              class="form-input"
-              :placeholder="t('pages.settings.sync.webdavEndpoint')"
-            />
-          </div>
-          <template v-if="sync.type !== 'webdav'">
-            <div v-for="inputItem in ['username', 'repo', 'branch', 'token']" :key="inputItem" class="form-group">
-              <label>{{ t(`pages.settings.sync.${sync.type.toLowerCase()}.${inputItem.toLowerCase()}`) }}</label>
-              <input
-                v-model.trim="sync[inputItem as any]"
-                type="text"
-                class="form-input"
-                :placeholder="t(`pages.settings.sync.${sync.type.toLowerCase()}.${inputItem.toLowerCase()}`)"
-              />
-            </div>
-          </template>
-          <template v-if="sync.type === 'webdav'">
-            <div class="form-group">
-              <label>{{ t('pages.settings.sync.webdav.username') }}</label>
-              <input
-                v-model.trim="sync.webdavUsername"
-                type="text"
-                class="form-input"
-                :placeholder="t('pages.settings.sync.webdav.username')"
-              />
-            </div>
-            <div class="form-group">
-              <label>{{ t('pages.settings.sync.webdav.password') }}</label>
-              <input
-                v-model.trim="sync.webdavPassword"
-                class="form-input"
-                :placeholder="t('pages.settings.sync.webdav.password')"
-              />
-            </div>
-            <div class="form-group">
-              <label>{{ t('pages.settings.sync.webdav.savePath') }}</label>
-              <input
-                v-model.trim="sync.webdavSavePath"
-                type="text"
-                class="form-input"
-                :placeholder="t('pages.settings.sync.webdav.savePath')"
-              />
-            </div>
-            <div class="form-group">
-              <label>{{ t('pages.settings.sync.webdav.authType') }}</label>
-              <select v-model="sync.webdavAuthType" class="form-select">
-                <option value="basic">Basic</option>
-                <option value="digest">Digest</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="switch-label">
-                <input v-model="sync.webdavSslEnabled" type="checkbox" class="switch-input" />
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <div class="switch-title">{{ t('pages.settings.sync.webdav.enableSSL') }}</div>
-                </div>
+
+          <!-- Configuration Fields -->
+          <div class="sync-config-fields">
+            <div v-if="sync.type === 'gitea'" class="sync-field-group">
+              <label>
+                <Server :size="16" />
+                {{ t('pages.settings.sync.giteaHost') }}
               </label>
+              <input
+                v-model.trim="sync.endpoint"
+                type="text"
+                class="form-input"
+                :placeholder="t('pages.settings.sync.giteaHost')"
+              />
             </div>
-          </template>
-          <div v-if="sync.type === 'github'" class="form-group">
-            <label>{{ t('pages.settings.sync.syncConfigProxy') }}</label>
-            <input
-              v-model.trim="sync.proxy"
-              type="text"
-              class="form-input"
-              :placeholder="t('pages.settings.sync.syncConfigProxy')"
-            />
+
+            <!-- WebDAV Endpoint -->
+            <div v-if="sync.type === 'webdav'" class="sync-field-group">
+              <label>
+                <Globe :size="16" />
+                {{ t('pages.settings.sync.webdavEndpoint') }}
+              </label>
+              <input
+                v-model.trim="sync.webdavEndpoint"
+                type="text"
+                class="form-input"
+                :placeholder="t('pages.settings.sync.webdavEndpoint')"
+              />
+            </div>
+
+            <!-- Git-based fields -->
+            <template v-if="sync.type !== 'webdav'">
+              <div class="sync-fields-grid">
+                <div
+                  v-for="inputItem in ['username', 'repo', 'branch', 'token']"
+                  :key="inputItem"
+                  class="sync-field-group"
+                >
+                  <label>
+                    {{ t(`pages.settings.sync.${sync.type.toLowerCase()}.${inputItem.toLowerCase()}`) }}
+                  </label>
+                  <input
+                    v-model.trim="sync[inputItem as any]"
+                    type="text"
+                    class="form-input"
+                    :placeholder="t(`pages.settings.sync.${sync.type.toLowerCase()}.${inputItem.toLowerCase()}`)"
+                  />
+                </div>
+              </div>
+            </template>
+
+            <!-- WebDAV fields -->
+            <template v-if="sync.type === 'webdav'">
+              <div class="sync-fields-grid">
+                <div class="sync-field-group">
+                  <label>{{ t('pages.settings.sync.webdav.username') }}</label>
+                  <input
+                    v-model.trim="sync.webdavUsername"
+                    type="text"
+                    class="form-input"
+                    :placeholder="t('pages.settings.sync.webdav.username')"
+                  />
+                </div>
+                <div class="sync-field-group">
+                  <label>{{ t('pages.settings.sync.webdav.password') }}</label>
+                  <input
+                    v-model.trim="sync.webdavPassword"
+                    type="text"
+                    class="form-input"
+                    :placeholder="t('pages.settings.sync.webdav.password')"
+                  />
+                </div>
+                <div class="sync-field-group">
+                  <label>{{ t('pages.settings.sync.webdav.savePath') }}</label>
+                  <input
+                    v-model.trim="sync.webdavSavePath"
+                    type="text"
+                    class="form-input"
+                    :placeholder="t('pages.settings.sync.webdav.savePath')"
+                  />
+                </div>
+                <div class="sync-field-group">
+                  <label>{{ t('pages.settings.sync.webdav.authType') }}</label>
+                  <select v-model="sync.webdavAuthType" class="form-select">
+                    <option value="basic">Basic</option>
+                    <option value="digest">Digest</option>
+                  </select>
+                </div>
+              </div>
+              <div class="sync-ssl-toggle">
+                <label class="switch-label">
+                  <input v-model="sync.webdavSslEnabled" type="checkbox" class="switch-input" />
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('pages.settings.sync.webdav.enableSSL') }}</div>
+                    <div class="switch-description">{{ t('pages.settings.sync.webdav.enableSSLDesc') }}</div>
+                  </div>
+                </label>
+              </div>
+            </template>
+
+            <!-- GitHub Proxy -->
+            <div v-if="sync.type === 'github'" class="sync-field-group">
+              <label>
+                <Globe :size="16" />
+                {{ t('pages.settings.sync.syncConfigProxy') }}
+              </label>
+              <input
+                v-model.trim="sync.proxy"
+                type="text"
+                class="form-input"
+                :placeholder="t('pages.settings.sync.syncConfigProxy')"
+              />
+            </div>
           </div>
         </div>
         <div class="dialog-footer">
@@ -1248,7 +1325,7 @@
                 class="config-button"
                 @click="syncTaskFn(item.task, item.number)"
               >
-                <Import :size="16" class="button-icon" />
+                <CloudUpload :size="16" class="button-icon" />
                 <span>{{ item.label }}</span>
               </button>
             </div>
@@ -1326,6 +1403,7 @@ import {
   Edit,
   FileText,
   FolderOpen,
+  GitBranch,
   Globe,
   Image as ImageIcon,
   Import,
@@ -1336,6 +1414,7 @@ import {
   RotateCcw,
   Server,
   Settings,
+  Store,
 } from 'lucide-vue-next'
 import type { IConfig } from 'piclist'
 import pkg from 'root/package.json'
