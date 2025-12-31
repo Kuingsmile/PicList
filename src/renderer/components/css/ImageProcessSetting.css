@@ -1,0 +1,859 @@
+/* ==================== Base & Layout ==================== */
+.image-process-settings {
+  overflow-y: auto;
+  padding: 2rem;
+  min-height: 100vh;
+  color: var(--color-text-primary);
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-background-secondary) 100%);
+}
+
+/* ==================== Header ==================== */
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-background-primary) 100%);
+  box-shadow:
+    0 4px 20px rgb(0 0 0 / 8%),
+    0 1px 3px rgb(0 0 0 / 5%);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.header-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 14px;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  box-shadow: 0 4px 12px rgb(64 158 255 / 30%);
+}
+
+.header-icon {
+  color: white;
+}
+
+.header-text h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.625rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.header-text p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+/* ==================== Tab Navigation ==================== */
+.tab-navigation {
+  position: relative;
+  display: flex;
+  margin-bottom: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 6px;
+  background: var(--color-background-primary);
+  box-shadow:
+    0 2px 12px rgb(0 0 0 / 6%),
+    inset 0 1px 0 rgb(255 255 255 / 5%);
+}
+
+.tab-indicator {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 0;
+  border-radius: 10px;
+  height: calc(100% - 12px);
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  box-shadow: 0 2px 8px rgb(64 158 255 / 35%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-button {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  border-radius: 10px;
+  padding: 0.875rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: transparent;
+  transition: all 0.25s ease;
+  gap: 0.625rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+.tab-button:hover:not(.active) {
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
+}
+
+.tab-button.active {
+  color: white;
+  background: transparent;
+}
+
+/* ==================== Settings Content ==================== */
+.settings-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+/* Fade slide transition for tab content */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+
+/* ==================== Settings Section ==================== */
+.settings-section {
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 1.75rem;
+  background: var(--color-background-primary);
+  box-shadow:
+    0 2px 12px rgb(0 0 0 / 5%),
+    0 1px 2px rgb(0 0 0 / 3%);
+  transition: all 0.25s ease;
+}
+
+.settings-section:hover {
+  box-shadow:
+    0 4px 20px rgb(0 0 0 / 8%),
+    0 2px 4px rgb(0 0 0 / 4%);
+}
+
+/* Section Header with Icon */
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.section-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  width: 30px;
+  height: 30px;
+  color: #409eff;
+  background: linear-gradient(135deg, #409eff15 0%, #409eff25 100%);
+  flex-shrink: 0;
+}
+
+.section-icon.watermark-icon {
+  color: #67c23a;
+  background: linear-gradient(135deg, #67c23a15 0%, #67c23a25 100%);
+}
+
+.section-icon.transform-icon {
+  color: #e6a23c;
+  background: linear-gradient(135deg, #e6a23c15 0%, #e6a23c25 100%);
+}
+
+.section-icon.rotate-icon {
+  color: #909399;
+  background: linear-gradient(135deg, #e6a23c15 0%, #e6a23c25 100%);
+}
+
+.section-icon.resize-icon {
+  color: #f56c6c;
+  background: linear-gradient(135deg, #f56c6c15 0%, #f56c6c25 100%);
+}
+
+.section-icon.percent-icon {
+  color: #b37feb;
+  background: linear-gradient(135deg, #b37feb15 0%, #b37feb25 100%);
+}
+
+.section-title-group h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.section-title-group p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.settings-section h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.settings-section p {
+  margin: 0 0 1.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* ==================== Form Elements ==================== */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group > label:not(.switch-label, .radio-option) {
+  display: block;
+  margin-bottom: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.form-input,
+.form-textarea {
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.875rem 1rem;
+  width: 100%;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  background: var(--color-background-primary);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-input:hover,
+.form-textarea:hover {
+  border-color: var(--color-border-hover, #c0c4cc);
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  border-color: #409eff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(64 158 255 / 15%);
+}
+
+.form-textarea {
+  min-height: 90px;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  resize: vertical;
+}
+
+/* ==================== Range Slider ==================== */
+.form-range {
+  margin: 0.75rem 0;
+  border-radius: 4px;
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(90deg, #409eff 0%, #e4e7ed 0%);
+  outline: none;
+  appearance: none;
+  transition: background 0.15s ease;
+}
+
+.form-range::-webkit-slider-thumb {
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  box-shadow:
+    0 2px 8px rgb(64 158 255 / 40%),
+    0 1px 2px rgb(0 0 0 / 10%);
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.form-range::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow:
+    0 4px 12px rgb(64 158 255 / 50%),
+    0 2px 4px rgb(0 0 0 / 15%);
+}
+
+.form-range::-moz-range-thumb {
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  box-shadow:
+    0 2px 8px rgb(64 158 255 / 40%),
+    0 1px 2px rgb(0 0 0 / 10%);
+  cursor: pointer;
+}
+
+.range-value {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem;
+  border-radius: 8px;
+  padding: 0.375rem 0.75rem;
+  min-width: 3.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  color: white;
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  box-shadow: 0 2px 6px rgb(64 158 255 / 30%);
+}
+
+/* ==================== Color Input ==================== */
+.form-color {
+  overflow: hidden;
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  padding: 2px;
+  width: 48px;
+  height: 48px;
+  background: var(--color-background-primary);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.form-color:hover {
+  border-color: #409eff;
+  box-shadow: 0 0 0 3px rgb(64 158 255 / 15%);
+}
+
+.form-color:focus {
+  border-color: #409eff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(64 158 255 / 20%);
+}
+
+.color-input-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.color-input-group .form-input {
+  flex: 1;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* ==================== Grid Layout ==================== */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.75rem;
+}
+
+/* ==================== Switch Component ==================== */
+.switch-label {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.125rem 1.25rem;
+  background: var(--color-background-primary);
+  transition: all 0.25s ease;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.switch-label:hover {
+  border-color: #409eff;
+  background: var(--color-surface);
+  box-shadow: 0 2px 8px rgb(64 158 255 / 10%);
+}
+
+.switch-input {
+  display: none;
+}
+
+.switch-slider {
+  position: relative;
+  border-radius: 14px;
+  width: 52px;
+  height: 28px;
+  background: linear-gradient(180deg, #d0d3d9 0%, #c0c4cc 100%);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 15%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.switch-slider::before {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
+  box-shadow:
+    0 2px 6px rgb(0 0 0 / 20%),
+    0 1px 2px rgb(0 0 0 / 10%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  content: '';
+}
+
+.switch-input:checked + .switch-slider {
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 10%),
+    0 2px 8px rgb(64 158 255 / 30%);
+}
+
+.switch-input:checked + .switch-slider::before {
+  transform: translateX(24px);
+}
+
+.switch-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.switch-title {
+  font-size: 0.925rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.switch-description {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+/* ==================== Radio Group ==================== */
+.radio-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  background: var(--color-background-primary);
+  transition: all 0.25s ease;
+  gap: 0.625rem;
+  cursor: pointer;
+}
+
+.radio-option:hover {
+  border-color: #409eff;
+  background: rgb(64 158 255 / 8%);
+}
+
+.radio-input {
+  display: none;
+}
+
+.radio-indicator {
+  position: relative;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  background: var(--color-background-primary);
+  transition: all 0.25s ease;
+}
+
+.radio-input:checked + .radio-indicator {
+  border-color: #409eff;
+  background: var(--color-background-primary);
+}
+
+.radio-input:checked + .radio-indicator::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  content: '';
+  transform: translate(-50%, -50%);
+}
+
+.radio-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+/* ==================== Position Grid ==================== */
+.position-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.625rem;
+  max-width: 320px;
+}
+
+.position-button {
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.875rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-text-secondary);
+  background: var(--color-background-primary);
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.position-button:hover {
+  border-color: #409eff;
+  color: var(--color-text-primary);
+  background: rgb(64 158 255 / 8%);
+  transform: translateY(-1px);
+}
+
+.position-button.active {
+  border-color: #409eff;
+  color: white;
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  box-shadow: 0 4px 12px rgb(64 158 255 / 35%);
+  transform: translateY(-1px);
+}
+
+/* ==================== Buttons ==================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-text-primary);
+  background: var(--color-background-primary);
+  transition: all 0.25s ease;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: #409eff;
+  background: var(--color-background-secondary);
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  border-color: #409eff;
+  color: white;
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  box-shadow: 0 2px 8px rgb(64 158 255 / 30%);
+}
+
+.btn-primary:hover {
+  border-color: #66b1ff;
+  background: linear-gradient(135deg, #66b1ff 0%, #79bbff 100%);
+  box-shadow: 0 4px 12px rgb(64 158 255 / 40%);
+}
+
+.btn-secondary {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-background-primary);
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-border-secondary);
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
+}
+
+/* ==================== Small Text / Hints ==================== */
+small {
+  display: block;
+  margin-top: 0.5rem;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-text-tertiary);
+  background: var(--color-background-secondary);
+  line-height: 1.5;
+}
+
+/* ==================== Watermark and Resize settings groups ==================== */
+.watermark-settings,
+.resize-settings {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--color-border-secondary);
+  padding-top: 1.5rem;
+  animation: slide-down 0.3s ease;
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================== Responsive Design ==================== */
+@media (width <= 768px) {
+  .image-process-settings {
+    padding: 1rem;
+  }
+
+  .settings-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+    padding: 1.25rem;
+  }
+
+  .header-icon-wrapper {
+    width: 48px;
+    height: 48px;
+  }
+
+  .header-text h1 {
+    font-size: 1.375rem;
+  }
+
+  .header-actions {
+    justify-content: stretch;
+  }
+
+  .header-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .tab-navigation {
+    flex-direction: column;
+  }
+
+  .tab-indicator {
+    display: none;
+  }
+
+  .tab-button.active {
+    background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .radio-group {
+    flex-direction: column;
+  }
+
+  .color-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .position-grid {
+    max-width: 100%;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+/* ==================== Dark mode adjustments ==================== */
+:root.dark .image-process-settings,
+:root.auto.dark .image-process-settings {
+  background: linear-gradient(180deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
+}
+
+:root.dark .settings-header,
+:root.auto.dark .settings-header {
+  border-color: var(--color-border);
+  background: linear-gradient(135deg, var(--color-background-tertiary) 0%, var(--color-surface) 100%);
+}
+
+:root.dark .tab-navigation,
+:root.auto.dark .tab-navigation {
+  border-color: var(--color-border);
+  background: var(--color-background-tertiary);
+}
+
+:root.dark .settings-section,
+:root.auto.dark .settings-section {
+  border-color: var(--color-border);
+  background: var(--color-background-tertiary);
+}
+
+:root.dark .form-input,
+:root.dark .form-textarea,
+:root.auto.dark .form-input,
+:root.auto.dark .form-textarea {
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+}
+
+:root.dark .form-range,
+:root.auto.dark .form-range {
+  background: linear-gradient(90deg, #409eff 0%, #4a4a52 0%);
+}
+
+:root.dark .switch-slider,
+:root.auto.dark .switch-slider {
+  background: linear-gradient(180deg, #4a4a52 0%, #3a3a42 100%);
+}
+
+:root.dark .switch-slider::before,
+:root.auto.dark .switch-slider::before {
+  background: linear-gradient(180deg, #e0e0e0 0%, #d0d0d0 100%);
+}
+
+:root.dark .btn-secondary,
+:root.auto.dark .btn-secondary {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+:root.dark .btn-secondary:hover,
+:root.auto.dark .btn-secondary:hover {
+  border-color: var(--color-border-hover);
+  color: var(--color-text-primary);
+  background: var(--color-background-tertiary);
+}
+
+:root.dark .switch-label,
+:root.auto.dark .switch-label {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+:root.dark .switch-label:hover,
+:root.auto.dark .switch-label:hover {
+  border-color: #409eff;
+  background: var(--color-background-tertiary);
+}
+
+:root.dark .switch-title,
+:root.auto.dark .switch-title {
+  color: var(--color-text-primary);
+}
+
+:root.dark .switch-description,
+:root.auto.dark .switch-description {
+  color: var(--color-text-secondary);
+}
+
+:root.dark .position-button,
+:root.auto.dark .position-button {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+:root.dark .position-button:hover,
+:root.auto.dark .position-button:hover {
+  border-color: #409eff;
+  color: var(--color-text-primary);
+  background: var(--color-background-tertiary);
+}
+
+:root.dark .position-button.active,
+:root.auto.dark .position-button.active {
+  border-color: #409eff;
+  color: white;
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+}
+
+:root.dark .radio-option,
+:root.auto.dark .radio-option {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+:root.dark .radio-option:hover,
+:root.auto.dark .radio-option:hover {
+  border-color: #409eff;
+  background: var(--color-background-tertiary);
+}
+
+:root.dark .section-icon,
+:root.auto.dark .section-icon {
+  background: linear-gradient(135deg, #409eff25 0%, #409eff35 100%);
+}
+
+:root.dark .section-icon.watermark-icon,
+:root.auto.dark .section-icon.watermark-icon {
+  background: linear-gradient(135deg, #67c23a25 0%, #67c23a35 100%);
+}
+
+:root.dark .section-icon.transform-icon,
+:root.auto.dark .section-icon.transform-icon {
+  background: linear-gradient(135deg, #e6a23c25 0%, #e6a23c35 100%);
+}
+
+:root.dark .section-icon.rotate-icon,
+:root.auto.dark .section-icon.rotate-icon {
+  background: linear-gradient(135deg, #90939925 0%, #90939935 100%);
+}
+
+:root.dark .section-icon.resize-icon,
+:root.auto.dark .section-icon.resize-icon {
+  background: linear-gradient(135deg, #f56c6c25 0%, #f56c6c35 100%);
+}
+
+:root.dark .section-icon.percent-icon,
+:root.auto.dark .section-icon.percent-icon {
+  background: linear-gradient(135deg, #b37feb25 0%, #b37feb35 100%);
+}
+
+:root.dark small,
+:root.auto.dark small {
+  background: var(--color-surface);
+}

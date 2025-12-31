@@ -19,10 +19,9 @@ html, body {
 /* Card Base */
 .upload-card {
   overflow: hidden;
-  border: 1px solid var(--color-border-secondary);
+  border: 0.2px solid var(--color-border-secondary);
   border-radius: var(--radius-xl);
   background: var(--color-background-secondary);
-  box-shadow: var(--shadow-sm);
   transition: var(--transition-medium);
 }
 
@@ -453,10 +452,10 @@ html, body {
   margin: auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-2xl);
-  width: 80vw;
+  width: 90vw;
   max-width: 90vw;
-  height: 80vh;
-  max-height: 90vh;
+  height: 85vh;
+  max-height: 85vh;
   background: var(--color-surface);
   box-shadow: var(--shadow-xl);
 }
@@ -466,7 +465,7 @@ html, body {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--color-border-secondary);
-  padding: 1.5rem 2rem;
+  padding: 0.95rem 1rem;
 }
 
 .modal-title {

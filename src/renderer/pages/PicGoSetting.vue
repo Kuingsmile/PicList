@@ -1744,7 +1744,7 @@
           <h3 class="dialog-title">
             {{ t('pages.imageProcess.title') }}
           </h3>
-          <button class="dialog-close" @click="imageProcessDialogVisible = false">×</button>
+          <button class="dialog-close" @click="imageProcessDialogVisible = false">X</button>
         </div>
         <div class="dialog-content">
           <ImageProcessSetting v-model="imageProcessDialogVisible" />

@@ -488,12 +488,12 @@
   overflow-y: auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-2xl);
-  padding: 1.5rem;
-  width: 80vw;
+  padding: 0.75rem;
+  width: 85vw;
   max-width: 90vw;
-  max-height: 80vh;
+  max-height: 85vh;
   background: var(--color-surface);
-  box-shadow: var(--shadow-xl);
+    box-shadow: var(--shadow-xl);
   box-shadow: 0 10px 25px rgb(0 0 0 / 15%);
 }
 
