@@ -1188,6 +1188,14 @@
               {{ t('pages.settings.upload.advancedRnameFormat') }}
             </label>
             <input v-model="advancedRename.format" type="text" class="form-input" placeholder="Ex. {Y}-{m}-{uuid}" />
+            <div class="dialog-footer">
+              <button class="btn btn-secondary" @click="handleCancelAdvancedRename">
+                {{ t('common.cancel') }}
+              </button>
+              <button class="btn btn-primary" @click="handleSaveAdvancedRename">
+                {{ t('common.confirm') }}
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label>{{ t('pages.settings.upload.availablePlaceholders') }}</label>
@@ -1244,14 +1252,6 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="dialog-footer">
-          <button class="btn btn-secondary" @click="handleCancelAdvancedRename">
-            {{ t('common.cancel') }}
-          </button>
-          <button class="btn btn-primary" @click="handleSaveAdvancedRename">
-            {{ t('common.confirm') }}
-          </button>
         </div>
       </div>
     </div>
