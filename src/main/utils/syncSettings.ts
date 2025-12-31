@@ -56,7 +56,6 @@ const mergeGalleryDB = async (targetFile: string) => {
     }
     for (const [id, remoteItem] of remoteMap) {
       if (!localMap.has(id) && (remoteItem.updatedAt || 0) >= lastSyncTime) {
-        console.log('newer in remote:', JSON.stringify(remoteItem))
         mergedGalleryMap.set(id, remoteItem)
       }
     }
@@ -378,14 +377,14 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string, 
           params: { access_token: token, ref: branch },
         }
         if (galleryMode) {
-          const res = await axios.get(url, config)
-          if (isHttpResSuccess(res)) {
-            const downloadUrl = res.data.download_url
-            const fileRes = await axios.get(downloadUrl, { responseType: 'arraybuffer' })
-            if (isHttpResSuccess(fileRes)) {
-              await fs.writeFile(localFilePath, fileRes.data)
-              return true
-            }
+          const rawUrl = `${url.replace('/contents/', '/raw/')}`
+          const fileRes = await axios.get(rawUrl, {
+            ...config,
+            responseType: 'arraybuffer',
+          })
+          if (isHttpResSuccess(fileRes)) {
+            await fs.writeFile(localFilePath, fileRes.data)
+            return true
           }
           return false
         } else {
@@ -494,10 +493,10 @@ async function checkCloudFileExist(syncConfig: ISyncConfig, fileName: string) {
   try {
     switch (type) {
       case 'gitee': {
-        const url = `https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`
+        const url = `https://gitee.com/api/v5/repos/${username}/${repo}/raw/${fileName}`
         try {
           const res = await axios.get(url, {
-            params: { access_token: token, ref: branch },
+            params: { access_token: token, ref: branch, responseType: 'arraybuffer' },
           })
           return isHttpResSuccess(res)
         } catch (error: any) {
