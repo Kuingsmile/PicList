@@ -48,6 +48,13 @@
             <XIcon :size="16" />
           </button>
         </div>
+        <div class="search-options">
+          <label class="strict-search-checkbox">
+            <input v-model="strictSearch" type="checkbox" class="checkbox-input" />
+            <span class="checkbox-label">{{ t('pages.plugin.strictSearch') }}</span>
+            <span class="checkbox-description">{{ t('pages.plugin.strictSearchDescription') }}</span>
+          </label>
+        </div>
       </div>
     </div>
 
@@ -199,6 +206,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useStorage } from '@vueuse/core'
 import { debounce, DebouncedFunc } from 'lodash-es'
 import {
   AlertCircleIcon,
@@ -242,6 +250,7 @@ const loading = ref(true)
 const needReload = ref(false)
 const latestVersionMap = reactive<Record<string, string>>({})
 const $configForm = ref<InstanceType<typeof ConfigForm> | null>(null)
+const strictSearch = useStorage('plugin-strict-search', true)
 
 function setSrc(e: Event) {
   const target = e.target as HTMLImageElement
@@ -456,9 +465,12 @@ function _getSearchResult(val: string) {
   fetch(`https://registry.npmjs.com/-/v1/search?text=${val}`)
     .then(async (res: Response) => {
       const data = await res.json()
+      console.log(data)
       pluginList.value = data.objects
         .filter((item: INPMSearchResultObject) => {
-          return item.package.name.includes('picgo-plugin-')
+          return strictSearch.value
+            ? item.package.name.includes('picgo-plugin-') && item.package.name.includes(val)
+            : item.package.name.includes('picgo-plugin-')
         })
         .map((item: INPMSearchResultObject) => {
           return handleSearchResult(item)

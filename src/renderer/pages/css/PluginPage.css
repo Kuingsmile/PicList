@@ -121,7 +121,10 @@ html, body {
 }
 
 .search-container {
+  display: flex;
   padding: 1rem 1.5rem;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .search-input-wrapper {
@@ -176,6 +179,72 @@ html, body {
 .clear-button:hover {
   color: var(--color-text-primary);
   background: var(--color-surface);
+}
+
+/* Search Options */
+.search-options {
+  display: flex;
+  align-items: flex-start;
+  border-top: 1px solid var(--color-border-secondary);
+  padding-top: 0.5rem;
+}
+
+.strict-search-checkbox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-input {
+  display: none;
+}
+
+.checkbox-label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text);
+  gap: 0.5rem;
+}
+
+.checkbox-label::before {
+  border: 2px solid var(--color-border);
+  border-radius: 3px;
+  width: 16px;
+  height: 16px;
+  background: var(--color-surface);
+  transition: all 0.2s ease;
+  content: '';
+  flex-shrink: 0;
+}
+
+.checkbox-input:checked + .checkbox-label::before {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.checkbox-input:checked + .checkbox-label::after {
+  position: absolute;
+  left: 3px;
+  font-size: 10px;
+  font-weight: bold;
+  color: white;
+  content: '✓';
+}
+
+.checkbox-label:hover::before {
+  border-color: var(--color-primary);
+}
+
+.checkbox-description {
+  margin-left: 24px;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
 }
 
 /* Notice Card */

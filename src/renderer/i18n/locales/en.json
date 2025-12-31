@@ -627,6 +627,8 @@
       "setResult": "Set Result",
       "setSuccess": "Set Success",
       "settings": "Settings",
+      "strictSearch": "Strict Search",
+      "strictSearchDescription": "Only show plugins that contain the search term in name",
       "title": "Plugins",
       "tryDifferentSearch": "Try Different Search Keywords",
       "updateAll": "Update All Plugins",

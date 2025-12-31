@@ -627,6 +627,8 @@
       "setResult": "設定結果",
       "setSuccess": "設定成功",
       "settings": "設定",
+      "strictSearch": "嚴格搜索",
+      "strictSearchDescription": "僅顯示包名包含搜索詞的外掛",
       "title": "插件",
       "tryDifferentSearch": "嘗試不同的搜尋關鍵詞",
       "updateAll": "更新全部插件",
