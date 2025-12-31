@@ -950,7 +950,8 @@
       "urlUpload": "URL Upload"
     },
     "uploaderConfig": {
-      "addNew": "Add New",
+      "addNew": "Add New Configuration",
+      "clickToSelect": "Click to select",
       "copy": "Copy",
       "delete": "Delete",
       "deleteConfirm": "Are you sure you want to delete this PicBed config?",
@@ -962,10 +963,11 @@
       "duplicateSuccess": "Duplicate Success",
       "duplicateTitle": "Duplicate Configuration",
       "edit": "Edit",
-      "selected": "Selected",
+      "selected": "Active",
       "setAsDefault": "Set as Default PicBed",
       "setSuccess": "Set Success",
-      "title": "PicBed Config"
+      "subtitle": "{count} configurations available",
+      "title": "Uploader Configurations"
     }
   },
   "settings": {

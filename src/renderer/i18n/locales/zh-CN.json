@@ -945,7 +945,8 @@
       "urlUpload": "URL上传"
     },
     "uploaderConfig": {
-      "addNew": "新增",
+      "addNew": "新增配置",
+      "clickToSelect": "点击选择",
       "copy": "副本",
       "delete": "删除",
       "deleteConfirm": "确认删除图床配置吗？",
@@ -957,10 +958,11 @@
       "duplicateSuccess": "拷贝成功",
       "duplicateTitle": "拷贝配置",
       "edit": "编辑",
-      "selected": "已选中",
+      "selected": "已启用",
       "setAsDefault": "设为默认图床",
       "setSuccess": "设置成功",
-      "title": "图床配置"
+      "subtitle": "共 {count} 个配置",
+      "title": "上传配置"
     }
   },
   "settings": {

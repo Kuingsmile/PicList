@@ -1,138 +1,356 @@
-/* Container */
-.config-container {
-  display: flex;
-  overflow-y: auto;
-  margin: 0;
-  padding: 1rem;
-  width: 100%;
+/* Page Container */
+.config-page {
+  position: relative;
+  overflow: hidden auto;
   min-height: 100vh;
+  background: var(--color-background);
+}
+
+/* Ambient Background Effect */
+.ambient-bg {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  z-index: 0;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(circle at 20% 20%, rgb(var(--accent-rgb) / 8%) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgb(var(--accent-rgb) / 5%) 0%, transparent 50%),
+    radial-gradient(circle at 40% 60%, rgb(59 130 246 / 5%) 0%, transparent 40%);
+  pointer-events: none;
+  animation: ambient-drift 20s ease-in-out infinite;
+}
+
+@keyframes ambient-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  25% {
+    transform: translate(2%, 1%) rotate(1deg);
+  }
+
+  50% {
+    transform: translate(-1%, 2%) rotate(-1deg);
+  }
+
+  75% {
+    transform: translate(1%, -1%) rotate(0.5deg);
+  }
+}
+
+/* Main Container */
+.config-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  margin: 0 auto;
+  padding: 2rem;
+  max-width: 1400px;
   flex-direction: column;
-  gap: 1.25rem;
-  box-sizing: border-box;
+  gap: 2rem;
 }
 
-/* Card Base */
-.config-card {
-  overflow: hidden;
-  border: 1px solid var(--color-border-secondary);
-  border-radius: var(--radius-xl);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition-medium);
+/* ============================================
+   Hero Header Section
+   ============================================ */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgb(var(--accent-rgb) / 15%);
+  border-radius: 20px;
+  padding: 1.75rem 2rem;
+  background: linear-gradient(
+    135deg,
+    rgb(var(--accent-rgb) / 8%) 0%,
+    var(--color-surface) 50%,
+    rgb(var(--accent-rgb) / 5%) 100%
+  );
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 4px 24px rgb(0 0 0 / 8%),
+    0 1px 2px rgb(0 0 0 / 4%),
+    inset 0 1px 0 rgb(255 255 255 / 5%);
+  flex-wrap: wrap;
+  gap: 1.5rem;
 }
 
-.config-card:hover {
-  border-color: var(--color-border);
-  box-shadow: var(--shadow-md);
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-/* Header Card */
-.header-card .card-header {
-  border-bottom: 1px solid var(--color-border-secondary);
-  padding: 1.5rem 2rem;
+.header-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 14px;
+  width: 56px;
+  height: 56px;
+  color: var(--color-accent);
+  background: linear-gradient(135deg, rgb(var(--accent-rgb) / 20%) 0%, rgb(var(--accent-rgb) / 10%) 100%);
+  box-shadow:
+    0 4px 12px rgb(var(--accent-rgb) / 20%),
+    inset 0 1px 0 rgb(255 255 255 / 10%);
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .page-title {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.625rem;
+  font-weight: 700;
   color: var(--color-text-primary);
   letter-spacing: -0.025em;
 }
 
-/* Main Card */
-.main-card {
-  padding: 1.5rem;
-  background: var( --color-background-secondary);
-}
-
-.config-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  width: 100%;
-}
-
-@media (width <= 768px) {
-  .config-grid {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-}
-
-@media (width >= 1200px) {
-  .config-grid {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.25rem;
-  }
-}
-
-/* Config Items */
-.config-item {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  min-height: 120px;
-  background: var(--color-surface-elevated);
-  transition: var(--transition-medium);
-  cursor: pointer;
-  flex-direction: column;
-}
-
-.config-item:hover {
-  border-color: var(--color-accent);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
-.config-item.selected {
-  border-color: var(--color-accent);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-md);
-}
-
-.config-content {
-  flex: 1;
-  margin-right: 2rem;
-}
-
-.config-name {
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  line-height: 1.4;
-}
-
-.config-update-time {
-  margin-bottom: 0.75rem;
-  font-size: 0.875rem;
+.page-subtitle {
+  margin: 0;
+  font-size: 0.9rem;
   color: var(--color-text-secondary);
 }
 
-.default-badge {
-  display: inline-flex;
-  align-items: center;
-  border-radius: var(--radius-md);
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: white;
-  background: var(--color-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
 }
 
-.config-actions {
+/* ============================================
+   Button Styles
+   ============================================ */
+.btn {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  font-weight: 600;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.btn-primary {
+  color: white;
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+  box-shadow:
+    0 4px 14px rgb(var(--accent-rgb) / 35%),
+    0 2px 4px rgb(0 0 0 / 10%),
+    inset 0 1px 0 rgb(255 255 255 / 15%);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px rgb(var(--accent-rgb) / 45%),
+    0 4px 8px rgb(0 0 0 / 15%),
+    inset 0 1px 0 rgb(255 255 255 / 20%);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  color: var(--color-text-secondary);
+  background: var(--color-border);
+  opacity: 0.6;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.btn-glow::before {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 50%, transparent 100%);
+  transition: left 0.5s ease;
+  content: '';
+}
+
+.btn-glow:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+/* ============================================
+   Main Content Area
+   ============================================ */
+.main-content {
+  flex: 1;
+}
+
+/* Config Grid */
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ============================================
+   Config Cards
+   ============================================ */
+.config-card {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 16px;
+  padding: 1.25rem;
+  min-height: 180px;
+  background: var(--color-surface);
+  box-shadow:
+    0 2px 8px rgb(0 0 0 / 4%),
+    0 1px 2px rgb(0 0 0 / 6%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: card-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  animation-delay: var(--delay, 0ms);
+  flex-direction: column;
+  cursor: pointer;
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.config-card:hover {
+  border-color: var(--accent-rgb);
+  box-shadow:
+    0 12px 32px rgb(0 0 0 / 10%),
+    0 4px 12px rgb(0 0 0 / 6%),
+    0 0 0 1px rgb(var(--accent-rgb) / 10%);
+}
+
+.config-card:hover .card-glow {
+  opacity: 1;
+}
+
+.config-card:hover .card-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Active State */
+.config-card.is-active {
+  border-color: var(--color-success);
+  background: linear-gradient(135deg, rgb(var(--accent-rgb) / 6%) 0%, var(--color-surface) 100%);
+  box-shadow:
+    0 4px 16px rgb(var(--accent-rgb) / 15%),
+    0 2px 4px rgb(0 0 0 / 6%),
+    inset 0 0 0 1px rgb(var(--accent-rgb) / 10%);
+}
+
+/* Card Glow Effect */
+.card-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 0%, rgb(var(--accent-rgb) / 8%) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+/* Active Indicator */
+.active-indicator {
   position: absolute;
   top: 1rem;
-  right: 1rem;
+  left: 1rem;
+  z-index: 2;
+}
+
+.indicator-dot {
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  background: var(--color-accent);
+  box-shadow: 0 0 12px var(--color-accent);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 12px var(--color-accent);
+  }
+
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px var(--color-accent);
+  }
+}
+
+/* Card Header */
+.config-card .card-header {
+  position: relative;
+  z-index: 1;
   display: flex;
-  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.config-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  color: var(--color-accent);
+  background: rgb(var(--accent-rgb) / 12%);
+  transition: all 0.25s ease;
+}
+
+.config-card:hover .config-icon {
+  background: rgb(var(--accent-rgb) / 18%);
+  transform: scale(1.05);
+}
+
+.config-card.is-active .config-icon {
+  color: white;
+  background: var(--color-accent);
+  box-shadow: 0 4px 12px rgb(var(--accent-rgb) / 40%);
+}
+
+/* Card Actions */
+.config-card .card-actions {
+  display: flex;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.25s ease;
+  gap: 0.375rem;
+}
+
+.config-card.is-active .card-actions {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .action-btn {
@@ -140,162 +358,249 @@
   justify-content: center;
   align-items: center;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  width: 32px;
-  height: 32px;
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
   color: var(--color-text-secondary);
   background: var(--color-surface-elevated);
-  transition: var(--transition-fast);
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .action-btn:hover {
-  background: var(--color-surface);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-.edit-btn:hover {
   border-color: var(--color-accent);
   color: var(--color-accent);
+  background: rgb(var(--accent-rgb) / 10%);
+  transform: scale(1.08);
 }
 
-.duplicate-btn:hover {
-  border-color: var(--color-info);
-  color: var(--color-info);
-}
-
-.delete-btn:hover:not(.disabled) {
+.action-btn-danger:hover:not(.disabled) {
   border-color: var(--color-danger);
   color: var(--color-danger);
+  background: rgb(239 68 68 / 10%);
 }
 
-.delete-btn.disabled {
+.action-btn.disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 0.4;
+  pointer-events: none;
 }
 
-/* Add New Config Item */
-.config-item-add {
+/* Card Body */
+.card-body {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.config-name {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.config-meta {
   display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--color-text-tertiary);
+  gap: 0.375rem;
+}
+
+/* Card Footer */
+.card-footer {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 20px;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  gap: 0.375rem;
+}
+
+.status-badge.active {
+  color: var(--color-accent);
+  background: rgb(var(--accent-rgb) / 15%);
+}
+
+.status-badge.inactive {
+  color: var(--color-text-tertiary);
+  background: var(--color-surface-elevated);
+}
+
+.config-card:hover .status-badge.inactive {
+  color: var(--color-text-secondary);
+  background: rgb(var(--accent-rgb) / 8%);
+}
+
+/* ============================================
+   Add New Config Card
+   ============================================ */
+.config-card-add {
   justify-content: center;
   align-items: center;
   border: 2px dashed var(--color-border);
-  min-height: 120px;
-  background: var(--color-surface);
+  background: var(--color-surface-elevated);
 }
 
-.config-item-add:hover {
+.config-card-add:hover {
+  border-style: solid;
   border-color: var(--color-accent);
-  background: var(--color-surface-elevated);
-  transform: translateY(-2px);
+  background: var(--color-surface);
 }
 
 .add-content {
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: all 0.25s ease;
   gap: 0.75rem;
-  color: var(--color-text-secondary);
-  transition: var(--transition-fast);
 }
 
-.config-item-add:hover .add-content {
-  color: var(--color-accent);
-}
-
-.add-text {
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-/* Actions Card */
-.actions-card {
-  border-radius: var(--radius-lg);
-}
-
-.card-actions {
-  display: flex;
-  justify-content: center;
-  padding: 1.25rem 1.5rem;
-}
-
-.primary-button {
+.add-icon {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: none;
-  border-radius: var(--radius-lg);
-  padding: 0.875rem 2rem;
-  min-width: 200px;
-  font-size: 0.875rem;
-  font-family: inherit;
-  font-weight: 500;
-  color: white;
-  background: var(--color-accent);
-  transition: var(--transition-fast);
-  gap: 0.5rem;
-  cursor: pointer;
+  border: 2px dashed var(--color-border);
+  border-radius: 14px;
+  width: 56px;
+  height: 56px;
+  color: var(--color-text-tertiary);
+  background: var(--color-surface);
+  transition: all 0.3s ease;
 }
 
-.primary-button:hover:not(:disabled) {
-  background: var(--color-accent-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+.config-card-add:hover .add-icon {
+  border-style: solid;
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgb(var(--accent-rgb) / 10%);
+  transform: scale(1.05) rotate(90deg);
 }
 
-.primary-button:disabled {
+.add-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.add-title {
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--color-text-secondary);
-  background: var(--color-border);
-  box-shadow: none;
-  cursor: not-allowed;
-  transform: none;
+  transition: color 0.25s ease;
 }
 
-/* Responsive Design */
+.config-card-add:hover .add-title {
+  color: var(--color-accent);
+}
+
+.add-hint {
+  font-size: 0.8rem;
+  color: var(--color-text-tertiary);
+}
+
+/* ============================================
+   Transition Group Animations
+   ============================================ */
+.config-list-enter-active {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.config-list-leave-active {
+  position: absolute;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.config-list-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+}
+
+.config-list-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.config-list-move {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
 @media (width <= 768px) {
   .config-container {
-    padding: 0.75rem;
-    gap: 1rem;
+    padding: 1rem;
+    gap: 1.25rem;
   }
 
-  .header-card .card-header {
-    padding: 1rem 1.25rem;
+  .page-header {
+    align-items: stretch;
+    border-radius: 16px;
+    padding: 1.25rem;
+    flex-direction: column;
+  }
+
+  .header-content {
+    justify-content: center;
+    text-align: center;
+    flex-direction: column;
+  }
+
+  .header-icon {
+    width: 48px;
+    height: 48px;
   }
 
   .page-title {
-    font-size: 1.25rem;
+    font-size: 1.375rem;
   }
 
-  .main-card {
-    padding: 1rem;
+  .header-actions {
+    justify-content: center;
   }
 
-  .config-item {
-    padding: 1rem;
-    min-height: 100px;
+  .config-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
-  .config-actions {
-    top: 0.75rem;
-    right: 0.75rem;
+  .config-card {
+    min-height: 160px;
   }
 
-  .action-btn {
-    width: 28px;
-    height: 28px;
-  }
-
-  .primary-button {
-    padding: 0.75rem 1.5rem;
-    min-width: 180px;
+  .config-card .card-actions {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@media (width >= 1024px) {
+@media (width >= 1200px) {
   .config-container {
-    margin: 0 auto;
-    padding: 1.5rem 2rem;
-    max-width: 1200px;
+    padding: 2.5rem 3rem;
+  }
+
+  .config-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (width >= 1600px) {
+  .config-grid {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   }
 }

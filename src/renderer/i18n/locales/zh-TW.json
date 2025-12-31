@@ -945,7 +945,8 @@
       "urlUpload": "URL上傳"
     },
     "uploaderConfig": {
-      "addNew": "新增",
+      "addNew": "新增配置",
+      "clickToSelect": "點擊選擇",
       "copy": "副本",
       "delete": "刪除",
       "deleteConfirm": "確認刪除圖床配置嗎？",
@@ -957,10 +958,11 @@
       "duplicateSuccess": "拷贝成功",
       "duplicateTitle": "拷贝配置",
       "edit": "編輯",
-      "selected": "已選取",
+      "selected": "已啟用",
       "setAsDefault": "設為預設圖床",
       "setSuccess": "設定成功",
-      "title": "圖床配置"
+      "subtitle": "共 {count} 個配置",
+      "title": "上傳配置"
     }
   },
   "settings": {

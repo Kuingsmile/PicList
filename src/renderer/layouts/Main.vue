@@ -70,6 +70,7 @@ export default { name: 'MainPage' }
   --color-primary: #6366f1;
   --color-primary-hover: #4f46e5;
   --color-accent: #007aff;
+  --accent-rgb: #449af7;
   --color-accent-hover: #0056b3;
   --color-blue-common: #409eff;
   --color-success: #34c759;
