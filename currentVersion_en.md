@@ -1,15 +1,17 @@
-## 🎉 [v3.0.5] Release Notes
+## 🎉 [v3.1.0] Release Notes
+
+Happy New Year! The last release of 2025. In the new year, PicList will continue to strive to bring you a better user experience. Thank you for your continued support and companionship!
 
 ### ✨ New Features
 
-- Optimized album preview zooming and positioning
-- Multi-image upload: ≤3 individual notifications, >3 aggregated notifications
-- Added webPath parameter setting for GitHub image hosting
+- Added album database file synchronization feature (#355,#417)
+- Redesigned settings page and image hosting configuration/editing interface for a more unified look
+- Now hides redundant Windows operation buttons on macOS (thanks @PJX)
+- Album supports grid size adjustment (#419)
+- Supports quick copying of image hosting configurations
+- Delays auto-saving by 0.2s after adjusting image processing settings
+- Adjusted the position of the save button on the advanced renaming settings page
 
 ### 🐛 Bug Fixes
 
-- Fixed album scrolling overflow/refresh issues
-- Fixed issue where shortcuts could not be disabled
-- Fixed issue where downloads failed when files or paths contained special Chinese characters
-- Fixed issue where completed/failed panels in the Manage-Download page displayed incorrectly
-- Prevented application icon from being dragged or selected
+- Fixed some CSS style issues

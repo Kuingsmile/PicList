@@ -60,6 +60,7 @@ PicList is an efficient cloud storage and image hosting management tool built up
 
 - All original PicGo functionality plus compatibility with most PicGo plugins
 - Extended built-in image hosting platforms (WebDav, local hosting, SFTP, etc.)
+- Configuration and album database cloud synchronization (WebDAV/GitHub/Gitee/Gitea)
 - Cloud-synchronized file deletion in album view
 - Comprehensive cloud storage management with file operations, search, and previews
 - Built-in image processing tools (watermarks, compression, scaling, rotation, format conversion)
@@ -93,7 +94,7 @@ To use PicList-core separately, visit [GitHub repo](https://github.com/Kuingsmil
 - **Advanced Album Features**: Search, sort, and batch URL modification
 - **Built-in Image Tools**: Add watermarks, compress, scale, rotate, and convert formats
 - **Form Upload**: Share across multiple computers
-- **Config Synchronization**: Save settings to WebDAV/GitHub/Gitee/Gitea repositories
+- **Config Synchronization**: Save settings and album database to WebDAV/GitHub/Gitee/Gitea repositories
 - **Cloud Management**: Browse directories, search files, batch operations, and more
 - **Multi-format Previews**: View images, videos, text files, and Markdown files (see [supported formats](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md))
 - **Batch Operations**: Rename cloud files with regular expressions

@@ -60,6 +60,7 @@ PicList是一款高效的云存储和图床平台管理工具，基于PicGo深�
 
 - 完整保留PicGo所有功能，兼容大部分PicGo插件
 - 扩展了内置图床平台，如WebDav、本地图床和SFTP等
+- 支持配置文件和相册数据库的云端同步(WebDAV/GitHub/Gitee/Gitea)
 - 相册支持同步云端删除文件
 - 全面的云存储管理功能，包括文件操作、搜索和预览
 - 内置图像处理工具，如水印、压缩、缩放、旋转和格式转换
@@ -93,7 +94,7 @@ PicList的内核使用[PicList-core](https://github.com/Kuingsmile/PicList-Core)
 - **高级相册功能**：高级搜索、排序和批量URL修改
 - **内置图像工具**：水印添加、图片压缩、图片缩放、图片旋转和格式转换，支持高级重命名
 - **表单上传**：支持多电脑共享使用
-- **配置同步**：支持配置同步至WebDAV/GitHub/Gitee/Gitea仓库
+- **配置同步**：支持配置和相册数据库同步至WebDAV/GitHub/Gitee/Gitea仓库
 - **云存储管理**：云端目录查看、文件搜索、批量操作等功能
 - **多格式预览**：支持预览图片、视频、文本和Markdown文件（查看[支持的文件格式列表](https://github.com/Kuingsmile/PicList/blob/dev/supported_format.md)）
 - **批量操作**：支持使用正则表达式批量重命名云端文件
