@@ -3,6 +3,9 @@ name:  Build for release
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   ELECTRON_OUTPUT_PATH: ./dist_electron
   CSC_LINK: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
