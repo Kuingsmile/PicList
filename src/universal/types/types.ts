@@ -523,3 +523,13 @@ export interface IHTTPProxy {
   port: number
   protocol: string
 }
+
+export interface IGalleryDBGalleryItem {
+  id: string
+  updatedAt?: number
+  [propName: string]: any
+}
+export interface IGalleryDBFile {
+  gallery: IGalleryDBGalleryItem[]
+  __gallery_KEY__: Record<string, number>
+}

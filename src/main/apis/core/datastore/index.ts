@@ -107,8 +107,8 @@ class GalleryDB {
     console.log('init gallery db')
   }
 
-  static getInstance(): DBStore {
-    if (!GalleryDB.#instance) {
+  static getInstance(forceRefresh: boolean = false): DBStore {
+    if (!GalleryDB.#instance || forceRefresh) {
       GalleryDB.#instance = new DBStore(DB_PATH, 'gallery')
     }
     return GalleryDB.#instance

@@ -717,10 +717,10 @@
         "syncConfigNote": "The files to be synced are configuration files",
         "syncConfigProxy": "Proxy",
         "syncConfiguration": "Sync Configuration",
-        "syncEndpointConfig": "Sync Endpoint Configuration",
+        "syncEndpointConfig": "Endpoint Configuration",
         "syncResult": { "failed": "Sync Failed", "success": "Sync Successful" },
         "title": "Sync",
-        "upDownloadSettings": "Upload and Download Settings",
+        "upDownloadSettings": "Sync Config & Gallery",
         "uploadSettings": "Upload Settings",
         "webdav": {
           "authType": "WebDAV Auth Type",

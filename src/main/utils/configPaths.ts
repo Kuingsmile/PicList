@@ -100,6 +100,8 @@ export interface IConfigStruct {
     autoImport: boolean
     autoImportPicBed: string[]
     galleryPicBedFilter: string[]
+    enableSecondUploader?: boolean
+    lastSyncTime?: number
   }
   needReload: boolean
   picgoPlugins: IPicGoPlugins
@@ -189,6 +191,7 @@ export const configPaths = {
     autoImportPicBed: 'settings.autoImportPicBed',
     galleryPicBedFilter: 'settings.galleryPicBedFilter',
     enableSecondUploader: 'settings.enableSecondUploader',
+    lastSyncTime: 'settings.lastSyncTime',
   },
   needReload: 'needReload',
   picgoPlugins: 'picgoPlugins',

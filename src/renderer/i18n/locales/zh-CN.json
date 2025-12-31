@@ -712,10 +712,10 @@
         "syncConfigNote": "同步的文件为配置文件",
         "syncConfigProxy": "代理",
         "syncConfiguration": "同步配置",
-        "syncEndpointConfig": "同步方案配置",
+        "syncEndpointConfig": "平台设置",
         "syncResult": { "failed": "同步失败", "success": "同步成功" },
-        "title": "配置/同步",
-        "upDownloadSettings": "上传下载配置文件",
+        "title": "配置/相册同步",
+        "upDownloadSettings": "同步配置和相册",
         "uploadSettings": "上传配置",
         "webdav": {
           "authType": "WebDAV 认证类型",

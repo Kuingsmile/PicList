@@ -2,6 +2,7 @@ import os from 'node:os'
 import path from 'node:path'
 
 import db from '@core/datastore'
+import { GalleryDB } from '@core/datastore'
 import logger from '@core/picgo/logger'
 import { Octokit } from '@octokit/rest'
 import axios from 'axios'
@@ -10,15 +11,15 @@ import fs from 'fs-extra'
 import { HttpsProxyAgent } from 'hpagent'
 import { AuthType, createClient, WebDAVClientOptions } from 'webdav'
 
-import type { ISyncConfig } from '#/types/types'
+import type { IGalleryDBFile, IGalleryDBGalleryItem, ISyncConfig } from '#/types/types'
 import { extractData, zipData } from '~/utils/common'
 import { formatEndpoint } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 
 const STORE_PATH = app.getPath('userData')
 const tempDir = path.join(os.tmpdir(), `piclist-sync-tmp`)
-const db1 = path.join(tempDir, 'db1')
-const db2 = path.join(tempDir, 'db2')
+const localDBPath = path.join(tempDir, 'db1')
+const remoteDBPath = path.join(tempDir, 'db2')
 const dbMerged = path.join(tempDir, 'db-merged')
 const galleryDBList = ['piclist.db', 'piclist.bak.db']
 
@@ -30,37 +31,50 @@ const uploadOrUpdateMsg = (fileName: string, isUpdate: boolean = true) =>
   isUpdate ? `update ${fileName} from PicList` : `upload ${fileName} from PicList`
 
 const emptyDir = async (): Promise<void> => {
-  await fs.emptyDir(tempDir)
-  await fs.emptyDir(db1)
-  await fs.emptyDir(db2)
-  await fs.emptyDir(dbMerged)
+  for (const dir of [tempDir, localDBPath, remoteDBPath, dbMerged]) {
+    await fs.emptyDir(dir)
+  }
 }
 
 const mergeGalleryDB = async (targetFile: string) => {
+  const lastSyncTime = db.get(configPaths.settings.lastSyncTime) || 0
   try {
-    const db1Data = await extractData(path.join(db1, targetFile))
-    const db2Data = await extractData(path.join(db2, targetFile))
-    const mergedData: any = {
-      gallery: [],
-      __gallery_KEY__: {},
-    }
-    const db1Ids = new Set<string>(Object.keys(db1Data.__gallery_KEY__ || {}))
-    const db2Ids = new Set<string>(Object.keys(db2Data.__gallery_KEY__ || {}))
-    const idSet = new Set<string>([...db1Ids, ...db2Ids])
-    for (const id of idSet) {
-      if (db2Ids.has(id)) {
-        mergedData.gallery.push(db2Data.gallery.find((item: any) => item.id === id))
-      } else if (db1Ids.has(id)) {
-        mergedData.gallery.push(db1Data.gallery.find((item: any) => item.id === id))
+    const localDBData = (await extractData(path.join(localDBPath, targetFile))) as IGalleryDBFile
+    const remoteDBData = (await extractData(path.join(remoteDBPath, targetFile))) as IGalleryDBFile
+    const localMap = new Map(localDBData.gallery.map((item: IGalleryDBGalleryItem) => [item.id, item]))
+    const remoteMap = new Map(remoteDBData.gallery.map((item: IGalleryDBGalleryItem) => [item.id, item]))
+    const mergedGalleryMap = new Map<string, any>()
+
+    for (const [id, localItem] of localMap) {
+      const remoteItem = remoteMap.get(id)
+      if (!remoteItem) {
+        mergedGalleryMap.set(id, localItem)
+      } else {
+        const newest = (localItem.updatedAt || 0) >= (remoteItem.updatedAt || 0) ? localItem : remoteItem
+        mergedGalleryMap.set(id, newest)
       }
     }
-    for (const item of mergedData.gallery) {
-      mergedData.__gallery_KEY__[item.id] = 1
+    for (const [id, remoteItem] of remoteMap) {
+      if (!localMap.has(id) && (remoteItem.updatedAt || 0) >= lastSyncTime) {
+        console.log('newer in remote:', JSON.stringify(remoteItem))
+        mergedGalleryMap.set(id, remoteItem)
+      }
     }
-    await zipData(mergedData, path.join(dbMerged, targetFile))
-    await fs.copyFile(path.join(dbMerged, targetFile), path.join(STORE_PATH, targetFile))
+
+    const galleryKeyObj: Record<string, number> = {}
+    mergedGalleryMap.forEach((_, id) => {
+      galleryKeyObj[id] = 1
+    })
+    const mergedData = {
+      gallery: Array.from(mergedGalleryMap.values()),
+      __gallery_KEY__: galleryKeyObj,
+    }
+    const targetFilePath = path.join(dbMerged, targetFile)
+    await zipData(mergedData, targetFilePath)
+    await fs.copyFile(targetFilePath, path.join(STORE_PATH, targetFile))
   } catch (err: any) {
     logger.error('merge gallery db failed:', String(err))
+    throw new Error('merge gallery db failed')
   }
 }
 
@@ -353,7 +367,7 @@ async function downloadAndWriteFile(url: string, localFilePath: string, config: 
 }
 
 async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string, galleryMode = false) {
-  const storePath = galleryMode ? db2 : STORE_PATH
+  const storePath = galleryMode ? remoteDBPath : STORE_PATH
   const localFilePath = path.join(storePath, fileName)
   const { username, repo, branch, token, proxy, type } = syncConfig
   try {
@@ -582,6 +596,8 @@ async function syncGallery(): Promise<number> {
         await uploadLocalToRemote(syncConfig, file)
         logger.info(`gallery db ${file} not exist in cloud, upload local file instead`)
         successCount++
+        db.set(configPaths.settings.lastSyncTime, Date.now())
+        GalleryDB.getInstance(true)
         continue
       }
     } catch (err: any) {
@@ -589,9 +605,11 @@ async function syncGallery(): Promise<number> {
       continue
     }
     await downloadRemoteToLocal(syncConfig, file, true)
-    await fs.copyFile(path.join(STORE_PATH, file), path.join(db1, file))
+    await fs.copyFile(path.join(STORE_PATH, file), path.join(localDBPath, file))
     await mergeGalleryDB(file)
     await updateLocalToRemote(syncConfig, file)
+    db.set(configPaths.settings.lastSyncTime, Date.now())
+    GalleryDB.getInstance(true) // refresh gallery db instance
     logger.info(`sync gallery db ${file} success`)
     successCount++
   }
