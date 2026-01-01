@@ -7,7 +7,6 @@ import FormData from 'form-data'
 import fs from 'fs-extra'
 import Upyun from 'upyun'
 
-import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import {
   ConcurrencyPromisePool,

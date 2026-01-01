@@ -236,7 +236,6 @@ import {
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
 import { updatePicBedGlobal } from '@/utils/global'
-import type { INPMSearchResultObject, IPicGoPlugin } from '#/types/types'
 
 const { t } = useI18n()
 const searchText = ref('')

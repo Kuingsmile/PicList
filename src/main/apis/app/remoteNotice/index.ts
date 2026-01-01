@@ -6,7 +6,6 @@ import { app, clipboard, dialog, shell } from 'electron'
 import fs from 'fs-extra'
 import { gte, lte } from 'semver'
 
-import type { IRemoteNotice, IRemoteNoticeAction, IRemoteNoticeLocalCountStorage } from '#/types/types'
 import { showNotification } from '~/utils/common'
 import { IRemoteNoticeActionType, IRemoteNoticeTriggerCount } from '~/utils/enum'
 

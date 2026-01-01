@@ -1778,7 +1778,6 @@ import {
 } from 'lucide-vue-next'
 import type { IConfig } from 'piclist'
 import pkg from 'root/package.json'
-import { ISettingForm } from 'root/src/universal/types/view'
 import { computed, onBeforeMount, reactive, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -1794,7 +1793,6 @@ import { getConfig, saveConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType, ISartMode } from '@/utils/enum'
 import { getLatestVersion } from '@/utils/getLatestVersion'
 import { osGlobal, picBedGlobal, updatePicBedGlobal } from '@/utils/global'
-import type { ICheckBoxValueType } from '#/types/types'
 
 const { t, locale } = useI18n()
 const $router = useRouter()

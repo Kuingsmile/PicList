@@ -177,7 +177,6 @@ import { getConfig, saveConfig } from '@/utils/dataSender'
 import { useDragEventListeners } from '@/utils/drag'
 import { IPasteStyle, IRPCActionType } from '@/utils/enum'
 import { picBedGlobal, updatePicBedGlobal } from '@/utils/global'
-import type { IFileWithPath, IUploaderConfigItem } from '#/types/types'
 
 useDragEventListeners()
 const $router = useRouter()

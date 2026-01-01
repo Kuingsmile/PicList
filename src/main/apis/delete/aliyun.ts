@@ -1,6 +1,5 @@
 import OSS from 'ali-oss'
 
-import type { IAliYunConfig, PartialKeys } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '~/utils/deleteLog'
 
 interface IConfigMap {

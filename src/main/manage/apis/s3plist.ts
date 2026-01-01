@@ -27,7 +27,6 @@ import windowManager from 'apis/app/window/windowManager'
 import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 
-import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ConcurrencyPromisePool, formatError, getAgent, getFileMimeType, NewDownloader } from '~/manage/utils/common'
 import { dogecloudApi, DogecloudToken, getTempToken } from '~/manage/utils/dogeAPI'

@@ -1,6 +1,5 @@
 import Upyun from 'upyun'
 
-import type { IUpYunConfig, PartialKeys } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '~/utils/deleteLog'
 
 interface IConfigMap {

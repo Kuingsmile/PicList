@@ -1,6 +1,5 @@
 import axios, { AxiosResponse } from 'axios'
 
-import type { IStringKeyMap } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '~/utils/deleteLog'
 
 export default class PiclistApi {

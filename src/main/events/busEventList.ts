@@ -14,7 +14,6 @@ import { createMenu } from 'apis/app/system'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
 
-import type { IFileWithPath } from '#/types/types'
 import { IWindowList } from '~/utils/enum'
 
 function initEventCenter() {

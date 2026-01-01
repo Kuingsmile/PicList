@@ -83,7 +83,6 @@ import { configPaths } from '@/utils/configPaths'
 import { getConfig } from '@/utils/dataSender'
 import $$db from '@/utils/db'
 import { IPasteStyle, IRPCActionType, IWindowList } from '@/utils/enum'
-import type { ImgInfo } from '#/types/types'
 
 const { t } = useI18n()
 

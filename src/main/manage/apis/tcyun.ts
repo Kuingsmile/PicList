@@ -5,7 +5,6 @@ import COS from 'cos-nodejs-sdk-v5'
 import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 
-import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { formatError, getFileMimeType } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'

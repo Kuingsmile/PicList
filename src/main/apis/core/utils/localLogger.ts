@@ -3,8 +3,6 @@ import util from 'node:util'
 import dayjs from 'dayjs'
 import fs from 'fs-extra'
 
-import type { ILogArgvTypeWithError } from '#/types/types'
-
 const MB = 1024 * 1024
 const DEFAULT_LOG_FILE_SIZE_LIMIT = 10 * MB
 

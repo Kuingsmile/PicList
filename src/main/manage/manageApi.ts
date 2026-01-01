@@ -7,8 +7,6 @@ import { ipcMain } from 'electron'
 import fs from 'fs-extra'
 import { get, set, unset } from 'lodash-es'
 
-import type { IManageApiType, IManageConfigType, IManageError, IPicBedMangeConfig } from '#/types/manage'
-import type { IStringKeyMap } from '#/types/types'
 import API from '~/manage/apis/api'
 import ManageDB from '~/manage/datastore/db'
 import { managePathChecker } from '~/manage/datastore/dbChecker'

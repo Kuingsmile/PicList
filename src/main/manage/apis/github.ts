@@ -5,7 +5,6 @@ import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 import got from 'got'
 
-import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import {
   ConcurrencyPromisePool,

@@ -130,7 +130,6 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 import { getConfig } from '@/utils/dataSender'
-import type { IPicGoPluginConfig, IStringKeyMap } from '#/types/types'
 
 interface IProps {
   config: any[]

@@ -5,7 +5,6 @@ import windowManager from 'apis/app/window/windowManager'
 import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 
-import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { formatError } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'

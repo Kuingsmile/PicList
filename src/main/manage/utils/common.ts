@@ -13,7 +13,6 @@ import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
 import mime from 'mime'
 import Downloader from 'nodejs-file-downloader'
 
-import type { IHTTPProxy, IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ManageLogger } from '~/manage/utils/logger'
 import { formatHttpProxy } from '~/utils/common'

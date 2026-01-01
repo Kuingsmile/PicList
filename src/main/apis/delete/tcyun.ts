@@ -1,6 +1,5 @@
 import COS from 'cos-nodejs-sdk-v5'
 
-import type { ITcYunConfig, PartialKeys } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '~/utils/deleteLog'
 interface IConfigMap {
   fileName: string

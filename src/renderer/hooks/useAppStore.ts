@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-import type { IStringKeyMap } from '#/types/types'
-
 export const useAppStore = defineStore('app', () => {
   const settings = ref<IStringKeyMap>({
     app: {

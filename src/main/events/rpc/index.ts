@@ -1,7 +1,6 @@
 import logger from '@core/picgo/logger'
 import { ipcMain, IpcMainEvent, IpcMainInvokeEvent } from 'electron'
 
-import type { IRPCRoutes, IRPCServer } from '#/types/rpc'
 import { RPC_ACTIONS, RPC_ACTIONS_INVOKE } from '~/events/constant'
 import { galleryRouter } from '~/events/rpc/routes/gallery'
 import { manageRouter } from '~/events/rpc/routes/manage'

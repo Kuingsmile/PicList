@@ -6,7 +6,6 @@ import { dbPathChecker } from '@core/datastore/dbChecker'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
 
-import type { ILocales } from '#/types/i18n'
 import { i18nManager } from '~/i18n'
 
 const configPath = dbPathChecker()

@@ -11,7 +11,6 @@ import fs from 'fs-extra'
 import { HttpsProxyAgent } from 'hpagent'
 import { AuthType, createClient, WebDAVClientOptions } from 'webdav'
 
-import type { IGalleryDBFile, IGalleryDBGalleryItem, ISyncConfig } from '#/types/types'
 import { extractData, zipData } from '~/utils/common'
 import { formatEndpoint } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'

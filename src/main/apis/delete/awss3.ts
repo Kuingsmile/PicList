@@ -1,4 +1,3 @@
-import type { IStringKeyMap } from '#/types/types'
 import { getRawData } from '~/utils/common'
 import { removeFileFromS3InMain } from '~/utils/deleteFunc'
 import { deleteFailedLog } from '~/utils/deleteLog'

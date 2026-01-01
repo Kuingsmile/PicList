@@ -11,7 +11,6 @@ import { NodeHttpHandler } from '@smithy/node-http-handler'
 import axios from 'axios'
 import type { ISftpPlistConfig } from 'piclist'
 
-import type { IObj, IStringKeyMap } from '#/types/types'
 import { getAgent } from '~/manage/utils/common'
 import SSHClient from '~/utils/sshClient'
 

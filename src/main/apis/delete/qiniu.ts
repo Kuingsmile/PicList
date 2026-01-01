@@ -1,6 +1,5 @@
 import qiniu from 'qiniu'
 
-import type { IQiniuConfig, PartialKeys } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '~/utils/deleteLog'
 interface IConfigMap {
   fileName: string

@@ -309,7 +309,6 @@ import { getConfig, removeConfig, saveConfig } from '@/manage/utils/dataSender'
 import { formatEndpoint } from '@/utils/common'
 import { getConfig as getPicBedsConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
-import type { IStringKeyMap, IUploaderConfigListItem } from '#/types/types'
 
 const { t } = useI18n()
 const manageStore = useManageStore()

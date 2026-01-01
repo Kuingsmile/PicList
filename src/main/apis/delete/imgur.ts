@@ -1,6 +1,5 @@
 import axios, { AxiosResponse } from 'axios'
 
-import type { IImgurConfig } from '#/types/types'
 import { deleteFailedLog, deleteLog } from '~/utils/deleteLog'
 
 interface IConfigMap {

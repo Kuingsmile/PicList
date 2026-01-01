@@ -226,7 +226,6 @@ import { fileCacheDbInstance } from '@/manage/store/bucketFileDb'
 import { customRenameFormatTable, formatFileSize } from '@/manage/utils/common'
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
-import type { IStringKeyMap } from '#/types/types'
 
 const { t } = useI18n()
 const message = useMessage()

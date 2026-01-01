@@ -4,7 +4,6 @@ import fs from 'fs-extra'
 import { IConfig } from 'piclist'
 import tunnel from 'tunnel'
 
-import type { IToolboxCheckerMap } from '#/types/rpc'
 import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
 import { T as $t } from '~/i18n'
 import { IToolboxItemCheckStatus, IToolboxItemType } from '~/utils/enum'

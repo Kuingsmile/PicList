@@ -34,7 +34,6 @@ import { isUrl } from '@/utils/common'
 import { getConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
 import { osGlobal } from '@/utils/global'
-import type { IFileWithPath } from '#/types/types'
 
 const logoPath = ref('')
 const dragover = ref(false)

@@ -7,7 +7,6 @@ import { app, BrowserWindow, dialog, Menu, MenuItem, MenuItemConstructorOptions,
 import { PicGo as PicGoCore } from 'piclist'
 import pkg from 'root/package.json'
 
-import type { IPicGoPlugin, IUploaderConfig } from '#/types/types'
 import {
   PICGO_CONFIG_PLUGIN,
   PICGO_HANDLE_PLUGIN_DONE,

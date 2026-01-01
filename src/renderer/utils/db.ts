@@ -1,5 +1,4 @@
 import { IRPCActionType } from '@/utils/enum'
-import type { IGalleryDB } from '#/types/extra-vue'
 
 interface IFilter {
   orderBy?: 'asc' | 'desc'

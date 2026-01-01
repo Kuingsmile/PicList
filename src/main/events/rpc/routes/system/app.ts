@@ -1,7 +1,6 @@
 import picgo from '@core/picgo'
 import { app, shell } from 'electron'
 
-import type { IIPCEvent } from '#/types/rpc'
 import { i18nManager } from '~/i18n'
 import { IRPCActionType } from '~/utils/enum'
 

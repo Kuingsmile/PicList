@@ -4,8 +4,6 @@ import querystring from 'node:querystring'
 import picgo from '@core/picgo'
 import axios from 'axios'
 
-import type { IObj } from '#/types/types'
-
 export interface DogecloudToken {
   accessKeyId: string
   secretAccessKey: string

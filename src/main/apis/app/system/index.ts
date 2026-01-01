@@ -18,7 +18,6 @@ import fs from 'fs-extra'
 import { cloneDeep } from 'lodash-es'
 import pkg from 'root/package.json'
 
-import type { IBounds, ImgInfo } from '#/types/types'
 import { buildPicBedListMenu } from '~/events/remotes/menu'
 import { T as $t } from '~/i18n'
 import clipboardPoll from '~/utils/clipboardPoll'

@@ -5,9 +5,6 @@ import { I18n, ObjectAdapter } from '@piclist/i18n'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
 
-import type { ILocales, ILocalesKey } from '#/types/i18n'
-import type { II18nItem, IStringKeyMap } from '#/types/types'
-
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const builtinI18nList: II18nItem[] = [

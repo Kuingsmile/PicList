@@ -1294,8 +1294,6 @@ import { videoExt } from '@/manage/utils/videofile'
 import { trimPath } from '@/utils/common'
 import { IRPCActionType } from '@/utils/enum'
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/utils/static'
-import type { IDownloadTask, IUploadTask } from '#/types/manage'
-import type { IStringKeyMap } from '#/types/types'
 
 const { t } = useI18n()
 const message = useMessage()

@@ -1,7 +1,6 @@
 import windowList from 'apis/app/window/windowList'
 import { BrowserWindow } from 'electron'
 
-import type { IWindowListItem, IWindowManager } from '#/types/electron'
 import { IWindowList } from '~/utils/enum'
 
 class WindowManager implements IWindowManager {

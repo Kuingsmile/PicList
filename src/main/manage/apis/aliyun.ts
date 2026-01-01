@@ -6,7 +6,6 @@ import axios from 'axios'
 import { ipcMain, IpcMainEvent } from 'electron'
 import * as fastxml from 'fast-xml-parser'
 
-import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import {
   ConcurrencyPromisePool,

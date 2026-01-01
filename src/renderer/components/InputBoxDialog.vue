@@ -60,7 +60,6 @@ import { useI18n } from 'vue-i18n'
 
 import $bus from '@/utils/bus'
 import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
-import type { IShowInputBoxOption } from '#/types/types'
 
 const { t } = useI18n()
 const inputBoxValue = ref('')

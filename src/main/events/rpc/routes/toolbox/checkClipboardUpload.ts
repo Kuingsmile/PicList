@@ -3,7 +3,6 @@ import path from 'node:path'
 import { dbPathChecker, defaultConfigPath } from '@core/datastore/dbChecker'
 import fs from 'fs-extra'
 
-import type { IToolboxCheckerMap, IToolboxFixMap } from '#/types/rpc'
 import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
 import { T as $t } from '~/i18n'
 import { IToolboxItemCheckStatus, IToolboxItemType } from '~/utils/enum'

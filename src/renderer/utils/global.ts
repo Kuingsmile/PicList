@@ -1,7 +1,6 @@
 import { ref } from 'vue'
 
 import { IRPCActionType } from '@/utils/enum'
-import type { IPicBedType } from '#/types/types'
 
 const osGlobal = ref<string>(window.electron.platform)
 

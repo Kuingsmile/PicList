@@ -1,8 +1,6 @@
 import windowManager from 'apis/app/window/windowManager'
 import { app, BrowserWindow } from 'electron'
 
-import type { IIPCEvent } from '#/types/rpc'
-import type { IMiniWindowPos, IPicGoPlugin } from '#/types/types'
 import {
   buildMainPageMenu,
   buildMiniPageMenu,

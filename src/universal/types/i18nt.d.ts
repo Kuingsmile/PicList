@@ -1,4 +1,4 @@
-export interface ILocales {
+interface ILocales {
   LANG_DISPLAY_LABEL: string
   ABOUT: string
   OPEN_MAIN_WINDOW: string
@@ -70,4 +70,4 @@ export interface ILocales {
   OPERATION_SUCCEED: string
   OPERATION_FAILED: string
 }
-export type ILocalesKey = keyof ILocales
+type ILocalesKey = keyof ILocales

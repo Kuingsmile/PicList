@@ -19,7 +19,7 @@ type IResult<T> = T & {
   updatedAt: number
 }
 
-export interface IGalleryDB {
+interface IGalleryDB {
   get<T>(filter?: IFilter): Promise<IGetResult<T> | undefined>
   insert<T>(value: T): Promise<IResult<T> | undefined>
   insertMany<T>(value: T[]): Promise<IResult<T>[] | undefined>

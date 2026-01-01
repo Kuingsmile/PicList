@@ -138,7 +138,6 @@ import { configPaths } from '@/utils/configPaths'
 import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
 import { saveConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
-import type { IStringKeyMap, IUploaderConfigItem } from '#/types/types'
 
 const { t } = useI18n()
 const message = useMessage()

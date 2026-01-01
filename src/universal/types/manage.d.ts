@@ -1,20 +1,23 @@
-import { ILogger } from 'piclist/dist/types'
-
-import { IStringKeyMap } from '#/types/types'
-
+interface ILogger {
+  success: (...msg: ILogArgvType[]) => void
+  info: (...msg: ILogArgvType[]) => void
+  error: (...msg: ILogArgvTypeWithError[]) => void
+  warn: (...msg: ILogArgvType[]) => void
+  debug: (...msg: ILogArgvType[]) => void
+}
 // common type
-export type Undefinable<T> = T | undefined
+type Undefinable<T> = T | undefined
 
-export interface IManageError extends Error {
+interface IManageError extends Error {
   code?: number
   param?: string
   stack?: string
   picbed?: string
 }
 
-export type IPicBedMangeConfig = IStringKeyMap
+type IPicBedMangeConfig = IStringKeyMap
 
-export interface IManageApiType {
+interface IManageApiType {
   /**
    * logger
    */
@@ -142,12 +145,12 @@ export interface IManageApiType {
 }
 
 /** PicList 存储管理功能配置文件类型定义 */
-export interface IManageConfigType {
+interface IManageConfigType {
   picBed: Record<string, any>
   settings: Record<string, any>
   [others: string]: any
 }
-export interface IUploadTask {
+interface IUploadTask {
   id: string
   progress: number
   status: any
@@ -162,7 +165,7 @@ export interface IUploadTask {
   [other: string]: any
 }
 
-export interface IDownloadTask {
+interface IDownloadTask {
   id: string
   progress: number
   status: any

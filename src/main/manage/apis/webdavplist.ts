@@ -7,7 +7,6 @@ import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 import { AuthType, createClient, FileStat, ProgressEvent, WebDAVClient, WebDAVClientOptions } from 'webdav'
 
-import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ConcurrencyPromisePool, formatError, getInnerAgent, NewDownloader } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'

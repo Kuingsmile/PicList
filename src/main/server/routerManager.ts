@@ -10,7 +10,6 @@ import { app } from 'electron'
 import fs from 'fs-extra'
 import { marked } from 'marked'
 
-import type { IHttpResponse, IStringKeyMap } from '#/types/types'
 import { markdownContent } from '~/server/apiDoc'
 import router from '~/server/router'
 import { deleteChoosedFiles, handleResponse } from '~/server/utils'

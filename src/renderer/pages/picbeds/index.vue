@@ -144,7 +144,6 @@ import { configPaths } from '@/utils/configPaths'
 import { getConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType } from '@/utils/enum'
 import { picBedManualUrlList } from '@/utils/static'
-import type { IPicGoPluginConfig, IStringKeyMap, IUploaderConfigItem, IUploaderConfigListItem } from '#/types/types'
 
 const { t } = useI18n()
 const message = useMessage()

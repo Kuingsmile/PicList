@@ -1,5 +1,3 @@
-import type { IStringKeyMap } from '#/types/types'
-
 const AUTH_KEY_VALUE_RE = /(\w+)=["']?([^'"]{1,10000})["']?/
 let NC = 0
 const NC_PAD = '00000000'

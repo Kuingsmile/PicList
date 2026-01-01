@@ -3,7 +3,6 @@ import uploader from 'apis/app/uploader'
 import windowManager from 'apis/app/window/windowManager'
 import { Notification } from 'electron'
 
-import type { IIPCEvent } from '#/types/rpc'
 import { RPCRouter } from '~/events/rpc/router'
 import { T as $t } from '~/i18n'
 import { generateShortUrl, handleCopyUrl, setTrayToolTip } from '~/utils/common'

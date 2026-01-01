@@ -1,6 +1,5 @@
 import db from '@core/datastore'
 
-import type { ImgInfo } from '#/types/types'
 import { generateShortUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 

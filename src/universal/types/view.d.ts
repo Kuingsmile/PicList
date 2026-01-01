@@ -1,4 +1,4 @@
-export interface ISettingForm {
+interface ISettingForm {
   showUpdateTip: boolean
   autoStart: boolean
   rename: boolean
@@ -42,7 +42,7 @@ export interface ISettingForm {
   enableSecondUploader: boolean
 }
 
-export interface IToolboxItem {
+interface IToolboxItem {
   title: string
   status: string
   msg?: string
@@ -52,4 +52,4 @@ export interface IToolboxItem {
   handlerText?: string
 }
 
-export type IToolboxMap = Record<string, IToolboxItem>
+type IToolboxMap = Record<string, IToolboxItem>

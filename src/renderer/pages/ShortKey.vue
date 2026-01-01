@@ -117,7 +117,6 @@ import { configPaths } from '@/utils/configPaths'
 import { getConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
 import keyBinding from '@/utils/key-binding'
-import type { IShortKeyConfig, IShortKeyConfigs } from '#/types/types'
 
 const { t } = useI18n()
 const list = ref<IShortKeyConfig[]>([])

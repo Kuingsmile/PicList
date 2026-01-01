@@ -10,8 +10,6 @@ import {
 } from '@core/bus/constants'
 import bus from '@core/bus/index'
 
-import type { IFileWithPath } from '#/types/types'
-
 export const uploadWithClipboardFiles = (): Promise<{
   success: boolean
   result?: string[]

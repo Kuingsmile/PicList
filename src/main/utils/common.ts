@@ -9,7 +9,6 @@ import FormData from 'form-data'
 import fs from 'fs-extra'
 import { isReactive, isRef, toRaw, unref } from 'vue'
 
-import type { IHTTPProxy, IPrivateShowNotificationOption, IStringKeyMap } from '#/types/types'
 import { configPaths } from '~/utils/configPaths'
 import { IShortUrlServer } from '~/utils/enum'
 

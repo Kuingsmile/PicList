@@ -6,8 +6,6 @@ import { CREATE_APP_MENU } from '@core/bus/constants'
 import db from '@core/datastore'
 import { app, BrowserWindow, Rectangle } from 'electron'
 
-import type { IWindowListItem } from '#/types/electron'
-import type { IBrowserWindowOptions } from '#/types/types'
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '~/events/constant'
 import { T as $t } from '~/i18n'
 import { configPaths } from '~/utils/configPaths'

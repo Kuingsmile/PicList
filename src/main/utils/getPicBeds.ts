@@ -1,6 +1,5 @@
 import picgo from '@core/picgo'
 
-import type { IPicBedType } from '#/types/types'
 import { configPaths } from '~/utils/configPaths'
 
 const getPicBeds = () => {

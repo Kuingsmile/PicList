@@ -5,8 +5,6 @@ import picgo from '@core/picgo'
 import { IpcMainEvent, shell } from 'electron'
 import fs from 'fs-extra'
 
-import type { IIPCEvent } from '#/types/rpc'
-import type { IObj } from '#/types/types'
 import { isAutoStartEnabled, setAutoStart } from '~/utils/autoStart'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
 

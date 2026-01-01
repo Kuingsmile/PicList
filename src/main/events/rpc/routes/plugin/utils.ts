@@ -8,8 +8,6 @@ import { dialog, shell } from 'electron'
 import fs from 'fs-extra'
 import { IGuiMenuItem, PicGo as PicGoCore } from 'piclist'
 
-import type { IIPCEvent } from '#/types/rpc'
-import type { IDispose, IPicGoPlugin } from '#/types/types'
 import { T as $t } from '~/i18n'
 import { handleStreamlinePluginName, showNotification, simpleClone } from '~/utils/common'
 import { ICOREBuildInEvent, IPicGoHelperType, IWindowList } from '~/utils/enum'

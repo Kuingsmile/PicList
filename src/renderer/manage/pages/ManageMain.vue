@@ -276,7 +276,6 @@ import { useManageStore } from '@/manage/store/manageStore'
 import { supportedPicBedList } from '@/manage/utils/constants'
 import { newBucketConfig } from '@/manage/utils/newBucketConfig'
 import { IRPCActionType } from '@/utils/enum'
-import type { IStringKeyMap } from '#/types/types'
 
 const { t } = useI18n()
 const manageStore = useManageStore() as any

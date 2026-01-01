@@ -1,4 +1,3 @@
-import type { IRPCHandler, IRPCRouter, IRPCRoutes } from '#/types/rpc'
 import { IRPCType } from '~/utils/enum'
 
 interface IBatchAddParams {

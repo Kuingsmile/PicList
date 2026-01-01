@@ -7,7 +7,6 @@ import fs from 'fs-extra'
 import { cloneDeep } from 'lodash-es'
 import type { IPicGo } from 'piclist'
 
-import type { IFileWithPath, ImgInfo, IStringKeyMap, IUploadOption } from '#/types/types'
 import { T as $t } from '~/i18n/index'
 import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'

@@ -2,8 +2,6 @@ import bus from '@core/bus'
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import { Notification } from 'electron'
 
-import type { IIPCEvent } from '#/types/rpc'
-import type { IShortKeyConfig } from '#/types/types'
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '~/events/constant'
 import { T as $t } from '~/i18n'
 import { IRPCActionType, IRPCType } from '~/utils/enum'

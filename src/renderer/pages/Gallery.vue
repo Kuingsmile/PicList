@@ -517,7 +517,6 @@ import $$db from '@/utils/db'
 import { IPasteStyle, IRPCActionType } from '@/utils/enum'
 import { picBedGlobal } from '@/utils/global'
 import { picBedsCanbeDeleted } from '@/utils/static'
-import type { IGalleryItem, ImgInfo, IObj, IObjT } from '#/types/types'
 
 const { t } = useI18n()
 const message = useMessage()

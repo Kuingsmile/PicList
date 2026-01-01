@@ -5,7 +5,6 @@ import axios from 'axios'
 import { ipcMain, IpcMainEvent } from 'electron'
 import qiniu from 'qiniu'
 
-import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import {
   ConcurrencyPromisePool,

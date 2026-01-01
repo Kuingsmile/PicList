@@ -110,8 +110,6 @@ import ToolboxHandler from '@/components/ToolboxHandler.vue'
 import ToolboxStatusIcon from '@/components/ToolboxStatusIcon.vue'
 import useConfirm from '@/hooks/useConfirm'
 import { IRPCActionType, IToolboxItemCheckStatus, IToolboxItemType } from '@/utils/enum'
-import type { IToolboxCheckRes } from '#/types/rpc'
-import type { IToolboxMap } from '#/types/view'
 
 const { t } = useI18n()
 const { confirm } = useConfirm()

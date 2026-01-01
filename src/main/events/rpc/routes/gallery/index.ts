@@ -3,8 +3,6 @@ import picgo from '@core/picgo'
 import GuiApi from 'apis/gui'
 import { clipboard } from 'electron'
 
-import type { IIPCEvent } from '#/types/rpc'
-import type { ImgInfo } from '#/types/types'
 import { RPCRouter } from '~/events/rpc/router'
 import { configPaths } from '~/utils/configPaths'
 import { ICOREBuildInEvent, IPasteStyle, IRPCActionType, IRPCType } from '~/utils/enum'

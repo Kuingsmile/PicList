@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid'
 import { getConfig } from '@/manage/utils/dataSender'
 import { availableIconList } from '@/manage/utils/icon'
 import { isNeedToShorten, safeSliceF } from '@/utils/common'
-import type { IStringKeyMap } from '#/types/types'
 
 export const isUrlEncode = (url: string): boolean => {
   url = url || ''

@@ -1,6 +1,5 @@
 import { IpcMainEvent } from 'electron'
 
-import type { IToolboxCheckArgs, IToolboxCheckerMap, IToolboxFixMap } from '#/types/rpc'
 import { RPCRouter } from '~/events/rpc/router'
 import { checkClipboardUploadMap, fixClipboardUploadMap } from '~/events/rpc/routes/toolbox/checkClipboardUpload'
 import { checkFileMap, fixFileMap } from '~/events/rpc/routes/toolbox/checkFile'

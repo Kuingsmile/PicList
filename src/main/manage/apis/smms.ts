@@ -7,7 +7,6 @@ import { ipcMain, IpcMainEvent } from 'electron'
 import FormData from 'form-data'
 import fs from 'fs-extra'
 
-import type { IStringKeyMap } from '#/types/types'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ConcurrencyPromisePool, formatError, getFileMimeType, gotUpload, NewDownloader } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
