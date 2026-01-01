@@ -153,13 +153,18 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  max-width: 200px;
+  width: 100%;
+  min-width: 100px;
+  max-width: 600px;
 }
 
 .progress-bar {
   overflow: hidden;
   border-radius: 2px;
-  height: 4px;
+  width: 100%;
+  min-width: 100px;
+  max-width: 600px;
+  height: 14px;
   background: var(--color-border);
   flex: 1;
 }

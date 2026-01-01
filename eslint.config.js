@@ -28,7 +28,6 @@ export default defineConfig(
       globals: {
         ...globals.browser,
         ...globals.node,
-        Office: 'readonly',
       },
     },
   },
@@ -45,7 +44,6 @@ export default defineConfig(
       globals: {
         ...globals.browser,
         ...globals.node,
-        Office: 'readonly',
       },
     },
   },
