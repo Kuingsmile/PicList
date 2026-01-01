@@ -66,7 +66,6 @@
     0 4px 24px rgb(0 0 0 / 8%),
     0 1px 2px rgb(0 0 0 / 4%),
     inset 0 1px 0 rgb(255 255 255 / 5%);
-  backdrop-filter: blur(10px);
   flex-wrap: wrap;
   gap: 1.5rem;
 }
@@ -442,7 +441,6 @@
   justify-content: center;
   align-items: center;
   background: rgb(0 0 0 / 60%);
-  backdrop-filter: blur(8px);
 }
 
 .loading-content {

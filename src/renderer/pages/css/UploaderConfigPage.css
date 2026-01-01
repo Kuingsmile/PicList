@@ -69,7 +69,6 @@
     var(--color-surface) 50%,
     rgb(var(--accent-rgb) / 5%) 100%
   );
-  backdrop-filter: blur(10px);
   box-shadow:
     0 4px 24px rgb(0 0 0 / 8%),
     0 1px 2px rgb(0 0 0 / 4%),

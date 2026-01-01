@@ -147,7 +147,6 @@ export default {
   align-items: center;
   padding: 1rem;
   background: rgb(0 0 0 / 40%);
-  backdrop-filter: blur(4px);
 }
 
 /* Container */

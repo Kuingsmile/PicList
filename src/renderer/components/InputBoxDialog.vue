@@ -5,7 +5,7 @@
         <Transition name="inputbox-scale">
           <div v-if="showInputBoxVisible" class="inputbox-container" @click.stop>
             <button class="inputbox-close" @click="handleInputBoxCancel">
-              <X :size="20" />
+              <XIcon :size="20" />
             </button>
 
             <div class="inputbox-body">
@@ -54,7 +54,7 @@
 </template>
 
 <script lang="ts" setup>
-import { X } from 'lucide-vue-next'
+import { XIcon } from 'lucide-vue-next'
 import { nextTick, onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -165,7 +165,6 @@ export default {
   align-items: center;
   padding: 1rem;
   background: rgb(0 0 0 / 40%);
-  backdrop-filter: blur(4px);
 }
 
 /* Container */
@@ -224,7 +223,7 @@ export default {
 
 /* Body */
 .inputbox-body {
-  padding: 2rem 2rem 1.5rem;
+  padding: 1rem 1rem 0.5rem;
 }
 
 .inputbox-title {

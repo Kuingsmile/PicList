@@ -522,7 +522,6 @@ function generateErrorPage(errorCode: number, _e: string): string {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
             padding: 60px 40px;
             text-align: center;
             max-width: 500px;
