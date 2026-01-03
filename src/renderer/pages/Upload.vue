@@ -162,7 +162,7 @@ import {
   UploadCloudIcon,
   XIcon,
 } from 'lucide-vue-next'
-import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
+import { onBeforeMount, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
@@ -192,7 +192,7 @@ const showError = ref(false)
 const pasteStyle = ref('')
 const picBedName = ref('')
 const picBedConfigName = ref('')
-const fileInput = ref<HTMLInputElement>()
+const fileInput = useTemplateRef('fileInput')
 
 const pasteFormatList = ref<Record<string, string>>({
   [IPasteStyle.MARKDOWN]: '![alt](url)',

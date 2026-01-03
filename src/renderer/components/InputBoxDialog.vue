@@ -55,7 +55,7 @@
 
 <script lang="ts" setup>
 import { XIcon } from 'lucide-vue-next'
-import { nextTick, onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
+import { nextTick, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import $bus from '@/utils/bus'
@@ -64,8 +64,8 @@ import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
 const { t } = useI18n()
 const inputBoxValue = ref('')
 const showInputBoxVisible = ref(false)
-const inputRef = ref<HTMLInputElement>()
-const textareaRef = ref<HTMLTextAreaElement>()
+const inputRef = useTemplateRef('inputRef')
+const textareaRef = useTemplateRef('textareaRef')
 const inputBoxOptions = reactive({
   title: '',
   placeholder: '',

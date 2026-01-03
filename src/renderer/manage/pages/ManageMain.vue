@@ -36,7 +36,7 @@
     <!-- Main Content Card -->
     <div class="manage-card main-card">
       <div class="main-layout">
-        <div ref="sidebar" class="sidebar" :style="{ width: sidebarWidth + 'px' }">
+        <div class="sidebar" :style="{ width: sidebarWidth + 'px' }">
           <div class="sidebar-header">
             <h3 class="sidebar-title">
               {{ menuTitleMap[currentPicBedName] }}
@@ -92,7 +92,7 @@
           <div class="resize-line" />
         </div>
 
-        <div ref="contentArea" class="content-area">
+        <div class="content-area">
           <router-view />
         </div>
       </div>
@@ -286,7 +286,6 @@ const message = useMessage()
 const currentAlias = ref(route.query.alias as string)
 const currentPicBedName = ref(route.query.picBedName as string)
 
-const contentArea = ref<HTMLElement>()
 const sidebarWidth = ref(160)
 const isResizing = ref(false)
 

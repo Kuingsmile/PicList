@@ -42,14 +42,14 @@
 
 <script lang="ts" setup>
 import { XIcon } from 'lucide-vue-next'
-import { nextTick, onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
+import { nextTick, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '@/utils/constant'
 
 const { t } = useI18n()
 const id = ref<string | null>(null)
-const fileNameInput = ref<HTMLInputElement>()
+const fileNameInput = useTemplateRef('fileNameInput')
 const validationError = ref<string>('')
 
 const form = reactive({

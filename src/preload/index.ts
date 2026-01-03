@@ -93,7 +93,7 @@ try {
       load: yaml.load,
     },
     mime: {
-      lookup: mime.getType,
+      lookup: mime.getType.bind,
     },
     buffer: {
       from: Buffer.from,

@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import { useVirtualGrid } from '@/hooks/useVirtualGrid'
 
@@ -59,7 +59,7 @@ const props = withDefaults(
   },
 )
 
-const containerRef = ref<HTMLElement | null>(null)
+const containerRef = useTemplateRef('containerRef')
 const containerHeight = ref<number>(props.pageMode ? 0 : props.height)
 const containerWidth = ref<number>(0)
 const parentScrollListeners = ref<HTMLElement[]>([])

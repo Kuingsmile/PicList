@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, useTemplateRef } from 'vue'
 
 import useConfirm, { type ConfirmOptions } from '@/hooks/useConfirm'
 import useMessage from '@/hooks/useMessage'
@@ -28,7 +28,7 @@ import useMessage from '@/hooks/useMessage'
 import ConfirmMessageBox from './ConfirmMessageBox.vue'
 import MessageToast from './MessageToast.vue'
 
-const messageRef = ref<InstanceType<typeof MessageToast> | null>(null)
+const messageRef = useTemplateRef('messageRef')
 const confirmVisible = ref(false)
 const confirmOptions = reactive<ConfirmOptions>({
   message: '',

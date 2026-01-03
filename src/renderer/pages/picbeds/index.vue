@@ -133,7 +133,7 @@ import {
   RotateCcw,
   Settings,
 } from 'lucide-vue-next'
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -156,7 +156,7 @@ const loading = ref(false)
 const dropdownVisible = ref(false)
 const $route = useRoute()
 const $router = useRouter()
-const $configForm = ref<InstanceType<typeof ConfigForm> | null>(null)
+const $configForm = useTemplateRef('$configForm')
 
 type.value = $route.params.type as string
 

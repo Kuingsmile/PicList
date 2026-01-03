@@ -501,7 +501,17 @@ import {
   TrashIcon,
   XIcon,
 } from 'lucide-vue-next'
-import { computed, nextTick, onActivated, onBeforeMount, onBeforeUnmount, reactive, ref, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onActivated,
+  onBeforeMount,
+  onBeforeUnmount,
+  reactive,
+  ref,
+  useTemplateRef,
+  watch,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate } from 'vue-router'
 
@@ -529,8 +539,8 @@ type IResult<T> = T & {
 }
 
 const images = ref<ImgInfo[]>([])
-const virtualScrollerRef = ref<InstanceType<typeof VirtualScroller>>()
-const previewImageRef = ref<HTMLImageElement>()
+const virtualScrollerRef = useTemplateRef('virtualScrollerRef')
+const previewImageRef = useTemplateRef('previewImageRef')
 const dialogVisible = ref(false)
 const imgInfo = reactive({
   id: '',

@@ -1266,7 +1266,7 @@ import {
 } from 'lucide-vue-next'
 import { marked } from 'marked'
 import { v4 as uuidv4 } from 'uuid'
-import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
@@ -1335,8 +1335,8 @@ const isShowLoadingPage = ref(false)
 const isShowImagePreview = ref(false)
 const layoutStyle = ref<'list' | 'grid'>('grid')
 // Refs for scroll handling
-const virtualScrollerRef = ref()
-const bucketContainerRef = ref()
+const virtualScrollerRef = useTemplateRef('virtualScrollerRef')
+const bucketContainerRef = useTemplateRef('bucketContainerRef')
 // 全屏控制变量
 const isContentFullscreen = ref(false)
 // 新增的UI控制变量
@@ -1443,7 +1443,7 @@ const videoPlayerHeaders = ref({})
 // 创建文件夹相关
 const isShowCreateFolderDialog = ref(false)
 const newFolderName = ref('')
-const folderNameInput = ref()
+const folderNameInput = useTemplateRef('folderNameInput')
 // 重命名相关
 const isShowRenameFileIcon = computed(() =>
   ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value),
@@ -3036,8 +3036,9 @@ function toggleCopyDropdown(index: number, event?: MouseEvent) {
       const viewportWidth = window.innerWidth
       const viewportHeight = window.innerHeight
 
-      const container = bucketContainerRef.value?.$el || bucketContainerRef.value
+      const container = bucketContainerRef.value
       const containerRect = container?.getBoundingClientRect()
+      console.log('containerRect', containerRect)
       const dropdownWidth = 160
       const shouldShowLeft =
         rect.right > viewportWidth - dropdownWidth ||

@@ -4,8 +4,8 @@
     <div class="tab-navigation">
       <div class="tab-indicator" :style="tabIndicatorStyle" />
       <button
-        v-for="(tab, index) in tabs"
-        :ref="el => setTabRef(el, index)"
+        v-for="tab in tabs"
+        ref="tabRefs"
         :key="tab.id"
         class="tab-button"
         :class="{ active: activeTab === tab.id }"
@@ -759,7 +759,18 @@ import {
   Sliders,
 } from 'lucide-vue-next'
 import type { IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
-import { computed, nextTick, onBeforeMount, onBeforeUnmount, onMounted, reactive, ref, toRaw, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeMount,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  toRaw,
+  useTemplateRef,
+  watch,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { configPaths } from '@/utils/configPaths'
@@ -772,14 +783,11 @@ const { t } = useI18n()
 const activeTab = ref('general')
 
 // Tab indicator animation
-const tabRefs = ref<(HTMLElement | null)[]>([])
+const tabRefs = useTemplateRef('tabRefs')
 const tabIndicatorStyle = ref<Record<string, string>>({})
 
-function setTabRef(el: any, index: number) {
-  tabRefs.value[index] = el
-}
-
 function updateTabIndicator() {
+  if (!tabRefs.value || tabRefs.value.length === 0) return
   const activeIndex = tabs.value.findIndex(tab => tab.id === activeTab.value)
   const activeTabEl = tabRefs.value[activeIndex]
   if (activeTabEl) {

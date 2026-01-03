@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <div id="config-form" :class="[{ white: props.colorMode === 'white' }]">
-    <form ref="$form" class="config-form" @submit.prevent>
+    <form class="config-form" @submit.prevent>
       <!-- Config Name Field -->
       <div class="form-group required">
         <label class="form-label">{{ t('pages.configForm.configName') }}</label>
@@ -147,7 +147,6 @@ const props = withDefaults(defineProps<IProps>(), {
 })
 
 const $route = useRoute()
-const $form = ref<HTMLFormElement>()
 const { t } = useI18n()
 
 const configList = ref<IPicGoPluginConfig[]>([])
@@ -159,17 +158,13 @@ const visibleTooltips = reactive<Record<string, boolean>>({})
 watch(
   toRefs(props.config),
   (val: IPicGoPluginConfig[]) => {
-    handleConfigChange(val)
+    handleConfig(val)
   },
   {
     deep: true,
     immediate: true,
   },
 )
-
-function handleConfigChange(val: any) {
-  handleConfig(val)
-}
 
 function validateField(fieldName: string, value: any, _?: IPicGoPluginConfig): string | null {
   if (fieldName === '_configName') {

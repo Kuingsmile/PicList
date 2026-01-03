@@ -221,7 +221,7 @@ import {
   XCircleIcon,
   XIcon,
 } from 'lucide-vue-next'
-import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, toRaw, watch } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, toRaw, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ConfigForm from '@/components/UnifiedConfigForm.vue'
@@ -248,7 +248,7 @@ const pluginNameList = ref<string[]>([])
 const loading = ref(true)
 const needReload = ref(false)
 const latestVersionMap = reactive<Record<string, string>>({})
-const $configForm = ref<InstanceType<typeof ConfigForm> | null>(null)
+const $configForm = useTemplateRef('$configForm')
 const strictSearch = useStorage('plugin-strict-search', true)
 
 function setSrc(e: Event) {

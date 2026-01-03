@@ -25,7 +25,7 @@
     <div class="login-card tabs-card">
       <div class="tabs-container">
         <div class="tabs-nav-wrapper">
-          <div ref="tabsNav" class="tabs-nav">
+          <div class="tabs-nav">
             <button
               v-for="item in tabItems"
               :key="item.key"
@@ -319,7 +319,6 @@ const { confirm } = useConfirm()
 const activeName = ref('login')
 const expandedConfigs = ref<string[]>([])
 const importDropdownOpen = ref(false)
-const tabsNav = ref<HTMLElement>()
 
 const configResult: IStringKeyMap = reactive({})
 const existingConfiguration = reactive({} as IStringKeyMap)
