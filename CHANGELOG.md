@@ -1,3 +1,27 @@
+##  (2026-01-03)
+
+* :bug: Fix(custom): fix a bug that the update progress bar not show 760ab51
+* :bug: Fix(custom): fix an issue setting copy format will result ui collapse 3876a5a
+* :bug: Fix(custom): fix an issue the image in local can't show in manage page 0db5926
+* :bug: Fix(custom): fix info copy bug and optimize loading toast 11ee6a7
+* :hammer: Refactor(custom): change type defination in universal to global 5ea2517
+* :hammer: Refactor(custom): use new useTemplateRef of vue 3.5 21e79af
+* :package: Chore(custom): add editorconfig file a5afffd
+* :package: Chore(custom): add permissions setting for workfolw file 0c7fa06
+* :package: Chore(custom): update winget file d10e3d1
+* :pencil: Docs(custom): prepare for new version 390930e
+* :sparkles: Feature(custom): add rotate for pin icon of title bar and backgroud color for button fa6f2a9
+* :sparkles: Feature(custom): add selected inhint and optimize UI of manage file explorer page 94fe4f4
+* :sparkles: Feature(custom): add strict search for plugin search, avoid unrelated results 1735516
+* :sparkles: Feature(custom): optimize bucket page display b886005
+* :sparkles: Feature(custom): optimize upload page and download page in manage 58f6fa4
+* :sparkles: Feature(custom): optmize gallery page and manage login page layout dbda618
+* :zap: Perf(custom): remove backdrop-filter for better performance 34fde7a
+* Update dependency got to v14.6.6 (#436) 6f44cf1, closes #436
+* Update dependency vue-i18n to v11.2.8 (#440) 8a4e4d0, closes #440
+
+
+
 ##  (2025-12-31)
 
 * :bug: Fix(custom): fix an issue eslint not worked as expected b53eccc
