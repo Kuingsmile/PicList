@@ -762,7 +762,8 @@
                   b.isFolder - a.isFolder === 0 ? b.filesList.length - a.filesList.length : b.isFolder - a.isFolder,
                 )
               "
-              :item-height="60"
+              :item-height="90"
+              :style="{ height: '100%' }"
               view-mode="list"
             >
               <template #default="{ item }">
@@ -852,7 +853,12 @@
                     {{ t('pages.manage.bucket.clearAll') }}
                   </button>
                 </div>
-                <VirtualScroller :items="uploadingTaskList" :item-height="60" view-mode="list">
+                <VirtualScroller
+                  :items="uploadingTaskList"
+                  :item-height="70"
+                  :style="{ height: '100%' }"
+                  view-mode="list"
+                >
                   <template #default="{ item }">
                     <div class="file-list-item">
                       <div class="file-list-info">
@@ -886,7 +892,8 @@
                 </div>
                 <VirtualScroller
                   :items="uploadedTaskList.filter(item => item.status === 'uploaded')"
-                  :item-height="60"
+                  :item-height="70"
+                  :style="{ height: '100%' }"
                   view-mode="list"
                 >
                   <template #default="{ item }">
@@ -925,7 +932,8 @@
                 </div>
                 <VirtualScroller
                   :items="uploadedTaskList.filter(item => item.status !== 'uploaded')"
-                  :item-height="60"
+                  :item-height="70"
+                  :style="{ height: '100%' }"
                   view-mode="list"
                 >
                   <template #default="{ item }">
@@ -1026,7 +1034,12 @@
                     {{ t('pages.manage.bucket.openDownloadFolder') }}
                   </button>
                 </div>
-                <VirtualScroller :items="downloadingTaskList" :item-height="60" view-mode="list">
+                <VirtualScroller
+                  :items="downloadingTaskList"
+                  :item-height="70"
+                  :style="{ height: '100%' }"
+                  view-mode="list"
+                >
                   <template #default="{ item }">
                     <div class="file-list-item">
                       <div class="file-list-info">
@@ -1064,7 +1077,8 @@
                 </div>
                 <VirtualScroller
                   :items="downloadedTaskList.filter(item => item.status === 'downloaded')"
-                  :item-height="60"
+                  :item-height="70"
+                  :style="{ height: '100%' }"
                   view-mode="list"
                 >
                   <template #default="{ item }">
@@ -1107,7 +1121,8 @@
                 </div>
                 <VirtualScroller
                   :items="downloadedTaskList.filter(item => item.status !== 'downloaded')"
-                  :item-height="60"
+                  :style="{ height: '100%' }"
+                  :item-height="70"
                   view-mode="list"
                 >
                   <template #default="{ item }">
