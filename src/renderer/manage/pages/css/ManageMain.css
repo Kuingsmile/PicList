@@ -6,8 +6,7 @@ html, body {
 
 .manage-container {
   display: flex;
-  padding: 0.75rem;
-  height: 97%;
+  height: calc(100vh - 32px);
   flex-direction: column;
 }
 
@@ -75,7 +74,7 @@ html, body {
 
 .main-layout {
   display: flex;
-  height:99%;
+  height:100%;
 }
 
 .sidebar {

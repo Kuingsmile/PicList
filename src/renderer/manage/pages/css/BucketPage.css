@@ -4,15 +4,14 @@
   position: relative;
   display: flex;
   overflow: hidden;
-  padding: 1rem;
-  height: 100vh;
+  height: 100%;
+  padding: 0.25rem;
   flex-direction: column;
   gap: 1rem;
 }
 
 /* Header Card */
 .bucket-card {
-  overflow: hidden;
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-xl);
   background: var(--color-surface);
@@ -228,7 +227,7 @@
 .breadcrumb-container {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.2rem;
   padding: 0.75rem 1rem;
   flex-wrap: wrap;
 }
@@ -236,7 +235,7 @@
 .breadcrumb-item {
   display: flex;
   align-items: center;
-  border: 1px solid var(--color-border);
+  border: 0 solid var(--color-border);
   font-size: 0.875rem;
   color: var(--color-text-secondary);
   background: var(--color-surface-elevated);
@@ -256,7 +255,8 @@
 }
 
 .breadcrumb-separator {
-  margin: 0 0.125rem;
+  width: 16px;
+  height: 16px;
   color: var(--color-text-tertiary);
 }
 
@@ -269,7 +269,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
   gap: 1rem;
   flex-wrap: wrap;
 }
@@ -288,6 +288,18 @@
   font-size: 0.875rem;
   color: var(--color-text-secondary);
 }
+
+.file-info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.25rem;
+  border: 0 solid var(--color-border-secondary);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-elevated);
+  transition: var(--transition-fast);
+}
+
 
 .control-center {
   display: flex;
@@ -402,6 +414,13 @@
   min-height: 0;
   flex: 1;
   flex-direction: column;
+}
+
+/* Keep overflow hidden for specific bucket cards that need it */
+.content-area,
+.breadcrumb-card,
+.control-panel-card {
+  overflow: hidden;
 }
 
 .content-area::-webkit-scrollbar {
@@ -1257,7 +1276,7 @@ input:checked + .switch-slider::before {
 .fullscreen-breadcrumb {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.2rem;
   flex-wrap: wrap;
 }
 

@@ -160,11 +160,11 @@
         <div class="control-left">
           <!-- File Info -->
           <div class="file-info">
-            <div class="file-info-item">
+            <div class="file-info-box">
               <FileIcon class="action-icon" />
               <span>{{ `${t('pages.manage.bucket.fileNum', { num: currentPageFilesInfo.length })}` }}</span>
             </div>
-            <div class="file-info-item">
+            <div class="file-info-box">
               <HardDriveIcon class="action-icon" />
               <span>{{ `${t('pages.manage.bucket.pageFileSize', { size: calculateAllFileSize })}` }}</span>
             </div>
@@ -289,11 +289,11 @@
 
       <div class="fullscreen-header-center">
         <div class="file-info">
-          <div class="file-info-item">
+          <div class="file-info-box">
             <FileIcon class="action-icon" />
             <span>{{ `${t('pages.manage.bucket.fileNum', { num: currentPageFilesInfo.length })}` }}</span>
           </div>
-          <div class="file-info-item">
+          <div class="file-info-box">
             <span>{{ `${t('pages.manage.bucket.pageFileSize', { size: calculateAllFileSize })}` }}</span>
           </div>
         </div>
@@ -1235,6 +1235,7 @@ import {
   FolderPlusIcon,
   HardDriveIcon,
   HomeIcon,
+  ImageIcon,
   InfoIcon,
   LinkIcon,
   RefreshCwIcon,
