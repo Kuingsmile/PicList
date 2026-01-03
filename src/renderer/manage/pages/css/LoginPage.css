@@ -5,7 +5,7 @@
   margin: 0;
   padding: 1rem;
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100% - 32px);
   flex-direction: column;
   gap: 1.25rem;
   box-sizing: border-box;
@@ -196,12 +196,13 @@
 }
 
 .tab-content {
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 /* Config List */
 .config-list-container {
   width: 100%;
+  margin-bottom: 1rem;
 }
 
 .empty-state {
@@ -230,7 +231,7 @@
 .config-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  gap: 0.5rem;
 }
 
 .config-item {

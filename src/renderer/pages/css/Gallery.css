@@ -1288,6 +1288,7 @@ input:checked + .switch-slider::before {
 .virtual-gallery-scroller {
   width: 100%;
   flex: 1;
+  padding: 1rem;
   min-height: 0;
 }
 
