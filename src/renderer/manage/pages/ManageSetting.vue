@@ -157,8 +157,8 @@
             </h4>
           </div>
           <div class="radio-group">
-            <label v-for="item in pasteFormatList" :key="item" class="radio-option">
-              <input v-model="form.pasteFormat" type="radio" :value="item" class="radio-input" />
+            <label v-for="item in pasteFormatList" :key="`format-${item}`" class="radio-option">
+              <input v-model="form.pasteFormat" type="radio" :value="item" class="radio-input" :name="'paste-format'" />
               <span class="radio-custom" />
               <span class="radio-text">
                 {{ t(`pages.manage.setting.copyFormat.${item}`) }}
@@ -216,7 +216,7 @@
 
 <script lang="ts" setup>
 import { FolderIcon, Trash2Icon } from 'lucide-vue-next'
-import { onBeforeMount, ref, watch } from 'vue'
+import { nextTick, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import useConfirm from '@/hooks/useConfirm'
@@ -261,7 +261,10 @@ const pasteFormatList = ['markdown', 'markdown-with-link', 'rawurl', 'html', 'bb
 settingsKeys.forEach(key => {
   watch(
     () => form.value[key],
-    newValue => saveConfig({ [`settings.${key}`]: newValue }),
+    newValue => {
+      saveConfig({ [`settings.${key}`]: newValue })
+    },
+    { flush: 'post' },
   )
 })
 
@@ -337,6 +340,7 @@ async function initData() {
   settingsKeys.forEach(key => {
     form.value[key] = config.settings[key] ?? form.value[key]
   })
+  await nextTick() // 确保DOM更新完成
 }
 
 async function handleDownloadDirClick() {
