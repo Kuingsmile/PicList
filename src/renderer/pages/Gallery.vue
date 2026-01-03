@@ -202,16 +202,12 @@
         v-else
         :key="componentKey"
         ref="virtualScrollerRef"
-        v-model:view-mode="viewMode"
+        :view-mode="viewMode"
         class="virtual-gallery-scroller"
         :items="filterList"
-        :item-height="itemHeight"
-        :grid-items="4"
+        :item-height="300"
         :grid-breakpoints="effectiveGridBreakpoints"
         key-field="key"
-        :page-mode="true"
-        :buffer-factor="0.5"
-        :item-padding="8"
       >
         <template #default="{ item, index }">
           <div class="gallery-item" :class="{ selected: choosedList[item.id || ''] }">
@@ -590,7 +586,6 @@ const viewMode = useStorage<'list' | 'grid'>('galleryViewMode', 'grid')
 const componentKey = ref(0)
 const currentSortField = ref<'name' | 'time' | 'ext' | 'check'>('name')
 const userGridColumns = useStorage<number>('galleryGridColumns', 4)
-const itemHeight = 300
 
 const effectiveGridBreakpoints = computed(() => {
   return [{ min: 0, cols: userGridColumns.value }]
