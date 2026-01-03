@@ -199,9 +199,11 @@ onBeforeUnmount(() => {
   color: var(--color-text-primary);
   background: var(--color-surface-elevated);
 }
+
 .pin-icon {
   color: #6b7280;
 }
+
 .pin-icon.active {
   rotate: 90deg;
   color: #ce6769;

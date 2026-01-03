@@ -612,18 +612,15 @@
           </button>
         </div>
         <div class="modal-content">
-          <div
-            v-for="(value, key) in currentShowedFileInfo"
-            :key="key"
-            style="display: flex; margin-bottom: 1rem; gap: 1rem"
-          >
+          <div v-for="(value, key) in currentShowedFileInfo" :key="key" class="file-info-item">
             <div
-              style="flex: 0 0 30%; font-weight: 500; cursor: pointer"
+              class="file-info-key"
+              :title="`Click to copy key-value pair: ${key}`"
               @click="copyToClipboard(JSON.stringify({ [key]: value }))"
             >
-              {{ key }}:
+              {{ key }}
             </div>
-            <div style="flex: 1; word-break: break-all; cursor: pointer" @click="copyToClipboard(value)">
+            <div class="file-info-value" :title="`Click to copy: ${value}`" @click="copyToClipboard(value)">
               {{ value }}
             </div>
           </div>
@@ -690,26 +687,24 @@
     </div>
 
     <!-- Loading Indicators -->
-    <div
-      v-if="isLoadingData"
-      class="modal-overlay"
-      style="position: fixed; right: 25px; bottom: 25px; background: none; pointer-events: none"
-    >
-      <button class="action-button warning" style="pointer-events: auto" @click="cancelLoading">
+    <div v-if="isLoadingData" class="loading-toast loading-toast-bottom">
+      <div class="loading-toast-content">
         <div class="loading-spinner" />
-        {{ t('pages.manage.bucket.loading') }}
-      </button>
+        <span class="loading-text">{{ t('pages.manage.bucket.loading') }}</span>
+        <button class="loading-cancel-button" :title="t('common.cancel')" @click="cancelLoading">
+          <XIcon class="action-icon" />
+        </button>
+      </div>
     </div>
 
-    <div
-      v-if="isLoadingDownloadData"
-      class="modal-overlay"
-      style="position: fixed; top: 50px; right: 25px; background: none; pointer-events: none"
-    >
-      <button class="action-button warning" style="pointer-events: auto" @click="cancelDownloadLoading">
+    <div v-if="isLoadingDownloadData" class="loading-toast loading-toast-top">
+      <div class="loading-toast-content">
         <div class="loading-spinner" />
-        {{ t('pages.manage.bucket.prepareDownload') }}
-      </button>
+        <span class="loading-text">{{ t('pages.manage.bucket.prepareDownload') }}</span>
+        <button class="loading-cancel-button" :title="t('common.cancel')" @click="cancelDownloadLoading">
+          <XIcon class="action-icon" />
+        </button>
+      </div>
     </div>
     <!-- Upload Drawer -->
     <div
@@ -3003,7 +2998,7 @@ async function getPreSignedUrl(item: any) {
 }
 
 function copyToClipboard(text: string) {
-  window.electron.clipboard.writeText(text)
+  window.electron.clipboard.writeText(String(text))
   message.success(t('pages.manage.bucket.copySuccess'))
   copyDropdownIndex.value = -1
 }

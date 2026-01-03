@@ -659,7 +659,7 @@ const dateRange = computed({
 })
 
 function copyPlaceholder(placeholder: string) {
-  window.electron.clipboard.writeText(placeholder)
+  window.electron.clipboard.writeText(String(placeholder))
   message.success(t('pages.settings.upload.copySuccess', { content: placeholder }))
 }
 
@@ -1212,7 +1212,7 @@ async function copy(item: ImgInfo) {
     })
     updateGallery()
   }
-  window.electron.clipboard.writeText(result ? result[0] : '')
+  window.electron.clipboard.writeText(String(result ? result[0] : ''))
   message.success(t('pages.gallery.copyLinkSucceed'))
 }
 
