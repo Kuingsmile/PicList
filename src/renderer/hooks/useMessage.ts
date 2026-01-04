@@ -11,41 +11,37 @@ interface MessageService {
 
 const messageServiceRef = ref<MessageService | null>(null)
 
+const msgHelper = (
+  message: string,
+  type: 'success' | 'error' | 'warning' | 'info',
+  options?: Partial<MessageOptions>,
+) => {
+  if (messageServiceRef.value) {
+    return messageServiceRef.value[type](message, options)
+  }
+  console.warn('Message service not initialized')
+  return ''
+}
+
 export function useMessage() {
   const setMessageService = (service: MessageService) => {
     messageServiceRef.value = service
   }
 
   const success = (message: string, options?: Partial<MessageOptions>) => {
-    if (messageServiceRef.value) {
-      return messageServiceRef.value.success(message, options)
-    }
-    console.warn('Message service not initialized')
-    return ''
+    return msgHelper(message, 'success', options)
   }
 
   const error = (message: string, options?: Partial<MessageOptions>) => {
-    if (messageServiceRef.value) {
-      return messageServiceRef.value.error(message, options)
-    }
-    console.warn('Message service not initialized')
-    return ''
+    return msgHelper(message, 'error', options)
   }
 
   const warning = (message: string, options?: Partial<MessageOptions>) => {
-    if (messageServiceRef.value) {
-      return messageServiceRef.value.warning(message, options)
-    }
-    console.warn('Message service not initialized')
-    return ''
+    return msgHelper(message, 'warning', options)
   }
 
   const info = (message: string, options?: Partial<MessageOptions>) => {
-    if (messageServiceRef.value) {
-      return messageServiceRef.value.info(message, options)
-    }
-    console.warn('Message service not initialized')
-    return ''
+    return msgHelper(message, 'info', options)
   }
 
   return {

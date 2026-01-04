@@ -75,7 +75,6 @@ const showConfirm = (options: ConfirmOptions): Promise<boolean> => {
 }
 
 onMounted(() => {
-  // Initialize message service
   const { setMessageService } = useMessage()
   if (messageRef.value) {
     setMessageService({

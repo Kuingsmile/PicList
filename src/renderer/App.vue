@@ -10,12 +10,11 @@ import type { IConfig } from 'piclist'
 import { onBeforeMount, onMounted } from 'vue'
 
 import UIServiceProvider from '@/components/ui/UIServiceProvider.vue'
+import { useAppStore } from '@/hooks/useAppStore'
 import { useATagClick } from '@/hooks/useATagClick'
 import { useStore } from '@/hooks/useStore'
 import { getConfig } from '@/utils/dataSender'
 import { pageReloadCount } from '@/utils/global'
-
-import { useAppStore } from './hooks/useAppStore'
 
 useATagClick()
 
@@ -40,7 +39,7 @@ onMounted(async () => {
 
 <script lang="ts">
 export default {
-  name: 'PicGoApp',
+  name: 'PicList',
 }
 </script>
 
