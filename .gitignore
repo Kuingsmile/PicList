@@ -26,6 +26,7 @@ docs/dist/
 /build/*
 !/build/icons/
 !/build/installer.nsh
+release-notes.md
 
 test.js
 scripts/*.yml

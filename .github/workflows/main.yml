@@ -1,8 +1,29 @@
-name:  Build for release
+name: Build for release
 
 on:
   workflow_dispatch:
-
+    inputs:
+      publish_enabled:
+        description: 'Publish artifacts after build?'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'false'
+      build_os:
+        description: "Build OS"
+        required: true
+        default: "All"
+        type: choice
+        options:
+          - Windows x64
+          - Windows ARM64
+          - macOS x64
+          - macOS ARM64
+          - Linux x64
+          - Linux ARM64
+          - All
 permissions:
   contents: read
 
@@ -14,17 +35,32 @@ env:
 
 jobs:
   release:
-    name: Build
-
+    name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-15-intel, windows-latest, windows-11-arm, macos-latest]
+        include:
+          - os: ubuntu-latest
+            platform: 'Linux x64'
+            os_type: linux
+          - os: ubuntu-24.04-arm
+            platform: 'Linux ARM64'
+            os_type: linux
+          - os: macos-15-intel
+            platform: 'macOS x64'
+            os_type: macos
+          - os: macos-latest
+            platform: 'macOS ARM64'
+            os_type: macos
+          - os: windows-latest
+            platform: 'Windows x64'
+            os_type: windows
+          - os: windows-11-arm
+            platform: 'Windows ARM64'
+            os_type: windows
 
     steps:
-
       - name: Set up git config
         run: |
           git config --global core.autocrlf false
@@ -34,7 +70,7 @@ jobs:
 
       # step2: sign
       - name: Install the Apple certificates
-        if: matrix.os == 'macos-15-intel' || matrix.os == 'macos-latest'
+        if: contains(matrix.os, 'macos') && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')
         run: |
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
@@ -43,69 +79,88 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22.x'
+          node-version: "22.x"
 
       - name: Install system deps
-        if: matrix.os == 'ubuntu-latest'
+        if: contains(matrix.os, 'linux') && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')
         run: |
-          sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils
+          sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils libfuse2
+      - name: Install FPM
+        if: matrix.os == 'ubuntu-24.04-arm' && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ruby ruby-dev build-essential
+          sudo gem install --no-document fpm
 
       # step3: yarn
-      - name: Install dependencies (macOS)
-        if: matrix.os == 'macos-15-intel' || matrix.os == 'macos-latest'
+      - name: Install dependencies
+        if: github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All'
+        shell: bash
         run: |
           yarn config set ignore-engines true
           yarn
           yarn global add xvfb-maybe
 
-      - name: Install dependencies (Windows)
-        if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
+      - name: Generate release notes
+        if: github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All'
+        shell: bash
         run: |
-          yarn config set ignore-engines true
-          yarn
-          yarn global add xvfb-maybe
+          chmod +x ./scripts/generate-release-notes.sh
+          ./scripts/generate-release-notes.sh
 
-      - name: Yarn install linux
-        if: matrix.os == 'ubuntu-latest'
+      - name: Configure electron-builder.json
+        if: github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All'
+        shell: bash
         run: |
-          yarn config set ignore-engines true
-          yarn
-          yarn global add xvfb-maybe
+          # Remove publish config if not publishing
+          if [ "${{ github.event.inputs.publish_enabled }}" == "false" ]; then
+            echo "Publishing disabled, removing publish config..."
+            jq 'del(.publish)' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+            echo "modified electron-builder.json:"
+            cat electron-builder.json
+          fi
 
-      - name: Modify electron-builder.json for Windows x64
-        if: matrix.os == 'windows-latest'
+          # Configure architecture based on platform
+          case "${{ matrix.platform }}" in
+            "Windows x64")
+              jq '.win.target[0].arch = ["x64", "ia32"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+              ;;
+            "Windows ARM64")
+              jq '.win.target[0].arch = ["arm64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+              ;;
+            "macOS x64")
+              jq '.mac.target[0].arch = ["x64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+              ;;
+            "macOS ARM64")
+              jq '.mac.target[0].arch = ["arm64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+              ;;
+            "Linux x64")
+              jq '.linux.target[0].arch = ["x64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+              jq '.linux.target[1].arch = ["x64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+              ;;
+            "Linux ARM64")
+              jq '.linux.target[0].arch = ["arm64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+              jq '.linux.target[1].arch = ["arm64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+              jq 'del(.linux.target[] | select(.target == "snap"))' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+              ;;
+          esac
+
+      - name: Build & release app
+        if: github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All'
+        shell: bash
         run: |
-          # Remove arm64 from the arch array, keep only x64
-          $config = Get-Content electron-builder.json | ConvertFrom-Json
-          $config.win.target[0].arch = @("x64", "ia32")
-          $config | ConvertTo-Json -Depth 10 | Set-Content electron-builder.json
-
-      - name: Modify electron-builder.json for Windows ARM64
-        if: matrix.os == 'windows-11-arm'
-        run: |
-          # Remove x64 from the arch array, keep only arm64
-          $config = Get-Content electron-builder.json | ConvertFrom-Json
-          $config.win.target[0].arch = @("arm64")
-          $config | ConvertTo-Json -Depth 10 | Set-Content electron-builder.json
-
-      - name: Modify electron-builder.json for Macos x64
-        if: matrix.os == 'macos-15-intel'
-        run: |
-          # Remove arm64 from the arch array, keep only x64
-          jq '.mac.target[0].arch = ["x64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
-
-      - name: Modify electron-builder.json for Macos ARM64
-        if: matrix.os == 'macos-latest'
-        run: |
-          # Remove x64 from the arch array, keep only arm64
-          jq '.mac.target[0].arch = ["arm64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
-
-
-      - name: Build & release app (signed)
-        if: matrix.os != 'windows-11-arm'
-        run: |
-          yarn release
+          if [ "${{ matrix.os }}" == "windows-11-arm" ]; then
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+            unset CSC_LINK WIN_CSC_LINK CSC_KEY_PASSWORD
+          fi
+          PUBLISH_ARG="never"
+          if [ "${{ github.event.inputs.publish_enabled }}" == "true" ]; then
+            PUBLISH_ARG="always"
+          fi
+          echo "Publishing argument: $PUBLISH_ARG"
+          yarn release --publish $PUBLISH_ARG
         env:
+          USE_SYSTEM_FPM: ${{ matrix.os == 'ubuntu-24.04-arm' && 'true' || 'false' }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -121,125 +176,41 @@ jobs:
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           USE_HARD_LINKS: false
-          CSC_LINK: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
-          CSC_KEY_PASSWORD: ${{ secrets.P12_PASSWORD }}
 
-      - name: Build & release app (NO signing on Windows ARM)
-        if: matrix.os == 'windows-11-arm'
-        shell: pwsh
+      - name: Upload build artifacts
+        if: github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os_type }}-${{ matrix.platform == 'Windows x64' && 'x64' || matrix.platform == 'Windows ARM64' && 'arm64' || matrix.platform == 'macOS x64' && 'x64' || matrix.platform == 'macOS ARM64' && 'arm64' || matrix.platform == 'Linux x64' && 'x64' || 'arm64' }}-${{ contains(matrix.os, 'windows') && 'executables' || 'packages' }}
+          path: dist_electron/*
+          retention-days: 30
+          if-no-files-found: ${{ contains(matrix.os, 'linux') && 'ignore' || 'error' }}
+
+      - name: Upload update manifests
+        if: github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os_type }}-${{ matrix.platform == 'Windows x64' && 'x64' || matrix.platform == 'Windows ARM64' && 'arm64' || matrix.platform == 'macOS x64' && 'x64' || matrix.platform == 'macOS ARM64' && 'arm64' || matrix.platform == 'Linux x64' && 'x64' || 'arm64' }}-yml
+          path: dist_electron/github/*
+          retention-days: 30
+          if-no-files-found: ${{ contains(matrix.os, 'linux') && 'ignore' || 'error' }}
+
+      - name: Get version
+        if: (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All') && matrix.platform == 'Windows x64' && github.event.inputs.publish_enabled == true
+        id: get_version
+        shell: bash
         run: |
-          Remove-Item Env:CSC_LINK -ErrorAction SilentlyContinue
-          Remove-Item Env:WIN_CSC_LINK -ErrorAction SilentlyContinue
-          Remove-Item Env:CSC_KEY_PASSWORD -ErrorAction SilentlyContinue
-          $env:CSC_IDENTITY_AUTO_DISCOVERY = "false"
-          yarn release
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          R2_SECRET_ID: ${{ secrets.R2_SECRET_ID }}
-          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          ELECTRON_SKIP_NOTARIZATION: ${{ secrets.ELECTRON_SKIP_NOTARIZATION }}
-          USE_HARD_LINKS: false
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Upload Windows x64 executables
-        if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@v4
+      - name: Update release draft
+        if: (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All') && matrix.platform == 'Windows x64' && github.event.inputs.publish_enabled == true
+        uses: softprops/action-gh-release@v2
         with:
-          name: windows-x64-executables
-          path: |
-            dist_electron/*
-          retention-days: 30
-          if-no-files-found: error
-
-      - name: Upload Windows ARM64 executables
-        if: matrix.os == 'windows-11-arm'
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-arm64-executables
-          path: |
-            dist_electron/*
-          retention-days: 30
-          if-no-files-found: error
-
-      - name: Upload macOS x64 packages
-        if: matrix.os == 'macos-15-intel'
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-x64-packages
-          path: |
-            dist_electron/*
-          retention-days: 30
-          if-no-files-found: error
-
-      - name: Upload macOS ARM64 packages
-        if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-arm64-packages
-          path: |
-            dist_electron/*
-          retention-days: 30
-          if-no-files-found: error
-
-      - name: Upload Linux packages
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-packages
-          path: |
-            dist_electron/*
-          retention-days: 30
-          if-no-files-found: ignore
-
-      - name: Upload Windows x64 yml
-        if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-x64-yml
-          path: |
-            dist_electron/github/*
-          retention-days: 30
-          if-no-files-found: error
-
-      - name: Upload Windows ARM64 yml
-        if: matrix.os == 'windows-11-arm'
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-arm64-yml
-          path: |
-            dist_electron/github/*
-          retention-days: 30
-          if-no-files-found: error
-
-      - name: Upload macOS x64 yml
-        if: matrix.os == 'macos-15-intel'
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-x64-yml
-          path: |
-            dist_electron/github/*
-          retention-days: 30
-          if-no-files-found: error
-
-      - name: Upload macOS ARM64 yml
-        if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-arm64-yml
-          path: |
-            dist_electron/github/*
-          retention-days: 30
-          if-no-files-found: error
-
-      - name: Upload Linux yml
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-yml
-          path: |
-            dist_electron/github/*
-          retention-days: 30
-          if-no-files-found: ignore
-
+          draft: true
+          prerelease: false
+          body_path: release-notes.md
+          append_body: true
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Release v${{ steps.get_version.outputs.version }}
+          token: ${{ secrets.GH_TOKEN }}

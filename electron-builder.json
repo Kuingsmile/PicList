@@ -77,9 +77,24 @@
     "include": "build/installer.nsh"
   },
   "linux": {
-    "icon": "resources/"
-  },
-  "snap": {
-    "publish": ["github"]
+    "executableName": "PicList",
+    "icon": "build/icons/512x512.png",
+    "artifactName": "PicList-${version}-${arch}.${ext}",
+    "target": [
+      {
+        "target": "AppImage",
+        "arch": ["x64", "arm64"]
+      },
+      {
+        "target": "deb",
+        "arch": ["x64", "arm64"]
+      },
+      {
+        "target": "snap",
+        "arch": ["x64"]
+      }
+    ],
+    "maintainer": "Kuingsmile",
+    "category": "Utility"
   }
 }

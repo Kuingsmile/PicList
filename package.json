@@ -35,7 +35,7 @@
     "postuninstall": "electron-builder install-app-deps",
     "prebuild": "electron-vite build",
     "preview": "electron-vite preview",
-    "release": "electron-vite build && electron-builder --publish always",
+    "release": "electron-vite build && electron-builder",
     "sha256": "node ./scripts/gen-sha256.js",
     "test": "vitest",
     "winget": "node ./scripts/auto-winget.js"
