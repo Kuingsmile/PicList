@@ -1136,7 +1136,7 @@
             <div class="version-card latest" :class="{ 'has-update': needUpdate }">
               <div class="version-card-label">{{ t('pages.settings.update.newestVersion') }}</div>
               <div class="version-card-value">
-                {{ latestVersion ? `v${latestVersion}` : t('pages.settings.update.getting') }}
+                {{ latestVersion ? `${latestVersion}` : t('pages.settings.update.getting') }}
               </div>
             </div>
           </div>

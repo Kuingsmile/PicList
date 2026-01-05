@@ -5,9 +5,9 @@ import path from 'node:path'
 
 import { clipboard } from 'electron'
 import fs from 'fs-extra'
-import yaml from 'js-yaml'
 import mime from 'mime'
 import { VNode } from 'vue'
+import yaml from 'yaml'
 
 declare global {
   export namespace JSX {
@@ -53,7 +53,7 @@ declare global {
       }
 
       yaml: {
-        load: typeof yaml.load
+        parse: typeof yaml.parseDocument
       }
       mime: {
         lookup: typeof mime.getType

@@ -3,9 +3,9 @@ import path from 'node:path'
 
 import { clipboard, contextBridge, ipcRenderer, IpcRendererEvent, webFrame, webUtils } from 'electron'
 import fs from 'fs-extra'
-import yaml from 'js-yaml'
 import mime from 'mime'
 import { isReactive, isRef, toRaw, unref } from 'vue'
+import yaml from 'yaml'
 
 export const getRawData = (args: any): any => {
   if (isRef(args)) return unref(args)
@@ -90,7 +90,7 @@ try {
       createHash: crypto.createHash,
     },
     yaml: {
-      load: yaml.load,
+      parse: yaml.parseDocument,
     },
     mime: {
       lookup: mime.getType.bind(mime),

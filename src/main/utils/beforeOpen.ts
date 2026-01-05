@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 import { dbPathChecker } from '@core/datastore/dbChecker'
 import fs from 'fs-extra'
-import yaml from 'js-yaml'
+import yaml from 'yaml'
 
 import { i18nManager } from '~/i18n'
 
@@ -116,7 +116,7 @@ function resolveOtherI18nFiles() {
       const i18nFilePath = path.join(i18nFolder, item.name)
       const i18nFile = fs.readFileSync(i18nFilePath, 'utf8')
       try {
-        const i18nFileObj = yaml.load(i18nFile) as unknown as ILocales
+        const i18nFileObj = yaml.parseDocument(i18nFile).toJSON() as unknown as ILocales
         if (i18nFileObj?.LANG_DISPLAY_LABEL) {
           i18nManager.addI18nFile(item.name.replace('.yml', ''), i18nFileObj.LANG_DISPLAY_LABEL)
         }

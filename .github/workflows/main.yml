@@ -64,7 +64,7 @@ jobs:
           yarn config set ignore-engines true
           yarn
           yarn global add xvfb-maybe
-        
+
       - name: Yarn install linux
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -100,12 +100,11 @@ jobs:
           # Remove x64 from the arch array, keep only arm64
           jq '.mac.target[0].arch = ["arm64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
 
-      
+
       - name: Build & release app (signed)
         if: matrix.os != 'windows-11-arm'
         run: |
           yarn release
-          yarn upload-dist
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -134,7 +133,6 @@ jobs:
           Remove-Item Env:CSC_KEY_PASSWORD -ErrorAction SilentlyContinue
           $env:CSC_IDENTITY_AUTO_DISCOVERY = "false"
           yarn release
-          yarn upload-dist
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

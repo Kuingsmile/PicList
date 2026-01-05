@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { load } from 'js-yaml'
+import yaml from 'yaml'
 const languageFileName = 'zh-CN.yml'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -14,7 +14,7 @@ const languageFile = join(i18nFolder, languageFileName)
 
 const langFile = readFileSync(languageFile, 'utf8')
 
-const obj = load(langFile)
+const obj = yaml.parseDocument(langFile).toJSON()
 
 const keys = Object.keys(obj)
 

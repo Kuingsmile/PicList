@@ -38,8 +38,7 @@
     "release": "electron-vite build && electron-builder --publish always",
     "sha256": "node ./scripts/gen-sha256.js",
     "test": "vitest",
-    "upload-beta": "node ./scripts/upload-beta.cjs",
-    "upload-dist": "node ./scripts/upload-dist-to-r2.cjs"
+    "winget": "node ./scripts/auto-winget.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.962.0",
@@ -62,7 +61,7 @@
     "fflate": "^0.8.2",
     "form-data": "^4.0.5",
     "fs-extra": "^11.3.3",
-    "got": "^14.6.5",
+    "got": "^14.6.6",
     "hpagent": "^1.2.0",
     "js-yaml": "^4.1.1",
     "lodash-es": "^4.17.22",
@@ -82,7 +81,8 @@
     "uuid": "^13.0.0",
     "vue": "^3.5.26",
     "webdav": "^5.8.0",
-    "write-file-atomic": "^7.0.0"
+    "write-file-atomic": "^7.0.0",
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@electron/notarize": "^3.1.1",

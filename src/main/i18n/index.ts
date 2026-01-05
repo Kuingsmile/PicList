@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 
 import { I18n, ObjectAdapter } from '@piclist/i18n'
 import fs from 'fs-extra'
-import yaml from 'js-yaml'
+import yaml from 'yaml'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -54,7 +54,7 @@ class I18nManager {
     }
     try {
       const localesString = fs.readFileSync(localesPath, 'utf8')
-      const locales = yaml.load(localesString) as unknown as ILocales
+      const locales = yaml.parseDocument(localesString).toJSON() as unknown as ILocales
       this.localesMap.set(lang, locales)
       return locales
     } catch (e) {
@@ -62,7 +62,7 @@ class I18nManager {
       // if error, use default language
       localesPath = path.join(this.builtinI18nFolder, `${this.defaultLanguage}.yml`)
       const localesString = fs.readFileSync(localesPath, 'utf8')
-      const locales = yaml.load(localesString) as unknown as ILocales
+      const locales = yaml.parseDocument(localesString).toJSON() as unknown as ILocales
       this.localesMap.set(lang, locales)
       return locales
     }
