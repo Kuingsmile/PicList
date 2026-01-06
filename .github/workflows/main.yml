@@ -70,7 +70,7 @@ jobs:
 
       # step2: sign
       - name: Install the Apple certificates
-        if: contains(matrix.os, 'macos') && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')
+        if: contains(matrix.os_type, 'macos') && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')
         run: |
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
@@ -82,9 +82,10 @@ jobs:
           node-version: "22.x"
 
       - name: Install system deps
-        if: contains(matrix.os, 'linux') && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')
+        if: contains(matrix.os_type, 'linux') && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')
         run: |
           sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils libfuse2
+
       - name: Install FPM
         if: matrix.os == 'ubuntu-24.04-arm' && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')
         run: |
@@ -114,10 +115,7 @@ jobs:
         run: |
           # Remove publish config if not publishing
           if [ "${{ github.event.inputs.publish_enabled }}" == "false" ]; then
-            echo "Publishing disabled, removing publish config..."
             jq 'del(.publish)' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
-            echo "modified electron-builder.json:"
-            cat electron-builder.json
           fi
 
           # Configure architecture based on platform
@@ -182,18 +180,25 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os_type }}-${{ matrix.platform == 'Windows x64' && 'x64' || matrix.platform == 'Windows ARM64' && 'arm64' || matrix.platform == 'macOS x64' && 'x64' || matrix.platform == 'macOS ARM64' && 'arm64' || matrix.platform == 'Linux x64' && 'x64' || 'arm64' }}-${{ contains(matrix.os, 'windows') && 'executables' || 'packages' }}
-          path: dist_electron/*
+          path: |
+            dist_electron/*.exe
+            dist_electron/*.dmg
+            dist_electron/*.zip
+            dist_electron/*.AppImage
+            dist_electron/*.deb
+            dist_electron/*.rpm
+            dist_electron/*.snap
           retention-days: 30
-          if-no-files-found: ${{ contains(matrix.os, 'linux') && 'ignore' || 'error' }}
+          if-no-files-found: 'ignore'
 
-      - name: Upload update manifests
+      - name: Upload yml artifacts
         if: github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os_type }}-${{ matrix.platform == 'Windows x64' && 'x64' || matrix.platform == 'Windows ARM64' && 'arm64' || matrix.platform == 'macOS x64' && 'x64' || matrix.platform == 'macOS ARM64' && 'arm64' || matrix.platform == 'Linux x64' && 'x64' || 'arm64' }}-yml
-          path: dist_electron/github/*
+          path: dist_electron/**/*.yml
           retention-days: 30
-          if-no-files-found: ${{ contains(matrix.os, 'linux') && 'ignore' || 'error' }}
+          if-no-files-found: 'ignore'
 
       - name: Get version
         if: (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All') && matrix.platform == 'Windows x64' && github.event.inputs.publish_enabled == true
@@ -213,4 +218,92 @@ jobs:
           append_body: true
           tag_name: v${{ steps.get_version.outputs.version }}
           name: Release v${{ steps.get_version.outputs.version }}
+          token: ${{ secrets.GH_TOKEN }}
+
+  combine-and-upload-yml:
+    name: Combine YML files and upload to S3
+    needs: release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@v6
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          yarn config set ignore-engines true
+          yarn
+
+      - name: Download all yml artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*-yml'
+          path: ./yml-artifacts
+          merge-multiple: false
+
+      - name: List downloaded artifacts
+        run: |
+          echo "Downloaded artifacts structure:"
+          find ./yml-artifacts -type f -name "*.yml"
+          tree ./yml-artifacts
+
+      - name: Combine and deduplicate yml files
+        run: |
+          node scripts/combine-yml.cjs ./yml-artifacts ./dist_electron/combined
+          echo "Combined YML files:"
+          ls -la ./dist_electron/combined/
+          echo "Latest combined YML content:"
+          cat ./dist_electron/combined/latest.yml
+          echo "Latest macOS combined YML content:"
+          cat ./dist_electron/combined/latest-mac.yml
+          echo "Latest linux combined YML content:"
+          cat ./dist_electron/combined/latest-linux.yml
+          echo "Latest linux ARM64 combined YML content:"
+          cat ./dist_electron/combined/latest-linux-arm64.yml
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        if: github.event.inputs.publish_enabled == 'true'
+        with:
+          aws-access-key-id: ${{ secrets.R2_SECRET_ID }}
+          aws-secret-access-key: ${{ secrets.R2_SECRET_KEY }}
+          aws-region: us-east-1
+
+      - name: Upload combined yml files to S3/R2
+        if: github.event.inputs.publish_enabled == 'true'
+        run: |
+          for file in ./dist_electron/combined/*.yml; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              echo "Uploading $filename to S3/R2..."
+              aws s3 cp "$file" "s3://piclist-dl/latest/$filename" \
+                --endpoint-url "https://7ab4ed5cb1f4052a13d3b573876ecf33.r2.cloudflarestorage.com" \
+              echo "Uploaded $filename successfully"
+            fi
+          done
+          echo "All yml files uploaded to S3/R2!"
+
+      - name: Get version for release
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Upload combined yml files to GitHub Release
+        if: github.event.inputs.publish_enabled == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          tag_name: v${{ steps.get_version.outputs.version }}
+          files: |
+            ./dist_electron/combined/latest.yml
+            ./dist_electron/combined/latest-mac.yml
+            ./dist_electron/combined/latest-linux.yml
+            ./dist_electron/combined/latest-linux-arm64.yml
           token: ${{ secrets.GH_TOKEN }}

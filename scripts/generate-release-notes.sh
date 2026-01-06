@@ -37,7 +37,7 @@ cat > "$OUTPUT_FILE" << EOF
 ### Linux
 
 - AppImage:
-  [**x64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-${VERSION}-x64.AppImage) |
+  [**x64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-${VERSION}-x86_64.AppImage) |
   [**ARM64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-${VERSION}-arm64.AppImage)
 - deb:
   [**x64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/Piclist-${VERSION}-amd64.deb) |

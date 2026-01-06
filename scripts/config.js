@@ -20,13 +20,31 @@ const linux = [
   {
     appNameWithPrefix: 'PicList-',
     ext: '.AppImage',
-    arch: '',
+    arch: '-x86_64',
     'version-file': 'latest-linux.yml',
   },
   {
-    appNameWithPrefix: 'piclist_',
+    appNameWithPrefix: 'PicList-',
+    ext: '.AppImage',
+    arch: '-arm64',
+    'version-file': 'latest-linux.yml',
+  },
+  {
+    appNameWithPrefix: 'PicList-',
     ext: '.snap',
-    arch: '_amd64',
+    arch: '-amd64',
+    'version-file': 'latest-linux.yml',
+  },
+  {
+    appNameWithPrefix: 'PicList-',
+    ext: '.deb',
+    arch: '-amd64',
+    'version-file': 'latest-linux.yml',
+  },
+  {
+    appNameWithPrefix: 'PicList-',
+    ext: '.deb',
+    arch: '-arm64',
     'version-file': 'latest-linux.yml',
   },
 ]
