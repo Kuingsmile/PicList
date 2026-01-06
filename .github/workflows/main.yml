@@ -268,7 +268,7 @@ jobs:
           cat ./dist_electron/combined/latest-linux-arm64.yml
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         if: github.event.inputs.publish_enabled == 'true'
         with:
           aws-access-key-id: ${{ secrets.R2_SECRET_ID }}
