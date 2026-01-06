@@ -3349,14 +3349,14 @@
   integrity sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==
 
 "@types/ali-oss@^6.16.13":
-  version "6.16.13"
-  resolved "https://registry.yarnpkg.com/@types/ali-oss/-/ali-oss-6.16.13.tgz#e02d23ecf684e1971a42fb5cf08f7469f1a556f0"
-  integrity sha512-Nxxs9JYESnJcVBI9mNv+dFNnbdz15tKS15mwckZqSIM75ttb8GcNYgeNfKG9gsykSIDpbSqcSnEqxdV5vSlbDg==
+  version "6.23.0"
+  resolved "https://registry.yarnpkg.com/@types/ali-oss/-/ali-oss-6.23.0.tgz#c7668d1b8a3a648144866b1b331c4e3b0f437001"
+  integrity sha512-1qUcJuD8CunaTVyBS1hx/CNZQntj5ghM4+lSoDZ/fnNYUKc53PBzBu1z/tCmMV/VE4vLCjf7rTaXd2d93nCUbA==
 
 "@types/body-parser@*":
-  version "1.19.2"
-  resolved "https://registry.npmjs.org/@types/body-parser/-/body-parser-1.19.2.tgz#aea2059e28b7658639081347ac4fab3de166e6f0"
-  integrity sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==
+  version "1.19.6"
+  resolved "https://registry.yarnpkg.com/@types/body-parser/-/body-parser-1.19.6.tgz#1859bebb8fd7dac9918a45d54c1971ab8b5af474"
+  integrity sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==
   dependencies:
     "@types/connect" "*"
     "@types/node" "*"
