@@ -271,4 +271,54 @@ windowList.set(IWindowList.TOOLBOX_WINDOW, {
   },
 })
 
+const updateWindowOptions = {
+  height: 600,
+  width: 900,
+  show: false,
+  frame: true,
+  center: true,
+  fullscreenable: false,
+  resizable: false,
+  title: 'PicList Update',
+  backgroundColor: '#ebeef5',
+  icon: logo,
+  webPreferences: {
+    sandbox: false,
+    backgroundThrottling: true,
+    preload: preloadPath,
+    nodeIntegration: false,
+    contextIsolation: true,
+    nodeIntegrationInWorker: false,
+    webSecurity: false,
+  },
+} as IBrowserWindowOptions
+
+if (process.platform !== 'darwin') {
+  updateWindowOptions.backgroundColor = '#3f3c37'
+  updateWindowOptions.autoHideMenuBar = true
+  updateWindowOptions.transparent = false
+}
+
+windowList.set(IWindowList.UPDATE_WINDOW, {
+  isValid: true,
+  multiple: false,
+  options: () => updateWindowOptions,
+  async callback(window, windowManager) {
+    if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
+      window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#update-page`)
+    } else {
+      window.loadFile(path.join(dirname, '../renderer/index.html'), {
+        hash: 'update-page',
+      })
+    }
+    const currentWindow = windowManager.getAvailableWindow(true)
+    if (currentWindow && currentWindow.isVisible()) {
+      const { x, y, width, height } = currentWindow.getBounds()
+      const positionX = Math.floor(x + width / 2 - 450)
+      const positionY = Math.floor(y + height / 2 - 300)
+      window.setPosition(positionX, positionY, false)
+    }
+  },
+})
+
 export default windowList

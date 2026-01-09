@@ -6,7 +6,8 @@
     "confirm": "确认",
     "import": "导入",
     "reset": "重置",
-    "submit": "提交"
+    "submit": "提交",
+    "version": "版本"
   },
   "navigation": {
     "choosePicBed": "选择图床",
@@ -925,6 +926,17 @@
       "openMainWindow": "打开主窗口",
       "uploaded": "已上传",
       "waitForUpload": "等待上传"
+    },
+    "update": {
+      "download": "下载",
+      "downloading": "下载中",
+      "goToDownloadPage": "前往下载页面",
+      "installNow": "立即安装",
+      "later": "稍后",
+      "newUpdateAvailable": "发现新版本",
+      "noMoreNotice": "不再提示",
+      "releaseNotes": "更新内容",
+      "updateReady": "更新已准备好"
     },
     "upload": {
       "changePicBed": "切换图床",

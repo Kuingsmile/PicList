@@ -64,6 +64,7 @@ TIPS_SHORTCUT_MODIFIED_CONFLICT: Shortcut conflict, please reset
 TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR: Custom config file parse error, please check the path content
 TIPS_FIND_NEW_VERSION: Find new version ${v}, update many new features, do you want to download the latest version in the background?
 UPDATE_DOWNLOADED: Update downloaded
+UPDATE: Update
 TIPS_UPDATE_DOWNLOADED: The update has been downloaded and will be installed on the next app restart. Would you like to restart now?
 QUIT: Quit
 OPERATION_SUCCEED: "Operation Succeed"

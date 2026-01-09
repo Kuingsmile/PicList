@@ -12,14 +12,13 @@ import { createTray, setDockMenu } from 'apis/app/system'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
 import axios from 'axios'
-import { app, dialog, globalShortcut, Notification, protocol, screen, shell } from 'electron'
+import { app, globalShortcut, Notification, protocol, screen } from 'electron'
 import updater from 'electron-updater'
 import fs from 'fs-extra'
 
 import busEventList from '~/events/busEventList'
 import { rpcServer } from '~/events/rpc'
 import { startFileServer, stopFileServer } from '~/fileServer'
-import { T as $t } from '~/i18n'
 import fixPath from '~/lifeCycle/fixPath'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import getManageApi from '~/manage/Main'
@@ -66,6 +65,7 @@ updater.autoUpdater.setFeedURL({
   channel: 'latest',
 })
 
+updater.autoUpdater.forceDevUpdateConfig = true
 updater.autoUpdater.autoDownload = false
 
 updater.autoUpdater.on('update-available', async (info: updater.UpdateInfo) => {
@@ -82,7 +82,7 @@ updater.autoUpdater.on('update-available', async (info: updater.UpdateInfo) => {
     logger.error(e)
   }
 
-  const maxLogLength = 800
+  const maxLogLength = 8000
   let displayLog = updateLog
   let truncatedNote = ''
 
@@ -95,60 +95,64 @@ updater.autoUpdater.on('update-available', async (info: updater.UpdateInfo) => {
         : '\n\n... (See full changelog for more details)'
   }
 
-  dialog
-    .showMessageBox({
-      type: 'info',
-      title: $t('FIND_NEW_VERSION'),
-      buttons: ['Yes', 'Go to download page'],
-      message:
-        $t('TIPS_FIND_NEW_VERSION', {
-          v: info.version,
-        }) +
-        '\n\n' +
-        displayLog +
-        truncatedNote,
-      checkboxLabel: $t('NO_MORE_NOTICE'),
-      checkboxChecked: false,
+  windowManager.create(IWindowList.UPDATE_WINDOW)
+  const updateWindow = windowManager.get(IWindowList.UPDATE_WINDOW)!
+
+  updateWindow.webContents.once('did-finish-load', () => {
+    updateWindow.webContents.send('SHOW_UPDATE_INFO', {
+      type: 'update-available',
+      title: lang === II18nLanguage.ZH_CN ? '发现新版本' : 'New Update Available',
+      version: info.version,
+      releaseNotes: displayLog + truncatedNote,
     })
-    .then(result => {
-      if (result.response === 0) {
-        updater.autoUpdater.downloadUpdate()
-      } else {
-        shell.openExternal('https://github.com/Kuingsmile/PicList/releases/latest')
-      }
-      db.set(configPaths.settings.showUpdateTip, !result.checkboxChecked)
-    })
-    .catch(err => {
-      logger.error(err)
-    })
+  })
+
+  updateWindow.show()
 })
 
 updater.autoUpdater.on('download-progress', progressObj => {
   const percent = {
     progress: progressObj.percent,
   }
-  const window = windowManager.get(IWindowList.SETTING_WINDOW)!
-  window.webContents.send('updateProgress', percent)
+  const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+  const updateWindow = windowManager.get(IWindowList.UPDATE_WINDOW)
+
+  if (settingWindow) {
+    settingWindow.webContents.send('updateProgress', percent)
+  }
+  if (updateWindow) {
+    updateWindow.webContents.send('UPDATE_PROGRESS', percent)
+  }
 })
 
 updater.autoUpdater.on('update-downloaded', () => {
-  dialog
-    .showMessageBox({
-      type: 'info',
-      title: $t('UPDATE_DOWNLOADED'),
-      buttons: ['Yes', 'No'],
-      message: $t('TIPS_UPDATE_DOWNLOADED'),
+  const lang = db.get(configPaths.settings.language) || II18nLanguage.ZH_CN
+
+  if (!windowManager.has(IWindowList.UPDATE_WINDOW)) {
+    windowManager.create(IWindowList.UPDATE_WINDOW)
+  }
+  const updateWindow = windowManager.get(IWindowList.UPDATE_WINDOW)!
+
+  const sendUpdateInfo = () => {
+    updateWindow.webContents.send('SHOW_UPDATE_INFO', {
+      type: 'update-downloaded',
+      title: lang === II18nLanguage.ZH_CN ? '更新已下载' : 'Update Downloaded',
+      message:
+        lang === II18nLanguage.ZH_CN
+          ? '更新已下载完成，将在下次重启应用时安装。是否立即重启？'
+          : 'The update has been downloaded and will be installed on the next app restart. Would you like to restart now?',
     })
-    .then(result => {
-      const window = windowManager.get(IWindowList.SETTING_WINDOW)!
-      window.webContents.send('updateProgress', { progress: 100 })
-      if (result.response === 0) {
-        updater.autoUpdater.quitAndInstall()
-      }
-    })
-    .catch(err => {
-      logger.error(err)
-    })
+  }
+
+  if (updateWindow.webContents.isLoading()) {
+    updateWindow.webContents.once('did-finish-load', sendUpdateInfo)
+  } else {
+    sendUpdateInfo()
+  }
+
+  if (!updateWindow.isVisible()) {
+    updateWindow.show()
+  }
 })
 
 updater.autoUpdater.on('error', err => {

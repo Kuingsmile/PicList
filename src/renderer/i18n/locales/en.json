@@ -6,7 +6,8 @@
     "confirm": "Confirm",
     "import": "Import",
     "reset": "Reset",
-    "submit": "Submit"
+    "submit": "Submit",
+    "version": "Version"
   },
   "navigation": {
     "choosePicBed": "Choose PicBed",
@@ -930,6 +931,17 @@
       "openMainWindow": "Open Main Window",
       "uploaded": "Uploaded",
       "waitForUpload": "Waiting for Upload"
+    },
+    "update": {
+      "download": "Download",
+      "downloading": "Downloading",
+      "goToDownloadPage": "Go to Download Page",
+      "installNow": "Install Now",
+      "later": "Later",
+      "newUpdateAvailable": "New Update Available",
+      "noMoreNotice": "Do not show this again",
+      "releaseNotes": "What's New",
+      "updateReady": "Update Ready to Install"
     },
     "upload": {
       "changePicBed": "Change PicBed",

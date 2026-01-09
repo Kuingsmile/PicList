@@ -27,28 +27,6 @@ export const completeUploaderMetaConfig = (originData: IStringKeyMap): IUploader
   }
 }
 
-/**
- * get picbed config by type
- * it will trigger the uploader config function & get the uploader config result
- * & not just read from
- */
-export const getPicBedConfig = (type: string) => {
-  const name = picgo.helper.uploader.get(type)?.name || type
-  if (picgo.helper.uploader.get(type)?.config) {
-    const _config = picgo.helper.uploader.get(type)!.config!(picgo)
-    const config = handleConfigWithFunction(_config)
-    return {
-      config,
-      name,
-    }
-  } else {
-    return {
-      config: [],
-      name,
-    }
-  }
-}
-
 export const changeSecondUploader = (type: string, config?: IStringKeyMap, id?: string) => {
   if (!type) {
     return
@@ -69,9 +47,7 @@ export const changeSecondUploader = (type: string, config?: IStringKeyMap, id?: 
 }
 
 export const changeCurrentUploader = (type: string, config?: IStringKeyMap, id?: string) => {
-  if (!type) {
-    return
-  }
+  if (!type) return
   if (id) {
     picgo.saveConfig({
       [`uploader.${type}.defaultId`]: id,
