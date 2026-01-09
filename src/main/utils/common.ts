@@ -7,6 +7,7 @@ import { clipboard, Notification, Tray } from 'electron'
 import { gunzipSync, gzipSync, strFromU8 } from 'fflate'
 import FormData from 'form-data'
 import fs from 'fs-extra'
+import { IPicGo } from 'piclist'
 import { isReactive, isRef, toRaw, unref } from 'vue'
 
 import { configPaths } from '~/utils/configPaths'
@@ -340,4 +341,17 @@ export const zipData = async (data: Record<string, any>, zipPath: string): Promi
   } catch (_err) {
     throw new Error('Zip failed')
   }
+}
+
+export function getUploaderType(ctx: IPicGo): {
+  picBed: string
+  id?: string
+} {
+  const picBed =
+    ctx.getConfig<Undefinable<string>>('picBed.uploader') ||
+    ctx.getConfig<Undefinable<string>>('picBed.current') ||
+    'smms'
+  const picBedConfig = ctx.getConfig<Undefinable<IStringKeyMap>>(`picBed.${picBed}`) || {}
+  const id = picBedConfig._id || ''
+  return { picBed, id }
 }

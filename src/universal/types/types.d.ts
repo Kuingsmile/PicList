@@ -506,3 +506,18 @@ interface IGalleryDBFile {
   gallery: IGalleryDBGalleryItem[]
   __gallery_KEY__: Record<string, number>
 }
+
+interface IBuildInListItem {
+  id: string
+  compress?: Partial<import('piclist').IBuildInCompressOptionsTreated>
+  watermark?: Partial<import('piclist').IBuildInWaterMarkOptionsTreated>
+  skipProcess?: import('piclist').IBuildInSkipProcessOptions
+  rename?: {
+    enable?: boolean
+    format?: string
+  }
+  // settings.autoRename
+  autoRename?: boolean
+  // settings.rename
+  manualRename?: boolean
+}

@@ -13,7 +13,7 @@ import writeFile from 'write-file-atomic'
 
 import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '~/events/constant'
 import { T as $t } from '~/i18n'
-import { getClipboardFilePath, showNotification } from '~/utils/common'
+import { getClipboardFilePath, getUploaderType, showNotification } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 import { ICOREBuildInEvent, IWindowList } from '~/utils/enum'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
@@ -60,8 +60,15 @@ class Uploader {
 
     picgo.helper.beforeUploadPlugins.register('renameFn', {
       handle: async (ctx: IPicGo) => {
-        const rename = db.get(configPaths.settings.rename)
-        const autoRename = db.get(configPaths.settings.autoRename)
+        const uploaderType = getUploaderType(ctx)
+
+        const globalRename = db.get(configPaths.settings.rename)
+        const globalAutoRename = db.get(configPaths.settings.autoRename)
+        const buildInList = db.get(configPaths.buildIn.list._name) || []
+        const idSpecificRename = buildInList.find((item: any) => item.id === uploaderType.id)?.manualRename
+        const idSpecificAutoRename = buildInList.find((item: any) => item.id === uploaderType.id)?.autoRename
+        const rename = idSpecificRename !== undefined ? !!idSpecificRename : !!globalRename
+        const autoRename = idSpecificAutoRename !== undefined ? !!idSpecificAutoRename : !!globalAutoRename
         if (autoRename || rename) {
           await Promise.all(
             ctx.output.map(async (item, index) => {
