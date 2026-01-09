@@ -63,12 +63,19 @@
 
                 <PerPicbedSetting
                   :map-field="compressForm.isRemoveExifMap"
-                  :default-value="false"
+                  :default-value="defaultCompressSetting.isRemoveExif"
                   field-name="isRemoveExif"
-                  :form-object="compressForm"
+                  :global-value="compressForm.isRemoveExif"
                   input-type="checkbox"
                   @map-change="
-                    (picbedType, value) => safeSetMapValue(compressForm, 'isRemoveExif', picbedType, value, false)
+                    (picbedType, value) =>
+                      safeSetMapValue(
+                        compressForm,
+                        'isRemoveExif',
+                        picbedType,
+                        value,
+                        defaultCompressSetting.isRemoveExif,
+                      )
                   "
                 />
               </div>
@@ -80,15 +87,18 @@
 
                 <PerPicbedSetting
                   :map-field="compressForm.qualityMap"
-                  :default-value="100"
+                  :default-value="defaultCompressSetting.quality"
                   field-name="quality"
-                  :form-object="compressForm"
+                  :global-value="compressForm.quality"
                   input-type="range"
                   :range-min="1"
                   :range-max="100"
                   :range-step="1"
                   range-suffix="%"
-                  @map-change="(picbedType, value) => safeSetMapValue(compressForm, 'quality', picbedType, value, 100)"
+                  @map-change="
+                    (picbedType, value) =>
+                      safeSetMapValue(compressForm, 'quality', picbedType, value, defaultCompressSetting.quality)
+                  "
                 />
               </div>
             </div>
@@ -115,12 +125,13 @@
 
               <PerPicbedSetting
                 :map-field="compressForm.isConvertMap"
-                :default-value="false"
+                :default-value="defaultCompressSetting.isConvert"
                 field-name="isConvert"
-                :form-object="compressForm"
+                :global-value="compressForm.isConvert"
                 input-type="checkbox"
                 @map-change="
-                  (picbedType, value) => safeSetMapValue(compressForm, 'isConvert', picbedType, value, false)
+                  (picbedType, value) =>
+                    safeSetMapValue(compressForm, 'isConvert', picbedType, value, defaultCompressSetting.isConvert)
                 "
               />
             </div>
@@ -136,13 +147,20 @@
 
                 <PerPicbedSetting
                   :map-field="compressForm.convertFormatMap"
-                  default-value="jpg"
+                  :default-value="defaultCompressSetting.convertFormat"
                   field-name="convertFormat"
-                  :form-object="compressForm"
+                  :global-value="compressForm.convertFormat"
                   input-type="select"
                   :select-options="availableFormat.map(format => ({ value: format, label: format.toUpperCase() }))"
                   @map-change="
-                    (picbedType, value) => safeSetMapValue(compressForm, 'convertFormat', picbedType, value, 'jpg')
+                    (picbedType, value) =>
+                      safeSetMapValue(
+                        compressForm,
+                        'convertFormat',
+                        picbedType,
+                        value,
+                        defaultCompressSetting.convertFormat,
+                      )
                   "
                 />
               </div>
@@ -158,13 +176,20 @@
 
                 <PerPicbedSetting
                   :map-field="compressForm.formatConvertObjMap"
-                  :default-value="'{}'"
+                  :default-value="defaultCompressSetting.formatConvertObj"
                   field-name="formatConvertObj"
-                  :form-object="compressForm"
+                  :global-value="compressForm.formatConvertObj"
                   input-type="text"
                   text-placeholder="{}"
                   @map-change="
-                    (picbedType, value) => safeSetMapValue(compressForm, 'formatConvertObj', picbedType, value, '{}')
+                    (picbedType, value) =>
+                      safeSetMapValue(
+                        compressForm,
+                        'formatConvertObj',
+                        picbedType,
+                        value,
+                        defaultCompressSetting.formatConvertObj,
+                      )
                   "
                 />
               </div>
@@ -196,12 +221,19 @@
 
               <PerPicbedSetting
                 :map-field="waterMarkForm.isAddWatermarkMap"
-                :default-value="false"
+                :default-value="defaultWaterMarkSetting.isAddWatermark"
                 field-name="isAddWatermark"
-                :form-object="waterMarkForm"
+                :global-value="waterMarkForm.isAddWatermark"
                 input-type="checkbox"
                 @map-change="
-                  (picbedType, value) => safeSetMapValue(waterMarkForm, 'isAddWatermark', picbedType, value, false)
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      waterMarkForm,
+                      'isAddWatermark',
+                      picbedType,
+                      value,
+                      defaultWaterMarkSetting.isAddWatermark,
+                    )
                 "
               />
             </div>
@@ -224,16 +256,23 @@
 
                 <PerPicbedSetting
                   :map-field="waterMarkForm.watermarkTypeMap"
-                  default-value="text"
+                  :default-value="defaultWaterMarkSetting.watermarkType"
                   field-name="watermarkType"
-                  :form-object="waterMarkForm"
+                  :global-value="waterMarkForm.watermarkType"
                   input-type="radio"
                   :radio-options="[
                     { value: 'text', label: $t('pages.imageProcess.watermark.text') },
                     { value: 'image', label: $t('pages.imageProcess.watermark.image') },
                   ]"
                   @map-change="
-                    (picbedType, value) => safeSetMapValue(waterMarkForm, 'watermarkType', picbedType, value, 'text')
+                    (picbedType, value) =>
+                      safeSetMapValue(
+                        waterMarkForm,
+                        'watermarkType',
+                        picbedType,
+                        value,
+                        defaultWaterMarkSetting.watermarkType,
+                      )
                   "
                 />
               </div>
@@ -250,13 +289,19 @@
 
                   <PerPicbedSetting
                     :map-field="waterMarkForm.isFullScreenWatermarkMap"
-                    :default-value="false"
+                    :default-value="defaultWaterMarkSetting.isFullScreenWatermark"
                     field-name="isFullScreenWatermark"
-                    :form-object="waterMarkForm"
+                    :global-value="waterMarkForm.isFullScreenWatermark"
                     input-type="checkbox"
                     @map-change="
                       (picbedType, value) =>
-                        safeSetMapValue(waterMarkForm, 'isFullScreenWatermark', picbedType, value, false)
+                        safeSetMapValue(
+                          waterMarkForm,
+                          'isFullScreenWatermark',
+                          picbedType,
+                          value,
+                          defaultWaterMarkSetting.isFullScreenWatermark,
+                        )
                     "
                   />
                 </div>
@@ -274,16 +319,23 @@
 
                   <PerPicbedSetting
                     :map-field="waterMarkForm.watermarkDegreeMap"
-                    :default-value="0"
+                    :default-value="defaultWaterMarkSetting.watermarkDegree"
                     field-name="watermarkDegree"
-                    :form-object="waterMarkForm"
+                    :global-value="waterMarkForm.watermarkDegree"
                     input-type="range"
                     :range-min="-360"
                     :range-max="360"
                     :range-step="1"
                     range-suffix="°"
                     @map-change="
-                      (picbedType, value) => safeSetMapValue(waterMarkForm, 'watermarkDegree', picbedType, value, 0)
+                      (picbedType, value) =>
+                        safeSetMapValue(
+                          waterMarkForm,
+                          'watermarkDegree',
+                          picbedType,
+                          value,
+                          defaultWaterMarkSetting.watermarkDegree,
+                        )
                     "
                   />
                 </div>
@@ -302,9 +354,9 @@
 
                   <PerPicbedSetting
                     :map-field="waterMarkForm.watermarkScaleRatioMap"
-                    :default-value="0.15"
+                    :default-value="defaultWaterMarkSetting.watermarkScaleRatio"
                     field-name="watermarkScaleRatio"
-                    :form-object="waterMarkForm"
+                    :global-value="waterMarkForm.watermarkScaleRatio"
                     input-type="range"
                     :range-min="0"
                     :range-max="1"
@@ -312,7 +364,13 @@
                     range-suffix="%"
                     @map-change="
                       (picbedType, value) =>
-                        safeSetMapValue(waterMarkForm, 'watermarkScaleRatio', picbedType, value, 0.15)
+                        safeSetMapValue(
+                          waterMarkForm,
+                          'watermarkScaleRatio',
+                          picbedType,
+                          value,
+                          defaultWaterMarkSetting.watermarkScaleRatio,
+                        )
                     "
                   />
                 </div>
@@ -331,13 +389,20 @@
                   <!-- Per-picbed settings for watermarkText -->
                   <PerPicbedSetting
                     :map-field="waterMarkForm.watermarkTextMap"
-                    :default-value="''"
+                    :default-value="defaultWaterMarkSetting.watermarkText"
                     field-name="watermarkText"
-                    :form-object="waterMarkForm"
+                    :global-value="waterMarkForm.watermarkText"
                     input-type="text"
                     :text-placeholder="$t('pages.imageProcess.watermark.inputTextPlaceholder')"
                     @map-change="
-                      (picbedType, value) => safeSetMapValue(waterMarkForm, 'watermarkText', picbedType, value, '')
+                      (picbedType, value) =>
+                        safeSetMapValue(
+                          waterMarkForm,
+                          'watermarkText',
+                          picbedType,
+                          value,
+                          defaultWaterMarkSetting.watermarkText,
+                        )
                     "
                   />
                 </div>
@@ -353,13 +418,20 @@
 
                   <PerPicbedSetting
                     :map-field="waterMarkForm.watermarkFontPathMap"
-                    :default-value="''"
+                    :default-value="defaultWaterMarkSetting.watermarkFontPath"
                     field-name="watermarkFontPath"
-                    :form-object="waterMarkForm"
+                    :global-value="waterMarkForm.watermarkFontPath"
                     input-type="text"
                     :text-placeholder="$t('pages.imageProcess.watermark.textFontPathPlaceholder')"
                     @map-change="
-                      (picbedType, value) => safeSetMapValue(waterMarkForm, 'watermarkFontPath', picbedType, value, '')
+                      (picbedType, value) =>
+                        safeSetMapValue(
+                          waterMarkForm,
+                          'watermarkFontPath',
+                          picbedType,
+                          value,
+                          defaultWaterMarkSetting.watermarkFontPath,
+                        )
                     "
                   />
                 </div>
@@ -378,13 +450,19 @@
 
                   <PerPicbedSetting
                     :map-field="waterMarkForm.watermarkColorMap"
-                    :default-value="'#CCCCCC73'"
+                    :default-value="defaultWaterMarkSetting.watermarkColor"
                     field-name="watermarkColor"
-                    :form-object="waterMarkForm"
+                    :global-value="waterMarkForm.watermarkColor"
                     input-type="color"
                     @map-change="
                       (picbedType, value) =>
-                        safeSetMapValue(waterMarkForm, 'watermarkColor', picbedType, value, '#CCCCCC73')
+                        safeSetMapValue(
+                          waterMarkForm,
+                          'watermarkColor',
+                          picbedType,
+                          value,
+                          defaultWaterMarkSetting.watermarkColor,
+                        )
                     "
                   />
                 </div>
@@ -402,13 +480,20 @@
 
                 <PerPicbedSetting
                   :map-field="waterMarkForm.watermarkImagePathMap"
-                  :default-value="''"
+                  :default-value="defaultWaterMarkSetting.watermarkImagePath"
                   field-name="watermarkImagePath"
-                  :form-object="waterMarkForm"
+                  :global-value="waterMarkForm.watermarkImagePath"
                   input-type="text"
                   :text-placeholder="$t('pages.imageProcess.watermark.imagePathPlaceholder')"
                   @map-change="
-                    (picbedType, value) => safeSetMapValue(waterMarkForm, 'watermarkImagePath', picbedType, value, '')
+                    (picbedType, value) =>
+                      safeSetMapValue(
+                        waterMarkForm,
+                        'watermarkImagePath',
+                        picbedType,
+                        value,
+                        defaultWaterMarkSetting.watermarkImagePath,
+                      )
                   "
                 />
               </div>
@@ -429,16 +514,22 @@
 
                 <PerPicbedSetting
                   :map-field="waterMarkForm.watermarkImageOpacityMap"
-                  :default-value="255"
+                  :default-value="defaultWaterMarkSetting.watermarkImageOpacity"
                   field-name="watermarkImageOpacity"
-                  :form-object="waterMarkForm"
+                  :global-value="waterMarkForm.watermarkImageOpacity"
                   input-type="range"
                   :range-min="0"
                   :range-max="255"
                   :range-step="1"
                   @map-change="
                     (picbedType, value) =>
-                      safeSetMapValue(waterMarkForm, 'watermarkImageOpacity', picbedType, value, 255)
+                      safeSetMapValue(
+                        waterMarkForm,
+                        'watermarkImageOpacity',
+                        picbedType,
+                        value,
+                        defaultWaterMarkSetting.watermarkImageOpacity,
+                      )
                   "
                 />
               </div>
@@ -461,9 +552,9 @@
                 <!-- Per-picbed settings for watermarkPosition -->
                 <PerPicbedSetting
                   :map-field="waterMarkForm.watermarkPositionMap"
-                  :default-value="'southeast'"
+                  :default-value="defaultWaterMarkSetting.watermarkPosition"
                   field-name="watermarkPosition"
-                  :form-object="waterMarkForm"
+                  :global-value="waterMarkForm.watermarkPosition"
                   input-type="select"
                   :select-options="
                     Array.from(waterMarkPositionMap.entries()).map(([key, label]) => ({
@@ -473,7 +564,13 @@
                   "
                   @map-change="
                     (picbedType, value) =>
-                      safeSetMapValue(waterMarkForm, 'watermarkPosition', picbedType, value, 'southeast')
+                      safeSetMapValue(
+                        waterMarkForm,
+                        'watermarkPosition',
+                        picbedType,
+                        value,
+                        defaultWaterMarkSetting.watermarkPosition,
+                      )
                   "
                 />
               </div>
@@ -506,11 +603,14 @@
 
                 <PerPicbedSetting
                   :map-field="compressForm.isFlipMap"
-                  :default-value="false"
+                  :default-value="defaultCompressSetting.isFlip"
                   field-name="isFlip"
-                  :form-object="compressForm"
+                  :global-value="compressForm.isFlip"
                   input-type="checkbox"
-                  @map-change="(picbedType, value) => safeSetMapValue(compressForm, 'isFlip', picbedType, value, false)"
+                  @map-change="
+                    (picbedType, value) =>
+                      safeSetMapValue(compressForm, 'isFlip', picbedType, value, defaultCompressSetting.isFlip)
+                  "
                 />
               </div>
 
@@ -525,11 +625,14 @@
 
                 <PerPicbedSetting
                   :map-field="compressForm.isFlopMap"
-                  :default-value="false"
+                  :default-value="defaultCompressSetting.isFlop"
                   field-name="isFlop"
-                  :form-object="compressForm"
+                  :global-value="compressForm.isFlop"
                   input-type="checkbox"
-                  @map-change="(picbedType, value) => safeSetMapValue(compressForm, 'isFlop', picbedType, value, false)"
+                  @map-change="
+                    (picbedType, value) =>
+                      safeSetMapValue(compressForm, 'isFlop', picbedType, value, defaultCompressSetting.isFlop)
+                  "
                 />
               </div>
             </div>
@@ -557,11 +660,14 @@
 
               <PerPicbedSetting
                 :map-field="compressForm.isRotateMap"
-                :default-value="false"
+                :default-value="defaultCompressSetting.isRotate"
                 field-name="isRotate"
-                :form-object="compressForm"
+                :global-value="compressForm.isRotate"
                 input-type="checkbox"
-                @map-change="(picbedType, value) => safeSetMapValue(compressForm, 'isRotate', picbedType, value, false)"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(compressForm, 'isRotate', picbedType, value, defaultCompressSetting.isRotate)
+                "
               />
             </div>
 
@@ -572,15 +678,24 @@
 
               <PerPicbedSetting
                 :map-field="compressForm.rotateDegreeMap"
-                :default-value="0"
+                :default-value="defaultCompressSetting.rotateDegree"
                 field-name="rotateDegree"
-                :form-object="compressForm"
+                :global-value="compressForm.rotateDegree"
                 input-type="range"
                 :range-min="-360"
                 :range-max="360"
                 :range-step="1"
                 range-suffix="°"
-                @map-change="(picbedType, value) => safeSetMapValue(compressForm, 'rotateDegree', picbedType, value, 0)"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      compressForm,
+                      'rotateDegree',
+                      picbedType,
+                      value,
+                      defaultCompressSetting.rotateDegree,
+                    )
+                "
               />
             </div>
           </div>
@@ -607,11 +722,14 @@
 
               <PerPicbedSetting
                 :map-field="compressForm.isReSizeMap"
-                :default-value="false"
+                :default-value="defaultCompressSetting.isReSize"
                 field-name="isReSize"
-                :form-object="compressForm"
+                :global-value="compressForm.isReSize"
                 input-type="checkbox"
-                @map-change="(picbedType, value) => safeSetMapValue(compressForm, 'isReSize', picbedType, value, false)"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(compressForm, 'isReSize', picbedType, value, defaultCompressSetting.isReSize)
+                "
               />
             </div>
 
@@ -623,14 +741,21 @@
 
                   <PerPicbedSetting
                     :map-field="compressForm.reSizeWidthMap"
-                    :default-value="500"
+                    :default-value="defaultCompressSetting.reSizeWidth"
                     field-name="reSizeWidth"
-                    :form-object="compressForm"
+                    :global-value="compressForm.reSizeWidth"
                     input-type="number"
                     :number-min="0"
                     :number-max="10000"
                     @map-change="
-                      (picbedType, value) => safeSetMapValue(compressForm, 'reSizeWidth', picbedType, value, 500)
+                      (picbedType, value) =>
+                        safeSetMapValue(
+                          compressForm,
+                          'reSizeWidth',
+                          picbedType,
+                          value,
+                          defaultCompressSetting.reSizeWidth,
+                        )
                     "
                   />
                 </div>
@@ -641,14 +766,21 @@
 
                   <PerPicbedSetting
                     :map-field="compressForm.reSizeHeightMap"
-                    :default-value="500"
+                    :default-value="defaultCompressSetting.reSizeHeight"
                     field-name="reSizeHeight"
-                    :form-object="compressForm"
+                    :global-value="compressForm.reSizeHeight"
                     input-type="number"
                     :number-min="0"
                     :number-max="10000"
                     @map-change="
-                      (picbedType, value) => safeSetMapValue(compressForm, 'reSizeHeight', picbedType, value, 500)
+                      (picbedType, value) =>
+                        safeSetMapValue(
+                          compressForm,
+                          'reSizeHeight',
+                          picbedType,
+                          value,
+                          defaultCompressSetting.reSizeHeight,
+                        )
                     "
                   />
                 </div>
@@ -673,13 +805,19 @@
 
                 <PerPicbedSetting
                   :map-field="compressForm.skipReSizeOfSmallImgMap"
-                  :default-value="false"
+                  :default-value="defaultCompressSetting.skipReSizeOfSmallImg"
                   field-name="skipReSizeOfSmallImg"
-                  :form-object="compressForm"
+                  :global-value="compressForm.skipReSizeOfSmallImg"
                   input-type="checkbox"
                   @map-change="
                     (picbedType, value) =>
-                      safeSetMapValue(compressForm, 'skipReSizeOfSmallImg', picbedType, value, false)
+                      safeSetMapValue(
+                        compressForm,
+                        'skipReSizeOfSmallImg',
+                        picbedType,
+                        value,
+                        defaultCompressSetting.skipReSizeOfSmallImg,
+                      )
                   "
                 />
               </div>
@@ -708,12 +846,19 @@
 
               <PerPicbedSetting
                 :map-field="compressForm.isReSizeByPercentMap"
-                :default-value="false"
+                :default-value="defaultCompressSetting.isReSizeByPercent"
                 field-name="isReSizeByPercent"
-                :form-object="compressForm"
+                :global-value="compressForm.isReSizeByPercent"
                 input-type="checkbox"
                 @map-change="
-                  (picbedType, value) => safeSetMapValue(compressForm, 'isReSizeByPercent', picbedType, value, false)
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      compressForm,
+                      'isReSizeByPercent',
+                      picbedType,
+                      value,
+                      defaultCompressSetting.isReSizeByPercent,
+                    )
                 "
               />
             </div>
@@ -725,16 +870,23 @@
 
               <PerPicbedSetting
                 :map-field="compressForm.reSizePercentMap"
-                :default-value="50"
+                :default-value="defaultCompressSetting.reSizePercent"
                 field-name="reSizePercent"
-                :form-object="compressForm"
+                :global-value="compressForm.reSizePercent"
                 input-type="range"
                 :range-min="1"
                 :range-max="500"
                 :range-step="1"
                 range-suffix="%"
                 @map-change="
-                  (picbedType, value) => safeSetMapValue(compressForm, 'reSizePercent', picbedType, value, 50)
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      compressForm,
+                      'reSizePercent',
+                      picbedType,
+                      value,
+                      defaultCompressSetting.reSizePercent,
+                    )
                 "
               />
             </div>
@@ -758,7 +910,13 @@ import {
   Settings,
   Sliders,
 } from 'lucide-vue-next'
-import type { IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
+import type {
+  availableConvertFormat,
+  availableWatermarkPosition,
+  IBuildInCompressOptions,
+  IBuildInSkipProcessOptions,
+  IBuildInWaterMarkOptions,
+} from 'piclist'
 import {
   computed,
   nextTick,
@@ -866,79 +1024,76 @@ const availableFormat = [
   'webp',
 ]
 
-const waterMarkForm = reactive<IBuildInWaterMarkOptions>({
+const defaultWaterMarkSetting = {
   isAddWatermark: false,
-  isAddWatermarkMap: {},
-  watermarkType: 'text',
-  watermarkTypeMap: {},
+  watermarkType: 'text' as 'text' | 'image',
   isFullScreenWatermark: false,
-  isFullScreenWatermarkMap: {},
   watermarkDegree: 0,
-  watermarkDegreeMap: {},
   watermarkText: '',
-  watermarkTextMap: {},
   watermarkFontPath: '',
-  watermarkFontPathMap: {},
   watermarkScaleRatio: 0.15,
-  watermarkScaleRatioMap: {},
   watermarkColor: '#CCCCCC73',
-  watermarkColorMap: {},
   watermarkImagePath: '',
-  watermarkImagePathMap: {},
-  watermarkPosition: 'southeast',
-  watermarkPositionMap: {},
+  watermarkPosition: 'southeast' as availableWatermarkPosition,
   watermarkImageOpacity: 255,
+}
+
+const waterMarkForm = reactive<IBuildInWaterMarkOptions>({
+  isAddWatermarkMap: {},
+  watermarkTypeMap: {},
+  isFullScreenWatermarkMap: {},
+  watermarkDegreeMap: {},
+  watermarkTextMap: {},
+  watermarkFontPathMap: {},
+  watermarkScaleRatioMap: {},
+  watermarkColorMap: {},
+  watermarkImagePathMap: {},
+  watermarkPositionMap: {},
   watermarkImageOpacityMap: {},
+  ...defaultWaterMarkSetting,
 })
 
-const compressForm = reactive<IBuildInCompressOptions>({
+const defaultCompressSetting = {
   quality: 100,
-  qualityMap: {},
   isConvert: false,
-  isConvertMap: {},
-  convertFormat: 'jpg',
-  convertFormatMap: {},
+  convertFormat: 'jpg' as availableConvertFormat,
   isReSize: false,
-  isReSizeMap: {},
   reSizeWidth: 500,
-  reSizeWidthMap: {},
   reSizeHeight: 500,
-  reSizeHeightMap: {},
   skipReSizeOfSmallImg: false,
-  skipReSizeOfSmallImgMap: {},
   isReSizeByPercent: false,
-  isReSizeByPercentMap: {},
   reSizePercent: 50,
-  reSizePercentMap: {},
   isRotate: false,
-  isRotateMap: {},
   rotateDegree: 0,
-  rotateDegreeMap: {},
   isRemoveExif: false,
-  isRemoveExifMap: {},
   isFlip: false,
-  isFlipMap: {},
   isFlop: false,
-  isFlopMap: {},
   formatConvertObj: {},
+}
+
+const compressForm = reactive<IBuildInCompressOptions>({
+  qualityMap: {},
+  isConvertMap: {},
+  convertFormatMap: {},
+  isReSizeMap: {},
+  reSizeWidthMap: {},
+  reSizeHeightMap: {},
+  skipReSizeOfSmallImgMap: {},
+  isReSizeByPercentMap: {},
+  reSizePercentMap: {},
+  isRotateMap: {},
+  rotateDegreeMap: {},
+  isRemoveExifMap: {},
+  isFlipMap: {},
+  isFlopMap: {},
   formatConvertObjMap: {},
+  ...defaultCompressSetting,
 })
 const formatConvertObj = ref('{}')
 
 const skipProcessForm = reactive({
   skipProcessExtList: 'zip,rar,7z,tar,gz,tar.gz,tar.bz2,tar.xz',
 })
-
-// State for showing map settings for each field (now unused - kept for future reference)
-// const showMapSettings = reactive<Record<string, boolean>>({})
-
-// Available picbeds for map configuration (now unused - moved to component)
-// const availablePicbeds = computed(() => {
-//   return picBedGlobal.value.map(picbed => ({
-//     type: picbed.type,
-//     name: picbed.name
-//   }))
-// })
 
 const waterMarkFormKeys = Object.keys(waterMarkForm) as (keyof typeof waterMarkForm)[]
 const compressFormKeys = Object.keys(compressForm) as (keyof typeof compressForm)[]
@@ -996,9 +1151,9 @@ function debouncedSave() {
 }
 
 async function initData() {
-  const compress = await getConfig<any>(configPaths.buildIn.compress)
-  const watermark = await getConfig<any>(configPaths.buildIn.watermark)
-  const skipProcess = await getConfig<any>(configPaths.buildIn.skipProcess)
+  const compress = await getConfig<IBuildInCompressOptions>(configPaths.buildIn.compress)
+  const watermark = await getConfig<IBuildInWaterMarkOptions>(configPaths.buildIn.watermark)
+  const skipProcess = await getConfig<IBuildInSkipProcessOptions>(configPaths.buildIn.skipProcess)
   if (compress) {
     compressFormKeys.forEach(key => {
       compressForm[key] = compress[key] ?? compressForm[key]
@@ -1026,13 +1181,6 @@ async function initData() {
   }
 }
 
-// Helper function for getting map values (now unused - moved to component)
-// function getMapValue(mapObj: Record<string, any> | undefined, picbedType: string, defaultValue: any) {
-//   if (!mapObj) return defaultValue
-//   return mapObj[picbedType] !== undefined ? mapObj[picbedType] : defaultValue
-// }
-
-// Safe wrapper for setMapValue that ensures map objects exist
 function safeSetMapValue(form: any, fieldName: string, picbedType: string, value: any, defaultValue: any) {
   const mapFieldName = `${fieldName}Map`
   if (!form[mapFieldName]) {
