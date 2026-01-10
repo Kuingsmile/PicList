@@ -348,7 +348,7 @@
                   <span>{{ t('pages.settings.upload.autoImportPicBed') }}</span>
                 </div>
                 <div class="checkbox-group compact">
-                  <label v-for="item in picBedGlobal" :key="item.type" class="checkbox-option">
+                  <label v-for="item in picBedG" :key="item.type" class="checkbox-option">
                     <input
                       v-model="formOfSetting.autoImportPicBed"
                       type="checkbox"
@@ -676,7 +676,7 @@
             </div>
 
             <div class="picbed-checkbox-grid">
-              <label v-for="item in picBedGlobal" :key="item.name" class="picbed-checkbox-card">
+              <label v-for="item in picBedG" :key="item.name" class="picbed-checkbox-card">
                 <input v-model="showPicBedList" type="checkbox" :value="item.name" class="checkbox-input" />
                 <span class="checkbox-indicator" />
                 <span class="checkbox-label">{{ item.name }}</span>
@@ -696,7 +696,7 @@
             </div>
 
             <div class="picbed-checkbox-grid">
-              <label v-for="item in picBedGlobal" :key="`gallery-${item.name}`" class="picbed-checkbox-card">
+              <label v-for="item in picBedG" :key="`gallery-${item.name}`" class="picbed-checkbox-card">
                 <input v-model="galleryPicBedFilterList" type="checkbox" :value="item.type" class="checkbox-input" />
                 <span class="checkbox-indicator" />
                 <span class="checkbox-label">{{ item.name }}</span>
@@ -1747,7 +1747,7 @@
           <button class="dialog-close" @click="imageProcessDialogVisible = false">X</button>
         </div>
         <div class="dialog-content">
-          <ImageProcessSetting v-model="imageProcessDialogVisible" />
+          <ImageProcessSetting :config-id="''" />
         </div>
       </div>
     </div>
@@ -1784,6 +1784,7 @@ import { useRouter } from 'vue-router'
 
 import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
 import useConfirm from '@/hooks/useConfirm'
+import { osGlobal, usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
 import { setCurrentLanguage } from '@/i18n'
 import { SHORTKEY_PAGE } from '@/router/config'
@@ -1792,12 +1793,13 @@ import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType, ISartMode } from '@/utils/enum'
 import { getLatestVersion } from '@/utils/getLatestVersion'
-import { osGlobal, picBedGlobal, updatePicBedGlobal } from '@/utils/global'
 
 const { t, locale } = useI18n()
 const $router = useRouter()
 const { confirm } = useConfirm()
 const message = useMessage()
+const { picBedG, updatePicBeds } = usePicBed()
+
 const activeName = ref<'system' | 'sync' | 'upload' | 'advanced' | 'update'>('system')
 const showPicBedList = ref<string[]>([])
 const galleryPicBedFilterList = ref<string[]>([])
@@ -2073,7 +2075,7 @@ async function initData() {
   const config = (await getConfig<IConfig>()) || ({} as IConfig)
   const settings = config.settings || {}
   const picBed = config.picBed
-  showPicBedList.value = picBedGlobal.value.filter(item => item.visible).map(item => item.name)
+  showPicBedList.value = picBedG.value.filter(item => item.visible).map(item => item.name)
   galleryPicBedFilterList.value = settings.galleryPicBedFilter || []
   formKeys.forEach(key => {
     ;(formOfSetting.value as any)[key] = settings[key] ?? formOfSetting.value[key]
@@ -2225,9 +2227,9 @@ watch(galleryPicBedFilterList, val => {
 })
 
 function handleShowPicBedListChange(val: ICheckBoxValueType[]) {
-  const list = picBedGlobal.value.map(item => ({ ...item, visible: val.includes(item.name) }))
+  const list = picBedG.value.map(item => ({ ...item, visible: val.includes(item.name) }))
   saveConfig({ [configPaths.picBed.list]: list })
-  updatePicBedGlobal()
+  updatePicBeds()
 }
 
 function handleGalleryPicBedFilterChange(val: ICheckBoxValueType[]) {

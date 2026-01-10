@@ -30,10 +30,10 @@
 import type { IConfig } from 'piclist'
 import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
+import { osGlobal } from '@/hooks/useGlobal'
 import { isUrl } from '@/utils/common'
 import { getConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
-import { osGlobal } from '@/utils/global'
 
 const logoPath = ref('')
 const dragover = ref(false)

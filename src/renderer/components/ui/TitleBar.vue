@@ -43,8 +43,8 @@
 import { MinusIcon, PinIcon, ShrinkIcon, XIcon } from 'lucide-vue-next'
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
+import { osGlobal } from '@/hooks/useGlobal'
 import { IRPCActionType } from '@/utils/enum'
-import { osGlobal } from '@/utils/global'
 
 const isShowprogress = ref(false)
 const progress = ref(0)

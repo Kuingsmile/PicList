@@ -6,26 +6,20 @@
 </template>
 
 <script lang="ts" setup>
-import type { IConfig } from 'piclist'
 import { onBeforeMount, onMounted } from 'vue'
 
 import UIServiceProvider from '@/components/ui/UIServiceProvider.vue'
 import { useAppStore } from '@/hooks/useAppStore'
 import { useATagClick } from '@/hooks/useATagClick'
-import { useStore } from '@/hooks/useStore'
-import { getConfig } from '@/utils/dataSender'
-import { pageReloadCount } from '@/utils/global'
+import { pageReloadCount, usePicBed } from '@/hooks/useGlobal'
 
 useATagClick()
 
-const store = useStore()
 const appStore = useAppStore()
+const { updatePicBeds } = usePicBed()
 
-onBeforeMount(async () => {
-  const config = await getConfig<IConfig>()
-  if (config) {
-    store?.setDefaultPicBed(config?.picBed?.uploader || config?.picBed?.current || 'smms')
-  }
+onBeforeMount(() => {
+  updatePicBeds()
 })
 
 onMounted(async () => {

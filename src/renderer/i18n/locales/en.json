@@ -107,6 +107,8 @@
         "description": "Configure settings for each PicBed individually",
         "title": "Per-PicBed Settings"
       },
+      "renameSettings": "Rename",
+      "skipProcessSettings": "Skip Process",
       "title": "Image Processing Settings",
       "transform": {
         "description": "Adjust image size, rotation, flipping, etc.",

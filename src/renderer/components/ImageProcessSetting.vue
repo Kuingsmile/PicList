@@ -24,26 +24,6 @@
           <div class="settings-section">
             <div class="section-header">
               <div class="section-icon">
-                <FileText :size="20" />
-              </div>
-              <div class="section-title-group">
-                <h2>{{ $t('pages.imageProcess.general.skipProcessExtList') }}</h2>
-              </div>
-            </div>
-            <div class="form-group">
-              <textarea
-                v-model="skipProcessForm.skipProcessExtList"
-                class="form-textarea"
-                rows="3"
-                :placeholder="'zip,rar,7z,tar,gz'"
-              />
-              <small>{{ $t('pages.imageProcess.general.skipProcessExtListPlaceholder') }}</small>
-            </div>
-          </div>
-
-          <div class="settings-section">
-            <div class="section-header">
-              <div class="section-icon">
                 <Sliders :size="20" />
               </div>
               <div class="section-title-group">
@@ -62,6 +42,7 @@
                 </label>
 
                 <PerPicbedSetting
+                  v-if="!configId"
                   :map-field="compressForm.isRemoveExifMap"
                   :default-value="defaultCompressSetting.isRemoveExif"
                   field-name="isRemoveExif"
@@ -892,6 +873,29 @@
             </div>
           </div>
         </div>
+
+        <!-- Skip Process Tab -->
+        <div v-else-if="activeTab === 'skipProcess'" key="skipProcess" class="tab-content">
+          <div class="settings-section">
+            <div class="section-header">
+              <div class="section-icon">
+                <FileText :size="20" />
+              </div>
+              <div class="section-title-group">
+                <h2>{{ $t('pages.imageProcess.general.skipProcessExtList') }}</h2>
+              </div>
+            </div>
+            <div class="form-group">
+              <textarea
+                v-model="skipProcessForm.skipProcessExtList"
+                class="form-textarea"
+                rows="3"
+                :placeholder="'zip,rar,7z,tar,gz'"
+              />
+              <small>{{ $t('pages.imageProcess.general.skipProcessExtListPlaceholder') }}</small>
+            </div>
+          </div>
+        </div>
       </transition>
     </div>
   </div>
@@ -933,7 +937,6 @@ import { useI18n } from 'vue-i18n'
 
 import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
-import { updatePicBedGlobal } from '@/utils/global'
 
 import PerPicbedSetting from './PerPicbedSetting.vue'
 
@@ -943,6 +946,13 @@ const activeTab = ref('general')
 // Tab indicator animation
 const tabRefs = useTemplateRef('tabRefs')
 const tabIndicatorStyle = ref<Record<string, string>>({})
+
+interface IProps {
+  // 传递配置ID以加载特定配置
+  configId: string
+}
+
+const { configId } = defineProps<IProps>()
 
 function updateTabIndicator() {
   if (!tabRefs.value || tabRefs.value.length === 0) return
@@ -984,6 +994,16 @@ const tabs = computed(() => [
     id: 'transform',
     label: t('pages.imageProcess.transformSettings'),
     icon: RotateCw,
+  },
+  {
+    id: 'skipProcess',
+    label: t('pages.imageProcess.skipProcessSettings'),
+    icon: FileText,
+  },
+  {
+    id: 'rename',
+    label: t('pages.imageProcess.renameSettings'),
+    icon: Sliders,
   },
 ])
 
@@ -1193,13 +1213,10 @@ function safeSetMapValue(form: any, fieldName: string, picbedType: string, value
   }
 }
 
-onBeforeMount(async () => {
-  await updatePicBedGlobal()
-  await initData()
-
-  setTimeout(() => {
+onBeforeMount(() => {
+  initData().then(() => {
     isInitialized.value = true
-  }, 100)
+  })
 })
 
 watch(

@@ -225,6 +225,7 @@ import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, toRaw, useTemp
 import { useI18n } from 'vue-i18n'
 
 import ConfigForm from '@/components/UnifiedConfigForm.vue'
+import { usePicBed } from '@/hooks/useGlobal'
 import { getRawData, handleStreamlinePluginName } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
 import {
@@ -235,9 +236,9 @@ import {
 } from '@/utils/constant'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
-import { updatePicBedGlobal } from '@/utils/global'
 
 const { t } = useI18n()
+const { updatePicBeds } = usePicBed()
 const searchText = ref('')
 const pluginList = ref<IPicGoPlugin[]>([])
 const config = ref<any[]>([])
@@ -332,7 +333,7 @@ const updateSuccessHandler = (plugin: string) => {
       item.ing = false
       item.hasInstall = true
     }
-    updatePicBedGlobal()
+    updatePicBeds()
   })
   handleReload()
   getPluginList()
@@ -349,7 +350,7 @@ const uninstallSuccessHandler = (plugin: string) => {
       if (item.config.uploader.name) {
         handleRestoreState('uploader', item.config.uploader.name)
       }
-      updatePicBedGlobal()
+      updatePicBeds()
     }
     return item.fullName !== plugin
   })
@@ -379,7 +380,7 @@ const picgoTogglePluginHandler = (fullName: string, enabled: boolean) => {
   const plugin = pluginList.value.find(item => item.fullName === fullName)
   if (plugin) {
     plugin.enabled = enabled
-    updatePicBedGlobal()
+    updatePicBeds()
     needReload.value = true
   }
 }

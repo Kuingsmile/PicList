@@ -74,7 +74,7 @@
                   <ChevronDownIcon :size="16" />
                 </button>
                 <div v-show="picBedDropdownOpen" class="multiselect-dropdown">
-                  <label v-for="item in picBedGlobal" :key="item.type" class="multiselect-option">
+                  <label v-for="item in picBedG" :key="item.type" class="multiselect-option">
                     <input v-model="choosedPicBed" type="checkbox" :value="item.type" />
                     {{ item.name }}
                   </label>
@@ -514,6 +514,7 @@ import { onBeforeRouteUpdate } from 'vue-router'
 import ALLApi from '@/apis/allApi'
 import VirtualScroller from '@/components/VirtualScroller.vue'
 import useConfirm from '@/hooks/useConfirm'
+import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
 import { customStrMatch, customStrReplace } from '@/manage/utils/common'
 import { getRawData } from '@/utils/common'
@@ -521,12 +522,12 @@ import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import $$db from '@/utils/db'
 import { IPasteStyle, IRPCActionType } from '@/utils/enum'
-import { picBedGlobal } from '@/utils/global'
 import { picBedsCanbeDeleted } from '@/utils/static'
 
 const { t } = useI18n()
 const message = useMessage()
 const { confirm } = useConfirm()
+const { picBedG } = usePicBed()
 
 type IResult<T> = T & {
   id: string

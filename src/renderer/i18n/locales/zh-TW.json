@@ -107,6 +107,8 @@
         "description": "為每個圖床單獨配置設置",
         "title": "圖床獨立設置"
       },
+      "renameSettings": "重命名",
+      "skipProcessSettings": "文件跳過",
       "title": "圖片處理設置",
       "transform": {
         "description": "調整圖片大小、旋轉、翻轉等",

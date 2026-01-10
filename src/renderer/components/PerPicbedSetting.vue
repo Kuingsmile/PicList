@@ -112,9 +112,10 @@ import { Settings } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { picBedGlobal } from '@/utils/global'
+import { usePicBed } from '@/hooks/useGlobal'
 
 const { t } = useI18n()
+const { picBedG } = usePicBed()
 
 interface SelectOption {
   value: string | number
@@ -166,7 +167,7 @@ const emit = defineEmits<{
 const showSettings = ref(false)
 
 const availablePicbeds = computed(() => {
-  return picBedGlobal.value.map(picbed => ({
+  return picBedG.value.map(picbed => ({
     type: picbed.type,
     name: picbed.name,
   }))

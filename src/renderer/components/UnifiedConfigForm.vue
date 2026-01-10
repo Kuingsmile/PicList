@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div id="config-form" :class="[{ white: props.colorMode === 'white' }]">
+  <div id="config-form" :class="[{ white: colorMode === 'white' }]">
     <form class="config-form" @submit.prevent>
       <!-- Config Name Field -->
       <div class="form-group required">
@@ -125,14 +125,14 @@
 import { cloneDeep, union } from 'lodash-es'
 import { ChevronDownIcon, Info } from 'lucide-vue-next'
 import { marked } from 'marked'
-import { reactive, ref, toRefs, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 import { getConfig } from '@/utils/dataSender'
 
 interface IProps {
-  config: any[]
+  config: IPicGoPluginConfig[]
   type: 'uploader' | 'transformer' | 'plugin'
   id: string
   colorMode?: 'white' | 'dark'
@@ -140,11 +140,14 @@ interface IProps {
   showTooltips?: boolean
 }
 
-const props = withDefaults(defineProps<IProps>(), {
-  colorMode: undefined,
-  mode: 'picbed',
-  showTooltips: true,
-})
+const {
+  config: configProp,
+  type,
+  id,
+  colorMode = undefined,
+  mode = 'picbed',
+  showTooltips = true,
+} = defineProps<IProps>()
 
 const $route = useRoute()
 const { t } = useI18n()
@@ -156,9 +159,9 @@ const visibleTooltips = reactive<Record<string, boolean>>({})
 
 // Watch for config changes
 watch(
-  toRefs(props.config),
-  (val: IPicGoPluginConfig[]) => {
-    handleConfig(val)
+  () => configProp,
+  newVal => {
+    handleConfig(newVal)
   },
   {
     deep: true,
@@ -191,10 +194,7 @@ function validateForm(): boolean {
       errors[config.name] = error
     }
   })
-
-  Object.keys(validationErrors).forEach(key => {
-    delete validationErrors[key]
-  })
+  for (const key in validationErrors) delete validationErrors[key]
 
   Object.assign(validationErrors, errors)
 
@@ -256,15 +256,15 @@ function transformMarkdownToHTML(markdown: string) {
 }
 
 function getConfigType() {
-  switch (props.type) {
+  switch (type) {
     case 'plugin': {
-      return props.id
+      return id
     }
     case 'uploader': {
-      return `picBed.${props.id}`
+      return `picBed.${id}`
     }
     case 'transformer': {
-      return `transformer.${props.id}`
+      return `transformer.${id}`
     }
     default:
       return 'unknown'
@@ -273,14 +273,14 @@ function getConfigType() {
 
 async function handleConfig(val: IPicGoPluginConfig[]) {
   const config = await getCurConfigFormData()
-  const configId = props.mode === 'picbed' ? $route.params.configId : null
+  const configId = mode === 'picbed' ? $route.params.configId : null
 
   Object.assign(ruleForm, config)
 
   if (val.length > 0) {
     configList.value = cloneDeep(val).map(item => {
       // For plugin mode, don't check configId
-      if (props.mode === 'plugin' || !configId) {
+      if (mode === 'plugin' || !configId) {
         let defaultValue = item.default !== undefined ? item.default : item.type === 'checkbox' ? [] : null
 
         if (item.type === 'checkbox') {
@@ -314,11 +314,11 @@ async function handleConfig(val: IPicGoPluginConfig[]) {
 }
 
 async function getCurConfigFormData() {
-  if (props.mode === 'plugin') {
-    return (await getConfig<IStringKeyMap>(`${props.id}`)) || {}
+  if (mode === 'plugin') {
+    return (await getConfig<IStringKeyMap>(`${id}`)) || {}
   } else {
     const configId = $route.params.configId
-    const curTypeConfigList = (await getConfig<IStringKeyMap[]>(`uploader.${props.id}.configList`)) || []
+    const curTypeConfigList = (await getConfig<IStringKeyMap[]>(`uploader.${id}.configList`)) || []
     return curTypeConfigList.find(i => i._id === configId) || {}
   }
 }
@@ -339,386 +339,4 @@ defineExpose({
 })
 </script>
 
-<style scoped>
-#config-form {
-  width: 100%;
-}
-
-.config-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-/* Form Groups */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-group.required .form-label::after {
-  content: ' *';
-  color: var(--color-error, #ef4444);
-}
-
-.form-label-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.form-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-primary);
-  line-height: 1.25;
-}
-
-.form-control {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-/* Tooltip Styles */
-.tooltip-wrapper {
-  position: relative;
-}
-
-.info-icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  padding: 2px;
-  color: var(--color-text-secondary);
-  transition: var(--transition-fast);
-  cursor: pointer;
-}
-
-.info-icon:hover {
-  color: var(--color-accent);
-  background: rgb(0 122 255 / 10%);
-}
-
-.tooltip-content {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 1000;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0.75rem;
-  min-width: 200px;
-  max-width: 300px;
-  font-size: 0.75rem;
-  color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
-  box-shadow: var(--shadow-lg);
-  line-height: 1.4;
-}
-
-/* Input Styles */
-.form-input {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0.75rem 1rem;
-  width: 100%;
-  font-size: 0.875rem;
-  font-family: inherit;
-  color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
-  transition: var(--transition-fast);
-}
-
-.form-input:focus {
-  border-color: var(--color-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px rgb(0 122 255 / 20%);
-}
-
-.form-input::placeholder {
-  color: var(--color-text-secondary);
-}
-
-.form-input.error {
-  border-color: var(--color-error, #ef4444);
-}
-
-.form-input.error:focus {
-  box-shadow: 0 0 0 2px rgb(239 68 68 / 20%);
-}
-
-/* Select Styles */
-.select-wrapper {
-  position: relative;
-}
-
-.form-select {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0.75rem 2.5rem 0.75rem 1rem;
-  width: 100%;
-  font-size: 0.875rem;
-  font-family: inherit;
-  color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
-  transition: var(--transition-fast);
-  appearance: none;
-  cursor: pointer;
-}
-
-.form-select:focus {
-  border-color: var(--color-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px rgb(0 122 255 / 20%);
-}
-
-.form-select.error {
-  border-color: var(--color-error, #ef4444);
-}
-
-.form-select.error:focus {
-  box-shadow: 0 0 0 2px rgb(239 68 68 / 20%);
-}
-
-.select-arrow {
-  position: absolute;
-  top: 50%;
-  right: 1rem;
-  color: var(--color-text-secondary);
-  transition: var(--transition-fast);
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
-.select-wrapper:hover .select-arrow,
-.form-select:focus + .select-arrow {
-  color: var(--color-accent);
-}
-
-/* Checkbox Group Styles */
-.checkbox-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-  font-size: 0.875rem;
-  color: var(--color-text-primary);
-  transition: var(--transition-fast);
-}
-
-.checkbox-label:hover {
-  color: var(--color-accent);
-}
-
-.checkbox-input {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.checkbox-custom {
-  position: relative;
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  width: 1.25rem;
-  height: 1.25rem;
-  background: var(--color-surface-elevated);
-  transition: var(--transition-fast);
-  flex-shrink: 0;
-}
-
-.checkbox-custom::after {
-  position: absolute;
-  top: 0;
-  left: 3px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  width: 6px;
-  height: 10px;
-  opacity: 0;
-  transition: var(--transition-fast);
-  content: '';
-  transform: rotate(45deg);
-}
-
-.checkbox-input:checked + .checkbox-custom {
-  border-color: var(--color-accent);
-  background: var(--color-accent);
-}
-
-.checkbox-input:checked + .checkbox-custom::after {
-  opacity: 1;
-}
-
-.checkbox-input:focus + .checkbox-custom {
-  box-shadow: 0 0 0 2px rgb(0 122 255 / 20%);
-}
-
-.checkbox-text {
-  flex: 1;
-}
-
-/* Switch Styles */
-.switch-label {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  cursor: pointer;
-  font-size: 0.875rem;
-  color: var(--color-text-primary);
-}
-
-.switch-input {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.switch-slider {
-  position: relative;
-  border-radius: 0.75rem;
-  width: 3rem;
-  height: 1.5rem;
-  background: var(--color-border);
-  transition: var(--transition-fast);
-  flex-shrink: 0;
-}
-
-.switch-button {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  border-radius: 50%;
-  width: 1.25rem;
-  height: 1.25rem;
-  background: white;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition-fast);
-}
-
-.switch-input:checked + .switch-slider {
-  background: var(--color-accent);
-}
-
-.switch-input:checked + .switch-slider .switch-button {
-  transform: translateX(1.5rem);
-}
-
-.switch-input:focus + .switch-slider {
-  box-shadow: 0 0 0 2px rgb(0 122 255 / 20%);
-}
-
-.switch-text {
-  font-weight: 500;
-  color: var(--color-text-secondary);
-}
-
-.switch-input:checked ~ .switch-text {
-  color: var(--color-accent);
-}
-
-/* Error Message */
-.error-message {
-  margin-top: 0.25rem;
-  font-size: 0.75rem;
-  color: var(--color-error, #ef4444);
-}
-
-/* White theme adjustments */
-.white .form-input,
-.white .form-select {
-  border-color: #dddddd;
-  background: white;
-}
-
-.white .form-input:focus,
-.white .form-select:focus {
-  border-color: var(--color-accent);
-}
-
-.white .checkbox-custom {
-  border-color: #dddddd;
-  background: white;
-}
-
-.white .switch-slider {
-  background: #dddddd;
-}
-
-.white .tooltip-content {
-  border-color: #dddddd;
-  background: white;
-}
-
-/* Responsive Design */
-@media (width <= 768px) {
-  .config-form {
-    gap: 1.25rem;
-  }
-
-  .form-input,
-  .form-select {
-    padding: 0.625rem 0.875rem;
-  }
-
-  .form-select {
-    padding-right: 2.25rem;
-  }
-
-  .tooltip-content {
-    min-width: 150px;
-    max-width: 250px;
-  }
-}
-
-/* Dark mode adjustments */
-:root.dark .form-input,
-:root.auto.dark .form-input,
-:root.dark .form-select,
-:root.auto.dark .form-select {
-  border-color: var(--color-border);
-  background: var(--color-surface-elevated);
-}
-
-:root.dark .checkbox-custom,
-:root.auto.dark .checkbox-custom {
-  border-color: var(--color-border);
-  background: var(--color-surface-elevated);
-}
-
-:root.dark .switch-slider,
-:root.auto.dark .switch-slider {
-  background: var(--color-border);
-}
-
-:root.dark .tooltip-content,
-:root.auto.dark .tooltip-content {
-  border-color: var(--color-border);
-  background: var(--color-surface-elevated);
-}
-
-/* Focus styles for accessibility */
-.form-input:focus-visible,
-.form-select:focus-visible,
-.checkbox-input:focus-visible + .checkbox-custom,
-.switch-input:focus-visible + .switch-slider,
-.info-icon:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-</style>
+<style scoped src="./css/UnifiedConfigForm.css"></style>

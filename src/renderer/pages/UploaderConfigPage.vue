@@ -20,11 +20,7 @@
           </div>
         </div>
         <div class="header-actions">
-          <button
-            class="btn btn-primary btn-glow"
-            :disabled="store?.state.defaultPicBed === type"
-            @click="setDefaultPicBed(type)"
-          >
+          <button class="btn btn-primary btn-glow" :disabled="defaultPicBedG === type" @click="setDefaultPicBed(type)">
             <Star :size="16" />
             <span>{{ t('pages.uploaderConfig.setAsDefault') }}</span>
           </button>
@@ -130,8 +126,8 @@ import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 
 import useConfirm from '@/hooks/useConfirm'
+import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
-import { useStore } from '@/hooks/useStore'
 import { PICBEDS_PAGE, UPLOADER_CONFIG_PAGE } from '@/router/config'
 import $bus from '@/utils/bus'
 import { configPaths } from '@/utils/configPaths'
@@ -144,15 +140,15 @@ const message = useMessage()
 const { confirm } = useConfirm()
 const router = useRouter()
 const route = useRoute()
+const { defaultPicBedG } = usePicBed()
 
 const type = ref('')
 const curConfigList = ref<IStringKeyMap[]>([])
 const defaultConfigId = ref('')
-const store = useStore()
 
 async function selectItem(id: string) {
   await window.electron.triggerRPC<void>(IRPCActionType.UPLOADER_SELECT, type.value, id)
-  if (store?.state.defaultPicBed === type.value) {
+  if (defaultPicBedG.value === type.value) {
     window.electron.sendRPC(
       IRPCActionType.TRAY_SET_TOOL_TIP,
       `${type.value} ${curConfigList.value.find(item => item._id === id)?._configName || ''}`,
@@ -276,7 +272,6 @@ function setDefaultPicBed(type: string) {
     [configPaths.picBed.uploader]: type,
   })
 
-  store?.setDefaultPicBed(type)
   const currentConfigName = curConfigList.value.find(item => item._id === defaultConfigId.value)?._configName
   window.electron.sendRPC(IRPCActionType.TRAY_SET_TOOL_TIP, `${type} ${currentConfigName || ''}`)
   message.success(t('pages.uploaderConfig.setSuccess'))

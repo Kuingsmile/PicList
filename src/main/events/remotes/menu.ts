@@ -136,7 +136,7 @@ const buildMainPageMenu = (win: BrowserWindow) => {
 }
 
 const buildSecondPicBedMenu = () => {
-  const picBeds = getPicBeds()
+  const picBeds = getPicBeds().picBeds
   const secondUploader = picgo.getConfig(configPaths.picBed.secondUploader)
   const defaultSecondUploaderId = picgo.getConfig(configPaths.picBed.secondUploaderId)
   const currentPicBedName = picBeds.find(item => item.type === secondUploader)?.name
@@ -189,7 +189,7 @@ const buildSecondPicBedMenu = () => {
 }
 
 const buildPicBedListMenu = () => {
-  const picBeds = getPicBeds()
+  const picBeds = getPicBeds().picBeds
   const currentPicBed = picgo.getConfig(configPaths.picBed.uploader)
   const currentPicBedName = picBeds.find(item => item.type === currentPicBed)?.name
   const picBedConfigList = picgo.getConfig<IUploaderConfig>('uploader')

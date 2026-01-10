@@ -4,6 +4,13 @@ import { configPaths } from '~/utils/configPaths'
 
 const getPicBeds = () => {
   const picBedTypes = picgo.helper.uploader.getIdList()
+  const defaultPicBed =
+    picgo.getConfig<string>(configPaths.picBed.uploader) ||
+    picgo.getConfig<string>(configPaths.picBed.current) ||
+    'smms'
+  const defaultConfig = picgo.getConfig<IStringKeyMap>(`picBed.${defaultPicBed}`) || {}
+  const defaultId = defaultConfig._id || ''
+  const defaultConfigName = defaultConfig._configName || ''
   const picBedFromDB = picgo.getConfig<IPicBedType[]>(configPaths.picBed.list) || []
   const picBeds = picBedTypes
     .map((item: string) => {
@@ -20,7 +27,7 @@ const getPicBeds = () => {
       }
       return 0
     }) as IPicBedType[]
-  return picBeds
+  return { picBeds, defaultPicBed, defaultId, defaultConfigName }
 }
 
 export default getPicBeds

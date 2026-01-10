@@ -7,11 +7,11 @@
           <button
             class="provider-button"
             :title="t('pages.upload.uploadViewHint')"
-            @click="handlePicBedNameClick(picBedName, picBedConfigName)"
+            @click="handlePicBedNameClick(picBedName)"
           >
             <div class="provider-info">
               <span class="provider-name">{{ picBedName }}</span>
-              <span class="provider-config">{{ picBedConfigName || 'Default' }}</span>
+              <span class="provider-config">{{ defaultConfigNameG || 'Default' }}</span>
             </div>
             <EditIcon :size="16" class="provider-arrow" />
           </button>
@@ -144,7 +144,7 @@
             </button>
           </div>
           <div class="modal-content">
-            <ImageProcessSetting v-model="imageProcessDialogVisible" />
+            <ImageProcessSetting :config-id="PicBedId" />
           </div>
         </div>
       </div>
@@ -162,11 +162,12 @@ import {
   UploadCloudIcon,
   XIcon,
 } from 'lucide-vue-next'
-import { onBeforeMount, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
+import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
 import { PICBEDS_PAGE } from '@/router/config'
 import $bus from '@/utils/bus'
@@ -176,12 +177,12 @@ import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { useDragEventListeners } from '@/utils/drag'
 import { IPasteStyle, IRPCActionType } from '@/utils/enum'
-import { picBedGlobal, updatePicBedGlobal } from '@/utils/global'
 
 useDragEventListeners()
 const $router = useRouter()
 const { t } = useI18n()
 const message = useMessage()
+const { picBedG, defaultPicBedG, defaultConfigNameG, defaultIdG, updatePicBeds } = usePicBed()
 
 const imageProcessDialogVisible = ref(false)
 const useShortUrl = ref(false)
@@ -189,10 +190,17 @@ const dragover = ref(false)
 const progress = ref(0)
 const showProgress = ref(false)
 const showError = ref(false)
-const pasteStyle = ref('')
-const picBedName = ref('')
-const picBedConfigName = ref('')
+const pasteStyle = ref(IPasteStyle.MARKDOWN)
+const PicBedId = ref('')
 const fileInput = useTemplateRef('fileInput')
+
+const picBedName = computed(() => {
+  if (!picBedG.value || picBedG.value.length === 0) {
+    return ''
+  }
+  const target = picBedG.value.find(item => item.type === defaultPicBedG.value)
+  return target ? target.name : defaultPicBedG.value
+})
 
 const pasteFormatList = ref<Record<string, string>>({
   [IPasteStyle.MARKDOWN]: '![alt](url)',
@@ -202,9 +210,9 @@ const pasteFormatList = ref<Record<string, string>>({
   [IPasteStyle.CUSTOM]: '',
 })
 
-watch(picBedGlobal, () => {
-  getDefaultPicBed()
-})
+function syncPicBedHandler(): void {
+  updatePicBeds()
+}
 
 let removeUploadProgressListenerCallback: () => void = () => {}
 let removeSyncPicBedListenerCallback: () => void = () => {}
@@ -217,10 +225,6 @@ function uploadProgressHandler(p: number): void {
     progress.value = 100
     showError.value = true
   }
-}
-
-function syncPicBedHandler(): void {
-  getDefaultPicBed()
 }
 
 const handleImageProcess = () => {
@@ -241,21 +245,13 @@ function onProgressChange(val: number) {
   }
 }
 
-async function handlePicBedNameClick(_picBedName: string, picBedConfigName: string | undefined) {
-  const formatedpicBedConfigName = picBedConfigName || 'Default'
-  const currentPicBed = await getConfig<string>(configPaths.picBed.current)
-  const currentPicBedConfig = ((await getConfig<any[]>(`uploader.${currentPicBed}`)) as any) || {}
-  const configList = await window.electron.triggerRPC<IUploaderConfigItem>(
-    IRPCActionType.PICBED_GET_CONFIG_LIST,
-    currentPicBed,
-  )
-  const currentConfigList = configList?.configList ?? []
-  const config = currentConfigList.find((item: any) => item._configName === formatedpicBedConfigName)
+async function handlePicBedNameClick(_picBedName: string) {
+  const currentPicBedConfig = ((await getConfig<any[]>(`uploader.${defaultPicBedG.value}`)) as any) || {}
   $router.push({
     name: PICBEDS_PAGE,
     params: {
-      type: currentPicBed,
-      configId: config?._id || '',
+      type: defaultPicBedG.value,
+      configId: defaultIdG.value,
     },
     query: {
       defaultConfigId: currentPicBedConfig.defaultId || '',
@@ -400,16 +396,6 @@ function handleInputBoxValue(val: string) {
   }
 }
 
-async function getDefaultPicBed() {
-  const currentPicBed = await getConfig<string>(configPaths.picBed.current)
-  picBedGlobal.value.forEach(item => {
-    if (item.type === currentPicBed) {
-      picBedName.value = item.name
-    }
-  })
-  picBedConfigName.value = (await getConfig<string>(`picBed.${currentPicBed}._configName`)) || ''
-}
-
 async function handleChangePicBed() {
   window.electron.sendRPC(IRPCActionType.SHOW_UPLOAD_PAGE_MENU)
 }
@@ -421,13 +407,11 @@ onBeforeUnmount(() => {
 })
 
 onBeforeMount(() => {
-  updatePicBedGlobal()
-  getUseShortUrl()
-  getPasteStyle()
-  getDefaultPicBed()
   removeUploadProgressListenerCallback = window.electron.ipcRendererOn('uploadProgress', uploadProgressHandler)
   removeSyncPicBedListenerCallback = window.electron.ipcRendererOn('syncPicBed', syncPicBedHandler)
   $bus.on(SHOW_INPUT_BOX_RESPONSE, handleInputBoxValue)
+  getUseShortUrl()
+  getPasteStyle()
 })
 </script>
 
