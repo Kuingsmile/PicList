@@ -69,3 +69,5 @@ TIPS_UPDATE_DOWNLOADED: The update has been downloaded and will be installed on 
 QUIT: Quit
 OPERATION_SUCCEED: "Operation Succeed"
 OPERATION_FAILED: "Operation Failed"
+UPLOAD_TASK_COMPLETED: "Upload Task Completed"
+UPLOAD_TASK_COMPLETED_BODY: "${completed} succeeded, ${failed} failed"

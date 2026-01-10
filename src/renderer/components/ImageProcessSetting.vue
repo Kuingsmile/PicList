@@ -1185,11 +1185,11 @@ const waterMarkPositionMap = new Map([
 
 const imageExtList = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'tif', 'svg', 'ico', 'avif', 'heif', 'heic']
 const availableFormat = [
-  'webp',
+  'dz',
   'png',
   'avif',
   'jpg',
-  'dz',
+  'webp',
   'fits',
   'gif',
   'heif',

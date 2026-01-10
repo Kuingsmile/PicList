@@ -69,5 +69,7 @@ interface ILocales {
   QUIT: string
   OPERATION_SUCCEED: string
   OPERATION_FAILED: string
+  UPLOAD_TASK_COMPLETED: string
+  UPLOAD_TASK_COMPLETED_BODY: string
 }
 type ILocalesKey = keyof ILocales

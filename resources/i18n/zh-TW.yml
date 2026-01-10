@@ -69,3 +69,5 @@ UPDATE: 更新
 QUIT: 退出
 OPERATION_SUCCEED: "操作成功"
 OPERATION_FAILED: "操作失敗"
+UPLOAD_TASK_COMPLETED: "上傳任務完成"
+UPLOAD_TASK_COMPLETED_BODY: "${completed} 成功, ${failed} 失敗"
