@@ -1,19 +1,17 @@
-## 🎉 [v3.1.1] Release Notes
+## 🎉 [v3.2.0] Release note
 
-### ✨ New Features
+### ✨ Features
 
-- Added strict mode to plugin search (package name must contain the search term)
-- Elements in the album now show a blue border when selected
-- Optimized scrolling performance on the album page
-- Adjusted the layout of the management - browse files page, no longer showing extra scroll bars
-- Optimized the display layout of the file list on the management - upload and download pages to avoid overlap
-- Optimized the display of the path bar on the management page
+- Add Upload Task System, now you can add files to the task, upload them at intervals, and adjust the priority at any time to avoid platform API rate limits.
+![task](./imgs/task.png)
+- Now supports setting image preprocessing/renaming options for each individual image bed, the effective order is `Image Bed Settings > Platform Settings > Global Settings`
+- Optimized the display logic of the image preprocessing options for the image bed platform settings and individual image bed settings, now more clearly displaying the currently effective configuration
+- Now automatically saves the current UI selection status of multiple pages
+- Added Linux Arm64 platform support and added deb installation package
+- Optimized update page display, now automatically renders md format update instructions
 
 ### 🐛 Bug Fixes
 
-- Fixed the issue where the page would crash when setting the copy format on the management page
-- Fixed the issue where the download progress bar did not display correctly
-- Fixed the issue where images from local image hosting could not display preview images in the management interface
-- Fixed the issue where the file list layout in the management interface was abnormal and there were blank areas when scrolling
-- Fixed the issue where copying numbers failed on the management - file information page
-- Addressed the issue where copying links in the album failed in some cases
+- Fixed an issue where the version number displayed extra characters on the update check page
+- Fixed an issue where fine format conversion could not be set on the image processing page
+- Fixed a performance issue caused by repeated execution of save functions on some pages
