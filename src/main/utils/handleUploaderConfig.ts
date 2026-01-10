@@ -17,11 +17,11 @@ export const handleConfigWithFunction = (config: IPicGoPluginOriginConfig[]): IP
   return config as IPicGoPluginConfig[]
 }
 
-export const completeUploaderMetaConfig = (originData: IStringKeyMap): IUploaderConfigListItem => {
+export const completeUploaderMetaConfig = (originData: IStringKeyMap, id?: string): IUploaderConfigListItem => {
   return {
     _configName: 'Default',
     ...trimValues(originData),
-    _id: uuid(),
+    _id: id || uuid(),
     _createdAt: Date.now(),
     _updatedAt: Date.now(),
   }
@@ -185,7 +185,7 @@ export const updateUploaderConfig = (type: string, id: string, config: IStringKe
       _updatedAt: Date.now(),
     })
   } else {
-    updatedConfig = completeUploaderMetaConfig(config)
+    updatedConfig = completeUploaderMetaConfig(config, id)
     updatedDefaultId = updatedConfig._id
     configList.push(updatedConfig)
   }

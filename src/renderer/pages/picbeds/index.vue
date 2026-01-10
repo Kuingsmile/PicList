@@ -22,6 +22,10 @@
           </div>
         </div>
         <div class="header-actions">
+          <button class="btn btn-secondary btn-glow" @click="imageProcessDialogVisible = true">
+            <Settings :size="16" />
+            <span>{{ t('pages.upload.imageProcessNameSingle') }}</span>
+          </button>
           <button class="btn btn-secondary btn-glow" @click="handleCopyApi">
             <Copy :size="16" />
             <span>{{ t('pages.picBedConfigs.copyAPI') }}</span>
@@ -116,6 +120,27 @@
         </div>
       </div>
     </Transition>
+
+    <transition name="modal">
+      <div v-if="imageProcessDialogVisible" class="modal-overlay" @click.stop>
+        <div class="modal-container" @click.stop>
+          <div class="modal-header">
+            <h3 class="modal-title">
+              {{ t('pages.imageProcess.title') }}
+            </h3>
+            <span class="modal-subtitle">
+              {{ t('pages.imageProcess.subtitle-PerPicbed') }}
+            </span>
+            <button class="modal-close" @click="imageProcessDialogVisible = false">
+              <XIcon :size="20" />
+            </button>
+          </div>
+          <div class="modal-content">
+            <ImageProcessSetting :config-id="uuidValue" :current-picbed-name="currentPicbedType" />
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -132,11 +157,14 @@ import {
   Import,
   RotateCcw,
   Settings,
+  XIcon,
 } from 'lucide-vue-next'
+import { v4 as uuid } from 'uuid'
 import { onBeforeMount, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
+import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
 import ConfigForm from '@/components/UnifiedConfigForm.vue'
 import useMessage from '@/hooks/useMessage'
 import { getRawData } from '@/utils/common'
@@ -154,9 +182,13 @@ const picBedConfigList = ref<IUploaderConfigListItem[]>([])
 const picBedName = ref('')
 const loading = ref(false)
 const dropdownVisible = ref(false)
+const imageProcessDialogVisible = ref(false)
 const $route = useRoute()
 const $router = useRouter()
 const $configForm = useTemplateRef('$configForm')
+const uuidValue = ($route.params.configId as string) || uuid()
+const currentPicbedType = $route.params.type as string
+console.log('PicbedsPage UUID:', uuidValue)
 
 type.value = $route.params.type as string
 
@@ -188,7 +220,7 @@ const handleConfirm = async () => {
       await window.electron.triggerRPC<void>(
         IRPCActionType.UPLOADER_UPDATE_CONFIG,
         type.value,
-        rawResult?._id,
+        rawResult?._id || uuidValue,
         rawResult,
       )
       message.success(t('pages.picBedConfigs.setSuccess'))
