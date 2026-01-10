@@ -1,3 +1,30 @@
+##  (2026-01-10)
+
+* :arrow_up: Upgrade(custom): upgrade core 357b8cc
+* :arrow_up: Upgrade(custom): upgrade s3 package 4d074e8
+* :bug: Fix(custom): fix an issue settings will be saved multi times in process setting page acbe646
+* :bug: Fix(custom): fix formatobjmap save issue and optimize ux 8f7da6e
+* :bug: Fix(custom): fix the double v in version page 5460bd7
+* :bug: Fix(custom): remove console.log 3f1e623
+* :construction: WIP(custom): support picbed specific image preprocess and rename config a45fd38
+* :package: Chore(custom): optimize file upload workflow e744b08
+* :package: Chore(custom): update build action for linux arm64 0c44175
+* :package: Chore(custom): update winget file 00a6346
+* :pencil: Docs(custom): change filename of readme f506daa
+* :pencil: Docs(custom): update docs f4ea567
+* :pencil: Docs(custom): update docs 675180a
+* :sparkles: Feature(custom): add custom update page a29c1fa
+* :sparkles: Feature(custom): add per picbed rename setting b148eee
+* :sparkles: Feature(custom): add per picbed setting button in edit page 3865401
+* :sparkles: Feature(custom): add upload task system 1398621
+* :sparkles: Feature(custom): imporve page loading performance and remove duplicated init call a569068
+* :sparkles: Feature(custom): optimize per picbed setting logic when the value is same to default 68845d5
+* :sparkles: Feature(custom): per picbed setting now show the same value with gloabl set to avoid misl a12ff2a
+* :sparkles: Feature(custom): support picbed specific compress/watermark/skip settings, change webp to ef7b338
+* :sparkles: Feature(custom): tab state of pre-process page is persistent c7509a7
+
+
+
 ##  (2026-01-03)
 
 * :bug: Fix(custom): fix a bug that the update progress bar not show 760ab51
