@@ -1053,6 +1053,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useStorage } from '@vueuse/core'
 import {
   Droplets,
   Edit,
@@ -1084,7 +1085,7 @@ import { getConfig, saveConfig } from '@/utils/dataSender'
 
 const { t } = useI18n()
 const message = useMessage()
-const activeTab = ref('general')
+const activeTab = useStorage<string>('image-process-setting-active-tab', 'general')
 
 // Tab indicator animation
 const tabRefs = useTemplateRef('tabRefs')
