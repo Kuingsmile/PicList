@@ -104,7 +104,7 @@
       },
       "generalSettings": "General",
       "perPicBed": {
-        "defaultValue": "Default Value: {value}",
+        "defaultValue": "Global Value: {value}",
         "description": "Configure settings for each PicBed individually",
         "title": "Per-PicBed Settings"
       },

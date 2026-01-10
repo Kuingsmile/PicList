@@ -1111,40 +1111,38 @@ const compressForm = ref<IBuildInCompressOptions>({
 /* Only used if configId is not provided */
 const formatConvertObjStr = ref('{}')
 
+const defaultSkipProcessSetting = {
+  skipProcessExtList: 'zip,rar,7z,tar,gz,tar.gz,tar.bz2,tar.xz',
+}
 /* Only used if configId is not provided */
 const skipProcessForm = ref<IBuildInSkipProcessOptions>({
-  skipProcessExtList: 'zip,rar,7z,tar,gz,tar.gz,tar.bz2,tar.xz',
+  ...defaultSkipProcessSetting,
 })
 
 const isInitialized = ref(false)
-
-function saveSkipProcessConfig() {
-  saveConfig(configPaths.buildIn.skipProcess, toRaw(skipProcessForm.value))
-}
-
-function saveCompressConfig() {
-  const cleanFullMap: Record<string, any> = {}
-  Object.entries(compressForm.value.formatConvertObjMap || {}).forEach(([picbedType, value]) => {
-    try {
-      const cleanedObj = cleanFormatConvertObj(value)
-
-      if (Object.keys(cleanedObj).length > 0) {
-        cleanFullMap[picbedType] = cleanedObj
-      }
-    } catch (_error) {}
-  })
-  if (JSON.stringify(cleanFullMap) !== JSON.stringify(compressForm.value.formatConvertObjMap)) {
-    compressForm.value.formatConvertObjMap = cleanFullMap
-  }
-
-  saveConfig(configPaths.buildIn.compress, toRaw(compressForm.value))
-}
 
 function saveWaterMarkConfig() {
   saveConfig(configPaths.buildIn.watermark, toRaw(waterMarkForm.value))
 }
 
-const singleConfigSettings = ref<IBuildInListItem>({} as IBuildInListItem)
+const singleConfigSettings = ref<IBuildInListItem>({
+  id: '',
+  compress: {
+    ...defaultCompressSetting,
+  },
+  watermark: {
+    ...defaultWaterMarkSetting,
+  },
+  skipProcess: {
+    ...defaultSkipProcessSetting,
+  },
+  rename: {
+    enable: false,
+    format: '{filename}',
+  },
+  autoRename: false,
+  manualRename: false,
+} as IBuildInListItem)
 
 function cleanFormatConvertObj(obj: any) {
   const cleanedObj: Record<string, any> = {}
@@ -1157,18 +1155,6 @@ function cleanFormatConvertObj(obj: any) {
 }
 
 async function initData() {
-  //single config settings
-  if (configId) {
-    const buildInList = await getConfig<Undefinable<IBuildInListItem[]>>(configPaths.buildIn.list)
-    if (!buildInList) {
-      console.error('Failed to load built-in config list.')
-    }
-    const targetConfig = buildInList?.find(item => item.id === configId)
-    if (targetConfig) {
-      singleConfigSettings.value = targetConfig
-    }
-  }
-
   // global settings
   const compress = (await getConfig<IBuildInCompressOptions>(configPaths.buildIn.compress)) || {}
   const watermark = (await getConfig<IBuildInWaterMarkOptions>(configPaths.buildIn.watermark)) || {}
@@ -1230,6 +1216,17 @@ async function initData() {
       ...skipProcess,
     }
   }
+  if (configId) {
+    let buildInList = await getConfig<Undefinable<IBuildInListItem[]>>(configPaths.buildIn.list)
+    if (!buildInList) {
+      saveConfig(configPaths.buildIn.list, [])
+      buildInList = []
+    }
+    const targetConfig = buildInList?.find(item => item.id === configId)
+    if (!targetConfig) {
+      return
+    }
+  }
 }
 
 function safeSetMapValue(form: any, fieldName: string, picbedType: string, value: any, defaultValue: any) {
@@ -1250,7 +1247,7 @@ function safeSetMapValue(form: any, fieldName: string, picbedType: string, value
   if (!form[mapFieldName]) {
     form[mapFieldName] = {}
   }
-  if (value === defaultValue) {
+  if (value === defaultValue && form[fieldName] === defaultValue) {
     delete form[mapFieldName][picbedType]
   } else {
     if (fieldName === 'formatConvertObj') {
@@ -1259,6 +1256,28 @@ function safeSetMapValue(form: any, fieldName: string, picbedType: string, value
     }
     form[mapFieldName][picbedType] = value
   }
+}
+
+function saveSkipProcessConfig() {
+  saveConfig(configPaths.buildIn.skipProcess, toRaw(skipProcessForm.value))
+}
+
+function saveCompressConfig() {
+  const cleanFullMap: Record<string, any> = {}
+  Object.entries(compressForm.value.formatConvertObjMap || {}).forEach(([picbedType, value]) => {
+    try {
+      const cleanedObj = cleanFormatConvertObj(value)
+
+      if (Object.keys(cleanedObj).length > 0) {
+        cleanFullMap[picbedType] = cleanedObj
+      }
+    } catch (_error) {}
+  })
+  if (JSON.stringify(cleanFullMap) !== JSON.stringify(compressForm.value.formatConvertObjMap)) {
+    compressForm.value.formatConvertObjMap = cleanFullMap
+  }
+
+  saveConfig(configPaths.buildIn.compress, toRaw(compressForm.value))
 }
 
 watch(activeTab, () => {
