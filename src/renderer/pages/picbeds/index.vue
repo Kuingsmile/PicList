@@ -188,7 +188,6 @@ const $router = useRouter()
 const $configForm = useTemplateRef('$configForm')
 const uuidValue = ($route.params.configId as string) || uuid()
 const currentPicbedType = $route.params.type as string
-console.log('PicbedsPage UUID:', uuidValue)
 
 type.value = $route.params.type as string
 

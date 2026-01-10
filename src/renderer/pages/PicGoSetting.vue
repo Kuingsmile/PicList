@@ -1744,6 +1744,9 @@
           <h3 class="dialog-title">
             {{ t('pages.imageProcess.title') }}
           </h3>
+          <span class="dialog-title">
+            {{ t('pages.imageProcess.subtitle-Global') }}
+          </span>
           <button class="dialog-close" @click="imageProcessDialogVisible = false">X</button>
         </div>
         <div class="dialog-content">
