@@ -159,7 +159,7 @@
             </button>
           </div>
           <div class="modal-content">
-            <ImageProcessSetting :config-id="PicBedId" />
+            <ImageProcessSetting :config-id="PicBedId" :current-picbed-name="defaultPicBedG" />
           </div>
         </div>
       </div>

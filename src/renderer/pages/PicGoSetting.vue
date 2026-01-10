@@ -1747,7 +1747,7 @@
           <button class="dialog-close" @click="imageProcessDialogVisible = false">X</button>
         </div>
         <div class="dialog-content">
-          <ImageProcessSetting :config-id="''" />
+          <ImageProcessSetting :config-id="''" :current-picbed-name="''" />
         </div>
       </div>
     </div>

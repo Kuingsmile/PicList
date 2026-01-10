@@ -34,7 +34,7 @@
             <div class="form-grid">
               <div class="form-group">
                 <label class="switch-label">
-                  <input v-model="compressForm.isRemoveExif" type="checkbox" class="switch-input" />
+                  <input v-model="activeForm.compress.isRemoveExif" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
                     <span class="switch-title">{{ $t('pages.imageProcess.general.isRemoveExif') }}</span>
@@ -63,8 +63,8 @@
 
               <div class="form-group">
                 <label>{{ $t('pages.imageProcess.general.quality') }}</label>
-                <input v-model.number="compressForm.quality" type="range" min="1" max="100" class="form-range" />
-                <div class="range-value">{{ compressForm.quality }}%</div>
+                <input v-model.number="activeForm.compress.quality" type="range" min="1" max="100" class="form-range" />
+                <div class="range-value">{{ activeForm.compress.quality }}%</div>
 
                 <PerPicbedSetting
                   v-if="!configId"
@@ -98,7 +98,7 @@
 
             <div class="form-group">
               <label class="switch-label">
-                <input v-model="compressForm.isConvert" type="checkbox" class="switch-input" />
+                <input v-model="activeForm.compress.isConvert" type="checkbox" class="switch-input" />
                 <span class="switch-slider" />
                 <div class="switch-content">
                   <span class="switch-title">{{ $t('pages.imageProcess.general.isConvert') }}</span>
@@ -119,10 +119,10 @@
               />
             </div>
 
-            <div v-if="compressForm.isConvert" class="form-grid">
+            <div v-if="activeForm.compress.isConvert" class="form-grid">
               <div class="form-group">
                 <label>{{ $t('pages.imageProcess.general.destinationFormat') }}</label>
-                <select v-model="compressForm.convertFormat" class="form-input">
+                <select v-model="activeForm.compress.convertFormat" class="form-input">
                   <option v-for="format in availableFormat" :key="format" :value="format">
                     {{ format.toUpperCase() }}
                   </option>
@@ -152,7 +152,7 @@
               <div class="form-group">
                 <label>{{ $t('pages.imageProcess.general.specificFormatConversion') }}</label>
                 <textarea
-                  v-model="formatConvertObjStr"
+                  v-model="convertStr"
                   class="form-textarea"
                   rows="3"
                   placeholder='{"jpg": "png", "png": "jpg"}'
@@ -163,6 +163,7 @@
                   :map-field="compressForm.formatConvertObjMap"
                   :default-value="'{}'"
                   field-name="formatConvertObj"
+                  :global-value="formatConvertObjStr"
                   input-type="text"
                   text-placeholder="{}"
                   @map-change="
@@ -196,7 +197,7 @@
 
             <div class="form-group">
               <label class="switch-label">
-                <input v-model="waterMarkForm.isAddWatermark" type="checkbox" class="switch-input" />
+                <input v-model="activeForm.watermark.isAddWatermark" type="checkbox" class="switch-input" />
                 <span class="switch-slider" />
                 <div class="switch-content">
                   <span class="switch-title">{{ $t('pages.imageProcess.watermark.isAdd') }}</span>
@@ -223,17 +224,22 @@
               />
             </div>
 
-            <div v-if="waterMarkForm.isAddWatermark" class="watermark-settings">
+            <div v-if="activeForm.watermark.isAddWatermark" class="watermark-settings">
               <div class="form-group">
                 <label>{{ $t('pages.imageProcess.watermark.type') }}</label>
                 <div class="radio-group">
                   <label class="radio-option">
-                    <input v-model="waterMarkForm.watermarkType" type="radio" value="text" class="radio-input" />
+                    <input v-model="activeForm.watermark.watermarkType" type="radio" value="text" class="radio-input" />
                     <span class="radio-indicator" />
                     <span class="radio-label">{{ $t('pages.imageProcess.watermark.text') }}</span>
                   </label>
                   <label class="radio-option">
-                    <input v-model="waterMarkForm.watermarkType" type="radio" value="image" class="radio-input" />
+                    <input
+                      v-model="activeForm.watermark.watermarkType"
+                      type="radio"
+                      value="image"
+                      class="radio-input"
+                    />
                     <span class="radio-indicator" />
                     <span class="radio-label">{{ $t('pages.imageProcess.watermark.image') }}</span>
                   </label>
@@ -266,7 +272,7 @@
               <div class="form-grid">
                 <div class="form-group">
                   <label class="switch-label">
-                    <input v-model="waterMarkForm.isFullScreenWatermark" type="checkbox" class="switch-input" />
+                    <input v-model="activeForm.watermark.isFullScreenWatermark" type="checkbox" class="switch-input" />
                     <span class="switch-slider" />
                     <div class="switch-content">
                       <span class="switch-title">{{ $t('pages.imageProcess.watermark.isFullScreen') }}</span>
@@ -296,13 +302,13 @@
                 <div class="form-group">
                   <label>{{ $t('pages.imageProcess.watermark.degree') }}</label>
                   <input
-                    v-model.number="waterMarkForm.watermarkDegree"
+                    v-model.number="activeForm.watermark.watermarkDegree"
                     type="range"
                     min="-360"
                     max="360"
                     class="form-range"
                   />
-                  <div class="range-value">{{ waterMarkForm.watermarkDegree }}°</div>
+                  <div class="range-value">{{ activeForm.watermark.watermarkDegree }}°</div>
 
                   <PerPicbedSetting
                     v-if="!configId"
@@ -331,14 +337,16 @@
                 <div class="form-group">
                   <label>{{ $t('pages.imageProcess.watermark.scaleRatio') }}</label>
                   <input
-                    v-model.number="waterMarkForm.watermarkScaleRatio"
+                    v-model.number="activeForm.watermark.watermarkScaleRatio"
                     type="range"
                     min="0"
                     max="1"
                     step="0.01"
                     class="form-range"
                   />
-                  <div class="range-value">{{ Math.round((waterMarkForm.watermarkScaleRatio || 0) * 100) }}%</div>
+                  <div class="range-value">
+                    {{ Math.round((activeForm.watermark.watermarkScaleRatio || 0) * 100) }}%
+                  </div>
 
                   <PerPicbedSetting
                     v-if="!configId"
@@ -365,11 +373,11 @@
                 </div>
               </div>
 
-              <div v-if="waterMarkForm.watermarkType === 'text'" class="form-grid">
+              <div v-if="activeForm.watermark.watermarkType === 'text'" class="form-grid">
                 <div class="form-group">
                   <label>{{ $t('pages.imageProcess.watermark.inputText') }}</label>
                   <input
-                    v-model="waterMarkForm.watermarkText"
+                    v-model="activeForm.watermark.watermarkText"
                     type="text"
                     class="form-input"
                     :placeholder="$t('pages.imageProcess.watermark.inputTextPlaceholder')"
@@ -400,7 +408,7 @@
                 <div class="form-group">
                   <label>{{ $t('pages.imageProcess.watermark.textFontPath') }}</label>
                   <input
-                    v-model="waterMarkForm.watermarkFontPath"
+                    v-model="activeForm.watermark.watermarkFontPath"
                     type="text"
                     class="form-input"
                     :placeholder="$t('pages.imageProcess.watermark.textFontPathPlaceholder')"
@@ -430,9 +438,9 @@
                 <div class="form-group">
                   <label>{{ $t('pages.imageProcess.watermark.color') }}</label>
                   <div class="color-input-group">
-                    <input v-model="waterMarkForm.watermarkColor" type="color" class="form-color" />
+                    <input v-model="activeForm.watermark.watermarkColor" type="color" class="form-color" />
                     <input
-                      v-model="waterMarkForm.watermarkColor"
+                      v-model="activeForm.watermark.watermarkColor"
                       type="text"
                       class="form-input"
                       placeholder="#CCCCCC73"
@@ -461,10 +469,10 @@
               </div>
 
               <!-- Image Watermark Settings -->
-              <div v-if="waterMarkForm.watermarkType === 'image'" class="form-group">
+              <div v-if="activeForm.watermark.watermarkType === 'image'" class="form-group">
                 <label>{{ $t('pages.imageProcess.watermark.imagePath') }}</label>
                 <input
-                  v-model="waterMarkForm.watermarkImagePath"
+                  v-model="activeForm.watermark.watermarkImagePath"
                   type="text"
                   class="form-input"
                   :placeholder="$t('pages.imageProcess.watermark.imagePathPlaceholder')"
@@ -491,10 +499,10 @@
                 />
               </div>
 
-              <div v-if="waterMarkForm.watermarkType === 'image'" class="form-group">
+              <div v-if="activeForm.watermark.watermarkType === 'image'" class="form-group">
                 <label>{{ $t('pages.imageProcess.watermark.imageOpacity') }}</label>
                 <input
-                  v-model.number="waterMarkForm.watermarkImageOpacity"
+                  v-model.number="activeForm.watermark.watermarkImageOpacity"
                   type="range"
                   min="0"
                   max="255"
@@ -502,7 +510,7 @@
                   class="form-range"
                 />
                 <div class="range-value">
-                  {{ waterMarkForm.watermarkImageOpacity || 0 }}
+                  {{ activeForm.watermark.watermarkImageOpacity || 0 }}
                 </div>
 
                 <PerPicbedSetting
@@ -536,8 +544,8 @@
                     :key="key"
                     type="button"
                     class="position-button"
-                    :class="{ active: waterMarkForm.watermarkPosition === key }"
-                    @click="waterMarkForm.watermarkPosition = key as any"
+                    :class="{ active: activeForm.watermark.watermarkPosition === key }"
+                    @click="activeForm.watermark.watermarkPosition = key as any"
                   >
                     {{ label }}
                   </button>
@@ -588,7 +596,7 @@
             <div class="form-grid">
               <div class="form-group">
                 <label class="switch-label">
-                  <input v-model="compressForm.isFlip" type="checkbox" class="switch-input" />
+                  <input v-model="activeForm.compress.isFlip" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
                     <span class="switch-title">{{ $t('pages.imageProcess.transform.isFlip') }}</span>
@@ -611,7 +619,7 @@
 
               <div class="form-group">
                 <label class="switch-label">
-                  <input v-model="compressForm.isFlop" type="checkbox" class="switch-input" />
+                  <input v-model="activeForm.compress.isFlop" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
                     <span class="switch-title">{{ $t('pages.imageProcess.transform.isFlop') }}</span>
@@ -647,7 +655,7 @@
 
             <div class="form-group">
               <label class="switch-label">
-                <input v-model="compressForm.isRotate" type="checkbox" class="switch-input" />
+                <input v-model="activeForm.compress.isRotate" type="checkbox" class="switch-input" />
                 <span class="switch-slider" />
                 <div class="switch-content">
                   <span class="switch-title">{{ $t('pages.imageProcess.transform.isRotate') }}</span>
@@ -668,10 +676,16 @@
               />
             </div>
 
-            <div v-if="compressForm.isRotate" class="form-group">
+            <div v-if="activeForm.compress.isRotate" class="form-group">
               <label>{{ $t('pages.imageProcess.transform.rotationDegree') }}</label>
-              <input v-model.number="compressForm.rotateDegree" type="range" min="-360" max="360" class="form-range" />
-              <div class="range-value">{{ compressForm.rotateDegree }}°</div>
+              <input
+                v-model.number="activeForm.compress.rotateDegree"
+                type="range"
+                min="-360"
+                max="360"
+                class="form-range"
+              />
+              <div class="range-value">{{ activeForm.compress.rotateDegree }}°</div>
 
               <PerPicbedSetting
                 v-if="!configId"
@@ -711,7 +725,7 @@
 
             <div class="form-group">
               <label class="switch-label">
-                <input v-model="compressForm.isReSize" type="checkbox" class="switch-input" />
+                <input v-model="activeForm.compress.isReSize" type="checkbox" class="switch-input" />
                 <span class="switch-slider" />
                 <div class="switch-content">
                   <span class="switch-title">{{ $t('pages.imageProcess.transform.isResize') }}</span>
@@ -732,11 +746,11 @@
               />
             </div>
 
-            <div v-if="compressForm.isReSize" class="resize-settings">
+            <div v-if="activeForm.compress.isReSize" class="resize-settings">
               <div class="form-grid">
                 <div class="form-group">
                   <label>{{ $t('pages.imageProcess.transform.resizeWidth') }}</label>
-                  <input v-model.number="compressForm.reSizeWidth" type="number" min="0" class="form-input" />
+                  <input v-model.number="activeForm.compress.reSizeWidth" type="number" min="0" class="form-input" />
 
                   <PerPicbedSetting
                     v-if="!configId"
@@ -762,7 +776,7 @@
 
                 <div class="form-group">
                   <label>{{ $t('pages.imageProcess.transform.resizeHeight') }}</label>
-                  <input v-model.number="compressForm.reSizeHeight" type="number" min="0" class="form-input" />
+                  <input v-model.number="activeForm.compress.reSizeHeight" type="number" min="0" class="form-input" />
 
                   <PerPicbedSetting
                     v-if="!configId"
@@ -789,13 +803,13 @@
 
               <div
                 v-if="
-                  ((compressForm.reSizeHeight || 0) > 0 && (compressForm.reSizeWidth || 0) === 0) ||
-                  ((compressForm.reSizeWidth || 0) > 0 && (compressForm.reSizeHeight || 0) === 0)
+                  ((activeForm.compress.reSizeHeight || 0) > 0 && (activeForm.compress.reSizeWidth || 0) === 0) ||
+                  ((activeForm.compress.reSizeWidth || 0) > 0 && (activeForm.compress.reSizeHeight || 0) === 0)
                 "
                 class="form-group"
               >
                 <label class="switch-label">
-                  <input v-model="compressForm.skipReSizeOfSmallImg" type="checkbox" class="switch-input" />
+                  <input v-model="activeForm.compress.skipReSizeOfSmallImg" type="checkbox" class="switch-input" />
                   <span class="switch-slider" />
                   <div class="switch-content">
                     <span class="switch-title">{{
@@ -838,7 +852,7 @@
 
             <div class="form-group">
               <label class="switch-label">
-                <input v-model="compressForm.isReSizeByPercent" type="checkbox" class="switch-input" />
+                <input v-model="activeForm.compress.isReSizeByPercent" type="checkbox" class="switch-input" />
                 <span class="switch-slider" />
                 <div class="switch-content">
                   <span class="switch-title">{{ $t('pages.imageProcess.transform.isResizeByPercent') }}</span>
@@ -866,10 +880,16 @@
               />
             </div>
 
-            <div v-if="compressForm.isReSizeByPercent" class="form-group">
+            <div v-if="activeForm.compress.isReSizeByPercent" class="form-group">
               <label>{{ $t('pages.imageProcess.transform.resizePercent') }}</label>
-              <input v-model.number="compressForm.reSizePercent" type="range" min="1" max="500" class="form-range" />
-              <div class="range-value">{{ compressForm.reSizePercent }}%</div>
+              <input
+                v-model.number="activeForm.compress.reSizePercent"
+                type="range"
+                min="1"
+                max="500"
+                class="form-range"
+              />
+              <div class="range-value">{{ activeForm.compress.reSizePercent }}%</div>
 
               <PerPicbedSetting
                 v-if="!configId"
@@ -910,7 +930,7 @@
             </div>
             <div class="form-group">
               <textarea
-                v-model="skipProcessForm.skipProcessExtList"
+                v-model="activeForm.skipProcess.skipProcessExtList"
                 class="form-textarea"
                 rows="3"
                 :placeholder="'zip,rar,7z,tar,gz'"
@@ -948,6 +968,7 @@ import { computed, nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, toR
 import { useI18n } from 'vue-i18n'
 
 import PerPicbedSetting from '@/components/PerPicbedSetting.vue'
+import { getRawData } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 
@@ -961,9 +982,11 @@ const tabIndicatorStyle = ref<Record<string, string>>({})
 interface IProps {
   // 传递配置ID以加载特定配置
   configId: string
+  //picbedName
+  currentPicbedName: string
 }
 
-const { configId } = defineProps<IProps>()
+const { configId, currentPicbedName } = defineProps<IProps>()
 
 function updateTabIndicator() {
   if (!tabRefs.value || tabRefs.value.length === 0) return
@@ -1019,27 +1042,27 @@ const waterMarkPositionMap = new Map([
 
 const imageExtList = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'tif', 'svg', 'ico', 'avif', 'heif', 'heic']
 const availableFormat = [
+  'webp',
+  'png',
   'avif',
+  'jpg',
   'dz',
   'fits',
   'gif',
   'heif',
   'input',
   'jpeg',
-  'jpg',
   'jp2',
   'jxl',
   'magick',
   'openslide',
   'pdf',
-  'png',
   'ppm',
   'raw',
   'svg',
   'tiff',
   'tif',
   'v',
-  'webp',
 ]
 
 const defaultWaterMarkSetting = {
@@ -1054,7 +1077,7 @@ const defaultWaterMarkSetting = {
   watermarkImagePath: '',
   watermarkPosition: 'southeast' as availableWatermarkPosition,
   watermarkImageOpacity: 255,
-}
+} as IBuildInWaterMarkOptions
 
 const defaultCompressSetting = {
   quality: 100,
@@ -1072,7 +1095,7 @@ const defaultCompressSetting = {
   isFlip: false,
   isFlop: false,
   formatConvertObj: {},
-}
+} as IBuildInCompressOptions
 
 const waterMarkForm = ref<IBuildInWaterMarkOptions>({
   isAddWatermarkMap: {},
@@ -1110,6 +1133,7 @@ const compressForm = ref<IBuildInCompressOptions>({
 })
 /* Only used if configId is not provided */
 const formatConvertObjStr = ref('{}')
+const singleFormatConvertObj = ref('{}')
 
 const defaultSkipProcessSetting = {
   skipProcessExtList: 'zip,rar,7z,tar,gz,tar.gz,tar.bz2,tar.xz',
@@ -1126,7 +1150,7 @@ function saveWaterMarkConfig() {
 }
 
 const singleConfigSettings = ref<IBuildInListItem>({
-  id: '',
+  id: configId || '',
   compress: {
     ...defaultCompressSetting,
   },
@@ -1154,29 +1178,33 @@ function cleanFormatConvertObj(obj: any) {
   return cleanedObj
 }
 
+let singleConfigInFile = {
+  id: configId || '',
+} as IBuildInListItem
+let compressInFile = {} as IBuildInCompressOptions
 async function initData() {
   // global settings
-  const compress = (await getConfig<IBuildInCompressOptions>(configPaths.buildIn.compress)) || {}
+  compressInFile = (await getConfig<IBuildInCompressOptions>(configPaths.buildIn.compress)) || {}
   const watermark = (await getConfig<IBuildInWaterMarkOptions>(configPaths.buildIn.watermark)) || {}
   const skipProcess = (await getConfig<IBuildInSkipProcessOptions>(configPaths.buildIn.skipProcess)) || {}
-  if (compress) {
+  if (compressInFile) {
     let cleanedObj = {}
     try {
-      if (typeof compress.formatConvertObj === 'object') {
-        cleanedObj = cleanFormatConvertObj(compress.formatConvertObj)
-      } else if (typeof compress.formatConvertObj === 'string') {
-        cleanedObj = cleanFormatConvertObj(JSON.parse(compress.formatConvertObj))
+      if (typeof compressInFile.formatConvertObj === 'object') {
+        cleanedObj = cleanFormatConvertObj(compressInFile.formatConvertObj)
+      } else if (typeof compressInFile.formatConvertObj === 'string') {
+        cleanedObj = cleanFormatConvertObj(JSON.parse(compressInFile.formatConvertObj))
       } else {
         cleanedObj = {}
       }
     } catch (_error) {
       cleanedObj = {}
     }
-    compress.formatConvertObj = cleanedObj
+    compressInFile.formatConvertObj = cleanedObj
     formatConvertObjStr.value = JSON.stringify(cleanedObj)
     const cleanFullMap: Record<string, any> = {}
-    if (compress.formatConvertObjMap) {
-      Object.entries(compress.formatConvertObjMap).forEach(([picbedType, value]) => {
+    if (compressInFile.formatConvertObjMap) {
+      Object.entries(compressInFile.formatConvertObjMap).forEach(([picbedType, value]) => {
         try {
           if (typeof value === 'object') {
             const cleanedObj = cleanFormatConvertObj(value)
@@ -1195,13 +1223,11 @@ async function initData() {
         } catch (_error) {}
       })
     }
-    compress.formatConvertObjMap = cleanFullMap
+    compressInFile.formatConvertObjMap = cleanFullMap
     saveConfig(configPaths.buildIn.compress, {
-      ...compress,
-      formatConvertObj: cleanedObj,
-      formatConvertObjMap: cleanFullMap,
+      ...compressInFile,
     })
-    compressForm.value = { ...compressForm.value, ...compress }
+    compressForm.value = { ...compressForm.value, ...compressInFile }
   }
   if (watermark) {
     if (watermark.watermarkColor === '') {
@@ -1218,13 +1244,83 @@ async function initData() {
   }
   if (configId) {
     let buildInList = await getConfig<Undefinable<IBuildInListItem[]>>(configPaths.buildIn.list)
+    const globalRenameSettings = (await getConfig<{
+      enable: boolean
+      format: string
+    }>(configPaths.buildIn.rename)) || {
+      enable: false,
+      format: '{filename}',
+    }
+    const globalAutoRename = (await getConfig<boolean>(configPaths.settings.rename)) || false
+    const globalManualRename = (await getConfig<boolean>(configPaths.settings.autoRename)) || false
     if (!buildInList) {
       saveConfig(configPaths.buildIn.list, [])
       buildInList = []
     }
-    const targetConfig = buildInList?.find(item => item.id === configId)
-    if (!targetConfig) {
-      return
+    singleConfigInFile = buildInList?.find(item => item.id === configId) || ({} as IBuildInListItem)
+    const mergedCompress = {
+      ...compressForm.value,
+      ...(singleConfigInFile.compress || {}),
+    }
+    Object.keys(defaultCompressSetting).forEach(key => {
+      if (singleConfigInFile.compress?.[key] !== undefined) {
+        return
+      }
+      const mapFieldName = `${key}Map`
+      if (mergedCompress[mapFieldName]?.[currentPicbedName] !== undefined) {
+        mergedCompress[key as keyof IBuildInCompressOptions] = mergedCompress[mapFieldName][currentPicbedName]
+      }
+    })
+    const mergedWatermark = {
+      ...waterMarkForm.value,
+      ...(singleConfigInFile.watermark || {}),
+    }
+    Object.keys(defaultWaterMarkSetting).forEach(key => {
+      if (singleConfigInFile.watermark?.[key] !== undefined) {
+        return
+      }
+      const mapFieldName = `${key}Map`
+      if (mergedWatermark[mapFieldName]?.[currentPicbedName] !== undefined) {
+        mergedWatermark[key as keyof IBuildInWaterMarkOptions] = mergedWatermark[mapFieldName][currentPicbedName]
+      }
+    })
+    let cleanedFormatConvertObj = {}
+    try {
+      const parsedObj = JSON.parse(singleConfigInFile.compress?.formatConvertObj as any)
+      cleanedFormatConvertObj = cleanFormatConvertObj(parsedObj)
+      if (JSON.stringify(cleanedFormatConvertObj) !== JSON.stringify(parsedObj)) {
+        singleConfigInFile.compress!.formatConvertObj = JSON.stringify(cleanedFormatConvertObj)
+      }
+      const updatedConfig = {
+        ...singleConfigInFile,
+        compress: {
+          ...singleConfigInFile.compress,
+          formatConvertObj: cleanedFormatConvertObj,
+        },
+      }
+      await UpdateBuildInList(updatedConfig)
+    } catch (_error) {
+      cleanedFormatConvertObj = {}
+    }
+    singleFormatConvertObj.value = JSON.stringify(cleanedFormatConvertObj)
+    singleConfigSettings.value = {
+      id: configId,
+      compress: { ...mergedCompress },
+      watermark: { ...mergedWatermark },
+      skipProcess: {
+        ...skipProcessForm.value,
+        ...(singleConfigInFile.skipProcess || {}),
+      },
+      rename: {
+        ...{
+          enable: false,
+          format: '{filename}',
+        },
+        ...globalRenameSettings,
+        ...(singleConfigInFile.rename || {}),
+      },
+      autoRename: globalAutoRename || singleConfigInFile.autoRename || false,
+      manualRename: globalManualRename || singleConfigInFile.manualRename || false,
     }
   }
 }
@@ -1247,7 +1343,15 @@ function safeSetMapValue(form: any, fieldName: string, picbedType: string, value
   if (!form[mapFieldName]) {
     form[mapFieldName] = {}
   }
-  if (value === defaultValue && form[fieldName] === defaultValue) {
+  const isValueDefault =
+    fieldName === 'formatConvertObj'
+      ? JSON.stringify(JSON.parse(value)) === JSON.stringify(defaultValue)
+      : value === defaultValue
+  const isFormValueDefault =
+    fieldName === 'formatConvertObj'
+      ? JSON.stringify(form[fieldName]) === JSON.stringify(defaultValue)
+      : form[fieldName] === defaultValue
+  if (isValueDefault && isFormValueDefault) {
     delete form[mapFieldName][picbedType]
   } else {
     if (fieldName === 'formatConvertObj') {
@@ -1267,10 +1371,7 @@ function saveCompressConfig() {
   Object.entries(compressForm.value.formatConvertObjMap || {}).forEach(([picbedType, value]) => {
     try {
       const cleanedObj = cleanFormatConvertObj(value)
-
-      if (Object.keys(cleanedObj).length > 0) {
-        cleanFullMap[picbedType] = cleanedObj
-      }
+      cleanFullMap[picbedType] = cleanedObj
     } catch (_error) {}
   })
   if (JSON.stringify(cleanFullMap) !== JSON.stringify(compressForm.value.formatConvertObjMap)) {
@@ -1280,8 +1381,172 @@ function saveCompressConfig() {
   saveConfig(configPaths.buildIn.compress, toRaw(compressForm.value))
 }
 
+const activeForm = computed<any>(() => {
+  if (configId) {
+    return {
+      compress: singleConfigSettings.value.compress,
+      watermark: singleConfigSettings.value.watermark,
+      skipProcess: singleConfigSettings.value.skipProcess,
+    }
+  } else {
+    return {
+      compress: compressForm.value,
+      watermark: waterMarkForm.value,
+      skipProcess: skipProcessForm.value,
+    }
+  }
+})
+
+const convertStr = computed({
+  get() {
+    return configId ? singleFormatConvertObj.value : formatConvertObjStr.value
+  },
+  set(newValue) {
+    if (configId) {
+      singleFormatConvertObj.value = newValue
+    } else {
+      formatConvertObjStr.value = newValue
+    }
+  },
+})
+
+const compressWatchKeys = [...(Object.keys(defaultCompressSetting) as (keyof IBuildInCompressOptions)[])]
+const waterMarkWatchKeys = Object.keys(defaultWaterMarkSetting) as (keyof IBuildInWaterMarkOptions)[]
+const skipProcessWatchKeys = Object.keys(defaultSkipProcessSetting) as (keyof IBuildInSkipProcessOptions)[]
+
+async function UpdateBuildInList(newValue: IBuildInListItem) {
+  let buildInList = await getConfig<Undefinable<IBuildInListItem[]>>(configPaths.buildIn.list)
+  if (!buildInList) {
+    buildInList = []
+  }
+  const existingIndex = buildInList.findIndex(item => item.id === newValue.id)
+  if (existingIndex !== -1) {
+    buildInList[existingIndex] = newValue
+  } else {
+    buildInList.push(newValue)
+  }
+  saveConfig(configPaths.buildIn.list, getRawData(buildInList))
+}
+
+async function checkIfItemOnlyId(newValue: IBuildInListItem) {
+  const keys = Object.keys(newValue).filter(key => key !== 'id')
+  if (keys.length === 0) return true
+  for (const key of keys) {
+    const value = (newValue as any)[key]
+    if (typeof value === 'object' && value !== null) {
+      if (Object.keys(value).length > 0) {
+        return false
+      }
+    } else if (value !== undefined && value !== null) {
+      return false
+    }
+  }
+  return true
+}
+
+async function removeItemFromBuildInList(id: string) {
+  let buildInList = await getConfig<Undefinable<IBuildInListItem[]>>(configPaths.buildIn.list)
+  if (!buildInList) {
+    buildInList = []
+  }
+  buildInList = buildInList.filter(item => item.id !== id)
+  saveConfig(configPaths.buildIn.list, getRawData(buildInList))
+}
+
+compressWatchKeys.forEach(key => {
+  console.log('setting up watch for compress key:', key)
+  watch(
+    () => singleConfigSettings.value.compress![key],
+    async newValue => {
+      console.log('detected change in compress key:', key, 'new value:', newValue)
+      const defaultValue = defaultCompressSetting[key]
+      const perPicBedValue = compressForm.value[`${key}Map`]?.[currentPicbedName]
+      const inheritedValue = perPicBedValue ?? compressForm.value[key] ?? defaultValue
+      singleConfigInFile.id = configId || ''
+      const shouldUpdate =
+        key === 'formatConvertObj'
+          ? JSON.stringify(newValue) !== JSON.stringify(inheritedValue)
+          : newValue !== inheritedValue
+      if (shouldUpdate) {
+        singleConfigInFile.compress = { ...singleConfigInFile.compress, [key]: newValue }
+        await UpdateBuildInList(singleConfigInFile)
+      } else {
+        if (singleConfigInFile.compress) delete singleConfigInFile.compress[key]
+        if (await checkIfItemOnlyId(singleConfigInFile)) {
+          await removeItemFromBuildInList(singleConfigInFile.id)
+        } else {
+          await UpdateBuildInList(singleConfigInFile)
+        }
+      }
+    },
+  )
+})
+
+waterMarkWatchKeys.forEach(key => {
+  watch(
+    () => singleConfigSettings.value.watermark![key],
+    newValue => {
+      const defaultValue = defaultWaterMarkSetting[key]
+      const perPicBedValue = waterMarkForm.value[`${key}Map`]?.[currentPicbedName]
+      const inheritedValue = perPicBedValue ?? waterMarkForm.value[key] ?? defaultValue
+      singleConfigInFile.id = configId || ''
+      if (newValue !== inheritedValue) {
+        singleConfigInFile.watermark = { ...singleConfigInFile.watermark, [key]: newValue }
+        UpdateBuildInList(singleConfigInFile)
+      } else {
+        if (singleConfigInFile.watermark) delete singleConfigInFile.watermark[key]
+        checkIfItemOnlyId(singleConfigInFile).then(async isOnlyId => {
+          if (isOnlyId) {
+            await removeItemFromBuildInList(singleConfigInFile.id)
+          } else {
+            await UpdateBuildInList(singleConfigInFile)
+          }
+        })
+      }
+    },
+  )
+})
+
+skipProcessWatchKeys.forEach(key => {
+  watch(
+    () => singleConfigSettings.value.skipProcess![key],
+    newValue => {
+      const defaultValue = defaultSkipProcessSetting[key]
+      const inheritedValue = skipProcessForm.value[key] ?? defaultValue
+      singleConfigInFile.id = configId || ''
+      if (newValue !== inheritedValue) {
+        singleConfigInFile.skipProcess = { ...singleConfigInFile.skipProcess, [key]: newValue }
+        UpdateBuildInList(singleConfigInFile)
+      } else {
+        if (singleConfigInFile.skipProcess) delete singleConfigInFile.skipProcess[key]
+        checkIfItemOnlyId(singleConfigInFile).then(async isOnlyId => {
+          if (isOnlyId) {
+            await removeItemFromBuildInList(singleConfigInFile.id)
+          } else {
+            await UpdateBuildInList(singleConfigInFile)
+          }
+        })
+      }
+    },
+  )
+})
+
 watch(activeTab, () => {
   nextTick(updateTabIndicator)
+})
+
+watch(singleFormatConvertObj, () => {
+  let parsedObj = {}
+  try {
+    parsedObj = JSON.parse(singleFormatConvertObj.value)
+    const cleanedObj = cleanFormatConvertObj(parsedObj)
+    singleConfigSettings.value.compress!.formatConvertObj = cleanedObj
+    if (JSON.stringify(cleanedObj) !== JSON.stringify(parsedObj)) {
+      singleFormatConvertObj.value = JSON.stringify(cleanedObj)
+    }
+  } catch (_error) {
+    return
+  }
 })
 
 watch(formatConvertObjStr, () => {
