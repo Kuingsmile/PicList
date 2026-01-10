@@ -67,6 +67,7 @@
                 <div class="range-value">{{ compressForm.quality }}%</div>
 
                 <PerPicbedSetting
+                  v-if="!configId"
                   :map-field="compressForm.qualityMap"
                   :default-value="defaultCompressSetting.quality"
                   field-name="quality"
@@ -105,6 +106,7 @@
               </label>
 
               <PerPicbedSetting
+                v-if="!configId"
                 :map-field="compressForm.isConvertMap"
                 :default-value="defaultCompressSetting.isConvert"
                 field-name="isConvert"
@@ -127,6 +129,7 @@
                 </select>
 
                 <PerPicbedSetting
+                  v-if="!configId"
                   :map-field="compressForm.convertFormatMap"
                   :default-value="defaultCompressSetting.convertFormat"
                   field-name="convertFormat"
@@ -149,13 +152,14 @@
               <div class="form-group">
                 <label>{{ $t('pages.imageProcess.general.specificFormatConversion') }}</label>
                 <textarea
-                  v-model="formatConvertObj"
+                  v-model="formatConvertObjStr"
                   class="form-textarea"
                   rows="3"
                   placeholder='{"jpg": "png", "png": "jpg"}'
                 />
 
                 <PerPicbedSetting
+                  v-if="!configId"
                   :map-field="compressForm.formatConvertObjMap"
                   :default-value="defaultCompressSetting.formatConvertObj"
                   field-name="formatConvertObj"
@@ -201,6 +205,7 @@
               </label>
 
               <PerPicbedSetting
+                v-if="!configId"
                 :map-field="waterMarkForm.isAddWatermarkMap"
                 :default-value="defaultWaterMarkSetting.isAddWatermark"
                 field-name="isAddWatermark"
@@ -236,6 +241,7 @@
                 </div>
 
                 <PerPicbedSetting
+                  v-if="!configId"
                   :map-field="waterMarkForm.watermarkTypeMap"
                   :default-value="defaultWaterMarkSetting.watermarkType"
                   field-name="watermarkType"
@@ -269,6 +275,7 @@
                   </label>
 
                   <PerPicbedSetting
+                    v-if="!configId"
                     :map-field="waterMarkForm.isFullScreenWatermarkMap"
                     :default-value="defaultWaterMarkSetting.isFullScreenWatermark"
                     field-name="isFullScreenWatermark"
@@ -299,6 +306,7 @@
                   <div class="range-value">{{ waterMarkForm.watermarkDegree }}°</div>
 
                   <PerPicbedSetting
+                    v-if="!configId"
                     :map-field="waterMarkForm.watermarkDegreeMap"
                     :default-value="defaultWaterMarkSetting.watermarkDegree"
                     field-name="watermarkDegree"
@@ -334,6 +342,7 @@
                   <div class="range-value">{{ Math.round((waterMarkForm.watermarkScaleRatio || 0) * 100) }}%</div>
 
                   <PerPicbedSetting
+                    v-if="!configId"
                     :map-field="waterMarkForm.watermarkScaleRatioMap"
                     :default-value="defaultWaterMarkSetting.watermarkScaleRatio"
                     field-name="watermarkScaleRatio"
@@ -369,6 +378,7 @@
 
                   <!-- Per-picbed settings for watermarkText -->
                   <PerPicbedSetting
+                    v-if="!configId"
                     :map-field="waterMarkForm.watermarkTextMap"
                     :default-value="defaultWaterMarkSetting.watermarkText"
                     field-name="watermarkText"
@@ -398,6 +408,7 @@
                   />
 
                   <PerPicbedSetting
+                    v-if="!configId"
                     :map-field="waterMarkForm.watermarkFontPathMap"
                     :default-value="defaultWaterMarkSetting.watermarkFontPath"
                     field-name="watermarkFontPath"
@@ -430,6 +441,7 @@
                   </div>
 
                   <PerPicbedSetting
+                    v-if="!configId"
                     :map-field="waterMarkForm.watermarkColorMap"
                     :default-value="defaultWaterMarkSetting.watermarkColor"
                     field-name="watermarkColor"
@@ -460,6 +472,7 @@
                 />
 
                 <PerPicbedSetting
+                  v-if="!configId"
                   :map-field="waterMarkForm.watermarkImagePathMap"
                   :default-value="defaultWaterMarkSetting.watermarkImagePath"
                   field-name="watermarkImagePath"
@@ -494,6 +507,7 @@
                 </div>
 
                 <PerPicbedSetting
+                  v-if="!configId"
                   :map-field="waterMarkForm.watermarkImageOpacityMap"
                   :default-value="defaultWaterMarkSetting.watermarkImageOpacity"
                   field-name="watermarkImageOpacity"
@@ -530,8 +544,8 @@
                   </button>
                 </div>
 
-                <!-- Per-picbed settings for watermarkPosition -->
                 <PerPicbedSetting
+                  v-if="!configId"
                   :map-field="waterMarkForm.watermarkPositionMap"
                   :default-value="defaultWaterMarkSetting.watermarkPosition"
                   field-name="watermarkPosition"
@@ -583,6 +597,7 @@
                 </label>
 
                 <PerPicbedSetting
+                  v-if="!configId"
                   :map-field="compressForm.isFlipMap"
                   :default-value="defaultCompressSetting.isFlip"
                   field-name="isFlip"
@@ -605,6 +620,7 @@
                 </label>
 
                 <PerPicbedSetting
+                  v-if="!configId"
                   :map-field="compressForm.isFlopMap"
                   :default-value="defaultCompressSetting.isFlop"
                   field-name="isFlop"
@@ -640,6 +656,7 @@
               </label>
 
               <PerPicbedSetting
+                v-if="!configId"
                 :map-field="compressForm.isRotateMap"
                 :default-value="defaultCompressSetting.isRotate"
                 field-name="isRotate"
@@ -658,6 +675,7 @@
               <div class="range-value">{{ compressForm.rotateDegree }}°</div>
 
               <PerPicbedSetting
+                v-if="!configId"
                 :map-field="compressForm.rotateDegreeMap"
                 :default-value="defaultCompressSetting.rotateDegree"
                 field-name="rotateDegree"
@@ -702,6 +720,7 @@
               </label>
 
               <PerPicbedSetting
+                v-if="!configId"
                 :map-field="compressForm.isReSizeMap"
                 :default-value="defaultCompressSetting.isReSize"
                 field-name="isReSize"
@@ -721,6 +740,7 @@
                   <input v-model.number="compressForm.reSizeWidth" type="number" min="0" class="form-input" />
 
                   <PerPicbedSetting
+                    v-if="!configId"
                     :map-field="compressForm.reSizeWidthMap"
                     :default-value="defaultCompressSetting.reSizeWidth"
                     field-name="reSizeWidth"
@@ -746,6 +766,7 @@
                   <input v-model.number="compressForm.reSizeHeight" type="number" min="0" class="form-input" />
 
                   <PerPicbedSetting
+                    v-if="!configId"
                     :map-field="compressForm.reSizeHeightMap"
                     :default-value="defaultCompressSetting.reSizeHeight"
                     field-name="reSizeHeight"
@@ -785,6 +806,7 @@
                 </label>
 
                 <PerPicbedSetting
+                  v-if="!configId"
                   :map-field="compressForm.skipReSizeOfSmallImgMap"
                   :default-value="defaultCompressSetting.skipReSizeOfSmallImg"
                   field-name="skipReSizeOfSmallImg"
@@ -826,6 +848,7 @@
               </label>
 
               <PerPicbedSetting
+                v-if="!configId"
                 :map-field="compressForm.isReSizeByPercentMap"
                 :default-value="defaultCompressSetting.isReSizeByPercent"
                 field-name="isReSizeByPercent"
@@ -850,6 +873,7 @@
               <div class="range-value">{{ compressForm.reSizePercent }}%</div>
 
               <PerPicbedSetting
+                v-if="!configId"
                 :map-field="compressForm.reSizePercentMap"
                 :default-value="defaultCompressSetting.reSizePercent"
                 field-name="reSizePercent"
@@ -921,24 +945,12 @@ import type {
   IBuildInSkipProcessOptions,
   IBuildInWaterMarkOptions,
 } from 'piclist'
-import {
-  computed,
-  nextTick,
-  onBeforeMount,
-  onBeforeUnmount,
-  onMounted,
-  reactive,
-  ref,
-  toRaw,
-  useTemplateRef,
-  watch,
-} from 'vue'
+import { computed, nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, toRaw, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import PerPicbedSetting from '@/components/PerPicbedSetting.vue'
 import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
-
-import PerPicbedSetting from './PerPicbedSetting.vue'
 
 const { t } = useI18n()
 const activeTab = ref('general')
@@ -965,19 +977,6 @@ function updateTabIndicator() {
     }
   }
 }
-
-watch(activeTab, () => {
-  nextTick(updateTabIndicator)
-})
-
-onMounted(() => {
-  nextTick(updateTabIndicator)
-  window.addEventListener('resize', updateTabIndicator)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateTabIndicator)
-})
 
 const tabs = computed(() => [
   {
@@ -1058,21 +1057,6 @@ const defaultWaterMarkSetting = {
   watermarkImageOpacity: 255,
 }
 
-const waterMarkForm = reactive<IBuildInWaterMarkOptions>({
-  isAddWatermarkMap: {},
-  watermarkTypeMap: {},
-  isFullScreenWatermarkMap: {},
-  watermarkDegreeMap: {},
-  watermarkTextMap: {},
-  watermarkFontPathMap: {},
-  watermarkScaleRatioMap: {},
-  watermarkColorMap: {},
-  watermarkImagePathMap: {},
-  watermarkPositionMap: {},
-  watermarkImageOpacityMap: {},
-  ...defaultWaterMarkSetting,
-})
-
 const defaultCompressSetting = {
   quality: 100,
   isConvert: false,
@@ -1091,7 +1075,23 @@ const defaultCompressSetting = {
   formatConvertObj: {},
 }
 
-const compressForm = reactive<IBuildInCompressOptions>({
+const waterMarkForm = ref<IBuildInWaterMarkOptions>({
+  isAddWatermarkMap: {},
+  watermarkTypeMap: {},
+  isFullScreenWatermarkMap: {},
+  watermarkDegreeMap: {},
+  watermarkTextMap: {},
+  watermarkFontPathMap: {},
+  watermarkScaleRatioMap: {},
+  watermarkColorMap: {},
+  watermarkImagePathMap: {},
+  watermarkPositionMap: {},
+  watermarkImageOpacityMap: {},
+  ...defaultWaterMarkSetting,
+})
+
+/* Only used if configId is not provided */
+const compressForm = ref<IBuildInCompressOptions>({
   qualityMap: {},
   isConvertMap: {},
   convertFormatMap: {},
@@ -1109,95 +1109,105 @@ const compressForm = reactive<IBuildInCompressOptions>({
   formatConvertObjMap: {},
   ...defaultCompressSetting,
 })
-const formatConvertObj = ref('{}')
+/* Only used if configId is not provided */
+const formatConvertObjStr = ref('{}')
 
-const skipProcessForm = reactive({
+/* Only used if configId is not provided */
+const skipProcessForm = ref<IBuildInSkipProcessOptions>({
   skipProcessExtList: 'zip,rar,7z,tar,gz,tar.gz,tar.bz2,tar.xz',
 })
 
-const waterMarkFormKeys = Object.keys(waterMarkForm) as (keyof typeof waterMarkForm)[]
-const compressFormKeys = Object.keys(compressForm) as (keyof typeof compressForm)[]
-const skipProcessFormKeys = Object.keys(skipProcessForm) as (keyof typeof skipProcessForm)[]
-
 const isInitialized = ref(false)
-let saveTimeout: ReturnType<typeof setTimeout> | null = null
 
-function handleSaveConfig() {
-  let iformatConvertObj = {}
-  try {
-    iformatConvertObj = JSON.parse(formatConvertObj.value)
-  } catch (_error) {}
-  const formatConvertObjEntries = Object.entries(iformatConvertObj)
-  const formatConvertObjEntriesFilter = formatConvertObjEntries.filter((item: any) => {
-    return imageExtList.includes(item[0]) && availableFormat.includes(item[1])
-  })
-  const formatConvertObjFilter = Object.fromEntries(formatConvertObjEntriesFilter)
-  formatConvertObj.value = JSON.stringify(formatConvertObjFilter)
-  compressForm.formatConvertObj = formatConvertObjFilter
-
-  const processedFormatConvertObjMap: Record<string, any> = {}
-  Object.entries(compressForm.formatConvertObjMap || {}).forEach(([picbedType, jsonString]) => {
-    try {
-      const parsedObj = JSON.parse(jsonString as string)
-      const objEntries = Object.entries(parsedObj)
-      const filteredEntries = objEntries.filter((item: any) => {
-        return imageExtList.includes(item[0]) && availableFormat.includes(item[1])
-      })
-      const filteredObj = Object.fromEntries(filteredEntries)
-      if (Object.keys(filteredObj).length > 0) {
-        processedFormatConvertObjMap[picbedType] = filteredObj
-      }
-    } catch (_error) {
-      // Skip invalid JSON strings
-    }
-  })
-  compressForm.formatConvertObjMap = processedFormatConvertObjMap
-
-  saveConfig(configPaths.buildIn.compress, toRaw(compressForm))
-  saveConfig(configPaths.buildIn.watermark, toRaw(waterMarkForm))
-  saveConfig(configPaths.buildIn.skipProcess, toRaw(skipProcessForm))
+function saveSkipProcessConfig() {
+  saveConfig(configPaths.buildIn.skipProcess, toRaw(skipProcessForm.value))
 }
 
-function debouncedSave() {
-  if (!isInitialized.value) return
+function saveCompressConfig() {
+  const cleanFullMap: Record<string, any> = {}
+  Object.entries(compressForm.value.formatConvertObjMap || {}).forEach(([picbedType, jsonString]) => {
+    try {
+      const parsedObj = JSON.parse(jsonString as string)
+      const cleanedObj = cleanFormatConvertObj(parsedObj)
 
-  if (saveTimeout) {
-    clearTimeout(saveTimeout)
+      if (Object.keys(cleanedObj).length > 0) {
+        cleanFullMap[picbedType] = cleanedObj
+      }
+    } catch (_error) {}
+  })
+  if (JSON.stringify(cleanFullMap) !== JSON.stringify(compressForm.value.formatConvertObjMap)) {
+    compressForm.value.formatConvertObjMap = cleanFullMap
   }
 
-  saveTimeout = setTimeout(() => {
-    handleSaveConfig()
-  }, 200)
+  saveConfig(configPaths.buildIn.compress, toRaw(compressForm.value))
+}
+
+function saveWaterMarkConfig() {
+  saveConfig(configPaths.buildIn.watermark, toRaw(waterMarkForm.value))
+}
+
+const singleConfigSettings = ref<IBuildInListItem>({} as IBuildInListItem)
+
+function cleanFormatConvertObj(obj: any) {
+  const cleanedObj: Record<string, any> = {}
+  Object.entries(obj).forEach(([key, value]) => {
+    if (imageExtList.includes(key) && typeof value === 'string' && availableFormat.includes(value)) {
+      cleanedObj[key] = value
+    }
+  })
+  return cleanedObj
 }
 
 async function initData() {
-  const compress = await getConfig<IBuildInCompressOptions>(configPaths.buildIn.compress)
-  const watermark = await getConfig<IBuildInWaterMarkOptions>(configPaths.buildIn.watermark)
-  const skipProcess = await getConfig<IBuildInSkipProcessOptions>(configPaths.buildIn.skipProcess)
-  if (compress) {
-    compressFormKeys.forEach(key => {
-      compressForm[key] = compress[key] ?? compressForm[key]
-    })
-    try {
-      if (typeof compress.formatConvertObj === 'object') {
-        formatConvertObj.value = JSON.stringify(compress.formatConvertObj)
-      } else {
-        formatConvertObj.value = compress.formatConvertObj ?? '{}'
-      }
-    } catch (_error) {
-      formatConvertObj.value = '{}'
+  //single config settings
+  if (configId) {
+    const buildInList = await getConfig<Undefinable<IBuildInListItem[]>>(configPaths.buildIn.list)
+    if (!buildInList) {
+      console.error('Failed to load built-in config list.')
+    }
+    const targetConfig = buildInList?.find(item => item.id === configId)
+    if (targetConfig) {
+      singleConfigSettings.value = targetConfig
     }
   }
-  if (watermark) {
-    waterMarkFormKeys.forEach(key => {
-      waterMarkForm[key] = watermark[key] ?? waterMarkForm[key]
+
+  // global settings
+  const compress = (await getConfig<IBuildInCompressOptions>(configPaths.buildIn.compress)) || {}
+  const watermark = (await getConfig<IBuildInWaterMarkOptions>(configPaths.buildIn.watermark)) || {}
+  const skipProcess = (await getConfig<IBuildInSkipProcessOptions>(configPaths.buildIn.skipProcess)) || {}
+  if (compress) {
+    let cleanedObj = {}
+    try {
+      if (typeof compress.formatConvertObj === 'object') {
+        cleanedObj = cleanFormatConvertObj(compress.formatConvertObj)
+      } else if (typeof compress.formatConvertObj === 'string') {
+        cleanedObj = cleanFormatConvertObj(JSON.parse(compress.formatConvertObj))
+      } else {
+        cleanedObj = {}
+      }
+    } catch (_error) {
+      cleanedObj = {}
+    }
+    saveConfig(configPaths.buildIn.compress, {
+      ...compress,
+      formatConvertObj: cleanedObj,
     })
-    waterMarkForm.watermarkColor = watermark.watermarkColor === '' ? '#CCCCCC73' : watermark.watermarkColor
+    compress.formatConvertObj = cleanedObj
+    formatConvertObjStr.value = JSON.stringify(cleanedObj)
+    compressForm.value = { ...compressForm.value, ...compress }
+  }
+  if (watermark) {
+    if (watermark.watermarkColor === '') {
+      watermark.watermarkColor = '#CCCCCC73'
+      saveConfig(configPaths.buildIn.watermark, watermark)
+    }
+    waterMarkForm.value = { ...waterMarkForm.value, ...watermark }
   }
   if (skipProcess) {
-    skipProcessFormKeys.forEach(key => {
-      skipProcessForm[key] = skipProcess[key] ?? skipProcessForm[key]
-    })
+    skipProcessForm.value = {
+      ...skipProcessForm.value,
+      ...skipProcess,
+    }
   }
 }
 
@@ -1213,19 +1223,42 @@ function safeSetMapValue(form: any, fieldName: string, picbedType: string, value
   }
 }
 
+watch(activeTab, () => {
+  nextTick(updateTabIndicator)
+})
+
+watch(formatConvertObjStr, () => {
+  let parsedObj = {}
+  try {
+    parsedObj = JSON.parse(formatConvertObjStr.value)
+    const cleanedObj = cleanFormatConvertObj(parsedObj)
+    compressForm.value.formatConvertObj = cleanedObj
+    if (JSON.stringify(cleanedObj) !== JSON.stringify(parsedObj)) {
+      formatConvertObjStr.value = JSON.stringify(cleanedObj)
+    }
+  } catch (_error) {
+    return
+  }
+})
+
+watch(skipProcessForm, () => saveSkipProcessConfig(), { deep: true })
+watch(compressForm, () => saveCompressConfig(), { deep: true })
+watch(waterMarkForm, () => saveWaterMarkConfig(), { deep: true })
+
 onBeforeMount(() => {
   initData().then(() => {
     isInitialized.value = true
   })
 })
 
-watch(
-  () => [compressForm, waterMarkForm, skipProcessForm, formatConvertObj.value],
-  () => {
-    debouncedSave()
-  },
-  { deep: true },
-)
+onMounted(() => {
+  nextTick(updateTabIndicator)
+  window.addEventListener('resize', updateTabIndicator)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateTabIndicator)
+})
 </script>
 
 <style scoped src="./css/ImageProcessSetting.css"></style>

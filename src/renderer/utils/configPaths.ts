@@ -95,6 +95,7 @@ export interface IConfigStruct {
     skipProcess: {
       skipProcessExtList: string
     }
+    list: IBuildInListItem[]
   }
   debug: boolean
   PICGO_ENV: string
@@ -176,10 +177,12 @@ export const configPaths = {
   picgoPlugins: 'picgoPlugins',
   uploader: 'uploader',
   buildIn: {
+    _name: 'buildIn',
     compress: 'buildIn.compress',
     watermark: 'buildIn.watermark',
     rename: 'buildIn.rename',
     skipProcess: 'buildIn.skipProcess',
+    list: 'buildIn.list',
   },
   debug: 'debug',
   PICGO_ENV: 'PICGO_ENV',

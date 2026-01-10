@@ -17,10 +17,20 @@
           </button>
         </div>
         <div class="header-actions">
-          <button class="action-button secondary" @click="handleImageProcess">
-            <Settings :size="16" />
-            <span>{{ t('pages.upload.imageProcessName') }}</span>
-          </button>
+          <div class="segmented-button-group">
+            <button
+              class="segmented-button"
+              :title="t('pages.upload.imageProcessNameSingle')"
+              @click="handleImageProcessSingle"
+            >
+              <Settings :size="16" />
+              <span>{{ t('pages.upload.imageProcessNameSingle') }}</span>
+            </button>
+            <button class="segmented-button" :title="t('pages.upload.imageProcessName')" @click="handleImageProcess">
+              <Settings :size="16" />
+              <span>{{ t('pages.upload.imageProcessName') }}</span>
+            </button>
+          </div>
           <button class="action-button" @click="handleChangePicBed">
             <ArrowLeftRightIcon :size="16" />
             <span>{{ t('pages.upload.changePicBed') }}</span>
@@ -139,6 +149,11 @@
             <h3 class="modal-title">
               {{ t('pages.imageProcess.title') }}
             </h3>
+            <span class="modal-subtitle">
+              {{
+                PicBedId === '' ? t('pages.imageProcess.subtitle-Global') : t('pages.imageProcess.subtitle-PerPicbed')
+              }}
+            </span>
             <button class="modal-close" @click="imageProcessDialogVisible = false">
               <XIcon :size="20" />
             </button>
@@ -228,6 +243,12 @@ function uploadProgressHandler(p: number): void {
 }
 
 const handleImageProcess = () => {
+  PicBedId.value = ''
+  imageProcessDialogVisible.value = true
+}
+
+const handleImageProcessSingle = () => {
+  PicBedId.value = defaultIdG.value
   imageProcessDialogVisible.value = true
 }
 

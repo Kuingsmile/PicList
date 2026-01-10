@@ -1,7 +1,7 @@
 <template>
   <nav class="navigation" :class="{ collapsed: isCollapsed }">
     <div class="title-bar">
-      <div v-if="!isCollapsed" class="app-title">
+      <div v-show="!isCollapsed" class="app-title">
         <div class="app-text" @click="openGithubPage">
           {{ t('app.title') }}
         </div>
@@ -12,8 +12,7 @@
         class="collapse-button"
         @click="isCollapsed = !isCollapsed"
       >
-        <ChevronLeftIcon v-if="!isCollapsed" :size="20" />
-        <ChevronRightIcon v-else :size="20" />
+        <component :is="isCollapsed ? ChevronRightIcon : ChevronLeftIcon" :size="20" />
       </button>
     </div>
 
@@ -33,10 +32,10 @@
         <div class="nav-icon-container">
           <component :is="item.icon" :size="18" />
         </div>
-        <span v-if="!isCollapsed" class="nav-label">{{ item.name }}</span>
+        <span v-show="!isCollapsed" class="nav-label">{{ item.name }}</span>
       </div>
 
-      <Disclosure v-if="!isCollapsed" v-slot="{ open }" as="div" class="nav-submenu">
+      <Disclosure v-show="!isCollapsed" v-slot="{ open }" as="div" class="nav-submenu">
         <DisclosureButton class="nav-item submenu-trigger">
           <div class="nav-icon-container">
             <DatabaseIcon :size="18" />
@@ -55,7 +54,12 @@
           </div>
         </DisclosurePanel>
       </Disclosure>
-      <div v-else class="nav-item collapsed-picbed" :title="t('navigation.picbed')" @click="isCollapsed = !isCollapsed">
+      <div
+        v-show="isCollapsed"
+        class="nav-item collapsed-picbed"
+        :title="t('navigation.picbed')"
+        @click="isCollapsed = !isCollapsed"
+      >
         <div class="nav-icon-container">
           <DatabaseIcon :size="18" />
         </div>
@@ -72,7 +76,7 @@
         <div class="nav-icon-container">
           <component :is="item.icon" :size="18" />
         </div>
-        <span v-if="!isCollapsed" class="nav-label">{{ item.name }}</span>
+        <span v-show="!isCollapsed" class="nav-label">{{ item.name }}</span>
       </div>
     </div>
     <div class="sidebar-footer">

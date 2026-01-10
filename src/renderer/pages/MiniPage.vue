@@ -178,12 +178,12 @@ function openContextMenu() {
 }
 
 onBeforeMount(async () => {
-  await initLogoPath()
   removeListeners = window.electron.ipcRendererOn('uploadProgress', uploadProgressHandler)
   window.electron.ipcRendererOn('updateMiniIcon', updateMiniIconHandler)
   window.addEventListener('mousedown', handleMouseDown, false)
   window.addEventListener('mousemove', handleMouseMove, false)
   window.addEventListener('mouseup', handleMouseUp, false)
+  await initLogoPath()
 })
 
 onBeforeUnmount(() => {

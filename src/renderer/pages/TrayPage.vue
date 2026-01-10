@@ -224,12 +224,12 @@ const updateFilesHandler = () => {
 }
 
 onBeforeMount(async () => {
-  disableDragFile()
-  await getData()
   window.electron.ipcRendererOn('dragFiles', dragFilesHandler)
   window.electron.ipcRendererOn('clipboardFiles', clipboardFilesHandler)
   window.electron.ipcRendererOn('uploadFiles', uploadFilesHandler)
   window.electron.ipcRendererOn('updateFiles', updateFilesHandler)
+  disableDragFile()
+  await getData()
 })
 
 onBeforeUnmount(() => {

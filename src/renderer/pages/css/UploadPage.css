@@ -149,6 +149,46 @@ html, body {
   background: var(--color-surface);
 }
 
+/* Segmented Button Group */
+.segmented-button-group {
+  display: inline-flex;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface-elevated);
+}
+
+.segmented-button {
+  display: flex;
+  align-items: center;
+  border: none;
+  border-right: 1px solid var(--color-border);
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  background: transparent;
+  transition: var(--transition-fast);
+  gap: 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.segmented-button:last-child {
+  border-right: none;
+}
+
+.segmented-button:hover {
+  color: var(--color-accent);
+  background: var(--color-surface);
+}
+
+.segmented-button:active {
+  background: var(--color-surface-elevated);
+  transform: scale(0.98);
+}
+
 /* Main Upload Card */
 .main-card {
   min-height: 300px;
@@ -469,6 +509,13 @@ html, body {
 }
 
 .modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.modal-subtitle {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
