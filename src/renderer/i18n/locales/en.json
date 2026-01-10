@@ -108,6 +108,15 @@
         "description": "Configure settings for each PicBed individually",
         "title": "Per-PicBed Settings"
       },
+      "rename": {
+        "description": "Configure renaming rules for uploaded files",
+        "manualRename": "Manual Rename",
+        "renameCustomFormat": "Custom Rename Format",
+        "renameCustomFormatPlaceholder": "Please enter custom rename format",
+        "renameDescription": "Set renaming rules for uploaded files",
+        "renameTimestamp": "Timestamp Rename",
+        "title": "Rename Settings"
+      },
       "renameSettings": "Rename",
       "skipProcessSettings": "Skip Process",
       "subtitle-Global": "Configure settings for all PicBeds",

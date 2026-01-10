@@ -939,6 +939,114 @@
             </div>
           </div>
         </div>
+
+        <!-- Rename Tab -->
+        <div v-else-if="activeTab === 'rename'" key="rename" class="tab-content">
+          <div class="settings-section">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="switch-label">
+                  <input v-model="autoRenameComputed" type="checkbox" class="switch-input" />
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <span class="switch-title">{{ $t('pages.imageProcess.rename.renameTimestamp') }}</span>
+                    <span class="switch-description">YYYYMMDDHHmmssSSS</span>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label class="switch-label">
+                  <input v-model="manualRenameComputed" type="checkbox" class="switch-input" />
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <span class="switch-title">{{ $t('pages.imageProcess.rename.manualRename') }}</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="switch-label">
+                <input v-model="renameSettingsComputed.rename.enable" type="checkbox" class="switch-input" />
+                <span class="switch-slider" />
+                <div class="switch-content">
+                  <div class="switch-title">{{ $t('pages.settings.upload.enableAdvancedRname') }}</div>
+                  <div class="switch-description">{{ $t('pages.settings.upload.enableAdvancedRnameDesc') }}</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="form-group rename-format-field">
+              <label>
+                <Edit :size="14" />
+                {{ $t('pages.settings.upload.advancedRnameFormat') }}
+              </label>
+              <input
+                v-model="renameSettingsComputed.rename.format"
+                type="text"
+                class="form-input"
+                placeholder="Ex. {Y}-{m}-{uuid}"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>{{ $t('pages.settings.upload.availablePlaceholders') }}</label>
+              <div class="placeholder-help">
+                <div class="placeholder-category">
+                  <div class="category-title">
+                    {{ $t('pages.settings.upload.placeholder.categoryTime') }}
+                  </div>
+                  <div class="placeholder-grid">
+                    <div
+                      v-for="item in advancedRenameList.categoryTime"
+                      :key="item.value"
+                      class="placeholder-item"
+                      @click="copyPlaceholder(item.value)"
+                    >
+                      <code>{{ item.value }}</code>
+                      <span>{{ item.label }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="placeholder-category">
+                  <div class="category-title">
+                    {{ $t('pages.settings.upload.placeholder.categoryHash') }}
+                  </div>
+                  <div class="placeholder-grid">
+                    <div
+                      v-for="item in advancedRenameList.categoryHash"
+                      :key="item.value"
+                      class="placeholder-item"
+                      @click="copyPlaceholder(item.value)"
+                    >
+                      <code>{{ item.value }}</code>
+                      <span>{{ item.label }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="placeholder-category">
+                  <div class="category-title">
+                    {{ $t('pages.settings.upload.placeholder.categoryFile') }}
+                  </div>
+                  <div class="placeholder-grid">
+                    <div
+                      v-for="item in advancedRenameList.categoryFile"
+                      :key="item.value"
+                      class="placeholder-item"
+                      @click="copyPlaceholder(item.value)"
+                    >
+                      <code>{{ item.value }}</code>
+                      <span>{{ item.label }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </transition>
     </div>
   </div>
@@ -947,6 +1055,7 @@
 <script lang="ts" setup>
 import {
   Droplets,
+  Edit,
   FileText,
   FlipHorizontal,
   Image,
@@ -968,11 +1077,13 @@ import { computed, nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, toR
 import { useI18n } from 'vue-i18n'
 
 import PerPicbedSetting from '@/components/PerPicbedSetting.vue'
+import useMessage from '@/hooks/useMessage'
 import { getRawData } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 
 const { t } = useI18n()
+const message = useMessage()
 const activeTab = ref('general')
 
 // Tab indicator animation
@@ -1027,6 +1138,37 @@ const tabs = computed(() => [
     icon: Sliders,
   },
 ])
+
+const advancedRenameList = computed(() => ({
+  categoryTime: [
+    { label: t('pages.settings.upload.placeholder.year4'), value: '{Y}' },
+    { label: t('pages.settings.upload.placeholder.year2'), value: '{y}' },
+    { label: t('pages.settings.upload.placeholder.month'), value: '{m}' },
+    { label: t('pages.settings.upload.placeholder.date'), value: '{d}' },
+    { label: t('pages.settings.upload.placeholder.hour'), value: '{h}' },
+    { label: t('pages.settings.upload.placeholder.minute'), value: '{i}' },
+    { label: t('pages.settings.upload.placeholder.second'), value: '{s}' },
+    { label: t('pages.settings.upload.placeholder.millisecond'), value: '{ms}' },
+    { label: t('pages.settings.upload.placeholder.timestamp'), value: '{timestamp}' },
+  ],
+  categoryHash: [
+    { label: t('pages.settings.upload.placeholder.md5'), value: '{md5}' },
+    { label: t('pages.settings.upload.placeholder.md5-16'), value: '{md5-16}' },
+    { label: t('pages.settings.upload.placeholder.uuid'), value: '{uuid}' },
+    { label: t('pages.settings.upload.placeholder.sha256'), value: '{sha256}' },
+    { label: t('pages.settings.upload.placeholder.sha256-n'), value: '{sha256-n}' },
+  ],
+  categoryFile: [
+    { label: t('pages.settings.upload.placeholder.filename'), value: '{filename}' },
+    { label: t('pages.settings.upload.placeholder.localFolder'), value: '{localFolder:n}' },
+    { label: t('pages.settings.upload.placeholder.randomString'), value: '{str-n}' },
+  ],
+}))
+
+function copyPlaceholder(placeholder: string) {
+  window.electron.clipboard.writeText(placeholder)
+  message.success(t('pages.settings.upload.copySuccess', { content: placeholder }))
+}
 
 const waterMarkPositionMap = new Map([
   ['north', t('pages.imageProcess.watermark.positionOptions.top')],
@@ -1142,6 +1284,15 @@ const defaultSkipProcessSetting = {
 const skipProcessForm = ref<IBuildInSkipProcessOptions>({
   ...defaultSkipProcessSetting,
 })
+const globalRenameSettings = ref<{
+  enable?: boolean
+  format?: string
+}>({
+  enable: false,
+  format: '{filename}',
+})
+const globalAutoRename = ref<Undefinable<boolean>>(false)
+const globalManualRename = ref<Undefinable<boolean>>(false)
 
 const isInitialized = ref(false)
 
@@ -1182,11 +1333,21 @@ let singleConfigInFile = {
   id: configId || '',
 } as IBuildInListItem
 let compressInFile = {} as IBuildInCompressOptions
+
 async function initData() {
   // global settings
   compressInFile = (await getConfig<IBuildInCompressOptions>(configPaths.buildIn.compress)) || {}
   const watermark = (await getConfig<IBuildInWaterMarkOptions>(configPaths.buildIn.watermark)) || {}
   const skipProcess = (await getConfig<IBuildInSkipProcessOptions>(configPaths.buildIn.skipProcess)) || {}
+  globalRenameSettings.value = (await getConfig<{
+    enable?: boolean
+    format?: string
+  }>(configPaths.buildIn.rename)) || {
+    enable: false,
+    format: '{filename}',
+  }
+  globalAutoRename.value = (await getConfig<boolean>(configPaths.settings.autoRename)) ?? false
+  globalManualRename.value = (await getConfig<boolean>(configPaths.settings.rename)) ?? false
   if (compressInFile) {
     let cleanedObj = {}
     try {
@@ -1251,8 +1412,6 @@ async function initData() {
       enable: false,
       format: '{filename}',
     }
-    const globalAutoRename = (await getConfig<boolean>(configPaths.settings.rename)) || false
-    const globalManualRename = (await getConfig<boolean>(configPaths.settings.autoRename)) || false
     if (!buildInList) {
       saveConfig(configPaths.buildIn.list, [])
       buildInList = []
@@ -1319,8 +1478,8 @@ async function initData() {
         ...globalRenameSettings,
         ...(singleConfigInFile.rename || {}),
       },
-      autoRename: globalAutoRename || singleConfigInFile.autoRename || false,
-      manualRename: globalManualRename || singleConfigInFile.manualRename || false,
+      autoRename: singleConfigInFile.autoRename ?? (globalAutoRename.value || false),
+      manualRename: singleConfigInFile.manualRename ?? (globalManualRename.value || false),
     }
   }
 }
@@ -1397,6 +1556,99 @@ const activeForm = computed<any>(() => {
   }
 })
 
+const autoRenameComputed = computed({
+  get() {
+    return configId ? singleConfigSettings.value.autoRename : globalAutoRename.value
+  },
+  set(newValue) {
+    if (configId) {
+      singleConfigSettings.value.autoRename = newValue
+      const shouldUpdate = newValue !== (globalAutoRename.value ?? false)
+      singleConfigInFile.id = configId || ''
+      if (shouldUpdate) {
+        singleConfigInFile.autoRename = newValue
+        UpdateBuildInList(singleConfigInFile)
+      } else {
+        if (singleConfigInFile.autoRename !== undefined) delete singleConfigInFile.autoRename
+        checkIfItemOnlyId(singleConfigInFile).then(async isOnlyId => {
+          if (isOnlyId) {
+            await removeItemFromBuildInList(singleConfigInFile.id)
+          }
+        })
+      }
+    } else {
+      globalAutoRename.value = newValue
+      saveConfig(configPaths.settings.autoRename, newValue)
+    }
+  },
+})
+
+const manualRenameComputed = computed({
+  get() {
+    return configId ? singleConfigSettings.value.manualRename : globalManualRename.value
+  },
+  set(newValue) {
+    if (configId) {
+      singleConfigSettings.value.manualRename = newValue
+      const shouldUpdate = newValue !== (globalManualRename.value ?? false)
+      singleConfigInFile.id = configId || ''
+      if (shouldUpdate) {
+        singleConfigInFile.manualRename = newValue
+        UpdateBuildInList(singleConfigInFile)
+      } else {
+        if (singleConfigInFile.manualRename !== undefined) delete singleConfigInFile.manualRename
+        checkIfItemOnlyId(singleConfigInFile).then(async isOnlyId => {
+          if (isOnlyId) {
+            await removeItemFromBuildInList(singleConfigInFile.id)
+          }
+        })
+      }
+    } else {
+      globalManualRename.value = newValue
+      saveConfig(configPaths.settings.rename, newValue)
+    }
+  },
+})
+
+const renameSettingsComputed = computed<any>(() => {
+  if (configId) {
+    return {
+      rename: singleConfigSettings.value.rename,
+    }
+  } else {
+    return {
+      rename: globalRenameSettings.value,
+    }
+  }
+})
+
+watch(
+  renameSettingsComputed,
+  newValue => {
+    if (configId) {
+      singleConfigSettings.value.rename = newValue.rename
+      const shouldUpdate =
+        newValue.rename.enable !== (globalRenameSettings.value.enable ?? false) ||
+        newValue.rename.format !== (globalRenameSettings.value.format ?? '{filename}')
+      singleConfigInFile.id = configId || ''
+      if (shouldUpdate) {
+        singleConfigInFile.rename = newValue.rename
+        UpdateBuildInList(singleConfigInFile)
+      } else {
+        if (singleConfigInFile.rename) delete singleConfigInFile.rename
+        checkIfItemOnlyId(singleConfigInFile).then(async isOnlyId => {
+          if (isOnlyId) {
+            await removeItemFromBuildInList(singleConfigInFile.id)
+          }
+        })
+      }
+    } else {
+      saveConfig(configPaths.buildIn.rename, toRaw(newValue.rename))
+    }
+  },
+  { deep: true },
+)
+
 const convertStr = computed({
   get() {
     return configId ? singleFormatConvertObj.value : formatConvertObjStr.value
@@ -1454,11 +1706,9 @@ async function removeItemFromBuildInList(id: string) {
 }
 
 compressWatchKeys.forEach(key => {
-  console.log('setting up watch for compress key:', key)
   watch(
     () => singleConfigSettings.value.compress![key],
     async newValue => {
-      console.log('detected change in compress key:', key, 'new value:', newValue)
       const defaultValue = defaultCompressSetting[key]
       const perPicBedValue = compressForm.value[`${key}Map`]?.[currentPicbedName]
       const inheritedValue = perPicBedValue ?? compressForm.value[key] ?? defaultValue

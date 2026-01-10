@@ -108,6 +108,15 @@
         "description": "為每個圖床單獨配置設置",
         "title": "圖床獨立設置"
       },
+      "rename": {
+        "description": "配置上傳文件的重命名規則",
+        "manualRename": "手動重命名",
+        "renameCustomFormat": "自定義重命名格式",
+        "renameCustomFormatPlaceholder": "請輸入自定義重命名格式",
+        "renameDescription": "設置上傳文件的重命名規則",
+        "renameTimestamp": "時間戳重命名",
+        "title": "重命名設置"
+      },
       "renameSettings": "重命名",
       "skipProcessSettings": "文件跳過",
       "subtitle-Global": "為所有圖床配置設置",

@@ -108,6 +108,15 @@
         "description": "为每个图床单独配置设置",
         "title": "图床独立设置"
       },
+      "rename": {
+        "description": "配置上传文件的重命名规则",
+        "manualRename": "手动重命名",
+        "renameCustomFormat": "自定义重命名格式",
+        "renameCustomFormatPlaceholder": "请输入自定义重命名格式",
+        "renameDescription": "设置上传文件的重命名规则",
+        "renameTimestamp": "时间戳重命名",
+        "title": "重命名设置"
+      },
       "renameSettings": "重命名",
       "skipProcessSettings": "文件跳过",
       "subtitle-Global": "为所有图床配置通用设置",

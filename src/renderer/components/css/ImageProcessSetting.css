@@ -457,9 +457,8 @@
 }
 
 .switch-description {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--color-text-secondary);
-  line-height: 1.4;
 }
 
 /* ==================== Radio Group ==================== */
@@ -856,4 +855,169 @@ small {
 :root.dark small,
 :root.auto.dark small {
   background: var(--color-surface);
+}
+
+/* Placeholder Help Styles */
+.placeholder-help {
+  overflow-y: auto;
+  margin-top: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0;
+  max-height: 400px;
+  background: var(--color-background-tertiary);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+}
+
+.placeholder-category {
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.placeholder-category:last-child {
+  border-bottom: none;
+}
+
+.category-title {
+  margin: 0;
+  border-bottom: 1px solid var(--color-border-light);
+  padding: 0.875rem 1rem 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
+  letter-spacing: 0.02em;
+}
+
+.placeholder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0;
+  padding: 0.5rem 0;
+}
+
+.placeholder-item {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  border-radius: 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.placeholder-item:hover {
+  background: rgb(var(--color-accent-rgb), 0.08);
+}
+
+.placeholder-item code {
+  margin-right: 0.875rem;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 8px;
+  padding: 0.3rem 0.6rem;
+  min-width: 80px;
+  font-size: 1rem;
+  font-family: 'SF Mono', Monaco, Menlo, 'Ubuntu Mono', monospace;
+  font-weight: 600;
+  text-align: center;
+  color: white;
+  background: var(--color-blue-common);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 24%);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.placeholder-item span {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+/* Scrollbar styling for macOS feel */
+.placeholder-help::-webkit-scrollbar {
+  width: 6px;
+}
+
+.placeholder-help::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background: transparent;
+}
+
+.placeholder-help::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: var(--color-border);
+  transition: background 0.2s ease;
+}
+
+.placeholder-help::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* Rename specific styles */
+.rename-toggle-card {
+  margin-bottom: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.25rem;
+  background: var(--color-background-tertiary);
+}
+
+.rename-toggle-card .switch-label {
+  margin: 0;
+  border: none;
+  background: transparent;
+}
+
+.rename-format-field label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.rename-format-field label svg {
+  color: var(--color-accent);
+}
+
+.section-icon.rename-icon {
+  background: linear-gradient(135deg, #52c41a25 0%, #52c41a35 100%);
+}
+
+/* Dark theme adjustments */
+:root.dark .placeholder-help,
+:root.auto.dark .placeholder-help {
+  border-color: var(--color-border);
+  background: var(--color-background-secondary);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+}
+
+:root.dark .category-title,
+:root.auto.dark .category-title {
+  border-bottom-color: var(--color-border);
+  background: linear-gradient(135deg, var(--color-background-tertiary) 0%, var(--color-background-secondary) 100%);
+}
+
+:root.dark .placeholder-category,
+:root.auto.dark .placeholder-category {
+  border-bottom-color: var(--color-border);
+}
+
+:root.dark .placeholder-item:hover,
+:root.auto.dark .placeholder-item:hover {
+  background: rgb(var(--color-accent-rgb), 0.12);
+}
+
+:root.dark .placeholder-item code,
+:root.auto.dark .placeholder-item code {
+  border-color: rgb(255 255 255 / 15%);
+  background: var(--color-blue-common);
+}
+
+:root.dark .rename-toggle-card,
+:root.auto.dark .rename-toggle-card {
+  background: var(--color-background-tertiary);
+}
+
+:root.dark .section-icon.rename-icon,
+:root.auto.dark .section-icon.rename-icon {
+  background: linear-gradient(135deg, #52c41a25 0%, #52c41a35 100%);
 }
