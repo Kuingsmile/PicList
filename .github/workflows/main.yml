@@ -85,6 +85,7 @@ jobs:
         if: contains(matrix.os_type, 'linux') && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')
         run: |
           sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils libfuse2
+          sudo snap install snapcraft --classic
 
       - name: Install FPM
         if: matrix.os == 'ubuntu-24.04-arm' && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')
@@ -99,7 +100,7 @@ jobs:
         shell: bash
         run: |
           yarn config set ignore-engines true
-          yarn
+          rm -rf node_modules dist_electron && yarn install --frozen-lockfile
           yarn global add xvfb-maybe
 
       - name: Generate release notes
@@ -238,7 +239,7 @@ jobs:
         shell: bash
         run: |
           yarn config set ignore-engines true
-          yarn
+          rm -rf node_modules && yarn install
 
       - name: Download all yml artifacts
         uses: actions/download-artifact@v4
