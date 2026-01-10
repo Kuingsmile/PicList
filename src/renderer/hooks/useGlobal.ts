@@ -19,7 +19,6 @@ const _defaultPicBedId = ref<string>('')
 
 export function usePicBed() {
   const updatePicBeds = async () => {
-    console.log('Updating pic beds in global hook...')
     const result = await window.electron.triggerRPC<getPicBedType>(IRPCActionType.MAIN_GET_PICBED)
     if (result) {
       _picBeds.value = result.picBeds

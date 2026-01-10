@@ -161,9 +161,8 @@
                 <PerPicbedSetting
                   v-if="!configId"
                   :map-field="compressForm.formatConvertObjMap"
-                  :default-value="defaultCompressSetting.formatConvertObj"
+                  :default-value="'{}'"
                   field-name="formatConvertObj"
-                  :global-value="compressForm.formatConvertObj"
                   input-type="text"
                   text-placeholder="{}"
                   @map-change="
@@ -1125,10 +1124,9 @@ function saveSkipProcessConfig() {
 
 function saveCompressConfig() {
   const cleanFullMap: Record<string, any> = {}
-  Object.entries(compressForm.value.formatConvertObjMap || {}).forEach(([picbedType, jsonString]) => {
+  Object.entries(compressForm.value.formatConvertObjMap || {}).forEach(([picbedType, value]) => {
     try {
-      const parsedObj = JSON.parse(jsonString as string)
-      const cleanedObj = cleanFormatConvertObj(parsedObj)
+      const cleanedObj = cleanFormatConvertObj(value)
 
       if (Object.keys(cleanedObj).length > 0) {
         cleanFullMap[picbedType] = cleanedObj
@@ -1188,12 +1186,35 @@ async function initData() {
     } catch (_error) {
       cleanedObj = {}
     }
+    compress.formatConvertObj = cleanedObj
+    formatConvertObjStr.value = JSON.stringify(cleanedObj)
+    const cleanFullMap: Record<string, any> = {}
+    if (compress.formatConvertObjMap) {
+      Object.entries(compress.formatConvertObjMap).forEach(([picbedType, value]) => {
+        try {
+          if (typeof value === 'object') {
+            const cleanedObj = cleanFormatConvertObj(value)
+            if (Object.keys(cleanedObj).length > 0) {
+              cleanFullMap[picbedType] = cleanedObj
+            }
+          } else if (typeof value === 'string') {
+            const parsedObj = JSON.parse(value)
+            const cleanedObj = cleanFormatConvertObj(parsedObj)
+            if (Object.keys(cleanedObj).length > 0) {
+              cleanFullMap[picbedType] = cleanedObj
+            }
+          } else {
+            cleanFullMap[picbedType] = {}
+          }
+        } catch (_error) {}
+      })
+    }
+    compress.formatConvertObjMap = cleanFullMap
     saveConfig(configPaths.buildIn.compress, {
       ...compress,
       formatConvertObj: cleanedObj,
+      formatConvertObjMap: cleanFullMap,
     })
-    compress.formatConvertObj = cleanedObj
-    formatConvertObjStr.value = JSON.stringify(cleanedObj)
     compressForm.value = { ...compressForm.value, ...compress }
   }
   if (watermark) {
@@ -1213,12 +1234,29 @@ async function initData() {
 
 function safeSetMapValue(form: any, fieldName: string, picbedType: string, value: any, defaultValue: any) {
   const mapFieldName = `${fieldName}Map`
+  if (fieldName === 'formatConvertObj') {
+    value = value || '{}'
+    let parsedObj = {}
+    try {
+      parsedObj = JSON.parse(value)
+      const cleanedObj = cleanFormatConvertObj(parsedObj)
+      if (JSON.stringify(cleanedObj) !== JSON.stringify(parsedObj)) {
+        value = JSON.stringify(cleanedObj)
+      }
+    } catch (_error) {
+      return
+    }
+  }
   if (!form[mapFieldName]) {
     form[mapFieldName] = {}
   }
   if (value === defaultValue) {
     delete form[mapFieldName][picbedType]
   } else {
+    if (fieldName === 'formatConvertObj') {
+      form[mapFieldName][picbedType] = JSON.parse(value)
+      return
+    }
     form[mapFieldName][picbedType] = value
   }
 }

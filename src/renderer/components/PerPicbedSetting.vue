@@ -8,7 +8,13 @@
     </div>
 
     <div v-if="showSettings" class="map-settings-panel">
-      <h4>{{ t('pages.imageProcess.perPicBed.description') }}</h4>
+      <h4>
+        {{
+          t('pages.imageProcess.perPicBed.defaultValue', {
+            value: globalValue !== undefined ? globalValue : defaultValue,
+          })
+        }}
+      </h4>
       <div class="picbed-settings-grid">
         <div v-for="picbed in availablePicbeds" :key="picbed.type" class="picbed-setting-item">
           <label class="picbed-name">{{ picbed.name }}</label>
@@ -113,6 +119,7 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { usePicBed } from '@/hooks/useGlobal'
+import { getRawData } from '@/utils/common'
 
 const { t } = useI18n()
 const { picBedG } = usePicBed()
@@ -130,7 +137,7 @@ interface RadioOption {
 const {
   mapField,
   defaultValue,
-  globalValue,
+  globalValue = undefined,
   inputType,
   rangeMin = 0,
   rangeMax = 100,
@@ -147,7 +154,7 @@ interface Props {
   mapField: Record<string, any> | undefined
   defaultValue: any
   fieldName: string
-  globalValue: any
+  globalValue?: any
   inputType: 'checkbox' | 'range' | 'number' | 'text' | 'color' | 'select' | 'radio'
   rangeMin?: number
   rangeMax?: number
@@ -175,7 +182,10 @@ const availablePicbeds = computed(() => {
 
 function getMapValue(mapObj: Record<string, any> | undefined, picbedType: string, defaultValue: any) {
   if (!mapObj) return defaultValue
-  return mapObj[picbedType] !== undefined ? mapObj[picbedType] : globalValue !== undefined ? globalValue : defaultValue
+  const rawMapObj = getRawData(mapObj)
+  const value =
+    rawMapObj[picbedType] !== undefined ? rawMapObj[picbedType] : globalValue !== undefined ? globalValue : defaultValue
+  return typeof value === 'object' ? JSON.stringify(getRawData(value)) : value
 }
 
 function handleMapChange(picbedType: string, value: any) {

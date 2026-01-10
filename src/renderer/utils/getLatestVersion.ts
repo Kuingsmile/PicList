@@ -7,8 +7,6 @@ export const getLatestVersion = async (): Promise<string> => {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     const normalList = await response.json()
-    console.log('Fetched latest version info: ', normalList)
-    console.log('Latest version is: ', normalList[0].name)
     return normalList[0].name
   } catch (err) {
     console.error('Error fetching latest version: ', err)

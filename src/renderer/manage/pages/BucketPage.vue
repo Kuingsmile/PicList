@@ -3033,7 +3033,6 @@ function toggleCopyDropdown(index: number, event?: MouseEvent) {
 
       const container = bucketContainerRef.value
       const containerRect = container?.getBoundingClientRect()
-      console.log('containerRect', containerRect)
       const dropdownWidth = 160
       const shouldShowLeft =
         rect.right > viewportWidth - dropdownWidth ||

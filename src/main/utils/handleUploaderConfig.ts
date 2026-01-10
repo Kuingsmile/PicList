@@ -136,7 +136,6 @@ export const duplicateUploaderConfig = (type: string, id: string, newName: strin
   }
 
   const updatedConfigList = [...configList, duplicatedConfig]
-  console.log('updatedConfigList', updatedConfigList)
 
   picgo.saveConfig({
     [`uploader.${type}.configList`]: updatedConfigList,

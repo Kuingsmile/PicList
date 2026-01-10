@@ -104,6 +104,7 @@
       },
       "generalSettings": "常規",
       "perPicBed": {
+        "defaultValue": "默認值: {value}",
         "description": "為每個圖床單獨配置設置",
         "title": "圖床獨立設置"
       },

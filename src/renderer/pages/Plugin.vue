@@ -465,7 +465,6 @@ function _getSearchResult(val: string) {
   fetch(`https://registry.npmjs.com/-/v1/search?text=${val}`)
     .then(async (res: Response) => {
       const data = await res.json()
-      console.log(data)
       pluginList.value = data.objects
         .filter((item: INPMSearchResultObject) => {
           return strictSearch.value
