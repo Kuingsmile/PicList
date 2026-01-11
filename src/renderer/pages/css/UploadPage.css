@@ -54,6 +54,11 @@ html, body {
 
 .provider-section {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  max-width: calc(100% - 300px); /* Leave space for header-actions */
 }
 
 .provider-button {
@@ -77,6 +82,159 @@ html, body {
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
+}
+
+.add-favorite-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  width: 20px;
+  height: 20px;
+  font-family: inherit;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-elevated);
+  transition: var(--transition-fast);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.add-favorite-button.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.add-favorite-button:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-surface);
+  transform: translateY(-1px);
+}
+
+.add-favorite-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.favorite-picbeds-container {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-wrap: wrap;
+  max-width: 400px;
+}
+
+.favorite-picbeds-container .picbed-badge {
+  width: 85px;
+  font-size: 0.8125rem;
+}
+
+.favorite-picbeds-container.has-many {
+  max-width: 300px;
+}
+
+.picbed-badge {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.375rem 0.5rem 0.375rem 0.75rem;
+  width: 85px;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-elevated);
+  transition: all var(--transition-fast);
+  gap: 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
+  position: relative;
+}
+
+.picbed-badge:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-surface);
+  transform: translateY(-1px);
+}
+
+.picbed-badge.is-active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-accent-soft, rgb(59 130 246 / 10%));
+  font-weight: 600;
+}
+
+.picbed-badge.show-delete {
+  padding-right: 0.5rem;
+}
+
+.badge-name {
+  line-height: 1;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  padding: 0.125rem;
+  color: inherit;
+  background: transparent;
+  transition: var(--transition-fast);
+  cursor: pointer;
+  flex-shrink: 0;
+  animation: fade-in 0.2s ease-in;
+}
+
+.badge-remove:hover {
+  color: var(--color-error, #ef4444);
+  background: var(--color-error-soft, rgb(239 68 68 / 10%));
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Badges slide animation */
+.badges-slide-enter-active {
+  transition: all 0.3s ease;
+}
+
+.badges-slide-leave-active {
+  transition: all 0.3s ease;
+  position: absolute;
+}
+
+.badges-slide-enter-from {
+  opacity: 0;
+  transform: translateX(-10px) scale(0.9);
+}
+
+.badges-slide-leave-to {
+  opacity: 0;
+  transform: translateX(10px) scale(0.9);
+}
+
+.badges-slide-move {
+  transition: transform 0.3s ease;
 }
 
 .provider-info {

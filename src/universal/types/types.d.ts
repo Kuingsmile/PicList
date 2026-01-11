@@ -521,3 +521,9 @@ interface IBuildInListItem {
   // settings.rename
   manualRename?: boolean
 }
+
+interface IFavoritePicbedItem {
+  id: string
+  type: string
+  configName: string
+}

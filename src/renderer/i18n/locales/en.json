@@ -958,6 +958,7 @@
       "updateReady": "Update Ready to Install"
     },
     "upload": {
+      "addToFavorites": "Add current picbed to quick switch",
       "changePicBed": "Change PicBed",
       "clickToUpload": "Click to Upload",
       "clipboardPicture": "Clipboard",
@@ -970,9 +971,13 @@
       "inputValidUrl": "Please enter a valid URL",
       "invalidUrlsFound": "Invalid URLs found: {urls}",
       "linkFormat": "Link Format",
+      "longPressToRemoveFromFavorites": "Long press to remove",
       "multipleUrlsHint": "Each URL on a separate line for multiple uploads",
       "outputFormat": "Output Format",
+      "picbedAddedToFavorites": "Added to quick switch",
+      "picbedSwitched": "Switched to {name}",
       "quickUpload": "Quick Upload",
+      "removeFromFavorites": "Remove from quick switch",
       "taskQueue": {
         "addFiles": "Add Files",
         "allCancelled": "All tasks cancelled",

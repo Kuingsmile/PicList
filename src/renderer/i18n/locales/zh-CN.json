@@ -953,6 +953,7 @@
       "updateReady": "更新已准备好"
     },
     "upload": {
+      "addToFavorites": "添加当前图床到快速切换",
       "changePicBed": "切换图床",
       "clickToUpload": "点击上传",
       "clipboardPicture": "剪贴板图片",
@@ -965,9 +966,13 @@
       "inputValidUrl": "请输入合法的URL",
       "invalidUrlsFound": "发现无效的URL: {urls}",
       "linkFormat": "链接格式",
+      "longPressToRemoveFromFavorites": "长按移除",
       "multipleUrlsHint": "多个URL请分行输入",
       "outputFormat": "输出格式",
+      "picbedAddedToFavorites": "已添加到快速切换",
+      "picbedSwitched": "已切换到 {name}",
       "quickUpload": "快捷上传",
+      "removeFromFavorites": "从快速切换中移除",
       "taskQueue": {
         "addFiles": "添加文件",
         "allCancelled": "所有任务已取消",

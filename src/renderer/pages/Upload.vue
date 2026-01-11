@@ -15,6 +15,45 @@
             </div>
             <EditIcon :size="16" class="provider-arrow" />
           </button>
+          <div
+            class="add-favorite-button"
+            :title="t('pages.upload.addToFavorites')"
+            :class="{ disabled: favoritePicbeds.length >= MAX_FAVORITE_PICBEDS || isCurrentPicBedInFavorites }"
+            @click="addCurrentPicbedToFavorites"
+          >
+            <PlusIcon :size="12" />
+          </div>
+          <transition-group
+            name="badges-slide"
+            tag="div"
+            class="favorite-picbeds-container"
+            :class="{ 'has-many': favoritePicbeds.length >= 4 }"
+          >
+            <button
+              v-for="picbedType in favoritePicbeds"
+              :key="picbedType.id"
+              class="picbed-badge"
+              :class="{ 'is-active': isCurrentPicbed(picbedType), 'show-delete': longPressedBadge === picbedType.id }"
+              :title="t('pages.upload.longPressToRemoveFromFavorites') + getPicbedName(picbedType)"
+              @click="handleBadgeClick(picbedType)"
+              @mousedown="handleBadgeMouseDown(picbedType)"
+              @mouseup="handleBadgeMouseUp"
+              @mouseleave="handleBadgeMouseUp"
+              @touchstart="handleBadgeTouchStart(picbedType, $event)"
+              @touchend="handleBadgeTouchEnd"
+              @touchcancel="handleBadgeTouchEnd"
+            >
+              <span class="badge-name">{{ getAbbreviatedName(picbedType) }}</span>
+              <button
+                v-if="longPressedBadge === picbedType.id"
+                class="badge-remove"
+                :title="t('pages.upload.removeFromFavorites')"
+                @click.stop="removePicbedFromFavorites(picbedType)"
+              >
+                <XIcon :size="12" />
+              </button>
+            </button>
+          </transition-group>
         </div>
         <div class="header-actions">
           <div class="segmented-button-group">
@@ -623,6 +662,16 @@ const PicBedId = ref('')
 const fileInput = useTemplateRef('fileInput')
 const uploadInterval = ref(1000)
 
+const favoritePicbeds = useStorage<IFavoritePicbedItem[]>('favorite-picbeds', [])
+const MAX_FAVORITE_PICBEDS = 6
+const longPressedBadge = ref<string | null>(null)
+let longPressTimer: NodeJS.Timeout | null = null
+const LONG_PRESS_DURATION = 500
+const isCurrentPicBedInFavorites = computed(() => {
+  const result = favoritePicbeds.value.some(item => item.id === defaultIdG.value)
+  return result
+})
+
 // New task queue settings
 const showTaskSettings = useStorage('upload-task-queue-show-settings', true)
 const taskSearchQuery = ref('')
@@ -831,6 +880,135 @@ function updateUrlType(shortUrl: boolean) {
   saveConfig({
     [configPaths.settings.useShortUrl]: shortUrl,
   })
+}
+
+async function valideFavoritePicbeds() {
+  if (!favoritePicbeds.value.length) return
+  const allUploaders = (await getConfig<IStringKeyMap>(configPaths.uploader)) || {}
+
+  const availableFavorites = favoritePicbeds.value.filter(item => {
+    return (
+      Object.keys(allUploaders).includes(item.type) &&
+      allUploaders[item.type]?.configList.some((cfg: any) => cfg._id === item.id && cfg._configName === item.configName)
+    )
+  })
+  if (JSON.stringify(availableFavorites) !== JSON.stringify(favoritePicbeds.value)) {
+    favoritePicbeds.value = availableFavorites
+  }
+}
+
+watch(favoritePicbeds, valideFavoritePicbeds, { immediate: true })
+
+function addCurrentPicbedToFavorites() {
+  favoritePicbeds.value.push({
+    id: defaultIdG.value,
+    type: defaultPicBedG.value,
+    configName: defaultConfigNameG.value,
+  })
+  message.success(t('pages.upload.picbedAddedToFavorites'))
+}
+
+function removePicbedFromFavorites(picbedType: IFavoritePicbedItem) {
+  const index = favoritePicbeds.value.findIndex(
+    item => item.type === picbedType.type && item.id === picbedType.id && item.configName === picbedType.configName,
+  )
+  if (index === -1) return
+  favoritePicbeds.value.splice(index, 1)
+}
+
+async function switchToPicbed(picbedType: IFavoritePicbedItem) {
+  if (!picbedType.id || !picbedType.type || !picbedType.configName) {
+    return
+  }
+  const uploaders = (await getConfig<IStringKeyMap>(`uploader.${picbedType.type}`)) || {}
+  const targetConfig = uploaders?.configList.find(
+    (cfg: any) => cfg._id === picbedType.id && cfg._configName === picbedType.configName,
+  )
+  if (!targetConfig) {
+    return
+  }
+  saveConfig({
+    [`uploader.${picbedType.type}.defaultId`]: picbedType.id,
+    [`picBed.${picbedType.type}`]: targetConfig,
+    [configPaths.picBed.current]: picbedType.type,
+    [configPaths.picBed.uploader]: picbedType.type,
+  })
+  await updatePicBeds()
+  const name = getPicbedName(picbedType).split('-')[0]
+  window.electron.sendRPC(IRPCActionType.TRAY_SET_TOOL_TIP, `${name} ${targetConfig._configName}`)
+  message.success(t('pages.upload.picbedSwitched', { name: getPicbedName(picbedType) }))
+}
+
+function getPicbedName(picbedType: IFavoritePicbedItem): string {
+  if (!picBedG.value || picBedG.value.length === 0) {
+    return picbedType.configName
+  }
+  const target = picBedG.value.find(item => item.type === picbedType.type)
+  return `${target ? target.name : picbedType.type}-${picbedType.configName}`
+}
+
+const truncatePart = (part: string): string => {
+  let partCount = 0
+  let res = ''
+  for (const char of part) {
+    const isDoubleByte = char.charCodeAt(0) > 127
+    const nextCount = partCount + (isDoubleByte ? 2 : 1)
+    if (nextCount > 4) {
+      return res
+    }
+    res += char
+    partCount = nextCount
+  }
+  return res
+}
+
+function getAbbreviatedName(picbedType: IFavoritePicbedItem): string {
+  const name = getPicbedName(picbedType)
+  return name.split('-').map(truncatePart).join('-')
+}
+
+function isCurrentPicbed(picbedType: IFavoritePicbedItem): boolean {
+  return defaultIdG.value === picbedType.id
+}
+
+function handleBadgeClick(picbedType: IFavoritePicbedItem) {
+  if (longPressedBadge.value === picbedType.id) {
+    return
+  }
+  switchToPicbed(picbedType)
+}
+
+function handleBadgeMouseDown(picbedType: IFavoritePicbedItem) {
+  longPressTimer = setTimeout(() => {
+    longPressedBadge.value = picbedType.id
+  }, LONG_PRESS_DURATION)
+}
+
+function handleBadgeMouseUp() {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer)
+    longPressTimer = null
+  }
+  setTimeout(() => {
+    longPressedBadge.value = null
+  }, 10000)
+}
+
+function handleBadgeTouchStart(picbedType: IFavoritePicbedItem, event: TouchEvent) {
+  longPressTimer = setTimeout(() => {
+    longPressedBadge.value = picbedType.id
+    event.preventDefault()
+  }, LONG_PRESS_DURATION)
+}
+
+function handleBadgeTouchEnd() {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer)
+    longPressTimer = null
+  }
+  setTimeout(() => {
+    longPressedBadge.value = null
+  }, 10000)
 }
 
 function uploadClipboardFiles() {
@@ -1072,14 +1250,12 @@ onBeforeUnmount(() => {
   removeTaskQueueUpdateListenerCallback()
 })
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
   removeUploadProgressListenerCallback = window.electron.ipcRendererOn('uploadProgress', uploadProgressHandler)
   removeSyncPicBedListenerCallback = window.electron.ipcRendererOn('syncPicBed', syncPicBedHandler)
   removeTaskQueueUpdateListenerCallback = window.electron.ipcRendererOn('uploadTaskQueueUpdate', taskQueueUpdateHandler)
   $bus.on(SHOW_INPUT_BOX_RESPONSE, handleInputBoxValue)
-  getUseShortUrl()
-  getPasteStyle()
-  refreshTaskStatus()
+  await Promise.all([getUseShortUrl(), getPasteStyle(), refreshTaskStatus()])
 })
 </script>
 
