@@ -85,7 +85,6 @@ jobs:
         if: contains(matrix.os_type, 'linux') && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')
         run: |
           sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils libfuse2
-          sudo snap install snapcraft --classic
 
       - name: Install FPM
         if: matrix.os == 'ubuntu-24.04-arm' && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')

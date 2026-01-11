@@ -3,7 +3,6 @@
 ### ✨ Features
 
 - Add Upload Task System, now you can add files to the task, upload them at intervals, and adjust the priority at any time to avoid platform API rate limits.
-![task](./imgs/task.png)
 - Now supports setting image preprocessing/renaming options for each individual image bed, the effective order is `Image Bed Settings > Platform Settings > Global Settings`
 - Optimized the display logic of the image preprocessing options for the image bed platform settings and individual image bed settings, now more clearly displaying the currently effective configuration
 - Now automatically saves the current UI selection status of multiple pages
