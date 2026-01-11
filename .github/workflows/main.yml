@@ -135,6 +135,10 @@ jobs:
             "Linux x64")
               jq '.linux.target[0].arch = ["x64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
               jq '.linux.target[1].arch = ["x64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+              # Remove snap if publish is true
+              if [ "${{ github.event.inputs.publish_enabled }}" == "true" ]; then
+                jq 'del(.linux.target[] | select(.target == "snap"))' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+              fi
               ;;
             "Linux ARM64")
               jq '.linux.target[0].arch = ["arm64"]' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
