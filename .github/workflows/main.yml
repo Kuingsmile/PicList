@@ -85,6 +85,7 @@ jobs:
         if: contains(matrix.os_type, 'linux') && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')
         run: |
           sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils libfuse2
+          sudo snap install snapcraft --classic
 
       - name: Install FPM
         if: matrix.os == 'ubuntu-24.04-arm' && (github.event.inputs.build_os == matrix.platform || github.event.inputs.build_os == 'All')
@@ -225,7 +226,7 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
   combine-and-upload-yml:
-    name: Combine YML files and upload to S3
+    name: Combine YML files
     needs: release
     runs-on: ubuntu-latest
 
@@ -271,28 +272,6 @@ jobs:
           echo "Latest linux ARM64 combined YML content:"
           cat ./dist_electron/combined/latest-linux-arm64.yml
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        if: github.event.inputs.publish_enabled == 'true'
-        with:
-          aws-access-key-id: ${{ secrets.R2_SECRET_ID }}
-          aws-secret-access-key: ${{ secrets.R2_SECRET_KEY }}
-          aws-region: us-east-1
-
-      - name: Upload combined yml files to S3/R2
-        if: github.event.inputs.publish_enabled == 'true'
-        run: |
-          for file in ./dist_electron/combined/*.yml; do
-            if [ -f "$file" ]; then
-              filename=$(basename "$file")
-              echo "Uploading $filename to S3/R2..."
-              aws s3 cp "$file" "s3://piclist-dl/latest/$filename" \
-                --endpoint-url "https://7ab4ed5cb1f4052a13d3b573876ecf33.r2.cloudflarestorage.com" \
-              echo "Uploaded $filename successfully"
-            fi
-          done
-          echo "All yml files uploaded to S3/R2!"
-
       - name: Get version for release
         id: get_version
         run: |
@@ -305,9 +284,4 @@ jobs:
         with:
           draft: true
           tag_name: v${{ steps.get_version.outputs.version }}
-          files: |
-            ./dist_electron/combined/latest.yml
-            ./dist_electron/combined/latest-mac.yml
-            ./dist_electron/combined/latest-linux.yml
-            ./dist_electron/combined/latest-linux-arm64.yml
           token: ${{ secrets.GH_TOKEN }}
