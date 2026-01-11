@@ -1049,7 +1049,7 @@
       "setAsDefault": "设为默认图床",
       "setSuccess": "设置成功",
       "subtitle": "共 {count} 个配置",
-      "title": "上传配置"
+      "title": "配置"
     }
   },
   "settings": {

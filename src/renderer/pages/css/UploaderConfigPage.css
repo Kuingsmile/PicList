@@ -186,6 +186,21 @@
   left: 100%;
 }
 
+.btn.is-favorited {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow:
+    0 4px 14px rgb(239 68 68 / 35%),
+    0 2px 4px rgb(0 0 0 / 10%),
+    inset 0 1px 0 rgb(255 255 255 / 15%);
+}
+
+.btn.is-favorited:hover:not(:disabled) {
+  box-shadow:
+    0 8px 24px rgb(239 68 68 / 45%),
+    0 4px 8px rgb(0 0 0 / 15%),
+    inset 0 1px 0 rgb(255 255 255 / 20%);
+}
+
 /* ============================================
    Main Content Area
    ============================================ */
@@ -340,7 +355,8 @@
 
 /* Card Actions */
 .config-card .card-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   opacity: 0;
   transform: translateY(-4px);
   transition: all 0.25s ease;
@@ -381,6 +397,19 @@
 
 .action-btn.disabled {
   cursor: not-allowed;
+}
+
+.action-btn.is-favorited {
+  color: #ef4444;
+  border-color: #ef4444;
+  background: rgb(239 68 68 / 10%);
+}
+
+.action-btn.is-favorited:hover {
+  color: #dc2626;
+  border-color: #dc2626;
+  background: rgb(239 68 68 / 20%);
+  transform: scale(1.08);
   opacity: 0.4;
   pointer-events: none;
 }
@@ -410,12 +439,6 @@
 }
 
 /* Card Footer */
-.card-footer {
-  position: relative;
-  z-index: 1;
-  margin-top: auto;
-  padding-top: 1rem;
-}
 
 .status-badge {
   display: inline-flex;
