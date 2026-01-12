@@ -478,6 +478,7 @@
         "configChangeMsg": "配置已更改",
         "configSaveMsg": "配置已保存",
         "configTabTitle": "已有配置，单击复制",
+        "configurationRefreshMsg": "配置已刷新",
         "confirmDeleteConfig": "确认删除配置吗？",
         "copySuccess": "复制成功: {text}",
         "delete": "删除",

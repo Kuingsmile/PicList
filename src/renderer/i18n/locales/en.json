@@ -478,6 +478,7 @@
         "configChangeMsg": "Configuration changed",
         "configSaveMsg": "Configuration saved",
         "configTabTitle": "Existing configurations, click to copy",
+        "configurationRefreshMsg": "Configuration refreshed",
         "confirmDeleteConfig": "Are you sure you want to delete this configuration?",
         "copySuccess": "Copied: {text}",
         "delete": "Delete",

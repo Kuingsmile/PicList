@@ -668,7 +668,7 @@ const toggleImportDropdown = () => {
 
 const refreshConfigs = () => {
   getAllConfigAliasArray()
-  notifyUser('Configurations refreshed', 'success')
+  notifyUser(t('pages.manage.login.configurationRefreshMsg'), 'success')
 }
 
 onMounted(() => {
