@@ -210,8 +210,12 @@
         key-field="key"
       >
         <template #default="{ item, index }">
-          <div class="gallery-item" :class="{ selected: choosedList[item.id || ''] }">
-            <div class="image-container" @click="zoomImage(index)">
+          <div
+            class="gallery-item"
+            :class="{ selected: choosedList[item.id || ''] }"
+            @click="handleChooseImage(!choosedList[item.id || ''], index)"
+          >
+            <div class="image-container" @click.stop="zoomImage(index)">
               <img
                 :src="
                   imageErrorStates[item.key || '']
@@ -252,7 +256,7 @@
                   </button>
                 </div>
 
-                <label class="custom-checkbox">
+                <label class="custom-checkbox" @click.stop>
                   <input
                     v-model="choosedList[item.id ? item.id : '']"
                     type="checkbox"
