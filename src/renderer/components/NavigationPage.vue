@@ -12,7 +12,7 @@
         class="collapse-button"
         @click="isCollapsed = !isCollapsed"
       >
-        <component :is="isCollapsed ? ChevronRightIcon : ChevronLeftIcon" :size="20" />
+        <component :is="isCollapsed ? ChevronRightIcon : ChevronLeftIcon" :size="16" />
       </button>
     </div>
 

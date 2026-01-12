@@ -846,15 +846,6 @@
 
           <!-- Update Preferences -->
           <div class="settings-section update-preferences-section">
-            <div class="section-header-with-icon">
-              <div class="section-icon-wrapper update small-icon">
-                <Settings :size="15" />
-              </div>
-              <div>
-                <h2>{{ t('pages.settings.update.updatePreferences') }}</h2>
-              </div>
-            </div>
-
             <div class="update-preference-card">
               <label class="switch-label">
                 <input v-model="formOfSetting.showUpdateTip" type="checkbox" class="switch-input" />
@@ -871,15 +862,6 @@
 
           <!-- Release Notes Section -->
           <div class="settings-section release-notes-section">
-            <div class="section-header-with-icon">
-              <div class="section-icon-wrapper notes small-icon">
-                <FileText :size="15" />
-              </div>
-              <div>
-                <h2>{{ t('pages.settings.update.releaseNotes') }}</h2>
-              </div>
-            </div>
-
             <div class="release-notes-card enhanced">
               <div class="release-notes-header">
                 <div class="release-notes-title">
@@ -905,9 +887,7 @@
                   </div>
                   <span>{{ t('pages.settings.update.loadingReleaseNotes') }}</span>
                 </div>
-                <div v-else-if="releaseNotes" class="release-notes-text">
-                  <pre class="release-notes-pre">{{ releaseNotes }}</pre>
-                </div>
+                <div v-else-if="releaseNotes" class="notes-body" v-html="renderedReleaseNotes"></div>
                 <div v-else-if="releaseNotesError" class="release-notes-error">
                   <div class="error-icon">⚠️</div>
                   <span>{{ releaseNotesError }}</span>
@@ -1779,6 +1759,7 @@ import {
   Settings,
   Store,
 } from 'lucide-vue-next'
+import { marked } from 'marked'
 import type { IConfig } from 'piclist'
 import pkg from 'root/package.json'
 import { computed, onBeforeMount, reactive, ref, toRaw, watch } from 'vue'
@@ -2266,6 +2247,10 @@ function formatLastFetchTime(date: Date): string {
     }
   }
 }
+
+const renderedReleaseNotes = computed(() => {
+  return marked(releaseNotes.value, { breaks: true, gfm: true })
+})
 
 async function fetchReleaseNotes(forceRefresh = false): Promise<void> {
   if (!forceRefresh && releaseNotesLastFetch.value) {

@@ -99,6 +99,7 @@ const buildMainPageMenu = (win: BrowserWindow) => {
       label: $t('ABOUT'),
       click() {
         dialog.showMessageBox({
+          type: 'info',
           title: 'PicList',
           message: 'PicList',
           detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`,
