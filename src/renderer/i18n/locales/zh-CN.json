@@ -1033,6 +1033,7 @@
     },
     "uploaderConfig": {
       "addNew": "新增配置",
+      "addToFavorites": "添加当前图床到快速切换",
       "clickToSelect": "点击选择",
       "copy": "副本",
       "delete": "删除",
@@ -1045,6 +1046,7 @@
       "duplicateSuccess": "拷贝成功",
       "duplicateTitle": "拷贝配置",
       "edit": "编辑",
+      "removeFromFavorites": "从快速切换中移除",
       "selected": "已启用",
       "setAsDefault": "设为默认图床",
       "setSuccess": "设置成功",

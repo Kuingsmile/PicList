@@ -6,41 +6,6 @@
   background: var(--color-background);
 }
 
-/* Ambient Background Effect */
-.ambient-bg {
-  position: fixed;
-  top: -50%;
-  left: -50%;
-  z-index: 0;
-  width: 200%;
-  height: 200%;
-  background:
-    radial-gradient(circle at 20% 20%, rgb(var(--accent-rgb) / 8%) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgb(var(--accent-rgb) / 5%) 0%, transparent 50%),
-    radial-gradient(circle at 40% 60%, rgb(59 130 246 / 5%) 0%, transparent 40%);
-  pointer-events: none;
-  animation: ambient-drift 20s ease-in-out infinite;
-}
-
-@keyframes ambient-drift {
-  0%,
-  100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-
-  25% {
-    transform: translate(2%, 1%) rotate(1deg);
-  }
-
-  50% {
-    transform: translate(-1%, 2%) rotate(-1deg);
-  }
-
-  75% {
-    transform: translate(1%, -1%) rotate(0.5deg);
-  }
-}
-
 /* Main Container */
 .config-container {
   position: relative;
@@ -48,7 +13,6 @@
   display: flex;
   margin: 0 auto;
   padding: 2rem;
-  max-width: 1400px;
   flex-direction: column;
   gap: 2rem;
 }
@@ -144,7 +108,7 @@
 
 .btn-primary {
   color: white;
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent) 100%);
   box-shadow:
     0 4px 14px rgb(var(--accent-rgb) / 35%),
     0 2px 4px rgb(0 0 0 / 10%),
@@ -184,21 +148,6 @@
 
 .btn-glow:hover:not(:disabled)::before {
   left: 100%;
-}
-
-.btn.is-favorited {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  box-shadow:
-    0 4px 14px rgb(239 68 68 / 35%),
-    0 2px 4px rgb(0 0 0 / 10%),
-    inset 0 1px 0 rgb(255 255 255 / 15%);
-}
-
-.btn.is-favorited:hover:not(:disabled) {
-  box-shadow:
-    0 8px 24px rgb(239 68 68 / 45%),
-    0 4px 8px rgb(0 0 0 / 15%),
-    inset 0 1px 0 rgb(255 255 255 / 20%);
 }
 
 /* ============================================
@@ -397,21 +346,6 @@
 
 .action-btn.disabled {
   cursor: not-allowed;
-}
-
-.action-btn.is-favorited {
-  color: #ef4444;
-  border-color: #ef4444;
-  background: rgb(239 68 68 / 10%);
-}
-
-.action-btn.is-favorited:hover {
-  color: #dc2626;
-  border-color: #dc2626;
-  background: rgb(239 68 68 / 20%);
-  transform: scale(1.08);
-  opacity: 0.4;
-  pointer-events: none;
 }
 
 /* Card Body */

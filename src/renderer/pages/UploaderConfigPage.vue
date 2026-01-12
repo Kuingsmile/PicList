@@ -1,8 +1,5 @@
 <template>
   <div class="config-page">
-    <!-- Ambient Background -->
-    <div class="ambient-bg" />
-
     <div class="config-container">
       <!-- Hero Header Section -->
       <header class="page-header">
@@ -52,15 +49,14 @@
               <div class="card-actions">
                 <button
                   class="action-btn"
-                  :class="{ 'is-favorited': isConfigFavorited(item._id) }"
                   :title="
                     isConfigFavorited(item._id)
                       ? t('pages.uploaderConfig.removeFromFavorites')
                       : t('pages.uploaderConfig.addToFavorites')
                   "
-                  @click.stop="() => toggleConfigFavorite(item._id)"
+                  @click.stop="() => toggleConfigFavorite(item._id, item._configName)"
                 >
-                  <Heart :size="14" :fill="isConfigFavorited(item._id) ? 'currentColor' : 'none'" />
+                  <Heart :size="14" :fill="isConfigFavorited(item._id) ? '#f39c12' : 'none'" />
                 </button>
                 <button class="action-btn" :title="t('pages.uploaderConfig.edit')" @click.stop="openEditPage(item._id)">
                   <Pencil :size="14" />
@@ -157,7 +153,6 @@ const favoritePicbeds = useStorage<IFavoritePicbedItem[]>('favorite-picbeds', []
 const type = ref('')
 const curConfigList = ref<IStringKeyMap[]>([])
 const defaultConfigId = ref('')
-const favoriteConfigs = useStorage<string[]>('favorite-configs', [])
 
 const picBedName = computed(() => {
   if (!picBedG.value || picBedG.value.length === 0) {
@@ -167,22 +162,20 @@ const picBedName = computed(() => {
   return target ? target.name : ''
 })
 
-const isFavorited = computed(() => {
-  return favoritePicbeds.value.some(item => item.type === type.value)
-})
-
 function isConfigFavorited(configId: string): boolean {
-  return favoriteConfigs.value.includes(configId)
+  const ids = favoritePicbeds.value.map(item => item.id)
+  return ids.includes(configId)
 }
 
-function toggleConfigFavorite(configId: string) {
-  const index = favoriteConfigs.value.indexOf(configId)
-  if (index > -1) {
-    favoriteConfigs.value.splice(index, 1)
-    message.success(t('pages.uploaderConfig.removedFromFavorites'))
+function toggleConfigFavorite(configId: string, configName: string) {
+  if (isConfigFavorited(configId)) {
+    const index = favoritePicbeds.value.findIndex(
+      item => item.type === type.value && item.id === configId && item.configName === configName,
+    )
+    if (index === -1) return
+    favoritePicbeds.value.splice(index, 1)
   } else {
-    favoriteConfigs.value.push(configId)
-    message.success(t('pages.uploaderConfig.addedToFavorites'))
+    favoritePicbeds.value.push({ id: configId, configName, type: type.value })
   }
 }
 
@@ -289,6 +282,12 @@ async function deleteConfig(id: string) {
     center: true,
   })
   if (!result) return
+  if (isConfigFavorited(id)) {
+    const index = favoritePicbeds.value.findIndex(item => item.type === type.value && item.id === id)
+    if (index !== -1) {
+      favoritePicbeds.value.splice(index, 1)
+    }
+  }
   const res = await window.electron.triggerRPC<IUploaderConfigItem>(IRPCActionType.PICBED_DELETE_CONFIG, type.value, id)
   if (!res) return
   curConfigList.value = res.configList
@@ -311,17 +310,6 @@ function setDefaultPicBed(type: string) {
     [configPaths.picBed.current]: type,
     [configPaths.picBed.uploader]: type,
   })
-
-  function toggleFavorite() {
-    const index = favoritePicbeds.value.findIndex(item => item.type === type.value)
-    if (index > -1) {
-      favoritePicbeds.value.splice(index, 1)
-      message.success(t('pages.uploaderConfig.removedFromFavorites'))
-    } else {
-      favoritePicbeds.value.push({ type: type.value })
-      message.success(t('pages.uploaderConfig.addedToFavorites'))
-    }
-  }
   const currentConfigName = curConfigList.value.find(item => item._id === defaultConfigId.value)?._configName
   window.electron.sendRPC(IRPCActionType.TRAY_SET_TOOL_TIP, `${type} ${currentConfigName || ''}`)
   message.success(t('pages.uploaderConfig.setSuccess'))

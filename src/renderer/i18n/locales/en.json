@@ -1038,6 +1038,7 @@
     },
     "uploaderConfig": {
       "addNew": "Add New Configuration",
+      "addToFavorites": "Add to Quick Switch",
       "clickToSelect": "Click to select",
       "copy": "Copy",
       "delete": "Delete",
@@ -1050,6 +1051,7 @@
       "duplicateSuccess": "Duplicate Success",
       "duplicateTitle": "Duplicate Configuration",
       "edit": "Edit",
+      "removeFromFavorites": "Remove from Quick Switch",
       "selected": "Active",
       "setAsDefault": "Set as Default PicBed",
       "setSuccess": "Set Success",
