@@ -14,11 +14,12 @@ html, body {
   flex-direction: column;
   gap: 1.25rem;
   box-sizing: border-box;
+  background: var(--color-surface);
 }
 
 /* Card Base */
 .toolbox-card {
-  overflow: hidden;
+  overflow: auto;
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-xl);
   background: var(--color-surface);
@@ -206,6 +207,7 @@ html, body {
 /* Items Card */
 .items-card {
   border-radius: var(--radius-lg);
+  height: 230px;
 }
 
 .card-title {
