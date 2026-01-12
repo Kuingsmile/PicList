@@ -86,7 +86,7 @@
         @drop.prevent="onDrop"
         @dragover.prevent="dragover = true"
         @dragleave.prevent="dragover = false"
-        @click="openUplodWindow"
+        @click="openUploadWindow"
       >
         <div class="upload-content">
           <div class="upload-icon">
@@ -709,12 +709,10 @@ const taskQueueStatus = reactive<IUploadTaskQueueStatus>({
 const filteredTasks = computed(() => {
   let tasks = taskQueueStatus.tasks
 
-  // Filter by status
   if (taskFilter.value !== 'all') {
     tasks = tasks.filter(t => t.status === taskFilter.value)
   }
 
-  // Filter by search query
   if (taskSearchQuery.value) {
     const query = taskSearchQuery.value.toLowerCase()
     tasks = tasks.filter(t => t.fileName.toLowerCase().includes(query))
@@ -823,8 +821,6 @@ function onDrop(e: DragEvent) {
 }
 
 function handleURLDrag(items: DataTransferItemList, dataTransfer: DataTransfer) {
-  // text/html
-  // Use this data to get a more precise URL
   const urlString = dataTransfer.getData(items[1].type)
   const urlMatch = urlString.match(/<img.*src="(.*?)"/)
   if (urlMatch) {
@@ -838,7 +834,7 @@ function handleURLDrag(items: DataTransferItemList, dataTransfer: DataTransfer) 
   }
 }
 
-function openUplodWindow() {
+function openUploadWindow() {
   fileInput.value?.click()
 }
 

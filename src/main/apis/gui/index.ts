@@ -3,7 +3,6 @@ import db, { GalleryDB } from '@core/datastore'
 import { dbPathChecker, defaultConfigPath, getGalleryDBPath } from '@core/datastore/dbChecker'
 import { DBStore } from '@piclist/store'
 import uploader from 'apis/app/uploader'
-import { handleSecondaryUpload } from 'apis/app/uploader/apis'
 import { BrowserWindow, dialog, ipcMain, IpcMainEvent, MessageBoxOptions, Notification } from 'electron'
 import fs from 'fs-extra'
 import { cloneDeep } from 'lodash-es'
@@ -74,14 +73,10 @@ class GuiApi implements IGuiApi {
     this.windowId = await getWindowId()
     const webContents = this.getWebcontentsByWindowId(this.windowId)
     const rawInput = cloneDeep(input)
-    const { needRestore, ctx } = await handleSecondaryUpload(webContents!, input)
-    let imgs: ImgInfo[] | false = false
-    if (needRestore) {
-      const res = await uploader.setWebContents(webContents!).uploadReturnCtx(ctx ? ctx.processedInput : input, true)
-      imgs = res ? res.output : false
-    } else {
-      imgs = await uploader.setWebContents(webContents!).upload(input)
-    }
+    const res = await uploader.setWebContents(webContents!).uploadReturnCtx(input)
+    const imgs = res[0] ? res[0] : false
+    const backImgs = res[1] ? res[1] : false
+    let result: ImgInfo[] = []
     if (imgs !== false) {
       const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
       const deleteLocalFile = db.get(configPaths.settings.deleteLocalFile) || false
@@ -114,11 +109,18 @@ class GuiApi implements IGuiApi {
         await GalleryDB.getInstance().insert(imgs[i])
       }
       handleCopyUrl(pasteText.join('\n'))
-      webContents?.send('uploadFiles', imgs)
+      webContents?.send('uploadFiles')
       webContents?.send('updateGallery')
-      return imgs
+      result = imgs
     }
-    return []
+    if (backImgs !== false) {
+      for (const backImg of backImgs) {
+        await GalleryDB.getInstance().insert(backImg)
+      }
+      webContents?.send('uploadFiles')
+      webContents?.send('updateGallery')
+    }
+    return result
   }
 
   showNotification(

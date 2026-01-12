@@ -27,7 +27,7 @@ const getPicBeds = () => {
       }
       return 0
     }) as IPicBedType[]
-  return { picBeds, defaultPicBed, defaultId, defaultConfigName }
+  return { picBeds, defaultPicBed, defaultId, defaultConfigName, defaultConfig }
 }
 
 export default getPicBeds

@@ -836,6 +836,7 @@
         "availablePlaceholdersTitle": "使用以下占位符自定義鏈接格式",
         "c1nToken": "C1N Token",
         "cfWorkerHost": "CF Worker 地址",
+        "chooseSecondPicBedMode": "選擇第二圖床模式",
         "chooseShowedPicBed": "請選擇顯示在菜單的圖床",
         "clipboardAndNotification": "剪貼板和通知",
         "copySuccess": "複製成功: {content}",
@@ -882,6 +883,10 @@
           "uuid": "隨機 UUID",
           "year2": "年份，2位數",
           "year4": "年份，4位數"
+        },
+        "secondPicBedMode": {
+          "backup": "備份模式",
+          "seperate": "獨立模式"
         },
         "setSecondPicBed": "設置第二圖床",
         "setSecondPicBedDesc": "配置用於備份的第二圖床",

@@ -27,14 +27,9 @@ export const completeUploaderMetaConfig = (originData: IStringKeyMap, id?: strin
   }
 }
 
-export const changeSecondUploader = (type: string, config?: IStringKeyMap, id?: string) => {
+export const changeSecondUploader = (type: string, config?: IStringKeyMap) => {
   if (!type) {
     return
-  }
-  if (id) {
-    picgo.saveConfig({
-      [configPaths.picBed.secondUploaderId]: id,
-    })
   }
   if (config) {
     picgo.saveConfig({

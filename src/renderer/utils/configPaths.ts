@@ -172,6 +172,7 @@ export const configPaths = {
     autoImportPicBed: 'settings.autoImportPicBed',
     galleryPicBedFilter: 'settings.galleryPicBedFilter',
     enableSecondUploader: 'settings.enableSecondUploader',
+    secondPicBedMode: 'settings.secondPicBedMode',
   },
   needReload: 'needReload',
   picgoPlugins: 'picgoPlugins',

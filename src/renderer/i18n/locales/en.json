@@ -841,6 +841,7 @@
         "availablePlaceholdersTitle": "Use these placeholders to customize link format",
         "c1nToken": "C1N Token",
         "cfWorkerHost": "CF Worker Address",
+        "chooseSecondPicBedMode": "Choose Second Image Bed Mode",
         "chooseShowedPicBed": "Please select the image bed to display in the menu",
         "clipboardAndNotification": "Clipboard and Notification",
         "copySuccess": "Copy Successful: {content}",
@@ -887,6 +888,10 @@
           "uuid": "Random UUID",
           "year2": "Year, 2 Digits",
           "year4": "Year, 4 Digits"
+        },
+        "secondPicBedMode": {
+          "backup": "Backup Mode",
+          "seperate": "Separate Mode"
         },
         "setSecondPicBed": "Set Second Image Bed",
         "setSecondPicBedDesc": "Configure secondary image bed for backup",

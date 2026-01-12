@@ -58,7 +58,7 @@ html, body {
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
-  max-width: calc(100% - 300px); /* Leave space for header-actions */
+  max-width: calc(100% - 300px);
 }
 
 .provider-button {
@@ -164,8 +164,6 @@ html, body {
 
 .picbed-badge.is-active {
   border-color: var(--color-accent);
-  color: var(--color-accent);
-  background: var(--color-accent-soft, rgb(59 130 246 / 10%));
   font-weight: 600;
 }
 
@@ -464,7 +462,6 @@ html, body {
 
 /* Quick Actions Card */
 .card-header {
-  border-bottom: 1px solid var(--color-border-secondary);
   padding: 1rem 1.5rem;
 }
 
@@ -605,7 +602,7 @@ html, body {
 .format-button {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 0.4rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   font-size: 0.7rem;
   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   font-weight: 500;
@@ -637,7 +634,7 @@ html, body {
 
 .toggle-button {
   border: none;
-  padding: 0.625rem 0.875rem;
+  padding: 0.325rem 0.675rem;
   font-size: 0.8rem;
   font-family: inherit;
   font-weight: 500;

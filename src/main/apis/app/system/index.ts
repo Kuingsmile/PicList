@@ -1,7 +1,7 @@
 import db, { GalleryDB } from '@core/datastore'
 import picgo from '@core/picgo'
 import uploader from 'apis/app/uploader'
-import { handleSecondaryUpload, uploadClipboardFiles } from 'apis/app/uploader/apis'
+import { uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
 import {
   app,
@@ -312,16 +312,9 @@ export function createTray(tooltip: string) {
         const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
         const rawInput = cloneDeep(files)
         const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
-        const { needRestore, ctx } = await handleSecondaryUpload(trayWindow.webContents, files, 'tray')
-        let imgs: ImgInfo[] | false = false
-        if (needRestore) {
-          const res = await uploader
-            .setWebContents(trayWindow.webContents)
-            .uploadReturnCtx(ctx ? ctx.processedInput : files, true)
-          imgs = res ? res.output : false
-        } else {
-          imgs = await uploader.setWebContents(trayWindow.webContents).upload(files)
-        }
+        const res = await uploader.setWebContents(trayWindow.webContents).uploadReturnCtx(files)
+        const imgs = res[0] ? res[0] : false
+        const backImgs = res[1] ? res[1] : false
         const deleteLocalFile = db.get(configPaths.settings.deleteLocalFile) || false
         if (imgs !== false) {
           const pasteText: string[] = []
@@ -354,6 +347,12 @@ export function createTray(tooltip: string) {
           }
           handleCopyUrl(pasteText.join('\n'))
           trayWindow.webContents.send('dragFiles', imgs)
+        }
+        if (backImgs !== false) {
+          for (const backImg of backImgs) {
+            await GalleryDB.getInstance().insert(backImg)
+          }
+          trayWindow.webContents.send('dragFiles', backImgs)
         }
       })
     }

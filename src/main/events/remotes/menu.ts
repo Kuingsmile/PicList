@@ -139,12 +139,16 @@ const buildMainPageMenu = (win: BrowserWindow) => {
 const buildSecondPicBedMenu = () => {
   const picBeds = getPicBeds().picBeds
   const secondUploader = picgo.getConfig(configPaths.picBed.secondUploader)
-  const defaultSecondUploaderId = picgo.getConfig(configPaths.picBed.secondUploaderId)
+  const defaultSecondUploaderConfig = picgo.getConfig(configPaths.picBed.secondUploaderConfig) as
+    | IUploaderConfig
+    | undefined
+  const defaultSecondUploaderId = defaultSecondUploaderConfig?._id || ''
+  const defaultSecondUploaderName = defaultSecondUploaderConfig?._configName || 'Default'
   const currentPicBedName = picBeds.find(item => item.type === secondUploader)?.name
   const picBedConfigList = picgo.getConfig<IUploaderConfig>('uploader')
   const currentPicBedMenuItem = [
     {
-      label: `${$t('CURRENT_SECOND_PICBED')} - ${currentPicBedName || 'None'}`,
+      label: `${$t('CURRENT_SECOND_PICBED')} - ${currentPicBedName || 'None'} - ${defaultSecondUploaderName}`,
       enabled: false,
     },
     {
@@ -169,16 +173,17 @@ const buildSecondPicBedMenu = () => {
                 type: 'checkbox',
                 checked: config._id === defaultSecondUploaderId && item.type === secondUploader,
                 click() {
-                  changeSecondUploader(item.type, config, config._id)
+                  changeSecondUploader(item.type, config)
                 },
               }
             })
           : undefined,
         click: !hasSubmenu
           ? function () {
-              picgo.saveConfig({
-                [configPaths.picBed.secondUploader]: item.type,
-              })
+              const current = picgo.getConfig(`picBed.${item.type}`)
+              if (current) {
+                changeSecondUploader(item.type, current)
+              }
             }
           : undefined,
       }

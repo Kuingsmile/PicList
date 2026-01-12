@@ -10,12 +10,14 @@ interface getPicBedType {
   defaultPicBed: string
   defaultConfigName: string
   defaultId: string
+  defaultConfig: IStringKeyMap
 }
 
 const _picBeds = ref<IPicBedType[]>([])
 const _defaultPicBed = ref<string>('')
 const _defaultConfigName = ref<string>('')
 const _defaultPicBedId = ref<string>('')
+const _defaultConfigG = ref<IStringKeyMap>({})
 
 export function usePicBed() {
   const updatePicBeds = async () => {
@@ -25,6 +27,7 @@ export function usePicBed() {
       _defaultPicBed.value = result.defaultPicBed
       _defaultConfigName.value = result.defaultConfigName
       _defaultPicBedId.value = result.defaultId
+      _defaultConfigG.value = result.defaultConfig
     }
   }
   return {
@@ -32,6 +35,7 @@ export function usePicBed() {
     defaultPicBedG: readonly(_defaultPicBed),
     defaultConfigNameG: readonly(_defaultConfigName),
     defaultIdG: readonly(_defaultPicBedId),
+    defaultConfigG: readonly(_defaultConfigG),
     updatePicBeds,
   }
 }

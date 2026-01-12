@@ -261,7 +261,7 @@ class UploadTaskQueueManager {
 
       const inserted = await GalleryDB.getInstance().insert(img)
 
-      windowManager.get(IWindowList.TRAY_WINDOW)?.webContents?.send('uploadFiles', [img])
+      windowManager.get(IWindowList.TRAY_WINDOW)?.webContents?.send('uploadFiles')
       if (windowManager.has(IWindowList.SETTING_WINDOW)) {
         windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
       }

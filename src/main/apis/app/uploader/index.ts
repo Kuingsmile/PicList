@@ -137,15 +137,15 @@ class Uploader {
     }
   }
 
-  async uploadWithBuildInClipboardReturnCtx(img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
+  async uploadWithBuildInClipboardReturnCtx(img?: IUploadOption): Promise<(ImgInfo[] | false)[]> {
     let imgPath: string | false = false
     try {
       imgPath = await this.getClipboardImagePath()
-      if (!imgPath) return false
-      return await this.uploadReturnCtx(img ?? [imgPath], skipProcess)
+      if (!imgPath) return [false, false]
+      return await this.uploadReturnCtx(img ?? [imgPath])
     } catch (e: any) {
       logger.error(e)
-      return false
+      return [false, false]
     } finally {
       if (imgPath && imgPath.startsWith(path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER))) {
         fs.remove(imgPath)
@@ -153,16 +153,25 @@ class Uploader {
     }
   }
 
-  async uploadReturnCtx(img?: IUploadOption, skipProcess = false): Promise<IPicGo | false> {
+  async uploadReturnCtx(img?: IUploadOption): Promise<(ImgInfo[] | false)[]> {
     try {
-      const ctx = await picgo.uploadReturnCtx(img, skipProcess)
-      if (!Array.isArray(ctx.output) || !ctx.output.some((item: ImgInfo) => item.imgUrl)) return false
+      const result = [false, false] as (ImgInfo[] | false)[]
+      const res = await picgo.uploadReturnCtx(img)
 
-      ctx.output.forEach((item: ImgInfo) => {
-        item.config = JSON.parse(JSON.stringify(db.get(`picBed.${item.type}`)))
-      })
+      if (Array.isArray(res.output) && res.output.some((item: ImgInfo) => item.imgUrl)) {
+        res.output.forEach((item: ImgInfo) => {
+          item.config = JSON.parse(JSON.stringify(db.get(`picBed.${item.type}`)))
+        })
+        result[0] = res.output
+      }
 
-      return ctx
+      if (Array.isArray(res.backupOutput) && res.backupOutput.some((item: ImgInfo) => item.imgUrl)) {
+        res.backupOutput.forEach((item: ImgInfo) => {
+          item.config = JSON.parse(JSON.stringify(db.get(`picBed.${item.type}`)))
+        })
+        result[1] = res.backupOutput
+      }
+      return result
     } catch (e: any) {
       logger.error(e)
       setTimeout(() => {
@@ -172,7 +181,7 @@ class Uploader {
           clickToCopy: true,
         })
       }, 500)
-      return false
+      return [false, false]
     } finally {
       ipcMain.removeAllListeners(GET_RENAME_FILE_NAME)
     }

@@ -388,6 +388,18 @@
                   </svg>
                 </div>
               </div>
+
+              <div class="system-option-card">
+                <div class="system-option-header">
+                  <Settings2Icon :size="18" />
+                  <span>{{ t('pages.settings.upload.chooseSecondPicBedMode') }}</span>
+                </div>
+                <select v-model="currentSecondMode" class="form-select">
+                  <option v-for="item in secondModeList" :key="item.value" :value="item.value">
+                    {{ item.label }}
+                  </option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -1757,6 +1769,7 @@ import {
   RotateCcw,
   Server,
   Settings,
+  Settings2Icon,
   Store,
 } from 'lucide-vue-next'
 import { marked } from 'marked'
@@ -1808,6 +1821,11 @@ const languageList = [
   { label: '简体中文', value: 'zh-CN' },
   { label: '繁體中文', value: 'zh-TW' },
   { label: 'English', value: 'en' },
+]
+
+const secondModeList = [
+  { label: t('pages.settings.upload.secondPicBedMode.backup'), value: 'backup' },
+  { label: t('pages.settings.upload.secondPicBedMode.seperate'), value: 'seperate' },
 ]
 
 const formOfSetting = ref<ISettingForm>({
@@ -1900,6 +1918,12 @@ const addWatch = () => {
     )
   })
 
+  watch(currentSecondMode, newVal => {
+    if (newVal) {
+      saveConfig({ [configPaths.settings.secondPicBedMode]: newVal })
+    }
+  })
+
   watch(currentLanguage, newVal => {
     if (newVal) {
       handleLanguageChange(newVal)
@@ -1959,6 +1983,7 @@ function copyPlaceholder(placeholder: string) {
 }
 
 const currentLanguage = ref()
+const currentSecondMode = ref()
 const currentStartMode = ref()
 const currentShortUrlServer = ref()
 
@@ -2079,6 +2104,7 @@ async function initData() {
   formOfSetting.value.autoImportPicBed = initArray(settings.autoImportPicBed || [], [])
   currentLanguage.value = settings.language || 'zh-CN'
   currentStartMode.value = settings.startMode || ISartMode.QUIET
+  currentSecondMode.value = settings.secondPicBedMode || 'backup'
   if (osGlobal.value === 'darwin' && currentStartMode.value === ISartMode.MINI) {
     currentStartMode.value = ISartMode.QUIET
     saveConfig(configPaths.settings.startMode, ISartMode.QUIET)
