@@ -86,7 +86,7 @@ html, body {
   font-family: inherit;
   font-weight: 500;
   color: white;
-  background: var(--color-accent);
+  background: var(--color-blue-common);
   transition: var(--transition-fast);
   gap: 0.5rem;
   cursor: pointer;
@@ -490,11 +490,11 @@ html, body {
 
 .settings-button {
   color: white;
-  background: var(--color-accent);
+  background: var(--color-blue-common);
 }
 
 .settings-button:hover:not(:disabled) {
-  background: var(--color-accent-hover);
+  background: var(--color-accent);
   transform: translateY(-1px);
 }
 

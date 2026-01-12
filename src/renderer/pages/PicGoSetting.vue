@@ -2425,7 +2425,7 @@ function handleLanguageChange(val: string) {
   setCurrentLanguage(val)
   saveConfig({ [configPaths.settings.language]: val })
   localStorage.setItem('currentLanguage', val)
-  // updatePicBedGlobal()
+  updatePicBeds()
 }
 
 function handleStartModeChange(val: string) {
