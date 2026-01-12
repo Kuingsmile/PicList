@@ -1,16 +1,17 @@
-## 🎉 [v3.2.0] Release note
+## 🎉 [v3.2.1] Release Notes
 
-### ✨ Features
+### ✨ New Features
 
-- Add Upload Task System, now you can add files to the task, upload them at intervals, and adjust the priority at any time to avoid platform API rate limits.
-- Now supports setting image preprocessing/renaming options for each individual image bed, the effective order is `Image Bed Settings > Platform Settings > Global Settings`
-- Optimized the display logic of the image preprocessing options for the image bed platform settings and individual image bed settings, now more clearly displaying the currently effective configuration
-- Now automatically saves the current UI selection status of multiple pages
-- Added Linux Arm64 platform support and added deb installation package
-- Optimized update page display, now automatically renders md format update instructions
+- Added image bed favorites feature, now you can add up to 6 commonly used image beds and quickly switch on the homepage
+- Optimized the upload logic of the second image bed, and added backup and independent upload mode options
+- Optimized the image selection experience on the album page, now you can select images by clicking anywhere
+- Added favorites button on the image bed selection page
+- The update notes page now uses markdown rendering
 
 ### 🐛 Bug Fixes
 
-- Fixed an issue where the version number displayed extra characters on the update check page
-- Fixed an issue where fine format conversion could not be set on the image processing page
-- Fixed a performance issue caused by repeated execution of save functions on some pages
+- Fixed an issue where the interval between uploads in the task upload system could not be less than 100 seconds, now the minimum interval is 1 second
+- Fixed an issue where the second image bed upload did not take effect in the Mac tray window and task upload system
+- Fixed an issue where the image bed list did not refresh in time when switching languages
+- Fixed an issue where the dropdown list on the QR code generation page was obscured
+- Fixed an issue where the UI of the repair toolbox page was displayed abnormally
