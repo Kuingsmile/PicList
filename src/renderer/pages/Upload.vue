@@ -97,7 +97,7 @@
               {{ t('pages.upload.dragFileToHere') }}
             </h3>
             <p class="upload-subtitle">
-              {{ t('pages.upload.clickToUpload') }}
+              {{ ' ' }}
             </p>
             <div class="upload-formats">
               <span class="format-label">{{ t('pages.upload.uploadHint') }}</span>
@@ -969,6 +969,9 @@ function isCurrentPicbed(picbedType: IFavoritePicbedItem): boolean {
 
 function handleBadgeClick(picbedType: IFavoritePicbedItem) {
   if (longPressedBadge.value === picbedType.id) {
+    return
+  }
+  if (isCurrentPicbed(picbedType)) {
     return
   }
   switchToPicbed(picbedType)

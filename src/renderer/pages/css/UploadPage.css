@@ -164,6 +164,7 @@ html, body {
 
 .picbed-badge.is-active {
   border-color: var(--color-accent);
+  border-width: 0.1rem;
   font-weight: 600;
 }
 
