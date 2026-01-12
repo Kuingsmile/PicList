@@ -153,6 +153,7 @@ html, body {
   flex-shrink: 0;
   user-select: none;
   position: relative;
+  overflow: hidden;
 }
 
 .picbed-badge:hover {
@@ -160,6 +161,43 @@ html, body {
   color: var(--color-accent);
   background: var(--color-surface);
   transform: translateY(-1px);
+}
+
+.badge-text-mask {
+  flex: 1;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.badge-text-track {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge-text-track .badge-name.shadow-text {
+  display: none;
+}
+
+.picbed-badge:hover .badge-text-track {
+  display: flex;
+  width: fit-content;
+  text-overflow: clip;
+  animation: badge-scroll 5s linear infinite;
+}
+
+.picbed-badge:hover .badge-name {
+  padding-right: 20px;
+}
+
+.picbed-badge:hover .badge-name.shadow-text {
+  display: block;
+}
+
+@keyframes badge-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 .picbed-badge.is-active {
@@ -174,9 +212,6 @@ html, body {
 
 .badge-name {
   line-height: 1;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

@@ -43,7 +43,12 @@
               @touchend="handleBadgeTouchEnd"
               @touchcancel="handleBadgeTouchEnd"
             >
-              <span class="badge-name">{{ getAbbreviatedName(picbedType) }}</span>
+              <div class="badge-text-mask">
+                <div class="badge-text-track">
+                  <span class="badge-name">{{ getPicbedName(picbedType) }}</span>
+                  <span class="badge-name shadow-text">{{ getPicbedName(picbedType) }}</span>
+                </div>
+              </div>
               <button
                 v-if="longPressedBadge === picbedType.id"
                 class="badge-remove"
@@ -941,26 +946,6 @@ function getPicbedName(picbedType: IFavoritePicbedItem): string {
   }
   const target = picBedG.value.find(item => item.type === picbedType.type)
   return `${target ? target.name : picbedType.type}-${picbedType.configName}`
-}
-
-const truncatePart = (part: string): string => {
-  let partCount = 0
-  let res = ''
-  for (const char of part) {
-    const isDoubleByte = char.charCodeAt(0) > 127
-    const nextCount = partCount + (isDoubleByte ? 2 : 1)
-    if (nextCount > 4) {
-      return res
-    }
-    res += char
-    partCount = nextCount
-  }
-  return res
-}
-
-function getAbbreviatedName(picbedType: IFavoritePicbedItem): string {
-  const name = getPicbedName(picbedType)
-  return name.split('-').map(truncatePart).join('-')
 }
 
 function isCurrentPicbed(picbedType: IFavoritePicbedItem): boolean {
