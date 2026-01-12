@@ -31,7 +31,9 @@ const trayRoutes = [
     handler: async () => {
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
       // macOS use builtin clipboard is OK
-      const img = await uploader.setWebContents(trayWindow.webContents).uploadWithBuildInClipboard()
+      const res = await uploader.setWebContents(trayWindow.webContents).uploadWithBuildInClipboardReturnCtx()
+      const img = res[0] ? res[0] : false
+      const backupImgs = res[1] ? res[1] : false
       if (img !== false) {
         const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
         const [pasteText, shortUrl] = await pasteTemplate(pasteStyle, img[0], db.get(configPaths.settings.customLink))
@@ -54,6 +56,13 @@ const trayRoutes = [
         trayWindow.webContents.send('clipboardFiles', [])
         if (windowManager.has(IWindowList.SETTING_WINDOW)) {
           windowManager.get(IWindowList.SETTING_WINDOW)!.webContents.send('updateGallery')
+        }
+        if (backupImgs && backupImgs.length > 0) {
+          await GalleryDB.getInstance().insert(backupImgs[0])
+          trayWindow.webContents.send('uploadFiles')
+          if (windowManager.has(IWindowList.SETTING_WINDOW)) {
+            windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
+          }
         }
       }
       trayWindow.webContents.send('uploadFiles')

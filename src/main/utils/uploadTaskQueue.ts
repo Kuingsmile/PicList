@@ -237,8 +237,9 @@ class UploadTaskQueueManager {
     const input = [task.filePath]
     const rawInput = cloneDeep(input)
 
-    let imgs: ImgInfo[] | false = false
-    imgs = await uploader.setWebContents(webContents).upload(input)
+    const res = await uploader.setWebContents(webContents).uploadReturnCtx(input)
+    const imgs = res[0] ? res[0] : false
+    const backupImgs = res[1] ? res[1] : false
 
     if (imgs !== false && imgs.length > 0) {
       const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
@@ -267,6 +268,13 @@ class UploadTaskQueueManager {
       }
 
       handleCopyUrl(pasteText)
+      if (backupImgs && backupImgs.length > 0) {
+        await GalleryDB.getInstance().insert(backupImgs[0])
+        windowManager.get(IWindowList.TRAY_WINDOW)?.webContents?.send('uploadFiles')
+        if (windowManager.has(IWindowList.SETTING_WINDOW)) {
+          windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
+        }
+      }
 
       return {
         url: handleUrlEncodeWithSetting(inserted.imgUrl!),

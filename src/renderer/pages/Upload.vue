@@ -221,7 +221,7 @@
 
     <!-- Task Queue Manager Modal -->
     <transition name="modal">
-      <div v-if="taskDialogVisible" class="modal-overlay" @click="taskDialogVisible = false">
+      <div v-if="taskDialogVisible" class="modal-overlay">
         <div class="modal-container task-queue-modal" @click.stop>
           <div class="modal-header">
             <div class="modal-header-text">
@@ -349,9 +349,9 @@
                       <input
                         v-model.number="uploadInterval"
                         type="number"
-                        min="0.1"
+                        min="1"
                         max="99999"
-                        step="0.1"
+                        step="1"
                         class="setting-input"
                         :disabled="taskQueueStatus.config.isRunning"
                         @change="updateInterval"
@@ -1132,7 +1132,6 @@ async function clearFinishedTasks() {
 }
 
 async function updateInterval() {
-  uploadInterval.value = Math.max(100, Math.min(60000, uploadInterval.value))
   await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_SET_INTERVAL, uploadInterval.value)
 }
 
