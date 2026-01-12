@@ -247,7 +247,7 @@
             <!-- Action Bar -->
             <div class="task-action-bar">
               <div class="action-bar-left">
-                <button class="action-btn primary" @click="addFilesToTask">
+                <button v-show="taskQueueStatus.tasks.length > 0" class="action-btn primary" @click="addFilesToTask">
                   <PlusIcon :size="16" />
                   {{ t('pages.upload.taskQueue.addFiles') }}
                 </button>
