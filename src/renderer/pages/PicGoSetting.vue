@@ -825,13 +825,18 @@
                   <small>{{ t('pages.settings.advanced.serverEncryptionKeyDesc') }}</small>
                 </div>
               </div>
-              <input
-                v-model.trim="formOfSetting.aesPassword"
-                type="text"
-                class="form-input"
-                :placeholder="t('pages.settings.advanced.serverEncryptionKey')"
-                @change="handleAesPasswordChange(formOfSetting.aesPassword)"
-              />
+              <div class="input-with-icon">
+                <input
+                  v-model.trim="formOfSetting.aesPassword"
+                  :type="apiKeyVisible ? 'text' : 'password'"
+                  class="form-input"
+                  :placeholder="t('pages.settings.advanced.serverEncryptionKey')"
+                  @change="handleAesPasswordChange(formOfSetting.aesPassword)"
+                />
+                <div class="icon-btn" @click="apiKeyVisible = !apiKeyVisible">
+                  <component :is="apiKeyVisible ? Eye : EyeOff" :size="16" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1391,12 +1396,17 @@
                 <Keyboard :size="14" />
                 {{ t('pages.settings.advanced.serverKey') }}
               </label>
-              <input
-                v-model="formOfSetting.serverKey"
-                type="text"
-                class="form-input"
-                :placeholder="t('pages.settings.advanced.serverKeyPlaceholder')"
-              />
+              <div class="input-with-icon">
+                <input
+                  v-model="formOfSetting.serverKey"
+                  :type="serverKeyVisible ? 'text' : 'password'"
+                  class="form-input"
+                  :placeholder="t('pages.settings.advanced.serverKeyPlaceholder')"
+                />
+                <div class="icon-btn" @click="serverKeyVisible = !serverKeyVisible">
+                  <component :is="serverKeyVisible ? Eye : EyeOff" :size="16" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1756,6 +1766,8 @@ import {
   CloudUpload,
   Download,
   Edit,
+  Eye,
+  EyeOff,
   FileText,
   FolderOpen,
   GitBranch,
@@ -1991,6 +2003,8 @@ const logFileVisible = ref(false)
 const customLinkVisible = ref(false)
 const checkUpdateVisible = ref(false)
 const serverVisible = ref(false)
+const serverKeyVisible = ref(false)
+const apiKeyVisible = ref(false)
 const webServerVisible = ref(false)
 const syncVisible = ref(false)
 const upDownConfigVisible = ref(false)
@@ -2481,3 +2495,33 @@ export default { name: 'SettingPage' }
 </script>
 
 <style scoped src="./css/PicgoSetting.css"></style>
+
+<style scoped>
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-with-icon .form-input {
+  padding-right: 2.5rem;
+}
+
+.icon-btn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  transition: color 0.2s ease;
+}
+
+.icon-btn:hover {
+  color: var(--color-text-primary);
+}
+</style>
