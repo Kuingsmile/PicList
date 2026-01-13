@@ -1,5 +1,4 @@
 import crypto from 'node:crypto'
-import os from 'node:os'
 import path from 'node:path'
 
 import axios from 'axios'
@@ -10,7 +9,7 @@ const version = process.argv[2] || pkg.version
 
 // Configuration
 const BASE_URL = `https://github.com/Kuingsmile/PicList/releases/download/v${version}`
-const DOWNLOAD_DIR = process.argv[3] || path.join(os.homedir(), 'Downloads')
+const DOWNLOAD_DIR = path.join('R:\\Downloads')
 // File information
 const files = [
   {
