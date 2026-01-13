@@ -103,7 +103,7 @@
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.5rem;
-  background: var(--color-background-primary);
+  background: var(--color-background-secondary);
   box-shadow: 0 2px 8px var(--color-border);
 }
 
@@ -1084,7 +1084,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 1.5rem;
-  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-background-primary) 100%);
+  background: var(--color-background-secondary);
   box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
   gap: 1.5rem;
 }
@@ -1718,7 +1718,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-background-primary) 100%);
+  background: var(--color-background-secondary);
   box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
   gap: 1.5rem;
 }

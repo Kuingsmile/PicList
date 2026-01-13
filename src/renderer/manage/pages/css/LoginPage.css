@@ -16,7 +16,7 @@
   overflow: hidden;
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-xl);
-  background: var(--color-surface);
+  background: var(settings-section);
   box-shadow: var(--shadow-sm);
   transition: var(--transition-medium);
 }

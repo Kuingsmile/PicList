@@ -23,8 +23,8 @@
           v-for="tab in tabs"
           :key="tab.id"
           class="tab-button"
-          :class="{ active: activeName === tab.id }"
-          @click="activeName = tab.id as 'system' | 'sync' | 'upload' | 'advanced' | 'update'"
+          :class="{ active: currentTab === tab.id }"
+          @click="currentTab = tab.id as 'system' | 'sync' | 'upload' | 'advanced' | 'update'"
         >
           <component :is="tab.icon" :size="18" />
           <span>{{ tab.label }}</span>
@@ -34,7 +34,7 @@
       <!-- Settings Content -->
       <div class="settings-content">
         <!-- System Settings Tab -->
-        <div v-if="activeName === 'system'" class="tab-content">
+        <div v-if="currentTab === 'system'" class="tab-content">
           <!-- Language & Appearance Section -->
           <div class="settings-section system-section">
             <div class="section-header-with-icon">
@@ -227,7 +227,7 @@
         </div>
 
         <!-- Sync & Configure Tab -->
-        <div v-if="activeName === 'sync'" class="tab-content">
+        <div v-if="currentTab === 'sync'" class="tab-content">
           <!-- Sync Status Overview -->
           <div class="sync-overview-card">
             <div class="sync-overview-header">
@@ -317,7 +317,7 @@
           </div>
         </div>
         <!-- Upload Settings Tab -->
-        <div v-if="activeName === 'upload'" class="tab-content">
+        <div v-if="currentTab === 'upload'" class="tab-content">
           <!-- Upload Behavior Section -->
           <div class="settings-section upload-section">
             <div class="section-header-with-icon">
@@ -718,7 +718,7 @@
         </div>
 
         <!-- Advanced Settings Tab -->
-        <div v-if="activeName === 'advanced'" class="tab-content">
+        <div v-if="currentTab === 'advanced'" class="tab-content">
           <!-- Logging Section -->
           <div class="settings-section advanced-section">
             <div class="section-header-with-icon">
@@ -842,7 +842,7 @@
         </div>
 
         <!-- Update Settings Tab -->
-        <div v-if="activeName === 'update'" class="tab-content">
+        <div v-if="currentTab === 'update'" class="tab-content">
           <!-- Version Status Card -->
           <div class="update-status-card">
             <div class="update-status-icon">
@@ -1760,6 +1760,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useStorage } from '@vueuse/core'
 import { compare } from 'compare-versions'
 import {
   BookOpen,
@@ -1809,9 +1810,9 @@ const { confirm } = useConfirm()
 const message = useMessage()
 const { picBedG, updatePicBeds } = usePicBed()
 
-const activeName = ref<'system' | 'sync' | 'upload' | 'advanced' | 'update'>('system')
 const showPicBedList = ref<string[]>([])
 const galleryPicBedFilterList = ref<string[]>([])
+const currentTab = useStorage<'system' | 'sync' | 'upload' | 'advanced' | 'update'>('settings-current-tab', 'system')
 
 // Tab configuration
 const tabs = computed(() => [
