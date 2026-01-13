@@ -390,7 +390,7 @@
 
             <div class="file-info-section">
               <div class="file-name" :title="item.fileName" @click.stop="copyToClipboard(item.fileName ?? '')">
-                {{ formatFileName(item.fileName ?? '', 25) }}
+                {{ item.fileName ?? '' }}
               </div>
               <div class="file-meta">
                 <span>{{ formatFileSize(item.fileSize) }}</span>
@@ -487,7 +487,7 @@
             <!-- File Info -->
             <div class="file-list-info" @click.stop="handleClickFile(item)">
               <div class="file-list-name">
-                {{ formatFileName(item.fileName ?? '', 40) }}
+                {{ item.fileName ?? '' }}
               </div>
               <div class="file-list-meta">
                 <span>{{ formatFileSize(item.fileSize) }}</span>
