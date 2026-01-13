@@ -40,7 +40,7 @@ export default class AListplistApi {
       }
       const result = await axios.request({
         method: 'post',
-        url: `${url}/api/fs/remove`,
+        url: `${url.replace(/\/$/, '')}/api/fs/remove`,
         headers: {
           'Content-Type': 'application/json',
           Authorization: token,
