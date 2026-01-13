@@ -1,3 +1,34 @@
+##  (2026-01-13)
+
+* :bug: Fix(custom): add missing i18n field 71c62ff
+* :bug: Fix(custom): fix an issue task interval can't set to lower than 100s and secondary upoload not f32c368
+* :bug: Fix(custom): fix an issue the list is covered in toolbox page 9accc4e
+* :bug: Fix(custom): fix an issue the picbed switch window can't scroll in manage page 719e8cb
+* :bug: Fix(custom): fix an issue the qr-code dropdown list is covered 62a9e2b
+* :bug: Fix(custom): fix the picbeds list doesn't change after language change a57afd4
+* :construction: WIP(custom): optimize UI of uploader config page a620414
+* :package: Chore(custom): optimize for linux building 6ff7461
+* :package: Chore(custom): remove snapcraft 30d1032
+* :package: Chore(custom): update action file c917ee3
+* :package: Chore(custom): update winget file 8e6f4f9
+* :pencil: Docs(custom): update changelog 71cbf9d
+* :pencil: Docs(custom): update release  note cce3020
+* :sparkles: Feature(custom): add favorite icon in picbed config page and optimize UI c03d23b
+* :sparkles: Feature(custom): add infinite scroll animation for favorite badge b5fc950
+* :sparkles: Feature(custom): allow user to add up to 6 favorite picbes in upload page, and quick sele 49b5f7a
+* :sparkles: Feature(custom): enhance image selection handling, improve experience 178af38
+* :sparkles: Feature(custom): hide sensitive keys by default, and add eye icon to switch 9793fb2
+* :sparkles: Feature(custom): hide the small addFiles button if task list length is 0 9b4e762
+* :sparkles: Feature(custom): optimize file name display in manage page 5e665bc
+* :sparkles: Feature(custom): optimize manage setting and picbed switch page ui 7f85ce5
+* :sparkles: Feature(custom): optimize the file select experience in manage file explorer page 35377e0
+* :sparkles: Feature(custom): optimize the logic of second picbed upload, and fix a bug of local picbe e69ebd9
+* :sparkles: Feature(custom): prevent click action if favorite picbed is already current default picbe 163d4ee
+* :sparkles: Feature(custom): release not now use markdown render, also optimize UI dispaly of update  2443f56
+* :sparkles: Feature(custom): the current tab status in setting page is saved 48bf058
+
+
+
 ##  (2026-01-10)
 
 * :arrow_up: Upgrade(custom): upgrade core 357b8cc
