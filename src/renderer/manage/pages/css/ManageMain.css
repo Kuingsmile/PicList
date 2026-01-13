@@ -326,7 +326,7 @@ html, body {
 }
 
 .dialog-container {
-  overflow: hidden;
+  overflow: auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   width: 90%;
@@ -334,6 +334,7 @@ html, body {
   max-height: 80vh;
   background: var(--color-surface);
   box-shadow: var(--shadow-xl);
+  scrollbar-width: none;
 }
 
 .dialog-header {
