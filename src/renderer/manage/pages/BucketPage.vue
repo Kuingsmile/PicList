@@ -341,9 +341,9 @@
             v-if="layoutStyle === 'grid'"
             class="file-grid-item"
             :class="{ selected: item.checked }"
-            @click="handleClickFile(item)"
+            @click="item.checked = !item.checked"
           >
-            <div class="file-preview">
+            <div class="file-preview" @click.stop="handleClickFile(item)">
               <!-- Image Preview -->
               <template v-if="!item.isDir && !['webdavplist', 'sftp', 'local', 's3plist'].includes(currentPicBedName)">
                 <img v-if="isShowThumbnail && item.isImage" :src="item.url" class="file-image" @error="() => {}" />

@@ -942,7 +942,7 @@ async function switchToPicbed(picbedType: IFavoritePicbedItem) {
 
 function getPicbedName(picbedType: IFavoritePicbedItem): string {
   if (!picBedG.value || picBedG.value.length === 0) {
-    return picbedType.configName
+    return picbedType.configName || 'Default'
   }
   const target = picBedG.value.find(item => item.type === picbedType.type)
   return `${target ? target.name : picbedType.type}-${picbedType.configName}`
