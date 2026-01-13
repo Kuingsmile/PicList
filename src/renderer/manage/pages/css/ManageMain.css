@@ -328,11 +328,12 @@ html, body {
 .dialog-container {
   overflow: auto;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  width: 90%;
-  max-width: 600px;
-  max-height: 80vh;
-  background: var(--color-surface);
+  border-radius: var(--radius-2xl);
+  padding: 0.75rem;
+  width: 85vw;
+  max-width: 90vw;
+  max-height: 85vh;
+  background: var(--color-background-secondary);
   box-shadow: var(--shadow-xl);
   scrollbar-width: none;
 }
@@ -345,7 +346,6 @@ html, body {
 }
 
 .dialog-title {
-  margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-text-primary);
@@ -356,13 +356,13 @@ html, body {
   justify-content: center;
   align-items: center;
   border: none;
-  border-radius: var(--radius-sm);
-  padding: 0.25rem;
-  width: 24px;
-  height: 24px;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  font-size: 1.5rem;
   color: var(--color-text-secondary);
   background: none;
-  transition: var(--transition-fast);
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 
@@ -377,7 +377,11 @@ html, body {
 }
 
 .dialog-content {
-  padding: 1.5rem;
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+  padding: 0.2rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .choice-cos {
@@ -479,7 +483,7 @@ html, body {
   width: 400px;
   max-width: 90vw;
   height: 100vh;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   box-shadow: var(--shadow-xl);
 }
 

@@ -494,7 +494,7 @@
   max-width: 90vw;
   max-height: 85vh;
   background: var(--color-surface);
-    box-shadow: var(--shadow-xl);
+   box-shadow: var(--shadow-xl);
   box-shadow: 0 10px 25px rgb(0 0 0 / 15%);
 }
 

@@ -9,13 +9,14 @@
   flex-direction: column;
   gap: 1rem;
   box-sizing: border-box;
+  scrollbar-width: none;
 }
 
 /* Card Base */
 .setting-card {
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-xl);
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   box-shadow: var(--shadow-sm);
   transition: var(--transition-medium);
 }
@@ -23,51 +24,6 @@
 .setting-card:hover {
   border-color: var(--color-border);
   box-shadow: var(--shadow-md);
-}
-
-/* Header Card */
-.header-card .card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--color-border-secondary);
-  padding: 1rem 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.header-content {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex: 1;
-}
-
-.header-icon {
-  display: flex;
-  align-items: center;
-  color: var(--color-blue-common);
-}
-
-.header-content h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  letter-spacing: -0.025em;
-}
-
-.header-content p {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
 }
 
 /* Action Button Base */
