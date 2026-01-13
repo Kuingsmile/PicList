@@ -27,7 +27,7 @@ export default class LskyplistApi {
       rejectUnauthorized: false,
     })
     try {
-      const response: AxiosResponse = await axios.delete(`${host}/api/v1/images/${hash}`, {
+      const response: AxiosResponse = await axios.delete(`${host.replace(/\/$/, '')}/api/v1/images/${hash}`, {
         headers: v2Headers,
         timeout: 30000,
         httpsAgent: requestAgent,

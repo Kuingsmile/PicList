@@ -295,6 +295,7 @@ interface IGitHubConfig {
   repo: string
   token: string
   path?: string
+  webPath?: string
   customUrl?: string
   branch: string
 }
