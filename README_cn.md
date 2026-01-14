@@ -54,14 +54,17 @@
 ## 📸 应用截图
 
 <details open>
-<summary><strong>上传与管理界面</strong></summary>
+<summary><strong>上传界面</strong></summary>
 <br>
 <div align="center">
   <img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/upload.png?raw=true" alt="Upload Interface" width="100%">
 </div>
+<div align="center">
+  <img width="2098" height="1398" alt="Image" src="https://github.com/user-attachments/assets/337f8bd9-11e1-443f-9bd3-3db4d5938e97" />
+</div>
 </details>
 
-<details>
+<details open>
 <summary><strong>更多视图 (相册、设置、任务系统)</strong></summary>
 <br>
 <table align="center">
@@ -171,6 +174,7 @@ yarn run build
 
 ## 🔗 相关项目
 
+- **[PicList ThemeHub](https://github.com/Kuingsmile/piclist-themeHub)**: PicList 的主题仓库。
 - **[PicList-Core](https://github.com/Kuingsmile/PicList-Core)**：PicList 的核心 CLI 库。
 - **[PicHoro](https://github.com/Kuingsmile/PicHoro)**：PicList 的 Android 移动端 APP。
 

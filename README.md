@@ -54,14 +54,17 @@ Whether you need to organize your cloud files, sync markdown images, or manage m
 ## 📸 Screenshots
 
 <details open>
-<summary><strong>Upload & Management Interface</strong></summary>
+<summary><strong>Upload Interface</strong></summary>
 <br>
 <div align="center">
   <img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/upload.png?raw=true" alt="Upload Interface" width="100%">
 </div>
+<div align="center">
+  <img width="2098" height="1398" alt="Image" src="https://github.com/user-attachments/assets/337f8bd9-11e1-443f-9bd3-3db4d5938e97" />
+</div>
 </details>
 
-<details>
+<details open>
 <summary><strong>More Views (Gallery, Settings, Task)</strong></summary>
 <br>
 <table align="center">
@@ -172,6 +175,7 @@ yarn run build
 
 ## 🔗 Related Projects
 
+- **[PicList ThemeHub](https://github.com/Kuingsmile/piclist-themeHub)**: A theme repository for PicList.
 - **[PicList-Core](https://github.com/Kuingsmile/PicList-Core)**: The CLI core of PicList.
 - **[PicHoro](https://github.com/Kuingsmile/PicHoro)**: Android mobile client.
 
