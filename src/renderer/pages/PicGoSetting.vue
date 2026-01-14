@@ -2496,33 +2496,3 @@ export default { name: 'SettingPage' }
 </script>
 
 <style scoped src="./css/PicgoSetting.css"></style>
-
-<style scoped>
-.input-with-icon {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.input-with-icon .form-input {
-  padding-right: 2.5rem;
-}
-
-.icon-btn {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-secondary);
-  transition: color 0.2s ease;
-}
-
-.icon-btn:hover {
-  color: var(--color-text-primary);
-}
-</style>
