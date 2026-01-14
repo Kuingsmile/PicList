@@ -45,7 +45,7 @@
 }
 
 .action-button:hover {
-  border-color: var(--color-border-darker);
+  border-color: var(--color-border);
   background: var(--color-background-secondary);
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);

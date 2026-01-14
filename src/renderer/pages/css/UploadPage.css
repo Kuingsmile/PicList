@@ -64,13 +64,13 @@ html, body {
 .provider-button {
   display: flex;
   align-items: center;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-lg);
   padding: 0.75rem 1rem;
   width: auto;
   min-width: 200px;
   font-family: inherit;
-  background: var(--color-surface-elevated);
+  background: var(--color-surface);
   transition: var(--transition-fast);
   gap: 0.75rem;
   cursor: pointer;
@@ -78,7 +78,7 @@ html, body {
 }
 
 .provider-button:hover {
-  border-color: var(--color-accent);
+  border-color: var(--color-accent-hover);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
@@ -90,11 +90,11 @@ html, body {
   justify-content: center;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   font-family: inherit;
   color: var(--color-text-secondary);
-  background: var(--color-surface-elevated);
+  background: var(--color-surface);
   transition: var(--transition-fast);
   cursor: pointer;
   flex-shrink: 0;
@@ -107,8 +107,8 @@ html, body {
 }
 
 .add-favorite-button:hover:not(:disabled) {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  border-color: var(--color-accent-hover);
+  color: var(--color-accent-hover);
   background: var(--color-surface);
   transform: translateY(-1px);
 }
@@ -138,14 +138,14 @@ html, body {
 .picbed-badge {
   display: flex;
   align-items: center;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-md);
   padding: 0.375rem 0.5rem 0.375rem 0.75rem;
   width: 85px;
   font-family: inherit;
   font-weight: 500;
   color: var(--color-text-secondary);
-  background: var(--color-surface-elevated);
+  background: var(--color-surface);
   transition: all var(--transition-fast);
   gap: 0.5rem;
   cursor: pointer;
@@ -157,9 +157,9 @@ html, body {
 }
 
 .picbed-badge:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-  background: var(--color-surface);
+  border-color: var(--color-accent-hover);
+  color: var(--color-accent-hover);
+  background: var(--color-surface-elevated);
   transform: translateY(-1px);
 }
 
@@ -201,7 +201,7 @@ html, body {
 }
 
 .picbed-badge.is-active {
-  border-color: var(--color-accent);
+  border-color: var(--color-accent-hover);
   border-width: 0.1rem;
   font-weight: 600;
 }
@@ -231,8 +231,8 @@ html, body {
 }
 
 .badge-remove:hover {
-  color: var(--color-error, #ef4444);
-  background: var(--color-error-soft, rgb(239 68 68 / 10%));
+  color: var(--color-danger);
+  background: var(--color-error-surface);
 }
 
 @keyframes fade-in {
@@ -297,7 +297,7 @@ html, body {
 }
 
 .provider-button:hover .provider-arrow {
-  color: var(--color-accent);
+  color: var(--color-accent-hover);
 }
 
 .header-actions {
@@ -329,37 +329,25 @@ html, body {
   box-shadow: var(--shadow-md);
 }
 
-.action-button.secondary {
-  border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
-}
-
-.action-button.secondary:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-  background: var(--color-surface);
-}
-
 /* Segmented Button Group */
 .segmented-button-group {
   display: inline-flex;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: var(--color-surface-elevated);
+  background: var(--color-surface);
 }
 
 .segmented-button {
   display: flex;
   align-items: center;
   border: none;
-  border-right: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border-secondary);
   padding: 0.625rem 1rem;
   font-size: 0.875rem;
   font-family: inherit;
   font-weight: 500;
-  color: var(--color-text-primary);
+  color: var(--color-text-sec);
   background: transparent;
   transition: var(--transition-fast);
   gap: 0.5rem;
@@ -372,8 +360,8 @@ html, body {
 }
 
 .segmented-button:hover {
-  color: var(--color-accent);
-  background: var(--color-surface);
+  color: var(--color-accent-hover);
+  background: var(--color-surface-elevated);
 }
 
 .segmented-button:active {
@@ -392,7 +380,7 @@ html, body {
   border: 2px dashed var(--color-border);
   border-radius: var(--radius-xl);
   padding: 3rem 2rem;
-  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-background-secondary) 100%);
+  background: var(--color-background-primary);
   transition: var(--transition-medium);
   cursor: pointer;
 }
@@ -400,7 +388,7 @@ html, body {
 .upload-zone:hover,
 .upload-zone.drag-active {
   border-color: var(--color-accent);
-  background: linear-gradient(135deg, var(--color-surface-elevated) 0%, rgb(0 122 255 / 5%) 100%);
+  background: linear-gradient(135deg, var(--color-surface-elevated) 0%, var(--color-light-blue) 100%);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
@@ -421,7 +409,7 @@ html, body {
   width: 80px;
   height: 80px;
   color: white;
-  background: linear-gradient(135deg, var(--color-accent) 0%, rgb(0 122 255 / 80%) 100%);
+  background: var(--color-accent-hover);
   transition: var(--transition-medium);
 }
 
@@ -520,12 +508,12 @@ html, body {
   position: relative;
   display: flex;
   align-items: center;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-lg);
   padding: 0.875rem 1rem;
   font-family: inherit;
   text-align: left;
-  background: var(--color-surface-elevated);
+  background: var(--color-surface);
   transition: var(--transition-medium);
   flex-direction: row;
   gap: 0.5rem;
@@ -533,8 +521,8 @@ html, body {
 }
 
 .quick-action-button:hover {
-  border-color: var(--color-accent);
-  background: var(--color-surface);
+  border-color: var(--color-accent-hover);
+  background: var(--color-surface-elevated);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
@@ -636,7 +624,7 @@ html, body {
 }
 
 .format-button {
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-md);
   padding: 0.5rem 0.75rem;
   font-size: 0.7rem;
@@ -649,7 +637,7 @@ html, body {
 }
 
 .format-button:hover {
-  border-color: var(--color-accent);
+  border-color: var(--color-accent-hover);
   color: var(--color-text-primary);
 }
 
@@ -662,7 +650,7 @@ html, body {
 .url-toggle {
   display: flex;
   overflow: hidden;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-md);
   width: 100%;
   background: var(--color-surface-elevated);
@@ -727,7 +715,7 @@ html, body {
 .modal-container {
   overflow: hidden;
   margin: auto;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-2xl);
   width: 90vw;
   max-width: 90vw;
@@ -797,7 +785,7 @@ html, body {
 }
 
 .modal-content::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: var(--color-border-secondary);
   border-radius: var(--radius-full);
 }
 
@@ -918,7 +906,16 @@ html, body {
 :root.dark .upload-zone.drag-active,
 :root.auto.dark .upload-zone:hover,
 :root.auto.dark .upload-zone.drag-active {
-  background: linear-gradient(135deg, var(--color-surface) 0%, rgb(0 122 255 / 10%) 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-light-blue) 100%);
+}
+
+:root.dark .picbed-badge.is-active,
+:root.auto.dark .picbed-badge.is-active,
+:root.dark .picbed-badge:hover
+{
+  border-color: var(--color-accent-hover);
+  border-width: 0.1rem;
+  font-weight: 600;
 }
 
 /* Animation for upload icon */
@@ -974,9 +971,6 @@ html, body {
   flex: 1;
   min-width: 0;
 }
-
-
-
 
 .priority-badge.high {
   background: linear-gradient(135deg, var(--color-warning), #f39c12);
@@ -1926,7 +1920,7 @@ html, body {
   flex-direction: column;
   gap: 1rem;
   padding: 1.25rem;
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -1937,7 +1931,7 @@ html, body {
   padding: 0.625rem 1rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: white;
+  background:  var(--color-background-secondary);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
 }
@@ -1978,7 +1972,7 @@ html, body {
   font-weight: 500;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: white;
+  background: var(--color-background-secondary);
   color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1996,7 +1990,7 @@ html, body {
 .filter-tab.active {
   background: linear-gradient(135deg, var(--color-accent) 0%, rgb(0 100 220) 100%);
   border-color: transparent;
-  color: white;
+  color: var(--color-background-tertiary);
   box-shadow: 0 2px 8px rgb(0 122 255 / 30%);
 }
 
@@ -2372,4 +2366,21 @@ html, body {
   .task-meta-item.error {
     max-width: 100%;
   }
+}
+
+.icon-btn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  transition: color 0.2s ease;
+}
+
+.icon-btn:hover {
+  color: var(--color-text-primary);
 }

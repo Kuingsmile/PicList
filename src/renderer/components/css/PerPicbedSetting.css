@@ -122,7 +122,7 @@
   border-radius: 12px;
   width: 44px;
   height: 24px;
-  background: var(--color-border-darker);
+  background: var(--color-border);
   transition: all 0.3s ease;
   flex-shrink: 0;
 }
@@ -176,7 +176,7 @@
   border-radius: 3px;
   width: 100px;
   height: 6px;
-  background: var(--color-border-darker);
+  background: var(--color-border);
   appearance: none;
 }
 
