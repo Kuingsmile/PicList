@@ -1,3 +1,12 @@
+##  (2026-01-14)
+
+* :bug: Fix(custom): fix the second picbed upload issue 52f3823
+* :package: Chore(custom): update winget file ab1cd59
+* :sparkles: Feature(custom): trim trailing slash from host url in lsky delete api #456 2847384, closes #456
+* :sparkles: Feature(custom): trim trailing slash from URL in delete API requests 76e7d87
+
+
+
 ##  (2026-01-13)
 
 * :bug: Fix(custom): add missing i18n field 71c62ff
