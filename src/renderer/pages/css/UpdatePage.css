@@ -171,8 +171,8 @@
   max-height: 195px;
   font-size: 0.9375rem;
   line-height: 1.5;
-  background: #f8fafc;
-  color: #475569;
+  background: var(--color-background-tertiary);
+  color: var(--color-text-secondary);
 }
 
 .notes-body :deep(h1),
