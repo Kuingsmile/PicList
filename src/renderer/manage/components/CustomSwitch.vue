@@ -62,7 +62,7 @@ const toggleTooltip = () => {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 1rem;
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
 }
 
 .switch-label-wrapper {
@@ -97,7 +97,7 @@ const toggleTooltip = () => {
 
 .info-icon:hover {
   color: var(--color-accent);
-  background: rgb(0 122 255 / 10%);
+  background: var(--color-background-secondary);
 }
 
 .info-svg {
@@ -145,7 +145,7 @@ const toggleTooltip = () => {
   position: absolute;
   inset: 0;
   border-radius: 0.75rem;
-  background: var(--color-border);
+  background: var(--color-primary);
   transition: var(--transition-fast);
   cursor: pointer;
 }
@@ -183,17 +183,5 @@ const toggleTooltip = () => {
 
 .switch-input:checked ~ .switch-text {
   color: var(--color-accent);
-}
-
-/* Dark mode adjustments */
-:root.dark .switch-slider,
-:root.auto.dark .switch-slider {
-  background: var(--color-border);
-}
-
-:root.dark .tooltip-content,
-:root.auto.dark .tooltip-content {
-  border-color: var(--color-border);
-  background: var(--color-surface-elevated);
 }
 </style>

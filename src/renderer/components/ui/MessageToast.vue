@@ -145,12 +145,6 @@ export default {
   overflow-wrap: break-word;
 }
 
-:root.dark .message-toast,
-:root.auto.dark .message-toast {
-  border-color: rgb(55 65 81);
-  background: rgb(31 41 55);
-}
-
 .message-info {
   border-left: 4px solid rgb(59 130 246);
 }
@@ -198,11 +192,6 @@ export default {
   hyphens: auto;
 }
 
-:root.dark .message-content,
-:root.auto.dark .message-content {
-  color: rgb(209 213 219);
-}
-
 .message-close {
   display: flex;
   justify-content: center;
@@ -220,17 +209,6 @@ export default {
 .message-close:hover {
   color: rgb(75 85 99);
   background: rgb(243 244 246);
-}
-
-:root.dark .message-close,
-:root.auto.dark .message-close {
-  color: rgb(156 163 175);
-}
-
-:root.dark .message-close:hover,
-:root.auto.dark .message-close:hover {
-  color: rgb(209 213 219);
-  background: rgb(55 65 81);
 }
 
 /* Transition animations */

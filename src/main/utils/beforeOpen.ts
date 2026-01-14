@@ -2,7 +2,8 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { appConfigPath } from '@core/datastore/dirs'
+import { appConfigPath, themesDir } from '@core/datastore/dirs'
+import * as fsWalk from '@nodelib/fs.walk'
 import fs from 'fs-extra'
 import yaml from 'yaml'
 
@@ -17,6 +18,7 @@ function beforeOpen() {
     resolveMacWorkFlow()
   }
   resolveClipboardImageGenerator()
+  resolveCss()
   resolveOtherI18nFiles()
 }
 
@@ -86,16 +88,50 @@ function resolveClipboardImageGenerator() {
       diffFilesAndUpdate(item.origin, item.dest)
     })
   }
+}
 
-  function getClipboardFiles() {
-    const files = ['linux.sh', 'mac.applescript', 'windows.ps1', 'windows10.ps1', 'wsl.sh']
+function getClipboardFiles() {
+  const files = ['linux.sh', 'mac.applescript', 'windows.ps1', 'windows10.ps1', 'wsl.sh']
 
-    return files.map(item => {
-      return {
-        origin: path.join(dirname, '../../resources', item).replace('app.asar', 'app.asar.unpacked'),
-        dest: path.join(CONFIG_DIR, item),
+  return files.map(item => {
+    return {
+      origin: path.join(dirname, '../../resources', item).replace('app.asar', 'app.asar.unpacked'),
+      dest: path.join(CONFIG_DIR, item),
+    }
+  })
+}
+
+function getFileInCssDir() {
+  const cssDir = path.join(dirname, '../../resources/theme').replace('app.asar', 'app.asar.unpacked')
+  const res = fsWalk.walkSync(cssDir, {
+    followSymbolicLinks: true,
+    fs,
+    stats: true,
+    throwErrorOnBrokenSymbolicLink: false,
+  })
+  const result: string[] = []
+  res.forEach(item => {
+    if (item.stats?.isFile()) {
+      result.push(item.path)
+    }
+  })
+  return result
+}
+
+function resolveCss() {
+  try {
+    fs.ensureDirSync(themesDir())
+    const css = getFileInCssDir()
+    css.forEach(item => {
+      const dest = path.join(themesDir(), path.basename(item))
+      if (!fs.pathExistsSync(dest)) {
+        fs.copyFileSync(item, dest)
+      } else {
+        diffFilesAndUpdate(item, dest)
       }
     })
+  } catch (e) {
+    console.error(e)
   }
 }
 

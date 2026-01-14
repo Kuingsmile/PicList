@@ -41,7 +41,7 @@ html, body {
   overflow: hidden;
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-xl);
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   box-shadow: var(--shadow-sm);
   transition: var(--transition-medium);
 }
@@ -717,7 +717,7 @@ input:checked + .switch-slider::before {
   width: 32px;
   height: 32px;
   color: var(--color-text-secondary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   cursor: pointer;
 }
@@ -1303,7 +1303,7 @@ input:checked + .switch-slider::before {
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-lg);
   margin: 0;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   cursor: pointer;
   width: 100%;
   height: calc(100% - 8px);

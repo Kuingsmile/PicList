@@ -175,7 +175,7 @@
   border-radius: 16px;
   padding: 1.25rem;
   min-height: 180px;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   box-shadow:
     0 2px 8px rgb(0 0 0 / 4%),
     0 1px 2px rgb(0 0 0 / 6%);
@@ -326,7 +326,7 @@
   width: 30px;
   height: 30px;
   color: var(--color-text-secondary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -392,7 +392,7 @@
 
 .status-badge.inactive {
   color: var(--color-text-tertiary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
 }
 
 .config-card:hover .status-badge.inactive {
@@ -407,7 +407,7 @@
   justify-content: center;
   align-items: center;
   border: 2px dashed var(--color-border);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
 }
 
 .config-card-add:hover {
@@ -433,7 +433,7 @@
   width: 56px;
   height: 56px;
   color: var(--color-text-tertiary);
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   transition: all 0.3s ease;
 }
 

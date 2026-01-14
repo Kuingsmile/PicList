@@ -1,9 +1,8 @@
 <script setup lang="ts">
+import { useStorage } from '@vueuse/core'
 import { Monitor, Moon, Sun } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-import { useAppStore } from '@/hooks/useAppStore'
 
 interface Props {
   collapsed?: boolean
@@ -12,9 +11,22 @@ interface Props {
 defineProps<Props>()
 
 const { t } = useI18n()
-const appStore = useAppStore()
+const currentTheme = useStorage<'light' | 'dark' | 'system'>('systemTheme', 'system')
 
-const currentTheme = computed(() => appStore.settings.app.theme || 'light')
+watch(
+  currentTheme,
+  async newTheme => {
+    document.documentElement.setAttribute('data-theme', newTheme)
+    document.documentElement.classList.remove('light', 'dark', 'system')
+    if (newTheme === 'system') {
+      const systemTheme = (await window.electron.triggerRPC<'light' | 'dark'>('GET_SYSTEM_THEME')) || 'light'
+      document.documentElement.classList.add(systemTheme)
+    } else {
+      document.documentElement.classList.add(newTheme)
+    }
+  },
+  { immediate: true },
+)
 
 const themeOptions = computed(() => [
   {
@@ -30,7 +42,7 @@ const themeOptions = computed(() => [
     description: t('settings.theme.darkDesc'),
   },
   {
-    value: 'auto',
+    value: 'system',
     label: t('settings.theme.auto'),
     icon: Monitor,
     description: t('settings.theme.autoDesc'),
@@ -41,9 +53,27 @@ const currentThemeOption = computed(
   () => themeOptions.value.find(option => option.value === currentTheme.value) || themeOptions.value[0],
 )
 
-const toggleTheme = () => {
-  appStore.toggleTheme()
+function toggleTheme() {
+  const themes = ['light', 'dark', 'system'] as const
+  const currentIndex = themes.indexOf(currentTheme.value)
+  const nextTheme = themes[(currentIndex + 1) % themes.length]
+  currentTheme.value = nextTheme
 }
+
+let listenThemeChange: () => void = () => {}
+const themUpdateHandler = (value: 'light' | 'dark') => {
+  const savedTheme = localStorage.getItem('systemTheme') || 'system'
+  if (savedTheme === 'system') {
+    currentTheme.value = value
+  }
+}
+onBeforeMount(() => {
+  listenThemeChange = window.electron.ipcRendererOn('theme-update', themUpdateHandler)
+})
+
+onBeforeUnmount(() => {
+  listenThemeChange()
+})
 </script>
 
 <template>
@@ -70,7 +100,7 @@ const toggleTheme = () => {
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   color: var(--color-text-secondary);
-  background: rgb(255 255 255 / 10%);
+  background: var(--color-background-secondary);
   transition: all 0.2s ease;
   gap: 0.5rem;
   cursor: pointer;
@@ -84,7 +114,6 @@ const toggleTheme = () => {
 
 .theme-toggle-btn:hover {
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
 }
 
 .theme-label {

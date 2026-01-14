@@ -134,11 +134,11 @@
       </div>
       <div class="quick-actions">
         <button class="quick-action-button" @click="uploadClipboardFiles">
-          <ClipboardIcon :size="20" />
+          <ClipboardIcon class="action-icon" :size="18" />
           <span>{{ t('pages.upload.clipboardPicture') }}</span>
         </button>
         <button class="quick-action-button" @click="uploadURLFiles">
-          <LinkIcon :size="20" />
+          <LinkIcon class="action-icon" :size="18" />
           <span>{{ t('pages.upload.urlUpload') }}</span>
         </button>
         <button
@@ -146,7 +146,7 @@
           :class="{ 'has-badge': taskQueueStatus.tasks.length > 0 }"
           @click="openTaskDialog"
         >
-          <ListTodoIcon :size="20" />
+          <ListTodoIcon class="action-icon" :size="18" />
           <span>{{ t('pages.upload.taskUpload') }}</span>
           <span v-if="taskQueueStatus.tasks.length > 0" class="task-count-badge">
             {{ taskQueueStatus.tasks.length }}

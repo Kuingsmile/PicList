@@ -30,6 +30,8 @@ export interface IConfigStruct {
   }
   settings: {
     shortKey: Record<string, IShortKeyConfig>
+    systemTheme: 'light' | 'dark' | 'auto'
+    customTheme: string
     logLevel: string[]
     logPath: string
     logFileSizeLimit: number
@@ -85,6 +87,7 @@ export interface IConfigStruct {
     galleryPicBedFilter: string[]
     enableSecondUploader?: boolean
     lastSyncTime?: number
+    theme: string
   }
   needReload: boolean
   picgoPlugins: IPicGoPlugins
@@ -120,6 +123,8 @@ export const configPaths = {
       _path: 'settings.shortKey',
       'picgo:upload': 'settings.shortKey[picgo:upload]',
     },
+    systemTheme: 'settings.systemTheme',
+    customTheme: 'settings.customTheme',
     logLevel: 'settings.logLevel',
     logPath: 'settings.logPath',
     logFileSizeLimit: 'settings.logFileSizeLimit',
@@ -175,6 +180,7 @@ export const configPaths = {
     galleryPicBedFilter: 'settings.galleryPicBedFilter',
     enableSecondUploader: 'settings.enableSecondUploader',
     lastSyncTime: 'settings.lastSyncTime',
+    theme: 'settings.theme',
   },
   needReload: 'needReload',
   picgoPlugins: 'picgoPlugins',

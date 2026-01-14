@@ -1,7 +1,7 @@
 .navigation {
   display: flex;
   overflow: hidden;
-  border-right: 1px solid rgb(229 231 235);
+  border-right: 1px solid var(--color-border-secondary);
   width: 150px;
   height: 100vh;
   background: var(--color-background-secondary);
@@ -11,12 +11,6 @@
 
 .navigation.collapsed {
   width: 60px;
-}
-
-:root.dark .navigation,
-:root.auto.dark .navigation {
-  border-right-color: var(--color-background-secondary);
-  background: var(--color-background-secondary);
 }
 
 .title-bar {
@@ -60,12 +54,6 @@
   transform: none;
 }
 
-:root.dark .title-bar,
-:root.auto.dark .title-bar {
-  border-bottom-color: var(--color-border);
-  background: var(--color-background-secondary);
-}
-
 .app-title {
   display: flex;
   flex-direction: column;
@@ -92,7 +80,7 @@
   font-size: 10px;
   font-weight: 500;
   color: var(--color-text-secondary);
-  background: var(--color-surface-elevated);
+  background: var(--color-surface);
 }
 
 .theme-section {
@@ -101,11 +89,6 @@
   align-items: center;
   border-bottom: 1px solid var(--color-border);
   padding: 0.75rem;
-}
-
-:root.dark .theme-section,
-:root.auto.dark .theme-section {
-  border-bottom-color: var(--color-border);
 }
 
 .nav-menu {
@@ -123,7 +106,7 @@
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
-  color: rgb(75 85 99);
+  color: var(--color-text-secondary);
   transition: all 0.2s ease;
   gap: 0.75rem;
   cursor: pointer;
@@ -139,33 +122,15 @@
   display: none;
 }
 
-:root.dark .nav-item,
-:root.auto.dark .nav-item {
-  color: rgb(209 213 219);
-}
-
 .nav-item:hover {
-  color: rgb(17 24 39);
-  background: rgb(243 244 246);
-}
-
-:root.dark .nav-item:hover,
-:root.auto.dark .nav-item:hover {
-  color: rgb(243 244 246);
-  background: rgb(55 65 81);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
 }
 
 .nav-item.router-link-active {
-  border-right: 3px solid rgb(99 102 241);
-  color: rgb(99 102 241);
-  background: rgb(239 246 255);
-}
-
-:root.dark .nav-item.router-link-active,
-:root.auto.dark .nav-item.router-link-active {
-  border-right-color: rgb(129 140 248);
-  color: rgb(129 140 248);
-  background: rgb(30 58 138 / 20%);
+  border-right: 3px solid var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-surface);
 }
 
 .nav-icon-container {
@@ -190,7 +155,7 @@
   border: none;
   border-radius: 6px;
   padding: 8px;
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
   background: transparent;
   cursor: pointer;
 }
@@ -217,27 +182,16 @@
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
-  color: rgb(75 85 99);
+  color: var(--color-text-secondary);
   background: transparent;
   transition: all 0.2s ease;
   gap: 0.75rem;
   cursor: pointer;
 }
 
-:root.dark .submenu-trigger,
-:root.auto.dark .submenu-trigger {
-  color: rgb(209 213 219);
-}
-
 .submenu-trigger:hover {
-  color: rgb(17 24 39);
-  background: rgb(243 244 246);
-}
-
-:root.dark .submenu-trigger:hover,
-:root.auto.dark .submenu-trigger:hover {
-  color: rgb(243 244 246);
-  background: rgb(55 65 81);
+  color: var(--color-text-primary);
+  background: var(--color-surface-elevated);
 }
 
 .submenu-trigger .nav-icon-container {
@@ -290,14 +244,8 @@
 }
 
 .collapsed-picbed:hover {
-  color: rgb(17 24 39);
-  background: rgb(243 244 246);
-}
-
-:root.dark .collapsed-picbed:hover,
-:root.auto.dark .collapsed-picbed:hover {
-  color: rgb(243 244 246);
-  background: rgb(55 65 81);
+  color: var(--color-text-primary);
+  background: var(--color-surface-elevated);
 }
 
 .qr-dialog {
@@ -328,7 +276,7 @@
   border-radius: 16px;
   width: 100%;
   max-width: 500px;
-  background: var(--color-background-primary);
+  background: var(--color-background-secondary);
   box-shadow: var(--shadow-md);
 }
 

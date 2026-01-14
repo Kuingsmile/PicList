@@ -134,12 +134,13 @@
   width: 100%;
   font-size: 0.875rem;
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
 }
 
 .form-input:focus {
   border-color: var(--color-accent);
+  background: var(--color-background-tertiary);
   outline: none;
   box-shadow: 0 0 0 2px rgb(0 122 255 / 20%);
 }
@@ -233,7 +234,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 0.625rem;
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   gap: 0.75rem;
   cursor: pointer;
@@ -397,29 +398,6 @@
   justify-content: flex-end;
   padding: 0 1.5rem 1.5rem;
   gap: 1rem;
-}
-
-/* Dark mode adjustments */
-:root.dark .manage-setting-container,
-:root.auto.dark .manage-setting-container {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .form-input,
-:root.auto.dark .form-input {
-  border-color: var(--color-border);
-  background: var(--color-surface-elevated);
-}
-
-:root.dark .radio-custom,
-:root.auto.dark .radio-custom {
-  border-color: var(--color-border);
-  background: var(--color-surface-elevated);
-}
-
-:root.dark .pattern-table th,
-:root.auto.dark .pattern-table th {
-  background: var(--color-surface-elevated);
 }
 
 .setting-section {

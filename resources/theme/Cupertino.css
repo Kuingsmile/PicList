@@ -1,0 +1,51 @@
+/* Cupertino */
+
+.dark, [data-theme="dark"] {
+  --color-text-primary: #ffffff !important;
+  --color-text-secondary: #ebebf5 !important;
+  --color-text-tertiary: #ebebf5 !important;
+  --color-background-primary: #1e1e1e !important;
+  --color-background-secondary: #2c2c2e !important;
+  --color-background-tertiary: #3a3a3c !important;
+  --color-surface: rgb(44 44 46 / 90%) !important;
+  --color-surface-elevated: rgb(58 58 60 / 95%) !important;
+  --color-border: #38383a !important;
+  --color-border-secondary: rgb(56 56 58 / 50%) !important;
+  --color-primary: #0a84ff !important;
+  --color-primary-hover: #409cff !important;
+  --color-accent: #0a84ff !important;
+  --color-accent-hover: #409cff !important;
+  --accent-rgb: 10, 132, 255 !important;
+  --color-blue-common: #0a84ff !important;
+  --color-light-blue: rgb(10 132 255 / 10%) !important;
+  --color-success: #32d74b !important;
+  --color-warning: #ff9f0a !important;
+  --color-danger: #ff453a !important;
+  --color-error: #ff453a !important;
+  --color-error-surface: rgb(255 69 58 / 10%) !important;
+}
+
+.light, [data-theme="light"] {
+  --color-text-primary: #000000 !important;
+  --color-text-secondary: #3c3c43 !important;
+  --color-text-tertiary: #3c3c43 !important;
+  --color-background-primary: #ffffff !important;
+  --color-background-secondary: #f2f2f7 !important;
+  --color-background-tertiary: #ffffff !important;
+  --color-surface: rgb(255 255 255 / 90%) !important;
+  --color-surface-elevated: rgb(255 255 255 / 100%) !important;
+  --color-border: #d1d1d6 !important;
+  --color-border-secondary: rgb(209 209 214 / 50%) !important;
+  --color-primary: #007aff !important;
+  --color-primary-hover: #0051a8 !important;
+  --color-accent: #007aff !important;
+  --color-accent-hover: #0051a8 !important;
+  --accent-rgb: 0, 122, 255 !important;
+  --color-blue-common: #007aff !important;
+  --color-light-blue: rgb(0 122 255 / 10%) !important;
+  --color-success: #34c759 !important;
+  --color-warning: #ff9500 !important;
+  --color-danger: #ff3b30 !important;
+  --color-error: #ff3b30 !important;
+  --color-error-surface: rgb(255 59 48 / 10%) !important;
+}

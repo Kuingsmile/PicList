@@ -21,7 +21,7 @@ html, body {
   overflow: hidden;
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-xl);
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   box-shadow: var(--shadow-sm);
   transition: var(--transition-medium);
 }
@@ -86,7 +86,7 @@ html, body {
   font-family: inherit;
   font-weight: 500;
   color: white;
-  background: var(--color-blue-common);
+  background: var(--color-accent);
   transition: var(--transition-fast);
   gap: 0.5rem;
   cursor: pointer;
@@ -101,7 +101,7 @@ html, body {
 .action-button.secondary {
   border: 1px solid var(--color-border);
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
 }
 
 .action-button.secondary:hover {
@@ -148,12 +148,13 @@ html, body {
   font-size: 0.875rem;
   font-family: inherit;
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
 }
 
 .search-input:focus {
   border-color: var(--color-accent);
+  background: var(--color-background-tertiary);
   outline: none;
   box-shadow: 0 0 0 2px rgb(0 122 255 / 20%);
 }
@@ -369,8 +370,7 @@ html, body {
 }
 
 .plugin-logo {
-  border: 1px solid var(--color-border-secondary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   width: 48px;
   height: 48px;
   object-fit: cover;
@@ -407,7 +407,7 @@ html, body {
   font-size: 0.75rem;
   font-weight: 400;
   color: var(--color-text-secondary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-tertiary);
 }
 
 .plugin-author {
@@ -434,7 +434,7 @@ html, body {
   min-height: 2.6rem;
   font-size: 0.875rem;
   text-overflow: ellipsis;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
   line-height: 1.5;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -489,8 +489,8 @@ html, body {
 }
 
 .settings-button {
-  color: white;
-  background: var(--color-blue-common);
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
 }
 
 .settings-button:hover:not(:disabled) {
@@ -501,7 +501,7 @@ html, body {
 .disabled-button {
   border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
 }
 
 .disabled-button:hover:not(:disabled) {
@@ -660,7 +660,7 @@ html, body {
 
 .btn:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
 .btn:hover:not(:disabled) {
@@ -753,48 +753,6 @@ html, body {
     justify-content: center;
     width: 100%;
   }
-}
-
-/* Dark mode adjustments */
-:root.dark .plugin-container,
-:root.auto.dark .plugin-container {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .plugin-card,
-:root.auto.dark .plugin-card {
-  border-color: var(--color-border-secondary);
-  background: var(--color-surface-elevated);
-}
-
-:root.dark .search-input,
-:root.auto.dark .search-input {
-  border-color: var(--color-border);
-  color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
-}
-
-:root.dark .search-input:focus,
-:root.auto.dark .search-input:focus {
-  border-color: var(--color-accent);
-}
-
-:root.dark .modal-container,
-:root.auto.dark .modal-container {
-  border-color: var(--color-border);
-  background: var(--color-surface);
-}
-
-:root.dark .btn-secondary,
-:root.auto.dark .btn-secondary {
-  border-color: var(--color-border);
-  background: var(--color-surface-elevated);
-}
-
-:root.dark .btn-secondary:hover,
-:root.auto.dark .btn-secondary:hover {
-  border-color: var(--color-accent);
-  background: var(--color-surface);
 }
 
 /* Accessibility */

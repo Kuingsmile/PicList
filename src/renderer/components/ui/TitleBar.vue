@@ -114,20 +114,6 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
-.app-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.app-version {
-  border-radius: 4px;
-  padding: 2px 6px;
-  font-size: 12px;
-  color: var(--color-text-secondary);
-  background: var(--color-border);
-}
-
 .title-center {
   flex: 1;
   display: flex;

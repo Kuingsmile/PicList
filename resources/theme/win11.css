@@ -1,0 +1,51 @@
+/* Windows 11 */
+
+.dark, [data-theme="dark"] {
+  --color-text-primary: #ffffff !important;
+  --color-text-secondary: #cccccc !important;
+  --color-text-tertiary: #999999 !important;
+  --color-background-primary: #202020 !important;
+  --color-background-secondary: #2b2b2b !important;
+  --color-background-tertiary: #1f1f1f !important;
+  --color-surface: rgb(44 44 44 / 90%) !important;
+  --color-surface-elevated: rgb(50 50 50 / 95%) !important;
+  --color-border: #333333 !important;
+  --color-border-secondary: rgb(51 51 51 / 50%) !important;
+  --color-primary: #60cdff !important;
+  --color-primary-hover: #98e7ff !important;
+  --color-accent: #60cdff !important;
+  --color-accent-hover: #98e7ff !important;
+  --accent-rgb: 96, 205, 255 !important;
+  --color-blue-common: #60cdff !important;
+  --color-light-blue: rgb(96 205 255 / 10%) !important;
+  --color-success: #6cc4a1 !important;
+  --color-warning: #fce100 !important;
+  --color-danger: #ff99a4 !important;
+  --color-error: #ff99a4 !important;
+  --color-error-surface: rgb(255 153 164 / 10%) !important;
+}
+
+.light, [data-theme="light"] {
+  --color-text-primary: #000000 !important;
+  --color-text-secondary: #5d5d5d !important;
+  --color-text-tertiary: #767676 !important;
+  --color-background-primary: #ffffff !important;
+  --color-background-secondary: #f3f3f3 !important;
+  --color-background-tertiary: #eeeeee !important;
+  --color-surface: rgb(255 255 255 / 90%) !important;
+  --color-surface-elevated: rgb(255 255 255 / 100%) !important;
+  --color-border: #e5e5e5 !important;
+  --color-border-secondary: rgb(229 229 229 / 50%) !important;
+  --color-primary: #005fb8 !important;
+  --color-primary-hover: #004578 !important;
+  --color-accent: #005fb8 !important;
+  --color-accent-hover: #004578 !important;
+  --accent-rgb: 0, 95, 184 !important;
+  --color-blue-common: #005fb8 !important;
+  --color-light-blue: rgb(0 95 184 / 10%) !important;
+  --color-success: #0f7b0f !important;
+  --color-warning: #9d5d00 !important;
+  --color-danger: #c50f1f !important;
+  --color-error: #c50f1f !important;
+  --color-error-surface: rgb(197 15 31 / 10%) !important;
+}

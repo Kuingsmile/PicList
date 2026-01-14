@@ -339,12 +339,4 @@ export default {
 .input-error {
   animation: shake 0.3s ease-in-out;
 }
-
-/* Dark mode adjustments */
-:root.dark .rename-card,
-:root.auto.dark .rename-card {
-  box-shadow:
-    0 20px 25px -5px rgb(0 0 0 / 30%),
-    0 10px 10px -5px rgb(0 0 0 / 20%);
-}
 </style>

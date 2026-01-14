@@ -6,22 +6,6 @@
   background: var(--color-background);
 }
 
-/* Ambient Background Effect */
-.ambient-bg {
-  position: fixed;
-  top: -50%;
-  left: -50%;
-  z-index: 0;
-  width: 200%;
-  height: 200%;
-  background:
-    radial-gradient(circle at 30% 20%, rgb(var(--accent-rgb) / 8%) 0%, transparent 50%),
-    radial-gradient(circle at 70% 80%, rgb(16 185 129 / 6%) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgb(59 130 246 / 4%) 0%, transparent 40%);
-  animation: ambient-drift 25s ease-in-out infinite;
-  pointer-events: none;
-}
-
 @keyframes ambient-drift {
   0%,
   100% {
@@ -161,7 +145,7 @@
 
 .btn-secondary {
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   box-shadow:
     0 2px 8px rgb(0 0 0 / 8%),
     inset 0 1px 0 rgb(255 255 255 / 5%);
@@ -245,7 +229,7 @@
   overflow: hidden;
   border: 1px solid var(--color-border-secondary);
   border-radius: 20px;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   box-shadow:
     0 4px 24px rgb(0 0 0 / 6%),
     0 1px 2px rgb(0 0 0 / 4%);
@@ -269,7 +253,7 @@
   align-items: center;
   border-bottom: 1px solid var(--color-border-secondary);
   padding: 1.25rem 1.5rem;
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   gap: 0.75rem;
 }
 

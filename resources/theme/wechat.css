@@ -1,0 +1,51 @@
+/* 微信 */
+
+.dark, [data-theme="dark"] {
+  --color-text-primary: #ffffff !important;
+  --color-text-secondary: #7d7d7d !important;
+  --color-text-tertiary: #4c4c4c !important;
+  --color-background-primary: #191919 !important;
+  --color-background-secondary: #242424 !important;
+  --color-background-tertiary: #111111 !important;
+  --color-surface: rgb(36 36 36 / 90%) !important;
+  --color-surface-elevated: rgb(42 42 42 / 95%) !important;
+  --color-border: #333333 !important;
+  --color-border-secondary: rgb(51 51 51 / 50%) !important;
+  --color-primary: #07c160 !important;
+  --color-primary-hover: #06ad56 !important;
+  --color-accent: #07c160 !important;
+  --color-accent-hover: #06ad56 !important;
+  --accent-rgb: 7, 193, 96 !important;
+  --color-blue-common: #07c160 !important;
+  --color-light-blue: rgb(7 193 96 / 10%) !important;
+  --color-success: #07c160 !important;
+  --color-warning: #ffbe00 !important;
+  --color-danger: #fa5151 !important;
+  --color-error: #fa5151 !important;
+  --color-error-surface: rgb(250 81 81 / 10%) !important;
+}
+
+.light, [data-theme="light"] {
+  --color-text-primary: #000000 !important;
+  --color-text-secondary: #b2b2b2 !important;
+  --color-text-tertiary: #999999 !important;
+  --color-background-primary: #f5f5f5 !important;
+  --color-background-secondary: #eaeaea !important;
+  --color-background-tertiary: #ffffff !important;
+  --color-surface: rgb(255 255 255 / 90%) !important;
+  --color-surface-elevated: rgb(255 255 255 / 100%) !important;
+  --color-border: #d6d6d6 !important;
+  --color-border-secondary: rgb(214 214 214 / 50%) !important;
+  --color-primary: #07c160 !important;
+  --color-primary-hover: #06ad56 !important;
+  --color-accent: #07c160 !important;
+  --color-accent-hover: #06ad56 !important;
+  --accent-rgb: 7, 193, 96 !important;
+  --color-blue-common: #07c160 !important;
+  --color-light-blue: rgb(7 193 96 / 10%) !important;
+  --color-success: #07c160 !important;
+  --color-warning: #ffbe00 !important;
+  --color-danger: #fa5151 !important;
+  --color-error: #fa5151 !important;
+  --color-error-surface: rgb(250 81 81 / 10%) !important;
+}

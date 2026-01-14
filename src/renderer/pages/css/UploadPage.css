@@ -380,7 +380,7 @@ html, body {
   border: 2px dashed var(--color-border);
   border-radius: var(--radius-xl);
   padding: 3rem 2rem;
-  background: var(--color-background-primary);
+  background: var(--color-background-secondary);
   transition: var(--transition-medium);
   cursor: pointer;
 }
@@ -409,7 +409,7 @@ html, body {
   width: 80px;
   height: 80px;
   color: white;
-  background: var(--color-accent-hover);
+  background: var(--color-accent);
   transition: var(--transition-medium);
 }
 
@@ -522,15 +522,19 @@ html, body {
 
 .quick-action-button:hover {
   border-color: var(--color-accent-hover);
-  background: var(--color-surface-elevated);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
+.quick-action-button .action-icon {
+  flex-shrink: 0;
+  color: var(--color-accent);
+}
+
 .quick-action-button span {
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-text-primary);
+  color: var(--color-text-secondary);
 }
 
 .quick-action-button.has-badge {
@@ -631,7 +635,7 @@ html, body {
   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   font-weight: 500;
   color: var(--color-text-secondary);
-  background: var(--color-surface-elevated);
+  background: var(--color-surface);
   transition: var(--transition-fast);
   cursor: pointer;
 }
@@ -653,7 +657,7 @@ html, body {
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-md);
   width: 100%;
-  background: var(--color-surface-elevated);
+  background: var(--color-surface);
 }
 
 .toggle-button {
@@ -721,7 +725,7 @@ html, body {
   max-width: 90vw;
   height: 85vh;
   max-height: 85vh;
-  background: var(--color-surface);
+  background: var(--color-background-tertiary);
   box-shadow: var(--shadow-xl);
 }
 
@@ -731,7 +735,7 @@ html, body {
   align-items: center;
   border-bottom: 1px solid var(--color-border-secondary);
   padding: 1rem 1.25rem;
-  background: var(--color-surface-elevated);
+  background: var(--color-background-tertiary);
 }
 
 .modal-title {
@@ -894,28 +898,6 @@ html, body {
     width: 100%;
     min-width: unset;
   }
-}
-
-/* Dark mode adjustments */
-:root.dark .upload-zone,
-:root.auto.dark .upload-zone {
-  background: linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
-}
-
-:root.dark .upload-zone:hover,
-:root.dark .upload-zone.drag-active,
-:root.auto.dark .upload-zone:hover,
-:root.auto.dark .upload-zone.drag-active {
-  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-light-blue) 100%);
-}
-
-:root.dark .picbed-badge.is-active,
-:root.auto.dark .picbed-badge.is-active,
-:root.dark .picbed-badge:hover
-{
-  border-color: var(--color-accent-hover);
-  border-width: 0.1rem;
-  font-weight: 600;
 }
 
 /* Animation for upload icon */
@@ -1633,11 +1615,7 @@ html, body {
   gap: 1rem;
   flex-wrap: wrap;
   padding: 1rem 1.25rem;
-  background: linear-gradient(
-    180deg,
-    var(--color-surface-elevated) 0%,
-    var(--color-surface) 100%
-  );
+  background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   backdrop-filter: blur(10px);
 }
@@ -1797,6 +1775,7 @@ html, body {
   padding: 1rem 1.25rem 1.25rem;
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-background-primary);
+  scrollbar-color: var(--color-border-secondary) var(--color-surface);
 }
 
 .settings-grid {
@@ -1920,7 +1899,7 @@ html, body {
   flex-direction: column;
   gap: 1rem;
   padding: 1.25rem;
-  background: var(--color-background-secondary);
+  background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -1929,7 +1908,7 @@ html, body {
   align-items: center;
   gap: 0.625rem;
   padding: 0.625rem 1rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-lg);
   background:  var(--color-background-secondary);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1970,7 +1949,7 @@ html, body {
   padding: 0.5rem 1rem;
   font-size: 0.8125rem;
   font-weight: 500;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-md);
   background: var(--color-background-secondary);
   color: var(--color-text-secondary);
@@ -1988,7 +1967,7 @@ html, body {
 }
 
 .filter-tab.active {
-  background: linear-gradient(135deg, var(--color-accent) 0%, rgb(0 100 220) 100%);
+  background: var(--color-accent);
   border-color: transparent;
   color: var(--color-background-tertiary);
   box-shadow: 0 2px 8px rgb(0 122 255 / 30%);

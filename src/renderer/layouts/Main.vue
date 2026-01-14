@@ -2,9 +2,6 @@
   <div id="main" class="app-container">
     <InputBoxDialog />
     <TitleBar />
-    <div class="app-background">
-      <div class="bg-gradient" />
-    </div>
     <Navigation />
     <main class="main-content">
       <div class="content-container">
@@ -56,6 +53,8 @@ export default { name: 'MainPage' }
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizelegibility;
 
+  --background-image: none;
+  --background-image-opacity: 1;
   --color-text-primary: #1d1d1f;
   --color-text-secondary: #6e6e73;
   --color-text-tertiary: #86868b;
@@ -92,8 +91,7 @@ export default { name: 'MainPage' }
   --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-:root.dark,
-:root.auto.dark {
+:root.dark {
   --color-text-primary: #f5f5f7;
   --color-text-secondary: #a1a1a6;
   --color-text-tertiary: #86868b;
@@ -108,47 +106,26 @@ export default { name: 'MainPage' }
   --color-primary-hover: #818cf8;
   --color-accent: #0a84ff;
   --color-accent-hover: #409cff;
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    color: var(--color-text-primary);
-  }
-
-  p,
-  span,
-  div {
-    color: inherit;
-  }
-
-  svg {
-    color: inherit;
-  }
-
-  input,
-  select,
-  textarea {
-    border-color: var(--color-border);
-    color: var(--color-text-primary);
-    background: var(--color-surface);
-  }
-
-  input::placeholder,
-  textarea::placeholder {
-    color: var(--color-text-tertiary);
-  }
-
-  button {
-    border-color: var(--color-border);
-    color: var(--color-text-primary);
-  }
-
-  button:hover {
-    background: var(--color-surface-elevated);
-  }
+  --accent-rgb: #449af7;
+  --color-blue-common: #409eff;
+  --color-light-blue: rgb(0 122 255 / 5%);
+  --color-success: #34c759;
+  --color-warning: #f1930f;
+  --color-danger: #ff3b30;
+  --color-error: #cb2431;
+  --color-error-surface: rgb(255 59 48 / 10%);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 4%), 0 1px 2px rgb(0 0 0 / 6%);
+  --shadow-md: 0 4px 6px rgb(0 0 0 / 5%), 0 2px 4px rgb(0 0 0 / 6%);
+  --shadow-lg: 0 10px 15px rgb(0 0 0 / 8%), 0 4px 6px rgb(0 0 0 / 5%);
+  --shadow-xl: 0 20px 25px rgb(0 0 0 / 10%), 0 10px 10px rgb(0 0 0 / 4%);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-medium: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
@@ -165,23 +142,6 @@ body {
   padding-top: 32px;
   height: 100vh;
   background-color: var(--color-background-primary);
-}
-
-.app-background {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.bg-gradient {
-  position: absolute;
-  bottom: -40%;
-  left: -20%;
-  border-radius: 50%;
-  width: 60%;
-  height: 60%;
-  background: radial-gradient(circle, rgb(199 131 233 / 5%) 0%, transparent 70%);
 }
 
 .main-content {

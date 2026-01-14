@@ -83,7 +83,7 @@
   text-decoration: none;
   white-space: nowrap;
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   gap: 0.5rem;
   cursor: pointer;
@@ -102,9 +102,9 @@
 }
 
 .action-button.primary {
-  border-color: var(--color-blue-common);
+  border-color: var(--color-accent);
   color: white;
-  background: var(--color-blue-common);
+  background: var(--color-accent);
 }
 
 .action-button.primary:hover {
@@ -164,7 +164,7 @@
   text-decoration: none;
   white-space: nowrap;
   color: var(--color-text-secondary);
-  background: var( --color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   gap: 0.5rem;
   cursor: pointer;
@@ -238,7 +238,7 @@
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
-  background: var( --color-surface-elevated);
+  background: var( --color-background-secondary);
   transition: var(--transition-medium);
 }
 
@@ -289,7 +289,7 @@
   padding: 0.5rem;
   font-size: 0.875rem;
   color: var(--color-text-secondary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   gap: 0.5rem;
   cursor: pointer;

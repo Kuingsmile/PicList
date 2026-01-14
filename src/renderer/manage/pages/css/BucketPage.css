@@ -14,7 +14,7 @@
 .bucket-card {
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-xl);
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   box-shadow: var(--shadow-sm);
   transition: var(--transition-medium);
 }
@@ -53,7 +53,7 @@
   width: 200px;
   font-size: 0.875rem;
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-tertiary);
   transition: var(--transition-fast);
 }
 
@@ -155,8 +155,8 @@
   padding: 0.5rem;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  color: var(--color-accent);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   gap: 0.25rem;
   cursor: pointer;
@@ -164,14 +164,14 @@
 
 .action-button:hover {
   color: white;
-  background: var(--color-accent);
+  background: var(--color-accent-hover);
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
 
 .action-button.primary {
   color: white;
-  background: var(--color-blue-common);
+  background: var(--color-accent);
 }
 
 .action-button.primary:hover {
@@ -180,7 +180,7 @@
 
 .action-button.secondary {
   border: 1px solid var(--color-border);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
 }
 
 .action-button.secondary:hover {
@@ -238,7 +238,7 @@
   border: 0 solid var(--color-border);
   font-size: 0.875rem;
   color: var(--color-text-secondary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   gap: 0.25rem;
   cursor: pointer;
@@ -296,7 +296,7 @@
   padding: 0.25rem;
   border: 0 solid var(--color-border-secondary);
   border-radius: var(--radius-md);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
 }
 
@@ -354,7 +354,7 @@
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   gap: 0.5rem;
   cursor: pointer;
@@ -456,7 +456,7 @@
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-lg);
   margin: 0;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   cursor: pointer;
   transition: var(--transition-medium);
   width: 100%;
@@ -472,7 +472,7 @@
 }
 
 .virtual-gallery-scroller .file-grid-item.selected {
-  border-color: var(--color-blue-common);
+  border-color: var(--color-accent);
   box-shadow: 0 0 0 2px rgb(59 130 246 / 20%);
 }
 
@@ -482,7 +482,7 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   flex: 1;
   aspect-ratio: auto;
 }
@@ -554,7 +554,7 @@
   width: 32px;
   height: 32px;
   color: var(--color-text-secondary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   cursor: pointer;
 }
@@ -1246,7 +1246,7 @@ input:checked + .switch-slider::before {
   align-items: center;
   border-bottom: 1px solid var(--color-border-secondary);
   padding: 0.75rem 1rem;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   flex-shrink: 0;
 }
 

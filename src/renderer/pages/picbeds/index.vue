@@ -1,8 +1,5 @@
 <template>
   <div class="picbeds-page">
-    <!-- Ambient Background -->
-    <div class="ambient-bg" />
-
     <div class="page-container">
       <header class="page-header">
         <div class="header-content">

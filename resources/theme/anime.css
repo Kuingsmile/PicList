@@ -1,0 +1,57 @@
+/* 二次元 */
+
+.dark, [data-theme="dark"] {
+  --background-image: url("https://w.wallhaven.cc/full/gj/wallhaven-gje69q.png") !important;
+  --background-image-opacity: 0.7 !important;
+  --background-blur: blur(5px) !important;
+  --color-text-primary: #f2cee2 !important;
+  --color-text-secondary: #d4a5c0 !important;
+  --color-text-tertiary: #b080a0 !important;
+  --color-background-primary: transparent !important;
+  --color-background-secondary: transparent !important;
+  --color-background-tertiary: #402834 !important;
+  --color-surface: #4f3d47cd !important;
+  --color-surface-elevated: rgb(220 220 220 / 50%) !important;
+  --color-border: #6d4c5e !important;
+  --color-border-secondary: #efd0d671 !important;
+  --color-primary: #ffb7c5 !important;
+  --color-primary-hover: #ffcfd8 !important;
+  --color-accent: #23ade0 !important;
+  --color-accent-hover: #0c9bcb !important;
+  --accent-rgb: 255, 183, 197 !important;
+  --color-blue-common: #a0e6ff !important;
+  --color-light-blue: rgb(160 230 255 / 10%) !important;
+  --color-success: #98e8b1 !important;
+  --color-warning: #ffe69c !important;
+  --color-danger: #ff99aa !important;
+  --color-error: #ff99aa !important;
+  --color-error-surface: rgb(255 153 170 / 10%) !important;
+}
+
+.light, [data-theme="light"] {
+  --background-image: url("https://w.wallhaven.cc/full/2k/wallhaven-2ky11m.png") !important;
+  --background-image-opacity: 0.7 !important;
+  --background-blur: blur(5px) !important;
+  --color-text-primary: #5c3a49 !important;
+  --color-text-secondary: #8c6075 !important;
+  --color-text-tertiary: #b080a0 !important;
+  --color-background-primary: transparent !important;
+  --color-background-secondary: transparent !important;
+  --color-background-tertiary: #ffe0eb !important;
+  --color-surface: rgb(255 255 255 / 60%) !important;
+  --color-surface-elevated: rgb(255 255 255 / 90%) !important;
+  --color-border: #f8c2d6 !important;
+  --color-border-secondary: rgb(248 194 214 / 50%) !important;
+  --color-primary: #ff85a2 !important;
+  --color-primary-hover: #ff6085 !important;
+  --color-accent: #60c3eb !important;
+  --color-accent-hover: #3daade !important;
+  --accent-rgb: 255, 133, 162 !important;
+  --color-blue-common: #60c3eb !important;
+  --color-light-blue: rgb(96 195 235 / 10%) !important;
+  --color-success: #55c97b !important;
+  --color-warning: #ffcf5c !important;
+  --color-danger: #ff6b85 !important;
+  --color-error: #ff6b85 !important;
+  --color-error-surface: rgb(255 107 133 / 10%) !important;
+}

@@ -22,7 +22,7 @@
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1rem;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
 }
 
@@ -55,7 +55,7 @@
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 0.5rem;
-  background: var(--color-background-primary);
+  background: var(--color-background-secondary);
   box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
 }
 
@@ -83,7 +83,7 @@
 
 .tab-button.active {
   color: white;
-  background: #409eff;
+  background: var(--color-accent);
   box-shadow: 0 2px 4px rgb(64 158 255 / 30%);
 }
 
@@ -146,7 +146,7 @@
   width: 100%;
   font-size: 0.875rem;
   color: var(--color-text-primary);
-  background: var(--color-background-primary);
+  background: var(--color-surface);
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
@@ -154,9 +154,8 @@
 .form-input:focus,
 .form-textarea:focus,
 .form-select:focus {
-  border-color: var(--color-blue-common);
+  border-color: var(--color-accent);
   outline: none;
-  box-shadow: 0 0 0 2px var(--el-color-primary-light-9, rgb(64 158 255 / 20%));
 }
 
 .form-textarea {
@@ -252,7 +251,7 @@
 }
 
 .switch-input:checked + .switch-slider {
-  background: #409eff;
+  background: var(--color-accent);
 }
 
 .switch-input:checked + .switch-slider::before {
@@ -361,7 +360,7 @@
 
 .btn-primary {
   color: white;
-  background: #409eff;
+  background: var(--color-accent);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -371,7 +370,7 @@
 .btn-secondary {
   border: 1px solid var(--color-border);
   color: var(--color-text-primary);
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
 }
 
 .btn-secondary:hover:not(:disabled) {
@@ -600,81 +599,6 @@ small {
   }
 }
 
-/* Dark mode adjustments */
-:root.dark .piclist-settings,
-:root.auto.dark .piclist-settings {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .settings-header,
-:root.dark .tab-navigation,
-:root.dark .settings-section,
-:root.auto.dark .settings-header,
-:root.auto.dark .tab-navigation,
-:root.auto.dark .settings-section {
-  border-color: var(--color-border);
-  background: var(--color-background-secondary);
-}
-
-:root.dark .form-input,
-:root.dark .form-textarea,
-:root.dark .form-select,
-:root.auto.dark .form-input,
-:root.auto.dark .form-textarea,
-:root.auto.dark .form-select {
-  border-color: var(--color-border);
-  color: var(--color-text-primary);
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .switch-slider::before,
-:root.auto.dark .switch-slider::before {
-  background: var(--color-surface);
-}
-
-:root.dark .btn-secondary,
-:root.auto.dark .btn-secondary {
-  border-color: var(--color-border);
-  color: var(--color-text-primary);
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .btn-secondary:hover,
-:root.auto.dark .btn-secondary:hover {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .switch-label,
-:root.auto.dark .switch-label {
-  border-color: var(--color-border);
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .switch-label:hover,
-:root.auto.dark .switch-label:hover {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .radio-option,
-:root.dark .checkbox-option,
-:root.auto.dark .radio-option,
-:root.auto.dark .checkbox-option {
-  border-color: var(--color-border);
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .radio-option:hover,
-:root.dark .checkbox-option:hover,
-:root.auto.dark .radio-option:hover,
-:root.auto.dark .checkbox-option:hover {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .dialog,
-:root.auto.dark .dialog {
-  background: var(--color-background-tertiary);
-}
-
 /* Placeholder Help Styles */
 .placeholder-help {
   overflow-y: auto;
@@ -768,36 +692,6 @@ small {
 
 .placeholder-help::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-secondary);
-}
-
-/* Dark theme adjustments */
-:root.dark .placeholder-help,
-:root.auto.dark .placeholder-help {
-  border-color: var(--color-border);
-  background: var(--color-background-secondary);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
-}
-
-:root.dark .category-title,
-:root.auto.dark .category-title {
-  border-bottom-color: var(--color-border);
-  background: linear-gradient(135deg, var(--color-background-tertiary) 0%, var(--color-background-secondary) 100%);
-}
-
-:root.dark .placeholder-category,
-:root.auto.dark .placeholder-category {
-  border-bottom-color: var(--color-border);
-}
-
-:root.dark .placeholder-item:hover,
-:root.auto.dark .placeholder-item:hover {
-  background: rgb(var(--color-accent-rgb), 0.12);
-}
-
-:root.dark .placeholder-item code,
-:root.auto.dark .placeholder-item code {
-  border-color: rgb(255 255 255 / 15%);
-  background: var(--color-blue-common);
 }
 
 /* Update info and Release Notes Styles */
@@ -943,7 +837,7 @@ small {
   display: flex;
   align-items: center;
   font-size: 0.75rem;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   gap: 0.375rem;
 }
 
@@ -1184,7 +1078,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 0.5rem 1.25rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
   transition: all 0.25s ease;
   cursor: pointer;
   gap: 1rem;
@@ -1260,7 +1154,7 @@ small {
   border: 1px dashed var(--color-border);
   border-radius: 12px;
   padding: 1.5rem 1rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
   transition: all 0.25s ease;
   cursor: pointer;
   gap: 0.75rem;
@@ -1305,8 +1199,8 @@ small {
   border-radius: 10px;
   width: 34px;
   height: 34px;
-  color: white;
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  color: var(--color-surface);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
   box-shadow: 0 4px 12px rgb(64 158 255 / 25%);
   flex-shrink: 0;
 }
@@ -1418,50 +1312,6 @@ small {
   margin-top: 0.5rem;
 }
 
-/* Dark Mode Adjustments for Sync Panel */
-:root.dark .sync-overview-card,
-:root.auto.dark .sync-overview-card {
-  background: linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
-}
-
-:root.dark .sync-action-card,
-:root.auto.dark .sync-action-card {
-  border-color: var(--color-border);
-  background: var(--color-background-secondary);
-}
-
-:root.dark .sync-action-card:hover,
-:root.auto.dark .sync-action-card:hover {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .file-action-btn,
-:root.auto.dark .file-action-btn {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .file-action-btn:hover,
-:root.auto.dark .file-action-btn:hover {
-  background: rgb(64 158 255 / 12%);
-}
-
-:root.dark .sync-type-btn,
-:root.auto.dark .sync-type-btn {
-  border-color: var(--color-border);
-  background: var(--color-background-secondary);
-}
-
-:root.dark .sync-type-btn:hover,
-:root.auto.dark .sync-type-btn:hover {
-  background: rgb(64 158 255 / 15%);
-}
-
-:root.dark .sync-type-btn.active,
-:root.auto.dark .sync-type-btn.active {
-  background: rgb(64 158 255 / 20%);
-}
-
 /* Responsive Adjustments */
 @media (width <= 768px) {
   .sync-overview-card {
@@ -1497,7 +1347,7 @@ small {
   border-radius: 12px;
   width: 44px;
   height: 44px;
-  color: white;
+  color: var(--color-surface);
   flex-shrink: 0;
 }
 
@@ -1539,7 +1389,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.25rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
   transition: all 0.25s ease;
   cursor: pointer;
   gap: 1rem;
@@ -1609,7 +1459,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.25rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
   transition: all 0.25s ease;
   cursor: pointer;
 }
@@ -1674,7 +1524,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.25rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
 }
 
 .encryption-key-header {
@@ -1777,7 +1627,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 0.25rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
 }
 
 .update-preferences-section .switch-label {
@@ -1801,7 +1651,7 @@ small {
   align-items: center;
   border-bottom: 1px solid var(--color-border);
   padding: 1rem 1.5rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
 }
 
 .release-notes-title {
@@ -1894,64 +1744,6 @@ small {
   background: var(--color-background-tertiary);
 }
 
-/* Dark Mode for Advanced & Update */
-:root.dark .advanced-action-card,
-:root.auto.dark .advanced-action-card {
-  border-color: var(--color-border);
-  background: var(--color-background-secondary);
-}
-
-:root.dark .advanced-action-card:hover,
-:root.auto.dark .advanced-action-card:hover {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .server-config-card,
-:root.auto.dark .server-config-card {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .server-config-card:hover,
-:root.auto.dark .server-config-card:hover {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .encryption-key-section,
-:root.auto.dark .encryption-key-section {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .update-status-card,
-:root.auto.dark .update-status-card {
-  background: linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
-}
-
-:root.dark .release-notes-card.enhanced,
-:root.auto.dark .release-notes-card.enhanced {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .release-notes-card.enhanced .release-notes-header,
-:root.auto.dark .release-notes-card.enhanced .release-notes-header {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .release-notes-card.enhanced .release-notes-content,
-:root.auto.dark .release-notes-card.enhanced .release-notes-content {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .release-notes-card.enhanced .release-notes-footer,
-:root.auto.dark .release-notes-card.enhanced .release-notes-footer {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .update-preference-card,
-:root.auto.dark .update-preference-card {
-  background: var(--color-background-secondary);
-}
-
 /* Responsive for Advanced & Update */
 @media (width <= 768px) {
   .advanced-action-grid {
@@ -1975,17 +1767,10 @@ small {
 
 /* ==================== System Settings Panel ==================== */
 
-/* Section Icon Wrapper - Additional Colors */
+.section-icon-wrapper.window,
+.section-icon-wrapper.startup,
 .section-icon-wrapper.language {
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
-}
-
-.section-icon-wrapper.window {
-  background: linear-gradient(135deg, #909399 0%, #c0c4cc 100%);
-}
-
-.section-icon-wrapper.startup {
-  background: linear-gradient(135deg, #e6a23c 0%, #f5c55c 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
 }
 
 /* System Option Grid */
@@ -1999,7 +1784,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
 }
 
 .system-option-header {
@@ -2024,7 +1809,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
   transition: all 0.25s ease;
   cursor: pointer;
   gap: 1rem;
@@ -2088,7 +1873,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 0.25rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
 }
 
 .system-toggle-card .switch-label {
@@ -2117,6 +1902,39 @@ small {
   color: var(--color-accent);
 }
 
+/* Theme Actions Grid */
+.theme-actions-grid {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.theme-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.theme-action-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.theme-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.theme-action-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgb(64 158 255 / 15%);
+}
+
 /* Startup Options Grid */
 .startup-options-grid {
   display: grid;
@@ -2128,7 +1946,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 0.25rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
 }
 
 .startup-toggle-card .switch-label {
@@ -2144,7 +1962,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.25rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
   transition: all 0.25s ease;
   cursor: pointer;
   gap: 1rem;
@@ -2235,7 +2053,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 0.25rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
 }
 
 .upload-feature-card .switch-label {
@@ -2267,7 +2085,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
   transition: all 0.25s ease;
   cursor: pointer;
   gap: 0.75rem;
@@ -2275,7 +2093,6 @@ small {
 
 .upload-action-card:hover {
   border-color: var(--color-accent);
-  background: var(--color-background-secondary);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgb(64 158 255 / 15%);
 }
@@ -2334,7 +2151,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.25rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
   transition: all 0.25s ease;
   cursor: pointer;
   gap: 1rem;
@@ -2394,7 +2211,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 0.25rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
 }
 
 .upload-toggle-card .switch-label {
@@ -2416,7 +2233,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.25rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
   transition: all 0.25s ease;
   cursor: pointer;
   gap: 1rem;
@@ -2510,7 +2327,7 @@ small {
   border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 0.625rem 0.875rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
   transition: all 0.2s ease;
   cursor: pointer;
   gap: 0.5rem;
@@ -2791,122 +2608,6 @@ small {
   color: var(--color-accent);
 }
 
-/* Dark Mode Adjustments */
-:root.dark .system-option-card,
-:root.auto.dark .system-option-card {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .window-size-card,
-:root.auto.dark .window-size-card {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .window-size-card:hover,
-:root.auto.dark .window-size-card:hover {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .system-toggle-card,
-:root.auto.dark .system-toggle-card {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .startup-toggle-card,
-:root.auto.dark .startup-toggle-card {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .shortcut-action-card,
-:root.auto.dark .shortcut-action-card {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .shortcut-action-card:hover,
-:root.auto.dark .shortcut-action-card:hover {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .upload-feature-card,
-:root.auto.dark .upload-feature-card {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .upload-action-card,
-:root.auto.dark .upload-action-card {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .upload-action-card:hover,
-:root.auto.dark .upload-action-card:hover {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .processing-action-card,
-:root.auto.dark .processing-action-card {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .processing-action-card:hover,
-:root.auto.dark .processing-action-card:hover {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .upload-toggle-card,
-:root.auto.dark .upload-toggle-card {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .url-format-action-card,
-:root.auto.dark .url-format-action-card {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .url-format-action-card:hover,
-:root.auto.dark .url-format-action-card:hover {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .short-url-config,
-:root.auto.dark .short-url-config {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .picbed-checkbox-card,
-:root.auto.dark .picbed-checkbox-card {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .picbed-checkbox-card:hover,
-:root.auto.dark .picbed-checkbox-card:hover {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .enhanced-dialog,
-:root.auto.dark .enhanced-dialog {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .placeholder-info-card,
-:root.auto.dark .placeholder-info-card {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .proxy-config-card,
-:root.auto.dark .proxy-config-card {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .version-card,
-:root.auto.dark .version-card {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .rename-toggle-card,
-:root.auto.dark .rename-toggle-card {
-  background: var(--color-background-tertiary);
-}
-
 /* ============================
    Log Dialog Styles
    ============================ */
@@ -3087,31 +2788,6 @@ small {
   color: var(--color-accent);
 }
 
-/* Dark mode for new dialog components */
-:root.dark .log-file-card,
-:root.auto.dark .log-file-card {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .log-file-card:hover,
-:root.auto.dark .log-file-card:hover {
-  background: var(--color-background-secondary);
-}
-
-:root.dark .server-notice-card,
-:root.auto.dark .server-notice-card {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .server-toggle-card,
-:root.auto.dark .server-toggle-card {
-  background: var(--color-background-tertiary);
-}
-
-:root.dark .server-config-section,
-:root.auto.dark .server-config-section {
-  background: var(--color-background-tertiary);
-}
 
 /* Responsive Adjustments */
 @media (width <= 768px) {
@@ -3174,12 +2850,11 @@ small {
 
 .notes-body {
   overflow-y: auto;
-  border-radius: 12px;
   padding: 1.25rem;
   max-height: 195px;
   font-size: 0.9375rem;
   line-height: 1.5;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
   color: var(--color-text-secondary);
 }
 

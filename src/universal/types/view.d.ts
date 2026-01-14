@@ -40,6 +40,7 @@ interface ISettingForm {
   mainWindowWidth: number
   mainWindowHeight: number
   enableSecondUploader: boolean
+  theme: string
 }
 
 interface IToolboxItem {

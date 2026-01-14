@@ -12,6 +12,7 @@ import { configPaths } from '~/utils/configPaths'
 import { IWindowList } from '~/utils/enum'
 
 import logo from '../../../../../resources/logo.png?asset&asarUnpack'
+import { applyTheme } from '../theme'
 
 const windowList = new Map<string, IWindowListItem>()
 
@@ -204,6 +205,10 @@ windowList.set(IWindowList.SETTING_WINDOW, {
           app.quit()
         })
       }
+    })
+    window.on('ready-to-show', () => {
+      const customTheme = picgo.getConfig<string>(configPaths.settings.theme) || 'default.css'
+      applyTheme(customTheme)
     })
     bus.emit(CREATE_APP_MENU)
     windowManager.create(IWindowList.MINI_WINDOW)

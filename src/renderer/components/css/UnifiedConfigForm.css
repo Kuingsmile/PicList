@@ -17,7 +17,7 @@
 
 .form-group.required .form-label::after {
   content: ' *';
-  color: var(--color-error, #ef4444);
+  color: var(--color-error);
 }
 
 .form-label-wrapper {
@@ -72,7 +72,7 @@
   max-width: 300px;
   font-size: 0.75rem;
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   box-shadow: var(--shadow-lg);
   line-height: 1.4;
 }
@@ -86,12 +86,13 @@
   font-size: 0.875rem;
   font-family: inherit;
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
 }
 
 .form-input:focus {
   border-color: var(--color-accent);
+  background: var(--color-surface);
   outline: none;
   box-shadow: 0 0 0 2px rgb(0 122 255 / 20%);
 }
@@ -101,7 +102,7 @@
 }
 
 .form-input.error {
-  border-color: var(--color-error, #ef4444);
+  border-color: var(--color-error);
 }
 
 .form-input.error:focus {
@@ -134,7 +135,7 @@
 }
 
 .form-select.error {
-  border-color: var(--color-error, #ef4444);
+  border-color: var(--color-error);
 }
 
 .form-select.error:focus {
@@ -294,33 +295,7 @@
 .error-message {
   margin-top: 0.25rem;
   font-size: 0.75rem;
-  color: var(--color-error, #ef4444);
-}
-
-/* White theme adjustments */
-.white .form-input,
-.white .form-select {
-  border-color: #dddddd;
-  background: white;
-}
-
-.white .form-input:focus,
-.white .form-select:focus {
-  border-color: var(--color-accent);
-}
-
-.white .checkbox-custom {
-  border-color: #dddddd;
-  background: white;
-}
-
-.white .switch-slider {
-  background: #dddddd;
-}
-
-.white .tooltip-content {
-  border-color: #dddddd;
-  background: white;
+  color: var(--color-error);
 }
 
 /* Responsive Design */
@@ -342,32 +317,6 @@
     min-width: 150px;
     max-width: 250px;
   }
-}
-
-/* Dark mode adjustments */
-:root.dark .form-input,
-:root.auto.dark .form-input,
-:root.dark .form-select,
-:root.auto.dark .form-select {
-  border-color: var(--color-border);
-  background: var(--color-surface-elevated);
-}
-
-:root.dark .checkbox-custom,
-:root.auto.dark .checkbox-custom {
-  border-color: var(--color-border);
-  background: var(--color-surface-elevated);
-}
-
-:root.dark .switch-slider,
-:root.auto.dark .switch-slider {
-  background: var(--color-border);
-}
-
-:root.dark .tooltip-content,
-:root.auto.dark .tooltip-content {
-  border-color: var(--color-border);
-  background: var(--color-surface-elevated);
 }
 
 /* Focus styles for accessibility */

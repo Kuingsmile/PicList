@@ -73,6 +73,37 @@
                   <option value="main">{{ t('pages.settings.system.mainMode') }}</option>
                 </select>
               </div>
+
+              <div class="system-option-card">
+                <div class="system-option-header">
+                  <ImageIcon :size="18" />
+                  <span>{{ t('pages.settings.system.chooseTheme') }}</span>
+                </div>
+                <select v-model="currentTheme" class="form-select">
+                  <option v-for="theme in themeList" :key="theme.key" :value="theme.key">
+                    {{ theme.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="theme-actions-grid">
+              <button
+                class="btn btn-secondary theme-action-btn"
+                :disabled="downloadingThemes"
+                @click="handleDownloadThemes"
+              >
+                <Download :size="14" />
+                <span>{{
+                  downloadingThemes
+                    ? t('pages.settings.system.downloadingThemes')
+                    : t('pages.settings.system.downloadThemes')
+                }}</span>
+              </button>
+              <button class="btn btn-secondary theme-action-btn" @click="handleImportThemes">
+                <Import :size="14" />
+                <span>{{ t('pages.settings.system.importThemes') }}</span>
+              </button>
             </div>
           </div>
 
@@ -1812,6 +1843,9 @@ const { picBedG, updatePicBeds } = usePicBed()
 
 const showPicBedList = ref<string[]>([])
 const galleryPicBedFilterList = ref<string[]>([])
+const themeList = ref<{ key: string; label: string }[]>([{ key: 'default.css', label: '默认' }])
+const currentTheme = ref('default.css')
+const downloadingThemes = ref(false)
 const currentTab = useStorage<'system' | 'sync' | 'upload' | 'advanced' | 'update'>('settings-current-tab', 'system')
 
 // Tab configuration
@@ -1883,6 +1917,7 @@ const formOfSetting = ref<ISettingForm>({
   mainWindowWidth: 1200,
   mainWindowHeight: 800,
   enableSecondUploader: false,
+  theme: 'default.css',
 })
 
 const proxy = ref('')
@@ -1954,6 +1989,12 @@ const addWatch = () => {
   watch(currentShortUrlServer, newVal => {
     if (newVal) {
       handleShortUrlServerChange(newVal)
+    }
+  })
+
+  watch(currentTheme, newVal => {
+    if (newVal) {
+      handleThemeChange(newVal)
     }
   })
 }
@@ -2095,12 +2136,69 @@ onBeforeMount(() => {
   initData()
 })
 
+async function loadThemes() {
+  try {
+    const themes = await window.electron.triggerRPC<{ key: string; label: string }[]>(
+      IRPCActionType.THEME_RESOLVE_THEMES,
+    )
+    if (themes && themes.length > 0) {
+      themeList.value = themes
+    }
+  } catch (error) {
+    console.error('Failed to load themes:', error)
+  }
+}
+
+async function handleDownloadThemes() {
+  try {
+    downloadingThemes.value = true
+    await window.electron.triggerRPC(IRPCActionType.THEME_FETCH_THEMES)
+    message.success(t('pages.settings.system.downloadThemesSuccess'))
+    await loadThemes()
+  } catch (error) {
+    console.error('Failed to download themes:', error)
+    message.error(t('pages.settings.system.downloadThemesFailed'))
+  } finally {
+    downloadingThemes.value = false
+  }
+}
+
+async function handleImportThemes() {
+  try {
+    const result = await window.electron.triggerRPC<string[]>(IRPCActionType.MANAGE_OPEN_FILE_SELECT_DIALOG, {
+      title: t('pages.settings.system.importThemes'),
+      filters: [{ name: 'CSS Files', extensions: ['css'] }],
+      properties: ['openFile', 'multiSelections'],
+    })
+    if (result && result.length > 0) {
+      await window.electron.triggerRPC(IRPCActionType.THEME_IMPORT_THEMES, result)
+      message.success(t('pages.settings.system.importThemesSuccess'))
+      await loadThemes()
+    }
+  } catch (error) {
+    console.error('Failed to import themes:', error)
+    message.error(t('pages.settings.system.importThemesFailed'))
+  }
+}
+
+async function handleThemeChange(theme: string) {
+  try {
+    await window.electron.triggerRPC(IRPCActionType.THEME_APPLY_THEME, theme)
+    saveConfig({ [configPaths.settings.theme]: theme })
+  } catch (error) {
+    console.error('Failed to apply theme:', error)
+    message.error(t('pages.settings.system.applyThemeFailed'))
+  }
+}
+
 async function initData() {
   const config = (await getConfig<IConfig>()) || ({} as IConfig)
   const settings = config.settings || {}
   const picBed = config.picBed
   showPicBedList.value = picBedG.value.filter(item => item.visible).map(item => item.name)
   galleryPicBedFilterList.value = settings.galleryPicBedFilter || []
+  currentTheme.value = settings.theme || 'default.css'
+  await loadThemes()
   formKeys.forEach(key => {
     ;(formOfSetting.value as any)[key] = settings[key] ?? formOfSetting.value[key]
   })

@@ -163,12 +163,6 @@ export default {
     0 10px 10px -5px rgb(0 0 0 / 4%);
 }
 
-:root.dark .messagebox-container,
-:root.auto.dark .messagebox-container {
-  border-color: rgb(55 65 81);
-  background: rgb(31 41 55);
-}
-
 /* Close Button */
 .messagebox-close {
   position: absolute;
@@ -190,17 +184,6 @@ export default {
 .messagebox-close:hover {
   color: rgb(75 85 99);
   background: rgb(243 244 246);
-}
-
-:root.dark .messagebox-close,
-:root.auto.dark .messagebox-close {
-  color: rgb(156 163 175);
-}
-
-:root.dark .messagebox-close:hover,
-:root.auto.dark .messagebox-close:hover {
-  color: rgb(209 213 219);
-  background: rgb(55 65 81);
 }
 
 /* Body */
@@ -247,21 +230,9 @@ export default {
   background: rgb(254 243 199);
 }
 
-:root.dark .messagebox-icon-warning,
-:root.auto.dark .messagebox-icon-warning {
-  color: rgb(251 191 36);
-  background: rgb(120 53 15 / 30%);
-}
-
 .messagebox-icon-info {
   color: rgb(59 130 246);
   background: rgb(219 234 254);
-}
-
-:root.dark .messagebox-icon-info,
-:root.auto.dark .messagebox-icon-info {
-  color: rgb(96 165 250);
-  background: rgb(30 58 138 / 30%);
 }
 
 .messagebox-icon-success {
@@ -269,21 +240,9 @@ export default {
   background: rgb(220 252 231);
 }
 
-:root.dark .messagebox-icon-success,
-:root.auto.dark .messagebox-icon-success {
-  color: rgb(74 222 128);
-  background: rgb(20 83 45 / 30%);
-}
-
 .messagebox-icon-error {
   color: rgb(239 68 68);
   background: rgb(254 226 226);
-}
-
-:root.dark .messagebox-icon-error,
-:root.auto.dark .messagebox-icon-error {
-  color: rgb(248 113 113);
-  background: rgb(127 29 29 / 30%);
 }
 
 /* Content */
@@ -300,21 +259,11 @@ export default {
   color: rgb(17 24 39);
 }
 
-:root.dark .messagebox-title,
-:root.auto.dark .messagebox-title {
-  color: rgb(243 244 246);
-}
-
 .messagebox-message {
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.5;
   color: rgb(107 114 128);
-}
-
-:root.dark .messagebox-message,
-:root.auto.dark .messagebox-message {
-  color: rgb(156 163 175);
 }
 
 /* Actions */
@@ -323,11 +272,6 @@ export default {
   border-top: 1px solid rgb(243 244 246);
   padding: 1rem 1.5rem;
   gap: 0.75rem;
-}
-
-:root.dark .messagebox-actions,
-:root.auto.dark .messagebox-actions {
-  border-top-color: rgb(55 65 81);
 }
 
 .messagebox-actions.center {
@@ -359,19 +303,6 @@ export default {
 .cancel-btn:hover {
   border-color: rgb(209 213 219);
   background: rgb(249 250 251);
-}
-
-:root.dark .cancel-btn,
-:root.auto.dark .cancel-btn {
-  border-color: rgb(55 65 81);
-  color: rgb(209 213 219);
-  background: rgb(55 65 81);
-}
-
-:root.dark .cancel-btn:hover,
-:root.auto.dark .cancel-btn:hover {
-  border-color: rgb(75 85 99);
-  background: rgb(75 85 99);
 }
 
 /* Confirm Buttons */
