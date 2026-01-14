@@ -1,4 +1,3 @@
-import db from '@core/datastore'
 import picgo from '@core/picgo'
 import { uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
@@ -30,7 +29,7 @@ interface GuiMenuItem {
 }
 
 const buildMiniPageMenu = () => {
-  const isListeningClipboard = db.get(configPaths.settings.isListeningClipboard) || false
+  const isListeningClipboard = picgo.getConfig<boolean>(configPaths.settings.isListeningClipboard) || false
   const ClipboardWatcher = clipboardPoll
   const submenu = buildPicBedListMenu()
   const template: (MenuItemConstructorOptions | MenuItem)[] = [
@@ -58,7 +57,7 @@ const buildMiniPageMenu = () => {
     {
       label: $t('START_WATCH_CLIPBOARD'),
       click() {
-        db.set(configPaths.settings.isListeningClipboard, true)
+        picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: true })
         ClipboardWatcher.startListening()
         ClipboardWatcher.on('change', () => {
           picgo.log.info('clipboard changed')
@@ -71,7 +70,7 @@ const buildMiniPageMenu = () => {
     {
       label: $t('STOP_WATCH_CLIPBOARD'),
       click() {
-        db.set(configPaths.settings.isListeningClipboard, false)
+        picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: false })
         ClipboardWatcher.stopListening()
         ClipboardWatcher.removeAllListeners()
         buildMiniPageMenu()

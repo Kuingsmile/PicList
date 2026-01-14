@@ -1,12 +1,11 @@
 import http from 'node:http'
 import path from 'node:path'
 
-import { dbPathDir } from '@core/datastore/dbChecker'
+import { appLogPath, dataDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
-import { app } from 'electron'
 import fs from 'fs-extra'
 import { marked } from 'marked'
 
@@ -17,11 +16,9 @@ import { AESHelper } from '~/utils/aesHelper'
 import { configPaths } from '~/utils/configPaths'
 import { changeCurrentUploader } from '~/utils/handleUploaderConfig'
 
-const appPath = app.getPath('userData')
+const appPath = dataDir()
 const serverTempDir = path.join(appPath, 'serverTemp')
-
-const STORE_PATH = dbPathDir()
-const LOG_PATH = path.join(STORE_PATH, 'piclist.log')
+const LOG_PATH = appLogPath()
 
 const errorMessage = `upload error. see ${LOG_PATH} for more detail.`
 const deleteErrorMessage = `delete error. see ${LOG_PATH} for more detail.`

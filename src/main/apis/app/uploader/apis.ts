@@ -1,4 +1,4 @@
-import db, { GalleryDB } from '@core/datastore'
+import { GalleryDB } from '@core/datastore'
 import picgo from '@core/picgo'
 import uploader from 'apis/app/uploader'
 import windowManager from 'apis/app/window/windowManager'
@@ -14,9 +14,9 @@ import pasteTemplate from '~/utils/pasteTemplate'
 
 const handleClipboardUploadingReturnCtx = async (img?: IUploadOption): Promise<(ImgInfo[] | false)[]> => {
   const useBuiltinClipboard =
-    db.get(configPaths.settings.useBuiltinClipboard) === undefined
+    picgo.getConfig<boolean | undefined>(configPaths.settings.useBuiltinClipboard) === undefined
       ? true
-      : !!db.get(configPaths.settings.useBuiltinClipboard)
+      : !!picgo.getConfig<boolean | undefined>(configPaths.settings.useBuiltinClipboard)
   const win = windowManager.getAvailableWindow()
   if (useBuiltinClipboard) {
     return await uploader.setWebContents(win!.webContents).uploadWithBuildInClipboardReturnCtx(img)
@@ -33,14 +33,18 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
   if (img !== false) {
     if (img.length > 0) {
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
-      const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
-      const [pastedText, shortUrl] = await pasteTemplate(pasteStyle, img[0], db.get(configPaths.settings.customLink))
+      const pasteStyle = picgo.getConfig<string>(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
+      const [pastedText, shortUrl] = await pasteTemplate(
+        pasteStyle,
+        img[0],
+        picgo.getConfig<string | undefined>(configPaths.settings.customLink),
+      )
       img[0].shortUrl = shortUrl
       handleCopyUrl(pastedText)
       const isShowResultNotification =
-        db.get(configPaths.settings.uploadResultNotification) === undefined
+        picgo.getConfig<boolean | undefined>(configPaths.settings.uploadResultNotification) === undefined
           ? true
-          : !!db.get(configPaths.settings.uploadResultNotification)
+          : !!picgo.getConfig<boolean | undefined>(configPaths.settings.uploadResultNotification)
       if (isShowResultNotification) {
         const notification = new Notification({
           title: $t('UPLOAD_SUCCEED'),
@@ -101,8 +105,8 @@ export const uploadChoosedFiles = async (
   backImgs = res[1] ? res[1] : false
   const result = []
   if (imgs !== false) {
-    const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
-    const deleteLocalFile = db.get(configPaths.settings.deleteLocalFile) || false
+    const pasteStyle = picgo.getConfig<string>(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
+    const deleteLocalFile = picgo.getConfig<boolean>(configPaths.settings.deleteLocalFile) || false
     const pasteText: string[] = []
     const imgLength = imgs.length
     for (let i = 0; i < imgLength; i++) {
@@ -118,14 +122,14 @@ export const uploadChoosedFiles = async (
       const [pasteTextItem, shortUrl] = await pasteTemplate(
         pasteStyle,
         imgs[i],
-        db.get(configPaths.settings.customLink),
+        picgo.getConfig<string | undefined>(configPaths.settings.customLink),
       )
       imgs[i].shortUrl = shortUrl
       pasteText.push(pasteTextItem)
       const isShowResultNotification =
-        db.get(configPaths.settings.uploadResultNotification) === undefined
+        picgo.getConfig<boolean | undefined>(configPaths.settings.uploadResultNotification) === undefined
           ? true
-          : !!db.get(configPaths.settings.uploadResultNotification)
+          : !!picgo.getConfig<boolean | undefined>(configPaths.settings.uploadResultNotification)
       if (isShowResultNotification) {
         if (imgLength <= 3) {
           const notification = new Notification({

@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events'
 import { homedir } from 'node:os'
 import path from 'node:path'
 
+import { manageConfigPath } from '@core/datastore/dirs'
 import windowManager from 'apis/app/window/windowManager'
 import { ipcMain } from 'electron'
 import fs from 'fs-extra'
@@ -9,7 +10,6 @@ import { get, set, unset } from 'lodash-es'
 
 import API from '~/manage/apis/api'
 import ManageDB from '~/manage/datastore/db'
-import { managePathChecker } from '~/manage/datastore/dbChecker'
 import { formatError, isInputConfigValid } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { IWindowList } from '~/utils/enum'
@@ -57,7 +57,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   constructor(currentPicBed: string = '') {
     super()
     this.currentPicBed = currentPicBed || 'placeholder'
-    this.configPath = managePathChecker()
+    this.configPath = manageConfigPath()
     this.initConfigPath()
     this.logger = new ManageLogger(this)
     this.initconfig()

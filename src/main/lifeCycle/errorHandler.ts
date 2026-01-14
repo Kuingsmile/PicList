@@ -1,10 +1,7 @@
-import path from 'node:path'
-
+import { appGUILogPath } from '@core/datastore/dirs'
 import { getLogger } from '@core/utils/localLogger'
-import { app } from 'electron'
 
-const STORE_PATH = app.getPath('userData')
-const LOG_PATH = path.join(STORE_PATH, 'piclist-gui-local.log')
+const LOG_PATH = appGUILogPath()
 
 const logger = getLogger(LOG_PATH, 'PicList')
 

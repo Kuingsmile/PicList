@@ -1,22 +1,12 @@
-import path from 'node:path'
-
-import { getLogger } from '@core/utils/localLogger'
+import { appConfigBackupPath, appConfigPath, galleryDBBackupPath, galleryDBPath } from '@core/datastore/dirs'
 import dayjs from 'dayjs'
-import { app } from 'electron'
 import fs from 'fs-extra'
 import writeFile from 'write-file-atomic'
 
 import { T as $t } from '~/i18n'
 import { notificationList } from '~/utils/notification'
 
-const STORE_PATH = app.getPath('userData')
-
-const configFilePath = path.join(STORE_PATH, 'data.json')
-const configFileBackupPath = path.join(STORE_PATH, 'data.bak.json')
-export const defaultConfigPath = configFilePath
-
-let _configFilePath = ''
-let hasCheckPath = false
+const configFileBackupPath = appConfigBackupPath()
 
 const errorMsg = {
   broken: $t('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_DEFAULT'),
@@ -27,7 +17,8 @@ function dbChecker() {
   if (process.type !== 'renderer') {
     // db save bak
     try {
-      const { dbPath, dbBackupPath } = getGalleryDBPath()
+      const dbPath = galleryDBPath()
+      const dbBackupPath = galleryDBBackupPath()
       if (fs.existsSync(dbPath)) {
         fs.copyFileSync(dbPath, dbBackupPath)
       }
@@ -35,7 +26,7 @@ function dbChecker() {
       console.error(e)
     }
 
-    const configFilePath = dbPathChecker()
+    const configFilePath = appConfigPath()
     if (!fs.existsSync(configFilePath)) {
       return
     }
@@ -77,64 +68,4 @@ function dbChecker() {
   }
 }
 
-/**
- * Get config path
- */
-function dbPathChecker(): string {
-  if (_configFilePath) {
-    return _configFilePath
-  }
-  _configFilePath = defaultConfigPath
-  // if defaultConfig path is not exit
-  // do not parse the content of config
-  if (!fs.existsSync(defaultConfigPath)) {
-    return _configFilePath
-  }
-  try {
-    const configString = fs.readFileSync(defaultConfigPath, {
-      encoding: 'utf-8',
-    })
-    const config = JSON.parse(configString)
-    const userConfigPath: string = config.configPath || ''
-    if (userConfigPath) {
-      if (fs.existsSync(userConfigPath) && userConfigPath.endsWith('.json')) {
-        _configFilePath = userConfigPath
-        return _configFilePath
-      }
-    }
-    return _configFilePath
-  } catch (e) {
-    const piclistLogPath = path.join(STORE_PATH, 'piclist-gui-local.log')
-    const logger = getLogger(piclistLogPath, 'PicList')
-    if (!hasCheckPath) {
-      const optionsTpl = {
-        title: $t('TIPS_NOTICE'),
-        body: $t('TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR'),
-      }
-      notificationList.push(optionsTpl)
-      hasCheckPath = true
-    }
-    logger('error', e)
-    _configFilePath = defaultConfigPath
-    return _configFilePath
-  }
-}
-
-function dbPathDir() {
-  return path.dirname(dbPathChecker())
-}
-
-function getGalleryDBPath(): {
-  dbPath: string
-  dbBackupPath: string
-} {
-  const configPath = dbPathChecker()
-  const dbPath = path.join(path.dirname(configPath), 'piclist.db')
-  const dbBackupPath = path.join(path.dirname(dbPath), 'piclist.bak.db')
-  return {
-    dbPath,
-    dbBackupPath,
-  }
-}
-
-export { dbChecker, dbPathChecker, dbPathDir, getGalleryDBPath }
+export { dbChecker }

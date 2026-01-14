@@ -3,7 +3,6 @@ import '~/lifeCycle/errorHandler'
 import path from 'node:path'
 
 import bus from '@core/bus'
-import db from '@core/datastore'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
 import { remoteNoticeHandler } from 'apis/app/remoteNotice'
@@ -69,7 +68,7 @@ updater.autoUpdater.forceDevUpdateConfig = true
 updater.autoUpdater.autoDownload = false
 
 updater.autoUpdater.on('update-available', async (info: updater.UpdateInfo) => {
-  const lang = db.get(configPaths.settings.language) || II18nLanguage.ZH_CN
+  const lang = picgo.getConfig<string>(configPaths.settings.language) || II18nLanguage.ZH_CN
   let updateLog = ''
   try {
     const url =
@@ -126,7 +125,7 @@ updater.autoUpdater.on('download-progress', progressObj => {
 })
 
 updater.autoUpdater.on('update-downloaded', () => {
-  const lang = db.get(configPaths.settings.language) || II18nLanguage.ZH_CN
+  const lang = picgo.getConfig<string>(configPaths.settings.language) || II18nLanguage.ZH_CN
 
   if (!windowManager.has(IWindowList.UPDATE_WINDOW)) {
     windowManager.create(IWindowList.UPDATE_WINDOW)
@@ -180,25 +179,28 @@ class LifeCycle {
     const readyFunction = async () => {
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
-      const isAutoListenClipboard = db.get(configPaths.settings.isAutoListenClipboard) || false
+      const isAutoListenClipboard = picgo.getConfig<boolean>(configPaths.settings.isAutoListenClipboard) || false
       const ClipboardWatcher = clipboardPoll
       if (isAutoListenClipboard) {
-        db.set(configPaths.settings.isListeningClipboard, true)
+        picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: true })
         ClipboardWatcher.startListening()
         ClipboardWatcher.on('change', () => {
           picgo.log.info('clipboard changed')
           uploadClipboardFiles()
         })
       } else {
-        db.set(configPaths.settings.isListeningClipboard, false)
+        picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: false })
       }
-      const isHideDock = db.get(configPaths.settings.isHideDock) || false
-      let startMode = db.get(configPaths.settings.startMode) || ISartMode.QUIET
+      const isHideDock = picgo.getConfig<boolean>(configPaths.settings.isHideDock) || false
+      let startMode = picgo.getConfig<string>(configPaths.settings.startMode) || ISartMode.QUIET
       if (process.platform === 'darwin' && startMode === ISartMode.MINI) {
         startMode = ISartMode.QUIET
       }
-      const currentPicBed = db.get(configPaths.picBed.uploader) || db.get(configPaths.picBed.current) || 'smms'
-      const currentPicBedConfig = db.get(`picBed.${currentPicBed}`)?._configName || 'Default'
+      const currentPicBed =
+        picgo.getConfig<string>(configPaths.picBed.uploader) ||
+        picgo.getConfig<string>(configPaths.picBed.current) ||
+        'smms'
+      const currentPicBedConfig = picgo.getConfig<any>(`picBed.${currentPicBed}`)?._configName || 'Default'
       const tooltip = `${currentPicBed} ${currentPicBedConfig}`
       if (process.platform === 'darwin') {
         isHideDock ? app.dock?.hide() : setDockMenu()
@@ -206,7 +208,7 @@ class LifeCycle {
       } else {
         createTray(tooltip)
       }
-      db.set(configPaths.needReload, false)
+      picgo.saveConfig({ [configPaths.needReload]: false })
       updateChecker()
       // 不需要阻塞
       process.nextTick(() => {
@@ -232,24 +234,26 @@ class LifeCycle {
         windowManager.create(IWindowList.MINI_WINDOW)
         const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
         miniWindow.removeAllListeners()
-        if (db.get(configPaths.settings.miniWindowOntop)) {
+        if (picgo.getConfig<boolean>(configPaths.settings.miniWindowOntop)) {
           miniWindow.setAlwaysOnTop(true)
         }
         const { width, height } = screen.getPrimaryDisplay().workAreaSize
-        const lastPosition = db.get(configPaths.settings.miniWindowPosition)
+        const lastPosition = picgo.getConfig<number[]>(configPaths.settings.miniWindowPosition)
         if (lastPosition) {
           if (lastPosition[0] < 0 || lastPosition[0] > width || lastPosition[1] < 0 || lastPosition[1] > height) {
             miniWindow.setPosition(width - 100, height - 100)
-            db.set(configPaths.settings.miniWindowPosition, [width - 100, height - 100])
+            picgo.saveConfig({ [configPaths.settings.miniWindowPosition]: [width - 100, height - 100] })
           } else if (
             lastPosition[0] + miniWindow.getSize()[0] > width ||
             lastPosition[1] + miniWindow.getSize()[1] > height
           ) {
             miniWindow.setPosition(width - miniWindow.getSize()[0], height - miniWindow.getSize()[1])
-            db.set(configPaths.settings.miniWindowPosition, [
-              width - miniWindow.getSize()[0],
-              height - miniWindow.getSize()[1],
-            ])
+            picgo.saveConfig({
+              [configPaths.settings.miniWindowPosition]: [
+                width - miniWindow.getSize()[0],
+                height - miniWindow.getSize()[1],
+              ],
+            })
           } else {
             miniWindow.setPosition(lastPosition[0], lastPosition[1])
           }
@@ -258,7 +262,7 @@ class LifeCycle {
         }
         const setPositionFunc = () => {
           const position = miniWindow.getPosition()
-          db.set(configPaths.settings.miniWindowPosition, position)
+          picgo.saveConfig({ [configPaths.settings.miniWindowPosition]: position })
         }
         miniWindow.on('close', setPositionFunc)
         miniWindow.on('move', setPositionFunc)
@@ -297,7 +301,7 @@ class LifeCycle {
         windowManager.create(IWindowList.SETTING_WINDOW)
       }
     })
-    const storedAutoStartEnabled = db.get(configPaths.settings.autoStart) || false
+    const storedAutoStartEnabled = picgo.getConfig<boolean>(configPaths.settings.autoStart) || false
     isAutoStartEnabled()
       .then(actualAutoStartEnabled => {
         if (actualAutoStartEnabled !== storedAutoStartEnabled) {
@@ -358,6 +362,7 @@ class LifeCycle {
   }
 
   async launchApp() {
+    console.log('launchApp called', app.getPath('exe'))
     const gotTheLock = app.requestSingleInstanceLock()
     if (!gotTheLock) {
       app.quit()

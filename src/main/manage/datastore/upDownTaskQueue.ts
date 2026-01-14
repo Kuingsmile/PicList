@@ -3,7 +3,7 @@
 
 import path from 'node:path'
 
-import { app } from 'electron'
+import { dataDir } from '@core/datastore/dirs'
 import fs from 'fs-extra'
 
 import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
@@ -15,7 +15,7 @@ class UpDownTaskQueue {
 
   private downloadTaskQueue = [] as IDownloadTask[]
 
-  private persistPath = path.join(app.getPath('userData'), 'UpDownTaskQueue.json')
+  private persistPath = path.join(dataDir(), 'UpDownTaskQueue.json')
 
   private constructor() {
     this.restore()

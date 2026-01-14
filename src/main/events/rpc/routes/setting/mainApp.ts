@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { dbPathDir } from '@core/datastore/dbChecker'
+import { dataDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import { IpcMainEvent, shell } from 'electron'
 import fs from 'fs-extra'
@@ -8,7 +8,7 @@ import fs from 'fs-extra'
 import { isAutoStartEnabled, setAutoStart } from '~/utils/autoStart'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
 
-const STORE_PATH = dbPathDir()
+const STORE_PATH = dataDir()
 
 export default [
   {

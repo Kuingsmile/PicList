@@ -1,4 +1,5 @@
-import db, { GalleryDB } from '@core/datastore'
+import { GalleryDB } from '@core/datastore'
+import picgo from '@core/picgo'
 import uploader from 'apis/app/uploader'
 import windowManager from 'apis/app/window/windowManager'
 import { Notification } from 'electron'
@@ -35,14 +36,18 @@ const trayRoutes = [
       const img = res[0] ? res[0] : false
       const backupImgs = res[1] ? res[1] : false
       if (img !== false) {
-        const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
-        const [pasteText, shortUrl] = await pasteTemplate(pasteStyle, img[0], db.get(configPaths.settings.customLink))
+        const pasteStyle = picgo.getConfig<string>(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
+        const [pasteText, shortUrl] = await pasteTemplate(
+          pasteStyle,
+          img[0],
+          picgo.getConfig<string>(configPaths.settings.customLink),
+        )
         img[0].shortUrl = shortUrl
         handleCopyUrl(pasteText)
         const isShowResultNotification =
-          db.get(configPaths.settings.uploadResultNotification) === undefined
+          picgo.getConfig<boolean>(configPaths.settings.uploadResultNotification) === undefined
             ? true
-            : !!db.get(configPaths.settings.uploadResultNotification)
+            : !!picgo.getConfig<boolean>(configPaths.settings.uploadResultNotification)
         if (isShowResultNotification) {
           const notification = new Notification({
             title: $t('UPLOAD_SUCCEED'),

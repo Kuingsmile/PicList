@@ -1,4 +1,4 @@
-import db from '@core/datastore'
+import picgo from '@core/picgo'
 
 import { generateShortUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
@@ -28,7 +28,7 @@ export default async (style: string, item: ImgInfo, customLink: string | undefin
     url = item.imgUrl || item.url || ''
   }
   url = handleUrlEncodeWithSetting(url)
-  const useShortUrl = db.get(configPaths.settings.useShortUrl) || false
+  const useShortUrl = picgo.getConfig<boolean>(configPaths.settings.useShortUrl) || false
   if (useShortUrl) {
     url = item.shortUrl && item.shortUrl !== url ? item.shortUrl : await generateShortUrl(url)
   }

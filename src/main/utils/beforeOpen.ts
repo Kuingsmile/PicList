@@ -2,13 +2,13 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { dbPathChecker } from '@core/datastore/dbChecker'
+import { appConfigPath } from '@core/datastore/dirs'
 import fs from 'fs-extra'
 import yaml from 'yaml'
 
 import { i18nManager } from '~/i18n'
 
-const configPath = dbPathChecker()
+const configPath = appConfigPath()
 const CONFIG_DIR = path.dirname(configPath)
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 

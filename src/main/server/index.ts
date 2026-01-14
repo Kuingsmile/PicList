@@ -4,18 +4,18 @@ import path from 'node:path'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
 import axios from 'axios'
-import { app } from 'electron'
 import fs from 'fs-extra'
 import multer from 'multer'
 
+import { dataDir } from '~/apis/core/datastore/dirs'
 import routers from '~/server/routerManager'
 import { ensureHTTPLink, handleResponse } from '~/server/utils'
 import { configPaths } from '~/utils/configPaths'
 
 const DEFAULT_PORT = 36677
 const DEFAULT_HOST = '0.0.0.0'
-const appPath = app.getPath('userData')
-const serverTempDir = path.join(appPath, 'serverTemp')
+
+const serverTempDir = path.join(dataDir(), 'serverTemp')
 
 fs.ensureDirSync(serverTempDir)
 

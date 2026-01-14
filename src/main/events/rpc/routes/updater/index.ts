@@ -1,4 +1,4 @@
-import db from '@core/datastore'
+import picgo from '@core/picgo'
 import { BrowserWindow, shell } from 'electron'
 import updater from 'electron-updater'
 
@@ -30,7 +30,7 @@ const updaterRoutes = [
   {
     action: IRPCActionType.SET_SHOW_UPDATE_TIP,
     handler: async (_: IIPCEvent, args: [value: boolean]) => {
-      db.set(configPaths.settings.showUpdateTip, args[0])
+      picgo.saveConfig({ [configPaths.settings.showUpdateTip]: args[0] })
     },
   },
   {

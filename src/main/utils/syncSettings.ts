@@ -1,12 +1,12 @@
 import os from 'node:os'
 import path from 'node:path'
 
-import db from '@core/datastore'
 import { GalleryDB } from '@core/datastore'
+import { dataDir } from '@core/datastore/dirs'
+import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
 import { Octokit } from '@octokit/rest'
 import axios from 'axios'
-import { app } from 'electron'
 import fs from 'fs-extra'
 import { HttpsProxyAgent } from 'hpagent'
 import { AuthType, createClient, WebDAVClientOptions } from 'webdav'
@@ -15,7 +15,7 @@ import { extractData, zipData } from '~/utils/common'
 import { formatEndpoint } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 
-const STORE_PATH = app.getPath('userData')
+const STORE_PATH = dataDir()
 const tempDir = path.join(os.tmpdir(), `piclist-sync-tmp`)
 const localDBPath = path.join(tempDir, 'db1')
 const remoteDBPath = path.join(tempDir, 'db2')
@@ -36,7 +36,7 @@ const emptyDir = async (): Promise<void> => {
 }
 
 const mergeGalleryDB = async (targetFile: string) => {
-  const lastSyncTime = db.get(configPaths.settings.lastSyncTime) || 0
+  const lastSyncTime = picgo.getConfig<number>(configPaths.settings.lastSyncTime) || 0
   try {
     const localDBData = (await extractData(path.join(localDBPath, targetFile))) as IGalleryDBFile
     const remoteDBData = (await extractData(path.join(remoteDBPath, targetFile))) as IGalleryDBFile
@@ -77,7 +77,7 @@ const mergeGalleryDB = async (targetFile: string) => {
 }
 
 const getSyncConfig = () =>
-  db.get(configPaths.settings.sync) || {
+  picgo.getConfig<ISyncConfig>(configPaths.settings.sync) || {
     type: 'github',
     username: '',
     repo: '',
@@ -594,7 +594,7 @@ async function syncGallery(): Promise<number> {
         await uploadLocalToRemote(syncConfig, file)
         logger.info(`gallery db ${file} not exist in cloud, upload local file instead`)
         successCount++
-        db.set(configPaths.settings.lastSyncTime, Date.now())
+        picgo.saveConfig({ [configPaths.settings.lastSyncTime]: Date.now() })
         GalleryDB.getInstance(true)
         continue
       }
@@ -606,7 +606,7 @@ async function syncGallery(): Promise<number> {
     await fs.copyFile(path.join(STORE_PATH, file), path.join(localDBPath, file))
     await mergeGalleryDB(file)
     await updateLocalToRemote(syncConfig, file)
-    db.set(configPaths.settings.lastSyncTime, Date.now())
+    picgo.saveConfig({ [configPaths.settings.lastSyncTime]: Date.now() })
     GalleryDB.getInstance(true) // refresh gallery db instance
     logger.info(`sync gallery db ${file} success`)
     successCount++

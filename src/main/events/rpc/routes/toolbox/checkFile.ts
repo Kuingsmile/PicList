@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { DB_PATH, GalleryDB } from '@core/datastore'
-import { dbPathChecker } from '@core/datastore/dbChecker'
+import { appConfigPath } from '@core/datastore/dirs'
 import type { IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 
@@ -15,7 +15,7 @@ export const checkFileMap: IToolboxCheckerMap<string> = {
     sendToolboxRes(event, {
       status: IToolboxItemCheckStatus.LOADING,
     })
-    const configFilePath = dbPathChecker()
+    const configFilePath = appConfigPath()
     try {
       if (fs.existsSync(configFilePath)) {
         await fs.readJSON(configFilePath)
@@ -62,7 +62,7 @@ export const checkFileMap: IToolboxCheckerMap<string> = {
 export const fixFileMap: IToolboxFixMap<string> = {
   [IToolboxItemType.IS_CONFIG_FILE_BROKEN]: async () => {
     try {
-      fs.unlinkSync(dbPathChecker())
+      fs.unlinkSync(appConfigPath())
     } catch (_e) {
       // do nothing
     }

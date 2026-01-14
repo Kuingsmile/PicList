@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 
 import bus from '@core/bus'
 import { CREATE_APP_MENU } from '@core/bus/constants'
-import db from '@core/datastore'
+import picgo from '@core/picgo'
 import { app, BrowserWindow, Rectangle } from 'electron'
 
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '~/events/constant'
@@ -16,10 +16,8 @@ import logo from '../../../../../resources/logo.png?asset&asarUnpack'
 const windowList = new Map<string, IWindowListItem>()
 
 const getDefaultWindowSizes = (): { width: number; height: number } => {
-  const [mainWindowWidth, mainWindowHeight] = db.get([
-    configPaths.settings.mainWindowWidth,
-    configPaths.settings.mainWindowHeight,
-  ])
+  const mainWindowWidth = picgo.getConfig<number>(configPaths.settings.mainWindowWidth)
+  const mainWindowHeight = picgo.getConfig<number>(configPaths.settings.mainWindowHeight)
   return {
     width: mainWindowWidth || 1200,
     height: mainWindowHeight || 800,
@@ -115,7 +113,7 @@ const miniWindowOptions = {
   },
 } as IBrowserWindowOptions
 
-if (db.get(configPaths.settings.miniWindowOntop)) {
+if (picgo.getConfig<boolean>(configPaths.settings.miniWindowOntop)) {
   miniWindowOptions.alwaysOnTop = true
 }
 

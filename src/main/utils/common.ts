@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import db from '@core/datastore'
+import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
 import axios from 'axios'
 import { clipboard, Notification, Tray } from 'electron'
@@ -50,7 +50,7 @@ export function setTrayToolTip(title: string): void {
 }
 
 export const handleCopyUrl = (str: string): void => {
-  if (db.get(configPaths.settings.autoCopy) !== false) {
+  if (picgo.getConfig<boolean>(configPaths.settings.autoCopy) !== false) {
     clipboard.writeText(str)
   }
 }
@@ -132,7 +132,7 @@ export const getClipboardFilePath = (): string => {
 const c1nApi = 'https://c1n.cn/link/short'
 
 const createC1NShortUrl = async (url: string) => {
-  const c1nToken = db.get(configPaths.settings.c1nToken) || ''
+  const c1nToken = picgo.getConfig<string>(configPaths.settings.c1nToken) || ''
   if (!c1nToken) {
     logger.warn('c1n token is not set')
     return url
@@ -155,8 +155,8 @@ const createC1NShortUrl = async (url: string) => {
 }
 
 const createYOURLSShortLink = async (url: string) => {
-  let domain = db.get(configPaths.settings.yourlsDomain) || ''
-  const signature = db.get(configPaths.settings.yourlsSignature) || ''
+  let domain = picgo.getConfig<string>(configPaths.settings.yourlsDomain) || ''
+  const signature = picgo.getConfig<string>(configPaths.settings.yourlsSignature) || ''
 
   if (!domain || !signature) {
     logger.warn('Yourls server or signature is not set')
@@ -187,7 +187,7 @@ const createYOURLSShortLink = async (url: string) => {
 }
 
 const createShortUrlForCFWorker = async (url: string) => {
-  let cfWorkerHost = db.get(configPaths.settings.cfWorkerHost) || ''
+  let cfWorkerHost = picgo.getConfig<string>(configPaths.settings.cfWorkerHost) || ''
   cfWorkerHost = cfWorkerHost.replace(/\/$/, '')
   if (!cfWorkerHost) {
     logger.warn('CF Worker host is not set')
@@ -207,8 +207,8 @@ const createShortUrlForCFWorker = async (url: string) => {
 }
 
 const createShortUrlFromSink = async (url: string) => {
-  let sinkDomain = db.get(configPaths.settings.sinkDomain) || ''
-  const sinkToken = db.get(configPaths.settings.sinkToken) || ''
+  let sinkDomain = picgo.getConfig<string>(configPaths.settings.sinkDomain) || ''
+  const sinkToken = picgo.getConfig<string>(configPaths.settings.sinkToken) || ''
   if (!sinkDomain || !sinkToken) {
     logger.warn('Sink domain or token is not set')
     return url
@@ -235,7 +235,7 @@ const createShortUrlFromSink = async (url: string) => {
 }
 
 export const generateShortUrl = async (url: string) => {
-  const server = db.get(configPaths.settings.shortUrlServer) || IShortUrlServer.C1N
+  const server = picgo.getConfig<string>(configPaths.settings.shortUrlServer) || IShortUrlServer.C1N
   switch (server) {
     case IShortUrlServer.C1N:
       return createC1NShortUrl(url)
@@ -270,7 +270,7 @@ export const isUrlEncode = (url: string): boolean => {
 export const handleUrlEncode = (url: string): string => (isUrlEncode(url) ? url : encodeURI(url))
 
 export const handleUrlEncodeWithSetting = (url: string) =>
-  db.get(configPaths.settings.encodeOutputURL) ? handleUrlEncode(url) : url
+  picgo.getConfig<boolean>(configPaths.settings.encodeOutputURL) ? handleUrlEncode(url) : url
 
 export const handleStreamlinePluginName = (name: string) => name.replace(/(@[^/]+\/)?picgo-plugin-/, '')
 export const simpleClone = (obj: any) => JSON.parse(JSON.stringify(obj))

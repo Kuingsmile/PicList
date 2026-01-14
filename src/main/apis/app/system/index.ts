@@ -1,4 +1,4 @@
-import db, { GalleryDB } from '@core/datastore'
+import { GalleryDB } from '@core/datastore'
 import picgo from '@core/picgo'
 import uploader from 'apis/app/uploader'
 import { uploadClipboardFiles } from 'apis/app/uploader/apis'
@@ -36,7 +36,7 @@ import uploadDarkPng from '../../../../../resources/upload-dark.png?asset&asarUn
 let contextMenu: Menu | null
 
 export function setDockMenu() {
-  const isListeningClipboard = db.get(configPaths.settings.isListeningClipboard) || false
+  const isListeningClipboard = picgo.getConfig<boolean | undefined>(configPaths.settings.isListeningClipboard) || false
   const dockMenu = Menu.buildFromTemplate([
     {
       label: $t('OPEN_MAIN_WINDOW'),
@@ -45,7 +45,7 @@ export function setDockMenu() {
     {
       label: $t('START_WATCH_CLIPBOARD'),
       click() {
-        db.set(configPaths.settings.isListeningClipboard, true)
+        picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: true })
         clipboardPoll.startListening()
         clipboardPoll.on('change', () => {
           picgo.log.info('clipboard changed')
@@ -58,7 +58,7 @@ export function setDockMenu() {
     {
       label: $t('STOP_WATCH_CLIPBOARD'),
       click() {
-        db.set(configPaths.settings.isListeningClipboard, false)
+        picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: false })
         clipboardPoll.stopListening()
         clipboardPoll.removeAllListeners()
         setDockMenu()
@@ -108,12 +108,12 @@ export function createMenu() {
 
 export function createContextMenu() {
   const ClipboardWatcher = clipboardPoll
-  const isListeningClipboard = db.get(configPaths.settings.isListeningClipboard) || false
+  const isListeningClipboard = picgo.getConfig<boolean | undefined>(configPaths.settings.isListeningClipboard) || false
   const isMiniWindowVisible =
     windowManager.has(IWindowList.MINI_WINDOW) && windowManager.get(IWindowList.MINI_WINDOW)!.isVisible()
 
   const startWatchClipboard = () => {
-    db.set(configPaths.settings.isListeningClipboard, true)
+    picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: true })
     ClipboardWatcher.startListening()
     ClipboardWatcher.on('change', () => {
       picgo.log.info('clipboard changed')
@@ -123,7 +123,7 @@ export function createContextMenu() {
   }
 
   const stopWatchClipboard = () => {
-    db.set(configPaths.settings.isListeningClipboard, false)
+    picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: false })
     ClipboardWatcher.stopListening()
     ClipboardWatcher.removeAllListeners()
     createContextMenu()
@@ -284,7 +284,8 @@ export function createTray(tooltip: string) {
           windowManager.get(IWindowList.TRAY_WINDOW)!.hide()
         }
         const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
-        const autoCloseMiniWindow = db.get(configPaths.settings.autoCloseMiniWindow) || false
+        const autoCloseMiniWindow =
+          picgo.getConfig<boolean | undefined>(configPaths.settings.autoCloseMiniWindow) || false
         settingWindow!.show()
         settingWindow!.focus()
         if (windowManager.has(IWindowList.MINI_WINDOW) && autoCloseMiniWindow) {
@@ -309,13 +310,13 @@ export function createTray(tooltip: string) {
     // so the tray window must be available
     if (process.platform === 'darwin') {
       ;(tray as any).on('drop-files', async (_: Event, files: string[]) => {
-        const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
+        const pasteStyle = picgo.getConfig<string>(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
         const rawInput = cloneDeep(files)
         const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
         const res = await uploader.setWebContents(trayWindow.webContents).uploadReturnCtx(files)
         const imgs = res[0] ? res[0] : false
         const backImgs = res[1] ? res[1] : false
-        const deleteLocalFile = db.get(configPaths.settings.deleteLocalFile) || false
+        const deleteLocalFile = picgo.getConfig<boolean | undefined>(configPaths.settings.deleteLocalFile) || false
         if (imgs !== false) {
           const pasteText: string[] = []
           for (let i = 0; i < imgs.length; i++) {
@@ -325,14 +326,14 @@ export function createTray(tooltip: string) {
             const [pasteTextItem, shortUrl] = await pasteTemplate(
               pasteStyle,
               imgs[i],
-              db.get(configPaths.settings.customLink),
+              picgo.getConfig<string | undefined>(configPaths.settings.customLink),
             )
             imgs[i].shortUrl = shortUrl
             pasteText.push(pasteTextItem)
             const isShowResultNotification =
-              db.get(configPaths.settings.uploadResultNotification) === undefined
+              picgo.getConfig<boolean | undefined>(configPaths.settings.uploadResultNotification) === undefined
                 ? true
-                : !!db.get(configPaths.settings.uploadResultNotification)
+                : !!picgo.getConfig<boolean | undefined>(configPaths.settings.uploadResultNotification)
             if (isShowResultNotification) {
               const notification = new Notification({
                 title: $t('UPLOAD_SUCCEED'),

@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { dbPathDir } from '@core/datastore/dbChecker'
+import { dataDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import windowManager from 'apis/app/window/windowManager'
@@ -12,7 +12,7 @@ import { T as $t } from '~/i18n'
 import { handleStreamlinePluginName, showNotification, simpleClone } from '~/utils/common'
 import { ICOREBuildInEvent, IPicGoHelperType, IWindowList } from '~/utils/enum'
 
-const STORE_PATH = dbPathDir()
+const STORE_PATH = dataDir()
 
 // get uploader or transformer config
 const getConfig = (name: string, type: keyof typeof IPicGoHelperType, ctx: PicGoCore) => {

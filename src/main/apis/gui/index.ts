@@ -1,6 +1,7 @@
 import { getSettingWindowId, getWindowId } from '@core/bus/apis'
-import db, { GalleryDB } from '@core/datastore'
-import { dbPathChecker, defaultConfigPath, getGalleryDBPath } from '@core/datastore/dbChecker'
+import { GalleryDB } from '@core/datastore'
+import { appConfigPath, defaultConfigPath as defaultConfigPathF, galleryDBPath } from '@core/datastore/dirs'
+import picgo from '@core/picgo'
 import { DBStore } from '@piclist/store'
 import uploader from 'apis/app/uploader'
 import { BrowserWindow, dialog, ipcMain, IpcMainEvent, MessageBoxOptions, Notification } from 'electron'
@@ -78,8 +79,8 @@ class GuiApi implements IGuiApi {
     const backImgs = res[1] ? res[1] : false
     let result: ImgInfo[] = []
     if (imgs !== false) {
-      const pasteStyle = db.get(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
-      const deleteLocalFile = db.get(configPaths.settings.deleteLocalFile) || false
+      const pasteStyle = picgo.getConfig<string>(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
+      const deleteLocalFile = picgo.getConfig<boolean>(configPaths.settings.deleteLocalFile) || false
       const pasteText: string[] = []
       for (let i = 0; i < imgs.length; i++) {
         if (deleteLocalFile) {
@@ -88,14 +89,14 @@ class GuiApi implements IGuiApi {
         const [pasteTextItem, shortUrl] = await pasteTemplate(
           pasteStyle,
           imgs[i],
-          db.get(configPaths.settings.customLink),
+          picgo.getConfig<string>(configPaths.settings.customLink),
         )
         imgs[i].shortUrl = shortUrl
         pasteText.push(pasteTextItem)
         const isShowResultNotification =
-          db.get(configPaths.settings.uploadResultNotification) === undefined
+          picgo.getConfig<boolean>(configPaths.settings.uploadResultNotification) === undefined
             ? true
-            : !!db.get(configPaths.settings.uploadResultNotification)
+            : !!picgo.getConfig<boolean>(configPaths.settings.uploadResultNotification)
         if (isShowResultNotification) {
           const notification = new Notification({
             title: $t('UPLOAD_SUCCEED'),
@@ -161,12 +162,12 @@ class GuiApi implements IGuiApi {
    * get picgo config/data path
    */
   async getConfigPath() {
-    const currentConfigPath = dbPathChecker()
-    const galleryDBPath = getGalleryDBPath().dbPath
+    const currentConfigPath = appConfigPath()
+    const galleryDBPathValue = galleryDBPath()
     return {
-      defaultConfigPath,
+      defaultConfigPath: defaultConfigPathF(),
       currentConfigPath,
-      galleryDBPath,
+      galleryDBPath: galleryDBPathValue,
     }
   }
 

@@ -1,4 +1,4 @@
-import db, { GalleryDB } from '@core/datastore'
+import { GalleryDB } from '@core/datastore'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
 import windowManager from 'apis/app/window/windowManager'
@@ -49,7 +49,7 @@ export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> =>
         const dbStore = GalleryDB.getInstance()
         const file = await dbStore.getById(item.id)
         await dbStore.removeById(item.id)
-        if (await db.get(configPaths.settings.deleteCloudFile)) {
+        if (picgo.getConfig<boolean>(configPaths.settings.deleteCloudFile)) {
           if (item.type !== undefined && picBedsCanbeDeleted.includes(item.type)) {
             const noteFunc = (value: boolean) => {
               const notification = new Notification({

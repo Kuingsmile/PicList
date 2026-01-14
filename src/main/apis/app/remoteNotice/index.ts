@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import { defaultDir } from '@core/datastore/dirs'
 import windowManager from 'apis/app/window/windowManager'
 import axios from 'axios'
 import { app, clipboard, dialog, shell } from 'electron'
@@ -14,9 +15,7 @@ const REMOTE_NOTICE_URL = 'https://release.piclist.cn/remote-notice.json'
 
 const REMOTE_NOTICE_LOCAL_STORAGE_FILE = 'piclist-remote-notice.json'
 
-const STORE_PATH = app.getPath('userData')
-
-const REMOTE_NOTICE_LOCAL_STORAGE_PATH = path.join(STORE_PATH, REMOTE_NOTICE_LOCAL_STORAGE_FILE)
+const REMOTE_NOTICE_LOCAL_STORAGE_PATH = path.join(defaultDir(), REMOTE_NOTICE_LOCAL_STORAGE_FILE)
 
 class RemoteNoticeHandler {
   private remoteNotice: IRemoteNotice | null = null

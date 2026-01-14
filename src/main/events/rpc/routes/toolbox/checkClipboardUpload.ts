@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { dbPathChecker, defaultConfigPath } from '@core/datastore/dbChecker'
+import { appConfigPath, defaultDir } from '@core/datastore/dirs'
 import fs from 'fs-extra'
 
 import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
@@ -10,14 +10,14 @@ import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 
 const sendToolboxRes = sendToolboxResWithType(IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD)
 
-const defaultClipboardImagePath = path.join(defaultConfigPath, CLIPBOARD_IMAGE_FOLDER)
+const defaultClipboardImagePath = path.join(defaultDir(), CLIPBOARD_IMAGE_FOLDER)
 
 export const checkClipboardUploadMap: IToolboxCheckerMap<string> = {
   [IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD]: async event => {
     sendToolboxRes(event, {
       status: IToolboxItemCheckStatus.LOADING,
     })
-    const configFilePath = dbPathChecker()
+    const configFilePath = appConfigPath()
     if (fs.existsSync(configFilePath)) {
       const dirPath = path.dirname(configFilePath)
       const clipboardImagePath = path.join(dirPath, CLIPBOARD_IMAGE_FOLDER)
@@ -52,7 +52,7 @@ export const checkClipboardUploadMap: IToolboxCheckerMap<string> = {
 
 export const fixClipboardUploadMap: IToolboxFixMap<string> = {
   [IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD]: async () => {
-    const configFilePath = dbPathChecker()
+    const configFilePath = appConfigPath()
     const dirPath = path.dirname(configFilePath)
     const clipboardImagePath = path.join(dirPath, CLIPBOARD_IMAGE_FOLDER)
     try {

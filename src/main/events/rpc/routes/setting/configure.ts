@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import { dataDir } from '@core/datastore/dirs'
 import logger from '@core/picgo/logger'
 import { app } from 'electron'
 import fs from 'fs-extra'
@@ -7,7 +8,7 @@ import fs from 'fs-extra'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
 import { downloadFile, syncGallery, uploadFile } from '~/utils/syncSettings'
 
-const STORE_PATH = app.getPath('userData')
+const STORE_PATH = dataDir()
 
 const commonConfigList = ['data.json', 'data.bak.json']
 const manageConfigList = ['manage.json', 'manage.bak.json']
@@ -16,7 +17,7 @@ export default [
   {
     action: IRPCActionType.CONFIGURE_MIGRATE_FROM_PICGO,
     handler: async () => {
-      const picGoConfigPath = STORE_PATH.replace('piclist', 'picgo')
+      const picGoConfigPath = app.getPath('userData').replace('piclist', 'picgo')
       const files = ['data.json', 'data.bak.json', 'picgo.db', 'picgo.bak.db']
       try {
         await Promise.all(

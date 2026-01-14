@@ -1,10 +1,11 @@
-import db from '@core/datastore'
-import { dbChecker, dbPathChecker } from '@core/datastore/dbChecker'
-import { debounce } from 'lodash-es'
+import { dbChecker } from '@core/datastore/dbChecker'
+import { appConfigPath } from '@core/datastore/dirs'
 import { PicGo } from 'piclist'
 import pkg from 'root/package.json'
 
-const CONFIG_PATH = dbPathChecker()
+import { T as $t } from '~/i18n'
+import { configPaths } from '~/utils/configPaths'
+const CONFIG_PATH = appConfigPath()
 
 dbChecker()
 
@@ -15,20 +16,19 @@ picgo.saveConfig({
   PICGO_ENV: 'GUI',
 })
 
+const shortKeySetting = picgo.getConfig<any>(configPaths.settings.shortKey._path)
+
+if (!shortKeySetting) {
+  picgo.saveConfig({
+    'settings.shortKey[picgo:upload]': {
+      enable: true,
+      key: 'CommandOrControl+Alt+P',
+      name: 'upload',
+      label: $t('QUICK_UPLOAD'),
+    },
+  })
+}
+
 picgo.GUI_VERSION = pkg.version
-
-const originPicGoSaveConfig = picgo.saveConfig.bind(picgo)
-
-function flushDB() {
-  db.read(true)
-}
-
-const debounced = debounce(flushDB, 1000)
-
-picgo.saveConfig = (config: IStringKeyMap) => {
-  originPicGoSaveConfig(config)
-  // flush electron's db
-  debounced()
-}
 
 export default picgo

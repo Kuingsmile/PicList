@@ -1,4 +1,4 @@
-import { dbPathChecker } from '@core/datastore/dbChecker'
+import { appConfigPath } from '@core/datastore/dirs'
 import axios, { AxiosRequestConfig } from 'axios'
 import fs from 'fs-extra'
 import { IConfig } from 'piclist'
@@ -29,7 +29,7 @@ export const checkProxyMap: IToolboxCheckerMap<string> = {
     sendToolboxRes(event, {
       status: IToolboxItemCheckStatus.LOADING,
     })
-    const configFilePath = dbPathChecker()
+    const configFilePath = appConfigPath()
     if (fs.existsSync(configFilePath)) {
       let config: IConfig | undefined
       try {
