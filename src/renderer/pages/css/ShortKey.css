@@ -139,13 +139,13 @@
 
 .status-enabled {
   border: 1px solid rgb(103 194 58 / 20%);
-  color: #67c23a;
+  color: var(--color-success);
   background: rgb(103 194 58 / 10%);
 }
 
 .status-disabled {
   border: 1px solid rgb(245 108 108 / 20%);
-  color: #f56c6c;
+  color: var(--color-danger);
   background: rgb(245 108 108 / 10%);
 }
 
@@ -202,11 +202,11 @@
 
 .btn-primary {
   color: white;
-  background: #409eff;
+  background: var(--color-accent);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #66b1ff;
+  background: var(--color-accent-hover);
 }
 
 .btn-secondary {
@@ -222,20 +222,20 @@
 
 .btn-success {
   color: white;
-  background: #67c23a;
+  background: var(--color-success);
 }
 
 .btn-success:hover:not(:disabled) {
-  background: #85ce61;
+  background: var(--color-success);
 }
 
 .btn-danger {
   color: white;
-  background: #f56c6c;
+  background: var(--color-danger);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: #f78989;
+  background: var(--color-danger);
 }
 
 /* Modal */

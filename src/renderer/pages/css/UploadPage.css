@@ -735,7 +735,7 @@ html, body {
   align-items: center;
   border-bottom: 1px solid var(--color-border-secondary);
   padding: 1rem 1.25rem;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
 }
 
 .modal-title {

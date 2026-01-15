@@ -21,14 +21,14 @@ export async function resolveThemes(): Promise<{ key: string; label: string }[]>
   const result: string[] = []
   files.forEach(item => {
     if (item.stats?.isFile()) {
-      result.push(item.path.replace(themesDir() + '/', ''))
+      result.push(path.basename(item.path))
     }
   })
   const themes = await Promise.all(
     result
       .filter(file => file.endsWith('.css'))
       .map(async file => {
-        const css = (await fs.readFile(file, 'utf-8')) || ''
+        const css = (await fs.readFile(path.join(themesDir(), file), 'utf-8')) || ''
         let name = file
         if (css.startsWith('/*')) {
           name = css.split('\n')[0].replace('/*', '').replace('*/', '').trim() || file
@@ -44,13 +44,17 @@ export async function resolveThemes(): Promise<{ key: string; label: string }[]>
 }
 
 export async function fetchThemes(): Promise<void> {
-  const zipUrl = 'https://github.com/Kuingsmile/piclist-themeHub/releases/download/latest/themes.zip'
-  const zipData = await axios.get(zipUrl, {
-    responseType: 'arraybuffer',
-    headers: { 'Content-Type': 'application/octet-stream' },
-  })
-  const zip = new AdmZip(zipData.data as Buffer)
-  zip.extractAllTo(themesDir(), true)
+  try {
+    const zipUrl = 'https://github.com/Kuingsmile/piclist-themeHub/releases/download/latest/themes.zip'
+    const zipData = await axios.get(zipUrl, {
+      responseType: 'arraybuffer',
+      headers: { 'Content-Type': 'application/octet-stream' },
+    })
+    const zip = new AdmZip(zipData.data as Buffer)
+    zip.extractAllTo(themesDir(), true)
+  } catch (_e) {
+    console.error('Failed to fetch themes from remote.')
+  }
 }
 
 export async function importThemes(files: string[]): Promise<void> {
@@ -68,7 +72,6 @@ export async function readTheme(theme: string): Promise<string> {
 
 export async function applyTheme(theme: string): Promise<void> {
   theme = path.basename(theme)
-  console.log('Applying theme:', theme)
   const css = await readTheme(theme)
   if (windowManager.has(IWindowList.SETTING_WINDOW)) {
     try {

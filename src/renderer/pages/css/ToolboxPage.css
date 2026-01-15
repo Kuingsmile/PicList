@@ -14,7 +14,7 @@ html, body {
   flex-direction: column;
   gap: 1.25rem;
   box-sizing: border-box;
-  background: var(--color-surface);
+  background: var(--color-background-tertiary);
 }
 
 /* Card Base */
@@ -22,7 +22,7 @@ html, body {
   overflow: auto;
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-xl);
-  background: var(--color-surface);
+  background: var(--color-background-tertiary);
   box-shadow: var(--shadow-sm);
   transition: var(--transition-medium);
 }
@@ -138,8 +138,8 @@ html, body {
   padding: 0.75rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #67C23A;
-  background: linear-gradient(135deg, rgb(103 194 58 / 10%) 0%, var(--color-surface) 100%);
+  color: var(--color-success);
+  background: var(--color-background-secondary);
 }
 
 .cant-fix-container {
@@ -239,11 +239,11 @@ html, body {
 }
 
 .item-error {
-  border-left: 3px solid #F56C6C;
+  border-left: 3px solid var(--color-danger);
 }
 
 .item-success {
-  border-left: 3px solid #67C23A;
+  border-left: 3px solid var(--color-success);
 }
 
 .item-loading {
@@ -359,12 +359,5 @@ html, body {
 
   .item-content {
     padding: 0 1rem 0.75rem;
-  }
-}
-
-/* Dark mode adjustments */
-@media (prefers-color-scheme: dark) {
-  .item-header:hover {
-    background: rgb(255 255 255 / 5%);
   }
 }

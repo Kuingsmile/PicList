@@ -448,7 +448,7 @@
             <!-- Processing Action Cards -->
             <div class="processing-actions-grid">
               <div class="processing-action-card" @click="advancedRenameVisible = true">
-                <div class="processing-action-icon rename">
+                <div class="processing-action-icon">
                   <Edit :size="15" />
                 </div>
                 <div class="processing-action-info">
@@ -458,7 +458,7 @@
               </div>
 
               <div class="processing-action-card" @click="imageProcessDialogVisible = true">
-                <div class="processing-action-icon image">
+                <div class="processing-action-icon">
                   <ImageIcon :size="20" />
                 </div>
                 <div class="processing-action-info">
@@ -859,14 +859,11 @@
               <div class="input-with-icon">
                 <input
                   v-model.trim="formOfSetting.aesPassword"
-                  :type="apiKeyVisible ? 'text' : 'password'"
+                  type="text"
                   class="form-input"
                   :placeholder="t('pages.settings.advanced.serverEncryptionKey')"
                   @change="handleAesPasswordChange(formOfSetting.aesPassword)"
                 />
-                <div class="icon-btn" @click="apiKeyVisible = !apiKeyVisible">
-                  <component :is="apiKeyVisible ? Eye : EyeOff" :size="16" />
-                </div>
               </div>
             </div>
           </div>
@@ -1031,7 +1028,7 @@
         <div class="dialog-content">
           <div class="proxy-config-grid">
             <div class="proxy-config-card">
-              <div class="proxy-config-icon upload">
+              <div class="proxy-config-icon">
                 <CloudUpload :size="18" />
               </div>
               <div class="proxy-config-field">
@@ -1040,7 +1037,7 @@
               </div>
             </div>
             <div class="proxy-config-card">
-              <div class="proxy-config-icon plugin">
+              <div class="proxy-config-icon">
                 <Settings :size="18" />
               </div>
               <div class="proxy-config-field">
@@ -1054,7 +1051,7 @@
               </div>
             </div>
             <div class="proxy-config-card full-width">
-              <div class="proxy-config-icon mirror">
+              <div class="proxy-config-icon">
                 <Globe :size="18" />
               </div>
               <div class="proxy-config-field">
@@ -1430,13 +1427,10 @@
               <div class="input-with-icon">
                 <input
                   v-model="formOfSetting.serverKey"
-                  :type="serverKeyVisible ? 'text' : 'password'"
+                  type="text"
                   class="form-input"
                   :placeholder="t('pages.settings.advanced.serverKeyPlaceholder')"
                 />
-                <div class="icon-btn" @click="serverKeyVisible = !serverKeyVisible">
-                  <component :is="serverKeyVisible ? Eye : EyeOff" :size="16" />
-                </div>
               </div>
             </div>
           </div>
@@ -1798,8 +1792,6 @@ import {
   CloudUpload,
   Download,
   Edit,
-  Eye,
-  EyeOff,
   FileText,
   FolderOpen,
   GitBranch,
@@ -2045,8 +2037,6 @@ const logFileVisible = ref(false)
 const customLinkVisible = ref(false)
 const checkUpdateVisible = ref(false)
 const serverVisible = ref(false)
-const serverKeyVisible = ref(false)
-const apiKeyVisible = ref(false)
 const webServerVisible = ref(false)
 const syncVisible = ref(false)
 const upDownConfigVisible = ref(false)

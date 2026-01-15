@@ -146,7 +146,7 @@
   width: 100%;
   font-size: 0.875rem;
   color: var(--color-text-primary);
-  background: var(--color-surface);
+  background: var(--color-background-tertiary);
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
@@ -156,52 +156,6 @@
 .form-select:focus {
   border-color: var(--color-accent);
   outline: none;
-}
-
-.form-textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-
-.form-range {
-  margin-bottom: 0.5rem;
-  border-radius: 3px;
-  width: 100%;
-  height: 6px;
-  background: #e4e7ed;
-  outline: none;
-  appearance: none;
-}
-
-.form-range::-webkit-slider-thumb {
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  background: #409eff;
-  appearance: none;
-  cursor: pointer;
-}
-
-.form-range::-moz-range-thumb {
-  border: none;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  background: #409eff;
-  cursor: pointer;
-}
-
-.range-value {
-  font-size: 0.875rem;
-  text-align: center;
-  color: var(--color-text-secondary);
-}
-
-/* Grid Layout */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
 }
 
 /* Switch Component */
@@ -272,66 +226,6 @@
   color: var(--color-text-secondary);
 }
 
-/* Radio Group */
-.radio-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.radio-option {
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--color-border-secondary);
-  border-radius: 8px;
-  padding: 0.75rem;
-  background: var(--color-background-tertiary);
-  transition: all 0.2s ease;
-  gap: 0.75rem;
-  cursor: pointer;
-}
-
-.radio-option:hover {
-  border-color: var(--color-border);
-  background: var(--color-background-secondary);
-}
-
-.radio-input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.radio-indicator {
-  position: relative;
-  border: 2px solid var(--color-border);
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-.radio-input:checked + .radio-indicator {
-  border-color: #409eff;
-}
-
-.radio-input:checked + .radio-indicator::after {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  border-radius: 50%;
-  width: 10px;
-  height: 10px;
-  background: #409eff;
-  content: '';
-  transform: translate(-50%, -50%);
-}
-
-.radio-label {
-  font-weight: 500;
-  color: var(--color-text-primary);
-}
-
 /* Buttons */
 .btn {
   display: flex;
@@ -364,7 +258,7 @@
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #66b1ff;
+  background: var(--color-accent-hover);
 }
 
 .btn-secondary {
@@ -375,15 +269,6 @@
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--color-background-secondary);
-}
-
-.btn-danger {
-  color: white;
-  background: #f56c6c;
-}
-
-.btn-danger:hover:not(:disabled) {
-  background: #f78989;
 }
 
 /* Checkbox Group */
@@ -426,8 +311,8 @@
 }
 
 .checkbox-input:checked + .checkbox-indicator {
-  border-color: #409eff;
-  background: #409eff;
+  border-color: var(--color-accent);
+  background: var(--color-accent);
 }
 
 .checkbox-input:checked + .checkbox-indicator::after {
@@ -481,7 +366,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgb(0 0 0 / 80%);
+  background: rgb(0 0 0 / 50%);
 }
 
 .dialog {
@@ -492,8 +377,8 @@
   width: 85vw;
   max-width: 90vw;
   max-height: 85vh;
-  background: var(--color-surface);
-   box-shadow: var(--shadow-xl);
+  background: var(--color-background-tertiary);
+  box-shadow: var(--shadow-xl);
   box-shadow: 0 10px 25px rgb(0 0 0 / 15%);
 }
 
@@ -520,14 +405,14 @@
   height: 32px;
   font-size: 1.5rem;
   color: var(--color-text-secondary);
-  background: none;
+  background: var(--color-surface);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .dialog-close:hover {
   color: var(--color-text-primary);
-  background: var(--color-background-secondary);
+  background: var(--color-surface-elevated);
 }
 
 .dialog-content {
@@ -556,17 +441,6 @@
 
 .button-group .btn {
   flex: 1;
-}
-
-/* Notice Text */
-.notice-text {
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  padding: 1rem;
-  font-size: 0.925rem;
-  text-align: center;
-  color: #1c2630ff;
-  background: rgb(0 128 255 / 10%);
 }
 
 /* Small text */
@@ -661,8 +535,8 @@ small {
   font-family: 'SF Mono', Monaco, Menlo, 'Ubuntu Mono', monospace;
   font-weight: 600;
   text-align: center;
-  color: white;
-  background: var(--color-blue-common);
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
   box-shadow: 0 1px 3px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 24%);
   letter-spacing: 0.02em;
   flex-shrink: 0;
@@ -722,7 +596,7 @@ small {
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
 }
 
@@ -732,7 +606,7 @@ small {
   align-items: center;
   border-bottom: 1px solid var(--color-border);
   padding: 1rem 1.5rem;
-  background: var(--color-background);
+  background: var(--color-background-secondary);
 }
 
 .release-notes-header h3 {
@@ -769,7 +643,7 @@ small {
 .release-notes-content {
   overflow-y: auto;
   max-height: 400px;
-  background: var(--color-background);
+  background: var(--color-background-secondary);
   scrollbar-width: thin;
 }
 
@@ -997,7 +871,7 @@ small {
   width: 46px;
   height: 46px;
   color: white;
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  background: var(--color-accent);
   box-shadow: 0 4px 12px rgb(64 158 255 / 30%);
 }
 
@@ -1023,8 +897,8 @@ small {
   padding: 0.2rem 0.5rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #409eff;
-  background: rgb(64 158 255 / 15%);
+  color: var(--color-primary);
+  background: var(--color-surface-elevated);
   letter-spacing: 0.02em;
 }
 
@@ -1103,11 +977,11 @@ small {
 }
 
 .sync-action-icon.upload {
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  background: var(--color-accent);
 }
 
 .sync-action-icon.migrate {
-  background: linear-gradient(135deg, #67c23a 0%, #95d475 100%);
+  background: var(--color-accent);
 }
 
 .sync-action-content {
@@ -1254,9 +1128,9 @@ small {
 }
 
 .sync-type-btn.active {
-  border-color: #409eff;
-  color: #409eff;
-  background: rgb(64 158 255 / 12%);
+  border-color: var(--color-border);
+  color: var(--color-accent);
+  background: var(--color-surface);
   box-shadow: 0 0 0 3px rgb(64 158 255 / 15%);
 }
 
@@ -1267,13 +1141,13 @@ small {
 
 .sync-type-btn.active svg,
 .sync-type-btn:hover svg {
-  color: #409eff;
+  color: var(--color-accent);
 }
 
 .sync-type-btn span {
   font-size: 0.75rem;
   font-weight: 600;
-  color: inherit;
+  color: var(--color-text-primary);
 }
 
 /* Sync Config Fields */
@@ -1349,31 +1223,7 @@ small {
   height: 44px;
   color: var(--color-surface);
   flex-shrink: 0;
-}
-
-.section-icon-wrapper.small-icon {
-  width: 34px;
-  height: 34px;
-}
-
-.section-icon-wrapper.log {
-  background: linear-gradient(135deg, #909399 0%, #c0c4cc 100%);
-}
-
-.section-icon-wrapper.network {
-  background: linear-gradient(135deg, #e6a23c 0%, #f5c55c 100%);
-}
-
-.section-icon-wrapper.server {
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
-}
-
-.section-icon-wrapper.update {
-  background: linear-gradient(135deg, #67c23a 0%, #95d475 100%);
-}
-
-.section-icon-wrapper.notes {
-  background: linear-gradient(135deg, #909399 0%, #b1b3b8 100%);
+  background: var(--color-accent);
 }
 
 /* Advanced Action Grid */
@@ -1485,14 +1335,7 @@ small {
   width: 36px;
   height: 36px;
   color: white;
-}
-
-.server-config-icon.web {
-  background: linear-gradient(135deg, #67c23a 0%, #95d475 100%);
-}
-
-.server-config-icon.api {
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  background: var(--color-accent);
 }
 
 .server-config-badge {
@@ -1541,7 +1384,7 @@ small {
   border-radius: 8px;
   width: 32px;
   height: 32px;
-  color: #e6a23c;
+  color: var(--color-accent);
   background: rgb(230 162 60 / 15%);
   flex-shrink: 0;
 }
@@ -1581,8 +1424,7 @@ small {
   width: 44px;
   height: 44px;
   color: white;
-  background: linear-gradient(135deg, #67c23a 0%, #95d475 100%);
-  box-shadow: 0 4px 12px rgb(103 194 58 / 30%);
+  background: var(--color-accent);
   flex-shrink: 0;
 }
 
@@ -1608,8 +1450,8 @@ small {
   padding: 0.3rem 0.75rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #67c23a;
-  background: rgb(103 194 58 / 15%);
+  color: var(--color-success);
+  background: var(--color-background-secondary);
 }
 
 .version-label {
@@ -1636,12 +1478,11 @@ small {
   background: transparent;
 }
 
-/* Enhanced Release Notes */
 .release-notes-card.enhanced {
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: 16px;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
 }
 
@@ -1680,7 +1521,7 @@ small {
 .release-notes-card.enhanced .release-notes-content {
   overflow-y: auto;
   max-height: 400px;
-  background: var(--color-background-primary);
+  background: var(--color-background-secondary);
 }
 
 .release-notes-loading {
@@ -1741,7 +1582,7 @@ small {
   align-items: center;
   border-top: 1px solid var(--color-border);
   padding: 0.75rem 1.5rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-background-secondary);
 }
 
 /* Responsive for Advanced & Update */
@@ -1830,7 +1671,7 @@ small {
   width: 25px;
   height: 25px;
   color: white;
-  background: linear-gradient(135deg, #909399 0%, #c0c4cc 100%);
+  background: var(--color-accent);
   flex-shrink: 0;
 }
 
@@ -1983,7 +1824,7 @@ small {
   width: 44px;
   height: 44px;
   color: white;
-  background: linear-gradient(135deg, #e6a23c 0%, #f5c55c 100%);
+  background: var(--color-accent);
   flex-shrink: 0;
 }
 
@@ -2013,33 +1854,6 @@ small {
 .shortcut-action-card:hover .shortcut-action-arrow {
   color: var(--color-accent);
   transform: translateX(4px);
-}
-
-/* ==================== Upload Settings Panel ==================== */
-
-/* Section Icon Wrapper - Upload Colors */
-.section-icon-wrapper.upload {
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
-}
-
-.section-icon-wrapper.processing {
-  background: linear-gradient(135deg, #67c23a 0%, #95d475 100%);
-}
-
-.section-icon-wrapper.clipboard {
-  background: linear-gradient(135deg, #e6a23c 0%, #f5c55c 100%);
-}
-
-.section-icon-wrapper.link {
-  background: linear-gradient(135deg, #909399 0%, #c0c4cc 100%);
-}
-
-.section-icon-wrapper.picbed {
-  background: linear-gradient(135deg, #f56c6c 0%, #f89898 100%);
-}
-
-.section-icon-wrapper.gallery {
-  background: linear-gradient(135deg, #b37feb 0%, #d3adf7 100%);
 }
 
 /* Upload Behavior Grid */
@@ -2173,14 +1987,7 @@ small {
   height: 30px;
   color: white;
   flex-shrink: 0;
-}
-
-.processing-action-icon.rename {
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
-}
-
-.processing-action-icon.image {
-  background: linear-gradient(135deg, #67c23a 0%, #95d475 100%);
+  background: var(--color-accent);
 }
 
 .processing-action-info {
@@ -2254,7 +2061,7 @@ small {
   width: 30px;
   height: 30px;
   color: white;
-  background: linear-gradient(135deg, #909399 0%, #c0c4cc 100%);
+  background: var(--color-accent);
   flex-shrink: 0;
 }
 
@@ -2360,26 +2167,7 @@ small {
   height: 40px;
   color: white;
   flex-shrink: 0;
-}
-
-.dialog-icon-wrapper.link {
-  background: linear-gradient(135deg, #909399 0%, #c0c4cc 100%);
-}
-
-.dialog-icon-wrapper.network {
-  background: linear-gradient(135deg, #e6a23c 0%, #f5c55c 100%);
-}
-
-.dialog-icon-wrapper.window {
-  background: linear-gradient(135deg, #909399 0%, #c0c4cc 100%);
-}
-
-.dialog-icon-wrapper.update {
-  background: linear-gradient(135deg, #67c23a 0%, #95d475 100%);
-}
-
-.dialog-icon-wrapper.rename {
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  background: var(--color-accent);
 }
 
 /* Placeholder Info Card */
@@ -2420,13 +2208,14 @@ small {
 
 .placeholder-info-item code {
   border-radius: 6px;
+  border: 1px solid var(--color-border);
   padding: 0.25rem 0.5rem;
   min-width: 80px;
   font-family: 'SF Mono', Monaco, Menlo, monospace;
   font-weight: 600;
   text-align: center;
-  color: white;
-  background: var(--color-accent);
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
 }
 
 .placeholder-info-item span {
@@ -2462,18 +2251,7 @@ small {
   height: 36px;
   color: white;
   flex-shrink: 0;
-}
-
-.proxy-config-icon.upload {
-  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
-}
-
-.proxy-config-icon.plugin {
-  background: linear-gradient(135deg, #67c23a 0%, #95d475 100%);
-}
-
-.proxy-config-icon.mirror {
-  background: linear-gradient(135deg, #e6a23c 0%, #f5c55c 100%);
+  background: var(--color-accent);
 }
 
 .proxy-config-field {
@@ -2540,7 +2318,7 @@ small {
 }
 
 .version-card.latest.has-update {
-  border-color: #67c23a;
+  border-color: var(--color-success);
   background: rgb(103 194 58 / 10%);
 }
 
@@ -2558,7 +2336,7 @@ small {
 }
 
 .version-card.latest.has-update .version-card-value {
-  color: #67c23a;
+  color: var(--color-success);
 }
 
 .version-arrow {
@@ -2574,7 +2352,7 @@ small {
   padding: 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #67c23a;
+  color: var(--color-success);
   background: rgb(103 194 58 / 12%);
   gap: 0.5rem;
 }
@@ -2613,10 +2391,6 @@ small {
    ============================ */
 .log-dialog {
   max-width: 600px;
-}
-
-.dialog-icon-wrapper.log {
-  background: linear-gradient(135deg, #67c23a 0%, #95d475 100%);
 }
 
 .log-files-section {
@@ -2672,7 +2446,7 @@ small {
   width: 42px;
   height: 42px;
   color: white;
-  background: linear-gradient(135deg, #67c23a 0%, #95d475 100%);
+  background: var(--color-accent);
 }
 
 .log-file-info {
@@ -2704,14 +2478,6 @@ small {
 .server-dialog,
 .webserver-dialog {
   max-width: 550px;
-}
-
-.dialog-icon-wrapper.server {
-  background: linear-gradient(135deg, #409eff 0%, #79bbff 100%);
-}
-
-.dialog-icon-wrapper.webserver {
-  background: linear-gradient(135deg, #e6a23c 0%, #f0c78a 100%);
 }
 
 .server-notice-card {
@@ -2864,7 +2630,7 @@ small {
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--color-text-primary);
 }
 
 .notes-body :deep(h1:first-child),
@@ -2891,8 +2657,8 @@ small {
   border-radius: 4px;
   padding: 0.125rem 0.375rem;
   font-size: 0.875em;
-  background: #e2e8f0;
-  color: #334155;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
 }
 
 .notes-body :deep(pre) {
@@ -2900,27 +2666,10 @@ small {
   border-radius: 8px;
   padding: 1rem;
   margin: 0.875rem 0;
-  background: #e2e8f0;
+  background: var(--color-surface);
 }
 
 .notes-body :deep(pre code) {
   padding: 0;
   background: transparent;
-}
-
-.icon-btn {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-secondary);
-  transition: color 0.2s ease;
-}
-
-.icon-btn:hover {
-  color: var(--color-text-primary);
 }
