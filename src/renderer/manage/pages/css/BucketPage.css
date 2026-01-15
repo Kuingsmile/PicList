@@ -263,6 +263,7 @@
 /* Control Panel */
 .control-panel-card {
   flex-shrink: 0;
+  overflow: visible;
 }
 
 .control-panel {
@@ -374,7 +375,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   min-width: 150px;
-  background: var(--color-background-primary);
+  background: var(--color-background-tiertiary);
   box-shadow: var(--shadow-lg);
 }
 
@@ -383,6 +384,7 @@
   font-size: 0.875rem;
   color: var(--color-text-primary);
   transition: var(--transition-fast);
+  background: var(--color-background-tertiary);
   cursor: pointer;
 }
 
@@ -418,8 +420,7 @@
 
 /* Keep overflow hidden for specific bucket cards that need it */
 .content-area,
-.breadcrumb-card,
-.control-panel-card {
+.breadcrumb-card {
   overflow: hidden;
 }
 

@@ -30,8 +30,7 @@ export interface IConfigStruct {
   }
   settings: {
     shortKey: Record<string, IShortKeyConfig>
-    systemTheme: 'light' | 'dark' | 'auto'
-    customTheme: string
+    isAlwaysForceReload: boolean
     logLevel: string[]
     logPath: string
     logFileSizeLimit: number
@@ -88,6 +87,8 @@ export interface IConfigStruct {
     enableSecondUploader?: boolean
     lastSyncTime?: number
     theme: string
+    enableAdvancedAnimation: boolean
+    isDisableGPU: boolean
   }
   needReload: boolean
   picgoPlugins: IPicGoPlugins
@@ -102,6 +103,7 @@ export interface IConfigStruct {
     skipProcess: {
       skipProcessExtList: string
     }
+    list: IBuildInListItem[]
   }
   debug: boolean
   PICGO_ENV: string
@@ -123,8 +125,7 @@ export const configPaths = {
       _path: 'settings.shortKey',
       'picgo:upload': 'settings.shortKey[picgo:upload]',
     },
-    systemTheme: 'settings.systemTheme',
-    customTheme: 'settings.customTheme',
+    isAlwaysForceReload: 'settings.isAlwaysForceReload',
     logLevel: 'settings.logLevel',
     logPath: 'settings.logPath',
     logFileSizeLimit: 'settings.logFileSizeLimit',
@@ -181,6 +182,8 @@ export const configPaths = {
     enableSecondUploader: 'settings.enableSecondUploader',
     lastSyncTime: 'settings.lastSyncTime',
     theme: 'settings.theme',
+    enableAdvancedAnimation: 'settings.enableAdvancedAnimation',
+    isDisableGPU: 'settings.isDisableGPU',
   },
   needReload: 'needReload',
   picgoPlugins: 'picgoPlugins',

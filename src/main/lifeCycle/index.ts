@@ -11,7 +11,7 @@ import { createTray, setDockMenu } from 'apis/app/system'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
 import axios from 'axios'
-import { app, globalShortcut, nativeTheme, Notification, protocol, screen } from 'electron'
+import { app, globalShortcut, Notification, protocol, screen } from 'electron'
 import updater from 'electron-updater'
 import fs from 'fs-extra'
 
@@ -180,12 +180,6 @@ class LifeCycle {
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
       const isAutoListenClipboard = picgo.getConfig<boolean>(configPaths.settings.isAutoListenClipboard) || false
-      const systemTheme = picgo.getConfig<'light' | 'dark' | 'system' | undefined>(configPaths.settings.systemTheme)
-      if (systemTheme) {
-        nativeTheme.themeSource = systemTheme
-      } else {
-        nativeTheme.themeSource = 'system'
-      }
       const ClipboardWatcher = clipboardPoll
       if (isAutoListenClipboard) {
         picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: true })

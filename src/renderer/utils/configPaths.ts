@@ -8,6 +8,12 @@ export interface IConfigStruct {
   picBed: {
     uploader: string
     current?: string
+    secondUploader?: string
+    secondUploaderId?: string
+    secondUploaderConfig?: IStringKeyMap
+    proxy?: string
+    transformer?: string
+    list: IPicBedType[]
     smms?: ISMMSConfig
     qiniu?: IQiniuConfig
     upyun?: IUpYunConfig
@@ -20,9 +26,6 @@ export interface IConfigStruct {
     sftpplist?: ISftpPlistConfig
     lskyplist?: ILskyConfig
     'aws-s3-plist': IAwsS3PListUserConfig
-    proxy?: string
-    transformer?: string
-    list: IPicBedType[]
     [others: string]: any
   }
   settings: {
@@ -81,7 +84,11 @@ export interface IConfigStruct {
     autoImport: boolean
     autoImportPicBed: string[]
     galleryPicBedFilter: string[]
+    enableSecondUploader?: boolean
+    lastSyncTime?: number
     theme: string
+    enableAdvancedAnimation: boolean
+    isDisableGPU: boolean
   }
   needReload: boolean
   picgoPlugins: IPicGoPlugins
@@ -175,6 +182,8 @@ export const configPaths = {
     enableSecondUploader: 'settings.enableSecondUploader',
     secondPicBedMode: 'settings.secondPicBedMode',
     theme: 'settings.theme',
+    enableAdvancedAnimation: 'settings.enableAdvancedAnimation',
+    isDisableGPU: 'settings.isDisableGPU',
   },
   needReload: 'needReload',
   picgoPlugins: 'picgoPlugins',
