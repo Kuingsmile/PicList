@@ -152,6 +152,21 @@ jobs:
           yarn config set ignore-engines true
           rm -rf node_modules dist_electron && yarn install --frozen-lockfile
           yarn global add xvfb-maybe
+          if [[ "${{ matrix.format }}" == "zip" || "${{ matrix.format }}" == "7z" ]]; then
+            echo "Target format is ${{ matrix.format }}, downloading all resources..."
+            yarn run prepare
+          else
+            echo "Target format is other, downloading themes only..."
+            yarn run prepare:themes
+          fi
+          echo "Checking resources directory:"
+          ls -alh ./resources/theme || echo "Theme directory not found"
+          # check 7za.exe and theme dir
+          if [[ -f "./resources/7za.exe" ]]; then
+            echo "✅ 7za.exe exists"
+          else
+            echo "❌ 7za.exe does not exist"
+          fi
 
       - name: Generate release notes
         if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
@@ -183,27 +198,10 @@ jobs:
           fi
           echo "Publishing argument: $PUBLISH_ARG"
           if [[ "${{ matrix.os }}" == windows* ]]; then
-            if [[ "${{ matrix.format }}" == "nsis" ]]; then
-              rm -f ./resources/7za.exe
-              if [ -f ./resources/7za.exe ]; then
-                echo "Error: 7za.exe was not removed from resources."
-                exit 1
-              fi
-            fi
             yarn run build:win ${{ matrix.format}} --${{ matrix.arch }} --publish $PUBLISH_ARG
           elif [[ "${{ matrix.os }}" == macos* ]]; then
-            rm -f ./resources/7za.exe
-            if [ -f ./resources/7za.exe ]; then
-              echo "Error: 7za.exe was not removed from resources."
-              exit 1
-            fi
             yarn run build:mac ${{ matrix.format}} --${{ matrix.arch }} --publish $PUBLISH_ARG
           elif [[ "${{ matrix.os }}" == ubuntu* ]]; then
-            rm -f ./resources/7za.exe
-            if [ -f ./resources/7za.exe ]; then
-              echo "Error: 7za.exe was not removed from resources."
-              exit 1
-            fi
             yarn run build:linux ${{ matrix.format}} --${{ matrix.arch }} --publish $PUBLISH_ARG
           else
             echo "Unsupported OS: ${{ matrix.os }}"
