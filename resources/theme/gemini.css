@@ -1,8 +1,9 @@
 /* Gemini */
+
 .dark, [data-theme="dark"] {
   --color-text-primary: #e3e3e3 !important;
   --color-text-secondary: #c4c7c5 !important;
-  --color-text-tertiary: #a8c7fa !important;
+  --color-text-tertiary: #8ab4f8 !important;
   --color-background-primary: #131314 !important;
   --color-background-secondary: #1e1f20 !important;
   --color-background-tertiary: #2e2f31 !important;
@@ -10,13 +11,13 @@
   --color-surface-elevated: rgb(40 41 42 / 95%) !important;
   --color-border: #444746 !important;
   --color-border-secondary: rgb(68 71 70 / 50%) !important;
-  --color-primary: #a8c7fa !important;
-  --color-primary-hover: #d2e3fc !important;
-  --color-accent: #a8c7fa !important;
+  --color-primary: linear-gradient(90deg, #4285f4, #9b72cb, #d96570) !important;
+  --color-primary-hover: linear-gradient(90deg, #5b95f6, #aa85d5, #e0808a) !important;
+  --color-accent: linear-gradient(70deg, #7baaf7, #c2a1e8, #f1a5ad) !important;
   --color-accent-hover: #d2e3fc !important;
   --accent-rgb: 168, 199, 250 !important;
-  --color-blue-common: #a8c7fa !important;
-  --color-light-blue: rgb(168 199 250 / 10%) !important;
+  --color-blue-common: #8ab4f8 !important;
+  --color-light-blue: rgb(138 180 248 / 10%) !important;
   --color-success: #6dd58c !important;
   --color-warning: #fdc365 !important;
   --color-danger: #f28b82 !important;
@@ -27,7 +28,7 @@
 .light, [data-theme="light"] {
   --color-text-primary: #1f1f1f !important;
   --color-text-secondary: #444746 !important;
-  --color-text-tertiary: #0b57d0 !important;
+  --color-text-tertiary: #1a73e8 !important;
   --color-background-primary: #ffffff !important;
   --color-background-secondary: #f0f4f9 !important;
   --color-background-tertiary: #e9eef6 !important;
@@ -35,13 +36,13 @@
   --color-surface-elevated: rgb(240 244 249 / 100%) !important;
   --color-border: #e0e3e1 !important;
   --color-border-secondary: rgb(224 227 225 / 50%) !important;
-  --color-primary: #0b57d0 !important;
-  --color-primary-hover: #0842a0 !important;
-  --color-accent: #0b57d0 !important;
+  --color-primary: linear-gradient(90deg, #1a73e8, #8e24aa, #d93025) !important;
+  --color-primary-hover: linear-gradient(90deg, #185abc, #7b1fa2, #b21417) !important;
+  --color-accent: linear-gradient(90deg, #1a73e8, #9b72cb) !important;
   --color-accent-hover: #0842a0 !important;
   --accent-rgb: 11, 87, 208 !important;
-  --color-blue-common: #0b57d0 !important;
-  --color-light-blue: rgb(11 87 208 / 10%) !important;
+  --color-blue-common: #1a73e8 !important;
+  --color-light-blue: rgb(26 115 232 / 10%) !important;
   --color-success: #1e8e3e !important;
   --color-warning: #e37400 !important;
   --color-danger: #d93025 !important;

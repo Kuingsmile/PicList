@@ -168,7 +168,7 @@ html, body {
 }
 
 input:checked + .switch-slider {
-  background-color: var(--color-accent-hover);
+  background-color: var(--color-accent);
 }
 
 input:checked + .switch-slider::before {

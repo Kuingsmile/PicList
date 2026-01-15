@@ -1,0 +1,45 @@
+/* 极夜紫 */
+
+.dark, [data-theme="dark"] {
+  --color-text-primary: #e9e5f3 !important;
+  --color-text-secondary: #b9adc7 !important;
+  --color-text-tertiary: #d2a8ff !important;
+  --color-background-primary: #120d1a !important;
+  --color-background-secondary: #1a1523 !important;
+  --color-background-tertiary: #251f30 !important;
+  --color-surface: rgb(26 21 35 / 90%) !important;
+  --color-surface-elevated: rgb(37 31 48 / 95%) !important;
+  --color-border: #3d344d !important;
+  --color-border-secondary: rgb(61 52 77 / 50%) !important;
+  --color-primary: linear-gradient(135deg, #9d50bb, #eb39a9, #ff9a8b) !important;
+  --color-primary-hover: linear-gradient(135deg, #b16cd1, #ef5ebc, #ffb3a7) !important;
+  --color-accent: #d2a8ff !important;
+  --accent-rgb: 210, 168, 255 !important;
+  --color-blue-common: #a389f4 !important;
+  --color-light-blue: rgb(163 137 244 / 10%) !important;
+  --color-success: #67e4ac !important;
+  --color-warning: #ffb37e !important;
+  --color-danger: #ff8b94 !important;
+}
+
+.light, [data-theme="light"] {
+  --color-text-primary: #2d263d !important;
+  --color-text-secondary: #60527a !important;
+  --color-text-tertiary: #8e44ad !important;
+  --color-background-primary: #ffffff !important;
+  --color-background-secondary: #f8f5ff !important;
+  --color-background-tertiary: #f0eaff !important;
+  --color-surface: rgb(255 255 255 / 90%) !important;
+  --color-surface-elevated: rgb(248 245 255 / 100%) !important;
+  --color-border: #e2daeb !important;
+  --color-border-secondary: rgb(226 218 235 / 50%) !important;
+  --color-primary: linear-gradient(90deg, #8e44ad, #d83a9d, #ff7e79) !important;
+  --color-primary-hover: linear-gradient(90deg, #732d91, #c22e8a, #f06a65) !important;
+  --color-accent: #8e44ad !important;
+  --accent-rgb: 142, 68, 173 !important;
+  --color-blue-common: #6c5ce7 !important;
+  --color-light-blue: rgb(108 92 231 / 10%) !important;
+  --color-success: #27ae60 !important;
+  --color-warning: #e67e22 !important;
+  --color-danger: #e74c3c !important;
+}

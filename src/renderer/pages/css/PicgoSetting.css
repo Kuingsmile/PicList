@@ -1221,8 +1221,8 @@ small {
   border-radius: 12px;
   width: 44px;
   height: 44px;
-  color: var(--color-surface);
   flex-shrink: 0;
+  color: white;
   background: var(--color-accent);
 }
 
@@ -1607,12 +1607,6 @@ small {
 }
 
 /* ==================== System Settings Panel ==================== */
-
-.section-icon-wrapper.window,
-.section-icon-wrapper.startup,
-.section-icon-wrapper.language {
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
-}
 
 /* System Option Grid */
 .system-option-grid {
