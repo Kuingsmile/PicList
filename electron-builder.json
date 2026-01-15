@@ -61,7 +61,7 @@
   },
   "win": {
     "icon": "resources/icon.ico",
-    "artifactName": "PicList-Setup-${version}-${arch}.exe",
+    "artifactName": "PicList-Setup-${version}-${arch}-portable.${ext}",
     "verifyUpdateCodeSignature": false,
     "target": [
       {
@@ -69,13 +69,17 @@
         "arch": ["x64", "arm64"]
       },
       {
+        "target": "7z",
+        "arch": ["x64", "arm64"]
+      },
+      {
         "target": "zip",
-        "arch": ["x64", "arm64"],
-        "artifactName": "PicList-Setup-${version}-${arch}-portable.${ext}"
+        "arch": ["x64", "arm64"]
       }
     ]
   },
   "nsis": {
+    "artifactName": "PicList-Setup-${version}-${arch}.exe",
     "shortcutName": "PicList",
     "oneClick": false,
     "allowToChangeInstallationDirectory": true,

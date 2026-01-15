@@ -18,8 +18,10 @@ on:
         type: choice
         options:
           - windows-latest-x64-zip
+          - windows-latest-x64-7z
           - windows-latest-x64-nsis
           - windows-11-arm-arm64-zip
+          - windows-11-arm-arm64-7z
           - windows-11-arm-arm64-nsis
           - macos-15-intel-x64-dmg
           - macos-latest-arm64-dmg
@@ -53,12 +55,20 @@ jobs:
             filter: windows-latest-x64-zip
           - os: windows-latest
             arch: x64
+            format: 7z
+            filter: windows-latest-x64-7z
+          - os: windows-latest
+            arch: x64
             format: nsis
             filter: windows-latest-x64-nsis
           - os: windows-11-arm
             arch: arm64
             format: zip
             filter: windows-11-arm-arm64-zip
+          - os: windows-11-arm
+            arch: arm64
+            format: 7z
+            filter: windows-11-arm-arm64-7z
           - os: windows-11-arm
             arch: arm64
             format: nsis
@@ -209,6 +219,7 @@ jobs:
             dist_electron/*.exe
             dist_electron/*.dmg
             dist_electron/*.zip
+            dist_electron/*.7z
             dist_electron/*.AppImage
             dist_electron/*.deb
             dist_electron/*.rpm

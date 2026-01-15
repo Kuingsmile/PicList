@@ -13,7 +13,7 @@ async function main(context) {
       }
     }
   })
-  const isZip = targets.some(target => target.name === 'zip')
+  const isZip = targets.some(target => target.name === 'zip' || target.name === '7z')
   if (isZip) {
     const portablePath = path.join(appOutDir, 'PORTABLE')
     try {
