@@ -2142,7 +2142,10 @@ async function loadThemes() {
 async function handleDownloadThemes() {
   try {
     downloadingThemes.value = true
-    await window.electron.triggerRPC(IRPCActionType.THEME_FETCH_THEMES)
+    const result = await window.electron.triggerRPC(IRPCActionType.THEME_FETCH_THEMES)
+    if (!result) {
+      throw new Error('No themes were downloaded.')
+    }
     message.success(t('pages.settings.system.downloadThemesSuccess'))
     await loadThemes()
   } catch (error) {

@@ -43,7 +43,7 @@ export async function resolveThemes(): Promise<{ key: string; label: string }[]>
   }
 }
 
-export async function fetchThemes(): Promise<void> {
+export async function fetchThemes(): Promise<boolean> {
   try {
     const zipUrl = 'https://github.com/Kuingsmile/piclist-themeHub/releases/download/latest/themes.zip'
     const zipData = await axios.get(zipUrl, {
@@ -51,9 +51,10 @@ export async function fetchThemes(): Promise<void> {
       headers: { 'Content-Type': 'application/octet-stream' },
     })
     const zip = new AdmZip(zipData.data as Buffer)
-    zip.extractAllTo(themesDir(), true)
+    zip.extractAllTo(path.join(themesDir()), true)
+    return true
   } catch (_e) {
-    console.error('Failed to fetch themes from remote.')
+    return false
   }
 }
 

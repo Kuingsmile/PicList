@@ -62,7 +62,7 @@ export default [
   {
     action: IRPCActionType.THEME_FETCH_THEMES,
     handler: async () => {
-      await fetchThemes()
+      return await fetchThemes()
     },
     type: IRPCType.INVOKE,
   },
