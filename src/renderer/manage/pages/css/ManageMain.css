@@ -333,7 +333,7 @@ html, body {
   width: 85vw;
   max-width: 90vw;
   max-height: 85vh;
-  background: var(--color-background-secondary);
+  background: var(--color-background-tertiary);
   box-shadow: var(--shadow-xl);
   scrollbar-width: none;
 }
@@ -480,10 +480,12 @@ html, body {
 
 .drawer-container {
   overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
   width: 400px;
   max-width: 90vw;
-  height: 100vh;
-  background: var(--color-background-secondary);
+  height: calc(100vh - 32px);
+  background: var(--color-background-tertiary);
   box-shadow: var(--shadow-xl);
 }
 
@@ -570,14 +572,15 @@ html, body {
   padding: 0.75rem;
   width: 100%;
   font-size: 0.875rem;
-  color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
   transition: var(--transition-fast);
   box-sizing: border-box;
 }
 
 .form-input:focus {
   border-color: var(--color-accent);
+  background: white;
   outline: none;
   box-shadow: 0 0 0 2px rgb(0 122 255 / 20%);
 }
@@ -614,7 +617,7 @@ html, body {
   width: 100%;
   font-size: 0.875rem;
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-tertiary);
   transition: var(--transition-fast);
   appearance: none;
   cursor: pointer;

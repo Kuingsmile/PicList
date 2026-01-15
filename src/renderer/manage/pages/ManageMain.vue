@@ -99,54 +99,56 @@
     </div>
 
     <!-- PicBed Switch Dialog -->
-    <div v-if="picBedSwitchDialogVisible" class="dialog-overlay" @click="picBedSwitchDialogVisible = false">
-      <div class="dialog-container" @click.stop>
-        <div class="dialog-header">
-          <h3 class="dialog-title">
-            {{ t('pages.manage.main.switchPicBed') }}
-          </h3>
-          <button class="dialog-close" @click="picBedSwitchDialogVisible = false">
-            <XIcon class="close-icon" />
-          </button>
-        </div>
-        <div class="dialog-content">
-          <div class="choice-cos">
-            <!-- Back to main card -->
-            <div class="picbed-card main-card" @click="switchPicBed('main')">
-              <div class="card-icon">
-                <HomeIcon class="main-icon" />
-              </div>
-              <div class="card-content">
-                <div class="card-title main-title">
-                  {{ $t('pages.manage.main.backToHome') }}
+    <transition name="modal">
+      <div v-if="picBedSwitchDialogVisible" class="dialog-overlay" @click="picBedSwitchDialogVisible = false">
+        <div class="dialog-container" @click.stop>
+          <div class="dialog-header">
+            <h3 class="dialog-title">
+              {{ t('pages.manage.main.switchPicBed') }}
+            </h3>
+            <button class="dialog-close" @click="picBedSwitchDialogVisible = false">
+              <XIcon class="close-icon" />
+            </button>
+          </div>
+          <div class="dialog-content">
+            <div class="choice-cos">
+              <!-- Back to main card -->
+              <div class="picbed-card main-card" @click="switchPicBed('main')">
+                <div class="card-icon">
+                  <HomeIcon class="main-icon" />
+                </div>
+                <div class="card-content">
+                  <div class="card-title main-title">
+                    {{ $t('pages.manage.main.backToHome') }}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- PicBed cards -->
-            <div
-              v-for="(config, alias) in allPicBedConfigure"
-              :key="String(alias)"
-              class="picbed-card"
-              :class="{ active: String(alias) === currentAlias }"
-              @click="switchPicBed(String(alias))"
-            >
-              <div class="card-icon">
-                <img :src="`./assets/${config.picBedName}.webp`" class="picbed-icon" />
-              </div>
-              <div class="card-content">
-                <div class="card-title">
-                  {{ config.alias }}
+              <!-- PicBed cards -->
+              <div
+                v-for="(config, alias) in allPicBedConfigure"
+                :key="String(alias)"
+                class="picbed-card"
+                :class="{ active: String(alias) === currentAlias }"
+                @click="switchPicBed(String(alias))"
+              >
+                <div class="card-icon">
+                  <img :src="`./assets/${config.picBedName}.webp`" class="picbed-icon" />
                 </div>
-              </div>
-              <div v-if="String(alias) === currentAlias" class="check-icon">
-                <CheckIcon />
+                <div class="card-content">
+                  <div class="card-title">
+                    {{ config.alias }}
+                  </div>
+                </div>
+                <div v-if="String(alias) === currentAlias" class="check-icon">
+                  <CheckIcon />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </transition>
 
     <!-- New Bucket Drawer -->
     <div v-if="nweBucketDrawerVisible" class="drawer-overlay" @click="nweBucketDrawerVisible = false">

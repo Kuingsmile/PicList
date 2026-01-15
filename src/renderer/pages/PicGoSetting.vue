@@ -2181,7 +2181,11 @@ async function loadThemes() {
       IRPCActionType.THEME_RESOLVE_THEMES,
     )
     if (themes && themes.length > 0) {
-      themeList.value = themes
+      themeList.value = themes.sort((a, b) => {
+        if (a.key === 'default.css') return -1
+        if (b.key === 'default.css') return 1
+        return a.label.localeCompare(b.label)
+      })
     }
   } catch (error) {
     console.error('Failed to load themes:', error)
@@ -2235,13 +2239,13 @@ async function handleThemeChange(theme: string) {
 
 async function initData() {
   const config = (await getConfig<IConfig>()) || ({} as IConfig)
-  isDisableGPU.value = (await getConfig<boolean>(configPaths.settings.isDisableGPU)) || false
   const settings = config.settings || {}
   const picBed = config.picBed
+  isDisableGPU.value = settings.isDisableGPU || false
   showPicBedList.value = picBedG.value.filter(item => item.visible).map(item => item.name)
   galleryPicBedFilterList.value = settings.galleryPicBedFilter || []
   currentTheme.value = settings.theme || 'default.css'
-  await loadThemes()
+  loadThemes()
   formKeys.forEach(key => {
     ;(formOfSetting.value as any)[key] = settings[key] ?? formOfSetting.value[key]
   })

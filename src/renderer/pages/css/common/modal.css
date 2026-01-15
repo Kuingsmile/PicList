@@ -1,0 +1,111 @@
+
+
+/* Modal - Base Styles (Used by ImageProcess Dialog) */
+.modal-overlay {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+  padding: 2rem;
+  background: rgb(0 0 0 / 50%);
+  inset: 0;
+}
+
+.modal-container {
+  overflow: hidden;
+  margin: auto;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-2xl);
+  width: 90vw;
+  max-width: 90vw;
+  height: 85vh;
+  max-height: 85vh;
+  background: var(--color-background-tertiary);
+  box-shadow: var(--shadow-xl);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border-secondary);
+  padding: 1rem 1.25rem;
+  background: var(--color-background-secondary);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.modal-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.modal-close {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-elevated);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.modal-close:hover {
+  border-color: var(--color-danger);
+  color: white;
+  background: var(--color-danger);
+  transform: scale(1.05);
+}
+
+.modal-content {
+  overflow-y: auto;
+  max-height: calc(90vh - 90px);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: var(--color-border-secondary);
+  border-radius: var(--radius-full);
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+@media (width <= 768px) {
+  .modal-overlay {
+    padding: 1rem;
+  }
+
+  .modal-header,
+  .modal-content {
+    padding: 1.5rem;
+  }
+}
+
+.modal-close:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

@@ -119,7 +119,7 @@
     </Transition>
 
     <transition name="modal">
-      <div v-if="imageProcessDialogVisible" class="modal-overlay" @click.stop>
+      <div v-if="imageProcessDialogVisible" class="modal-overlay" :class="advancedAnimation" @click.stop>
         <div class="modal-container" @click.stop>
           <div class="modal-header">
             <h3 class="modal-title">
@@ -157,7 +157,7 @@ import {
   XIcon,
 } from 'lucide-vue-next'
 import { v4 as uuid } from 'uuid'
-import { onBeforeMount, ref, useTemplateRef } from 'vue'
+import { computed, onBeforeMount, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -180,6 +180,7 @@ const picBedName = ref('')
 const loading = ref(false)
 const dropdownVisible = ref(false)
 const imageProcessDialogVisible = ref(false)
+const enableAdvancedAnimation = ref(false)
 const $route = useRoute()
 const $router = useRouter()
 const $configForm = useTemplateRef('$configForm')
@@ -188,9 +189,18 @@ const currentPicbedType = $route.params.type as string
 
 type.value = $route.params.type as string
 
+async function initConf() {
+  enableAdvancedAnimation.value = (await getConfig<boolean>(configPaths.settings.isCustomMiniIcon)) || false
+}
+
+const advancedAnimation = computed(() => ({
+  advancedAnimation: enableAdvancedAnimation.value,
+}))
+
 onBeforeMount(async () => {
   loading.value = true
   try {
+    initConf()
     await getPicBeds()
     await getPicBedConfigList()
   } finally {
@@ -331,4 +341,4 @@ export default {
 }
 </script>
 
-<style scoped src="./Picbeds.css"></style>
+<style scoped src="../css/Picbeds.css"></style>

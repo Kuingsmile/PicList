@@ -59,6 +59,7 @@
 
 .custom-domain-input:focus {
   border-color: var(--color-accent);
+  background: white;
   outline: none;
   box-shadow: 0 0 0 3px var(--color-accent-soft);
 }
@@ -155,7 +156,7 @@
   padding: 0.5rem;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--color-accent);
+  color: var(--color-text-primary);
   background: var(--color-background-secondary);
   transition: var(--transition-fast);
   gap: 0.25rem;
@@ -209,13 +210,14 @@
   width: 200px;
   font-size: 0.875rem;
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-tertiary);
   transition: var(--transition-fast);
 }
 
 .search-input:focus {
   border-color: var(--color-accent);
   outline: none;
+  background: white;
   box-shadow: 0 0 0 3px var(--color-accent-soft);
 }
 
@@ -608,7 +610,7 @@
   border-radius: var(--radius-lg);
   padding: 0.75rem 1rem;
   width: 100%;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   transition: var(--transition-medium);
   gap: 0.75rem;
   cursor: pointer;
@@ -706,7 +708,7 @@
   /* Ensure dropdown is never clipped */
   max-height: 300px;
   white-space: nowrap;
-  background: var(--color-surface);
+  background: var(--color-background-tertiary);
   box-shadow: var(--shadow-lg);
   transform-origin: top right;
   animation: dropdown-appear 0.15s ease-out;
@@ -793,7 +795,7 @@
   border-radius: var(--radius-lg);
   max-width: 90vw;
   max-height: 90vh;
-  background: var(--color-surface);
+  background: var(--color-background-tertiary);
   box-shadow: var(--shadow-xl);
   flex-direction: column;
 }
@@ -869,12 +871,13 @@
   width: 100%;
   font-size: 0.875rem;
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-tertiary);
   transition: var(--transition-fast);
 }
 
 .form-input:focus {
   border-color: var(--color-accent);
+  background: white;
   outline: none;
   box-shadow: 0 0 0 3px var(--color-accent-soft);
 }
@@ -926,8 +929,9 @@
   position: absolute;
   inset: 0;
   border-radius: 24px;
-  background-color: var(--color-border);
-  transition: 0.3s;
+  background: linear-gradient(180deg, #d0d3d9 0%, #c0c4cc 100%);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 15%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 }
 
@@ -938,13 +942,19 @@
   border-radius: 50%;
   width: 18px;
   height: 18px;
-  background-color: white;
-  transition: 0.3s;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
+  box-shadow:
+    0 2px 6px rgb(0 0 0 / 20%),
+    0 1px 2px rgb(0 0 0 / 10%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   content: "";
 }
 
 input:checked + .switch-slider {
-  background-color: var(--color-accent);
+  background: var(--color-accent);
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 10%),
+    0 2px 8px rgb(64 158 255 / 30%);
 }
 
 input:checked + .switch-slider::before {
@@ -971,7 +981,7 @@ input:checked + .switch-slider::before {
   width: 60%;
   max-width: 800px;
   height: 100%;
-  background: var(--color-background-secondary);
+  background: var(--color-background-tertiary);
   box-shadow: var(--shadow-xl);
   transition: transform 0.3s ease-out;
   flex-direction: column;
@@ -1010,7 +1020,7 @@ input:checked + .switch-slider::before {
   border-radius: var(--radius-lg);
   padding: 3rem 2rem;
   text-align: center;
-  background: var(--color-surface-elevated);
+  background: var(--color-surface);
   transition: var(--transition-medium);
   cursor: pointer;
 }
@@ -1018,7 +1028,7 @@ input:checked + .switch-slider::before {
 .upload-area:hover,
 .upload-area.dragover {
   border-color: var(--color-accent);
-  background: var(--color-accent-soft);
+  background: var(--color-surface-elevated);
 }
 
 .upload-area-text {
@@ -1154,7 +1164,7 @@ input:checked + .switch-slider::before {
   font-size: 0.75rem;
   text-align: center;
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-tertiary);
   opacity: 0;
   visibility: hidden;
   box-shadow: var(--shadow-md);
@@ -1456,7 +1466,7 @@ input:checked + .switch-slider::before {
   padding: 0.75rem;
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-md);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
 }
 

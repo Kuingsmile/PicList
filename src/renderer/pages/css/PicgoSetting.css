@@ -1,3 +1,4 @@
+@import url('./common/advancedAnimation.css');
 /* stylelint-disable selector-pseudo-class-no-unknown */
 .piclist-settings {
   overflow-y: auto;
@@ -187,8 +188,9 @@
   border-radius: 12px;
   width: 44px;
   height: 24px;
-  background: var(--color-border);
-  transition: background-color 0.3s;
+  background: linear-gradient(180deg, #d0d3d9 0%, #c0c4cc 100%);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 15%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
 }
 
@@ -199,13 +201,19 @@
   border-radius: 50%;
   width: 20px;
   height: 20px;
-  background: white;
-  transition: transform 0.3s;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
+  box-shadow:
+    0 2px 6px rgb(0 0 0 / 20%),
+    0 1px 2px rgb(0 0 0 / 10%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   content: '';
 }
 
 .switch-input:checked + .switch-slider {
   background: var(--color-accent);
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 10%),
+    0 2px 8px rgb(64 158 255 / 30%);
 }
 
 .switch-input:checked + .switch-slider::before {
@@ -2666,11 +2674,4 @@ small {
 .notes-body :deep(pre code) {
   padding: 0;
   background: transparent;
-}
-
-.advancedAnimation {
-  backdrop-filter: blur(5px) saturate(180%);
-  background: rgb(255 255 255 / 20%);
-  border: 1px solid rgb(255 255 255 / 30%);
-  box-shadow: 0 8px 32px rgb(0 0 0 / 10%);
 }

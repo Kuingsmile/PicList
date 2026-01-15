@@ -170,7 +170,7 @@
 
     <!-- Config Modal -->
     <transition name="modal">
-      <div v-if="dialogVisible" class="modal-overlay" @click="dialogVisible = false">
+      <div v-if="dialogVisible" class="modal-overlay" :class="advancedAnimation" @click="dialogVisible = false">
         <div class="modal-container" @click.stop>
           <div class="modal-header">
             <h2 class="modal-title">
@@ -248,6 +248,7 @@ const dialogVisible = ref(false)
 const pluginNameList = ref<string[]>([])
 const loading = ref(true)
 const needReload = ref(false)
+const enableAdvancedAnimation = ref(false)
 const latestVersionMap = reactive<Record<string, string>>({})
 const $configForm = useTemplateRef('$configForm')
 const strictSearch = useStorage('plugin-strict-search', true)
@@ -256,6 +257,14 @@ function setSrc(e: Event) {
   const target = e.target as HTMLImageElement
   target.src = import.meta.env.BASE_URL + 'roundLogo.png'
 }
+
+async function initConf() {
+  enableAdvancedAnimation.value = (await getConfig<boolean>(configPaths.settings.isCustomMiniIcon)) || false
+}
+
+const advancedAnimation = computed(() => ({
+  advancedAnimation: enableAdvancedAnimation.value,
+}))
 
 const npmSearchText = computed(() => {
   return searchText.value.match('picgo-plugin-')
@@ -558,6 +567,7 @@ onBeforeMount(async () => {
   window.electron.ipcRendererOn(PICGO_TOGGLE_PLUGIN, picgoTogglePluginHandler)
   getPluginList()
   getSearchResult = debounce(_getSearchResult, 50)
+  initConf()
   needReload.value = (await getConfig<boolean>(configPaths.needReload)) || false
 })
 

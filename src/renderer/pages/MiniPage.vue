@@ -206,7 +206,6 @@ html, body, #app
   background: transparent
 #mini-page
   background: #409EFF;
-  border-radius: 32px;
   overflow: hidden;
   color #FFF
   height 100vh
