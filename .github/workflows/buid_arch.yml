@@ -183,10 +183,27 @@ jobs:
           fi
           echo "Publishing argument: $PUBLISH_ARG"
           if [[ "${{ matrix.os }}" == windows* ]]; then
+            if [[ "${{ matrix.format }}" == "nsis" ]]; then
+              rm -f ./resources/7za.exe
+              if [ -f ./resources/7za.exe ]; then
+                echo "Error: 7za.exe was not removed from resources."
+                exit 1
+              fi
+            fi
             yarn run build:win ${{ matrix.format}} --${{ matrix.arch }} --publish $PUBLISH_ARG
           elif [[ "${{ matrix.os }}" == macos* ]]; then
+            rm -f ./resources/7za.exe
+            if [ -f ./resources/7za.exe ]; then
+              echo "Error: 7za.exe was not removed from resources."
+              exit 1
+            fi
             yarn run build:mac ${{ matrix.format}} --${{ matrix.arch }} --publish $PUBLISH_ARG
           elif [[ "${{ matrix.os }}" == ubuntu* ]]; then
+            rm -f ./resources/7za.exe
+            if [ -f ./resources/7za.exe ]; then
+              echo "Error: 7za.exe was not removed from resources."
+              exit 1
+            fi
             yarn run build:linux ${{ matrix.format}} --${{ matrix.arch }} --publish $PUBLISH_ARG
           else
             echo "Unsupported OS: ${{ matrix.os }}"

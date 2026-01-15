@@ -130,24 +130,26 @@ export async function setupAutoUpdater() {
 }
 
 export async function checkUpdateAndNotify(): Promise<void> {
-  const url = 'https://release.piclist.cn/latest/latest.yml'
-  const res = await axios.get(url, {
-    headers: { 'Content-Type': 'application/octet-stream' },
-    responseType: 'text',
-  })
-  const latest = yaml.parseDocument(res.data).toJSON() as unknown as updater.UpdateInfo
-  const currentVersion = pkg.version
-  if (latest.version !== currentVersion) {
-    newVersion = latest.version
-    updateAvailableHandler(latest)
+  if (isPortable()) {
+    const url = 'https://release.piclist.cn/latest/latest.yml'
+    const res = await axios.get(url, {
+      headers: { 'Content-Type': 'application/octet-stream' },
+      responseType: 'text',
+    })
+    const latest = yaml.parseDocument(res.data).toJSON() as unknown as updater.UpdateInfo
+    const currentVersion = pkg.version
+    if (latest.version !== currentVersion) {
+      newVersion = latest.version
+      updateAvailableHandler(latest)
+    }
   }
 }
 
 export async function downloadAndInstallUpdate(): Promise<void> {
   const baseUrl = 'https://release.piclist.cn/latest'
   const fileMap = {
-    'win32-x64': `PicList-Setup-${newVersion.replace(/^v/, '')}-x64-portable.zip`,
-    'win32-arm64': `PicList-Setup-${newVersion.replace(/^v/, '')}-arm64-portable.zip`,
+    'win32-x64': `PicList-Setup-${newVersion.replace(/^v/, '')}-x64-portable.7z`,
+    'win32-arm64': `PicList-Setup-${newVersion.replace(/^v/, '')}-arm64-portable.7z`,
   } as Record<string, string>
   const file = fileMap[`${process.platform}-${process.arch}`]
   if (!file) {
@@ -191,8 +193,9 @@ export async function downloadAndInstallUpdate(): Promise<void> {
       return
     }
     progressHandler({ percent: 100 } as updater.ProgressInfo)
-    const zipFilePath = path.join(dirname, '../../../resources/7za.exe').replace('app.asar', 'app.asar.unpacked')
+    const zipFilePath = path.join(dirname, '../../resources/7za.exe').replace('app.asar', 'app.asar.unpacked')
     await fs.copyFile(zipFilePath, path.join(defaultDir(), '7za.exe'))
+    logger.info('Starting update installation...')
     spawn(
       'cmd',
       [

@@ -4,6 +4,7 @@ import { BrowserWindow, shell } from 'electron'
 import updater from 'electron-updater'
 
 import { RPCRouter } from '~/events/rpc/router'
+import { downloadAndInstallUpdate } from '~/lifeCycle/autoUpdater'
 import { configPaths } from '~/utils/configPaths'
 import { IRPCActionType } from '~/utils/enum'
 
@@ -15,6 +16,8 @@ const updaterRoutes = [
     handler: async () => {
       if (!isPortable()) {
         updater.autoUpdater.downloadUpdate()
+      } else {
+        downloadAndInstallUpdate()
       }
     },
   },
