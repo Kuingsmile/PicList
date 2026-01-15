@@ -197,7 +197,7 @@
 
     <!-- Image Process Dialog -->
     <transition name="modal">
-      <div v-if="imageProcessDialogVisible" class="modal-overlay" @click.stop>
+      <div v-if="imageProcessDialogVisible" class="modal-overlay" :class="advancedAnimation" @click.stop>
         <div class="modal-container" @click.stop>
           <div class="modal-header">
             <h3 class="modal-title">
@@ -221,7 +221,7 @@
 
     <!-- Task Queue Manager Modal -->
     <transition name="modal">
-      <div v-if="taskDialogVisible" class="modal-overlay">
+      <div v-if="taskDialogVisible" class="modal-overlay" :class="advancedAnimation">
         <div class="modal-container task-queue-modal" @click.stop>
           <div class="modal-header">
             <div class="modal-header-text">
@@ -663,6 +663,7 @@ const progress = ref(0)
 const showProgress = ref(false)
 const showError = ref(false)
 const pasteStyle = ref(IPasteStyle.MARKDOWN)
+const enableAdvancedAnimation = ref(false)
 const PicBedId = ref('')
 const fileInput = useTemplateRef('fileInput')
 const uploadInterval = ref(1000)
@@ -860,14 +861,17 @@ function ipcSendFiles(files: FileList) {
   window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, sendFiles)
 }
 
-async function getPasteStyle() {
-  pasteStyle.value = (await getConfig(configPaths.settings.pasteStyle)) || IPasteStyle.MARKDOWN
-  pasteFormatList.value.Custom = (await getConfig(configPaths.settings.customLink)) || '![$fileName]($url)'
+async function initConf() {
+  const settingConfig = await getConfig<any>('settings')
+  enableAdvancedAnimation.value = settingConfig?.enableAdvancedAnimation || false
+  pasteStyle.value = settingConfig?.pasteStyle || IPasteStyle.MARKDOWN
+  pasteFormatList.value.Custom = settingConfig?.customLink || '![$fileName]($url)'
+  useShortUrl.value = settingConfig?.useShortUrl || false
 }
 
-async function getUseShortUrl() {
-  useShortUrl.value = (await getConfig(configPaths.settings.useShortUrl)) || false
-}
+const advancedAnimation = computed(() => ({
+  advancedAnimation: enableAdvancedAnimation.value,
+}))
 
 function updatePasteStyle(style: string) {
   pasteStyle.value = style
@@ -1238,7 +1242,7 @@ onBeforeMount(async () => {
   removeSyncPicBedListenerCallback = window.electron.ipcRendererOn('syncPicBed', syncPicBedHandler)
   removeTaskQueueUpdateListenerCallback = window.electron.ipcRendererOn('uploadTaskQueueUpdate', taskQueueUpdateHandler)
   $bus.on(SHOW_INPUT_BOX_RESPONSE, handleInputBoxValue)
-  await Promise.all([getUseShortUrl(), getPasteStyle(), refreshTaskStatus()])
+  await Promise.all([initConf(), refreshTaskStatus()])
 })
 </script>
 

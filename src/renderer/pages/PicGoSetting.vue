@@ -73,6 +73,28 @@
                   <option value="main">{{ t('pages.settings.system.mainMode') }}</option>
                 </select>
               </div>
+              <!-- Performance & Animation Toggles -->
+              <div class="system-toggle-card">
+                <label class="switch-label">
+                  <input v-model="isDisableGPU" type="checkbox" class="switch-input" />
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('pages.settings.system.isDisableGPU') }}</div>
+                    <div class="switch-description">{{ t('pages.settings.system.isDisableGPUDesc') }}</div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="system-toggle-card">
+                <label class="switch-label">
+                  <input v-model="formOfSetting.enableAdvancedAnimation" type="checkbox" class="switch-input" />
+                  <span class="switch-slider" />
+                  <div class="switch-content">
+                    <div class="switch-title">{{ t('pages.settings.system.enableAdvancedAnimation') }}</div>
+                    <div class="switch-description">{{ t('pages.settings.system.enableAdvancedAnimationDesc') }}</div>
+                  </div>
+                </label>
+              </div>
 
               <div class="system-option-card">
                 <div class="system-option-header">
@@ -960,7 +982,7 @@
 
     <!-- Dialogs -->
     <!-- Custom Link Format Dialog -->
-    <div v-if="customLinkVisible" class="dialog-overlay" @click="customLinkVisible = false">
+    <div v-if="customLinkVisible" class="dialog-overlay" :class="advancedAnimation" @click="customLinkVisible = false">
       <div class="dialog enhanced-dialog" @click.stop>
         <div class="dialog-header">
           <div class="dialog-header-content">
@@ -1011,7 +1033,7 @@
     </div>
 
     <!-- Proxy Settings Dialog -->
-    <div v-if="proxyVisible" class="dialog-overlay" @click="proxyVisible = false">
+    <div v-if="proxyVisible" class="dialog-overlay" :class="advancedAnimation" @click="proxyVisible = false">
       <div class="dialog enhanced-dialog" @click.stop>
         <div class="dialog-header">
           <div class="dialog-header-content">
@@ -1078,7 +1100,7 @@
     </div>
 
     <!-- Main Window Size Dialog -->
-    <div v-if="mainWindowSizeVisible" class="dialog-overlay">
+    <div v-if="mainWindowSizeVisible" class="dialog-overlay" :class="advancedAnimation">
       <div class="dialog enhanced-dialog" @click.stop>
         <div class="dialog-header">
           <div class="dialog-header-content">
@@ -1133,7 +1155,7 @@
     </div>
 
     <!-- Check Update Dialog -->
-    <div v-if="checkUpdateVisible" class="dialog-overlay" @click="cancelCheckVersion">
+    <div v-if="checkUpdateVisible" class="dialog-overlay" :class="advancedAnimation" @click="cancelCheckVersion">
       <div class="dialog enhanced-dialog update-dialog" @click.stop>
         <div class="dialog-header">
           <div class="dialog-header-content">
@@ -1182,7 +1204,12 @@
     </div>
 
     <!-- Advanced Rename Dialog -->
-    <div v-if="advancedRenameVisible" class="dialog-overlay" @click="handleCancelAdvancedRename">
+    <div
+      v-if="advancedRenameVisible"
+      class="dialog-overlay"
+      :class="advancedAnimation"
+      @click="handleCancelAdvancedRename"
+    >
       <div class="dialog enhanced-dialog rename-dialog" @click.stop>
         <div class="dialog-header">
           <div class="dialog-header-content">
@@ -1282,7 +1309,7 @@
     </div>
 
     <!-- Log Settings Dialog -->
-    <div v-if="logFileVisible" class="dialog-overlay" @click="cancelLogLevelSetting">
+    <div v-if="logFileVisible" class="dialog-overlay" :class="advancedAnimation" @click="cancelLogLevelSetting">
       <div class="dialog enhanced-dialog log-dialog" @click.stop>
         <div class="dialog-header">
           <div class="dialog-header-content">
@@ -1371,7 +1398,7 @@
     </div>
 
     <!-- Server Settings Dialog -->
-    <div v-if="serverVisible" class="dialog-overlay" @click="cancelServerSetting">
+    <div v-if="serverVisible" class="dialog-overlay" :class="advancedAnimation" @click="cancelServerSetting">
       <div class="dialog enhanced-dialog server-dialog" @click.stop>
         <div class="dialog-header">
           <div class="dialog-header-content">
@@ -1447,7 +1474,7 @@
     </div>
 
     <!-- Web Server Settings Dialog -->
-    <div v-if="webServerVisible" class="dialog-overlay" @click="confirmWebServerSetting">
+    <div v-if="webServerVisible" class="dialog-overlay" :class="advancedAnimation" @click="confirmWebServerSetting">
       <div class="dialog enhanced-dialog webserver-dialog" @click.stop>
         <div class="dialog-header">
           <div class="dialog-header-content">
@@ -1530,7 +1557,7 @@
     </div>
 
     <!-- Sync Configuration Dialog -->
-    <div v-if="syncVisible" class="dialog-overlay">
+    <div v-if="syncVisible" class="dialog-overlay" :class="advancedAnimation">
       <div class="dialog sync-config-dialog" @click.stop>
         <div class="dialog-header">
           <div class="dialog-header-content">
@@ -1687,7 +1714,12 @@
     </div>
 
     <!-- Upload/Download Config Dialog -->
-    <div v-if="upDownConfigVisible" class="dialog-overlay" @click="upDownConfigVisible = false">
+    <div
+      v-if="upDownConfigVisible"
+      class="dialog-overlay"
+      :class="advancedAnimation"
+      @click="upDownConfigVisible = false"
+    >
       <div class="dialog config-dialog" @click.stop>
         <div class="dialog-header">
           <div class="dialog-header-content">
@@ -1765,7 +1797,12 @@
     </div>
 
     <!-- Image Process Dialog -->
-    <div v-if="imageProcessDialogVisible" class="dialog-overlay" @click="imageProcessDialogVisible = false">
+    <div
+      v-if="imageProcessDialogVisible"
+      class="dialog-overlay"
+      :class="advancedAnimation"
+      @click="imageProcessDialogVisible = false"
+    >
       <div class="dialog large" @click.stop>
         <div class="dialog-header">
           <h3 class="dialog-title">
@@ -1838,6 +1875,7 @@ const galleryPicBedFilterList = ref<string[]>([])
 const themeList = ref<{ key: string; label: string }[]>([{ key: 'default.css', label: '默认' }])
 const currentTheme = ref('default.css')
 const downloadingThemes = ref(false)
+const isDisableGPU = ref(false)
 const currentTab = useStorage<'system' | 'sync' | 'upload' | 'advanced' | 'update'>('settings-current-tab', 'system')
 
 // Tab configuration
@@ -1909,6 +1947,7 @@ const formOfSetting = ref<ISettingForm>({
   mainWindowWidth: 1200,
   mainWindowHeight: 800,
   enableSecondUploader: false,
+  enableAdvancedAnimation: false,
   theme: 'default.css',
 })
 
@@ -1946,7 +1985,12 @@ const autoWatchKeys = [
   'encodeOutputURL',
   'useShortUrl',
   'enableSecondUploader',
+  'enableAdvancedAnimation',
 ]
+
+const advancedAnimation = computed(() => ({
+  advancedAnimation: formOfSetting.value.enableAdvancedAnimation,
+}))
 
 const addWatch = () => {
   autoWatchKeys.forEach(key => {
@@ -1988,6 +2032,11 @@ const addWatch = () => {
     if (newVal) {
       handleThemeChange(newVal)
     }
+  })
+
+  watch(isDisableGPU, newVal => {
+    message.info(t('pages.settings.system.needRestart'))
+    saveConfig({ [configPaths.settings.isDisableGPU]: newVal })
   })
 }
 
@@ -2186,6 +2235,7 @@ async function handleThemeChange(theme: string) {
 
 async function initData() {
   const config = (await getConfig<IConfig>()) || ({} as IConfig)
+  isDisableGPU.value = (await getConfig<boolean>(configPaths.settings.isDisableGPU)) || false
   const settings = config.settings || {}
   const picBed = config.picBed
   showPicBedList.value = picBedG.value.filter(item => item.visible).map(item => item.name)

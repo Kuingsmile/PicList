@@ -169,7 +169,10 @@ class LifeCycle {
     initI18n()
     rpcServer.start()
     busEventList.listen()
-
+    const isDisableGPU = picgo.getConfig<boolean>(configPaths.settings.isDisableGPU) || false
+    if (isDisableGPU) {
+      app.disableHardwareAcceleration()
+    }
     if (process.env.NODE_ENV === 'development') {
       MemoryMonitor.start(30000)
     }

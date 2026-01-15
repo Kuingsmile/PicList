@@ -281,7 +281,7 @@
         @wheel="handleImageWheel"
         @keydown="handleKeydown"
       >
-        <div class="modal-backdrop" />
+        <div class="modal-backdrop" :class="advancedAnimation" />
         <div class="modal-content">
           <button class="modal-close" @click="handleClose">
             <XIcon :size="24" />
@@ -352,7 +352,7 @@
 
     <!-- Edit URL Modal -->
     <transition name="modal">
-      <div v-if="dialogVisible" class="modal-overlay" @click="dialogVisible = false">
+      <div v-if="dialogVisible" class="modal-overlay" :class="advancedAnimation" @click="dialogVisible = false">
         <div class="modal-container" @click.stop>
           <div class="modal-header">
             <h3>{{ t('pages.gallery.changeImageUrl') }}</h3>
@@ -377,7 +377,12 @@
 
     <!-- Batch Rename Modal -->
     <transition name="modal">
-      <div v-if="isShowBatchRenameDialog" class="modal-overlay" @click="isShowBatchRenameDialog = false">
+      <div
+        v-if="isShowBatchRenameDialog"
+        class="modal-overlay"
+        :class="advancedAnimation"
+        @click="isShowBatchRenameDialog = false"
+      >
         <div class="modal-container large" @click.stop>
           <div class="modal-header">
             <h3>{{ t('pages.gallery.batchEditUrl') }}</h3>
@@ -587,6 +592,7 @@ const dateRangeEnd = ref('')
 const picBedDropdownOpen = ref(false)
 const sortDropdownOpen = ref(false)
 const showFormatInfo = ref(false)
+const enableAdvancedAnimation = ref(false)
 const viewMode = useStorage<'list' | 'grid'>('galleryViewMode', 'grid')
 const componentKey = ref(0)
 const currentSortField = ref<'name' | 'time' | 'ext' | 'check'>('name')
@@ -667,6 +673,10 @@ function copyPlaceholder(placeholder: string) {
   window.electron.clipboard.writeText(String(placeholder))
   message.success(t('pages.settings.upload.copySuccess', { content: placeholder }))
 }
+
+const advancedAnimation = computed(() => ({
+  advancedAnimation: enableAdvancedAnimation.value,
+}))
 
 const filterList = computed(() => {
   return getGallery()
@@ -1000,13 +1010,13 @@ onBeforeRouteUpdate((to, from) => {
 })
 
 async function initConf() {
-  pasteStyle.value = (await getConfig(configPaths.settings.pasteStyle)) || IPasteStyle.MARKDOWN
-  useShortUrl.value = (await getConfig(configPaths.settings.useShortUrl))
-    ? t('pages.gallery.shortUrl')
-    : t('pages.gallery.longUrl')
-  isAlwaysForceReload.value = (await getConfig<boolean>(configPaths.settings.isAlwaysForceReload)) || false
-  deleteCloud.value = (await getConfig<boolean>(configPaths.settings.deleteCloudFile)) || false
-  galleryPicBedFilterSetting.value = (await getConfig<string[]>(configPaths.settings.galleryPicBedFilter)) || []
+  const settingConfig = await getConfig<any>('settings')
+  pasteStyle.value = settingConfig.pasteStyle || IPasteStyle.MARKDOWN
+  useShortUrl.value = settingConfig.useShortUrl ? t('pages.gallery.shortUrl') : t('pages.gallery.longUrl')
+  enableAdvancedAnimation.value = settingConfig.enableAdvancedAnimation || false
+  isAlwaysForceReload.value = settingConfig.isAlwaysForceReload || false
+  deleteCloud.value = settingConfig.deleteCloudFile || false
+  galleryPicBedFilterSetting.value = settingConfig.galleryPicBedFilter || []
 }
 
 const updateGalleryHandler = () => {
