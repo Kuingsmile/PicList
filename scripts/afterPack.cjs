@@ -1,7 +1,9 @@
 const fs = require('node:fs')
+const path = require('node:path')
 
 async function main(context) {
-  const localeDir = context.appOutDir + '/locales/'
+  const { appOutDir, targets } = context
+  const localeDir = appOutDir + '/locales/'
 
   fs.readdir(localeDir, function (_err, files) {
     if (!(files && files.length)) return
@@ -11,6 +13,16 @@ async function main(context) {
       }
     }
   })
+  const isZip = targets.some(target => target.name === 'zip')
+  if (isZip) {
+    const portablePath = path.join(appOutDir, 'PORTABLE')
+    try {
+      fs.writeFileSync(portablePath, '')
+      console.log('Created portable marker file at', portablePath)
+    } catch (err) {
+      console.error('Error creating portable marker file:', err)
+    }
+  }
 }
 
 exports.default = main

@@ -66,7 +66,12 @@
     "target": [
       {
         "target": "nsis",
-        "arch": ["x64", "ia32", "arm64"]
+        "arch": ["x64", "arm64"]
+      },
+      {
+        "target": "zip",
+        "arch": ["x64", "arm64"],
+        "artifactName": "PicList-Setup-${version}-${arch}-portable.${ext}"
       }
     ]
   },

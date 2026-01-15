@@ -1,0 +1,226 @@
+name: Build with architecture
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_enabled:
+        description: 'Publish artifacts after build?'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'false'
+      build_os:
+        description: "Build OS"
+        required: true
+        default: "All"
+        type: choice
+        options:
+          - windows-latest-x64-zip
+          - windows-latest-x64-nsis
+          - windows-11-arm-arm64-zip
+          - windows-11-arm-arm64-nsis
+          - macos-15-intel-x64-dmg
+          - macos-latest-arm64-dmg
+          - ubuntu-latest-x64-AppImage
+          - ubuntu-latest-x64-deb
+          - ubuntu-latest-x64-snap
+          - ubuntu-latest-x64-rpm
+          - ubuntu-24.04-arm-arm64-AppImage
+          - ubuntu-24.04-arm-arm64-deb
+          - ubuntu-24.04-arm-arm64-rpm
+          - All
+permissions:
+  contents: read
+
+env:
+  ELECTRON_OUTPUT_PATH: ./dist_electron
+  CSC_LINK: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+  CSC_KEY_PASSWORD: ${{ secrets.P12_PASSWORD }}
+  USE_HARD_LINKS: false
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            arch: x64
+            format: zip
+            filter: windows-latest-x64-zip
+          - os: windows-latest
+            arch: x64
+            format: nsis
+            filter: windows-latest-x64-nsis
+          - os: windows-11-arm
+            arch: arm64
+            format: zip
+            filter: windows-11-arm-arm64-zip
+          - os: windows-11-arm
+            arch: arm64
+            format: nsis
+            filter: windows-11-arm-arm64-nsis
+          - os: macos-15-intel
+            arch: x64
+            format: dmg
+            filter: macos-15-intel-x64-dmg
+          - os: macos-latest
+            arch: arm64
+            format: dmg
+            filter: macos-latest-arm64-dmg
+          - os: ubuntu-latest
+            arch: x64
+            format: AppImage
+            filter: ubuntu-latest-x64-AppImage
+          - os: ubuntu-latest
+            arch: x64
+            format: deb
+            filter: ubuntu-latest-x64-deb
+          - os: ubuntu-latest
+            arch: x64
+            format: snap
+            filter: ubuntu-latest-x64-snap
+          - os: ubuntu-latest
+            arch: x64
+            format: rpm
+            filter: ubuntu-latest-x64-rpm
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            format: AppImage
+            filter: ubuntu-24.04-arm-arm64-AppImage
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            format: deb
+            filter: ubuntu-24.04-arm-arm64-deb
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            format: rpm
+            filter: ubuntu-24.04-arm-arm64-rpm
+    name: Build on ${{ matrix.os }} for ${{ matrix.arch }} - ${{ matrix.format }}
+    steps:
+      - name: Set up git config
+        run: |
+          git config --global core.autocrlf false
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # step2: sign
+      - name: Install the Apple certificates
+        if: contains(matrix.os, 'macos') && (github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All')
+        run: |
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+
+      # step3: install node env
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+
+      - name: Install system deps
+        if: contains(matrix.os, 'linux') && (github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All')
+        run: |
+          sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils libfuse2
+          sudo snap install snapcraft --classic
+
+      - name: Install FPM
+        if: matrix.os == 'ubuntu-24.04-arm' && (github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ruby ruby-dev build-essential
+          sudo gem install --no-document fpm
+
+      # step3: yarn
+      - name: Install dependencies
+        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
+        shell: bash
+        run: |
+          yarn config set ignore-engines true
+          rm -rf node_modules dist_electron && yarn install --frozen-lockfile
+          yarn global add xvfb-maybe
+
+      - name: Generate release notes
+        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
+        shell: bash
+        run: |
+          chmod +x ./scripts/generate-release-notes.sh
+          ./scripts/generate-release-notes.sh
+
+      - name: Configure electron-builder.json
+        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
+        shell: bash
+        run: |
+          # Remove publish config if not publishing
+          if [ "${{ github.event.inputs.publish_enabled }}" == "false" ]; then
+            jq 'del(.publish)' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
+          fi
+
+      - name: Build & release app
+        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" == "windows-11-arm" ]; then
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+            unset CSC_LINK WIN_CSC_LINK CSC_KEY_PASSWORD
+          fi
+          PUBLISH_ARG="never"
+          if [ "${{ github.event.inputs.publish_enabled }}" == "true" ]; then
+            PUBLISH_ARG="always"
+          fi
+          echo "Publishing argument: $PUBLISH_ARG"
+          if [[ "${{ matrix.os }}" == windows* ]]; then
+            yarn run build:win ${{ matrix.format}} --${{ matrix.arch }} --publish $PUBLISH_ARG
+          elif [[ "${{ matrix.os }}" == macos* ]]; then
+            yarn run build:mac ${{ matrix.format}} --${{ matrix.arch }} --publish $PUBLISH_ARG
+          elif [[ "${{ matrix.os }}" == ubuntu* ]]; then
+            yarn run build:linux ${{ matrix.format}} --${{ matrix.arch }} --publish $PUBLISH_ARG
+          else
+            echo "Unsupported OS: ${{ matrix.os }}"
+            exit 1
+          fi
+        env:
+          USE_SYSTEM_FPM: ${{ matrix.os == 'ubuntu-24.04-arm' && 'true' || 'false' }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          R2_SECRET_ID: ${{ secrets.R2_SECRET_ID }}
+          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          ELECTRON_SKIP_NOTARIZATION: ${{ secrets.ELECTRON_SKIP_NOTARIZATION }}
+          XCODE_APP_LOADER_EMAIL: ${{ secrets.XCODE_APP_LOADER_EMAIL }}
+          XCODE_APP_LOADER_PASSWORD: ${{ secrets.XCODE_APP_LOADER_PASSWORD }}
+          XCODE_TEAM_ID: ${{ secrets.XCODE_TEAM_ID }}
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          USE_HARD_LINKS: false
+
+      - name: Upload build artifacts
+        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.filter }}-artifacts
+          path: |
+            dist_electron/*.exe
+            dist_electron/*.dmg
+            dist_electron/*.zip
+            dist_electron/*.AppImage
+            dist_electron/*.deb
+            dist_electron/*.rpm
+            dist_electron/*.snap
+          retention-days: 30
+          if-no-files-found: 'ignore'
+
+      - name: Upload yml artifacts
+        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.filter }}-yml
+          path: dist_electron/**/*.yml
+          retention-days: 30
+          if-no-files-found: 'ignore'
