@@ -182,7 +182,7 @@ input:checked + .switch-slider::before {
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-md);
   padding: 0.375rem 0.5rem;
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   gap: 0.375rem;
 }
 
@@ -197,7 +197,7 @@ input:checked + .switch-slider::before {
   border-radius: 2px;
   width: 70px;
   height: 4px;
-  background: var(--color-border);
+  background: var(--color-background-tertiary);
   outline: none;
   appearance: none;
   cursor: pointer;
@@ -351,8 +351,9 @@ input:checked + .switch-slider::before {
   min-width: 200px;
   max-height: 280px;
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-tertiary);
   box-shadow: var(--shadow-lg);
+  scrollbar-width: none;
 }
 
 .multiselect-option {
@@ -362,7 +363,7 @@ input:checked + .switch-slider::before {
   padding: 0.25rem 0.5rem;
   min-height: unset;
   font-size: 0.95rem;
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   gap: 0.25rem;
   cursor: pointer;
@@ -936,7 +937,7 @@ input:checked + .switch-slider::before {
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
-  background: var(--color-background-primary);
+  background: var(--color-background-tertiary);
   box-shadow: var(--shadow-lg);
 }
 
@@ -1016,7 +1017,7 @@ input:checked + .switch-slider::before {
   width: 100%;
   font-size: 0.875rem;
   color: var(--color-text-primary);
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   box-sizing: border-box;
 }
@@ -1036,13 +1037,13 @@ input:checked + .switch-slider::before {
   width: 20px;
   height: 20px;
   color: white;
-  background: var(--color-blue-common);
+  background: var(--color-accent);
   transition: var(--transition-fast);
   cursor: pointer;
 }
 
 .info-button:hover {
-  background: var(--color-blue-common);
+  background: var(--color-accent-hover);
 }
 
 .info-panel {
@@ -1088,8 +1089,8 @@ input:checked + .switch-slider::before {
   font-family: 'SF Mono', Monaco, Menlo, 'Ubuntu Mono', monospace;
   font-weight: 600;
   text-align: center;
-  color: white;
-  background: var(--color-blue-common);
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
   box-shadow: 0 1px 3px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 24%);
   letter-spacing: 0.02em;
   flex-shrink: 0;
@@ -1113,14 +1114,14 @@ input:checked + .switch-slider::before {
   font-family: inherit;
   font-weight: 500;
   color: white;
-  background: var(--color-blue-common);
+  background: var(--color-accent);
   transition: var(--transition-fast);
   gap: 0.5rem;
   cursor: pointer;
 }
 
 .btn-primary:hover {
-  background: var(--color-blue-common);
+  background: var(--color-accent-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
@@ -1135,7 +1136,7 @@ input:checked + .switch-slider::before {
   font-family: inherit;
   font-weight: 500;
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   gap: 0.5rem;
   cursor: pointer;

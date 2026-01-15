@@ -70,7 +70,7 @@ html, body {
   width: auto;
   min-width: 200px;
   font-family: inherit;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   gap: 0.75rem;
   cursor: pointer;
@@ -145,7 +145,7 @@ html, body {
   font-family: inherit;
   font-weight: 500;
   color: var(--color-text-secondary);
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   transition: all var(--transition-fast);
   gap: 0.5rem;
   cursor: pointer;
@@ -335,7 +335,7 @@ html, body {
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
 }
 
 .segmented-button {
@@ -513,7 +513,7 @@ html, body {
   padding: 0.875rem 1rem;
   font-family: inherit;
   text-align: left;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   transition: var(--transition-medium);
   flex-direction: row;
   gap: 0.5rem;
@@ -635,7 +635,7 @@ html, body {
   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   font-weight: 500;
   color: var(--color-text-secondary);
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   cursor: pointer;
 }
@@ -657,7 +657,7 @@ html, body {
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-md);
   width: 100%;
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
 }
 
 .toggle-button {
@@ -735,7 +735,7 @@ html, body {
   align-items: center;
   border-bottom: 1px solid var(--color-border-secondary);
   padding: 1rem 1.25rem;
-  background: var(--color-background-tertiary);
+  background: var(--color-surface);
 }
 
 .modal-title {
