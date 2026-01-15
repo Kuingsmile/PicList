@@ -344,6 +344,20 @@
                   </svg>
                 </div>
               </div>
+              <div v-if="isPortable" class="sync-action-card" @click="handleMigrateFromPicListInstallation">
+                <div class="sync-action-icon migrate">
+                  <Import :size="24" />
+                </div>
+                <div class="sync-action-content">
+                  <h4>{{ t('pages.settings.sync.migrateFromPicListInstallation') }}</h4>
+                  <p>{{ t('pages.settings.sync.migrateDescPicList') }}</p>
+                </div>
+                <div class="sync-action-arrow">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1876,6 +1890,7 @@ const themeList = ref<{ key: string; label: string }[]>([{ key: 'default.css', l
 const currentTheme = ref('default.css')
 const downloadingThemes = ref(false)
 const isDisableGPU = ref(false)
+const isPortable = ref(false)
 const currentTab = useStorage<'system' | 'sync' | 'upload' | 'advanced' | 'update'>('settings-current-tab', 'system')
 
 // Tab configuration
@@ -2242,6 +2257,7 @@ async function initData() {
   const settings = config.settings || {}
   const picBed = config.picBed
   isDisableGPU.value = settings.isDisableGPU || false
+  isPortable.value = (await window.electron.triggerRPC<boolean>(IRPCActionType.GET_IS_PORTABLE)) || false
   showPicBedList.value = picBedG.value.filter(item => item.visible).map(item => item.name)
   galleryPicBedFilterList.value = settings.galleryPicBedFilter || []
   currentTheme.value = settings.theme || 'default.css'
@@ -2368,6 +2384,28 @@ function handleMigrateFromPicGo() {
     if (result) {
       window.electron
         .triggerRPC<boolean>(IRPCActionType.CONFIGURE_MIGRATE_FROM_PICGO)
+        .then(() => {
+          message.success(t('pages.settings.sync.mirgrateSuccess'))
+        })
+        .catch(() => {
+          message.error(t('pages.settings.sync.mirgrateFailed'))
+        })
+    }
+  })
+}
+
+function handleMigrateFromPicListInstallation() {
+  confirm({
+    title: t('pages.settings.sync.mirgrateTitle'),
+    message: t('pages.settings.sync.migrateFromPicListInstallationContent'),
+    type: 'warning',
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    center: true,
+  }).then(result => {
+    if (result) {
+      window.electron
+        .triggerRPC<boolean>(IRPCActionType.CONFIGURE_MIGRATE_FROM_PICLIST_INSTALLATION)
         .then(() => {
           message.success(t('pages.settings.sync.mirgrateSuccess'))
         })

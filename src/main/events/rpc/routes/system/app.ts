@@ -1,3 +1,4 @@
+import { isPortable } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import { app, nativeTheme, shell } from 'electron'
 
@@ -77,6 +78,13 @@ export default [
     action: IRPCActionType.THEME_APPLY_THEME,
     handler: async (_: IIPCEvent, args: [theme: string]) => {
       await applyTheme(args[0])
+    },
+    type: IRPCType.INVOKE,
+  },
+  {
+    action: IRPCActionType.GET_IS_PORTABLE,
+    handler: async () => {
+      return isPortable()
     },
     type: IRPCType.INVOKE,
   },
