@@ -164,6 +164,7 @@ cd PicList
 
 # 2. 安装依赖
 yarn
+yarn run prepare
 
 # 3. 启动开发模式
 yarn run dev

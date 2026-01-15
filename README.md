@@ -165,6 +165,7 @@ cd PicList
 
 # 2. Install dependencies
 yarn
+yarn run prepare
 
 # 3. specific start dev mode
 yarn run dev
