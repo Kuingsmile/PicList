@@ -7,6 +7,7 @@ import windowManager from 'apis/app/window/windowManager'
 import axios from 'axios'
 import fs from 'fs-extra'
 
+import { randomStringGenerator } from '@/manage/utils/common'
 import { IWindowList } from '~/utils/enum'
 
 let insertedCSSKeyMain: string | undefined
@@ -61,7 +62,7 @@ export async function fetchThemes(): Promise<boolean> {
 export async function importThemes(files: string[]): Promise<void> {
   for (const file of files) {
     if (fs.existsSync(file))
-      await fs.copyFile(file, path.join(themesDir(), `${new Date().getTime().toString(16)}-${path.basename(file)}`))
+      await fs.copyFile(file, path.join(themesDir(), `imp-${randomStringGenerator(3)}-${path.basename(file)}`))
   }
 }
 
