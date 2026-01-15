@@ -22,6 +22,17 @@ async function main(context) {
     } catch (err) {
       console.error('Error creating portable marker file:', err)
     }
+  } else {
+    const fileToRemave = path.join(appOutDir, 'resources/7za.exe')
+    console.log('Checking for unnecessary 7za.exe at', fileToRemave)
+    if (fs.existsSync(fileToRemave)) {
+      try {
+        fs.unlinkSync(fileToRemave)
+        console.log('Removed unnecessary 7za.exe from', fileToRemave)
+      } catch (err) {
+        console.error('Error removing 7za.exe:', err)
+      }
+    }
   }
 }
 

@@ -1,6 +1,8 @@
 import picgo from '@core/picgo'
 import updater from 'electron-updater'
 
+import { isPortable } from '~/apis/core/datastore/dirs'
+import { downloadAndInstallUpdate } from '~/lifeCycle/autoUpdater'
 import { configPaths } from '~/utils/configPaths'
 
 const updateChecker = async () => {
@@ -11,7 +13,11 @@ const updateChecker = async () => {
   }
   if (showTip) {
     try {
-      await updater.autoUpdater.checkForUpdatesAndNotify()
+      if (!isPortable()) {
+        await updater.autoUpdater.checkForUpdatesAndNotify()
+      } else {
+        await downloadAndInstallUpdate()
+      }
     } catch (_err) {}
   }
 }

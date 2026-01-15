@@ -1,3 +1,4 @@
+import { isPortable } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import { BrowserWindow, shell } from 'electron'
 import updater from 'electron-updater'
@@ -12,7 +13,9 @@ const updaterRoutes = [
   {
     action: IRPCActionType.DOWNLOAD_UPDATE,
     handler: async () => {
-      updater.autoUpdater.downloadUpdate()
+      if (!isPortable()) {
+        updater.autoUpdater.downloadUpdate()
+      }
     },
   },
   {
