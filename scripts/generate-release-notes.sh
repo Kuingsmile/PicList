@@ -28,7 +28,11 @@ cat > "$OUTPUT_FILE" << EOF
 
 ### Windows
 
-[**x64&i386**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-Setup-${VERSION}.exe) | [**x64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-Setup-${VERSION}-x64.exe) | [**i386**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-${VERSION}-ia32.exe) | [**ARM64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-Setup-${VERSION}-arm64.exe)
+- Installer:
+[**x64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-Setup-${VERSION}-x64.exe) | [**ARM64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-Setup-${VERSION}-arm64.exe)
+
+- Portable:
+[**x64(zip)**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-Setup-${VERSION}-x64-portable.zip) | [**ARM64(zip)**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-Setup-${VERSION}-arm64-portable.zip) | [**x64(7z)**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-Setup-${VERSION}-x64-portable.7z) | [**ARM64(7z)**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-Setup-${VERSION}-arm64-portable.7z)
 
 ### macOS
 
