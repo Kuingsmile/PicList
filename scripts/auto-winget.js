@@ -41,7 +41,7 @@ const response = await axios.get(releaseAPI, {
 
 const releaseData = response.data
 
-const fileNameList = [`PicList-Setup-${version}-arm64.exe`, `PicList-Setup-${version}.exe`]
+const fileNameList = [`PicList-Setup-${version}-arm64.exe`, `PicList-Setup-${version}-x64.exe`]
 const sha256List = []
 
 fileNameList.forEach(fileName => {
@@ -63,6 +63,7 @@ const updatedInstallers = installers.toJSON().map(installer => {
   if (matched) {
     return {
       ...installer,
+      InstallerUrl: `https://github.com/Kuingsmile/PicList/releases/download/v${version}/${matched.fileName}`,
       InstallerSha256: matched.sha256,
     }
   }
