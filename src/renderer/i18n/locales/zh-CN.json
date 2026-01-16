@@ -34,12 +34,12 @@
         "title": "配置设置"
       },
       "theme": {
-        "description": "点击侧边栏中的主题切换器来改变 PicList 的外观。",
-        "title": "自定义主题 🎨"
+        "description": "点击侧边栏中的明暗切换来改变明暗主题。",
+        "title": "明暗切换"
       },
       "themeSelection": {
         "description": "从下拉菜单中选择主题来自定义 PicList 的外观。",
-        "title": "选择主题"
+        "title": "自定义主题  🎨"
       },
       "upload": {
         "description": "您可以通过拖放图片到这里，或点击选择文件来上传图片。",

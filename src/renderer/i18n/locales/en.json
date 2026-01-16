@@ -34,12 +34,12 @@
         "title": "Configure Settings"
       },
       "theme": {
-        "description": "Click the theme switcher in the sidebar to change the appearance of PicList.",
-        "title": "Customize Your Theme 🎨"
+        "description": "Click the light/dark mode toggle in the sidebar to switch themes.",
+        "title": "Light/Dark Mode"
       },
       "themeSelection": {
         "description": "Select a theme from the dropdown to customize PicList's appearance.",
-        "title": "Choose Your Theme"
+        "title": "Custom Theme 🎨"
       },
       "upload": {
         "description": "You can upload images by dragging and dropping them here, or click to select files.",
