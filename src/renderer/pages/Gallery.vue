@@ -74,7 +74,7 @@
                   <ChevronDownIcon :size="16" />
                 </button>
                 <div v-show="picBedDropdownOpen" class="multiselect-dropdown">
-                  <label v-for="item in picBedG" :key="item.type" class="multiselect-option">
+                  <label v-for="item in filteredPicBedG" :key="item.type" class="multiselect-option">
                     <input v-model="choosedPicBed" type="checkbox" :value="item.type" />
                     {{ item.name }}
                   </label>
@@ -600,6 +600,13 @@ const userGridColumns = useStorage<number>('galleryGridColumns', 4)
 
 const effectiveGridBreakpoints = computed(() => {
   return [{ min: 0, cols: userGridColumns.value }]
+})
+
+const filteredPicBedG = computed(() => {
+  if (galleryPicBedFilterSetting.value.length === 0) {
+    return picBedG.value
+  }
+  return picBedG.value.filter(item => galleryPicBedFilterSetting.value.includes(item.type))
 })
 
 const imageLoadStates = reactive<Record<string, boolean>>({})
