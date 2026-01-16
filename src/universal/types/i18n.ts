@@ -14,6 +14,7 @@ export interface ILocales {
   QUICK_UPLOAD: string
   UPLOAD_BY_CLIPBOARD: string
   SHOW_PICBED_QRCODE: string
+  SHOW_FIRST_TIME_GUIDE: string
   ENABLE: string
   DISABLE: string
   CONFIG_THING: string

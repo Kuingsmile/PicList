@@ -13,6 +13,7 @@ UPLOADING: Uploading
 QUICK_UPLOAD: Quick Upload
 UPLOAD_BY_CLIPBOARD: Upload by Clipboard
 SHOW_PICBED_QRCODE: Show Picbed Qrcode
+SHOW_FIRST_TIME_GUIDE: Show First-Time Guide
 ENABLE: Enable
 DISABLE: Disable
 CONFIG_THING: Config ${c}

@@ -9,6 +9,49 @@
     "submit": "提交",
     "version": "版本"
   },
+  "guide": {
+    "close": "關閉",
+    "finish": "開始使用",
+    "next": "下一步",
+    "previous": "上一步",
+    "skip": "跳過教學",
+    "stepIndicator": "第 {current} 步，共 {total} 步",
+    "steps": {
+      "finish": {
+        "description": "您已經準備好開始使用 PicList 了！您可以隨時從選單重新啟動本指南。",
+        "title": "一切就緒！✨"
+      },
+      "gallery": {
+        "description": "在相簿中存取您上傳的圖片。您可以搜尋、篩選和管理您的圖片集。",
+        "title": "檢視相簿"
+      },
+      "picbed": {
+        "description": "點擊這裡檢視和設定您目前使用的圖床服務。",
+        "title": "選擇圖床服務"
+      },
+      "settings": {
+        "description": "自訂 PicList 以滿足您的需求。設定上傳設定、快捷鍵等。",
+        "title": "設定偏好"
+      },
+      "theme": {
+        "description": "點擊側邊欄中的主題切換器來變更 PicList 的外觀。",
+        "title": "自訂主題 🎨"
+      },
+      "themeSelection": {
+        "description": "從下拉選單中選擇主題來自訂 PicList 的外觀。",
+        "title": "選擇主題"
+      },
+      "upload": {
+        "description": "您可以透過拖放圖片到這裡，或點擊選擇檔案來上傳圖片。",
+        "title": "上傳您的圖片"
+      },
+      "welcome": {
+        "description": "讓我們快速了解一下 PicList 的主要功能吧。",
+        "title": "歡迎使用 PicList！🎉"
+      }
+    },
+    "title": "歡迎使用 PicList"
+  },
   "navigation": {
     "choosePicBed": "選擇圖床",
     "close": "關閉",

@@ -11,6 +11,7 @@ import {
   PICGO_HANDLE_PLUGIN_DONE,
   PICGO_HANDLE_PLUGIN_ING,
   PICGO_TOGGLE_PLUGIN,
+  SHOW_FIRST_TIME_GUIDE,
   SHOW_MAIN_PAGE_QRCODE,
 } from '~/events/constant'
 import { handlePluginUninstall, handlePluginUpdate } from '~/events/rpc/routes/plugin/utils'
@@ -109,6 +110,12 @@ const buildMainPageMenu = (win: BrowserWindow) => {
       label: $t('SHOW_PICBED_QRCODE'),
       click() {
         win?.webContents?.send(SHOW_MAIN_PAGE_QRCODE)
+      },
+    },
+    {
+      label: $t('SHOW_FIRST_TIME_GUIDE'),
+      click() {
+        win?.webContents?.send(SHOW_FIRST_TIME_GUIDE)
       },
     },
     {

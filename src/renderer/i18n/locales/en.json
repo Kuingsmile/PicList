@@ -9,6 +9,49 @@
     "submit": "Submit",
     "version": "Version"
   },
+  "guide": {
+    "close": "Close",
+    "finish": "Get Started",
+    "next": "Next",
+    "previous": "Back",
+    "skip": "Skip Tour",
+    "stepIndicator": "Step {current} of {total}",
+    "steps": {
+      "finish": {
+        "description": "You're ready to start using PicList! You can always restart this guide from the menu.",
+        "title": "You're All Set! ✨"
+      },
+      "gallery": {
+        "description": "Access your uploaded images in the gallery. You can search, filter, and manage your image collection.",
+        "title": "View Your Gallery"
+      },
+      "picbed": {
+        "description": "Click here to view and configure your current image hosting service (PicBed).",
+        "title": "Choose Your Image Host"
+      },
+      "settings": {
+        "description": "Customize PicList to suit your needs. Configure upload settings, shortcuts, and more.",
+        "title": "Configure Settings"
+      },
+      "theme": {
+        "description": "Click the theme switcher in the sidebar to change the appearance of PicList.",
+        "title": "Customize Your Theme 🎨"
+      },
+      "themeSelection": {
+        "description": "Select a theme from the dropdown to customize PicList's appearance.",
+        "title": "Choose Your Theme"
+      },
+      "upload": {
+        "description": "You can upload images by dragging and dropping them here, or click to select files.",
+        "title": "Upload Your Images"
+      },
+      "welcome": {
+        "description": "Let's take a quick tour to help you get started with PicList.",
+        "title": "Welcome to PicList! 🎉"
+      }
+    },
+    "title": "Welcome to PicList"
+  },
   "navigation": {
     "choosePicBed": "Choose PicBed",
     "close": "Close",

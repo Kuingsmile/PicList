@@ -85,6 +85,9 @@
       </button>
     </div>
   </nav>
+
+  <FirstTimeGuide ref="guideRef" />
+
   <TransitionRoot appear :show="qrcodeVisible" as="template">
     <Dialog as="div" class="qr-dialog" @close="qrcodeVisible = false">
       <div class="dialog-container">
@@ -202,11 +205,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
 import * as config from '@/router/config'
-import { SHOW_MAIN_PAGE_QRCODE } from '@/utils/constant'
+import { SHOW_FIRST_TIME_GUIDE, SHOW_MAIN_PAGE_QRCODE } from '@/utils/constant'
 import { getConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
 
+import FirstTimeGuide from './FirstTimeGuide.vue'
 import ThemeSwitcher from './ui/ThemeSwitcher.vue'
+
 const version = ref(pkg.version)
 const isCollapsed = useStorage('navigation-collapsed', false)
 
@@ -220,6 +225,7 @@ const routerConfig = reactive(config)
 const qrcodeVisible = ref(false)
 const choosedPicBedForQRCode: Ref<string[]> = ref([])
 const picBedConfigString = ref('')
+const guideRef = ref<InstanceType<typeof FirstTimeGuide> | null>(null)
 
 let removeIpcListener: () => void = () => {}
 
@@ -241,6 +247,10 @@ const visiblePicBeds = computed(() => picBedG.value.filter(item => item.visible)
 
 const qrCodeHandler = () => {
   qrcodeVisible.value = true
+}
+
+const guideHandler = () => {
+  guideRef.value?.restartGuide()
 }
 
 function openMenu() {
@@ -288,6 +298,13 @@ function openGithubPage() {
 
 onBeforeMount(() => {
   removeIpcListener = window.electron.ipcRendererOn(SHOW_MAIN_PAGE_QRCODE, qrCodeHandler)
+  const removeGuideListener = window.electron.ipcRendererOn(SHOW_FIRST_TIME_GUIDE, guideHandler)
+
+  const originalRemove = removeIpcListener
+  removeIpcListener = () => {
+    originalRemove()
+    removeGuideListener()
+  }
 })
 
 onBeforeUnmount(() => {

@@ -101,7 +101,7 @@
                   <ImageIcon :size="18" />
                   <span>{{ t('pages.settings.system.chooseTheme') }}</span>
                 </div>
-                <select v-model="currentTheme" class="form-select">
+                <select v-model="currentTheme" class="form-select theme-dropdown">
                   <option v-for="theme in themeList" :key="theme.key" :value="theme.key">
                     {{ theme.label }}
                   </option>
