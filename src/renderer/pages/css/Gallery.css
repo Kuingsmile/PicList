@@ -1526,4 +1526,65 @@ input:checked + .switch-slider::before {
   background: rgb(var(--color-accent-rgb), 0.08);
 }
 
+.matched-urls-tooltip {
+  position: absolute;
+  z-index: 1000;
+  margin-top: 0.5rem;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-md);
+  padding: 0;
+  max-width: 100%;
+  max-height: 300px;
+  background: var(--color-background-tertiary);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
+  overflow: hidden;
+}
+
+.matched-urls-tooltip .tooltip-header {
+  border-bottom: 1px solid var(--color-border-secondary);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
+}
+
+.matched-urls-tooltip .tooltip-content {
+  padding: 0.5rem;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.matched-urls-tooltip .url-item {
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-mono, 'Courier New', monospace);
+  font-size: 0.813rem;
+  color: var(--color-text-secondary);
+  word-break: break-all;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+
+.matched-urls-tooltip .url-item:hover {
+  background: var(--color-surface-elevated);
+}
+
+.matched-urls-tooltip .tooltip-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.matched-urls-tooltip .tooltip-content::-webkit-scrollbar-track {
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-elevated);
+}
+
+.matched-urls-tooltip .tooltip-content::-webkit-scrollbar-thumb {
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+}
+
+.matched-urls-tooltip .tooltip-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
 

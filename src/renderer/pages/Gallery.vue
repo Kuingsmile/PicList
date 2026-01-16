@@ -401,7 +401,17 @@
                 type="text"
                 class="form-input"
                 :placeholder="t('pages.gallery.regexPatternPlaceholder')"
+                @focus="showMatchedUrls = true"
+                @blur="showMatchedUrls = false"
               />
+              <div v-if="showMatchedUrls && matchedUrls.length > 0" class="matched-urls-tooltip">
+                <div class="tooltip-header">Matched URLs ({{ matchedUrls.length }}):</div>
+                <div class="tooltip-content">
+                  <div v-for="(url, index) in matchedUrls" :key="index" class="url-item">
+                    {{ url }}
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="form-group">
@@ -593,6 +603,7 @@ const dateRangeEnd = ref('')
 const picBedDropdownOpen = ref(false)
 const sortDropdownOpen = ref(false)
 const showFormatInfo = ref(false)
+const showMatchedUrls = ref(false)
 const enableAdvancedAnimation = ref(false)
 const viewMode = useStorage<'list' | 'grid'>('galleryViewMode', 'grid')
 const componentKey = ref(0)
@@ -654,9 +665,17 @@ const advancedRenameList = {
 }
 
 const matchedCount = computed(() => {
-  return filterList.value.filter((item: any) => {
+  const matches = filterList.value.filter((item: any) => {
     return customStrMatch(item.imgUrl, batchRenameMatch.value)
-  }).length
+  })
+  return matches.length
+})
+
+const matchedUrls = computed(() => {
+  const matches = filterList.value.filter((item: any) => {
+    return customStrMatch(item.imgUrl, batchRenameMatch.value)
+  })
+  return matches.map((item: any) => item.imgUrl || '').filter(Boolean)
 })
 
 const dateRange = computed({
