@@ -116,13 +116,9 @@ export async function setupAutoUpdater() {
 
     updater.autoUpdater.forceDevUpdateConfig = true
     updater.autoUpdater.autoDownload = false
-
     updater.autoUpdater.on('update-available', updateAvailableHandler)
-
     updater.autoUpdater.on('download-progress', progressHandler)
-
     updater.autoUpdater.on('update-downloaded', downloadedHandler)
-
     updater.autoUpdater.on('error', err => {
       logger.error(err)
     })
@@ -130,18 +126,16 @@ export async function setupAutoUpdater() {
 }
 
 export async function checkUpdateAndNotify(): Promise<void> {
-  if (isPortable()) {
-    const url = 'https://release.piclist.cn/latest/latest.yml'
-    const res = await axios.get(url, {
-      headers: { 'Content-Type': 'application/octet-stream' },
-      responseType: 'text',
-    })
-    const latest = yaml.parseDocument(res.data).toJSON() as unknown as updater.UpdateInfo
-    const currentVersion = pkg.version
-    if (latest.version !== currentVersion) {
-      newVersion = latest.version
-      updateAvailableHandler(latest)
-    }
+  const url = 'https://release.piclist.cn/latest/latest.yml'
+  const res = await axios.get(url, {
+    headers: { 'Content-Type': 'application/octet-stream' },
+    responseType: 'text',
+  })
+  const latest = yaml.parseDocument(res.data).toJSON() as unknown as updater.UpdateInfo
+  const currentVersion = pkg.version
+  if (latest.version !== currentVersion) {
+    newVersion = latest.version
+    updateAvailableHandler(latest)
   }
 }
 

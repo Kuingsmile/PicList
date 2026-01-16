@@ -41,10 +41,11 @@ body:
       label: 系统信息 | System Information
       options:
         - Windows
+        - Win(arm64)
         - Mac
         - Mac(arm64)
         - Linux
-        - All
+        - Linux(arm64)
     validations:
       required: true
   - type: textarea

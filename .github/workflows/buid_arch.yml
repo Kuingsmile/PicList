@@ -3,6 +3,11 @@ name: Build with architecture
 on:
   workflow_dispatch:
     inputs:
+      tag_name:
+        description: 'Tag name to build'
+        required: false
+        default: 'preview'
+        type: string
       publish_enabled:
         description: 'Publish artifacts after build?'
         required: true
@@ -34,7 +39,7 @@ on:
           - ubuntu-24.04-arm-arm64-rpm
           - All
 permissions:
-  contents: read
+  contents: write
 
 env:
   ELECTRON_OUTPUT_PATH: ./dist_electron
@@ -154,10 +159,7 @@ jobs:
           yarn global add xvfb-maybe
           if [[ "${{ matrix.format }}" == "zip" || "${{ matrix.format }}" == "7z" ]]; then
             echo "Target format is ${{ matrix.format }}, downloading all resources..."
-            yarn run prepare
-          else
-            echo "Target format is other, downloading themes only..."
-            yarn run prepare:themes
+            yarn run prepare:7za
           fi
           echo "Checking resources directory:"
           ls -alh ./resources/theme || echo "Theme directory not found"
@@ -168,22 +170,6 @@ jobs:
             echo "❌ 7za.exe does not exist"
           fi
 
-      - name: Generate release notes
-        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
-        shell: bash
-        run: |
-          chmod +x ./scripts/generate-release-notes.sh
-          ./scripts/generate-release-notes.sh
-
-      - name: Configure electron-builder.json
-        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
-        shell: bash
-        run: |
-          # Remove publish config if not publishing
-          if [ "${{ github.event.inputs.publish_enabled }}" == "false" ]; then
-            jq 'del(.publish)' electron-builder.json > tmp.json && mv tmp.json electron-builder.json
-          fi
-
       - name: Build & release app
         if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
         shell: bash
@@ -192,17 +178,12 @@ jobs:
             export CSC_IDENTITY_AUTO_DISCOVERY=false
             unset CSC_LINK WIN_CSC_LINK CSC_KEY_PASSWORD
           fi
-          PUBLISH_ARG="never"
-          if [ "${{ github.event.inputs.publish_enabled }}" == "true" ]; then
-            PUBLISH_ARG="always"
-          fi
-          echo "Publishing argument: $PUBLISH_ARG"
           if [[ "${{ matrix.os }}" == windows* ]]; then
-            yarn run build:win ${{ matrix.format}} --${{ matrix.arch }} --publish $PUBLISH_ARG
+            yarn run build:win ${{ matrix.format}} --${{ matrix.arch }} --publish never
           elif [[ "${{ matrix.os }}" == macos* ]]; then
-            yarn run build:mac ${{ matrix.format}} --${{ matrix.arch }} --publish $PUBLISH_ARG
+            yarn run build:mac default --${{ matrix.arch }} --publish never
           elif [[ "${{ matrix.os }}" == ubuntu* ]]; then
-            yarn run build:linux ${{ matrix.format}} --${{ matrix.arch }} --publish $PUBLISH_ARG
+            yarn run build:linux ${{ matrix.format}} --${{ matrix.arch }} --publish never
           else
             echo "Unsupported OS: ${{ matrix.os }}"
             exit 1
@@ -210,11 +191,6 @@ jobs:
         env:
           USE_SYSTEM_FPM: ${{ matrix.os == 'ubuntu-24.04-arm' && 'true' || 'false' }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          R2_SECRET_ID: ${{ secrets.R2_SECRET_ID }}
-          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           ELECTRON_SKIP_NOTARIZATION: ${{ secrets.ELECTRON_SKIP_NOTARIZATION }}
           XCODE_APP_LOADER_EMAIL: ${{ secrets.XCODE_APP_LOADER_EMAIL }}
           XCODE_APP_LOADER_PASSWORD: ${{ secrets.XCODE_APP_LOADER_PASSWORD }}
@@ -239,6 +215,7 @@ jobs:
             dist_electron/*.deb
             dist_electron/*.rpm
             dist_electron/*.snap
+            dist_electron/*.blockmap
           retention-days: 30
           if-no-files-found: 'ignore'
 
@@ -250,3 +227,99 @@ jobs:
           path: dist_electron/**/*.yml
           retention-days: 30
           if-no-files-found: 'ignore'
+
+  combine-and-upload:
+    name: Combine and Upload Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@v6
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          yarn config set ignore-engines true
+          rm -rf node_modules && yarn install
+
+      - name: Generate Release Notes
+        run: |
+          chmod +x ./scripts/generate-release-notes.sh
+          ./scripts/generate-release-notes.sh
+
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*-artifacts'
+          path: ./artifacts
+
+      - name: Download YML Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*-yml'
+          path: ./yml-artifacts
+          merge-multiple: false
+
+      - name: List downloaded artifacts
+        run: |
+          echo "Downloaded artifacts structure:"
+          find ./yml-artifacts -type f -name "*.yml"
+          tree ./yml-artifacts
+          tree ./artifacts
+
+      - name: Combine and deduplicate yml files
+        run: |
+          node scripts/combine-yml.cjs ./yml-artifacts ./dist_electron/combined
+          echo "Combined YML files:"
+          ls -la ./dist_electron/combined/
+          echo "Latest combined YML content:"
+          cat ./dist_electron/combined/latest.yml
+          echo "Latest macOS combined YML content:"
+          cat ./dist_electron/combined/latest-mac.yml
+          echo "Latest linux combined YML content:"
+          cat ./dist_electron/combined/latest-linux.yml
+          echo "Latest linux ARM64 combined YML content:"
+          cat ./dist_electron/combined/latest-linux-arm64.yml
+
+      - name: Publish GitHub Dev Release
+        uses: softprops/action-gh-release@v2
+        continue-on-error: true
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          tag_name: ${{ github.event.inputs.tag_name }}
+          draft: true
+          prerelease: ${{ github.event.inputs.publish_enabled == 'false' || github.event.inputs.tag_name == 'preview'  }}
+          body_path: ./release-notes.md
+          name: ${{ github.event.inputs.tag_name }}
+          files: |
+            !artifacts/**/*-unpacked/**
+            artifacts/**/*.exe
+            artifacts/**/*.dmg
+            artifacts/**/*.zip
+            artifacts/**/*.7z
+            artifacts/**/*.AppImage
+            artifacts/**/*.deb
+            artifacts/**/*.snap
+            artifacts/**/*.rpm
+            ./dist_electron/combined/*.yml
+            artifacts/**/*.tar.gz
+
+      - name: Upload to S3
+        run: |
+          if [ "${{ github.event.inputs.publish_enabled }}" == "false" ]; then
+            echo "Publishing is disabled. Skipping upload to S3."
+            node scripts/upload-to-s3.js ./artifacts ./dist_electron/combined
+            exit 0
+          fi
+          node scripts/upload-to-s3.js ./artifacts ./dist_electron/combined false
+        env:
+          R2_SECRET_ID: ${{ secrets.R2_SECRET_ID }}
+          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+

@@ -99,20 +99,20 @@ function main() {
     fs.mkdirSync(outputDir, { recursive: true })
   }
 
-  const windowsX64Ymls = findYmlInFolder(distPath, 'windows-x64-yml', 'latest.yml')
-  const windowsArm64Ymls = findYmlInFolder(distPath, 'windows-arm64-yml', 'latest.yml')
-  const macX64Ymls = findYmlInFolder(distPath, 'macos-x64-yml', 'latest-mac.yml')
-  const macArm64Ymls = findYmlInFolder(distPath, 'macos-arm64-yml', 'latest-mac.yml')
-  const linuxX64Ymls = findYmlInFolder(distPath, 'linux-x64-yml', 'latest-linux.yml')
-  const linuxArm64Ymls = findYmlInFolder(distPath, 'linux-arm64-yml', 'latest-linux-arm64.yml')
-
-  console.log('\nFound yml files:')
-  console.log(`Windows x64: ${windowsX64Ymls.map(f => path.basename(path.dirname(f))).join(', ')}`)
-  console.log(`Windows ARM64: ${windowsArm64Ymls.map(f => path.basename(path.dirname(f))).join(', ')}`)
-  console.log(`macOS x64: ${macX64Ymls.map(f => path.basename(path.dirname(f))).join(', ')}`)
-  console.log(`macOS ARM64: ${macArm64Ymls.map(f => path.basename(path.dirname(f))).join(', ')}`)
-  console.log(`Linux x64: ${linuxX64Ymls.map(f => path.basename(path.dirname(f))).join(', ')}`)
-  console.log(`Linux ARM64: ${linuxArm64Ymls.map(f => path.basename(path.dirname(f))).join(', ')}`)
+  const windowsX64Ymls = findYmlInFolder(distPath, 'windows-latest-x64-nsis-yml', 'latest.yml')
+  const windowsArm64Ymls = findYmlInFolder(distPath, 'windows-11-arm-arm64-nsis-yml', 'latest.yml')
+  const macX64Ymls = findYmlInFolder(distPath, 'macos-15-intel-x64-dmg-yml', 'latest-mac.yml')
+  const macArm64Ymls = findYmlInFolder(distPath, 'macos-latest-arm64-dmg-yml', 'latest-mac.yml')
+  const linuxX64AppImageYmls = findYmlInFolder(distPath, 'ubuntu-latest-x64-AppImage-yml', 'latest-linux.yml')
+  const linuxArm64AppImageYmls = findYmlInFolder(
+    distPath,
+    'ubuntu-24.04-arm-arm64-AppImage-yml',
+    'latest-linux-arm64.yml',
+  )
+  const linuxX64DebYmls = findYmlInFolder(distPath, 'ubuntu-latest-x64-deb-yml', 'latest-linux.yml')
+  const linuxArm64DebYmls = findYmlInFolder(distPath, 'ubuntu-24.04-arm-arm64-deb-yml', 'latest-linux-arm64.yml')
+  const linuxX64RpmYmls = findYmlInFolder(distPath, 'ubuntu-latest-x64-rpm-yml', 'latest-linux.yml')
+  const linuxArm64RpmYmls = findYmlInFolder(distPath, 'ubuntu-24.04-arm-arm64-rpm-yml', 'latest-linux-arm64.yml')
 
   const windowsYmls = [...windowsX64Ymls, ...windowsArm64Ymls]
   if (windowsYmls.length > 0) {
@@ -129,17 +129,20 @@ function main() {
   } else {
     console.log('\nNo macOS yml files found to combine')
   }
+  const linuxX64Ymls = [...linuxX64AppImageYmls, ...linuxX64DebYmls, ...linuxX64RpmYmls]
   if (linuxX64Ymls.length > 0) {
-    console.log('\nProcessing Linux x64 yml file (deduplicate only)...')
-    processSingleYmlFile(linuxX64Ymls[0], path.join(outputDir, 'latest-linux.yml'))
+    console.log(`\nCombining ${linuxX64Ymls.length} Linux x64 yml files...`)
+    combineYmlFiles(linuxX64Ymls, path.join(outputDir, 'latest-linux.yml'))
   } else {
-    console.log('\nNo Linux x64 yml files found')
+    console.log('\nNo Linux x64 yml files found to combine')
   }
+
+  const linuxArm64Ymls = [...linuxArm64AppImageYmls, ...linuxArm64DebYmls, ...linuxArm64RpmYmls]
   if (linuxArm64Ymls.length > 0) {
-    console.log('\nProcessing Linux ARM64 yml file (deduplicate only)...')
-    processSingleYmlFile(linuxArm64Ymls[0], path.join(outputDir, 'latest-linux-arm64.yml'))
+    console.log(`\nCombining ${linuxArm64Ymls.length} Linux arm64 yml files...`)
+    combineYmlFiles(linuxArm64Ymls, path.join(outputDir, 'latest-linux-arm64.yml'))
   } else {
-    console.log('\nNo Linux ARM64 yml files found')
+    console.log('\nNo Linux arm64 yml files found to combine')
   }
 
   console.log('\nYML combination and deduplication complete!')

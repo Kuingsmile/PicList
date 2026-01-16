@@ -14,22 +14,6 @@
     "resources/**"
   ],
   "files": ["out/**/*", "resources/**", "package.json", "!**/node_modules/typescript{,/**}"],
-  "publish": [
-    {
-      "provider": "s3",
-      "bucket": "piclist-dl",
-      "region": "auto",
-      "acl": "private",
-      "endpoint": "https://7ab4ed5cb1f4052a13d3b573876ecf33.r2.cloudflarestorage.com",
-      "path": "/latest"
-    },
-    {
-      "provider": "github",
-      "owner": "Kuingsmile",
-      "repo": "PicList",
-      "releaseType": "draft"
-    }
-  ],
   "dmg": {
     "sign": false,
     "contents": [

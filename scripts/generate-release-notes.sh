@@ -36,6 +36,7 @@ cat > "$OUTPUT_FILE" << EOF
 
 ### macOS
 
+- DMG:
 [**ARM64 (M1-M6)**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-${VERSION}-arm64.dmg) | [**Intel**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-${VERSION}-x64.dmg)
 
 ### Linux
@@ -44,6 +45,8 @@ cat > "$OUTPUT_FILE" << EOF
   [**x64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-${VERSION}-x86_64.AppImage) | [**ARM64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/PicList-${VERSION}-arm64.AppImage)
 - deb:
   [**x64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/Piclist-${VERSION}-amd64.deb) | [**ARM64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/Piclist-${VERSION}-arm64.deb)
+- rpm:
+  [**x64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/Piclist-${VERSION}-x86_64.rpm) | [**ARM64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/Piclist-${VERSION}-aarch64.rpm)
 - snap:
   [**x64**](https://github.com/Kuingsmile/PicList/releases/download/v${VERSION}/Piclist-${VERSION}-amd64.snap)
 
