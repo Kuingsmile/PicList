@@ -47,7 +47,7 @@
           <button class="action-button" @click="toggleHandleBar">
             <ChevronDownIcon v-if="!handleBarActive" :size="16" />
             <ChevronUpIcon v-else :size="16" />
-            {{ handleBarActive ? t('pages.gallery.hideFilters') : t('pages.gallery.showFilters') }}
+            {{ t('pages.gallery.hideFilters') }}
           </button>
           <button class="action-button" @click="refreshPage">
             <RefreshCwIcon :size="16" />
@@ -568,7 +568,7 @@ const searchText = ref<string>('')
 const searchTextURL = ref<string>('')
 const debouncedSearchText = ref<string>('')
 const debouncedSearchTextURL = ref<string>('')
-const handleBarActive = ref<boolean>(false)
+const handleBarActive = useStorage<boolean>('galleryHandleBarActive', true)
 const pasteStyle = ref<string>('')
 const pasteStyleMap = {
   Markdown: 'markdown',
