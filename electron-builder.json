@@ -15,7 +15,6 @@
   ],
   "files": ["out/**/*", "resources/**", "package.json", "!**/node_modules/typescript{,/**}"],
   "dmg": {
-    "sign": false,
     "contents": [
       {
         "x": 410,
@@ -41,7 +40,11 @@
         "arch": ["x64", "arm64"]
       }
     ],
-    "artifactName": "PicList-${version}-${arch}.${ext}"
+    "artifactName": "PicList-${version}-${arch}.${ext}",
+    "hardenedRuntime": true,
+    "entitlements": "build/entitlements.mac.plist",
+    "entitlementsInherit": "build/entitlements.mac.plist",
+    "notarize": false
   },
   "win": {
     "icon": "resources/icon.ico",

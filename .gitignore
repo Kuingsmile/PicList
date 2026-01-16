@@ -27,6 +27,7 @@ resources/theme/
 /build/*
 !/build/icons/
 !/build/installer.nsh
+!/build/entitlements.mac.plist
 release-notes.md
 .github/prompts
 .shared/
