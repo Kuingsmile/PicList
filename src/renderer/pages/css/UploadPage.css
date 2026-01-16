@@ -1480,7 +1480,7 @@ html, body {
   max-height: 88vh;
   display: flex;
   flex-direction: column;
-  background: var(--color-surface);
+  background: var(--color-background-tertiary);
   box-shadow:
     0 25px 50px -12px rgb(0 0 0 / 25%),
     0 0 0 1px rgb(0 0 0 / 5%);
@@ -1503,7 +1503,6 @@ html, body {
   gap: 1rem;
   flex-wrap: wrap;
   padding: 1rem 1.25rem;
-  background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   backdrop-filter: blur(10px);
 }
@@ -1598,7 +1597,6 @@ html, body {
 /* Overall Progress - Enhanced */
 .overall-progress {
   padding: 1.25rem 1.25rem 1rem;
-  background: var(--color-surface);
   border-bottom: 1px solid var(--color-background-primary);
 }
 
@@ -1661,7 +1659,6 @@ html, body {
 /* Settings Panel - Enhanced */
 .settings-panel {
   padding: 1rem 1.25rem 1.25rem;
-  background: var(--color-surface);
   border-bottom: 1px solid var(--color-background-primary);
   scrollbar-color: var(--color-border-secondary) var(--color-surface);
 }
@@ -1787,7 +1784,6 @@ html, body {
   flex-direction: column;
   gap: 1rem;
   padding: 1.25rem;
-  background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -1865,7 +1861,6 @@ html, body {
 .task-list-container {
   flex: 1;
   overflow-y: auto;
-  background: var(--color-surface);
   min-height: 300px;
 }
 
