@@ -9,7 +9,8 @@
           </div>
           <div>
             <h1>{{ t('pages.gallery.title') }}</h1>
-            <p>{{ filterList.length }} {{ t('pages.gallery.images') }}</p>
+            <p v-if="selectedCount > 0">{{ `${selectedCount}/${filterList.length} ${t('pages.gallery.selected')}` }}</p>
+            <p v-else>{{ `${filterList.length} ${t('pages.gallery.images')}` }}</p>
           </div>
         </div>
         <div class="header-actions">
@@ -178,7 +179,7 @@
               </button>
               <button class="action-btn delete-btn" :class="{ active: isMultiple(choosedList) }" @click="multiRemove">
                 <TrashIcon :size="16" />
-                {{ t('pages.gallery.delete') }}
+                {{ `${t('pages.gallery.delete')}${selectedCount > 0 ? ` (${selectedCount})` : ''}` }}
               </button>
               <button class="action-btn select-btn" :class="{ active: filterList.length > 0 }" @click="toggleSelectAll">
                 <CheckSquareIcon :size="16" />
@@ -691,6 +692,10 @@ const filterList = computed(() => {
 
 const isAllSelected = computed(() => {
   return Object.values(choosedList).length > 0 && filterList.value.every(item => choosedList[item.id!])
+})
+
+const selectedCount = computed(() => {
+  return Object.values(choosedList).filter(v => v).length
 })
 
 const currentPreviewImage = computed(() => {
