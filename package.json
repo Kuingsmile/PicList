@@ -24,7 +24,6 @@
     "cz": "git-cz",
     "dev": "cross-env NODE_ENV=development electron-vite dev",
     "dev:prod": "cross-env NODE_ENV=production electron-vite dev",
-    "i18n": "node ./scripts/gen-i18n-types.js",
     "link": "node ./scripts/link.js",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src/ scripts/ .",
     "lint:dpdm": "dpdm -T --tsconfig ./tsconfig.json --no-tree --no-warning --exit-code circular:1 src/main/index.ts",

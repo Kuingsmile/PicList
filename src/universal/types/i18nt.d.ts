@@ -65,6 +65,7 @@ interface ILocales {
   TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR: string
   TIPS_FIND_NEW_VERSION: string
   UPDATE_DOWNLOADED: string
+  UPDATE: string
   TIPS_UPDATE_DOWNLOADED: string
   QUIT: string
   OPERATION_SUCCEED: string
