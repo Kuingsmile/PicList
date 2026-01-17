@@ -1660,33 +1660,32 @@ html, body {
 .settings-panel {
   padding: 1rem 1.25rem 1.25rem;
   border-bottom: 1px solid var(--color-background-primary);
-  scrollbar-color: var(--color-border-secondary) var(--color-surface);
+  overflow: visible;
 }
 
 .settings-grid {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  flex-wrap: nowrap;
-  overflow-x: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  align-items: start;
+  gap: 1rem;
 }
 
 .setting-item {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  flex: 0 0 auto;
-  min-width: 220px;
+  min-width: 0;
 }
 
 .setting-item.toggle-item {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
+  padding: 0.625rem 0.75rem;
   background: transparent;
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
+  min-height: 40px;
 }
 
 .setting-item.toggle-item:hover {
@@ -1709,6 +1708,7 @@ html, body {
   background: var(--color-surface-elevated);
   color: var(--color-text-primary);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
 .setting-input:hover {
@@ -2118,7 +2118,7 @@ html, body {
 /* Empty State */
 .empty-state {
   display: flex;
-  background: var(--color-surface);
+  background: var(--color-background-tertiary);
   flex-direction: column;
   height: 100%;
   align-items: center;
@@ -2227,6 +2227,33 @@ html, body {
 
   .task-meta-item.error {
     max-width: 100%;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+    gap: 0.875rem;
+  }
+
+  .setting-item {
+    min-width: 0;
+  }
+}
+
+@media (width <= 640px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .setting-item.toggle-item {
+    padding: 0.5rem;
+  }
+
+  .input-with-unit {
+    flex-direction: row;
+  }
+
+  .input-with-unit .setting-input {
+    max-width: 120px;
   }
 }
 

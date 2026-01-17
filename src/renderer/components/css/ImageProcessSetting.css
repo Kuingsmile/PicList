@@ -180,7 +180,7 @@
   width: 100%;
   font-size: 0.9rem;
   color: var(--color-text-primary);
-  background: var(--color-background-primary);
+  background: var(--color-background-tertiary);
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
