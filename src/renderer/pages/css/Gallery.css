@@ -726,12 +726,12 @@ input:checked + .switch-slider::before {
 
 .icon-button {
   display: flex;
-  justify-content: center;
+  justify-content: left;
   align-items: center;
   border: none;
   border-radius: var(--radius-md);
-  width: 32px;
-  height: 32px;
+  width: 25px;
+  height: 25px;
   color: var(--color-text-secondary);
   background: var(--color-background-secondary);
   transition: var(--transition-fast);

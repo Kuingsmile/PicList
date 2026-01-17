@@ -74,9 +74,6 @@ class LifeCycle {
     if (isDisableGPU) {
       app.disableHardwareAcceleration()
     }
-    if (process.env.NODE_ENV === 'development') {
-      MemoryMonitor.start(30000)
-    }
   }
 
   #onReady() {
