@@ -1,7 +1,7 @@
 <template>
   <div class="plugin-container">
     <!-- Header Card -->
-    <div class="plugin-card header-card">
+    <div class="header-card">
       <div class="card-header">
         <div class="header-content">
           <div class="header-icon">
@@ -25,10 +25,22 @@
             <RefreshCwIcon :size="16" />
             {{ t('pages.plugin.updateAll') }}
           </button>
-          <button class="action-button" :title="t('pages.plugin.pluginList')" @click="goAwesomeList">
-            <ExternalLinkIcon :size="16" />
-            {{ t('pages.plugin.list') }}
-          </button>
+          <div class="dropdown-wrapper">
+            <button class="action-button" :title="t('pages.plugin.pluginList')" @click="togglePluginListMenu">
+              <ExternalLinkIcon :size="16" />
+              {{ t('pages.plugin.list') }}
+            </button>
+            <div v-if="showPluginListMenu" class="dropdown-menu">
+              <button class="dropdown-item" @click="goAwesomeList">
+                <ExternalLinkIcon :size="16" />
+                {{ t('pages.plugin.openRemoteList') }}
+              </button>
+              <button class="dropdown-item" @click="openBrowsePluginsDialog">
+                <SearchIcon :size="16" />
+                {{ t('pages.plugin.browseAllPlugins') }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -202,6 +214,91 @@
         </div>
       </div>
     </transition>
+
+    <!-- Browse All Plugins Modal -->
+    <transition name="modal">
+      <div v-if="showBrowseDialog" class="modal-overlay" :class="advancedAnimation">
+        <div class="modal-container browse-modal" @click.stop>
+          <div class="modal-header">
+            <h2 class="modal-title">
+              {{ t('pages.plugin.browseAllPlugins') }}
+            </h2>
+            <button class="modal-close" @click="closeBrowseDialog">
+              <XIcon :size="20" />
+            </button>
+          </div>
+          <div class="modal-content browse-content">
+            <div class="browse-search">
+              <div class="search-input-wrapper">
+                <SearchIcon class="search-icon" :size="20" />
+                <input
+                  v-model="browseSearchText"
+                  type="text"
+                  class="search-input"
+                  :placeholder="t('pages.plugin.searchInBrowse')"
+                />
+                <button v-if="browseSearchText" class="clear-button" @click="browseSearchText = ''">
+                  <XIcon :size="16" />
+                </button>
+              </div>
+            </div>
+            <div v-if="loadingBrowse" class="browse-loading">
+              <div class="loading-spinner" />
+              <span class="loading-text">{{ t('pages.plugin.loadingPlugins') }}</span>
+            </div>
+            <div v-else class="browse-plugin-grid">
+              <div v-for="item in filteredBrowsePlugins" :key="item.fullName" class="browse-plugin-item">
+                <!-- Plugin Badge -->
+
+                <div class="plugin-header">
+                  <img class="plugin-logo" :src="item.logo" :onerror="setSrc" alt="" />
+                  <div class="plugin-info">
+                    <h3 class="plugin-name" @click="openHomepage(item.homepage)">
+                      {{ item.name }}
+                      <span class="plugin-version">v{{ item.version }}</span>
+                      <div v-if="!item.gui" class="cli-badge-browser">CLI</div>
+                    </h3>
+                    <p class="plugin-author">
+                      {{ item.author }}
+                    </p>
+                  </div>
+                </div>
+                <div class="plugin-description">
+                  <p :title="item.description">
+                    {{ item.description }}
+                  </p>
+                </div>
+                <div class="plugin-actions">
+                  <template v-if="!item.hasInstall">
+                    <button
+                      v-if="!item.ing"
+                      class="plugin-button install-button"
+                      @click="installPluginFromBrowse(item)"
+                    >
+                      <DownloadIcon :size="16" />
+                      {{ t('pages.plugin.install') }}
+                    </button>
+                    <button v-else class="plugin-button installing-button" disabled>
+                      <div class="button-spinner" />
+                      {{ t('pages.plugin.installing') }}
+                    </button>
+                  </template>
+                  <button v-else class="plugin-button installed-button" disabled>
+                    <CheckIcon :size="16" />
+                    {{ t('pages.plugin.installed') }}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div v-if="!loadingBrowse && filteredBrowsePlugins.length === 0" class="empty-content">
+              <PackageIcon class="empty-icon" :size="48" />
+              <h3>{{ t('pages.plugin.noPluginsFound') }}</h3>
+              <p>{{ t('pages.plugin.tryDifferentSearch') }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -252,6 +349,11 @@ const enableAdvancedAnimation = ref(false)
 const latestVersionMap = reactive<Record<string, string>>({})
 const $configForm = useTemplateRef('$configForm')
 const strictSearch = useStorage('plugin-strict-search', true)
+const showPluginListMenu = ref(false)
+const showBrowseDialog = ref(false)
+const browseSearchText = ref('')
+const browsePlugins = ref<IPicGoPlugin[]>([])
+const loadingBrowse = ref(false)
 
 function setSrc(e: Event) {
   const target = e.target as HTMLImageElement
@@ -274,6 +376,21 @@ const npmSearchText = computed(() => {
       : searchText.value
 })
 
+const filteredBrowsePlugins = computed(() => {
+  if (!browseSearchText.value) {
+    return browsePlugins.value
+  }
+  const search = browseSearchText.value.toLowerCase()
+  return browsePlugins.value.filter(plugin => {
+    return (
+      plugin.name.toLowerCase().includes(search) ||
+      plugin.fullName.toLowerCase().includes(search) ||
+      plugin.description?.toLowerCase().includes(search) ||
+      plugin.author?.toLowerCase().includes(search)
+    )
+  })
+})
+
 let getSearchResult: DebouncedFunc<(val: string) => void>
 
 watch(npmSearchText, (val: string) => {
@@ -286,6 +403,14 @@ watch(npmSearchText, (val: string) => {
 })
 
 watch(dialogVisible, (val: boolean) => {
+  if (val) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = 'auto'
+  }
+})
+
+watch(showBrowseDialog, (val: boolean) => {
   if (val) {
     document.body.style.overflow = 'hidden'
   } else {
@@ -328,6 +453,13 @@ const pluginListHandler = (list: IPicGoPlugin[]) => {
 const installPluginHandler = ({ success, body }: { success: boolean; body: string }) => {
   loading.value = false
   pluginList.value.forEach(item => {
+    if (item.fullName === body) {
+      item.ing = false
+      item.hasInstall = success
+    }
+  })
+  // Update browse dialog if open
+  browsePlugins.value.forEach(item => {
     if (item.fullName === body) {
       item.ing = false
       item.hasInstall = success
@@ -543,7 +675,58 @@ function openHomepage(url: string) {
 }
 
 function goAwesomeList() {
+  showPluginListMenu.value = false
   window.electron.sendRPC(IRPCActionType.OPEN_URL, 'https://github.com/PicGo/Awesome-PicGo')
+}
+
+function togglePluginListMenu() {
+  showPluginListMenu.value = !showPluginListMenu.value
+}
+
+async function openBrowsePluginsDialog() {
+  showPluginListMenu.value = false
+  showBrowseDialog.value = true
+  browseSearchText.value = ''
+  await fetchAllPlugins()
+}
+
+function closeBrowseDialog() {
+  showBrowseDialog.value = false
+  browseSearchText.value = ''
+}
+
+async function fetchAllPlugins() {
+  loadingBrowse.value = true
+  try {
+    const res = await fetch('https://registry.npmjs.com/-/v1/search?text=picgo-plugin-&size=250')
+    const data = await res.json()
+    browsePlugins.value = data.objects
+      .filter((item: INPMSearchResultObject) => {
+        return item.package.name.startsWith('picgo-plugin-')
+      })
+      .map((item: INPMSearchResultObject) => {
+        return handleSearchResult(item)
+      })
+      .sort((a: IPicGoPlugin, b: IPicGoPlugin) => {
+        return b.fullName.localeCompare(a.fullName)
+      })
+  } catch (err) {
+    console.error('Failed to fetch plugins:', err)
+  } finally {
+    loadingBrowse.value = false
+  }
+}
+
+function installPluginFromBrowse(item: IPicGoPlugin) {
+  if (!item.gui) {
+    if (confirm(t('pages.plugin.notGuiImplement'))) {
+      item.ing = true
+      window.electron.sendRPC(IRPCActionType.PLUGIN_INSTALL, item.fullName)
+    }
+  } else {
+    item.ing = true
+    window.electron.sendRPC(IRPCActionType.PLUGIN_INSTALL, item.fullName)
+  }
 }
 
 function handleImportLocalPlugin() {
@@ -569,6 +752,14 @@ onBeforeMount(async () => {
   getSearchResult = debounce(_getSearchResult, 50)
   initConf()
   needReload.value = (await getConfig<boolean>(configPaths.needReload)) || false
+
+  // Close dropdown menu when clicking outside
+  document.addEventListener('click', (e: MouseEvent) => {
+    const target = e.target as HTMLElement
+    if (!target.closest('.dropdown-wrapper')) {
+      showPluginListMenu.value = false
+    }
+  })
 })
 
 onBeforeUnmount(() => {

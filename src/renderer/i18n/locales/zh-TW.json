@@ -1,5 +1,7 @@
 {
-  "app": { "title": "PicList" },
+  "app": {
+    "title": "PicList"
+  },
   "common": {
     "cancel": "取消",
     "close": "關閉",
@@ -664,6 +666,7 @@
       "viewDocFailed": "查看文件失敗"
     },
     "plugin": {
+      "browseAllPlugins": "瀏覽所有插件",
       "browsePlugins": "瀏覽插件",
       "configThing": "配置 {c}",
       "description": "PicList 插件管理頁面",
@@ -676,12 +679,15 @@
       "installPluginsToGetStarted": "請先安裝插件以開始使用",
       "list": "插件列表",
       "loading": "載入中...",
-      "needRestart": "需要重啟生效",
+      "loadingPlugins": "正在加載插件...",
+      "needRestart": "需要重啟才能生效",
       "noPluginsFound": "未找到插件",
       "NoPluginsInstalled": "尚未安裝任何插件",
       "notGuiImplement": "該插件未針對圖形介面進行優化，是否繼續安裝？",
+      "openRemoteList": "打開遠程插件列表",
       "pluginList": "插件列表",
       "restartApp": "重啟應用",
+      "searchInBrowse": "在瀏覽中搜索",
       "searchPlaceholder": "搜尋 npm 上的 PicGo 插件，或者點擊上方按鈕查看優秀插件列表",
       "setResult": "設定結果",
       "setSuccess": "設定成功",
@@ -763,7 +769,12 @@
         "downloadSettings": "下載配置",
         "fileManagement": "文件管理",
         "galleryDB": "相冊數據庫同步",
-        "gitea": { "branch": "分支名", "repo": "倉庫名", "token": "訪問令牌", "username": "用戶名" },
+        "gitea": {
+          "branch": "分支名",
+          "repo": "倉庫名",
+          "token": "訪問令牌",
+          "username": "用戶名"
+        },
         "giteaHost": "Gitea 地址",
         "gitee": {
           "branch": "Gitee 分支名",
@@ -795,7 +806,10 @@
         "syncConfigProxy": "代理",
         "syncConfiguration": "同步平台",
         "syncEndpointConfig": "平台配置",
-        "syncResult": { "failed": "同步失敗", "success": "同步成功" },
+        "syncResult": {
+          "failed": "同步失敗",
+          "success": "同步成功"
+        },
         "title": "同步",
         "upDownloadDesc": "同步配置文件和相冊數據到雲端",
         "upDownloadSettings": "同步配置和相冊",
@@ -1093,7 +1107,11 @@
       "uploadHint": "支持所有文件類型，但推薦僅上傳圖片",
       "uploadingMultipleUrls": "正在上傳 {count} 個URL...",
       "uploadViewHint": "點擊打開圖床設定",
-      "urlType": { "normal": "長連結", "short": "短連結", "title": "連結類型" },
+      "urlType": {
+        "normal": "長連結",
+        "short": "短連結",
+        "title": "連結類型"
+      },
       "urlUpload": "URL上傳"
     },
     "uploaderConfig": {
@@ -1130,5 +1148,10 @@
       "toggle": "切換主題"
     }
   },
-  "titleBar": { "alwaysOnTop": "置頂", "close": "關閉", "minimize": "最小化", "miniWindow": "迷你視窗" }
+  "titleBar": {
+    "alwaysOnTop": "置頂",
+    "close": "關閉",
+    "minimize": "最小化",
+    "miniWindow": "迷你視窗"
+  }
 }

@@ -1,5 +1,7 @@
 {
-  "app": { "title": "PicList" },
+  "app": {
+    "title": "PicList"
+  },
   "common": {
     "cancel": "Cancel",
     "close": "Close",
@@ -664,6 +666,7 @@
       "viewDocFailed": "View Document Failed"
     },
     "plugin": {
+      "browseAllPlugins": "Browse All Plugins",
       "browsePlugins": "Browse Plugins",
       "configThing": "Config {c}",
       "description": "PicList Plugin Management",
@@ -676,12 +679,15 @@
       "installPluginsToGetStarted": "Please install plugins to get started",
       "list": "Plugin List",
       "loading": "Loading...",
+      "loadingPlugins": "Loading plugins...",
       "needRestart": "Need Restart to Take Effect",
       "noPluginsFound": "No Plugins Found",
       "NoPluginsInstalled": "No Plugins Installed",
       "notGuiImplement": "This plugin does not have a GUI implementation, continue?",
+      "openRemoteList": "Open Remote Plugin List",
       "pluginList": "Plugin List",
       "restartApp": "Restart Application",
+      "searchInBrowse": "Search in Browse",
       "searchPlaceholder": "Search for PicGo plugins on npm, or click the button above to view the excellent plugin list",
       "setResult": "Set Result",
       "setSuccess": "Set Success",
@@ -800,7 +806,10 @@
         "syncConfigProxy": "Proxy",
         "syncConfiguration": "Sync Platform",
         "syncEndpointConfig": "Endpoint Configuration",
-        "syncResult": { "failed": "Sync Failed", "success": "Sync Successful" },
+        "syncResult": {
+          "failed": "Sync Failed",
+          "success": "Sync Successful"
+        },
         "title": "Sync",
         "upDownloadDesc": "Sync configuration files and gallery data to cloud",
         "upDownloadSettings": "Sync Config & Gallery",
@@ -1098,7 +1107,11 @@
       "uploadHint": "All formats are supported, but images are recommended",
       "uploadingMultipleUrls": "Uploading {count} URLs...",
       "uploadViewHint": "Click to open picbeds settings",
-      "urlType": { "normal": "Long Link", "short": "Short Link", "title": "Link Type" },
+      "urlType": {
+        "normal": "Long Link",
+        "short": "Short Link",
+        "title": "Link Type"
+      },
       "urlUpload": "URL Upload"
     },
     "uploaderConfig": {
@@ -1135,5 +1148,10 @@
       "toggle": "Toggle Theme"
     }
   },
-  "titleBar": { "alwaysOnTop": "Always On Top", "close": "Close", "minimize": "Minimize", "miniWindow": "Mini Window" }
+  "titleBar": {
+    "alwaysOnTop": "Always On Top",
+    "close": "Close",
+    "minimize": "Minimize",
+    "miniWindow": "Mini Window"
+  }
 }
