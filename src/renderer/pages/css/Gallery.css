@@ -1520,7 +1520,7 @@ input:checked + .switch-slider::before {
 }
 
 .placeholder-item:hover {
-  background: rgb(var(--color-accent-rgb), 0.08);
+  background: color-mix(in srgb, var(--color-accent), transparent 95%);
 }
 
 .matched-urls-tooltip {

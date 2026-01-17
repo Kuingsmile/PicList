@@ -716,13 +716,13 @@ input:checked + .switch-slider::before {
 .form-input.error,
 .form-select.error {
   border-color: var(--color-error);
-  background-color: var(--color-error-surface);
+  background-color: color-mix(in srgb, var(--color-error), transparent 80%);
 }
 
 .form-input.error:focus,
 .form-select.error:focus {
   border-color: var(--color-error);
-  box-shadow: 0 0 0 2px var(--color-error-surface);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-error), transparent 80%);
 }
 
 .required-marker {

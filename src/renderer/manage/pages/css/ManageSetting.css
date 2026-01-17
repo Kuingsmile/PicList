@@ -57,9 +57,9 @@
 }
 
 .action-button.primary {
-  border-color: var(--color-blue-common);
+  border-color: var(--color-accent);
   color: white;
-  background: var(--color-blue-common);
+  background: var(--color-accent);
 }
 
 .action-button.primary:hover {

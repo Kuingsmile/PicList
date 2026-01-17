@@ -91,15 +91,7 @@
   <TransitionRoot appear :show="qrcodeVisible" as="template">
     <Dialog as="div" class="qr-dialog" @close="qrcodeVisible = false">
       <div class="dialog-container">
-        <TransitionChild
-          as="template"
-          enter="duration-300 ease-out"
-          enter-from="opacity-0 scale-95"
-          enter-to="opacity-100 scale-100"
-          leave="duration-200 ease-in"
-          leave-from="opacity-100 scale-100"
-          leave-to="opacity-0 scale-95"
-        >
+        <TransitionChild as="template">
           <DialogPanel class="dialog-panel">
             <DialogTitle class="dialog-title">
               {{ t('navigation.picBedQrCode') }}
@@ -120,11 +112,7 @@
                       <ChevronDownIcon :size="16" class="listbox-arrow" />
                     </ListboxButton>
 
-                    <transition
-                      leave-active-class="transition duration-100 ease-in"
-                      leave-from-class="opacity-100"
-                      leave-to-class="opacity-0"
-                    >
+                    <transition>
                       <ListboxOptions class="listbox-options">
                         <ListboxOption
                           v-for="picbed in picBedG"

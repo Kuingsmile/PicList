@@ -6,7 +6,7 @@
   position: relative;
   overflow: hidden auto;
   min-height: 100vh;
-  background: var(--color-background);
+  background: var(--color-background-secondary);
 }
 
 @keyframes ambient-drift {
@@ -40,19 +40,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid rgb(var(--accent-rgb) / 15%);
+  border: 1px solid var(--color-border-secondary);
   border-radius: 20px;
   padding: 1.5rem 2rem;
-  background: linear-gradient(
-    135deg,
-    rgb(var(--accent-rgb) / 6%) 0%,
-    var(--color-surface) 50%,
-    rgb(16 185 129 / 4%) 100%
-  );
-  box-shadow:
-    0 4px 24px rgb(0 0 0 / 8%),
-    0 1px 2px rgb(0 0 0 / 4%),
-    inset 0 1px 0 rgb(255 255 255 / 5%);
+  background: var(--color-background-secondary);
+  box-shadow: var(--shadow-md);
   flex-wrap: wrap;
   gap: 1.5rem;
 }
@@ -71,10 +63,6 @@
   width: 56px;
   height: 56px;
   color: var(--color-accent);
-  background: linear-gradient(135deg, rgb(var(--accent-rgb) / 20%) 0%, rgb(var(--accent-rgb) / 10%) 100%);
-  box-shadow:
-    0 4px 12px rgb(var(--accent-rgb) / 20%),
-    inset 0 1px 0 rgb(255 255 255 / 10%);
 }
 
 .header-text {
@@ -106,13 +94,13 @@
 .doc-link-btn {
   display: inline-flex;
   align-items: center;
-  border: 1px solid rgb(var(--accent-rgb) / 20%);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 0.375rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--color-accent);
-  background: rgb(var(--accent-rgb) / 8%);
+  background: var(--color-background-secondary);
   transition: all 0.2s ease;
   gap: 0.375rem;
   cursor: pointer;
@@ -120,7 +108,7 @@
 
 .doc-link-btn:hover {
   border-color: var(--color-accent);
-  background: rgb(var(--accent-rgb) / 15%);
+  background: var(--color-background-secondary);
   transform: translateY(-1px);
 }
 
@@ -137,7 +125,7 @@
   overflow: hidden;
   border: none;
   border-radius: 12px;
-  padding: 0.75rem 1.25rem;
+  padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-family: inherit;
   font-weight: 600;
@@ -149,17 +137,13 @@
 .btn-secondary {
   color: var(--color-text-primary);
   background: var(--color-background-secondary);
-  box-shadow:
-    0 2px 8px rgb(0 0 0 / 8%),
-    inset 0 1px 0 rgb(255 255 255 / 5%);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover {
   background: var(--color-surface);
   transform: translateY(-2px);
-  box-shadow:
-    0 4px 16px rgb(0 0 0 / 12%),
-    inset 0 1px 0 rgb(255 255 255 / 8%);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-outline {
@@ -169,43 +153,32 @@
 }
 
 .btn-outline:hover {
-  border-color: var(--color-text-secondary);
+  border-color: var(--color-accent);
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-tertiary);
   transform: translateY(-1px);
 }
 
 .btn-success {
   color: white;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  box-shadow:
-    0 4px 14px rgb(16 185 129 / 35%),
-    0 2px 4px rgb(0 0 0 / 10%),
-    inset 0 1px 0 rgb(255 255 255 / 15%);
+  background: var(--color-success);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-success:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 8px 24px rgb(16 185 129 / 45%),
-    0 4px 8px rgb(0 0 0 / 15%),
-    inset 0 1px 0 rgb(255 255 255 / 20%);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-warning {
   color: white;
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  box-shadow:
-    0 4px 14px rgb(245 158 11 / 35%),
-    0 2px 4px rgb(0 0 0 / 10%),
-    inset 0 1px 0 rgb(255 255 255 / 15%);
+  background: var(--color-warning);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-warning:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 8px 24px rgb(245 158 11 / 45%),
-    0 4px 8px rgb(0 0 0 / 15%);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-glow::before {
@@ -268,7 +241,7 @@
   width: 36px;
   height: 36px;
   color: var(--color-accent);
-  background: rgb(var(--accent-rgb) / 12%);
+  background: color-mix(in srgb, var(--color-accent), transparent 90%);
 }
 
 .card-title {
@@ -330,7 +303,7 @@
   font-weight: 600;
   text-transform: uppercase;
   color: var(--color-text-tertiary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-tertiary);
   letter-spacing: 0.05em;
 }
 
@@ -348,7 +321,7 @@
   font-size: 0.875rem;
   text-align: left;
   color: var(--color-text-primary);
-  background: transparent;
+  background: var(--color-background-tertiary);
   transition: all 0.15s ease;
   gap: 0.625rem;
   cursor: pointer;
@@ -356,7 +329,6 @@
 
 .dropdown-item:hover {
   color: var(--color-accent);
-  background: rgb(var(--accent-rgb) / 8%);
 }
 
 .dropdown-item svg {

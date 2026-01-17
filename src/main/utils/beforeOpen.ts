@@ -126,6 +126,8 @@ function resolveCss() {
       const dest = path.join(themesDir(), path.basename(item))
       if (!fs.pathExistsSync(dest)) {
         fs.copyFileSync(item, dest)
+      } else {
+        diffFilesAndUpdate(item, dest)
       }
     })
   } catch (e) {

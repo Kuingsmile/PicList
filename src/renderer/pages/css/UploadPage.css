@@ -235,7 +235,7 @@ html, body {
 
 .badge-remove:hover {
   color: var(--color-danger);
-  background: var(--color-error-surface);
+  background: color-mix(in srgb, var(--color-danger), transparent 80%);
 }
 
 @keyframes fade-in {
@@ -386,7 +386,7 @@ html, body {
 .upload-zone:hover,
 .upload-zone.drag-active {
   border-color: var(--color-accent);
-  background: linear-gradient(135deg, var(--color-surface-elevated) 0%, var(--color-light-blue) 100%);
+  background: linear-gradient(135deg, var(--color-surface-elevated) 0%, color-mix(in srgb, var(--color-accent), transparent 95%) 100%);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }

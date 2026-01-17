@@ -29,7 +29,7 @@
 }
 
 .btn:hover {
-  border-color: var(--color-blue-common);
+  border-color: var(--color-accent);
   background: var(--color-background-secondary);
 }
 
@@ -87,8 +87,8 @@
 }
 
 .picbed-setting-item:hover {
-  border-color: var(--color-blue-common);
-  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-sm);
 }
 
 .picbed-name {
@@ -167,8 +167,8 @@
 
 .form-input:focus,
 .form-color:focus {
-  border-color: var(--color-blue-common);
-  box-shadow: 0 0 0 2px rgb(64 158 255 / 20%);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-sm);
 }
 
 .form-input.small {
@@ -190,7 +190,7 @@
   border-radius: 50%;
   width: 18px;
   height: 18px;
-  background: var(--color-blue-common);
+  background: var(--color-accent);
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   appearance: none;
   cursor: pointer;
@@ -201,7 +201,7 @@
   border-radius: 50%;
   width: 18px;
   height: 18px;
-  background: var(--color-blue-common);
+  background: var(--color-accent);
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   cursor: pointer;
 }
@@ -229,7 +229,7 @@
   text-align: center;
   color: var(--color-text-secondary);
   color: white;
-  background: var(--color-blue-common);
+  background: var(--color-accent);
 }
 
 /* Color input group */
@@ -264,7 +264,7 @@
 }
 
 .radio-option.small:hover {
-  border-color: var(--color-blue-common);
+  border-color: var(--color-accent);
   background: rgb(64 158 255 / 10%);
 }
 
