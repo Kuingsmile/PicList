@@ -60,10 +60,11 @@ class Uploader {
     picgo.helper.beforeUploadPlugins.register('renameFn', {
       handle: async (ctx: IPicGo) => {
         const uploaderType = getUploaderType(ctx)
+        const allConfig = picgo.getConfig<any>() || {}
 
-        const globalRename = picgo.getConfig<boolean | undefined>(configPaths.settings.rename)
-        const globalAutoRename = picgo.getConfig<boolean | undefined>(configPaths.settings.autoRename)
-        const buildInList = picgo.getConfig<any[]>(configPaths.buildIn.list._name) || []
+        const globalRename = allConfig.settings?.rename
+        const globalAutoRename = allConfig.settings?.autoRename
+        const buildInList = allConfig.buildIn?.list || []
         const idSpecificRename = buildInList.find((item: any) => item.id === uploaderType.id)?.manualRename
         const idSpecificAutoRename = buildInList.find((item: any) => item.id === uploaderType.id)?.autoRename
         const rename = idSpecificRename !== undefined ? !!idSpecificRename : !!globalRename
@@ -137,17 +138,18 @@ class Uploader {
     try {
       const result = [false, false] as (ImgInfo[] | false)[]
       const res = await picgo.uploadReturnCtx(img)
+      const allConfig = picgo.getConfig<any>() || {}
 
       if (Array.isArray(res.output) && res.output.some((item: ImgInfo) => item.imgUrl)) {
         res.output.forEach((item: ImgInfo) => {
-          item.config = JSON.parse(JSON.stringify(picgo.getConfig<any>(`picBed.${item.type}`)))
+          item.config = JSON.parse(JSON.stringify(allConfig.picBed?.[item.type!]))
         })
         result[0] = res.output
       }
 
       if (Array.isArray(res.backupOutput) && res.backupOutput.some((item: ImgInfo) => item.imgUrl)) {
         res.backupOutput.forEach((item: ImgInfo) => {
-          item.config = JSON.parse(JSON.stringify(picgo.getConfig<any>(`picBed.${item.type}`)))
+          item.config = JSON.parse(JSON.stringify(allConfig.picBed?.[item.type!]))
         })
         result[1] = res.backupOutput
       }

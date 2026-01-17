@@ -1337,18 +1337,16 @@ let compressInFile = {} as IBuildInCompressOptions
 
 async function initData() {
   // global settings
-  compressInFile = (await getConfig<IBuildInCompressOptions>(configPaths.buildIn.compress)) || {}
-  const watermark = (await getConfig<IBuildInWaterMarkOptions>(configPaths.buildIn.watermark)) || {}
-  const skipProcess = (await getConfig<IBuildInSkipProcessOptions>(configPaths.buildIn.skipProcess)) || {}
-  globalRenameSettings.value = (await getConfig<{
-    enable?: boolean
-    format?: string
-  }>(configPaths.buildIn.rename)) || {
+  const allConfig = await getConfig<any>()
+  compressInFile = allConfig.buildIn?.compress || {}
+  const watermark = allConfig.buildIn?.watermark || {}
+  const skipProcess = allConfig.buildIn?.skipProcess || {}
+  globalRenameSettings.value = allConfig.buildIn?.rename || {
     enable: false,
     format: '{filename}',
   }
-  globalAutoRename.value = (await getConfig<boolean>(configPaths.settings.autoRename)) ?? false
-  globalManualRename.value = (await getConfig<boolean>(configPaths.settings.rename)) ?? false
+  globalAutoRename.value = allConfig.settings?.autoRename ?? false
+  globalManualRename.value = allConfig.settings?.rename ?? false
   if (compressInFile) {
     let cleanedObj = {}
     try {
@@ -1405,11 +1403,8 @@ async function initData() {
     }
   }
   if (configId) {
-    let buildInList = await getConfig<Undefinable<IBuildInListItem[]>>(configPaths.buildIn.list)
-    const globalRenameSettings = (await getConfig<{
-      enable: boolean
-      format: string
-    }>(configPaths.buildIn.rename)) || {
+    let buildInList = allConfig.buildIn?.list
+    const globalRenameSettings = allConfig.buildIn?.rename || {
       enable: false,
       format: '{filename}',
     }
@@ -1417,7 +1412,7 @@ async function initData() {
       saveConfig(configPaths.buildIn.list, [])
       buildInList = []
     }
-    singleConfigInFile = buildInList?.find(item => item.id === configId) || ({} as IBuildInListItem)
+    singleConfigInFile = buildInList?.find((item: { id: string }) => item.id === configId) || ({} as IBuildInListItem)
     const mergedCompress = {
       ...compressForm.value,
       ...(singleConfigInFile.compress || {}),

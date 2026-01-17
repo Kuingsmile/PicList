@@ -7,7 +7,6 @@ import { Notification } from 'electron'
 import { RPCRouter } from '~/events/rpc/router'
 import { T as $t } from '~/i18n'
 import { generateShortUrl, handleCopyUrl, setTrayToolTip } from '~/utils/common'
-import { configPaths } from '~/utils/configPaths'
 import { IPasteStyle, IRPCActionType, IRPCType, IWindowList } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
 
@@ -35,19 +34,16 @@ const trayRoutes = [
       const res = await uploader.setWebContents(trayWindow.webContents).uploadWithBuildInClipboardReturnCtx()
       const img = res[0] ? res[0] : false
       const backupImgs = res[1] ? res[1] : false
+      const allConfig = picgo.getConfig<any>() || {}
       if (img !== false) {
-        const pasteStyle = picgo.getConfig<string>(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
-        const [pasteText, shortUrl] = await pasteTemplate(
-          pasteStyle,
-          img[0],
-          picgo.getConfig<string>(configPaths.settings.customLink),
-        )
+        const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN
+        const [pasteText, shortUrl] = await pasteTemplate(pasteStyle, img[0], allConfig.settings?.customLink)
         img[0].shortUrl = shortUrl
         handleCopyUrl(pasteText)
         const isShowResultNotification =
-          picgo.getConfig<boolean>(configPaths.settings.uploadResultNotification) === undefined
+          allConfig.settings?.uploadResultNotification === undefined
             ? true
-            : !!picgo.getConfig<boolean>(configPaths.settings.uploadResultNotification)
+            : !!allConfig.settings?.uploadResultNotification
         if (isShowResultNotification) {
           const notification = new Notification({
             title: $t('UPLOAD_SUCCEED'),

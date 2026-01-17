@@ -240,10 +240,11 @@ class UploadTaskQueueManager {
     const res = await uploader.setWebContents(webContents).uploadReturnCtx(input)
     const imgs = res[0] ? res[0] : false
     const backupImgs = res[1] ? res[1] : false
+    const allConfig = picgo.getConfig<any>() || {}
 
     if (imgs !== false && imgs.length > 0) {
-      const pasteStyle = picgo.getConfig<string>(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
-      const deleteLocalFile = picgo.getConfig<boolean>(configPaths.settings.deleteLocalFile) || false
+      const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN
+      const deleteLocalFile = allConfig.settings?.deleteLocalFile || false
 
       const img = imgs[0]
 
@@ -257,11 +258,7 @@ class UploadTaskQueueManager {
           })
       }
 
-      const [pasteText, shortUrl] = await pasteTemplate(
-        pasteStyle,
-        img,
-        picgo.getConfig<string>(configPaths.settings.customLink),
-      )
+      const [pasteText, shortUrl] = await pasteTemplate(pasteStyle, img, allConfig.settings?.customLink)
       img.shortUrl = shortUrl
 
       const inserted = await GalleryDB.getInstance().insert(img)

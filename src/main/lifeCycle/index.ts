@@ -81,9 +81,10 @@ class LifeCycle {
 
   #onReady() {
     const readyFunction = async () => {
+      const allConfig = picgo.getConfig<any>() || {}
       windowManager.create(IWindowList.TRAY_WINDOW)
       windowManager.create(IWindowList.SETTING_WINDOW)
-      const isAutoListenClipboard = picgo.getConfig<boolean>(configPaths.settings.isAutoListenClipboard) || false
+      const isAutoListenClipboard = allConfig.settings?.isAutoListenClipboard || false
       const ClipboardWatcher = clipboardPoll
       if (isAutoListenClipboard) {
         picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: true })
@@ -95,16 +96,13 @@ class LifeCycle {
       } else {
         picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: false })
       }
-      const isHideDock = picgo.getConfig<boolean>(configPaths.settings.isHideDock) || false
-      let startMode = picgo.getConfig<string>(configPaths.settings.startMode) || ISartMode.QUIET
+      const isHideDock = allConfig.settings?.isHideDock || false
+      let startMode = allConfig.settings?.startMode || ISartMode.QUIET
       if (process.platform === 'darwin' && startMode === ISartMode.MINI) {
         startMode = ISartMode.QUIET
       }
-      const currentPicBed =
-        picgo.getConfig<string>(configPaths.picBed.uploader) ||
-        picgo.getConfig<string>(configPaths.picBed.current) ||
-        'smms'
-      const currentPicBedConfig = picgo.getConfig<any>(`picBed.${currentPicBed}`)?._configName || 'Default'
+      const currentPicBed = allConfig.picBed?.uploader || allConfig.picBed?.current || 'smms'
+      const currentPicBedConfig = allConfig.picBed?.[currentPicBed]?._configName || 'Default'
       const tooltip = `${currentPicBed} ${currentPicBedConfig}`
       if (process.platform === 'darwin') {
         isHideDock ? app.dock?.hide() : setDockMenu()
@@ -138,11 +136,11 @@ class LifeCycle {
         windowManager.create(IWindowList.MINI_WINDOW)
         const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
         miniWindow.removeAllListeners()
-        if (picgo.getConfig<boolean>(configPaths.settings.miniWindowOntop)) {
+        if (allConfig.settings?.miniWindowOntop) {
           miniWindow.setAlwaysOnTop(true)
         }
         const { width, height } = screen.getPrimaryDisplay().workAreaSize
-        const lastPosition = picgo.getConfig<number[]>(configPaths.settings.miniWindowPosition)
+        const lastPosition = allConfig.settings?.miniWindowPosition
         if (lastPosition) {
           if (lastPosition[0] < 0 || lastPosition[0] > width || lastPosition[1] < 0 || lastPosition[1] > height) {
             miniWindow.setPosition(width - 100, height - 100)

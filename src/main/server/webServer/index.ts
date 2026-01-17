@@ -6,7 +6,6 @@ import logger from '@core/picgo/logger'
 import fs from 'fs-extra'
 
 import { encodeFilePath } from '~/utils/common'
-import { configPaths } from '~/utils/configPaths'
 
 const defaultPath = process.platform === 'win32' ? 'C:\\Users' : '/'
 
@@ -656,11 +655,12 @@ class WebServer {
   }
 
   loadConfig(): void {
+    const allConfig = picgo.getConfig<any>() || {}
     this.#config = {
-      enableWebServer: picgo.getConfig<boolean>(configPaths.settings.enableWebServer) || false,
-      webServerHost: picgo.getConfig<string>(configPaths.settings.webServerHost) || '0.0.0.0',
-      webServerPort: picgo.getConfig<number>(configPaths.settings.webServerPort) || 37777,
-      webServerPath: picgo.getConfig<string>(configPaths.settings.webServerPath) || defaultPath,
+      enableWebServer: allConfig.settings?.enableWebServer || false,
+      webServerHost: allConfig.settings?.webServerHost || '0.0.0.0',
+      webServerPort: allConfig.settings?.webServerPort || 37777,
+      webServerPath: allConfig.settings?.webServerPath || defaultPath,
     }
   }
 

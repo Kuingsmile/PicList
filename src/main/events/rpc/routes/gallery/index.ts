@@ -4,7 +4,6 @@ import GuiApi from 'apis/gui'
 import { clipboard } from 'electron'
 
 import { RPCRouter } from '~/events/rpc/router'
-import { configPaths } from '~/utils/configPaths'
 import { ICOREBuildInEvent, IPasteStyle, IRPCActionType, IRPCType } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
 interface IFilter {
@@ -24,8 +23,9 @@ const galleryRoutes = [
     action: IRPCActionType.GALLERY_PASTE_TEXT,
     handler: async (_: IIPCEvent, args: [item: ImgInfo, copy?: boolean]) => {
       const [item, copy = true] = args
-      const pasteStyle = picgo.getConfig<string>(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
-      const customLink = picgo.getConfig<string>(configPaths.settings.customLink)
+      const allConfig = picgo.getConfig<any>() || {}
+      const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN
+      const customLink = allConfig.settings?.customLink
       const [txt, shortUrl] = await pasteTemplate(pasteStyle, item, customLink)
       if (copy) {
         clipboard.writeText(txt)

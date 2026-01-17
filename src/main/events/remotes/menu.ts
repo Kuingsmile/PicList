@@ -144,14 +144,13 @@ const buildMainPageMenu = (win: BrowserWindow) => {
 
 const buildSecondPicBedMenu = () => {
   const picBeds = getPicBeds().picBeds
-  const secondUploader = picgo.getConfig(configPaths.picBed.secondUploader)
-  const defaultSecondUploaderConfig = picgo.getConfig(configPaths.picBed.secondUploaderConfig) as
-    | IUploaderConfig
-    | undefined
+  const allConfig = picgo.getConfig<any>() || {}
+  const secondUploader = allConfig.picBed?.secondUploader
+  const defaultSecondUploaderConfig = allConfig.picBed?.secondUploaderConfig as IUploaderConfig | undefined
   const defaultSecondUploaderId = defaultSecondUploaderConfig?._id || ''
   const defaultSecondUploaderName = defaultSecondUploaderConfig?._configName || 'Default'
   const currentPicBedName = picBeds.find(item => item.type === secondUploader)?.name
-  const picBedConfigList = picgo.getConfig<IUploaderConfig>('uploader')
+  const picBedConfigList = allConfig.uploader
   const currentPicBedMenuItem = [
     {
       label: `${$t('CURRENT_SECOND_PICBED')} - ${currentPicBedName || 'None'} - ${defaultSecondUploaderName}`,
@@ -171,7 +170,7 @@ const buildSecondPicBedMenu = () => {
         type: !hasSubmenu ? 'checkbox' : undefined,
         checked: !hasSubmenu ? secondUploader === item.type : undefined,
         submenu: hasSubmenu
-          ? configList.map(config => {
+          ? configList.map((config: any) => {
               return {
                 label: config._configName || 'Default',
                 // if only one config, use checkbox, or radio will checked as default
@@ -202,9 +201,10 @@ const buildSecondPicBedMenu = () => {
 
 const buildPicBedListMenu = () => {
   const picBeds = getPicBeds().picBeds
-  const currentPicBed = picgo.getConfig(configPaths.picBed.uploader)
+  const allConfig = picgo.getConfig<any>() || {}
+  const currentPicBed = allConfig.picBed?.uploader
   const currentPicBedName = picBeds.find(item => item.type === currentPicBed)?.name
-  const picBedConfigList = picgo.getConfig<IUploaderConfig>('uploader')
+  const picBedConfigList = allConfig.uploader
   const currentPicBedMenuItem = [
     {
       label: `${$t('CURRENT_PICBED')} - ${currentPicBedName}`,
@@ -225,7 +225,7 @@ const buildPicBedListMenu = () => {
         type: !hasSubmenu ? 'checkbox' : undefined,
         checked: !hasSubmenu ? currentPicBed === item.type : undefined,
         submenu: hasSubmenu
-          ? configList.map(config => {
+          ? configList.map((config: any) => {
               return {
                 label: config._configName || 'Default',
                 // if only one config, use checkbox, or radio will checked as default

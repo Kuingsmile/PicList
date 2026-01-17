@@ -11,7 +11,6 @@ import { cloneDeep } from 'lodash-es'
 import { SHOW_INPUT_BOX } from '~/events/constant'
 import { T as $t } from '~/i18n'
 import { handleCopyUrl } from '~/utils/common'
-import { configPaths } from '~/utils/configPaths'
 import { IPasteStyle } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
 
@@ -78,25 +77,22 @@ class GuiApi implements IGuiApi {
     const imgs = res[0] ? res[0] : false
     const backImgs = res[1] ? res[1] : false
     let result: ImgInfo[] = []
+    const allConfig = picgo.getConfig<any>() || {}
     if (imgs !== false) {
-      const pasteStyle = picgo.getConfig<string>(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
-      const deleteLocalFile = picgo.getConfig<boolean>(configPaths.settings.deleteLocalFile) || false
+      const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN
+      const deleteLocalFile = allConfig.settings?.deleteLocalFile || false
       const pasteText: string[] = []
       for (let i = 0; i < imgs.length; i++) {
         if (deleteLocalFile) {
           await fs.remove(rawInput[i])
         }
-        const [pasteTextItem, shortUrl] = await pasteTemplate(
-          pasteStyle,
-          imgs[i],
-          picgo.getConfig<string>(configPaths.settings.customLink),
-        )
+        const [pasteTextItem, shortUrl] = await pasteTemplate(pasteStyle, imgs[i], allConfig.settings?.customLink)
         imgs[i].shortUrl = shortUrl
         pasteText.push(pasteTextItem)
         const isShowResultNotification =
-          picgo.getConfig<boolean>(configPaths.settings.uploadResultNotification) === undefined
+          allConfig.settings?.uploadResultNotification === undefined
             ? true
-            : !!picgo.getConfig<boolean>(configPaths.settings.uploadResultNotification)
+            : !!allConfig.settings?.uploadResultNotification
         if (isShowResultNotification) {
           const notification = new Notification({
             title: $t('UPLOAD_SUCCEED'),

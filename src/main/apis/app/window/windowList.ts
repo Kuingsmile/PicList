@@ -17,8 +17,9 @@ import { applyTheme } from '../theme'
 const windowList = new Map<string, IWindowListItem>()
 
 const getDefaultWindowSizes = (): { width: number; height: number } => {
-  const mainWindowWidth = picgo.getConfig<number>(configPaths.settings.mainWindowWidth)
-  const mainWindowHeight = picgo.getConfig<number>(configPaths.settings.mainWindowHeight)
+  const allConfig = picgo.getConfig<any>() || {}
+  const mainWindowWidth = allConfig.settings?.mainWindowWidth
+  const mainWindowHeight = allConfig.settings?.mainWindowHeight
   return {
     width: mainWindowWidth || 1200,
     height: mainWindowHeight || 800,

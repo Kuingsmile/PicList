@@ -310,30 +310,27 @@ export function createTray(tooltip: string) {
     // so the tray window must be available
     if (process.platform === 'darwin') {
       ;(tray as any).on('drop-files', async (_: Event, files: string[]) => {
-        const pasteStyle = picgo.getConfig<string>(configPaths.settings.pasteStyle) || IPasteStyle.MARKDOWN
+        const allConfig = picgo.getConfig<any>() || {}
+        const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN
         const rawInput = cloneDeep(files)
         const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
         const res = await uploader.setWebContents(trayWindow.webContents).uploadReturnCtx(files)
         const imgs = res[0] ? res[0] : false
         const backImgs = res[1] ? res[1] : false
-        const deleteLocalFile = picgo.getConfig<boolean | undefined>(configPaths.settings.deleteLocalFile) || false
+        const deleteLocalFile = allConfig.settings?.deleteLocalFile || false
         if (imgs !== false) {
           const pasteText: string[] = []
           for (let i = 0; i < imgs.length; i++) {
             if (deleteLocalFile) {
               await fs.remove(rawInput[i])
             }
-            const [pasteTextItem, shortUrl] = await pasteTemplate(
-              pasteStyle,
-              imgs[i],
-              picgo.getConfig<string | undefined>(configPaths.settings.customLink),
-            )
+            const [pasteTextItem, shortUrl] = await pasteTemplate(pasteStyle, imgs[i], allConfig.settings?.customLink)
             imgs[i].shortUrl = shortUrl
             pasteText.push(pasteTextItem)
             const isShowResultNotification =
-              picgo.getConfig<boolean | undefined>(configPaths.settings.uploadResultNotification) === undefined
+              allConfig.settings?.uploadResultNotification === undefined
                 ? true
-                : !!picgo.getConfig<boolean | undefined>(configPaths.settings.uploadResultNotification)
+                : !!allConfig.settings?.uploadResultNotification
             if (isShowResultNotification) {
               const notification = new Notification({
                 title: $t('UPLOAD_SUCCEED'),

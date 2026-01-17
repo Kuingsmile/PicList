@@ -13,7 +13,6 @@ import { markdownContent } from '~/server/apiDoc'
 import router from '~/server/router'
 import { deleteChoosedFiles, handleResponse } from '~/server/utils'
 import { AESHelper } from '~/utils/aesHelper'
-import { configPaths } from '~/utils/configPaths'
 import { changeCurrentUploader } from '~/utils/handleUploaderConfig'
 
 const appPath = dataDir()
@@ -45,10 +44,11 @@ router.post(
     urlparams?: URLSearchParams
   }): Promise<void> => {
     try {
+      const allConfig = picgo.getConfig<any>() || {}
       const picbed = urlparams?.get('picbed')
       const passedKey = urlparams?.get('key')
-      const serverKey = picgo.getConfig<string>(configPaths.settings.serverKey) || ''
-      const useShortUrl = picgo.getConfig<boolean>(configPaths.settings.useShortUrl)
+      const serverKey = allConfig.settings?.serverKey || ''
+      const useShortUrl = allConfig.settings?.useShortUrl
       if (serverKey && passedKey !== serverKey) {
         handleResponse({
           response,
@@ -64,7 +64,7 @@ router.post(
       let currentPicBedConfigId = ''
       let needRestore = false
       if (picbed) {
-        const currentPicBed = picgo.getConfig<IStringKeyMap>('picBed') || ({} as IStringKeyMap)
+        const currentPicBed = allConfig.picBed || ({} as IStringKeyMap)
         currentPicBedType = currentPicBed.uploader || currentPicBed.current || 'smms'
         currentPicBedConfig = currentPicBed[currentPicBedType] || ({} as IStringKeyMap)
         currentPicBedConfigId = currentPicBedConfig._id
@@ -73,7 +73,7 @@ router.post(
           // do nothing
         } else {
           needRestore = true
-          const picBeds = picgo.getConfig<IStringKeyMap>('uploader')
+          const picBeds = allConfig.uploader
           const currentPicBedList = picBeds?.[picbed]?.configList
           if (currentPicBedList) {
             const currentConfig = currentPicBedList?.find((item: any) => item._configName === configName)

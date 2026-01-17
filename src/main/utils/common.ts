@@ -347,11 +347,9 @@ export function getUploaderType(ctx: IPicGo): {
   picBed: string
   id?: string
 } {
-  const picBed =
-    ctx.getConfig<Undefinable<string>>('picBed.uploader') ||
-    ctx.getConfig<Undefinable<string>>('picBed.current') ||
-    'smms'
-  const picBedConfig = ctx.getConfig<Undefinable<IStringKeyMap>>(`picBed.${picBed}`) || {}
+  const allConfig = ctx.getConfig<any>() || {}
+  const picBed = allConfig.picBed?.uploader || allConfig.picBed?.current || 'smms'
+  const picBedConfig = allConfig.picBed?.[picBed] || {}
   const id = picBedConfig._id || ''
   return { picBed, id }
 }
