@@ -3,7 +3,7 @@
     <div class="title-bar-content">
       <div v-if="osGlobal !== 'darwin'" class="title-left">
         <div class="app-icon">
-          <img :src="defaultLogo" width="20" height="20" />
+          <img :src="defaultLogo" width="18" height="18" />
         </div>
       </div>
 

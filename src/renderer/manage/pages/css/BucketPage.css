@@ -59,9 +59,8 @@
 
 .custom-domain-input:focus {
   border-color: var(--color-accent);
-  background: white;
   outline: none;
-  box-shadow: 0 0 0 3px var(--color-accent-soft);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent);
 }
 
 .custom-domain-select {
@@ -185,8 +184,7 @@
 }
 
 .action-button.secondary:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  border-color: var(--color-accent-hover);
 }
 
 .action-button.danger {
@@ -217,8 +215,8 @@
 .search-input:focus {
   border-color: var(--color-accent);
   outline: none;
-  background: white;
-  box-shadow: 0 0 0 3px var(--color-accent-soft);
+  background: var(--color-background-tertiary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent);
 }
 
 /* Breadcrumb */
@@ -476,7 +474,7 @@
 
 .virtual-gallery-scroller .file-grid-item.selected {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgb(59 130 246 / 20%);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent), transparent 40%);
 }
 
 .virtual-gallery-scroller .file-preview {
@@ -773,7 +771,7 @@
 }
 
 .file-actions-dropdown-item:hover {
-  color: var(--color-blue-common);
+  color: var(--color-accent);
   background: var(--color-surface-elevated);
 }
 

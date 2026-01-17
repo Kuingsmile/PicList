@@ -264,6 +264,7 @@
         "getFileListFailed": "取得檔案清單失敗",
         "getFileListSuccess": "取得檔案清單成功",
         "getInBackground": "正在背景取得檔案清單，請不要切換頁面",
+        "imagePreview": "圖像預覽",
         "includeExt": "替換時包含副檔名",
         "inputCustomDomain": "輸入自訂網域名稱",
         "inputFolderTitle": "請輸入資料夾名稱",

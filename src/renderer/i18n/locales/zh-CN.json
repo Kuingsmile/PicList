@@ -264,6 +264,7 @@
         "getFileListFailed": "获取文件列表失败",
         "getFileListSuccess": "获取文件列表成功",
         "getInBackground": "正在后台获取文件列表，请不要切换页面",
+        "imagePreview": "图像预览",
         "includeExt": "替换时包含后缀名",
         "inputCustomDomain": "输入自定义域名",
         "inputFolderTitle": "请输入文件夹名称",

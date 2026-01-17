@@ -177,7 +177,7 @@
   margin: 0;
   font-size: 1rem;
   font-weight: 500;
-  color: var(--color-accent);
+  color: var(--color-text-primary);
 }
 
 /* Pattern Table */
@@ -190,6 +190,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .pattern-table th {
@@ -234,7 +235,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 0.625rem;
-  background: var(--color-background-secondary);
+  background: var(--color-background-t);
   transition: var(--transition-fast);
   gap: 0.75rem;
   cursor: pointer;
@@ -264,7 +265,7 @@
   border-radius: 50%;
   width: 1.25rem;
   height: 1.25rem;
-  background: var(--color-surface-elevated);
+  background: var(--color-background-tiertiary);
   transition: var(--transition-fast);
   flex-shrink: 0;
 }

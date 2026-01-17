@@ -59,17 +59,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border: none;
   border-radius: 0.5rem;
-  padding: 0.375rem;
   color: var(--color-text-secondary);
-  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  background: var(--color-background-tertiary);
   transition: all 0.15s ease;
   cursor: pointer;
 }
 
 .inputbox-close:hover {
-  color: var(--color-text-primary);
+  color: var(--color-danger);
   background: var(--color-surface-elevated);
 }
 
@@ -106,13 +105,13 @@
 }
 
 .inputbox-input:hover {
-  border-color: var(--color-border-hover);
-  background: var(--color-background-elevated);
+  border-color: var(--color-accent);
+  background: var(--color-background-tertiary);
 }
 
 .inputbox-input:focus {
-  border-color: var(--color-primary);
-  background: var(--color-background-elevated);
+  border-color: var(--color-accent);
+  background: var(--color-background-tertiary);
   box-shadow: 0 0 0 3px rgb(59 130 246 / 10%);
 }
 
@@ -138,13 +137,13 @@
 }
 
 .inputbox-textarea:hover {
-  border-color: var(--color-border-hover);
-  background: var(--color-background-elevated);
+  border-color: var(--color-accent);
+  background: var(--color-background-tertiary);
 }
 
 .inputbox-textarea:focus {
-  border-color: var(--color-primary);
-  background: var(--color-background-elevated);
+  border-color: var(--color-accent);
+  background: var(--color-background-tertiary);
 }
 
 .inputbox-textarea::placeholder {
@@ -187,18 +186,18 @@
 .cancel-btn {
   border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
-  background: var(--color-background-elevated);
+  background: var(--color-background-secondary);
 }
 
 .cancel-btn:hover {
-  border-color: var(--color-border-hover);
-  background: var(--color-background-elevated-hover);
+  border-color: var(--color-accent);
+  background: var(--color-background-secondary);
 }
 
 /* Confirm Button */
 .confirm-btn {
   border: none;
-  color: var(--color-text-on-primary);
+  color: var(--color-text-primary);
   background: var(--color-accent);
 }
 

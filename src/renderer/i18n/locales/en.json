@@ -264,6 +264,7 @@
         "getFileListFailed": "Get file list failed",
         "getFileListSuccess": "Get file list success",
         "getInBackground": "Getting file list in background, please do not switch pages",
+        "imagePreview": "Image Preview",
         "includeExt": "Include file extensions when replacing",
         "inputCustomDomain": "Enter Custom Domain",
         "inputFolderTitle": "Please enter folder name",

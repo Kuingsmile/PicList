@@ -579,7 +579,7 @@
     <div v-if="isShowImagePreview" class="modal-overlay" @click="isShowImagePreview = false">
       <div class="modal-container" style="max-width: 90vw; max-height: 90vh" @click.stop>
         <div class="modal-header">
-          <h3 class="modal-title">Image Preview</h3>
+          <h3 class="modal-title">{{ t('pages.manage.bucket.imagePreview') }}</h3>
           <button class="modal-close" @click="isShowImagePreview = false">
             <XIcon class="action-icon" />
           </button>

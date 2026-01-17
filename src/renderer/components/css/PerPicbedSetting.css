@@ -284,7 +284,7 @@
 }
 
 .radio-input:checked + .radio-indicator {
-  border-color: var(--color-blue-common);
+  border-color: var(--color-accent);
 }
 
 .radio-input:checked + .radio-indicator::after {
@@ -294,7 +294,7 @@
   border-radius: 50%;
   width: 6px;
   height: 6px;
-  background: var(--color-blue-common);
+  background: var(--color-accent);
   content: '';
   transform: translate(-50%, -50%);
 }

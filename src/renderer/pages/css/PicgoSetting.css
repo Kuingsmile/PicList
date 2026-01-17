@@ -185,9 +185,9 @@
 
 .switch-slider {
   position: relative;
-  border-radius: 12px;
+  border-radius: 24px;
   width: 44px;
-  height: 24px;
+  height: 21px;
   background: linear-gradient(180deg, #d0d3d9 0%, #c0c4cc 100%);
   box-shadow: inset 0 1px 3px rgb(0 0 0 / 15%);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -199,8 +199,8 @@
   top: 2px;
   left: 2px;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
   background: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
   box-shadow:
     0 2px 6px rgb(0 0 0 / 20%),
@@ -213,11 +213,11 @@
   background: var(--color-accent);
   box-shadow:
     inset 0 1px 3px rgb(0 0 0 / 10%),
-    0 2px 8px rgb(64 158 255 / 30%);
+    0 2px 8px color-mix(in srgb, var(--color-accent), transparent 30%);
 }
 
 .switch-input:checked + .switch-slider::before {
-  transform: translateX(20px);
+  transform: translateX(23px);
 }
 
 .switch-content {
@@ -494,7 +494,7 @@ small {
 }
 
 .placeholder-category {
-  border-bottom: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .placeholder-category:last-child {
@@ -503,7 +503,7 @@ small {
 
 .category-title {
   margin: 0;
-  border-bottom: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border);
   padding: 0.875rem 1rem 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
@@ -905,8 +905,8 @@ small {
   padding: 0.2rem 0.5rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-primary);
-  background: var(--color-surface-elevated);
+  color: var(--color-accent);
+  background: var(--color-background-tertiary);
   letter-spacing: 0.02em;
 }
 

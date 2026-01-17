@@ -172,7 +172,7 @@
 }
 
 .progress-dot.active {
-  background: var(--color-primary);
+  background: var(--color-accent);
   width: 20px;
   border-radius: 3px;
 }

@@ -69,7 +69,7 @@
 
 .app-text:hover {
   cursor: pointer;
-  color: var(--color-blue-common);
+  color: var(--color-accent);
 }
 
 .app-version {
@@ -79,7 +79,7 @@
   font-size: 10px;
   font-weight: 500;
   color: var(--color-text-secondary);
-  background: var(--color-surface);
+  background: var(--color-background-secondary);
 }
 
 .theme-section {

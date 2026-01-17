@@ -219,7 +219,7 @@ html, body {
   align-items: center;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-text);
+  color: var(--color-text-primary);
   gap: 0.5rem;
 }
 
@@ -235,8 +235,8 @@ html, body {
 }
 
 .checkbox-input:checked + .checkbox-label::before {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
+  border-color: var(--color-accent);
+  background: var(--color-accent);
 }
 
 .checkbox-input:checked + .checkbox-label::after {
@@ -249,7 +249,7 @@ html, body {
 }
 
 .checkbox-label:hover::before {
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
 }
 
 .checkbox-description {

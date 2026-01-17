@@ -47,7 +47,7 @@
 .header-icon {
   display: flex;
   align-items: center;
-  color: var(--color-blue-common);
+  color: var(--color-accent);
 }
 
 .header-content h1 {
@@ -174,13 +174,13 @@
 .tab-button:hover {
   border-color: var(--color-border);
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-tertiary);
 }
 
 .tab-button.active {
-  border-color: var(--color-primary);
+  border-color: var(--color-border-secondary);
   color: white;
-  background: var(--color-primary);
+  background: var(--color-accent);
 }
 
 .tab-icon {
@@ -379,7 +379,7 @@
 
 .info-card.primary {
   border: 1px solid rgb(99 102 241 / 20%);
-  color: var(--color-primary);
+  color: var(--color-accent);
   background: rgb(99 102 241 / 10%);
 }
 

@@ -131,8 +131,8 @@ const toggleTooltip = () => {
 .switch {
   position: relative;
   display: inline-block;
-  width: 3rem;
-  height: 1.5rem;
+  width: 44px;
+  height: 20px;
 }
 
 .switch-input {
@@ -144,30 +144,37 @@ const toggleTooltip = () => {
 .switch-slider {
   position: absolute;
   inset: 0;
-  border-radius: 0.75rem;
-  background: var(--color-primary);
-  transition: var(--transition-fast);
+  border-radius: 24px;
+  background: linear-gradient(180deg, #d0d3d9 0%, #c0c4cc 100%);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 15%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 }
 
 .switch-button {
   position: absolute;
-  top: 2px;
+  bottom: 2px;
   left: 2px;
   border-radius: 50%;
-  width: 1.25rem;
-  height: 1.25rem;
-  background: white;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition-fast);
+  width: 17px;
+  height: 17px;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
+  box-shadow:
+    0 2px 6px rgb(0 0 0 / 20%),
+    0 1px 2px rgb(0 0 0 / 10%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  content: '';
 }
 
 .switch-input:checked + .switch-slider {
   background: var(--color-accent);
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 10%),
+    0 2px 8px color-mix(in srgb, var(--color-accent), transparent 30%);
 }
 
 .switch-input:checked + .switch-slider .switch-button {
-  transform: translateX(1.5rem);
+  transform: translateX(23px);
 }
 
 .switch-input:focus + .switch-slider {

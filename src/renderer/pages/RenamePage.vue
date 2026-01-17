@@ -180,9 +180,9 @@ export default {
 }
 
 .form-input:focus {
-  border-color: var(--color-blue-common);
+  border-color: var(--color-accent);
   outline: none;
-  box-shadow: 0 0 0 2px rgb(64 158 255 / 20%);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent-hover), transparent 60%);
 }
 
 .form-input.input-error {

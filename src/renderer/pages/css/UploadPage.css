@@ -162,7 +162,7 @@ html, body {
 .picbed-badge:hover {
   border-color: var(--color-accent-hover);
   color: var(--color-accent-hover);
-  background: var(--color-surface-elevated);
+  background: var(--color-background-tertiary);
   transform: translateY(-1px);
 }
 
@@ -350,7 +350,7 @@ html, body {
   font-size: 0.875rem;
   font-family: inherit;
   font-weight: 500;
-  color: var(--color-text-sec);
+  color: var(--color-text-secondary);
   background: transparent;
   transition: var(--transition-fast);
   gap: 0.5rem;
@@ -364,12 +364,7 @@ html, body {
 
 .segmented-button:hover {
   color: var(--color-accent-hover);
-  background: var(--color-surface-elevated);
-}
-
-.segmented-button:active {
-  background: var(--color-surface-elevated);
-  transform: scale(0.98);
+  background: var(--color-background-tertiary);
 }
 
 /* Main Upload Card */
@@ -1524,7 +1519,7 @@ html, body {
   padding: 0.625rem 1rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: white;
+  background: var(--color-background-secondary);
   color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);

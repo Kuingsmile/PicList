@@ -95,7 +95,7 @@
             <div class="filter-group">
               <label class="filter-label">{{ t('pages.gallery.pasteFormat') }}</label>
               <select v-model="pasteStyle" class="custom-select" @change="handlePasteStyleChange">
-                <option v-for="(value, key) in pasteStyleMap" :key="key" :value="value">
+                <option v-for="(value, key) in pasteStyleMap" :key="key" :value="value" class="select-option">
                   {{ key }}
                 </option>
               </select>
@@ -104,7 +104,7 @@
             <div class="filter-group">
               <label class="filter-label">{{ t('pages.gallery.urlType') }}</label>
               <select v-model="useShortUrl" class="custom-select" @change="handleUseShortUrlChange">
-                <option v-for="(value, key) in shortURLMap" :key="key" :value="value">
+                <option v-for="(value, key) in shortURLMap" :key="key" :value="value" class="select-option">
                   {{ key }}
                 </option>
               </select>
@@ -144,7 +144,7 @@
                   :placeholder="$t('pages.gallery.searchFilename')"
                 />
                 <button v-if="searchText" class="clear-button" @click="cleanSearch">
-                  <XIcon :size="14" />
+                  <XIcon :size="15" />
                 </button>
               </div>
             </div>

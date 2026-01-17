@@ -277,8 +277,8 @@ html, body {
   align-items: center;
   border: none;
   border-radius: var(--radius-lg);
-  padding: 0.75rem 1.5rem;
-  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
   font-family: inherit;
   font-weight: 500;
   transition: var(--transition-fast);
@@ -300,18 +300,16 @@ html, body {
 .action-button.secondary {
   border: 1px solid var(--color-border);
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-accent);
 }
 
 .action-button.secondary:hover {
   border-color: var(--color-accent);
-  color: var(--color-accent);
-  background: var(--color-surface);
 }
 
 .button-icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 /* Dialog styles */
@@ -347,6 +345,7 @@ html, body {
 
 .dialog-title {
   font-size: 1.25rem;
+  margin-bottom: 10px;
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -355,7 +354,7 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: none;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   width: 32px;
   height: 32px;
@@ -368,7 +367,7 @@ html, body {
 
 .dialog-close:hover {
   color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
+  background: var(--color-surface);
 }
 
 .close-icon {
@@ -394,10 +393,10 @@ html, body {
   position: relative;
   display: flex;
   align-items: center;
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
-  background: var(--color-surface-elevated);
+  background: var(--color-background-secondary);
   transition: var(--transition-fast);
   flex-direction: column;
   cursor: pointer;
@@ -411,16 +410,16 @@ html, body {
 
 .picbed-card.active {
   border-color: var(--color-accent);
-  background-color: rgb(64 158 255 / 10%);
+  background-color: var(--color-surface);
 }
 
 .picbed-card.main-card {
-  border-color: var(--color-error);
+  border-color: var(--color-primary);
 }
 
 .picbed-card.main-card:hover {
-  border-color: var(--color-error);
-  background-color: rgb(255 59 48 / 10%);
+  border-color: var(--color-primary);
+  background-color: var(--color-surface);
 }
 
 .card-icon {
@@ -449,8 +448,8 @@ html, body {
 }
 
 .card-title {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--color-text-primary);
 }
 
