@@ -57,7 +57,7 @@ Whether you need to organize your cloud files, sync markdown images, or manage m
 <summary><strong>Upload Interface</strong></summary>
 <br>
 <div align="center">
-  <img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/upload.png?raw=true" alt="Upload Interface" width="100%">
+  <img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/upload.webp?raw=true" alt="Upload Interface" width="100%">
 </div>
 <div align="center">
   <img width="2098" height="1398" alt="Image" src="https://github.com/user-attachments/assets/337f8bd9-11e1-443f-9bd3-3db4d5938e97" />
@@ -69,12 +69,12 @@ Whether you need to organize your cloud files, sync markdown images, or manage m
 <br>
 <table align="center">
   <tr>
-    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/gallery.png?raw=true" alt="Gallery"></td>
+    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/gallery.webp?raw=true" alt="Gallery"></td>
     <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/cloud_storage.png?raw=true" alt="Cloud Storage"></td>
   </tr>
   <tr>
     <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/settings.png?raw=true" alt="Settings"></td>
-    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/task.png?raw=true" alt="Task"></td>
+    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/task.webp?raw=true" alt="Task"></td>
   </tr>
 </table>
 </details>
@@ -165,7 +165,6 @@ cd PicList
 
 # 2. Install dependencies
 yarn
-yarn run prepare
 
 # 3. specific start dev mode
 yarn run dev
