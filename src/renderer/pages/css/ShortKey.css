@@ -19,7 +19,7 @@
   align-items: center;
   margin-bottom: 1.5rem;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   background: var(--color-surface);
   box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
@@ -52,7 +52,7 @@
 .shortkey-card {
   overflow: hidden;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--color-background-primary);
   box-shadow: 0 2px 8px var(--color-border);
 }
@@ -110,7 +110,7 @@
 
 .key-display {
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
   font-family: monospace;
@@ -131,7 +131,7 @@
 
 .status-badge {
   display: inline-block;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 0.25rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 500;
@@ -174,7 +174,7 @@
   justify-content: center;
   align-items: center;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0.5rem 0.875rem;
   min-width: fit-content;
   font-size: 0.75rem;
@@ -253,7 +253,7 @@
 .modal-content {
   overflow: hidden;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   width: 100%;
   max-width: 500px;
   max-height: 90vh;
@@ -281,7 +281,7 @@
   justify-content: center;
   align-items: center;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   width: 32px;
   height: 32px;
   color: var(--color-text-secondary);
@@ -323,7 +323,7 @@
 
 .form-input {
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 0.75rem;
   width: 100%;
   font-size: 0.875rem;

@@ -86,7 +86,7 @@ const toggleTooltip = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   padding: 2px;
   width: 20px;
   height: 20px;
@@ -147,7 +147,7 @@ const toggleTooltip = () => {
   border-radius: 24px;
   background: linear-gradient(180deg, #d0d3d9 0%, #c0c4cc 100%);
   box-shadow: inset 0 1px 3px rgb(0 0 0 / 15%);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-medium);
   cursor: pointer;
 }
 
@@ -155,14 +155,14 @@ const toggleTooltip = () => {
   position: absolute;
   bottom: 2px;
   left: 2px;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   width: 17px;
   height: 17px;
   background: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
   box-shadow:
     0 2px 6px rgb(0 0 0 / 20%),
     0 1px 2px rgb(0 0 0 / 10%);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-medium);
   content: '';
 }
 

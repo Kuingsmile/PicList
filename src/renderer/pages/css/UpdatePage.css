@@ -26,7 +26,7 @@
   position: relative;
   overflow: auto;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   width: 90%;
   height: 90%;
   flex-shrink: 0;
@@ -34,7 +34,7 @@
   box-shadow:
     0 4px 6px -1px rgb(0 0 0 / 10%),
     0 2px 4px -1px rgb(0 0 0 / 6%);
-  animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slide-up var(--transition-bounce-md);
 }
 
 @keyframes slide-up {
@@ -93,7 +93,7 @@
 }
 
 .version-number {
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0.125rem 0.5rem;
   font-weight: 600;
   background: #f1f5f9;
@@ -142,8 +142,8 @@
   left: 0;
   border-radius: 9999px;
   height: 100%;
-  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
-  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+  transition: width var(--transition-bounce-md);
 }
 
 /* Content */
@@ -166,7 +166,7 @@
 
 .notes-body {
   overflow-y: auto;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 1.25rem;
   max-height: 195px;
   font-size: 0.9375rem;
@@ -214,7 +214,7 @@
 
 .notes-body :deep(pre) {
   overflow-x: auto;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 1rem;
   margin: 0.875rem 0;
   background: #e2e8f0;
@@ -267,7 +267,7 @@
   justify-content: center;
   align-items: center;
   border: 2px solid #cbd5e1;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   width: 20px;
   height: 20px;
   background: white;
@@ -322,7 +322,7 @@
   justify-content: center;
   align-items: center;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   padding: 0.625rem 1.25rem;
   font-size: 0.9375rem;
   font-family: inherit;

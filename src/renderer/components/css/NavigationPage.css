@@ -74,7 +74,7 @@
 
 .app-version {
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 3px 8px;
   font-size: 10px;
   font-weight: 500;
@@ -151,7 +151,7 @@
   bottom: 4px;
   left: 4px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 8px;
   color: var(--color-text-tertiary);
   background: transparent;
@@ -222,7 +222,7 @@
 .submenu-item {
   display: flex;
   align-items: center;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0.5rem 1rem;
   font-size: 0.8125rem;
   font-weight: 500;
@@ -271,7 +271,7 @@
 .dialog-panel {
   overflow: visible;
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   width: 100%;
   max-width: 500px;
   background: var(--color-background-tertiary);

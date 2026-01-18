@@ -120,7 +120,7 @@ export default {
 }
 
 .messagebox-scale-enter-active {
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all var(--transition-bounce-md);
 }
 
 .messagebox-scale-leave-active {
@@ -206,7 +206,7 @@ export default {
   border-radius: 0.625rem;
   width: 3rem;
   height: 3rem;
-  animation: icon-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: icon-pop var(--transition-bounce-slow);
 }
 
 @keyframes icon-pop {

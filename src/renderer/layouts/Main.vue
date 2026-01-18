@@ -82,9 +82,12 @@ export default { name: 'MainPage' }
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-2xl: 20px;
+  --radius-round: 50%;
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-medium: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce-md: 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-bounce-slow: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 :root.dark {
@@ -115,9 +118,12 @@ export default { name: 'MainPage' }
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-2xl: 20px;
+  --radius-round: 50%;
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-medium: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce-md: 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-bounce-slow: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 body {
@@ -168,7 +174,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
   border: 3px solid var(--color-background-primary);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background-color: var(--color-border);
   transition: background-color var(--transition-fast);
 }
@@ -183,7 +189,7 @@ body {
 
 ::selection {
   color: var(--color-text-primary);
-  background-color: rgb(0 122 255 / 20%);
+  background-color: color-mix(in srgb, var(--color-accent), transparent 80%);
 }
 
 :focus {

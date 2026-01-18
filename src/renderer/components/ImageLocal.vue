@@ -90,7 +90,7 @@ onBeforeMount(async () => {
 .loading-spinner {
   border: 2px solid #e4e7ed;
   border-top: 2px solid #409eff;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   width: 24px;
   height: 24px;
   animation: spin 1s linear infinite;

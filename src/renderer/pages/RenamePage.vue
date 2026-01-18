@@ -130,7 +130,7 @@ export default {
 .rename-card {
   overflow: hidden;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   width: 100%;
   max-width: 500px;
   background: var(--color-background-primary);
@@ -168,7 +168,7 @@ export default {
 
 .form-input {
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 0.875rem 1rem;
   padding-right: 2.5rem;
   width: 100%;
@@ -237,7 +237,7 @@ export default {
   justify-content: center;
   align-items: center;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 0.75rem 1.5rem;
   min-width: fit-content;
   font-size: 0.875rem;

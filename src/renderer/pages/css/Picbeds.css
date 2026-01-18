@@ -41,7 +41,7 @@
   justify-content: space-between;
   align-items: center;
   border: 1px solid var(--color-border-secondary);
-  border-radius: 20px;
+  border-radius: var(--radius-2xl);
   padding: 1.5rem 2rem;
   background: var(--color-background-secondary);
   box-shadow: var(--shadow-md);
@@ -59,7 +59,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
   width: 56px;
   height: 56px;
   color: var(--color-accent);
@@ -95,7 +95,7 @@
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 0.375rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 500;
@@ -124,12 +124,12 @@
   align-items: center;
   overflow: hidden;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-family: inherit;
   font-weight: 600;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-medium);
   gap: 0.5rem;
   cursor: pointer;
 }
@@ -204,12 +204,12 @@
 .config-card {
   overflow: hidden;
   border: 1px solid var(--color-border-secondary);
-  border-radius: 20px;
+  border-radius: var(--radius-2xl);
   background: var(--color-background-secondary);
   box-shadow:
     0 4px 24px rgb(0 0 0 / 6%),
     0 1px 2px rgb(0 0 0 / 4%);
-  animation: card-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: card-enter var(--transition-slow);
 }
 
 @keyframes card-enter {
@@ -237,7 +237,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   width: 36px;
   height: 36px;
   color: var(--color-accent);
@@ -289,7 +289,7 @@
   z-index: 1000;
   overflow: hidden;
   border: 1px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
   min-width: 220px;
   background: var(--color-surface);
   box-shadow:
@@ -343,7 +343,7 @@
 /* Dropdown Transition */
 .dropdown-enter-active,
 .dropdown-leave-active {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-fast);
 }
 
 .dropdown-enter-from,
@@ -355,10 +355,10 @@
 .empty-state-card {
   overflow: hidden;
   border: 1px solid var(--color-border-secondary);
-  border-radius: 20px;
+  border-radius: var(--radius-2xl);
   background: var(--color-surface);
   box-shadow: 0 4px 24px rgb(0 0 0 / 6%);
-  animation: card-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: card-enter var(--transition-slow);
 }
 
 .empty-state {
@@ -372,7 +372,7 @@
   align-items: center;
   margin-bottom: 1.5rem;
   border: 2px dashed var(--color-border);
-  border-radius: 20px;
+  border-radius: var(--radius-2xl);
   width: 96px;
   height: 96px;
   color: var(--color-text-tertiary);
@@ -423,7 +423,7 @@
   inset: 0;
   border: 3px solid rgb(255 255 255 / 15%);
   border-top-color: white;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   animation: spin 1s linear infinite;
 }
 
@@ -476,7 +476,7 @@
 
   .page-header {
     align-items: stretch;
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
     padding: 1.25rem;
     flex-direction: column;
   }
@@ -506,7 +506,7 @@
   }
 
   .config-card {
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
   }
 
   .card-body {

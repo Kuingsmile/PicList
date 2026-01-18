@@ -990,7 +990,7 @@ html, body {
    ======================================== */
 .task-list-enter-active,
 .task-list-leave-active {
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-medium);
 }
 
 .task-list-enter-from {
@@ -1004,7 +1004,7 @@ html, body {
 }
 
 .task-list-move {
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--transition-medium);
 }
 
 /* Task item status text colors */
@@ -1522,7 +1522,7 @@ html, body {
   background: var(--color-background-secondary);
   color: var(--color-text-primary);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-fast);
   white-space: nowrap;
   box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
 }
@@ -1626,7 +1626,7 @@ html, body {
   height: 100%;
   background: linear-gradient(90deg, var(--color-accent), var(--color-success));
   border-radius: var(--radius-full);
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width var(--transition-medium);
   box-shadow: 0 0 8px rgb(0 122 255 / 25%);
 }
 
@@ -1702,7 +1702,7 @@ html, body {
   border-radius: var(--radius-md);
   background: var(--color-surface-elevated);
   color: var(--color-text-primary);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-fast);
   box-sizing: border-box;
 }
 
@@ -1790,7 +1790,7 @@ html, body {
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-lg);
   background:  var(--color-background-secondary);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-fast);
   box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
 }
 

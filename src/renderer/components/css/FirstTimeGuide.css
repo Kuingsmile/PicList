@@ -19,7 +19,7 @@
 .guide-spotlight {
   position: absolute;
   border: 2px solid var(--color-accent);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   box-shadow:
     0 0 0 9999px rgb(0 0 0 / 10%),
     0 0 20px rgb(255 255 255 / 30%),
@@ -33,7 +33,7 @@
   position: absolute;
   background: var(--color-background-tertiary);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 10px 40px rgb(0 0 0 / 25%);
   width: 420px;
   max-width: 90vw;
@@ -44,7 +44,7 @@
 }
 
 .guide-overlay.advancedAnimation .guide-card {
-  animation: slide-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: slide-up var(--transition-bounce-slow);
 }
 
 .guide-header {
@@ -79,7 +79,7 @@
   color: var(--color-text-secondary);
   cursor: pointer;
   padding: 4px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -102,7 +102,7 @@
   width: 40px;
   height: 40px;
   flex-shrink: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--color-accent);
   display: flex;
   align-items: center;
@@ -131,7 +131,7 @@
 
 .guide-additional-info {
   background: var(--color-background-tertiary);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
   margin-top: 10px;
 }
@@ -166,7 +166,7 @@
 .progress-dot {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   background: var(--color-border);
   transition: all 0.3s;
 }
@@ -189,7 +189,7 @@
 
 .guide-btn {
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;

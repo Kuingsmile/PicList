@@ -302,7 +302,7 @@ html, body {
 .loading-spinner {
   border: 3px solid var(--color-border);
   border-top: 3px solid var(--color-accent);
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   width: 40px;
   height: 40px;
   animation: spin 1s linear infinite;
@@ -527,7 +527,7 @@ html, body {
 .button-spinner {
   border: 2px solid transparent;
   border-top: 2px solid currentcolor;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   width: 16px;
   height: 16px;
   animation: spin 1s linear infinite;

@@ -148,7 +148,7 @@ html, body {
 .loading-spinner {
   border: 2px solid var(--color-border);
   border-top: 2px solid var(--color-accent);
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   width: 20px;
   height: 20px;
   animation: spin 1s linear infinite;
@@ -355,7 +355,7 @@ html, body {
   justify-content: center;
   align-items: center;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   width: 32px;
   height: 32px;
   font-size: 1.5rem;
@@ -664,7 +664,7 @@ html, body {
   position: absolute;
   top: 2px;
   left: 2px;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   width: 1.25rem;
   height: 1.25rem;
   background: white;

@@ -15,7 +15,7 @@
       <img
         v-if="!dragover && !isShowingProgress"
         :src="logoPath ? logoPath : './squareLogo.png'"
-        style="border-radius: 50%; width: 100%; height: 100%"
+        style="border-radius: var(--radius-round); width: 100%; height: 100%"
         draggable="false"
         @dragstart.prevent
       />
