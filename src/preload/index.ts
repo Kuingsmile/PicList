@@ -7,6 +7,34 @@ import mime from 'mime'
 import { isProxy, isRef, toRaw, unref } from 'vue'
 import yaml from 'yaml'
 
+function setTheme(mode: string) {
+  const m = mode === 'dark' ? 'dark' : 'light'
+  document.documentElement.setAttribute('data-theme', m)
+  document.documentElement.classList.toggle('dark', m === 'dark')
+  document.documentElement.classList.toggle('light', m === 'light')
+}
+
+function injectCSS(css: string) {
+  const id = '__piclist_theme__'
+  let el = document.getElementById(id) as HTMLStyleElement | null
+  if (!el) {
+    el = document.createElement('style')
+    el.id = id
+    ;(document.head || document.documentElement).appendChild(el)
+  }
+  el.textContent = css
+}
+
+;(async () => {
+  try {
+    const { mode, css } = await ipcRenderer.invoke('RPC_ACTIONS_INVOKE', 'THEME_GET_BOOTSTRAP')
+    if (document.documentElement) setTheme(mode)
+    if (css) injectCSS(css)
+  } catch (e) {
+    console.error('[theme] bootstrap failed', e)
+  }
+})()
+
 export const getRawData = (args: any): any => {
   if (args === null || typeof args !== 'object') {
     return args

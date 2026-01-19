@@ -17,9 +17,9 @@ const handleClipboardUploadingReturnCtx = async (img?: IUploadOption): Promise<(
   const useBuiltinClipboard = useBuiltinClipboardConfig === undefined ? true : !!useBuiltinClipboardConfig
   const win = windowManager.getAvailableWindow()
   if (useBuiltinClipboard) {
-    return await uploader.setWebContents(win!.webContents).uploadWithBuildInClipboardReturnCtx(img)
+    return await uploader.setWebContents(win?.webContents).uploadWithBuildInClipboardReturnCtx(img)
   }
-  return await uploader.setWebContents(win!.webContents).uploadReturnCtx(img)
+  return await uploader.setWebContents(win?.webContents).uploadReturnCtx(img)
 }
 
 export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
@@ -31,7 +31,6 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
   const allConfig = picgo.getConfig<any>() || {}
   if (img !== false) {
     if (img.length > 0) {
-      const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
       const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN
       const [pastedText, shortUrl] = await pasteTemplate(pasteStyle, img[0], allConfig.settings?.customLink)
       img[0].shortUrl = shortUrl
@@ -52,17 +51,15 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
       }
       const inserted = await GalleryDB.getInstance().insert(img[0])
       // trayWindow just be created in mac/windows, not in linux
+      const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
       trayWindow?.webContents?.send('clipboardFiles', [])
       trayWindow?.webContents?.send('uploadFiles')
-      if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-        windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
-      }
+      const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+      settingWindow?.webContents?.send('updateGallery')
       if (backImg !== false) {
         await GalleryDB.getInstance().insert(backImg[0])
         trayWindow?.webContents?.send('uploadFiles')
-        if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-          windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
-        }
+        settingWindow?.webContents?.send('updateGallery')
       }
       return {
         url: handleUrlEncodeWithSetting(inserted.imgUrl as string),
@@ -88,7 +85,7 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
 }
 
 export const uploadChoosedFiles = async (
-  webContents: WebContents,
+  webContents: WebContents | undefined,
   files: IFileWithPath[],
 ): Promise<IStringKeyMap[]> => {
   const input = files.map(item => item.path)
@@ -150,18 +147,16 @@ export const uploadChoosedFiles = async (
     }
     handleCopyUrl(pasteText.join('\n'))
     // trayWindow just be created in mac/windows, not in linux
-    windowManager.get(IWindowList.TRAY_WINDOW)?.webContents?.send('uploadFiles')
-    if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-      windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
-    }
+    const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
+    trayWindow?.webContents?.send('uploadFiles')
+    const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+    settingWindow?.webContents?.send('updateGallery')
     if (backImgs !== false) {
       for (const backImg of backImgs) {
         await GalleryDB.getInstance().insert(backImg)
       }
-      windowManager.get(IWindowList.TRAY_WINDOW)?.webContents?.send('uploadFiles')
-      if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-        windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
-      }
+      trayWindow?.webContents?.send('uploadFiles')
+      settingWindow?.webContents?.send('updateGallery')
     }
     return result
   } else {

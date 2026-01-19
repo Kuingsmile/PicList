@@ -22,9 +22,6 @@ import db from '@/utils/db'
 type MessageSchema = typeof zhCN
 
 window.electron.setVisualZoomLevelLimits(1, 1)
-const savedTheme = localStorage.getItem('systemTheme') || 'system'
-document.documentElement.setAttribute('data-theme', savedTheme)
-document.documentElement.classList.add(savedTheme)
 
 const app = createApp(App)
 

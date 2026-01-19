@@ -21,3 +21,11 @@
     @apply outline-2 outline-offset-2 outline-accent outline-solid;
   }
 }
+
+@utility drag-region {
+  -webkit-app-region: drag;
+}
+
+@utility no-drag-region {
+  -webkit-app-region: none;
+}

@@ -1,9 +1,6 @@
 <template>
   <div id="layout" :key="pageReloadCount" class="h-full select-none">
     <router-view />
-    <div
-      class="pointer-events-none absolute inset-0 -z-1 bg-custom bg-cover bg-fixed bg-center bg-no-repeat opacity-custom blur-custom"
-    />
     <UIServiceProvider />
   </div>
 </template>

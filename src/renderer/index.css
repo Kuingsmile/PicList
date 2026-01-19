@@ -53,9 +53,7 @@
     }
   }
 
-  :root,
-  .light,
-  [data-theme='light'] {
+  :root {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 14px;
     font-weight: 400;
@@ -63,7 +61,11 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizelegibility;
+  }
 
+  :root,
+  .light,
+  [data-theme='light'] {
     --background-image: none;
     --background-image-opacity: 1;
     --color-text-primary: #1d1d1f;
@@ -90,7 +92,9 @@
     --shadow-xl: 0 20px 25px rgb(0 0 0 / 10%), 0 10px 10px rgb(0 0 0 / 4%);
   }
 
-  :root.dark {
+  :root.dark,
+  .dark,
+  [data-theme='dark'] {
     --color-text-primary: #f5f5f7;
     --color-text-secondary: #a1a1a6;
     --color-text-tertiary: #86868b;

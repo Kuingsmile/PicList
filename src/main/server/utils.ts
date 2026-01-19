@@ -72,8 +72,6 @@ export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> =>
       }
     }
   }
-  if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-    windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
-  }
+  windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('updateGallery')
   return result
 }

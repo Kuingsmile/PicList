@@ -184,7 +184,7 @@ class GithubApi {
   }
 
   async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { bucketName: repo, customUrl: branch, prefix, cancelToken, cdnUrl } = configMap
     const slicedPrefix = prefix.replace(/(^\/+|\/+$)/g, '')
     const cancelTask = [false]
@@ -220,22 +220,22 @@ class GithubApi {
             result.fullList.push(this.formatFile(item, currentPrefix, branch, repo, cdnUrl))
           }
         })
-        window.webContents.send(refreshDownloadFileTransferList, result)
+        window?.webContents.send(refreshDownloadFileTransferList, result)
       } else {
         result.finished = true
-        window.webContents.send(refreshDownloadFileTransferList, result)
+        window?.webContents.send(refreshDownloadFileTransferList, result)
         ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
         return
       }
     }
     result.success = true
     result.finished = true
-    window.webContents.send(refreshDownloadFileTransferList, result)
+    window?.webContents.send(refreshDownloadFileTransferList, result)
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { bucketName: repo, customUrl: branch, prefix, cancelToken, cdnUrl } = configMap
     const slicedPrefix = prefix.replace(/(^\/+|\/+$)/g, '')
     const cancelTask = [false]
@@ -265,13 +265,13 @@ class GithubApi {
       })
     } else {
       result.finished = true
-      window.webContents.send('refreshFileTransferList', result)
+      window?.webContents.send('refreshFileTransferList', result)
       ipcMain.removeAllListeners('cancelLoadingFileList')
       return
     }
     result.success = true
     result.finished = true
-    window.webContents.send('refreshFileTransferList', result)
+    window?.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')
   }
 

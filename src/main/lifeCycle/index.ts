@@ -1,6 +1,7 @@
 import '~/lifeCycle/errorHandler'
 
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 import bus from '@core/bus'
 import picgo from '@core/picgo'
@@ -10,9 +11,10 @@ import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import { createTray, setDockMenu } from 'apis/app/system'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
-import { app, globalShortcut, Notification, protocol, screen } from 'electron'
+import { app, globalShortcut, net, Notification, protocol, screen } from 'electron'
 import fs from 'fs-extra'
 
+import { themesDir } from '~/apis/core/datastore/dirs'
 import busEventList from '~/events/busEventList'
 import { rpcServer } from '~/events/rpc'
 import { startFileServer, stopFileServer } from '~/fileServer'
@@ -50,7 +52,7 @@ const handleStartUpFiles = (argv: string[], cwd: string) => {
   if (files.length > 0) {
     logger.info('cli -> uploading files from cli', ...files.map(file => file.path))
     const win = windowManager.getAvailableWindow()
-    uploadChoosedFiles(win.webContents, files)
+    uploadChoosedFiles(win?.webContents, files)
     return true
   }
 
@@ -62,6 +64,9 @@ await setupAutoUpdater()
 class LifeCycle {
   async #beforeReady() {
     protocol.registerSchemesAsPrivileged([{ scheme: 'picgo', privileges: { secure: true, standard: true } }])
+    protocol.registerSchemesAsPrivileged([
+      { scheme: 'theme', privileges: { standard: true, secure: true, supportFetchAPI: true } },
+    ])
     // fix the $PATH in macOS & linux
     fixPath()
     beforeOpen()
@@ -78,9 +83,16 @@ class LifeCycle {
 
   #onReady() {
     const readyFunction = async () => {
+      protocol.handle('theme', request => {
+        const requestUrl = request.url
+        const urlObj = new URL(requestUrl)
+        const relativePath = urlObj.pathname
+        const themeBaseDir = path.join(themesDir())
+        const absolutePath = path.join(themeBaseDir, relativePath)
+        return net.fetch(pathToFileURL(absolutePath).toString())
+      })
       const allConfig = picgo.getConfig<any>() || {}
-      windowManager.create(IWindowList.TRAY_WINDOW)
-      windowManager.create(IWindowList.SETTING_WINDOW)
+      // clipboard monitor
       const isAutoListenClipboard = allConfig.settings?.isAutoListenClipboard || false
       const ClipboardWatcher = clipboardPoll
       if (isAutoListenClipboard) {
@@ -127,50 +139,53 @@ class LifeCycle {
           notice.show()
         }
       }
+      if (isDevelopment) {
+        MemoryMonitor.start()
+      }
       await remoteNoticeHandler.init()
       remoteNoticeHandler.triggerHook(IRemoteNoticeTriggerHook.APP_START)
       if (startMode === ISartMode.MINI && process.platform !== 'darwin') {
         windowManager.create(IWindowList.MINI_WINDOW)
-        const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)!
-        miniWindow.removeAllListeners()
+        const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)
+        miniWindow?.removeAllListeners()
         if (allConfig.settings?.miniWindowOntop) {
-          miniWindow.setAlwaysOnTop(true)
+          miniWindow?.setAlwaysOnTop(true)
         }
         const { width, height } = screen.getPrimaryDisplay().workAreaSize
         const lastPosition = allConfig.settings?.miniWindowPosition
         if (lastPosition) {
           if (lastPosition[0] < 0 || lastPosition[0] > width || lastPosition[1] < 0 || lastPosition[1] > height) {
-            miniWindow.setPosition(width - 100, height - 100)
+            miniWindow?.setPosition(width - 100, height - 100)
             picgo.saveConfig({ [configPaths.settings.miniWindowPosition]: [width - 100, height - 100] })
           } else if (
-            lastPosition[0] + miniWindow.getSize()[0] > width ||
-            lastPosition[1] + miniWindow.getSize()[1] > height
+            lastPosition[0] + miniWindow?.getSize()[0] > width ||
+            lastPosition[1] + miniWindow?.getSize()[1] > height
           ) {
-            miniWindow.setPosition(width - miniWindow.getSize()[0], height - miniWindow.getSize()[1])
-            picgo.saveConfig({
-              [configPaths.settings.miniWindowPosition]: [
-                width - miniWindow.getSize()[0],
-                height - miniWindow.getSize()[1],
-              ],
-            })
+            miniWindow?.setPosition(width - miniWindow.getSize()[0], height - miniWindow.getSize()[1])
+            if (miniWindow) {
+              picgo.saveConfig({
+                [configPaths.settings.miniWindowPosition]: [
+                  width - miniWindow.getSize()[0],
+                  height - miniWindow.getSize()[1],
+                ],
+              })
+            }
           } else {
-            miniWindow.setPosition(lastPosition[0], lastPosition[1])
+            miniWindow?.setPosition(lastPosition[0], lastPosition[1])
           }
         } else {
-          miniWindow.setPosition(width - 100, height - 100)
+          miniWindow?.setPosition(width - 100, height - 100)
         }
         const setPositionFunc = () => {
-          const position = miniWindow.getPosition()
+          const position = miniWindow?.getPosition()
           picgo.saveConfig({ [configPaths.settings.miniWindowPosition]: position })
         }
-        miniWindow.on('close', setPositionFunc)
-        miniWindow.on('move', setPositionFunc)
-        miniWindow.show()
-        miniWindow.focus()
+        miniWindow?.on('close', setPositionFunc)
+        miniWindow?.on('move', setPositionFunc)
+        miniWindow?.show()
+        miniWindow?.focus()
       } else if (startMode === ISartMode.MAIN) {
-        const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
-        settingWindow.show()
-        settingWindow.focus()
+        windowManager.create(IWindowList.SETTING_WINDOW)
       }
       const clipboardDir = path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER)
       fs.emptyDir(clipboardDir)
@@ -183,19 +198,10 @@ class LifeCycle {
       logger.info('detect second instance')
       const result = handleStartUpFiles(commandLine, workingDirectory)
       if (!result) {
-        if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-          const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
-          if (settingWindow.isMinimized()) {
-            settingWindow.restore()
-          }
-          settingWindow.focus()
-        }
+        windowManager.create(IWindowList.SETTING_WINDOW)
       }
     })
     app.on('activate', () => {
-      if (!windowManager.has(IWindowList.TRAY_WINDOW)) {
-        windowManager.create(IWindowList.TRAY_WINDOW)
-      }
       if (!windowManager.has(IWindowList.SETTING_WINDOW)) {
         windowManager.create(IWindowList.SETTING_WINDOW)
       }
@@ -228,11 +234,7 @@ class LifeCycle {
   }
 
   #onQuit() {
-    app.on('window-all-closed', () => {
-      if (process.platform !== 'darwin') {
-        app.quit()
-      }
-    })
+    app.on('window-all-closed', () => {})
 
     app.on('will-quit', () => {
       UpDownTaskQueue.getInstance().persist()

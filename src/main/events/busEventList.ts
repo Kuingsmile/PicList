@@ -38,19 +38,19 @@ async function busCallUploadClipboardFiles() {
 
 async function busCallUploadFiles(pathList: IFileWithPath[]) {
   const win = windowManager.getAvailableWindow()
-  const result = await uploadChoosedFiles(win.webContents, pathList)
+  const result = await uploadChoosedFiles(win?.webContents, pathList)
   const urls = result.map((item: any) => item.url)
   bus.emit(UPLOAD_WITH_FILES_RESPONSE, urls)
 }
 
 function busCallGetWindowId() {
   const win = windowManager.getAvailableWindow()
-  bus.emit(GET_WINDOW_ID_REPONSE, win.id)
+  bus.emit(GET_WINDOW_ID_REPONSE, win?.id)
 }
 
 function busCallGetSettingWindowId() {
-  const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
-  bus.emit(GET_SETTING_WINDOW_ID_RESPONSE, settingWindow.id)
+  const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+  bus.emit(GET_SETTING_WINDOW_ID_RESPONSE, settingWindow?.id)
 }
 
 export default {

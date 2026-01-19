@@ -207,7 +207,7 @@ class AliyunApi {
   }
 
   async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
@@ -246,10 +246,10 @@ class AliyunApi {
         res?.objects?.forEach((item: OSS.ObjectMeta) => {
           item.size !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
         })
-        window.webContents.send(refreshDownloadFileTransferList, result)
+        window?.webContents.send(refreshDownloadFileTransferList, result)
       } else {
         result.finished = true
-        window.webContents.send(refreshDownloadFileTransferList, result)
+        window?.webContents.send(refreshDownloadFileTransferList, result)
         ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
         return
       }
@@ -257,12 +257,12 @@ class AliyunApi {
     } while (res.isTruncated === true && !cancelTask[0])
     result.success = !cancelTask[0]
     result.finished = true
-    window.webContents.send(refreshDownloadFileTransferList, result)
+    window?.webContents.send(refreshDownloadFileTransferList, result)
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
@@ -305,10 +305,10 @@ class AliyunApi {
         res?.objects?.forEach((item: OSS.ObjectMeta) => {
           item.size !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
         })
-        window.webContents.send('refreshFileTransferList', result)
+        window?.webContents.send('refreshFileTransferList', result)
       } else {
         result.finished = true
-        window.webContents.send('refreshFileTransferList', result)
+        window?.webContents.send('refreshFileTransferList', result)
         ipcMain.removeAllListeners('cancelLoadingFileList')
         return
       }
@@ -316,7 +316,7 @@ class AliyunApi {
     } while (res.isTruncated === true && !cancelTask[0])
     result.success = !cancelTask[0]
     result.finished = true
-    window.webContents.send('refreshFileTransferList', result)
+    window?.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')
   }
 

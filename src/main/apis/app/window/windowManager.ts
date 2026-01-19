@@ -9,10 +9,15 @@ class WindowManager implements IWindowManager {
 
   create(name: string) {
     const windowConfig: IWindowListItem = windowList.get(name)!
-    if (!windowConfig.isValid) return null
+    if (!windowConfig.isValid) return undefined
 
     if (!windowConfig.multiple) {
-      if (this.has(name)) return this.#windowMap.get(name)!
+      const existingWin = this.#windowMap.get(name)
+      if (existingWin) {
+        if (existingWin.isMinimized()) existingWin.restore()
+        existingWin.focus()
+        return existingWin
+      }
     }
 
     const window = new BrowserWindow(windowConfig.options())
@@ -30,17 +35,15 @@ class WindowManager implements IWindowManager {
   }
 
   get(name: string) {
-    if (this.has(name)) {
-      return this.#windowMap.get(name)!
-    }
-    return this.create(name)
+    return this.#windowMap.get(name) || undefined
   }
 
   has(name: string) {
     return this.#windowMap.has(name)
   }
 
-  deleteById = (id: number) => {
+  deleteById = (id: number | undefined) => {
+    if (id === undefined) return
     const name = this.#windowIdMap.get(id)
     if (name) {
       this.#windowMap.delete(name)
@@ -59,8 +62,7 @@ class WindowManager implements IWindowManager {
 
     const trayWindow = this.#windowMap.get(IWindowList.TRAY_WINDOW)
     if (trayWindow) return trayWindow
-
-    return this.create(IWindowList.SETTING_WINDOW)!
+    return undefined
   }
 }
 

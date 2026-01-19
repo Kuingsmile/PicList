@@ -116,7 +116,7 @@ class UpyunApi {
   }
 
   async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { bucketName: bucket, prefix, cancelToken } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `http://${bucket}.test.upcdn.net`
@@ -147,10 +147,10 @@ class UpyunApi {
             item.type === 'F' && folderQueue.push(`${slicedPrefix}${item.name}/`)
             item.type === 'N' && result.fullList.push(this.formatFile(item, folder, urlPrefix))
           })
-          window.webContents.send(refreshDownloadFileTransferList, result)
+          window?.webContents.send(refreshDownloadFileTransferList, result)
         } else {
           result.finished = true
-          window.webContents.send(refreshDownloadFileTransferList, result)
+          window?.webContents.send(refreshDownloadFileTransferList, result)
           ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
           return
         }
@@ -163,12 +163,12 @@ class UpyunApi {
     }
     result.success = !cancelTask[0]
     result.finished = true
-    window.webContents.send(refreshDownloadFileTransferList, result)
+    window?.webContents.send(refreshDownloadFileTransferList, result)
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { bucketName: bucket, prefix, cancelToken } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `http://${bucket}.test.upcdn.net`
@@ -196,10 +196,10 @@ class UpyunApi {
           item.type === 'N' && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           item.type === 'F' && result.fullList.push(this.formatFolder(item, slicedPrefix, urlPrefix))
         })
-        window.webContents.send('refreshFileTransferList', result)
+        window?.webContents.send('refreshFileTransferList', result)
       } else {
         result.finished = true
-        window.webContents.send('refreshFileTransferList', result)
+        window?.webContents.send('refreshFileTransferList', result)
         ipcMain.removeAllListeners('cancelLoadingFileList')
         return
       }
@@ -207,7 +207,7 @@ class UpyunApi {
     } while (!cancelTask[0] && res.next !== this.stopMarker)
     result.success = !cancelTask[0]
     result.finished = true
-    window.webContents.send('refreshFileTransferList', result)
+    window?.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')
   }
 

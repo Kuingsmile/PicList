@@ -235,7 +235,7 @@ class QiniuApi {
   }
 
   async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { bucketName: bucket, prefix, cancelToken, customUrl: urlPrefix } = configMap
     let marker = undefined as any
     const slicedPrefix = prefix.slice(1)
@@ -281,10 +281,10 @@ class QiniuApi {
           res.respBody.items.forEach((item: any) => {
             item.fsize !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           })
-        window.webContents.send(refreshDownloadFileTransferList, result)
+        window?.webContents.send(refreshDownloadFileTransferList, result)
       } else {
         result.finished = true
-        window.webContents.send(refreshDownloadFileTransferList, result)
+        window?.webContents.send(refreshDownloadFileTransferList, result)
         ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
         return
       }
@@ -292,12 +292,12 @@ class QiniuApi {
     } while (res.respBody && res.respBody.marker && !cancelTask[0])
     result.success = !cancelTask[0]
     result.finished = true
-    window.webContents.send(refreshDownloadFileTransferList, result)
+    window?.webContents.send(refreshDownloadFileTransferList, result)
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { bucketName: bucket, prefix, cancelToken, customUrl: urlPrefix } = configMap
     let marker = undefined as any
     const slicedPrefix = prefix.slice(1)
@@ -349,10 +349,10 @@ class QiniuApi {
           res.respBody.items.forEach((item: any) => {
             item.fsize !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           })
-        window.webContents.send('refreshFileTransferList', result)
+        window?.webContents.send('refreshFileTransferList', result)
       } else {
         result.finished = true
-        window.webContents.send('refreshFileTransferList', result)
+        window?.webContents.send('refreshFileTransferList', result)
         ipcMain.removeAllListeners('cancelLoadingFileList')
         return
       }
@@ -360,7 +360,7 @@ class QiniuApi {
     } while (res.respBody && res.respBody.marker && !cancelTask[0])
     result.success = !cancelTask[0]
     result.finished = true
-    window.webContents.send('refreshFileTransferList', result)
+    window?.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')
   }
 

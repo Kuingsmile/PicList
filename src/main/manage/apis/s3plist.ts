@@ -305,7 +305,7 @@ class S3plistApi {
   }
 
   async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
@@ -345,11 +345,11 @@ class S3plistApi {
             res.Contents.forEach((item: _Object) => {
               result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
             })
-          window.webContents.send(refreshDownloadFileTransferList, result)
+          window?.webContents.send(refreshDownloadFileTransferList, result)
         } else {
           this.logParam(res, 'getBucketListRecursively')
           result.finished = true
-          window.webContents.send(refreshDownloadFileTransferList, result)
+          window?.webContents.send(refreshDownloadFileTransferList, result)
           ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
           return
         }
@@ -358,18 +358,18 @@ class S3plistApi {
     } catch (error) {
       this.logParam(error, 'getBucketListRecursively')
       result.finished = true
-      window.webContents.send(refreshDownloadFileTransferList, result)
+      window?.webContents.send(refreshDownloadFileTransferList, result)
       ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
       return
     }
     result.success = !cancelTask[0]
     result.finished = true
-    window.webContents.send(refreshDownloadFileTransferList, result)
+    window?.webContents.send(refreshDownloadFileTransferList, result)
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
@@ -415,11 +415,11 @@ class S3plistApi {
             res.Contents.forEach((item: _Object) => {
               result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
             })
-          window.webContents.send('refreshFileTransferList', result)
+          window?.webContents.send('refreshFileTransferList', result)
         } else {
           this.logParam(res, 'getBucketListBackstage')
           result.finished = true
-          window.webContents.send('refreshFileTransferList', result)
+          window?.webContents.send('refreshFileTransferList', result)
           ipcMain.removeAllListeners('cancelLoadingFileList')
           return
         }
@@ -428,13 +428,13 @@ class S3plistApi {
     } catch (error) {
       this.logParam(error, 'getBucketListBackstage')
       result.finished = true
-      window.webContents.send('refreshFileTransferList', result)
+      window?.webContents.send('refreshFileTransferList', result)
       ipcMain.removeAllListeners('cancelLoadingFileList')
       return
     }
     result.success = !cancelTask[0]
     result.finished = true
-    window.webContents.send('refreshFileTransferList', result)
+    window?.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')
   }
 

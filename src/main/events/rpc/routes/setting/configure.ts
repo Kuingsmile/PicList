@@ -39,7 +39,6 @@ export default [
     action: IRPCActionType.CONFIGURE_MIGRATE_FROM_PICLIST_INSTALLATION,
     handler: async () => {
       const configDir = app.getPath('userData')
-      console.log('Migrating from PicList installation at:', configDir)
       const files = [
         'data.json',
         'data.bak.json',

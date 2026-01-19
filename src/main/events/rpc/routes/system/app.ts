@@ -2,8 +2,9 @@ import { isPortable } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import { app, nativeTheme, shell } from 'electron'
 
-import { applyTheme, fetchThemes, importThemes, resolveThemes } from '~/apis/app/theme'
+import { applyTheme, fetchThemes, importThemes, readTheme, resolveThemes } from '~/apis/app/theme'
 import { i18nManager } from '~/i18n'
+import { configPaths } from '~/utils/configPaths'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
 
 export default [
@@ -85,6 +86,22 @@ export default [
     action: IRPCActionType.GET_IS_PORTABLE,
     handler: async () => {
       return isPortable()
+    },
+    type: IRPCType.INVOKE,
+  },
+  {
+    action: IRPCActionType.THEME_GET_BOOTSTRAP,
+    handler: async () => {
+      let savedMode = picgo.getConfig<string>(configPaths.settings.systemTheme) || 'system'
+      const customTheme = picgo.getConfig<string>(configPaths.settings.theme) || 'default.css'
+      if (savedMode === 'system') {
+        savedMode = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+      }
+      const theme = await readTheme(customTheme)
+      return {
+        mode: savedMode,
+        css: theme,
+      }
     },
     type: IRPCType.INVOKE,
   },

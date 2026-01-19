@@ -125,27 +125,27 @@ const handleNPMError = (): IDispose => {
 }
 
 export const handlePluginUpdate = async (fullName: string | string[]) => {
-  const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+  const window = windowManager.get(IWindowList.SETTING_WINDOW)
   const dispose = handleNPMError()
   const res = await picgo.pluginHandler.update(typeof fullName === 'string' ? [fullName] : fullName)
   if (res.success) {
-    window.webContents.send('updateSuccess', res.body[0])
+    window?.webContents?.send('updateSuccess', res.body[0])
   } else {
     showNotification({
       title: $t('PLUGIN_UPDATE_FAILED'),
       body: res.body as string,
     })
   }
-  window.webContents.send('hideLoading')
+  window?.webContents.send('hideLoading')
   dispose()
 }
 
 export const handlePluginUninstall = async (fullName: string) => {
-  const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+  const window = windowManager.get(IWindowList.SETTING_WINDOW)
   const dispose = handleNPMError()
   const res = await picgo.pluginHandler.uninstall([fullName])
   if (res.success) {
-    window.webContents.send('uninstallSuccess', res.body[0])
+    window?.webContents?.send('uninstallSuccess', res.body[0])
     shortKeyHandler.unregisterPluginShortKey(res.body[0])
   } else {
     showNotification({
@@ -153,7 +153,7 @@ export const handlePluginUninstall = async (fullName: string) => {
       body: res.body as string,
     })
   }
-  window.webContents.send('hideLoading')
+  window?.webContents?.send('hideLoading')
   dispose()
 }
 
@@ -195,7 +195,8 @@ export const pluginInstallFunc = async (event: IIPCEvent, args: [fullName: strin
 }
 
 export const pluginImportLocalFunc = async (event: IIPCEvent) => {
-  const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)!
+  const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+  if (!settingWindow) return
   const res = await dialog.showOpenDialog(settingWindow, {
     properties: ['openDirectory'],
   })

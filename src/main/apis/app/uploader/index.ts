@@ -17,22 +17,22 @@ import { configPaths } from '~/utils/configPaths'
 import { ICOREBuildInEvent, IWindowList } from '~/utils/enum'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 
-const waitForRename = (window: BrowserWindow, id: number): Promise<string | null> => {
+const waitForRename = (window: BrowserWindow | undefined, id: number | undefined): Promise<string | null> => {
   return new Promise(resolve => {
     ipcMain.once(`${RENAME_FILE_NAME}${id}`, (_: IpcMainEvent, newName: string) => {
       resolve(newName)
-      window.close()
+      window?.close()
     })
-    window.on('close', () => {
+    window?.on('close', () => {
       resolve(null)
       ipcMain.removeAllListeners(`${RENAME_FILE_NAME}${id}`)
-      windowManager.deleteById(window.id)
+      windowManager.deleteById(window?.id)
     })
   })
 }
 
 class Uploader {
-  private webContents: WebContents | null = null
+  private webContents: WebContents | undefined = undefined
 
   constructor() {
     this.init()
@@ -77,10 +77,10 @@ class Uploader {
                 ? `${dayjs().add(index, 'ms').format('YYYYMMDDHHmmssSSS')}${item.extname}`
                 : item.fileName
               if (rename) {
-                const window = windowManager.create(IWindowList.RENAME_WINDOW)!
+                const window = windowManager.create(IWindowList.RENAME_WINDOW)
                 ipcMain.on(GET_RENAME_FILE_NAME, (evt, _) => {
                   try {
-                    if (evt.sender.id === window.webContents.id) {
+                    if (evt.sender.id === window?.webContents.id) {
                       logger.info('rename window ready, wait for rename...')
                       window.webContents.send(RENAME_FILE_NAME, fileName, item.fileName, window.webContents.id)
                     }
@@ -88,7 +88,7 @@ class Uploader {
                     logger.error(e)
                   }
                 })
-                name = await waitForRename(window, window.webContents.id)
+                name = await waitForRename(window, window?.webContents.id)
               }
               item.fileName = name || fileName
             }),
@@ -98,7 +98,7 @@ class Uploader {
     })
   }
 
-  setWebContents(webContents: WebContents) {
+  setWebContents(webContents: WebContents | undefined) {
     this.webContents = webContents
     return this
   }

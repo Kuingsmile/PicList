@@ -3,12 +3,13 @@ import path from 'node:path'
 import { themesDir } from '@core/datastore/dirs'
 import * as fsWalk from '@nodelib/fs.walk'
 import AdmZip from 'adm-zip'
-import windowManager from 'apis/app/window/windowManager'
 import axios from 'axios'
 import fs from 'fs-extra'
 
 import { randomStringGenerator } from '@/manage/utils/common'
 import { IWindowList } from '~/utils/enum'
+
+import windowManager from '../window/windowManager'
 
 let insertedCSSKeyMain: string | undefined
 
@@ -75,12 +76,11 @@ export async function readTheme(theme: string): Promise<string> {
 export async function applyTheme(theme: string): Promise<void> {
   theme = path.basename(theme)
   const css = await readTheme(theme)
-  if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-    try {
-      await windowManager.get(IWindowList.SETTING_WINDOW)?.webContents.removeInsertedCSS(insertedCSSKeyMain || '')
-      insertedCSSKeyMain = await windowManager.get(IWindowList.SETTING_WINDOW)?.webContents.insertCSS(css)
-    } catch (e) {
-      console.error(e)
-    }
+  try {
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
+    await window?.webContents.removeInsertedCSS(insertedCSSKeyMain || '')
+    insertedCSSKeyMain = await window?.webContents.insertCSS(css)
+  } catch (e) {
+    console.error(e)
   }
 }

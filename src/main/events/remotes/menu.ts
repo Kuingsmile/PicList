@@ -52,7 +52,10 @@ const buildMiniPageMenu = () => {
     {
       label: $t('HIDE_MINI_WINDOW'),
       click() {
-        BrowserWindow.getFocusedWindow()!.hide()
+        const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)
+        console.log('hide mini window', miniWindow)
+        miniWindow?.close()
+        console.log('mini window closed')
       },
     },
     {
@@ -93,7 +96,7 @@ const buildMiniPageMenu = () => {
   return Menu.buildFromTemplate(template)
 }
 
-const buildMainPageMenu = (win: BrowserWindow) => {
+const buildMainPageMenu = (win: BrowserWindow | undefined) => {
   const template = [
     {
       label: $t('ABOUT'),
@@ -121,8 +124,7 @@ const buildMainPageMenu = (win: BrowserWindow) => {
     {
       label: $t('OPEN_TOOLBOX'),
       click() {
-        const window = windowManager.create(IWindowList.TOOLBOX_WINDOW)
-        window?.show()
+        windowManager.create(IWindowList.TOOLBOX_WINDOW)
       },
     },
     {
@@ -234,9 +236,7 @@ const buildPicBedListMenu = () => {
                 checked: config._id === defaultId && item.type === currentPicBed,
                 click() {
                   changeCurrentUploader(item.type, config, config._id)
-                  if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-                    windowManager.get(IWindowList.SETTING_WINDOW)!.webContents.send('syncPicBed')
-                  }
+                  windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('syncPicBed')
                   setTrayToolTip(`${item.type} ${config._configName || 'Default'}`)
                 },
               }
@@ -248,9 +248,7 @@ const buildPicBedListMenu = () => {
                 [configPaths.picBed.current]: item.type,
                 [configPaths.picBed.uploader]: item.type,
               })
-              if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-                windowManager.get(IWindowList.SETTING_WINDOW)!.webContents.send('syncPicBed')
-              }
+              windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('syncPicBed')
               setTrayToolTip(item.type)
             }
           : undefined,
@@ -293,8 +291,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
         picgo.saveConfig({
           [`picgoPlugins.${plugin.fullName}`]: true,
         })
-        const window = windowManager.get(IWindowList.SETTING_WINDOW)!
-        window.webContents.send(PICGO_TOGGLE_PLUGIN, plugin.fullName, true)
+        windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send(PICGO_TOGGLE_PLUGIN, plugin.fullName, true)
       },
     },
     {
@@ -304,10 +301,10 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
         picgo.saveConfig({
           [`picgoPlugins.${plugin.fullName}`]: false,
         })
-        const window = windowManager.get(IWindowList.SETTING_WINDOW)!
-        window.webContents.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
-        window.webContents.send(PICGO_TOGGLE_PLUGIN, plugin.fullName, false)
-        window.webContents.send(PICGO_HANDLE_PLUGIN_DONE, plugin.fullName)
+        const window = windowManager.get(IWindowList.SETTING_WINDOW)
+        window?.webContents?.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
+        window?.webContents?.send(PICGO_TOGGLE_PLUGIN, plugin.fullName, false)
+        window?.webContents?.send(PICGO_HANDLE_PLUGIN_DONE, plugin.fullName)
         if (plugin.config.transformer.name) {
           handleRestoreState('transformer', plugin.config.transformer.name)
         }
@@ -319,16 +316,16 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
     {
       label: $t('UNINSTALL_PLUGIN'),
       click() {
-        const window = windowManager.get(IWindowList.SETTING_WINDOW)!
-        window.webContents.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
+        const window = windowManager.get(IWindowList.SETTING_WINDOW)
+        window?.webContents?.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
         handlePluginUninstall(plugin.fullName)
       },
     },
     {
       label: $t('UPDATE_PLUGIN'),
       click() {
-        const window = windowManager.get(IWindowList.SETTING_WINDOW)!
-        window.webContents.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
+        const window = windowManager.get(IWindowList.SETTING_WINDOW)
+        window?.webContents?.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
         handlePluginUpdate(plugin.fullName)
       },
     },
@@ -340,11 +337,11 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
           c: `${i} - ${plugin.config[i].fullName || plugin.config[i].name}`,
         }),
         click() {
-          const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+          const window = windowManager.get(IWindowList.SETTING_WINDOW)
           const currentType = i
           const configName = plugin.config[i].fullName || plugin.config[i].name
           const config = plugin.config[i].config
-          window.webContents.send(PICGO_CONFIG_PLUGIN, currentType, configName, config)
+          window?.webContents?.send(PICGO_CONFIG_PLUGIN, currentType, configName, config)
         },
       }
       menu.push(obj)

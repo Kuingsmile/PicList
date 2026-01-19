@@ -188,7 +188,7 @@
           <span class="text-sm font-medium text-secondary">{{ t('pages.upload.taskUpload') }}</span>
           <span
             v-if="taskQueueStatus.tasks.length > 0"
-            class="absolute top-[50%] right-3 flex min-w-6 -translate-y-[50%] animate-[badge-pulse_2s_ease-in-out_infinite] items-center justify-center rounded-full px-1.5 py-0 text-sm font-bold text-accent"
+            class="absolute top-[50%] right-3 flex min-w-6 animate-[badge-pulse_2s_ease-in-out_infinite] items-center justify-center rounded-full px-1.5 py-0 text-sm font-bold text-accent"
           >
             {{ taskQueueStatus.tasks.length }}
           </span>

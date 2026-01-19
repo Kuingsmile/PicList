@@ -29,9 +29,9 @@ const trayRoutes = [
   {
     action: IRPCActionType.TRAY_UPLOAD_CLIPBOARD_FILES,
     handler: async () => {
-      const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
+      const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
       // macOS use builtin clipboard is OK
-      const res = await uploader.setWebContents(trayWindow.webContents).uploadWithBuildInClipboardReturnCtx()
+      const res = await uploader.setWebContents(trayWindow?.webContents).uploadWithBuildInClipboardReturnCtx()
       const img = res[0] ? res[0] : false
       const backupImgs = res[1] ? res[1] : false
       const allConfig = picgo.getConfig<any>() || {}
@@ -54,19 +54,19 @@ const trayRoutes = [
           notification.show()
         }
         await GalleryDB.getInstance().insert(img[0])
-        trayWindow.webContents.send('clipboardFiles', [])
+        trayWindow?.webContents.send('clipboardFiles', [])
         if (windowManager.has(IWindowList.SETTING_WINDOW)) {
           windowManager.get(IWindowList.SETTING_WINDOW)!.webContents.send('updateGallery')
         }
         if (backupImgs && backupImgs.length > 0) {
           await GalleryDB.getInstance().insert(backupImgs[0])
-          trayWindow.webContents.send('uploadFiles')
+          trayWindow?.webContents.send('uploadFiles')
           if (windowManager.has(IWindowList.SETTING_WINDOW)) {
             windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
           }
         }
       }
-      trayWindow.webContents.send('uploadFiles')
+      trayWindow?.webContents.send('uploadFiles')
     },
   },
 ]

@@ -12,7 +12,6 @@ import { configPaths } from '~/utils/configPaths'
 import { IWindowList } from '~/utils/enum'
 
 import logo from '../../../../../resources/logo.png?asset&asarUnpack'
-import { applyTheme } from '../theme'
 
 const windowList = new Map<string, IWindowListItem>()
 
@@ -182,7 +181,10 @@ windowList.set(IWindowList.TRAY_WINDOW, {
       window.loadFile(path.join(dirname, '../renderer/index.html'))
     }
     window.on('blur', () => {
-      window.hide()
+      window.close()
+    })
+    window.on('closed', () => {
+      window = null as unknown as Electron.BrowserWindow
     })
   },
 })
@@ -191,7 +193,7 @@ windowList.set(IWindowList.SETTING_WINDOW, {
   isValid: true,
   multiple: false,
   options: () => settingWindowOptions,
-  callback(window, windowManager) {
+  callback(window) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#main-page/upload`)
     } else {
@@ -201,18 +203,13 @@ windowList.set(IWindowList.SETTING_WINDOW, {
     }
     window.on('closed', () => {
       bus.emit(TOGGLE_SHORTKEY_MODIFIED_MODE, false)
-      if (process.platform === 'linux') {
-        process.nextTick(() => {
-          app.quit()
-        })
-      }
+      window = null as unknown as Electron.BrowserWindow
     })
-    window.on('ready-to-show', () => {
-      const customTheme = picgo.getConfig<string>(configPaths.settings.theme) || 'default.css'
-      applyTheme(customTheme)
+    window.once('ready-to-show', async () => {
+      window.show()
+      window.focus()
     })
     bus.emit(CREATE_APP_MENU)
-    windowManager.create(IWindowList.MINI_WINDOW)
   },
 })
 
@@ -220,7 +217,8 @@ windowList.set(IWindowList.MINI_WINDOW, {
   isValid: process.platform !== 'darwin',
   multiple: false,
   options: () => miniWindowOptions,
-  callback(window) {
+  callback(window, windowManager) {
+    const id = window.id
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#mini-page`)
     } else {
@@ -228,6 +226,10 @@ windowList.set(IWindowList.MINI_WINDOW, {
         hash: 'mini-page',
       })
     }
+    window.on('closed', () => {
+      windowManager.deleteById(id)
+      window = null as unknown as Electron.BrowserWindow
+    })
   },
 })
 
@@ -250,6 +252,9 @@ windowList.set(IWindowList.RENAME_WINDOW, {
       const positionY = Math.floor(y + height / 2 - (height > 400 ? 88 : 0))
       window.setPosition(positionX, positionY, false)
     }
+    window.on('closed', () => {
+      window = null as unknown as Electron.BrowserWindow
+    })
   },
 })
 
@@ -272,6 +277,13 @@ windowList.set(IWindowList.TOOLBOX_WINDOW, {
       const positionY = Math.floor(y + height / 2 - (height > 400 ? 225 : 0))
       window.setPosition(positionX, positionY, false)
     }
+    window.once('ready-to-show', () => {
+      window.show()
+      window.focus()
+    })
+    window.on('closed', () => {
+      window = null as unknown as Electron.BrowserWindow
+    })
   },
 })
 
@@ -322,6 +334,9 @@ windowList.set(IWindowList.UPDATE_WINDOW, {
       const positionY = Math.floor(y + height / 2 - 300)
       window.setPosition(positionX, positionY, false)
     }
+    window.on('closed', () => {
+      window = null as unknown as Electron.BrowserWindow
+    })
   },
 })
 

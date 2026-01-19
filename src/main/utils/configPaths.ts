@@ -182,6 +182,7 @@ export const configPaths = {
     enableSecondUploader: 'settings.enableSecondUploader',
     lastSyncTime: 'settings.lastSyncTime',
     theme: 'settings.theme',
+    systemTheme: 'settings.systemTheme',
     enableAdvancedAnimation: 'settings.enableAdvancedAnimation',
     isDisableGPU: 'settings.isDisableGPU',
   },

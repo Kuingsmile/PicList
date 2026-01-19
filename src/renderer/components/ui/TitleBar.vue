@@ -1,35 +1,44 @@
 <template>
-  <div class="title-bar" data-drag-region>
-    <div class="title-bar-content">
-      <div v-if="osGlobal !== 'darwin'" class="title-left">
-        <div class="app-icon">
-          <img :src="defaultLogo" width="18" height="18" />
+  <div
+    class="fixed top-0 right-0 left-0 z-1000 h-[32px] border-b border-b-border bg-bg-secondary drag-region"
+    data-drag-region
+  >
+    <div class="flex h-full items-center justify-between px-4 py-0">
+      <div v-if="osGlobal !== 'darwin'" class="flex items-center gap-2 no-drag-region">
+        <div class="flex items-center text-accent">
+          <img :src="defaultLogo" width="18" height="18" class="pointer-events-none select-none no-drag-region" />
         </div>
       </div>
 
-      <div class="title-center">
-        <!-- Progress bar in title bar -->
-        <div v-if="isShowprogress" class="progress-container">
-          <div class="progress-bar">
-            <div class="progress-fill" :style="{ width: `${progress}%` }" />
+      <div class="flex flex-1 items-center justify-center no-drag-region">
+        <div v-if="isShowprogress" class="flex w-full max-w-[600px] min-w-[100px] items-center gap-2">
+          <div class="h-[14px] w-full max-w-[600px] min-w-[100px] flex-1 overflow-hidden rounded-[2px] bg-border">
+            <div
+              class="h-full rounded-[2px] bg-success transition-all duration-300 ease-in-out"
+              :style="{ width: `${progress}%` }"
+            />
           </div>
-          <span class="progress-text">{{ progress }}%</span>
+          <span class="min-w-[35px] text-[11px] text-secondary">{{ progress }}%</span>
         </div>
       </div>
 
-      <div class="title-right">
-        <div class="window-controls">
-          <button class="control-button pin-button" :title="$t('titleBar.alwaysOnTop')" @click="setAlwaysOnTop">
-            <PinIcon :size="14" class="pin-icon" :class="{ active: isAlwaysOnTop }" />
+      <div class="flex items-center no-drag-region">
+        <div class="flex items-center gap-[8px]">
+          <button class="control-button" :title="$t('titleBar.alwaysOnTop')" @click="setAlwaysOnTop">
+            <PinIcon
+              :size="14"
+              class="text-[#6b7280] [.active]:rotate-90 [.active]:text-[#ce6769]"
+              :class="{ active: isAlwaysOnTop }"
+            />
           </button>
           <template v-if="osGlobal !== 'darwin'">
-            <button class="control-button minimize-button" :title="$t('titleBar.minimize')" @click="minimizeWindow">
+            <button class="control-button minimize" :title="$t('titleBar.minimize')" @click="minimizeWindow">
               <MinusIcon :size="14" />
             </button>
-            <button class="control-button mini-button" :title="$t('titleBar.miniWindow')" @click="openMiniWindow">
+            <button class="control-button mini" :title="$t('titleBar.miniWindow')" @click="openMiniWindow">
               <ShrinkIcon :size="14" />
             </button>
-            <button class="control-button close-button" :title="$t('titleBar.close')" @click="closeWindow">
+            <button class="control-button close" :title="$t('titleBar.close')" @click="closeWindow">
               <XIcon :size="14" />
             </button>
           </template>
@@ -75,138 +84,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.title-bar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  z-index: 1000;
-  border-bottom: 1px solid var(--color-border);
-  height: 32px;
-  background: var(--color-background-secondary);
-  -webkit-app-region: drag;
-}
-
-.title-bar-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 16px;
-  height: 100%;
-}
-
-.title-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  -webkit-app-region: no-drag;
-}
-
-.app-icon {
-  display: flex;
-  align-items: center;
-  color: var(--color-accent);
-}
-
-.app-icon img {
-  -webkit-user-drag: none;
-  user-select: none;
-  pointer-events: none;
-}
-
-.title-center {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  -webkit-app-region: no-drag;
-}
-
-.progress-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  min-width: 100px;
-  max-width: 600px;
-}
-
-.progress-bar {
-  overflow: hidden;
-  border-radius: 2px;
-  width: 100%;
-  min-width: 100px;
-  max-width: 600px;
-  height: 14px;
-  background: var(--color-border);
-  flex: 1;
-}
-
-.progress-fill {
-  border-radius: 2px;
-  height: 100%;
-  background: var(--color-success);
-  transition: width 0.3s ease;
-}
-
-.progress-text {
-  min-width: 35px;
-  font-size: 11px;
-  color: var(--color-text-secondary);
-}
-
-.title-right {
-  display: flex;
-  align-items: center;
-  -webkit-app-region: no-drag;
-}
-
-.window-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+@import 'tailwindcss' reference;
+@import '../../assets/css/theme.css' reference;
+@import '../../assets/css/utilities.css' reference;
 
 .control-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  border-radius: 4px;
-  width: 28px;
-  height: 20px;
-  color: var(--color-text-secondary);
-  background: transparent;
-  transition: var(--transition);
-  cursor: pointer;
-}
-
-.control-button:hover {
-  color: var(--color-text-primary);
-  background: var(--color-surface-elevated);
-}
-
-.pin-icon {
-  color: #6b7280;
-}
-
-.pin-icon.active {
-  rotate: 90deg;
-  color: #ce6769;
-}
-
-.minimize-button:hover {
-  color: white;
-  background: color-mix(in srgb, var(--color-warning), transparent 15%);
-}
-
-.mini-button:hover {
-  color: white;
-  background: color-mix(in srgb, var(--color-success), transparent 15%);
-}
-
-.close-button:hover {
-  color: white;
-  background: var(--color-danger);
+  @apply flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard hover:bg-surface-elevated hover:text-main [.close:hover]:bg-danger [.close:hover]:text-white [.mini:hover]:bg-success/85 [.mini:hover]:text-white [.minimize:hover]:bg-accent/85 [.minimize:hover]:text-white;
 }
 </style>

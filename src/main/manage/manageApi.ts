@@ -166,8 +166,8 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   }
 
   private sendDefaultResult(eventName: string, defaultResult: any) {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
-    window.webContents.send(eventName, defaultResult)
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
+    window?.webContents.send(eventName, defaultResult)
     ipcMain.removeAllListeners(
       eventName === refreshDownloadFileTransferList ? cancelDownloadLoadingFileList : 'cancelLoadingFileList',
     )

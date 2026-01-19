@@ -109,8 +109,7 @@ export function createMenu() {
 export function createContextMenu() {
   const ClipboardWatcher = clipboardPoll
   const isListeningClipboard = picgo.getConfig<boolean | undefined>(configPaths.settings.isListeningClipboard) || false
-  const isMiniWindowVisible =
-    windowManager.has(IWindowList.MINI_WINDOW) && windowManager.get(IWindowList.MINI_WINDOW)!.isVisible()
+  const isMiniWindowVisible = windowManager.get(IWindowList.MINI_WINDOW)?.isVisible() || false
 
   const startWatchClipboard = () => {
     picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: true })
@@ -236,11 +235,9 @@ export function createTray(tooltip: string) {
   // click事件在Mac和Windows上可以触发（在Ubuntu上无法触发，Unity不支持）
   if (process.platform === 'darwin' || process.platform === 'win32') {
     tray.on('right-click', () => {
-      if (windowManager.has(IWindowList.TRAY_WINDOW)) {
-        windowManager.get(IWindowList.TRAY_WINDOW)!.hide()
-      }
+      windowManager.get(IWindowList.TRAY_WINDOW)?.hide()
       createContextMenu()
-      tray!.popUpContextMenu(contextMenu!)
+      tray?.popUpContextMenu(contextMenu!)
     })
 
     tray.on('click', (_, bounds) => {
@@ -277,33 +274,29 @@ export function createTray(tooltip: string) {
               })
             }
           }
-          windowManager.get(IWindowList.TRAY_WINDOW)!.webContents.send('clipboardFiles', obj)
+          windowManager.get(IWindowList.TRAY_WINDOW)?.webContents.send('clipboardFiles', obj)
         }, 0)
       } else {
-        if (windowManager.has(IWindowList.TRAY_WINDOW)) {
-          windowManager.get(IWindowList.TRAY_WINDOW)!.hide()
-        }
-        const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+        windowManager.get(IWindowList.TRAY_WINDOW)?.hide()
         const autoCloseMiniWindow =
           picgo.getConfig<boolean | undefined>(configPaths.settings.autoCloseMiniWindow) || false
-        settingWindow!.show()
-        settingWindow!.focus()
-        if (windowManager.has(IWindowList.MINI_WINDOW) && autoCloseMiniWindow) {
-          windowManager.get(IWindowList.MINI_WINDOW)!.hide()
+        if (autoCloseMiniWindow) {
+          windowManager.get(IWindowList.MINI_WINDOW)?.close()
         }
+        windowManager.create(IWindowList.SETTING_WINDOW)
       }
     })
 
     tray.on('drag-enter', () => {
       if (nativeTheme.shouldUseDarkColors) {
-        tray!.setImage(uploadDarkPng)
+        tray?.setImage(uploadDarkPng)
       } else {
-        tray!.setImage(uploadPng)
+        tray?.setImage(uploadPng)
       }
     })
 
     tray.on('drag-end', () => {
-      tray!.setImage(getTrayIcon())
+      tray?.setImage(getTrayIcon())
     })
 
     // drop-files only be supported in macOS
@@ -313,8 +306,8 @@ export function createTray(tooltip: string) {
         const allConfig = picgo.getConfig<any>() || {}
         const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN
         const rawInput = cloneDeep(files)
-        const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
-        const res = await uploader.setWebContents(trayWindow.webContents).uploadReturnCtx(files)
+        const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
+        const res = await uploader.setWebContents(trayWindow?.webContents).uploadReturnCtx(files)
         const imgs = res[0] ? res[0] : false
         const backImgs = res[1] ? res[1] : false
         const deleteLocalFile = allConfig.settings?.deleteLocalFile || false
@@ -344,33 +337,35 @@ export function createTray(tooltip: string) {
             await GalleryDB.getInstance().insert(imgs[i])
           }
           handleCopyUrl(pasteText.join('\n'))
-          trayWindow.webContents.send('dragFiles', imgs)
+          trayWindow?.webContents.send('dragFiles', imgs)
         }
         if (backImgs !== false) {
           for (const backImg of backImgs) {
             await GalleryDB.getInstance().insert(backImg)
           }
-          trayWindow.webContents.send('dragFiles', backImgs)
+          trayWindow?.webContents.send('dragFiles', backImgs)
         }
       })
     }
-    // toggleWindow()
   } else if (process.platform === 'linux') {
     // click事件在Ubuntu上无法触发，Unity不支持（在Mac和Windows上可以触发）
     // 需要使用 setContextMenu 设置菜单
     createContextMenu()
-    tray!.setContextMenu(contextMenu)
+    tray?.setContextMenu(contextMenu)
   }
 }
 
 const toggleWindow = (bounds: IBounds) => {
-  const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)!
-  if (trayWindow.isVisible()) {
+  let trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
+  if (!trayWindow) {
+    trayWindow = windowManager.create(IWindowList.TRAY_WINDOW)
+  }
+  if (trayWindow?.isVisible()) {
     trayWindow.hide()
   } else {
-    trayWindow.setPosition(bounds.x - 98 + 11, bounds.y, false)
-    trayWindow.webContents.send('updateFiles')
-    trayWindow.show()
-    trayWindow.focus()
+    trayWindow?.setPosition(bounds.x - 98 + 11, bounds.y, false)
+    trayWindow?.webContents.send('updateFiles')
+    trayWindow?.show()
+    trayWindow?.focus()
   }
 }

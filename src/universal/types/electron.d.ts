@@ -7,12 +7,12 @@ interface IWindowListItem {
 }
 
 interface IWindowManager {
-  create: (name: string) => import('electron').BrowserWindow | null
-  get: (name: string) => import('electron').BrowserWindow | null
+  create: (name: string) => import('electron').BrowserWindow | undefined
+  get: (name: string) => import('electron').BrowserWindow | undefined
   has: (name: string) => boolean
   // delete: (name: IWindowList) => void
   deleteById: (id: number) => void
-  getAvailableWindow: (isSkipMiniWindow?: boolean) => import('electron').BrowserWindow
+  getAvailableWindow: (isSkipMiniWindow?: boolean) => import('electron').BrowserWindow | undefined
 }
 
 type IpcRendererListener = (event: import('electron').IpcRendererEvent, ...args: any[]) => void

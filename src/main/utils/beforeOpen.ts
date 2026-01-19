@@ -3,7 +3,6 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { appConfigPath, themesDir } from '@core/datastore/dirs'
-import * as fsWalk from '@nodelib/fs.walk'
 import fs from 'fs-extra'
 import yaml from 'yaml'
 
@@ -101,37 +100,16 @@ function getClipboardFiles() {
   })
 }
 
-function getFileInCssDir() {
-  const cssDir = path.join(dirname, '../../resources/theme').replace('app.asar', 'app.asar.unpacked')
-  const res = fsWalk.walkSync(cssDir, {
-    followSymbolicLinks: true,
-    fs,
-    stats: true,
-    throwErrorOnBrokenSymbolicLink: false,
-  })
-  const result: string[] = []
-  res.forEach(item => {
-    if (item.stats?.isFile()) {
-      result.push(item.path)
-    }
-  })
-  return result
-}
-
 function resolveCss() {
   try {
-    fs.ensureDirSync(themesDir())
-    const css = getFileInCssDir()
-    css.forEach(item => {
-      const dest = path.join(themesDir(), path.basename(item))
-      if (!fs.pathExistsSync(dest)) {
-        fs.copyFileSync(item, dest)
-      } else {
-        diffFilesAndUpdate(item, dest)
-      }
+    const srcDir = path.join(dirname, '../../resources/theme').replace('app.asar', 'app.asar.unpacked')
+    const destDir = themesDir()
+    fs.copySync(srcDir, destDir, {
+      overwrite: true,
+      errorOnExist: false,
     })
   } catch (e) {
-    console.error(e)
+    console.error('Failed to resolve CSS:', e)
   }
 }
 

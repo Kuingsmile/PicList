@@ -93,7 +93,7 @@ class ImgurApi {
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const {
       bucketConfig: { Location: albumHash },
       cancelToken,
@@ -122,7 +122,7 @@ class ImgurApi {
         })
       } else {
         result.finished = true
-        window.webContents.send('refreshFileTransferList', result)
+        window?.webContents.send('refreshFileTransferList', result)
         ipcMain.removeAllListeners('cancelLoadingFileList')
         return
       }
@@ -139,7 +139,7 @@ class ImgurApi {
           })
         } else {
           result.finished = true
-          window.webContents.send('refreshFileTransferList', result)
+          window?.webContents.send('refreshFileTransferList', result)
           ipcMain.removeAllListeners('cancelLoadingFileList')
           return
         }
@@ -148,7 +148,7 @@ class ImgurApi {
     }
     result.success = !cancelTask[0]
     result.finished = true
-    window.webContents.send('refreshFileTransferList', result)
+    window?.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')
   }
 

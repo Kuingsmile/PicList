@@ -98,7 +98,7 @@ class WebdavplistApi {
   isRequestSuccess = (code: number) => code >= 200 && code < 300
 
   async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { prefix, customUrl, cancelToken } = configMap
     const urlPrefix = customUrl || this.endpoint
     const cancelTask = [false]
@@ -133,12 +133,12 @@ class WebdavplistApi {
       this.logParam(error, 'getBucketListRecursively')
     }
     result.finished = true
-    window.webContents.send(refreshDownloadFileTransferList, result)
+    window?.webContents.send(refreshDownloadFileTransferList, result)
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { prefix, customUrl, cancelToken, baseDir } = configMap
     let urlPrefix = customUrl || this.endpoint
     urlPrefix = urlPrefix.replace(/\/+$/, '')
@@ -179,20 +179,20 @@ class WebdavplistApi {
         }
       } else {
         result.finished = true
-        window.webContents.send('refreshFileTransferList', result)
+        window?.webContents.send('refreshFileTransferList', result)
         ipcMain.removeAllListeners('cancelLoadingFileList')
         return
       }
     } catch (error) {
       this.logParam(error, 'getBucketListBackstage')
       result.finished = true
-      window.webContents.send('refreshFileTransferList', result)
+      window?.webContents.send('refreshFileTransferList', result)
       ipcMain.removeAllListeners('cancelLoadingFileList')
       return
     }
     result.success = true
     result.finished = true
-    window.webContents.send('refreshFileTransferList', result)
+    window?.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')
   }
 

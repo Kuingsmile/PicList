@@ -96,7 +96,7 @@ class TcyunApi {
   }
 
   async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
@@ -134,10 +134,10 @@ class TcyunApi {
             this.formatFile(item, slicedPrefix, urlPrefix),
           ),
         )
-        window.webContents.send(refreshDownloadFileTransferList, result)
+        window?.webContents.send(refreshDownloadFileTransferList, result)
       } else {
         result.finished = true
-        window.webContents.send(refreshDownloadFileTransferList, result)
+        window?.webContents.send(refreshDownloadFileTransferList, result)
         ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
         return
       }
@@ -145,12 +145,12 @@ class TcyunApi {
     } while (res.IsTruncated === 'true' && !cancelTask[0])
     result.success = !cancelTask[0]
     result.finished = true
-    window.webContents.send(refreshDownloadFileTransferList, result)
+    window?.webContents.send(refreshDownloadFileTransferList, result)
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
@@ -190,10 +190,10 @@ class TcyunApi {
             this.formatFile(item, slicedPrefix, urlPrefix),
           ),
         )
-        window.webContents.send('refreshFileTransferList', result)
+        window?.webContents.send('refreshFileTransferList', result)
       } else {
         result.finished = true
-        window.webContents.send('refreshFileTransferList', result)
+        window?.webContents.send('refreshFileTransferList', result)
         ipcMain.removeAllListeners('cancelLoadingFileList')
         return
       }
@@ -201,7 +201,7 @@ class TcyunApi {
     } while (res.IsTruncated === 'true' && !cancelTask[0])
     result.success = !cancelTask[0]
     result.finished = true
-    window.webContents.send('refreshFileTransferList', result)
+    window?.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')
   }
 

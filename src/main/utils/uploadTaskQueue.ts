@@ -264,17 +264,13 @@ class UploadTaskQueueManager {
       const inserted = await GalleryDB.getInstance().insert(img)
 
       windowManager.get(IWindowList.TRAY_WINDOW)?.webContents?.send('uploadFiles')
-      if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-        windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
-      }
+      windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('updateGallery')
 
       handleCopyUrl(pasteText)
       if (backupImgs && backupImgs.length > 0) {
         await GalleryDB.getInstance().insert(backupImgs[0])
         windowManager.get(IWindowList.TRAY_WINDOW)?.webContents?.send('uploadFiles')
-        if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-          windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
-        }
+        windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('updateGallery')
       }
 
       return {

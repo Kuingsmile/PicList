@@ -65,15 +65,8 @@ const progressHandler = (progressObj: updater.ProgressInfo) => {
   const percent = {
     progress: progressObj.percent,
   }
-  const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
-  const updateWindow = windowManager.get(IWindowList.UPDATE_WINDOW)
-
-  if (settingWindow) {
-    settingWindow.webContents.send('updateProgress', percent)
-  }
-  if (updateWindow) {
-    updateWindow.webContents.send('UPDATE_PROGRESS', percent)
-  }
+  windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('updateProgress', percent)
+  windowManager.get(IWindowList.UPDATE_WINDOW)?.webContents?.send('UPDATE_PROGRESS', percent)
 }
 
 const downloadedHandler = () => {
@@ -82,10 +75,10 @@ const downloadedHandler = () => {
   if (!windowManager.has(IWindowList.UPDATE_WINDOW)) {
     windowManager.create(IWindowList.UPDATE_WINDOW)
   }
-  const updateWindow = windowManager.get(IWindowList.UPDATE_WINDOW)!
+  const updateWindow = windowManager.get(IWindowList.UPDATE_WINDOW)
 
   const sendUpdateInfo = () => {
-    updateWindow.webContents.send('SHOW_UPDATE_INFO', {
+    updateWindow?.webContents.send('SHOW_UPDATE_INFO', {
       type: 'update-downloaded',
       title: lang === II18nLanguage.ZH_CN ? '更新已下载' : 'Update Downloaded',
       message:
@@ -95,14 +88,14 @@ const downloadedHandler = () => {
     })
   }
 
-  if (updateWindow.webContents.isLoading()) {
+  if (updateWindow?.webContents.isLoading()) {
     updateWindow.webContents.once('did-finish-load', sendUpdateInfo)
   } else {
     sendUpdateInfo()
   }
 
-  if (!updateWindow.isVisible()) {
-    updateWindow.show()
+  if (!updateWindow?.isVisible()) {
+    updateWindow?.show()
   }
 }
 

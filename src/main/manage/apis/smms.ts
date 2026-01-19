@@ -54,7 +54,7 @@ class SmmsApi {
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { cancelToken } = configMap
     let marker = 1
     const cancelTask = [false]
@@ -84,18 +84,18 @@ class SmmsApi {
         if (res.data.Count === 0) {
           result.success = true
           result.finished = true
-          window.webContents.send('refreshFileTransferList', result)
+          window?.webContents.send('refreshFileTransferList', result)
           ipcMain.removeAllListeners('cancelLoadingFileList')
           return
         } else {
           res.data.data.forEach((item: any) => {
             result.fullList.push(this.formatFile(item))
           })
-          window.webContents.send('refreshFileTransferList', result)
+          window?.webContents.send('refreshFileTransferList', result)
         }
       } else {
         result.finished = true
-        window.webContents.send('refreshFileTransferList', result)
+        window?.webContents.send('refreshFileTransferList', result)
         ipcMain.removeAllListeners('cancelLoadingFileList')
         return
       }
@@ -103,7 +103,7 @@ class SmmsApi {
     } while (!cancelTask[0] && res?.status === 200 && res?.data?.success && res.data.CurrentPage < res.data.TotalPages)
     result.success = !cancelTask[0]
     result.finished = true
-    window.webContents.send('refreshFileTransferList', result)
+    window?.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')
   }
 

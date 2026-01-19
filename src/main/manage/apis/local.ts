@@ -74,7 +74,7 @@ class LocalApi {
   }
 
   async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { prefix, customUrl = '', cancelToken } = configMap
     const urlPrefix = customUrl.replace(/\/+$/, '')
     const cancelTask = [false]
@@ -109,12 +109,12 @@ class LocalApi {
       this.logParam(error, 'getBucketListRecursively')
     }
     result.finished = true
-    window.webContents.send(refreshDownloadFileTransferList, result)
+    window?.webContents.send(refreshDownloadFileTransferList, result)
     ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)!
+    const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { customUrl = '', cancelToken, baseDir } = configMap
     let prefix = configMap.prefix
     prefix = this.transBack(prefix)
@@ -165,7 +165,7 @@ class LocalApi {
       this.logParam(error, 'getBucketListBackstage')
     }
     result.finished = true
-    window.webContents.send('refreshFileTransferList', result)
+    window?.webContents.send('refreshFileTransferList', result)
     ipcMain.removeAllListeners('cancelLoadingFileList')
   }
 
