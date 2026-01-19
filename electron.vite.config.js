@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
+import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'electron-vite'
 
@@ -39,6 +40,7 @@ export default defineConfig({
       alias,
     },
     plugins: [
+      tailwindcss(),
       vue(),
       VueI18nPlugin({
         /* options */

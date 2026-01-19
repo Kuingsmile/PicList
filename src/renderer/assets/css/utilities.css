@@ -1,0 +1,23 @@
+/* stylelint-disable nesting-selector-no-missing-scoping-root */
+
+@import 'tailwindcss' reference;
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+@utility advanced-animation {
+    @apply border border-black/30 bg-black/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] backdrop-blur-[5px] backdrop-saturate-[1.8];
+}
+
+
+@utility focus-ring {
+  &:focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent outline-solid;
+  }
+}

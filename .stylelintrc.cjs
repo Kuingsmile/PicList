@@ -2,6 +2,7 @@ module.exports = {
   extends: ['stylelint-config-standard', 'stylelint-config-html/vue', 'stylelint-config-standard-vue'],
   plugins: [],
   rules: {
+    'import-notation': null,
     // 这里是允许了空的style标签
     'no-empty-source': null,
     'selector-class-pattern': null,

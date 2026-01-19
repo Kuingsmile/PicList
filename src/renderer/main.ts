@@ -1,6 +1,7 @@
 import 'video.js/dist/video-js.css'
 import 'highlight.js/styles/stackoverflow-light.css'
 import 'highlight.js/lib/common'
+import './index.css'
 
 import hljsVuePlugin from '@highlightjs/vue-plugin'
 import VueVideoPlayer from '@videojs-player/vue'
