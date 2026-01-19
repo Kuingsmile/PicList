@@ -1862,7 +1862,7 @@ import {
 import { marked } from 'marked'
 import type { IConfig } from 'piclist'
 import pkg from 'root/package.json'
-import { computed, onBeforeMount, reactive, ref, toRaw, watch } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, reactive, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
@@ -2188,6 +2188,19 @@ const needUpdate = computed(() => {
 
 onBeforeMount(() => {
   initData()
+})
+
+let unbindTheme: () => void
+onMounted(() => {
+  unbindTheme = window.electron.onThemeUpdate((_: string) => {
+    console.log('Applying theme CSS update:')
+  })
+})
+
+onBeforeUnmount(() => {
+  if (unbindTheme) {
+    unbindTheme()
+  }
 })
 
 async function loadThemes() {

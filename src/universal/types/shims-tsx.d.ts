@@ -29,6 +29,7 @@ declare global {
         writeText: typeof clipboard.writeText
       }
       showFilePath: (file: File) => string
+      onThemeUpdate: (callback: (css: string) => void) => () => void
     }
     node: {
       path: {

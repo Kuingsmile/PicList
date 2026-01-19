@@ -1,546 +1,58 @@
-/* stylelint-disable property-no-deprecated */
 /* stylelint-disable selector-pseudo-class-no-unknown */
-
-/* Reset & Base */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-/* Page Container */
-.update-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-}
-
-/* Dialog Card */
-.update-dialog {
-  position: relative;
-  overflow: auto;
-  border: 1px solid #e2e8f0;
-  border-radius: var(--radius-xl);
-  width: 90%;
-  height: 90%;
-  flex-shrink: 0;
-  background: white;
-  box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 10%),
-    0 2px 4px -1px rgb(0 0 0 / 6%);
-  animation: slide-up var(--transition-bounce-md);
-}
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.status-icon {
-  flex-shrink: 0;
-}
-
-.status-icon-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.status-text {
-  line-height: 1;
-}
-
-/* Header */
-.dialog-header {
-  padding: 1.25rem 1.5rem 1rem;
-}
-
-.dialog-title {
-  margin-bottom: 0.625rem;
-  font-size: 1.875rem;
-  font-weight: 700;
-  line-height: 1.2;
-  color: #1e293b;
-  letter-spacing: -0.025em;
-}
-
-.dialog-version {
-  display: flex;
-  align-items: center;
-  font-size: 0.9375rem;
-  gap: 0.5rem;
-}
-
-.version-label {
-  color: #64748b;
-}
-
-.version-number {
-  border-radius: var(--radius-sm);
-  padding: 0.125rem 0.5rem;
-  font-weight: 600;
-  background: #f1f5f9;
-  color: #475569;
-}
-
-/* Progress Section */
-.progress-section {
-  padding: 1.5rem;
-  background: #f8fafc;
-}
-
-.progress-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.progress-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #475569;
-}
-
-.progress-percentage {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #1e293b;
-  font-feature-settings: "tnum";
-  font-variant-numeric: tabular-nums;
-}
-
-.progress-track {
-  position: relative;
-  overflow: hidden;
-  border-radius: 9999px;
-  width: 100%;
-  height: 6px;
-  background: #e2e8f0;
-}
-
-.progress-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-radius: 9999px;
-  height: 100%;
-  background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
-  transition: width var(--transition-bounce-md);
-}
-
-/* Content */
-.dialog-content {
-  padding: 1.5rem;
-}
-
-/* Release Notes */
-.release-notes {
-  margin-bottom: 1.5rem;
-}
-
-.content-title {
-  margin-bottom: 1rem;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #1e293b;
-  letter-spacing: -0.01em;
-}
+@import "tailwindcss" reference;
+@import "../../assets/css/theme.css" reference;
+@import "../../assets/css/utilities.css" reference;
 
 .notes-body {
-  overflow-y: auto;
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  max-height: 195px;
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  background: var(--color-background-tertiary);
-  color: var(--color-text-secondary);
+  @apply overflow-y-auto rounded-lg p-5 max-h-[200px] text-base leading-[1.5] bg-bg-tertiary text-secondary;
 }
 
 .notes-body :deep(h1),
 .notes-body :deep(h2),
 .notes-body :deep(h3) {
-  margin-top: 1.25rem;
-  margin-bottom: 0.5rem;
-  font-weight: 700;
-  color: #1e293b;
+  @apply font-bold text-main mt-5 mb-2;
 }
 
 .notes-body :deep(h1:first-child),
 .notes-body :deep(h2:first-child),
 .notes-body :deep(h3:first-child) {
-  margin-top: 0;
+  @apply mt-0;
 }
 
 .notes-body :deep(p) {
-  margin-bottom: 0.875rem;
+  @apply mb-2;
 }
 
 .notes-body :deep(ul),
 .notes-body :deep(ol) {
-  padding-left: 1.5rem;
-  margin: 0.875rem 0;
+  @apply list-inside my-3.5 pl-6;
 }
 
 .notes-body :deep(li) {
-  margin-bottom: 0.375rem;
+  @apply mb-1.5;
 }
 
-.notes-body :deep(code) {
-  border-radius: 4px;
-  padding: 0.125rem 0.375rem;
-  font-size: 0.875em;
-  background: #e2e8f0;
-  color: #334155;
+.notes-body :deep(a) {
+  @apply text-accent underline;
 }
 
-.notes-body :deep(pre) {
-  overflow-x: auto;
-  border-radius: var(--radius-md);
-  padding: 1rem;
-  margin: 0.875rem 0;
-  background: #e2e8f0;
+.notes-body :deep(a:hover) {
+  @apply text-accent-hover;
 }
 
-.notes-body :deep(pre code) {
-  padding: 0;
-  background: transparent;
-}
-
-/* Update Message */
-.update-message {
-  margin-bottom: 1.5rem;
-}
-
-.update-message p {
-  font-size: 0.9375rem;
-  line-height: 1.7;
-  color: #475569;
-}
-
-/* Settings Section */
-.settings-section {
-  border-top: 1px solid #e2e8f0;
-  padding-top: 1.25rem;
-}
-
-/* Custom Checkbox */
-.checkbox-wrapper {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  gap: 0.75rem;
-  user-select: none;
-}
-
-.checkbox-input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.checkbox-box {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 2px solid #cbd5e1;
-  border-radius: var(--radius-sm);
-  width: 20px;
-  height: 20px;
-  background: white;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  flex-shrink: 0;
-}
-
-.checkbox-icon {
-  opacity: 0;
-  transform: scale(0.8);
-  color: white;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.checkbox-input:checked + .checkbox-box {
-  border-color: #2563eb;
-  background: #2563eb;
-}
-
-.checkbox-input:checked + .checkbox-box .checkbox-icon {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.checkbox-wrapper:hover .checkbox-box {
-  border-color: #2563eb;
-}
-
-.checkbox-input:focus-visible + .checkbox-box {
-  outline: 2px solid #2563eb;
-  outline-offset: 2px;
-}
-
-.checkbox-label {
-  font-size: 0.9375rem;
-  color: #475569;
-}
-
-/* Footer */
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  border-top: 1px solid #e2e8f0;
-  padding: 1.25rem 1.5rem;
-  background: #f8fafc;
-  gap: 0.75rem;
+.notes-body :deep(img) {
+  @apply max-w-full rounded-md;
 }
 
 /* Buttons */
-.btn {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  border-radius: var(--radius-lg);
-  padding: 0.625rem 1.25rem;
-  font-size: 0.9375rem;
-  font-family: inherit;
-  font-weight: 600;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  cursor: pointer;
-  gap: 0.5rem;
-  letter-spacing: -0.01em;
+.btn-ghost {
+  @apply  inline-flex justify-center items-center border-none rounded-lg px-5 py-2.5 text-sm font-[inherit] font-semibold transition-all duration-fast ease-standard cursor-pointer gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-secondary bg-bg-secondary shadow-md hover:-translate-y-px hover:shadow-lg focus-visible:focus-ring;
 }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.btn-primary {
+  @apply  inline-flex justify-center items-center border-none rounded-lg px-5 py-2.5 text-sm font-[inherit] font-semibold transition-all duration-fast ease-standard cursor-pointer gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-white bg-accent shadow-md hover:-translate-y-px hover:shadow-lg focus-visible:focus-ring;
 }
 
 .btn-icon {
-  flex-shrink: 0;
-}
-
-/* Primary Button */
-.btn-primary {
-  color: white;
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  box-shadow: 0 1px 3px 0 rgb(249 115 22 / 30%);
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px 0 rgb(249 115 22 / 40%);
-}
-
-.btn-primary:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.btn-primary:focus-visible {
-  outline: 2px solid #f97316;
-  outline-offset: 2px;
-}
-
-/* Ghost Button */
-.btn-ghost {
-  border: 1px solid #e2e8f0;
-  background: white;
-  color: #475569;
-}
-
-.btn-ghost:hover:not(:disabled) {
-  border-color: #cbd5e1;
-  background: #f8fafc;
-  color: #1e293b;
-}
-
-.btn-ghost:focus-visible {
-  outline: 2px solid #2563eb;
-  outline-offset: 2px;
-}
-
-/* Responsive Design */
-@media (width <= 640px) {
-  .update-page {
-    padding: 1rem;
-  }
-
-  .update-dialog {
-    max-width: 100%;
-  }
-
-  .dialog-title {
-    font-size: 1.5rem;
-  }
-
-  .dialog-footer {
-    flex-direction: column-reverse;
-  }
-
-  .btn {
-    width: 100%;
-  }
-}
-
-@media (width <= 480px) {
-  .dialog-header {
-    padding: 1rem 1rem 0.75rem;
-  }
-
-  .dialog-title {
-    font-size: 1.375rem;
-  }
-
-  .dialog-content {
-    padding: 1.25rem 1rem;
-  }
-
-  .dialog-footer {
-    padding: 1rem;
-  }
-
-  .notes-body {
-    max-height: 240px;
-    font-size: 0.875rem;
-  }
-}
-
-/* Accessibility - Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  .status-icon-spin {
-    animation: none;
-  }
-}
-
-/* Dark Mode Support (if needed) */
-@media (prefers-color-scheme: dark) {
-  .update-page {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  }
-
-  .update-dialog {
-    border-color: #334155;
-    background: #1e293b;
-  }
-
-  .dialog-title {
-    color: #f8fafc;
-  }
-
-  .version-label {
-    color: #94a3b8;
-  }
-
-  .version-number {
-    background: #334155;
-    color: #cbd5e1;
-  }
-
-  .progress-section,
-  .dialog-footer {
-    background: #0f172a;
-  }
-
-  .progress-label {
-    color: #cbd5e1;
-  }
-
-  .progress-percentage {
-    color: #f8fafc;
-  }
-
-  .progress-track {
-    background: #334155;
-  }
-
-  .content-title {
-    color: #f8fafc;
-  }
-
-  .notes-body {
-    background: #0f172a;
-    color: #cbd5e1;
-  }
-
-  .notes-body :deep(h1),
-  .notes-body :deep(h2),
-  .notes-body :deep(h3) {
-    color: #f8fafc;
-  }
-
-  .notes-body :deep(code) {
-    background: #334155;
-    color: #e2e8f0;
-  }
-
-  .notes-body :deep(pre) {
-    background: #334155;
-  }
-
-  .update-message p {
-    color: #cbd5e1;
-  }
-
-  .settings-section {
-    border-top-color: #334155;
-  }
-
-  .checkbox-box {
-    border-color: #475569;
-    background: #0f172a;
-  }
-
-  .checkbox-wrapper:hover .checkbox-box {
-    border-color: #3b82f6;
-  }
-
-  .checkbox-label {
-    color: #cbd5e1;
-  }
-
-  .dialog-footer {
-    border-top-color: #334155;
-  }
-
-  .btn-ghost {
-    border-color: #334155;
-    background: #0f172a;
-    color: #cbd5e1;
-  }
-
-  .btn-ghost:hover:not(:disabled) {
-    border-color: #475569;
-    background: #334155;
-    color: #f8fafc;
-  }
+  @apply shrink-0 w-6 h-6;
 }

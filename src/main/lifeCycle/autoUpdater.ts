@@ -47,9 +47,9 @@ const updateAvailableHandler = async (info: updater.UpdateInfo) => {
   }
 
   windowManager.create(IWindowList.UPDATE_WINDOW)
-  const updateWindow = windowManager.get(IWindowList.UPDATE_WINDOW)!
+  const updateWindow = windowManager.get(IWindowList.UPDATE_WINDOW)
 
-  updateWindow.webContents.once('did-finish-load', () => {
+  updateWindow?.webContents.once('did-finish-load', () => {
     updateWindow.webContents.send('SHOW_UPDATE_INFO', {
       type: 'update-available',
       title: lang === II18nLanguage.ZH_CN ? '发现新版本' : 'New Update Available',
@@ -58,7 +58,7 @@ const updateAvailableHandler = async (info: updater.UpdateInfo) => {
     })
   })
 
-  updateWindow.show()
+  updateWindow?.show()
 }
 
 const progressHandler = (progressObj: updater.ProgressInfo) => {

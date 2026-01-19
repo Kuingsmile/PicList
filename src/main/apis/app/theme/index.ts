@@ -11,8 +11,6 @@ import { IWindowList } from '~/utils/enum'
 
 import windowManager from '../window/windowManager'
 
-let insertedCSSKeyMain: string | undefined
-
 export async function resolveThemes(): Promise<{ key: string; label: string }[]> {
   const files = fsWalk.walkSync(themesDir(), {
     followSymbolicLinks: true,
@@ -74,13 +72,9 @@ export async function readTheme(theme: string): Promise<string> {
 }
 
 export async function applyTheme(theme: string): Promise<void> {
-  theme = path.basename(theme)
-  const css = await readTheme(theme)
-  try {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    await window?.webContents.removeInsertedCSS(insertedCSSKeyMain || '')
-    insertedCSSKeyMain = await window?.webContents.insertCSS(css)
-  } catch (e) {
-    console.error(e)
-  }
+  const basePath = path.basename(theme)
+  const css = await readTheme(basePath)
+  windowManager.get(IWindowList.SETTING_WINDOW)?.webContents.send('THEME_UPDATE', css)
+  windowManager.get(IWindowList.UPDATE_WINDOW)?.webContents.send('THEME_UPDATE', css)
+  windowManager.get(IWindowList.TRAY_WINDOW)?.webContents.send('THEME_UPDATE', css)
 }

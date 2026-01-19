@@ -116,6 +116,16 @@ try {
     showFilePath(file: File) {
       return webUtils.getPathForFile(file)
     },
+    onThemeUpdate: (callback: (css: string) => void) => {
+      const subscription = (_: any, css: string) => {
+        injectCSS(css)
+        callback(css)
+      }
+      ipcRenderer.on('THEME_UPDATE', subscription)
+      return () => {
+        ipcRenderer.removeListener('THEME_UPDATE', subscription)
+      }
+    },
   })
 
   contextBridge.exposeInMainWorld('node', {

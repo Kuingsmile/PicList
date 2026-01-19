@@ -1,5 +1,5 @@
 <template>
-  <div id="layout" :key="pageReloadCount" class="h-full select-none">
+  <div id="layout" :key="pageReloadCount" class="h-full min-h-screen w-full select-none">
     <router-view />
     <UIServiceProvider />
   </div>
