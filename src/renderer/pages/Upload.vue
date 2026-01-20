@@ -9,7 +9,7 @@
       >
         <div class="flex max-w-[calc(100%-300px)] flex-1 flex-wrap items-center gap-2 max-md:order-1">
           <button
-            class="group/provider flex w-auto min-w-[150px] shrink-0 cursor-pointer items-center gap-3 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-2 font-[inherit] duration-fast ease-standard hover:-translate-y-px hover:border-accent-hover/70 hover:bg-surface hover:shadow-sm focus-visible:focus-ring max-xs:w-full max-xs:min-w-[100px]"
+            class="provider-button group/provider flex w-auto min-w-[150px] shrink-0 cursor-pointer items-center gap-3 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-2 font-[inherit] duration-fast ease-standard hover:-translate-y-px hover:border-accent-hover/70 hover:bg-surface hover:shadow-sm focus-visible:focus-ring max-xs:w-full max-xs:min-w-[100px]"
             :title="t('pages.upload.uploadViewHint')"
             @click="handlePicBedNameClick(picBedName)"
           >

@@ -1,45 +1,58 @@
 <template>
   <TransitionRoot appear :show="isVisible" as="template">
-    <div class="guide-overlay">
-      <div class="guide-backdrop" @click="handleClose" />
+    <div class="pointer-events-auto fixed inset-0 z-9999">
+      <div class="absolute inset-0 bg-black/15 transition-all duration-300 ease-apple" @click="handleClose" />
 
-      <div v-if="currentStepConfig.target" class="guide-spotlight" :style="spotlightStyle" />
+      <div
+        v-if="currentStepConfig.target"
+        class="pointer-events-none absolute z-10000 rounded-xl border-2 border-dashed border-accent shadow-sm transition-all duration-300 ease-apple"
+        :style="spotlightStyle"
+      />
 
       <!-- Guide Card -->
-      <div class="guide-card" :style="cardStyle">
-        <div class="guide-header">
-          <div class="guide-header-left">
-            <h3 class="guide-title">{{ t('guide.title') }}</h3>
-            <span class="guide-step-indicator">
+      <div
+        class="absolute z-10001 max-h-[80vh] w-[420px] max-w-[90vw] overflow-auto rounded-lg border border-border bg-bg-tertiary shadow-2xl transition-all duration-300 ease-apple max-sm:w-[calc(100vw-32px)]"
+        :style="cardStyle"
+      >
+        <div class="flex items-center justify-between border-b border-b-border px-4 py-3">
+          <div class="flex flex-col gap-0.5">
+            <h3 class="m-0 text-[16px] font-semibold text-main">{{ t('guide.title') }}</h3>
+            <span class="text-sm text-tertiary">
               {{ t('guide.stepIndicator', { current: currentStep + 1, total: steps.length }) }}
             </span>
           </div>
-          <button class="guide-close" :title="t('guide.close')" @click="handleClose">
+          <button
+            class="flex cursor-pointer items-center justify-center rounded-sm border-none bg-transparent p-[4px] text-secondary transition-all duration-200 ease-apple hover:bg-accent-hover hover:text-main"
+            :title="t('guide.close')"
+            @click="handleClose"
+          >
             <XIcon :size="20" />
           </button>
         </div>
 
-        <div class="guide-content">
-          <div class="guide-icon">
+        <div class="flex items-start gap-4 px-5 py-4">
+          <div
+            class="border-lg flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-lg bg-accent text-white"
+          >
             <component :is="currentStepConfig.icon" :size="24" />
           </div>
-          <div class="guide-text">
-            <h4 class="guide-content-title">{{ t(currentStepConfig.title) }}</h4>
-            <p class="guide-content-description">{{ t(currentStepConfig.description) }}</p>
+          <div class="min-w-0 flex-1">
+            <h4 class="mb-1 text-base font-semibold text-main">{{ t(currentStepConfig.title) }}</h4>
+            <p class="m-0 text-sm leading-[1.5] text-secondary">{{ t(currentStepConfig.description) }}</p>
           </div>
         </div>
 
-        <div class="guide-footer">
-          <div class="guide-progress">
+        <div class="border-t border-t-border p-3">
+          <div class="mb-2.5 flex justify-center gap-1.5">
             <div
               v-for="(_, index) in steps"
               :key="index"
-              class="progress-dot"
+              class="h-[6px] w-[6px] rounded-full bg-border transition-all duration-300 ease-apple [.active]:w-5 [.active]:rounded-xs [.active]:bg-accent [.completed]:bg-success"
               :class="{ active: index === currentStep, completed: index < currentStep }"
             />
           </div>
 
-          <div class="guide-actions">
+          <div class="flex justify-end gap-1.5">
             <button v-if="currentStep > 0" class="guide-btn secondary" @click="handlePrevious">
               <ChevronLeftIcon :size="16" />
               {{ t('guide.previous') }}

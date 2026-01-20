@@ -28,7 +28,7 @@
       </button>
     </div>
 
-    <div class="flex items-center justify-center p-3">
+    <div class="theme-switcher flex items-center justify-center p-3">
       <ThemeSwitcher :collapsed="isCollapsed" />
     </div>
 
