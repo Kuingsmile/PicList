@@ -1,43 +1,57 @@
 <template>
-  <div id="tray-page">
+  <div
+    id="tay-page"
+    class="font-[-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif] no-scrollbar flex h-[350px] w-[196px] flex-col overflow-hidden bg-bg-tertiary/95"
+  >
     <!-- Header -->
-    <div class="tray-header" @click="openSettingWindow">
-      <div class="header-content">
-        <span class="header-text">
+    <div
+      class="rounded-b-0 flex min-h-[32px] cursor-pointer items-center justify-between bg-tertiary/95 px-3 py-2 transition-all duration-fast ease-apple hover:shadow-md"
+      @click="openSettingWindow"
+    >
+      <div class="flex flex-1 items-center gap-2">
+        <span class="text-xs font-semibold text-white opacity-95">
           {{ t('pages.tray.openMainWindow') }}
         </span>
       </div>
-      <div class="header-arrow">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <div
+        class="flex items-center text-white opacity-80 transition-transform duration-fast ease-apple hover:translate-x-px"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4">
           <path d="m9 18 6-6-6-6" />
         </svg>
       </div>
     </div>
 
     <!-- Content -->
-    <div class="tray-content">
+    <div class="no-scrollbar flex-1 overflow-x-hidden overflow-y-auto p-2">
       <!-- Clipboard Files Section -->
-      <div v-if="clipboardFiles.length > 0" class="section">
-        <div class="section-header">
-          <div class="section-title">
+      <div v-if="clipboardFiles.length > 0" class="mb-3 last:mb-0">
+        <div class="mb-1 flex items-center justify-between px-2">
+          <div class="text-xs font-semibold text-gray-600 uppercase">
             {{ t('pages.tray.waitForUpload') }}
           </div>
-          <div class="section-badge">
+          <div class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-accent">
             {{ clipboardFiles.length }}
           </div>
         </div>
-        <div class="image-grid">
+        <div class="grid grid-cols-1 gap-1">
           <div
             v-for="(item, index) in clipboardFiles"
             :key="index"
-            class="image-item"
+            class="group/one relative cursor-pointer overflow-hidden rounded-md border border-border-secondary bg-white/80 transition-all duration-fast ease-apple hover:border-accent/30 hover:shadow-md"
             :class="{ uploading: uploadFlag }"
             @click="uploadClipboardFiles"
           >
-            <div class="image-container">
-              <img :src="item.imgUrl" class="image" @error="onImageError" />
-              <div v-if="uploadFlag" class="upload-overlay">
-                <div class="spinner" />
+            <div class="relative h-16 w-full overflow-hidden">
+              <img
+                :src="item.imgUrl"
+                class="h-full w-full object-cover transition-all duration-fast ease-apple group-hover/one:scale-105"
+                @error="onImageError"
+              />
+              <div v-if="uploadFlag" class="absolute inset-0 flex items-center justify-center bg-white/90">
+                <div
+                  class="h-[16px] w-[16px] animate-spin rounded-full border-2 border-t-2 border-gray-400 border-t-transparent"
+                />
               </div>
             </div>
           </div>
@@ -45,22 +59,33 @@
       </div>
 
       <!-- Uploaded Files Section -->
-      <div class="section">
-        <div class="section-header">
-          <div class="section-title">
+      <div class="mb-3">
+        <div class="mb-1.5 flex items-center justify-between px-0.5">
+          <div class="text-xs font-semibold text-gray-600 uppercase">
             {{ t('pages.tray.uploaded') }}
           </div>
         </div>
-        <div class="image-grid">
-          <div v-for="item in files" :key="item.imgUrl" class="image-item" @click="copyTheLink(item)">
-            <div class="image-container">
-              <img v-lazy="item.imgUrl" class="image" @error="onImageError" />
-              <div class="image-overlay">
-                <div class="image-title" :title="item.fileName">
+        <div class="flex w-full flex-col items-center gap-3">
+          <div
+            v-for="item in files"
+            :key="item.imgUrl"
+            class="group/two relative w-full flex-1 cursor-pointer overflow-hidden rounded-md border border-border-secondary bg-white/80 transition-all duration-fast ease-apple hover:border-accent/30 hover:shadow-md"
+            @click="copyTheLink(item)"
+          >
+            <div class="relative flex h-[75px] w-full flex-col overflow-hidden">
+              <img
+                :src="item.imgUrl"
+                class="h-[60px] w-full object-cover transition-all duration-fast ease-apple group-hover/two:scale-105"
+                @error="onImageError"
+              />
+              <div
+                class="flex items-start justify-between bg-white/70 p-1 transition-all duration-fast ease-apple group-hover/two:opacity-100"
+              >
+                <div class="overflow-hidden text-[0.6rem] font-medium text-ellipsis whitespace-nowrap text-secondary">
                   {{ item.fileName }}
                 </div>
-                <div class="copy-indicator">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <div class="flex items-center text-accent opacity-80">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                   </svg>
@@ -194,7 +219,7 @@ function uploadClipboardFiles() {
 
 function onImageError(event: Event) {
   const img = event.target as HTMLImageElement
-  img.style.display = 'none'
+  img.src = './errorLoading.png'
 }
 
 const dragFilesHandler = async (_files: string[]) => {
@@ -245,243 +270,3 @@ export default {
   name: 'TrayPage',
 }
 </script>
-
-<style lang="stylus" scoped>
-/* Global styles */
-body::-webkit-scrollbar
-  width 0px
-
-#tray-page
-  width 196px
-  height 350px
-  background rgba(255, 255, 255, 0.95)
-  backdrop-filter blur(20px)
-  display flex
-  flex-direction column
-  overflow hidden
-  font-family -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif
-
-/* Header */
-.tray-header
-  background var(--color-text-tertiary)
-  padding 8px 12px
-  cursor pointer
-  transition all 0.2s ease
-  display flex
-  align-items center
-  justify-content space-between
-  min-height 32px
-  border-radius 0 0 8px 8px
-
-  &:hover
-    transform translateY(-1px)
-    box-shadow 0 4px 6px rgba(102, 126, 234, 0.3)
-
-.header-content
-  display flex
-  align-items center
-  gap 8px
-  flex 1
-
-.header-text
-  color white
-  font-size 11px
-  font-weight 500
-  opacity 0.95
-
-.header-arrow
-  color white
-  opacity 0.8
-  transition transform 0.2s ease
-  display flex
-  align-items center
-
-.tray-header:hover .header-arrow
-  transform translateX(2px)
-
-/* Content */
-.tray-content
-  flex 1
-  padding 8px
-  overflow-y auto
-  overflow-x hidden
-
-.tray-content::-webkit-scrollbar
-  width 4px
-
-.tray-content::-webkit-scrollbar-track
-  background rgba(0, 0, 0, 0.05)
-  border-radius 2px
-
-.tray-content::-webkit-scrollbar-thumb
-  background rgba(0, 0, 0, 0.2)
-  border-radius 2px
-
-  &:hover
-    background rgba(0, 0, 0, 0.3)
-
-/* Section */
-.section
-  margin-bottom 12px
-
-  &:last-child
-    margin-bottom 0
-
-.section-header
-  display flex
-  align-items center
-  justify-content space-between
-  margin-bottom 6px
-  padding 0 2px
-
-.section-title
-  font-size 10px
-  font-weight 600
-  color #666
-  text-transform uppercase
-  letter-spacing 0.5px
-
-.section-badge
-  background rgba(102, 126, 234, 0.1)
-  color #667eea
-  font-size 9px
-  font-weight 600
-  padding 2px 6px
-  border-radius 8px
-  min-width 16px
-  text-align center
-
-/* Image Grid */
-.image-grid
-  display grid
-  grid-template-columns repeat(2, 1fr)
-  gap 6px
-
-.image-item
-  position relative
-  cursor pointer
-  border-radius 6px
-  overflow hidden
-  transition all 0.2s ease
-  background rgba(255, 255, 255, 0.8)
-  border 1px solid rgba(0, 0, 0, 0.08)
-
-  &:hover
-    transform translateY(-2px)
-    box-shadow 0 4px 12px rgba(0, 0, 0, 0.15)
-    border-color rgba(102, 126, 234, 0.3)
-
-  &.uploading
-    cursor not-allowed
-    opacity 0.7
-
-.image-container
-  position relative
-  width 100%
-  height 60px
-  overflow hidden
-
-.image
-  width 100%
-  height 100%
-  object-fit cover
-  transition transform 0.2s ease
-
-.image-item:hover .image
-  transform scale(1.05)
-
-/* Upload Overlay */
-.upload-overlay
-  position absolute
-  top 0
-  left 0
-  right 0
-  bottom 0
-  background rgba(255, 255, 255, 0.9)
-  display flex
-  align-items center
-  justify-content center
-
-.spinner
-  width 16px
-  height 16px
-  border 2px solid rgba(102, 126, 234, 0.2)
-  border-left-color #667eea
-  border-radius 50%
-  animation spin 1s linear infinite
-
-@keyframes spin
-  0%
-    transform rotate(0deg)
-  100%
-    transform rotate(360deg)
-
-/* Image Overlay */
-.image-overlay
-  position absolute
-  bottom 0
-  left 0
-  right 0
-  background linear-gradient(transparent, rgba(0, 0, 0, 0.7))
-  padding 6px 4px 4px
-  display flex
-  align-items flex-end
-  justify-content space-between
-  transform translateY(100%)
-  transition transform 0.2s ease
-
-.image-item:hover .image-overlay
-  transform translateY(0)
-
-.image-title
-  color white
-  font-size 9px
-  font-weight 500
-  max-width 60px
-  overflow hidden
-  text-overflow ellipsis
-  white-space nowrap
-  line-height 1.2
-
-.copy-indicator
-  color white
-  opacity 0.8
-  display flex
-  align-items center
-
-/* Responsive adjustments for very small content */
-@media (max-width: 200px)
-  .image-grid
-    grid-template-columns 1fr
-
-  .header-text
-    font-size 10px
-
-  .section-title
-    font-size 9px
-
-/* Dark theme support */
-@media (prefers-color-scheme: dark)
-  #tray-page
-    background rgba(30, 30, 30, 0.95)
-    color #fff
-
-  .section-title
-    color #999
-
-  .image-item
-    background rgba(40, 40, 40, 0.8)
-    border-color rgba(255, 255, 255, 0.1)
-
-    &:hover
-      border-color rgba(102, 126, 234, 0.5)
-
-  .tray-content::-webkit-scrollbar-track
-    background rgba(255, 255, 255, 0.05)
-
-  .tray-content::-webkit-scrollbar-thumb
-    background rgba(255, 255, 255, 0.2)
-
-    &:hover
-      background rgba(255, 255, 255, 0.3)
-</style>

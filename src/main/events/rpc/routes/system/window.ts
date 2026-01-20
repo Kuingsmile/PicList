@@ -22,7 +22,12 @@ export default [
     action: IRPCActionType.OPEN_WINDOW,
     handler: async (_: IIPCEvent, args: [windowName: string]) => {
       const window = windowManager.get(args[0])
-      window?.show()
+      if (window) {
+        window.show()
+        window.focus()
+      } else {
+        windowManager.create(args[0])
+      }
     },
   },
   {
