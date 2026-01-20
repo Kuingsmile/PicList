@@ -1,17 +1,15 @@
 <template>
-  <div
-    class="m-0 box-border flex min-h-screen w-full flex-col gap-5 overflow-y-auto p-4 max-md:gap-4 max-md:p-3 max-xs:p-2 lg:mx-auto lg:max-w-[1200px] lg:px-8 lg:py-6"
-  >
-    <!-- Header Card -->
+  <div class="relative no-scrollbar flex h-full w-full items-center justify-center">
     <div
-      class="overflow-hidden rounded-xl border-[0.2px] border-border-secondary bg-bg-secondary duration-medium ease-standard hover:border-border hover:shadow-md"
+      class="relative z-1 no-scrollbar flex h-full w-full flex-col items-center justify-start gap-6 overflow-auto rounded-xl border-none p-8 shadow-sm"
     >
+      <!-- Header Card -->
       <div
-        class="flex flex-row flex-wrap items-center justify-between gap-4 border-b border-border-secondary px-5 py-4 max-md:flex-col max-md:items-stretch"
+        class="flex w-full flex-wrap items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-4 shadow-md max-md:flex-col max-md:items-stretch max-md:p-5"
       >
         <div class="flex max-w-[calc(100%-300px)] flex-1 flex-wrap items-center gap-2 max-md:order-1">
           <button
-            class="group/provider flex w-auto min-w-[200px] shrink-0 cursor-pointer items-center gap-3 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3 font-[inherit] duration-fast ease-standard hover:-translate-y-px hover:border-accent-hover hover:bg-surface hover:shadow-sm focus-visible:focus-ring max-xs:w-full max-xs:min-w-[130px]"
+            class="group/provider flex w-auto min-w-[150px] shrink-0 cursor-pointer items-center gap-3 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-2 font-[inherit] duration-fast ease-standard hover:-translate-y-px hover:border-accent-hover/70 hover:bg-surface hover:shadow-sm focus-visible:focus-ring max-xs:w-full max-xs:min-w-[100px]"
             :title="t('pages.upload.uploadViewHint')"
             @click="handlePicBedNameClick(picBedName)"
           >
@@ -25,17 +23,21 @@
             />
           </button>
           <div
-            class="flex h-[22px] w-[22px] shrink-0 cursor-pointer items-center justify-center rounded-md border border-border bg-surface font-[inherit] text-secondary duration-fast ease-standard hover:-translate-y-px hover:border-accent-hover hover:text-accent-hover data-[disabled=true]:pointer-events-none data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50"
+            class="flex h-[22px] w-[22px] shrink-0 cursor-pointer items-center justify-center rounded-lg border border-border bg-surface font-[inherit] text-secondary duration-fast ease-standard hover:-translate-y-px hover:border-accent-hover hover:text-accent-hover data-[disabled=true]:pointer-events-none data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50"
             :title="t('pages.upload.addToFavorites')"
             :data-disabled="favoritePicbeds.length >= MAX_FAVORITE_PICBEDS || isCurrentPicBedInFavorites"
             @click="addCurrentPicbedToFavorites"
           >
-            <PlusIcon :size="12" />
+            <component
+              :is="isCurrentPicBedInFavorites ? CheckIcon : PlusIcon"
+              :size="14"
+              class="duration-fast ease-standard"
+            />
           </div>
           <transition-group
             name="badges-slide"
             tag="div"
-            class="flex max-w-[400px] flex-wrap items-center gap-[0.2rem] [.has-many]:max-w-[300px]"
+            class="flex max-w-[calc(100%-300px)] flex-wrap items-center gap-[0.2rem] [.has-many]:max-w-[300px]"
             :class="{ 'has-many': favoritePicbeds.length >= 4 }"
           >
             <button
@@ -83,10 +85,10 @@
               @click="handleImageProcessSingle"
             >
               <Settings :size="16" />
-              <span>{{ t('pages.upload.imageProcessNameSingle') }}</span>
+              <span class="mt-1">{{ t('pages.upload.imageProcessNameSingle') }}</span>
             </button>
             <button class="segmented-button" :title="t('pages.upload.imageProcessName')" @click="handleImageProcess">
-              <span>{{ t('pages.upload.imageProcessName') }}</span>
+              <span class="mt-1">{{ t('pages.upload.imageProcessName') }}</span>
             </button>
           </div>
           <button
@@ -98,158 +100,149 @@
           </button>
         </div>
       </div>
-    </div>
 
-    <!-- Main Upload Card -->
-    <div
-      class="min-h-[300px] overflow-hidden rounded-xl border-[0.2px] border-border-secondary bg-bg-secondary duration-medium ease-standard hover:border-border hover:shadow-md"
-    >
+      <!-- Main Upload Card -->
       <div
-        id="upload-area"
-        class="group/upload relative m-4 cursor-pointer rounded-xl border-2 border-dashed border-border bg-bg-secondary px-8 py-12 duration-medium ease-standard focus-visible:focus-ring focus-visible:outline-offset-4 max-md:m-3 max-md:px-4 max-md:py-8 max-xs:m-2 max-xs:px-2 max-xs:py-6 [:hover,.drag-active]:border-accent [:hover,.drag-active]:bg-[linear-gradient(135deg,var(--color-surface-elevated)_0%,color-mix(in_srgb,var(--color-accent),transparent_95%)_100%)] [:hover,.drag-active]:shadow-lg [:hover,.drag-active&]:-translate-y-[2px]"
-        :class="{ 'drag-active': dragover }"
-        @drop.prevent="onDrop"
-        @dragover.prevent="dragover = true"
-        @dragleave.prevent="dragover = false"
-        @click="openUploadWindow"
+        class="flex min-h-[230px] w-full flex-1 flex-wrap items-center justify-center gap-4 rounded-2xl border border-border-secondary px-6 py-4 shadow-md max-md:flex-col max-md:items-stretch max-md:p-5"
       >
-        <div class="flex flex-col items-center gap-6 text-center">
-          <div
-            class="flex h-[80px] w-[80px] items-center justify-center rounded-full bg-accent text-white duration-medium ease-standard group-[:hover,.drag-active]/upload:animate-[float_1.5s_ease-in-out_infinite] max-md:h-[60px] max-md:w-[60px]"
-          >
-            <UploadCloudIcon :size="48" />
-          </div>
-          <div class="flex flex-col gap-3">
-            <h3 class="m-0 text-xl font-semibold tracking-tight text-main max-xs:text-lg">
-              {{ t('pages.upload.dragFileToHere') }}
-            </h3>
-            <p class="m-0 text-sm text-secondary">
-              {{ ' ' }}
-            </p>
-            <div class="mt-2 flex flex-col gap-1">
-              <span class="text-xs font-medium tracking-wide text-secondary uppercase">{{
-                t('pages.upload.uploadHint')
-              }}</span>
+        <div
+          id="upload-area"
+          class="group/upload relative flex h-full w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border bg-bg-secondary px-1 py-12 duration-medium ease-standard focus-visible:focus-ring focus-visible:outline-offset-4 max-md:px-4 max-md:py-8 max-xs:px-2 max-xs:py-6 [:hover,.drag-active]:border-accent [:hover,.drag-active]:bg-[linear-gradient(135deg,var(--color-surface-elevated)_0%,color-mix(in_srgb,var(--color-accent),transparent_95%)_100%)] [:hover,.drag-active]:shadow-lg [:hover,.drag-active&]:-translate-y-[2px]"
+          :class="{ 'drag-active': dragover }"
+          @drop.prevent="onDrop"
+          @dragover.prevent="dragover = true"
+          @dragleave.prevent="dragover = false"
+          @click="openUploadWindow"
+        >
+          <div class="flex flex-col items-center justify-center gap-6 text-center">
+            <div
+              class="flex h-[80px] w-[80px] items-center justify-center rounded-full bg-accent text-white duration-medium ease-standard group-[:hover,.drag-active]/upload:animate-[float_1.5s_ease-in-out_infinite] max-md:h-[60px] max-md:w-[60px]"
+            >
+              <UploadCloudIcon :size="48" />
+            </div>
+            <div class="flex flex-col gap-2">
+              <h3 class="m-0 text-xl font-semibold tracking-tight text-main max-xs:text-lg">
+                {{ t('pages.upload.dragFileToHere') }}
+              </h3>
+              <p class="m-0 text-sm text-secondary">
+                {{ ' ' }}
+              </p>
+              <div class="mt-2 flex flex-col gap-1">
+                <span class="text-xs font-medium tracking-wide text-secondary uppercase">{{
+                  t('pages.upload.uploadHint')
+                }}</span>
+              </div>
             </div>
           </div>
+          <input id="file-uploader" ref="fileInput" type="file" multiple class="hidden" @change="onChange" />
         </div>
-        <input id="file-uploader" ref="fileInput" type="file" multiple class="hidden" @change="onChange" />
+
+        <!-- Progress Bar -->
       </div>
 
-      <!-- Progress Bar -->
-      <transition
-        name="progress"
-        enter-active-class="transition-all duration-medium ease-standard"
-        leave-active-class="transition-all duration-medium ease-standard"
-        enter-from-class="opacity-0 -translate-y-[10px]"
-        leave-to-class="opacity-0 -translate-y-[10px]"
+      <div
+        v-if="showProgress"
+        class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border-secondary p-0 shadow-md"
       >
-        <div v-if="showProgress" class="mx-6 my-4 rounded-lg border border-border-secondary bg-surface p-4">
-          <div class="mb-2 h-2 overflow-hidden rounded-sm bg-bg-secondary">
+        <div class="mx-2 my-2 w-full rounded-lg border border-border bg-surface p-4">
+          <div class="mb-2 h-3 overflow-hidden rounded-lg bg-bg-secondary">
             <div
-              class="h-full rounded-sm bg-[linear-gradient(90deg,var(--color-accent)_0%,var(--color-primary)_50%)] duration-fast ease-standard data-[error=true]:bg-danger data-[error=true]:bg-none"
+              class="h-full rounded-lg bg-[linear-gradient(90deg,var(--color-accent)_0%,var(--color-primary)_50%)] duration-fast ease-standard data-[error=true]:bg-danger data-[error=true]:bg-none"
               :data-error="showError"
               :style="{ width: `${progress}%` }"
             />
           </div>
-          <span class="block text-center text-sm font-medium text-secondary">
+          <span class="m-0 flex items-center justify-center text-center text-sm font-semibold text-secondary">
             {{ showError ? t('pages.upload.uploadFailed') : `${progress}%` }}
           </span>
         </div>
-      </transition>
-    </div>
+      </div>
 
-    <!-- Quick Actions Card -->
-    <div
-      class="overflow-hidden rounded-lg border-[0.2px] border-border-secondary bg-bg-secondary duration-medium ease-standard hover:border-border hover:shadow-md"
-    >
-      <div class="px-6 py-4">
-        <h4 class="m-0 text-[0.9rem] font-semibold tracking-tight text-main">
-          {{ t('pages.upload.quickUpload') }}
-        </h4>
-      </div>
+      <!-- Quick Actions Card -->
       <div
-        class="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3 px-6 py-4 max-md:grid-cols-1 max-md:px-4 max-md:py-3.5 md:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]"
+        class="flex w-full flex-col flex-wrap items-center justify-between gap-2 rounded-2xl border border-border-secondary px-6 py-4 shadow-md max-md:items-stretch max-md:p-5"
       >
-        <button class="quick-action-button" @click="uploadClipboardFiles">
-          <ClipboardIcon class="shrink-0 text-accent" :size="18" />
-          <span class="text-sm font-medium text-secondary">{{ t('pages.upload.clipboardPicture') }}</span>
-        </button>
-        <button class="quick-action-button" @click="uploadURLFiles">
-          <LinkIcon class="shrink-0 text-accent" :size="18" />
-          <span class="text-sm font-medium text-secondary">{{ t('pages.upload.urlUpload') }}</span>
-        </button>
-        <button
-          class="quick-action-button"
-          :class="{ 'has-badge': taskQueueStatus.tasks.length > 0 }"
-          @click="openTaskDialog"
-        >
-          <ListTodoIcon class="shrink-0 text-accent" :size="18" />
-          <span class="text-sm font-medium text-secondary">{{ t('pages.upload.taskUpload') }}</span>
-          <span
-            v-if="taskQueueStatus.tasks.length > 0"
-            class="absolute top-[50%] right-3 flex min-w-6 animate-[badge-pulse_2s_ease-in-out_infinite] items-center justify-center rounded-full px-1.5 py-0 text-sm font-bold text-accent"
-          >
-            {{ taskQueueStatus.tasks.length }}
-          </span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Settings Card -->
-    <div
-      class="overflow-hidden rounded-lg border-[0.2px] border-border-secondary bg-bg-secondary duration-medium ease-standard hover:border-border hover:shadow-md"
-    >
-      <div class="px-6 py-4">
-        <h4 class="m-0 text-[0.9rem] font-semibold tracking-tight text-main">
-          {{ t('pages.upload.linkFormat') }}
-        </h4>
-      </div>
-      <div
-        class="flex flex-col gap-6 px-6 py-5 max-md:grid-cols-1! max-md:px-5 max-md:py-4 md:grid md:grid-cols-2 md:items-start md:gap-6 lg:gap-8"
-      >
-        <!-- Format Options -->
-        <div class="flex flex-col gap-3">
-          <label class="m-0 text-sm font-medium text-main">{{ t('pages.upload.outputFormat') }}</label>
-          <div
-            class="grid grid-cols-[repeat(auto-fit,minmax(70px,1fr))] gap-[0.4rem] max-md:grid-cols-[repeat(auto-fit,minmax(60px,1fr))]"
-          >
-            <button
-              v-for="(format, key) in pasteFormatList"
-              :key="key"
-              class="cursor-pointer rounded-md border border-border-secondary bg-bg-secondary px-3 py-2 font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] text-[0.7rem] font-medium text-secondary duration-fast ease-standard hover:border-accent-hover hover:text-main focus-visible:focus-ring data-[active=true]:border-accent data-[active=true]:bg-accent data-[active=true]:text-white"
-              :data-active="pasteStyle === key"
-              :title="format"
-              @click="updatePasteStyle(key)"
-            >
-              {{ key }}
-            </button>
-          </div>
+        <div class="flex w-full items-start p-0">
+          <h4 class="m-0 text-[0.9rem] font-semibold tracking-tight text-main">
+            {{ t('pages.upload.quickUpload') }}
+          </h4>
         </div>
+        <div class="flex w-full flex-1 flex-row flex-wrap items-center justify-center gap-4 max-md:gap-3 max-md:px-5">
+          <button class="quick-action-button" @click="uploadClipboardFiles">
+            <ClipboardIcon class="shrink-0 text-accent" :size="15" />
+            <span class="mt-1 text-sm font-medium text-secondary">{{ t('pages.upload.clipboardPicture') }}</span>
+          </button>
+          <button class="quick-action-button" @click="uploadURLFiles">
+            <LinkIcon class="shrink-0 text-accent" :size="15" />
+            <span class="mt-1 text-sm font-medium text-secondary">{{ t('pages.upload.urlUpload') }}</span>
+          </button>
+          <button
+            class="quick-action-button"
+            :class="{ 'has-badge': taskQueueStatus.tasks.length > 0 }"
+            @click="openTaskDialog"
+          >
+            <ListTodoIcon class="shrink-0 text-accent" :size="15" />
+            <span class="mt-1 text-sm font-medium text-secondary">{{ t('pages.upload.taskUpload') }}</span>
+            <span
+              v-if="taskQueueStatus.tasks.length > 0"
+              class="absolute top-[0.5] right-3 flex min-w-6 animate-[badge-pulse_2s_ease-in-out_infinite] items-center justify-center rounded-full border border-border-secondary px-1.5 py-0 text-sm font-bold text-accent"
+            >
+              {{ taskQueueStatus.tasks.length }}
+            </span>
+          </button>
+        </div>
+      </div>
 
-        <!-- URL Length Options -->
-        <div class="flex flex-col gap-3">
-          <label class="m-0 text-sm font-medium text-main">{{ t('pages.upload.urlType.title') }}</label>
-          <div class="flex w-full overflow-hidden rounded-md border border-border-secondary bg-bg-secondary">
-            <button
-              class="flex-1 cursor-pointer border-0 bg-transparent px-[0.675rem] py-[0.325rem] font-[inherit] text-[0.8rem] font-medium text-secondary duration-fast ease-standard hover:text-main focus-visible:focus-ring data-[active=true]:bg-accent data-[active=true]:text-white"
-              :data-active="!useShortUrl"
-              @click="updateUrlType(false)"
-            >
-              <span>{{ t('pages.upload.urlType.normal') }}</span>
-            </button>
-            <button
-              class="flex-1 cursor-pointer border-0 bg-transparent px-[0.675rem] py-[0.325rem] font-[inherit] text-[0.8rem] font-medium text-secondary duration-fast ease-standard hover:text-main focus-visible:focus-ring data-[active=true]:bg-accent data-[active=true]:text-white"
-              :data-active="useShortUrl"
-              @click="updateUrlType(true)"
-            >
-              <span>{{ t('pages.upload.urlType.short') }}</span>
-            </button>
+      <!-- Settings Card -->
+      <div
+        class="flex w-full flex-row flex-wrap items-center justify-between gap-0 rounded-2xl border border-border-secondary px-6 py-4 shadow-md max-md:flex-col max-md:items-stretch max-md:p-5"
+      >
+        <div class="flex w-full items-start p-0">
+          <h4 class="m-0 text-[0.9rem] font-semibold tracking-tight text-main">
+            {{ t('pages.upload.linkFormat') }}
+          </h4>
+        </div>
+        <div class="flex w-full flex-row gap-2 p-2">
+          <!-- Format Options -->
+          <div class="flex flex-1 flex-col gap-3">
+            <label class="m-0 text-xs font-medium text-secondary">{{ t('pages.upload.outputFormat') }}</label>
+            <div class="flex flex-row">
+              <button
+                v-for="(format, key) in pasteFormatList"
+                :key="key"
+                class="flex-1 cursor-pointer rounded-md border border-border-secondary bg-bg-secondary px-1 py-1 font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] text-[0.7rem] font-medium text-secondary duration-fast ease-standard hover:border-accent-hover hover:text-main focus-visible:focus-ring data-[active=true]:border-accent data-[active=true]:bg-accent data-[active=true]:text-white"
+                :data-active="pasteStyle === key"
+                :title="format"
+                @click="updatePasteStyle(key)"
+              >
+                {{ key }}
+              </button>
+            </div>
+          </div>
+
+          <!-- URL Length Options -->
+          <div class="flex flex-1 flex-col gap-3">
+            <label class="m-0 text-xs font-medium text-secondary">{{ t('pages.upload.urlType.title') }}</label>
+            <div class="flex w-full overflow-hidden rounded-md border border-border-secondary bg-bg-secondary">
+              <button
+                class="flex-1 cursor-pointer border-0 bg-transparent py-1 font-[inherit] text-xs font-medium text-secondary duration-fast ease-standard hover:text-main focus-visible:focus-ring data-[active=true]:bg-accent data-[active=true]:text-white"
+                :data-active="!useShortUrl"
+                @click="updateUrlType(false)"
+              >
+                <span>{{ t('pages.upload.urlType.normal') }}</span>
+              </button>
+              <button
+                class="flex-1 cursor-pointer border-0 bg-transparent py-1 font-[inherit] text-xs font-medium text-secondary duration-fast ease-standard hover:text-main focus-visible:focus-ring data-[active=true]:bg-accent data-[active=true]:text-white"
+                :data-active="useShortUrl"
+                @click="updateUrlType(true)"
+              >
+                <span>{{ t('pages.upload.urlType.short') }}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-
     <!-- Image Process Dialog -->
     <transition name="modal">
       <div
@@ -697,6 +690,7 @@ import { useStorage } from '@vueuse/core'
 import {
   ArrowLeftRightIcon,
   CheckCircleIcon,
+  CheckIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   ClipboardIcon,

@@ -3,12 +3,12 @@
 @import "../../assets/css/utilities.css" reference;
 
 .segmented-button {
-  @apply flex items-center border-none border-r-border-secondary border-r py-2.5 px-4 text-sm font-[inherit] font-medium text-secondary bg-transparent duration-fast ease-standard gap-2 cursor-pointer whitespace-nowrap last:border-r-0 hover:text-accent-hover hover:bg-bg-tertiary;
+  @apply flex items-center border-none border-r-border-secondary border-r py-2.5 px-4 text-sm font-[inherit] font-medium text-secondary duration-fast ease-standard gap-2 cursor-pointer whitespace-nowrap last:border-r-0 hover:text-accent-hover hover:bg-bg-tertiary;
 }
 
 /* Quick Actions Card */
 .quick-action-button {
-  @apply relative flex items-center border border-border-secondary rounded-lg px-4 py-3.5 font-[inherit] text-left bg-bg-secondary duration-medium ease-standard gap-2 cursor-pointer hover:border-accent-hover hover:shadow-md hover:-translate-y-[2px] [.has-badge]:pr-12 max-xs:py-3 max-xs:px-3.5 focus-visible:focus-ring;
+  @apply relative flex flex-1 items-center border border-border-secondary rounded-lg px-4 py-3.5 font-[inherit] text-left bg-bg-secondary duration-medium ease-standard gap-2 cursor-pointer hover:border-accent-hover hover:shadow-md hover:-translate-y-[2px] [.has-badge]:pr-12 max-xs:py-3 max-xs:px-3.5 focus-visible:focus-ring;
 }
 
 .filter-tab {

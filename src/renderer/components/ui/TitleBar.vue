@@ -1,6 +1,6 @@
 <template>
   <div
-    class="fixed top-0 right-0 left-0 z-1000 h-[32px] border-b border-b-border bg-bg-secondary drag-region"
+    class="fixed top-0 right-0 left-0 z-1000 h-[32px] border-b border-b-border/40 bg-bg-secondary drag-region"
     data-drag-region
   >
     <div class="flex h-full items-center justify-between px-4 py-0">

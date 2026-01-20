@@ -6,16 +6,14 @@
     />
     <TitleBar />
     <Navigation />
-    <main class="relative z-1 no-scrollbar h-screen flex-1 overflow-scroll bg-bg-secondary">
-      <div class="m-0 h-full max-w-none">
-        <router-view v-slot="{ Component, route }">
-          <transition name="page" mode="out-in">
-            <keep-alive :include="keepAlivePages">
-              <component :is="Component" :key="route.path" />
-            </keep-alive>
-          </transition>
-        </router-view>
-      </div>
+    <main class="relative z-1 no-scrollbar h-full flex-1 overflow-scroll bg-bg-secondary">
+      <router-view v-slot="{ Component, route }">
+        <transition name="page" mode="out-in">
+          <keep-alive :include="keepAlivePages">
+            <component :is="Component" :key="route.path" />
+          </keep-alive>
+        </transition>
+      </router-view>
     </main>
   </div>
 </template>
