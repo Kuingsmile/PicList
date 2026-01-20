@@ -1,306 +1,367 @@
 <template>
-  <div class="gallery-container">
+  <div class="relative no-scrollbar flex h-full w-full items-center justify-center">
     <!-- Header Card -->
-    <div class="gallery-card header-card">
-      <div class="card-header">
-        <div class="header-content">
-          <div class="header-icon">
+    <div
+      class="relative z-1 no-scrollbar flex h-full w-full flex-col items-center justify-start gap-4 overflow-auto rounded-xl border-none p-4 shadow-sm"
+    >
+      <div
+        class="flex w-full items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
+      >
+        <div class="flex flex-1 items-center gap-4">
+          <div class="flex items-center text-accent">
             <ImagesIcon :size="24" />
           </div>
           <div>
-            <h1>{{ t('pages.gallery.title') }}</h1>
-            <p v-if="selectedCount > 0">{{ `${selectedCount}/${filterList.length} ${t('pages.gallery.selected')}` }}</p>
-            <p v-else>{{ `${filterList.length} ${t('pages.gallery.images')}` }}</p>
+            <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">{{ t('pages.gallery.title') }}</h1>
+            <p v-if="selectedCount > 0" class="m-0 text-sm text-secondary">
+              {{ `${selectedCount}/${filterList.length} ${t('pages.gallery.selected')}` }}
+            </p>
+            <p v-else class="m-0 text-sm text-secondary">{{ `${filterList.length} ${t('pages.gallery.images')}` }}</p>
           </div>
         </div>
-        <div class="header-actions">
-          <div class="grid-size-control">
-            <GridIcon :size="14" />
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="flex items-center gap-1.5 rounded-md border border-border-secondary px-2 py-1.5">
+            <GridIcon :size="14" class="text-main" />
             <input
               v-model.number="userGridColumns"
               type="range"
               min="1"
               max="15"
               step="1"
-              class="grid-slider"
+              class="grid-slider h-[4px] w-[70px] cursor-pointer appearance-none rounded-[2px] bg-(--color-background-tertiary) outline-none [&::-moz-range-thumb]:h-[14px] [&::-moz-range-thumb]:w-[14px] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:bg-accent [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:duration-200 [&::-webkit-slider-thumb]:h-[15px] [&::-webkit-slider-thumb]:w-[15px] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-200 hover:[&::-webkit-slider-thumb]:scale-110 hover:[&::-webkit-slider-thumb]:shadow-[0_0_0_2px_rgba(var(--color-accent-rgb),0.4)]"
               :title="t('pages.gallery.gridSize')"
             />
           </div>
-          <div class="sync-delete-toggle">
-            <span class="toggle-label">{{ t('pages.gallery.isAlwaysForceReload') }}</span>
-            <label class="custom-switch">
-              <input v-model="isAlwaysForceReload" type="checkbox" @change="handleIsAlwaysForceReload" />
-              <span class="switch-slider" />
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-secondary">{{ t('pages.gallery.isAlwaysForceReload') }}</span>
+            <label class="relative inline-block h-[20px] w-[44px]">
+              <input
+                v-model="isAlwaysForceReload"
+                class="peer/fir h-0 w-0 opacity-0"
+                type="checkbox"
+                @change="handleIsAlwaysForceReload"
+              />
+              <span
+                class="switch-slider peer-checked/fir:bg-accent peer-checked/fir:bg-none! peer-checked/fir:before:translate-x-[22px]"
+              />
             </label>
           </div>
-          <div class="sync-delete-toggle">
-            <span class="toggle-label">{{ t('pages.gallery.syncDelete') }}</span>
-            <label class="custom-switch">
-              <input v-model="deleteCloud" type="checkbox" @change="handleDeleteCloudFile" />
-              <span class="switch-slider" />
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-secondary">{{ t('pages.gallery.syncDelete') }}</span>
+            <label class="relative inline-block h-[20px] w-[44px]">
+              <input
+                v-model="deleteCloud"
+                class="peer/sec h-0 w-0 opacity-0"
+                type="checkbox"
+                @change="handleDeleteCloudFile"
+              />
+              <span
+                class="switch-slider peer-checked/sec:bg-accent peer-checked/sec:bg-none! peer-checked/sec:before:translate-x-[22px]"
+              />
             </label>
           </div>
-          <button class="action-button view-mode-toggle" :title="getViewModeLabel()" @click="toggleViewMode">
+          <button class="head-action-button relative" :title="getViewModeLabel()" @click="toggleViewMode">
             <component :is="getViewModeIcon()" :size="16" />
-            {{ getViewModeLabel() }}
+            <span class="mt-0.5">{{ getViewModeLabel() }}</span>
           </button>
-          <button class="action-button" @click="toggleHandleBar">
+          <button class="head-action-button" @click="toggleHandleBar">
             <ChevronDownIcon v-if="!handleBarActive" :size="16" />
             <ChevronUpIcon v-else :size="16" />
-            {{ t('pages.gallery.hideFilters') }}
+            <span class="mt-0.5">{{ t('pages.gallery.hideFilters') }}</span>
           </button>
-          <button class="action-button" @click="refreshPage">
+          <button class="head-action-button" @click="refreshPage">
             <RefreshCwIcon :size="16" />
-            {{ t('pages.gallery.refresh') }}
+            <span class="mt-0.5">{{ t('pages.gallery.refresh') }}</span>
           </button>
         </div>
       </div>
-    </div>
 
-    <!-- Filter Controls Card -->
-    <transition name="filter-slide">
-      <div v-show="handleBarActive" class="gallery-card filter-card">
-        <div class="filter-content">
-          <div class="filter-row">
-            <div class="filter-group">
-              <label class="filter-label">{{ t('pages.gallery.picBedType') }}</label>
-              <div class="custom-multiselect">
-                <button
-                  class="multiselect-trigger"
-                  :class="{ active: picBedDropdownOpen }"
-                  @click="togglePicBedDropdown($event)"
-                >
-                  <span v-if="choosedPicBed.length === 0">{{ t('pages.gallery.chooseShowedPicBed') }}</span>
-                  <span v-else>{{ choosedPicBed.length }} {{ t('pages.gallery.selected') }}</span>
-                  <ChevronDownIcon :size="16" />
-                </button>
-                <div v-show="picBedDropdownOpen" class="multiselect-dropdown">
-                  <label v-for="item in filteredPicBedG" :key="item.type" class="multiselect-option">
-                    <input v-model="choosedPicBed" type="checkbox" :value="item.type" />
-                    {{ item.name }}
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div class="filter-group">
-              <label class="filter-label">{{ t('pages.gallery.dateRange') }}</label>
-              <div class="date-range-picker">
-                <input v-model="dateRangeStart" type="date" class="date-input" placeholder="Start date" />
-                <span class="date-separator">-</span>
-                <input v-model="dateRangeEnd" type="date" class="date-input" placeholder="End date" />
-              </div>
-            </div>
-
-            <div class="filter-group">
-              <label class="filter-label">{{ t('pages.gallery.pasteFormat') }}</label>
-              <select v-model="pasteStyle" class="custom-select" @change="handlePasteStyleChange">
-                <option v-for="(value, key) in pasteStyleMap" :key="key" :value="value" class="select-option">
-                  {{ key }}
-                </option>
-              </select>
-            </div>
-
-            <div class="filter-group">
-              <label class="filter-label">{{ t('pages.gallery.urlType') }}</label>
-              <select v-model="useShortUrl" class="custom-select" @change="handleUseShortUrlChange">
-                <option v-for="(value, key) in shortURLMap" :key="key" :value="value" class="select-option">
-                  {{ key }}
-                </option>
-              </select>
-            </div>
-
-            <div class="filter-group">
-              <label class="filter-label">{{ t('pages.gallery.sort') }}</label>
-              <div class="sort-dropdown">
-                <button class="sort-button" :class="{ active: sortDropdownOpen }" @click="toggleSortDropdown($event)">
-                  <SortAscIcon :size="14" />
-                  {{ t(`pages.gallery.sortBy.${currentSortField}`) }}
-                  <ChevronDownIcon :size="14" />
-                </button>
-                <div v-show="sortDropdownOpen" class="sort-options">
-                  <button
-                    v-for="key in ['name', 'ext', 'time', 'check']"
-                    :key="key"
-                    class="sort-option"
-                    @click="sortFile(key as any)"
-                  >
-                    {{ t(`pages.gallery.sortBy.${key}`) }}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Second Row - Search and Actions -->
-          <div class="filter-row">
-            <div class="search-group">
-              <div class="search-input-wrapper">
-                <SearchIcon :size="16" class="search-icon" />
-                <input
-                  v-model="searchText"
-                  type="text"
-                  class="search-input"
-                  :placeholder="$t('pages.gallery.searchFilename')"
-                />
-                <button v-if="searchText" class="clear-button" @click="cleanSearch">
-                  <XIcon :size="15" />
-                </button>
-              </div>
-            </div>
-
-            <div class="search-group">
-              <div class="search-input-wrapper">
-                <LinkIcon :size="16" class="search-icon" />
-                <input
-                  v-model="searchTextURL"
-                  type="text"
-                  class="search-input"
-                  :placeholder="t('pages.gallery.searchUrl')"
-                />
-                <button v-if="searchTextURL" class="clear-button" @click="cleanSearchUrl">
-                  <XIcon :size="14" />
-                </button>
-              </div>
-            </div>
-
-            <div class="action-buttons">
-              <button class="action-btn copy-btn" :class="{ active: isMultiple(choosedList) }" @click="multiCopy">
-                <ClipboardIcon :size="16" />
-                {{ t('pages.gallery.copy') }}
-              </button>
-              <button
-                class="action-btn edit-btn"
-                :class="{ active: filterList.length > 0 }"
-                @click="() => (isShowBatchRenameDialog = true)"
-              >
-                <EditIcon :size="16" />
-                {{ t('pages.gallery.edit') }}
-              </button>
-              <button class="action-btn delete-btn" :class="{ active: isMultiple(choosedList) }" @click="multiRemove">
-                <TrashIcon :size="16" />
-                {{ `${t('pages.gallery.delete')}${selectedCount > 0 ? ` (${selectedCount})` : ''}` }}
-              </button>
-              <button class="action-btn select-btn" :class="{ active: filterList.length > 0 }" @click="toggleSelectAll">
-                <CheckSquareIcon :size="16" />
-                {{ isAllSelected ? t('pages.gallery.cancel') : t('pages.gallery.selectAll') }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </transition>
-
-    <!-- Gallery Grid -->
-    <div class="gallery-card gallery-content">
-      <div v-if="filterList.length === 0" class="empty-state">
-        <ImageIcon :size="64" class="empty-icon" />
-        <h3>{{ t('pages.gallery.noImagesFound') }}</h3>
-        <p>{{ t('pages.gallery.tryAdjustingFilters') }}</p>
-      </div>
-
-      <VirtualScroller
-        v-else
-        :key="componentKey"
-        ref="virtualScrollerRef"
-        :view-mode="viewMode"
-        class="virtual-gallery-scroller"
-        :items="filterList"
-        :item-height="300"
-        :grid-breakpoints="effectiveGridBreakpoints"
-        key-field="key"
+      <!-- Filter Controls Card -->
+      <div
+        v-show="handleBarActive"
+        class="flex w-full flex-wrap items-center justify-between gap-2 rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
       >
-        <template #default="{ item, index }">
-          <div
-            class="gallery-item"
-            :class="{ selected: choosedList[item.id || ''] }"
-            @click="handleChooseImage(!choosedList[item.id || ''], index)"
-          >
-            <div class="image-container" @click.stop="zoomImage(index)">
-              <img
-                :src="
-                  imageErrorStates[item.key || '']
-                    ? './errorLoading.png'
-                    : isAlwaysForceReload
-                      ? addCacheBustParam(item.src)
-                      : item.src
-                "
-                class="gallery-image"
-                :class="{ loading: !imageLoadStates[item.key || ''] }"
-                @load="onImageLoad(item.key || '')"
-                @error="onImageError(item.key || '')"
-              />
-              <div v-if="!imageLoadStates[item.key || '']" class="image-loader">
-                <div class="loader-spinner" />
-              </div>
-            </div>
-
-            <div class="image-info">
-              <div class="image-name" :title="item.fileName">
-                {{ formatFileName(item.fileName || '') }}
-              </div>
-
-              <div class="image-actions">
-                <div class="action-icons">
-                  <button :title="t('pages.gallery.copy')" class="icon-button copy-icon" @click.stop="copy(item)">
-                    <ClipboardIcon :size="16" />
-                  </button>
-                  <button :title="t('pages.gallery.edit')" class="icon-button edit-icon" @click.stop="openDialog(item)">
-                    <EditIcon :size="16" />
-                  </button>
-                  <button
-                    :title="t('pages.gallery.delete')"
-                    class="icon-button delete-icon"
-                    @click.stop="remove(item, index)"
-                  >
-                    <TrashIcon :size="16" />
-                  </button>
-                </div>
-
-                <label class="custom-checkbox" @click.stop>
-                  <input
-                    v-model="choosedList[item.id ? item.id : '']"
-                    type="checkbox"
-                    @change="e => handleChooseImage((e.target as HTMLInputElement).checked, index)"
-                  />
-                  <span class="checkbox-mark" />
+        <div class="mb-1 flex w-full flex-wrap items-start gap-3">
+          <div class="filter-group">
+            <label class="filter-label">{{ t('pages.gallery.picBedType') }}</label>
+            <div class="custom-multiselect relative">
+              <button
+                class="flex h-[28px] w-full cursor-pointer items-center justify-between rounded-md border border-border-secondary px-2 py-1.5 text-sm leading-[1.4] text-main transition-all duration-fast ease-apple hover:border-accent-hover focus:[.active]:border-accent-hover focus:[.active]:shadow-sm"
+                :class="{ active: picBedDropdownOpen }"
+                @click="togglePicBedDropdown($event)"
+              >
+                <span v-if="choosedPicBed.length === 0">{{ t('pages.gallery.chooseShowedPicBed') }}</span>
+                <span v-else>{{ choosedPicBed.length }} {{ t('pages.gallery.selected') }}</span>
+                <ChevronDownIcon :size="16" />
+              </button>
+              <div
+                v-show="picBedDropdownOpen"
+                class="multiselect-dropdown shadow-lg; fixed z-1000 mt-[2px] no-scrollbar max-h-[280px] min-w-[185px] overflow-y-auto rounded-md border border-border-secondary bg-bg-tertiary px-2 py-1.5 text-main"
+              >
+                <label
+                  v-for="item in filteredPicBedG"
+                  :key="item.type"
+                  class="flex min-h-[unset] cursor-pointer items-center justify-between px-2 py-1 text-sm leading-[1.4] transition-all duration-fast ease-apple hover:bg-accent-hover"
+                >
+                  <input v-model="choosedPicBed" type="checkbox" :value="item.type" class="m-0" />
+                  {{ item.name }}
                 </label>
               </div>
             </div>
           </div>
-        </template>
-      </VirtualScroller>
-    </div>
 
+          <div class="filter-group">
+            <label class="filter-label">{{ t('pages.gallery.dateRange') }}</label>
+            <div class="flex w-full flex-wrap items-center gap-2 max-md:items-start">
+              <input v-model="dateRangeStart" type="date" class="date-input" placeholder="Start date" />
+              <span class="shrink-0 font-medium text-secondary">-</span>
+              <input v-model="dateRangeEnd" type="date" class="date-input" placeholder="End date" />
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">{{ t('pages.gallery.pasteFormat') }}</label>
+            <select v-model="pasteStyle" class="custom-select" @change="handlePasteStyleChange">
+              <option
+                v-for="(value, key) in pasteStyleMap"
+                :key="key"
+                :value="value"
+                class="bg-bg-tertiary text-sm text-main"
+              >
+                {{ key }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">{{ t('pages.gallery.urlType') }}</label>
+            <select v-model="useShortUrl" class="custom-select" @change="handleUseShortUrlChange">
+              <option
+                v-for="(value, key) in shortURLMap"
+                :key="key"
+                :value="value"
+                class="bg-bg-tertiary text-sm text-main"
+              >
+                {{ key }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">{{ t('pages.gallery.sort') }}</label>
+            <div class="sort-dropdown relative">
+              <button class="sort-button" :class="{ active: sortDropdownOpen }" @click="toggleSortDropdown($event)">
+                <SortAscIcon :size="14" />
+                {{ t(`pages.gallery.sortBy.${currentSortField}`) }}
+                <ChevronDownIcon :size="14" />
+              </button>
+              <div
+                v-show="sortDropdownOpen"
+                class="sort-options fixed z-10 mt-[2px] min-w-[150px] overflow-hidden rounded-md border border-border-secondary bg-bg-tertiary shadow-lg"
+              >
+                <button
+                  v-for="key in ['name', 'ext', 'time', 'check']"
+                  :key="key"
+                  class="block min-h-[unset] w-full cursor-pointer border-none bg-bg-tertiary px-2 py-1 text-center text-sm leading-[1.4] text-main transition-all duration-fast ease-apple hover:bg-accent-hover"
+                  @click="sortFile(key as any)"
+                >
+                  {{ t(`pages.gallery.sortBy.${key}`) }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Second Row - Search and Actions -->
+        <div class="mb-1 flex w-full flex-wrap items-start gap-3">
+          <div class="relative flex min-w-[100px] flex-row items-center gap-2">
+            <SearchIcon :size="16" class="absolute left-3 z-1 text-secondary" />
+            <input
+              v-model="searchText"
+              type="text"
+              class="search-input"
+              :placeholder="$t('pages.gallery.searchFilename')"
+            />
+            <button v-if="searchText" class="clear-button" @click="cleanSearch">
+              <XIcon :size="15" />
+            </button>
+          </div>
+
+          <div class="relative flex min-w-[100px] flex-row items-center gap-2">
+            <LinkIcon :size="16" class="absolute left-3 z-1 text-secondary" />
+            <input
+              v-model="searchTextURL"
+              type="text"
+              class="search-input"
+              :placeholder="t('pages.gallery.searchUrl')"
+            />
+            <button v-if="searchTextURL" class="clear-button" @click="cleanSearchUrl">
+              <XIcon :size="14" />
+            </button>
+          </div>
+
+          <div class="flex flex-1 flex-wrap gap-3">
+            <button class="action-btn copy-btn" :class="{ active: isMultiple(choosedList) }" @click="multiCopy">
+              <ClipboardIcon :size="16" />
+              <span class="mt-1"> {{ t('pages.gallery.copy') }}</span>
+            </button>
+            <button
+              class="action-btn edit-btn"
+              :class="{ active: filterList.length > 0 }"
+              @click="() => (isShowBatchRenameDialog = true)"
+            >
+              <EditIcon :size="16" />
+              <span class="mt-1"> {{ t('pages.gallery.edit') }}</span>
+            </button>
+            <button class="action-btn delete-btn" :class="{ active: isMultiple(choosedList) }" @click="multiRemove">
+              <TrashIcon :size="16" />
+              <span class="mt-1">
+                {{ `${t('pages.gallery.delete')}${selectedCount > 0 ? ` (${selectedCount})` : ''}` }}</span
+              >
+            </button>
+            <button class="action-btn select-btn" :class="{ active: filterList.length > 0 }" @click="toggleSelectAll">
+              <CheckSquareIcon :size="16" />
+              <span class="mt-1">{{ isAllSelected ? t('pages.gallery.cancel') : t('pages.gallery.selectAll') }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gallery Grid -->
+      <div
+        class="no-scrollbar flex min-h-[500px] w-full flex-1 flex-col flex-wrap items-center justify-center gap-2 overflow-auto rounded-2xl border border-border-secondary p-1 shadow-md"
+      >
+        <div v-if="filterList.length === 0" class="flex flex-col items-center justify-center px-8 py-16 text-center">
+          <ImageIcon :size="64" class="mb-4 text-accent" />
+          <h3 class="mx-0 mt-0 mb-2 text-xl font-semibold text-main">{{ t('pages.gallery.noImagesFound') }}</h3>
+          <p class="m-0 text-secondary">{{ t('pages.gallery.tryAdjustingFilters') }}</p>
+        </div>
+
+        <VirtualScroller
+          v-else
+          :key="componentKey"
+          ref="virtualScrollerRef"
+          :view-mode="viewMode"
+          class="virtual-gallery-scroller min-h-0 w-full flex-1 p-1"
+          :items="filterList"
+          :item-height="300"
+          :grid-breakpoints="effectiveGridBreakpoints"
+          key-field="key"
+        >
+          <template #default="{ item, index }">
+            <div
+              class="group/image m-0 box-border flex h-[calc(100%-8px)] w-full cursor-pointer flex-col overflow-hidden rounded-lg border border-border-secondary transition-all duration-fast ease-apple hover:-translate-y-[2px] hover:border-border hover:shadow-md [.selected]:border-2 [.selected]:border-accent [.selected]:shadow-md"
+              :class="{ selected: choosedList[item.id || ''] }"
+              @click="handleChooseImage(!choosedList[item.id || ''], index)"
+            >
+              <div
+                class="relative flex aspect-auto min-h-0 flex-1 items-center justify-center overflow-hidden"
+                @click.stop="zoomImage(index)"
+              >
+                <img
+                  :src="
+                    imageErrorStates[item.key || '']
+                      ? './errorLoading.png'
+                      : isAlwaysForceReload
+                        ? addCacheBustParam(item.src)
+                        : item.src
+                  "
+                  class="h-full w-full object-contain transition-all duration-fast ease-apple"
+                  :class="{ loading: !imageLoadStates[item.key || ''] }"
+                  @load="onImageLoad(item.key || '')"
+                  @error="onImageError(item.key || '')"
+                />
+                <div
+                  v-if="!imageLoadStates[item.key || '']"
+                  class="absolute inset-0 flex items-center justify-center bg-surface-elevated"
+                >
+                  <div
+                    class="h-[24px] w-[24px] animate-spin rounded-full border-2 border-t-2 border-border-secondary border-t-accent"
+                  />
+                </div>
+              </div>
+
+              <div class="flex min-h-[80px] shrink-0 flex-col justify-between p-3">
+                <div
+                  class="mb-3 overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-main"
+                  :title="(item.fileName || '').toString().length > 30 ? item.fileName || '' : ''"
+                >
+                  {{ formatFileName(item.fileName || '') }}
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <div class="flex gap-2">
+                    <button :title="t('pages.gallery.copy')" class="icon-button copy-icon" @click.stop="copy(item)">
+                      <ClipboardIcon :size="16" />
+                    </button>
+                    <button
+                      :title="t('pages.gallery.edit')"
+                      class="icon-button edit-icon"
+                      @click.stop="openDialog(item)"
+                    >
+                      <EditIcon :size="16" />
+                    </button>
+                    <button
+                      :title="t('pages.gallery.delete')"
+                      class="icon-button delete-icon"
+                      @click.stop="remove(item, index)"
+                    >
+                      <TrashIcon :size="16" />
+                    </button>
+                  </div>
+
+                  <label class="relative flex cursor-pointer items-center" @click.stop>
+                    <input
+                      v-model="choosedList[item.id ? item.id : '']"
+                      type="checkbox"
+                      class="peer absolute h-0 w-0 cursor-pointer opacity-0"
+                      @change="e => handleChooseImage((e.target as HTMLInputElement).checked, index)"
+                    />
+                    <span
+                      class="relative inline-block h-[16px] w-[16px] rounded-sm border-2 border-border transition-all duration-fast ease-apple peer-checked:border-accent-hover peer-checked:bg-accent peer-checked:after:absolute peer-checked:after:top-[-2px] peer-checked:after:left-px peer-checked:after:text-[12px] peer-checked:after:font-bold peer-checked:after:text-white peer-checked:after:content-['✓']"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </template>
+        </VirtualScroller>
+      </div>
+    </div>
     <!-- Custom Image Preview Modal -->
     <transition name="modal">
       <div
         v-if="gallerySliderControl.visible"
-        class="image-preview-modal"
+        class="image-preview-modal fixed inset-0 z-1000 flex items-center justify-center outline-none"
         tabindex="0"
         @click.stop
         @wheel="handleImageWheel"
         @keydown="handleKeydown"
       >
-        <div class="modal-backdrop" :class="advancedAnimation" />
-        <div class="modal-content">
-          <button class="modal-close" @click="handleClose">
+        <div class="absolute inset-0 bg-black/50" :class="{ 'advanced-animation': enableAdvancedAnimation }" />
+        <div class="relative max-h-[90vh] max-w-[90vw] overflow-hidden rounded-xl bg-surface shadow-lg">
+          <button
+            class="absolute top-4 right-4 z-10 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-white bg-danger/90 text-white hover:bg-danger hover:text-white"
+            @click="handleClose"
+          >
             <XIcon :size="24" />
           </button>
 
           <!-- Zoom controls -->
-          <div class="zoom-controls">
+          <div class="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-lg bg-black/70 p-2">
             <button class="zoom-btn" :disabled="imagePreviewState.scale <= 0.1" @click="zoomOut">
               <span>-</span>
             </button>
-            <span class="zoom-level">{{ Math.round(imagePreviewState.scale * 100) }}%</span>
+            <span class="min-w-[50px] text-center text-sm font-medium text-white"
+              >{{ Math.round(imagePreviewState.scale * 100) }}%</span
+            >
             <button class="zoom-btn" :disabled="imagePreviewState.scale >= 5" @click="zoomIn">
               <span>+</span>
             </button>
             <button class="zoom-btn reset-btn" @click="resetImageTransform">Reset</button>
           </div>
 
-          <div class="image-navigation">
+          <div class="relative flex items-center">
             <button
               class="nav-button prev"
               :disabled="gallerySliderControl.index === 0"
@@ -310,7 +371,7 @@
             </button>
 
             <div
-              class="image-viewer"
+              class="relative flex h-[80vh] w-[90vw] items-center justify-center overflow-hidden bg-black select-none active:cursor-grab!"
               @mousedown="handleImageMouseDown"
               @mousemove="handleImageMouseMove"
               @mouseup="handleImageMouseUp"
@@ -323,7 +384,7 @@
                 ref="previewImageRef"
                 :src="currentPreviewImage?.src"
                 :alt="currentPreviewImage?.intro"
-                class="preview-image"
+                class="block h-auto max-h-none w-auto max-w-none origin-center object-contain"
                 :style="imageTransformStyle"
                 @load="onPreviewImageLoad"
                 @dragstart.prevent
@@ -340,10 +401,14 @@
             </button>
           </div>
 
-          <div class="image-details">
-            <h3>{{ currentPreviewImage?.intro }}</h3>
-            <div class="image-counter">{{ gallerySliderControl.index + 1 }} / {{ filterList.length }}</div>
-            <div class="image-help-text">
+          <div class="flex items-center justify-between border border-border-secondary px-6 py-4">
+            <h3 class="m-0 mr-4 flex-1 overflow-hidden text-base font-semibold text-ellipsis text-main">
+              {{ currentPreviewImage?.intro }}
+            </h3>
+            <div class="mt-1 mr-4 text-sm font-semibold whitespace-nowrap text-main">
+              {{ gallerySliderControl.index + 1 }} / {{ filterList.length }}
+            </div>
+            <div class="mt-1 text-center text-xs font-medium text-main">
               {{ t('pages.gallery.previewHelp') }}
             </div>
           </div>
@@ -353,15 +418,20 @@
 
     <!-- Edit URL Modal -->
     <transition name="modal">
-      <div v-if="dialogVisible" class="modal-overlay" :class="advancedAnimation" @click="dialogVisible = false">
+      <div
+        v-if="dialogVisible"
+        class="modal-overlay"
+        :class="{ 'advanced-animation': enableAdvancedAnimation }"
+        @click="dialogVisible = false"
+      >
         <div class="modal-container" @click.stop>
           <div class="modal-header">
-            <h3>{{ t('pages.gallery.changeImageUrl') }}</h3>
+            <h3 class="m-0 text-xl font-semibold text-main">{{ t('pages.gallery.changeImageUrl') }}</h3>
             <button class="modal-close-btn" @click="dialogVisible = false">
               <XIcon :size="20" />
             </button>
           </div>
-          <div class="modal-body">
+          <div class="p-6">
             <input v-model="imgInfo.imgUrl" type="text" class="form-input" placeholder="Enter new URL" />
           </div>
           <div class="modal-footer">
@@ -381,18 +451,17 @@
       <div
         v-if="isShowBatchRenameDialog"
         class="modal-overlay"
-        :class="advancedAnimation"
-        @click="isShowBatchRenameDialog = false"
+        :class="{ 'advanced-animation': enableAdvancedAnimation }"
       >
-        <div class="modal-container large" @click.stop>
+        <div class="modal-container" @click.stop>
           <div class="modal-header">
-            <h3>{{ t('pages.gallery.batchEditUrl') }}</h3>
+            <h3 class="m-0 text-xl font-semibold text-main">{{ t('pages.gallery.batchEditUrl') }}</h3>
             <button class="modal-close-btn" @click="isShowBatchRenameDialog = false">
               <XIcon :size="20" />
             </button>
           </div>
-          <div class="modal-body">
-            <div class="form-group">
+          <div class="p-6">
+            <div class="mb-6 last:mb-0">
               <label class="form-label">
                 {{ t('pages.gallery.regexPattern', { matched: matchedCount || 0 }) }}
               </label>
@@ -404,20 +473,34 @@
                 @focus="showMatchedUrls = true"
                 @blur="showMatchedUrls = false"
               />
-              <div v-if="showMatchedUrls && matchedUrls.length > 0" class="matched-urls-tooltip">
-                <div class="tooltip-header">Matched URLs ({{ matchedUrls.length }}):</div>
-                <div class="tooltip-content">
-                  <div v-for="(url, index) in matchedUrls" :key="index" class="url-item">
+              <div
+                v-if="showMatchedUrls && matchedUrls.length > 0"
+                class="absolute z-1000 mt-2 max-h-[300px] max-w-[650px] overflow-hidden rounded-md border border-border-secondary bg-bg-tertiary p-0 shadow-md"
+              >
+                <div
+                  class="border-b border-b-border-secondary bg-bg-secondary px-4 py-3 text-sm font-semibold text-main"
+                >
+                  Matched URLs ({{ matchedUrls.length }}):
+                </div>
+                <div class="max-h-[240px] overflow-auto p-2">
+                  <div
+                    v-for="(url, index) in matchedUrls"
+                    :key="index"
+                    class="rounded-sm px-3 py-2 font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] text-sm break-all text-secondary transition-all duration-fast ease-apple hover:bg-surface-elevated"
+                  >
                     {{ url }}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-6 last:mb-0">
               <label class="form-label">
                 {{ t('pages.gallery.replacedWith') }}
-                <button class="info-button" @click="showFormatInfo = !showFormatInfo">
+                <button
+                  class="flex h-[20px] w-[20px] cursor-pointer items-center justify-around rounded-full border-none bg-accent text-white transition-all duration-fast ease-apple hover:bg-accent-hover"
+                  @click="showFormatInfo = !showFormatInfo"
+                >
                   <InfoIcon :size="16" />
                 </button>
               </label>
@@ -425,10 +508,12 @@
             </div>
 
             <!-- Format Info Panel -->
-            <div v-if="showFormatInfo" class="form-group">
+            <div v-if="showFormatInfo" class="mb-6 last:mb-0">
               <label>{{ t('pages.settings.upload.availablePlaceholders') }}</label>
-              <div class="placeholder-help">
-                <div class="placeholder-category">
+              <div
+                class="mt-3 max-h-[400px] overflow-y-auto rounded-lg border border-border bg-bg-tertiary p-0 shadow-sm"
+              >
+                <div class="border-b border-b-border last:border-b-0">
                   <div class="category-title">
                     {{ t('pages.settings.upload.placeholder.categoryTime') }}
                   </div>
@@ -701,10 +786,6 @@ function copyPlaceholder(placeholder: string) {
   message.success(t('pages.settings.upload.copySuccess', { content: placeholder }))
 }
 
-const advancedAnimation = computed(() => ({
-  advancedAnimation: enableAdvancedAnimation.value,
-}))
-
 const filterList = computed(() => {
   return getGallery()
 })
@@ -774,7 +855,6 @@ function onPreviewImageLoad() {
 function togglePicBedDropdown(event?: Event) {
   picBedDropdownOpen.value = !picBedDropdownOpen.value
   if (sortDropdownOpen.value) sortDropdownOpen.value = false
-
   if (picBedDropdownOpen.value && event) {
     nextTick(() => {
       const trigger = event.target as HTMLElement

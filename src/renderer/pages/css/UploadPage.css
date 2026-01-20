@@ -1,20 +1,24 @@
-@import "tailwindcss" reference;
-@import "../../assets/css/theme.css" reference;
-@import "../../assets/css/utilities.css" reference;
+@import 'tailwindcss' reference;
+@import '../../assets/css/theme.css' reference;
+@import '../../assets/css/utilities.css' reference;
 
 .segmented-button {
-  @apply flex items-center border-none border-r-border-secondary border-r py-2.5 px-4 text-sm font-[inherit] font-medium text-secondary duration-fast ease-standard gap-2 cursor-pointer whitespace-nowrap last:border-r-0 hover:text-accent-hover hover:bg-bg-tertiary;
+  @apply flex cursor-pointer items-center gap-2 border-r border-none border-r-border-secondary px-4 py-2.5 font-[inherit] text-sm font-medium whitespace-nowrap text-secondary duration-fast ease-standard last:border-r-0 hover:bg-bg-tertiary hover:text-accent-hover;
 }
 
 /* Quick Actions Card */
 .quick-action-button {
-  @apply relative flex flex-1 items-center border border-border-secondary rounded-lg px-4 py-3.5 font-[inherit] text-left bg-bg-secondary duration-medium ease-standard gap-2 cursor-pointer hover:border-accent-hover hover:shadow-md hover:-translate-y-[2px] [.has-badge]:pr-12 max-xs:py-3 max-xs:px-3.5 focus-visible:focus-ring;
+  @apply relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:-translate-y-[2px] hover:border-accent-hover hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3 [.has-badge]:pr-12;
 }
 
 .filter-tab {
-  @apply py-2 px-4 text-sm font-medium border border-border-secondary rounded-md bg-bg-secondary text-secondary cursor-pointer transition-all duration-fast ease-standard whitespace-nowrap shadow-sm hover:border-accent hover:text-main hover:-translate-y-px hover:shadow-md [.active]:bg-accent [.active]:border-transparent [.active]:text-white [.active]:shadow-lg;
+  @apply cursor-pointer rounded-md border border-border-secondary bg-bg-secondary px-4 py-2 text-sm font-medium whitespace-nowrap text-secondary shadow-sm transition-all duration-fast ease-standard;
+  @apply hover:-translate-y-px hover:border-accent hover:text-main hover:shadow-md;
+  @apply [.active]:border-transparent [.active]:bg-accent [.active]:text-white [.active]:shadow-lg;
 }
 
 .task-icon-btn {
-  @apply flex items-center justify-center w-[32px] h-[32px] p-0 border border-border rounded-md bg-surface-elevated text-secondary cursor-pointer transition-all duration-fast ease-standard hover:border-accent hover:bg-accent hover:text-white hover:-translate-y-px [.is-high]:bg-warning [.is-high]:border-warning [.is-high]:text-white [.danger:hover]:bg-danger [.danger:hover]:border-danger [.danger:hover]:text-white;
+  @apply flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-md border border-border bg-surface-elevated p-0 text-secondary transition-all duration-fast ease-standard;
+  @apply hover:-translate-y-px hover:border-accent hover:bg-accent hover:text-white;
+  @apply [.danger:hover]:border-danger [.danger:hover]:bg-danger [.danger:hover]:text-white [.is-high]:border-warning [.is-high]:bg-warning [.is-high]:text-white;
 }
