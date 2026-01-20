@@ -1,26 +1,38 @@
 <template>
-  <nav class="navigation" :class="{ collapsed: isCollapsed }">
-    <div class="title-bar">
-      <div v-show="!isCollapsed" class="app-title">
-        <div class="app-text" @click="openGithubPage">
+  <nav
+    class="group no-scrollbar flex h-screen w-[150px] flex-col overflow-hidden border-r border-r-border-secondary/50 bg-bg-secondary transition-all duration-medium ease-apple max-md:w-[60px] [.collapsed]:w-[60px]"
+    :class="{ collapsed: isCollapsed }"
+  >
+    <div
+      class="relative flex items-center justify-center bg-bg-secondary px-4 py-5 group-[.collapsed]:px-2 group-[.collapsed]:py-4"
+    >
+      <div v-show="!isCollapsed" class="flex flex-col items-center gap-1 group-[.collapsed]:hidden max-md:hidden">
+        <div
+          class="text-[16px] font-bold tracking-tight text-main hover:cursor-pointer hover:text-accent"
+          @click="openGithubPage"
+        >
           {{ t('app.title') }}
         </div>
-        <div class="app-version">v{{ version }}</div>
+        <div
+          class="rounded-lg border border-border/50 bg-bg-secondary px-[8px] py-[3px] text-[10px] font-medium text-secondary"
+        >
+          v{{ version }}
+        </div>
       </div>
       <button
         :title="isCollapsed ? t('navigation.expand') : t('navigation.collapse')"
-        class="collapse-button"
+        class="absolute top-1/2 right-[8px] flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border-none bg-transparent p-[4px] transition-all duration-200 ease-apple group-[.collapsed]:absolute group-[.collapsed]:top-[20px] group-[.collapsed]:right-[16px] group-[.collapsed]:transform-none hover:bg-surface-elevated hover:text-main"
         @click="isCollapsed = !isCollapsed"
       >
         <component :is="isCollapsed ? ChevronRightIcon : ChevronLeftIcon" :size="16" />
       </button>
     </div>
 
-    <div class="theme-section">
+    <div class="flex items-center justify-center p-3">
       <ThemeSwitcher :collapsed="isCollapsed" />
     </div>
 
-    <div class="nav-menu">
+    <div class="no-scrollbar min-h-0 flex-1 overflow-y-auto py-4">
       <div
         v-for="item in navigationItems.slice(0, 3)"
         :key="item.path"
@@ -32,22 +44,29 @@
         <div class="nav-icon-container">
           <component :is="item.icon" :size="18" />
         </div>
-        <span v-show="!isCollapsed" class="nav-label">{{ item.name }}</span>
+        <span v-show="!isCollapsed" class="max-md:hidden" :class="isCollapsed ? 'hidden' : ''">{{ item.name }}</span>
       </div>
 
-      <Disclosure v-show="!isCollapsed" v-slot="{ open }" as="div" class="nav-submenu">
-        <DisclosureButton class="nav-item submenu-trigger">
+      <Disclosure v-show="!isCollapsed" v-slot="{ open }" as="div" class="relative mt-[4px] justify-center">
+        <DisclosureButton
+          class="nav-item relative flex w-full cursor-pointer items-center justify-center gap-3 border-none bg-transparent px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple hover:bg-surface-elevated hover:text-main"
+        >
           <div class="nav-icon-container">
             <DatabaseIcon :size="18" />
           </div>
-          <span class="nav-label">{{ t('navigation.picbed') }}</span>
-          <ChevronDownIcon :size="16" class="submenu-arrow" :class="{ 'rotate-180': open }" />
+          <span class="shrink-0 max-md:hidden" :class="isCollapsed ? 'hidden' : ''">{{ t('navigation.picbed') }}</span>
+          <ChevronDownIcon
+            :size="16"
+            class="absolute right-4 shrink-0 transition-all duration-200 ease-apple"
+            :class="{ 'rotate-180': open }"
+          />
         </DisclosureButton>
-        <DisclosurePanel class="submenu-panel">
+        <DisclosurePanel class="mt-[2px] flex flex-col gap-[4px] pl-11">
           <div
             v-for="item in visiblePicBeds"
             :key="item.type"
-            class="submenu-item"
+            :class="{ 'router-link-active': isPicBedPathActive(item.type) }"
+            class="flex cursor-pointer items-center px-4 py-2 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple hover:bg-surface-elevated hover:text-accent-hover [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
             @click="navigateToUploaderConfig(item.type)"
           >
             <span>{{ item.name }}</span>
@@ -56,7 +75,7 @@
       </Disclosure>
       <div
         v-show="isCollapsed"
-        class="nav-item collapsed-picbed"
+        class="nav-item cursor-default bg-surface-elevated hover:text-main"
         :title="t('navigation.picbed')"
         @click="isCollapsed = !isCollapsed"
       >
@@ -76,11 +95,15 @@
         <div class="nav-icon-container">
           <component :is="item.icon" :size="18" />
         </div>
-        <span v-show="!isCollapsed" class="nav-label">{{ item.name }}</span>
+        <span v-show="!isCollapsed" class="max-md:hidden" :class="isCollapsed ? 'hidden' : ''">{{ item.name }}</span>
       </div>
     </div>
-    <div class="sidebar-footer">
-      <button class="footer-button" :title="t('navigation.moreOptions')" @click="openMenu">
+    <div class="border-t border-t-border p-3">
+      <button
+        class="fixed bottom-[4px] left-[4px] cursor-pointer rounded-full border-none bg-transparent p-[8px] text-tertiary hover:bg-surface-elevated hover:text-main"
+        :title="t('navigation.moreOptions')"
+        @click="openMenu"
+      >
         <Info :size="20" />
       </button>
     </div>
@@ -89,38 +112,51 @@
   <FirstTimeGuide ref="guideRef" />
 
   <TransitionRoot appear :show="qrcodeVisible" as="template">
-    <Dialog as="div" class="qr-dialog" @close="qrcodeVisible = false">
-      <div class="dialog-container">
+    <Dialog
+      as="div"
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto"
+      @close="qrcodeVisible = false"
+    >
+      <div class="fixed inset-0 z-50 flex min-h-screen items-center justify-center overflow-y-auto p-[16px]">
         <TransitionChild as="template">
-          <DialogPanel class="dialog-panel">
-            <DialogTitle class="dialog-title">
+          <DialogPanel
+            class="w-full max-w-[500px] overflow-visible rounded-xl border border-border bg-bg-tertiary shadow-md"
+          >
+            <DialogTitle class="m-0 px-[24px] pt-[20px] text-2xl font-semibold text-main">
               {{ t('navigation.picBedQrCode') }}
             </DialogTitle>
 
-            <div class="dialog-content">
-              <div class="form-group">
-                <label class="form-label">{{ t('navigation.choosePicBed') }}</label>
+            <div class="p-4">
+              <div class="mb-5">
+                <label class="mb-2 block text-base font-medium text-main">{{ t('navigation.choosePicBed') }}</label>
                 <Listbox v-model="choosedPicBedForQRCode" multiple>
-                  <div class="listbox-container">
-                    <ListboxButton class="listbox-button">
-                      <span v-if="choosedPicBedForQRCode.length === 0" class="placeholder">
+                  <div class="relative">
+                    <ListboxButton
+                      class="flex w-full cursor-pointer items-center justify-between rounded-2xl border border-border bg-surface px-4 py-3 text-base text-main hover:border-accent"
+                    >
+                      <span v-if="choosedPicBedForQRCode.length === 0" class="text-secondary">
                         {{ t('navigation.selectPicBeds') }}
                       </span>
-                      <span v-else class="selected-count">
+                      <span v-else class="text-main">
                         {{ choosedPicBedForQRCode.length }} {{ t('navigation.selected') }}
                       </span>
-                      <ChevronDownIcon :size="16" class="listbox-arrow" />
+                      <ChevronDownIcon :size="16" class="text-secondary" />
                     </ListboxButton>
 
                     <transition>
-                      <ListboxOptions class="listbox-options">
+                      <ListboxOptions
+                        class="absolute top-full right-0 left-0 z-1000 mt-[4px] max-h-[300px] overflow-y-auto rounded-sm border border-border bg-bg-tertiary shadow-md"
+                      >
                         <ListboxOption
                           v-for="picbed in picBedG"
                           :key="picbed.type"
                           v-slot="{ active, selected }"
                           :value="picbed.type"
                         >
-                          <li class="listbox-option" :class="{ active, selected }">
+                          <li
+                            class="flex cursor-pointer items-center justify-between px-4 py-3 text-base text-main [.active]:bg-surface-elevated [.selected]:bg-accent [.selected]:text-white"
+                            :class="{ active, selected }"
+                          >
                             <span>{{ picbed.name }}</span>
                             <CheckIcon v-if="selected" :size="16" />
                           </li>
@@ -130,19 +166,26 @@
                   </div>
                 </Listbox>
 
-                <button v-if="choosedPicBedForQRCode.length > 0" class="copy-button" @click="handleCopyPicBedConfig">
+                <button
+                  v-if="choosedPicBedForQRCode.length > 0"
+                  class="mt-3 flex cursor-pointer items-center gap-2 rounded-sm border-none bg-accent px-4 py-2 text-base font-medium text-white hover:bg-accent-hover"
+                  @click="handleCopyPicBedConfig"
+                >
                   <CopyIcon :size="16" />
                   {{ t('navigation.copyPicBedConfig') }}
                 </button>
               </div>
 
-              <div v-if="choosedPicBedForQRCode.length > 0" class="qr-container">
-                <qrcode-vue :size="280" :value="picBedConfigString" class="qr-code" />
+              <div v-if="choosedPicBedForQRCode.length > 0" class="flex justify-center py-5">
+                <qrcode-vue :size="280" :value="picBedConfigString" class="overflow-hidden shadow-sm" />
               </div>
             </div>
 
-            <div class="dialog-actions">
-              <button class="cancel-button" @click="qrcodeVisible = false">
+            <div class="flex justify-end gap-3 px-4 pb-4">
+              <button
+                class="cursor-pointer rounded-sm border border-border bg-danger/50 px-4 py-2 text-base text-main hover:bg-danger/70"
+                @click="qrcodeVisible = false"
+              >
                 {{ $t('navigation.close') }}
               </button>
             </div>
@@ -266,6 +309,11 @@ function navigateToUploaderConfig(type: string) {
 
 function isPathActive(path: string): boolean {
   return route.path === path
+}
+
+function isPicBedPathActive(type: string): boolean {
+  console.log('type:', type, 'route.params.type:', route.params.type)
+  return route.name === routerConfig.UPLOADER_CONFIG_PAGE && route.params.type === type
 }
 
 const navigationItems = computed(() => [

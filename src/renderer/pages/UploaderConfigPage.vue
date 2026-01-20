@@ -34,10 +34,10 @@
 
     <!-- Config Grid -->
     <div
-      class="no-scrollbar flex w-full flex-1 items-center gap-4 overflow-auto rounded-2xl border border-border-secondary px-4 py-6 shadow-md"
+      class="no-scrollbar flex w-full flex-1 items-start gap-4 overflow-auto rounded-2xl border border-border-secondary px-4 py-6 shadow-md"
     >
       <div
-        class="no-scrollbar grid h-full w-full grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5 overflow-auto border-none p-1 max-md:grid-cols-1 max-md:gap-4 xl:grid-cols-[repeat(auto-fill,minmax(325px,1fr))]"
+        class="no-scrollbar grid h-auto w-full grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5 overflow-auto border-none p-1 max-md:grid-cols-1 max-md:gap-4 xl:grid-cols-[repeat(auto-fill,minmax(325px,1fr))]"
       >
         <!-- Config Items -->
         <div
