@@ -85,10 +85,10 @@
               @click="handleImageProcessSingle"
             >
               <Settings :size="16" />
-              <span class="mt-1">{{ t('pages.upload.imageProcessNameSingle') }}</span>
+              <span>{{ t('pages.upload.imageProcessNameSingle') }}</span>
             </button>
             <button class="segmented-button" :title="t('pages.upload.imageProcessName')" @click="handleImageProcess">
-              <span class="mt-1">{{ t('pages.upload.imageProcessName') }}</span>
+              <span>{{ t('pages.upload.imageProcessName') }}</span>
             </button>
           </div>
           <button
@@ -170,11 +170,11 @@
         <div class="flex w-full flex-1 flex-row flex-wrap items-center justify-center gap-4 max-md:gap-3 max-md:px-5">
           <button class="quick-action-button" @click="uploadClipboardFiles">
             <ClipboardIcon class="shrink-0 text-accent" :size="15" />
-            <span class="mt-1 text-sm font-medium text-secondary">{{ t('pages.upload.clipboardPicture') }}</span>
+            <span class="text-sm font-medium text-secondary">{{ t('pages.upload.clipboardPicture') }}</span>
           </button>
           <button class="quick-action-button" @click="uploadURLFiles">
             <LinkIcon class="shrink-0 text-accent" :size="15" />
-            <span class="mt-1 text-sm font-medium text-secondary">{{ t('pages.upload.urlUpload') }}</span>
+            <span class="text-sm font-medium text-secondary">{{ t('pages.upload.urlUpload') }}</span>
           </button>
           <button
             class="quick-action-button"
@@ -185,7 +185,7 @@
             <span class="mt-1 text-sm font-medium text-secondary">{{ t('pages.upload.taskUpload') }}</span>
             <span
               v-if="taskQueueStatus.tasks.length > 0"
-              class="absolute top-[0.5] right-3 flex min-w-6 animate-[badge-pulse_2s_ease-in-out_infinite] items-center justify-center rounded-full border border-border-secondary px-1.5 py-0 text-sm font-bold text-accent"
+              class="absolute top-1/2 right-3 flex min-w-6 -translate-y-1/2 animate-[badge-pulse_2s_ease-in-out_infinite] items-center justify-center rounded-full border border-border-secondary px-1.5 py-0 text-sm font-bold text-accent"
             >
               {{ taskQueueStatus.tasks.length }}
             </span>
@@ -325,7 +325,7 @@
                   @click="addFilesToTask"
                 >
                   <PlusIcon :size="16" />
-                  <span class="mt-1">{{ t('pages.upload.taskQueue.addFiles') }}</span>
+                  <span>{{ t('pages.upload.taskQueue.addFiles') }}</span>
                 </button>
                 <button
                   v-if="!taskQueueStatus.config.isRunning && taskQueueStatus.stats.pending > 0"
@@ -333,7 +333,7 @@
                   @click="startTaskQueue"
                 >
                   <PlayIcon :size="16" />
-                  <span class="mt-1">{{ t('pages.upload.taskQueue.start') }}</span>
+                  <span>{{ t('pages.upload.taskQueue.start') }}</span>
                 </button>
                 <button
                   v-if="taskQueueStatus.config.isRunning && !taskQueueStatus.config.isPaused"
@@ -341,7 +341,7 @@
                   @click="pauseTaskQueue"
                 >
                   <PauseIcon :size="16" />
-                  <span class="mt-1">{{ t('pages.upload.taskQueue.pause') }}</span>
+                  <span>{{ t('pages.upload.taskQueue.pause') }}</span>
                 </button>
                 <button
                   v-if="taskQueueStatus.config.isPaused"
@@ -349,7 +349,7 @@
                   @click="resumeTaskQueue"
                 >
                   <PlayIcon :size="16" />
-                  <span class="mt-1">{{ t('pages.upload.taskQueue.resume') }}</span>
+                  <span>{{ t('pages.upload.taskQueue.resume') }}</span>
                 </button>
               </div>
               <div class="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:justify-center">
@@ -359,7 +359,7 @@
                   @click="retryAllFailedTasks"
                 >
                   <RefreshCwIcon :size="16" />
-                  <span class="mt-1">{{ t('pages.upload.taskQueue.retryAllFailed') }}</span>
+                  <span>{{ t('pages.upload.taskQueue.retryAllFailed') }}</span>
                 </button>
                 <button
                   v-if="taskQueueStatus.config.isRunning || taskQueueStatus.stats.pending > 0"
@@ -367,7 +367,7 @@
                   @click="cancelAllTasks"
                 >
                   <XIcon :size="16" />
-                  <span class="mt-1">{{ t('pages.upload.taskQueue.cancelAll') }}</span>
+                  <span>{{ t('pages.upload.taskQueue.cancelAll') }}</span>
                 </button>
                 <button
                   v-if="
@@ -379,7 +379,7 @@
                   @click="clearFinishedTasks"
                 >
                   <Trash2Icon :size="16" />
-                  <span class="mt-1">{{ t('pages.upload.taskQueue.clearFinished') }}</span>
+                  <span>{{ t('pages.upload.taskQueue.clearFinished') }}</span>
                 </button>
                 <button
                   class="flex cursor-pointer items-center gap-2 rounded-md bg-accent px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-sm transition-all duration-fast ease-standard hover:-translate-y-[2px] hover:shadow-md"

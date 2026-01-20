@@ -159,13 +159,13 @@
   @keyframes badge-pulse {
     0%,
     100% {
-      transform: translateY(-50%) scale(1);
-      box-shadow: 0 2px 6px rgb(0 122 255 / 40%);
+      transform: scale(1);
+      box-shadow: 0 2px 6px color-mix(in srgb, var(--color-accent) 60%, transparent);
     }
 
     50% {
-      transform: translateY(-50%) scale(1.1);
-      box-shadow: 0 2px 6px rgb(0 122 255 / 60%);
+      transform: scale(1.1);
+      box-shadow: 0 2px 6px color-mix(in srgb, var(--color-accent) 60%, transparent);
     }
   }
 

@@ -203,7 +203,7 @@
           <div class="flex flex-1 flex-wrap gap-3">
             <button class="action-btn copy-btn" :class="{ active: isMultiple(choosedList) }" @click="multiCopy">
               <ClipboardIcon :size="16" />
-              <span class="mt-1"> {{ t('pages.gallery.copy') }}</span>
+              <span> {{ t('pages.gallery.copy') }}</span>
             </button>
             <button
               class="action-btn edit-btn"
@@ -211,17 +211,15 @@
               @click="() => (isShowBatchRenameDialog = true)"
             >
               <EditIcon :size="16" />
-              <span class="mt-1"> {{ t('pages.gallery.edit') }}</span>
+              <span> {{ t('pages.gallery.edit') }}</span>
             </button>
             <button class="action-btn delete-btn" :class="{ active: isMultiple(choosedList) }" @click="multiRemove">
               <TrashIcon :size="16" />
-              <span class="mt-1">
-                {{ `${t('pages.gallery.delete')}${selectedCount > 0 ? ` (${selectedCount})` : ''}` }}</span
-              >
+              <span> {{ `${t('pages.gallery.delete')}${selectedCount > 0 ? ` (${selectedCount})` : ''}` }}</span>
             </button>
             <button class="action-btn select-btn" :class="{ active: filterList.length > 0 }" @click="toggleSelectAll">
               <CheckSquareIcon :size="16" />
-              <span class="mt-1">{{ isAllSelected ? t('pages.gallery.cancel') : t('pages.gallery.selectAll') }}</span>
+              <span>{{ isAllSelected ? t('pages.gallery.cancel') : t('pages.gallery.selectAll') }}</span>
             </button>
           </div>
         </div>
@@ -341,7 +339,7 @@
         <div class="absolute inset-0 bg-black/50" :class="{ 'advanced-animation': enableAdvancedAnimation }" />
         <div class="relative max-h-[90vh] max-w-[90vw] overflow-hidden rounded-xl bg-surface shadow-lg">
           <button
-            class="absolute top-4 right-4 z-10 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-white bg-danger/90 text-white hover:bg-danger hover:text-white"
+            class="absolute top-4 right-4 z-10 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-danger bg-danger/70 text-white hover:bg-danger hover:text-white"
             @click="handleClose"
           >
             <XIcon :size="24" />
@@ -405,10 +403,10 @@
             <h3 class="m-0 mr-4 flex-1 overflow-hidden text-base font-semibold text-ellipsis text-main">
               {{ currentPreviewImage?.intro }}
             </h3>
-            <div class="mt-1 mr-4 text-sm font-semibold whitespace-nowrap text-main">
+            <div class="mr-4 text-sm font-semibold whitespace-nowrap text-main">
               {{ gallerySliderControl.index + 1 }} / {{ filterList.length }}
             </div>
-            <div class="mt-1 text-center text-xs font-medium text-main">
+            <div class="text-center text-xs font-medium text-main">
               {{ t('pages.gallery.previewHelp') }}
             </div>
           </div>
