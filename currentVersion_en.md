@@ -21,3 +21,4 @@
 - Fixed an issue where the sort dropdown in the management page displayed abnormally
 - Fixed an issue where the task page displayed incorrectly in dark mode
 - Fixed an issue where the default image bed button status on the image bed settings page did not update in time
+- Fixed an issue where the button status for independent watermark settings on the image bed watermark settings page did not update in time

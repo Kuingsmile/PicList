@@ -86,8 +86,8 @@
 }
 
 .modal-close-btn {
-  @apply flex items-center justify-center border border-border-secondary rounded-full w-[32px] h-[32px] text-secondary bg-bg-tertiary transition-all duration-fast ease-apple cursor-pointer;
-  @apply hover:text-main hover:bg-danger;
+  @apply flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-elevated text-secondary transition-all duration-fast ease-apple;
+  @apply hover:scale-105 hover:border-danger hover:bg-danger hover:text-white focus-visible:focus-ring;
 }
 
 .modal-footer {

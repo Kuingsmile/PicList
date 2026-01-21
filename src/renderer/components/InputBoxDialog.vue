@@ -1,25 +1,42 @@
 <template>
   <Teleport to="body">
-    <Transition name="inputbox-fade">
-      <div v-if="showInputBoxVisible" class="inputbox-overlay" @click="handleInputBoxCancel">
+    <Transition
+      name="inputbox-fade"
+      enter-active-class="transition-all duration-200 ease-apple"
+      leave-active-class="transition-all duration-200 ease-apple"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="showInputBoxVisible"
+        class="fixed inset-0 z-1000 flex items-center justify-center overflow-y-auto bg-black/30"
+        :class="{ 'advanced-animation': enableAdvancedAnimation }"
+      >
         <Transition name="inputbox-scale">
-          <div v-if="showInputBoxVisible" class="inputbox-container" @click.stop>
-            <button class="inputbox-close" @click="handleInputBoxCancel">
+          <div
+            v-if="showInputBoxVisible"
+            class="fkex-col relative m-auto flex w-full max-w-[30rem] flex-col overflow-hidden rounded-2xl border border-border-secondary bg-bg-tertiary shadow-xl"
+            @click.stop
+          >
+            <button
+              class="absolute top-4 right-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-elevated text-secondary transition-all duration-fast ease-apple hover:scale-105 hover:border-danger hover:bg-danger hover:text-white focus-visible:focus-ring"
+              @click="handleInputBoxCancel"
+            >
               <XIcon :size="20" />
             </button>
 
-            <div class="inputbox-body">
-              <h3 class="inputbox-title">
+            <div class="p-4">
+              <h3 class="mb-4 pr-8 text-lg leading-[1.4] font-semibold text-main">
                 {{ inputBoxOptions.title || t('pages.inputBox.title') }}
               </h3>
 
-              <div class="inputbox-content">
+              <div class="relative">
                 <textarea
                   v-if="inputBoxOptions.multiLine"
                   ref="textareaRef"
                   v-model="inputBoxValue"
                   :placeholder="inputBoxOptions.placeholder"
-                  class="inputbox-textarea"
+                  class="max-h-[20rem] min-h-[6rem] w-full resize-y rounded-sm border border-border bg-bg-tertiary p-4 font-[inherit] text-[0.9375rem] text-main transition-all duration-fast ease-apple outline-none placeholder:text-secondary hover:border-accent focus:border-accent focus:bg-surface"
                   rows="4"
                   @keyup.ctrl.enter="handleInputBoxConfirm"
                   @keyup.meta.enter="handleInputBoxConfirm"
@@ -30,7 +47,7 @@
                   ref="inputRef"
                   v-model="inputBoxValue"
                   :placeholder="inputBoxOptions.placeholder"
-                  class="inputbox-input"
+                  class="w-full rounded-sm border border-border bg-bg-tertiary p-4 font-[inherit] text-[0.9375rem] text-main transition-all duration-fast ease-apple outline-none placeholder:text-secondary hover:border-accent focus:border-accent focus:bg-surface"
                   type="text"
                   @keyup.enter="handleInputBoxConfirm"
                   @keyup.escape="handleInputBoxCancel"
@@ -38,11 +55,18 @@
               </div>
             </div>
 
-            <div class="inputbox-actions">
-              <button class="inputbox-btn cancel-btn" @click="handleInputBoxCancel">
+            <div class="flex flex-wrap gap-3 p-4">
+              <button
+                class="flex-1 rounded-sm border-none bg-danger/50 p-2.5 text-sm font-semibold text-secondary transition-colors duration-fast ease-apple hover:bg-danger/70"
+                @click="handleInputBoxCancel"
+              >
                 {{ t('common.cancel') }}
               </button>
-              <button class="inputbox-btn confirm-btn" :disabled="!inputBoxValue.trim()" @click="handleInputBoxConfirm">
+              <button
+                class="flex-1 rounded-sm border-none bg-accent p-2.5 text-sm font-semibold text-main transition-colors duration-fast ease-apple hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
+                :disabled="!inputBoxValue.trim()"
+                @click="handleInputBoxConfirm"
+              >
                 {{ t('common.confirm') }}
               </button>
             </div>
@@ -60,7 +84,9 @@ import { useI18n } from 'vue-i18n'
 
 import $bus from '@/utils/bus'
 import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
+import { getConfig } from '@/utils/dataSender'
 
+const enableAdvancedAnimation = ref(false)
 const { t } = useI18n()
 const inputBoxValue = ref('')
 const showInputBoxVisible = ref(false)
@@ -108,7 +134,13 @@ function handleInputBoxConfirm() {
   $bus.emit(SHOW_INPUT_BOX_RESPONSE, inputBoxValue.value)
 }
 
+async function initConf() {
+  const settingConfig = await getConfig<any>('settings')
+  enableAdvancedAnimation.value = settingConfig?.enableAdvancedAnimation || false
+}
+
 onBeforeMount(() => {
+  initConf()
   removeInputBoxListenerCallback = window.electron.ipcRendererOn(SHOW_INPUT_BOX, handleIpcInputBoxEvent)
   $bus.on(SHOW_INPUT_BOX, initInputBoxValue)
 })
@@ -124,5 +156,3 @@ export default {
   name: 'InputBoxDialog',
 }
 </script>
-
-<style scoped src="./css/InputBox.css"></style>
