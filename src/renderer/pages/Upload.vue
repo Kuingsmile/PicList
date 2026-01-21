@@ -247,12 +247,12 @@
     <transition name="modal">
       <div
         v-if="imageProcessDialogVisible"
-        class="fixed inset-0 z-1000 flex items-center justify-center overflow-y-auto bg-black/50 p-4 max-md:p-4"
+        class="fixed inset-0 z-1000 flex items-center justify-center overflow-y-auto bg-black/30"
         :class="{ 'advanced-animation': enableAdvancedAnimation }"
         @click.stop
       >
         <div
-          class="m-auto h-[85vh] max-h-[85vh] w-[90vw] max-w-[90vw] overflow-hidden rounded-2xl border border-border-secondary bg-bg-tertiary shadow-xl"
+          class="m-auto flex h-[85vh] w-[90vw] flex-col overflow-hidden rounded-2xl border border-border-secondary bg-bg-tertiary shadow-xl"
           @click.stop
         >
           <div
@@ -273,7 +273,7 @@
               <XIcon :size="20" />
             </button>
           </div>
-          <div class="no-scrollbar max-h-[calc(90vh-90px)] overflow-y-auto max-md:p-4">
+          <div class="no-scrollbar h-[calc(90vh-90px)] flex-1 overflow-y-auto max-md:p-4">
             <ImageProcessSetting :config-id="PicBedId" :current-picbed-name="defaultPicBedG" />
           </div>
         </div>

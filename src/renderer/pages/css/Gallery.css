@@ -104,10 +104,7 @@
 }
 
 .placeholder-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0;
-  padding: 0.5rem 0;
+  @apply grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-0 py-2;
 }
 
 .placeholder-item {
@@ -139,6 +136,3 @@
   @apply m-0 border-b border-border pt-3.5 px-4 pb-2 text-sm font-semibold text-secondary bg-[linear-gradient(180deg,var(--color-background-secondary)_0%,var(--color-background-tertiary)_100%)];
 }
 
-.placeholder-item:hover {
-  background: color-mix(in srgb, var(--color-accent), transparent 95%);
-}

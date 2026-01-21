@@ -1,13 +1,16 @@
 <template>
-  <div class="image-process-settings">
+  <div class="no-scrollbar flex h-full flex-col gap-5 overflow-auto border-none p-3 text-main">
     <!-- Tab Navigation -->
-    <div class="tab-navigation">
-      <div class="tab-indicator" :style="tabIndicatorStyle" />
+    <div class="relative flex flex-wrap rounded-xl border border-border-secondary/50 p-2 shadow-sm">
+      <div
+        class="absolute z-0 rounded-lg bg-accent shadow-md transition-all duration-medium ease-bounce"
+        :style="tabIndicatorStyle"
+      />
       <button
         v-for="tab in tabs"
         ref="tabRefs"
         :key="tab.id"
-        class="tab-button"
+        class="relative z-1 flex flex-1 cursor-pointer items-center justify-center gap-2.5 rounded-lg bg-transparent px-5 py-3.5 text-sm font-semibold text-secondary transition-all duration-medium ease-in-out not-[.active]:hover:bg-accent/50 not-[.active]:hover:text-main [.active]:font-bold [.active]:text-white"
         :class="{ active: activeTab === tab.id }"
         @click="activeTab = tab.id"
       >
@@ -17,10 +20,19 @@
     </div>
 
     <!-- Settings Content -->
-    <div class="settings-content">
-      <transition name="fade-slide" mode="out-in">
+    <div
+      class="no-scrollbar flex flex-1 flex-col overflow-auto rounded-lg border border-border-secondary/50 p-4 shadow-sm"
+    >
+      <transition
+        name="fade-slide"
+        enter-active-class="transition-all duration-medium ease-apple"
+        leave-active-class="transition-all duration-medium ease-apple"
+        enter-from-class="opacity-0 translate-y-[12px]"
+        leave-to-class="opacity-0 -translate-y-[12px]"
+        mode="out-in"
+      >
         <!-- General Settings Tab -->
-        <div v-if="activeTab === 'general'" key="general" class="tab-content">
+        <div v-if="activeTab === 'general'" key="general" class="flex flex-col gap-4">
           <div class="settings-section">
             <div class="section-header">
               <div class="section-icon">
@@ -33,13 +45,11 @@
 
             <div class="form-grid">
               <div class="form-group">
-                <label class="switch-label">
-                  <input v-model="activeForm.compress.isRemoveExif" type="checkbox" class="switch-input" />
-                  <span class="switch-slider" />
-                  <div class="switch-content">
-                    <span class="switch-title">{{ $t('pages.imageProcess.general.isRemoveExif') }}</span>
-                  </div>
-                </label>
+                <customSwitch
+                  v-model="activeForm.compress.isRemoveExif"
+                  :title="$t('pages.imageProcess.general.isRemoveExif')"
+                  class="custom-switch"
+                />
 
                 <PerPicbedSetting
                   v-if="!configId"
@@ -62,9 +72,14 @@
               </div>
 
               <div class="form-group">
-                <label>{{ $t('pages.imageProcess.general.quality') }}</label>
-                <input v-model.number="activeForm.compress.quality" type="range" min="1" max="100" class="form-range" />
-                <div class="range-value">{{ activeForm.compress.quality }}%</div>
+                <customRange
+                  v-model.number="activeForm.compress.quality"
+                  :title="$t('pages.imageProcess.general.quality')"
+                  :min="1"
+                  :max="100"
+                  :step="1"
+                  :show-value="`${activeForm.compress.quality}%`"
+                />
 
                 <PerPicbedSetting
                   v-if="!configId"
@@ -97,13 +112,11 @@
             </div>
 
             <div class="form-group">
-              <label class="switch-label">
-                <input v-model="activeForm.compress.isConvert" type="checkbox" class="switch-input" />
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <span class="switch-title">{{ $t('pages.imageProcess.general.isConvert') }}</span>
-                </div>
-              </label>
+              <customSwitch
+                v-model="activeForm.compress.isConvert"
+                :title="$t('pages.imageProcess.general.isConvert')"
+                class="custom-switch"
+              />
 
               <PerPicbedSetting
                 v-if="!configId"
@@ -121,7 +134,7 @@
 
             <div v-if="activeForm.compress.isConvert" class="form-grid">
               <div class="form-group">
-                <label>{{ $t('pages.imageProcess.general.destinationFormat') }}</label>
+                <label class="title-text">{{ $t('pages.imageProcess.general.destinationFormat') }}</label>
                 <select v-model="activeForm.compress.convertFormat" class="form-input">
                   <option v-for="format in availableFormat" :key="format" :value="format">
                     {{ format.toUpperCase() }}
@@ -150,7 +163,7 @@
               </div>
 
               <div class="form-group">
-                <label>{{ $t('pages.imageProcess.general.specificFormatConversion') }}</label>
+                <label class="title-text">{{ $t('pages.imageProcess.general.specificFormatConversion') }}</label>
                 <textarea
                   v-model="convertStr"
                   class="form-textarea"
@@ -183,7 +196,7 @@
         </div>
 
         <!-- Watermark Tab -->
-        <div v-else-if="activeTab === 'watermark'" key="watermark" class="tab-content">
+        <div v-else-if="activeTab === 'watermark'" key="watermark" class="flex flex-col gap-4">
           <div class="settings-section">
             <div class="section-header">
               <div class="section-icon watermark-icon">
@@ -196,13 +209,11 @@
             </div>
 
             <div class="form-group">
-              <label class="switch-label">
-                <input v-model="activeForm.watermark.isAddWatermark" type="checkbox" class="switch-input" />
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <span class="switch-title">{{ $t('pages.imageProcess.watermark.isAdd') }}</span>
-                </div>
-              </label>
+              <customSwitch
+                v-model="activeForm.watermark.isAddWatermark"
+                :title="$t('pages.imageProcess.watermark.isAdd')"
+                class="custom-switch"
+              />
 
               <PerPicbedSetting
                 v-if="!configId"
@@ -224,25 +235,23 @@
               />
             </div>
 
-            <div v-if="activeForm.watermark.isAddWatermark" class="watermark-settings">
+            <div
+              v-if="activeForm.watermark.isAddWatermark"
+              class="mt-4 border-t border-t-border pt-3 transition-all duration-200 ease-apple"
+            >
               <div class="form-group">
-                <label>{{ $t('pages.imageProcess.watermark.type') }}</label>
-                <div class="radio-group">
-                  <label class="radio-option">
-                    <input v-model="activeForm.watermark.watermarkType" type="radio" value="text" class="radio-input" />
-                    <span class="radio-indicator" />
-                    <span class="radio-label">{{ $t('pages.imageProcess.watermark.text') }}</span>
-                  </label>
-                  <label class="radio-option">
-                    <input
-                      v-model="activeForm.watermark.watermarkType"
-                      type="radio"
-                      value="image"
-                      class="radio-input"
-                    />
-                    <span class="radio-indicator" />
-                    <span class="radio-label">{{ $t('pages.imageProcess.watermark.image') }}</span>
-                  </label>
+                <label class="title-text">{{ $t('pages.imageProcess.watermark.type') }}</label>
+                <div class="flex flex-wrap gap-4">
+                  <customRadioOption
+                    v-model="activeForm.watermark.watermarkType"
+                    value="text"
+                    :title="$t('pages.imageProcess.watermark.text')"
+                  />
+                  <customRadioOption
+                    v-model="activeForm.watermark.watermarkType"
+                    value="image"
+                    :title="$t('pages.imageProcess.watermark.image')"
+                  />
                 </div>
 
                 <PerPicbedSetting
@@ -271,13 +280,11 @@
 
               <div class="form-grid">
                 <div class="form-group">
-                  <label class="switch-label">
-                    <input v-model="activeForm.watermark.isFullScreenWatermark" type="checkbox" class="switch-input" />
-                    <span class="switch-slider" />
-                    <div class="switch-content">
-                      <span class="switch-title">{{ $t('pages.imageProcess.watermark.isFullScreen') }}</span>
-                    </div>
-                  </label>
+                  <customSwitch
+                    v-model="activeForm.watermark.isFullScreenWatermark"
+                    :title="$t('pages.imageProcess.watermark.isFullScreen')"
+                    class="custom-switch"
+                  />
 
                   <PerPicbedSetting
                     v-if="!configId"
@@ -300,15 +307,14 @@
                 </div>
 
                 <div class="form-group">
-                  <label>{{ $t('pages.imageProcess.watermark.degree') }}</label>
-                  <input
+                  <customRange
                     v-model.number="activeForm.watermark.watermarkDegree"
-                    type="range"
-                    min="-360"
-                    max="360"
-                    class="form-range"
+                    :title="$t('pages.imageProcess.watermark.degree')"
+                    :min="-360"
+                    :max="360"
+                    :step="1"
+                    :show-value="`${activeForm.watermark.watermarkDegree}°`"
                   />
-                  <div class="range-value">{{ activeForm.watermark.watermarkDegree }}°</div>
 
                   <PerPicbedSetting
                     v-if="!configId"
@@ -335,18 +341,14 @@
                 </div>
 
                 <div class="form-group">
-                  <label>{{ $t('pages.imageProcess.watermark.scaleRatio') }}</label>
-                  <input
+                  <customRange
                     v-model.number="activeForm.watermark.watermarkScaleRatio"
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    class="form-range"
+                    :title="$t('pages.imageProcess.watermark.scaleRatio')"
+                    :min="0"
+                    :max="1"
+                    :step="0.01"
+                    :show-value="`${Math.round((activeForm.watermark.watermarkScaleRatio || 0) * 100)}%`"
                   />
-                  <div class="range-value">
-                    {{ Math.round((activeForm.watermark.watermarkScaleRatio || 0) * 100) }}%
-                  </div>
 
                   <PerPicbedSetting
                     v-if="!configId"
@@ -375,7 +377,7 @@
 
               <div v-if="activeForm.watermark.watermarkType === 'text'" class="form-grid">
                 <div class="form-group">
-                  <label>{{ $t('pages.imageProcess.watermark.inputText') }}</label>
+                  <label class="title-text">{{ $t('pages.imageProcess.watermark.inputText') }}</label>
                   <input
                     v-model="activeForm.watermark.watermarkText"
                     type="text"
@@ -406,7 +408,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label>{{ $t('pages.imageProcess.watermark.textFontPath') }}</label>
+                  <label class="title-text">{{ $t('pages.imageProcess.watermark.textFontPath') }}</label>
                   <input
                     v-model="activeForm.watermark.watermarkFontPath"
                     type="text"
@@ -436,13 +438,17 @@
                 </div>
 
                 <div class="form-group">
-                  <label>{{ $t('pages.imageProcess.watermark.color') }}</label>
-                  <div class="color-input-group">
-                    <input v-model="activeForm.watermark.watermarkColor" type="color" class="form-color" />
+                  <label class="title-text">{{ $t('pages.imageProcess.watermark.color') }}</label>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <input
+                      v-model="activeForm.watermark.watermarkColor"
+                      type="color"
+                      class="h-[48px] w-[48px] cursor-pointer overflow-hidden rounded-lg border border-border bg-bg p-0.5 transition-all duration-200 ease-apple hover:border-accent hover:shadow-sm focus:border-accent focus:shadow-sm focus:outline-none"
+                    />
                     <input
                       v-model="activeForm.watermark.watermarkColor"
                       type="text"
-                      class="form-input"
+                      class="form-input flex-1"
                       placeholder="#CCCCCC73"
                     />
                   </div>
@@ -470,7 +476,7 @@
 
               <!-- Image Watermark Settings -->
               <div v-if="activeForm.watermark.watermarkType === 'image'" class="form-group">
-                <label>{{ $t('pages.imageProcess.watermark.imagePath') }}</label>
+                <label class="title-text">{{ $t('pages.imageProcess.watermark.imagePath') }}</label>
                 <input
                   v-model="activeForm.watermark.watermarkImagePath"
                   type="text"
@@ -500,18 +506,14 @@
               </div>
 
               <div v-if="activeForm.watermark.watermarkType === 'image'" class="form-group">
-                <label>{{ $t('pages.imageProcess.watermark.imageOpacity') }}</label>
-                <input
+                <customRange
                   v-model.number="activeForm.watermark.watermarkImageOpacity"
-                  type="range"
-                  min="0"
-                  max="255"
-                  step="1"
-                  class="form-range"
+                  :title="$t('pages.imageProcess.watermark.imageOpacity')"
+                  :min="0"
+                  :max="255"
+                  :step="1"
+                  :show-value="`${activeForm.watermark.watermarkImageOpacity || 0}`"
                 />
-                <div class="range-value">
-                  {{ activeForm.watermark.watermarkImageOpacity || 0 }}
-                </div>
 
                 <PerPicbedSetting
                   v-if="!configId"
@@ -537,13 +539,13 @@
               </div>
 
               <div class="form-group">
-                <label>{{ $t('pages.imageProcess.watermark.position') }}</label>
-                <div class="position-grid">
+                <label class="title-text">{{ $t('pages.imageProcess.watermark.position') }}</label>
+                <div class="grid max-w-[320px] grid-cols-3 gap-2.5">
                   <button
                     v-for="[key, label] in waterMarkPositionMap"
                     :key="key"
                     type="button"
-                    class="position-button"
+                    class="rounded-lg border border-border-secondary bg-bg p-3 text-center text-sm font-semibold text-secondary transition-all duration-200 ease-apple hover:border-accent hover:bg-accent/8 hover:text-main [.active]:border-accent/10 [.active]:bg-accent/20 [.active]:text-main"
                     :class="{ active: activeForm.watermark.watermarkPosition === key }"
                     @click="activeForm.watermark.watermarkPosition = key as any"
                   >
@@ -581,7 +583,7 @@
         </div>
 
         <!-- Transform Tab -->
-        <div v-else-if="activeTab === 'transform'" key="transform" class="tab-content">
+        <div v-else-if="activeTab === 'transform'" key="transform" class="flex flex-col gap-4">
           <div class="settings-section">
             <div class="section-header">
               <div class="section-icon transform-icon">
@@ -595,13 +597,11 @@
 
             <div class="form-grid">
               <div class="form-group">
-                <label class="switch-label">
-                  <input v-model="activeForm.compress.isFlip" type="checkbox" class="switch-input" />
-                  <span class="switch-slider" />
-                  <div class="switch-content">
-                    <span class="switch-title">{{ $t('pages.imageProcess.transform.isFlip') }}</span>
-                  </div>
-                </label>
+                <customSwitch
+                  v-model="activeForm.compress.isFlip"
+                  :title="$t('pages.imageProcess.transform.isFlip')"
+                  class="custom-switch"
+                />
 
                 <PerPicbedSetting
                   v-if="!configId"
@@ -618,13 +618,11 @@
               </div>
 
               <div class="form-group">
-                <label class="switch-label">
-                  <input v-model="activeForm.compress.isFlop" type="checkbox" class="switch-input" />
-                  <span class="switch-slider" />
-                  <div class="switch-content">
-                    <span class="switch-title">{{ $t('pages.imageProcess.transform.isFlop') }}</span>
-                  </div>
-                </label>
+                <customSwitch
+                  v-model="activeForm.compress.isFlop"
+                  :title="$t('pages.imageProcess.transform.isFlop')"
+                  class="custom-switch"
+                />
 
                 <PerPicbedSetting
                   v-if="!configId"
@@ -654,13 +652,11 @@
             </div>
 
             <div class="form-group">
-              <label class="switch-label">
-                <input v-model="activeForm.compress.isRotate" type="checkbox" class="switch-input" />
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <span class="switch-title">{{ $t('pages.imageProcess.transform.isRotate') }}</span>
-                </div>
-              </label>
+              <customSwitch
+                v-model="activeForm.compress.isRotate"
+                :title="$t('pages.imageProcess.transform.isRotate')"
+                class="custom-switch"
+              />
 
               <PerPicbedSetting
                 v-if="!configId"
@@ -677,15 +673,14 @@
             </div>
 
             <div v-if="activeForm.compress.isRotate" class="form-group">
-              <label>{{ $t('pages.imageProcess.transform.rotationDegree') }}</label>
-              <input
+              <customRange
                 v-model.number="activeForm.compress.rotateDegree"
-                type="range"
-                min="-360"
-                max="360"
-                class="form-range"
+                :title="$t('pages.imageProcess.transform.rotationDegree')"
+                :min="-360"
+                :max="360"
+                :step="1"
+                :show-value="`${activeForm.compress.rotateDegree}°`"
               />
-              <div class="range-value">{{ activeForm.compress.rotateDegree }}°</div>
 
               <PerPicbedSetting
                 v-if="!configId"
@@ -724,13 +719,11 @@
             </div>
 
             <div class="form-group">
-              <label class="switch-label">
-                <input v-model="activeForm.compress.isReSize" type="checkbox" class="switch-input" />
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <span class="switch-title">{{ $t('pages.imageProcess.transform.isResize') }}</span>
-                </div>
-              </label>
+              <customSwitch
+                v-model="activeForm.compress.isReSize"
+                :title="$t('pages.imageProcess.transform.isResize')"
+                class="custom-switch"
+              />
 
               <PerPicbedSetting
                 v-if="!configId"
@@ -746,10 +739,13 @@
               />
             </div>
 
-            <div v-if="activeForm.compress.isReSize" class="resize-settings">
+            <div
+              v-if="activeForm.compress.isReSize"
+              class="mt-4 border-t border-t-border pt-3 transition-all duration-200 ease-apple"
+            >
               <div class="form-grid">
                 <div class="form-group">
-                  <label>{{ $t('pages.imageProcess.transform.resizeWidth') }}</label>
+                  <label class="title-text">{{ $t('pages.imageProcess.transform.resizeWidth') }}</label>
                   <input v-model.number="activeForm.compress.reSizeWidth" type="number" min="0" class="form-input" />
 
                   <PerPicbedSetting
@@ -775,7 +771,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label>{{ $t('pages.imageProcess.transform.resizeHeight') }}</label>
+                  <label class="title-text">{{ $t('pages.imageProcess.transform.resizeHeight') }}</label>
                   <input v-model.number="activeForm.compress.reSizeHeight" type="number" min="0" class="form-input" />
 
                   <PerPicbedSetting
@@ -808,15 +804,11 @@
                 "
                 class="form-group"
               >
-                <label class="switch-label">
-                  <input v-model="activeForm.compress.skipReSizeOfSmallImg" type="checkbox" class="switch-input" />
-                  <span class="switch-slider" />
-                  <div class="switch-content">
-                    <span class="switch-title">{{
-                      $t('pages.imageProcess.transform.skipResizeOfSmallImgHeight')
-                    }}</span>
-                  </div>
-                </label>
+                <customSwitch
+                  v-model="activeForm.compress.skipReSizeOfSmallImg"
+                  :title="$t('pages.imageProcess.transform.skipResizeOfSmallImgHeight')"
+                  class="custom-switch"
+                />
 
                 <PerPicbedSetting
                   v-if="!configId"
@@ -851,14 +843,12 @@
             </div>
 
             <div class="form-group">
-              <label class="switch-label">
-                <input v-model="activeForm.compress.isReSizeByPercent" type="checkbox" class="switch-input" />
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <span class="switch-title">{{ $t('pages.imageProcess.transform.isResizeByPercent') }}</span>
-                  <span class="switch-description">{{ $t('pages.imageProcess.transform.isResizeByPercentHint') }}</span>
-                </div>
-              </label>
+              <customSwitch
+                v-model="activeForm.compress.isReSizeByPercent"
+                :title="$t('pages.imageProcess.transform.isResizeByPercent')"
+                :description="$t('pages.imageProcess.transform.isResizeByPercentHint')"
+                class="custom-switch"
+              />
 
               <PerPicbedSetting
                 v-if="!configId"
@@ -881,15 +871,14 @@
             </div>
 
             <div v-if="activeForm.compress.isReSizeByPercent" class="form-group">
-              <label>{{ $t('pages.imageProcess.transform.resizePercent') }}</label>
-              <input
+              <customRange
                 v-model.number="activeForm.compress.reSizePercent"
-                type="range"
-                min="1"
-                max="500"
-                class="form-range"
+                :title="$t('pages.imageProcess.transform.resizePercent')"
+                :min="1"
+                :max="500"
+                :step="1"
+                :show-value="`${activeForm.compress.reSizePercent}%`"
               />
-              <div class="range-value">{{ activeForm.compress.reSizePercent }}%</div>
 
               <PerPicbedSetting
                 v-if="!configId"
@@ -918,7 +907,7 @@
         </div>
 
         <!-- Skip Process Tab -->
-        <div v-else-if="activeTab === 'skipProcess'" key="skipProcess" class="tab-content">
+        <div v-else-if="activeTab === 'skipProcess'" key="skipProcess" class="flex flex-col gap-4">
           <div class="settings-section">
             <div class="section-header">
               <div class="section-icon">
@@ -935,51 +924,47 @@
                 rows="3"
                 :placeholder="'zip,rar,7z,tar,gz'"
               />
-              <small>{{ $t('pages.imageProcess.general.skipProcessExtListPlaceholder') }}</small>
+              <small class="mt-2 block rounded-sm bg-bg-secondary px-3 py-2 text-xs leading-[1.5] text-tertiary">{{
+                $t('pages.imageProcess.general.skipProcessExtListPlaceholder')
+              }}</small>
             </div>
           </div>
         </div>
 
         <!-- Rename Tab -->
-        <div v-else-if="activeTab === 'rename'" key="rename" class="tab-content">
+        <div v-else-if="activeTab === 'rename'" key="rename" class="flex flex-col gap-4">
           <div class="settings-section">
             <div class="form-grid">
               <div class="form-group">
-                <label class="switch-label">
-                  <input v-model="autoRenameComputed" type="checkbox" class="switch-input" />
-                  <span class="switch-slider" />
-                  <div class="switch-content">
-                    <span class="switch-title">{{ $t('pages.imageProcess.rename.renameTimestamp') }}</span>
-                    <span class="switch-description">YYYYMMDDHHmmssSSS</span>
-                  </div>
-                </label>
+                <customSwitch
+                  v-model="autoRenameComputed"
+                  :title="$t('pages.imageProcess.rename.renameTimestamp')"
+                  description="YYYYMMDDHHmmssSSS"
+                  class="custom-switch"
+                />
               </div>
 
               <div class="form-group">
-                <label class="switch-label">
-                  <input v-model="manualRenameComputed" type="checkbox" class="switch-input" />
-                  <span class="switch-slider" />
-                  <div class="switch-content">
-                    <span class="switch-title">{{ $t('pages.imageProcess.rename.manualRename') }}</span>
-                  </div>
-                </label>
+                <customSwitch
+                  v-model="manualRenameComputed"
+                  :title="$t('pages.imageProcess.rename.manualRename')"
+                  class="custom-switch"
+                />
               </div>
             </div>
 
             <div class="form-group">
-              <label class="switch-label">
-                <input v-model="renameSettingsComputed.rename.enable" type="checkbox" class="switch-input" />
-                <span class="switch-slider" />
-                <div class="switch-content">
-                  <div class="switch-title">{{ $t('pages.settings.upload.enableAdvancedRname') }}</div>
-                  <div class="switch-description">{{ $t('pages.settings.upload.enableAdvancedRnameDesc') }}</div>
-                </div>
-              </label>
+              <customSwitch
+                v-model="renameSettingsComputed.rename.enable"
+                :title="$t('pages.settings.upload.enableAdvancedRname')"
+                :description="$t('pages.settings.upload.enableAdvancedRnameDesc')"
+                class="custom-switch"
+              />
             </div>
 
             <div class="form-group rename-format-field">
-              <label>
-                <Edit :size="14" />
+              <label class="title-text mb-4 flex items-center gap-2">
+                <Edit :size="14" class="text-accent" />
                 {{ $t('pages.settings.upload.advancedRnameFormat') }}
               </label>
               <input
@@ -991,59 +976,8 @@
             </div>
 
             <div class="form-group">
-              <label>{{ $t('pages.settings.upload.availablePlaceholders') }}</label>
-              <div class="placeholder-help">
-                <div class="placeholder-category">
-                  <div class="category-title">
-                    {{ $t('pages.settings.upload.placeholder.categoryTime') }}
-                  </div>
-                  <div class="placeholder-grid">
-                    <div
-                      v-for="item in advancedRenameList.categoryTime"
-                      :key="item.value"
-                      class="placeholder-item"
-                      @click="copyPlaceholder(item.value)"
-                    >
-                      <code>{{ item.value }}</code>
-                      <span>{{ item.label }}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="placeholder-category">
-                  <div class="category-title">
-                    {{ $t('pages.settings.upload.placeholder.categoryHash') }}
-                  </div>
-                  <div class="placeholder-grid">
-                    <div
-                      v-for="item in advancedRenameList.categoryHash"
-                      :key="item.value"
-                      class="placeholder-item"
-                      @click="copyPlaceholder(item.value)"
-                    >
-                      <code>{{ item.value }}</code>
-                      <span>{{ item.label }}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="placeholder-category">
-                  <div class="category-title">
-                    {{ $t('pages.settings.upload.placeholder.categoryFile') }}
-                  </div>
-                  <div class="placeholder-grid">
-                    <div
-                      v-for="item in advancedRenameList.categoryFile"
-                      :key="item.value"
-                      class="placeholder-item"
-                      @click="copyPlaceholder(item.value)"
-                    >
-                      <code>{{ item.value }}</code>
-                      <span>{{ item.label }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <label class="title-text">{{ $t('pages.settings.upload.availablePlaceholders') }}</label>
+              <placeholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
             </div>
           </div>
         </div>
@@ -1077,14 +1011,16 @@ import type {
 import { computed, nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, toRaw, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import customRadioOption from '@/components/common/customRadioOption.vue'
+import customRange from '@/components/common/customRange.vue'
+import customSwitch from '@/components/common/customSwitch.vue'
+import placeholderTable from '@/components/common/placeholderTable.vue'
 import PerPicbedSetting from '@/components/PerPicbedSetting.vue'
-import useMessage from '@/hooks/useMessage'
 import { getRawData } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 
 const { t } = useI18n()
-const message = useMessage()
 const activeTab = useStorage<string>('image-process-setting-active-tab', 'general')
 
 // Tab indicator animation
@@ -1106,7 +1042,9 @@ function updateTabIndicator() {
   const activeTabEl = tabRefs.value[activeIndex]
   if (activeTabEl) {
     tabIndicatorStyle.value = {
-      width: `${activeTabEl.offsetWidth}px`,
+      top: `${activeTabEl.offsetTop}px`,
+      height: `${activeTabEl.offsetHeight}px`,
+      width: `${activeTabEl.offsetWidth - 12}px`,
       transform: `translateX(${activeTabEl.offsetLeft}px)`,
     }
   }
@@ -1166,10 +1104,11 @@ const advancedRenameList = computed(() => ({
   ],
 }))
 
-function copyPlaceholder(placeholder: string) {
-  window.electron.clipboard.writeText(placeholder)
-  message.success(t('pages.settings.upload.copySuccess', { content: placeholder }))
-}
+const advancedRenameTitleList = computed(() => ({
+  categoryTime: t('pages.settings.upload.placeholder.categoryTime'),
+  categoryHash: t('pages.settings.upload.placeholder.categoryHash'),
+  categoryFile: t('pages.settings.upload.placeholder.categoryFile'),
+}))
 
 const waterMarkPositionMap = new Map([
   ['north', t('pages.imageProcess.watermark.positionOptions.top')],
