@@ -75,7 +75,8 @@
   "pages": {
     "configForm": {
       "configName": "配置名",
-      "configNamePlaceholder": "请输入配置名称"
+      "configNamePlaceholder": "请输入配置名称",
+      "configNameRequired": "配置名称为必填项"
     },
     "gallery": {
       "batchEditUrl": "批量修改URL",

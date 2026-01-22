@@ -28,7 +28,7 @@
         :key="item.type"
         class="flex min-h-[unset] cursor-pointer items-center justify-between px-2 py-1 text-sm leading-[1.4] transition-all duration-fast ease-apple hover:bg-accent/50"
       >
-        <input v-model="choosed" type="checkbox" :value="item.type" class="m-0" />
+        <input v-bind="$attrs" v-model="choosed" type="checkbox" :value="item.type" class="m-0" />
         {{ item.name }}
       </label>
     </div>
@@ -38,7 +38,7 @@
 <script setup lang="ts">
 import { onClickOutside } from '@vueuse/core'
 import { ChevronDownIcon } from 'lucide-vue-next'
-import { nextTick, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const choosed = defineModel<string[]>('choosed')
@@ -81,4 +81,10 @@ const {
   zeroPlaceholder: string
   allList: any
 }>()
+
+onMounted(() => {
+  if (!Array.isArray(choosed.value)) {
+    choosed.value = []
+  }
+})
 </script>

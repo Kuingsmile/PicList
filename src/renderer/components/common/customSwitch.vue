@@ -12,9 +12,13 @@
           : 'h-[28px] w-[52px] before:top-[3px] before:left-[3px] before:h-[22px] before:w-[22px]'
       "
     />
-    <div class="flex flex-1 flex-col gap-1">
-      <span class="text-[0.925rem] leading-[1.4] font-semibold text-secondary">{{ title }}</span>
-      <span class="text-xs text-secondary/90">{{ description }}</span>
+    <div class="flex flex-row items-center gap-1">
+      <div class="flex flex-1 flex-col gap-1">
+        <span class="text-[0.925rem] leading-[1.4] font-semibold text-secondary">{{ title }}</span>
+        <span v-if="!!description" class="text-xs text-secondary/90">{{ description }}</span>
+      </div>
+      <slot name="switch-text"></slot>
+      <slot name="title-extra"></slot>
     </div>
   </label>
 </template>

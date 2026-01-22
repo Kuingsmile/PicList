@@ -12,6 +12,7 @@ import { createTray, setDockMenu } from 'apis/app/system'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
 import { app, globalShortcut, net, Notification, protocol, screen } from 'electron'
+import { installExtension, VUEJS_DEVTOOLS_BETA } from 'electron-devtools-installer'
 import fs from 'fs-extra'
 
 import { themesDir } from '~/apis/core/datastore/dirs'
@@ -36,7 +37,6 @@ import { notificationList } from '~/utils/notification'
 import { MemoryMonitor } from '~/utils/performanceOptimizer'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 import updateChecker from '~/utils/updateChecker'
-
 const isDevelopment = process.env.NODE_ENV !== 'production'
 process.noDeprecation = true
 
@@ -83,6 +83,13 @@ class LifeCycle {
 
   #onReady() {
     const readyFunction = async () => {
+      if (isDevelopment) {
+        try {
+          await installExtension(VUEJS_DEVTOOLS_BETA)
+        } catch (e: any) {
+          logger.error('Vue Devtools failed to install:', e)
+        }
+      }
       protocol.handle('theme', request => {
         const requestUrl = request.url
         const urlObj = new URL(requestUrl)

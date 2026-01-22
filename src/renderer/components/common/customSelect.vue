@@ -8,7 +8,9 @@
   <select
     v-model="modelValue"
     class="border-box w-full rounded-md border border-border bg-bg-tertiary p-3 text-sm text-main transition-all duration-200 ease-apple focus:border-accent focus:outline-none"
+    v-bind="$attrs"
   >
+    <slot name="pre-info"></slot>
     <template v-if="selectList.length > 0">
       <option v-for="item in selectList" :key="item.value" :value="item.value">
         {{ item.label }}

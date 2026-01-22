@@ -1,7 +1,12 @@
 <template>
   <div class="flex flex-col">
-    <label class="mb-2 text-sm font-semibold text-secondary">{{ title }}</label>
-
+    <div class="flex items-center gap-2">
+      <label class="mb-2 text-sm font-semibold text-secondary"
+        >{{ title }}
+        <span v-if="required" class="ml-1 text-red-400">*</span>
+      </label>
+      <slot name="title-extra"></slot>
+    </div>
     <div class="relative w-full">
       <input
         v-model="modelValue"
@@ -27,19 +32,27 @@
 <script setup lang="ts">
 import { EyeClosedIcon, EyeIcon } from 'lucide-vue-next'
 import { onMounted, ref } from 'vue'
+
 const modelValue = defineModel<any>()
 const type = ref('text')
+
 const {
   isPassword = false,
   title,
   inputType = 'text',
   placeholder,
+  required = false,
 } = defineProps<{
   isPassword?: boolean
   title: string
   inputType?: string
   placeholder: string
+  required?: boolean
 }>()
+
+defineOptions({
+  inheritAttrs: false,
+})
 
 onMounted(() => {
   if (isPassword) {

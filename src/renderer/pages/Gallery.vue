@@ -7,7 +7,7 @@
       <div
         class="flex w-full items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
       >
-        <div class="flex flex-1 items-center gap-4">
+        <div class="flex flex-1 items-center gap-4 p-1">
           <ImagesIcon :size="24" class="text-accent" />
           <div>
             <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">{{ t('pages.gallery.title') }}</h1>

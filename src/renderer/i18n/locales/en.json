@@ -75,7 +75,8 @@
   "pages": {
     "configForm": {
       "configName": "Config Name",
-      "configNamePlaceholder": "Please enter config name"
+      "configNamePlaceholder": "Please enter config name",
+      "configNameRequired": "Configure name is required"
     },
     "gallery": {
       "batchEditUrl": "Batch Edit URL",

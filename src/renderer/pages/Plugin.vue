@@ -4,7 +4,7 @@
       <div
         class="flex w-full items-center justify-between gap-4 overflow-visible rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
       >
-        <div class="flex flex-1 flex-wrap items-center gap-4">
+        <div class="flex flex-1 flex-wrap items-center gap-4 p-1">
           <DatabaseIcon :size="24" class="text-accent" />
           <div>
             <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">{{ t('pages.plugin.title') }}</h1>
@@ -113,7 +113,7 @@
             <div
               v-for="item in pluginList"
               :key="item.fullName"
-              class="relative flex h-auto min-h-[200px] flex-col rounded-xl border-2 border-border-secondary p-6 shadow-md transition-all duration-200 ease-apple hover:border-accent hover:shadow-xl [.disabled]:opacity-70"
+              class="relative flex h-auto flex-col rounded-xl border-2 border-border-secondary p-6 shadow-md transition-all duration-200 ease-apple hover:border-accent hover:shadow-xl [.disabled]:opacity-70"
               :class="{ disabled: !item.enabled && !searchText }"
             >
               <!-- Plugin Badge -->
@@ -275,7 +275,6 @@
             ref="$configForm"
             :config="config"
             :type="currentType"
-            color-mode="white"
             mode="plugin"
             :show-tooltips="false"
           />
@@ -324,7 +323,7 @@
               <div
                 v-for="item in filteredBrowsePlugins"
                 :key="item.fullName"
-                class="relative flex h-auto min-h-[200px] flex-col rounded-xl border-2 border-border-secondary p-6 shadow-md transition-all duration-200 ease-apple hover:border-accent hover:shadow-xl [.disabled]:opacity-70"
+                class="relative flex h-auto flex-col rounded-xl border-2 border-border-secondary p-6 shadow-md transition-all duration-200 ease-apple hover:border-accent hover:shadow-xl [.disabled]:opacity-70"
               >
                 <div class="mb-4 flex items-start gap-4">
                   <img

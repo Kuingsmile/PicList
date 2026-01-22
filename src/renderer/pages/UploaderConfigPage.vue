@@ -5,14 +5,10 @@
     <div
       class="flex w-full items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-2 shadow-md"
     >
-      <div class="flex flex-wrap items-center gap-4 max-md:justify-center max-md:text-center">
-        <div
-          class="border-xl flex h-[56px] w-[56px] items-center justify-center rounded-2xl border-none text-accent shadow-sm max-md:h-[35px] max-md:w-[35px]"
-        >
-          <Settings2 :size="28" />
-        </div>
+      <div class="flex flex-wrap items-center gap-4 p-2 max-md:justify-center max-md:text-center">
+        <Settings2 :size="24" class="text-accent" />
         <div class="flex flex-col gap-1 max-md:text-center">
-          <h1 class="m-0 text-2xl font-bold tracking-tight text-main">
+          <h1 class="m-0 text-xl font-bold tracking-tight text-main">
             {{ `${picBedName || type} ${t('pages.uploaderConfig.title')}` }}
           </h1>
           <p class="m-0 text-sm text-secondary">
