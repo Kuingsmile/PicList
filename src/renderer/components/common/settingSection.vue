@@ -1,9 +1,12 @@
 <template>
   <div class="w-full rounded-lg border border-border bg-bg-secondary p-6 shadow-sm">
     <div class="mb-2 flex items-start gap-3">
-      <div class="mb-2 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-lg bg-accent text-white">
+      <div
+        v-if="icon"
+        class="mb-2 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-lg bg-accent text-white"
+      >
         <slot name="icon">
-          <component :is="icon" v-if="icon" :size="iconSize" />
+          <component :is="icon" :size="iconSize" />
         </slot>
       </div>
       <div>
@@ -27,15 +30,15 @@
 
 <script setup lang="ts">
 const {
-  title,
+  title = '',
   description = '',
-  icon,
+  icon = null,
   iconSize = 20,
   onlyOneRow = false,
 } = defineProps<{
-  title: string
+  title?: string
   description?: string
-  icon: any
+  icon?: any
   iconSize?: number
   onlyOneRow?: boolean
 }>()

@@ -6,6 +6,7 @@
       <input
         v-model="modelValue"
         :type="type"
+        v-bind="$attrs"
         class="box-border w-full rounded-md border border-border bg-bg-tertiary p-3 pr-10 text-sm text-main transition-all duration-200 ease-apple focus:border-accent focus:outline-none"
         :placeholder="placeholder"
       />
@@ -26,20 +27,25 @@
 <script setup lang="ts">
 import { EyeClosedIcon, EyeIcon } from 'lucide-vue-next'
 import { onMounted, ref } from 'vue'
-const modelValue = defineModel<string>()
+const modelValue = defineModel<any>()
 const type = ref('text')
 const {
   isPassword = false,
   title,
+  inputType = 'text',
   placeholder,
 } = defineProps<{
   isPassword?: boolean
   title: string
+  inputType?: string
   placeholder: string
 }>()
+
 onMounted(() => {
   if (isPassword) {
     type.value = 'password'
+  } else {
+    type.value = inputType
   }
 })
 </script>

@@ -28,12 +28,12 @@ const {
   text,
   disabled,
   active = false,
-  icon,
+  icon = null,
   iconSize = 16,
   type = 'primary',
 } = defineProps<{
   text: string
-  icon: any
+  icon?: any
   active?: boolean
   iconSize?: number
   disabled?: boolean

@@ -384,164 +384,141 @@
 
     <!-- Edit URL Modal -->
     <transition name="modal">
-      <div
+      <CustomModal
         v-if="dialogVisible"
-        class="modal-overlay"
-        :class="{ 'advanced-animation': enableAdvancedAnimation }"
-        @click="dialogVisible = false"
+        v-model:visible="dialogVisible"
+        :height="'auto'"
+        :width="'40%'"
+        :title="t('pages.gallery.changeImageUrl')"
       >
-        <div class="modal-container" @click.stop>
-          <div class="modal-header">
-            <h3 class="m-0 text-xl font-semibold text-main">{{ t('pages.gallery.changeImageUrl') }}</h3>
-            <button class="modal-close-btn" @click="dialogVisible = false">
-              <XIcon :size="20" />
-            </button>
-          </div>
-          <div class="p-6">
-            <input v-model="imgInfo.imgUrl" type="text" class="form-input" placeholder="Enter new URL" />
-          </div>
-          <div class="modal-footer">
-            <button class="btn-secondary" @click="dialogVisible = false">
-              {{ t('common.cancel') }}
-            </button>
-            <button class="btn-primary" @click="confirmModify">
-              {{ t('common.confirm') }}
-            </button>
-          </div>
+        <div class="p-2">
+          <input v-model="imgInfo.imgUrl" type="text" class="form-input" placeholder="Enter new URL" />
         </div>
-      </div>
+        <template #footer>
+          <CustomButton :type="'secondary'" :text="t('common.cancel')" @click="dialogVisible = false" />
+          <CustomButton :type="'primary'" :text="t('common.confirm')" @click="confirmModify" />
+        </template>
+      </CustomModal>
     </transition>
 
     <!-- Batch Rename Modal -->
     <transition name="modal">
-      <div
+      <CustomModal
         v-if="isShowBatchRenameDialog"
-        class="modal-overlay"
-        :class="{ 'advanced-animation': enableAdvancedAnimation }"
+        v-model:visible="isShowBatchRenameDialog"
+        :height="'auto'"
+        :width="'700px'"
+        :title="t('pages.gallery.batchEditUrl')"
       >
-        <div class="modal-container" @click.stop>
-          <div class="modal-header">
-            <h3 class="m-0 text-xl font-semibold text-main">{{ t('pages.gallery.batchEditUrl') }}</h3>
-            <button class="modal-close-btn" @click="isShowBatchRenameDialog = false">
-              <XIcon :size="20" />
-            </button>
-          </div>
-          <div class="p-6">
-            <div class="mb-6 last:mb-0">
-              <label class="form-label">
-                {{ t('pages.gallery.regexPattern', { matched: matchedCount || 0 }) }}
-              </label>
-              <input
-                v-model="batchRenameMatch"
-                type="text"
-                class="form-input"
-                :placeholder="t('pages.gallery.regexPatternPlaceholder')"
-                @focus="showMatchedUrls = true"
-                @blur="showMatchedUrls = false"
-              />
-              <div
-                v-if="showMatchedUrls && matchedUrls.length > 0"
-                class="absolute z-1000 mt-2 max-h-[300px] max-w-[650px] overflow-hidden rounded-md border border-border-secondary bg-bg-tertiary p-0 shadow-md"
-              >
+        <div class="p-6">
+          <div class="mb-6 last:mb-0">
+            <label class="form-label">
+              {{ t('pages.gallery.regexPattern', { matched: matchedCount || 0 }) }}
+            </label>
+            <input
+              v-model="batchRenameMatch"
+              type="text"
+              class="form-input"
+              :placeholder="t('pages.gallery.regexPatternPlaceholder')"
+              @focus="showMatchedUrls = true"
+              @blur="showMatchedUrls = false"
+            />
+            <div
+              v-if="showMatchedUrls && matchedUrls.length > 0"
+              class="absolute z-1000 mt-2 max-h-[300px] max-w-[650px] overflow-hidden rounded-md border border-border-secondary bg-bg-tertiary p-0 shadow-md"
+            >
+              <div class="border-b border-b-border-secondary bg-bg-secondary px-4 py-3 text-sm font-semibold text-main">
+                Matched URLs ({{ matchedUrls.length }}):
+              </div>
+              <div class="max-h-[240px] overflow-auto p-2">
                 <div
-                  class="border-b border-b-border-secondary bg-bg-secondary px-4 py-3 text-sm font-semibold text-main"
+                  v-for="(url, index) in matchedUrls"
+                  :key="index"
+                  class="rounded-sm px-3 py-2 font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] text-sm break-all text-secondary transition-all duration-fast ease-apple hover:bg-surface-elevated"
                 >
-                  Matched URLs ({{ matchedUrls.length }}):
-                </div>
-                <div class="max-h-[240px] overflow-auto p-2">
-                  <div
-                    v-for="(url, index) in matchedUrls"
-                    :key="index"
-                    class="rounded-sm px-3 py-2 font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] text-sm break-all text-secondary transition-all duration-fast ease-apple hover:bg-surface-elevated"
-                  >
-                    {{ url }}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="mb-6 last:mb-0">
-              <label class="form-label">
-                {{ t('pages.gallery.replacedWith') }}
-                <button
-                  class="flex h-[20px] w-[20px] cursor-pointer items-center justify-around rounded-full border-none bg-accent text-white transition-all duration-fast ease-apple hover:bg-accent-hover"
-                  @click="showFormatInfo = !showFormatInfo"
-                >
-                  <InfoIcon :size="16" />
-                </button>
-              </label>
-              <input v-model="batchRenameReplace" type="text" class="form-input" placeholder="Ex. {Y}-{m}-{uuid}" />
-            </div>
-
-            <!-- Format Info Panel -->
-            <div v-if="showFormatInfo" class="mb-6 last:mb-0">
-              <label>{{ t('pages.settings.upload.availablePlaceholders') }}</label>
-              <div
-                class="mt-3 max-h-[400px] overflow-y-auto rounded-lg border border-border bg-bg-tertiary p-0 shadow-sm"
-              >
-                <div class="border-b border-b-border last:border-b-0">
-                  <div class="category-title">
-                    {{ t('pages.settings.upload.placeholder.categoryTime') }}
-                  </div>
-                  <div class="placeholder-grid">
-                    <div
-                      v-for="item in advancedRenameList.categoryTime"
-                      :key="item.value"
-                      class="placeholder-item"
-                      @click="copyPlaceholder(item.value)"
-                    >
-                      <code>{{ item.value }}</code>
-                      <span>{{ item.label }}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="placeholder-category">
-                  <div class="category-title">
-                    {{ t('pages.settings.upload.placeholder.categoryHash') }}
-                  </div>
-                  <div class="placeholder-grid">
-                    <div
-                      v-for="item in advancedRenameList.categoryHash"
-                      :key="item.value"
-                      class="placeholder-item"
-                      @click="copyPlaceholder(item.value)"
-                    >
-                      <code>{{ item.value }}</code>
-                      <span>{{ item.label }}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="placeholder-category">
-                  <div class="category-title">
-                    {{ t('pages.settings.upload.placeholder.categoryFile') }}
-                  </div>
-                  <div class="placeholder-grid">
-                    <div
-                      v-for="item in advancedRenameList.categoryFile"
-                      :key="item.value"
-                      class="placeholder-item"
-                      @click="copyPlaceholder(item.value)"
-                    >
-                      <code>{{ item.value }}</code>
-                      <span>{{ item.label }}</span>
-                    </div>
-                  </div>
+                  {{ url }}
                 </div>
               </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button class="btn-secondary" @click="isShowBatchRenameDialog = false">
-              {{ t('common.cancel') }}
-            </button>
-            <button class="btn-primary" @click="handleBatchRename()">
-              {{ t('common.confirm') }}
-            </button>
+
+          <div class="mb-6 last:mb-0">
+            <label class="form-label">
+              {{ t('pages.gallery.replacedWith') }}
+              <button
+                class="flex h-[20px] w-[20px] cursor-pointer items-center justify-around rounded-full border-none bg-accent text-white transition-all duration-fast ease-apple hover:bg-accent-hover"
+                @click="showFormatInfo = !showFormatInfo"
+              >
+                <InfoIcon :size="16" />
+              </button>
+            </label>
+            <input v-model="batchRenameReplace" type="text" class="form-input" placeholder="Ex. {Y}-{m}-{uuid}" />
+          </div>
+
+          <!-- Format Info Panel -->
+          <div v-if="showFormatInfo" class="mb-6 last:mb-0">
+            <label>{{ t('pages.settings.upload.availablePlaceholders') }}</label>
+            <div
+              class="mt-3 max-h-[400px] overflow-y-auto rounded-lg border border-border bg-bg-tertiary p-0 shadow-sm"
+            >
+              <div class="border-b border-b-border last:border-b-0">
+                <div class="category-title">
+                  {{ t('pages.settings.upload.placeholder.categoryTime') }}
+                </div>
+                <div class="placeholder-grid">
+                  <div
+                    v-for="item in advancedRenameList.categoryTime"
+                    :key="item.value"
+                    class="placeholder-item"
+                    @click="copyPlaceholder(item.value)"
+                  >
+                    <code>{{ item.value }}</code>
+                    <span>{{ item.label }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="placeholder-category">
+                <div class="category-title">
+                  {{ t('pages.settings.upload.placeholder.categoryHash') }}
+                </div>
+                <div class="placeholder-grid">
+                  <div
+                    v-for="item in advancedRenameList.categoryHash"
+                    :key="item.value"
+                    class="placeholder-item"
+                    @click="copyPlaceholder(item.value)"
+                  >
+                    <code>{{ item.value }}</code>
+                    <span>{{ item.label }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="placeholder-category">
+                <div class="category-title">
+                  {{ t('pages.settings.upload.placeholder.categoryFile') }}
+                </div>
+                <div class="placeholder-grid">
+                  <div
+                    v-for="item in advancedRenameList.categoryFile"
+                    :key="item.value"
+                    class="placeholder-item"
+                    @click="copyPlaceholder(item.value)"
+                  >
+                    <code>{{ item.value }}</code>
+                    <span>{{ item.label }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+        <template #footer>
+          <CustomButton :type="'secondary'" :text="t('common.cancel')" @click="isShowBatchRenameDialog = false" />
+          <CustomButton :type="'primary'" :text="t('common.confirm')" @click="handleBatchRename" />
+        </template>
+      </CustomModal>
     </transition>
   </div>
 </template>
@@ -582,6 +559,8 @@ import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate } from 'vue-router'
 
 import ALLApi from '@/apis/allApi'
+import CustomButton from '@/components/common/customButton.vue'
+import CustomModal from '@/components/common/customModal.vue'
 import MultiSelect from '@/components/common/multiSelect.vue'
 import SingleSelect from '@/components/common/singleSelect.vue'
 import VirtualScroller from '@/components/VirtualScroller.vue'
