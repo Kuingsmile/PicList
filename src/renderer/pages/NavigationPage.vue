@@ -233,15 +233,14 @@ import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, Ref, ref,
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
+import FirstTimeGuide from '@/components/FirstTimeGuide.vue'
+import ThemeSwitcher from '@/components/ui/ThemeSwitcher.vue'
 import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
 import * as config from '@/router/config'
 import { SHOW_FIRST_TIME_GUIDE, SHOW_MAIN_PAGE_QRCODE } from '@/utils/constant'
 import { getConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
-
-import FirstTimeGuide from './FirstTimeGuide.vue'
-import ThemeSwitcher from './ui/ThemeSwitcher.vue'
 
 const version = ref(pkg.version)
 const isCollapsed = useStorage('navigation-collapsed', false)

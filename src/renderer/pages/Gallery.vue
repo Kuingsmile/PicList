@@ -83,31 +83,12 @@
       >
         <div class="mb-1 flex w-full flex-wrap items-start gap-3">
           <div class="filter-group">
-            <label class="filter-label">{{ t('pages.gallery.picBedType') }}</label>
-            <div class="custom-multiselect relative">
-              <button
-                class="flex h-[28px] w-full cursor-pointer items-center justify-between rounded-md border border-border-secondary px-2 py-1.5 text-sm leading-[1.4] text-main transition-all duration-fast ease-apple hover:border-accent-hover focus:[.active]:border-accent-hover focus:[.active]:shadow-sm"
-                :class="{ active: picBedDropdownOpen }"
-                @click="togglePicBedDropdown($event)"
-              >
-                <span v-if="choosedPicBed.length === 0">{{ t('pages.gallery.chooseShowedPicBed') }}</span>
-                <span v-else>{{ choosedPicBed.length }} {{ t('pages.gallery.selected') }}</span>
-                <ChevronDownIcon :size="16" />
-              </button>
-              <div
-                v-show="picBedDropdownOpen"
-                class="multiselect-dropdown shadow-lg; fixed z-1000 mt-[2px] no-scrollbar max-h-[280px] min-w-[185px] overflow-y-auto rounded-md border border-border-secondary bg-bg-tertiary px-2 py-1.5 text-main"
-              >
-                <label
-                  v-for="item in filteredPicBedG"
-                  :key="item.type"
-                  class="flex min-h-[unset] cursor-pointer items-center justify-between px-2 py-1 text-sm leading-[1.4] transition-all duration-fast ease-apple hover:bg-accent-hover"
-                >
-                  <input v-model="choosedPicBed" type="checkbox" :value="item.type" class="m-0" />
-                  {{ item.name }}
-                </label>
-              </div>
-            </div>
+            <MultiSelect
+              v-model:choosed="choosedPicBed"
+              :title="t('pages.gallery.picBedType')"
+              :zero-placeholder="t('pages.gallery.chooseShowedPicBed')"
+              :all-list="filteredPicBedG"
+            />
           </div>
 
           <div class="filter-group">
@@ -120,55 +101,42 @@
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">{{ t('pages.gallery.pasteFormat') }}</label>
-            <select v-model="pasteStyle" class="custom-select" @change="handlePasteStyleChange">
-              <option
-                v-for="(value, key) in pasteStyleMap"
-                :key="key"
-                :value="value"
-                class="bg-bg-tertiary text-sm text-main"
-              >
-                {{ key }}
-              </option>
-            </select>
+            <SingleSelect
+              v-model="pasteStyle"
+              :title="t('pages.gallery.pasteFormat')"
+              :fronticon="false"
+              :key-list="pasteStyleList"
+            >
+              <template #item="{ item }">
+                {{ item }}
+              </template>
+            </SingleSelect>
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">{{ t('pages.gallery.urlType') }}</label>
-            <select v-model="useShortUrl" class="custom-select" @change="handleUseShortUrlChange">
-              <option
-                v-for="(value, key) in shortURLMap"
-                :key="key"
-                :value="value"
-                class="bg-bg-tertiary text-sm text-main"
-              >
-                {{ key }}
-              </option>
-            </select>
+            <SingleSelect
+              v-model="useShortUrl"
+              :title="t('pages.gallery.urlType')"
+              :fronticon="false"
+              :key-list="shortURLList"
+            >
+              <template #item="{ item }">
+                {{ item }}
+              </template>
+            </SingleSelect>
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">{{ t('pages.gallery.sort') }}</label>
-            <div class="sort-dropdown relative">
-              <button class="sort-button" :class="{ active: sortDropdownOpen }" @click="toggleSortDropdown($event)">
-                <SortAscIcon :size="14" />
-                {{ t(`pages.gallery.sortBy.${currentSortField}`) }}
-                <ChevronDownIcon :size="14" />
-              </button>
-              <div
-                v-show="sortDropdownOpen"
-                class="sort-options fixed z-10 mt-[2px] min-w-[150px] overflow-hidden rounded-md border border-border-secondary bg-bg-tertiary shadow-lg"
-              >
-                <button
-                  v-for="key in ['name', 'ext', 'time', 'check']"
-                  :key="key"
-                  class="block min-h-[unset] w-full cursor-pointer border-none bg-bg-tertiary px-2 py-1 text-center text-sm leading-[1.4] text-main transition-all duration-fast ease-apple hover:bg-accent-hover"
-                  @click="sortFile(key as any)"
-                >
-                  {{ t(`pages.gallery.sortBy.${key}`) }}
-                </button>
-              </div>
-            </div>
+            <SingleSelect
+              v-model="currentSortField"
+              :placeholder="t(`pages.gallery.sortBy.${currentSortField}`)"
+              :title="t('pages.gallery.sort')"
+              :key-list="['name', 'ext', 'time', 'check']"
+            >
+              <template #item="{ item }">
+                {{ t(`pages.gallery.sortBy.${item}`) }}
+              </template>
+            </SingleSelect>
           </div>
         </div>
 
@@ -240,7 +208,7 @@
           :key="componentKey"
           ref="virtualScrollerRef"
           :view-mode="viewMode"
-          class="virtual-gallery-scroller min-h-0 w-full flex-1 p-1"
+          class="virtual-gallery-scroller min-h-0 w-full flex-1 p-3"
           :items="filterList"
           :item-height="300"
           :grid-breakpoints="effectiveGridBreakpoints"
@@ -596,7 +564,6 @@ import {
   ListIcon,
   RefreshCwIcon,
   SearchIcon,
-  SortAscIcon,
   TrashIcon,
   XIcon,
 } from 'lucide-vue-next'
@@ -615,6 +582,8 @@ import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate } from 'vue-router'
 
 import ALLApi from '@/apis/allApi'
+import MultiSelect from '@/components/common/multiSelect.vue'
+import SingleSelect from '@/components/common/singleSelect.vue'
 import VirtualScroller from '@/components/VirtualScroller.vue'
 import useConfirm from '@/hooks/useConfirm'
 import { usePicBed } from '@/hooks/useGlobal'
@@ -663,18 +632,10 @@ const debouncedSearchText = ref<string>('')
 const debouncedSearchTextURL = ref<string>('')
 const handleBarActive = useStorage<boolean>('galleryHandleBarActive', true)
 const pasteStyle = ref<string>('')
-const pasteStyleMap = {
-  Markdown: 'markdown',
-  HTML: 'HTML',
-  URL: 'URL',
-  UBB: 'UBB',
-  Custom: 'Custom',
-}
+const pasteStyleList = ['markdown', 'HTML', 'URL', 'UBB', 'Custom']
 const useShortUrl = ref<string>('')
-const shortURLMap = {
-  [t('pages.gallery.shortUrl')]: t('pages.gallery.shortUrl'),
-  [t('pages.gallery.longUrl')]: t('pages.gallery.longUrl'),
-}
+const shortURLList = [t('pages.gallery.shortUrl'), t('pages.gallery.longUrl')]
+
 const fileSortNameReverse = ref(false)
 const fileSortTimeReverse = ref(false)
 const fileSortExtReverse = ref(false)
@@ -848,41 +809,6 @@ function onPreviewImageLoad() {
   nextTick(() => {
     resetImageTransform()
   })
-}
-
-function togglePicBedDropdown(event?: Event) {
-  picBedDropdownOpen.value = !picBedDropdownOpen.value
-  if (sortDropdownOpen.value) sortDropdownOpen.value = false
-  if (picBedDropdownOpen.value && event) {
-    nextTick(() => {
-      const trigger = event.target as HTMLElement
-      const dropdown = trigger.parentElement?.querySelector('.multiselect-dropdown') as HTMLElement
-      if (dropdown && trigger) {
-        const rect = trigger.getBoundingClientRect()
-        dropdown.style.top = `${rect.bottom + 2}px`
-        dropdown.style.left = `${rect.left}px`
-        dropdown.style.width = `${Math.max(rect.width, 200)}px`
-      }
-    })
-  }
-}
-
-function toggleSortDropdown(event?: Event) {
-  sortDropdownOpen.value = !sortDropdownOpen.value
-  if (picBedDropdownOpen.value) picBedDropdownOpen.value = false
-
-  if (sortDropdownOpen.value && event) {
-    nextTick(() => {
-      const trigger = event.target as HTMLElement
-      const dropdown = trigger.parentElement?.querySelector('.sort-options') as HTMLElement
-      if (dropdown && trigger) {
-        const rect = trigger.getBoundingClientRect()
-        dropdown.style.top = `${rect.bottom + 2}px`
-        dropdown.style.left = `${rect.left}px`
-        dropdown.style.width = `${Math.max(rect.width, 160)}px`
-      }
-    })
-  }
 }
 
 function navigateImage(direction: number) {
@@ -1522,23 +1448,19 @@ function toggleHandleBar() {
   handleBarActive.value = !handleBarActive.value
 }
 
-async function handlePasteStyleChange(event: Event) {
-  const target = event.target as HTMLSelectElement
-  const val = target.value
-  saveConfig(configPaths.settings.pasteStyle, val)
-  pasteStyle.value = val
-}
+watch(pasteStyle, newVal => {
+  saveConfig(configPaths.settings.pasteStyle, newVal)
+})
 
-function handleUseShortUrlChange(event: Event) {
-  const target = event.target as HTMLSelectElement
-  const value = target.value
-  saveConfig(configPaths.settings.useShortUrl, value === t('pages.gallery.shortUrl'))
-  useShortUrl.value = value
-}
+watch(useShortUrl, newVal => {
+  saveConfig(configPaths.settings.useShortUrl, newVal === t('pages.gallery.shortUrl'))
+})
+
+watch(currentSortField, () => {
+  sortFile(currentSortField.value)
+})
 
 function sortFile(type: 'name' | 'time' | 'ext' | 'check') {
-  sortDropdownOpen.value = false
-  currentSortField.value = type
   switch (type) {
     case 'name':
       fileSortNameReverse.value = !fileSortNameReverse.value

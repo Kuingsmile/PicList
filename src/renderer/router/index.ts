@@ -1,12 +1,12 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-import MainPage from '@/layouts/Main.vue'
 import ManageBucketPage from '@/manage/pages/BucketPage.vue'
 import ManageEmptyPage from '@/manage/pages/EmptyPage.vue'
 import ManageLoginPage from '@/manage/pages/LogInPage.vue'
 import ManageMainPage from '@/manage/pages/ManageMain.vue'
 import ManageSettingPage from '@/manage/pages/ManageSetting.vue'
 import GalleryPage from '@/pages/Gallery.vue'
+import MainPage from '@/pages/Main.vue'
 import MiniPage from '@/pages/MiniPage.vue'
 import PicBedsPage from '@/pages/picbeds/index.vue'
 import SettingPage from '@/pages/PicGoSetting.vue'

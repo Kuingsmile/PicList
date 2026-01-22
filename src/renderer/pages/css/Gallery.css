@@ -20,20 +20,9 @@
   @apply mb-0 text-sm font-semibold text-secondary leading-[1.4];
 }
 
-.custom-select {
-  @apply border border-border-secondary rounded-md px-2 py-1.5 w-full min-w-0 h-[28px] text-sm text-main transition-all duration-fast ease-apple cursor-pointer text-center leading-[1.4];
-  @apply focus:border-accent focus:outline-none focus:shadow-md;
-}
-
 .date-input {
   @apply border border-border-secondary rounded-md px-2 py-1.5 min-w-[20px] h-[28px] text-xs text-main transition-all duration-fast ease-apple flex-1 leading-[1.2];
   @apply focus:border-accent-hover focus:outline-none focus:shadow-md;
-}
-
-.sort-button {
-  @apply flex justify-between items-center border border-border-secondary rounded-md px-2 py-1.5 w-full h-[28px] text-sm text-main transition-all duration-fast ease-apple cursor-pointer gap-1 leading-[1.4];
-  @apply hover:border-accent-hover;
-  @apply focus:[.active]:border-accent-hover focus:[.active]:shadow-md;
 }
 
 .search-input {

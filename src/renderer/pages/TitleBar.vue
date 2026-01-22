@@ -85,8 +85,8 @@ onBeforeUnmount(() => {
 
 <style scoped>
 @import 'tailwindcss' reference;
-@import '../../assets/css/theme.css' reference;
-@import '../../assets/css/utilities.css' reference;
+@import '../assets/css/theme.css' reference;
+@import '../assets/css/utilities.css' reference;
 
 .control-button {
   @apply flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard hover:bg-surface-elevated hover:text-main [.close:hover]:bg-danger [.close:hover]:text-white [.mini:hover]:bg-success/85 [.mini:hover]:text-white [.minimize:hover]:bg-accent/85 [.minimize:hover]:text-white;

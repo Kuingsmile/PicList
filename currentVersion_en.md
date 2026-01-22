@@ -8,7 +8,8 @@
 
 - Added portable mode on Windows, allowing the program to run without installation. Data is stored in the `data` folder within the program directory, and automatic updates are supported. Added `rpm` installation package for Linux
 - Added custom theme functionality, with a theme repository available at [PicList ThemeHub](https://github.com/Kuingsmile/PicList-ThemeHub)
-- 12 built-in themes available, such as bilibili, ACG, Night Purple, gemini styles
+- 12 built-in themes available, such as bilibili, ACG, Night Purple styles
+- Refactored almost all pages, optimizing dozens of UI detail issues
 - Multiple optimizations on the album page, supporting display of the number of selected images, matching URL list, and remembering filter open state
 - Plugin page now allows browsing of all plugin lists, viewing details, and installation
 - Added tutorial guide page, which automatically pops up on first run

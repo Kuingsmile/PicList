@@ -5,7 +5,7 @@
         <div
           class="bg-linear-150-r m-0 border-b border-border bg-accent/10 px-4 pt-3.5 pb-2 text-sm font-semibold tracking-wide text-secondary"
         >
-          {{ $t(titleList[key]) }}
+          {{ titleList[key] }}
         </div>
         <div class="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-0 py-2">
           <div
