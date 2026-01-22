@@ -60,7 +60,7 @@ Whether you need to organize your cloud files, sync markdown images, or manage m
   <img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/upload.webp?raw=true" alt="Upload Interface" width="100%">
 </div>
 <div align="center">
-  <img width="2098" height="1398" alt="Image" src="https://github.com/user-attachments/assets/337f8bd9-11e1-443f-9bd3-3db4d5938e97" />
+  <img width="2098" height="1398" alt="Image" src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/anime.webp?raw=true" />
 </div>
 </details>
 

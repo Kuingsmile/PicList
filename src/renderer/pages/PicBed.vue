@@ -40,7 +40,7 @@
                 <CustomButton type="secondary" :icon="RotateCcw" :text="t('common.reset')" @click="handleReset" />
                 <CustomButton type="primary" :icon="Check" :text="t('common.confirm')" @click="handleConfirm" />
 
-                <div v-if="picBedConfigList.length > 0" class="dropdown-wrapper">
+                <div v-if="picBedConfigList.length > 0" class="relative">
                   <CustomButton
                     type="primary"
                     :icon="Import"
@@ -51,18 +51,21 @@
                   />
 
                   <Transition name="dropdown">
-                    <div v-show="dropdownVisible" class="dropdown-menu">
-                      <div class="dropdown-header">
+                    <div
+                      v-show="dropdownVisible"
+                      class="absolute right-0 bottom-[calc(100%+8px)] z-1000 min-w-[220px] overflow-auto rounded-xl border border-border bg-surface shadow-md"
+                    >
+                      <div class="bg-bg-tertiary px-4 py-3 text-xs font-semibold tracking-wider text-main uppercase">
                         <span>{{ t('pages.picBedConfigs.selectConfig') }}</span>
                       </div>
-                      <div class="dropdown-items">
+                      <div class="max-h-[250px] overflow-y-auto">
                         <button
                           v-for="item in picBedConfigList"
                           :key="item._id"
-                          class="dropdown-item"
+                          class="flex w-full cursor-pointer items-center gap-2.5 border-none bg-bg-tertiary px-4 py-3 text-center text-sm text-main hover:text-accent"
                           @click="handleConfigImport(item)"
                         >
-                          <FileJson :size="14" />
+                          <FileJson :size="14" class="text-accent" />
                           <span>{{ item._configName }}</span>
                         </button>
                       </div>
@@ -74,31 +77,23 @@
           </div>
 
           <!-- Empty State -->
-          <div v-else class="empty-state-card">
-            <div class="empty-state">
-              <div class="empty-icon-wrapper">
+          <div
+            v-else
+            class="flex w-full items-center justify-center overflow-hidden rounded-2xl border border-border-secondary bg-surface shadow-md"
+          >
+            <div class="px-8 py-16 text-center">
+              <div
+                class="mb-6 inline-flex h-[96px] w-[96px] items-center justify-center rounded-2xl border-2 border-border bg-surface-elevated text-main"
+              >
                 <FolderOpen :size="48" />
               </div>
-              <h3 class="empty-title">{{ t('pages.picBedConfigs.noConfigOptions') }}</h3>
-              <p class="empty-description">{{ t('pages.picBedConfigs.noConfigOptionsDesc') }}</p>
+              <h3 class="mb-2 text-xl font-semibold text-main">{{ t('pages.picBedConfigs.noConfigOptions') }}</h3>
+              <p class="m-0 text-[0.9rem] text-secondary">{{ t('pages.picBedConfigs.noConfigOptionsDesc') }}</p>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Loading Overlay -->
-    <Transition name="fade">
-      <div v-if="loading" class="loading-overlay">
-        <div class="loading-content">
-          <div class="loading-spinner">
-            <div class="spinner-ring" />
-            <Cloud :size="24" class="spinner-icon" />
-          </div>
-          <span class="loading-text">{{ 'loading' }}</span>
-        </div>
-      </div>
-    </Transition>
 
     <transition name="modal">
       <CustomModal
@@ -139,7 +134,6 @@ const type = ref('')
 const config = ref<IPicGoPluginConfig[]>([])
 const picBedConfigList = ref<IUploaderConfigListItem[]>([])
 const picBedName = ref('')
-const loading = ref(false)
 const dropdownVisible = ref(false)
 const imageProcessDialogVisible = ref(false)
 const $route = useRoute()
@@ -151,12 +145,11 @@ const currentPicbedType = $route.params.type as string
 type.value = $route.params.type as string
 
 onBeforeMount(async () => {
-  loading.value = true
   try {
     await getPicBeds()
     await getPicBedConfigList()
-  } finally {
-    loading.value = false
+  } catch (error) {
+    console.error('Initialization error:', error)
   }
 })
 
@@ -292,5 +285,3 @@ export default {
   name: 'PicbedsPage',
 }
 </script>
-
-<style scoped src="../css/Picbeds.css"></style>
