@@ -8,9 +8,7 @@
         class="flex w-full items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
       >
         <div class="flex flex-1 items-center gap-4">
-          <div class="flex items-center text-accent">
-            <ImagesIcon :size="24" />
-          </div>
+          <ImagesIcon :size="24" class="text-accent" />
           <div>
             <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">{{ t('pages.gallery.title') }}</h1>
             <p v-if="selectedCount > 0" class="m-0 text-sm text-secondary">
@@ -559,10 +557,10 @@ import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate } from 'vue-router'
 
 import ALLApi from '@/apis/allApi'
-import CustomButton from '@/components/common/customButton.vue'
-import CustomModal from '@/components/common/customModal.vue'
-import MultiSelect from '@/components/common/multiSelect.vue'
-import SingleSelect from '@/components/common/singleSelect.vue'
+import CustomButton from '@/components/common/CustomButton.vue'
+import CustomModal from '@/components/common/CustomModal.vue'
+import MultiSelect from '@/components/common/MultiSelect.vue'
+import SingleSelect from '@/components/common/SingleSelect.vue'
 import VirtualScroller from '@/components/VirtualScroller.vue'
 import useConfirm from '@/hooks/useConfirm'
 import { usePicBed } from '@/hooks/useGlobal'

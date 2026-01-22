@@ -685,7 +685,7 @@
       "noPluginsFound": "未找到插件",
       "NoPluginsInstalled": "尚未安裝任何插件",
       "notGuiImplement": "該插件未針對圖形介面進行優化，是否繼續安裝？",
-      "openRemoteList": "打開遠程插件列表",
+      "openRemoteList": "遠程列表",
       "pluginList": "插件列表",
       "restartApp": "重啟應用",
       "searchInBrowse": "在瀏覽中搜索",

@@ -24,7 +24,7 @@
         </span>
         <button
           class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-elevated text-secondary transition-all duration-fast ease-apple hover:scale-105 hover:border-danger hover:bg-danger hover:text-white focus-visible:focus-ring"
-          @click="visible = false"
+          @click="handleClose"
         >
           <XIcon :size="20" />
         </button>
@@ -49,6 +49,10 @@ import { onBeforeMount, ref } from 'vue'
 import { getConfig } from '@/utils/dataSender'
 
 const visible = defineModel<boolean>('visible')
+
+function handleClose() {
+  visible.value = false
+}
 
 const enableAdvancedAnimation = ref(false)
 

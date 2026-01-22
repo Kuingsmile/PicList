@@ -1,5 +1,4 @@
 /* stylelint-disable selector-pseudo-class-no-unknown */
-@import url('./common/advancedAnimation.css');
 @import 'tailwindcss' reference;
 @import '../../assets/css/theme.css' reference;
 @import '../../assets/css/utilities.css' reference;

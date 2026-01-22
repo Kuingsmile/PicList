@@ -676,7 +676,7 @@ import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-import CustomModal from '@/components/common/customModal.vue'
+import CustomModal from '@/components/common/CustomModal.vue'
 import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
 import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'

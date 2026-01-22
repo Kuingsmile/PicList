@@ -311,7 +311,6 @@ function isPathActive(path: string): boolean {
 }
 
 function isPicBedPathActive(type: string): boolean {
-  console.log('type:', type, 'route.params.type:', route.params.type)
   return route.name === routerConfig.UPLOADER_CONFIG_PAGE && route.params.type === type
 }
 

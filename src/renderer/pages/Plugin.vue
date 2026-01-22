@@ -1,303 +1,410 @@
 <template>
-  <div class="plugin-container">
-    <!-- Header Card -->
-    <div class="header-card">
-      <div class="card-header">
-        <div class="header-content">
-          <div class="header-icon">
-            <DatabaseIcon :size="24" />
-          </div>
+  <div class="relative flex h-full w-full items-center justify-center">
+    <div class="relative z-1 flex h-full w-full flex-col items-center justify-start gap-4 rounded-xl border-none p-4">
+      <div
+        class="flex w-full items-center justify-between gap-4 overflow-visible rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
+      >
+        <div class="flex flex-1 flex-wrap items-center gap-4">
+          <DatabaseIcon :size="24" class="text-accent" />
           <div>
-            <h1>{{ t('pages.plugin.title') }}</h1>
-            <p>{{ t('pages.plugin.description') }}</p>
+            <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">{{ t('pages.plugin.title') }}</h1>
+            <p class="m-0 text-sm text-secondary">{{ t('pages.plugin.description') }}</p>
           </div>
         </div>
-        <div class="header-actions">
-          <button
-            class="action-button secondary"
-            :title="t('pages.plugin.importLocal')"
+        <div class="flex flex-wrap gap-3 overflow-visible">
+          <CustomButton
+            type="secondary"
+            :icon="DownloadIcon"
+            :text="t('pages.plugin.importLocal')"
             @click="handleImportLocalPlugin"
+          />
+          <CustomButton
+            type="secondary"
+            :icon="RefreshCwIcon"
+            :text="t('pages.plugin.updateAll')"
+            @click="handleUpdateAllPlugin"
+          />
+          <CustomButton
+            type="primary"
+            :icon="ExternalLinkIcon"
+            :text="t('pages.plugin.openRemoteList')"
+            @click="goAwesomeList"
+          />
+          <CustomButton
+            type="primary"
+            :icon="SearchIcon"
+            :text="t('pages.plugin.browseAllPlugins')"
+            @click="openBrowsePluginsDialog"
+          />
+        </div>
+      </div>
+
+      <!-- Search Card -->
+      <div
+        class="flex w-full flex-row items-center justify-between gap-4 overflow-visible rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
+      >
+        <div class="relative flex flex-1 items-center">
+          <SearchIcon class="absolute left-1 z-1 text-accent" :size="20" />
+          <input
+            v-model="searchText"
+            type="text"
+            class="w-full rounded-lg border border-border bg-bg-secondary px-8 py-3 text-sm text-main placeholder:text-secondary focus:border-accent focus:bg-bg-tertiary focus:shadow-md focus:outline-none"
+            :placeholder="t('pages.plugin.searchPlaceholder')"
+          />
+          <button
+            v-if="searchText"
+            class="absolute right-2 flex items-center rounded-full border border-border bg-transparent text-danger hover:bg-danger/10"
+            @click="cleanSearch"
           >
-            <DownloadIcon :size="16" />
-            {{ t('pages.plugin.importLocal') }}
+            <XIcon :size="16" />
           </button>
-          <button class="action-button secondary" :title="t('pages.plugin.updateAll')" @click="handleUpdateAllPlugin">
-            <RefreshCwIcon :size="16" />
-            {{ t('pages.plugin.updateAll') }}
-          </button>
-          <div class="dropdown-wrapper">
-            <button class="action-button" :title="t('pages.plugin.pluginList')" @click="togglePluginListMenu">
-              <ExternalLinkIcon :size="16" />
-              {{ t('pages.plugin.list') }}
-            </button>
-            <div v-if="showPluginListMenu" class="dropdown-menu">
-              <button class="dropdown-item" @click="goAwesomeList">
-                <ExternalLinkIcon :size="16" />
-                {{ t('pages.plugin.openRemoteList') }}
-              </button>
-              <button class="dropdown-item" @click="openBrowsePluginsDialog">
-                <SearchIcon :size="16" />
-                {{ t('pages.plugin.browseAllPlugins') }}
-              </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="flex cursor-pointer flex-col gap-1 select-none">
+            <input v-model="strictSearch" type="checkbox" class="peer hidden" />
+            <span
+              class="relative flex items-center gap-2 text-sm font-semibold text-secondary before:inline-block before:h-[16px] before:w-[16px] before:shrink-0 before:rounded-sm before:border-2 before:border-accent/50 before:bg-surface before:content-[''] peer-checked:before:border-accent peer-checked:before:bg-accent peer-checked:after:absolute peer-checked:after:top-[2px] peer-checked:after:left-[5px] peer-checked:after:h-[9px] peer-checked:after:w-[5px] peer-checked:after:rotate-45 peer-checked:after:border-r-2 peer-checked:after:border-b-2 peer-checked:after:border-white peer-checked:after:content-[''] before:hover:bg-accent"
+            >
+              {{ t('pages.plugin.strictSearch') }}
+            </span>
+            <span class="ml-[24px] text-xs font-semibold text-secondary">{{
+              t('pages.plugin.strictSearchDescription')
+            }}</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Reload Notice -->
+      <transition name="notice">
+        <div
+          v-if="needReload"
+          class="flex w-full flex-row items-center justify-center gap-4 overflow-visible rounded-2xl border border-border-secondary p-2 shadow-md max-md:items-stretch max-md:p-5"
+        >
+          <div class="flex items-center gap-2">
+            <AlertCircleIcon class="shrink-0 text-warning" :size="22" />
+            <span class="flex-1 text-sm font-bold text-secondary">{{ t('pages.plugin.needRestart') }}</span>
+            <CustomButton
+              type="primary"
+              :icon="RefreshCwIcon"
+              :text="t('pages.plugin.restartApp')"
+              class="bg-warning/80"
+              @click="reloadApp"
+            />
+          </div>
+        </div>
+      </transition>
+
+      <!-- Loading Overlay -->
+      <div
+        v-if="loading"
+        class="absolute inset-0 z-10 flex h-full w-full flex-col items-center justify-center rounded-xl bg-black/15"
+      >
+        <div class="mb-5 h-10 w-10 animate-spin rounded-full border-4 border-t-3 border-border border-t-accent" />
+        <span class="text-2xl font-bold text-white">{{ t('pages.plugin.loading') }}</span>
+      </div>
+
+      <!-- Plugin Grid -->
+      <div
+        v-if="pluginList.length > 0 && !loading"
+        class="relative flex h-full w-full flex-1 items-center justify-center overflow-hidden rounded-2xl border border-border-secondary p-1 shadow-md"
+      >
+        <div class="no-scrollbar h-full w-full overflow-auto rounded-sm">
+          <div class="grid w-full grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5 border-none p-4 max-md:gap-4">
+            <div
+              v-for="item in pluginList"
+              :key="item.fullName"
+              class="relative flex h-auto min-h-[200px] flex-col rounded-xl border-2 border-border-secondary p-6 shadow-md transition-all duration-200 ease-apple hover:border-accent hover:shadow-xl [.disabled]:opacity-70"
+              :class="{ disabled: !item.enabled && !searchText }"
+            >
+              <!-- Plugin Badge -->
+              <div
+                v-if="!item.gui"
+                class="absolute top-4 right-4 z-1 rounded-sm bg-accent/20 px-2 py-1 text-sm font-semibold text-secondary"
+              >
+                CLI
+              </div>
+
+              <!-- Update Badge -->
+              <div
+                v-if="latestVersionMap[item.fullName] && latestVersionMap[item.fullName] !== item.version"
+                class="absolute top-4 right-4 z-1 rounded-sm bg-success px-2 py-1 text-sm font-semibold text-white"
+              >
+                NEW
+              </div>
+
+              <!-- Plugin Header -->
+              <div class="mb-4 flex items-start gap-4">
+                <img
+                  class="h-[48px] w-[48px] shrink-0 rounded-lg object-cover"
+                  :src="item.logo"
+                  :onerror="setSrc"
+                  alt=""
+                />
+                <div class="relative min-w-0 flex-1">
+                  <div class="flex flex-row gap-3">
+                    <h3
+                      class="br-3 mb-1 flex cursor-pointer items-center overflow-hidden text-base font-semibold text-ellipsis whitespace-nowrap text-main hover:text-accent"
+                      @click="openHomepage(item.homepage)"
+                    >
+                      {{ item.name }}
+                      <span class="rounded-sm bg-bg-tertiary px-2 py-1 text-xs font-normal text-secondary"
+                        >v{{ item.version }}</span
+                      >
+                    </h3>
+                  </div>
+                  <p class="m-0 overflow-hidden text-sm text-ellipsis whitespace-nowrap text-secondary">
+                    {{ item.author.replace(/<.*>/, '') }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Plugin Description -->
+              <div class="mb-6 flex flex-1 items-start">
+                <p
+                  class="m-0 min-h-10 overflow-hidden text-sm leading-[1.5] font-semibold text-secondary"
+                  :title="item.description"
+                >
+                  {{ item.description }}
+                </p>
+              </div>
+
+              <!-- Plugin Actions -->
+              <div class="mt-auto pt-4">
+                <template v-if="searchText">
+                  <template v-if="!item.hasInstall">
+                    <button
+                      v-if="!item.ing"
+                      class="flex w-full cursor-pointer items-center gap-2 rounded-md border-none bg-success/90 px-4 py-3 font-[inherit] text-sm font-semibold text-white not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
+                      @click="installPlugin(item)"
+                    >
+                      <DownloadIcon :size="16" />
+                      {{ t('pages.plugin.install') }}
+                    </button>
+                    <button
+                      v-else
+                      class="flex w-full cursor-pointer items-center gap-2 rounded-md border bg-surface-elevated px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
+                      disabled
+                    >
+                      <div
+                        class="h-[16px] w-[16px] animate-spin rounded-full border-2 border-t-2 border-transparent border-t-current"
+                      />
+                      {{ t('pages.plugin.installing') }}
+                    </button>
+                  </template>
+                  <button
+                    v-else
+                    class="flex w-full cursor-pointer items-center gap-2 rounded-md border border-success bg-success/30 px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
+                    disabled
+                  >
+                    <CheckIcon :size="16" />
+                    {{ t('pages.plugin.installed') }}
+                  </button>
+                </template>
+                <template v-else>
+                  <button
+                    v-if="item.ing"
+                    class="flex w-full cursor-pointer items-center gap-2 rounded-md border bg-surface-elevated px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
+                    disabled
+                  >
+                    <div
+                      class="h-[16px] w-[16px] animate-spin rounded-full border-2 border-t-2 border-transparent border-t-current"
+                    />
+                    {{ t('pages.plugin.doingSomething') }}
+                  </button>
+                  <template v-else>
+                    <button
+                      v-if="item.enabled"
+                      class="flex w-full cursor-pointer items-center gap-2 rounded-md border border-border bg-bg-secondary px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
+                      @click="buildContextMenu(item)"
+                    >
+                      <SettingsIcon :size="16" />
+                      {{ t('pages.plugin.settings') }}
+                    </button>
+                    <button
+                      v-else
+                      class="flex w-full cursor-pointer items-center gap-2 rounded-md border border-border bg-bg-secondary px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px not-disabled:hover:border-warning not-disabled:hover:bg-surface-elevated not-disabled:hover:text-warning disabled:cursor-not-allowed disabled:opacity-70"
+                      @click="buildContextMenu(item)"
+                    >
+                      <XCircleIcon :size="16" />
+                      {{ t('pages.plugin.disabled') }}
+                    </button>
+                  </template>
+                </template>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Search Card -->
-    <div class="plugin-card search-card">
-      <div class="search-container">
-        <div class="search-input-wrapper">
-          <SearchIcon class="search-icon" :size="20" />
-          <input
-            v-model="searchText"
-            type="text"
-            class="search-input"
-            :placeholder="t('pages.plugin.searchPlaceholder')"
-          />
-          <button v-if="searchText" class="clear-button" @click="cleanSearch">
-            <XIcon :size="16" />
-          </button>
-        </div>
-        <div class="search-options">
-          <label class="strict-search-checkbox">
-            <input v-model="strictSearch" type="checkbox" class="checkbox-input" />
-            <span class="checkbox-label">{{ t('pages.plugin.strictSearch') }}</span>
-            <span class="checkbox-description">{{ t('pages.plugin.strictSearchDescription') }}</span>
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <!-- Reload Notice -->
-    <transition name="notice">
-      <div v-if="needReload" class="plugin-card notice-card">
-        <div class="notice-content">
-          <AlertCircleIcon class="notice-icon" :size="20" />
-          <span class="notice-text">{{ t('pages.plugin.needRestart') }}</span>
-          <button class="action-button small" @click="reloadApp">
-            {{ t('pages.plugin.restartApp') }}
-          </button>
-        </div>
-      </div>
-    </transition>
-
-    <!-- Loading Overlay -->
-    <div v-if="loading" class="loading-overlay">
-      <div class="loading-spinner" />
-      <span class="loading-text">{{ t('pages.plugin.loading') }}</span>
-    </div>
-
-    <!-- Plugin Grid -->
-    <div class="plugin-grid">
+      <!-- Empty State -->
       <div
-        v-for="item in pluginList"
-        :key="item.fullName"
-        class="plugin-card plugin-item-card"
-        :class="{ disabled: !item.enabled && !searchText }"
+        v-if="!loading && pluginList.length === 0"
+        class="relative flex h-full w-full flex-1 items-center justify-center overflow-hidden rounded-2xl border border-border-secondary p-1 shadow-md"
       >
-        <!-- Plugin Badge -->
-        <div v-if="!item.gui" class="cli-badge">CLI</div>
-
-        <!-- Update Badge -->
-        <div
-          v-if="latestVersionMap[item.fullName] && latestVersionMap[item.fullName] !== item.version"
-          class="update-badge"
-        >
-          NEW
-        </div>
-
-        <!-- Plugin Header -->
-        <div class="plugin-header">
-          <img class="plugin-logo" :src="item.logo" :onerror="setSrc" alt="" />
-          <div class="plugin-info">
-            <h3 class="plugin-name" @click="openHomepage(item.homepage)">
-              {{ item.name }}
-              <span class="plugin-version">v{{ item.version }}</span>
-            </h3>
-            <p class="plugin-author">
-              {{ item.author.replace(/<.*>/, '') }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Plugin Description -->
-        <div class="plugin-description">
-          <p :title="item.description">
-            {{ item.description }}
+        <div class="flex flex-col items-center gap-4 text-center">
+          <PackageIcon class="text-secondary" :size="48" />
+          <h3 class="m-0 text-lg font-semibold text-main">
+            {{ searchText ? t('pages.plugin.noPluginsFound') : t('pages.plugin.NoPluginsInstalled') }}
+          </h3>
+          <p class="m-0 max-w-[400px] text-sm font-semibold text-secondary">
+            {{ searchText ? t('pages.plugin.tryDifferentSearch') : t('pages.plugin.installPluginsToGetStarted') }}
           </p>
+          <CustomButton
+            v-if="!searchText"
+            type="primary"
+            :icon="ExternalLinkIcon"
+            :text="t('pages.plugin.browsePlugins')"
+            @click="goAwesomeList"
+          />
         </div>
-
-        <!-- Plugin Actions -->
-        <div class="plugin-actions">
-          <template v-if="searchText">
-            <template v-if="!item.hasInstall">
-              <button v-if="!item.ing" class="plugin-button install-button" @click="installPlugin(item)">
-                <DownloadIcon :size="16" />
-                {{ t('pages.plugin.install') }}
-              </button>
-              <button v-else class="plugin-button installing-button" disabled>
-                <div class="button-spinner" />
-                {{ t('pages.plugin.installing') }}
-              </button>
-            </template>
-            <button v-else class="plugin-button installed-button" disabled>
-              <CheckIcon :size="16" />
-              {{ t('pages.plugin.installed') }}
-            </button>
-          </template>
-          <template v-else>
-            <button v-if="item.ing" class="plugin-button processing-button" disabled>
-              <div class="button-spinner" />
-              {{ t('pages.plugin.doingSomething') }}
-            </button>
-            <template v-else>
-              <button v-if="item.enabled" class="plugin-button settings-button" @click="buildContextMenu(item)">
-                <SettingsIcon :size="16" />
-                {{ t('pages.plugin.settings') }}
-              </button>
-              <button v-else class="plugin-button disabled-button" @click="buildContextMenu(item)">
-                <XCircleIcon :size="16" />
-                {{ t('pages.plugin.disabled') }}
-              </button>
-            </template>
-          </template>
-        </div>
-      </div>
-    </div>
-
-    <!-- Empty State -->
-    <div v-if="!loading && pluginList.length === 0" class="plugin-card empty-state">
-      <div class="empty-content">
-        <PackageIcon class="empty-icon" :size="48" />
-        <h3>{{ searchText ? t('pages.plugin.noPluginsFound') : t('pages.plugin.NoPluginsInstalled') }}</h3>
-        <p>{{ searchText ? t('pages.plugin.tryDifferentSearch') : t('pages.plugin.installPluginsToGetStarted') }}</p>
-        <button v-if="!searchText" class="action-button" @click="goAwesomeList">
-          <ExternalLinkIcon :size="16" />
-          {{ t('pages.plugin.browsePlugins') }}
-        </button>
       </div>
     </div>
 
     <!-- Config Modal -->
     <transition name="modal">
-      <div v-if="dialogVisible" class="modal-overlay" :class="advancedAnimation" @click="dialogVisible = false">
-        <div class="modal-container" @click.stop>
-          <div class="modal-header">
-            <h2 class="modal-title">
-              {{ t('pages.plugin.configThing', { c: configName }) }}
-            </h2>
-            <button class="modal-close" @click="dialogVisible = false">
-              <XIcon :size="20" />
-            </button>
-          </div>
-          <div class="modal-content">
-            <config-form
-              :id="configName"
-              ref="$configForm"
-              :config="config"
-              :type="currentType"
-              color-mode="white"
-              mode="plugin"
-              :show-tooltips="false"
-            />
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" @click="dialogVisible = false">
-              {{ t('common.cancel') }}
-            </button>
-            <button class="btn btn-primary" @click="handleConfirmConfig">
-              {{ t('common.confirm') }}
-            </button>
-          </div>
+      <CustomModal
+        v-if="dialogVisible"
+        v-model:visible="dialogVisible"
+        :title="t('pages.plugin.configThing', { c: configName })"
+        width="600px"
+        height="auto"
+      >
+        <div class="flex-1 overflow-y-auto p-4">
+          <config-form
+            :id="configName"
+            ref="$configForm"
+            :config="config"
+            :type="currentType"
+            color-mode="white"
+            mode="plugin"
+            :show-tooltips="false"
+          />
         </div>
-      </div>
+        <template #footer>
+          <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />
+          <CustomButton type="primary" :text="t('common.confirm')" @click="handleConfirmConfig" />
+        </template>
+      </CustomModal>
     </transition>
 
     <!-- Browse All Plugins Modal -->
     <transition name="modal">
-      <div v-if="showBrowseDialog" class="modal-overlay" :class="advancedAnimation">
-        <div class="modal-container browse-modal" @click.stop>
-          <div class="modal-header">
-            <h2 class="modal-title">
-              {{ t('pages.plugin.browseAllPlugins') }}
-            </h2>
-            <button class="modal-close" @click="closeBrowseDialog">
-              <XIcon :size="20" />
-            </button>
+      <CustomModal
+        v-if="showBrowseDialog"
+        v-model:visible="showBrowseDialog"
+        :title="t('pages.plugin.browseAllPlugins')"
+      >
+        <div class="flex h-full w-full flex-col gap-4 p-4">
+          <div class="shrink-0">
+            <div class="relative flex items-center">
+              <SearchIcon class="absolute left-4 z-10 text-secondary" :size="20" />
+              <input
+                v-model="browseSearchText"
+                type="text"
+                class="w-full rounded-lg border border-border bg-bg-secondary pt-3 pr-4 pb-3 pl-12 font-[inherit] text-sm text-main placeholder:text-secondary focus:border-accent focus:bg-bg-tertiary focus:shadow-md focus:outline-none"
+                :placeholder="t('pages.plugin.searchInBrowse')"
+              />
+              <button
+                v-if="browseSearchText"
+                class="absolute right-2 flex items-center rounded-full border border-border bg-transparent text-danger hover:bg-danger/10"
+                @click="browseSearchText = ''"
+              >
+                <XIcon :size="16" />
+              </button>
+            </div>
           </div>
-          <div class="modal-content browse-content">
-            <div class="browse-search">
-              <div class="search-input-wrapper">
-                <SearchIcon class="search-icon" :size="20" />
-                <input
-                  v-model="browseSearchText"
-                  type="text"
-                  class="search-input"
-                  :placeholder="t('pages.plugin.searchInBrowse')"
-                />
-                <button v-if="browseSearchText" class="clear-button" @click="browseSearchText = ''">
-                  <XIcon :size="16" />
-                </button>
-              </div>
-            </div>
-            <div v-if="loadingBrowse" class="browse-loading">
-              <div class="loading-spinner" />
-              <span class="loading-text">{{ t('pages.plugin.loadingPlugins') }}</span>
-            </div>
-            <div v-else class="browse-plugin-grid">
-              <div v-for="item in filteredBrowsePlugins" :key="item.fullName" class="browse-plugin-item">
-                <!-- Plugin Badge -->
-
-                <div class="plugin-header">
-                  <img class="plugin-logo" :src="item.logo" :onerror="setSrc" alt="" />
-                  <div class="plugin-info">
-                    <h3 class="plugin-name" @click="openHomepage(item.homepage)">
+          <div v-if="loadingBrowse" class="flex flex-1 flex-col items-center justify-center gap-4 p-4">
+            <div
+              class="h-12 w-12 animate-spin rounded-full border-[3px] border-t-[3px] border-border border-t-accent"
+            />
+            <span class="text-sm font-semibold text-accent">{{ t('pages.plugin.loadingPlugins') }}</span>
+          </div>
+          <div v-else class="flex-1 overflow-hidden rounded-md border border-border shadow-md">
+            <div class="grid h-full grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 overflow-auto p-4">
+              <div
+                v-for="item in filteredBrowsePlugins"
+                :key="item.fullName"
+                class="relative flex h-auto min-h-[200px] flex-col rounded-xl border-2 border-border-secondary p-6 shadow-md transition-all duration-200 ease-apple hover:border-accent hover:shadow-xl [.disabled]:opacity-70"
+              >
+                <div class="mb-4 flex items-start gap-4">
+                  <img
+                    class="h-[48px] w-[48px] shrink-0 rounded-lg object-cover"
+                    :src="item.logo"
+                    :onerror="setSrc"
+                    alt=""
+                  />
+                  <div class="relative min-w-0 flex-1">
+                    <h3
+                      class="br-3 mb-1 flex cursor-pointer items-center overflow-hidden text-base font-semibold text-ellipsis whitespace-nowrap text-main hover:text-accent"
+                      @click="openHomepage(item.homepage)"
+                    >
                       {{ item.name }}
-                      <span class="plugin-version">v{{ item.version }}</span>
-                      <div v-if="!item.gui" class="cli-badge-browser">CLI</div>
+                      <span class="rounded-sm bg-bg-tertiary px-2 py-1 text-xs font-normal text-secondary"
+                        >v{{ item.version }}</span
+                      >
+                      <div
+                        v-if="!item.gui"
+                        class="absolute top-4 right-4 z-1 rounded-sm bg-accent/20 px-2 py-1 text-sm font-semibold text-secondary"
+                      >
+                        CLI
+                      </div>
                     </h3>
-                    <p class="plugin-author">
+                    <p class="m-0 overflow-hidden text-sm text-ellipsis whitespace-nowrap text-secondary">
                       {{ item.author }}
                     </p>
                   </div>
                 </div>
-                <div class="plugin-description">
-                  <p :title="item.description">
+                <div class="mb-6 flex flex-1 items-start">
+                  <p
+                    class="m-0 min-h-10 overflow-hidden text-sm leading-[1.5] font-semibold text-secondary"
+                    :title="item.description"
+                  >
                     {{ item.description }}
                   </p>
                 </div>
-                <div class="plugin-actions">
+                <div class="mt-auto pt-4">
                   <template v-if="!item.hasInstall">
                     <button
                       v-if="!item.ing"
-                      class="plugin-button install-button"
+                      class="flex w-full cursor-pointer items-center gap-2 rounded-md border-none bg-success/90 px-4 py-3 font-[inherit] text-sm font-semibold text-white not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
                       @click="installPluginFromBrowse(item)"
                     >
                       <DownloadIcon :size="16" />
                       {{ t('pages.plugin.install') }}
                     </button>
-                    <button v-else class="plugin-button installing-button" disabled>
-                      <div class="button-spinner" />
+                    <button
+                      v-else
+                      class="flex w-full cursor-pointer items-center gap-2 rounded-md border bg-surface-elevated px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
+                      disabled
+                    >
+                      <div
+                        class="h-[16px] w-[16px] animate-spin rounded-full border-2 border-t-2 border-transparent border-t-current"
+                      />
                       {{ t('pages.plugin.installing') }}
                     </button>
                   </template>
-                  <button v-else class="plugin-button installed-button" disabled>
+                  <button
+                    v-else
+                    class="flex w-full cursor-pointer items-center gap-2 rounded-md border border-success bg-success/30 px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
+                    disabled
+                  >
                     <CheckIcon :size="16" />
                     {{ t('pages.plugin.installed') }}
                   </button>
                 </div>
               </div>
             </div>
-            <div v-if="!loadingBrowse && filteredBrowsePlugins.length === 0" class="empty-content">
-              <PackageIcon class="empty-icon" :size="48" />
-              <h3>{{ t('pages.plugin.noPluginsFound') }}</h3>
-              <p>{{ t('pages.plugin.tryDifferentSearch') }}</p>
-            </div>
+          </div>
+          <div
+            v-if="!loadingBrowse && filteredBrowsePlugins.length === 0"
+            class="flex flex-col items-center gap-4 text-center"
+          >
+            <PackageIcon class="text-secondary opacity-50" :size="48" />
+            <h3 class="m-0 text-lg font-semibold text-main">{{ t('pages.plugin.noPluginsFound') }}</h3>
+            <p class="m-0 max-w-[400px] text-sm text-secondary">{{ t('pages.plugin.tryDifferentSearch') }}</p>
           </div>
         </div>
-      </div>
+      </CustomModal>
     </transition>
   </div>
 </template>
@@ -321,6 +428,8 @@ import {
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, toRaw, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import CustomButton from '@/components/common/CustomButton.vue'
+import CustomModal from '@/components/common/CustomModal.vue'
 import ConfigForm from '@/components/UnifiedConfigForm.vue'
 import { usePicBed } from '@/hooks/useGlobal'
 import { getRawData, handleStreamlinePluginName } from '@/utils/common'
@@ -345,11 +454,9 @@ const dialogVisible = ref(false)
 const pluginNameList = ref<string[]>([])
 const loading = ref(true)
 const needReload = ref(false)
-const enableAdvancedAnimation = ref(false)
 const latestVersionMap = reactive<Record<string, string>>({})
 const $configForm = useTemplateRef('$configForm')
 const strictSearch = useStorage('plugin-strict-search', true)
-const showPluginListMenu = ref(false)
 const showBrowseDialog = ref(false)
 const browseSearchText = ref('')
 const browsePlugins = ref<IPicGoPlugin[]>([])
@@ -359,14 +466,6 @@ function setSrc(e: Event) {
   const target = e.target as HTMLImageElement
   target.src = import.meta.env.BASE_URL + 'roundLogo.png'
 }
-
-async function initConf() {
-  enableAdvancedAnimation.value = (await getConfig<boolean>(configPaths.settings.isCustomMiniIcon)) || false
-}
-
-const advancedAnimation = computed(() => ({
-  advancedAnimation: enableAdvancedAnimation.value,
-}))
 
 const npmSearchText = computed(() => {
   return searchText.value.match('picgo-plugin-')
@@ -399,14 +498,6 @@ watch(npmSearchText, (val: string) => {
     getSearchResult(val)
   } else {
     getPluginList()
-  }
-})
-
-watch(dialogVisible, (val: boolean) => {
-  if (val) {
-    document.body.style.overflow = 'hidden'
-  } else {
-    document.body.style.overflow = 'auto'
   }
 })
 
@@ -675,24 +766,13 @@ function openHomepage(url: string) {
 }
 
 function goAwesomeList() {
-  showPluginListMenu.value = false
   window.electron.sendRPC(IRPCActionType.OPEN_URL, 'https://github.com/PicGo/Awesome-PicGo')
 }
 
-function togglePluginListMenu() {
-  showPluginListMenu.value = !showPluginListMenu.value
-}
-
 async function openBrowsePluginsDialog() {
-  showPluginListMenu.value = false
   showBrowseDialog.value = true
   browseSearchText.value = ''
   await fetchAllPlugins()
-}
-
-function closeBrowseDialog() {
-  showBrowseDialog.value = false
-  browseSearchText.value = ''
 }
 
 async function fetchAllPlugins() {
@@ -750,16 +830,7 @@ onBeforeMount(async () => {
   window.electron.ipcRendererOn(PICGO_TOGGLE_PLUGIN, picgoTogglePluginHandler)
   getPluginList()
   getSearchResult = debounce(_getSearchResult, 50)
-  initConf()
   needReload.value = (await getConfig<boolean>(configPaths.needReload)) || false
-
-  // Close dropdown menu when clicking outside
-  document.addEventListener('click', (e: MouseEvent) => {
-    const target = e.target as HTMLElement
-    if (!target.closest('.dropdown-wrapper')) {
-      showPluginListMenu.value = false
-    }
-  })
 })
 
 onBeforeUnmount(() => {
@@ -783,5 +854,3 @@ export default {
   name: 'PluginPage',
 }
 </script>
-
-<style scoped src="./css/PluginPage.css"></style>
