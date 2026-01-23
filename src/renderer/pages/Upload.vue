@@ -39,6 +39,10 @@
             tag="div"
             class="flex max-w-[calc(100%-300px)] flex-wrap items-center gap-[0.2rem] [.has-many]:max-w-[300px]"
             :class="{ 'has-many': favoritePicbeds.length >= 4 }"
+            enter-active-class="transition-all duration-200 ease-apple"
+            leave-active-class="transition-all duration-200 ease-apple"
+            enter-from-class="opacity-0"
+            leave-to-class="opacity-0"
           >
             <button
               v-for="picbedType in favoritePicbeds"
