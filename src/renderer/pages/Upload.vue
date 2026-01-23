@@ -142,10 +142,10 @@
 
       <div
         v-if="showProgress"
-        class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border-secondary p-0 shadow-md"
+        class="flex w-full flex-wrap items-center justify-between gap-4 rounded-2xl border border-border-secondary p-0 shadow-md"
       >
-        <div class="mx-2 my-2 w-full rounded-lg border border-border bg-surface p-4">
-          <div class="mb-2 h-3 overflow-hidden rounded-lg bg-bg-secondary">
+        <div class="flex w-full items-center gap-2 rounded-lg border border-border bg-surface p-2">
+          <div class="h-3 flex-1 overflow-hidden rounded-lg bg-bg-secondary">
             <div
               class="h-full rounded-lg bg-[linear-gradient(90deg,var(--color-accent)_0%,var(--color-primary)_50%)] duration-fast ease-standard data-[error=true]:bg-danger data-[error=true]:bg-none"
               :data-error="showError"

@@ -1,101 +1,108 @@
 <template>
-  <div class="toolbox-container">
-    <!-- Header Card -->
-    <div class="toolbox-card header-card">
-      <div class="card-header">
-        <div class="header-content">
-          <img class="header-logo" :src="defaultLogo" alt="Toolbox Logo" />
-          <div class="header-text">
-            <h1 class="header-title">
-              {{ t('pages.toolbox.title') }}
-            </h1>
-            <p class="header-subtitle">
-              {{ t('pages.toolbox.description') }}
-            </p>
-          </div>
-        </div>
-        <div class="header-actions">
-          <template v-if="progress !== 100">
-            <button class="action-button" :class="{ disabled: isLoading }" :disabled="isLoading" @click="handleCheck">
-              <span>{{ t('pages.toolbox.startScan') }}</span>
-            </button>
-          </template>
-          <template v-else-if="isAllSuccess">
-            <div class="success-tips">
-              {{ t('pages.toolbox.success') }}
-            </div>
-          </template>
-          <template v-else-if="!isAllSuccess">
-            <template v-if="canFixLength !== 0">
-              <button class="action-button" @click="handleFix">
-                <span>{{ t('pages.toolbox.startFix') }}</span>
-              </button>
-            </template>
-            <template v-else>
-              <div class="cant-fix-container">
-                <span class="cant-fix-text">{{ $t('pages.toolbox.autoFixFail') }}</span>
-                <button class="action-button secondary small" @click="handleCheck">
-                  <span>{{ t('pages.toolbox.reScan') }}</span>
-                </button>
-              </div>
-            </template>
-          </template>
-        </div>
-      </div>
-    </div>
-
-    <!-- Progress Card -->
-    <div class="toolbox-card progress-card">
-      <div class="progress-container">
-        <div class="progress-bar">
-          <div class="progress-fill" :style="{ width: `${progress}%` }" />
-        </div>
-        <span class="progress-text">{{ Math.round(progress) }}%</span>
-      </div>
-    </div>
-
-    <!-- Items Card -->
-    <div class="toolbox-card items-card">
-      <div class="items-list">
-        <div
-          v-for="(item, key) in fixList"
-          :key="key"
-          class="item"
-          :class="{
-            'item-active': activeTypes.includes(key),
-            'item-error': item.status === IToolboxItemCheckStatus.ERROR,
-            'item-success': item.status === IToolboxItemCheckStatus.SUCCESS,
-            'item-loading': item.status === IToolboxItemCheckStatus.LOADING,
-          }"
-        >
-          <div class="item-header" @click="toggleItem(key)">
-            <div class="item-title">
-              <span>{{ item.title }}</span>
-              <toolbox-status-icon :status="item.status" />
-            </div>
-            <div class="item-chevron">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6,9 12,15 18,9" />
-              </svg>
+  <div class="relative no-scrollbar flex h-full w-full items-center justify-center bg-bg-tertiary">
+    <div
+      class="relative z-1 no-scrollbar flex h-full w-full flex-col items-center justify-start gap-6 overflow-auto rounded-xl border-none p-8 shadow-sm"
+    >
+      <!-- Header Card -->
+      <div
+        class="flex w-full items-center justify-between gap-4 overflow-visible rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
+      >
+        <div class="flex flex-1 flex-wrap items-center gap-4 p-1">
+          <div class="flex flex-1 items-center gap-4">
+            <img class="h-[48px] w-[48px] rounded-full object-cover" :src="defaultLogo" alt="Toolbox Logo" />
+            <div class="flex flex-col gap-1">
+              <h1 class="m-0 text-2xl font-semibold text-main">
+                {{ t('pages.toolbox.title') }}
+              </h1>
+              <p class="m-0 text-sm text-secondary">
+                {{ t('pages.toolbox.description') }}
+              </p>
             </div>
           </div>
-          <transition name="item-content">
-            <div v-if="activeTypes.includes(key)" class="item-content">
-              <div class="item-message">
-                {{ item.msg || '' }}
+          <div class="flex flex-wrap items-center gap-3">
+            <template v-if="progress !== 100">
+              <CustomButton
+                type="primary"
+                :text="t('pages.toolbox.startScan')"
+                :disabled="isLoading"
+                @click="handleCheck"
+              />
+            </template>
+            <template v-else-if="isAllSuccess">
+              <div class="border border-success/50 bg-bg-secondary px-5 py-3 text-sm font-semibold text-secondary">
+                {{ t('pages.toolbox.success') }}
               </div>
-              <template v-if="item.handler && item.handlerText && item.value">
-                <div class="item-actions">
-                  <toolbox-handler
-                    :value="item.value"
-                    :status="item.status"
-                    :handler="item.handler"
-                    :handler-text="item.handlerText"
-                  />
+            </template>
+            <template v-else-if="!isAllSuccess">
+              <template v-if="canFixLength !== 0">
+                <CustomButton type="secondary" :text="t('pages.toolbox.startFix')" @click="handleFix" />
+              </template>
+              <template v-else>
+                <div class="flex flex-wrap items-center gap-3">
+                  <span class="text-sm text-secondary">{{ $t('pages.toolbox.autoFixFail') }}</span>
+                  <CustomButton type="secondary" :text="t('pages.toolbox.reScan')" @click="handleCheck" />
                 </div>
               </template>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Card -->
+      <div class="w-full rounded-md border border-border-secondary shadow-sm">
+        <div class="flex items-center p-2">
+          <div class="relative mr-3 h-2 flex-1 overflow-hidden rounded-full bg-surface-elevated">
+            <div class="absolute top-0 left-0 h-2 rounded-full bg-success" :style="{ width: `${progress}%` }" />
+          </div>
+          <span class="text-sm text-secondary">{{ Math.round(progress) }}%</span>
+        </div>
+      </div>
+
+      <!-- Items Card -->
+      <div class="w-full flex-1 overflow-hidden rounded-md border border-border-secondary shadow-sm">
+        <div class="h-full w-full overflow-auto p-4">
+          <div class="border border-border-secondary shadow-sm">
+            <div
+              v-for="(item, key) in fixList"
+              :key="key"
+              class="border-b border-border-secondary last:border-0 hover:bg-surface-elevated"
+              :class="{
+                'bg-surface-elevated': activeTypes.includes(key),
+                'border-l-3 border-danger': item.status === IToolboxItemCheckStatus.ERROR,
+                'border-l-3 border-success': item.status === IToolboxItemCheckStatus.SUCCESS,
+                'border-l-3 border-accent': item.status === IToolboxItemCheckStatus.LOADING,
+              }"
+            >
+              <div class="flex cursor-pointer items-center justify-between px-6 py-4" @click="toggleItem(key)">
+                <div class="flex flex-1 items-center gap-3 text-sm font-semibold text-secondary">
+                  <span>{{ item.title }}</span>
+                  <toolbox-status-icon :status="item.status" />
+                </div>
+                <div class="flex items-center text-secondary">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6,9 12,15 18,9" />
+                  </svg>
+                </div>
+              </div>
+              <transition name="item-content">
+                <div v-if="activeTypes.includes(key)" class="border-t border-border-secondary bg-surface p-2">
+                  <div class="mb-3 text-sm leading-[1.5] text-secondary">
+                    {{ item.msg || '' }}
+                  </div>
+                  <template v-if="item.handler && item.handlerText && item.value">
+                    <div class="flex justify-start">
+                      <toolbox-handler
+                        :value="item.value"
+                        :status="item.status"
+                        :handler="item.handler"
+                        :handler-text="item.handlerText"
+                      />
+                    </div>
+                  </template>
+                </div>
+              </transition>
             </div>
-          </transition>
+          </div>
         </div>
       </div>
     </div>
@@ -106,8 +113,9 @@
 import { computed, onUnmounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import ToolboxHandler from '@/components/ToolboxHandler.vue'
-import ToolboxStatusIcon from '@/components/ToolboxStatusIcon.vue'
+import CustomButton from '@/components/common/CustomButton.vue'
+import ToolboxHandler from '@/components/toolbox/ToolboxHandler.vue'
+import ToolboxStatusIcon from '@/components/toolbox/ToolboxStatusIcon.vue'
 import useConfirm from '@/hooks/useConfirm'
 import { IRPCActionType, IToolboxItemCheckStatus, IToolboxItemType } from '@/utils/enum'
 
@@ -247,5 +255,3 @@ export default {
   name: 'ToolBoxPage',
 }
 </script>
-
-<style scoped src="./css/ToolboxPage.css"></style>

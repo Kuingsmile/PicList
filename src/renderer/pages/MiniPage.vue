@@ -1,11 +1,17 @@
 <template>
-  <div id="mini-page">
+  <div
+    id="mini-page"
+    class="relative box-border h-screen w-screen cursor-pointer overflow-hidden border-4 border-white bg-accent bg-center bg-no-repeat text-center text-[40px] leading-[100vh]"
+    :class="[osGlobal === 'linux' ? 'rounded-none bg-size-[100vh_100vw]' : 'rounded-full bg-size-[90vh_90vw]']"
+  >
     <div
       id="upload-area"
+      class="h-full w-full transition-all duration-200 ease-in-out"
       :class="{
-        'is-dragover': dragover,
-        uploading: isShowingProgress,
-        linux: osGlobal === 'linux',
+        'bg-[rgba(0,0,0,0.3)]': dragover,
+        'bg-[linear-gradient(to_top,#409EFF_50%,#fff_51%)] bg-size-[200%]': isShowingProgress,
+        'rounded-none': osGlobal === 'linux',
+        'rounded-full': osGlobal !== 'linux',
       }"
       :style="{ backgroundPosition: '0 ' + progress + '%' }"
       @drop.prevent="onDrop"
@@ -15,12 +21,13 @@
       <img
         v-if="!dragover && !isShowingProgress"
         :src="logoPath ? logoPath : './squareLogo.png'"
-        style="border-radius: var(--radius-round); width: 100%; height: 100%"
+        class="block h-full w-full [image-rendering:-webkit-optimize-contrast]"
+        :class="osGlobal === 'linux' ? 'rounded-none' : 'rounded-full'"
         draggable="false"
         @dragstart.prevent
       />
-      <div id="upload-dragger" @dblclick="openUploadWindow">
-        <input id="file-uploader" type="file" multiple @change="onChange" />
+      <div id="upload-dragger" class="h-full" @dblclick="openUploadWindow">
+        <input id="file-uploader" type="file" class="hidden" multiple @change="onChange" />
       </div>
     </div>
   </div>
@@ -200,51 +207,3 @@ export default {
   name: 'MiniPage',
 }
 </script>
-
-<style lang="stylus">
-html, body, #app
-  background: transparent
-#mini-page
-  background: #409EFF;
-  overflow: hidden;
-  color #FFF
-  height 100vh
-  width 100vw
-  border-radius 50%
-  text-align center
-  line-height 100vh
-  font-size 40px
-  background-size 90vh 90vw
-  background-position center center
-  background-repeat no-repeat
-  position relative
-  border 4px solid #fff
-  box-sizing border-box
-  cursor pointer
-
-  &.linux
-    border-radius 0
-    background-size 100vh 100vw
-  #upload-area
-    height 100%
-    width 100%
-    border-radius 50%
-    transition all .2s ease-in-out
-    &.linux
-      border-radius 0
-    &.uploading
-      background: linear-gradient(to top, #409EFF 50%, #fff 51%)
-      background-size 200%
-    #upload-dragger
-      height 100%
-    &.is-dragover
-      background rgba(0,0,0,0.3)
-  #file-uploader
-    display none
-  #mini-page img
-    width 100%
-    height 100%
-    border-radius 50%
-    display block
-    image-rendering: -webkit-optimize-contrast
-</style>

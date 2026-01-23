@@ -1,117 +1,130 @@
 <template>
-  <div class="shortkey-container">
+  <div class="relative flex h-full w-full items-center justify-center">
     <!-- Header -->
-    <div class="shortkey-header">
-      <div class="header-content">
-        <KeyboardIcon :size="24" class="header-icon" />
-        <div>
-          <h1>{{ t('pages.shortKey.title') }}</h1>
-          <p>{{ ' ' }}</p>
+    <div class="relative z-1 flex h-full w-full flex-col items-center justify-start gap-4 rounded-xl border-none p-4">
+      <div
+        class="flex w-full items-center justify-between gap-4 overflow-visible rounded-2xl border border-border-secondary p-4 shadow-md max-md:items-stretch"
+      >
+        <div class="flex flex-1 flex-wrap items-center gap-4 p-1">
+          <KeyboardIcon :size="24" class="text-accent" />
+          <div>
+            <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">{{ t('pages.shortKey.title') }}</h1>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shortcuts Table Card -->
+      <div
+        class="relative flex h-full w-full flex-1 items-center justify-center overflow-hidden rounded-2xl border border-border-secondary p-1 shadow-md"
+      >
+        <div class="h-full w-full overflow-hidden rounded-xl shadow-sm">
+          <table class="w-full table-auto bg-white text-left text-sm text-main">
+            <thead class="bg-bg-secondary text-sm text-main uppercase">
+              <tr>
+                <th class="px-6 py-4 font-semibold">{{ t('pages.shortKey.name') }}</th>
+                <th class="px-6 py-4 font-semibold">{{ t('pages.shortKey.bind') }}</th>
+                <th class="px-6 py-4 font-semibold">{{ t('pages.shortKey.status') }}</th>
+                <th class="px-6 py-4 font-semibold">{{ t('pages.shortKey.source') }}</th>
+                <th class="px-6 py-4 font-semibold">{{ t('pages.shortKey.handle') }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr
+                v-for="(item, index) in list"
+                :key="item.name"
+                class="rounded-md transition-colors odd:bg-white even:bg-gray-50/30 hover:bg-accent/10"
+              >
+                <td class="px-6 py-4">
+                  <div class="text-sm font-semibold text-secondary">
+                    {{ item.label ? item.label : item.name }}
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex gap-1">
+                    <kbd
+                      v-if="item.key"
+                      class="rounded-md border border-b-4 border-gray-300 bg-gray-100 px-2 py-1 text-xs font-semibold text-main shadow-sm"
+                      >{{ item.key }}</kbd
+                    >
+                    <span v-else class="text-xs text-secondary italic">{{ t('pages.shortKey.noBinding') }}</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <span
+                    :class="[
+                      'inline-flex items-center rounded-md p-2 text-sm font-semibold text-secondary',
+                      item.enable ? 'bg-success/10' : 'bg-danger/10',
+                    ]"
+                  >
+                    {{ item.enable ? t('pages.shortKey.enabled') : t('pages.shortKey.disabled') }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-secondary">
+                  <span class="rounded-md bg-accent/10 p-2 font-bold text-main">{{
+                    calcOriginShowName(item.from || '')
+                  }}</span>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <div class="flex items-center justify-start gap-3">
+                    <button
+                      :class="item.enable ? 'text-danger' : 'text-success'"
+                      class="w-[80px] rounded-md border border-border p-2 text-center text-sm font-semibold transition-colors hover:bg-accent/10"
+                      @click="toggleEnable(item)"
+                    >
+                      {{ item.enable ? t('pages.shortKey.disable') : t('pages.shortKey.enable') }}
+                    </button>
+                    <button
+                      class="w-[80px] rounded-md border border-border p-2 text-center text-sm font-semibold text-secondary transition-colors hover:bg-accent/10"
+                      @click="openKeyBindingDialog(item, index)"
+                    >
+                      {{ t('pages.shortKey.edit') }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
-
-    <!-- Shortcuts Table Card -->
-    <div class="shortkey-card">
-      <div class="table-container">
-        <table class="shortkey-table">
-          <thead>
-            <tr>
-              <th>{{ t('pages.shortKey.name') }}</th>
-              <th>{{ t('pages.shortKey.bind') }}</th>
-              <th>{{ t('pages.shortKey.status') }}</th>
-              <th>{{ t('pages.shortKey.source') }}</th>
-              <th>{{ t('pages.shortKey.handle') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(item, index) in list" :key="item.name" class="table-row">
-              <td class="name-cell">
-                <div class="shortcut-name">
-                  {{ item.label ? item.label : item.name }}
-                </div>
-              </td>
-              <td class="key-cell">
-                <div class="key-binding">
-                  <kbd v-if="item.key" class="key-display">{{ item.key }}</kbd>
-                  <span v-else class="no-binding">{{ t('pages.shortKey.noBinding') }}</span>
-                </div>
-              </td>
-              <td class="status-cell">
-                <span class="status-badge" :class="{ 'status-enabled': item.enable, 'status-disabled': !item.enable }">
-                  {{ item.enable ? t('pages.shortKey.enabled') : t('pages.shortKey.disabled') }}
-                </span>
-              </td>
-              <td class="source-cell">
-                <span class="source-name">{{ calcOriginShowName(item.from || '') }}</span>
-              </td>
-              <td class="actions-cell">
-                <div class="action-buttons">
-                  <button
-                    class="btn btn-sm"
-                    :class="item.enable ? 'btn-danger' : 'btn-success'"
-                    @click="toggleEnable(item)"
-                  >
-                    {{ item.enable ? t('pages.shortKey.disable') : t('pages.shortKey.enable') }}
-                  </button>
-                  <button class="btn btn-sm btn-secondary" @click="openKeyBindingDialog(item, index)">
-                    <Edit :size="14" />
-                    {{ t('pages.shortKey.edit') }}
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
     <!-- Key Binding Modal -->
     <transition name="modal">
-      <div v-if="keyBindingVisible" class="modal-overlay" @click.self="cancelKeyBinding">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3 class="modal-title">
-              {{ t('pages.shortKey.changeUpload') }}
-            </h3>
-            <button class="modal-close" @click="cancelKeyBinding">
-              <XIcon :size="20" />
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="form-group">
-              <label>{{ t('pages.shortKey.keyBinding') }}</label>
-              <input
-                v-model="shortKey"
-                class="form-input key-input"
-                :placeholder="t('pages.shortKey.pressKeys')"
-                readonly
-                @keydown.prevent="keyDetect($event as KeyboardEvent)"
-              />
-              <div class="input-hint">
-                {{ t('pages.shortKey.pressHint') }}
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" @click="cancelKeyBinding">
-              {{ $t('common.cancel') }}
-            </button>
-            <button class="btn btn-primary" @click="confirmKeyBinding">
-              {{ $t('common.confirm') }}
-            </button>
+      <CustomModal
+        v-if="keyBindingVisible"
+        v-model:visible="keyBindingVisible"
+        :title="t('pages.shortKey.changeUpload')"
+        width="600px"
+        height="auto"
+      >
+        <div class="p-4">
+          <label class="mb-4 block text-sm font-semibold text-secondary">{{ t('pages.shortKey.keyBinding') }}</label>
+          <input
+            v-model="shortKey"
+            class="box-border w-full rounded-md border border-border bg-bg-secondary p-3 text-center font-mono text-sm tracking-wider text-main focus:border-accent focus:outline-none"
+            :placeholder="t('pages.shortKey.pressKeys')"
+            readonly
+            @keydown.prevent="keyDetect($event as KeyboardEvent)"
+          />
+          <div class="mt-2 text-center text-sm text-secondary">
+            {{ t('pages.shortKey.pressHint') }}
           </div>
         </div>
-      </div>
+        <template #footer>
+          <CustomButton type="secondary" :text="t('common.cancel')" @click="cancelKeyBinding" />
+          <CustomButton type="primary" :text="t('common.confirm')" @click="confirmKeyBinding" />
+        </template>
+      </CustomModal>
     </transition>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Edit, KeyboardIcon, XIcon } from 'lucide-vue-next'
+import { KeyboardIcon } from 'lucide-vue-next'
 import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import CustomButton from '@/components/common/CustomButton.vue'
+import CustomModal from '@/components/common/CustomModal.vue'
 import { getRawData } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
 import { getConfig } from '@/utils/dataSender'
@@ -191,5 +204,3 @@ export default {
   name: 'ShortkeyPage',
 }
 </script>
-
-<style scoped src="./css/ShortKey.css"></style>

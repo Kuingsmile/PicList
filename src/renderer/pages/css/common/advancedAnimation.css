@@ -1,6 +1,0 @@
-.advancedAnimation {
-  backdrop-filter: blur(5px) saturate(180%);
-  background: rgb(255 255 255 / 20%);
-  border: 1px solid rgb(255 255 255 / 30%);
-  box-shadow: 0 8px 32px rgb(0 0 0 / 10%);
-}

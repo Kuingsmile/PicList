@@ -4,15 +4,15 @@
 
 @layer base {
   body {
-    @apply m-0 h-full w-full overflow-hidden bg-bg p-0 font-[inherit] text-main;
+    @apply m-0 h-full w-full overflow-hidden bg-transparent p-0 font-[inherit] text-main;
   }
 
   html {
-    @apply m-0 h-full p-0 w-full;
+    @apply m-0 h-full p-0 w-full bg-transparent;
   }
 
   #app {
-    @apply h-full w-full;
+    @apply h-full w-full bg-transparent;
   }
 
   :focus {

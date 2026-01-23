@@ -1,5 +1,5 @@
 <template>
-  <component :is="icon" class="toolbox-status-icon" :style="{ color }" />
+  <component :is="icon" class="flex h-[20px] w-[20px] items-center justify-center rounded-full" :style="{ color }" />
 </template>
 
 <script lang="ts" setup>
@@ -43,14 +43,3 @@ export default {
   name: 'ToolboxStatusIcon',
 }
 </script>
-<style lang="stylus">
-.toolbox-status-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: var(--radius-full);
-  transition: var(--transition-fast);
-}
-</style>
