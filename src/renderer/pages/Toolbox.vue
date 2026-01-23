@@ -122,7 +122,6 @@ import { IRPCActionType, IToolboxItemCheckStatus, IToolboxItemType } from '@/uti
 const { t } = useI18n()
 const { confirm } = useConfirm()
 const activeTypes = ref<string[]>([])
-const defaultLogo = computed(() => `${import.meta.env.BASE_URL}roundLogo.png`)
 const fixList = reactive<IToolboxMap>({
   [IToolboxItemType.IS_CONFIG_FILE_BROKEN]: {
     title: t('pages.toolbox.checkConfigFileBroken'),
@@ -150,6 +149,8 @@ const fixList = reactive<IToolboxMap>({
     hasNoFixMethod: true,
   },
 })
+
+const defaultLogo = computed(() => `${import.meta.env.BASE_URL}roundLogo.png`)
 
 const progress = computed(() => {
   const total = Object.keys(fixList).length
@@ -181,7 +182,7 @@ const canFixLength = computed(() => {
   }).length
 })
 
-const toggleItem = (key: string) => {
+function toggleItem(key: string) {
   const index = activeTypes.value.indexOf(key)
   if (index > -1) {
     activeTypes.value.splice(index, 1)
@@ -190,7 +191,7 @@ const toggleItem = (key: string) => {
   }
 }
 
-const toolboxCheckResHandler = ({ type, msg = '', status, value = '' }: IToolboxCheckRes) => {
+function toolboxCheckResHandler({ type, msg = '', status, value = '' }: IToolboxCheckRes) {
   fixList[type].status = status
   fixList[type].msg = msg
   fixList[type].value = value
@@ -199,9 +200,7 @@ const toolboxCheckResHandler = ({ type, msg = '', status, value = '' }: IToolbox
   }
 }
 
-window.electron.ipcRendererOn(IRPCActionType.TOOLBOX_CHECK_RES, toolboxCheckResHandler)
-
-const handleCheck = () => {
+function handleCheck() {
   activeTypes.value = []
   Object.keys(fixList).forEach(key => {
     fixList[key].status = IToolboxItemCheckStatus.LOADING
@@ -211,7 +210,7 @@ const handleCheck = () => {
   window.electron.sendRPC(IRPCActionType.TOOLBOX_CHECK)
 }
 
-const handleFix = async () => {
+async function handleFix() {
   const fixRes = await Promise.all(
     Object.keys(fixList)
       .filter(key => {
@@ -245,6 +244,8 @@ const handleFix = async () => {
     window.electron.sendRPC(IRPCActionType.RELOAD_APP)
   })
 }
+
+window.electron.ipcRendererOn(IRPCActionType.TOOLBOX_CHECK_RES, toolboxCheckResHandler)
 
 onUnmounted(() => {
   window.electron.ipcRendererRemoveAllListeners(IRPCActionType.TOOLBOX_CHECK_RES)

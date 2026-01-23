@@ -118,22 +118,22 @@ const updateInfo = ref<UpdateInfo>({
 const dontShowAgain = ref(false)
 const downloadProgress = ref<number | null>(null)
 
-const handleUpdateInfo = (info: UpdateInfo) => {
+function handleUpdateInfo(info: UpdateInfo) {
   updateInfo.value = info
   if (info.type !== 'downloading') {
     downloadProgress.value = null
   }
 }
 
-const handleUpdateProgress = (progress: { progress: number }) => {
+function handleUpdateProgress(progress: { progress: number }) {
   downloadProgress.value = progress.progress
 }
 
-const renderMarkdown = (content: string) => {
+function renderMarkdown(content: string) {
   return marked(content, { breaks: true, gfm: true })
 }
 
-const downloadUpdate = () => {
+function downloadUpdate() {
   updateInfo.value.type = 'downloading'
   downloadProgress.value = 0
   window.electron.sendRPC(IRPCActionType.DOWNLOAD_UPDATE)
@@ -142,7 +142,7 @@ const downloadUpdate = () => {
   }
 }
 
-const goToDownloadPage = () => {
+function goToDownloadPage() {
   window.electron.sendRPC(IRPCActionType.GO_TO_DOWNLOAD_PAGE)
   if (dontShowAgain.value) {
     window.electron.sendRPC(IRPCActionType.SET_SHOW_UPDATE_TIP, false)
@@ -150,11 +150,11 @@ const goToDownloadPage = () => {
   closeWindow()
 }
 
-const installUpdate = () => {
+function installUpdate() {
   window.electron.sendRPC(IRPCActionType.INSTALL_UPDATE)
 }
 
-const closeWindow = () => {
+function closeWindow() {
   if (dontShowAgain.value && updateInfo.value.type === 'update-available') {
     window.electron.sendRPC(IRPCActionType.SET_SHOW_UPDATE_TIP, false)
   }
@@ -162,6 +162,7 @@ const closeWindow = () => {
 }
 
 let unbindThemeListener: (() => void) | null = null
+
 onMounted(() => {
   window.electron.ipcRendererOn(SHOW_UPDATE_INFO, handleUpdateInfo)
   window.electron.ipcRendererOn(UPDATE_PROGRESS, handleUpdateProgress)

@@ -7,7 +7,7 @@
     @click="emit('click')"
   >
     <slot name="icon">
-      <component :is="icon" v-if="icon" :size="iconSize" />
+      <component :is="icon" v-if="icon" :size="iconSize" :class="iconClass" />
     </slot>
     <slot>
       <span
@@ -31,13 +31,17 @@ const {
   icon = null,
   iconSize = 16,
   type = 'primary',
+  iconClass = '',
+  textClass = '',
 } = defineProps<{
   text: string
   icon?: any
   active?: boolean
   iconSize?: number
   disabled?: boolean
-  type?: 'primary' | 'secondary' | 'tab'
+  type?: string
+  iconClass?: string
+  textClass?: string
 }>()
 
 const textClassVar = computed(() => {
@@ -49,7 +53,7 @@ const textClassVar = computed(() => {
     case 'tab':
       return active ? 'text-white' : 'text-secondary'
     default:
-      return ''
+      return textClass || ''
   }
 })
 
@@ -58,9 +62,9 @@ const classVar = computed(() => {
     case 'primary':
       return 'bg-accent text-white not-disabled:hover:bg-accent-hover! not-disabled:hover:-translate-y-px'
     case 'secondary':
-      return 'border border-border! bg-bg-secondary! text-main! not-disabled:hover:bg-surface-elevated! not-disabled:hover:-translate-y-px'
+      return 'border border-border bg-bg-secondary text-main not-disabled:hover:bg-surface-elevated! not-disabled:hover:-translate-y-px'
     case 'tab':
-      return 'flex-1 text-secondary not-disabled:data-[active=false]:hover:bg-accent/30! data-[active=true]:text-white data-[active=true]:bg-accent!'
+      return 'flex-1 text-secondary not-disabled:data-[active=false]:hover:bg-accent/30 data-[active=true]:text-white data-[active=true]:bg-accent'
     default:
       return ''
   }

@@ -49,6 +49,12 @@ export default createRouter({
           name: config.UPLOAD_PAGE,
         },
         {
+          path: 'manage-setting-page',
+          name: config.MANAGE_SETTING_PAGE_DIRECT,
+          component: ManageSettingPage,
+        },
+
+        {
           path: 'manage-main-page',
           name: config.MANAGE_MAIN_PAGE,
           component: ManageMainPage,

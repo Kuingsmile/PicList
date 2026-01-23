@@ -749,26 +749,13 @@ const pasteStyle = ref(IPasteStyle.MARKDOWN)
 const PicBedId = ref('')
 const fileInput = useTemplateRef('fileInput')
 const uploadInterval = ref(1000)
-
-const favoritePicbeds = useStorage<IFavoritePicbedItem[]>('favorite-picbeds', [])
-const MAX_FAVORITE_PICBEDS = 6
-const longPressedBadge = ref<string | null>(null)
-let longPressTimer: NodeJS.Timeout | null = null
-const LONG_PRESS_DURATION = 500
-const isCurrentPicBedInFavorites = computed(() => {
-  const result = favoritePicbeds.value.some(item => item.id === defaultIdG.value)
-  return result
-})
-
-// New task queue settings
 const showTaskSettings = useStorage('upload-task-queue-show-settings', true)
 const taskSearchQuery = ref('')
 const taskFilter = ref<'all' | 'pending' | 'completed' | 'failed'>('all')
 const autoStart = ref(false)
 const pauseOnError = ref(false)
 const maxRetryCount = ref(3)
-
-// Task queue status
+const favoritePicbeds = useStorage<IFavoritePicbedItem[]>('favorite-picbeds', [])
 const taskQueueStatus = reactive<IUploadTaskQueueStatus>({
   tasks: [],
   config: {
@@ -792,8 +779,24 @@ const taskQueueStatus = reactive<IUploadTaskQueueStatus>({
     estimatedTimeMs: 0,
   },
 })
+const longPressedBadge = ref<string | null>(null)
+const pasteFormatList = ref<Record<string, string>>({
+  [IPasteStyle.MARKDOWN]: '![alt](url)',
+  [IPasteStyle.HTML]: '<img src="url"/>',
+  [IPasteStyle.URL]: 'http://test.com/test.png',
+  [IPasteStyle.UBB]: '[img]url[/img]',
+  [IPasteStyle.CUSTOM]: '',
+})
 
-// Computed properties
+const MAX_FAVORITE_PICBEDS = 6
+let longPressTimer: NodeJS.Timeout | null = null
+const LONG_PRESS_DURATION = 500
+
+const isCurrentPicBedInFavorites = computed(() => {
+  const result = favoritePicbeds.value.some(item => item.id === defaultIdG.value)
+  return result
+})
+
 const filteredTasks = computed(() => {
   let tasks = taskQueueStatus.tasks
 
@@ -824,17 +827,12 @@ const picBedName = computed(() => {
   return target ? target.name : defaultPicBedG.value
 })
 
-const pasteFormatList = ref<Record<string, string>>({
-  [IPasteStyle.MARKDOWN]: '![alt](url)',
-  [IPasteStyle.HTML]: '<img src="url"/>',
-  [IPasteStyle.URL]: 'http://test.com/test.png',
-  [IPasteStyle.UBB]: '[img]url[/img]',
-  [IPasteStyle.CUSTOM]: '',
-})
-
 function syncPicBedHandler(): void {
   updatePicBeds()
 }
+
+watch(progress, onProgressChange)
+watch(favoritePicbeds, valideFavoritePicbeds, { immediate: true })
 
 let removeUploadProgressListenerCallback: () => void = () => {}
 let removeSyncPicBedListenerCallback: () => void = () => {}
@@ -849,17 +847,15 @@ function uploadProgressHandler(p: number): void {
   }
 }
 
-const handleImageProcess = () => {
+function handleImageProcess() {
   PicBedId.value = ''
   imageProcessDialogVisible.value = true
 }
 
-const handleImageProcessSingle = () => {
+function handleImageProcessSingle() {
   PicBedId.value = defaultIdG.value
   imageProcessDialogVisible.value = true
 }
-
-watch(progress, onProgressChange)
 
 function onProgressChange(val: number) {
   if (val === 100) {
@@ -978,8 +974,6 @@ async function valideFavoritePicbeds() {
     favoritePicbeds.value = availableFavorites
   }
 }
-
-watch(favoritePicbeds, valideFavoritePicbeds, { immediate: true })
 
 function addCurrentPicbedToFavorites() {
   favoritePicbeds.value.push({

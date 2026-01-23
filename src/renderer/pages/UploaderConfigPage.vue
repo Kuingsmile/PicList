@@ -35,6 +35,7 @@
       <div class="no-scrollbar h-full w-full overflow-auto rounded-sm">
         <div class="grid w-full grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5 border-none p-1 max-md:gap-4">
           <!-- Config Items -->
+
           <div
             v-for="(item, index) in curConfigList"
             :key="item._id"
@@ -162,7 +163,6 @@ const router = useRouter()
 const route = useRoute()
 const { defaultPicBedG, picBedG, updatePicBeds } = usePicBed()
 const favoritePicbeds = useStorage<IFavoritePicbedItem[]>('favorite-picbeds', [])
-
 const type = ref('')
 const curConfigList = ref<IStringKeyMap[]>([])
 const defaultConfigId = ref('')
@@ -202,19 +202,6 @@ async function selectItem(id: string) {
   }
   defaultConfigId.value = id
 }
-
-onBeforeRouteUpdate((to, _, next) => {
-  if (to.params.type && to.name === UPLOADER_CONFIG_PAGE) {
-    type.value = to.params.type as string
-    getCurrentConfigList()
-  }
-  next()
-})
-
-onBeforeMount(() => {
-  type.value = route.params.type as string
-  getCurrentConfigList()
-})
 
 async function getCurrentConfigList() {
   const configList = await window.electron.triggerRPC<IUploaderConfigItem>(
@@ -328,7 +315,21 @@ function setDefaultPicBed(type: string) {
   updatePicBeds()
   message.success(t('pages.uploaderConfig.setSuccess'))
 }
+
+onBeforeRouteUpdate((to, _, next) => {
+  if (to.params.type && to.name === UPLOADER_CONFIG_PAGE) {
+    type.value = to.params.type as string
+    getCurrentConfigList()
+  }
+  next()
+})
+
+onBeforeMount(() => {
+  type.value = route.params.type as string
+  getCurrentConfigList()
+})
 </script>
+
 <script lang="ts">
 export default {
   name: 'UploaderConfigPage',

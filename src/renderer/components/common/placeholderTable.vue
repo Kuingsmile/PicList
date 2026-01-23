@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-3 max-h-[400px] overflow-y-auto rounded-lg border border-border bg-bg-tertiary p-0 shadow-sm">
+  <div class="mt-3 max-h-[450px] overflow-y-auto rounded-lg border border-border bg-bg-tertiary p-0 shadow-sm">
     <template v-for="key in Object.keys(list)" :key="key">
       <div class="border-b border-border last:border-0">
         <div

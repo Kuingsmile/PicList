@@ -109,19 +109,19 @@ import { getConfig } from '@/utils/dataSender'
 import $$db from '@/utils/db'
 import { IPasteStyle, IRPCActionType, IWindowList } from '@/utils/enum'
 
-const { t } = useI18n()
-
 type IResult<T> = T & {
   id: string
   createdAt: number
   updatedAt: number
 }
+
+const { t } = useI18n()
+
 const files = ref<IResult<ImgInfo>[]>([])
 const notification = reactive({
   title: t('pages.tray.copySuccess'),
   body: '',
 })
-
 const clipboardFiles = ref<ImgInfo[]>([])
 const uploadFlag = ref(false)
 
@@ -133,7 +133,7 @@ async function getData() {
   files.value = (await $$db.get<ImgInfo>({ orderBy: 'desc', limit: 10 }))!.data
 }
 
-const formatCustomLink = (customLink: string, item: ImgInfo) => {
+function formatCustomLink(customLink: string, item: ImgInfo) {
   const fileName = item.fileName!.replace(new RegExp(`\\${item.extname}$`), '')
   const url = item.url || item.imgUrl
   const extName = item.extname
@@ -222,7 +222,7 @@ function onImageError(event: Event) {
   img.src = './errorLoading.png'
 }
 
-const dragFilesHandler = async (_files: string[]) => {
+async function dragFilesHandler(_files: string[]) {
   for (const file of _files) {
     await $$db.insert(file)
   }
@@ -232,11 +232,11 @@ const dragFilesHandler = async (_files: string[]) => {
   }))!.data
 }
 
-const clipboardFilesHandler = (files: ImgInfo[]) => {
+function clipboardFilesHandler(files: ImgInfo[]) {
   clipboardFiles.value = files
 }
 
-const uploadFilesHandler = async () => {
+async function uploadFilesHandler() {
   files.value = (await $$db.get<ImgInfo>({
     orderBy: 'desc',
     limit: 5,
@@ -244,7 +244,7 @@ const uploadFilesHandler = async () => {
   uploadFlag.value = false
 }
 
-const updateFilesHandler = () => {
+function updateFilesHandler() {
   getData()
 }
 

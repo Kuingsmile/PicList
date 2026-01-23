@@ -461,11 +461,6 @@ const browseSearchText = ref('')
 const browsePlugins = ref<IPicGoPlugin[]>([])
 const loadingBrowse = ref(false)
 
-function setSrc(e: Event) {
-  const target = e.target as HTMLImageElement
-  target.src = import.meta.env.BASE_URL + 'roundLogo.png'
-}
-
 const npmSearchText = computed(() => {
   return searchText.value.match('picgo-plugin-')
     ? searchText.value
@@ -508,6 +503,11 @@ watch(showBrowseDialog, (val: boolean) => {
   }
 })
 
+function setSrc(e: Event) {
+  const target = e.target as HTMLImageElement
+  target.src = import.meta.env.BASE_URL + 'roundLogo.png'
+}
+
 async function getLatestVersionOfPlugIn(pluginName: string) {
   try {
     const res = await fetch(`https://registry.npmjs.com/${pluginName}`)
@@ -518,11 +518,11 @@ async function getLatestVersionOfPlugIn(pluginName: string) {
   }
 }
 
-const hideLoadingHandler = () => {
+function hideLoadingHandler() {
   loading.value = false
 }
 
-const picgoHandlePluginDoneHandler = (fullName: string) => {
+function picgoHandlePluginDoneHandler(fullName: string) {
   pluginList.value.forEach(item => {
     if (item.fullName === fullName || item.name === fullName) {
       item.ing = false
@@ -531,7 +531,7 @@ const picgoHandlePluginDoneHandler = (fullName: string) => {
   loading.value = false
 }
 
-const pluginListHandler = (list: IPicGoPlugin[]) => {
+function pluginListHandler(list: IPicGoPlugin[]) {
   pluginList.value = list
   pluginNameList.value = list.map(item => item.fullName)
   for (const item of pluginList.value) {
@@ -540,7 +540,7 @@ const pluginListHandler = (list: IPicGoPlugin[]) => {
   loading.value = false
 }
 
-const installPluginHandler = ({ success, body }: { success: boolean; body: string }) => {
+function installPluginHandler({ success, body }: { success: boolean; body: string }) {
   loading.value = false
   pluginList.value.forEach(item => {
     if (item.fullName === body) {
@@ -557,7 +557,7 @@ const installPluginHandler = ({ success, body }: { success: boolean; body: strin
   })
 }
 
-const updateSuccessHandler = (plugin: string) => {
+function updateSuccessHandler(plugin: string) {
   loading.value = false
   pluginList.value.forEach(item => {
     if (item.fullName === plugin) {
@@ -570,7 +570,7 @@ const updateSuccessHandler = (plugin: string) => {
   getPluginList()
 }
 
-const uninstallSuccessHandler = (plugin: string) => {
+function uninstallSuccessHandler(plugin: string) {
   loading.value = false
   pluginList.value = pluginList.value.filter(item => {
     if (item.fullName === plugin) {
@@ -588,18 +588,18 @@ const uninstallSuccessHandler = (plugin: string) => {
   pluginNameList.value = pluginNameList.value.filter(item => item !== plugin)
 }
 
-const picgoConfigPluginHandler = (
+function picgoConfigPluginHandler(
   _currentType: 'plugin' | 'transformer' | 'uploader',
   _configName: string,
   _config: any,
-) => {
+) {
   currentType.value = _currentType
   configName.value = _configName
   config.value = _config
   dialogVisible.value = true
 }
 
-const picgoHandlePluginIngHandler = (fullName: string) => {
+function picgoHandlePluginIngHandler(fullName: string) {
   pluginList.value.forEach(item => {
     if (item.fullName === fullName || item.name === fullName) {
       item.ing = true

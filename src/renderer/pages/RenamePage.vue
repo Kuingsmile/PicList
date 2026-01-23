@@ -65,7 +65,7 @@ const form = reactive({
   originName: '',
 })
 
-const handleFileName = (newName: string, _originName: string, _id: string) => {
+function handleFileName(newName: string, _originName: string, _id: string) {
   form.fileName = newName
   form.originName = _originName
   id.value = _id

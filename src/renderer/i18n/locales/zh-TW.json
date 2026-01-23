@@ -62,7 +62,7 @@
     "copySuccess": "複製成功",
     "expand": "展開側邊欄",
     "gallery": "相簿",
-    "manage": "管理",
+    "manage": "雲端",
     "moreOptions": "更多選項",
     "picbed": "圖床",
     "picBedQrCode": "圖床配置 QRCODE",
@@ -462,7 +462,7 @@
           "webPathTips": "用於拼接對外存取網址"
         },
         "smms": {
-          "explain": "中國大陸地區請訪問備用網域 https://sm.ms，請勿在短時間內大量請求",
+          "explain": "中國大陸地區請訪問備用網域 https://smms.app，請勿在短時間內大量請求",
           "tokenDesc": "SM.MS Token，可在 SM.MS 個人中心取得",
           "tokenPlaceholder": "請輸入 SM.MS Token"
         },
@@ -541,10 +541,10 @@
         "refresh": "重新整理",
         "reset": "重設",
         "save": "儲存",
-        "savedConfigs": "已儲存設定",
+        "savedConfigs": "進入已配置雲端",
         "selectPlaceholder": "請選擇",
         "tips": "提示",
-        "title": "圖床管理",
+        "title": "雲端存儲管理",
         "viewDetails": "查看詳情"
       },
       "main": {
@@ -641,10 +641,17 @@
         "preSignedUrlExpireDesc": "建議依實際需求調整",
         "randomStringRenameTips": "20 位隨機字元",
         "randomStringRenameTitle": "上傳檔案隨機字串重新命名（中優先級）",
+        "section": {
+          "cache": "快取設置",
+          "general": "通用設置",
+          "naming": "命名設置",
+          "up-down": "上傳/下載設置"
+        },
         "selectDownloadFolderTips": "選擇下載目錄",
         "selectDownloadFolderTitle": "選擇下載資料夾",
         "timestampRenameTips": "啟用後，上傳的檔案將自動更名為時間戳",
-        "timestampRenameTitle": "上傳檔案時間戳重新命名（最高優先級）"
+        "timestampRenameTitle": "上傳檔案時間戳重新命名（最高優先級）",
+        "title": "管理通用設置"
       }
     },
     "picBedConfigs": {

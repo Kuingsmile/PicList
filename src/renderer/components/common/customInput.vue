@@ -3,7 +3,7 @@
     <div class="flex items-center gap-2">
       <label class="mb-2 text-sm font-semibold text-secondary"
         >{{ title }}
-        <span v-if="required" class="ml-1 text-red-400">*</span>
+        <span v-if="required" class="ml-1 text-danger">*</span>
       </label>
       <slot name="title-extra"></slot>
     </div>
@@ -12,7 +12,7 @@
         v-model="modelValue"
         :type="type"
         v-bind="$attrs"
-        class="box-border w-full rounded-md border border-border bg-bg-tertiary p-3 pr-10 text-sm text-main transition-all duration-200 ease-apple focus:border-accent focus:outline-none"
+        class="box-border w-full rounded-md border border-border bg-bg-tertiary p-3 pr-10 text-sm text-main transition-all duration-200 ease-apple focus:border-accent focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         :placeholder="placeholder"
       />
 
@@ -25,6 +25,7 @@
         <EyeIcon v-if="type === 'password'" class="text-accent" :size="16" />
         <EyeClosedIcon v-else class="text-accent" :size="16" />
       </button>
+      <slot name="input-extra"></slot>
     </div>
   </div>
 </template>
@@ -33,7 +34,20 @@
 import { EyeClosedIcon, EyeIcon } from 'lucide-vue-next'
 import { onMounted, ref } from 'vue'
 
-const modelValue = defineModel<any>()
+const [modelValue, modifiers] = defineModel<any>({
+  set(value) {
+    let result = value
+    if (modifiers.trim && typeof result === 'string') {
+      result = result.trim()
+    }
+    if (modifiers.number) {
+      const n = parseFloat(result)
+      result = isNaN(n) ? result : n
+    }
+    return result
+  },
+})
+
 const type = ref('text')
 
 const {

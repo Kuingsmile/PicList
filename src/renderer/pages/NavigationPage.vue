@@ -214,11 +214,11 @@ import {
 import { useStorage } from '@vueuse/core'
 import { pick } from 'lodash-es'
 import {
-  BriefcaseBusiness,
   CheckIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  Cloud,
   CopyIcon,
   DatabaseIcon,
   ImagesIcon,
@@ -259,6 +259,20 @@ const guideRef = ref<InstanceType<typeof FirstTimeGuide> | null>(null)
 
 let removeIpcListener: () => void = () => {}
 
+const visiblePicBeds = computed(() => picBedG.value.filter(item => item.visible))
+
+const navigationItems = computed(() => [
+  { name: t('navigation.upload'), path: '/main-page/upload', icon: UploadIcon },
+  { name: t('navigation.manage'), path: '/main-page/manage-login-page', icon: Cloud },
+  { name: t('navigation.gallery'), path: '/main-page/gallery', icon: ImagesIcon },
+  { name: t('navigation.settings'), path: '/main-page/settings', icon: Settings },
+  {
+    name: t('navigation.plugins'),
+    path: '/main-page/plugins',
+    icon: PlugIcon,
+  },
+])
+
 watch(
   () => choosedPicBedForQRCode,
   val => {
@@ -272,8 +286,6 @@ watch(
   },
   { deep: true },
 )
-
-const visiblePicBeds = computed(() => picBedG.value.filter(item => item.visible))
 
 const qrCodeHandler = () => {
   qrcodeVisible.value = true
@@ -313,18 +325,6 @@ function isPathActive(path: string): boolean {
 function isPicBedPathActive(type: string): boolean {
   return route.name === routerConfig.UPLOADER_CONFIG_PAGE && route.params.type === type
 }
-
-const navigationItems = computed(() => [
-  { name: t('navigation.upload'), path: '/main-page/upload', icon: UploadIcon },
-  { name: t('navigation.manage'), path: '/main-page/manage-login-page', icon: BriefcaseBusiness },
-  { name: t('navigation.gallery'), path: '/main-page/gallery', icon: ImagesIcon },
-  { name: t('navigation.settings'), path: '/main-page/settings', icon: Settings },
-  {
-    name: t('navigation.plugins'),
-    path: '/main-page/plugins',
-    icon: PlugIcon,
-  },
-])
 
 function openGithubPage() {
   window.electron.sendRPC(IRPCActionType.OPEN_URL, 'https://github.com/Kuingsmile/PicList')

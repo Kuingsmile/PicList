@@ -58,6 +58,7 @@ import { IRPCActionType } from '@/utils/enum'
 const isShowprogress = ref(false)
 const progress = ref(0)
 const isAlwaysOnTop = ref(false)
+
 const defaultLogo = computed(() => `${import.meta.env.BASE_URL}roundLogo.png`)
 
 function setAlwaysOnTop() {
@@ -69,7 +70,7 @@ const minimizeWindow = () => window.electron.sendRPC(IRPCActionType.MINIMIZE_WIN
 const openMiniWindow = () => window.electron.sendRPC(IRPCActionType.OPEN_MINI_WINDOW)
 const closeWindow = () => window.electron.sendRPC(IRPCActionType.CLOSE_WINDOW)
 
-const uploadProcessHandler = (data: { progress: number }) => {
+function uploadProcessHandler(data: { progress: number }) {
   isShowprogress.value = data.progress !== 100 && data.progress !== 0
   progress.value = data.progress
 }

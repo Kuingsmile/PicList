@@ -4,6 +4,7 @@
       <component :is="icon" v-if="icon" :size="iconSize" class="text-accent" />
     </slot>
     <span class="text-[0.925rem] leading-[1.4] font-semibold text-secondary">{{ title }}</span>
+    <span v-if="required" class="ml-1 text-danger">*</span>
   </div>
   <select
     v-model="modelValue"
@@ -25,13 +26,15 @@ const modelValue = defineModel<string>()
 
 const {
   title,
-  icon,
+  icon = null,
   iconSize = 18,
   selectList = [],
+  required = false,
 } = defineProps<{
   title: string
-  icon: any
+  icon?: any
   selectList?: { value: string; label: string }[]
   iconSize?: number
+  required?: boolean
 }>()
 </script>

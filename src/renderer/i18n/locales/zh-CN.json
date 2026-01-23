@@ -62,7 +62,7 @@
     "copySuccess": "复制成功",
     "expand": "展开侧边栏",
     "gallery": "相册",
-    "manage": "管理",
+    "manage": "云端",
     "moreOptions": "更多选项",
     "picbed": "图床",
     "picBedQrCode": "图床配置二维码",
@@ -462,7 +462,7 @@
           "webPathTips": "用于拼接访问网址"
         },
         "smms": {
-          "explain": "大陆地区请访问备用域名https://sm.ms，不要短时大量请求",
+          "explain": "大陆地区请访问备用域名https://smms.app，不要短时大量请求",
           "tokenDesc": "SM.MS Token, 可在 SM.MS 个人中心获取",
           "tokenPlaceholder": "请输入 SM.MS Token"
         },
@@ -541,10 +541,10 @@
         "refresh": "刷新",
         "reset": "重置",
         "save": "保存",
-        "savedConfigs": "已保存配置",
+        "savedConfigs": "进入已配置云端",
         "selectPlaceholder": "请选择",
         "tips": "提示",
-        "title": "图床管理",
+        "title": "云端管理",
         "viewDetails": "查看详情"
       },
       "main": {
@@ -641,10 +641,17 @@
         "preSignedUrlExpireDesc": "建议根据实际需求调整",
         "randomStringRenameTips": "20位随机字符",
         "randomStringRenameTitle": "上传文件随机字符串重命名(中优先级)",
+        "section": {
+          "cache": "缓存设置",
+          "general": "通用设置",
+          "naming": "命名设置",
+          "up-down": "上传/下载设置"
+        },
         "selectDownloadFolderTips": "选择下载目录",
         "selectDownloadFolderTitle": "选择下载文件夹",
         "timestampRenameTips": "开启后，上传的文件将自动重命名为时间戳",
-        "timestampRenameTitle": "上传文件时间戳重命名(最高优先级)"
+        "timestampRenameTitle": "上传文件时间戳重命名(最高优先级)",
+        "title": "管理通用设置"
       }
     },
     "picBedConfigs": {

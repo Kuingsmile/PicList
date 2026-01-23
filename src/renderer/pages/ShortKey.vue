@@ -138,16 +138,6 @@ const command = ref('')
 const shortKey = ref('')
 const currentIndex = ref(0)
 
-onBeforeMount(async () => {
-  const shortKeyConfig = (await getConfig<IShortKeyConfigs>(configPaths.settings.shortKey._path))!
-  list.value = Object.keys(shortKeyConfig).map(item => {
-    return {
-      ...shortKeyConfig[item],
-      from: calcOrigin(item),
-    }
-  })
-})
-
 watch(keyBindingVisible, (val: boolean) => {
   window.electron.sendRPC(IRPCActionType.SHORTKEY_TOGGLE_SHORTKEY_MODIFIED_MODE, val)
 })
@@ -193,6 +183,16 @@ async function confirmKeyBinding() {
     list.value[currentIndex.value].key = shortKey.value
   }
 }
+
+onBeforeMount(async () => {
+  const shortKeyConfig = (await getConfig<IShortKeyConfigs>(configPaths.settings.shortKey._path))!
+  list.value = Object.keys(shortKeyConfig).map(item => {
+    return {
+      ...shortKeyConfig[item],
+      from: calcOrigin(item),
+    }
+  })
+})
 
 onBeforeUnmount(() => {
   window.electron.sendRPC(IRPCActionType.SHORTKEY_TOGGLE_SHORTKEY_MODIFIED_MODE, false)

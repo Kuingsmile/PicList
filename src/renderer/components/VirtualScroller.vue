@@ -55,6 +55,9 @@ const containerRef = useTemplateRef('containerRef')
 const containerHeight = ref(0)
 const containerWidth = ref<number>(0)
 const parentScrollListeners = ref<HTMLElement[]>([])
+const lastScrollTime = ref(0)
+let ro: ResizeObserver | null = null
+
 const sortedBreakpoints = computed<Breakpoint[]>(() => [...gridBreakpoints].sort((a, b) => a.min - b.min))
 
 const effectiveCols = computed<number>(() => {
@@ -122,9 +125,6 @@ function handlePageScroll() {
     updateScrollTop(intersectionTop)
   }
 }
-
-let ro: ResizeObserver | null = null
-const lastScrollTime = ref(0)
 
 function updateContainerMetrics() {
   if (!containerRef.value) return

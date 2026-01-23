@@ -573,16 +573,16 @@ import $$db from '@/utils/db'
 import { IPasteStyle, IRPCActionType } from '@/utils/enum'
 import { picBedsCanbeDeleted } from '@/utils/static'
 
-const { t } = useI18n()
-const message = useMessage()
-const { confirm } = useConfirm()
-const { picBedG } = usePicBed()
-
 type IResult<T> = T & {
   id: string
   createdAt: number
   updatedAt: number
 }
+
+const { t } = useI18n()
+const message = useMessage()
+const { confirm } = useConfirm()
+const { picBedG } = usePicBed()
 
 const images = ref<ImgInfo[]>([])
 const virtualScrollerRef = useTemplateRef('virtualScrollerRef')
@@ -609,10 +609,7 @@ const debouncedSearchText = ref<string>('')
 const debouncedSearchTextURL = ref<string>('')
 const handleBarActive = useStorage<boolean>('galleryHandleBarActive', true)
 const pasteStyle = ref<string>('')
-const pasteStyleList = ['markdown', 'HTML', 'URL', 'UBB', 'Custom']
 const useShortUrl = ref<string>('')
-const shortURLList = [t('pages.gallery.shortUrl'), t('pages.gallery.longUrl')]
-
 const fileSortNameReverse = ref(false)
 const fileSortTimeReverse = ref(false)
 const fileSortExtReverse = ref(false)
@@ -630,18 +627,6 @@ const viewMode = useStorage<'list' | 'grid'>('galleryViewMode', 'grid')
 const componentKey = ref(0)
 const currentSortField = ref<'name' | 'time' | 'ext' | 'check'>('name')
 const userGridColumns = useStorage<number>('galleryGridColumns', 4)
-
-const effectiveGridBreakpoints = computed(() => {
-  return [{ min: 0, cols: userGridColumns.value }]
-})
-
-const filteredPicBedG = computed(() => {
-  if (galleryPicBedFilterSetting.value.length === 0) {
-    return picBedG.value
-  }
-  return picBedG.value.filter(item => galleryPicBedFilterSetting.value.includes(item.type))
-})
-
 const imageLoadStates = reactive<Record<string, boolean>>({})
 const imageErrorStates = reactive<Record<string, boolean>>({})
 
@@ -659,6 +644,8 @@ const imagePreviewState = reactive({
   swipeThreshold: 100,
 })
 
+const pasteStyleList = ['markdown', 'HTML', 'URL', 'UBB', 'Custom']
+const shortURLList = [t('pages.gallery.shortUrl'), t('pages.gallery.longUrl')]
 const advancedRenameList = {
   categoryTime: [
     { label: t('pages.settings.upload.placeholder.year4'), value: '{Y}' },
@@ -684,6 +671,19 @@ const advancedRenameList = {
     { label: t('pages.settings.upload.placeholder.randomString'), value: '{str-n}' },
   ],
 }
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+let searchURLDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
+const effectiveGridBreakpoints = computed(() => {
+  return [{ min: 0, cols: userGridColumns.value }]
+})
+
+const filteredPicBedG = computed(() => {
+  if (galleryPicBedFilterSetting.value.length === 0) {
+    return picBedG.value
+  }
+  return picBedG.value.filter(item => galleryPicBedFilterSetting.value.includes(item.type))
+})
 
 const matchedCount = computed(() => {
   const matches = filterList.value.filter((item: any) => {
@@ -692,38 +692,15 @@ const matchedCount = computed(() => {
   return matches.length
 })
 
+const filterList = computed(() => {
+  return getGallery()
+})
+
 const matchedUrls = computed(() => {
   const matches = filterList.value.filter((item: any) => {
     return customStrMatch(item.imgUrl, batchRenameMatch.value)
   })
   return matches.map((item: any) => item.imgUrl || '').filter(Boolean)
-})
-
-const dateRange = computed({
-  get: () => {
-    if (dateRangeStart.value && dateRangeEnd.value) {
-      return [dateRangeStart.value, dateRangeEnd.value]
-    }
-    return ''
-  },
-  set: (value: string | string[]) => {
-    if (Array.isArray(value)) {
-      dateRangeStart.value = value[0] || ''
-      dateRangeEnd.value = value[1] || ''
-    } else {
-      dateRangeStart.value = ''
-      dateRangeEnd.value = ''
-    }
-  },
-})
-
-function copyPlaceholder(placeholder: string) {
-  window.electron.clipboard.writeText(String(placeholder))
-  message.success(t('pages.settings.upload.copySuccess', { content: placeholder }))
-}
-
-const filterList = computed(() => {
-  return getGallery()
 })
 
 const isAllSelected = computed(() => {
@@ -772,6 +749,73 @@ const imageTransformStyle = computed(() => {
     transition: 'none',
   }
 })
+
+const dateRange = computed({
+  get: () => {
+    if (dateRangeStart.value && dateRangeEnd.value) {
+      return [dateRangeStart.value, dateRangeEnd.value]
+    }
+    return ''
+  },
+  set: (value: string | string[]) => {
+    if (Array.isArray(value)) {
+      dateRangeStart.value = value[0] || ''
+      dateRangeEnd.value = value[1] || ''
+    } else {
+      dateRangeStart.value = ''
+      dateRangeEnd.value = ''
+    }
+  },
+})
+
+watch(pasteStyle, newVal => {
+  saveConfig(configPaths.settings.pasteStyle, newVal)
+})
+
+watch(useShortUrl, newVal => {
+  saveConfig(configPaths.settings.useShortUrl, newVal === t('pages.gallery.shortUrl'))
+})
+
+watch(currentSortField, () => {
+  sortFile(currentSortField.value)
+})
+
+watch(filterList, () => {
+  clearChoosedList()
+})
+
+watch(userGridColumns, _ => {
+  nextTick(() => {
+    if (virtualScrollerRef.value) {
+      virtualScrollerRef.value.refresh()
+    }
+  })
+})
+
+watch(searchText, newVal => {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+  searchDebounceTimer = setTimeout(() => {
+    debouncedSearchText.value = newVal
+    nextTick(() => {
+      virtualScrollerRef.value?.scrollToTop()
+    })
+  }, 300)
+})
+
+watch(searchTextURL, newVal => {
+  if (searchURLDebounceTimer) clearTimeout(searchURLDebounceTimer)
+  searchURLDebounceTimer = setTimeout(() => {
+    debouncedSearchTextURL.value = newVal
+    nextTick(() => {
+      virtualScrollerRef.value?.scrollToTop()
+    })
+  }, 300)
+})
+
+function copyPlaceholder(placeholder: string) {
+  window.electron.clipboard.writeText(String(placeholder))
+  message.success(t('pages.settings.upload.copySuccess', { content: placeholder }))
+}
 
 function onImageLoad(id: string) {
   imageLoadStates[id] = true
@@ -1012,15 +1056,6 @@ function getViewModeLabel() {
   return t(`pages.gallery.${viewMode.value}View`)
 }
 
-onBeforeRouteUpdate((to, from) => {
-  if (from.name === 'gallery') {
-    clearChoosedList()
-  }
-  if (to.name === 'gallery') {
-    updateGallery()
-  }
-})
-
 async function initConf() {
   const settingConfig = await getConfig<any>('settings')
   pasteStyle.value = settingConfig.pasteStyle || IPasteStyle.MARKDOWN
@@ -1138,41 +1173,6 @@ async function updateGallery() {
     }
   })
 }
-
-watch(filterList, () => {
-  clearChoosedList()
-})
-
-watch(userGridColumns, _ => {
-  nextTick(() => {
-    if (virtualScrollerRef.value) {
-      virtualScrollerRef.value.refresh()
-    }
-  })
-})
-
-let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
-let searchURLDebounceTimer: ReturnType<typeof setTimeout> | null = null
-
-watch(searchText, newVal => {
-  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
-  searchDebounceTimer = setTimeout(() => {
-    debouncedSearchText.value = newVal
-    nextTick(() => {
-      virtualScrollerRef.value?.scrollToTop()
-    })
-  }, 300)
-})
-
-watch(searchTextURL, newVal => {
-  if (searchURLDebounceTimer) clearTimeout(searchURLDebounceTimer)
-  searchURLDebounceTimer = setTimeout(() => {
-    debouncedSearchTextURL.value = newVal
-    nextTick(() => {
-      virtualScrollerRef.value?.scrollToTop()
-    })
-  }, 300)
-})
 
 function handleChooseImage(val: boolean, index: number) {
   const currentItem = filterList.value[index]
@@ -1425,18 +1425,6 @@ function toggleHandleBar() {
   handleBarActive.value = !handleBarActive.value
 }
 
-watch(pasteStyle, newVal => {
-  saveConfig(configPaths.settings.pasteStyle, newVal)
-})
-
-watch(useShortUrl, newVal => {
-  saveConfig(configPaths.settings.useShortUrl, newVal === t('pages.gallery.shortUrl'))
-})
-
-watch(currentSortField, () => {
-  sortFile(currentSortField.value)
-})
-
 function sortFile(type: 'name' | 'time' | 'ext' | 'check') {
   switch (type) {
     case 'name':
@@ -1555,6 +1543,26 @@ function handleBatchRename() {
   }
 }
 
+onBeforeRouteUpdate((to, from) => {
+  if (from.name === 'gallery') {
+    clearChoosedList()
+  }
+  if (to.name === 'gallery') {
+    updateGallery()
+  }
+})
+
+onActivated(async () => {
+  await initConf()
+  nextTick(() => {
+    if (virtualScrollerRef.value && typeof virtualScrollerRef.value.refresh === 'function') {
+      virtualScrollerRef.value.refresh()
+    } else {
+      componentKey.value++
+    }
+  })
+})
+
 onBeforeMount(async () => {
   window.electron.ipcRendererOn('updateGallery', updateGalleryHandler)
   updateGallery()
@@ -1573,17 +1581,6 @@ onBeforeUnmount(async () => {
   if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
   if (searchURLDebounceTimer) clearTimeout(searchURLDebounceTimer)
   isAlwaysForceReload.value = (await getConfig(configPaths.settings.isAlwaysForceReload)) || false
-})
-
-onActivated(async () => {
-  await initConf()
-  nextTick(() => {
-    if (virtualScrollerRef.value && typeof virtualScrollerRef.value.refresh === 'function') {
-      virtualScrollerRef.value.refresh()
-    } else {
-      componentKey.value++
-    }
-  })
 })
 </script>
 

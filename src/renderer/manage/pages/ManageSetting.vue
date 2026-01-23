@@ -1,213 +1,133 @@
 <template>
-  <div class="manage-setting-container">
-    <!-- Cache Info Card -->
-    <div class="setting-card content-card">
-      <div class="card-content">
-        <div class="setting-section">
-          <div class="form-group">
-            <div class="form-control">
-              <button type="button" class="action-button warning" @click="handleConfirmClearDb">
-                <Trash2Icon :size="16" />
-                {{
-                  t('pages.manage.setting.clearCache', {
-                    percent: dbSizeAvailableRate,
-                    size: formatFileSize(dbSize) || 0,
-                  })
-                }}
-              </button>
-            </div>
+  <div class="relative flex h-full w-full items-center justify-center">
+    <div class="relative z-1 flex h-full w-full flex-col items-center justify-start gap-4 rounded-xl border-none p-4">
+      <div
+        class="flex w-full items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
+      >
+        <div class="flex flex-1 flex-wrap items-center gap-4 p-2">
+          <Settings :size="24" class="text-accent" />
+          <div>
+            <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">{{ t('pages.manage.setting.title') }}</h1>
           </div>
         </div>
       </div>
-    </div>
+      <div
+        class="relative flex h-full w-full flex-1 items-center justify-center overflow-hidden rounded-2xl border border-border-secondary p-1 shadow-md"
+      >
+        <div class="border4 no-scrollbar flex h-full w-full flex-1 flex-col gap-6 overflow-auto p-4">
+          <!-- Cache Info Card -->
+          <SettingSection :title="t('pages.manage.setting.section.cache')" :icon="Trash2Icon" only-one-row>
+            <CustomButton
+              type="secondary"
+              :icon="Trash2Icon"
+              class="bg-warning/20 p-4!"
+              :text="
+                t('pages.manage.setting.clearCache', {
+                  percent: dbSizeAvailableRate,
+                  size: formatFileSize(dbSize) || 0,
+                })
+              "
+              @click="handleConfirmClearDb"
+            />
+          </SettingSection>
 
-    <!-- General Settings Card -->
-    <div class="setting-card content-card">
-      <div class="card-content">
-        <div class="setting-section">
-          <CustomSwitch
-            v-for="item in switchFieldsConfigList"
-            :key="item.configName"
-            v-model="form[item.configName]"
-            :segments="item.segments"
-            :tooltip="item.tooltip"
-            :active-text="item.activeText"
-            :inactive-text="item.inactiveText"
-          />
-        </div>
-      </div>
-    </div>
+          <SettingSection :title="t('pages.manage.setting.section.general')" :icon="Settings">
+            <SettingCard>
+              <CustomSelect
+                v-model="form.pasteFormat"
+                :select-list="pasteFormatList"
+                :title="t('pages.manage.setting.copyFormat.title')"
+                :icon="Edit2Icon"
+              />
+            </SettingCard>
+            <SettingCard>
+              <CustomInput
+                v-model="form.customPasteFormat"
+                :title="t('pages.manage.setting.copyFormat.customTitle')"
+                :placeholder="t('pages.manage.setting.copyFormat.customTips')"
+              />
+            </SettingCard>
+            <SettingCard v-for="item in switchFieldsConfigList" :key="item.configName" class="mb-4" p1>
+              <CustomSwitch v-model="form[item.configName]" small no-border :tips="item.tooltip">
+                <template #custom-title>
+                  <span v-for="(segment, index) in item.segments" :key="index" :class="segment.class">
+                    {{ segment.text }}
+                  </span>
+                </template>
+                <template #switch-text>
+                  <span class="text-sm text-secondary">{{
+                    form[item.configName] ? item.activeText : item.inactiveText
+                  }}</span>
+                </template>
+              </CustomSwitch>
+            </SettingCard>
+          </SettingSection>
 
-    <!-- Custom Rename Pattern Card -->
-    <div v-if="form.customRename" class="setting-card content-card">
-      <div class="card-content">
-        <div class="setting-section">
-          <div class="section-header">
-            <h4 class="section-title">
-              {{ t('pages.manage.setting.customRenameTableTitle') }}
-            </h4>
-          </div>
-          <div class="form-group">
-            <input
+          <SettingSection
+            v-if="form.customRename"
+            :title="t('pages.manage.setting.section.naming')"
+            :icon="Edit2Icon"
+            only-one-row
+          >
+            <CustomInput
               v-model="form.customRenameFormat"
-              type="text"
-              class="form-input"
+              :title="t('pages.manage.setting.customRenameTablePlaceholder')"
               :placeholder="t('pages.manage.setting.customRenameTablePlaceholder')"
             />
-          </div>
+            <placeholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
+          </SettingSection>
 
-          <!-- Pattern Reference Table -->
-          <div class="pattern-table-container">
-            <table class="pattern-table">
-              <thead>
-                <tr>
-                  <th>{{ t('pages.manage.setting.placeholder') }}</th>
-                  <th>{{ t('pages.manage.setting.description') }}</th>
-                  <th>{{ t('pages.manage.setting.placeholder') }}</th>
-                  <th>{{ t('pages.manage.setting.description') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(row, index) in customRenameFormatTable" :key="index">
-                  <td class="clickable" @click="handleCellClick(row, { property: 'placeholder' })">
-                    {{ row.placeholder }}
-                  </td>
-                  <td>{{ row.description }}</td>
-                  <td class="clickable" @click="handleCellClick(row, { property: 'placeholderB' })">
-                    {{ row.placeholderB }}
-                  </td>
-                  <td>{{ row.descriptionB }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Special Settings Card -->
-    <div class="setting-card content-card">
-      <div class="card-content">
-        <div class="setting-section">
-          <!-- Special Switch Fields -->
-          <CustomSwitch
-            v-for="item in switchFieldsSpecialList"
-            :key="item.configName"
-            v-model="form[item.configName]"
-            :segments="item.segments"
-            :tooltip="item.tooltip"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Download Settings Card -->
-    <div class="setting-card content-card">
-      <div class="card-content">
-        <div class="setting-section">
-          <!-- Max Download File Count -->
-          <div class="form-group">
-            <div class="form-label-wrapper">
-              <span class="form-label">
-                {{ t('pages.manage.setting.maxDownLoadFileLimit') }}
-              </span>
-            </div>
-            <div class="form-control">
-              <input
+          <SettingSection :icon="Download" :title="t('pages.manage.setting.section.up-down')">
+            <SettingCard v-for="item in switchFieldsSpecialList" :key="item.configName" class="mb-4" p1>
+              <CustomSwitch v-model="form[item.configName]" small no-border :tips="item.tooltip">
+                <template #custom-title>
+                  <span v-for="(segment, index) in item.segments" :key="index" :class="segment.class">
+                    {{ segment.text }}
+                  </span>
+                </template>
+              </CustomSwitch>
+            </SettingCard>
+            <SettingCard>
+              <CustomInput
                 v-model.number="form.maxDownloadFileCount"
-                type="number"
-                class="form-input number-input"
+                :title="t('pages.manage.setting.maxDownLoadFileLimit')"
                 :placeholder="t('pages.manage.setting.maxDownLoadFileLimitDesc')"
+                type="number"
                 min="1"
                 max="9999"
                 step="1"
               />
-            </div>
-          </div>
-
-          <!-- PreSigned URL Expire -->
-          <div class="form-group">
-            <div class="form-label-wrapper">
-              <span class="form-label">
-                {{ t('pages.manage.setting.preSignedUrlExpire') }}
-              </span>
-            </div>
-            <div class="form-control">
-              <input
+            </SettingCard>
+            <SettingCard>
+              <CustomInput
                 v-model.number="form.PreSignedExpire"
-                type="number"
-                class="form-input number-input"
+                :title="t('pages.manage.setting.preSignedUrlExpire')"
                 :placeholder="t('pages.manage.setting.preSignedUrlExpireDesc')"
+                type="number"
                 min="1"
                 step="1"
               />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Copy Format Card -->
-    <div class="setting-card content-card">
-      <div class="card-content">
-        <div class="setting-section">
-          <div class="section-header">
-            <h4 class="section-title">
-              {{ t('pages.manage.setting.copyFormat.title') }}
-            </h4>
-          </div>
-          <div class="radio-group">
-            <label v-for="item in pasteFormatList" :key="`format-${item}`" class="radio-option">
-              <input v-model="form.pasteFormat" type="radio" :value="item" class="radio-input" :name="'paste-format'" />
-              <span class="radio-custom" />
-              <span class="radio-text">
-                {{ t(`pages.manage.setting.copyFormat.${item}`) }}
-              </span>
-            </label>
-          </div>
-
-          <!-- Custom Copy Format -->
-          <div class="form-group">
-            <div class="form-label-wrapper">
-              <span class="form-label">
-                {{ t('pages.manage.setting.copyFormat.customTitle') }}
-              </span>
-            </div>
-            <input
-              v-model="form.customPasteFormat"
-              type="text"
-              class="form-input"
-              :placeholder="t('pages.manage.setting.copyFormat.customTips')"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Download Folder Card -->
-    <div class="setting-card content-card">
-      <div class="card-content">
-        <div class="setting-section">
-          <div class="section-header">
-            <h4 class="section-title">
-              {{ t('pages.manage.setting.selectDownloadFolderTitle') }}
-            </h4>
-          </div>
-          <div class="form-group">
-            <div class="input-group">
-              <input
+            </SettingCard>
+            <SettingCard>
+              <CustomInput
                 v-model="form.downloadDir"
-                type="text"
-                class="form-input group-input"
-                disabled
+                :title="t('pages.manage.setting.selectDownloadFolderTitle')"
                 :placeholder="t('pages.manage.setting.defaultDownloadFolder')"
-              />
-              <button type="button" class="input-append-button" @click="handleDownloadDirClick">
-                <FolderIcon :size="16" />
-                {{ t('pages.manage.setting.browse') }}
-              </button>
-            </div>
-          </div>
+                disabled
+              >
+                <template #input-extra>
+                  <button
+                    type="button"
+                    class="absolute top-0 right-0 flex w-[10%] min-w-[80px] cursor-pointer items-center gap-2 rounded-md bg-accent px-4 py-3 text-sm font-medium text-white"
+                    @click="handleDownloadDirClick"
+                  >
+                    <FolderIcon :size="16" />
+                    {{ t('pages.manage.setting.browse') }}
+                  </button>
+                </template>
+              </CustomInput>
+            </SettingCard>
+          </SettingSection>
         </div>
       </div>
     </div>
@@ -215,15 +135,21 @@
 </template>
 
 <script lang="ts" setup>
-import { FolderIcon, Trash2Icon } from 'lucide-vue-next'
-import { nextTick, onBeforeMount, ref, watch } from 'vue'
+import { Download, Edit2Icon, FolderIcon, Settings, Trash2Icon } from 'lucide-vue-next'
+import { computed, nextTick, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import CustomButton from '@/components/common/CustomButton.vue'
+import CustomInput from '@/components/common/CustomInput.vue'
+import CustomSelect from '@/components/common/CustomSelect.vue'
+import CustomSwitch from '@/components/common/CustomSwitch.vue'
+import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
+import SettingCard from '@/components/common/SettingCard.vue'
+import SettingSection from '@/components/common/SettingSection.vue'
 import useConfirm from '@/hooks/useConfirm'
 import useMessage from '@/hooks/useMessage'
-import CustomSwitch from '@/manage/components/CustomSwitch.vue'
 import { fileCacheDbInstance } from '@/manage/store/bucketFileDb'
-import { customRenameFormatTable, formatFileSize } from '@/manage/utils/common'
+import { formatFileSize } from '@/manage/utils/common'
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
 
@@ -250,23 +176,18 @@ const form = ref<IStringKeyMap>({
   maxDownloadFileCount: 5,
   customRenameFormat: '{filename}',
 })
-
-const settingsKeys = Object.keys(form.value)
-
 const dbSize = ref(0)
 const dbSizeAvailableRate = ref('0')
 
-const pasteFormatList = ['markdown', 'markdown-with-link', 'rawurl', 'html', 'bbcode', 'custom']
-
-settingsKeys.forEach(key => {
-  watch(
-    () => form.value[key],
-    newValue => {
-      saveConfig({ [`settings.${key}`]: newValue })
-    },
-    { flush: 'post' },
-  )
-})
+const settingsKeys = Object.keys(form.value)
+const pasteFormatList = [
+  { label: t('pages.manage.setting.copyFormat.markdown'), value: 'markdown' },
+  { label: t('pages.manage.setting.copyFormat.markdown-with-link'), value: 'markdown-with-link' },
+  { label: t('pages.manage.setting.copyFormat.rawurl'), value: 'rawurl' },
+  { label: t('pages.manage.setting.copyFormat.html'), value: 'html' },
+  { label: t('pages.manage.setting.copyFormat.bbcode'), value: 'bbcode' },
+  { label: t('pages.manage.setting.copyFormat.custom'), value: 'custom' },
+]
 
 const switchFieldsList = [
   'isAutoRefresh',
@@ -282,35 +203,33 @@ const switchFieldsList = [
 ]
 const switchFieldsNoTipsList = ['isShowThumbnail', 'isUsePreSignedUrl']
 const switchFieldsHasActiveTextList = [] as string[]
-
 const switchFieldsConfigList = switchFieldsList.map(item => ({
   configName: item,
   segments: [
     {
       text: t(`pages.manage.setting.${item}Title` as any),
-      style: 'color: var(--color-text-primary);',
+      class: 'text-secondary text-sm font-semibold',
     },
   ],
   tooltip: switchFieldsNoTipsList.includes(item) ? undefined : t(`pages.manage.setting.${item}Tips` as any),
   activeText: switchFieldsHasActiveTextList.includes(item) ? t(`pages.manage.setting.${item}On` as any) : undefined,
   inactiveText: switchFieldsHasActiveTextList.includes(item) ? t(`pages.manage.setting.${item}Off` as any) : undefined,
 }))
-
 const switchFieldsSpecialList = [
   {
     configName: 'isDownloadFileKeepDirStructure',
     segments: [
       {
         text: t('pages.manage.setting.download'),
-        style: 'color: var(--color-text-primary);',
+        class: 'text-secondary text-sm font-semibold',
       },
       {
         text: t('pages.manage.setting.file'),
-        style: 'color: orange;',
+        class: 'text-warning text-sm font-semibold',
       },
       {
         text: t('pages.manage.setting.keepDirStructure'),
-        style: 'color: var(--color-text-primary);',
+        class: 'text-secondary text-sm font-semibold',
       },
     ],
     tooltip: t('pages.manage.setting.keepDirStructureDesc'),
@@ -320,20 +239,61 @@ const switchFieldsSpecialList = [
     segments: [
       {
         text: t('pages.manage.setting.download'),
-        style: 'color: var(--color-text-primary);',
+        class: 'text-secondary text-sm font-semibold',
       },
       {
         text: t('pages.manage.setting.folder'),
-        style: 'color: orange;',
+        class: 'text-warning text-sm font-semibold',
       },
       {
         text: t('pages.manage.setting.keepDirStructure'),
-        style: 'color: var(--color-text-primary);',
+        class: 'text-secondary text-sm font-semibold',
       },
     ],
     tooltip: t('pages.manage.setting.keepDirStructureDesc'),
   },
 ]
+
+settingsKeys.forEach(key => {
+  watch(
+    () => form.value[key],
+    newValue => {
+      saveConfig({ [`settings.${key}`]: newValue })
+    },
+    { flush: 'post' },
+  )
+})
+
+const advancedRenameList = computed(() => ({
+  categoryTime: [
+    { label: t('pages.settings.upload.placeholder.year4'), value: '{Y}' },
+    { label: t('pages.settings.upload.placeholder.year2'), value: '{y}' },
+    { label: t('pages.settings.upload.placeholder.month'), value: '{m}' },
+    { label: t('pages.settings.upload.placeholder.date'), value: '{d}' },
+    { label: t('pages.settings.upload.placeholder.hour'), value: '{h}' },
+    { label: t('pages.settings.upload.placeholder.minute'), value: '{i}' },
+    { label: t('pages.settings.upload.placeholder.second'), value: '{s}' },
+    { label: t('pages.settings.upload.placeholder.millisecond'), value: '{ms}' },
+    { label: t('pages.settings.upload.placeholder.timestamp'), value: '{timestamp}' },
+  ],
+  categoryHash: [
+    { label: t('pages.settings.upload.placeholder.md5'), value: '{md5}' },
+    { label: t('pages.settings.upload.placeholder.md5-16'), value: '{md5-16}' },
+    { label: t('pages.settings.upload.placeholder.uuid'), value: '{uuid}' },
+    { label: t('pages.settings.upload.placeholder.sha256'), value: '{sha256}' },
+    { label: t('pages.settings.upload.placeholder.sha256-n'), value: '{sha256-n}' },
+  ],
+  categoryFile: [
+    { label: t('pages.settings.upload.placeholder.filename'), value: '{filename}' },
+    { label: t('pages.settings.upload.placeholder.randomString'), value: '{str-number}' },
+  ],
+}))
+
+const advancedRenameTitleList = computed(() => ({
+  categoryTime: t('pages.settings.upload.placeholder.categoryTime'),
+  categoryHash: t('pages.settings.upload.placeholder.categoryHash'),
+  categoryFile: t('pages.settings.upload.placeholder.categoryFile'),
+}))
 
 async function initData() {
   const config = (await getConfig()) as IStringKeyMap
@@ -348,11 +308,6 @@ async function handleDownloadDirClick() {
   if (result) {
     form.value.downloadDir = result
   }
-}
-
-const handleCellClick = (row: any, column: any) => {
-  navigator.clipboard.writeText(row[column.property])
-  message.success(`${t('pages.manage.setting.copySuccess', { name: row[column.property] })}`)
 }
 
 function handleConfirmClearDb() {
@@ -394,5 +349,3 @@ onBeforeMount(() => {
   getIndexDbSize()
 })
 </script>
-
-<style scoped src="./css/ManageSetting.css"></style>

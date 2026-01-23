@@ -1,15 +1,33 @@
 <template>
   <Teleport to="body">
-    <div class="message-container">
-      <TransitionGroup name="message" tag="div">
-        <div v-for="message in messages" :key="message.id" class="message-toast" :class="getMessageClass(message.type)">
-          <div class="message-icon">
-            <component :is="getIconComponent(message.type)" :size="20" />
+    <div class="pointer-events-none fixed top-[34px] right-[20px] z-10000">
+      <TransitionGroup
+        name="message"
+        tag="div"
+        enter-active-class="transition-all duration-300 ease-in-out"
+        leave-active-class="transition-all duration-300 ease-in-out"
+        enter-from-class="opacity-0 translate-x-[100%]"
+        leave-to-class="opacity-0 translate-x-[100%]"
+      >
+        <div
+          v-for="message in messages"
+          :key="message.id"
+          class="flex-start group pointer-events-auto mb-2 flex max-w-96 min-w-80 gap-3 rounded-sm border border-gray-300 bg-white px-4 py-3 wrap-break-word shadow-sm [.message-error]:border-l-4 [.message-error]:border-l-danger [.message-info]:border-l-4 [.message-info]:border-l-accent [.message-success]:border-l-4 [.message-success]:border-l-success [.message-warning]:border-l-4 [.message-warning]:border-l-warning"
+          :class="getMessageClass(message.type)"
+        >
+          <div
+            class="mt-0.5 shrink-0 group-[.message-error]:text-danger group-[.message-info]:text-accent group-[.message-success]:text-success group-[.message-warning]:text-warning"
+          >
+            <component :is="getIconComponent(message.type)" :size="16" />
           </div>
-          <div class="message-content">
+          <div class="min-w-0 flex-1 text-sm leading-[1.25] font-medium wrap-break-word hyphens-auto text-secondary">
             {{ message.message }}
           </div>
-          <button v-if="message.showClose" class="message-close" @click="removeMessage(message.id)">
+          <button
+            v-if="message.showClose"
+            class="mt-0.5 flex shrink-0 cursor-pointer items-center justify-center rounded-sm border-none bg-none p-1 text-secondary hover:bg-danger/10"
+            @click="removeMessage(message.id)"
+          >
             <X :size="16" />
           </button>
         </div>
@@ -117,117 +135,3 @@ export default {
   name: 'MessageToast',
 }
 </script>
-
-<style scoped>
-.message-container {
-  position: fixed;
-  top: 34px;
-  right: 20px;
-  z-index: 3000;
-  pointer-events: none;
-}
-
-.message-toast {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
-  border: 1px solid rgb(229 231 235);
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  min-width: 20rem;
-  max-width: 24rem;
-  background: white;
-  box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 10%),
-    0 2px 4px -1px rgb(0 0 0 / 6%);
-  gap: 0.75rem;
-  pointer-events: all;
-  overflow-wrap: break-word;
-}
-
-.message-info {
-  border-left: 4px solid rgb(59 130 246);
-}
-
-.message-info .message-icon {
-  color: rgb(59 130 246);
-}
-
-.message-success {
-  border-left: 4px solid rgb(34 197 94);
-}
-
-.message-success .message-icon {
-  color: rgb(34 197 94);
-}
-
-.message-warning {
-  border-left: 4px solid rgb(245 158 11);
-}
-
-.message-warning .message-icon {
-  color: rgb(245 158 11);
-}
-
-.message-error {
-  border-left: 4px solid rgb(239 68 68);
-}
-
-.message-error .message-icon {
-  color: rgb(239 68 68);
-}
-
-.message-icon {
-  flex-shrink: 0;
-  margin-top: 0.125rem;
-}
-
-.message-content {
-  min-width: 0;
-  font-size: 0.875rem;
-  color: rgb(75 85 99);
-  flex: 1;
-  line-height: 1.25rem;
-  overflow-wrap: break-word;
-  hyphens: auto;
-}
-
-.message-close {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 0.125rem;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.25rem;
-  color: rgb(107 114 128);
-  background: none;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.message-close:hover {
-  color: rgb(75 85 99);
-  background: rgb(243 244 246);
-}
-
-/* Transition animations */
-.message-enter-active,
-.message-leave-active {
-  transition: all 0.3s ease;
-}
-
-.message-enter-from {
-  opacity: 0;
-  transform: translateX(100%);
-}
-
-.message-leave-to {
-  opacity: 0;
-  transform: translateX(100%);
-}
-
-.message-move {
-  transition: transform 0.3s ease;
-}
-</style>

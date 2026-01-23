@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <div id="config-form" class="no-scrollbar flex h-full w-full flex-1 overflow-auto">
-    <SettingSection clas="h-full flex-1" only-one-row>
+    <SettingSection class="h-full flex-1 border-none! shadow-none!" only-one-row>
       <SettingCard>
         <CustomInput
           v-model="ruleForm._configName"
@@ -18,12 +18,7 @@
       </SettingCard>
 
       <!-- Dynamic Config Fields -->
-      <SettingCard
-        v-for="(item, index) in configList"
-        :key="item.name + index"
-        :class="{ required: item.required }"
-        :p1="item.type === 'confirm'"
-      >
+      <SettingCard v-for="(item, index) in configList" :key="item.name + index" :p1="item.type === 'confirm'">
         <CustomInput
           v-if="item.type === 'input' || item.type === 'password'"
           v-model="ruleForm[item.name]"
@@ -31,11 +26,15 @@
           :placeholder="item.message || item.name"
           :class="{ 'border-error!': validationErrors[item.name] }"
           :title="item.alias || item.name"
+          :required="item.required || false"
           @input="clearFieldError(item.name)"
         >
           <template #title-extra>
             <div v-if="showTooltips && item.tips" class="relative">
-              <div class="info-icon" @click="toggleTooltip(item.name + index)">
+              <div
+                class="flex h-[20px] w-[20px] cursor-pointer items-center justify-center rounded-full p-[2px] text-secondary hover:bg-bg-secondary hover:text-accent"
+                @click="toggleTooltip(item.name + index)"
+              >
                 <Info :size="15" />
               </div>
               <div
@@ -53,24 +52,14 @@
           :description="item.message || ''"
           no-border
           small
+          :required="item.required || false"
+          :tips="item.tips"
           @change="clearFieldError(item.name)"
         >
           <template #switch-text>
             <span class="text-[0.925rem] font-semibold text-secondary">
               {{ ruleForm[item.name] ? item.confirmText || 'Yes' : item.cancelText || 'No' }}
             </span>
-          </template>
-          <template #title-extra>
-            <div v-if="showTooltips && item.tips" class="relative">
-              <div class="info-icon" @click="toggleTooltip(item.name + index)">
-                <Info :size="15" />
-              </div>
-              <div
-                v-show="visibleTooltips[item.name + index]"
-                class="absolute top-full left-0 z-1000 max-w-[300px] min-w-[200px] rounded-md border border-border bg-bg-secondary p-3 text-xs leading-[1.4] text-main shadow-lg max-md:max-w-[250px] max-md:min-w-[150px]"
-                v-html="transformMarkdownToHTML(item.tips)"
-              />
-            </div>
           </template>
         </CustomSwitch>
         <CustomSelect
@@ -79,6 +68,7 @@
           :title="item.alias || item.name"
           :placeholder="item.message || item.name"
           :class="{ 'border-danger': validationErrors[item.name] }"
+          :required="item.required || false"
           :select-list="
             item.choices.map(choice => ({
               value: choice.value || choice,
@@ -100,6 +90,7 @@
           :title="item.alias || item.name"
           :zero-placeholder="item.message || item.name"
           :icon="null"
+          :required="item.required || false"
           :all-list="
             item.choices.map(choice => ({
               type: choice.value || choice,

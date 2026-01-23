@@ -1,281 +1,248 @@
 <template>
-  <div class="login-container">
-    <!-- Header Card -->
-    <div class="login-card header-card">
-      <div class="card-header">
-        <div class="header-content">
-          <div class="header-icon">
-            <DatabaseIcon :size="24" />
-          </div>
+  <div class="relative flex h-full w-full items-center justify-center">
+    <div class="relative z-1 flex h-full w-full flex-col items-center justify-start gap-4 rounded-xl border-none p-4">
+      <div
+        class="flex w-full items-center justify-between gap-4 overflow-visible rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
+      >
+        <div class="flex flex-1 flex-wrap items-center gap-4 p-1">
+          <Cloud :size="24" class="text-accent" />
           <div>
-            <h1>{{ t('pages.manage.login.title') }}</h1>
-            <p>{{ sortedAllConfigAliasMap.length }} {{ t('pages.manage.login.savedConfigs') }}</p>
+            <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">{{ t('pages.manage.login.title') }}</h1>
+            <p class="m-0 text-sm text-secondary">
+              {{ sortedAllConfigAliasMap.length }} {{ t('pages.manage.login.savedConfigs') }}
+            </p>
           </div>
         </div>
-        <div class="header-actions">
-          <button class="action-button" @click="refreshConfigs">
-            <RefreshCwIcon :size="16" />
-            {{ t('pages.manage.login.refresh') }}
-          </button>
+        <div class="flex flex-wrap gap-3 overflow-visible">
+          <CustomButton
+            type="secondary"
+            :icon="RefreshCwIcon"
+            :text="t('pages.manage.login.refresh')"
+            @click="refreshConfigs"
+          />
+          <CustomButton type="secondary" :icon="BookOpen" :text="t('pages.settings.docs')" @click="goConfigPage" />
+          <CustomButton
+            type="primary"
+            :icon="Settings2"
+            :text="t('pages.manage.main.settings')"
+            @click="openBucketPageSetting"
+          />
         </div>
       </div>
-    </div>
 
-    <!-- Navigation Tabs -->
-    <div class="login-card tabs-card">
-      <div class="tabs-container">
-        <div class="tabs-nav-wrapper">
-          <div class="tabs-nav">
+      <!-- Navigation Tabs -->
+      <div
+        class="flex w-full items-center justify-between gap-2 rounded-2xl border border-border-secondary p-2 shadow-md max-md:items-stretch"
+      >
+        <div class="flex-1 overflow-hidden p-2">
+          <div class="flex w-full flex-wrap items-center gap-2">
             <button
               v-for="item in tabItems"
               :key="item.key"
-              class="tab-button"
+              class="transition-al flex min-w-fit flex-none cursor-pointer items-center gap-2 rounded-md border border-border-secondary bg-bg-secondary px-4 py-2 text-sm font-semibold whitespace-nowrap text-secondary no-underline duration-200 ease-apple hover:border-border hover:bg-accent/10 hover:text-main [.active]:border-accent [.active]:bg-accent [.active]:text-white"
               :class="{ active: activeName === item.key }"
               @click="handleTabChange(item.key)"
             >
               <FolderIcon v-if="item.key === 'login'" :size="16" />
-              <img v-else :src="`./assets/${item.key}.webp`" class="tab-icon" :alt="item.name" />
+              <img
+                v-else
+                :src="`./assets/${item.key}.webp`"
+                class="h-[16px] w-[16px] object-contain"
+                :alt="item.name"
+              />
               <span>{{ item.name }}</span>
             </button>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Content Area -->
-    <div class="login-card content-card">
-      <div class="tab-content">
-        <!-- Main Config List Tab -->
-        <div v-if="activeName === 'login'" class="config-list-container">
-          <div v-if="sortedAllConfigAliasMap.length === 0" class="empty-state">
-            <div class="empty-icon">
-              <DatabaseIcon :size="48" />
+      <!-- Content Area -->
+      <div
+        class="no-scrollbar flex min-h-[500px] w-full flex-1 flex-col flex-wrap items-center justify-center gap-2 overflow-auto rounded-2xl border border-border-secondary shadow-md"
+      >
+        <div class="no-scrollbar h-full w-full flex-1 overflow-auto rounded-2xl border-none">
+          <!-- Main Config List Tab -->
+          <div v-if="activeName === 'login'" class="h-full w-full p-4">
+            <div
+              v-if="sortedAllConfigAliasMap.length === 0"
+              class="flex h-full w-full flex-col items-center justify-center p-4"
+            >
+              <div class="mb-2 text-accent/50">
+                <DatabaseIcon :size="48" />
+              </div>
+              <h3 class="mb-2 text-lg font-semibold text-secondary">{{ t('pages.manage.login.noConfigs') }}</h3>
+              <p class="text-sm font-semibold text-secondary">{{ t('pages.manage.login.noConfigsDesc') }}</p>
             </div>
-            <h3>{{ t('pages.manage.login.noConfigs') }}</h3>
-            <p>{{ t('pages.manage.login.noConfigsDesc') }}</p>
-          </div>
-          <div v-else class="config-grid">
-            <div v-for="item in sortedAllConfigAliasMap" :key="item.alias" class="config-item">
-              <div class="config-header">
-                <img :src="`./assets/${item.picBedName}.webp`" class="config-icon" :alt="item.picBedName" />
-                <div class="config-info">
-                  <h4 class="config-alias">
-                    {{ item.alias }}
-                  </h4>
-                  <p class="config-type">
-                    {{ supportedPicBedList[item.picBedName]?.name || item.picBedName }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="config-details">
-                <button class="details-button" @click="toggleConfigDetails(item.alias)">
-                  <InfoIcon :size="14" />
-                  {{ t('pages.manage.login.viewDetails') }}
-                  <ChevronDownIcon :size="14" :class="{ rotated: expandedConfigs.includes(item.alias) }" />
-                </button>
-
-                <div v-if="expandedConfigs.includes(item.alias)" class="config-table">
-                  <div
-                    v-for="tableItem in formObjToTableData(item.config)"
-                    :key="tableItem.key"
-                    class="table-row"
-                    @click="copyToClipboard(tableItem.value)"
-                  >
-                    <span class="table-key">{{ tableItem.key }}</span>
-                    <span class="table-value">{{ tableItem.value }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="config-actions">
-                <button class="action-button primary" @click="handleConfigClick(item)">
-                  <PointerIcon :size="16" />
-                  {{ t('pages.manage.login.enter') }}
-                </button>
-                <button class="action-button danger" @click="handleConfigRemove(item.alias)">
-                  <TrashIcon :size="16" />
-                  {{ t('pages.manage.login.delete') }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PicBed Configuration Tabs -->
-        <div v-else class="picbed-config-container">
-          <div v-if="supportedPicBedList[activeName]" class="picbed-config">
-            <!-- Info Section -->
-            <div class="info-section">
-              <div class="info-card primary">
-                <InfoIcon :size="20" />
-                <p>{{ supportedPicBedList[activeName].explain }}</p>
-              </div>
-              <div class="info-card reference">
-                <LinkIcon :size="20" />
-                <p>
-                  {{ supportedPicBedList[activeName].referenceText }}
-                  <button class="link-button" @click="handleReferenceClick(supportedPicBedList[activeName].refLink)">
-                    {{ supportedPicBedList[activeName].refLink }}
-                  </button>
-                </p>
-              </div>
-            </div>
-
-            <!-- Configuration Form -->
-            <div class="config-form">
+            <div
+              v-else
+              class="grid w-full grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5 border-none p-1 max-md:gap-4"
+            >
               <div
-                v-for="option in supportedPicBedList[activeName].options"
-                :key="option"
-                class="form-group"
-                :class="{ 'has-error': formErrors[activeName + '.' + option] }"
+                v-for="item in sortedAllConfigAliasMap"
+                :key="item.alias"
+                class="group relative flex cursor-pointer flex-row gap-6 overflow-visible rounded-xl border border-border-secondary p-4 shadow-md transition-all duration-fast ease-apple hover:border-2 hover:border-accent"
               >
-                <label class="form-label">
-                  {{ supportedPicBedList[activeName].configOptions[option].description }}
-                  <span v-if="supportedPicBedList[activeName].configOptions[option].required" class="required-marker"
-                    >*</span
-                  >
-                  <button
-                    v-if="supportedPicBedList[activeName].configOptions[option].tooltip"
-                    class="tooltip-button"
-                    :title="supportedPicBedList[activeName].configOptions[option].tooltip"
-                  >
-                    <InfoIcon :size="14" />
-                  </button>
-                </label>
+                <div class="flex-1">
+                  <div class="mb-4 flex items-center gap-4">
+                    <img
+                      :src="`./assets/${item.picBedName}.webp`"
+                      class="h-[40px] w-[40px] object-contain"
+                      :alt="item.picBedName"
+                    />
+                    <div>
+                      <h4 class="mb-1 text-base font-semibold text-main">
+                        {{ item.alias }}
+                      </h4>
+                      <p class="m-0 text-sm text-secondary">
+                        {{ supportedPicBedList[item.picBedName]?.name || item.picBedName }}
+                      </p>
+                    </div>
+                  </div>
 
-                <!-- String Input -->
-                <input
-                  v-if="supportedPicBedList[activeName].configOptions[option].type === 'string'"
-                  v-model.trim="configResult[activeName + '.' + option]"
-                  type="text"
-                  class="form-input"
-                  :class="{ error: formErrors[activeName + '.' + option] }"
-                  :placeholder="supportedPicBedList[activeName].configOptions[option].placeholder"
-                  :disabled="!!supportedPicBedList[activeName].configOptions[option].disabled"
-                  @blur="validateField(activeName, option)"
-                  @input="clearFieldError(activeName + '.' + option)"
-                />
-
-                <!-- Boolean Switch -->
-                <label
-                  v-else-if="supportedPicBedList[activeName].configOptions[option].type === 'boolean'"
-                  class="custom-switch"
-                >
-                  <input
-                    v-model="configResult[activeName + '.' + option]"
-                    type="checkbox"
-                    @change="validateField(activeName, option)"
-                  />
-                  <span class="switch-slider" />
-                </label>
-
-                <!-- Number Input -->
-                <input
-                  v-else-if="supportedPicBedList[activeName].configOptions[option].type === 'number'"
-                  v-model.number="configResult[activeName + '.' + option]"
-                  type="number"
-                  class="form-input"
-                  :class="{ error: formErrors[activeName + '.' + option] }"
-                  :placeholder="supportedPicBedList[activeName].configOptions[option].placeholder"
-                  @blur="validateField(activeName, option)"
-                  @input="clearFieldError(activeName + '.' + option)"
-                />
-
-                <!-- Select Dropdown -->
-                <div
-                  v-else-if="supportedPicBedList[activeName].configOptions[option].type === 'select'"
-                  class="custom-select"
-                >
-                  <select
-                    v-model="configResult[activeName + '.' + option]"
-                    class="form-select"
-                    :class="{ error: formErrors[activeName + '.' + option] }"
-                    @change="validateField(activeName, option)"
-                  >
-                    <option value="">
-                      {{ t('pages.manage.login.selectPlaceholder') }}
-                    </option>
-                    <option
-                      v-for="[key, value] in Object.entries(
-                        supportedPicBedList[activeName].configOptions[option].selectOptions,
-                      )"
-                      :key="key"
-                      :value="key"
-                    >
-                      {{ value }}
-                    </option>
-                  </select>
-                </div>
-
-                <!-- Error Message -->
-                <div v-if="formErrors[activeName + '.' + option]" class="error-message">
-                  {{ formErrors[activeName + '.' + option] }}
-                </div>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="action-section">
-              <div class="import-section">
-                <div v-if="currentAliasList.length > 0" class="dropdown-container">
-                  <button class="dropdown-trigger action-button secondary" @click="toggleImportDropdown">
-                    <DownloadIcon :size="16" />
-                    {{ t('pages.manage.login.import') }}
-                    <ChevronDownIcon :size="16" />
-                  </button>
-                  <div v-if="importDropdownOpen" class="dropdown-menu">
+                  <div class="relative">
                     <button
-                      v-for="alias in currentAliasList"
-                      :key="alias"
-                      class="dropdown-item"
-                      @click="handleConfigImport(alias)"
+                      class="flex cursor-pointer items-center gap-2 rounded-xl border-none bg-accent/5 p-2 text-sm text-secondary hover:text-main"
+                      @click="toggleConfigDetails(item.alias)"
                     >
-                      {{ alias }}
+                      <InfoIcon :size="14" />
+                      {{ t('pages.manage.login.viewDetails') }}
+                      <ChevronDownIcon :size="14" :class="{ 'rotate-180': expandedConfigs.includes(item.alias) }" />
                     </button>
+                    <Teleport v-if="expandedConfigs.includes(item.alias)" to="body">
+                      <div
+                        class="fixed top-1/3 left-1/2 z-1000 h-auto max-h-[400px] w-auto max-w-[900px] min-w-[200px] -translate-x-1/2 overflow-auto rounded-xl border border-slate-200 bg-white shadow-xl ring-1 ring-black/5"
+                      >
+                        <div class="relative">
+                          <button
+                            class="absolute top-2 right-2 z-10000 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-elevated text-secondary transition-all duration-fast ease-apple hover:scale-105 hover:border-danger hover:bg-danger hover:text-white focus-visible:focus-ring"
+                            @click="toggleConfigDetails(item.alias)"
+                          >
+                            <XIcon :size="20" />
+                          </button>
+                          <table class="relative w-full table-fixed border-collapse text-left text-[13px]">
+                            <thead class="sticky top-0 z-10 bg-slate-50 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
+                              <tr>
+                                <th class="w-1/3 px-4 py-2.5 font-semibold text-slate-500">Name</th>
+                                <th class="w-2/3 px-4 py-2.5 font-semibold text-slate-500">Value</th>
+                              </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                              <tr
+                                v-for="tableItem in formObjToTableData(item.config)"
+                                :key="tableItem.key"
+                                class="group cursor-pointer hover:bg-indigo-50/50"
+                                @click="copyToClipboard(tableItem.value)"
+                              >
+                                <td class="px-4 py-2.5 font-medium text-slate-700">
+                                  {{ tableItem.key }}
+                                </td>
+                                <td class="relative px-4 py-2.5 font-mono text-slate-500">
+                                  <div class="wrap-break-word group-hover:pr-10" :title="tableItem.value">
+                                    {{ tableItem.value }}
+                                  </div>
+                                  <div
+                                    class="absolute top-1/2 right-2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100"
+                                  >
+                                    <span class="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] text-accent">
+                                      {{ t('pages.gallery.copy') }}
+                                    </span>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </Teleport>
                   </div>
                 </div>
-              </div>
-
-              <div class="main-actions">
-                <button class="action-button primary" @click="handleConfigChange(activeName)">
-                  <SaveIcon :size="16" />
-                  {{ t('pages.manage.login.save') }}
-                </button>
-                <button class="action-button danger" @click="handleConfigReset(activeName)">
-                  <RotateCcwIcon :size="16" />
-                  {{ t('pages.manage.login.reset') }}
-                </button>
-              </div>
-            </div>
-
-            <!-- Existing Configurations Table -->
-            <div v-if="dataForTable.length > 0" class="config-table-section">
-              <h3>{{ t('pages.manage.login.configTabTitle') }}</h3>
-              <div class="responsive-table">
-                <table class="config-table">
-                  <thead>
-                    <tr>
-                      <th v-for="option in supportedPicBedList[activeName].options" :key="option">
-                        {{ supportedPicBedList[activeName].configOptions[option].description }}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(row, index) in dataForTable" :key="index">
-                      <td
-                        v-for="option in supportedPicBedList[activeName].options"
-                        :key="option"
-                        @click="copyToClipboard(row[option])"
-                      >
-                        {{ row[option] }}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                <div class="flex flex-col items-center justify-end gap-4">
+                  <CustomButton
+                    type="primary"
+                    :icon="PointerIcon"
+                    :text="t('pages.manage.login.enter')"
+                    @click="handleConfigClick(item)"
+                  />
+                  <CustomButton
+                    type="danger"
+                    class="border border-border bg-danger/70 opacity-0 transition-all duration-fast ease-apple group-hover:opacity-100 hover:bg-danger"
+                    icon-class="text-white "
+                    text-class="text-white font-semibold text-sm "
+                    :icon="TrashIcon"
+                    :text="t('pages.manage.login.delete')"
+                    @click="handleConfigRemove(item.alias)"
+                  />
+                </div>
               </div>
             </div>
           </div>
+          <div
+            v-else-if="editMode === false"
+            class="flex h-full w-full flex-1 items-center gap-4 overflow-hidden rounded-2xl border border-border-secondary px-4 py-6 shadow-md"
+          >
+            <div class="no-scrollbar h-full w-full overflow-auto rounded-sm">
+              <div
+                class="grid w-full grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5 border-none p-1 max-md:gap-4"
+              >
+                <div
+                  v-for="(item, index) in existingConfiguration"
+                  :key="item.alias + index"
+                  class="relative flex min-h-[180px] cursor-pointer flex-col gap-6 overflow-hidden rounded-xl border border-border p-5 shadow-md transition-all duration-fast ease-apple hover:border-2 hover:border-accent hover:shadow-md"
+                >
+                  <!-- Card Header -->
+                  <div class="relative z-1 flex flex-1 items-start justify-between">
+                    <div
+                      class="peer flex h-[40px] w-[40px] items-center justify-center rounded-lg border border-border-secondary text-accent transition-all duration-fast ease-apple"
+                    >
+                      <Cloud :size="20" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5 transition-all duration-fast ease-apple">
+                      <button
+                        class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/30 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:border-accent hover:text-accent"
+                        :title="t('pages.uploaderConfig.edit')"
+                        @click.stop="openEditPage(item.alias)"
+                      >
+                        <Pencil :size="14" />
+                      </button>
+                      <button
+                        class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border bg-danger/10 text-danger transition-all duration-fast ease-standard hover:scale-105 hover:border-danger hover:text-danger"
+                        :title="t('pages.uploaderConfig.delete')"
+                        @click.stop="() => handleConfigRemove(item.alias)"
+                      >
+                        <Trash2 :size="14" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Card Body -->
+                  <div class="relative z-1 flex-1">
+                    <h3 class="mx-0 mt-0 mb-2 text-base leading-[1.4] font-semibold tracking-tight text-main">
+                      {{ item.alias }}
+                    </h3>
+                  </div>
+                </div>
+                <div
+                  key="add-new"
+                  class="group/new relative flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-6 overflow-hidden rounded-xl border-2 border-dashed border-border p-5 shadow-sm transition-all duration-fast ease-apple hover:border-solid hover:border-accent hover:bg-surface hover:shadow-md"
+                  @click="openEditPage('')"
+                >
+                  <div class="flex flex-col items-center gap-3 transition-all duration-fast ease-apple">
+                    <div
+                      class="flex h-[56px] w-[56px] items-center justify-center rounded-xl border-2 border-dashed border-border text-tertiary transition-all duration-fast ease-apple group-hover/new:scale-105 group-hover/new:border-solid group-hover/new:border-accent group-hover/new:bg-accent/5 group-hover/new:text-accent"
+                    >
+                      <Plus :size="24" />
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                      <span class="text-base font-semibold text-secondary">{{ t('pages.uploaderConfig.addNew') }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <template v-else-if="editMode">
+            <ManageEditPage v-model:edit-mode="editMode" :alias-name="editingAlias" :active-name="activeName" />
+          </template>
         </div>
       </div>
     </div>
@@ -284,31 +251,37 @@
 
 <script lang="ts" setup>
 import {
+  BookOpen,
   ChevronDownIcon,
+  Cloud,
   DatabaseIcon,
-  DownloadIcon,
   FolderIcon,
   InfoIcon,
-  LinkIcon,
+  Pencil,
+  Plus,
   PointerIcon,
   RefreshCwIcon,
-  RotateCcwIcon,
-  SaveIcon,
+  Settings2,
+  Trash2,
   TrashIcon,
+  XIcon,
 } from 'lucide-vue-next'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
+import CustomButton from '@/components/common/CustomButton.vue'
 import useConfirm from '@/hooks/useConfirm'
 import useMessage from '@/hooks/useMessage'
+import ManageEditPage from '@/manage/pages/ManageEditPage.vue'
 import { useManageStore } from '@/manage/store/manageStore'
 import { formObjToTableData } from '@/manage/utils/common'
 import { supportedPicBedList } from '@/manage/utils/constants'
 import { getConfig, removeConfig, saveConfig } from '@/manage/utils/dataSender'
 import { formatEndpoint } from '@/utils/common'
+import { configPaths } from '@/utils/configPaths'
 import { getConfig as getPicBedsConfig } from '@/utils/dataSender'
-import { IRPCActionType } from '@/utils/enum'
+import { II18nLanguage, IRPCActionType } from '@/utils/enum'
 
 const { t } = useI18n()
 const manageStore = useManageStore()
@@ -316,10 +289,10 @@ const router = useRouter()
 const message = useMessage()
 const { confirm } = useConfirm()
 
+const editMode = ref(false)
+const editingAlias = ref('')
 const activeName = ref('login')
 const expandedConfigs = ref<string[]>([])
-const importDropdownOpen = ref(false)
-
 const configResult: IStringKeyMap = reactive({})
 const existingConfiguration = reactive({} as IStringKeyMap)
 const dataForTable = reactive([] as any[])
@@ -359,77 +332,6 @@ const importedNewConfig: IStringKeyMap = {}
 
 const notifyUser = (msg: string, type: 'success' | 'error' | 'warning' = 'success') => {
   message[type](`${msg}`)
-}
-
-const validateField = (picBedName: string, optionKey: string) => {
-  const fieldKey = `${picBedName}.${optionKey}`
-  const configOption = supportedPicBedList[picBedName]?.configOptions?.[optionKey]
-  const value = configResult[fieldKey]
-
-  if (!configOption) return
-
-  delete formErrors[fieldKey]
-
-  if (configOption.required) {
-    if (configOption.type === 'boolean') {
-    } else if (!value || value === '') {
-      formErrors[fieldKey] = t('pages.manage.constant.pleaseInput', { name: configOption.description })
-      return
-    }
-  }
-
-  if (configOption.rule && Array.isArray(configOption.rule)) {
-    for (const rule of configOption.rule) {
-      if (rule.validator) {
-        try {
-          rule.validator(rule, value, (error: Error | null) => {
-            if (error) {
-              formErrors[fieldKey] = error.message
-            }
-          })
-        } catch (e) {
-          console.error('Validation error:', e)
-        }
-      } else if (rule.type === 'number' && value !== undefined && value !== '') {
-        if (isNaN(Number(value))) {
-          formErrors[fieldKey] = rule.message || t('pages.manage.constant.itemsPPBeNumber')
-          return
-        }
-      }
-    }
-  }
-
-  if (optionKey === 'alias' && value) {
-    const reg = /^[\p{Unified_Ideograph}_a-zA-Z0-9-]+$/u
-    if (!reg.test(value)) {
-      formErrors[fieldKey] = t('pages.manage.login.aliasMsg')
-    }
-  }
-
-  if (optionKey === 'itemsPerPage' && value !== undefined && value !== '') {
-    const numValue = Number(value)
-    if (numValue < 20 || numValue > 1000) {
-      formErrors[fieldKey] = t('pages.manage.login.itemsPerPageMsg')
-    }
-  }
-}
-
-const clearFieldError = (fieldKey: string) => {
-  delete formErrors[fieldKey]
-}
-
-const validateAllFields = (picBedName: string): boolean => {
-  const options = supportedPicBedList[picBedName]?.options || []
-  let isValid = true
-
-  for (const option of options) {
-    validateField(picBedName, option)
-    if (formErrors[`${picBedName}.${option}`]) {
-      isValid = false
-    }
-  }
-
-  return isValid
 }
 
 const initializeDefaultValues = (picBedName: string) => {
@@ -486,88 +388,10 @@ async function getExistingConfig(name: string) {
   handleConfigImport(currentAliasList[0])
 }
 
-function getAliasList() {
-  return Object.values(existingConfiguration).map(item => item.alias)
-}
-
-async function handleConfigChange(name: string) {
-  if (!validateAllFields(name)) {
-    notifyUser(t('pages.manage.login.noRequiredMsg'), 'error')
-    return
-  }
-
-  const aliasList = getAliasList()
-  const allKeys = Object.keys(supportedPicBedList[name].configOptions)
-  const resultMap: IStringKeyMap = {}
-
-  for (const key of allKeys) {
-    const resultKey = name + '.' + key
-    if (key === 'customUrl' && configResult[resultKey] !== undefined && configResult[resultKey] !== '') {
-      if (name !== 'upyun') {
-        configResult[resultKey] = formatEndpoint(configResult[resultKey], false)
-      }
-    }
-
-    if (supportedPicBedList[name].configOptions[key].default !== undefined && configResult[resultKey] === '') {
-      resultMap[key] = supportedPicBedList[name].configOptions[key].default
-    } else if (configResult[resultKey] === undefined) {
-      if (supportedPicBedList[name].configOptions[key].default !== undefined) {
-        resultMap[key] = supportedPicBedList[name].configOptions[key].default
-      } else {
-        resultMap[key] = ''
-      }
-    } else {
-      resultMap[key] = configResult[resultKey]
-    }
-  }
-  resultMap.picBedName = name
-  if (resultMap.bucketName !== undefined) {
-    resultMap.transformedConfig = {}
-    const bucketName = resultMap.bucketName.split(',')
-    const baseDir = resultMap.baseDir?.split(',')
-    const area = resultMap.area?.split(',')
-    const customUrl = resultMap.customUrl?.split(',')
-    const operator = resultMap.operator?.split(',')
-    const password = resultMap.password?.split(',')
-    for (let i = 0; i < bucketName.length; i++) {
-      if (bucketName[i]) {
-        resultMap.transformedConfig[bucketName[i]] = {
-          baseDir: baseDir?.[i] || '/',
-          area: area?.[i] || '',
-          customUrl: customUrl?.[i] || '',
-          operator: operator?.[i] || '',
-          password: password?.[i] || '',
-        }
-      }
-    }
-  }
-  if (resultMap.transformedConfig) {
-    resultMap.transformedConfig = JSON.stringify(resultMap.transformedConfig)
-  }
-  saveConfig(`picBed.${resultMap.alias}`, resultMap)
-  await manageStore.refreshConfig()
-  await getExistingConfig(activeName.value)
-  dataForTable.length = 0
-  getDataForTable()
-  if (aliasList.includes(resultMap.alias)) {
-    notifyUser(`${t('pages.manage.login.configChangeMsg')}${resultMap.alias}`, 'warning')
-  } else {
-    notifyUser(`${t('pages.manage.login.configSaveMsg')}${resultMap.alias}`, 'success')
-  }
-}
-
-const handleConfigReset = (name: string) => {
-  const keys = Object.keys(formErrors).filter(key => key.startsWith(name))
-  keys.forEach(key => {
-    delete formErrors[key]
+function openBucketPageSetting() {
+  router.push({
+    path: '/main-page/manage-setting-page',
   })
-
-  const configKeys = Object.keys(configResult).filter(key => key.startsWith(name))
-  configKeys.forEach(key => {
-    delete configResult[key]
-  })
-
-  initializeDefaultValues(name)
 }
 
 const handleConfigRemove = async (name: string) => {
@@ -611,8 +435,6 @@ const copyToClipboard = (text: string) => {
   notifyUser(`${t('pages.manage.login.copySuccess', { text })}`, 'success')
 }
 
-const handleReferenceClick = (url: string) => window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
-
 const handleConfigClick = async (item: any) => {
   const alias = item.alias
   const config = JSON.stringify(item.config)
@@ -629,6 +451,11 @@ const handleConfigClick = async (item: any) => {
   })
 }
 
+function openEditPage(alias: string) {
+  editingAlias.value = alias
+  editMode.value = true
+}
+
 function handleConfigImport(alias: string) {
   const selectedConfig = existingConfiguration[alias]
   if (!selectedConfig) return
@@ -641,6 +468,7 @@ function handleConfigImport(alias: string) {
 }
 
 const handleTabChange = (tabName: string) => {
+  editMode.value = false
   activeName.value = tabName
   getExistingConfig(tabName)
 
@@ -653,17 +481,13 @@ const handleTabChange = (tabName: string) => {
   }
 }
 
-const toggleConfigDetails = (alias: string) => {
+const toggleConfigDetails = async (alias: string) => {
   const index = expandedConfigs.value.indexOf(alias)
   if (index > -1) {
     expandedConfigs.value.splice(index, 1)
   } else {
     expandedConfigs.value.push(alias)
   }
-}
-
-const toggleImportDropdown = () => {
-  importDropdownOpen.value = !importDropdownOpen.value
 }
 
 const refreshConfigs = () => {
@@ -714,6 +538,12 @@ async function getCurrentConfigList() {
   }
 
   await getAllConfigAliasArray()
+}
+
+async function goConfigPage() {
+  const lang = (await getConfig(configPaths.settings.language)) || II18nLanguage.ZH_CN
+  const url = `https://piclist.cn/${lang === II18nLanguage.EN ? 'en/' : ''}manage.html`
+  window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
 }
 
 function isImported(alias: string) {
@@ -967,5 +797,3 @@ onMounted(() => {
   getCurrentConfigList()
 })
 </script>
-
-<style scoped src="./css/LoginPage.css"></style>

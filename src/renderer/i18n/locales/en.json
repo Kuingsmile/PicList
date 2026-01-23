@@ -62,7 +62,7 @@
     "copySuccess": "Copy Success",
     "expand": "Expand Sidebar",
     "gallery": "Gallery",
-    "manage": "Manage",
+    "manage": "Cloud",
     "moreOptions": "More Options",
     "picbed": "PicBed",
     "picBedQrCode": "PicBed QR Code",
@@ -462,7 +462,7 @@
           "webPathTips": "Used to assemble the public URL"
         },
         "smms": {
-          "explain": "For mainland China, please use the backup domain https://sm.ms and avoid sending too many requests in a short time",
+          "explain": "For mainland China, please use the backup domain https://smms.app and avoid sending too many requests in a short time",
           "tokenDesc": "SM.MS Token, available in your SM.MS profile",
           "tokenPlaceholder": "Please enter SM.MS Token"
         },
@@ -541,10 +541,10 @@
         "refresh": "Refresh",
         "reset": "Reset",
         "save": "Save",
-        "savedConfigs": "Saved Configurations",
+        "savedConfigs": "Enter Saved Cloud",
         "selectPlaceholder": "Please select",
         "tips": "Tips",
-        "title": "Image Host Management",
+        "title": "Cloud Management",
         "viewDetails": "View details"
       },
       "main": {
@@ -641,10 +641,17 @@
         "preSignedUrlExpireDesc": "Adjust based on actual needs",
         "randomStringRenameTips": "20 random characters",
         "randomStringRenameTitle": "Random string rename on upload (medium priority)",
+        "section": {
+          "cache": "Cache Settings",
+          "general": "General Settings",
+          "naming": "Naming Settings",
+          "up-down": "Upload/Download Settings"
+        },
         "selectDownloadFolderTips": "Select download directory",
         "selectDownloadFolderTitle": "Choose download folder",
         "timestampRenameTips": "When enabled, uploaded files will be renamed to a timestamp",
-        "timestampRenameTitle": "Timestamp rename on upload (highest priority)"
+        "timestampRenameTitle": "Timestamp rename on upload (highest priority)",
+        "title": "Manage General Settings"
       }
     },
     "picBedConfigs": {

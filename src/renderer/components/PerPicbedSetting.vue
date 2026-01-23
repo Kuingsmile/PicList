@@ -155,22 +155,6 @@ interface RadioOption {
   label: string
 }
 
-const {
-  mapField,
-  defaultValue,
-  globalValue = undefined,
-  inputType,
-  rangeMin = 0,
-  rangeMax = 100,
-  rangeStep = 1,
-  rangeSuffix = '',
-  numberMin = 0,
-  numberMax = 1000,
-  textPlaceholder = '',
-  selectOptions = [],
-  radioOptions = [],
-} = defineProps<Props>()
-
 interface Props {
   mapField: Record<string, any> | undefined
   defaultValue: any
@@ -187,6 +171,22 @@ interface Props {
   selectOptions?: SelectOption[]
   radioOptions?: RadioOption[]
 }
+
+const {
+  mapField,
+  defaultValue,
+  globalValue = undefined,
+  inputType,
+  rangeMin = 0,
+  rangeMax = 100,
+  rangeStep = 1,
+  rangeSuffix = '',
+  numberMin = 0,
+  numberMax = 1000,
+  textPlaceholder = '',
+  selectOptions = [],
+  radioOptions = [],
+} = defineProps<Props>()
 
 const emit = defineEmits<{
   mapChange: [picbedType: string, value: any]

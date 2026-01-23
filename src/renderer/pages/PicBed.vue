@@ -144,15 +144,6 @@ const currentPicbedType = $route.params.type as string
 
 type.value = $route.params.type as string
 
-onBeforeMount(async () => {
-  try {
-    await getPicBeds()
-    await getPicBedConfigList()
-  } catch (error) {
-    console.error('Initialization error:', error)
-  }
-})
-
 function toggleDropdown() {
   dropdownVisible.value = !dropdownVisible.value
 }
@@ -231,7 +222,6 @@ const handleReset = async () => {
   try {
     await window.electron.triggerRPC<void>(IRPCActionType.UPLOADER_RESET_CONFIG, type.value, $route.params.configId)
     message.success(t('pages.picBedConfigs.resetSuccess'))
-    $router.back()
   } catch (error) {
     console.error('Failed to reset configuration:', error)
     message.error(t('pages.picBedConfigs.resetFailed'))
@@ -278,6 +268,15 @@ async function handleCopyApi() {
     message.error(t('pages.picBedConfigs.copyAPIFailed'))
   }
 }
+
+onBeforeMount(async () => {
+  try {
+    await getPicBeds()
+    await getPicBedConfigList()
+  } catch (error) {
+    console.error('Initialization error:', error)
+  }
+})
 </script>
 
 <script lang="ts">

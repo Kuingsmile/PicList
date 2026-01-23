@@ -99,7 +99,13 @@
     </div>
 
     <!-- PicBed Switch Dialog -->
-    <transition name="modal">
+    <transition
+      name="modal"
+      enter-active-class="transition-all duration-200 ease-apple"
+      leave-active-class="transition-all duration-200 ease-apple"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
       <div v-if="picBedSwitchDialogVisible" class="dialog-overlay" @click="picBedSwitchDialogVisible = false">
         <div class="dialog-container" @click.stop>
           <div class="dialog-header">
