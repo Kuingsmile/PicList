@@ -1,14 +1,7 @@
-/* BucketPage Styles */
+@import "tailwindcss" reference;
+@import "../../../assets/css/theme.css" reference;
+@import "../../../assets/css/utilities.css" reference;
 
-.bucket-container {
-  position: relative;
-  display: flex;
-  overflow: hidden;
-  height: 100%;
-  padding: 0.25rem;
-  flex-direction: column;
-  gap: 1rem;
-}
 
 /* Header Card */
 .bucket-card {
@@ -197,8 +190,7 @@
 }
 
 .action-icon {
-  width: 16px;
-  height: 16px;
+  @apply w-[16px] h-[16px];
 }
 
 .search-input {
@@ -546,29 +538,9 @@
 }
 
 .file-action-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 0.375rem;
-  width: 32px;
-  height: 32px;
-  color: var(--color-text-secondary);
-  background: var(--color-background-secondary);
-  transition: var(--transition-fast);
-  cursor: pointer;
-}
-
-.file-action-button:hover {
-  color: var(--color-text-primary);
-  background: var(--color-surface);
-  transform: translateY(-1px);
-}
-
-.file-action-button.danger:hover {
-  color: var(--color-error);
-  background: rgb(239 68 68 / 10%);
+  @apply flex justify-center items-center border-none rounded-sm p-1.5 w-[32px] h-[32px] text-secondary bg-bg-secondary transition-all duration-fast ease-apple cursor-pointer;
+  @apply hover:bg-accent/10 hover:text-main hover:-translate-y-px;
+  @apply hover:[.danger]:text-error hover:[.danger]:bg-error/10;
 }
 
 .file-checkbox {

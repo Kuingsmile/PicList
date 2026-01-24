@@ -314,6 +314,7 @@
             <CustomSwitch
               v-model="formOfSetting.autoImport"
               small
+              no-border
               :title="t('pages.settings.upload.autoImportInManage')"
               :description="t('pages.settings.upload.autoImportInManageHint')"
             />

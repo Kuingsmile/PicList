@@ -13,7 +13,7 @@
 }
 
 .filter-group {
-  @apply flex flex-col gap-3 flex-1 min-w-[140px];
+  @apply flex flex-col gap-1 flex-1 min-w-[140px];
 }
 
 .filter-label {
@@ -59,32 +59,6 @@
   @apply not-disabled:hover:bg-accent;
   @apply disabled:opacity-50 disabled:cursor-not-allowed;
   @apply [.prev]:left-4 [.next]:right-4;
-}
-
-/* Modal Overlay */
-.modal-overlay {
-  @apply fixed inset-0 z-1000 flex justify-center items-center bg-[rgb(0_0_0_/50%)];
-}
-
-.modal-container {
-  @apply overflow-auto rounded-xl w-[90%] max-w-[700px] max-h-[90vh] bg-bg-tertiary shadow-lg;
-}
-
-.modal-header {
-  @apply flex justify-between items-center border-b border-border-secondary p-6;
-}
-
-.modal-close-btn {
-  @apply flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-elevated text-secondary transition-all duration-fast ease-apple;
-  @apply hover:scale-105 hover:border-danger hover:bg-danger hover:text-white focus-visible:focus-ring;
-}
-
-.modal-footer {
-  @apply flex justify-end border-t border-border-secondary p-6 gap-3;
-}
-
-.form-label {
-  @apply flex items-center mb-2 text-sm font-medium text-main gap-2;
 }
 
 .form-input {

@@ -53,9 +53,7 @@ const buildMiniPageMenu = () => {
       label: $t('HIDE_MINI_WINDOW'),
       click() {
         const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)
-        console.log('hide mini window', miniWindow)
         miniWindow?.close()
-        console.log('mini window closed')
       },
     },
     {

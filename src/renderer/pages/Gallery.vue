@@ -5,7 +5,7 @@
       class="relative z-1 no-scrollbar flex h-full w-full flex-col items-center justify-start gap-4 overflow-auto rounded-xl border-none p-4 shadow-sm"
     >
       <div
-        class="flex w-full items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
+        class="flex w-full items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-0 shadow-md max-md:items-stretch max-md:p-5"
       >
         <div class="flex flex-1 items-center gap-4 p-1">
           <ImagesIcon :size="24" class="text-accent" />
@@ -205,21 +205,21 @@
           v-else
           :key="componentKey"
           ref="virtualScrollerRef"
+          :items="filterList"
           :view-mode="viewMode"
           class="virtual-gallery-scroller min-h-0 w-full flex-1 p-3"
-          :items="filterList"
           :item-height="300"
           :grid-breakpoints="effectiveGridBreakpoints"
           key-field="key"
         >
           <template #default="{ item, index }">
             <div
-              class="group/image m-0 box-border flex h-[calc(100%-8px)] w-full cursor-pointer flex-col overflow-hidden rounded-lg border border-border-secondary transition-all duration-fast ease-apple hover:-translate-y-[2px] hover:border-border hover:shadow-md [.selected]:border-2 [.selected]:border-accent [.selected]:shadow-md"
+              class="group/image m-0 box-border flex h-[calc(100%-8px)] w-full cursor-pointer flex-col overflow-hidden rounded-lg border-2 border-border shadow-sm transition-all duration-fast ease-apple hover:-translate-y-[2px] hover:border-accent hover:shadow-md [.selected]:border-2 [.selected]:border-accent [.selected]:shadow-md"
               :class="{ selected: choosedList[item.id || ''] }"
               @click="handleChooseImage(!choosedList[item.id || ''], index)"
             >
               <div
-                class="relative flex aspect-auto min-h-0 flex-1 items-center justify-center overflow-hidden"
+                class="relative mb-2 flex aspect-auto min-h-0 flex-1 items-center justify-center overflow-hidden border-b border-dashed border-b-accent/40"
                 @click.stop="zoomImage(index)"
               >
                 <img
@@ -245,16 +245,16 @@
                 </div>
               </div>
 
-              <div class="flex min-h-[80px] shrink-0 flex-col justify-between p-3">
+              <div class="flex shrink-0 flex-col justify-between">
                 <div
-                  class="mb-3 overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-main"
+                  class="mb-1.5 overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-main"
                   :title="(item.fileName || '').toString().length > 30 ? item.fileName || '' : ''"
                 >
-                  {{ formatFileName(item.fileName || '') }}
+                  <div class="text-center">{{ formatFileName(item.fileName || '') }}</div>
                 </div>
 
-                <div class="flex items-center justify-between">
-                  <div class="flex gap-2">
+                <div class="mr-2 flex items-center justify-between">
+                  <div class="flex flex-1 justify-center gap-2">
                     <button :title="t('pages.gallery.copy')" class="icon-button copy-icon" @click.stop="copy(item)">
                       <ClipboardIcon :size="16" />
                     </button>
@@ -282,7 +282,7 @@
                       @change="e => handleChooseImage((e.target as HTMLInputElement).checked, index)"
                     />
                     <span
-                      class="relative inline-block h-[16px] w-[16px] rounded-sm border-2 border-border transition-all duration-fast ease-apple peer-checked:border-accent-hover peer-checked:bg-accent peer-checked:after:absolute peer-checked:after:top-[-2px] peer-checked:after:left-px peer-checked:after:text-[12px] peer-checked:after:font-bold peer-checked:after:text-white peer-checked:after:content-['✓']"
+                      class="relative inline-block h-[16px] w-[16px] rounded-sm border-2 border-accent/50 transition-all duration-fast ease-apple peer-checked:border-accent-hover peer-checked:bg-accent peer-checked:after:absolute peer-checked:after:top-[-2px] peer-checked:after:left-px peer-checked:after:text-[12px] peer-checked:after:font-bold peer-checked:after:text-white peer-checked:after:content-['✓']"
                     />
                   </label>
                 </div>
@@ -293,92 +293,11 @@
       </div>
     </div>
     <!-- Custom Image Preview Modal -->
-    <transition name="modal">
-      <div
-        v-if="gallerySliderControl.visible"
-        class="image-preview-modal fixed inset-0 z-1000 flex items-center justify-center outline-none"
-        tabindex="0"
-        @click.stop
-        @wheel="handleImageWheel"
-        @keydown="handleKeydown"
-      >
-        <div class="absolute inset-0 bg-black/50" :class="{ 'advanced-animation': enableAdvancedAnimation }" />
-        <div class="relative max-h-[90vh] max-w-[90vw] overflow-hidden rounded-xl bg-surface shadow-lg">
-          <button
-            class="absolute top-4 right-4 z-10 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-danger bg-danger/70 text-white hover:bg-danger hover:text-white"
-            @click="handleClose"
-          >
-            <XIcon :size="24" />
-          </button>
-
-          <!-- Zoom controls -->
-          <div class="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-lg bg-black/70 p-2">
-            <button class="zoom-btn" :disabled="imagePreviewState.scale <= 0.1" @click="zoomOut">
-              <span>-</span>
-            </button>
-            <span class="min-w-[50px] text-center text-sm font-medium text-white"
-              >{{ Math.round(imagePreviewState.scale * 100) }}%</span
-            >
-            <button class="zoom-btn" :disabled="imagePreviewState.scale >= 5" @click="zoomIn">
-              <span>+</span>
-            </button>
-            <button class="zoom-btn reset-btn" @click="resetImageTransform">Reset</button>
-          </div>
-
-          <div class="relative flex items-center">
-            <button
-              class="nav-button prev"
-              :disabled="gallerySliderControl.index === 0"
-              @click.stop="navigateImage(-1)"
-            >
-              <ChevronLeftIcon :size="24" />
-            </button>
-
-            <div
-              class="relative flex h-[80vh] w-[90vw] items-center justify-center overflow-hidden bg-black select-none active:cursor-grab!"
-              @mousedown="handleImageMouseDown"
-              @mousemove="handleImageMouseMove"
-              @mouseup="handleImageMouseUp"
-              @mouseleave="handleImageMouseUp"
-              @touchstart="handleImageTouchStart"
-              @touchmove="handleImageTouchMove"
-              @touchend="handleImageTouchEnd"
-            >
-              <img
-                ref="previewImageRef"
-                :src="currentPreviewImage?.src"
-                :alt="currentPreviewImage?.intro"
-                class="block h-auto max-h-none w-auto max-w-none origin-center object-contain"
-                :style="imageTransformStyle"
-                @load="onPreviewImageLoad"
-                @dragstart.prevent
-                @contextmenu.prevent
-              />
-            </div>
-
-            <button
-              class="nav-button next"
-              :disabled="gallerySliderControl.index === filterList.length - 1"
-              @click.stop="navigateImage(1)"
-            >
-              <ChevronRightIcon :size="24" />
-            </button>
-          </div>
-
-          <div class="flex items-center justify-between border border-border-secondary px-6 py-4">
-            <h3 class="m-0 mr-4 flex-1 overflow-hidden text-base font-semibold text-ellipsis text-main">
-              {{ currentPreviewImage?.intro }}
-            </h3>
-            <div class="mr-4 text-sm font-semibold whitespace-nowrap text-main">
-              {{ gallerySliderControl.index + 1 }} / {{ filterList.length }}
-            </div>
-            <div class="text-center text-xs font-medium text-main">
-              {{ t('pages.gallery.previewHelp') }}
-            </div>
-          </div>
-        </div>
-      </div>
-    </transition>
+    <ImagePreview
+      v-model:gallery-slider-control="gallerySliderControl"
+      :filter-list="filterList"
+      :is-always-force-reload="isAlwaysForceReload"
+    />
 
     <!-- Edit URL Modal -->
     <transition name="modal">
@@ -410,7 +329,7 @@
       >
         <div class="p-6">
           <div class="mb-6 last:mb-0">
-            <label class="form-label">
+            <label class="mb-2 flex items-center gap-2 text-sm font-medium text-main">
               {{ t('pages.gallery.regexPattern', { matched: matchedCount || 0 }) }}
             </label>
             <input
@@ -441,7 +360,7 @@
           </div>
 
           <div class="mb-6 last:mb-0">
-            <label class="form-label">
+            <label class="mb-2 flex items-center gap-2 text-sm font-medium text-main">
               {{ t('pages.gallery.replacedWith') }}
               <button
                 class="flex h-[20px] w-[20px] cursor-pointer items-center justify-around rounded-full border-none bg-accent text-white transition-all duration-fast ease-apple hover:bg-accent-hover"
@@ -456,60 +375,7 @@
           <!-- Format Info Panel -->
           <div v-if="showFormatInfo" class="mb-6 last:mb-0">
             <label>{{ t('pages.settings.upload.availablePlaceholders') }}</label>
-            <div
-              class="mt-3 max-h-[400px] overflow-y-auto rounded-lg border border-border bg-bg-tertiary p-0 shadow-sm"
-            >
-              <div class="border-b border-b-border last:border-b-0">
-                <div class="category-title">
-                  {{ t('pages.settings.upload.placeholder.categoryTime') }}
-                </div>
-                <div class="placeholder-grid">
-                  <div
-                    v-for="item in advancedRenameList.categoryTime"
-                    :key="item.value"
-                    class="placeholder-item"
-                    @click="copyPlaceholder(item.value)"
-                  >
-                    <code>{{ item.value }}</code>
-                    <span>{{ item.label }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="placeholder-category">
-                <div class="category-title">
-                  {{ t('pages.settings.upload.placeholder.categoryHash') }}
-                </div>
-                <div class="placeholder-grid">
-                  <div
-                    v-for="item in advancedRenameList.categoryHash"
-                    :key="item.value"
-                    class="placeholder-item"
-                    @click="copyPlaceholder(item.value)"
-                  >
-                    <code>{{ item.value }}</code>
-                    <span>{{ item.label }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="placeholder-category">
-                <div class="category-title">
-                  {{ t('pages.settings.upload.placeholder.categoryFile') }}
-                </div>
-                <div class="placeholder-grid">
-                  <div
-                    v-for="item in advancedRenameList.categoryFile"
-                    :key="item.value"
-                    class="placeholder-item"
-                    @click="copyPlaceholder(item.value)"
-                  >
-                    <code>{{ item.value }}</code>
-                    <span>{{ item.label }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <PlaceholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
           </div>
         </div>
         <template #footer>
@@ -526,8 +392,6 @@ import { useStorage } from '@vueuse/core'
 import {
   CheckSquareIcon,
   ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   ChevronUpIcon,
   ClipboardIcon,
   EditIcon,
@@ -560,7 +424,9 @@ import ALLApi from '@/apis/allApi'
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import MultiSelect from '@/components/common/MultiSelect.vue'
+import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
+import ImagePreview from '@/components/ImagePreview.vue'
 import VirtualScroller from '@/components/VirtualScroller.vue'
 import useConfirm from '@/hooks/useConfirm'
 import { usePicBed } from '@/hooks/useGlobal'
@@ -586,7 +452,6 @@ const { picBedG } = usePicBed()
 
 const images = ref<ImgInfo[]>([])
 const virtualScrollerRef = useTemplateRef('virtualScrollerRef')
-const previewImageRef = useTemplateRef('previewImageRef')
 const dialogVisible = ref(false)
 const imgInfo = reactive({
   id: '',
@@ -630,22 +495,15 @@ const userGridColumns = useStorage<number>('galleryGridColumns', 4)
 const imageLoadStates = reactive<Record<string, boolean>>({})
 const imageErrorStates = reactive<Record<string, boolean>>({})
 
-const imagePreviewState = reactive({
-  scale: 1,
-  translateX: 0,
-  translateY: 0,
-  isDragging: false,
-  startX: 0,
-  startY: 0,
-  startTranslateX: 0,
-  startTranslateY: 0,
-  isSwipeMode: false,
-  swipeStartX: 0,
-  swipeThreshold: 100,
-})
-
 const pasteStyleList = ['markdown', 'HTML', 'URL', 'UBB', 'Custom']
 const shortURLList = [t('pages.gallery.shortUrl'), t('pages.gallery.longUrl')]
+
+const advancedRenameTitleList = computed(() => ({
+  categoryTime: t('pages.settings.upload.placeholder.categoryTime'),
+  categoryHash: t('pages.settings.upload.placeholder.categoryHash'),
+  categoryFile: t('pages.settings.upload.placeholder.categoryFile'),
+}))
+
 const advancedRenameList = {
   categoryTime: [
     { label: t('pages.settings.upload.placeholder.year4'), value: '{Y}' },
@@ -711,45 +569,6 @@ const selectedCount = computed(() => {
   return Object.values(choosedList).filter(v => v).length
 })
 
-const currentPreviewImage = computed(() => {
-  const item = filterList.value[gallerySliderControl.index]
-  if (!item) return null
-  const cacheBustedItem = { ...item }
-  if (isAlwaysForceReload.value) {
-    if (cacheBustedItem.imgUrl) {
-      cacheBustedItem.imgUrl = addCacheBustParam(cacheBustedItem.imgUrl)
-    }
-    if (cacheBustedItem.galleryPath) {
-      cacheBustedItem.galleryPath = addCacheBustParam(cacheBustedItem.galleryPath)
-    }
-  }
-  const src = cacheBustedItem.src || cacheBustedItem.galleryPath || cacheBustedItem.imgUrl || ''
-  cacheBustedItem.src = isAlwaysForceReload.value ? addCacheBustParam(src) : src
-  return cacheBustedItem
-})
-
-const imageTransformStyle = computed(() => {
-  // Check if image overflows the viewport
-  const imageElement = previewImageRef.value
-  let isDraggable = false
-
-  if (imageElement && imageElement.naturalWidth && imageElement.naturalHeight) {
-    const viewerElement = imageElement.parentElement
-    if (viewerElement) {
-      const viewerRect = viewerElement.getBoundingClientRect()
-      const currentImageWidth = imageElement.naturalWidth * imagePreviewState.scale
-      const currentImageHeight = imageElement.naturalHeight * imagePreviewState.scale
-      isDraggable = currentImageWidth > viewerRect.width + 1 || currentImageHeight > viewerRect.height + 1
-    }
-  }
-
-  return {
-    transform: `translate(${imagePreviewState.translateX}px, ${imagePreviewState.translateY}px) scale(${imagePreviewState.scale})`,
-    cursor: imagePreviewState.isDragging ? 'grabbing' : isDraggable ? 'grab' : 'default',
-    transition: 'none',
-  }
-})
-
 const dateRange = computed({
   get: () => {
     if (dateRangeStart.value && dateRangeEnd.value) {
@@ -812,11 +631,6 @@ watch(searchTextURL, newVal => {
   }, 300)
 })
 
-function copyPlaceholder(placeholder: string) {
-  window.electron.clipboard.writeText(String(placeholder))
-  message.success(t('pages.settings.upload.copySuccess', { content: placeholder }))
-}
-
 function onImageLoad(id: string) {
   imageLoadStates[id] = true
 }
@@ -824,224 +638,6 @@ function onImageLoad(id: string) {
 function onImageError(id: string) {
   imageLoadStates[id] = false
   imageErrorStates[id] = true
-}
-
-function onPreviewImageLoad() {
-  nextTick(() => {
-    resetImageTransform()
-  })
-}
-
-function navigateImage(direction: number) {
-  const newIndex = gallerySliderControl.index + direction
-  if (newIndex >= 0 && newIndex < filterList.value.length) {
-    gallerySliderControl.index = newIndex
-    resetImageTransform()
-  }
-}
-
-function resetImageTransform() {
-  const optimalScale = calculateOptimalScale()
-  imagePreviewState.scale = optimalScale
-  imagePreviewState.translateX = 0
-  imagePreviewState.translateY = 0
-  imagePreviewState.isDragging = false
-}
-
-function calculateOptimalScale(): number {
-  const imageElement = previewImageRef.value
-  if (!imageElement) {
-    return 1
-  }
-  if (!imageElement.naturalWidth || !imageElement.naturalHeight) {
-    return 1
-  }
-  const viewerElement = imageElement.parentElement
-  if (!viewerElement) {
-    return 1
-  }
-
-  const viewerRect = viewerElement.getBoundingClientRect()
-  const viewerWidth = viewerRect.width
-  const viewerHeight = viewerRect.height
-
-  const imageWidth = imageElement.naturalWidth
-  const imageHeight = imageElement.naturalHeight
-  const scaleX = viewerWidth / imageWidth
-  const scaleY = viewerHeight / imageHeight
-  const optimalScale = Math.min(scaleX, scaleY, 1)
-
-  return optimalScale
-}
-
-function zoomIn() {
-  zoomToScale(Math.min(imagePreviewState.scale * 1.2, 5))
-}
-
-function zoomOut() {
-  const newScale = Math.max(imagePreviewState.scale / 1.2, 0.1)
-  zoomToScale(newScale)
-}
-
-function zoomToScale(newScale: number) {
-  const oldScale = imagePreviewState.scale
-  imagePreviewState.scale = newScale
-
-  const optimalScale = calculateOptimalScale()
-  if (newScale <= optimalScale) {
-    imagePreviewState.translateX = 0
-    imagePreviewState.translateY = 0
-  } else {
-    const scaleDiff = newScale / oldScale
-    imagePreviewState.translateX *= scaleDiff
-    imagePreviewState.translateY *= scaleDiff
-  }
-}
-
-function handleImageWheel(event: WheelEvent) {
-  event.preventDefault()
-  const delta = event.deltaY > 0 ? -1 : 1
-  const zoomFactor = 1.1
-  const newScale =
-    delta > 0 ? Math.min(imagePreviewState.scale * zoomFactor, 5) : Math.max(imagePreviewState.scale / zoomFactor, 0.1)
-
-  zoomToScale(newScale)
-}
-
-function handleKeydown(event: KeyboardEvent) {
-  switch (event.key) {
-    case 'ArrowLeft':
-      event.preventDefault()
-      navigateImage(-1)
-      break
-    case 'ArrowRight':
-      event.preventDefault()
-      navigateImage(1)
-      break
-    case 'Escape':
-      event.preventDefault()
-      handleClose()
-      break
-    case '=':
-    case '+':
-      event.preventDefault()
-      zoomIn()
-      break
-    case '-':
-      event.preventDefault()
-      zoomOut()
-      break
-    case '0':
-      event.preventDefault()
-      resetImageTransform()
-      break
-  }
-}
-
-function handleImageMouseDown(event: MouseEvent) {
-  const imageElement = previewImageRef.value
-  let isImageLargerThanViewer = false
-
-  if (imageElement && imageElement.naturalWidth && imageElement.naturalHeight) {
-    const viewerElement = imageElement.parentElement
-    if (viewerElement) {
-      const viewerRect = viewerElement.getBoundingClientRect()
-      const currentImageWidth = imageElement.naturalWidth * imagePreviewState.scale
-      const currentImageHeight = imageElement.naturalHeight * imagePreviewState.scale
-      isImageLargerThanViewer = currentImageWidth > viewerRect.width + 1 || currentImageHeight > viewerRect.height + 1
-    }
-  }
-
-  if (!isImageLargerThanViewer) {
-    imagePreviewState.isSwipeMode = true
-    imagePreviewState.swipeStartX = event.clientX
-  } else {
-    imagePreviewState.isDragging = true
-    imagePreviewState.startX = event.clientX
-    imagePreviewState.startY = event.clientY
-    imagePreviewState.startTranslateX = imagePreviewState.translateX
-    imagePreviewState.startTranslateY = imagePreviewState.translateY
-  }
-  event.preventDefault()
-}
-
-function handleImageMouseMove(event: MouseEvent) {
-  if (imagePreviewState.isDragging) {
-    const deltaX = event.clientX - imagePreviewState.startX
-    const deltaY = event.clientY - imagePreviewState.startY
-    imagePreviewState.translateX = imagePreviewState.startTranslateX + deltaX
-    imagePreviewState.translateY = imagePreviewState.startTranslateY + deltaY
-  }
-}
-
-function handleImageMouseUp(event: MouseEvent) {
-  if (imagePreviewState.isSwipeMode) {
-    const deltaX = event.clientX - imagePreviewState.swipeStartX
-    if (Math.abs(deltaX) > imagePreviewState.swipeThreshold) {
-      if (deltaX > 0) {
-        navigateImage(-1)
-      } else {
-        navigateImage(1)
-      }
-    }
-    imagePreviewState.isSwipeMode = false
-  }
-  imagePreviewState.isDragging = false
-}
-
-function handleImageTouchStart(event: TouchEvent) {
-  const touch = event.touches[0]
-  const imageElement = previewImageRef.value
-  let isImageLargerThanViewer = false
-
-  if (imageElement && imageElement.naturalWidth && imageElement.naturalHeight) {
-    const viewerElement = imageElement.parentElement
-    if (viewerElement) {
-      const viewerRect = viewerElement.getBoundingClientRect()
-      const currentImageWidth = imageElement.naturalWidth * imagePreviewState.scale
-      const currentImageHeight = imageElement.naturalHeight * imagePreviewState.scale
-      isImageLargerThanViewer = currentImageWidth > viewerRect.width + 1 || currentImageHeight > viewerRect.height + 1
-    }
-  }
-
-  if (!isImageLargerThanViewer) {
-    imagePreviewState.isSwipeMode = true
-    imagePreviewState.swipeStartX = touch.clientX
-  } else {
-    imagePreviewState.isDragging = true
-    imagePreviewState.startX = touch.clientX
-    imagePreviewState.startY = touch.clientY
-    imagePreviewState.startTranslateX = imagePreviewState.translateX
-    imagePreviewState.startTranslateY = imagePreviewState.translateY
-  }
-  event.preventDefault()
-}
-
-function handleImageTouchMove(event: TouchEvent) {
-  if (imagePreviewState.isDragging) {
-    const touch = event.touches[0]
-    const deltaX = touch.clientX - imagePreviewState.startX
-    const deltaY = touch.clientY - imagePreviewState.startY
-    imagePreviewState.translateX = imagePreviewState.startTranslateX + deltaX
-    imagePreviewState.translateY = imagePreviewState.startTranslateY + deltaY
-  }
-  event.preventDefault()
-}
-
-function handleImageTouchEnd(event: TouchEvent) {
-  if (imagePreviewState.isSwipeMode && event.changedTouches.length > 0) {
-    const touch = event.changedTouches[0]
-    const deltaX = touch.clientX - imagePreviewState.swipeStartX
-    if (Math.abs(deltaX) > imagePreviewState.swipeThreshold) {
-      if (deltaX > 0) {
-        navigateImage(-1)
-      } else {
-        navigateImage(1)
-      }
-    }
-    imagePreviewState.isSwipeMode = false
-  }
-  imagePreviewState.isDragging = false
 }
 
 function toggleViewMode() {
@@ -1214,20 +810,6 @@ function clearChoosedList() {
 function zoomImage(index: number) {
   gallerySliderControl.index = index
   gallerySliderControl.visible = true
-  resetImageTransform()
-
-  nextTick(() => {
-    const modal = document.querySelector('.image-preview-modal') as HTMLElement
-    if (modal) {
-      modal.focus()
-    }
-  })
-}
-
-function handleClose() {
-  gallerySliderControl.index = 0
-  gallerySliderControl.visible = false
-  resetImageTransform()
 }
 
 async function copy(item: ImgInfo) {

@@ -2,24 +2,42 @@
 
 ### 🚀 Performance Optimization
 
-- Reduced idle memory usage by 60-70% and memory usage when opening windows by 20%
+- Reduced **60-70%** idle memory usage and **20%** memory usage when opening windows.
+- Optimized loading speed and browsing performance for multiple pages
 
 ### ✨ New Features
 
-- Added portable mode on Windows, allowing the program to run without installation. Data is stored in the `data` folder within the program directory, and automatic updates are supported. Added `rpm` installation package for Linux
-- Added custom theme functionality, with a theme repository available at [PicList ThemeHub](https://github.com/Kuingsmile/PicList-ThemeHub)
-- 12 built-in themes available, such as bilibili, ACG, Night Purple styles
-- Refactored almost all pages, optimizing dozens of UI detail issues
-- Multiple optimizations on the album page, supporting display of the number of selected images, matching URL list, and remembering filter open state
-- Plugin page now allows browsing of all plugin lists, viewing details, and installation
-- Added tutorial guide page, which automatically pops up on first run
-- Now supports disabling GPU acceleration to resolve some compatibility issues
-- Added advanced animation settings for a better UI experience
-- Optimized the loading speed of multiple pages and browsing performance
+#### ⚙️ Core Features
+
+- Now supports manually disabling GPU acceleration to resolve black screen or flickering issues caused by some hardware compatibility.
+- Added advanced animation settings for a better UI interaction experience.
+- Windows portable mode, no installation required, data is stored in the `data` folder in the program directory, and supports automatic updates.
+- Added `rpm` installation package for Linux.
+- Added image hosting editing card page to solve confusion when switching multiple configurations.
+- Added list mode support for the file browsing page.
+
+#### 🎨 UI Interface
+
+- Integrated theme repository [PicList ThemeHub](https://github.com/Kuingsmile/PicList-ThemeHub), supporting custom downloads.
+- Provided 12 built-in themes (such as bilibili, 二次元, 极夜紫 styles).
+- Redesigned all pages of the management feature, refactored almost all business pages, and optimized dozens of UI details.
+  - Optimized album page card styles, clearer boundaries, and improved selection box visual effects.
+  - Optimized the display of multiple pages on narrow screens to avoid content overflow.
+  - Supported scrolling to display the full name when the file browsing sidebar name exceeds the width.
+- The album page supports displaying the number of selected items, matching URL lists, and remembering filter states.
+- Supports browsing the complete plugin list, viewing details, and one-click installation.
+- Added a new user guide page that automatically pops up on the first run.
+
+#### 📝 Others
+
+- The original "Management" feature has been renamed to **"Cloud"** to better reflect its actual functionality.
+- After resetting the image hosting, it no longer automatically returns to the previous page.
 
 ### 🐛 Bug Fixes
 
-- Fixed an issue where the sort dropdown in the management page displayed abnormally
-- Fixed an issue where the task page displayed incorrectly in dark mode
-- Fixed an issue where the default image bed button status on the image bed settings page did not update in time
-- Fixed an issue where the button status for independent watermark settings on the image bed watermark settings page did not update in time
+- Fixed the issue of abnormal display of the sorting dropdown box on the management page.
+- Fixed the issue where the image hosting list on the management page did not correctly highlight the currently selected item.
+- Fixed the display issue of the task page in dark mode.
+- Fixed the issue where the "Set as Default Image Hosting" button status on the image hosting settings page was not updated in a timely manner.
+- Fixed the issue where the independent watermark setting button status on the image hosting was not synchronized in the preprocessing settings page.
+- Fixed the issue where bottom elements of some pages were obscured.

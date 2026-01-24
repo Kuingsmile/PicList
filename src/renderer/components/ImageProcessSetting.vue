@@ -977,7 +977,7 @@
 
             <div class="form-group">
               <label class="title-text">{{ $t('pages.settings.upload.availablePlaceholders') }}</label>
-              <placeholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
+              <PlaceholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
             </div>
           </div>
         </div>
@@ -1014,7 +1014,7 @@ import { useI18n } from 'vue-i18n'
 import customRadioOption from '@/components/common/CustomRadioOption.vue'
 import customRange from '@/components/common/CustomRange.vue'
 import customSwitch from '@/components/common/CustomSwitch.vue'
-import placeholderTable from '@/components/common/PlaceholderTable.vue'
+import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
 import PerPicbedSetting from '@/components/PerPicbedSetting.vue'
 import { getRawData } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'

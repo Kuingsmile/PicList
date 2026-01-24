@@ -9,7 +9,7 @@
       >
         <div class="flex max-w-[calc(100%-300px)] flex-1 flex-wrap items-center gap-2 max-md:order-1">
           <button
-            class="provider-button group/provider flex w-auto min-w-[150px] shrink-0 cursor-pointer items-center gap-3 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-2 font-[inherit] duration-fast ease-standard hover:-translate-y-px hover:border-accent-hover/70 hover:bg-surface hover:shadow-sm focus-visible:focus-ring max-xs:w-full max-xs:min-w-[100px]"
+            class="provider-button group/provider flex w-auto min-w-[150px] shrink-0 cursor-pointer items-center gap-3 rounded-lg bg-bg-secondary px-4 py-2 font-[inherit] shadow-sm duration-fast ease-standard hover:-translate-y-px hover:border-accent-hover/70 hover:bg-surface hover:shadow-sm focus-visible:focus-ring max-xs:w-full max-xs:min-w-[100px]"
             :title="t('pages.upload.uploadViewHint')"
             @click="handlePicBedNameClick(picBedName)"
           >
@@ -47,7 +47,7 @@
             <button
               v-for="picbedType in favoritePicbeds"
               :key="picbedType.id"
-              class="group/badge relative flex w-[85px] shrink-0 cursor-pointer items-center gap-2 overflow-hidden rounded-md border border-border-secondary bg-bg-secondary pt-1.5 pr-2 pb-1.5 pl-3 text-xs font-medium whitespace-nowrap text-secondary transition-all duration-fast ease-standard select-none hover:-translate-y-px hover:border-accent-hover hover:bg-bg-tertiary hover:text-accent-hover [.is-active]:border-[0.1rem] [.is-active]:border-accent-hover [.is-active]:font-semibold [.show-delete]:pr-2"
+              class="group/badge relative flex w-[85px] shrink-0 cursor-pointer items-center gap-2 overflow-hidden rounded-md bg-bg-secondary pt-1.5 pr-2 pb-1.5 pl-3 text-xs font-medium whitespace-nowrap text-secondary shadow-sm transition-all duration-fast ease-standard select-none hover:-translate-y-px hover:border-accent-hover hover:bg-bg-tertiary hover:text-accent-hover [.is-active]:border-[0.1rem] [.is-active]:border-accent-hover [.is-active]:font-semibold [.show-delete]:pr-2"
               :class="{ 'is-active': isCurrentPicbed(picbedType), 'show-delete': longPressedBadge === picbedType.id }"
               :title="t('pages.upload.longPressToRemoveFromFavorites') + getPicbedName(picbedType)"
               @click="handleBadgeClick(picbedType)"
@@ -82,7 +82,7 @@
           </transition-group>
         </div>
         <div class="flex flex-wrap items-center gap-3 max-md:order-2 max-md:justify-stretch">
-          <div class="inline-flex overflow-hidden rounded-md border border-border-secondary bg-bg-secondary">
+          <div class="inline-flex overflow-hidden rounded-md bg-bg-secondary shadow-sm">
             <button
               class="segmented-button"
               :title="t('pages.upload.imageProcessNameSingle')"

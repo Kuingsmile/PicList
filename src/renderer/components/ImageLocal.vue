@@ -1,17 +1,22 @@
 <template>
-  <div class="image-container">
-    <div v-if="isLoading" class="loading-placeholder">
-      <div class="loading-spinner" />
+  <div class="relative flex h-full w-full items-center justify-center p-0">
+    <div v-if="isLoading" class="flex h-full w-full items-center justify-center">
+      <div class="h-[34px] w-[34px] animate-spin rounded-full border-3 border-t-3 border-border border-t-accent" />
     </div>
     <img
       v-else-if="!hasError"
       :src="isShowThumbnail && item.isImage ? base64Image : `./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
       alt=""
-      class="image"
+      class="h-full w-full object-contain"
       @load="handleImageLoad"
       @error="handleImageError"
     />
-    <img v-else :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`" alt="" class="image" />
+    <img
+      v-else
+      :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
+      alt=""
+      class="h-full w-full object-contain"
+    />
   </div>
 </template>
 
@@ -60,49 +65,3 @@ onBeforeMount(async () => {
   await createBase64Image()
 })
 </script>
-
-<style scoped>
-.image-container {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto;
-  width: 100%;
-  height: 100px;
-}
-
-.image {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-.loading-placeholder {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-}
-
-.loading-spinner {
-  border: 2px solid #e4e7ed;
-  border-top: 2px solid #409eff;
-  border-radius: var(--radius-round);
-  width: 24px;
-  height: 24px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-</style>

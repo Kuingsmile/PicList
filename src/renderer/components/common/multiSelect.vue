@@ -21,7 +21,7 @@
     </button>
     <div
       v-show="dropDownOpen"
-      class="multiselect-dropdown shadow-lg; fixed z-1000 mt-[2px] no-scrollbar max-h-[280px] min-w-[185px] overflow-y-auto rounded-md border border-border-secondary bg-bg-tertiary px-2 py-1.5 text-main"
+      class="multiselect-dropdown fixed z-10000 mt-[2px] max-h-[150px] min-w-[185px] overflow-y-auto rounded-md border border-border-secondary bg-bg-tertiary px-2 py-1.5 text-main shadow-lg"
     >
       <label
         v-for="item in allList"

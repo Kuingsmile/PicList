@@ -40,7 +40,7 @@
     >
       <div class="flex h-full w-full">
         <div
-          class="flex min-h-0 max-w-[400px] min-w-[120px] flex-col border-r-2 border-r-border transition-all duration-100 ease-out"
+          class="flex min-h-0 max-w-[400px] min-w-[40px] flex-col border-r-2 border-r-border transition-all duration-100 ease-out"
           :style="{ width: sidebarWidth + 'px' }"
         >
           <div class="shrink-0 border-b-2 border-b-border-secondary p-2">
