@@ -9,7 +9,7 @@
           <div>
             <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">{{ t('pages.manage.login.title') }}</h1>
             <p class="m-0 text-sm text-secondary">
-              {{ sortedAllConfigAliasMap.length }} {{ t('pages.manage.login.savedConfigs') }}
+              {{ sortedAllConfigAliasList.length }} {{ t('pages.manage.login.savedConfigs') }}
             </p>
           </div>
         </div>
@@ -40,7 +40,7 @@
               v-for="item in tabItems"
               :key="item.key"
               class="transition-al flex min-w-fit flex-none cursor-pointer items-center gap-2 rounded-md border border-border-secondary bg-bg-secondary px-4 py-2 text-sm font-semibold whitespace-nowrap text-secondary no-underline duration-200 ease-apple hover:border-border hover:bg-accent/10 hover:text-main [.active]:border-accent [.active]:bg-accent [.active]:text-white"
-              :class="{ active: activeName === item.key }"
+              :class="{ active: activePlatform === item.key }"
               @click="handleTabChange(item.key)"
             >
               <FolderIcon v-if="item.key === 'login'" :size="16" />
@@ -62,9 +62,9 @@
       >
         <div class="no-scrollbar h-full w-full flex-1 overflow-auto rounded-2xl border-none">
           <!-- Main Config List Tab -->
-          <div v-if="activeName === 'login'" class="h-full w-full p-4">
+          <div v-if="activePlatform === 'login'" class="h-full w-full p-4">
             <div
-              v-if="sortedAllConfigAliasMap.length === 0"
+              v-if="sortedAllConfigAliasList.length === 0"
               class="flex h-full w-full flex-col items-center justify-center p-4"
             >
               <div class="mb-2 text-accent/50">
@@ -78,7 +78,7 @@
               class="grid w-full grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5 border-none p-1 max-md:gap-4"
             >
               <div
-                v-for="item in sortedAllConfigAliasMap"
+                v-for="item in sortedAllConfigAliasList"
                 :key="item.alias"
                 class="group relative flex cursor-pointer flex-row gap-6 overflow-visible rounded-xl border border-border-secondary p-4 shadow-md transition-all duration-fast ease-apple hover:border-2 hover:border-accent"
               >
@@ -106,9 +106,9 @@
                     >
                       <InfoIcon :size="14" />
                       {{ t('pages.manage.login.viewDetails') }}
-                      <ChevronDownIcon :size="14" :class="{ 'rotate-180': expandedConfigs.includes(item.alias) }" />
+                      <ChevronDownIcon :size="14" :class="{ 'rotate-180': visibleConfigItems.includes(item.alias) }" />
                     </button>
-                    <Teleport v-if="expandedConfigs.includes(item.alias)" to="body">
+                    <Teleport v-if="visibleConfigItems.includes(item.alias)" to="body">
                       <div
                         class="fixed top-1/3 left-1/2 z-1000 h-auto max-h-[400px] w-auto max-w-[900px] min-w-[200px] -translate-x-1/2 overflow-auto rounded-xl border border-slate-200 bg-white shadow-xl ring-1 ring-black/5"
                       >
@@ -185,7 +185,7 @@
                 class="grid w-full grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5 border-none p-1 max-md:gap-4"
               >
                 <div
-                  v-for="(item, index) in existingConfiguration"
+                  v-for="(item, index) in platformConfigList"
                   :key="item.alias + index"
                   class="relative flex min-h-[180px] cursor-pointer flex-col gap-6 overflow-hidden rounded-xl border border-border p-5 shadow-md transition-all duration-fast ease-apple hover:border-2 hover:border-accent hover:shadow-md"
                 >
@@ -241,7 +241,12 @@
             </div>
           </div>
           <template v-else-if="editMode">
-            <ManageEditPage v-model:edit-mode="editMode" :alias-name="editingAlias" :active-name="activeName" />
+            <ManageEditPage
+              v-model:edit-mode="editMode"
+              :alias-name="editingAlias"
+              :platform-name="activePlatform"
+              @update:edit-mode="loadExistingSettings(activePlatform)"
+            />
           </template>
         </div>
       </div>
@@ -266,7 +271,7 @@ import {
   TrashIcon,
   XIcon,
 } from 'lucide-vue-next'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
@@ -280,7 +285,7 @@ import { supportedPicBedList } from '@/manage/utils/constants'
 import { getConfig, removeConfig, saveConfig } from '@/manage/utils/dataSender'
 import { formatEndpoint } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
-import { getConfig as getPicBedsConfig } from '@/utils/dataSender'
+import { getConfig as getPicListConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType } from '@/utils/enum'
 
 const { t } = useI18n()
@@ -291,101 +296,71 @@ const { confirm } = useConfirm()
 
 const editMode = ref(false)
 const editingAlias = ref('')
-const activeName = ref('login')
-const expandedConfigs = ref<string[]>([])
-const configResult: IStringKeyMap = reactive({})
-const existingConfiguration = reactive({} as IStringKeyMap)
-const dataForTable = reactive([] as any[])
-const allConfigAliasMap = reactive({} as IStringKeyMap)
-const currentAliasList = reactive([] as string[])
-const formErrors = reactive({} as IStringKeyMap)
+const activePlatform = ref('login')
+const visibleConfigItems = ref<string[]>([])
+const platformConfigList = ref<IStringKeyMap[]>([])
+const allConfigAliasList = ref<IStringKeyMap[]>([])
+const importedNewConfig: IStringKeyMap = {}
 
-const sortedAllConfigAliasMap = computed(() => {
-  return Object.values(allConfigAliasMap).sort((a, b) => {
+const PB_LIST = [
+  'aliyun',
+  'aws-s3',
+  'aws-s3-plist',
+  'github',
+  'imgur',
+  'local',
+  'qiniu',
+  'sftpplist',
+  'smms',
+  'tcyun',
+  'upyun',
+  'webdavplist',
+] as const
+
+const sortedAllConfigAliasList = computed(() => {
+  return allConfigAliasList.value.slice().sort((a, b) => {
     return a.picBedName.localeCompare(b.picBedName)
   })
 })
 
 const tabItems = computed(() => {
-  const items = [
-    {
-      key: 'login',
-      name: t('pages.manage.login.savedConfigs'),
-      icon: null,
-      iconComponent: FolderIcon,
-    },
-  ]
+  const staticItem = {
+    key: 'login',
+    name: t('pages.manage.login.savedConfigs'),
+    icon: null,
+    iconComponent: FolderIcon,
+  }
 
-  Object.values(supportedPicBedList).forEach((item: any) => {
-    items.push({
-      key: item.icon,
-      name: item.name,
-      icon: item.icon,
-      iconComponent: null as any,
-    })
-  })
+  const dynamicItems = Object.values(supportedPicBedList).map((item: any) => ({
+    key: item.icon,
+    name: item.name,
+    icon: item.icon,
+    iconComponent: null,
+  }))
 
-  return items
+  return [staticItem, ...dynamicItems]
 })
-
-const importedNewConfig: IStringKeyMap = {}
 
 const notifyUser = (msg: string, type: 'success' | 'error' | 'warning' = 'success') => {
   message[type](`${msg}`)
 }
 
-const initializeDefaultValues = (picBedName: string) => {
-  if (!supportedPicBedList[picBedName]) return
-
-  const options = supportedPicBedList[picBedName].options || []
-  for (const option of options) {
-    const fieldKey = `${picBedName}.${option}`
-    const configOption = supportedPicBedList[picBedName].configOptions[option]
-
-    if (configResult[fieldKey] === undefined || configResult[fieldKey] === '') {
-      if (configOption.default !== undefined) {
-        configResult[fieldKey] = configOption.default
-      } else if (configOption.type === 'boolean') {
-        configResult[fieldKey] = false
-      } else if (configOption.type === 'number') {
-        configResult[fieldKey] = 0
-      } else {
-        configResult[fieldKey] = ''
-      }
-    }
-  }
-}
-
-function getDataForTable() {
-  for (const key in existingConfiguration) {
-    dataForTable.push({ ...(existingConfiguration[key] as IStringKeyMap) })
-  }
-}
-
-async function getExistingConfig(name: string) {
+async function loadExistingSettings(name: string) {
   if (name === 'login') {
     getAllConfigAliasArray()
     return
   }
-  currentAliasList.length = 0
-  const result = await getConfig<any>('picBed')
-  for (const key in existingConfiguration) {
-    delete existingConfiguration[key]
-  }
-  if (!result || typeof result !== 'object' || Object.keys(result).length === 0) {
-    existingConfiguration[name] = { fail: '暂无配置' }
-  } else {
-    for (const key in result) {
-      if (result[key].picBedName === name) {
-        existingConfiguration[key] = result[key]
-        currentAliasList.push(result[key].alias)
-      }
-    }
-  }
 
-  dataForTable.length = 0
-  getDataForTable()
-  handleConfigImport(currentAliasList[0])
+  const result = await getConfig<any>('picBed')
+  const newConfig: IStringKeyMap[] = []
+  if (result && typeof result === 'object' && Object.keys(result).length > 0) {
+    Object.values(result).forEach((value: any) => {
+      if (value.picBedName === name) {
+        newConfig.push(value)
+      }
+    })
+  }
+  platformConfigList.value = newConfig
 }
 
 function openBucketPageSetting() {
@@ -408,7 +383,7 @@ const handleConfigRemove = async (name: string) => {
       removeConfig('picBed', name)
       notifyUser(t('pages.manage.login.deleteConfigSuccessMsg'), 'success')
       manageStore.refreshConfig()
-      getAllConfigAliasArray()
+      loadExistingSettings(activePlatform.value)
     } catch (_error) {
       notifyUser(t('pages.manage.login.deleteConfigFailedMsg'), 'error')
     }
@@ -417,17 +392,16 @@ const handleConfigRemove = async (name: string) => {
 
 const getAllConfigAliasArray = async () => {
   const result = await getConfig<any>('picBed')
-  for (const key in allConfigAliasMap) {
-    delete allConfigAliasMap[key]
-  }
+  const newConfig: IStringKeyMap[] = []
   if (!result) return
-  Object.entries(result).forEach(([, value]: [string, any], index) => {
-    allConfigAliasMap[index] = {
+  Object.values(result).forEach((value: any) => {
+    newConfig.push({
       alias: value.alias,
       config: value,
       picBedName: value.picBedName,
-    }
+    })
   })
+  allConfigAliasList.value = newConfig
 }
 
 const copyToClipboard = (text: string) => {
@@ -456,37 +430,18 @@ function openEditPage(alias: string) {
   editMode.value = true
 }
 
-function handleConfigImport(alias: string) {
-  const selectedConfig = existingConfiguration[alias]
-  if (!selectedConfig) return
-
-  supportedPicBedList[selectedConfig.picBedName].options.forEach((option: any) => {
-    if (selectedConfig[option] !== undefined) {
-      configResult[selectedConfig.picBedName + '.' + option] = selectedConfig[option]
-    }
-  })
-}
-
 const handleTabChange = (tabName: string) => {
   editMode.value = false
-  activeName.value = tabName
-  getExistingConfig(tabName)
-
-  for (const key in formErrors) {
-    delete formErrors[key]
-  }
-
-  if (tabName !== 'login') {
-    initializeDefaultValues(tabName)
-  }
+  activePlatform.value = tabName
+  loadExistingSettings(tabName)
 }
 
 const toggleConfigDetails = async (alias: string) => {
-  const index = expandedConfigs.value.indexOf(alias)
+  const index = visibleConfigItems.value.indexOf(alias)
   if (index > -1) {
-    expandedConfigs.value.splice(index, 1)
+    visibleConfigItems.value.splice(index, 1)
   } else {
-    expandedConfigs.value.push(alias)
+    visibleConfigItems.value.push(alias)
   }
 }
 
@@ -495,37 +450,19 @@ const refreshConfigs = () => {
   notifyUser(t('pages.manage.login.configurationRefreshMsg'), 'success')
 }
 
-onMounted(() => {
-  getCurrentConfigList()
-})
-
 async function getCurrentConfigList() {
   await manageStore.refreshConfig()
-  const configList = (await getPicBedsConfig<any>('uploader')) ?? {}
-  const pbList = [
-    'aliyun',
-    'aws-s3',
-    'aws-s3-plist',
-    'github',
-    'imgur',
-    'local',
-    'qiniu',
-    'sftpplist',
-    'smms',
-    'tcyun',
-    'upyun',
-    'webdavplist',
-  ]
+  const configList = (await getPicListConfig<any>('uploader')) ?? {}
 
-  const filteredConfigList = pbList.flatMap(pb => {
+  const filteredConfigList = PB_LIST.flatMap(pb => {
     const config = configList[pb]
     return config?.configList?.length ? config.configList.map((item: any) => ({ ...item, type: pb })) : []
   })
 
-  const autoImport = (await getPicBedsConfig<boolean>('settings.autoImport')) || false
+  const autoImport = (await getPicListConfig<boolean>('settings.autoImport')) || false
   if (autoImport) {
     const autoImportPicBed = initArray(
-      (await getPicBedsConfig<string | string[]>('settings.autoImportPicBed')) || '',
+      (await getPicListConfig<string | string[]>('settings.autoImportPicBed')) || '',
       [],
     )
     await Promise.all(filteredConfigList.flatMap(config => transUpToManage(config, config.type, autoImportPicBed)))
@@ -547,7 +484,7 @@ async function goConfigPage() {
 }
 
 function isImported(alias: string) {
-  return Object.values(allConfigAliasMap).some(item => item.alias === alias)
+  return Object.values(allConfigAliasList.value).some(item => item.alias === alias)
 }
 
 function initArray(arrayT: string | string[], defaultValue: string[]) {
@@ -557,16 +494,18 @@ function initArray(arrayT: string | string[], defaultValue: string[]) {
   return arrayT
 }
 
+function getPicBedAlias(name: string) {
+  const mapping: Record<string, string> = {
+    webdavplist: 'webdav',
+    sftpplist: 'sftp',
+    'aws-s3': 's3plist',
+    'aws-s3-plist': 's3plist',
+  }
+  return mapping[name] || name
+}
+
 async function transUpToManage(config: IUploaderConfigListItem, picBedName: string, autoImportPicBed: string[]) {
-  const alias = `${
-    picBedName === 'webdavplist'
-      ? 'webdav'
-      : picBedName === 'sftpplist'
-        ? 'sftp'
-        : picBedName === 'aws-s3' || picBedName === 'aws-s3-plist'
-          ? 's3plist'
-          : picBedName
-  }-${config._configName ?? 'Default'}-imp`
+  const alias = `${getPicBedAlias(picBedName)}-${config._configName ?? 'Default'}-imp`
   if (!autoImportPicBed.includes(picBedName) || isImported(alias)) return
   const commonConfig = {
     alias,

@@ -71,6 +71,7 @@
                 small
                 :title="t('pages.settings.system.isDisableGPU')"
                 :description="t('pages.settings.system.isDisableGPUDesc')"
+                @update:model-value="handleIsDisableGPUChange"
               />
             </SettingCard>
 
@@ -189,13 +190,16 @@
           <!-- Startup & Shortcuts Section -->
           <SettingSection :icon="Keyboard" :title="t('pages.settings.system.startupAndShortcuts')">
             <!-- Auto Launch Toggle -->
-            <CustomSwitch
-              v-model="formOfSetting.autoStart"
-              small
-              :title="t('pages.settings.system.autoLaunch')"
-              :description="t('pages.settings.system.autoLaunchDesc')"
-              @change="handleAutoStartChange(formOfSetting.autoStart)"
-            />
+            <SettingCard p1>
+              <CustomSwitch
+                v-model="formOfSetting.autoStart"
+                small
+                no-border
+                :title="t('pages.settings.system.autoLaunch')"
+                :description="t('pages.settings.system.autoLaunchDesc')"
+                @change="handleAutoStartChange(formOfSetting.autoStart)"
+              />
+            </SettingCard>
             <CustomNavCard
               :title="t('pages.settings.system.setShortCuts')"
               :description="t('pages.settings.system.setShortCutsDesc')"
@@ -1570,11 +1574,6 @@ const addWatch = () => {
     }
   })
 
-  watch(isDisableGPU, newVal => {
-    message.info(t('pages.settings.system.needRestart'))
-    saveConfig({ [configPaths.settings.isDisableGPU]: newVal })
-  })
-
   watch(
     advancedRename,
     newVal => {
@@ -1742,6 +1741,12 @@ async function handleThemeChange(theme: string) {
     console.error('Failed to apply theme:', error)
     message.error(t('pages.settings.system.applyThemeFailed'))
   }
+}
+
+function handleIsDisableGPUChange(value: boolean | undefined) {
+  if (value === undefined) return
+  message.info(t('pages.settings.system.needRestart'))
+  saveConfig({ [configPaths.settings.isDisableGPU]: value })
 }
 
 async function initData() {

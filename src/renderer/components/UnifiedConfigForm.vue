@@ -8,6 +8,8 @@
           :title="t('pages.configForm.configName')"
           :placeholder="t('pages.configForm.configNamePlaceholder')"
           required
+          :class="{ 'border-error!': validationErrors._configName }"
+          @blur="validateForm"
           @input="clearFieldError('_configName')"
         />
         <template v-if="validationErrors._configName" #extra>
@@ -27,24 +29,10 @@
           :class="{ 'border-error!': validationErrors[item.name] }"
           :title="item.alias || item.name"
           :required="item.required || false"
+          :tips="item.tips"
+          @blur="validateForm"
           @input="clearFieldError(item.name)"
-        >
-          <template #title-extra>
-            <div v-if="showTooltips && item.tips" class="relative">
-              <div
-                class="flex h-[20px] w-[20px] cursor-pointer items-center justify-center rounded-full p-[2px] text-secondary hover:bg-bg-secondary hover:text-accent"
-                @click="toggleTooltip(item.name + index)"
-              >
-                <Info :size="15" />
-              </div>
-              <div
-                v-show="visibleTooltips[item.name + index]"
-                class="absolute top-full left-0 z-1000 max-w-[300px] min-w-[200px] rounded-md border border-border bg-bg-secondary p-3 text-xs leading-[1.4] text-main shadow-lg max-md:max-w-[250px] max-md:min-w-[150px]"
-                v-html="transformMarkdownToHTML(item.tips)"
-              />
-            </div>
-          </template>
-        </CustomInput>
+        />
         <CustomSwitch
           v-if="item.type === 'confirm'"
           v-model="ruleForm[item.name]"
@@ -114,8 +102,6 @@
 
 <script lang="ts" setup>
 import { cloneDeep, union } from 'lodash-es'
-import { Info } from 'lucide-vue-next'
-import { marked } from 'marked'
 import { reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
@@ -133,10 +119,9 @@ interface IProps {
   type: 'uploader' | 'transformer' | 'plugin'
   id: string
   mode?: 'picbed' | 'plugin'
-  showTooltips?: boolean
 }
 
-const { config: configProp, type, id, mode = 'picbed', showTooltips = true } = defineProps<IProps>()
+const { config: configProp, type, id, mode = 'picbed' } = defineProps<IProps>()
 
 const $route = useRoute()
 const { t } = useI18n()
@@ -144,7 +129,6 @@ const { t } = useI18n()
 const configList = ref<IPicGoPluginConfig[]>([])
 const ruleForm = reactive<IStringKeyMap>({})
 const validationErrors = reactive<IStringKeyMap>({})
-const visibleTooltips = reactive<Record<string, boolean>>({})
 
 // Watch for config changes
 watch(
@@ -197,16 +181,6 @@ function clearFieldError(fieldName: string) {
   }
 }
 
-function toggleTooltip(key: string) {
-  visibleTooltips[key] = !visibleTooltips[key]
-
-  Object.keys(visibleTooltips).forEach(otherKey => {
-    if (otherKey !== key) {
-      visibleTooltips[otherKey] = false
-    }
-  })
-}
-
 async function validate(): Promise<IStringKeyMap | false> {
   return new Promise(resolve => {
     const isValid = validateForm()
@@ -216,14 +190,6 @@ async function validate(): Promise<IStringKeyMap | false> {
       resolve(false)
     }
   })
-}
-
-function transformMarkdownToHTML(markdown: string) {
-  try {
-    return marked.parse(markdown)
-  } catch (_e) {
-    return markdown
-  }
 }
 
 function getConfigType() {

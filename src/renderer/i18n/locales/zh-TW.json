@@ -521,6 +521,7 @@
         "noDataDesc": "請先建立儲存桶或上傳圖片"
       },
       "login": {
+        "aliasExistMsg": "別名與已有配置重複",
         "aliasMsg": "別名只能包含中文、英文、數字、底線和連字號",
         "configChangeMsg": "設定已變更",
         "configSaveMsg": "設定已儲存",

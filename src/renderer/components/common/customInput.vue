@@ -1,11 +1,24 @@
 <template>
   <div class="flex flex-col">
-    <div class="flex items-center gap-2">
-      <label class="mb-2 text-sm font-semibold text-secondary"
+    <div class="mb-1 flex items-center gap-2">
+      <label class="text-sm font-semibold text-secondary"
         >{{ title }}
         <span v-if="required" class="ml-1 text-danger">*</span>
       </label>
       <slot name="title-extra"></slot>
+      <div v-if="tips" class="relative">
+        <div
+          class="flex h-[20px] w-[20px] cursor-pointer items-center justify-center rounded-full p-[2px] text-secondary hover:bg-bg-secondary hover:text-accent"
+          @click="toggleTooltip()"
+        >
+          <Info :size="16" />
+        </div>
+        <div
+          v-show="visibleTooltips"
+          class="absolute top-full left-0 z-1000 max-w-[300px] min-w-[200px] rounded-md border border-border bg-bg-secondary p-3 text-xs leading-[1.4] text-main shadow-lg max-md:max-w-[250px] max-md:min-w-[150px]"
+          v-html="transformMarkdownToHTML(tips)"
+        />
+      </div>
     </div>
     <div class="relative w-full">
       <input
@@ -15,7 +28,6 @@
         class="box-border w-full rounded-md border border-border bg-bg-tertiary p-3 pr-10 text-sm text-main transition-all duration-200 ease-apple focus:border-accent focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         :placeholder="placeholder"
       />
-
       <button
         v-if="isPassword"
         type="button"
@@ -31,7 +43,8 @@
 </template>
 
 <script setup lang="ts">
-import { EyeClosedIcon, EyeIcon } from 'lucide-vue-next'
+import { EyeClosedIcon, EyeIcon, Info } from 'lucide-vue-next'
+import { marked } from 'marked'
 import { onMounted, ref } from 'vue'
 
 const [modelValue, modifiers] = defineModel<any>({
@@ -49,12 +62,14 @@ const [modelValue, modifiers] = defineModel<any>({
 })
 
 const type = ref('text')
+const visibleTooltips = ref(false)
 
 const {
   isPassword = false,
   title,
   inputType = 'text',
   placeholder,
+  tips = '',
   required = false,
 } = defineProps<{
   isPassword?: boolean
@@ -62,7 +77,20 @@ const {
   inputType?: string
   placeholder: string
   required?: boolean
+  tips?: string
 }>()
+
+function toggleTooltip() {
+  visibleTooltips.value = !visibleTooltips.value
+}
+
+function transformMarkdownToHTML(markdown: string) {
+  try {
+    return marked.parse(markdown)
+  } catch (_e) {
+    return markdown
+  }
+}
 
 defineOptions({
   inheritAttrs: false,

@@ -56,27 +56,27 @@
               />
               <span class="text-sm font-semibold text-secondary">{{ t('pages.manage.main.loading') }}</span>
             </div>
-            <div v-else class="menu-list">
-              <div
-                v-for="item in bucketNameList"
-                :key="item"
-                class="menu-item"
-                :class="{ active: item === currentSelectedBucket }"
-                @click="handleSelectMenu(item)"
-              >
-                <span
-                  class="group/badge overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-secondary"
+            <div v-else class="flex flex-col gap-1">
+              <template v-for="item in bucketNameList" :key="item">
+                <div
+                  class="flex cursor-pointer items-center gap-3 rounded-sm p-3 text-sm shadow-xs hover:bg-surface [.active]:bg-accent/20"
+                  :class="{ active: item === currentSelectedBucket }"
+                  @click="handleSelectMenu(item)"
                 >
-                  <div class="min-w-0 flex-1 overflow-hidden">
-                    <div
-                      class="flex overflow-hidden text-ellipsis whitespace-nowrap group-hover/badge:w-fit group-hover/badge:animate-[badge-scroll_5s_linear_infinite] group-hover/badge:text-clip"
-                    >
-                      <span class="leading-none whitespace-nowrap group-hover/badge:pr-[20px]">{{ item }}</span>
-                      <span class="hidden leading-none whitespace-nowrap group-hover/badge:block">{{ item }}</span>
+                  <span
+                    class="group/badge overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-secondary"
+                  >
+                    <div class="min-w-0 flex-1 overflow-hidden">
+                      <div
+                        class="flex overflow-hidden text-ellipsis whitespace-nowrap group-hover/badge:w-fit group-hover/badge:animate-[badge-scroll_5s_linear_infinite] group-hover/badge:text-clip"
+                      >
+                        <span class="leading-none whitespace-nowrap group-hover/badge:pr-[20px]">{{ item }}</span>
+                        <span class="hidden leading-none whitespace-nowrap group-hover/badge:block">{{ item }}</span>
+                      </div>
                     </div>
-                  </div>
-                </span>
-              </div>
+                  </span>
+                </div></template
+              >
             </div>
           </div>
 
@@ -101,7 +101,7 @@
                 :text="t('pages.manage.main.settings')"
                 :icon="SettingsIcon"
                 class="border-none"
-                @click="openBucketPageSetting"
+                @click="openSettingPage"
               />
             </div>
           </div>
@@ -113,8 +113,16 @@
           @mousedown="startResize"
         ></div>
 
-        <div class="content-area">
-          <router-view />
+        <div class="m-0 box-border flex h-full w-full flex-1 flex-col overflow-hidden border-none">
+          <template v-if="currentPageInMain === 'bucket'">
+            <BucketPage :config-map="configMap" />
+          </template>
+          <template v-else-if="currentPageInMain === 'setting'">
+            <ManageSetting />
+          </template>
+          <template v-else>
+            <EmptyPage no-desc />
+          </template>
         </div>
       </div>
     </div>
@@ -173,110 +181,68 @@
         </div>
       </CustomModal>
     </transition>
-
-    <!-- New Bucket Drawer -->
-    <div v-if="nweBucketDrawerVisible" class="drawer-overlay" @click="nweBucketDrawerVisible = false">
-      <div class="drawer-container" @click.stop>
-        <div class="drawer-header">
-          <h3 class="drawer-title">
-            {{ t('pages.manage.main.newBucket') }}
-          </h3>
-          <button class="drawer-close" @click="nweBucketDrawerVisible = false">
-            <XIcon class="close-icon" />
-          </button>
-        </div>
+    <transition
+      name="modal-bucket"
+      enter-active-class="transition-all duration-200 ease-apple"
+      leave-active-class="transition-all duration-200 ease-apple"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
+      <!-- New Bucket Drawer -->
+      <CustomModal
+        v-if="bucketDrawerVisible"
+        v-model:visible="bucketDrawerVisible"
+        :title="t('pages.manage.main.newBucket')"
+        width="600px"
+        height="auto"
+      >
         <div class="drawer-content">
-          <form @submit.prevent="createNewBucket(currentPicBedName)">
-            <div class="form-header">
-              <div class="form-icon">
-                <img :src="`./assets/${currentPicBedName}.webp`" class="picbed-form-icon" />
-              </div>
-            </div>
-
-            <div class="form-divider" />
-
-            <div v-for="option in newBucketConfig[currentPicBedName].options" :key="option" class="form-group">
-              <label class="form-label">
-                {{ newBucketConfig[currentPicBedName].configOptions[option].description }}
-              </label>
-
-              <!-- Input field -->
-              <input
-                v-if="
-                  newBucketConfig[currentPicBedName].configOptions[option].component === 'input' &&
-                  currentPicBedName !== 'tcyun'
-                "
-                v-model.trim="newBucketConfigResult[currentPicBedName + '.' + option]"
-                type="text"
-                class="form-input"
-                :placeholder="newBucketConfig[currentPicBedName].configOptions[option].placeholder"
-              />
-
-              <!-- TCyun special input with append -->
-              <div
-                v-if="
-                  currentPicBedName === 'tcyun' &&
-                  newBucketConfig[currentPicBedName].configOptions[option].component === 'input'
-                "
-                class="input-group"
-              >
-                <input
+          <SettingSection :title="supportedPicBedList[currentPicBedName].name" :icon="Database" only-one-row>
+            <template v-for="option in newBucketConfig[currentPicBedName].options" :key="option">
+              <SettingCard :p1="newBucketConfig[currentPicBedName].configOptions[option].component === 'switch'">
+                <CustomInput
+                  v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'input'"
                   v-model.trim="newBucketConfigResult[currentPicBedName + '.' + option]"
                   type="text"
-                  class="form-input group-input"
+                  :title="newBucketConfig[currentPicBedName].configOptions[option].description"
                   :placeholder="newBucketConfig[currentPicBedName].configOptions[option].placeholder"
-                />
-                <span class="input-append">{{ '-' + currentPagePicBedConfig.appId }}</span>
-              </div>
-
-              <!-- Select field -->
-              <div
-                v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'select'"
-                class="select-wrapper"
-              >
-                <select v-model="newBucketConfigResult[currentPicBedName + '.' + option]" class="form-select">
-                  <option
-                    v-for="(label, value) in newBucketConfig[currentPicBedName].configOptions[option].options"
-                    :key="value"
-                    :value="value"
-                  >
-                    {{ label }}
-                  </option>
-                </select>
-                <ChevronDownIcon class="select-arrow" />
-              </div>
-
-              <!-- Switch field -->
-              <label
-                v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'switch'"
-                class="switch-label"
-              >
-                <input
+                >
+                  <template v-if="currentPicBedName === 'tcyun'" #input-extra>
+                    <span
+                      class="absolute top-0.5 right-0 flex cursor-not-allowed items-center justify-center rounded-xl border border-border bg-gray-300 p-2.5 text-sm font-semibold text-secondary"
+                      >{{ '-' + currentPagePicBedConfig.appId }}</span
+                    >
+                  </template>
+                </CustomInput>
+                <CustomSwitch
+                  v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'switch'"
                   v-model="newBucketConfigResult[currentPicBedName + '.' + option]"
-                  type="checkbox"
-                  class="switch-input"
-                  :true-value="true"
-                  :false-value="false"
+                  :title="newBucketConfig[currentPicBedName].configOptions[option].description"
+                  small
+                  no-border
                 />
-                <span class="switch-slider">
-                  <span class="switch-button" />
-                </span>
-              </label>
-            </div>
-
-            <div class="form-actions">
-              <button type="button" class="action-button secondary" @click="nweBucketDrawerVisible = false">
-                {{ $t('common.cancel') }}
-              </button>
-              <button type="submit" class="action-button primary">
-                <CheckIcon class="button-icon" />
-                {{ t('common.submit') }}
-              </button>
-            </div>
-          </form>
+                <SingleSelect
+                  v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'select'"
+                  v-model="newBucketConfigResult[currentPicBedName + '.' + option]"
+                  :title="newBucketConfig[currentPicBedName].configOptions[option].description"
+                  :key-list="Object.keys(newBucketConfig[currentPicBedName].configOptions[option].options)"
+                  :fronticon="false"
+                >
+                  <template #item="{ item }">
+                    {{ newBucketConfig[currentPicBedName].configOptions[option].options[item] }}
+                  </template>
+                </SingleSelect>
+              </SettingCard>
+            </template>
+          </SettingSection>
+          <div></div>
         </div>
-      </div>
-    </div>
+        <template #footer>
+          <CustomButton type="secondary" :text="$t('common.cancel')" @click="bucketDrawerVisible = false" />
+          <CustomButton type="primary" :text="$t('common.submit')" @click="createNewBucket(currentPicBedName)" />
+        </template>
+      </CustomModal>
+    </transition>
   </div>
 </template>
 
@@ -284,20 +250,27 @@
 import {
   ArrowLeftRightIcon,
   CheckIcon,
-  ChevronDownIcon,
+  Database,
   ExternalLinkIcon,
   HomeIcon,
   PlusIcon,
   SettingsIcon,
-  XIcon,
 } from 'lucide-vue-next'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import CustomButton from '@/components/common/CustomButton.vue'
+import CustomInput from '@/components/common/CustomInput.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
+import CustomSwitch from '@/components/common/CustomSwitch.vue'
+import SettingCard from '@/components/common/SettingCard.vue'
+import SettingSection from '@/components/common/SettingSection.vue'
+import SingleSelect from '@/components/common/SingleSelect.vue'
 import useMessage from '@/hooks/useMessage'
+import BucketPage from '@/manage/pages/BucketPage.vue'
+import EmptyPage from '@/manage/pages/EmptyPage.vue'
+import ManageSetting from '@/manage/pages/ManageSetting.vue'
 import { useManageStore } from '@/manage/store/manageStore'
 import { supportedPicBedList } from '@/manage/utils/constants'
 import { newBucketConfig } from '@/manage/utils/newBucketConfig'
@@ -308,6 +281,8 @@ const manageStore = useManageStore() as any
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
+const currentPageInMain = ref<'bucket' | 'setting' | 'empty'>('empty')
+const configMap = ref<any>(null)
 
 const currentAlias = ref(route.query.alias as string)
 const currentPicBedName = ref(route.query.picBedName as string)
@@ -324,7 +299,7 @@ const currentSelectedBucket = ref('')
 const bucketNameList = ref([] as string[])
 
 const isLoadingBucketList = ref(false)
-const nweBucketDrawerVisible = ref(false)
+const bucketDrawerVisible = ref(false)
 const picBedSwitchDialogVisible = ref(false)
 
 watch(
@@ -380,7 +355,7 @@ const menuTitleMap: IStringKeyMap = {
 const openPicBedUrl = () => window.electron.sendRPC(IRPCActionType.OPEN_URL, urlMap[currentPagePicBedConfig.picBedName])
 
 function openNewBucketDrawer() {
-  nweBucketDrawerVisible.value = true
+  bucketDrawerVisible.value = true
 }
 
 function createNewBucket(picBedName: string) {
@@ -403,7 +378,7 @@ function createNewBucket(picBedName: string) {
     if (result) {
       // Show success notification
       message.success(t('pages.manage.main.createSuccess'))
-      nweBucketDrawerVisible.value = false
+      bucketDrawerVisible.value = false
       setTimeout(() => {
         getBucketList()
       }, 2000)
@@ -452,7 +427,7 @@ function handleSelectMenu(bucketName: string) {
     prefix = prefix.endsWith('/') ? prefix : `${prefix}/`
   }
 
-  const configMap = {
+  const configMapT = {
     prefix,
     bucketName,
     customUrl: transformedConfig[bucketName]?.customUrl ?? '',
@@ -464,16 +439,8 @@ function handleSelectMenu(bucketName: string) {
     webPath: currentPicBedConfig.webPath || '',
   }
   currentSelectedBucket.value = bucketName
-  router.push({
-    path: '/main-page/manage-main-page/manage-bucket-page',
-    query: {
-      configMap: JSON.stringify(configMap),
-      alias: currentAlias.value,
-      picBedName: currentPicBedName.value,
-      config: JSON.stringify(currentPagePicBedConfig),
-      allPicBedConfigure: JSON.stringify(allPicBedConfigure),
-    },
-  })
+  configMap.value = configMapT
+  currentPageInMain.value = 'bucket'
 }
 
 function switchPicBed(picBedAlias: string) {
@@ -511,16 +478,8 @@ function changePicBed() {
   picBedSwitchDialogVisible.value = true
 }
 
-function openBucketPageSetting() {
-  router.push({
-    path: '/main-page/manage-main-page/manage-setting-page',
-    query: {
-      alias: currentAlias.value,
-      picBedName: currentPicBedName.value,
-      config: JSON.stringify(currentPagePicBedConfig),
-      allPicBedConfigure: JSON.stringify(allPicBedConfigure),
-    },
-  })
+function openSettingPage() {
+  currentPageInMain.value = 'setting'
 }
 
 function startResize(event: MouseEvent) {
@@ -554,5 +513,3 @@ onBeforeMount(() => {
   getBucketList()
 })
 </script>
-
-<style src="./css/ManageMain.css" scoped></style>

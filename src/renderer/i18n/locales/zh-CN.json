@@ -521,6 +521,7 @@
         "noDataDesc": "请先创建存储桶或上传图片"
       },
       "login": {
+        "aliasExistMsg": "别名与已有配置重复",
         "aliasMsg": "别名只能包含中文、英文、数字、下划线和中划线",
         "configChangeMsg": "配置已更改",
         "configSaveMsg": "配置已保存",

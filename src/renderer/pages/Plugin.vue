@@ -270,14 +270,7 @@
         height="auto"
       >
         <div class="flex-1 overflow-y-auto p-4">
-          <config-form
-            :id="configName"
-            ref="$configForm"
-            :config="config"
-            :type="currentType"
-            mode="plugin"
-            :show-tooltips="false"
-          />
+          <config-form :id="configName" ref="$configForm" :config="config" :type="currentType" mode="plugin" />
         </div>
         <template #footer>
           <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />

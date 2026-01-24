@@ -6,7 +6,7 @@
     >
       <InfoIcon :size="20" />
       <p class="m-0 text-sm leading-[1.5] font-semibold text-secondary">
-        {{ supportedPicBedList[activeName].explain }}
+        {{ supportedPicBedList[platformName].explain }}
       </p>
     </div>
     <div
@@ -14,9 +14,9 @@
     >
       <LinkIcon :size="20" />
       <p class="m-0 text-sm leading-[1.5] font-semibold text-secondary">
-        {{ supportedPicBedList[activeName].referenceText }}
-        <button class="link-button" @click="handleReferenceClick(supportedPicBedList[activeName].refLink)">
-          {{ supportedPicBedList[activeName].refLink }}
+        {{ supportedPicBedList[platformName].referenceText }}
+        <button class="link-button" @click="handleReferenceClick(supportedPicBedList[platformName].refLink)">
+          {{ supportedPicBedList[platformName].refLink }}
         </button>
       </p>
     </div>
@@ -24,92 +24,94 @@
       <div class="grid w-full grid-cols-1 gap-3">
         <SettingCard>
           <CustomInput
-            v-model.trim="configResult[activeName + '.alias']"
+            v-model.trim="configResult.alias"
             type="text"
-            :placeholder="supportedPicBedList[activeName].configOptions.alias.placeholder || ''"
-            :title="supportedPicBedList[activeName].configOptions.alias.description"
-            :required="supportedPicBedList[activeName].configOptions.alias.required"
-            :class="{ 'border-danger': formErrors[activeName + '.' + 'alias'] }"
-            @blur="validateField(activeName, 'alias')"
-            @input="clearFieldError(activeName + '.alias')"
+            :placeholder="supportedPicBedList[platformName].configOptions.alias.placeholder || ''"
+            :title="supportedPicBedList[platformName].configOptions.alias.description"
+            :required="supportedPicBedList[platformName].configOptions.alias.required"
+            :class="{ 'border-danger': formErrors.alias }"
+            @blur="validateField(platformName, 'alias')"
+            @input="clearFieldError('alias')"
           />
-          <template v-if="formErrors[activeName + '.' + 'alias']" #extra>
+          <template v-if="formErrors.alias" #extra>
             <div class="mt-1 text-xs text-danger">
-              {{ formErrors[activeName + '.' + 'alias'] }}
+              {{ formErrors.alias }}
             </div>
           </template>
         </SettingCard>
-        <template v-for="option in supportedPicBedList[activeName].options" :key="option">
+        <template v-for="option in supportedPicBedList[platformName].options" :key="option">
           <SettingCard
-            v-if="supportedPicBedList[activeName].configOptions[option].type === 'string' && option !== 'alias'"
+            v-if="supportedPicBedList[platformName].configOptions[option].type === 'string' && option !== 'alias'"
           >
             <CustomInput
-              v-model.trim="configResult[activeName + '.' + option]"
+              v-model.trim="configResult[option]"
               type="text"
-              :placeholder="supportedPicBedList[activeName].configOptions[option].placeholder || ''"
-              :class="{ 'border-danger': formErrors[activeName + '.' + option] }"
-              :title="supportedPicBedList[activeName].configOptions[option].description"
-              :required="supportedPicBedList[activeName].configOptions[option].required"
-              :disabled="!!supportedPicBedList[activeName].configOptions[option].disabled"
-              @blur="validateField(activeName, option)"
-              @input="clearFieldError(activeName + '.' + option)"
+              :placeholder="supportedPicBedList[platformName].configOptions[option].placeholder || ''"
+              :class="{ 'border-danger': formErrors[option] }"
+              :title="supportedPicBedList[platformName].configOptions[option].description"
+              :required="supportedPicBedList[platformName].configOptions[option].required"
+              :disabled="!!supportedPicBedList[platformName].configOptions[option].disabled"
+              :tips="supportedPicBedList[platformName].configOptions[option].tooltip || ''"
+              @blur="validateField(platformName, option)"
+              @input="clearFieldError(option)"
             />
-            <template v-if="formErrors[activeName + '.' + option]" #extra>
+            <template v-if="formErrors[option]" #extra>
               <div class="mt-1 text-xs text-danger">
-                {{ formErrors[activeName + '.' + option] }}
+                {{ formErrors[option] }}
               </div>
             </template>
           </SettingCard>
         </template>
-        <template v-for="option in supportedPicBedList[activeName].options" :key="option">
-          <SettingCard v-if="supportedPicBedList[activeName].configOptions[option].type === 'number'">
+        <template v-for="option in supportedPicBedList[platformName].options" :key="option">
+          <SettingCard v-if="supportedPicBedList[platformName].configOptions[option].type === 'number'">
             <CustomInput
-              v-model.number="configResult[activeName + '.' + option]"
+              v-model.number="configResult[option]"
               type="number"
-              :placeholder="supportedPicBedList[activeName].configOptions[option].placeholder || ''"
-              :class="{ 'border-danger': formErrors[activeName + '.' + option] }"
-              :title="supportedPicBedList[activeName].configOptions[option].description"
-              :required="supportedPicBedList[activeName].configOptions[option].required"
-              @blur="validateField(activeName, option)"
-              @input="clearFieldError(activeName + '.' + option)"
+              :placeholder="supportedPicBedList[platformName].configOptions[option].placeholder || ''"
+              :class="{ 'border-danger': formErrors[option] }"
+              :title="supportedPicBedList[platformName].configOptions[option].description"
+              :required="supportedPicBedList[platformName].configOptions[option].required"
+              :tips="supportedPicBedList[platformName].configOptions[option].tooltip || ''"
+              @blur="validateField(platformName, option)"
+              @input="clearFieldError(option)"
             />
-            <template v-if="formErrors[activeName + '.' + option]" #extra>
+            <template v-if="formErrors[option]" #extra>
               <div class="mt-1 text-xs text-danger">
-                {{ formErrors[activeName + '.' + option] }}
+                {{ formErrors[option] }}
               </div>
             </template>
           </SettingCard>
         </template>
-        <template v-for="option in supportedPicBedList[activeName].options" :key="option">
-          <SettingCard v-if="supportedPicBedList[activeName].configOptions[option].type === 'boolean'" p1>
+        <template v-for="option in supportedPicBedList[platformName].options" :key="option">
+          <SettingCard v-if="supportedPicBedList[platformName].configOptions[option].type === 'boolean'" p1>
             <CustomSwitch
-              v-model="configResult[activeName + '.' + option]"
+              v-model="configResult[option]"
               no-border
               small
-              :required="supportedPicBedList[activeName].configOptions[option].required"
-              :title="supportedPicBedList[activeName].configOptions[option].description"
-              :tips="supportedPicBedList[activeName].configOptions[option].tooltip || ''"
-              @update:model-value="validateField(activeName, option)"
+              :required="supportedPicBedList[platformName].configOptions[option].required"
+              :title="supportedPicBedList[platformName].configOptions[option].description"
+              :tips="supportedPicBedList[platformName].configOptions[option].tooltip || ''"
+              @update:model-value="validateField(platformName, option)"
             >
             </CustomSwitch>
           </SettingCard>
         </template>
-        <template v-for="option in supportedPicBedList[activeName].options" :key="option">
-          <SettingCard v-if="supportedPicBedList[activeName].configOptions[option].type === 'select'">
+        <template v-for="option in supportedPicBedList[platformName].options" :key="option">
+          <SettingCard v-if="supportedPicBedList[platformName].configOptions[option].type === 'select'">
             <CustomSelect
-              v-model="configResult[activeName + '.' + option]"
-              :title="supportedPicBedList[activeName].configOptions[option].description"
-              :required="supportedPicBedList[activeName].configOptions[option].required"
+              v-model="configResult[option]"
+              :title="supportedPicBedList[platformName].configOptions[option].description"
+              :required="supportedPicBedList[platformName].configOptions[option].required"
               :select-list="
-                Object.entries(supportedPicBedList[activeName].configOptions[option].selectOptions || {}).map(
+                Object.entries(supportedPicBedList[platformName].configOptions[option].selectOptions || {}).map(
                   ([key, value]) => ({
                     value: key,
                     label: value as string,
                   }),
                 )
               "
-              :class="{ 'border-danger': formErrors[activeName + '.' + option] }"
-              @change="validateField(activeName, option)"
+              :class="{ 'border-danger': formErrors[option] }"
+              @change="validateField(platformName, option)"
             >
               <template #pre-info>
                 <option value="" disabled>
@@ -117,9 +119,9 @@
                 </option>
               </template>
             </CustomSelect>
-            <template v-if="formErrors[activeName + '.' + option]" #extra>
+            <template v-if="formErrors[option]" #extra>
               <div class="mt-1 text-xs text-danger">
-                {{ formErrors[activeName + '.' + option] }}
+                {{ formErrors[option] }}
               </div>
             </template>
           </SettingCard>
@@ -141,13 +143,13 @@
           type="primary"
           :text="t('pages.manage.login.save')"
           :icon="SaveIcon"
-          @click="handleConfigChange(activeName)"
+          @click="handleConfigChange()"
         />
         <CustomButton
           class="bg-danger/70"
           :text="t('pages.manage.login.reset')"
           :icon="RotateCcwIcon"
-          @click="handleConfigReset(activeName)"
+          @click="handleConfigReset()"
         />
         <CustomButton class="bg-warning/70" :text="t('common.cancel')" :icon="XIcon" @click="cancelEditMode" />
       </div>
@@ -157,7 +159,7 @@
 
 <script setup lang="ts">
 import { DownloadIcon, InfoIcon, LinkIcon, RotateCcwIcon, SaveIcon, XIcon } from 'lucide-vue-next'
-import { onMounted, reactive, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
@@ -173,21 +175,22 @@ import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { formatEndpoint } from '@/utils/common'
 import { IRPCActionType } from '@/utils/enum'
 
+const editMode = defineModel<boolean>('editMode')
+const emit = defineEmits<(e: 'update:editMode', value: boolean) => void>()
+
+const { aliasName, platformName } = defineProps<{
+  aliasName: string
+  platformName: string
+}>()
+
 const { t } = useI18n()
 const manageStore = useManageStore()
 const message = useMessage()
-const formErrors = reactive({} as IStringKeyMap)
-const configResult: IStringKeyMap = reactive({})
-const existingConfiguration = reactive({} as IStringKeyMap)
-const currentAliasList = reactive([] as string[])
-const dataForTable = reactive([] as any[])
-const editMode = defineModel<boolean>('editMode')
+const formErrors = ref<IStringKeyMap>({})
+const configResult = ref<IStringKeyMap>({})
+const existingConfiguration = ref<IStringKeyMap>({})
+const currentAliasList = ref<string[]>([])
 const selectedAlias = ref('')
-
-const { aliasName, activeName } = defineProps<{
-  aliasName: string
-  activeName: string
-}>()
 
 watch(selectedAlias, newAlias => {
   if (newAlias) {
@@ -198,18 +201,17 @@ watch(selectedAlias, newAlias => {
 const handleReferenceClick = (url: string) => window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
 
 const validateField = (picBedName: string, optionKey: string) => {
-  const fieldKey = `${picBedName}.${optionKey}`
   const configOption = supportedPicBedList[picBedName]?.configOptions?.[optionKey]
-  const value = configResult[fieldKey]
+  const value = configResult.value[optionKey]
 
   if (!configOption) return
 
-  delete formErrors[fieldKey]
+  delete formErrors.value[optionKey]
 
   if (configOption.required) {
     if (configOption.type === 'boolean') {
     } else if (!value || value === '') {
-      formErrors[fieldKey] = t('pages.manage.constant.pleaseInput', { name: configOption.description })
+      formErrors.value[optionKey] = t('pages.manage.constant.pleaseInput', { name: configOption.description })
       return
     }
   }
@@ -220,7 +222,7 @@ const validateField = (picBedName: string, optionKey: string) => {
         try {
           rule.validator(rule, value, (error: Error | null) => {
             if (error) {
-              formErrors[fieldKey] = error.message
+              formErrors.value[optionKey] = error.message
             }
           })
         } catch (e) {
@@ -228,7 +230,7 @@ const validateField = (picBedName: string, optionKey: string) => {
         }
       } else if (rule.type === 'number' && value !== undefined && value !== '') {
         if (isNaN(Number(value))) {
-          formErrors[fieldKey] = rule.message || t('pages.manage.constant.itemsPPBeNumber')
+          formErrors.value[optionKey] = rule.message || t('pages.manage.constant.itemsPPBeNumber')
           return
         }
       }
@@ -238,53 +240,56 @@ const validateField = (picBedName: string, optionKey: string) => {
   if (optionKey === 'alias' && value) {
     const reg = /^[\p{Unified_Ideograph}_a-zA-Z0-9-]+$/u
     if (!reg.test(value)) {
-      formErrors[fieldKey] = t('pages.manage.login.aliasMsg')
+      formErrors.value[optionKey] = t('pages.manage.login.aliasMsg')
     }
   }
 
   if (optionKey === 'itemsPerPage' && value !== undefined && value !== '') {
     const numValue = Number(value)
     if (numValue < 20 || numValue > 1000) {
-      formErrors[fieldKey] = t('pages.manage.login.itemsPerPageMsg')
+      formErrors.value[optionKey] = t('pages.manage.login.itemsPerPageMsg')
     }
   }
 }
 
 const clearFieldError = (fieldKey: string) => {
-  delete formErrors[fieldKey]
+  delete formErrors.value[fieldKey]
 }
 
-async function handleConfigChange(name: string) {
-  if (!validateAllFields(name)) {
+async function handleConfigChange() {
+  if (!validateAllFields(platformName)) {
     notifyUser(t('pages.manage.login.noRequiredMsg'), 'error')
     return
   }
 
-  const aliasList = getAliasList()
-  const allKeys = Object.keys(supportedPicBedList[name].configOptions)
+  const aliasList = Object.values(existingConfiguration.value).map(item => item.alias)
+  const allKeys = Object.keys(supportedPicBedList[platformName].configOptions)
   const resultMap: IStringKeyMap = {}
+  if (aliasList.includes(configResult.value.alias) && aliasName !== configResult.value.alias) {
+    notifyUser(t('pages.manage.login.aliasExistMsg'), 'error')
+    return
+  }
 
   for (const key of allKeys) {
-    const resultKey = name + '.' + key
-    if (key === 'customUrl' && configResult[resultKey] !== undefined && configResult[resultKey] !== '') {
-      if (name !== 'upyun') {
-        configResult[resultKey] = formatEndpoint(configResult[resultKey], false)
+    if (key === 'customUrl' && configResult.value[key] !== undefined && configResult.value[key] !== '') {
+      if (platformName !== 'upyun') {
+        configResult.value[key] = formatEndpoint(configResult.value[key], false)
       }
     }
 
-    if (supportedPicBedList[name].configOptions[key].default !== undefined && configResult[resultKey] === '') {
-      resultMap[key] = supportedPicBedList[name].configOptions[key].default
-    } else if (configResult[resultKey] === undefined) {
-      if (supportedPicBedList[name].configOptions[key].default !== undefined) {
-        resultMap[key] = supportedPicBedList[name].configOptions[key].default
+    if (supportedPicBedList[platformName].configOptions[key].default !== undefined && configResult.value[key] === '') {
+      resultMap[key] = supportedPicBedList[platformName].configOptions[key].default
+    } else if (configResult.value[key] === undefined) {
+      if (supportedPicBedList[platformName].configOptions[key].default !== undefined) {
+        resultMap[key] = supportedPicBedList[platformName].configOptions[key].default
       } else {
         resultMap[key] = ''
       }
     } else {
-      resultMap[key] = configResult[resultKey]
+      resultMap[key] = configResult.value[key]
     }
   }
-  resultMap.picBedName = name
+  resultMap.picBedName = platformName
   if (resultMap.bucketName !== undefined) {
     resultMap.transformedConfig = {}
     const bucketName = resultMap.bucketName.split(',')
@@ -310,56 +315,51 @@ async function handleConfigChange(name: string) {
   }
   saveConfig(`picBed.${resultMap.alias}`, resultMap)
   await manageStore.refreshConfig()
-  await getExistingConfig(activeName)
-  dataForTable.length = 0
-  getDataForTable()
-  if (aliasList.includes(resultMap.alias)) {
-    notifyUser(`${t('pages.manage.login.configChangeMsg')}${resultMap.alias}`, 'warning')
-  } else {
-    notifyUser(`${t('pages.manage.login.configSaveMsg')}${resultMap.alias}`, 'success')
-  }
+  await getExistingConfig(platformName)
+  notifyUser(`${t('pages.manage.login.configSaveMsg')}${resultMap.alias}`, 'success')
   editMode.value = false
+  emit('update:editMode', false)
 }
 
 const notifyUser = (msg: string, type: 'success' | 'error' | 'warning' = 'success') => {
   message[type](`${msg}`)
 }
 
-function getDataForTable() {
-  for (const key in existingConfiguration) {
-    dataForTable.push({ ...(existingConfiguration[key] as IStringKeyMap) })
-  }
-}
-
 async function getExistingConfig(name: string) {
-  currentAliasList.length = 0
+  const newList: string[] = []
   const result = await getConfig<any>('picBed')
-  for (const key in existingConfiguration) {
-    delete existingConfiguration[key]
-  }
+  const newConfiguration: IStringKeyMap = {}
   if (!result || typeof result !== 'object' || Object.keys(result).length === 0) {
-    existingConfiguration[name] = { fail: '暂无配置' }
+    newConfiguration[name] = { fail: '暂无配置' }
   } else {
     for (const key in result) {
       if (result[key].picBedName === name) {
-        existingConfiguration[key] = result[key]
-        currentAliasList.push(result[key].alias)
+        newConfiguration[key] = result[key]
+        newList.push(result[key].alias)
       }
     }
   }
-
-  dataForTable.length = 0
-  getDataForTable()
+  existingConfiguration.value = newConfiguration
+  currentAliasList.value = newList
   handleConfigImport(aliasName)
 }
 
 function handleConfigImport(alias: string) {
-  const selectedConfig = existingConfiguration[alias]
+  if (alias === '') {
+    supportedPicBedList[platformName].options.forEach((option: any) => {
+      const defaultValue = supportedPicBedList[platformName].configOptions[option].default
+      if (defaultValue !== undefined && option !== 'alias') {
+        configResult.value[option] = defaultValue
+      }
+    })
+    return
+  }
+  const selectedConfig = existingConfiguration.value[alias]
   if (!selectedConfig) return
 
   supportedPicBedList[selectedConfig.picBedName].options.forEach((option: any) => {
     if (selectedConfig[option] !== undefined) {
-      configResult[selectedConfig.picBedName + '.' + option] = selectedConfig[option]
+      configResult.value[option] = selectedConfig[option]
     }
   })
 }
@@ -370,7 +370,7 @@ const validateAllFields = (picBedName: string): boolean => {
 
   for (const option of options) {
     validateField(picBedName, option)
-    if (formErrors[`${picBedName}.${option}`]) {
+    if (formErrors.value[`${picBedName}.${option}`]) {
       isValid = false
     }
   }
@@ -378,41 +378,36 @@ const validateAllFields = (picBedName: string): boolean => {
   return isValid
 }
 
-function getAliasList() {
-  return Object.values(existingConfiguration).map(item => item.alias)
-}
-
-const handleConfigReset = (name: string) => {
-  const keys = Object.keys(formErrors).filter(key => key.startsWith(name))
+const handleConfigReset = () => {
+  const keys = Object.keys(formErrors.value).filter(key => key.startsWith(platformName))
   keys.forEach(key => {
-    delete formErrors[key]
+    delete formErrors.value[key]
   })
 
-  const configKeys = Object.keys(configResult).filter(key => key.startsWith(name))
+  const configKeys = Object.keys(configResult.value).filter(key => key.startsWith(platformName))
   configKeys.forEach(key => {
-    delete configResult[key]
+    delete configResult.value[key]
   })
 
-  initializeDefaultValues(name)
+  initializeDefaultValues()
 }
 
-const initializeDefaultValues = (picBedName: string) => {
-  if (!supportedPicBedList[picBedName]) return
+const initializeDefaultValues = () => {
+  if (!supportedPicBedList[platformName]) return
 
-  const options = supportedPicBedList[picBedName].options || []
+  const options = supportedPicBedList[platformName].options || []
   for (const option of options) {
-    const fieldKey = `${picBedName}.${option}`
-    const configOption = supportedPicBedList[picBedName].configOptions[option]
+    const configOption = supportedPicBedList[platformName].configOptions[option]
 
-    if (configResult[fieldKey] === undefined || configResult[fieldKey] === '') {
+    if (configResult.value[option] === undefined || configResult.value[option] === '') {
       if (configOption.default !== undefined) {
-        configResult[fieldKey] = configOption.default
+        configResult.value[option] = configOption.default
       } else if (configOption.type === 'boolean') {
-        configResult[fieldKey] = false
+        configResult.value[option] = false
       } else if (configOption.type === 'number') {
-        configResult[fieldKey] = 0
+        configResult.value[option] = 0
       } else {
-        configResult[fieldKey] = ''
+        configResult.value[option] = ''
       }
     }
   }
@@ -423,7 +418,7 @@ const cancelEditMode = () => {
 }
 
 onMounted(async () => {
-  getExistingConfig(activeName)
+  getExistingConfig(platformName)
   await manageStore.refreshConfig()
 })
 </script>

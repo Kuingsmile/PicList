@@ -20,7 +20,7 @@
     <div
       v-show="dropDownOpen"
       ref="optionsRef"
-      class="sort-options fixed z-10 mt-[2px] min-w-[150px] overflow-hidden rounded-md border border-border-secondary bg-bg-tertiary shadow-lg"
+      class="sort-options fixed z-10 mt-[2px] max-h-[200px] min-w-[150px] overflow-hidden overflow-y-auto rounded-md border border-border-secondary bg-bg-tertiary shadow-lg"
     >
       <button
         v-for="key in keyList"

@@ -4,7 +4,7 @@
       class="flex cursor-pointer items-center gap-4 rounded-lg border border-border p-4 transition-all duration-200 ease-apple hover:border-accent"
       :class="noBorder ? 'border-none' : ''"
     >
-      <input v-model="modelValue" type="checkbox" class="peer hidden" />
+      <input v-model="modelValue" type="checkbox" class="peer hidden" @change.stop="emit('change', modelValue)" />
       <span
         class="bg-linear-180-r relative shrink-0 rounded-full bg-gray-400/80 shadow-sm transition-all duration-medium ease-standard peer-checked:bg-accent peer-checked:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1),0_2px_8px_color-mix(in_srgb,var(--color-accent),transparent_30%)] before:absolute before:rounded-full before:bg-white before:shadow-sm before:transition-all before:duration-200 before:ease-apple before:content-[''] peer-checked:before:translate-x-[24px]"
         :class="
@@ -26,7 +26,7 @@
       </div>
     </label>
     <slot name="title-extra"></slot>
-    <div v-if="showTooltips && tips !== ''" class="relative">
+    <div v-if="tips" class="relative">
       <div
         class="flex h-[20px] w-[20px] cursor-pointer items-center justify-center rounded-full p-[2px] text-secondary hover:bg-bg-secondary hover:text-accent"
         @click="toggleTooltip()"
@@ -47,6 +47,8 @@ import { Info } from 'lucide-vue-next'
 import { marked } from 'marked'
 import { onMounted, ref } from 'vue'
 
+const emit = defineEmits(['change'])
+
 const visibleTooltips = ref(false)
 
 const modelValue = defineModel<boolean>()
@@ -55,7 +57,6 @@ const {
   description = '',
   noBorder = false,
   small = false,
-  showTooltips = true,
   tips = '',
   required = false,
 } = defineProps<{
@@ -63,7 +64,6 @@ const {
   title?: string
   description?: string
   small?: boolean
-  showTooltips?: boolean
   tips?: string
   required?: boolean
 }>()

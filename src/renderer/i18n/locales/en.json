@@ -521,6 +521,7 @@
         "noDataDesc": "Please create a bucket or upload images first"
       },
       "login": {
+        "aliasExistMsg": "Alias duplicate ",
         "aliasMsg": "Alias may only contain Chinese characters, letters, numbers, underscores, and hyphens",
         "configChangeMsg": "Configuration changed",
         "configSaveMsg": "Configuration saved",
