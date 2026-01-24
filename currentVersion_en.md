@@ -18,9 +18,10 @@
 
 #### 🎨 UI Interface
 
+- Refactored almost all business pages and optimized dozens of UI details.
 - Integrated theme repository [PicList ThemeHub](https://github.com/Kuingsmile/PicList-ThemeHub), supporting custom downloads.
 - Provided 12 built-in themes (such as bilibili, 二次元, 极夜紫 styles).
-- Redesigned all pages of the management feature, refactored almost all business pages, and optimized dozens of UI details.
+- Redesigned all pages of the management feature
   - Optimized album page card styles, clearer boundaries, and improved selection box visual effects.
   - Optimized the display of multiple pages on narrow screens to avoid content overflow.
   - Supported scrolling to display the full name when the file browsing sidebar name exceeds the width.
