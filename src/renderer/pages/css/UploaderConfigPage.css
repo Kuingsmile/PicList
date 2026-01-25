@@ -3,5 +3,5 @@
 @import "../../assets/css/utilities.css" reference;
 
 .action-btn {
-  @apply flex justify-center items-center border border-border-secondary/80 rounded-md text-secondary transition-all duration-fast ease-standard w-[30px] h-[30px] cursor-pointer hover:border-accent hover:text-accent hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:text-danger;
+  @apply flex justify-center items-center border border-border-secondary/80 rounded-md text-secondary transition-all duration-fast ease-standard w-[30px] h-[30px] cursor-pointer hover:bg-accent/30 hover:text-white hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger;
 }

@@ -101,7 +101,7 @@
 
                   <div class="relative">
                     <button
-                      class="flex cursor-pointer items-center gap-2 rounded-xl border-none bg-accent/5 p-2 text-sm text-secondary hover:text-main"
+                      class="flex cursor-pointer items-center gap-2 rounded-xl border-none bg-accent/5 p-2 text-xs font-semibold text-secondary hover:bg-accent/30 hover:text-white"
                       @click="toggleConfigDetails(item.alias)"
                     >
                       <InfoIcon :size="14" />
@@ -198,14 +198,14 @@
                     </div>
                     <div class="grid grid-cols-2 gap-1.5 transition-all duration-fast ease-apple">
                       <button
-                        class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/30 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:border-accent hover:text-accent"
+                        class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/30 text-accent transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white"
                         :title="t('pages.uploaderConfig.edit')"
                         @click.stop="openEditPage(item.alias)"
                       >
                         <Pencil :size="14" />
                       </button>
                       <button
-                        class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border bg-danger/10 text-danger transition-all duration-fast ease-standard hover:scale-105 hover:border-danger hover:text-danger"
+                        class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border bg-danger/10 text-danger transition-all duration-fast ease-standard hover:scale-105 hover:bg-danger hover:text-white"
                         :title="t('pages.uploaderConfig.delete')"
                         @click.stop="() => handleConfigRemove(item.alias)"
                       >

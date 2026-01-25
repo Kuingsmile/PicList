@@ -144,7 +144,7 @@
           <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
             <!-- Back to main card -->
             <div
-              class="relative flex cursor-pointer flex-col items-center rounded-lg border-2 border-success/80 bg-bg-secondary p-6 transition-all duration-fast ease-apple"
+              class="relative flex cursor-pointer flex-col items-center rounded-lg border-2 border-success/80 bg-bg-secondary p-6 transition-all duration-fast ease-apple hover:border-accent"
               @click="switchPicBed('main')"
             >
               <div class="mb-3 flex h-[40px] w-[40px] items-center justify-center">
@@ -161,7 +161,7 @@
             <div
               v-for="(config, alias) in allPicBedConfigure"
               :key="String(alias)"
-              class="relative flex cursor-pointer flex-col items-center rounded-lg border-2 border-border/80 bg-bg-secondary p-6 transition-all duration-fast ease-apple [.active]:border-accent"
+              class="relative flex cursor-pointer flex-col items-center rounded-lg border-2 border-border/80 bg-bg-secondary p-6 transition-all duration-fast ease-apple hover:border-accent [.active]:border-accent"
               :class="{ active: String(alias) === currentAlias }"
               @click="switchPicBed(String(alias))"
             >

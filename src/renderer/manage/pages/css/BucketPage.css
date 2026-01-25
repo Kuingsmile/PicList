@@ -51,9 +51,9 @@
 }
 
 .file-action-button {
-  @apply flex justify-center items-center border-none rounded-sm p-1.5 w-[32px] h-[32px] text-secondary bg-bg-secondary transition-all duration-fast ease-apple cursor-pointer;
-  @apply hover:bg-accent/10 hover:text-main hover:-translate-y-px;
-  @apply hover:[.danger]:text-error hover:[.danger]:bg-error/10;
+  @apply flex justify-center items-center border-none rounded-sm p-1.5 w-[26px] h-[26px] text-secondary bg-bg-secondary transition-all duration-fast ease-apple cursor-pointer;
+  @apply hover:bg-accent/50 hover:text-white hover:-translate-y-px;
+  @apply hover:[.danger]:text-white hover:[.danger]:bg-error/50;
 }
 
 .action-icon {

@@ -188,11 +188,13 @@
           <!-- Sort Dropdown -->
           <div class="relative">
             <button
-              class="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-bg-secondary px-3 py-2 text-sm font-medium text-main hover:border-accent hover:bg-accent/10"
+              class="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-bg-secondary px-3 py-2 text-sm font-medium text-secondary hover:border-accent hover:bg-accent/10"
               @click="sortDropdownOpen = !sortDropdownOpen"
             >
               <ArrowUpDownIcon class="action-icon" />
-              {{ t(`pages.manage.bucket.sort.${currentSortType}`) }}
+              <span class="text-sm font-medium text-secondary">
+                {{ t(`pages.manage.bucket.sort.${currentSortType}`) }}</span
+              >
               <ChevronDownIcon class="action-icon" />
             </button>
             <div
@@ -251,7 +253,7 @@
               <template v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')" :key="index">
                 <ChevronRightIcon v-if="index !== 0" class="h-[16px] w-[15px] shrink-0 text-accent" />
                 <button
-                  class="flex shrink-0 cursor-pointer items-center gap-1 rounded-md border-none bg-bg-secondary p-1 text-sm font-semibold text-secondary hover:bg-accent/10 hover:text-main"
+                  class="flex shrink-0 cursor-pointer items-center gap-1 rounded-md border-none bg-bg-secondary p-1 text-sm font-semibold text-secondary last:bg-accent/10 hover:bg-accent/10 hover:text-main"
                   @click="handleBreadcrumbClick(Number(index))"
                 >
                   {{ item === '' ? t('pages.manage.bucket.rootFolder') : item }}

@@ -35,9 +35,9 @@
 .icon-button {
   @apply flex items-center justify-center border-none rounded-md w-[25px] h-[25px] text-secondary transition-all duration-fast ease-apple cursor-pointer;
   @apply hover:text-main hover:-translate-y-px;
-  @apply [.copy-icon]:hover:text-warning [.copy-icon]:hover:bg-warning/10;
-  @apply [.edit-icon]:hover:text-success [.edit-icon]:hover:bg-success/10;
-  @apply [.delete-icon]:hover:text-error [.delete-icon]:hover:bg-error/10;
+  @apply [.copy-icon]:hover:text-white [.copy-icon]:hover:bg-warning/50;
+  @apply [.edit-icon]:hover:text-white [.edit-icon]:hover:bg-success/50;
+  @apply [.delete-icon]:hover:text-white [.delete-icon]:hover:bg-error/50;
 }
 
 .form-input {
