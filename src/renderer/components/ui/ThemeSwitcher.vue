@@ -70,7 +70,7 @@ onBeforeMount(() => {
 <template>
   <div class="relative flex items-center">
     <button
-      class="flex cursor-pointer items-center gap-2 rounded-md border border-border-secondary bg-bg-secondary px-3 py-2 text-sm text-secondary transition-all duration-fast ease-standard hover:text-main max-md:justify-center max-md:gap-0 max-md:p-2 [.collapsed]:justify-center [.collapsed]:gap-0 [.collapsed]:p-2"
+      class="flex cursor-pointer items-center gap-2 rounded-md border border-border-secondary bg-bg-secondary px-3 py-2 text-sm text-secondary transition-all duration-fast ease-standard hover:bg-accent/30 hover:text-white max-md:justify-center max-md:gap-0 max-md:p-2 [.collapsed]:justify-center [.collapsed]:gap-0 [.collapsed]:p-2"
       :class="{ collapsed }"
       :title="t('settings.theme.toggle')"
       @click="toggleTheme"

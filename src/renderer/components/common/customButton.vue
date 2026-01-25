@@ -1,7 +1,7 @@
 <template>
   <button
     :disabled="disabled"
-    class="flex min-w-fit cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-fast ease-apple not-disabled:hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+    class="group flex min-w-fit cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-fast ease-apple not-disabled:hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
     :class="classVar"
     :data-active="active"
     @click="emit('click')"
@@ -49,9 +49,9 @@ const textClassVar = computed(() => {
     case 'primary':
       return 'text-white'
     case 'secondary':
-      return 'text-main'
+      return 'text-main group-not-disabled:group-hover:text-white!'
     case 'tab':
-      return active ? 'text-white' : 'text-secondary'
+      return active ? 'text-white' : 'text-secondary group-not-disabled:group-hover:text-white!'
     default:
       return textClass || ''
   }
@@ -62,9 +62,9 @@ const classVar = computed(() => {
     case 'primary':
       return 'bg-accent text-white not-disabled:hover:bg-accent-hover! not-disabled:hover:-translate-y-px'
     case 'secondary':
-      return 'border border-border bg-bg-secondary text-main not-disabled:hover:bg-surface-elevated! not-disabled:hover:-translate-y-px'
+      return 'border border-border bg-bg-secondary text-main not-disabled:hover:bg-accent/30! not-disabled:hover:text-white! not-disabled:hover:-translate-y-px'
     case 'tab':
-      return 'flex-1 text-secondary not-disabled:data-[active=false]:hover:bg-accent/30 data-[active=true]:text-white data-[active=true]:bg-accent'
+      return 'flex-1 text-secondary not-disabled:data-[active=false]:hover:bg-accent/30 data-[active=true]:text-white data-[active=true]:bg-accent not-disabled:hover:text-white!'
     default:
       return ''
   }

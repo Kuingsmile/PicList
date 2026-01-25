@@ -1,5 +1,8 @@
 <template>
-  <div class="flex items-center rounded-xl" :class="noHover ? '' : 'hover:bg-surface hover:shadow-sm'">
+  <div
+    class="flex items-center rounded-xl"
+    :class="noHover ? '' : 'hover:border-accenthover:shadow-sm hover:bg-surface'"
+  >
     <label
       class="flex cursor-pointer items-center gap-4 rounded-lg border border-border transition-all duration-200 ease-apple hover:border-accent"
       :class="{

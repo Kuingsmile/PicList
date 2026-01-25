@@ -4,7 +4,7 @@
 
 .nav-item {
   @apply flex items-center justify-center py-3 px-4 text-sm font-medium no-underline text-secondary gap-3 cursor-pointer transition-all duration-200 ease-apple;
-  @apply hover:text-main hover:bg-surface;
+  @apply hover:text-accent hover:bg-surface;
   @apply group-[.collapsed]:justify-center group-[.collapsed]:py-3 group-[.collapsed]:px-2 group-[.collapsed]:gap-0 ;
   @apply [.router-link-active]:border-accent [.router-link-active]:border-r-4 [.router-link-active]:text-accent [.router-link-active]:bg-surface;
 }

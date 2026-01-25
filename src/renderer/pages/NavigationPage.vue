@@ -21,7 +21,7 @@
       </div>
       <button
         :title="isCollapsed ? t('navigation.expand') : t('navigation.collapse')"
-        class="absolute top-1/2 right-[8px] flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border-none bg-transparent p-[4px] transition-all duration-200 ease-apple group-[.collapsed]:absolute group-[.collapsed]:top-[20px] group-[.collapsed]:right-[16px] group-[.collapsed]:transform-none hover:bg-surface-elevated hover:text-main"
+        class="absolute top-1/2 right-[8px] flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border-none bg-transparent p-[4px] transition-all duration-200 ease-apple group-[.collapsed]:absolute group-[.collapsed]:top-[20px] group-[.collapsed]:right-[16px] group-[.collapsed]:transform-none hover:bg-accent/30 hover:text-white"
         @click="isCollapsed = !isCollapsed"
       >
         <component :is="isCollapsed ? ChevronRightIcon : ChevronLeftIcon" :size="16" />
@@ -100,7 +100,7 @@
     </div>
     <div class="border-t border-t-border p-3">
       <button
-        class="fixed bottom-[4px] left-[4px] cursor-pointer rounded-full border-none bg-transparent p-[8px] text-tertiary hover:bg-surface-elevated hover:text-main"
+        class="fixed bottom-[4px] left-[4px] cursor-pointer rounded-full border-none bg-transparent p-[8px] text-tertiary hover:bg-accent/30 hover:text-white"
         :title="t('navigation.moreOptions')"
         @click="openMenu"
       >

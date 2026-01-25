@@ -3,12 +3,12 @@
 @import '../../assets/css/utilities.css' reference;
 
 .segmented-button {
-  @apply flex cursor-pointer items-center gap-2 border-r border-none border-r-border-secondary px-4 py-2.5 font-[inherit] text-sm font-medium whitespace-nowrap text-secondary duration-fast ease-standard last:border-r-0 hover:bg-bg-tertiary hover:text-accent-hover;
+  @apply flex cursor-pointer items-center gap-2 border-r border-none border-r-border-secondary px-4 py-2.5 font-[inherit] text-sm font-medium whitespace-nowrap text-secondary duration-fast ease-standard last:border-r-0 hover:bg-accent/30 hover:text-white;
 }
 
 /* Quick Actions Card */
 .quick-action-button {
-  @apply relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:-translate-y-[2px] hover:border-accent-hover hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3 ;
+  @apply relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:-translate-y-[2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3 ;
 }
 
 .filter-tab {
