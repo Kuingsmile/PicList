@@ -40,16 +40,16 @@
     >
       <div class="flex h-full w-full">
         <div
-          class="flex min-h-0 max-w-[400px] min-w-[40px] flex-col border-r-2 border-r-border transition-all duration-100 ease-out"
+          class="flex min-h-0 w-[40px] max-w-[400px] min-w-[40px] flex-col border-r-2 border-r-border transition-all duration-100 ease-out"
           :style="{ width: sidebarWidth + 'px' }"
         >
-          <div class="shrink-0 border-b-2 border-b-border-secondary p-2">
+          <div v-if="menuTitleMap[currentPicBedName]" class="shrink-0 border-b-2 border-b-border-secondary p-2">
             <h3 class="m-0 text-center text-sm font-semibold text-secondary">
               {{ menuTitleMap[currentPicBedName] }}
             </h3>
           </div>
 
-          <div class="min-h-0 flex-1 overflow-y-auto p-2">
+          <div class="min-h-0 flex-1 overflow-y-auto">
             <div v-if="isLoadingBucketList" class="flex flex-col items-center justify-center gap-2 p-8">
               <div
                 class="h-[25px] w-[25px] animate-spin rounded-full border-3 border-t-2 border-border border-t-accent"
@@ -287,7 +287,7 @@ const configMap = ref<any>(null)
 const currentAlias = ref(route.query.alias as string)
 const currentPicBedName = ref(route.query.picBedName as string)
 
-const sidebarWidth = ref(160)
+const sidebarWidth = ref(120)
 const isResizing = ref(false)
 
 let allPicBedConfigure = JSON.parse(route.query.allPicBedConfigure as string)

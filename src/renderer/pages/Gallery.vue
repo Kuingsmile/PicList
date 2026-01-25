@@ -242,12 +242,12 @@
                 </div>
               </div>
 
-              <div class="flex shrink-0 flex-col justify-between">
+              <div class="flex min-w-0 shrink-0 flex-col justify-between">
                 <div
-                  class="mb-1.5 overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-main"
+                  class="mb-1.5 w-full truncate text-center text-sm font-medium text-main"
                   :title="(item.fileName || '').toString().length > 30 ? item.fileName || '' : ''"
                 >
-                  <div class="text-center">{{ formatFileName(item.fileName || '') }}</div>
+                  {{ formatFileName(item.fileName || '') }}
                 </div>
 
                 <div class="mr-2 flex items-center justify-between">

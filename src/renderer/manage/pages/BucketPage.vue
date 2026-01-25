@@ -3,14 +3,13 @@
   <div
     ref="bucketContainerRef"
     class="relative flex h-full w-full items-center justify-center"
-    :class="{ 'content-fullscreen': isContentFullscreen }"
     @scroll="handleBucketContainerScroll"
   >
-    <div class="relative z-1 flex h-full w-full flex-col items-center justify-start gap-2 rounded-xl border-none p-0">
+    <div class="relative z-1 flex h-full w-full flex-col items-center justify-start gap-1 rounded-xl border-none p-0">
       <!-- Header Card -->
       <div
         v-if="!isContentFullscreen"
-        class="flex w-full flex-wrap items-center justify-between gap-4 overflow-visible rounded-xl border border-border-secondary p-0 shadow-sm"
+        class="flex w-full flex-wrap items-center justify-between gap-4 overflow-visible rounded-xl p-0"
       >
         <div class="flex flex-1 flex-wrap items-center gap-4 p-1">
           <!-- Custom Domain Input/Select -->
@@ -130,7 +129,7 @@
       <!-- Breadcrumb Card -->
       <div
         v-if="!isContentFullscreen"
-        class="flex w-full items-center justify-between gap-4 overflow-hidden rounded-xl border border-border-secondary p-0 shadow-sm"
+        class="flex w-full items-center justify-between gap-4 overflow-hidden rounded-sm border border-border-secondary p-0"
       >
         <div class="flex flex-1 items-center gap-0 overflow-x-auto px-4 py-1">
           <HomeIcon class="h-[16px] w-[16px] shrink-0 text-accent" />
@@ -138,7 +137,7 @@
             <template v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')" :key="index">
               <ChevronRightIcon v-if="index !== 0" class="h-[16px] w-[15px] shrink-0 text-accent" />
               <button
-                class="flex shrink-0 cursor-pointer items-center gap-1 rounded-md border-none bg-bg-secondary p-1 text-sm font-semibold text-secondary hover:bg-accent/10 hover:text-main"
+                class="flex shrink-0 cursor-pointer items-center gap-1 rounded-md border-none bg-bg-secondary p-1 text-sm font-semibold text-secondary last:bg-accent/10 hover:bg-accent/10 hover:text-main"
                 @click="handleBreadcrumbClick(Number(index))"
               >
                 {{ item === '' ? t('pages.manage.bucket.rootFolder') : item }}
@@ -158,7 +157,7 @@
       <!-- Control Panel Card -->
       <div
         v-if="!isContentFullscreen"
-        class="flex w-full flex-wrap items-center justify-between gap-2 overflow-visible rounded-xl border border-border-secondary p-0 shadow-sm"
+        class="flex w-full flex-wrap items-center justify-between gap-2 overflow-visible rounded-sm border border-border-secondary p-0"
       >
         <FileInfo :current-page-files-info="currentPageFilesInfo" :calculate-all-file-size="calculateAllFileSize" />
 
@@ -187,14 +186,25 @@
           </template>
 
           <!-- Sort Dropdown -->
-          <div class="dropdown">
-            <button class="dropdown-button" @click="sortDropdownOpen = !sortDropdownOpen">
+          <div class="relative">
+            <button
+              class="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-bg-secondary px-3 py-2 text-sm font-medium text-main hover:border-accent hover:bg-accent/10"
+              @click="sortDropdownOpen = !sortDropdownOpen"
+            >
               <ArrowUpDownIcon class="action-icon" />
               {{ t(`pages.manage.bucket.sort.${currentSortType}`) }}
               <ChevronDownIcon class="action-icon" />
             </button>
-            <div v-if="sortDropdownOpen" class="dropdown-content">
-              <div v-for="item in sortTypeList" :key="item" class="dropdown-item" @click="sortFile(item as any)">
+            <div
+              v-if="sortDropdownOpen"
+              class="absolute top-full left-0 z-1000 mt-1 min-w-[150px] rounded-md border border-border bg-bg-tertiary shadow-md"
+            >
+              <div
+                v-for="item in sortTypeList"
+                :key="item"
+                class="cursor-pointer bg-bg-tertiary px-3 py-2 text-sm text-main transition-all duration-fast ease-apple hover:bg-accent/30 hover:text-white"
+                @click="sortFile(item as any)"
+              >
                 {{ t(`pages.manage.bucket.sort.${item}`) }}
               </div>
             </div>
@@ -235,7 +245,7 @@
         class="flex w-full flex-wrap items-center justify-between gap-2 overflow-visible rounded-xl border border-border-secondary p-0 shadow-sm"
       >
         <div class="flex max-w-[400px] min-w-[200px] items-center overflow-x-auto px-4 py-1">
-          <div class="fullscreen-breadcrumb rounded-md shadow-sm">
+          <div class="flex flex-wrap items-center gap-1 rounded-md shadow-sm">
             <HomeIcon class="h-[16px] w-[16px] shrink-0 text-accent" />
             <template v-if="configMap.prefix !== '/'">
               <template v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')" :key="index">
@@ -258,7 +268,7 @@
           </div>
         </div>
         <FileInfo :current-page-files-info="currentPageFilesInfo" :calculate-all-file-size="calculateAllFileSize" />
-        <div class="fullscreen-header-right">
+        <div class="flex min-w-[200px] flex-1 items-center justify-end gap-3">
           <!-- Search -->
           <input
             v-model="searchText"
@@ -282,7 +292,7 @@
       </div>
 
       <div
-        class="no-scrollbar flex min-h-[500px] w-full flex-1 flex-col flex-wrap items-center justify-center gap-2 overflow-auto rounded-2xl border border-border-secondary p-1 shadow-md"
+        class="no-scrollbar flex min-h-[500px] w-full flex-1 flex-col flex-wrap items-center justify-center gap-2 overflow-auto rounded-md border border-border-secondary p-1 shadow-md"
       >
         <div v-if="filterList.length === 0" class="h-full w-full">
           <EmptyPage />
@@ -366,13 +376,13 @@
                 </template>
               </div>
 
-              <div class="flex shrink-0 flex-col justify-between gap-0.5">
+              <div class="flex min-w-0 shrink-0 flex-col justify-between gap-0.5">
                 <div
-                  class="overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-main"
+                  class="w-full truncate text-center text-sm font-medium text-main"
                   :title="item.fileName"
                   @click.stop="copyToClipboard(item.fileName ?? '')"
                 >
-                  <div class="text-center">{{ item.fileName ?? '' }}</div>
+                  {{ item.fileName ?? '' }}
                 </div>
                 <div
                   v-if="!item.isDir"
@@ -512,7 +522,7 @@
           @click="copyToClipboard(JSON.stringify(currentShowedFileInfo, null, 2))"
         />
       </div>
-      <div class="modal-content">
+      <div class="flex-1 overflow-y-auto bg-bg p-6">
         <div
           v-for="(value, key) in currentShowedFileInfo"
           :key="key"
@@ -548,9 +558,12 @@
         <div class="mb-6 last:mb-0">
           <label class="mb-2 flex items-center gap-2 text-sm font-medium text-main">
             {{ t('pages.manage.bucket.matchedPattern', { num: matchedFilesNumber.length }) }}
-            <div class="tooltip">
+            <div class="group relative inline-block">
               <InfoIcon class="action-icon" />
-              <span class="tooltip-text">{{ t('pages.manage.bucket.regexPatternTips') }}</span>
+              <span
+                class="invisible absolute top-[125%] left-1/2 z-1000 w-max max-w-[200px] translate-x-[-50%] rounded-md border border-border bg-bg-tertiary p-2 text-center text-xs text-main opacity-0 shadow-md transition-opacity duration-300 group-hover:visible group-hover:opacity-100"
+                >{{ t('pages.manage.bucket.regexPatternTips') }}</span
+              >
             </div>
           </label>
           <input
@@ -663,245 +676,221 @@
       </div>
     </div>
     <!-- Upload Drawer -->
-    <div
+    <CustomModal
       v-if="isShowUploadPanel"
-      class="drawer-overlay"
-      :class="{ open: isShowUploadPanel }"
-      @click="isShowUploadPanel = false"
+      v-model:visible="isShowUploadPanel"
+      :title="t('pages.manage.bucket.uploadFile')"
+      width="900px"
+      height="90vh"
     >
-      <div class="drawer-container" @click.stop>
-        <div class="drawer-header">
-          <h3 class="drawer-title">
-            {{ t('pages.manage.bucket.uploadFile') }}
-          </h3>
-          <div class="switch-container">
-            <label class="switch">
-              <input v-model="isUploadKeepDirStructure" type="checkbox" @change="handleUploadKeepDirChange" />
-              <span class="switch-slider" />
-            </label>
-            <span class="switch-label">
-              {{
-                isUploadKeepDirStructure
-                  ? t('pages.manage.bucket.keepDirStructure')
-                  : t('pages.manage.bucket.noKeepDirStructure')
-              }}
-            </span>
-          </div>
-          <button class="modal-close" @click="isShowUploadPanel = false">
-            <XIcon class="action-icon" />
-          </button>
+      <div class="flex h-full w-full flex-col gap-2">
+        <div class="flex justify-end">
+          <CustomSwitch
+            v-model="isUploadKeepDirStructure"
+            :title="
+              isUploadKeepDirStructure
+                ? t('pages.manage.bucket.keepDirStructure')
+                : t('pages.manage.bucket.noKeepDirStructure')
+            "
+            small
+            no-border
+            @change="handleUploadKeepDirChange"
+          />
         </div>
 
-        <div class="drawer-content">
-          <div
-            v-if="!tableData.length"
-            class="upload-area"
-            :class="{ dragover: isDragover }"
-            @drop.prevent="onDrop"
-            @dragover.prevent="isDragover = true"
-            @dragleave.prevent="isDragover = false"
-            @click="openFileSelectDialog"
-          >
-            <div class="upload-area-text">
-              {{ t('pages.manage.bucket.dragUpload') }}
-            </div>
-            <div class="upload-area-subtext">
-              {{ t('pages.manage.bucket.clickUpload') }}
-            </div>
-          </div>
-
-          <!-- Upload File List -->
-          <div v-if="tableData.length">
-            <VirtualScroller
-              :items="
-                tableData.sort((a, b) =>
-                  b.isFolder - a.isFolder === 0 ? b.filesList.length - a.filesList.length : b.isFolder - a.isFolder,
-                )
-              "
-              :item-height="90"
-              :style="{ height: '100%' }"
-              view-mode="list"
+        <div class="no-scrollbar w-full flex-1 overflow-hidden rounded-md border border-border p-4 shadow-md">
+          <div class="flex h-full w-full flex-col">
+            <div
+              v-if="!tableData.length"
+              ref="uploadDialog"
+              class="h-[200px] w-full cursor-pointer rounded-lg border-2 border-dashed border-border bg-surface p-4 text-center transition-all duration-fast ease-apple hover:border-accent hover:bg-accent/10 [.dragover]:border-accent [.dragover]:bg-accent/10"
+              :class="{ dragover: isDragover }"
+              @drop.prevent="onDrop"
+              @dragover.prevent="isDragover = true"
+              @dragleave.prevent="isDragover = false"
+              @click="openFileSelectDialog"
             >
-              <template #default="{ item }">
-                <div class="file-list-item">
-                  <div class="file-list-icon">
-                    <FolderIcon v-if="item.isFolder" class="file-icon" />
-                    <FileIcon v-else class="file-icon" />
-                  </div>
-                  <div class="file-list-info">
-                    <div class="file-list-name">
-                      {{ formatFileName(item.name) }}
-                    </div>
-                    <div v-if="item.fullPath" class="file-list-path">
-                      {{ item.fullPath }}
-                    </div>
-                    <div class="file-list-meta">
-                      <span>{{ formatFileSize(item.fileSize) }}</span>
-                      <span v-if="item.isFolder"> {{ item.filesList.length }} files </span>
-                    </div>
-                  </div>
+              <div class="flex h-full flex-col items-center justify-center gap-2">
+                <div class="mb-2 text-lg font-semibold text-secondary">
+                  {{ t('pages.manage.bucket.dragUpload') }}
                 </div>
-              </template>
-            </VirtualScroller>
-          </div>
-
-          <!-- Upload Actions -->
-          <div v-if="tableData.length" style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem">
-            <button class="action-button primary" :disabled="isLoadingUploadPanelFiles" @click="uploadFiles">
-              <UploadIcon class="action-icon" />
-              {{ isLoadingUploadPanelFiles ? t('pages.manage.bucket.readingDir') : t('pages.manage.bucket.upload') }}
-            </button>
-            <button class="action-button secondary" :disabled="isLoadingUploadPanelFiles" @click="clearTableData">
-              <Trash2Icon class="action-icon" />
-              {{ t('pages.manage.bucket.clear') }}
-            </button>
-          </div>
-
-          <!-- Upload Tasks Tabs -->
-          <div class="tabs-container">
-            <div class="tabs-header">
-              <button
-                class="tab-button"
-                :class="{ active: activeUpLoadTab === 'uploading' }"
-                @click="activeUpLoadTab = 'uploading'"
-              >
-                {{ t('pages.manage.bucket.uploading') }}
-                <span v-if="uploadingTaskList.length" class="tab-badge">
-                  {{ uploadingTaskList.length }}
-                </span>
-              </button>
-              <button
-                class="tab-button"
-                :class="{ active: activeUpLoadTab === 'finished' }"
-                @click="activeUpLoadTab = 'finished'"
-              >
-                {{ t('pages.manage.bucket.success') }}
-                <span v-if="uploadedTaskList.filter(item => item.status === 'uploaded').length" class="tab-badge">
-                  {{ uploadedTaskList.filter(item => item.status === 'uploaded').length }}
-                </span>
-              </button>
-              <button
-                class="tab-button"
-                :class="{ active: activeUpLoadTab === 'failed' }"
-                @click="activeUpLoadTab = 'failed'"
-              >
-                {{ t('pages.manage.bucket.failed') }}
-                <span v-if="uploadedTaskList.filter(item => item.status !== 'uploaded').length" class="tab-badge">
-                  {{ uploadedTaskList.filter(item => item.status !== 'uploaded').length }}
-                </span>
-              </button>
+                <div class="text-sm font-medium text-secondary">
+                  {{ t('pages.manage.bucket.clickUpload') }}
+                </div>
+              </div>
             </div>
 
-            <div class="tab-content">
-              <!-- Uploading Tab -->
-              <div v-if="activeUpLoadTab === 'uploading'" class="tab-panel">
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
-                  <button class="action-button secondary" @click="handleCopyUploadingTaskInfo">
-                    <CopyIcon class="action-icon" />
-                    {{ t('pages.manage.bucket.copyUploadTask') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleDeleteUploadedTask">
-                    <Trash2Icon class="action-icon" />
-                    {{ t('pages.manage.bucket.clearFinishedTasks') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleDeleteAllUploadedTask">
-                    <Trash2Icon class="action-icon" />
-                    {{ t('pages.manage.bucket.clearAll') }}
-                  </button>
-                </div>
-                <VirtualScroller
-                  :items="uploadingTaskList"
-                  :item-height="70"
-                  :style="{ height: '100%' }"
-                  view-mode="list"
-                >
-                  <template #default="{ item }">
-                    <div class="file-list-item">
-                      <div class="file-list-info">
-                        <div class="file-list-name">
-                          {{ formatFileName(item.sourceFileName) }}
+            <!-- Upload File List -->
+            <div
+              v-if="tableData.length"
+              class="flex h-[200px] w-full cursor-pointer rounded-lg border-2 border-dashed border-border bg-surface p-4 text-center transition-all duration-fast ease-apple"
+            >
+              <VirtualScroller
+                :items="
+                  tableData.sort((a, b) =>
+                    b.isFolder - a.isFolder === 0 ? b.filesList.length - a.filesList.length : b.isFolder - a.isFolder,
+                  )
+                "
+                :item-height="90"
+                class="min-h-0 w-full flex-1 p-3"
+                view-mode="list"
+              >
+                <template #default="{ item }">
+                  <div
+                    class="m-0 flex w-full cursor-pointer items-center gap-2 rounded-md border border-border-secondary bg-bg-secondary px-4 py-3 hover:bg-accent/10"
+                  >
+                    <div class="flex h-[25px] w-[25px] shrink-0 items-center justify-center">
+                      <FolderIcon v-if="item.isFolder" class="h-[48px] w-[48px] text-tertiary" />
+                      <FileIcon v-else class="h-[48px] w-[48px] text-tertiary" />
+                    </div>
+                    <div class="min-w-0 flex-1 flex-col">
+                      <div class="flex flex-row justify-between gap-3">
+                        <div
+                          class="mb-1 cursor-pointer overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap text-secondary"
+                        >
+                          {{ item.name }}
                         </div>
-                        <div class="progress-bar">
-                          <div class="progress-fill" :style="{ width: `${item.progress || 50}%` }" />
+                        <div
+                          v-if="item.fullPath"
+                          class="overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-secondary"
+                        >
+                          {{ item.fullPath }}
                         </div>
                       </div>
-                    </div>
-                  </template>
-                </VirtualScroller>
-              </div>
-
-              <!-- Finished Tab -->
-              <div v-if="activeUpLoadTab === 'finished'" class="tab-panel">
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
-                  <button class="action-button secondary" @click="handleCopyUploadingTaskInfo">
-                    <CopyIcon class="action-icon" />
-                    {{ t('pages.manage.bucket.copyUploadTask') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleDeleteUploadedTask">
-                    <Trash2Icon class="action-icon" />
-                    {{ t('pages.manage.bucket.clearFinishedTasks') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleDeleteAllUploadedTask">
-                    <Trash2Icon class="action-icon" />
-                    {{ t('pages.manage.bucket.clearAll') }}
-                  </button>
-                </div>
-                <VirtualScroller
-                  :items="uploadedTaskList.filter(item => item.status === 'uploaded')"
-                  :item-height="70"
-                  :style="{ height: '100%' }"
-                  view-mode="list"
-                >
-                  <template #default="{ item }">
-                    <div class="file-list-item">
-                      <div class="file-list-info">
-                        <div class="file-list-name">
-                          {{ formatFileName(item.sourceFileName) }}
-                        </div>
-                        <div class="file-list-meta">
-                          <span>{{ item.finishTime }}</span>
-                          <span class="badge success">
-                            {{ t('pages.manage.bucket.success') }}
-                          </span>
-                        </div>
+                      <div class="flex text-xs text-secondary">
+                        <span>{{ formatFileSize(item.fileSize) }}</span>
+                        <span v-if="item.isFolder"> {{ item.filesList.length }} files </span>
                       </div>
                     </div>
-                  </template>
-                </VirtualScroller>
+                  </div>
+                </template>
+              </VirtualScroller>
+            </div>
+
+            <!-- Upload Actions -->
+            <div v-if="tableData.length" class="mt-4 flex justify-center gap-4">
+              <CustomButton
+                type="primary"
+                :disabled="isLoadingUploadPanelFiles"
+                :text="
+                  isLoadingUploadPanelFiles ? t('pages.manage.bucket.readingDir') : t('pages.manage.bucket.upload')
+                "
+                :icon="UploadIcon"
+                @click="uploadFiles"
+              />
+              <CustomButton
+                type="secondary"
+                :icon="Trash2Icon"
+                :text="t('pages.manage.bucket.clear')"
+                :disabled="isLoadingUploadPanelFiles"
+                @click="clearTableData"
+              />
+            </div>
+
+            <!-- Upload Tasks Tabs -->
+            <div class="flex flex-1 flex-col gap-2 overflow-hidden border-t border-border-secondary">
+              <div class="flex shrink-0 border-b border-b-border">
+                <button
+                  class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
+                  :class="{ active: activeUpLoadTab === 'uploading' }"
+                  @click="activeUpLoadTab = 'uploading'"
+                >
+                  {{ t('pages.manage.bucket.uploading') }}
+                  <span
+                    v-if="uploadingTaskList.length"
+                    class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
+                  >
+                    {{ uploadingTaskList.length }}
+                  </span>
+                </button>
+                <button
+                  class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
+                  :class="{ active: activeUpLoadTab === 'finished' }"
+                  @click="activeUpLoadTab = 'finished'"
+                >
+                  {{ t('pages.manage.bucket.success') }}
+                  <span
+                    v-if="uploadedTaskList.filter(item => item.status === 'uploaded').length"
+                    class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
+                  >
+                    {{ uploadedTaskList.filter(item => item.status === 'uploaded').length }}
+                  </span>
+                </button>
+                <button
+                  class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
+                  :class="{ active: activeUpLoadTab === 'failed' }"
+                  @click="activeUpLoadTab = 'failed'"
+                >
+                  {{ t('pages.manage.bucket.failed') }}
+                  <span
+                    v-if="uploadedTaskList.filter(item => item.status !== 'uploaded').length"
+                    class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
+                  >
+                    {{ uploadedTaskList.filter(item => item.status !== 'uploaded').length }}
+                  </span>
+                </button>
               </div>
 
-              <!-- Failed Tab -->
-              <div v-if="activeUpLoadTab === 'failed'" class="tab-panel">
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
-                  <button class="action-button secondary" @click="handleCopyUploadingTaskInfo">
-                    <CopyIcon class="action-icon" />
-                    {{ t('pages.manage.bucket.copyUploadTask') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleDeleteUploadedTask">
-                    <Trash2Icon class="action-icon" />
-                    {{ t('pages.manage.bucket.clearFinishedTasks') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleDeleteAllUploadedTask">
-                    <Trash2Icon class="action-icon" />
-                    {{ t('pages.manage.bucket.clearAll') }}
-                  </button>
-                </div>
+              <div class="flex flex-row justify-center gap-3 rounded-md border border-border shadow-sm">
+                <CustomButton
+                  type="secondary"
+                  :text="t('pages.manage.bucket.copyUploadTask')"
+                  :icon="CopyIcon"
+                  @click="handleCopyUploadingTaskInfo"
+                />
+                <CustomButton
+                  type="secondary"
+                  :text="t('pages.manage.bucket.clearFinishedTasks')"
+                  :icon="Trash2Icon"
+                  @click="handleDeleteUploadedTask"
+                />
+                <CustomButton
+                  type="secondary"
+                  :text="t('pages.manage.bucket.clearAll')"
+                  :icon="Trash2Icon"
+                  @click="handleDeleteAllUploadedTask"
+                />
+              </div>
+
+              <div class="w-full flex-1 overflow-auto rounded-md border border-border-secondary p-2">
+                <!-- Uploading Tab -->
                 <VirtualScroller
-                  :items="uploadedTaskList.filter(item => item.status !== 'uploaded')"
+                  :items="
+                    activeUpLoadTab === 'uploading'
+                      ? uploadingTaskList
+                      : activeUpLoadTab === 'finished'
+                        ? uploadedTaskList.filter(item => item.status === 'uploaded')
+                        : uploadedTaskList.filter(item => item.status !== 'uploaded')
+                  "
                   :item-height="70"
-                  :style="{ height: '100%' }"
+                  class="min-h-0 w-full flex-1 p-3"
                   view-mode="list"
                 >
                   <template #default="{ item }">
-                    <div class="file-list-item">
-                      <div class="file-list-info">
-                        <div class="file-list-name">
-                          {{ formatFileName(item.sourceFileName) }}
+                    <div
+                      class="m-0 flex w-full cursor-pointer items-center gap-3 rounded-md border border-border bg-bg-secondary px-4 py-3 hover:border-accent hover:shadow-md"
+                    >
+                      <div class="flex flex-1 flex-col gap-1">
+                        <div class="overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-secondary">
+                          {{ item.sourceFileName }}
                         </div>
-                        <div class="file-list-meta">
+                        <div
+                          v-if="activeUpLoadTab === 'uploading'"
+                          class="h-[8px] w-full overflow-hidden rounded-[4px] bg-surface-elevated"
+                        >
+                          <div
+                            class="h-full rounded-[4px] bg-accent transition-all duration-300 ease-apple"
+                            :style="{ width: `${item.progress}%` }"
+                          />
+                        </div>
+                        <div v-else class="flex gap-4 text-xs text-secondary">
                           <span>{{ item.finishTime }}</span>
-                          <span class="badge error">
-                            {{ t('pages.manage.bucket.failed') }}
+                          <span class="text-xs font-semibold text-success">
+                            {{
+                              activeUpLoadTab === 'finished'
+                                ? t('pages.manage.bucket.success')
+                                : t('pages.manage.bucket.failed')
+                            }}
                           </span>
                         </div>
                       </div>
@@ -913,245 +902,200 @@
           </div>
         </div>
       </div>
-    </div>
+    </CustomModal>
 
     <!-- Download Drawer -->
-    <div
+    <CustomModal
       v-if="isShowDownloadPanel"
-      class="drawer-overlay"
-      :class="{ open: isShowDownloadPanel }"
-      @click="isShowDownloadPanel = false"
+      v-model:visible="isShowDownloadPanel"
+      :title="t('pages.manage.bucket.downloadPage')"
+      width="900px"
+      height="90vh"
     >
-      <div class="drawer-container" @click.stop>
-        <div class="drawer-header">
-          <h3 class="drawer-title">
-            {{ t('pages.manage.bucket.downloadPage') }}
-          </h3>
-          <button class="modal-close" @click="isShowDownloadPanel = false">
-            <XIcon class="action-icon" />
-          </button>
-        </div>
-
-        <div class="drawer-content">
+      <div class="no-scrollbar w-full flex-1 overflow-hidden rounded-md border border-border p-4 shadow-md">
+        <div class="flex h-full w-full flex-col">
           <!-- Download Tasks Tabs -->
-          <div class="tabs-container">
-            <div class="tabs-header">
+          <div class="flex flex-1 flex-col gap-2 overflow-hidden border-t border-border-secondary">
+            <div class="flex shrink-0 border-b border-b-border">
               <button
-                class="tab-button"
+                class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
                 :class="{ active: activeDownLoadTab === 'downloading' }"
                 @click="activeDownLoadTab = 'downloading'"
               >
                 {{ t('pages.manage.bucket.downloading') }}
-                <span v-if="downloadingTaskList.length" class="tab-badge">
+                <span
+                  v-if="downloadingTaskList.length"
+                  class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
+                >
                   {{ downloadingTaskList.length }}
                 </span>
               </button>
               <button
-                class="tab-button"
+                class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
                 :class="{ active: activeDownLoadTab === 'finished' }"
                 @click="activeDownLoadTab = 'finished'"
               >
                 {{ t('pages.manage.bucket.success') }}
-                <span v-if="downloadedTaskList.filter(item => item.status === 'downloaded').length" class="tab-badge">
+                <span
+                  v-if="downloadedTaskList.filter(item => item.status === 'downloaded').length"
+                  class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
+                >
                   {{ downloadedTaskList.filter(item => item.status === 'downloaded').length }}
                 </span>
               </button>
               <button
-                class="tab-button"
+                class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
                 :class="{ active: activeDownLoadTab === 'failed' }"
                 @click="activeDownLoadTab = 'failed'"
               >
                 {{ t('pages.manage.bucket.failed') }}
-                <span v-if="downloadedTaskList.filter(item => item.status !== 'downloaded').length" class="tab-badge">
+                <span
+                  v-if="downloadedTaskList.filter(item => item.status !== 'downloaded').length"
+                  class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
+                >
                   {{ downloadedTaskList.filter(item => item.status !== 'downloaded').length }}
                 </span>
               </button>
             </div>
 
-            <!-- Download Tabs Content -->
-            <div class="tab-content">
+            <div class="flex flex-row justify-center gap-3 rounded-md border border-border shadow-sm">
+              <CustomButton
+                type="secondary"
+                :text="t('pages.manage.bucket.copyDownloadTask')"
+                :icon="CopyIcon"
+                @click="handleCopyDownloadingTaskInfo"
+              />
+              <CustomButton
+                type="secondary"
+                :text="t('pages.manage.bucket.clearFinishedTasks')"
+                :icon="Trash2Icon"
+                @click="handleDeleteDownloadedTask"
+              />
+              <CustomButton
+                type="secondary"
+                :text="t('pages.manage.bucket.clearAll')"
+                :icon="Trash2Icon"
+                @click="handleDeleteAllDownloadedTask"
+              />
+              <CustomButton
+                type="secondary"
+                :text="t('pages.manage.bucket.openDownloadFolder')"
+                :icon="FolderIcon"
+                @click="handleOpenDownloadedFolder"
+              />
+            </div>
+
+            <div class="w-full flex-1 overflow-auto rounded-md border border-border-secondary p-2">
               <!-- Downloading Tab -->
-              <div v-if="activeDownLoadTab === 'downloading'" class="tab-panel">
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
-                  <button class="action-button secondary" @click="handleCopyDownloadingTaskInfo">
-                    <CopyIcon class="action-icon" />
-                    {{ t('pages.manage.bucket.copyDownloadTask') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleDeleteDownloadedTask">
-                    <Trash2Icon class="action-icon" />
-                    {{ t('pages.manage.bucket.clearFinishedTasks') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleDeleteAllDownloadedTask">
-                    <Trash2Icon class="action-icon" />
-                    {{ t('pages.manage.bucket.clearAll') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleOpenDownloadedFolder">
-                    <FolderIcon class="action-icon" />
-                    {{ t('pages.manage.bucket.openDownloadFolder') }}
-                  </button>
-                </div>
-                <VirtualScroller
-                  :items="downloadingTaskList"
-                  :item-height="70"
-                  :style="{ height: '100%' }"
-                  view-mode="list"
-                >
-                  <template #default="{ item }">
-                    <div class="file-list-item">
-                      <div class="file-list-info">
-                        <div class="file-list-name">
-                          {{ formatFileName(item.sourceFileName) }}
-                        </div>
-                        <div class="progress-bar">
-                          <div class="progress-fill" :style="{ width: `${item.progress}%` }" />
-                        </div>
+              <VirtualScroller
+                :items="
+                  activeDownLoadTab === 'downloading'
+                    ? downloadingTaskList
+                    : activeDownLoadTab === 'finished'
+                      ? downloadedTaskList.filter(item => item.status === 'downloaded')
+                      : downloadedTaskList.filter(item => item.status !== 'downloaded')
+                "
+                :item-height="70"
+                class="min-h-0 w-full flex-1 p-3"
+                view-mode="list"
+              >
+                <template #default="{ item }">
+                  <div
+                    class="m-0 flex w-full cursor-pointer items-center gap-3 rounded-md border border-border bg-bg-secondary px-4 py-3 hover:border-accent hover:shadow-md"
+                  >
+                    <div class="flex flex-1 flex-col gap-1">
+                      <div class="overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-secondary">
+                        {{ item.sourceFileName }}
+                      </div>
+                      <div
+                        v-if="activeDownLoadTab === 'downloading'"
+                        class="relative h-[8px] w-full overflow-hidden rounded-[4px] bg-surface-elevated"
+                      >
+                        <div
+                          class="h-full rounded-[4px] bg-accent transition-all duration-300 ease-apple"
+                          :style="{ width: `${item.progress}%` }"
+                        />
+                      </div>
+                      <div v-else class="flex gap-4 text-xs text-secondary">
+                        <span>{{ item.finishTime }}</span>
+                        <span class="text-xs font-semibold text-success">
+                          {{
+                            activeUpLoadTab === 'finished'
+                              ? t('pages.manage.bucket.success')
+                              : t('pages.manage.bucket.failed')
+                          }}
+                        </span>
                       </div>
                     </div>
-                  </template>
-                </VirtualScroller>
-              </div>
-
-              <!-- Finished Tab -->
-              <div v-if="activeDownLoadTab === 'finished'" class="tab-panel">
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
-                  <button class="action-button secondary" @click="handleCopyDownloadingTaskInfo">
-                    <CopyIcon class="action-icon" />
-                    {{ t('pages.manage.bucket.copyDownloadTask') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleDeleteDownloadedTask">
-                    <Trash2Icon class="action-icon" />
-                    {{ t('pages.manage.bucket.clearFinishedTasks') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleDeleteAllDownloadedTask">
-                    <Trash2Icon class="action-icon" />
-                    {{ t('pages.manage.bucket.clearAll') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleOpenDownloadedFolder">
-                    <FolderIcon class="action-icon" />
-                    {{ t('pages.manage.bucket.openDownloadFolder') }}
-                  </button>
-                </div>
-                <VirtualScroller
-                  :items="downloadedTaskList.filter(item => item.status === 'downloaded')"
-                  :item-height="70"
-                  :style="{ height: '100%' }"
-                  view-mode="list"
-                >
-                  <template #default="{ item }">
-                    <div class="file-list-item">
-                      <div class="file-list-info">
-                        <div class="file-list-name">
-                          {{ formatFileName(item.sourceFileName) }}
-                        </div>
-                        <div class="file-list-meta">
-                          <span>{{ item.finishTime }}</span>
-                          <span class="badge success">
-                            {{ t('pages.manage.bucket.success') }}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </template>
-                </VirtualScroller>
-              </div>
-
-              <!-- Failed Tab -->
-              <div v-if="activeDownLoadTab === 'failed'" class="tab-panel">
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
-                  <button class="action-button secondary" @click="handleCopyDownloadingTaskInfo">
-                    <CopyIcon class="action-icon" />
-                    {{ t('pages.manage.bucket.copyDownloadTask') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleDeleteDownloadedTask">
-                    <Trash2Icon class="action-icon" />
-                    {{ t('pages.manage.bucket.clearFinishedTasks') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleDeleteAllDownloadedTask">
-                    <Trash2Icon class="action-icon" />
-                    {{ t('pages.manage.bucket.clearAll') }}
-                  </button>
-                  <button class="action-button secondary" @click="handleOpenDownloadedFolder">
-                    <FolderIcon class="action-icon" />
-                    {{ t('pages.manage.bucket.openDownloadFolder') }}
-                  </button>
-                </div>
-                <VirtualScroller
-                  :items="downloadedTaskList.filter(item => item.status !== 'downloaded')"
-                  :style="{ height: '100%' }"
-                  :item-height="70"
-                  view-mode="list"
-                >
-                  <template #default="{ item }">
-                    <div class="file-list-item">
-                      <div class="file-list-info">
-                        <div class="file-list-name">
-                          {{ formatFileName(item.sourceFileName) }}
-                        </div>
-                        <div class="file-list-meta">
-                          <span>{{ item.finishTime }}</span>
-                          <span class="badge error">
-                            {{ t('pages.manage.bucket.failed') }}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </template>
-                </VirtualScroller>
-              </div>
+                  </div>
+                </template>
+              </VirtualScroller>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </CustomModal>
 
     <!-- Markdown Preview Dialog -->
-    <div v-if="isShowMarkDownDialog" class="modal-overlay" @click="isShowMarkDownDialog = false">
-      <div class="modal-container" style="width: 90vw; height: 90vh" @click.stop>
-        <div class="modal-header">
-          <h3 class="modal-title">
-            {{ t('pages.manage.bucket.preview') }}
-          </h3>
-          <button class="modal-close" @click="isShowMarkDownDialog = false">
-            <XIcon class="action-icon" />
-          </button>
-        </div>
-        <div class="modal-content" style="user-select: text" v-html="markDownContent" />
+    <CustomModal
+      v-if="isShowMarkDownDialog"
+      v-model:visible="isShowMarkDownDialog"
+      width="80vw"
+      height="80vh"
+      :title="t('pages.manage.bucket.preview')"
+    >
+      <div class="flex h-full w-full">
+        <div class="notes-body" style="user-select: text" v-html="markDownContent" />
       </div>
-    </div>
+    </CustomModal>
 
     <!-- Text File Preview Dialog -->
-    <div v-if="isShowTextFileDialog" class="modal-overlay" @click="isShowTextFileDialog = false">
-      <div class="modal-container" style="width: 90vw; height: 90vh" @click.stop>
-        <div class="modal-header">
-          <h3 class="modal-title">
-            {{ t('pages.manage.bucket.preview') }}
-          </h3>
-          <button class="modal-close" @click="isShowTextFileDialog = false">
-            <XIcon class="action-icon" />
-          </button>
-        </div>
-        <div class="modal-content">
-          <pre style="font-family: monospace; white-space: pre-wrap; user-select: text">{{ textfileContent }}</pre>
-        </div>
+    <CustomModal
+      v-if="isShowTextFileDialog"
+      v-model:visible="isShowTextFileDialog"
+      width="80vw"
+      height="80vh"
+      :title="t('pages.manage.bucket.preview')"
+    >
+      <div class="flex h-full w-full">
+        <pre class="overflow-auto font-['SF_Mono',Monaco,Menlo,'Ubuntu_Mono',monospace] text-base text-main">{{
+          textfileContent
+        }}</pre>
       </div>
-    </div>
+    </CustomModal>
 
     <!-- Video Player Dialog -->
-    <div v-if="isShowVideoFileDialog" class="modal-overlay" @click="isShowVideoFileDialog = false">
-      <div class="modal-container" style="width: 90vw; height: 90vh" @click.stop>
-        <div class="modal-header">
-          <h3 class="modal-title">
-            {{ t('pages.manage.bucket.play') }}
-          </h3>
-          <button class="modal-close" @click="isShowVideoFileDialog = false">
-            <XIcon class="action-icon" />
-          </button>
-        </div>
-        <div class="modal-content">
-          <video :src="videoFileUrl" controls loop autoplay style="width: 100%; height: auto; max-height: 70vh" />
-        </div>
+    <CustomModal
+      v-if="isShowVideoFileDialog"
+      v-model:visible="isShowVideoFileDialog"
+      width="90vw"
+      height="90vh"
+      :title="t('pages.manage.bucket.play')"
+    >
+      <div class="flex h-full w-full items-center justify-center bg-black">
+        <video-player
+          class="video-player"
+          :src="videoFileUrl"
+          :volume="0.6"
+          :options="{
+            autoplay: true,
+            muted: false,
+            responsive: true,
+            fill: true,
+            fluid: false,
+            controlBar: {
+              volumePanel: {
+                inline: false,
+              },
+            },
+          }"
+          crossorigin="anonymous"
+          controls
+          playsinline
+          loop
+        />
       </div>
-    </div>
+    </CustomModal>
 
     <!-- Create Folder Dialog -->
     <CustomModal
@@ -1234,7 +1178,6 @@ import { useDownloadFileTransferStore, useFileTransferStore, useManageStore } fr
 import {
   customStrMatch,
   customStrReplace,
-  formatFileName,
   formatFileSize,
   formatLink,
   getFileIconPath,
@@ -1245,6 +1188,7 @@ import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { textFileExt } from '@/manage/utils/textfile'
 import { videoExt } from '@/manage/utils/videofile'
 import { trimPath } from '@/utils/common'
+import { useDragEventListeners } from '@/utils/drag'
 import { IRPCActionType } from '@/utils/enum'
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/utils/static'
 /*
@@ -1265,6 +1209,8 @@ const props = defineProps<{
 
 type ISortTypeList = 'name' | 'size' | 'time' | 'ext' | 'check' | 'init'
 
+const uploadDialog = useTemplateRef<HTMLDivElement>('uploadDialog')
+useDragEventListeners(uploadDialog)
 let fileTransferInterval: NodeJS.Timeout | undefined
 let downloadInterval: NodeJS.Timeout | undefined
 let scrollTimeout: ReturnType<typeof setTimeout> | undefined
@@ -1536,8 +1482,8 @@ function getList() {
   })
 }
 
-function handleUploadKeepDirChange() {
-  saveConfig('settings.isUploadKeepDirStructure', isUploadKeepDirStructure.value)
+function handleUploadKeepDirChange(value: boolean) {
+  saveConfig('settings.isUploadKeepDirStructure', value)
   manageStore.refreshConfig()
 }
 
@@ -1896,7 +1842,7 @@ async function handleClickFile(item: any) {
       const fileUrl = item.url
       const res = await fetch(fileUrl, options)
       const content = await res.text()
-      markDownContent.value = await marked.parse(content)
+      markDownContent.value = await marked(content, { breaks: true, gfm: true })
       isShowMarkDownDialog.value = true
     } catch (_error) {
       message.error(t('pages.manage.bucket.loadingFailed'))

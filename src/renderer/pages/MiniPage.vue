@@ -5,7 +5,7 @@
     :class="[osGlobal === 'linux' ? 'rounded-none bg-size-[100vh_100vw]' : 'rounded-full bg-size-[90vh_90vw]']"
   >
     <div
-      id="upload-area"
+      ref="uploadArea"
       class="h-full w-full transition-all duration-200 ease-in-out"
       :class="{
         'bg-[rgba(0,0,0,0.3)]': dragover,
@@ -35,11 +35,12 @@
 
 <script lang="ts" setup>
 import type { IConfig } from 'piclist'
-import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
+import { onBeforeMount, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
 
 import { osGlobal } from '@/hooks/useGlobal'
 import { isUrl } from '@/utils/common'
 import { getConfig } from '@/utils/dataSender'
+import { useDragEventListeners } from '@/utils/drag'
 import { IRPCActionType } from '@/utils/enum'
 
 const logoPath = ref('')
@@ -51,6 +52,9 @@ const wX = ref(-1)
 const wY = ref(-1)
 const screenX = ref(-1)
 const screenY = ref(-1)
+const uploadArea = useTemplateRef<HTMLDivElement>('uploadArea')
+
+useDragEventListeners(uploadArea)
 
 let removeListeners: () => void = () => {}
 

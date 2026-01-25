@@ -42,7 +42,6 @@
 | .amv  |      AMV视频文件      | .mpg  |          MPEG视频文件           |
 | .avi  |      AVI视频文件      | .mts  |          AVCHD视频文件          |
 | .flac |     FLAC音频文件      | .ogg  |       Ogg Vorbis音频文件        |
-| .flv  |     Flash视频文件     | .ogv  |       Ogg Theora视频文件        |
 | .m2ts |     M2TS视频文件      | .vob  |           DVD视频文件           |
 | .m4a  |    MPEG-4音频文件     | .wav  |           WAV音频文件           |
 | .m4v  |    MPEG-4视频文件     | .webm |          WebM视频文件           |

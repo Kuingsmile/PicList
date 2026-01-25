@@ -135,7 +135,7 @@
                 small
                 no-border
                 :title="t('pages.settings.system.isHideDock')"
-                @change="handleHideDockChange(formOfSetting.isHideDock)"
+                @change="handleHideDockChange"
               />
             </SettingCard>
 
@@ -163,7 +163,7 @@
                 small
                 no-border
                 :title="t('pages.settings.system.miniWindowOnTop')"
-                @click="handleMiniWindowOntop(formOfSetting.miniWindowOntop)"
+                @change="handleMiniWindowOntop"
               />
             </SettingCard>
 
@@ -197,7 +197,7 @@
                 no-border
                 :title="t('pages.settings.system.autoLaunch')"
                 :description="t('pages.settings.system.autoLaunchDesc')"
-                @change="handleAutoStartChange(formOfSetting.autoStart)"
+                @change="handleAutoStartChange"
               />
             </SettingCard>
             <CustomNavCard

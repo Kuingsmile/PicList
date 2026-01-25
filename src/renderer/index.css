@@ -8,7 +8,7 @@
   }
 
   html {
-    @apply m-0 h-full p-0 w-full bg-transparent;
+    @apply m-0 h-full w-full bg-transparent p-0;
   }
 
   #app {
@@ -180,14 +180,14 @@
   }
 
   @keyframes slide-right {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
 
-  to {
-    transform: translateX(0);
-    opacity: 1;
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
-}
 }

@@ -111,6 +111,7 @@
       >
         <div
           id="upload-area"
+          ref="uploadArea"
           class="group/upload relative flex h-full w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border bg-bg-secondary px-1 py-12 duration-medium ease-standard focus-visible:focus-ring focus-visible:outline-offset-4 max-md:px-4 max-md:py-8 max-xs:px-2 max-xs:py-6 [:hover,.drag-active]:border-accent [:hover,.drag-active]:bg-[linear-gradient(135deg,var(--color-surface-elevated)_0%,color-mix(in_srgb,var(--color-accent),transparent_95%)_100%)] [:hover,.drag-active]:shadow-lg [:hover,.drag-active&]:-translate-y-[2px]"
           :class="{ 'drag-active': dragover }"
           @drop.prevent="onDrop"
@@ -736,7 +737,8 @@ interface IUploadTaskQueueStatus {
   }
 }
 
-useDragEventListeners()
+const uploadArea = useTemplateRef('uploadArea')
+useDragEventListeners(uploadArea)
 const $router = useRouter()
 const { t } = useI18n()
 const message = useMessage()

@@ -29,16 +29,14 @@
       </div>
     </label>
     <slot name="title-extra"></slot>
-    <div v-if="tips" class="relative">
+    <div v-if="tips" class="group relative inline-block">
       <div
         class="flex h-[20px] w-[20px] cursor-pointer items-center justify-center rounded-full p-[2px] text-secondary hover:bg-bg-secondary hover:text-accent"
-        @click="toggleTooltip()"
       >
         <Info :size="16" />
       </div>
       <div
-        v-show="visibleTooltips"
-        class="absolute top-full left-0 z-1000 max-w-[300px] min-w-[200px] rounded-md border border-border bg-bg-secondary p-3 text-xs leading-[1.4] text-main shadow-lg max-md:max-w-[250px] max-md:min-w-[150px]"
+        class="invisible absolute top-[125%] left-1/2 z-1000 w-max max-w-[200px] translate-x-[-50%] rounded-md border border-border bg-bg-tertiary p-2 text-center text-xs text-main opacity-0 shadow-md transition-opacity duration-300 group-hover:visible group-hover:opacity-100"
         v-html="transformMarkdownToHTML(tips)"
       />
     </div>
@@ -48,11 +46,9 @@
 <script lang="ts" setup>
 import { Info } from 'lucide-vue-next'
 import { marked } from 'marked'
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 
 const emit = defineEmits(['change'])
-
-const visibleTooltips = ref(false)
 
 const modelValue = defineModel<boolean>()
 const {
@@ -74,10 +70,6 @@ const {
   noHover?: boolean
   tighter?: boolean
 }>()
-
-function toggleTooltip() {
-  visibleTooltips.value = !visibleTooltips.value
-}
 
 function transformMarkdownToHTML(markdown: string) {
   try {
