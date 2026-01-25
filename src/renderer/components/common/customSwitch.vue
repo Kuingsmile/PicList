@@ -1,12 +1,15 @@
 <template>
-  <div class="flex items-center rounded-xl hover:bg-surface hover:shadow-sm">
+  <div class="flex items-center rounded-xl" :class="noHover ? '' : 'hover:bg-surface hover:shadow-sm'">
     <label
-      class="flex cursor-pointer items-center gap-4 rounded-lg border border-border p-4 transition-all duration-200 ease-apple hover:border-accent"
-      :class="noBorder ? 'border-none' : ''"
+      class="flex cursor-pointer items-center gap-4 rounded-lg border border-border transition-all duration-200 ease-apple hover:border-accent"
+      :class="{
+        'border-none': noBorder,
+        'p-4': !tighter,
+      }"
     >
       <input v-model="modelValue" type="checkbox" class="peer hidden" @change.stop="emit('change', modelValue)" />
       <span
-        class="bg-linear-180-r relative shrink-0 rounded-full bg-gray-400/80 shadow-sm transition-all duration-medium ease-standard peer-checked:bg-accent peer-checked:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1),0_2px_8px_color-mix(in_srgb,var(--color-accent),transparent_30%)] before:absolute before:rounded-full before:bg-white before:shadow-sm before:transition-all before:duration-200 before:ease-apple before:content-[''] peer-checked:before:translate-x-[24px]"
+        class="relative shrink-0 rounded-full bg-gray-400/80 shadow-sm transition-all duration-medium ease-standard peer-checked:bg-accent peer-checked:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1),0_2px_8px_color-mix(in_srgb,var(--color-accent),transparent_30%)] before:absolute before:rounded-full before:bg-white before:shadow-sm before:transition-all before:duration-200 before:ease-apple before:content-[''] peer-checked:before:translate-x-[24px]"
         :class="
           small
             ? 'h-[21px] w-[44px] before:top-[2px] before:left-[2px] before:h-[17px] before:w-[17px]'
@@ -59,6 +62,8 @@ const {
   small = false,
   tips = '',
   required = false,
+  noHover = false,
+  tighter = false,
 } = defineProps<{
   noBorder?: boolean
   title?: string
@@ -66,6 +71,8 @@ const {
   small?: boolean
   tips?: string
   required?: boolean
+  noHover?: boolean
+  tighter?: boolean
 }>()
 
 function toggleTooltip() {

@@ -55,20 +55,14 @@
               </div>
             </div>
 
-            <div class="flex flex-wrap gap-3 p-4">
-              <button
-                class="flex-1 rounded-sm border-none bg-danger/50 p-2.5 text-sm font-semibold text-secondary transition-colors duration-fast ease-apple hover:bg-danger/70"
-                @click="handleInputBoxCancel"
-              >
-                {{ t('common.cancel') }}
-              </button>
-              <button
-                class="flex-1 rounded-sm border-none bg-accent p-2.5 text-sm font-semibold text-main transition-colors duration-fast ease-apple hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
+            <div class="flex flex-wrap justify-center gap-3 p-2">
+              <CustomButton type="secondary" :text="t('common.cancel')" @click="handleInputBoxCancel" />
+              <CustomButton
+                type="primary"
                 :disabled="!inputBoxValue.trim()"
+                :text="t('common.confirm')"
                 @click="handleInputBoxConfirm"
-              >
-                {{ t('common.confirm') }}
-              </button>
+              />
             </div>
           </div>
         </Transition>
@@ -82,6 +76,7 @@ import { XIcon } from 'lucide-vue-next'
 import { nextTick, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import CustomButton from '@/components/common/CustomButton.vue'
 import $bus from '@/utils/bus'
 import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
 import { getConfig } from '@/utils/dataSender'

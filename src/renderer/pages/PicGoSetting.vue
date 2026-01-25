@@ -399,7 +399,7 @@
               />
             </SettingCard>
 
-            <SettingCard p1>
+            <SettingCard p1 class="flex flex-col justify-center">
               <CustomSwitch
                 v-model="formOfSetting.deleteLocalFile"
                 small
@@ -429,7 +429,7 @@
               />
             </SettingCard>
 
-            <SettingCard p1>
+            <SettingCard p1 class="flex flex-col justify-center">
               <CustomSwitch
                 v-model="formOfSetting.autoCopy"
                 small

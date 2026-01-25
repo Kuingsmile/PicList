@@ -2,22 +2,8 @@
 @import "../../assets/css/theme.css" reference;
 @import "../../assets/css/utilities.css" reference;
 
-.head-action-button {
-  @apply flex items-center border-none rounded-md px-2 py-1.5 text-sm font-medium text-white bg-accent font-[inherit] gap-2 cursor-pointer transition-all duration-fast ease-apple;
-  @apply hover:bg-accent-hover hover:-translate-y-px hover:shadow-md;
-}
-
-.switch-slider {
-  @apply  absolute inset-0 cursor-pointer rounded-2xl bg-[linear-gradient(180deg,#d0d3d9_0%,#c0c4cc_100%)] shadow-sm transition-all duration-medium ease-standard;
-  @apply before:absolute before:bottom-[2px] before:left-[2px] before:h-[17px] before:w-[17px] before:rounded-full before:shadow-sm before:transition-all before:ease-standard before:duration-medium before:content-[""] before:bg-[linear-gradient(180deg,#ffffff_0%,#f5f5f5_100%)];
-}
-
 .filter-group {
   @apply flex flex-col gap-1 flex-1 min-w-[140px];
-}
-
-.filter-label {
-  @apply mb-0 text-sm font-semibold text-secondary leading-[1.4];
 }
 
 .date-input {
@@ -54,48 +40,7 @@
   @apply [.delete-icon]:hover:text-error [.delete-icon]:hover:bg-error/10;
 }
 
-.nav-button {
-  @apply absolute flex z-10 justify-center items-center border-none rounded-full w-[48px] h-[48px] text-white bg-[rgb(0_0_0_/50%)] transition-all duration-fast ease-apple cursor-pointer;
-  @apply not-disabled:hover:bg-accent;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-  @apply [.prev]:left-4 [.next]:right-4;
-}
-
 .form-input {
   @apply border border-border rounded-md p-3 w-full text-sm text-main bg-bg-secondary transition-all duration-fast ease-apple box-border;
   @apply focus:border-accent focus:outline-none focus:shadow-md;
 }
-
-.placeholder-grid {
-  @apply grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-0 py-2;
-}
-
-.placeholder-item {
-  @apply gap-2 flex items-center m-0 rounded-none py-2 px-4 text-sm leading-[1.4] flex-col;
-  @apply hover:bg-accent/30 hover:border hover:border-accent;
-  @apply [&_code]:mr-3.5 [&_code]:border [&_code]:border-white/20 [&_code]:rounded-md [&_code]:px-2.5 [&_code]:py-1 [&_code]:min-w-[80px] [&_code]:text-base [&_code]:font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] [&_code]:font-semibold [&_code]:text-center [&_code]:text-main [&_code]:bg-bg-secondary [&_code]:shadow-sm [&_code]:tracking-[0.02em] [&_code]:shrink-0;
-  @apply [&_span]:text-xs [&_span]:font-medium [&_span]:text-main [&_span]:flex-1;
-}
-
-/* Buttons */
-.btn-primary {
-  @apply flex items-center border-none rounded-md px-6 py-3 text-sm font-medium font-[inherit] text-white bg-accent gap-2 cursor-pointer transition-all duration-fast ease-apple;
-  @apply hover:bg-accent-hover hover:-translate-y-px hover:shadow-sm;
-}
-
-.btn-secondary {
-  @apply flex items-center border border-border rounded-md px-6 py-3 text-sm font-medium font-[inherit] text-main bg-bg-secondary gap-2 cursor-pointer transition-all duration-fast ease-apple;
- @apply hover:bg-border-secondary hover:-translate-y-px hover:shadow-sm;
-}
-
-.zoom-btn {
-  @apply flex justify-center items-center border-none rounded-md w-[32px] h-[32px] text-sm font-semibold text-white bg-[rgb(255_255_255_/10%)] transition-all duration-fast ease-apple cursor-pointer;
-  @apply not-disabled:hover:bg-[rgb(255_255_255_/20%)];
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-  @apply [.reset-btn]:py-0 [.reset-btn]:w-auto [.reset-btn]:px-3 [.reset-btn]:text-xs;
-}
-
-.category-title {
-  @apply m-0 border-b border-border pt-3.5 px-4 pb-2 text-sm font-semibold text-secondary bg-[linear-gradient(180deg,var(--color-background-secondary)_0%,var(--color-background-tertiary)_100%)];
-}
-

@@ -26,20 +26,22 @@
           class="flex flex-wrap items-center justify-between rounded-sm border border-border bg-bg p-3 transition-all duration-fast ease-apple hover:border-accent hover:bg-surface"
         >
           <label class="m-0 flex-1 text-sm font-medium text-main">{{ picbed.name }}</label>
-
           <!-- Checkbox input -->
-          <label v-if="inputType === 'checkbox'" class="m-0 flex cursor-pointer items-center p-0 select-none">
-            <input
-              :checked="getMapValue(mapField, picbed.type, defaultValue)"
-              type="checkbox"
-              class="peer hidden"
-              @change="e => handleMapChange(picbed.type, (e.target as HTMLInputElement).checked)"
-            />
-            <span
-              class="relative h-[24px] w-[44px] shrink-0 rounded-lg bg-gray-300 bg-linear-to-r transition-all duration-medium ease-standard peer-checked:bg-accent peer-checked:shadow-lg before:absolute before:top-[2px] before:left-[2px] before:h-[20px] before:w-[20px] before:rounded-full before:bg-linear-to-r before:from-white before:to-gray-100 before:shadow-md before:transition-all before:duration-medium before:ease-standard peer-checked:before:translate-x-[20px]"
-            />
-          </label>
-
+          <div v-if="inputType === 'checkbox'" class="flex items-center rounded-xl">
+            <label
+              class="flex cursor-pointer items-center gap-4 rounded-lg border border-border transition-all duration-200 ease-apple hover:border-accent"
+            >
+              <input
+                :checked="getMapValue(mapField, picbed.type, defaultValue)"
+                type="checkbox"
+                class="peer hidden"
+                @change="e => handleMapChange(picbed.type, (e.target as HTMLInputElement).checked)"
+              />
+              <span
+                class="relative h-[21px] w-[44px] shrink-0 rounded-full bg-gray-400/80 shadow-sm transition-all duration-medium ease-standard peer-checked:bg-accent peer-checked:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1),0_2px_8px_color-mix(in_srgb,var(--color-accent),transparent_30%)] before:absolute before:top-[2px] before:left-[2px] before:h-[17px] before:w-[17px] before:rounded-full before:bg-white before:shadow-sm before:transition-all before:duration-200 before:ease-apple before:content-[''] peer-checked:before:translate-x-[24px]"
+              />
+            </label>
+          </div>
           <!-- Range input -->
           <div v-else-if="inputType === 'range'" class="flex flex-wrap items-center gap-2 rounded-sm shadow-sm">
             <input

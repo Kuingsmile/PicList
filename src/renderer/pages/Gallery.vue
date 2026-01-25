@@ -32,45 +32,40 @@
           </div>
           <div class="flex items-center gap-2">
             <span class="text-sm text-secondary">{{ t('pages.gallery.isAlwaysForceReload') }}</span>
-            <label class="relative inline-block h-[20px] w-[44px]">
-              <input
-                v-model="isAlwaysForceReload"
-                class="peer/fir h-0 w-0 opacity-0"
-                type="checkbox"
-                @change="handleIsAlwaysForceReload"
-              />
-              <span
-                class="switch-slider peer-checked/fir:bg-accent peer-checked/fir:bg-none! peer-checked/fir:before:translate-x-[22px]"
-              />
-            </label>
+            <CustomSwitch
+              v-model="isAlwaysForceReload"
+              small
+              tighter
+              no-border
+              no-hover
+              @change="handleIsAlwaysForceReload"
+            />
           </div>
           <div class="flex items-center gap-2">
             <span class="text-sm text-secondary">{{ t('pages.gallery.syncDelete') }}</span>
-            <label class="relative inline-block h-[20px] w-[44px]">
-              <input
-                v-model="deleteCloud"
-                class="peer/sec h-0 w-0 opacity-0"
-                type="checkbox"
-                @change="handleDeleteCloudFile"
-              />
-              <span
-                class="switch-slider peer-checked/sec:bg-accent peer-checked/sec:bg-none! peer-checked/sec:before:translate-x-[22px]"
-              />
-            </label>
+            <CustomSwitch v-model="deleteCloud" small tighter no-border no-hover @change="handleDeleteCloudFile" />
           </div>
-          <button class="head-action-button relative" :title="getViewModeLabel()" @click="toggleViewMode">
-            <component :is="getViewModeIcon()" :size="16" />
-            <span class="mt-0.5">{{ getViewModeLabel() }}</span>
-          </button>
-          <button class="head-action-button" @click="toggleHandleBar">
-            <ChevronDownIcon v-if="!handleBarActive" :size="16" />
-            <ChevronUpIcon v-else :size="16" />
-            <span class="mt-0.5">{{ t('pages.gallery.hideFilters') }}</span>
-          </button>
-          <button class="head-action-button" @click="refreshPage">
-            <RefreshCwIcon :size="16" />
-            <span class="mt-0.5">{{ t('pages.gallery.refresh') }}</span>
-          </button>
+          <CustomButton
+            type="primary"
+            :text="getViewModeLabel()"
+            :icon="getViewModeIcon()"
+            class="px-2!"
+            @click="toggleViewMode"
+          />
+          <CustomButton
+            type="primary"
+            :text="t('pages.gallery.hideFilters')"
+            :icon="handleBarActive ? ChevronUpIcon : ChevronDownIcon"
+            class="px-2!"
+            @click="toggleHandleBar"
+          />
+          <CustomButton
+            type="secondary"
+            :text="t('pages.gallery.refresh')"
+            :icon="RefreshCwIcon"
+            class="px-2!"
+            @click="refreshPage"
+          />
         </div>
       </div>
 
@@ -90,7 +85,9 @@
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">{{ t('pages.gallery.dateRange') }}</label>
+            <label class="mb-0 text-sm leading-[1.4] font-semibold text-secondary">{{
+              t('pages.gallery.dateRange')
+            }}</label>
             <div class="flex w-full flex-wrap items-center gap-2 max-md:items-start">
               <input v-model="dateRangeStart" type="date" class="date-input" placeholder="Start date" />
               <span class="shrink-0 font-medium text-secondary">-</span>
@@ -423,6 +420,7 @@ import { onBeforeRouteUpdate } from 'vue-router'
 import ALLApi from '@/apis/allApi'
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
+import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import MultiSelect from '@/components/common/MultiSelect.vue'
 import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
@@ -458,7 +456,7 @@ const imgInfo = reactive({
   imgUrl: '',
 })
 const choosedList: IObjT<boolean> = reactive({})
-const gallerySliderControl = reactive({
+const gallerySliderControl = ref({
   visible: false,
   index: 0,
 })
@@ -808,8 +806,8 @@ function clearChoosedList() {
 }
 
 function zoomImage(index: number) {
-  gallerySliderControl.index = index
-  gallerySliderControl.visible = true
+  gallerySliderControl.value.index = index
+  gallerySliderControl.value.visible = true
 }
 
 async function copy(item: ImgInfo) {
@@ -863,18 +861,16 @@ function remove(item: ImgInfo, _: number) {
   })
 }
 
-function handleIsAlwaysForceReload(event: Event) {
-  const ev = (event.target as HTMLInputElement).checked
-  isAlwaysForceReload.value = ev
+function handleIsAlwaysForceReload(value: boolean) {
   saveConfig({
-    [configPaths.settings.isAlwaysForceReload]: ev,
+    [configPaths.settings.isAlwaysForceReload]: value,
   })
   window.electron.sendRPC(IRPCActionType.REFRESH_SETTING_WINDOW)
 }
 
-function handleDeleteCloudFile(event: Event) {
+function handleDeleteCloudFile(value: boolean) {
   saveConfig({
-    [configPaths.settings.deleteCloudFile]: (event.target as HTMLInputElement).checked,
+    [configPaths.settings.deleteCloudFile]: value,
   })
 }
 

@@ -2,39 +2,6 @@
 @import '../../assets/css/theme.css' reference;
 @import '../../assets/css/utilities.css' reference;
 
-/* ==================== Settings Section ==================== */
-.settings-section {
-  @apply rounded-xl border border-border bg-bg p-5 shadow-sm transition-all duration-200 ease-apple hover:shadow-md;
-}
-
-.section-header {
-  @apply mb-6 flex items-center gap-1;
-}
-
-.section-icon {
-  @apply flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-lg bg-bg-secondary text-accent;
-}
-
-.section-title-group {
-  @apply [&_h2]:mb-0 [&_h2]:text-lg [&_h2]:leading-0 [&_h2]:font-semibold [&_h2]:tracking-tight [&_h2]:text-main;
-  @apply [&_p]:mt-6 [&_p]:text-sm [&_p]:leading-0 [&_p]:text-secondary;
-}
-
-/* ==================== Form Elements ==================== */
-.form-grid {
-  @apply grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4;
-}
-
-.form-group {
-  @apply mb-6;
-  @apply last:mb-0;
-  @apply [&>:label:not(.custom-switch,.radio-option)]:mb-2.5
-         [&>:label:not(.custom-switch,.radio-option)]:block
-         [&>:label:not(.custom-switch,.radio-option)]:text-sm
-         [&>:label:not(.custom-switch,.radio-option)]:font-semibold
-         [&>:label:not(.custom-switch,.radio-option)]:text-main;
-}
-
 .form-input,
 .form-textarea {
   @apply box-border w-full rounded-lg border border-border bg-bg-tertiary px-4 py-3.5 text-sm text-main transition-all duration-200 ease-apple;
@@ -44,8 +11,4 @@
 
 .form-textarea {
   @apply min-h-[90px] resize-y font-[ui-monospace,SFMono-Regular,'SF_Mono',Menlo,Consolas,'Liberation_Mono',monospace];
-}
-
-.title-text {
-  @apply text-base font-semibold text-main;
 }

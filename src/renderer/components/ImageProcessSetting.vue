@@ -33,89 +33,70 @@
       >
         <!-- General Settings Tab -->
         <div v-if="activeTab === 'general'" key="general" class="flex flex-col gap-4">
-          <div class="settings-section">
-            <div class="section-header">
-              <div class="section-icon">
-                <Sliders :size="20" />
-              </div>
-              <div class="section-title-group">
-                <h2>{{ $t('pages.imageProcess.general.basicImageProcessing') }}</h2>
-              </div>
-            </div>
+          <SettingSection :icon="Sliders" :title="t('pages.imageProcess.general.basicImageProcessing')">
+            <SettingCard p1 class="flex flex-col justify-center">
+              <CustomSwitch
+                v-model="activeForm.compress.isRemoveExif"
+                :title="t('pages.imageProcess.general.isRemoveExif')"
+                small
+                no-border
+              />
 
-            <div class="form-grid">
-              <div class="form-group">
-                <customSwitch
-                  v-model="activeForm.compress.isRemoveExif"
-                  :title="$t('pages.imageProcess.general.isRemoveExif')"
-                  class="custom-switch"
-                />
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="compressForm.isRemoveExifMap"
+                :default-value="defaultCompressSetting.isRemoveExif"
+                field-name="isRemoveExif"
+                :global-value="compressForm.isRemoveExif"
+                input-type="checkbox"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      compressForm,
+                      'isRemoveExif',
+                      picbedType,
+                      value,
+                      defaultCompressSetting.isRemoveExif,
+                    )
+                "
+              />
+            </SettingCard>
+            <SettingCard class="flex flex-col justify-center">
+              <CustomRange
+                v-model.number="activeForm.compress.quality"
+                :title="t('pages.imageProcess.general.quality')"
+                :min="1"
+                :max="100"
+                :step="1"
+                :show-value="`${activeForm.compress.quality}%`"
+              />
 
-                <PerPicbedSetting
-                  v-if="!configId"
-                  :map-field="compressForm.isRemoveExifMap"
-                  :default-value="defaultCompressSetting.isRemoveExif"
-                  field-name="isRemoveExif"
-                  :global-value="compressForm.isRemoveExif"
-                  input-type="checkbox"
-                  @map-change="
-                    (picbedType, value) =>
-                      safeSetMapValue(
-                        compressForm,
-                        'isRemoveExif',
-                        picbedType,
-                        value,
-                        defaultCompressSetting.isRemoveExif,
-                      )
-                  "
-                />
-              </div>
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="compressForm.qualityMap"
+                :default-value="defaultCompressSetting.quality"
+                field-name="quality"
+                :global-value="compressForm.quality"
+                input-type="range"
+                :range-min="1"
+                :range-max="100"
+                :range-step="1"
+                range-suffix="%"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(compressForm, 'quality', picbedType, value, defaultCompressSetting.quality)
+                "
+              />
+            </SettingCard>
+          </SettingSection>
 
-              <div class="form-group">
-                <customRange
-                  v-model.number="activeForm.compress.quality"
-                  :title="$t('pages.imageProcess.general.quality')"
-                  :min="1"
-                  :max="100"
-                  :step="1"
-                  :show-value="`${activeForm.compress.quality}%`"
-                />
-
-                <PerPicbedSetting
-                  v-if="!configId"
-                  :map-field="compressForm.qualityMap"
-                  :default-value="defaultCompressSetting.quality"
-                  field-name="quality"
-                  :global-value="compressForm.quality"
-                  input-type="range"
-                  :range-min="1"
-                  :range-max="100"
-                  :range-step="1"
-                  range-suffix="%"
-                  @map-change="
-                    (picbedType, value) =>
-                      safeSetMapValue(compressForm, 'quality', picbedType, value, defaultCompressSetting.quality)
-                  "
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="settings-section">
-            <div class="section-header">
-              <div class="section-icon">
-                <RefreshCw :size="20" />
-              </div>
-              <div class="section-title-group">
-                <h2>{{ $t('pages.imageProcess.general.formatConversion') }}</h2>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <customSwitch
+          <SettingSection :icon="RefreshCw" :title="t('pages.imageProcess.general.formatConversion')">
+            <SettingCard class="flex flex-col justify-center">
+              <CustomSwitch
                 v-model="activeForm.compress.isConvert"
-                :title="$t('pages.imageProcess.general.isConvert')"
-                class="custom-switch"
+                :title="t('pages.imageProcess.general.isConvert')"
+                no-border
+                small
               />
 
               <PerPicbedSetting
@@ -130,89 +111,86 @@
                     safeSetMapValue(compressForm, 'isConvert', picbedType, value, defaultCompressSetting.isConvert)
                 "
               />
-            </div>
+            </SettingCard>
 
-            <div v-if="activeForm.compress.isConvert" class="form-grid">
-              <div class="form-group">
-                <label class="title-text">{{ $t('pages.imageProcess.general.destinationFormat') }}</label>
-                <select v-model="activeForm.compress.convertFormat" class="form-input">
-                  <option v-for="format in availableFormat" :key="format" :value="format">
-                    {{ format.toUpperCase() }}
-                  </option>
-                </select>
+            <SettingCard v-if="activeForm.compress.isConvert">
+              <label class="text-base font-semibold text-main">{{
+                t('pages.imageProcess.general.destinationFormat')
+              }}</label>
+              <select v-model="activeForm.compress.convertFormat" class="form-input">
+                <option v-for="format in availableFormat" :key="format" :value="format">
+                  {{ format.toUpperCase() }}
+                </option>
+              </select>
 
-                <PerPicbedSetting
-                  v-if="!configId"
-                  :map-field="compressForm.convertFormatMap"
-                  :default-value="defaultCompressSetting.convertFormat"
-                  field-name="convertFormat"
-                  :global-value="compressForm.convertFormat"
-                  input-type="select"
-                  :select-options="availableFormat.map(format => ({ value: format, label: format.toUpperCase() }))"
-                  @map-change="
-                    (picbedType, value) =>
-                      safeSetMapValue(
-                        compressForm,
-                        'convertFormat',
-                        picbedType,
-                        value,
-                        defaultCompressSetting.convertFormat,
-                      )
-                  "
-                />
-              </div>
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="compressForm.convertFormatMap"
+                :default-value="defaultCompressSetting.convertFormat"
+                field-name="convertFormat"
+                :global-value="compressForm.convertFormat"
+                input-type="select"
+                :select-options="availableFormat.map(format => ({ value: format, label: format.toUpperCase() }))"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      compressForm,
+                      'convertFormat',
+                      picbedType,
+                      value,
+                      defaultCompressSetting.convertFormat,
+                    )
+                "
+              />
+            </SettingCard>
 
-              <div class="form-group">
-                <label class="title-text">{{ $t('pages.imageProcess.general.specificFormatConversion') }}</label>
-                <textarea
-                  v-model="convertStr"
-                  class="form-textarea"
-                  rows="3"
-                  placeholder='{"jpg": "png", "png": "jpg"}'
-                />
+            <SettingCard v-if="activeForm.compress.isConvert">
+              <label class="text-base font-semibold text-main">{{
+                t('pages.imageProcess.general.specificFormatConversion')
+              }}</label>
+              <textarea
+                v-model="convertStr"
+                class="form-textarea"
+                rows="3"
+                placeholder='{"jpg": "png", "png": "jpg"}'
+              />
 
-                <PerPicbedSetting
-                  v-if="!configId"
-                  :map-field="compressForm.formatConvertObjMap"
-                  :default-value="'{}'"
-                  field-name="formatConvertObj"
-                  :global-value="formatConvertObjStr"
-                  input-type="text"
-                  text-placeholder="{}"
-                  @map-change="
-                    (picbedType, value) =>
-                      safeSetMapValue(
-                        compressForm,
-                        'formatConvertObj',
-                        picbedType,
-                        value,
-                        defaultCompressSetting.formatConvertObj,
-                      )
-                  "
-                />
-              </div>
-            </div>
-          </div>
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="compressForm.formatConvertObjMap"
+                :default-value="'{}'"
+                field-name="formatConvertObj"
+                :global-value="formatConvertObjStr"
+                input-type="text"
+                text-placeholder="{}"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      compressForm,
+                      'formatConvertObj',
+                      picbedType,
+                      value,
+                      defaultCompressSetting.formatConvertObj,
+                    )
+                "
+              />
+            </SettingCard>
+          </SettingSection>
         </div>
 
         <!-- Watermark Tab -->
         <div v-else-if="activeTab === 'watermark'" key="watermark" class="flex flex-col gap-4">
-          <div class="settings-section">
-            <div class="section-header">
-              <div class="section-icon watermark-icon">
-                <Droplets :size="20" />
-              </div>
-              <div class="section-title-group">
-                <h2>{{ $t('pages.imageProcess.watermark.title') }}</h2>
-                <p>{{ $t('pages.imageProcess.watermark.description') }}</p>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <customSwitch
+          <SettingSection
+            :icon="Droplets"
+            :title="t('pages.imageProcess.watermark.title')"
+            :description="t('pages.imageProcess.watermark.description')"
+          >
+            <SettingCard class="flex flex-col justify-center">
+              <CustomSwitch
                 v-model="activeForm.watermark.isAddWatermark"
-                :title="$t('pages.imageProcess.watermark.isAdd')"
-                class="custom-switch"
+                :title="t('pages.imageProcess.watermark.isAdd')"
+                small
+                no-border
               />
 
               <PerPicbedSetting
@@ -233,429 +211,430 @@
                     )
                 "
               />
-            </div>
+            </SettingCard>
 
-            <div
-              v-if="activeForm.watermark.isAddWatermark"
-              class="mt-4 border-t border-t-border pt-3 transition-all duration-200 ease-apple"
+            <SettingCard v-if="activeForm.watermark.isAddWatermark">
+              <label class="text-base font-semibold text-main">{{ t('pages.imageProcess.watermark.type') }}</label>
+              <div class="flex flex-wrap gap-4">
+                <CustomRadioOption
+                  v-model="activeForm.watermark.watermarkType"
+                  value="text"
+                  :title="t('pages.imageProcess.watermark.text')"
+                />
+                <CustomRadioOption
+                  v-model="activeForm.watermark.watermarkType"
+                  value="image"
+                  :title="t('pages.imageProcess.watermark.image')"
+                />
+              </div>
+
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="waterMarkForm.watermarkTypeMap"
+                :default-value="defaultWaterMarkSetting.watermarkType"
+                field-name="watermarkType"
+                :global-value="waterMarkForm.watermarkType"
+                input-type="radio"
+                :radio-options="[
+                  { value: 'text', label: t('pages.imageProcess.watermark.text') },
+                  { value: 'image', label: t('pages.imageProcess.watermark.image') },
+                ]"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      waterMarkForm,
+                      'watermarkType',
+                      picbedType,
+                      value,
+                      defaultWaterMarkSetting.watermarkType,
+                    )
+                "
+              />
+            </SettingCard>
+
+            <SettingCard v-if="activeForm.watermark.isAddWatermark" p1 class="flex flex-col justify-center">
+              <CustomSwitch
+                v-model="activeForm.watermark.isFullScreenWatermark"
+                :title="t('pages.imageProcess.watermark.isFullScreen')"
+                small
+                no-border
+              />
+
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="waterMarkForm.isFullScreenWatermarkMap"
+                :default-value="defaultWaterMarkSetting.isFullScreenWatermark"
+                field-name="isFullScreenWatermark"
+                :global-value="waterMarkForm.isFullScreenWatermark"
+                input-type="checkbox"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      waterMarkForm,
+                      'isFullScreenWatermark',
+                      picbedType,
+                      value,
+                      defaultWaterMarkSetting.isFullScreenWatermark,
+                    )
+                "
+              />
+            </SettingCard>
+
+            <SettingCard v-if="activeForm.watermark.isAddWatermark">
+              <CustomRange
+                v-model.number="activeForm.watermark.watermarkDegree"
+                :title="t('pages.imageProcess.watermark.degree')"
+                :min="-360"
+                :max="360"
+                :step="1"
+                :show-value="`${activeForm.watermark.watermarkDegree}°`"
+              />
+
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="waterMarkForm.watermarkDegreeMap"
+                :default-value="defaultWaterMarkSetting.watermarkDegree"
+                field-name="watermarkDegree"
+                :global-value="waterMarkForm.watermarkDegree"
+                input-type="range"
+                :range-min="-360"
+                :range-max="360"
+                :range-step="1"
+                range-suffix="°"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      waterMarkForm,
+                      'watermarkDegree',
+                      picbedType,
+                      value,
+                      defaultWaterMarkSetting.watermarkDegree,
+                    )
+                "
+              />
+            </SettingCard>
+
+            <SettingCard v-if="activeForm.watermark.isAddWatermark">
+              <CustomRange
+                v-model.number="activeForm.watermark.watermarkScaleRatio"
+                :title="t('pages.imageProcess.watermark.scaleRatio')"
+                :min="0"
+                :max="1"
+                :step="0.01"
+                :show-value="`${Math.round((activeForm.watermark.watermarkScaleRatio || 0) * 100)}%`"
+              />
+
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="waterMarkForm.watermarkScaleRatioMap"
+                :default-value="defaultWaterMarkSetting.watermarkScaleRatio"
+                field-name="watermarkScaleRatio"
+                :global-value="waterMarkForm.watermarkScaleRatio"
+                input-type="range"
+                :range-min="0"
+                :range-max="1"
+                :range-step="0.01"
+                range-suffix="%"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      waterMarkForm,
+                      'watermarkScaleRatio',
+                      picbedType,
+                      value,
+                      defaultWaterMarkSetting.watermarkScaleRatio,
+                    )
+                "
+              />
+            </SettingCard>
+
+            <SettingCard
+              v-if="activeForm.watermark.watermarkType === 'text' && activeForm.watermark.isAddWatermark"
+              class="flex flex-col justify-center"
             >
-              <div class="form-group">
-                <label class="title-text">{{ $t('pages.imageProcess.watermark.type') }}</label>
-                <div class="flex flex-wrap gap-4">
-                  <customRadioOption
-                    v-model="activeForm.watermark.watermarkType"
-                    value="text"
-                    :title="$t('pages.imageProcess.watermark.text')"
-                  />
-                  <customRadioOption
-                    v-model="activeForm.watermark.watermarkType"
-                    value="image"
-                    :title="$t('pages.imageProcess.watermark.image')"
-                  />
-                </div>
+              <label class="text-base font-semibold text-main">{{ t('pages.imageProcess.watermark.inputText') }}</label>
+              <input
+                v-model="activeForm.watermark.watermarkText"
+                type="text"
+                class="form-input"
+                :placeholder="t('pages.imageProcess.watermark.inputTextPlaceholder')"
+              />
 
-                <PerPicbedSetting
-                  v-if="!configId"
-                  :map-field="waterMarkForm.watermarkTypeMap"
-                  :default-value="defaultWaterMarkSetting.watermarkType"
-                  field-name="watermarkType"
-                  :global-value="waterMarkForm.watermarkType"
-                  input-type="radio"
-                  :radio-options="[
-                    { value: 'text', label: $t('pages.imageProcess.watermark.text') },
-                    { value: 'image', label: $t('pages.imageProcess.watermark.image') },
-                  ]"
-                  @map-change="
-                    (picbedType, value) =>
-                      safeSetMapValue(
-                        waterMarkForm,
-                        'watermarkType',
-                        picbedType,
-                        value,
-                        defaultWaterMarkSetting.watermarkType,
-                      )
-                  "
-                />
-              </div>
+              <!-- Per-picbed settings for watermarkText -->
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="waterMarkForm.watermarkTextMap"
+                :default-value="defaultWaterMarkSetting.watermarkText"
+                field-name="watermarkText"
+                :global-value="waterMarkForm.watermarkText"
+                input-type="text"
+                :text-placeholder="t('pages.imageProcess.watermark.inputTextPlaceholder')"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      waterMarkForm,
+                      'watermarkText',
+                      picbedType,
+                      value,
+                      defaultWaterMarkSetting.watermarkText,
+                    )
+                "
+              />
+            </SettingCard>
 
-              <div class="form-grid">
-                <div class="form-group">
-                  <customSwitch
-                    v-model="activeForm.watermark.isFullScreenWatermark"
-                    :title="$t('pages.imageProcess.watermark.isFullScreen')"
-                    class="custom-switch"
-                  />
+            <SettingCard
+              v-if="activeForm.watermark.watermarkType === 'text' && activeForm.watermark.isAddWatermark"
+              class="flex flex-col justify-center"
+            >
+              <label class="text-base font-semibold text-main">{{
+                t('pages.imageProcess.watermark.textFontPath')
+              }}</label>
+              <input
+                v-model="activeForm.watermark.watermarkFontPath"
+                type="text"
+                class="form-input"
+                :placeholder="t('pages.imageProcess.watermark.textFontPathPlaceholder')"
+              />
 
-                  <PerPicbedSetting
-                    v-if="!configId"
-                    :map-field="waterMarkForm.isFullScreenWatermarkMap"
-                    :default-value="defaultWaterMarkSetting.isFullScreenWatermark"
-                    field-name="isFullScreenWatermark"
-                    :global-value="waterMarkForm.isFullScreenWatermark"
-                    input-type="checkbox"
-                    @map-change="
-                      (picbedType, value) =>
-                        safeSetMapValue(
-                          waterMarkForm,
-                          'isFullScreenWatermark',
-                          picbedType,
-                          value,
-                          defaultWaterMarkSetting.isFullScreenWatermark,
-                        )
-                    "
-                  />
-                </div>
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="waterMarkForm.watermarkFontPathMap"
+                :default-value="defaultWaterMarkSetting.watermarkFontPath"
+                field-name="watermarkFontPath"
+                :global-value="waterMarkForm.watermarkFontPath"
+                input-type="text"
+                :text-placeholder="t('pages.imageProcess.watermark.textFontPathPlaceholder')"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      waterMarkForm,
+                      'watermarkFontPath',
+                      picbedType,
+                      value,
+                      defaultWaterMarkSetting.watermarkFontPath,
+                    )
+                "
+              />
+            </SettingCard>
 
-                <div class="form-group">
-                  <customRange
-                    v-model.number="activeForm.watermark.watermarkDegree"
-                    :title="$t('pages.imageProcess.watermark.degree')"
-                    :min="-360"
-                    :max="360"
-                    :step="1"
-                    :show-value="`${activeForm.watermark.watermarkDegree}°`"
-                  />
-
-                  <PerPicbedSetting
-                    v-if="!configId"
-                    :map-field="waterMarkForm.watermarkDegreeMap"
-                    :default-value="defaultWaterMarkSetting.watermarkDegree"
-                    field-name="watermarkDegree"
-                    :global-value="waterMarkForm.watermarkDegree"
-                    input-type="range"
-                    :range-min="-360"
-                    :range-max="360"
-                    :range-step="1"
-                    range-suffix="°"
-                    @map-change="
-                      (picbedType, value) =>
-                        safeSetMapValue(
-                          waterMarkForm,
-                          'watermarkDegree',
-                          picbedType,
-                          value,
-                          defaultWaterMarkSetting.watermarkDegree,
-                        )
-                    "
-                  />
-                </div>
-
-                <div class="form-group">
-                  <customRange
-                    v-model.number="activeForm.watermark.watermarkScaleRatio"
-                    :title="$t('pages.imageProcess.watermark.scaleRatio')"
-                    :min="0"
-                    :max="1"
-                    :step="0.01"
-                    :show-value="`${Math.round((activeForm.watermark.watermarkScaleRatio || 0) * 100)}%`"
-                  />
-
-                  <PerPicbedSetting
-                    v-if="!configId"
-                    :map-field="waterMarkForm.watermarkScaleRatioMap"
-                    :default-value="defaultWaterMarkSetting.watermarkScaleRatio"
-                    field-name="watermarkScaleRatio"
-                    :global-value="waterMarkForm.watermarkScaleRatio"
-                    input-type="range"
-                    :range-min="0"
-                    :range-max="1"
-                    :range-step="0.01"
-                    range-suffix="%"
-                    @map-change="
-                      (picbedType, value) =>
-                        safeSetMapValue(
-                          waterMarkForm,
-                          'watermarkScaleRatio',
-                          picbedType,
-                          value,
-                          defaultWaterMarkSetting.watermarkScaleRatio,
-                        )
-                    "
-                  />
-                </div>
-              </div>
-
-              <div v-if="activeForm.watermark.watermarkType === 'text'" class="form-grid">
-                <div class="form-group">
-                  <label class="title-text">{{ $t('pages.imageProcess.watermark.inputText') }}</label>
-                  <input
-                    v-model="activeForm.watermark.watermarkText"
-                    type="text"
-                    class="form-input"
-                    :placeholder="$t('pages.imageProcess.watermark.inputTextPlaceholder')"
-                  />
-
-                  <!-- Per-picbed settings for watermarkText -->
-                  <PerPicbedSetting
-                    v-if="!configId"
-                    :map-field="waterMarkForm.watermarkTextMap"
-                    :default-value="defaultWaterMarkSetting.watermarkText"
-                    field-name="watermarkText"
-                    :global-value="waterMarkForm.watermarkText"
-                    input-type="text"
-                    :text-placeholder="$t('pages.imageProcess.watermark.inputTextPlaceholder')"
-                    @map-change="
-                      (picbedType, value) =>
-                        safeSetMapValue(
-                          waterMarkForm,
-                          'watermarkText',
-                          picbedType,
-                          value,
-                          defaultWaterMarkSetting.watermarkText,
-                        )
-                    "
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label class="title-text">{{ $t('pages.imageProcess.watermark.textFontPath') }}</label>
-                  <input
-                    v-model="activeForm.watermark.watermarkFontPath"
-                    type="text"
-                    class="form-input"
-                    :placeholder="$t('pages.imageProcess.watermark.textFontPathPlaceholder')"
-                  />
-
-                  <PerPicbedSetting
-                    v-if="!configId"
-                    :map-field="waterMarkForm.watermarkFontPathMap"
-                    :default-value="defaultWaterMarkSetting.watermarkFontPath"
-                    field-name="watermarkFontPath"
-                    :global-value="waterMarkForm.watermarkFontPath"
-                    input-type="text"
-                    :text-placeholder="$t('pages.imageProcess.watermark.textFontPathPlaceholder')"
-                    @map-change="
-                      (picbedType, value) =>
-                        safeSetMapValue(
-                          waterMarkForm,
-                          'watermarkFontPath',
-                          picbedType,
-                          value,
-                          defaultWaterMarkSetting.watermarkFontPath,
-                        )
-                    "
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label class="title-text">{{ $t('pages.imageProcess.watermark.color') }}</label>
-                  <div class="flex flex-wrap items-center gap-2">
-                    <input
-                      v-model="activeForm.watermark.watermarkColor"
-                      type="color"
-                      class="h-[48px] w-[48px] cursor-pointer overflow-hidden rounded-lg border border-border bg-bg p-0.5 transition-all duration-200 ease-apple hover:border-accent hover:shadow-sm focus:border-accent focus:shadow-sm focus:outline-none"
-                    />
-                    <input
-                      v-model="activeForm.watermark.watermarkColor"
-                      type="text"
-                      class="form-input flex-1"
-                      placeholder="#CCCCCC73"
-                    />
-                  </div>
-
-                  <PerPicbedSetting
-                    v-if="!configId"
-                    :map-field="waterMarkForm.watermarkColorMap"
-                    :default-value="defaultWaterMarkSetting.watermarkColor"
-                    field-name="watermarkColor"
-                    :global-value="waterMarkForm.watermarkColor"
-                    input-type="color"
-                    @map-change="
-                      (picbedType, value) =>
-                        safeSetMapValue(
-                          waterMarkForm,
-                          'watermarkColor',
-                          picbedType,
-                          value,
-                          defaultWaterMarkSetting.watermarkColor,
-                        )
-                    "
-                  />
-                </div>
-              </div>
-
-              <!-- Image Watermark Settings -->
-              <div v-if="activeForm.watermark.watermarkType === 'image'" class="form-group">
-                <label class="title-text">{{ $t('pages.imageProcess.watermark.imagePath') }}</label>
+            <SettingCard
+              v-if="activeForm.watermark.watermarkType === 'text' && activeForm.watermark.isAddWatermark"
+              class="flex flex-col justify-center"
+            >
+              <label class="text-base font-semibold text-main">{{ t('pages.imageProcess.watermark.color') }}</label>
+              <div class="flex flex-wrap items-center gap-2">
                 <input
-                  v-model="activeForm.watermark.watermarkImagePath"
+                  v-model="activeForm.watermark.watermarkColor"
+                  type="color"
+                  class="h-[48px] w-[48px] cursor-pointer overflow-hidden rounded-lg border border-border bg-bg p-0.5 transition-all duration-200 ease-apple hover:border-accent hover:shadow-sm focus:border-accent focus:shadow-sm focus:outline-none"
+                />
+                <input
+                  v-model="activeForm.watermark.watermarkColor"
                   type="text"
-                  class="form-input"
-                  :placeholder="$t('pages.imageProcess.watermark.imagePathPlaceholder')"
-                />
-
-                <PerPicbedSetting
-                  v-if="!configId"
-                  :map-field="waterMarkForm.watermarkImagePathMap"
-                  :default-value="defaultWaterMarkSetting.watermarkImagePath"
-                  field-name="watermarkImagePath"
-                  :global-value="waterMarkForm.watermarkImagePath"
-                  input-type="text"
-                  :text-placeholder="$t('pages.imageProcess.watermark.imagePathPlaceholder')"
-                  @map-change="
-                    (picbedType, value) =>
-                      safeSetMapValue(
-                        waterMarkForm,
-                        'watermarkImagePath',
-                        picbedType,
-                        value,
-                        defaultWaterMarkSetting.watermarkImagePath,
-                      )
-                  "
+                  class="form-input flex-1"
+                  placeholder="#CCCCCC73"
                 />
               </div>
 
-              <div v-if="activeForm.watermark.watermarkType === 'image'" class="form-group">
-                <customRange
-                  v-model.number="activeForm.watermark.watermarkImageOpacity"
-                  :title="$t('pages.imageProcess.watermark.imageOpacity')"
-                  :min="0"
-                  :max="255"
-                  :step="1"
-                  :show-value="`${activeForm.watermark.watermarkImageOpacity || 0}`"
-                />
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="waterMarkForm.watermarkColorMap"
+                :default-value="defaultWaterMarkSetting.watermarkColor"
+                field-name="watermarkColor"
+                :global-value="waterMarkForm.watermarkColor"
+                input-type="color"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      waterMarkForm,
+                      'watermarkColor',
+                      picbedType,
+                      value,
+                      defaultWaterMarkSetting.watermarkColor,
+                    )
+                "
+              />
+            </SettingCard>
 
-                <PerPicbedSetting
-                  v-if="!configId"
-                  :map-field="waterMarkForm.watermarkImageOpacityMap"
-                  :default-value="defaultWaterMarkSetting.watermarkImageOpacity"
-                  field-name="watermarkImageOpacity"
-                  :global-value="waterMarkForm.watermarkImageOpacity"
-                  input-type="range"
-                  :range-min="0"
-                  :range-max="255"
-                  :range-step="1"
-                  @map-change="
-                    (picbedType, value) =>
-                      safeSetMapValue(
-                        waterMarkForm,
-                        'watermarkImageOpacity',
-                        picbedType,
-                        value,
-                        defaultWaterMarkSetting.watermarkImageOpacity,
-                      )
-                  "
-                />
+            <!-- Image Watermark Settings -->
+            <SettingCard
+              v-if="activeForm.watermark.watermarkType === 'image' && activeForm.watermark.isAddWatermark"
+              class="flex flex-col justify-center"
+            >
+              <label class="text-base font-semibold text-main">{{ t('pages.imageProcess.watermark.imagePath') }}</label>
+              <input
+                v-model="activeForm.watermark.watermarkImagePath"
+                type="text"
+                class="form-input"
+                :placeholder="t('pages.imageProcess.watermark.imagePathPlaceholder')"
+              />
+
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="waterMarkForm.watermarkImagePathMap"
+                :default-value="defaultWaterMarkSetting.watermarkImagePath"
+                field-name="watermarkImagePath"
+                :global-value="waterMarkForm.watermarkImagePath"
+                input-type="text"
+                :text-placeholder="t('pages.imageProcess.watermark.imagePathPlaceholder')"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      waterMarkForm,
+                      'watermarkImagePath',
+                      picbedType,
+                      value,
+                      defaultWaterMarkSetting.watermarkImagePath,
+                    )
+                "
+              />
+            </SettingCard>
+
+            <SettingCard
+              v-if="activeForm.watermark.watermarkType === 'image' && activeForm.watermark.isAddWatermark"
+              class="flex flex-col justify-center"
+            >
+              <CustomRange
+                v-model.number="activeForm.watermark.watermarkImageOpacity"
+                :title="t('pages.imageProcess.watermark.imageOpacity')"
+                :min="0"
+                :max="255"
+                :step="1"
+                :show-value="`${activeForm.watermark.watermarkImageOpacity || 0}`"
+              />
+
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="waterMarkForm.watermarkImageOpacityMap"
+                :default-value="defaultWaterMarkSetting.watermarkImageOpacity"
+                field-name="watermarkImageOpacity"
+                :global-value="waterMarkForm.watermarkImageOpacity"
+                input-type="range"
+                :range-min="0"
+                :range-max="255"
+                :range-step="1"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      waterMarkForm,
+                      'watermarkImageOpacity',
+                      picbedType,
+                      value,
+                      defaultWaterMarkSetting.watermarkImageOpacity,
+                    )
+                "
+              />
+            </SettingCard>
+
+            <SettingCard v-if="activeForm.watermark.isAddWatermark">
+              <label class="text-base font-semibold text-main">{{ t('pages.imageProcess.watermark.position') }}</label>
+              <div class="grid max-w-[320px] grid-cols-3 gap-2.5">
+                <button
+                  v-for="[key, label] in waterMarkPositionMap"
+                  :key="key"
+                  type="button"
+                  class="rounded-lg border border-border-secondary bg-bg p-3 text-center text-sm font-semibold text-secondary transition-all duration-200 ease-apple hover:border-accent hover:bg-accent/8 hover:text-main [.active]:border-accent/10 [.active]:bg-accent/20 [.active]:text-main"
+                  :class="{ active: activeForm.watermark.watermarkPosition === key }"
+                  @click="activeForm.watermark.watermarkPosition = key as any"
+                >
+                  {{ label }}
+                </button>
               </div>
 
-              <div class="form-group">
-                <label class="title-text">{{ $t('pages.imageProcess.watermark.position') }}</label>
-                <div class="grid max-w-[320px] grid-cols-3 gap-2.5">
-                  <button
-                    v-for="[key, label] in waterMarkPositionMap"
-                    :key="key"
-                    type="button"
-                    class="rounded-lg border border-border-secondary bg-bg p-3 text-center text-sm font-semibold text-secondary transition-all duration-200 ease-apple hover:border-accent hover:bg-accent/8 hover:text-main [.active]:border-accent/10 [.active]:bg-accent/20 [.active]:text-main"
-                    :class="{ active: activeForm.watermark.watermarkPosition === key }"
-                    @click="activeForm.watermark.watermarkPosition = key as any"
-                  >
-                    {{ label }}
-                  </button>
-                </div>
-
-                <PerPicbedSetting
-                  v-if="!configId"
-                  :map-field="waterMarkForm.watermarkPositionMap"
-                  :default-value="defaultWaterMarkSetting.watermarkPosition"
-                  field-name="watermarkPosition"
-                  :global-value="waterMarkForm.watermarkPosition"
-                  input-type="select"
-                  :select-options="
-                    Array.from(waterMarkPositionMap.entries()).map(([key, label]) => ({
-                      value: key,
-                      label,
-                    }))
-                  "
-                  @map-change="
-                    (picbedType, value) =>
-                      safeSetMapValue(
-                        waterMarkForm,
-                        'watermarkPosition',
-                        picbedType,
-                        value,
-                        defaultWaterMarkSetting.watermarkPosition,
-                      )
-                  "
-                />
-              </div>
-            </div>
-          </div>
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="waterMarkForm.watermarkPositionMap"
+                :default-value="defaultWaterMarkSetting.watermarkPosition"
+                field-name="watermarkPosition"
+                :global-value="waterMarkForm.watermarkPosition"
+                input-type="select"
+                :select-options="
+                  Array.from(waterMarkPositionMap.entries()).map(([key, label]) => ({
+                    value: key,
+                    label,
+                  }))
+                "
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      waterMarkForm,
+                      'watermarkPosition',
+                      picbedType,
+                      value,
+                      defaultWaterMarkSetting.watermarkPosition,
+                    )
+                "
+              />
+            </SettingCard>
+          </SettingSection>
         </div>
 
         <!-- Transform Tab -->
         <div v-else-if="activeTab === 'transform'" key="transform" class="flex flex-col gap-4">
-          <div class="settings-section">
-            <div class="section-header">
-              <div class="section-icon transform-icon">
-                <FlipHorizontal :size="20" />
-              </div>
-              <div class="section-title-group">
-                <h2>{{ $t('pages.imageProcess.transform.title') }}</h2>
-                <p>{{ $t('pages.imageProcess.transform.description') }}</p>
-              </div>
-            </div>
-
-            <div class="form-grid">
-              <div class="form-group">
-                <customSwitch
-                  v-model="activeForm.compress.isFlip"
-                  :title="$t('pages.imageProcess.transform.isFlip')"
-                  class="custom-switch"
-                />
-
-                <PerPicbedSetting
-                  v-if="!configId"
-                  :map-field="compressForm.isFlipMap"
-                  :default-value="defaultCompressSetting.isFlip"
-                  field-name="isFlip"
-                  :global-value="compressForm.isFlip"
-                  input-type="checkbox"
-                  @map-change="
-                    (picbedType, value) =>
-                      safeSetMapValue(compressForm, 'isFlip', picbedType, value, defaultCompressSetting.isFlip)
-                  "
-                />
-              </div>
-
-              <div class="form-group">
-                <customSwitch
-                  v-model="activeForm.compress.isFlop"
-                  :title="$t('pages.imageProcess.transform.isFlop')"
-                  class="custom-switch"
-                />
-
-                <PerPicbedSetting
-                  v-if="!configId"
-                  :map-field="compressForm.isFlopMap"
-                  :default-value="defaultCompressSetting.isFlop"
-                  field-name="isFlop"
-                  :global-value="compressForm.isFlop"
-                  input-type="checkbox"
-                  @map-change="
-                    (picbedType, value) =>
-                      safeSetMapValue(compressForm, 'isFlop', picbedType, value, defaultCompressSetting.isFlop)
-                  "
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="settings-section">
-            <div class="section-header">
-              <div class="section-icon rotate-icon">
-                <RotateCw :size="20" />
-              </div>
-              <div class="section-title-group">
-                <h2>{{ $t('pages.imageProcess.transform.rotationTitle') }}</h2>
-                <p>{{ $t('pages.imageProcess.transform.rotationDescription') }}</p>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <customSwitch
-                v-model="activeForm.compress.isRotate"
-                :title="$t('pages.imageProcess.transform.isRotate')"
+          <SettingSection
+            :icon="FlipHorizontal"
+            :title="t('pages.imageProcess.transform.title')"
+            :description="t('pages.imageProcess.transform.description')"
+          >
+            <SettingCard>
+              <CustomSwitch
+                v-model="activeForm.compress.isFlip"
+                :title="t('pages.imageProcess.transform.isFlip')"
                 class="custom-switch"
+                no-border
+                small
+              />
+
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="compressForm.isFlipMap"
+                :default-value="defaultCompressSetting.isFlip"
+                field-name="isFlip"
+                :global-value="compressForm.isFlip"
+                input-type="checkbox"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(compressForm, 'isFlip', picbedType, value, defaultCompressSetting.isFlip)
+                "
+              />
+            </SettingCard>
+
+            <SettingCard>
+              <CustomSwitch
+                v-model="activeForm.compress.isFlop"
+                :title="t('pages.imageProcess.transform.isFlop')"
+                class="custom-switch"
+                small
+                no-border
+              />
+
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="compressForm.isFlopMap"
+                :default-value="defaultCompressSetting.isFlop"
+                field-name="isFlop"
+                :global-value="compressForm.isFlop"
+                input-type="checkbox"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(compressForm, 'isFlop', picbedType, value, defaultCompressSetting.isFlop)
+                "
+              />
+            </SettingCard>
+          </SettingSection>
+
+          <SettingSection
+            :icon="RotateCw"
+            :title="t('pages.imageProcess.transform.rotationTitle')"
+            :description="t('pages.imageProcess.transform.rotationDescription')"
+          >
+            <SettingCard class="flex flex-col justify-center">
+              <CustomSwitch
+                v-model="activeForm.compress.isRotate"
+                :title="t('pages.imageProcess.transform.isRotate')"
+                class="custom-switch"
+                no-border
+                small
               />
 
               <PerPicbedSetting
@@ -670,12 +649,12 @@
                     safeSetMapValue(compressForm, 'isRotate', picbedType, value, defaultCompressSetting.isRotate)
                 "
               />
-            </div>
+            </SettingCard>
 
-            <div v-if="activeForm.compress.isRotate" class="form-group">
-              <customRange
+            <SettingCard v-if="activeForm.compress.isRotate" class="flex flex-col justify-center">
+              <CustomRange
                 v-model.number="activeForm.compress.rotateDegree"
-                :title="$t('pages.imageProcess.transform.rotationDegree')"
+                :title="t('pages.imageProcess.transform.rotationDegree')"
                 :min="-360"
                 :max="360"
                 :step="1"
@@ -704,25 +683,21 @@
                     )
                 "
               />
-            </div>
-          </div>
+            </SettingCard>
+          </SettingSection>
 
-          <div class="settings-section">
-            <div class="section-header">
-              <div class="section-icon resize-icon">
-                <Maximize2 :size="20" />
-              </div>
-              <div class="section-title-group">
-                <h2>{{ $t('pages.imageProcess.transform.resizeTitle') }}</h2>
-                <p>{{ $t('pages.imageProcess.transform.resizeDescription') }}</p>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <customSwitch
+          <SettingSection
+            :icon="Maximize2"
+            :title="t('pages.imageProcess.transform.resizeTitle')"
+            :description="t('pages.imageProcess.transform.resizeDescription')"
+          >
+            <SettingCard class="flex flex-col justify-center">
+              <CustomSwitch
                 v-model="activeForm.compress.isReSize"
-                :title="$t('pages.imageProcess.transform.isResize')"
+                :title="t('pages.imageProcess.transform.isResize')"
                 class="custom-switch"
+                no-border
+                small
               />
 
               <PerPicbedSetting
@@ -737,117 +712,102 @@
                     safeSetMapValue(compressForm, 'isReSize', picbedType, value, defaultCompressSetting.isReSize)
                 "
               />
-            </div>
+            </SettingCard>
 
-            <div
-              v-if="activeForm.compress.isReSize"
-              class="mt-4 border-t border-t-border pt-3 transition-all duration-200 ease-apple"
-            >
-              <div class="form-grid">
-                <div class="form-group">
-                  <label class="title-text">{{ $t('pages.imageProcess.transform.resizeWidth') }}</label>
-                  <input v-model.number="activeForm.compress.reSizeWidth" type="number" min="0" class="form-input" />
+            <SettingCard v-if="activeForm.compress.isReSize">
+              <label class="text-base font-semibold text-main">{{
+                t('pages.imageProcess.transform.resizeWidth')
+              }}</label>
+              <input v-model.number="activeForm.compress.reSizeWidth" type="number" min="0" class="form-input" />
 
-                  <PerPicbedSetting
-                    v-if="!configId"
-                    :map-field="compressForm.reSizeWidthMap"
-                    :default-value="defaultCompressSetting.reSizeWidth"
-                    field-name="reSizeWidth"
-                    :global-value="compressForm.reSizeWidth"
-                    input-type="number"
-                    :number-min="0"
-                    :number-max="10000"
-                    @map-change="
-                      (picbedType, value) =>
-                        safeSetMapValue(
-                          compressForm,
-                          'reSizeWidth',
-                          picbedType,
-                          value,
-                          defaultCompressSetting.reSizeWidth,
-                        )
-                    "
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label class="title-text">{{ $t('pages.imageProcess.transform.resizeHeight') }}</label>
-                  <input v-model.number="activeForm.compress.reSizeHeight" type="number" min="0" class="form-input" />
-
-                  <PerPicbedSetting
-                    v-if="!configId"
-                    :map-field="compressForm.reSizeHeightMap"
-                    :default-value="defaultCompressSetting.reSizeHeight"
-                    field-name="reSizeHeight"
-                    :global-value="compressForm.reSizeHeight"
-                    input-type="number"
-                    :number-min="0"
-                    :number-max="10000"
-                    @map-change="
-                      (picbedType, value) =>
-                        safeSetMapValue(
-                          compressForm,
-                          'reSizeHeight',
-                          picbedType,
-                          value,
-                          defaultCompressSetting.reSizeHeight,
-                        )
-                    "
-                  />
-                </div>
-              </div>
-
-              <div
-                v-if="
-                  ((activeForm.compress.reSizeHeight || 0) > 0 && (activeForm.compress.reSizeWidth || 0) === 0) ||
-                  ((activeForm.compress.reSizeWidth || 0) > 0 && (activeForm.compress.reSizeHeight || 0) === 0)
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="compressForm.reSizeWidthMap"
+                :default-value="defaultCompressSetting.reSizeWidth"
+                field-name="reSizeWidth"
+                :global-value="compressForm.reSizeWidth"
+                input-type="number"
+                :number-min="0"
+                :number-max="10000"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(compressForm, 'reSizeWidth', picbedType, value, defaultCompressSetting.reSizeWidth)
                 "
-                class="form-group"
-              >
-                <customSwitch
-                  v-model="activeForm.compress.skipReSizeOfSmallImg"
-                  :title="$t('pages.imageProcess.transform.skipResizeOfSmallImgHeight')"
-                  class="custom-switch"
-                />
+              />
+            </SettingCard>
 
-                <PerPicbedSetting
-                  v-if="!configId"
-                  :map-field="compressForm.skipReSizeOfSmallImgMap"
-                  :default-value="defaultCompressSetting.skipReSizeOfSmallImg"
-                  field-name="skipReSizeOfSmallImg"
-                  :global-value="compressForm.skipReSizeOfSmallImg"
-                  input-type="checkbox"
-                  @map-change="
-                    (picbedType, value) =>
-                      safeSetMapValue(
-                        compressForm,
-                        'skipReSizeOfSmallImg',
-                        picbedType,
-                        value,
-                        defaultCompressSetting.skipReSizeOfSmallImg,
-                      )
-                  "
-                />
-              </div>
-            </div>
-          </div>
+            <SettingCard v-if="activeForm.compress.isReSize" class="flex flex-col justify-center">
+              <label class="text-base font-semibold text-main">{{
+                t('pages.imageProcess.transform.resizeHeight')
+              }}</label>
+              <input v-model.number="activeForm.compress.reSizeHeight" type="number" min="0" class="form-input" />
 
-          <div class="settings-section">
-            <div class="section-header">
-              <div class="section-icon percent-icon">
-                <Percent :size="20" />
-              </div>
-              <div class="section-title-group">
-                <h2>{{ $t('pages.imageProcess.transform.percentageResize') }}</h2>
-              </div>
-            </div>
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="compressForm.reSizeHeightMap"
+                :default-value="defaultCompressSetting.reSizeHeight"
+                field-name="reSizeHeight"
+                :global-value="compressForm.reSizeHeight"
+                input-type="number"
+                :number-min="0"
+                :number-max="10000"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      compressForm,
+                      'reSizeHeight',
+                      picbedType,
+                      value,
+                      defaultCompressSetting.reSizeHeight,
+                    )
+                "
+              />
+            </SettingCard>
 
-            <div class="form-group">
-              <customSwitch
-                v-model="activeForm.compress.isReSizeByPercent"
-                :title="$t('pages.imageProcess.transform.isResizeByPercent')"
-                :description="$t('pages.imageProcess.transform.isResizeByPercentHint')"
+            <SettingCard
+              v-if="
+                ((activeForm.compress.reSizeHeight || 0) > 0 && (activeForm.compress.reSizeWidth || 0) === 0) ||
+                ((activeForm.compress.reSizeWidth || 0) > 0 && (activeForm.compress.reSizeHeight || 0) === 0)
+              "
+              class="flex flex-col justify-center"
+            >
+              <CustomSwitch
+                v-model="activeForm.compress.skipReSizeOfSmallImg"
+                :title="t('pages.imageProcess.transform.skipResizeOfSmallImgHeight')"
                 class="custom-switch"
+                no-border
+                small
+              />
+
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="compressForm.skipReSizeOfSmallImgMap"
+                :default-value="defaultCompressSetting.skipReSizeOfSmallImg"
+                field-name="skipReSizeOfSmallImg"
+                :global-value="compressForm.skipReSizeOfSmallImg"
+                input-type="checkbox"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      compressForm,
+                      'skipReSizeOfSmallImg',
+                      picbedType,
+                      value,
+                      defaultCompressSetting.skipReSizeOfSmallImg,
+                    )
+                "
+              />
+            </SettingCard>
+          </SettingSection>
+
+          <SettingSection :icon="Percent" :title="t('pages.imageProcess.transform.percentageResize')">
+            <SettingCard class="flex flex-col justify-center">
+              <CustomSwitch
+                v-model="activeForm.compress.isReSizeByPercent"
+                :title="t('pages.imageProcess.transform.isResizeByPercent')"
+                :description="t('pages.imageProcess.transform.isResizeByPercentHint')"
+                no-border
+                small
               />
 
               <PerPicbedSetting
@@ -868,12 +828,12 @@
                     )
                 "
               />
-            </div>
+            </SettingCard>
 
-            <div v-if="activeForm.compress.isReSizeByPercent" class="form-group">
-              <customRange
+            <SettingCard v-if="activeForm.compress.isReSizeByPercent" class="flex flex-col justify-center">
+              <CustomRange
                 v-model.number="activeForm.compress.reSizePercent"
-                :title="$t('pages.imageProcess.transform.resizePercent')"
+                :title="t('pages.imageProcess.transform.resizePercent')"
                 :min="1"
                 :max="500"
                 :step="1"
@@ -902,22 +862,14 @@
                     )
                 "
               />
-            </div>
-          </div>
+            </SettingCard>
+          </SettingSection>
         </div>
 
         <!-- Skip Process Tab -->
         <div v-else-if="activeTab === 'skipProcess'" key="skipProcess" class="flex flex-col gap-4">
-          <div class="settings-section">
-            <div class="section-header">
-              <div class="section-icon">
-                <FileText :size="20" />
-              </div>
-              <div class="section-title-group">
-                <h2>{{ $t('pages.imageProcess.general.skipProcessExtList') }}</h2>
-              </div>
-            </div>
-            <div class="form-group">
+          <SettingSection only-one-row :icon="FileText" :title="t('pages.imageProcess.general.skipProcessExtList')">
+            <SettingCard class="flex flex-col justify-center">
               <textarea
                 v-model="activeForm.skipProcess.skipProcessExtList"
                 class="form-textarea"
@@ -925,61 +877,70 @@
                 :placeholder="'zip,rar,7z,tar,gz'"
               />
               <small class="mt-2 block rounded-sm bg-bg-secondary px-3 py-2 text-xs leading-[1.5] text-tertiary">{{
-                $t('pages.imageProcess.general.skipProcessExtListPlaceholder')
+                t('pages.imageProcess.general.skipProcessExtListPlaceholder')
               }}</small>
-            </div>
-          </div>
+            </SettingCard>
+          </SettingSection>
         </div>
 
         <!-- Rename Tab -->
         <div v-else-if="activeTab === 'rename'" key="rename" class="flex flex-col gap-4">
-          <div class="settings-section">
-            <div class="form-grid">
-              <div class="form-group">
-                <customSwitch
+          <SettingSection
+            :icon="Edit2Icon"
+            :title="t('pages.imageProcess.rename.title')"
+            :description="t('pages.imageProcess.rename.description')"
+            only-one-row
+          >
+            <SettingSection>
+              <SettingCard p1>
+                <CustomSwitch
                   v-model="autoRenameComputed"
-                  :title="$t('pages.imageProcess.rename.renameTimestamp')"
+                  :title="t('pages.imageProcess.rename.renameTimestamp')"
                   description="YYYYMMDDHHmmssSSS"
-                  class="custom-switch"
+                  no-border
+                  small
                 />
-              </div>
+              </SettingCard>
 
-              <div class="form-group">
-                <customSwitch
+              <SettingCard p1 class="flex flex-col justify-center">
+                <CustomSwitch
                   v-model="manualRenameComputed"
-                  :title="$t('pages.imageProcess.rename.manualRename')"
-                  class="custom-switch"
+                  :title="t('pages.imageProcess.rename.manualRename')"
+                  no-border
+                  small
                 />
-              </div>
-            </div>
+              </SettingCard>
 
-            <div class="form-group">
-              <customSwitch
-                v-model="renameSettingsComputed.rename.enable"
-                :title="$t('pages.settings.upload.enableAdvancedRname')"
-                :description="$t('pages.settings.upload.enableAdvancedRnameDesc')"
-                class="custom-switch"
-              />
-            </div>
+              <SettingCard p1 class="flex flex-col justify-center">
+                <CustomSwitch
+                  v-model="renameSettingsComputed.rename.enable"
+                  :title="t('pages.settings.upload.enableAdvancedRname')"
+                  :description="t('pages.settings.upload.enableAdvancedRnameDesc')"
+                  no-border
+                  small
+                />
+              </SettingCard>
 
-            <div class="form-group rename-format-field">
-              <label class="title-text mb-4 flex items-center gap-2">
-                <Edit :size="14" class="text-accent" />
-                {{ $t('pages.settings.upload.advancedRnameFormat') }}
-              </label>
-              <input
-                v-model="renameSettingsComputed.rename.format"
-                type="text"
-                class="form-input"
-                placeholder="Ex. {Y}-{m}-{uuid}"
-              />
-            </div>
-
-            <div class="form-group">
-              <label class="title-text">{{ $t('pages.settings.upload.availablePlaceholders') }}</label>
+              <SettingCard>
+                <label class="mb-4 flex items-center gap-2 text-base font-semibold text-main">
+                  <Edit :size="14" class="text-accent" />
+                  {{ t('pages.settings.upload.advancedRnameFormat') }}
+                </label>
+                <input
+                  v-model="renameSettingsComputed.rename.format"
+                  type="text"
+                  class="form-input"
+                  placeholder="Ex. {Y}-{m}-{uuid}"
+                />
+              </SettingCard>
+            </SettingSection>
+            <SettingCard>
+              <label class="text-base font-semibold text-main">{{
+                t('pages.settings.upload.availablePlaceholders')
+              }}</label>
               <PlaceholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
-            </div>
-          </div>
+            </SettingCard>
+          </SettingSection>
         </div>
       </transition>
     </div>
@@ -991,6 +952,7 @@ import { useStorage } from '@vueuse/core'
 import {
   Droplets,
   Edit,
+  Edit2Icon,
   FileText,
   FlipHorizontal,
   Image,
@@ -1011,14 +973,17 @@ import type {
 import { computed, nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, toRaw, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import customRadioOption from '@/components/common/CustomRadioOption.vue'
-import customRange from '@/components/common/CustomRange.vue'
-import customSwitch from '@/components/common/CustomSwitch.vue'
+import CustomRadioOption from '@/components/common/CustomRadioOption.vue'
+import CustomRange from '@/components/common/CustomRange.vue'
+import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
 import PerPicbedSetting from '@/components/PerPicbedSetting.vue'
 import { getRawData } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
+
+import SettingCard from './common/SettingCard.vue'
+import SettingSection from './common/SettingSection.vue'
 
 const { t } = useI18n()
 const activeTab = useStorage<string>('image-process-setting-active-tab', 'general')

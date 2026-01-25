@@ -53,21 +53,31 @@
           </div>
 
           <div class="flex justify-end gap-1.5">
-            <button v-if="currentStep > 0" class="guide-btn secondary" @click="handlePrevious">
-              <ChevronLeftIcon :size="16" />
-              {{ t('guide.previous') }}
-            </button>
-            <button class="guide-btn outline" @click="handleSkip">
-              {{ t('guide.skip') }}
-            </button>
-            <button v-if="currentStep < steps.length - 1" class="guide-btn primary" @click="handleNext">
-              {{ t('guide.next') }}
-              <ChevronRightIcon :size="16" />
-            </button>
-            <button v-else class="guide-btn success" @click="handleFinish">
-              <CheckCircleIcon :size="16" />
-              {{ t('guide.finish') }}
-            </button>
+            <CustomButton
+              v-if="currentStep > 0"
+              type="secondary"
+              :icon="ChevronLeftIcon"
+              :text="t('guide.previous')"
+              class="p-2!"
+              @click="handlePrevious"
+            />
+            <CustomButton class="p-2!" type="secondary" :text="t('guide.skip')" @click="handleSkip" />
+            <CustomButton
+              v-if="currentStep < steps.length - 1"
+              type="primary"
+              class="p-2!"
+              :icon="ChevronRightIcon"
+              :text="t('guide.next')"
+              @click="handleNext"
+            />
+            <CustomButton
+              v-else
+              type="primary"
+              class="p-2!"
+              :icon="CheckCircleIcon"
+              :text="t('guide.finish')"
+              @click="handleFinish"
+            />
           </div>
         </div>
       </div>
@@ -92,6 +102,8 @@ import {
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+
+import CustomButton from '@/components/common/CustomButton.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -363,5 +375,3 @@ onMounted(async () => {
   window.addEventListener('resize', updateSpotlight)
 })
 </script>
-
-<style scoped src="./css/FirstTimeGuide.css"></style>
