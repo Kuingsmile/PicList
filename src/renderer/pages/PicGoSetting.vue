@@ -275,6 +275,11 @@
               @click="openFile('data.json')"
             />
             <CustomNavCard
+              :title="t('pages.settings.sync.editConfigFile')"
+              :icon="Edit"
+              @click="editFile('data.json')"
+            />
+            <CustomNavCard
               :title="t('pages.settings.sync.openConfigFileDir')"
               :icon="FolderOpen"
               @click="openDirectory"
@@ -1213,6 +1218,14 @@
     >
       <ImageProcessSetting :config-id="''" :current-picbed-name="''" />
     </CustomModal>
+
+    <CustomModal v-if="editorVisible" v-model:visible="editorVisible" :title="t('common.edit')">
+      <Editor v-model="editorContent" language="json" />
+      <template #footer>
+        <CustomButton type="secondary" :text="t('common.cancel')" @click="editorVisible = false" />
+        <CustomButton type="primary" :text="t('common.save')" @click="saveEditorContent" />
+      </template>
+    </CustomModal>
   </div>
 </template>
 
@@ -1257,6 +1270,7 @@ import MultiSelect from '@/components/common/MultiSelect.vue'
 import placeholderTable from '@/components/common/PlaceholderTable.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
+import Editor from '@/components/Editor.vue'
 import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
 import useConfirm from '@/hooks/useConfirm'
 import { osGlobal, usePicBed } from '@/hooks/useGlobal'
@@ -1296,6 +1310,8 @@ const webServerVisible = ref(false)
 const syncVisible = ref(false)
 const upDownConfigVisible = ref(false)
 const proxyVisible = ref(false)
+const editorVisible = ref(false)
+const editorContent = ref('// 在这里开始编写代码...\nfunction hello() {\n  console.log("Hello Electron!");\n}')
 
 const latestVersion = ref('')
 const releaseNotes = ref('')
@@ -1829,8 +1845,51 @@ async function handleChangeSecondPicBed() {
   window.electron.sendRPC(IRPCActionType.SHOW_SECOND_UPLOADER_MENU)
 }
 
-function openFile(file: string) {
+async function saveEditorContent() {
+  const content = editorContent.value.trim()
+  await saveFile('data.json', content, 'json')
+  editorVisible.value = false
+}
+
+async function openFile(file: string) {
   window.electron.sendRPC(IRPCActionType.PICLIST_OPEN_FILE, file)
+}
+
+async function editFile(file: string, mode: 'text' | 'json' = 'text') {
+  const content = (await window.electron.triggerRPC<string>(IRPCActionType.READ_FILE_CONTENT, file)) || ''
+  if (mode === 'json') {
+    try {
+      editorContent.value = JSON.stringify(JSON.parse(content), null, 2)
+    } catch (error) {
+      editorContent.value = content
+    }
+  } else {
+    editorContent.value = content
+  }
+  editorVisible.value = true
+}
+
+async function saveFile(file: string, content: string, mode: 'text' | 'json' = 'text') {
+  let dataToSave = content
+  if (mode === 'json') {
+    try {
+      dataToSave = JSON.stringify(JSON.parse(content), null, 2)
+    } catch (error) {
+      console.error('Invalid JSON content:', error)
+      message.error(t('pages.settings.advanced.invalidJson'))
+      return
+    }
+  }
+  try {
+    window.electron.sendRPC(IRPCActionType.WRITE_FILE_CONTENT, file, dataToSave)
+    message.success(t('pages.settings.advanced.saveFileSuccess'))
+    setTimeout(() => {
+      window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
+    }, 1000)
+  } catch (error) {
+    console.error('Failed to save file:', error)
+    message.error(t('pages.settings.advanced.saveFileFailed'))
+  }
 }
 
 function openDirectory(directory?: string, inStorePath = true) {

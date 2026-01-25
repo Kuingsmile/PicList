@@ -138,4 +138,11 @@ export default [
       })
     },
   },
+  {
+    action: IRPCActionType.RELOAD_WINDOW,
+    handler: async () => {
+      const window = BrowserWindow.getFocusedWindow()
+      window?.webContents.reload()
+    },
+  },
 ]

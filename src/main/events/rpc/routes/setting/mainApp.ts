@@ -43,6 +43,24 @@ export default [
     },
   },
   {
+    action: IRPCActionType.READ_FILE_CONTENT,
+    handler: async (_: IIPCEvent, args: [fileName: string]) => {
+      const abFilePath = path.join(STORE_PATH, args[0])
+      if (!fs.existsSync(abFilePath)) {
+        fs.writeFileSync(abFilePath, '')
+      }
+      return fs.readFileSync(abFilePath, 'utf-8')
+    },
+    type: IRPCType.INVOKE,
+  },
+  {
+    action: IRPCActionType.WRITE_FILE_CONTENT,
+    handler: async (_: IIPCEvent, args: [fileName: string, content: string]) => {
+      const abFilePath = path.join(STORE_PATH, args[0])
+      fs.writeFileSync(abFilePath, args[1], 'utf-8')
+    },
+  },
+  {
     action: IRPCActionType.PICLIST_OPEN_DIRECTORY,
     handler: async (_: IIPCEvent, args: [dirPath?: string, inStorePath?: boolean]) => {
       let [dirPath] = args
