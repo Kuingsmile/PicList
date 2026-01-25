@@ -76,6 +76,10 @@ Whether you need to organize your cloud files, sync markdown images, or manage m
     <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/settings.png?raw=true" alt="Settings"></td>
     <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/task.webp?raw=true" alt="Task"></td>
   </tr>
+  <tr>
+    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/image_editing.png?raw=true" alt="Settings"></td>
+    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/dark.webp?raw=true" alt="Task"></td>
+  </tr>
 </table>
 </details>
 
