@@ -5,7 +5,7 @@
         class="flex w-full items-center justify-between gap-4 overflow-visible rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
       >
         <div class="flex flex-1 flex-wrap items-center gap-4 p-1">
-          <DatabaseIcon :size="24" class="text-accent" />
+          <PlugIcon :size="24" class="text-accent" />
           <div>
             <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">{{ t('pages.plugin.title') }}</h1>
             <p class="m-0 text-sm text-secondary">{{ t('pages.plugin.description') }}</p>
@@ -407,10 +407,10 @@ import { debounce, DebouncedFunc } from 'lodash-es'
 import {
   AlertCircleIcon,
   CheckIcon,
-  DatabaseIcon,
   DownloadIcon,
   ExternalLinkIcon,
   PackageIcon,
+  PlugIcon,
   RefreshCwIcon,
   SearchIcon,
   SettingsIcon,
@@ -835,9 +835,6 @@ onBeforeUnmount(() => {
   window.electron.ipcRendererRemoveAllListeners(PICGO_CONFIG_PLUGIN)
   window.electron.ipcRendererRemoveAllListeners(PICGO_HANDLE_PLUGIN_ING)
   window.electron.ipcRendererRemoveAllListeners(PICGO_TOGGLE_PLUGIN)
-
-  // Reset body overflow
-  document.body.style.overflow = 'auto'
 })
 </script>
 

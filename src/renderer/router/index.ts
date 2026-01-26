@@ -12,6 +12,7 @@ import PicBedsPage from '@/pages/PicBed.vue'
 import SettingPage from '@/pages/PicGoSetting.vue'
 import PluginPage from '@/pages/Plugin.vue'
 import RenamePage from '@/pages/RenamePage.vue'
+import ScriptPage from '@/pages/ScriptPage.vue'
 import ShortKeyPage from '@/pages/ShortKey.vue'
 import Toolbox from '@/pages/Toolbox.vue'
 import TrayPage from '@/pages/TrayPage.vue'
@@ -103,6 +104,11 @@ export default createRouter({
           path: 'plugins',
           component: PluginPage,
           name: config.PLUGIN_PAGE,
+        },
+        {
+          path: 'scripts',
+          component: ScriptPage,
+          name: config.SCRIPT_PAGE,
         },
         {
           path: 'shortKey',

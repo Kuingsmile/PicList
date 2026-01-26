@@ -93,6 +93,9 @@ export interface IConfigStruct {
   needReload: boolean
   picgoPlugins: IPicGoPlugins
   uploader: IUploaderConfig
+  scripts: {
+    disabledList: string[]
+  }
   buildIn: {
     compress: IBuildInCompressOptions
     watermark: IBuildInWaterMarkOptions
@@ -189,6 +192,9 @@ export const configPaths = {
   needReload: 'needReload',
   picgoPlugins: 'picgoPlugins',
   uploader: 'uploader',
+  scripts: {
+    disabledList: 'scripts.disabledList',
+  },
   buildIn: {
     _name: 'buildIn',
     compress: 'buildIn.compress',

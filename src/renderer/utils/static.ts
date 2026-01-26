@@ -67,3 +67,25 @@ export const picBedManualUrlList: IStringKeyMap = {
     webdavplist: 'https://piclist.cn/en/configure.html#webdav',
   },
 }
+
+export const defaultScriptTemplate = `
+// ctx 为 核心PicList实例, extra为额外参数, 其中extra.galleryItem为当前删除的相册对象
+// 可用额外API: axios, crypto, fs, path, os, setTimeout, setInterval, clearTimeout, clearInterval, base64Decode, base64Encode
+// 图床上传脚本必须返回 ctx 对象, 其它脚本可根据需求返回任意数据
+
+async function main(ctx, extra) {
+  // 在这里编写你的脚本代码
+  return ctx
+}
+`
+
+export const defaultScriptTemplateEn = `
+// ctx is the core PicList instance, extra is additional parameters, among which extra.galleryItem is the currently deleted album object
+// Available additional APIs: axios, crypto, fs, path, os, setTimeout, setInterval, clearTimeout, clearInterval, base64Decode, base64Encode
+// The image bed upload script must return the ctx object, other scripts can return any data as needed
+
+async function main(ctx, extra) {
+  // Write your script code here
+  return ctx
+}
+`

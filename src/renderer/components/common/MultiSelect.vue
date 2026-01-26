@@ -1,5 +1,5 @@
 <template>
-  <div :class="tight ? 'mb-0' : 'mb-3'" class="flex items-center gap-2 text-sm font-medium text-main">
+  <div v-if="title" :class="tight ? 'mb-0' : 'mb-3'" class="flex items-center gap-2 text-sm font-medium text-main">
     <slot name="icon">
       <component :is="icon" v-if="icon" :size="iconSize" class="text-accent" />
     </slot>
@@ -68,14 +68,14 @@ onClickOutside(dropdownRef, () => {
 
 const {
   tight = true,
-  title,
+  title = '',
   icon = null,
   iconSize = 18,
   zeroPlaceholder,
   allList,
 } = defineProps<{
   tight?: boolean
-  title: string
+  title?: string
   icon?: any
   iconSize?: number
   zeroPlaceholder: string

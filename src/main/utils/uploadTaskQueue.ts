@@ -238,8 +238,8 @@ class UploadTaskQueueManager {
     const rawInput = cloneDeep(input)
 
     const res = await uploader.setWebContents(webContents).uploadReturnCtx(input)
-    const imgs = res[0] ? res[0] : false
-    const backupImgs = res[1] ? res[1] : false
+    const imgs = res.ctx?.output ? res.ctx.output : false
+    const backupImgs = res.backupCtx?.output ? res.backupCtx.output : false
     const allConfig = picgo.getConfig<any>() || {}
 
     if (imgs !== false && imgs.length > 0) {

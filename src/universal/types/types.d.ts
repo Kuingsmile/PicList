@@ -528,3 +528,22 @@ interface IFavoritePicbedItem {
   type: string
   configName: string
 }
+
+interface IuploadReturnCtxResult {
+  ctx: import('piclist').IPicGo | undefined
+  backupCtx: import('piclist').IPicGo | undefined
+}
+
+type IScriptLifecycle =
+  | 'onSoftwareOpen'
+  | 'onSoftwareClose'
+  | 'preProcess'
+  | 'beforeTransform'
+  | 'transform'
+  | 'beforeUpload'
+  | 'upload'
+  | 'afterUpload'
+  | 'onUploadSuccess'
+  | 'onGalleryRemove'
+  | 'manualTrigger'
+  | 'uploader.advancedplist'

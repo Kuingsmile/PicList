@@ -375,3 +375,23 @@ export function getUploaderType(ctx: IPicGo): {
   const id = picBedConfig._id || ''
   return { picBed, id }
 }
+
+export async function getDirectoryTree(currentPath: string): Promise<Record<string, any>> {
+  const result: Record<string, any> = {}
+
+  const entries = await fs.readdir(currentPath, { withFileTypes: true })
+
+  await Promise.all(
+    entries.map(async entry => {
+      const fullPath = path.join(currentPath, entry.name)
+
+      if (entry.isDirectory()) {
+        result[entry.name] = await getDirectoryTree(fullPath)
+      } else if (entry.isFile()) {
+        result[entry.name] = null
+      }
+    }),
+  )
+
+  return result
+}

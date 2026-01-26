@@ -221,6 +221,7 @@ import {
   Cloud,
   CopyIcon,
   DatabaseIcon,
+  FileCode,
   ImagesIcon,
   Info,
   PlugIcon,
@@ -270,6 +271,11 @@ const navigationItems = computed(() => [
     name: t('navigation.plugins'),
     path: '/main-page/plugins',
     icon: PlugIcon,
+  },
+  {
+    name: t('navigation.scripts'),
+    path: '/main-page/scripts',
+    icon: FileCode,
   },
 ])
 

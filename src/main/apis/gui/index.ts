@@ -13,6 +13,7 @@ import { T as $t } from '~/i18n'
 import { handleCopyUrl } from '~/utils/common'
 import { IPasteStyle } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
+import { runScriptInStage } from '~/utils/runScript'
 
 // Cross-process support may be required in the future
 class GuiApi implements IGuiApi {
@@ -74,8 +75,8 @@ class GuiApi implements IGuiApi {
     const webContents = this.getWebcontentsByWindowId(this.windowId)
     const rawInput = cloneDeep(input)
     const res = await uploader.setWebContents(webContents!).uploadReturnCtx(input)
-    const imgs = res[0] ? res[0] : false
-    const backImgs = res[1] ? res[1] : false
+    const imgs = res.ctx?.output ? res.ctx.output : false
+    const backImgs = res.backupCtx?.output ? res.backupCtx.output : false
     let result: ImgInfo[] = []
     const allConfig = picgo.getConfig<any>() || {}
     if (imgs !== false) {
@@ -103,7 +104,8 @@ class GuiApi implements IGuiApi {
             notification.show()
           }, i * 100)
         }
-        await GalleryDB.getInstance().insert(imgs[i])
+        const inserted = await GalleryDB.getInstance().insert(imgs[i])
+        runScriptInStage('onUploadSuccess', res.ctx || picgo, { galleryItem: inserted })
       }
       handleCopyUrl(pasteText.join('\n'))
       webContents?.send('uploadFiles')

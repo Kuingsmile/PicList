@@ -17,6 +17,58 @@
         </div>
       </div>
       <div class="flex items-center justify-center gap-3">
+        <div class="relative">
+          <CustomButton
+            v-if="type === 'advancedplist'"
+            type="secondary"
+            :text="t('pages.scripts.editScript')"
+            @click="openScriptsList"
+          />
+          <div
+            v-if="scriptsListVisible"
+            class="absolute top-full left-1/2 z-10 mt-2 w-max -translate-x-1/2 gap-2 rounded-md border-2 border-border bg-bg-tertiary px-3 py-1.5 text-sm font-medium text-main shadow-md transition-all duration-fast ease-apple"
+          >
+            <div class="no-scrollbar flex max-h-[200px] min-w-[150px] flex-col overflow-auto">
+              <div
+                v-for="script in scriptsList"
+                :key="script"
+                class="cursor-pointer rounded-md border-b border-border px-2 py-1 text-center whitespace-nowrap last:border-b-0 hover:bg-accent/20"
+                @click="handleScriptClick(script)"
+              >
+                {{ script }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <CustomButton
+          v-if="type === 'advancedplist'"
+          type="primary"
+          :text="t('pages.scripts.createScript')"
+          @click="openNewScriptsNameDialog"
+        />
+        <div class="relative">
+          <CustomButton
+            v-if="type === 'advancedplist'"
+            type="secondary"
+            :text="t('pages.scripts.deleteScript')"
+            @click="openDeleteScriptsList"
+          />
+          <div
+            v-if="deleteScriptListVisible"
+            class="absolute top-full left-1/2 z-10 mt-2 w-max -translate-x-1/2 gap-2 rounded-md border-2 border-border bg-bg-tertiary px-3 py-1.5 text-sm font-medium text-main shadow-md transition-all duration-fast ease-apple"
+          >
+            <div class="no-scrollbar flex max-h-[200px] min-w-[150px] flex-col overflow-auto">
+              <div
+                v-for="script in scriptsList"
+                :key="script"
+                class="cursor-pointer rounded-md border-b border-border px-2 py-1 text-center whitespace-nowrap last:border-b-0 hover:bg-accent/20"
+                @click="deleteScript(script)"
+              >
+                {{ script }}
+              </div>
+            </div>
+          </div>
+        </div>
         <button
           class="relative inline-flex cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg border-none bg-accent px-6 py-3 font-[inherit] text-sm font-semibold text-white shadow-sm transition-all duration-fast ease-apple disabled:cursor-not-allowed disabled:bg-surface disabled:text-secondary disabled:opacity-60"
           :disabled="defaultPicBedG === type"
@@ -39,7 +91,7 @@
           <div
             v-for="(item, index) in curConfigList"
             :key="item._id"
-            class="group/config-card relative flex min-h-[180px] cursor-pointer flex-col gap-6 overflow-hidden rounded-xl border border-border-secondary p-5 shadow-sm transition-all duration-fast ease-apple hover:border-accent hover:shadow-md [.is-active]:border-2 [.is-active]:border-accent [.is-active]:shadow-md"
+            class="group/config-card relative flex min-h-[180px] cursor-pointer flex-col gap-6 overflow-hidden rounded-xl border border-border-secondary p-5 shadow-sm transition-all duration-fast ease-apple hover:border-2 hover:border-accent hover:shadow-md [.is-active]:border-2 [.is-active]:border-accent [.is-active]:shadow-md"
             :class="{ 'is-active': defaultConfigId === item._id }"
             :style="{ '--delay': `${index * 50}ms` }"
             @click="() => selectItem(item._id)"
@@ -135,6 +187,36 @@
         </div>
       </div>
     </div>
+
+    <CustomModal v-if="editorVisible" v-model:visible="editorVisible" :title="t('common.edit')">
+      <Editor v-model="editorContent" language="javascript" />
+      <template #footer>
+        <CustomButton type="secondary" :text="t('common.cancel')" @click="editorVisible = false" />
+        <CustomButton type="primary" :text="t('common.save')" @click="saveEditorContent" />
+      </template>
+    </CustomModal>
+
+    <CustomModal
+      v-if="newScriptNameVisible"
+      v-model:visible="newScriptNameVisible"
+      :title="t('pages.scripts.addNew')"
+      height="auto"
+      width="400px"
+    >
+      <div class="flex items-center justify-center bg-bg-secondary p-6">
+        <SettingCard class="w-full">
+          <CustomInput
+            v-model="newScriptName"
+            :title="t('pages.scripts.pleaseEnterScriptName')"
+            placeholder="test.js"
+          />
+        </SettingCard>
+      </div>
+      <template #footer>
+        <CustomButton type="secondary" :text="t('common.cancel')" @click="newScriptNameVisible = false" />
+        <CustomButton type="primary" :text="t('common.confirm')" @click="handleNewScriptNameConfirm" />
+      </template>
+    </CustomModal>
   </div>
 </template>
 
@@ -146,6 +228,11 @@ import { computed, onBeforeMount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 
+import CustomButton from '@/components/common/CustomButton.vue'
+import CustomInput from '@/components/common/CustomInput.vue'
+import CustomModal from '@/components/common/CustomModal.vue'
+import SettingCard from '@/components/common/SettingCard.vue'
+import Editor from '@/components/Editor.vue'
 import useConfirm from '@/hooks/useConfirm'
 import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
@@ -153,8 +240,9 @@ import { PICBEDS_PAGE, UPLOADER_CONFIG_PAGE } from '@/router/config'
 import $bus from '@/utils/bus'
 import { configPaths } from '@/utils/configPaths'
 import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
-import { saveConfig } from '@/utils/dataSender'
-import { IRPCActionType } from '@/utils/enum'
+import { getConfig, saveConfig } from '@/utils/dataSender'
+import { II18nLanguage, IRPCActionType } from '@/utils/enum'
+import { defaultScriptTemplate, defaultScriptTemplateEn } from '@/utils/static'
 
 const { t } = useI18n()
 const message = useMessage()
@@ -166,6 +254,14 @@ const favoritePicbeds = useStorage<IFavoritePicbedItem[]>('favorite-picbeds', []
 const type = ref('')
 const curConfigList = ref<IStringKeyMap[]>([])
 const defaultConfigId = ref('')
+const scriptsListVisible = ref(false)
+const scriptsList = ref<string[]>([])
+const editorVisible = ref(false)
+const editorContent = ref('')
+const editingScriptName = ref('')
+const newScriptNameVisible = ref(false)
+const newScriptName = ref('')
+const deleteScriptListVisible = ref(false)
 
 const picBedName = computed(() => {
   if (!picBedG.value || picBedG.value.length === 0) {
@@ -316,6 +412,122 @@ function setDefaultPicBed(type: string) {
   message.success(t('pages.uploaderConfig.setSuccess'))
 }
 
+async function getScriptsList() {
+  const scriptsFiles = await window.electron.triggerRPC<Record<string, any>>(IRPCActionType.LIST_SCRIPTS_FILES, [
+    'uploader',
+    'advancedplist',
+  ])
+  scriptsList.value = Object.keys(scriptsFiles || {}).filter(fileName => fileName.endsWith('.js'))
+}
+
+async function openScriptsList() {
+  if (scriptsListVisible.value) {
+    scriptsListVisible.value = false
+    return
+  }
+  await getScriptsList()
+  if (scriptsList.value.length === 0) {
+    message.info(t('pages.scripts.noScriptsFound'))
+    return
+  }
+  scriptsListVisible.value = true
+}
+
+function openNewScriptsNameDialog() {
+  newScriptName.value = ''
+  newScriptNameVisible.value = true
+}
+
+async function getTemplate() {
+  const lang = (await getConfig(configPaths.settings.language)) || II18nLanguage.ZH_CN
+  if (lang === II18nLanguage.ZH_CN || lang === II18nLanguage.ZH_TW) {
+    return defaultScriptTemplate
+  } else {
+    return defaultScriptTemplateEn
+  }
+}
+
+async function openEditScripts(scriptName: string, mode: 'edit' | 'new' = 'edit') {
+  editingScriptName.value = scriptName
+  if (mode === 'edit') {
+    const filePath = ['uploader', 'advancedplist', editingScriptName.value]
+    const content = (await window.electron.triggerRPC<string>(IRPCActionType.READ_SCRIPTS_FILE, filePath)) || ''
+    editorContent.value = content
+  } else {
+    editorContent.value = await getTemplate()
+  }
+  editorVisible.value = true
+}
+
+async function saveEditorContent() {
+  const file = ['uploader', 'advancedplist', editingScriptName.value]
+  const content = editorContent.value.trim()
+  try {
+    window.electron.sendRPC(IRPCActionType.WRITE_SCRIPT_FILE, file, content)
+    message.success(t('pages.settings.advanced.saveFileSuccess'))
+    await getScriptsList()
+  } catch (error) {
+    console.error('Failed to save file:', error)
+    message.error(t('pages.settings.advanced.saveFileFailed'))
+  }
+  editorVisible.value = false
+}
+
+function handleNewScriptNameConfirm() {
+  let trimmedName = newScriptName.value.trim()
+  trimmedName = trimmedName.endsWith('.js') ? trimmedName : `${trimmedName}.js`
+  if (!trimmedName) {
+    message.error(t('pages.scripts.pleaseEnterScriptName'))
+    return
+  }
+  if (scriptsList.value.includes(trimmedName)) {
+    message.error(t('pages.scripts.duplicateScriptNameError'))
+    return
+  }
+  newScriptNameVisible.value = false
+  openEditScripts(trimmedName, 'new')
+}
+
+function handleScriptClick(scriptName: string) {
+  scriptsListVisible.value = false
+  openEditScripts(scriptName)
+}
+
+function openDeleteScriptsList() {
+  if (deleteScriptListVisible.value) {
+    deleteScriptListVisible.value = false
+    return
+  }
+  getScriptsList().then(() => {
+    if (scriptsList.value.length === 0) {
+      message.info(t('pages.scripts.noScriptsFound'))
+      return
+    }
+    deleteScriptListVisible.value = true
+  })
+}
+
+async function deleteScript(scriptName: string) {
+  const result = await confirm({
+    title: t('pages.scripts.deleteScriptTitle'),
+    message: t('pages.scripts.deleteScriptConfirm', { name: scriptName }),
+    type: 'warning',
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    center: true,
+  })
+  if (!result) return
+  try {
+    const filePath = ['uploader', 'advancedplist', scriptName]
+    window.electron.sendRPC(IRPCActionType.DELETE_SCRIPTS_FILE, filePath)
+    message.success(t('pages.scripts.deleteSuccess'))
+    await getScriptsList()
+  } catch (error) {
+    console.error('Failed to delete script file:', error)
+    message.error(t('pages.scripts.deleteFailed'))
+  }
+}
+
 onBeforeRouteUpdate((to, _, next) => {
   if (to.params.type && to.name === UPLOADER_CONFIG_PAGE) {
     type.value = to.params.type as string
@@ -327,6 +539,7 @@ onBeforeRouteUpdate((to, _, next) => {
 onBeforeMount(() => {
   type.value = route.params.type as string
   getCurrentConfigList()
+  getScriptsList()
 })
 </script>
 

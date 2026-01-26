@@ -32,8 +32,8 @@ const trayRoutes = [
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
       // macOS use builtin clipboard is OK
       const res = await uploader.setWebContents(trayWindow?.webContents).uploadWithBuildInClipboardReturnCtx()
-      const img = res[0] ? res[0] : false
-      const backupImgs = res[1] ? res[1] : false
+      const img = res.ctx?.output ? res.ctx.output : false
+      const backupImgs = res.backupCtx?.output ? res.backupCtx.output : false
       const allConfig = picgo.getConfig<any>() || {}
       if (img !== false) {
         const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN

@@ -11,8 +11,9 @@ import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 import { IPasteStyle, IWindowList } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
+import { runScriptInStage } from '~/utils/runScript'
 
-const handleClipboardUploadingReturnCtx = async (img?: IUploadOption): Promise<(ImgInfo[] | false)[]> => {
+const handleClipboardUploadingReturnCtx = async (img?: IUploadOption): Promise<IuploadReturnCtxResult> => {
   const useBuiltinClipboardConfig = picgo.getConfig<boolean | undefined>(configPaths.settings.useBuiltinClipboard)
   const useBuiltinClipboard = useBuiltinClipboardConfig === undefined ? true : !!useBuiltinClipboardConfig
   const win = windowManager.getAvailableWindow()
@@ -26,8 +27,8 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
   let img: ImgInfo[] | false = false
   let backImg: ImgInfo[] | false = false
   const res = await handleClipboardUploadingReturnCtx()
-  img = res[0] ? res[0] : false
-  backImg = res[1] ? res[1] : false
+  img = res.ctx?.output ? res.ctx.output : false
+  backImg = res.backupCtx?.output ? res.backupCtx.output : false
   const allConfig = picgo.getConfig<any>() || {}
   if (img !== false) {
     if (img.length > 0) {
@@ -50,6 +51,7 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
         }, 100)
       }
       const inserted = await GalleryDB.getInstance().insert(img[0])
+      runScriptInStage('onUploadSuccess', res.ctx || picgo, { galleryItem: inserted })
       // trayWindow just be created in mac/windows, not in linux
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
       trayWindow?.webContents?.send('clipboardFiles', [])
@@ -93,8 +95,8 @@ export const uploadChoosedFiles = async (
   let imgs: ImgInfo[] | false = false
   let backImgs: ImgInfo[] | false = false
   const res = await uploader.setWebContents(webContents).uploadReturnCtx(input)
-  imgs = res[0] ? res[0] : false
-  backImgs = res[1] ? res[1] : false
+  imgs = res.ctx?.output ? res.ctx.output : false
+  backImgs = res.backupCtx?.output ? res.backupCtx.output : false
   const result = []
   const allConfig = picgo.getConfig<any>() || {}
   if (imgs !== false) {
@@ -140,6 +142,7 @@ export const uploadChoosedFiles = async (
         }
       }
       const inserted = await GalleryDB.getInstance().insert(imgs[i])
+      runScriptInStage('onUploadSuccess', res.ctx || picgo, { galleryItem: inserted })
       result.push({
         url: handleUrlEncodeWithSetting(inserted.imgUrl!),
         fullResult: inserted,

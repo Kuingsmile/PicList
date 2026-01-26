@@ -118,15 +118,15 @@ class Uploader {
     return filePath
   }
 
-  async uploadWithBuildInClipboardReturnCtx(img?: IUploadOption): Promise<(ImgInfo[] | false)[]> {
+  async uploadWithBuildInClipboardReturnCtx(img?: IUploadOption): Promise<IuploadReturnCtxResult> {
     let imgPath: string | false = false
     try {
       imgPath = await this.getClipboardImagePath()
-      if (!imgPath) return [false, false]
+      if (!imgPath) return { ctx: undefined, backupCtx: undefined }
       return await this.uploadReturnCtx(img ?? [imgPath])
     } catch (e: any) {
       logger.error(e)
-      return [false, false]
+      return { ctx: undefined, backupCtx: undefined }
     } finally {
       if (imgPath && imgPath.startsWith(path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER))) {
         fs.remove(imgPath)
@@ -134,24 +134,24 @@ class Uploader {
     }
   }
 
-  async uploadReturnCtx(img?: IUploadOption): Promise<(ImgInfo[] | false)[]> {
+  async uploadReturnCtx(img?: IUploadOption): Promise<IuploadReturnCtxResult> {
     try {
-      const result = [false, false] as (ImgInfo[] | false)[]
+      const result = { ctx: undefined, backupCtx: undefined } as IuploadReturnCtxResult
       const res = await picgo.uploadReturnCtx(img)
       const allConfig = picgo.getConfig<any>() || {}
 
-      if (Array.isArray(res.output) && res.output.some((item: ImgInfo) => item.imgUrl)) {
-        res.output.forEach((item: ImgInfo) => {
+      if (Array.isArray(res.ctx?.output) && res.ctx?.output.some((item: ImgInfo) => item.imgUrl)) {
+        res.ctx.output.forEach((item: ImgInfo) => {
           item.config = JSON.parse(JSON.stringify(allConfig.picBed?.[item.type!]))
         })
-        result[0] = res.output
+        result.ctx = res.ctx
       }
 
-      if (Array.isArray(res.backupOutput) && res.backupOutput.some((item: ImgInfo) => item.imgUrl)) {
-        res.backupOutput.forEach((item: ImgInfo) => {
+      if (Array.isArray(res.backupCtx?.output) && res.backupCtx?.output.some((item: ImgInfo) => item.imgUrl)) {
+        res.backupCtx.output.forEach((item: ImgInfo) => {
           item.config = JSON.parse(JSON.stringify(allConfig.picBed?.[item.type!]))
         })
-        result[1] = res.backupOutput
+        result.backupCtx = res.backupCtx
       }
       return result
     } catch (e: any) {
@@ -163,7 +163,7 @@ class Uploader {
           clickToCopy: true,
         })
       }, 500)
-      return [false, false]
+      return { ctx: undefined, backupCtx: undefined } as IuploadReturnCtxResult
     } finally {
       ipcMain.removeAllListeners(GET_RENAME_FILE_NAME)
     }

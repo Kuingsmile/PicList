@@ -21,14 +21,14 @@ const editorRef = ref(null)
 const view = shallowRef(null)
 
 onMounted(() => {
+  const languageExtension = props.language === 'json' ? json() : javascript()
   const startState = EditorState.create({
     doc: props.modelValue,
     extensions: [
       lineNumbers(),
       history(),
       keymap.of([...defaultKeymap, ...historyKeymap]),
-      json(),
-      javascript(),
+      languageExtension,
       oneDark,
       search({ top: true }),
       keymap.of([...searchKeymap]),

@@ -280,6 +280,11 @@
               @click="editFile('data.json')"
             />
             <CustomNavCard
+              :title="t('pages.settings.sync.editCloudConfigFile')"
+              :icon="Edit"
+              @click="editFile('manage.json')"
+            />
+            <CustomNavCard
               :title="t('pages.settings.sync.openConfigFileDir')"
               :icon="FolderOpen"
               @click="openDirectory"
@@ -562,10 +567,22 @@
         >
           <SettingSection :icon="FileText" :title="t('pages.settings.advanced.logging')">
             <CustomNavCard
-              :title="t('pages.settings.advanced.logFilePath')"
-              :description="t('pages.settings.advanced.logFilePathDesc')"
-              :icon="FolderOpen"
-              @click="openDirectory"
+              :title="t('pages.settings.advanced.logFile')"
+              description="piclist.log"
+              :icon="FileText"
+              @click="openFile('piclist.log')"
+            />
+            <CustomNavCard
+              :title="t('pages.settings.advanced.guiLogFile')"
+              description="piclist-gui-local.log"
+              :icon="FileText"
+              @click="openFile('piclist-gui-local.log')"
+            />
+            <CustomNavCard
+              :title="t('pages.settings.advanced.manageLogFile')"
+              description="manage.log"
+              :icon="FileText"
+              @click="openFile('manage.log')"
             />
             <CustomNavCard
               :title="t('pages.settings.advanced.setLog')"
@@ -902,24 +919,6 @@
     >
       <div class="flex h-full w-full flex-col p-4">
         <SettingSection>
-          <CustomNavCard
-            :title="t('pages.settings.advanced.logFile')"
-            description="piclist.log"
-            :icon="FileText"
-            @click="openFile('piclist.log')"
-          />
-          <CustomNavCard
-            :title="t('pages.settings.advanced.guiLogFile')"
-            description="piclist-gui-local.log"
-            :icon="FileText"
-            @click="openFile('piclist-gui-local.log')"
-          />
-          <CustomNavCard
-            :title="t('pages.settings.advanced.manageLogFile')"
-            description="manage.log"
-            :icon="FileText"
-            @click="openFile('manage.log')"
-          />
           <CustomInput
             v-model="formOfSetting.logFileSizeLimit"
             :title="t('pages.settings.advanced.logFileSize')"

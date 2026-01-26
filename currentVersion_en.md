@@ -1,31 +1,45 @@
 ## 🎉 [v3.3.0] Release Notes
 
-### 🚀 Performance Optimization
+This update brings significant memory optimizations, a brand new script extension feature, and a theme system. Additionally, the UI has been comprehensively redesigned and optimized.
 
-- Reduced **60-70%** idle memory usage and **20%** memory usage when opening windows.
-- Optimized loading speed and browsing performance for multiple pages
+### 🚀 Performance Improvements
+
+- Reduced idle memory usage by **60-70%** and memory usage when opening windows by **20%**
+- Optimized loading speed and browsing performance on multiple pages
 
 ### ✨ New Features
 
+#### 🛠 Script Extensions
+
+Use custom `javascript` scripts to extend PicList's functionality without the need to install a local Node environment, making it lighter and more flexible.
+
+- A brand new script system that supports image hosting upload scripts and various types of general scripts
+- Supports running scripts at multiple stages such as before and after uploading, before and after adding/removing albums, meeting more customization needs
+- Script management page that supports creating, editing, deleting, and enabling/disabling scripts
+
 #### ⚙️ Core Features
 
-- Now supports manually disabling GPU acceleration to resolve black screen or flickering issues caused by some hardware compatibility.
-- Added advanced animation settings for a better UI interaction experience.
+- Now supports editing and saving configuration files within the software
+- Advanced custom image hosting now supports script uploads
 - Windows portable mode, no installation required, data is stored in the `data` folder in the program directory, and supports automatic updates.
 - Added `rpm` installation package for Linux.
-- Added image hosting editing card page to solve confusion when switching multiple configurations.
-- Added list mode support for the file browsing page.
+- Added image hosting editing card page to resolve confusion when switching multiple configurations.
+- Added list mode support to the file browsing page.
+- Now supports manually disabling GPU acceleration to resolve black screen or flickering issues caused by some hardware compatibility.
+- Added advanced animation settings for a better UI interaction experience when enabled.
 
 #### 🎨 UI Interface
 
-- Refactored almost all business pages and optimized dozens of UI details.
+- Redesigned almost all business pages and optimized dozens of UI details.
 - Integrated theme repository [PicList ThemeHub](https://github.com/Kuingsmile/PicList-ThemeHub), supporting custom downloads.
 - Provided 12 built-in themes (such as bilibili, 二次元, 极夜紫 styles).
-- Redesigned all pages of the management feature
-  - Optimized album page card styles, clearer boundaries, and improved selection box visual effects.
-  - Optimized the display of multiple pages on narrow screens to avoid content overflow.
+- Redesigned all pages of the management function
+  - Optimized album page card styles, clearer boundaries, improved selection box visual effects.
+  - Optimized the display of multiple pages under narrow screens to avoid content overflow.
   - Supported scrolling to display the full name when the file browsing sidebar name exceeds the width.
-- The album page supports displaying the number of selected items, matching URL lists, and remembering filter states.
+  - Optimized the display effect of the video playback page.
+- The album page supports displaying the number of selected items, the list of matching URLs, and remembering the filter state.
+- Optimized the layout distribution of the settings page.
 - Supports browsing the complete plugin list, viewing details, and one-click installation.
 - Added a new user guide page that automatically pops up on the first run.
 
@@ -36,9 +50,10 @@
 
 ### 🐛 Bug Fixes
 
-- Fixed the issue of abnormal display of the sorting dropdown box on the management page.
+- Fixed the issue where the sort dropdown box on the management page displayed abnormally.
 - Fixed the issue where the image hosting list on the management page did not correctly highlight the currently selected item.
-- Fixed the display issue of the task page in dark mode.
+- Fixed the issue where the markdown preview content on the management page did not render correctly.
+- Fixed the display anomaly on the task page in dark mode.
 - Fixed the issue where the "Set as Default Image Hosting" button status on the image hosting settings page was not updated in a timely manner.
-- Fixed the issue where the independent watermark setting button status on the image hosting was not synchronized in the preprocessing settings page.
-- Fixed the issue where bottom elements of some pages were obscured.
+- Fixed the issue where the button status of the independent watermark setting for image hosting in the preprocessing settings page was not synchronized.
+- Fixed the issue where bottom elements on some pages were obscured.

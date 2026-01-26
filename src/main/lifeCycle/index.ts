@@ -34,7 +34,7 @@ import { IRemoteNoticeTriggerHook, ISartMode, IWindowList } from '~/utils/enum'
 import { getUploadFiles } from '~/utils/handleArgv'
 import { initI18n } from '~/utils/handleI18n'
 import { notificationList } from '~/utils/notification'
-import { MemoryMonitor } from '~/utils/performanceOptimizer'
+import { runScriptInStage } from '~/utils/runScript'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 import updateChecker from '~/utils/updateChecker'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -146,9 +146,6 @@ class LifeCycle {
           notice.show()
         }
       }
-      if (isDevelopment) {
-        MemoryMonitor.start()
-      }
       await remoteNoticeHandler.init()
       remoteNoticeHandler.triggerHook(IRemoteNoticeTriggerHook.APP_START)
       if (startMode === ISartMode.MINI && process.platform !== 'darwin') {
@@ -196,6 +193,7 @@ class LifeCycle {
       }
       const clipboardDir = path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER)
       fs.emptyDir(clipboardDir)
+      runScriptInStage('onSoftwareOpen', picgo, {})
     }
     app.whenReady().then(readyFunction)
   }
@@ -251,7 +249,7 @@ class LifeCycle {
       server.shutdown()
       webServer.stop()
       stopFileServer()
-      MemoryMonitor.stop()
+      runScriptInStage('onSoftwareClose', picgo, {})
     })
     // Exit cleanly on request from parent process in development mode.
     if (isDevelopment) {

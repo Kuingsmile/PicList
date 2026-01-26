@@ -26,6 +26,7 @@ import { configPaths } from '~/utils/configPaths'
 import { IPasteStyle, IWindowList } from '~/utils/enum'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/utils/getMacOSVersion'
 import pasteTemplate from '~/utils/pasteTemplate'
+import { runScriptInStage } from '~/utils/runScript'
 import { hideMiniWindow, openMainWindow, openMiniWindow } from '~/utils/windowHelper'
 
 import menubarPng from '../../../../../resources/menubar.png?asset&asarUnpack'
@@ -308,8 +309,8 @@ export function createTray(tooltip: string) {
         const rawInput = cloneDeep(files)
         const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
         const res = await uploader.setWebContents(trayWindow?.webContents).uploadReturnCtx(files)
-        const imgs = res[0] ? res[0] : false
-        const backImgs = res[1] ? res[1] : false
+        const imgs = res.ctx?.output ? res.ctx.output : false
+        const backImgs = res.backupCtx?.output ? res.backupCtx.output : false
         const deleteLocalFile = allConfig.settings?.deleteLocalFile || false
         if (imgs !== false) {
           const pasteText: string[] = []
@@ -334,7 +335,8 @@ export function createTray(tooltip: string) {
                 notification.show()
               }, i * 100)
             }
-            await GalleryDB.getInstance().insert(imgs[i])
+            const inserted = await GalleryDB.getInstance().insert(imgs[i])
+            runScriptInStage('onUploadSuccess', res.ctx || picgo, { galleryItem: inserted })
           }
           handleCopyUrl(pasteText.join('\n'))
           trayWindow?.webContents.send('dragFiles', imgs)

@@ -43,6 +43,10 @@ export function defaultDir() {
   return userDataDir()
 }
 
+export function scriptsDir() {
+  return path.join(dataDir(), 'scripts')
+}
+
 export function defaultConfigPath() {
   if (isPortable()) {
     return path.join(exeDir(), 'data', 'data.json')

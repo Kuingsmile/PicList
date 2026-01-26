@@ -6,6 +6,7 @@ import { clipboard } from 'electron'
 import { RPCRouter } from '~/events/rpc/router'
 import { ICOREBuildInEvent, IPasteStyle, IRPCActionType, IRPCType } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
+import { runScriptInStage } from '~/utils/runScript'
 interface IFilter {
   orderBy?: 'asc' | 'desc'
   limit?: number
@@ -38,6 +39,7 @@ const galleryRoutes = [
     action: IRPCActionType.GALLERY_REMOVE_FILES,
     handler: async (_: IIPCEvent, args: [files: ImgInfo[]]) => {
       setTimeout(() => {
+        runScriptInStage('onGalleryRemove', picgo, { galleryItem: args[0] })
         picgo.emit(ICOREBuildInEvent.REMOVE, args[0], GuiApi.getInstance())
       }, 500)
     },

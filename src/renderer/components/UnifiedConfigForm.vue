@@ -95,6 +95,7 @@
           </div>
         </template>
       </SettingCard>
+      <slot name="extra-config" />
       <slot />
     </SettingSection>
   </div>
