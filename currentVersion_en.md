@@ -32,7 +32,8 @@ Use custom `javascript` scripts to extend PicList's functionality without the ne
 
 - Redesigned almost all business pages and optimized dozens of UI details.
 - Integrated theme repository [PicList ThemeHub](https://github.com/Kuingsmile/PicList-ThemeHub), supporting custom downloads.
-- Provided 12 built-in themes (such as bilibili, 二次元, 极夜紫 styles).
+- Provided 12 built-in themes (such as bilibili, Anime, purple styles).
+- Supports custom theme editing and saving.
 - Redesigned all pages of the management function
   - Optimized album page card styles, clearer boundaries, improved selection box visual effects.
   - Optimized the display of multiple pages under narrow screens to avoid content overflow.
