@@ -906,8 +906,10 @@
         "downloadThemes": "下載主題",
         "downloadThemesFailed": "下載主題失敗",
         "downloadThemesSuccess": "主題下載成功",
+        "editTheme": "編輯主題",
         "enableAdvancedAnimation": "啟用高級動畫效果",
         "enableAdvancedAnimationDesc": "不要在低性能設備上或關閉GPU加速時啟用此選項",
+        "getThemeContentFailed": "獲取主題內容失敗",
         "hideDockHint": "不支持同時隱藏 dock 和托盤",
         "importThemes": "導入主題",
         "importThemesFailed": "導入主題失敗",
@@ -1206,15 +1208,6 @@
       "subtitle": "共 {count} 個配置",
       "title": "配置"
     }
-  },
-  "scripts": {
-    "createScript": "創建腳本",
-    "deleteScript": "刪除腳本",
-    "duplicateScriptNameError": "腳本名稱已存在",
-    "editScripts": "編輯腳本",
-    "newScriptTitle": "新建腳本",
-    "noScriptsFound": "未找到腳本",
-    "pleaseEnterScriptName": "請輸入腳本名稱"
   },
   "settings": {
     "theme": {

@@ -163,6 +163,11 @@
             :title="t('pages.scripts.selectScriptType')"
             :key-list="supportedScriptCategories.map(cat => cat.type)"
             :fronticon="false"
+            :placeholder="
+              supportedScriptCategories.find(cat => cat.type === newScriptCategory)
+                ? supportedScriptCategories.find(cat => cat.type === newScriptCategory)?.name
+                : newScriptCategory
+            "
           >
             <template #item="{ item }">
               {{

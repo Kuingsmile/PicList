@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { dataDir, scriptsDir } from '@core/datastore/dirs'
+import { appGUILogPath, appLogPath, dataDir, manageLogPath, scriptsDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import { IpcMainEvent, shell } from 'electron'
 import fs from 'fs-extra'
@@ -38,7 +38,20 @@ export default [
   {
     action: IRPCActionType.PICLIST_OPEN_FILE,
     handler: async (_: IIPCEvent, args: [fileName: string]) => {
-      const abFilePath = path.join(STORE_PATH, args[0])
+      let abFilePath = path.join(STORE_PATH, args[0])
+      switch (args[0]) {
+        case 'piclist.log':
+          abFilePath = appLogPath()
+          break
+        case 'piclist-gui-local.log':
+          abFilePath = appGUILogPath()
+          break
+        case 'manage.log':
+          abFilePath = manageLogPath()
+          break
+        default:
+          abFilePath = path.join(STORE_PATH, args[0])
+      }
       if (!fs.existsSync(abFilePath)) {
         fs.writeFileSync(abFilePath, '')
       }

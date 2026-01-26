@@ -4,6 +4,7 @@
 
 <script setup>
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
+import { css } from '@codemirror/lang-css'
 import { javascript } from '@codemirror/lang-javascript'
 import { json } from '@codemirror/lang-json'
 import { openSearchPanel, search, searchKeymap } from '@codemirror/search'
@@ -11,6 +12,7 @@ import { EditorState } from '@codemirror/state'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { EditorView, keymap, lineNumbers } from '@codemirror/view'
 import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+
 const props = defineProps({
   modelValue: { type: String, default: '' },
   language: { type: String, default: 'javascript' },
@@ -21,7 +23,7 @@ const editorRef = ref(null)
 const view = shallowRef(null)
 
 onMounted(() => {
-  const languageExtension = props.language === 'json' ? json() : javascript()
+  const languageExtension = props.language === 'json' ? json() : props.language === 'css' ? css() : javascript()
   const startState = EditorState.create({
     doc: props.modelValue,
     extensions: [

@@ -1,6 +1,9 @@
-import { isPortable } from '@core/datastore/dirs'
+import path from 'node:path'
+
+import { isPortable, themesDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import { app, nativeTheme, shell } from 'electron'
+import fs from 'fs-extra'
 
 import { applyTheme, fetchThemes, importThemes, readTheme, resolveThemes } from '~/apis/app/theme'
 import { i18nManager } from '~/i18n'
@@ -52,6 +55,25 @@ export default [
     action: IRPCActionType.APPLY_THEME,
     handler: async (_: IIPCEvent, args: [theme: string]) => {
       applyTheme(args[0])
+    },
+  },
+  {
+    action: IRPCActionType.THEME_READ_THEME,
+    handler: async (_: IIPCEvent, args: [fileName: string]) => {
+      const abFilePath = path.join(themesDir(), args[0])
+      if (!fs.existsSync(abFilePath)) {
+        return null
+      }
+      return fs.readFileSync(abFilePath, 'utf-8')
+    },
+    type: IRPCType.INVOKE,
+  },
+  {
+    action: IRPCActionType.THEME_WRITE_THEME,
+    handler: async (_: IIPCEvent, args: [fileName: string, content: string]) => {
+      const abFilePath = path.join(themesDir(), args[0])
+      fs.ensureDirSync(path.dirname(abFilePath))
+      fs.writeFileSync(abFilePath, args[1], 'utf-8')
     },
   },
   {

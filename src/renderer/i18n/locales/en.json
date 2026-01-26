@@ -906,6 +906,7 @@
         "downloadThemes": "Download Themes",
         "downloadThemesFailed": "Failed to download themes",
         "downloadThemesSuccess": "Themes downloaded successfully",
+        "editTheme": "Edit Theme",
         "enableAdvancedAnimation": "Enable Advanced Animation",
         "enableAdvancedAnimationDesc": "Do not enable this option on low-performance devices or when GPU acceleration is disabled",
         "hideDockHint": "Cannot hide both dock and tray at the same time",
@@ -1206,15 +1207,6 @@
       "subtitle": "{count} configurations available",
       "title": "Configurations"
     }
-  },
-  "scripts": {
-    "createScript": "Create Script",
-    "deleteScript": "Delete Script",
-    "duplicateScriptNameError": "Script name already exists",
-    "editScripts": "Edit Script",
-    "newScriptTitle": "New Script",
-    "noScriptsFound": "No Scripts Found",
-    "pleaseEnterScriptName": "Please enter script name"
   },
   "settings": {
     "theme": {

@@ -86,36 +86,48 @@
             </SettingCard>
 
             <SettingCard>
-              <CustomSelect
+              <SingleSelect
                 v-model="currentTheme"
-                :select-list="themeList"
                 :title="t('pages.settings.system.chooseTheme')"
-                :icon="ImageIcon"
-              />
+                :fronticon="false"
+                :key-list="themeList.map(item => item.value)"
+                :placeholder="themeList.find(theme => theme.value === currentTheme)?.label || ''"
+              >
+                <template #item="{ item }">
+                  {{ themeList.find(theme => theme.value === item)?.label || item }}
+                </template>
+              </SingleSelect>
+              <template #extra>
+                <div class="mt-3 flex gap-4">
+                  <CustomButton
+                    :disabled="downloadingThemes"
+                    :text="
+                      downloadingThemes
+                        ? t('pages.settings.system.downloadingThemes')
+                        : t('pages.settings.system.downloadThemes')
+                    "
+                    :icon-size="14"
+                    :icon="Download"
+                    type="secondary"
+                    @click="handleDownloadThemes"
+                  />
+                  <CustomButton
+                    :icon="Import"
+                    :text="t('pages.settings.system.importThemes')"
+                    type="secondary"
+                    :icon-size="14"
+                    @click="handleImportThemes"
+                  />
+                  <CustomButton
+                    :icon="Edit2"
+                    :text="t('pages.settings.system.editTheme')"
+                    type="primary"
+                    :icon-size="14"
+                    @click="handleEditTheme"
+                  />
+                </div>
+              </template>
             </SettingCard>
-            <template #extra>
-              <div class="mt-3 flex gap-4">
-                <CustomButton
-                  :disabled="downloadingThemes"
-                  :text="
-                    downloadingThemes
-                      ? t('pages.settings.system.downloadingThemes')
-                      : t('pages.settings.system.downloadThemes')
-                  "
-                  :icon-size="14"
-                  :icon="Download"
-                  type="secondary"
-                  @click="handleDownloadThemes"
-                />
-                <CustomButton
-                  :icon="Import"
-                  :text="t('pages.settings.system.importThemes')"
-                  type="secondary"
-                  :icon-size="14"
-                  @click="handleImportThemes"
-                />
-              </div>
-            </template>
           </SettingSection>
 
           <!-- Window Behavior Section -->
@@ -1219,7 +1231,7 @@
     </CustomModal>
 
     <CustomModal v-if="editorVisible" v-model:visible="editorVisible" :title="t('common.edit')">
-      <Editor v-model="editorContent" language="json" />
+      <Editor v-model="editorContent" :language="editorLanguage" />
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="editorVisible = false" />
         <CustomButton type="primary" :text="t('common.save')" @click="saveEditorContent" />
@@ -1236,6 +1248,7 @@ import {
   CloudUpload,
   Download,
   Edit,
+  Edit2,
   FileText,
   FolderOpen,
   GitBranch,
@@ -1269,6 +1282,7 @@ import MultiSelect from '@/components/common/MultiSelect.vue'
 import placeholderTable from '@/components/common/PlaceholderTable.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
+import SingleSelect from '@/components/common/SingleSelect.vue'
 import Editor from '@/components/Editor.vue'
 import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
 import useConfirm from '@/hooks/useConfirm'
@@ -1311,6 +1325,8 @@ const upDownConfigVisible = ref(false)
 const proxyVisible = ref(false)
 const editorVisible = ref(false)
 const editorContent = ref('// 在这里开始编写代码...\nfunction hello() {\n  console.log("Hello Electron!");\n}')
+const editorLanguage = ref('json')
+const currentEditFile = ref('')
 
 const latestVersion = ref('')
 const releaseNotes = ref('')
@@ -1429,6 +1445,21 @@ const logLevel = [
 
 const syncType = ['github', 'gitee', 'gitea', 'webdav']
 const version = pkg.version
+
+const buildInThemesList = [
+  'adwaita.css',
+  'anime.css',
+  'bilibili.css',
+  'Catppucin.css',
+  'CoolApk.css',
+  'Cupertino.css',
+  'default.css',
+  'goldensand.css',
+  'Huorong.css',
+  'purple.css',
+  'wechat.css',
+  'win11.css',
+]
 
 const RELEASE_NOTES_CACHE_DURATION = 30 * 60 * 1000
 
@@ -1747,6 +1778,19 @@ async function handleImportThemes() {
   }
 }
 
+async function handleEditTheme() {
+  try {
+    const themeContent = await window.electron.triggerRPC<string>(IRPCActionType.THEME_READ_THEME, currentTheme.value)
+    editorContent.value = themeContent || ''
+    currentEditFile.value = currentTheme.value
+    editorLanguage.value = 'css'
+    editorVisible.value = true
+  } catch (error) {
+    console.error('Failed to open theme folder:', error)
+    message.error(t('pages.settings.system.getThemeContentFailed'))
+  }
+}
+
 async function handleThemeChange(theme: string) {
   try {
     await window.electron.triggerRPC(IRPCActionType.THEME_APPLY_THEME, theme)
@@ -1842,40 +1886,57 @@ async function handleChangeSecondPicBed() {
   window.electron.sendRPC(IRPCActionType.SHOW_SECOND_UPLOADER_MENU)
 }
 
-async function saveEditorContent() {
-  const content = editorContent.value.trim()
-  await saveFile('data.json', content, 'json')
-  editorVisible.value = false
-}
-
 async function openFile(file: string) {
   window.electron.sendRPC(IRPCActionType.PICLIST_OPEN_FILE, file)
 }
 
-async function editFile(file: string, mode: 'text' | 'json' = 'text') {
+async function editFile(file: string) {
   const content = (await window.electron.triggerRPC<string>(IRPCActionType.READ_FILE_CONTENT, file)) || ''
-  if (mode === 'json') {
-    try {
-      editorContent.value = JSON.stringify(JSON.parse(content), null, 2)
-    } catch (error) {
-      editorContent.value = content
-    }
-  } else {
+  try {
+    editorContent.value = JSON.stringify(JSON.parse(content), null, 2)
+  } catch (error) {
     editorContent.value = content
   }
+  currentEditFile.value = file
+  editorLanguage.value = 'json'
   editorVisible.value = true
 }
 
-async function saveFile(file: string, content: string, mode: 'text' | 'json' = 'text') {
-  let dataToSave = content
-  if (mode === 'json') {
+async function saveEditorContent() {
+  if (currentEditFile.value === 'data.json' || currentEditFile.value === 'manage.json') {
+    const content = editorContent.value.trim()
+    await saveFile(currentEditFile.value, content)
+  } else if (currentEditFile.value.endsWith('.css')) {
     try {
-      dataToSave = JSON.stringify(JSON.parse(content), null, 2)
+      let themeFileName
+      if (buildInThemesList.includes(currentTheme.value)) {
+        themeFileName = `custom-${currentTheme.value}`
+      } else {
+        themeFileName = currentTheme.value
+      }
+      window.electron.sendRPC(IRPCActionType.THEME_WRITE_THEME, themeFileName, editorContent.value)
+      message.success(t('pages.settings.advanced.saveFileSuccess'))
+      setTimeout(async () => {
+        await loadThemes()
+        await window.electron.triggerRPC(IRPCActionType.THEME_APPLY_THEME, themeFileName)
+      }, 1000)
     } catch (error) {
-      console.error('Invalid JSON content:', error)
-      message.error(t('pages.settings.advanced.invalidJson'))
-      return
+      console.error('Failed to save theme:', error)
+      message.error(t('pages.settings.advanced.saveFileFailed'))
     }
+  }
+
+  editorVisible.value = false
+}
+
+async function saveFile(file: string, content: string) {
+  let dataToSave = content
+  try {
+    dataToSave = JSON.stringify(JSON.parse(content), null, 2)
+  } catch (error) {
+    console.error('Invalid JSON content:', error)
+    message.error(t('pages.settings.advanced.invalidJson'))
+    return
   }
   try {
     window.electron.sendRPC(IRPCActionType.WRITE_FILE_CONTENT, file, dataToSave)
