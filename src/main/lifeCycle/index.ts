@@ -113,7 +113,7 @@ class LifeCycle {
         picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: false })
       }
       const isHideDock = allConfig.settings?.isHideDock || false
-      let startMode = allConfig.settings?.startMode || ISartMode.QUIET
+      let startMode = allConfig.settings?.startMode || ISartMode.MAIN
       if (process.platform === 'darwin' && startMode === ISartMode.MINI) {
         startMode = ISartMode.QUIET
       }
