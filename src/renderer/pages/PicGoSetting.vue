@@ -1605,7 +1605,6 @@ const addWatch = () => {
   watch(
     () => formOfSetting.value.mainWindowWidth,
     newVal => {
-      console.log('Main window width changed:', newVal)
       const width = enforceNumber(newVal)
       saveConfig({ [configPaths.settings.mainWindowWidth]: rawPicGoSize.value ? 800 : Math.max(width, 100) })
     },
@@ -1614,7 +1613,6 @@ const addWatch = () => {
   watch(
     () => formOfSetting.value.mainWindowHeight,
     newVal => {
-      console.log('Main window height changed:', newVal)
       const height = enforceNumber(newVal)
       saveConfig({ [configPaths.settings.mainWindowHeight]: rawPicGoSize.value ? 450 : Math.max(height, 100) })
     },

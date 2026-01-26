@@ -179,7 +179,6 @@ const handleConfirm = async () => {
 async function getPicBeds() {
   try {
     const result = await window.electron.triggerRPC<any>(IRPCActionType.PICBED_GET_PICBED_CONFIG, $route.params.type)
-    console.log('PicBed config result:', result)
     config.value = result.config
     picBedName.value = result.name
   } catch (error) {

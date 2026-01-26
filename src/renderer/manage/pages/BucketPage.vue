@@ -1935,7 +1935,6 @@ async function initCustomDomainList() {
           label: defaultUrl,
           value: defaultUrl,
         })
-      console.log('customDomainList', customDomainList.value)
       currentCustomDomain.value = customDomainList.value[0].value
     } else {
       customDomainList.value.length = 0
@@ -2426,7 +2425,6 @@ const matchedFilesNumber = computed(() => {
       }
     }
   })
-  console.log('matchedFiles', matchedFiles)
   return matchedFiles
 })
 
@@ -2589,7 +2587,6 @@ async function copyLink(item: any, type: string) {
 }
 
 function handlecopyDropdownOpen() {
-  console.log('copyDropdownOpen', copyDropdownOpen.value)
   copyDropdownOpen.value = !copyDropdownOpen.value
 }
 

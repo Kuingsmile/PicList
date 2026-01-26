@@ -220,7 +220,6 @@ function handleMapChange(picbedType: string, value: any, id?: string) {
     for (const sibling of element?.parentElement?.parentElement?.children || []) {
       const input = sibling.querySelector('input') as HTMLInputElement | null
       if (input && input !== element) {
-        console.log('uncheck', input)
         input.checked = false
       }
     }

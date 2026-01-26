@@ -849,6 +849,7 @@ function remove(item: ImgInfo, _: number) {
       }
     }
     await $$db.removeById(item.id!)
+    window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_RUN_SCRIPTS, getRawData(item))
     const args = getRawData(file)
     window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_FILES, [args])
     await updateGallery()
@@ -949,6 +950,7 @@ function multiRemove() {
                 files.push(file)
                 await $$db.removeById(key)
               }
+              window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_RUN_SCRIPTS, getRawData(file))
             }
           }
         }
@@ -960,6 +962,7 @@ function multiRemove() {
             if (file) {
               files.push(file)
               await $$db.removeById(key)
+              window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_RUN_SCRIPTS, getRawData(file))
             }
           }
         }

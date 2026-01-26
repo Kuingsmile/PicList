@@ -278,7 +278,6 @@ async function refreshList() {
   const fileStats =
     (await window.electron.triggerRPC<IObj[]>(IRPCActionType.GET_FILES_STAT, getRawData(result), 'scripts')) || []
   const disabledList = ((await getConfig(configPaths.scripts.disabledList)) as string[] | undefined) || []
-  console.log('disabledList', disabledList)
   fileStats.forEach(file => {
     const fullPath = file.filePath.join('/')
     file.enabled = !disabledList.includes(fullPath)

@@ -39,9 +39,14 @@ const galleryRoutes = [
     action: IRPCActionType.GALLERY_REMOVE_FILES,
     handler: async (_: IIPCEvent, args: [files: ImgInfo[]]) => {
       setTimeout(() => {
-        runScriptInStage('onGalleryRemove', picgo, { galleryItem: args[0] })
         picgo.emit(ICOREBuildInEvent.REMOVE, args[0], GuiApi.getInstance())
       }, 500)
+    },
+  },
+  {
+    action: IRPCActionType.GALLERY_REMOVE_RUN_SCRIPTS,
+    handler: async (_: IIPCEvent, args: [file: ImgInfo]) => {
+      await runScriptInStage('onGalleryRemove', picgo, { galleryItem: args[0] })
     },
   },
   {
