@@ -148,6 +148,29 @@
                 <CustomButton type="primary" :text="t('pages.settings.clickToSet')" @click="handleCustomBgImg" />
               </template>
             </CustomNavCard>
+            <SettingCard v-if="formOfSetting.enableCustomBgImg">
+              <CustomInput
+                v-model="formOfSetting.customBgImgOpacity"
+                type="number"
+                min="0"
+                max="1"
+                step="0.01"
+                :title="t('pages.settings.system.customBgImgOpacity')"
+                placeholder="0.7"
+                @blur="handleBlurCustomBgImgOpacity"
+              />
+            </SettingCard>
+            <SettingCard v-if="formOfSetting.enableCustomBgImg">
+              <CustomInput
+                v-model="formOfSetting.customBgImgBlur"
+                type="number"
+                min="1"
+                step="1"
+                :title="t('pages.settings.system.customBgImgBlur')"
+                placeholder="5"
+                @blur="handleBlurCustomBgImgBlur"
+              />
+            </SettingCard>
           </SettingSection>
 
           <!-- Window Behavior Section -->
@@ -1424,6 +1447,8 @@ const formOfSetting = ref<ISettingForm>({
   theme: 'default.css',
   enableCustomBgImg: false,
   customBgImgPath: '',
+  customBgImgOpacity: 0.7,
+  customBgImgBlur: 5,
 })
 
 /* computed properties */
@@ -1720,6 +1745,16 @@ const addWatch = () => {
       window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
     },
   )
+}
+
+function handleBlurCustomBgImgBlur() {
+  saveConfig({ [configPaths.settings.customBgImgBlur]: formOfSetting.value.customBgImgBlur })
+  window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
+}
+
+function handleBlurCustomBgImgOpacity() {
+  saveConfig({ [configPaths.settings.customBgImgOpacity]: formOfSetting.value.customBgImgOpacity })
+  window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
 }
 
 /* methods */

@@ -14,8 +14,13 @@ function setTheme(mode: string) {
   document.documentElement.classList.toggle('light', m === 'light')
 }
 
-function injectCSS(css: string, config: { imageUrl?: string; opacity?: string; blur?: string }) {
+async function injectCSS(css: string, config: { imageUrl?: string; opacity?: string; blur?: string }) {
   const id = '__piclist_theme__'
+  if (!document.documentElement) {
+    await new Promise(resolve => {
+      window.addEventListener('DOMContentLoaded', resolve, { once: true })
+    })
+  }
   let el = document.getElementById(id) as HTMLStyleElement | null
   if (!el) {
     el = document.createElement('style')
@@ -40,15 +45,17 @@ function injectCSS(css: string, config: { imageUrl?: string; opacity?: string; b
     const allConfig = await ipcRenderer.invoke('RPC_ACTIONS_INVOKE', 'PICLIST_GET_CONFIG', [])
     const enableCustomBgImg = allConfig?.settings?.enableCustomBgImg || false
     const customBgImgPath = allConfig?.settings?.customBgImgPath || ''
+    const customBgOpacity = allConfig?.settings?.customBgImgOpacity || '0.7'
+    const customBgBlur = allConfig?.settings?.customBgImgBlur || 5
     const config = enableCustomBgImg
       ? {
           imageUrl: customBgImgPath,
-          opacity: '0.7',
-          blur: '5px',
+          opacity: customBgOpacity,
+          blur: `${customBgBlur}px`,
         }
       : {}
     if (document.documentElement) setTheme(mode)
-    if (css) injectCSS(css, config)
+    if (css) await injectCSS(css, config)
   } catch (e) {
     console.error('[theme] bootstrap failed', e)
   }
@@ -140,11 +147,13 @@ try {
         const allConfig = await ipcRenderer.invoke('RPC_ACTIONS_INVOKE', 'PICLIST_GET_CONFIG', [])
         const enableCustomBgImg = allConfig?.settings?.enableCustomBgImg || false
         const customBgImgPath = allConfig?.settings?.customBgImgPath || ''
+        const customBgOpacity = allConfig?.settings?.customBgImgOpacity || '0.7'
+        const customBgBlur = allConfig?.settings?.customBgImgBlur || 5
         const config = enableCustomBgImg
           ? {
               imageUrl: customBgImgPath,
-              opacity: '0.7',
-              blur: '5px',
+              opacity: customBgOpacity,
+              blur: `${customBgBlur}px`,
             }
           : {}
         injectCSS(css, config)

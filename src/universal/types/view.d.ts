@@ -44,6 +44,8 @@ interface ISettingForm {
   theme: string
   enableCustomBgImg: boolean
   customBgImgPath: string
+  customBgImgOpacity: number
+  customBgImgBlur: number
 }
 
 interface IToolboxItem {

@@ -901,6 +901,8 @@
         "autoLaunchDesc": "Automatically start PicList when system boots",
         "chooseLanguage": "Choose Language",
         "chooseTheme": "Choose Theme",
+        "customBgImgBlur": "Custom Background Image Blur",
+        "customBgImgOpacity": "Custom Background Image Opacity",
         "customBgImgPath": "Select custom background img",
         "customMiniIconPath": "Custom Mini Icon Path",
         "downloadingThemes": "Downloading...",

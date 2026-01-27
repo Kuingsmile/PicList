@@ -901,6 +901,8 @@
         "autoLaunchDesc": "登录时自动启动 PicList",
         "chooseLanguage": "选择语言",
         "chooseTheme": "选择主题",
+        "customBgImgBlur": "自定义背景图片模糊度",
+        "customBgImgOpacity": "自定义背景图片不透明度",
         "customBgImgPath": "自定义背景图片选择",
         "customMiniIconPath": "自定义迷你窗口图标路径",
         "downloadingThemes": "下载中...",

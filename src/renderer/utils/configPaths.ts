@@ -190,6 +190,8 @@ export const configPaths = {
     isDisableGPU: 'settings.isDisableGPU',
     enableCustomBgImg: 'settings.enableCustomBgImg',
     customBgImgPath: 'settings.customBgImgPath',
+    customBgImgOpacity: 'settings.customBgImgOpacity',
+    customBgImgBlur: 'settings.customBgImgBlur',
   },
   needReload: 'needReload',
   picgoPlugins: 'picgoPlugins',
