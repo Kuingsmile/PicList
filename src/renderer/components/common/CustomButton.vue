@@ -11,6 +11,7 @@
     </slot>
     <slot>
       <span
+        v-if="text"
         :class="textClassVar"
         :data-active="active"
         class="[.primary] text-sm leading-[1.4] font-semibold text-secondary"
@@ -60,7 +61,7 @@ const textClassVar = computed(() => {
 const classVar = computed(() => {
   switch (type) {
     case 'primary':
-      return 'bg-accent text-white not-disabled:hover:bg-accent-hover! not-disabled:hover:-translate-y-px'
+      return 'bg-accent text-white not-disabled:hover:bg-accent-hover not-disabled:hover:-translate-y-px'
     case 'secondary':
       return 'border border-border bg-bg-secondary text-main not-disabled:hover:bg-accent/30! not-disabled:hover:text-white! not-disabled:hover:-translate-y-px'
     case 'tab':

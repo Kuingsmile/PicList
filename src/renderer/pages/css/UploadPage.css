@@ -11,12 +11,6 @@
   @apply relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:-translate-y-[2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3 ;
 }
 
-.filter-tab {
-  @apply cursor-pointer rounded-md border border-border-secondary bg-bg-secondary px-4 py-2 text-sm font-medium whitespace-nowrap text-secondary shadow-sm transition-all duration-fast ease-standard;
-  @apply hover:-translate-y-px hover:border-accent hover:text-main hover:shadow-md;
-  @apply [.active]:border-transparent [.active]:bg-accent [.active]:text-white [.active]:shadow-lg;
-}
-
 .task-icon-btn {
   @apply flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-md border border-border bg-surface-elevated p-0 text-secondary transition-all duration-fast ease-standard;
   @apply hover:-translate-y-px hover:border-accent hover:bg-accent hover:text-white;

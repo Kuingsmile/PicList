@@ -294,75 +294,62 @@
             class="flex flex-wrap items-center justify-between gap-4 border-b border-b-border px-5 py-4 max-md:flex-col max-md:items-stretch"
           >
             <div class="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:justify-center">
-              <button
+              <CustomButton
                 v-show="taskQueueStatus.tasks.length > 0"
-                class="flex cursor-pointer items-center justify-center gap-2 rounded-md bg-accent px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-sm transition-all duration-fast ease-standard hover:-translate-y-[2px] hover:shadow-md"
+                type="primary"
+                :icon="PlusIcon"
+                :text="t('pages.upload.taskQueue.addFiles')"
                 @click="addFilesToTask"
-              >
-                <PlusIcon :size="16" />
-                <span>{{ t('pages.upload.taskQueue.addFiles') }}</span>
-              </button>
-              <button
+              />
+              <CustomButton
                 v-if="!taskQueueStatus.config.isRunning && taskQueueStatus.stats.pending > 0"
-                class="flex cursor-pointer items-center gap-2 rounded-md bg-success px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-sm transition-all duration-fast ease-standard hover:-translate-y-[2px] hover:shadow-md"
+                class="bg-success hover:bg-success!"
+                :icon="PlayIcon"
+                :text="t('pages.upload.taskQueue.start')"
                 @click="startTaskQueue"
-              >
-                <PlayIcon :size="16" />
-                <span>{{ t('pages.upload.taskQueue.start') }}</span>
-              </button>
-              <button
+              />
+              <CustomButton
                 v-if="taskQueueStatus.config.isRunning && !taskQueueStatus.config.isPaused"
-                class="flex cursor-pointer items-center gap-2 rounded-md bg-warning px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-sm transition-all duration-fast ease-standard hover:-translate-y-[2px] hover:shadow-md"
+                class="bg-warning hover:bg-warning!"
+                :icon="PauseIcon"
+                :text="t('pages.upload.taskQueue.pause')"
                 @click="pauseTaskQueue"
-              >
-                <PauseIcon :size="16" />
-                <span>{{ t('pages.upload.taskQueue.pause') }}</span>
-              </button>
-              <button
+              />
+              <CustomButton
                 v-if="taskQueueStatus.config.isPaused"
-                class="flex cursor-pointer items-center gap-2 rounded-md bg-success px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-sm transition-all duration-fast ease-standard hover:-translate-y-[2px] hover:shadow-md"
+                class="bg-success hover:bg-success!"
+                :icon="PlayIcon"
+                :text="t('pages.upload.taskQueue.resume')"
                 @click="resumeTaskQueue"
-              >
-                <PlayIcon :size="16" />
-                <span>{{ t('pages.upload.taskQueue.resume') }}</span>
-              </button>
+              />
             </div>
             <div class="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:justify-center">
-              <button
+              <CustomButton
                 v-if="taskQueueStatus.stats.failed > 0"
-                class="flex cursor-pointer items-center gap-2 rounded-md bg-warning px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-sm transition-all duration-fast ease-standard hover:-translate-y-[2px] hover:shadow-md"
+                class="bg-warning hover:bg-warning!"
+                :icon="RefreshCwIcon"
+                :text="t('pages.upload.taskQueue.retryAllFailed')"
                 @click="retryAllFailedTasks"
-              >
-                <RefreshCwIcon :size="16" />
-                <span>{{ t('pages.upload.taskQueue.retryAllFailed') }}</span>
-              </button>
-              <button
+              />
+              <CustomButton
                 v-if="taskQueueStatus.config.isRunning || taskQueueStatus.stats.pending > 0"
-                class="flex cursor-pointer items-center gap-2 rounded-md bg-danger px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-sm transition-all duration-fast ease-standard hover:-translate-y-[2px] hover:shadow-md"
+                class="bg-error hover:bg-error!"
+                :icon="XIcon"
+                :text="t('pages.upload.taskQueue.cancelAll')"
                 @click="cancelAllTasks"
-              >
-                <XIcon :size="16" />
-                <span>{{ t('pages.upload.taskQueue.cancelAll') }}</span>
-              </button>
-              <button
+              />
+              <CustomButton
                 v-if="
                   taskQueueStatus.stats.completed > 0 ||
                   taskQueueStatus.stats.failed > 0 ||
                   taskQueueStatus.stats.cancelled > 0
                 "
-                class="flex cursor-pointer items-center gap-2 rounded-md bg-danger px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-sm transition-all duration-fast ease-standard hover:-translate-y-[2px] hover:shadow-md"
+                class="bg-danger hover:bg-danger!"
+                :icon="Trash2Icon"
+                :text="t('pages.upload.taskQueue.clearFinished')"
                 @click="clearFinishedTasks"
-              >
-                <Trash2Icon :size="16" />
-                <span>{{ t('pages.upload.taskQueue.clearFinished') }}</span>
-              </button>
-              <button
-                class="flex cursor-pointer items-center gap-2 rounded-md bg-accent px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-sm transition-all duration-fast ease-standard hover:-translate-y-[2px] hover:shadow-md"
-                :class="{ active: showTaskSettings }"
-                @click="showTaskSettings = !showTaskSettings"
-              >
-                <SettingsIcon :size="16" />
-              </button>
+              />
+              <CustomButton type="primary" :icon="SettingsIcon" text="" @click="showTaskSettings = !showTaskSettings" />
             </div>
           </div>
 
@@ -486,22 +473,13 @@
               />
             </div>
             <div class="flex flex-wrap gap-2.5">
-              <button class="filter-tab" :class="{ active: taskFilter === 'all' }" @click="taskFilter = 'all'">
-                {{ t('pages.upload.taskQueue.filterAll') }}
-              </button>
-              <button class="filter-tab" :class="{ active: taskFilter === 'pending' }" @click="taskFilter = 'pending'">
-                {{ t('pages.upload.taskQueue.filterPending') }}
-              </button>
-              <button
-                class="filter-tab"
-                :class="{ active: taskFilter === 'completed' }"
-                @click="taskFilter = 'completed'"
-              >
-                {{ t('pages.upload.taskQueue.filterCompleted') }}
-              </button>
-              <button class="filter-tab" :class="{ active: taskFilter === 'failed' }" @click="taskFilter = 'failed'">
-                {{ t('pages.upload.taskQueue.filterFailed') }}
-              </button>
+              <CustomButton
+                v-for="status in ['all', 'pending', 'completed', 'failed']"
+                :key="status"
+                :type="taskFilter === status ? 'primary' : 'secondary'"
+                :text="t(`pages.upload.taskQueue.filter${status.charAt(0).toUpperCase() + status.slice(1)}`)"
+                @click="taskFilter = status"
+              />
             </div>
           </div>
 
@@ -688,6 +666,7 @@ import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
+import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
 import { usePicBed } from '@/hooks/useGlobal'
@@ -764,7 +743,7 @@ const fileInput = useTemplateRef('fileInput')
 const uploadInterval = ref(1000)
 const showTaskSettings = useStorage('upload-task-queue-show-settings', true)
 const taskSearchQuery = ref('')
-const taskFilter = ref<'all' | 'pending' | 'completed' | 'failed'>('all')
+const taskFilter = ref<string>('all')
 const autoStart = ref(false)
 const pauseOnError = ref(false)
 const maxRetryCount = ref(3)
