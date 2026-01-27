@@ -25,6 +25,8 @@ Use custom `javascript` scripts to extend PicList's functionality without the ne
 - Added `rpm` installation package for Linux.
 - Added image hosting editing card page to resolve confusion when switching multiple configurations.
 - Added list mode support to the file browsing page.
+- Now automatically selects the interface language based on the system language on the first launch.
+- Now the main interface will be displayed by default on the first launch of Windows systems.
 - Now supports manually disabling GPU acceleration to resolve black screen or flickering issues caused by some hardware compatibility.
 - Added advanced animation settings for a better UI interaction experience when enabled.
 

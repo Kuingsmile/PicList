@@ -4,6 +4,7 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 import bus from '@core/bus'
+import { themesDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
 import { remoteNoticeHandler } from 'apis/app/remoteNotice'
@@ -15,10 +16,10 @@ import { app, globalShortcut, net, Notification, protocol, screen } from 'electr
 import { installExtension, VUEJS_DEVTOOLS_BETA } from 'electron-devtools-installer'
 import fs from 'fs-extra'
 
-import { themesDir } from '~/apis/core/datastore/dirs'
 import busEventList from '~/events/busEventList'
 import { rpcServer } from '~/events/rpc'
 import { startFileServer, stopFileServer } from '~/fileServer'
+import { i18nManager } from '~/i18n'
 import { setupAutoUpdater } from '~/lifeCycle/autoUpdater'
 import fixPath from '~/lifeCycle/fixPath'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
@@ -30,13 +31,14 @@ import { isAutoStartEnabled, setAutoStart } from '~/utils/autoStart'
 import beforeOpen from '~/utils/beforeOpen'
 import clipboardPoll from '~/utils/clipboardPoll'
 import { configPaths } from '~/utils/configPaths'
-import { IRemoteNoticeTriggerHook, ISartMode, IWindowList } from '~/utils/enum'
+import { II18nLanguage, IRemoteNoticeTriggerHook, ISartMode, IWindowList } from '~/utils/enum'
 import { getUploadFiles } from '~/utils/handleArgv'
 import { initI18n } from '~/utils/handleI18n'
 import { notificationList } from '~/utils/notification'
 import { runScriptInStage } from '~/utils/runScript'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 import updateChecker from '~/utils/updateChecker'
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
 process.noDeprecation = true
 
@@ -112,8 +114,24 @@ class LifeCycle {
       } else {
         picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: false })
       }
+      const locale = app.getLocale() || 'zh-CN'
+      if (allConfig.settings?.language === undefined) {
+        if (locale.startsWith('zh')) {
+          i18nManager.setCurrentLanguage(II18nLanguage.ZH_CN)
+          picgo.saveConfig({ [configPaths.settings.language]: 'zh-CN' })
+        } else {
+          i18nManager.setCurrentLanguage(II18nLanguage.EN)
+          picgo.saveConfig({ [configPaths.settings.language]: 'en' })
+        }
+      }
       const isHideDock = allConfig.settings?.isHideDock || false
-      let startMode = allConfig.settings?.startMode || ISartMode.MAIN
+
+      let startMode =
+        allConfig.settings?.startMode !== undefined
+          ? allConfig.settings.startMode
+          : process.platform === 'win32'
+            ? ISartMode.MAIN
+            : ISartMode.QUIET
       if (process.platform === 'darwin' && startMode === ISartMode.MINI) {
         startMode = ISartMode.QUIET
       }
@@ -128,7 +146,6 @@ class LifeCycle {
       }
       picgo.saveConfig({ [configPaths.needReload]: false })
       updateChecker()
-      // 不需要阻塞
       process.nextTick(() => {
         shortKeyHandler.init()
       })

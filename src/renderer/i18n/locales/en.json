@@ -909,6 +909,7 @@
         "editTheme": "Edit Theme",
         "enableAdvancedAnimation": "Enable Advanced Animation",
         "enableAdvancedAnimationDesc": "Do not enable this option on low-performance devices or when GPU acceleration is disabled",
+        "getThemeContentFailed": "Failed to get theme content",
         "hideDockHint": "Cannot hide both dock and tray at the same time",
         "importThemes": "Import Themes",
         "importThemesFailed": "Failed to import themes",

@@ -16,6 +16,7 @@ import yaml from 'yaml'
 
 import { configPaths } from '~/utils/configPaths'
 import { II18nLanguage, IWindowList } from '~/utils/enum'
+
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 let newVersion = ''

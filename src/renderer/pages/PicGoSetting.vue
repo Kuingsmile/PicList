@@ -1834,7 +1834,12 @@ async function initData() {
   formOfSetting.value.logLevel = initArray(settings.logLevel || [], ['all'])
   formOfSetting.value.autoImportPicBed = initArray(settings.autoImportPicBed || [], [])
   currentLanguage.value = settings.language || 'zh-CN'
-  currentStartMode.value = settings.startMode || ISartMode.QUIET
+  currentStartMode.value =
+    settings.startMode !== undefined
+      ? settings.startMode
+      : osGlobal.value === 'win32'
+        ? ISartMode.MAIN
+        : ISartMode.QUIET
   currentSecondMode.value = settings.secondPicBedMode || 'backup'
   if (osGlobal.value === 'darwin' && currentStartMode.value === ISartMode.MINI) {
     currentStartMode.value = ISartMode.QUIET

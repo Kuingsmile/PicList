@@ -22,6 +22,8 @@ import db from '@/utils/db'
 type MessageSchema = typeof zhCN
 
 window.electron.setVisualZoomLevelLimits(1, 1)
+const userLanguage = navigator.language || 'zh-CN'
+const defaultLanguage = userLanguage.startsWith('zh') ? 'zh-CN' : 'en'
 
 const app = createApp(App)
 
@@ -32,7 +34,7 @@ app.config.globalProperties.sendToMain = window.electron.sendToMain
 
 const i18n = createI18n<[MessageSchema], 'en' | 'zh-CN' | 'zh-TW'>({
   legacy: false,
-  locale: localStorage.getItem('currentLanguage') || 'zh-CN',
+  locale: localStorage.getItem('currentLanguage') || defaultLanguage,
   fallbackLocale: 'zh-CN',
   messages: {
     en,
