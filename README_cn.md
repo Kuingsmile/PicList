@@ -38,15 +38,17 @@
 
 ## 📖 简介
 
-**PicList** 是一款高效的云存储和图床平台管理工具，基于 PicGo 深度二次开发。它保留了 PicGo 的所有功能，同时新增了全面的云存储管理能力。
+**PicList** 是一款高效的云存储和图床平台管理工具，基于 PicGo 深度二次开发。它保留了 PicGo 的所有功能，同时新增了全面的云存储管理能力和多种实用功能以及全新的轻量化脚本系统。
 
-无论你是需要整理云端文件、同步 Markdown 图片，还是轻松管理多个存储平台，PicList 都能通过其美观的界面和强大的插件系统，简化你的工作流程。
+无论你是需要整理云端文件、同步 Markdown 图片，还是轻松管理多个存储平台，PicList 都能通过其美观的界面和强大的插件/脚本系统，简化你的工作流程。
 
 ## ✨ 特色功能
 
 - **📂 全面的云存储管理**：支持在云端查看目录、搜索文件、批量操作以及使用正则表达式批量重命名。
 - **🔄 高级同步功能**：支持相册云删除同步，以及通过 WebDAV/Git 在多台设备间同步软件配置/相册。
 - **🎨 内置图像处理**：开箱即用的水印添加、图片压缩、缩放、旋转和格式转换功能，单图床粒度控制。
+- **📝 脚本系统**：支持自定义各生命周期脚本，满足高级用户的个性化需求，同时无需`node`环境。
+- **🌈 主题支持**：内置多种主题，主题仓库[PicList ThemeHub](https://github.com/Kuingsmile/piclist-themeHub)，同时支持自定义主题和背景。
 - **🔌 广泛的兼容性**：完美兼容 **Typora**、**Obsidian** 以及大多数现有的 PicGo 插件。
 - **🛠️ 强大的实用工具**：支持上传队列、本地/SFTP 图床、预签名 URL 生成等。
 - **🌐 全平台支持**：支持 Web 端表单上传，并可与移动端 APP **PicHoro** 配合使用。
@@ -70,14 +72,14 @@
 <table align="center">
   <tr>
     <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/gallery.webp?raw=true" alt="Gallery"></td>
-    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/cloud_storage.png?raw=true" alt="Cloud Storage"></td>
+    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/cloud_storage.webp?raw=true" alt="Cloud Storage"></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/settings.png?raw=true" alt="Settings"></td>
+    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/settings.webp?raw=true" alt="Settings"></td>
     <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/task.webp?raw=true" alt="Task"></td>
   </tr>
    <tr>
-    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/image_editing.png?raw=true" alt="Settings"></td>
+    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/image_editing.webp?raw=true" alt="Settings"></td>
     <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/dark.webp?raw=true" alt="Task"></td>
   </tr>
 </table>
@@ -148,13 +150,14 @@ PicList 支持广泛的存储提供商。
 | **本地文件系统**        |     ✅      |     ✅      |
 | **兰空图床 / 多吉云**   |     ✅      |     ✅      |
 
-*注意：自定义 API 图床不支持云存储管理功能。*
+*注意：自定义 API 图床的云删除功能需要通过 PicList 脚本系统根据具体 API 实现。*
 
 ## 🚀 开发说明
 
 欢迎提交代码！详情请参阅 [贡献指南](https://github.com/Kuingsmile/PicList/blob/dev/CONTRIBUTING.md)。
 
 ### 前提条件
+
 - Node.js 20+
 - Git
 - Xcode (macOS) 或 Visual Studio (Windows) 用于编译原生模块

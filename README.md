@@ -38,7 +38,7 @@
 
 ## 📖 Introduction
 
-**PicList** is an efficient cloud storage and image hosting management tool built upon the foundation of PicGo. It retains all the original features while adding comprehensive cloud storage management capabilities.
+**PicList** is an efficient cloud storage and image hosting management tool built upon the foundation of PicGo. It retains all the features of PicGo while adding comprehensive cloud storage management capabilities, various practical functions, and a brand-new lightweight scripting system.
 
 Whether you need to organize your cloud files, sync markdown images, or manage multiple storage platforms effortlessly, PicList is designed to streamline your workflow with a beautiful interface and robust plugin system.
 
@@ -47,6 +47,8 @@ Whether you need to organize your cloud files, sync markdown images, or manage m
 - **📂 comprehensive Cloud Management**: Browse, search, cloud-delete, and batch rename files in your cloud storage.
 - **🔄 Advanced Sync**: Cloud-sync album deletion and configuration/gallery synchronization across multiple devices (via WebDAV/Git).
 - **🎨 Built-in Image Tools**: Watermark, compress, scale, rotate, and format conversion out of the box, controllable at individual image bed level.
+- **📝 Scripting System**: Customize lifecycle scripts to meet advanced user needs without requiring a `node` environment.
+- **🌈 Theme Support**: Multiple built-in themes, theme repository [PicList ThemeHub](https://github.com/Kuingsmile/piclist-themeHub), also supports custom themes and backgrounds.
 - **🔌 Wide Compatibility**: Compatible with **Typora**, **Obsidian**, and most existing PicGo plugins.
 - **🛠️ Power User Features**: Regex-based batch renaming, upload queues, local/sftp hosting, and more.
 - **🌐 Web & Mobile**: Support for form uploads and integration with the mobile app **PicHoro**.
@@ -148,7 +150,7 @@ PicList supports a wide range of storage providers.
 | **Local File System**       |      ✅       |        ✅         |
 | **Lsky Pro / Doge Cloud**   |      ✅       |        ✅         |
 
-*Note: Custom API platforms do not support cloud management features.*
+*Note: The cloud delete feature for custom API image hosts requires implementation via PicList's scripting system based on the specific API.*
 
 ## 🚀 Development
 
