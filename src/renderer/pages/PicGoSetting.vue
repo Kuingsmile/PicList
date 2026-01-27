@@ -376,13 +376,15 @@
           </SettingSection>
           <SettingSection :icon="CloudUpload" :title="t('pages.settings.upload.uploadBehavior')">
             <!-- Auto Import Card -->
-            <CustomSwitch
-              v-model="formOfSetting.autoImport"
-              small
-              no-border
-              :title="t('pages.settings.upload.autoImportInManage')"
-              :description="t('pages.settings.upload.autoImportInManageHint')"
-            />
+            <SettingCard p1>
+              <CustomSwitch
+                v-model="formOfSetting.autoImport"
+                small
+                no-border
+                :title="t('pages.settings.upload.autoImportInManage')"
+                :description="t('pages.settings.upload.autoImportInManageHint')"
+              />
+            </SettingCard>
             <!-- Auto Import PicBed Selection -->
             <SettingCard v-if="formOfSetting.autoImport">
               <MultiSelect
@@ -919,7 +921,7 @@
           </div>
         </div>
         <div
-          v-if="!needUpdate"
+          v-if="needUpdate"
           class="flex items-center justify-center gap-2 rounded-lg p-4 text-sm font-semibold text-success"
         >
           <RefreshCw :size="18" />
