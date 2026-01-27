@@ -188,6 +188,8 @@ export const configPaths = {
     systemTheme: 'settings.systemTheme',
     enableAdvancedAnimation: 'settings.enableAdvancedAnimation',
     isDisableGPU: 'settings.isDisableGPU',
+    enableCustomBgImg: 'settings.enableCustomBgImg',
+    customBgImgPath: 'settings.customBgImgPath',
   },
   needReload: 'needReload',
   picgoPlugins: 'picgoPlugins',

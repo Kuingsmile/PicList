@@ -14,7 +14,7 @@ function setTheme(mode: string) {
   document.documentElement.classList.toggle('light', m === 'light')
 }
 
-function injectCSS(css: string) {
+function injectCSS(css: string, config: { imageUrl?: string; opacity?: string; blur?: string }) {
   const id = '__piclist_theme__'
   let el = document.getElementById(id) as HTMLStyleElement | null
   if (!el) {
@@ -22,14 +22,33 @@ function injectCSS(css: string) {
     el.id = id
     ;(document.head || document.documentElement).appendChild(el)
   }
-  el.textContent = css
+  const overrides = `
+:root, .dark, .light, [data-theme='dark'], [data-theme='light'] {
+  ${config.imageUrl ? `--background-image: url("${config.imageUrl}") !important;` : ''}
+  ${config.opacity ? `--background-image-opacity: ${config.opacity} !important;` : ''}
+  ${config.blur ? `--background-blur: ${config.blur} !important;` : ''}
+  --color-background-primary: transparent !important;
+  --color-background-secondary: transparent !important;
+}
+  `
+  el.textContent = css + '\n' + overrides
 }
 
 ;(async () => {
   try {
     const { mode, css } = await ipcRenderer.invoke('RPC_ACTIONS_INVOKE', 'THEME_GET_BOOTSTRAP')
+    const allConfig = await ipcRenderer.invoke('RPC_ACTIONS_INVOKE', 'PICLIST_GET_CONFIG', [])
+    const enableCustomBgImg = allConfig?.settings?.enableCustomBgImg || false
+    const customBgImgPath = allConfig?.settings?.customBgImgPath || ''
+    const config = enableCustomBgImg
+      ? {
+          imageUrl: customBgImgPath,
+          opacity: '0.7',
+          blur: '5px',
+        }
+      : {}
     if (document.documentElement) setTheme(mode)
-    if (css) injectCSS(css)
+    if (css) injectCSS(css, config)
   } catch (e) {
     console.error('[theme] bootstrap failed', e)
   }
@@ -117,8 +136,18 @@ try {
       return webUtils.getPathForFile(file)
     },
     onThemeUpdate: (callback: (css: string) => void) => {
-      const subscription = (_: any, css: string) => {
-        injectCSS(css)
+      const subscription = async (_: any, css: string) => {
+        const allConfig = await ipcRenderer.invoke('RPC_ACTIONS_INVOKE', 'PICLIST_GET_CONFIG', [])
+        const enableCustomBgImg = allConfig?.settings?.enableCustomBgImg || false
+        const customBgImgPath = allConfig?.settings?.customBgImgPath || ''
+        const config = enableCustomBgImg
+          ? {
+              imageUrl: customBgImgPath,
+              opacity: '0.7',
+              blur: '5px',
+            }
+          : {}
+        injectCSS(css, config)
         callback(css)
       }
       ipcRenderer.on('THEME_UPDATE', subscription)

@@ -42,6 +42,8 @@ interface ISettingForm {
   enableSecondUploader: boolean
   enableAdvancedAnimation: boolean
   theme: string
+  enableCustomBgImg: boolean
+  customBgImgPath: string
 }
 
 interface IToolboxItem {

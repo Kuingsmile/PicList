@@ -128,6 +128,26 @@
                 </div>
               </template>
             </SettingCard>
+
+            <SettingCard p1 class="flex flex-col justify-center">
+              <CustomSwitch
+                v-model="formOfSetting.enableCustomBgImg"
+                no-border
+                small
+                :title="t('pages.settings.system.enableCustomBgImg')"
+              />
+            </SettingCard>
+
+            <CustomNavCard
+              v-if="formOfSetting.enableCustomBgImg"
+              :icon="ImageIcon"
+              noarrow
+              :title="t('pages.settings.system.customBgImgPath')"
+            >
+              <template #extra>
+                <CustomButton type="primary" :text="t('pages.settings.clickToSet')" @click="handleCustomBgImg" />
+              </template>
+            </CustomNavCard>
           </SettingSection>
 
           <!-- Window Behavior Section -->
@@ -195,7 +215,7 @@
               :title="t('pages.settings.system.customMiniIconPath')"
             >
               <template #extra>
-                <CustomButton type="secondary" :text="t('pages.settings.clickToSet')" @click="handleMiniIconPath" />
+                <CustomButton type="primary" :text="t('pages.settings.clickToSet')" @click="handleMiniIconPath" />
               </template>
             </CustomNavCard>
           </SettingSection>
@@ -1402,6 +1422,8 @@ const formOfSetting = ref<ISettingForm>({
   enableSecondUploader: false,
   enableAdvancedAnimation: false,
   theme: 'default.css',
+  enableCustomBgImg: false,
+  customBgImgPath: '',
 })
 
 /* computed properties */
@@ -1688,6 +1710,14 @@ const addWatch = () => {
       saveConfig({
         [configPaths.settings.logLevel]: newVal,
       })
+    },
+  )
+
+  watch(
+    () => formOfSetting.value.enableCustomBgImg,
+    newVal => {
+      saveConfig({ [configPaths.settings.enableCustomBgImg]: newVal })
+      window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
     },
   )
 }
@@ -2129,12 +2159,22 @@ function handleMiniWindowOntop(val: ICheckBoxValueType) {
   window.electron.sendRPC(IRPCActionType.MINI_WINDOW_ON_TOP, val)
 }
 
+async function handleCustomBgImg() {
+  const result = await window.electron.triggerRPC<string[]>(IRPCActionType.MANAGE_OPEN_FILE_SELECT_DIALOG)
+  if (result && result[0]) {
+    const fileName = await window.electron.triggerRPC<string>(IRPCActionType.COPY_CUSTOM_IMG_TO_THEMES_DIR, result[0])
+    formOfSetting.value.customBgImgPath = `theme://./image/${fileName}`
+    saveConfig(configPaths.settings.customBgImgPath, formOfSetting.value.customBgImgPath)
+    await window.electron.triggerRPC(IRPCActionType.THEME_APPLY_THEME, currentTheme.value)
+  }
+}
+
 async function handleMiniIconPath() {
   const result = await window.electron.triggerRPC<string[]>(IRPCActionType.MANAGE_OPEN_FILE_SELECT_DIALOG)
   if (result && result[0]) {
     formOfSetting.value.customMiniIcon = result[0]
     saveConfig(configPaths.settings.customMiniIcon, formOfSetting.value.customMiniIcon)
-    window.electron.sendRPC(IRPCActionType.UPDATE_MINI_WINDOW_ICON, formOfSetting.value.customMiniIcon)
+    window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
   }
 }
 

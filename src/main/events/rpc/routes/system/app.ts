@@ -69,6 +69,17 @@ export default [
     type: IRPCType.INVOKE,
   },
   {
+    action: IRPCActionType.COPY_CUSTOM_IMG_TO_THEMES_DIR,
+    handler: async (_: IIPCEvent, args: [filePath: string]) => {
+      const fileName = `custom-bgimg-${Date.now()}${path.extname(args[0])}`
+      const abFilePath = path.join(themesDir(), 'image', fileName)
+      fs.ensureDirSync(path.dirname(abFilePath))
+      fs.copyFileSync(args[0], abFilePath)
+      return fileName
+    },
+    type: IRPCType.INVOKE,
+  },
+  {
     action: IRPCActionType.THEME_WRITE_THEME,
     handler: async (_: IIPCEvent, args: [fileName: string, content: string]) => {
       const abFilePath = path.join(themesDir(), args[0])
