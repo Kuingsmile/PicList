@@ -44,18 +44,19 @@
               }"
             >
               <div
-                class="absolute right-1 bottom-0 flex h-[15px] w-auto items-center rounded-md bg-accent/70 px-2 py-1 text-xs font-semibold text-white"
+                class="absolute right-1 bottom-0 flex h-[15px] w-auto items-center rounded-md bg-gray-400 px-2 py-1 text-[0.6rem] font-medium text-white"
               >
                 {{ supportedScriptCategories.find(cat => cat.type === item.category)?.name || item.category }}
               </div>
               <div class="relative z-1 flex flex-1 items-start justify-between">
                 <div
-                  class="peer flex h-[40px] w-[40px] items-center justify-center rounded-lg border border-border-secondary text-accent transition-all duration-fast ease-apple group-hover/config-card:scale-105 [.is-active]:border-none [.is-active]:bg-accent [.is-active]:text-white"
-                  :class="{ 'is-active': item.enabled }"
+                  class="peer flex h-[40px] w-[40px] items-center justify-center rounded-lg border border-accent/10 text-accent transition-all duration-fast ease-apple group-hover/config-card:scale-105"
                 >
                   <FileCode :size="20" />
                 </div>
-                <div class="grid grid-cols-2 gap-1.5 transition-all duration-fast ease-apple">
+                <div
+                  class="grid grid-cols-2 gap-1.5 opacity-0 transition-all duration-fast ease-apple group-hover/config-card:opacity-100"
+                >
                   <button
                     class="action-btn"
                     :title="t('pages.scripts.editScript')"
@@ -81,15 +82,19 @@
 
                   <button
                     v-if="item.category !== 'manualTrigger' && item.category !== 'uploader.advancedplist'"
-                    class="action-btn"
+                    class="action-btn border-none"
+                    :class="{
+                      'bg-success/40': !item.enabled,
+                      'bg-error/40': item.enabled,
+                    }"
                     :title="item.enabled ? t('pages.scripts.disableScript') : t('pages.scripts.enableScript')"
                     @click.stop="toggleScript(item.filePath)"
                   >
                     <template v-if="!item.enabled">
-                      <CheckCircle2 :size="14" />
+                      <CheckCircle2 :size="16" class="text-white" />
                     </template>
                     <template v-else>
-                      <XIcon :size="14" />
+                      <XIcon :size="16" class="text-white" />
                     </template>
                   </button>
                 </div>
@@ -106,14 +111,13 @@
                   </div>
                   <div
                     v-if="item.enabled"
-                    class="inline-flex items-center gap-1.5 rounded-2xl bg-accent/40 px-3 py-1.5 text-xs font-medium text-white transition-all duration-fast ease-standard"
+                    class="inline-flex items-center gap-1.5 rounded-2xl bg-accent/40 px-2 py-1 text-xs font-medium text-white transition-all duration-fast ease-standard"
                   >
-                    <CheckCircle2 :size="15" />
                     <span>{{ t('pages.scripts.enabled') }}</span>
                   </div>
                   <div
                     v-else
-                    class="inline-flex items-center gap-1.5 rounded-2xl px-3 py-1.5 text-xs font-medium text-tertiary transition-all duration-fast ease-standard group-hover/config-card:bg-accent/10"
+                    class="inline-flex items-center gap-1.5 rounded-2xl bg-error/40 px-2 py-1 text-xs font-medium text-white transition-all duration-fast ease-standard"
                   >
                     <span>{{ t('pages.scripts.disabled') }}</span>
                   </div>

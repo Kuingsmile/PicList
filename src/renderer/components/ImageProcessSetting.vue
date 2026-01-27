@@ -1405,7 +1405,7 @@ function safeSetMapValue(form: any, fieldName: string, picbedType: string, value
   const globalValue = form[fieldName]
   const isSameValue =
     fieldName === 'formatConvertObj'
-      ? JSON.stringify(JSON.parse(value)) === JSON.stringify(JSON.parse(globalValue || '{}'))
+      ? JSON.stringify(JSON.parse(value)) === JSON.stringify(globalValue || {})
       : value === globalValue
   const isValueDefault =
     fieldName === 'formatConvertObj'
@@ -1415,6 +1415,7 @@ function safeSetMapValue(form: any, fieldName: string, picbedType: string, value
     fieldName === 'formatConvertObj'
       ? JSON.stringify(form[fieldName]) === JSON.stringify(defaultValue)
       : form[fieldName] === defaultValue
+  console.log({ isValueDefault, isFormValueDefault, isSameValue })
   if ((isValueDefault && isFormValueDefault) || isSameValue) {
     delete form[mapFieldName][picbedType]
   } else {
