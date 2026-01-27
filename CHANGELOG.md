@@ -1,3 +1,100 @@
+##  (2026-01-27)
+
+* :bug: Fix(custom): fix an issue of per-picbed watermark type setting button 8357d3a
+* :bug: Fix(custom): fix broken link in readme 7a7fb20
+* :bug: Fix(custom): fix broken of default button of config page 58447d6
+* :bug: Fix(custom): fix guide page location issue 258ed48
+* :bug: Fix(custom): fix some ui issue 81ac1bb
+* :bug: Fix(custom): fix sort drop down content css issue ffcb779, closes #460
+* :bug: Fix(custom): fix task list length badge postion 4cfa61c
+* :bug: Fix(custom): fix the release note css under dark mode 4ffa72c
+* :bug: Fix(custom): fix the update page release note under dark mode d91de79
+* :bug: Fix(custom): fix the value not update issue when set per picbed preprocess cf02a8f
+* :bug: Fix(custom): fix theme update func 0bf1e2b
+* :bug: Fix(custom): fix tray page ui issue 95d6976
+* :bug: Fix(custom): fix ui of task panel c7e3442
+* :bug: Fix(custom): fix uppercase issue 9c78c54
+* :bug: Fix(custom): missing i18n type ce4a40b
+* :bug: Fix(custom): optimize ui of upload page 274e65d
+* :bug: Fix(custom): remove unused css style c938cbf
+* :construction: WIP(custom): migrate to tailwind, refator gallery page 11ac8b3
+* :construction: WIP(custom): migrate to tailwindcss ddb8949
+* :construction: WIP(custom): optimzie setting page and add several custom components d997348
+* :construction: WIP(custom): re-design manage main page f743031
+* :hammer: Refactor(custom): refactor mini toolbox shorkey page 60a7e2a
+* :hammer: Refactor(custom): remove cross-env 07c0805
+* :hammer: Refactor(custom): remove unused file 7f3f59c
+* :hammer: Refactor(custom): update i18n d4b65c5
+* :hammer: Refactor(custom): use custom button components in upload task page a5c07f2
+* :package: Chore(custom): add 7z in build target 8c720ef
+* :package: Chore(custom): add a new build action 796fb98
+* :package: Chore(custom): add prepare scripts and update action 41f8a5d
+* :package: Chore(custom): update build param 20a0de0
+* :package: Chore(custom): update changelog for 3.3.0 081f629
+* :package: Chore(custom): update publish workflow 78ccf30
+* :package: Chore(custom): update scripts b40188c
+* :package: Chore(custom): update winget file abbdf53
+* :package: Chore(custom): update winget to 3.2.2 3cc30c8
+* :pencil: Docs(custom): update changelog for 3.3.0 31d7267
+* :pencil: Docs(custom): update development docs 529ae22
+* :pencil: Docs(custom): update docs for theme system 00966bd
+* :pencil: Docs(custom): update docs with new image cc1236d
+* :pencil: Docs(custom): update docs with new UI image d93d324
+* :pencil: Docs(custom): update readme d30b3d5
+* :sparkles: Feature(custom): add 3s intermedia to avoid github api rate limit 9910973
+* :sparkles: Feature(custom): add advanced animation 0fac820
+* :sparkles: Feature(custom): add guide page for first time use fa4ef9f
+* :sparkles: Feature(custom): add mirgration support from installation 235dbee
+* :sparkles: Feature(custom): add new script system 9c86989, closes #462
+* :sparkles: Feature(custom): add plugin browser dialog 8b0b476
+* :sparkles: Feature(custom): add purple theme, update gemini theme 5169f00
+* :sparkles: Feature(custom): add several new features for manage bucket page b6fba7d
+* :sparkles: Feature(custom): add update for portable mode 842a7a8
+* :sparkles: Feature(custom): allow user to edit theme file e16a3dd
+* :sparkles: Feature(custom): avoide overwrite css file if already exist 5e73e1a
+* :sparkles: Feature(custom): change default start mode 522efd8
+* :sparkles: Feature(custom): ensure dir exist before open 77f1303
+* :sparkles: Feature(custom): filter list in gallery page now sync with visiable setting 085a12d
+* :sparkles: Feature(custom): matched url is shown in gallery edit dialog 851e5c7
+* :sparkles: Feature(custom): migrate all pages to tailwind 88a5a80
+* :sparkles: Feature(custom): new manage setting and login page 63b82e7
+* :sparkles: Feature(custom): optimize auto-upload pipeline db8dd19
+* :sparkles: Feature(custom): optimize hover ui 2578825
+* :sparkles: Feature(custom): optimize image process setting page d0853cc
+* :sparkles: Feature(custom): optimize imported css file rename f3ae71b
+* :sparkles: Feature(custom): optimize logic to get raw data from reactive object 55c0026
+* :sparkles: Feature(custom): optimize manage main page 6ac1b64
+* :sparkles: Feature(custom): optimize picbed config page 80523e0
+* :sparkles: Feature(custom): optimize plugin page 547588c
+* :sparkles: Feature(custom): optimize scripts for gallery item delete 0145ce2
+* :sparkles: Feature(custom): optimize theme download logic f7667b5
+* :sparkles: Feature(custom): optimize ui of gallery page fc53c27
+* :sparkles: Feature(custom): optimize UI of multiple pages 8cff2c2
+* :sparkles: Feature(custom): optimize UI of process page 0801bf0
+* :sparkles: Feature(custom): optimize ui of script page 682e703
+* :sparkles: Feature(custom): optimize UI of setting page 16da28e
+* :sparkles: Feature(custom): optimize ui of several buttons 800c9be
+* :sparkles: Feature(custom): optimize ui under dark mode and remove unused css 49d2d26
+* :sparkles: Feature(custom): optimize url format list label 6e00317
+* :sparkles: Feature(custom): refactor the logic of config data d98f955
+* :sparkles: Feature(custom): remove some border for better ui bccb33e
+* :sparkles: Feature(custom): set language to system language at first start up f5ff523
+* :sparkles: Feature(custom): show selected image number in gallery page af0bb04
+* :sparkles: Feature(custom): status of filter bar is persist now f5babad
+* :sparkles: Feature(custom): support custom background image d64cf2d
+* :sparkles: Feature(custom): support custom background image opacity and blur a6f54e6
+* :sparkles: Feature(custom): support indicate current picbed config page 79808e7
+* :sparkles: Feature(custom): support open and edit config file in software a10e701
+* :sparkles: Feature(custom): support theme system and add a new theme hub for piclist 50a59a1
+* :sparkles: Feature(custom): update css style deafefb
+* :sparkles: Feature(custom): update docs f4f9938
+* :sparkles: Feature(custom): use custom button in qr page 5de725c
+* :zap: Perf(custom): improve init perf of several pages 2c13ae6
+* :zap: Perf(custom): reduce idle memory usage by 60 percent f129018
+* :zap: Perf(custom): reduce init time of gallery page and upload page form 100ms to 6ms 3775e1f
+
+
+
 ##  (2026-01-14)
 
 * :bug: Fix(custom): fix the second picbed upload issue 52f3823
