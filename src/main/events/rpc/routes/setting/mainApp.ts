@@ -185,9 +185,10 @@ export default [
       if (inStorePath) {
         dirPath = path.join(STORE_PATH, dirPath || '')
       }
-      if (!dirPath || !fs.existsSync(dirPath)) {
+      if (!dirPath) {
         return
       }
+      fs.ensureDirSync(dirPath)
       shell.openPath(dirPath)
     },
   },
