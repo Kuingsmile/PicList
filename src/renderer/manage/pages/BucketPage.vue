@@ -87,19 +87,19 @@
               class="absolute top-full left-0 z-1000 mt-1 min-w-[150px] rounded-md border border-border bg-bg-tertiary shadow-lg"
             >
               <div
-                v-for="i in linkFormatArray"
-                :key="i.key"
+                v-for="i in linkFormatList"
+                :key="i"
                 class="cursor-pointer bg-bg-tertiary px-3 py-2 text-center text-sm text-main hover:bg-accent/50"
-                @click="handleBatchCopyLink(i.value)"
+                @click="handleBatchCopyLink(i)"
               >
-                {{ i.key }}
+                {{ t(`pages.manage.bucket.linkFormat.${i}`) }}
               </div>
               <div
                 v-if="isShowPresignedUrl"
                 class="cursor-pointer bg-bg-tertiary px-3 py-2 text-center text-sm text-main hover:bg-accent/50"
                 @click="handleBatchCopyLink('preSignURL')"
               >
-                preSignURL
+                {{ t('pages.manage.bucket.linkFormat.presign') }}
               </div>
             </div>
           </div>
@@ -1314,14 +1314,6 @@ const previousPageNumber = ref(1)
 const showMatchedUrls = ref(false)
 const showFormatInfo = ref(false)
 
-const linkFormatArray = [
-  { key: 'Url', value: 'url' },
-  { key: 'Markdown', value: 'markdown' },
-  { key: 'Markdown-link', value: 'markdown-with-link' },
-  { key: 'Html', value: 'html' },
-  { key: 'BBCode', value: 'bbcode' },
-  { key: 'Custom', value: 'custom' },
-]
 const linkFormatList = ['url', 'markdown', 'markdown-with-link', 'html', 'bbcode', 'custom']
 const sortTypeList = ['name', 'size', 'time', 'ext', 'check', 'init']
 
