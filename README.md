@@ -72,14 +72,14 @@ Whether you need to organize your cloud files, sync markdown images, or manage m
 <table align="center">
   <tr>
     <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/gallery.webp?raw=true" alt="Gallery"></td>
-    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/cloud_storage.png?raw=true" alt="Cloud Storage"></td>
+    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/cloud_storage.webp?raw=true" alt="Cloud Storage"></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/settings.png?raw=true" alt="Settings"></td>
+    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/settings.webp?raw=true" alt="Settings"></td>
     <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/task.webp?raw=true" alt="Task"></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/image_editing.png?raw=true" alt="Settings"></td>
+    <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/image_editing.webp?raw=true" alt="Settings"></td>
     <td><img src="https://github.com/Kuingsmile/PicList/blob/dev/imgs/dark.webp?raw=true" alt="Task"></td>
   </tr>
 </table>
