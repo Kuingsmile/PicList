@@ -19,6 +19,7 @@
             title=""
             :key-list="customDomainList.map(item => item.value)"
             :fronticon="false"
+            @change="handleChangeCustomUrlInput"
           />
           <input
             v-else-if="isShowCustomDomainInput"
@@ -914,7 +915,7 @@
       width="900px"
       height="90vh"
     >
-      <div class="no-scrollbar w-full flex-1 overflow-hidden rounded-md border border-border p-4 shadow-md">
+      <div class="no-scrollbar h-full w-full flex-1 overflow-hidden rounded-md border border-border p-4 shadow-md">
         <div class="flex h-full w-full flex-col">
           <!-- Download Tasks Tabs -->
           <div class="flex flex-1 flex-col gap-2 overflow-hidden border-t border-border-secondary">

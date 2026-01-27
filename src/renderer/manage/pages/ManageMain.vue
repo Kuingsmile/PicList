@@ -139,6 +139,7 @@
         v-if="picBedSwitchDialogVisible"
         v-model:visible="picBedSwitchDialogVisible"
         :title="t('pages.manage.main.switchPicBed')"
+        height="auto"
       >
         <div class="no-scrollbar h-full w-full overflow-auto p-8">
           <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">

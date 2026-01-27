@@ -480,7 +480,8 @@ class GithubApi {
         targetFileBucket: repo,
         targetFileRegion: region,
       })
-      gotUpload(
+
+      await gotUpload(
         instance,
         `${this.baseUrl}/repos/${this.username}/${repo}/contents/${trimKey}`,
         'PUT',
@@ -496,6 +497,7 @@ class GithubApi {
         false,
         getAgent(this.proxy),
       )
+      await new Promise(resolve => setTimeout(resolve, 3000))
     }
     return true
   }

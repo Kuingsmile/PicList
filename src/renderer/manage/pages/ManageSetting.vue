@@ -10,6 +10,14 @@
             <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">{{ t('pages.manage.setting.title') }}</h1>
           </div>
         </div>
+        <div class="flex flex-wrap gap-3 overflow-visible">
+          <CustomButton
+            type="primary"
+            :icon="FileText"
+            :text="t('pages.settings.sync.editCloudConfigFile')"
+            @click="openFile('manage.json')"
+          />
+        </div>
       </div>
       <div
         class="relative flex h-full w-full flex-1 items-center justify-center overflow-hidden rounded-2xl border border-border-secondary p-1 shadow-md"
@@ -18,9 +26,10 @@
           <!-- Cache Info Card -->
           <SettingSection :title="t('pages.manage.setting.section.cache')" :icon="Trash2Icon" only-one-row>
             <CustomButton
-              type="secondary"
+              type="custom"
               :icon="Trash2Icon"
-              class="bg-warning/20 p-4!"
+              class="bg-warning/50 p-4! text-secondary hover:bg-warning/80 hover:text-white"
+              :text-class="'group-hover:text-white'"
               :text="
                 t('pages.manage.setting.clearCache', {
                   percent: dbSizeAvailableRate,
@@ -135,7 +144,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Download, Edit2Icon, FolderIcon, Settings, Trash2Icon } from 'lucide-vue-next'
+import { Download, Edit2Icon, FileText, FolderIcon, Settings, Trash2Icon } from 'lucide-vue-next'
 import { computed, nextTick, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -301,6 +310,10 @@ async function initData() {
     form.value[key] = config.settings[key] ?? form.value[key]
   })
   await nextTick() // 确保DOM更新完成
+}
+
+async function openFile(file: string) {
+  window.electron.sendRPC(IRPCActionType.PICLIST_OPEN_FILE, file)
 }
 
 async function handleDownloadDirClick() {

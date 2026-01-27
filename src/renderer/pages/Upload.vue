@@ -619,13 +619,12 @@
             <ListTodoIcon class="text-accent opacity-90" :size="48" />
             <h4 class="m-0 text-xl font-semibold text-main">{{ t('pages.upload.taskQueue.empty') }}</h4>
             <p class="m-0 max-w-[400px] text-base text-secondary">{{ t('pages.upload.taskQueue.emptyHint') }}</p>
-            <button
-              class="flex cursor-pointer items-center justify-center gap-2 rounded-md bg-accent px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-sm transition-all duration-fast ease-standard hover:-translate-y-[2px] hover:shadow-md"
+            <CustomButton
+              type="primary"
+              :icon="PlusIcon"
+              :text="t('pages.upload.taskQueue.selectFiles')"
               @click="addFilesToTask"
-            >
-              <PlusIcon :size="16" />
-              <span class="mt-0.5">{{ t('pages.upload.taskQueue.selectFiles') }}</span>
-            </button>
+            />
           </div>
         </div>
       </CustomModal>

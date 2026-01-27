@@ -28,6 +28,7 @@ Use custom `javascript` scripts to extend PicList's functionality without the ne
 - Optimized the configuration saving logic for independent image hosting processing settings.
 - Now automatically selects the interface language based on the system language on the first launch.
 - Now the main interface will be displayed by default on the first launch of Windows systems.
+- Added a 3-second interval when uploading multiple files to GitHub on the management page to avoid triggering GitHub's API rate limits.
 - Now supports manually disabling GPU acceleration to resolve black screen or flickering issues caused by some hardware compatibility.
 - Added advanced animation settings for a better UI interaction experience when enabled.
 
