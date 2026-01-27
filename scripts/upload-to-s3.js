@@ -21,7 +21,7 @@ const ymlFileList = ['latest-mac.yml', 'latest.yml', 'latest-linux.yml', 'latest
 const args = process.argv.slice(2)
 const exePath = args[0] || './artifacts'
 const ymlPath = args[1] || './dist_electron/combined'
-const idDev = args[2] || true
+const idDev = args[2] ?? true
 
 const S3Options = {
   credentials: {
