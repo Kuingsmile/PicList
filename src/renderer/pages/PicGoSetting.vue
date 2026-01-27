@@ -1401,6 +1401,12 @@ const sync = ref<any>({
   webdavSavePath: '',
 })
 
+const defaultStartMode = {
+  darwin: ISartMode.QUIET,
+  win32: ISartMode.MAIN,
+  linux: ISartMode.MINI,
+}
+
 const formOfSetting = ref<ISettingForm>({
   showUpdateTip: true,
   autoStart: false,
@@ -1903,9 +1909,7 @@ async function initData() {
   currentStartMode.value =
     settings.startMode !== undefined
       ? settings.startMode
-      : osGlobal.value === 'win32'
-        ? ISartMode.MAIN
-        : ISartMode.QUIET
+      : defaultStartMode[osGlobal.value as keyof typeof defaultStartMode] || ISartMode.MAIN
   currentSecondMode.value = settings.secondPicBedMode || 'backup'
   if (osGlobal.value === 'darwin' && currentStartMode.value === ISartMode.MINI) {
     currentStartMode.value = ISartMode.QUIET

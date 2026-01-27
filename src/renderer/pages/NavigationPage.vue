@@ -127,9 +127,9 @@
             </DialogTitle>
 
             <div class="p-4">
-              <div class="mb-5">
+              <div class="mb-4">
                 <label class="mb-2 block text-base font-medium text-main">{{ t('navigation.choosePicBed') }}</label>
-                <Listbox v-model="choosedPicBedForQRCode" multiple>
+                <Listbox v-model="choosedPicBedForQRCode" multiple class="mb-2">
                   <div class="relative">
                     <ListboxButton
                       class="flex w-full cursor-pointer items-center justify-between rounded-2xl border border-border bg-surface px-4 py-3 text-base text-main hover:border-accent"
@@ -166,14 +166,13 @@
                   </div>
                 </Listbox>
 
-                <button
+                <CustomButton
                   v-if="choosedPicBedForQRCode.length > 0"
-                  class="mt-3 flex cursor-pointer items-center gap-2 rounded-sm border-none bg-accent px-4 py-2 text-base font-medium text-white hover:bg-accent-hover"
+                  type="primary"
+                  :icon="CopyIcon"
+                  :text="t('navigation.copyPicBedConfig')"
                   @click="handleCopyPicBedConfig"
-                >
-                  <CopyIcon :size="16" />
-                  {{ t('navigation.copyPicBedConfig') }}
-                </button>
+                />
               </div>
 
               <div v-if="choosedPicBedForQRCode.length > 0" class="flex justify-center py-5">
@@ -182,12 +181,13 @@
             </div>
 
             <div class="flex justify-end gap-3 px-4 pb-4">
-              <button
-                class="cursor-pointer rounded-sm border border-border bg-danger/50 px-4 py-2 text-base text-main hover:bg-danger/70"
+              <CustomButton
+                :text="t('navigation.close')"
+                class="bg-danger hover:bg-danger"
+                :text-class="'text-white'"
+                type="cus"
                 @click="qrcodeVisible = false"
-              >
-                {{ $t('navigation.close') }}
-              </button>
+              />
             </div>
           </DialogPanel>
         </TransitionChild>
@@ -234,6 +234,7 @@ import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, Ref, ref,
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
+import CustomButton from '@/components/common/CustomButton.vue'
 import FirstTimeGuide from '@/components/FirstTimeGuide.vue'
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher.vue'
 import { usePicBed } from '@/hooks/useGlobal'

@@ -42,6 +42,12 @@ import updateChecker from '~/utils/updateChecker'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 process.noDeprecation = true
 
+const defaultStartMode = {
+  darwin: ISartMode.QUIET,
+  win32: ISartMode.MAIN,
+  linux: ISartMode.MINI,
+}
+
 const handleStartUpFiles = (argv: string[], cwd: string) => {
   const files = getUploadFiles(argv, cwd, logger)
 
@@ -129,9 +135,7 @@ class LifeCycle {
       let startMode =
         allConfig.settings?.startMode !== undefined
           ? allConfig.settings.startMode
-          : process.platform === 'win32'
-            ? ISartMode.MAIN
-            : ISartMode.QUIET
+          : defaultStartMode[process.platform as keyof typeof defaultStartMode] || ISartMode.MAIN
       if (process.platform === 'darwin' && startMode === ISartMode.MINI) {
         startMode = ISartMode.QUIET
       }
