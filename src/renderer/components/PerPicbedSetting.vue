@@ -23,16 +23,16 @@
         <div
           v-for="picbed in availablePicbeds"
           :key="picbed.type"
-          class="flex flex-wrap items-center justify-between rounded-sm border border-border bg-bg p-3 transition-all duration-fast ease-apple hover:border-accent hover:bg-surface"
+          class="flex flex-wrap items-center justify-between rounded-sm border border-border bg-bg p-3 transition-all duration-fast ease-apple hover:border-2 hover:border-accent hover:bg-surface"
         >
           <label class="m-0 flex-1 text-sm font-medium text-main">{{ picbed.name }}</label>
           <!-- Checkbox input -->
           <div v-if="inputType === 'checkbox'" class="flex items-center rounded-xl">
             <label
-              class="flex cursor-pointer items-center gap-4 rounded-lg border border-border transition-all duration-200 ease-apple hover:border-accent"
+              class="flex cursor-pointer items-center gap-4 rounded-lg border border-border transition-all duration-200 ease-apple"
             >
               <input
-                :checked="getMapValue(mapField, picbed.type, defaultValue)"
+                :checked="currentValuesMap[picbed.type]"
                 type="checkbox"
                 class="peer hidden"
                 @change="e => handleMapChange(picbed.type, (e.target as HTMLInputElement).checked)"
@@ -45,7 +45,7 @@
           <!-- Range input -->
           <div v-else-if="inputType === 'range'" class="flex flex-wrap items-center gap-2 rounded-sm shadow-sm">
             <input
-              :value="getMapValue(mapField, picbed.type, defaultValue)"
+              :value="currentValuesMap[picbed.type]"
               type="range"
               :min="rangeMin"
               :max="rangeMax"
@@ -56,14 +56,14 @@
             <div
               class="inline-flex min-w-14 items-center justify-center rounded-md bg-accent px-1 py-1 text-sm font-semibold text-white shadow-sm"
             >
-              {{ getMapValue(mapField, picbed.type, defaultValue) }}{{ rangeSuffix }}
+              {{ currentValuesMap[picbed.type] }}{{ rangeSuffix }}
             </div>
           </div>
 
           <!-- Number input -->
           <input
             v-else-if="inputType === 'number'"
-            :value="getMapValue(mapField, picbed.type, defaultValue)"
+            :value="currentValuesMap[picbed.type]"
             type="number"
             :min="numberMin"
             :max="numberMax"
@@ -74,7 +74,7 @@
           <!-- Text input -->
           <input
             v-else-if="inputType === 'text'"
-            :value="getMapValue(mapField, picbed.type, defaultValue)"
+            :value="currentValuesMap[picbed.type]"
             type="text"
             class="w-[100px] rounded-sm border border-border bg-bg p-1 text-sm text-main outline-none placeholder:text-xs focus:border-accent focus:bg-surface"
             :placeholder="textPlaceholder"
@@ -84,13 +84,13 @@
           <!-- Color input -->
           <div v-else-if="inputType === 'color'" class="flex items-center gap-2">
             <input
-              :value="getMapValue(mapField, picbed.type, defaultValue)"
+              :value="currentValuesMap[picbed.type]"
               type="color"
               class="rounded-sm border border-border bg-bg p-1 text-sm text-main outline-none focus:border-accent focus:bg-surface"
               @input="e => handleMapChange(picbed.type, (e.target as HTMLInputElement).value)"
             />
             <input
-              :value="getMapValue(mapField, picbed.type, defaultValue)"
+              :value="currentValuesMap[picbed.type]"
               type="text"
               class="w-[100px] rounded-sm border border-border bg-bg p-1 text-sm text-main outline-none placeholder:text-xs focus:border-accent focus:bg-surface"
               @input="e => handleMapChange(picbed.type, (e.target as HTMLInputElement).value)"
@@ -100,7 +100,7 @@
           <!-- Select input -->
           <select
             v-else-if="inputType === 'select'"
-            :value="getMapValue(mapField, picbed.type, defaultValue)"
+            :value="currentValuesMap[picbed.type]"
             class="w-[100px] rounded-sm border border-border bg-bg text-sm text-main outline-none placeholder:text-xs focus:border-accent focus:bg-surface"
             @change="e => handleMapChange(picbed.type, (e.target as HTMLSelectElement).value)"
           >
@@ -118,7 +118,7 @@
             >
               <input
                 :id="`radio-${picbed.type}-${option.value}`"
-                :checked="getMapValue(mapField, picbed.type, defaultValue) === option.value"
+                :checked="currentValuesMap[picbed.type] === option.value"
                 :value="option.value"
                 type="radio"
                 class="peer hidden"
@@ -203,13 +203,18 @@ const availablePicbeds = computed(() => {
   }))
 })
 
-function getMapValue(mapObj: Record<string, any> | undefined, picbedType: string, defaultValue: any) {
-  if (!mapObj) return defaultValue
-  const rawMapObj = getRawData(mapObj)
-  const value =
-    rawMapObj[picbedType] !== undefined ? rawMapObj[picbedType] : globalValue !== undefined ? globalValue : defaultValue
-  return typeof value === 'object' ? JSON.stringify(getRawData(value)) : value
-}
+const currentValuesMap = computed(() => {
+  if (!mapField) return {}
+
+  const result: Record<string, any> = {}
+  for (const picbed of availablePicbeds.value) {
+    const type = picbed.type
+    const val = mapField[type] !== undefined ? mapField[type] : globalValue !== undefined ? globalValue : defaultValue
+
+    result[type] = typeof val === 'object' ? JSON.stringify(getRawData(val)) : val
+  }
+  return result
+})
 
 function handleMapChange(picbedType: string, value: any, id?: string) {
   if (id) {

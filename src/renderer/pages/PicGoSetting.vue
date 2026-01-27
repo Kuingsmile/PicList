@@ -905,6 +905,7 @@
         <SettingSection>
           <CustomSwitch
             v-model="advancedRename.enable"
+            small
             :title="t('pages.settings.upload.enableAdvancedRname')"
             :description="t('pages.settings.upload.enableAdvancedRnameDesc')"
           />

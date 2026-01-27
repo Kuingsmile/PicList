@@ -25,6 +25,7 @@ Use custom `javascript` scripts to extend PicList's functionality without the ne
 - Added `rpm` installation package for Linux.
 - Added image hosting editing card page to resolve confusion when switching multiple configurations.
 - Added list mode support to the file browsing page.
+- Optimized the configuration saving logic for independent image hosting processing settings.
 - Now automatically selects the interface language based on the system language on the first launch.
 - Now the main interface will be displayed by default on the first launch of Windows systems.
 - Now supports manually disabling GPU acceleration to resolve black screen or flickering issues caused by some hardware compatibility.
@@ -53,6 +54,7 @@ Use custom `javascript` scripts to extend PicList's functionality without the ne
 
 ### 🐛 Bug Fixes
 
+- Fixed the issue in the image preprocessing settings where variable values were not updated in a timely manner when setting a single image hosting.
 - Fixed the issue where the sort dropdown box on the management page displayed abnormally.
 - Fixed the issue where the image hosting list on the management page did not correctly highlight the currently selected item.
 - Fixed the issue where the markdown preview content on the management page did not render correctly.
