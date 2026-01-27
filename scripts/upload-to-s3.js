@@ -21,7 +21,6 @@ const ymlFileList = ['latest-mac.yml', 'latest.yml', 'latest-linux.yml', 'latest
 const args = process.argv.slice(2)
 const exePath = args[0] || './artifacts'
 const ymlPath = args[1] || './dist_electron/combined'
-const idDev = args[2] ?? true
 
 const S3Options = {
   credentials: {
@@ -52,18 +51,7 @@ const uploadFile = async filePath => {
       uploadDistToS3.on('httpUploadProgress', progress => {
         console.log(`[INFO]: ${path.basename(filePath)} - ${progress.loaded}/${progress.total}`)
       })
-      if (idDev) {
-        console.log('[DEV]: upload params:', {
-          Bucket: bucket,
-          Key: `${folder}${path.basename(filePath)}`,
-          Body: '<<stream>>',
-          ContentType: path.basename(filePath).endsWith('.yml')
-            ? mime.getType(path.basename(filePath))
-            : 'application/octet-stream',
-        })
-      } else {
-        await uploadDistToS3.done()
-      }
+      await uploadDistToS3.done()
     } else {
       console.warn('[Warn] File not found:', filePath)
     }

@@ -314,10 +314,9 @@ jobs:
         run: |
           if [ "${{ github.event.inputs.publish_enabled }}" == "false" ]; then
             echo "Publishing is disabled. Skipping upload to S3."
-            node scripts/upload-to-s3.js ./artifacts ./dist_electron/combined
             exit 0
           fi
-          node scripts/upload-to-s3.js ./artifacts ./dist_electron/combined false
+          node scripts/upload-to-s3.js ./artifacts ./dist_electron/combined
         env:
           R2_SECRET_ID: ${{ secrets.R2_SECRET_ID }}
           R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
