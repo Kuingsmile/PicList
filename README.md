@@ -182,6 +182,7 @@ yarn run build
 ## 🔗 Related Projects
 
 - **[PicList ThemeHub](https://github.com/Kuingsmile/piclist-themeHub)**: A theme repository for PicList.
+- **[PicList ScriptsHub](https://github.com/Kuingsmile/piclist-ScriptsHub)**: A script repository for PicList.
 - **[PicList-Core](https://github.com/Kuingsmile/PicList-Core)**: The CLI core of PicList.
 - **[PicHoro](https://github.com/Kuingsmile/PicHoro)**: Android mobile client.
 

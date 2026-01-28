@@ -182,6 +182,7 @@ yarn run build
 ## 🔗 相关项目
 
 - **[PicList ThemeHub](https://github.com/Kuingsmile/piclist-themeHub)**: PicList 的主题仓库。
+- **[PicList ScriptsHub](https://github.com/Kuingsmile/piclist-ScriptsHub)**：PicList 的脚本仓库。
 - **[PicList-Core](https://github.com/Kuingsmile/PicList-Core)**：PicList 的核心 CLI 库。
 - **[PicHoro](https://github.com/Kuingsmile/PicHoro)**：PicList 的 Android 移动端 APP。
 
