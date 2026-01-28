@@ -731,6 +731,7 @@
       "disabled": "Disabled",
       "disableScript": "Disable Script",
       "duplicateScriptNameError": "Script name already exists, please use a different name",
+      "editENVFile": "Edit Env File",
       "editScript": "Edit Script",
       "emptyScriptList": "Script list is empty",
       "enabled": "Enabled",

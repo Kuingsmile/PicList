@@ -731,6 +731,7 @@
       "disabled": "已禁用",
       "disableScript": "禁用脚本",
       "duplicateScriptNameError": "脚本名称已存在，请使用不同的名称",
+      "editENVFile": "编辑环境变量",
       "editScript": "编辑脚本",
       "emptyScriptList": "脚本列表为空",
       "enabled": "已启用",

@@ -7,8 +7,23 @@ import { scriptsDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
 import axios from 'axios'
+import dotenv from 'dotenv'
 import fs from 'fs-extra'
 import { IPicGo } from 'piclist'
+
+function getFreshEnv() {
+  const envPath = path.join(scriptsDir(), '.env')
+
+  if (fs.existsSync(envPath)) {
+    const buf = fs.readFileSync(envPath)
+    const config = dotenv.parse(buf)
+    for (const k in config) {
+      process.env[k] = config[k]
+    }
+    return config
+  }
+  return {}
+}
 
 export const scriptLifecycleStages = [
   'onSoftwareOpen',
@@ -38,6 +53,7 @@ function format(data: unknown): string {
 
 export async function runScript(ctx: IPicGo, script: string, extra: Record<string, any>): Promise<any> {
   try {
+    const env = getFreshEnv()
     const base64Decode = (str: string): string => Buffer.from(str, 'base64').toString('utf-8')
     const base64Encode = (data: Buffer | string): string =>
       (Buffer.isBuffer(data) ? data : Buffer.from(String(data))).toString('base64')
@@ -62,6 +78,7 @@ export async function runScript(ctx: IPicGo, script: string, extra: Record<strin
       base64Encode,
       os,
       Buffer,
+      env,
     }
     vm.createContext(exposedAPI)
     ctx.log.info('start to run script')

@@ -70,6 +70,7 @@ export const picBedManualUrlList: IStringKeyMap = {
 
 export const defaultScriptTemplate = `
 // ctx 为 核心PicList实例, extra为额外参数, 其中extra.galleryItem为当前删除的相册对象
+// env 变量中有脚本目录下的 .env 文件内容
 // 可用额外API: axios, crypto, fs, path, os, setTimeout, setInterval, clearTimeout, clearInterval, base64Decode, base64Encode
 // 使用console.log或ctx.log输出的信息在软件日志文件piclist.log中可以查询到
 
@@ -81,6 +82,7 @@ async function main(ctx, extra) {
 
 export const defaultScriptTemplateEn = `
 // ctx is the core PicList instance, extra is additional parameters, among which extra.galleryItem is the currently deleted album object
+// env variable contains the contents of the .env file in the script directory
 // Available additional APIs: axios, crypto, fs, path, os, setTimeout, setInterval, clearTimeout, clearInterval, base64Decode, base64Encode
 // Use console.log or ctx.log to output information that can be found in the software log file piclist.log
 

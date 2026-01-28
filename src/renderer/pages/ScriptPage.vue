@@ -12,6 +12,18 @@
           </div>
         </div>
         <div class="flex flex-wrap gap-3 overflow-visible">
+          <CustomButton
+            type="primary"
+            :icon="FolderOpen"
+            :text="t('pages.scripts.openScriptFolder')"
+            @click="handleOpenScriptFolder"
+          />
+        </div>
+      </div>
+      <div
+        class="flex w-full flex-row items-center justify-between gap-4 overflow-visible rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
+      >
+        <div class="flex flex-wrap gap-3 overflow-visible">
           <div class="flex max-w-[220px] min-w-[180px] flex-1 flex-col gap-1">
             <MultiSelect
               v-model:choosed="choosedCat"
@@ -21,9 +33,9 @@
           </div>
           <CustomButton
             type="primary"
-            :icon="FolderOpen"
-            :text="t('pages.scripts.openScriptFolder')"
-            @click="handleOpenScriptFolder"
+            :icon="Edit2Icon"
+            :text="t('pages.scripts.editENVFile')"
+            @click="openEditPage(['.env'])"
           />
         </div>
       </div>
@@ -200,7 +212,18 @@
 
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { CheckCircle2, Clock, FileCode, FolderOpen, Pencil, Play, Plus, Trash2, XIcon } from 'lucide-vue-next'
+import {
+  CheckCircle2,
+  Clock,
+  Edit2Icon,
+  FileCode,
+  FolderOpen,
+  Pencil,
+  Play,
+  Plus,
+  Trash2,
+  XIcon,
+} from 'lucide-vue-next'
 import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
