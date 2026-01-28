@@ -106,7 +106,7 @@ class RemoteNoticeHandler {
         switch (action.type) {
           case IRemoteNoticeActionType.SHOW_DIALOG: {
             const currentWindow = windowManager.getAvailableWindow()
-            dialog.showOpenDialog(currentWindow, action.data?.options)
+            dialog.showOpenDialog(currentWindow!, action.data?.options)
             break
           }
           case IRemoteNoticeActionType.SHOW_NOTICE:
@@ -138,7 +138,7 @@ class RemoteNoticeHandler {
           case IRemoteNoticeActionType.SHOW_MESSAGE_BOX: {
             const currentWindow = windowManager.getAvailableWindow()
             dialog
-              .showMessageBox(currentWindow, {
+              .showMessageBox(currentWindow!, {
                 title: action.data?.title || '',
                 message: action.data?.content || '',
                 type: 'info',

@@ -124,7 +124,7 @@ router.post(
           }
         })
         const win = windowManager.getAvailableWindow()
-        const result = await uploadChoosedFiles(win.webContents, pathList)
+        const result = await uploadChoosedFiles(win?.webContents, pathList)
         const res = result.map(item => {
           return useShortUrl ? item.fullResult.shortUrl || item.url : item.url
         })
