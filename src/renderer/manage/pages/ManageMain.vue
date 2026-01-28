@@ -48,6 +48,20 @@
               {{ menuTitleMap[currentPicBedName] }}
             </h3>
           </div>
+          <div
+            class="mb-2 rounded-md border border-t-0 border-border"
+            :class="{
+              'border-t-0': menuTitleMap[currentPicBedName],
+            }"
+          >
+            <input
+              v-if="bucketNameList.length > 5"
+              v-model="bucketSearchText"
+              class="w-full rounded-md border-none bg-bg-secondary p-1 text-sm text-main placeholder:text-secondary focus:border-accent focus:outline-none"
+              type="text"
+              placeholder="search..."
+            />
+          </div>
 
           <div class="min-h-0 flex-1 overflow-y-auto">
             <div v-if="isLoadingBucketList" class="flex flex-col items-center justify-center gap-2 p-8">
@@ -57,7 +71,7 @@
               <span class="text-sm font-semibold text-secondary">{{ t('pages.manage.main.loading') }}</span>
             </div>
             <div v-else class="flex flex-col gap-1">
-              <template v-for="item in bucketNameList" :key="item">
+              <template v-for="item in filteredBucketNameList" :key="item">
                 <div
                   class="flex cursor-pointer items-center gap-3 rounded-sm p-3 text-sm shadow-xs hover:bg-surface [.active]:bg-accent/20"
                   :class="{ active: item === currentSelectedBucket }"
@@ -257,7 +271,7 @@ import {
   PlusIcon,
   SettingsIcon,
 } from 'lucide-vue-next'
-import { onBeforeMount, reactive, ref, watch } from 'vue'
+import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -298,10 +312,18 @@ const newBucketConfigResult: IStringKeyMap = reactive({})
 const bucketList = ref({} as IStringKeyMap)
 const currentSelectedBucket = ref('')
 const bucketNameList = ref([] as string[])
+const bucketSearchText = ref('')
 
 const isLoadingBucketList = ref(false)
 const bucketDrawerVisible = ref(false)
 const picBedSwitchDialogVisible = ref(false)
+
+const filteredBucketNameList = computed(() => {
+  if (!bucketSearchText.value) {
+    return bucketNameList.value
+  }
+  return bucketNameList.value.filter(name => name.toLowerCase().includes(bucketSearchText.value.toLowerCase()))
+})
 
 watch(
   route,
