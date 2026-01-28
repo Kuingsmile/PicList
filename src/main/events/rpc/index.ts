@@ -6,6 +6,7 @@ import { galleryRouter } from '~/events/rpc/routes/gallery'
 import { manageRouter } from '~/events/rpc/routes/manage'
 import { picbedRouter } from '~/events/rpc/routes/picbed'
 import { pluginRouter } from '~/events/rpc/routes/plugin'
+import { scriptMarketplaceRouter } from '~/events/rpc/routes/scriptMarketplace'
 import { settingRouter } from '~/events/rpc/routes/setting'
 import { systemRouter } from '~/events/rpc/routes/system'
 import { toolboxRouter } from '~/events/rpc/routes/toolbox'
@@ -63,6 +64,7 @@ const routes = [
   galleryRouter.routes(),
   picbedRouter.routes(),
   pluginRouter.routes(),
+  scriptMarketplaceRouter.routes(),
   settingRouter.routes(),
   systemRouter.routes(),
   toolboxRouter.routes(),

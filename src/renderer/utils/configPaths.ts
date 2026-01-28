@@ -95,6 +95,8 @@ export interface IConfigStruct {
   uploader: IUploaderConfig
   scripts: {
     disabledList: string[]
+    githubToken?: string
+    githubUsername?: string
   }
   buildIn: {
     compress: IBuildInCompressOptions
@@ -198,6 +200,8 @@ export const configPaths = {
   uploader: 'uploader',
   scripts: {
     disabledList: 'scripts.disabledList',
+    githubToken: 'scripts.githubToken',
+    githubUsername: 'scripts.githubUsername',
   },
   buildIn: {
     _name: 'buildIn',

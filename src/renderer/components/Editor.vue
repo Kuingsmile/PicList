@@ -16,6 +16,7 @@ import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 const props = defineProps({
   modelValue: { type: String, default: '' },
   language: { type: String, default: 'javascript' },
+  readOnly: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -35,6 +36,7 @@ onMounted(() => {
       search({ top: true }),
       keymap.of([...searchKeymap]),
       EditorView.lineWrapping,
+      EditorView.editable.of(!props.readOnly),
       EditorView.updateListener.of(update => {
         if (update.docChanged) {
           emit('update:modelValue', update.state.doc.toString())
