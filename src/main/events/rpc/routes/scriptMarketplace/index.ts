@@ -12,8 +12,10 @@ import { IRPCActionType, IRPCType } from '~/utils/enum'
 const GITHUB_REPO_OWNER = 'Kuingsmile'
 const GITHUB_REPO_NAME = 'piclist-ScriptsHub'
 const GITHUB_API_BASE = 'https://api.github.com'
-const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com'
 const GITHUB_CLIENT_ID = 'Ov23liLELZPZXhQnpadf'
+
+let MEMORY_SCRIPTS_CACHE: IScriptMeta[] | null = null
+let LAST_FETCH_TIMESTAMP: number = 0
 
 interface IScriptMeta {
   name: string
@@ -89,90 +91,27 @@ function clearAuthState() {
   })
 }
 
-function parseScriptMeta(content: string, fileName: string, category: string): Partial<IScriptMeta> {
-  const meta: Partial<IScriptMeta> = {
-    fileName,
-    category,
-  }
-
-  const metaRegex = /\/\*\*[\s\S]*?\*\//
-  const metaMatch = content.match(metaRegex)
-
-  if (metaMatch) {
-    const metaBlock = metaMatch[0]
-
-    const nameMatch = metaBlock.match(/@name\s+(.+)/)
-    if (nameMatch) meta.name = nameMatch[1].trim()
-
-    const authorMatch = metaBlock.match(/@author\s+(.+)/)
-    if (authorMatch) meta.author = authorMatch[1].trim()
-
-    const descMatch = metaBlock.match(/@description\s+(.+)/)
-    if (descMatch) meta.description = descMatch[1].trim()
-
-    const versionMatch = metaBlock.match(/@version\s+(.+)/)
-    if (versionMatch) meta.version = versionMatch[1].trim()
-  }
-
-  if (!meta.name) meta.name = fileName.replace('.js', '')
-  if (!meta.author) meta.author = 'Unknown'
-  if (!meta.description) meta.description = ''
-  if (!meta.version) meta.version = '1.0.0'
-
-  return meta
-}
-
 async function fetchScriptsList(): Promise<IScriptMeta[]> {
-  const scripts: IScriptMeta[] = []
+  const now = Date.now()
+  const FIVE_MINUTES = 5 * 60 * 1000
+
+  if (MEMORY_SCRIPTS_CACHE && now - LAST_FETCH_TIMESTAMP < FIVE_MINUTES) {
+    return MEMORY_SCRIPTS_CACHE
+  }
 
   try {
-    const treeResponse = await fetch(
-      `${GITHUB_API_BASE}/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/git/trees/main?recursive=1`,
+    const response = await fetch(
+      `https://cdn.jsdelivr.net/gh/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}@main/scripts.json`,
     )
-
-    if (!treeResponse.ok) {
-      throw new Error(`Failed to fetch repository tree: ${treeResponse.statusText}`)
-    }
-
-    const treeData = (await treeResponse.json()) as { tree: { path: string; type: string }[] }
-
-    const jsFiles = treeData.tree.filter(
-      (item: { path: string; type: string }) => item.type === 'blob' && item.path.endsWith('.js'),
-    )
-
-    for (const file of jsFiles) {
-      const pathParts = file.path.split('/')
-      if (pathParts.length >= 2) {
-        const category = pathParts.slice(0, -1).join('.')
-        const fileName = pathParts[pathParts.length - 1]
-
-        const contentResponse = await fetch(
-          `${GITHUB_RAW_BASE}/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/main/${file.path}`,
-        )
-
-        if (contentResponse.ok) {
-          const content = await contentResponse.text()
-          const meta = parseScriptMeta(content, fileName, category)
-
-          scripts.push({
-            name: meta.name || fileName,
-            author: meta.author || 'Unknown',
-            description: meta.description || '',
-            version: meta.version || '1.0.0',
-            fileName,
-            category,
-            content,
-            downloadUrl: `${GITHUB_RAW_BASE}/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/main/${file.path}`,
-          })
-        }
-      }
-    }
+    if (!response.ok) throw new Error('Failed to load marketplace index')
+    const scripts = (await response.json()) as IScriptMeta[]
+    MEMORY_SCRIPTS_CACHE = scripts
+    LAST_FETCH_TIMESTAMP = now
+    return scripts
   } catch (error) {
-    logger.error(`Failed to fetch scripts list: ${error}`)
-    throw error
+    logger.error(`Marketplace error: ${error}`)
+    return MEMORY_SCRIPTS_CACHE || []
   }
-
-  return scripts
 }
 
 async function downloadScript(scriptMeta: IScriptMeta): Promise<boolean> {
