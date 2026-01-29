@@ -127,6 +127,7 @@
               :placeholder="t(`pages.gallery.sortBy.${currentSortField}`)"
               :title="t('pages.gallery.sort')"
               :key-list="['name', 'ext', 'time', 'check']"
+              @change="sortFile(currentSortField)"
             >
               <template #item="{ item }">
                 {{ t(`pages.gallery.sortBy.${item}`) }}
@@ -591,10 +592,6 @@ watch(pasteStyle, newVal => {
 
 watch(useShortUrl, newVal => {
   saveConfig(configPaths.settings.useShortUrl, newVal === t('pages.gallery.shortUrl'))
-})
-
-watch(currentSortField, () => {
-  sortFile(currentSortField.value)
 })
 
 watch(filterList, () => {
