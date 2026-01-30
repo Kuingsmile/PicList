@@ -12,11 +12,11 @@
         <div
           v-for="message in messages"
           :key="message.id"
-          class="flex-start group pointer-events-auto mb-2 flex max-w-96 min-w-80 gap-3 rounded-sm border border-gray-300 bg-white px-4 py-3 wrap-break-word shadow-sm [.message-error]:border-l-4 [.message-error]:border-l-danger [.message-info]:border-l-4 [.message-info]:border-l-accent [.message-success]:border-l-4 [.message-success]:border-l-success [.message-warning]:border-l-4 [.message-warning]:border-l-warning"
+          class="flex-start group pointer-events-auto mb-2 flex max-w-96 min-w-80 items-center gap-3 rounded-sm border border-gray-300 bg-white px-4 py-3 wrap-break-word shadow-sm [.message-error]:border-l-4 [.message-error]:border-l-danger [.message-info]:border-l-4 [.message-info]:border-l-accent [.message-success]:border-l-4 [.message-success]:border-l-success [.message-warning]:border-l-4 [.message-warning]:border-l-warning"
           :class="getMessageClass(message.type)"
         >
           <div
-            class="mt-0.5 shrink-0 group-[.message-error]:text-danger group-[.message-info]:text-accent group-[.message-success]:text-success group-[.message-warning]:text-warning"
+            class="shrink-0 group-[.message-error]:text-danger group-[.message-info]:text-accent group-[.message-success]:text-success group-[.message-warning]:text-warning"
           >
             <component :is="getIconComponent(message.type)" :size="16" />
           </div>
@@ -25,7 +25,7 @@
           </div>
           <button
             v-if="message.showClose"
-            class="mt-0.5 flex shrink-0 cursor-pointer items-center justify-center rounded-sm border-none bg-none p-1 text-secondary hover:bg-danger/10"
+            class="flex shrink-0 cursor-pointer items-center justify-center rounded-full border-none bg-none p-1 text-secondary hover:bg-danger/10"
             @click="removeMessage(message.id)"
           >
             <X :size="16" />

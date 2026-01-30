@@ -14,7 +14,7 @@
         v-if="text"
         :class="textClassVar"
         :data-active="active"
-        class="[.primary] text-sm leading-[1.4] font-semibold text-secondary"
+        class="text-sm leading-[1.4] font-semibold text-secondary"
         >{{ text }}</span
       >
     </slot>
