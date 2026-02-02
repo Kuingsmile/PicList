@@ -71,7 +71,7 @@ class UploadTaskQueueManager {
     maxRetryCount: 3,
   }
 
-  private webContents: WebContents | null = null
+  private webContents: WebContents | undefined = undefined
   private persistPath = path.join(dataDir(), 'taskQueue.json')
   private taskTimer: NodeJS.Timeout | null = null
 
@@ -229,10 +229,6 @@ class UploadTaskQueueManager {
   private async uploadSingleFile(task: IUploadTaskItem): Promise<IStringKeyMap> {
     const win = windowManager.getAvailableWindow()
     const webContents = this.webContents || win?.webContents
-
-    if (!webContents) {
-      throw new Error('No webContents available for upload')
-    }
 
     const input = [task.filePath]
     const rawInput = cloneDeep(input)

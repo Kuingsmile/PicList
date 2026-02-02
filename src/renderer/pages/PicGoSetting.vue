@@ -39,7 +39,7 @@
         <!-- System Settings Tab -->
         <div
           v-if="currentTab === 'system'"
-          class="border4 no-scrollbar flex h-full w-full flex-1 flex-col gap-6 overflow-auto p-4"
+          class="no-scrollbar flex h-full w-full flex-1 flex-col gap-6 overflow-auto p-4"
         >
           <SettingSection :title="t('pages.settings.system.languageAndAppearance')" :icon="Globe">
             <SettingCard>

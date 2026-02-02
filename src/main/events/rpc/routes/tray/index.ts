@@ -56,13 +56,13 @@ const trayRoutes = [
         await GalleryDB.getInstance().insert(img[0])
         trayWindow?.webContents.send('clipboardFiles', [])
         if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-          windowManager.get(IWindowList.SETTING_WINDOW)!.webContents.send('updateGallery')
+          windowManager.get(IWindowList.SETTING_WINDOW)?.webContents.send('updateGallery')
         }
         if (backupImgs && backupImgs.length > 0) {
           await GalleryDB.getInstance().insert(backupImgs[0])
           trayWindow?.webContents.send('uploadFiles')
           if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-            windowManager.get(IWindowList.SETTING_WINDOW)!.webContents?.send('updateGallery')
+            windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('updateGallery')
           }
         }
       }

@@ -74,7 +74,7 @@ class GuiApi implements IGuiApi {
     this.windowId = await getWindowId()
     const webContents = this.getWebcontentsByWindowId(this.windowId)
     const rawInput = cloneDeep(input)
-    const res = await uploader.setWebContents(webContents!).uploadReturnCtx(input)
+    const res = await uploader.setWebContents(webContents).uploadReturnCtx(input)
     const imgs = res.ctx?.output ? res.ctx.output : false
     const backImgs = res.backupCtx?.output ? res.backupCtx.output : false
     let result: ImgInfo[] = []
