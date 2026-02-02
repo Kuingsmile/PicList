@@ -9728,10 +9728,10 @@ performance-now@^2.1.0:
   resolved "https://registry.npmmirror.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==
 
-piclist@^2.3.2:
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/piclist/-/piclist-2.3.2.tgz#77cfecc5931b6761d26acc969d6ecda9b7605d6f"
-  integrity sha512-s03G5r4HJffRgNEI72FefI9GDf8JSvw27LhslDwtmjpu/jvUVHru/VCwGaFBHyItW58nrqDh+W7gCfZ8x6ENhw==
+piclist@^2.3.3:
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/piclist/-/piclist-2.3.3.tgz#f3cad24d888b6df78db66de4406ccb6c7e1cfbd2"
+  integrity sha512-FEARn+W1q0ndY8op6jbXo/pf+XJiC9zIwj8GPAmsgnHTFSQTQHNMBhdrVEHDzZc3EgZ3LN3kMakQxB6pYkAqIQ==
   dependencies:
     "@aws-sdk/client-s3" "3.965.0"
     "@aws-sdk/lib-storage" "3.965.0"
@@ -9744,6 +9744,7 @@ piclist@^2.3.2:
     commander "^8.1.0"
     cross-spawn "^7.0.6"
     dayjs "^1.11.19"
+    dotenv "^17.2.3"
     file-type "21.3.0"
     form-data "^4.0.5"
     fs-extra "^11.3.3"
