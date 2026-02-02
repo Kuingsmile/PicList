@@ -10,3 +10,5 @@
 
 - Fixed issues with Typora integration
 - Fixed unresponsive sorting buttons on the album page in certain cases
+- Fixed S3 download failures on the cloud page
+- Fixed some UI text errors on the cloud page

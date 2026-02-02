@@ -1023,7 +1023,7 @@
                         <span>{{ item.finishTime }}</span>
                         <span class="text-xs font-semibold text-success">
                           {{
-                            activeUpLoadTab === 'finished'
+                            activeDownLoadTab === 'finished'
                               ? t('pages.manage.bucket.success')
                               : t('pages.manage.bucket.failed')
                           }}

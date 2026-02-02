@@ -849,10 +849,11 @@ class S3plistApi {
         expires: 36000,
         customUrl,
       })
+      const cleanURL = decodeURIComponent(preSignedUrl)
       promises.push(
         () =>
           new Promise((resolve, reject) => {
-            NewDownloader(instance, preSignedUrl, id, savedFilePath, this.logger, this.proxy).then((res: boolean) => {
+            NewDownloader(instance, cleanURL, id, savedFilePath, this.logger, this.proxy).then((res: boolean) => {
               if (res) {
                 resolve(res)
               } else {
