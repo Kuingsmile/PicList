@@ -1,3 +1,25 @@
+##  (2026-02-02)
+
+* :bug: Fix(custom): avoid undefined error c1b1350
+* :bug: Fix(custom): fix the issue of webcontents cab9445
+* :bug: Fix(custom): update scripts f95b855
+* :package: Chore(custom): update scripts a2e919f
+* :package: Chore(custom): update winget file to 3.3.0 aeca7b8
+* :pencil: Docs(custom): add https://github.com/Kuingsmile/piclist-ScriptsHub 345bd1e
+* :pencil: Docs(custom): update changelog for 3.3.1 c83529b
+* :pencil: Docs(custom): update reademe img link d6b7a00
+* :sparkles: Feature(custom): add bucket search 07453b0, closes #466
+* :sparkles: Feature(custom): add desc for how to debug script in template #468 ee9f22d, closes #468
+* :sparkles: Feature(custom): optimize gallery sort trigger logic b217895, closes #470
+* :sparkles: Feature(custom): optimize message toast 3cafd5a
+* :sparkles: Feature(custom): optimze color of scripts action button a0f3b53
+* :sparkles: Feature(custom): support read .env file in script system e194754
+* :sparkles: Feature(custom): support script market and share or download scripts db619d7
+* :sparkles: Feature(custom): upgrade core 1f36cf3
+* :sparkles: Feature(custom): use cdn to avoid github api rate limit a36f1cb
+
+
+
 ##  (2026-01-27)
 
 * :bug: Fix(custom): fix an issue of per-picbed watermark type setting button 8357d3a
