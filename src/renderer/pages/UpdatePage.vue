@@ -12,7 +12,7 @@
         </p>
       </header>
 
-      <div v-if="updateInfo.type !== 'downloading' && downloadProgress !== null" class="bg-accent-hover/5 p-6">
+      <div v-if="updateInfo.type === 'downloading' && downloadProgress !== null" class="bg-accent-hover/5 p-6">
         <div class="mb-3 flex items-center justify-between">
           <span class="text-sm font-semibold text-main">{{ $t('pages.update.downloading') }}</span>
           <span class="text-sm font-semibold text-main tabular-nums">{{ Math.round(downloadProgress) }}%</span>
