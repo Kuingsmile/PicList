@@ -1,15 +1,10 @@
-## 🎉 [v3.3.1] Release Notes
+## 🎉 [v3.3.2] Release Notes
 
 ### ✨ New Features
 
-- Now supports reading and editing `.env` files to pass environment variables to scripts
-- Added script sharing and import features for easier sharing between users
-- The cloud page now supports filtering by bucket or repository name
+- When uploading via URL, the file type is now determined by content-type and file magic number, improving upload accuracy
+- sm.ms has migrated to s.ee
 
 ### 🐛 Bug Fixes
 
-- Fixed issues with Typora integration
-- Fixed unresponsive sorting buttons on the album page in certain cases
-- Fixed S3 download failures on the cloud page
-- Fixed some UI text errors on the cloud page
-- Fixed the issue where the update page did not display download progress
+- Fixed an issue where compression options were not effective when both file compression and watermark settings were enabled
