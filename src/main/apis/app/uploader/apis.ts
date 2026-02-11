@@ -16,11 +16,16 @@ import { runScriptInStage } from '~/utils/runScript'
 const handleClipboardUploadingReturnCtx = async (img?: IUploadOption): Promise<IuploadReturnCtxResult> => {
   const useBuiltinClipboardConfig = picgo.getConfig<boolean | undefined>(configPaths.settings.useBuiltinClipboard)
   const useBuiltinClipboard = useBuiltinClipboardConfig === undefined ? true : !!useBuiltinClipboardConfig
-  const win = windowManager.getAvailableWindow()
-  if (useBuiltinClipboard) {
-    return await uploader.setWebContents(win?.webContents).uploadWithBuildInClipboardReturnCtx(img)
+  let webContents: WebContents | undefined
+  try {
+    webContents = windowManager.getAvailableWindow()?.webContents
+  } catch (_e) {
+    picgo.log.warn('No available window to show upload progress, fallback to upload without progress indication.')
   }
-  return await uploader.setWebContents(win?.webContents).uploadReturnCtx(img)
+  if (useBuiltinClipboard) {
+    return await uploader.setWebContents(webContents).uploadWithBuildInClipboardReturnCtx(img)
+  }
+  return await uploader.setWebContents(webContents).uploadReturnCtx(img)
 }
 
 export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
