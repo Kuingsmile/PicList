@@ -1,10 +1,7 @@
 {
   "name": "piclist",
   "version": "3.3.1",
-  "author": {
-    "name": "Kuingsmile",
-    "email": "pkukuing@gmail.com"
-  },
+  "private": true,
   "description": "A powerful cloud storage manage tool.",
   "homepage": "https://piclist.cn",
   "bugs": {
@@ -12,18 +9,23 @@
     "email": "pkukuing@gmail.com"
   },
   "license": "MIT",
+  "author": {
+    "name": "Kuingsmile",
+    "email": "pkukuing@gmail.com"
+  },
   "type": "module",
   "main": "./out/main/index.js",
-  "private": true,
   "scripts": {
+    "prebuild": "electron-vite build",
     "build": "electron-vite build && electron-builder",
-    "build:win": "electron-vite build && electron-builder --win",
-    "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
+    "build:mac": "electron-vite build && electron-builder --mac",
+    "build:win": "electron-vite build && electron-builder --win",
     "bump": "bump-version",
     "cz": "git-cz",
     "dev": "electron-vite dev",
     "dev:prod": "electron-vite --mode production",
+    "postinstall": "electron-builder install-app-deps",
     "link": "node ./scripts/link.js",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src/ scripts/ .",
     "lint:dpdm": "dpdm -T --tsconfig ./tsconfig.json --no-tree --no-warning --exit-code circular:1 src/main/index.ts",
@@ -31,14 +33,28 @@
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts,.tsx,.vue src/ scripts/ .",
     "lint:style": "stylelint \"src/**/*.(vue|less|scss|css)\" --fix",
     "lint:style:themes": "stylelint \"resources/theme/*.css\" --fix",
-    "postinstall": "electron-builder install-app-deps",
-    "postuninstall": "electron-builder install-app-deps",
-    "prebuild": "electron-vite build",
     "prepare": "node ./scripts/prepare.js --type=themes",
     "prepare:7za": "node ./scripts/prepare.js --type=7zip",
     "preview": "electron-vite preview",
     "test": "vitest",
+    "postuninstall": "electron-builder install-app-deps",
     "winget": "node ./scripts/auto-winget.js"
+  },
+  "commitlint": {
+    "extends": [
+      "./node_modules/node-bump-version/dist/commitlint-node/index.js"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-customizable"
+    },
+    "cz-customizable": {
+      "config": "./node_modules/node-bump-version/.cz-config.cjs"
+    }
+  },
+  "resolutions": {
+    "baseline-browser-mapping": "^2.9.13"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.965.0",
@@ -69,7 +85,7 @@
     "multer": "^2.0.2",
     "node-ssh-no-cpu-features": "^2.0.0",
     "nodejs-file-downloader": "^4.13.0",
-    "piclist": "^2.3.3",
+    "piclist": "^2.3.4",
     "qiniu": "7.14.0",
     "semver": "^7.7.3",
     "shell-path": "3.0.0",
@@ -159,21 +175,5 @@
     "vue-router": "^4.6.4",
     "vue-tsc": "^3.2.2",
     "vue3-lazyload": "^0.3.8"
-  },
-  "resolutions": {
-    "baseline-browser-mapping": "^2.9.13"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-customizable"
-    },
-    "cz-customizable": {
-      "config": "./node_modules/node-bump-version/.cz-config.cjs"
-    }
-  },
-  "commitlint": {
-    "extends": [
-      "./node_modules/node-bump-version/dist/commitlint-node/index.js"
-    ]
   }
 }
