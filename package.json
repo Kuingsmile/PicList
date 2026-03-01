@@ -144,7 +144,7 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-unicorn": "^62.0.0",
     "eslint-plugin-vue": "^10.6.2",
-    "globals": "^16.5.0",
+    "globals": "^17.0.0",
     "highlight.js": "^11.11.1",
     "husky": "^9.1.7",
     "js-yaml": "^4.1.1",
