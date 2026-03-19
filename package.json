@@ -132,7 +132,7 @@
     "codemirror": "^6.0.2",
     "dexie": "^3.2.4",
     "dotenv": "^17.2.3",
-    "dpdm": "^3.14.0",
+    "dpdm": "^4.0.1",
     "electron": "^39.2.7",
     "electron-builder": "^26.0.12",
     "electron-devtools-installer": "^4.0.0",
@@ -148,7 +148,7 @@
     "highlight.js": "^11.11.1",
     "husky": "^9.1.7",
     "js-yaml": "^4.1.1",
-    "lucide-vue-next": "^0.562.0",
+    "lucide-vue-next": "^0.577.0",
     "mitt": "^3.0.1",
     "node-bump-version": "^2.0.0",
     "pinia": "^3.0.4",
@@ -172,7 +172,7 @@
     "vitest": "^4.0.16",
     "vue-eslint-parser": "^10.2.0",
     "vue-i18n": "^11.2.8",
-    "vue-router": "^4.6.4",
+    "vue-router": "^5.0.3",
     "vue-tsc": "^3.2.2",
     "vue3-lazyload": "^0.3.8"
   }
