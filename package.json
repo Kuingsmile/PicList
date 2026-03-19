@@ -165,7 +165,7 @@
     "stylelint-order": "^7.0.1",
     "stylus": "^0.64.0",
     "tailwindcss": "^4.2.2",
-    "typescript": "5.8.2",
+    "typescript": "5.9.3",
     "typescript-eslint": "^8.52.0",
     "video.js": "^8.23.8",
     "vite": "^7.3.1",
