@@ -24,7 +24,7 @@ Currently, the supported image hosting platforms are:
 - Tencent Cloud COS
 - Qiniu Cloud Kodo
 - Upyun
-- SM.MS
+- S.EE
 - Imgur
 - GitHub
 - Webdav
@@ -49,7 +49,7 @@ PicList itself supports the following image hosting platforms:
 - Tencent Cloud COS
 - Upyun
 - GitHub
-- SM.MS
+- S.EE
 - Aliyun OSS
 - Imgur
 - Webdav

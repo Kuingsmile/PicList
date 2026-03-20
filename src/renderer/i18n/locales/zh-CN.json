@@ -466,9 +466,9 @@
           "webPathTips": "用于拼接访问网址"
         },
         "smms": {
-          "explain": "大陆地区请访问备用域名https://smms.app，不要短时大量请求",
-          "tokenDesc": "SM.MS Token, 可在 SM.MS 个人中心获取",
-          "tokenPlaceholder": "请输入 SM.MS Token"
+          "explain": "已迁移至https://s.ee，请使用新的API token",
+          "tokenDesc": "S.EE Token, 可在 S.EE 个人中心获取",
+          "tokenPlaceholder": "请输入 S.EE Token"
         },
         "specialDesc": "特殊配置",
         "specialPlaceholder": "请输入特殊配置",

@@ -14,7 +14,7 @@ import { isImage } from '~/utils/common'
 import { commonTaskStatus, IWindowList } from '~/utils/enum'
 
 class SmmsApi {
-  baseUrl = 'https://smms.app/api/v2'
+  baseUrl = 'https://s.ee/api/v1'
   token: string
   axiosInstance: AxiosInstance
   logger: ManageLogger
@@ -43,7 +43,7 @@ class SmmsApi {
       key: item.path,
       fileName: item.filename,
       fileSize: item.size,
-      formatedTime: new Date(item.created_at).toLocaleString(),
+      formatedTime: new Date(item.created_at * 1000).toLocaleString(),
       isDir: false,
       checked: false,
       match: false,
@@ -71,17 +71,14 @@ class SmmsApi {
       finished: false,
     }
     do {
-      res = await this.axiosInstance('/upload_history', {
+      res = await this.axiosInstance('/files', {
         method: 'GET',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
         params: {
           page: marker,
         },
       })
       if (res && res.status === 200 && res.data && res.data.success) {
-        if (res.data.Count === 0) {
+        if (res.data.data.length === 0) {
           result.success = true
           result.finished = true
           window?.webContents.send('refreshFileTransferList', result)
@@ -129,18 +126,15 @@ class SmmsApi {
       nextMarker: '',
       success: false,
     }
-    const res = await this.axiosInstance('/upload_history', {
+    const res = await this.axiosInstance('/files', {
       method: 'GET',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
       params: {
         page: currentPage,
       },
     })
     if (res?.status !== 200 || !res?.data?.success) return result
 
-    if (res.data.Count === 0) return { ...result, success: true }
+    if (res.data.data.length === 0) return { ...result, success: true }
 
     res.data.data.forEach((item: any) => {
       result.fullList.push(this.formatFile(item))
@@ -162,7 +156,7 @@ class SmmsApi {
    * }
    */
   async deleteBucketFile({ DeleteHash }: IStringKeyMap): Promise<boolean> {
-    const res = await this.axiosInstance(`/delete/${DeleteHash}`, {
+    const res = await this.axiosInstance(`/file/delete/${DeleteHash}`, {
       method: 'GET',
       params: {
         hash: DeleteHash,
@@ -203,7 +197,7 @@ class SmmsApi {
       })
       const headers = form.getHeaders()
       headers.Authorization = this.token
-      const url = `${this.baseUrl}/upload`
+      const url = `${this.baseUrl}/file/upload`
       gotUpload(instance, url, 'POST', form, headers, id, this.logger)
     }
     return true

@@ -466,9 +466,9 @@
           "webPathTips": "Used to assemble the public URL"
         },
         "smms": {
-          "explain": "For mainland China, please use the backup domain https://smms.app and avoid sending too many requests in a short time",
-          "tokenDesc": "SM.MS Token, available in your SM.MS profile",
-          "tokenPlaceholder": "Please enter SM.MS Token"
+          "explain": "Migrated to https://s.ee, please use the new API token",
+          "tokenDesc": "S.EE Token, available in your S.EE profile",
+          "tokenPlaceholder": "Please enter S.EE Token"
         },
         "specialDesc": "Special configuration",
         "specialPlaceholder": "Please enter special configuration",

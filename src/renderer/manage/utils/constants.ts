@@ -78,7 +78,7 @@ const isAutoCustomUrlTooltip = t('pages.manage.constant.isAutoCustomUrlTip')
 
 export const supportedPicBedList: IStringKeyMap = {
   smms: {
-    name: 'SM.MS',
+    name: 'S.EE',
     icon: 'smms',
     configOptions: {
       alias: {

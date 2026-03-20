@@ -145,7 +145,7 @@ PicList supports a wide range of storage providers.
 | **Aliyun OSS**              |      ✅       |        ✅         |
 | **Tencent COS**             |      ✅       |        ✅         |
 | **GitHub / Gitee**          |      ✅       |        ✅         |
-| **SM.MS / Imgur**           |      ✅       |        ✅         |
+| **S.EE / Imgur**            |      ✅       |        ✅         |
 | **WebDAV / SFTP**           |      ✅       |        ✅         |
 | **Local File System**       |      ✅       |        ✅         |
 | **Lsky Pro / Doge Cloud**   |      ✅       |        ✅         |

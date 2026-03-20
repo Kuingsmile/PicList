@@ -24,7 +24,7 @@ PicList 添加的所有新功能未影响 PicGo 的原有功能，因此你可�
 - 腾讯云 COS
 - 七牛云 Kodo
 - 又拍云
-- SM.MS
+- S.EE
 - Imgur
 - GitHub
 - WebDav
@@ -49,7 +49,7 @@ PicList本体支持了如下图床：
 - `腾讯云 COS`
 - `又拍云`
 - `GitHub`
-- `SM.MS`
+- `S.EE`
 - `阿里云 OSS`
 - `Imgur`
 - `Webdav`

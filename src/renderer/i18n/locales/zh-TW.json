@@ -466,9 +466,9 @@
           "webPathTips": "用於拼接對外存取網址"
         },
         "smms": {
-          "explain": "中國大陸地區請訪問備用網域 https://smms.app，請勿在短時間內大量請求",
-          "tokenDesc": "SM.MS Token，可在 SM.MS 個人中心取得",
-          "tokenPlaceholder": "請輸入 SM.MS Token"
+          "explain": "已遷移至 https://s.ee，請使用新的 API token",
+          "tokenDesc": "S.EE Token，可在 S.EE 個人中心取得",
+          "tokenPlaceholder": "請輸入 S.EE Token"
         },
         "specialDesc": "特殊設定",
         "specialPlaceholder": "請輸入特殊設定",
