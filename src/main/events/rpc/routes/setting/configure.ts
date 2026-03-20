@@ -30,7 +30,7 @@ export default [
         return true
       } catch (err: any) {
         logger.error(err)
-        throw new Error('Migrate failed')
+        throw new Error('Migrate failed', { cause: err })
       }
     },
     type: IRPCType.INVOKE,
@@ -77,7 +77,7 @@ export default [
         )
       } catch (err: any) {
         logger.error(err)
-        throw new Error('Migrate failed')
+        throw new Error('Migrate failed', { cause: err })
       }
     },
     type: IRPCType.INVOKE,

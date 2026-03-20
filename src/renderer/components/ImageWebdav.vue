@@ -47,7 +47,7 @@ const imageSource = computed(() => {
 const iconPath = computed(() => `./assets/icons/${getFileIconPath(props.item.fileName ?? '')}`)
 
 async function getWebdavHeader(key: string) {
-  let headers = {} as any
+  let headers: Record<string, any>
   if (props.config.authType === 'digest') {
     const authHeader = await getAuthHeader(
       'GET',

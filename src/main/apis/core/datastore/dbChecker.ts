@@ -30,7 +30,7 @@ function dbChecker() {
     if (!fs.existsSync(configFilePath)) {
       return
     }
-    let configFile: string = '{}'
+    let configFile: string
     const optionsTpl = {
       title: $t('TIPS_NOTICE'),
       body: '',

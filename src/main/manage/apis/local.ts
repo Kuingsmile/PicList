@@ -84,14 +84,13 @@ class LocalApi {
         ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
       }
     })
-    let res = {} as any
     const result = {
       fullList: [] as any,
       success: false,
       finished: false,
     }
     try {
-      res = fsWalk.walkSync(this.transBack(prefix), {
+      const res = fsWalk.walkSync(this.transBack(prefix), {
         followSymbolicLinks: true,
         fs,
         stats: true,

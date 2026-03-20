@@ -38,7 +38,7 @@ export default [
   {
     action: IRPCActionType.PICLIST_OPEN_FILE,
     handler: async (_: IIPCEvent, args: [fileName: string]) => {
-      let abFilePath = path.join(STORE_PATH, args[0])
+      let abFilePath: string
       switch (args[0]) {
         case 'piclist.log':
           abFilePath = appLogPath()

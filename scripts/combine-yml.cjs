@@ -52,24 +52,6 @@ function combineYmlFiles(ymlFiles, outputPath) {
   console.log(`Created ${outputPath} with ${combinedData?.files?.length || 0} file entries`)
 }
 
-function processSingleYmlFile(ymlFile, outputPath) {
-  if (!fs.existsSync(ymlFile)) {
-    console.log(`File not found: ${ymlFile}`)
-    return
-  }
-
-  const content = fs.readFileSync(ymlFile, 'utf8')
-  const data = yaml.load(content)
-
-  if (data && data.files) {
-    data.files = removeDuplicates(data.files)
-  }
-
-  const ymlContent = yaml.dump(data, { lineWidth: -1 })
-  fs.writeFileSync(outputPath, ymlContent, 'utf8')
-  console.log(`Processed ${outputPath} with ${data?.files?.length || 0} file entries`)
-}
-
 function findYmlInFolder(basePath, folderPattern, ymlFileName) {
   const folders = fs.existsSync(basePath)
     ? fs.readdirSync(basePath).filter(f => {

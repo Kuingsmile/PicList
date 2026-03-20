@@ -29,11 +29,9 @@ const handleClipboardUploadingReturnCtx = async (img?: IUploadOption): Promise<I
 }
 
 export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
-  let img: ImgInfo[] | false = false
-  let backImg: ImgInfo[] | false = false
   const res = await handleClipboardUploadingReturnCtx()
-  img = res.ctx?.output ? res.ctx.output : false
-  backImg = res.backupCtx?.output ? res.backupCtx.output : false
+  const img = res.ctx?.output ? res.ctx.output : false
+  const backImg = res.backupCtx?.output ? res.backupCtx.output : false
   const allConfig = picgo.getConfig<any>() || {}
   if (img !== false) {
     if (img.length > 0) {
@@ -97,11 +95,9 @@ export const uploadChoosedFiles = async (
 ): Promise<IStringKeyMap[]> => {
   const input = files.map(item => item.path)
   const rawInput = cloneDeep(input)
-  let imgs: ImgInfo[] | false = false
-  let backImgs: ImgInfo[] | false = false
   const res = await uploader.setWebContents(webContents).uploadReturnCtx(input)
-  imgs = res.ctx?.output ? res.ctx.output : false
-  backImgs = res.backupCtx?.output ? res.backupCtx.output : false
+  const imgs = res.ctx?.output ? res.ctx.output : false
+  const backImgs = res.backupCtx?.output ? res.backupCtx.output : false
   const result = []
   const allConfig = picgo.getConfig<any>() || {}
   if (imgs !== false) {

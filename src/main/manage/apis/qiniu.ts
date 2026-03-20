@@ -246,7 +246,7 @@ class QiniuApi {
         ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
       }
     })
-    let res = {} as any
+    let res: any
     const result = {
       fullList: [] as any,
       success: false,
@@ -308,7 +308,7 @@ class QiniuApi {
         ipcMain.removeAllListeners('cancelLoadingFileList')
       }
     })
-    let res = {} as any
+    let res: any
     const result = {
       fullList: [] as any,
       success: false,
@@ -384,14 +384,13 @@ class QiniuApi {
     const slicedPrefix = prefix.slice(1)
     const config = new qiniu.conf.Config()
     const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
-    let res = {} as any
     const result = {
       fullList: [] as any,
       isTruncated: false,
       nextMarker: '',
       success: false,
     }
-    res = await new Promise((resolve, reject) => {
+    const res = (await new Promise((resolve, reject) => {
       bucketManager.listPrefix(
         bucket,
         {
@@ -411,7 +410,7 @@ class QiniuApi {
           }
         },
       )
-    })
+    })) as any
     if (res?.respInfo?.statusCode === 200) {
       if (res.respBody?.commonPrefixes) {
         res.respBody.commonPrefixes.forEach((item: string) => {
@@ -467,7 +466,7 @@ class QiniuApi {
     const config = new qiniu.conf.Config()
     const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
     let marker = ''
-    let isTruncated = true
+    let isTruncated: boolean
     const allFileList = {
       Contents: [] as any[],
     }

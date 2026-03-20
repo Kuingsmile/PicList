@@ -41,7 +41,7 @@ StartupNotify=true
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    throw new Error(`Failed to ${enable ? 'enable' : 'disable'} auto-start: ${errorMessage}`)
+    throw new Error(`Failed to ${enable ? 'enable' : 'disable'} auto-start: ${errorMessage}`, { cause: error })
   }
 }
 
@@ -55,6 +55,6 @@ export const isAutoStartEnabled = async (): Promise<boolean> => {
     return fs.pathExists(desktopFile)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    throw new Error(`Failed to check auto-start status: ${errorMessage}`)
+    throw new Error(`Failed to check auto-start status: ${errorMessage}`, { cause: error })
   }
 }

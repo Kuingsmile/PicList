@@ -7,7 +7,7 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import pluginUnicorn from 'eslint-plugin-unicorn'
 import pluginVue from 'eslint-plugin-vue'
 import globals from 'globals'
-import jsoncParser from 'jsonc-eslint-parser'
+import * as jsoncParser from 'jsonc-eslint-parser'
 import tseslint from 'typescript-eslint'
 import vueParser from 'vue-eslint-parser'
 
@@ -153,7 +153,7 @@ export default defineConfig(
     },
   },
   {
-    files: ['*.config.js', '.stylelintrc.cjs', 'scripts/*.{js,mjs,cjs}'],
+    files: ['*.config.js', '.stylelintrc.cjs', 'scripts/*.{js,mjs,cjs}', 'tests/*.{js,mjs,cjs}'],
     languageOptions: {
       globals: {
         ...globals.node,

@@ -120,7 +120,7 @@ class TcyunApi {
       success: false,
       finished: false,
     }
-    let res = {} as COS.GetBucketResult
+    let res: COS.GetBucketResult
     do {
       res = await this.ctx.getBucket({
         Bucket: bucket,
@@ -169,7 +169,7 @@ class TcyunApi {
         ipcMain.removeAllListeners('cancelLoadingFileList')
       }
     })
-    let res = {} as COS.GetBucketResult
+    let res: COS.GetBucketResult
     const result = {
       fullList: [] as any,
       success: false,

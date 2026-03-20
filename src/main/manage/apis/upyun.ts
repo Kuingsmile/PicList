@@ -180,7 +180,7 @@ class UpyunApi {
         ipcMain.removeAllListeners('cancelLoadingFileList')
       }
     })
-    let res = {} as any
+    let res: any
     const result = {
       fullList: [] as any,
       success: false,
@@ -230,14 +230,13 @@ class UpyunApi {
     const { bucketName: bucket, prefix, marker, itemsPerPage } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `http://${bucket}.test.upcdn.net`
-    let res = {} as any
     const result = {
       fullList: [] as any,
       isTruncated: false,
       nextMarker: '',
       success: false,
     }
-    res = await this.cli.listDir(prefix, {
+    const res = await this.cli.listDir(prefix, {
       limit: itemsPerPage,
       iter: marker || '',
     })
@@ -339,9 +338,8 @@ class UpyunApi {
       }
     } while (isTruncated)
     if (allFileList.Contents.length > 0) {
-      let success = false
       for (const allFileListItem of allFileList.Contents) {
-        success = await this.cli.deleteFile(allFileListItem.key)
+        const success = await this.cli.deleteFile(allFileListItem.key)
         if (!success) {
           return false
         }

@@ -108,17 +108,16 @@ class WebdavplistApi {
         ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
       }
     })
-    let res = {} as any
     const result = {
       fullList: [] as any,
       success: false,
       finished: false,
     }
     try {
-      res = await this.ctx.getDirectoryContents(prefix, {
+      const res = (await this.ctx.getDirectoryContents(prefix, {
         deep: true,
         details: true,
-      })
+      })) as any
       if (this.isRequestSuccess(res.status)) {
         if (res.data?.length) {
           res.data.forEach((item: FileStat) => {
@@ -153,17 +152,16 @@ class WebdavplistApi {
         ipcMain.removeAllListeners('cancelLoadingFileList')
       }
     })
-    let res = {} as any
     const result = {
       fullList: [] as any,
       success: false,
       finished: false,
     }
     try {
-      res = await this.ctx.getDirectoryContents(prefix, {
+      const res = (await this.ctx.getDirectoryContents(prefix, {
         deep: false,
         details: true,
-      })
+      })) as any
       if (this.isRequestSuccess(res.status)) {
         if (res.data?.length) {
           res.data.forEach((item: FileStat) => {

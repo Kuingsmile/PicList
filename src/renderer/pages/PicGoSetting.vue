@@ -2007,16 +2007,16 @@ async function saveEditorContent() {
 }
 
 async function saveFile(file: string, content: string) {
-  let dataToSave = content
+  let formattedContent: string
   try {
-    dataToSave = JSON.stringify(JSON.parse(content), null, 2)
+    formattedContent = JSON.stringify(JSON.parse(content), null, 2)
   } catch (error) {
     console.error('Invalid JSON content:', error)
     message.error(t('pages.settings.advanced.invalidJson'))
     return
   }
   try {
-    window.electron.sendRPC(IRPCActionType.WRITE_FILE_CONTENT, file, dataToSave)
+    window.electron.sendRPC(IRPCActionType.WRITE_FILE_CONTENT, file, formattedContent)
     message.success(t('pages.settings.advanced.saveFileSuccess'))
     setTimeout(() => {
       window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)

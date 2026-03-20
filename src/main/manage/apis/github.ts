@@ -42,9 +42,8 @@ class GithubApi {
 
   formatFolder(item: any, slicedPrefix: string, branch: string, repo: string, cdnUrl: string | undefined) {
     const key = `${slicedPrefix ? `${slicedPrefix}/` : ''}${item.path}/`
-    let rawUrl = ''
     const placeholders = ['{username}', '{repo}', '{branch}', '{path}']
-    rawUrl = cdnUrl
+    let rawUrl = cdnUrl
       ? placeholders.some(item => cdnUrl.includes(item))
         ? placeholders.reduce((url, ph) => {
             const value =
@@ -78,10 +77,9 @@ class GithubApi {
   }
 
   formatFile(item: any, slicedPrefix: string, branch: string, repo: string, cdnUrl: string | undefined) {
-    let rawUrl = ''
     const placeholders = ['{username}', '{repo}', '{branch}', '{path}']
     const key = slicedPrefix === '' ? item.path : `${slicedPrefix}/${item.path}`
-    rawUrl = cdnUrl
+    let rawUrl = cdnUrl
       ? placeholders.some(item => cdnUrl.includes(item))
         ? placeholders.reduce((url, ph) => {
             const value =
@@ -194,7 +192,6 @@ class GithubApi {
         ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
       }
     })
-    let res = {} as any
     const result = {
       fullList: [] as any,
       success: false,
@@ -207,7 +204,7 @@ class GithubApi {
         return result
       }
       const currentPrefix = treeQueue[0]
-      res = (await got(
+      const res = (await got(
         `${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${treeQueue.shift()}`,
         getOptions('GET', this.commonHeaders, {}, 'json', undefined, undefined, this.proxy),
       )) as any
@@ -245,16 +242,15 @@ class GithubApi {
         ipcMain.removeAllListeners('cancelLoadingFileList')
       }
     })
-    let res = {} as any
     const result = {
       fullList: [] as any,
       success: false,
       finished: false,
     }
-    res = await got(
+    const res = (await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${slicedPrefix}`,
       getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy),
-    )
+    )) as any
     if (res && res.statusCode === 200) {
       res.body.tree.forEach((item: any) => {
         if (item.type === 'tree') {

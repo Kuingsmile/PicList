@@ -38,8 +38,8 @@ export async function dogecloudApi(
       throw new Error('API Error')
     }
     return res.data.data
-  } catch (_e: any) {
-    throw new Error('API Error')
+  } catch (e: any) {
+    throw new Error('API Error', { cause: e })
   }
 }
 

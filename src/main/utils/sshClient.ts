@@ -41,7 +41,7 @@ class SSHClient {
       this._isConnected = true
       return true
     } catch (err: any) {
-      throw new Error(err)
+      throw new Error(err, { cause: err })
     }
   }
 

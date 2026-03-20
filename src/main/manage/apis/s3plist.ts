@@ -322,7 +322,7 @@ class S3plistApi {
         ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
       }
     })
-    let res = {} as ListObjectsV2CommandOutput
+    let res: ListObjectsV2CommandOutput
     const result = {
       fullList: [] as any,
       success: false,
@@ -386,7 +386,7 @@ class S3plistApi {
         ipcMain.removeAllListeners('cancelLoadingFileList')
       }
     })
-    let res = {} as ListObjectsV2CommandOutput
+    let res: ListObjectsV2CommandOutput
     const result = {
       fullList: [] as any,
       success: false,

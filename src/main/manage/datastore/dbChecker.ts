@@ -19,7 +19,7 @@ function manageDbChecker() {
     if (!fs.existsSync(manageConfigFilePath)) {
       return
     }
-    let configFile: string = '{}'
+    let configFile: string
     const optionsTpl = {
       title: $t('TIPS_NOTICE'),
       body: '',

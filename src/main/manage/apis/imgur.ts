@@ -105,7 +105,7 @@ class ImgurApi {
         ipcMain.removeAllListeners('cancelLoadingFileList')
       }
     })
-    let res = {} as any
+    let res: any
     const result = {
       fullList: [] as any,
       success: false,

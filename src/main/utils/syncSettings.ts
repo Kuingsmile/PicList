@@ -72,7 +72,7 @@ const mergeGalleryDB = async (targetFile: string) => {
     await fs.copyFile(targetFilePath, path.join(STORE_PATH, targetFile))
   } catch (err: any) {
     logger.error('merge gallery db failed:', String(err))
-    throw new Error('merge gallery db failed')
+    throw new Error('merge gallery db failed', { cause: err })
   }
 }
 
@@ -218,7 +218,7 @@ async function uploadFile(fileName: string[]): Promise<number> {
     return 0
   }
   const uploadFunc = async (file: string): Promise<number> => {
-    let result = false
+    let result: boolean
     try {
       result = await updateLocalToRemote(syncConfig, file)
     } catch (_e: any) {
@@ -559,7 +559,7 @@ async function checkCloudFileExist(syncConfig: ISyncConfig, fileName: string) {
     }
   } catch (error: any) {
     logger.error(error)
-    throw new Error('check file exist failed')
+    throw new Error('check file exist failed', { cause: error })
   }
 }
 

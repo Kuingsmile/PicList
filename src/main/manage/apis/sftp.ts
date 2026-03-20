@@ -160,7 +160,6 @@ class SftpApi {
         ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
       }
     })
-    let res = {} as any
     const result = {
       fullList: [] as any,
       success: false,
@@ -168,7 +167,7 @@ class SftpApi {
     }
     try {
       await this.connectClient()
-      res = await this.ctx.execCommand(`cd "${prefix}" && ls -la --time-style=long-iso`)
+      const res = await this.ctx.execCommand(`cd "${prefix}" && ls -la --time-style=long-iso`)
       this.ctx.close()
       if (this.isRequestSuccess(res.code)) {
         const formatedLSRes = this.formatLSResult(res.stdout, prefix)
@@ -231,7 +230,6 @@ class SftpApi {
         ipcMain.removeAllListeners('cancelLoadingFileList')
       }
     })
-    let res = {} as any
     const result = {
       fullList: [] as any,
       success: false,
@@ -239,7 +237,7 @@ class SftpApi {
     }
     try {
       await this.connectClient()
-      res = await this.ctx.execCommand(`cd "${prefix}" && ls -la --time-style=long-iso`)
+      const res = await this.ctx.execCommand(`cd "${prefix}" && ls -la --time-style=long-iso`)
       this.ctx.close()
       if (this.isRequestSuccess(res.code)) {
         const formatedLSRes = this.formatLSResult(res.stdout, prefix)

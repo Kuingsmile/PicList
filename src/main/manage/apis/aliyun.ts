@@ -224,7 +224,7 @@ class AliyunApi {
         ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
       }
     })
-    let res = {} as any
+    let res: any
     const result = {
       fullList: [] as any,
       success: false,
@@ -279,7 +279,7 @@ class AliyunApi {
         ipcMain.removeAllListeners('cancelLoadingFileList')
       }
     })
-    let res = {} as any
+    let res: any
     const result = {
       fullList: [] as any,
       success: false,

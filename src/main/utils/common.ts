@@ -350,8 +350,8 @@ export const extractData = async (zipPath: string): Promise<Record<string, any>>
     const buffer = await fs.readFile(zipPath)
     const str = strFromU8(gunzipSync(buffer))
     return JSON.parse(str)
-  } catch (_err) {
-    throw new Error('Extract failed')
+  } catch (err) {
+    throw new Error('Extract failed', { cause: err })
   }
 }
 
@@ -360,8 +360,8 @@ export const zipData = async (data: Record<string, any>, zipPath: string): Promi
     const buffer = Buffer.from(JSON.stringify(data))
     const compressed = gzipSync(buffer)
     await fs.writeFile(zipPath, Buffer.from(compressed))
-  } catch (_err) {
-    throw new Error('Zip failed')
+  } catch (err) {
+    throw new Error('Zip failed', { cause: err })
   }
 }
 

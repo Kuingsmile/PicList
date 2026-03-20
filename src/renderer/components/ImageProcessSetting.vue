@@ -1252,7 +1252,7 @@ async function initData() {
   globalAutoRename.value = allConfig.settings?.autoRename ?? false
   globalManualRename.value = allConfig.settings?.rename ?? false
   if (compressInFile) {
-    let cleanedObj = {}
+    let cleanedObj: Record<string, any>
     try {
       if (typeof compressInFile.formatConvertObj === 'object') {
         cleanedObj = cleanFormatConvertObj(compressInFile.formatConvertObj)
@@ -1343,7 +1343,7 @@ async function initData() {
         mergedWatermark[key as keyof IBuildInWaterMarkOptions] = mergedWatermark[mapFieldName][currentPicbedName]
       }
     })
-    let cleanedFormatConvertObj = {}
+    let cleanedFormatConvertObj: Record<string, any>
     try {
       const parsedObj = JSON.parse(singleConfigInFile.compress?.formatConvertObj as any)
       cleanedFormatConvertObj = cleanFormatConvertObj(parsedObj)
@@ -1388,9 +1388,8 @@ function safeSetMapValue(form: any, fieldName: string, picbedType: string, value
   const mapFieldName = `${fieldName}Map`
   if (fieldName === 'formatConvertObj') {
     value = value || '{}'
-    let parsedObj = {}
     try {
-      parsedObj = JSON.parse(value)
+      const parsedObj = JSON.parse(value)
       const cleanedObj = cleanFormatConvertObj(parsedObj)
       if (JSON.stringify(cleanedObj) !== JSON.stringify(parsedObj)) {
         value = JSON.stringify(cleanedObj)
@@ -1692,9 +1691,8 @@ watch(activeTab, () => {
 })
 
 watch(singleFormatConvertObj, () => {
-  let parsedObj = {}
   try {
-    parsedObj = JSON.parse(singleFormatConvertObj.value)
+    const parsedObj = JSON.parse(singleFormatConvertObj.value)
     const cleanedObj = cleanFormatConvertObj(parsedObj)
     singleConfigSettings.value.compress!.formatConvertObj = cleanedObj
     if (JSON.stringify(cleanedObj) !== JSON.stringify(parsedObj)) {
@@ -1706,9 +1704,8 @@ watch(singleFormatConvertObj, () => {
 })
 
 watch(formatConvertObjStr, () => {
-  let parsedObj = {}
   try {
-    parsedObj = JSON.parse(formatConvertObjStr.value)
+    const parsedObj = JSON.parse(formatConvertObjStr.value)
     const cleanedObj = cleanFormatConvertObj(parsedObj)
     compressForm.value.formatConvertObj = cleanedObj
     if (JSON.stringify(cleanedObj) !== JSON.stringify(parsedObj)) {

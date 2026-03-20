@@ -11,19 +11,18 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    "baseUrl": ".",
     "types": ["node"],
     "typeRoots": ["./node_modules/@types", "./src/universal/types/"],
     "paths": {
-      "@/*": ["src/renderer/*"],
-      "~/*": ["src/main/*"],
+      "@/*": ["./src/renderer/*"],
+      "~/*": ["./src/main/*"],
       "root/*": ["./*"],
-      "#/*": ["src/universal/*"],
-      "apis/*": ["src/main/apis/*"],
-      "@core/*": ["src/main/apis/core/*"]
+      "#/*": ["./src/universal/*"],
+      "apis/*": ["./src/main/apis/*"],
+      "@core/*": ["./src/main/apis/core/*"]
     },
     "lib": ["ESNext", "dom", "dom.iterable", "ScriptHost"]
   },
-  "include": ["src/**/*.ts", "src/**/*.vue", "src/**/*.d.ts", "tests/**/*.ts", "electron.vite.config.*"],
-  "exclude": ["node_modules", "dist", "out"]
+  "include": ["./src/**/*.ts", "./src/**/*.vue", "./src/**/*.d.ts", "./tests/**/*.ts", "./electron.vite.config.*"],
+  "exclude": ["./node_modules", "./dist", "./out"]
 }
