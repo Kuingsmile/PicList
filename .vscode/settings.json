@@ -49,7 +49,7 @@
   },
   "eslint.validate": ["javascript", "javascriptreact", "vue", "typescript", "typescriptreact", "json", "jsonc"],
   "githubPullRequests.ignoredPullRequestBranches": ["dev"],
-  "i18n-ally.localesPaths": ["src\\renderer\\i18n\\locales", "resources\\i18n"],
+  "i18n-ally.localesPaths": ["src\\renderer\\i18n\\locales", "resources\\i18n", "src\\main\\i18n\\locales"],
   "i18n-ally.keystyle": "nested",
   "i18n-ally.sortKeys": true,
   "i18n-ally.namespace": true,
@@ -58,7 +58,7 @@
   "i18n-ally.displayLanguage": "zh-CN",
   "i18n-ally.enabledFrameworks": ["vue"],
   "i18n-ally.editor.preferEditor": true,
-  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "js/ts.tsdk.path": "node_modules\\typescript\\lib",
   "css.validate": false,
   "scss.validate": false,
   "less.validate": false

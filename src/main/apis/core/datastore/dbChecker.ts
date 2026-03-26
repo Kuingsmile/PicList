@@ -3,14 +3,14 @@ import dayjs from 'dayjs'
 import fs from 'fs-extra'
 import writeFile from 'write-file-atomic'
 
-import { T as $t } from '~/i18n'
+import { t } from '~/i18n'
 import { notificationList } from '~/utils/notification'
 
 const configFileBackupPath = appConfigBackupPath()
 
 const errorMsg = {
-  broken: $t('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_DEFAULT'),
-  brokenButBackup: $t('TIPS_PICGO_CONFIG_FILE_BROKEN_WITH_BACKUP'),
+  broken: t('main.notification.configFileBrokenDefaultTips'),
+  brokenButBackup: t('main.notification.configFileBrokenBackupTips'),
 }
 
 function dbChecker() {
@@ -32,7 +32,7 @@ function dbChecker() {
     }
     let configFile: string
     const optionsTpl = {
-      title: $t('TIPS_NOTICE'),
+      title: t('main.notification.notice'),
       body: '',
     }
     // config save bak
@@ -49,8 +49,8 @@ function dbChecker() {
           JSON.parse(configFile)
           writeFile.sync(configFilePath, configFile, { encoding: 'utf-8' })
           const stats = fs.statSync(configFileBackupPath)
-          optionsTpl.body = `${errorMsg.brokenButBackup}\n${$t('TIPS_PICGO_BACKUP_FILE_VERSION', {
-            v: dayjs(stats.mtime).format('YYYY-MM-DD HH:mm:ss'),
+          optionsTpl.body = `${errorMsg.brokenButBackup}\n${t('main.notification.backupConfigFileVersion', {
+            version: dayjs(stats.mtime).format('YYYY-MM-DD HH:mm:ss'),
           })}`
           notificationList.push(optionsTpl)
           return

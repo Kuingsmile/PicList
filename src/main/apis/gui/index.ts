@@ -9,7 +9,7 @@ import fs from 'fs-extra'
 import { cloneDeep } from 'lodash-es'
 
 import { SHOW_INPUT_BOX } from '~/events/constant'
-import { T as $t } from '~/i18n'
+import { t } from '~/i18n'
 import { handleCopyUrl } from '~/utils/common'
 import { IPasteStyle } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
@@ -96,7 +96,7 @@ class GuiApi implements IGuiApi {
             : !!allConfig.settings?.uploadResultNotification
         if (isShowResultNotification) {
           const notification = new Notification({
-            title: $t('UPLOAD_SUCCEED'),
+            title: t('main.notification.uploadSuccess'),
             body: shortUrl || (imgs[i].imgUrl! as string),
             // icon: imgs[i].imgUrl
           })
@@ -179,8 +179,8 @@ class GuiApi implements IGuiApi {
                 const guiApi = GuiApi.getInstance()
                 guiApi
                   .showMessageBox({
-                    title: $t('TIPS_WARNING'),
-                    message: $t('TIPS_PLUGIN_REMOVE_GALLERY_ITEM'),
+                    title: t('main.notification.warning'),
+                    message: t('main.notification.pluginRemoveGalleryItem'),
                     type: 'info',
                     buttons: ['Yes', 'No'],
                   })
@@ -202,8 +202,8 @@ class GuiApi implements IGuiApi {
                 const guiApi = GuiApi.getInstance()
                 guiApi
                   .showMessageBox({
-                    title: $t('TIPS_WARNING'),
-                    message: $t('TIPS_PLUGIN_REMOVE_GALLERY_ITEM'),
+                    title: t('main.notification.warning'),
+                    message: t('main.notification.pluginRemoveGalleryItem'),
                     type: 'info',
                     buttons: ['Yes', 'No'],
                   })

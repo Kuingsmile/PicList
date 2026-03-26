@@ -6,7 +6,7 @@ import { app, nativeTheme, shell } from 'electron'
 import fs from 'fs-extra'
 
 import { applyTheme, fetchThemes, importThemes, readTheme, resolveThemes } from '~/apis/app/theme'
-import { i18nManager } from '~/i18n'
+import { initializeI18n } from '~/i18n'
 import { configPaths } from '~/utils/configPaths'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
 
@@ -33,9 +33,8 @@ export default [
   {
     action: IRPCActionType.SET_CURRENT_LANGUAGE,
     handler: async (_: IIPCEvent, args: [language: string]) => {
-      i18nManager.setCurrentLanguage(args[0])
-      const { lang } = i18nManager.getCurrentLocales()
-      picgo.i18n.setLanguage(lang)
+      initializeI18n(args[0])
+      picgo.i18n.setLanguage(args[0])
     },
   },
   {

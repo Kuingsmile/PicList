@@ -10,7 +10,7 @@ import fs from 'fs-extra'
 import { cloneDeep } from 'lodash-es'
 import { v4 as uuid } from 'uuid'
 
-import { T as $t } from '~/i18n/index'
+import { t } from '~/i18n/index'
 import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 import { IPasteStyle, IWindowList } from '~/utils/enum'
@@ -566,8 +566,8 @@ class UploadTaskQueueManager {
 
       if (isShowResultNotification) {
         const notification = new Notification({
-          title: $t('UPLOAD_TASK_COMPLETED'),
-          body: $t('UPLOAD_TASK_COMPLETED_BODY', { completed: stats.completed, failed: stats.failed }),
+          title: t('main.notification.uploadTaskComplete'),
+          body: t('main.notification.taskSuccessMsg', { completed: stats.completed, failed: stats.failed }),
         })
         notification.show()
       }

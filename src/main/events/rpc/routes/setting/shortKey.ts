@@ -3,13 +3,13 @@ import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import { Notification } from 'electron'
 
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '~/events/constant'
-import { T as $t } from '~/i18n'
+import { t } from '~/i18n'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
 
 const notificationFunc = (result: boolean) => {
   const notification = new Notification({
-    title: $t(`OPERATION_${result ? 'SUCCEED' : 'FAILED'}`),
-    body: $t(`TIPS_SHORTCUT_MODIFIED_${result ? 'SUCCEED' : 'CONFLICT'}`),
+    title: result ? t('main.strings.operationSuccess') : t('main.strings.operationFailed'),
+    body: result ? t('main.strings.shortcutModifiedSuccess') : t('main.strings.shortcutModifiedConflict'),
   })
   notification.show()
 }

@@ -6,7 +6,7 @@ import type { IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 
 import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
-import { T as $t } from '~/i18n'
+import { t } from '~/i18n'
 import { IToolboxItemCheckStatus, IToolboxItemType } from '~/utils/enum'
 
 export const checkFileMap: IToolboxCheckerMap<string> = {
@@ -21,7 +21,7 @@ export const checkFileMap: IToolboxCheckerMap<string> = {
         await fs.readJSON(configFilePath)
         sendToolboxRes(event, {
           status: IToolboxItemCheckStatus.SUCCESS,
-          msg: $t('TOOLBOX_CHECK_CONFIG_FILE_PATH_TIPS', {
+          msg: t('main.toolbox.checkConfigFilePathTips', {
             path: configFilePath,
           }),
           value: configFilePath,
@@ -30,7 +30,7 @@ export const checkFileMap: IToolboxCheckerMap<string> = {
     } catch (_e) {
       sendToolboxRes(event, {
         status: IToolboxItemCheckStatus.ERROR,
-        msg: $t('TOOLBOX_CHECK_CONFIG_FILE_BROKEN_TIPS'),
+        msg: t('main.toolbox.configFileBrokenTips'),
         value: path.dirname(configFilePath),
       })
     }
@@ -44,7 +44,7 @@ export const checkFileMap: IToolboxCheckerMap<string> = {
     if (galleryDB.errorList.length === 0) {
       sendToolboxRes(event, {
         status: IToolboxItemCheckStatus.SUCCESS,
-        msg: $t('TOOLBOX_CHECK_GALLERY_FILE_PATH_TIPS', {
+        msg: t('main.toolbox.checkGalleryFilePathTips', {
           path: DB_PATH,
         }),
         value: path.dirname(DB_PATH),
@@ -52,7 +52,7 @@ export const checkFileMap: IToolboxCheckerMap<string> = {
     } else {
       sendToolboxRes(event, {
         status: IToolboxItemCheckStatus.ERROR,
-        msg: $t('TOOLBOX_CHECK_GALLERY_FILE_BROKEN_TIPS'),
+        msg: t('main.toolbox.galleryFileBrokenTips'),
         value: path.dirname(DB_PATH),
       })
     }

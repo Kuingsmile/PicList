@@ -4,9 +4,6 @@ import { fileURLToPath } from 'node:url'
 
 import { appConfigPath, themesDir } from '@core/datastore/dirs'
 import fs from 'fs-extra'
-import yaml from 'yaml'
-
-import { i18nManager } from '~/i18n'
 
 const configPath = appConfigPath()
 const CONFIG_DIR = path.dirname(configPath)
@@ -18,7 +15,6 @@ function beforeOpen() {
   }
   resolveClipboardImageGenerator()
   resolveCss()
-  resolveOtherI18nFiles()
 }
 
 function copyFileOutsideOfElectronAsar(sourceInAsarArchive: string, destOutsideAsarArchive: string) {
@@ -111,34 +107,6 @@ function resolveCss() {
   } catch (e) {
     console.error('Failed to resolve CSS:', e)
   }
-}
-
-/**
- * 初始化其他语言文件
- */
-function resolveOtherI18nFiles() {
-  const i18nFolder = path.join(CONFIG_DIR, 'i18n')
-  if (!fs.pathExistsSync(i18nFolder)) {
-    fs.mkdirSync(i18nFolder)
-  }
-  i18nManager.setOutterI18nFolder(i18nFolder)
-  const i18nFiles = fs.readdirSync(path.join(CONFIG_DIR, 'i18n'), {
-    withFileTypes: true,
-  })
-  i18nFiles.forEach(item => {
-    if (item.isFile() && item.name?.endsWith('.yml')) {
-      const i18nFilePath = path.join(i18nFolder, item.name)
-      const i18nFile = fs.readFileSync(i18nFilePath, 'utf8')
-      try {
-        const i18nFileObj = yaml.parseDocument(i18nFile).toJSON() as unknown as ILocales
-        if (i18nFileObj?.LANG_DISPLAY_LABEL) {
-          i18nManager.addI18nFile(item.name.replace('.yml', ''), i18nFileObj.LANG_DISPLAY_LABEL)
-        }
-      } catch (e) {
-        console.error(e)
-      }
-    }
-  })
 }
 
 export default beforeOpen

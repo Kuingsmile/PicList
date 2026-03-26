@@ -6,7 +6,7 @@ import { Notification, WebContents } from 'electron'
 import fs from 'fs-extra'
 import { cloneDeep } from 'lodash-es'
 
-import { T as $t } from '~/i18n/index'
+import { t } from '~/i18n'
 import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 import { IPasteStyle, IWindowList } from '~/utils/enum'
@@ -45,7 +45,7 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
           : !!allConfig.settings?.uploadResultNotification
       if (isShowResultNotification) {
         const notification = new Notification({
-          title: $t('UPLOAD_SUCCEED'),
+          title: t('main.notification.uploadSuccess'),
           body: shortUrl || img[0].imgUrl!,
           // icon: img[0].imgUrl
         })
@@ -72,8 +72,8 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
       }
     } else {
       const notification = new Notification({
-        title: $t('UPLOAD_FAILED'),
-        body: $t('TIPS_UPLOAD_NOT_PICTURES'),
+        title: t('main.notification.uploadFailed'),
+        body: t('main.notification.uploadNotPicturesTips'),
       })
       notification.show()
       return {
@@ -125,7 +125,7 @@ export const uploadChoosedFiles = async (
       if (isShowResultNotification) {
         if (imgLength <= 3) {
           const notification = new Notification({
-            title: $t('UPLOAD_SUCCEED'),
+            title: t('main.notification.uploadSuccess'),
             body: shortUrl || imgs[i].imgUrl!,
             // icon: files[i].path
           })
@@ -134,7 +134,7 @@ export const uploadChoosedFiles = async (
           }, i * 100)
         } else if (i === imgLength - 1) {
           const notification = new Notification({
-            title: $t('MULTI_UPLOAD_SUCCEED', { n: imgLength }),
+            title: t('main.notification.multipleUploadSuccess', { num: imgLength }),
             body: '',
           })
           setTimeout(() => {

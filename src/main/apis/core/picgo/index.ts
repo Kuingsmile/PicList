@@ -3,7 +3,7 @@ import { appConfigPath } from '@core/datastore/dirs'
 import { PicGo } from 'piclist'
 import pkg from 'root/package.json'
 
-import { T as $t } from '~/i18n'
+import { t } from '~/i18n'
 import { configPaths } from '~/utils/configPaths'
 const CONFIG_PATH = appConfigPath()
 
@@ -24,7 +24,7 @@ if (!shortKeySetting) {
       enable: true,
       key: 'CommandOrControl+Alt+P',
       name: 'upload',
-      label: $t('QUICK_UPLOAD'),
+      label: t('main.strings.quickUpload'),
     },
   })
 }

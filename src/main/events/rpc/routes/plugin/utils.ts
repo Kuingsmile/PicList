@@ -8,7 +8,7 @@ import { dialog, shell } from 'electron'
 import fs from 'fs-extra'
 import { IGuiMenuItem, PicGo as PicGoCore } from 'piclist'
 
-import { T as $t } from '~/i18n'
+import { t } from '~/i18n'
 import { handleStreamlinePluginName, showNotification, simpleClone } from '~/utils/common'
 import { ICOREBuildInEvent, IPicGoHelperType, IWindowList } from '~/utils/enum'
 
@@ -109,8 +109,8 @@ const handleNPMError = (): IDispose => {
     if (msg === 'NPM is not installed') {
       dialog
         .showMessageBox({
-          title: $t('TIPS_ERROR'),
-          message: $t('TIPS_INSTALL_NODE_AND_RELOAD_PICGO'),
+          title: t('main.notification.error'),
+          message: t('main.notification.InstallNodeAndRestart'),
           buttons: ['Yes'],
         })
         .then(res => {
@@ -132,7 +132,7 @@ export const handlePluginUpdate = async (fullName: string | string[]) => {
     window?.webContents?.send('updateSuccess', res.body[0])
   } else {
     showNotification({
-      title: $t('PLUGIN_UPDATE_FAILED'),
+      title: t('main.notification.updatePluginFailed'),
       body: res.body as string,
     })
   }
@@ -149,7 +149,7 @@ export const handlePluginUninstall = async (fullName: string) => {
     shortKeyHandler.unregisterPluginShortKey(res.body[0])
   } else {
     showNotification({
-      title: $t('PLUGIN_UNINSTALL_FAILED'),
+      title: t('main.notification.uninstallPluginFailed'),
       body: res.body as string,
     })
   }
@@ -166,7 +166,7 @@ export const pluginGetListFunc = async (event: IIPCEvent) => {
   } catch (e: any) {
     event.sender.send('pluginList', [])
     showNotification({
-      title: $t('TIPS_GET_PLUGIN_LIST_FAILED'),
+      title: t('main.notification.getPluginListFailed'),
       body: e.message,
     })
     picgo.log.error(e)
@@ -186,7 +186,7 @@ export const pluginInstallFunc = async (event: IIPCEvent, args: [fullName: strin
     await shortKeyHandler.registerPluginShortKey(res.body[0])
   } else {
     showNotification({
-      title: $t('PLUGIN_INSTALL_FAILED'),
+      title: t('main.notification.installPluginFailed'),
       body: res.body as string,
     })
   }
@@ -210,17 +210,17 @@ export const pluginImportLocalFunc = async (event: IIPCEvent) => {
       } catch (e: any) {
         event.sender.send('pluginList', [])
         showNotification({
-          title: $t('TIPS_GET_PLUGIN_LIST_FAILED'),
+          title: t('main.notification.getPluginListFailed'),
           body: e.message,
         })
       }
       showNotification({
-        title: $t('PLUGIN_IMPORT_SUCCEED'),
+        title: t('main.notification.importPluginSuccess'),
         body: '',
       })
     } else {
       showNotification({
-        title: $t('PLUGIN_IMPORT_FAILED'),
+        title: t('main.notification.importPluginFailed'),
         body: res.body as string,
       })
     }

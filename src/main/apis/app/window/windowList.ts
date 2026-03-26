@@ -7,7 +7,6 @@ import picgo from '@core/picgo'
 import { app, BrowserWindow, Rectangle } from 'electron'
 
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '~/events/constant'
-import { T as $t } from '~/i18n'
 import { configPaths } from '~/utils/configPaths'
 import { IWindowList } from '~/utils/enum'
 
@@ -150,7 +149,7 @@ const toolboxWindowOptions = {
   center: true,
   fullscreenable: false,
   resizable: false,
-  title: `PicList ${$t('TOOLBOX')}`,
+  title: 'PicList TOOLBOX',
   backgroundColor: '#ebeef5',
   icon: logo,
   webPreferences: {

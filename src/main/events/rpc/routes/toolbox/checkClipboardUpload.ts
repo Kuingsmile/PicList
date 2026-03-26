@@ -4,7 +4,7 @@ import { appConfigPath, defaultDir } from '@core/datastore/dirs'
 import fs from 'fs-extra'
 
 import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
-import { T as $t } from '~/i18n'
+import { t } from '~/i18n'
 import { IToolboxItemCheckStatus, IToolboxItemType } from '~/utils/enum'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 
@@ -24,7 +24,7 @@ export const checkClipboardUploadMap: IToolboxCheckerMap<string> = {
       if (fs.existsSync(clipboardImagePath)) {
         sendToolboxRes(event, {
           status: IToolboxItemCheckStatus.SUCCESS,
-          msg: $t('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_TIPS', {
+          msg: t('main.toolbox.checkClipboardFilePathTips', {
             path: clipboardImagePath,
           }),
           value: clipboardImagePath,
@@ -32,7 +32,7 @@ export const checkClipboardUploadMap: IToolboxCheckerMap<string> = {
       } else {
         sendToolboxRes(event, {
           status: IToolboxItemCheckStatus.ERROR,
-          msg: $t('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_NOT_EXIST_TIPS', {
+          msg: t('main.toolbox.clipboardFilePathNotExistTips', {
             path: clipboardImagePath,
           }),
           value: path.dirname(clipboardImagePath),
@@ -41,7 +41,7 @@ export const checkClipboardUploadMap: IToolboxCheckerMap<string> = {
     } else {
       sendToolboxRes(event, {
         status: IToolboxItemCheckStatus.ERROR,
-        msg: $t('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_NOT_EXIST_TIPS', {
+        msg: t('main.toolbox.clipboardFilePathNotExistTips', {
           path: defaultClipboardImagePath,
         }),
         value: path.dirname(defaultClipboardImagePath),
@@ -65,7 +65,7 @@ export const fixClipboardUploadMap: IToolboxFixMap<string> = {
       return {
         type: IToolboxItemType.HAS_PROBLEM_WITH_CLIPBOARD_PIC_UPLOAD,
         status: IToolboxItemCheckStatus.ERROR,
-        msg: $t('TOOLBOX_CHECK_CLIPBOARD_FILE_PATH_ERROR_TIPS', {
+        msg: t('main.toolbox.createClipboardFilePathManuallyTips', {
           path: clipboardImagePath,
         }),
         value: path.dirname(clipboardImagePath),

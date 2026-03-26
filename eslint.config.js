@@ -126,7 +126,7 @@ export default defineConfig(
     },
   },
   {
-    files: ['src/renderer/i18n/**/*.json'],
+    files: ['src/renderer/i18n/**/*.json', 'src/main/i18n/locales/**/*.json'],
     rules: {
       'jsonc/sort-keys': [
         'error',

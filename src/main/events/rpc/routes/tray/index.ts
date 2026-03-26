@@ -5,7 +5,7 @@ import windowManager from 'apis/app/window/windowManager'
 import { Notification } from 'electron'
 
 import { RPCRouter } from '~/events/rpc/router'
-import { T as $t } from '~/i18n'
+import { t } from '~/i18n'
 import { generateShortUrl, handleCopyUrl, setTrayToolTip } from '~/utils/common'
 import { IPasteStyle, IRPCActionType, IRPCType, IWindowList } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
@@ -46,7 +46,7 @@ const trayRoutes = [
             : !!allConfig.settings?.uploadResultNotification
         if (isShowResultNotification) {
           const notification = new Notification({
-            title: $t('UPLOAD_SUCCEED'),
+            title: t('main.notification.uploadSuccess'),
             body: shortUrl || img[0].imgUrl!,
             // icon: file[0]
             // icon: img[0].imgUrl

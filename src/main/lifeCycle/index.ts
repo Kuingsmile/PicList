@@ -19,7 +19,7 @@ import fs from 'fs-extra'
 import busEventList from '~/events/busEventList'
 import { rpcServer } from '~/events/rpc'
 import { startFileServer, stopFileServer } from '~/fileServer'
-import { i18nManager } from '~/i18n'
+import { initializeI18n } from '~/i18n'
 import { setupAutoUpdater } from '~/lifeCycle/autoUpdater'
 import fixPath from '~/lifeCycle/fixPath'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
@@ -123,12 +123,14 @@ class LifeCycle {
       const locale = app.getLocale() || 'zh-CN'
       if (allConfig.settings?.language === undefined) {
         if (locale.startsWith('zh')) {
-          i18nManager.setCurrentLanguage(II18nLanguage.ZH_CN)
+          initializeI18n(II18nLanguage.ZH_CN)
           picgo.saveConfig({ [configPaths.settings.language]: 'zh-CN' })
         } else {
-          i18nManager.setCurrentLanguage(II18nLanguage.EN)
+          initializeI18n(II18nLanguage.EN)
           picgo.saveConfig({ [configPaths.settings.language]: 'en' })
         }
+      } else {
+        initializeI18n(allConfig.settings.language)
       }
       const isHideDock = allConfig.settings?.isHideDock || false
 

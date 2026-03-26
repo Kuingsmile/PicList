@@ -63,9 +63,5 @@ declare global {
         from: typeof Buffer.from
       }
     }
-    i18n: {
-      setLocales: (lang: string, locales: ILocales) => void
-      translate: (key: ILocalesKey, args?: IStringKeyMap) => string
-    }
   }
 }

@@ -11,7 +11,7 @@ import type { IPicGo } from 'piclist'
 import writeFile from 'write-file-atomic'
 
 import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '~/events/constant'
-import { T as $t } from '~/i18n'
+import { t } from '~/i18n'
 import { getClipboardFilePath, getUploaderType, showNotification } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 import { ICOREBuildInEvent, IWindowList } from '~/utils/enum'
@@ -50,8 +50,8 @@ class Uploader {
     picgo.on(ICOREBuildInEvent.BEFORE_TRANSFORM, () => {
       if (picgo.getConfig<boolean | undefined>(configPaths.settings.uploadNotification)) {
         const notification = new Notification({
-          title: $t('UPLOAD_PROGRESS'),
-          body: $t('UPLOADING'),
+          title: t('main.notification.uploadProgress'),
+          body: t('main.notification.uploading'),
         })
         notification.show()
       }
@@ -158,7 +158,7 @@ class Uploader {
       logger.error(e)
       setTimeout(() => {
         showNotification({
-          title: $t('UPLOAD_FAILED'),
+          title: t('main.notification.uploadFailed'),
           body: util.format(e.stack),
           clickToCopy: true,
         })

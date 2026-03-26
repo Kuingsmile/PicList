@@ -5,7 +5,7 @@ import { IConfig } from 'piclist'
 import tunnel from 'tunnel'
 
 import { sendToolboxResWithType } from '~/events/rpc/routes/toolbox/utils'
-import { T as $t } from '~/i18n'
+import { t } from '~/i18n'
 import { IToolboxItemCheckStatus, IToolboxItemType } from '~/utils/enum'
 
 function getProxy(proxyStr: string): AxiosRequestConfig['proxy'] | null {
@@ -38,7 +38,7 @@ export const checkProxyMap: IToolboxCheckerMap<string> = {
       if (!config) {
         return sendToolboxRes(event, {
           status: IToolboxItemCheckStatus.SUCCESS,
-          msg: $t('TOOLBOX_CHECK_PROXY_NO_PROXY_TIPS'),
+          msg: t('main.toolbox.noProxy'),
         })
       }
 
@@ -46,14 +46,14 @@ export const checkProxyMap: IToolboxCheckerMap<string> = {
       if (!proxy) {
         return sendToolboxRes(event, {
           status: IToolboxItemCheckStatus.SUCCESS,
-          msg: $t('TOOLBOX_CHECK_PROXY_NO_PROXY_TIPS'),
+          msg: t('main.toolbox.noProxy'),
         })
       } else {
         const proxyOptions = getProxy(proxy)
         if (!proxyOptions) {
           return sendToolboxRes(event, {
             status: IToolboxItemCheckStatus.ERROR,
-            msg: $t('TOOLBOX_CHECK_PROXY_PROXY_IS_NOT_CORRECT'),
+            msg: t('main.toolbox.incorrectProxyTips'),
           })
         } else {
           const httpsAgent = tunnel.httpsOverHttp({
@@ -68,12 +68,12 @@ export const checkProxyMap: IToolboxCheckerMap<string> = {
             })
             return sendToolboxRes(event, {
               status: IToolboxItemCheckStatus.SUCCESS,
-              msg: $t('TOOLBOX_CHECK_PROXY_SUCCESS_TIPS'),
+              msg: t('main.toolbox.checkProxySuccessTips'),
             })
           } catch (_e) {
             return sendToolboxRes(event, {
               status: IToolboxItemCheckStatus.ERROR,
-              msg: $t('TOOLBOX_CHECK_PROXY_PROXY_IS_NOT_WORKING'),
+              msg: t('main.toolbox.checkProxyFailedTips'),
             })
           }
         }
@@ -82,7 +82,7 @@ export const checkProxyMap: IToolboxCheckerMap<string> = {
 
     sendToolboxRes(event, {
       status: IToolboxItemCheckStatus.SUCCESS,
-      msg: $t('TOOLBOX_CHECK_PROXY_NO_PROXY_TIPS'),
+      msg: t('main.toolbox.noProxy'),
     })
   },
 }

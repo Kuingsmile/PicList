@@ -4,7 +4,7 @@ import { getLogger } from '@core/utils/localLogger'
 import { app } from 'electron'
 import fs from 'fs-extra'
 
-import { T as $t } from '~/i18n'
+import { t } from '~/i18n'
 import { notificationList } from '~/utils/notification'
 
 let _configFilePath = ''
@@ -84,8 +84,8 @@ export function appConfigPath() {
     const logger = getLogger(piclistLogPath, 'PicList')
     if (!hasCheckPath) {
       const optionsTpl = {
-        title: $t('TIPS_NOTICE'),
-        body: $t('TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR'),
+        title: t('main.notification.notice'),
+        body: t('main.notification.customConfigFilePathError'),
       }
       notificationList.push(optionsTpl)
       hasCheckPath = true
@@ -134,8 +134,8 @@ export function manageConfigPath() {
     const logger = getLogger(manageLogPath, 'Manage')
     if (!hasCheckManagePath) {
       const optionsTpl = {
-        title: $t('TIPS_NOTICE'),
-        body: $t('TIPS_CUSTOM_CONFIG_FILE_PATH_ERROR'),
+        title: t('main.notification.notice'),
+        body: t('main.notification.customConfigFilePathError'),
       }
       notificationList.push(optionsTpl)
       hasCheckManagePath = true
