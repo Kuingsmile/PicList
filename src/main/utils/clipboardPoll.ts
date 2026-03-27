@@ -4,13 +4,17 @@ import { EventEmitter } from 'node:events'
 import logger from '@core/picgo/logger'
 import { clipboard, NativeImage } from 'electron'
 
+import { getClipboardFilePath } from '~/utils/common'
+
 class ClipboardWatcher extends EventEmitter {
   timer: NodeJS.Timeout | null
   lastImageHash: string | null
+  lastImagePath: string | null
 
   constructor() {
     super()
     this.lastImageHash = null
+    this.lastImagePath = null
     this.timer = null
   }
 
@@ -18,6 +22,13 @@ class ClipboardWatcher extends EventEmitter {
     this.stopListening(false)
 
     this.timer = setInterval(() => {
+      const imgPath = getClipboardFilePath()
+      if (imgPath) {
+        if (this.lastImagePath === imgPath) return
+        this.lastImagePath = imgPath
+        this.emit('change')
+        return
+      }
       const image = clipboard.readImage()
       if (image.isEmpty()) return
 
@@ -38,6 +49,7 @@ class ClipboardWatcher extends EventEmitter {
       clearInterval(this.timer)
       this.timer = null
       this.lastImageHash = null
+      this.lastImagePath = null
     }
     isLog && logger.info('Stop to watch clipboard')
   }
