@@ -97,7 +97,7 @@
 <script lang="ts" setup>
 import { DownloadIcon, Link2Icon, XIcon } from 'lucide-vue-next'
 import { marked } from 'marked'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { SHOW_UPDATE_INFO, UPDATE_PROGRESS } from '@/utils/constant'
 import { IRPCActionType } from '@/utils/enum'
@@ -118,6 +118,10 @@ const updateInfo = ref<UpdateInfo>({
 const dontShowAgain = ref(false)
 const downloadProgress = ref<number | null>(null)
 
+watch(dontShowAgain, (newVal: boolean) => {
+  window.electron.sendRPC(IRPCActionType.SET_SHOW_UPDATE_TIP, !newVal)
+})
+
 function handleUpdateInfo(info: UpdateInfo) {
   updateInfo.value = info
   if (info.type !== 'downloading') {
@@ -137,16 +141,10 @@ function downloadUpdate() {
   updateInfo.value.type = 'downloading'
   downloadProgress.value = 0
   window.electron.sendRPC(IRPCActionType.DOWNLOAD_UPDATE)
-  if (dontShowAgain.value) {
-    window.electron.sendRPC(IRPCActionType.SET_SHOW_UPDATE_TIP, false)
-  }
 }
 
 function goToDownloadPage() {
   window.electron.sendRPC(IRPCActionType.GO_TO_DOWNLOAD_PAGE)
-  if (dontShowAgain.value) {
-    window.electron.sendRPC(IRPCActionType.SET_SHOW_UPDATE_TIP, false)
-  }
   closeWindow()
 }
 
@@ -155,9 +153,6 @@ function installUpdate() {
 }
 
 function closeWindow() {
-  if (dontShowAgain.value && updateInfo.value.type === 'update-available') {
-    window.electron.sendRPC(IRPCActionType.SET_SHOW_UPDATE_TIP, false)
-  }
   window.electron.sendRPC(IRPCActionType.CLOSE_CURRENT_WINDOW)
 }
 
