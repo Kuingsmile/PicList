@@ -244,39 +244,15 @@ export function createTray(tooltip: string) {
     tray.on('click', (_, bounds) => {
       if (process.platform === 'darwin') {
         toggleWindow(bounds)
-        setTimeout(async () => {
-          const img = clipboard.readImage()
-          const obj: ImgInfo[] = []
-          if (!img.isEmpty()) {
-            // 从剪贴板来的图片默认转为png
-            // https://github.com/electron/electron/issues/9035
-            const imgPath = clipboard.read('public.file-url')
-            if (imgPath) {
-              const decodePath = ensureFilePath(imgPath)
-              if (decodePath === imgPath) {
-                obj.push({
-                  imgUrl: imgPath,
-                })
-              } else {
-                if (decodePath !== '') {
-                  // 带有中文的路径，无法直接被img.src所使用，会被转义
-                  const base64 = await fs.readFile(decodePath.replace('file://', ''), { encoding: 'base64' })
-                  obj.push({
-                    imgUrl: `data:image/png;base64,${base64}`,
-                  })
-                }
-              }
-            } else {
-              const imgUrl = img.toDataURL()
-              obj.push({
-                width: img.getSize().width,
-                height: img.getSize().height,
-                imgUrl,
-              })
-            }
-          }
-          windowManager.get(IWindowList.TRAY_WINDOW)?.webContents.send('clipboardFiles', obj)
-        }, 0)
+        const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
+        if (!trayWindow) return
+        if (trayWindow.webContents.isLoading()) {
+          trayWindow.webContents.once('did-finish-load', () => {
+            sendClipboardFiles()
+          })
+        } else {
+          sendClipboardFiles()
+        }
       } else {
         windowManager.get(IWindowList.TRAY_WINDOW)?.hide()
         const autoCloseMiniWindow =
@@ -357,17 +333,60 @@ export function createTray(tooltip: string) {
   }
 }
 
-const toggleWindow = (bounds: IBounds) => {
+function toggleWindow(bounds: IBounds) {
   let trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
   if (!trayWindow) {
     trayWindow = windowManager.create(IWindowList.TRAY_WINDOW)
   }
-  if (trayWindow?.isVisible()) {
+  if (!trayWindow) return
+  if (trayWindow.isVisible()) {
     trayWindow.hide()
   } else {
-    trayWindow?.setPosition(bounds.x - 98 + 11, bounds.y, false)
-    trayWindow?.webContents.send('updateFiles')
-    trayWindow?.show()
-    trayWindow?.focus()
+    trayWindow.setPosition(bounds.x - 98 + 11, bounds.y, false)
+    if (trayWindow.webContents.isLoading()) {
+      trayWindow.webContents.once('did-finish-load', () => {
+        trayWindow.webContents.send('updateFiles')
+      })
+    } else {
+      trayWindow.webContents.send('updateFiles')
+    }
+    trayWindow.show()
+    trayWindow.focus()
   }
+}
+
+async function sendClipboardFiles() {
+  const img = clipboard.readImage()
+  console.log('Clipboard image', img.isEmpty())
+  const obj: ImgInfo[] = []
+  if (!img.isEmpty()) {
+    // 从剪贴板来的图片默认转为png
+    // https://github.com/electron/electron/issues/9035
+    const imgPath = clipboard.read('public.file-url')
+    console.log(imgPath)
+    if (imgPath) {
+      const decodePath = ensureFilePath(imgPath)
+      if (decodePath === imgPath) {
+        obj.push({
+          imgUrl: imgPath,
+        })
+      } else {
+        if (decodePath !== '') {
+          // 带有中文的路径，无法直接被img.src所使用，会被转义
+          const base64 = await fs.readFile(decodePath.replace('file://', ''), { encoding: 'base64' })
+          obj.push({
+            imgUrl: `data:image/png;base64,${base64}`,
+          })
+        }
+      }
+    } else {
+      const imgUrl = img.toDataURL()
+      obj.push({
+        width: img.getSize().width,
+        height: img.getSize().height,
+        imgUrl,
+      })
+    }
+  }
+  windowManager.get(IWindowList.TRAY_WINDOW)?.webContents.send('clipboardFiles', obj)
 }
