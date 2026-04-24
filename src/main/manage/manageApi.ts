@@ -95,7 +95,13 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       ),
     local: () => new API.LocalApi(this.logger),
     qiniu: () => new API.QiniuApi(this.currentPicBedConfig.accessKey, this.currentPicBedConfig.secretKey, this.logger),
-    smms: () => new API.SmmsApi(this.currentPicBedConfig.token, this.logger),
+    smms: () =>
+      new API.SmmsApi(
+        this.currentPicBedConfig.token,
+        this.currentPicBedConfig.domain,
+        this.currentPicBedConfig.customSlug,
+        this.logger,
+      ),
     s3plist: () =>
       new API.S3plistApi(
         this.currentPicBedConfig.accessKeyId,
@@ -239,7 +245,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   async getBucketList(_?: IStringKeyMap | undefined): Promise<any> {
     const staticBuckets = {
       upyun: [{ Name: this.currentPicBedConfig.bucketName, Location: 'upyun', CreationDate: new Date().toISOString() }],
-      smms: [{ Name: 'smms', Location: 'smms', CreationDate: new Date().toISOString() }],
+      smms: [{ Name: 'S.EE', Location: 'smms', CreationDate: new Date().toISOString() }],
       webdavplist: [{ Name: 'webdav', Location: 'webdav', CreationDate: new Date().toISOString() }],
       local: [{ Name: 'local', Location: 'local', CreationDate: new Date().toISOString() }],
       sftp: [{ Name: 'sftp', Location: 'sftp', CreationDate: new Date().toISOString() }],
@@ -252,21 +258,20 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   }
 
   async getBucketInfo(param?: IStringKeyMap | undefined): Promise<IStringKeyMap | IManageError> {
-    console.log(param)
+    void param
     return {}
   }
 
   async getBucketDomain(param: IStringKeyMap): Promise<IStringKeyMap | IManageError> {
     const staticDomains = {
       upyun: [this.currentPicBedConfig.customUrl],
-      smms: ['https://smms.app'],
       imgur: ['https://imgur.com'],
     }
 
     const staticResult = staticDomains[this.currentPicBedConfig.picBedName as keyof typeof staticDomains]
     if (staticResult) return staticResult
 
-    const supportedClients = ['tcyun', 'aliyun', 'qiniu', 'github']
+    const supportedClients = ['tcyun', 'aliyun', 'qiniu', 'github', 'smms']
     return this.executeWithClient(supportedClients, 'getBucketDomain', client => client.getBucketDomain(param), [])
   }
 

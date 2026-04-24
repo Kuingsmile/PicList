@@ -15,13 +15,18 @@ import { commonTaskStatus, IWindowList } from '~/utils/enum'
 
 class SmmsApi {
   baseUrl = 'https://s.ee/api/v1'
+  pageSize = 30
   token: string
+  domain?: string
+  customSlug?: string
   axiosInstance: AxiosInstance
   logger: ManageLogger
   timeout = 30000
 
-  constructor(token: string, logger: ManageLogger) {
+  constructor(token: string, domain: string | undefined, customSlug: string | undefined, logger: ManageLogger) {
     this.token = token
+    this.domain = domain?.trim() || undefined
+    this.customSlug = customSlug?.trim() || undefined
     this.axiosInstance = axios.create({
       baseURL: this.baseUrl,
       timeout: this.timeout,
@@ -53,6 +58,10 @@ class SmmsApi {
     }
   }
 
+  private isSuccessResponse(res: any) {
+    return !!(res?.status === 200 && (res?.data?.success === true || Array.isArray(res?.data?.data)))
+  }
+
   async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { cancelToken } = configMap
@@ -77,15 +86,16 @@ class SmmsApi {
           page: marker,
         },
       })
-      if (res && res.status === 200 && res.data && res.data.success) {
-        if (res.data.data.length === 0) {
+      if (this.isSuccessResponse(res)) {
+        const files = Array.isArray(res.data.data) ? res.data.data : []
+        if (files.length === 0) {
           result.success = true
           result.finished = true
           window?.webContents.send('refreshFileTransferList', result)
           ipcMain.removeAllListeners('cancelLoadingFileList')
           return
         } else {
-          res.data.data.forEach((item: any) => {
+          files.forEach((item: any) => {
             result.fullList.push(this.formatFile(item))
           })
           window?.webContents.send('refreshFileTransferList', result)
@@ -97,7 +107,12 @@ class SmmsApi {
         return
       }
       marker++
-    } while (!cancelTask[0] && res?.status === 200 && res?.data?.success && res.data.CurrentPage < res.data.TotalPages)
+    } while (
+      !cancelTask[0] &&
+      this.isSuccessResponse(res) &&
+      Array.isArray(res?.data?.data) &&
+      res.data.data.length >= this.pageSize
+    )
     result.success = !cancelTask[0]
     result.finished = true
     window?.webContents.send('refreshFileTransferList', result)
@@ -132,17 +147,29 @@ class SmmsApi {
         page: currentPage,
       },
     })
-    if (res?.status !== 200 || !res?.data?.success) return result
+    if (!this.isSuccessResponse(res)) return result
 
-    if (res.data.data.length === 0) return { ...result, success: true }
+    const files = Array.isArray(res.data.data) ? res.data.data : []
+    if (files.length === 0) return { ...result, success: true }
 
-    res.data.data.forEach((item: any) => {
+    files.forEach((item: any) => {
       result.fullList.push(this.formatFile(item))
     })
-    result.isTruncated = res.data.CurrentPage < res.data.TotalPages
-    result.nextMarker = res.data.CurrentPage + 1
+    const page = Number(currentPage) || 1
+    result.isTruncated = files.length >= this.pageSize
+    result.nextMarker = String(page + 1)
     result.success = true
     return result
+  }
+
+  async getBucketDomain(): Promise<string[]> {
+    const res = await this.axiosInstance('/file/domains', {
+      method: 'GET',
+    })
+    if (res?.status !== 200) return []
+
+    const domains = res?.data?.data?.domains
+    return Array.isArray(domains) ? domains : []
   }
 
   /**
@@ -195,6 +222,12 @@ class SmmsApi {
         filename: path.basename(fileName),
         contentType: getFileMimeType(fileName),
       })
+      if (this.domain) {
+        form.append('domain', this.domain)
+      }
+      if (this.customSlug) {
+        form.append('custom_slug', this.customSlug)
+      }
       const headers = form.getHeaders()
       headers.Authorization = this.token
       const url = `${this.baseUrl}/file/upload`

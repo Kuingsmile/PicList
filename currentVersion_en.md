@@ -3,7 +3,7 @@
 ### ✨ New Features
 
 - When uploading via URL, the file type is now determined by content-type and file magic number, improving upload accuracy
-- sm.ms has migrated to s.ee
+- SM.MS has migrated to S.EE
 
 ### 🐛 Bug Fixes
 

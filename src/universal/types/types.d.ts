@@ -320,6 +320,8 @@ interface IQiniuConfig {
 
 interface ISMMSConfig {
   token: string
+  domain?: string
+  customSlug?: string
   backupDomain?: string
 }
 

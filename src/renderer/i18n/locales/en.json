@@ -466,9 +466,13 @@
           "webPathTips": "Used to assemble the public URL"
         },
         "smms": {
-          "explain": "Migrated to https://s.ee, please use the new API token",
-          "tokenDesc": "S.EE Token, available in your S.EE profile",
-          "tokenPlaceholder": "Please enter S.EE Token"
+          "customSlugDesc": "Custom slug",
+          "customSlugPlaceholder": "e.g., my-image",
+          "domainDesc": "Upload domain",
+          "domainPlaceholder": "e.g., sm.ms",
+          "explain": "SM.MS has migrated to S.EE. Please use the new API token.",
+          "tokenDesc": "S.EE API token, available in your S.EE profile",
+          "tokenPlaceholder": "Please enter your S.EE API token"
         },
         "specialDesc": "Special configuration",
         "specialPlaceholder": "Please enter special configuration",

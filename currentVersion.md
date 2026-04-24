@@ -3,7 +3,7 @@
 ### ✨ 新增功能
 
 - 通过url上传时现在通过content-type和文件magic number来判断文件类型，提升了上传的准确性
-- sm.ms迁移至s.ee
+- SM.MS 迁移至 S.EE
 
 ### 🐛 问题修复
 

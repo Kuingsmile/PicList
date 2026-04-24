@@ -466,9 +466,13 @@
           "webPathTips": "用于拼接访问网址"
         },
         "smms": {
-          "explain": "已迁移至https://s.ee，请使用新的API token",
-          "tokenDesc": "S.EE Token, 可在 S.EE 个人中心获取",
-          "tokenPlaceholder": "请输入 S.EE Token"
+          "customSlugDesc": "自定义短链接标识",
+          "customSlugPlaceholder": "例如：my-image",
+          "domainDesc": "上传域名",
+          "domainPlaceholder": "例如：sm.ms",
+          "explain": "SM.MS 已迁移至 S.EE，请使用新的 API Token",
+          "tokenDesc": "S.EE API Token，可在 S.EE 个人中心获取",
+          "tokenPlaceholder": "请输入 S.EE API Token"
         },
         "specialDesc": "特殊配置",
         "specialPlaceholder": "请输入特殊配置",

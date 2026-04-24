@@ -87,7 +87,7 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.aliasPlaceholder'),
         type: 'string',
         rule: aliasRule,
-        default: 'smms-A',
+        default: 'see-A',
         tooltip: aliasTooltip,
       },
       token: {
@@ -96,6 +96,18 @@ export const supportedPicBedList: IStringKeyMap = {
         placeholder: t('pages.manage.constant.smms.tokenPlaceholder'),
         type: 'string',
         rule: defaultBaseRule('token'),
+      },
+      domain: {
+        required: false,
+        description: t('pages.manage.constant.smms.domainDesc'),
+        placeholder: t('pages.manage.constant.smms.domainPlaceholder'),
+        type: 'string',
+      },
+      customSlug: {
+        required: false,
+        description: t('pages.manage.constant.smms.customSlugDesc'),
+        placeholder: t('pages.manage.constant.smms.customSlugPlaceholder'),
+        type: 'string',
       },
       paging: {
         required: true,
@@ -106,8 +118,8 @@ export const supportedPicBedList: IStringKeyMap = {
       },
     },
     explain: t('pages.manage.constant.smms.explain'),
-    options: ['alias', 'token', 'paging'],
-    refLink: 'https://piclist.cn/manage.html#smms',
+    options: ['alias', 'token', 'domain', 'customSlug', 'paging'],
+    refLink: 'https://s.ee/docs/picgo/',
     referenceText: t('pages.manage.constant.referText'),
   },
   qiniu: {
