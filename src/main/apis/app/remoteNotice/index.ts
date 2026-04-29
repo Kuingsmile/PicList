@@ -55,6 +55,7 @@ class RemoteNoticeHandler {
         method: 'get',
         url: REMOTE_NOTICE_URL,
         responseType: 'json',
+        timeout: 5000,
       }).then(res => res.data)) as IRemoteNotice
       return noticeInfo
     } catch {

@@ -169,8 +169,12 @@ class LifeCycle {
           notice.show()
         }
       }
-      await remoteNoticeHandler.init()
-      remoteNoticeHandler.triggerHook(IRemoteNoticeTriggerHook.APP_START)
+      remoteNoticeHandler
+        .init()
+        .then(() => {
+          remoteNoticeHandler.triggerHook(IRemoteNoticeTriggerHook.APP_START)
+        })
+        .catch(() => {})
       if (startMode === ISartMode.MINI && process.platform !== 'darwin') {
         windowManager.create(IWindowList.MINI_WINDOW)
         const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)
