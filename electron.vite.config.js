@@ -38,6 +38,32 @@ export default defineConfig({
     base: './',
     resolve: {
       alias,
+      dedupe: [
+        '@codemirror/state',
+        '@codemirror/view',
+        '@codemirror/commands',
+        '@codemirror/language',
+        '@codemirror/search',
+        '@codemirror/lang-javascript',
+        '@codemirror/lang-css',
+        '@codemirror/lang-json',
+        '@codemirror/theme-one-dark',
+        'codemirror',
+      ],
+    },
+    optimizeDeps: {
+      include: [
+        '@codemirror/state',
+        '@codemirror/view',
+        '@codemirror/commands',
+        '@codemirror/language',
+        '@codemirror/search',
+        '@codemirror/lang-javascript',
+        '@codemirror/lang-css',
+        '@codemirror/lang-json',
+        '@codemirror/theme-one-dark',
+        'codemirror',
+      ],
     },
     plugins: [
       tailwindcss(),
