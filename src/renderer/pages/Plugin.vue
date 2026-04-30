@@ -147,7 +147,8 @@
                       @click="openHomepage(item.homepage)"
                     >
                       {{ item.name }}
-                      <span class="rounded-sm bg-bg-tertiary px-2 py-1 text-xs font-normal text-secondary"
+                      <span
+                        class="text-secondar ml-1 rounded-sm bg-bg-tertiary px-1 py-0.5 text-xs font-normal opacity-80"
                         >v{{ item.version }}</span
                       >
                     </h3>
