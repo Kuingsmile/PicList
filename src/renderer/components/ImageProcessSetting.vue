@@ -1478,6 +1478,8 @@ const autoRenameComputed = computed({
         checkIfItemOnlyId(singleConfigInFile).then(async isOnlyId => {
           if (isOnlyId) {
             await removeItemFromBuildInList(singleConfigInFile.id)
+          } else {
+            await UpdateBuildInList(singleConfigInFile)
           }
         })
       }
@@ -1505,6 +1507,8 @@ const manualRenameComputed = computed({
         checkIfItemOnlyId(singleConfigInFile).then(async isOnlyId => {
           if (isOnlyId) {
             await removeItemFromBuildInList(singleConfigInFile.id)
+          } else {
+            await UpdateBuildInList(singleConfigInFile)
           }
         })
       }
@@ -1544,6 +1548,8 @@ watch(
         checkIfItemOnlyId(singleConfigInFile).then(async isOnlyId => {
           if (isOnlyId) {
             await removeItemFromBuildInList(singleConfigInFile.id)
+          } else {
+            await UpdateBuildInList(singleConfigInFile)
           }
         })
       }
