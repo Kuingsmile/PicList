@@ -181,11 +181,12 @@ try {
     fs: {
       remove: fs.remove,
       readFile: fs.readFile,
+      readFileSync: fs.readFileSync,
       statSync: fs.statSync,
     },
     crypto: {
       randomBytes: crypto.randomBytes,
-      createHash: crypto.createHash,
+      createHash: (algorithm: string, text: string | Buffer) => crypto.createHash(algorithm).update(text).digest('hex'),
     },
     yaml: {
       parse: yaml.parseDocument,

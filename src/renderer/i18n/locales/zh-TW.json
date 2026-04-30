@@ -1077,9 +1077,12 @@
           "month": "月份，2位數",
           "randomString": "number位隨機字符串",
           "second": "秒，2位數",
+          "sha1": "SHA1 哈希",
+          "sha1-n": "SHA1 哈希（前n位）",
           "sha256": "SHA256 哈希",
           "sha256-n": "SHA256 哈希（前n位）",
           "timestamp": "時間戳，13位數",
+          "timestampS": "時間戳，10位數",
           "uuid": "隨機 UUID",
           "year2": "年份，2位數",
           "year4": "年份，4位數"

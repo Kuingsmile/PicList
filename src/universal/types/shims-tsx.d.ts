@@ -45,14 +45,14 @@ declare global {
       }
       crypto: {
         randomBytes: typeof crypto.randomBytes
-        createHash: typeof crypto.createHash
+        createHash: (algorithm: string, text: string | Buffer) => string
       }
       fs: {
         remove: typeof fs.remove
         readFile: typeof fs.readFile
+        readFileSync: typeof fs.readFileSync
         statSync: typeof fs.statSync
       }
-
       yaml: {
         parse: typeof yaml.parseDocument
       }

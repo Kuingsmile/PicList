@@ -48,15 +48,24 @@ function renameFormatHelper(num: number): string {
   return num.toString().length === 1 ? `0${num}` : num.toString()
 }
 
-function getMd5(input: any): string {
-  return window.node.crypto.createHash('md5').update(input).digest('hex')
+function getMd5(input: Buffer | string): string {
+  return window.node.crypto.createHash('md5', input)
 }
 
-function getSha256(input: any): string {
-  return window.node.crypto.createHash('sha256').update(input).digest('hex')
+function getSha256(input: Buffer | string): string {
+  return window.node.crypto.createHash('sha256', input)
 }
 
-export function renameFileNameWithCustomString(oldName: string, customFormat: string, affixFileName?: string): string {
+function getSha1(input: Buffer | string): string {
+  return window.node.crypto.createHash('sha1', input)
+}
+
+export function renameFileNameWithCustomString(
+  oldName: string,
+  customFormat: string,
+  affixFileName?: string,
+  fileBuffer?: Buffer,
+): string {
   const date = new Date()
   const year = date.getFullYear().toString()
   const fileBaseName = window.node.path.basename(oldName, window.node.path.extname(oldName))
@@ -69,19 +78,24 @@ export function renameFileNameWithCustomString(oldName: string, customFormat: st
     '{i}': () => renameFormatHelper(date.getMinutes()),
     '{s}': () => renameFormatHelper(date.getSeconds()),
     '{ms}': () => date.getMilliseconds().toString().padStart(3, '0'),
-    '{md5}': () => getMd5(fileBaseName),
-    '{md5-16}': () => getMd5(fileBaseName).slice(0, 16),
-    '{sha256}': () => getSha256(fileBaseName),
+    '{md5}': () => getMd5(fileBuffer || fileBaseName),
+    '{md5-16}': () => getMd5(fileBuffer || fileBaseName).slice(0, 16),
+    '{sha1}': () => getSha1(fileBuffer || fileBaseName),
+    '{sha256}': () => getSha256(fileBuffer || fileBaseName),
     '{filename}': () =>
       affixFileName
         ? window.node.path.basename(affixFileName, window.node.path.extname(affixFileName))
         : window.node.path.basename(oldName, window.node.path.extname(oldName)),
     '{uuid}': () => uuidv4().replace(/-/g, ''),
     '{timestamp}': () => date.getTime().toString(),
+    '{timestampS}': () => Math.floor(date.getTime() / 1000).toString(),
   }
   if (
     customFormat === undefined ||
-    (!Object.keys(conversionMap).some(item => customFormat.includes(item)) && !customFormat.includes('{str-'))
+    (!Object.keys(conversionMap).some(item => customFormat.includes(item)) &&
+      !customFormat.includes('{str-') &&
+      !/{sha256-\d+}/.test(customFormat) &&
+      !/{sha1-\d+}/.test(customFormat))
   ) {
     return oldName
   }
@@ -92,9 +106,14 @@ export function renameFileNameWithCustomString(oldName: string, customFormat: st
     }, customFormat) + ext
   const strRegex = /{str-(\d+)}/gi
   const sha256nRegex = /{sha256-(\d+)}/gi
+  const sha1nRegex = /{sha1-(\d+)}/gi
   newName = newName.replace(sha256nRegex, (_, group1) => {
     const length = parseInt(group1, 10)
-    return getSha256(fileBaseName).slice(0, length)
+    return getSha256(fileBuffer || fileBaseName).slice(0, length)
+  })
+  newName = newName.replace(sha1nRegex, (_, group1) => {
+    const length = parseInt(group1, 10)
+    return getSha1(fileBuffer || fileBaseName).slice(0, length)
   })
   newName = newName.replace(strRegex, (_, group1) => {
     const length = parseInt(group1, 10)
@@ -106,6 +125,7 @@ export function renameFileNameWithCustomString(oldName: string, customFormat: st
 export function renameFile(
   { timestampRename, randomStringRename, customRename, customRenameFormat }: IStringKeyMap,
   oldName = '',
+  fileBuffer?: Buffer,
 ): string {
   switch (true) {
     case timestampRename:
@@ -113,7 +133,7 @@ export function renameFile(
     case randomStringRename:
       return renameFileNameWithRandomString(oldName, 20)
     case customRename:
-      return renameFileNameWithCustomString(oldName, customRenameFormat)
+      return renameFileNameWithCustomString(oldName, customRenameFormat, undefined, fileBuffer)
     default:
       return oldName
   }

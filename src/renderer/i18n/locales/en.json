@@ -1077,9 +1077,12 @@
           "month": "Month, 2 Digits",
           "randomString": "Random String (number of digits)",
           "second": "Second, 2 Digits",
+          "sha1": "SHA1 Hash",
+          "sha1-n": "SHA1 Hash (First n Digits)",
           "sha256": "SHA256 Hash",
           "sha256-n": "SHA256 Hash (First n Digits)",
           "timestamp": "Timestamp, 13 Digits",
+          "timestampS": "Timestamp, 10 Digits",
           "uuid": "Random UUID",
           "year2": "Year, 2 Digits",
           "year4": "Year, 4 Digits"

@@ -1328,11 +1328,14 @@ const advancedRenameList = computed(() => ({
     { label: t('pages.settings.upload.placeholder.second'), value: '{s}' },
     { label: t('pages.settings.upload.placeholder.millisecond'), value: '{ms}' },
     { label: t('pages.settings.upload.placeholder.timestamp'), value: '{timestamp}' },
+    { label: t('pages.settings.upload.placeholder.timestampS'), value: '{timestampS}' },
   ],
   categoryHash: [
     { label: t('pages.settings.upload.placeholder.md5'), value: '{md5}' },
     { label: t('pages.settings.upload.placeholder.md5-16'), value: '{md5-16}' },
     { label: t('pages.settings.upload.placeholder.uuid'), value: '{uuid}' },
+    { label: t('pages.settings.upload.placeholder.sha1'), value: '{sha1}' },
+    { label: t('pages.settings.upload.placeholder.sha1-n'), value: '{sha1-n}' },
     { label: t('pages.settings.upload.placeholder.sha256'), value: '{sha256}' },
     { label: t('pages.settings.upload.placeholder.sha256-n'), value: '{sha256-n}' },
   ],
@@ -1701,15 +1704,16 @@ function clearTableData() {
   uploadPanelFilesList.value = []
 }
 
-function renameFileBeforeUpload(filePath: string): string {
+function renameFileBeforeUpload(filePath: string, fullPath: string): string {
   const fileName = window.node.path.basename(filePath)
+  const fileBuffer = window.node.fs.readFileSync(fullPath)
   const typeMap = {
     timestampRename: manageStore.config.settings.timestampRename,
     randomStringRename: manageStore.config.settings.randomStringRename,
     customRenameFormat: manageStore.config.settings.customRenameFormat,
     customRename: manageStore.config.settings.customRename,
   }
-  return renameFile(typeMap, fileName)
+  return renameFile(typeMap, fileName, fileBuffer)
 }
 
 function uploadFiles() {
@@ -1719,7 +1723,7 @@ function uploadFiles() {
       rawName: item.name,
       path: item.path.replace(/\\/g, '/'),
       size: item.size,
-      renamedFileName: renameFileBeforeUpload(item.name),
+      renamedFileName: renameFileBeforeUpload(item.name, item.path),
       relativePath: item.relativePath ?? '',
     })
   })

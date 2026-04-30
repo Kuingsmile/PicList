@@ -3,7 +3,7 @@ let NC = 0
 const NC_PAD = '00000000'
 
 function md5(text: any) {
-  return window.node.crypto.createHash('md5').update(text).digest('hex')
+  return window.node.crypto.createHash('md5', text)
 }
 
 export function digestAuthHeader(
