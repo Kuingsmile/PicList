@@ -180,6 +180,7 @@
         "isResizeByPercent": "启用按比例调整",
         "isResizeByPercentHint": "优先级更高",
         "isRotate": "启用旋转",
+        "longEdgeAsHeight": "长边作为高度",
         "percentageResize": "按比例调整尺寸",
         "resizeDescription": "设置图片缩放参数",
         "resizeHeight": "调整高度 (0 表示按宽度等比缩放)",

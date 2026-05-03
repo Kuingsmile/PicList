@@ -180,6 +180,7 @@
         "isResizeByPercent": "Enable Resize by Percentage",
         "isResizeByPercentHint": "Higher priority",
         "isRotate": "Enable Rotation",
+        "longEdgeAsHeight": "Long Edge as Height",
         "percentageResize": "Resize by Percentage",
         "resizeDescription": "Set image scaling parameters",
         "resizeHeight": "Resize Height (0 means scale by width)",

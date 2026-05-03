@@ -766,7 +766,45 @@
 
             <SettingCard
               v-if="
-                ((activeForm.compress.reSizeHeight || 0) > 0 && (activeForm.compress.reSizeWidth || 0) === 0) ||
+                activeForm.compress.isReSize &&
+                (activeForm.compress.reSizeHeight || 0) > 0 &&
+                (activeForm.compress.reSizeWidth || 0) === 0
+              "
+              class="flex flex-col justify-center"
+            >
+              <CustomSwitch
+                v-model="activeForm.compress.longEdgeAsHeight"
+                :title="t('pages.imageProcess.transform.longEdgeAsHeight')"
+                class="custom-switch"
+                no-border
+                small
+              />
+
+              <PerPicbedSetting
+                v-if="!configId"
+                :map-field="compressForm.longEdgeAsHeightMap"
+                :default-value="defaultCompressSetting.longEdgeAsHeight"
+                field-name="longEdgeAsHeight"
+                :global-value="compressForm.longEdgeAsHeight"
+                input-type="checkbox"
+                @map-change="
+                  (picbedType, value) =>
+                    safeSetMapValue(
+                      compressForm,
+                      'longEdgeAsHeight',
+                      picbedType,
+                      value,
+                      defaultCompressSetting.longEdgeAsHeight,
+                    )
+                "
+              />
+            </SettingCard>
+
+            <SettingCard
+              v-if="
+                (activeForm.compress.isReSize &&
+                  (activeForm.compress.reSizeHeight || 0) > 0 &&
+                  (activeForm.compress.reSizeWidth || 0) === 0) ||
                 ((activeForm.compress.reSizeWidth || 0) > 0 && (activeForm.compress.reSizeHeight || 0) === 0)
               "
               class="flex flex-col justify-center"
@@ -1139,6 +1177,7 @@ const defaultCompressSetting = {
   skipReSizeOfSmallImg: false,
   isReSizeByPercent: false,
   reSizePercent: 50,
+  longEdgeAsHeight: false,
   isRotate: false,
   rotateDegree: 0,
   isRemoveExif: false,
@@ -1173,6 +1212,7 @@ const compressForm = ref<IBuildInCompressOptions>({
   skipReSizeOfSmallImgMap: {},
   isReSizeByPercentMap: {},
   reSizePercentMap: {},
+  longEdgeAsHeightMap: {},
   isRotateMap: {},
   rotateDegreeMap: {},
   isRemoveExifMap: {},
