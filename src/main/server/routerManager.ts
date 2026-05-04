@@ -22,6 +22,41 @@ const LOG_PATH = appLogPath()
 const errorMessage = `upload error. see ${LOG_PATH} for more detail.`
 const deleteErrorMessage = `delete error. see ${LOG_PATH} for more detail.`
 
+// Upload rate-limiting state
+let runningUploads = 0
+const uploadWaitQueue: (() => void)[] = []
+let lastUploadFinishTime = 0
+
+async function withUploadRateLimit<T>(fn: () => Promise<T>): Promise<T> {
+  const allConfig = picgo.getConfig<any>() || {}
+  const maxConcurrency: number = allConfig.settings?.serverMaxConcurrency || 0
+  const uploadInterval: number = allConfig.settings?.serverUploadInterval || 0
+  if (maxConcurrency > 0) {
+    if (runningUploads >= maxConcurrency) {
+      await new Promise<void>(resolve => uploadWaitQueue.push(resolve))
+    }
+    runningUploads++
+  }
+
+  if (uploadInterval > 0) {
+    const wait = uploadInterval - (Date.now() - lastUploadFinishTime)
+    if (wait > 0) {
+      await new Promise(resolve => setTimeout(resolve, wait))
+    }
+  }
+
+  try {
+    return await fn()
+  } finally {
+    if (maxConcurrency > 0) {
+      runningUploads--
+      const next = uploadWaitQueue.shift()
+      if (next) next()
+    }
+    lastUploadFinishTime = Date.now()
+  }
+}
+
 async function responseForGet({ response }: { response: http.ServerResponse }) {
   response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
   const htmlContent = marked(markdownContent)
@@ -44,124 +79,126 @@ router.post(
     urlparams?: URLSearchParams
   }): Promise<void> => {
     try {
-      const allConfig = picgo.getConfig<any>() || {}
-      const picbed = urlparams?.get('picbed')
-      const passedKey = urlparams?.get('key')
-      const serverKey = allConfig.settings?.serverKey || ''
-      const useShortUrl = allConfig.settings?.useShortUrl
-      if (serverKey && passedKey !== serverKey) {
-        handleResponse({
-          response,
-          body: {
-            success: false,
-            message: 'server key is uncorrect',
-          },
-        })
-        return
-      }
-      let currentPicBedType = ''
-      let currentPicBedConfig = {} as IStringKeyMap
-      let currentPicBedConfigId = ''
-      let needRestore = false
-      if (picbed) {
-        const currentPicBed = allConfig.picBed || ({} as IStringKeyMap)
-        currentPicBedType = currentPicBed.uploader || currentPicBed.current || 'smms'
-        currentPicBedConfig = currentPicBed[currentPicBedType] || ({} as IStringKeyMap)
-        currentPicBedConfigId = currentPicBedConfig._id
-        const configName = urlparams?.get('configName') || currentPicBed[picbed]?._configName
-        if (picbed === currentPicBedType && configName === currentPicBedConfig._configName) {
-          // do nothing
-        } else {
-          needRestore = true
-          const picBeds = allConfig.uploader
-          const currentPicBedList = picBeds?.[picbed]?.configList
-          if (currentPicBedList) {
-            const currentConfig = currentPicBedList?.find((item: any) => item._configName === configName)
-            if (currentConfig) {
-              changeCurrentUploader(picbed, currentConfig, currentConfig._id)
+      await withUploadRateLimit(async () => {
+        const allConfig = picgo.getConfig<any>() || {}
+        const picbed = urlparams?.get('picbed')
+        const passedKey = urlparams?.get('key')
+        const serverKey = allConfig.settings?.serverKey || ''
+        const useShortUrl = allConfig.settings?.useShortUrl
+        if (serverKey && passedKey !== serverKey) {
+          handleResponse({
+            response,
+            body: {
+              success: false,
+              message: 'server key is uncorrect',
+            },
+          })
+          return
+        }
+        let currentPicBedType = ''
+        let currentPicBedConfig = {} as IStringKeyMap
+        let currentPicBedConfigId = ''
+        let needRestore = false
+        if (picbed) {
+          const currentPicBed = allConfig.picBed || ({} as IStringKeyMap)
+          currentPicBedType = currentPicBed.uploader || currentPicBed.current || 'smms'
+          currentPicBedConfig = currentPicBed[currentPicBedType] || ({} as IStringKeyMap)
+          currentPicBedConfigId = currentPicBedConfig._id
+          const configName = urlparams?.get('configName') || currentPicBed[picbed]?._configName
+          if (picbed === currentPicBedType && configName === currentPicBedConfig._configName) {
+            // do nothing
+          } else {
+            needRestore = true
+            const picBeds = allConfig.uploader
+            const currentPicBedList = picBeds?.[picbed]?.configList
+            if (currentPicBedList) {
+              const currentConfig = currentPicBedList?.find((item: any) => item._configName === configName)
+              if (currentConfig) {
+                changeCurrentUploader(picbed, currentConfig, currentConfig._id)
+              }
             }
           }
         }
-      }
-      if (list.length === 0) {
-        // upload with clipboard
-        logger.info('[PicList Server] upload clipboard file')
-        const result = await uploadClipboardFiles()
-        const res = useShortUrl ? result.fullResult.shortUrl || result.url : result.url
-        const fullResult = result.fullResult
-        fullResult.imgUrl = useShortUrl ? fullResult.shortUrl || fullResult.imgUrl : fullResult.imgUrl
-        logger.info('[PicList Server] upload result:', res)
-        if (res) {
-          const treatedFullResult = {
-            isEncrypted: 1,
-            EncryptedData: new AESHelper().encrypt(JSON.stringify(fullResult)),
-            ...fullResult,
+        if (list.length === 0) {
+          // upload with clipboard
+          logger.info('[PicList Server] upload clipboard file')
+          const result = await uploadClipboardFiles()
+          const res = useShortUrl ? result.fullResult.shortUrl || result.url : result.url
+          const fullResult = result.fullResult
+          fullResult.imgUrl = useShortUrl ? fullResult.shortUrl || fullResult.imgUrl : fullResult.imgUrl
+          logger.info('[PicList Server] upload result:', res)
+          if (res) {
+            const treatedFullResult = {
+              isEncrypted: 1,
+              EncryptedData: new AESHelper().encrypt(JSON.stringify(fullResult)),
+              ...fullResult,
+            }
+            delete treatedFullResult.config
+            handleResponse({
+              response,
+              body: {
+                success: true,
+                result: [res],
+                fullResult: [treatedFullResult],
+              },
+            })
+          } else {
+            handleResponse({
+              response,
+              body: {
+                success: false,
+                message: errorMessage,
+              },
+            })
           }
-          delete treatedFullResult.config
-          handleResponse({
-            response,
-            body: {
-              success: true,
-              result: [res],
-              fullResult: [treatedFullResult],
-            },
-          })
         } else {
-          handleResponse({
-            response,
-            body: {
-              success: false,
-              message: errorMessage,
-            },
+          logger.info('[PicList Server] upload files in list')
+          //  upload with files
+          const pathList = list.map(item => {
+            return {
+              path: item,
+            }
           })
-        }
-      } else {
-        logger.info('[PicList Server] upload files in list')
-        //  upload with files
-        const pathList = list.map(item => {
-          return {
-            path: item,
+          const win = windowManager.getAvailableWindow()
+          const result = await uploadChoosedFiles(win?.webContents, pathList)
+          const res = result.map(item => {
+            return useShortUrl ? item.fullResult.shortUrl || item.url : item.url
+          })
+          const fullResult = result.map((item: any) => {
+            const treatedItem = {
+              isEncrypted: 1,
+              EncryptedData: new AESHelper().encrypt(JSON.stringify(item.fullResult)),
+              ...item.fullResult,
+            }
+            delete treatedItem.config
+            treatedItem.imgUrl = useShortUrl ? treatedItem.shortUrl || treatedItem.imgUrl : treatedItem.imgUrl
+            return treatedItem
+          })
+          logger.info('[PicList Server] upload result', res.join(' ; '))
+          if (res.length) {
+            handleResponse({
+              response,
+              body: {
+                success: true,
+                result: res,
+                fullResult,
+              },
+            })
+          } else {
+            handleResponse({
+              response,
+              body: {
+                success: false,
+                message: errorMessage,
+              },
+            })
           }
-        })
-        const win = windowManager.getAvailableWindow()
-        const result = await uploadChoosedFiles(win?.webContents, pathList)
-        const res = result.map(item => {
-          return useShortUrl ? item.fullResult.shortUrl || item.url : item.url
-        })
-        const fullResult = result.map((item: any) => {
-          const treatedItem = {
-            isEncrypted: 1,
-            EncryptedData: new AESHelper().encrypt(JSON.stringify(item.fullResult)),
-            ...item.fullResult,
-          }
-          delete treatedItem.config
-          treatedItem.imgUrl = useShortUrl ? treatedItem.shortUrl || treatedItem.imgUrl : treatedItem.imgUrl
-          return treatedItem
-        })
-        logger.info('[PicList Server] upload result', res.join(' ; '))
-        if (res.length) {
-          handleResponse({
-            response,
-            body: {
-              success: true,
-              result: res,
-              fullResult,
-            },
-          })
-        } else {
-          handleResponse({
-            response,
-            body: {
-              success: false,
-              message: errorMessage,
-            },
-          })
         }
-      }
-      fs.emptyDirSync(serverTempDir)
-      if (needRestore) {
-        changeCurrentUploader(currentPicBedType, currentPicBedConfig, currentPicBedConfigId)
-      }
+        fs.emptyDirSync(serverTempDir)
+        if (needRestore) {
+          changeCurrentUploader(currentPicBedType, currentPicBedConfig, currentPicBedConfigId)
+        }
+      })
     } catch (err: any) {
       logger.error(err)
       handleResponse({

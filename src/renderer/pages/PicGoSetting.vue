@@ -1044,6 +1044,26 @@
               :placeholder="t('pages.settings.advanced.serverKeyPlaceholder')"
             />
           </SettingCard>
+          <SettingCard>
+            <CustomInput
+              v-model="formOfSetting.serverMaxConcurrency"
+              type="number"
+              :min="0"
+              :step="1"
+              :title="t('pages.settings.advanced.serverMaxConcurrency')"
+              :placeholder="t('pages.settings.advanced.serverMaxConcurrencyPlaceholder')"
+            />
+          </SettingCard>
+          <SettingCard>
+            <CustomInput
+              v-model="formOfSetting.serverUploadInterval"
+              type="number"
+              :min="0"
+              :step="100"
+              :title="t('pages.settings.advanced.serverUploadInterval')"
+              :placeholder="t('pages.settings.advanced.serverUploadIntervalPlaceholder')"
+            />
+          </SettingCard>
         </SettingSection>
       </div>
       <template #footer>
@@ -1441,6 +1461,8 @@ const formOfSetting = ref<ISettingForm>({
   sinkToken: '',
   deleteLocalFile: false,
   serverKey: '',
+  serverMaxConcurrency: 0,
+  serverUploadInterval: 0,
   aesPassword: 'PicList-aesPassword',
   enableWebServer: false,
   webServerHost: '0.0.0.0',
@@ -1552,6 +1574,8 @@ const autoWatchKeys = [
   'webServerPort',
   'webServerPath',
   'serverKey',
+  'serverMaxConcurrency',
+  'serverUploadInterval',
   'uploadNotification',
   'uploadResultNotification',
   'autoCloseMainWindow',

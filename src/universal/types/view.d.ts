@@ -30,6 +30,8 @@ interface ISettingForm {
   sinkToken: string
   deleteLocalFile: boolean
   serverKey: string
+  serverMaxConcurrency: number
+  serverUploadInterval: number
   aesPassword: string
   enableWebServer: boolean
   webServerHost: string

@@ -51,6 +51,8 @@ export interface IConfigStruct {
     deleteCloudFile: boolean
     server: IServerConfig
     serverKey: string
+    serverMaxConcurrency: number
+    serverUploadInterval: number
     pasteStyle: string
     aesPassword: string
     rename: boolean
@@ -151,6 +153,8 @@ export const configPaths = {
     deleteCloudFile: 'settings.deleteCloudFile',
     server: 'settings.server',
     serverKey: 'settings.serverKey',
+    serverMaxConcurrency: 'settings.serverMaxConcurrency',
+    serverUploadInterval: 'settings.serverUploadInterval',
     pasteStyle: 'settings.pasteStyle',
     aesPassword: 'settings.aesPassword',
     rename: 'settings.rename',
