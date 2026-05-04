@@ -8,6 +8,7 @@
 
 - Added a new file scaling setting `longEdgeAsHeight`. When enabled, the long edge is treated as the height for scaling, suitable for handling vertical images.
 - Updated the available regions for Alibaba Cloud OSS, Tencent Cloud COS, and Qiniu Cloud, removing deprecated regions and adding new ones.
+- Added settings for maximum upload concurrency and upload interval for the Upload API service to prevent excessive concurrent uploads that could put too much pressure on the server or lead to access restrictions by image bed providers.
 - The cloud page's SM.MS has migrated to the S.EE platform.
 - Optimized the logic for obtaining local file extensions, improving compatibility with special file names.
 - Updated the clipboard image acquisition script for Linux.
