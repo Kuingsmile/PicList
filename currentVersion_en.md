@@ -20,3 +20,5 @@
 - Fixed an issue where the value set in the configuration file for the single image bed renaming setting was not correctly updated during updates.
 - Fixed an issue where renaming did not take effect in certain cases.
 - Fixed an issue where the option to ignore software updates was not correctly saved in some cases.
+- Fixed an issue where the conversion process would still occur when the source file format was the same as the conversion format.
+- Fixed an issue where the Docker version build did not properly clean the build cache, resulting in a reduced image size of 100MB after the fix.
