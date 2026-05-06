@@ -276,8 +276,14 @@ async function handleCopyApi() {
       message.error(t('pages.picBedConfigs.noConfigs'))
       return
     }
-
-    const apiUrl = `http://${host === '0.0.0.0' ? '127.0.0.1' : host}:${port}/upload?picbed=${$route.params.type}&configName=${picBedConfig._configName}${serverKey ? `&key=${serverKey}` : ''}`
+    const urlSearchParams = new URLSearchParams({
+      picbed: $route.params.type as string,
+      configName: picBedConfig._configName,
+    })
+    if (serverKey) {
+      urlSearchParams.append('key', serverKey as string)
+    }
+    const apiUrl = `http://${host === '0.0.0.0' ? '127.0.0.1' : host}:${port}/upload?${urlSearchParams.toString()}`
 
     try {
       window.electron.clipboard.writeText(apiUrl)
