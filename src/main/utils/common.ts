@@ -55,7 +55,9 @@ export const getRawData = (args: any): any => {
 const getExtension = (fileName: string) => path.extname(fileName).slice(1)
 
 export const isImage = (fileName: string) =>
-  ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ico', 'svg', 'avif'].includes(getExtension(fileName))
+  ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ico', 'svg', 'avif'].includes(
+    getExtension(fileName).toLocaleLowerCase(),
+  )
 
 export let tray: Tray
 
