@@ -13,7 +13,14 @@ import vueParser from 'vue-eslint-parser'
 
 export default defineConfig(
   {
-    ignores: ['**/node_modules/**', '**/out/**', '**/webpack.config.js', 'vitest.workspace.mjs', '**/dist/**'],
+    ignores: [
+      '**/node_modules/**',
+      '**/out/**',
+      '**/webpack.config.js',
+      'vitest.workspace.mjs',
+      '**/dist/**',
+      '**/dist_electron/**',
+    ],
   },
   js.configs.recommended,
   ...pluginVue.configs['flat/recommended'],

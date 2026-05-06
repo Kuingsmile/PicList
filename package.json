@@ -168,7 +168,7 @@
     "stylus": "^0.64.0",
     "tailwindcss": "^4.2.2",
     "typescript": "6.0.3",
-    "typescript-eslint": "^8.57.1",
+    "typescript-eslint": "^8.59.2",
     "video.js": "^8.23.8",
     "vite": "^7.3.1",
     "vitest": "^4.0.16",

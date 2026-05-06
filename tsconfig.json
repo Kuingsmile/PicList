@@ -21,7 +21,7 @@
       "apis/*": ["./src/main/apis/*"],
       "@core/*": ["./src/main/apis/core/*"]
     },
-    "lib": ["ESNext", "dom", "dom.iterable", "ScriptHost"]
+    "lib": ["ESNext", "dom", "ScriptHost"]
   },
   "include": ["./src/**/*.ts", "./src/**/*.vue", "./src/**/*.d.ts", "./tests/**/*.ts", "./electron.vite.config.*"],
   "exclude": ["./node_modules", "./dist", "./out"]
