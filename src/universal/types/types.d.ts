@@ -320,7 +320,6 @@ interface IQiniuConfig {
 
 interface ISMMSConfig {
   token: string
-  backupDomain?: string
 }
 
 interface ITcYunConfig {

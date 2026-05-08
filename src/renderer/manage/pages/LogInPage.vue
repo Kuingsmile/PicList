@@ -281,7 +281,7 @@ import useMessage from '@/hooks/useMessage'
 import ManageEditPage from '@/manage/pages/ManageEditPage.vue'
 import { useManageStore } from '@/manage/store/manageStore'
 import { formObjToTableData } from '@/manage/utils/common'
-import { supportedPicBedList } from '@/manage/utils/constants'
+import { getSupportedPicBedList } from '@/manage/utils/constants'
 import { getConfig, removeConfig, saveConfig } from '@/manage/utils/dataSender'
 import { formatEndpoint } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
@@ -289,6 +289,7 @@ import { getConfig as getPicListConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType } from '@/utils/enum'
 
 const { t } = useI18n()
+const supportedPicBedList = computed(() => getSupportedPicBedList(t))
 const manageStore = useManageStore()
 const router = useRouter()
 const message = useMessage()
@@ -331,7 +332,7 @@ const tabItems = computed(() => {
     iconComponent: FolderIcon,
   }
 
-  const dynamicItems = Object.values(supportedPicBedList).map((item: any) => ({
+  const dynamicItems = Object.values(supportedPicBedList.value).map((item: any) => ({
     key: item.icon,
     name: item.name,
     icon: item.icon,

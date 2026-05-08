@@ -287,11 +287,12 @@ import BucketPage from '@/manage/pages/BucketPage.vue'
 import EmptyPage from '@/manage/pages/EmptyPage.vue'
 import ManageSetting from '@/manage/pages/ManageSetting.vue'
 import { useManageStore } from '@/manage/store/manageStore'
-import { supportedPicBedList } from '@/manage/utils/constants'
+import { getSupportedPicBedList } from '@/manage/utils/constants'
 import { newBucketConfig } from '@/manage/utils/newBucketConfig'
 import { IRPCActionType } from '@/utils/enum'
 
 const { t } = useI18n()
+const supportedPicBedList = computed(() => getSupportedPicBedList(t))
 const manageStore = useManageStore() as any
 const route = useRoute()
 const router = useRouter()

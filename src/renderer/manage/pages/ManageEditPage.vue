@@ -159,7 +159,7 @@
 
 <script setup lang="ts">
 import { DownloadIcon, InfoIcon, LinkIcon, RotateCcwIcon, SaveIcon, XIcon } from 'lucide-vue-next'
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
@@ -170,7 +170,7 @@ import SettingCard from '@/components/common/SettingCard.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import useMessage from '@/hooks/useMessage'
 import { useManageStore } from '@/manage/store/manageStore'
-import { supportedPicBedList } from '@/manage/utils/constants'
+import { getSupportedPicBedList } from '@/manage/utils/constants'
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { formatEndpoint } from '@/utils/common'
 import { IRPCActionType } from '@/utils/enum'
@@ -184,6 +184,7 @@ const { aliasName, platformName } = defineProps<{
 }>()
 
 const { t } = useI18n()
+const supportedPicBedList = computed(() => getSupportedPicBedList(t))
 const manageStore = useManageStore()
 const message = useMessage()
 const formErrors = ref<IStringKeyMap>({})
@@ -201,7 +202,7 @@ watch(selectedAlias, newAlias => {
 const handleReferenceClick = (url: string) => window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
 
 const validateField = (picBedName: string, optionKey: string) => {
-  const configOption = supportedPicBedList[picBedName]?.configOptions?.[optionKey]
+  const configOption = supportedPicBedList.value[picBedName]?.configOptions?.[optionKey]
   const value = configResult.value[optionKey]
 
   if (!configOption) return
@@ -263,7 +264,7 @@ async function handleConfigChange() {
   }
 
   const aliasList = Object.values(existingConfiguration.value).map(item => item.alias)
-  const allKeys = Object.keys(supportedPicBedList[platformName].configOptions)
+  const allKeys = Object.keys(supportedPicBedList.value[platformName].configOptions)
   const resultMap: IStringKeyMap = {}
   if (aliasList.includes(configResult.value.alias) && aliasName !== configResult.value.alias) {
     notifyUser(t('pages.manage.login.aliasExistMsg'), 'error')
@@ -277,11 +278,14 @@ async function handleConfigChange() {
       }
     }
 
-    if (supportedPicBedList[platformName].configOptions[key].default !== undefined && configResult.value[key] === '') {
-      resultMap[key] = supportedPicBedList[platformName].configOptions[key].default
+    if (
+      supportedPicBedList.value[platformName].configOptions[key].default !== undefined &&
+      configResult.value[key] === ''
+    ) {
+      resultMap[key] = supportedPicBedList.value[platformName].configOptions[key].default
     } else if (configResult.value[key] === undefined) {
-      if (supportedPicBedList[platformName].configOptions[key].default !== undefined) {
-        resultMap[key] = supportedPicBedList[platformName].configOptions[key].default
+      if (supportedPicBedList.value[platformName].configOptions[key].default !== undefined) {
+        resultMap[key] = supportedPicBedList.value[platformName].configOptions[key].default
       } else {
         resultMap[key] = ''
       }
@@ -346,8 +350,8 @@ async function getExistingConfig(name: string) {
 
 function handleConfigImport(alias: string) {
   if (alias === '') {
-    supportedPicBedList[platformName].options.forEach((option: any) => {
-      const defaultValue = supportedPicBedList[platformName].configOptions[option].default
+    supportedPicBedList.value[platformName].options.forEach((option: any) => {
+      const defaultValue = supportedPicBedList.value[platformName].configOptions[option].default
       if (defaultValue !== undefined && option !== 'alias') {
         configResult.value[option] = defaultValue
       }
@@ -357,7 +361,7 @@ function handleConfigImport(alias: string) {
   const selectedConfig = existingConfiguration.value[alias]
   if (!selectedConfig) return
 
-  supportedPicBedList[selectedConfig.picBedName].options.forEach((option: any) => {
+  supportedPicBedList.value[selectedConfig.picBedName].options.forEach((option: any) => {
     if (selectedConfig[option] !== undefined) {
       configResult.value[option] = selectedConfig[option]
     }
@@ -365,7 +369,7 @@ function handleConfigImport(alias: string) {
 }
 
 const validateAllFields = (picBedName: string): boolean => {
-  const options = supportedPicBedList[picBedName]?.options || []
+  const options = supportedPicBedList.value[picBedName]?.options || []
   let isValid = true
 
   for (const option of options) {
@@ -393,11 +397,11 @@ const handleConfigReset = () => {
 }
 
 const initializeDefaultValues = () => {
-  if (!supportedPicBedList[platformName]) return
+  if (!supportedPicBedList.value[platformName]) return
 
-  const options = supportedPicBedList[platformName].options || []
+  const options = supportedPicBedList.value[platformName].options || []
   for (const option of options) {
-    const configOption = supportedPicBedList[platformName].configOptions[option]
+    const configOption = supportedPicBedList.value[platformName].configOptions[option]
 
     if (configResult.value[option] === undefined || configResult.value[option] === '') {
       if (configOption.default !== undefined) {
