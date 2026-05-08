@@ -1,4 +1,6 @@
 {
+  "eslint.useFlatConfig": true,
+  "eslint.experimental.useFlatConfig": null,
   "eslint.run": "onSave",
   "eslint.codeActionsOnSave.mode": "all",
   "eslint.format.enable": true,
