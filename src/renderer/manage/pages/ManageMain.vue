@@ -349,7 +349,7 @@ const urlMap: IStringKeyMap = {
   qiniu: 'https://portal.qiniu.com',
   s3plist: 'https://aws.amazon.com/cn/s3/',
   sftp: 'https://github.com/imba97/picgo-plugin-sftp-uploader',
-  smms: 'https://smms.app',
+  smms: 'https://s.ee',
   tcyun: 'https://console.cloud.tencent.com/cos',
   upyun: 'https://console.upyun.com',
   webdavplist: 'https://baike.baidu.com/item/WebDAV/4610909',

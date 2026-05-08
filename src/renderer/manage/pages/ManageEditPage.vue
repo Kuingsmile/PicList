@@ -4,7 +4,7 @@
     <div
       class="flex items-center justify-center rounded-md border border-border-secondary bg-bg-secondary p-2 shadow-md"
     >
-      <InfoIcon :size="20" />
+      <InfoIcon :size="15" class="mr-1" />
       <p class="m-0 text-sm leading-[1.5] font-semibold text-secondary">
         {{ supportedPicBedList[platformName].explain }}
       </p>
@@ -12,7 +12,7 @@
     <div
       class="flex items-center justify-center rounded-md border border-border-secondary bg-bg-secondary p-2 shadow-md"
     >
-      <LinkIcon :size="20" />
+      <LinkIcon :size="15" class="mr-1" />
       <p class="m-0 text-sm leading-[1.5] font-semibold text-secondary">
         {{ supportedPicBedList[platformName].referenceText }}
         <button class="link-button" @click="handleReferenceClick(supportedPicBedList[platformName].refLink)">

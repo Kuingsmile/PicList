@@ -259,7 +259,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   async getBucketDomain(param: IStringKeyMap): Promise<IStringKeyMap | IManageError> {
     const staticDomains = {
       upyun: [this.currentPicBedConfig.customUrl],
-      smms: ['https://smms.app'],
+      smms: ['https://s.ee'],
       imgur: ['https://imgur.com'],
     }
 
