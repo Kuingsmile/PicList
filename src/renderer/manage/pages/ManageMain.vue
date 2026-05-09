@@ -342,7 +342,7 @@ watch(
 
 watch(sidebarWidth, () => {}, { immediate: false })
 
-const urlMap: IStringKeyMap = {
+const urlMap: IStringKeyMap = computed(() => ({
   aliyun: 'https://oss.console.aliyun.com',
   github: 'https://github.com',
   imgur: 'https://imgur.com',
@@ -353,8 +353,9 @@ const urlMap: IStringKeyMap = {
   smms: 'https://s.ee',
   tcyun: 'https://console.cloud.tencent.com/cos',
   upyun: 'https://console.upyun.com',
-  webdavplist: 'https://baike.baidu.com/item/WebDAV/4610909',
-}
+  webdavplist:
+    getDomainFromEndpoint(currentPagePicBedConfig.endpoint || '') || 'https://baike.baidu.com/item/WebDAV/4610909',
+}))
 
 const showNewIconList = ['aliyun', 'qiniu', 'tcyun', 's3plist']
 
@@ -376,10 +377,21 @@ const menuTitleMap: IStringKeyMap = {
   local: '',
 }
 
-const openPicBedUrl = () => window.electron.sendRPC(IRPCActionType.OPEN_URL, urlMap[currentPagePicBedConfig.picBedName])
+const openPicBedUrl = () =>
+  window.electron.sendRPC(IRPCActionType.OPEN_URL, urlMap.value[currentPagePicBedConfig.picBedName])
 
 function openNewBucketDrawer() {
   bucketDrawerVisible.value = true
+}
+
+function getDomainFromEndpoint(endpoint: string): string {
+  try {
+    const url = new URL(endpoint)
+    return url.origin
+  } catch (_e) {
+    console.error('Invalid endpoint URL:', endpoint)
+    return endpoint
+  }
 }
 
 function createNewBucket(picBedName: string) {
