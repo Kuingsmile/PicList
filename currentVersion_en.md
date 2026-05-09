@@ -18,6 +18,7 @@
 ### 🐛 Bug Fixes
 
 - Fixed an issue where some text on the cloud page did not change according to the language settings.
+- Fixed an issue where images or files on the cloud webdav page could not be previewed.
 - Fixed an issue where the value set in the configuration file for the single image bed renaming setting was not correctly updated during updates.
 - Fixed an issue where renaming did not take effect in certain cases.
 - Fixed an issue where the option to ignore software updates was not correctly saved in some cases.

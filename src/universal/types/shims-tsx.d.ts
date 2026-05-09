@@ -59,9 +59,6 @@ declare global {
       mime: {
         lookup: typeof mime.getType
       }
-      buffer: {
-        from: typeof Buffer.from
-      }
     }
   }
 }

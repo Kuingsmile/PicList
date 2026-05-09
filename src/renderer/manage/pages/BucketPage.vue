@@ -1820,7 +1820,7 @@ async function handleClickFile(item: any) {
   const options = {} as any
   if (currentPicBedName.value === 'webdavplist') {
     options.headers = {
-      Authorization: `Basic ${window.node.buffer.from(`${manageStore.config.picBed[configMap.value.alias].username}:${manageStore.config.picBed[configMap.value.alias].password}`).toString('base64')}`,
+      Authorization: `Basic ${btoa(`${manageStore.config.picBed[configMap.value.alias].username}:${manageStore.config.picBed[configMap.value.alias].password}`)}`,
     }
   }
   if (item.isImage) {

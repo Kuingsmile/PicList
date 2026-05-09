@@ -61,8 +61,7 @@ async function getWebdavHeader(key: string) {
     }
   } else {
     headers = {
-      Authorization:
-        'Basic ' + window.node.buffer.from(`${props.config.username}:${props.config.password}`).toString('base64'),
+      Authorization: 'Basic ' + btoa(`${props.config.username}:${props.config.password}`),
     }
   }
   return headers

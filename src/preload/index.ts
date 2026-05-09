@@ -194,9 +194,6 @@ try {
     mime: {
       lookup: mime.getType.bind(mime),
     },
-    buffer: {
-      from: Buffer.from,
-    },
   })
 } catch (error) {
   console.error(error)
