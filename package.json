@@ -94,7 +94,7 @@
     "ssh2-no-cpu-features": "^2.0.0",
     "tunnel": "^0.0.6",
     "upyun": "^3.4.6",
-    "uuid": "^13.0.0",
+    "uuid": "^14.0.0",
     "vue": "^3.5.30",
     "webdav": "^5.10.0",
     "write-file-atomic": "^7.0.1",
