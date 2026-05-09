@@ -87,7 +87,7 @@
     "multer": "^2.1.1",
     "node-ssh-no-cpu-features": "^2.0.0",
     "nodejs-file-downloader": "^4.13.0",
-    "piclist": "^2.4.0",
+    "piclist": "^2.4.1",
     "qiniu": "7.14.0",
     "semver": "^7.7.4",
     "shell-path": "3.0.0",
