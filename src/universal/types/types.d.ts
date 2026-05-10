@@ -203,6 +203,7 @@ interface IPluginMenuConfig {
 
 interface INPMSearchResultObject {
   package: {
+    date?: string
     name: string
     scope: string
     version: string

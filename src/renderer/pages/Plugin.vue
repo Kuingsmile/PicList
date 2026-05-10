@@ -133,7 +133,7 @@
               </div>
 
               <!-- Plugin Header -->
-              <div class="mb-4 flex items-start gap-4">
+              <div class="mb-4 flex items-start gap-2">
                 <img
                   class="h-[48px] w-[48px] shrink-0 rounded-lg object-cover"
                   :src="item.logo"
@@ -153,9 +153,19 @@
                       >
                     </h3>
                   </div>
-                  <p class="m-0 overflow-hidden text-sm text-ellipsis whitespace-nowrap text-secondary">
-                    {{ item.author.replace(/<.*>/, '') }}
-                  </p>
+                  <div class="flex items-center gap-2">
+                    <p class="m-0 overflow-hidden text-sm text-ellipsis whitespace-nowrap text-secondary">
+                      {{ item.author.replace(/<.*>/, '') }}
+                    </p>
+                    <span
+                      v-if="updateTimeMap[item.fullName]"
+                      class="flex shrink-0 items-center gap-1 text-xs text-secondary/70"
+                      :title="t('pages.plugin.lastUpdated')"
+                    >
+                      <CalendarIcon :size="11" />
+                      {{ updateTimeMap[item.fullName] }}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -337,13 +347,21 @@
                       >
                       <div
                         v-if="!item.gui"
-                        class="absolute top-4 right-4 z-1 rounded-sm bg-accent/20 px-2 py-1 text-sm font-semibold text-secondary"
+                        class="absolute top-4 right-4 z-1 rounded-sm bg-accent/20 px-1 py-0 text-sm font-semibold text-secondary"
                       >
                         CLI
                       </div>
                     </h3>
                     <p class="m-0 overflow-hidden text-sm text-ellipsis whitespace-nowrap text-secondary">
                       {{ item.author }}
+                    </p>
+                    <p
+                      v-if="item.date"
+                      class="mt-1 flex shrink-0 items-center gap-1 text-xs text-secondary/70"
+                      :title="t('pages.plugin.lastUpdated')"
+                    >
+                      <CalendarIcon :size="11" />
+                      {{ item.date }}
                     </p>
                   </div>
                 </div>
@@ -407,6 +425,7 @@ import { useStorage } from '@vueuse/core'
 import { debounce, DebouncedFunc } from 'lodash-es'
 import {
   AlertCircleIcon,
+  CalendarIcon,
   CheckIcon,
   DownloadIcon,
   ExternalLinkIcon,
@@ -448,6 +467,7 @@ const pluginNameList = ref<string[]>([])
 const loading = ref(true)
 const needReload = ref(false)
 const latestVersionMap = reactive<Record<string, string>>({})
+const updateTimeMap = reactive<Record<string, string>>({})
 const $configForm = useTemplateRef('$configForm')
 const strictSearch = useStorage('plugin-strict-search', true)
 const showBrowseDialog = ref(false)
@@ -507,6 +527,7 @@ async function getLatestVersionOfPlugIn(pluginName: string) {
     const res = await fetch(`https://registry.npmjs.com/${pluginName}`)
     const data = await res.json()
     latestVersionMap[pluginName] = data['dist-tags'].latest
+    updateTimeMap[pluginName] = (data.time?.modified || '').split('T')[0]
   } catch (err) {
     console.error(err)
   }
@@ -718,6 +739,7 @@ function handleSearchResult(item: INPMSearchResultObject) {
   }
   return {
     name,
+    date: pkg.date ? pkg.date.split('T')[0] : '',
     fullName: pkg.name,
     author: pkg.author?.name || pkg.publisher?.username || 'unknown',
     description: pkg.description,
