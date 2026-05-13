@@ -36,9 +36,10 @@ const releaseAPI = 'https://api.github.com/repos/Kuingsmile/piclist/releases/lat
 const response = await axios.get(releaseAPI, {
   headers: {
     Accept: 'application/vnd.github+json',
+    Authorization: `Bearer ${process.env.GH_TOKEN}`,
+    'X-GitHub-Api-Version': '2022-11-28',
   },
 })
-
 const releaseData = response.data
 
 const fileNameList = [`PicList-Setup-${version}-arm64.exe`, `PicList-Setup-${version}-x64.exe`]
