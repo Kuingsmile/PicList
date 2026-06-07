@@ -1307,8 +1307,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useStorage } from '@vueuse/core'
-import { compare } from 'compare-versions'
 import {
   BookOpen,
   CloudUpload,
@@ -1330,7 +1328,9 @@ import {
   Settings,
   Settings2Icon,
   Store,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
+import { useStorage } from '@vueuse/core'
+import { compare } from 'compare-versions'
 import { marked } from 'marked'
 import type { IConfig } from 'piclist'
 import pkg from 'root/package.json'

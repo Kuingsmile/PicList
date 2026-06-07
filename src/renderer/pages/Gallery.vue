@@ -386,7 +386,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useStorage } from '@vueuse/core'
 import {
   CheckSquareIcon,
   ChevronDownIcon,
@@ -403,7 +402,8 @@ import {
   SearchIcon,
   TrashIcon,
   XIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
+import { useStorage } from '@vueuse/core'
 import {
   computed,
   nextTick,

@@ -109,8 +109,8 @@
 </template>
 
 <script lang="ts" setup>
+import { Check, Cloud, Copy, ExternalLink, FileJson, FolderOpen, Import, RotateCcw, Settings } from '@lucide/vue'
 import dayjs from 'dayjs'
-import { Check, Cloud, Copy, ExternalLink, FileJson, FolderOpen, Import, RotateCcw, Settings } from 'lucide-vue-next'
 import { v4 as uuid } from 'uuid'
 import { onBeforeMount, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'

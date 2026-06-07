@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { ChevronRightIcon } from 'lucide-vue-next'
+import { ChevronRightIcon } from '@lucide/vue'
 const {
   title,
   icon,

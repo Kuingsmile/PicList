@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { AlertTriangle, CheckCircle, Info, X, XCircle } from 'lucide-vue-next'
+import { AlertTriangle, CheckCircle, Info, X, XCircle } from '@lucide/vue'
 import { reactive } from 'vue'
 
 export interface MessageOptions {

@@ -211,8 +211,6 @@ import {
   TransitionChild,
   TransitionRoot,
 } from '@headlessui/vue'
-import { useStorage } from '@vueuse/core'
-import { pick } from 'lodash-es'
 import {
   CheckIcon,
   ChevronDownIcon,
@@ -227,7 +225,9 @@ import {
   PlugIcon,
   Settings,
   UploadIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
+import { useStorage } from '@vueuse/core'
+import { pick } from 'lodash-es'
 import QrcodeVue from 'qrcode.vue'
 import pkg from 'root/package.json'
 import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue'

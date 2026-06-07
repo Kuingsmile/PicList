@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import { FolderOpenIcon } from 'lucide-vue-next'
+import { FolderOpenIcon } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()

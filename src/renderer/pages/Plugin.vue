@@ -421,8 +421,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useStorage } from '@vueuse/core'
-import { debounce, DebouncedFunc } from 'lodash-es'
 import {
   AlertCircleIcon,
   CalendarIcon,
@@ -436,7 +434,9 @@ import {
   SettingsIcon,
   XCircleIcon,
   XIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
+import { useStorage } from '@vueuse/core'
+import { debounce, DebouncedFunc } from 'lodash-es'
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, toRaw, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 

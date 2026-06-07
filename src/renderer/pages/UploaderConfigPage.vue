@@ -221,9 +221,9 @@
 </template>
 
 <script lang="ts" setup>
+import { CheckCircle2, Circle, Clock, Cloud, Copy, Heart, Pencil, Plus, Settings2, Star, Trash2 } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
 import dayjs from 'dayjs'
-import { CheckCircle2, Circle, Clock, Cloud, Copy, Heart, Pencil, Plus, Settings2, Star, Trash2 } from 'lucide-vue-next'
 import { computed, onBeforeMount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'

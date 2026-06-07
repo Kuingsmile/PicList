@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { XIcon } from 'lucide-vue-next'
+import { XIcon } from '@lucide/vue'
 import { onBeforeMount, ref } from 'vue'
 
 import { getConfig } from '@/utils/dataSender'

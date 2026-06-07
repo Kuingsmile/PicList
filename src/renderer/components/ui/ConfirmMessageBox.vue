@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { AlertTriangle, CheckCircle, Info, X as XIcon, XCircle } from 'lucide-vue-next'
+import { AlertTriangle, CheckCircle, Info, X as XIcon, XCircle } from '@lucide/vue'
 import { computed } from 'vue'
 
 interface Props {

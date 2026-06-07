@@ -95,7 +95,7 @@
 </template>
 
 <script lang="ts" setup>
-import { DownloadIcon, Link2Icon, XIcon } from 'lucide-vue-next'
+import { DownloadIcon, Link2Icon, XIcon } from '@lucide/vue'
 import { marked } from 'marked'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 

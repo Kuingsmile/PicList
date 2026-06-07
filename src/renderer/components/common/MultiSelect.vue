@@ -36,8 +36,8 @@
 </template>
 
 <script setup lang="ts">
+import { ChevronDownIcon } from '@lucide/vue'
 import { onClickOutside } from '@vueuse/core'
-import { ChevronDownIcon } from 'lucide-vue-next'
 import { nextTick, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 

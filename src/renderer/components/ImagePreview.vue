@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { ChevronLeftIcon, ChevronRightIcon, XIcon } from 'lucide-vue-next'
+import { ChevronLeftIcon, ChevronRightIcon, XIcon } from '@lucide/vue'
 import { computed, nextTick, onMounted, reactive, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 

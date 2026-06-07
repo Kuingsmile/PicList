@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { MinusIcon, PinIcon, ShrinkIcon, XIcon } from 'lucide-vue-next'
+import { MinusIcon, PinIcon, ShrinkIcon, XIcon } from '@lucide/vue'
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
 import { osGlobal } from '@/hooks/useGlobal'

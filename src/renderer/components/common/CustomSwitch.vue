@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Info } from 'lucide-vue-next'
+import { Info } from '@lucide/vue'
 import { marked } from 'marked'
 import { onMounted } from 'vue'
 

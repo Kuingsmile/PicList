@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { EyeClosedIcon, EyeIcon, Info } from 'lucide-vue-next'
+import { EyeClosedIcon, EyeIcon, Info } from '@lucide/vue'
 import { marked } from 'marked'
 import { onMounted, ref } from 'vue'
 

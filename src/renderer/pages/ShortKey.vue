@@ -119,7 +119,7 @@
 </template>
 
 <script lang="ts" setup>
-import { KeyboardIcon } from 'lucide-vue-next'
+import { KeyboardIcon } from '@lucide/vue'
 import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 

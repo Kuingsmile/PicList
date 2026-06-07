@@ -986,7 +986,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useStorage } from '@vueuse/core'
 import {
   Droplets,
   Edit,
@@ -1000,7 +999,8 @@ import {
   RotateCw,
   Settings,
   Sliders,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
+import { useStorage } from '@vueuse/core'
 import type {
   availableConvertFormat,
   availableWatermarkPosition,

@@ -35,8 +35,8 @@
 </template>
 
 <script setup lang="ts">
+import { ChevronDownIcon, SortAscIcon } from '@lucide/vue'
 import { onClickOutside } from '@vueuse/core'
-import { ChevronDownIcon, SortAscIcon } from 'lucide-vue-next'
 import { nextTick, ref } from 'vue'
 
 const emit = defineEmits<(e: 'change', key: string) => void>()

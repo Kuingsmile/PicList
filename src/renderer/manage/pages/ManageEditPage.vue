@@ -158,7 +158,7 @@
 </template>
 
 <script setup lang="ts">
-import { DownloadIcon, InfoIcon, LinkIcon, RotateCcwIcon, SaveIcon, XIcon } from 'lucide-vue-next'
+import { DownloadIcon, InfoIcon, LinkIcon, RotateCcwIcon, SaveIcon, XIcon } from '@lucide/vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 

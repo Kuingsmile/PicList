@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts" setup>
-import { XIcon } from 'lucide-vue-next'
+import { XIcon } from '@lucide/vue'
 import { nextTick, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 

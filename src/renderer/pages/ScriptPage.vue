@@ -502,7 +502,6 @@
 </template>
 
 <script lang="ts" setup>
-import dayjs from 'dayjs'
 import {
   CheckCircle2,
   CheckIcon,
@@ -525,7 +524,8 @@ import {
   UserIcon,
   XCircleIcon,
   XIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
+import dayjs from 'dayjs'
 import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 

@@ -1131,7 +1131,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useLocalStorage } from '@vueuse/core'
 import {
   ArrowUpDownIcon,
   ChevronDownIcon,
@@ -1153,7 +1152,8 @@ import {
   Trash2Icon,
   UploadIcon,
   XIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
+import { useLocalStorage } from '@vueuse/core'
 import { marked } from 'marked'
 import { v4 as uuidv4 } from 'uuid'
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef, watch } from 'vue'

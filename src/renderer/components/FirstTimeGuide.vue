@@ -87,7 +87,6 @@
 
 <script setup lang="ts">
 import { TransitionRoot } from '@headlessui/vue'
-import { useStorage } from '@vueuse/core'
 import {
   ArrowLeftRightIcon,
   CheckCircleIcon,
@@ -98,7 +97,8 @@ import {
   PaletteIcon,
   UploadCloudIcon,
   XIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
+import { useStorage } from '@vueuse/core'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
