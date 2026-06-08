@@ -1,3 +1,4 @@
+import { ulid } from 'ulid'
 import { v4 as uuidv4 } from 'uuid'
 
 import { getConfig } from '@/manage/utils/dataSender'
@@ -87,6 +88,7 @@ export function renameFileNameWithCustomString(
         ? window.node.path.basename(affixFileName, window.node.path.extname(affixFileName))
         : window.node.path.basename(oldName, window.node.path.extname(oldName)),
     '{uuid}': () => uuidv4().replace(/-/g, ''),
+    '{ulid}': () => ulid(),
     '{timestamp}': () => date.getTime().toString(),
     '{timestampS}': () => Math.floor(date.getTime() / 1000).toString(),
   }

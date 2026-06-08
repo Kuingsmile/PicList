@@ -1088,6 +1088,7 @@
           "sha256-n": "SHA256 Hash (First n Digits)",
           "timestamp": "Timestamp, 13 Digits",
           "timestampS": "Timestamp, 10 Digits",
+          "ulid": "Random ULID",
           "uuid": "Random UUID",
           "year2": "Year, 2 Digits",
           "year4": "Year, 4 Digits"

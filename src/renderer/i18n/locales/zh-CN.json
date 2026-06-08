@@ -1088,6 +1088,7 @@
           "sha256-n": "SHA256 哈希（前n位）",
           "timestamp": "时间戳，13位数",
           "timestampS": "时间戳，10位数",
+          "ulid": "随机 ULID",
           "uuid": "随机 UUID",
           "year2": "年份，2位数",
           "year4": "年份，4位数"

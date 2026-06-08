@@ -1334,6 +1334,7 @@ const advancedRenameList = computed(() => ({
     { label: t('pages.settings.upload.placeholder.md5'), value: '{md5}' },
     { label: t('pages.settings.upload.placeholder.md5-16'), value: '{md5-16}' },
     { label: t('pages.settings.upload.placeholder.uuid'), value: '{uuid}' },
+    { label: t('pages.settings.upload.placeholder.ulid'), value: '{ulid}' },
     { label: t('pages.settings.upload.placeholder.sha1'), value: '{sha1}' },
     { label: t('pages.settings.upload.placeholder.sha1-n'), value: '{sha1-n}' },
     { label: t('pages.settings.upload.placeholder.sha256'), value: '{sha256}' },
