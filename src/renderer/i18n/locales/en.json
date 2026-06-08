@@ -171,7 +171,6 @@
       "skipProcessSettings": "Skip Process",
       "subtitle-Global": "Configure settings for all PicBeds",
       "subtitle-PerPicbed": "Configure settings for current PicBed",
-      "title": "",
       "transform": {
         "description": "Adjust image size, rotation, flipping, etc.",
         "isFlip": "Vertical Flip",

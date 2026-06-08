@@ -99,7 +99,7 @@
       <CustomModal
         v-if="imageProcessDialogVisible"
         v-model:visible="imageProcessDialogVisible"
-        :title="t('pages.imageProcess.title')"
+        title=" "
         :description="t('pages.imageProcess.subtitle-PerPicbed')"
       >
         <ImageProcessSetting :config-id="uuidValue" :current-picbed-name="currentPicbedType" />

@@ -171,7 +171,6 @@
       "skipProcessSettings": "文件跳過",
       "subtitle-Global": "為所有圖床配置設置",
       "subtitle-PerPicbed": "為當前圖床單獨配置設置",
-      "title": "",
       "transform": {
         "description": "調整圖片大小、旋轉、翻轉等",
         "isFlip": "垂直翻轉",

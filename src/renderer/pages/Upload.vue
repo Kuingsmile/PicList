@@ -260,7 +260,7 @@
       <CustomModal
         v-if="imageProcessDialogVisible"
         v-model:visible="imageProcessDialogVisible"
-        :title="t('pages.imageProcess.title')"
+        title=" "
         :description="
           PicBedId === '' ? t('pages.imageProcess.subtitle-Global') : t('pages.imageProcess.subtitle-PerPicbed')
         "
