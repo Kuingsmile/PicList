@@ -224,7 +224,6 @@ async function pollDeviceFlowAuthorization(): Promise<{
       error_description?: string
       interval?: number
     }
-    console.log('Poll response data:', data)
 
     if (data.error) {
       if (data.error === 'authorization_pending') {
