@@ -16,5 +16,16 @@
   "useTabs": false,
   "endOfLine": "lf",
   "plugins": ["prettier-plugin-tailwindcss"],
-  "tailwindStylesheet": "./src/renderer/index.css"
+  "tailwindStylesheet": "./src/renderer/index.css",
+  "overrides": [
+    {
+      "files": "*.md",
+      "options": {
+        "parser": "markdown",
+        "proseWrap": "preserve",
+        "embeddedLanguageFormatting": "auto",
+        "printWidth": 120
+      }
+    }
+  ]
 }

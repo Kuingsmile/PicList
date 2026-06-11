@@ -141,16 +141,16 @@ PicList 支持广泛的存储提供商。
 
 | 存储平台                | 相册云删除 | 云存储管理 |
 | :---------------------- | :--------: | :--------: |
-| **AWS S3** (及兼容 API) |     ✅      |     ✅      |
-| **阿里云 OSS**          |     ✅      |     ✅      |
-| **腾讯云 COS**          |     ✅      |     ✅      |
-| **GitHub / Gitee**      |     ✅      |     ✅      |
-| **S.EE / Imgur**       |     ✅      |     ✅      |
-| **WebDAV / SFTP**       |     ✅      |     ✅      |
-| **本地文件系统**        |     ✅      |     ✅      |
-| **兰空图床 / 多吉云**   |     ✅      |     ✅      |
+| **AWS S3** (及兼容 API) |     ✅     |     ✅     |
+| **阿里云 OSS**          |     ✅     |     ✅     |
+| **腾讯云 COS**          |     ✅     |     ✅     |
+| **GitHub / Gitee**      |     ✅     |     ✅     |
+| **S.EE / Imgur**        |     ✅     |     ✅     |
+| **WebDAV / SFTP**       |     ✅     |     ✅     |
+| **本地文件系统**        |     ✅     |     ✅     |
+| **兰空图床 / 多吉云**   |     ✅     |     ✅     |
 
-*注意：自定义 API 图床的云删除功能需要通过 PicList 脚本系统根据具体 API 实现。*
+_注意：自定义 API 图床的云删除功能需要通过 PicList 脚本系统根据具体 API 实现。_
 
 ## 🚀 开发说明
 
@@ -198,5 +198,6 @@ Copyright (c) 2023-present Kuingsmile
 <div align="center">
   <p>Star Me！ ⭐️</p>
 
-  [![Star History Chart](https://api.star-history.com/svg?repos=Kuingsmile/PicList&type=Date)](https://star-history.com/#Kuingsmile/PicList&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=Kuingsmile/PicList&type=Date)](https://star-history.com/#Kuingsmile/PicList&Date)
+
 </div>

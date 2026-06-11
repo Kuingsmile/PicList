@@ -1,26 +1,96 @@
 {
-  // See https://go.microsoft.com/fwlink/?LinkId=733558
-  // for the documentation about the tasks.json format
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "electron-debug",
-      "type": "process",
-      "command": "./node_modules/.bin/vue-cli-service",
-      "windows": {
-        "command": "./node_modules/.bin/vue-cli-service.cmd"
-      },
-      "isBackground": true,
-      "args": ["electron:serve", "--debug"],
-      "problemMatcher": {
-        "owner": "custom",
-        "pattern": {
-          "regexp": ""
-        },
-        "background": {
-          "beginsPattern": "Starting development server\\.\\.\\.",
-          "endsPattern": "Not launching electron as debug argument was passed\\."
-        }
+      "label": "yarn: install",
+      "type": "shell",
+      "command": "yarn",
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "yarn: dev",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["dev"],
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "yarn: build",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["build"],
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "yarn: test",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["test", "--run"],
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "yarn: lint",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["lint"],
+      "problemMatcher": "$eslint-stylish",
+      "presentation": {
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "yarn: lint:fix",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["lint:fix"],
+      "problemMatcher": "$eslint-stylish",
+      "presentation": {
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "yarn: lint:style",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["lint:style"],
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "yarn: lint:dpdm",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["lint:dpdm"],
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "yarn: lint:dpdm:renderer",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["lint:dpdm:renderer"],
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "dedicated"
       }
     }
   ]

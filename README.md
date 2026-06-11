@@ -141,16 +141,16 @@ PicList supports a wide range of storage providers.
 
 | Storage Provider            | Album Delete | Cloud Management |
 | :-------------------------- | :----------: | :--------------: |
-| **AWS S3** (and compatible) |      ✅       |        ✅         |
-| **Aliyun OSS**              |      ✅       |        ✅         |
-| **Tencent COS**             |      ✅       |        ✅         |
-| **GitHub / Gitee**          |      ✅       |        ✅         |
-| **S.EE / Imgur**            |      ✅       |        ✅         |
-| **WebDAV / SFTP**           |      ✅       |        ✅         |
-| **Local File System**       |      ✅       |        ✅         |
-| **Lsky Pro / Doge Cloud**   |      ✅       |        ✅         |
+| **AWS S3** (and compatible) |      ✅      |        ✅        |
+| **Aliyun OSS**              |      ✅      |        ✅        |
+| **Tencent COS**             |      ✅      |        ✅        |
+| **GitHub / Gitee**          |      ✅      |        ✅        |
+| **S.EE / Imgur**            |      ✅      |        ✅        |
+| **WebDAV / SFTP**           |      ✅      |        ✅        |
+| **Local File System**       |      ✅      |        ✅        |
+| **Lsky Pro / Doge Cloud**   |      ✅      |        ✅        |
 
-*Note: The cloud delete feature for custom API image hosts requires implementation via PicList's scripting system based on the specific API.*
+_Note: The cloud delete feature for custom API image hosts requires implementation via PicList's scripting system based on the specific API._
 
 ## 🚀 Development
 
@@ -198,5 +198,6 @@ Copyright (c) 2023-present Kuingsmile
 <div align="center">
   <p>Star Me！ ⭐️</p>
 
-  [![Star History Chart](https://api.star-history.com/svg?repos=Kuingsmile/PicList&type=Date)](https://star-history.com/#Kuingsmile/PicList&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=Kuingsmile/PicList&type=Date)](https://star-history.com/#Kuingsmile/PicList&Date)
+
 </div>
