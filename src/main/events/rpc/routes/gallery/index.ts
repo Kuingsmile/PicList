@@ -5,6 +5,7 @@ import { clipboard } from 'electron'
 
 import { RPCRouter } from '~/events/rpc/router'
 import { ICOREBuildInEvent, IPasteStyle, IRPCActionType, IRPCType } from '~/utils/enum'
+import { convertJxlSourceToPngDataUrl } from '~/utils/jxlPreview'
 import pasteTemplate from '~/utils/pasteTemplate'
 import { runScriptInStage } from '~/utils/runScript'
 interface IFilter {
@@ -48,6 +49,17 @@ const galleryRoutes = [
     handler: async (_: IIPCEvent, args: [file: ImgInfo]) => {
       await runScriptInStage('onGalleryRemove', picgo, { galleryItem: args[0] })
     },
+  },
+  {
+    action: IRPCActionType.GALLERY_GET_JXL_PREVIEW,
+    handler: async (_: IIPCEvent, args: [source: string, isKnownJxl?: boolean]) => {
+      try {
+        return await convertJxlSourceToPngDataUrl(args[0], args[1])
+      } catch (_e) {
+        return undefined
+      }
+    },
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.GALLERY_GET_DB,

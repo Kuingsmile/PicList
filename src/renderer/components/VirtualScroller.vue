@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import { useVirtualGrid } from '@/hooks/useVirtualGrid'
 
@@ -50,6 +50,8 @@ const {
   itemPadding?: number
   viewMode?: 'list' | 'grid'
 }>()
+
+const emit = defineEmits<(e: 'visibleIndexesChange', indexes: number[]) => void>()
 
 const containerRef = useTemplateRef('containerRef')
 const containerHeight = ref(0)
@@ -98,6 +100,14 @@ const viewportStyle = computed(() => {
 })
 
 const itemStyle = computed(() => (isGridMode.value ? {} : { height: `${itemHeight}px` }))
+
+watch(
+  visibleIndexes,
+  indexes => {
+    emit('visibleIndexesChange', indexes)
+  },
+  { immediate: true, flush: 'post' },
+)
 
 function handleScroll() {
   const c = containerRef.value

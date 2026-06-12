@@ -9107,6 +9107,11 @@ jszip@^3.1.0:
     readable-stream "~2.3.6"
     setimmediate "^1.0.5"
 
+jxl-oxide-wasm@0.12.6:
+  version "0.12.6"
+  resolved "https://registry.yarnpkg.com/jxl-oxide-wasm/-/jxl-oxide-wasm-0.12.6.tgz#a5096bb51fb7c2a7dfac69576c7dae3a94c488ca"
+  integrity sha512-nZlPNSJidFAjkTqNcxxqdac/DxY0oNqr/Q98xOb3UutQyvopHjyubnW7KCjvwFuAr3Lew6xRe+7/zZ8tkbFxug==
+
 keycode@2.2.0:
   version "2.2.0"
   resolved "https://registry.npmjs.org/keycode/-/keycode-2.2.0.tgz#3d0af56dc7b8b8e5cba8d0a97f107204eec22b04"

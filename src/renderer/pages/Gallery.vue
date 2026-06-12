@@ -209,6 +209,7 @@
           :item-height="300"
           :grid-breakpoints="effectiveGridBreakpoints"
           key-field="key"
+          @visible-indexes-change="handleVisibleIndexesChange"
         >
           <template #default="{ item, index }">
             <div
@@ -221,17 +222,11 @@
                 @click.stop="zoomImage(index)"
               >
                 <img
-                  :src="
-                    imageErrorStates[item.key || '']
-                      ? './errorLoading.png'
-                      : isAlwaysForceReload
-                        ? addCacheBustParam(item.src)
-                        : item.src
-                  "
+                  :src="displayImageSources[item.key || ''] || item.src"
                   class="h-full w-full object-contain transition-all duration-fast ease-apple"
                   :class="{ loading: !imageLoadStates[item.key || ''] }"
-                  @load="onImageLoad(item.key || '')"
-                  @error="onImageError(item.key || '')"
+                  @load="onImageLoad(item)"
+                  @error="onImageError(item)"
                 />
                 <div
                   v-if="!imageLoadStates[item.key || '']"
@@ -293,7 +288,7 @@
     <!-- Custom Image Preview Modal -->
     <ImagePreview
       v-model:gallery-slider-control="gallerySliderControl"
-      :filter-list="filterList"
+      :filter-list="previewFilterList"
       :is-always-force-reload="isAlwaysForceReload"
     />
 
@@ -436,6 +431,7 @@ import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import $$db from '@/utils/db'
 import { IPasteStyle, IRPCActionType } from '@/utils/enum'
+import { getGalleryPreviewSource, getJxlPreviewSource } from '@/utils/galleryPreview'
 import { picBedsCanbeDeleted } from '@/utils/static'
 
 type IResult<T> = T & {
@@ -493,6 +489,16 @@ const currentSortField = ref<'name' | 'time' | 'ext' | 'check'>('name')
 const userGridColumns = useStorage<number>('galleryGridColumns', 4)
 const imageLoadStates = reactive<Record<string, boolean>>({})
 const imageErrorStates = reactive<Record<string, boolean>>({})
+const displayImageSources = reactive<Record<string, string>>({})
+const jxlPreviewCache = reactive<Record<string, string>>({})
+const jxlPreviewLoading = reactive<Record<string, boolean>>({})
+const jxlPreviewErrors = reactive<Record<string, boolean>>({})
+const jxlPreviewCacheOrder: string[] = []
+const cacheBustToken = ref(Date.now())
+const visibleGalleryIndexes = ref<number[]>([])
+let jxlPreviewGeneration = 0
+
+const JXL_PREVIEW_CACHE_LIMIT = 64
 
 const pasteStyleList = ['markdown', 'HTML', 'URL', 'UBB', 'Custom']
 const shortURLList = [t('pages.gallery.shortUrl'), t('pages.gallery.longUrl')]
@@ -556,6 +562,17 @@ const filterList = computed(() => {
   return getGallery()
 })
 
+const previewFilterList = computed(() => {
+  if (!gallerySliderControl.value.visible) {
+    return filterList.value
+  }
+
+  const currentIndex = gallerySliderControl.value.index
+  return filterList.value.map((item, index) =>
+    index === currentIndex ? { ...item, src: buildDisplayImageSrc(item) } : item,
+  )
+})
+
 const matchedUrls = computed(() => {
   const matches = filterList.value.filter((item: any) => {
     return customStrMatch(item.imgUrl, batchRenameMatch.value)
@@ -597,8 +614,28 @@ watch(useShortUrl, newVal => {
   saveConfig(configPaths.settings.useShortUrl, newVal === t('pages.gallery.shortUrl'))
 })
 
-watch(filterList, () => {
+watch(filterList, items => {
   clearChoosedList()
+  pruneDisplayImageSources(items)
+  pruneJxlPreviewState(items)
+  nextTick(() => {
+    syncVisibleDisplayImageSources()
+  })
+})
+
+watch(
+  () => [gallerySliderControl.value.visible, gallerySliderControl.value.index] as const,
+  ([visible, index]) => {
+    if (visible) {
+      ensureJxlPreview(filterList.value[index])
+    }
+  },
+)
+
+watch(isAlwaysForceReload, () => {
+  cacheBustToken.value = Date.now()
+  invalidateJxlPreviewCache()
+  syncVisibleDisplayImageSources()
 })
 
 watch(userGridColumns, _ => {
@@ -629,13 +666,23 @@ watch(searchTextURL, newVal => {
   }, 300)
 })
 
-function onImageLoad(id: string) {
+function onImageLoad(item: IGalleryItem) {
+  const id = item.key || ''
   imageLoadStates[id] = true
+  if (getJxlPreviewSource(item)) {
+    updateDisplayImageSource(item)
+  }
 }
 
-function onImageError(id: string) {
+function onImageError(item: IGalleryItem) {
+  const id = item.key || ''
   imageLoadStates[id] = false
+  if (ensureJxlPreview(item)) {
+    return
+  }
+
   imageErrorStates[id] = true
+  updateDisplayImageSource(item)
 }
 
 function toggleViewMode() {
@@ -689,7 +736,7 @@ const addCacheBustParam = (url: string | undefined) => {
   }
   try {
     const separator = url.includes('?') ? '&' : '?'
-    return `${url}${separator}cbplist=${new Date().getTime()}`
+    return `${url}${separator}cbplist=${cacheBustToken.value}`
   } catch (e) {
     return url
   }
@@ -697,6 +744,186 @@ const addCacheBustParam = (url: string | undefined) => {
 
 function formatFileName(name: string) {
   return window.node.path.basename(name)
+}
+
+function getPreviewSource(item: ImgInfo) {
+  const itemKey = item.key || ''
+  const previewPath = getJxlPreviewSource(item)
+  if (previewPath && jxlPreviewCache[previewPath]) {
+    touchJxlPreviewCache(previewPath)
+  }
+
+  return getGalleryPreviewSource(
+    item,
+    jxlPreviewCache,
+    jxlPreviewLoading,
+    jxlPreviewErrors,
+    itemKey ? imageLoadStates[itemKey] : false,
+  )
+}
+
+function buildDisplayImageSrc(item: IGalleryItem) {
+  if (imageErrorStates[item.key || '']) return './errorLoading.png'
+  const src = getJxlPreviewSource(item) ? getPreviewSource(item) : item.src || item.galleryPath || item.imgUrl || ''
+  return isAlwaysForceReload.value ? addCacheBustParam(src) : src
+}
+
+function updateDisplayImageSource(item?: IGalleryItem) {
+  if (!item?.key) return
+  if (!filterList.value.some(currentItem => currentItem.key === item.key)) return
+  displayImageSources[item.key] = buildDisplayImageSrc(item)
+}
+
+function pruneDisplayImageSources(items: IGalleryItem[] = filterList.value, indexes?: number[]) {
+  const keys = new Set<string>()
+  const sourceItems = indexes ? indexes.map(index => items[index]).filter(Boolean) : items
+  sourceItems.forEach(item => {
+    if (!item.key) return
+    keys.add(item.key)
+  })
+  Object.keys(displayImageSources).forEach(key => {
+    if (!keys.has(key)) {
+      delete displayImageSources[key]
+    }
+  })
+}
+
+function syncVisibleDisplayImageSources(indexes: number[] = visibleGalleryIndexes.value) {
+  const visibleItems = filterList.value
+  pruneDisplayImageSources(visibleItems, indexes)
+  indexes.forEach(index => {
+    updateDisplayImageSource(visibleItems[index])
+  })
+}
+
+function getActiveJxlPreviewSources(items: ImgInfo[] = filterList.value) {
+  const sources = new Set<string>()
+  items.forEach(item => {
+    const previewPath = getJxlPreviewSource(item)
+    if (previewPath) {
+      sources.add(previewPath)
+    }
+  })
+  return sources
+}
+
+function isJxlPreviewSourceActive(previewPath: string) {
+  return getActiveJxlPreviewSources().has(previewPath)
+}
+
+function touchJxlPreviewCache(previewPath: string) {
+  const index = jxlPreviewCacheOrder.indexOf(previewPath)
+  if (index >= 0) {
+    jxlPreviewCacheOrder.splice(index, 1)
+  }
+  jxlPreviewCacheOrder.push(previewPath)
+}
+
+function deleteJxlPreviewCacheEntry(previewPath: string) {
+  delete jxlPreviewCache[previewPath]
+  const index = jxlPreviewCacheOrder.indexOf(previewPath)
+  if (index >= 0) {
+    jxlPreviewCacheOrder.splice(index, 1)
+  }
+}
+
+function cacheJxlPreview(previewPath: string, previewSrc: string) {
+  jxlPreviewCache[previewPath] = previewSrc
+  touchJxlPreviewCache(previewPath)
+
+  while (jxlPreviewCacheOrder.length > JXL_PREVIEW_CACHE_LIMIT) {
+    const stalePreviewPath = jxlPreviewCacheOrder.shift()
+    if (stalePreviewPath) {
+      delete jxlPreviewCache[stalePreviewPath]
+    }
+  }
+}
+
+function invalidateJxlPreviewCache() {
+  jxlPreviewGeneration += 1
+  jxlPreviewCacheOrder.length = 0
+  Object.keys(jxlPreviewCache).forEach(key => {
+    delete jxlPreviewCache[key]
+  })
+  Object.keys(jxlPreviewLoading).forEach(key => {
+    delete jxlPreviewLoading[key]
+  })
+  Object.keys(jxlPreviewErrors).forEach(key => {
+    delete jxlPreviewErrors[key]
+  })
+}
+
+function pruneJxlPreviewState(items: ImgInfo[] = filterList.value) {
+  const activeSources = getActiveJxlPreviewSources(items)
+  Object.keys(jxlPreviewCache).forEach(previewPath => {
+    if (!activeSources.has(previewPath)) {
+      deleteJxlPreviewCacheEntry(previewPath)
+    }
+  })
+  Object.keys(jxlPreviewLoading).forEach(previewPath => {
+    if (!activeSources.has(previewPath)) {
+      delete jxlPreviewLoading[previewPath]
+    }
+  })
+  Object.keys(jxlPreviewErrors).forEach(previewPath => {
+    if (!activeSources.has(previewPath)) {
+      delete jxlPreviewErrors[previewPath]
+    }
+  })
+}
+
+function handleVisibleIndexesChange(indexes: number[]) {
+  visibleGalleryIndexes.value = indexes
+  syncVisibleDisplayImageSources(indexes)
+}
+
+function ensureJxlPreview(item?: IGalleryItem): boolean {
+  const previewPath = getJxlPreviewSource(item)
+  if (!previewPath || jxlPreviewErrors[previewPath]) {
+    return false
+  }
+
+  if (jxlPreviewCache[previewPath]) {
+    updateDisplayImageSource(item)
+    return true
+  }
+
+  if (jxlPreviewLoading[previewPath]) {
+    return true
+  }
+
+  jxlPreviewLoading[previewPath] = true
+  const previewGeneration = jxlPreviewGeneration
+  const previewRequestSource = isAlwaysForceReload.value ? addCacheBustParam(previewPath) : previewPath
+  updateDisplayImageSource(item)
+  window.electron
+    .triggerRPC<string | undefined>(IRPCActionType.GALLERY_GET_JXL_PREVIEW, previewRequestSource, true)
+    .then(previewSrc => {
+      if (previewGeneration !== jxlPreviewGeneration || !isJxlPreviewSourceActive(previewPath)) {
+        return
+      }
+      if (previewSrc) {
+        cacheJxlPreview(previewPath, previewSrc)
+        delete jxlPreviewErrors[previewPath]
+      } else {
+        jxlPreviewErrors[previewPath] = true
+      }
+    })
+    .catch(() => {
+      if (previewGeneration !== jxlPreviewGeneration || !isJxlPreviewSourceActive(previewPath)) {
+        return
+      }
+      jxlPreviewErrors[previewPath] = true
+    })
+    .finally(() => {
+      if (previewGeneration !== jxlPreviewGeneration) {
+        return
+      }
+      delete jxlPreviewLoading[previewPath]
+      updateDisplayImageSource(item)
+    })
+
+  return true
 }
 
 function getGallery(): IGalleryItem[] {
@@ -760,8 +987,17 @@ async function updateGallery() {
   Object.keys(imageErrorStates).forEach(k => {
     if (!newIds.has(k)) delete imageErrorStates[k]
   })
+  Object.keys(displayImageSources).forEach(k => {
+    if (!newIds.has(k)) delete displayImageSources[k]
+  })
+  if (isAlwaysForceReload.value) {
+    cacheBustToken.value = Date.now()
+    invalidateJxlPreviewCache()
+  }
   images.value = newList
   nextTick(() => {
+    pruneJxlPreviewState()
+    syncVisibleDisplayImageSources()
     if (virtualScrollerRef.value) {
       virtualScrollerRef.value.refresh()
     }
@@ -806,6 +1042,7 @@ function clearChoosedList() {
 }
 
 function zoomImage(index: number) {
+  ensureJxlPreview(filterList.value[index])
   gallerySliderControl.value.index = index
   gallerySliderControl.value.visible = true
 }

@@ -6,7 +6,6 @@
     "esbenp.prettier-vscode",
     "EditorConfig.EditorConfig",
     "lokalise.i18n-ally",
-    "bradlc.vscode-tailwindcss",
-    "vitest.explorer"
+    "bradlc.vscode-tailwindcss"
   ]
 }
