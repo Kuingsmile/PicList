@@ -93,7 +93,7 @@ describe('getRawData 深度扩展工具测试', () => {
   })
 
   it('应当正确克隆 Date 和 RegExp', () => {
-    const date = new Date('2024-01-01')
+    const date = new Date('2024-01-02')
     const reg = /test/g
     const data = reactive({ date, reg })
 

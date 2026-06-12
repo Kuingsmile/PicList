@@ -10,6 +10,7 @@ import fs from 'fs-extra'
 import { IPicGo } from 'piclist'
 import { isProxy, isRef, toRaw, unref } from 'vue'
 
+import { getClipboardTextFilePath } from '~/utils/clipboardFilePath'
 import { configPaths } from '~/utils/configPaths'
 import { IShortUrlServer } from '~/utils/enum'
 
@@ -147,7 +148,11 @@ export const getClipboardFilePath = (): string => {
       .readBuffer('FileNameW')
       ?.toString('ucs2')
       ?.replace(RegExp(String.fromCharCode(0), 'g'), '')
-    return imgPath || ''
+    if (imgPath) return imgPath
+  }
+
+  if (img.isEmpty()) {
+    return getClipboardTextFilePath(clipboard.readText())
   }
 
   return ''
