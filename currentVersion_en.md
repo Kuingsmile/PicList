@@ -1,28 +1,14 @@
-## 🎉 [v3.4.0] Release Notes
-
-### ⚠️ Breaking Changes
-
-- The `uploadPath` setting for the built-in AWS S3 image bed no longer supports placeholders. If you previously used placeholders, please replace them with a fixed path or use the advanced renaming feature to achieve dynamic paths.
+## 🎉 [v3.5.0] Release Notes
 
 ### ✨ New Features
 
-- Added a new file scaling setting `longEdgeAsHeight`. When enabled, the long edge is treated as the height for scaling, suitable for handling vertical images.
-- Updated the available regions for Alibaba Cloud OSS, Tencent Cloud COS, and Qiniu Cloud, removing deprecated regions and adding new ones.
-- Added settings for maximum upload concurrency and upload interval for the Upload API service to prevent excessive concurrent uploads that could put too much pressure on the server or lead to access restrictions by image bed providers.
-- The cloud page's SM.MS has migrated to the S.EE platform.
-- The cloud page WebDAV platform now prioritizes using the current image bed configuration's endpoint as the link address when opening the official website.
-- Plugin pages now display the last update time of the plugin, making it easier for users to understand the maintenance status of the plugin.
-- Optimized the logic for obtaining local file extensions, improving compatibility with special file names.
-- Updated the clipboard image acquisition script for Linux.
-- Now supports monitoring system clipboard changes when copying files.
-- Optimized the opening speed of the main interface in poor network conditions.
+- Added the `{ulid}` placeholder for advanced renaming, allowing random ULID segments in generated file names.
+- Added an image preview thumbnail suffix setting for cloud management. It can append thumbnail parameters to public image previews without changing the original URLs used for copy, download, or delete operations.
+- Gallery now supports JXL image preview by converting local or remote JXL files to PNG previews for the gallery list and preview dialog.
+- Clipboard upload now recognizes absolute file path text and `file://` URLs from the clipboard, making it possible to upload directly from copied file path text.
 
 ### 🐛 Bug Fixes
 
-- Fixed an issue where some text on the cloud page did not change according to the language settings.
-- Fixed an issue where images or files on the cloud webdav page could not be previewed.
-- Fixed an issue where the value set in the configuration file for the single image bed renaming setting was not correctly updated during updates.
-- Fixed an issue where renaming did not take effect in certain cases.
-- Fixed an issue where the option to ignore software updates was not correctly saved in some cases.
-- Fixed an issue where the conversion process would still occur when the source file format was the same as the conversion format.
-- Fixed an issue where the Docker version build did not properly clean the build cache, resulting in a reduced image size of 100MB after the fix.
+- Fixed compatibility issues when converting to HEIF format.
+- Modified the handling of EXIF data to avoid file size anomalies after removal.
+- Removed automatic Vue DevTools installation during development startup to avoid startup impact or error logs when installation fails.
