@@ -13,7 +13,6 @@ import { createTray, setDockMenu } from 'apis/app/system'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
 import { app, globalShortcut, net, Notification, protocol, screen } from 'electron'
-import { installExtension, VUEJS_DEVTOOLS_BETA } from 'electron-devtools-installer'
 import fs from 'fs-extra'
 
 import busEventList from '~/events/busEventList'
@@ -91,13 +90,6 @@ class LifeCycle {
 
   #onReady() {
     const readyFunction = async () => {
-      if (isDevelopment) {
-        try {
-          await installExtension(VUEJS_DEVTOOLS_BETA)
-        } catch (e: any) {
-          logger.error('Vue Devtools failed to install:', e)
-        }
-      }
       protocol.handle('theme', request => {
         const requestUrl = request.url
         const urlObj = new URL(requestUrl)
