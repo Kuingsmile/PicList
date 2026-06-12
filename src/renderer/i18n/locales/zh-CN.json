@@ -654,6 +654,9 @@
         },
         "selectDownloadFolderTips": "选择下载目录",
         "selectDownloadFolderTitle": "选择下载文件夹",
+        "thumbnailSuffixPlaceholder": "例如：?imageMogr2/thumbnail/200x200",
+        "thumbnailSuffixTips": "仅影响云管理列表中的图片预览，不会改变复制链接、下载或删除使用的原始地址",
+        "thumbnailSuffixTitle": "图片预览缩略图后缀",
         "timestampRenameTips": "开启后，上传的文件将自动重命名为时间戳",
         "timestampRenameTitle": "上传文件时间戳重命名(最高优先级)",
         "title": "管理通用设置"

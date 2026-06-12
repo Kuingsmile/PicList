@@ -654,6 +654,9 @@
         },
         "selectDownloadFolderTips": "Select download directory",
         "selectDownloadFolderTitle": "Choose download folder",
+        "thumbnailSuffixPlaceholder": "Example: ?imageMogr2/thumbnail/200x200",
+        "thumbnailSuffixTips": "Only affects image previews in the cloud management list. Copy, download, and delete still use the original URL",
+        "thumbnailSuffixTitle": "Image preview thumbnail suffix",
         "timestampRenameTips": "When enabled, uploaded files will be renamed to a timestamp",
         "timestampRenameTitle": "Timestamp rename on upload (highest priority)",
         "title": "Manage General Settings"

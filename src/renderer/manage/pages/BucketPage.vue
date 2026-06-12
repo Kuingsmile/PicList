@@ -327,7 +327,7 @@
                 >
                   <img
                     v-if="isShowThumbnail && item.isImage"
-                    :src="item.url"
+                    :src="getThumbnailUrl(item.url)"
                     class="h-full w-full object-contain transition-all duration-fast ease-apple"
                     @error="() => {}"
                   />
@@ -1189,6 +1189,7 @@ import {
 } from '@/manage/utils/common'
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { textFileExt } from '@/manage/utils/textfile'
+import { appendThumbnailSuffix } from '@/manage/utils/thumbnailUrl'
 import { videoExt } from '@/manage/utils/videofile'
 import { trimPath } from '@/utils/common'
 import { useDragEventListeners } from '@/utils/drag'
@@ -1403,6 +1404,7 @@ const calculateAllFileSize = computed(
     '0',
 )
 const isShowThumbnail = computed(() => manageStore.config.settings.isShowThumbnail ?? false)
+const thumbnailSuffix = computed(() => manageStore.config.settings.thumbnailSuffix ?? '')
 const isUsePreSignedUrl = computed(() => manageStore.config.settings.isUsePreSignedUrl ?? false)
 const isAutoRefresh = computed(() => manageStore.config.settings.isAutoRefresh ?? false)
 const isIgnoreCase = computed(() => manageStore.config.settings.isIgnoreCase ?? false)
@@ -1467,6 +1469,10 @@ watch(
 )
 
 const getExtension = (fileName: string) => window.node.path.extname(fileName).slice(1)
+
+function getThumbnailUrl(url: string) {
+  return appendThumbnailSuffix(url, thumbnailSuffix.value)
+}
 
 function getList() {
   if (!searchText.value) {

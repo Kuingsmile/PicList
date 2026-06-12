@@ -654,6 +654,9 @@
         },
         "selectDownloadFolderTips": "選擇下載目錄",
         "selectDownloadFolderTitle": "選擇下載資料夾",
+        "thumbnailSuffixPlaceholder": "例如：?imageMogr2/thumbnail/200x200",
+        "thumbnailSuffixTips": "僅影響雲端管理列表中的圖片預覽，不會變更複製連結、下載或刪除使用的原始地址",
+        "thumbnailSuffixTitle": "圖片預覽縮圖後綴",
         "timestampRenameTips": "啟用後，上傳的檔案將自動更名為時間戳",
         "timestampRenameTitle": "上傳檔案時間戳重新命名（最高優先級）",
         "title": "管理通用設置"
