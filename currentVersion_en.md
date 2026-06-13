@@ -9,6 +9,8 @@
 
 ### 🐛 Bug Fixes
 
+- Fixed the issue of slow software startup under certain network conditions.
+- Fixed the issue in macOS where Typora upload would automatically activate the main interface.
 - Fixed compatibility issues when converting to HEIF format.
 - Modified the handling of EXIF data to avoid file size anomalies after removal.
 - Removed automatic Vue DevTools installation during development startup to avoid startup impact or error logs when installation fails.
