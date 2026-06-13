@@ -90,8 +90,10 @@ class Server {
     } else {
       const remoteAddress = request.socket.remoteAddress || 'unknown'
       logger.info('[PicList Server] get a POST request from IP:', remoteAddress)
+      const isLocalRequest =
+        remoteAddress === '::1' || remoteAddress === '127.0.0.1' || remoteAddress === '::ffff:127.0.0.1'
       let urlSP = query ? new URLSearchParams(query) : undefined
-      if (remoteAddress === '::1' || remoteAddress === '127.0.0.1' || remoteAddress === '::ffff:127.0.0.1') {
+      if (isLocalRequest) {
         const serverKey = picgo.getConfig<string>(configPaths.settings.serverKey) || ''
         if (urlSP) {
           urlSP.set('key', serverKey)
