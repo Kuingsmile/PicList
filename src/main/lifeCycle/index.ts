@@ -227,11 +227,13 @@ class LifeCycle {
         pendingActivateWindowTimer = null
       }
       const result = handleStartUpFiles(commandLine, workingDirectory)
+      logger.info('handleStartUpFiles result:', String(result))
       if (!result) {
         windowManager.create(IWindowList.SETTING_WINDOW)
       }
     })
     app.on('activate', () => {
+      logger.info('activate is called')
       if (!windowManager.has(IWindowList.SETTING_WINDOW)) {
         if (pendingActivateWindowTimer !== null) clearTimeout(pendingActivateWindowTimer)
         pendingActivateWindowTimer = setTimeout(() => {
