@@ -357,13 +357,11 @@ function toggleWindow(bounds: IBounds) {
 
 async function sendClipboardFiles() {
   const img = clipboard.readImage()
-  console.log('Clipboard image', img.isEmpty())
   const obj: ImgInfo[] = []
   if (!img.isEmpty()) {
     // 从剪贴板来的图片默认转为png
     // https://github.com/electron/electron/issues/9035
     const imgPath = clipboard.read('public.file-url')
-    console.log(imgPath)
     if (imgPath) {
       const decodePath = ensureFilePath(imgPath)
       if (decodePath === imgPath) {
