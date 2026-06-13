@@ -47,6 +47,24 @@ const defaultStartMode = {
   linux: ISartMode.MINI,
 }
 
+const isPointInRect = (point: Electron.Point, rect: Electron.Rectangle) =>
+  point.x >= rect.x && point.x < rect.x + rect.width && point.y >= rect.y && point.y < rect.y + rect.height
+
+const isLikelyDockActivation = () => {
+  if (process.platform !== 'darwin') return true
+
+  const cursorPoint = screen.getCursorScreenPoint()
+  const display = screen.getDisplayNearestPoint(cursorPoint)
+  const isInWorkArea = isPointInRect(cursorPoint, display.workArea)
+  const isInMenuBar =
+    cursorPoint.y >= display.bounds.y &&
+    cursorPoint.y < display.workArea.y &&
+    cursorPoint.x >= display.workArea.x &&
+    cursorPoint.x < display.workArea.x + display.workArea.width
+
+  return !isInWorkArea && !isInMenuBar
+}
+
 const handleStartUpFiles = (argv: string[], cwd: string) => {
   const files = getUploadFiles(argv, cwd, logger)
 
@@ -218,28 +236,18 @@ class LifeCycle {
   }
 
   #onRunning() {
-    let pendingActivateWindowTimer: ReturnType<typeof setTimeout> | null = null
-
     app.on('second-instance', (_, commandLine, workingDirectory) => {
       logger.info('detect second instance')
-      if (pendingActivateWindowTimer !== null) {
-        clearTimeout(pendingActivateWindowTimer)
-        pendingActivateWindowTimer = null
-      }
       const result = handleStartUpFiles(commandLine, workingDirectory)
+      logger.info('handleStartUpFiles result:', String(result))
       if (!result) {
         windowManager.create(IWindowList.SETTING_WINDOW)
       }
     })
     app.on('activate', () => {
-      if (!windowManager.has(IWindowList.SETTING_WINDOW)) {
-        if (pendingActivateWindowTimer !== null) clearTimeout(pendingActivateWindowTimer)
-        pendingActivateWindowTimer = setTimeout(() => {
-          pendingActivateWindowTimer = null
-          if (!windowManager.has(IWindowList.SETTING_WINDOW)) {
-            windowManager.create(IWindowList.SETTING_WINDOW)
-          }
-        }, 300)
+      logger.info('activate is called')
+      if (!windowManager.has(IWindowList.SETTING_WINDOW) && isLikelyDockActivation()) {
+        windowManager.create(IWindowList.SETTING_WINDOW)
       }
     })
     const storedAutoStartEnabled = picgo.getConfig<boolean>(configPaths.settings.autoStart) || false
