@@ -1,3 +1,25 @@
+##  (2026-06-14)
+
+* :arrow_up: Upgrade(custom): upgrade deps 1eca4d7
+* :arrow_up: Upgrade(custom): upgrade deps, remove deprecated deps 3ce5811
+* :bug: Fix(custom): fix several ui issue 9acab0d
+* :bug: Fix(custom): remove vue devtools install 9a39023, closes #529
+* :hammer: Refactor(custom): change i18n field c7f027e
+* :hammer: Refactor(custom): remove debug log 8d7f77b
+* :hammer: Refactor(custom): remove unintended logs c35a32d
+* :package: Chore(custom): change vite dev setting cda1372
+* :package: Chore(custom): update vscode setting 6bbc08f
+* :package: Chore(custom): update winget file 65ec8ef
+* :pencil: Docs(custom): prepare for 3.5.0 ecd59c6
+* :pencil: Docs(custom): update 3.5.0 changelog db2b21f
+* :sparkles: Feature(custom): add support for ULID in advanced rename 13f4c49
+* :sparkles: Feature(custom): add thumbnail suffix functionality and related settings 74cf3ea, closes #539
+* :sparkles: Feature(custom): support jxl image preview in gallery 26d9c49, closes #531
+* :sparkles: Feature(custom): support upload absolute file path text in clipboard d3458e6, closes #538
+* Fix typora macos (#542) a7d07a9, closes #542
+
+
+
 ##  (2026-05-09)
 
 * :arrow_up: Upgrade(custom): upgrade deps and devdeps a25b3c6
