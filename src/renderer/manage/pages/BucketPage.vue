@@ -313,7 +313,7 @@
           <template #default="{ item, index }">
             <!-- Grid View -->
             <div
-              class="group/image m-0 box-border flex h-[calc(100%-8px)] w-full cursor-pointer flex-col overflow-hidden rounded-lg border-2 border-border shadow-sm transition-all duration-fast ease-apple hover:-translate-y-[2px] hover:border-accent hover:shadow-md [.selected]:border-2 [.selected]:border-accent [.selected]:shadow-md"
+              class="group/image m-0 box-border flex h-[calc(100%-8px)] w-full cursor-pointer flex-col overflow-hidden rounded-lg border-2 border-border shadow-sm transition-all duration-fast ease-apple hover:translate-y-[-2px] hover:border-accent hover:shadow-md [.selected]:border-2 [.selected]:border-accent [.selected]:shadow-md"
               :class="{ selected: item.checked }"
               @click="item.checked = !item.checked"
             >
@@ -503,10 +503,7 @@
       class="image-preview-modal"
     >
       <div class="flex-1 p-4">
-        <img
-          :src="ImagePreviewList[getCurrentPreviewIndex]"
-          style="max-width: 100%; max-height: 70vh; object-fit: contain"
-        />
+        <img :src="ImagePreviewList[getCurrentPreviewIndex]" class="max-h-[70vh] max-w-full object-contain" />
       </div>
     </CustomModal>
 
@@ -640,7 +637,7 @@
     <!-- Loading Indicators -->
     <div v-if="isLoadingData" class="animate-slide-right fixed right-[25px] bottom-[25px] z-9999 duration-300 ease-out">
       <div
-        class="flex min-w-[240px] items-center gap-3 rounded-lg bg-accent/85 px-4 py-3.5 shadow-lg transition-all duration-200 ease-apple hover:-translate-y-[2px] hover:bg-accent/95 hover:shadow-xl"
+        class="flex min-w-[240px] items-center gap-3 rounded-lg bg-accent/85 px-4 py-3.5 shadow-lg transition-all duration-200 ease-apple hover:translate-y-[-2px] hover:bg-accent/95 hover:shadow-xl"
       >
         <div
           class="mr-0 inline-block h-[18px] w-[18px] shrink-0 animate-spin rounded-full border-2 border-t-2 border-black/30 border-t-white"
@@ -661,7 +658,7 @@
       class="animate-slide-right fixed top-[50px] right-[25px] z-9999 duration-300 ease-out"
     >
       <div
-        class="flex min-w-[240px] items-center gap-3 rounded-lg bg-accent/85 px-4 py-3.5 shadow-lg transition-all duration-200 ease-apple hover:-translate-y-[2px] hover:bg-accent/95 hover:shadow-xl"
+        class="flex min-w-[240px] items-center gap-3 rounded-lg bg-accent/85 px-4 py-3.5 shadow-lg transition-all duration-200 ease-apple hover:translate-y-[-2px] hover:bg-accent/95 hover:shadow-xl"
       >
         <div
           class="mr-0 inline-block h-[18px] w-[18px] shrink-0 animate-spin rounded-full border-2 border-t-2 border-black/30 border-t-white"
@@ -1048,7 +1045,7 @@
       :title="t('pages.manage.bucket.preview')"
     >
       <div class="flex h-full w-full">
-        <div class="notes-body" style="user-select: text" v-html="markDownContent" />
+        <div class="notes-body select-text" v-html="markDownContent" />
       </div>
     </CustomModal>
 

@@ -1082,7 +1082,7 @@
     >
       <div class="flex w-full flex-col gap-4 p-4">
         <div
-          class="mb-4 flex items-start gap-3 rounded-lg border border-border bg-success/10 px-4 py-3 text-sm leading-1.5 font-semibold text-secondary"
+          class="mb-4 flex items-start gap-3 rounded-lg border border-border bg-success/10 px-4 py-3 text-sm font-semibold text-secondary"
         >
           <span>{{ t('pages.settings.advanced.webServerNotice') }}</span>
         </div>

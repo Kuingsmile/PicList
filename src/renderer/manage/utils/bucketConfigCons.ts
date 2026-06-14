@@ -1,7 +1,7 @@
 const AliyunAreaCodeName: IStringKeyMap = {
   'oss-cn-hangzhou': '华东1(杭州)',
   'oss-cn-shanghai': '华东2(上海)',
-  'oss-cn-wuhan': '华中1(武汉)',
+  'oss-cn-wuhan-lr': '华中1(武汉)',
   'oss-cn-qingdao': '华北1(青岛)',
   'oss-cn-beijing': '华北2(北京)',
   'oss-cn-zhangjiakou': '华北3(张家口)',
@@ -25,6 +25,7 @@ const AliyunAreaCodeName: IStringKeyMap = {
   'oss-us-west-1': '美国(硅谷)',
   'oss-us-east-1': '美国(弗吉尼亚)',
   'oss-na-south-1': '墨西哥',
+  'oss-eu-west-2': '法国(巴黎)',
   'oss-me-east-1': '阿联酋(迪拜)',
   'oss-rg-china-mainland': '无地域属性',
 }
