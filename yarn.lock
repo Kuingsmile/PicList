@@ -3262,9 +3262,9 @@
     undici-types "~6.21.0"
 
 "@types/node@^25.9.2":
-  version "25.9.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-25.9.2.tgz#fc8958e757994b71fee516f9634bdb03d1b19e9f"
-  integrity sha512-G05zqtJhcDLb8uslf5EjCxXg9G1KQxiV8OS0R26IC//Eoyitzqe8z37I7cqvnZlrlSfgocQRfSn/AHBZJJFyGw==
+  version "25.9.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-25.9.5.tgz#0fefc09e6e82e94cde291bacf43522e989eb01a4"
+  integrity sha512-OScDchr2fwuUmWdf4kZ9h7PcJiYDVInhJizG/biAq3cAvqwYktuy/TYGGdZNMtNTFUP7rnb0NU4TUdm82kt4Rg==
   dependencies:
     undici-types ">=7.24.0 <7.24.7"
 
