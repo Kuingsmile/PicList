@@ -198,6 +198,6 @@ Copyright (c) 2023-present Kuingsmile
 <div align="center">
   <p>Star Me！ ⭐️</p>
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Kuingsmile/PicList&type=Date)](https://star-history.com/#Kuingsmile/PicList&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=Kuingsmile/PicList&type=Date)](https://star-history.dera.page/#Kuingsmile/PicList&Date)
 
 </div>
