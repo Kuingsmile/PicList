@@ -3586,9 +3586,9 @@
     is-function "^1.0.1"
 
 "@vitejs/plugin-vue@^6.0.7":
-  version "6.0.7"
-  resolved "https://registry.yarnpkg.com/@vitejs/plugin-vue/-/plugin-vue-6.0.7.tgz#194235d364a2c601c521b0410e524e521119059f"
-  integrity sha512-km+p+XdSz9Sxm5rqUbqcSfZYaAniKxWBj1KURl+Jr7UaPvvX7BmaWMdP69I5rrFDeQGyxAG7NXdc57vz+snhWg==
+  version "6.0.9"
+  resolved "https://registry.yarnpkg.com/@vitejs/plugin-vue/-/plugin-vue-6.0.9.tgz#d6a6d288dd307d086dbf8d3fcccb8c378c473a45"
+  integrity sha512-rD/MORlhaZMlXWW0rEn4FB4wMinWC0z/D7Ye160S5+Rs1mC8ZDAdcDp4SjKfUhG5t8q1ktcPVw4xuTkPRlzrSA==
   dependencies:
     "@rolldown/pluginutils" "^1.0.1"
 
