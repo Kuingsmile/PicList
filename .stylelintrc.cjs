@@ -1,41 +1,58 @@
+/** @type {import('stylelint').Config} */
 module.exports = {
-  extends: ['stylelint-config-standard', 'stylelint-config-html/vue', 'stylelint-config-standard-vue'],
-  plugins: [],
+  // The Vue preset supplies postcss-html and Vue selector/function support.
+  extends: ['stylelint-config-standard', 'stylelint-config-standard-vue'],
   rules: {
-    'import-notation': null,
-    // 这里是允许了空的style标签
-    'no-empty-source': null,
-    'selector-class-pattern': null,
-    // 禁止空块
-    'block-no-empty': true,
-    // 颜色6位长度
+    // Preserve the project's color notation and existing component class names.
     'color-hex-length': 'long',
-    // 兼容自定义标签名
-    'selector-type-no-unknown': [
-      true,
-      {
-        ignoreTypes: [],
-      },
-    ],
-    // 忽略伪类选择器 ::v-deep
-    'selector-pseudo-element-no-unknown': [
-      true,
-      {
-        ignorePseudoElements: ['v-deep'],
-      },
-    ],
-    // 禁止低优先级的选择器出现在高优先级的选择器之后。
+    // Tailwind's CSS imports use quoted paths, including package imports.
+    'import-notation': 'string',
+    'selector-class-pattern': null,
+    // Scoped component styles intentionally group related selectors together.
     'no-descending-specificity': null,
-    // 不验证@未知的名字，为了兼容scss的函数
-    'at-rule-no-unknown': null,
-    // 禁止空注释
-    'comment-no-empty': true,
-    // 禁止简写属性的冗余值
-    'shorthand-property-no-redundant-values': true,
-    // 禁止值的浏览器引擎前缀
-    'value-no-vendor-prefix': true,
-    // property-no-vendor-prefix
-    'property-no-vendor-prefix': true,
-    // 属性的排序
+    // Allow Tailwind v4 directives while still catching misspelled CSS at-rules.
+    'at-rule-no-unknown': [
+      true,
+      {
+        ignoreAtRules: [
+          'apply',
+          'config',
+          'custom-variant',
+          'plugin',
+          'reference',
+          'slot',
+          'source',
+          'theme',
+          'utility',
+          'variant',
+        ],
+      },
+    ],
+    'function-no-unknown': [
+      true,
+      {
+        ignoreFunctions: ['--alpha', '--modifier', '--spacing', '--value', 'theme', 'v-bind'],
+      },
+    ],
+    // Tailwind supplies the parent selector when expanding these blocks.
+    'nesting-selector-no-missing-scoping-root': [true, { ignoreAtRules: ['custom-variant', 'utility'] }],
   },
+  overrides: [
+    {
+      files: ['**/*.vue'],
+      rules: {
+        // Vue files may omit styles or reference a separate CSS file.
+        'no-empty-source': null,
+        // Tailwind and Vue resolve these values at build time.
+        'declaration-property-value-no-unknown': [
+          true,
+          {
+            ignoreProperties: {
+              '/.*/': /(?:--(?:alpha|modifier|spacing|value)|theme|v-bind)\(/,
+            },
+          },
+        ],
+      },
+    },
+  ],
 }

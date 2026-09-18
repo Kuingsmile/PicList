@@ -1,11 +1,12 @@
 import { execSync } from 'node:child_process'
-import fs from 'fs-extra'
 import path from 'node:path'
-import axios from 'axios'
+
 import AdmZip from 'adm-zip'
+import axios from 'axios'
+import fs from 'fs-extra'
 
 const cwd = process.cwd()
-let arch = process.arch
+const arch = process.arch
 const platform = process.platform
 
 const args = process.argv.slice(2)

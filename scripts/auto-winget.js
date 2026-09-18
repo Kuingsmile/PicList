@@ -1,11 +1,13 @@
-import dotenv from 'dotenv'
-import packagej from '../package.json' with { type: 'json' }
-import * as fsWalk from '@nodelib/fs.walk'
-import fs from 'fs-extra'
-import path from 'node:path'
-import yaml from 'yaml'
-import axios from 'axios'
 import { exec } from 'node:child_process'
+import path from 'node:path'
+
+import * as fsWalk from '@nodelib/fs.walk'
+import axios from 'axios'
+import dotenv from 'dotenv'
+import fs from 'fs-extra'
+import yaml from 'yaml'
+
+import packagej from '../package.json' with { type: 'json' }
 
 dotenv.config()
 

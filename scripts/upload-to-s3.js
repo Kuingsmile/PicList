@@ -1,10 +1,12 @@
-import dotenv from 'dotenv'
-import { fileList } from './config.js'
-import fs from 'fs-extra'
-import mime from 'mime'
 import path from 'node:path'
+
 import { S3Client } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
+import dotenv from 'dotenv'
+import fs from 'fs-extra'
+import mime from 'mime'
+
+import { fileList } from './config.js'
 
 dotenv.config()
 

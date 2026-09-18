@@ -41,7 +41,7 @@ import { onClickOutside } from '@vueuse/core'
 import { nextTick, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const choosed = defineModel<string[]>('choosed')
+const choosed = defineModel<string[]>('choosed', { default: undefined })
 const { t } = useI18n()
 const dropdownRef = ref(null)
 

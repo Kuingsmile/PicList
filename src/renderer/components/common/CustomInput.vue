@@ -46,6 +46,7 @@ import { marked } from 'marked'
 import { onMounted, ref } from 'vue'
 
 const [modelValue, modifiers] = defineModel<any>({
+  default: undefined,
   set(value) {
     let result = value
     if (modifiers.trim && typeof result === 'string') {

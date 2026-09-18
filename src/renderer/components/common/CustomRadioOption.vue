@@ -10,7 +10,7 @@
   </label>
 </template>
 <script lang="ts" setup>
-const modelValue = defineModel<string>()
+const modelValue = defineModel<string>({ default: undefined })
 const { value = '', title = '' } = defineProps<{
   value?: string
   title?: string

@@ -41,7 +41,7 @@ import { nextTick, ref } from 'vue'
 
 const emit = defineEmits<(e: 'change', key: string) => void>()
 const dropdownRef = ref(null)
-const modelValue = defineModel<string>()
+const modelValue = defineModel<string>({ default: undefined })
 const triggerRef = ref<HTMLElement | null>(null)
 const optionsRef = ref<HTMLElement | null>(null)
 

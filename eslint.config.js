@@ -1,61 +1,41 @@
 import js from '@eslint/js'
-import { defineConfig } from 'eslint/config'
-import configPrettier from 'eslint-config-prettier'
+import { defineConfig, globalIgnores } from 'eslint/config'
 import jsonc from 'eslint-plugin-jsonc'
 import pluginPrettier from 'eslint-plugin-prettier/recommended'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import pluginUnicorn from 'eslint-plugin-unicorn'
 import pluginVue from 'eslint-plugin-vue'
 import globals from 'globals'
-import * as jsoncParser from 'jsonc-eslint-parser'
 import tseslint from 'typescript-eslint'
 import vueParser from 'vue-eslint-parser'
 
+const jsFiles = ['**/*.{js,jsx,mjs,cjs}']
+const tsFiles = ['**/*.{ts,tsx,mts,cts}']
+const vueFiles = ['**/*.vue']
+const codeFiles = [...jsFiles, ...tsFiles, ...vueFiles]
+const jsoncFiles = ['**/*.jsonc', '**/tsconfig.json', '**/tsconfig.*.json', '**/.vscode/*.json']
+const unusedVarsOptions = {
+  varsIgnorePattern: '^_',
+  args: 'all',
+  argsIgnorePattern: '^_',
+  caughtErrors: 'all',
+  caughtErrorsIgnorePattern: '^_',
+}
+
 export default defineConfig(
+  globalIgnores([
+    '**/node_modules/**',
+    '**/out/**',
+    '**/dist/**',
+    '**/dist_electron/**',
+    '**/coverage/**',
+    'build/**',
+    'release/**',
+  ]),
   {
-    ignores: [
-      '**/node_modules/**',
-      '**/out/**',
-      '**/webpack.config.js',
-      'vitest.workspace.mjs',
-      '**/dist/**',
-      '**/dist_electron/**',
-    ],
-  },
-  js.configs.recommended,
-  ...pluginVue.configs['flat/recommended'],
-  ...tseslint.configs.recommended,
-  ...tseslint.configs.stylistic,
-  {
-    files: ['**/*.ts', '**/*.d.ts'],
-    languageOptions: {
-      parser: tseslint.parser,
-      sourceType: 'module',
-      ecmaVersion: 'latest',
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
-    },
-  },
-  {
-    files: ['**/*.vue'],
-    languageOptions: {
-      parser: vueParser,
-      parserOptions: {
-        parser: tseslint.parser,
-        extraFileExtensions: ['.vue'],
-        sourceType: 'module',
-        ecmaVersion: 'latest',
-      },
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
-    },
-  },
-  {
-    files: ['**/*.ts', '**/*.d.ts', '**/*.vue', 'eslint.config.js', 'vite.config.js', 'electron.vite.config.js'],
+    name: 'piclist/code',
+    files: codeFiles,
+    extends: [js.configs.recommended],
     plugins: {
       'simple-import-sort': simpleImportSort,
       unicorn: pluginUnicorn,
@@ -74,105 +54,132 @@ export default defineConfig(
       'no-new-wrappers': 'error',
       'no-throw-literal': 'error',
       'no-undef-init': 'error',
+      'no-unused-vars': ['error', unusedVarsOptions],
       'no-var': 'error',
       'object-shorthand': 'error',
       'prefer-const': 'error',
       'prefer-object-spread': 'error',
       'unicode-bom': ['error', 'never'],
-      'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-      'no-unused-vars': 'off',
-      'no-extra-boolean-cast': 'off',
+      // Keep local and CI lint results consistent, regardless of NODE_ENV.
+      'no-debugger': 'error',
+
+      // Preserve the existing project's rule exceptions during this config refactor.
+      'no-async-promise-executor': 'off',
       'no-case-declarations': 'off',
       'no-cond-assign': 'off',
       'no-control-regex': 'off',
-      'no-inner-declarations': 'off',
       'no-empty': 'off',
-      // @typescript-eslint/eslint-plugin
-      '@typescript-eslint/no-unused-expressions': 'off',
+      'no-extra-boolean-cast': 'off',
+    },
+  },
+  {
+    name: 'piclist/jsx',
+    files: ['**/*.jsx'],
+    languageOptions: {
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+  },
+  {
+    name: 'piclist/typescript',
+    files: [...tsFiles, ...vueFiles],
+    extends: [tseslint.configs.recommended, tseslint.configs.stylistic],
+    rules: {
+      // TypeScript checks undefined names; JavaScript keeps ESLint's no-undef rule.
+      'no-undef': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', unusedVarsOptions],
+
+      // Compatibility with the existing application types and Electron integrations.
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-inferrable-types': 'off',
       '@typescript-eslint/no-namespace': 'off',
       '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
-      '@typescript-eslint/no-var-requires': 'off',
-      '@typescript-eslint/no-empty-interface': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-empty-object-type': 'off', // {} is a totally useful and valid type.
       '@typescript-eslint/no-require-imports': 'off',
-      '@typescript-eslint/no-inferrable-types': 'off',
-      '@typescript-eslint/no-this-alias': 'off',
-      // Pending https://github.com/typescript-eslint/typescript-eslint/issues/4820
-      '@typescript-eslint/prefer-optional-chain': 'off',
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        {
-          args: 'all',
-          argsIgnorePattern: '^_',
-          caughtErrors: 'all',
-          caughtErrorsIgnorePattern: '^_',
-        },
-      ],
-      'vue/no-v-html': 'off',
-      'vue/multi-word-component-names': 'off',
-      'no-undef': 'off', // TypeScript handles this
-      'no-async-promise-executor': 'off',
+      '@typescript-eslint/no-unused-expressions': 'off',
     },
   },
-  ...jsonc.configs['flat/recommended-with-jsonc'],
   {
-    files: ['**/*.json', '**/*.jsonc', '**/*.json5'],
+    name: 'piclist/vue',
+    files: vueFiles,
+    extends: [pluginVue.configs['flat/recommended']],
     languageOptions: {
-      parser: jsoncParser,
-    },
-    rules: {
-      'jsonc/array-bracket-spacing': ['error', 'never'],
-      'jsonc/comma-dangle': ['error', 'never'],
-      'jsonc/indent': ['error', 2],
-      'jsonc/no-comments': 'off',
-      'jsonc/quotes': ['error', 'double'],
-    },
-  },
-  {
-    files: ['src/renderer/i18n/**/*.json', 'src/main/i18n/locales/**/*.json'],
-    rules: {
-      'jsonc/sort-keys': [
-        'error',
-        'asc', // 升序排列
-        {
-          caseSensitive: false,
-          natural: true,
-        },
-      ],
-    },
-  },
-  {
-    files: ['**/*.mjs', '**/*.mts'],
-    rules: {
-      // These globals don't exist outside of CJS files.
-      'no-restricted-globals': [
-        'error',
-        { name: '__filename' },
-        { name: '__dirname' },
-        { name: 'require' },
-        { name: 'module' },
-        { name: 'exports' },
-      ],
-    },
-  },
-  {
-    files: ['*.config.js', '.stylelintrc.cjs', 'scripts/*.{js,mjs,cjs}', 'tests/*.{js,mjs,cjs}'],
-    languageOptions: {
-      globals: {
-        ...globals.node,
+      // Vue must parse the SFC, delegating its script blocks to TypeScript.
+      parser: vueParser,
+      parserOptions: {
+        parser: tseslint.parser,
+        extraFileExtensions: ['.vue'],
       },
     },
     rules: {
-      // 在脚本文件中，通常允许使用 console 和 require
-      'no-console': 'off',
-      '@typescript-eslint/no-require-imports': 'off',
-      '@typescript-eslint/no-var-requires': 'off',
+      'vue/multi-word-component-names': 'off',
+      'vue/no-v-html': 'off',
     },
   },
-  configPrettier,
+  {
+    name: 'piclist/node',
+    files: ['src/main/**/*', 'src/preload/**/*', 'scripts/**/*', 'tests/**/*', '*.{js,mjs,cjs,ts,mts,cts}'],
+    ignores: ['**/*.{json,jsonc,json5}'],
+    languageOptions: {
+      globals: globals.nodeBuiltin,
+    },
+  },
+  {
+    name: 'piclist/browser',
+    // The isolated preload bridge can access both Node and the DOM.
+    files: ['src/renderer/**/*', 'src/preload/**/*'],
+    ignores: ['**/*.{json,jsonc,json5}'],
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
+  {
+    name: 'piclist/explicit-esm',
+    files: ['**/*.{mjs,mts}'],
+    rules: {
+      // TypeScript's Node declarations also expose these CommonJS-only globals.
+      'no-restricted-globals': ['error', '__filename', '__dirname', 'require', 'module', 'exports'],
+    },
+  },
+  {
+    name: 'piclist/commonjs',
+    files: ['**/*.{cjs,cts}'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: globals.node,
+    },
+    rules: {
+      // electron-builder hooks and some tool configs are intentionally CommonJS.
+      'unicorn/prefer-module': 'off',
+    },
+  },
+  {
+    name: 'piclist/json',
+    files: ['**/*.json'],
+    ignores: jsoncFiles,
+    extends: [jsonc.configs['recommended-with-json'], jsonc.configs.prettier],
+    language: 'jsonc/json',
+  },
+  {
+    name: 'piclist/jsonc',
+    files: jsoncFiles,
+    extends: [jsonc.configs['recommended-with-jsonc'], jsonc.configs.prettier],
+    language: 'jsonc/jsonc',
+  },
+  {
+    name: 'piclist/json5',
+    files: ['**/*.json5'],
+    extends: [jsonc.configs['recommended-with-json5'], jsonc.configs.prettier],
+    language: 'jsonc/json5',
+  },
+  {
+    name: 'piclist/translations',
+    files: ['src/renderer/i18n/**/*.json', 'src/main/i18n/locales/**/*.json'],
+    rules: {
+      'jsonc/sort-keys': ['error', 'asc', { caseSensitive: false, natural: true }],
+    },
+  },
+  // Keep Prettier last so it can disable conflicting formatting rules.
   pluginPrettier,
 )

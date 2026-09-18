@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-const modelValue = defineModel<number>()
+const modelValue = defineModel<number>({ default: undefined })
 
 const {
   title = '',

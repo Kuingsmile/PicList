@@ -1,6 +1,7 @@
 // different platform has different format
+import path from 'node:path'
+
 import pkg from '../package.json' with { type: 'json' }
-import path from 'path'
 
 const version = pkg.version
 

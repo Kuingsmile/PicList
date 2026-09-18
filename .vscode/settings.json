@@ -3,75 +3,20 @@
     "editor.codeActionsOnSave": {
       "source.fixAll.stylelint": "always"
     },
-    "editor.defaultFormatter": "stylelint.vscode-stylelint",
-    "editor.formatOnSave": false
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
   },
-  "[javascript]": {
+  "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc][json5]": {
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "always"
     },
     "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-    "editor.formatOnSave": false
-  },
-  "[javascriptreact]": {
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "always"
-    },
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-    "editor.formatOnSave": false
-  },
-  "[json]": {
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "always"
-    },
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-    "editor.formatOnSave": false
-  },
-  "[json5]": {
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "always"
-    },
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-    "editor.formatOnSave": false
-  },
-  "[jsonc]": {
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "always"
-    },
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-    "editor.formatOnSave": false
-  },
-  "[less]": {
-    "editor.codeActionsOnSave": {
-      "source.fixAll.stylelint": "always"
-    },
-    "editor.defaultFormatter": "stylelint.vscode-stylelint",
     "editor.formatOnSave": false
   },
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
-  },
-  "[scss]": {
-    "editor.codeActionsOnSave": {
-      "source.fixAll.stylelint": "always"
-    },
-    "editor.defaultFormatter": "stylelint.vscode-stylelint",
-    "editor.formatOnSave": false
-  },
-  "[typescript]": {
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "always"
-    },
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-    "editor.formatOnSave": false
-  },
-  "[typescriptreact]": {
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "always"
-    },
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-    "editor.formatOnSave": false
+    "editor.formatOnSave": true,
+    "files.trimTrailingWhitespace": false
   },
   "[vue]": {
     "editor.codeActionsOnSave": {
@@ -109,6 +54,7 @@
     "jsonc",
     "json5"
   ],
+  "files.encoding": "utf8",
   "files.eol": "\n",
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
@@ -116,10 +62,12 @@
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
+    "**/coverage/**": true,
     "**/dist_electron/**": true,
     "**/dist/**": true,
     "**/node_modules/**": true,
-    "**/out/**": true
+    "**/out/**": true,
+    "**/release/**": true
   },
   "githubPullRequests.ignoredPullRequestBranches": ["dev"],
   "i18n-ally.displayLanguage": "zh-CN",
@@ -135,18 +83,19 @@
   "js/ts.tsdk.path": "node_modules/typescript/lib",
   "js/ts.tsdk.promptToUseWorkspaceVersion": true,
   "js/ts.updateImportsOnFileMove.enabled": "always",
-  "less.validate": false,
   "npm.packageManager": "yarn",
   "prettier.requireConfig": true,
   "prettier.useEditorConfig": true,
-  "scss.validate": false,
   "search.exclude": {
+    "**/coverage": true,
     "**/dist": true,
     "**/dist_electron": true,
     "**/node_modules": true,
-    "**/out": true
+    "**/out": true,
+    "**/release": true
   },
-  "stylelint.validate": ["css", "scss", "less", "vue"],
+  "stylelint.run": "onSave",
+  "stylelint.validate": ["css", "vue"],
   "tailwindCSS.includeLanguages": {
     "vue": "html"
   }
