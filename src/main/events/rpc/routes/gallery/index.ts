@@ -1,5 +1,6 @@
 import { GalleryDB } from '@core/datastore'
 import picgo from '@core/picgo'
+import type { IFilter, IObject } from '@piclist/store'
 import GuiApi from 'apis/gui'
 import { clipboard } from 'electron'
 
@@ -8,16 +9,7 @@ import { ICOREBuildInEvent, IPasteStyle, IRPCActionType, IRPCType } from '~/util
 import { convertJxlSourceToPngDataUrl } from '~/utils/jxlPreview'
 import pasteTemplate from '~/utils/pasteTemplate'
 import { runScriptInStage } from '~/utils/runScript'
-interface IFilter {
-  orderBy?: 'asc' | 'desc'
-  limit?: number
-  offset?: number
-}
 
-interface IObject {
-  id?: string
-  [propName: string]: any
-}
 const galleryRouter = new RPCRouter()
 
 const galleryRoutes = [

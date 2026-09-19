@@ -2619,6 +2619,19 @@
     lowdb "^7.0.1"
     write-file-atomic "^7.0.0"
 
+"@piclist/store@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@piclist/store/-/store-4.0.0.tgz#ad264515354c8d67b5b7ed7e634b5967160a295a"
+  integrity sha512-9U9nkNQaoRRd/oIBY0NHDh8Zj7Z3IQNtJbY5pRT1klQnkabhYmfgDkqOD68gzJ68gsZyPc/P/fcKkqXLCWn6Gg==
+  dependencies:
+    comment-json "^5.0.0"
+    fflate "^0.8.3"
+    fs-extra "^11.4.0"
+    lodash "^4.18.1"
+    lowdb "^7.0.1"
+    tslib "^2.8.1"
+    write-file-atomic "^7.0.1"
+
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
   resolved "https://registry.npmjs.org/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
@@ -4985,6 +4998,14 @@ comment-json@^4.5.1:
     core-util-is "^1.0.3"
     esprima "^4.0.1"
 
+comment-json@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/comment-json/-/comment-json-5.0.0.tgz#3b0cba63da30b31f8b3ea8d75f4d79bfa8346896"
+  integrity sha512-uiqLcOiVDJtBP8WGkZHEP+FZIhTzP1dxvn59EfoYUi9gqupjrBWVQkO2atDrbnKPwLeotFYDsuNb26uBMqB+hw==
+  dependencies:
+    array-timsort "^1.0.3"
+    esprima "^4.0.1"
+
 commitizen@^4.0.3, commitizen@^4.3.2:
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/commitizen/-/commitizen-4.3.2.tgz#c2288d5518673ba4deae54e0b6843f3e582406c8"
@@ -6663,6 +6684,15 @@ fs-extra@^11.3.5:
     jsonfile "^6.0.1"
     universalify "^2.0.0"
 
+fs-extra@^11.4.0:
+  version "11.4.0"
+  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-11.4.0.tgz#f88ed6d180ac9e14b61b08e679468f0b1b6b4730"
+  integrity sha512-EQsFzMUJkCKGr1ePqlYADkIUmHW1s3ZXr5Yqy6wbGrfUCphpl2maM/kyOIRA2HpP3AaFQTZXD4ldjek+nccddA==
+  dependencies:
+    graceful-fs "^4.2.0"
+    jsonfile "^6.0.1"
+    universalify "^2.0.0"
+
 fs-extra@^8.1.0:
   version "8.1.0"
   resolved "https://registry.npmjs.org/fs-extra/-/fs-extra-8.1.0.tgz#49d43c45a88cd9677668cb7be1b46efdb8d2e1c0"
@@ -7994,7 +8024,7 @@ lodash.truncate@^4.4.2:
   resolved "https://registry.yarnpkg.com/lodash.truncate/-/lodash.truncate-4.4.2.tgz#5a350da0b1113b837ecfffd5812cbe58d6eae193"
   integrity sha512-jttmRe7bRse52OsWIMDLaXxWqRAmtIUccAQ3garviCqJjafXOfNMO0yMfNpdD6zbGaTU0P5Nz7e7gAT6cKmJRw==
 
-lodash@4.18.1, lodash@^4.17.12, lodash@^4.17.23:
+lodash@4.18.1, lodash@^4.17.12, lodash@^4.17.23, lodash@^4.18.1:
   version "4.18.1"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.18.1.tgz#ff2b66c1f6326d59513de2407bf881439812771c"
   integrity sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==

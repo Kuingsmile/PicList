@@ -595,7 +595,7 @@ async function syncGallery(): Promise<number> {
         logger.info(`gallery db ${file} not exist in cloud, upload local file instead`)
         successCount++
         picgo.saveConfig({ [configPaths.settings.lastSyncTime]: Date.now() })
-        GalleryDB.getInstance(true)
+        await GalleryDB.getInstance().refresh()
         continue
       }
     } catch (err: any) {
@@ -607,7 +607,7 @@ async function syncGallery(): Promise<number> {
     await mergeGalleryDB(file)
     await updateLocalToRemote(syncConfig, file)
     picgo.saveConfig({ [configPaths.settings.lastSyncTime]: Date.now() })
-    GalleryDB.getInstance(true) // refresh gallery db instance
+    await GalleryDB.getInstance().refresh()
     logger.info(`sync gallery db ${file} success`)
     successCount++
   }

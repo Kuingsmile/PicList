@@ -1,8 +1,4 @@
-import { JSONStore } from '@piclist/store'
-
-interface IJSON {
-  [propsName: string]: string | number | IJSON
-}
+import { type IJSON, JSONStore } from '@piclist/store'
 
 class ManageDB {
   readonly #ctx: IManageApiType
@@ -31,29 +27,25 @@ class ManageDB {
   }
 
   get(key: string = ''): any {
-    this.read(true)
+    this.#db.refresh()
     return this.#db.get(key)
   }
 
   set(key: string, value: any): void {
-    this.read(true)
     return this.#db.set(key, value)
   }
 
   has(key: string): boolean {
-    this.read(true)
+    this.#db.refresh()
     return this.#db.has(key)
   }
 
-  unset(key: string, value: any): boolean {
-    this.read(true)
+  unset(key: string, value?: any): boolean {
     return this.#db.unset(key, value)
   }
 
   saveConfig(config: Partial<IManageConfigType>): void {
-    Object.keys(config).forEach((name: string) => {
-      this.set(name, config[name])
-    })
+    this.#db.setMany(config)
   }
 
   removeConfig(config: IManageConfigType): void {

@@ -60,7 +60,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1063.0",
     "@nodelib/fs.walk": "^3.0.1",
     "@octokit/rest": "^22.0.1",
-    "@piclist/store": "^3.0.1",
+    "@piclist/store": "^4.0.0",
     "@smithy/node-http-handler": "^4.7.7",
     "adm-zip": "^0.5.17",
     "ali-oss": "^6.23.0",
