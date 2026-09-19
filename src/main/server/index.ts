@@ -11,9 +11,11 @@ import { dataDir } from '~/apis/core/datastore/dirs'
 import routers from '~/server/routerManager'
 import { ensureHTTPLink, handleResponse } from '~/server/utils'
 import { configPaths } from '~/utils/configPaths'
+import { closeServer, listenOnce } from '~/utils/serverLifecycle'
 
 const DEFAULT_PORT = 36677
 const DEFAULT_HOST = '0.0.0.0'
+const MAX_PORT_ATTEMPTS = 10
 
 const serverTempDir = path.join(dataDir(), 'serverTemp')
 const uploadDirectory = Symbol('uploadDirectory')
@@ -81,6 +83,8 @@ async function handleMultipartUpload(
 class Server {
   #httpServer: http.Server
   #config: IServerConfig
+  #operation: Promise<void> = Promise.resolve()
+  #generation = 0
 
   constructor() {
     this.#config = this.getConfigWithDefaults()
@@ -97,7 +101,7 @@ class Server {
   }
 
   #isValidConfig(config: IObj | undefined) {
-    return config && config.port && config.host && config.enable !== undefined
+    return config && config.port !== undefined && config.host && config.enable !== undefined
   }
 
   #handleRequest = (request: http.IncomingMessage, response: http.ServerResponse) => {
@@ -198,48 +202,76 @@ class Server {
     }
   }
 
-  // port as string is a bug
-  #listen = (port: number | string) => {
-    logger.info(`[PicList Server] is listening at ${port} of ${this.#config.host}`)
-    if (typeof port === 'string') {
-      port = parseInt(port, 10)
+  #listen = async (generation: number) => {
+    if (!this.#config.enable || this.#httpServer.listening || generation !== this.#generation) return
+    const firstPort = Number(this.#config.port)
+    if (!Number.isInteger(firstPort) || firstPort < 1 || firstPort > 65535) {
+      logger.error('[PicList Server] invalid port; expected an integer from 1 to 65535')
+      return
     }
-    this.#httpServer.listen(port, this.#config.host).on('error', async (err: ErrnoException) => {
-      if (err.code === 'EADDRINUSE') {
-        try {
-          // make sure the system has a PicGo Server instance
-          await axios.post(ensureHTTPLink(`${this.#config.host}:${port}/heartbeat`))
-          logger.info(`[PicList Server] server is already running at ${port}`)
-          this.shutdown(true)
-        } catch (_e) {
-          logger.warn(`[PicList Server] ${port} is busy, trying with port ${(port as number) + 1}`)
-          // fix a bug: not write an increase number to config file
-          // to solve the auto number problem
-          this.#listen((port as number) + 1)
+    const host = this.#config.host
+    for (let attempt = 0; attempt < MAX_PORT_ATTEMPTS && firstPort + attempt <= 65535; attempt++) {
+      if (generation !== this.#generation) return
+      const port = firstPort + attempt
+      try {
+        await listenOnce(this.#httpServer, port, host)
+        logger.info(`[PicList Server] is listening at ${port} of ${host}`)
+        return
+      } catch (error) {
+        await closeServer(this.#httpServer)
+        if (generation !== this.#generation) return
+        if ((error as NodeJS.ErrnoException).code !== 'EADDRINUSE') {
+          logger.error('[PicList Server]', error as Error)
+          return
         }
-      } else {
-        logger.error('[PicList Server]', err)
+        const probeHost = host === '0.0.0.0' ? '127.0.0.1' : host === '::' ? '::1' : host
+        try {
+          const response = await axios.post(
+            ensureHTTPLink(`${probeHost.includes(':') ? `[${probeHost}]` : probeHost}:${port}/heartbeat`),
+            undefined,
+            { timeout: 1000, proxy: false },
+          )
+          if (response.data?.success === true && response.data?.result === 'alive') {
+            logger.info(`[PicList Server] server is already running at ${port}`)
+            return
+          }
+        } catch (_error) {
+          // The occupied port belongs to another service or does not answer in time.
+        }
+        logger.warn(`[PicList Server] ${port} is busy`)
       }
+    }
+    logger.error(`[PicList Server] unable to start after bounded port retries from ${firstPort}`)
+  }
+
+  #enqueue(operation: () => Promise<void>) {
+    this.#operation = this.#operation.then(operation).catch(error => {
+      logger.error('[PicList Server]', error)
     })
+    return this.#operation
   }
 
   startup() {
-    if (this.#config.enable) {
-      this.#listen(this.#config.port)
-    }
+    const generation = this.#generation
+    return this.#enqueue(() => this.#listen(generation))
   }
 
   shutdown(hasStarted?: boolean) {
-    this.#httpServer.close()
-    if (!hasStarted) {
-      logger.info('[PicList Server] shutdown')
-    }
+    this.#generation++
+    return this.#enqueue(async () => {
+      await closeServer(this.#httpServer)
+      if (!hasStarted) logger.info('[PicList Server] shutdown')
+    })
   }
 
   restart() {
-    this.shutdown()
-    this.#config = this.getConfigWithDefaults()
-    this.startup()
+    const generation = ++this.#generation
+    return this.#enqueue(async () => {
+      await closeServer(this.#httpServer)
+      this.#httpServer = http.createServer(this.#handleRequest)
+      this.#config = this.getConfigWithDefaults()
+      await this.#listen(generation)
+    })
   }
 }
 

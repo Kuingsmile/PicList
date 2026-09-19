@@ -51,6 +51,7 @@ vi.mock('~/server/utils', () => ({
 vi.mock('~/utils/configPaths', () => ({
   configPaths: { settings: { server: 'settings.server', serverKey: 'settings.serverKey' } },
 }))
+vi.mock('~/utils/serverLifecycle', () => import('../src/main/utils/serverLifecycle'))
 
 let baseUrl: string
 
