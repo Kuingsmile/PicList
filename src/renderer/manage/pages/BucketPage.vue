@@ -1960,8 +1960,9 @@ async function initCustomDomainList() {
     const currentConfigs = await getConfig<any>('picBed')
     const currentConfig = currentConfigs[configMap.value.alias]
     const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
-    if (currentTransformedConfig[configMap.value.bucketName]) {
-      currentCustomDomain.value = currentTransformedConfig[configMap.value.bucketName].customUrl ?? ''
+    const configuredDomain = currentTransformedConfig[configMap.value.bucketName]?.customUrl || currentConfig.customUrl
+    if (configuredDomain) {
+      currentCustomDomain.value = configuredDomain
     } else {
       if (manageStore.config.picBed[configMap.value.alias].endpoint) {
         const endpoint = manageStore.config.picBed[configMap.value.alias].endpoint

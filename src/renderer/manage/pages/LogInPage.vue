@@ -698,6 +698,8 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
         accessKeyId: config.accessKeyID,
         secretAccessKey: config.secretAccessKey,
         endpoint: config.endpoint || '',
+        region: config.region || '',
+        customUrl: config.urlPrefix || '',
         bucketName: '',
         baseDir: '/',
         itemsPerPage: 50,
