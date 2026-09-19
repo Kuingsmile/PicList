@@ -11,6 +11,7 @@ import { markdownContent } from '~/server/apiDoc'
 import router from '~/server/router'
 import { deleteChoosedFiles, handleResponse } from '~/server/utils'
 import { AESHelper } from '~/utils/aesHelper'
+import { isUploadUrl } from '~/utils/uploadResult'
 
 const LOG_PATH = appLogPath()
 
@@ -101,7 +102,7 @@ router.post(
           const fullResult = result.fullResult
           fullResult.imgUrl = useShortUrl ? fullResult.shortUrl || fullResult.imgUrl : fullResult.imgUrl
           logger.info('[PicList Server] upload result:', res)
-          if (res) {
+          if (isUploadUrl(res)) {
             const treatedFullResult = {
               isEncrypted: 1,
               EncryptedData: new AESHelper().encrypt(JSON.stringify(fullResult)),
@@ -149,7 +150,7 @@ router.post(
             return treatedItem
           })
           logger.info('[PicList Server] upload result', res.join(' ; '))
-          if (res.length) {
+          if (res.length === list.length && Array.from(res).every(isUploadUrl)) {
             handleResponse({
               response,
               body: {

@@ -17,6 +17,7 @@ import { getClipboardFilePath, getUploaderType, showNotification } from '~/utils
 import { configPaths } from '~/utils/configPaths'
 import { ICOREBuildInEvent, IWindowList } from '~/utils/enum'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
+import { isUploadUrl } from '~/utils/uploadResult'
 
 const waitForRename = (window: BrowserWindow | undefined, id: number | undefined): Promise<string | null> => {
   return new Promise(resolve => {
@@ -144,7 +145,9 @@ class Uploader {
       const res = await picgo.uploadReturnCtx(img, options)
       for (const key of ['ctx', 'backupCtx'] as const) {
         const ctx = res[key]
-        if (Array.isArray(ctx?.output) && ctx.output.some((item: ImgInfo) => item.imgUrl)) {
+        if (Array.isArray(ctx?.output)) {
+          ctx.output = ctx.output.filter(item => isUploadUrl(item?.imgUrl))
+          if (ctx.output.length === 0) continue
           const picBeds = ctx.getConfig<IStringKeyMap>('picBed') || {}
           ctx.output.forEach((item: ImgInfo) => {
             item.config = cloneDeep(picBeds[item.type!] || {})

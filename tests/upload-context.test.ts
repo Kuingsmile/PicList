@@ -44,6 +44,7 @@ vi.mock('~/utils/enum', () => import('../src/main/utils/enum'))
 vi.mock('~/utils/static', () => ({ CLIPBOARD_IMAGE_FOLDER: 'clipboard' }))
 vi.mock('~/utils/pasteTemplate', () => ({ default: async () => ['link', ''] }))
 vi.mock('~/utils/runScript', () => ({ runScriptInStage: vi.fn() }))
+vi.mock('~/utils/uploadResult', () => import('../src/main/utils/uploadResult'))
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -106,5 +107,37 @@ describe('upload configuration metadata', () => {
     })
     const result = await uploader.uploadReturnCtx(['/chosen.png'])
     expect(result.ctx!.output[0].config).toEqual({})
+  })
+})
+
+describe('upload result validation', () => {
+  it.each([undefined, null, '', '   ', 42])('does not save or delete a file for an invalid URL: %s', async imgUrl => {
+    state.config.settings.deleteLocalFile = true
+    state.upload.mockResolvedValue({ ctx: { output: [{ imgUrl }] } })
+    expect(await uploadChoosedFiles(undefined, [{ path: '/failed.png' }])).toEqual([])
+    expect(state.insert).not.toHaveBeenCalled()
+    expect(state.remove).not.toHaveBeenCalled()
+  })
+
+  it('keeps only successful outputs, including their original input indexes', async () => {
+    state.upload.mockResolvedValue({
+      ctx: {
+        output: [undefined, { imgUrl: '' }, { imgUrl: 'https://example.invalid/good.png', inputIndex: 2 }],
+        getConfig: () => ({}),
+      },
+    })
+    const result = await uploader.uploadReturnCtx(['missing.png', 'failed.png', 'good.png'])
+    expect(result.ctx!.output).toHaveLength(1)
+    expect(result.ctx!.output[0].inputIndex).toBe(2)
+  })
+
+  it('retains a successful primary upload when the backup has no valid URL', async () => {
+    state.upload.mockResolvedValue({
+      ctx: { output: [{ imgUrl: 'https://example.invalid/good.png' }], getConfig: () => ({}) },
+      backupCtx: { output: [{ imgUrl: ' ' }] },
+    })
+    const result = await uploader.uploadReturnCtx(['good.png'])
+    expect(result.ctx).toBeDefined()
+    expect(result.backupCtx).toBeUndefined()
   })
 })

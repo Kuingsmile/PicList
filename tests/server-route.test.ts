@@ -19,6 +19,7 @@ vi.mock('apis/app/uploader/apis', () => ({
 vi.mock('apis/app/window/windowManager', () => ({ default: { getAvailableWindow: vi.fn() } }))
 vi.mock('~/server/apiDoc', () => ({ markdownContent: '' }))
 vi.mock('~/server/router', () => import('../src/main/server/router'))
+vi.mock('~/utils/uploadResult', () => import('../src/main/utils/uploadResult'))
 vi.mock('~/server/utils', () => ({ handleResponse: state.respond, deleteChoosedFiles: vi.fn() }))
 vi.mock('~/utils/aesHelper', () => ({
   AESHelper: class {
@@ -71,5 +72,40 @@ describe('HTTP upload configuration', () => {
     )
     expect(state.saveConfig).not.toHaveBeenCalled()
     expect(state.config.picBed.current).toBe('local')
+  })
+})
+
+describe('HTTP upload results', () => {
+  const result = (url: unknown) => ({ url, fullResult: { imgUrl: url } })
+
+  it('rejects incomplete batches', async () => {
+    state.uploadFiles.mockResolvedValue([result('https://example.invalid/one.png')])
+    await handle(['one.png', 'two.png'])
+    expect(state.respond.mock.calls[0][0].body.success).toBe(false)
+  })
+
+  it.each([undefined, null, '', ' ', 42])('rejects an invalid URL: %s', async url => {
+    state.uploadFiles.mockResolvedValue([result('https://example.invalid/one.png'), result(url)])
+    await handle(['one.png', 'two.png'])
+    expect(state.respond.mock.calls[0][0].body.success).toBe(false)
+  })
+
+  it('rejects sparse output arrays', async () => {
+    const results = [result('https://example.invalid/one.png')]
+    results.length = 2
+    state.uploadFiles.mockResolvedValue(results)
+    await handle(['one.png', 'two.png'])
+    expect(state.respond.mock.calls[0][0].body.success).toBe(false)
+  })
+
+  it('accepts a complete batch and rejects an empty clipboard result', async () => {
+    const urls = ['https://example.invalid/one.png', 'https://example.invalid/two.png']
+    state.uploadFiles.mockResolvedValue(urls.map(result))
+    await handle(['one.png', 'two.png'])
+    expect(state.respond.mock.calls[0][0].body).toMatchObject({ success: true, result: urls })
+    state.respond.mockClear()
+    state.uploadClipboard.mockResolvedValue(result('   '))
+    await handle([])
+    expect(state.respond.mock.calls[0][0].body.success).toBe(false)
   })
 })
