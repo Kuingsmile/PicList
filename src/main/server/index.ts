@@ -92,14 +92,20 @@ class Server {
       logger.info('[PicList Server] get a POST request from IP:', remoteAddress)
       const isLocalRequest =
         remoteAddress === '::1' || remoteAddress === '127.0.0.1' || remoteAddress === '::ffff:127.0.0.1'
-      let urlSP = query ? new URLSearchParams(query) : undefined
+      const urlSP = new URLSearchParams(query || '')
+      const serverKey = picgo.getConfig<string>(configPaths.settings.serverKey) || ''
       if (isLocalRequest) {
-        const serverKey = picgo.getConfig<string>(configPaths.settings.serverKey) || ''
-        if (urlSP) {
-          urlSP.set('key', serverKey)
-        } else {
-          urlSP = new URLSearchParams('key=' + serverKey)
-        }
+        urlSP.set('key', serverKey)
+      }
+      if (url === '/upload' && serverKey && urlSP.get('key') !== serverKey) {
+        request.resume()
+        handleResponse({ response, body: { success: false, message: 'Unauthorized access' } })
+        return
+      }
+      if (url === '/heartbeat') {
+        request.resume()
+        void routers.getHandler(url, 'POST')!.handler({ response, urlparams: urlSP })
+        return
       }
       if (request.headers['content-type'] && request.headers['content-type'].startsWith('multipart/form-data')) {
         // @ts-expect-error since the multer type is not correct
@@ -135,8 +141,8 @@ class Server {
         request.on('end', () => {
           try {
             postObj = body === '' ? {} : JSON.parse(body)
-          } catch (err: any) {
-            logger.error('[PicList Server]', err)
+          } catch (_err: any) {
+            logger.warn('[PicList Server] invalid JSON request')
             return handleResponse({
               response,
               body: {
@@ -145,7 +151,6 @@ class Server {
               },
             })
           }
-          logger.info('[PicList Server] get the request', body)
           const handler = routers.getHandler(url!, 'POST')?.handler
           handler!({
             ...postObj,
