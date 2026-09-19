@@ -101,6 +101,17 @@ export function createMenu() {
       ],
     },
     {
+      role: 'windowMenu',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+        { type: 'separator' },
+        { role: 'close' },
+        { type: 'separator' },
+        { role: 'front' },
+      ],
+    },
+    {
       label: t('main.menu.quit'),
       submenu: [{ label: t('main.menu.quit'), role: 'quit' }],
     },
