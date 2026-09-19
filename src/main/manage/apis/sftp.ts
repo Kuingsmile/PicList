@@ -32,7 +32,6 @@ class SftpApi {
   fileMode: string
   dirMode: string
   logger: ManageLogger
-  ctx: SSHClient
   config: {
     host: string
     port: number
@@ -62,7 +61,6 @@ class SftpApi {
     this.fileMode = fileMode || '0664'
     this.dirMode = dirMode || '0775'
     this.logger = logger
-    this.ctx = SSHClient.instance
     this.config = {
       host: this.host,
       port: this.port,
@@ -138,14 +136,16 @@ class SftpApi {
 
   isRequestSuccess = (code: number | null) => code === 0
 
-  connectClient = async () => {
+  private async withClient<T>(action: (client: SSHClient) => Promise<T>): Promise<T> {
+    const client = new SSHClient()
     try {
-      await this.ctx.connect(this.config)
-      if (!this.ctx.isConnected) {
+      await client.connect(this.config)
+      if (!client.isConnected) {
         throw new Error('SSH 未连接')
       }
-    } catch (error) {
-      this.logParam(error, 'connectClient')
+      return await action(client)
+    } finally {
+      client.close()
     }
   }
 
@@ -166,9 +166,9 @@ class SftpApi {
       finished: false,
     }
     try {
-      await this.connectClient()
-      const res = await this.ctx.execCommand(`cd -- ${quoteShellArgument(prefix)} && ls -la --time-style=long-iso`)
-      this.ctx.close()
+      const res = await this.withClient(client =>
+        client.execCommand(`cd -- ${quoteShellArgument(prefix)} && ls -la --time-style=long-iso`),
+      )
       if (this.isRequestSuccess(res.code)) {
         const formatedLSRes = this.formatLSResult(res.stdout, prefix)
         if (formatedLSRes.length) {
@@ -236,9 +236,9 @@ class SftpApi {
       finished: false,
     }
     try {
-      await this.connectClient()
-      const res = await this.ctx.execCommand(`cd -- ${quoteShellArgument(prefix)} && ls -la --time-style=long-iso`)
-      this.ctx.close()
+      const res = await this.withClient(client =>
+        client.execCommand(`cd -- ${quoteShellArgument(prefix)} && ls -la --time-style=long-iso`),
+      )
       if (this.isRequestSuccess(res.code)) {
         const formatedLSRes = this.formatLSResult(res.stdout, prefix)
         if (formatedLSRes.length) {
@@ -276,11 +276,11 @@ class SftpApi {
     const { oldKey, newKey } = configMap
     let result = false
     try {
-      await this.connectClient()
-      const res = await this.ctx.execCommand(
-        `mv -f -- ${quoteShellArgument(`/${oldKey.replace(/^\/+/, '')}`)} ${quoteShellArgument(`/${newKey.replace(/^\/+/, '')}`)}`,
+      const res = await this.withClient(client =>
+        client.execCommand(
+          `mv -f -- ${quoteShellArgument(`/${oldKey.replace(/^\/+/, '')}`)} ${quoteShellArgument(`/${newKey.replace(/^\/+/, '')}`)}`,
+        ),
       )
-      this.ctx.close()
       result = this.isRequestSuccess(res.code)
     } catch (error) {
       this.logParam(error, 'renameBucketFile')
@@ -292,9 +292,9 @@ class SftpApi {
     const { key } = configMap
     let result = false
     try {
-      await this.connectClient()
-      const res = await this.ctx.execCommand(`rm -f -- ${quoteShellArgument(`/${key.replace(/^\/+/, '')}`)}`)
-      this.ctx.close()
+      const res = await this.withClient(client =>
+        client.execCommand(`rm -f -- ${quoteShellArgument(`/${key.replace(/^\/+/, '')}`)}`),
+      )
       result = this.isRequestSuccess(res.code)
     } catch (error) {
       this.logParam(error, 'deleteBucketFile')
@@ -306,12 +306,12 @@ class SftpApi {
     const { key } = configMap
     let result = false
     try {
-      await this.connectClient()
       if (key.replace(/^\/+/, '') === '' || key.includes('*')) {
         throw new Error('禁止删除')
       }
-      const res = await this.ctx.execCommand(`rm -rf -- ${quoteShellArgument(`/${key.replace(/^\/+/, '')}`)}`)
-      this.ctx.close()
+      const res = await this.withClient(client =>
+        client.execCommand(`rm -rf -- ${quoteShellArgument(`/${key.replace(/^\/+/, '')}`)}`),
+      )
       result = this.isRequestSuccess(res.code)
     } catch (error) {
       this.logParam(error, 'deleteBucketFolder')
@@ -340,12 +340,12 @@ class SftpApi {
         noProgress: false,
       })
       try {
-        await this.connectClient()
-        const res = await this.ctx.putFile(filePath, `/${key.replace(/^\/+/, '')}`, {
-          fileMode: this.fileMode,
-          dirMode: this.dirMode,
-        })
-        this.ctx.close()
+        const res = await this.withClient(client =>
+          client.putFile(filePath, `/${key.replace(/^\/+/, '')}`, {
+            fileMode: this.fileMode,
+            dirMode: this.dirMode,
+          }),
+        )
         if (res) {
           instance.updateUploadTask({
             id,
@@ -378,9 +378,9 @@ class SftpApi {
     const { key } = configMap
     let result = false
     try {
-      await this.connectClient()
-      const res = await this.ctx.execCommand(`mkdir -p -- ${quoteShellArgument(`/${key.replace(/^\/+/, '')}`)}`)
-      this.ctx.close()
+      const res = await this.withClient(client =>
+        client.execCommand(`mkdir -p -- ${quoteShellArgument(`/${key.replace(/^\/+/, '')}`)}`),
+      )
       result = this.isRequestSuccess(res.code)
     } catch (error) {
       this.logParam(error, 'createBucketFolder')
@@ -406,9 +406,7 @@ class SftpApi {
         targetFilePath: savedFilePath,
       })
       try {
-        await this.connectClient()
-        const res = await this.ctx.getFile(savedFilePath, `/${key.replace(/^\/+/, '')}`)
-        this.ctx.close()
+        const res = await this.withClient(client => client.getFile(savedFilePath, `/${key.replace(/^\/+/, '')}`))
         if (res) {
           instance.updateDownloadTask({
             id,

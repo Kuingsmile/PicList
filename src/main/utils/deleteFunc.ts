@@ -253,11 +253,8 @@ export async function removeFileFromHuaweiInMain(configMap: IStringKeyMap) {
 }
 
 export async function removeFileFromSFTPInMain(config: ISftpPlistConfig, fileName: string) {
-  const client = SSHClient.instance
-  await client.connect(config)
+  const client = new SSHClient()
   const uploadPath = `/${config.uploadPath || ''}/`.replace(/\/+/g, '/')
   const remote = path.join(uploadPath, fileName)
-  const deleteResult = await client.deleteFileSFTP(config, remote)
-  client.close()
-  return deleteResult
+  return client.deleteFileSFTP(config, remote)
 }

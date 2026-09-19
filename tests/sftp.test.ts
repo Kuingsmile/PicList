@@ -9,15 +9,23 @@ const ssh = vi.hoisted(() => ({
   putFile: vi.fn(),
   execCommand: vi.fn(),
   dispose: vi.fn(),
+  requestSFTP: vi.fn(),
+  unlink: vi.fn(),
 }))
+const connections = vi.hoisted(() => [] as { connect: ReturnType<typeof vi.fn>; dispose: ReturnType<typeof vi.fn> }[])
 
 vi.mock('node-ssh-no-cpu-features', () => ({
   NodeSSH: class {
-    connect = ssh.connect
+    constructor() {
+      connections.push(this)
+    }
+
+    connect = vi.fn((...args) => ssh.connect(...args))
     isConnected = ssh.isConnected
     putFile = ssh.putFile
     execCommand = ssh.execCommand
-    dispose = ssh.dispose
+    dispose = vi.fn(() => ssh.dispose())
+    requestSFTP = ssh.requestSFTP
   },
 }))
 vi.mock('@core/picgo/logger', () => ({ default: { error: vi.fn() } }))
@@ -38,10 +46,13 @@ const api = new SftpApi(config.host, 22, config.username, '', '', '', '', '', { 
 
 beforeEach(() => {
   vi.resetAllMocks()
+  connections.length = 0
   ssh.connect.mockResolvedValue(undefined)
   ssh.isConnected.mockReturnValue(true)
   ssh.putFile.mockResolvedValue(undefined)
   ssh.execCommand.mockResolvedValue({ code: 0, stdout: 'total 0\n' })
+  ssh.requestSFTP.mockResolvedValue({ unlink: ssh.unlink })
+  ssh.unlink.mockImplementation((_remote, callback) => callback())
 })
 
 describe('SFTP command arguments', () => {
@@ -61,7 +72,7 @@ describe('SFTP command arguments', () => {
     await client.connect(config)
     await client.mkdir("/album's $(printf test)", { dirMode: '0700; printf test' })
     expect(ssh.execCommand).toHaveBeenCalledWith(
-      "mkdir -- '/album'\\''s $(printf test)' && chmod -- '0700; printf test' '/album'\\''s $(printf test)'",
+      "test -d '/album'\\''s $(printf test)' || (mkdir -- '/album'\\''s $(printf test)' && chmod -- '0700; printf test' '/album'\\''s $(printf test)')",
     )
   })
 
@@ -96,4 +107,55 @@ describe('SFTP command arguments', () => {
     expect(ssh.execCommand).not.toHaveBeenCalled()
     expect(() => quoteShellArgument('bad\0argument')).toThrow('null bytes')
   })
+})
+
+describe('SFTP connection ownership', () => {
+  it('keeps overlapping operations on separate connections', async () => {
+    let release!: (value: unknown) => void
+    let entered!: () => void
+    const started = new Promise<void>(resolve => (entered = resolve))
+    ssh.execCommand.mockImplementationOnce(() => {
+      entered()
+      return new Promise(resolve => (release = resolve))
+    })
+    const first = api.deleteBucketFile({ key: 'first.png' })
+    await started
+    const other = new SftpApi('other.invalid', 22, 'test', '', '', '', '', '', { error: vi.fn() } as never)
+    expect(await other.createBucketFolder({ key: 'second' })).toBe(true)
+    expect(connections).toHaveLength(2)
+    expect(connections[0].connect).toHaveBeenCalledWith(expect.objectContaining({ host: config.host }))
+    expect(connections[1].connect).toHaveBeenCalledWith(expect.objectContaining({ host: 'other.invalid' }))
+    expect(connections[0].dispose).not.toHaveBeenCalled()
+    expect(connections[1].dispose).toHaveBeenCalledOnce()
+    release({ code: 0 })
+    expect(await first).toBe(true)
+    expect(connections[0].dispose).toHaveBeenCalledOnce()
+  })
+
+  it.each(['connect', 'execCommand'] as const)('closes the operation connection when %s fails', async stage => {
+    ssh[stage].mockRejectedValue(new Error('Connection failed'))
+    expect(await api.deleteBucketFile({ key: 'image.png' })).toBe(false)
+    expect(connections[0].dispose).toHaveBeenCalledOnce()
+    if (stage === 'connect') expect(ssh.execCommand).not.toHaveBeenCalled()
+  })
+
+  it('uses one connection for gallery deletion', async () => {
+    expect(await new SSHClient().deleteFileSFTP(config, '\\images\\photo.png')).toBe(true)
+    expect(ssh.connect).toHaveBeenCalledOnce()
+    expect(ssh.unlink).toHaveBeenCalledWith('/images/photo.png', expect.any(Function))
+    expect(ssh.dispose).toHaveBeenCalledOnce()
+  })
+
+  it.each(['connect', 'requestSFTP', 'unlink'] as const)(
+    'settles deletion and closes the connection on %s failure',
+    async stage => {
+      if (stage === 'unlink') {
+        ssh.unlink.mockImplementation((_remote, callback) => callback(new Error('Unlink failed')))
+      } else {
+        ssh[stage].mockRejectedValue(new Error('Connection failed'))
+      }
+      expect(await new SSHClient().deleteFileSFTP(config, '/images/photo.png')).toBe(false)
+      expect(ssh.dispose).toHaveBeenCalledOnce()
+    },
+  )
 })

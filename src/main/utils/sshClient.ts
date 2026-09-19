@@ -1,10 +1,8 @@
 import path from 'node:path'
 
 import logger from '@core/picgo/logger'
-import fs from 'fs-extra'
 import { Config, NodeSSH, SSHExecCommandResponse } from 'node-ssh-no-cpu-features'
 import { ISftpPlistConfig } from 'piclist/dist/types'
-import { Client } from 'ssh2-no-cpu-features'
 
 export const quoteShellArgument = (value: string): string => {
   if (value.includes('\0')) throw new Error('SSH command arguments must not contain null bytes')
@@ -12,17 +10,8 @@ export const quoteShellArgument = (value: string): string => {
 }
 
 class SSHClient {
-  private static _instance: SSHClient
-  private static _client: NodeSSH
+  private readonly client = new NodeSSH()
   private _isConnected = false
-
-  static get instance(): SSHClient {
-    return this._instance || (this._instance = new this())
-  }
-
-  static get client(): NodeSSH {
-    return this._client || (this._client = new NodeSSH())
-  }
 
   private changeWinStylePathToUnix(path: string): string {
     return path.replace(/\\/g, '/')
@@ -38,7 +27,7 @@ class SSHClient {
         }
       : { username, password }
     try {
-      await SSHClient.client.connect({
+      await this.client.connect({
         host: config.host,
         port: Number(config.port) || 22,
         ...loginInfo,
@@ -52,56 +41,29 @@ class SSHClient {
 
   async deleteFileSFTP(config: ISftpPlistConfig, remote: string): Promise<boolean> {
     try {
-      const client = new Client()
-      const { username, password, privateKey, passphrase } = config
-      const loginInfo: Config = privateKey
-        ? {
-            username,
-            privateKey: fs.readFileSync(privateKey),
-            passphrase: passphrase || undefined,
-          }
-        : { username, password }
       remote = this.changeWinStylePathToUnix(remote)
       if (remote === '/' || remote.includes('*')) return false
-      const promise = new Promise((resolve, reject) => {
-        client
-          .on('ready', () => {
-            client.sftp(
-              (
-                err: any,
-                sftp: {
-                  unlink: (arg0: string, arg1: (err: any) => void) => void
-                },
-              ) => {
-                if (err) reject(false)
-                sftp.unlink(remote, (err: any) => {
-                  if (err) reject(false)
-                  client.end()
-                  resolve(true)
-                })
-              },
-            )
-          })
-          .connect({
-            host: config.host,
-            port: Number(config.port) || 22,
-            ...loginInfo,
-          })
+      await this.connect(config)
+      const sftp = await this.client.requestSFTP()
+      await new Promise<void>((resolve, reject) => {
+        sftp.unlink(remote, (error?: Error | null) => (error ? reject(error) : resolve()))
       })
-      return (await promise) as boolean
+      return true
     } catch (err: any) {
       logger.error(err)
       return false
+    } finally {
+      this.close()
     }
   }
 
   private async exec(script: string): Promise<boolean> {
-    const execResult = await SSHClient.client.execCommand(script)
+    const execResult = await this.client.execCommand(script)
     return execResult.code === 0
   }
 
   async execCommand(script: string): Promise<SSHExecCommandResponse> {
-    const execResult = await SSHClient.client.execCommand(script)
+    const execResult = await this.client.execCommand(script)
     return execResult || { code: 1, stdout: '', stderr: '' }
   }
 
@@ -112,7 +74,7 @@ class SSHClient {
     try {
       remote = this.changeWinStylePathToUnix(remote)
       local = this.changeWinStylePathToUnix(local)
-      await SSHClient.client.getFile(local, remote, undefined, {
+      await this.client.getFile(local, remote, undefined, {
         concurrency: 1,
       })
       return true
@@ -136,7 +98,7 @@ class SSHClient {
     try {
       remote = this.changeWinStylePathToUnix(remote)
       if (!(await this.mkdir(path.posix.dirname(remote), config))) return false
-      await SSHClient.client.putFile(local, remote)
+      await this.client.putFile(local, remote)
       const fileMode = config.fileMode || '0644'
       if (fileMode !== '0644') {
         const script = `chmod -- ${quoteShellArgument(String(fileMode))} ${quoteShellArgument(remote)}`
@@ -170,7 +132,7 @@ class SSHClient {
           if (dir) {
             currentPath = path.posix.join(currentPath, dir)
             const quotedPath = quoteShellArgument(currentPath)
-            const script = `mkdir -- ${quotedPath} && chmod -- ${quoteShellArgument(String(directoryMode))} ${quotedPath}`
+            const script = `test -d ${quotedPath} || (mkdir -- ${quotedPath} && chmod -- ${quoteShellArgument(String(directoryMode))} ${quotedPath})`
             const result = await this.exec(script)
             if (!result) {
               return false
@@ -186,11 +148,11 @@ class SSHClient {
   }
 
   get isConnected(): boolean {
-    return SSHClient.client.isConnected()
+    return this.client.isConnected()
   }
 
   close(): void {
-    SSHClient.client.dispose()
+    this.client.dispose()
     this._isConnected = false
   }
 }
