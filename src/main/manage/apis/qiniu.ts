@@ -64,7 +64,7 @@ class QiniuApi {
       isDir: false,
       checked: false,
       match: false,
-      isImage: isImage(fileName),
+      isImage: isImage(fileName) || /^image\//i.test(item.mimeType || ''),
     }
   }
 
