@@ -11,7 +11,6 @@ import { markdownContent } from '~/server/apiDoc'
 import router from '~/server/router'
 import { deleteChoosedFiles, handleResponse } from '~/server/utils'
 import { AESHelper } from '~/utils/aesHelper'
-import { changeCurrentUploader } from '~/utils/handleUploaderConfig'
 
 const LOG_PATH = appLogPath()
 
@@ -77,7 +76,10 @@ router.post(
     try {
       await withUploadRateLimit(async () => {
         const allConfig = picgo.getConfig<any>() || {}
-        const picbed = urlparams?.get('picbed')
+        const uploadOptions = {
+          picBed: urlparams?.get('picbed') || undefined,
+          configName: urlparams?.get('configName') || undefined,
+        }
         const passedKey = urlparams?.get('key')
         const serverKey = allConfig.settings?.serverKey || ''
         const useShortUrl = allConfig.settings?.useShortUrl
@@ -91,34 +93,10 @@ router.post(
           })
           return
         }
-        let currentPicBedType = ''
-        let currentPicBedConfig = {} as IStringKeyMap
-        let currentPicBedConfigId = ''
-        let needRestore = false
-        if (picbed) {
-          const currentPicBed = allConfig.picBed || ({} as IStringKeyMap)
-          currentPicBedType = currentPicBed.uploader || currentPicBed.current || 'smms'
-          currentPicBedConfig = currentPicBed[currentPicBedType] || ({} as IStringKeyMap)
-          currentPicBedConfigId = currentPicBedConfig._id
-          const configName = urlparams?.get('configName') || currentPicBed[picbed]?._configName
-          if (picbed === currentPicBedType && configName === currentPicBedConfig._configName) {
-            // do nothing
-          } else {
-            needRestore = true
-            const picBeds = allConfig.uploader
-            const currentPicBedList = picBeds?.[picbed]?.configList
-            if (currentPicBedList) {
-              const currentConfig = currentPicBedList?.find((item: any) => item._configName === configName)
-              if (currentConfig) {
-                changeCurrentUploader(picbed, currentConfig, currentConfig._id)
-              }
-            }
-          }
-        }
         if (list.length === 0) {
           // upload with clipboard
           logger.info('[PicList Server] upload clipboard file')
-          const result = await uploadClipboardFiles()
+          const result = await uploadClipboardFiles(uploadOptions)
           const res = useShortUrl ? result.fullResult.shortUrl || result.url : result.url
           const fullResult = result.fullResult
           fullResult.imgUrl = useShortUrl ? fullResult.shortUrl || fullResult.imgUrl : fullResult.imgUrl
@@ -156,7 +134,7 @@ router.post(
             }
           })
           const win = windowManager.getAvailableWindow()
-          const result = await uploadChoosedFiles(win?.webContents, pathList)
+          const result = await uploadChoosedFiles(win?.webContents, pathList, uploadOptions)
           const res = result.map(item => {
             return useShortUrl ? item.fullResult.shortUrl || item.url : item.url
           })
@@ -189,9 +167,6 @@ router.post(
               },
             })
           }
-        }
-        if (needRestore) {
-          changeCurrentUploader(currentPicBedType, currentPicBedConfig, currentPicBedConfigId)
         }
       })
     } catch (err: any) {

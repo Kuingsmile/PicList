@@ -7,7 +7,7 @@ import windowManager from 'apis/app/window/windowManager'
 import dayjs from 'dayjs'
 import { BrowserWindow, clipboard, ipcMain, IpcMainEvent, Notification, WebContents } from 'electron'
 import fs from 'fs-extra'
-import type { IPicGo } from 'piclist'
+import type { IPicGo, IUploadOptions } from 'piclist'
 import writeFile from 'write-file-atomic'
 
 import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '~/events/constant'
@@ -118,12 +118,15 @@ class Uploader {
     return filePath
   }
 
-  async uploadWithBuildInClipboardReturnCtx(img?: IUploadOption): Promise<IuploadReturnCtxResult> {
+  async uploadWithBuildInClipboardReturnCtx(
+    img?: IUploadOption,
+    options?: IUploadOptions,
+  ): Promise<IuploadReturnCtxResult> {
     let imgPath: string | false = false
     try {
       imgPath = await this.getClipboardImagePath()
       if (!imgPath) return { ctx: undefined, backupCtx: undefined }
-      return await this.uploadReturnCtx(img ?? [imgPath])
+      return await this.uploadReturnCtx(img ?? [imgPath], options)
     } catch (e: any) {
       logger.error(e)
       return { ctx: undefined, backupCtx: undefined }
@@ -134,10 +137,10 @@ class Uploader {
     }
   }
 
-  async uploadReturnCtx(img?: IUploadOption): Promise<IuploadReturnCtxResult> {
+  async uploadReturnCtx(img?: IUploadOption, options?: IUploadOptions): Promise<IuploadReturnCtxResult> {
     try {
       const result = { ctx: undefined, backupCtx: undefined } as IuploadReturnCtxResult
-      const res = await picgo.uploadReturnCtx(img)
+      const res = await picgo.uploadReturnCtx(img, options)
       const allConfig = picgo.getConfig<any>() || {}
 
       if (Array.isArray(res.ctx?.output) && res.ctx?.output.some((item: ImgInfo) => item.imgUrl)) {

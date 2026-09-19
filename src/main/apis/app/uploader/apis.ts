@@ -5,6 +5,7 @@ import windowManager from 'apis/app/window/windowManager'
 import { Notification, WebContents } from 'electron'
 import fs from 'fs-extra'
 import { cloneDeep } from 'lodash-es'
+import type { IUploadOptions } from 'piclist'
 
 import { t } from '~/i18n'
 import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/utils/common'
@@ -13,7 +14,10 @@ import { IPasteStyle, IWindowList } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
 import { runScriptInStage } from '~/utils/runScript'
 
-const handleClipboardUploadingReturnCtx = async (img?: IUploadOption): Promise<IuploadReturnCtxResult> => {
+const handleClipboardUploadingReturnCtx = async (
+  img?: IUploadOption,
+  options?: IUploadOptions,
+): Promise<IuploadReturnCtxResult> => {
   const useBuiltinClipboardConfig = picgo.getConfig<boolean | undefined>(configPaths.settings.useBuiltinClipboard)
   const useBuiltinClipboard = useBuiltinClipboardConfig === undefined ? true : !!useBuiltinClipboardConfig
   let webContents: WebContents | undefined
@@ -23,13 +27,13 @@ const handleClipboardUploadingReturnCtx = async (img?: IUploadOption): Promise<I
     picgo.log.warn('No available window to show upload progress, fallback to upload without progress indication.')
   }
   if (useBuiltinClipboard) {
-    return await uploader.setWebContents(webContents).uploadWithBuildInClipboardReturnCtx(img)
+    return await uploader.setWebContents(webContents).uploadWithBuildInClipboardReturnCtx(img, options)
   }
-  return await uploader.setWebContents(webContents).uploadReturnCtx(img)
+  return await uploader.setWebContents(webContents).uploadReturnCtx(img, options)
 }
 
-export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
-  const res = await handleClipboardUploadingReturnCtx()
+export const uploadClipboardFiles = async (options?: IUploadOptions): Promise<IStringKeyMap> => {
+  const res = await handleClipboardUploadingReturnCtx(undefined, options)
   const img = res.ctx?.output ? res.ctx.output : false
   const backImg = res.backupCtx?.output ? res.backupCtx.output : false
   const allConfig = picgo.getConfig<any>() || {}
@@ -92,10 +96,11 @@ export const uploadClipboardFiles = async (): Promise<IStringKeyMap> => {
 export const uploadChoosedFiles = async (
   webContents: WebContents | undefined,
   files: IFileWithPath[],
+  options?: IUploadOptions,
 ): Promise<IStringKeyMap[]> => {
   const input = files.map(item => item.path)
   const rawInput = cloneDeep(input)
-  const res = await uploader.setWebContents(webContents).uploadReturnCtx(input)
+  const res = await uploader.setWebContents(webContents).uploadReturnCtx(input, options)
   const imgs = res.ctx?.output ? res.ctx.output : false
   const backImgs = res.backupCtx?.output ? res.backupCtx.output : false
   const result = []
