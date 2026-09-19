@@ -13,6 +13,7 @@ import { configPaths } from '~/utils/configPaths'
 import { IPasteStyle, IWindowList } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
 import { runScriptInStage } from '~/utils/runScript'
+import { getUploadedSourcePath } from '~/utils/uploadResult'
 
 const handleClipboardUploadingReturnCtx = async (
   img?: IUploadOption,
@@ -111,10 +112,11 @@ export const uploadChoosedFiles = async (
     const pasteText: string[] = []
     const imgLength = imgs.length
     for (let i = 0; i < imgLength; i++) {
-      if (deleteLocalFile) {
-        fs.remove(rawInput[i])
+      const sourcePath = getUploadedSourcePath(rawInput, imgs[i], i, imgLength)
+      if (deleteLocalFile && sourcePath) {
+        fs.remove(sourcePath)
           .then(() => {
-            picgo.log.info(`delete local file: ${rawInput[i]}`)
+            picgo.log.info(`delete local file: ${sourcePath}`)
           })
           .catch((err: Error) => {
             picgo.log.error(err)

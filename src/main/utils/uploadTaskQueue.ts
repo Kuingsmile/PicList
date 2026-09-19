@@ -15,6 +15,7 @@ import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 import { IPasteStyle, IWindowList } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
+import { getUploadedSourcePath } from '~/utils/uploadResult'
 
 export const UploadTaskStatus = {
   PENDING: 'pending',
@@ -244,10 +245,11 @@ class UploadTaskQueueManager {
 
       const img = imgs[0]
 
-      if (deleteLocalFile && !task.filePath.startsWith('http')) {
-        fs.remove(rawInput[0])
+      const sourcePath = getUploadedSourcePath(rawInput, img, 0, imgs.length)
+      if (deleteLocalFile && sourcePath) {
+        fs.remove(sourcePath)
           .then(() => {
-            picgo.log.info(`delete local file: ${rawInput[0]}`)
+            picgo.log.info(`delete local file: ${sourcePath}`)
           })
           .catch((err: Error) => {
             picgo.log.error(err)

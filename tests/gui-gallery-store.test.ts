@@ -22,6 +22,7 @@ vi.mock('~/utils/common', () => ({}))
 vi.mock('~/utils/enum', () => ({}))
 vi.mock('~/utils/pasteTemplate', () => ({ default: vi.fn() }))
 vi.mock('~/utils/runScript', () => ({}))
+vi.mock('~/utils/uploadResult', () => import('../src/main/utils/uploadResult'))
 
 beforeEach(async () => {
   tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'piclist-gui-gallery-'))

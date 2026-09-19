@@ -27,6 +27,7 @@ import { IPasteStyle, IWindowList } from '~/utils/enum'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/utils/getMacOSVersion'
 import pasteTemplate from '~/utils/pasteTemplate'
 import { runScriptInStage } from '~/utils/runScript'
+import { getUploadedSourcePath } from '~/utils/uploadResult'
 import { hideMiniWindow, openMainWindow, openMiniWindow } from '~/utils/windowHelper'
 
 import menubarPng from '../../../../../resources/menubar.png?asset&asarUnpack'
@@ -291,8 +292,9 @@ export function createTray(tooltip: string) {
         if (imgs !== false) {
           const pasteText: string[] = []
           for (let i = 0; i < imgs.length; i++) {
-            if (deleteLocalFile) {
-              await fs.remove(rawInput[i])
+            const sourcePath = getUploadedSourcePath(rawInput, imgs[i], i, imgs.length)
+            if (deleteLocalFile && sourcePath) {
+              await fs.remove(sourcePath)
             }
             const [pasteTextItem, shortUrl] = await pasteTemplate(pasteStyle, imgs[i], allConfig.settings?.customLink)
             imgs[i].shortUrl = shortUrl

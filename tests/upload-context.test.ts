@@ -13,6 +13,7 @@ const state = vi.hoisted(() => ({
 vi.mock('@core/picgo', () => ({
   default: {
     baseDir: '/mock-app',
+    log: { info: vi.fn(), error: vi.fn() },
     on: vi.fn(),
     helper: { beforeUploadPlugins: { register: vi.fn() } },
     uploadReturnCtx: state.upload,
@@ -139,5 +140,54 @@ describe('upload result validation', () => {
     const result = await uploader.uploadReturnCtx(['good.png'])
     expect(result.ctx).toBeDefined()
     expect(result.backupCtx).toBeUndefined()
+  })
+})
+
+describe('original file deletion', () => {
+  const url = 'https://example.invalid/upload.png'
+  const inputs = ['/first.png', '/second.png', '/third.png']
+
+  const upload = async (output: object[], paths = inputs) => {
+    state.config.settings.deleteLocalFile = true
+    state.upload.mockResolvedValue({ ctx: { output, getConfig: () => ({}) } })
+    await uploadChoosedFiles(
+      undefined,
+      paths.map(path => ({ path })),
+    )
+  }
+
+  it('deletes only the successful source in a partial batch', async () => {
+    await upload([{ imgUrl: '' }, { imgUrl: url, inputIndex: 2 }])
+    expect(state.remove.mock.calls).toEqual([['/third.png']])
+  })
+
+  it('uses original indexes after outputs are reordered', async () => {
+    await upload([2, 0, 1].map(inputIndex => ({ imgUrl: url, inputIndex })))
+    expect(state.remove.mock.calls).toEqual([['/third.png'], ['/first.png'], ['/second.png']])
+  })
+
+  it.each([-1, 3, 0.5, null, '1'])('does not fall back to position for an invalid index: %s', async inputIndex => {
+    await upload(inputs.map(() => ({ imgUrl: url, inputIndex })))
+    expect(state.remove).not.toHaveBeenCalled()
+  })
+
+  it('keeps ambiguous partial results from legacy plugins', async () => {
+    await upload([{ imgUrl: url }])
+    expect(state.remove).not.toHaveBeenCalled()
+  })
+
+  it('supports legacy plugins that identify the original file path', async () => {
+    await upload([{ imgUrl: url, filePath: '/second.png' }])
+    expect(state.remove.mock.calls).toEqual([['/second.png']])
+  })
+
+  it('supports complete legacy batches without source metadata', async () => {
+    await upload(inputs.map(() => ({ imgUrl: url })))
+    expect(state.remove.mock.calls).toEqual(inputs.map(path => [path]))
+  })
+
+  it('does not try to delete URL inputs', async () => {
+    await upload([{ imgUrl: url, inputIndex: 0 }], ['HTTPS://example.invalid/source.png'])
+    expect(state.remove).not.toHaveBeenCalled()
   })
 })
