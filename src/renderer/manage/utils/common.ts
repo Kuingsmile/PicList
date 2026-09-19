@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { getConfig } from '@/manage/utils/dataSender'
 import { availableIconList } from '@/manage/utils/icon'
+import { formatStorageLink } from '@/manage/utils/linkFormat'
 import { isNeedToShorten, safeSliceF } from '@/utils/common'
 
 export const isUrlEncode = (url: string): boolean => {
@@ -141,8 +142,15 @@ export function renameFile(
   }
 }
 
-export async function formatLink(url: string, fileName: string, type: string, format?: string): Promise<string> {
-  const encodedUrl = (await getConfig('settings.isEncodeUrl')) ? handleUrlEncode(url) : url
+export async function formatLink(
+  url: string,
+  fileName: string,
+  type: string,
+  format?: string,
+  filePath?: string,
+): Promise<string> {
+  const encode = !!(await getConfig('settings.isEncodeUrl'))
+  const encodedUrl = encode ? handleUrlEncode(url) : url
   switch (type) {
     case 'markdown':
       return `![${fileName}](${encodedUrl})`
@@ -155,10 +163,7 @@ export async function formatLink(url: string, fileName: string, type: string, fo
     case 'markdown-with-link':
       return `[![${fileName}](${encodedUrl})](${encodedUrl})`
     case 'custom':
-      if (format && (format.includes('$url') || format.includes('$fileName'))) {
-        return format.replace(/\$url/g, encodedUrl).replace(/\$fileName/g, fileName)
-      }
-      return encodedUrl
+      return formatStorageLink(format, encodedUrl, fileName, filePath, encode)
     default:
       return encodedUrl
   }

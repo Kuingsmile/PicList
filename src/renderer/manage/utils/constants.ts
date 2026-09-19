@@ -58,7 +58,7 @@ export function getSupportedPicBedList(t: (key: string, values?: Record<string, 
   const baseDirTooltip = t('pages.manage.constant.baseDirTip')
   const isAutoCustomUrlTooltip = t('pages.manage.constant.isAutoCustomUrlTip')
 
-  return {
+  const supportedPicBeds: IStringKeyMap = {
     smms: {
       name: 'S.EE',
       icon: 'smms',
@@ -1086,4 +1086,16 @@ export function getSupportedPicBedList(t: (key: string, values?: Record<string, 
       referenceText: t('pages.manage.constant.referText'),
     },
   }
+  for (const picBed of Object.values(supportedPicBeds)) {
+    picBed.configOptions.customPasteFormat = {
+      required: false,
+      description: t('pages.manage.setting.copyFormat.storageCustomTitle'),
+      placeholder: t('pages.manage.setting.copyFormat.customTips'),
+      tooltip: t('pages.manage.setting.copyFormat.storageCustomTips'),
+      type: 'string',
+      default: '',
+    }
+    picBed.options.push('customPasteFormat')
+  }
+  return supportedPicBeds
 }

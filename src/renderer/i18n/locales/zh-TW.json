@@ -613,6 +613,8 @@
           "markdown": "Markdown",
           "markdown-with-link": "Markdown（含連結）",
           "rawurl": "原始 URL",
+          "storageCustomTips": "留空使用全域格式。支援 $url、$fileName、$filePath（含資料夾的完整路徑）和 $dir（以 / 結尾的資料夾路徑）。",
+          "storageCustomTitle": "此儲存空間的自訂連結格式",
           "title": "複製格式"
         },
         "copySuccess": "已複製 {name}",
