@@ -8,7 +8,7 @@ import { formatError } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
 import { commonTaskStatus, downloadTaskSpecialStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
-import SSHClient from '~/utils/sshClient'
+import SSHClient, { quoteShellArgument } from '~/utils/sshClient'
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
 
 interface listDirResult {
@@ -167,7 +167,7 @@ class SftpApi {
     }
     try {
       await this.connectClient()
-      const res = await this.ctx.execCommand(`cd "${prefix}" && ls -la --time-style=long-iso`)
+      const res = await this.ctx.execCommand(`cd -- ${quoteShellArgument(prefix)} && ls -la --time-style=long-iso`)
       this.ctx.close()
       if (this.isRequestSuccess(res.code)) {
         const formatedLSRes = this.formatLSResult(res.stdout, prefix)
@@ -237,7 +237,7 @@ class SftpApi {
     }
     try {
       await this.connectClient()
-      const res = await this.ctx.execCommand(`cd "${prefix}" && ls -la --time-style=long-iso`)
+      const res = await this.ctx.execCommand(`cd -- ${quoteShellArgument(prefix)} && ls -la --time-style=long-iso`)
       this.ctx.close()
       if (this.isRequestSuccess(res.code)) {
         const formatedLSRes = this.formatLSResult(res.stdout, prefix)
@@ -277,7 +277,9 @@ class SftpApi {
     let result = false
     try {
       await this.connectClient()
-      const res = await this.ctx.execCommand(`mv -f "/${oldKey.replace(/^\/+/, '')}" "/${newKey.replace(/^\/+/, '')}"`)
+      const res = await this.ctx.execCommand(
+        `mv -f -- ${quoteShellArgument(`/${oldKey.replace(/^\/+/, '')}`)} ${quoteShellArgument(`/${newKey.replace(/^\/+/, '')}`)}`,
+      )
       this.ctx.close()
       result = this.isRequestSuccess(res.code)
     } catch (error) {
@@ -291,7 +293,7 @@ class SftpApi {
     let result = false
     try {
       await this.connectClient()
-      const res = await this.ctx.execCommand(`rm -f "/${key.replace(/^\/+/, '')}"`)
+      const res = await this.ctx.execCommand(`rm -f -- ${quoteShellArgument(`/${key.replace(/^\/+/, '')}`)}`)
       this.ctx.close()
       result = this.isRequestSuccess(res.code)
     } catch (error) {
@@ -308,7 +310,7 @@ class SftpApi {
       if (key.replace(/^\/+/, '') === '' || key.includes('*')) {
         throw new Error('禁止删除')
       }
-      const res = await this.ctx.execCommand(`rm -rf "/${key.replace(/^\/+/, '')}"`)
+      const res = await this.ctx.execCommand(`rm -rf -- ${quoteShellArgument(`/${key.replace(/^\/+/, '')}`)}`)
       this.ctx.close()
       result = this.isRequestSuccess(res.code)
     } catch (error) {
@@ -377,7 +379,7 @@ class SftpApi {
     let result = false
     try {
       await this.connectClient()
-      const res = await this.ctx.execCommand(`mkdir -p "/${key.replace(/^\/+/, '')}"`)
+      const res = await this.ctx.execCommand(`mkdir -p -- ${quoteShellArgument(`/${key.replace(/^\/+/, '')}`)}`)
       this.ctx.close()
       result = this.isRequestSuccess(res.code)
     } catch (error) {

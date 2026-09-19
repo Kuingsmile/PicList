@@ -6,6 +6,11 @@ import { Config, NodeSSH, SSHExecCommandResponse } from 'node-ssh-no-cpu-feature
 import { ISftpPlistConfig } from 'piclist/dist/types'
 import { Client } from 'ssh2-no-cpu-features'
 
+export const quoteShellArgument = (value: string): string => {
+  if (value.includes('\0')) throw new Error('SSH command arguments must not contain null bytes')
+  return `'${value.replace(/'/g, "'\\''")}'`
+}
+
 class SSHClient {
   private static _instance: SSHClient
   private static _client: NodeSSH
@@ -130,11 +135,11 @@ class SSHClient {
     }
     try {
       remote = this.changeWinStylePathToUnix(remote)
-      await this.mkdir(path.dirname(remote).replace(/^\/+|\/+$/g, ''), config)
+      if (!(await this.mkdir(path.posix.dirname(remote), config))) return false
       await SSHClient.client.putFile(local, remote)
       const fileMode = config.fileMode || '0644'
       if (fileMode !== '0644') {
-        const script = `chmod ${fileMode} "${remote}"`
+        const script = `chmod -- ${quoteShellArgument(String(fileMode))} ${quoteShellArgument(remote)}`
         return await this.exec(script)
       }
       return true
@@ -156,15 +161,16 @@ class SSHClient {
     try {
       const directoryMode = config.dirMode || '0755'
       if (directoryMode === '0755') {
-        const script = `mkdir -p "${dirPath}"`
+        const script = `mkdir -p -- ${quoteShellArgument(dirPath)}`
         return await this.exec(script)
       } else {
         const dirs = dirPath.split('/')
-        let currentPath = ''
+        let currentPath = dirPath.startsWith('/') ? '/' : ''
         for (const dir of dirs) {
           if (dir) {
-            currentPath += `/${dir}`
-            const script = `mkdir "${currentPath}" && chmod ${directoryMode} "${currentPath}"`
+            currentPath = path.posix.join(currentPath, dir)
+            const quotedPath = quoteShellArgument(currentPath)
+            const script = `mkdir -- ${quotedPath} && chmod -- ${quoteShellArgument(String(directoryMode))} ${quotedPath}`
             const result = await this.exec(script)
             if (!result) {
               return false
