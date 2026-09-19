@@ -16,13 +16,23 @@ const DEFAULT_PORT = 36677
 const DEFAULT_HOST = '0.0.0.0'
 
 const serverTempDir = path.join(dataDir(), 'serverTemp')
+const uploadDirectory = Symbol('uploadDirectory')
+type MultipartRequest = http.IncomingMessage & {
+  [uploadDirectory]?: string
+  files?: { path: string }[]
+}
 
 fs.ensureDirSync(serverTempDir)
 
 const multerStorage = multer.diskStorage({
-  destination(_req: any, _file: any, cb: (arg0: null, arg1: any) => void) {
-    fs.ensureDirSync(serverTempDir)
-    cb(null, serverTempDir)
+  destination(req, _file, cb) {
+    try {
+      const directory = (req as unknown as MultipartRequest)[uploadDirectory]
+      if (!directory) throw new Error('Missing request upload directory')
+      cb(null, fs.mkdtempSync(path.join(directory, 'file-')))
+    } catch (error) {
+      cb(error as Error, '')
+    }
   },
   filename(_req: any, file: { originalname: any }, cb: (arg0: null, arg1: any) => void) {
     if (!/[^\u0000-\u00ff]/.test(file.originalname)) {
@@ -35,6 +45,38 @@ const multerStorage = multer.diskStorage({
 const uploadMulter = multer({
   storage: multerStorage,
 })
+
+async function handleMultipartUpload(
+  request: MultipartRequest,
+  response: http.ServerResponse,
+  handler: routeHandler,
+  urlparams: URLSearchParams,
+): Promise<void> {
+  let requestTempDir: string | undefined
+  try {
+    requestTempDir = await fs.mkdtemp(path.join(serverTempDir, 'request-'))
+    request[uploadDirectory] = requestTempDir
+    if (request.destroyed || response.destroyed) return
+    await new Promise<void>((resolve, reject) => {
+      // @ts-expect-error multer only uses the underlying Node request and response
+      uploadMulter.any()(request, response, error => (error ? reject(error) : resolve()))
+    })
+    if (request.aborted || response.destroyed) return
+    await handler({ list: (request.files || []).map(file => file.path), response, urlparams })
+  } catch (_error) {
+    if (!response.destroyed && !response.headersSent) {
+      handleResponse({ response, body: { success: false, message: 'Error processing formData' } })
+    }
+  } finally {
+    if (requestTempDir) {
+      try {
+        await fs.remove(requestTempDir)
+      } catch (_error) {
+        logger.warn('[PicList Server] temporary upload cleanup failed')
+      }
+    }
+  }
+}
 
 class Server {
   #httpServer: http.Server
@@ -108,30 +150,7 @@ class Server {
         return
       }
       if (request.headers['content-type'] && request.headers['content-type'].startsWith('multipart/form-data')) {
-        // @ts-expect-error since the multer type is not correct
-        uploadMulter.any()(request, response, (err: any) => {
-          if (err) {
-            logger.info('[PicList Server]', err)
-            return handleResponse({
-              response,
-              body: {
-                success: false,
-                message: 'Error processing formData',
-              },
-            })
-          }
-          // @ts-expect-error since the multer type is not correct
-          const list = request.files.map(file => file.path)
-          logger.info('[PicList Server] get a formData request')
-          const handler = routers.getHandler(url!, 'POST')?.handler
-          if (handler) {
-            handler({
-              list,
-              response,
-              urlparams: urlSP,
-            })
-          }
-        })
+        void handleMultipartUpload(request, response, routers.getHandler(url, 'POST')!.handler, urlSP)
       } else {
         let body: string = ''
         let postObj: IObj

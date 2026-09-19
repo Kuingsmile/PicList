@@ -1,12 +1,10 @@
 import http from 'node:http'
-import path from 'node:path'
 
-import { appLogPath, dataDir } from '@core/datastore/dirs'
+import { appLogPath } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
-import fs from 'fs-extra'
 import { marked } from 'marked'
 
 import { markdownContent } from '~/server/apiDoc'
@@ -15,8 +13,6 @@ import { deleteChoosedFiles, handleResponse } from '~/server/utils'
 import { AESHelper } from '~/utils/aesHelper'
 import { changeCurrentUploader } from '~/utils/handleUploaderConfig'
 
-const appPath = dataDir()
-const serverTempDir = path.join(appPath, 'serverTemp')
 const LOG_PATH = appLogPath()
 
 const errorMessage = `upload error. see ${LOG_PATH} for more detail.`
@@ -194,7 +190,6 @@ router.post(
             })
           }
         }
-        fs.emptyDirSync(serverTempDir)
         if (needRestore) {
           changeCurrentUploader(currentPicBedType, currentPicBedConfig, currentPicBedConfigId)
         }
