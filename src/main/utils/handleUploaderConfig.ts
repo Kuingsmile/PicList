@@ -4,6 +4,10 @@ import { v4 as uuid } from 'uuid'
 import { setTrayToolTip, trimValues } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 
+const isSecondUploaderConfig = (type: string, id: string): boolean =>
+  picgo.getConfig<string>(configPaths.picBed.secondUploader) === type &&
+  picgo.getConfig<IStringKeyMap>(configPaths.picBed.secondUploaderConfig)?._id === id
+
 export const handleConfigWithFunction = (config: IPicGoPluginOriginConfig[]): IPicGoPluginConfig[] => {
   for (const i in config) {
     if (typeof config[i].default === 'function') {
@@ -108,6 +112,13 @@ export const deleteUploaderConfig = (type: string, id: string): IUploaderConfigI
   }
   picgo.saveConfig({
     [`uploader.${type}.configList`]: updatedConfigList,
+    ...(isSecondUploaderConfig(type, id)
+      ? {
+          [configPaths.picBed.secondUploader]: '',
+          [configPaths.picBed.secondUploaderConfig]: {},
+          [configPaths.settings.enableSecondUploader]: false,
+        }
+      : {}),
   })
   return {
     configList: updatedConfigList,
@@ -187,7 +198,8 @@ export const updateUploaderConfig = (type: string, id: string, config: IStringKe
   picgo.saveConfig({
     [`uploader.${type}.configList`]: configList,
     [`uploader.${type}.defaultId`]: updatedDefaultId,
-    [`picBed.${type}`]: updatedConfig,
+    ...(updatedDefaultId === updatedConfig._id ? { [`picBed.${type}`]: updatedConfig } : {}),
+    ...(isSecondUploaderConfig(type, id) ? { [configPaths.picBed.secondUploaderConfig]: updatedConfig } : {}),
   })
 }
 
@@ -197,22 +209,17 @@ export const updateUploaderConfig = (type: string, id: string, config: IStringKe
 
 export const resetUploaderConfig = (type: string, id: string) => {
   const { configList } = getUploaderConfigList(type)
-  configList.forEach((item: IStringKeyMap) => {
-    if (item._id === id) {
-      Object.keys(item).forEach(key => {
-        if (!['_configName', '_id', '_createdAt', '_updatedAt'].includes(key)) {
-          delete item[key]
-        }
-      })
+  const config = configList.find(item => item._id === id)
+  if (!config) return
+  Object.keys(config).forEach(key => {
+    if (!['_configName', '_id', '_createdAt', '_updatedAt'].includes(key)) {
+      delete config[key]
     }
   })
+  const currentDefault = picgo.getConfig<IStringKeyMap>(`picBed.${type}`) ?? {}
   picgo.saveConfig({
     [`uploader.${type}.configList`]: configList,
+    ...(currentDefault._id === id ? { [`picBed.${type}`]: config } : {}),
+    ...(isSecondUploaderConfig(type, id) ? { [configPaths.picBed.secondUploaderConfig]: config } : {}),
   })
-  const currentDefault = picgo.getConfig<IStringKeyMap>(`picBed.${type}`) ?? {}
-  if (currentDefault._id === id) {
-    picgo.saveConfig({
-      [`picBed.${type}`]: configList,
-    })
-  }
 }
