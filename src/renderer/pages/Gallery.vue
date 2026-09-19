@@ -1036,15 +1036,17 @@ function zoomImage(index: number) {
 }
 
 async function copy(item: ImgInfo) {
-  item.config = JSON.parse(JSON.stringify(item.config) || '{}')
   const result = await window.electron.triggerRPC<[string, string]>(IRPCActionType.GALLERY_PASTE_TEXT, getRawData(item))
+  if (!result?.[0]?.trim()) {
+    message.error(t('pages.gallery.copyLinkFailed'))
+    return
+  }
   if (result && result[1] && item.id) {
     await $$db.updateById(item.id, {
       shortUrl: result[1],
     })
     updateGallery()
   }
-  window.electron.clipboard.writeText(String(result ? result[0] : ''))
   message.success(t('pages.gallery.copyLinkSucceed'))
 }
 
@@ -1207,12 +1209,20 @@ function multiRemove() {
 async function multiCopy() {
   if (Object.values(choosedList).some(item => item)) {
     const copyString: string[] = []
-    const imageIDList = Object.keys(choosedList)
+    const imageIDList = Object.keys(choosedList).filter(id => choosedList[id])
     for (const imageIDListItem of imageIDList) {
       const item = await $$db.getById<ImgInfo>(imageIDListItem)
       if (item) {
-        const result = await window.electron.triggerRPC<string>(IRPCActionType.GALLERY_PASTE_TEXT, getRawData(item))
-        copyString.push(result ? result[0] : '')
+        const result = await window.electron.triggerRPC<[string, string]>(
+          IRPCActionType.GALLERY_PASTE_TEXT,
+          getRawData(item),
+          false,
+        )
+        if (!result?.[0]?.trim()) {
+          message.error(t('pages.gallery.copyLinkFailed'))
+          return
+        }
+        copyString.push(result[0])
         if (result && result[1] && item.id) {
           await $$db.updateById(item.id, {
             shortUrl: result[1],
@@ -1220,6 +1230,10 @@ async function multiCopy() {
           updateGallery()
         }
       }
+    }
+    if (!copyString.length) {
+      message.error(t('pages.gallery.copyLinkFailed'))
+      return
     }
     window.electron.clipboard.writeText(copyString.join('\n'))
     clearChoosedList()
