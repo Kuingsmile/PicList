@@ -1,18 +1,24 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "strict": true,
-    "jsx": "preserve",
-    "importHelpers": true,
     "moduleResolution": "bundler",
+    "moduleDetection": "force",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
+    "isolatedModules": true,
+    "noEmit": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./node_modules/.cache/tsconfig.tsbuildinfo",
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
     "types": ["node"],
-    "typeRoots": ["./node_modules/@types", "./src/universal/types/"],
     "paths": {
       "@/*": ["./src/renderer/*"],
       "~/*": ["./src/main/*"],
@@ -20,9 +26,8 @@
       "#/*": ["./src/universal/*"],
       "apis/*": ["./src/main/apis/*"],
       "@core/*": ["./src/main/apis/core/*"]
-    },
-    "lib": ["ESNext", "dom", "ScriptHost"]
+    }
   },
-  "include": ["./src/**/*.ts", "./src/**/*.vue", "./src/**/*.d.ts", "./tests/**/*.ts", "./electron.vite.config.*"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "tests/**/*.ts"],
   "exclude": ["./node_modules", "./dist", "./out"]
 }

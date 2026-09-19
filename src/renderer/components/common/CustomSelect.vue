@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-const modelValue = defineModel<string>({ default: undefined })
+const modelValue = defineModel<string | undefined>({ default: undefined })
 
 const {
   title,

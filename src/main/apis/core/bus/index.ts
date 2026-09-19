@@ -6,7 +6,7 @@ class OptimizedBus extends EventEmitter {
     this.setMaxListeners(50)
   }
 
-  once(event: string | symbol, listener: (...args: any[]) => void): this {
+  override once(event: string | symbol, listener: (...args: any[]) => void): this {
     const wrappedListener = (...args: any[]) => {
       try {
         listener(...args)

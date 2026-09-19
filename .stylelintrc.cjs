@@ -28,6 +28,8 @@ module.exports = {
         ],
       },
     ],
+    // Tailwind's @apply accepts utility classes; preserve the preset's media exception.
+    'at-rule-prelude-no-invalid': [true, { ignoreAtRules: ['apply', 'media'] }],
     'function-no-unknown': [
       true,
       {
