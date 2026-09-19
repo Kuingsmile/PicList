@@ -67,6 +67,7 @@ PicList支持通过设置\`picbed\`和\`configName\`两个URL查询参数来指�
 - request body: \`{list: [{xx:xx}]}\` 必须是JSON格式
 
 list中的每一项都是一个对象，由上传接口返回数据的\`fullResult\`字段组成。
+请保留对象中的相册 \`id\` 字段，或传入原始加密对象。URL 字符串和文件名不受支持，参数错误会返回 HTTP 400 和具体原因。
 
 返回的数据：
 
