@@ -100,6 +100,15 @@ export function createMenu() {
       ],
     },
     {
+      label: t('main.menu.window'),
+      submenu: [
+        { label: t('main.menu.minimize'), role: 'minimize' },
+        { label: t('main.menu.zoom'), role: 'zoom' },
+        { type: 'separator' },
+        { label: t('main.menu.closeWindow'), role: 'close' },
+      ],
+    },
+    {
       label: t('main.menu.quit'),
       submenu: [{ label: t('main.menu.quit'), role: 'quit' }],
     },

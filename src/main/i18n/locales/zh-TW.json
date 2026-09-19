@@ -3,6 +3,7 @@
     "menu": {
       "about": "關於",
       "chooseDefaultPicBed": "選擇默認圖床",
+      "closeWindow": "關閉視窗",
       "configPlugin": "配置{{config}}",
       "currentPicBed": "當前圖床 - {{picBedName}}",
       "currentSecondaryPicBed": "當前 - {{picBedName}} - {{uploaderName}}",
@@ -13,6 +14,7 @@
       "feedback": "反饋",
       "generateConfigQrCode": "生成配置 QR Code",
       "hideMiniWindow": "隱藏迷你窗口",
+      "minimize": "最小化",
       "openDeveloperTools": "打開開發者工具",
       "openMainWindow": "打開主窗口",
       "openMiniWindow": "打開迷你窗口",
@@ -24,7 +26,9 @@
       "stopWatchClipboard": "停止監視剪貼板",
       "uninstallPlugin": "卸載插件",
       "updatePlugin": "更新插件",
-      "uploadClipboardImage": "上傳剪貼板圖片"
+      "uploadClipboardImage": "上傳剪貼板圖片",
+      "window": "視窗",
+      "zoom": "縮放"
     },
     "notification": {
       "backupConfigFileVersion": "備份配置文件版本: {{version}}",
