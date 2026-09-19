@@ -18,7 +18,7 @@
               :style="{ width: `${progress}%` }"
             />
           </div>
-          <span class="min-w-[35px] text-[11px] text-secondary">{{ progress }}%</span>
+          <span class="min-w-[35px] text-[11px] text-secondary">{{ Math.round(progress) }}%</span>
         </div>
       </div>
 

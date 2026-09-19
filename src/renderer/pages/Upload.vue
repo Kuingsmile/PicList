@@ -159,7 +159,7 @@
             />
           </div>
           <span class="m-0 flex items-center justify-center text-center text-sm font-semibold text-secondary">
-            {{ showError ? t('pages.upload.uploadFailed') : `${progress}%` }}
+            {{ showError ? t('pages.upload.uploadFailed') : `${Math.round(progress)}%` }}
           </span>
         </div>
       </div>
