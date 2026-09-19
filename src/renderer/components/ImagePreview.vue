@@ -89,6 +89,7 @@ import { computed, nextTick, onMounted, reactive, ref, useTemplateRef } from 'vu
 import { useI18n } from 'vue-i18n'
 
 import { getConfig } from '@/utils/dataSender'
+import { addCacheBustParam as withCacheBustParam } from '#/utils/url'
 
 const gallerySliderControl = defineModel<{
   visible: boolean
@@ -385,20 +386,7 @@ function onPreviewImageLoad() {
   })
 }
 
-const addCacheBustParam = (url: string | undefined) => {
-  if (!url) {
-    return ''
-  }
-  if (!(url.startsWith('http://') || url.startsWith('https://'))) {
-    return url
-  }
-  try {
-    const separator = url.includes('?') ? '&' : '?'
-    return `${url}${separator}cbplist=${new Date().getTime()}`
-  } catch (_e) {
-    return url
-  }
-}
+const addCacheBustParam = (url: string | undefined) => withCacheBustParam(url, Date.now())
 
 async function initConf() {
   const settingConfig = await getConfig<any>('settings')

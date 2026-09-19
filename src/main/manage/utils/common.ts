@@ -13,6 +13,7 @@ import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
 import mime from 'mime'
 import Downloader from 'nodejs-file-downloader'
 
+import { isS3SignedUrl } from '#/utils/url'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ManageLogger } from '~/manage/utils/logger'
 import { formatHttpProxy } from '~/utils/common'
@@ -89,7 +90,7 @@ export const NewDownloader = async (
   headers?: any,
 ): Promise<boolean> => {
   const options = {
-    url: encodeURI(preSignedUrl),
+    url: isS3SignedUrl(preSignedUrl) ? preSignedUrl : encodeURI(preSignedUrl),
     directory: path.dirname(savedFilePath),
     fileName: path.basename(savedFilePath),
     cloneFiles: false,

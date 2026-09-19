@@ -433,6 +433,7 @@ import $$db from '@/utils/db'
 import { IPasteStyle, IRPCActionType } from '@/utils/enum'
 import { getGalleryPreviewSource, getJxlPreviewSource } from '@/utils/galleryPreview'
 import { picBedsCanbeDeleted } from '@/utils/static'
+import { addCacheBustParam as withCacheBustParam } from '#/utils/url'
 
 type IResult<T> = T & {
   id: string
@@ -727,20 +728,7 @@ function handleDetectShiftKey(event: KeyboardEvent) {
   }
 }
 
-const addCacheBustParam = (url: string | undefined) => {
-  if (!url) {
-    return ''
-  }
-  if (!(url.startsWith('http://') || url.startsWith('https://'))) {
-    return url
-  }
-  try {
-    const separator = url.includes('?') ? '&' : '?'
-    return `${url}${separator}cbplist=${cacheBustToken.value}`
-  } catch (e) {
-    return url
-  }
-}
+const addCacheBustParam = (url: string | undefined) => withCacheBustParam(url, cacheBustToken.value)
 
 function formatFileName(name: string) {
   return window.node.path.basename(name)
