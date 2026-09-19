@@ -3,6 +3,7 @@
     "menu": {
       "about": "About",
       "chooseDefaultPicBed": "Choose Default PicBed",
+      "closeWindow": "Close Window",
       "configPlugin": "Configure {{config}}",
       "currentPicBed": "Current PicBed - {{picBedName}}",
       "currentSecondaryPicBed": "Current - {{picBedName}} - {{uploaderName}}",
@@ -13,6 +14,7 @@
       "feedback": "Feedback",
       "generateConfigQrCode": "Generate Config QR Code",
       "hideMiniWindow": "Hide Mini Window",
+      "minimize": "Minimize",
       "openDeveloperTools": "Open Developer Tools",
       "openMainWindow": "Open Main Window",
       "openMiniWindow": "Open Mini Window",
@@ -24,7 +26,9 @@
       "stopWatchClipboard": "Stop Watch Clipboard",
       "uninstallPlugin": "Uninstall Plugin",
       "updatePlugin": "Update Plugin",
-      "uploadClipboardImage": "Upload Clipboard Image"
+      "uploadClipboardImage": "Upload Clipboard Image",
+      "window": "Window",
+      "zoom": "Zoom"
     },
     "notification": {
       "backupConfigFileVersion": "Backup Config File Version: {{version}}",
