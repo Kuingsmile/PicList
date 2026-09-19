@@ -1,7 +1,13 @@
 import { cloneDeep, get, set } from 'lodash-es'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { deleteUploaderConfig, resetUploaderConfig, updateUploaderConfig } from '../src/main/utils/handleUploaderConfig'
+import {
+  changeCurrentUploader,
+  changeSecondUploader,
+  deleteUploaderConfig,
+  resetUploaderConfig,
+  updateUploaderConfig,
+} from '../src/main/utils/handleUploaderConfig'
 
 const state = vi.hoisted(() => ({ config: {} as Record<string, any>, save: vi.fn(), tooltip: vi.fn() }))
 vi.mock('@core/picgo', () => ({
@@ -115,5 +121,46 @@ describe('selected uploader configuration snapshots', () => {
   it('ignores reset requests for missing configurations', () => {
     resetUploaderConfig('local', 'missing')
     expect(state.save).not.toHaveBeenCalled()
+  })
+})
+
+describe('uploader selection writes', () => {
+  it('saves primary selection, configuration, and default ID together', () => {
+    changeCurrentUploader('local', secondary, secondary._id)
+    expect(state.save).toHaveBeenCalledExactlyOnceWith({
+      'picBed.current': 'local',
+      'picBed.uploader': 'local',
+      'uploader.local.defaultId': secondary._id,
+      'picBed.local': secondary,
+    })
+    expect(state.tooltip).toHaveBeenCalledWith('local Backup')
+  })
+
+  it('saves secondary selection and configuration together', () => {
+    changeSecondUploader('local', primary)
+    expect(state.save).toHaveBeenCalledExactlyOnceWith({
+      'picBed.secondUploader': 'local',
+      'picBed.secondUploaderConfig': primary,
+    })
+  })
+
+  it('leaves existing primary configuration and ID intact when omitted', () => {
+    changeCurrentUploader('local')
+    expect(state.save).toHaveBeenCalledExactlyOnceWith({ 'picBed.current': 'local', 'picBed.uploader': 'local' })
+    expect(state.config.picBed.local).toEqual(primary)
+    expect(state.config.uploader.local.defaultId).toBe(primary._id)
+  })
+
+  it('leaves the secondary configuration intact when omitted', () => {
+    changeSecondUploader('local')
+    expect(state.save).toHaveBeenCalledExactlyOnceWith({ 'picBed.secondUploader': 'local' })
+    expect(state.config.picBed.secondUploaderConfig).toEqual(secondary)
+  })
+
+  it('ignores empty uploader selections', () => {
+    changeCurrentUploader('', primary, primary._id)
+    changeSecondUploader('', secondary)
+    expect(state.save).not.toHaveBeenCalled()
+    expect(state.tooltip).not.toHaveBeenCalled()
   })
 })

@@ -35,31 +35,19 @@ export const changeSecondUploader = (type: string, config?: IStringKeyMap) => {
   if (!type) {
     return
   }
-  if (config) {
-    picgo.saveConfig({
-      [configPaths.picBed.secondUploaderConfig]: config,
-    })
-  }
   picgo.saveConfig({
     [configPaths.picBed.secondUploader]: type,
+    ...(config ? { [configPaths.picBed.secondUploaderConfig]: config } : {}),
   })
 }
 
 export const changeCurrentUploader = (type: string, config?: IStringKeyMap, id?: string) => {
   if (!type) return
-  if (id) {
-    picgo.saveConfig({
-      [`uploader.${type}.defaultId`]: id,
-    })
-  }
-  if (config) {
-    picgo.saveConfig({
-      [`picBed.${type}`]: config,
-    })
-  }
   picgo.saveConfig({
     [configPaths.picBed.current]: type,
     [configPaths.picBed.uploader]: type,
+    ...(id ? { [`uploader.${type}.defaultId`]: id } : {}),
+    ...(config ? { [`picBed.${type}`]: config } : {}),
   })
   setTrayToolTip(`${type} ${config?._configName || ''}`)
 }
