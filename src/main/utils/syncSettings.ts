@@ -24,6 +24,16 @@ const galleryDBList = ['piclist.db', 'piclist.bak.db']
 
 const readFileAsBase64 = (filePath: string) => fs.readFileSync(filePath, { encoding: 'base64' })
 
+// A fresh installation may not have startup backups yet. Upload a snapshot of
+// the primary config under the backup's remote name without replacing local backups.
+const getUploadFilePath = (fileName: string) => {
+  const filePath = path.join(STORE_PATH, fileName)
+  if (!fs.existsSync(filePath) && ['data.bak.json', 'manage.bak.json'].includes(fileName)) {
+    return path.join(STORE_PATH, fileName.replace('.bak.json', '.json'))
+  }
+  return filePath
+}
+
 const isHttpResSuccess = (res: any) => res.status >= 200 && res.status < 300
 
 const uploadOrUpdateMsg = (fileName: string, isUpdate: boolean = true) =>
@@ -133,7 +143,7 @@ const isSyncConfigValidate = ({
 }
 
 async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
-  const localFilePath = path.join(STORE_PATH, fileName)
+  const localFilePath = getUploadFilePath(fileName)
   if (!fs.existsSync(localFilePath)) return false
 
   const { username, repo, branch, token, type } = syncConfig
@@ -237,7 +247,7 @@ async function uploadFile(fileName: string[]): Promise<number> {
 }
 
 async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
-  const localFilePath = path.join(STORE_PATH, fileName)
+  const localFilePath = getUploadFilePath(fileName)
   if (!fs.existsSync(localFilePath)) {
     return false
   }
