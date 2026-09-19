@@ -7,6 +7,7 @@ import windowManager from 'apis/app/window/windowManager'
 import dayjs from 'dayjs'
 import { BrowserWindow, clipboard, ipcMain, IpcMainEvent, Notification, WebContents } from 'electron'
 import fs from 'fs-extra'
+import { cloneDeep } from 'lodash-es'
 import type { IPicGo, IUploadOptions } from 'piclist'
 import writeFile from 'write-file-atomic'
 
@@ -141,20 +142,15 @@ class Uploader {
     try {
       const result = { ctx: undefined, backupCtx: undefined } as IuploadReturnCtxResult
       const res = await picgo.uploadReturnCtx(img, options)
-      const allConfig = picgo.getConfig<any>() || {}
-
-      if (Array.isArray(res.ctx?.output) && res.ctx?.output.some((item: ImgInfo) => item.imgUrl)) {
-        res.ctx.output.forEach((item: ImgInfo) => {
-          item.config = JSON.parse(JSON.stringify(allConfig.picBed?.[item.type!]))
-        })
-        result.ctx = res.ctx
-      }
-
-      if (Array.isArray(res.backupCtx?.output) && res.backupCtx?.output.some((item: ImgInfo) => item.imgUrl)) {
-        res.backupCtx.output.forEach((item: ImgInfo) => {
-          item.config = JSON.parse(JSON.stringify(allConfig.picBed?.[item.type!]))
-        })
-        result.backupCtx = res.backupCtx
+      for (const key of ['ctx', 'backupCtx'] as const) {
+        const ctx = res[key]
+        if (Array.isArray(ctx?.output) && ctx.output.some((item: ImgInfo) => item.imgUrl)) {
+          const picBeds = ctx.getConfig<IStringKeyMap>('picBed') || {}
+          ctx.output.forEach((item: ImgInfo) => {
+            item.config = cloneDeep(picBeds[item.type!] || {})
+          })
+          result[key] = ctx
+        }
       }
       return result
     } catch (e: any) {

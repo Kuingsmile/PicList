@@ -73,3 +73,38 @@ describe('per-upload configuration options', () => {
     expect(state.upload).toHaveBeenCalledWith(['/chosen.png'], undefined)
   })
 })
+
+describe('upload configuration metadata', () => {
+  const context = (id: string) => ({
+    output: [{ type: 'local', imgUrl: 'https://example.invalid/image.png' }],
+    getConfig: vi.fn(() => ({ local: { _id: id, nested: { path: 'original' } } })),
+  })
+
+  it('uses separate primary and backup snapshots even for the same uploader type', async () => {
+    state.config.picBed = { local: { _id: 'unrelated-global-config' } }
+    const ctx = context('primary')
+    const backupCtx = context('backup')
+    state.upload.mockResolvedValue({ ctx, backupCtx })
+    const result = await uploader.uploadReturnCtx(['/chosen.png'])
+    expect(result.ctx!.output[0].config._id).toBe('primary')
+    expect(result.backupCtx!.output[0].config._id).toBe('backup')
+    expect(ctx.getConfig).toHaveBeenCalledWith('picBed')
+    expect(backupCtx.getConfig).toHaveBeenCalledWith('picBed')
+  })
+
+  it('copies metadata so gallery mutations cannot change the upload snapshot', async () => {
+    const ctx = context('primary')
+    state.upload.mockResolvedValue({ ctx })
+    const result = await uploader.uploadReturnCtx(['/chosen.png'])
+    result.ctx!.output[0].config.nested.path = 'changed'
+    expect(ctx.getConfig.mock.results[0].value.local.nested.path).toBe('original')
+  })
+
+  it('handles uploaders without configuration instead of discarding their result', async () => {
+    state.upload.mockResolvedValue({
+      ctx: { output: [{ type: 'custom', imgUrl: 'https://example.invalid/image.png' }], getConfig: () => undefined },
+    })
+    const result = await uploader.uploadReturnCtx(['/chosen.png'])
+    expect(result.ctx!.output[0].config).toEqual({})
+  })
+})
