@@ -92,6 +92,7 @@
       "cloudDeleteSucceed": "雲端刪除成功",
       "confirmRemove": "確認刪除選中的圖片嗎？",
       "copy": "複製",
+      "copyLinkFailed": "複製連結失敗，請檢查圖片網址和連結格式。",
       "copyLinkSucceed": "複製連結成功",
       "dateRange": "日期範圍",
       "delete": "刪除",

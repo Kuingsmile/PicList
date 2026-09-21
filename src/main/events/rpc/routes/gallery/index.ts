@@ -21,6 +21,7 @@ const galleryRoutes = [
       const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN
       const customLink = allConfig.settings?.customLink
       const [txt, shortUrl] = await pasteTemplate(pasteStyle, item, customLink)
+      if (!txt?.trim()) throw new Error('Gallery link format produced empty text')
       if (copy) {
         clipboard.writeText(txt)
       }

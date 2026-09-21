@@ -4,7 +4,9 @@ import { generateShortUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 
 export const formatCustomLink = (customLink: string, item: ImgInfo) => {
-  const fileName = item.fileName!.replace(new RegExp(`\\${item.extname}$`), '')
+  const originalName = item.fileName || ''
+  const fileName =
+    item.extname && originalName.endsWith(item.extname) ? originalName.slice(0, -item.extname.length) : originalName
   const url = item.url || item.imgUrl
   const extName = item.extname
   const formatObj = {
@@ -16,7 +18,7 @@ export const formatCustomLink = (customLink: string, item: ImgInfo) => {
   keys.forEach(item => {
     if (customLink.indexOf(`$${item}`) !== -1) {
       const reg = new RegExp(`\\$${item}`, 'g')
-      customLink = customLink.replace(reg, formatObj[item])
+      customLink = customLink.replace(reg, () => formatObj[item] || '')
     }
   })
   return customLink
@@ -27,6 +29,7 @@ export default async (style: string, item: ImgInfo, customLink: string | undefin
   if (item.type === 'aws-s3' || item.type === 'aws-s3-plist') {
     url = item.imgUrl || item.url || ''
   }
+  if (typeof url !== 'string' || !url.trim()) throw new Error('Gallery item has no URL to copy')
   url = handleUrlEncodeWithSetting(url)
   const useShortUrl = picgo.getConfig<boolean>(configPaths.settings.useShortUrl) || false
   if (useShortUrl) {
@@ -38,10 +41,7 @@ export default async (style: string, item: ImgInfo, customLink: string | undefin
     HTML: `<img src="${url}"/>`,
     URL: url,
     UBB: `[IMG]${url}[/IMG]`,
-    Custom: formatCustomLink(_customLink, {
-      ...item,
-      url,
-    }),
   }
-  return [tpl[style], useShortUrl ? url : '']
+  const text = style === 'Custom' ? formatCustomLink(_customLink, { ...item, url }) : tpl[style] || url
+  return [text, useShortUrl ? url : '']
 }

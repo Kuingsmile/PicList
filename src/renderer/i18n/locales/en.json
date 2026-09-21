@@ -92,6 +92,7 @@
       "cloudDeleteSucceed": "Cloud Delete Succeed",
       "confirmRemove": "Are you sure you want to delete the selected images?",
       "copy": "Copy",
+      "copyLinkFailed": "Could not copy the link. Check the image URL and link format.",
       "copyLinkSucceed": "Copy Link Succeed",
       "dateRange": "Date Range",
       "delete": "Delete",
