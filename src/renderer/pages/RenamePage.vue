@@ -14,7 +14,6 @@
               :class="{ 'input-error': validationError }"
               :placeholder="t('pages.rename.placeholder')"
               autofocus
-              @keyup.enter="confirmName"
               @input="clearValidationError"
             />
             <button
@@ -33,13 +32,19 @@
 
         <!-- Actions -->
         <div class="flex flex-col items-center justify-center gap-3">
-          <CustomButton class="w-[80%]" type="secondary" :text="t('common.cancel')" @click="cancel" />
+          <CustomButton
+            class="w-[80%]"
+            type="secondary"
+            native-type="button"
+            :text="t('common.cancel')"
+            @click="cancel"
+          />
           <CustomButton
             class="w-[80%]"
             type="primary"
+            native-type="submit"
             :text="t('common.confirm')"
             :disabled="!form.fileName.trim()"
-            @click="confirmName"
           />
         </div>
       </form>
