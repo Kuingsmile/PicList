@@ -8,10 +8,12 @@ const state = vi.hoisted(() => ({
   uploadClipboard: vi.fn(),
   respond: vi.fn(),
   saveConfig: vi.fn(),
+  deleteFiles: vi.fn(),
+  warn: vi.fn(),
 }))
 vi.mock('@core/datastore/dirs', () => ({ appLogPath: () => 'mock-log' }))
 vi.mock('@core/picgo', () => ({ default: { getConfig: () => state.config, saveConfig: state.saveConfig } }))
-vi.mock('@core/picgo/logger', () => ({ default: { info: vi.fn(), error: vi.fn() } }))
+vi.mock('@core/picgo/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: state.warn } }))
 vi.mock('apis/app/uploader/apis', () => ({
   uploadChoosedFiles: state.uploadFiles,
   uploadClipboardFiles: state.uploadClipboard,
@@ -20,7 +22,7 @@ vi.mock('apis/app/window/windowManager', () => ({ default: { getAvailableWindow:
 vi.mock('~/server/apiDoc', () => ({ markdownContent: '' }))
 vi.mock('~/server/router', () => import('../src/main/server/router'))
 vi.mock('~/utils/uploadResult', () => import('../src/main/utils/uploadResult'))
-vi.mock('~/server/utils', () => ({ handleResponse: state.respond, deleteChoosedFiles: vi.fn() }))
+vi.mock('~/server/utils', () => ({ handleResponse: state.respond, deleteChoosedFiles: state.deleteFiles }))
 vi.mock('~/utils/aesHelper', () => ({
   AESHelper: class {
     encrypt() {
@@ -39,6 +41,42 @@ beforeEach(() => {
   state.config = { settings: {}, picBed: { current: 'local', uploader: 'local' } }
   state.uploadFiles.mockResolvedValue([])
   state.uploadClipboard.mockResolvedValue({ url: '', fullResult: {} })
+})
+
+describe('HTTP delete diagnostics', () => {
+  const remove = (list: unknown) =>
+    router.getHandler('/delete', 'POST')!.handler({ response: {} as IHttpResponse, list })
+
+  it.each([
+    null,
+    {},
+    [],
+    ['https://example.invalid/image.png'],
+    [null],
+    [{ imgUrl: 'https://example.invalid/image.png' }],
+  ])('rejects malformed or URL-only requests before deleting anything: %j', async list => {
+    await remove(list)
+    expect(state.respond).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statusCode: 400,
+        body: expect.objectContaining({ success: false, message: expect.stringContaining('fullResult') }),
+      }),
+    )
+    expect(state.warn).toHaveBeenCalled()
+    expect(state.deleteFiles).not.toHaveBeenCalled()
+  })
+
+  it('validates the entire list before performing a partial deletion', async () => {
+    await remove([{ id: 'valid' }, 'https://example.invalid/image.png'])
+    expect(state.deleteFiles).not.toHaveBeenCalled()
+  })
+
+  it('logs a useful failure count when gallery deletion fails', async () => {
+    state.deleteFiles.mockResolvedValue([false])
+    await remove([{ id: 'missing' }])
+    expect(state.warn).toHaveBeenCalledWith('[PicList Server] delete failed for 1 of 1 items')
+    expect(state.respond.mock.calls[0][0].body.success).toBe(false)
+  })
 })
 
 describe('HTTP upload configuration', () => {

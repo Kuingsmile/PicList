@@ -30,7 +30,7 @@ export const handleResponse = ({
   body?: any
 }) => {
   if (body?.success === false) {
-    logger.warn('[PicList Server] upload failed, see piclist.log for more detail ↑')
+    logger.warn('[PicList Server] request failed, see piclist.log for more detail ↑')
   }
   response.writeHead(statusCode, header)
   response.write(JSON.stringify(body))
@@ -48,6 +48,11 @@ export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> =>
       try {
         const dbStore = GalleryDB.getInstance()
         const file = await dbStore.getById(item.id)
+        if (!file) {
+          logger.warn('[PicList Server] delete failed: gallery record was not found')
+          result.push(false)
+          continue
+        }
         await dbStore.removeById(item.id)
         if (picgo.getConfig<boolean>(configPaths.settings.deleteCloudFile)) {
           if (item.type !== undefined && picBedsCanbeDeleted.includes(item.type)) {
@@ -69,9 +74,15 @@ export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> =>
           picgo.emit(ICOREBuildInEvent.REMOVE, [file], GuiApi.getInstance())
         }, 500)
         result.push(true)
-      } catch (_e) {
+      } catch (error) {
+        logger.error(
+          `[PicList Server] delete failed while updating the gallery (${(error as NodeJS.ErrnoException).code || 'UNKNOWN'})`,
+        )
         result.push(false)
       }
+    } else {
+      logger.warn('[PicList Server] delete failed: upload result has no gallery ID')
+      result.push(false)
     }
   }
   windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('updateGallery')

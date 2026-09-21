@@ -183,47 +183,64 @@ router.post(
   },
 )
 
-router.post(
-  '/delete',
-  async ({ response, list = [] }: { response: IHttpResponse; list?: IStringKeyMap[] }): Promise<void> => {
-    if (list.length === 0) {
-      handleResponse({
-        response,
-        body: {
-          success: false,
-          message: 'no file to delete',
-        },
-      })
-      return
+router.post('/delete', async ({ response, list = [] }: { response: IHttpResponse; list?: unknown }): Promise<void> => {
+  if (!Array.isArray(list) || list.length === 0) {
+    const message = 'delete requires a non-empty list of upload fullResult objects'
+    logger.warn(`[PicList Server] ${message}`)
+    handleResponse({
+      response,
+      statusCode: 400,
+      body: {
+        success: false,
+        message,
+      },
+    })
+    return
+  }
+  try {
+    const aesHelper = new AESHelper()
+    const treatList: ImgInfo[] = []
+    for (const item of list) {
+      let decoded = item
+      if (item && typeof item === 'object' && item.isEncrypted) {
+        decoded = JSON.parse(aesHelper.decrypt(item.EncryptedData))
+      }
+      if (
+        !decoded ||
+        typeof decoded !== 'object' ||
+        Array.isArray(decoded) ||
+        typeof decoded.id !== 'string' ||
+        !decoded.id
+      ) {
+        const message = 'delete requires upload fullResult objects with gallery IDs; URL strings are not supported'
+        logger.warn(`[PicList Server] ${message}`)
+        handleResponse({ response, statusCode: 400, body: { success: false, message } })
+        return
+      }
+      treatList.push(decoded)
     }
-    try {
-      const aesHelper = new AESHelper()
-      const treatList = list.map(item => {
-        if (!item.isEncrypted) return item
-        return JSON.parse(aesHelper.decrypt(item.EncryptedData))
-      })
-      const result = await deleteChoosedFiles(treatList)
-      const successCount = result.filter(item => item).length
-      const failCount = result.length - successCount
-      handleResponse({
-        response,
-        body: {
-          success: !!successCount,
-          message: successCount ? `delete success: ${successCount}, fail: ${failCount}` : deleteErrorMessage,
-        },
-      })
-    } catch (err: any) {
-      logger.error(err)
-      handleResponse({
-        response,
-        body: {
-          success: false,
-          message: deleteErrorMessage,
-        },
-      })
-    }
-  },
-)
+    const result = await deleteChoosedFiles(treatList)
+    const successCount = result.filter(item => item).length
+    const failCount = result.length - successCount
+    if (failCount) logger.warn(`[PicList Server] delete failed for ${failCount} of ${result.length} items`)
+    handleResponse({
+      response,
+      body: {
+        success: !!successCount,
+        message: successCount ? `delete success: ${successCount}, fail: ${failCount}` : deleteErrorMessage,
+      },
+    })
+  } catch (err: any) {
+    logger.error(err)
+    handleResponse({
+      response,
+      body: {
+        success: false,
+        message: deleteErrorMessage,
+      },
+    })
+  }
+})
 
 router.any('/heartbeat', async ({ response }: { response: IHttpResponse }) => {
   handleResponse({
