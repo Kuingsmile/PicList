@@ -2583,9 +2583,15 @@ function handleBatchCopyInfo() {
 }
 
 async function copyLink(item: any, type: string) {
-  copyToClipboard(await formatLink(item.url, item.fileName, type, manageStore.config.settings.customPasteFormat))
+  copyToClipboard(await formatLink(item.url, item.fileName, type, customPasteFormat.value, item.key || item.Key))
   copyDropdownIndex.value = -1
 }
+
+const customPasteFormat = computed(
+  () =>
+    manageStore.config.picBed[configMap.value.alias]?.customPasteFormat ||
+    manageStore.config.settings.customPasteFormat,
+)
 
 function handlecopyDropdownOpen() {
   copyDropdownOpen.value = !copyDropdownOpen.value
@@ -2605,7 +2611,8 @@ async function handleBatchCopyLink(type: string) {
         preSignedUrl || item.url,
         item.fileName,
         type,
-        manageStore.config.settings.customPasteFormat,
+        customPasteFormat.value,
+        item.key || item.Key,
       )
       result.push(url)
     }

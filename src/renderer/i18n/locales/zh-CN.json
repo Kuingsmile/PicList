@@ -613,6 +613,8 @@
           "markdown": "Markdown",
           "markdown-with-link": "Markdown（带链接）",
           "rawurl": "原始URL",
+          "storageCustomTips": "留空使用全局格式。支持 $url、$fileName、$filePath（含文件夹的完整路径）和 $dir（以 / 结尾的文件夹路径）。",
+          "storageCustomTitle": "此存储的自定义链接格式",
           "title": "复制格式"
         },
         "copySuccess": "已复制 {name}",
@@ -1268,7 +1270,6 @@
       "duplicateSuccess": "拷贝成功",
       "duplicateTitle": "拷贝配置",
       "edit": "编辑",
-
       "removeFromFavorites": "从快速切换中移除",
       "selected": "已启用",
       "setAsDefault": "设为默认图床",
