@@ -39,6 +39,36 @@
         </div>
       </div>
 
+      <div class="w-full rounded-2xl border border-border-secondary px-6 py-3 shadow-md">
+        <button
+          type="button"
+          role="switch"
+          :aria-checked="experimentalBundledNpm"
+          :aria-label="t('pages.plugin.bundledNpmTitle')"
+          aria-describedby="bundled-npm-description"
+          class="flex items-center gap-4 rounded-lg text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          @click="saveBundledNpmSetting(!experimentalBundledNpm)"
+        >
+          <span
+            aria-hidden="true"
+            class="relative h-7 w-[52px] shrink-0 rounded-full transition-colors"
+            :class="experimentalBundledNpm ? 'bg-accent' : 'bg-gray-400/80'"
+          >
+            <span
+              class="absolute top-[3px] left-[3px] h-[22px] w-[22px] rounded-full bg-white shadow-sm transition-transform"
+              :class="{ 'translate-x-6': experimentalBundledNpm }"
+            />
+          </span>
+          <span class="flex flex-col gap-1">
+            <span class="text-sm font-semibold text-secondary">{{ t('pages.plugin.bundledNpmTitle') }}</span>
+            <span id="bundled-npm-description" class="text-xs text-secondary/90">{{
+              t('pages.plugin.bundledNpmDescription')
+            }}</span>
+          </span>
+        </button>
+        <p class="mt-2 mb-0 text-xs text-secondary">{{ t('pages.plugin.bundledNpmSharedPlugins') }}</p>
+      </div>
+
       <!-- Search Card -->
       <div
         class="flex w-full flex-row items-center justify-between gap-4 overflow-visible rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
@@ -474,6 +504,12 @@ const showBrowseDialog = ref(false)
 const browseSearchText = ref('')
 const browsePlugins = ref<IPicGoPlugin[]>([])
 const loadingBrowse = ref(false)
+const experimentalBundledNpm = ref(false)
+
+function saveBundledNpmSetting(enabled: boolean) {
+  experimentalBundledNpm.value = enabled
+  saveConfig(configPaths.settings.experimentalBundledNpm, enabled)
+}
 
 const npmSearchText = computed(() => {
   return searchText.value.match('picgo-plugin-')
@@ -846,6 +882,7 @@ onBeforeMount(async () => {
   getPluginList()
   getSearchResult = debounce(_getSearchResult, 50)
   needReload.value = (await getConfig<boolean>(configPaths.needReload)) || false
+  experimentalBundledNpm.value = (await getConfig<boolean>(configPaths.settings.experimentalBundledNpm)) === true
 })
 
 onBeforeUnmount(() => {

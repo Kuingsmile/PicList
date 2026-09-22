@@ -73,6 +73,7 @@ export interface IConfigStruct {
     isSilentNotice: boolean
     proxy: string
     registry: string
+    experimentalBundledNpm?: boolean
     autoCopy: boolean
     enableWebServer: boolean
     webServerHost: string
@@ -175,6 +176,7 @@ export const configPaths = {
     isSilentNotice: 'settings.isSilentNotice',
     proxy: 'settings.proxy',
     registry: 'settings.registry',
+    experimentalBundledNpm: 'settings.experimentalBundledNpm',
     autoCopy: 'settings.autoCopy',
     enableWebServer: 'settings.enableWebServer',
     webServerHost: 'settings.webServerHost',

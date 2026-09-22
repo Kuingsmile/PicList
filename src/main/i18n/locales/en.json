@@ -28,6 +28,7 @@
     },
     "notification": {
       "backupConfigFileVersion": "Backup Config File Version: {{version}}",
+      "bundledNpmUnavailable": "Bundled npm could not start. Turn off the experimental option to use system npm, or reinstall PicList. For development, run yarn prepare:plugin-runtime.",
       "cloudSyncDeleteFailed": "Cloud Sync Delete Failed",
       "cloudSyncDeleteSucceed": "Cloud Sync Delete Succeed",
       "configFileBrokenBackupTips": "Config file is broken, restored from backup",

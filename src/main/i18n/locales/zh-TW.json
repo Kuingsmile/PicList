@@ -28,6 +28,7 @@
     },
     "notification": {
       "backupConfigFileVersion": "備份配置文件版本: {{version}}",
+      "bundledNpmUnavailable": "無法啟動內建 npm。請關閉實驗性選項以使用系統 npm，或重新安裝 PicList。開發環境請執行 yarn prepare:plugin-runtime。",
       "cloudSyncDeleteFailed": "雲端刪除失敗",
       "cloudSyncDeleteSucceed": "雲端刪除成功",
       "configFileBrokenBackupTips": "配置文件損壞，已恢復為備份配置",
