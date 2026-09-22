@@ -1103,7 +1103,7 @@
         },
         "secondPicBedMode": {
           "backup": "備份模式",
-          "seperate": "獨立模式"
+          "separate": "獨立模式"
         },
         "setSecondPicBed": "設置第二圖床",
         "setSecondPicBedDesc": "配置用於備份的第二圖床",

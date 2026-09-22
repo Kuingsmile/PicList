@@ -1511,7 +1511,7 @@ const logLevel = computed(() => [
 
 const secondModeList = computed(() => [
   { label: t('pages.settings.upload.secondPicBedMode.backup'), value: 'backup' },
-  { label: t('pages.settings.upload.secondPicBedMode.seperate'), value: 'seperate' },
+  { label: t('pages.settings.upload.secondPicBedMode.separate'), value: 'separate' },
 ])
 
 const needUpdate = computed(() => {

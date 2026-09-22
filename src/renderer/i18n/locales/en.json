@@ -1103,7 +1103,7 @@
         },
         "secondPicBedMode": {
           "backup": "Backup Mode",
-          "seperate": "Separate Mode"
+          "separate": "Separate Mode"
         },
         "setSecondPicBed": "Set Second Image Bed",
         "setSecondPicBedDesc": "Configure secondary image bed for backup",
