@@ -562,9 +562,19 @@ function picgoHandlePluginDoneHandler(fullName: string) {
 }
 
 function pluginListHandler(list: IPicGoPlugin[]) {
-  pluginList.value = list
   pluginNameList.value = list.map(item => item.fullName)
-  for (const item of pluginList.value) {
+  const installedPlugins = new Set(pluginNameList.value)
+  if (searchText.value) {
+    pluginList.value.forEach(item => {
+      item.hasInstall = installedPlugins.has(item.fullName)
+    })
+  } else {
+    pluginList.value = list
+  }
+  browsePlugins.value.forEach(item => {
+    item.hasInstall = installedPlugins.has(item.fullName)
+  })
+  for (const item of list) {
     getLatestVersionOfPlugIn(item.fullName)
   }
   loading.value = false
@@ -585,6 +595,10 @@ function installPluginHandler({ success, body }: { success: boolean; body: strin
       item.hasInstall = success
     }
   })
+  if (success) {
+    getPluginList()
+    updatePicBeds()
+  }
 }
 
 function updateSuccessHandler(plugin: string) {
