@@ -688,6 +688,8 @@
     "plugin": {
       "browseAllPlugins": "Browse All Plugins",
       "browsePlugins": "Browse Plugins",
+      "bundledNpmDescription": "Manage and use plugins without installing Node.js",
+      "bundledNpmTitle": "Use bundled npm (Experimental)",
       "configThing": "Config {c}",
       "description": "PicList Plugin Management",
       "disabled": "Disabled",

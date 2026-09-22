@@ -72,6 +72,14 @@
             }}</span>
           </label>
         </div>
+        <CustomSwitch
+          v-model="experimentalBundledNpm"
+          no-border
+          small
+          :title="t('pages.plugin.bundledNpmTitle')"
+          :description="t('pages.plugin.bundledNpmDescription')"
+          @update:model-value="saveBundledNpmSetting(experimentalBundledNpm)"
+        />
       </div>
 
       <!-- Reload Notice -->
@@ -442,6 +450,7 @@ import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
+import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import ConfigForm from '@/components/UnifiedConfigForm.vue'
 import { usePicBed } from '@/hooks/useGlobal'
 import { getRawData, handleStreamlinePluginName } from '@/utils/common'
@@ -474,6 +483,12 @@ const showBrowseDialog = ref(false)
 const browseSearchText = ref('')
 const browsePlugins = ref<IPicGoPlugin[]>([])
 const loadingBrowse = ref(false)
+const experimentalBundledNpm = ref(false)
+
+function saveBundledNpmSetting(enabled: boolean) {
+  experimentalBundledNpm.value = enabled
+  saveConfig(configPaths.settings.experimentalBundledNpm, enabled)
+}
 
 const npmSearchText = computed(() => {
   return searchText.value.match('picgo-plugin-')
@@ -547,9 +562,19 @@ function picgoHandlePluginDoneHandler(fullName: string) {
 }
 
 function pluginListHandler(list: IPicGoPlugin[]) {
-  pluginList.value = list
   pluginNameList.value = list.map(item => item.fullName)
-  for (const item of pluginList.value) {
+  const installedPlugins = new Set(pluginNameList.value)
+  if (searchText.value) {
+    pluginList.value.forEach(item => {
+      item.hasInstall = installedPlugins.has(item.fullName)
+    })
+  } else {
+    pluginList.value = list
+  }
+  browsePlugins.value.forEach(item => {
+    item.hasInstall = installedPlugins.has(item.fullName)
+  })
+  for (const item of list) {
     getLatestVersionOfPlugIn(item.fullName)
   }
   loading.value = false
@@ -570,6 +595,10 @@ function installPluginHandler({ success, body }: { success: boolean; body: strin
       item.hasInstall = success
     }
   })
+  if (success) {
+    getPluginList()
+    updatePicBeds()
+  }
 }
 
 function updateSuccessHandler(plugin: string) {
@@ -846,6 +875,7 @@ onBeforeMount(async () => {
   getPluginList()
   getSearchResult = debounce(_getSearchResult, 50)
   needReload.value = (await getConfig<boolean>(configPaths.needReload)) || false
+  experimentalBundledNpm.value = (await getConfig<boolean>(configPaths.settings.experimentalBundledNpm)) === true
 })
 
 onBeforeUnmount(() => {

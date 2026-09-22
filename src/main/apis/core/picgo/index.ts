@@ -5,11 +5,15 @@ import pkg from 'root/package.json'
 
 import { t } from '~/i18n'
 import { configPaths } from '~/utils/configPaths'
+
+import { executeBundledNpm } from './bundledNpm'
+import { DesktopPluginHandler } from './pluginHandler'
 const CONFIG_PATH = appConfigPath()
 
 dbChecker()
 
 const picgo = await PicGo.create(CONFIG_PATH)
+picgo.pluginHandler = new DesktopPluginHandler(picgo, executeBundledNpm)
 
 picgo.saveConfig({
   debug: true,

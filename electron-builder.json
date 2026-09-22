@@ -1,6 +1,7 @@
 {
   "productName": "PicList",
   "appId": "com.kuingsmile.piclist",
+  "beforePack": "scripts/beforePack.cjs",
   "afterPack": "scripts/afterPack.cjs",
   "afterSign": "scripts/notarize.cjs",
   "directories": {
@@ -14,6 +15,13 @@
     "resources/**"
   ],
   "files": ["out/**/*", "resources/**", "package.json", "!**/node_modules/typescript{,/**}"],
+  "extraResources": [
+    {
+      "from": "build/plugin-runtime/${os}-${arch}",
+      "to": "plugin-runtime",
+      "filter": ["npm/**", "bin/**"]
+    }
+  ],
   "dmg": {
     "contents": [
       {

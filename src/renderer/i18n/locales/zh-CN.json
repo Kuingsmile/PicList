@@ -688,6 +688,8 @@
     "plugin": {
       "browseAllPlugins": "浏览所有插件",
       "browsePlugins": "浏览插件",
+      "bundledNpmDescription": "无需安装 Node.js 即可管理使用插件",
+      "bundledNpmTitle": "使用内置 npm（实验性）",
       "configThing": "配置 {c}",
       "description": "PicList 插件管理页面",
       "disabled": "已禁用",
