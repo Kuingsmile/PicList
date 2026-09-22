@@ -107,6 +107,8 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.logger,
         this.currentPicBedConfig.dogeCloudSupport || false,
         this.currentPicBedConfig.bucketName || '',
+        this.currentPicBedConfig.region || '',
+        this.currentPicBedConfig.customUrl || '',
       ),
     sftp: () =>
       new API.SftpApi(

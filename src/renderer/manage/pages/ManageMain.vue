@@ -466,7 +466,10 @@ function handleSelectMenu(bucketName: string) {
   const configMapT = {
     prefix,
     bucketName,
-    customUrl: transformedConfig[bucketName]?.customUrl ?? '',
+    customUrl:
+      transformedConfig[bucketName]?.customUrl ||
+      (cpicBedName === 's3plist' ? currentPicBedConfig.customUrl : '') ||
+      '',
     picBedName: cpicBedName,
     alias: currentAlias.value,
     bucketConfig: bucketList.value[bucketName],
