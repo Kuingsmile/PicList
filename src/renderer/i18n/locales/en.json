@@ -688,8 +688,7 @@
     "plugin": {
       "browseAllPlugins": "Browse All Plugins",
       "browsePlugins": "Browse Plugins",
-      "bundledNpmDescription": "Install, update and remove plugins without installing Node.js. Off by default; turn off to use system npm.",
-      "bundledNpmSharedPlugins": "Both modes share all plugins and settings, including plugins installed in earlier versions. Switching modes does not reinstall plugins. Some plugins may still need external build tools.",
+      "bundledNpmDescription": "Manage and use plugins without installing Node.js",
       "bundledNpmTitle": "Use bundled npm (Experimental)",
       "configThing": "Config {c}",
       "description": "PicList Plugin Management",

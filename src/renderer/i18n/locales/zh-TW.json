@@ -688,8 +688,7 @@
     "plugin": {
       "browseAllPlugins": "瀏覽所有插件",
       "browsePlugins": "瀏覽插件",
-      "bundledNpmDescription": "無需安裝 Node.js 即可安裝、更新和解除安裝插件。預設關閉；關閉後使用系統 npm。",
-      "bundledNpmSharedPlugins": "兩種模式共用所有插件及設定，包括舊版本安裝的插件。切換模式不會重新安裝插件。部分插件仍可能需要外部編譯工具。",
+      "bundledNpmDescription": "無需安裝 Node.js 即可管理和使用插件",
       "bundledNpmTitle": "使用內建 npm（實驗性）",
       "configThing": "配置 {c}",
       "description": "PicList 插件管理頁面",
