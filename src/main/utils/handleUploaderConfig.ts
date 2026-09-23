@@ -95,8 +95,20 @@ export const deleteUploaderConfig = (type: string, id: string): IUploaderConfigI
   let newDefaultId = defaultId
   const updatedConfigList = configList.filter((item: IStringKeyMap) => item._id !== id)
   if (id === defaultId) {
-    newDefaultId = updatedConfigList[0]._id
-    changeCurrentUploader(type, updatedConfigList[0], updatedConfigList[0]._id)
+    const newDefaultConfig = updatedConfigList[0]
+    newDefaultId = newDefaultConfig._id
+    const currentUploader =
+      picgo.getConfig<string>(configPaths.picBed.uploader) ||
+      picgo.getConfig<string>(configPaths.picBed.current) ||
+      'smms'
+    if (currentUploader === type) {
+      changeCurrentUploader(type, newDefaultConfig, newDefaultId)
+    } else {
+      picgo.saveConfig({
+        [`uploader.${type}.defaultId`]: newDefaultId,
+        [`picBed.${type}`]: newDefaultConfig,
+      })
+    }
   }
   picgo.saveConfig({
     [`uploader.${type}.configList`]: updatedConfigList,

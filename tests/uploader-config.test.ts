@@ -77,11 +77,19 @@ describe('selected uploader configuration snapshots', () => {
     expect(state.config.uploader.local.configList).toEqual([primary])
   })
 
-  it('preserves the backup when deleting an unrelated configuration', () => {
+  it.each([
+    { uploader: 'local', current: 'local' },
+    { uploader: undefined, current: 'local' },
+    { uploader: 'local', current: 'aliyun' },
+  ])('replaces the active default and preserves the backup with uploader=$uploader and current=$current', selection => {
+    Object.assign(state.config.picBed, selection)
     deleteUploaderConfig('local', primary._id)
     expect(state.config.picBed.secondUploaderConfig).toEqual(secondary)
     expect(state.config.picBed.local).toEqual(secondary)
     expect(state.config.uploader.local.defaultId).toBe(secondary._id)
+    expect(state.config.picBed.current).toBe('local')
+    expect(state.config.picBed.uploader).toBe('local')
+    expect(state.tooltip).toHaveBeenCalledExactlyOnceWith('local Backup')
     expect(state.config.settings.enableSecondUploader).toBe(true)
   })
 
@@ -121,6 +129,67 @@ describe('selected uploader configuration snapshots', () => {
   it('ignores reset requests for missing configurations', () => {
     resetUploaderConfig('local', 'missing')
     expect(state.save).not.toHaveBeenCalled()
+  })
+})
+
+describe('deleting an inactive uploader default', () => {
+  const githubDefault = { ...primary, _id: 'github-default' }
+  const githubBackup = { ...secondary, _id: 'github-backup' }
+  const aliyun = { ...primary, _id: 'aliyun-profile' }
+
+  beforeEach(() => {
+    state.config = cloneDeep({
+      uploader: {
+        github: { configList: [githubDefault, githubBackup], defaultId: githubDefault._id },
+        aliyun: { configList: [aliyun], defaultId: aliyun._id },
+      },
+      picBed: {
+        current: 'aliyun',
+        uploader: 'aliyun',
+        aliyun,
+        github: githubDefault,
+        secondUploader: 'github',
+        secondUploaderConfig: githubBackup,
+      },
+      settings: { enableSecondUploader: true },
+    })
+  })
+
+  it.each([
+    { uploader: 'aliyun', current: 'aliyun' },
+    { uploader: undefined, current: 'aliyun' },
+    { uploader: 'aliyun', current: 'github' },
+  ])('keeps Aliyun active with uploader=$uploader and current=$current', selection => {
+    Object.assign(state.config.picBed, selection)
+
+    const result = deleteUploaderConfig('github', githubDefault._id)
+
+    expect(result).toEqual({ configList: [githubBackup], defaultId: githubBackup._id })
+    expect(state.config.uploader.github).toEqual(result)
+    expect(state.config.picBed.github).toEqual(githubBackup)
+    expect(state.config.picBed.uploader).toBe(selection.uploader)
+    expect(state.config.picBed.current).toBe(selection.current)
+    expect(state.config.picBed.aliyun).toEqual(aliyun)
+    expect(state.config.uploader.aliyun).toEqual({ configList: [aliyun], defaultId: aliyun._id })
+    expect(state.tooltip).not.toHaveBeenCalled()
+    expect(state.config.picBed.secondUploader).toBe('github')
+    expect(state.config.picBed.secondUploaderConfig).toEqual(githubBackup)
+    expect(state.config.settings.enableSecondUploader).toBe(true)
+  })
+
+  it('clears a deleted secondary profile without activating its provider', () => {
+    state.config.picBed.secondUploaderConfig = cloneDeep(githubDefault)
+
+    deleteUploaderConfig('github', githubDefault._id)
+
+    expect(state.config.picBed.secondUploader).toBe('')
+    expect(state.config.picBed.secondUploaderConfig).toEqual({})
+    expect(state.config.settings.enableSecondUploader).toBe(false)
+    expect(state.config.picBed.github).toEqual(githubBackup)
+    expect(state.config.uploader.github.defaultId).toBe(githubBackup._id)
+    expect(state.config.picBed.uploader).toBe('aliyun')
+    expect(state.config.picBed.current).toBe('aliyun')
+    expect(state.tooltip).not.toHaveBeenCalled()
   })
 })
 
