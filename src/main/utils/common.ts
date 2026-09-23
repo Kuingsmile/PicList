@@ -346,10 +346,6 @@ export const formatHttpProxy = (
       }
 }
 
-export function encodeFilePath(filePath: string) {
-  return filePath.replace(/\\/g, '/').split('/').map(encodeURIComponent).join('/')
-}
-
 export const trimPath = (path: string) => path.replace(/^\/+|\/+$/g, '').replace(/\/+/g, '/')
 
 export const extractData = async (zipPath: string): Promise<Record<string, any>> => {

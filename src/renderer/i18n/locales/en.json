@@ -829,7 +829,6 @@
       "advanced": {
         "chooseLogLevel": "Please select log level",
         "enableServer": "Enable Upload API Service",
-        "enableWebServer": "Enable Web Server",
         "guiLogFile": "Open GUI Log File",
         "invalidJson": "Invalid JSON format",
         "logDialogDesc": "View log files and configure log settings",
@@ -876,18 +875,7 @@
         "title": "Advanced",
         "uploadProxy": "Upload Proxy",
         "uploadServer": "Upload API Service Settings",
-        "uploadServerDesc": "Configure upload API port and authentication",
-        "webServerConfig": "Web Server Configuration",
-        "webServerDialogDesc": "Configure built-in web server connection parameters",
-        "webServerHost": "Web Server Listen Address",
-        "webServerNotice": "If you don't know the purpose of the Web Server, please read the documentation or do not modify the configuration.",
-        "webServerPath": "Web Server Path",
-        "webServerPathPlaceholder": "Optional, custom route path",
-        "webServerPlaceholderHost": "Recommended default address: 127.0.0.1",
-        "webServerPlaceholderPort": "Recommended default port: 37777",
-        "webServerPort": "Web Server Listen Port",
-        "webServerSettings": "Web Server Settings",
-        "webServerSettingsDesc": "Configure built-in web server"
+        "uploadServerDesc": "Configure upload API port and authentication"
       },
       "clickToOpen": "Click to Open",
       "clickToSet": "Click to Set",

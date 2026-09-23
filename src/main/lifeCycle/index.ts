@@ -25,7 +25,6 @@ import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import getManageApi from '~/manage/Main'
 import { clearTempFolder } from '~/manage/utils/common'
 import server from '~/server/index'
-import webServer from '~/server/webServer'
 import { isAutoStartEnabled, setAutoStart } from '~/utils/autoStart'
 import beforeOpen from '~/utils/beforeOpen'
 import clipboardPoll from '~/utils/clipboardPoll'
@@ -166,7 +165,6 @@ class LifeCycle {
         shortKeyHandler.init()
       })
       server.startup()
-      webServer.start()
       startFileServer()
       if (process.env.NODE_ENV !== 'development') {
         handleStartUpFiles(process.argv, process.cwd())
@@ -286,7 +284,6 @@ class LifeCycle {
       globalShortcut.unregisterAll()
       bus.removeAllListeners()
       server.shutdown()
-      webServer.stop()
       stopFileServer()
       runScriptInStage('onSoftwareClose', picgo, {})
     })

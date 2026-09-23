@@ -661,12 +661,6 @@
           <!-- Server Settings Section -->
           <SettingSection :icon="Server" :title="t('pages.settings.advanced.serverSettings')">
             <CustomNavCard
-              :title="t('pages.settings.advanced.webServerSettings')"
-              :description="t('pages.settings.advanced.webServerSettingsDesc')"
-              :icon="Globe"
-              @click="webServerVisible = true"
-            />
-            <CustomNavCard
               :title="t('pages.settings.advanced.uploadServer')"
               :description="t('pages.settings.advanced.uploadServerDesc')"
               :icon="Globe"
@@ -1072,66 +1066,6 @@
       </template>
     </CustomModal>
 
-    <!-- Web Server Settings Dialog -->
-    <CustomModal
-      v-if="webServerVisible"
-      v-model:visible="webServerVisible"
-      height="auto"
-      width="600px"
-      :title="t('pages.settings.advanced.webServerSettings')"
-    >
-      <div class="flex w-full flex-col gap-4 p-4">
-        <div
-          class="mb-4 flex items-start gap-3 rounded-lg border border-border bg-success/10 px-4 py-3 text-sm font-semibold text-secondary"
-        >
-          <span>{{ t('pages.settings.advanced.webServerNotice') }}</span>
-        </div>
-        <SettingCard p1>
-          <CustomSwitch
-            v-model="formOfSetting.enableWebServer"
-            :title="t('pages.settings.advanced.enableWebServer')"
-            no-border
-            small
-          />
-        </SettingCard>
-        <SettingSection
-          v-if="formOfSetting.enableWebServer"
-          :icon="Settings"
-          :title="t('pages.settings.advanced.webServerConfig')"
-        >
-          <SettingCard>
-            <CustomInput
-              v-model="formOfSetting.webServerHost"
-              type="text"
-              :title="t('pages.settings.advanced.webServerHost')"
-              placeholder="127.0.0.1"
-            />
-          </SettingCard>
-          <SettingCard>
-            <CustomInput
-              v-model="formOfSetting.webServerPort"
-              type="number"
-              :min="1"
-              :max="65535"
-              :step="1"
-              :title="t('pages.settings.advanced.webServerPort')"
-              placeholder="37777"
-            />
-          </SettingCard>
-          <SettingCard>
-            <CustomInput
-              v-model="formOfSetting.webServerPath"
-              :title="t('pages.settings.advanced.webServerPath')"
-              :placeholder="t('pages.settings.advanced.webServerPathPlaceholder')"
-            />
-          </SettingCard>
-        </SettingSection>
-      </div>
-      <template #footer>
-        <CustomButton type="primary" :text="t('common.confirm')" @click="confirmWebServerSetting" />
-      </template>
-    </CustomModal>
-
     <!-- Sync Configuration Dialog -->
     <CustomModal
       v-if="syncVisible"
@@ -1385,7 +1319,6 @@ const logFileVisible = ref(false)
 const customLinkVisible = ref(false)
 const checkUpdateVisible = ref(false)
 const serverVisible = ref(false)
-const webServerVisible = ref(false)
 const syncVisible = ref(false)
 const upDownConfigVisible = ref(false)
 const proxyVisible = ref(false)
@@ -1464,10 +1397,6 @@ const formOfSetting = ref<ISettingForm>({
   serverMaxConcurrency: 0,
   serverUploadInterval: 0,
   aesPassword: 'PicList-aesPassword',
-  enableWebServer: false,
-  webServerHost: '0.0.0.0',
-  webServerPort: 37777,
-  webServerPath: '',
   registry: '',
   proxy: '',
   mainWindowWidth: 1200,
@@ -1571,10 +1500,6 @@ const autoWatchKeys = [
   'deleteLocalFile',
   'rename',
   'autoRename',
-  'enableWebServer',
-  'webServerHost',
-  'webServerPort',
-  'webServerPath',
   'serverKey',
   'serverMaxConcurrency',
   'serverUploadInterval',
@@ -2214,15 +2139,6 @@ function confirmCheckVersion() {
 
 function cancelCheckVersion() {
   checkUpdateVisible.value = false
-}
-
-function confirmWebServerSetting() {
-  if (formOfSetting.value.enableWebServer) {
-    window.electron.sendRPC(IRPCActionType.ADVANCED_RESTART_WEB_SERVER)
-  } else {
-    window.electron.sendRPC(IRPCActionType.ADVANCED_STOP_WEB_SERVER)
-  }
-  webServerVisible.value = false
 }
 
 function handleMiniWindowOntop(val: ICheckBoxValueType) {

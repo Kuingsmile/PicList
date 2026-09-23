@@ -829,7 +829,6 @@
       "advanced": {
         "chooseLogLevel": "請選擇日誌記錄等級",
         "enableServer": "是否開啟上傳API服務",
-        "enableWebServer": "是否開啟 Web 服務",
         "guiLogFile": "打開 GUI 日誌文件",
         "invalidJson": "無效的 JSON 格式",
         "logDialogDesc": "查看日誌文件和配置日誌設置",
@@ -876,18 +875,7 @@
         "title": "高級",
         "uploadProxy": "上傳代理",
         "uploadServer": "上傳API服務設置",
-        "uploadServerDesc": "配置上傳 API 服務端口和鑑權",
-        "webServerConfig": "Web 服務配置",
-        "webServerDialogDesc": "配置內置 Web 伺服器的連接參數",
-        "webServerHost": "Web 服務監聽地址",
-        "webServerNotice": "如果你不知道 Web 服務的作用，請閱讀文檔，或者不用修改配置。",
-        "webServerPath": "Web 服務路徑",
-        "webServerPathPlaceholder": "可選，自定義路由路徑",
-        "webServerPlaceholderHost": "推薦默認地址: 127.0.0.1",
-        "webServerPlaceholderPort": "推薦默認端口: 37777",
-        "webServerPort": "Web 服務監聽端口",
-        "webServerSettings": "Web 服務設置",
-        "webServerSettingsDesc": "配置內置 Web 伺服器"
+        "uploadServerDesc": "配置上傳 API 服務端口和鑑權"
       },
       "clickToOpen": "點擊打開",
       "clickToSet": "點擊設置",

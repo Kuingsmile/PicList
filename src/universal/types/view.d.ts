@@ -33,10 +33,6 @@ interface ISettingForm {
   serverMaxConcurrency: number
   serverUploadInterval: number
   aesPassword: string
-  enableWebServer: boolean
-  webServerHost: string
-  webServerPort: number
-  webServerPath: string
   registry: string
   proxy: string
   mainWindowWidth: number

@@ -75,10 +75,6 @@ export interface IConfigStruct {
     registry: string
     experimentalBundledNpm?: boolean
     autoCopy: boolean
-    enableWebServer: boolean
-    webServerHost: string
-    webServerPort: number
-    webServerPath: string
     deleteLocalFile: boolean
     uploadResultNotification: boolean
     uploadNotification: boolean
@@ -173,10 +169,6 @@ export const configPaths = {
     registry: 'settings.registry',
     experimentalBundledNpm: 'settings.experimentalBundledNpm',
     autoCopy: 'settings.autoCopy',
-    enableWebServer: 'settings.enableWebServer',
-    webServerHost: 'settings.webServerHost',
-    webServerPort: 'settings.webServerPort',
-    webServerPath: 'settings.webServerPath',
     deleteLocalFile: 'settings.deleteLocalFile',
     uploadResultNotification: 'settings.uploadResultNotification',
     uploadNotification: 'settings.uploadNotification',
