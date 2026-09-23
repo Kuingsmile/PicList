@@ -5,7 +5,7 @@ import { IWindowList } from '~/utils/enum'
 import { protectRendererNavigation } from '~/utils/rendererSecurity'
 
 class WindowManager implements IWindowManager {
-  #windowMap = new Map<string, BrowserWindow>()
+  #windowMap = new Map<string, { id: number; window: BrowserWindow }>()
   #windowIdMap = new Map<number, string>()
 
   create(name: string) {
@@ -13,7 +13,7 @@ class WindowManager implements IWindowManager {
     if (!windowConfig.isValid) return undefined
 
     if (!windowConfig.multiple) {
-      const existingWin = this.#windowMap.get(name)
+      const existingWin = this.get(name)
       if (existingWin) {
         if (existingWin.isMinimized()) existingWin.restore()
         existingWin.focus()
@@ -26,22 +26,27 @@ class WindowManager implements IWindowManager {
     const id = window.id
     const windowName = windowConfig.multiple ? `${name}_${id}` : name
 
-    this.#windowMap.set(windowName, window)
+    this.#windowMap.set(windowName, { id, window })
     this.#windowIdMap.set(id, windowName)
 
-    windowConfig.callback(window, this)
-    window.on('close', () => {
+    window.once('closed', () => {
       this.deleteById(id)
     })
+    windowConfig.callback(window, this)
     return window
   }
 
   get(name: string) {
-    return this.#windowMap.get(name) || undefined
+    const entry = this.#windowMap.get(name)
+    if (entry?.window.isDestroyed()) {
+      this.deleteById(entry.id)
+      return undefined
+    }
+    return entry?.window
   }
 
   has(name: string) {
-    return this.#windowMap.has(name)
+    return this.get(name) !== undefined
   }
 
   deleteById = (id: number | undefined) => {
@@ -54,15 +59,15 @@ class WindowManager implements IWindowManager {
   }
 
   getAvailableWindow(isSkipMiniWindow = false) {
-    const miniWindow = this.#windowMap.get(IWindowList.MINI_WINDOW)
-    if (miniWindow && miniWindow.isVisible() && !isSkipMiniWindow) {
+    const miniWindow = this.get(IWindowList.MINI_WINDOW)
+    if (miniWindow && !isSkipMiniWindow && miniWindow.isVisible()) {
       return miniWindow
     }
 
-    const settingWindow = this.#windowMap.get(IWindowList.SETTING_WINDOW)
+    const settingWindow = this.get(IWindowList.SETTING_WINDOW)
     if (settingWindow) return settingWindow
 
-    const trayWindow = this.#windowMap.get(IWindowList.TRAY_WINDOW)
+    const trayWindow = this.get(IWindowList.TRAY_WINDOW)
     if (trayWindow) return trayWindow
     return undefined
   }

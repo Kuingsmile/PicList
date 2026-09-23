@@ -36,6 +36,7 @@ import { notificationList } from '~/utils/notification'
 import { runScriptInStage } from '~/utils/runScript'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 import updateChecker from '~/utils/updateChecker'
+import { showMiniWindow } from '~/utils/windowHelper'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 process.noDeprecation = true
@@ -184,45 +185,7 @@ class LifeCycle {
         })
         .catch(() => {})
       if (startMode === ISartMode.MINI && process.platform !== 'darwin') {
-        windowManager.create(IWindowList.MINI_WINDOW)
-        const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)
-        miniWindow?.removeAllListeners()
-        if (allConfig.settings?.miniWindowOntop) {
-          miniWindow?.setAlwaysOnTop(true)
-        }
-        const { width, height } = screen.getPrimaryDisplay().workAreaSize
-        const lastPosition = allConfig.settings?.miniWindowPosition
-        if (lastPosition) {
-          if (lastPosition[0] < 0 || lastPosition[0] > width || lastPosition[1] < 0 || lastPosition[1] > height) {
-            miniWindow?.setPosition(width - 100, height - 100)
-            picgo.saveConfig({ [configPaths.settings.miniWindowPosition]: [width - 100, height - 100] })
-          } else if (
-            lastPosition[0] + miniWindow?.getSize()[0] > width ||
-            lastPosition[1] + miniWindow?.getSize()[1] > height
-          ) {
-            miniWindow?.setPosition(width - miniWindow.getSize()[0], height - miniWindow.getSize()[1])
-            if (miniWindow) {
-              picgo.saveConfig({
-                [configPaths.settings.miniWindowPosition]: [
-                  width - miniWindow.getSize()[0],
-                  height - miniWindow.getSize()[1],
-                ],
-              })
-            }
-          } else {
-            miniWindow?.setPosition(lastPosition[0], lastPosition[1])
-          }
-        } else {
-          miniWindow?.setPosition(width - 100, height - 100)
-        }
-        const setPositionFunc = () => {
-          const position = miniWindow?.getPosition()
-          picgo.saveConfig({ [configPaths.settings.miniWindowPosition]: position })
-        }
-        miniWindow?.on('close', setPositionFunc)
-        miniWindow?.on('move', setPositionFunc)
-        miniWindow?.show()
-        miniWindow?.focus()
+        showMiniWindow()
       } else if (startMode === ISartMode.MAIN) {
         windowManager.create(IWindowList.SETTING_WINDOW)
       }

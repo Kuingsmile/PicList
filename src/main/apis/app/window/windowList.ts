@@ -215,8 +215,7 @@ windowList.set(IWindowList.MINI_WINDOW, {
   isValid: process.platform !== 'darwin',
   multiple: false,
   options: () => miniWindowOptions,
-  callback(window, windowManager) {
-    const id = window.id
+  callback(window) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#mini-page`)
     } else {
@@ -225,7 +224,6 @@ windowList.set(IWindowList.MINI_WINDOW, {
       })
     }
     window.on('closed', () => {
-      windowManager.deleteById(id)
       window = null as unknown as Electron.BrowserWindow
     })
   },

@@ -1,60 +1,66 @@
 import picgo from '@core/picgo'
 import windowManager from 'apis/app/window/windowManager'
-import { screen } from 'electron'
+import { type BrowserWindow, screen } from 'electron'
 
 import { configPaths } from '~/utils/configPaths'
 import { IWindowList } from '~/utils/enum'
 
-export function openMiniWindow(hideSettingWindow: boolean = true) {
+const miniWindowPositionListeners = new WeakMap<BrowserWindow, () => void>()
+
+export function showMiniWindow() {
   const allConfig = picgo.getConfig<any>() || {}
   let miniWindow = windowManager.get(IWindowList.MINI_WINDOW)
   if (!miniWindow) {
     miniWindow = windowManager.create(IWindowList.MINI_WINDOW)
   }
+  if (!miniWindow) return
 
-  miniWindow?.removeAllListeners('close')
-  miniWindow?.removeAllListeners('move')
+  const previousPositionListener = miniWindowPositionListeners.get(miniWindow)
+  if (previousPositionListener) {
+    miniWindow.removeListener('close', previousPositionListener)
+    miniWindow.removeListener('move', previousPositionListener)
+  }
 
   if (allConfig.settings?.miniWindowOntop) {
-    miniWindow?.setAlwaysOnTop(true)
+    miniWindow.setAlwaysOnTop(true)
   }
   const { width, height } = screen.getPrimaryDisplay().workAreaSize
   const lastPosition = allConfig.settings?.miniWindowPosition
   const setPositionFunc = () => {
-    const position = miniWindow?.getPosition()
+    const position = miniWindow.getPosition()
     picgo.saveConfig({ [configPaths.settings.miniWindowPosition]: position })
   }
   if (lastPosition) {
     if (lastPosition[0] < 0 || lastPosition[0] > width || lastPosition[1] < 0 || lastPosition[1] > height) {
-      miniWindow?.setPosition(width - 100, height - 100)
+      miniWindow.setPosition(width - 100, height - 100)
       picgo.saveConfig({ [configPaths.settings.miniWindowPosition]: [width - 100, height - 100] })
     } else if (
-      lastPosition[0] + miniWindow?.getSize()[0] > width ||
-      lastPosition[1] + miniWindow?.getSize()[1] > height
+      lastPosition[0] + miniWindow.getSize()[0] > width ||
+      lastPosition[1] + miniWindow.getSize()[1] > height
     ) {
-      miniWindow?.setPosition(width - miniWindow?.getSize()[0], height - miniWindow?.getSize()[1])
-      if (miniWindow) {
-        picgo.saveConfig({
-          [configPaths.settings.miniWindowPosition]: [
-            width - miniWindow.getSize()[0],
-            height - miniWindow.getSize()[1],
-          ],
-        })
-      }
+      miniWindow.setPosition(width - miniWindow.getSize()[0], height - miniWindow.getSize()[1])
+      picgo.saveConfig({
+        [configPaths.settings.miniWindowPosition]: [width - miniWindow.getSize()[0], height - miniWindow.getSize()[1]],
+      })
     } else {
-      miniWindow?.setPosition(lastPosition[0], lastPosition[1])
+      miniWindow.setPosition(lastPosition[0], lastPosition[1])
     }
   } else {
-    miniWindow?.setPosition(width - 100, height - 100)
+    miniWindow.setPosition(width - 100, height - 100)
   }
-  miniWindow?.on('close', setPositionFunc)
-  miniWindow?.on('move', setPositionFunc)
-  miniWindow?.show()
-  miniWindow?.focus()
+  miniWindowPositionListeners.set(miniWindow, setPositionFunc)
+  miniWindow.on('close', setPositionFunc)
+  miniWindow.on('move', setPositionFunc)
+  miniWindow.show()
+  miniWindow.focus()
+}
+
+export function openMiniWindow(hideSettingWindow: boolean = true) {
+  showMiniWindow()
   if (hideSettingWindow) {
     windowManager.get(IWindowList.SETTING_WINDOW)?.close()
   } else {
-    const autoCloseMainWindow = allConfig.settings?.autoCloseMainWindow || false
+    const autoCloseMainWindow = picgo.getConfig<boolean>(configPaths.settings.autoCloseMainWindow) || false
     if (autoCloseMainWindow) {
       windowManager.get(IWindowList.SETTING_WINDOW)?.close()
     }
