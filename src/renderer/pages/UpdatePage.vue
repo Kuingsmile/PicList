@@ -96,11 +96,11 @@
 
 <script lang="ts" setup>
 import { DownloadIcon, Link2Icon, XIcon } from '@lucide/vue'
-import { marked } from 'marked'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { SHOW_UPDATE_INFO, UPDATE_PROGRESS } from '@/utils/constant'
 import { IRPCActionType } from '@/utils/enum'
+import { renderMarkdown } from '@/utils/markdown'
 
 interface UpdateInfo {
   type: 'update-available' | 'downloading' | 'update-downloaded'
@@ -131,10 +131,6 @@ function handleUpdateInfo(info: UpdateInfo) {
 
 function handleUpdateProgress(progress: { progress: number }) {
   downloadProgress.value = progress.progress
-}
-
-function renderMarkdown(content: string) {
-  return marked(content, { breaks: true, gfm: true })
 }
 
 function downloadUpdate() {

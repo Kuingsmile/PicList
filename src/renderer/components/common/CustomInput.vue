@@ -42,8 +42,9 @@
 
 <script setup lang="ts">
 import { EyeClosedIcon, EyeIcon, Info } from '@lucide/vue'
-import { marked } from 'marked'
 import { onMounted, ref } from 'vue'
+
+import { renderMarkdown } from '@/utils/markdown'
 
 const [modelValue, modifiers] = defineModel<any>({
   default: undefined,
@@ -80,9 +81,9 @@ const {
 
 function transformMarkdownToHTML(markdown: string) {
   try {
-    return marked.parse(markdown)
+    return renderMarkdown(markdown, false)
   } catch (_e) {
-    return markdown
+    return ''
   }
 }
 

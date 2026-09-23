@@ -1151,7 +1151,6 @@ import {
   XIcon,
 } from '@lucide/vue'
 import { useLocalStorage } from '@vueuse/core'
-import { marked } from 'marked'
 import { v4 as uuidv4 } from 'uuid'
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -1191,6 +1190,7 @@ import { videoExt } from '@/manage/utils/videofile'
 import { trimPath } from '@/utils/common'
 import { useDragEventListeners } from '@/utils/drag'
 import { IRPCActionType } from '@/utils/enum'
+import { renderMarkdown } from '@/utils/markdown'
 import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/utils/static'
 /*
 configMap:{
@@ -1845,7 +1845,7 @@ async function handleClickFile(item: any) {
       const fileUrl = item.url
       const res = await fetch(fileUrl, options)
       const content = await res.text()
-      markDownContent.value = await marked(content, { breaks: true, gfm: true })
+      markDownContent.value = renderMarkdown(content)
       isShowMarkDownDialog.value = true
     } catch (_error) {
       message.error(t('pages.manage.bucket.loadingFailed'))

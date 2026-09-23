@@ -48,8 +48,9 @@
 
 <script lang="ts" setup>
 import { Info } from '@lucide/vue'
-import { marked } from 'marked'
 import { onMounted } from 'vue'
+
+import { renderMarkdown } from '@/utils/markdown'
 
 const emit = defineEmits(['change'])
 
@@ -76,9 +77,9 @@ const {
 
 function transformMarkdownToHTML(markdown: string) {
   try {
-    return marked.parse(markdown)
+    return renderMarkdown(markdown, false)
   } catch (_e) {
-    return markdown
+    return ''
   }
 }
 

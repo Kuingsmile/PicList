@@ -1331,7 +1331,6 @@ import {
 } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
 import { compare } from 'compare-versions'
-import { marked } from 'marked'
 import type { IConfig } from 'piclist'
 import pkg from 'root/package.json'
 import { computed, nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue'
@@ -1361,6 +1360,7 @@ import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType, ISartMode } from '@/utils/enum'
 import { getLatestVersion } from '@/utils/getLatestVersion'
+import { renderMarkdown } from '@/utils/markdown'
 
 /* reactive data and refs */
 const { t, locale } = useI18n()
@@ -1522,7 +1522,7 @@ const needUpdate = computed(() => {
 })
 
 const renderedReleaseNotes = computed(() => {
-  return marked(releaseNotes.value, { breaks: true, gfm: true })
+  return renderMarkdown(releaseNotes.value)
 })
 
 /* constants and enums */

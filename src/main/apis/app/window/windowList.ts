@@ -78,7 +78,6 @@ const settingWindowOptions = {
   titleBarStyle: 'hidden',
   webPreferences: {
     sandbox: false,
-    webviewTag: true,
     backgroundThrottling: true,
     preload: preloadPath,
     nodeIntegration: false,

@@ -14,12 +14,17 @@ import { trayRouter } from '~/events/rpc/routes/tray'
 import { updaterRouter } from '~/events/rpc/routes/updater'
 import { uploadRouter } from '~/events/rpc/routes/upload'
 import { IRPCType } from '~/utils/enum'
+import { isTrustedRendererSender } from '~/utils/rendererSecurity'
 
 class RPCServer implements IRPCServer {
   private routes: IRPCRoutes = new Map()
   private routesWithResponse: IRPCRoutes = new Map()
 
   private rpcEventHandler = async (event: IpcMainEvent, action: string, args: any[]) => {
+    if (!isTrustedRendererSender(event)) {
+      event.returnValue = null
+      return
+    }
     try {
       const route = this.routes.get(action)
       await route?.handler?.(event, args)
@@ -29,6 +34,7 @@ class RPCServer implements IRPCServer {
   }
 
   private rpcEventHandlerWithResponse = async (event: IpcMainInvokeEvent, action: string, args: any[]) => {
+    if (!isTrustedRendererSender(event)) return undefined
     try {
       const route = this.routesWithResponse.get(action)
       return await route?.handler?.(event, args)

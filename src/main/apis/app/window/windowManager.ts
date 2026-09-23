@@ -2,6 +2,7 @@ import windowList from 'apis/app/window/windowList'
 import { BrowserWindow } from 'electron'
 
 import { IWindowList } from '~/utils/enum'
+import { protectRendererNavigation } from '~/utils/rendererSecurity'
 
 class WindowManager implements IWindowManager {
   #windowMap = new Map<string, BrowserWindow>()
@@ -21,6 +22,7 @@ class WindowManager implements IWindowManager {
     }
 
     const window = new BrowserWindow(windowConfig.options())
+    protectRendererNavigation(window.webContents)
     const id = window.id
     const windowName = windowConfig.multiple ? `${name}_${id}` : name
 
