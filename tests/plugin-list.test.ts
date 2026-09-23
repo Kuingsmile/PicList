@@ -122,6 +122,33 @@ describe.each([
   })
 
   it.each([
+    ['a transformer-only plugin', undefined],
+    ['a plugin with distinct uploader and transformer IDs', 'fixture-uploader'],
+  ])('loads transformer configuration for %s', async (_kind, uploader) => {
+    state.getPlugin.mockResolvedValueOnce({ uploader, transformer: 'fixture-transformer' })
+    state.getUploader.mockImplementation(name =>
+      name === 'fixture-uploader' ? { config: () => [{ name: 'upload', default: 'upload-value' }] } : undefined,
+    )
+    state.getTransformer.mockImplementation(name =>
+      name === 'fixture-transformer'
+        ? { config: () => [{ name: 'resize', default: () => 640, choices: () => [640, 1280] }] }
+        : undefined,
+    )
+
+    const list = await getList()
+
+    expect(list[0].config.transformer).toEqual({
+      name: 'fixture-transformer',
+      config: [{ name: 'resize', default: 640, choices: [640, 1280] }],
+    })
+    expect(list[0].config.uploader).toEqual({
+      name: uploader || '',
+      config: uploader ? [{ name: 'upload', default: 'upload-value' }] : [],
+    })
+    expect(state.warn).not.toHaveBeenCalled()
+  })
+
+  it.each([
     'invalid JSON',
     'null manifest',
     'loader rejection',
