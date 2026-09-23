@@ -335,6 +335,7 @@ class S3plistApi {
       finished: false,
     }
     try {
+      await this.getDogeCloudToken()
       do {
         const options = { ...this.baseOptions } as S3ClientConfig
         options.region = String(region || this.baseOptions.region || 'us-east-1')
