@@ -118,7 +118,6 @@ class UpyunApi {
   async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { bucketName: bucket, prefix, cancelToken } = configMap
-    const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `http://${bucket}.test.upcdn.net`
     const cancelTask = [false]
     ipcMain.on(cancelDownloadLoadingFileList, (_: IpcMainEvent, token: string) => {
@@ -133,19 +132,19 @@ class UpyunApi {
       success: false,
       finished: false,
     }
-    const folderQueue = [prefix]
-    const getFolderFile = async (folder: any) => {
+    const folderQueue = [path.posix.join('/', prefix, '/')]
+    const getFolderFile = async (folder: string) => {
       let marker = ''
-      const key = folder
+      const slicedPrefix = folder.slice(1)
       do {
-        res = await this.cli.listDir(key, {
+        res = await this.cli.listDir(folder, {
           limit: 10000,
           iter: marker,
         })
         if (res) {
           res.files?.forEach((item: any) => {
-            item.type === 'F' && folderQueue.push(`${slicedPrefix}${item.name}/`)
-            item.type === 'N' && result.fullList.push(this.formatFile(item, folder, urlPrefix))
+            item.type === 'F' && folderQueue.push(path.posix.join(folder, item.name, '/'))
+            item.type === 'N' && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           })
           window?.webContents.send(refreshDownloadFileTransferList, result)
         } else {
@@ -158,7 +157,7 @@ class UpyunApi {
       } while (!cancelTask[0] && res.next !== this.stopMarker)
     }
     while (folderQueue.length) {
-      const folder = folderQueue.shift()
+      const folder = folderQueue.shift()!
       await getFolderFile(folder)
     }
     result.success = !cancelTask[0]
