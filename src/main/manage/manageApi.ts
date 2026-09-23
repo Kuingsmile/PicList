@@ -154,6 +154,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     method: string,
     operation: (client: any) => Promise<T>,
     defaultValue: T,
+    options: { rethrowErrors?: boolean } = {},
   ): Promise<T> {
     if (!supportedProviders.includes(this.currentPicBedConfig.picBedName)) {
       return defaultValue
@@ -163,6 +164,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       return await operation(client)
     } catch (error: any) {
       this.errorMsg(error, this.getMsgParam(method))
+      if (options.rethrowErrors) throw error
       return defaultValue
     }
   }
@@ -315,6 +317,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         'getBucketListRecursively',
         client => client.getBucketListRecursively(param!),
         defaultResult,
+        { rethrowErrors: true },
       )
     } catch (_e: any) {
       this.sendDefaultResult(refreshDownloadFileTransferList, defaultResult)
@@ -336,6 +339,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         'getBucketListBackstage',
         client => client.getBucketListBackstage(param!),
         defaultResult,
+        { rethrowErrors: true },
       )
     } catch (_error: any) {
       this.sendDefaultResult('refreshFileTransferList', defaultResult)
