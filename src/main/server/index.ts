@@ -19,6 +19,7 @@ const MAX_PORT_ATTEMPTS = 10
 
 const serverTempDir = path.join(dataDir(), 'serverTemp')
 const uploadDirectory = Symbol('uploadDirectory')
+
 type MultipartRequest = http.IncomingMessage & {
   [uploadDirectory]?: string
   files?: { path: string }[]
@@ -122,6 +123,10 @@ class Server {
     }
   }
 
+  #isLoopback(remoteAddress: string) {
+    return remoteAddress === '::1' || remoteAddress === '127.0.0.1' || remoteAddress === '::ffff:127.0.0.1'
+  }
+
   #handlePostRequest = (request: http.IncomingMessage, response: http.ServerResponse) => {
     const [url, query] = (request.url || '').split('?')
     if (!routers.getHandler(url, 'POST')) {
@@ -133,55 +138,53 @@ class Server {
           success: false,
         },
       })
+      return
+    }
+    const remoteAddress = request.socket.remoteAddress || 'unknown'
+    logger.info('[PicList Server] get a POST request from IP:', remoteAddress)
+    const urlSP = new URLSearchParams(query || '')
+    const serverKey = picgo.getConfig<string>(configPaths.settings.serverKey) || ''
+    if (this.#isLoopback(remoteAddress)) {
+      urlSP.set('key', serverKey)
+    }
+    if (url === '/upload' && serverKey && urlSP.get('key') !== serverKey) {
+      request.resume()
+      handleResponse({ response, body: { success: false, message: 'Unauthorized access' } })
+      return
+    }
+    if (url === '/heartbeat') {
+      request.resume()
+      void routers.getHandler(url, 'POST')!.handler({ response, urlparams: urlSP })
+      return
+    }
+    if (request.headers['content-type'] && request.headers['content-type'].startsWith('multipart/form-data')) {
+      void handleMultipartUpload(request, response, routers.getHandler(url, 'POST')!.handler, urlSP)
     } else {
-      const remoteAddress = request.socket.remoteAddress || 'unknown'
-      logger.info('[PicList Server] get a POST request from IP:', remoteAddress)
-      const isLocalRequest =
-        remoteAddress === '::1' || remoteAddress === '127.0.0.1' || remoteAddress === '::ffff:127.0.0.1'
-      const urlSP = new URLSearchParams(query || '')
-      const serverKey = picgo.getConfig<string>(configPaths.settings.serverKey) || ''
-      if (isLocalRequest) {
-        urlSP.set('key', serverKey)
-      }
-      if (url === '/upload' && serverKey && urlSP.get('key') !== serverKey) {
-        request.resume()
-        handleResponse({ response, body: { success: false, message: 'Unauthorized access' } })
-        return
-      }
-      if (url === '/heartbeat') {
-        request.resume()
-        void routers.getHandler(url, 'POST')!.handler({ response, urlparams: urlSP })
-        return
-      }
-      if (request.headers['content-type'] && request.headers['content-type'].startsWith('multipart/form-data')) {
-        void handleMultipartUpload(request, response, routers.getHandler(url, 'POST')!.handler, urlSP)
-      } else {
-        let body: string = ''
-        let postObj: IObj
-        request.on('data', chunk => {
-          body += chunk
-        })
-        request.on('end', () => {
-          try {
-            postObj = body === '' ? {} : JSON.parse(body)
-          } catch (_err: any) {
-            logger.warn('[PicList Server] invalid JSON request')
-            return handleResponse({
-              response,
-              body: {
-                success: false,
-                message: 'Not sending data in JSON format',
-              },
-            })
-          }
-          const handler = routers.getHandler(url!, 'POST')?.handler
-          handler!({
-            ...postObj,
+      let body: string = ''
+      let postObj: IObj
+      request.on('data', chunk => {
+        body += chunk
+      })
+      request.on('end', () => {
+        try {
+          postObj = body === '' ? {} : JSON.parse(body)
+        } catch (_err: any) {
+          logger.warn('[PicList Server] invalid JSON request')
+          return handleResponse({
             response,
-            urlparams: urlSP,
+            body: {
+              success: false,
+              message: 'Not sending data in JSON format',
+            },
           })
+        }
+        const handler = routers.getHandler(url!, 'POST')?.handler
+        handler!({
+          ...postObj,
+          response,
+          urlparams: urlSP,
         })
-      }
+      })
     }
   }
 
