@@ -6,40 +6,33 @@ import { clipboard, NativeImage } from 'electron'
 
 import { getClipboardFilePath } from '~/utils/common'
 
+type ClipboardState = { kind: 'empty'; value: null } | { kind: 'image' | 'path'; value: string }
+
 class ClipboardWatcher extends EventEmitter {
   timer: NodeJS.Timeout | null
-  lastImageHash: string | null
-  lastImagePath: string | null
+  private lastClipboardState: ClipboardState
 
   constructor() {
     super()
-    this.lastImageHash = null
-    this.lastImagePath = null
+    this.lastClipboardState = { kind: 'empty', value: null }
     this.timer = null
   }
 
   startListening(watchDelay = 1000) {
     this.stopListening(false)
+    this.lastClipboardState = this.getClipboardState()
 
     this.timer = setInterval(() => {
-      const imgPath = getClipboardFilePath()
-      if (imgPath) {
-        if (this.lastImagePath === imgPath) return
-        this.lastImagePath = imgPath
+      const currentState = this.getClipboardState()
+      const previousState = this.lastClipboardState
+      this.lastClipboardState = currentState
+
+      if (
+        currentState.kind !== 'empty' &&
+        (currentState.kind !== previousState.kind || currentState.value !== previousState.value)
+      ) {
         this.emit('change')
-        return
       }
-      const image = clipboard.readImage()
-      if (image.isEmpty()) return
-
-      const currentImageHash = this.getImageHash(image)
-      if (this.lastImageHash === null || this.lastImageHash === currentImageHash) {
-        this.lastImageHash = currentImageHash
-        return
-      }
-
-      this.lastImageHash = currentImageHash
-      this.emit('change')
     }, watchDelay)
     logger.info('Start to watch clipboard')
   }
@@ -48,10 +41,19 @@ class ClipboardWatcher extends EventEmitter {
     if (this.timer) {
       clearInterval(this.timer)
       this.timer = null
-      this.lastImageHash = null
-      this.lastImagePath = null
     }
+    this.lastClipboardState = { kind: 'empty', value: null }
     isLog && logger.info('Stop to watch clipboard')
+  }
+
+  private getClipboardState(): ClipboardState {
+    const imgPath = getClipboardFilePath()
+    if (imgPath) return { kind: 'path', value: imgPath }
+
+    const image = clipboard.readImage()
+    if (image.isEmpty()) return { kind: 'empty', value: null }
+
+    return { kind: 'image', value: this.getImageHash(image) }
   }
 
   getImageHash(image: NativeImage): string {
