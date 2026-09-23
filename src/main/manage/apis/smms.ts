@@ -13,6 +13,8 @@ import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
 import { commonTaskStatus, IWindowList } from '~/utils/enum'
 
+const FILE_HISTORY_PAGE_SIZE = 30
+
 class SmmsApi {
   baseUrl = 'https://s.ee/api/v1'
   token: string
@@ -51,6 +53,20 @@ class SmmsApi {
       sha: item.hash,
       downloadUrl: item.url,
     }
+  }
+
+  private hasMoreFiles({ data, CurrentPage, TotalPages }: IStringKeyMap): boolean {
+    if (data.length === 0) return false
+
+    // Keep legacy SM.MS counters when available, including numeric strings.
+    const currentPage = Number(CurrentPage)
+    const totalPages = Number(TotalPages)
+    if (Number.isInteger(currentPage) && currentPage > 0 && Number.isInteger(totalPages) && totalPages > 0) {
+      return currentPage < totalPages
+    }
+
+    // S.EE omits counters; a full page requires checking the following page.
+    return data.length >= FILE_HISTORY_PAGE_SIZE
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
@@ -97,7 +113,7 @@ class SmmsApi {
         return
       }
       marker++
-    } while (!cancelTask[0] && res?.status === 200 && res?.data?.success && res.data.CurrentPage < res.data.TotalPages)
+    } while (!cancelTask[0] && this.hasMoreFiles(res.data))
     result.success = !cancelTask[0]
     result.finished = true
     window?.webContents.send('refreshFileTransferList', result)
@@ -120,6 +136,8 @@ class SmmsApi {
    * }
    */
   async getBucketFileList({ currentPage }: IStringKeyMap): Promise<any> {
+    const requestedPage = Number(currentPage)
+    const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1
     const result = {
       fullList: [] as any,
       isTruncated: false,
@@ -129,7 +147,7 @@ class SmmsApi {
     const res = await this.axiosInstance('/files', {
       method: 'GET',
       params: {
-        page: currentPage,
+        page,
       },
     })
     if (res?.status !== 200 || !res?.data?.success) return result
@@ -139,10 +157,12 @@ class SmmsApi {
     res.data.data.forEach((item: any) => {
       result.fullList.push(this.formatFile(item))
     })
-    result.isTruncated = res.data.CurrentPage < res.data.TotalPages
-    result.nextMarker = res.data.CurrentPage + 1
-    result.success = true
-    return result
+    return {
+      ...result,
+      isTruncated: this.hasMoreFiles(res.data),
+      nextMarker: page + 1,
+      success: true,
+    }
   }
 
   /**
