@@ -460,6 +460,8 @@ class TcyunApi {
           }
         },
       })
+    }
+    if (files.length > 0) {
       this.ctx.uploadFiles({
         files,
       })
