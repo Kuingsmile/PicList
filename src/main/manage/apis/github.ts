@@ -310,7 +310,7 @@ class GithubApi {
     // get sha of the root tree
     const rootRes = (await got(
       `${this.baseUrl}/repos/${this.username}/${repo}/branches/${branch}`,
-      getOptions('GET', undefined, undefined, 'json', undefined, undefined, this.proxy),
+      getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy),
     )) as any
     if (rootRes.statusCode !== 200) return false
     const rootSha = rootRes.body.commit.commit.tree.sha
