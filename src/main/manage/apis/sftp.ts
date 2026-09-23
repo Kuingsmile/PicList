@@ -1,7 +1,9 @@
+import { constants } from 'node:fs'
 import path from 'node:path'
 
 import windowManager from 'apis/app/window/windowManager'
 import { ipcMain, IpcMainEvent } from 'electron'
+import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { formatError } from '~/manage/utils/common'
@@ -117,7 +119,7 @@ class SftpApi {
     }
   }
 
-  formatFile(item: listDirResult, urlPrefix: string, isWebPath = false) {
+  formatFile(item: Pick<listDirResult, 'key' | 'filename' | 'size' | 'mtime'>, urlPrefix: string, isWebPath = false) {
     const key = item.key
     return {
       ...item,
@@ -153,39 +155,56 @@ class SftpApi {
     const window = windowManager.get(IWindowList.SETTING_WINDOW)
     const { prefix, customUrl, cancelToken } = configMap
     const urlPrefix = customUrl || `${this.host}:${this.port}`
-    const cancelTask = [false]
-    ipcMain.on(cancelDownloadLoadingFileList, (_: IpcMainEvent, token: string) => {
+    let cancelled = false
+    const cancel = (_: IpcMainEvent, token: string) => {
       if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+        cancelled = true
       }
-    })
+    }
+    ipcMain.on(cancelDownloadLoadingFileList, cancel)
     const result = {
-      fullList: [] as any,
+      fullList: [] as ReturnType<SftpApi['formatFile']>[],
       success: false,
       finished: false,
     }
     try {
-      const res = await this.withClient(client =>
-        client.execCommand(`cd -- ${quoteShellArgument(prefix)} && ls -la --time-style=long-iso`),
-      )
-      if (this.isRequestSuccess(res.code)) {
-        const formatedLSRes = this.formatLSResult(res.stdout, prefix)
-        if (formatedLSRes.length) {
-          formatedLSRes.forEach((item: listDirResult) => {
-            if (!item.isDir) {
-              result.fullList.push(this.formatFile(item, urlPrefix))
+      await this.withClient(async client => {
+        const directories = [path.posix.normalize(prefix)]
+        while (directories.length && !cancelled) {
+          const directory = directories.pop()!
+          const entries = await client.readDirectory(directory)
+          if (cancelled) break
+          for (const { filename, attrs } of entries) {
+            if (filename === '.' || filename === '..') continue
+            const remotePath = path.posix.join(directory, filename)
+            const type = attrs.mode & constants.S_IFMT
+            // Do not follow symbolic links, which can escape the folder or form cycles.
+            if (type === constants.S_IFDIR) {
+              directories.push(remotePath)
+            } else if (type === constants.S_IFREG) {
+              result.fullList.push(
+                this.formatFile(
+                  {
+                    key: remotePath.replace(/^\/+/, ''),
+                    filename,
+                    size: attrs.size,
+                    mtime: new Date(attrs.mtime * 1000).toISOString(),
+                  },
+                  urlPrefix,
+                ),
+              )
             }
-          })
+          }
         }
-        result.success = true
-      }
+      })
+      result.success = !cancelled
     } catch (error) {
       this.logParam(error, 'getBucketListRecursively')
+    } finally {
+      ipcMain.removeListener(cancelDownloadLoadingFileList, cancel)
     }
     result.finished = true
     window?.webContents.send(refreshDownloadFileTransferList, result)
-    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
   }
 
   formatLSResult(res: string, cwd: string): listDirResult[] {
@@ -406,6 +425,7 @@ class SftpApi {
         targetFilePath: savedFilePath,
       })
       try {
+        await fs.ensureDir(path.dirname(savedFilePath))
         const res = await this.withClient(client => client.getFile(savedFilePath, `/${key.replace(/^\/+/, '')}`))
         if (res) {
           instance.updateDownloadTask({

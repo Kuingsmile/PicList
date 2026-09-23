@@ -2235,7 +2235,7 @@ async function handleFolderBatchDownload(item: any) {
         : 5,
       fileArray: [] as any[],
     }
-    cancelToken.value = uuidv4()
+    downloadCancelToken.value = uuidv4()
     const paramGet = {
       // tcyun
       bucketName: configMap.value.bucketName,
@@ -2248,7 +2248,7 @@ async function handleFolderBatchDownload(item: any) {
       itemsPerPage: itemsPerPage.value,
       customUrl: currentCustomDomain.value,
       currentPage: currentPageNumber.value,
-      cancelToken: cancelToken.value,
+      cancelToken: downloadCancelToken.value,
       cdnUrl: configMap.value.cdnUrl,
     }
     isLoadingDownloadData.value = true
@@ -2653,7 +2653,7 @@ async function cancelDownloadLoading() {
       center: true,
     })
     if (!result) return
-    isLoadingData.value = false
+    isLoadingDownloadData.value = false
     window.electron.sendToMain(cancelDownloadLoadingFileList, downloadCancelToken.value)
     message.success(t('pages.manage.bucket.stopSuccessMsg'))
   } catch (e) {

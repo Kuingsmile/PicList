@@ -3,6 +3,7 @@ import path from 'node:path'
 import logger from '@core/picgo/logger'
 import { Config, NodeSSH, SSHExecCommandResponse } from 'node-ssh-no-cpu-features'
 import { ISftpPlistConfig } from 'piclist/dist/types'
+import type { FileEntry } from 'ssh2'
 
 export const quoteShellArgument = (value: string): string => {
   if (value.includes('\0')) throw new Error('SSH command arguments must not contain null bytes')
@@ -65,6 +66,19 @@ class SSHClient {
   async execCommand(script: string): Promise<SSHExecCommandResponse> {
     const execResult = await this.client.execCommand(script)
     return execResult || { code: 1, stdout: '', stderr: '' }
+  }
+
+  async readDirectory(remote: string): Promise<FileEntry[]> {
+    const sftp = await this.client.requestSFTP()
+    try {
+      return await new Promise<FileEntry[]>((resolve, reject) => {
+        sftp.readdir(remote, (error: Error | undefined, entries: FileEntry[]) =>
+          error ? reject(error) : resolve(entries),
+        )
+      })
+    } finally {
+      sftp.end()
+    }
   }
 
   async getFile(local: string, remote: string): Promise<boolean> {
