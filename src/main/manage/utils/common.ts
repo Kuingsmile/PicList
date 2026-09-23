@@ -304,43 +304,42 @@ export function getOptions(
 }
 
 export class ConcurrencyPromisePool {
-  limit: number
-  queue: any[]
+  readonly limit: number
+  queue: (() => void)[]
   runningNum: number
-  results: any[]
 
   constructor(limit: number) {
+    if (!Number.isInteger(limit) || limit <= 0) {
+      throw new RangeError('Concurrency limit must be a positive integer')
+    }
     this.limit = limit
     this.queue = []
     this.runningNum = 0
-    this.results = []
   }
 
-  all(promises: any[] = []) {
+  // Reject on the first failure, while allowing all queued tasks to finish.
+  all<T>(tasks: (() => T | PromiseLike<T>)[] = []): Promise<T[]> {
+    return Promise.all(tasks.map(task => this._run(task)))
+  }
+
+  private _run<T>(task: () => T | PromiseLike<T>): Promise<T> {
     return new Promise((resolve, reject) => {
-      for (const promise of promises) {
-        this._run(promise, resolve, reject)
+      const run = () => {
+        this.runningNum += 1
+        Promise.resolve()
+          .then(task)
+          .then(resolve, reject)
+          .finally(() => {
+            --this.runningNum
+            this.queue.shift()?.()
+          })
+      }
+
+      if (this.runningNum >= this.limit) {
+        this.queue.push(run)
+      } else {
+        run()
       }
     })
-  }
-
-  _run(promise: any, resolve: any, reject: any) {
-    if (this.runningNum >= this.limit) {
-      this.queue.push(promise)
-      return
-    }
-    this.runningNum += 1
-    promise()
-      .then((res: any) => {
-        this.results.push(res)
-        --this.runningNum
-        if (this.queue.length === 0 && this.runningNum === 0) {
-          return resolve(this.results)
-        }
-        if (this.queue.length > 0) {
-          this._run(this.queue.shift(), resolve, reject)
-        }
-      })
-      .catch(reject)
   }
 }
