@@ -42,64 +42,80 @@ const handleConfigWithFunction = (config: any[]) => {
   return config
 }
 
+const normalizePluginAuthor = (author: unknown): string => {
+  const name =
+    typeof author === 'string'
+      ? author
+      : author && typeof author === 'object' && !Array.isArray(author) && 'name' in author
+        ? author.name
+        : undefined
+  return typeof name === 'string' && name.trim() ? name : 'unknown'
+}
+
 const getPluginList = async (): Promise<IPicGoPlugin[]> => {
   const pluginList = picgo.pluginLoader.getFullList()
-  const list = []
-  for (const i in pluginList) {
-    const plugin = (await picgo.pluginLoader.getPlugin(pluginList[i]))!
-    const pluginPath = path.join(STORE_PATH, `/node_modules/${pluginList[i]}`)
-    const pluginPKGPath = path.join(pluginPath, 'package.json')
-    if (!fs.existsSync(pluginPKGPath)) {
-      continue
-    }
-    const pluginPKG = fs.readJSONSync(pluginPKGPath, 'utf8')
-    const uploaderName = plugin.uploader || ''
-    const transformerName = plugin.transformer || ''
-    let menu: Omit<IGuiMenuItem, 'handle'>[] = []
-    if (plugin.guiMenu) {
-      menu = plugin.guiMenu(picgo).map(item => ({
-        label: item.label,
-      }))
-    }
-    let gui = false
-    if (pluginPKG.keywords && pluginPKG.keywords.length > 0) {
-      if (pluginPKG.keywords.includes('picgo-gui-plugin')) {
-        gui = true
+  const list: IPicGoPlugin[] = []
+  for (const fullName of pluginList) {
+    try {
+      const plugin = (await picgo.pluginLoader.getPlugin(fullName))!
+      const pluginPath = path.join(STORE_PATH, `/node_modules/${fullName}`)
+      const pluginPKGPath = path.join(pluginPath, 'package.json')
+      if (!fs.existsSync(pluginPKGPath)) {
+        continue
       }
+      const pluginPKG = fs.readJSONSync(pluginPKGPath, 'utf8')
+      const uploaderName = plugin.uploader || ''
+      const transformerName = plugin.transformer || ''
+      let menu: Omit<IGuiMenuItem, 'handle'>[] = []
+      if (plugin.guiMenu) {
+        menu = plugin.guiMenu(picgo).map(item => ({
+          label: item.label,
+        }))
+      }
+      let gui = false
+      if (pluginPKG.keywords && pluginPKG.keywords.length > 0) {
+        if (pluginPKG.keywords.includes('picgo-gui-plugin')) {
+          gui = true
+        }
+      }
+      const obj: IPicGoPlugin = {
+        name: handleStreamlinePluginName(fullName),
+        fullName,
+        author: normalizePluginAuthor(pluginPKG.author),
+        description: pluginPKG.description,
+        logo: path.join(pluginPath, 'logo.png').split(path.sep).join('/'),
+        version: pluginPKG.version,
+        gui,
+        config: {
+          plugin: {
+            fullName,
+            name: handleStreamlinePluginName(fullName),
+            config: plugin.config ? handleConfigWithFunction(plugin.config(picgo)) : [],
+          },
+          uploader: {
+            name: uploaderName,
+            config: handleConfigWithFunction(
+              getConfig(uploaderName, IPicGoHelperType.uploader as keyof typeof IPicGoHelperType, picgo),
+            ),
+          },
+          transformer: {
+            name: transformerName,
+            config: handleConfigWithFunction(
+              getConfig(uploaderName, IPicGoHelperType.transformer as keyof typeof IPicGoHelperType, picgo),
+            ),
+          },
+        },
+        enabled: picgo.getConfig(`picgoPlugins.${fullName}`),
+        homepage: pluginPKG.homepage ? pluginPKG.homepage : '',
+        guiMenu: menu,
+        ing: false,
+      }
+      // Keep serialization failures local to this plugin as well.
+      list.push(simpleClone(obj))
+    } catch {
+      // Plugin errors can contain configuration values or manifest contents.
+      picgo.log.warn(`Skipping plugin with unreadable metadata: ${fullName}`)
     }
-    const obj: IPicGoPlugin = {
-      name: handleStreamlinePluginName(pluginList[i]),
-      fullName: pluginList[i],
-      author: pluginPKG.author.name || pluginPKG.author,
-      description: pluginPKG.description,
-      logo: path.join(pluginPath, 'logo.png').split(path.sep).join('/'),
-      version: pluginPKG.version,
-      gui,
-      config: {
-        plugin: {
-          fullName: pluginList[i],
-          name: handleStreamlinePluginName(pluginList[i]),
-          config: plugin.config ? handleConfigWithFunction(plugin.config(picgo)) : [],
-        },
-        uploader: {
-          name: uploaderName,
-          config: handleConfigWithFunction(
-            getConfig(uploaderName, IPicGoHelperType.uploader as keyof typeof IPicGoHelperType, picgo),
-          ),
-        },
-        transformer: {
-          name: transformerName,
-          config: handleConfigWithFunction(
-            getConfig(uploaderName, IPicGoHelperType.transformer as keyof typeof IPicGoHelperType, picgo),
-          ),
-        },
-      },
-      enabled: picgo.getConfig(`picgoPlugins.${pluginList[i]}`),
-      homepage: pluginPKG.homepage ? pluginPKG.homepage : '',
-      guiMenu: menu,
-      ing: false,
-    }
-    list.push(obj)
   }
   return list
 }
@@ -159,7 +175,7 @@ export const handlePluginUninstall = async (fullName: string) => {
 
 export const pluginGetListFunc = async (event: IIPCEvent) => {
   try {
-    const list = simpleClone(await getPluginList())
+    const list = await getPluginList()
     // here can just send JS Object not function
     // or will cause [Failed to serialize arguments] error
     event.sender.send('pluginList', list)
@@ -205,7 +221,7 @@ export const pluginImportLocalFunc = async (event: IIPCEvent) => {
     const res = await picgo.pluginHandler.install(filePaths)
     if (res.success) {
       try {
-        const list = simpleClone(await getPluginList())
+        const list = await getPluginList()
         event.sender.send('pluginList', list)
       } catch (e: any) {
         event.sender.send('pluginList', [])
