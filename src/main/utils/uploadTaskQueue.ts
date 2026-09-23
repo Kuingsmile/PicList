@@ -75,6 +75,10 @@ class UploadTaskQueueManager {
   private webContents: WebContents | undefined = undefined
   private persistPath = path.join(dataDir(), 'taskQueue.json')
   private taskTimer: NodeJS.Timeout | null = null
+  private workerPromise: Promise<void> | null = null
+  private wakeWorker: (() => void) | null = null
+  private nextUploadAt = 0
+  private generation = 0
 
   private constructor() {
     this.restore()
@@ -152,82 +156,108 @@ class UploadTaskQueueManager {
     this.persist()
     this.notifyTaskUpdate()
 
-    await this.processNextTask()
+    // Queue controls acknowledge immediately; the worker owns the entire upload lifecycle.
+    this.ensureWorker()
   }
 
-  private async processNextTask(): Promise<void> {
-    if (!this.config.isRunning || this.config.isPaused) {
-      return
+  private ensureWorker(): void {
+    this.wakeWorker?.()
+    if (!this.workerPromise) {
+      this.workerPromise = this.processQueue().finally(() => {
+        this.workerPromise = null
+        // A new start may arrive after the loop exits but before this cleanup runs.
+        if (this.config.isRunning) this.ensureWorker()
+      })
     }
+  }
 
-    const pendingTask = this.taskQueue.find(task => task.status === UploadTaskStatus.PENDING)
-
-    if (!pendingTask) {
-      this.config.isRunning = false
-      this.persist()
-      this.notifyTaskUpdate()
-      this.showCompletionNotification()
-      return
-    }
-
-    pendingTask.status = UploadTaskStatus.UPLOADING
-    pendingTask.startedAt = Date.now()
-    this.persist()
-    this.notifyTaskUpdate()
-
-    try {
-      const result = await this.uploadSingleFile(pendingTask)
-
-      pendingTask.status = UploadTaskStatus.COMPLETED
-      pendingTask.progress = 100
-      pendingTask.completedAt = Date.now()
-      pendingTask.result = result
-
-      if (pendingTask.startedAt && pendingTask.fileSize > 0) {
-        pendingTask.uploadDuration = pendingTask.completedAt - pendingTask.startedAt
-        pendingTask.uploadSpeed = Math.round((pendingTask.fileSize / pendingTask.uploadDuration) * 1000)
-      }
-    } catch (error: any) {
-      pendingTask.error = error.message || 'Upload failed'
-      pendingTask.completedAt = Date.now()
-
-      if (pendingTask.retryCount < this.config.maxRetryCount) {
-        pendingTask.retryCount++
-        pendingTask.status = UploadTaskStatus.PENDING
-        pendingTask.startedAt = undefined
-        pendingTask.completedAt = undefined
-        pendingTask.error = undefined
-      } else {
-        pendingTask.status = UploadTaskStatus.FAILED
-
-        if (this.config.pauseOnError) {
-          this.config.isPaused = true
-          this.persist()
-          this.notifyTaskUpdate()
-          return
+  private waitForWake(delay?: number): Promise<void> {
+    return new Promise(resolve => {
+      this.wakeWorker = () => {
+        if (this.taskTimer) {
+          clearTimeout(this.taskTimer)
+          this.taskTimer = null
         }
+        this.wakeWorker = null
+        resolve()
       }
-    }
+      if (delay !== undefined) {
+        this.taskTimer = setTimeout(this.wakeWorker, delay)
+      }
+    })
+  }
 
-    this.persist()
-    this.notifyTaskUpdate()
+  private isTaskActive(task: IUploadTaskItem, generation: number): boolean {
+    return generation === this.generation && task.status === UploadTaskStatus.UPLOADING && this.taskQueue.includes(task)
+  }
 
-    if (this.config.isRunning && !this.config.isPaused) {
-      const pendingCount = this.taskQueue.filter(t => t.status === UploadTaskStatus.PENDING).length
-      if (pendingCount > 0) {
-        this.taskTimer = setTimeout(() => {
-          this.processNextTask()
-        }, this.config.intervalS * 1000)
-      } else {
+  private async processQueue(): Promise<void> {
+    while (this.config.isRunning) {
+      if (this.config.isPaused) {
+        await this.waitForWake()
+        continue
+      }
+
+      const pendingTask = this.taskQueue.find(task => task.status === UploadTaskStatus.PENDING)
+      if (!pendingTask) {
         this.config.isRunning = false
         this.persist()
         this.notifyTaskUpdate()
         this.showCompletionNotification()
+        return
       }
+
+      const delay = this.nextUploadAt - Date.now()
+      if (delay > 0) {
+        await this.waitForWake(delay)
+        continue
+      }
+
+      const generation = this.generation
+      pendingTask.status = UploadTaskStatus.UPLOADING
+      pendingTask.startedAt = Date.now()
+      this.persist()
+      this.notifyTaskUpdate()
+
+      try {
+        const result = await this.uploadSingleFile(pendingTask, generation)
+        if (!this.isTaskActive(pendingTask, generation)) continue
+
+        pendingTask.status = UploadTaskStatus.COMPLETED
+        pendingTask.progress = 100
+        pendingTask.completedAt = Date.now()
+        pendingTask.result = result
+
+        if (pendingTask.startedAt && pendingTask.fileSize > 0) {
+          pendingTask.uploadDuration = pendingTask.completedAt - pendingTask.startedAt
+          pendingTask.uploadSpeed = Math.round((pendingTask.fileSize / pendingTask.uploadDuration) * 1000)
+        }
+      } catch (error: any) {
+        if (!this.isTaskActive(pendingTask, generation)) continue
+        pendingTask.error = error?.message || 'Upload failed'
+        pendingTask.completedAt = Date.now()
+
+        if (pendingTask.retryCount < this.config.maxRetryCount) {
+          pendingTask.retryCount++
+          pendingTask.status = UploadTaskStatus.PENDING
+          pendingTask.startedAt = undefined
+          pendingTask.completedAt = undefined
+          pendingTask.error = undefined
+        } else {
+          pendingTask.status = UploadTaskStatus.FAILED
+          if (this.config.pauseOnError) this.config.isPaused = true
+        }
+      } finally {
+        // Even a cancelled transfer must settle before another upload and its interval can begin.
+        this.nextUploadAt = Date.now() + this.config.intervalS * 1000
+      }
+
+      this.persist()
+      this.notifyTaskUpdate()
     }
   }
 
-  private async uploadSingleFile(task: IUploadTaskItem): Promise<IStringKeyMap> {
+  private async uploadSingleFile(task: IUploadTaskItem, generation: number): Promise<IStringKeyMap | undefined> {
     const win = windowManager.getAvailableWindow()
     const webContents = this.webContents || win?.webContents
 
@@ -235,6 +265,7 @@ class UploadTaskQueueManager {
     const rawInput = cloneDeep(input)
 
     const res = await uploader.setWebContents(webContents).uploadReturnCtx(input)
+    if (!this.isTaskActive(task, generation)) return
     const imgs = res.ctx?.output ? res.ctx.output : false
     const backupImgs = res.backupCtx?.output ? res.backupCtx.output : false
     const allConfig = picgo.getConfig<any>() || {}
@@ -257,9 +288,11 @@ class UploadTaskQueueManager {
       }
 
       const [pasteText, shortUrl] = await pasteTemplate(pasteStyle, img, allConfig.settings?.customLink)
+      if (!this.isTaskActive(task, generation)) return
       img.shortUrl = shortUrl
 
       const inserted = await GalleryDB.getInstance().insert(img)
+      if (!this.isTaskActive(task, generation)) return
 
       windowManager.get(IWindowList.TRAY_WINDOW)?.webContents?.send('uploadFiles')
       windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('updateGallery')
@@ -267,6 +300,7 @@ class UploadTaskQueueManager {
       handleCopyUrl(pasteText)
       if (backupImgs && backupImgs.length > 0) {
         await GalleryDB.getInstance().insert(backupImgs[0])
+        if (!this.isTaskActive(task, generation)) return
         windowManager.get(IWindowList.TRAY_WINDOW)?.webContents?.send('uploadFiles')
         windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('updateGallery')
       }
@@ -282,10 +316,7 @@ class UploadTaskQueueManager {
 
   pauseQueue(): void {
     this.config.isPaused = true
-    if (this.taskTimer) {
-      clearTimeout(this.taskTimer)
-      this.taskTimer = null
-    }
+    this.wakeWorker?.()
     this.persist()
     this.notifyTaskUpdate()
   }
@@ -299,17 +330,17 @@ class UploadTaskQueueManager {
     this.config.isPaused = false
     this.persist()
     this.notifyTaskUpdate()
-    await this.processNextTask()
+    this.ensureWorker()
   }
 
   cancelQueue(): void {
+    this.generation++
     this.config.isRunning = false
     this.config.isPaused = false
 
-    if (this.taskTimer) {
-      clearTimeout(this.taskTimer)
-      this.taskTimer = null
-    }
+    // The uploader has no abort API. Keep the worker until the transfer settles,
+    // but invalidate its result and prevent pending tasks from starting.
+    this.wakeWorker?.()
 
     this.taskQueue.forEach(task => {
       if (task.status === UploadTaskStatus.PENDING || task.status === UploadTaskStatus.UPLOADING) {
