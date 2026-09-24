@@ -2682,15 +2682,7 @@ async function getBucketFileListBackStage() {
     currentPageFilesInfo.splice(0, currentPageFilesInfo.length, ...currentFileList)
     const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
     sortFile(sortType)
-    const table = fileCacheDbInstance.table(currentPicBedName.value)
-    table.put({
-      key: getTableKeyOfDb(),
-      value: JSON.parse(
-        JSON.stringify({
-          fullList: currentPageFilesInfo,
-        }),
-      ),
-    })
+    void cacheFileList()
     if (fileTransferStore.isFinished() && fileTransferInterval) {
       isLoadingData.value = false
       clearInterval(fileTransferInterval)
@@ -3037,8 +3029,30 @@ function getTableKeyOfDb() {
 }
 
 async function searchExistFileList() {
-  const table = fileCacheDbInstance.table(currentPicBedName.value)
-  return await table.where('key').equals(getTableKeyOfDb()).toArray()
+  try {
+    const table = fileCacheDbInstance.table(currentPicBedName.value)
+    return await table.where('key').equals(getTableKeyOfDb()).toArray()
+  } catch {
+    // A cache failure is a miss so remote storage remains accessible.
+    console.warn('Failed to read the bucket file cache')
+    return []
+  }
+}
+
+async function cacheFileList() {
+  try {
+    const table = fileCacheDbInstance.table(currentPicBedName.value)
+    await table.put({
+      key: getTableKeyOfDb(),
+      value: JSON.parse(
+        JSON.stringify({
+          fullList: currentPageFilesInfo,
+        }),
+      ),
+    })
+  } catch {
+    console.warn('Failed to write the bucket file cache')
+  }
 }
 
 function handleDetectShiftKey(event: KeyboardEvent) {

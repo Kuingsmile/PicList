@@ -354,8 +354,8 @@ function handleConfirmClearDb() {
 }
 
 function confirmClearDb() {
-  fileCacheDbInstance
-    .delete()
+  return fileCacheDbInstance
+    .clearCache()
     .then(() => {
       getIndexDbSize()
       message.success(t('pages.manage.setting.clearSuccess'))

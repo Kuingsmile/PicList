@@ -64,6 +64,11 @@ export class FileCacheDb extends Dexie {
     this.upyun = this.table('upyun')
     this.webdavplist = this.table('webdavplist')
   }
+
+  async clearCache(): Promise<void> {
+    // Keep the shared connection usable and clear all providers atomically.
+    await this.transaction('rw', this.tables, () => Promise.all(this.tables.map(table => table.clear())))
+  }
 }
 
 export const fileCacheDbInstance = new FileCacheDb()
