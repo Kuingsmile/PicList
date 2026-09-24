@@ -1208,14 +1208,7 @@
           />
         </SettingSection>
         <SettingSection :icon="ImageIcon" :title="t('pages.settings.sync.galleryDB')">
-          <CustomButton
-            v-for="item in syncTaskList.slice(6, 7)"
-            :key="item.task"
-            type="secondary"
-            :icon="ImageIcon"
-            :text="item.label"
-            @click="syncTaskFn(item.task, item.number)"
-          />
+          <GallerySync />
         </SettingSection>
       </div>
     </CustomModal>
@@ -1283,6 +1276,7 @@ import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import Editor from '@/components/Editor.vue'
+import GallerySync from '@/components/GallerySync.vue'
 import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
 import useConfirm from '@/hooks/useConfirm'
 import { osGlobal, usePicBed } from '@/hooks/useGlobal'
@@ -1426,7 +1420,6 @@ const syncTaskList = computed(() => [
   { task: IRPCActionType.CONFIGURE_DOWNLOAD_COMMON_CONFIG, label: t('pages.settings.sync.commonConfig'), number: 2 },
   { task: IRPCActionType.CONFIGURE_DOWNLOAD_MANAGE_CONFIG, label: t('pages.settings.sync.manageConfig'), number: 2 },
   { task: IRPCActionType.CONFIGURE_DOWNLOAD_ALL_CONFIG, label: t('pages.settings.sync.allConfig'), number: 4 },
-  { task: IRPCActionType.CONFIGURE_SYNC_GALLERY_DB, label: t('pages.settings.sync.galleryDB'), number: 2 },
 ])
 
 const logLevel = computed(() => [

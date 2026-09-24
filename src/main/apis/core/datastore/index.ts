@@ -1,5 +1,7 @@
-import { galleryDBPath } from '@core/datastore/dirs'
+import { dataDir, galleryDBPath } from '@core/datastore/dirs'
 import { DBStore } from '@piclist/store'
+
+import { trackGalleryStore } from '~/utils/gallerySync/store'
 
 export const DB_PATH: string = galleryDBPath()
 
@@ -12,7 +14,7 @@ class GalleryDB {
 
   static getInstance(forceRefresh: boolean = false): DBStore {
     if (!GalleryDB.#instance || forceRefresh) {
-      GalleryDB.#instance = new DBStore(DB_PATH, 'gallery')
+      GalleryDB.#instance = trackGalleryStore(new DBStore(DB_PATH, 'gallery'), dataDir())
     }
     return GalleryDB.#instance
   }

@@ -1,4 +1,3 @@
-import os from 'node:os'
 import path from 'node:path'
 
 import { GalleryDB } from '@core/datastore'
@@ -11,17 +10,15 @@ import fs from 'fs-extra'
 import { HttpsProxyAgent } from 'hpagent'
 import { AuthType, createClient, WebDAVClientOptions } from 'webdav'
 
-import { extractData, zipData } from '~/utils/common'
+import type { GallerySyncRequest } from '#/types/gallerySync'
 import { formatEndpoint } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 
-const STORE_PATH = dataDir()
-const tempDir = path.join(os.tmpdir(), `piclist-sync-tmp`)
-const localDBPath = path.join(tempDir, 'db1')
-const remoteDBPath = path.join(tempDir, 'db2')
-const dbMerged = path.join(tempDir, 'db-merged')
-const galleryDBList = ['piclist.db', 'piclist.bak.db']
+import { GallerySyncError } from './gallerySync/model'
+import { configurationKey, GallerySyncTransaction } from './gallerySync/transaction'
+import { createGalleryTransport } from './gallerySync/transport'
 
+const STORE_PATH = dataDir()
 const readFileAsBase64 = (filePath: string) => fs.readFileSync(filePath, { encoding: 'base64' })
 
 // A fresh installation may not have startup backups yet. Upload a snapshot of
@@ -38,53 +35,6 @@ const isHttpResSuccess = (res: any) => res.status >= 200 && res.status < 300
 
 const uploadOrUpdateMsg = (fileName: string, isUpdate: boolean = true) =>
   isUpdate ? `update ${fileName} from PicList` : `upload ${fileName} from PicList`
-
-const emptyDir = async (): Promise<void> => {
-  for (const dir of [tempDir, localDBPath, remoteDBPath, dbMerged]) {
-    await fs.emptyDir(dir)
-  }
-}
-
-const mergeGalleryDB = async (targetFile: string) => {
-  const lastSyncTime = picgo.getConfig<number>(configPaths.settings.lastSyncTime) || 0
-  try {
-    const localDBData = (await extractData(path.join(localDBPath, targetFile))) as IGalleryDBFile
-    const remoteDBData = (await extractData(path.join(remoteDBPath, targetFile))) as IGalleryDBFile
-    const localMap = new Map(localDBData.gallery.map((item: IGalleryDBGalleryItem) => [item.id, item]))
-    const remoteMap = new Map(remoteDBData.gallery.map((item: IGalleryDBGalleryItem) => [item.id, item]))
-    const mergedGalleryMap = new Map<string, any>()
-
-    for (const [id, localItem] of localMap) {
-      const remoteItem = remoteMap.get(id)
-      if (!remoteItem) {
-        mergedGalleryMap.set(id, localItem)
-      } else {
-        const newest = (localItem.updatedAt || 0) >= (remoteItem.updatedAt || 0) ? localItem : remoteItem
-        mergedGalleryMap.set(id, newest)
-      }
-    }
-    for (const [id, remoteItem] of remoteMap) {
-      if (!localMap.has(id) && (remoteItem.updatedAt || 0) >= lastSyncTime) {
-        mergedGalleryMap.set(id, remoteItem)
-      }
-    }
-
-    const galleryKeyObj: Record<string, number> = {}
-    mergedGalleryMap.forEach((_, id) => {
-      galleryKeyObj[id] = 1
-    })
-    const mergedData = {
-      gallery: Array.from(mergedGalleryMap.values()),
-      __gallery_KEY__: galleryKeyObj,
-    }
-    const targetFilePath = path.join(dbMerged, targetFile)
-    await zipData(mergedData, targetFilePath)
-    await fs.copyFile(targetFilePath, path.join(STORE_PATH, targetFile))
-  } catch (err: any) {
-    logger.error('merge gallery db failed:', String(err))
-    throw new Error('merge gallery db failed', { cause: err })
-  }
-}
 
 const getSyncConfig = () =>
   picgo.getConfig<ISyncConfig>(configPaths.settings.sync) || {
@@ -209,14 +159,13 @@ async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
         if (remoteDir !== '/') {
           await client.createDirectory(remoteDir, { recursive: true })
         }
-        await client.putFileContents(remoteFilePath, fileContent, { overwrite: true })
-        return true
+        return (await client.putFileContents(remoteFilePath, fileContent, { overwrite: true })) === true
       }
       default:
         return false
     }
-  } catch (error: any) {
-    logger.error(error)
+  } catch (_error: any) {
+    logger.error('Settings transport failed')
     return false
   }
 }
@@ -354,8 +303,7 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
       if (remoteDir !== '/') {
         await client.createDirectory(remoteDir, { recursive: true })
       }
-      await client.putFileContents(remoteFilePath, fileContent, { overwrite: true })
-      return true
+      return (await client.putFileContents(remoteFilePath, fileContent, { overwrite: true })) === true
     }
     default:
       return false
@@ -374,9 +322,8 @@ async function downloadAndWriteFile(url: string, localFilePath: string, config: 
   return false
 }
 
-async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string, galleryMode = false) {
-  const storePath = galleryMode ? remoteDBPath : STORE_PATH
-  const localFilePath = path.join(storePath, fileName)
+async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) {
+  const localFilePath = path.join(STORE_PATH, fileName)
   const { username, repo, branch, token, proxy, type } = syncConfig
   try {
     switch (type) {
@@ -385,20 +332,7 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string, 
         const config = {
           params: { access_token: token, ref: branch },
         }
-        if (galleryMode) {
-          const rawUrl = `${url.replace('/contents/', '/raw/')}`
-          const fileRes = await axios.get(rawUrl, {
-            ...config,
-            responseType: 'arraybuffer',
-          })
-          if (isHttpResSuccess(fileRes)) {
-            await fs.writeFile(localFilePath, fileRes.data)
-            return true
-          }
-          return false
-        } else {
-          return downloadAndWriteFile(url, localFilePath, config)
-        }
+        return downloadAndWriteFile(url, localFilePath, config)
       }
       case 'github': {
         const octokit = getOctokit(syncConfig)
@@ -411,59 +345,17 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string, 
         if (res.status === 200) {
           const data = res.data as any
           const downloadUrl = data.download_url
-          if (galleryMode) {
-            const res = await axios.get(downloadUrl, {
-              httpsAgent: getProxyagent(proxy),
-              responseType: 'arraybuffer',
-            })
-            if (isHttpResSuccess(res)) {
-              await fs.writeFile(localFilePath, res.data)
-              return true
-            } else {
-              return false
-            }
-          } else {
-            return downloadAndWriteFile(
-              downloadUrl,
-              localFilePath,
-              {
-                httpsAgent: getProxyagent(proxy),
-              },
-              true,
-            )
-          }
+          return downloadAndWriteFile(downloadUrl, localFilePath, { httpsAgent: getProxyagent(proxy) }, true)
         }
         return false
       }
       case 'gitea': {
         const { endpoint = '', token, username, repo, branch } = syncConfig
-        if (galleryMode) {
-          const rawUrl = `${endpoint}/api/v1/repos/${username}/${repo}/raw/${fileName}`
-          const res = await axios.get(rawUrl, {
-            headers: {
-              Authorization: `token ${token}`,
-            },
-            params: {
-              ref: branch,
-            },
-            responseType: 'arraybuffer',
-          })
-          if (isHttpResSuccess(res)) {
-            await fs.writeFile(localFilePath, res.data)
-            return true
-          }
-          return false
-        } else {
-          const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
-          return downloadAndWriteFile(apiUrl, localFilePath, {
-            headers: {
-              Authorization: `token ${token}`,
-            },
-            params: {
-              ref: branch,
-            },
-          })
-        }
+        const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
+        return downloadAndWriteFile(apiUrl, localFilePath, {
+          headers: { Authorization: `token ${token}` },
+          params: { ref: branch },
+        })
       }
       case 'webdav': {
         const {
@@ -491,85 +383,9 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string, 
       default:
         return false
     }
-  } catch (error: any) {
-    logger.error(error)
+  } catch (_error: any) {
+    logger.error('Settings transport failed')
     return false
-  }
-}
-
-async function checkCloudFileExist(syncConfig: ISyncConfig, fileName: string) {
-  const { username, repo, branch, token, type } = syncConfig
-  try {
-    switch (type) {
-      case 'gitee': {
-        const url = `https://gitee.com/api/v5/repos/${username}/${repo}/raw/${fileName}`
-        try {
-          const res = await axios.get(url, {
-            params: { access_token: token, ref: branch, responseType: 'arraybuffer' },
-          })
-          return isHttpResSuccess(res)
-        } catch (error: any) {
-          if (error.response?.status === 404) return false
-          throw error
-        }
-      }
-      case 'github': {
-        const octokit = getOctokit(syncConfig)
-        try {
-          const res = await octokit.rest.repos.getContent({
-            owner: username,
-            repo,
-            path: fileName,
-            ref: branch,
-          })
-          return res.status === 200
-        } catch (error: any) {
-          if (Number(error.status) === 404) return false
-          throw error
-        }
-      }
-      case 'gitea': {
-        const { endpoint = '' } = syncConfig
-        const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
-        try {
-          const res = await axios.get(apiUrl, {
-            headers: { Authorization: `token ${token}` },
-            params: { ref: branch },
-          })
-          return isHttpResSuccess(res)
-        } catch (error: any) {
-          if (error.response?.status === 404) return false
-          throw error
-        }
-      }
-      case 'webdav': {
-        const {
-          webdavEndpoint = '',
-          webdavUsername,
-          webdavPassword,
-          webdavAuthType = 'basic',
-          webdavSslEnabled = true,
-          webdavSavePath = '',
-        } = syncConfig
-        const webdavEndpointF = formatEndpoint(webdavEndpoint, webdavSslEnabled)
-        const options: WebDAVClientOptions = {
-          username: webdavUsername,
-          password: webdavPassword,
-        }
-        if (webdavAuthType === 'digest') {
-          options.authType = AuthType.Digest
-        }
-        const client = createClient(webdavEndpointF, options)
-        const remoteFilePath = (webdavSavePath ? path.join(webdavSavePath, fileName) : fileName).replace(/\\/g, '/')
-        const exists = await client.exists(remoteFilePath)
-        return exists
-      }
-      default:
-        throw new Error('unsupported sync type')
-    }
-  } catch (error: any) {
-    logger.error(error)
-    throw new Error('check file exist failed', { cause: error })
   }
 }
 
@@ -589,39 +405,39 @@ async function downloadFile(fileName: string[]): Promise<number> {
   return (await Promise.all(fileName.map(downloadFunc))).reduce((a, b) => a + b, 0)
 }
 
-async function syncGallery(): Promise<number> {
-  const syncConfig = getSyncConfig()
-  if (!isSyncConfigValidate(syncConfig)) {
-    logger.error('sync config is invalid')
-    return 0
+let gallerySync: GallerySyncTransaction | undefined
+const getGallerySync = () =>
+  (gallerySync ??= new GallerySyncTransaction({
+    root: STORE_PATH,
+    transport: () => createGalleryTransport(getSyncConfig()),
+    configurationKey: () => configurationKey(getSyncConfig()),
+    getWatermark: () => picgo.getConfig<number>(configPaths.settings.lastSyncTime) || 0,
+    saveWatermark: value => {
+      picgo.saveConfig({ [configPaths.settings.lastSyncTime]: value })
+    },
+    recoverWatermark: value => {
+      picgo.saveConfig({ [configPaths.settings.lastSyncTime]: value })
+    },
+    refresh: () => GalleryDB.getInstance().refresh(),
+  }))
+
+// A call without an explicit apply request is always a dry run.
+async function syncGallery(request: GallerySyncRequest = { action: 'preview' }) {
+  const transaction = getGallerySync()
+  if (request.action === 'list-snapshots') return transaction.listSnapshots()
+  if (request.action === 'cancel') return transaction.cancel(request.planId)
+  if (!isSyncConfigValidate(getSyncConfig())) throw new GallerySyncError('Sync configuration is invalid.')
+  switch (request.action) {
+    case 'preview':
+      return transaction.preview()
+    case 'apply':
+      return transaction.apply(request.planId, request.resolutions)
+    default:
+      throw new GallerySyncError('Unsupported gallery sync action.')
   }
-  let successCount = 0
-  for (const file of galleryDBList) {
-    await emptyDir()
-    try {
-      const exists = await checkCloudFileExist(syncConfig, file)
-      if (!exists) {
-        await uploadLocalToRemote(syncConfig, file)
-        logger.info(`gallery db ${file} not exist in cloud, upload local file instead`)
-        successCount++
-        picgo.saveConfig({ [configPaths.settings.lastSyncTime]: Date.now() })
-        await GalleryDB.getInstance().refresh()
-        continue
-      }
-    } catch (err: any) {
-      logger.error(`check gallery db ${file} exist failed:`, String(err))
-      continue
-    }
-    await downloadRemoteToLocal(syncConfig, file, true)
-    await fs.copyFile(path.join(STORE_PATH, file), path.join(localDBPath, file))
-    await mergeGalleryDB(file)
-    await updateLocalToRemote(syncConfig, file)
-    picgo.saveConfig({ [configPaths.settings.lastSyncTime]: Date.now() })
-    await GalleryDB.getInstance().refresh()
-    logger.info(`sync gallery db ${file} success`)
-    successCount++
-  }
-  return successCount
 }
+
+export const exportGallerySyncSummary = (id: string) => getGallerySync().summary(id)
+export const exportGallerySyncSnapshot = (id: string) => getGallerySync().exportSnapshot(id)
 
 export { downloadFile, syncGallery, uploadFile }

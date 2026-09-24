@@ -1,9 +1,11 @@
-import { appConfigBackupPath, appConfigPath, galleryDBBackupPath, galleryDBPath } from '@core/datastore/dirs'
+import { appConfigBackupPath, appConfigPath, dataDir, galleryDBBackupPath, galleryDBPath } from '@core/datastore/dirs'
+import { JSONStore } from '@piclist/store'
 import dayjs from 'dayjs'
 import fs from 'fs-extra'
 import writeFile from 'write-file-atomic'
 
 import { t } from '~/i18n'
+import { recoverGallerySync } from '~/utils/gallerySync/storage'
 import { notificationList } from '~/utils/notification'
 
 const configFileBackupPath = appConfigBackupPath()
@@ -15,6 +17,7 @@ const errorMsg = {
 
 function dbChecker() {
   if (process.type !== 'renderer') {
+    recoverGallerySync(dataDir(), value => new JSONStore(appConfigPath()).set('settings.lastSyncTime', value))
     // db save bak
     try {
       const dbPath = galleryDBPath()

@@ -2,11 +2,19 @@ import path from 'node:path'
 
 import { dataDir } from '@core/datastore/dirs'
 import logger from '@core/picgo/logger'
-import { app } from 'electron'
+import { app, dialog } from 'electron'
 import fs from 'fs-extra'
 
+import type { GallerySyncRequest } from '#/types/gallerySync'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
-import { downloadFile, syncGallery, uploadFile } from '~/utils/syncSettings'
+import { GallerySyncError } from '~/utils/gallerySync/model'
+import {
+  downloadFile,
+  exportGallerySyncSnapshot,
+  exportGallerySyncSummary,
+  syncGallery,
+  uploadFile,
+} from '~/utils/syncSettings'
 
 const STORE_PATH = dataDir()
 
@@ -98,8 +106,34 @@ export default [
   },
   {
     action: IRPCActionType.CONFIGURE_SYNC_GALLERY_DB,
-    handler: async () => {
-      return await syncGallery()
+    handler: async (_: IIPCEvent, args: [GallerySyncRequest?] = []) => {
+      const request = args[0] ?? { action: 'preview' }
+      try {
+        if (request.action === 'export-summary' || request.action === 'export-rollback') {
+          const summary = request.action === 'export-summary'
+          const content = summary
+            ? exportGallerySyncSummary(request.planId)
+            : exportGallerySyncSnapshot(request.snapshotId)
+          const result = await dialog.showSaveDialog({
+            defaultPath: summary ? 'gallery-sync-summary.json' : 'gallery-rollback.json.gz',
+            filters: [
+              {
+                name: summary ? 'Redacted sync summary' : 'Full gallery rollback snapshot',
+                extensions: [summary ? 'json' : 'gz'],
+              },
+            ],
+          })
+          if (result.canceled || !result.filePath) return false
+          await fs.writeFile(result.filePath, content)
+          return true
+        }
+        return await syncGallery(request)
+      } catch (error) {
+        return {
+          error: error instanceof GallerySyncError ? error.message : 'Gallery sync or export failed.',
+          snapshotId: error instanceof GallerySyncError ? error.snapshotId : undefined,
+        }
+      }
     },
     type: IRPCType.INVOKE,
   },

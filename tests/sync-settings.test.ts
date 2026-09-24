@@ -78,4 +78,10 @@ describe('configuration sync backups', () => {
     state.put.mockRejectedValue(new Error('write failed'))
     expect(await uploadFile(['data.bak.json'])).toBe(0)
   })
+
+  it('does not count a false WebDAV result as a successful write', async () => {
+    state.files.set('data.json', '{}')
+    state.put.mockResolvedValue(false)
+    expect(await uploadFile(['data.json'])).toBe(0)
+  })
 })
