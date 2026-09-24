@@ -1175,15 +1175,16 @@ import EmptyPage from '@/manage/pages/EmptyPage.vue'
 import { fileCacheDbInstance } from '@/manage/store/bucketFileDb'
 import { useDownloadFileTransferStore, useFileTransferStore, useManageStore } from '@/manage/store/manageStore'
 import {
-  customStrMatch,
-  customStrReplace,
   formatFileSize,
   formatLink,
   getFileIconPath,
   isValidUrl,
+  matchFileName,
   renameFile,
+  replaceFileName,
 } from '@/manage/utils/common'
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
+import { splitFileName } from '@/manage/utils/fileName'
 import { textFileExt } from '@/manage/utils/textfile'
 import { appendThumbnailSuffix } from '@/manage/utils/thumbnailUrl'
 import { videoExt } from '@/manage/utils/videofile'
@@ -2415,19 +2416,9 @@ const matchedFilesNumber = computed(() => {
   if (!batchRenameMatch.value) {
     return [] as any[]
   }
-  const matchedFiles = [] as any[]
-  currentPageFilesInfo.forEach((item: any) => {
-    if (isRenameIncludeExt.value) {
-      if (customStrMatch(item.fileName, batchRenameMatch.value) && !item.isDir) {
-        matchedFiles.push(item)
-      }
-    } else {
-      if (customStrMatch(item.fileName.split('.')[0], batchRenameMatch.value) && !item.isDir) {
-        matchedFiles.push(item)
-      }
-    }
-  })
-  return matchedFiles
+  return currentPageFilesInfo.filter(
+    (item: any) => !item.isDir && matchFileName(item.fileName, batchRenameMatch.value, isRenameIncludeExt.value),
+  )
 })
 
 async function BatchRename() {
@@ -2436,31 +2427,18 @@ async function BatchRename() {
     message.error(t('pages.manage.bucket.inputPatternMsg'))
     return
   }
-  let matchedFiles = [] as any[]
-  currentPageFilesInfo.forEach((item: any) => {
-    if (isRenameIncludeExt.value) {
-      if (customStrMatch(item.fileName, batchRenameMatch.value) && !item.isDir) {
-        matchedFiles.push(item)
-      }
-    } else {
-      if (customStrMatch(item.fileName.split('.')[0], batchRenameMatch.value) && !item.isDir) {
-        matchedFiles.push(item)
-      }
-    }
-  })
+  let matchedFiles = matchedFilesNumber.value
   if (matchedFiles.length === 0) {
     message.error(t('pages.manage.bucket.noMatchedFile'))
     return
   }
   for (const item of matchedFiles) {
-    if (isRenameIncludeExt.value) {
-      item.newName = customStrReplace(item.fileName, batchRenameMatch.value, batchRenameReplace.value)
-    } else {
-      item.newName =
-        customStrReplace(item.fileName.split('.')[0], batchRenameMatch.value, batchRenameReplace.value) +
-        '.' +
-        item.fileName.split('.')[1]
-    }
+    item.newName = replaceFileName(
+      item.fileName,
+      batchRenameMatch.value,
+      batchRenameReplace.value,
+      isRenameIncludeExt.value,
+    )
   }
   matchedFiles = matchedFiles.filter((item: any) => item.fileName !== item.newName)
   if (matchedFiles.length === 0) {
@@ -2858,7 +2836,7 @@ async function handleDeleteFile(item: any) {
 }
 
 function handleRenameFile(item: any) {
-  batchRenameMatch.value = window.node.path.basename(item.fileName, window.node.path.extname(item.fileName))
+  batchRenameMatch.value = splitFileName(item.fileName).baseName
   isSingleRename.value = true
   isShowBatchRenameDialog.value = true
   itemToBeRenamed.value = item
@@ -2870,18 +2848,12 @@ function singleRename() {
   if (batchRenameMatch.value === '') {
     batchRenameMatch.value = '.+'
   }
-  if (isRenameIncludeExt.value) {
-    itemToBeRenamed.value.newName = customStrReplace(
-      itemToBeRenamed.value.fileName,
-      batchRenameMatch.value,
-      batchRenameReplace.value,
-    )
-  } else {
-    itemToBeRenamed.value.newName =
-      customStrReplace(itemToBeRenamed.value.fileName.split('.')[0], batchRenameMatch.value, batchRenameReplace.value) +
-      '.' +
-      itemToBeRenamed.value.fileName.split('.')[1]
-  }
+  itemToBeRenamed.value.newName = replaceFileName(
+    itemToBeRenamed.value.fileName,
+    batchRenameMatch.value,
+    batchRenameReplace.value,
+    isRenameIncludeExt.value,
+  )
   if (itemToBeRenamed.value.newName === itemToBeRenamed.value.fileName) {
     message.info(t('pages.manage.bucket.noNeedToRename'))
     return

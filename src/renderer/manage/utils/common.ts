@@ -6,6 +6,8 @@ import { availableIconList } from '@/manage/utils/icon'
 import { formatStorageLink } from '@/manage/utils/linkFormat'
 import { isNeedToShorten, safeSliceF } from '@/utils/common'
 
+import { splitFileName } from './fileName'
+
 export const isUrlEncode = (url: string): boolean => {
   url = url || ''
   try {
@@ -231,4 +233,20 @@ export function customStrReplace(str: string, pattern: string, replacement: stri
     console.error(e)
   }
   return result
+}
+
+export function matchFileName(fileName: string, pattern: string, includeExtension: boolean): boolean {
+  const name = includeExtension ? fileName : splitFileName(fileName).baseName
+  return customStrMatch(name, pattern)
+}
+
+export function replaceFileName(
+  fileName: string,
+  pattern: string,
+  replacement: string,
+  includeExtension: boolean,
+): string {
+  if (includeExtension) return customStrReplace(fileName, pattern, replacement)
+  const { baseName, extension } = splitFileName(fileName)
+  return customStrReplace(baseName, pattern, replacement) + extension
 }
