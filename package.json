@@ -147,7 +147,7 @@
     "eslint-plugin-jsonc": "^3.4.2",
     "eslint-plugin-prettier": "^5.5.6",
     "eslint-plugin-simple-import-sort": "^14.0.0",
-    "eslint-plugin-unicorn": "^75.0.0",
+    "eslint-plugin-unicorn": "^76.0.0",
     "eslint-plugin-vue": "^10.11.0",
     "fake-indexeddb": "^6.2.5",
     "globals": "^17.12.0",

@@ -5900,10 +5900,10 @@ eslint-plugin-simple-import-sort@^14.0.0:
   resolved "https://registry.yarnpkg.com/eslint-plugin-simple-import-sort/-/eslint-plugin-simple-import-sort-14.0.0.tgz#a07d4aa63ebf043e8d55497b4e2a3035bf800849"
   integrity sha512-NUJO0+XFCkk+o5EsAJruTgnfMEpeWrPWeJS15UVF60GgXmqz1BJ9/3hzlvG7lkL8Bubzos5cCLptThbFfPnSMQ==
 
-eslint-plugin-unicorn@^75.0.0:
-  version "75.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-unicorn/-/eslint-plugin-unicorn-75.0.0.tgz#f0ec9ea5abca54a3ad024994dbc6c0ed9778029c"
-  integrity sha512-72I7eSn+/z5CpgValFBl9mp2JE5UPD+nUUyB/VIGUMF1rCP1i37mA05zfIAVIU312A+qCZ38T8tSZr3oaMv4Mw==
+eslint-plugin-unicorn@^76.0.0:
+  version "76.0.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-unicorn/-/eslint-plugin-unicorn-76.0.0.tgz#594bd12cd8df83d722bafa7a171babe05105b04a"
+  integrity sha512-3ywJrCMHKYhcBP5yFzGaOOX3dY7+iR3hvpuoS/0EnhRFgVWLejly+t4fOdJvWQxJdHZl1C+QBW7hybXPDld4Pw==
   dependencies:
     "@eslint-community/eslint-utils" "^4.10.1"
     "@eslint/css-tree" "^4.0.5"
