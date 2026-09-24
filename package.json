@@ -175,7 +175,7 @@
     "stylus": "^0.64.0",
     "tailwindcss": "^4.3.3",
     "tar": "^7.5.7",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "typescript-eslint": "^8.70.0",
     "ulid": "^3.0.2",
     "video.js": "^8.24.1",
