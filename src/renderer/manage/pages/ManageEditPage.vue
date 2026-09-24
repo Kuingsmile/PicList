@@ -273,9 +273,18 @@ async function handleConfigChange() {
 
   for (const key of allKeys) {
     if (key === 'customUrl' && configResult.value[key] !== undefined && configResult.value[key] !== '') {
-      if (platformName !== 'upyun') {
-        configResult.value[key] = formatEndpoint(configResult.value[key], false)
-      }
+      const sslEnabled =
+        configResult.value.sslEnabled ??
+        supportedPicBedList.value[platformName].configOptions.sslEnabled?.default ??
+        false
+      configResult.value[key] = configResult.value[key]
+        .split(',')
+        .map((url: string) => {
+          const customUrl = url.trim()
+          // Only use the provider's TLS setting when the custom domain has no explicit scheme.
+          return customUrl && !/^https?:\/\//i.test(customUrl) ? formatEndpoint(customUrl, sslEnabled) : customUrl
+        })
+        .join(',')
     }
 
     if (

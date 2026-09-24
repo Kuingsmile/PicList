@@ -10,10 +10,11 @@ import { type App, computed, createApp, onMounted, ref, watch } from 'vue'
 import { parse } from 'vue/compiler-sfc'
 
 import { getSupportedPicBedList } from '../src/renderer/manage/utils/constants'
+import { formatEndpoint } from '../src/renderer/utils/common'
 
 const { descriptor } = parse(readFileSync(resolve('src/renderer/manage/pages/ManageEditPage.vue'), 'utf8'))
 const script = ts.createSourceFile('ManageEditPage.ts', descriptor.scriptSetup!.content, ts.ScriptTarget.Latest, true)
-// Exercise the actual page setup and save handler with the real validation rules and stubbed persistence.
+// Exercise the actual page setup and save handler with real validation and normalization and in-memory persistence.
 const setupCode = ts.transpileModule(
   script.statements
     .filter(statement => !ts.isImportDeclaration(statement))
@@ -40,9 +41,16 @@ const qiniuConfig = {
   isAutoCustomUrl: false,
 }
 
-async function mountEditPage(platformName: string, config: IStringKeyMap) {
-  const getConfig = vi.fn().mockResolvedValue({})
-  const saveConfig = vi.fn()
+async function mountEditPage(
+  platformName: string,
+  config: IStringKeyMap,
+  aliasName = '',
+  storedConfig: IStringKeyMap = {},
+) {
+  const getConfig = vi.fn(async () => JSON.parse(JSON.stringify(storedConfig)))
+  const saveConfig = vi.fn((_key: string, value: IStringKeyMap) => {
+    storedConfig[value.alias] = JSON.parse(JSON.stringify(value))
+  })
   const refreshConfig = vi.fn().mockResolvedValue(undefined)
   const emit = vi.fn()
   const message = { error: vi.fn(), success: vi.fn() }
@@ -54,7 +62,7 @@ async function mountEditPage(platformName: string, config: IStringKeyMap) {
       ref,
       watch,
       defineModel: () => ref(true),
-      defineProps: () => ({ aliasName: '', platformName }),
+      defineProps: () => ({ aliasName, platformName }),
       defineEmits: () => emit,
       useI18n: () => ({ t: (key: string) => key }),
       useManageStore: () => ({ refreshConfig }),
@@ -62,7 +70,7 @@ async function mountEditPage(platformName: string, config: IStringKeyMap) {
       getSupportedPicBedList,
       getConfig,
       saveConfig,
-      formatEndpoint: (value: string) => value,
+      formatEndpoint,
     },
   )
   const app = createApp({ setup, render: () => null })
@@ -74,7 +82,7 @@ async function mountEditPage(platformName: string, config: IStringKeyMap) {
   Object.assign(page.configResult, config)
   getConfig.mockClear()
   refreshConfig.mockClear()
-  return { page, getConfig, saveConfig, refreshConfig, emit, message }
+  return { page, getConfig, saveConfig, refreshConfig, emit, message, storedConfig }
 }
 
 async function expectRejectedSave(form: Awaited<ReturnType<typeof mountEditPage>>, fields: string[]) {
@@ -187,4 +195,105 @@ describe('manager configuration save validation', () => {
       expect(form.page.editMode).toBe(false)
     },
   )
+})
+
+describe('manager custom domain save round-trip', () => {
+  const s3Config = {
+    alias: 'manager-test',
+    accessKeyId: 'test-access-key',
+    secretAccessKey: 'test-secret-key',
+    bucketName: 'photos',
+  }
+
+  it.each([
+    { platform: 'github', config: { token: 'test-token', githubUsername: 'test-user' } },
+    { platform: 's3plist', config: s3Config },
+    {
+      platform: 'webdavplist',
+      config: { endpoint: 'https://webdav.example.invalid', username: 'test-user', password: 'test-password' },
+    },
+    { platform: 'local', config: { baseDir: '/files' } },
+    { platform: 'sftp', config: { host: 'sftp.example.invalid', baseDir: '/files' } },
+    { platform: 'upyun', config: { bucketName: 'photos', operator: 'test-user', password: 'test-password' } },
+  ])('preserves HTTPS on create and HTTP on edit for $platform', async ({ platform, config }) => {
+    const alias = 'manager-test'
+    const customUrl = 'https://cdn.example.invalid/images/'
+    const form = await mountEditPage(platform, { ...config, alias, customUrl })
+
+    await form.page.handleConfigChange()
+
+    expect(form.saveConfig).toHaveBeenCalledExactlyOnceWith(`picBed.${alias}`, expect.objectContaining({ customUrl }))
+    const saved = form.storedConfig[alias]
+    if (saved.bucketName) {
+      expect(JSON.parse(saved.transformedConfig)[saved.bucketName].customUrl).toBe(customUrl)
+    }
+    const reopened = await mountEditPage(platform, {}, alias, form.storedConfig)
+    expect(reopened.page.configResult.customUrl).toBe(customUrl)
+
+    const httpUrl = 'http://cdn.example.invalid/images/'
+    reopened.page.configResult.customUrl = httpUrl
+    await reopened.page.handleConfigChange()
+
+    expect(reopened.saveConfig).toHaveBeenCalledExactlyOnceWith(
+      `picBed.${alias}`,
+      expect.objectContaining({ customUrl: httpUrl }),
+    )
+    const edited = await mountEditPage(platform, {}, alias, form.storedConfig)
+    expect(edited.page.configResult.customUrl).toBe(httpUrl)
+  })
+
+  it.each([true, false])('preserves explicit HTTPS with S3 TLS set to %s', async sslEnabled => {
+    const customUrl = 'https://cdn.example.invalid'
+    const form = await mountEditPage('s3plist', { ...s3Config, customUrl, sslEnabled })
+
+    await form.page.handleConfigChange()
+
+    expect(form.storedConfig[s3Config.alias]).toMatchObject({ customUrl, sslEnabled })
+  })
+
+  it.each([
+    { sslEnabled: true, scheme: 'https' },
+    { sslEnabled: false, scheme: 'http' },
+    { sslEnabled: undefined, scheme: 'https' },
+  ])('defaults bare S3 domains to $scheme with TLS set to $sslEnabled', async ({ sslEnabled, scheme }) => {
+    const form = await mountEditPage('s3plist', {
+      ...s3Config,
+      bucketName: 'photos,fallback,archive',
+      customUrl: ' cdn.example.invalid/photos , , archive.example.invalid ',
+      sslEnabled,
+    })
+
+    await form.page.handleConfigChange()
+
+    const saved = form.storedConfig[s3Config.alias]
+    expect(saved.customUrl).toBe(`${scheme}://cdn.example.invalid/photos,,${scheme}://archive.example.invalid`)
+    expect(JSON.parse(saved.transformedConfig)).toMatchObject({
+      photos: { customUrl: `${scheme}://cdn.example.invalid/photos` },
+      fallback: { customUrl: '' },
+      archive: { customUrl: `${scheme}://archive.example.invalid` },
+    })
+  })
+
+  it('preserves schemes, templates, and empty entries in a GitHub domain list', async () => {
+    const customUrl = 'https://cdn.example.invalid/{owner}/{repo},,http://mirror.example.invalid/{branch}'
+    const form = await mountEditPage('github', {
+      ...smmsConfig,
+      githubUsername: 'test-user',
+      customUrl,
+    })
+
+    await form.page.handleConfigChange()
+
+    expect(form.storedConfig[smmsConfig.alias].customUrl).toBe(customUrl)
+  })
+
+  it('keeps an empty optional domain empty', async () => {
+    const form = await mountEditPage('s3plist', { ...s3Config, customUrl: '' })
+
+    await form.page.handleConfigChange()
+
+    const saved = form.storedConfig[s3Config.alias]
+    expect(saved.customUrl).toBe('')
+    expect(JSON.parse(saved.transformedConfig).photos.customUrl).toBe('')
+  })
 })
