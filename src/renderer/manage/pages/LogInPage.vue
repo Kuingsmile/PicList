@@ -469,7 +469,8 @@ async function getCurrentConfigList() {
     await Promise.all(filteredConfigList.flatMap(config => transUpToManage(config, config.type, autoImportPicBed)))
     if (Object.keys(importedNewConfig).length > 0) {
       const oldConfig = await getConfig<any>('picBed')
-      const newConfig = { ...oldConfig, ...importedNewConfig }
+      // Automatic import only fills missing aliases; saved manager records take precedence.
+      const newConfig = { ...importedNewConfig, ...oldConfig }
       saveConfig('picBed', newConfig)
       await manageStore.refreshConfig()
     }
@@ -485,7 +486,7 @@ async function goConfigPage() {
 }
 
 function isImported(alias: string) {
-  return Object.values(allConfigAliasList.value).some(item => item.alias === alias)
+  return Object.hasOwn(manageStore.config.picBed ?? {}, alias)
 }
 
 function initArray(arrayT: string | string[], defaultValue: string[]) {
