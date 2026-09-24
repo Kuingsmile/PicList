@@ -158,7 +158,7 @@
     "mitt": "^3.0.1",
     "node-bump-version": "^3.0.0",
     "npm": "11.16.0",
-    "pinia": "^3.0.4",
+    "pinia": "^4.0.0",
     "pinia-plugin-persistedstate": "^4.7.1",
     "postcss": "^8.5.28",
     "postcss-html": "^2.0.0",
