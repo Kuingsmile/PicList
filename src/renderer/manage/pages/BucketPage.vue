@@ -97,7 +97,7 @@
               <div
                 v-if="isShowPresignedUrl"
                 class="cursor-pointer bg-bg-tertiary px-3 py-2 text-center text-sm text-main hover:bg-accent/50"
-                @click="handleBatchCopyLink('preSignURL')"
+                @click="handleBatchCopyLink(preSignedUrlFormat)"
               >
                 {{ t('pages.manage.bucket.linkFormat.presign') }}
               </div>
@@ -1313,7 +1313,9 @@ const previousPageNumber = ref(1)
 const showMatchedUrls = ref(false)
 const showFormatInfo = ref(false)
 
-const linkFormatList = ['url', 'markdown', 'markdown-with-link', 'html', 'bbcode', 'custom']
+const linkFormatList = ['url', 'markdown', 'markdown-with-link', 'html', 'bbcode', 'custom'] as const
+const preSignedUrlFormat = 'preSignedUrl'
+type CopyFormat = (typeof linkFormatList)[number] | typeof preSignedUrlFormat
 const sortTypeList = ['name', 'size', 'time', 'ext', 'check', 'init']
 
 const advancedRenameList = computed(() => ({
@@ -2576,29 +2578,36 @@ function handlecopyDropdownOpen() {
   copyDropdownOpen.value = !copyDropdownOpen.value
 }
 
-async function handleBatchCopyLink(type: string) {
+async function handleBatchCopyLink(type: CopyFormat) {
   if (!selectedItems.value.length) {
     message.warning(t('pages.manage.bucket.selectFileMsg'))
     copyDropdownOpen.value = false
     return
   }
-  const result = [] as string[]
-  for (const item of selectedItems.value) {
-    if (!item.isDir) {
-      const preSignedUrl = type === 'preSignedUrl' ? await getPreSignedUrl(item) : null
-      const url = await formatLink(
-        preSignedUrl || item.url,
-        item.fileName,
-        type,
-        customPasteFormat.value,
-        item.key || item.Key,
-      )
-      result.push(url)
+  try {
+    const result: string[] = []
+    for (const item of selectedItems.value) {
+      if (item.isDir) continue
+      if (type === preSignedUrlFormat) {
+        const url = await getPreSignedUrl(item)
+        if (typeof url !== 'string' || !url.trim() || url === 'error') {
+          throw new Error('Failed to generate a pre-signed URL')
+        }
+        // Signing parameters must be copied exactly as returned by the provider.
+        result.push(url)
+      } else {
+        result.push(await formatLink(item.url, item.fileName, type, customPasteFormat.value, item.key || item.Key))
+      }
     }
+    window.electron.clipboard.writeText(result.join('\n'))
+    message.success(t('pages.manage.bucket.copySuccess'))
+  } catch {
+    message.error(
+      t(type === preSignedUrlFormat ? 'pages.manage.bucket.copyPreSignedUrlFailed' : 'pages.manage.bucket.copyFailed'),
+    )
+  } finally {
+    copyDropdownOpen.value = false
   }
-  window.electron.clipboard.writeText(result.join('\n'))
-  message.success(`${t('pages.manage.bucket.copySuccess')}`)
-  copyDropdownOpen.value = false
 }
 
 async function cancelLoading() {
