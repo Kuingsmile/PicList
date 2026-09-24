@@ -136,14 +136,27 @@ jobs:
         with:
           node-version: "22.x"
 
-      - name: Install system deps
-        if: contains(matrix.os, 'linux') && (github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All')
+      - name: Install Linux packaging prerequisites
+        if: runner.os == 'Linux' && (github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All')
+        shell: bash
         run: |
-          sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils libfuse2
-          sudo snap install snapcraft --classic
+          case "${{ matrix.format }}" in
+            deb)
+              sudo apt-get update
+              sudo apt-get install --no-install-recommends -y binutils xz-utils
+              ;;
+            rpm)
+              sudo apt-get update
+              sudo apt-get install --no-install-recommends -y rpm
+              ;;
+            AppImage|snap)
+              # AppImage and the default x64 Snap template use bundled packaging tools.
+              echo "Using electron-builder's bundled packaging tools."
+              ;;
+          esac
 
       - name: Install FPM
-        if: matrix.os == 'ubuntu-24.04-arm' && (github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All')
+        if: runner.os == 'Linux' && matrix.arch == 'arm64' && (matrix.format == 'deb' || matrix.format == 'rpm') && (github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All')
         run: |
           sudo apt-get update
           sudo apt-get install -y ruby ruby-dev build-essential
@@ -189,7 +202,7 @@ jobs:
             exit 1
           fi
         env:
-          USE_SYSTEM_FPM: ${{ matrix.os == 'ubuntu-24.04-arm' && 'true' || 'false' }}
+          USE_SYSTEM_FPM: ${{ runner.os == 'Linux' && matrix.arch == 'arm64' && (matrix.format == 'deb' || matrix.format == 'rpm') && 'true' || 'false' }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           ELECTRON_SKIP_NOTARIZATION: ${{ secrets.ELECTRON_SKIP_NOTARIZATION }}
           XCODE_APP_LOADER_EMAIL: ${{ secrets.XCODE_APP_LOADER_EMAIL }}
