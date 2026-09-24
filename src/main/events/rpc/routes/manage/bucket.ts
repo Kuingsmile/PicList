@@ -4,8 +4,8 @@ import { IRPCActionType, IRPCType } from '~/utils/enum'
 export default [
   {
     action: IRPCActionType.MANAGE_GET_BUCKET_LIST,
-    handler: async (_: IIPCEvent, args: [currentPicBed: string]) => {
-      return new ManageApi(args[0]).getBucketList()
+    handler: async (_: IIPCEvent, args: [currentPicBed: string, param: IStringKeyMap]) => {
+      return new ManageApi(args[0]).getBucketList(args[1])
     },
     type: IRPCType.INVOKE,
   },

@@ -1,6 +1,8 @@
+import { ipcMain } from 'electron'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import SmmsApi from '../src/main/manage/apis/smms'
+import { listFromProvider, listingIdentity } from './listingTestUtils'
 
 const state = vi.hoisted(() => ({
   request: vi.fn(),
@@ -13,7 +15,10 @@ vi.mock('axios', () => ({ default: { create: () => state.request } }))
 vi.mock('apis/app/window/windowManager', () => ({
   default: { get: () => ({ webContents: { send: state.send } }) },
 }))
-vi.mock('electron', () => ({ ipcMain: { on: state.on, removeAllListeners: state.removeAllListeners } }))
+vi.mock('electron', async () => {
+  const { EventEmitter } = await import('node:events')
+  return { ipcMain: new EventEmitter() }
+})
 vi.mock('~/manage/datastore/upDownTaskQueue', () => ({ default: {} }))
 vi.mock('~/manage/utils/common', () => ({}))
 vi.mock('~/manage/utils/logger', () => ({}))
@@ -55,19 +60,22 @@ function mockPages(pages: ReturnType<typeof history>[]) {
 }
 
 function expectFinished(expectedFiles: ReturnType<typeof files>, success = true) {
-  expect(state.send).toHaveBeenLastCalledWith('refreshFileTransferList', {
-    fullList: expectedFiles.map(file =>
-      expect.objectContaining({
-        key: file.path,
-        fileName: file.filename,
-        sha: file.hash,
-        downloadUrl: file.url,
-      }),
-    ),
-    success,
-    finished: true,
-  })
-  expect(state.removeAllListeners).toHaveBeenCalledWith('cancelLoadingFileList')
+  expect(state.send).toHaveBeenLastCalledWith(
+    'refreshFileTransferList',
+    expect.objectContaining({
+      fullList: expectedFiles.map(file =>
+        expect.objectContaining({
+          key: file.path,
+          fileName: file.filename,
+          sha: file.hash,
+          downloadUrl: file.url,
+        }),
+      ),
+      success,
+      finished: true,
+    }),
+  )
+  expect(ipcMain.listenerCount('cancelLoadingFileList')).toBe(0)
 }
 
 beforeEach(() => {
@@ -82,10 +90,13 @@ describe('S.EE full manager listing', () => {
     )
     mockPages(pages)
 
-    await api.getBucketListBackstage(config)
+    await listFromProvider(api, 'getBucketListBackstage', config, state.send)
 
     expect(state.request.mock.calls).toEqual(
-      pages.map((_, index) => ['/files', { method: 'GET', params: { page: index + 1 } }]),
+      pages.map((_, index) => [
+        '/files',
+        { method: 'GET', signal: expect.any(AbortSignal), params: { page: index + 1 } },
+      ]),
     )
     expectFinished(uploadedFiles)
   })
@@ -98,7 +109,7 @@ describe('S.EE full manager listing', () => {
       history(uploadedFiles.slice(1), { CurrentPage: counter(2), TotalPages: counter(2) }),
     ])
 
-    await api.getBucketListBackstage(config)
+    await listFromProvider(api, 'getBucketListBackstage', config, state.send)
 
     expect(state.request).toHaveBeenCalledTimes(2)
     expectFinished(uploadedFiles)
@@ -107,7 +118,7 @@ describe('S.EE full manager listing', () => {
   it('stops on an empty page even when legacy counters claim more pages', async () => {
     mockPages([history([], { CurrentPage: 1, TotalPages: 2 })])
 
-    await api.getBucketListBackstage(config)
+    await listFromProvider(api, 'getBucketListBackstage', config, state.send)
 
     expect(state.request).toHaveBeenCalledTimes(1)
     expectFinished([])
@@ -117,7 +128,7 @@ describe('S.EE full manager listing', () => {
     const uploadedFiles = files(30)
     mockPages([history(uploadedFiles), history([], { success: false })])
 
-    await api.getBucketListBackstage(config)
+    await listFromProvider(api, 'getBucketListBackstage', config, state.send)
 
     expect(state.request).toHaveBeenCalledTimes(2)
     expectFinished(uploadedFiles, false)
@@ -127,11 +138,10 @@ describe('S.EE full manager listing', () => {
     const uploadedFiles = files(30)
     mockPages([history(uploadedFiles)])
     state.send.mockImplementationOnce(() => {
-      const [, cancel] = state.on.mock.calls[0]
-      cancel({}, config.cancelToken)
+      ipcMain.emit('cancelLoadingFileList', {}, listingIdentity(config))
     })
 
-    await api.getBucketListBackstage(config)
+    await listFromProvider(api, 'getBucketListBackstage', config, state.send)
 
     expect(state.request).toHaveBeenCalledTimes(1)
     expectFinished(uploadedFiles, false)
@@ -150,26 +160,30 @@ describe('S.EE paginated manager listing', () => {
     const listedFiles = []
 
     for (const expectedPage of [1, 2, 3]) {
-      const result = await api.getBucketFileList({ currentPage })
+      const result = await listFromProvider(api, 'getBucketFileList', { currentPage }, state.send)
       expect(result).toMatchObject({
         success: true,
         isTruncated: expectedPage < 3,
         nextMarker: expectedPage + 1,
       })
       listedFiles.push(...result.fullList)
-      currentPage = result.nextMarker
+      currentPage = Number(result.nextMarker)
     }
 
     expect(listedFiles.map(file => file.key)).toEqual(uploadedFiles.map(file => file.path))
-    expect(state.request.mock.calls).toEqual([1, 2, 3].map(page => ['/files', { method: 'GET', params: { page } }]))
+    expect(state.request.mock.calls).toEqual(
+      [1, 2, 3].map(page => ['/files', { method: 'GET', signal: expect.any(AbortSignal), params: { page } }]),
+    )
   })
 
   it('ends an exact full page on the following empty page', async () => {
     mockPages([history(files(30)), history([])])
 
-    const first = await api.getBucketFileList({ currentPage: 1 })
+    const first = await listFromProvider(api, 'getBucketFileList', { currentPage: 1 }, state.send)
     expect(first).toMatchObject({ success: true, isTruncated: true, nextMarker: 2 })
-    expect(await api.getBucketFileList({ currentPage: first.nextMarker })).toEqual({
+    expect(
+      await listFromProvider(api, 'getBucketFileList', { currentPage: first.nextMarker }, state.send),
+    ).toMatchObject({
       fullList: [],
       success: true,
       isTruncated: false,
@@ -185,9 +199,13 @@ describe('S.EE paginated manager listing', () => {
   ])('normalizes requested page %s to %i', async (currentPage, page) => {
     state.request.mockResolvedValue(history(files(30)))
 
-    const result = await api.getBucketFileList({ currentPage })
+    const result = await listFromProvider(api, 'getBucketFileList', { currentPage }, state.send)
 
-    expect(state.request).toHaveBeenCalledWith('/files', { method: 'GET', params: { page } })
+    expect(state.request).toHaveBeenCalledWith('/files', {
+      method: 'GET',
+      signal: expect.any(AbortSignal),
+      params: { page },
+    })
     expect(result).toMatchObject({ success: true, isTruncated: true, nextMarker: page + 1 })
   })
 
@@ -200,7 +218,7 @@ describe('S.EE paginated manager listing', () => {
     const { CurrentPage, TotalPages, count, isTruncated } = metadata
     state.request.mockResolvedValue(history(files(count), { CurrentPage, TotalPages }))
 
-    const result = await api.getBucketFileList({ currentPage: Number(CurrentPage) })
+    const result = await listFromProvider(api, 'getBucketFileList', { currentPage: Number(CurrentPage) }, state.send)
 
     expect(result).toMatchObject({ success: true, isTruncated, nextMarker: Number(CurrentPage) + 1 })
   })
@@ -210,7 +228,7 @@ describe('S.EE paginated manager listing', () => {
     async metadata => {
       state.request.mockResolvedValue(history(files(30), metadata))
 
-      expect(await api.getBucketFileList({ currentPage: 2 })).toMatchObject({
+      expect(await listFromProvider(api, 'getBucketFileList', { currentPage: 2 }, state.send)).toMatchObject({
         success: true,
         isTruncated: true,
         nextMarker: 3,

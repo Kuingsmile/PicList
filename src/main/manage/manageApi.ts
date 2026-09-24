@@ -4,7 +4,6 @@ import path from 'node:path'
 
 import { manageConfigPath } from '@core/datastore/dirs'
 import windowManager from 'apis/app/window/windowManager'
-import { ipcMain } from 'electron'
 import fs from 'fs-extra'
 import { get, set, unset } from 'lodash-es'
 
@@ -13,7 +12,9 @@ import ManageDB from '~/manage/datastore/db'
 import { formatError, isInputConfigValid } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { IWindowList } from '~/utils/enum'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
+
+import { isListingRequest, listingChannels, type ListingRequest } from '../../universal/listing'
+import { runListingRequest } from './listingRequest'
 
 export class ManageApi extends EventEmitter implements IManageApiType {
   private _config!: Partial<IManageConfigType>
@@ -52,8 +53,6 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     'sftp',
   ]
 
-  private readonly FILE_LIST_CLIENTS = ['tcyun', 'aliyun', 'qiniu', 'upyun', 'smms', 's3plist']
-
   constructor(currentPicBed: string = '') {
     super()
     this.currentPicBed = currentPicBed || 'placeholder'
@@ -68,7 +67,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     return {
       class: 'ManageApi',
       method,
-      picbedName: this.currentPicBedConfig.picBedName,
+      picbedName: this.currentPicBedConfig?.picBedName,
     }
   }
 
@@ -169,11 +168,29 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     }
   }
 
-  private sendDefaultResult(eventName: string, defaultResult: any) {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    window?.webContents.send(eventName, defaultResult)
-    ipcMain.removeAllListeners(
-      eventName === refreshDownloadFileTransferList ? cancelDownloadLoadingFileList : 'cancelLoadingFileList',
+  private async executeListing(
+    param: IStringKeyMap | undefined,
+    kind: ListingRequest['kind'],
+    method: string,
+    stream = false,
+  ) {
+    if (!isListingRequest(param) || param.accountId !== this.currentPicBed || param.kind !== kind) {
+      throw new Error('Invalid listing request identity')
+    }
+    const { requestId, accountId, provider, bucketName, prefix } = param
+    const request: ListingRequest = { requestId, accountId, provider, bucketName, prefix, kind }
+    const window = stream ? windowManager.get(IWindowList.SETTING_WINDOW) : undefined
+    return runListingRequest(
+      request,
+      async listing => {
+        if (provider !== this.currentPicBedConfig?.picBedName) throw new Error('Listing account is unavailable')
+        if (kind === 'buckets') return { fullList: await this.listBuckets(), success: true }
+        const client = this.createClient()
+        if (typeof client[method] !== 'function') throw new Error('Unsupported listing operation')
+        return client[method](param, listing)
+      },
+      stream ? result => window?.webContents.send(listingChannels(kind).result, result) : undefined,
+      error => this.errorMsg(error, this.getMsgParam(method)),
     )
   }
 
@@ -240,7 +257,11 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     unset(this.getConfig(key), propName)
   }
 
-  async getBucketList(_?: IStringKeyMap | undefined): Promise<any> {
+  async getBucketList(param?: IStringKeyMap): Promise<any> {
+    return this.executeListing(param, 'buckets', 'getBucketList')
+  }
+
+  private async listBuckets(): Promise<any> {
     const staticBuckets = {
       upyun: [{ Name: this.currentPicBedConfig.bucketName, Location: 'upyun', CreationDate: new Date().toISOString() }],
       smms: [{ Name: 'smms', Location: 'smms', CreationDate: new Date().toISOString() }],
@@ -252,7 +273,10 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     const staticResult = staticBuckets[this.currentPicBedConfig.picBedName as keyof typeof staticBuckets]
     if (staticResult) return staticResult
 
-    return this.executeWithClient(this.BASIC_API_CLIENTS, 'getBucketList', client => client.getBucketList(), [])
+    if (!this.BASIC_API_CLIENTS.includes(this.currentPicBedConfig.picBedName)) {
+      throw new Error('Unsupported listing operation')
+    }
+    return this.createClient().getBucketList()
   }
 
   async getBucketInfo(param?: IStringKeyMap | undefined): Promise<IStringKeyMap | IManageError> {
@@ -309,20 +333,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   }
 
   async getBucketListRecursively(param?: IStringKeyMap): Promise<IStringKeyMap | IManageError> {
-    const defaultResult = { fullList: [], success: false, finished: true }
-
-    try {
-      return await this.executeWithClient(
-        this.ALL_CLIENTS,
-        'getBucketListRecursively',
-        client => client.getBucketListRecursively(param!),
-        defaultResult,
-        { rethrowErrors: true },
-      )
-    } catch (_e: any) {
-      this.sendDefaultResult(refreshDownloadFileTransferList, defaultResult)
-      return {}
-    }
+    return this.executeListing(param, 'download', 'getBucketListRecursively', true)
   }
 
   /**
@@ -331,20 +342,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
    * @returns
    */
   async getBucketListBackstage(param?: IStringKeyMap): Promise<IStringKeyMap | IManageError> {
-    const defaultResult = { fullList: [], success: false, finished: true }
-
-    try {
-      return await this.executeWithClient(
-        this.ALL_CLIENTS,
-        'getBucketListBackstage',
-        client => client.getBucketListBackstage(param!),
-        defaultResult,
-        { rethrowErrors: true },
-      )
-    } catch (_error: any) {
-      this.sendDefaultResult('refreshFileTransferList', defaultResult)
-      return {}
-    }
+    return this.executeListing(param, 'files', 'getBucketListBackstage', true)
   }
 
   /**
@@ -357,13 +355,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
    * fileSize: 文件大小
    **/
   async getBucketFileList(param?: IStringKeyMap): Promise<IStringKeyMap | IManageError> {
-    const defaultResponse = { fullList: [] as any, isTruncated: false, nextMarker: '', success: false }
-    return this.executeWithClient(
-      this.FILE_LIST_CLIENTS,
-      'getBucketFileList',
-      client => client.getBucketFileList(param!),
-      defaultResponse,
-    )
+    return this.executeListing(param, 'files', 'getBucketFileList')
   }
 
   async deleteBucketFile(param?: IStringKeyMap): Promise<boolean> {

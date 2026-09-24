@@ -1,17 +1,16 @@
 import { Agent } from 'node:https'
 import path from 'node:path'
 
-import windowManager from 'apis/app/window/windowManager'
 import axios, { AxiosInstance } from 'axios'
-import { ipcMain, IpcMainEvent } from 'electron'
 import FormData from 'form-data'
 import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import type { ListingContext } from '~/manage/listingRequest'
 import { ConcurrencyPromisePool, formatError, getFileMimeType, gotUpload, NewDownloader } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus, IWindowList } from '~/utils/enum'
+import { commonTaskStatus } from '~/utils/enum'
 
 const FILE_HISTORY_PAGE_SIZE = 30
 
@@ -69,17 +68,8 @@ class SmmsApi {
     return data.length >= FILE_HISTORY_PAGE_SIZE
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    const { cancelToken } = configMap
+  async getBucketListBackstage(_configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     let marker = 1
-    const cancelTask = [false]
-    ipcMain.on('cancelLoadingFileList', (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners('cancelLoadingFileList')
-      }
-    })
     let res: any
     const result = {
       fullList: [] as any,
@@ -87,37 +77,37 @@ class SmmsApi {
       finished: false,
     }
     do {
-      res = await this.axiosInstance('/files', {
-        method: 'GET',
-        params: {
-          page: marker,
-        },
-      })
+      res = await listing.wait(() =>
+        this.axiosInstance('/files', {
+          method: 'GET',
+          signal: listing.signal,
+          params: {
+            page: marker,
+          },
+        }),
+      )
       if (res && res.status === 200 && res.data && res.data.success) {
         if (res.data.data.length === 0) {
           result.success = true
           result.finished = true
-          window?.webContents.send('refreshFileTransferList', result)
-          ipcMain.removeAllListeners('cancelLoadingFileList')
+          listing.publish(result)
           return
         } else {
           res.data.data.forEach((item: any) => {
             result.fullList.push(this.formatFile(item))
           })
-          window?.webContents.send('refreshFileTransferList', result)
+          listing.publish(result)
         }
       } else {
         result.finished = true
-        window?.webContents.send('refreshFileTransferList', result)
-        ipcMain.removeAllListeners('cancelLoadingFileList')
+        listing.publish(result)
         return
       }
       marker++
-    } while (!cancelTask[0] && this.hasMoreFiles(res.data))
-    result.success = !cancelTask[0]
+    } while (!listing.signal.aborted && this.hasMoreFiles(res.data))
+    result.success = !listing.signal.aborted
     result.finished = true
-    window?.webContents.send('refreshFileTransferList', result)
-    ipcMain.removeAllListeners('cancelLoadingFileList')
+    listing.publish(result)
   }
 
   /**
@@ -135,7 +125,7 @@ class SmmsApi {
    *  customUrl: string
    * }
    */
-  async getBucketFileList({ currentPage }: IStringKeyMap): Promise<any> {
+  async getBucketFileList({ currentPage }: IStringKeyMap, listing: ListingContext): Promise<any> {
     const requestedPage = Number(currentPage)
     const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1
     const result = {
@@ -144,12 +134,15 @@ class SmmsApi {
       nextMarker: '',
       success: false,
     }
-    const res = await this.axiosInstance('/files', {
-      method: 'GET',
-      params: {
-        page,
-      },
-    })
+    const res = await listing.wait(() =>
+      this.axiosInstance('/files', {
+        method: 'GET',
+        signal: listing.signal,
+        params: {
+          page,
+        },
+      }),
+    )
     if (res?.status !== 200 || !res?.data?.success) return result
 
     if (res.data.data.length === 0) return { ...result, success: true }

@@ -1,16 +1,14 @@
 import path from 'node:path'
 
-import windowManager from 'apis/app/window/windowManager'
 import COS from 'cos-nodejs-sdk-v5'
-import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import type { ListingContext } from '~/manage/listingRequest'
 import { formatError, getFileMimeType } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { handleUrlEncode, isImage } from '~/utils/common'
-import { commonTaskStatus, downloadTaskSpecialStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
+import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 class TcyunApi {
   ctx: COS
@@ -95,26 +93,17 @@ class TcyunApi {
     return res?.statusCode === 200
   }
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
+  async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
       prefix,
       customUrl,
-      cancelToken,
     } = configMap
     const slicedPrefix = prefix.slice(1, prefix.length)
     const urlPrefix = customUrl || `https://${bucket}.cos.${region}.myqcloud.com`
-    const cancelTask = [false]
-    let marker
+    let marker: string | undefined
 
-    ipcMain.on(cancelDownloadLoadingFileList, (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
-      }
-    })
     const result = {
       fullList: [] as any,
       success: false,
@@ -122,53 +111,44 @@ class TcyunApi {
     }
     let res: COS.GetBucketResult
     do {
-      res = await this.ctx.getBucket({
-        Bucket: bucket,
-        Region: region,
-        Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
-        Marker: marker,
-      })
+      res = await listing.wait(() =>
+        this.ctx.getBucket({
+          Bucket: bucket,
+          Region: region,
+          Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
+          Marker: marker,
+        }),
+      )
       if (res?.statusCode === 200) {
         result.fullList.push(
           ...res.Contents.filter(item => parseInt(item.Size) !== 0).map(item =>
             this.formatFile(item, slicedPrefix, urlPrefix),
           ),
         )
-        window?.webContents.send(refreshDownloadFileTransferList, result)
+        listing.publish(result)
       } else {
         result.finished = true
-        window?.webContents.send(refreshDownloadFileTransferList, result)
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+        listing.publish(result)
         return
       }
       marker = res.NextMarker
-    } while (res.IsTruncated === 'true' && !cancelTask[0])
-    result.success = !cancelTask[0]
+    } while (res.IsTruncated === 'true' && !listing.signal.aborted)
+    result.success = !listing.signal.aborted
     result.finished = true
-    window?.webContents.send(refreshDownloadFileTransferList, result)
-    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+    listing.publish(result)
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
+  async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
       prefix,
       customUrl,
-      cancelToken,
     } = configMap
     const slicedPrefix = prefix.slice(1, prefix.length)
     const urlPrefix = customUrl || `https://${bucket}.cos.${region}.myqcloud.com`
-    const cancelTask = [false]
-    let marker
+    let marker: string | undefined
 
-    ipcMain.on('cancelLoadingFileList', (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners('cancelLoadingFileList')
-      }
-    })
     let res: COS.GetBucketResult
     const result = {
       fullList: [] as any,
@@ -176,13 +156,15 @@ class TcyunApi {
       finished: false,
     }
     do {
-      res = await this.ctx.getBucket({
-        Bucket: bucket,
-        Region: region,
-        Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
-        Delimiter: '/',
-        Marker: marker,
-      })
+      res = await listing.wait(() =>
+        this.ctx.getBucket({
+          Bucket: bucket,
+          Region: region,
+          Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
+          Delimiter: '/',
+          Marker: marker,
+        }),
+      )
       if (res?.statusCode === 200) {
         result.fullList.push(
           ...res.CommonPrefixes.map(item => this.formatFolder(item, slicedPrefix, urlPrefix)),
@@ -190,19 +172,17 @@ class TcyunApi {
             this.formatFile(item, slicedPrefix, urlPrefix),
           ),
         )
-        window?.webContents.send('refreshFileTransferList', result)
+        listing.publish(result)
       } else {
         result.finished = true
-        window?.webContents.send('refreshFileTransferList', result)
-        ipcMain.removeAllListeners('cancelLoadingFileList')
+        listing.publish(result)
         return
       }
       marker = res.NextMarker
-    } while (res.IsTruncated === 'true' && !cancelTask[0])
-    result.success = !cancelTask[0]
+    } while (res.IsTruncated === 'true' && !listing.signal.aborted)
+    result.success = !listing.signal.aborted
     result.finished = true
-    window?.webContents.send('refreshFileTransferList', result)
-    ipcMain.removeAllListeners('cancelLoadingFileList')
+    listing.publish(result)
   }
 
   /**
@@ -220,7 +200,7 @@ class TcyunApi {
    *  customUrl: string
    * }
    */
-  async getBucketFileList(configMap: IStringKeyMap): Promise<any> {
+  async getBucketFileList(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
@@ -231,14 +211,16 @@ class TcyunApi {
     } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = customUrl || `https://${bucket}.cos.${region}.myqcloud.com`
-    const res = (await this.ctx.getBucket({
-      Bucket: bucket,
-      Region: region,
-      Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
-      Delimiter: '/',
-      Marker: marker,
-      MaxKeys: itemsPerPage,
-    })) as COS.GetBucketResult
+    const res = (await listing.wait(() =>
+      this.ctx.getBucket({
+        Bucket: bucket,
+        Region: region,
+        Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
+        Delimiter: '/',
+        Marker: marker,
+        MaxKeys: itemsPerPage,
+      }),
+    )) as COS.GetBucketResult
     if (res?.statusCode !== 200) {
       return {
         fullList: [],

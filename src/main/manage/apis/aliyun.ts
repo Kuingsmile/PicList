@@ -1,12 +1,11 @@
 import path from 'node:path'
 
 import OSS from 'ali-oss'
-import windowManager from 'apis/app/window/windowManager'
 import axios from 'axios'
-import { ipcMain, IpcMainEvent } from 'electron'
 import * as fastxml from 'fast-xml-parser'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import type { ListingContext } from '~/manage/listingRequest'
 import {
   ConcurrencyPromisePool,
   formatError,
@@ -16,8 +15,7 @@ import {
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
+import { commonTaskStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 // 坑爹阿里云 返回数据类型标注和实际各种不一致
 class AliyunApi {
@@ -206,24 +204,15 @@ class AliyunApi {
     return res?.res?.status === 200
   }
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
+  async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
       prefix,
-      cancelToken,
     } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `https://${bucket}.${region}.aliyuncs.com`
-    let marker
-    const cancelTask = [false]
-    ipcMain.on(cancelDownloadLoadingFileList, (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
-      }
-    })
+    let marker: string | undefined
     let res: any
     const result = {
       fullList: [] as any,
@@ -232,53 +221,44 @@ class AliyunApi {
     }
     const client = this.getNewCtx(region, bucket)
     do {
-      res = await client.listV2(
-        {
-          prefix: slicedPrefix === '' ? undefined : slicedPrefix,
-          'max-keys': '1000',
-          'continuation-token': marker,
-        },
-        {
-          timeout: this.timeOut,
-        },
+      res = await listing.wait(() =>
+        client.listV2(
+          {
+            prefix: slicedPrefix === '' ? undefined : slicedPrefix,
+            'max-keys': '1000',
+            'continuation-token': marker,
+          },
+          {
+            timeout: this.timeOut,
+          },
+        ),
       )
       if (res?.res?.statusCode === 200) {
         res?.objects?.forEach((item: OSS.ObjectMeta) => {
           item.size !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
         })
-        window?.webContents.send(refreshDownloadFileTransferList, result)
+        listing.publish(result)
       } else {
         result.finished = true
-        window?.webContents.send(refreshDownloadFileTransferList, result)
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+        listing.publish(result)
         return
       }
       marker = res.nextContinuationToken
-    } while (res.isTruncated === true && !cancelTask[0])
-    result.success = !cancelTask[0]
+    } while (res.isTruncated === true && !listing.signal.aborted)
+    result.success = !listing.signal.aborted
     result.finished = true
-    window?.webContents.send(refreshDownloadFileTransferList, result)
-    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+    listing.publish(result)
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
+  async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
       prefix,
-      cancelToken,
     } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `https://${bucket}.${region}.aliyuncs.com`
-    let marker
-    const cancelTask = [false]
-    ipcMain.on('cancelLoadingFileList', (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners('cancelLoadingFileList')
-      }
-    })
+    let marker: string | undefined
     let res: any
     const result = {
       fullList: [] as any,
@@ -287,16 +267,18 @@ class AliyunApi {
     }
     const client = this.getNewCtx(region, bucket)
     do {
-      res = await client.listV2(
-        {
-          prefix: slicedPrefix === '' ? undefined : slicedPrefix,
-          delimiter: '/',
-          'max-keys': '1000',
-          'continuation-token': marker,
-        },
-        {
-          timeout: this.timeOut,
-        },
+      res = await listing.wait(() =>
+        client.listV2(
+          {
+            prefix: slicedPrefix === '' ? undefined : slicedPrefix,
+            delimiter: '/',
+            'max-keys': '1000',
+            'continuation-token': marker,
+          },
+          {
+            timeout: this.timeOut,
+          },
+        ),
       )
       if (res?.res?.statusCode === 200) {
         res?.prefixes?.forEach((item: string) => {
@@ -305,19 +287,17 @@ class AliyunApi {
         res?.objects?.forEach((item: OSS.ObjectMeta) => {
           item.size !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
         })
-        window?.webContents.send('refreshFileTransferList', result)
+        listing.publish(result)
       } else {
         result.finished = true
-        window?.webContents.send('refreshFileTransferList', result)
-        ipcMain.removeAllListeners('cancelLoadingFileList')
+        listing.publish(result)
         return
       }
       marker = res.nextContinuationToken
-    } while (res.isTruncated === true && !cancelTask[0])
-    result.success = !cancelTask[0]
+    } while (res.isTruncated === true && !listing.signal.aborted)
+    result.success = !listing.signal.aborted
     result.finished = true
-    window?.webContents.send('refreshFileTransferList', result)
-    ipcMain.removeAllListeners('cancelLoadingFileList')
+    listing.publish(result)
   }
 
   /**
@@ -335,7 +315,7 @@ class AliyunApi {
    *  customUrl: string
    * }
    */
-  async getBucketFileList(configMap: IStringKeyMap): Promise<any> {
+  async getBucketFileList(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
@@ -347,16 +327,18 @@ class AliyunApi {
     const urlPrefix = configMap.customUrl || `https://${bucket}.${region}.aliyuncs.com`
 
     const client = this.getNewCtx(region, bucket)
-    const res = (await client.listV2(
-      {
-        prefix: slicedPrefix || undefined,
-        delimiter: '/',
-        'max-keys': itemsPerPage.toString(),
-        'continuation-token': marker,
-      },
-      {
-        timeout: this.timeOut,
-      },
+    const res = (await listing.wait(() =>
+      client.listV2(
+        {
+          prefix: slicedPrefix || undefined,
+          delimiter: '/',
+          'max-keys': itemsPerPage.toString(),
+          'continuation-token': marker,
+        },
+        {
+          timeout: this.timeOut,
+        },
+      ),
     )) as any
     // prefixes can be null
     // objects will be [] when no file

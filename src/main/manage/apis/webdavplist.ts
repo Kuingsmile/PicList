@@ -2,18 +2,16 @@ import http from 'node:http'
 import https from 'node:https'
 import path from 'node:path'
 
-import windowManager from 'apis/app/window/windowManager'
-import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 import { AuthType, createClient, FileStat, ProgressEvent, WebDAVClient, WebDAVClientOptions } from 'webdav'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import type { ListingContext } from '~/manage/listingRequest'
 import { ConcurrencyPromisePool, formatError, getInnerAgent, NewDownloader } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { formatEndpoint, formatHttpProxy, isImage } from '~/utils/common'
 import { getAuthHeader } from '~/utils/digestAuth'
-import { commonTaskStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
+import { commonTaskStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 class WebdavplistApi {
   endpoint: string
@@ -97,27 +95,22 @@ class WebdavplistApi {
 
   isRequestSuccess = (code: number) => code >= 200 && code < 300
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    const { prefix, customUrl, cancelToken } = configMap
+  async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
+    const { prefix, customUrl } = configMap
     const urlPrefix = customUrl || this.endpoint
-    const cancelTask = [false]
-    ipcMain.on(cancelDownloadLoadingFileList, (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
-      }
-    })
     const result = {
       fullList: [] as any,
       success: false,
       finished: false,
     }
     try {
-      const res = (await this.ctx.getDirectoryContents(prefix, {
-        deep: true,
-        details: true,
-      })) as any
+      const res = (await listing.wait(() =>
+        this.ctx.getDirectoryContents(prefix, {
+          deep: true,
+          details: true,
+          signal: listing.signal,
+        }),
+      )) as any
       if (this.isRequestSuccess(res.status)) {
         if (res.data?.length) {
           res.data.forEach((item: FileStat) => {
@@ -129,39 +122,33 @@ class WebdavplistApi {
         result.success = true
       }
     } catch (error) {
-      this.logParam(error, 'getBucketListRecursively')
+      if (!listing.signal.aborted) this.logParam(error, 'getBucketListRecursively')
     }
     result.finished = true
-    window?.webContents.send(refreshDownloadFileTransferList, result)
-    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+    listing.publish(result)
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    const { prefix, customUrl, cancelToken, baseDir } = configMap
+  async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
+    const { prefix, customUrl, baseDir } = configMap
     let urlPrefix = customUrl || this.endpoint
     urlPrefix = urlPrefix.replace(/\/+$/, '')
     let webPath = configMap.webPath || ''
     if (webPath && customUrl && webPath !== '/') {
       webPath = webPath.replace(/^\/+|\/+$/, '')
     }
-    const cancelTask = [false]
-    ipcMain.on('cancelLoadingFileList', (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners('cancelLoadingFileList')
-      }
-    })
     const result = {
       fullList: [] as any,
       success: false,
       finished: false,
     }
     try {
-      const res = (await this.ctx.getDirectoryContents(prefix, {
-        deep: false,
-        details: true,
-      })) as any
+      const res = (await listing.wait(() =>
+        this.ctx.getDirectoryContents(prefix, {
+          deep: false,
+          details: true,
+          signal: listing.signal,
+        }),
+      )) as any
       if (this.isRequestSuccess(res.status)) {
         if (res.data?.length) {
           res.data.forEach((item: FileStat) => {
@@ -177,21 +164,18 @@ class WebdavplistApi {
         }
       } else {
         result.finished = true
-        window?.webContents.send('refreshFileTransferList', result)
-        ipcMain.removeAllListeners('cancelLoadingFileList')
+        listing.publish(result)
         return
       }
     } catch (error) {
-      this.logParam(error, 'getBucketListBackstage')
+      if (!listing.signal.aborted) this.logParam(error, 'getBucketListBackstage')
       result.finished = true
-      window?.webContents.send('refreshFileTransferList', result)
-      ipcMain.removeAllListeners('cancelLoadingFileList')
+      listing.publish(result)
       return
     }
     result.success = true
     result.finished = true
-    window?.webContents.send('refreshFileTransferList', result)
-    ipcMain.removeAllListeners('cancelLoadingFileList')
+    listing.publish(result)
   }
 
   async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {

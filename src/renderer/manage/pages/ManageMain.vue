@@ -271,7 +271,7 @@ import {
   PlusIcon,
   SettingsIcon,
 } from '@lucide/vue'
-import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -288,8 +288,10 @@ import EmptyPage from '@/manage/pages/EmptyPage.vue'
 import ManageSetting from '@/manage/pages/ManageSetting.vue'
 import { useManageStore } from '@/manage/store/manageStore'
 import { getSupportedPicBedList } from '@/manage/utils/constants'
+import { ListingSession } from '@/manage/utils/listingSession'
 import { newBucketConfig } from '@/manage/utils/newBucketConfig'
 import { IRPCActionType } from '@/utils/enum'
+import type { ListingResult } from '#/listing'
 
 const { t } = useI18n()
 const supportedPicBedList = computed(() => getSupportedPicBedList(t))
@@ -299,6 +301,10 @@ const router = useRouter()
 const message = useMessage()
 const currentPageInMain = ref<'bucket' | 'setting' | 'empty'>('empty')
 const configMap = ref<any>(null)
+const bucketListings = new ListingSession(window.electron)
+let unmounted = false
+let refreshTimer: ReturnType<typeof setTimeout> | undefined
+let stopResizing: (() => void) | undefined
 
 const currentAlias = ref(route.query.alias as string)
 const currentPicBedName = ref(route.query.picBedName as string)
@@ -337,7 +343,7 @@ watch(
       await getBucketList()
     }
   },
-  { deep: true },
+  { deep: true, flush: 'sync' },
 )
 
 watch(sidebarWidth, () => {}, { immediate: false })
@@ -395,6 +401,7 @@ function getDomainFromEndpoint(endpoint: string): string {
 }
 
 function createNewBucket(picBedName: string) {
+  const alias = currentAlias.value
   const configOptions = newBucketConfig[picBedName].configOptions
   const resultMap: IStringKeyMap = Object.keys(configOptions).reduce((result, key) => {
     const resultKey = `${picBedName}.${key}`
@@ -411,12 +418,14 @@ function createNewBucket(picBedName: string) {
   }
   resultMap.endpoint = currentPagePicBedConfig.endpoint
   window.electron.triggerRPC(IRPCActionType.MANAGE_CREATE_BUCKET, currentAlias.value, resultMap).then((result: any) => {
+    if (unmounted || alias !== currentAlias.value) return
     if (result) {
       // Show success notification
       message.success(t('pages.manage.main.createSuccess'))
       bucketDrawerVisible.value = false
-      setTimeout(() => {
-        getBucketList()
+      if (refreshTimer) clearTimeout(refreshTimer)
+      refreshTimer = setTimeout(() => {
+        if (!unmounted && alias === currentAlias.value) void getBucketList()
       }, 2000)
     } else {
       // Show error notification
@@ -426,17 +435,40 @@ function createNewBucket(picBedName: string) {
 }
 
 async function getBucketList() {
+  if (unmounted) return
+  const request = bucketListings.begin({
+    accountId: currentAlias.value,
+    provider: currentPicBedName.value,
+    bucketName: '',
+    prefix: '',
+    kind: 'buckets',
+  })
+  // Unmount the previous account's file consumer as soon as the account changes.
+  if (configMap.value?.alias !== request.accountId) {
+    currentPageInMain.value = 'empty'
+    configMap.value = null
+    currentSelectedBucket.value = ''
+  }
   bucketList.value = {}
   bucketNameList.value = []
   isLoadingBucketList.value = true
 
-  const result = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_GET_BUCKET_LIST, currentAlias.value)
-  isLoadingBucketList.value = false
-  if (result.length > 0) {
-    result.forEach((item: any) => {
+  try {
+    const result = await window.electron.triggerRPC<ListingResult>(
+      IRPCActionType.MANAGE_GET_BUCKET_LIST,
+      request.accountId,
+      request,
+    )
+    if (!result) throw new Error('Missing listing response')
+    if (!bucketListings.accept(request, result)) return
+    result.fullList.forEach((item: any) => {
       bucketList.value[item.Name] = item
       bucketNameList.value.push(item.Name)
     })
+  } catch {
+    if (bucketListings.isCurrent(request)) bucketListings.complete(request)
+  } finally {
+    if (bucketListings.isCurrent(request)) isLoadingBucketList.value = false
   }
 }
 
@@ -522,6 +554,7 @@ function openSettingPage() {
 }
 
 function startResize(event: MouseEvent) {
+  stopResizing?.()
   isResizing.value = true
   const startX = event.clientX
   const startWidth = sidebarWidth.value
@@ -544,11 +577,19 @@ function startResize(event: MouseEvent) {
 
   document.addEventListener('mousemove', handleMouseMove)
   document.addEventListener('mouseup', handleMouseUp)
+  stopResizing = handleMouseUp
   document.body.style.cursor = 'col-resize'
   document.body.style.userSelect = 'none'
 }
 
 onBeforeMount(() => {
   getBucketList()
+})
+
+onBeforeUnmount(() => {
+  unmounted = true
+  bucketListings.dispose()
+  if (refreshTimer) clearTimeout(refreshTimer)
+  stopResizing?.()
 })
 </script>

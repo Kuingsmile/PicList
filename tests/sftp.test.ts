@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import SftpApi from '../src/main/manage/apis/sftp'
 import { downloadTaskSpecialStatus } from '../src/main/utils/enum'
 import SSHClient, { quoteShellArgument } from '../src/main/utils/sshClient'
+import { listFromProvider, listingIdentity } from './listingTestUtils'
 
 const ssh = vi.hoisted(() => ({
   connect: vi.fn(),
@@ -123,7 +124,12 @@ describe('SFTP command arguments', () => {
   })
 
   it('quotes listing prefixes and rejects null bytes before running commands', async () => {
-    await api.getBucketListBackstage({ prefix: "-album's $(printf test)", baseDir: '/' })
+    await listFromProvider(
+      api,
+      'getBucketListBackstage',
+      { prefix: "-album's $(printf test)", baseDir: '/' },
+      state.send,
+    )
     expect(ssh.execCommand).toHaveBeenCalledWith("cd -- '-album'\\''s $(printf test)' && ls -la --time-style=long-iso")
     ssh.execCommand.mockClear()
     expect(await api.deleteBucketFile({ key: 'bad\0file' })).toBe(false)
@@ -154,13 +160,15 @@ function mockDirectories(directories: Record<string, FileEntry[]>) {
 }
 
 function expectDownloadFiles(keys: string[]) {
-  expect(state.send).toHaveBeenCalledOnce()
-  expect(state.send).toHaveBeenCalledWith('refreshDownloadFileTransferList', {
-    fullList: expect.any(Array),
-    success: true,
-    finished: true,
-  })
-  const { fullList } = state.send.mock.calls[0][1]
+  expect(state.send).toHaveBeenLastCalledWith(
+    'refreshDownloadFileTransferList',
+    expect.objectContaining({
+      fullList: expect.any(Array),
+      success: true,
+      finished: true,
+    }),
+  )
+  const { fullList } = state.send.mock.calls.at(-1)![1]
   expect(fullList).toHaveLength(keys.length)
   expect(fullList).toEqual(
     expect.arrayContaining(
@@ -179,7 +187,7 @@ describe('SFTP recursive folder downloads', () => {
       '/album/sibling': [entry('nested.png')],
     })
 
-    await api.getBucketListRecursively({ ...downloadConfig, prefix })
+    await listFromProvider(api, 'getBucketListRecursively', { ...downloadConfig, prefix }, state.send)
 
     expectDownloadFiles([
       'album/direct.png',
@@ -200,10 +208,10 @@ describe('SFTP recursive folder downloads', () => {
     const filename = 'two  spaces\t雪\n`photo`; &.png'
     mockDirectories({ [`/${directory}`]: [folder('.hidden')], [`/${directory}/.hidden`]: [entry(filename)] })
 
-    await api.getBucketListRecursively({ ...downloadConfig, prefix: `/${directory}` })
+    await listFromProvider(api, 'getBucketListRecursively', { ...downloadConfig, prefix: `/${directory}` }, state.send)
 
     expectDownloadFiles([`${directory}/.hidden/${filename}`])
-    expect(state.send.mock.calls[0][1].fullList[0]).toMatchObject({
+    expect(state.send.mock.calls.at(-1)![1].fullList[0]).toMatchObject({
       fileSize: 123,
       mtime: new Date(1700000000000).toISOString(),
     })
@@ -211,7 +219,7 @@ describe('SFTP recursive folder downloads', () => {
   })
 
   it('finishes an empty directory successfully', async () => {
-    await api.getBucketListRecursively(downloadConfig)
+    await listFromProvider(api, 'getBucketListRecursively', downloadConfig, state.send)
 
     expectDownloadFiles([])
     expect(ssh.dispose).toHaveBeenCalledOnce()
@@ -230,7 +238,7 @@ describe('SFTP recursive folder downloads', () => {
       '/child': [entry('nested.png')],
     })
 
-    await api.getBucketListRecursively({ ...downloadConfig, prefix: '/' })
+    await listFromProvider(api, 'getBucketListRecursively', { ...downloadConfig, prefix: '/' }, state.send)
 
     expectDownloadFiles(['direct.png', 'child/nested.png'])
     expect(ssh.readdir).toHaveBeenCalledTimes(2)
@@ -238,7 +246,7 @@ describe('SFTP recursive folder downloads', () => {
 
   it('creates local parent directories and queues every file with the folder caller path convention', async () => {
     mockDirectories({ '/album': [entry('direct.png'), folder('child')], '/album/child': [entry('nested.png')] })
-    await api.getBucketListRecursively(downloadConfig)
+    await listFromProvider(api, 'getBucketListRecursively', downloadConfig, state.send)
     const files = expectDownloadFiles(['album/direct.png', 'album/child/nested.png'])
     const downloadPath = path.resolve('downloads')
     const fileArray = files.map(({ key }) => ({
@@ -287,18 +295,21 @@ describe('SFTP recursive folder downloads', () => {
       started()
     })
 
-    const scan = api.getBucketListRecursively(downloadConfig)
+    const scan = listFromProvider(api, 'getBucketListRecursively', downloadConfig, state.send)
     await reading
-    ipcMain.emit('cancelDownloadLoadingFileList', {}, downloadConfig.cancelToken)
+    ipcMain.emit('cancelDownloadLoadingFileList', {}, listingIdentity(downloadConfig, 'download'))
     completeRead(undefined, [folder('grandchild'), entry('nested.png')])
     await scan
 
     expect(ssh.readdir).toHaveBeenCalledTimes(2)
-    expect(state.send).toHaveBeenCalledWith('refreshDownloadFileTransferList', {
-      fullList: [expect.objectContaining({ key: 'album/direct.png' })],
-      success: false,
-      finished: true,
-    })
+    expect(state.send).toHaveBeenCalledWith(
+      'refreshDownloadFileTransferList',
+      expect.objectContaining({
+        fullList: [expect.objectContaining({ key: 'album/direct.png' })],
+        success: false,
+        finished: true,
+      }),
+    )
     expect(ssh.endSFTP).toHaveBeenCalledTimes(2)
     expect(ssh.dispose).toHaveBeenCalledOnce()
     expect(ipcMain.listeners('cancelDownloadLoadingFileList')).toEqual([otherListener])
@@ -306,17 +317,20 @@ describe('SFTP recursive folder downloads', () => {
 
   it('checks cancellation before starting the first directory read', async () => {
     ssh.connect.mockImplementationOnce(async () => {
-      ipcMain.emit('cancelDownloadLoadingFileList', {}, downloadConfig.cancelToken)
+      ipcMain.emit('cancelDownloadLoadingFileList', {}, listingIdentity(downloadConfig, 'download'))
     })
 
-    await api.getBucketListRecursively(downloadConfig)
+    await listFromProvider(api, 'getBucketListRecursively', downloadConfig, state.send)
 
     expect(ssh.readdir).not.toHaveBeenCalled()
-    expect(state.send).toHaveBeenCalledWith('refreshDownloadFileTransferList', {
-      fullList: [],
-      success: false,
-      finished: true,
-    })
+    expect(state.send).toHaveBeenCalledWith(
+      'refreshDownloadFileTransferList',
+      expect.objectContaining({
+        fullList: [],
+        success: false,
+        finished: true,
+      }),
+    )
     expect(ssh.dispose).toHaveBeenCalledOnce()
     expect(ipcMain.listenerCount('cancelDownloadLoadingFileList')).toBe(0)
   })
@@ -327,7 +341,7 @@ describe('SFTP recursive folder downloads', () => {
       ipcMain.emit('cancelDownloadLoadingFileList', {}, 'another-download')
     })
 
-    await api.getBucketListRecursively(downloadConfig)
+    await listFromProvider(api, 'getBucketListRecursively', downloadConfig, state.send)
 
     expectDownloadFiles(['album/child/nested.png'])
   })
@@ -341,13 +355,16 @@ describe('SFTP recursive folder downloads', () => {
         ssh[stage].mockRejectedValueOnce(new Error('Connection failed'))
       }
 
-      await api.getBucketListRecursively(downloadConfig)
+      await listFromProvider(api, 'getBucketListRecursively', downloadConfig, state.send)
 
-      expect(state.send).toHaveBeenCalledWith('refreshDownloadFileTransferList', {
-        fullList: [],
-        success: false,
-        finished: true,
-      })
+      expect(state.send).toHaveBeenCalledWith(
+        'refreshDownloadFileTransferList',
+        expect.objectContaining({
+          fullList: [],
+          success: false,
+          finished: true,
+        }),
+      )
       expect(ssh.dispose).toHaveBeenCalledOnce()
       expect(ssh.endSFTP).toHaveBeenCalledTimes(stage === 'readdir' ? 1 : 0)
       expect(ipcMain.listenerCount('cancelDownloadLoadingFileList')).toBe(0)
@@ -359,13 +376,16 @@ describe('SFTP recursive folder downloads', () => {
       .mockImplementationOnce((_remote, callback) => callback(undefined, [entry('direct.png'), folder('child')]))
       .mockImplementationOnce((_remote, callback) => callback(new Error('Permission denied')))
 
-    await api.getBucketListRecursively(downloadConfig)
+    await listFromProvider(api, 'getBucketListRecursively', downloadConfig, state.send)
 
-    expect(state.send).toHaveBeenCalledWith('refreshDownloadFileTransferList', {
-      fullList: [expect.objectContaining({ key: 'album/direct.png' })],
-      success: false,
-      finished: true,
-    })
+    expect(state.send).toHaveBeenCalledWith(
+      'refreshDownloadFileTransferList',
+      expect.objectContaining({
+        fullList: [expect.objectContaining({ key: 'album/direct.png' })],
+        success: false,
+        finished: true,
+      }),
+    )
     expect(ssh.endSFTP).toHaveBeenCalledTimes(2)
     expect(ssh.dispose).toHaveBeenCalledOnce()
     expect(ipcMain.listenerCount('cancelDownloadLoadingFileList')).toBe(0)

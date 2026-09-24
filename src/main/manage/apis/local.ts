@@ -1,16 +1,13 @@
 import path from 'node:path'
 
-import * as fsWalk from '@nodelib/fs.walk'
-import windowManager from 'apis/app/window/windowManager'
-import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import type { ListingContext } from '~/manage/listingRequest'
 import { formatError } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus, downloadTaskSpecialStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
+import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 class LocalApi {
   logger: ManageLogger
@@ -73,48 +70,46 @@ class LocalApi {
     }
   }
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    const { prefix, customUrl = '', cancelToken } = configMap
+  async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
+    const { prefix, customUrl = '' } = configMap
     const urlPrefix = customUrl.replace(/\/+$/, '')
-    const cancelTask = [false]
-    ipcMain.on(cancelDownloadLoadingFileList, (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
-      }
-    })
     const result = {
       fullList: [] as any,
       success: false,
       finished: false,
     }
     try {
-      const res = fsWalk.walkSync(this.transBack(prefix), {
-        followSymbolicLinks: true,
-        fs,
-        stats: true,
-        throwErrorOnBrokenSymbolicLink: false,
-      })
-      if (res.length) {
-        result.fullList.push(
-          ...res
-            .filter((item: fsWalk.Entry) => item.stats?.isFile())
-            .map((item: any) => this.formatFile(item, urlPrefix, item.name, item.path, true)),
-        )
-        result.success = true
+      const directories = [this.transBack(prefix)]
+      const visited = new Set<string>()
+      while (directories.length) {
+        const directory = directories.pop()!
+        const realPath = await listing.wait(() => fs.realpath(directory))
+        if (visited.has(realPath)) continue
+        visited.add(realPath)
+        const entries = await listing.wait(() => fs.readdir(directory, { withFileTypes: true }))
+        for (const entry of entries) {
+          const filePath = path.join(directory, entry.name)
+          const stats = await listing.wait(() =>
+            fs.stat(filePath).catch(error => {
+              if (entry.isSymbolicLink() && error.code === 'ENOENT') return undefined
+              throw error
+            }),
+          )
+          if (stats?.isDirectory()) directories.push(filePath)
+          else if (stats?.isFile()) result.fullList.push(this.formatFile(stats, urlPrefix, entry.name, filePath, true))
+        }
+        listing.publish(result)
       }
+      result.success = true
     } catch (error) {
-      this.logParam(error, 'getBucketListRecursively')
+      if (!listing.signal.aborted) this.logParam(error, 'getBucketListRecursively')
     }
     result.finished = true
-    window?.webContents.send(refreshDownloadFileTransferList, result)
-    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+    listing.publish(result)
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    const { customUrl = '', cancelToken, baseDir } = configMap
+  async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
+    const { customUrl = '', baseDir } = configMap
     let prefix = configMap.prefix
     prefix = this.transBack(prefix)
     const urlPrefix = customUrl.replace(/\/+$/, '')
@@ -123,25 +118,20 @@ class LocalApi {
       webPath = webPath.replace(/^\/+|\/+$/, '')
     }
 
-    const cancelTask = [false]
-    ipcMain.on('cancelLoadingFileList', (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners('cancelLoadingFileList')
-      }
-    })
     const result = {
       fullList: [] as any,
       success: false,
       finished: false,
     }
     try {
-      const res = await fs.readdir(prefix, {
-        withFileTypes: true,
-      })
+      const res = await listing.wait(() =>
+        fs.readdir(prefix, {
+          withFileTypes: true,
+        }),
+      )
       if (res.length) {
         let urlPrefixF
-        res.forEach((item: fs.Dirent) => {
+        for (const item of res) {
           const pathOfFile = path.join(prefix, item.name)
           let relative
           if (customUrl) {
@@ -151,21 +141,20 @@ class LocalApi {
           } else {
             urlPrefixF = pathOfFile
           }
-          const stats = fs.statSync(pathOfFile)
+          const stats = await listing.wait(() => fs.stat(pathOfFile))
           if (item.isDirectory()) {
             result.fullList.push(this.formatFolder(stats, urlPrefixF, item.name, pathOfFile))
           } else {
             result.fullList.push(this.formatFile(stats, urlPrefixF, item.name, pathOfFile))
           }
-        })
-        result.success = true
+        }
       }
+      result.success = true
     } catch (error) {
-      this.logParam(error, 'getBucketListBackstage')
+      if (!listing.signal.aborted) this.logParam(error, 'getBucketListBackstage')
     }
     result.finished = true
-    window?.webContents.send('refreshFileTransferList', result)
-    ipcMain.removeAllListeners('cancelLoadingFileList')
+    listing.publish(result)
   }
 
   async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {

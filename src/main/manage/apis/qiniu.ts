@@ -1,11 +1,10 @@
 import path from 'node:path'
 
-import windowManager from 'apis/app/window/windowManager'
 import axios from 'axios'
-import { ipcMain, IpcMainEvent } from 'electron'
 import qiniu from 'qiniu'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import type { ListingContext } from '~/manage/listingRequest'
 import {
   ConcurrencyPromisePool,
   formatError,
@@ -15,8 +14,7 @@ import {
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
+import { commonTaskStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 class QiniuApi {
   mac: qiniu.auth.digest.Mac
@@ -234,18 +232,10 @@ class QiniuApi {
       : false
   }
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    const { bucketName: bucket, prefix, cancelToken, customUrl: urlPrefix } = configMap
+  async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
+    const { bucketName: bucket, prefix, customUrl: urlPrefix } = configMap
     let marker = undefined as any
     const slicedPrefix = prefix.slice(1)
-    const cancelTask = [false]
-    ipcMain.on(cancelDownloadLoadingFileList, (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
-      }
-    })
     let res: any
     const result = {
       fullList: [] as any,
@@ -255,59 +245,52 @@ class QiniuApi {
     const config = new qiniu.conf.Config()
     const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
     do {
-      res = await new Promise((resolve, reject) => {
-        bucketManager.listPrefix(
-          bucket,
-          {
-            prefix: slicedPrefix === '' ? undefined : slicedPrefix,
-            marker,
-            limit: 1000,
-          },
-          (err: any, respBody: any, respInfo: any) => {
-            if (err) {
-              reject(err)
-            } else {
-              resolve({
-                respBody,
-                respInfo,
-              })
-            }
-          },
-        )
-      })
+      res = await listing.wait(
+        () =>
+          new Promise((resolve, reject) => {
+            bucketManager.listPrefix(
+              bucket,
+              {
+                prefix: slicedPrefix === '' ? undefined : slicedPrefix,
+                marker,
+                limit: 1000,
+              },
+              (err: any, respBody: any, respInfo: any) => {
+                if (err) {
+                  reject(err)
+                } else {
+                  resolve({
+                    respBody,
+                    respInfo,
+                  })
+                }
+              },
+            )
+          }),
+      )
       if (res && res.respInfo.statusCode === 200) {
         res.respBody &&
           res.respBody.items &&
           res.respBody.items.forEach((item: any) => {
             item.fsize !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           })
-        window?.webContents.send(refreshDownloadFileTransferList, result)
+        listing.publish(result)
       } else {
         result.finished = true
-        window?.webContents.send(refreshDownloadFileTransferList, result)
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+        listing.publish(result)
         return
       }
       marker = res.respBody.marker
-    } while (res.respBody && res.respBody.marker && !cancelTask[0])
-    result.success = !cancelTask[0]
+    } while (res.respBody && res.respBody.marker && !listing.signal.aborted)
+    result.success = !listing.signal.aborted
     result.finished = true
-    window?.webContents.send(refreshDownloadFileTransferList, result)
-    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+    listing.publish(result)
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    const { bucketName: bucket, prefix, cancelToken, customUrl: urlPrefix } = configMap
+  async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
+    const { bucketName: bucket, prefix, customUrl: urlPrefix } = configMap
     let marker = undefined as any
     const slicedPrefix = prefix.slice(1)
-    const cancelTask = [false]
-    ipcMain.on('cancelLoadingFileList', (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners('cancelLoadingFileList')
-      }
-    })
     let res: any
     const result = {
       fullList: [] as any,
@@ -317,27 +300,30 @@ class QiniuApi {
     const config = new qiniu.conf.Config()
     const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
     do {
-      res = await new Promise((resolve, reject) => {
-        bucketManager.listPrefix(
-          bucket,
-          {
-            prefix: slicedPrefix === '' ? undefined : slicedPrefix,
-            delimiter: '/',
-            marker,
-            limit: 1000,
-          },
-          (err: any, respBody: any, respInfo: any) => {
-            if (err) {
-              reject(err)
-            } else {
-              resolve({
-                respBody,
-                respInfo,
-              })
-            }
-          },
-        )
-      })
+      res = await listing.wait(
+        () =>
+          new Promise((resolve, reject) => {
+            bucketManager.listPrefix(
+              bucket,
+              {
+                prefix: slicedPrefix === '' ? undefined : slicedPrefix,
+                delimiter: '/',
+                marker,
+                limit: 1000,
+              },
+              (err: any, respBody: any, respInfo: any) => {
+                if (err) {
+                  reject(err)
+                } else {
+                  resolve({
+                    respBody,
+                    respInfo,
+                  })
+                }
+              },
+            )
+          }),
+      )
       if (res && res.respInfo.statusCode === 200) {
         res.respBody &&
           res.respBody.commonPrefixes &&
@@ -349,19 +335,17 @@ class QiniuApi {
           res.respBody.items.forEach((item: any) => {
             item.fsize !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           })
-        window?.webContents.send('refreshFileTransferList', result)
+        listing.publish(result)
       } else {
         result.finished = true
-        window?.webContents.send('refreshFileTransferList', result)
-        ipcMain.removeAllListeners('cancelLoadingFileList')
+        listing.publish(result)
         return
       }
       marker = res.respBody.marker
-    } while (res.respBody && res.respBody.marker && !cancelTask[0])
-    result.success = !cancelTask[0]
+    } while (res.respBody && res.respBody.marker && !listing.signal.aborted)
+    result.success = !listing.signal.aborted
     result.finished = true
-    window?.webContents.send('refreshFileTransferList', result)
-    ipcMain.removeAllListeners('cancelLoadingFileList')
+    listing.publish(result)
   }
 
   /**
@@ -379,7 +363,7 @@ class QiniuApi {
    *  customUrl: string
    * }
    */
-  async getBucketFileList(configMap: IStringKeyMap): Promise<any> {
+  async getBucketFileList(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const { bucketName: bucket, prefix, marker, itemsPerPage, customUrl: urlPrefix } = configMap
     const slicedPrefix = prefix.slice(1)
     const config = new qiniu.conf.Config()
@@ -390,27 +374,30 @@ class QiniuApi {
       nextMarker: '',
       success: false,
     }
-    const res = (await new Promise((resolve, reject) => {
-      bucketManager.listPrefix(
-        bucket,
-        {
-          limit: itemsPerPage,
-          prefix: slicedPrefix === '' ? undefined : slicedPrefix,
-          marker,
-          delimiter: '/',
-        },
-        (err, respBody, respInfo) => {
-          if (err) {
-            reject(err)
-          } else {
-            resolve({
-              respBody,
-              respInfo,
-            })
-          }
-        },
-      )
-    })) as any
+    const res = (await listing.wait(
+      () =>
+        new Promise((resolve, reject) => {
+          bucketManager.listPrefix(
+            bucket,
+            {
+              limit: itemsPerPage,
+              prefix: slicedPrefix === '' ? undefined : slicedPrefix,
+              marker,
+              delimiter: '/',
+            },
+            (err, respBody, respInfo) => {
+              if (err) {
+                reject(err)
+              } else {
+                resolve({
+                  respBody,
+                  respInfo,
+                })
+              }
+            },
+          )
+        }),
+    )) as any
     if (res?.respInfo?.statusCode === 200) {
       if (res.respBody?.commonPrefixes) {
         res.respBody.commonPrefixes.forEach((item: string) => {

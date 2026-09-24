@@ -5,11 +5,11 @@ import { runInNewContext } from 'node:vm'
 
 import ts from 'typescript'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
 import { parse } from 'vue/compiler-sfc'
 
 import { fileCacheDbInstance } from '../src/renderer/manage/store/bucketFileDb'
 import { IRPCActionType } from '../src/renderer/utils/enum'
+import { createBucketHarness } from './bucketPageHarness'
 
 const cacheKey = 'cache-test@bucket@/'
 const cachedRecord = { key: cacheKey, value: { fullList: [{ key: 'cached.png', fileName: 'cached.png' }] } }
@@ -43,75 +43,11 @@ function createSettings() {
   return { ...actions, message, getIndexDbSize }
 }
 
+const mounted: ReturnType<typeof createBucketHarness>[] = []
 function createBucket() {
-  const state = {
-    isAutoRefresh: ref(false),
-    paging: ref(false),
-    isLoadingData: ref(false),
-    isLoadingDownloadData: ref(false),
-    isShowLoadingPage: ref(true),
-    cancelToken: ref(''),
-    downloadCancelToken: ref(''),
-    pagingMarker: ref(''),
-    currentPrefix: ref('/'),
-    currentPageNumber: ref(1),
-    itemsPerPage: ref(50),
-    searchText: ref(''),
-    urlToUpload: ref(''),
-    dialogVisible: ref(false),
-    isShowImagePreview: ref(false),
-    previewedImage: ref(''),
-    isShowFileInfo: ref(false),
-    isShowCreateFolderDialog: ref(false),
-    newFolderName: ref(''),
-    lastChoosed: ref(-1),
-    fileSortExtReverse: ref(false),
-    fileSortNameReverse: ref(false),
-    fileSortSizeReverse: ref(false),
-    fileSortTimeReverse: ref(false),
-    currentPicBedName: ref('aliyun'),
-    currentCustomDomain: ref('https://example.invalid'),
-    configMap: ref({ alias: 'cache-test', bucketName: 'bucket', bucketConfig: { Location: 'test' }, prefix: '/' }),
-    currentPageFilesInfo: [] as typeof remoteFiles,
-    currentDownloadFileList: [],
-    pagingMarkerStack: [],
-  }
-  const message = { info: vi.fn(), success: vi.fn(), error: vi.fn() }
-  const sendRPC = vi.fn()
-  const getBucketFileList = vi.fn().mockResolvedValue({ success: true, fullList: remoteFiles })
-  const warn = vi.fn()
-  const clearInterval = vi.fn()
-  let tick = () => {}
-  const actions = loadActions(
-    'BucketPage',
-    ['resetParam', 'searchExistFileList', 'cacheFileList', 'getTableKeyOfDb', 'getBucketFileListBackStage'],
-    {
-      ...state,
-      fileCacheDbInstance,
-      IRPCActionType,
-      message,
-      getBucketFileList,
-      sortFile: vi.fn(),
-      t: (key: string) => key,
-      uuidv4: () => 'listing-test',
-      window: { electron: { sendRPC, sendToMain: vi.fn(), ipcRendererOn: vi.fn() } },
-      localStorage: { getItem: () => null },
-      console: { warn },
-      useFileTransferStore: () => ({
-        resetFileTransferList: vi.fn(),
-        getFileTransferList: () => remoteFiles,
-        isFinished: () => true,
-        isSuccess: () => true,
-      }),
-      fileTransferInterval: undefined,
-      setInterval: (callback: () => void) => {
-        tick = callback
-        return 1
-      },
-      clearInterval,
-    },
-  ) as { resetParam: (force?: boolean) => Promise<void> }
-  return { ...actions, ...state, message, sendRPC, getBucketFileList, warn, clearInterval, tick: () => tick() }
+  const page = createBucketHarness({ cache: fileCacheDbInstance, remoteFiles })
+  mounted.push(page)
+  return { ...page, tick: () => page.emit(page.fileListings.request!) }
 }
 
 beforeEach(async () => {
@@ -120,6 +56,7 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
+  for (const page of mounted.splice(0)) page.app.unmount()
   vi.restoreAllMocks()
   await fileCacheDbInstance.open()
   await fileCacheDbInstance.transaction('rw', fileCacheDbInstance.tables, () =>
@@ -230,7 +167,7 @@ describe('optional bucket cache failures', () => {
 
     expect(page.currentPageFilesInfo).toEqual(remoteFiles)
     expect(page.isLoadingData.value).toBe(false)
-    expect(page.clearInterval).toHaveBeenCalledExactlyOnceWith(1)
+    expect(page.events.listenerCount('refreshFileTransferList')).toBe(0)
     expect(page.message.success).toHaveBeenCalledExactlyOnceWith('pages.manage.bucket.getFileListSuccess')
     expect(page.message.error).not.toHaveBeenCalled()
   })
@@ -247,7 +184,11 @@ describe('optional bucket cache failures', () => {
 
       expect(page.warn).not.toHaveBeenCalled()
       if (page.paging.value) {
-        expect(page.getBucketFileList).toHaveBeenCalledOnce()
+        expect(page.triggerRPC).toHaveBeenCalledWith(
+          IRPCActionType.MANAGE_GET_BUCKET_FILE_LIST,
+          'cache-test',
+          expect.objectContaining({ kind: 'files' }),
+        )
         expect(page.currentPageFilesInfo).toEqual(remoteFiles)
       } else {
         expect(page.sendRPC).toHaveBeenCalledOnce()

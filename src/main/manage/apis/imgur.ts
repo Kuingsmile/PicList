@@ -1,12 +1,11 @@
 import path from 'node:path'
 
-import windowManager from 'apis/app/window/windowManager'
-import { ipcMain, IpcMainEvent } from 'electron'
 import FormData from 'form-data'
 import fs from 'fs-extra'
 import got from 'got'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import type { ListingContext } from '~/manage/listingRequest'
 import {
   ConcurrencyPromisePool,
   formatError,
@@ -18,7 +17,7 @@ import {
 } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { formatHttpProxy, isImage } from '~/utils/common'
-import { commonTaskStatus, IWindowList } from '~/utils/enum'
+import { commonTaskStatus } from '~/utils/enum'
 
 class ImgurApi {
   userName: string
@@ -92,19 +91,10 @@ class ImgurApi {
     return finalResult
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
+  async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const {
       bucketConfig: { Location: albumHash },
-      cancelToken,
     } = configMap
-    const cancelTask = [false]
-    ipcMain.on('cancelLoadingFileList', (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners('cancelLoadingFileList')
-      }
-    })
     let res: any
     const result = {
       fullList: [] as any,
@@ -112,9 +102,11 @@ class ImgurApi {
       finished: false,
     }
     if (albumHash !== 'unclassified') {
-      res = (await got(
-        `${this.baseUrl}/account/${this.userName}/album/${albumHash}`,
-        getOptions('GET', this.tokenHeaders, undefined, 'json', undefined, undefined, this.proxy),
+      res = (await listing.wait(() =>
+        got(`${this.baseUrl}/account/${this.userName}/album/${albumHash}`, {
+          ...getOptions('GET', this.tokenHeaders, undefined, 'json', undefined, undefined, this.proxy),
+          signal: listing.signal,
+        }),
       )) as any
       if (res.statusCode === 200 && res.body.success) {
         res.body.data.images.forEach((item: any) => {
@@ -122,16 +114,17 @@ class ImgurApi {
         })
       } else {
         result.finished = true
-        window?.webContents.send('refreshFileTransferList', result)
-        ipcMain.removeAllListeners('cancelLoadingFileList')
+        listing.publish(result)
         return
       }
     } else {
       let initPage = 0
       do {
-        res = (await got(
-          `${this.baseUrl}/account/${this.userName}/images/${initPage}`,
-          getOptions('GET', this.tokenHeaders, undefined, 'json', undefined, undefined, this.proxy),
+        res = (await listing.wait(() =>
+          got(`${this.baseUrl}/account/${this.userName}/images/${initPage}`, {
+            ...getOptions('GET', this.tokenHeaders, undefined, 'json', undefined, undefined, this.proxy),
+            signal: listing.signal,
+          }),
         )) as any
         if (res.statusCode === 200 && res.body.success) {
           res.body.data.forEach((item: any) => {
@@ -139,17 +132,15 @@ class ImgurApi {
           })
         } else {
           result.finished = true
-          window?.webContents.send('refreshFileTransferList', result)
-          ipcMain.removeAllListeners('cancelLoadingFileList')
+          listing.publish(result)
           return
         }
         initPage++
-      } while (res.body.data.length > 0 && !cancelTask[0])
+      } while (res.body.data.length > 0 && !listing.signal.aborted)
     }
-    result.success = !cancelTask[0]
+    result.success = !listing.signal.aborted
     result.finished = true
-    window?.webContents.send('refreshFileTransferList', result)
-    ipcMain.removeAllListeners('cancelLoadingFileList')
+    listing.publish(result)
   }
 
   async deleteBucketFile(configMap: IStringKeyMap): Promise<boolean> {

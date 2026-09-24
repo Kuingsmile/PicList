@@ -1,17 +1,15 @@
 import { constants } from 'node:fs'
 import path from 'node:path'
 
-import windowManager from 'apis/app/window/windowManager'
-import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import type { ListingContext } from '~/manage/listingRequest'
 import { formatError } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus, downloadTaskSpecialStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
+import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 import SSHClient, { quoteShellArgument } from '~/utils/sshClient'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
 
 interface listDirResult {
   permissions: string
@@ -138,73 +136,75 @@ class SftpApi {
 
   isRequestSuccess = (code: number | null) => code === 0
 
-  private async withClient<T>(action: (client: SSHClient) => Promise<T>): Promise<T> {
+  private async withClient<T>(action: (client: SSHClient) => Promise<T>, signal?: AbortSignal): Promise<T> {
     const client = new SSHClient()
+    let closed = false
+    const close = () => {
+      if (!closed) client.close()
+      closed = true
+    }
+    signal?.addEventListener('abort', close, { once: true })
     try {
+      signal?.throwIfAborted()
       await client.connect(this.config)
+      signal?.throwIfAborted()
       if (!client.isConnected) {
         throw new Error('SSH 未连接')
       }
       return await action(client)
     } finally {
-      client.close()
+      signal?.removeEventListener('abort', close)
+      close()
     }
   }
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    const { prefix, customUrl, cancelToken } = configMap
+  async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
+    const { prefix, customUrl } = configMap
     const urlPrefix = customUrl || `${this.host}:${this.port}`
-    let cancelled = false
-    const cancel = (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelled = true
-      }
-    }
-    ipcMain.on(cancelDownloadLoadingFileList, cancel)
     const result = {
       fullList: [] as ReturnType<SftpApi['formatFile']>[],
       success: false,
       finished: false,
     }
     try {
-      await this.withClient(async client => {
-        const directories = [path.posix.normalize(prefix)]
-        while (directories.length && !cancelled) {
-          const directory = directories.pop()!
-          const entries = await client.readDirectory(directory)
-          if (cancelled) break
-          for (const { filename, attrs } of entries) {
-            if (filename === '.' || filename === '..') continue
-            const remotePath = path.posix.join(directory, filename)
-            const type = attrs.mode & constants.S_IFMT
-            // Do not follow symbolic links, which can escape the folder or form cycles.
-            if (type === constants.S_IFDIR) {
-              directories.push(remotePath)
-            } else if (type === constants.S_IFREG) {
-              result.fullList.push(
-                this.formatFile(
-                  {
-                    key: remotePath.replace(/^\/+/, ''),
-                    filename,
-                    size: attrs.size,
-                    mtime: new Date(attrs.mtime * 1000).toISOString(),
-                  },
-                  urlPrefix,
-                ),
-              )
+      await listing.wait(() =>
+        this.withClient(async client => {
+          const directories = [path.posix.normalize(prefix)]
+          while (directories.length && !listing.signal.aborted) {
+            const directory = directories.pop()!
+            const entries = await listing.wait(() => client.readDirectory(directory))
+            if (listing.signal.aborted) break
+            for (const { filename, attrs } of entries) {
+              if (filename === '.' || filename === '..') continue
+              const remotePath = path.posix.join(directory, filename)
+              const type = attrs.mode & constants.S_IFMT
+              // Do not follow symbolic links, which can escape the folder or form cycles.
+              if (type === constants.S_IFDIR) {
+                directories.push(remotePath)
+              } else if (type === constants.S_IFREG) {
+                result.fullList.push(
+                  this.formatFile(
+                    {
+                      key: remotePath.replace(/^\/+/, ''),
+                      filename,
+                      size: attrs.size,
+                      mtime: new Date(attrs.mtime * 1000).toISOString(),
+                    },
+                    urlPrefix,
+                  ),
+                )
+              }
             }
+            listing.publish(result)
           }
-        }
-      })
-      result.success = !cancelled
+        }, listing.signal),
+      )
+      result.success = !listing.signal.aborted
     } catch (error) {
-      this.logParam(error, 'getBucketListRecursively')
-    } finally {
-      ipcMain.removeListener(cancelDownloadLoadingFileList, cancel)
+      if (!listing.signal.aborted) this.logParam(error, 'getBucketListRecursively')
     }
     result.finished = true
-    window?.webContents.send(refreshDownloadFileTransferList, result)
+    listing.publish(result)
   }
 
   formatLSResult(res: string, cwd: string): listDirResult[] {
@@ -233,30 +233,25 @@ class SftpApi {
     return result
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    const { prefix, customUrl, cancelToken, baseDir } = configMap
+  async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
+    const { prefix, customUrl, baseDir } = configMap
     let urlPrefix = customUrl || `${this.host}:${this.port}`
     urlPrefix = urlPrefix.replace(/\/+$/, '')
     let webPath = configMap.webPath || ''
     if (webPath && customUrl && webPath !== '/') {
       webPath = webPath.replace(/^\/+|\/+$/, '')
     }
-    const cancelTask = [false]
-    ipcMain.on('cancelLoadingFileList', (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners('cancelLoadingFileList')
-      }
-    })
     const result = {
       fullList: [] as any,
       success: false,
       finished: false,
     }
     try {
-      const res = await this.withClient(client =>
-        client.execCommand(`cd -- ${quoteShellArgument(prefix)} && ls -la --time-style=long-iso`),
+      const res = await listing.wait(() =>
+        this.withClient(
+          client => client.execCommand(`cd -- ${quoteShellArgument(prefix)} && ls -la --time-style=long-iso`),
+          listing.signal,
+        ),
       )
       if (this.isRequestSuccess(res.code)) {
         const formatedLSRes = this.formatLSResult(res.stdout, prefix)
@@ -274,21 +269,18 @@ class SftpApi {
         }
       } else {
         result.finished = true
-        window?.webContents.send('refreshFileTransferList', result)
-        ipcMain.removeAllListeners('cancelLoadingFileList')
+        listing.publish(result)
         return
       }
     } catch (error) {
-      this.logParam(error, 'getBucketListBackstage')
+      if (!listing.signal.aborted) this.logParam(error, 'getBucketListBackstage')
       result.finished = true
-      window?.webContents.send('refreshFileTransferList', result)
-      ipcMain.removeAllListeners('cancelLoadingFileList')
+      listing.publish(result)
       return
     }
     result.success = true
     result.finished = true
-    window?.webContents.send('refreshFileTransferList', result)
-    ipcMain.removeAllListeners('cancelLoadingFileList')
+    listing.publish(result)
   }
 
   async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {

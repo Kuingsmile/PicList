@@ -1,13 +1,12 @@
 import path from 'node:path'
 
-import windowManager from 'apis/app/window/windowManager'
 import axios from 'axios'
-import { ipcMain, IpcMainEvent } from 'electron'
 import FormData from 'form-data'
 import fs from 'fs-extra'
 import Upyun from 'upyun'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import type { ListingContext } from '~/manage/listingRequest'
 import {
   ConcurrencyPromisePool,
   formatError,
@@ -19,8 +18,7 @@ import {
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus, IWindowList } from '~/utils/enum'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
+import { commonTaskStatus } from '~/utils/enum'
 
 class UpyunApi {
   ser: Upyun.Service
@@ -115,17 +113,9 @@ class UpyunApi {
     return this.bucket
   }
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    const { bucketName: bucket, prefix, cancelToken } = configMap
+  async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
+    const { bucketName: bucket, prefix } = configMap
     const urlPrefix = configMap.customUrl || `http://${bucket}.test.upcdn.net`
-    const cancelTask = [false]
-    ipcMain.on(cancelDownloadLoadingFileList, (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
-      }
-    })
     let res = {} as any
     const result = {
       fullList: [] as any,
@@ -137,48 +127,41 @@ class UpyunApi {
       let marker = ''
       const slicedPrefix = folder.slice(1)
       do {
-        res = await this.cli.listDir(folder, {
-          limit: 10000,
-          iter: marker,
-        })
+        res = await listing.wait(() =>
+          this.cli.listDir(folder, {
+            limit: 10000,
+            iter: marker,
+          }),
+        )
         if (res) {
           res.files?.forEach((item: any) => {
             item.type === 'F' && folderQueue.push(path.posix.join(folder, item.name, '/'))
             item.type === 'N' && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           })
-          window?.webContents.send(refreshDownloadFileTransferList, result)
+          listing.publish(result)
         } else {
           result.finished = true
-          window?.webContents.send(refreshDownloadFileTransferList, result)
-          ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+          listing.publish(result)
           return
         }
         marker = res.next
-      } while (!cancelTask[0] && res.next !== this.stopMarker)
+      } while (!listing.signal.aborted && res.next !== this.stopMarker)
     }
-    while (folderQueue.length) {
+    while (folderQueue.length && !result.finished && !listing.signal.aborted) {
       const folder = folderQueue.shift()!
-      await getFolderFile(folder)
+      await listing.wait(() => getFolderFile(folder))
     }
-    result.success = !cancelTask[0]
+    if (result.finished) return
+    result.success = !listing.signal.aborted
     result.finished = true
-    window?.webContents.send(refreshDownloadFileTransferList, result)
-    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+    listing.publish(result)
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    const { bucketName: bucket, prefix, cancelToken } = configMap
+  async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
+    const { bucketName: bucket, prefix } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `http://${bucket}.test.upcdn.net`
     let marker = ''
-    const cancelTask = [false]
-    ipcMain.on('cancelLoadingFileList', (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners('cancelLoadingFileList')
-      }
-    })
     let res: any
     const result = {
       fullList: [] as any,
@@ -186,28 +169,28 @@ class UpyunApi {
       finished: false,
     }
     do {
-      res = await this.cli.listDir(prefix, {
-        limit: 10000,
-        iter: marker,
-      })
+      res = await listing.wait(() =>
+        this.cli.listDir(prefix, {
+          limit: 10000,
+          iter: marker,
+        }),
+      )
       if (res) {
         res.files?.forEach((item: any) => {
           item.type === 'N' && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           item.type === 'F' && result.fullList.push(this.formatFolder(item, slicedPrefix, urlPrefix))
         })
-        window?.webContents.send('refreshFileTransferList', result)
+        listing.publish(result)
       } else {
         result.finished = true
-        window?.webContents.send('refreshFileTransferList', result)
-        ipcMain.removeAllListeners('cancelLoadingFileList')
+        listing.publish(result)
         return
       }
       marker = res.next
-    } while (!cancelTask[0] && res.next !== this.stopMarker)
-    result.success = !cancelTask[0]
+    } while (!listing.signal.aborted && res.next !== this.stopMarker)
+    result.success = !listing.signal.aborted
     result.finished = true
-    window?.webContents.send('refreshFileTransferList', result)
-    ipcMain.removeAllListeners('cancelLoadingFileList')
+    listing.publish(result)
   }
 
   /**
@@ -225,7 +208,7 @@ class UpyunApi {
    *  customUrl: string
    * }
    */
-  async getBucketFileList(configMap: IStringKeyMap): Promise<any> {
+  async getBucketFileList(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const { bucketName: bucket, prefix, marker, itemsPerPage } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || `http://${bucket}.test.upcdn.net`
@@ -235,10 +218,12 @@ class UpyunApi {
       nextMarker: '',
       success: false,
     }
-    const res = await this.cli.listDir(prefix, {
-      limit: itemsPerPage,
-      iter: marker || '',
-    })
+    const res = await listing.wait(() =>
+      this.cli.listDir(prefix, {
+        limit: itemsPerPage,
+        iter: marker || '',
+      }),
+    )
     if (res) {
       res.files?.forEach((item: any) => {
         item.type === 'N' && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))

@@ -23,17 +23,15 @@ import {
 import { Progress, Upload } from '@aws-sdk/lib-storage'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { NodeHttpHandler } from '@smithy/node-http-handler'
-import windowManager from 'apis/app/window/windowManager'
-import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import type { ListingContext } from '~/manage/listingRequest'
 import { ConcurrencyPromisePool, formatError, getAgent, getFileMimeType, NewDownloader } from '~/manage/utils/common'
 import { dogecloudApi, DogecloudToken, getTempToken } from '~/manage/utils/dogeAPI'
 import { ManageLogger } from '~/manage/utils/logger'
 import { formatEndpoint, formatHttpProxy, isImage } from '~/utils/common'
-import { commonTaskStatus, IWindowList, uploadTaskSpecialStatus } from '~/utils/enum'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
+import { commonTaskStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 class S3plistApi {
   baseOptions: S3ClientConfig
@@ -310,24 +308,15 @@ class S3plistApi {
     return result
   }
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
+  async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
       prefix,
-      cancelToken,
     } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || this.customUrl || `https://${bucket}.s3.amazonaws.com`
-    let marker
-    const cancelTask = [false]
-    ipcMain.on(cancelDownloadLoadingFileList, (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
-      }
-    })
+    let marker: string | undefined
     let res: ListObjectsV2CommandOutput
     const result = {
       fullList: [] as any,
@@ -335,7 +324,7 @@ class S3plistApi {
       finished: false,
     }
     try {
-      await this.getDogeCloudToken()
+      await listing.wait(() => this.getDogeCloudToken())
       do {
         const options = { ...this.baseOptions } as S3ClientConfig
         options.region = String(region || this.baseOptions.region || 'us-east-1')
@@ -346,53 +335,41 @@ class S3plistApi {
           MaxKeys: 1000,
           ContinuationToken: marker,
         })
-        res = await client.send(command)
+        res = await listing.wait(() => client.send(command, { abortSignal: listing.signal }))
         if (res.$metadata.httpStatusCode === 200) {
           res.Contents &&
             res.Contents.forEach((item: _Object) => {
               result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
             })
-          window?.webContents.send(refreshDownloadFileTransferList, result)
+          listing.publish(result)
         } else {
           this.logParam(res, 'getBucketListRecursively')
           result.finished = true
-          window?.webContents.send(refreshDownloadFileTransferList, result)
-          ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+          listing.publish(result)
           return
         }
         marker = res.NextContinuationToken
-      } while (res.IsTruncated && !cancelTask[0])
+      } while (res.IsTruncated && !listing.signal.aborted)
     } catch (error) {
-      this.logParam(error, 'getBucketListRecursively')
+      if (!listing.signal.aborted) this.logParam(error, 'getBucketListRecursively')
       result.finished = true
-      window?.webContents.send(refreshDownloadFileTransferList, result)
-      ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+      listing.publish(result)
       return
     }
-    result.success = !cancelTask[0]
+    result.success = !listing.signal.aborted
     result.finished = true
-    window?.webContents.send(refreshDownloadFileTransferList, result)
-    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+    listing.publish(result)
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
+  async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
       prefix,
-      cancelToken,
     } = configMap
     const slicedPrefix = prefix.slice(1)
     const urlPrefix = configMap.customUrl || this.customUrl || `https://${bucket}.s3.amazonaws.com`
-    let marker
-    const cancelTask = [false]
-    ipcMain.on('cancelLoadingFileList', (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners('cancelLoadingFileList')
-      }
-    })
+    let marker: string | undefined
     let res: ListObjectsV2CommandOutput
     const result = {
       fullList: [] as any,
@@ -400,7 +377,7 @@ class S3plistApi {
       finished: false,
     }
     try {
-      await this.getDogeCloudToken()
+      await listing.wait(() => this.getDogeCloudToken())
       do {
         const options = { ...this.baseOptions } as S3ClientConfig
         options.region = String(region || this.baseOptions.region || 'us-east-1')
@@ -412,7 +389,7 @@ class S3plistApi {
           ContinuationToken: marker,
           Delimiter: '/',
         })
-        res = await client.send(command)
+        res = await listing.wait(() => client.send(command, { abortSignal: listing.signal }))
         if (res.$metadata.httpStatusCode === 200) {
           res.CommonPrefixes &&
             res.CommonPrefixes.forEach((item: CommonPrefix) => {
@@ -422,30 +399,27 @@ class S3plistApi {
             res.Contents.forEach((item: _Object) => {
               result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
             })
-          window?.webContents.send('refreshFileTransferList', result)
+          listing.publish(result)
         } else {
           this.logParam(res, 'getBucketListBackstage')
           result.finished = true
-          window?.webContents.send('refreshFileTransferList', result)
-          ipcMain.removeAllListeners('cancelLoadingFileList')
+          listing.publish(result)
           return
         }
         marker = res.NextContinuationToken
-      } while (res.IsTruncated && !cancelTask[0])
+      } while (res.IsTruncated && !listing.signal.aborted)
     } catch (error) {
-      this.logParam(error, 'getBucketListBackstage')
+      if (!listing.signal.aborted) this.logParam(error, 'getBucketListBackstage')
       result.finished = true
-      window?.webContents.send('refreshFileTransferList', result)
-      ipcMain.removeAllListeners('cancelLoadingFileList')
+      listing.publish(result)
       return
     }
-    result.success = !cancelTask[0]
+    result.success = !listing.signal.aborted
     result.finished = true
-    window?.webContents.send('refreshFileTransferList', result)
-    ipcMain.removeAllListeners('cancelLoadingFileList')
+    listing.publish(result)
   }
 
-  async getBucketFileList(configMap: IStringKeyMap): Promise<any> {
+  async getBucketFileList(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const {
       bucketName: bucket,
       bucketConfig: { Location: region },
@@ -462,7 +436,7 @@ class S3plistApi {
       success: false,
     }
     try {
-      await this.getDogeCloudToken()
+      await listing.wait(() => this.getDogeCloudToken())
       const options = {
         ...this.baseOptions,
         region: String(region || this.baseOptions.region || 'us-east-1'),
@@ -475,7 +449,7 @@ class S3plistApi {
         Delimiter: '/',
         MaxKeys: itemsPerPage,
       })
-      const data = await client.send(command)
+      const data = await listing.wait(() => client.send(command, { abortSignal: listing.signal }))
       if (data.$metadata.httpStatusCode === 200) {
         result.fullList = [
           ...(data.CommonPrefixes?.map(item => this.formatFolder(item, slicedPrefix, urlPrefix)) || []),
@@ -486,7 +460,7 @@ class S3plistApi {
         result.success = true
       }
     } catch (error) {
-      this.logParam(error, 'getBucketFileList')
+      if (!listing.signal.aborted) this.logParam(error, 'getBucketFileList')
     }
     return result
   }

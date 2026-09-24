@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import UpyunApi from '../src/main/manage/apis/upyun'
+import { listFromProvider } from './listingTestUtils'
 
 const state = vi.hoisted(() => ({ listDir: vi.fn(), send: vi.fn() }))
 
@@ -15,7 +16,10 @@ vi.mock('upyun', () => ({
 vi.mock('apis/app/window/windowManager', () => ({
   default: { get: () => ({ webContents: { send: state.send } }) },
 }))
-vi.mock('electron', () => ({ ipcMain: { on: vi.fn(), removeAllListeners: vi.fn() } }))
+vi.mock('electron', async () => {
+  const { EventEmitter } = await import('node:events')
+  return { ipcMain: new EventEmitter() }
+})
 vi.mock('~/manage/datastore/upDownTaskQueue', () => ({ default: {} }))
 vi.mock('~/manage/utils/common', () => ({}))
 vi.mock('~/manage/utils/logger', () => ({}))
@@ -45,11 +49,14 @@ function mockDirectories(directories: Record<string, { name: string; type: strin
 }
 
 function expectFiles(keys: string[]) {
-  expect(state.send).toHaveBeenLastCalledWith('refreshDownloadFileTransferList', {
-    fullList: keys.map(key => expect.objectContaining({ key, url: `${config.customUrl}/${key}` })),
-    success: true,
-    finished: true,
-  })
+  expect(state.send).toHaveBeenLastCalledWith(
+    'refreshDownloadFileTransferList',
+    expect.objectContaining({
+      fullList: keys.map(key => expect.objectContaining({ key, url: `${config.customUrl}/${key}` })),
+      success: true,
+      finished: true,
+    }),
+  )
 }
 
 beforeEach(() => {
@@ -64,7 +71,7 @@ describe('Upyun recursive enumeration', () => {
       '/root/child/grand/': [file('photo.png')],
     })
 
-    await api.getBucketListRecursively({ ...config, prefix })
+    await listFromProvider(api, 'getBucketListRecursively', { ...config, prefix }, state.send)
 
     expect(state.listDir.mock.calls).toEqual([
       ['/root/', { limit: 10000, iter: '' }],
@@ -85,7 +92,7 @@ describe('Upyun recursive enumeration', () => {
       '/root/shared/shared/': [file('nested.png')],
     })
 
-    await api.getBucketListRecursively({ ...config, prefix: '/root/' })
+    await listFromProvider(api, 'getBucketListRecursively', { ...config, prefix: '/root/' }, state.send)
 
     expect(state.listDir.mock.calls.map(([key]) => key)).toEqual([
       '/root/',
@@ -111,7 +118,7 @@ describe('Upyun recursive enumeration', () => {
       '/child/grand/': [file('photo.png')],
     })
 
-    await api.getBucketListRecursively({ ...config, prefix: '/' })
+    await listFromProvider(api, 'getBucketListRecursively', { ...config, prefix: '/' }, state.send)
 
     expect(state.listDir.mock.calls.map(([key]) => key)).toEqual(['/', '/child/', '/child/grand/'])
     expectFiles(['top.png', 'child/grand/photo.png'])
@@ -125,7 +132,7 @@ describe('Upyun recursive enumeration', () => {
       .mockResolvedValueOnce({ files: [folder('grand')], next: api.stopMarker })
       .mockResolvedValueOnce({ files: [file('photo.png')], next: api.stopMarker })
 
-    await api.getBucketListRecursively({ ...config, prefix: '/root/' })
+    await listFromProvider(api, 'getBucketListRecursively', { ...config, prefix: '/root/' }, state.send)
 
     expect(state.listDir.mock.calls).toEqual([
       ['/root/', { limit: 10000, iter: '' }],

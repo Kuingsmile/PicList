@@ -1,11 +1,10 @@
 import path from 'node:path'
 
-import windowManager from 'apis/app/window/windowManager'
-import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs-extra'
 import got from 'got'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import type { ListingContext } from '~/manage/listingRequest'
 import {
   ConcurrencyPromisePool,
   formatError,
@@ -16,8 +15,7 @@ import {
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { formatHttpProxy, isImage, trimPath } from '~/utils/common'
-import { commonTaskStatus, IWindowList } from '~/utils/enum'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '~/utils/static'
+import { commonTaskStatus } from '~/utils/enum'
 
 class GithubApi {
   token: string
@@ -181,17 +179,9 @@ class GithubApi {
     return result
   }
 
-  async getBucketListRecursively(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    const { bucketName: repo, customUrl: branch, prefix, cancelToken, cdnUrl } = configMap
+  async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
+    const { bucketName: repo, customUrl: branch, prefix, cdnUrl } = configMap
     const slicedPrefix = prefix.replace(/(^\/+|\/+$)/g, '')
-    const cancelTask = [false]
-    ipcMain.on(cancelDownloadLoadingFileList, (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
-      }
-    })
     const result = {
       fullList: [] as any,
       success: false,
@@ -199,14 +189,16 @@ class GithubApi {
     }
     const treeQueue = [slicedPrefix]
     while (treeQueue.length) {
-      if (cancelTask[0]) {
+      if (listing.signal.aborted) {
         result.finished = true
         return result
       }
       const currentPrefix = treeQueue[0]
-      const res = (await got(
-        `${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${treeQueue.shift()}`,
-        getOptions('GET', this.commonHeaders, {}, 'json', undefined, undefined, this.proxy),
+      const res = (await listing.wait(() =>
+        got(`${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${treeQueue.shift()}`, {
+          ...getOptions('GET', this.commonHeaders, {}, 'json', undefined, undefined, this.proxy),
+          signal: listing.signal,
+        }),
       )) as any
       if (res && res.statusCode === 200) {
         const { tree } = res.body
@@ -217,39 +209,31 @@ class GithubApi {
             result.fullList.push(this.formatFile(item, currentPrefix, branch, repo, cdnUrl))
           }
         })
-        window?.webContents.send(refreshDownloadFileTransferList, result)
+        listing.publish(result)
       } else {
         result.finished = true
-        window?.webContents.send(refreshDownloadFileTransferList, result)
-        ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+        listing.publish(result)
         return
       }
     }
     result.success = true
     result.finished = true
-    window?.webContents.send(refreshDownloadFileTransferList, result)
-    ipcMain.removeAllListeners(cancelDownloadLoadingFileList)
+    listing.publish(result)
   }
 
-  async getBucketListBackstage(configMap: IStringKeyMap): Promise<any> {
-    const window = windowManager.get(IWindowList.SETTING_WINDOW)
-    const { bucketName: repo, customUrl: branch, prefix, cancelToken, cdnUrl } = configMap
+  async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
+    const { bucketName: repo, customUrl: branch, prefix, cdnUrl } = configMap
     const slicedPrefix = prefix.replace(/(^\/+|\/+$)/g, '')
-    const cancelTask = [false]
-    ipcMain.on('cancelLoadingFileList', (_: IpcMainEvent, token: string) => {
-      if (token === cancelToken) {
-        cancelTask[0] = true
-        ipcMain.removeAllListeners('cancelLoadingFileList')
-      }
-    })
     const result = {
       fullList: [] as any,
       success: false,
       finished: false,
     }
-    const res = (await got(
-      `${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${slicedPrefix}`,
-      getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy),
+    const res = (await listing.wait(() =>
+      got(`${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${slicedPrefix}`, {
+        ...getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy),
+        signal: listing.signal,
+      }),
     )) as any
     if (res && res.statusCode === 200) {
       res.body.tree.forEach((item: any) => {
@@ -261,14 +245,12 @@ class GithubApi {
       })
     } else {
       result.finished = true
-      window?.webContents.send('refreshFileTransferList', result)
-      ipcMain.removeAllListeners('cancelLoadingFileList')
+      listing.publish(result)
       return
     }
     result.success = true
     result.finished = true
-    window?.webContents.send('refreshFileTransferList', result)
-    ipcMain.removeAllListeners('cancelLoadingFileList')
+    listing.publish(result)
   }
 
   /**

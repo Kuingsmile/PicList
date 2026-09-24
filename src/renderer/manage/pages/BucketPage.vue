@@ -1151,7 +1151,6 @@ import {
   XIcon,
 } from '@lucide/vue'
 import { useLocalStorage } from '@vueuse/core'
-import { v4 as uuidv4 } from 'uuid'
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -1173,7 +1172,7 @@ import FileInfo from '@/manage/pages/components/FileInfo.vue'
 import IconButton from '@/manage/pages/components/IconButton.vue'
 import EmptyPage from '@/manage/pages/EmptyPage.vue'
 import { fileCacheDbInstance } from '@/manage/store/bucketFileDb'
-import { useDownloadFileTransferStore, useFileTransferStore, useManageStore } from '@/manage/store/manageStore'
+import { useManageStore } from '@/manage/store/manageStore'
 import {
   formatFileSize,
   formatLink,
@@ -1185,6 +1184,7 @@ import {
 } from '@/manage/utils/common'
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { splitFileName } from '@/manage/utils/fileName'
+import { ListingSession } from '@/manage/utils/listingSession'
 import { textFileExt } from '@/manage/utils/textfile'
 import { appendThumbnailSuffix } from '@/manage/utils/thumbnailUrl'
 import { videoExt } from '@/manage/utils/videofile'
@@ -1192,7 +1192,7 @@ import { trimPath } from '@/utils/common'
 import { useDragEventListeners } from '@/utils/drag'
 import { IRPCActionType } from '@/utils/enum'
 import { renderMarkdown } from '@/utils/markdown'
-import { cancelDownloadLoadingFileList, refreshDownloadFileTransferList } from '@/utils/static'
+import type { ListingRequest, ListingResult } from '#/listing'
 /*
 configMap:{
     prefix: string, -> baseDir
@@ -1213,8 +1213,10 @@ type ISortTypeList = 'name' | 'size' | 'time' | 'ext' | 'check' | 'init'
 
 const uploadDialog = useTemplateRef<HTMLDivElement>('uploadDialog')
 useDragEventListeners(uploadDialog)
-let fileTransferInterval: NodeJS.Timeout | undefined
-let downloadInterval: NodeJS.Timeout | undefined
+const fileListings = new ListingSession(window.electron)
+const downloadListings = new ListingSession(window.electron)
+let viewGeneration = 0
+let unmounted = false
 let scrollTimeout: ReturnType<typeof setTimeout> | undefined
 const { t } = useI18n()
 const message = useMessage()
@@ -1266,7 +1268,6 @@ const uploadTaskList = ref([] as IUploadTask[])
 
 const refreshUploadTaskId = ref<NodeJS.Timeout | undefined>(undefined)
 const uploadPanelFilesList = ref([] as any[])
-const cancelToken = ref('')
 const isLoadingUploadPanelFiles = ref(false)
 const isUploadKeepDirStructure = ref(manageStore.config.settings.isUploadKeepDirStructure ?? true)
 const currentSortType = ref<ISortTypeList>('name')
@@ -1288,7 +1289,6 @@ const lastChoosed = ref<number>(-1)
 const customDomainList = ref([] as any[])
 const currentCustomDomain = ref('')
 const refreshDownloadTaskId = ref<NodeJS.Timeout | undefined>(undefined)
-const downloadCancelToken = ref('')
 // 文件预览相关
 const isShowMarkDownDialog = ref(false)
 const markDownContent = ref('')
@@ -1423,14 +1423,18 @@ const isShowPresignedUrl = computed(() =>
 watch(
   () => props.configMap,
   async newValue => {
+    invalidateListings()
+    const generation = viewGeneration
+    currentPageFilesInfo.length = 0
+    currentDownloadFileList.length = 0
     isShowLoadingPage.value = true
     configMap.value = JSON.parse(JSON.stringify(newValue))
-    await initCustomDomainList()
-    await resetParam(true)
-    await manageStore.refreshConfig()
-    isShowLoadingPage.value = false
+    await initCustomDomainList(generation)
+    if (unmounted || generation !== viewGeneration) return
+    void resetParam(true)
+    void manageStore.refreshConfig()
   },
-  { deep: true, immediate: true },
+  { deep: true, immediate: true, flush: 'sync' },
 )
 
 watch(currentPageNumber, (newVal, oldVal) => {
@@ -1497,8 +1501,11 @@ function showUploadDialog() {
 }
 
 function startRefreshUploadTask() {
+  stopRefreshUploadTask()
+  const generation = viewGeneration
   refreshUploadTaskId.value = setInterval(() => {
     window.electron.triggerRPC(IRPCActionType.MANAGE_GET_UPLOAD_TASK_LIST).then((res: any) => {
+      if (unmounted || generation !== viewGeneration || !isShowUploadPanel.value) return
       uploadTaskList.value = res
     })
   }, 300)
@@ -1506,6 +1513,7 @@ function startRefreshUploadTask() {
 
 function stopRefreshUploadTask() {
   refreshUploadTaskId.value && clearInterval(refreshUploadTaskId.value)
+  refreshUploadTaskId.value = undefined
 }
 
 function handleGetWebdavConfig() {
@@ -1519,8 +1527,11 @@ function showDownloadDialog() {
 }
 
 function startRefreshDownloadTask() {
+  stopRefreshDownloadTask()
+  const generation = viewGeneration
   refreshDownloadTaskId.value = setInterval(() => {
     window.electron.triggerRPC(IRPCActionType.MANAGE_GET_DOWNLOAD_TASK_LIST).then((res: any) => {
+      if (unmounted || generation !== viewGeneration || !isShowDownloadPanel.value) return
       downloadTaskList.value = res
     })
   }, 300)
@@ -1528,6 +1539,7 @@ function startRefreshDownloadTask() {
 
 function stopRefreshDownloadTask() {
   refreshDownloadTaskId.value && clearInterval(refreshDownloadTaskId.value)
+  refreshDownloadTaskId.value = undefined
 }
 
 // 界面相关
@@ -1813,14 +1825,8 @@ async function handleBreadcrumbClick(index: number) {
       .split('/')
       .slice(0, index + 1)
       .join('/') + '/'
-  if (isLoadingData.value) {
-    isLoadingData.value = false
-    window.electron.sendToMain('cancelLoadingFileList', cancelToken.value)
-  }
   configMap.value.prefix = targetPrefix
-  isShowLoadingPage.value = true
-  resetParam(false)
-  isShowLoadingPage.value = false
+  await resetParam(false)
 }
 
 async function handleClickFile(item: any) {
@@ -1834,14 +1840,8 @@ async function handleClickFile(item: any) {
     previewedImage.value = item.url
     isShowImagePreview.value = true
   } else if (item.isDir) {
-    if (isLoadingData.value) {
-      isLoadingData.value = false
-      window.electron.sendToMain('cancelLoadingFileList', cancelToken.value)
-    }
     configMap.value.prefix = `/${item.key}`
-    isShowLoadingPage.value = true
     await resetParam(false)
-    isShowLoadingPage.value = false
   } else if (item.fileName.endsWith('.md')) {
     try {
       message.success(t('pages.manage.bucket.startLoadingFile'))
@@ -1874,14 +1874,18 @@ async function handleClickFile(item: any) {
 }
 
 async function handleChangeCustomUrlInput() {
+  invalidateListings()
+  const generation = viewGeneration
   await handleChangeCustomUrl()
+  if (unmounted || generation !== viewGeneration) return
   await forceRefreshFileList()
 }
 // 自定义域名相关
 
-async function handleChangeCustomUrl() {
+async function handleChangeCustomUrl(generation = viewGeneration) {
   if (['aliyun', 'tcyun', 'qiniu', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value)) {
     const currentConfigs = await getConfig<any>('picBed')
+    if (unmounted || generation !== viewGeneration) return
     const currentConfig = currentConfigs[configMap.value.alias]
     const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
     if (currentTransformedConfig[configMap.value.bucketName]) {
@@ -1898,7 +1902,7 @@ async function handleChangeCustomUrl() {
 }
 
 // when the current picBed is github, the customDomainList is used to store the github repo branches
-async function initCustomDomainList() {
+async function initCustomDomainList(generation = viewGeneration) {
   if (
     (['aliyun', 'tcyun', 'qiniu'].includes(currentPicBedName.value) &&
       (manageStore.config.picBed[configMap.value.alias].isAutoCustomUrl === undefined ||
@@ -1922,6 +1926,7 @@ async function initCustomDomainList() {
       configMap.value.alias,
       param,
     )
+    if (unmounted || generation !== viewGeneration) return
     if (res.length > 0) {
       customDomainList.value.length = 0
       res.forEach((item: any) => {
@@ -1952,6 +1957,7 @@ async function initCustomDomainList() {
     }
   } else if (['aliyun', 'tcyun', 'qiniu'].includes(currentPicBedName.value)) {
     const currentConfigs = await getConfig<any>('picBed')
+    if (unmounted || generation !== viewGeneration) return
     const currentConfig = currentConfigs[configMap.value.alias]
     const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
     if (currentTransformedConfig[configMap.value.bucketName]) {
@@ -1961,6 +1967,7 @@ async function initCustomDomainList() {
     }
   } else if (currentPicBedName.value === 's3plist') {
     const currentConfigs = await getConfig<any>('picBed')
+    if (unmounted || generation !== viewGeneration) return
     const currentConfig = currentConfigs[configMap.value.alias]
     const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
     const configuredDomain = currentTransformedConfig[configMap.value.bucketName]?.customUrl || currentConfig.customUrl
@@ -1990,6 +1997,7 @@ async function initCustomDomainList() {
     await handleChangeCustomUrl()
   } else if (currentPicBedName.value === 'webdavplist') {
     const currentConfigs = await getConfig<any>('picBed')
+    if (unmounted || generation !== viewGeneration) return
     const currentConfig = currentConfigs[configMap.value.alias]
     const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
     if (
@@ -2007,6 +2015,7 @@ async function initCustomDomainList() {
     await handleChangeCustomUrl()
   } else if (currentPicBedName.value === 'local' || currentPicBedName.value === 'sftp') {
     const currentConfigs = await getConfig<any>('picBed')
+    if (unmounted || generation !== viewGeneration) return
     const currentConfig = currentConfigs[configMap.value.alias]
     const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
     if (
@@ -2026,18 +2035,36 @@ async function initCustomDomainList() {
 
 // 重置
 
+function invalidateListings() {
+  viewGeneration++
+  fileListings.cancel()
+  downloadListings.cancel()
+  isLoadingData.value = false
+  isLoadingDownloadData.value = false
+  stopRefreshUploadTask()
+  stopRefreshDownloadTask()
+  if (!unmounted && isShowUploadPanel.value) startRefreshUploadTask()
+  if (!unmounted && isShowDownloadPanel.value) startRefreshDownloadTask()
+}
+
+function listingIdentity(kind: ListingRequest['kind'], prefix = currentPrefix.value) {
+  return {
+    accountId: configMap.value.alias,
+    provider: currentPicBedName.value,
+    bucketName: configMap.value.bucketName,
+    prefix,
+    kind,
+  }
+}
+
 async function resetParam(force: boolean = false) {
-  if (isLoadingData.value) {
-    isLoadingData.value = false
-    window.electron.sendToMain('cancelLoadingFileList', cancelToken.value)
-  }
-  if (isLoadingDownloadData.value) {
-    isLoadingDownloadData.value = false
-    window.electron.sendToMain(cancelDownloadLoadingFileList, downloadCancelToken.value)
-  }
-  cancelToken.value = ''
+  if (unmounted) return
+  invalidateListings()
+  isShowLoadingPage.value = true
   pagingMarker.value = ''
+  pagingMarkerStack.length = 0
   currentPrefix.value = configMap.value.prefix
+  const request = fileListings.begin(listingIdentity('files'))
   currentPageNumber.value = 1
   currentPageFilesInfo.length = 0
   currentDownloadFileList.length = 0
@@ -2056,23 +2083,26 @@ async function resetParam(force: boolean = false) {
   fileSortTimeReverse.value = false
   if (!isAutoRefresh.value && !force && !paging.value) {
     const cachedData = await searchExistFileList()
+    if (!fileListings.isCurrent(request)) return
     if (cachedData.length > 0) {
       currentPageFilesInfo.push(...cachedData[0].value.fullList)
       const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
       sortFile(sortType)
       isShowLoadingPage.value = false
+      fileListings.complete(request)
       return
     }
   }
   if (paging.value) {
-    const res = (await getBucketFileList()) as IStringKeyMap
+    const res = await getBucketFileList(request)
+    if (!res || !fileListings.isCurrent(request)) return
     if (res.success) {
       currentPageFilesInfo.push(...res.fullList)
       const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
       sortFile(sortType)
       if (res.isTruncated && paging.value) {
         pagingMarkerStack.push(pagingMarker.value)
-        pagingMarker.value = res.nextMarker
+        pagingMarker.value = String(res.nextMarker ?? '')
       } else if (paging.value && currentPageNumber.value > 1) {
         message.success(t('pages.manage.bucket.lastPageMsg'))
       }
@@ -2080,9 +2110,10 @@ async function resetParam(force: boolean = false) {
       message.error(t('pages.manage.bucket.getFileListFailed'))
     }
   } else {
-    getBucketFileListBackStage()
+    getBucketFileListBackStage(request)
     message.info(t('pages.manage.bucket.getInBackground'))
   }
+  if (fileListings.isCurrent(request)) isShowLoadingPage.value = false
 }
 
 async function forceRefreshFileList() {
@@ -2090,12 +2121,11 @@ async function forceRefreshFileList() {
     message.error(t('pages.manage.bucket.isLoadingMsg'))
     return
   }
-  isShowLoadingPage.value = true
   await resetParam(true)
-  isShowLoadingPage.value = false
 }
 
 const changePage = async (cur: number | undefined, prev: number | undefined) => {
+  if (unmounted) return
   if (!cur || !prev) {
     currentPageNumber.value = 1
     return
@@ -2104,6 +2134,8 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
   const newPageNumber = isForwardNavigation ? prev + 1 : prev - 1
   const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
 
+  invalidateListings()
+  const request = fileListings.begin(listingIdentity('files'))
   isShowLoadingPage.value = true
   currentPageNumber.value = newPageNumber
   currentPageFilesInfo.length = 0
@@ -2117,7 +2149,8 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
     pagingMarkerStack.pop()
   }
 
-  const res = (await getBucketFileList()) as IStringKeyMap
+  const res = await getBucketFileList(request)
+  if (!res || !fileListings.isCurrent(request)) return
   isShowLoadingPage.value = false
 
   if (!res.success) {
@@ -2132,7 +2165,7 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
   if (!(cur < prev && !paging.value)) {
     if (res.isTruncated) {
       pagingMarkerStack.push(pagingMarker.value)
-      pagingMarker.value = res.nextMarker
+      pagingMarker.value = String(res.nextMarker ?? '')
     } else {
       message.success(t('pages.manage.bucket.lastPageMsg'))
     }
@@ -2219,83 +2252,63 @@ function handleReverseCheck() {
 }
 
 async function handleFolderBatchDownload(item: any) {
+  if (unmounted) return
+  isLoadingDownloadData.value = false
+  const request = downloadListings.begin(listingIdentity('download', `/${item.key.replace(/^\/+|\/+$/g, '')}/`))
+  const paramGet = listingParams(request)
+  const keepStructure = manageStore.config.settings.isDownloadFolderKeepDirStructure !== false
   try {
-    const result = await confirm.confirm({
+    const confirmed = await confirm.confirm({
       message: t('pages.manage.bucket.notice'),
       title: t('pages.manage.bucket.downloadFolderNotice'),
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
       type: 'warning',
     })
-    if (!result) return
+    if (!downloadListings.isCurrent(request)) return
+    if (!confirmed) {
+      downloadListings.cancel()
+      return
+    }
     const defaultDownloadPath = await window.electron.triggerRPC<string>(
       IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER,
     )
+    if (!downloadListings.isCurrent(request)) return
     const param = {
       downloadPath: manageStore.config.settings.downloadDir ?? defaultDownloadPath,
-      maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount
-        ? manageStore.config.settings.maxDownloadFileCount
-        : 5,
+      maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount || 5,
       fileArray: [] as any[],
     }
-    downloadCancelToken.value = uuidv4()
-    const paramGet = {
-      // tcyun
-      bucketName: configMap.value.bucketName,
-      bucketConfig: {
-        Location: configMap.value.bucketConfig.Location,
-      },
-      paging: paging.value,
-      prefix: `/${item.key.replace(/^\/+|\/+$/, '')}/`,
-      marker: pagingMarker.value,
-      itemsPerPage: itemsPerPage.value,
-      customUrl: currentCustomDomain.value,
-      currentPage: currentPageNumber.value,
-      cancelToken: downloadCancelToken.value,
-      cdnUrl: configMap.value.cdnUrl,
-    }
     isLoadingDownloadData.value = true
-    const downloadFileTransferStore = useDownloadFileTransferStore()
-    downloadFileTransferStore.resetDownloadFileTransferList()
-    window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_RECURSIVELY, configMap.value.alias, paramGet)
-    window.electron.ipcRendererOn(refreshDownloadFileTransferList, data => {
-      downloadFileTransferStore.refreshDownloadFileTransferList(data)
-    })
-    downloadInterval = setInterval(() => {
-      const currentFileList = downloadFileTransferStore.getDownloadFileTransferList()
-      currentDownloadFileList.length = 0
-      currentDownloadFileList.push(...currentFileList)
-      if (downloadFileTransferStore.isFinished() && downloadInterval) {
-        isLoadingDownloadData.value = false
-        clearInterval(downloadInterval)
-        if (downloadFileTransferStore.isSuccess()) {
-          message.success(t('pages.manage.bucket.getDownloadListSuccess'))
-          if (currentDownloadFileList.length) {
-            currentDownloadFileList.forEach((item: any) => {
-              param.fileArray.push({
-                alias: configMap.value.alias,
-                bucketName: configMap.value.bucketName,
-                region: configMap.value.bucketConfig.Location,
-                key: item.key,
-                fileName: [undefined, true].includes(manageStore.config.settings.isDownloadFolderKeepDirStructure)
-                  ? `/${item.key.replace(/^\/+|\/+$/, '')}`
-                  : item.fileName,
-                customUrl: currentCustomDomain.value,
-                downloadUrl: item.downloadUrl,
-                githubUrl: item.url,
-                githubPrivate: configMap.value.bucketConfig.private,
-              })
-            })
-          }
-          window.electron.sendRPC(IRPCActionType.MANAGE_DOWNLOAD_BUCKET_FILE, configMap.value.alias, param)
-          isShowDownloadPanel.value = true
-        } else {
-          message.error(t('pages.manage.bucket.getDownloadListFailed'))
-        }
-        downloadFileTransferStore.resetDownloadFileTransferList()
+    currentDownloadFileList.length = 0
+    downloadListings.subscribe(request, data => {
+      currentDownloadFileList.splice(0, currentDownloadFileList.length, ...data.fullList)
+      if (!data.finished) return
+      isLoadingDownloadData.value = false
+      if (!data.success) {
+        if (data.phase !== 'cancelled') message.error(t('pages.manage.bucket.getDownloadListFailed'))
+        return
       }
-    }, 500)
+      message.success(t('pages.manage.bucket.getDownloadListSuccess'))
+      param.fileArray = data.fullList.map(item => ({
+        alias: request.accountId,
+        bucketName: request.bucketName,
+        region: paramGet.bucketConfig.Location,
+        key: item.key,
+        fileName: keepStructure ? `/${item.key.replace(/^\/+|\/+$/g, '')}` : item.fileName,
+        customUrl: paramGet.customUrl,
+        downloadUrl: item.downloadUrl,
+        githubUrl: item.url,
+        githubPrivate: paramGet.bucketConfig.private,
+      }))
+      window.electron.sendRPC(IRPCActionType.MANAGE_DOWNLOAD_BUCKET_FILE, request.accountId, param)
+      isShowDownloadPanel.value = true
+    })
+    window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_RECURSIVELY, request.accountId, paramGet)
   } catch {
+    if (!downloadListings.isCurrent(request)) return
+    downloadListings.cancel()
+    isLoadingDownloadData.value = false
     message.info(t('pages.manage.bucket.canceled'))
   }
 }
@@ -2611,6 +2624,7 @@ async function handleBatchCopyLink(type: CopyFormat) {
 }
 
 async function cancelLoading() {
+  const request = fileListings.request
   try {
     const result = await confirm.confirm({
       message: t('pages.manage.bucket.notice'),
@@ -2620,9 +2634,10 @@ async function cancelLoading() {
       type: 'warning',
       center: true,
     })
-    if (!result) return
+    if (!result || !request || !fileListings.isCurrent(request)) return
     isLoadingData.value = false
-    window.electron.sendToMain('cancelLoadingFileList', cancelToken.value)
+    isShowLoadingPage.value = false
+    fileListings.cancel()
     message.success(t('pages.manage.bucket.stopSuccessMsg'))
   } catch (e) {
     console.error(e)
@@ -2630,6 +2645,7 @@ async function cancelLoading() {
 }
 
 async function cancelDownloadLoading() {
+  const request = downloadListings.request
   try {
     const result = await confirm.confirm({
       message: t('pages.manage.bucket.notice'),
@@ -2639,78 +2655,68 @@ async function cancelDownloadLoading() {
       type: 'warning',
       center: true,
     })
-    if (!result) return
+    if (!result || !request || !downloadListings.isCurrent(request)) return
     isLoadingDownloadData.value = false
-    window.electron.sendToMain(cancelDownloadLoadingFileList, downloadCancelToken.value)
+    downloadListings.cancel()
     message.success(t('pages.manage.bucket.stopSuccessMsg'))
   } catch (e) {
     console.error(e)
   }
 }
 
-async function getBucketFileListBackStage() {
-  cancelToken.value = uuidv4()
-  const param = {
-    // tcyun
-    bucketName: configMap.value.bucketName,
-    bucketConfig: {
-      Location: configMap.value.bucketConfig.Location,
-    },
-    paging: paging.value,
-    prefix: currentPrefix.value,
-    marker: pagingMarker.value,
-    itemsPerPage: itemsPerPage.value,
-    customUrl: currentCustomDomain.value,
-    currentPage: currentPageNumber.value,
-    cancelToken: cancelToken.value,
-    cdnUrl: configMap.value.cdnUrl,
-  } as IStringKeyMap
+function getBucketFileListBackStage(request: ListingRequest) {
+  const param = listingParams(request)
+  const cacheTarget = { provider: request.provider, key: getTableKeyOfDb() }
   isLoadingData.value = true
-  const fileTransferStore = useFileTransferStore()
-  fileTransferStore.resetFileTransferList()
-  const picBedNamesArr = ['webdavplist', 'local', 'sftp']
-  if (picBedNamesArr.includes(currentPicBedName.value)) {
-    param.baseDir = configMap.value.baseDir
-    param.webPath = configMap.value.webPath
-  }
-  window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_BACKSTAGE, configMap.value.alias, param)
-  window.electron.ipcRendererOn('refreshFileTransferList', data => {
-    fileTransferStore.refreshFileTransferList(data)
-  })
-  fileTransferInterval = setInterval(() => {
-    const currentFileList = fileTransferStore.getFileTransferList()
-    currentPageFilesInfo.splice(0, currentPageFilesInfo.length, ...currentFileList)
+  fileListings.subscribe(request, data => {
+    currentPageFilesInfo.splice(0, currentPageFilesInfo.length, ...data.fullList)
     const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
     sortFile(sortType)
-    void cacheFileList()
-    if (fileTransferStore.isFinished() && fileTransferInterval) {
+    if (data.finished) {
       isLoadingData.value = false
-      clearInterval(fileTransferInterval)
-      if (fileTransferStore.isSuccess()) {
+      if (data.success) {
+        void cacheFileList(cacheTarget, data.fullList)
         message.success(t('pages.manage.bucket.getFileListSuccess'))
-      } else {
+      } else if (data.phase !== 'cancelled') {
         message.error(t('pages.manage.bucket.partFileListFailed'))
       }
-      fileTransferStore.resetFileTransferList()
     }
-  }, 1000)
+  })
+  window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_BACKSTAGE, request.accountId, param)
 }
 
-async function getBucketFileList() {
-  const param = {
-    // tcyun
-    bucketName: configMap.value.bucketName,
-    bucketConfig: {
-      Location: configMap.value.bucketConfig.Location,
-    },
+async function getBucketFileList(request: ListingRequest): Promise<ListingResult | undefined> {
+  isLoadingData.value = true
+  let result: ListingResult
+  try {
+    const response = await window.electron.triggerRPC<ListingResult>(
+      IRPCActionType.MANAGE_GET_BUCKET_FILE_LIST,
+      request.accountId,
+      listingParams(request),
+    )
+    if (!response) throw new Error('Missing listing response')
+    result = response
+  } catch {
+    result = { ...request, fullList: [], success: false, finished: true, phase: 'error', error: 'LISTING_FAILED' }
+  }
+  if (!fileListings.accept(request, result)) return
+  isLoadingData.value = false
+  return result
+}
+
+function listingParams(request: ListingRequest) {
+  return {
+    ...request,
+    bucketConfig: { ...configMap.value.bucketConfig },
     paging: paging.value,
-    prefix: currentPrefix.value,
     marker: pagingMarker.value,
     itemsPerPage: itemsPerPage.value,
     customUrl: currentCustomDomain.value,
     currentPage: currentPageNumber.value,
+    cdnUrl: configMap.value.cdnUrl,
+    baseDir: configMap.value.baseDir,
+    webPath: configMap.value.webPath,
   }
-  return await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_GET_BUCKET_FILE_LIST, configMap.value.alias, param)
 }
 
 async function handleBatchDeleteInfo() {
@@ -3039,14 +3045,14 @@ async function searchExistFileList() {
   }
 }
 
-async function cacheFileList() {
+async function cacheFileList(target: { provider: string; key: string }, files: any[]) {
   try {
-    const table = fileCacheDbInstance.table(currentPicBedName.value)
+    const table = fileCacheDbInstance.table(target.provider)
     await table.put({
-      key: getTableKeyOfDb(),
+      key: target.key,
       value: JSON.parse(
         JSON.stringify({
-          fullList: currentPageFilesInfo,
+          fullList: files,
         }),
       ),
     })
@@ -3077,20 +3083,15 @@ onBeforeMount(async () => {
 })
 
 onBeforeUnmount(() => {
+  unmounted = true
+  viewGeneration++
+  fileListings.dispose()
+  downloadListings.dispose()
   document.removeEventListener('keydown', handleDetectShiftKey)
   document.removeEventListener('keyup', handleDetectShiftKey)
-  fileTransferInterval && clearInterval(fileTransferInterval)
-  downloadInterval && clearInterval(downloadInterval)
-  refreshUploadTaskId.value && clearInterval(refreshUploadTaskId.value)
-  refreshDownloadTaskId.value && clearInterval(refreshDownloadTaskId.value)
-  if (isLoadingData.value) {
-    window.electron.sendToMain('cancelLoadingFileList', cancelToken.value)
-  }
-  if (isLoadingDownloadData.value) {
-    window.electron.sendToMain(cancelDownloadLoadingFileList, downloadCancelToken.value)
-  }
-  window.electron.ipcRendererRemoveAllListeners('refreshFileTransferList')
-  window.electron.ipcRendererRemoveAllListeners(refreshDownloadFileTransferList)
+  stopRefreshUploadTask()
+  stopRefreshDownloadTask()
+  if (scrollTimeout) clearTimeout(scrollTimeout)
 })
 </script>
 

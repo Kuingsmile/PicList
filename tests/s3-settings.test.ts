@@ -1,12 +1,17 @@
 import { ListBucketsCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3'
+import { ipcMain } from 'electron'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import S3plistApi from '../src/main/manage/apis/s3plist'
 import { getSupportedPicBedList } from '../src/renderer/manage/utils/constants'
+import { listFromProvider } from './listingTestUtils'
 
 const state = vi.hoisted(() => ({ getTempToken: vi.fn(), send: vi.fn(), removeAllListeners: vi.fn() }))
 
-vi.mock('electron', () => ({ ipcMain: { on: vi.fn(), removeAllListeners: state.removeAllListeners } }))
+vi.mock('electron', async () => {
+  const { EventEmitter } = await import('node:events')
+  return { ipcMain: new EventEmitter() }
+})
 vi.mock('apis/app/window/windowManager', () => ({
   default: { get: () => ({ webContents: { send: state.send } }) },
 }))
@@ -75,15 +80,20 @@ describe('S3 manager configuration', () => {
       Contents: [{ Key: 'folder/image.png', LastModified: new Date(0) }],
     } as never)
     const api = createApi('eu-west-3', 'https://images.example.invalid/')
-    const result = await api.getBucketFileList({
-      bucketName: 'photos',
-      bucketConfig: {},
-      prefix: '/',
-      marker: '',
-      itemsPerPage: 50,
-    })
+    const result = await listFromProvider(
+      api,
+      'getBucketFileList',
+      {
+        bucketName: 'photos',
+        bucketConfig: {},
+        prefix: '/',
+        marker: '',
+        itemsPerPage: 50,
+      },
+      state.send,
+    )
     expect(result.fullList[0].url).toBe('https://images.example.invalid/folder/image.png')
-    expect(send).toHaveBeenCalledWith(expect.any(ListObjectsV2Command))
+    expect(send).toHaveBeenCalledWith(expect.any(ListObjectsV2Command), { abortSignal: expect.any(AbortSignal) })
   })
 
   it('signs with the configured fallback region and keeps signatures on the API endpoint', async () => {
@@ -124,7 +134,7 @@ describe('S3 recursive listing credentials', () => {
       } as never)
     const api = createApi('', '', true)
 
-    await api.getBucketListRecursively(config)
+    await listFromProvider(api, 'getBucketListRecursively', config, state.send)
 
     expect(state.getTempToken).toHaveBeenCalledExactlyOnceWith('test-key', 'test-secret')
     expect(send).toHaveBeenCalledTimes(2)
@@ -135,15 +145,18 @@ describe('S3 recursive listing credentials', () => {
       { Bucket: 'photos', Prefix: 'folder/', MaxKeys: 1000, ContinuationToken: undefined },
       { Bucket: 'photos', Prefix: 'folder/', MaxKeys: 1000, ContinuationToken: 'page-2' },
     ])
-    expect(state.send).toHaveBeenLastCalledWith('refreshDownloadFileTransferList', {
-      fullList: [
-        expect.objectContaining({ key: 'folder/image.png' }),
-        expect.objectContaining({ key: 'folder/child/image.png' }),
-      ],
-      success: true,
-      finished: true,
-    })
-    expect(state.removeAllListeners).toHaveBeenCalledWith('cancelDownloadLoadingFileList')
+    expect(state.send).toHaveBeenLastCalledWith(
+      'refreshDownloadFileTransferList',
+      expect.objectContaining({
+        fullList: [
+          expect.objectContaining({ key: 'folder/image.png' }),
+          expect.objectContaining({ key: 'folder/child/image.png' }),
+        ],
+        success: true,
+        finished: true,
+      }),
+    )
+    expect(ipcMain.listenerCount('cancelDownloadLoadingFileList')).toBe(0)
   })
 
   it.each(['empty', 'rejected'])('reports failure without listing when the token response is %s', async response => {
@@ -158,17 +171,20 @@ describe('S3 recursive listing credentials', () => {
     } as never)
     const api = createApi('', '', true)
 
-    await api.getBucketListRecursively(config)
+    await listFromProvider(api, 'getBucketListRecursively', config, state.send)
 
     expect(state.getTempToken).toHaveBeenCalledExactlyOnceWith('test-key', 'test-secret')
     expect(send).not.toHaveBeenCalled()
     expect(api.logger.error).toHaveBeenCalledOnce()
-    expect(state.send).toHaveBeenLastCalledWith('refreshDownloadFileTransferList', {
-      fullList: [],
-      success: false,
-      finished: true,
-    })
-    expect(state.removeAllListeners).toHaveBeenCalledWith('cancelDownloadLoadingFileList')
+    expect(state.send).toHaveBeenLastCalledWith(
+      'refreshDownloadFileTransferList',
+      expect.objectContaining({
+        fullList: [],
+        success: false,
+        finished: true,
+      }),
+    )
+    expect(ipcMain.listenerCount('cancelDownloadLoadingFileList')).toBe(0)
   })
 
   it('uses configured credentials without a token exchange for ordinary S3', async () => {
@@ -178,16 +194,19 @@ describe('S3 recursive listing credentials', () => {
     } as never)
     const api = createApi()
 
-    await api.getBucketListRecursively(config)
+    await listFromProvider(api, 'getBucketListRecursively', config, state.send)
 
     expect(state.getTempToken).not.toHaveBeenCalled()
     expect(send).toHaveBeenCalledOnce()
     const client = send.mock.contexts[0] as S3Client
     expect(await client.config.credentials()).toMatchObject({ accessKeyId: 'test-key', secretAccessKey: 'test-secret' })
-    expect(state.send).toHaveBeenLastCalledWith('refreshDownloadFileTransferList', {
-      fullList: [],
-      success: true,
-      finished: true,
-    })
+    expect(state.send).toHaveBeenLastCalledWith(
+      'refreshDownloadFileTransferList',
+      expect.objectContaining({
+        fullList: [],
+        success: true,
+        finished: true,
+      }),
+    )
   })
 })
