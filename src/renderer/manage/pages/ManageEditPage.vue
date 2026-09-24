@@ -374,7 +374,7 @@ const validateAllFields = (picBedName: string): boolean => {
 
   for (const option of options) {
     validateField(picBedName, option)
-    if (formErrors.value[`${picBedName}.${option}`]) {
+    if (formErrors.value[option]) {
       isValid = false
     }
   }
