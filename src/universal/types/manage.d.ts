@@ -150,6 +150,12 @@ interface IManageConfigType {
   settings: Record<string, any>
   [others: string]: any
 }
+interface IUrlImportFile {
+  filePath: string
+  fileName: string
+  fileSize: number
+}
+
 interface IUploadTask {
   id: string
   progress: number

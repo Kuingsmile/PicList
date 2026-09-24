@@ -2,11 +2,7 @@ import crypto from 'node:crypto'
 import http from 'node:http'
 import https from 'node:https'
 import path from 'node:path'
-import { Stream } from 'node:stream'
-import { promisify } from 'node:util'
 
-import axios from 'axios'
-import { app } from 'electron'
 import fs from 'fs-extra'
 import got, { OptionsOfTextResponseBody, RequestError } from 'got'
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
@@ -18,6 +14,8 @@ import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ManageLogger } from '~/manage/utils/logger'
 import { formatHttpProxy } from '~/utils/common'
 import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
+
+export { clearTempFolder, downloadFileFromUrl } from './urlImportFiles'
 
 export const getFSFile = async (filePath: string, stream: boolean = false): Promise<IStringKeyMap> => {
   try {
@@ -39,41 +37,6 @@ export function isInputConfigValid(config: any): boolean {
 }
 
 export const getFileMimeType = (filePath: string): string => mime.getType(filePath) || 'application/octet-stream'
-
-const getTempDirPath = () => {
-  return path.join(app.getPath('temp'), 'piclistTemp')
-}
-
-const checkTempFolderExist = async (tempPath: string) => {
-  try {
-    await fs.access(tempPath)
-  } catch (_e) {
-    await fs.mkdir(tempPath)
-  }
-}
-
-export const downloadFileFromUrl = async (urls: string[]) => {
-  const tempPath = getTempDirPath()
-  await checkTempFolderExist(tempPath)
-  const result = [] as string[]
-  for (const url of urls) {
-    const finishDownload = promisify(Stream.finished)
-    const fileName = path.basename(url).split('?')[0]
-    const filePath = path.join(tempPath, fileName)
-    const writer = fs.createWriteStream(filePath)
-    const res = await axios({
-      method: 'get',
-      url,
-      responseType: 'stream',
-    })
-    res.data.pipe(writer)
-    await finishDownload(writer)
-    result.push(filePath)
-  }
-  return result
-}
-
-export const clearTempFolder = () => fs.emptyDirSync(getTempDirPath())
 
 export const md5 = (str: string, code: 'hex' | 'base64'): string => crypto.createHash('md5').update(str).digest(code)
 

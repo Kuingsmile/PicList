@@ -2392,13 +2392,13 @@ async function handleUploadFromUrl() {
     return
   }
   message.success(t('pages.manage.bucket.startUploadMsg'))
-  const res = await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DOWNLOAD_FILE_FROM_URL, urlList)
+  const res = await window.electron.triggerRPC<IUrlImportFile[]>(IRPCActionType.MANAGE_DOWNLOAD_FILE_FROM_URL, urlList)
+  if (!res?.length) return
   for (const item of res) {
-    const fPath = item.replace(/\\/g, '/')
     uploadPanelFilesList.value.push({
-      name: window.node.path.basename(fPath),
-      path: fPath,
-      size: window.node.fs.statSync(fPath).size,
+      name: item.fileName,
+      path: item.filePath.replace(/\\/g, '/'),
+      size: item.fileSize,
     })
   }
   uploadFiles()

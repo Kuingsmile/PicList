@@ -8,6 +8,8 @@ import fs from 'fs-extra'
 
 import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
+import { finishImportedFileUpload, retainImportedFileForUpload } from '../utils/urlImportFiles'
+
 class UpDownTaskQueue {
   private static instance: UpDownTaskQueue
 
@@ -45,6 +47,7 @@ class UpDownTaskQueue {
   }
 
   addUploadTask(task: IUploadTask) {
+    retainImportedFileForUpload(task.sourceFilePath, task.id)
     UpDownTaskQueue.getInstance().uploadTaskQueue.push(task)
   }
 
@@ -57,6 +60,15 @@ class UpDownTaskQueue {
           UpDownTaskQueue.getInstance().uploadTaskQueue[taskIndex][key] = task[key]
         }
       })
+    }
+    // Providers finish asynchronously, even if the visible task list was cleared.
+    if (
+      task.id &&
+      (task.status === uploadTaskSpecialStatus.uploaded ||
+        task.status === commonTaskStatus.failed ||
+        task.status === commonTaskStatus.canceled)
+    ) {
+      finishImportedFileUpload(task.id)
     }
   }
 
