@@ -6,7 +6,8 @@ import type { FileEntry } from 'ssh2'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import SftpApi from '../src/main/manage/apis/sftp'
-import { downloadTaskSpecialStatus } from '../src/main/utils/enum'
+import { removeFileFromSFTPInMain } from '../src/main/utils/deleteFunc'
+import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '../src/main/utils/enum'
 import SSHClient, { quoteShellArgument } from '../src/main/utils/sshClient'
 import { listFromProvider, listingIdentity } from './listingTestUtils'
 
@@ -21,11 +22,30 @@ const ssh = vi.hoisted(() => ({
   readdir: vi.fn(),
   endSFTP: vi.fn(),
   unlink: vi.fn(),
+  once: vi.fn(),
+  removeListener: vi.fn(),
+  stat: vi.fn(),
+  lstat: vi.fn(),
+  mkdir: vi.fn(),
+  rmdir: vi.fn(),
+  chmod: vi.fn(),
+  chown: vi.fn(),
+  open: vi.fn(),
+  close: vi.fn(),
+  ext_openssh_rename: vi.fn(),
+  rename: vi.fn(),
 }))
 const state = vi.hoisted(() => ({
   send: vi.fn(),
   ensureDir: vi.fn(),
-  queue: { getDownloadTask: vi.fn(), addDownloadTask: vi.fn(), updateDownloadTask: vi.fn() },
+  queue: {
+    getDownloadTask: vi.fn(),
+    addDownloadTask: vi.fn(),
+    updateDownloadTask: vi.fn(),
+    getUploadTask: vi.fn(),
+    addUploadTask: vi.fn(),
+    updateUploadTask: vi.fn(),
+  },
 }))
 const connections = vi.hoisted(() => [] as { connect: ReturnType<typeof vi.fn>; dispose: ReturnType<typeof vi.fn> }[])
 
@@ -65,74 +85,91 @@ vi.mock('~/utils/static', () => ({
 
 const config = { host: 'example.invalid', username: 'test' }
 const api = new SftpApi(config.host, 22, config.username, '', '', '', '', '', { error: vi.fn() } as never)
+const directories = new Set<string>()
+const channel = {
+  ...ssh,
+  end: ssh.endSFTP,
+}
 
 beforeEach(() => {
   vi.resetAllMocks()
   ipcMain.removeAllListeners()
   connections.length = 0
+  directories.clear()
   ssh.connect.mockResolvedValue(undefined)
   ssh.isConnected.mockReturnValue(true)
   ssh.putFile.mockResolvedValue(undefined)
   ssh.execCommand.mockResolvedValue({ code: 0, stdout: 'total 0\n' })
-  ssh.requestSFTP.mockResolvedValue({ unlink: ssh.unlink, readdir: ssh.readdir, end: ssh.endSFTP })
+  ssh.requestSFTP.mockResolvedValue(channel)
   ssh.readdir.mockImplementation((_remote, callback) => callback(undefined, []))
   ssh.unlink.mockImplementation((_remote, callback) => callback())
+  ssh.stat.mockImplementation((remote, callback) =>
+    directories.has(remote) ? callback(null, { isDirectory: () => true }) : callback({ code: 2 }),
+  )
+  ssh.lstat.mockImplementation((remote, callback) => callback(null, { isDirectory: () => directories.has(remote) }))
+  ssh.mkdir.mockImplementation((remote, _attrs, callback) => {
+    directories.add(remote)
+    callback()
+  })
+  ssh.rmdir.mockImplementation((remote, callback) => {
+    directories.delete(remote)
+    callback()
+  })
+  ssh.chmod.mockImplementation((_remote, _mode, callback) => callback())
+  ssh.open.mockImplementation((_remote, _flags, callback) => callback(null, Buffer.from('handle')))
+  ssh.close.mockImplementation((_handle, callback) => callback())
+  ssh.ext_openssh_rename.mockImplementation((_source, _destination, callback) => callback())
 })
 
 describe('SFTP command arguments', () => {
   it('preserves absolute upload paths and quotes symbolic permissions', async () => {
     const client = new SSHClient()
     await client.connect(config)
-    expect(await client.putFile('local.png', '\\images\\photo.png', { fileMode: 'u=rw,go=r' })).toBe(true)
-    expect(ssh.execCommand.mock.calls).toEqual([
-      ["mkdir -p -- '/images'"],
-      ["chmod -- 'u=rw,go=r' '/images/photo.png'"],
-    ])
-    expect(ssh.putFile).toHaveBeenCalledWith('local.png', '/images/photo.png')
+    await client.putFile('local.png', '\\images\\photo.png', { fileMode: 'u=rw,go=r' })
+    const stagedPath = ssh.putFile.mock.calls[0][1]
+    expect(ssh.execCommand.mock.calls).toEqual([[`chmod -- 'u=rw,go=r' '${stagedPath}'`]])
+    expect(ssh.putFile).toHaveBeenCalledWith('local.png', stagedPath, channel)
+    expect(ssh.ext_openssh_rename).toHaveBeenCalledWith(stagedPath, '/images/photo.png', expect.any(Function))
   })
 
   it('quotes directory names and custom permission values', async () => {
     const client = new SSHClient()
     await client.connect(config)
     await client.mkdir("/album's $(printf test)", { dirMode: '0700; printf test' })
-    expect(ssh.execCommand).toHaveBeenCalledWith(
-      "test -d '/album'\\''s $(printf test)' || (mkdir -- '/album'\\''s $(printf test)' && chmod -- '0700; printf test' '/album'\\''s $(printf test)')",
-    )
+    expect(ssh.execCommand).toHaveBeenCalledWith("chmod -- '0700; printf test' '/album'\\''s $(printf test)'")
   })
 
   it('does not upload when directory creation fails', async () => {
     const client = new SSHClient()
     await client.connect(config)
-    ssh.execCommand.mockResolvedValue({ code: 1 })
-    expect(await client.putFile('local.png', '/missing/photo.png')).toBe(false)
+    ssh.mkdir.mockImplementationOnce((_remote, _attrs, callback) => callback(new Error('Permission denied')))
+    await expect(client.putFile('local.png', '/missing/photo.png')).rejects.toThrow('Preparing upload directory failed')
     expect(ssh.putFile).not.toHaveBeenCalled()
   })
 
-  it('quotes filenames for create, rename and delete operations', async () => {
+  it('passes filenames literally to SFTP for create, rename and delete operations', async () => {
     const key = "album's $(printf test) `printf test`; &\nfile"
-    const quoted = "'/album'\\''s $(printf test) `printf test`; &\nfile'"
     await api.createBucketFolder({ key })
     await api.renameBucketFile({ oldKey: key, newKey: '-new' })
     await api.deleteBucketFile({ key })
     await api.deleteBucketFolder({ key })
-    expect(ssh.execCommand.mock.calls).toEqual([
-      [`mkdir -p -- ${quoted}`],
-      [`mv -f -- ${quoted} '/-new'`],
-      [`rm -f -- ${quoted}`],
-      [`rm -rf -- ${quoted}`],
-    ])
+    expect(ssh.mkdir).toHaveBeenCalledWith(`/${key}`, { mode: 0o775 }, expect.any(Function))
+    expect(ssh.ext_openssh_rename).toHaveBeenCalledWith(`/${key}`, '/-new', expect.any(Function))
+    expect(ssh.unlink).toHaveBeenCalledWith(`/${key}`, expect.any(Function))
+    expect(ssh.rmdir).toHaveBeenCalledWith(`/${key}`, expect.any(Function))
+    expect(ssh.execCommand).not.toHaveBeenCalled()
   })
 
-  it('quotes listing prefixes and rejects null bytes before running commands', async () => {
+  it('passes listing prefixes literally and rejects null bytes before sending paths', async () => {
     await listFromProvider(
       api,
       'getBucketListBackstage',
       { prefix: "-album's $(printf test)", baseDir: '/' },
       state.send,
     )
-    expect(ssh.execCommand).toHaveBeenCalledWith("cd -- '-album'\\''s $(printf test)' && ls -la --time-style=long-iso")
-    ssh.execCommand.mockClear()
+    expect(ssh.readdir).toHaveBeenCalledWith("-album's $(printf test)", expect.any(Function))
     expect(await api.deleteBucketFile({ key: 'bad\0file' })).toBe(false)
+    expect(ssh.unlink).not.toHaveBeenCalled()
     expect(ssh.execCommand).not.toHaveBeenCalled()
     expect(() => quoteShellArgument('bad\0argument')).toThrow('null bytes')
   })
@@ -197,7 +234,8 @@ describe('SFTP recursive folder downloads', () => {
     ])
     expect(ssh.readdir).toHaveBeenCalledTimes(4)
     expect(ssh.connect).toHaveBeenCalledOnce()
-    expect(ssh.endSFTP).toHaveBeenCalledTimes(4)
+    expect(ssh.requestSFTP).toHaveBeenCalledOnce()
+    expect(ssh.endSFTP).not.toHaveBeenCalled()
     expect(ssh.dispose).toHaveBeenCalledOnce()
     expect(ssh.execCommand).not.toHaveBeenCalled()
     expect(ipcMain.listenerCount('cancelDownloadLoadingFileList')).toBe(0)
@@ -268,7 +306,7 @@ describe('SFTP recursive folder downloads', () => {
     for (const { key } of files) {
       const targetFilePath = path.join(downloadPath, key)
       expect(state.queue.addDownloadTask).toHaveBeenCalledWith(expect.objectContaining({ targetFilePath }))
-      expect(ssh.getFile).toHaveBeenCalledWith(targetFilePath.replace(/\\/g, '/'), `/${key}`, undefined, {
+      expect(ssh.getFile).toHaveBeenCalledWith(targetFilePath, `/${key}`, channel, {
         concurrency: 1,
       })
       expect(state.queue.updateDownloadTask).toHaveBeenCalledWith(
@@ -310,7 +348,7 @@ describe('SFTP recursive folder downloads', () => {
         finished: true,
       }),
     )
-    expect(ssh.endSFTP).toHaveBeenCalledTimes(2)
+    expect(ssh.endSFTP).not.toHaveBeenCalled()
     expect(ssh.dispose).toHaveBeenCalledOnce()
     expect(ipcMain.listeners('cancelDownloadLoadingFileList')).toEqual([otherListener])
   })
@@ -331,7 +369,7 @@ describe('SFTP recursive folder downloads', () => {
         finished: true,
       }),
     )
-    expect(ssh.dispose).toHaveBeenCalledOnce()
+    expect(ssh.dispose).toHaveBeenCalledTimes(2)
     expect(ipcMain.listenerCount('cancelDownloadLoadingFileList')).toBe(0)
   })
 
@@ -366,7 +404,7 @@ describe('SFTP recursive folder downloads', () => {
         }),
       )
       expect(ssh.dispose).toHaveBeenCalledOnce()
-      expect(ssh.endSFTP).toHaveBeenCalledTimes(stage === 'readdir' ? 1 : 0)
+      expect(ssh.endSFTP).not.toHaveBeenCalled()
       expect(ipcMain.listenerCount('cancelDownloadLoadingFileList')).toBe(0)
     },
   )
@@ -386,7 +424,7 @@ describe('SFTP recursive folder downloads', () => {
         finished: true,
       }),
     )
-    expect(ssh.endSFTP).toHaveBeenCalledTimes(2)
+    expect(ssh.endSFTP).not.toHaveBeenCalled()
     expect(ssh.dispose).toHaveBeenCalledOnce()
     expect(ipcMain.listenerCount('cancelDownloadLoadingFileList')).toBe(0)
   })
@@ -394,12 +432,12 @@ describe('SFTP recursive folder downloads', () => {
 
 describe('SFTP connection ownership', () => {
   it('keeps overlapping operations on separate connections', async () => {
-    let release!: (value: unknown) => void
+    let release!: () => void
     let entered!: () => void
     const started = new Promise<void>(resolve => (entered = resolve))
-    ssh.execCommand.mockImplementationOnce(() => {
+    ssh.unlink.mockImplementationOnce((_remote, callback) => {
       entered()
-      return new Promise(resolve => (release = resolve))
+      release = () => callback()
     })
     const first = api.deleteBucketFile({ key: 'first.png' })
     await started
@@ -410,23 +448,39 @@ describe('SFTP connection ownership', () => {
     expect(connections[1].connect).toHaveBeenCalledWith(expect.objectContaining({ host: 'other.invalid' }))
     expect(connections[0].dispose).not.toHaveBeenCalled()
     expect(connections[1].dispose).toHaveBeenCalledOnce()
-    release({ code: 0 })
+    release()
     expect(await first).toBe(true)
     expect(connections[0].dispose).toHaveBeenCalledOnce()
   })
 
-  it.each(['connect', 'execCommand'] as const)('closes the operation connection when %s fails', async stage => {
-    ssh[stage].mockRejectedValue(new Error('Connection failed'))
+  it.each(['connect', 'unlink'] as const)('closes the operation connection when %s fails', async stage => {
+    if (stage === 'unlink') ssh.unlink.mockImplementation((_remote, callback) => callback(new Error('Unlink failed')))
+    else ssh.connect.mockRejectedValue(new Error('Connection failed'))
     expect(await api.deleteBucketFile({ key: 'image.png' })).toBe(false)
     expect(connections[0].dispose).toHaveBeenCalledOnce()
-    if (stage === 'connect') expect(ssh.execCommand).not.toHaveBeenCalled()
+    if (stage === 'connect') expect(ssh.unlink).not.toHaveBeenCalled()
   })
 
   it('uses one connection for gallery deletion', async () => {
-    expect(await new SSHClient().deleteFileSFTP(config, '\\images\\photo.png')).toBe(true)
+    expect(await removeFileFromSFTPInMain({ ...config, uploadPath: '\\images' }, 'photo.png')).toBe(true)
     expect(ssh.connect).toHaveBeenCalledOnce()
     expect(ssh.unlink).toHaveBeenCalledWith('/images/photo.png', expect.any(Function))
     expect(ssh.dispose).toHaveBeenCalledOnce()
+  })
+
+  it.each([
+    '../outside.png',
+    '../images/photo.png',
+    '/absolute.png',
+    'C:\\outside.png',
+    '..\\outside.png',
+    '.',
+    'bad\0name',
+    '*',
+  ])('rejects gallery deletion outside its upload directory or with an invalid name: %s', async fileName => {
+    expect(await removeFileFromSFTPInMain({ ...config, uploadPath: '/images' }, fileName)).toBe(false)
+    expect(ssh.connect).not.toHaveBeenCalled()
+    expect(ssh.unlink).not.toHaveBeenCalled()
   })
 
   it.each(['connect', 'requestSFTP', 'unlink'] as const)(
@@ -437,8 +491,209 @@ describe('SFTP connection ownership', () => {
       } else {
         ssh[stage].mockRejectedValue(new Error('Connection failed'))
       }
-      expect(await new SSHClient().deleteFileSFTP(config, '/images/photo.png')).toBe(false)
+      expect(await removeFileFromSFTPInMain({ ...config, uploadPath: '/images' }, 'photo.png')).toBe(false)
       expect(ssh.dispose).toHaveBeenCalledOnce()
     },
   )
+})
+
+describe('SFTP batch transfers', () => {
+  const fileArray = ['first.png', 'second.png'].map(fileName => ({
+    alias: 'test',
+    bucketName: 'sftp',
+    region: 'sftp',
+    key: `album/${fileName}`,
+    filePath: fileName,
+    fileName,
+  }))
+
+  it('reuses a connection, channel and prepared directories for a batch upload', async () => {
+    await api.uploadBucketFile({ fileArray })
+
+    expect(ssh.connect).toHaveBeenCalledOnce()
+    expect(ssh.requestSFTP).toHaveBeenCalledOnce()
+    expect(ssh.mkdir).toHaveBeenCalledOnce()
+    expect(ssh.putFile).toHaveBeenCalledTimes(2)
+    expect(ssh.dispose).toHaveBeenCalledOnce()
+    expect(state.queue.updateUploadTask.mock.calls.map(([task]) => task.status)).toEqual([
+      uploadTaskSpecialStatus.uploaded,
+      uploadTaskSpecialStatus.uploaded,
+    ])
+  })
+
+  it('marks only the failed upload and continues using the active connection', async () => {
+    ssh.putFile.mockRejectedValueOnce(new Error('Transfer failed'))
+
+    await api.uploadBucketFile({ fileArray })
+
+    expect(state.queue.updateUploadTask.mock.calls.map(([task]) => task.status)).toEqual([
+      commonTaskStatus.failed,
+      uploadTaskSpecialStatus.uploaded,
+    ])
+    expect(ssh.ext_openssh_rename).toHaveBeenCalledOnce()
+    expect(ssh.unlink).toHaveBeenCalledOnce()
+    expect(ssh.connect).toHaveBeenCalledOnce()
+    expect(ssh.dispose).toHaveBeenCalledOnce()
+  })
+
+  it('reconnects for the next file after a lost connection and rebuilds the directory cache', async () => {
+    ssh.putFile.mockImplementationOnce(async () => {
+      ssh.isConnected.mockReturnValue(false)
+      throw new Error('Connection lost')
+    })
+    ssh.connect.mockImplementation(async () => {
+      ssh.isConnected.mockReturnValue(true)
+    })
+
+    await api.uploadBucketFile({ fileArray })
+
+    expect(ssh.connect).toHaveBeenCalledTimes(2)
+    expect(ssh.requestSFTP).toHaveBeenCalledTimes(2)
+    expect(ssh.stat).toHaveBeenCalledTimes(2)
+    expect(ssh.dispose).toHaveBeenCalledTimes(2)
+    expect(state.queue.updateUploadTask.mock.calls.map(([task]) => task.status)).toEqual([
+      commonTaskStatus.failed,
+      uploadTaskSpecialStatus.uploaded,
+    ])
+  })
+
+  it('reuses the download connection while reporting failures per file', async () => {
+    ssh.getFile.mockRejectedValueOnce(new Error('Download failed'))
+
+    await api.downloadBucketFile({ fileArray, downloadPath: path.resolve('downloads') })
+
+    expect(ssh.connect).toHaveBeenCalledOnce()
+    expect(ssh.requestSFTP).toHaveBeenCalledOnce()
+    expect(ssh.getFile).toHaveBeenCalledTimes(2)
+    expect(ssh.dispose).toHaveBeenCalledOnce()
+    expect(state.queue.updateDownloadTask.mock.calls.map(([task]) => task.status)).toEqual([
+      commonTaskStatus.failed,
+      downloadTaskSpecialStatus.downloaded,
+    ])
+  })
+
+  it('does not connect for empty or already queued batches', async () => {
+    state.queue.getUploadTask.mockReturnValue({})
+    state.queue.getDownloadTask.mockReturnValue({})
+
+    for (const files of [[], fileArray]) {
+      await api.uploadBucketFile({ fileArray: files })
+      await api.downloadBucketFile({ fileArray: files, downloadPath: path.resolve('downloads') })
+    }
+
+    expect(ssh.connect).not.toHaveBeenCalled()
+    expect(state.queue.addUploadTask).not.toHaveBeenCalled()
+    expect(state.queue.addDownloadTask).not.toHaveBeenCalled()
+  })
+
+  it('reports every file when the batch cannot connect', async () => {
+    ssh.connect.mockRejectedValue(new Error('Authentication failed'))
+
+    await api.uploadBucketFile({ fileArray })
+
+    expect(state.queue.updateUploadTask.mock.calls.map(([task]) => task.status)).toEqual([
+      commonTaskStatus.failed,
+      commonTaskStatus.failed,
+    ])
+    expect(ssh.putFile).not.toHaveBeenCalled()
+    expect(ssh.dispose).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('SFTP file management', () => {
+  it('lists names and attributes without parsing shell output', async () => {
+    const filename = 'two  spaces\t雪\nphoto.png'
+    ssh.readdir.mockImplementationOnce((_remote, callback) =>
+      callback(null, [
+        folder('.'),
+        folder('..'),
+        folder('child'),
+        entry(filename),
+        entry('link', constants.S_IFLNK | 0o777),
+      ]),
+    )
+
+    const result = await listFromProvider(
+      api,
+      'getBucketListBackstage',
+      {
+        prefix: '/album/',
+        baseDir: '/album',
+        webPath: 'images',
+        customUrl: 'https://example.invalid',
+      },
+      state.send,
+    )
+
+    expect(result.success).toBe(true)
+    expect(result.fullList).toHaveLength(3)
+    expect(result.fullList).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          fileName: filename,
+          key: `album/${filename}`,
+          fileSize: 123,
+          owner: '1000',
+          group: '1000',
+          permissions: '-rw-r--r--',
+          mtime: new Date(1700000000000).toISOString(),
+          url: `https://example.invalid/images/${filename}`,
+        }),
+        expect.objectContaining({ fileName: 'child', isDir: true, permissions: 'drwxr-xr-x' }),
+        expect.objectContaining({ fileName: 'link', isDir: false, permissions: 'lrwxrwxrwx' }),
+      ]),
+    )
+    expect(ssh.execCommand).not.toHaveBeenCalled()
+  })
+
+  it('removes directories from the leaves up and unlinks symlinks without traversing them', async () => {
+    directories.add('/album')
+    directories.add('/album/child')
+    mockDirectories({
+      '/album': [folder('.'), folder('..'), folder('child'), entry('link', constants.S_IFLNK | 0o777)],
+      '/album/child': [entry('photo.png')],
+    })
+
+    expect(await api.deleteBucketFolder({ key: 'album' })).toBe(true)
+
+    expect(ssh.readdir.mock.calls.map(([remote]) => remote)).toEqual(['/album', '/album/child'])
+    expect(ssh.unlink.mock.calls.map(([remote]) => remote)).toEqual(['/album/child/photo.png', '/album/link'])
+    expect(ssh.rmdir.mock.calls.map(([remote]) => remote)).toEqual(['/album/child', '/album'])
+    expect(ssh.requestSFTP).toHaveBeenCalledOnce()
+    expect(ssh.execCommand).not.toHaveBeenCalled()
+  })
+
+  it.each(['', '/', '.', '..', '/album/..', '\\album\\..', 'album/*'])(
+    'refuses deletion of a normalized root or wildcard path: %s',
+    async key => {
+      expect(await api.deleteBucketFolder({ key })).toBe(false)
+      expect(ssh.lstat).not.toHaveBeenCalled()
+      expect(ssh.unlink).not.toHaveBeenCalled()
+      expect(ssh.rmdir).not.toHaveBeenCalled()
+    },
+  )
+
+  it('treats missing files as deleted but reports permission errors', async () => {
+    ssh.unlink.mockImplementationOnce((_remote, callback) => callback({ code: 2 }))
+    expect(await api.deleteBucketFile({ key: 'missing.png' })).toBe(true)
+    ssh.unlink.mockImplementationOnce((_remote, callback) => callback({ code: 3 }))
+    expect(await api.deleteBucketFile({ key: 'protected.png' })).toBe(false)
+  })
+
+  it('does not remove a parent when a child cannot be deleted', async () => {
+    directories.add('/album')
+    mockDirectories({ '/album': [entry('protected.png')] })
+    ssh.unlink.mockImplementationOnce((_remote, callback) => callback({ code: 3 }))
+
+    expect(await api.deleteBucketFolder({ key: 'album' })).toBe(false)
+    expect(ssh.rmdir).not.toHaveBeenCalled()
+  })
+
+  it('unlinks a directory symlink even when its requested path has a trailing slash', async () => {
+    expect(await api.deleteBucketFolder({ key: 'album/link/' })).toBe(true)
+    expect(ssh.lstat).toHaveBeenCalledWith('/album/link', expect.any(Function))
+    expect(ssh.unlink).toHaveBeenCalledWith('/album/link', expect.any(Function))
+    expect(ssh.readdir).not.toHaveBeenCalled()
+    expect(ssh.rmdir).not.toHaveBeenCalled()
+  })
 })

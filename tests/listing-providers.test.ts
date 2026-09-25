@@ -86,7 +86,7 @@ describe.each(providers)('%s listing contract', (name, Provider, response) => {
   const methods = ['getBucketListBackstage', 'getBucketListRecursively', 'getBucketFileList'].filter(
     method => method in Provider.prototype,
   )
-  function fixture(method: string) {
+  function fixture() {
     const api = Object.assign(Object.create(Provider.prototype), {
       getNewCtx: () => ({ listV2: state.request }),
       ctx: { getBucket: state.request, getDirectoryContents: state.request },
@@ -100,7 +100,7 @@ describe.each(providers)('%s listing contract', (name, Provider, response) => {
       logParam: vi.fn(),
       isRequestSuccess: (status: number) => (name === 'sftp' ? status === 0 : status === 200),
     })
-    const result = name === 'sftp' && method === 'getBucketListBackstage' ? { code: 0, stdout: 'total 0\n' } : response
+    const result = response
     const config = {
       accountId: 'account',
       provider: name,
@@ -117,7 +117,7 @@ describe.each(providers)('%s listing contract', (name, Provider, response) => {
   }
 
   it.each(methods)('%s identifies all results and removes only its own listener on success', async method => {
-    const { api, result, config } = fixture(method)
+    const { api, result, config } = fixture()
     state.request.mockResolvedValue(result)
     const kind = method === 'getBucketListRecursively' ? 'download' : 'files'
     const request = listingIdentity(config, kind)
@@ -137,7 +137,7 @@ describe.each(providers)('%s listing contract', (name, Provider, response) => {
   })
 
   it.each(methods)('%s cancels an in-flight job while another job finishes', async method => {
-    const { api, result, config } = fixture(method)
+    const { api, result, config } = fixture()
     const releases: ((result: unknown) => void)[] = []
     state.request.mockImplementation(() => new Promise(resolve => releases.push(resolve)))
     const kind = method === 'getBucketListRecursively' ? 'download' : 'files'
@@ -160,7 +160,7 @@ describe.each(providers)('%s listing contract', (name, Provider, response) => {
   })
 
   it.each(methods)('%s identifies failures and releases cancellation listeners', async method => {
-    const { api, config } = fixture(method)
+    const { api, config } = fixture()
     state.request.mockRejectedValue(new Error('Test listing failure'))
     const kind = method === 'getBucketListRecursively' ? 'download' : 'files'
     await expect(listFromProvider(api, method, config, state.send)).resolves.toMatchObject({

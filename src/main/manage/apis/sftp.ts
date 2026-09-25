@@ -2,6 +2,7 @@ import { constants } from 'node:fs'
 import path from 'node:path'
 
 import fs from 'fs-extra'
+import type { FileEntry } from 'ssh2'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
@@ -9,7 +10,7 @@ import { formatError } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
 import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
-import SSHClient, { quoteShellArgument } from '~/utils/sshClient'
+import SSHClient from '~/utils/sshClient'
 
 interface listDirResult {
   permissions: string
@@ -73,23 +74,6 @@ class SftpApi {
 
   logParam = (error: any, method: string) => this.logger.error(formatError(error, { class: 'SftpApi', method }))
 
-  transFormPermission = (permissionsStr: string) => {
-    const permissions = permissionsStr.length === 10 ? permissionsStr.slice(1) : permissionsStr
-    let result = ''
-    for (let i = 0; i < 3; i++) {
-      const chunk = permissions.slice(i * 3, i * 3 + 3)
-      let value = 0
-
-      if (chunk[0] === 'r') value += 4
-      if (chunk[1] === 'w') value += 2
-      if (chunk[2] === 'x') value += 1
-
-      result += value
-    }
-
-    return `0${result}`
-  }
-
   formatFolder(item: listDirResult, urlPrefix: string, isWebPath = false) {
     const key = item.key
     let url: string
@@ -134,14 +118,14 @@ class SftpApi {
     }
   }
 
-  isRequestSuccess = (code: number | null) => code === 0
-
   private async withClient<T>(action: (client: SSHClient) => Promise<T>, signal?: AbortSignal): Promise<T> {
     const client = new SSHClient()
     let closed = false
     const close = () => {
-      if (!closed) client.close()
-      closed = true
+      if (!closed) {
+        closed = true
+        client.close()
+      }
     }
     signal?.addEventListener('abort', close, { once: true })
     try {
@@ -149,7 +133,7 @@ class SftpApi {
       await client.connect(this.config)
       signal?.throwIfAborted()
       if (!client.isConnected) {
-        throw new Error('SSH 未连接')
+        throw new Error('SSH client is not connected')
       }
       return await action(client)
     } finally {
@@ -169,7 +153,7 @@ class SftpApi {
     try {
       await listing.wait(() =>
         this.withClient(async client => {
-          const directories = [path.posix.normalize(prefix)]
+          const directories = [path.posix.normalize(prefix.replace(/\\/g, '/'))]
           while (directories.length && !listing.signal.aborted) {
             const directory = directories.pop()!
             const entries = await listing.wait(() => client.readDirectory(directory))
@@ -207,30 +191,26 @@ class SftpApi {
     listing.publish(result)
   }
 
-  formatLSResult(res: string, cwd: string): listDirResult[] {
-    const result = [] as listDirResult[]
-    const resArray = res.trim().split('\n')
-    resArray.slice(resArray[0].startsWith('total') ? 1 : 0).forEach((item: string) => {
-      const [permissions, , owner, group, size, date, time, ...name] = item.trim().split(/\s+/)
-      const filename = name.join(' ')
-      if (filename === '.' || filename === '..') {
-        return
-      }
-      const isDir = permissions.startsWith('d')
-      const mtime = `${date} ${time}`
-      const key = path.join(cwd, filename).replace(/\\/g, '/').replace(/^\/+/, '')
-      result.push({
-        permissions,
-        isDir,
-        owner,
-        group,
-        size: Number(size) || 0,
-        mtime,
-        filename,
-        key,
-      })
-    })
-    return result
+  private formatEntry({ filename, attrs }: FileEntry, cwd: string): listDirResult {
+    const type = attrs.mode & constants.S_IFMT
+    const permissions = Array.from({ length: 9 }, (_, i) => (attrs.mode & (1 << (8 - i)) ? 'rwx'[i % 3] : '-'))
+    for (const [flag, index, executable, nonExecutable] of [
+      [0o4000, 2, 's', 'S'],
+      [0o2000, 5, 's', 'S'],
+      [0o1000, 8, 't', 'T'],
+    ] as const) {
+      if (attrs.mode & flag) permissions[index] = permissions[index] === 'x' ? executable : nonExecutable
+    }
+    return {
+      permissions: `${type === constants.S_IFDIR ? 'd' : type === constants.S_IFLNK ? 'l' : '-'}${permissions.join('')}`,
+      isDir: type === constants.S_IFDIR,
+      owner: String(attrs.uid),
+      group: String(attrs.gid),
+      size: attrs.size,
+      mtime: new Date(attrs.mtime * 1000).toISOString(),
+      filename,
+      key: path.posix.join(cwd.replace(/\\/g, '/'), filename).replace(/^\/+/, ''),
+    }
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
@@ -247,30 +227,17 @@ class SftpApi {
       finished: false,
     }
     try {
-      const res = await listing.wait(() =>
-        this.withClient(
-          client => client.execCommand(`cd -- ${quoteShellArgument(prefix)} && ls -la --time-style=long-iso`),
-          listing.signal,
-        ),
-      )
-      if (this.isRequestSuccess(res.code)) {
-        const formatedLSRes = this.formatLSResult(res.stdout, prefix)
-        if (formatedLSRes.length) {
-          formatedLSRes.forEach((item: listDirResult) => {
-            const relativePath = path.relative(baseDir, item.key.startsWith('/') ? item.key : `/${item.key}`)
-            const relative =
-              webPath && urlPrefix + `/${path.join(webPath, relativePath)}`.replace(/\\/g, '/').replace(/\/+/g, '/')
-            if (item.isDir) {
-              result.fullList.push(this.formatFolder(item, webPath ? relative : urlPrefix, !!webPath))
-            } else {
-              result.fullList.push(this.formatFile(item, webPath ? relative : urlPrefix, !!webPath))
-            }
-          })
-        }
-      } else {
-        result.finished = true
-        listing.publish(result)
-        return
+      const entries = await listing.wait(() => this.withClient(client => client.readDirectory(prefix), listing.signal))
+      for (const entry of entries) {
+        if (entry.filename === '.' || entry.filename === '..') continue
+        const item = this.formatEntry(entry, prefix)
+        const relativePath = path.posix.relative(baseDir.replace(/\\/g, '/'), `/${item.key}`)
+        const relative = webPath && `${urlPrefix}/${path.posix.join(webPath.replace(/\\/g, '/'), relativePath)}`
+        result.fullList.push(
+          item.isDir
+            ? this.formatFolder(item, webPath ? relative : urlPrefix, !!webPath)
+            : this.formatFile(item, webPath ? relative : urlPrefix, !!webPath),
+        )
       }
     } catch (error) {
       if (!listing.signal.aborted) this.logParam(error, 'getBucketListBackstage')
@@ -287,12 +254,10 @@ class SftpApi {
     const { oldKey, newKey } = configMap
     let result = false
     try {
-      const res = await this.withClient(client =>
-        client.execCommand(
-          `mv -f -- ${quoteShellArgument(`/${oldKey.replace(/^\/+/, '')}`)} ${quoteShellArgument(`/${newKey.replace(/^\/+/, '')}`)}`,
-        ),
+      await this.withClient(client =>
+        client.renameFile(`/${oldKey.replace(/^\/+/, '')}`, `/${newKey.replace(/^\/+/, '')}`),
       )
-      result = this.isRequestSuccess(res.code)
+      result = true
     } catch (error) {
       this.logParam(error, 'renameBucketFile')
     }
@@ -303,10 +268,8 @@ class SftpApi {
     const { key } = configMap
     let result = false
     try {
-      const res = await this.withClient(client =>
-        client.execCommand(`rm -f -- ${quoteShellArgument(`/${key.replace(/^\/+/, '')}`)}`),
-      )
-      result = this.isRequestSuccess(res.code)
+      await this.withClient(client => client.deleteFile(`/${key.replace(/^\/+/, '')}`, true))
+      result = true
     } catch (error) {
       this.logParam(error, 'deleteBucketFile')
     }
@@ -317,13 +280,8 @@ class SftpApi {
     const { key } = configMap
     let result = false
     try {
-      if (key.replace(/^\/+/, '') === '' || key.includes('*')) {
-        throw new Error('禁止删除')
-      }
-      const res = await this.withClient(client =>
-        client.execCommand(`rm -rf -- ${quoteShellArgument(`/${key.replace(/^\/+/, '')}`)}`),
-      )
-      result = this.isRequestSuccess(res.code)
+      await this.withClient(client => client.deleteDirectory(`/${key.replace(/^\/+/, '')}`))
+      result = true
     } catch (error) {
       this.logParam(error, 'deleteBucketFolder')
     }
@@ -333,38 +291,39 @@ class SftpApi {
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { fileArray } = configMap
     const instance = UpDownTaskQueue.getInstance()
-    for (const item of fileArray) {
-      const { alias, bucketName, region, key, filePath, fileName } = item
-      const id = `${alias}-${bucketName}-${key}-${filePath}`
-      if (instance.getUploadTask(id)) {
-        continue
-      }
-      instance.addUploadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        sourceFilePath: filePath,
-        targetFilePath: key,
-        targetFileBucket: bucketName,
-        targetFileRegion: region,
-        noProgress: false,
-      })
-      try {
-        const res = await this.withClient(client =>
-          client.putFile(filePath, `/${key.replace(/^\/+/, '')}`, {
+    const client = new SSHClient()
+    try {
+      for (const item of fileArray) {
+        const { alias, bucketName, region, key, filePath, fileName } = item
+        const id = `${alias}-${bucketName}-${key}-${filePath}`
+        if (instance.getUploadTask(id)) {
+          continue
+        }
+        instance.addUploadTask({
+          id,
+          progress: 0,
+          status: commonTaskStatus.queuing,
+          sourceFileName: fileName,
+          sourceFilePath: filePath,
+          targetFilePath: key,
+          targetFileBucket: bucketName,
+          targetFileRegion: region,
+          noProgress: false,
+        })
+        try {
+          if (!client.isConnected) await client.connect(this.config)
+          await client.putFile(filePath, `/${key.replace(/^\/+/, '')}`, {
             fileMode: this.fileMode,
             dirMode: this.dirMode,
-          }),
-        )
-        if (res) {
+          })
           instance.updateUploadTask({
             id,
             progress: 100,
             status: uploadTaskSpecialStatus.uploaded,
             finishTime: new Date().toLocaleString(),
           })
-        } else {
+        } catch (error) {
+          this.logParam(error, 'uploadBucketFile')
           instance.updateUploadTask({
             id,
             progress: 0,
@@ -372,15 +331,9 @@ class SftpApi {
             finishTime: new Date().toLocaleString(),
           })
         }
-      } catch (error) {
-        this.logParam(error, 'uploadBucketFile')
-        instance.updateUploadTask({
-          id,
-          progress: 0,
-          status: commonTaskStatus.failed,
-          finishTime: new Date().toLocaleString(),
-        })
       }
+    } finally {
+      client.close()
     }
     return true
   }
@@ -389,10 +342,8 @@ class SftpApi {
     const { key } = configMap
     let result = false
     try {
-      const res = await this.withClient(client =>
-        client.execCommand(`mkdir -p -- ${quoteShellArgument(`/${key.replace(/^\/+/, '')}`)}`),
-      )
-      result = this.isRequestSuccess(res.code)
+      await this.withClient(client => client.mkdir(`/${key.replace(/^\/+/, '')}`, { dirMode: this.dirMode }))
+      result = true
     } catch (error) {
       this.logParam(error, 'createBucketFolder')
     }
@@ -402,31 +353,34 @@ class SftpApi {
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { downloadPath, fileArray } = configMap
     const instance = UpDownTaskQueue.getInstance()
-    for (const item of fileArray) {
-      const { alias, bucketName, region, key, fileName } = item
-      const savedFilePath = path.join(downloadPath, fileName)
-      const id = `${alias}-${bucketName}-${region}-${key}`
-      if (instance.getDownloadTask(id)) {
-        continue
-      }
-      instance.addDownloadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        targetFilePath: savedFilePath,
-      })
-      try {
-        await fs.ensureDir(path.dirname(savedFilePath))
-        const res = await this.withClient(client => client.getFile(savedFilePath, `/${key.replace(/^\/+/, '')}`))
-        if (res) {
+    const client = new SSHClient()
+    try {
+      for (const item of fileArray) {
+        const { alias, bucketName, region, key, fileName } = item
+        const savedFilePath = path.join(downloadPath, fileName)
+        const id = `${alias}-${bucketName}-${region}-${key}`
+        if (instance.getDownloadTask(id)) {
+          continue
+        }
+        instance.addDownloadTask({
+          id,
+          progress: 0,
+          status: commonTaskStatus.queuing,
+          sourceFileName: fileName,
+          targetFilePath: savedFilePath,
+        })
+        try {
+          await fs.ensureDir(path.dirname(savedFilePath))
+          if (!client.isConnected) await client.connect(this.config)
+          await client.getFile(savedFilePath, `/${key.replace(/^\/+/, '')}`)
           instance.updateDownloadTask({
             id,
             progress: 100,
             status: downloadTaskSpecialStatus.downloaded,
             finishTime: new Date().toLocaleString(),
           })
-        } else {
+        } catch (error) {
+          this.logParam(error, 'downloadBucketFile')
           instance.updateDownloadTask({
             id,
             progress: 0,
@@ -434,15 +388,9 @@ class SftpApi {
             finishTime: new Date().toLocaleString(),
           })
         }
-      } catch (error) {
-        this.logParam(error, 'downloadBucketFile')
-        instance.updateDownloadTask({
-          id,
-          progress: 0,
-          status: commonTaskStatus.failed,
-          finishTime: new Date().toLocaleString(),
-        })
       }
+    } finally {
+      client.close()
     }
     return true
   }

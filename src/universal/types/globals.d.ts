@@ -1,6 +1,5 @@
 declare module 'ssh2-no-cpu-features' {
-  const Client: any
-  export { Client }
+  export * from 'ssh2'
 }
 
 declare module 'shell-path' {
