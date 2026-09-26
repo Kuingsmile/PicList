@@ -13,7 +13,10 @@ import {
   formatError,
   getFileMimeType,
   gotUpload,
+  isUploadResponseObject,
+  isUploadResponseString,
   NewDownloader,
+  type UploadResult,
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
@@ -195,8 +198,9 @@ class SmmsApi {
    * @param configMap
    */
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray } = configMap
+    const { fileArray, signal } = configMap
     const instance = UpDownTaskQueue.getInstance()
+    const uploads: Promise<UploadResult>[] = []
     for (const item of fileArray) {
       const { bucketName, region, key, filePath, fileName } = item
       const id = `${bucketName}-${region}-${key}-${filePath}`
@@ -213,18 +217,32 @@ class SmmsApi {
         targetFileBucket: bucketName,
         targetFileRegion: region,
       })
-      const form = new FormData()
-      form.append('format', 'json')
-      form.append('smfile', fs.createReadStream(filePath), {
-        filename: path.basename(fileName),
-        contentType: getFileMimeType(fileName),
-      })
-      const headers = form.getHeaders()
-      headers.Authorization = this.token
-      const url = `${this.baseUrl}/file/upload`
-      gotUpload(instance, url, 'POST', form, headers, id, this.logger)
+      uploads.push(
+        gotUpload(instance, id, {
+          prepare: () => {
+            const form = new FormData()
+            form.append('format', 'json')
+            const headers = { ...form.getHeaders(), Authorization: this.token }
+            const fileOptions = { filename: path.basename(fileName), contentType: getFileMimeType(fileName) }
+            const source = fs.createReadStream(filePath)
+            form.append('smfile', source, fileOptions)
+            return { url: `${this.baseUrl}/file/upload`, method: 'POST', body: form, headers, source }
+          },
+          // S.EE's current and SM.MS-compatible APIs use different success codes.
+          validateResponse: (body, statusCode) =>
+            statusCode === 200 &&
+            isUploadResponseObject(body) &&
+            (body.code === 0 || body.code === 200 || (body.code === 'success' && body.success === true)) &&
+            (body.success === undefined || body.success === true) &&
+            isUploadResponseObject(body.data) &&
+            isUploadResponseString(body.data.url) &&
+            isUploadResponseString(body.data.hash),
+          signal,
+          logger: this.logger,
+        }),
+      )
     }
-    return true
+    return (await Promise.all(uploads)).every(result => result.success)
   }
 
   /**

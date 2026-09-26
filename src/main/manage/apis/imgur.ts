@@ -14,7 +14,10 @@ import {
   getFileMimeType,
   getOptions,
   gotUpload,
+  isUploadResponseObject,
+  isUploadResponseString,
   NewDownloader,
+  type UploadResult,
 } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { formatHttpProxy, isImage } from '~/utils/common'
@@ -163,8 +166,9 @@ class ImgurApi {
    * @param configMap
    */
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray } = configMap
+    const { fileArray, signal } = configMap
     const instance = UpDownTaskQueue.getInstance()
+    const uploads: Promise<UploadResult>[] = []
     fileArray.forEach((item: any) => {
       item.key = item.key.replace(/^\/+/, '')
     })
@@ -184,38 +188,35 @@ class ImgurApi {
         targetFileBucket: bucketName,
         targetFileRegion: albumHash,
       })
-      const form = new FormData()
-      form.append('type', 'file')
-      form.append('description', 'uploaded by PicList')
-      form.append('name', path.basename(key, path.extname(key)))
-      if (fileSize > 1024 * 1024 * 10) {
-        form.append('video', fs.createReadStream(filePath), {
-          filename: path.basename(key),
-          contentType: getFileMimeType(fileName),
-        })
-      } else {
-        form.append('image', fs.createReadStream(filePath), {
-          filename: path.basename(key),
-          contentType: getFileMimeType(fileName),
-        })
-      }
-      albumHash !== 'unclassified' && form.append('album', albumHash)
-      const headers = form.getHeaders()
-      headers.Authorization = this.accessToken
-      gotUpload(
-        instance,
-        `${this.baseUrl}/image`,
-        'POST',
-        form,
-        headers,
-        id,
-        this.logger,
-        30000,
-        false,
-        getAgent(this.proxy),
+      uploads.push(
+        gotUpload(instance, id, {
+          prepare: () => {
+            const form = new FormData()
+            form.append('type', 'file')
+            form.append('description', 'uploaded by PicList')
+            form.append('name', path.basename(key, path.extname(key)))
+            albumHash !== 'unclassified' && form.append('album', albumHash)
+            const headers = { ...form.getHeaders(), Authorization: this.accessToken }
+            const agent = getAgent(this.proxy)
+            const fileOptions = { filename: path.basename(key), contentType: getFileMimeType(fileName) }
+            const source = fs.createReadStream(filePath)
+            form.append(fileSize > 1024 * 1024 * 10 ? 'video' : 'image', source, fileOptions)
+            return { url: `${this.baseUrl}/image`, method: 'POST', body: form, headers, agent, source }
+          },
+          validateResponse: (body, statusCode) =>
+            statusCode === 200 &&
+            isUploadResponseObject(body) &&
+            body.success === true &&
+            body.status === 200 &&
+            isUploadResponseObject(body.data) &&
+            isUploadResponseString(body.data.id) &&
+            isUploadResponseString(body.data.link),
+          signal,
+          logger: this.logger,
+        }),
       )
     }
-    return true
+    return (await Promise.all(uploads)).every(result => result.success)
   }
 
   /**

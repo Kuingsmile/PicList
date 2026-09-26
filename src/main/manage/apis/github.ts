@@ -1,3 +1,5 @@
+import { setTimeout as delay } from 'node:timers/promises'
+
 import fs from 'fs-extra'
 import got from 'got'
 
@@ -10,6 +12,8 @@ import {
   getAgent,
   getOptions,
   gotUpload,
+  isUploadResponseObject,
+  isUploadResponseString,
   NewDownloader,
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
@@ -438,8 +442,10 @@ class GithubApi {
    * @param configMap
    */
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray } = configMap
+    const { fileArray, signal } = configMap
     const instance = UpDownTaskQueue.getInstance()
+    let success = true
+    let shouldDelay = false
     fileArray.forEach((item: any) => {
       item.key.startsWith('/') && (item.key = item.key.slice(1))
     })
@@ -450,8 +456,6 @@ class GithubApi {
       if (instance.getUploadTask(id)) {
         continue
       }
-      const trimKey = trimPath(key)
-      const base64Content = fs.readFileSync(filePath, { encoding: 'base64' })
       instance.addUploadTask({
         id,
         progress: 0,
@@ -463,25 +467,34 @@ class GithubApi {
         targetFileRegion: region,
       })
 
-      await gotUpload(
-        instance,
-        `${this.baseUrl}/repos/${this.username}/${repo}/contents/${trimKey}`,
-        'PUT',
-        JSON.stringify({
-          message: 'uploaded by PicList',
-          branch,
-          content: base64Content,
+      // Keep GitHub writes serial, including provider validation, and space requests apart.
+      if (shouldDelay && !signal?.aborted) await delay(3000, undefined, { signal }).catch(() => {})
+      const result = await gotUpload(instance, id, {
+        prepare: () => ({
+          url: `${this.baseUrl}/repos/${this.username}/${repo}/contents/${trimPath(key)}`,
+          method: 'PUT',
+          body: JSON.stringify({
+            message: 'uploaded by PicList',
+            branch,
+            content: fs.readFileSync(filePath, { encoding: 'base64' }),
+          }),
+          headers: this.commonHeaders,
+          agent: getAgent(this.proxy),
         }),
-        this.commonHeaders,
-        id,
-        this.logger,
-        30000,
-        false,
-        getAgent(this.proxy),
-      )
-      await new Promise(resolve => setTimeout(resolve, 3000))
+        validateResponse: (body, statusCode) =>
+          (statusCode === 200 || statusCode === 201) &&
+          isUploadResponseObject(body) &&
+          isUploadResponseObject(body.content) &&
+          isUploadResponseString(body.content.sha) &&
+          isUploadResponseObject(body.commit) &&
+          isUploadResponseString(body.commit.sha),
+        signal,
+        logger: this.logger,
+      })
+      success = result.success && success
+      shouldDelay = true
     }
-    return true
+    return success
   }
 
   /**

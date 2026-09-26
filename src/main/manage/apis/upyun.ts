@@ -14,8 +14,11 @@ import {
   getFileMimeType,
   gotUpload,
   hmacSha1Base64,
+  isUploadResponseObject,
+  isUploadResponseString,
   md5,
   NewDownloader,
+  type UploadResult,
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
@@ -359,8 +362,9 @@ class UpyunApi {
    * @param configMap
    */
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray } = configMap
+    const { fileArray, signal } = configMap
     const instance = UpDownTaskQueue.getInstance()
+    const uploads: Promise<UploadResult>[] = []
     fileArray.forEach((item: any) => {
       item.key = item.key.replace(/^\/+/, '')
     })
@@ -380,34 +384,47 @@ class UpyunApi {
         targetFileBucket: bucketName,
         targetFileRegion: region,
       })
-      const date = new Date().toUTCString()
-      const uri = `/${key}`
-      const method = 'POST'
-      const uplpadPolicy = {
-        bucket: bucketName,
-        'save-key': uri,
-        expiration: Math.floor(Date.now() / 1000) + 2592000,
-        date,
-        'content-length': fileSize,
-      }
-      const base64Policy = Buffer.from(JSON.stringify(uplpadPolicy)).toString('base64')
-      const stringToSign = `${method}&/${bucketName}&${date}&${base64Policy}`
-      const signature = hmacSha1Base64(md5(this.password, 'hex'), stringToSign)
-      const authorization = `UPYUN ${this.operator}:${signature}`
-      const form = new FormData()
-      form.append('policy', base64Policy)
-      form.append('authorization', authorization)
-      form.append('file', fs.createReadStream(filePath), {
-        filename: path.basename(key),
-        contentType: getFileMimeType(fileName),
-      })
-      const headers = form.getHeaders()
-      headers.Host = 'v0.api.upyun.com'
-      headers.Date = date
-      headers.Authorization = authorization
-      gotUpload(instance, `http://v0.api.upyun.com/${bucketName}`, method, form, headers, id, this.logger)
+      uploads.push(
+        gotUpload(instance, id, {
+          prepare: () => {
+            const date = new Date().toUTCString()
+            const uploadPolicy = {
+              bucket: bucketName,
+              'save-key': `/${key}`,
+              expiration: Math.floor(Date.now() / 1000) + 2592000,
+              date,
+              'content-length': fileSize,
+            }
+            const base64Policy = Buffer.from(JSON.stringify(uploadPolicy)).toString('base64')
+            const stringToSign = `POST&/${bucketName}&${date}&${base64Policy}`
+            const signature = hmacSha1Base64(md5(this.password, 'hex'), stringToSign)
+            const authorization = `UPYUN ${this.operator}:${signature}`
+            const form = new FormData()
+            form.append('policy', base64Policy)
+            form.append('authorization', authorization)
+            const headers = {
+              ...form.getHeaders(),
+              Host: 'v0.api.upyun.com',
+              Date: date,
+              Authorization: authorization,
+            }
+            const fileOptions = { filename: path.basename(key), contentType: getFileMimeType(fileName) }
+            const source = fs.createReadStream(filePath)
+            form.append('file', source, fileOptions)
+            return { url: `http://v0.api.upyun.com/${bucketName}`, method: 'POST', body: form, headers, source }
+          },
+          validateResponse: (body, statusCode) =>
+            statusCode === 200 &&
+            isUploadResponseObject(body) &&
+            body.code === 200 &&
+            body.message === 'ok' &&
+            isUploadResponseString(body.url),
+          signal,
+          logger: this.logger,
+        }),
+      )
     }
-    return true
+    return (await Promise.all(uploads)).every(result => result.success)
   }
 
   /**

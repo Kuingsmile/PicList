@@ -2,6 +2,7 @@ import crypto from 'node:crypto'
 import http from 'node:http'
 import https from 'node:https'
 import path from 'node:path'
+import type { Readable } from 'node:stream'
 import { finished, pipeline } from 'node:stream/promises'
 
 import fs from 'fs-extra'
@@ -164,56 +165,116 @@ export const NewDownloader = async (
     logger,
   )
 
+type UploadFailureReason = 'request' | 'timeout' | 'http' | 'response' | 'provider' | 'aborted'
+
+export type UploadResult =
+  | { success: true; status: 'uploaded'; statusCode: number }
+  | { success: false; status: 'failed' | 'canceled'; reason: UploadFailureReason; statusCode?: number }
+
+interface UploadRequest extends Pick<OptionsOfTextResponseBody, 'body' | 'headers' | 'agent'> {
+  url: string
+  method: 'PUT' | 'POST'
+  // FormData does not close its underlying file when the request is aborted.
+  source?: Readable
+}
+
+export interface UploadOptions {
+  // Prepare inside the task boundary so file-read and signing errors also finish the task.
+  prepare: () => UploadRequest
+  validateResponse: (body: unknown, statusCode: number) => boolean
+  signal?: AbortSignal
+  timeout?: { request?: number; response?: number }
+  logger?: ManageLogger
+}
+
+export const isUploadResponseObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+export const isUploadResponseString = (value: unknown): value is string =>
+  typeof value === 'string' && value.trim().length > 0
+
 export const gotUpload = async (
   instance: UpDownTaskQueue,
-  url: string,
-  method: 'PUT' | 'POST',
-  body: any,
-  headers: any,
   id: string,
-  logger?: ManageLogger,
-  timeout: number = 30000,
-  throwHttpErrors: boolean = false,
-  agent: any = {},
-) => {
-  got(url, {
-    headers,
-    method,
-    body,
-    timeout: {
-      lookup: timeout,
-    },
-    throwHttpErrors,
-    agent,
+  { prepare, validateResponse, signal, timeout, logger }: UploadOptions,
+): Promise<UploadResult> => {
+  let request: UploadRequest | undefined
+  let statusCode: number | undefined
+  let settled = false
+  let result: UploadResult
+  const fail = (reason: UploadFailureReason): UploadResult => ({
+    success: false,
+    status: reason === 'aborted' ? 'canceled' : 'failed',
+    reason,
+    ...(statusCode === undefined ? {} : { statusCode }),
   })
-    .on('uploadProgress', (progress: any) => {
+  try {
+    signal?.throwIfAborted()
+    request = prepare()
+    signal?.throwIfAborted()
+    const { url, source: _source, ...options } = request
+    const response = await got(url, {
+      ...options,
+      signal,
+      timeout: {
+        lookup: 30000,
+        request: timeout?.request ?? 30000,
+        response: timeout?.response ?? 30000,
+      },
+      // Uploads may create commits or consume streams; never replay them automatically.
+      retry: { limit: 0 },
+      followRedirect: false,
+      throwHttpErrors: false,
+    }).on('uploadProgress', progress => {
+      if (settled || signal?.aborted) return
       instance.updateUploadTask({
         id,
-        progress: Math.floor(progress.percent * 100),
+        progress: Math.min(99, Math.floor(progress.percent * 100)),
         status: uploadTaskSpecialStatus.uploading,
       })
     })
-    .then((res: any) => {
-      instance.updateUploadTask({
-        id,
-        progress: res?.statusCode === 200 || res?.statusCode === 201 ? 100 : 0,
-        status:
-          res?.statusCode === 200 || res?.statusCode === 201
-            ? uploadTaskSpecialStatus.uploaded
-            : commonTaskStatus.failed,
-        finishTime: new Date().toLocaleString(),
-      })
-    })
-    .catch((err: any) => {
-      logger?.error(formatError(err, { method: 'gotUpload' }))
-      instance.updateUploadTask({
-        id,
-        progress: 0,
-        response: formatError(err, { method: 'gotUpload' }),
-        status: commonTaskStatus.failed,
-        finishTime: new Date().toLocaleString(),
-      })
-    })
+    statusCode = response.statusCode
+    signal?.throwIfAborted()
+    if (statusCode < 200 || statusCode >= 300) {
+      result = fail('http')
+    } else {
+      try {
+        const body: unknown = JSON.parse(response.body)
+        // A validator throwing is an invalid provider response, never an upload success.
+        result = validateResponse(body, statusCode)
+          ? { success: true, status: 'uploaded', statusCode }
+          : fail('provider')
+      } catch {
+        result = fail('response')
+      }
+    }
+  } catch (error) {
+    result = fail(
+      signal?.aborted ? 'aborted' : error instanceof RequestError && error.code === 'ETIMEDOUT' ? 'timeout' : 'request',
+    )
+  } finally {
+    settled = true
+    if (request?.source) {
+      request.source.destroy()
+      await finished(request.source, { cleanup: true }).catch(() => {})
+    }
+  }
+  // Cancellation can also arrive while the input file is closing.
+  if (signal?.aborted) result = fail('aborted')
+  // Never persist/log raw errors or provider bodies: they can contain credentials or file contents.
+  instance.updateUploadTask({
+    id,
+    progress: result.success ? 100 : 0,
+    status: result.status,
+    response: result,
+    finishTime: new Date().toLocaleString(),
+  })
+  if (!result.success && result.status !== 'canceled') {
+    try {
+      logger?.error(JSON.stringify({ method: 'gotUpload', ...result }))
+    } catch {} // Logging must not change a completed upload result.
+  }
+  return result
 }
 
 export const formatError = (err: any, params: IStringKeyMap) => {
