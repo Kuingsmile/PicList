@@ -74,14 +74,14 @@ const effectiveCols = computed<number>(() => {
 
 const isGridMode = computed(() => effectiveCols.value > 1)
 
-const { gridCalculations, visibleIndexes, viewportOffset, updateScrollTop, scrollToItem, scrollToTop, scrollToBottom } =
-  useVirtualGrid({
-    items: () => items,
-    itemHeight,
-    containerHeight,
-    gridItems: effectiveCols,
-    bufferFactor,
-  })
+const { gridCalculations, visibleIndexes, viewportOffset, updateScrollTop, scrollToItem } = useVirtualGrid({
+  items: () => items,
+  itemHeight: () => itemHeight,
+  rowGap: () => (isGridMode.value ? itemPadding : 0),
+  containerHeight,
+  gridItems: effectiveCols,
+  bufferFactor,
+})
 
 const contentStyles = computed(() => ({
   height: `${gridCalculations.value.totalHeight}px`,
@@ -143,8 +143,25 @@ function updateContainerMetrics() {
   containerHeight.value = Math.max(200, window.innerHeight - rect.top - 12)
 }
 
+function scrollToOffset(offset: number) {
+  const container = containerRef.value
+  if (!container) return
+  container.scrollTop = offset
+  // The browser may clamp the requested offset to the available scroll range.
+  updateScrollTop(container.scrollTop)
+}
+
 function scrollTo(index: number) {
-  scrollToItem(index)
+  scrollToOffset(scrollToItem(index))
+}
+
+function scrollToTop() {
+  scrollToOffset(0)
+}
+
+function scrollToBottom() {
+  const container = containerRef.value
+  if (container) scrollToOffset(container.scrollHeight - container.clientHeight)
 }
 
 function refresh() {

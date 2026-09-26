@@ -3,14 +3,15 @@ import { computed, ref, toValue, watch } from 'vue'
 
 export interface UseVirtualGridOptions {
   items: MaybeRefOrGetter<any[]>
-  itemHeight: number
+  itemHeight: MaybeRefOrGetter<number>
+  rowGap?: MaybeRefOrGetter<number>
   containerHeight: MaybeRefOrGetter<number>
   gridItems?: number | MaybeRefOrGetter<number>
   bufferFactor?: number
 }
 
 export function useVirtualGrid(options: UseVirtualGridOptions) {
-  const { items, itemHeight, containerHeight, gridItems = 1, bufferFactor = 0.5 } = options
+  const { items, itemHeight, rowGap = 0, containerHeight, gridItems = 1, bufferFactor = 0.5 } = options
 
   const scrollTop = ref(0)
 
@@ -18,27 +19,31 @@ export function useVirtualGrid(options: UseVirtualGridOptions) {
     const currentItems = toValue(items)
     const itemsPerRow = Math.max(1, toValue(gridItems) || 1)
     const totalRows = Math.ceil(currentItems.length / itemsPerRow)
-    const totalHeight = totalRows * itemHeight
+    const currentItemHeight = toValue(itemHeight)
+    const gap = toValue(rowGap)
+    const rowStride = currentItemHeight + gap
+    const totalHeight = totalRows * currentItemHeight + Math.max(0, totalRows - 1) * gap
 
     return {
       itemsPerRow,
       totalRows,
-      itemHeight,
+      itemHeight: currentItemHeight,
+      rowStride,
       totalHeight,
     }
   })
 
   const visibleRange = computed(() => {
-    const { itemHeight, totalRows } = gridCalculations.value
+    const { rowStride, totalRows } = gridCalculations.value
     const height = toValue(containerHeight)
 
-    if (!height || !itemHeight || totalRows === 0) {
+    if (!height || !rowStride || totalRows === 0) {
       return { startRow: 0, endRow: 0, visibleRows: 0 }
     }
-    const buffer = Math.ceil((height / itemHeight) * bufferFactor)
-    const startRow = Math.max(0, Math.floor(scrollTop.value / itemHeight) - buffer)
-    const visibleRows = Math.ceil(height / itemHeight) + buffer * 2
-    const endRow = Math.min(totalRows, startRow + visibleRows)
+    const buffer = Math.ceil((height / rowStride) * bufferFactor)
+    const startRow = Math.max(0, Math.floor(scrollTop.value / rowStride) - buffer)
+    const endRow = Math.min(totalRows, Math.ceil((scrollTop.value + height) / rowStride) + buffer)
+    const visibleRows = endRow - startRow
     return { startRow, endRow, visibleRows }
   })
 
@@ -60,9 +65,9 @@ export function useVirtualGrid(options: UseVirtualGridOptions) {
   })
 
   const viewportOffset = computed(() => {
-    const { itemHeight } = gridCalculations.value
+    const { rowStride } = gridCalculations.value
     const { startRow } = visibleRange.value
-    return startRow * itemHeight
+    return startRow * rowStride
   })
 
   function updateScrollTop(newScrollTop: number) {
@@ -70,9 +75,10 @@ export function useVirtualGrid(options: UseVirtualGridOptions) {
   }
 
   function scrollToItem(index: number) {
-    const { itemsPerRow, itemHeight } = gridCalculations.value
+    const { itemsPerRow, rowStride } = gridCalculations.value
     const rowIndex = Math.floor(index / itemsPerRow)
-    scrollTop.value = rowIndex * itemHeight
+    scrollTop.value = rowIndex * rowStride
+    return scrollTop.value
   }
 
   function scrollToTop() {
@@ -85,10 +91,9 @@ export function useVirtualGrid(options: UseVirtualGridOptions) {
   }
 
   watch(
-    () => [toValue(containerHeight), toValue(items).length],
-    ([newHeight]) => {
-      const { totalHeight } = gridCalculations.value
-      const maxScroll = Math.max(0, totalHeight - (newHeight as number))
+    [() => toValue(containerHeight), () => gridCalculations.value.totalHeight],
+    ([newHeight, totalHeight]) => {
+      const maxScroll = Math.max(0, totalHeight - newHeight)
 
       if (scrollTop.value > maxScroll) {
         scrollTop.value = maxScroll
