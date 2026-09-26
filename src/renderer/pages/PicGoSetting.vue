@@ -1207,7 +1207,12 @@
             @click="syncTaskFn(item.task, item.number)"
           />
         </SettingSection>
-        <SettingSection :icon="ImageIcon" :title="t('pages.settings.sync.galleryDB')">
+        <SettingSection
+          :icon="ImageIcon"
+          :title="t('pages.settings.sync.galleryDB')"
+          :description="t('pages.settings.sync.galleryPlan.entryDescription')"
+          only-one-row
+        >
           <GallerySync />
         </SettingSection>
       </div>
