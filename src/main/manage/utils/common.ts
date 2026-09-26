@@ -185,6 +185,8 @@ export interface UploadOptions {
   signal?: AbortSignal
   timeout?: { request?: number; response?: number }
   logger?: ManageLogger
+  // The shared scheduler owns terminal status and imported-file cleanup.
+  managed?: boolean
 }
 
 export const isUploadResponseObject = (value: unknown): value is Record<string, unknown> =>
@@ -196,7 +198,7 @@ export const isUploadResponseString = (value: unknown): value is string =>
 export const gotUpload = async (
   instance: UpDownTaskQueue,
   id: string,
-  { prepare, validateResponse, signal, timeout, logger }: UploadOptions,
+  { prepare, validateResponse, signal, timeout, logger, managed }: UploadOptions,
 ): Promise<UploadResult> => {
   let request: UploadRequest | undefined
   let statusCode: number | undefined
@@ -262,13 +264,14 @@ export const gotUpload = async (
   // Cancellation can also arrive while the input file is closing.
   if (signal?.aborted) result = fail('aborted')
   // Never persist/log raw errors or provider bodies: they can contain credentials or file contents.
-  instance.updateUploadTask({
-    id,
-    progress: result.success ? 100 : 0,
-    status: result.status,
-    response: result,
-    finishTime: new Date().toLocaleString(),
-  })
+  if (!managed)
+    instance.updateUploadTask({
+      id,
+      progress: result.success ? 100 : 0,
+      status: result.status,
+      response: result,
+      finishTime: new Date().toLocaleString(),
+    })
   if (!result.success && result.status !== 'canceled') {
     try {
       logger?.error(JSON.stringify({ method: 'gotUpload', ...result }))

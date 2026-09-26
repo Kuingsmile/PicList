@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import path from 'node:path'
 import { finished, pipeline } from 'node:stream/promises'
 
@@ -7,8 +8,8 @@ import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { createDownloadTask, formatError, runDownloadTask } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
+import { scheduleUploadBatch, withUploadStream } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 class LocalApi {
   logger: ManageLogger
@@ -200,45 +201,25 @@ class LocalApi {
   }
 
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray } = configMap
-    const instance = UpDownTaskQueue.getInstance()
-    for (const item of fileArray) {
-      const { alias, bucketName, key, filePath, fileName } = item
-      const id = `${alias}-${bucketName}-${key}-${filePath}`
-      if (instance.getUploadTask(id)) {
-        continue
-      }
-      instance.addUploadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        sourceFilePath: filePath,
-        targetFilePath: key,
-        targetFileBucket: bucketName,
-        targetFileRegion: '',
-        noProgress: true,
-      })
-      try {
-        fs.ensureFileSync(this.transBack(key))
-        await fs.copyFile(filePath, this.transBack(key))
-        instance.updateUploadTask({
-          id,
-          progress: 100,
-          status: uploadTaskSpecialStatus.uploaded,
-          finishTime: new Date().toLocaleString(),
-        })
-      } catch (error) {
-        this.logParam(error, 'uploadBucketFile')
-        instance.updateUploadTask({
-          id,
-          progress: 0,
-          status: commonTaskStatus.failed,
-          finishTime: new Date().toLocaleString(),
-        })
-      }
-    }
-    return true
+    return scheduleUploadBatch(
+      configMap,
+      { provider: 'local', account: ['local'] },
+      async ({ key, filePath }, { signal }) => {
+        const target = this.transBack(key)
+        // Stage the copy so cancellation never leaves a partial destination or truncates the source.
+        await fs.ensureDir(path.dirname(target))
+        const staged = path.join(path.dirname(target), '.piclist-upload-' + randomUUID() + '.tmp')
+        try {
+          await withUploadStream(filePath, signal, source =>
+            pipeline(source, fs.createWriteStream(staged, { flags: 'wx' }), { signal }),
+          )
+          signal.throwIfAborted()
+          await fs.rename(staged, target)
+        } finally {
+          await fs.remove(staged)
+        }
+      },
+    )
   }
 
   async createBucketFolder(configMap: IStringKeyMap): Promise<boolean> {

@@ -235,6 +235,7 @@
         "batchRename": "Batch Rename",
         "cancel": "Cancel",
         "canceled": "Canceled",
+        "cancelingUpload": "Canceling…",
         "clear": "Clear",
         "clearAll": "Clear All Tasks",
         "clearFinishedTasks": "Clear Finished Tasks",
@@ -335,6 +336,16 @@
         "stopSuccessMsg": "Stop success",
         "success": "Success",
         "upload": "Upload",
+        "uploadCanceled": "Canceled",
+        "uploadFailure": {
+          "aborted": "Upload canceled",
+          "file": "The source file is missing, unreadable, or changed",
+          "interrupted": "Upload interrupted by an application restart",
+          "memory": "The upload exceeds the configured memory budget",
+          "provider": "The provider rejected the upload or the connection failed",
+          "size": "The file exceeds this provider’s size limit",
+          "unsupported": "This source is not a supported regular file"
+        },
         "uploadFile": "Upload File",
         "uploadFiles": "Upload Files",
         "uploadFromUrl": "Upload from URL",
@@ -670,7 +681,11 @@
         "thumbnailSuffixTitle": "Image preview thumbnail suffix",
         "timestampRenameTips": "When enabled, uploaded files will be renamed to a timestamp",
         "timestampRenameTitle": "Timestamp rename on upload (highest priority)",
-        "title": "Manage General Settings"
+        "title": "Manage General Settings",
+        "uploadAccountConcurrency": "Concurrent upload requests per account",
+        "uploadConcurrency": "Concurrent upload requests (all accounts)",
+        "uploadMemoryMB": "Upload memory budget (MiB)",
+        "uploadMultipartConcurrency": "Maximum multipart workers per file"
       }
     },
     "picBedConfigs": {

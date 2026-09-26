@@ -6,6 +6,7 @@ import got from 'got'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
+import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
@@ -17,11 +18,10 @@ import {
   isUploadResponseObject,
   isUploadResponseString,
   NewDownloader,
-  type UploadResult,
 } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
+import { MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { formatHttpProxy, isImage } from '~/utils/common'
-import { commonTaskStatus } from '~/utils/enum'
 
 class ImgurApi {
   userName: string
@@ -166,30 +166,18 @@ class ImgurApi {
    * @param configMap
    */
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray, signal } = configMap
     const instance = UpDownTaskQueue.getInstance()
-    const uploads: Promise<UploadResult>[] = []
-    fileArray.forEach((item: any) => {
-      item.key = item.key.replace(/^\/+/, '')
-    })
-    for (const item of fileArray) {
-      const { bucketName, region: albumHash, key, fileName, filePath, fileSize } = item
-      const id = `${albumHash}-${key}-${filePath}`
-      if (instance.getUploadTask(id) || fileSize > 1024 * 1024 * 200) {
-        continue
-      }
-      instance.addUploadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        sourceFilePath: filePath,
-        targetFilePath: key,
-        targetFileBucket: bucketName,
-        targetFileRegion: albumHash,
-      })
-      uploads.push(
-        gotUpload(instance, id, {
+    return scheduleUploadBatch(
+      configMap,
+      {
+        provider: 'imgur',
+        account: [this.baseUrl, this.userName, this.accessToken],
+        normalizeKey: true,
+        maxFileSize: 200 * MIB,
+      },
+      async (file, { id, signal }) => {
+        const { region: albumHash, key, fileName, filePath, fileSize } = file
+        const result = await gotUpload(instance, id, {
           prepare: () => {
             const form = new FormData()
             form.append('type', 'file')
@@ -213,10 +201,11 @@ class ImgurApi {
             isUploadResponseString(body.data.link),
           signal,
           logger: this.logger,
-        }),
-      )
-    }
-    return (await Promise.all(uploads)).every(result => result.success)
+          managed: true,
+        })
+        if (!result.success) throw new TransferError('provider')
+      },
+    )
   }
 
   /**

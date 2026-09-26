@@ -235,6 +235,7 @@
         "batchRename": "批次重新命名",
         "cancel": "取消",
         "canceled": "已取消",
+        "cancelingUpload": "正在取消…",
         "clear": "清空",
         "clearAll": "清空所有任務",
         "clearFinishedTasks": "清空已完成任務",
@@ -335,6 +336,16 @@
         "stopSuccessMsg": "停止成功",
         "success": "成功",
         "upload": "上傳",
+        "uploadCanceled": "已取消",
+        "uploadFailure": {
+          "aborted": "上傳已取消",
+          "file": "來源檔案不存在、無法讀取或已變更",
+          "interrupted": "應用程式重新啟動中斷了上傳",
+          "memory": "上傳超過設定的記憶體預算",
+          "provider": "服務商拒絕了上傳或連線失敗",
+          "size": "檔案超過服務商的大小限制",
+          "unsupported": "此來源不是支援的一般檔案"
+        },
         "uploadFile": "上傳檔案",
         "uploadFiles": "上傳檔案",
         "uploadFromUrl": "從 URL 上傳",
@@ -670,7 +681,11 @@
         "thumbnailSuffixTitle": "圖片預覽縮圖後綴",
         "timestampRenameTips": "啟用後，上傳的檔案將自動更名為時間戳",
         "timestampRenameTitle": "上傳檔案時間戳重新命名（最高優先級）",
-        "title": "管理通用設置"
+        "title": "管理通用設置",
+        "uploadAccountConcurrency": "每個帳戶的上傳並行請求數",
+        "uploadConcurrency": "上傳並行請求數（所有帳戶）",
+        "uploadMemoryMB": "上傳記憶體預算（MiB）",
+        "uploadMultipartConcurrency": "單一檔案的最大分片並行數"
       }
     },
     "picBedConfigs": {

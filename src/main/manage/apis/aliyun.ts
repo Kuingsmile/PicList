@@ -4,6 +4,7 @@ import * as fastxml from 'fast-xml-parser'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
+import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
@@ -13,8 +14,8 @@ import {
   NewDownloader,
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
+import { MIB, onUploadAbort, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 // 坑爹阿里云 返回数据类型标注和实际各种不一致
 class AliyunApi {
@@ -486,86 +487,31 @@ class AliyunApi {
    * @param configMap
    */
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray } = configMap
-    // fileArray = [{
-    //   bucketName: string,
-    //   region: string,
-    //   key: string,
-    //   filePath: string
-    //   fileSize: number
-    // }]
-    const instance = UpDownTaskQueue.getInstance()
-    fileArray.forEach((item: any) => {
-      item.key.startsWith('/') && (item.key = item.key.slice(1))
-    })
-    for (const item of fileArray) {
-      const { bucketName, region, key, filePath, fileName } = item
-      const client = this.getNewCtx(region, bucketName)
-      const id = `${bucketName}-${region}-${key}-${filePath}`
-      if (instance.getUploadTask(id)) {
-        continue
-      }
-      instance.addUploadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        sourceFilePath: filePath,
-        targetFilePath: key,
-        targetFileBucket: bucketName,
-        targetFileRegion: region,
-      })
-      client
-        .multipartUpload(key, filePath, {
-          partSize: 1 * 1024 * 1024,
-          mime: getFileMimeType(fileName),
-          progress: (p: number) => {
-            const id = `${bucketName}-${region}-${key}-${filePath}`
-            instance.updateUploadTask({
-              id,
-              progress: Math.floor(p * 100),
-              status: uploadTaskSpecialStatus.uploading,
-            })
-          },
-        })
-        .then((res: any) => {
-          const id = `${bucketName}-${region}-${key}-${filePath}`
-          if (res?.res?.statusCode === 200) {
-            instance.updateUploadTask({
-              id,
-              progress: 100,
-              status: uploadTaskSpecialStatus.uploaded,
-              response: JSON.stringify(res),
-              finishTime: new Date().toLocaleString(),
-            })
-          } else {
-            instance.updateUploadTask({
-              id,
-              progress: 0,
-              status: commonTaskStatus.failed,
-              response: JSON.stringify(res),
-              finishTime: new Date().toLocaleString(),
-            })
-          }
-        })
-        .catch((err: any) => {
-          this.logger.error(
-            formatError(err, {
-              class: 'AliyunApi',
-              method: 'uploadBucketFile',
-            }),
-          )
-          const id = `${bucketName}-${region}-${key}-${filePath}`
-          instance.updateUploadTask({
-            id,
-            progress: 0,
-            status: commonTaskStatus.failed,
-            response: JSON.stringify(err),
-            finishTime: new Date().toLocaleString(),
+    return scheduleUploadBatch(
+      configMap,
+      {
+        provider: 'aliyun',
+        account: [this.accessKeyId],
+        normalizeKey: true,
+        // OSS's parallel worker pool returns on the first error, before sibling requests settle.
+        multipart: { minPartSize: MIB, maxParts: 10000, maxConcurrency: 1 },
+      },
+      async ({ bucketName, region, key, filePath, fileName }, { signal, slots, partSize, progress }) => {
+        const client = this.getNewCtx(region, bucketName)
+        const detach = onUploadAbort(signal, () => client.cancel())
+        try {
+          const result = await client.multipartUpload(key, filePath, {
+            parallel: slots,
+            partSize,
+            mime: getFileMimeType(fileName),
+            progress: (percent: number) => progress(percent * 100),
           })
-        })
-    }
-    return true
+          if (result.res.status !== 200) throw new TransferError('provider')
+        } finally {
+          detach()
+        }
+      },
+    )
   }
 
   /**

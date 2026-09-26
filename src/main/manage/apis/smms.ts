@@ -7,6 +7,7 @@ import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
+import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
@@ -16,11 +17,10 @@ import {
   isUploadResponseObject,
   isUploadResponseString,
   NewDownloader,
-  type UploadResult,
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
+import { scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus } from '~/utils/enum'
 
 const FILE_HISTORY_PAGE_SIZE = 30
 
@@ -198,27 +198,13 @@ class SmmsApi {
    * @param configMap
    */
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray, signal } = configMap
     const instance = UpDownTaskQueue.getInstance()
-    const uploads: Promise<UploadResult>[] = []
-    for (const item of fileArray) {
-      const { bucketName, region, key, filePath, fileName } = item
-      const id = `${bucketName}-${region}-${key}-${filePath}`
-      if (instance.getUploadTask(id)) {
-        continue
-      }
-      instance.addUploadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        sourceFilePath: filePath,
-        targetFilePath: key,
-        targetFileBucket: bucketName,
-        targetFileRegion: region,
-      })
-      uploads.push(
-        gotUpload(instance, id, {
+    return scheduleUploadBatch(
+      configMap,
+      { provider: 'smms', account: [this.baseUrl, this.token] },
+      async (file, { id, signal }) => {
+        const { fileName, filePath } = file
+        const result = await gotUpload(instance, id, {
           prepare: () => {
             const form = new FormData()
             form.append('format', 'json')
@@ -239,10 +225,11 @@ class SmmsApi {
             isUploadResponseString(body.data.hash),
           signal,
           logger: this.logger,
-        }),
-      )
-    }
-    return (await Promise.all(uploads)).every(result => result.success)
+          managed: true,
+        })
+        if (!result.success) throw new TransferError('provider')
+      },
+    )
   }
 
   /**

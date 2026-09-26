@@ -171,7 +171,7 @@ class SSHClient {
       await new Promise<void>((resolve, reject) => {
         sftp.close(handle, error => (error ? reject(error) : resolve()))
       })
-      await this.transfer(sftp, () => this.requireClient().putFile(local, stagedPath, sftp))
+      await this.transfer(sftp, () => this.requireClient().putFile(local, stagedPath, sftp, { concurrency: 1 }))
       if (config.fileUser) await this.chown(stagedPath, config.fileUser)
       if (config.fileMode) await this.chmod(stagedPath, config.fileMode, 'Setting file permissions')
       await this.rename(sftp, stagedPath, remote)

@@ -1,12 +1,13 @@
+import { readFile } from 'node:fs/promises'
 import http from 'node:http'
 import https from 'node:https'
 import path from 'node:path'
 
-import fs from 'fs-extra'
 import { AuthType, createClient, FileStat, ProgressEvent, WebDAVClient, WebDAVClientOptions } from 'webdav'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
+import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
@@ -15,9 +16,9 @@ import {
   NewDownloader,
 } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
+import { MIB, scheduleUploadBatch, withUploadStream } from '~/manage/utils/uploadFile'
 import { formatEndpoint, formatHttpProxy, isImage } from '~/utils/common'
 import { getAuthHeader } from '~/utils/digestAuth'
-import { commonTaskStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 class WebdavplistApi {
   endpoint: string
@@ -237,64 +238,27 @@ class WebdavplistApi {
   }
 
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray } = configMap
-    const instance = UpDownTaskQueue.getInstance()
-    for (const item of fileArray) {
-      const { alias, bucketName, region, key, filePath, fileName } = item
-      const id = `${alias}-${bucketName}-${key}-${filePath}`
-      if (instance.getUploadTask(id)) {
-        continue
-      }
-      instance.addUploadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        sourceFilePath: filePath,
-        targetFilePath: key,
-        targetFileBucket: bucketName,
-        targetFileRegion: region,
-        noProgress: true,
-      })
-      this.ctx
-        .putFileContents(key, this.authType === 'digest' ? fs.readFileSync(filePath) : fs.createReadStream(filePath), {
+    return scheduleUploadBatch(
+      configMap,
+      {
+        provider: 'webdavplist',
+        account: [this.endpoint, this.username],
+        maxFileSize: 4 * 1024 * MIB,
+        memory: file => (this.authType === 'digest' ? file.fileSize * 2 + MIB : MIB),
+      },
+      async ({ key, filePath }, { signal, progress }) => {
+        const options = {
           overwrite: true,
-          onUploadProgress: (progressEvent: ProgressEvent) => {
-            instance.updateUploadTask({
-              id,
-              progress: Math.floor((progressEvent.loaded / progressEvent.total) * 100),
-              status: uploadTaskSpecialStatus.uploading,
-            })
-          },
-        })
-        .then((res: boolean) => {
-          if (res) {
-            instance.updateUploadTask({
-              id,
-              progress: 100,
-              status: uploadTaskSpecialStatus.uploaded,
-              finishTime: new Date().toLocaleString(),
-            })
-          } else {
-            instance.updateUploadTask({
-              id,
-              progress: 0,
-              status: commonTaskStatus.failed,
-              finishTime: new Date().toLocaleString(),
-            })
-          }
-        })
-        .catch((error: any) => {
-          this.logParam(error, 'uploadBucketFile')
-          instance.updateUploadTask({
-            id,
-            progress: 0,
-            status: commonTaskStatus.failed,
-            finishTime: new Date().toLocaleString(),
-          })
-        })
-    }
-    return true
+          signal,
+          onUploadProgress: (event: ProgressEvent) => progress(event.total ? (event.loaded / event.total) * 100 : 0),
+        }
+        const result =
+          this.authType === 'digest'
+            ? await this.ctx.putFileContents(key, await readFile(filePath, { signal }), options)
+            : await withUploadStream(filePath, signal, source => this.ctx.putFileContents(key, source, options))
+        if (!result) throw new TransferError('provider')
+      },
+    )
   }
 
   async createBucketFolder(configMap: IStringKeyMap): Promise<boolean> {

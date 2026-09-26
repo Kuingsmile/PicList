@@ -887,13 +887,25 @@
                           <span>{{ item.finishTime }}</span>
                           <span class="text-xs font-semibold text-success">
                             {{
-                              activeUpLoadTab === 'finished'
-                                ? t('pages.manage.bucket.success')
-                                : t('pages.manage.bucket.failed')
+                              item.status === 'canceled'
+                                ? t('pages.manage.bucket.uploadCanceled')
+                                : activeUpLoadTab === 'finished'
+                                  ? t('pages.manage.bucket.success')
+                                  : t('pages.manage.bucket.failed')
                             }}
                           </span>
+                          <span v-if="item.response?.reason">{{
+                            t(`pages.manage.bucket.uploadFailure.${item.response.reason}`)
+                          }}</span>
                         </div>
                       </div>
+                      <CustomButton
+                        v-if="activeUpLoadTab === 'uploading'"
+                        type="secondary"
+                        :disabled="item.cancelRequested"
+                        :text="item.cancelRequested ? t('pages.manage.bucket.cancelingUpload') : t('common.cancel')"
+                        @click="cancelUploadTask(item.id)"
+                      />
                     </div>
                   </template>
                 </VirtualScroller>
@@ -1265,6 +1277,12 @@ const tableData = reactive([] as any[])
 const isShowUploadPanel = ref(false)
 const activeUpLoadTab = ref('uploading')
 const uploadTaskList = ref([] as IUploadTask[])
+async function cancelUploadTask(id: string) {
+  if (await window.electron.triggerRPC<boolean>(IRPCActionType.MANAGE_CANCEL_UPLOAD_TASK, id)) {
+    const task = uploadTaskList.value.find(item => item.id === id)
+    if (task) task.cancelRequested = true
+  }
+}
 
 const refreshUploadTaskId = ref<NodeJS.Timeout | undefined>(undefined)
 const uploadPanelFilesList = ref([] as any[])

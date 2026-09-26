@@ -15,6 +15,7 @@ import { IWindowList } from '~/utils/enum'
 
 import { isListingRequest, listingChannels, type ListingRequest } from '../../universal/listing'
 import { runListingRequest } from './listingRequest'
+import { transferScheduler } from './transferScheduler'
 
 export class ManageApi extends EventEmitter implements IManageApiType {
   private _config!: Partial<IManageConfigType>
@@ -234,6 +235,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     }
     this.setConfig(config)
     this.db.saveConfig(config)
+    this.configureTransfers()
   }
 
   removeConfig(key: string, propName: string): void {
@@ -411,12 +413,23 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   }
 
   async uploadBucketFile(param?: IStringKeyMap): Promise<boolean> {
+    this.configureTransfers()
     return this.executeWithClient(
       this.ALL_CLIENTS,
       'uploadBucketFile',
-      client => client.uploadBucketFile(param!),
+      client => client.uploadBucketFile({ ...param, accountId: this.currentPicBed }),
       false,
     )
+  }
+
+  private configureTransfers(): void {
+    const settings = this.getConfig<Record<string, number>>('settings') || {}
+    transferScheduler.configure({
+      globalConcurrency: settings.uploadConcurrency,
+      accountConcurrency: settings.uploadAccountConcurrency,
+      memoryBytes: settings.uploadMemoryMB === undefined ? undefined : settings.uploadMemoryMB * 1024 * 1024,
+      multipartConcurrency: settings.uploadMultipartConcurrency,
+    })
   }
 
   async getPreSignedUrl(param?: IStringKeyMap): Promise<string> {

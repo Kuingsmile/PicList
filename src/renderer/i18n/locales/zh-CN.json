@@ -235,6 +235,7 @@
         "batchRename": "批量重命名",
         "cancel": "取消",
         "canceled": "已取消",
+        "cancelingUpload": "正在取消…",
         "clear": "清空",
         "clearAll": "清空所有任务",
         "clearFinishedTasks": "清空已完成任务",
@@ -335,6 +336,16 @@
         "stopSuccessMsg": "停止成功",
         "success": "成功",
         "upload": "上传",
+        "uploadCanceled": "已取消",
+        "uploadFailure": {
+          "aborted": "上传已取消",
+          "file": "源文件不存在、无法读取或已更改",
+          "interrupted": "应用重启中断了上传",
+          "memory": "上传超过配置的内存预算",
+          "provider": "服务商拒绝了上传或连接失败",
+          "size": "文件超过服务商的大小限制",
+          "unsupported": "该来源不是支持的普通文件"
+        },
         "uploadFile": "上传文件",
         "uploadFiles": "上传文件",
         "uploadFromUrl": "从URL上传",
@@ -670,7 +681,11 @@
         "thumbnailSuffixTitle": "图片预览缩略图后缀",
         "timestampRenameTips": "开启后，上传的文件将自动重命名为时间戳",
         "timestampRenameTitle": "上传文件时间戳重命名(最高优先级)",
-        "title": "管理通用设置"
+        "title": "管理通用设置",
+        "uploadAccountConcurrency": "每个账户的上传并发请求数",
+        "uploadConcurrency": "上传并发请求数（所有账户）",
+        "uploadMemoryMB": "上传内存预算（MiB）",
+        "uploadMultipartConcurrency": "单个文件的最大分片并发数"
       }
     },
     "picBedConfigs": {

@@ -22,10 +22,10 @@ import {
 import { Progress, Upload } from '@aws-sdk/lib-storage'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { NodeHttpHandler } from '@smithy/node-http-handler'
-import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
+import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
@@ -36,8 +36,8 @@ import {
 } from '~/manage/utils/common'
 import { dogecloudApi, DogecloudToken, getTempToken } from '~/manage/utils/dogeAPI'
 import { ManageLogger } from '~/manage/utils/logger'
+import { MIB, scheduleUploadBatch, withUploadStream } from '~/manage/utils/uploadFile'
 import { formatEndpoint, formatHttpProxy, isImage } from '~/utils/common'
-import { commonTaskStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 class S3plistApi {
   baseOptions: S3ClientConfig
@@ -708,111 +708,70 @@ class S3plistApi {
    * @param configMap
    */
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray } = configMap
-    // fileArray = [{
-    //   bucketName: string,
-    //   region: string,
-    //   key: string,
-    //   filePath: string
-    //   fileSize: number
-    // }]
-    const instance = UpDownTaskQueue.getInstance()
-    fileArray.forEach((item: any) => {
-      item.key.startsWith('/') && (item.key = item.key.slice(1))
-    })
-    const allowedAcl = [
-      'private',
-      'public-read',
-      'public-read-write',
-      'aws-exec-read',
-      'authenticated-read',
-      'bucket-owner-read',
-      'bucket-owner-full-control',
-    ]
-    for (const item of fileArray) {
-      const { bucketName, region, key, filePath, fileName, aclForUpload } = item
-      const id = `${bucketName}-${String(region)}-${key}-${filePath}`
-      if (instance.getUploadTask(id)) {
-        continue
-      }
-      instance.addUploadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        sourceFilePath: filePath,
-        targetFilePath: key,
-        targetFileBucket: bucketName,
-        targetFileRegion: String(region),
-      })
-      try {
+    return scheduleUploadBatch(
+      configMap,
+      {
+        provider: 's3plist',
+        account: [this.baseOptions.endpoint, this.accessKeyId],
+        normalizeKey: true,
+        multipart: { minPartSize: 5 * MIB, maxParts: 10000 },
+      },
+      async (
+        { bucketName, region, key, filePath, fileName, fileSize, aclForUpload },
+        { signal, slots, partSize, progress },
+      ) => {
         await this.getDogeCloudToken()
-      } catch (error) {
-        this.logParam(error, 'uploadBucketFile')
-        instance.updateUploadTask({
-          id,
-          progress: 0,
-          status: commonTaskStatus.failed,
-          response: JSON.stringify(error),
-          finishTime: new Date().toLocaleString(),
-        })
-        continue
-      }
-      const options = { ...this.baseOptions } as S3ClientConfig
-      options.region = String(region || this.baseOptions.region || 'us-east-1')
-      const client = new S3Client(options)
-      const fileStream = fs.createReadStream(filePath)
-      const parallelUploads3 = new Upload({
-        client,
-        params: {
-          Bucket: bucketName,
-          Key: key,
-          Body: fileStream,
-          ContentType: getFileMimeType(fileName),
-          ACL: allowedAcl.includes(aclForUpload) ? aclForUpload : 'private',
-          Metadata: {
-            description: 'uploaded by PicList',
+        signal.throwIfAborted()
+        const handler = this.baseOptions.requestHandler as NodeHttpHandler
+        // Abort HTTP requests, but let lib-storage drain all workers and abort the multipart upload.
+        // Upload.abort() races done() and can return before those workers have stopped.
+        const client = new S3Client({
+          ...this.baseOptions,
+          region: String(region || this.baseOptions.region || 'us-east-1'),
+          requestHandler: {
+            handle: (...[request, options]: Parameters<NodeHttpHandler['handle']>) =>
+              handler.handle(request, {
+                ...options,
+                requestTimeout: 60000,
+                abortSignal: request.method === 'DELETE' ? options?.abortSignal : signal,
+              }),
+            updateHttpClientConfig: (key, value) => handler.updateHttpClientConfig(key, value),
+            httpHandlerConfigs: () => handler.httpHandlerConfigs(),
           },
-        },
-      })
-      parallelUploads3.on('httpUploadProgress', (progress: Progress) => {
-        instance.updateUploadTask({
-          id,
-          progress: progress.loaded && progress.total ? Math.floor((progress.loaded / progress.total) * 100) : 0,
-          status: uploadTaskSpecialStatus.uploading,
         })
-      })
-      parallelUploads3
-        .done()
-        .then(data => {
-          if (data.$metadata.httpStatusCode === 200) {
-            instance.updateUploadTask({
-              id,
-              progress: 100,
-              status: uploadTaskSpecialStatus.uploaded,
-              finishTime: new Date().toLocaleString(),
-            })
-          } else {
-            instance.updateUploadTask({
-              id,
-              progress: 0,
-              status: commonTaskStatus.failed,
-              finishTime: new Date().toLocaleString(),
-            })
-          }
-        })
-        .catch(error => {
-          this.logParam(error, 'uploadBucketFile')
-          instance.updateUploadTask({
-            id,
-            progress: 0,
-            status: commonTaskStatus.failed,
-            response: JSON.stringify(error),
-            finishTime: new Date().toLocaleString(),
+        const allowedAcl = [
+          'private',
+          'public-read',
+          'public-read-write',
+          'aws-exec-read',
+          'authenticated-read',
+          'bucket-owner-read',
+          'bucket-owner-full-control',
+        ]
+        await withUploadStream(filePath, signal, async source => {
+          const transfer = new Upload({
+            client,
+            queueSize: slots,
+            partSize,
+            leavePartsOnError: false,
+            params: {
+              Bucket: bucketName,
+              Key: key,
+              Body: source,
+              ContentLength: fileSize,
+              ContentType: getFileMimeType(fileName),
+              ACL: allowedAcl.includes(aclForUpload) ? aclForUpload : 'private',
+              Metadata: { description: 'uploaded by PicList' },
+            },
           })
+          transfer.on('httpUploadProgress', (event: Progress) =>
+            progress(event.total ? ((event.loaded || 0) / event.total) * 100 : 0),
+          )
+          const result = await transfer.done()
+          if (result.$metadata.httpStatusCode !== 200) throw new TransferError('provider')
         })
-    }
-    return true
+      },
+    )
   }
 
   /**

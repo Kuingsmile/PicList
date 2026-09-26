@@ -4,10 +4,16 @@ import { app, dialog, shell } from 'electron'
 import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
+import { transferScheduler } from '~/manage/transferScheduler'
 import { downloadFileFromUrl } from '~/manage/utils/common'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
 
 export default [
+  {
+    action: IRPCActionType.MANAGE_CANCEL_UPLOAD_TASK,
+    handler: async (_: IIPCEvent, args: [id: string]) => transferScheduler.cancel(args[0]),
+    type: IRPCType.INVOKE,
+  },
   {
     action: IRPCActionType.MANAGE_OPEN_FILE_SELECT_DIALOG,
     handler: async () => {

@@ -7,8 +7,8 @@ import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { createDownloadTask, formatError, runDownloadTask } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
+import { onUploadAbort, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 import SSHClient from '~/utils/sshClient'
 
 interface listDirResult {
@@ -292,53 +292,26 @@ class SftpApi {
   }
 
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray } = configMap
-    const instance = UpDownTaskQueue.getInstance()
-    const client = new SSHClient()
-    try {
-      for (const item of fileArray) {
-        const { alias, bucketName, region, key, filePath, fileName } = item
-        const id = `${alias}-${bucketName}-${key}-${filePath}`
-        if (instance.getUploadTask(id)) {
-          continue
-        }
-        instance.addUploadTask({
-          id,
-          progress: 0,
-          status: commonTaskStatus.queuing,
-          sourceFileName: fileName,
-          sourceFilePath: filePath,
-          targetFilePath: key,
-          targetFileBucket: bucketName,
-          targetFileRegion: region,
-          noProgress: false,
-        })
+    return scheduleUploadBatch(
+      configMap,
+      { provider: 'sftp', account: [this.host, this.port, this.username] },
+      async ({ key, filePath }, { signal }) => {
+        // A connection belongs to one job so canceling it cannot interrupt another upload.
+        const client = new SSHClient()
+        const detach = onUploadAbort(signal, () => client.close())
         try {
-          if (!client.isConnected) await client.connect(this.config)
-          await client.putFile(filePath, `/${key.replace(/^\/+/, '')}`, {
+          await client.connect(this.config)
+          signal.throwIfAborted()
+          await client.putFile(filePath, '/' + key.replace(/^\/+/, ''), {
             fileMode: this.fileMode,
             dirMode: this.dirMode,
           })
-          instance.updateUploadTask({
-            id,
-            progress: 100,
-            status: uploadTaskSpecialStatus.uploaded,
-            finishTime: new Date().toLocaleString(),
-          })
-        } catch (error) {
-          this.logParam(error, 'uploadBucketFile')
-          instance.updateUploadTask({
-            id,
-            progress: 0,
-            status: commonTaskStatus.failed,
-            finishTime: new Date().toLocaleString(),
-          })
+        } finally {
+          detach()
+          client.close()
         }
-      }
-    } finally {
-      client.close()
-    }
-    return true
+      },
+    )
   }
 
   async createBucketFolder(configMap: IStringKeyMap): Promise<boolean> {

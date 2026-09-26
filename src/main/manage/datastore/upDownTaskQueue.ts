@@ -54,6 +54,8 @@ class UpDownTaskQueue {
   updateUploadTask(task: Partial<IUploadTask>) {
     const taskIndex = UpDownTaskQueue.getInstance().uploadTaskQueue.findIndex(item => item.id === task.id)
     if (taskIndex !== -1) {
+      const current = UpDownTaskQueue.getInstance().uploadTaskQueue[taskIndex]
+      if (['uploaded', 'failed', 'canceled'].includes(current.status)) return
       const taskKeys = Object.keys(task)
       taskKeys.forEach(key => {
         if (key !== 'id') {
@@ -160,7 +162,16 @@ class UpDownTaskQueue {
     try {
       this.checkPersistPath()
       const persistData = JSON.parse(fs.readFileSync(this.persistPath, { encoding: 'utf-8' }))
-      this.uploadTaskQueue = persistData.uploadTaskQueue
+      this.uploadTaskQueue = persistData.uploadTaskQueue.map((task: IUploadTask) =>
+        ['queuing', 'uploading', 'paused'].includes(task.status)
+          ? {
+              ...task,
+              status: commonTaskStatus.failed,
+              response: { success: false, reason: 'interrupted' },
+              finishTime: new Date().toLocaleString(),
+            }
+          : task,
+      )
       this.downloadTaskQueue = persistData.downloadTaskQueue
     } catch (_e) {
       this.uploadTaskQueue = []

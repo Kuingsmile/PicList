@@ -1,20 +1,25 @@
 import { finished } from 'node:stream/promises'
 
 import COS from 'cos-nodejs-sdk-v5'
-import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
-import { createDownloadTask, formatError, getFileMimeType, runDownloadTask } from '~/manage/utils/common'
+import { TransferError } from '~/manage/transferScheduler'
+import { createDownloadTask, getFileMimeType, runDownloadTask } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
+import { createUploadAgents, MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { handleUrlEncode, isImage } from '~/utils/common'
-import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
+import { downloadTaskSpecialStatus } from '~/utils/enum'
 
 class TcyunApi {
+  secretId: string
+  secretKey: string
   ctx: COS
   logger: ManageLogger
 
   constructor(secretId: string, secretKey: string, logger: ManageLogger) {
+    this.secretId = secretId
+    this.secretKey = secretKey
     this.ctx = new COS({
       SecretId: secretId,
       SecretKey: secretKey,
@@ -380,81 +385,52 @@ class TcyunApi {
    * @param configMap
    */
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray } = configMap
-    // fileArray = [{
-    //   bucketName: string,
-    //   region: string,
-    //   key: string,
-    //   filePath: string
-    //   fileSize: number
-    // }]
-    const instance = UpDownTaskQueue.getInstance()
-    const files = [] as any[]
-    for (const item of fileArray) {
-      const { bucketName, region, key, filePath, fileSize, fileName } = item
-      const id = `${bucketName}-${region}-${key}-${filePath}`
-      if (instance.getUploadTask(id)) {
-        continue
-      }
-      instance.addUploadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        sourceFilePath: filePath,
-        targetFilePath: key,
-        targetFileBucket: bucketName,
-        targetFileRegion: region,
-      })
-      files.push({
-        Bucket: bucketName,
-        Region: region,
-        Key: key,
-        FilePath: filePath,
-        ContentType: getFileMimeType(filePath),
-        Body: fileSize > 1048576 ? fs.createReadStream(filePath) : undefined,
-        onProgress: (progress: any) => {
-          const cancelToken = ''
-          instance.updateUploadTask({
-            id,
-            progress: Math.floor(progress.percent * 100),
-            status: uploadTaskSpecialStatus.uploading,
-            cancelToken,
-          })
-        },
-        onFileFinish: (err: any, data: any) => {
-          if (data) {
-            instance.updateUploadTask({
-              id,
-              progress: 100,
-              status: uploadTaskSpecialStatus.uploaded,
-              response: typeof data === 'object' ? JSON.stringify(data) : String(data),
-              finishTime: new Date().toLocaleString(),
-            })
-          } else {
-            this.logger.error(
-              formatError(err, {
-                method: 'uploadBucketFile',
-                class: 'TcyunApi',
-              }),
+    return scheduleUploadBatch(
+      configMap,
+      {
+        provider: 'tcyun',
+        account: [this.secretId],
+        normalizeKey: true,
+        // The SDK's parallel pool can finish before sibling file readers on failure.
+        multipart: { minPartSize: MIB, maxParts: 10000, maxConcurrency: 1 },
+      },
+      async ({ bucketName, region, key, filePath }, { signal, slots, partSize, progress }) => {
+        const client = new COS({
+          SecretId: this.secretId,
+          SecretKey: this.secretKey,
+          FileParallelLimit: 1,
+          ChunkParallelLimit: slots,
+        })
+        const agents = createUploadAgents(signal)
+        client.on('before-send', (options: any) => {
+          options.agent = options.url.startsWith('https:') ? agents.https : agents.http
+          options.timeout = 60000
+        })
+        try {
+          await new Promise<void>((resolve, reject) => {
+            client.uploadFile(
+              {
+                Bucket: bucketName,
+                Region: region,
+                Key: key,
+                FilePath: filePath,
+                SliceSize: partSize,
+                ChunkSize: partSize,
+                ContentType: getFileMimeType(filePath),
+                onProgress: event => progress(event.percent * 100),
+              },
+              (error, result) => {
+                if (error || !result || !result.statusCode || result.statusCode < 200 || result.statusCode >= 300)
+                  reject(new TransferError('provider'))
+                else resolve()
+              },
             )
-            instance.updateUploadTask({
-              id,
-              progress: 0,
-              status: commonTaskStatus.failed,
-              response: typeof err === 'object' ? JSON.stringify(err) : String(err),
-              finishTime: new Date().toLocaleString(),
-            })
-          }
-        },
-      })
-    }
-    if (files.length > 0) {
-      this.ctx.uploadFiles({
-        files,
-      })
-    }
-    return true
+          })
+        } finally {
+          await agents.close()
+        }
+      },
+    )
   }
 
   /**

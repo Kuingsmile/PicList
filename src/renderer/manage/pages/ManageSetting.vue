@@ -97,6 +97,17 @@
           </SettingSection>
 
           <SettingSection :icon="Download" :title="t('pages.manage.setting.section.up-down')">
+            <SettingCard v-for="key in uploadLimitKeys" :key="key">
+              <CustomInput
+                v-model.number="form[key]"
+                :title="t(`pages.manage.setting.${key}`)"
+                :placeholder="t(`pages.manage.setting.${key}`)"
+                type="number"
+                min="1"
+                :max="key === 'uploadMemoryMB' ? undefined : '64'"
+                step="1"
+              />
+            </SettingCard>
             <SettingCard>
               <CustomSelect
                 v-model="form.downloadConflictPolicy"
@@ -202,12 +213,22 @@ const form = ref<IStringKeyMap>({
   customPasteFormat: '$url',
   PreSignedExpire: 14400, // seconds
   maxDownloadFileCount: 5,
+  uploadConcurrency: 4,
+  uploadAccountConcurrency: 2,
+  uploadMemoryMB: 256,
+  uploadMultipartConcurrency: 2,
   customRenameFormat: '{filename}',
 })
 const dbSize = ref(0)
 const dbSizeAvailableRate = ref('0')
 
 const settingsKeys = Object.keys(form.value)
+const uploadLimitKeys = [
+  'uploadConcurrency',
+  'uploadAccountConcurrency',
+  'uploadMemoryMB',
+  'uploadMultipartConcurrency',
+]
 const downloadConflictPolicies = computed(() =>
   ['rename', 'overwrite', 'skip'].map(value => ({
     label: t(`pages.manage.setting.downloadConflictPolicy.${value}`),

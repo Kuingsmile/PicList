@@ -7,6 +7,7 @@ import Upyun from 'upyun'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
+import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
@@ -18,11 +19,10 @@ import {
   isUploadResponseString,
   md5,
   NewDownloader,
-  type UploadResult,
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
+import { scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus } from '~/utils/enum'
 
 class UpyunApi {
   ser: Upyun.Service
@@ -362,30 +362,13 @@ class UpyunApi {
    * @param configMap
    */
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray, signal } = configMap
     const instance = UpDownTaskQueue.getInstance()
-    const uploads: Promise<UploadResult>[] = []
-    fileArray.forEach((item: any) => {
-      item.key = item.key.replace(/^\/+/, '')
-    })
-    for (const item of fileArray) {
-      const { bucketName, region, key, filePath, fileName, fileSize } = item
-      const id = `${bucketName}-${region}-${key}-${filePath}`
-      if (instance.getUploadTask(id)) {
-        continue
-      }
-      instance.addUploadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        sourceFilePath: filePath,
-        targetFilePath: key,
-        targetFileBucket: bucketName,
-        targetFileRegion: region,
-      })
-      uploads.push(
-        gotUpload(instance, id, {
+    return scheduleUploadBatch(
+      configMap,
+      { provider: 'upyun', account: [this.bucket, this.operator], normalizeKey: true },
+      async (file, { id, signal }) => {
+        const { bucketName, key, filePath, fileName, fileSize } = file
+        const result = await gotUpload(instance, id, {
           prepare: () => {
             const date = new Date().toUTCString()
             const uploadPolicy = {
@@ -421,10 +404,11 @@ class UpyunApi {
             isUploadResponseString(body.url),
           signal,
           logger: this.logger,
-        }),
-      )
-    }
-    return (await Promise.all(uploads)).every(result => result.success)
+          managed: true,
+        })
+        if (!result.success) throw new TransferError('provider')
+      },
+    )
   }
 
   /**

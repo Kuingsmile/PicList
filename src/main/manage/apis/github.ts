@@ -5,6 +5,7 @@ import got from 'got'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
+import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
@@ -17,8 +18,8 @@ import {
   NewDownloader,
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
+import { MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { formatHttpProxy, isImage, trimPath } from '~/utils/common'
-import { commonTaskStatus } from '~/utils/enum'
 
 class GithubApi {
   token: string
@@ -442,59 +443,48 @@ class GithubApi {
    * @param configMap
    */
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray, signal } = configMap
     const instance = UpDownTaskQueue.getInstance()
-    let success = true
     let shouldDelay = false
-    fileArray.forEach((item: any) => {
-      item.key.startsWith('/') && (item.key = item.key.slice(1))
-    })
-    const filteredFileArray = fileArray.filter((item: any) => item.fileSize < 100 * 1024 * 1024)
-    for (const item of filteredFileArray) {
-      const { bucketName: repo, region, githubBranch: branch, key, filePath, fileName } = item
-      const id = `${repo}-${branch}-${key}-${filePath}`
-      if (instance.getUploadTask(id)) {
-        continue
-      }
-      instance.addUploadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        sourceFilePath: filePath,
-        targetFilePath: key,
-        targetFileBucket: repo,
-        targetFileRegion: region,
-      })
-
-      // Keep GitHub writes serial, including provider validation, and space requests apart.
-      if (shouldDelay && !signal?.aborted) await delay(3000, undefined, { signal }).catch(() => {})
-      const result = await gotUpload(instance, id, {
-        prepare: () => ({
-          url: `${this.baseUrl}/repos/${this.username}/${repo}/contents/${trimPath(key)}`,
-          method: 'PUT',
-          body: JSON.stringify({
-            message: 'uploaded by PicList',
-            branch,
-            content: fs.readFileSync(filePath, { encoding: 'base64' }),
+    return scheduleUploadBatch(
+      configMap,
+      {
+        provider: 'github',
+        account: [this.baseUrl, this.username],
+        normalizeKey: true,
+        maxFileSize: 100 * MIB - 1,
+        accountConcurrency: 1,
+        memory: file => file.fileSize * 6 + MIB,
+      },
+      async (file, { id, signal }) => {
+        const { bucketName: repo, githubBranch: branch, key, filePath } = file
+        if (shouldDelay) await delay(3000, undefined, { signal })
+        shouldDelay = true
+        const result = await gotUpload(instance, id, {
+          prepare: () => ({
+            url: `${this.baseUrl}/repos/${this.username}/${repo}/contents/${trimPath(key)}`,
+            method: 'PUT',
+            body: JSON.stringify({
+              message: 'uploaded by PicList',
+              branch,
+              content: fs.readFileSync(filePath, { encoding: 'base64' }),
+            }),
+            headers: this.commonHeaders,
+            agent: getAgent(this.proxy),
           }),
-          headers: this.commonHeaders,
-          agent: getAgent(this.proxy),
-        }),
-        validateResponse: (body, statusCode) =>
-          (statusCode === 200 || statusCode === 201) &&
-          isUploadResponseObject(body) &&
-          isUploadResponseObject(body.content) &&
-          isUploadResponseString(body.content.sha) &&
-          isUploadResponseObject(body.commit) &&
-          isUploadResponseString(body.commit.sha),
-        signal,
-        logger: this.logger,
-      })
-      success = result.success && success
-      shouldDelay = true
-    }
-    return success
+          validateResponse: (body, statusCode) =>
+            (statusCode === 200 || statusCode === 201) &&
+            isUploadResponseObject(body) &&
+            isUploadResponseObject(body.content) &&
+            isUploadResponseString(body.content.sha) &&
+            isUploadResponseObject(body.commit) &&
+            isUploadResponseString(body.commit.sha),
+          signal,
+          logger: this.logger,
+          managed: true,
+        })
+        if (!result.success) throw new TransferError('provider')
+      },
+    )
   }
 
   /**

@@ -3,6 +3,7 @@ import qiniu from 'qiniu'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
+import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
@@ -12,8 +13,8 @@ import {
   NewDownloader,
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
+import { MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 class QiniuApi {
   mac: qiniu.auth.digest.Mac
@@ -579,78 +580,33 @@ class QiniuApi {
    * @param configMap
    */
   async uploadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { fileArray } = configMap
-    const instance = UpDownTaskQueue.getInstance()
-    fileArray.forEach((item: any) => {
-      item.key = item.key.replace(/^\/+/, '')
-    })
-    for (const item of fileArray) {
-      const { bucketName, region, key, filePath, fileName } = item
-      instance.addUploadTask({
-        id: `${bucketName}-${region}-${key}-${filePath}`,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        sourceFilePath: filePath,
-        targetFilePath: key,
-        targetFileBucket: bucketName,
-        targetFileRegion: region,
-      })
-      const config = new qiniu.conf.Config()
-      const resumeUploader = new qiniu.resume_up.ResumeUploader(config)
-      const putExtra = new qiniu.resume_up.PutExtra()
-      const uploadToken = new qiniu.rs.PutPolicy({
-        scope: `${bucketName}:${key}`,
-        expires: 36000,
-      }).uploadToken(this.mac)
-      putExtra.fname = key
-      putExtra.params = {}
-      putExtra.mimeType = getFileMimeType(fileName)
-      putExtra.version = 'v2'
-      putExtra.partSize = 4 * 1024 * 1024
-      putExtra.progressCallback = (uploadBytes, totalBytes) => {
-        const progress = Math.floor((uploadBytes / totalBytes) * 100)
-        instance.updateUploadTask({
-          id: `${bucketName}-${region}-${key}-${filePath}`,
-          progress,
-          status: uploadTaskSpecialStatus.uploading,
+    return scheduleUploadBatch(
+      configMap,
+      { provider: 'qiniu', account: [this.accessKey], normalizeKey: true, memory: () => 12 * MIB },
+      async ({ bucketName, key, filePath, fileName }, { signal, progress }) => {
+        const uploader = new qiniu.resume_up.ResumeUploader(new qiniu.conf.Config())
+        const extra = new qiniu.resume_up.PutExtra()
+        const token = new qiniu.rs.PutPolicy({ scope: bucketName + ':' + key, expires: 36000 }).uploadToken(this.mac)
+        extra.fname = key
+        extra.mimeType = getFileMimeType(fileName)
+        extra.version = 'v2'
+        extra.partSize = 4 * MIB
+        extra.progressCallback = (loaded, total) => {
+          // The SDK treats a thrown progress callback as a non-retryable failure and closes the file.
+          // Cancellation drains the current 4 MiB part, then stops before another part or completion.
+          signal.throwIfAborted()
+          progress(total ? (loaded / total) * 100 : 0)
+        }
+        signal.throwIfAborted()
+        // There is no per-request abort handle; keep capacity reserved until the SDK has settled.
+        await new Promise<void>((resolve, reject) => {
+          uploader.putFile(token, key, filePath, extra, (error, _body, response) => {
+            if (error || response?.statusCode !== 200) reject(new TransferError('provider'))
+            else resolve()
+          })
         })
-      }
-      resumeUploader.putFile(uploadToken, key, filePath, putExtra, (respErr, respBody, respInfo) => {
-        if (respErr) {
-          this.logger.error(
-            formatError(respErr, {
-              class: 'Qiniu',
-              method: 'uploadBucketFile',
-            }),
-          )
-          instance.updateUploadTask({
-            id: `${bucketName}-${region}-${key}-${filePath}`,
-            progress: 0,
-            status: commonTaskStatus.failed,
-            finishTime: new Date().toLocaleString(),
-          })
-          return
-        }
-        if (respInfo.statusCode === 200) {
-          instance.updateUploadTask({
-            id: `${bucketName}-${region}-${key}-${filePath}`,
-            progress: 100,
-            status: uploadTaskSpecialStatus.uploaded,
-            response: JSON.stringify(respBody),
-            finishTime: new Date().toLocaleString(),
-          })
-        } else {
-          instance.updateUploadTask({
-            id: `${bucketName}-${region}-${key}-${filePath}`,
-            progress: 0,
-            status: commonTaskStatus.failed,
-            finishTime: new Date().toLocaleString(),
-          })
-        }
-      })
-    }
-    return true
+      },
+    )
   }
 
   /**
