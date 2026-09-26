@@ -15,6 +15,7 @@ import { getClipboardFilePath, getUploaderType, showNotification } from '~/utils
 import { configPaths } from '~/utils/configPaths'
 import { ICOREBuildInEvent } from '~/utils/enum'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
+import { assertFinalizationStorageAvailable } from '~/utils/uploadFinalizer'
 import { currentUploadJob, UploadJob, UploadJobError, withUploadJob } from '~/utils/uploadJob'
 import { isUploadUrl } from '~/utils/uploadResult'
 
@@ -133,6 +134,8 @@ class Uploader {
   private async performUpload(img: IUploadOption | undefined, job: UploadJob): Promise<IuploadReturnCtxResult> {
     try {
       job.throwIfStopped()
+      // All desktop callers finalize remote results, including clipboard and HTTP uploads.
+      assertFinalizationStorageAvailable()
       const sourceInputs = img ? [...img] : []
       const result: IuploadReturnCtxResult = { ctx: undefined, backupCtx: undefined, sourceInputs }
       const res = await picgo.uploadReturnCtx(img, job.context.requestedProfile)

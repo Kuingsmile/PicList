@@ -85,7 +85,9 @@ export function createDownloadTask(
   policy: DownloadConflictPolicy = 'rename',
   logger?: ManageLogger,
 ): DownloadDestination | undefined {
-  if (instance.getDownloadTask(id)) return undefined
+  const previous = instance.getDownloadTask(id)
+  if (previous && !['failed', 'canceled'].includes(previous.status)) return undefined
+  if (previous) instance.removeDownloadTask(id)
   instance.addDownloadTask({ id, progress: 0, status: commonTaskStatus.queuing, sourceFileName: fileName })
   try {
     const destination = createDownloadDestination(root, fileName, policy)

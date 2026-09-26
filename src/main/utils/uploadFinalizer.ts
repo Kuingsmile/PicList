@@ -5,17 +5,23 @@ import { GalleryDB } from '@core/datastore'
 import { dataDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import windowManager from 'apis/app/window/windowManager'
-import { Notification, type WebContents } from 'electron'
+import { app, Notification, safeStorage, type WebContents } from 'electron'
 import fs from 'fs-extra'
 import { cloneDeep, get } from 'lodash-es'
 import type { IPicGo } from 'piclist'
-import writeFile from 'write-file-atomic'
 
 import { t } from '~/i18n'
 import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 import { IPasteStyle, IWindowList } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
 import { runScriptInStage } from '~/utils/runScript'
+import {
+  isRecord,
+  quarantineTaskStore,
+  TASK_HISTORY_LIMIT,
+  TASK_HISTORY_MAX_AGE,
+  writeAtomicTaskFile,
+} from '~/utils/taskCheckpoint'
 import { sendToWindow } from '~/utils/uploadJob'
 import { getUploadedSourcePath, isUploadUrl } from '~/utils/uploadResult'
 
@@ -112,20 +118,171 @@ function journalPath(id: string): string {
   return path.join(dataDir(), 'uploadFinalizations', `${id}.json`)
 }
 
+export function isUploadFinalization(value: unknown): value is UploadFinalization {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    /^[\w-]+$/.test(value.id) &&
+    Number.isInteger(value.revision) &&
+    value.revision >= 0 &&
+    Array.isArray(value.items) &&
+    value.items.length > 0 &&
+    value.items.every(
+      item =>
+        isRecord(item) &&
+        ['ctx', 'backupCtx'].includes(item.role) &&
+        isRecord(item.image) &&
+        typeof item.image.id === 'string' &&
+        isUploadUrl(item.image.imgUrl) &&
+        Array.isArray(item.completedScripts) &&
+        item.completedScripts.every((script: unknown) => typeof script === 'string') &&
+        ['prepared', 'inserted', 'hooksCompleted'].every(
+          key => item[key] === undefined || typeof item[key] === 'boolean',
+        ) &&
+        (item.sourcePath === undefined || typeof item.sourcePath === 'string') &&
+        (item.pasteText === undefined || typeof item.pasteText === 'string'),
+    ) &&
+    Array.isArray(value.inputs) &&
+    value.inputs.every(input => typeof input === 'string') &&
+    Array.isArray(value.deletedSources) &&
+    value.deletedSources.every(source => typeof source === 'string') &&
+    isRecord(value.picBeds) &&
+    isRecord(value.preferences) &&
+    typeof value.preferences.copy === 'boolean' &&
+    ['none', 'individual', 'batch'].includes(value.preferences.notification) &&
+    isRecord(value.settings) &&
+    typeof value.settings.deleteLocalFile === 'boolean' &&
+    typeof value.settings.pasteStyle === 'string' &&
+    typeof value.settings.notify === 'boolean' &&
+    ['completed', 'effectsCompleted'].every(key => value[key] === undefined || typeof value[key] === 'boolean')
+  )
+}
+
+export class FinalizationStorageUnavailableError extends Error {
+  constructor() {
+    super('Secure storage is unavailable; unlock the OS key store before retrying.')
+  }
+}
+
+export function assertFinalizationStorageAvailable(): void {
+  // Electron's Linux basic_text fallback provides no secret protection.
+  if (
+    !safeStorage.isEncryptionAvailable() ||
+    (process.platform === 'linux' && safeStorage.getSelectedStorageBackend() === 'basic_text')
+  ) {
+    throw new FinalizationStorageUnavailableError()
+  }
+}
+
 export async function saveUploadFinalization(state: UploadFinalization): Promise<void> {
+  if (!isUploadFinalization(state)) throw new Error('Invalid upload finalization')
+  await app.whenReady()
+  assertFinalizationStorageAvailable()
   const file = journalPath(state.id)
-  await fs.ensureDir(path.dirname(file))
-  await writeFile(file, JSON.stringify(state))
+  // Plugin result metadata and hook snapshots can contain credentials. Keep them out of plaintext task stores.
+  const ciphertext = safeStorage.encryptString(JSON.stringify(state)).toString('base64')
+  await writeAtomicTaskFile(
+    file,
+    JSON.stringify({ version: 1, savedAt: Date.now(), completed: !!state.completed, ciphertext }),
+  )
+  if (state.completed) scheduleJournalCleanup()
 }
 
 export async function loadUploadFinalization(id: string): Promise<UploadFinalization | undefined> {
   const pending = pendingFinalizations.get(id)
+  const file = journalPath(id)
+  let data: unknown
   try {
-    const saved: UploadFinalization = await fs.readJSON(journalPath(id))
-    return pending && pending.revision > saved.revision ? pending : saved
+    data = JSON.parse(await fs.readFile(file, 'utf8'))
   } catch (error: any) {
-    if (error.code === 'ENOENT') return pending
-    throw error
+    if (error.code === 'ENOENT') {
+      // Quarantining a bad receipt must not make a later retry mistake it for a never-completed transfer.
+      const files = await fs.readdir(path.dirname(file)).catch((error: NodeJS.ErrnoException) => {
+        if (error.code === 'ENOENT') return []
+        throw new Error('Upload finalization is unavailable')
+      })
+      if (files.some(name => name.startsWith(`${id}.json.corrupt-`))) {
+        // eslint-disable-next-line preserve-caught-error -- Do not attach the original error's private path.
+        throw new Error('Upload finalization is quarantined')
+      }
+      return pending
+    }
+    if (error instanceof SyntaxError) quarantineTaskStore(file)
+    // eslint-disable-next-line preserve-caught-error -- Parser errors can contain credentials from a legacy journal.
+    throw new Error('Upload finalization is unavailable')
+  }
+  const encrypted = isRecord(data) && Object.hasOwn(data, 'version')
+  if (isRecord(data) && encrypted) {
+    if (data.version !== 1 || typeof data.ciphertext !== 'string' || !/^[A-Za-z0-9+/]+={0,2}$/.test(data.ciphertext)) {
+      quarantineTaskStore(file)
+      throw new Error('Invalid upload finalization')
+    }
+    await app.whenReady()
+    assertFinalizationStorageAvailable()
+    // A locked/different OS key store is not corruption. Preserve its ciphertext for later recovery.
+    let plaintext: string
+    try {
+      plaintext = safeStorage.decryptString(Buffer.from(data.ciphertext, 'base64'))
+    } catch {
+      throw new Error('Upload finalization cannot be decrypted')
+    }
+    try {
+      data = JSON.parse(plaintext)
+    } catch {
+      quarantineTaskStore(file)
+      throw new Error('Invalid upload finalization')
+    }
+  }
+  if (!isUploadFinalization(data) || data.id !== id) {
+    quarantineTaskStore(file)
+    throw new Error('Invalid upload finalization')
+  }
+  const saved = pending && pending.revision > data.revision ? pending : data
+  // Upgrade existing plaintext journals before any recovered side effects run.
+  if (!encrypted) await saveUploadFinalization(saved)
+  return saved
+}
+
+let queueFinalizations = new Set<string>()
+let cleanupTimer: NodeJS.Timeout | undefined
+
+export function protectQueueFinalizations(ids: string[]): void {
+  queueFinalizations = new Set(ids)
+  scheduleJournalCleanup()
+}
+
+function scheduleJournalCleanup(): void {
+  if (cleanupTimer) return
+  cleanupTimer = setTimeout(() => {
+    cleanupTimer = undefined
+    void pruneUploadFinalizations().catch(() => console.error('Upload finalization history cleanup failed'))
+  }, 2000)
+  cleanupTimer.unref()
+}
+
+export async function pruneUploadFinalizations(): Promise<void> {
+  const directory = path.join(dataDir(), 'uploadFinalizations')
+  const files = await fs.readdir(directory).catch((error: NodeJS.ErrnoException) => {
+    if (error.code === 'ENOENT') return []
+    throw new Error('Upload finalization history unavailable')
+  })
+  const completed: { id: string; time: number }[] = []
+  for (const file of files) {
+    if (!/^[\w-]+\.json$/.test(file)) continue
+    const id = file.slice(0, -5)
+    if (queueFinalizations.has(id) || activeFinalizations.has(id) || pendingFinalizations.has(id)) continue
+    const data = await fs.readJSON(path.join(directory, file)).catch(() => undefined)
+    if (!isRecord(data) || data.completed !== true) continue
+    const time = typeof data.savedAt === 'number' ? data.savedAt : (await fs.stat(path.join(directory, file))).mtimeMs
+    completed.push({ id, time })
+  }
+  completed.sort((a, b) => b.time - a.time)
+  for (const [index, { id, time }] of completed.entries()) {
+    if (index < TASK_HISTORY_LIMIT && time >= Date.now() - TASK_HISTORY_MAX_AGE) continue
+    if (queueFinalizations.has(id) || activeFinalizations.has(id) || pendingFinalizations.has(id)) continue
+    await fs.unlink(journalPath(id)).catch((error: NodeJS.ErrnoException) => {
+      if (error.code !== 'ENOENT') throw new Error('Upload finalization history cleanup failed')
+    })
   }
 }
 

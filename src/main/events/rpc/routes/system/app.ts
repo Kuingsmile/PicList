@@ -15,7 +15,7 @@ export default [
     action: IRPCActionType.RELOAD_APP,
     handler: async () => {
       app.relaunch()
-      app.exit(0)
+      app.quit()
     },
   },
   {

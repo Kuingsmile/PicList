@@ -7,18 +7,24 @@ import windowManager from 'apis/app/window/windowManager'
 import { Notification, WebContents } from 'electron'
 import fs from 'fs-extra'
 import { v4 as uuid } from 'uuid'
-import writeFile from 'write-file-atomic'
 
 import { t } from '~/i18n/index'
 import { configPaths } from '~/utils/configPaths'
 import { IWindowList } from '~/utils/enum'
+import { TaskCheckpoint } from '~/utils/taskCheckpoint'
 import {
+  assertFinalizationStorageAvailable,
   createUploadFinalization,
+  FinalizationStorageUnavailableError,
   finalizeUpload,
+  isUploadFinalization,
   loadUploadFinalization,
+  protectQueueFinalizations,
+  saveUploadFinalization,
   type UploadFinalization,
 } from '~/utils/uploadFinalizer'
 import { sendToWindow, UploadJob, UploadJobError } from '~/utils/uploadJob'
+import { decodeUploadCheckpoint, retainUploadHistory, uploadTaskMetadata } from '~/utils/uploadTaskMetadata'
 
 export const UploadTaskStatus = {
   PENDING: 'pending',
@@ -46,6 +52,9 @@ export interface IUploadTaskItem {
   failureStage?: 'transfer' | 'finalization'
   finalizationId?: string
   finalization?: UploadFinalization
+  remoteCompleted?: boolean
+  interrupted?: boolean
+  sourceRequired?: boolean
   result?: IStringKeyMap
   createdAt: number
   startedAt?: number
@@ -80,7 +89,25 @@ class UploadTaskQueueManager {
 
   private taskOrigins = new Map<string, WebContents>()
   private activeJobs = new Map<string, UploadJob>()
-  private persistPath = path.join(dataDir(), 'taskQueue.json')
+  private checkpoint = new TaskCheckpoint({
+    file: path.join(dataDir(), 'taskQueue.json'),
+    decode: decodeUploadCheckpoint,
+    snapshot: async () => {
+      await this.migrateLegacyFinalizations()
+      return {
+        taskQueue: this.taskQueue.map(uploadTaskMetadata),
+        config: {
+          intervalS: this.config.intervalS,
+          autoStart: this.config.autoStart,
+          pauseOnError: this.config.pauseOnError,
+          maxRetryCount: this.config.maxRetryCount,
+        },
+      }
+    },
+    onError: () => console.error('Upload task checkpoint unavailable'),
+  })
+  private legacyFinalizations = new Set<IUploadTaskItem>()
+  private closing = false
   private taskTimer: NodeJS.Timeout | null = null
   private workerPromise: Promise<void> | null = null
   private wakeWorker: (() => void) | null = null
@@ -150,6 +177,7 @@ class UploadTaskQueueManager {
   }
 
   async startQueue(intervalS?: number): Promise<void> {
+    if (this.closing) return
     if (intervalS !== undefined) {
       this.config.intervalS = intervalS
     }
@@ -241,15 +269,27 @@ class UploadTaskQueueManager {
           pendingTask.uploadDuration = pendingTask.completedAt - pendingTask.startedAt
           pendingTask.uploadSpeed = Math.round((pendingTask.fileSize / pendingTask.uploadDuration) * 1000)
         }
-      } catch (error: any) {
+      } catch (error) {
         if (!this.isTaskActive(pendingTask, generation)) continue
-        pendingTask.failureStage = pendingTask.finalization ? 'finalization' : 'transfer'
-        pendingTask.error = pendingTask.finalization
-          ? 'Upload finalization failed; retry will use the saved remote result.'
-          : error?.message || 'Upload failed'
+        pendingTask.failureStage =
+          pendingTask.remoteCompleted || pendingTask.finalization || pendingTask.failureStage === 'finalization'
+            ? 'finalization'
+            : 'transfer'
+        pendingTask.error =
+          error instanceof FinalizationStorageUnavailableError
+            ? error.message
+            : pendingTask.failureStage === 'finalization'
+              ? 'Upload finalization is incomplete or unavailable; retry will not upload again.'
+              : pendingTask.sourceRequired
+                ? 'The source must be selected again before retrying.'
+                : 'Upload failed; retry is available.'
         pendingTask.completedAt = Date.now()
 
-        if (pendingTask.retryCount < this.config.maxRetryCount) {
+        if (
+          pendingTask.retryCount < this.config.maxRetryCount &&
+          !pendingTask.sourceRequired &&
+          !(error instanceof FinalizationStorageUnavailableError)
+        ) {
           pendingTask.retryCount++
           pendingTask.status = UploadTaskStatus.PENDING
           pendingTask.startedAt = undefined
@@ -283,16 +323,26 @@ class UploadTaskQueueManager {
         }
         // The journal may be newer than taskQueue.json if the queue checkpoint failed.
         if (task.finalizationId) {
-          const saved = await loadUploadFinalization(task.finalizationId)
-          if (saved && (!task.finalization || saved.revision > task.finalization.revision)) {
-            task.finalization = saved
+          try {
+            const saved = await loadUploadFinalization(task.finalizationId)
+            if (saved && (!task.finalization || saved.revision > task.finalization.revision)) task.finalization = saved
+          } catch {
+            task.failureStage = 'finalization'
+            throw new Error('Upload finalization is unavailable')
           }
         }
         assertActive()
         let contexts: IuploadReturnCtxResult | undefined
         if (!task.finalization) {
+          if (task.remoteCompleted || task.failureStage === 'finalization') {
+            throw new Error('The completed remote upload needs its finalization journal')
+          }
+          if (task.sourceRequired) throw new Error('The upload source must be selected again')
+          assertFinalizationStorageAvailable()
           task.finalizationId = job.context.id
-          this.persist(true)
+          // Commit the journal link before any remote side effect, even if the process dies during the upload.
+          await this.flush()
+          assertActive()
           contexts = await uploader.uploadReturnCtx([task.filePath], undefined, job)
           assertActive()
           task.finalization = createUploadFinalization(
@@ -302,11 +352,20 @@ class UploadTaskQueueManager {
             task.finalizationId,
           )
         }
+        task.remoteCompleted = true
+        task.failureStage = 'finalization'
+        task.interrupted = false
+        // If writing the journal fails, recovery must still never fall back to a second remote upload.
+        try {
+          await saveUploadFinalization(task.finalization)
+        } finally {
+          await this.flush()
+        }
+        assertActive()
         const results = await finalizeUpload(task.finalization, {
           contexts,
           origin: webContents,
           assertActive,
-          checkpoint: () => this.persist(true),
         })
         return results[0]
       })
@@ -620,54 +679,57 @@ class UploadTaskQueueManager {
     sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, 'uploadTaskQueueUpdate', status)
   }
 
-  private persist(throwOnError = false): void {
-    try {
-      fs.ensureFileSync(this.persistPath)
-      writeFile.sync(
-        this.persistPath,
-        JSON.stringify(
-          {
-            taskQueue: this.taskQueue,
-            config: this.config,
-          },
-          null,
-          2,
-        ),
-      )
-    } catch (e) {
-      if (throwOnError) throw e
-      console.error('Failed to persist upload task queue')
+  private persist(): void {
+    this.taskQueue = retainUploadHistory(this.taskQueue)
+    for (const task of this.legacyFinalizations) {
+      if (!this.taskQueue.includes(task)) this.legacyFinalizations.delete(task)
+    }
+    for (const id of this.taskOrigins.keys()) {
+      if (!this.taskQueue.some(task => task.id === id)) this.taskOrigins.delete(id)
+    }
+    protectQueueFinalizations(this.taskQueue.flatMap(task => (task.finalizationId ? [task.finalizationId] : [])))
+    this.checkpoint.schedule()
+  }
+
+  async flush(): Promise<void> {
+    this.persist()
+    await this.checkpoint.flush()
+  }
+
+  async shutdown(): Promise<void> {
+    this.closing = true
+    this.config.isRunning = false
+    this.config.isPaused = false
+    this.wakeWorker?.()
+    // Leave active work labelled as interrupted on recovery; shutting down is not user cancellation.
+    await this.flush()
+  }
+
+  private async migrateLegacyFinalizations(): Promise<void> {
+    for (const task of this.legacyFinalizations) {
+      if (
+        !isUploadFinalization(task.finalization) ||
+        (task.finalizationId && task.finalization.id !== task.finalizationId)
+      ) {
+        throw new Error('Invalid legacy finalization')
+      }
+      task.finalizationId = task.finalization.id
+      const saved = await loadUploadFinalization(task.finalizationId)
+      if (saved && saved.revision > task.finalization.revision) task.finalization = saved
+      await saveUploadFinalization(task.finalization)
+      this.legacyFinalizations.delete(task)
     }
   }
 
   private restore(): void {
-    try {
-      if (fs.existsSync(this.persistPath)) {
-        const data = JSON.parse(fs.readFileSync(this.persistPath, { encoding: 'utf-8' }))
-        if (data.taskQueue) {
-          this.taskQueue = data.taskQueue.map((task: IUploadTaskItem) => ({
-            ...task,
-            fileSize: task.fileSize || 0,
-            retryCount: task.retryCount || 0,
-            priority: task.priority ?? UploadTaskPriority.NORMAL,
-            status: task.status === UploadTaskStatus.UPLOADING ? UploadTaskStatus.PENDING : task.status,
-          }))
-        }
-        if (data.config) {
-          this.config = {
-            ...this.config,
-            intervalS: data.config.intervalS || 1,
-            autoStart: data.config.autoStart || false,
-            pauseOnError: data.config.pauseOnError || false,
-            maxRetryCount: data.config.maxRetryCount ?? 3,
-            isRunning: false,
-            isPaused: false,
-          }
-        }
-      }
-    } catch (e) {
-      console.error('Failed to restore upload task queue:', e)
+    const data = this.checkpoint.load()
+    if (!data) return
+    this.taskQueue = data.taskQueue
+    this.config = { ...this.config, ...data.config, isRunning: false, isPaused: false }
+    for (const task of this.taskQueue) {
+      if (task.finalization) this.legacyFinalizations.add(task)
     }
+    this.persist()
   }
 }
 

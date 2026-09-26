@@ -83,7 +83,7 @@ const buildMiniPageMenu = () => {
       label: t('main.menu.restartApp'),
       click() {
         app.relaunch()
-        app.exit(0)
+        app.quit()
       },
     },
     {

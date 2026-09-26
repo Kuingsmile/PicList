@@ -36,6 +36,7 @@ import { notificationList } from '~/utils/notification'
 import { runScriptInStage } from '~/utils/runScript'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 import updateChecker from '~/utils/updateChecker'
+import UploadTaskQueueManager from '~/utils/uploadTaskQueue'
 import { showMiniWindow } from '~/utils/windowHelper'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -97,6 +98,8 @@ class LifeCycle {
     beforeOpen()
     getManageApi()
     UpDownTaskQueue.getInstance()
+    // Register journal references before any uploader can prune completed finalization history.
+    UploadTaskQueueManager.getInstance()
     initI18n()
     rpcServer.start()
     busEventList.listen()
@@ -241,8 +244,25 @@ class LifeCycle {
   #onQuit() {
     app.on('window-all-closed', () => {})
 
+    let flushed = false
+    let flushing = false
+    app.on('before-quit', event => {
+      if (flushed) return
+      event.preventDefault()
+      if (flushing) return
+      flushing = true
+      void Promise.allSettled([
+        UpDownTaskQueue.getInstance().flush(),
+        UploadTaskQueueManager.getInstance().shutdown(),
+      ]).then(results => {
+        if (results.some(result => result.status === 'rejected'))
+          logger.error('Unable to flush task checkpoints before quit')
+        flushed = true
+        app.quit()
+      })
+    })
+
     app.on('will-quit', () => {
-      UpDownTaskQueue.getInstance().persist()
       clearTempFolder()
       globalShortcut.unregisterAll()
       bus.removeAllListeners()

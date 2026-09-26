@@ -259,6 +259,7 @@
         "downloadBtn": "下載 {num}",
         "downloadFolderNotice": "確定要下載此資料夾嗎？",
         "downloading": "下載中",
+        "downloadInterrupted": "應用程式重新啟動中斷了下載，可以重試",
         "downloadPage": "下載頁面",
         "dragUpload": "拖曳上傳 支援目錄",
         "enterFullScreen": "進入全螢幕(F11)",

@@ -4,11 +4,12 @@
 import path from 'node:path'
 
 import { dataDir } from '@core/datastore/dirs'
-import fs from 'fs-extra'
 
 import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
+import { TaskCheckpoint } from '~/utils/taskCheckpoint'
 
 import { finishImportedFileUpload, retainImportedFileForUpload } from '../utils/urlImportFiles'
+import { decodeManagementCheckpoint, managementTaskMetadata, retainManagementHistory } from './taskMetadata'
 
 class UpDownTaskQueue {
   private static instance: UpDownTaskQueue
@@ -17,10 +18,23 @@ class UpDownTaskQueue {
 
   private downloadTaskQueue = [] as IDownloadTask[]
 
-  private persistPath = path.join(dataDir(), 'UpDownTaskQueue.json')
+  private checkpoint = new TaskCheckpoint({
+    file: path.join(dataDir(), 'UpDownTaskQueue.json'),
+    decode: decodeManagementCheckpoint,
+    snapshot: () => ({
+      uploadTaskQueue: this.uploadTaskQueue.map(managementTaskMetadata),
+      downloadTaskQueue: this.downloadTaskQueue.map(managementTaskMetadata),
+    }),
+    onError: () => console.error('Management task checkpoint unavailable'),
+  })
 
   private constructor() {
-    this.restore()
+    const restored = this.checkpoint.load()
+    if (restored) {
+      this.uploadTaskQueue = restored.uploadTaskQueue
+      this.downloadTaskQueue = restored.downloadTaskQueue
+      this.persist()
+    }
   }
 
   static getInstance() {
@@ -49,6 +63,8 @@ class UpDownTaskQueue {
   addUploadTask(task: IUploadTask) {
     retainImportedFileForUpload(task.sourceFilePath, task.id)
     UpDownTaskQueue.getInstance().uploadTaskQueue.push(task)
+    task.createdAt ??= Date.now()
+    this.persist()
   }
 
   updateUploadTask(task: Partial<IUploadTask>) {
@@ -62,6 +78,8 @@ class UpDownTaskQueue {
           UpDownTaskQueue.getInstance().uploadTaskQueue[taskIndex][key] = task[key]
         }
       })
+      if (['uploaded', 'failed', 'canceled'].includes(current.status)) current.completedAt = Date.now()
+      this.persist()
     }
     // Providers finish asynchronously, even if the visible task list was cleared.
     if (
@@ -78,6 +96,7 @@ class UpDownTaskQueue {
     const taskIndex = UpDownTaskQueue.getInstance().uploadTaskQueue.findIndex(item => item.id === taskId)
     if (taskIndex !== -1) {
       UpDownTaskQueue.getInstance().uploadTaskQueue.splice(taskIndex, 1)
+      this.persist()
     }
   }
 
@@ -85,6 +104,7 @@ class UpDownTaskQueue {
     const taskIndex = UpDownTaskQueue.getInstance().downloadTaskQueue.findIndex(item => item.id === taskId)
     if (taskIndex !== -1) {
       UpDownTaskQueue.getInstance().downloadTaskQueue.splice(taskIndex, 1)
+      this.persist()
     }
   }
 
@@ -98,22 +118,29 @@ class UpDownTaskQueue {
 
   addDownloadTask(task: IDownloadTask) {
     UpDownTaskQueue.getInstance().downloadTaskQueue.push(task)
+    task.createdAt ??= Date.now()
+    this.persist()
   }
 
   updateDownloadTask(task: Partial<IDownloadTask>) {
     const taskIndex = UpDownTaskQueue.getInstance().downloadTaskQueue.findIndex(item => item.id === task.id)
     if (taskIndex !== -1) {
+      const current = this.downloadTaskQueue[taskIndex]
+      if (['downloaded', 'failed', 'canceled'].includes(current.status)) return
       const taskKeys = Object.keys(task)
       taskKeys.forEach(key => {
         if (key !== 'id') {
           UpDownTaskQueue.getInstance().downloadTaskQueue[taskIndex][key] = task[key]
         }
       })
+      if (['downloaded', 'failed', 'canceled'].includes(current.status)) current.completedAt = Date.now()
+      this.persist()
     }
   }
 
   clearUploadTaskQueue() {
     UpDownTaskQueue.getInstance().uploadTaskQueue = []
+    this.persist()
   }
 
   removeUploadedTask() {
@@ -123,6 +150,7 @@ class UpDownTaskQueue {
         item.status !== commonTaskStatus.canceled &&
         item.status !== commonTaskStatus.failed,
     )
+    this.persist()
   }
 
   removeDownloadedTask() {
@@ -132,10 +160,12 @@ class UpDownTaskQueue {
         item.status !== commonTaskStatus.canceled &&
         item.status !== commonTaskStatus.failed,
     )
+    this.persist()
   }
 
   clearDownloadTaskQueue() {
     UpDownTaskQueue.getInstance().downloadTaskQueue = []
+    this.persist()
   }
 
   clearAllTaskQueue() {
@@ -144,62 +174,14 @@ class UpDownTaskQueue {
   }
 
   persist() {
-    try {
-      this.checkPersistPath()
-      fs.writeFileSync(
-        this.persistPath,
-        JSON.stringify({
-          uploadTaskQueue: this.uploadTaskQueue,
-          downloadTaskQueue: this.downloadTaskQueue,
-        }),
-      )
-    } catch (e) {
-      console.log(e)
-    }
+    this.uploadTaskQueue = retainManagementHistory(this.uploadTaskQueue)
+    this.downloadTaskQueue = retainManagementHistory(this.downloadTaskQueue)
+    this.checkpoint.schedule()
   }
 
-  private restore() {
-    try {
-      this.checkPersistPath()
-      const persistData = JSON.parse(fs.readFileSync(this.persistPath, { encoding: 'utf-8' }))
-      this.uploadTaskQueue = persistData.uploadTaskQueue.map((task: IUploadTask) =>
-        ['queuing', 'uploading', 'paused'].includes(task.status)
-          ? {
-              ...task,
-              status: commonTaskStatus.failed,
-              response: { success: false, reason: 'interrupted' },
-              finishTime: new Date().toLocaleString(),
-            }
-          : task,
-      )
-      this.downloadTaskQueue = persistData.downloadTaskQueue
-    } catch (_e) {
-      this.uploadTaskQueue = []
-      this.downloadTaskQueue = []
-    }
-  }
-
-  private checkPersistPath() {
-    if (!fs.existsSync(this.persistPath)) {
-      fs.writeFileSync(
-        this.persistPath,
-        JSON.stringify({
-          uploadTaskQueue: this.uploadTaskQueue,
-          downloadTaskQueue: this.downloadTaskQueue,
-        }),
-      )
-    }
-    try {
-      JSON.parse(fs.readFileSync(this.persistPath, { encoding: 'utf-8' }))
-    } catch (_e) {
-      fs.writeFileSync(
-        this.persistPath,
-        JSON.stringify({
-          uploadTaskQueue: this.uploadTaskQueue,
-          downloadTaskQueue: this.downloadTaskQueue,
-        }),
-      )
-    }
+  async flush(): Promise<void> {
+    this.persist()
+    await this.checkpoint.flush()
   }
 }
 

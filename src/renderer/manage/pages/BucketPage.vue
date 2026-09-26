@@ -1064,6 +1064,9 @@
                               : t('pages.manage.bucket.failed')
                           }}
                         </span>
+                        <span v-if="item.response?.reason === 'interrupted'">{{
+                          t('pages.manage.bucket.downloadInterrupted')
+                        }}</span>
                       </div>
                     </div>
                   </div>

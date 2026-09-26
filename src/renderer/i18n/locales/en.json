@@ -259,6 +259,7 @@
         "downloadBtn": "Download {num}",
         "downloadFolderNotice": "Are you sure you want to download this folder?",
         "downloading": "Downloading",
+        "downloadInterrupted": "Download interrupted by an application restart; retry is available",
         "downloadPage": "Download Page",
         "dragUpload": "Drag and drop upload supports directories",
         "enterFullScreen": "Enter Full Screen (F11)",

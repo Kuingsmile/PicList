@@ -259,6 +259,7 @@
         "downloadBtn": "下载 {num}",
         "downloadFolderNotice": "确定要下载该文件夹吗？",
         "downloading": "下载中",
+        "downloadInterrupted": "应用重启中断了下载，可以重试",
         "downloadPage": "下载页面",
         "dragUpload": "拖拽上传 支持目录",
         "enterFullScreen": "进入全屏(F11)",

@@ -67,7 +67,7 @@ export function createMenu() {
           label: t('main.menu.restartApp'),
           click() {
             app.relaunch()
-            app.exit(0)
+            app.quit()
           },
         },
       ],
@@ -145,7 +145,7 @@ export function createContextMenu() {
         label: t('main.menu.restartApp'),
         click() {
           app.relaunch()
-          app.exit(0)
+          app.quit()
         },
       },
       { label: t('main.menu.quit'), role: 'quit' },
