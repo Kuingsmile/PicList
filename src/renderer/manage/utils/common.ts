@@ -68,11 +68,16 @@ export function renameFileNameWithCustomString(
   oldName: string,
   customFormat: string,
   affixFileName?: string,
-  fileBuffer?: Buffer,
+  fileBuffer?: Buffer | (() => Buffer),
 ): string {
   const date = new Date()
   const year = date.getFullYear().toString()
   const fileBaseName = window.node.path.basename(oldName, window.node.path.extname(oldName))
+  const getHashInput = () => {
+    // Resolve upload contents once, and only when a hash placeholder needs them.
+    if (typeof fileBuffer === 'function') fileBuffer = fileBuffer()
+    return fileBuffer || fileBaseName
+  }
   const conversionMap: Record<string, () => string> = {
     '{Y}': () => year,
     '{y}': () => year.slice(2),
@@ -82,10 +87,10 @@ export function renameFileNameWithCustomString(
     '{i}': () => renameFormatHelper(date.getMinutes()),
     '{s}': () => renameFormatHelper(date.getSeconds()),
     '{ms}': () => date.getMilliseconds().toString().padStart(3, '0'),
-    '{md5}': () => getMd5(fileBuffer || fileBaseName),
-    '{md5-16}': () => getMd5(fileBuffer || fileBaseName).slice(0, 16),
-    '{sha1}': () => getSha1(fileBuffer || fileBaseName),
-    '{sha256}': () => getSha256(fileBuffer || fileBaseName),
+    '{md5}': () => getMd5(getHashInput()),
+    '{md5-16}': () => getMd5(getHashInput()).slice(0, 16),
+    '{sha1}': () => getSha1(getHashInput()),
+    '{sha256}': () => getSha256(getHashInput()),
     '{filename}': () =>
       affixFileName
         ? window.node.path.basename(affixFileName, window.node.path.extname(affixFileName))
@@ -107,18 +112,18 @@ export function renameFileNameWithCustomString(
   const ext = window.node.path.extname(oldName)
   let newName =
     Object.keys(conversionMap).reduce((acc, cur) => {
-      return acc.replace(new RegExp(cur, 'g'), conversionMap[cur]())
+      return acc.includes(cur) ? acc.replace(new RegExp(cur, 'g'), conversionMap[cur]()) : acc
     }, customFormat) + ext
   const strRegex = /{str-(\d+)}/gi
   const sha256nRegex = /{sha256-(\d+)}/gi
   const sha1nRegex = /{sha1-(\d+)}/gi
   newName = newName.replace(sha256nRegex, (_, group1) => {
     const length = parseInt(group1, 10)
-    return getSha256(fileBuffer || fileBaseName).slice(0, length)
+    return getSha256(getHashInput()).slice(0, length)
   })
   newName = newName.replace(sha1nRegex, (_, group1) => {
     const length = parseInt(group1, 10)
-    return getSha1(fileBuffer || fileBaseName).slice(0, length)
+    return getSha1(getHashInput()).slice(0, length)
   })
   newName = newName.replace(strRegex, (_, group1) => {
     const length = parseInt(group1, 10)
@@ -130,7 +135,7 @@ export function renameFileNameWithCustomString(
 export function renameFile(
   { timestampRename, randomStringRename, customRename, customRenameFormat }: IStringKeyMap,
   oldName = '',
-  fileBuffer?: Buffer,
+  fileBuffer?: Buffer | (() => Buffer),
 ): string {
   switch (true) {
     case timestampRename:

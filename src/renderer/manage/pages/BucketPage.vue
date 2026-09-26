@@ -1778,14 +1778,13 @@ function clearTableData() {
 
 function renameFileBeforeUpload(filePath: string, fullPath: string): string {
   const fileName = window.node.path.basename(filePath)
-  const fileBuffer = window.node.fs.readFileSync(fullPath)
   const typeMap = {
     timestampRename: manageStore.config.settings.timestampRename,
     randomStringRename: manageStore.config.settings.randomStringRename,
     customRenameFormat: manageStore.config.settings.customRenameFormat,
     customRename: manageStore.config.settings.customRename,
   }
-  return renameFile(typeMap, fileName, fileBuffer)
+  return renameFile(typeMap, fileName, () => window.node.fs.readFileSync(fullPath))
 }
 
 function uploadFiles() {
