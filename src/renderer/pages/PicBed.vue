@@ -231,20 +231,17 @@ const handleReset = async () => {
     config.value.forEach(item => {
       let defaultValue
       switch (item.type) {
-        case 'text':
+        case 'input':
         case 'password':
           defaultValue = ''
-          break
-        case 'number':
-          defaultValue = 0
           break
         case 'checkbox':
           defaultValue = []
           break
-        case 'select':
-          defaultValue = item.choices && item.choices.length > 0 ? item.choices[0].value : null
+        case 'list':
+          defaultValue = item.choices?.[0]?.value ?? item.choices?.[0] ?? null
           break
-        case 'switch':
+        case 'confirm':
           defaultValue = false
           break
         default:

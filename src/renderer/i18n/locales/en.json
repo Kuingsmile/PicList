@@ -80,7 +80,8 @@
     "configForm": {
       "configName": "Config Name",
       "configNamePlaceholder": "Please enter config name",
-      "configNameRequired": "Configure name is required"
+      "configNameRequired": "Configure name is required",
+      "fieldRequired": "{name} is required"
     },
     "gallery": {
       "batchEditUrl": "Batch Edit URL",

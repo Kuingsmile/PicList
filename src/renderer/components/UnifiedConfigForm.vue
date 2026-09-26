@@ -59,8 +59,8 @@
           :required="item.required || false"
           :select-list="
             item.choices.map(choice => ({
-              value: choice.value || choice,
-              label: choice.name || choice.value || choice,
+              value: choice.value ?? choice,
+              label: choice.name ?? choice.value ?? choice,
             }))
           "
           :icon="null"
@@ -81,8 +81,8 @@
           :required="item.required || false"
           :all-list="
             item.choices.map(choice => ({
-              type: choice.value || choice,
-              name: choice.name || choice.value || choice,
+              type: choice.value ?? choice,
+              name: choice.name ?? choice.value ?? choice,
             }))
           "
           @change="clearFieldError(item.name)"
@@ -143,12 +143,22 @@ watch(
   },
 )
 
-function validateField(fieldName: string, value: any, _?: IPicGoPluginConfig): string | null {
+function validateField(fieldName: string, value: any, config?: IPicGoPluginConfig): string | null {
   if (fieldName === '_configName') {
-    if (!value || value.trim() === '') {
+    if (typeof value !== 'string' || value.trim() === '') {
       return t('pages.configForm.configNameRequired')
     }
     return null
+  }
+
+  if (
+    config?.required &&
+    (value === undefined ||
+      value === null ||
+      (typeof value === 'string' && value.trim() === '') ||
+      (Array.isArray(value) && value.length === 0))
+  ) {
+    return t('pages.configForm.fieldRequired', { name: config.alias || config.name })
   }
 
   return null

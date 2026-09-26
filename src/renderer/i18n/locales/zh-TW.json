@@ -80,7 +80,8 @@
     "configForm": {
       "configName": "配置名稱",
       "configNamePlaceholder": "請輸入配置名稱",
-      "configNameRequired": "配置名稱為必填項"
+      "configNameRequired": "配置名稱為必填項",
+      "fieldRequired": "{name}為必填項"
     },
     "gallery": {
       "batchEditUrl": "批量修改URL",
