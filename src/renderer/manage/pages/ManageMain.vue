@@ -387,6 +387,11 @@ const openPicBedUrl = () =>
   window.electron.sendRPC(IRPCActionType.OPEN_URL, urlMap.value[currentPagePicBedConfig.picBedName])
 
 function openNewBucketDrawer() {
+  const picBedName = currentPicBedName.value
+  const resultMap = getNewBucketConfigResult(picBedName)
+  for (const key of Object.keys(resultMap)) {
+    newBucketConfigResult[`${picBedName}.${key}`] = resultMap[key]
+  }
   bucketDrawerVisible.value = true
 }
 
@@ -400,24 +405,53 @@ function getDomainFromEndpoint(endpoint: string): string {
   }
 }
 
-function createNewBucket(picBedName: string) {
-  const alias = currentAlias.value
+function getNewBucketConfigResult(picBedName: string): IStringKeyMap {
   const configOptions = newBucketConfig[picBedName].configOptions
-  const resultMap: IStringKeyMap = Object.keys(configOptions).reduce((result, key) => {
+  return Object.keys(configOptions).reduce((result, key) => {
     const resultKey = `${picBedName}.${key}`
     const defaultValue = configOptions[key].default
     const resultValue = newBucketConfigResult[resultKey]
+    const value = typeof resultValue === 'string' ? resultValue.trim() : resultValue
 
-    result[key] =
-      resultValue === '' && defaultValue !== undefined ? defaultValue : resultValue === undefined ? '' : resultValue
+    result[key] = value === '' || value === undefined || value === null ? (defaultValue ?? '') : value
 
     return result
   }, {} as IStringKeyMap)
-  if (currentPicBedName.value === 'tcyun') {
+}
+
+async function createNewBucket(picBedName: string) {
+  const alias = currentAlias.value
+  const configOptions = newBucketConfig[picBedName].configOptions
+  const resultMap = getNewBucketConfigResult(picBedName)
+
+  try {
+    for (const key of Object.keys(configOptions)) {
+      const option = configOptions[key]
+      const value = resultMap[key]
+      const rules = option.rule || []
+      const requiredRule = rules.find((rule: { required?: boolean }) => rule.required)
+      if ((option.required || requiredRule) && value === '') {
+        throw new Error(requiredRule?.message || t('pages.configForm.fieldRequired', { name: option.description }))
+      }
+      for (const rule of rules) {
+        if (rule.validator) {
+          await new Promise<void>((resolve, reject) => {
+            rule.validator(rule, value, (error?: Error) => (error ? reject(error) : resolve()))
+          })
+        }
+      }
+    }
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : t('pages.manage.main.createFailed'))
+    return
+  }
+
+  if (unmounted || alias !== currentAlias.value || picBedName !== currentPicBedName.value) return
+  if (picBedName === 'tcyun') {
     resultMap.BucketName = `${resultMap.BucketName}-${currentPagePicBedConfig.appId}`
   }
-  window.electron
-    .triggerRPC<ICreateBucketResult>(IRPCActionType.MANAGE_CREATE_BUCKET, currentAlias.value, resultMap)
+  return window.electron
+    .triggerRPC<ICreateBucketResult>(IRPCActionType.MANAGE_CREATE_BUCKET, alias, resultMap)
     .then(result => {
       if (unmounted || alias !== currentAlias.value) return
       if (result === true) {
