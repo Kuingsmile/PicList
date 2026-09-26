@@ -34,7 +34,13 @@ import {
   getFileMimeType,
   NewDownloader,
 } from '~/manage/utils/common'
-import { dogecloudApi, DogecloudToken, getTempToken } from '~/manage/utils/dogeAPI'
+import {
+  dogecloudApi,
+  DogecloudToken,
+  getTempToken,
+  invalidateDogecloudTokens,
+  isDogecloudAuthenticationError,
+} from '~/manage/utils/dogeAPI'
 import { ManageLogger } from '~/manage/utils/logger'
 import { MIB, scheduleUploadBatch, withUploadStream } from '~/manage/utils/uploadFile'
 import { formatEndpoint, formatHttpProxy, isImage } from '~/utils/common'
@@ -98,6 +104,32 @@ class S3plistApi {
     }
   }
 
+  private createS3Client(options: S3ClientConfig): S3Client {
+    const client = new S3Client(options)
+    if (this.dogeCloudSupport) {
+      const accessKey = this.accessKeyId
+      const secretKey = this.secretAccessKey
+      const token = options.credentials as DogecloudToken
+      // Includes multipart uploads, whose failures are handled by the transfer scheduler.
+      client.middlewareStack.add(
+        next => async args => {
+          try {
+            return await next(args)
+          } catch (error) {
+            if (isDogecloudAuthenticationError(error)) {
+              invalidateDogecloudTokens(accessKey, secretKey, token)
+              // eslint-disable-next-line preserve-caught-error -- The provider error can contain credentials.
+              throw new Error('manage.setting.dogeCloudTokenError')
+            }
+            throw error
+          }
+        },
+        { step: 'initialize', name: 'dogecloudAuthentication' },
+      )
+    }
+    return client
+  }
+
   setAgent(proxy: string | undefined, sslEnabled: boolean): NodeHttpHandler {
     const agent = getAgent(proxy, sslEnabled)
     const commonOptions: AgentOptions = {
@@ -125,7 +157,13 @@ class S3plistApi {
         })
   }
 
-  logParam = (error: any, method: string) => this.logger.error(formatError(error, { class: 'S3plistApi', method }))
+  logParam = (error: any, method: string) =>
+    this.logger.error(
+      formatError(this.dogeCloudSupport ? new Error('DogeCloud request failed') : error, {
+        class: 'S3plistApi',
+        method,
+      }),
+    )
 
   formatFolder(item: CommonPrefix, slicedPrefix: string, urlPrefix: string): any {
     return {
@@ -191,7 +229,7 @@ class S3plistApi {
       await this.getDogeCloudToken()
       const options = { ...this.baseOptions } as S3ClientConfig
       options.region = String(region || this.baseOptions.region || 'us-east-1')
-      const client = new S3Client(options)
+      const client = this.createS3Client(options)
       const command = new ListBucketsCommand({})
       const data = await client.send(command)
       if (data.$metadata.httpStatusCode === 200) {
@@ -269,7 +307,7 @@ class S3plistApi {
     const result: IStringKeyMap[] = []
     const endpoint = (options.endpoint as string) || ''
     try {
-      const client = new S3Client(options)
+      const client = this.createS3Client(options)
       const data = await client.send(new ListBucketsCommand({}))
 
       if (data.$metadata.httpStatusCode !== 200) {
@@ -334,7 +372,7 @@ class S3plistApi {
       do {
         const options = { ...this.baseOptions } as S3ClientConfig
         options.region = String(region || this.baseOptions.region || 'us-east-1')
-        const client = new S3Client(options)
+        const client = this.createS3Client(options)
         const command = new ListObjectsV2Command({
           Bucket: bucket,
           Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
@@ -391,7 +429,7 @@ class S3plistApi {
       do {
         const options = { ...this.baseOptions } as S3ClientConfig
         options.region = String(region || this.baseOptions.region || 'us-east-1')
-        const client = new S3Client(options)
+        const client = this.createS3Client(options)
         const command = new ListObjectsV2Command({
           Bucket: bucket,
           Prefix: slicedPrefix === '' ? undefined : slicedPrefix,
@@ -455,7 +493,7 @@ class S3plistApi {
         ...this.baseOptions,
         region: String(region || this.baseOptions.region || 'us-east-1'),
       } as S3ClientConfig
-      const client = new S3Client(options)
+      const client = this.createS3Client(options)
       const command = new ListObjectsV2Command({
         Bucket: bucket,
         Prefix: slicedPrefix,
@@ -498,7 +536,7 @@ class S3plistApi {
         ...this.baseOptions,
         region: String(region || this.baseOptions.region || 'us-east-1'),
       } as S3ClientConfig
-      const client = new S3Client(options)
+      const client = this.createS3Client(options)
       const command = new CopyObjectCommand({
         Bucket: bucketName,
         CopySource: encodeURI(`${bucketName}/${oldKey}`),
@@ -541,7 +579,7 @@ class S3plistApi {
       await this.getDogeCloudToken()
       const options = { ...this.baseOptions } as S3ClientConfig
       options.region = String(region || this.baseOptions.region || 'us-east-1')
-      const client = new S3Client(options)
+      const client = this.createS3Client(options)
       const command = new DeleteObjectCommand({
         Bucket: bucketName,
         Key: key,
@@ -577,7 +615,7 @@ class S3plistApi {
       do {
         const options = { ...this.baseOptions } as S3ClientConfig
         options.region = String(region || this.baseOptions.region || 'us-east-1')
-        const client = new S3Client(options)
+        const client = this.createS3Client(options)
         const command = new ListObjectsV2Command({
           Bucket: bucketName,
           Prefix: key,
@@ -612,7 +650,7 @@ class S3plistApi {
         const cycle = Math.ceil(allFileList.Contents.length / 1000)
         const options = { ...this.baseOptions } as S3ClientConfig
         options.region = String(region || this.baseOptions.region || 'us-east-1')
-        const client = new S3Client(options)
+        const client = this.createS3Client(options)
         for (let i = 0; i < cycle; i++) {
           const deleteList = allFileList.Contents.slice(i * 1000, (i + 1) * 1000)
           const deleteCommand = new DeleteObjectsCommand({
@@ -657,7 +695,7 @@ class S3plistApi {
       await this.getDogeCloudToken()
       const options = { ...this.baseOptions } as S3ClientConfig
       options.region = String(region || this.baseOptions.region || 'us-east-1')
-      const client = new S3Client(options)
+      const client = this.createS3Client(options)
       const signedUrl = await getSignedUrl(
         client,
         new GetObjectCommand({
@@ -686,7 +724,7 @@ class S3plistApi {
       await this.getDogeCloudToken()
       const options = { ...this.baseOptions } as S3ClientConfig
       options.region = String(region || this.baseOptions.region || 'us-east-1')
-      const client = new S3Client(options)
+      const client = this.createS3Client(options)
       const command = new PutObjectCommand({
         Bucket: bucketName,
         Key: key,
@@ -725,7 +763,7 @@ class S3plistApi {
         const handler = this.baseOptions.requestHandler as NodeHttpHandler
         // Abort HTTP requests, but let lib-storage drain all workers and abort the multipart upload.
         // Upload.abort() races done() and can return before those workers have stopped.
-        const client = new S3Client({
+        const client = this.createS3Client({
           ...this.baseOptions,
           region: String(region || this.baseOptions.region || 'us-east-1'),
           requestHandler: {
@@ -787,6 +825,8 @@ class S3plistApi {
       const id = `${bucketName}-${String(region)}-${key}-${downloadPath}-${fileName}`
       const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
       if (!destination) continue
+      const accessKey = this.accessKeyId
+      const secretKey = this.secretAccessKey
       const preSignedUrl = await this.getPreSignedUrl({
         bucketName,
         region: String(region),
@@ -794,10 +834,19 @@ class S3plistApi {
         expires: 36000,
         customUrl,
       })
+      // Bind failures to the token actually used to sign this URL, even if the cache refreshes while downloading.
+      const sessionToken =
+        this.dogeCloudSupport && preSignedUrl !== 'error'
+          ? new URL(preSignedUrl).searchParams.get('X-Amz-Security-Token')
+          : null
       promises.push(
         () =>
           new Promise((resolve, reject) => {
-            NewDownloader(instance, preSignedUrl, id, destination, this.logger, this.proxy).then((res: boolean) => {
+            NewDownloader(instance, preSignedUrl, id, destination, this.logger, this.proxy, undefined, error => {
+              if (sessionToken && isDogecloudAuthenticationError(error)) {
+                invalidateDogecloudTokens(accessKey, secretKey, { sessionToken })
+              }
+            }).then((res: boolean) => {
               if (res) {
                 resolve(res)
               } else {

@@ -129,6 +129,7 @@ export const NewDownloader = async (
   logger?: ManageLogger,
   proxy?: string,
   headers?: any,
+  onError?: (error: unknown) => void,
 ): Promise<boolean> =>
   runDownloadTask(
     instance,
@@ -158,7 +159,10 @@ export const NewDownloader = async (
         } catch (error) {
           output.destroy()
           await finished(output).catch(() => {})
-          if (attempt === 2) throw error
+          if (attempt === 2) {
+            onError?.(error)
+            throw error
+          }
         }
       }
     },

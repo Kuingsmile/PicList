@@ -10,6 +10,7 @@ import { get, set, unset } from 'lodash-es'
 import API from '~/manage/apis/api'
 import ManageDB from '~/manage/datastore/db'
 import { formatError, isInputConfigValid } from '~/manage/utils/common'
+import { invalidateDogecloudTokens } from '~/manage/utils/dogeAPI'
 import { ManageLogger } from '~/manage/utils/logger'
 import { IWindowList } from '~/utils/enum'
 
@@ -251,14 +252,34 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       this.logger.warn('the format of config is invalid, please provide object')
       return
     }
-    Object.keys(config).forEach((name: string) => {
-      set(this._config, name, config[name])
+    this.updateDogecloudConfig(() => {
+      Object.keys(config).forEach((name: string) => {
+        set(this._config, name, config[name])
+      })
     })
   }
 
   unsetConfig(key: string, propName: string): void {
     if (!key || !propName) return
-    unset(this.getConfig(key), propName)
+    this.updateDogecloudConfig(() => unset(this.getConfig(key), propName))
+  }
+
+  private updateDogecloudConfig(update: () => void): void {
+    const previous = Object.entries(this._config.picBed || {})
+      .filter(([, config]) => config?.picBedName === 's3plist' && config.dogeCloudSupport)
+      .map(([name, config]) => ({ name, accessKey: config.accessKeyId, secretKey: config.secretAccessKey }))
+    update()
+    for (const { name, accessKey, secretKey } of previous) {
+      const current = this.getPicBedConfig(name)
+      if (
+        current?.picBedName !== 's3plist' ||
+        !current.dogeCloudSupport ||
+        current.accessKeyId !== accessKey ||
+        current.secretAccessKey !== secretKey
+      ) {
+        invalidateDogecloudTokens(accessKey, secretKey)
+      }
+    }
   }
 
   async getBucketList(param?: IStringKeyMap): Promise<any> {
