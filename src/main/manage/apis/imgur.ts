@@ -8,6 +8,7 @@ import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import {
   ConcurrencyPromisePool,
+  createDownloadTask,
   formatError,
   getAgent,
   getFileMimeType,
@@ -222,27 +223,18 @@ class ImgurApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
+    const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any
     for (const item of fileArray) {
       const { bucketName, region, key, fileName, githubUrl: url } = item
       const id = `${bucketName}-${region}-${key}-${fileName}`
-      const savedFilePath = path.join(downloadPath, fileName)
-      if (instance.getDownloadTask(id)) {
-        continue
-      }
-      instance.addDownloadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        targetFilePath: savedFilePath,
-      })
+      const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
+      if (!destination) continue
       promises.push(
         () =>
           new Promise((resolve, reject) => {
-            NewDownloader(instance, url, id, savedFilePath, this.logger, this.proxyStr).then((res: boolean) => {
+            NewDownloader(instance, url, id, destination, this.logger, this.proxyStr).then((res: boolean) => {
               if (res) {
                 resolve(res)
               } else {

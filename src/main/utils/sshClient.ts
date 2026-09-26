@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import path from 'node:path'
+import type { Writable } from 'node:stream'
+import { finished, pipeline } from 'node:stream/promises'
 
 import type { Config, SSHExecCommandResponse } from 'node-ssh-no-cpu-features'
 import { NodeSSH } from 'node-ssh-no-cpu-features'
@@ -112,6 +114,25 @@ class SSHClient {
     remote = remotePath(remote)
     const sftp = await this.getSftp()
     await this.transfer(sftp, () => this.requireClient().getFile(local, remote, sftp, { concurrency: 1 }))
+  }
+
+  async getFileToStream(remote: string, createWriteStream: () => Writable): Promise<void> {
+    remote = remotePath(remote)
+    const sftp = await this.getSftp()
+    const output = createWriteStream()
+    let input: ReturnType<SFTP['createReadStream']> | undefined
+    let completed: Promise<void> | undefined
+    try {
+      input = sftp.createReadStream(remote)
+      completed = pipeline(input, output)
+      await this.transfer(sftp, () => completed!)
+    } finally {
+      // Disconnection can win the transfer race before the streams settle.
+      input?.destroy()
+      output.destroy()
+      await completed?.catch(() => {})
+      await finished(output).catch(() => {})
+    }
   }
 
   /** The SDK can wait for a handle-close response after disconnection; do not let that stall a batch. */

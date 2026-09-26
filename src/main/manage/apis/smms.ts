@@ -7,7 +7,14 @@ import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
-import { ConcurrencyPromisePool, formatError, getFileMimeType, gotUpload, NewDownloader } from '~/manage/utils/common'
+import {
+  ConcurrencyPromisePool,
+  createDownloadTask,
+  formatError,
+  getFileMimeType,
+  gotUpload,
+  NewDownloader,
+} from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
 import { commonTaskStatus } from '~/utils/enum'
@@ -225,27 +232,18 @@ class SmmsApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
+    const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any
     for (const item of fileArray) {
       const { bucketName, region, key, fileName, downloadUrl: preSignedUrl } = item
-      const savedFilePath = path.join(downloadPath, fileName)
       const id = `${bucketName}-${region}-${key}`
-      if (instance.getDownloadTask(id)) {
-        continue
-      }
-      instance.addDownloadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        targetFilePath: savedFilePath,
-      })
+      const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
+      if (!destination) continue
       promises.push(
         () =>
           new Promise((resolve, reject) => {
-            NewDownloader(instance, preSignedUrl, id, savedFilePath, this.logger).then((res: boolean) => {
+            NewDownloader(instance, preSignedUrl, id, destination, this.logger).then((res: boolean) => {
               if (res) {
                 resolve(res)
               } else {

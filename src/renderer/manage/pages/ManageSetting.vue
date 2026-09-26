@@ -97,6 +97,13 @@
           </SettingSection>
 
           <SettingSection :icon="Download" :title="t('pages.manage.setting.section.up-down')">
+            <SettingCard>
+              <CustomSelect
+                v-model="form.downloadConflictPolicy"
+                :select-list="downloadConflictPolicies"
+                :title="t('pages.manage.setting.downloadConflictPolicy.title')"
+              />
+            </SettingCard>
             <SettingCard v-for="item in switchFieldsSpecialList" :key="item.configName" class="mb-4" p1>
               <CustomSwitch v-model="form[item.configName]" small no-border :tips="item.tooltip">
                 <template #custom-title>
@@ -190,6 +197,7 @@ const form = ref<IStringKeyMap>({
   isDownloadFileKeepDirStructure: false,
   isDownloadFolderKeepDirStructure: true,
   downloadDir: '',
+  downloadConflictPolicy: 'rename',
   pasteFormat: 'markdown',
   customPasteFormat: '$url',
   PreSignedExpire: 14400, // seconds
@@ -200,6 +208,12 @@ const dbSize = ref(0)
 const dbSizeAvailableRate = ref('0')
 
 const settingsKeys = Object.keys(form.value)
+const downloadConflictPolicies = computed(() =>
+  ['rename', 'overwrite', 'skip'].map(value => ({
+    label: t(`pages.manage.setting.downloadConflictPolicy.${value}`),
+    value,
+  })),
+)
 const pasteFormatList = [
   { label: t('pages.manage.setting.copyFormat.markdown'), value: 'markdown' },
   { label: t('pages.manage.setting.copyFormat.markdown-with-link'), value: 'markdown-with-link' },

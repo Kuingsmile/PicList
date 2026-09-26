@@ -2277,7 +2277,8 @@ async function handleFolderBatchDownload(item: any) {
     )
     if (!downloadListings.isCurrent(request)) return
     const param = {
-      downloadPath: manageStore.config.settings.downloadDir ?? defaultDownloadPath,
+      downloadPath: manageStore.config.settings.downloadDir || defaultDownloadPath,
+      downloadConflictPolicy: manageStore.config.settings.downloadConflictPolicy ?? 'rename',
       maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount || 5,
       fileArray: [] as any[],
     }
@@ -2297,7 +2298,7 @@ async function handleFolderBatchDownload(item: any) {
         bucketName: request.bucketName,
         region: paramGet.bucketConfig.Location,
         key: item.key,
-        fileName: keepStructure ? `/${item.key.replace(/^\/+|\/+$/g, '')}` : item.fileName,
+        fileName: keepStructure ? item.key.replace(/^\/+|\/+$/g, '') : item.fileName,
         customUrl: paramGet.customUrl,
         downloadUrl: item.downloadUrl,
         githubUrl: item.url,
@@ -2320,7 +2321,8 @@ async function handleBatchDownload() {
     IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER,
   )
   const param = {
-    downloadPath: manageStore.config.settings.downloadDir ?? defaultDownloadPath,
+    downloadPath: manageStore.config.settings.downloadDir || defaultDownloadPath,
+    downloadConflictPolicy: manageStore.config.settings.downloadConflictPolicy ?? 'rename',
     maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount
       ? manageStore.config.settings.maxDownloadFileCount
       : 5,
@@ -2334,7 +2336,7 @@ async function handleBatchDownload() {
         region: configMap.value.bucketConfig.Location,
         key: item.key,
         fileName: manageStore.config.settings.isDownloadFileKeepDirStructure
-          ? `/${item.key.replace(/^\/+|\/+$/, '')}`
+          ? item.key.replace(/^\/+|\/+$/g, '')
           : item.fileName,
         customUrl: currentCustomDomain.value,
         downloadUrl: item.downloadUrl,

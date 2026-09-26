@@ -7,7 +7,13 @@ import { AuthType, createClient, FileStat, ProgressEvent, WebDAVClient, WebDAVCl
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
-import { ConcurrencyPromisePool, formatError, getInnerAgent, NewDownloader } from '~/manage/utils/common'
+import {
+  ConcurrencyPromisePool,
+  createDownloadTask,
+  formatError,
+  getInnerAgent,
+  NewDownloader,
+} from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { formatEndpoint, formatHttpProxy, isImage } from '~/utils/common'
 import { getAuthHeader } from '~/utils/digestAuth'
@@ -306,23 +312,14 @@ class WebdavplistApi {
   }
 
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
+    const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any
     for (const item of fileArray) {
       const { alias, bucketName, region, key, fileName } = item
-      const savedFilePath = path.join(downloadPath, fileName)
       const id = `${alias}-${bucketName}-${region}-${key}`
-      if (instance.getDownloadTask(id)) {
-        continue
-      }
-      instance.addDownloadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        targetFilePath: savedFilePath,
-      })
+      const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
+      if (!destination) continue
       let preSignedUrl = await this.getPreSignedUrl({
         key,
       })
@@ -348,7 +345,7 @@ class WebdavplistApi {
       promises.push(
         () =>
           new Promise((resolve, reject) => {
-            NewDownloader(instance, preSignedUrl, id, savedFilePath, this.logger, this.proxyStr, headers).then(
+            NewDownloader(instance, preSignedUrl, id, destination, this.logger, this.proxyStr, headers).then(
               (res: boolean) => {
                 if (res) {
                   resolve(res)

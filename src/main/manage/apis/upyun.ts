@@ -9,6 +9,7 @@ import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import {
   ConcurrencyPromisePool,
+  createDownloadTask,
   formatError,
   getFileMimeType,
   gotUpload,
@@ -424,28 +425,19 @@ class UpyunApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
+    const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any
     for (const item of fileArray) {
       const { bucketName, region, key, fileName, customUrl } = item
-      const savedFilePath = path.join(downloadPath, fileName)
       const id = `${bucketName}-${region}-${key}`
-      if (instance.getDownloadTask(id)) {
-        continue
-      }
-      instance.addDownloadTask({
-        id: `${bucketName}-${region}-${key}`,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        targetFilePath: savedFilePath,
-      })
+      const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
+      if (!destination) continue
       const preSignedUrl = `${customUrl}/${key}`
       promises.push(
         () =>
           new Promise((resolve, reject) => {
-            NewDownloader(instance, preSignedUrl, id, savedFilePath, this.logger).then((res: boolean) => {
+            NewDownloader(instance, preSignedUrl, id, destination, this.logger).then((res: boolean) => {
               if (res) {
                 resolve(res)
               } else {

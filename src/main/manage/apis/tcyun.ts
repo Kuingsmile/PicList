@@ -1,11 +1,11 @@
-import path from 'node:path'
+import { finished } from 'node:stream/promises'
 
 import COS from 'cos-nodejs-sdk-v5'
 import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
-import { formatError, getFileMimeType } from '~/manage/utils/common'
+import { createDownloadTask, formatError, getFileMimeType, runDownloadTask } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { handleUrlEncode, isImage } from '~/utils/common'
 import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
@@ -477,68 +477,52 @@ class TcyunApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray } = configMap
-    // fileArray = [{
-    //   bucketName: string,
-    //   region: string,
-    //   key: string,
-    //  fileName: string
-    // }]
+    const { downloadPath, fileArray, downloadConflictPolicy = 'rename' } = configMap
     const instance = UpDownTaskQueue.getInstance()
     for (const item of fileArray) {
       const { bucketName, region, key, fileName } = item
       const id = `${bucketName}-${region}-${key}`
-      if (instance.getDownloadTask(id)) {
-        continue
-      }
-      instance.addDownloadTask({
+      const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
+      if (!destination) continue
+      void runDownloadTask(
+        instance,
         id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        targetFilePath: path.join(downloadPath, fileName),
-      })
-      fs.ensureDirSync(path.dirname(path.join(downloadPath, fileName)))
-      this.ctx
-        .downloadFile({
-          Bucket: bucketName,
-          Region: region,
-          Key: key,
-          RetryTimes: 3,
-          ChunkSize: 1024 * 1024 * 1,
-          FilePath: path.join(downloadPath, fileName),
-          onProgress: (progress: any) => {
-            instance.updateDownloadTask({
-              id,
-              progress: Math.floor(progress.percent * 100),
-              status: downloadTaskSpecialStatus.downloading,
-            })
-          },
-        })
-        .then((res: any) => {
-          instance.updateDownloadTask({
-            id,
-            progress: res && res.statusCode === 200 ? 100 : 0,
-            status: res && res.statusCode === 200 ? downloadTaskSpecialStatus.downloaded : commonTaskStatus.failed,
-            response: typeof res === 'object' ? JSON.stringify(res) : String(res),
-            finishTime: new Date().toLocaleString(),
-          })
-        })
-        .catch((err: any) => {
-          this.logger.error(
-            formatError(err, {
-              method: 'downloadBucketFile',
-              class: 'TcyunApi',
-            }),
-          )
-          instance.updateDownloadTask({
-            id,
-            progress: 0,
-            status: commonTaskStatus.failed,
-            response: typeof err === 'object' ? JSON.stringify(err) : String(err),
-            finishTime: new Date().toLocaleString(),
-          })
-        })
+        destination,
+        async (_partPath, createWriteStream) => {
+          for (let attempt = 0; attempt < 3; attempt++) {
+            const output = createWriteStream()
+            const closed = finished(output)
+            try {
+              await Promise.all([
+                this.ctx
+                  .getObject({
+                    Bucket: bucketName,
+                    Region: region,
+                    Key: key,
+                    Output: output,
+                    onProgress: (progress: any) => {
+                      instance.updateDownloadTask({
+                        id,
+                        progress: Math.min(99, Math.floor(progress.percent * 100)),
+                        status: downloadTaskSpecialStatus.downloading,
+                      })
+                    },
+                  })
+                  .then(res => {
+                    if (res?.statusCode !== 200) throw new Error('Download failed')
+                  }),
+                closed,
+              ])
+              return
+            } catch (error) {
+              output.destroy()
+              await closed.catch(() => {})
+              if (attempt === 2) throw error
+            }
+          }
+        },
+        this.logger,
+      )
     }
     return true
   }

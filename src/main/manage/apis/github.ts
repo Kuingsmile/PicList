@@ -1,5 +1,3 @@
-import path from 'node:path'
-
 import fs from 'fs-extra'
 import got from 'got'
 
@@ -7,6 +5,7 @@ import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import {
   ConcurrencyPromisePool,
+  createDownloadTask,
   formatError,
   getAgent,
   getOptions,
@@ -490,23 +489,14 @@ class GithubApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
+    const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any
     for (const item of fileArray) {
       const { bucketName: repo, customUrl: branch, key, fileName, githubPrivate, githubUrl } = item
       const id = `${repo}-${branch}-${key}-${fileName}`
-      const savedFilePath = path.join(downloadPath, fileName)
-      if (instance.getDownloadTask(id)) {
-        continue
-      }
-      instance.addDownloadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        targetFilePath: savedFilePath,
-      })
+      const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
+      if (!destination) continue
       let downloadUrl: string
       if (githubPrivate) {
         const preSignedUrl = await this.getPreSignedUrl({
@@ -523,7 +513,7 @@ class GithubApi {
       promises.push(
         () =>
           new Promise((resolve, reject) => {
-            NewDownloader(instance, downloadUrl, id, savedFilePath, this.logger, this.proxyStr).then((res: boolean) => {
+            NewDownloader(instance, downloadUrl, id, destination, this.logger, this.proxyStr).then((res: boolean) => {
               if (res) {
                 resolve(res)
               } else {

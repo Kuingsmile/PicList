@@ -1,6 +1,5 @@
 import http, { AgentOptions } from 'node:http'
 import https from 'node:https'
-import path from 'node:path'
 
 import {
   _Object,
@@ -27,7 +26,14 @@ import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
-import { ConcurrencyPromisePool, formatError, getAgent, getFileMimeType, NewDownloader } from '~/manage/utils/common'
+import {
+  ConcurrencyPromisePool,
+  createDownloadTask,
+  formatError,
+  getAgent,
+  getFileMimeType,
+  NewDownloader,
+} from '~/manage/utils/common'
 import { dogecloudApi, DogecloudToken, getTempToken } from '~/manage/utils/dogeAPI'
 import { ManageLogger } from '~/manage/utils/logger'
 import { formatEndpoint, formatHttpProxy, isImage } from '~/utils/common'
@@ -814,23 +820,14 @@ class S3plistApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount } = configMap
+    const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any
     for (const item of fileArray) {
       const { bucketName, region, key, fileName, customUrl } = item
-      const savedFilePath = path.join(downloadPath, fileName)
-      const id = `${bucketName}-${String(region)}-${key}-${savedFilePath}`
-      if (instance.getDownloadTask(id)) {
-        continue
-      }
-      instance.addDownloadTask({
-        id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        targetFilePath: savedFilePath,
-      })
+      const id = `${bucketName}-${String(region)}-${key}-${downloadPath}-${fileName}`
+      const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
+      if (!destination) continue
       const preSignedUrl = await this.getPreSignedUrl({
         bucketName,
         region: String(region),
@@ -841,7 +838,7 @@ class S3plistApi {
       promises.push(
         () =>
           new Promise((resolve, reject) => {
-            NewDownloader(instance, preSignedUrl, id, savedFilePath, this.logger, this.proxy).then((res: boolean) => {
+            NewDownloader(instance, preSignedUrl, id, destination, this.logger, this.proxy).then((res: boolean) => {
               if (res) {
                 resolve(res)
               } else {

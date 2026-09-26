@@ -627,6 +627,12 @@
         "defaultDownloadFolder": "系统默认下载文件夹",
         "description": "描述",
         "download": "下载",
+        "downloadConflictPolicy": {
+          "overwrite": "下载成功后替换",
+          "rename": "保留两个文件（重命名下载文件）",
+          "skip": "跳过已存在的文件",
+          "title": "下载文件已存在时"
+        },
         "file": "文件",
         "folder": "文件夹",
         "isAutoRefreshTips": "仅对不分页模式有效，默认在加载过一次后自动缓存到数据库来加快下次加载速度",

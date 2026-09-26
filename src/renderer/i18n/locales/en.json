@@ -627,6 +627,12 @@
         "defaultDownloadFolder": "System default download folder",
         "description": "Description",
         "download": "Download",
+        "downloadConflictPolicy": {
+          "overwrite": "Replace after a successful download",
+          "rename": "Keep both files (rename the download)",
+          "skip": "Skip existing files",
+          "title": "When a downloaded file already exists"
+        },
         "file": "File",
         "folder": "Folder",
         "isAutoRefreshTips": "Only works in non-pagination mode. After the first load, data is cached to speed up subsequent loads",

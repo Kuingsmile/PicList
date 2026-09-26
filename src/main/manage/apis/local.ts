@@ -1,13 +1,14 @@
 import path from 'node:path'
+import { finished, pipeline } from 'node:stream/promises'
 
 import fs from 'fs-extra'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
-import { formatError } from '~/manage/utils/common'
+import { createDownloadTask, formatError, runDownloadTask } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
+import { commonTaskStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 
 class LocalApi {
   logger: ManageLogger
@@ -255,40 +256,28 @@ class LocalApi {
   }
 
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray } = configMap
+    const { downloadPath, fileArray, downloadConflictPolicy = 'rename' } = configMap
     const instance = UpDownTaskQueue.getInstance()
     for (const item of fileArray) {
       const { alias, bucketName, key, fileName } = item
-      const savedFilePath = path.join(downloadPath, fileName.replace(/[:*?"<>|]/g, ''))
       const id = `${alias}-${bucketName}-local-${key}`
-      if (instance.getDownloadTask(id)) {
-        continue
-      }
-      instance.addDownloadTask({
+      const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
+      if (!destination) continue
+      await runDownloadTask(
+        instance,
         id,
-        progress: 0,
-        status: commonTaskStatus.queuing,
-        sourceFileName: fileName,
-        targetFilePath: savedFilePath,
-      })
-      try {
-        fs.ensureFileSync(savedFilePath)
-        await fs.copyFile(this.transBack(key), savedFilePath)
-        instance.updateDownloadTask({
-          id,
-          progress: 100,
-          status: downloadTaskSpecialStatus.downloaded,
-          finishTime: new Date().toLocaleString(),
-        })
-      } catch (error) {
-        this.logParam(error, 'downloadBucketFile')
-        instance.updateDownloadTask({
-          id,
-          progress: 0,
-          status: commonTaskStatus.failed,
-          finishTime: new Date().toLocaleString(),
-        })
-      }
+        destination,
+        async (_partPath, createWriteStream) => {
+          const output = createWriteStream()
+          try {
+            await pipeline(fs.createReadStream(this.transBack(key)), output)
+          } finally {
+            output.destroy()
+            await finished(output).catch(() => {})
+          }
+        },
+        this.logger,
+      )
     }
     return true
   }

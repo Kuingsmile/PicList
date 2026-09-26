@@ -2,18 +2,28 @@ import crypto from 'node:crypto'
 import http from 'node:http'
 import https from 'node:https'
 import path from 'node:path'
+import { finished, pipeline } from 'node:stream/promises'
 
 import fs from 'fs-extra'
 import got, { OptionsOfTextResponseBody, RequestError } from 'got'
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
 import mime from 'mime'
-import Downloader from 'nodejs-file-downloader'
 
 import { isS3SignedUrl } from '#/utils/url'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ManageLogger } from '~/manage/utils/logger'
 import { formatHttpProxy } from '~/utils/common'
 import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
+
+import {
+  createDownloadDestination,
+  type DownloadConflictPolicy,
+  type DownloadDestination,
+  DownloadPathError,
+  downloadToFile,
+  type DownloadTransfer,
+  resolveDownloadPath,
+} from './downloadFile'
 
 export { clearTempFolder, downloadFileFromUrl } from './urlImportFiles'
 
@@ -43,58 +53,116 @@ export const md5 = (str: string, code: 'hex' | 'base64'): string => crypto.creat
 export const hmacSha1Base64 = (secretKey: string, stringToSign: string): string =>
   crypto.createHmac('sha1', secretKey).update(Buffer.from(stringToSign, 'utf8')).digest('base64')
 
-export const NewDownloader = async (
+// Download errors can contain signed URLs, credentials or response bodies. Keep
+// task responses and logs limited to a safe reason and an optional system code.
+const downloadError = (error: unknown) => ({
+  name: 'DownloadError',
+  method: 'downloadBucketFile',
+  message: error instanceof DownloadPathError ? error.message : 'Download failed',
+  ...((error as NodeJS.ErrnoException)?.code && /^[A-Z0-9_]+$/.test((error as NodeJS.ErrnoException).code!)
+    ? { code: (error as NodeJS.ErrnoException).code }
+    : {}),
+})
+
+const failDownloadTask = (instance: UpDownTaskQueue, id: string, error: unknown, logger?: ManageLogger) => {
+  const response = downloadError(error)
+  logger?.error(response)
+  instance.updateDownloadTask({
+    id,
+    progress: 0,
+    status: commonTaskStatus.failed,
+    response,
+    finishTime: new Date().toLocaleString(),
+  })
+}
+
+export function createDownloadTask(
   instance: UpDownTaskQueue,
-  preSignedUrl: string,
   id: string,
-  savedFilePath: string,
+  root: string,
+  fileName: string,
+  policy: DownloadConflictPolicy = 'rename',
   logger?: ManageLogger,
-  proxy?: string,
-  headers?: any,
-): Promise<boolean> => {
-  const options = {
-    url: isS3SignedUrl(preSignedUrl) ? preSignedUrl : encodeURI(preSignedUrl),
-    directory: path.dirname(savedFilePath),
-    fileName: path.basename(savedFilePath),
-    cloneFiles: false,
-    onProgress: (percentage: string) => {
-      instance.updateDownloadTask({
-        id,
-        progress: Math.floor(Number(percentage)),
-        status: downloadTaskSpecialStatus.downloading,
-      })
-    },
-    maxAttempts: 3,
-  } as any
-  if (proxy) {
-    options.proxy = proxy
-  }
-  if (headers) {
-    options.headers = headers
-  }
-  const downloader = new Downloader(options)
+): DownloadDestination | undefined {
+  if (instance.getDownloadTask(id)) return undefined
+  instance.addDownloadTask({ id, progress: 0, status: commonTaskStatus.queuing, sourceFileName: fileName })
   try {
-    await downloader.download()
+    const destination = createDownloadDestination(root, fileName, policy)
+    instance.updateDownloadTask({ id, targetFilePath: resolveDownloadPath(root, fileName) })
+    return destination
+  } catch (error) {
+    failDownloadTask(instance, id, error, logger)
+    return undefined
+  }
+}
+
+export const runDownloadTask = async (
+  instance: UpDownTaskQueue,
+  id: string,
+  destination: DownloadDestination,
+  transfer: DownloadTransfer,
+  logger?: ManageLogger,
+): Promise<boolean> => {
+  try {
+    const result = await downloadToFile(destination, transfer)
     instance.updateDownloadTask({
       id,
       progress: 100,
       status: downloadTaskSpecialStatus.downloaded,
+      targetFilePath: result.filePath,
+      response: { skipped: result.skipped },
       finishTime: new Date().toLocaleString(),
     })
     return true
-  } catch (e: any) {
-    logger?.error(formatError(e, { method: 'NewDownloader' }))
-    fs.remove(savedFilePath)
-    instance.updateDownloadTask({
-      id,
-      progress: 0,
-      status: commonTaskStatus.failed,
-      response: formatError(e, { method: 'NewDownloader' }),
-      finishTime: new Date().toLocaleString(),
-    })
+  } catch (error) {
+    failDownloadTask(instance, id, error, logger)
     return false
   }
 }
+
+export const NewDownloader = async (
+  instance: UpDownTaskQueue,
+  preSignedUrl: string,
+  id: string,
+  destination: DownloadDestination,
+  logger?: ManageLogger,
+  proxy?: string,
+  headers?: any,
+): Promise<boolean> =>
+  runDownloadTask(
+    instance,
+    id,
+    destination,
+    async (_partPath, createWriteStream) => {
+      const url = isS3SignedUrl(preSignedUrl) ? preSignedUrl : encodeURI(preSignedUrl)
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const output = createWriteStream()
+        try {
+          const stream = got.stream(url, {
+            headers,
+            ...(proxy && { agent: getAgent(proxy, url.startsWith('https:')) }),
+            timeout: { socket: 6000 },
+            // Retry the entire pipeline so failed attempts cannot append data.
+            retry: { limit: 0 },
+          })
+          stream.on('downloadProgress', progress => {
+            instance.updateDownloadTask({
+              id,
+              progress: Math.min(99, Math.floor(progress.percent * 100)),
+              status: downloadTaskSpecialStatus.downloading,
+            })
+          })
+          await pipeline(stream, output)
+          return
+        } catch (error) {
+          output.destroy()
+          await finished(output).catch(() => {})
+          if (attempt === 2) throw error
+        }
+      }
+    },
+    logger,
+  )
 
 export const gotUpload = async (
   instance: UpDownTaskQueue,

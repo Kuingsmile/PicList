@@ -1,15 +1,14 @@
 import { constants } from 'node:fs'
 import path from 'node:path'
 
-import fs from 'fs-extra'
 import type { FileEntry } from 'ssh2'
 
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
-import { formatError } from '~/manage/utils/common'
+import { createDownloadTask, formatError, runDownloadTask } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { isImage } from '~/utils/common'
-import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
+import { commonTaskStatus, uploadTaskSpecialStatus } from '~/utils/enum'
 import SSHClient from '~/utils/sshClient'
 
 interface listDirResult {
@@ -355,43 +354,32 @@ class SftpApi {
   }
 
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray } = configMap
+    const { downloadPath, fileArray, downloadConflictPolicy = 'rename' } = configMap
     const instance = UpDownTaskQueue.getInstance()
     const client = new SSHClient()
     try {
       for (const item of fileArray) {
         const { alias, bucketName, region, key, fileName } = item
-        const savedFilePath = path.join(downloadPath, fileName)
         const id = `${alias}-${bucketName}-${region}-${key}`
-        if (instance.getDownloadTask(id)) {
-          continue
-        }
-        instance.addDownloadTask({
+        const destination = createDownloadTask(
+          instance,
           id,
-          progress: 0,
-          status: commonTaskStatus.queuing,
-          sourceFileName: fileName,
-          targetFilePath: savedFilePath,
-        })
-        try {
-          await fs.ensureDir(path.dirname(savedFilePath))
-          if (!client.isConnected) await client.connect(this.config)
-          await client.getFile(savedFilePath, `/${key.replace(/^\/+/, '')}`)
-          instance.updateDownloadTask({
-            id,
-            progress: 100,
-            status: downloadTaskSpecialStatus.downloaded,
-            finishTime: new Date().toLocaleString(),
-          })
-        } catch (error) {
-          this.logParam(error, 'downloadBucketFile')
-          instance.updateDownloadTask({
-            id,
-            progress: 0,
-            status: commonTaskStatus.failed,
-            finishTime: new Date().toLocaleString(),
-          })
-        }
+          downloadPath,
+          fileName,
+          downloadConflictPolicy,
+          this.logger,
+        )
+        if (!destination) continue
+        await runDownloadTask(
+          instance,
+          id,
+          destination,
+          async (_partPath, createWriteStream) => {
+            if (!client.isConnected) await client.connect(this.config)
+            await client.getFileToStream(`/${key.replace(/^\/+/, '')}`, createWriteStream)
+          },
+          this.logger,
+        )
       }
     } finally {
       client.close()

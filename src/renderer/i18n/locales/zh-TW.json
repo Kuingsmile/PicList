@@ -627,6 +627,12 @@
         "defaultDownloadFolder": "系統預設下載資料夾",
         "description": "描述",
         "download": "下載",
+        "downloadConflictPolicy": {
+          "overwrite": "下載成功後取代",
+          "rename": "保留兩個檔案（重新命名下載檔案）",
+          "skip": "跳過已存在的檔案",
+          "title": "下載檔案已存在時"
+        },
         "file": "檔案",
         "folder": "資料夾",
         "isAutoRefreshTips": "僅對非分頁模式有效，預設於載入一次後自動快取至資料庫以加快下次載入速度",
