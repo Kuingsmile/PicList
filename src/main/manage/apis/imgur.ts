@@ -114,7 +114,8 @@ class ImgurApi {
         })
       } else {
         result.finished = true
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
         return
       }
     } else {
@@ -130,9 +131,12 @@ class ImgurApi {
           res.body.data.forEach((item: any) => {
             result.fullList.push(this.formatFile(item))
           })
+          await listing.publish(result)
+          result.fullList = []
         } else {
           result.finished = true
-          listing.publish(result)
+          await listing.publish(result)
+          result.fullList = []
           return
         }
         initPage++
@@ -140,7 +144,8 @@ class ImgurApi {
     }
     result.success = !listing.signal.aborted
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   async deleteBucketFile(configMap: IStringKeyMap): Promise<boolean> {

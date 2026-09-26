@@ -1151,7 +1151,7 @@ import {
   XIcon,
 } from '@lucide/vue'
 import { useLocalStorage } from '@vueuse/core'
-import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
@@ -1184,7 +1184,7 @@ import {
 } from '@/manage/utils/common'
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { splitFileName } from '@/manage/utils/fileName'
-import { ListingSession } from '@/manage/utils/listingSession'
+import { appendListingItems, ListingSession } from '@/manage/utils/listingSession'
 import { textFileExt } from '@/manage/utils/textfile'
 import { appendThumbnailSuffix } from '@/manage/utils/thumbnailUrl'
 import { videoExt } from '@/manage/utils/videofile'
@@ -2085,7 +2085,7 @@ async function resetParam(force: boolean = false) {
     const cachedData = await searchExistFileList()
     if (!fileListings.isCurrent(request)) return
     if (cachedData.length > 0) {
-      currentPageFilesInfo.push(...cachedData[0].value.fullList)
+      appendListingItems(currentPageFilesInfo, cachedData[0].value.fullList)
       const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
       sortFile(sortType)
       isShowLoadingPage.value = false
@@ -2097,7 +2097,7 @@ async function resetParam(force: boolean = false) {
     const res = await getBucketFileList(request)
     if (!res || !fileListings.isCurrent(request)) return
     if (res.success) {
-      currentPageFilesInfo.push(...res.fullList)
+      appendListingItems(currentPageFilesInfo, res.fullList)
       const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
       sortFile(sortType)
       if (res.isTruncated && paging.value) {
@@ -2158,7 +2158,7 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
     return
   }
 
-  currentPageFilesInfo.push(...res.fullList)
+  appendListingItems(currentPageFilesInfo, res.fullList)
 
   sortFile(sortType)
 
@@ -2182,12 +2182,22 @@ const handlePageNumberInput = async (event: Event) => {
   }
 }
 
-function sortFile(type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
+function sortFile(type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init', toggle = true) {
   currentSortType.value = type
+  localStorage.setItem('sortType', type)
+  const directions = {
+    name: fileSortNameReverse,
+    size: fileSortSizeReverse,
+    time: fileSortTimeReverse,
+    ext: fileSortExtReverse,
+  }
+  if (toggle && type in directions) {
+    const direction = directions[type as keyof typeof directions]
+    direction.value = !direction.value
+  }
+  if (isLoadingData.value) return
   switch (type) {
     case 'name':
-      localStorage.setItem('sortType', 'name')
-      fileSortNameReverse.value = !fileSortNameReverse.value
       currentPageFilesInfo.sort((a: any, b: any) => {
         if (fileSortNameReverse.value) {
           return a.fileName.localeCompare(b.fileName)
@@ -2196,8 +2206,6 @@ function sortFile(type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
       })
       break
     case 'size':
-      localStorage.setItem('sortType', 'size')
-      fileSortSizeReverse.value = !fileSortSizeReverse.value
       currentPageFilesInfo.sort((a: any, b: any) => {
         if (fileSortSizeReverse.value) {
           return a.fileSize - b.fileSize
@@ -2206,8 +2214,6 @@ function sortFile(type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
       })
       break
     case 'time':
-      localStorage.setItem('sortType', 'time')
-      fileSortTimeReverse.value = !fileSortTimeReverse.value
       currentPageFilesInfo.sort((a: any, b: any) => {
         if (fileSortTimeReverse.value) {
           return new Date(a.formatedTime).getTime() - new Date(b.formatedTime).getTime()
@@ -2216,8 +2222,6 @@ function sortFile(type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
       })
       break
     case 'ext':
-      localStorage.setItem('sortType', 'ext')
-      fileSortExtReverse.value = !fileSortExtReverse.value
       currentPageFilesInfo.sort((a: any, b: any) => {
         if (fileSortExtReverse.value) {
           return getExtension(a.fileName).localeCompare(getExtension(b.fileName))
@@ -2226,13 +2230,11 @@ function sortFile(type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init') {
       })
       break
     case 'check':
-      localStorage.setItem('sortType', 'check')
       currentPageFilesInfo.sort((a: any, b: any) => {
         return b.checked - a.checked
       })
       break
     case 'init':
-      localStorage.setItem('sortType', 'init')
       currentPageFilesInfo.sort((a: any, b: any) => {
         return b.isDir - a.isDir || a.fileName.localeCompare(b.fileName)
       })
@@ -2282,15 +2284,15 @@ async function handleFolderBatchDownload(item: any) {
     isLoadingDownloadData.value = true
     currentDownloadFileList.length = 0
     downloadListings.subscribe(request, data => {
-      currentDownloadFileList.splice(0, currentDownloadFileList.length, ...data.fullList)
-      if (!data.finished) return
+      appendListingItems(currentDownloadFileList, data.items)
+      if (!data.finished) return nextTick()
       isLoadingDownloadData.value = false
       if (!data.success) {
         if (data.phase !== 'cancelled') message.error(t('pages.manage.bucket.getDownloadListFailed'))
         return
       }
       message.success(t('pages.manage.bucket.getDownloadListSuccess'))
-      param.fileArray = data.fullList.map(item => ({
+      param.fileArray = currentDownloadFileList.map(item => ({
         alias: request.accountId,
         bucketName: request.bucketName,
         region: paramGet.bucketConfig.Location,
@@ -2638,6 +2640,7 @@ async function cancelLoading() {
     isLoadingData.value = false
     isShowLoadingPage.value = false
     fileListings.cancel()
+    sortFile((localStorage.getItem('sortType') as ISortTypeList) || 'init', false)
     message.success(t('pages.manage.bucket.stopSuccessMsg'))
   } catch (e) {
     console.error(e)
@@ -2668,19 +2671,23 @@ function getBucketFileListBackStage(request: ListingRequest) {
   const param = listingParams(request)
   const cacheTarget = { provider: request.provider, key: getTableKeyOfDb() }
   isLoadingData.value = true
+  sortFile((localStorage.getItem('sortType') as ISortTypeList) || 'init')
   fileListings.subscribe(request, data => {
-    currentPageFilesInfo.splice(0, currentPageFilesInfo.length, ...data.fullList)
-    const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
-    sortFile(sortType)
+    appendListingItems(currentPageFilesInfo, data.items)
+    // Keep arrival order while loading; filterList searches all received items. Sort the
+    // completed (or partial failed) inventory once, preserving object/selection identity.
     if (data.finished) {
       isLoadingData.value = false
+      const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
+      sortFile(sortType, false)
       if (data.success) {
-        void cacheFileList(cacheTarget, data.fullList)
+        void cacheFileList(cacheTarget, currentPageFilesInfo)
         message.success(t('pages.manage.bucket.getFileListSuccess'))
       } else if (data.phase !== 'cancelled') {
         message.error(t('pages.manage.bucket.partFileListFailed'))
       }
     }
+    return nextTick()
   })
   window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_BACKSTAGE, request.accountId, param)
 }

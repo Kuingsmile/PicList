@@ -138,10 +138,12 @@ class UpyunApi {
             item.type === 'F' && folderQueue.push(path.posix.join(folder, item.name, '/'))
             item.type === 'N' && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           })
-          listing.publish(result)
+          await listing.publish(result)
+          result.fullList = []
         } else {
           result.finished = true
-          listing.publish(result)
+          await listing.publish(result)
+          result.fullList = []
           return
         }
         marker = res.next
@@ -154,7 +156,8 @@ class UpyunApi {
     if (result.finished) return
     result.success = !listing.signal.aborted
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
@@ -180,17 +183,20 @@ class UpyunApi {
           item.type === 'N' && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           item.type === 'F' && result.fullList.push(this.formatFolder(item, slicedPrefix, urlPrefix))
         })
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
       } else {
         result.finished = true
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
         return
       }
       marker = res.next
     } while (!listing.signal.aborted && res.next !== this.stopMarker)
     result.success = !listing.signal.aborted
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   /**

@@ -209,16 +209,19 @@ class GithubApi {
             result.fullList.push(this.formatFile(item, currentPrefix, branch, repo, cdnUrl))
           }
         })
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
       } else {
         result.finished = true
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
         return
       }
     }
     result.success = true
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
@@ -245,12 +248,14 @@ class GithubApi {
       })
     } else {
       result.finished = true
-      listing.publish(result)
+      await listing.publish(result)
+      result.fullList = []
       return
     }
     result.success = true
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   /**

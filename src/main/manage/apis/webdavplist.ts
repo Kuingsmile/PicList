@@ -125,7 +125,8 @@ class WebdavplistApi {
       if (!listing.signal.aborted) this.logParam(error, 'getBucketListRecursively')
     }
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
@@ -164,18 +165,21 @@ class WebdavplistApi {
         }
       } else {
         result.finished = true
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
         return
       }
     } catch (error) {
       if (!listing.signal.aborted) this.logParam(error, 'getBucketListBackstage')
       result.finished = true
-      listing.publish(result)
+      await listing.publish(result)
+      result.fullList = []
       return
     }
     result.success = true
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {

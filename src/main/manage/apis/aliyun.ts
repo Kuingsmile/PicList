@@ -237,17 +237,20 @@ class AliyunApi {
         res?.objects?.forEach((item: OSS.ObjectMeta) => {
           item.size !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
         })
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
       } else {
         result.finished = true
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
         return
       }
       marker = res.nextContinuationToken
     } while (res.isTruncated === true && !listing.signal.aborted)
     result.success = !listing.signal.aborted
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
@@ -287,17 +290,20 @@ class AliyunApi {
         res?.objects?.forEach((item: OSS.ObjectMeta) => {
           item.size !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
         })
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
       } else {
         result.finished = true
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
         return
       }
       marker = res.nextContinuationToken
     } while (res.isTruncated === true && !listing.signal.aborted)
     result.success = !listing.signal.aborted
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   /**

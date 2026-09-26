@@ -179,7 +179,8 @@ class SftpApi {
                 )
               }
             }
-            listing.publish(result)
+            await listing.publish(result)
+            result.fullList = []
           }
         }, listing.signal),
       )
@@ -188,7 +189,8 @@ class SftpApi {
       if (!listing.signal.aborted) this.logParam(error, 'getBucketListRecursively')
     }
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   private formatEntry({ filename, attrs }: FileEntry, cwd: string): listDirResult {
@@ -242,12 +244,14 @@ class SftpApi {
     } catch (error) {
       if (!listing.signal.aborted) this.logParam(error, 'getBucketListBackstage')
       result.finished = true
-      listing.publish(result)
+      await listing.publish(result)
+      result.fullList = []
       return
     }
     result.success = true
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {

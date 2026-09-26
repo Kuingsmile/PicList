@@ -183,6 +183,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     return runListingRequest(
       request,
       async listing => {
+        if (stream && (!window || window.webContents.isDestroyed())) throw new Error('Listing window is unavailable')
         if (provider !== this.currentPicBedConfig?.picBedName) throw new Error('Listing account is unavailable')
         if (kind === 'buckets') return { fullList: await this.listBuckets(), success: true }
         const client = this.createClient()
@@ -191,6 +192,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       },
       stream ? result => window?.webContents.send(listingChannels(kind).result, result) : undefined,
       error => this.errorMsg(error, this.getMsgParam(method)),
+      { sender: window?.webContents },
     )
   }
 

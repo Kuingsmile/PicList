@@ -90,24 +90,28 @@ class SmmsApi {
         if (res.data.data.length === 0) {
           result.success = true
           result.finished = true
-          listing.publish(result)
+          await listing.publish(result)
+          result.fullList = []
           return
         } else {
           res.data.data.forEach((item: any) => {
             result.fullList.push(this.formatFile(item))
           })
-          listing.publish(result)
+          await listing.publish(result)
+          result.fullList = []
         }
       } else {
         result.finished = true
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
         return
       }
       marker++
     } while (!listing.signal.aborted && this.hasMoreFiles(res.data))
     result.success = !listing.signal.aborted
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   /**

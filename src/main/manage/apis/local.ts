@@ -98,14 +98,16 @@ class LocalApi {
           if (stats?.isDirectory()) directories.push(filePath)
           else if (stats?.isFile()) result.fullList.push(this.formatFile(stats, urlPrefix, entry.name, filePath, true))
         }
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
       }
       result.success = true
     } catch (error) {
       if (!listing.signal.aborted) this.logParam(error, 'getBucketListRecursively')
     }
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
@@ -154,7 +156,8 @@ class LocalApi {
       if (!listing.signal.aborted) this.logParam(error, 'getBucketListBackstage')
     }
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {

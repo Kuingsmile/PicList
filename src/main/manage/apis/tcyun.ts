@@ -125,17 +125,20 @@ class TcyunApi {
             this.formatFile(item, slicedPrefix, urlPrefix),
           ),
         )
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
       } else {
         result.finished = true
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
         return
       }
       marker = res.NextMarker
     } while (res.IsTruncated === 'true' && !listing.signal.aborted)
     result.success = !listing.signal.aborted
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
@@ -172,17 +175,20 @@ class TcyunApi {
             this.formatFile(item, slicedPrefix, urlPrefix),
           ),
         )
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
       } else {
         result.finished = true
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
         return
       }
       marker = res.NextMarker
     } while (res.IsTruncated === 'true' && !listing.signal.aborted)
     result.success = !listing.signal.aborted
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   /**

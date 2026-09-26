@@ -341,11 +341,13 @@ class S3plistApi {
             res.Contents.forEach((item: _Object) => {
               result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
             })
-          listing.publish(result)
+          await listing.publish(result)
+          result.fullList = []
         } else {
           this.logParam(res, 'getBucketListRecursively')
           result.finished = true
-          listing.publish(result)
+          await listing.publish(result)
+          result.fullList = []
           return
         }
         marker = res.NextContinuationToken
@@ -353,12 +355,14 @@ class S3plistApi {
     } catch (error) {
       if (!listing.signal.aborted) this.logParam(error, 'getBucketListRecursively')
       result.finished = true
-      listing.publish(result)
+      await listing.publish(result)
+      result.fullList = []
       return
     }
     result.success = !listing.signal.aborted
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
@@ -399,11 +403,13 @@ class S3plistApi {
             res.Contents.forEach((item: _Object) => {
               result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
             })
-          listing.publish(result)
+          await listing.publish(result)
+          result.fullList = []
         } else {
           this.logParam(res, 'getBucketListBackstage')
           result.finished = true
-          listing.publish(result)
+          await listing.publish(result)
+          result.fullList = []
           return
         }
         marker = res.NextContinuationToken
@@ -411,12 +417,14 @@ class S3plistApi {
     } catch (error) {
       if (!listing.signal.aborted) this.logParam(error, 'getBucketListBackstage')
       result.finished = true
-      listing.publish(result)
+      await listing.publish(result)
+      result.fullList = []
       return
     }
     result.success = !listing.signal.aborted
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   async getBucketFileList(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {

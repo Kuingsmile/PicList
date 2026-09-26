@@ -274,17 +274,20 @@ class QiniuApi {
           res.respBody.items.forEach((item: any) => {
             item.fsize !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           })
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
       } else {
         result.finished = true
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
         return
       }
       marker = res.respBody.marker
     } while (res.respBody && res.respBody.marker && !listing.signal.aborted)
     result.success = !listing.signal.aborted
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
@@ -335,17 +338,20 @@ class QiniuApi {
           res.respBody.items.forEach((item: any) => {
             item.fsize !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           })
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
       } else {
         result.finished = true
-        listing.publish(result)
+        await listing.publish(result)
+        result.fullList = []
         return
       }
       marker = res.respBody.marker
     } while (res.respBody && res.respBody.marker && !listing.signal.aborted)
     result.success = !listing.signal.aborted
     result.finished = true
-    listing.publish(result)
+    await listing.publish(result)
+    result.fullList = []
   }
 
   /**
