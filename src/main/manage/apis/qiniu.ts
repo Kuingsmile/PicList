@@ -280,7 +280,7 @@ class QiniuApi {
         res.respBody &&
           res.respBody.items &&
           res.respBody.items.forEach((item: any) => {
-            item.fsize !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
+            !item.key.endsWith('/') && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           })
         await listing.publish(result)
         result.fullList = []
@@ -344,7 +344,7 @@ class QiniuApi {
         res.respBody &&
           res.respBody.items &&
           res.respBody.items.forEach((item: any) => {
-            item.fsize !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
+            !item.key.endsWith('/') && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
           })
         await listing.publish(result)
         result.fullList = []
@@ -420,7 +420,7 @@ class QiniuApi {
       }
       if (res.respBody?.items) {
         res.respBody.items.forEach((item: any) => {
-          item.fsize !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
+          !item.key.endsWith('/') && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
         })
       }
       result.isTruncated = !!res.respBody?.marker

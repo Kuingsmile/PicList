@@ -135,7 +135,7 @@ class TcyunApi {
       )
       if (res?.statusCode === 200) {
         result.fullList.push(
-          ...res.Contents.filter(item => parseInt(item.Size) !== 0).map(item =>
+          ...res.Contents.filter(item => !item.Key.endsWith('/')).map(item =>
             this.formatFile(item, slicedPrefix, urlPrefix),
           ),
         )
@@ -185,7 +185,7 @@ class TcyunApi {
       if (res?.statusCode === 200) {
         result.fullList.push(
           ...res.CommonPrefixes.map(item => this.formatFolder(item, slicedPrefix, urlPrefix)),
-          ...res.Contents.filter(item => parseInt(item.Size) !== 0).map(item =>
+          ...res.Contents.filter(item => !item.Key.endsWith('/')).map(item =>
             this.formatFile(item, slicedPrefix, urlPrefix),
           ),
         )
@@ -252,7 +252,7 @@ class TcyunApi {
     const result = {
       fullList: [
         ...res.CommonPrefixes.map(item => this.formatFolder(item, slicedPrefix, urlPrefix)),
-        ...res.Contents.filter(item => parseInt(item.Size) !== 0).map(item =>
+        ...res.Contents.filter(item => !item.Key.endsWith('/')).map(item =>
           this.formatFile(item, slicedPrefix, urlPrefix),
         ),
       ],

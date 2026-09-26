@@ -244,7 +244,7 @@ class AliyunApi {
       )
       if (res?.res?.statusCode === 200) {
         res?.objects?.forEach((item: OSS.ObjectMeta) => {
-          item.size !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
+          !item.name.endsWith('/') && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
         })
         await listing.publish(result)
         result.fullList = []
@@ -297,7 +297,7 @@ class AliyunApi {
           result.fullList.push(this.formatFolder(item, slicedPrefix, urlPrefix))
         })
         res?.objects?.forEach((item: OSS.ObjectMeta) => {
-          item.size !== 0 && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
+          !item.name.endsWith('/') && result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
         })
         await listing.publish(result)
         result.fullList = []
@@ -368,7 +368,7 @@ class AliyunApi {
     const fullList = [
       ...(res.prefixes?.map((item: string) => this.formatFolder(item, slicedPrefix, urlPrefix)) || []),
       ...(res.objects
-        ?.filter((item: OSS.ObjectMeta) => item.size !== 0)
+        ?.filter((item: OSS.ObjectMeta) => !item.name.endsWith('/'))
         .map((item: OSS.ObjectMeta) => this.formatFile(item, slicedPrefix, urlPrefix)) || []),
     ]
     return {
