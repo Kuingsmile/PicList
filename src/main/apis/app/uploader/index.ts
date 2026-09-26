@@ -133,12 +133,20 @@ class Uploader {
   private async performUpload(img: IUploadOption | undefined, job: UploadJob): Promise<IuploadReturnCtxResult> {
     try {
       job.throwIfStopped()
-      const result = { ctx: undefined, backupCtx: undefined } as IuploadReturnCtxResult
+      const sourceInputs = img ? [...img] : []
+      const result: IuploadReturnCtxResult = { ctx: undefined, backupCtx: undefined, sourceInputs }
       const res = await picgo.uploadReturnCtx(img, job.context.requestedProfile)
       job.throwIfStopped()
       for (const key of ['ctx', 'backupCtx'] as const) {
         const ctx = res[key]
         if (Array.isArray(ctx?.output)) {
+          // Bind legacy outputs before filtering failures, so a partial result cannot delete the wrong input.
+          ctx.output.forEach((item, index) => {
+            if (item && item.inputIndex === undefined) {
+              const fileIndex = typeof item.filePath === 'string' ? sourceInputs.indexOf(item.filePath) : -1
+              item.inputIndex = fileIndex >= 0 ? fileIndex : ctx.output.length === sourceInputs.length ? index : -1
+            }
+          })
           ctx.output = ctx.output.filter(item => isUploadUrl(item?.imgUrl))
           if (ctx.output.length === 0) continue
           const picBeds = ctx.getConfig<IStringKeyMap>('picBed') || {}

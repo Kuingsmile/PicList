@@ -222,16 +222,6 @@ function onImageError(event: Event) {
   img.src = './errorLoading.png'
 }
 
-async function dragFilesHandler(_files: string[]) {
-  for (const file of _files) {
-    await $$db.insert(file)
-  }
-  files.value = (await $$db.get<ImgInfo>({
-    orderBy: 'desc',
-    limit: 5,
-  }))!.data
-}
-
 function clipboardFilesHandler(files: ImgInfo[]) {
   clipboardFiles.value = files
 }
@@ -249,7 +239,6 @@ function updateFilesHandler() {
 }
 
 onBeforeMount(async () => {
-  window.electron.ipcRendererOn('dragFiles', dragFilesHandler)
   window.electron.ipcRendererOn('clipboardFiles', clipboardFilesHandler)
   window.electron.ipcRendererOn('uploadFiles', uploadFilesHandler)
   window.electron.ipcRendererOn('updateFiles', updateFilesHandler)
@@ -258,7 +247,6 @@ onBeforeMount(async () => {
 })
 
 onBeforeUnmount(() => {
-  window.electron.ipcRendererRemoveAllListeners('dragFiles')
   window.electron.ipcRendererRemoveAllListeners('clipboardFiles')
   window.electron.ipcRendererRemoveAllListeners('uploadFiles')
   window.electron.ipcRendererRemoveAllListeners('updateFiles')

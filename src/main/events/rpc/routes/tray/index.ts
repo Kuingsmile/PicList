@@ -1,15 +1,9 @@
-import { GalleryDB } from '@core/datastore'
-import picgo from '@core/picgo'
-import uploader from 'apis/app/uploader'
-import windowManager from 'apis/app/window/windowManager'
-import { Notification } from 'electron'
+import { uploadClipboardFiles } from 'apis/app/uploader/apis'
 
 import { RPCRouter } from '~/events/rpc/router'
-import { t } from '~/i18n'
-import { generateShortUrl, handleCopyUrl, setTrayToolTip } from '~/utils/common'
-import { IPasteStyle, IRPCActionType, IRPCType, IWindowList } from '~/utils/enum'
-import pasteTemplate from '~/utils/pasteTemplate'
-import { sendToWindow, UploadJob } from '~/utils/uploadJob'
+import { generateShortUrl, setTrayToolTip } from '~/utils/common'
+import { IRPCActionType, IRPCType } from '~/utils/enum'
+import { UploadJob } from '~/utils/uploadJob'
 
 const trayRouter = new RPCRouter()
 
@@ -30,48 +24,12 @@ const trayRoutes = [
   {
     action: IRPCActionType.TRAY_UPLOAD_CLIPBOARD_FILES,
     handler: async (evt: IIPCEvent) => {
-      const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
-      // macOS use builtin clipboard is OK
-      const res = await uploader.uploadWithBuildInClipboardReturnCtx(
-        undefined,
-        undefined,
-        new UploadJob({ origin: evt.sender }),
-      )
-      const img = res.ctx?.output ? res.ctx.output : false
-      const backupImgs = res.backupCtx?.output ? res.backupCtx.output : false
-      const allConfig = picgo.getConfig<any>() || {}
-      if (img !== false) {
-        const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN
-        const [pasteText, shortUrl] = await pasteTemplate(pasteStyle, img[0], allConfig.settings?.customLink)
-        img[0].shortUrl = shortUrl
-        handleCopyUrl(pasteText)
-        const isShowResultNotification =
-          allConfig.settings?.uploadResultNotification === undefined
-            ? true
-            : !!allConfig.settings?.uploadResultNotification
-        if (isShowResultNotification) {
-          const notification = new Notification({
-            title: t('main.notification.uploadSuccess'),
-            body: shortUrl || img[0].imgUrl!,
-            // icon: file[0]
-            // icon: img[0].imgUrl
-          })
-          notification.show()
-        }
-        await GalleryDB.getInstance().insert(img[0])
-        sendToWindow(trayWindow?.webContents, 'clipboardFiles', [])
-        if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-          sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, 'updateGallery')
-        }
-        if (backupImgs && backupImgs.length > 0) {
-          await GalleryDB.getInstance().insert(backupImgs[0])
-          sendToWindow(trayWindow?.webContents, 'uploadFiles')
-          if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-            sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, 'updateGallery')
-          }
-        }
-      }
-      sendToWindow(trayWindow?.webContents, 'uploadFiles')
+      await uploadClipboardFiles(undefined, new UploadJob({ origin: evt.sender }), {
+        copy: true,
+        notification: 'individual',
+        clearClipboard: true,
+        useBuiltinClipboard: true,
+      })
     },
   },
 ]

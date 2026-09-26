@@ -532,6 +532,7 @@ interface IFavoritePicbedItem {
 interface IuploadReturnCtxResult {
   ctx: import('piclist').IPicGo | undefined
   backupCtx: import('piclist').IPicGo | undefined
+  sourceInputs?: string[]
 }
 
 interface IUploadProgress {

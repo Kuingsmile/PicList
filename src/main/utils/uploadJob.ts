@@ -45,6 +45,7 @@ export class UploadJob {
   private readonly timeoutMs: number
   private started = false
   private settled = false
+  private failureReason: unknown
 
   constructor(options: UploadJobOptions = {}) {
     this.context = Object.freeze({
@@ -61,6 +62,10 @@ export class UploadJob {
 
   get signal(): AbortSignal {
     return this.controller.signal
+  }
+
+  get failure(): unknown {
+    return this.failureReason
   }
 
   cancel(reason: 'cancelled' | 'timeout' = 'cancelled'): void {
@@ -121,6 +126,7 @@ export class UploadJob {
         this.sendProgress(100, 'completed')
         return result
       } catch (error) {
+        this.failureReason = error
         this.sendProgress(-1, error instanceof UploadJobError ? error.reason : 'failed')
         this.controller.abort(error instanceof UploadJobError ? error : new UploadJobError('failed'))
         throw error

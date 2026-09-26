@@ -1,22 +1,24 @@
 import path from 'node:path'
 
-import { GalleryDB } from '@core/datastore'
 import { dataDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import uploader from 'apis/app/uploader'
 import windowManager from 'apis/app/window/windowManager'
 import { Notification, WebContents } from 'electron'
 import fs from 'fs-extra'
-import { cloneDeep } from 'lodash-es'
 import { v4 as uuid } from 'uuid'
+import writeFile from 'write-file-atomic'
 
 import { t } from '~/i18n/index'
-import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
-import { IPasteStyle, IWindowList } from '~/utils/enum'
-import pasteTemplate from '~/utils/pasteTemplate'
-import { sendToWindow, UploadJob } from '~/utils/uploadJob'
-import { getUploadedSourcePath } from '~/utils/uploadResult'
+import { IWindowList } from '~/utils/enum'
+import {
+  createUploadFinalization,
+  finalizeUpload,
+  loadUploadFinalization,
+  type UploadFinalization,
+} from '~/utils/uploadFinalizer'
+import { sendToWindow, UploadJob, UploadJobError } from '~/utils/uploadJob'
 
 export const UploadTaskStatus = {
   PENDING: 'pending',
@@ -41,6 +43,9 @@ export interface IUploadTaskItem {
   status: string
   progress: number
   error?: string
+  failureStage?: 'transfer' | 'finalization'
+  finalizationId?: string
+  finalization?: UploadFinalization
   result?: IStringKeyMap
   createdAt: number
   startedAt?: number
@@ -229,6 +234,8 @@ class UploadTaskQueueManager {
         pendingTask.progress = 100
         pendingTask.completedAt = Date.now()
         pendingTask.result = result
+        pendingTask.error = undefined
+        pendingTask.failureStage = undefined
 
         if (pendingTask.startedAt && pendingTask.fileSize > 0) {
           pendingTask.uploadDuration = pendingTask.completedAt - pendingTask.startedAt
@@ -236,7 +243,10 @@ class UploadTaskQueueManager {
         }
       } catch (error: any) {
         if (!this.isTaskActive(pendingTask, generation)) continue
-        pendingTask.error = error?.message || 'Upload failed'
+        pendingTask.failureStage = pendingTask.finalization ? 'finalization' : 'transfer'
+        pendingTask.error = pendingTask.finalization
+          ? 'Upload finalization failed; retry will use the saved remote result.'
+          : error?.message || 'Upload failed'
         pendingTask.completedAt = Date.now()
 
         if (pendingTask.retryCount < this.config.maxRetryCount) {
@@ -263,64 +273,46 @@ class UploadTaskQueueManager {
     const win = windowManager.getAvailableWindow()
     const webContents = this.taskOrigins.get(task.id) || win?.webContents
 
-    const input = [task.filePath]
-    const rawInput = cloneDeep(input)
-
     const job = new UploadJob({ origin: webContents })
     this.activeJobs.set(task.id, job)
-    let res: IuploadReturnCtxResult
     try {
-      res = await uploader.uploadReturnCtx(input, undefined, job)
+      return await job.run(async () => {
+        const assertActive = () => {
+          job.throwIfStopped()
+          if (!this.isTaskActive(task, generation)) throw new UploadJobError('cancelled')
+        }
+        // The journal may be newer than taskQueue.json if the queue checkpoint failed.
+        if (task.finalizationId) {
+          const saved = await loadUploadFinalization(task.finalizationId)
+          if (saved && (!task.finalization || saved.revision > task.finalization.revision)) {
+            task.finalization = saved
+          }
+        }
+        assertActive()
+        let contexts: IuploadReturnCtxResult | undefined
+        if (!task.finalization) {
+          task.finalizationId = job.context.id
+          this.persist(true)
+          contexts = await uploader.uploadReturnCtx([task.filePath], undefined, job)
+          assertActive()
+          task.finalization = createUploadFinalization(
+            contexts,
+            [task.filePath],
+            { copy: true, notification: 'none' },
+            task.finalizationId,
+          )
+        }
+        const results = await finalizeUpload(task.finalization, {
+          contexts,
+          origin: webContents,
+          assertActive,
+          checkpoint: () => this.persist(true),
+        })
+        return results[0]
+      })
     } finally {
       this.activeJobs.delete(task.id)
     }
-    if (!this.isTaskActive(task, generation)) return
-    const imgs = res.ctx?.output ? res.ctx.output : false
-    const backupImgs = res.backupCtx?.output ? res.backupCtx.output : false
-    const allConfig = picgo.getConfig<any>() || {}
-
-    if (imgs !== false && imgs.length > 0) {
-      const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN
-      const deleteLocalFile = allConfig.settings?.deleteLocalFile || false
-
-      const img = imgs[0]
-
-      const sourcePath = getUploadedSourcePath(rawInput, img, 0, imgs.length)
-      if (deleteLocalFile && sourcePath) {
-        fs.remove(sourcePath)
-          .then(() => {
-            picgo.log.info(`delete local file: ${sourcePath}`)
-          })
-          .catch((err: Error) => {
-            picgo.log.error(err)
-          })
-      }
-
-      const [pasteText, shortUrl] = await pasteTemplate(pasteStyle, img, allConfig.settings?.customLink)
-      if (!this.isTaskActive(task, generation)) return
-      img.shortUrl = shortUrl
-
-      const inserted = await GalleryDB.getInstance().insert(img)
-      if (!this.isTaskActive(task, generation)) return
-
-      sendToWindow(windowManager.get(IWindowList.TRAY_WINDOW)?.webContents, 'uploadFiles')
-      sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, 'updateGallery')
-
-      handleCopyUrl(pasteText)
-      if (backupImgs && backupImgs.length > 0) {
-        await GalleryDB.getInstance().insert(backupImgs[0])
-        if (!this.isTaskActive(task, generation)) return
-        sendToWindow(windowManager.get(IWindowList.TRAY_WINDOW)?.webContents, 'uploadFiles')
-        sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, 'updateGallery')
-      }
-
-      return {
-        url: handleUrlEncodeWithSetting(inserted.imgUrl!),
-        fullResult: inserted,
-      }
-    }
-
-    throw new Error('Upload failed - no result returned')
   }
 
   pauseQueue(): void {
@@ -411,7 +403,7 @@ class UploadTaskQueueManager {
   }
 
   getAllTasks(): IUploadTaskItem[] {
-    return [...this.taskQueue]
+    return this.taskQueue.map(({ finalization: _finalization, ...task }) => ({ ...task }))
   }
 
   getQueueStatus(): {
@@ -465,7 +457,7 @@ class UploadTaskQueueManager {
     }
 
     return {
-      tasks: [...this.taskQueue],
+      tasks: this.getAllTasks(),
       config: { ...this.config },
       stats,
     }
@@ -628,10 +620,10 @@ class UploadTaskQueueManager {
     sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, 'uploadTaskQueueUpdate', status)
   }
 
-  private persist(): void {
+  private persist(throwOnError = false): void {
     try {
       fs.ensureFileSync(this.persistPath)
-      fs.writeFileSync(
+      writeFile.sync(
         this.persistPath,
         JSON.stringify(
           {
@@ -643,7 +635,8 @@ class UploadTaskQueueManager {
         ),
       )
     } catch (e) {
-      console.error('Failed to persist upload task queue:', e)
+      if (throwOnError) throw e
+      console.error('Failed to persist upload task queue')
     }
   }
 

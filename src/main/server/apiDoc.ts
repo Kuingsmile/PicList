@@ -60,6 +60,13 @@ PicList支持通过设置\`picbed\`和\`configName\`两个URL查询参数来指�
 }
 \`\`\`
 
+### 重试
+
+如果远程上传成功但图库存储或成功钩子失败，响应中会包含\`stage: "finalization"\`和一个\`finalizationId\`。
+可以使用\`POST /upload?finalizationId=<id>\`并发送一个空的JSON body（以及相同的\`key\`，如果已配置）来重试。
+这会在不重新上传文件的情况下恢复已保存的结果。
+本地源文件会保留，直到图库元数据和成功钩子完成。HTTP上传不会复制URL或显示成功通知。
+
 ### HTTP调用删除图片
 
 - method: \`POST\`

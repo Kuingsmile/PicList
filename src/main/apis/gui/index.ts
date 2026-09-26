@@ -1,21 +1,13 @@
 import { getSettingWindowId, getWindowId } from '@core/bus/apis'
 import { GalleryDB } from '@core/datastore'
 import { appConfigPath, defaultConfigPath as defaultConfigPathF, galleryDBPath } from '@core/datastore/dirs'
-import picgo from '@core/picgo'
 import { DBStore } from '@piclist/store'
-import uploader from 'apis/app/uploader'
+import { uploadChoosedFiles } from 'apis/app/uploader/apis'
 import { BrowserWindow, dialog, ipcMain, IpcMainEvent, MessageBoxOptions, Notification } from 'electron'
-import fs from 'fs-extra'
-import { cloneDeep } from 'lodash-es'
 
 import { SHOW_INPUT_BOX } from '~/events/constant'
 import { t } from '~/i18n'
-import { handleCopyUrl } from '~/utils/common'
-import { IPasteStyle } from '~/utils/enum'
-import pasteTemplate from '~/utils/pasteTemplate'
-import { runScriptInStage } from '~/utils/runScript'
-import { sendToWindow, UploadJob } from '~/utils/uploadJob'
-import { getUploadedSourcePath } from '~/utils/uploadResult'
+import { UploadJob } from '~/utils/uploadJob'
 
 // Cross-process support may be required in the future
 class GuiApi implements IGuiApi {
@@ -75,54 +67,14 @@ class GuiApi implements IGuiApi {
   async upload(input: IUploadOption) {
     const windowId = await getWindowId()
     const webContents = this.getWebcontentsByWindowId(windowId)
-    const rawInput = cloneDeep(input)
-    const res = await uploader.uploadReturnCtx(input, undefined, new UploadJob({ origin: webContents }))
-    const imgs = res.ctx?.output ? res.ctx.output : false
-    const backImgs = res.backupCtx?.output ? res.backupCtx.output : false
-    let result: ImgInfo[] = []
-    const allConfig = picgo.getConfig<any>() || {}
-    if (imgs !== false) {
-      const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN
-      const deleteLocalFile = allConfig.settings?.deleteLocalFile || false
-      const pasteText: string[] = []
-      for (let i = 0; i < imgs.length; i++) {
-        const sourcePath = getUploadedSourcePath(rawInput, imgs[i], i, imgs.length)
-        if (deleteLocalFile && sourcePath) {
-          await fs.remove(sourcePath)
-        }
-        const [pasteTextItem, shortUrl] = await pasteTemplate(pasteStyle, imgs[i], allConfig.settings?.customLink)
-        imgs[i].shortUrl = shortUrl
-        pasteText.push(pasteTextItem)
-        const isShowResultNotification =
-          allConfig.settings?.uploadResultNotification === undefined
-            ? true
-            : !!allConfig.settings?.uploadResultNotification
-        if (isShowResultNotification) {
-          const notification = new Notification({
-            title: t('main.notification.uploadSuccess'),
-            body: shortUrl || (imgs[i].imgUrl! as string),
-            // icon: imgs[i].imgUrl
-          })
-          setTimeout(() => {
-            notification.show()
-          }, i * 100)
-        }
-        const inserted = await GalleryDB.getInstance().insert(imgs[i])
-        runScriptInStage('onUploadSuccess', res.ctx || picgo, { galleryItem: inserted })
-      }
-      handleCopyUrl(pasteText.join('\n'))
-      sendToWindow(webContents, 'uploadFiles')
-      sendToWindow(webContents, 'updateGallery')
-      result = imgs
-    }
-    if (backImgs !== false) {
-      for (const backImg of backImgs) {
-        await GalleryDB.getInstance().insert(backImg)
-      }
-      sendToWindow(webContents, 'uploadFiles')
-      sendToWindow(webContents, 'updateGallery')
-    }
-    return result
+    const results = await uploadChoosedFiles(
+      webContents,
+      input.map(path => ({ path })),
+      undefined,
+      new UploadJob({ origin: webContents }),
+      { copy: true, notification: 'individual' },
+    )
+    return results.map(result => result.fullResult)
   }
 
   showNotification(

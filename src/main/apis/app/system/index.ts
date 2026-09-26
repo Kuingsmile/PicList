@@ -1,34 +1,18 @@
-import { GalleryDB } from '@core/datastore'
 import picgo from '@core/picgo'
-import uploader from 'apis/app/uploader'
-import { uploadClipboardFiles } from 'apis/app/uploader/apis'
+import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
-import {
-  app,
-  clipboard,
-  dialog,
-  Menu,
-  MenuItem,
-  MenuItemConstructorOptions,
-  nativeTheme,
-  Notification,
-  Tray,
-} from 'electron'
+import { app, clipboard, dialog, Menu, MenuItem, MenuItemConstructorOptions, nativeTheme, Tray } from 'electron'
 import fs from 'fs-extra'
-import { cloneDeep } from 'lodash-es'
 import pkg from 'root/package.json'
 
 import { buildPicBedListMenu } from '~/events/remotes/menu'
 import { t } from '~/i18n'
 import clipboardPoll from '~/utils/clipboardPoll'
-import { ensureFilePath, handleCopyUrl, setTray, tray } from '~/utils/common'
+import { ensureFilePath, setTray, tray } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
-import { IPasteStyle, IWindowList } from '~/utils/enum'
+import { IWindowList } from '~/utils/enum'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/utils/getMacOSVersion'
-import pasteTemplate from '~/utils/pasteTemplate'
-import { runScriptInStage } from '~/utils/runScript'
-import { sendToWindow, UploadJob } from '~/utils/uploadJob'
-import { getUploadedSourcePath } from '~/utils/uploadResult'
+import { UploadJob } from '~/utils/uploadJob'
 import { hideMiniWindow, openMainWindow, openMiniWindow } from '~/utils/windowHelper'
 
 import menubarPng from '../../../../../resources/menubar.png?asset&asarUnpack'
@@ -293,50 +277,14 @@ export function createTray(tooltip: string) {
     // so the tray window must be available
     if (process.platform === 'darwin') {
       ;(tray as any).on('drop-files', async (_: Event, files: string[]) => {
-        const allConfig = picgo.getConfig<any>() || {}
-        const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN
-        const rawInput = cloneDeep(files)
         const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
-        const res = await uploader.uploadReturnCtx(files, undefined, new UploadJob({ origin: trayWindow?.webContents }))
-        const imgs = res.ctx?.output ? res.ctx.output : false
-        const backImgs = res.backupCtx?.output ? res.backupCtx.output : false
-        const deleteLocalFile = allConfig.settings?.deleteLocalFile || false
-        if (imgs !== false) {
-          const pasteText: string[] = []
-          for (let i = 0; i < imgs.length; i++) {
-            const sourcePath = getUploadedSourcePath(rawInput, imgs[i], i, imgs.length)
-            if (deleteLocalFile && sourcePath) {
-              await fs.remove(sourcePath)
-            }
-            const [pasteTextItem, shortUrl] = await pasteTemplate(pasteStyle, imgs[i], allConfig.settings?.customLink)
-            imgs[i].shortUrl = shortUrl
-            pasteText.push(pasteTextItem)
-            const isShowResultNotification =
-              allConfig.settings?.uploadResultNotification === undefined
-                ? true
-                : !!allConfig.settings?.uploadResultNotification
-            if (isShowResultNotification) {
-              const notification = new Notification({
-                title: t('main.notification.uploadSuccess'),
-                body: shortUrl || imgs[i].imgUrl!,
-                // icon: files[i]
-              })
-              setTimeout(() => {
-                notification.show()
-              }, i * 100)
-            }
-            const inserted = await GalleryDB.getInstance().insert(imgs[i])
-            runScriptInStage('onUploadSuccess', res.ctx || picgo, { galleryItem: inserted })
-          }
-          handleCopyUrl(pasteText.join('\n'))
-          sendToWindow(trayWindow?.webContents, 'dragFiles', imgs)
-        }
-        if (backImgs !== false) {
-          for (const backImg of backImgs) {
-            await GalleryDB.getInstance().insert(backImg)
-          }
-          sendToWindow(trayWindow?.webContents, 'dragFiles', backImgs)
-        }
+        await uploadChoosedFiles(
+          trayWindow?.webContents,
+          files.map(path => ({ path })),
+          undefined,
+          new UploadJob({ origin: trayWindow?.webContents }),
+          { copy: true, notification: 'individual' },
+        )
       })
     }
   } else if (process.platform === 'linux') {

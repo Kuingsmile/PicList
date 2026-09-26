@@ -11,12 +11,43 @@ import { markdownContent } from '~/server/apiDoc'
 import router from '~/server/router'
 import { deleteChoosedFiles, handleResponse } from '~/server/utils'
 import { AESHelper } from '~/utils/aesHelper'
+import {
+  backgroundUploadPreferences,
+  finalizeUpload,
+  loadUploadFinalization,
+  UploadFinalizationError,
+} from '~/utils/uploadFinalizer'
+import { UploadJob } from '~/utils/uploadJob'
 import { isUploadUrl } from '~/utils/uploadResult'
 
 const LOG_PATH = appLogPath()
 
 const errorMessage = `upload error. see ${LOG_PATH} for more detail.`
 const deleteErrorMessage = `delete error. see ${LOG_PATH} for more detail.`
+
+function respondToUpload(
+  response: IHttpResponse,
+  results: IStringKeyMap[],
+  useShortUrl: boolean,
+  expectedCount = results.length,
+) {
+  const urls = results.map(item => (useShortUrl ? item.fullResult.shortUrl || item.url : item.url))
+  if (!urls.length || urls.length !== expectedCount || !urls.every(isUploadUrl)) {
+    handleResponse({ response, body: { success: false, message: errorMessage } })
+    return
+  }
+  const fullResult = results.map(({ fullResult }) => {
+    const item = {
+      isEncrypted: 1,
+      EncryptedData: new AESHelper().encrypt(JSON.stringify(fullResult)),
+      ...fullResult,
+    }
+    delete item.config
+    item.imgUrl = useShortUrl ? item.shortUrl || item.imgUrl : item.imgUrl
+    return item
+  })
+  handleResponse({ response, body: { success: true, result: urls, fullResult } })
+}
 
 // Upload rate-limiting state
 let runningUploads = 0
@@ -94,83 +125,53 @@ router.post(
           })
           return
         }
-        if (list.length === 0) {
-          // upload with clipboard
-          logger.info('[PicList Server] upload clipboard file')
-          const result = await uploadClipboardFiles(uploadOptions)
-          const res = useShortUrl ? result.fullResult.shortUrl || result.url : result.url
-          const fullResult = result.fullResult
-          fullResult.imgUrl = useShortUrl ? fullResult.shortUrl || fullResult.imgUrl : fullResult.imgUrl
-          logger.info('[PicList Server] upload result:', res)
-          if (isUploadUrl(res)) {
-            const treatedFullResult = {
-              isEncrypted: 1,
-              EncryptedData: new AESHelper().encrypt(JSON.stringify(fullResult)),
-              ...fullResult,
-            }
-            delete treatedFullResult.config
-            handleResponse({
-              response,
-              body: {
-                success: true,
-                result: [res],
-                fullResult: [treatedFullResult],
-              },
-            })
-          } else {
-            handleResponse({
-              response,
-              body: {
-                success: false,
-                message: errorMessage,
-              },
-            })
+        const job = new UploadJob({
+          profile: uploadOptions,
+          origin: windowManager.getAvailableWindow()?.webContents,
+        })
+        const finalizationId = urlparams?.get('finalizationId')
+        if (finalizationId) {
+          const state = await loadUploadFinalization(finalizationId)
+          if (!state) {
+            handleResponse({ response, statusCode: 404, body: { success: false, message: 'Finalization not found' } })
+            return
           }
+          const results = await job.run(() => finalizeUpload(state, { assertActive: () => job.throwIfStopped() }))
+          respondToUpload(response, results, !!useShortUrl)
+          return
+        }
+        if (list.length === 0) {
+          logger.info('[PicList Server] upload clipboard file')
+          const result = await uploadClipboardFiles(uploadOptions, job, backgroundUploadPreferences)
+          if (job.failure) throw job.failure
+          respondToUpload(response, [result], !!useShortUrl)
         } else {
           logger.info('[PicList Server] upload files in list')
-          //  upload with files
-          const pathList = list.map(item => {
-            return {
-              path: item,
-            }
-          })
-          const win = windowManager.getAvailableWindow()
-          const result = await uploadChoosedFiles(win?.webContents, pathList, uploadOptions)
-          const res = result.map(item => {
-            return useShortUrl ? item.fullResult.shortUrl || item.url : item.url
-          })
-          const fullResult = result.map((item: any) => {
-            const treatedItem = {
-              isEncrypted: 1,
-              EncryptedData: new AESHelper().encrypt(JSON.stringify(item.fullResult)),
-              ...item.fullResult,
-            }
-            delete treatedItem.config
-            treatedItem.imgUrl = useShortUrl ? treatedItem.shortUrl || treatedItem.imgUrl : treatedItem.imgUrl
-            return treatedItem
-          })
-          logger.info('[PicList Server] upload result', res.join(' ; '))
-          if (res.length === list.length && Array.from(res).every(isUploadUrl)) {
-            handleResponse({
-              response,
-              body: {
-                success: true,
-                result: res,
-                fullResult,
-              },
-            })
-          } else {
-            handleResponse({
-              response,
-              body: {
-                success: false,
-                message: errorMessage,
-              },
-            })
-          }
+          const result = await uploadChoosedFiles(
+            job.context.origin,
+            list.map(path => ({ path })),
+            uploadOptions,
+            job,
+            backgroundUploadPreferences,
+          )
+          if (job.failure) throw job.failure
+          respondToUpload(response, result, !!useShortUrl, list.length)
         }
       })
     } catch (err: any) {
+      if (err instanceof UploadFinalizationError) {
+        logger.error('[PicList Server] remote upload completed; finalization failed')
+        handleResponse({
+          response,
+          body: {
+            success: false,
+            stage: 'finalization',
+            finalizationId: err.finalization.id,
+            message: 'Remote upload completed. Retry with finalizationId to finish without uploading again.',
+          },
+        })
+        return
+      }
       logger.error(err)
       handleResponse({
         response,

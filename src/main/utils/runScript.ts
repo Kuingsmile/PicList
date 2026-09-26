@@ -100,7 +100,18 @@ export async function runScript(ctx: IPicGo, script: string, extra: Record<strin
   }
 }
 
-export async function runScriptInStage(stage: string, ctx: IPicGo, extra: Record<string, any>): Promise<void> {
+interface ScriptStageOptions {
+  throwOnError?: boolean
+  completedScripts?: readonly string[]
+  onScriptCompleted?: (script: string) => Promise<void>
+}
+
+export async function runScriptInStage(
+  stage: string,
+  ctx: IPicGo,
+  extra: Record<string, any>,
+  options: ScriptStageOptions = {},
+): Promise<void> {
   const baseDir = scriptsDir()
   const enabledPaths: string[] = []
   let scriptDir: string
@@ -113,13 +124,16 @@ export async function runScriptInStage(stage: string, ctx: IPicGo, extra: Record
     scriptDir = path.join(baseDir, stage)
   }
 
-  const files = await fs.readdir(scriptDir).catch(() => [])
+  const files = await fs.readdir(scriptDir).catch(error => {
+    if (options.throwOnError && error.code !== 'ENOENT') throw error
+    return []
+  })
   if (files.length === 0) {
     return
   }
   for (const file of files) {
     if (file.endsWith('.js')) {
-      if (!disabledList.includes(`${stage}/${file}`)) {
+      if (!disabledList.includes(`${stage}/${file}`) && !options.completedScripts?.includes(`${stage}/${file}`)) {
         enabledPaths.push(path.join(scriptDir, file))
       }
     }
@@ -135,6 +149,9 @@ export async function runScriptInStage(stage: string, ctx: IPicGo, extra: Record
       logger.info(`script ${scriptPath} in stage ${stage} executed successfully`)
     } catch (e) {
       logger.error(`script ${scriptPath} in stage ${stage} execution failed: ${e}`)
+      if (options.throwOnError) throw e
+      continue
     }
+    await options.onScriptCompleted?.(`${stage}/${path.basename(scriptPath)}`)
   }
 }
