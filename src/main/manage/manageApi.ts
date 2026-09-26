@@ -323,8 +323,8 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     return this.executeWithClient(supportedClients, 'getBucketDomain', client => client.getBucketDomain(param), [])
   }
 
-  async createBucket(param?: IStringKeyMap): Promise<boolean> {
-    return this.executeWithClient(
+  async createBucket(param?: IStringKeyMap): Promise<ICreateBucketResult> {
+    return this.executeWithClient<ICreateBucketResult>(
       this.CLOUD_STORAGE_CLIENTS,
       'createBucket',
       client => client.createBucket(param!),

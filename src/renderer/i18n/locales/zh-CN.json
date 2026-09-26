@@ -569,7 +569,10 @@
       "main": {
         "backToHome": "首页",
         "bucket": "存储桶",
+        "createAclFailed": "存储桶已创建，但设置访问控制权限失败：{error}",
         "createFailed": "创建失败",
+        "createFailedDetail": "存储桶创建失败：{error}",
+        "createPublicAccessFailed": "存储桶已创建，但更改公共访问设置失败：{error}",
         "createSuccess": "创建成功",
         "gallery": "相册",
         "loading": "加载中...",

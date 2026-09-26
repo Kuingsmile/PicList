@@ -3,6 +3,7 @@ import https from 'node:https'
 
 import {
   _Object,
+  BucketLocationConstraint,
   CommonPrefix,
   CopyObjectCommand,
   CreateBucketCommand,
@@ -70,6 +71,7 @@ class S3plistApi {
     region: string = '',
     customUrl: string = '',
   ) {
+    const normalizedEndpoint = typeof endpoint === 'string' ? endpoint.trim() : ''
     this.accessKeyId = accessKeyId
     this.secretAccessKey = secretAccessKey
     this.dogeCloudSupport = dogeCloudSupport
@@ -81,8 +83,10 @@ class S3plistApi {
         accessKeyId,
         secretAccessKey,
       },
-      endpoint: endpoint ? formatEndpoint(endpoint, sslEnabled) : undefined,
-      region: this.region || (endpoint?.includes('cloudflarestorage') ? 'auto' : 'us-east-1'),
+      endpoint: normalizedEndpoint
+        ? formatEndpoint(normalizedEndpoint.replace(/^https?:\/\//i, ''), sslEnabled)
+        : undefined,
+      region: this.region || (normalizedEndpoint.toLowerCase().includes('cloudflarestorage') ? 'auto' : 'us-east-1'),
       tls: sslEnabled,
       forcePathStyle: s3ForcePathStyle,
       requestHandler: this.setAgent(proxy, sslEnabled),
@@ -208,10 +212,27 @@ class S3plistApi {
     }
     const command = new PutPublicAccessBlockCommand(input)
     const data = await client.send(command)
-    if (data.$metadata.httpStatusCode !== 200) {
-      this.logParam(data, 'putPublicAccess')
-      throw new Error('manage.setting.putPublicAccessError')
+    this.checkBucketResponse(data)
+  }
+
+  private checkBucketResponse(data: { $metadata: { httpStatusCode?: number } }) {
+    const status = data.$metadata.httpStatusCode
+    if (!status || status < 200 || status >= 300) {
+      throw Object.assign(new Error('Unexpected S3 response'), { $metadata: data.$metadata })
     }
+  }
+
+  private bucketCreationFailure(error: unknown, stage: ICreateBucketError['stage']): ICreateBucketError {
+    const details = error as { name?: string; Code?: string; code?: string; $metadata?: { httpStatusCode?: number } }
+    const code = details?.Code || details?.code || details?.name
+    const status = details?.$metadata?.httpStatusCode
+    // Provider messages can contain request URLs or credentials; only expose the error code and status.
+    const safeCode = typeof code === 'string' && /^[\w.-]{1,80}$/.test(code) ? code : 'UnknownError'
+    const message = this.dogeCloudSupport
+      ? 'DogeCloudRequestFailed'
+      : `${safeCode}${typeof status === 'number' ? ` (HTTP ${status})` : ''}`
+    this.logParam(new Error(message), `createBucket.${stage}`)
+    return { success: false, stage, error: message }
   }
 
   /**
@@ -223,60 +244,46 @@ class S3plistApi {
    * acl: string
    * }
    */
-  async createBucket(configMap: IStringKeyMap): Promise<boolean> {
-    const { BucketName, region, acl, endpoint } = configMap
+  async createBucket(configMap: IStringKeyMap): Promise<ICreateBucketResult> {
+    const { BucketName, region, acl = 'private' } = configMap
+    let stage: ICreateBucketError['stage'] = 'create'
     try {
       await this.getDogeCloudToken()
       const options = { ...this.baseOptions } as S3ClientConfig
-      options.region = String(region || this.baseOptions.region || 'us-east-1')
+      const bucketRegion =
+        (typeof region === 'string' ? region.trim() : '') ||
+        (typeof this.baseOptions.region === 'string' ? this.baseOptions.region : 'us-east-1')
+      options.region = bucketRegion
+      // Classify the endpoint the client actually uses, not the duplicate form field.
+      const hostname = options.endpoint ? new URL(options.endpoint as string).hostname.replace(/\.$/, '') : ''
+      const isAws = !hostname || /(^|\.)(amazonaws\.com(\.cn)?|api\.aws)$/.test(hostname)
+      if (hostname === 's3.amazonaws.com' && bucketRegion !== 'us-east-1') {
+        // The global endpoint requires us-east-1 signing; use the selected region's endpoint instead.
+        options.endpoint = undefined
+      }
       const client = this.createS3Client(options)
-      const command = new ListBucketsCommand({})
-      const data = await client.send(command)
-      if (data.$metadata.httpStatusCode === 200) {
-        const bucketList = data.Buckets?.map(item => item.Name)
-        if (bucketList?.includes(BucketName)) {
-          return true
-        }
-      }
-      if (endpoint === '' || endpoint.includes('amazonaws')) {
-        const createCommand = new CreateBucketCommand({
-          Bucket: BucketName,
-          ObjectOwnership: 'BucketOwnerPreferred',
-        })
-        const createData = await client.send(createCommand)
-        if (createData.$metadata.httpStatusCode === 200) {
-          if (acl !== 'private') {
-            await this.putPublicAccess(BucketName, client)
-            const putACLCommand = new PutBucketAclCommand({
-              Bucket: BucketName,
-              ACL: acl,
-            })
-            const putACLData = await client.send(putACLCommand)
-            if (putACLData.$metadata.httpStatusCode !== 200) {
-              this.logParam(putACLData, 'createBucket')
-              return false
+      const createCommand = new CreateBucketCommand({
+        Bucket: BucketName,
+        ...(isAws
+          ? {
+              ObjectOwnership: 'BucketOwnerPreferred',
+              ...(bucketRegion !== 'us-east-1'
+                ? { CreateBucketConfiguration: { LocationConstraint: bucketRegion as BucketLocationConstraint } }
+                : {}),
             }
-          }
-          return true
-        } else {
-          this.logParam(createData, 'createBucket')
-        }
-      } else {
-        const createCommand = new CreateBucketCommand({
-          Bucket: BucketName,
-          ACL: acl,
-        })
-        const createData = await client.send(createCommand)
-        if (createData.$metadata.httpStatusCode === 200) {
-          return true
-        } else {
-          this.logParam(createData, 'createBucket')
-        }
+          : { ACL: acl }),
+      })
+      this.checkBucketResponse(await client.send(createCommand))
+      if (isAws && acl !== 'private') {
+        stage = 'public-access'
+        await this.putPublicAccess(BucketName, client)
+        stage = 'acl'
+        this.checkBucketResponse(await client.send(new PutBucketAclCommand({ Bucket: BucketName, ACL: acl })))
       }
+      return true
     } catch (error) {
-      this.logParam(error, 'createBucket')
+      return this.bucketCreationFailure(error, stage)
     }
-    return false
   }
 
   /**

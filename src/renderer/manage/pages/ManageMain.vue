@@ -416,22 +416,31 @@ function createNewBucket(picBedName: string) {
   if (currentPicBedName.value === 'tcyun') {
     resultMap.BucketName = `${resultMap.BucketName}-${currentPagePicBedConfig.appId}`
   }
-  resultMap.endpoint = currentPagePicBedConfig.endpoint
-  window.electron.triggerRPC(IRPCActionType.MANAGE_CREATE_BUCKET, currentAlias.value, resultMap).then((result: any) => {
-    if (unmounted || alias !== currentAlias.value) return
-    if (result) {
-      // Show success notification
-      message.success(t('pages.manage.main.createSuccess'))
-      bucketDrawerVisible.value = false
-      if (refreshTimer) clearTimeout(refreshTimer)
-      refreshTimer = setTimeout(() => {
-        if (!unmounted && alias === currentAlias.value) void getBucketList()
-      }, 2000)
-    } else {
-      // Show error notification
-      message.error(t('pages.manage.main.createFailed'))
-    }
-  })
+  window.electron
+    .triggerRPC<ICreateBucketResult>(IRPCActionType.MANAGE_CREATE_BUCKET, currentAlias.value, resultMap)
+    .then(result => {
+      if (unmounted || alias !== currentAlias.value) return
+      if (result === true) {
+        // Show success notification
+        message.success(t('pages.manage.main.createSuccess'))
+        bucketDrawerVisible.value = false
+        if (refreshTimer) clearTimeout(refreshTimer)
+        refreshTimer = setTimeout(() => {
+          if (!unmounted && alias === currentAlias.value) void getBucketList()
+        }, 2000)
+      } else {
+        const errorKeys = {
+          create: 'pages.manage.main.createFailedDetail',
+          'public-access': 'pages.manage.main.createPublicAccessFailed',
+          acl: 'pages.manage.main.createAclFailed',
+        }
+        message.error(
+          result && typeof result === 'object'
+            ? t(errorKeys[result.stage], { error: result.error })
+            : t('pages.manage.main.createFailed'),
+        )
+      }
+    })
 }
 
 async function getBucketList() {

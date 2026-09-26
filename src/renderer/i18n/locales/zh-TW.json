@@ -569,7 +569,10 @@
       "main": {
         "backToHome": "首頁",
         "bucket": "儲存桶",
+        "createAclFailed": "儲存桶已建立，但設定存取控制權限失敗：{error}",
         "createFailed": "建立失敗",
+        "createFailedDetail": "儲存桶建立失敗：{error}",
+        "createPublicAccessFailed": "儲存桶已建立，但變更公開存取設定失敗：{error}",
         "createSuccess": "建立成功",
         "gallery": "相簿",
         "loading": "載入中...",

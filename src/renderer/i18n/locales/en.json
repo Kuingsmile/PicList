@@ -569,7 +569,10 @@
       "main": {
         "backToHome": "Home",
         "bucket": "Bucket",
+        "createAclFailed": "Bucket created, but setting its ACL failed: {error}",
         "createFailed": "Creation failed",
+        "createFailedDetail": "Bucket creation failed: {error}",
+        "createPublicAccessFailed": "Bucket created, but changing its public access settings failed: {error}",
         "createSuccess": "Created successfully",
         "gallery": "Gallery",
         "loading": "Loading...",

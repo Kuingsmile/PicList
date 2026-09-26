@@ -17,6 +17,14 @@ interface IManageError extends Error {
 
 type IPicBedMangeConfig = IStringKeyMap
 
+interface ICreateBucketError {
+  success: false
+  stage: 'create' | 'public-access' | 'acl'
+  error: string
+}
+
+type ICreateBucketResult = boolean | ICreateBucketError
+
 interface IManageApiType {
   /**
    * logger
@@ -78,7 +86,7 @@ interface IManageApiType {
   /**
    * create bucket
    */
-  createBucket: (param?: IStringKeyMap) => Promise<boolean>
+  createBucket: (param?: IStringKeyMap) => Promise<ICreateBucketResult>
   /**
    * delete bucket
    */
