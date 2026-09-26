@@ -18,7 +18,7 @@ const updaterRoutes = [
       if (!isPortable()) {
         updater.autoUpdater.downloadUpdate()
       } else {
-        downloadAndInstallUpdate()
+        await downloadAndInstallUpdate()
       }
     },
   },

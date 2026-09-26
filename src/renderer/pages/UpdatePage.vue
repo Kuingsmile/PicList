@@ -64,7 +64,7 @@
 
       <!-- Actions -->
       <footer class="flex justify-end gap-3 border-t border-border bg-surface p-5">
-        <template v-if="updateInfo.type === 'update-available'">
+        <template v-if="updateInfo.type === 'update-available' || updateInfo.type === 'update-error'">
           <button class="btn-ghost" @click="goToDownloadPage">
             <Link2Icon class="btn-icon" />
             {{ $t('pages.update.goToDownloadPage') }}
@@ -104,7 +104,7 @@ import { renderMarkdown } from '@/utils/markdown'
 import { invokeRPC, saveWithFeedback } from '@/utils/rpc'
 
 interface UpdateInfo {
-  type: 'update-available' | 'downloading' | 'update-downloaded'
+  type: 'update-available' | 'downloading' | 'update-downloaded' | 'update-error'
   title: string
   version?: string
   message?: string
