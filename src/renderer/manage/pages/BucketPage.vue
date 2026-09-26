@@ -2901,7 +2901,6 @@ function handleRenameFile(item: any) {
 }
 
 function singleRename() {
-  const index = filterList.value.findIndex((i: any) => i === itemToBeRenamed.value)
   isShowBatchRenameDialog.value = false
   if (batchRenameMatch.value === '') {
     batchRenameMatch.value = '.+'
@@ -2917,7 +2916,7 @@ function singleRename() {
     return
   }
   itemToBeRenamed.value.newName = itemToBeRenamed.value.newName.replaceAll('{auto}', '1')
-  const item = currentPageFilesInfo[index]
+  const item = itemToBeRenamed.value
   const param = {
     // tcyun
     bucketName: configMap.value.bucketName,
