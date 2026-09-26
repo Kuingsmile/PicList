@@ -9,7 +9,7 @@ Add-Type -Assembly PresentationCore
 function main {
     $img = [Windows.Clipboard]::GetImage()
 
-    if ($img -eq $null) {
+    if ($null -eq $img) {
         "no image"
         Exit 1
     }
@@ -27,13 +27,15 @@ function main {
     $stream.Dispose() | out-null
 
     $imagePath
+    # fix windows 10 native cmd crash bug when "picgo upload"
+    # https://github.com/PicGo/PicGo-Core/issues/32
     Exit 1
 }
 
 try {
     # For WIN10
     $file = Get-Clipboard -Format FileDropList
-    if ($file -ne $null) {
+    if ($null -ne $file) {
         Convert-Path $file
         Exit 1
     }

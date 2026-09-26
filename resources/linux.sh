@@ -31,4 +31,3 @@ else
   echo >&2 "Solution: The variable of XDG_SESSION_TYPE must set as 'x11' or 'wayland'."
   exit 1
 fi
-

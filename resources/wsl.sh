@@ -1,18 +1,18 @@
 #!/bin/sh
 # grab the paths
-scriptPath=$(echo $0 | awk '{ print substr( $0, 1, length($0)-6 ) }')"windows10.ps1"
-imagePath=$(echo $1 | awk '{ print substr( $0, 1, length($0)-18 ) }')
-imageName=$(echo $1 | awk '{ print substr( $0, length($0)-17, length($0) ) }')
+scriptPath="$(dirname -- "$0")/windows10.ps1"
+imagePath="$(dirname -- "$1")"
+imageName="$(basename -- "$1")"
 
 # run the powershell script
-res=$(powershell.exe -noprofile -noninteractive -nologo -sta -executionpolicy unrestricted -file $(wslpath -w $scriptPath) $(wslpath -w $imagePath)"\\"$imageName)
+res="$(powershell.exe -noprofile -noninteractive -nologo -sta -executionpolicy unrestricted -file "$(wslpath -w "$scriptPath")" "$(wslpath -w "$imagePath")\\$imageName")"
 
-# note that there is a return symbol in powershell result
-noImage=$(echo "no image\r")
+# Remove the trailing carriage return from PowerShell's CRLF output.
+res="${res%"$(printf '\r')"}"
 
 # check whether image exists
-if [ "$res" = "$noImage" ] ;then
-    echo "no image"
+if [ "$res" = "no image" ]; then
+    printf '%s\n' 'no image'
 else
-    echo $(wslpath -u $res)
+    wslpath -u -a "$res"
 fi

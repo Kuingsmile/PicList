@@ -6,7 +6,7 @@ param($imagePath)
 Add-Type -Assembly PresentationCore
 $img = [Windows.Clipboard]::GetImage()
 
-if ($img -eq $null) {
+if ($null -eq $img) {
     "no image"
     Exit 1
 }
