@@ -553,7 +553,7 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
         bucketName: '',
         baseDir: '/',
         isAutoCustomUrl: false,
-        transformedConfig: JSON.stringify({ [config.bucket]: config.url }),
+        transformedConfig: JSON.stringify({ [config.bucket]: { customUrl: config.url } }),
         itemsPerPage: 50,
       })
       break
@@ -724,7 +724,7 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
       if (!config.username || !config.accessToken) return
       Object.assign(resultMap, {
         ...commonConfig,
-        username: config.username,
+        imgurUserName: config.username,
         accessToken: config.accessToken,
         proxy: '',
       })
