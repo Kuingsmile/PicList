@@ -15,6 +15,7 @@ import { handleCopyUrl, handleUrlEncodeWithSetting } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 import { IPasteStyle, IWindowList } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
+import { sendToWindow, UploadJob } from '~/utils/uploadJob'
 import { getUploadedSourcePath } from '~/utils/uploadResult'
 
 export const UploadTaskStatus = {
@@ -72,7 +73,8 @@ class UploadTaskQueueManager {
     maxRetryCount: 3,
   }
 
-  private webContents: WebContents | undefined = undefined
+  private taskOrigins = new Map<string, WebContents>()
+  private activeJobs = new Map<string, UploadJob>()
   private persistPath = path.join(dataDir(), 'taskQueue.json')
   private taskTimer: NodeJS.Timeout | null = null
   private workerPromise: Promise<void> | null = null
@@ -91,11 +93,6 @@ class UploadTaskQueueManager {
     return UploadTaskQueueManager.instance
   }
 
-  setWebContents(webContents: WebContents): this {
-    this.webContents = webContents
-    return this
-  }
-
   private getFileSize(filePath: string): number {
     try {
       if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
@@ -108,7 +105,11 @@ class UploadTaskQueueManager {
     }
   }
 
-  addTasks(files: IFileWithPath[], priority: number = UploadTaskPriority.NORMAL): IUploadTaskItem[] {
+  addTasks(
+    files: IFileWithPath[],
+    priority: number = UploadTaskPriority.NORMAL,
+    origin?: WebContents,
+  ): IUploadTaskItem[] {
     const newTasks: IUploadTaskItem[] = files.map(file => ({
       id: `task_${uuid()}`,
       fileName: file.name || path.basename(file.path),
@@ -122,6 +123,7 @@ class UploadTaskQueueManager {
     }))
 
     newTasks.forEach(task => {
+      if (origin) this.taskOrigins.set(task.id, origin)
       const insertIndex = this.taskQueue.findIndex(
         t => t.status === UploadTaskStatus.PENDING && t.priority < task.priority,
       )
@@ -248,7 +250,7 @@ class UploadTaskQueueManager {
           if (this.config.pauseOnError) this.config.isPaused = true
         }
       } finally {
-        // Even a cancelled transfer must settle before another upload and its interval can begin.
+        // Apply the interval after the desktop request settles, including cancellation.
         this.nextUploadAt = Date.now() + this.config.intervalS * 1000
       }
 
@@ -259,12 +261,19 @@ class UploadTaskQueueManager {
 
   private async uploadSingleFile(task: IUploadTaskItem, generation: number): Promise<IStringKeyMap | undefined> {
     const win = windowManager.getAvailableWindow()
-    const webContents = this.webContents || win?.webContents
+    const webContents = this.taskOrigins.get(task.id) || win?.webContents
 
     const input = [task.filePath]
     const rawInput = cloneDeep(input)
 
-    const res = await uploader.setWebContents(webContents).uploadReturnCtx(input)
+    const job = new UploadJob({ origin: webContents })
+    this.activeJobs.set(task.id, job)
+    let res: IuploadReturnCtxResult
+    try {
+      res = await uploader.uploadReturnCtx(input, undefined, job)
+    } finally {
+      this.activeJobs.delete(task.id)
+    }
     if (!this.isTaskActive(task, generation)) return
     const imgs = res.ctx?.output ? res.ctx.output : false
     const backupImgs = res.backupCtx?.output ? res.backupCtx.output : false
@@ -294,15 +303,15 @@ class UploadTaskQueueManager {
       const inserted = await GalleryDB.getInstance().insert(img)
       if (!this.isTaskActive(task, generation)) return
 
-      windowManager.get(IWindowList.TRAY_WINDOW)?.webContents?.send('uploadFiles')
-      windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('updateGallery')
+      sendToWindow(windowManager.get(IWindowList.TRAY_WINDOW)?.webContents, 'uploadFiles')
+      sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, 'updateGallery')
 
       handleCopyUrl(pasteText)
       if (backupImgs && backupImgs.length > 0) {
         await GalleryDB.getInstance().insert(backupImgs[0])
         if (!this.isTaskActive(task, generation)) return
-        windowManager.get(IWindowList.TRAY_WINDOW)?.webContents?.send('uploadFiles')
-        windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('updateGallery')
+        sendToWindow(windowManager.get(IWindowList.TRAY_WINDOW)?.webContents, 'uploadFiles')
+        sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, 'updateGallery')
       }
 
       return {
@@ -338,8 +347,8 @@ class UploadTaskQueueManager {
     this.config.isRunning = false
     this.config.isPaused = false
 
-    // The uploader has no abort API. Keep the worker until the transfer settles,
-    // but invalidate its result and prevent pending tasks from starting.
+    // Settle the desktop requests; late core results remain isolated to their cancelled jobs.
+    this.activeJobs.forEach(job => job.cancel())
     this.wakeWorker?.()
 
     this.taskQueue.forEach(task => {
@@ -356,6 +365,7 @@ class UploadTaskQueueManager {
   cancelTask(taskId: string): boolean {
     const task = this.taskQueue.find(t => t.id === taskId)
     if (task && (task.status === UploadTaskStatus.PENDING || task.status === UploadTaskStatus.UPLOADING)) {
+      this.activeJobs.get(taskId)?.cancel()
       task.status = UploadTaskStatus.CANCELLED
       task.completedAt = Date.now()
       this.persist()
@@ -368,6 +378,8 @@ class UploadTaskQueueManager {
   removeTask(taskId: string): boolean {
     const index = this.taskQueue.findIndex(t => t.id === taskId)
     if (index !== -1) {
+      this.activeJobs.get(taskId)?.cancel()
+      this.taskOrigins.delete(taskId)
       this.taskQueue.splice(index, 1)
       this.persist()
       this.notifyTaskUpdate()
@@ -383,6 +395,9 @@ class UploadTaskQueueManager {
         task.status === UploadTaskStatus.UPLOADING ||
         task.status === UploadTaskStatus.PAUSED,
     )
+    for (const taskId of this.taskOrigins.keys()) {
+      if (!this.taskQueue.some(task => task.id === taskId)) this.taskOrigins.delete(taskId)
+    }
     this.persist()
     this.notifyTaskUpdate()
   }
@@ -390,6 +405,7 @@ class UploadTaskQueueManager {
   clearAllTasks(): void {
     this.cancelQueue()
     this.taskQueue = []
+    this.taskOrigins.clear()
     this.persist()
     this.notifyTaskUpdate()
   }
@@ -609,7 +625,7 @@ class UploadTaskQueueManager {
 
   private notifyTaskUpdate(): void {
     const status = this.getQueueStatus()
-    windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('uploadTaskQueueUpdate', status)
+    sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, 'uploadTaskQueueUpdate', status)
   }
 
   private persist(): void {

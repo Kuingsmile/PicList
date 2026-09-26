@@ -3,39 +3,24 @@ import util from 'node:util'
 
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
-import windowManager from 'apis/app/window/windowManager'
 import dayjs from 'dayjs'
-import { BrowserWindow, clipboard, ipcMain, IpcMainEvent, Notification, WebContents } from 'electron'
+import { clipboard, Notification } from 'electron'
 import fs from 'fs-extra'
 import { cloneDeep } from 'lodash-es'
 import type { IPicGo, IUploadOptions } from 'piclist'
 import writeFile from 'write-file-atomic'
 
-import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '~/events/constant'
 import { t } from '~/i18n'
 import { getClipboardFilePath, getUploaderType, showNotification } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
-import { ICOREBuildInEvent, IWindowList } from '~/utils/enum'
+import { ICOREBuildInEvent } from '~/utils/enum'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
+import { currentUploadJob, UploadJob, UploadJobError, withUploadJob } from '~/utils/uploadJob'
 import { isUploadUrl } from '~/utils/uploadResult'
 
-const waitForRename = (window: BrowserWindow | undefined, id: number | undefined): Promise<string | null> => {
-  return new Promise(resolve => {
-    ipcMain.once(`${RENAME_FILE_NAME}${id}`, (_: IpcMainEvent, newName: string) => {
-      resolve(newName)
-      window?.close()
-    })
-    window?.on('close', () => {
-      resolve(null)
-      ipcMain.removeAllListeners(`${RENAME_FILE_NAME}${id}`)
-      windowManager.deleteById(window?.id)
-    })
-  })
-}
+import { waitForRename } from './rename'
 
 class Uploader {
-  private webContents: WebContents | undefined = undefined
-
   constructor() {
     this.init()
   }
@@ -46,7 +31,7 @@ class Uploader {
     })
 
     picgo.on(ICOREBuildInEvent.UPLOAD_PROGRESS, (progress: any) => {
-      this.webContents?.send('uploadProgress', progress)
+      currentUploadJob()?.reportProgress(progress)
     })
 
     picgo.on(ICOREBuildInEvent.BEFORE_TRANSFORM, () => {
@@ -61,8 +46,11 @@ class Uploader {
 
     picgo.helper.beforeUploadPlugins.register('renameFn', {
       handle: async (ctx: IPicGo) => {
+        const job = currentUploadJob()
+        if (!job) return
+        job.throwIfStopped()
         const uploaderType = getUploaderType(ctx)
-        const allConfig = picgo.getConfig<any>() || {}
+        const allConfig = ctx.getConfig<any>() || {}
 
         const globalRename = allConfig.settings?.rename
         const globalAutoRename = allConfig.settings?.autoRename
@@ -77,21 +65,11 @@ class Uploader {
               let name: undefined | string | null
               const fileName = autoRename
                 ? `${dayjs().add(index, 'ms').format('YYYYMMDDHHmmssSSS')}${item.extname}`
-                : item.fileName
+                : item.fileName || `image${item.extname || ''}`
               if (rename) {
-                const window = windowManager.create(IWindowList.RENAME_WINDOW)
-                ipcMain.on(GET_RENAME_FILE_NAME, (evt, _) => {
-                  try {
-                    if (evt.sender.id === window?.webContents.id) {
-                      logger.info('rename window ready, wait for rename...')
-                      window.webContents.send(RENAME_FILE_NAME, fileName, item.fileName, window.webContents.id)
-                    }
-                  } catch (e: any) {
-                    logger.error(e)
-                  }
-                })
-                name = await waitForRename(window, window?.webContents.id)
+                name = await waitForRename(job, fileName, item.fileName || fileName)
               }
+              job.throwIfStopped()
               item.fileName = name || fileName
             }),
           )
@@ -100,12 +78,7 @@ class Uploader {
     })
   }
 
-  setWebContents(webContents: WebContents | undefined) {
-    this.webContents = webContents
-    return this
-  }
-
-  private async getClipboardImagePath(): Promise<string | false> {
+  private async getClipboardImagePath(job: UploadJob): Promise<string | false> {
     const imgPath = getClipboardFilePath()
     if (imgPath) return imgPath
 
@@ -114,7 +87,7 @@ class Uploader {
 
     const buffer = nativeImage.toPNG()
     const baseDir = picgo.baseDir
-    const fileName = `${dayjs().format('YYYYMMDDHHmmssSSS')}.png`
+    const fileName = `${job.context.id}.png`
     const filePath = path.join(baseDir, CLIPBOARD_IMAGE_FOLDER, fileName)
     await writeFile(filePath, buffer)
     return filePath
@@ -123,26 +96,46 @@ class Uploader {
   async uploadWithBuildInClipboardReturnCtx(
     img?: IUploadOption,
     options?: IUploadOptions,
+    job = new UploadJob({ profile: options }),
   ): Promise<IuploadReturnCtxResult> {
-    let imgPath: string | false = false
-    try {
-      imgPath = await this.getClipboardImagePath()
-      if (!imgPath) return { ctx: undefined, backupCtx: undefined }
-      return await this.uploadReturnCtx(img ?? [imgPath], options)
-    } catch (e: any) {
-      logger.error(e)
-      return { ctx: undefined, backupCtx: undefined }
-    } finally {
-      if (imgPath && imgPath.startsWith(path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER))) {
-        fs.remove(imgPath)
-      }
-    }
+    return withUploadJob(
+      job,
+      async () => {
+        let imgPath: string | false = false
+        try {
+          imgPath = await this.getClipboardImagePath(job)
+          job.throwIfStopped()
+          if (!imgPath) throw new UploadJobError('failed')
+          // Keep the temporary file until the underlying core work really finishes.
+          return await this.performUpload(img ?? [imgPath], job)
+        } finally {
+          if (imgPath === path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER, `${job.context.id}.png`)) {
+            await fs.remove(imgPath).catch(() => logger.warn('Unable to remove temporary clipboard image'))
+          }
+        }
+      },
+      () => ({ ctx: undefined, backupCtx: undefined }),
+    )
   }
 
-  async uploadReturnCtx(img?: IUploadOption, options?: IUploadOptions): Promise<IuploadReturnCtxResult> {
+  async uploadReturnCtx(
+    img?: IUploadOption,
+    options?: IUploadOptions,
+    job = new UploadJob({ profile: options }),
+  ): Promise<IuploadReturnCtxResult> {
+    return withUploadJob(
+      job,
+      () => this.performUpload(img, job),
+      () => ({ ctx: undefined, backupCtx: undefined }),
+    )
+  }
+
+  private async performUpload(img: IUploadOption | undefined, job: UploadJob): Promise<IuploadReturnCtxResult> {
     try {
+      job.throwIfStopped()
       const result = { ctx: undefined, backupCtx: undefined } as IuploadReturnCtxResult
-      const res = await picgo.uploadReturnCtx(img, options)
+      const res = await picgo.uploadReturnCtx(img, job.context.requestedProfile)
+      job.throwIfStopped()
       for (const key of ['ctx', 'backupCtx'] as const) {
         const ctx = res[key]
         if (Array.isArray(ctx?.output)) {
@@ -155,9 +148,11 @@ class Uploader {
           result[key] = ctx
         }
       }
+      if (!result.ctx && !result.backupCtx) throw new UploadJobError('failed')
       return result
     } catch (e: any) {
-      logger.error(e)
+      if (job.signal.aborted) throw e
+      logger.error('Upload failed')
       setTimeout(() => {
         showNotification({
           title: t('main.notification.uploadFailed'),
@@ -165,9 +160,7 @@ class Uploader {
           clickToCopy: true,
         })
       }, 500)
-      return { ctx: undefined, backupCtx: undefined } as IuploadReturnCtxResult
-    } finally {
-      ipcMain.removeAllListeners(GET_RENAME_FILE_NAME)
+      throw e
     }
   }
 }

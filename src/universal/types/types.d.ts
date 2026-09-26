@@ -534,6 +534,25 @@ interface IuploadReturnCtxResult {
   backupCtx: import('piclist').IPicGo | undefined
 }
 
+interface IUploadProgress {
+  jobId: string
+  progress: number
+  status: 'uploading' | 'completed' | 'failed' | 'cancelled' | 'timeout'
+}
+
+interface IRenameRequest {
+  jobId: string
+  dialogId: string
+  fileName: string
+  originalName: string
+}
+
+interface IRenameResponse {
+  jobId: string
+  dialogId: string
+  name: string | null
+}
+
 type IScriptLifecycle =
   | 'onSoftwareOpen'
   | 'onSoftwareClose'

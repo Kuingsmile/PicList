@@ -1,4 +1,5 @@
 import bus from '@core/bus'
+import type { UploadBusRequest, UploadBusResult } from '@core/bus/apis'
 import {
   CREATE_APP_MENU,
   GET_SETTING_WINDOW_ID,
@@ -15,10 +16,11 @@ import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis
 import windowManager from 'apis/app/window/windowManager'
 
 import { IWindowList } from '~/utils/enum'
+import { UploadJobError } from '~/utils/uploadJob'
 
 function initEventCenter() {
   const eventList: any = {
-    'picgo:upload': uploadClipboardFiles,
+    'picgo:upload': () => uploadClipboardFiles(),
     [UPLOAD_WITH_CLIPBOARD_FILES]: busCallUploadClipboardFiles,
     [UPLOAD_WITH_FILES]: busCallUploadFiles,
     [GET_WINDOW_ID]: busCallGetWindowId,
@@ -30,17 +32,35 @@ function initEventCenter() {
   }
 }
 
-async function busCallUploadClipboardFiles() {
-  const result = await uploadClipboardFiles()
-  const imgUrl = result.url
-  bus.emit(UPLOAD_WITH_CLIPBOARD_FILES_RESPONSE, imgUrl)
+async function replyToUpload(request: UploadBusRequest, event: string, upload: () => Promise<string[]>) {
+  let reply: UploadBusResult
+  try {
+    request.job.throwIfStopped()
+    const result = await upload()
+    request.job.throwIfStopped()
+    reply = { jobId: request.job.context.id, success: result.length > 0, result }
+  } catch (error) {
+    reply = {
+      jobId: request.job.context.id,
+      success: false,
+      error: error instanceof UploadJobError ? error.reason : 'failed',
+    }
+  }
+  bus.emit(event, reply)
 }
 
-async function busCallUploadFiles(pathList: IFileWithPath[]) {
-  const win = windowManager.getAvailableWindow()
-  const result = await uploadChoosedFiles(win?.webContents, pathList)
-  const urls = result.map((item: any) => item.url)
-  bus.emit(UPLOAD_WITH_FILES_RESPONSE, urls)
+async function busCallUploadClipboardFiles(request: UploadBusRequest) {
+  await replyToUpload(request, UPLOAD_WITH_CLIPBOARD_FILES_RESPONSE, async () => {
+    const result = await uploadClipboardFiles(undefined, request.job)
+    return result.url ? [result.url] : []
+  })
+}
+
+async function busCallUploadFiles(request: UploadBusRequest) {
+  await replyToUpload(request, UPLOAD_WITH_FILES_RESPONSE, async () => {
+    const result = await uploadChoosedFiles(request.job.context.origin, request.files || [], undefined, request.job)
+    return result.map(item => item.url)
+  })
 }
 
 function busCallGetWindowId() {

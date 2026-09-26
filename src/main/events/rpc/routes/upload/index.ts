@@ -3,6 +3,7 @@ import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis
 import { RPCRouter } from '~/events/rpc/router'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
 import getPicBeds from '~/utils/getPicBeds'
+import { UploadJob } from '~/utils/uploadJob'
 import UploadTaskQueueManager from '~/utils/uploadTaskQueue'
 
 const uploadRouter = new RPCRouter()
@@ -17,8 +18,8 @@ const uploadRoutes = [
   },
   {
     action: IRPCActionType.UPLOAD_CLIPBOARD_FILES_FROM_UPLOAD_PAGE,
-    handler: async () => {
-      uploadClipboardFiles()
+    handler: async (evt: IIPCEvent) => {
+      return uploadClipboardFiles(undefined, new UploadJob({ origin: evt.sender }))
     },
   },
   {
@@ -32,16 +33,14 @@ const uploadRoutes = [
     action: IRPCActionType.UPLOAD_TASK_ADD,
     handler: async (evt: IIPCEvent, args: [files: IFileWithPath[]]) => {
       const manager = UploadTaskQueueManager.getInstance()
-      manager.setWebContents(evt.sender)
-      return manager.addTasks(args[0])
+      return manager.addTasks(args[0], undefined, evt.sender)
     },
     type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.UPLOAD_TASK_START,
-    handler: async (evt: IIPCEvent, args: [intervalS?: number]) => {
+    handler: async (_: IIPCEvent, args: [intervalS?: number]) => {
       const manager = UploadTaskQueueManager.getInstance()
-      manager.setWebContents(evt.sender)
       await manager.startQueue(args[0])
       return manager.getQueueStatus()
     },
@@ -58,9 +57,8 @@ const uploadRoutes = [
   },
   {
     action: IRPCActionType.UPLOAD_TASK_RESUME,
-    handler: async (evt: IIPCEvent) => {
+    handler: async () => {
       const manager = UploadTaskQueueManager.getInstance()
-      manager.setWebContents(evt.sender)
       await manager.resumeQueue()
       return manager.getQueueStatus()
     },

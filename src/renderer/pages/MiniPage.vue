@@ -35,13 +35,14 @@
 
 <script lang="ts" setup>
 import type { IConfig } from 'piclist'
-import { onBeforeMount, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
+import { onBeforeMount, onBeforeUnmount, ref, useTemplateRef } from 'vue'
 
 import { osGlobal } from '@/hooks/useGlobal'
 import { isUrl } from '@/utils/common'
 import { getConfig } from '@/utils/dataSender'
 import { useDragEventListeners } from '@/utils/drag'
 import { IRPCActionType } from '@/utils/enum'
+import { createUploadProgressTracker } from '@/utils/uploadProgress'
 
 const logoPath = ref('')
 const dragover = ref(false)
@@ -69,29 +70,28 @@ async function initLogoPath() {
   }
 }
 
-const uploadProgressHandler = (p: number) => {
-  if (p !== -1) {
-    isShowingProgress.value = true
-    progress.value = p
-  } else {
-    progress.value = 100
+const trackUploadProgress = createUploadProgressTracker()
+let progressVersion = 0
+const uploadProgressHandler = (event: IUploadProgress) => {
+  progressVersion++
+  isShowingProgress.value = true
+  progress.value = trackUploadProgress(event).progress
+  if (progress.value === 100) {
+    const version = progressVersion
+    setTimeout(() => {
+      if (version !== progressVersion) return
+      isShowingProgress.value = false
+    }, 1000)
+    setTimeout(() => {
+      if (version !== progressVersion) return
+      progress.value = 0
+    }, 1200)
   }
 }
 
 const updateMiniIconHandler = async () => {
   await initLogoPath()
 }
-
-watch(progress, val => {
-  if (val === 100) {
-    setTimeout(() => {
-      isShowingProgress.value = false
-    }, 1000)
-    setTimeout(() => {
-      progress.value = 0
-    }, 1200)
-  }
-})
 
 function onDrop(e: DragEvent) {
   dragover.value = false

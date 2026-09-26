@@ -9,6 +9,7 @@ import { t } from '~/i18n'
 import { generateShortUrl, handleCopyUrl, setTrayToolTip } from '~/utils/common'
 import { IPasteStyle, IRPCActionType, IRPCType, IWindowList } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
+import { sendToWindow, UploadJob } from '~/utils/uploadJob'
 
 const trayRouter = new RPCRouter()
 
@@ -28,10 +29,14 @@ const trayRoutes = [
   },
   {
     action: IRPCActionType.TRAY_UPLOAD_CLIPBOARD_FILES,
-    handler: async () => {
+    handler: async (evt: IIPCEvent) => {
       const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
       // macOS use builtin clipboard is OK
-      const res = await uploader.setWebContents(trayWindow?.webContents).uploadWithBuildInClipboardReturnCtx()
+      const res = await uploader.uploadWithBuildInClipboardReturnCtx(
+        undefined,
+        undefined,
+        new UploadJob({ origin: evt.sender }),
+      )
       const img = res.ctx?.output ? res.ctx.output : false
       const backupImgs = res.backupCtx?.output ? res.backupCtx.output : false
       const allConfig = picgo.getConfig<any>() || {}
@@ -54,19 +59,19 @@ const trayRoutes = [
           notification.show()
         }
         await GalleryDB.getInstance().insert(img[0])
-        trayWindow?.webContents.send('clipboardFiles', [])
+        sendToWindow(trayWindow?.webContents, 'clipboardFiles', [])
         if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-          windowManager.get(IWindowList.SETTING_WINDOW)?.webContents.send('updateGallery')
+          sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, 'updateGallery')
         }
         if (backupImgs && backupImgs.length > 0) {
           await GalleryDB.getInstance().insert(backupImgs[0])
-          trayWindow?.webContents.send('uploadFiles')
+          sendToWindow(trayWindow?.webContents, 'uploadFiles')
           if (windowManager.has(IWindowList.SETTING_WINDOW)) {
-            windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('updateGallery')
+            sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, 'updateGallery')
           }
         }
       }
-      trayWindow?.webContents.send('uploadFiles')
+      sendToWindow(trayWindow?.webContents, 'uploadFiles')
     },
   },
 ]

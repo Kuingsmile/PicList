@@ -61,7 +61,7 @@ import CustomButton from '@/components/common/CustomButton.vue'
 import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '@/utils/constant'
 
 const { t } = useI18n()
-const id = ref<string | null>(null)
+const request = ref<IRenameRequest | null>(null)
 const fileNameInput = useTemplateRef('fileNameInput')
 const validationError = ref<string>('')
 
@@ -70,17 +70,27 @@ const form = reactive({
   originName: '',
 })
 
-function handleFileName(newName: string, _originName: string, _id: string) {
-  form.fileName = newName
-  form.originName = _originName
-  id.value = _id
+function handleFileName(value: IRenameRequest) {
+  form.fileName = value.fileName
+  form.originName = value.originalName
+  request.value = value
   nextTick(() => {
     fileNameInput.value?.focus()
     fileNameInput.value?.select()
   })
 }
 
-window.electron.ipcRendererOn(RENAME_FILE_NAME, handleFileName)
+const removeRenameListener = window.electron.ipcRendererOn(RENAME_FILE_NAME, handleFileName)
+
+function reply(name: string | null) {
+  if (!request.value) return
+  const { jobId, dialogId } = request.value
+  window.electron.sendToMain(`${RENAME_FILE_NAME}:${jobId}:${dialogId}`, {
+    jobId,
+    dialogId,
+    name,
+  } satisfies IRenameResponse)
+}
 
 function validateFileName(fileName: string): string {
   if (!fileName.trim()) {
@@ -96,11 +106,11 @@ function confirmName() {
     return
   }
 
-  window.electron.sendToMain(`${RENAME_FILE_NAME}${id.value}`, form.fileName)
+  reply(form.fileName)
 }
 
 function cancel() {
-  window.electron.sendToMain(`${RENAME_FILE_NAME}${id.value}`, form.originName)
+  reply(form.originName)
 }
 
 function clearFileName() {
@@ -122,7 +132,7 @@ onBeforeMount(() => {
 })
 
 onBeforeUnmount(() => {
-  window.electron.ipcRendererRemoveAllListeners(RENAME_FILE_NAME)
+  removeRenameListener()
 })
 </script>
 

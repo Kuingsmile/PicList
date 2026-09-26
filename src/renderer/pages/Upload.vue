@@ -113,7 +113,7 @@
         <div
           id="upload-area"
           ref="uploadArea"
-          class="group/upload relative flex h-full w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border bg-bg-secondary px-1 py-12 duration-medium ease-standard focus-visible:focus-ring focus-visible:outline-offset-4 max-md:px-4 max-md:py-8 max-xs:px-2 max-xs:py-6 [:hover,.drag-active]:border-accent [:hover,.drag-active]:bg-[linear-gradient(135deg,var(--color-surface-elevated)_0%,color-mix(in_srgb,var(--color-accent),transparent_95%)_100%)] [:hover,.drag-active]:shadow-lg [:hover,.drag-active&]:-translate-y-[2px]"
+          class="group/upload relative flex h-full w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border bg-bg-secondary px-1 py-12 duration-medium ease-standard focus-visible:focus-ring focus-visible:outline-offset-4 max-md:px-4 max-md:py-8 max-xs:px-2 max-xs:py-6 [:hover,.drag-active]:border-accent [:hover,.drag-active]:bg-[linear-gradient(135deg,var(--color-surface-elevated)_0%,color-mix(in_srgb,var(--color-accent),transparent_95%)_100%)] [:hover,.drag-active]:shadow-lg [:hover,.drag-active&]:translate-y-[-2px]"
           :class="{ 'drag-active': dragover }"
           @drop.prevent="onDrop"
           @dragover.prevent="dragover = true"
@@ -678,6 +678,7 @@ import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { useDragEventListeners } from '@/utils/drag'
 import { IPasteStyle, IRPCActionType } from '@/utils/enum'
+import { createUploadProgressTracker } from '@/utils/uploadProgress'
 
 // Task queue types
 interface IUploadTaskItem {
@@ -822,20 +823,21 @@ function syncPicBedHandler(): void {
   updatePicBeds()
 }
 
-watch(progress, onProgressChange)
 watch(favoritePicbeds, valideFavoritePicbeds, { immediate: true })
 
 let removeUploadProgressListenerCallback: () => void = () => {}
 let removeSyncPicBedListenerCallback: () => void = () => {}
 
-function uploadProgressHandler(p: number): void {
-  if (p !== -1) {
-    showProgress.value = true
-    progress.value = p
-  } else {
-    progress.value = 100
-    showError.value = true
-  }
+const trackUploadProgress = createUploadProgressTracker()
+let progressVersion = 0
+
+function uploadProgressHandler(event: IUploadProgress): void {
+  progressVersion++
+  const state = trackUploadProgress(event)
+  showProgress.value = true
+  showError.value = state.failed
+  progress.value = state.progress
+  onProgressChange(state.progress)
 }
 
 function handleImageProcess() {
@@ -850,11 +852,14 @@ function handleImageProcessSingle() {
 
 function onProgressChange(val: number) {
   if (val === 100) {
+    const version = progressVersion
     setTimeout(() => {
+      if (version !== progressVersion) return
       showProgress.value = false
       showError.value = false
     }, 1000)
     setTimeout(() => {
+      if (version !== progressVersion) return
       progress.value = 0
     }, 1200)
   }

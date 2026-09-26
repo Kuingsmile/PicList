@@ -14,6 +14,7 @@ import { handleCopyUrl } from '~/utils/common'
 import { IPasteStyle } from '~/utils/enum'
 import pasteTemplate from '~/utils/pasteTemplate'
 import { runScriptInStage } from '~/utils/runScript'
+import { sendToWindow, UploadJob } from '~/utils/uploadJob'
 import { getUploadedSourcePath } from '~/utils/uploadResult'
 
 // Cross-process support may be required in the future
@@ -72,10 +73,10 @@ class GuiApi implements IGuiApi {
   }
 
   async upload(input: IUploadOption) {
-    this.windowId = await getWindowId()
-    const webContents = this.getWebcontentsByWindowId(this.windowId)
+    const windowId = await getWindowId()
+    const webContents = this.getWebcontentsByWindowId(windowId)
     const rawInput = cloneDeep(input)
-    const res = await uploader.setWebContents(webContents).uploadReturnCtx(input)
+    const res = await uploader.uploadReturnCtx(input, undefined, new UploadJob({ origin: webContents }))
     const imgs = res.ctx?.output ? res.ctx.output : false
     const backImgs = res.backupCtx?.output ? res.backupCtx.output : false
     let result: ImgInfo[] = []
@@ -110,16 +111,16 @@ class GuiApi implements IGuiApi {
         runScriptInStage('onUploadSuccess', res.ctx || picgo, { galleryItem: inserted })
       }
       handleCopyUrl(pasteText.join('\n'))
-      webContents?.send('uploadFiles')
-      webContents?.send('updateGallery')
+      sendToWindow(webContents, 'uploadFiles')
+      sendToWindow(webContents, 'updateGallery')
       result = imgs
     }
     if (backImgs !== false) {
       for (const backImg of backImgs) {
         await GalleryDB.getInstance().insert(backImg)
       }
-      webContents?.send('uploadFiles')
-      webContents?.send('updateGallery')
+      sendToWindow(webContents, 'uploadFiles')
+      sendToWindow(webContents, 'updateGallery')
     }
     return result
   }

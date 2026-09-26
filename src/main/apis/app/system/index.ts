@@ -27,6 +27,7 @@ import { IPasteStyle, IWindowList } from '~/utils/enum'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/utils/getMacOSVersion'
 import pasteTemplate from '~/utils/pasteTemplate'
 import { runScriptInStage } from '~/utils/runScript'
+import { sendToWindow, UploadJob } from '~/utils/uploadJob'
 import { getUploadedSourcePath } from '~/utils/uploadResult'
 import { hideMiniWindow, openMainWindow, openMiniWindow } from '~/utils/windowHelper'
 
@@ -296,7 +297,7 @@ export function createTray(tooltip: string) {
         const pasteStyle = allConfig.settings?.pasteStyle || IPasteStyle.MARKDOWN
         const rawInput = cloneDeep(files)
         const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
-        const res = await uploader.setWebContents(trayWindow?.webContents).uploadReturnCtx(files)
+        const res = await uploader.uploadReturnCtx(files, undefined, new UploadJob({ origin: trayWindow?.webContents }))
         const imgs = res.ctx?.output ? res.ctx.output : false
         const backImgs = res.backupCtx?.output ? res.backupCtx.output : false
         const deleteLocalFile = allConfig.settings?.deleteLocalFile || false
@@ -328,13 +329,13 @@ export function createTray(tooltip: string) {
             runScriptInStage('onUploadSuccess', res.ctx || picgo, { galleryItem: inserted })
           }
           handleCopyUrl(pasteText.join('\n'))
-          trayWindow?.webContents.send('dragFiles', imgs)
+          sendToWindow(trayWindow?.webContents, 'dragFiles', imgs)
         }
         if (backImgs !== false) {
           for (const backImg of backImgs) {
             await GalleryDB.getInstance().insert(backImg)
           }
-          trayWindow?.webContents.send('dragFiles', backImgs)
+          sendToWindow(trayWindow?.webContents, 'dragFiles', backImgs)
         }
       })
     }
