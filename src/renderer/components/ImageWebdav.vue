@@ -16,16 +16,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed } from 'vue'
 
+import { useThumbnail } from '@/hooks/useThumbnail'
 import { getFileIconPath } from '@/manage/utils/common'
 import { getAuthHeader } from '@/manage/utils/digestAuth'
 import { formatEndpoint } from '@/utils/common'
-
-const base64Url = ref('')
-const success = ref(false)
-const isLoading = ref(true)
-const hasError = ref(false)
 
 const props = defineProps<{
   item: {
@@ -39,14 +35,14 @@ const props = defineProps<{
 }>()
 
 const imageSource = computed(() => {
-  return props.isShowThumbnail && props.item.isImage && success.value
-    ? base64Url.value
+  return props.isShowThumbnail && props.item.isImage
+    ? objectUrl.value
     : `./assets/icons/${getFileIconPath(props.item.fileName ?? '')}`
 })
 
 const iconPath = computed(() => `./assets/icons/${getFileIconPath(props.item.fileName ?? '')}`)
 
-async function getWebdavHeader(key: string) {
+async function getWebdavHeader(key: string, signal: AbortSignal) {
   let headers: Record<string, any>
   if (props.config.authType === 'digest') {
     const authHeader = await getAuthHeader(
@@ -55,6 +51,7 @@ async function getWebdavHeader(key: string) {
       `/${key.replace(/^\//, '')}`,
       props.config.username,
       props.config.password,
+      signal,
     )
     headers = {
       Authorization: authHeader,
@@ -67,27 +64,30 @@ async function getWebdavHeader(key: string) {
   return headers
 }
 
-const fetchImage = async () => {
-  try {
-    isLoading.value = true
-    hasError.value = false
-    const headers = await getWebdavHeader(props.item.key)
-    const res = await fetch(props.url, { method: 'GET', headers })
-    if (res.status >= 200 && res.status < 300) {
-      const blob = await res.blob()
-      success.value = true
-      base64Url.value = URL.createObjectURL(blob)
-      isLoading.value = false
-    } else {
-      throw new Error('Network response was not ok.')
-    }
-  } catch (err) {
-    success.value = false
-    hasError.value = true
-    isLoading.value = false
-    console.log(err)
-  }
-}
+const {
+  source: objectUrl,
+  isLoading,
+  hasError,
+} = useThumbnail(
+  () => props.isShowThumbnail && props.item.isImage,
+  [
+    () => props.url,
+    () => props.item.key,
+    () => props.config.authType,
+    () => props.config.endpoint,
+    () => props.config.sslEnabled,
+    () => props.config.username,
+    () => props.config.password,
+  ],
+  async signal => {
+    const url = props.url
+    const headers = await getWebdavHeader(props.item.key, signal)
+    signal.throwIfAborted()
+    const res = await fetch(url, { method: 'GET', headers, signal })
+    if (!res.ok) throw new Error('Network response was not ok.')
+    return await res.blob()
+  },
+)
 
 const handleImageLoad = () => {
   isLoading.value = false
@@ -98,8 +98,4 @@ const handleImageError = () => {
   isLoading.value = false
   hasError.value = true
 }
-
-watch(() => [props.url, props.item], fetchImage, { deep: true })
-
-onMounted(fetchImage)
 </script>

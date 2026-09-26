@@ -363,7 +363,13 @@
 
                 <!-- S3 PreSign Image -->
                 <ImagePreSign
-                  v-else-if="!item.isDir && currentPicBedName === 's3plist' && isUsePreSignedUrl"
+                  v-else-if="
+                    isShowThumbnail &&
+                    !item.isDir &&
+                    item.isImage &&
+                    currentPicBedName === 's3plist' &&
+                    isUsePreSignedUrl
+                  "
                   :is-show-thumbnail="isShowThumbnail"
                   :item="item"
                   :alias="configMap.alias"
@@ -373,7 +379,7 @@
 
                 <!-- WebDAV Image -->
                 <ImageWebdav
-                  v-else-if="!item.isDir && currentPicBedName === 'webdavplist' && item.isImage"
+                  v-else-if="isShowThumbnail && !item.isDir && currentPicBedName === 'webdavplist' && item.isImage"
                   :is-show-thumbnail="isShowThumbnail"
                   :item="item"
                   :config="handleGetWebdavConfig()"
@@ -382,7 +388,7 @@
 
                 <!-- Local Image -->
                 <ImageLocal
-                  v-else-if="!item.isDir && currentPicBedName === 'local' && item.isImage"
+                  v-else-if="isShowThumbnail && !item.isDir && currentPicBedName === 'local' && item.isImage"
                   :is-show-thumbnail="isShowThumbnail"
                   :item="item"
                   :local-path="item.key"

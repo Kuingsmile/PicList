@@ -64,13 +64,21 @@ export function digestAuthHeader(
   return authstring
 }
 
-export async function getAuthHeader(method: string, host: string, uri: string, username: string, password: string) {
+export async function getAuthHeader(
+  method: string,
+  host: string,
+  uri: string,
+  username: string,
+  password: string,
+  signal?: AbortSignal,
+) {
+  const response = await fetch(`${host}${uri}`, { signal })
   try {
-    const response = await fetch(`${host}${uri}`)
     if (response.status === 401 && response.headers.get('www-authenticate')) {
       return digestAuthHeader(method, uri, response.headers.get('www-authenticate')!, username, password)
     }
-  } catch (error: any) {
-    console.error('Network error:', error)
+  } finally {
+    // Only the challenge headers are needed; do not keep downloading its body.
+    await response.body?.cancel()
   }
 }

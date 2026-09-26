@@ -16,14 +16,11 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed } from 'vue'
 
+import { useThumbnail } from '@/hooks/useThumbnail'
 import { getFileIconPath } from '@/manage/utils/common'
 import { IRPCActionType } from '@/utils/enum'
-
-const preSignedUrl = ref('')
-const isLoading = ref(true)
-const hasError = ref(false)
 
 const props = defineProps<{
   item: {
@@ -45,22 +42,34 @@ const imageSource = computed(() => {
 
 const iconPath = computed(() => `./assets/icons/${getFileIconPath(props.item.fileName ?? '')}`)
 
-async function getUrl() {
-  try {
-    isLoading.value = true
-    hasError.value = false
-    preSignedUrl.value = await window.electron.triggerRPC<any>(
+const {
+  source: preSignedUrl,
+  isLoading,
+  hasError,
+} = useThumbnail(
+  () => props.isShowThumbnail && props.item.isImage,
+  [
+    () => props.url,
+    () => props.item.key,
+    () => props.alias,
+    () => props.config.bucketName,
+    () => props.config.region,
+    () => props.config.key,
+    () => props.config.expires,
+    () => props.config.customUrl,
+    () => props.config.githubPrivate,
+    () => props.config.rawUrl,
+  ],
+  async () => {
+    const url = await window.electron.triggerRPC<string>(
       IRPCActionType.MANAGE_GET_PRE_SIGNED_URL,
       props.alias,
       props.config,
     )
-    isLoading.value = false
-  } catch (error) {
-    console.error('Failed to get pre-signed URL:', error)
-    hasError.value = true
-    isLoading.value = false
-  }
-}
+    if (!url || url === 'error') throw new Error('Failed to get pre-signed URL')
+    return url
+  },
+)
 
 const handleImageLoad = () => {
   isLoading.value = false
@@ -71,8 +80,4 @@ const handleImageError = () => {
   isLoading.value = false
   hasError.value = true
 }
-
-watch(() => [props.url, props.item], getUrl, { deep: true })
-
-onMounted(getUrl)
 </script>

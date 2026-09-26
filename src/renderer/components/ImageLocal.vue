@@ -21,13 +21,8 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount, ref } from 'vue'
-
+import { useThumbnail } from '@/hooks/useThumbnail'
 import { getFileIconPath } from '@/manage/utils/common'
-
-const base64Image = ref('')
-const isLoading = ref(true)
-const hasError = ref(false)
 
 const props = defineProps<{
   isShowThumbnail: boolean
@@ -38,18 +33,20 @@ const props = defineProps<{
   localPath: string
 }>()
 
-const createBase64Image = async () => {
-  try {
+const {
+  source: base64Image,
+  isLoading,
+  hasError,
+} = useThumbnail(
+  () => props.isShowThumbnail && props.item.isImage,
+  [() => props.localPath],
+  async signal => {
     const filePath = window.node.path.normalize(props.localPath)
     const base64 = await window.node.fs.readFile(filePath, 'base64')
-    base64Image.value = `data:${window.node.mime.lookup(filePath) || 'image/png'};base64,${base64}`
-    isLoading.value = false
-  } catch (e) {
-    console.log(e)
-    hasError.value = true
-    isLoading.value = false
-  }
-}
+    signal.throwIfAborted()
+    return `data:${window.node.mime.lookup(filePath) || 'image/png'};base64,${base64}`
+  },
+)
 
 const handleImageLoad = () => {
   isLoading.value = false
@@ -60,8 +57,4 @@ const handleImageError = () => {
   isLoading.value = false
   hasError.value = true
 }
-
-onBeforeMount(async () => {
-  await createBase64Image()
-})
 </script>
