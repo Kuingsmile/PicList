@@ -392,16 +392,8 @@ const validateAllFields = (picBedName: string): boolean => {
 }
 
 const handleConfigReset = () => {
-  const keys = Object.keys(formErrors.value).filter(key => key.startsWith(platformName))
-  keys.forEach(key => {
-    delete formErrors.value[key]
-  })
-
-  const configKeys = Object.keys(configResult.value).filter(key => key.startsWith(platformName))
-  configKeys.forEach(key => {
-    delete configResult.value[key]
-  })
-
+  formErrors.value = {}
+  configResult.value = {}
   initializeDefaultValues()
 }
 
