@@ -1,8 +1,10 @@
 import { constants } from 'node:fs'
 import path from 'node:path'
+import { setImmediate as yieldToEventLoop } from 'node:timers/promises'
 
 import type { FileEntry } from 'ssh2'
 
+import { LISTING_PAGE_ITEMS } from '#/listing'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { createDownloadTask, formatError, runDownloadTask } from '~/manage/utils/common'
@@ -21,6 +23,13 @@ interface listDirResult {
   filename: string
   key: string
 }
+
+// SFTP attributes are optional on the wire, even though ssh2's types mark them as required.
+const hasListingStats = (attrs: FileEntry['attrs']) =>
+  Number.isFinite(attrs.mode) &&
+  (attrs.mode & constants.S_IFMT) !== 0 &&
+  Number.isFinite(attrs.size) &&
+  Number.isFinite(attrs.mtime)
 
 class SftpApi {
   host: string
@@ -141,6 +150,40 @@ class SftpApi {
     }
   }
 
+  /** Use protocol attributes only; skip links/special files and fail on permission or metadata errors. */
+  private async *walkDirectory(prefix: string, listing: ListingContext, client: SSHClient, recursive: boolean) {
+    const directories = [path.posix.normalize(prefix).replace(/\/+$/, '') || '/']
+    let isRoot = true
+    while (directories.length) {
+      const directory = directories.pop()!
+      // Recheck queued directories in case an entry was replaced by a symbolic link.
+      const stats = await listing.wait(() => client.lstat(directory))
+      const type = stats.mode & constants.S_IFMT
+      if (type === constants.S_IFLNK && !isRoot) continue
+      if (type !== constants.S_IFDIR) throw new Error('Listing path must be a directory without a symbolic link')
+      isRoot = false
+      const entries = await listing.wait(() => client.readDirectory(directory))
+      let scanned = 0
+      for (const entry of entries) {
+        listing.signal.throwIfAborted()
+        // Even a directory containing only links must yield to cancellation and timers.
+        if (++scanned % 64 === 0) await listing.wait(() => yieldToEventLoop())
+        if (entry.filename === '.' || entry.filename === '..') continue
+        if (!entry.filename || /[/\0]/.test(entry.filename)) throw new Error('Invalid SFTP directory entry')
+        let { attrs } = entry
+        if ((attrs.mode & constants.S_IFMT) === constants.S_IFLNK) continue
+        const filePath = path.posix.join(directory, entry.filename)
+        if (!hasListingStats(attrs)) attrs = await listing.wait(() => client.lstat(filePath))
+        const type = attrs.mode & constants.S_IFMT
+        if (!Number.isFinite(attrs.mode) || !type) throw new Error('SFTP entry is missing its file type')
+        if (type !== constants.S_IFDIR && type !== constants.S_IFREG) continue
+        if (!hasListingStats(attrs)) throw new Error('SFTP entry is missing listing metadata')
+        if (type === constants.S_IFDIR && recursive) directories.push(filePath)
+        else yield this.formatEntry({ ...entry, attrs }, directory)
+      }
+    }
+  }
+
   async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const { prefix, customUrl } = configMap
     const urlPrefix = customUrl || `${this.host}:${this.port}`
@@ -152,40 +195,19 @@ class SftpApi {
     try {
       await listing.wait(() =>
         this.withClient(async client => {
-          const directories = [path.posix.normalize(prefix.replace(/\\/g, '/'))]
-          while (directories.length && !listing.signal.aborted) {
-            const directory = directories.pop()!
-            const entries = await listing.wait(() => client.readDirectory(directory))
-            if (listing.signal.aborted) break
-            for (const { filename, attrs } of entries) {
-              if (filename === '.' || filename === '..') continue
-              const remotePath = path.posix.join(directory, filename)
-              const type = attrs.mode & constants.S_IFMT
-              // Do not follow symbolic links, which can escape the folder or form cycles.
-              if (type === constants.S_IFDIR) {
-                directories.push(remotePath)
-              } else if (type === constants.S_IFREG) {
-                result.fullList.push(
-                  this.formatFile(
-                    {
-                      key: remotePath.replace(/^\/+/, ''),
-                      filename,
-                      size: attrs.size,
-                      mtime: new Date(attrs.mtime * 1000).toISOString(),
-                    },
-                    urlPrefix,
-                  ),
-                )
-              }
+          for await (const item of this.walkDirectory(prefix, listing, client, true)) {
+            result.fullList.push(this.formatFile(item, urlPrefix))
+            if (result.fullList.length === LISTING_PAGE_ITEMS) {
+              await listing.publish(result)
+              result.fullList = []
             }
-            await listing.publish(result)
-            result.fullList = []
           }
         }, listing.signal),
       )
       result.success = !listing.signal.aborted
     } catch (error) {
-      if (!listing.signal.aborted) this.logParam(error, 'getBucketListRecursively')
+      if (listing.signal.aborted) return
+      this.logParam(error, 'getBucketListRecursively')
     }
     result.finished = true
     await listing.publish(result)
@@ -205,12 +227,12 @@ class SftpApi {
     return {
       permissions: `${type === constants.S_IFDIR ? 'd' : type === constants.S_IFLNK ? 'l' : '-'}${permissions.join('')}`,
       isDir: type === constants.S_IFDIR,
-      owner: String(attrs.uid),
-      group: String(attrs.gid),
+      owner: String(attrs.uid ?? ''),
+      group: String(attrs.gid ?? ''),
       size: attrs.size,
       mtime: new Date(attrs.mtime * 1000).toISOString(),
       filename,
-      key: path.posix.join(cwd.replace(/\\/g, '/'), filename).replace(/^\/+/, ''),
+      key: path.posix.join(cwd, filename).replace(/^\/+/, ''),
     }
   }
 
@@ -228,20 +250,26 @@ class SftpApi {
       finished: false,
     }
     try {
-      const entries = await listing.wait(() => this.withClient(client => client.readDirectory(prefix), listing.signal))
-      for (const entry of entries) {
-        if (entry.filename === '.' || entry.filename === '..') continue
-        const item = this.formatEntry(entry, prefix)
-        const relativePath = path.posix.relative(baseDir.replace(/\\/g, '/'), `/${item.key}`)
-        const relative = webPath && `${urlPrefix}/${path.posix.join(webPath.replace(/\\/g, '/'), relativePath)}`
-        result.fullList.push(
-          item.isDir
-            ? this.formatFolder(item, webPath ? relative : urlPrefix, !!webPath)
-            : this.formatFile(item, webPath ? relative : urlPrefix, !!webPath),
-        )
-      }
+      await listing.wait(() =>
+        this.withClient(async client => {
+          for await (const item of this.walkDirectory(prefix, listing, client, false)) {
+            const relativePath = path.posix.relative(baseDir, `/${item.key}`)
+            const relative = webPath && `${urlPrefix}${path.posix.join('/', webPath, relativePath)}`
+            result.fullList.push(
+              item.isDir
+                ? this.formatFolder(item, webPath ? relative : urlPrefix, !!webPath)
+                : this.formatFile(item, webPath ? relative : urlPrefix, !!webPath),
+            )
+            if (result.fullList.length === LISTING_PAGE_ITEMS) {
+              await listing.publish(result)
+              result.fullList = []
+            }
+          }
+        }, listing.signal),
+      )
     } catch (error) {
-      if (!listing.signal.aborted) this.logParam(error, 'getBucketListBackstage')
+      if (listing.signal.aborted) return
+      this.logParam(error, 'getBucketListBackstage')
       result.finished = true
       await listing.publish(result)
       result.fullList = []

@@ -18,7 +18,8 @@ export const quoteShellArgument = (value: string): string => {
 
 const remotePath = (value: string): string => {
   if (!value || value.includes('\0')) throw new Error('SFTP paths must be nonempty and must not contain null bytes')
-  return path.posix.normalize(value.replace(/\\/g, '/'))
+  // Remote paths are POSIX paths on every host; a backslash can be part of a filename.
+  return path.posix.normalize(value)
 }
 
 const isMissing = (error: unknown): boolean =>
@@ -107,6 +108,15 @@ class SSHClient {
     const sftp = await this.getSftp()
     return new Promise((resolve, reject) => {
       sftp.readdir(remote, (error, entries) => (error ? reject(error) : resolve(entries)))
+    })
+  }
+
+  /** Listing metadata must describe the link itself, never its target. */
+  async lstat(remote: string): Promise<Stats> {
+    remote = remotePath(remote).replace(/\/+$/, '') || '/'
+    const sftp = await this.getSftp()
+    return new Promise((resolve, reject) => {
+      sftp.lstat(remote, (error, stats) => (error ? reject(error) : resolve(stats)))
     })
   }
 

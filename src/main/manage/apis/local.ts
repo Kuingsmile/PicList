@@ -1,9 +1,11 @@
 import { randomUUID } from 'node:crypto'
 import path from 'node:path'
 import { finished, pipeline } from 'node:stream/promises'
+import { setImmediate as yieldToEventLoop } from 'node:timers/promises'
 
 import fs from 'fs-extra'
 
+import { LISTING_PAGE_ITEMS } from '#/listing'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { createDownloadTask, formatError, runDownloadTask } from '~/manage/utils/common'
@@ -32,10 +34,60 @@ class LocalApi {
     if (!filePath) return ''
     return this.isWindows
       ? filePath
+          .replace(/^\/+([a-zA-Z]:)/, '$1')
+          .replace(/^\/{3,}/, '//')
           .split(path.posix.sep)
           .join(path.sep)
-          .replace(/^\\+|\\+$/g, '')
       : `/${filePath.replace(/^\/+|\/+$/g, '')}`
+  }
+
+  /**
+   * One open directory, one metadata request and a 64-entry directory buffer at a time.
+   * Never follow links (including junctions); inaccessible or vanished entries fail the listing.
+   * Keep only pending directory paths, not the contents of the tree.
+   */
+  private async *walkDirectory(prefix: string, listing: ListingContext, recursive: boolean) {
+    // A trailing separator can make lstat follow the final link. Preserve filesystem roots.
+    prefix = path.normalize(prefix)
+    const root = path.parse(prefix).root
+    prefix = prefix.slice(root.length).replace(this.isWindows ? /[\\/]+$/ : /\/+$/, '')
+    const directories = [root + prefix]
+    let isRoot = true
+    while (directories.length) {
+      const directory = directories.pop()!
+      const stats = await listing.wait(() => fs.lstat(directory))
+      if (stats.isSymbolicLink() && !isRoot) continue
+      if (!stats.isDirectory() || stats.isSymbolicLink())
+        throw new Error('Listing path must be a directory without a symbolic link')
+      isRoot = false
+      let handle: fs.Dir | undefined
+      try {
+        await listing.wait(async () => {
+          const opened = await fs.opendir(directory, { bufferSize: 64 })
+          // An open may complete after wait() has already returned on cancellation.
+          if (listing.signal.aborted) {
+            await opened.close()
+            listing.signal.throwIfAborted()
+          }
+          // Retain ownership even if cancellation wins just as wait() receives the handle.
+          handle = opened
+        })
+        let scanned = 0
+        while (true) {
+          const dirent = await listing.wait(() => handle!.read())
+          if (!dirent) break
+          if (++scanned % 64 === 0) await listing.wait(() => yieldToEventLoop())
+          // Broken links and links to inaccessible targets need no target lookup.
+          if (dirent.isSymbolicLink()) continue
+          const filePath = path.join(directory, dirent.name)
+          const stats = await listing.wait(() => fs.lstat(filePath))
+          if (stats.isDirectory() && recursive) directories.push(filePath)
+          else if (stats.isFile() || stats.isDirectory()) yield { name: dirent.name, path: filePath, stats }
+        }
+      } finally {
+        await handle?.close()
+      }
+    }
   }
 
   formatFolder(item: fs.Stats, urlPrefix: string, fileName: string, filePath: string) {
@@ -81,31 +133,18 @@ class LocalApi {
       finished: false,
     }
     try {
-      const directories = [this.transBack(prefix)]
-      const visited = new Set<string>()
-      while (directories.length) {
-        const directory = directories.pop()!
-        const realPath = await listing.wait(() => fs.realpath(directory))
-        if (visited.has(realPath)) continue
-        visited.add(realPath)
-        const entries = await listing.wait(() => fs.readdir(directory, { withFileTypes: true }))
-        for (const entry of entries) {
-          const filePath = path.join(directory, entry.name)
-          const stats = await listing.wait(() =>
-            fs.stat(filePath).catch(error => {
-              if (entry.isSymbolicLink() && error.code === 'ENOENT') return undefined
-              throw error
-            }),
-          )
-          if (stats?.isDirectory()) directories.push(filePath)
-          else if (stats?.isFile()) result.fullList.push(this.formatFile(stats, urlPrefix, entry.name, filePath, true))
+      for await (const entry of this.walkDirectory(this.transBack(prefix), listing, true)) {
+        result.fullList.push(this.formatFile(entry.stats, urlPrefix, entry.name, entry.path, true))
+        if (result.fullList.length === LISTING_PAGE_ITEMS) {
+          await listing.publish(result)
+          result.fullList = []
         }
-        await listing.publish(result)
-        result.fullList = []
       }
+      listing.signal.throwIfAborted()
       result.success = true
     } catch (error) {
-      if (!listing.signal.aborted) this.logParam(error, 'getBucketListRecursively')
+      if (listing.signal.aborted) return
+      this.logParam(error, 'getBucketListRecursively')
     }
     result.finished = true
     await listing.publish(result)
@@ -128,34 +167,29 @@ class LocalApi {
       finished: false,
     }
     try {
-      const res = await listing.wait(() =>
-        fs.readdir(prefix, {
-          withFileTypes: true,
-        }),
-      )
-      if (res.length) {
-        let urlPrefixF
-        for (const item of res) {
-          const pathOfFile = path.join(prefix, item.name)
-          let relative
-          if (customUrl) {
-            const relativePath = path.relative(this.transBack(baseDir), pathOfFile)
-            relative = urlPrefix + `/${path.join(webPath, relativePath)}`.replace(/\\/g, '/').replace(/\/+/g, '/')
-            urlPrefixF = this.isWindows ? relative.replace(/\/[a-zA-Z]:\//, '/') : relative
-          } else {
-            urlPrefixF = pathOfFile
-          }
-          const stats = await listing.wait(() => fs.stat(pathOfFile))
-          if (item.isDirectory()) {
-            result.fullList.push(this.formatFolder(stats, urlPrefixF, item.name, pathOfFile))
-          } else {
-            result.fullList.push(this.formatFile(stats, urlPrefixF, item.name, pathOfFile))
-          }
+      for await (const entry of this.walkDirectory(prefix, listing, false)) {
+        let urlPrefixF = entry.path
+        if (customUrl) {
+          const relativePath = path.relative(this.transBack(baseDir), entry.path)
+          const relative =
+            urlPrefix + `/${path.join(webPath, relativePath)}`.split(path.sep).join('/').replace(/\/+/g, '/')
+          urlPrefixF = this.isWindows ? relative.replace(/\/[a-zA-Z]:\//, '/') : relative
+        }
+        result.fullList.push(
+          entry.stats.isDirectory()
+            ? this.formatFolder(entry.stats, urlPrefixF, entry.name, entry.path)
+            : this.formatFile(entry.stats, urlPrefixF, entry.name, entry.path),
+        )
+        if (result.fullList.length === LISTING_PAGE_ITEMS) {
+          await listing.publish(result)
+          result.fullList = []
         }
       }
+      listing.signal.throwIfAborted()
       result.success = true
     } catch (error) {
-      if (!listing.signal.aborted) this.logParam(error, 'getBucketListBackstage')
+      if (listing.signal.aborted) return
+      this.logParam(error, 'getBucketListBackstage')
     }
     result.finished = true
     await listing.publish(result)
