@@ -24,6 +24,7 @@ import { Progress, Upload } from '@aws-sdk/lib-storage'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { NodeHttpHandler } from '@smithy/node-http-handler'
 
+import type { DeleteResult } from '#/deletion'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
@@ -35,6 +36,14 @@ import {
   getFileMimeType,
   NewDownloader,
 } from '~/manage/utils/common'
+import {
+  deleteInBatches,
+  deleteListedFolder,
+  deletionError,
+  failedKeys,
+  keyedDeleteResult,
+  nextDeleteMarker,
+} from '~/manage/utils/deleteObjects'
 import {
   dogecloudApi,
   DogecloudToken,
@@ -607,82 +616,50 @@ class S3plistApi {
    * 删除文件夹
    * @param configMap
    */
-  async deleteBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
-    const { bucketName, region, key } = configMap
-    let marker
-    let result = false
-    let IsTruncated
-    let res
-    const allFileList = {
-      CommonPrefixes: [] as any[],
-      Contents: [] as any[],
-    }
-    try {
+  async deleteBucketFiles(configMap: IStringKeyMap): Promise<DeleteResult> {
+    const { bucketName, region, keys } = configMap
+    return deleteInBatches(keys, async batch => {
       await this.getDogeCloudToken()
-      do {
+      const client = this.createS3Client({
+        ...this.baseOptions,
+        region: String(region || this.baseOptions.region || 'us-east-1'),
+      })
+      const res = await client.send(
+        new DeleteObjectsCommand({
+          Bucket: bucketName,
+          Delete: { Objects: batch.map(Key => ({ Key })), Quiet: false },
+        }),
+      )
+      return res.$metadata.httpStatusCode === 200
+        ? keyedDeleteResult(batch, res.Deleted, res.Errors)
+        : failedKeys(batch, deletionError(res))
+    })
+  }
+
+  async deleteBucketFolder(configMap: IStringKeyMap): Promise<DeleteResult> {
+    const { bucketName, region, key } = configMap
+    return deleteListedFolder(
+      key,
+      async (prefix, marker) => {
+        await this.getDogeCloudToken()
         const options = { ...this.baseOptions } as S3ClientConfig
         options.region = String(region || this.baseOptions.region || 'us-east-1')
         const client = this.createS3Client(options)
         const command = new ListObjectsV2Command({
           Bucket: bucketName,
-          Prefix: key,
-          ContinuationToken: marker === '' ? undefined : marker,
-          Delimiter: '/',
+          Prefix: prefix,
+          ContinuationToken: marker,
           MaxKeys: 1000,
         })
-        res = (await client.send(command)) as ListObjectsV2CommandOutput
-        if (res.$metadata.httpStatusCode === 200) {
-          res.CommonPrefixes && allFileList.CommonPrefixes.push(...res.CommonPrefixes)
-          res.Contents && allFileList.Contents.push(...res.Contents)
-          IsTruncated = res.IsTruncated || false
-          marker = res.NextContinuationToken || ''
-        } else {
-          this.logParam(res, 'deleteBucketFolder')
-          return result
+        const res = await client.send(command)
+        if (res.$metadata.httpStatusCode !== 200) throw res
+        return {
+          keys: (res.Contents || []).map(item => item.Key!),
+          nextMarker: nextDeleteMarker(res.IsTruncated === true, res.NextContinuationToken),
         }
-      } while (IsTruncated)
-      if (allFileList.CommonPrefixes.length > 0) {
-        for (const item of allFileList.CommonPrefixes) {
-          res = await this.deleteBucketFolder({
-            bucketName,
-            region,
-            key: item.Prefix,
-          })
-          if (!res) {
-            return result
-          }
-        }
-      }
-      if (allFileList.Contents.length > 0) {
-        const cycle = Math.ceil(allFileList.Contents.length / 1000)
-        const options = { ...this.baseOptions } as S3ClientConfig
-        options.region = String(region || this.baseOptions.region || 'us-east-1')
-        const client = this.createS3Client(options)
-        for (let i = 0; i < cycle; i++) {
-          const deleteList = allFileList.Contents.slice(i * 1000, (i + 1) * 1000)
-          const deleteCommand = new DeleteObjectsCommand({
-            Bucket: bucketName,
-            Delete: {
-              Objects: deleteList.map(item => {
-                return {
-                  Key: item.Key,
-                }
-              }),
-            },
-          })
-          res = await client.send(deleteCommand)
-          if (res.$metadata.httpStatusCode !== 200) {
-            this.logParam(res, 'deleteBucketFolder')
-            return result
-          }
-        }
-      }
-      result = true
-      return result
-    } catch (error) {
-      this.logParam(error, 'deleteBucketFolder')
-      return result
-    }
+      },
+      keys => this.deleteBucketFiles({ ...configMap, keys }),
+    )
   }
 
   /**

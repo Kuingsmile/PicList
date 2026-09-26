@@ -127,6 +127,28 @@
         </div>
       </div>
 
+      <!-- Deletion failures -->
+      <div
+        v-if="activeDeletionState.failed.length"
+        class="w-full rounded-md border border-border bg-bg-secondary p-3 text-sm text-main"
+        role="status"
+      >
+        <div class="flex items-center justify-between gap-3">
+          <span>{{ t('pages.manage.bucket.deleteFailedDetails', { num: activeDeletionState.failed.length }) }}</span>
+          <CustomButton
+            type="primary"
+            :disabled="isDeleting || isLoadingData"
+            :text="t('pages.manage.bucket.retryFailedOnly')"
+            @click="retryFailedDeletions"
+          />
+        </div>
+        <ul class="mt-2 max-h-36 overflow-auto">
+          <li v-for="failure in activeDeletionState.failed" :key="`${failure.isDir}:${failure.key}`" class="break-all">
+            {{ failure.key }}: {{ failure.error }}
+          </li>
+        </ul>
+      </div>
+
       <!-- Breadcrumb Card -->
       <div
         v-if="!isContentFullscreen"
@@ -182,6 +204,7 @@
             <IconButton
               :title="`${t('pages.manage.bucket.removeBtn', { num: selectedItems.length })}`"
               type="danger"
+              :disabled="isDeleting || isLoadingData"
               @click="handleBatchDeleteInfo"
             />
           </template>
@@ -446,7 +469,11 @@
                     </button>
 
                     <!-- Delete -->
-                    <button class="file-action-button danger" @click.stop="handleDeleteFile(item)">
+                    <button
+                      class="file-action-button danger"
+                      :disabled="isDeleting || isLoadingData"
+                      @click.stop="handleDeleteFile(item)"
+                    >
                       <Trash2Icon class="action-icon" />
                     </button>
                   </div>
@@ -1195,6 +1222,7 @@ import {
   replaceFileName,
 } from '@/manage/utils/common'
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
+import { applyDeletionResult, type DeletionState, retryDeletionTargets } from '@/manage/utils/deletion'
 import { splitFileName } from '@/manage/utils/fileName'
 import { appendListingItems, ListingSession } from '@/manage/utils/listingSession'
 import { textFileExt } from '@/manage/utils/textfile'
@@ -1204,6 +1232,7 @@ import { trimPath } from '@/utils/common'
 import { useDragEventListeners } from '@/utils/drag'
 import { IRPCActionType } from '@/utils/enum'
 import { renderMarkdown } from '@/utils/markdown'
+import { type DeleteResult, type DeleteTarget, failedDeletion, removeDeletedEntries } from '#/deletion'
 import type { ListingRequest, ListingResult } from '#/listing'
 /*
 configMap:{
@@ -1262,6 +1291,9 @@ const currentPageNumber = ref(1)
 const pagingMarker = ref('')
 const pagingMarkerStack = reactive([] as string[])
 const currentPageFilesInfo = reactive([] as any[])
+const isDeleting = ref(false)
+const deletionStates = reactive(new Map<string, DeletionState>())
+const activeDeletionState = computed(() => deletionStates.get(deletionScope()) || { failed: [], pendingFolders: [] })
 // 当前路径前缀
 const currentPrefix = ref('/')
 // 文件排序控制
@@ -2747,125 +2779,114 @@ function listingParams(request: ListingRequest) {
 }
 
 async function handleBatchDeleteInfo() {
+  await confirmDeletion(selectedItems.value.map(item => ({ key: item.key, isDir: item.isDir, DeleteHash: item.sha })))
+}
+
+async function handleDeleteFile(item: any) {
+  await confirmDeletion([{ key: item.key, isDir: item.isDir, DeleteHash: item.sha }])
+}
+
+function deletionScope() {
+  return JSON.stringify([
+    configMap.value.alias,
+    currentPicBedName.value,
+    configMap.value.bucketName,
+    currentPicBedName.value === 'github' ? currentCustomDomain.value : '',
+  ])
+}
+
+async function confirmDeletion(targets: DeleteTarget[]) {
+  if (isDeleting.value || isLoadingData.value || targets.length === 0) return
+  const scope = deletionScope()
   try {
     const result = await confirm.confirm({
-      message: t('pages.manage.bucket.willDeleteMsg', { num: selectedItems.value.length }),
+      message: t('pages.manage.bucket.willDeleteMsg', { num: targets.length }),
       title: t('pages.manage.bucket.notice'),
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
       type: 'warning',
       center: true,
     })
-    if (!result) return
-    const copiedSelectedItems = JSON.parse(JSON.stringify(selectedItems.value))
-    let successCount = 0
-    let failCount = 0
-
-    for (const item of copiedSelectedItems) {
-      const param = {
-        bucketName: configMap.value.bucketName,
-        region: configMap.value.bucketConfig.Location,
-        key: item.key,
-        DeleteHash: item.sha,
-        githubBranch: currentCustomDomain.value,
-      }
-      const result = item.isDir
-        ? await window.electron.triggerRPC<any>(
-            IRPCActionType.MANAGE_DELETE_BUCKET_FOLDER,
-            configMap.value.alias,
-            param,
-          )
-        : await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_DELETE_BUCKET_FILE, configMap.value.alias, param)
-      if (result) {
-        successCount++
-        currentPageFilesInfo.splice(
-          currentPageFilesInfo.findIndex((j: any) => j.key === item.key),
-          1,
-        )
-        if (!paging.value) {
-          const table = fileCacheDbInstance.table(currentPicBedName.value)
-          table
-            .where('key')
-            .equals(getTableKeyOfDb())
-            .modify((l: any) => {
-              l.value.fullList.splice(
-                l.value.fullList.findIndex((j: any) => j.key === item.key),
-                1,
-              )
-            })
-        }
-      } else {
-        failCount++
-      }
-    }
-    if (successCount === 0) {
-      message.error(t('pages.manage.bucket.deleteFailed'))
-    } else if (failCount === 0) {
-      message.success(t('pages.manage.bucket.deleteSuccess'))
-    } else {
-      message.warning(`${t('pages.manage.bucket.deleteMultiMsg', { success: successCount, failed: failCount })}`)
-    }
+    if (result && scope === deletionScope()) await performDeletion(targets)
   } catch {
     message.info(t('pages.manage.bucket.canceled'))
   }
 }
 
-async function handleDeleteFile(item: any) {
+async function retryFailedDeletions() {
+  await performDeletion(retryDeletionTargets(activeDeletionState.value))
+}
+
+async function performDeletion(targets: DeleteTarget[]) {
+  if (isDeleting.value || isLoadingData.value || targets.length === 0) return
+  isDeleting.value = true
+  const scope = deletionScope()
+  const generation = viewGeneration
+  const accountId = configMap.value.alias
+  const provider = currentPicBedName.value
+  const cachePrefix = getTableKeyOfDb().slice(0, -currentPrefix.value.length)
+  const param = {
+    bucketName: configMap.value.bucketName,
+    region: configMap.value.bucketConfig.Location,
+    githubBranch: currentCustomDomain.value,
+    items: targets,
+  }
+  if (!deletionStates.has(scope)) deletionStates.set(scope, { failed: [], pendingFolders: [] })
+  const state = deletionStates.get(scope)!
+  message.info(t('pages.manage.bucket.deletingMsg'))
   try {
-    const result = await confirm.confirm({
-      message: `${t('pages.manage.bucket.deleteMsg')}`,
-      title: t('pages.manage.bucket.notice'),
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning',
-      center: true,
-    })
-    if (!result) return
-    let res = false
-    const param = {
-      bucketName: configMap.value.bucketName,
-      region: configMap.value.bucketConfig.Location,
-      key: item.key,
-      DeleteHash: item.sha,
-      githubBranch: currentCustomDomain.value,
-    }
-    if (item.isDir) {
-      message.info(t('pages.manage.bucket.deletingMsg'))
-      res = await window.electron.triggerRPC<any>(
-        IRPCActionType.MANAGE_DELETE_BUCKET_FOLDER,
-        configMap.value.alias,
+    let result: DeleteResult
+    try {
+      const response = await window.electron.triggerRPC<DeleteResult>(
+        IRPCActionType.MANAGE_DELETE_BUCKET_ITEMS,
+        accountId,
         param,
       )
-    } else {
-      res = await window.electron.triggerRPC<any>(
-        IRPCActionType.MANAGE_DELETE_BUCKET_FILE,
-        configMap.value.alias,
-        param,
-      )
-    }
-    if (res) {
-      message.success(t('pages.manage.bucket.deleteSuccess'))
-      currentPageFilesInfo.splice(
-        currentPageFilesInfo.findIndex((i: any) => i.key === item.key),
-        1,
-      )
-      if (!paging.value) {
-        const table = fileCacheDbInstance.table(currentPicBedName.value)
-        table
-          .where('key')
-          .equals(getTableKeyOfDb())
-          .modify((l: any) => {
-            l.value.fullList.splice(
-              l.value.fullList.findIndex((i: any) => i.key === item.key),
-              1,
-            )
-          })
+      if (
+        !response ||
+        !Array.isArray(response.deleted) ||
+        !Array.isArray(response.failed) ||
+        !Array.isArray(response.deletedFolders)
+      ) {
+        throw new Error('Missing deletion results')
       }
-    } else {
-      message.error(t('pages.manage.bucket.deleteFailed'))
+      result = response
+    } catch {
+      result = failedDeletion(targets, t('pages.manage.bucket.deleteFailed'))
     }
-  } catch {
-    message.info(t('pages.manage.bucket.canceled'))
+    const confirmed = applyDeletionResult(state, targets, result)
+    if (!unmounted && scope === deletionScope() && generation === viewGeneration) {
+      const retained = removeDeletedEntries(currentPageFilesInfo, confirmed)
+      const retainedEntries = new Set(retained)
+      for (let index = currentPageFilesInfo.length - 1; index >= 0; index--) {
+        if (!retainedEntries.has(currentPageFilesInfo[index])) currentPageFilesInfo.splice(index, 1)
+      }
+    }
+    try {
+      // Update cached parent and child listings in the captured bucket, even after navigation.
+      await fileCacheDbInstance
+        .table(provider)
+        .where('key')
+        .startsWith(cachePrefix)
+        .modify((entry: any) => {
+          if (Array.isArray(entry.value.fullList)) {
+            entry.value.fullList = removeDeletedEntries(entry.value.fullList, confirmed)
+          }
+        })
+    } catch {
+      // Cache errors must not turn confirmed remote deletions into retry candidates.
+      console.warn('Failed to update the bucket file cache after deletion')
+    }
+    if (unmounted || scope !== deletionScope()) return
+    if (result.failed.length === 0) message.success(t('pages.manage.bucket.deleteSuccess'))
+    else if (result.deleted.length === 0 && result.deletedFolders.length === 0)
+      message.error(t('pages.manage.bucket.deleteFailed'))
+    else
+      message.warning(
+        t('pages.manage.bucket.deleteMultiMsg', { success: result.deleted.length, failed: result.failed.length }),
+      )
+  } finally {
+    isDeleting.value = false
   }
 }
 

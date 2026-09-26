@@ -10,10 +10,19 @@ import { get, set, unset } from 'lodash-es'
 import API from '~/manage/apis/api'
 import ManageDB from '~/manage/datastore/db'
 import { formatError, isInputConfigValid } from '~/manage/utils/common'
+import { deletionError } from '~/manage/utils/deleteObjects'
 import { invalidateDogecloudTokens } from '~/manage/utils/dogeAPI'
 import { ManageLogger } from '~/manage/utils/logger'
 import { IWindowList } from '~/utils/enum'
 
+import {
+  type DeleteResult,
+  type DeleteTarget,
+  emptyDeleteResult,
+  failedDeletion,
+  isWithinFolder,
+  mergeDeleteResults,
+} from '../../universal/deletion'
 import { isListingRequest, listingChannels, type ListingRequest } from '../../universal/listing'
 import { runListingRequest } from './listingRequest'
 import { transferScheduler } from './transferScheduler'
@@ -383,22 +392,68 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     return this.executeListing(param, 'files', 'getBucketFileList')
   }
 
-  async deleteBucketFile(param?: IStringKeyMap): Promise<boolean> {
-    return this.executeWithClient(
-      this.ALL_CLIENTS,
-      'deleteBucketFile',
-      client => client.deleteBucketFile(param!),
-      false,
-    )
+  async deleteBucketFile(param?: IStringKeyMap): Promise<DeleteResult> {
+    return this.deleteBucketItems({
+      ...param,
+      items: [{ key: param?.key, isDir: false, DeleteHash: param?.DeleteHash }],
+    })
   }
 
-  async deleteBucketFolder(param?: IStringKeyMap): Promise<boolean> {
-    return this.executeWithClient(
-      this.FOLDER_SUPPORT_CLIENTS,
-      'deleteBucketFolder',
-      client => client.deleteBucketFolder(param!),
-      false,
+  async deleteBucketFolder(param?: IStringKeyMap): Promise<DeleteResult> {
+    return this.deleteBucketItems({ ...param, items: [{ key: param?.key, isDir: true }] })
+  }
+
+  async deleteBucketItems(param: IStringKeyMap): Promise<DeleteResult> {
+    const targets = param.items as DeleteTarget[]
+    if (
+      !Array.isArray(targets) ||
+      targets.some(item => typeof item?.key !== 'string' || !item.key || typeof item.isDir !== 'boolean')
+    ) {
+      throw new Error('Invalid deletion targets')
+    }
+    const uniqueTargets = [...new Map(targets.map(item => [`${item.isDir}:${item.key}`, item])).values()]
+    const folders = uniqueTargets.filter(item => item.isDir)
+    // A selected folder already covers selected descendants; do not delete them twice.
+    const items = uniqueTargets.filter(
+      item => !folders.some(parent => parent !== item && isWithinFolder(item.key, parent.key)),
     )
+    const provider = this.currentPicBedConfig.picBedName
+    if (!this.ALL_CLIENTS.includes(provider)) return failedDeletion(items, 'Unsupported provider')
+    let client: any
+    try {
+      client = this.createClient()
+    } catch (error) {
+      return failedDeletion(items, deletionError(error))
+    }
+    const results: DeleteResult[] = []
+    const cloud = this.CLOUD_STORAGE_CLIENTS.includes(provider)
+    const files = items.filter(item => !item.isDir)
+    if (cloud && files.length > 0) {
+      try {
+        results.push(await client.deleteBucketFiles({ ...param, keys: files.map(item => item.key) }))
+      } catch (error) {
+        results.push(failedDeletion(files, deletionError(error)))
+      }
+    }
+    for (const item of items.filter(item => item.isDir || !cloud)) {
+      try {
+        if (item.isDir && !this.FOLDER_SUPPORT_CLIENTS.includes(provider)) {
+          results.push(failedDeletion([item], 'Folder deletion is unsupported'))
+          continue
+        }
+        const result = await client[item.isDir ? 'deleteBucketFolder' : 'deleteBucketFile']({ ...param, ...item })
+        if (cloud) results.push(result)
+        else if (result === true) {
+          results.push({
+            ...emptyDeleteResult(),
+            ...(item.isDir ? { deletedFolders: [item.key] } : { deleted: [item.key] }),
+          })
+        } else results.push(failedDeletion([item]))
+      } catch (error) {
+        results.push(failedDeletion([item], deletionError(error)))
+      }
+    }
+    return mergeDeleteResults(results)
   }
 
   async renameBucketFile(param?: IStringKeyMap): Promise<boolean> {

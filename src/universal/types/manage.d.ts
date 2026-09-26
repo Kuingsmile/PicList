@@ -121,11 +121,12 @@ interface IManageApiType {
   /**
    * delete bucket file
    */
-  deleteBucketFile: (param?: IStringKeyMap) => Promise<boolean>
+  deleteBucketFile: (param?: IStringKeyMap) => Promise<import('../deletion').DeleteResult>
   /**
    * delete folder
    */
-  deleteBucketFolder: (param?: IStringKeyMap) => Promise<boolean>
+  deleteBucketFolder: (param?: IStringKeyMap) => Promise<import('../deletion').DeleteResult>
+  deleteBucketItems: (param: IStringKeyMap) => Promise<import('../deletion').DeleteResult>
   /**
    * rename bucket file
    */

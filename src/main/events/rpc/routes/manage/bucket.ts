@@ -71,6 +71,13 @@ export default [
     type: IRPCType.INVOKE,
   },
   {
+    action: IRPCActionType.MANAGE_DELETE_BUCKET_ITEMS,
+    handler: async (_: IIPCEvent, args: [currentPicBed: string, param: IStringKeyMap]) => {
+      return new ManageApi(args[0]).deleteBucketItems(args[1])
+    },
+    type: IRPCType.INVOKE,
+  },
+  {
     action: IRPCActionType.MANAGE_GET_PRE_SIGNED_URL,
     handler: async (_: IIPCEvent, args: [currentPicBed: string, param: IStringKeyMap]) => {
       return new ManageApi(args[0]).getPreSignedUrl(args[1])

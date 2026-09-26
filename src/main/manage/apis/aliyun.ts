@@ -2,6 +2,7 @@ import OSS from 'ali-oss'
 import axios from 'axios'
 import * as fastxml from 'fast-xml-parser'
 
+import type { DeleteResult } from '#/deletion'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
@@ -13,6 +14,14 @@ import {
   hmacSha1Base64,
   NewDownloader,
 } from '~/manage/utils/common'
+import {
+  deleteInBatches,
+  deleteListedFolder,
+  deletionError,
+  failedKeys,
+  keyedDeleteResult,
+  nextDeleteMarker,
+} from '~/manage/utils/deleteObjects'
 import { ManageLogger } from '~/manage/utils/logger'
 import { MIB, onUploadAbort, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/common'
@@ -411,55 +420,44 @@ class AliyunApi {
    * 删除文件夹
    * @param configMap
    */
-  async deleteBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
+  async deleteBucketFiles(configMap: IStringKeyMap): Promise<DeleteResult> {
+    const { bucketName, region, keys } = configMap
+    return deleteInBatches(keys, async batch => {
+      const client = this.getNewCtx(region, bucketName)
+      const res = (await client.deleteMulti(batch, { quiet: false })) as OSS.DeleteMultiResult & {
+        res: { statusCode?: number }
+      }
+      // ali-oss returns { Key } entries, although some typings describe string[].
+      return (res?.res.statusCode ?? res?.res.status) === 200
+        ? keyedDeleteResult(batch, res.deleted)
+        : failedKeys(batch, deletionError(res))
+    })
+  }
+
+  async deleteBucketFolder(configMap: IStringKeyMap): Promise<DeleteResult> {
     const { bucketName, region, key } = configMap
-    const client = this.getNewCtx(region, bucketName)
-    let marker
-    let isTruncated
-    const allFileList = {
-      CommonPrefixes: [] as any[],
-      Contents: [] as any[],
-    }
-    do {
-      const res = (await client.listV2(
-        {
-          prefix: key,
-          delimiter: '/',
-          'max-keys': '1000',
-          'continuation-token': marker,
-        },
-        {
-          timeout: this.timeOut,
-        },
-      )) as any
-      if (res?.res.statusCode !== 200) return false
-
-      res.prefixes !== null && allFileList.CommonPrefixes.push(...res.prefixes)
-      res.objects?.length > 0 && allFileList.Contents.push(...res.objects)
-      isTruncated = res.isTruncated
-      marker = res.nextContinuationToken
-    } while (isTruncated)
-
-    if (allFileList.CommonPrefixes.length > 0) {
-      for (const item of allFileList.CommonPrefixes) {
-        const successfully = await this.deleteBucketFolder({
-          bucketName,
-          region,
-          key: item,
-        })
-        if (!successfully) return false
-      }
-    }
-    if (allFileList.Contents.length > 0) {
-      const cycle = Math.ceil(allFileList.Contents.length / 1000)
-      for (let i = 0; i < cycle; i++) {
-        const deleteRes = (await client.deleteMulti(
-          allFileList.Contents.slice(i * 1000, (i + 1) * 1000).map((item: any) => item.name),
-        )) as any
-        if (deleteRes?.res.statusCode !== 200) return false
-      }
-    }
-    return true
+    return deleteListedFolder(
+      key,
+      async (prefix, marker) => {
+        const client = this.getNewCtx(region, bucketName)
+        const res = await client.listV2(
+          {
+            prefix,
+            'max-keys': 1000,
+            'continuation-token': marker,
+          },
+          {
+            timeout: this.timeOut,
+          },
+        )
+        if (((res?.res as { statusCode?: number })?.statusCode ?? res?.res.status) !== 200) throw res
+        return {
+          keys: (res.objects || []).map(item => item.name),
+          nextMarker: nextDeleteMarker(res.isTruncated === true, res.nextContinuationToken),
+        }
+      },
+      keys => this.deleteBucketFiles({ ...configMap, keys }),
+    )
   }
 
   /**

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import qiniu from 'qiniu'
 
+import type { DeleteResult } from '#/deletion'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
@@ -12,6 +13,13 @@ import {
   hmacSha1Base64,
   NewDownloader,
 } from '~/manage/utils/common'
+import {
+  deleteInBatches,
+  deleteListedFolder,
+  deletionError,
+  failedKeys,
+  qiniuDeleteResult,
+} from '~/manage/utils/deleteObjects'
 import { ManageLogger } from '~/manage/utils/logger'
 import { MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/common'
@@ -454,66 +462,50 @@ class QiniuApi {
    * 删除文件夹
    * @param configMap
    */
-  async deleteBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
-    const { bucketName, key } = configMap
-    const config = new qiniu.conf.Config()
-    const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
-    let marker = ''
-    let isTruncated: boolean
-    const allFileList = {
-      Contents: [] as any[],
-    }
-    do {
-      const res = (await new Promise((resolve, reject) => {
-        bucketManager.listPrefix(
-          bucketName,
-          {
-            prefix: key,
-            marker,
-            limit: 1000,
-          },
-          (err, respBody, respInfo) => {
-            if (err) {
-              reject(err)
-            } else {
-              resolve({
-                respBody,
-                respInfo,
-              })
-            }
+  async deleteBucketFiles(configMap: IStringKeyMap): Promise<DeleteResult> {
+    const { bucketName, keys } = configMap
+    return deleteInBatches(keys, async batch => {
+      const manager = new qiniu.rs.BucketManager(this.mac, new qiniu.conf.Config())
+      return new Promise<DeleteResult>((resolve, reject) => {
+        manager.batch(
+          batch.map(key => qiniu.rs.deleteOp(bucketName, key)),
+          (err, body, info) => {
+            if (err) return reject(err)
+            resolve(
+              info?.statusCode === 200 || info?.statusCode === 298
+                ? qiniuDeleteResult(batch, body)
+                : failedKeys(batch, deletionError(info)),
+            )
           },
         )
-      })) as any
-      if (res?.respInfo?.statusCode === 200) {
-        if (res.respBody?.items) {
-          allFileList.Contents = allFileList.Contents.concat(res.respBody.items)
-        }
-        isTruncated = !!res.respBody?.marker
-        marker = res.respBody?.marker ? res.respBody.marker : ''
-      } else {
-        return false
-      }
-    } while (isTruncated)
-    const cycleNum = Math.ceil(allFileList.Contents.length / 1000)
-    for (let i = 0; i < cycleNum; i++) {
-      const deleteOps = allFileList.Contents.slice(i * 1000, (i + 1) * 1000).map((item: any) => {
-        return qiniu.rs.deleteOp(bucketName, item.key)
       })
-      const res = (await new Promise((resolve, reject) => {
-        bucketManager.batch(deleteOps, (err, respBody, respInfo) => {
-          if (err) {
-            reject(err)
-          } else {
+    })
+  }
+
+  async deleteBucketFolder(configMap: IStringKeyMap): Promise<DeleteResult> {
+    const { bucketName, key } = configMap
+    return deleteListedFolder(
+      key,
+      (prefix, marker) =>
+        new Promise((resolve, reject) => {
+          const manager = new qiniu.rs.BucketManager(this.mac, new qiniu.conf.Config())
+          manager.listPrefix(bucketName, { prefix, marker, limit: 1000 }, (err, body, info) => {
+            if (err) return reject(err)
+            if (info?.statusCode !== 200 || !body) return reject(info)
+            if (
+              !Array.isArray(body.items ?? []) ||
+              (body.marker !== undefined && body.marker !== null && typeof body.marker !== 'string')
+            ) {
+              return reject({ code: 'InvalidListingResponse' })
+            }
             resolve({
-              respBody,
-              respInfo,
+              keys: (body.items || []).map((item: { key: string } | null) => item?.key),
+              nextMarker: body.marker || undefined,
             })
-          }
-        })
-      })) as any
-      if (res?.respInfo?.statusCode !== 200) return false
-    }
-    return true
+          })
+        }),
+      keys => this.deleteBucketFiles({ ...configMap, keys }),
+    )
   }
 
   /**

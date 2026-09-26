@@ -2,10 +2,19 @@ import { finished } from 'node:stream/promises'
 
 import COS from 'cos-nodejs-sdk-v5'
 
+import type { DeleteResult } from '#/deletion'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
 import { createDownloadTask, getFileMimeType, runDownloadTask } from '~/manage/utils/common'
+import {
+  deleteInBatches,
+  deleteListedFolder,
+  deletionError,
+  failedKeys,
+  keyedDeleteResult,
+  nextDeleteMarker,
+} from '~/manage/utils/deleteObjects'
 import { ManageLogger } from '~/manage/utils/logger'
 import { createUploadAgents, MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { handleUrlEncode, isImage } from '~/utils/common'
@@ -307,51 +316,41 @@ class TcyunApi {
    * 删除文件夹
    * @param configMap
    */
-  async deleteBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
-    const { bucketName, region, key } = configMap
-    let marker
-    let res: any
-    const allFileList = {
-      CommonPrefixes: [] as any[],
-      Contents: [] as any[],
-    }
-    do {
-      res = await this.ctx.getBucket({
-        Bucket: bucketName,
-        Region: region,
-        Prefix: key,
-        Delimiter: '/',
-        MaxKeys: 1000,
-        Marker: marker,
-      })
-
-      if (res?.statusCode !== 200) return false
-
-      allFileList.CommonPrefixes.push(...res.CommonPrefixes)
-      allFileList.Contents.push(...res.Contents)
-      marker = res.NextMarker
-    } while (res.IsTruncated === 'true')
-    for (const item of allFileList.CommonPrefixes) {
-      if (
-        !(await this.deleteBucketFolder({
-          bucketName,
-          region,
-          key: item.Prefix,
-        }))
-      ) {
-        return false
-      }
-    }
-    const cycles = Math.ceil(allFileList.Contents.length / 1000)
-    for (let i = 0; i < cycles; i++) {
+  async deleteBucketFiles(configMap: IStringKeyMap): Promise<DeleteResult> {
+    const { bucketName, region, keys } = configMap
+    return deleteInBatches(keys, async batch => {
       const res = await this.ctx.deleteMultipleObject({
         Bucket: bucketName,
         Region: region,
-        Objects: allFileList.Contents.slice(i * 1000, (i + 1) * 1000).map((item: any) => ({ Key: item.Key })),
+        Objects: batch.map(Key => ({ Key })),
+        Quiet: false,
       })
-      if (res?.statusCode !== 200) return false
-    }
-    return true
+      return res?.statusCode === 200
+        ? keyedDeleteResult(batch, res.Deleted, res.Error)
+        : failedKeys(batch, deletionError(res))
+    })
+  }
+
+  async deleteBucketFolder(configMap: IStringKeyMap): Promise<DeleteResult> {
+    const { bucketName, region, key } = configMap
+    return deleteListedFolder(
+      key,
+      async (prefix, marker) => {
+        const res = await this.ctx.getBucket({
+          Bucket: bucketName,
+          Region: region,
+          Prefix: prefix,
+          MaxKeys: 1000,
+          Marker: marker,
+        })
+        if (res?.statusCode !== 200) throw res
+        return {
+          keys: (res.Contents || []).map(item => item.Key),
+          nextMarker: nextDeleteMarker(res.IsTruncated === 'true', res.NextMarker),
+        }
+      },
+      keys => this.deleteBucketFiles({ ...configMap, keys }),
+    )
   }
 
   /**
