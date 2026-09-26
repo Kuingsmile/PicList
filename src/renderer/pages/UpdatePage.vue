@@ -101,6 +101,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { SHOW_UPDATE_INFO, UPDATE_PROGRESS } from '@/utils/constant'
 import { IRPCActionType } from '@/utils/enum'
 import { renderMarkdown } from '@/utils/markdown'
+import { invokeRPC, saveWithFeedback } from '@/utils/rpc'
 
 interface UpdateInfo {
   type: 'update-available' | 'downloading' | 'update-downloaded'
@@ -118,8 +119,8 @@ const updateInfo = ref<UpdateInfo>({
 const dontShowAgain = ref(false)
 const downloadProgress = ref<number | null>(null)
 
-watch(dontShowAgain, (newVal: boolean) => {
-  window.electron.sendRPC(IRPCActionType.SET_SHOW_UPDATE_TIP, !newVal)
+watch(dontShowAgain, async (newVal: boolean) => {
+  await saveWithFeedback(() => invokeRPC(IRPCActionType.SET_SHOW_UPDATE_TIP, !newVal))
 })
 
 function handleUpdateInfo(info: UpdateInfo) {

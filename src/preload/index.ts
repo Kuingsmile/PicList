@@ -7,6 +7,16 @@ import mime from 'mime'
 import { isProxy, isRef, toRaw, unref } from 'vue'
 import yaml from 'yaml'
 
+import {
+  type InvokeRPC,
+  isRpcAction,
+  rpcContracts,
+  rpcFailure,
+  type RpcResult,
+  rpcResultSchema,
+  unwrapRpcResult,
+} from '#/rpc'
+
 function setTheme(mode: string) {
   const m = mode === 'dark' ? 'dark' : 'light'
   document.documentElement.setAttribute('data-theme', m)
@@ -41,8 +51,8 @@ async function injectCSS(css: string, config: { imageUrl?: string; opacity?: str
 
 ;(async () => {
   try {
-    const { mode, css } = await ipcRenderer.invoke('RPC_ACTIONS_INVOKE', 'THEME_GET_BOOTSTRAP')
-    const allConfig = await ipcRenderer.invoke('RPC_ACTIONS_INVOKE', 'PICLIST_GET_CONFIG', [])
+    const { mode, css } = (await triggerRPC<{ mode: string; css: string }>('THEME_GET_BOOTSTRAP'))!
+    const allConfig = await triggerRPC<IObj>('PICLIST_GET_CONFIG')
     const enableCustomBgImg = allConfig?.settings?.enableCustomBgImg || false
     const customBgImgPath = allConfig?.settings?.customBgImgPath || ''
     const customBgOpacity = allConfig?.settings?.customBgImgOpacity || '0.7'
@@ -61,7 +71,7 @@ async function injectCSS(css: string, config: { imageUrl?: string; opacity?: str
   }
 })()
 
-export const getRawData = (args: any): any => {
+export function getRawData(args: any): any {
   if (args === null || typeof args !== 'object') {
     return args
   }
@@ -102,11 +112,35 @@ function sendToMain(channel: string, ...args: any[]) {
 }
 
 function sendRPC(action: string, ...args: any[]): void {
+  if (isRpcAction(action)) throw new Error('Persistent operations require invokeRPC and an acknowledgement.')
   ipcRenderer.send('RPC_ACTIONS', action, getRawData(args))
 }
 
+async function invokeTransport(action: string, args: unknown[]): Promise<RpcResult<unknown>> {
+  if (isRpcAction(action)) {
+    try {
+      rpcContracts[action].args.parse(args)
+    } catch {
+      return rpcFailure('INVALID_REQUEST')
+    }
+  }
+  let result: unknown
+  try {
+    result = await ipcRenderer.invoke('RPC_ACTIONS_INVOKE', action, getRawData(args))
+  } catch {
+    return rpcFailure('TRANSPORT_ERROR')
+  }
+  try {
+    return rpcResultSchema.parse(result)
+  } catch {
+    return rpcFailure('INVALID_RESPONSE')
+  }
+}
+
+const invokeRPC = ((action: string, ...args: unknown[]) => invokeTransport(action, args)) as InvokeRPC
+
 async function triggerRPC<T>(action: string, ...args: any[]): Promise<T | undefined> {
-  return await ipcRenderer.invoke('RPC_ACTIONS_INVOKE', action, getRawData(args))
+  return unwrapRpcResult<T | undefined>(await invokeTransport(action, args), action)
 }
 
 function sendRpcSync(action: string, ...args: any[]): any {
@@ -124,6 +158,7 @@ try {
     platform: process.platform,
     sendRpcSync,
     triggerRPC,
+    invokeRPC,
     sendToMain,
     sendRPC,
     ipcRendererOn: (channel: string, listener: (...args: any[]) => void) => {
@@ -144,7 +179,7 @@ try {
     },
     onThemeUpdate: (callback: (css: string) => void) => {
       const subscription = async (_: any, css: string) => {
-        const allConfig = await ipcRenderer.invoke('RPC_ACTIONS_INVOKE', 'PICLIST_GET_CONFIG', [])
+        const allConfig = await triggerRPC<IObj>('PICLIST_GET_CONFIG')
         const enableCustomBgImg = allConfig?.settings?.enableCustomBgImg || false
         const customBgImgPath = allConfig?.settings?.customBgImgPath || ''
         const customBgOpacity = allConfig?.settings?.customBgImgOpacity || '0.7'

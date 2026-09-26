@@ -243,8 +243,8 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       this.logger.warn('the format of config is invalid, please provide object')
       return
     }
-    this.setConfig(config)
     this.db.saveConfig(config)
+    this.setConfig(config)
     this.configureTransfers()
   }
 
@@ -252,8 +252,8 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     if (!key || !propName) {
       return
     }
-    this.unsetConfig(key, propName)
     this.db.unset(key, propName)
+    this.unsetConfig(key, propName)
   }
 
   setConfig(config: IStringKeyMap): void {

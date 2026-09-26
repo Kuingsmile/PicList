@@ -942,16 +942,16 @@ async function initConf() {
   useShortUrl.value = settingConfig?.useShortUrl || false
 }
 
-function updatePasteStyle(style: string) {
+async function updatePasteStyle(style: string) {
   pasteStyle.value = style
-  saveConfig({
+  await saveConfig({
     [configPaths.settings.pasteStyle]: style || IPasteStyle.MARKDOWN,
   })
 }
 
-function updateUrlType(shortUrl: boolean) {
+async function updateUrlType(shortUrl: boolean) {
   useShortUrl.value = shortUrl
-  saveConfig({
+  await saveConfig({
     [configPaths.settings.useShortUrl]: shortUrl,
   })
 }
@@ -999,12 +999,15 @@ async function switchToPicbed(picbedType: IFavoritePicbedItem) {
   if (!targetConfig) {
     return
   }
-  saveConfig({
-    [`uploader.${picbedType.type}.defaultId`]: picbedType.id,
-    [`picBed.${picbedType.type}`]: targetConfig,
-    [configPaths.picBed.current]: picbedType.type,
-    [configPaths.picBed.uploader]: picbedType.type,
-  })
+  if (
+    !(await saveConfig({
+      [`uploader.${picbedType.type}.defaultId`]: picbedType.id,
+      [`picBed.${picbedType.type}`]: targetConfig,
+      [configPaths.picBed.current]: picbedType.type,
+      [configPaths.picBed.uploader]: picbedType.type,
+    }))
+  )
+    return
   await updatePicBeds()
   const name = getPicbedName(picbedType).split('-')[0]
   window.electron.sendRPC(IRPCActionType.TRAY_SET_TOOL_TIP, `${name} ${targetConfig._configName}`)

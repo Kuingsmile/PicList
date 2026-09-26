@@ -9,7 +9,7 @@ export interface IState {
 
 export interface IStore {
   state: UnwrapRef<IState>
-  setDefaultPicBed: (type: string) => void
+  setDefaultPicBed: (type: string) => Promise<void>
 }
 
 export const storeKey: InjectionKey<IStore> = Symbol('store')
@@ -20,11 +20,14 @@ const state: IState = reactive({
 })
 
 // methods
-const setDefaultPicBed = (type: string) => {
-  saveConfig({
-    [configPaths.picBed.current]: type,
-    [configPaths.picBed.uploader]: type,
-  })
+const setDefaultPicBed = async (type: string) => {
+  if (
+    !(await saveConfig({
+      [configPaths.picBed.current]: type,
+      [configPaths.picBed.uploader]: type,
+    }))
+  )
+    return
   state.defaultPicBed = type
 }
 

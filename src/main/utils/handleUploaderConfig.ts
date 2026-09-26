@@ -1,6 +1,8 @@
 import picgo from '@core/picgo'
 import { v4 as uuid } from 'uuid'
 
+import { RpcError } from '#/rpc'
+import { commitConfig } from '~/utils/commitConfig'
 import { setTrayToolTip, trimValues } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
 
@@ -35,7 +37,7 @@ export const changeSecondUploader = (type: string, config?: IStringKeyMap) => {
   if (!type) {
     return
   }
-  picgo.saveConfig({
+  commitConfig(picgo, {
     [configPaths.picBed.secondUploader]: type,
     ...(config ? { [configPaths.picBed.secondUploaderConfig]: config } : {}),
   })
@@ -43,7 +45,7 @@ export const changeSecondUploader = (type: string, config?: IStringKeyMap) => {
 
 export const changeCurrentUploader = (type: string, config?: IStringKeyMap, id?: string) => {
   if (!type) return
-  picgo.saveConfig({
+  commitConfig(picgo, {
     [configPaths.picBed.current]: type,
     [configPaths.picBed.uploader]: type,
     ...(id ? { [`uploader.${type}.defaultId`]: id } : {}),
@@ -55,12 +57,11 @@ export const changeCurrentUploader = (type: string, config?: IStringKeyMap, id?:
 export const selectUploaderConfig = (type: string, id: string) => {
   const { configList } = getUploaderConfigList(type)
   const config = configList.find((item: IStringKeyMap) => item._id === id)
-  if (config) {
-    picgo.saveConfig({
-      [`uploader.${type}.defaultId`]: id,
-      [`picBed.${type}`]: config,
-    })
-  }
+  if (!config) throw new RpcError('NOT_FOUND')
+  commitConfig(picgo, {
+    [`uploader.${type}.defaultId`]: id,
+    [`picBed.${type}`]: config,
+  })
 }
 
 export const getUploaderConfigList = (type: string): IUploaderConfigItem => {
@@ -87,31 +88,21 @@ export const getUploaderConfigList = (type: string): IUploaderConfigItem => {
 /**
  * delete uploader config by type & id
  */
-export const deleteUploaderConfig = (type: string, id: string): IUploaderConfigItem | void => {
+export const deleteUploaderConfig = (type: string, id: string): IUploaderConfigItem => {
   const { configList, defaultId } = getUploaderConfigList(type)
-  if (configList.length <= 1) {
-    return
-  }
+  if (!configList.some(item => item._id === id)) throw new RpcError('NOT_FOUND')
+  if (configList.length <= 1) throw new RpcError('CONFLICT')
   let newDefaultId = defaultId
   const updatedConfigList = configList.filter((item: IStringKeyMap) => item._id !== id)
+  const patch: IStringKeyMap = { [`uploader.${type}.configList`]: updatedConfigList }
   if (id === defaultId) {
     const newDefaultConfig = updatedConfigList[0]
     newDefaultId = newDefaultConfig._id
-    const currentUploader =
-      picgo.getConfig<string>(configPaths.picBed.uploader) ||
-      picgo.getConfig<string>(configPaths.picBed.current) ||
-      'smms'
-    if (currentUploader === type) {
-      changeCurrentUploader(type, newDefaultConfig, newDefaultId)
-    } else {
-      picgo.saveConfig({
-        [`uploader.${type}.defaultId`]: newDefaultId,
-        [`picBed.${type}`]: newDefaultConfig,
-      })
-    }
+    patch[`uploader.${type}.defaultId`] = newDefaultId
+    patch[`picBed.${type}`] = newDefaultConfig
   }
-  picgo.saveConfig({
-    [`uploader.${type}.configList`]: updatedConfigList,
+  commitConfig(picgo, {
+    ...patch,
     ...(isSecondUploaderConfig(type, id)
       ? {
           [configPaths.picBed.secondUploader]: '',
@@ -120,18 +111,19 @@ export const deleteUploaderConfig = (type: string, id: string): IUploaderConfigI
         }
       : {}),
   })
+  if (id === defaultId && picgo.getConfig<string>(configPaths.picBed.uploader) === type) {
+    setTrayToolTip(`${type} ${updatedConfigList[0]._configName || ''}`)
+  }
   return {
     configList: updatedConfigList,
     defaultId: newDefaultId,
   }
 }
 
-export const duplicateUploaderConfig = (type: string, id: string, newName: string): IUploaderConfigItem | void => {
+export const duplicateUploaderConfig = (type: string, id: string, newName: string): IUploaderConfigItem => {
   const { configList, defaultId } = getUploaderConfigList(type)
   const originalConfig = configList.find((item: IStringKeyMap) => item._id === id)
-  if (!originalConfig) {
-    return
-  }
+  if (!originalConfig) throw new RpcError('NOT_FOUND')
 
   const duplicatedConfig: IUploaderConfigListItem = {
     ...originalConfig,
@@ -143,7 +135,7 @@ export const duplicateUploaderConfig = (type: string, id: string, newName: strin
 
   const updatedConfigList = [...configList, duplicatedConfig]
 
-  picgo.saveConfig({
+  commitConfig(picgo, {
     [`uploader.${type}.configList`]: updatedConfigList,
   })
 
@@ -162,13 +154,13 @@ export const upgradeUploaderConfig = (
   configList: IStringKeyMap[]
   defaultId: string
 } => {
-  const uploaderConfig = picgo.getConfig<IStringKeyMap>(`picBed.${type}`) ?? {}
+  const uploaderConfig = { ...(picgo.getConfig<IStringKeyMap>(`picBed.${type}`) ?? {}) }
   if (!uploaderConfig._id) {
     Object.assign(uploaderConfig, completeUploaderMetaConfig(uploaderConfig))
   }
 
   const uploaderConfigList = [uploaderConfig]
-  picgo.saveConfig({
+  commitConfig(picgo, {
     [`uploader.${type}`]: {
       configList: uploaderConfigList,
       defaultId: uploaderConfig._id,
@@ -182,12 +174,15 @@ export const upgradeUploaderConfig = (
 }
 
 export const updateUploaderConfig = (type: string, id: string, config: IStringKeyMap) => {
-  const { configList, defaultId } = getUploaderConfigList(type)
+  const { configList: originalList, defaultId } = getUploaderConfigList(type)
+  const configList = originalList.map(item => ({ ...item }))
   const existConfig = configList.find((item: IStringKeyMap) => item._id === id)
   let updatedConfig: IUploaderConfigListItem
   let updatedDefaultId = defaultId
   if (existConfig) {
     updatedConfig = Object.assign(existConfig, trimValues(config), {
+      _id: id,
+      _createdAt: existConfig._createdAt,
       _updatedAt: Date.now(),
     })
   } else {
@@ -195,7 +190,7 @@ export const updateUploaderConfig = (type: string, id: string, config: IStringKe
     updatedDefaultId = updatedConfig._id
     configList.push(updatedConfig)
   }
-  picgo.saveConfig({
+  commitConfig(picgo, {
     [`uploader.${type}.configList`]: configList,
     [`uploader.${type}.defaultId`]: updatedDefaultId,
     ...(updatedDefaultId === updatedConfig._id ? { [`picBed.${type}`]: updatedConfig } : {}),
@@ -208,16 +203,16 @@ export const updateUploaderConfig = (type: string, id: string, config: IStringKe
  */
 
 export const resetUploaderConfig = (type: string, id: string) => {
-  const { configList } = getUploaderConfigList(type)
+  const configList = getUploaderConfigList(type).configList.map(item => ({ ...item }))
   const config = configList.find(item => item._id === id)
-  if (!config) return
+  if (!config) throw new RpcError('NOT_FOUND')
   Object.keys(config).forEach(key => {
     if (!['_configName', '_id', '_createdAt', '_updatedAt'].includes(key)) {
       delete config[key]
     }
   })
   const currentDefault = picgo.getConfig<IStringKeyMap>(`picBed.${type}`) ?? {}
-  picgo.saveConfig({
+  commitConfig(picgo, {
     [`uploader.${type}.configList`]: configList,
     ...(currentDefault._id === id ? { [`picBed.${type}`]: config } : {}),
     ...(isSecondUploaderConfig(type, id) ? { [configPaths.picBed.secondUploaderConfig]: config } : {}),

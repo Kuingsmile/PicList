@@ -6,6 +6,7 @@ import GuiApi from 'apis/gui'
 import { globalShortcut } from 'electron'
 
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '~/events/constant'
+import { commitConfig } from '~/utils/commitConfig'
 import { configPaths } from '~/utils/configPaths'
 
 class ShortKeyHandler {
@@ -98,16 +99,16 @@ class ShortKeyHandler {
   bindOrUnbindShortKey(item: IShortKeyConfig, from: string): boolean {
     const command = `${from}:${item.name}`
     if (item.enable === false) {
-      globalShortcut.unregister(item.key)
-      picgo.saveConfig({
+      commitConfig(picgo, {
         [`settings.shortKey.${command}.enable`]: false,
       })
+      globalShortcut.unregister(item.key)
       return true
     } else {
       if (globalShortcut.isRegistered(item.key)) {
         return false
       } else {
-        picgo.saveConfig({
+        commitConfig(picgo, {
           [`settings.shortKey.${command}.enable`]: true,
         })
         globalShortcut.register(item.key, () => {
@@ -122,10 +123,10 @@ class ShortKeyHandler {
   updateShortKey(item: IShortKeyConfig, oldKey: string, from: string): boolean {
     const command = `${from}:${item.name}`
     if (globalShortcut.isRegistered(item.key)) return false
-    globalShortcut.unregister(oldKey)
-    picgo.saveConfig({
+    commitConfig(picgo, {
       [`settings.shortKey.${command}.key`]: item.key,
     })
+    globalShortcut.unregister(oldKey)
     globalShortcut.register(item.key, () => {
       this.handler(`${from}:${item.name}`)
     })

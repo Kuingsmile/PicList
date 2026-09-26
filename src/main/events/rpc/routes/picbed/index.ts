@@ -1,6 +1,6 @@
 import picgo from '@core/picgo'
 
-import { RPCRouter } from '~/events/rpc/router'
+import { defineRpcHandler, RPCRouter } from '~/events/rpc/router'
 import deleteRoutes from '~/events/rpc/routes/picbed/delete'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
 import {
@@ -37,47 +37,62 @@ const picbedRoutes = [
   },
   {
     action: IRPCActionType.PICBED_DELETE_CONFIG,
-    handler: async (_: IIPCEvent, args: [type: string, id: string]) => {
-      const [type, id] = args
-      const config = deleteUploaderConfig(type, id)
-      return config
-    },
+    handler: defineRpcHandler(
+      IRPCActionType.PICBED_DELETE_CONFIG,
+      async (_: IIPCEvent, args: [type: string, id: string]) => {
+        const [type, id] = args
+        const config = await deleteUploaderConfig(type, id)
+        return config
+      },
+    ),
     type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.PICBED_DUPLICATE_CONFIG,
-    handler: async (_: IIPCEvent, args: [type: string, id: string, newName: string]) => {
-      const [type, id, newName] = args
-      const config = duplicateUploaderConfig(type, id, newName)
-      return config
-    },
+    handler: defineRpcHandler(
+      IRPCActionType.PICBED_DUPLICATE_CONFIG,
+      async (_: IIPCEvent, args: [type: string, id: string, newName: string]) => {
+        const [type, id, newName] = args
+        const config = await duplicateUploaderConfig(type, id, newName)
+        return config
+      },
+    ),
     type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.UPLOADER_SELECT,
-    handler: async (_: IIPCEvent, args: [type: string, id: string]) => {
-      const [type, id] = args
-      selectUploaderConfig(type, id)
-      return true
-    },
+    handler: defineRpcHandler(
+      IRPCActionType.UPLOADER_SELECT,
+      async (_: IIPCEvent, args: [type: string, id: string]) => {
+        const [type, id] = args
+        await selectUploaderConfig(type, id)
+        return true
+      },
+    ),
     type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.UPLOADER_UPDATE_CONFIG,
-    handler: async (_: IIPCEvent, args: [type: string, id: string, config: IStringKeyMap]) => {
-      const [type, id, config] = args
-      updateUploaderConfig(type, id, config)
-      return true
-    },
+    handler: defineRpcHandler(
+      IRPCActionType.UPLOADER_UPDATE_CONFIG,
+      async (_: IIPCEvent, args: [type: string, id: string, config: IStringKeyMap]) => {
+        const [type, id, config] = args
+        await updateUploaderConfig(type, id, config)
+        return true
+      },
+    ),
     type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.UPLOADER_RESET_CONFIG,
-    handler: async (_: IIPCEvent, args: [type: string, id: string]) => {
-      const [type, id] = args
-      resetUploaderConfig(type, id)
-      return true
-    },
+    handler: defineRpcHandler(
+      IRPCActionType.UPLOADER_RESET_CONFIG,
+      async (_: IIPCEvent, args: [type: string, id: string]) => {
+        const [type, id] = args
+        await resetUploaderConfig(type, id)
+        return true
+      },
+    ),
     type: IRPCType.INVOKE,
   },
   {

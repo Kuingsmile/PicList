@@ -485,9 +485,9 @@ const browsePlugins = ref<IPicGoPlugin[]>([])
 const loadingBrowse = ref(false)
 const experimentalBundledNpm = ref(false)
 
-function saveBundledNpmSetting(enabled: boolean) {
+async function saveBundledNpmSetting(enabled: boolean) {
   experimentalBundledNpm.value = enabled
-  saveConfig(configPaths.settings.experimentalBundledNpm, enabled)
+  await saveConfig(configPaths.settings.experimentalBundledNpm, enabled)
 }
 
 const npmSearchText = computed(() => {
@@ -685,9 +685,12 @@ function reloadApp() {
 }
 
 async function handleReload() {
-  saveConfig({
-    needReload: true,
-  })
+  if (
+    !(await saveConfig({
+      needReload: true,
+    }))
+  )
+    return
   needReload.value = true
   if ('Notification' in window) {
     const successNotification = new Notification(t('pages.plugin.updateSuccess'), {
@@ -708,19 +711,28 @@ async function handleConfirmConfig() {
   if (result !== false) {
     switch (currentType.value) {
       case 'plugin':
-        saveConfig({
-          [`${configName.value}`]: result,
-        })
+        if (
+          !(await saveConfig({
+            [`${configName.value}`]: result,
+          }))
+        )
+          return
         break
       case 'uploader':
-        saveConfig({
-          [`picBed.${configName.value}`]: result,
-        })
+        if (
+          !(await saveConfig({
+            [`picBed.${configName.value}`]: result,
+          }))
+        )
+          return
         break
       case 'transformer':
-        saveConfig({
-          [`transformer.${configName.value}`]: result,
-        })
+        if (
+          !(await saveConfig({
+            [`transformer.${configName.value}`]: result,
+          }))
+        )
+          return
         break
     }
     if ('Notification' in window) {
@@ -787,18 +799,24 @@ async function handleRestoreState(item: string, name: string) {
   if (item === 'uploader') {
     const current = await getConfig(configPaths.picBed.current)
     if (current === name) {
-      saveConfig({
-        [configPaths.picBed.current]: 'smms',
-        [configPaths.picBed.uploader]: 'smms',
-      })
+      if (
+        !(await saveConfig({
+          [configPaths.picBed.current]: 'smms',
+          [configPaths.picBed.uploader]: 'smms',
+        }))
+      )
+        return
     }
   }
   if (item === 'transformer') {
     const current = await getConfig(configPaths.picBed.transformer)
     if (current === name) {
-      saveConfig({
-        [configPaths.picBed.transformer]: 'path',
-      })
+      if (
+        !(await saveConfig({
+          [configPaths.picBed.transformer]: 'path',
+        }))
+      )
+        return
     }
   }
 }

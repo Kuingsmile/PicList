@@ -326,7 +326,7 @@ async function handleConfigChange() {
   if (resultMap.transformedConfig) {
     resultMap.transformedConfig = JSON.stringify(resultMap.transformedConfig)
   }
-  saveConfig(`picBed.${resultMap.alias}`, resultMap)
+  if (!(await saveConfig(`picBed.${resultMap.alias}`, resultMap))) return
   await manageStore.refreshConfig()
   await getExistingConfig(platformName)
   notifyUser(`${t('pages.manage.login.configSaveMsg')}${resultMap.alias}`, 'success')

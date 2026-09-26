@@ -312,8 +312,8 @@ const switchFieldsSpecialList = [
 settingsKeys.forEach(key => {
   watch(
     () => form.value[key],
-    newValue => {
-      saveConfig({ [`settings.${key}`]: newValue })
+    async newValue => {
+      await saveConfig({ [`settings.${key}`]: newValue })
     },
     { flush: 'post' },
   )

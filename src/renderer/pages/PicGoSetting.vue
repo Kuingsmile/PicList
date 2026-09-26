@@ -1062,7 +1062,13 @@
       </div>
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="cancelServerSetting" />
-        <CustomButton type="primary" :text="t('common.confirm')" @click="confirmServerSetting" />
+        <CustomButton
+          type="primary"
+          :text="t('common.confirm')"
+          :loading="savingServer"
+          :disabled="savingServer"
+          @click="confirmServerSetting"
+        />
       </template>
     </CustomModal>
 
@@ -1174,7 +1180,13 @@
       </div>
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="cancelSyncSetting" />
-        <CustomButton type="primary" :text="t('common.confirm')" @click="confirmSyncSetting" />
+        <CustomButton
+          type="primary"
+          :text="t('common.confirm')"
+          :loading="savingSync"
+          :disabled="savingSync"
+          @click="confirmSyncSetting"
+        />
       </template>
     </CustomModal>
 
@@ -1232,7 +1244,13 @@
       <Editor v-model="editorContent" :language="editorLanguage" />
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="editorVisible = false" />
-        <CustomButton type="primary" :text="t('common.save')" @click="saveEditorContent" />
+        <CustomButton
+          type="primary"
+          :text="t('common.save')"
+          :loading="savingEditor"
+          :disabled="savingEditor"
+          @click="saveEditorContent"
+        />
       </template>
     </CustomModal>
   </div>
@@ -1294,6 +1312,7 @@ import { getConfig, saveConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType, ISartMode } from '@/utils/enum'
 import { getLatestVersion } from '@/utils/getLatestVersion'
 import { renderMarkdown } from '@/utils/markdown'
+import { invokeRPC, saveWithFeedback, showRpcError } from '@/utils/rpc'
 
 /* reactive data and refs */
 const { t, locale } = useI18n()
@@ -1322,6 +1341,9 @@ const syncVisible = ref(false)
 const upDownConfigVisible = ref(false)
 const proxyVisible = ref(false)
 const editorVisible = ref(false)
+const savingEditor = ref(false)
+const savingSync = ref(false)
+const savingServer = ref(false)
 const editorContent = ref('// 在这里开始编写代码...\nfunction hello() {\n  console.log("Hello Electron!");\n}')
 const editorLanguage = ref('json')
 const currentEditFile = ref('')
@@ -1577,8 +1599,8 @@ const addWatch = () => {
   autoWatchKeys.forEach(key => {
     watch(
       () => formOfSetting.value[key as keyof ISettingForm],
-      value => {
-        saveConfig({ [`settings.${key}`]: value })
+      async value => {
+        await saveConfig({ [`settings.${key}`]: value })
       },
     )
   })
@@ -1598,9 +1620,9 @@ const addWatch = () => {
     },
   )
 
-  watch(currentSecondMode, newVal => {
+  watch(currentSecondMode, async newVal => {
     if (newVal) {
-      saveConfig({ [configPaths.settings.secondPicBedMode]: newVal })
+      if (!(await saveConfig({ [configPaths.settings.secondPicBedMode]: newVal }))) return
     }
   })
 
@@ -1632,11 +1654,11 @@ const addWatch = () => {
 
   watch(
     advancedRename,
-    newVal => {
-      saveConfig(configPaths.buildIn.rename, toRaw(newVal))
+    async newVal => {
+      if (!(await saveConfig(configPaths.buildIn.rename, toRaw(newVal)))) return
       if (newVal.enable) {
         formOfSetting.value.autoRename = false
-        saveConfig(configPaths.settings.autoRename, false)
+        if (!(await saveConfig(configPaths.settings.autoRename, false))) return
       }
     },
     { deep: true },
@@ -1644,17 +1666,19 @@ const addWatch = () => {
 
   watch(
     () => formOfSetting.value.mainWindowWidth,
-    newVal => {
+    async newVal => {
       const width = enforceNumber(newVal)
-      saveConfig({ [configPaths.settings.mainWindowWidth]: rawPicGoSize.value ? 800 : Math.max(width, 100) })
+      await saveConfig({ [configPaths.settings.mainWindowWidth]: rawPicGoSize.value ? 800 : Math.max(width, 100) })
     },
   )
 
   watch(
     () => formOfSetting.value.mainWindowHeight,
-    newVal => {
+    async newVal => {
       const height = enforceNumber(newVal)
-      saveConfig({ [configPaths.settings.mainWindowHeight]: rawPicGoSize.value ? 450 : Math.max(height, 100) })
+      await saveConfig({
+        [configPaths.settings.mainWindowHeight]: rawPicGoSize.value ? 450 : Math.max(height, 100),
+      })
     },
   )
 
@@ -1665,35 +1689,35 @@ const addWatch = () => {
     }
   })
 
-  watch(customLink, newVal => {
-    saveConfig(configPaths.settings.customLink, newVal)
+  watch(customLink, async newVal => {
+    await saveConfig(configPaths.settings.customLink, newVal)
   })
 
-  watch(proxy, value => {
-    saveConfig({ 'picBed.proxy': value })
+  watch(proxy, async value => {
+    await saveConfig({ 'picBed.proxy': value })
   })
 
   watch(
     () => formOfSetting.value.logFileSizeLimit,
-    newVal => {
+    async newVal => {
       const size = enforceNumber(newVal)
       if (size < 1) {
         formOfSetting.value.logFileSizeLimit = 1
-        saveConfig({ [configPaths.settings.logFileSizeLimit]: 1 })
+        if (!(await saveConfig({ [configPaths.settings.logFileSizeLimit]: 1 }))) return
       } else {
-        saveConfig({ [configPaths.settings.logFileSizeLimit]: size })
+        if (!(await saveConfig({ [configPaths.settings.logFileSizeLimit]: size }))) return
       }
     },
   )
 
   watch(
     () => formOfSetting.value.logLevel,
-    newVal => {
+    async newVal => {
       if (newVal.length === 0) {
         message.error(t('pages.settings.advanced.chooseLogLevel'))
         return
       }
-      saveConfig({
+      await saveConfig({
         [configPaths.settings.logLevel]: newVal,
       })
     },
@@ -1701,20 +1725,20 @@ const addWatch = () => {
 
   watch(
     () => formOfSetting.value.enableCustomBgImg,
-    newVal => {
-      saveConfig({ [configPaths.settings.enableCustomBgImg]: newVal })
+    async newVal => {
+      if (!(await saveConfig({ [configPaths.settings.enableCustomBgImg]: newVal }))) return
       window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
     },
   )
 }
 
-function handleBlurCustomBgImgBlur() {
-  saveConfig({ [configPaths.settings.customBgImgBlur]: formOfSetting.value.customBgImgBlur })
+async function handleBlurCustomBgImgBlur() {
+  if (!(await saveConfig({ [configPaths.settings.customBgImgBlur]: formOfSetting.value.customBgImgBlur }))) return
   window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
 }
 
-function handleBlurCustomBgImgOpacity() {
-  saveConfig({ [configPaths.settings.customBgImgOpacity]: formOfSetting.value.customBgImgOpacity })
+async function handleBlurCustomBgImgOpacity() {
+  if (!(await saveConfig({ [configPaths.settings.customBgImgOpacity]: formOfSetting.value.customBgImgOpacity }))) return
   window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
 }
 
@@ -1740,9 +1764,16 @@ async function cancelSyncSetting() {
   }
 }
 
-function confirmSyncSetting() {
-  saveConfig({ [configPaths.settings.sync]: sync.value })
-  syncVisible.value = false
+async function confirmSyncSetting() {
+  if (savingSync.value) return
+  savingSync.value = true
+  const draft = JSON.stringify(sync.value)
+  try {
+    if (!(await saveConfig({ [configPaths.settings.sync]: sync.value }))) return
+    if (JSON.stringify(sync.value) === draft) syncVisible.value = false
+  } finally {
+    savingSync.value = false
+  }
 }
 
 function tabClick(tabId: string) {
@@ -1820,18 +1851,18 @@ async function handleEditTheme() {
 
 async function handleThemeChange(theme: string) {
   try {
+    if (!(await saveConfig({ [configPaths.settings.theme]: theme }))) return
     await window.electron.triggerRPC(IRPCActionType.THEME_APPLY_THEME, theme)
-    saveConfig({ [configPaths.settings.theme]: theme })
   } catch (error) {
     console.error('Failed to apply theme:', error)
     message.error(t('pages.settings.system.applyThemeFailed'))
   }
 }
 
-function handleIsDisableGPUChange(value: boolean | undefined) {
+async function handleIsDisableGPUChange(value: boolean | undefined) {
   if (value === undefined) return
+  if (!(await saveConfig({ [configPaths.settings.isDisableGPU]: value }))) return
   message.info(t('pages.settings.system.needRestart'))
-  saveConfig({ [configPaths.settings.isDisableGPU]: value })
 }
 
 async function initData() {
@@ -1852,7 +1883,7 @@ async function initData() {
     if (typeof actualAutoStartStatus === 'boolean') {
       formOfSetting.value.autoStart = actualAutoStartStatus
       if (actualAutoStartStatus !== settings.autoStart) {
-        saveConfig({ [configPaths.settings.autoStart]: actualAutoStartStatus })
+        await saveConfig({ [configPaths.settings.autoStart]: actualAutoStartStatus })
       }
     }
   } catch (error) {
@@ -1868,7 +1899,7 @@ async function initData() {
   currentSecondMode.value = settings.secondPicBedMode || 'backup'
   if (osGlobal.value === 'darwin' && currentStartMode.value === ISartMode.MINI) {
     currentStartMode.value = ISartMode.QUIET
-    saveConfig(configPaths.settings.startMode, ISartMode.QUIET)
+    await saveConfig(configPaths.settings.startMode, ISartMode.QUIET)
   }
   currentShortUrlServer.value = settings.shortUrlServer || 'c1n'
   customLink.value = settings.customLink || '![$fileName]($url)'
@@ -1877,7 +1908,7 @@ async function initData() {
   advancedRename.value = config.buildIn?.rename || { enable: false, format: '{filename}' }
   if (advancedRename.value.enable) {
     formOfSetting.value.autoRename = false
-    saveConfig({ [configPaths.settings.autoRename]: false })
+    await saveConfig({ [configPaths.settings.autoRename]: false })
   }
   sync.value = settings.sync || {
     type: 'github',
@@ -1933,50 +1964,48 @@ async function editFile(file: string) {
 }
 
 async function saveEditorContent() {
-  if (currentEditFile.value === 'data.json' || currentEditFile.value === 'manage.json') {
-    const content = editorContent.value.trim()
-    await saveFile(currentEditFile.value, content)
-  } else if (currentEditFile.value.endsWith('.css')) {
-    try {
-      let themeFileName
-      if (buildInThemesList.includes(currentTheme.value)) {
-        themeFileName = `custom-${currentTheme.value}`
-      } else {
-        themeFileName = currentTheme.value
+  if (savingEditor.value) return
+  savingEditor.value = true
+  const content = editorContent.value
+  try {
+    if (currentEditFile.value === 'data.json' || currentEditFile.value === 'manage.json') {
+      if (!(await saveFile(currentEditFile.value, content))) return
+      if (editorContent.value === content) {
+        editorVisible.value = false
+        window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
       }
-      window.electron.sendRPC(IRPCActionType.THEME_WRITE_THEME, themeFileName, editorContent.value)
+    } else if (currentEditFile.value.endsWith('.css')) {
+      const themeFileName = buildInThemesList.includes(currentTheme.value)
+        ? `custom-${currentTheme.value}`
+        : currentTheme.value
+      await invokeRPC(IRPCActionType.THEME_WRITE_THEME, themeFileName, content)
       message.success(t('pages.settings.advanced.saveFileSuccess'))
-      setTimeout(async () => {
-        await loadThemes()
-        await window.electron.triggerRPC(IRPCActionType.THEME_APPLY_THEME, themeFileName)
-      }, 1000)
-    } catch (error) {
-      console.error('Failed to save theme:', error)
-      message.error(t('pages.settings.advanced.saveFileFailed'))
+      if (editorContent.value === content) editorVisible.value = false
+      await loadThemes()
+      await window.electron.triggerRPC(IRPCActionType.THEME_APPLY_THEME, themeFileName)
     }
+  } catch (error) {
+    showRpcError(error)
+  } finally {
+    savingEditor.value = false
   }
-
-  editorVisible.value = false
 }
 
 async function saveFile(file: string, content: string) {
   let formattedContent: string
   try {
     formattedContent = JSON.stringify(JSON.parse(content), null, 2)
-  } catch (error) {
-    console.error('Invalid JSON content:', error)
+  } catch {
     message.error(t('pages.settings.advanced.invalidJson'))
-    return
+    return false
   }
   try {
-    window.electron.sendRPC(IRPCActionType.WRITE_FILE_CONTENT, file, formattedContent)
+    await invokeRPC(IRPCActionType.WRITE_FILE_CONTENT, file, formattedContent)
     message.success(t('pages.settings.advanced.saveFileSuccess'))
-    setTimeout(() => {
-      window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
-    }, 1000)
+    return true
   } catch (error) {
-    console.error('Failed to save file:', error)
-    message.error(t('pages.settings.advanced.saveFileFailed'))
+    showRpcError(error)
+    return false
   }
 }
 
@@ -2032,20 +2061,20 @@ function handleMigrateFromPicListInstallation() {
   })
 }
 
-function handleHideDockChange(val: ICheckBoxValueType) {
+async function handleHideDockChange(val: ICheckBoxValueType) {
   if (val && currentStartMode.value === ISartMode.NO_TRAY) {
     message.warning(t('pages.settings.system.hideDockHint'))
     formOfSetting.value.isHideDock = false
     return
   }
-  saveConfig(configPaths.settings.isHideDock, val)
+  if (!(await saveConfig(configPaths.settings.isHideDock, val))) return
   window.electron.sendRPC(IRPCActionType.HIDE_DOCK, val)
 }
 
-function handleShowPicBedListChange(val: ICheckBoxValueType[]) {
+async function handleShowPicBedListChange(val: ICheckBoxValueType[]) {
   try {
     const list = picBedG.value.map(item => ({ ...item, visible: val.includes(item.type) }))
-    saveConfig({ [configPaths.picBed.list]: list })
+    if (!(await saveConfig({ [configPaths.picBed.list]: list }))) return
     nextTick(() => {
       updatePicBeds()
     })
@@ -2054,13 +2083,13 @@ function handleShowPicBedListChange(val: ICheckBoxValueType[]) {
   }
 }
 
-function handleGalleryPicBedFilterChange(val: ICheckBoxValueType[]) {
-  saveConfig({ [configPaths.settings.galleryPicBedFilter]: val })
+async function handleGalleryPicBedFilterChange(val: ICheckBoxValueType[]) {
+  await saveConfig({ [configPaths.settings.galleryPicBedFilter]: val })
 }
 
-function handleAutoStartChange(val: ICheckBoxValueType) {
-  saveConfig(configPaths.settings.autoStart, val)
-  window.electron.sendRPC(IRPCActionType.PICLIST_AUTO_START, val)
+async function handleAutoStartChange(val: ICheckBoxValueType) {
+  if (!(await saveWithFeedback(() => invokeRPC(IRPCActionType.PICLIST_AUTO_START, Boolean(val))))) return
+  await saveConfig(configPaths.settings.autoStart, val)
 }
 
 function compareVersion2Update(current: string, latest: string): boolean {
@@ -2139,8 +2168,8 @@ function cancelCheckVersion() {
   checkUpdateVisible.value = false
 }
 
-function handleMiniWindowOntop(val: ICheckBoxValueType) {
-  saveConfig(configPaths.settings.miniWindowOntop, val)
+async function handleMiniWindowOntop(val: ICheckBoxValueType) {
+  if (!(await saveConfig(configPaths.settings.miniWindowOntop, val))) return
   window.electron.sendRPC(IRPCActionType.MINI_WINDOW_ON_TOP, val)
 }
 
@@ -2149,7 +2178,7 @@ async function handleCustomBgImg() {
   if (result && result[0]) {
     const fileName = await window.electron.triggerRPC<string>(IRPCActionType.COPY_CUSTOM_IMG_TO_THEMES_DIR, result[0])
     formOfSetting.value.customBgImgPath = `theme://./image/${fileName}`
-    saveConfig(configPaths.settings.customBgImgPath, formOfSetting.value.customBgImgPath)
+    if (!(await saveConfig(configPaths.settings.customBgImgPath, formOfSetting.value.customBgImgPath))) return
     await window.electron.triggerRPC(IRPCActionType.THEME_APPLY_THEME, currentTheme.value)
   }
 }
@@ -2158,18 +2187,18 @@ async function handleMiniIconPath() {
   const result = await window.electron.triggerRPC<string[]>(IRPCActionType.MANAGE_OPEN_FILE_SELECT_DIALOG)
   if (result && result[0]) {
     formOfSetting.value.customMiniIcon = result[0]
-    saveConfig(configPaths.settings.customMiniIcon, formOfSetting.value.customMiniIcon)
+    if (!(await saveConfig(configPaths.settings.customMiniIcon, formOfSetting.value.customMiniIcon))) return
     window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
   }
 }
 
-function handleShortUrlServerChange(val: string) {
+async function handleShortUrlServerChange(val: string) {
   formOfSetting.value.shortUrlServer = val
-  saveConfig(configPaths.settings.shortUrlServer, val)
+  await saveConfig(configPaths.settings.shortUrlServer, val)
 }
 
-function handleAesPasswordChange(val: string) {
-  saveConfig(configPaths.settings.aesPassword, val || 'PicList-aesPassword')
+async function handleAesPasswordChange(val: string) {
+  await saveConfig(configPaths.settings.aesPassword, val || 'PicList-aesPassword')
 }
 
 function syncMessage(failed: number) {
@@ -2185,11 +2214,18 @@ async function syncTaskFn(task: string, number: number) {
   syncMessage(failed)
 }
 
-function confirmServerSetting() {
-  server.value.port = parseInt(server.value.port as unknown as string, 10)
-  saveConfig({ [configPaths.settings.server]: server.value })
-  serverVisible.value = false
-  window.electron.sendRPC(IRPCActionType.ADVANCED_UPDATE_SERVER)
+async function confirmServerSetting() {
+  if (savingServer.value) return
+  savingServer.value = true
+  try {
+    server.value.port = parseInt(server.value.port as unknown as string, 10)
+    const draft = JSON.stringify(server.value)
+    if (!(await saveConfig({ [configPaths.settings.server]: server.value }))) return
+    if (JSON.stringify(server.value) === draft) serverVisible.value = false
+    window.electron.sendRPC(IRPCActionType.ADVANCED_UPDATE_SERVER)
+  } finally {
+    savingServer.value = false
+  }
 }
 
 async function cancelServerSetting() {
@@ -2197,15 +2233,15 @@ async function cancelServerSetting() {
   server.value = (await getConfig(configPaths.settings.server)) || { port: 36677, host: '0.0.0.0', enable: true }
 }
 
-function handleLanguageChange(val: string) {
+async function handleLanguageChange(val: string) {
+  if (!(await saveConfig({ [configPaths.settings.language]: val }))) return
   locale.value = val
   setCurrentLanguage(val)
-  saveConfig({ [configPaths.settings.language]: val })
   localStorage.setItem('currentLanguage', val)
   updatePicBeds()
 }
 
-function handleStartModeChange(val: string) {
+async function handleStartModeChange(val: string) {
   if (val === ISartMode.NO_TRAY) {
     if (formOfSetting.value.isHideDock) {
       message.warning(t('pages.settings.system.hideDockHint'))
@@ -2214,7 +2250,7 @@ function handleStartModeChange(val: string) {
     }
     message.info(t('pages.settings.system.needRestart'))
   }
-  saveConfig({ [configPaths.settings.startMode]: val })
+  await saveConfig({ [configPaths.settings.startMode]: val })
 }
 
 async function goConfigPage() {

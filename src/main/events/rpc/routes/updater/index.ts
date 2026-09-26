@@ -3,10 +3,11 @@ import picgo from '@core/picgo'
 import { BrowserWindow, shell } from 'electron'
 import updater from 'electron-updater'
 
-import { RPCRouter } from '~/events/rpc/router'
+import { defineRpcHandler, RPCRouter } from '~/events/rpc/router'
 import { downloadAndInstallUpdate } from '~/lifeCycle/autoUpdater'
+import { commitConfig } from '~/utils/commitConfig'
 import { configPaths } from '~/utils/configPaths'
-import { IRPCActionType } from '~/utils/enum'
+import { IRPCActionType, IRPCType } from '~/utils/enum'
 
 const updaterRouter = new RPCRouter()
 
@@ -35,9 +36,10 @@ const updaterRoutes = [
   },
   {
     action: IRPCActionType.SET_SHOW_UPDATE_TIP,
-    handler: async (_: IIPCEvent, args: [value: boolean]) => {
-      picgo.saveConfig({ [configPaths.settings.showUpdateTip]: args[0] })
-    },
+    handler: defineRpcHandler(IRPCActionType.SET_SHOW_UPDATE_TIP, async (_: IIPCEvent, args: [value: boolean]) => {
+      return commitConfig(picgo, { [configPaths.settings.showUpdateTip]: args[0] })
+    }),
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.CLOSE_CURRENT_WINDOW,

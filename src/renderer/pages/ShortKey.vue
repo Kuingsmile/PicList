@@ -130,6 +130,7 @@ import { configPaths } from '@/utils/configPaths'
 import { getConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
 import keyBinding from '@/utils/key-binding'
+import { invokeRPC, saveWithFeedback } from '@/utils/rpc'
 
 const { t } = useI18n()
 const list = ref<IShortKeyConfig[]>([])
@@ -151,10 +152,15 @@ function calcOriginShowName(item: string) {
   return item.replace('picgo-plugin-', '')
 }
 
-function toggleEnable(item: IShortKeyConfig) {
+async function toggleEnable(item: IShortKeyConfig) {
   const status = !item.enable
+  if (
+    !(await saveWithFeedback(() =>
+      invokeRPC(IRPCActionType.SHORTKEY_BIND_OR_UNBIND, { ...getRawData(item), enable: status }, item.from || ''),
+    ))
+  )
+    return
   item.enable = status
-  window.electron.sendRPC(IRPCActionType.SHORTKEY_BIND_OR_UNBIND, getRawData(item), item.from || '')
 }
 
 function keyDetect(event: KeyboardEvent) {
@@ -177,7 +183,9 @@ async function confirmKeyBinding() {
   const oldKey = await getConfig<string>(`settings.shortKey.${command.value}.key`)
   const config = { ...list.value[currentIndex.value] }
   config.key = shortKey.value
-  const result = await window.electron.triggerRPC<boolean>(IRPCActionType.SHORTKEY_UPDATE, config, oldKey, config.from)
+  const result = await saveWithFeedback(() =>
+    invokeRPC(IRPCActionType.SHORTKEY_UPDATE, config, oldKey || '', config.from || ''),
+  )
   if (result) {
     keyBindingVisible.value = false
     list.value[currentIndex.value].key = shortKey.value

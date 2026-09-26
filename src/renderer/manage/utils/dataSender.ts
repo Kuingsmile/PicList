@@ -1,8 +1,9 @@
 import { IRPCActionType } from '@/utils/enum'
+import { invokeRPC, saveWithFeedback } from '@/utils/rpc'
 
 export function saveConfig(config: IObj | string, value?: any) {
   const configObj = typeof config === 'string' ? { [config]: value } : config
-  window.electron.sendRPC(IRPCActionType.MANAGE_SAVE_CONFIG, configObj)
+  return saveWithFeedback(() => invokeRPC(IRPCActionType.MANAGE_SAVE_CONFIG, configObj))
 }
 
 export async function getConfig<T>(key?: string): Promise<T | undefined> {
@@ -10,5 +11,5 @@ export async function getConfig<T>(key?: string): Promise<T | undefined> {
 }
 
 export function removeConfig(key: string, propName: string) {
-  window.electron.sendRPC(IRPCActionType.MANAGE_REMOVE_CONFIG, key, propName)
+  return saveWithFeedback(() => invokeRPC(IRPCActionType.MANAGE_REMOVE_CONFIG, key, propName))
 }

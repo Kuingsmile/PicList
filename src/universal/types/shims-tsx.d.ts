@@ -20,6 +20,7 @@ declare global {
       setVisualZoomLevelLimits: (min: number, max: number) => void
       sendRpcSync: (action: string, ...args: any[]) => any
       triggerRPC: <T>(action: string, ...args: any[]) => Promise<T | undefined>
+      invokeRPC: import('../rpc').InvokeRPC
       sendToMain: (channel: string, ...args: any[]) => void
       sendRPC: (action: string, ...args: any[]) => void
       ipcRendererOn: (channel: string, listener: (...args: any[]) => void) => () => void

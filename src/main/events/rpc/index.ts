@@ -1,6 +1,7 @@
 import logger from '@core/picgo/logger'
 import { ipcMain, IpcMainEvent, IpcMainInvokeEvent } from 'electron'
 
+import { isRpcAction, RpcError, rpcRequestSchema } from '#/rpc'
 import { RPC_ACTIONS, RPC_ACTIONS_INVOKE } from '~/events/constant'
 import { galleryRouter } from '~/events/rpc/routes/gallery'
 import { manageRouter } from '~/events/rpc/routes/manage'
@@ -16,6 +17,8 @@ import { uploadRouter } from '~/events/rpc/routes/upload'
 import { IRPCType } from '~/utils/enum'
 import { isTrustedRendererSender } from '~/utils/rendererSecurity'
 
+import { dispatchRpc, redactedDiagnostic } from './dispatch'
+
 class RPCServer implements IRPCServer {
   private routes: IRPCRoutes = new Map()
   private routesWithResponse: IRPCRoutes = new Map()
@@ -26,22 +29,28 @@ class RPCServer implements IRPCServer {
       return
     }
     try {
+      rpcRequestSchema.parse({ action, args })
+      if (isRpcAction(action)) throw new RpcError('INVALID_REQUEST')
       const route = this.routes.get(action)
-      await route?.handler?.(event, args)
-    } catch (e: any) {
-      logger.error(e)
+      if (!route) throw new RpcError('NOT_FOUND')
+      await route.handler(event, args)
+    } catch (error) {
+      event.returnValue = null
+      logger.error(JSON.stringify({ rpc: 'notification-failed', ...redactedDiagnostic(error) }))
     }
   }
 
   private rpcEventHandlerWithResponse = async (event: IpcMainInvokeEvent, action: string, args: any[]) => {
-    if (!isTrustedRendererSender(event)) return undefined
-    try {
-      const route = this.routesWithResponse.get(action)
-      return await route?.handler?.(event, args)
-    } catch (e: any) {
-      logger.error(e)
-      return undefined
-    }
+    return dispatchRpc(
+      action,
+      args,
+      isTrustedRendererSender(event),
+      action => {
+        const route = this.routesWithResponse.get(action)
+        return route ? args => route.handler(event, args) : undefined
+      },
+      diagnostic => logger.error(JSON.stringify(diagnostic)),
+    )
   }
 
   start() {
@@ -61,6 +70,7 @@ class RPCServer implements IRPCServer {
 
   stop() {
     ipcMain.off(RPC_ACTIONS, this.rpcEventHandler)
+    ipcMain.removeHandler(RPC_ACTIONS_INVOKE)
   }
 }
 

@@ -1,9 +1,10 @@
 import { getRawData } from '@/utils/common'
 import { IRPCActionType } from '@/utils/enum'
+import { invokeRPC, saveWithFeedback } from '@/utils/rpc'
 
-export function saveConfig(config: IObj | string, value?: any) {
+export function saveConfig(config: IObj | string, value?: any): Promise<boolean> {
   const configObject = typeof config === 'string' ? { [config]: value } : config
-  window.electron.sendRPC(IRPCActionType.PICLIST_SAVE_CONFIG, getRawData(configObject))
+  return saveWithFeedback(() => invokeRPC(IRPCActionType.PICLIST_SAVE_CONFIG, getRawData(configObject)))
 }
 
 export async function getConfig<T>(key?: string): Promise<T | undefined> {

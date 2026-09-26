@@ -188,11 +188,43 @@
       </div>
     </div>
 
+    <CustomModal
+      v-if="duplicateVisible"
+      v-model:visible="duplicateVisible"
+      :title="t('pages.uploaderConfig.duplicateTitle')"
+      height="auto"
+      width="500px"
+    >
+      <div class="p-4">
+        <CustomInput
+          v-model="duplicateName"
+          :title="t('pages.uploaderConfig.duplicateTitle')"
+          :placeholder="t('pages.uploaderConfig.duplicatePlaceholder')"
+        />
+      </div>
+      <template #footer>
+        <CustomButton type="secondary" :text="t('common.cancel')" @click="duplicateVisible = false" />
+        <CustomButton
+          type="primary"
+          :text="t('common.confirm')"
+          :loading="savingDuplicate"
+          :disabled="savingDuplicate || !duplicateName.trim()"
+          @click="confirmDuplicateConfig"
+        />
+      </template>
+    </CustomModal>
+
     <CustomModal v-if="editorVisible" v-model:visible="editorVisible" :title="t('common.edit')">
       <Editor v-model="editorContent" language="javascript" />
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="editorVisible = false" />
-        <CustomButton type="primary" :text="t('common.save')" @click="saveEditorContent" />
+        <CustomButton
+          type="primary"
+          :text="t('common.save')"
+          :loading="savingEditor"
+          :disabled="savingEditor"
+          @click="saveEditorContent"
+        />
       </template>
     </CustomModal>
 
@@ -237,11 +269,10 @@ import useConfirm from '@/hooks/useConfirm'
 import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
 import { PICBEDS_PAGE, UPLOADER_CONFIG_PAGE } from '@/router/config'
-import $bus from '@/utils/bus'
 import { configPaths } from '@/utils/configPaths'
-import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType } from '@/utils/enum'
+import { invokeRPC, showRpcError } from '@/utils/rpc'
 import { defaultScriptTemplate, defaultScriptTemplateEn } from '@/utils/static'
 
 const { t } = useI18n()
@@ -258,6 +289,11 @@ const scriptsListVisible = ref(false)
 const scriptsList = ref<string[]>([])
 const editorVisible = ref(false)
 const editorContent = ref('')
+const savingEditor = ref(false)
+const duplicateVisible = ref(false)
+const duplicateName = ref('')
+const duplicateSourceId = ref('')
+const savingDuplicate = ref(false)
 const editingScriptName = ref('')
 const newScriptNameVisible = ref(false)
 const newScriptName = ref('')
@@ -289,7 +325,12 @@ function toggleConfigFavorite(configId: string, configName: string) {
 }
 
 async function selectItem(id: string) {
-  await window.electron.triggerRPC<void>(IRPCActionType.UPLOADER_SELECT, type.value, id)
+  try {
+    await invokeRPC(IRPCActionType.UPLOADER_SELECT, type.value, id)
+  } catch (error) {
+    showRpcError(error)
+    return
+  }
   if (defaultPicBedG.value === type.value) {
     window.electron.sendRPC(
       IRPCActionType.TRAY_SET_TOOL_TIP,
@@ -325,47 +366,29 @@ function formatTime(time: number): string {
   return dayjs(time).format('YYYY-MM-DD HH:mm')
 }
 
-async function duplicateConfig(id: string) {
+function duplicateConfig(id: string) {
   const originalConfig = curConfigList.value.find(item => item._id === id)
   if (!originalConfig) return
+  duplicateSourceId.value = id
+  duplicateName.value = `${originalConfig._configName} - ${t('pages.uploaderConfig.copy')}`
+  duplicateVisible.value = true
+}
 
-  return new Promise<void>(resolve => {
-    $bus.emit(SHOW_INPUT_BOX, {
-      title: t('pages.uploaderConfig.duplicateTitle'),
-      placeholder: t('pages.uploaderConfig.duplicatePlaceholder'),
-      value: `${originalConfig._configName} - ${t('pages.uploaderConfig.copy')}`,
-    })
-
-    const handleResponse = async (newName: string) => {
-      $bus.off(SHOW_INPUT_BOX_RESPONSE, handleResponse)
-
-      if (!newName) {
-        resolve()
-        return
-      }
-
-      try {
-        const res = await window.electron.triggerRPC<IUploaderConfigItem>(
-          IRPCActionType.PICBED_DUPLICATE_CONFIG,
-          type.value,
-          id,
-          newName,
-        )
-        if (!res) {
-          resolve()
-          return
-        }
-        curConfigList.value = res.configList
-        defaultConfigId.value = res.defaultId
-        message.success(t('pages.uploaderConfig.duplicateSuccess'))
-      } catch (error) {
-        message.error(t('pages.uploaderConfig.duplicateError'))
-      }
-      resolve()
-    }
-
-    $bus.on(SHOW_INPUT_BOX_RESPONSE, handleResponse)
-  })
+async function confirmDuplicateConfig() {
+  if (savingDuplicate.value || !duplicateName.value.trim()) return
+  savingDuplicate.value = true
+  const name = duplicateName.value
+  try {
+    const result = await invokeRPC(IRPCActionType.PICBED_DUPLICATE_CONFIG, type.value, duplicateSourceId.value, name)
+    curConfigList.value = result.configList
+    defaultConfigId.value = result.defaultId
+    if (duplicateName.value === name) duplicateVisible.value = false
+    message.success(t('pages.uploaderConfig.duplicateSuccess'))
+  } catch (error) {
+    showRpcError(error)
+  } finally {
+    savingDuplicate.value = false
+  }
 }
 
 async function deleteConfig(id: string) {
@@ -378,14 +401,19 @@ async function deleteConfig(id: string) {
     center: true,
   })
   if (!result) return
+  let res
+  try {
+    res = await invokeRPC(IRPCActionType.PICBED_DELETE_CONFIG, type.value, id)
+  } catch (error) {
+    showRpcError(error)
+    return
+  }
   if (isConfigFavorited(id)) {
     const index = favoritePicbeds.value.findIndex(item => item.type === type.value && item.id === id)
     if (index !== -1) {
       favoritePicbeds.value.splice(index, 1)
     }
   }
-  const res = await window.electron.triggerRPC<IUploaderConfigItem>(IRPCActionType.PICBED_DELETE_CONFIG, type.value, id)
-  if (!res) return
   curConfigList.value = res.configList
   defaultConfigId.value = res.defaultId
   message.success(t('pages.uploaderConfig.deleteSuccess'))
@@ -401,11 +429,14 @@ function addNewConfig() {
   })
 }
 
-function setDefaultPicBed(type: string) {
-  saveConfig({
-    [configPaths.picBed.current]: type,
-    [configPaths.picBed.uploader]: type,
-  })
+async function setDefaultPicBed(type: string) {
+  if (
+    !(await saveConfig({
+      [configPaths.picBed.current]: type,
+      [configPaths.picBed.uploader]: type,
+    }))
+  )
+    return
   const currentConfigName = curConfigList.value.find(item => item._id === defaultConfigId.value)?._configName
   window.electron.sendRPC(IRPCActionType.TRAY_SET_TOOL_TIP, `${type} ${currentConfigName || ''}`)
   updatePicBeds()
@@ -460,17 +491,20 @@ async function openEditScripts(scriptName: string, mode: 'edit' | 'new' = 'edit'
 }
 
 async function saveEditorContent() {
+  if (savingEditor.value) return
+  savingEditor.value = true
   const file = ['uploader', 'advancedplist', editingScriptName.value]
-  const content = editorContent.value.trim()
+  const content = editorContent.value
   try {
-    window.electron.sendRPC(IRPCActionType.WRITE_SCRIPT_FILE, file, content)
+    await invokeRPC(IRPCActionType.WRITE_SCRIPT_FILE, file, content)
     message.success(t('pages.settings.advanced.saveFileSuccess'))
+    if (editorContent.value === content) editorVisible.value = false
     await getScriptsList()
   } catch (error) {
-    console.error('Failed to save file:', error)
-    message.error(t('pages.settings.advanced.saveFileFailed'))
+    showRpcError(error)
+  } finally {
+    savingEditor.value = false
   }
-  editorVisible.value = false
 }
 
 function handleNewScriptNameConfirm() {
@@ -519,7 +553,7 @@ async function deleteScript(scriptName: string) {
   if (!result) return
   try {
     const filePath = ['uploader', 'advancedplist', scriptName]
-    window.electron.sendRPC(IRPCActionType.DELETE_SCRIPTS_FILE, filePath)
+    await invokeRPC(IRPCActionType.DELETE_SCRIPTS_FILE, filePath)
     message.success(t('pages.scripts.deleteSuccess'))
     await getScriptsList()
   } catch (error) {

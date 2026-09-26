@@ -6,6 +6,8 @@ import { app, nativeTheme, shell } from 'electron'
 import fs from 'fs-extra'
 
 import { applyTheme, fetchThemes, importThemes, readTheme, resolveThemes } from '~/apis/app/theme'
+import { writeRpcFile } from '~/events/rpc/persistence'
+import { defineRpcHandler } from '~/events/rpc/router'
 import { initializeI18n } from '~/i18n'
 import { configPaths } from '~/utils/configPaths'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
@@ -80,11 +82,14 @@ export default [
   },
   {
     action: IRPCActionType.THEME_WRITE_THEME,
-    handler: async (_: IIPCEvent, args: [fileName: string, content: string]) => {
-      const abFilePath = path.join(themesDir(), args[0])
-      fs.ensureDirSync(path.dirname(abFilePath))
-      fs.writeFileSync(abFilePath, args[1], 'utf-8')
-    },
+    handler: defineRpcHandler(
+      IRPCActionType.THEME_WRITE_THEME,
+      async (_: IIPCEvent, args: [fileName: string, content: string]) => {
+        const abFilePath = path.join(themesDir(), args[0])
+        return await writeRpcFile(abFilePath, args[1])
+      },
+    ),
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.THEME_RESOLVE_THEMES,

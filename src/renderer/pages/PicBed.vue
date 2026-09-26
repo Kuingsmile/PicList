@@ -38,7 +38,14 @@
               <!-- Action Buttons -->
               <div class="mb-4 flex flex-wrap gap-3 rounded-xl border border-border bg-accent/10 p-4">
                 <CustomButton type="secondary" :icon="RotateCcw" :text="t('common.clear')" @click="handleReset" />
-                <CustomButton type="primary" :icon="Check" :text="t('common.confirm')" @click="handleConfirm" />
+                <CustomButton
+                  type="primary"
+                  :icon="Check"
+                  :text="t('common.confirm')"
+                  :loading="saving"
+                  :disabled="saving"
+                  @click="handleConfirm"
+                />
 
                 <div v-if="picBedConfigList.length > 0" class="relative">
                   <CustomButton
@@ -125,6 +132,7 @@ import { getRawData } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
 import { getConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType } from '@/utils/enum'
+import { invokeRPC, showRpcError } from '@/utils/rpc'
 import { picBedManualUrlList } from '@/utils/static'
 
 const { t } = useI18n()
@@ -135,6 +143,7 @@ const config = ref<IPicGoPluginConfig[]>([])
 const picBedConfigList = ref<IUploaderConfigListItem[]>([])
 const picBedName = ref('')
 const dropdownVisible = ref(false)
+const saving = ref(false)
 const imageProcessDialogVisible = ref(false)
 const $route = useRoute()
 const $router = useRouter()
@@ -155,24 +164,23 @@ function handleDropdownBlur() {
 }
 
 const handleConfirm = async () => {
+  if (saving.value) return
+  saving.value = true
   try {
     const result = (await $configForm.value?.validate()) || false
     if (result !== false) {
       const rawResult = getRawData(result)
-      await window.electron.triggerRPC<void>(
-        IRPCActionType.UPLOADER_UPDATE_CONFIG,
-        type.value,
-        rawResult?._id || uuidValue,
-        rawResult,
-      )
+      await invokeRPC(IRPCActionType.UPLOADER_UPDATE_CONFIG, type.value, rawResult?._id || uuidValue, rawResult)
       message.success(t('pages.picBedConfigs.setSuccess'))
-      $router.back()
+      const currentDraft = getRawData(await $configForm.value?.validate())
+      if (JSON.stringify(currentDraft) === JSON.stringify(rawResult)) $router.back()
     } else {
       message.error(t('pages.picBedConfigs.setFailedInfo'))
     }
   } catch (error) {
-    console.error('Failed to save configuration:', error)
-    message.error(t('pages.picBedConfigs.setFailedInfo'))
+    showRpcError(error)
+  } finally {
+    saving.value = false
   }
 }
 

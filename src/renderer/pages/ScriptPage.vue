@@ -174,7 +174,13 @@
       <Editor v-model="editorContent" language="javascript" />
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="editorVisible = false" />
-        <CustomButton type="primary" :text="t('common.save')" @click="saveEditorContent" />
+        <CustomButton
+          type="primary"
+          :text="t('common.save')"
+          :loading="savingEditor"
+          :disabled="savingEditor"
+          @click="saveEditorContent"
+        />
       </template>
     </CustomModal>
 
@@ -543,6 +549,7 @@ import { getRawData } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType } from '@/utils/enum'
+import { invokeRPC, showRpcError } from '@/utils/rpc'
 import { defaultScriptTemplate, defaultScriptTemplateEn } from '@/utils/static'
 
 const { t } = useI18n()
@@ -552,6 +559,7 @@ const scriptsMap = ref<Record<string, any>>({})
 const choosedCat = ref<string[]>([])
 const scriptsList = ref<IStringKeyMap[]>([])
 const editorVisible = ref(false)
+const savingEditor = ref(false)
 const editorContent = ref('')
 const editingScriptName = ref<string[]>([])
 const newScriptNameVisible = ref(false)
@@ -727,16 +735,19 @@ async function openEditPage(filePath: string[], mode: 'edit' | 'new' = 'edit') {
 }
 
 async function saveEditorContent() {
-  const content = editorContent.value.trim()
+  if (savingEditor.value) return
+  savingEditor.value = true
+  const content = editorContent.value
   try {
-    window.electron.sendRPC(IRPCActionType.WRITE_SCRIPT_FILE, getRawData(editingScriptName.value), content)
+    await invokeRPC(IRPCActionType.WRITE_SCRIPT_FILE, getRawData(editingScriptName.value), content)
     message.success(t('pages.settings.advanced.saveFileSuccess'))
+    if (editorContent.value === content) editorVisible.value = false
     await getScriptsMap()
   } catch (error) {
-    console.error('Failed to save file:', error)
-    message.error(t('pages.settings.advanced.saveFileFailed'))
+    showRpcError(error)
+  } finally {
+    savingEditor.value = false
   }
-  editorVisible.value = false
 }
 
 async function deleteConfig(scriptPath: string[]) {
@@ -750,7 +761,7 @@ async function deleteConfig(scriptPath: string[]) {
   })
   if (!result) return
   try {
-    window.electron.sendRPC(IRPCActionType.DELETE_SCRIPTS_FILE, getRawData(scriptPath))
+    await invokeRPC(IRPCActionType.DELETE_SCRIPTS_FILE, getRawData(scriptPath))
     message.success(t('pages.scripts.deleteSuccess'))
     await getScriptsMap()
   } catch (error) {
@@ -769,12 +780,11 @@ function openNewScriptsNameDialog() {
 }
 
 async function runScript(scriptPath: string[]) {
-  const result = await window.electron.triggerRPC(IRPCActionType.RUN_SCRIPT_FILE, getRawData(scriptPath))
-  if (result instanceof Error) {
-    const errorMessage = result.message || 'Unknown error'
-    message.error(`${t('pages.scripts.runScriptFailed', { errorMessage })}`)
-  } else {
+  try {
+    await window.electron.triggerRPC(IRPCActionType.RUN_SCRIPT_FILE, getRawData(scriptPath))
     message.success(t('pages.scripts.runScriptSuccess'))
+  } catch (error) {
+    showRpcError(error)
   }
 }
 
@@ -811,7 +821,7 @@ async function toggleScript(scriptPath: string[]) {
   } else {
     disabledList.push(fullPath)
   }
-  saveConfig(configPaths.scripts.disabledList, disabledList)
+  if (!(await saveConfig(configPaths.scripts.disabledList, disabledList))) return
   await getScriptsMap()
 }
 

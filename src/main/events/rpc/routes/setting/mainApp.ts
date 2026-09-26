@@ -5,8 +5,10 @@ import picgo from '@core/picgo'
 import { IpcMainEvent, shell } from 'electron'
 import fs from 'fs-extra'
 
-import logger from '~/apis/core/picgo/logger'
+import { removeRpcFile, writeRpcFile } from '~/events/rpc/persistence'
+import { defineRpcHandler } from '~/events/rpc/router'
 import { isAutoStartEnabled, setAutoStart } from '~/utils/autoStart'
+import { commitConfig } from '~/utils/commitConfig'
 import { getDirectoryTree } from '~/utils/common'
 import { IRPCActionType, IRPCType } from '~/utils/enum'
 import { runScript } from '~/utils/runScript'
@@ -31,9 +33,10 @@ export default [
   },
   {
     action: IRPCActionType.PICLIST_SAVE_CONFIG,
-    handler: async (_: IIPCEvent, args: [data: IObj]) => {
-      picgo.saveConfig(args[0])
-    },
+    handler: defineRpcHandler(IRPCActionType.PICLIST_SAVE_CONFIG, async (_: IIPCEvent, args: [data: IObj]) => {
+      return commitConfig(picgo, args[0])
+    }),
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.PICLIST_OPEN_FILE,
@@ -71,11 +74,14 @@ export default [
   },
   {
     action: IRPCActionType.WRITE_FILE_CONTENT,
-    handler: async (_: IIPCEvent, args: [fileName: string, content: string]) => {
-      const abFilePath = path.join(STORE_PATH, args[0])
-      fs.ensureDirSync(path.dirname(abFilePath))
-      fs.writeFileSync(abFilePath, args[1], 'utf-8')
-    },
+    handler: defineRpcHandler(
+      IRPCActionType.WRITE_FILE_CONTENT,
+      async (_: IIPCEvent, args: [fileName: string, content: string]) => {
+        const abFilePath = path.join(STORE_PATH, args[0])
+        return await writeRpcFile(abFilePath, args[1])
+      },
+    ),
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.RUN_SCRIPT_FILE,
@@ -85,23 +91,21 @@ export default [
         throw new Error('Script file does not exist')
       }
       const scriptContent = fs.readFileSync(abFilePath, 'utf-8')
-      try {
-        await runScript(picgo, scriptContent, {})
-        logger.info(`Script ${args[0].join('/')} executed successfully`)
-        return 'Script executed successfully'
-      } catch (e) {
-        return Error(`Script execution failed: ${e}`)
-      }
+      await runScript(picgo, scriptContent, {})
+      return true
     },
     type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.CREATE_SCRIPTS_FILE,
-    handler: async (_: IIPCEvent, args: [fileName: string[], content: string]) => {
-      const abFilePath = path.join(scriptsDir(), ...args[0])
-      fs.ensureDirSync(path.dirname(abFilePath))
-      fs.writeFileSync(abFilePath, args[1], 'utf-8')
-    },
+    handler: defineRpcHandler(
+      IRPCActionType.CREATE_SCRIPTS_FILE,
+      async (_: IIPCEvent, args: [fileName: string[], content: string]) => {
+        const abFilePath = path.join(scriptsDir(), ...args[0])
+        return await writeRpcFile(abFilePath, args[1])
+      },
+    ),
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.READ_SCRIPTS_FILE,
@@ -124,31 +128,28 @@ export default [
         return {}
       }
 
-      try {
-        return await getDirectoryTree(targetDir)
-      } catch (error) {
-        console.error('Failed to list scripts:', error)
-        return {}
-      }
+      return await getDirectoryTree(targetDir)
     },
     type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.WRITE_SCRIPT_FILE,
-    handler: async (_: IIPCEvent, args: [fileName: string[], content: string]) => {
-      const abFilePath = path.join(scriptsDir(), ...args[0])
-      fs.ensureDirSync(path.dirname(abFilePath))
-      fs.writeFileSync(abFilePath, args[1], 'utf-8')
-    },
+    handler: defineRpcHandler(
+      IRPCActionType.WRITE_SCRIPT_FILE,
+      async (_: IIPCEvent, args: [fileName: string[], content: string]) => {
+        const abFilePath = path.join(scriptsDir(), ...args[0])
+        return await writeRpcFile(abFilePath, args[1])
+      },
+    ),
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.DELETE_SCRIPTS_FILE,
-    handler: async (_: IIPCEvent, args: [fileName: string[]]) => {
+    handler: defineRpcHandler(IRPCActionType.DELETE_SCRIPTS_FILE, async (_: IIPCEvent, args: [fileName: string[]]) => {
       const abFilePath = path.join(scriptsDir(), ...args[0])
-      if (fs.existsSync(abFilePath)) {
-        fs.unlinkSync(abFilePath)
-      }
-    },
+      return await removeRpcFile(abFilePath)
+    }),
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.GET_FILES_STAT,
@@ -194,9 +195,11 @@ export default [
   },
   {
     action: IRPCActionType.PICLIST_AUTO_START,
-    handler: async (_: IIPCEvent, args: [val: boolean]) => {
+    handler: defineRpcHandler(IRPCActionType.PICLIST_AUTO_START, async (_: IIPCEvent, args: [val: boolean]) => {
       await setAutoStart(args[0])
-    },
+      return true
+    }),
+    type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.PICLIST_AUTO_START_STATUS,

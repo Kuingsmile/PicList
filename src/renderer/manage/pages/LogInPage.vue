@@ -378,10 +378,10 @@ const handleConfigRemove = async (name: string) => {
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
     center: true,
-  }).then(result => {
+  }).then(async result => {
     if (!result) return
     try {
-      removeConfig('picBed', name)
+      if (!(await removeConfig('picBed', name))) return
       notifyUser(t('pages.manage.login.deleteConfigSuccessMsg'), 'success')
       manageStore.refreshConfig()
       loadExistingSettings(activePlatform.value)
@@ -471,7 +471,7 @@ async function getCurrentConfigList() {
       const oldConfig = await getConfig<any>('picBed')
       // Automatic import only fills missing aliases; saved manager records take precedence.
       const newConfig = { ...importedNewConfig, ...oldConfig }
-      saveConfig('picBed', newConfig)
+      if (!(await saveConfig('picBed', newConfig))) return
       await manageStore.refreshConfig()
     }
   }

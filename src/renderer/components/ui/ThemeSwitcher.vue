@@ -59,7 +59,7 @@ async function toggleTheme() {
     document.documentElement.classList.add(nextTheme)
     document.documentElement.setAttribute('data-theme', nextTheme)
   }
-  saveConfig({ [configPaths.settings.systemTheme]: nextTheme })
+  await saveConfig({ [configPaths.settings.systemTheme]: nextTheme })
 }
 
 onBeforeMount(() => {

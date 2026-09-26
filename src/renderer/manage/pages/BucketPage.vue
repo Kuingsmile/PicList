@@ -1544,8 +1544,8 @@ function getList() {
   })
 }
 
-function handleUploadKeepDirChange(value: boolean) {
-  saveConfig('settings.isUploadKeepDirStructure', value)
+async function handleUploadKeepDirChange(value: boolean) {
+  if (!(await saveConfig('settings.isUploadKeepDirStructure', value))) return
   manageStore.refreshConfig()
 }
 
@@ -1949,7 +1949,7 @@ async function handleChangeCustomUrl(generation = viewGeneration) {
       }
     }
     currentConfig.transformedConfig = JSON.stringify(currentTransformedConfig)
-    saveConfig(`picBed.${configMap.value.alias}`, currentConfig)
+    if (!(await saveConfig(`picBed.${configMap.value.alias}`, currentConfig))) return
     await manageStore.refreshConfig()
   }
 }

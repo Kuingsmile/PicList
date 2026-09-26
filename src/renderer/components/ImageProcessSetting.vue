@@ -1245,8 +1245,8 @@ const globalManualRename = ref<Undefinable<boolean>>(false)
 
 const isInitialized = ref(false)
 
-function saveWaterMarkConfig() {
-  saveConfig(configPaths.buildIn.watermark, toRaw(waterMarkForm.value))
+async function saveWaterMarkConfig() {
+  await saveConfig(configPaths.buildIn.watermark, toRaw(waterMarkForm.value))
 }
 
 const singleConfigSettings = ref<IBuildInListItem>({
@@ -1332,15 +1332,13 @@ async function initData() {
       })
     }
     compressInFile.formatConvertObjMap = cleanFullMap
-    saveConfig(configPaths.buildIn.compress, {
-      ...compressInFile,
-    })
+    await saveConfig(configPaths.buildIn.compress, { ...compressInFile })
     compressForm.value = { ...compressForm.value, ...compressInFile }
   }
   if (watermark) {
     if (watermark.watermarkColor === '') {
       watermark.watermarkColor = '#CCCCCC73'
-      saveConfig(configPaths.buildIn.watermark, watermark)
+      await saveConfig(configPaths.buildIn.watermark, watermark)
     }
     waterMarkForm.value = { ...waterMarkForm.value, ...watermark }
   }
@@ -1357,7 +1355,7 @@ async function initData() {
       format: '{filename}',
     }
     if (!buildInList) {
-      saveConfig(configPaths.buildIn.list, [])
+      await saveConfig(configPaths.buildIn.list, [])
       buildInList = []
     }
     singleConfigInFile = buildInList?.find((item: { id: string }) => item.id === configId) || ({} as IBuildInListItem)
@@ -1470,11 +1468,11 @@ function safeSetMapValue(form: any, fieldName: string, picbedType: string, value
   }
 }
 
-function saveSkipProcessConfig() {
-  saveConfig(configPaths.buildIn.skipProcess, toRaw(skipProcessForm.value))
+async function saveSkipProcessConfig() {
+  await saveConfig(configPaths.buildIn.skipProcess, toRaw(skipProcessForm.value))
 }
 
-function saveCompressConfig() {
+async function saveCompressConfig() {
   const cleanFullMap: Record<string, any> = {}
   Object.entries(compressForm.value.formatConvertObjMap || {}).forEach(([picbedType, value]) => {
     try {
@@ -1486,7 +1484,7 @@ function saveCompressConfig() {
     compressForm.value.formatConvertObjMap = cleanFullMap
   }
 
-  saveConfig(configPaths.buildIn.compress, toRaw(compressForm.value))
+  await saveConfig(configPaths.buildIn.compress, toRaw(compressForm.value))
 }
 
 const activeForm = computed<any>(() => {
@@ -1509,7 +1507,7 @@ const autoRenameComputed = computed({
   get() {
     return configId ? singleConfigSettings.value.autoRename : globalAutoRename.value
   },
-  set(newValue) {
+  async set(newValue) {
     if (configId) {
       singleConfigSettings.value.autoRename = newValue
       const shouldUpdate = newValue !== (globalAutoRename.value ?? false)
@@ -1529,7 +1527,7 @@ const autoRenameComputed = computed({
       }
     } else {
       globalAutoRename.value = newValue
-      saveConfig(configPaths.settings.autoRename, newValue)
+      if (!(await saveConfig(configPaths.settings.autoRename, newValue))) return
     }
   },
 })
@@ -1538,7 +1536,7 @@ const manualRenameComputed = computed({
   get() {
     return configId ? singleConfigSettings.value.manualRename : globalManualRename.value
   },
-  set(newValue) {
+  async set(newValue) {
     if (configId) {
       singleConfigSettings.value.manualRename = newValue
       const shouldUpdate = newValue !== (globalManualRename.value ?? false)
@@ -1558,7 +1556,7 @@ const manualRenameComputed = computed({
       }
     } else {
       globalManualRename.value = newValue
-      saveConfig(configPaths.settings.rename, newValue)
+      if (!(await saveConfig(configPaths.settings.rename, newValue))) return
     }
   },
 })
@@ -1577,7 +1575,7 @@ const renameSettingsComputed = computed<any>(() => {
 
 watch(
   renameSettingsComputed,
-  newValue => {
+  async newValue => {
     if (configId) {
       singleConfigSettings.value.rename = newValue.rename
       const shouldUpdate =
@@ -1598,7 +1596,7 @@ watch(
         })
       }
     } else {
-      saveConfig(configPaths.buildIn.rename, toRaw(newValue.rename))
+      if (!(await saveConfig(configPaths.buildIn.rename, toRaw(newValue.rename)))) return
     }
   },
   { deep: true },
@@ -1632,7 +1630,7 @@ async function UpdateBuildInList(newValue: IBuildInListItem) {
   } else {
     buildInList.push(newValue)
   }
-  saveConfig(configPaths.buildIn.list, getRawData(buildInList))
+  await saveConfig(configPaths.buildIn.list, getRawData(buildInList))
 }
 
 async function checkIfItemOnlyId(newValue: IBuildInListItem) {
@@ -1657,7 +1655,7 @@ async function removeItemFromBuildInList(id: string) {
     buildInList = []
   }
   buildInList = buildInList.filter(item => item.id !== id)
-  saveConfig(configPaths.buildIn.list, getRawData(buildInList))
+  await saveConfig(configPaths.buildIn.list, getRawData(buildInList))
 }
 
 compressWatchKeys.forEach(key => {

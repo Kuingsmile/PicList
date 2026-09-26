@@ -607,12 +607,12 @@ const dateRange = computed({
   },
 })
 
-watch(pasteStyle, newVal => {
-  saveConfig(configPaths.settings.pasteStyle, newVal)
+watch(pasteStyle, async newVal => {
+  await saveConfig(configPaths.settings.pasteStyle, newVal)
 })
 
-watch(useShortUrl, newVal => {
-  saveConfig(configPaths.settings.useShortUrl, newVal === t('pages.gallery.shortUrl'))
+watch(useShortUrl, async newVal => {
+  await saveConfig(configPaths.settings.useShortUrl, newVal === t('pages.gallery.shortUrl'))
 })
 
 watch(filterList, items => {
@@ -1089,15 +1089,18 @@ function remove(item: ImgInfo, _: number) {
   })
 }
 
-function handleIsAlwaysForceReload(value: boolean) {
-  saveConfig({
-    [configPaths.settings.isAlwaysForceReload]: value,
-  })
+async function handleIsAlwaysForceReload(value: boolean) {
+  if (
+    !(await saveConfig({
+      [configPaths.settings.isAlwaysForceReload]: value,
+    }))
+  )
+    return
   window.electron.sendRPC(IRPCActionType.REFRESH_SETTING_WINDOW)
 }
 
-function handleDeleteCloudFile(value: boolean) {
-  saveConfig({
+async function handleDeleteCloudFile(value: boolean) {
+  await saveConfig({
     [configPaths.settings.deleteCloudFile]: value,
   })
 }
