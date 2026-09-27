@@ -16,7 +16,7 @@
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {
-    "prebuild": "electron-vite build",
+    "build:app": "electron-vite build",
     "build": "electron-vite build && electron-builder",
     "build:linux": "electron-vite build && electron-builder --linux",
     "build:mac": "electron-vite build && electron-builder --mac",
@@ -36,7 +36,8 @@
     "prepare:7za": "node ./scripts/prepare.js --type=7zip",
     "prepare:plugin-runtime": "node ./scripts/prepare-plugin-runtime.mjs",
     "preview": "electron-vite preview",
-    "test:release": "node --test scripts/tests/*.test.js",
+    "test:packaging": "node --test scripts/tests/after-pack.test.js",
+    "test:release": "node --test scripts/tests/release-*.test.js",
     "release": "bump-version",
     "typecheck": "vue-tsc --noEmit",
     "postuninstall": "electron-builder install-app-deps",

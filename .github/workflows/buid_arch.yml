@@ -48,73 +48,32 @@ env:
   USE_HARD_LINKS: false
 
 jobs:
+  plan:
+    name: Select build runners
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.x'
+      - name: Plan selected OS and architecture groups
+        id: plan
+        env:
+          RELEASE_BUILD: ${{ inputs.build_os }}
+        run: node scripts/release-manifest.js plan --build "$RELEASE_BUILD" --github-output "$GITHUB_OUTPUT"
+
   build:
+    needs: plan
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            arch: x64
-            format: zip
-            filter: windows-latest-x64-zip
-          - os: windows-latest
-            arch: x64
-            format: 7z
-            filter: windows-latest-x64-7z
-          - os: windows-latest
-            arch: x64
-            format: nsis
-            filter: windows-latest-x64-nsis
-          - os: windows-11-arm
-            arch: arm64
-            format: zip
-            filter: windows-11-arm-arm64-zip
-          - os: windows-11-arm
-            arch: arm64
-            format: 7z
-            filter: windows-11-arm-arm64-7z
-          - os: windows-11-arm
-            arch: arm64
-            format: nsis
-            filter: windows-11-arm-arm64-nsis
-          - os: macos-15-intel
-            arch: x64
-            format: dmg
-            filter: macos-15-intel-x64-dmg
-          - os: macos-latest
-            arch: arm64
-            format: dmg
-            filter: macos-latest-arm64-dmg
-          - os: ubuntu-latest
-            arch: x64
-            format: AppImage
-            filter: ubuntu-latest-x64-AppImage
-          - os: ubuntu-latest
-            arch: x64
-            format: deb
-            filter: ubuntu-latest-x64-deb
-          - os: ubuntu-latest
-            arch: x64
-            format: snap
-            filter: ubuntu-latest-x64-snap
-          - os: ubuntu-latest
-            arch: x64
-            format: rpm
-            filter: ubuntu-latest-x64-rpm
-          - os: ubuntu-24.04-arm
-            arch: arm64
-            format: AppImage
-            filter: ubuntu-24.04-arm-arm64-AppImage
-          - os: ubuntu-24.04-arm
-            arch: arm64
-            format: deb
-            filter: ubuntu-24.04-arm-arm64-deb
-          - os: ubuntu-24.04-arm
-            arch: arm64
-            format: rpm
-            filter: ubuntu-24.04-arm-arm64-rpm
-    name: Build on ${{ matrix.os }} for ${{ matrix.arch }} - ${{ matrix.format }}
+      # Filter before allocating build runners; All uses six OS/architecture jobs.
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    name: Build on ${{ matrix.os }} for ${{ matrix.arch }}
     steps:
       - name: Set up git config
         run: |
@@ -123,86 +82,72 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      # step2: sign
-      - name: Install the Apple certificates
-        if: contains(matrix.os, 'macos') && (github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All')
-        run: |
-          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-
-      # step3: install node env
       - name: Install Node.js
         uses: actions/setup-node@v7
         with:
           node-version: '22.x'
+          cache: yarn
+          cache-dependency-path: yarn.lock
 
       - name: Install Linux packaging prerequisites
-        if: runner.os == 'Linux' && (github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All')
+        if: runner.os == 'Linux' && (contains(matrix.formats, 'deb') || contains(matrix.formats, 'rpm'))
         shell: bash
+        env:
+          BUILD_FORMATS: ${{ join(matrix.formats, ' ') }}
         run: |
-          case "${{ matrix.format }}" in
-            deb)
-              sudo apt-get update
-              sudo apt-get install --no-install-recommends -y binutils xz-utils
-              ;;
-            rpm)
-              sudo apt-get update
-              sudo apt-get install --no-install-recommends -y rpm
-              ;;
-            AppImage|snap)
-              # AppImage and the default x64 Snap template use bundled packaging tools.
-              echo "Using electron-builder's bundled packaging tools."
-              ;;
-          esac
-
-      - name: Install FPM
-        if: runner.os == 'Linux' && matrix.arch == 'arm64' && (matrix.format == 'deb' || matrix.format == 'rpm') && (github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All')
-        run: |
+          packages=()
+          for format in $BUILD_FORMATS; do
+            case "$format" in
+              deb) packages+=(binutils xz-utils) ;;
+              rpm) packages+=(rpm) ;;
+            esac
+          done
+          if [[ "${{ matrix.arch }}" == arm64 ]]; then
+            packages+=(ruby ruby-dev build-essential)
+          fi
           sudo apt-get update
-          sudo apt-get install -y ruby ruby-dev build-essential
-          sudo gem install --no-document fpm
+          sudo apt-get install --no-install-recommends -y "${packages[@]}"
+          if [[ "${{ matrix.arch }}" == arm64 ]]; then
+            sudo gem install --no-document fpm
+          fi
 
-      # step3: yarn
       - name: Install dependencies
-        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
         shell: bash
-        run: |
-          yarn config set ignore-engines true
-          rm -rf node_modules dist_electron && yarn install --frozen-lockfile
-          yarn global add xvfb-maybe
-          if [[ "${{ matrix.format }}" == "zip" || "${{ matrix.format }}" == "7z" ]]; then
-            echo "Target format is ${{ matrix.format }}, downloading all resources..."
-            yarn run prepare:7za
-          fi
-          echo "Checking resources directory:"
-          ls -alh ./resources/theme || echo "Theme directory not found"
-          # check 7za.exe and theme dir
-          if [[ -f "./resources/7za.exe" ]]; then
-            echo "✅ 7za.exe exists"
-          else
-            echo "❌ 7za.exe does not exist"
-          fi
+        run: yarn install --frozen-lockfile --ignore-engines --non-interactive
 
-      - name: Build & release app
-        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
+      - name: Prepare portable resources
+        if: contains(matrix.formats, 'zip') || contains(matrix.formats, '7z')
+        run: yarn run prepare:7za
+
+      - name: Test packaging hooks
+        run: yarn test:packaging
+
+      - name: Compile app once for this OS and architecture
+        run: yarn build:app
+
+      - name: Package and validate selected formats
         shell: bash
         run: |
+          set -euo pipefail
           if [ "${{ matrix.os }}" == "windows-11-arm" ]; then
             export CSC_IDENTITY_AUTO_DISCOVERY=false
             unset CSC_LINK WIN_CSC_LINK CSC_KEY_PASSWORD
           fi
-          if [[ "${{ matrix.os }}" == windows* ]]; then
-            yarn run build:win ${{ matrix.format}} --${{ matrix.arch }} --publish never
-          elif [[ "${{ matrix.os }}" == macos* ]]; then
-            yarn run build:mac default --${{ matrix.arch }} --publish never
-          elif [[ "${{ matrix.os }}" == ubuntu* ]]; then
-            yarn run build:linux ${{ matrix.format}} --${{ matrix.arch }} --publish never
-          else
-            echo "Unsupported OS: ${{ matrix.os }}"
-            exit 1
-          fi
+          for format in $BUILD_FORMATS; do
+            # The application is already compiled. Package each target separately
+            # and snapshot its YAML before another target writes the same filename.
+            case "${{ runner.os }}" in
+              Windows) yarn electron-builder --win "$format" --${{ matrix.arch }} --publish never ;;
+              macOS) yarn electron-builder --mac default --${{ matrix.arch }} --publish never ;;
+              Linux) yarn electron-builder --linux "$format" --${{ matrix.arch }} --publish never ;;
+              *) exit 1 ;;
+            esac
+            node scripts/release-manifest.js stage-build ./dist_electron \
+              --build "${{ matrix.os }}-${{ matrix.arch }}-$format" --stage-dir ./release
+          done
         env:
-          USE_SYSTEM_FPM: ${{ runner.os == 'Linux' && matrix.arch == 'arm64' && (matrix.format == 'deb' || matrix.format == 'rpm') && 'true' || 'false' }}
+          BUILD_FORMATS: ${{ join(matrix.formats, ' ') }}
+          USE_SYSTEM_FPM: ${{ runner.os == 'Linux' && matrix.arch == 'arm64' && (contains(matrix.formats, 'deb') || contains(matrix.formats, 'rpm')) && 'true' || 'false' }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           ELECTRON_SKIP_NOTARIZATION: ${{ secrets.ELECTRON_SKIP_NOTARIZATION }}
           XCODE_APP_LOADER_EMAIL: ${{ secrets.XCODE_APP_LOADER_EMAIL }}
@@ -214,29 +159,20 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           USE_HARD_LINKS: false
 
-      - name: Validate expected build artifacts and metadata
-        id: build-files
-        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
-        shell: bash
-        run: |
-          node scripts/release-manifest.js check-build ./dist_electron \
-            --build "${{ matrix.filter }}" --github-output "$GITHUB_OUTPUT"
-
       - name: Upload build artifacts
-        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.filter }}-artifacts
-          path: ${{ steps.build-files.outputs.files }}
+          name: ${{ matrix.os }}-${{ matrix.arch }}-artifacts
+          path: ./release/artifacts/
           retention-days: 30
           if-no-files-found: 'error'
 
       - name: Upload yml artifacts
-        if: steps.build-files.outputs.has_metadata == 'true'
+        if: matrix.has_metadata
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.filter }}-yml
-          path: ${{ steps.build-files.outputs.metadata_files }}
+          name: ${{ matrix.os }}-${{ matrix.arch }}-yml
+          path: ./release/yml/
           retention-days: 30
           if-no-files-found: 'error'
 
@@ -266,12 +202,16 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: '22.x'
+          cache: yarn
+          cache-dependency-path: yarn.lock
 
-      - name: Install dependencies
+      - name: Install release utility dependencies without lifecycle scripts
         shell: bash
         run: |
-          yarn config set ignore-engines true
-          rm -rf node_modules && yarn install --frozen-lockfile
+          node scripts/prepare-release-dependencies.js "$RUNNER_TEMP/release-tools"
+          yarn --cwd "$RUNNER_TEMP/release-tools" install \
+            --modules-folder "$GITHUB_WORKSPACE/node_modules" \
+            --frozen-lockfile --ignore-scripts --ignore-engines --non-interactive
 
       - name: Test release publication
         run: yarn test:release
@@ -285,6 +225,7 @@ jobs:
         with:
           pattern: '*-artifacts'
           path: ./artifacts
+          merge-multiple: true
 
       - name: Download YML Artifacts
         # Windows ZIP/7z and Snap builds intentionally have no updater YAML.
@@ -293,7 +234,7 @@ jobs:
         with:
           pattern: '*-yml'
           path: ./yml-artifacts
-          merge-multiple: false
+          merge-multiple: true
 
       - name: Combine and deduplicate yml files
         run: |

@@ -1,10 +1,25 @@
 import { randomUUID } from 'node:crypto'
-import { appendFile, lstat } from 'node:fs/promises'
+import { appendFile, copyFile, lstat, mkdir } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
 
 import { selectManifest } from './config.js'
+
+export function createBuildMatrix(build = 'All') {
+  const { binaries } = selectManifest(build)
+  const groups = new Map()
+  for (const selection of new Set(binaries.map(file => file.build))) {
+    const [, os, arch, format] = /^(.*)-(x64|arm64)-([^-]+)$/.exec(selection) ?? []
+    if (!os) throw new Error('Invalid release build configuration')
+    const key = `${os}-${arch}`
+    if (!groups.has(key)) groups.set(key, { os, arch, formats: [], has_metadata: false })
+    const group = groups.get(key)
+    group.formats.push(format)
+    group.has_metadata ||= selectManifest(selection).metadata.length > 0
+  }
+  return { include: [...groups.values()] }
+}
 
 async function checkFile(filePath, optional = false) {
   let stat
@@ -36,25 +51,53 @@ export async function validateBuildArtifacts(buildDir, build) {
   return { manifest, files, metadataFiles }
 }
 
+export async function stageBuildArtifacts(buildDir, build, stageDir) {
+  // Snapshot each target before the next electron-builder invocation overwrites
+  // shared updater filenames such as latest-linux.yml. Preserve the directories
+  // expected by the existing release manifest inside each OS/architecture bundle.
+  const result = await validateBuildArtifacts(buildDir, build)
+  const copy = async (files, directory) => {
+    if (!files.length) return []
+    await mkdir(directory, { recursive: true })
+    return Promise.all(
+      files.map(async file => {
+        const destination = path.join(directory, path.basename(file))
+        await copyFile(file, destination)
+        return destination
+      }),
+    )
+  }
+  return {
+    manifest: result.manifest,
+    files: await copy(result.files, path.join(stageDir, 'artifacts', `${build}-artifacts`)),
+    metadataFiles: await copy(result.metadataFiles, path.join(stageDir, 'yml', `${build}-yml`)),
+  }
+}
+
 async function main() {
   const { values, positionals } = parseArgs({
     allowPositionals: true,
     options: {
       build: { type: 'string', default: 'All' },
       'github-output': { type: 'string' },
+      'stage-dir': { type: 'string', default: './release' },
     },
   })
   const [mode, buildDir = './dist_electron'] = positionals
-  if (!['plan', 'check-build'].includes(mode) || positionals.length > 2) {
-    throw new Error('Choose plan or check-build with an optional build directory')
+  if (!['plan', 'check-build', 'stage-build'].includes(mode) || positionals.length > 2) {
+    throw new Error('Choose plan, check-build or stage-build with an optional build directory')
   }
   const manifest = selectManifest(values.build)
   const outputs = {
     has_metadata: String(manifest.metadata.length > 0),
     expected_manifest: JSON.stringify(manifest),
   }
-  if (mode === 'check-build') {
-    const { files, metadataFiles } = await validateBuildArtifacts(buildDir, values.build)
+  if (mode === 'plan') outputs.matrix = JSON.stringify(createBuildMatrix(values.build))
+  if (mode === 'check-build' || mode === 'stage-build') {
+    const { files, metadataFiles } =
+      mode === 'stage-build'
+        ? await stageBuildArtifacts(buildDir, values.build, values['stage-dir'])
+        : await validateBuildArtifacts(buildDir, values.build)
     outputs.files = files.join('\n')
     outputs.metadata_files = metadataFiles.join('\n')
   }
