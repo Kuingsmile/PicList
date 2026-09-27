@@ -1,5 +1,6 @@
 const fs = require('node:fs')
 const path = require('node:path')
+const { parseArgs } = require('node:util')
 const yaml = require('js-yaml')
 
 function removeDuplicates(files) {
@@ -22,28 +23,29 @@ function removeDuplicates(files) {
   })
 }
 
-function combineYmlFiles(ymlFiles, outputPath) {
-  if (ymlFiles.length === 0) {
-    console.log(`No yml files found for ${outputPath}`)
-    return
-  }
-
+function combineYmlFiles(sources, distPath, version) {
   let combinedData = null
 
-  for (const ymlFile of ymlFiles) {
+  for (const source of sources) {
+    const ymlFile = path.join(distPath, source.path)
+    const stat = fs.lstatSync(ymlFile)
+    if (!stat.isFile() || stat.size === 0 || stat.size > 1024 * 1024) {
+      throw new Error('Expected a nonempty regular updater manifest of at most 1 MiB')
+    }
     const content = fs.readFileSync(ymlFile, 'utf8')
     const data = yaml.load(content)
-    if (!data || typeof data.version !== 'string' || !Array.isArray(data.files) || data.files.length === 0) {
+    if (!data || data.version !== version || !Array.isArray(data.files) || data.files.length === 0) {
       throw new Error('Invalid updater metadata')
+    }
+    data.files = removeDuplicates(data.files)
+    if (data.files.length !== source.files.length || data.files.some(file => !source.files.includes(file.url))) {
+      throw new Error('Updater metadata does not match the selected build binaries')
     }
 
     if (!combinedData) {
       combinedData = data
     } else {
-      if (data.version !== combinedData.version) throw new Error('Cannot combine different release versions')
-      if (data.files && Array.isArray(data.files)) {
-        combinedData.files = [...(combinedData.files || []), ...data.files]
-      }
+      combinedData.files.push(...data.files)
 
       if (
         data.releaseDate &&
@@ -54,97 +56,51 @@ function combineYmlFiles(ymlFiles, outputPath) {
     }
   }
 
-  if (combinedData && combinedData.files) {
-    combinedData.files = removeDuplicates(combinedData.files)
-  }
-
-  const ymlContent = yaml.dump(combinedData, { lineWidth: -1 })
-  fs.writeFileSync(outputPath, ymlContent, 'utf8')
-  console.log(`Created ${outputPath} with ${combinedData?.files?.length || 0} file entries`)
+  combinedData.files = removeDuplicates(combinedData.files)
+  return yaml.dump(combinedData, { lineWidth: -1 })
 }
 
-function findYmlInFolder(basePath, folderPattern, ymlFileName) {
-  const folders = fs.existsSync(basePath)
-    ? fs.readdirSync(basePath).filter(f => {
-        const fullPath = path.join(basePath, f)
-        return fs.statSync(fullPath).isDirectory() && f.includes(folderPattern)
-      })
-    : []
-
-  const ymlFiles = []
-  for (const folder of folders) {
-    const ymlPath = path.join(basePath, folder, ymlFileName)
-    if (fs.existsSync(ymlPath)) {
-      ymlFiles.push(ymlPath)
-    }
+async function combineSelectedYml(distPath, outputDir, build = 'All') {
+  const { selectManifest } = await import('./config.js')
+  const manifest = selectManifest(build)
+  // Use exact artifact directories, never substring matches or the set of files
+  // that happened to arrive. All requires every metadata-producing matrix job.
+  // Read and validate every source before writing any combined channel.
+  const combined = manifest.metadata.map(metadata => ({
+    name: metadata.name,
+    content: combineYmlFiles(metadata.sources, distPath, manifest.version),
+  }))
+  fs.mkdirSync(outputDir, { recursive: true })
+  // Refuse a reused output directory containing channels from another selection.
+  if (
+    fs.readdirSync(outputDir).some(name => /^latest.*\.yml$/.test(name) && !combined.some(file => file.name === name))
+  ) {
+    throw new Error('Output directory contains an unselected updater channel')
   }
-  return ymlFiles
+  for (const file of combined) {
+    fs.writeFileSync(path.join(outputDir, file.name), file.content, 'utf8')
+  }
+  return combined.map(file => path.join(outputDir, file.name))
 }
 
-function main() {
-  const distPath = process.argv[2] || './dist_electron'
-  const outputDir = process.argv[3] || './dist_electron/combined'
-
-  console.log(`Processing yml files from: ${distPath}`)
-  console.log(`Output directory: ${outputDir}`)
-
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true })
-  }
-
-  const windowsX64Ymls = findYmlInFolder(distPath, 'windows-latest-x64-nsis-yml', 'latest.yml')
-  const windowsArm64Ymls = findYmlInFolder(distPath, 'windows-11-arm-arm64-nsis-yml', 'latest.yml')
-  const macX64Ymls = findYmlInFolder(distPath, 'macos-15-intel-x64-dmg-yml', 'latest-mac.yml')
-  const macArm64Ymls = findYmlInFolder(distPath, 'macos-latest-arm64-dmg-yml', 'latest-mac.yml')
-  const linuxX64AppImageYmls = findYmlInFolder(distPath, 'ubuntu-latest-x64-AppImage-yml', 'latest-linux.yml')
-  const linuxArm64AppImageYmls = findYmlInFolder(
-    distPath,
-    'ubuntu-24.04-arm-arm64-AppImage-yml',
-    'latest-linux-arm64.yml',
-  )
-  const linuxX64DebYmls = findYmlInFolder(distPath, 'ubuntu-latest-x64-deb-yml', 'latest-linux.yml')
-  const linuxArm64DebYmls = findYmlInFolder(distPath, 'ubuntu-24.04-arm-arm64-deb-yml', 'latest-linux-arm64.yml')
-  const linuxX64RpmYmls = findYmlInFolder(distPath, 'ubuntu-latest-x64-rpm-yml', 'latest-linux.yml')
-  const linuxArm64RpmYmls = findYmlInFolder(distPath, 'ubuntu-24.04-arm-arm64-rpm-yml', 'latest-linux-arm64.yml')
-
-  const windowsYmls = [...windowsX64Ymls, ...windowsArm64Ymls]
-  if (windowsYmls.length > 0) {
-    console.log(`\nCombining ${windowsYmls.length} Windows yml files...`)
-    combineYmlFiles(windowsYmls, path.join(outputDir, 'latest.yml'))
-  } else {
-    console.log('\nNo Windows yml files found to combine')
-  }
-
-  const macYmls = [...macX64Ymls, ...macArm64Ymls]
-  if (macYmls.length > 0) {
-    console.log(`\nCombining ${macYmls.length} macOS yml files...`)
-    combineYmlFiles(macYmls, path.join(outputDir, 'latest-mac.yml'))
-  } else {
-    console.log('\nNo macOS yml files found to combine')
-  }
-  const linuxX64Ymls = [...linuxX64AppImageYmls, ...linuxX64DebYmls, ...linuxX64RpmYmls]
-  if (linuxX64Ymls.length > 0) {
-    console.log(`\nCombining ${linuxX64Ymls.length} Linux x64 yml files...`)
-    combineYmlFiles(linuxX64Ymls, path.join(outputDir, 'latest-linux.yml'))
-  } else {
-    console.log('\nNo Linux x64 yml files found to combine')
-  }
-
-  const linuxArm64Ymls = [...linuxArm64AppImageYmls, ...linuxArm64DebYmls, ...linuxArm64RpmYmls]
-  if (linuxArm64Ymls.length > 0) {
-    console.log(`\nCombining ${linuxArm64Ymls.length} Linux arm64 yml files...`)
-    combineYmlFiles(linuxArm64Ymls, path.join(outputDir, 'latest-linux-arm64.yml'))
-  } else {
-    console.log('\nNo Linux arm64 yml files found to combine')
-  }
-
-  console.log('\nYML combination and deduplication complete!')
+async function main() {
+  const { values, positionals } = parseArgs({
+    allowPositionals: true,
+    options: { build: { type: 'string', default: 'All' } },
+  })
+  if (positionals.length > 2) throw new Error('Expected an input directory and an output directory')
+  const [distPath = './yml-artifacts', outputDir = './dist_electron/combined'] = positionals
+  const files = await combineSelectedYml(distPath, outputDir, values.build)
+  console.log(`Combined ${files.length} expected updater manifests`)
+  if (files.length === 0) console.log('No updater YAML is expected for this portable or Snap selection')
 }
 
-try {
-  main()
-} catch {
-  // YAML parser errors may contain document contents. Keep diagnostics safe for CI logs.
-  console.error('Updater metadata combination failed: check versions, file entries and duplicate checksums')
-  process.exitCode = 1
+module.exports = { combineSelectedYml }
+
+if (require.main === module) {
+  main().catch(() => {
+    // YAML parser errors may contain document contents. Keep diagnostics safe for CI logs.
+    console.error('Updater metadata combination failed: check required sources, versions, entries and checksums')
+    process.exitCode = 1
+  })
 }

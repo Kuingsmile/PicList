@@ -1,25 +1,25 @@
-// different platform has different format
+// Expected filenames follow electron-builder.json, including each format's architecture spelling.
 import path from 'node:path'
 
 import pkg from '../package.json' with { type: 'json' }
 
 export const version = pkg.version
 
-// macos
+// Keep x64 first for the combined manifest's legacy path/sha512 fields.
 const darwin = [
-  {
-    appNameWithPrefix: 'PicList-',
-    ext: '.dmg',
-    arch: '-arm64',
-    'version-file': 'latest-mac.yml',
-    path: 'macos-latest-arm64-dmg-artifacts',
-  },
   {
     appNameWithPrefix: 'PicList-',
     ext: '.dmg',
     arch: '-x64',
     'version-file': 'latest-mac.yml',
     path: 'macos-15-intel-x64-dmg-artifacts',
+  },
+  {
+    appNameWithPrefix: 'PicList-',
+    ext: '.dmg',
+    arch: '-arm64',
+    'version-file': 'latest-mac.yml',
+    path: 'macos-latest-arm64-dmg-artifacts',
   },
   {
     appNameWithPrefix: 'PicList-',
@@ -149,6 +149,26 @@ export const selectFiles = (build = 'All') => {
   const selected = build === 'All' ? fileList : fileList.filter(file => file.build === build)
   if (selected.length === 0) throw new Error('Unknown release build selection')
   return selected
+}
+
+// A macOS "dmg" selection runs the default target (DMG + ZIP). Windows ZIP/7z
+// archives are portable and have no updater YAML; Snap updates through its store.
+// Missing metadata is allowed only for those selections, never inferred from disk.
+export const selectManifest = (build = 'All') => {
+  const binaries = selectFiles(build)
+  const metadata = new Map()
+  for (const file of binaries) {
+    if (!file.metadata) continue
+    if (!metadata.has(file.metadata)) metadata.set(file.metadata, { name: file.metadata, sources: [] })
+    const channel = metadata.get(file.metadata)
+    let source = channel.sources.find(source => source.build === file.build)
+    if (!source) {
+      source = { build: file.build, path: path.join(`${file.build}-yml`, file.metadata), files: [] }
+      channel.sources.push(source)
+    }
+    source.files.push(file.name)
+  }
+  return { build, version, binaries, metadata: [...metadata.values()] }
 }
 
 export default {

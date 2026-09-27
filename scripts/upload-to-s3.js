@@ -12,7 +12,7 @@ import dotenv from 'dotenv'
 import semver from 'semver'
 import YAML from 'yaml'
 
-import { selectFiles, version } from './config.js'
+import { selectManifest, version } from './config.js'
 
 const BUCKET = 'piclist-dl'
 const CONCURRENCY = 3
@@ -117,18 +117,18 @@ export async function validateManifest({
   if (!semver.valid(version)) fail('Invalid package.json release version')
   let selected
   try {
-    selected = selectFiles(build)
+    selected = selectManifest(build)
   } catch {
     fail('Unknown release build selection')
   }
-  const binaries = await boundedMap(selected, async file => ({
+  const binaries = await boundedMap(selected.binaries, async file => ({
     ...file,
     ...(await inspectFile(path.join(artifactDir, file.path))),
   }))
   const blockmaps = (
-    await boundedMap(selected, file => inspectFile(path.join(artifactDir, file.blockMapPath), true))
+    await boundedMap(selected.binaries, file => inspectFile(path.join(artifactDir, file.blockMapPath), true))
   ).filter(Boolean)
-  const metadataNames = [...new Set(selected.map(file => file.metadata).filter(Boolean))]
+  const metadataNames = selected.metadata.map(file => file.name)
   let entries = []
   try {
     entries = await readdir(metadataDir)

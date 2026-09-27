@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Tag name to build'
+        description: 'Release label/tag; non-promoting builds use an isolated run-specific draft tag'
         required: false
         default: 'preview'
         type: string
@@ -121,7 +121,7 @@ jobs:
           git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # step2: sign
       - name: Install the Apple certificates
@@ -132,7 +132,7 @@ jobs:
 
       # step3: install node env
       - name: Install Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22.x'
 
@@ -214,30 +214,29 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           USE_HARD_LINKS: false
 
+      - name: Validate expected build artifacts and metadata
+        id: build-files
+        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
+        shell: bash
+        run: |
+          node scripts/release-manifest.js check-build ./dist_electron \
+            --build "${{ matrix.filter }}" --github-output "$GITHUB_OUTPUT"
+
       - name: Upload build artifacts
         if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.filter }}-artifacts
-          path: |
-            dist_electron/*.exe
-            dist_electron/*.dmg
-            dist_electron/*.zip
-            dist_electron/*.7z
-            dist_electron/*.AppImage
-            dist_electron/*.deb
-            dist_electron/*.rpm
-            dist_electron/*.snap
-            dist_electron/*.blockmap
+          path: ${{ steps.build-files.outputs.files }}
           retention-days: 30
           if-no-files-found: 'error'
 
       - name: Upload yml artifacts
-        if: (github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All') && (matrix.format == 'nsis' || matrix.format == 'dmg' || matrix.format == 'AppImage' || matrix.format == 'deb' || matrix.format == 'rpm')
+        if: steps.build-files.outputs.has_metadata == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.filter }}-yml
-          path: dist_electron/**/*.yml
+          path: ${{ steps.build-files.outputs.metadata_files }}
           retention-days: 30
           if-no-files-found: 'error'
 
@@ -258,10 +257,10 @@ jobs:
 
     steps:
       - name: Check out git repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22.x'
 
@@ -273,6 +272,10 @@ jobs:
 
       - name: Test release publication
         run: yarn test:release
+
+      - name: Derive expected release artifacts and metadata
+        id: expected
+        run: node scripts/release-manifest.js plan --build "$RELEASE_BUILD" --github-output "$GITHUB_OUTPUT"
 
       - name: Generate Release Notes
         run: |
@@ -286,6 +289,8 @@ jobs:
           path: ./artifacts
 
       - name: Download YML Artifacts
+        # Windows ZIP/7z and Snap builds intentionally have no updater YAML.
+        if: steps.expected.outputs.has_metadata == 'true'
         uses: actions/download-artifact@v8
         with:
           pattern: '*-yml'
@@ -294,7 +299,7 @@ jobs:
 
       - name: Combine and deduplicate yml files
         run: |
-          node scripts/combine-yml.cjs ./yml-artifacts ./dist_electron/combined
+          node scripts/combine-yml.cjs ./yml-artifacts ./dist_electron/combined --build "$RELEASE_BUILD"
 
       - name: Validate selected release manifest
         id: manifest
@@ -309,14 +314,18 @@ jobs:
 
       # GitHub is the prerequisite publication backend. A failed GitHub release
       # fails this job and prevents both S3 staging and latest promotion.
+      # Draft/prerelease flags do not protect an existing release with the same
+      # tag. Isolate every non-promoting run so partial metadata cannot replace
+      # assets on a complete public update channel, even if that tag was requested.
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.GH_TOKEN }}
-          tag_name: ${{ github.event.inputs.tag_name }}
+          tag_name: ${{ env.PROMOTE_LATEST == 'true' && env.RELEASE_TAG || format('build-{0}-{1}', github.run_id, github.run_attempt) }}
           target_commitish: ${{ github.sha }}
           draft: ${{ env.PROMOTE_LATEST != 'true' }}
           prerelease: ${{ env.PROMOTE_LATEST != 'true' }}
+          make_latest: ${{ env.PROMOTE_LATEST == 'true' }}
           body_path: ./release-notes.md
           name: ${{ github.event.inputs.tag_name }}
           fail_on_unmatched_files: true
