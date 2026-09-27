@@ -536,7 +536,7 @@
       class="image-preview-modal"
     >
       <div class="flex-1 p-4">
-        <img :src="ImagePreviewList[getCurrentPreviewIndex]" class="max-h-[70vh] max-w-full object-contain" />
+        <img :src="previewContent" class="max-h-[70vh] max-w-full object-contain" @error="handlePreviewError" />
       </div>
     </CustomModal>
 
@@ -1107,7 +1107,7 @@
     >
       <div class="flex h-full w-full">
         <pre class="overflow-auto font-['SF_Mono',Monaco,Menlo,'Ubuntu_Mono',monospace] text-base text-main">{{
-          textfileContent
+          previewContent
         }}</pre>
       </div>
     </CustomModal>
@@ -1123,7 +1123,7 @@
       <div class="flex h-full w-full items-center justify-center bg-black">
         <video-player
           class="video-player"
-          :src="videoFileUrl"
+          :sources="videoSources"
           :volume="0.6"
           :options="{
             autoplay: true,
@@ -1141,6 +1141,7 @@
           controls
           playsinline
           loop
+          @error="handlePreviewError"
         />
       </div>
     </CustomModal>
@@ -1215,6 +1216,7 @@ import ImagePreSign from '@/components/ImagePreSign.vue'
 import ImageWebdav from '@/components/ImageWebdav.vue'
 import VirtualScroller from '@/components/VirtualScroller.vue'
 import useConfirm from '@/hooks/useConfirm'
+import { useFilePreview } from '@/hooks/useFilePreview'
 import useMessage from '@/hooks/useMessage'
 import FileInfo from '@/manage/pages/components/FileInfo.vue'
 import IconButton from '@/manage/pages/components/IconButton.vue'
@@ -1233,6 +1235,7 @@ import {
 import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { applyDeletionResult, type DeletionState, retryDeletionTargets } from '@/manage/utils/deletion'
 import { splitFileName } from '@/manage/utils/fileName'
+import type { PreviewKind, PreviewSource } from '@/manage/utils/filePreview'
 import { appendListingItems, ListingSession } from '@/manage/utils/listingSession'
 import { textFileExt } from '@/manage/utils/textfile'
 import { appendThumbnailSuffix } from '@/manage/utils/thumbnailUrl'
@@ -1265,6 +1268,7 @@ const uploadDialog = useTemplateRef<HTMLDivElement>('uploadDialog')
 useDragEventListeners(uploadDialog)
 const fileListings = new ListingSession(window.electron)
 const downloadListings = new ListingSession(window.electron)
+const filePreview = useFilePreview()
 let viewGeneration = 0
 let unmounted = false
 let scrollTimeout: ReturnType<typeof setTimeout> | undefined
@@ -1277,7 +1281,7 @@ const configMap = ref<Record<string, any>>(JSON.parse(JSON.stringify(props.confi
 // 页面布局控制
 const isLoadingData = ref(false)
 const isShowLoadingPage = ref(false)
-const isShowImagePreview = ref(false)
+const isShowImagePreview = filePreview.visible('image')
 const isContentFullscreen = ref(false)
 const layoutStyle = useLocalStorage<'list' | 'grid'>('manage-bucket-page-layout-style', 'grid')
 const copyDropdownOpen = ref(false)
@@ -1339,8 +1343,6 @@ const downloadTaskList = ref([] as IDownloadTask[])
 // 上传文件相关
 const dialogVisible = ref(false)
 const urlToUpload = ref('')
-// 图片预览相关
-const previewedImage = ref('')
 // 快捷键相关
 const isShiftKeyPress = ref<boolean>(false)
 const lastChoosed = ref<number>(-1)
@@ -1349,13 +1351,12 @@ const customDomainList = ref([] as any[])
 const currentCustomDomain = ref('')
 const refreshDownloadTaskId = ref<NodeJS.Timeout | undefined>(undefined)
 // 文件预览相关
-const isShowMarkDownDialog = ref(false)
-const markDownContent = ref('')
-const isShowTextFileDialog = ref(false)
-const textfileContent = ref('')
-const isShowVideoFileDialog = ref(false)
-const videoFileUrl = ref('')
-const videoPlayerHeaders = ref({})
+const isShowMarkDownDialog = filePreview.visible('markdown')
+const isShowTextFileDialog = filePreview.visible('text')
+const isShowVideoFileDialog = filePreview.visible('video')
+const videoSources = filePreview.videoSources
+const previewContent = computed(() => filePreview.preview.value?.content ?? '')
+const markDownContent = computed(() => (isShowMarkDownDialog.value ? renderMarkdown(previewContent.value) : ''))
 // 创建文件夹相关
 const isShowCreateFolderDialog = ref(false)
 const newFolderName = ref('')
@@ -1431,10 +1432,6 @@ const filterList = computed(() => {
 })
 
 const selectedItems = computed(() => filterList.value.filter(item => item.checked))
-
-const ImagePreviewList = computed(() => filterList.value.filter(item => item.isImage).map(item => item.url))
-
-const getCurrentPreviewIndex = computed(() => ImagePreviewList.value.indexOf(previewedImage.value))
 
 const isShowCustomDomainSelectList = computed(() =>
   ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value),
@@ -1888,47 +1885,49 @@ async function handleBreadcrumbClick(index: number) {
 }
 
 async function handleClickFile(item: any) {
-  const options = {} as any
-  if (currentPicBedName.value === 'webdavplist') {
-    options.headers = {
-      Authorization: `Basic ${btoa(`${manageStore.config.picBed[configMap.value.alias].username}:${manageStore.config.picBed[configMap.value.alias].password}`)}`,
-    }
-  }
-  if (item.isImage) {
-    previewedImage.value = item.url
-    isShowImagePreview.value = true
-  } else if (item.isDir) {
+  if (item.isDir) {
     configMap.value.prefix = `/${item.key}`
     await resetParam(false)
-  } else if (item.fileName.endsWith('.md')) {
-    try {
-      message.success(t('pages.manage.bucket.startLoadingFile'))
-      const fileUrl = item.url
-      const res = await fetch(fileUrl, options)
-      const content = await res.text()
-      markDownContent.value = renderMarkdown(content)
-      isShowMarkDownDialog.value = true
-    } catch (_error) {
-      message.error(t('pages.manage.bucket.loadingFailed'))
-    }
-  } else if (
-    textFileExt.includes(window.node.path.extname(item.fileName).toLowerCase()) ||
-    textFileExt.includes(item.fileName.toLowerCase())
-  ) {
-    try {
-      message.success(t('pages.manage.bucket.startLoadingFile'))
-      const fileUrl = item.url
-      const res = await fetch(fileUrl, options)
-      textfileContent.value = await res.text()
-      isShowTextFileDialog.value = true
-    } catch (_error) {
-      message.error(t('pages.manage.bucket.loadingFailed'))
-    }
-  } else if (videoExt.includes(window.node.path.extname(item.fileName).toLowerCase())) {
-    videoFileUrl.value = item.url
-    isShowVideoFileDialog.value = true
-    videoPlayerHeaders.value = options.headers
+    return
   }
+
+  const fileName = (item.fileName ?? '').toLowerCase()
+  const extension = window.node.path.extname(fileName)
+  let kind: PreviewKind
+  if (item.isImage) kind = 'image'
+  else if (extension === '.md') kind = 'markdown'
+  else if (textFileExt.includes(extension) || textFileExt.includes(fileName)) kind = 'text'
+  else if (videoExt.includes(extension)) kind = 'video'
+  else return
+
+  const provider = currentPicBedName.value
+  const source: PreviewSource = {
+    url: item.url,
+    mimeType: kind === 'video' ? window.node.mime.lookup(fileName) || undefined : undefined,
+  }
+  if (provider === 'webdavplist') {
+    const { authType, username, password } = handleGetWebdavConfig()
+    source.webdav = { authType, username, password }
+  } else if (
+    (isUsePreSignedUrl.value && ['aliyun', 'tcyun', 'qiniu', 's3plist', 'github'].includes(provider)) ||
+    (provider === 'github' && configMap.value.bucketConfig.private)
+  ) {
+    const alias = configMap.value.alias
+    const params = handleGetS3Config(item)
+    source.sign = () => window.electron.triggerRPC<string>(IRPCActionType.MANAGE_GET_PRE_SIGNED_URL, alias, params)
+  }
+
+  try {
+    message.success(t('pages.manage.bucket.startLoadingFile'))
+    await filePreview.open(kind, source)
+  } catch {
+    handlePreviewError()
+  }
+}
+
+function handlePreviewError() {
+  filePreview.close()
+  message.error(t('pages.manage.bucket.loadingFailed'))
 }
 
 async function handleChangeCustomUrlInput() {
@@ -2095,6 +2094,7 @@ async function initCustomDomainList(generation = viewGeneration) {
 
 function invalidateListings() {
   viewGeneration++
+  filePreview.close()
   fileListings.cancel()
   downloadListings.cancel()
   isLoadingData.value = false
@@ -2129,8 +2129,6 @@ async function resetParam(force: boolean = false) {
   searchText.value = ''
   urlToUpload.value = ''
   dialogVisible.value = false
-  isShowImagePreview.value = false
-  previewedImage.value = ''
   isShowFileInfo.value = false
   isShowCreateFolderDialog.value = false
   newFolderName.value = ''

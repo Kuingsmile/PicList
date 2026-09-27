@@ -20,8 +20,7 @@ import { computed } from 'vue'
 
 import { useThumbnail } from '@/hooks/useThumbnail'
 import { getFileIconPath } from '@/manage/utils/common'
-import { getAuthHeader } from '@/manage/utils/digestAuth'
-import { formatEndpoint } from '@/utils/common'
+import { fetchPreviewResponse } from '@/manage/utils/filePreview'
 
 const props = defineProps<{
   item: {
@@ -42,28 +41,6 @@ const imageSource = computed(() => {
 
 const iconPath = computed(() => `./assets/icons/${getFileIconPath(props.item.fileName ?? '')}`)
 
-async function getWebdavHeader(key: string, signal: AbortSignal) {
-  let headers: Record<string, any>
-  if (props.config.authType === 'digest') {
-    const authHeader = await getAuthHeader(
-      'GET',
-      formatEndpoint(props.config.endpoint, props.config.sslEnabled || false),
-      `/${key.replace(/^\//, '')}`,
-      props.config.username,
-      props.config.password,
-      signal,
-    )
-    headers = {
-      Authorization: authHeader,
-    }
-  } else {
-    headers = {
-      Authorization: 'Basic ' + btoa(`${props.config.username}:${props.config.password}`),
-    }
-  }
-  return headers
-}
-
 const {
   source: objectUrl,
   isLoading,
@@ -80,11 +57,7 @@ const {
     () => props.config.password,
   ],
   async signal => {
-    const url = props.url
-    const headers = await getWebdavHeader(props.item.key, signal)
-    signal.throwIfAborted()
-    const res = await fetch(url, { method: 'GET', headers, signal })
-    if (!res.ok) throw new Error('Network response was not ok.')
+    const res = await fetchPreviewResponse(props.url, signal, props.config)
     return await res.blob()
   },
 )
