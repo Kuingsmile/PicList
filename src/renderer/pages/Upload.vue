@@ -781,7 +781,8 @@ const pasteFormatList = ref<Record<string, string>>({
 })
 
 const MAX_FAVORITE_PICBEDS = 6
-let longPressTimer: NodeJS.Timeout | null = null
+let longPressTimer: ReturnType<typeof setTimeout> | undefined
+let longPressResetTimer: ReturnType<typeof setTimeout> | undefined
 const LONG_PRESS_DURATION = 500
 
 const isCurrentPicBedInFavorites = computed(() => {
@@ -830,6 +831,8 @@ let removeSyncPicBedListenerCallback: () => void = () => {}
 
 const trackUploadProgress = createUploadProgressTracker()
 let progressVersion = 0
+let progressHideTimer: ReturnType<typeof setTimeout> | undefined
+let progressResetTimer: ReturnType<typeof setTimeout> | undefined
 
 function uploadProgressHandler(event: IUploadProgress): void {
   progressVersion++
@@ -850,15 +853,25 @@ function handleImageProcessSingle() {
   imageProcessDialogVisible.value = true
 }
 
+function clearProgressTimers() {
+  clearTimeout(progressHideTimer)
+  clearTimeout(progressResetTimer)
+  progressHideTimer = undefined
+  progressResetTimer = undefined
+}
+
 function onProgressChange(val: number) {
+  clearProgressTimers()
   if (val === 100) {
     const version = progressVersion
-    setTimeout(() => {
+    progressHideTimer = setTimeout(() => {
+      progressHideTimer = undefined
       if (version !== progressVersion) return
       showProgress.value = false
       showError.value = false
     }, 1000)
-    setTimeout(() => {
+    progressResetTimer = setTimeout(() => {
+      progressResetTimer = undefined
       if (version !== progressVersion) return
       progress.value = 0
     }, 1200)
@@ -1036,37 +1049,40 @@ function handleBadgeClick(picbedType: IFavoritePicbedItem) {
   switchToPicbed(picbedType)
 }
 
+function clearLongPressTimers() {
+  clearTimeout(longPressTimer)
+  clearTimeout(longPressResetTimer)
+  longPressTimer = undefined
+  longPressResetTimer = undefined
+}
+
 function handleBadgeMouseDown(picbedType: IFavoritePicbedItem) {
+  clearLongPressTimers()
   longPressTimer = setTimeout(() => {
+    longPressTimer = undefined
     longPressedBadge.value = picbedType.id
   }, LONG_PRESS_DURATION)
 }
 
 function handleBadgeMouseUp() {
-  if (longPressTimer) {
-    clearTimeout(longPressTimer)
-    longPressTimer = null
-  }
-  setTimeout(() => {
+  clearLongPressTimers()
+  longPressResetTimer = setTimeout(() => {
+    longPressResetTimer = undefined
     longPressedBadge.value = null
   }, 10000)
 }
 
 function handleBadgeTouchStart(picbedType: IFavoritePicbedItem, event: TouchEvent) {
+  clearLongPressTimers()
   longPressTimer = setTimeout(() => {
+    longPressTimer = undefined
     longPressedBadge.value = picbedType.id
     event.preventDefault()
   }, LONG_PRESS_DURATION)
 }
 
 function handleBadgeTouchEnd() {
-  if (longPressTimer) {
-    clearTimeout(longPressTimer)
-    longPressTimer = null
-  }
-  setTimeout(() => {
-    longPressedBadge.value = null
-  }, 10000)
+  handleBadgeMouseUp()
 }
 
 function uploadClipboardFiles() {
@@ -1301,6 +1317,8 @@ function taskQueueUpdateHandler(status: IUploadTaskQueueStatus) {
 let removeTaskQueueUpdateListenerCallback: () => void = () => {}
 
 onBeforeUnmount(() => {
+  clearProgressTimers()
+  clearLongPressTimers()
   $bus.off(SHOW_INPUT_BOX_RESPONSE)
   removeUploadProgressListenerCallback()
   removeSyncPicBedListenerCallback()

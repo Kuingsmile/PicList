@@ -1287,7 +1287,7 @@ import { useStorage } from '@vueuse/core'
 import { compare } from 'compare-versions'
 import type { IConfig } from 'piclist'
 import pkg from 'root/package.json'
-import { computed, nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue'
+import { computed, effectScope, nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
@@ -1595,6 +1595,9 @@ const placeholderList = [
 ]
 
 /* watchers and effects */
+// Keep watchers created after async initialization in a component-owned scope.
+const settingsWatchScope = effectScope()
+
 const addWatch = () => {
   autoWatchKeys.forEach(key => {
     watch(
@@ -1867,10 +1870,13 @@ async function handleIsDisableGPUChange(value: boolean | undefined) {
 
 async function initData() {
   const config = (await getConfig<IConfig>()) || ({} as IConfig)
+  if (!settingsWatchScope.active) return
   const settings = config.settings || {}
   const picBed = config.picBed
   isDisableGPU.value = settings.isDisableGPU || false
-  isPortable.value = (await window.electron.triggerRPC<boolean>(IRPCActionType.GET_IS_PORTABLE)) || false
+  const portable = await window.electron.triggerRPC<boolean>(IRPCActionType.GET_IS_PORTABLE)
+  if (!settingsWatchScope.active) return
+  isPortable.value = portable || false
   showPicBedList.value = picBedG.value.filter(item => item.visible).map(item => item.type)
   galleryPicBedFilterList.value = settings.galleryPicBedFilter || []
   currentTheme.value = settings.theme || 'default.css'
@@ -1880,6 +1886,7 @@ async function initData() {
   })
   try {
     const actualAutoStartStatus = await window.electron.triggerRPC<boolean>(IRPCActionType.PICLIST_AUTO_START_STATUS)
+    if (!settingsWatchScope.active) return
     if (typeof actualAutoStartStatus === 'boolean') {
       formOfSetting.value.autoStart = actualAutoStartStatus
       if (actualAutoStartStatus !== settings.autoStart) {
@@ -1887,8 +1894,10 @@ async function initData() {
       }
     }
   } catch (error) {
+    if (!settingsWatchScope.active) return
     formOfSetting.value.autoStart = settings.autoStart ?? false
   }
+  if (!settingsWatchScope.active) return
   formOfSetting.value.logLevel = initArray(settings.logLevel || [], ['all'])
   formOfSetting.value.autoImportPicBed = initArray(settings.autoImportPicBed || [], [])
   currentLanguage.value = settings.language || 'zh-CN'
@@ -1900,6 +1909,7 @@ async function initData() {
   if (osGlobal.value === 'darwin' && currentStartMode.value === ISartMode.MINI) {
     currentStartMode.value = ISartMode.QUIET
     await saveConfig(configPaths.settings.startMode, ISartMode.QUIET)
+    if (!settingsWatchScope.active) return
   }
   currentShortUrlServer.value = settings.shortUrlServer || 'c1n'
   customLink.value = settings.customLink || '![$fileName]($url)'
@@ -1909,6 +1919,7 @@ async function initData() {
   if (advancedRename.value.enable) {
     formOfSetting.value.autoRename = false
     await saveConfig({ [configPaths.settings.autoRename]: false })
+    if (!settingsWatchScope.active) return
   }
   sync.value = settings.sync || {
     type: 'github',
@@ -1928,7 +1939,7 @@ async function initData() {
     webdavSavePath: '',
   }
   formOfSetting.value.logFileSizeLimit = enforceNumber(settings.logFileSizeLimit) || 10
-  addWatch()
+  settingsWatchScope.run(addWatch)
   fetchReleaseNotes()
 }
 
@@ -2279,6 +2290,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  settingsWatchScope.stop()
   if (unbindTheme) {
     unbindTheme()
   }

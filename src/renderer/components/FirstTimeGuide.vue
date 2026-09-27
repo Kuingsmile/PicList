@@ -99,7 +99,7 @@ import {
   XIcon,
 } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -113,6 +113,9 @@ const hasSeenGuide = useStorage('has-seen-first-time-guide', false)
 const isVisible = ref(false)
 const currentStep = ref(0)
 const spotlightRect = ref<DOMRect | null>(null)
+let isUnmounted = false
+let showGuideTimer: ReturnType<typeof setTimeout> | undefined
+let spotlightTimer: ReturnType<typeof setTimeout> | undefined
 
 interface GuideStep {
   id: string
@@ -186,6 +189,7 @@ const currentStepConfig = computed(() => steps[currentStep.value])
 
 const updateSpotlight = async () => {
   await nextTick()
+  if (isUnmounted) return
   const target = currentStepConfig.value.target
   if (!target) {
     spotlightRect.value = null
@@ -328,8 +332,12 @@ const handleNext = async () => {
 
     if (currentStep.value === 4) {
       await router.push('/main-page/settings')
-      await new Promise(resolve => setTimeout(resolve, 400))
-      await updateSpotlight()
+      if (isUnmounted) return
+      clearTimeout(spotlightTimer)
+      spotlightTimer = setTimeout(() => {
+        spotlightTimer = undefined
+        updateSpotlight()
+      }, 400)
     }
   }
 }
@@ -364,14 +372,22 @@ defineExpose({
   restartGuide,
 })
 
-onMounted(async () => {
+onMounted(() => {
   if (!hasSeenGuide.value) {
-    setTimeout(() => {
+    showGuideTimer = setTimeout(() => {
+      showGuideTimer = undefined
       isVisible.value = true
       updateSpotlight()
     }, 500)
   }
 
   window.addEventListener('resize', updateSpotlight)
+})
+
+onBeforeUnmount(() => {
+  isUnmounted = true
+  window.removeEventListener('resize', updateSpotlight)
+  clearTimeout(showGuideTimer)
+  clearTimeout(spotlightTimer)
 })
 </script>
