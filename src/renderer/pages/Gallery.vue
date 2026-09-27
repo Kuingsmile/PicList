@@ -616,7 +616,13 @@ watch(useShortUrl, async newVal => {
 })
 
 watch(filterList, items => {
-  clearChoosedList()
+  const visibleIds = new Set(items.map(item => item.id))
+  Object.keys(choosedList).forEach(id => {
+    if (!visibleIds.has(id)) {
+      delete choosedList[id]
+    }
+  })
+  lastChoosed.value = -1
   pruneDisplayImageSources(items)
   pruneJxlPreviewState(items)
   nextTick(() => {
