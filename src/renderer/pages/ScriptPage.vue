@@ -532,7 +532,7 @@ import {
   XIcon,
 } from '@lucide/vue'
 import dayjs from 'dayjs'
-import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import BaseSvg from '@/assets/svg/BaseSvg.vue'
@@ -542,7 +542,6 @@ import CustomModal from '@/components/common/CustomModal.vue'
 import MultiSelect from '@/components/common/MultiSelect.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
-import Editor from '@/components/Editor.vue'
 import useConfirm from '@/hooks/useConfirm'
 import useMessage from '@/hooks/useMessage'
 import { getRawData } from '@/utils/common'
@@ -551,6 +550,8 @@ import { getConfig, saveConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType } from '@/utils/enum'
 import { invokeRPC, showRpcError } from '@/utils/rpc'
 import { defaultScriptTemplate, defaultScriptTemplateEn } from '@/utils/static'
+
+const Editor = defineAsyncComponent(() => import('@/components/Editor.vue'))
 
 const { t } = useI18n()
 const message = useMessage()

@@ -17,6 +17,19 @@ import {
   unwrapRpcResult,
 } from '#/rpc'
 
+// Initial window state can arrive at did-finish-load before a lazy route subscribes.
+// Keep only the latest state for each channel until its first renderer listener.
+const pendingWindowMessages = new Map<string, unknown[]>()
+const windowMessageBuffers = new Map(
+  ['clipboardFiles', 'updateFiles', 'SHOW_UPDATE_INFO'].map(channel => {
+    const buffer = (_: IpcRendererEvent, ...args: unknown[]) => {
+      pendingWindowMessages.set(channel, args)
+    }
+    ipcRenderer.on(channel, buffer)
+    return [channel, buffer] as const
+  }),
+)
+
 function setTheme(mode: string) {
   const m = mode === 'dark' ? 'dark' : 'light'
   document.documentElement.setAttribute('data-theme', m)
@@ -164,6 +177,14 @@ try {
     ipcRendererOn: (channel: string, listener: (...args: any[]) => void) => {
       const subscription = (_: IpcRendererEvent, ...args: any[]) => listener(...args)
       ipcRenderer.on(channel, subscription)
+      const buffer = windowMessageBuffers.get(channel)
+      if (buffer) {
+        ipcRenderer.removeListener(channel, buffer)
+        windowMessageBuffers.delete(channel)
+        const pending = pendingWindowMessages.get(channel)
+        pendingWindowMessages.delete(channel)
+        if (pending) listener(...pending)
+      }
       return () => {
         ipcRenderer.removeListener(channel, subscription)
       }

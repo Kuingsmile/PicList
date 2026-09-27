@@ -256,7 +256,7 @@
 import { CheckCircle2, Circle, Clock, Cloud, Copy, Heart, Pencil, Plus, Settings2, Star, Trash2 } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
 import dayjs from 'dayjs'
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, defineAsyncComponent, onBeforeMount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 
@@ -264,7 +264,6 @@ import CustomButton from '@/components/common/CustomButton.vue'
 import CustomInput from '@/components/common/CustomInput.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
-import Editor from '@/components/Editor.vue'
 import useConfirm from '@/hooks/useConfirm'
 import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
@@ -274,6 +273,8 @@ import { getConfig, saveConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType } from '@/utils/enum'
 import { invokeRPC, showRpcError } from '@/utils/rpc'
 import { defaultScriptTemplate, defaultScriptTemplateEn } from '@/utils/static'
+
+const Editor = defineAsyncComponent(() => import('@/components/Editor.vue'))
 
 const { t } = useI18n()
 const message = useMessage()

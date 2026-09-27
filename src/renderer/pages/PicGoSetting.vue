@@ -1287,7 +1287,18 @@ import { useStorage } from '@vueuse/core'
 import { compare } from 'compare-versions'
 import type { IConfig } from 'piclist'
 import pkg from 'root/package.json'
-import { computed, effectScope, nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  effectScope,
+  nextTick,
+  onBeforeMount,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  toRaw,
+  watch,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
@@ -1302,7 +1313,6 @@ import placeholderTable from '@/components/common/PlaceholderTable.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
-import Editor from '@/components/Editor.vue'
 import GallerySync from '@/components/GallerySync.vue'
 import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
 import useConfirm from '@/hooks/useConfirm'
@@ -1317,6 +1327,8 @@ import { II18nLanguage, IRPCActionType, ISartMode } from '@/utils/enum'
 import { getLatestVersion, isValidVersion } from '@/utils/getLatestVersion'
 import { renderMarkdown } from '@/utils/markdown'
 import { invokeRPC, saveWithFeedback, showRpcError } from '@/utils/rpc'
+
+const Editor = defineAsyncComponent(() => import('@/components/Editor.vue'))
 
 /* reactive data and refs */
 const { t, locale } = useI18n()

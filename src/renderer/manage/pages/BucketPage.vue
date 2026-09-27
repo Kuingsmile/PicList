@@ -1121,7 +1121,7 @@
       :title="t('pages.manage.bucket.play')"
     >
       <div class="flex h-full w-full items-center justify-center bg-black">
-        <video-player
+        <VideoPlayer
           class="video-player"
           :sources="videoSources"
           :volume="0.6"
@@ -1200,7 +1200,17 @@ import {
   XIcon,
 } from '@lucide/vue'
 import { useLocalStorage } from '@vueuse/core'
-import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef, watch } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  nextTick,
+  onBeforeMount,
+  onBeforeUnmount,
+  reactive,
+  ref,
+  useTemplateRef,
+  watch,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
@@ -1246,6 +1256,12 @@ import { IRPCActionType } from '@/utils/enum'
 import { renderMarkdown } from '@/utils/markdown'
 import { type DeleteResult, type DeleteTarget, failedDeletion, removeDeletedEntries } from '#/deletion'
 import type { ListingRequest, ListingResult } from '#/listing'
+
+const VideoPlayer = defineAsyncComponent(async () => {
+  const [{ VideoPlayer }] = await Promise.all([import('@videojs-player/vue'), import('video.js/dist/video-js.css')])
+  return VideoPlayer
+})
+
 /*
 configMap:{
     prefix: string, -> baseDir
