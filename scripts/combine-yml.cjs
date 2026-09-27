@@ -5,12 +5,19 @@ const yaml = require('js-yaml')
 function removeDuplicates(files) {
   if (!files || !Array.isArray(files)) return files
 
-  const seen = new Set()
+  const seen = new Map()
   return files.filter(file => {
-    if (seen.has(file.url)) {
+    if (!file || typeof file.url !== 'string' || typeof file.sha512 !== 'string') {
+      throw new Error('Invalid updater file entry')
+    }
+    const previous = seen.get(file.url)
+    if (previous) {
+      if (previous.sha512 !== file.sha512 || previous.size !== file.size) {
+        throw new Error('Conflicting duplicate updater file entries')
+      }
       return false
     }
-    seen.add(file.url)
+    seen.set(file.url, file)
     return true
   })
 }
@@ -26,10 +33,14 @@ function combineYmlFiles(ymlFiles, outputPath) {
   for (const ymlFile of ymlFiles) {
     const content = fs.readFileSync(ymlFile, 'utf8')
     const data = yaml.load(content)
+    if (!data || typeof data.version !== 'string' || !Array.isArray(data.files) || data.files.length === 0) {
+      throw new Error('Invalid updater metadata')
+    }
 
     if (!combinedData) {
       combinedData = data
     } else {
+      if (data.version !== combinedData.version) throw new Error('Cannot combine different release versions')
       if (data.files && Array.isArray(data.files)) {
         combinedData.files = [...(combinedData.files || []), ...data.files]
       }
@@ -130,4 +141,10 @@ function main() {
   console.log('\nYML combination and deduplication complete!')
 }
 
-main()
+try {
+  main()
+} catch {
+  // YAML parser errors may contain document contents. Keep diagnostics safe for CI logs.
+  console.error('Updater metadata combination failed: check versions, file entries and duplicate checksums')
+  process.exitCode = 1
+}

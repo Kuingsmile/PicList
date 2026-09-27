@@ -3,7 +3,7 @@ import path from 'node:path'
 
 import pkg from '../package.json' with { type: 'json' }
 
-const version = pkg.version
+export const version = pkg.version
 
 // macos
 const darwin = [
@@ -138,10 +138,18 @@ export const fileList = [...darwin, ...linux, ...win32].map(platformConfig => {
   const fileName = generateFileName(platformConfig, version)
   return {
     name: fileName,
+    build: platformConfig.path.replace(/-artifacts$/, ''),
+    metadata: platformConfig['version-file'],
     path: path.join(platformConfig.path, fileName),
     blockMapPath: path.join(platformConfig.path, `${fileName}.blockmap`),
   }
 })
+
+export const selectFiles = (build = 'All') => {
+  const selected = build === 'All' ? fileList : fileList.filter(file => file.build === build)
+  if (selected.length === 0) throw new Error('Unknown release build selection')
+  return selected
+}
 
 export default {
   darwin,

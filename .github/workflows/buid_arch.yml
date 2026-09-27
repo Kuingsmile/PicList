@@ -9,7 +9,7 @@ on:
         default: 'preview'
         type: string
       publish_enabled:
-        description: 'Publish artifacts after build?'
+        description: 'Enable S3 staging? Stable All builds also publish GitHub and promote latest.'
         required: true
         type: choice
         options:
@@ -17,9 +17,9 @@ on:
           - 'false'
         default: 'false'
       build_os:
-        description: "Build OS"
+        description: 'Build OS'
         required: true
-        default: "All"
+        default: 'All'
         type: choice
         options:
           - windows-latest-x64-zip
@@ -134,7 +134,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22.x"
+          node-version: '22.x'
 
       - name: Install Linux packaging prerequisites
         if: runner.os == 'Linux' && (github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All')
@@ -230,21 +230,31 @@ jobs:
             dist_electron/*.snap
             dist_electron/*.blockmap
           retention-days: 30
-          if-no-files-found: 'ignore'
+          if-no-files-found: 'error'
 
       - name: Upload yml artifacts
-        if: github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All'
+        if: (github.event.inputs.build_os == matrix.filter || github.event.inputs.build_os == 'All') && (matrix.format == 'nsis' || matrix.format == 'dmg' || matrix.format == 'AppImage' || matrix.format == 'deb' || matrix.format == 'rpm')
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.filter }}-yml
           path: dist_electron/**/*.yml
           retention-days: 30
-          if-no-files-found: 'ignore'
+          if-no-files-found: 'error'
 
   combine-and-upload:
     name: Combine and Upload Release
     needs: build
     runs-on: ubuntu-latest
+    # All branches/tags write the same bucket and latest/ keys. Hold the lock through
+    # GitHub publication, versioned staging, compatibility copies and final metadata.
+    concurrency:
+      group: piclist-release-publication
+      cancel-in-progress: false
+    env:
+      RELEASE_BUILD: ${{ github.event.inputs.build_os }}
+      RELEASE_TAG: ${{ github.event.inputs.tag_name }}
+      PUBLICATION_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+      PROMOTE_LATEST: ${{ github.event.inputs.publish_enabled == 'true' && github.event.inputs.build_os == 'All' && github.event.inputs.tag_name != 'preview' }}
 
     steps:
       - name: Check out git repository
@@ -253,13 +263,16 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22.x"
+          node-version: '22.x'
 
       - name: Install dependencies
         shell: bash
         run: |
           yarn config set ignore-engines true
-          rm -rf node_modules && yarn install
+          rm -rf node_modules && yarn install --frozen-lockfile
+
+      - name: Test release publication
+        run: yarn test:release
 
       - name: Generate Release Notes
         run: |
@@ -279,59 +292,52 @@ jobs:
           path: ./yml-artifacts
           merge-multiple: false
 
-      - name: List downloaded artifacts
-        run: |
-          echo "Downloaded artifacts structure:"
-          find ./yml-artifacts -type f -name "*.yml"
-          tree ./yml-artifacts
-          tree ./artifacts
-
       - name: Combine and deduplicate yml files
         run: |
           node scripts/combine-yml.cjs ./yml-artifacts ./dist_electron/combined
-          echo "Combined YML files:"
-          ls -la ./dist_electron/combined/
-          echo "Latest combined YML content:"
-          cat ./dist_electron/combined/latest.yml
-          echo "Latest macOS combined YML content:"
-          cat ./dist_electron/combined/latest-mac.yml
-          echo "Latest linux combined YML content:"
-          cat ./dist_electron/combined/latest-linux.yml
-          echo "Latest linux ARM64 combined YML content:"
-          cat ./dist_electron/combined/latest-linux-arm64.yml
 
-      - name: Publish GitHub Dev Release
+      - name: Validate selected release manifest
+        id: manifest
+        shell: bash
+        run: |
+          args=()
+          if [[ "$PROMOTE_LATEST" == 'true' ]]; then
+            args+=(--promote-latest --release-tag "$RELEASE_TAG")
+          fi
+          node scripts/upload-to-s3.js validate ./artifacts ./dist_electron/combined \
+            --build "$RELEASE_BUILD" --github-output "$GITHUB_OUTPUT" "${args[@]}"
+
+      # GitHub is the prerequisite publication backend. A failed GitHub release
+      # fails this job and prevents both S3 staging and latest promotion.
+      - name: Publish GitHub release
         uses: softprops/action-gh-release@v3
-        continue-on-error: true
         with:
           token: ${{ secrets.GH_TOKEN }}
           tag_name: ${{ github.event.inputs.tag_name }}
-          draft: true
-          prerelease: ${{ github.event.inputs.publish_enabled == 'false' || github.event.inputs.tag_name == 'preview'  }}
+          target_commitish: ${{ github.sha }}
+          draft: ${{ env.PROMOTE_LATEST != 'true' }}
+          prerelease: ${{ env.PROMOTE_LATEST != 'true' }}
           body_path: ./release-notes.md
           name: ${{ github.event.inputs.tag_name }}
-          files: |
-            !artifacts/**/*-unpacked/**
-            artifacts/**/*.exe
-            artifacts/**/*.dmg
-            artifacts/**/*.zip
-            artifacts/**/*.7z
-            artifacts/**/*.AppImage
-            artifacts/**/*.deb
-            artifacts/**/*.snap
-            artifacts/**/*.rpm
-            ./dist_electron/combined/*.yml
-            artifacts/**/*.tar.gz
+          fail_on_unmatched_files: true
+          files: ${{ steps.manifest.outputs.files }}
 
-      - name: Upload to S3
+      - name: Stage and verify versioned S3 release
+        if: github.event.inputs.publish_enabled == 'true'
         run: |
-          if [ "${{ github.event.inputs.publish_enabled }}" == "false" ]; then
-            echo "Publishing is disabled. Skipping upload to S3."
-            exit 0
-          fi
-          node scripts/upload-to-s3.js ./artifacts ./dist_electron/combined
+          node scripts/upload-to-s3.js stage ./artifacts ./dist_electron/combined \
+            --build "$RELEASE_BUILD" --publication-id "$PUBLICATION_ID"
         env:
           R2_SECRET_ID: ${{ secrets.R2_SECRET_ID }}
           R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
 
+      - name: Promote verified S3 release to latest
+        if: env.PROMOTE_LATEST == 'true'
+        run: |
+          node scripts/upload-to-s3.js promote ./artifacts ./dist_electron/combined \
+            --build "$RELEASE_BUILD" --publication-id "$PUBLICATION_ID" --release-tag "$RELEASE_TAG"
+        env:
+          R2_SECRET_ID: ${{ secrets.R2_SECRET_ID }}
+          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
