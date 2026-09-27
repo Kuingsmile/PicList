@@ -3,6 +3,7 @@
   "appId": "com.kuingsmile.piclist",
   "beforePack": "scripts/beforePack.cjs",
   "afterPack": "scripts/afterPack.cjs",
+  "artifactBuildCompleted": "scripts/afterArtifactBuild.cjs",
   "afterSign": "scripts/notarize.cjs",
   "directories": {
     "output": "dist_electron",

@@ -1,27 +1,25 @@
-const fs = require('node:fs')
+const fs = require('node:fs/promises')
 const path = require('node:path')
 
 async function main(context) {
-  const { appOutDir, targets } = context
-  const localeDir = appOutDir + '/locales/'
+  const { appOutDir, electronPlatformName } = context
 
-  fs.readdir(localeDir, function (_err, files) {
-    if (!(files && files.length)) return
-    for (let i = 0, len = files.length; i < len; i++) {
-      if (!(files[i].startsWith('en') || files[i].startsWith('zh'))) {
-        fs.unlinkSync(localeDir + files[i])
-      }
-    }
-  })
-  const isZip = targets.some(target => target.name === 'zip' || target.name === '7z')
-  if (isZip) {
-    const portablePath = path.join(appOutDir, 'PORTABLE')
-    try {
-      fs.writeFileSync(portablePath, '')
-    } catch (err) {
-      console.error('Error creating portable marker file:', err)
-    }
+  // All targets share appOutDir. Portable markers belong only in the final archives,
+  // otherwise NSIS can capture one while building alongside ZIP/7z.
+  if (electronPlatformName === 'win32') {
+    await fs.rm(path.join(appOutDir, 'PORTABLE'), { force: true })
   }
+
+  const localeDir = path.join(appOutDir, 'locales')
+  const files = await fs.readdir(localeDir).catch(err => {
+    if (err.code === 'ENOENT') return []
+    throw err
+  })
+  await Promise.all(
+    files
+      .filter(file => !(file.startsWith('en') || file.startsWith('zh')))
+      .map(file => fs.unlink(path.join(localeDir, file))),
+  )
 }
 
 exports.default = main
