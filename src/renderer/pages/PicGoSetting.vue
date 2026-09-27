@@ -910,7 +910,11 @@
               {{ t('pages.settings.update.newestVersion') }}
             </div>
             <div class="text-lg font-bold text-main group-[.has-update]:text-success">
-              {{ latestVersion ? `${latestVersion}` : t('pages.settings.update.getting') }}
+              {{
+                latestVersionError
+                  ? t('pages.settings.update.networkError')
+                  : latestVersion || t('pages.settings.update.getting')
+              }}
             </div>
           </div>
         </div>
@@ -1310,7 +1314,7 @@ import { enforceNumber } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType, ISartMode } from '@/utils/enum'
-import { getLatestVersion } from '@/utils/getLatestVersion'
+import { getLatestVersion, isValidVersion } from '@/utils/getLatestVersion'
 import { renderMarkdown } from '@/utils/markdown'
 import { invokeRPC, saveWithFeedback, showRpcError } from '@/utils/rpc'
 
@@ -1349,6 +1353,7 @@ const editorLanguage = ref('json')
 const currentEditFile = ref('')
 
 const latestVersion = ref('')
+const latestVersionError = ref(false)
 const releaseNotes = ref('')
 const releaseNotesError = ref('')
 const releaseNotesLastFetch = ref<Date | null>(null)
@@ -1463,12 +1468,7 @@ const secondModeList = computed(() => [
   { label: t('pages.settings.upload.secondPicBedMode.separate'), value: 'separate' },
 ])
 
-const needUpdate = computed(() => {
-  if (latestVersion.value) {
-    return compareVersion2Update(version, latestVersion.value)
-  }
-  return false
-})
+const needUpdate = computed(() => compareVersion2Update(version, latestVersion.value))
 
 const renderedReleaseNotes = computed(() => {
   return renderMarkdown(releaseNotes.value)
@@ -2093,7 +2093,7 @@ async function handleAutoStartChange(val: ICheckBoxValueType) {
 }
 
 function compareVersion2Update(current: string, latest: string): boolean {
-  return compare(current, latest, '<')
+  return isValidVersion(current) && isValidVersion(latest) && compare(current, latest, '<')
 }
 
 function formatLastFetchTime(date: Date): string {
@@ -2153,8 +2153,11 @@ async function fetchReleaseNotesManually(): Promise<void> {
 }
 
 async function checkUpdate() {
+  latestVersion.value = ''
+  latestVersionError.value = false
   checkUpdateVisible.value = true
-  latestVersion.value = (await getLatestVersion()) || t('pages.settings.update.networkError')
+  latestVersion.value = await getLatestVersion()
+  latestVersionError.value = !latestVersion.value
 }
 
 function confirmCheckVersion() {
