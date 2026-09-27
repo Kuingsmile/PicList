@@ -464,6 +464,10 @@ import {
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
 
+const REGISTRY_TIMEOUT_MS = 10_000
+const METADATA_CONCURRENCY = 4
+const METADATA_CACHE_TTL_MS = 5 * 60_000
+
 const { t } = useI18n()
 const { updatePicBeds } = usePicBed()
 const searchText = ref('')
@@ -484,6 +488,12 @@ const browseSearchText = ref('')
 const browsePlugins = ref<IPicGoPlugin[]>([])
 const loadingBrowse = ref(false)
 const experimentalBundledNpm = ref(false)
+let searchController: AbortController | undefined
+let browseController: AbortController | undefined
+let disposed = false
+const metadataQueue = new Set<string>()
+const metadataControllers = new Map<string, AbortController>()
+const metadataFetchedAt = new Map<string, number>()
 
 async function saveBundledNpmSetting(enabled: boolean) {
   experimentalBundledNpm.value = enabled
@@ -513,23 +523,35 @@ const filteredBrowsePlugins = computed(() => {
   })
 })
 
-const getSearchResult = debounce(_getSearchResult, 50)
+const getSearchResult = debounce(_getSearchResult, 300)
 
-watch(npmSearchText, (val: string) => {
-  if (val) {
-    pluginList.value = []
-    getSearchResult(val)
-  } else {
+watch(
+  [npmSearchText, strictSearch],
+  ([val, strict]) => {
+    // Invalidate immediately, including while the next search is still debounced.
     getSearchResult.cancel()
-    getPluginList()
-  }
-})
+    searchController?.abort()
+    searchController = undefined
+    pluginList.value = []
+    loading.value = true
+    if (val) {
+      searchController = new AbortController()
+      getSearchResult(val, strict, searchController)
+    } else {
+      getPluginList()
+    }
+  },
+  { flush: 'sync' },
+)
 
 watch(showBrowseDialog, (val: boolean) => {
   if (val) {
     document.body.style.overflow = 'hidden'
   } else {
     document.body.style.overflow = 'auto'
+    browseController?.abort()
+    browseController = undefined
+    loadingBrowse.value = false
   }
 })
 
@@ -538,14 +560,49 @@ function setSrc(e: Event) {
   target.src = import.meta.env.BASE_URL + 'roundLogo.png'
 }
 
-async function getLatestVersionOfPlugIn(pluginName: string) {
+async function fetchRegistryJson(url: string, controller: AbortController) {
+  const timeout = setTimeout(() => controller.abort(), REGISTRY_TIMEOUT_MS)
   try {
-    const res = await fetch(`https://registry.npmjs.com/${pluginName}`)
-    const data = await res.json()
+    const res = await fetch(url, { signal: controller.signal })
+    if (!res.ok) throw new Error(`Registry request failed (${res.status})`)
+    // Keep the timeout active until the response body has also been read.
+    return await res.json()
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+function queuePluginMetadata(list: IPicGoPlugin[]) {
+  for (const { fullName } of list) {
+    const fetchedAt = metadataFetchedAt.get(fullName)
+    if (fetchedAt !== undefined && Date.now() - fetchedAt < METADATA_CACHE_TTL_MS) continue
+    if (!metadataControllers.has(fullName)) metadataQueue.add(fullName)
+  }
+  loadNextPluginMetadata()
+}
+
+function loadNextPluginMetadata() {
+  while (!disposed && metadataControllers.size < METADATA_CONCURRENCY && metadataQueue.size > 0) {
+    const pluginName = metadataQueue.values().next().value!
+    metadataQueue.delete(pluginName)
+    const controller = new AbortController()
+    metadataControllers.set(pluginName, controller)
+    void getLatestVersionOfPlugIn(pluginName, controller)
+  }
+}
+
+async function getLatestVersionOfPlugIn(pluginName: string, controller: AbortController) {
+  try {
+    const data = await fetchRegistryJson(`https://registry.npmjs.com/${encodeURIComponent(pluginName)}`, controller)
+    if (disposed || controller.signal.aborted || typeof data['dist-tags']?.latest !== 'string') return
     latestVersionMap[pluginName] = data['dist-tags'].latest
     updateTimeMap[pluginName] = (data.time?.modified || '').split('T')[0]
-  } catch (err) {
-    console.error(err)
+    metadataFetchedAt.set(pluginName, Date.now())
+  } catch {
+    if (!controller.signal.aborted) console.error('Failed to fetch plugin metadata')
+  } finally {
+    metadataControllers.delete(pluginName)
+    loadNextPluginMetadata()
   }
 }
 
@@ -571,14 +628,12 @@ function pluginListHandler(list: IPicGoPlugin[]) {
     })
   } else {
     pluginList.value = list
+    loading.value = false
   }
   browsePlugins.value.forEach(item => {
     item.hasInstall = installedPlugins.has(item.fullName)
   })
-  for (const item of list) {
-    getLatestVersionOfPlugIn(item.fullName)
-  }
-  loading.value = false
+  queuePluginMetadata(list)
 }
 
 function installPluginHandler({ success, body }: { success: boolean; body: string }) {
@@ -749,25 +804,30 @@ async function handleConfirmConfig() {
   }
 }
 
-function _getSearchResult(val: string) {
-  fetch(`https://registry.npmjs.com/-/v1/search?text=${val}`)
-    .then(async (res: Response) => {
-      const data = await res.json()
-      pluginList.value = data.objects
-        .filter((item: INPMSearchResultObject) => {
-          return strictSearch.value
-            ? item.package.name.includes('picgo-plugin-') && item.package.name.includes(val)
-            : item.package.name.includes('picgo-plugin-')
-        })
-        .map((item: INPMSearchResultObject) => {
-          return handleSearchResult(item)
-        })
+async function _getSearchResult(val: string, strict: boolean, controller: AbortController) {
+  try {
+    const data = await fetchRegistryJson(
+      `https://registry.npmjs.com/-/v1/search?text=${encodeURIComponent(val)}`,
+      controller,
+    )
+    if (controller !== searchController || controller.signal.aborted) return
+    pluginList.value = data.objects
+      .filter((item: INPMSearchResultObject) => {
+        return strict
+          ? item.package.name.includes('picgo-plugin-') && item.package.name.includes(val)
+          : item.package.name.includes('picgo-plugin-')
+      })
+      .map((item: INPMSearchResultObject) => {
+        return handleSearchResult(item)
+      })
+  } catch {
+    if (controller === searchController && !controller.signal.aborted) console.error('Failed to search plugins')
+  } finally {
+    if (controller === searchController) {
       loading.value = false
-    })
-    .catch((err: any) => {
-      console.log(err)
-      loading.value = false
-    })
+      searchController = undefined
+    }
+  }
 }
 
 function handleSearchResult(item: INPMSearchResultObject) {
@@ -839,10 +899,16 @@ async function openBrowsePluginsDialog() {
 }
 
 async function fetchAllPlugins() {
+  browseController?.abort()
+  const controller = new AbortController()
+  browseController = controller
   loadingBrowse.value = true
   try {
-    const res = await fetch('https://registry.npmjs.com/-/v1/search?text=picgo-plugin-&size=250')
-    const data = await res.json()
+    const data = await fetchRegistryJson(
+      'https://registry.npmjs.com/-/v1/search?text=picgo-plugin-&size=250',
+      controller,
+    )
+    if (controller !== browseController || controller.signal.aborted) return
     browsePlugins.value = data.objects
       .filter((item: INPMSearchResultObject) => {
         return item.package.name.startsWith('picgo-plugin-')
@@ -853,10 +919,13 @@ async function fetchAllPlugins() {
       .sort((a: IPicGoPlugin, b: IPicGoPlugin) => {
         return b.fullName.localeCompare(a.fullName)
       })
-  } catch (err) {
-    console.error('Failed to fetch plugins:', err)
+  } catch {
+    if (controller === browseController && !controller.signal.aborted) console.error('Failed to fetch plugins')
   } finally {
-    loadingBrowse.value = false
+    if (controller === browseController) {
+      loadingBrowse.value = false
+      browseController = undefined
+    }
   }
 }
 
@@ -897,7 +966,15 @@ onBeforeMount(async () => {
 })
 
 onBeforeUnmount(() => {
+  disposed = true
   getSearchResult.cancel()
+  searchController?.abort()
+  searchController = undefined
+  browseController?.abort()
+  browseController = undefined
+  metadataQueue.clear()
+  metadataControllers.forEach(controller => controller.abort())
+  metadataControllers.clear()
   window.electron.ipcRendererRemoveAllListeners('pluginList')
   window.electron.ipcRendererRemoveAllListeners('installPlugin')
   window.electron.ipcRendererRemoveAllListeners('uninstallSuccess')
