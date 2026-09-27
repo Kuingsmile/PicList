@@ -1,167 +1,99 @@
 # FAQ
 
-This FAQ has been modified from PicGo's FAQ, and thanks to the author Molunerfinn for PicGo.
+[简体中文](FAQ.md) | [README](README.md) | [Development guide](CONTRIBUTING_EN.md)
 
-## Common Questions
-
-> Please refer to [user manual](https://piclist.cn/en) for general configuration issues.
+This FAQ originated from PicGo's FAQ. Thanks to PicGo's author, Molunerfinn. For general configuration, see the [user manual](https://piclist.cn/en).
 
 ## 1. What is the relationship between PicList and PicGo?
 
-PicList is forked from the PicGo project and is based on PicGo for secondary development. At the same time, the core function kernel PicGo-Core has been developed for the second time and renamed as [PicList-Core](https://github.com/Kuingsmile/PicList-Core).
+PicList is a desktop application derived from PicGo. Its upload engine is [PicList-Core](https://github.com/Kuingsmile/PicList-Core), installed as the `piclist` dependency. PicList adds cloud storage management, image processing, scripts, and synchronization. It supports PicGo-style integrations and many PicGo plugins; plugin compatibility depends on the plugin and its dependencies.
 
-The addition of all new features to PicList has not affected PicGo's existing functions, so you can use all PicGo plugins in PicList. At the same time, it can still be used in conjunction with software such as Typora and Obsidian.
+## 2. Cloud management cannot retrieve a directory
 
-## 2. When using the image hosting management function, errors such as "unable to retrieve directory" occur
+Check `manage.log` for the provider response, then verify the selected management account, endpoint, bucket or path, and permissions. Cloud management has its own account configuration, separate from upload settings. Provider rate limits and temporary network failures can also cause listing errors; retry according to the returned error. See question 9 for log locations.
 
-Please check the log file `manage.log`. In addition, the API calls of various platforms have a limit on the number of calls per hour. If an error occurs, please try again later.
+## 3. Which providers support gallery remote deletion?
 
-## 3. Which remote image hosting deletion is supported?
+The desktop deletion registry supports:
 
-Currently, the supported image hosting platforms are:
+- Aliyun OSS, Tencent COS, Qiniu Kodo, and Upyun.
+- AWS S3 / compatible services (`aws-s3` and `aws-s3-plist`).
+- GitHub, S.EE (`smms`), and Imgur.
+- WebDAV (`webdavplist`), local storage, and built-in SFTP (`sftpplist`).
+- Lsky Pro (`lskyplist`), Alist (`alist` and `alistplist`), and another PicList server (`piclist`).
+- Doge Cloud (`dogecloud`) and Huawei OBS (`huaweicloud-uploader`) gallery records from the corresponding uploaders.
 
-- Aliyun OSS
-- Tencent Cloud COS
-- Qiniu Cloud Kodo
-- Upyun
-- S.EE
-- Imgur
-- GitHub
-- Webdav
-- Aws S3
-- Local path
-- Built-in SFTP
-- Doge Cloud
-- Huawei Cloud OBS
-- Alist
-- Lsky Pro
+Deletion requires the credentials and remote-file metadata needed by the adapter. An uploader's presence does not imply that it supports remote deletion or cloud management. The [README provider table](README.md) distinguishes management support, and [allApi.ts](src/main/apis/delete/allApi.ts) lists the deletion adapters. Custom providers can implement an `onGalleryRemove` lifecycle script for their deletion API.
 
-## 4. Is it possible to upload video files?
+## 4. Can PicList upload videos and other files?
 
-Yes. With the newly added image hosting management function, you can upload files of any format, including video files. At the same time, when uploading in the management interface, using methods such as chunked uploading and streaming uploading is faster and more stable compared to the base64 conversion method built into PicGo.
+Yes, when the selected storage provider accepts that file type and size. Cloud management includes file uploads, with streaming or multipart support depending on the provider. Image-only services can impose their own restrictions; image processing and preview support also depend on the format.
 
-## 5. Does PicList support a certain image hosting platform?
+## 5. Which uploaders and cloud management providers are available?
 
-PicList itself supports the following image hosting platforms:
+The current PicList-Core dependency supplies uploaders for Qiniu, S3-compatible services, Tencent COS, Upyun, GitHub, S.EE, Aliyun OSS, Imgur, WebDAV, local storage, SFTP, Lsky Pro, Alist, another PicList server, and advanced custom APIs. The upload settings list also includes uploaders registered by installed plugins.
 
-- Qiniu Cloud
-- AWS S3 compatible platform
-- Tencent Cloud COS
-- Upyun
-- GitHub
-- S.EE
-- Aliyun OSS
-- Imgur
-- Webdav
-- Local path
-- SFTP
-- Lsky Pro
-- PicList (nested)
-- Advanced custom image hosting
+Cloud management has clients for Aliyun OSS, Tencent COS, Qiniu, Upyun, GitHub, S.EE, Imgur, S3-compatible services, WebDAV, local storage, and SFTP. Doge Cloud is available through the S3 API client's Doge Cloud option. Lsky Pro, Alist, and Gitee do not have dedicated cloud management clients in this source tree.
 
-PicList plans to integrate and optimize existing plugins and embed more commonly used image hosting platforms.
+For other uploaders, see [PicGo's plugin directory](https://github.com/PicGo/Awesome-PicGo). Check plugin compatibility separately from built-in management support.
 
-In addition, PicList is compatible with PicGo's plugin system. If you need support for other image hosting platforms, you can refer to the [PicGo third-party plugins](https://github.com/PicGo/Awesome-PicGo). If you still cannot find the image hosting platform you need, please develop a plugin for everyone to use.
+## 6. Why do GitHub uploads sometimes fail?
 
-## 6. The GitHub image hosting platform sometimes uploads successfully and sometimes fails
+Inspect `piclist.log` for the actual response. Check the repository, branch, path, token permissions, provider limits, and network or proxy configuration. A failed upload is not enough to identify one cause. Cloud management uses a separate account configuration, so check its settings independently.
 
-The problem with GitHub servers and China's Great Firewall may cause successful or failed uploads. There is no solution.
+## 7. How do I open the main window on macOS?
 
-If you want stability, please use paid cloud storage such as Aliyun and Tencent Cloud. The price is not expensive.
+Right-click or two-finger tap the PicList menu bar icon and choose **Open Main Window**. The PicList Dock icon also provides this action. The configured startup mode can leave the app running without showing its main window.
 
-## 7. The main window interface of PicList cannot be opened on Mac
+## 8. How do I investigate an upload or server error?
 
-To open the main window, right-click or two-finger tap the PicList icon in the top bar and select "Open Main Window."
+1. Open the log from PicList's settings and find the error for the failed operation. Use `manage.log` for cloud management and `piclist.log` for uploads.
+2. Check the provider's response. `401` or `403` can indicate credentials, permissions, or a provider policy; other `4xx` responses can indicate a missing resource, an invalid request, or rate limiting.
+3. For connection, DNS, timeout, or TLS errors, check the endpoint and PicList's proxy settings. A system proxy does not guarantee that every uploader uses it.
+4. For Typora or Obsidian integration, ensure the local HTTP server is enabled and the editor uses its current port. The default upload URL is `http://127.0.0.1:36677/upload`; the server can select a later port when the configured port is occupied. The log reports the active listening port. Non-loopback clients must include the `key` query parameter when a server key is configured; recognized loopback requests receive the key automatically.
+5. If the issue persists, report the PicList version, OS, provider, reproduction steps, and a redacted error excerpt. Remove tokens, passwords, and private file contents before sharing.
 
-Or right-click the PicList icon in the dock and select "Open Main Window."
+## 9. Where are configuration, gallery data, and logs stored?
 
-## 8. Upload failed, or server error
+Use the configuration and log controls in PicList's settings to locate the files for your installation. The default directory is Electron's application user-data directory. When a `PORTABLE` marker exists beside the executable, the default directory is `data/` beside that executable.
 
-1. PicList's built-in image hosting platforms have been tested, and upload errors are generally not caused by PicList itself. If you are using the GitHub image hosting platform, please refer to the 7th point above.
-2. Check PicList's log (the error log can be found by clicking "Open" in PicList Settings -> Set Log File ->), and see if there is any key information in the `[PicList Error]` error message
+| File                                            | Purpose                                                        |
+| ----------------------------------------------- | -------------------------------------------------------------- |
+| `data.json`                                     | Upload and application configuration.                          |
+| `manage.json`                                   | Cloud management configuration.                                |
+| `piclist.db`                                    | Gallery database, beside the active application configuration. |
+| `piclist.log`                                   | Upload/core log.                                               |
+| `manage.log`                                    | Cloud management log.                                          |
+| `piclist-gui-local.log`, `manage-gui-local.log` | Desktop configuration and GUI diagnostics.                     |
 
-   1. First search for the error message in the error message by yourself, and you can often Baidu or Google the cause of the problem, so you don't need to open an issue.
-   2. If there are `401`, `403` and other `40X` status code words, don't doubt it, it means that your configuration is wrong, check the configuration carefully to see if there are extra spaces, etc.
-   3. If there are words such as `HttpError`, `RequestError`, `socket hang up`, etc., it means that this is a network problem, and I cannot help you solve the network problem. Please check your own network, whether there is a proxy, whether the DNS setting is normal, etc.
-3. Usually, upload failures caused by network problems are caused by improper proxy settings. If the system proxy is turned on, it is recommended to set the corresponding HTTP proxy in the proxy settings of PicList at the same time.
+Custom configuration and log paths can change these locations. Core assets and gallery data follow the active application configuration directory; the management logger defaults to the management configuration directory. The GUI file-opening helpers use the default log locations. See [dirs.ts](src/main/apis/core/datastore/dirs.ts) for desktop path resolution.
 
-## 10. After installing the macOS version, there is no main interface
+## 10. How do I run or troubleshoot a development checkout?
 
-Please find the icon of PicList in the top bar, and then right-click (touchpad two-finger tap, or right-click the mouse) to find the menu of "Open Main Window".
+Use Node.js 22.x (at least 22.13.0) and Yarn Classic 1.22.x, then run `yarn install --frozen-lockfile` and `yarn dev` from the repository root. The renderer development port is `30303`; it is separate from the upload server port `36677`.
 
-Or right-click on the icon of PicList in the Docker bar to find the menu of "Open Main Window".
+For missing themes, rerun `yarn prepare`. To test the experimental bundled npm option, run `yarn prepare:plugin-runtime`; Windows requires Visual Studio C++ Build Tools. For compilation, checks, platform packaging, and localization, follow the [development guide](CONTRIBUTING_EN.md). There is no `i18n` generation script.
 
-## 11. After installing PicList on macOS, it shows "The file is damaged" or there is no response after installing and opening
+## 11. What if macOS reports a damaged app or the app does not start?
 
-Please upgrade PicList to version 1.4.1 or above.
+Download the appropriate x64 or arm64 build from the project's [releases](https://github.com/Kuingsmile/PicList/releases) and check that the download completed. If PicList is already running in the menu bar, use question 7 to open its window. For a continuing launch or installation failure, include the macOS version, PicList version, architecture, and exact system message in an issue.
 
-## 12. Watermark is not added normally
+## 12. Why is my watermark missing?
 
-Before adding a watermark, PicList will check whether the font file exists. If it does not exist, it will automatically download the font file. However, due to network problems, the font file may fail to download, and the watermark will be skipped.
+Check that watermarking is enabled for the selected uploader configuration and that the file is not excluded from processing. Configuration-specific settings can override global defaults.
 
-Please check whether the font file under the corresponding path according to your system exists. If it does not exist, please download the font file manually and put it in the corresponding path.
+For text watermarks without a custom font path, PicList-Core downloads `simhei.ttf` into `assets/` beside the active application configuration file. If that download fails, watermarking is skipped. Download the [default font](https://release.piclist.cn/simhei.ttf) manually into that `assets/simhei.ttf` location, or choose a readable custom font file in image processing settings. Portable and custom configuration directories change this location. Image watermarks use the configured watermark image instead of this font.
 
-Windows: `%APPDATA%\piclist\assets\simhei.ttf`
-Linux: `$XDG_CONFIG_HOME/piclist/assets/simhei.ttf` or `~/.config//assets/simhei.ttf`
-MacOS: `~/Library/Application\ Support/picgo/assets/simhei.ttf`
+## 13. What should I check for Cloudflare R2 uploads?
 
-The font file download address: [https://release.piclist.cn/simhei.ttf](https://release.piclist.cn/simhei.ttf)
+Use the S3-compatible uploader and verify the endpoint, bucket, credentials, region, and any proxy settings against your R2 configuration. Inspect `piclist.log` to distinguish provider responses from connection failures. Cloud management has separate S3 API settings. A failed R2 request does not by itself establish that the endpoint is blocked.
 
-## 13. Upload failed when using aws-s3 plugin to upload to cloudflare R2
+## 14. Are all PicGo plugins compatible, and is Node.js required?
 
-R2's endpoint address will be blocked by GFW sni. After checking piclist.log, adding the corresponding IP address to the proxy list can solve the problem.
+Compatibility varies with the plugin's APIs and native dependencies, including its version of `sharp`. Built-in watermarking and gallery remote deletion already cover functionality offered by some older plugins. If a plugin fails, report its exact version and a redacted error excerpt rather than assuming all plugins are compatible.
 
-## 14. Are all PicGo plugins compatible with PicList?
+Plugin installation, updates, and removal use **system npm by default**, so that mode needs Node.js/npm available to PicList. The Plugins page offers an **experimental bundled npm** option that uses PicList's Electron executable and packaged npm runtime. It does not require a separate system npm installation for those operations, but a plugin may still need external build tools. If the bundled runtime cannot start, disable the option to use system npm or reinstall the application. For development, prepare it with `yarn prepare:plugin-runtime`.
 
-PicList is compatible with most PicGo plugins. However, since PicList uses an updated version of electron, it is not compatible with the old version of the sharp library, so some plugins may not work.
+## 15. How do I run PicList-Core through Docker?
 
-Known plugins that cannot be used are:
-
-- picgo-plugin-watermark (built-in)
-- picgo-plugin-pic-migrater (this plugin will verify the version of PicGo and cannot be used, please use the pic-migrater-piclist plugin)
-- picgo-plugin-auto-delete (built-in)
-
-Welcome everyone to test other plugins. If there are plugins that cannot be used, please open an issue for feedback.
-
-## 15. How to run PicList-core through Docker?
-
-### docker run
-
-Change the `./piclist` to your own path, and change the `piclist123456` to your own secret key.
-
-```bash
-docker run -d \
-  --name piclist \
-  --restart always \
-  -p 36677:36677 \
-  -v "./piclist:/root/.piclist" \
-  kuingsmile/piclist:latest \
-  node /usr/local/bin/picgo-server -k piclist123456
-```
-
-### docker-compose
-
-download `docker-compose.yml` from piclist-core repo, or copy the following content to `docker-compose.yml`:
-
-```yaml
-version: '3.3'
-
-services:
-  node:
-    image: 'kuingsmile/piclist:latest'
-    container_name: piclist
-    restart: always
-    ports:
-      - 36677:36677
-    volumes:
-      - './piclist:/root/.piclist'
-    command: node /usr/local/bin/picgo-server -k piclist123456
-```
-
-You can change the `volumes` to your own path and change the `command` to your own secret key.
-
-Then run:
-
-```bash
-docker-compose up -d
-```
+Docker runs the separate PicList-Core upload server. This desktop repository has no Dockerfile or Compose configuration and its package scripts build Electron applications. Use the container instructions maintained in the [PicList-Core repository](https://github.com/Kuingsmile/PicList-Core) for image, volume, port, and server-key configuration.

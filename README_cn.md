@@ -10,8 +10,8 @@
   </p>
 
   <p>
-    <a href="https://github.com/Kuingsmile/PicList/actions">
-      <img src="https://img.shields.io/badge/code%20style-standard-green.svg?style=flat-square" alt="Code Style">
+    <a href="eslint.config.js">
+      <img src="https://img.shields.io/badge/code%20style-ESLint-green.svg?style=flat-square" alt="Code Style">
     </a>
     <a href="https://github.com/Kuingsmile/PicList/releases">
       <img src="https://img.shields.io/github/downloads/Kuingsmile/PicList/total.svg?style=flat-square" alt="Downloads">
@@ -19,14 +19,14 @@
     <a href="https://github.com/Kuingsmile/PicList/releases/latest">
       <img src="https://img.shields.io/github/release/Kuingsmile/PicList.svg?style=flat-square" alt="Release">
     </a>
-    <a href="https://github.com/Kuingsmile/PicList/blob/dev/LICENSE">
+    <a href="LICENSE">
       <img src="https://img.shields.io/github/license/Kuingsmile/PicList?style=flat-square" alt="License">
     </a>
   </p>
 
   <p>
-    <a href="https://github.com/Kuingsmile/PicList/blob/dev/README_cn.md">简体中文</a> |
-    <a href="https://github.com/Kuingsmile/PicList/blob/dev/README.md">English</a>
+    <a href="README_cn.md">简体中文</a> |
+    <a href="README.md">English</a>
   </p>
 </div>
 
@@ -38,7 +38,7 @@
 
 ## 📖 简介
 
-**PicList** 是一款高效的云存储和图床平台管理工具，基于 PicGo 深度二次开发。它保留了 PicGo 的所有功能，同时新增了全面的云存储管理能力和多种实用功能以及全新的轻量化脚本系统。
+**PicList** 是一款高效的云存储和图床平台管理工具，基于 PicGo 深度二次开发。它在 PicGo 上传流程的基础上提供了全面的云存储管理能力和多种实用功能以及全新的轻量化脚本系统。
 
 无论你是需要整理云端文件、同步 Markdown 图片，还是轻松管理多个存储平台，PicList 都能通过其美观的界面和强大的插件/脚本系统，简化你的工作流程。
 
@@ -98,23 +98,9 @@
 |             |   **DMG**    | [下载 .dmg](https://github.com/Kuingsmile/PicList/releases/latest)                               |
 |  **Linux**  |  **安装包**  | [下载 AppImage/Snap/Deb](https://github.com/Kuingsmile/PicList/releases/latest)                  |
 
-### 🐳 Docker
+### 🐳 Docker / PicList-Core
 
-使用 `docker` 或 `docker-compose` 运行 PicList-core。
-
-```bash
-docker pull kuingsmile/piclist:latest
-```
-
-```bash
-docker run -d \
-  --name piclist \
-  --restart always \
-  -p 36677:36677 \
-  -v "./piclist:/root/.piclist" \
-  kuingsmile/piclist:latest \
-  node /usr/local/bin/picgo-server -k piclist123456
-```
+Docker 运行独立的 PicList-Core 上传服务。此仓库的源码和构建脚本用于 Electron 桌面应用。容器部署请参阅 [PicList-Core](https://github.com/Kuingsmile/PicList-Core) 和 [FAQ](FAQ.md)。
 
 ## 🔌 集成与使用
 
@@ -137,47 +123,58 @@ PicList 可以与常用的 Markdown 编辑器无缝集成。
 
 ## ☁️ 已支持平台
 
-PicList 支持广泛的存储提供商。
+上传器、相册远端删除和云存储管理分别提供不同能力。上传器来自 PicList-Core 和已安装插件；下表反映当前桌面端的删除适配器和管理客户端。
 
-| 存储平台                | 相册云删除 | 云存储管理 |
-| :---------------------- | :--------: | :--------: |
-| **AWS S3** (及兼容 API) |     ✅     |     ✅     |
-| **阿里云 OSS**          |     ✅     |     ✅     |
-| **腾讯云 COS**          |     ✅     |     ✅     |
-| **GitHub / Gitee**      |     ✅     |     ✅     |
-| **S.EE / Imgur**        |     ✅     |     ✅     |
-| **WebDAV / SFTP**       |     ✅     |     ✅     |
-| **本地文件系统**        |     ✅     |     ✅     |
-| **兰空图床 / 多吉云**   |     ✅     |     ✅     |
+| 存储平台                 | 相册远端删除 |        云存储管理        |
+| :----------------------- | :----------: | :----------------------: |
+| **AWS S3**（及兼容 API） |      ✅      |            ✅            |
+| **阿里云 OSS**           |      ✅      |            ✅            |
+| **腾讯云 COS**           |      ✅      |            ✅            |
+| **七牛云 Kodo**          |      ✅      |            ✅            |
+| **又拍云**               |      ✅      |            ✅            |
+| **GitHub**               |      ✅      |            ✅            |
+| **S.EE / Imgur**         |      ✅      |            ✅            |
+| **WebDAV / SFTP**        |      ✅      |            ✅            |
+| **本地文件系统**         |      ✅      |            ✅            |
+| **多吉云**               |      ✅      | 通过 S3 API 的多吉云选项 |
+| **兰空图床 / Alist**     |      ✅      |            —             |
+| **华为云 OBS**           |      ✅      |            —             |
+| **另一台 PicList 服务**  |      ✅      |            —             |
 
-_注意：自定义 API 图床的云删除功能需要通过 PicList 脚本系统根据具体 API 实现。_
+“—”表示没有专用管理客户端。删除能力取决于上传器 ID、凭据和相册记录中的远端文件信息。自定义 API 图床可通过 `onGalleryRemove` 生命周期脚本实现删除。
+
+实现入口：[删除注册表](src/main/apis/delete/allApi.ts)、[管理客户端](src/main/manage/manageApi.ts)。上传器列表和排错说明见 [FAQ](FAQ.md)。
 
 ## 🚀 开发说明
 
-欢迎提交代码！详情请参阅 [贡献指南](https://github.com/Kuingsmile/PicList/blob/dev/CONTRIBUTING.md)。
+完整的源码结构、命令表、JSON 国际化、插件开发和打包流程见 [贡献与开发指南](CONTRIBUTING.md)。主进程服务和 RPC 说明见 [API 指南](src/main/apis/README.md)。
 
-### 前提条件
+### 环境要求
 
-- Node.js 20+
-- Git
-- Xcode (macOS) 或 Visual Studio (Windows) 用于编译原生模块
+- Node.js **22.x，至少 22.13.0**（当前核心依赖的版本要求；发布工作流使用 22.x）。
+- **Yarn Classic 1.22.x** 和 Git。
+- 原生依赖可能需要平台编译工具。Windows 打包和准备实验性插件运行时需要 Visual Studio C++ Build Tools。
 
-### 源码构建
+### 从源码运行
 
 ```bash
-# 1. 克隆仓库
 git clone https://github.com/Kuingsmile/PicList.git
 cd PicList
+yarn install --frozen-lockfile
 
-# 2. 安装依赖
-yarn
+# 启动 Electron 开发模式
+yarn dev
 
-# 3. 启动开发模式
-yarn run dev
-
-# 4. 生产环境构建
-yarn run build
+# 编译生产代码（不生成安装包），再预览
+yarn prebuild
+yarn preview
 ```
+
+安装时会下载主题、安装 Husky 钩子并处理 Electron 原生依赖。开发服务器固定使用 `127.0.0.1:30303`。
+
+`yarn build` 使用 electron-builder 打包，`yarn build:win`、`yarn build:mac`、`yarn build:linux` 选择平台。请先按贡献指南准备对应工具链；Windows 还需运行 `yarn prepare:7za`。编译产物位于 `out/`，安装包和压缩包位于 `dist_electron/`。
+
+提交代码前使用 `yarn typecheck`、`yarn lint` 和相关检查。`yarn test:release` 测试发布工具和打包钩子；当前没有通用的 `test` 脚本。
 
 ## 🔗 相关项目
 

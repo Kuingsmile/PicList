@@ -10,8 +10,8 @@
   </p>
 
   <p>
-    <a href="https://github.com/Kuingsmile/PicList/actions">
-      <img src="https://img.shields.io/badge/code%20style-standard-green.svg?style=flat-square" alt="Code Style">
+    <a href="eslint.config.js">
+      <img src="https://img.shields.io/badge/code%20style-ESLint-green.svg?style=flat-square" alt="Code Style">
     </a>
     <a href="https://github.com/Kuingsmile/PicList/releases">
       <img src="https://img.shields.io/github/downloads/Kuingsmile/PicList/total.svg?style=flat-square" alt="Downloads">
@@ -19,14 +19,14 @@
     <a href="https://github.com/Kuingsmile/PicList/releases/latest">
       <img src="https://img.shields.io/github/release/Kuingsmile/PicList.svg?style=flat-square" alt="Release">
     </a>
-    <a href="https://github.com/Kuingsmile/PicList/blob/dev/LICENSE">
+    <a href="LICENSE">
       <img src="https://img.shields.io/github/license/Kuingsmile/PicList?style=flat-square" alt="License">
     </a>
   </p>
 
   <p>
-    <a href="https://github.com/Kuingsmile/PicList/blob/dev/README_cn.md">简体中文</a> |
-    <a href="https://github.com/Kuingsmile/PicList/blob/dev/README.md">English</a>
+    <a href="README_cn.md">简体中文</a> |
+    <a href="README.md">English</a>
   </p>
 </div>
 
@@ -38,13 +38,13 @@
 
 ## 📖 Introduction
 
-**PicList** is an efficient cloud storage and image hosting management tool built upon the foundation of PicGo. It retains all the features of PicGo while adding comprehensive cloud storage management capabilities, various practical functions, and a brand-new lightweight scripting system.
+**PicList** is an efficient cloud storage and image hosting management tool built upon the foundation of PicGo. It builds on PicGo’s upload workflow with comprehensive cloud storage management capabilities, various practical functions, and a brand-new lightweight scripting system.
 
 Whether you need to organize your cloud files, sync markdown images, or manage multiple storage platforms effortlessly, PicList is designed to streamline your workflow with a beautiful interface and robust plugin system.
 
 ## ✨ Key Features
 
-- **📂 comprehensive Cloud Management**: Browse, search, cloud-delete, and batch rename files in your cloud storage.
+- **📂 Cloud Management**: Browse, search, cloud-delete, and batch rename files in your cloud storage.
 - **🔄 Advanced Sync**: Cloud-sync album deletion and configuration/gallery synchronization across multiple devices (via WebDAV/Git).
 - **🎨 Built-in Image Tools**: Watermark, compress, scale, rotate, and format conversion out of the box, controllable at individual image bed level.
 - **📝 Scripting System**: Customize lifecycle scripts to meet advanced user needs without requiring a `node` environment.
@@ -98,23 +98,9 @@ Whether you need to organize your cloud files, sync markdown images, or manage m
 |             |    **DMG**    | [Download .dmg](https://github.com/Kuingsmile/PicList/releases/latest)                           |
 |  **Linux**  | **Installer** | [Download AppImage/Snap/Deb](https://github.com/Kuingsmile/PicList/releases/latest)              |
 
-### 🐳 Docker
+### 🐳 Docker / PicList-Core
 
-Run PicList with `docker` or `docker-compose`.
-
-```bash
-docker pull kuingsmile/piclist:latest
-```
-
-```bash
-docker run -d \
-  --name piclist \
-  --restart always \
-  -p 36677:36677 \
-  -v "./piclist:/root/.piclist" \
-  kuingsmile/piclist:latest \
-  node /usr/local/bin/picgo-server -k piclist123456
-```
+Docker runs the separate PicList-Core upload server. This repository contains the Electron desktop application and its build scripts. For container setup, see [PicList-Core](https://github.com/Kuingsmile/PicList-Core) and the [FAQ](FAQ_EN.md).
 
 ## 🔌 Integrations
 
@@ -126,7 +112,7 @@ Install the **[VS-PicList](https://marketplace.visualstudio.com/items?itemName=K
 
 ### Typora
 
-- **Version ≥ 1.6.0**: Select **PicList** directly in the Image settings settings.
+- **Version ≥ 1.6.0**: Select **PicList** directly in the Image settings.
 - **Version < 1.6.0**: Set 'Image Upload' -> 'PicGo(app)' and point the path to your PicList executable.
 
 ### Obsidian
@@ -137,47 +123,58 @@ Install the **[VS-PicList](https://marketplace.visualstudio.com/items?itemName=K
 
 ## ☁️ Supported Platforms
 
-PicList supports a wide range of storage providers.
+Uploaders, gallery remote deletion, and cloud management have different capabilities. Uploaders come from PicList-Core and installed plugins; this table reflects the desktop deletion adapters and management clients.
 
-| Storage Provider            | Album Delete | Cloud Management |
-| :-------------------------- | :----------: | :--------------: |
-| **AWS S3** (and compatible) |      ✅      |        ✅        |
-| **Aliyun OSS**              |      ✅      |        ✅        |
-| **Tencent COS**             |      ✅      |        ✅        |
-| **GitHub / Gitee**          |      ✅      |        ✅        |
-| **S.EE / Imgur**            |      ✅      |        ✅        |
-| **WebDAV / SFTP**           |      ✅      |        ✅        |
-| **Local File System**       |      ✅      |        ✅        |
-| **Lsky Pro / Doge Cloud**   |      ✅      |        ✅        |
+| Storage Provider            | Gallery Remote Delete |             Cloud Management              |
+| :-------------------------- | :-------------------: | :---------------------------------------: |
+| **AWS S3** (and compatible) |          ✅           |                    ✅                     |
+| **Aliyun OSS**              |          ✅           |                    ✅                     |
+| **Tencent COS**             |          ✅           |                    ✅                     |
+| **Qiniu Kodo**              |          ✅           |                    ✅                     |
+| **Upyun**                   |          ✅           |                    ✅                     |
+| **GitHub**                  |          ✅           |                    ✅                     |
+| **S.EE / Imgur**            |          ✅           |                    ✅                     |
+| **WebDAV / SFTP**           |          ✅           |                    ✅                     |
+| **Local File System**       |          ✅           |                    ✅                     |
+| **Doge Cloud**              |          ✅           | Via the S3 API client's Doge Cloud option |
+| **Lsky Pro / Alist**        |          ✅           |                     —                     |
+| **Huawei OBS**              |          ✅           |                     —                     |
+| **Another PicList server**  |          ✅           |                     —                     |
 
-_Note: The cloud delete feature for custom API image hosts requires implementation via PicList's scripting system based on the specific API._
+“—” means there is no dedicated management client. Deletion depends on the uploader ID, credentials, and remote-file metadata stored with the gallery record. Custom API hosts can implement deletion with an `onGalleryRemove` lifecycle script.
+
+Implementation: [deletion registry](src/main/apis/delete/allApi.ts) and [management clients](src/main/manage/manageApi.ts). See the [FAQ](FAQ_EN.md) for uploader availability and troubleshooting.
 
 ## 🚀 Development
 
-We welcome contributions! Please see [Contributing Guide](https://github.com/Kuingsmile/PicList/blob/dev/CONTRIBUTING_EN.md) for details.
+The [contributor and development guide](CONTRIBUTING_EN.md) covers the source layout, complete script reference, JSON localization, plugin development, and packaging. See the [API guide](src/main/apis/README.md) for main-process services and RPC.
 
 ### Prerequisites
 
-- Node.js 20+
-- Git
-- Xcode (macOS) or Visual Studio (Windows) for native modules
+- Node.js **22.x, at least 22.13.0** (required by the current core dependency; release CI uses 22.x).
+- **Yarn Classic 1.22.x** and Git.
+- Native dependencies may need platform build tools. Windows packaging and experimental plugin runtime preparation require Visual Studio C++ Build Tools.
 
-### Build from Source
+### Run from source
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/Kuingsmile/PicList.git
 cd PicList
+yarn install --frozen-lockfile
 
-# 2. Install dependencies
-yarn
+# Start Electron in development mode
+yarn dev
 
-# 3. specific start dev mode
-yarn run dev
-
-# 4. Build for production
-yarn run build
+# Compile production code without an installer, then preview it
+yarn prebuild
+yarn preview
 ```
+
+Installation downloads themes, installs Husky hooks, and prepares Electron native dependencies. The development server uses the fixed address `127.0.0.1:30303`.
+
+`yarn build` packages with electron-builder; `yarn build:win`, `yarn build:mac`, and `yarn build:linux` select a platform. Follow the contributor guide's platform prerequisites first; Windows also needs `yarn prepare:7za`. Compiled output goes to `out/` and packaged artifacts to `dist_electron/`.
+
+Before submitting code, use `yarn typecheck`, `yarn lint`, and the relevant checks in the guide. `yarn test:release` tests release tooling and packaging hooks; there is no general `test` script.
 
 ## 🔗 Related Projects
 
