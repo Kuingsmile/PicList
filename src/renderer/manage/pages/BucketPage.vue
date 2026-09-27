@@ -237,7 +237,7 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <!-- Fullscreen Toggle -->
           <IconButton
             :icon="isContentFullscreen ? ShrinkIcon : ExpandIcon"
@@ -250,7 +250,7 @@
           />
 
           <!-- View Toggle -->
-          <IconButton :icon="layoutStyle === 'grid' ? GridIcon : ListIcon" type="primary" @click="handleViewChange" />
+          <FileViewControls v-model:view-mode="layoutStyle" v-model:density="tableDensity" />
 
           <!-- Pagination -->
           <input
@@ -294,7 +294,7 @@
           </div>
         </div>
         <FileInfo :current-page-files-info="currentPageFilesInfo" :calculate-all-file-size="calculateAllFileSize" />
-        <div class="flex min-w-[200px] flex-1 items-center justify-end gap-3">
+        <div class="flex min-w-[200px] flex-1 flex-wrap items-center justify-end gap-3">
           <!-- Search -->
           <input
             v-model="searchText"
@@ -313,26 +313,122 @@
             class="z-2"
             @click="toggleContentFullscreen"
           />
-          <IconButton :icon="layoutStyle === 'grid' ? GridIcon : ListIcon" type="primary" @click="handleViewChange" />
+          <FileViewControls v-model:view-mode="layoutStyle" v-model:density="tableDensity" />
         </div>
       </div>
 
       <div
-        class="no-scrollbar flex min-h-[500px] w-full flex-1 flex-col flex-wrap items-center justify-center gap-2 overflow-auto rounded-md border border-border-secondary p-1 shadow-md"
+        class="flex min-h-[240px] w-full min-w-0 flex-1 flex-col overflow-hidden rounded-md border border-border-secondary p-1 shadow-md"
       >
         <div v-if="filterList.length === 0" class="h-full w-full">
           <EmptyPage />
         </div>
-        <VirtualScroller
+        <FileCollection
           v-else
           ref="virtualScrollerRef"
           :items="filterList"
-          class="virtual-gallery-scroller min-h-0 w-full flex-1 p-3"
-          :item-height="260"
+          :columns="tableColumns"
+          :density="tableDensity"
+          :grid-item-height="260"
           :view-mode="layoutStyle"
           :grid-breakpoints="gridBreakpoints"
           key-field="key"
+          :label="configMap.bucketName || t('common.fileTable.name')"
+          :is-selected="item => !!item.checked"
+          :sort-field="isLoadingData ? '' : currentSortType"
+          :sort-ascending="sortAscending"
+          :actions-width="184"
+          @select="(item, selected) => (item.checked = selected)"
+          @select-all="setAllSelected"
+          @sort="field => sortFile(field as ISortTypeList)"
+          @open="handleClickFile"
+          @visible-indexes-change="
+            indexes => {
+              if (!indexes.includes(copyDropdownIndex)) copyDropdownIndex = -1
+            }
+          "
         >
+          <template #actions="{ item, index, tabindex }">
+            <button
+              v-if="!item.isDir && isShowRenameFileIcon"
+              type="button"
+              :tabindex="tabindex"
+              :title="t('pages.manage.bucket.renameFile')"
+              :aria-label="t('pages.manage.bucket.renameFile')"
+              @click="handleRenameFile(item)"
+            >
+              <EditIcon :size="16" />
+            </button>
+            <button
+              type="button"
+              :tabindex="tabindex"
+              :title="t('common.fileTable.download')"
+              :aria-label="t('common.fileTable.download')"
+              @click="item.isDir ? handleFolderBatchDownload(item) : downloadFiles([item])"
+            >
+              <DownloadIcon :size="16" />
+            </button>
+            <div :data-dropdown-index="index">
+              <button
+                type="button"
+                :tabindex="tabindex"
+                :title="t('common.fileTable.copyAs')"
+                :aria-label="t('common.fileTable.copyAs')"
+                :aria-expanded="copyDropdownIndex === index"
+                @click.stop="toggleCopyDropdown(index, $event)"
+              >
+                <CopyIcon :size="16" />
+              </button>
+              <teleport to="body">
+                <div
+                  v-if="copyDropdownIndex === index"
+                  data-copy-menu
+                  class="absolute z-9999 flex max-h-[260px] min-w-[140px] flex-col overflow-auto rounded-md border border-border bg-bg-tertiary p-1 shadow-md"
+                  :style="getDropdownStyle(index)"
+                  @keydown.esc.stop="closeCopyDropdown"
+                >
+                  <button
+                    v-for="format in linkFormatList"
+                    :key="format"
+                    type="button"
+                    :tabindex="tabindex"
+                    class="cursor-pointer rounded px-3 py-2 text-left text-sm text-main hover:bg-accent/30 focus-visible:outline-accent"
+                    @click.stop="copyLink(item, format)"
+                  >
+                    {{ t(`pages.manage.bucket.linkFormat.${format}`) }}
+                  </button>
+                  <button
+                    v-if="isShowPresignedUrl"
+                    type="button"
+                    :tabindex="tabindex"
+                    class="cursor-pointer rounded px-3 py-2 text-left text-sm text-main hover:bg-accent/30"
+                    @click.stop="async () => copyToClipboard(await getPreSignedUrl(item))"
+                  >
+                    {{ t('pages.manage.bucket.linkFormat.presign') }}
+                  </button>
+                </div>
+              </teleport>
+            </div>
+            <button
+              type="button"
+              :tabindex="tabindex"
+              :title="t('pages.manage.bucket.fileInfo')"
+              :aria-label="t('pages.manage.bucket.fileInfo')"
+              @click="handleShowFileInfo(item)"
+            >
+              <InfoIcon :size="16" />
+            </button>
+            <button
+              type="button"
+              :tabindex="tabindex"
+              :title="t('common.fileTable.delete')"
+              :aria-label="t('common.fileTable.delete')"
+              :disabled="isDeleting || isLoadingData"
+              @click="handleDeleteFile(item)"
+            >
+              <Trash2Icon :size="16" />
+            </button>
+          </template>
           <template #default="{ item, index }">
             <!-- Grid View -->
             <div
@@ -500,7 +596,7 @@
               </div>
             </div>
           </template>
-        </VirtualScroller>
+        </FileCollection>
       </div>
     </div>
 
@@ -885,7 +981,9 @@
                 />
               </div>
 
-              <div class="w-full flex-1 overflow-auto rounded-md border border-border-secondary p-2">
+              <div
+                class="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-md border border-border-secondary p-2"
+              >
                 <!-- Uploading Tab -->
                 <VirtualScroller
                   :items="
@@ -1030,7 +1128,9 @@
               />
             </div>
 
-            <div class="w-full flex-1 overflow-auto rounded-md border border-border-secondary p-2">
+            <div
+              class="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-md border border-border-secondary p-2"
+            >
               <!-- Downloading Tab -->
               <VirtualScroller
                 :items="
@@ -1188,11 +1288,9 @@ import {
   FileIcon,
   FolderIcon,
   FolderPlusIcon,
-  GridIcon,
   HomeIcon,
   InfoIcon,
   LinkIcon,
-  ListIcon,
   RefreshCwIcon,
   ShrinkIcon,
   Trash2Icon,
@@ -1204,8 +1302,10 @@ import {
   computed,
   defineAsyncComponent,
   nextTick,
+  onActivated,
   onBeforeMount,
   onBeforeUnmount,
+  onDeactivated,
   reactive,
   ref,
   useTemplateRef,
@@ -1221,6 +1321,8 @@ import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
+import FileCollection from '@/components/FileCollection.vue'
+import FileViewControls from '@/components/FileViewControls.vue'
 import ImageLocal from '@/components/ImageLocal.vue'
 import ImagePreSign from '@/components/ImagePreSign.vue'
 import ImageWebdav from '@/components/ImageWebdav.vue'
@@ -1246,6 +1348,7 @@ import { getConfig, saveConfig } from '@/manage/utils/dataSender'
 import { applyDeletionResult, type DeletionState, retryDeletionTargets } from '@/manage/utils/deletion'
 import { splitFileName } from '@/manage/utils/fileName'
 import type { PreviewKind, PreviewSource } from '@/manage/utils/filePreview'
+import { fileTaskStates } from '@/manage/utils/fileTaskState'
 import { appendListingItems, ListingSession } from '@/manage/utils/listingSession'
 import { textFileExt } from '@/manage/utils/textfile'
 import { appendThumbnailSuffix } from '@/manage/utils/thumbnailUrl'
@@ -1253,6 +1356,15 @@ import { videoExt } from '@/manage/utils/videofile'
 import { trimPath } from '@/utils/common'
 import { useDragEventListeners } from '@/utils/drag'
 import { IRPCActionType } from '@/utils/enum'
+import {
+  compareFileValues,
+  type FileColumn,
+  fileDate,
+  fileSize,
+  fileType,
+  formatCollectionDate,
+  formatCollectionSize,
+} from '@/utils/fileCollection'
 import { renderMarkdown } from '@/utils/markdown'
 import { type DeleteResult, type DeleteTarget, failedDeletion, removeDeletedEntries } from '#/deletion'
 import type { ListingRequest, ListingResult } from '#/listing'
@@ -1278,7 +1390,7 @@ const props = defineProps<{
   configMap: Record<string, any>
 }>()
 
-type ISortTypeList = 'name' | 'size' | 'time' | 'ext' | 'check' | 'init'
+type ISortTypeList = 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' | 'provider' | 'status'
 
 const uploadDialog = useTemplateRef<HTMLDivElement>('uploadDialog')
 useDragEventListeners(uploadDialog)
@@ -1297,9 +1409,23 @@ const configMap = ref<Record<string, any>>(JSON.parse(JSON.stringify(props.confi
 // 页面布局控制
 const isLoadingData = ref(false)
 const isShowLoadingPage = ref(false)
+const tableActive = ref(true)
+onActivated(() => {
+  tableActive.value = true
+})
+onDeactivated(() => {
+  tableActive.value = false
+})
 const isShowImagePreview = filePreview.visible('image')
 const isContentFullscreen = ref(false)
-const layoutStyle = useLocalStorage<'list' | 'grid'>('manage-bucket-page-layout-style', 'grid')
+const storedLayoutStyle = useLocalStorage<'list' | 'table' | 'grid'>('manage-bucket-page-layout-style', 'grid')
+const layoutStyle = computed({
+  get: () => (storedLayoutStyle.value === 'grid' ? ('grid' as const) : ('table' as const)),
+  set: (value: 'grid' | 'table') => {
+    storedLayoutStyle.value = value
+  },
+})
+const tableDensity = useLocalStorage<'compact' | 'comfortable'>('manage-bucket-table-density', 'compact')
 const copyDropdownOpen = ref(false)
 const sortDropdownOpen = ref(false)
 const copyDropdownIndex = ref(-1)
@@ -1321,15 +1447,13 @@ const pagingMarker = ref('')
 const pagingMarkerStack = reactive([] as string[])
 const currentPageFilesInfo = reactive([] as any[])
 const isDeleting = ref(false)
+const deletingTargets = ref<{ scope: string; keys: Set<string> }>({ scope: '', keys: new Set() })
 const deletionStates = reactive(new Map<string, DeletionState>())
 const activeDeletionState = computed(() => deletionStates.get(deletionScope()) || { failed: [], pendingFolders: [] })
 // 当前路径前缀
 const currentPrefix = ref('/')
 // 文件排序控制
-const fileSortExtReverse = ref(false)
-const fileSortNameReverse = ref(false)
-const fileSortSizeReverse = ref(false)
-const fileSortTimeReverse = ref(false)
+const sortAscending = ref(true)
 // 页面搜索相关
 const searchText = ref('')
 // 上传页面相关
@@ -1392,7 +1516,7 @@ const showFormatInfo = ref(false)
 const linkFormatList = ['url', 'markdown', 'markdown-with-link', 'html', 'bbcode', 'custom'] as const
 const preSignedUrlFormat = 'preSignedUrl'
 type CopyFormat = (typeof linkFormatList)[number] | typeof preSignedUrlFormat
-const sortTypeList = ['name', 'size', 'time', 'ext', 'check', 'init']
+const sortTypeList = ['name', 'size', 'time', 'ext', 'provider', 'status', 'check', 'init']
 
 const advancedRenameList = computed(() => ({
   categoryTime: [
@@ -1470,11 +1594,11 @@ const isShowRenameFileIcon = computed(() =>
 const currentPicBedName = computed<string>(() => manageStore.config.picBed[configMap.value.alias].picBedName)
 const paging = computed(() => manageStore.config.picBed[configMap.value.alias].paging)
 const itemsPerPage = computed(() => manageStore.config.picBed[configMap.value.alias].itemsPerPage)
-const calculateAllFileSize = computed(
-  () =>
-    formatFileSize(currentPageFilesInfo.reduce((total: any, item: { fileSize: any }) => total + item.fileSize, 0)) ||
-    '0',
-)
+const calculateAllFileSize = computed(() => {
+  const knownSize =
+    formatFileSize(currentPageFilesInfo.reduce((total: number, item: any) => total + (fileSize(item) ?? 0), 0)) || '0'
+  return currentPageFilesInfo.some(item => !item.isDir && fileSize(item) === undefined) ? `≥ ${knownSize}` : knownSize
+})
 const isShowThumbnail = computed(() => manageStore.config.settings.isShowThumbnail ?? false)
 const thumbnailSuffix = computed(() => manageStore.config.settings.thumbnailSuffix ?? '')
 const isUsePreSignedUrl = computed(() => manageStore.config.settings.isUsePreSignedUrl ?? false)
@@ -1491,6 +1615,75 @@ const isShowCreateNewFolder = computed(() =>
 const isShowPresignedUrl = computed(() =>
   ['aliyun', 'github', 'qiniu', 's3plist', 'tcyun', 'webdavplist'].includes(currentPicBedName.value),
 )
+
+const taskStates = computed(() =>
+  fileTaskStates(
+    uploadTaskList.value,
+    configMap.value.alias,
+    currentPicBedName.value,
+    configMap.value.bucketName || '',
+  ),
+)
+const failedDeletionKeys = computed(() => new Set(activeDeletionState.value.failed.map(item => item.key)))
+
+function taskLabel(item: any) {
+  if (deletingTargets.value.scope === deletionScope() && deletingTargets.value.keys.has(item.key))
+    return t('common.fileTable.deleting')
+  if (failedDeletionKeys.value.has(item.key)) return t('common.fileTable.deleteFailed')
+  const task = taskStates.value.get(item.key)
+  if (!task || !['queuing', 'uploading', 'uploaded', 'failed', 'paused', 'canceled'].includes(task.status))
+    return undefined
+  const label = t(`common.fileTable.tasks.${task.status}`)
+  return task.status === 'uploading' ? `${label} ${Math.round(task.progress || 0)}%` : label
+}
+
+const tableColumns = computed<FileColumn[]>(() => [
+  { key: 'name', label: t('common.fileTable.name'), width: 260, value: item => item.fileName },
+  {
+    key: 'ext',
+    label: t('common.fileTable.type'),
+    width: 90,
+    value: item => (item.isDir ? t('common.fileTable.folder') : fileType(item)),
+  },
+  { key: 'size', label: t('common.fileTable.size'), width: 100, value: fileSize, format: formatCollectionSize },
+  { key: 'time', label: t('common.fileTable.date'), width: 180, value: fileDate, format: formatCollectionDate },
+  {
+    key: 'provider',
+    label: t('common.fileTable.provider'),
+    width: 150,
+    value: () => `${configMap.value.alias} · ${currentPicBedName.value}`,
+  },
+  { key: 'status', label: t('common.fileTable.task'), width: 160, value: taskLabel },
+])
+
+// Only poll while the table needs task metadata. Ignore late responses after a scope/view change.
+watch(
+  [layoutStyle, tableActive, () => configMap.value.alias, () => configMap.value.bucketName],
+  (_, __, onCleanup) => {
+    let stopped = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const refresh = async () => {
+      try {
+        const tasks = await window.electron.triggerRPC<IUploadTask[]>(IRPCActionType.MANAGE_GET_UPLOAD_TASK_LIST)
+        if (!stopped && !unmounted) uploadTaskList.value = tasks ?? []
+      } catch {
+        if (!stopped) uploadTaskList.value = []
+      } finally {
+        if (!stopped && !unmounted) timer = setTimeout(refresh, 1500)
+      }
+    }
+    if (layoutStyle.value === 'table' && tableActive.value) void refresh()
+    onCleanup(() => {
+      stopped = true
+      clearTimeout(timer)
+    })
+  },
+  { immediate: true },
+)
+
+watch([layoutStyle, searchText, tableDensity], () => {
+  copyDropdownIndex.value = -1
+})
 
 watch(
   () => props.configMap,
@@ -1543,8 +1736,6 @@ watch(
     isUploadKeepDirStructure.value = newValue ?? true
   },
 )
-
-const getExtension = (fileName: string) => window.node.path.extname(fileName).slice(1)
 
 function getThumbnailUrl(url: string) {
   return appendThumbnailSuffix(url, thumbnailSuffix.value)
@@ -1615,10 +1806,6 @@ function stopRefreshDownloadTask() {
 }
 
 // 界面相关
-
-function handleViewChange() {
-  layoutStyle.value = layoutStyle.value === 'grid' ? 'list' : 'grid'
-}
 
 function toggleContentFullscreen() {
   isContentFullscreen.value = !isContentFullscreen.value
@@ -2149,17 +2336,14 @@ async function resetParam(force: boolean = false) {
   isShowCreateFolderDialog.value = false
   newFolderName.value = ''
   lastChoosed.value = -1
-  fileSortExtReverse.value = false
-  fileSortNameReverse.value = false
-  fileSortSizeReverse.value = false
-  fileSortTimeReverse.value = false
+  sortAscending.value = true
   if (!isAutoRefresh.value && !force && !paging.value) {
     const cachedData = await searchExistFileList()
     if (!fileListings.isCurrent(request)) return
     if (cachedData.length > 0) {
       appendListingItems(currentPageFilesInfo, cachedData[0].value.fullList)
       const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
-      sortFile(sortType)
+      sortFile(sortType, false)
       isShowLoadingPage.value = false
       fileListings.complete(request)
       return
@@ -2171,7 +2355,7 @@ async function resetParam(force: boolean = false) {
     if (res.success) {
       appendListingItems(currentPageFilesInfo, res.fullList)
       const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
-      sortFile(sortType)
+      sortFile(sortType, false)
       if (res.isTruncated && paging.value) {
         pagingMarkerStack.push(pagingMarker.value)
         pagingMarker.value = String(res.nextMarker ?? '')
@@ -2232,7 +2416,7 @@ const changePage = async (cur: number | undefined, prev: number | undefined) => 
 
   appendListingItems(currentPageFilesInfo, res.fullList)
 
-  sortFile(sortType)
+  sortFile(sortType, false)
 
   if (!(cur < prev && !paging.value)) {
     if (res.isTruncated) {
@@ -2254,63 +2438,19 @@ const handlePageNumberInput = async (event: Event) => {
   }
 }
 
-function sortFile(type: 'name' | 'size' | 'time' | 'ext' | 'check' | 'init', toggle = true) {
+function sortFile(type: ISortTypeList, toggle = true) {
+  if (toggle) sortAscending.value = currentSortType.value === type ? !sortAscending.value : true
   currentSortType.value = type
   localStorage.setItem('sortType', type)
-  const directions = {
-    name: fileSortNameReverse,
-    size: fileSortSizeReverse,
-    time: fileSortTimeReverse,
-    ext: fileSortExtReverse,
-  }
-  if (toggle && type in directions) {
-    const direction = directions[type as keyof typeof directions]
-    direction.value = !direction.value
-  }
+  sortDropdownOpen.value = false
+  copyDropdownIndex.value = -1
   if (isLoadingData.value) return
-  switch (type) {
-    case 'name':
-      currentPageFilesInfo.sort((a: any, b: any) => {
-        if (fileSortNameReverse.value) {
-          return a.fileName.localeCompare(b.fileName)
-        }
-        return b.fileName.localeCompare(a.fileName)
-      })
-      break
-    case 'size':
-      currentPageFilesInfo.sort((a: any, b: any) => {
-        if (fileSortSizeReverse.value) {
-          return a.fileSize - b.fileSize
-        }
-        return b.fileSize - a.fileSize
-      })
-      break
-    case 'time':
-      currentPageFilesInfo.sort((a: any, b: any) => {
-        if (fileSortTimeReverse.value) {
-          return new Date(a.formatedTime).getTime() - new Date(b.formatedTime).getTime()
-        }
-        return new Date(b.formatedTime).getTime() - new Date(a.formatedTime).getTime()
-      })
-      break
-    case 'ext':
-      currentPageFilesInfo.sort((a: any, b: any) => {
-        if (fileSortExtReverse.value) {
-          return getExtension(a.fileName).localeCompare(getExtension(b.fileName))
-        }
-        return getExtension(b.fileName).localeCompare(getExtension(a.fileName))
-      })
-      break
-    case 'check':
-      currentPageFilesInfo.sort((a: any, b: any) => {
-        return b.checked - a.checked
-      })
-      break
-    case 'init':
-      currentPageFilesInfo.sort((a: any, b: any) => {
-        return b.isDir - a.isDir || a.fileName.localeCompare(b.fileName)
-      })
-  }
+  const column = tableColumns.value.find(column => column.key === type)
+  currentPageFilesInfo.sort((a, b) => {
+    if (type === 'check') return Number(!!b.checked) - Number(!!a.checked)
+    if (type === 'init') return Number(!!b.isDir) - Number(!!a.isDir) || compareFileValues(a.fileName, b.fileName)
+    return compareFileValues(column?.value(a), column?.value(b), sortAscending.value)
+  })
 }
 
 function handleCancelCheck() {
@@ -2389,9 +2529,15 @@ async function handleFolderBatchDownload(item: any) {
 }
 
 async function handleBatchDownload() {
+  if (await downloadFiles(selectedItems.value)) handleCancelCheck()
+}
+
+async function downloadFiles(files: any[]) {
+  const generation = viewGeneration
   const defaultDownloadPath = await window.electron.triggerRPC<string>(
     IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER,
   )
+  if (unmounted || generation !== viewGeneration) return false
   const param = {
     downloadPath: manageStore.config.settings.downloadDir || defaultDownloadPath,
     downloadConflictPolicy: manageStore.config.settings.downloadConflictPolicy ?? 'rename',
@@ -2400,7 +2546,7 @@ async function handleBatchDownload() {
       : 5,
     fileArray: [] as any[],
   }
-  selectedItems.value.forEach((item: any) => {
+  files.forEach((item: any) => {
     if (!item.isDir) {
       param.fileArray.push({
         alias: configMap.value.alias,
@@ -2418,14 +2564,18 @@ async function handleBatchDownload() {
     }
   })
   window.electron.sendRPC(IRPCActionType.MANAGE_DOWNLOAD_BUCKET_FILE, configMap.value.alias, param)
-  handleCancelCheck()
   isShowDownloadPanel.value = true
+  return true
 }
 
 function handleCheckAllChange() {
   const allSelected = selectedItems.value.length === filterList.value.length
+  setAllSelected(!allSelected)
+}
+
+function setAllSelected(selected: boolean) {
   filterList.value.forEach((item: any) => {
-    item.checked = !allSelected
+    item.checked = selected
   })
 }
 
@@ -2745,7 +2895,7 @@ function getBucketFileListBackStage(request: ListingRequest) {
   const param = listingParams(request)
   const cacheTarget = { provider: request.provider, key: getTableKeyOfDb() }
   isLoadingData.value = true
-  sortFile((localStorage.getItem('sortType') as ISortTypeList) || 'init')
+  sortFile((localStorage.getItem('sortType') as ISortTypeList) || 'init', false)
   fileListings.subscribe(request, data => {
     appendListingItems(currentPageFilesInfo, data.items)
     // Keep arrival order while loading; filterList searches all received items. Sort the
@@ -2844,6 +2994,7 @@ async function performDeletion(targets: DeleteTarget[]) {
   isDeleting.value = true
   const scope = deletionScope()
   const generation = viewGeneration
+  deletingTargets.value = { scope, keys: new Set(targets.map(item => item.key)) }
   const accountId = configMap.value.alias
   const provider = currentPicBedName.value
   const cachePrefix = getTableKeyOfDb().slice(0, -currentPrefix.value.length)
@@ -2909,6 +3060,7 @@ async function performDeletion(targets: DeleteTarget[]) {
       )
   } finally {
     isDeleting.value = false
+    deletingTargets.value = { scope: '', keys: new Set() }
   }
 }
 
@@ -3029,7 +3181,8 @@ async function getPreSignedUrl(item: any) {
 function copyToClipboard(text: string) {
   window.electron.clipboard.writeText(String(text))
   message.success(t('pages.manage.bucket.copySuccess'))
-  copyDropdownIndex.value = -1
+  if (layoutStyle.value === 'table' && copyDropdownIndex.value >= 0) closeCopyDropdown()
+  else copyDropdownIndex.value = -1
 }
 
 function toggleCopyDropdown(index: number, event?: MouseEvent) {
@@ -3065,7 +3218,19 @@ function toggleCopyDropdown(index: number, event?: MouseEvent) {
         height: rect.height,
       } as any)
     }
+    if (layoutStyle.value === 'table')
+      nextTick(() => document.querySelector<HTMLElement>('[data-copy-menu] button')?.focus())
   }
+}
+
+function closeCopyDropdown() {
+  const index = copyDropdownIndex.value
+  copyDropdownIndex.value = -1
+  nextTick(() =>
+    bucketContainerRef.value
+      ?.querySelector<HTMLElement>(`[data-dropdown-index="${index}"] button`)
+      ?.focus({ preventScroll: true }),
+  )
 }
 
 function getDropdownStyle(index: number) {

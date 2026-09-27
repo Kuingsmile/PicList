@@ -5,7 +5,7 @@
       class="relative z-1 no-scrollbar flex h-full w-full flex-col items-center justify-start gap-4 overflow-auto rounded-xl border-none p-4 shadow-sm"
     >
       <div
-        class="flex w-full items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-0 shadow-md max-md:items-stretch max-md:p-5"
+        class="flex w-full flex-wrap items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-0 shadow-md max-md:items-stretch max-md:p-5"
       >
         <div class="flex flex-1 items-center gap-4 p-1">
           <ImagesIcon :size="24" class="text-accent" />
@@ -18,7 +18,10 @@
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <div class="flex items-center gap-1.5 rounded-md border border-border-secondary px-2 py-1.5">
+          <div
+            v-if="viewMode === 'grid'"
+            class="flex items-center gap-1.5 rounded-md border border-border-secondary px-2 py-1.5"
+          >
             <GridIcon :size="14" class="text-main" />
             <input
               v-model.number="userGridColumns"
@@ -28,6 +31,7 @@
               step="1"
               class="grid-slider h-[4px] w-[70px] cursor-pointer appearance-none rounded-[2px] bg-(--color-background-tertiary) outline-none [&::-moz-range-thumb]:h-[14px] [&::-moz-range-thumb]:w-[14px] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:bg-accent [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:duration-200 [&::-webkit-slider-thumb]:h-[15px] [&::-webkit-slider-thumb]:w-[15px] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-200 hover:[&::-webkit-slider-thumb]:scale-110 hover:[&::-webkit-slider-thumb]:shadow-[0_0_0_2px_rgba(var(--color-accent-rgb),0.4)]"
               :title="t('pages.gallery.gridSize')"
+              :aria-label="t('pages.gallery.gridSize')"
             />
           </div>
           <div class="flex items-center gap-2">
@@ -45,13 +49,7 @@
             <span class="text-sm text-secondary">{{ t('pages.gallery.syncDelete') }}</span>
             <CustomSwitch v-model="deleteCloud" small tighter no-border no-hover @change="handleDeleteCloudFile" />
           </div>
-          <CustomButton
-            type="primary"
-            :text="getViewModeLabel()"
-            :icon="getViewModeIcon()"
-            class="px-2!"
-            @click="toggleViewMode"
-          />
+          <FileViewControls v-model:view-mode="viewMode" v-model:density="tableDensity" />
           <CustomButton
             type="primary"
             :text="t('pages.gallery.hideFilters')"
@@ -124,11 +122,11 @@
 
           <div class="filter-group">
             <SingleSelect
-              v-model="currentSortField"
+              :model-value="currentSortField"
               :placeholder="t(`pages.gallery.sortBy.${currentSortField}`)"
               :title="t('pages.gallery.sort')"
-              :key-list="['name', 'ext', 'time', 'check']"
-              @change="sortFile(currentSortField)"
+              :key-list="['name', 'ext', 'time', 'provider', 'check']"
+              @change="field => sortFile(field as GallerySortField)"
             >
               <template #item="{ item }">
                 {{ t(`pages.gallery.sortBy.${item}`) }}
@@ -192,7 +190,7 @@
 
       <!-- Gallery Grid -->
       <div
-        class="no-scrollbar flex min-h-[500px] w-full flex-1 flex-col flex-wrap items-center justify-center gap-2 overflow-auto rounded-2xl border border-border-secondary p-1 shadow-md"
+        class="flex min-h-[240px] w-full min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border-secondary p-4 shadow-md"
       >
         <div v-if="filterList.length === 0" class="flex flex-col items-center justify-center px-8 py-16 text-center">
           <ImageIcon :size="64" class="mb-4 text-accent" />
@@ -200,18 +198,68 @@
           <p class="m-0 text-secondary">{{ t('pages.gallery.tryAdjustingFilters') }}</p>
         </div>
 
-        <VirtualScroller
+        <FileCollection
           v-else
           :key="componentKey"
           ref="virtualScrollerRef"
           :items="filterList"
           :view-mode="viewMode"
-          class="virtual-gallery-scroller min-h-0 w-full flex-1 p-3"
-          :item-height="300"
+          :density="tableDensity"
+          :columns="tableColumns"
+          :grid-item-height="300"
           :grid-breakpoints="effectiveGridBreakpoints"
           key-field="key"
+          :label="t('pages.gallery.title')"
+          :preview-id="hoverPreviewId"
+          :is-selected="item => !!choosedList[item.id]"
+          :sort-field="currentSortField"
+          :sort-ascending="sortAscending"
+          @select="(item, selected) => (choosedList[item.id] = selected)"
+          @select-all="setAllSelected"
+          @sort="field => sortFile(field as GallerySortField)"
+          @open="(_, index) => zoomImage(index)"
+          @preview="showHoverPreview"
+          @preview-end="hoverPreviewRef?.scheduleHide()"
           @visible-indexes-change="handleVisibleIndexesChange"
         >
+          <template #actions="{ item, index, tabindex }">
+            <button
+              type="button"
+              :tabindex="tabindex"
+              :title="t('common.fileTable.open')"
+              :aria-label="t('common.fileTable.open')"
+              @click="zoomImage(index)"
+            >
+              <ImageIcon :size="16" />
+            </button>
+            <button
+              type="button"
+              :tabindex="tabindex"
+              :title="t('pages.gallery.copy')"
+              :aria-label="t('pages.gallery.copy')"
+              @click="copy(item)"
+            >
+              <ClipboardIcon :size="16" />
+            </button>
+            <button
+              type="button"
+              :tabindex="tabindex"
+              :title="t('pages.gallery.edit')"
+              :aria-label="t('pages.gallery.edit')"
+              @click="openDialog(item)"
+            >
+              <EditIcon :size="16" />
+            </button>
+            <button
+              type="button"
+              :tabindex="tabindex"
+              :title="t('pages.gallery.delete')"
+              :aria-label="t('pages.gallery.delete')"
+              @click="remove(item, index)"
+            >
+              <TrashIcon :size="16" />
+            </button>
+          </template>
           <template #default="{ item, index }">
             <div
               class="group/image m-0 box-border flex h-[calc(100%-8px)] w-full cursor-pointer flex-col overflow-hidden rounded-lg border-2 border-border shadow-sm transition-all duration-fast ease-apple hover:translate-y-[-2px] hover:border-accent hover:shadow-md [.selected]:border-2 [.selected]:border-accent [.selected]:shadow-md"
@@ -283,9 +331,17 @@
               </div>
             </div>
           </template>
-        </VirtualScroller>
+        </FileCollection>
       </div>
     </div>
+    <GalleryHoverPreview
+      :id="hoverPreviewId"
+      ref="hoverPreviewRef"
+      :src="hoverPreviewItem ? buildDisplayImageSrc(hoverPreviewItem) : ''"
+      :alt="hoverPreviewItem?.fileName || ''"
+      @show="ensureJxlPreview(hoverPreviewItem)"
+      @hide="hoverPreviewItem = undefined"
+    />
     <!-- Custom Image Preview Modal -->
     <ImagePreview
       v-model:gallery-slider-control="gallerySliderControl"
@@ -393,7 +449,6 @@ import {
   ImagesIcon,
   InfoIcon,
   LinkIcon,
-  ListIcon,
   RefreshCwIcon,
   SearchIcon,
   TrashIcon,
@@ -408,6 +463,8 @@ import {
   onBeforeUnmount,
   reactive,
   ref,
+  shallowRef,
+  useId,
   useTemplateRef,
   watch,
 } from 'vue'
@@ -421,8 +478,10 @@ import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import MultiSelect from '@/components/common/MultiSelect.vue'
 import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
+import FileCollection from '@/components/FileCollection.vue'
+import FileViewControls from '@/components/FileViewControls.vue'
+import GalleryHoverPreview from '@/components/GalleryHoverPreview.vue'
 import ImagePreview from '@/components/ImagePreview.vue'
-import VirtualScroller from '@/components/VirtualScroller.vue'
 import useConfirm from '@/hooks/useConfirm'
 import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
@@ -432,6 +491,7 @@ import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import $$db from '@/utils/db'
 import { IPasteStyle, IRPCActionType } from '@/utils/enum'
+import { compareFileValues, type FileColumn, fileDate, fileType, formatCollectionDate } from '@/utils/fileCollection'
 import { getGalleryPreviewSource, getJxlPreviewSource } from '@/utils/galleryPreview'
 import { picBedsCanbeDeleted } from '@/utils/static'
 import { addCacheBustParam as withCacheBustParam } from '#/utils/url'
@@ -449,6 +509,9 @@ const { picBedG } = usePicBed()
 
 const images = ref<ImgInfo[]>([])
 const virtualScrollerRef = useTemplateRef('virtualScrollerRef')
+const hoverPreviewRef = useTemplateRef('hoverPreviewRef')
+const hoverPreviewId = useId()
+const hoverPreviewItem = shallowRef<IGalleryItem>()
 const dialogVisible = ref(false)
 const imgInfo = reactive({
   id: '',
@@ -463,7 +526,7 @@ const deleteCloud = ref<boolean>(false)
 const isAlwaysForceReload = ref<boolean>(false)
 const choosedPicBed = ref<string[]>([])
 const galleryPicBedFilterSetting = ref<string[]>([])
-const lastChoosed = ref<number>(-1)
+const lastChoosed = ref<string>()
 const isShiftKeyPress = ref<boolean>(false)
 const searchText = ref<string>('')
 const searchTextURL = ref<string>('')
@@ -472,9 +535,6 @@ const debouncedSearchTextURL = ref<string>('')
 const handleBarActive = useStorage<boolean>('galleryHandleBarActive', true)
 const pasteStyle = ref<string>('')
 const useShortUrl = ref<string>('longUrl')
-const fileSortNameReverse = ref(false)
-const fileSortTimeReverse = ref(false)
-const fileSortExtReverse = ref(false)
 const isShowBatchRenameDialog = ref(false)
 const batchRenameMatch = ref('')
 const batchRenameReplace = ref('')
@@ -485,9 +545,18 @@ const sortDropdownOpen = ref(false)
 const showFormatInfo = ref(false)
 const showMatchedUrls = ref(false)
 const enableAdvancedAnimation = ref(false)
-const viewMode = useStorage<'list' | 'grid'>('galleryViewMode', 'grid')
+const storedViewMode = useStorage<'list' | 'table' | 'grid'>('galleryViewMode', 'grid')
+const viewMode = computed({
+  get: () => (storedViewMode.value === 'grid' ? ('grid' as const) : ('table' as const)),
+  set: (value: 'grid' | 'table') => {
+    storedViewMode.value = value
+  },
+})
+const tableDensity = useStorage<'compact' | 'comfortable'>('galleryTableDensity', 'compact')
 const componentKey = ref(0)
-const currentSortField = ref<'name' | 'time' | 'ext' | 'check'>('name')
+type GallerySortField = 'name' | 'time' | 'ext' | 'provider' | 'check'
+const currentSortField = ref<GallerySortField>('time')
+const sortAscending = ref(false)
 const userGridColumns = useStorage<number>('galleryGridColumns', 4)
 const imageLoadStates = reactive<Record<string, boolean>>({})
 const imageErrorStates = reactive<Record<string, boolean>>({})
@@ -543,8 +612,20 @@ let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
 let searchURLDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
 const effectiveGridBreakpoints = computed(() => {
-  return [{ min: 0, cols: userGridColumns.value }]
+  return Array.from({ length: userGridColumns.value }, (_, index) => ({ min: index * 180, cols: index + 1 }))
 })
+
+const tableColumns = computed<FileColumn[]>(() => [
+  { key: 'name', label: t('common.fileTable.name'), width: 260, value: item => item.fileName },
+  { key: 'ext', label: t('common.fileTable.type'), width: 90, value: fileType },
+  { key: 'time', label: t('common.fileTable.date'), width: 180, value: fileDate, format: formatCollectionDate },
+  {
+    key: 'provider',
+    label: t('common.fileTable.provider'),
+    width: 150,
+    value: item => picBedG.value.find(provider => provider.type === item.type)?.name || item.type,
+  },
+])
 
 const filteredPicBedG = computed(() => {
   if (galleryPicBedFilterSetting.value.length === 0) {
@@ -617,19 +698,22 @@ watch(useShortUrl, async newVal => {
 })
 
 watch(filterList, items => {
+  hoverPreviewRef.value?.hide()
   const visibleIds = new Set(items.map(item => item.id))
   Object.keys(choosedList).forEach(id => {
     if (!visibleIds.has(id)) {
       delete choosedList[id]
     }
   })
-  lastChoosed.value = -1
+  if (!visibleIds.has(lastChoosed.value)) lastChoosed.value = undefined
   pruneDisplayImageSources(items)
   pruneJxlPreviewState(items)
   nextTick(() => {
     syncVisibleDisplayImageSources()
   })
 })
+
+watch([viewMode, tableDensity], () => hoverPreviewRef.value?.hide())
 
 watch(
   () => [gallerySliderControl.value.visible, gallerySliderControl.value.index] as const,
@@ -691,18 +775,6 @@ function onImageError(item: IGalleryItem) {
 
   imageErrorStates[id] = true
   updateDisplayImageSource(item)
-}
-
-function toggleViewMode() {
-  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
-}
-
-function getViewModeIcon() {
-  return viewMode.value === 'list' ? ListIcon : GridIcon
-}
-
-function getViewModeLabel() {
-  return t(`pages.gallery.${viewMode.value}View`)
 }
 
 async function initConf() {
@@ -868,8 +940,8 @@ function pruneJxlPreviewState(items: ImgInfo[] = filterList.value) {
 }
 
 function handleVisibleIndexesChange(indexes: number[]) {
-  visibleGalleryIndexes.value = indexes
-  syncVisibleDisplayImageSources(indexes)
+  visibleGalleryIndexes.value = viewMode.value === 'grid' ? indexes : []
+  syncVisibleDisplayImageSources(visibleGalleryIndexes.value)
 }
 
 function ensureJxlPreview(item?: IGalleryItem): boolean {
@@ -990,6 +1062,7 @@ async function updateGallery() {
     invalidateJxlPreviewCache()
   }
   images.value = newList
+  sortFile(currentSortField.value, false)
   nextTick(() => {
     pruneJxlPreviewState()
     syncVisibleDisplayImageSources()
@@ -1006,9 +1079,10 @@ function handleChooseImage(val: boolean, index: number) {
   }
 
   if (val === true) {
-    if (lastChoosed.value !== -1 && isShiftKeyPress.value) {
-      const min = Math.min(lastChoosed.value, index)
-      const max = Math.max(lastChoosed.value, index)
+    const anchorIndex = filterList.value.findIndex(item => item.id === lastChoosed.value)
+    if (anchorIndex >= 0 && isShiftKeyPress.value) {
+      const min = Math.min(anchorIndex, index)
+      const max = Math.max(anchorIndex, index)
       for (let i = min + 1; i < max; i++) {
         const id = filterList.value[i].id!
         choosedList[id] = true
@@ -1020,7 +1094,7 @@ function handleChooseImage(val: boolean, index: number) {
         console.error(e)
       }
     }
-    lastChoosed.value = index
+    lastChoosed.value = currentItem.id
   }
 }
 
@@ -1033,13 +1107,19 @@ function clearChoosedList() {
   Object.keys(choosedList).forEach(key => {
     delete choosedList[key]
   })
-  lastChoosed.value = -1
+  lastChoosed.value = undefined
 }
 
 function zoomImage(index: number) {
+  hoverPreviewRef.value?.hide()
   ensureJxlPreview(filterList.value[index])
   gallerySliderControl.value.index = index
   gallerySliderControl.value.visible = true
+}
+
+function showHoverPreview(item: IGalleryItem, anchor: Element) {
+  hoverPreviewItem.value = item
+  hoverPreviewRef.value?.show(anchor)
 }
 
 async function copy(item: ImgInfo) {
@@ -1143,9 +1223,12 @@ function isMultiple(obj: IObj) {
 }
 
 function toggleSelectAll() {
-  const result = !isAllSelected.value
+  setAllSelected(!isAllSelected.value)
+}
+
+function setAllSelected(selected: boolean) {
   filterList.value.forEach(item => {
-    choosedList[item.id!] = result
+    choosedList[item.id!] = selected
   })
 }
 
@@ -1255,50 +1338,15 @@ function toggleHandleBar() {
   handleBarActive.value = !handleBarActive.value
 }
 
-function sortFile(type: 'name' | 'time' | 'ext' | 'check') {
-  switch (type) {
-    case 'name':
-      fileSortNameReverse.value = !fileSortNameReverse.value
-      images.value.sort((a: any, b: any) => {
-        if (fileSortNameReverse.value) {
-          return a.fileName.localeCompare(b.fileName)
-        } else {
-          return b.fileName.localeCompare(a.fileName)
-        }
-      })
-      break
-    case 'time':
-      fileSortTimeReverse.value = !fileSortTimeReverse.value
-      images.value.sort((a: any, b: any) => {
-        if (fileSortTimeReverse.value) {
-          return a.updatedAt - b.updatedAt
-        } else {
-          return b.updatedAt - a.updatedAt
-        }
-      })
-      break
-    case 'ext':
-      fileSortExtReverse.value = !fileSortExtReverse.value
-      images.value.sort((a: any, b: any) => {
-        if (fileSortExtReverse.value) {
-          return a.extname.localeCompare(b.extname)
-        } else {
-          return b.extname.localeCompare(a.extname)
-        }
-      })
-      break
-    case 'check':
-      images.value.sort((a: any, b: any) => {
-        if (choosedList[a.id] && !choosedList[b.id]) {
-          return -1
-        } else if (!choosedList[a.id] && choosedList[b.id]) {
-          return 1
-        } else {
-          return 0
-        }
-      })
-      break
-  }
+function sortFile(type: GallerySortField, toggle = true) {
+  if (toggle) sortAscending.value = type === currentSortField.value ? !sortAscending.value : true
+  currentSortField.value = type
+  const column = tableColumns.value.find(column => column.key === type)
+  images.value.sort((a, b) =>
+    type === 'check'
+      ? Number(!!choosedList[b.id!]) - Number(!!choosedList[a.id!])
+      : compareFileValues(column?.value(a), column?.value(b), sortAscending.value),
+  )
 }
 
 function handleBatchRename() {
@@ -1417,9 +1465,6 @@ onBeforeUnmount(async () => {
 <script lang="ts">
 export default {
   name: 'GalleryPage',
-  components: {
-    VirtualScroller,
-  },
 }
 </script>
 

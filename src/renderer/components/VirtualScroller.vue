@@ -1,22 +1,34 @@
 <template>
-  <div
-    ref="containerRef"
-    class="relative overflow-auto will-change-transform contain-[layout_style_paint] [-webkit-overflow-scrolling:touch]"
-    @scroll="handleScroll"
-  >
-    <div class="relative w-full" :style="contentStyles">
-      <div
-        class="group absolute inset-[0_auto_auto_0] w-full will-change-transform backface-hidden [.is-grid]:grid [.is-grid]:auto-rows-(--row-height,1px) [.is-grid]:grid-cols-[repeat(var(--items-per-row,1),minmax(0,1fr))] [.is-grid]:gap-(--item-gap,0)"
-        :class="{ 'is-grid': isGridMode, 'is-list': !isGridMode }"
-        :style="viewportStyle"
-      >
+  <div ref="containerRef" class="virtual-scroller" @scroll="handleScroll">
+    <table
+      v-if="viewMode === 'table'"
+      class="virtual-table"
+      :style="{ minWidth: `${tableMinWidth}px` }"
+      :aria-label="tableLabel"
+      :aria-rowcount="items.length + 1"
+    >
+      <slot name="columns" />
+      <thead ref="headerRef">
+        <slot name="header" />
+      </thead>
+      <tbody>
+        <tr v-if="viewportOffset > 0" aria-hidden="true">
+          <td :colspan="tableColumns" class="virtual-spacer" :style="{ height: `${viewportOffset}px` }" />
+        </tr>
+        <slot v-for="index in visibleIndexes" :key="itemKey(items[index], index)" :item="items[index]" :index="index" />
+        <tr v-if="bottomSpace > 0" aria-hidden="true">
+          <td :colspan="tableColumns" class="virtual-spacer" :style="{ height: `${bottomSpace}px` }" />
+        </tr>
+      </tbody>
+    </table>
+    <div v-else class="virtual-content" :style="{ height: `${gridCalculations.totalHeight}px` }">
+      <div class="virtual-viewport" :style="viewportStyle">
         <div
-          v-for="realIndex in visibleIndexes"
-          :key="items[realIndex] && items[realIndex][keyField || 'id'] ? items[realIndex][keyField || 'id'] : realIndex"
-          class="w-full"
-          :style="itemStyle"
+          v-for="index in visibleIndexes"
+          :key="itemKey(items[index], index)"
+          :style="{ height: `${itemHeight}px`, minWidth: 0 }"
         >
-          <slot :item="items[realIndex]" :index="realIndex" />
+          <slot :item="items[index]" :index="index" />
         </div>
       </div>
     </div>
@@ -24,13 +36,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onActivated,
+  onBeforeUnmount,
+  onDeactivated,
+  onMounted,
+  ref,
+  useTemplateRef,
+  watch,
+} from 'vue'
 
 import { useVirtualGrid } from '@/hooks/useVirtualGrid'
 
 interface Breakpoint {
   min: number
   cols: number
+}
+
+export interface ScrollAnchor {
+  key: string | number
+  index: number
+  fraction: number
 }
 
 const {
@@ -41,6 +69,9 @@ const {
   keyField = 'id',
   itemPadding = 8,
   viewMode = 'grid',
+  tableColumns = 1,
+  tableMinWidth = 800,
+  tableLabel = '',
 } = defineProps<{
   items: any[]
   itemHeight: number
@@ -48,200 +79,199 @@ const {
   bufferFactor?: number
   keyField?: string
   itemPadding?: number
-  viewMode?: 'list' | 'grid'
+  viewMode?: 'list' | 'grid' | 'table'
+  tableColumns?: number
+  tableMinWidth?: number
+  tableLabel?: string
 }>()
 
 const emit = defineEmits<(e: 'visibleIndexesChange', indexes: number[]) => void>()
-
 const containerRef = useTemplateRef('containerRef')
+const headerRef = useTemplateRef('headerRef')
 const containerHeight = ref(0)
-const containerWidth = ref<number>(0)
-const parentScrollListeners = ref<HTMLElement[]>([])
-const lastScrollTime = ref(0)
-let ro: ResizeObserver | null = null
+const containerWidth = ref(0)
+let observer: ResizeObserver | undefined
+let anchor: ScrollAnchor | undefined
+let restoring = false
+let restoreVersion = 0
+let active = true
 
-const sortedBreakpoints = computed<Breakpoint[]>(() => [...gridBreakpoints].sort((a, b) => a.min - b.min))
-
-const effectiveCols = computed<number>(() => {
-  if (viewMode === 'list') return 1
-  const w = containerWidth.value || 0
+const itemKey = (item: any, index: number): string | number => item?.[keyField] ?? index
+const itemKeys = computed(() => items.map(itemKey))
+const sortedBreakpoints = computed(() => [...gridBreakpoints].sort((a, b) => a.min - b.min))
+const effectiveCols = computed(() => {
+  if (viewMode !== 'grid') return 1
   let cols = 1
   for (const bp of sortedBreakpoints.value) {
-    if (w >= bp.min) cols = Math.max(1, bp.cols)
+    if (containerWidth.value >= bp.min) cols = Math.max(1, bp.cols)
   }
   return cols
 })
 
-const isGridMode = computed(() => effectiveCols.value > 1)
-
-const { gridCalculations, visibleIndexes, viewportOffset, updateScrollTop, scrollToItem } = useVirtualGrid({
+const { gridCalculations, visibleIndexes, viewportOffset, scrollTop, updateScrollTop } = useVirtualGrid({
   items: () => items,
   itemHeight: () => itemHeight,
-  rowGap: () => (isGridMode.value ? itemPadding : 0),
+  rowGap: () => (viewMode === 'grid' ? itemPadding : 0),
   containerHeight,
   gridItems: effectiveCols,
   bufferFactor,
 })
 
-const contentStyles = computed(() => ({
-  height: `${gridCalculations.value.totalHeight}px`,
+const bottomSpace = computed(() =>
+  Math.max(0, gridCalculations.value.totalHeight - viewportOffset.value - visibleIndexes.value.length * itemHeight),
+)
+const viewportStyle = computed(() => ({
+  transform: `translateY(${viewportOffset.value}px)`,
+  display: 'grid',
+  gridTemplateColumns: `repeat(${effectiveCols.value}, minmax(0, 1fr))`,
+  gap: viewMode === 'grid' ? `${itemPadding}px` : '0',
 }))
 
-const viewportStyle = computed(() => {
-  const base: Record<string, string> = {
-    transform: `translateY(${viewportOffset.value}px)`,
-  }
-  if (isGridMode.value) {
-    base['--items-per-row'] = String(effectiveCols.value)
-    base['--row-height'] = `${itemHeight}px`
-    base['--item-gap'] = `${itemPadding}px`
-  }
-  return base
-})
-
-const itemStyle = computed(() => (isGridMode.value ? {} : { height: `${itemHeight}px` }))
-
-watch(
-  visibleIndexes,
-  indexes => {
-    emit('visibleIndexesChange', indexes)
-  },
-  { immediate: true, flush: 'post' },
-)
-
-function handleScroll() {
-  const c = containerRef.value
-  if (!c) return
-  updateScrollTop(c.scrollTop)
-}
-
-function handlePageScroll() {
-  const now = Date.now()
-  if (now - lastScrollTime.value < 16) return
-  lastScrollTime.value = now
-
-  updateContainerMetrics()
-  const el = containerRef.value
-  if (!el) return
-
-  const rect = el.getBoundingClientRect()
-  const viewportHeight = window.innerHeight
-
-  const intersectionTop = Math.max(0, -rect.top)
-  const intersectionBottom = Math.min(rect.height, viewportHeight - rect.top)
-  const intersectionHeight = Math.max(0, intersectionBottom - intersectionTop)
-
-  if (intersectionHeight > 0) {
-    updateScrollTop(intersectionTop)
-  }
-}
-
-function updateContainerMetrics() {
-  if (!containerRef.value) return
-  const rect = containerRef.value.getBoundingClientRect()
-  containerWidth.value = rect.width
-  containerHeight.value = Math.max(200, window.innerHeight - rect.top - 12)
+function captureAnchor(): ScrollAnchor | undefined {
+  const { rowStride, itemsPerRow } = gridCalculations.value
+  const row = Math.floor(scrollTop.value / rowStride)
+  const index = Math.min(items.length - 1, row * itemsPerRow)
+  if (index < 0) return undefined
+  return { key: itemKey(items[index], index), index, fraction: (scrollTop.value - row * rowStride) / rowStride }
 }
 
 function scrollToOffset(offset: number) {
   const container = containerRef.value
   if (!container) return
-  container.scrollTop = offset
-  // The browser may clamp the requested offset to the available scroll range.
+  updateScrollTop(offset)
+  container.scrollTop = scrollTop.value
   updateScrollTop(container.scrollTop)
+  anchor = captureAnchor()
 }
 
-function scrollTo(index: number) {
-  scrollToOffset(scrollToItem(index))
+async function restoreAnchor(saved = anchor) {
+  if (!active) return
+  const version = ++restoreVersion
+  restoring = true
+  await nextTick()
+  if (version !== restoreVersion || !containerRef.value) return
+  measure()
+  // Wait for the new spacer height before assigning scrollTop (the browser clamps it).
+  await nextTick()
+  if (version !== restoreVersion || !containerRef.value) return
+  const found = saved ? itemKeys.value.indexOf(saved.key) : -1
+  const index = Math.max(0, Math.min(items.length - 1, found < 0 ? (saved?.index ?? 0) : found))
+  const { rowStride, itemsPerRow } = gridCalculations.value
+  scrollToOffset((Math.floor(index / itemsPerRow) + (saved?.fraction ?? 0)) * rowStride)
+  restoring = false
 }
 
-function scrollToTop() {
-  scrollToOffset(0)
-}
-
-function scrollToBottom() {
+function measure() {
   const container = containerRef.value
-  if (container) scrollToOffset(container.scrollHeight - container.clientHeight)
+  if (!container) return
+  const style = getComputedStyle(container)
+  containerWidth.value = container.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)
+  containerHeight.value = Math.max(
+    0,
+    container.clientHeight -
+      parseFloat(style.paddingTop) -
+      parseFloat(style.paddingBottom) -
+      (headerRef.value?.offsetHeight ?? 0),
+  )
+}
+
+function handleScroll() {
+  if (restoring || !containerRef.value) return
+  updateScrollTop(containerRef.value.scrollTop)
+  anchor = captureAnchor()
+}
+
+function scrollTo(index: number, align: 'start' | 'nearest' = 'start') {
+  const { rowStride, itemsPerRow } = gridCalculations.value
+  const top = Math.floor(Math.max(0, Math.min(index, items.length - 1)) / itemsPerRow) * rowStride
+  if (align === 'nearest' && top >= scrollTop.value && top + itemHeight <= scrollTop.value + containerHeight.value)
+    return
+  scrollToOffset(align === 'nearest' && top > scrollTop.value ? top + itemHeight - containerHeight.value : top)
 }
 
 function refresh() {
-  updateContainerMetrics()
-  if (containerRef.value) {
-    updateScrollTop(containerRef.value.scrollTop)
-  }
-  handlePageScroll()
+  if (!active) return
+  measure()
+  void restoreAnchor()
 }
 
+watch(
+  [itemKeys, () => itemHeight, () => viewMode, effectiveCols],
+  () => {
+    void restoreAnchor()
+  },
+  { flush: 'pre' },
+)
+watch(visibleIndexes, indexes => emit('visibleIndexesChange', indexes), { immediate: true, flush: 'post' })
+
 onMounted(() => {
-  if (!containerRef.value) return
-  ro = new ResizeObserver(updateContainerMetrics)
-  ro.observe(containerRef.value)
-
-  ro.observe(document.documentElement)
-  window.addEventListener('scroll', handlePageScroll, { passive: true })
-  let parent = containerRef.value.parentElement
-  while (parent) {
-    if (parent.scrollHeight > parent.clientHeight) {
-      parent.addEventListener('scroll', handlePageScroll, { passive: true })
-      parentScrollListeners.value.push(parent)
-    }
-    parent = parent.parentElement
-  }
-
-  updateContainerMetrics()
-
-  window.addEventListener('resize', updateContainerMetrics, { passive: true })
+  observer = new ResizeObserver(refresh)
+  observer.observe(containerRef.value!)
+  refresh()
 })
-
+onActivated(() => {
+  active = true
+  refresh()
+})
+onDeactivated(() => {
+  active = false
+  restoreVersion++
+  restoring = false
+})
 onBeforeUnmount(() => {
-  if (ro) ro.disconnect()
-  window.removeEventListener('resize', updateContainerMetrics)
-  window.removeEventListener('scroll', handlePageScroll)
-  parentScrollListeners.value.forEach(parent => {
-    parent.removeEventListener('scroll', handlePageScroll)
-  })
-  parentScrollListeners.value = []
+  active = false
+  restoreVersion++
+  observer?.disconnect()
 })
 
-defineExpose({ scrollTo, scrollToTop, scrollToBottom, refresh })
+defineExpose({
+  scrollTo,
+  scrollToTop: () => scrollToOffset(0),
+  scrollToBottom: () => scrollToOffset(gridCalculations.value.totalHeight),
+  refresh,
+  captureAnchor,
+  restoreAnchor,
+  pageSize: computed(() => Math.max(1, Math.floor(containerHeight.value / itemHeight))),
+})
 </script>
 
 <style scoped>
 .virtual-scroller {
   position: relative;
   overflow: auto;
-  contain: layout style paint;
-  will-change: transform;
-  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+  min-width: 0;
+  overflow-anchor: none;
+  contain: layout style;
 }
 
-.virtual-scroller-content {
+.virtual-content {
   position: relative;
   width: 100%;
 }
 
-/* Base viewport (list mode) stacks children; offset applied via translateY */
-.virtual-scroller-viewport {
+.virtual-viewport {
   position: absolute;
   inset: 0 auto auto 0;
-  will-change: transform;
-  backface-visibility: hidden;
   width: 100%;
 }
 
-.virtual-scroller-viewport.is-grid {
-  display: grid;
+.virtual-table {
   width: 100%;
-  grid-template-columns: repeat(var(--items-per-row, 1), minmax(0, 1fr));
-  grid-auto-rows: var(--row-height, 1px);
-  gap: var(--item-gap, 0);
+  table-layout: fixed;
+  border-spacing: 0;
+  border-collapse: separate;
 }
 
-.virtual-scroller-viewport.is-list .virtual-scroller-item {
-  width: 100%;
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 3;
 }
 
-.virtual-scroller-viewport.is-grid .virtual-scroller-item {
-  width: 100%;
+.virtual-spacer {
+  padding: 0;
+  border: 0;
+  line-height: 0;
 }
 </style>

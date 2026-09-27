@@ -19,8 +19,8 @@ export function useVirtualGrid(options: UseVirtualGridOptions) {
     const currentItems = toValue(items)
     const itemsPerRow = Math.max(1, toValue(gridItems) || 1)
     const totalRows = Math.ceil(currentItems.length / itemsPerRow)
-    const currentItemHeight = toValue(itemHeight)
-    const gap = toValue(rowGap)
+    const currentItemHeight = Math.max(1, toValue(itemHeight))
+    const gap = Math.max(0, toValue(rowGap))
     const rowStride = currentItemHeight + gap
     const totalHeight = totalRows * currentItemHeight + Math.max(0, totalRows - 1) * gap
 
@@ -41,8 +41,9 @@ export function useVirtualGrid(options: UseVirtualGridOptions) {
       return { startRow: 0, endRow: 0, visibleRows: 0 }
     }
     const buffer = Math.ceil((height / rowStride) * bufferFactor)
-    const startRow = Math.max(0, Math.floor(scrollTop.value / rowStride) - buffer)
-    const endRow = Math.min(totalRows, Math.ceil((scrollTop.value + height) / rowStride) + buffer)
+    const offset = Math.min(scrollTop.value, Math.max(0, gridCalculations.value.totalHeight - height))
+    const startRow = Math.max(0, Math.floor(offset / rowStride) - buffer)
+    const endRow = Math.min(totalRows, Math.ceil((offset + height) / rowStride) + buffer)
     const visibleRows = endRow - startRow
     return { startRow, endRow, visibleRows }
   })
@@ -71,13 +72,16 @@ export function useVirtualGrid(options: UseVirtualGridOptions) {
   })
 
   function updateScrollTop(newScrollTop: number) {
-    scrollTop.value = newScrollTop
+    scrollTop.value = Math.max(
+      0,
+      Math.min(newScrollTop, Math.max(0, gridCalculations.value.totalHeight - toValue(containerHeight))),
+    )
   }
 
   function scrollToItem(index: number) {
     const { itemsPerRow, rowStride } = gridCalculations.value
-    const rowIndex = Math.floor(index / itemsPerRow)
-    scrollTop.value = rowIndex * rowStride
+    const rowIndex = Math.floor(Math.max(0, Math.min(index, toValue(items).length - 1)) / itemsPerRow)
+    updateScrollTop(rowIndex * rowStride)
     return scrollTop.value
   }
 
@@ -103,6 +107,7 @@ export function useVirtualGrid(options: UseVirtualGridOptions) {
   )
 
   return {
+    scrollTop,
     gridCalculations,
     visibleIndexes,
     viewportOffset,
