@@ -1235,14 +1235,7 @@
     </CustomModal>
 
     <!-- Image Process Dialog -->
-    <CustomModal
-      v-if="imageProcessDialogVisible"
-      v-model:visible="imageProcessDialogVisible"
-      title=" "
-      :description="t('pages.imageProcess.subtitle-Global')"
-    >
-      <ImageProcessSetting :config-id="''" :current-picbed-name="''" />
-    </CustomModal>
+    <ImageProcessDialog v-if="imageProcessDialogVisible" v-model:visible="imageProcessDialogVisible" />
 
     <CustomModal v-if="editorVisible" v-model:visible="editorVisible" :title="t('common.edit')">
       <Editor v-model="editorContent" :language="editorLanguage" />
@@ -1314,7 +1307,7 @@ import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import GallerySync from '@/components/GallerySync.vue'
-import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
+import ImageProcessDialog from '@/components/ImageProcessDialog.vue'
 import useConfirm from '@/hooks/useConfirm'
 import { osGlobal, usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'

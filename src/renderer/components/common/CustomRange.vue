@@ -3,6 +3,7 @@
   <input
     v-model.number="modelValue"
     type="range"
+    :aria-label="title"
     :min="min"
     :max="max"
     :step="step"

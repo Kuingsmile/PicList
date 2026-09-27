@@ -1,11 +1,14 @@
 <template>
   <div
-    class="fixed inset-0 z-1000 flex items-center justify-center overflow-y-auto bg-black/30"
+    class="fixed inset-0 z-1000 flex items-center justify-center overflow-hidden overscroll-none bg-black/30"
     :class="{ 'advanced-animation': enableAdvancedAnimation }"
     @click.stop
   >
     <div
-      class="m-auto flex flex-col overflow-hidden rounded-lg border border-border-secondary bg-bg-tertiary shadow-xl"
+      class="m-auto flex min-h-0 flex-col overflow-hidden rounded-lg border border-border-secondary bg-bg-tertiary shadow-xl"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="title || description || undefined"
       :style="{
         height: height || '85vh',
         maxHeight: maxHeight || '85vh',
@@ -14,7 +17,9 @@
       }"
       @click.stop
     >
-      <div class="flex items-center justify-between border border-border-secondary bg-bg-tertiary px-5 py-4 max-md:p-2">
+      <div
+        class="flex shrink-0 items-center justify-between border border-border-secondary bg-bg-tertiary px-5 py-4 max-md:p-2"
+      >
         <slot name="titleBar"></slot>
         <h3 v-if="title !== ''" class="m-0 text-xl font-semibold text-main">
           {{ title }}
@@ -23,6 +28,8 @@
           {{ description }}
         </span>
         <button
+          type="button"
+          :aria-label="t('common.close')"
           class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-elevated text-secondary transition-all duration-fast ease-apple hover:scale-105 hover:border-danger hover:bg-danger hover:text-white focus-visible:focus-ring"
           @click="handleClose"
         >
@@ -30,12 +37,12 @@
         </button>
       </div>
       <div
-        class="no-scrollbar h-[calc(90vh-90px)] flex-1 overflow-y-auto max-md:p-4"
-        :style="{ height: height ? 'calc(' + height + ' - 90px)' : 'calc(85vh - 90px)' }"
+        class="min-h-0 flex-1 overscroll-contain"
+        :class="scrollable ? 'no-scrollbar overflow-y-auto max-md:p-4' : 'overflow-hidden'"
       >
         <slot></slot>
       </div>
-      <div v-if="$slots.footer" class="flex justify-end gap-3 border-t border-border-secondary p-3">
+      <div v-if="$slots.footer" class="flex shrink-0 justify-end gap-3 border-t border-border-secondary p-3">
         <slot name="footer"></slot>
       </div>
     </div>
@@ -45,10 +52,12 @@
 <script setup lang="ts">
 import { XIcon } from '@lucide/vue'
 import { onBeforeMount, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import { getConfig } from '@/utils/dataSender'
 
 const visible = defineModel<boolean>('visible')
+const { t } = useI18n()
 
 function handleClose() {
   visible.value = false
@@ -63,6 +72,7 @@ const {
   maxHeight = '',
   width = '',
   maxWidth = '',
+  scrollable = true,
 } = defineProps<{
   title?: string
   description?: string
@@ -70,6 +80,7 @@ const {
   width?: string
   maxHeight?: string
   maxWidth?: string
+  scrollable?: boolean
 }>()
 
 async function initConf() {

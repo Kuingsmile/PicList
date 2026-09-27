@@ -1,1062 +1,959 @@
 <template>
-  <div class="no-scrollbar flex h-full flex-col gap-5 overflow-auto border-none p-3 text-main">
-    <!-- Tab Navigation -->
-    <div class="relative flex flex-wrap rounded-xl border border-border-secondary/50 p-2 shadow-sm">
-      <div
-        class="absolute z-0 rounded-lg bg-accent shadow-md transition-all duration-medium ease-bounce"
-        :style="tabIndicatorStyle"
-      />
-      <button
-        v-for="tab in tabs"
-        ref="tabRefs"
-        :key="tab.id"
-        class="relative z-1 flex flex-1 cursor-pointer items-center justify-center gap-2.5 rounded-lg bg-transparent px-5 py-3.5 text-sm font-semibold text-secondary transition-all duration-medium ease-in-out not-[.active]:hover:bg-accent/50 not-[.active]:hover:text-main [.active]:font-bold [.active]:text-white"
-        :class="{ active: activeTab === tab.id }"
-        @click="activeTab = tab.id"
-      >
-        <component :is="tab.icon" :size="18" />
-        <span>{{ tab.label }}</span>
-      </button>
-    </div>
-
-    <!-- Settings Content -->
-    <div
-      class="no-scrollbar flex flex-1 flex-col overflow-auto rounded-lg border border-border-secondary/50 p-4 shadow-sm"
-    >
-      <transition
-        name="fade-slide"
-        enter-active-class="transition-all duration-medium ease-apple"
-        leave-active-class="transition-all duration-medium ease-apple"
-        enter-from-class="opacity-0 translate-y-[12px]"
-        leave-to-class="opacity-0 -translate-y-[12px]"
-        mode="out-in"
-      >
-        <!-- General Settings Tab -->
-        <div v-if="activeTab === 'general'" key="general" class="flex flex-col gap-4">
-          <SettingSection :icon="Sliders" :title="t('pages.imageProcess.general.basicImageProcessing')">
-            <SettingCard p1 class="flex flex-col justify-center">
-              <CustomSwitch
-                v-model="activeForm.compress.isRemoveExif"
-                :title="t('pages.imageProcess.general.isRemoveExif')"
-                small
-                no-border
-              />
-
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.isRemoveExifMap"
-                :default-value="defaultCompressSetting.isRemoveExif"
-                field-name="isRemoveExif"
-                :global-value="compressForm.isRemoveExif"
-                input-type="checkbox"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      compressForm,
-                      'isRemoveExif',
-                      picbedType,
-                      value,
-                      defaultCompressSetting.isRemoveExif,
-                    )
-                "
-              />
-            </SettingCard>
-            <SettingCard class="flex flex-col justify-center">
-              <CustomRange
-                v-model.number="activeForm.compress.quality"
-                :title="t('pages.imageProcess.general.quality')"
-                :min="1"
-                :max="100"
-                :step="1"
-                :show-value="`${activeForm.compress.quality}%`"
-              />
-
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.qualityMap"
-                :default-value="defaultCompressSetting.quality"
-                field-name="quality"
-                :global-value="compressForm.quality"
-                input-type="range"
-                :range-min="1"
-                :range-max="100"
-                :range-step="1"
-                range-suffix="%"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(compressForm, 'quality', picbedType, value, defaultCompressSetting.quality)
-                "
-              />
-            </SettingCard>
-          </SettingSection>
-
-          <SettingSection :icon="RefreshCw" :title="t('pages.imageProcess.general.formatConversion')">
-            <SettingCard class="flex flex-col justify-center">
-              <CustomSwitch
-                v-model="activeForm.compress.isConvert"
-                :title="t('pages.imageProcess.general.isConvert')"
-                no-border
-                small
-              />
-
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.isConvertMap"
-                :default-value="defaultCompressSetting.isConvert"
-                field-name="isConvert"
-                :global-value="compressForm.isConvert"
-                input-type="checkbox"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(compressForm, 'isConvert', picbedType, value, defaultCompressSetting.isConvert)
-                "
-              />
-            </SettingCard>
-
-            <SettingCard v-if="activeForm.compress.isConvert">
-              <label class="text-base font-semibold text-main">{{
-                t('pages.imageProcess.general.destinationFormat')
-              }}</label>
-              <select v-model="activeForm.compress.convertFormat" class="form-input">
-                <option v-for="format in availableFormat" :key="format" :value="format">
-                  {{ format.toUpperCase() }}
-                </option>
-              </select>
-
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.convertFormatMap"
-                :default-value="defaultCompressSetting.convertFormat"
-                field-name="convertFormat"
-                :global-value="compressForm.convertFormat"
-                input-type="select"
-                :select-options="availableFormat.map(format => ({ value: format, label: format.toUpperCase() }))"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      compressForm,
-                      'convertFormat',
-                      picbedType,
-                      value,
-                      defaultCompressSetting.convertFormat,
-                    )
-                "
-              />
-            </SettingCard>
-
-            <SettingCard v-if="activeForm.compress.isConvert">
-              <label class="text-base font-semibold text-main">{{
-                t('pages.imageProcess.general.specificFormatConversion')
-              }}</label>
-              <textarea
-                v-model="convertStr"
-                class="form-textarea"
-                rows="3"
-                placeholder='{"jpg": "png", "png": "jpg"}'
-              />
-
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.formatConvertObjMap"
-                :default-value="'{}'"
-                field-name="formatConvertObj"
-                :global-value="formatConvertObjStr"
-                input-type="text"
-                text-placeholder="{}"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      compressForm,
-                      'formatConvertObj',
-                      picbedType,
-                      value,
-                      defaultCompressSetting.formatConvertObj,
-                    )
-                "
-              />
-            </SettingCard>
-          </SettingSection>
-        </div>
-
-        <!-- Watermark Tab -->
-        <div v-else-if="activeTab === 'watermark'" key="watermark" class="flex flex-col gap-4">
-          <SettingSection
-            :icon="Droplets"
-            :title="t('pages.imageProcess.watermark.title')"
-            :description="t('pages.imageProcess.watermark.description')"
+  <div class="processing-studio flex h-full min-h-0 flex-col overflow-hidden text-main">
+    <header v-if="isInitialized" class="processing-toolbar">
+      <div class="processing-destination">
+        <label class="processing-provider-label">
+          <span>{{ t('pages.imageProcess.design.service') }}</span>
+          <select v-model="targetProvider" data-testid="processing-provider" class="scope-select">
+            <option v-for="provider in providers" :key="provider.type" :value="provider.type">
+              {{ provider.name }}
+            </option>
+          </select>
+        </label>
+        <ChevronRight :size="16" class="destination-arrow text-secondary" aria-hidden="true" />
+        <label class="processing-config-label">
+          <span>{{ t('pages.imageProcess.design.uploader') }}</span>
+          <select
+            v-model="selectedConfigId"
+            data-testid="processing-configuration"
+            class="scope-select"
+            :disabled="!configurationOptions.length"
           >
-            <SettingCard class="flex flex-col justify-center">
-              <CustomSwitch
-                v-model="activeForm.watermark.isAddWatermark"
-                :title="t('pages.imageProcess.watermark.isAdd')"
-                small
-                no-border
-              />
+            <option v-if="!configurationOptions.length" value="">
+              {{ t('pages.imageProcess.editor.noSavedConfig') }}
+            </option>
+            <option v-for="config in configurationOptions" :key="config.id" :value="config.id">
+              {{ config.name || t('pages.imageProcess.preview.unnamedConfig') }}
+            </option>
+          </select>
+        </label>
+      </div>
+      <div class="processing-view-switch" role="group" :aria-label="t('pages.imageProcess.design.view')">
+        <button
+          type="button"
+          :aria-pressed="activeTab !== 'preview'"
+          data-testid="processing-edit-view"
+          @click="activeTab = lastEditTab"
+        >
+          <Sliders :size="15" />{{ t('pages.imageProcess.design.editSettings') }}
+        </button>
+        <button
+          type="button"
+          :aria-pressed="activeTab === 'preview'"
+          data-testid="processing-preview-view"
+          @click="activeTab = 'preview'"
+        >
+          <Eye :size="15" />{{ t('pages.imageProcess.design.finalPreview') }}
+        </button>
+      </div>
+      <div class="processing-toolbar-footer">
+        <span class="text-xs text-secondary">{{
+          activeTab === 'preview'
+            ? t('pages.imageProcess.design.previewFor', { config: targetName })
+            : t('pages.imageProcess.design.editingFor', { audience: scopeLabel(scope) })
+        }}</span>
+        <span
+          role="status"
+          class="flex items-center gap-1.5 text-xs"
+          :class="saveState === 'error' ? 'text-danger' : 'text-secondary'"
+        >
+          <Check v-if="saveState === 'saved'" :size="13" class="text-accent" />
+          {{ t('pages.imageProcess.editor.save.' + saveState) }}
+          <button
+            v-if="saveState === 'error'"
+            type="button"
+            class="ml-1 cursor-pointer text-accent underline"
+            @click="retrySave"
+          >
+            {{ t('pages.imageProcess.preview.retry') }}
+          </button>
+        </span>
+      </div>
+    </header>
 
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="waterMarkForm.isAddWatermarkMap"
-                :default-value="defaultWaterMarkSetting.isAddWatermark"
-                field-name="isAddWatermark"
-                :global-value="waterMarkForm.isAddWatermark"
-                input-type="checkbox"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      waterMarkForm,
-                      'isAddWatermark',
-                      picbedType,
-                      value,
-                      defaultWaterMarkSetting.isAddWatermark,
-                    )
-                "
-              />
-            </SettingCard>
-
-            <SettingCard v-if="activeForm.watermark.isAddWatermark">
-              <label class="text-base font-semibold text-main">{{ t('pages.imageProcess.watermark.type') }}</label>
-              <div class="flex flex-wrap gap-4">
-                <CustomRadioOption
-                  v-model="activeForm.watermark.watermarkType"
-                  value="text"
-                  :title="t('pages.imageProcess.watermark.text')"
-                />
-                <CustomRadioOption
-                  v-model="activeForm.watermark.watermarkType"
-                  value="image"
-                  :title="t('pages.imageProcess.watermark.image')"
-                />
-              </div>
-
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="waterMarkForm.watermarkTypeMap"
-                :default-value="defaultWaterMarkSetting.watermarkType"
-                field-name="watermarkType"
-                :global-value="waterMarkForm.watermarkType"
-                input-type="radio"
-                :radio-options="[
-                  { value: 'text', label: t('pages.imageProcess.watermark.text') },
-                  { value: 'image', label: t('pages.imageProcess.watermark.image') },
-                ]"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      waterMarkForm,
-                      'watermarkType',
-                      picbedType,
-                      value,
-                      defaultWaterMarkSetting.watermarkType,
-                    )
-                "
-              />
-            </SettingCard>
-
-            <SettingCard v-if="activeForm.watermark.isAddWatermark" p1 class="flex flex-col justify-center">
-              <CustomSwitch
-                v-model="activeForm.watermark.isFullScreenWatermark"
-                :title="t('pages.imageProcess.watermark.isFullScreen')"
-                small
-                no-border
-              />
-
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="waterMarkForm.isFullScreenWatermarkMap"
-                :default-value="defaultWaterMarkSetting.isFullScreenWatermark"
-                field-name="isFullScreenWatermark"
-                :global-value="waterMarkForm.isFullScreenWatermark"
-                input-type="checkbox"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      waterMarkForm,
-                      'isFullScreenWatermark',
-                      picbedType,
-                      value,
-                      defaultWaterMarkSetting.isFullScreenWatermark,
-                    )
-                "
-              />
-            </SettingCard>
-
-            <SettingCard v-if="activeForm.watermark.isAddWatermark">
-              <CustomRange
-                v-model.number="activeForm.watermark.watermarkDegree"
-                :title="t('pages.imageProcess.watermark.degree')"
-                :min="-360"
-                :max="360"
-                :step="1"
-                :show-value="`${activeForm.watermark.watermarkDegree}°`"
-              />
-
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="waterMarkForm.watermarkDegreeMap"
-                :default-value="defaultWaterMarkSetting.watermarkDegree"
-                field-name="watermarkDegree"
-                :global-value="waterMarkForm.watermarkDegree"
-                input-type="range"
-                :range-min="-360"
-                :range-max="360"
-                :range-step="1"
-                range-suffix="°"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      waterMarkForm,
-                      'watermarkDegree',
-                      picbedType,
-                      value,
-                      defaultWaterMarkSetting.watermarkDegree,
-                    )
-                "
-              />
-            </SettingCard>
-
-            <SettingCard v-if="activeForm.watermark.isAddWatermark">
-              <CustomRange
-                v-model.number="activeForm.watermark.watermarkScaleRatio"
-                :title="t('pages.imageProcess.watermark.scaleRatio')"
-                :min="0"
-                :max="1"
-                :step="0.01"
-                :show-value="`${Math.round((activeForm.watermark.watermarkScaleRatio || 0) * 100)}%`"
-              />
-
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="waterMarkForm.watermarkScaleRatioMap"
-                :default-value="defaultWaterMarkSetting.watermarkScaleRatio"
-                field-name="watermarkScaleRatio"
-                :global-value="waterMarkForm.watermarkScaleRatio"
-                input-type="range"
-                :range-min="0"
-                :range-max="1"
-                :range-step="0.01"
-                range-suffix="%"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      waterMarkForm,
-                      'watermarkScaleRatio',
-                      picbedType,
-                      value,
-                      defaultWaterMarkSetting.watermarkScaleRatio,
-                    )
-                "
-              />
-            </SettingCard>
-
-            <SettingCard
-              v-if="activeForm.watermark.watermarkType === 'text' && activeForm.watermark.isAddWatermark"
-              class="flex flex-col justify-center"
-            >
-              <label class="text-base font-semibold text-main">{{ t('pages.imageProcess.watermark.inputText') }}</label>
-              <input
-                v-model="activeForm.watermark.watermarkText"
-                type="text"
-                class="form-input"
-                :placeholder="t('pages.imageProcess.watermark.inputTextPlaceholder')"
-              />
-
-              <!-- Per-picbed settings for watermarkText -->
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="waterMarkForm.watermarkTextMap"
-                :default-value="defaultWaterMarkSetting.watermarkText"
-                field-name="watermarkText"
-                :global-value="waterMarkForm.watermarkText"
-                input-type="text"
-                :text-placeholder="t('pages.imageProcess.watermark.inputTextPlaceholder')"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      waterMarkForm,
-                      'watermarkText',
-                      picbedType,
-                      value,
-                      defaultWaterMarkSetting.watermarkText,
-                    )
-                "
-              />
-            </SettingCard>
-
-            <SettingCard
-              v-if="activeForm.watermark.watermarkType === 'text' && activeForm.watermark.isAddWatermark"
-              class="flex flex-col justify-center"
-            >
-              <label class="text-base font-semibold text-main">{{
-                t('pages.imageProcess.watermark.textFontPath')
-              }}</label>
-              <input
-                v-model="activeForm.watermark.watermarkFontPath"
-                type="text"
-                class="form-input"
-                :placeholder="t('pages.imageProcess.watermark.textFontPathPlaceholder')"
-              />
-
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="waterMarkForm.watermarkFontPathMap"
-                :default-value="defaultWaterMarkSetting.watermarkFontPath"
-                field-name="watermarkFontPath"
-                :global-value="waterMarkForm.watermarkFontPath"
-                input-type="text"
-                :text-placeholder="t('pages.imageProcess.watermark.textFontPathPlaceholder')"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      waterMarkForm,
-                      'watermarkFontPath',
-                      picbedType,
-                      value,
-                      defaultWaterMarkSetting.watermarkFontPath,
-                    )
-                "
-              />
-            </SettingCard>
-
-            <SettingCard
-              v-if="activeForm.watermark.watermarkType === 'text' && activeForm.watermark.isAddWatermark"
-              class="flex flex-col justify-center"
-            >
-              <label class="text-base font-semibold text-main">{{ t('pages.imageProcess.watermark.color') }}</label>
-              <div class="flex flex-wrap items-center gap-2">
-                <input
-                  v-model="activeForm.watermark.watermarkColor"
-                  type="color"
-                  class="h-[48px] w-[48px] cursor-pointer overflow-hidden rounded-lg border border-border bg-bg p-0.5 transition-all duration-200 ease-apple hover:border-accent hover:shadow-sm focus:border-accent focus:shadow-sm focus:outline-none"
-                />
-                <input
-                  v-model="activeForm.watermark.watermarkColor"
-                  type="text"
-                  class="form-input flex-1"
-                  placeholder="#CCCCCC73"
-                />
-              </div>
-
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="waterMarkForm.watermarkColorMap"
-                :default-value="defaultWaterMarkSetting.watermarkColor"
-                field-name="watermarkColor"
-                :global-value="waterMarkForm.watermarkColor"
-                input-type="color"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      waterMarkForm,
-                      'watermarkColor',
-                      picbedType,
-                      value,
-                      defaultWaterMarkSetting.watermarkColor,
-                    )
-                "
-              />
-            </SettingCard>
-
-            <!-- Image Watermark Settings -->
-            <SettingCard
-              v-if="activeForm.watermark.watermarkType === 'image' && activeForm.watermark.isAddWatermark"
-              class="flex flex-col justify-center"
-            >
-              <label class="text-base font-semibold text-main">{{ t('pages.imageProcess.watermark.imagePath') }}</label>
-              <input
-                v-model="activeForm.watermark.watermarkImagePath"
-                type="text"
-                class="form-input"
-                :placeholder="t('pages.imageProcess.watermark.imagePathPlaceholder')"
-              />
-
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="waterMarkForm.watermarkImagePathMap"
-                :default-value="defaultWaterMarkSetting.watermarkImagePath"
-                field-name="watermarkImagePath"
-                :global-value="waterMarkForm.watermarkImagePath"
-                input-type="text"
-                :text-placeholder="t('pages.imageProcess.watermark.imagePathPlaceholder')"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      waterMarkForm,
-                      'watermarkImagePath',
-                      picbedType,
-                      value,
-                      defaultWaterMarkSetting.watermarkImagePath,
-                    )
-                "
-              />
-            </SettingCard>
-
-            <SettingCard
-              v-if="activeForm.watermark.watermarkType === 'image' && activeForm.watermark.isAddWatermark"
-              class="flex flex-col justify-center"
-            >
-              <CustomRange
-                v-model.number="activeForm.watermark.watermarkImageOpacity"
-                :title="t('pages.imageProcess.watermark.imageOpacity')"
-                :min="0"
-                :max="255"
-                :step="1"
-                :show-value="`${activeForm.watermark.watermarkImageOpacity || 0}`"
-              />
-
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="waterMarkForm.watermarkImageOpacityMap"
-                :default-value="defaultWaterMarkSetting.watermarkImageOpacity"
-                field-name="watermarkImageOpacity"
-                :global-value="waterMarkForm.watermarkImageOpacity"
-                input-type="range"
-                :range-min="0"
-                :range-max="255"
-                :range-step="1"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      waterMarkForm,
-                      'watermarkImageOpacity',
-                      picbedType,
-                      value,
-                      defaultWaterMarkSetting.watermarkImageOpacity,
-                    )
-                "
-              />
-            </SettingCard>
-
-            <SettingCard v-if="activeForm.watermark.isAddWatermark">
-              <label class="text-base font-semibold text-main">{{ t('pages.imageProcess.watermark.position') }}</label>
-              <div class="grid max-w-[320px] grid-cols-3 gap-2.5">
+    <div
+      ref="settingsContent"
+      data-testid="image-process-content"
+      class="processing-workspace min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain"
+      :class="{ 'preview-workspace': activeTab === 'preview' }"
+    >
+      <template v-if="isInitialized">
+        <ImageProcessPreview
+          v-if="activeTab === 'preview'"
+          :settings="effectiveSettings"
+          :layers="settingsByScope"
+          :uploader="previewUploader"
+          @edit="editFromPreview"
+        />
+        <template v-else>
+          <div class="processing-editor">
+            <section class="processing-audience" :aria-label="t('pages.imageProcess.design.applyTo')">
+              <h2 class="text-sm font-semibold">{{ t('pages.imageProcess.design.applyTo') }}</h2>
+              <div class="processing-scope-choices" role="group" :aria-label="t('pages.imageProcess.design.applyTo')">
                 <button
-                  v-for="[key, label] in waterMarkPositionMap"
-                  :key="key"
+                  v-for="level in scopes"
+                  :key="level"
                   type="button"
-                  class="rounded-lg border border-border-secondary bg-bg p-3 text-center text-sm font-semibold text-secondary transition-all duration-200 ease-apple hover:border-accent hover:bg-accent/8 hover:text-main [.active]:border-accent/10 [.active]:bg-accent/20 [.active]:text-main"
-                  :class="{ active: activeForm.watermark.watermarkPosition === key }"
-                  @click="activeForm.watermark.watermarkPosition = key as any"
+                  :data-testid="'processing-scope-' + level"
+                  :aria-pressed="scope === level"
+                  :disabled="level === 'config' && !selectedConfigId"
+                  class="processing-scope-choice"
+                  @click="editScope(level)"
                 >
-                  {{ label }}
+                  <span class="flex items-center justify-between gap-2">
+                    <component :is="scopeIcons[level]" :size="17" />
+                    <Check v-if="scope === level" :size="15" />
+                  </span>
+                  <strong>{{ scopeLabel(level) }}</strong>
+                  <span class="scope-description">{{ t('pages.imageProcess.design.scopeDescriptions.' + level) }}</span>
                 </button>
               </div>
+              <p class="mt-3 text-xs leading-relaxed text-secondary">
+                {{
+                  t('pages.imageProcess.design.scopeHints.' + scope, {
+                    provider: previewUploader.providerName,
+                    config: targetName,
+                  })
+                }}
+              </p>
+              <details class="processing-help">
+                <summary><CircleHelp :size="14" />{{ t('pages.imageProcess.design.howItWorks') }}</summary>
+                <div class="mt-3 flex flex-wrap items-center gap-2 text-xs font-medium">
+                  <span>{{ scopeLabel('global') }}</span
+                  ><ChevronRight :size="14" aria-hidden="true" /> <span>{{ scopeLabel('provider') }}</span
+                  ><ChevronRight :size="14" aria-hidden="true" />
+                  <span>{{ targetName }}</span>
+                </div>
+                <p class="mt-2 text-xs leading-relaxed text-secondary">
+                  {{ t('pages.imageProcess.design.inheritanceHelp') }}
+                </p>
+              </details>
+            </section>
 
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="waterMarkForm.watermarkPositionMap"
-                :default-value="defaultWaterMarkSetting.watermarkPosition"
-                field-name="watermarkPosition"
-                :global-value="waterMarkForm.watermarkPosition"
-                input-type="select"
-                :select-options="
-                  Array.from(waterMarkPositionMap.entries()).map(([key, label]) => ({
-                    value: key,
-                    label,
-                  }))
-                "
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      waterMarkForm,
-                      'watermarkPosition',
-                      picbedType,
-                      value,
-                      defaultWaterMarkSetting.watermarkPosition,
-                    )
-                "
-              />
-            </SettingCard>
-          </SettingSection>
-        </div>
+            <nav class="processing-categories" :aria-label="t('pages.imageProcess.design.categories')">
+              <button
+                v-for="tab in tabs"
+                :key="tab.id"
+                type="button"
+                :aria-pressed="activeTab === tab.id"
+                @click="activeTab = tab.id"
+              >
+                <component :is="tab.icon" :size="15" /><span>{{ tab.label }}</span>
+              </button>
+            </nav>
+            <div class="processing-fields">
+              <div v-if="!canEdit" key="no-config" class="p-4 text-sm text-secondary">
+                {{ t('pages.imageProcess.editor.noConfig') }}
+              </div>
+              <div
+                v-else-if="scope === 'provider' && ['skipProcess', 'rename'].includes(activeTab)"
+                key="unsupported"
+                class="flex flex-col items-start gap-3 p-4 text-sm text-secondary"
+              >
+                <p>{{ t('pages.imageProcess.editor.globalOrConfigOnly') }}</p>
+                <button
+                  type="button"
+                  class="rounded-md border border-border px-3 py-2 text-accent"
+                  @click="scope = 'global'"
+                >
+                  {{ t('pages.imageProcess.editor.editGlobal') }}
+                </button>
+              </div>
+              <div v-else-if="activeTab === 'general'" key="general" class="flex flex-col gap-4">
+                <SettingSection :icon="Sliders" :title="t('pages.imageProcess.general.basicImageProcessing')">
+                  <ImageProcessSettingField
+                    :option="editingSettings.compress.isRemoveExif"
+                    v-bind="fieldContext"
+                    field="compress.isRemoveExif"
+                    p1
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'isRemoveExif')"
+                  >
+                    <CustomSwitch
+                      v-model="form.compress.isRemoveExif"
+                      :title="t('pages.imageProcess.general.isRemoveExif')"
+                      small
+                      no-border
+                    />
+                  </ImageProcessSettingField>
+                  <ImageProcessSettingField
+                    :option="editingSettings.compress.quality"
+                    v-bind="fieldContext"
+                    field="compress.quality"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'quality')"
+                  >
+                    <CustomRange
+                      v-model.number="form.compress.quality"
+                      :title="t('pages.imageProcess.general.quality')"
+                      :min="1"
+                      :max="100"
+                      :step="1"
+                      :show-value="`${form.compress.quality}%`"
+                    />
+                  </ImageProcessSettingField>
+                </SettingSection>
 
-        <!-- Transform Tab -->
-        <div v-else-if="activeTab === 'transform'" key="transform" class="flex flex-col gap-4">
-          <SettingSection
-            :icon="FlipHorizontal"
-            :title="t('pages.imageProcess.transform.title')"
-            :description="t('pages.imageProcess.transform.description')"
-          >
-            <SettingCard>
-              <CustomSwitch
-                v-model="activeForm.compress.isFlip"
-                :title="t('pages.imageProcess.transform.isFlip')"
-                class="custom-switch"
-                no-border
-                small
-              />
+                <SettingSection :icon="RefreshCw" :title="t('pages.imageProcess.general.formatConversion')">
+                  <ImageProcessSettingField
+                    :option="editingSettings.compress.isConvert"
+                    v-bind="fieldContext"
+                    field="compress.isConvert"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'isConvert')"
+                  >
+                    <CustomSwitch
+                      v-model="form.compress.isConvert"
+                      :title="t('pages.imageProcess.general.isConvert')"
+                      no-border
+                      small
+                    />
+                  </ImageProcessSettingField>
 
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.isFlipMap"
-                :default-value="defaultCompressSetting.isFlip"
-                field-name="isFlip"
-                :global-value="compressForm.isFlip"
-                input-type="checkbox"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(compressForm, 'isFlip', picbedType, value, defaultCompressSetting.isFlip)
-                "
-              />
-            </SettingCard>
+                  <ImageProcessSettingField
+                    v-if="form.compress.isConvert"
+                    :option="editingSettings.compress.convertFormat"
+                    v-bind="fieldContext"
+                    field="compress.convertFormat"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'convertFormat')"
+                  >
+                    <label class="text-base font-semibold text-main">{{
+                      t('pages.imageProcess.general.destinationFormat')
+                    }}</label>
+                    <select v-model="form.compress.convertFormat" class="form-input">
+                      <option v-for="format in availableFormat" :key="format" :value="format">
+                        {{ format.toUpperCase() }}
+                      </option>
+                    </select>
+                  </ImageProcessSettingField>
 
-            <SettingCard>
-              <CustomSwitch
-                v-model="activeForm.compress.isFlop"
-                :title="t('pages.imageProcess.transform.isFlop')"
-                class="custom-switch"
-                small
-                no-border
-              />
+                  <details
+                    v-if="form.compress.isConvert"
+                    class="processing-advanced"
+                    data-testid="advanced-format-rules"
+                  >
+                    <summary>{{ t('pages.imageProcess.design.advancedRules') }}<ChevronRight :size="14" /></summary>
+                    <ImageProcessSettingField
+                      :option="editingSettings.compress.formatConvertObj"
+                      v-bind="fieldContext"
+                      field="compress.formatConvertObj"
+                      @edit-source="editScope"
+                      @inherit="inheritSetting('compress', 'formatConvertObj')"
+                    >
+                      <label class="text-base font-semibold text-main">{{
+                        t('pages.imageProcess.general.specificFormatConversion')
+                      }}</label>
+                      <textarea
+                        v-model="convertStr"
+                        class="form-textarea"
+                        rows="3"
+                        placeholder='{"jpg": "png", "png": "jpg"}'
+                      />
+                      <p v-if="conversionError" role="alert" class="mt-2 text-xs text-danger">
+                        {{ t('pages.imageProcess.editor.invalidFormatRules') }}
+                      </p>
+                    </ImageProcessSettingField>
+                  </details>
+                </SettingSection>
+              </div>
 
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.isFlopMap"
-                :default-value="defaultCompressSetting.isFlop"
-                field-name="isFlop"
-                :global-value="compressForm.isFlop"
-                input-type="checkbox"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(compressForm, 'isFlop', picbedType, value, defaultCompressSetting.isFlop)
-                "
-              />
-            </SettingCard>
-          </SettingSection>
+              <!-- Watermark Tab -->
+              <div v-else-if="activeTab === 'watermark'" key="watermark" class="flex flex-col gap-4">
+                <SettingSection
+                  :icon="Droplets"
+                  :title="t('pages.imageProcess.watermark.title')"
+                  :description="t('pages.imageProcess.watermark.description')"
+                >
+                  <ImageProcessSettingField
+                    :option="editingSettings.watermark.isAddWatermark"
+                    v-bind="fieldContext"
+                    field="watermark.isAddWatermark"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('watermark', 'isAddWatermark')"
+                  >
+                    <CustomSwitch
+                      v-model="form.watermark.isAddWatermark"
+                      :title="t('pages.imageProcess.watermark.isAdd')"
+                      small
+                      no-border
+                    />
+                  </ImageProcessSettingField>
 
-          <SettingSection
-            :icon="RotateCw"
-            :title="t('pages.imageProcess.transform.rotationTitle')"
-            :description="t('pages.imageProcess.transform.rotationDescription')"
-          >
-            <SettingCard class="flex flex-col justify-center">
-              <CustomSwitch
-                v-model="activeForm.compress.isRotate"
-                :title="t('pages.imageProcess.transform.isRotate')"
-                class="custom-switch"
-                no-border
-                small
-              />
+                  <ImageProcessSettingField
+                    v-if="form.watermark.isAddWatermark"
+                    :option="editingSettings.watermark.watermarkType"
+                    v-bind="fieldContext"
+                    field="watermark.watermarkType"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('watermark', 'watermarkType')"
+                  >
+                    <label class="text-base font-semibold text-main">{{
+                      t('pages.imageProcess.watermark.type')
+                    }}</label>
+                    <div class="flex flex-wrap gap-4">
+                      <CustomRadioOption
+                        v-model="form.watermark.watermarkType"
+                        value="text"
+                        :title="t('pages.imageProcess.watermark.text')"
+                      />
+                      <CustomRadioOption
+                        v-model="form.watermark.watermarkType"
+                        value="image"
+                        :title="t('pages.imageProcess.watermark.image')"
+                      />
+                    </div>
+                  </ImageProcessSettingField>
 
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.isRotateMap"
-                :default-value="defaultCompressSetting.isRotate"
-                field-name="isRotate"
-                :global-value="compressForm.isRotate"
-                input-type="checkbox"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(compressForm, 'isRotate', picbedType, value, defaultCompressSetting.isRotate)
-                "
-              />
-            </SettingCard>
+                  <ImageProcessSettingField
+                    v-if="form.watermark.isAddWatermark"
+                    :option="editingSettings.watermark.isFullScreenWatermark"
+                    v-bind="fieldContext"
+                    field="watermark.isFullScreenWatermark"
+                    p1
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('watermark', 'isFullScreenWatermark')"
+                  >
+                    <CustomSwitch
+                      v-model="form.watermark.isFullScreenWatermark"
+                      :title="t('pages.imageProcess.watermark.isFullScreen')"
+                      small
+                      no-border
+                    />
+                  </ImageProcessSettingField>
 
-            <SettingCard v-if="activeForm.compress.isRotate" class="flex flex-col justify-center">
-              <CustomRange
-                v-model.number="activeForm.compress.rotateDegree"
-                :title="t('pages.imageProcess.transform.rotationDegree')"
-                :min="-360"
-                :max="360"
-                :step="1"
-                :show-value="`${activeForm.compress.rotateDegree}°`"
-              />
+                  <ImageProcessSettingField
+                    v-if="form.watermark.isAddWatermark"
+                    :option="editingSettings.watermark.watermarkDegree"
+                    v-bind="fieldContext"
+                    field="watermark.watermarkDegree"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('watermark', 'watermarkDegree')"
+                  >
+                    <CustomRange
+                      v-model.number="form.watermark.watermarkDegree"
+                      :title="t('pages.imageProcess.watermark.degree')"
+                      :min="-360"
+                      :max="360"
+                      :step="1"
+                      :show-value="`${form.watermark.watermarkDegree}°`"
+                    />
+                  </ImageProcessSettingField>
 
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.rotateDegreeMap"
-                :default-value="defaultCompressSetting.rotateDegree"
-                field-name="rotateDegree"
-                :global-value="compressForm.rotateDegree"
-                input-type="range"
-                :range-min="-360"
-                :range-max="360"
-                :range-step="1"
-                range-suffix="°"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      compressForm,
-                      'rotateDegree',
-                      picbedType,
-                      value,
-                      defaultCompressSetting.rotateDegree,
-                    )
-                "
-              />
-            </SettingCard>
-          </SettingSection>
+                  <ImageProcessSettingField
+                    v-if="form.watermark.isAddWatermark"
+                    :option="editingSettings.watermark.watermarkScaleRatio"
+                    v-bind="fieldContext"
+                    field="watermark.watermarkScaleRatio"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('watermark', 'watermarkScaleRatio')"
+                  >
+                    <CustomRange
+                      v-model.number="form.watermark.watermarkScaleRatio"
+                      :title="t('pages.imageProcess.watermark.scaleRatio')"
+                      :min="0"
+                      :max="1"
+                      :step="0.01"
+                      :show-value="`${Math.round((form.watermark.watermarkScaleRatio || 0) * 100)}%`"
+                    />
+                  </ImageProcessSettingField>
 
-          <SettingSection
-            :icon="Maximize2"
-            :title="t('pages.imageProcess.transform.resizeTitle')"
-            :description="t('pages.imageProcess.transform.resizeDescription')"
-          >
-            <SettingCard class="flex flex-col justify-center">
-              <CustomSwitch
-                v-model="activeForm.compress.isReSize"
-                :title="t('pages.imageProcess.transform.isResize')"
-                class="custom-switch"
-                no-border
-                small
-              />
+                  <ImageProcessSettingField
+                    v-if="form.watermark.watermarkType === 'text' && form.watermark.isAddWatermark"
+                    :option="editingSettings.watermark.watermarkText"
+                    v-bind="fieldContext"
+                    field="watermark.watermarkText"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('watermark', 'watermarkText')"
+                  >
+                    <label class="text-base font-semibold text-main">{{
+                      t('pages.imageProcess.watermark.inputText')
+                    }}</label>
+                    <input
+                      v-model="form.watermark.watermarkText"
+                      type="text"
+                      class="form-input"
+                      :placeholder="t('pages.imageProcess.watermark.inputTextPlaceholder')"
+                    />
+                  </ImageProcessSettingField>
 
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.isReSizeMap"
-                :default-value="defaultCompressSetting.isReSize"
-                field-name="isReSize"
-                :global-value="compressForm.isReSize"
-                input-type="checkbox"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(compressForm, 'isReSize', picbedType, value, defaultCompressSetting.isReSize)
-                "
-              />
-            </SettingCard>
+                  <ImageProcessSettingField
+                    v-if="form.watermark.watermarkType === 'text' && form.watermark.isAddWatermark"
+                    :option="editingSettings.watermark.watermarkFontPath"
+                    v-bind="fieldContext"
+                    field="watermark.watermarkFontPath"
+                    :unsupported="scope === 'provider'"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('watermark', 'watermarkFontPath')"
+                  >
+                    <label class="text-base font-semibold text-main">{{
+                      t('pages.imageProcess.watermark.textFontPath')
+                    }}</label>
+                    <input
+                      v-model="form.watermark.watermarkFontPath"
+                      type="text"
+                      class="form-input"
+                      :placeholder="t('pages.imageProcess.watermark.textFontPathPlaceholder')"
+                    />
+                  </ImageProcessSettingField>
 
-            <SettingCard v-if="activeForm.compress.isReSize">
-              <label class="text-base font-semibold text-main">{{
-                t('pages.imageProcess.transform.resizeWidth')
-              }}</label>
-              <input v-model.number="activeForm.compress.reSizeWidth" type="number" min="0" class="form-input" />
+                  <ImageProcessSettingField
+                    v-if="form.watermark.watermarkType === 'text' && form.watermark.isAddWatermark"
+                    :option="editingSettings.watermark.watermarkColor"
+                    v-bind="fieldContext"
+                    field="watermark.watermarkColor"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('watermark', 'watermarkColor')"
+                  >
+                    <label class="text-base font-semibold text-main">{{
+                      t('pages.imageProcess.watermark.color')
+                    }}</label>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <input
+                        v-model="form.watermark.watermarkColor"
+                        type="color"
+                        class="h-[48px] w-[48px] cursor-pointer overflow-hidden rounded-lg border border-border bg-bg p-0.5 transition-all duration-200 ease-apple hover:border-accent hover:shadow-sm focus:border-accent focus:shadow-sm focus:outline-none"
+                      />
+                      <input
+                        v-model="form.watermark.watermarkColor"
+                        type="text"
+                        class="form-input flex-1"
+                        placeholder="#CCCCCC73"
+                      />
+                    </div>
+                  </ImageProcessSettingField>
 
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.reSizeWidthMap"
-                :default-value="defaultCompressSetting.reSizeWidth"
-                field-name="reSizeWidth"
-                :global-value="compressForm.reSizeWidth"
-                input-type="number"
-                :number-min="0"
-                :number-max="10000"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(compressForm, 'reSizeWidth', picbedType, value, defaultCompressSetting.reSizeWidth)
-                "
-              />
-            </SettingCard>
+                  <!-- Image Watermark Settings -->
+                  <ImageProcessSettingField
+                    v-if="form.watermark.watermarkType === 'image' && form.watermark.isAddWatermark"
+                    :option="editingSettings.watermark.watermarkImagePath"
+                    v-bind="fieldContext"
+                    field="watermark.watermarkImagePath"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('watermark', 'watermarkImagePath')"
+                  >
+                    <label class="text-base font-semibold text-main">{{
+                      t('pages.imageProcess.watermark.imagePath')
+                    }}</label>
+                    <input
+                      v-model="form.watermark.watermarkImagePath"
+                      type="text"
+                      class="form-input"
+                      :placeholder="t('pages.imageProcess.watermark.imagePathPlaceholder')"
+                    />
+                  </ImageProcessSettingField>
 
-            <SettingCard v-if="activeForm.compress.isReSize" class="flex flex-col justify-center">
-              <label class="text-base font-semibold text-main">{{
-                t('pages.imageProcess.transform.resizeHeight')
-              }}</label>
-              <input v-model.number="activeForm.compress.reSizeHeight" type="number" min="0" class="form-input" />
+                  <ImageProcessSettingField
+                    v-if="form.watermark.watermarkType === 'image' && form.watermark.isAddWatermark"
+                    :option="editingSettings.watermark.watermarkImageOpacity"
+                    v-bind="fieldContext"
+                    field="watermark.watermarkImageOpacity"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('watermark', 'watermarkImageOpacity')"
+                  >
+                    <CustomRange
+                      v-model.number="form.watermark.watermarkImageOpacity"
+                      :title="t('pages.imageProcess.watermark.imageOpacity')"
+                      :min="0"
+                      :max="255"
+                      :step="1"
+                      :show-value="`${form.watermark.watermarkImageOpacity || 0}`"
+                    />
+                  </ImageProcessSettingField>
 
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.reSizeHeightMap"
-                :default-value="defaultCompressSetting.reSizeHeight"
-                field-name="reSizeHeight"
-                :global-value="compressForm.reSizeHeight"
-                input-type="number"
-                :number-min="0"
-                :number-max="10000"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      compressForm,
-                      'reSizeHeight',
-                      picbedType,
-                      value,
-                      defaultCompressSetting.reSizeHeight,
-                    )
-                "
-              />
-            </SettingCard>
+                  <ImageProcessSettingField
+                    v-if="form.watermark.isAddWatermark"
+                    :option="editingSettings.watermark.watermarkPosition"
+                    v-bind="fieldContext"
+                    field="watermark.watermarkPosition"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('watermark', 'watermarkPosition')"
+                  >
+                    <label class="text-base font-semibold text-main">{{
+                      t('pages.imageProcess.watermark.position')
+                    }}</label>
+                    <div class="grid max-w-[320px] grid-cols-3 gap-2.5">
+                      <button
+                        v-for="[key, label] in waterMarkPositionMap"
+                        :key="key"
+                        type="button"
+                        class="rounded-lg border border-border-secondary bg-bg p-3 text-center text-sm font-semibold text-secondary transition-all duration-200 ease-apple hover:border-accent hover:bg-accent/8 hover:text-main [.active]:border-accent/10 [.active]:bg-accent/20 [.active]:text-main"
+                        :class="{ active: form.watermark.watermarkPosition === key }"
+                        @click="form.watermark.watermarkPosition = key"
+                      >
+                        {{ label }}
+                      </button>
+                    </div>
+                  </ImageProcessSettingField>
+                </SettingSection>
+              </div>
 
-            <SettingCard
-              v-if="
-                activeForm.compress.isReSize &&
-                (activeForm.compress.reSizeHeight || 0) > 0 &&
-                (activeForm.compress.reSizeWidth || 0) === 0
-              "
-              class="flex flex-col justify-center"
-            >
-              <CustomSwitch
-                v-model="activeForm.compress.longEdgeAsHeight"
-                :title="t('pages.imageProcess.transform.longEdgeAsHeight')"
-                class="custom-switch"
-                no-border
-                small
-              />
+              <!-- Transform Tab -->
+              <div v-else-if="activeTab === 'transform'" key="transform" class="flex flex-col gap-4">
+                <SettingSection
+                  :icon="FlipHorizontal"
+                  :title="t('pages.imageProcess.transform.title')"
+                  :description="t('pages.imageProcess.transform.description')"
+                >
+                  <ImageProcessSettingField
+                    :option="editingSettings.compress.isFlip"
+                    v-bind="fieldContext"
+                    field="compress.isFlip"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'isFlip')"
+                  >
+                    <CustomSwitch
+                      v-model="form.compress.isFlip"
+                      :title="t('pages.imageProcess.transform.isFlip')"
+                      class="custom-switch"
+                      no-border
+                      small
+                    />
+                  </ImageProcessSettingField>
 
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.longEdgeAsHeightMap"
-                :default-value="defaultCompressSetting.longEdgeAsHeight"
-                field-name="longEdgeAsHeight"
-                :global-value="compressForm.longEdgeAsHeight"
-                input-type="checkbox"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      compressForm,
-                      'longEdgeAsHeight',
-                      picbedType,
-                      value,
-                      defaultCompressSetting.longEdgeAsHeight,
-                    )
-                "
-              />
-            </SettingCard>
+                  <ImageProcessSettingField
+                    :option="editingSettings.compress.isFlop"
+                    v-bind="fieldContext"
+                    field="compress.isFlop"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'isFlop')"
+                  >
+                    <CustomSwitch
+                      v-model="form.compress.isFlop"
+                      :title="t('pages.imageProcess.transform.isFlop')"
+                      class="custom-switch"
+                      small
+                      no-border
+                    />
+                  </ImageProcessSettingField>
+                </SettingSection>
 
-            <SettingCard
-              v-if="
-                (activeForm.compress.isReSize &&
-                  (activeForm.compress.reSizeHeight || 0) > 0 &&
-                  (activeForm.compress.reSizeWidth || 0) === 0) ||
-                ((activeForm.compress.reSizeWidth || 0) > 0 && (activeForm.compress.reSizeHeight || 0) === 0)
-              "
-              class="flex flex-col justify-center"
-            >
-              <CustomSwitch
-                v-model="activeForm.compress.skipReSizeOfSmallImg"
-                :title="t('pages.imageProcess.transform.skipResizeOfSmallImgHeight')"
-                class="custom-switch"
-                no-border
-                small
-              />
+                <SettingSection
+                  :icon="RotateCw"
+                  :title="t('pages.imageProcess.transform.rotationTitle')"
+                  :description="t('pages.imageProcess.transform.rotationDescription')"
+                >
+                  <ImageProcessSettingField
+                    :option="editingSettings.compress.isRotate"
+                    v-bind="fieldContext"
+                    field="compress.isRotate"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'isRotate')"
+                  >
+                    <CustomSwitch
+                      v-model="form.compress.isRotate"
+                      :title="t('pages.imageProcess.transform.isRotate')"
+                      class="custom-switch"
+                      no-border
+                      small
+                    />
+                  </ImageProcessSettingField>
 
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.skipReSizeOfSmallImgMap"
-                :default-value="defaultCompressSetting.skipReSizeOfSmallImg"
-                field-name="skipReSizeOfSmallImg"
-                :global-value="compressForm.skipReSizeOfSmallImg"
-                input-type="checkbox"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      compressForm,
-                      'skipReSizeOfSmallImg',
-                      picbedType,
-                      value,
-                      defaultCompressSetting.skipReSizeOfSmallImg,
-                    )
-                "
-              />
-            </SettingCard>
-          </SettingSection>
+                  <ImageProcessSettingField
+                    v-if="form.compress.isRotate"
+                    :option="editingSettings.compress.rotateDegree"
+                    v-bind="fieldContext"
+                    field="compress.rotateDegree"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'rotateDegree')"
+                  >
+                    <CustomRange
+                      v-model.number="form.compress.rotateDegree"
+                      :title="t('pages.imageProcess.transform.rotationDegree')"
+                      :min="-360"
+                      :max="360"
+                      :step="1"
+                      :show-value="`${form.compress.rotateDegree}°`"
+                    />
+                  </ImageProcessSettingField>
+                </SettingSection>
 
-          <SettingSection :icon="Percent" :title="t('pages.imageProcess.transform.percentageResize')">
-            <SettingCard class="flex flex-col justify-center">
-              <CustomSwitch
-                v-model="activeForm.compress.isReSizeByPercent"
-                :title="t('pages.imageProcess.transform.isResizeByPercent')"
-                :description="t('pages.imageProcess.transform.isResizeByPercentHint')"
-                no-border
-                small
-              />
+                <SettingSection
+                  :icon="Maximize2"
+                  :title="t('pages.imageProcess.transform.resizeTitle')"
+                  :description="t('pages.imageProcess.transform.resizeDescription')"
+                >
+                  <ImageProcessSettingField
+                    :option="editingSettings.compress.isReSize"
+                    v-bind="fieldContext"
+                    field="compress.isReSize"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'isReSize')"
+                  >
+                    <CustomSwitch
+                      v-model="form.compress.isReSize"
+                      :title="t('pages.imageProcess.transform.isResize')"
+                      class="custom-switch"
+                      no-border
+                      small
+                    />
+                  </ImageProcessSettingField>
 
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.isReSizeByPercentMap"
-                :default-value="defaultCompressSetting.isReSizeByPercent"
-                field-name="isReSizeByPercent"
-                :global-value="compressForm.isReSizeByPercent"
-                input-type="checkbox"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      compressForm,
-                      'isReSizeByPercent',
-                      picbedType,
-                      value,
-                      defaultCompressSetting.isReSizeByPercent,
-                    )
-                "
-              />
-            </SettingCard>
+                  <ImageProcessSettingField
+                    v-if="form.compress.isReSize"
+                    :option="editingSettings.compress.reSizeWidth"
+                    v-bind="fieldContext"
+                    field="compress.reSizeWidth"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'reSizeWidth')"
+                  >
+                    <label class="text-base font-semibold text-main">{{
+                      t('pages.imageProcess.transform.resizeWidth')
+                    }}</label>
+                    <input v-model.number="form.compress.reSizeWidth" type="number" min="0" class="form-input" />
+                  </ImageProcessSettingField>
 
-            <SettingCard v-if="activeForm.compress.isReSizeByPercent" class="flex flex-col justify-center">
-              <CustomRange
-                v-model.number="activeForm.compress.reSizePercent"
-                :title="t('pages.imageProcess.transform.resizePercent')"
-                :min="1"
-                :max="500"
-                :step="1"
-                :show-value="`${activeForm.compress.reSizePercent}%`"
-              />
+                  <ImageProcessSettingField
+                    v-if="form.compress.isReSize"
+                    :option="editingSettings.compress.reSizeHeight"
+                    v-bind="fieldContext"
+                    field="compress.reSizeHeight"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'reSizeHeight')"
+                  >
+                    <label class="text-base font-semibold text-main">{{
+                      t('pages.imageProcess.transform.resizeHeight')
+                    }}</label>
+                    <input v-model.number="form.compress.reSizeHeight" type="number" min="0" class="form-input" />
+                  </ImageProcessSettingField>
 
-              <PerPicbedSetting
-                v-if="!configId"
-                :map-field="compressForm.reSizePercentMap"
-                :default-value="defaultCompressSetting.reSizePercent"
-                field-name="reSizePercent"
-                :global-value="compressForm.reSizePercent"
-                input-type="range"
-                :range-min="1"
-                :range-max="500"
-                :range-step="1"
-                range-suffix="%"
-                @map-change="
-                  (picbedType, value) =>
-                    safeSetMapValue(
-                      compressForm,
-                      'reSizePercent',
-                      picbedType,
-                      value,
-                      defaultCompressSetting.reSizePercent,
-                    )
-                "
-              />
-            </SettingCard>
-          </SettingSection>
-        </div>
+                  <ImageProcessSettingField
+                    v-if="
+                      form.compress.isReSize &&
+                      (form.compress.reSizeHeight || 0) > 0 &&
+                      (form.compress.reSizeWidth || 0) === 0
+                    "
+                    :option="editingSettings.compress.longEdgeAsHeight"
+                    v-bind="fieldContext"
+                    field="compress.longEdgeAsHeight"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'longEdgeAsHeight')"
+                  >
+                    <CustomSwitch
+                      v-model="form.compress.longEdgeAsHeight"
+                      :title="t('pages.imageProcess.transform.longEdgeAsHeight')"
+                      class="custom-switch"
+                      no-border
+                      small
+                    />
+                  </ImageProcessSettingField>
 
-        <!-- Skip Process Tab -->
-        <div v-else-if="activeTab === 'skipProcess'" key="skipProcess" class="flex flex-col gap-4">
-          <SettingSection only-one-row :icon="FileText" :title="t('pages.imageProcess.general.skipProcessExtList')">
-            <SettingCard class="flex flex-col justify-center">
-              <textarea
-                v-model="activeForm.skipProcess.skipProcessExtList"
-                class="form-textarea"
-                rows="3"
-                :placeholder="'zip,rar,7z,tar,gz'"
-              />
-              <small class="mt-2 block rounded-sm bg-bg-secondary px-3 py-2 text-xs leading-[1.5] text-tertiary">{{
-                t('pages.imageProcess.general.skipProcessExtListPlaceholder')
-              }}</small>
-            </SettingCard>
-          </SettingSection>
-        </div>
+                  <ImageProcessSettingField
+                    v-if="
+                      (form.compress.isReSize &&
+                        (form.compress.reSizeHeight || 0) > 0 &&
+                        (form.compress.reSizeWidth || 0) === 0) ||
+                      ((form.compress.reSizeWidth || 0) > 0 && (form.compress.reSizeHeight || 0) === 0)
+                    "
+                    :option="editingSettings.compress.skipReSizeOfSmallImg"
+                    v-bind="fieldContext"
+                    field="compress.skipReSizeOfSmallImg"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'skipReSizeOfSmallImg')"
+                  >
+                    <CustomSwitch
+                      v-model="form.compress.skipReSizeOfSmallImg"
+                      :title="t('pages.imageProcess.transform.skipResizeOfSmallImgHeight')"
+                      class="custom-switch"
+                      no-border
+                      small
+                    />
+                  </ImageProcessSettingField>
+                </SettingSection>
 
-        <!-- Rename Tab -->
-        <div v-else-if="activeTab === 'rename'" key="rename" class="flex flex-col gap-4">
-          <SettingSection
-            :icon="Edit2Icon"
-            :title="t('pages.imageProcess.rename.title')"
-            :description="t('pages.imageProcess.rename.description')"
-            only-one-row
-          >
-            <SettingSection>
-              <SettingCard p1>
-                <CustomSwitch
-                  v-model="autoRenameComputed"
-                  :title="t('pages.imageProcess.rename.renameTimestamp')"
-                  description="YYYYMMDDHHmmssSSS"
-                  no-border
-                  small
-                />
-              </SettingCard>
+                <SettingSection :icon="Percent" :title="t('pages.imageProcess.transform.percentageResize')">
+                  <ImageProcessSettingField
+                    :option="editingSettings.compress.isReSizeByPercent"
+                    v-bind="fieldContext"
+                    field="compress.isReSizeByPercent"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'isReSizeByPercent')"
+                  >
+                    <CustomSwitch
+                      v-model="form.compress.isReSizeByPercent"
+                      :title="t('pages.imageProcess.transform.isResizeByPercent')"
+                      :description="t('pages.imageProcess.transform.isResizeByPercentHint')"
+                      no-border
+                      small
+                    />
+                  </ImageProcessSettingField>
 
-              <SettingCard p1 class="flex flex-col justify-center">
-                <CustomSwitch
-                  v-model="manualRenameComputed"
-                  :title="t('pages.imageProcess.rename.manualRename')"
-                  no-border
-                  small
-                />
-              </SettingCard>
+                  <ImageProcessSettingField
+                    v-if="form.compress.isReSizeByPercent"
+                    :option="editingSettings.compress.reSizePercent"
+                    v-bind="fieldContext"
+                    field="compress.reSizePercent"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('compress', 'reSizePercent')"
+                  >
+                    <CustomRange
+                      v-model.number="form.compress.reSizePercent"
+                      :title="t('pages.imageProcess.transform.resizePercent')"
+                      :min="1"
+                      :max="500"
+                      :step="1"
+                      :show-value="`${form.compress.reSizePercent}%`"
+                    />
+                  </ImageProcessSettingField>
+                </SettingSection>
+              </div>
 
-              <SettingCard p1 class="flex flex-col justify-center">
-                <CustomSwitch
-                  v-model="renameSettingsComputed.rename.enable"
-                  :title="t('pages.settings.upload.enableAdvancedRname')"
-                  :description="t('pages.settings.upload.enableAdvancedRnameDesc')"
-                  no-border
-                  small
-                />
-              </SettingCard>
+              <!-- Skip Process Tab -->
+              <div v-else-if="activeTab === 'skipProcess'" key="skipProcess" class="flex flex-col gap-4">
+                <SettingSection
+                  only-one-row
+                  :icon="FileText"
+                  :title="t('pages.imageProcess.general.skipProcessExtList')"
+                >
+                  <ImageProcessSettingField
+                    :option="editingSettings.skipProcess.skipProcessExtList"
+                    v-bind="fieldContext"
+                    field="skipProcess.skipProcessExtList"
+                    class="flex flex-col justify-center"
+                    @edit-source="editScope"
+                    @inherit="inheritSetting('skipProcess', 'skipProcessExtList')"
+                  >
+                    <textarea
+                      v-model="form.skipProcess.skipProcessExtList"
+                      class="form-textarea"
+                      rows="3"
+                      :placeholder="'zip,rar,7z,tar,gz'"
+                    />
+                    <small
+                      class="mt-2 block rounded-sm bg-bg-secondary px-3 py-2 text-xs leading-[1.5] text-tertiary"
+                      >{{ t('pages.imageProcess.general.skipProcessExtListPlaceholder') }}</small
+                    >
+                  </ImageProcessSettingField>
+                </SettingSection>
+              </div>
 
-              <SettingCard>
-                <label class="mb-4 flex items-center gap-2 text-base font-semibold text-main">
-                  <Edit :size="14" class="text-accent" />
-                  {{ t('pages.settings.upload.advancedRnameFormat') }}
-                </label>
-                <input
-                  v-model="renameSettingsComputed.rename.format"
-                  type="text"
-                  class="form-input"
-                  placeholder="Ex. {Y}-{m}-{uuid}"
-                />
-              </SettingCard>
-            </SettingSection>
-            <SettingCard>
-              <label class="text-base font-semibold text-main">{{
-                t('pages.settings.upload.availablePlaceholders')
-              }}</label>
-              <PlaceholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
-            </SettingCard>
-          </SettingSection>
-        </div>
-      </transition>
+              <!-- Rename Tab -->
+              <div v-else-if="activeTab === 'rename'" key="rename" class="flex flex-col gap-4">
+                <SettingSection
+                  :icon="Edit2Icon"
+                  :title="t('pages.imageProcess.rename.title')"
+                  :description="t('pages.imageProcess.rename.description')"
+                  only-one-row
+                >
+                  <SettingSection>
+                    <ImageProcessSettingField
+                      :option="editingSettings.naming.autoRename"
+                      v-bind="fieldContext"
+                      field="naming.autoRename"
+                      p1
+                      @edit-source="editScope"
+                      @inherit="inheritSetting('naming', 'autoRename')"
+                    >
+                      <CustomSwitch
+                        v-model="form.naming.autoRename"
+                        :title="t('pages.imageProcess.rename.renameTimestamp')"
+                        description="YYYYMMDDHHmmssSSS"
+                        no-border
+                        small
+                      />
+                    </ImageProcessSettingField>
+
+                    <ImageProcessSettingField
+                      :option="editingSettings.naming.manualRename"
+                      v-bind="fieldContext"
+                      field="naming.manualRename"
+                      p1
+                      class="flex flex-col justify-center"
+                      @edit-source="editScope"
+                      @inherit="inheritSetting('naming', 'manualRename')"
+                    >
+                      <CustomSwitch
+                        v-model="form.naming.manualRename"
+                        :title="t('pages.imageProcess.rename.manualRename')"
+                        no-border
+                        small
+                      />
+                    </ImageProcessSettingField>
+
+                    <ImageProcessSettingField
+                      :option="editingSettings.rename.enable"
+                      v-bind="fieldContext"
+                      field="rename.enable"
+                      p1
+                      class="flex flex-col justify-center"
+                      @edit-source="editScope"
+                      @inherit="inheritSetting('rename', 'enable')"
+                    >
+                      <CustomSwitch
+                        v-model="form.rename.enable"
+                        :title="t('pages.settings.upload.enableAdvancedRname')"
+                        :description="t('pages.settings.upload.enableAdvancedRnameDesc')"
+                        no-border
+                        small
+                      />
+                    </ImageProcessSettingField>
+
+                    <ImageProcessSettingField
+                      :option="editingSettings.rename.format"
+                      v-bind="fieldContext"
+                      field="rename.format"
+                      @edit-source="editScope"
+                      @inherit="inheritSetting('rename', 'format')"
+                    >
+                      <label class="mb-4 flex items-center gap-2 text-base font-semibold text-main">
+                        <Edit :size="14" class="text-accent" />
+                        {{ t('pages.settings.upload.advancedRnameFormat') }}
+                      </label>
+                      <input
+                        v-model="form.rename.format"
+                        type="text"
+                        class="form-input"
+                        placeholder="Ex. {Y}-{m}-{uuid}"
+                      />
+                    </ImageProcessSettingField>
+                  </SettingSection>
+                  <SettingCard>
+                    <label class="text-base font-semibold text-main">{{
+                      t('pages.settings.upload.availablePlaceholders')
+                    }}</label>
+                    <PlaceholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
+                  </SettingCard>
+                </SettingSection>
+              </div>
+            </div>
+          </div>
+          <aside class="processing-live-preview" :aria-label="t('pages.imageProcess.design.livePreview')">
+            <ImageProcessPreview
+              compact
+              :settings="effectiveSettings"
+              :layers="settingsByScope"
+              :uploader="previewUploader"
+              @review="activeTab = 'preview'"
+              @edit="editFromPreview"
+            />
+          </aside>
+        </template>
+      </template>
+      <div v-else class="flex flex-col items-center gap-3 p-6 text-sm text-secondary" role="status">
+        {{ t(`pages.imageProcess.preview.${loadFailed ? 'loadFailed' : 'loading'}`) }}
+        <button v-if="loadFailed" type="button" class="form-input w-auto!" @click="initData">
+          {{ t('pages.imageProcess.preview.retry') }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import {
+  Check,
+  ChevronRight,
+  CircleHelp,
   Droplets,
   Edit,
   Edit2Icon,
+  Eye,
   FileText,
   FlipHorizontal,
+  Globe,
   Image,
+  Layers,
   Maximize2,
   Percent,
   RefreshCw,
   RotateCw,
   Settings,
   Sliders,
+  UserRound,
 } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
-import type {
-  availableConvertFormat,
-  availableWatermarkPosition,
-  IBuildInCompressOptions,
-  IBuildInSkipProcessOptions,
-  IBuildInWaterMarkOptions,
-} from 'piclist'
-import { computed, nextTick, onBeforeMount, onBeforeUnmount, onMounted, ref, toRaw, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onBeforeMount, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomRadioOption from '@/components/common/CustomRadioOption.vue'
 import CustomRange from '@/components/common/CustomRange.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
-import PerPicbedSetting from '@/components/PerPicbedSetting.vue'
-import { getRawData } from '@/utils/common'
-import { configPaths } from '@/utils/configPaths'
-import { getConfig, saveConfig } from '@/utils/dataSender'
+import SettingCard from '@/components/common/SettingCard.vue'
+import ImageProcessPreview from '@/components/ImageProcessPreview.vue'
+import SettingSection from '@/components/ImageProcessSection.vue'
+import ImageProcessSettingField from '@/components/ImageProcessSettingField.vue'
+import { useImageProcessingSettings } from '@/hooks/useImageProcessingSettings'
+import type { ProcessingGroup, ProcessingScope } from '@/utils/imageProcessingConfig'
 
-import SettingCard from './common/SettingCard.vue'
-import SettingSection from './common/SettingSection.vue'
-
+const { configId = '', currentPicbedName = '' } = defineProps<{ configId?: string; currentPicbedName?: string }>()
 const { t } = useI18n()
+const {
+  scope,
+  providers,
+  configurationOptions,
+  targetProvider,
+  selectedConfigId,
+  previewUploader,
+  editingSettings,
+  effectiveSettings,
+  settingsByScope,
+  form,
+  canEdit,
+  isInitialized,
+  loadFailed,
+  saveState,
+  initData,
+  updateSetting,
+  retrySave,
+} = useImageProcessingSettings(
+  () => configId,
+  () => currentPicbedName,
+)
+const scopes: ProcessingScope[] = ['config', 'provider', 'global']
+const scopeIcons = { config: UserRound, provider: Layers, global: Globe }
 const activeTab = useStorage<string>('image-process-setting-active-tab', 'general')
-
-// Tab indicator animation
-const tabRefs = useTemplateRef('tabRefs')
-const tabIndicatorStyle = ref<Record<string, string>>({})
-
-interface IProps {
-  // 传递配置ID以加载特定配置
-  configId: string
-  //picbedName
-  currentPicbedName: string
+const lastEditTab = ref(activeTab.value === 'preview' ? 'general' : activeTab.value)
+const settingsContent = useTemplateRef('settingsContent')
+const targetName = computed(() => previewUploader.value.configName || t('pages.imageProcess.preview.unnamedConfig'))
+const fieldContext = computed(() => ({
+  scope: scope.value,
+  uploader: previewUploader.value,
+  effectiveSettings: effectiveSettings.value,
+}))
+function scopeLabel(level: ProcessingScope) {
+  return t('pages.imageProcess.design.scopes.' + level, {
+    provider: previewUploader.value.providerName,
+    config: targetName.value,
+  })
 }
-
-const { configId, currentPicbedName } = defineProps<IProps>()
-
-function updateTabIndicator() {
-  if (!tabRefs.value || tabRefs.value.length === 0) return
-  const activeIndex = tabs.value.findIndex(tab => tab.id === activeTab.value)
-  const activeTabEl = tabRefs.value[activeIndex]
-  if (activeTabEl) {
-    tabIndicatorStyle.value = {
-      top: `${activeTabEl.offsetTop}px`,
-      height: `${activeTabEl.offsetHeight}px`,
-      width: `${activeTabEl.offsetWidth - 12}px`,
-      transform: `translateX(${activeTabEl.offsetLeft}px)`,
+async function editFromPreview(level: ProcessingScope, category: string, field?: string) {
+  scope.value = level
+  activeTab.value = category
+  await nextTick()
+  if (field) {
+    const element = settingsContent.value?.querySelector<HTMLElement>(`[data-processing-field="${field}"]`)
+    let parent = element?.parentElement
+    while (parent && parent !== settingsContent.value) {
+      if (parent.tagName === 'DETAILS') (parent as HTMLDetailsElement).open = true
+      parent = parent.parentElement
     }
+    element?.scrollIntoView({ block: 'nearest' })
+    element?.querySelector<HTMLElement>('input, select, textarea')?.focus({ preventScroll: true })
   }
 }
-
 const tabs = computed(() => [
   {
     id: 'general',
-    label: t('pages.imageProcess.generalSettings'),
+    label: t('pages.imageProcess.design.categoryLabels.general'),
     icon: Settings,
   },
   {
@@ -1066,12 +963,12 @@ const tabs = computed(() => [
   },
   {
     id: 'transform',
-    label: t('pages.imageProcess.transformSettings'),
+    label: t('pages.imageProcess.design.categoryLabels.transform'),
     icon: RotateCw,
   },
   {
     id: 'skipProcess',
-    label: t('pages.imageProcess.skipProcessSettings'),
+    label: t('pages.imageProcess.design.categoryLabels.skipProcess'),
     icon: FileText,
   },
   {
@@ -1154,634 +1051,60 @@ const availableFormat = [
   'v',
 ]
 
-const defaultWaterMarkSetting = {
-  isAddWatermark: false,
-  watermarkType: 'text' as 'text' | 'image',
-  isFullScreenWatermark: false,
-  watermarkDegree: 0,
-  watermarkText: '',
-  watermarkFontPath: '',
-  watermarkScaleRatio: 0.15,
-  watermarkColor: '#CCCCCC73',
-  watermarkImagePath: '',
-  watermarkPosition: 'southeast' as availableWatermarkPosition,
-  watermarkImageOpacity: 255,
-} as IBuildInWaterMarkOptions
-
-const defaultCompressSetting = {
-  quality: 100,
-  isConvert: false,
-  convertFormat: 'jpg' as availableConvertFormat,
-  isReSize: false,
-  reSizeWidth: 500,
-  reSizeHeight: 500,
-  skipReSizeOfSmallImg: false,
-  isReSizeByPercent: false,
-  reSizePercent: 50,
-  longEdgeAsHeight: false,
-  isRotate: false,
-  rotateDegree: 0,
-  isRemoveExif: false,
-  isFlip: false,
-  isFlop: false,
-  formatConvertObj: {},
-} as IBuildInCompressOptions
-
-const waterMarkForm = ref<IBuildInWaterMarkOptions>({
-  isAddWatermarkMap: {},
-  watermarkTypeMap: {},
-  isFullScreenWatermarkMap: {},
-  watermarkDegreeMap: {},
-  watermarkTextMap: {},
-  watermarkFontPathMap: {},
-  watermarkScaleRatioMap: {},
-  watermarkColorMap: {},
-  watermarkImagePathMap: {},
-  watermarkPositionMap: {},
-  watermarkImageOpacityMap: {},
-  ...defaultWaterMarkSetting,
-})
-
-/* Only used if configId is not provided */
-const compressForm = ref<IBuildInCompressOptions>({
-  qualityMap: {},
-  isConvertMap: {},
-  convertFormatMap: {},
-  isReSizeMap: {},
-  reSizeWidthMap: {},
-  reSizeHeightMap: {},
-  skipReSizeOfSmallImgMap: {},
-  isReSizeByPercentMap: {},
-  reSizePercentMap: {},
-  longEdgeAsHeightMap: {},
-  isRotateMap: {},
-  rotateDegreeMap: {},
-  isRemoveExifMap: {},
-  isFlipMap: {},
-  isFlopMap: {},
-  formatConvertObjMap: {},
-  ...defaultCompressSetting,
-})
-/* Only used if configId is not provided */
-const formatConvertObjStr = ref('{}')
-const singleFormatConvertObj = ref('{}')
-
-const defaultSkipProcessSetting = {
-  skipProcessExtList: 'zip,rar,7z,tar,gz,tar.gz,tar.bz2,tar.xz',
-}
-/* Only used if configId is not provided */
-const skipProcessForm = ref<IBuildInSkipProcessOptions>({
-  ...defaultSkipProcessSetting,
-})
-const globalRenameSettings = ref<{
-  enable?: boolean
-  format?: string
-}>({
-  enable: false,
-  format: '{filename}',
-})
-const globalAutoRename = ref<Undefinable<boolean>>(false)
-const globalManualRename = ref<Undefinable<boolean>>(false)
-
-const isInitialized = ref(false)
-
-async function saveWaterMarkConfig() {
-  await saveConfig(configPaths.buildIn.watermark, toRaw(waterMarkForm.value))
-}
-
-const singleConfigSettings = ref<IBuildInListItem>({
-  id: configId || '',
-  compress: {
-    ...defaultCompressSetting,
-  },
-  watermark: {
-    ...defaultWaterMarkSetting,
-  },
-  skipProcess: {
-    ...defaultSkipProcessSetting,
-  },
-  rename: {
-    enable: false,
-    format: '{filename}',
-  },
-  autoRename: false,
-  manualRename: false,
-} as IBuildInListItem)
-
-function cleanFormatConvertObj(obj: any) {
-  const cleanedObj: Record<string, any> = {}
-  Object.entries(obj).forEach(([key, value]) => {
-    if (imageExtList.includes(key) && typeof value === 'string' && availableFormat.includes(value)) {
-      cleanedObj[key] = value
-    }
-  })
-  return cleanedObj
-}
-
-let singleConfigInFile = {
-  id: configId || '',
-} as IBuildInListItem
-let compressInFile = {} as IBuildInCompressOptions
-
-async function initData() {
-  // global settings
-  const allConfig = await getConfig<any>()
-  compressInFile = allConfig.buildIn?.compress || {}
-  const watermark = allConfig.buildIn?.watermark || {}
-  const skipProcess = allConfig.buildIn?.skipProcess || {}
-  globalRenameSettings.value = allConfig.buildIn?.rename || {
-    enable: false,
-    format: '{filename}',
-  }
-  globalAutoRename.value = allConfig.settings?.autoRename ?? false
-  globalManualRename.value = allConfig.settings?.rename ?? false
-  if (compressInFile) {
-    let cleanedObj: Record<string, any>
-    try {
-      if (typeof compressInFile.formatConvertObj === 'object') {
-        cleanedObj = cleanFormatConvertObj(compressInFile.formatConvertObj)
-      } else if (typeof compressInFile.formatConvertObj === 'string') {
-        cleanedObj = cleanFormatConvertObj(JSON.parse(compressInFile.formatConvertObj))
-      } else {
-        cleanedObj = {}
-      }
-    } catch (_error) {
-      cleanedObj = {}
-    }
-    compressInFile.formatConvertObj = cleanedObj
-    formatConvertObjStr.value = JSON.stringify(cleanedObj)
-    const cleanFullMap: Record<string, any> = {}
-    if (compressInFile.formatConvertObjMap) {
-      Object.entries(compressInFile.formatConvertObjMap).forEach(([picbedType, value]) => {
-        try {
-          if (typeof value === 'object') {
-            const cleanedObj = cleanFormatConvertObj(value)
-            if (Object.keys(cleanedObj).length > 0) {
-              cleanFullMap[picbedType] = cleanedObj
-            }
-          } else if (typeof value === 'string') {
-            const parsedObj = JSON.parse(value)
-            const cleanedObj = cleanFormatConvertObj(parsedObj)
-            if (Object.keys(cleanedObj).length > 0) {
-              cleanFullMap[picbedType] = cleanedObj
-            }
-          } else {
-            cleanFullMap[picbedType] = {}
-          }
-        } catch (_error) {}
-      })
-    }
-    compressInFile.formatConvertObjMap = cleanFullMap
-    await saveConfig(configPaths.buildIn.compress, { ...compressInFile })
-    compressForm.value = { ...compressForm.value, ...compressInFile }
-  }
-  if (watermark) {
-    if (watermark.watermarkColor === '') {
-      watermark.watermarkColor = '#CCCCCC73'
-      await saveConfig(configPaths.buildIn.watermark, watermark)
-    }
-    waterMarkForm.value = { ...waterMarkForm.value, ...watermark }
-  }
-  if (skipProcess) {
-    skipProcessForm.value = {
-      ...skipProcessForm.value,
-      ...skipProcess,
-    }
-  }
-  if (configId) {
-    let buildInList = allConfig.buildIn?.list
-    const globalRenameSettings = allConfig.buildIn?.rename || {
-      enable: false,
-      format: '{filename}',
-    }
-    if (!buildInList) {
-      await saveConfig(configPaths.buildIn.list, [])
-      buildInList = []
-    }
-    singleConfigInFile = buildInList?.find((item: { id: string }) => item.id === configId) || ({} as IBuildInListItem)
-    const mergedCompress = {
-      ...compressForm.value,
-      ...(singleConfigInFile.compress || {}),
-    }
-    Object.keys(defaultCompressSetting).forEach(key => {
-      if (singleConfigInFile.compress?.[key] !== undefined) {
-        return
-      }
-      const mapFieldName = `${key}Map`
-      if (mergedCompress[mapFieldName]?.[currentPicbedName] !== undefined) {
-        mergedCompress[key as keyof IBuildInCompressOptions] = mergedCompress[mapFieldName][currentPicbedName]
-      }
-    })
-    const mergedWatermark = {
-      ...waterMarkForm.value,
-      ...(singleConfigInFile.watermark || {}),
-    }
-    Object.keys(defaultWaterMarkSetting).forEach(key => {
-      if (singleConfigInFile.watermark?.[key] !== undefined) {
-        return
-      }
-      const mapFieldName = `${key}Map`
-      if (mergedWatermark[mapFieldName]?.[currentPicbedName] !== undefined) {
-        mergedWatermark[key as keyof IBuildInWaterMarkOptions] = mergedWatermark[mapFieldName][currentPicbedName]
-      }
-    })
-    let cleanedFormatConvertObj: Record<string, any>
-    try {
-      const parsedObj = JSON.parse(singleConfigInFile.compress?.formatConvertObj as any)
-      cleanedFormatConvertObj = cleanFormatConvertObj(parsedObj)
-      if (JSON.stringify(cleanedFormatConvertObj) !== JSON.stringify(parsedObj)) {
-        singleConfigInFile.compress!.formatConvertObj = JSON.stringify(cleanedFormatConvertObj)
-      }
-      const updatedConfig = {
-        ...singleConfigInFile,
-        compress: {
-          ...singleConfigInFile.compress,
-          formatConvertObj: cleanedFormatConvertObj,
-        },
-      }
-      await UpdateBuildInList(updatedConfig)
-    } catch (_error) {
-      cleanedFormatConvertObj = {}
-    }
-    singleFormatConvertObj.value = JSON.stringify(cleanedFormatConvertObj)
-    singleConfigSettings.value = {
-      id: configId,
-      compress: { ...mergedCompress },
-      watermark: { ...mergedWatermark },
-      skipProcess: {
-        ...skipProcessForm.value,
-        ...(singleConfigInFile.skipProcess || {}),
-      },
-      rename: {
-        ...{
-          enable: false,
-          format: '{filename}',
-        },
-        ...globalRenameSettings,
-        ...(singleConfigInFile.rename || {}),
-      },
-      autoRename: singleConfigInFile.autoRename ?? (globalAutoRename.value || false),
-      manualRename: singleConfigInFile.manualRename ?? (globalManualRename.value || false),
-    }
-  }
-}
-
-function safeSetMapValue(form: any, fieldName: string, picbedType: string, value: any, defaultValue: any) {
-  const mapFieldName = `${fieldName}Map`
-  if (fieldName === 'formatConvertObj') {
-    value = value || '{}'
-    try {
-      const parsedObj = JSON.parse(value)
-      const cleanedObj = cleanFormatConvertObj(parsedObj)
-      if (JSON.stringify(cleanedObj) !== JSON.stringify(parsedObj)) {
-        value = JSON.stringify(cleanedObj)
-      }
-    } catch (_error) {
-      return
-    }
-  }
-  if (!form[mapFieldName]) {
-    form[mapFieldName] = {}
-  }
-  const globalValue = form[fieldName]
-  const isSameValue =
-    fieldName === 'formatConvertObj'
-      ? JSON.stringify(JSON.parse(value)) === JSON.stringify(globalValue || {})
-      : value === globalValue
-  const isValueDefault =
-    fieldName === 'formatConvertObj'
-      ? JSON.stringify(JSON.parse(value)) === JSON.stringify(defaultValue)
-      : value === defaultValue
-  const isFormValueDefault =
-    fieldName === 'formatConvertObj'
-      ? JSON.stringify(form[fieldName]) === JSON.stringify(defaultValue)
-      : form[fieldName] === defaultValue
-  console.log({ isValueDefault, isFormValueDefault, isSameValue })
-  if ((isValueDefault && isFormValueDefault) || isSameValue) {
-    delete form[mapFieldName][picbedType]
-  } else {
-    if (fieldName === 'formatConvertObj') {
-      form[mapFieldName][picbedType] = JSON.parse(value)
-      return
-    }
-    form[mapFieldName][picbedType] = value
-  }
-}
-
-async function saveSkipProcessConfig() {
-  await saveConfig(configPaths.buildIn.skipProcess, toRaw(skipProcessForm.value))
-}
-
-async function saveCompressConfig() {
-  const cleanFullMap: Record<string, any> = {}
-  Object.entries(compressForm.value.formatConvertObjMap || {}).forEach(([picbedType, value]) => {
-    try {
-      const cleanedObj = cleanFormatConvertObj(value)
-      cleanFullMap[picbedType] = cleanedObj
-    } catch (_error) {}
-  })
-  if (JSON.stringify(cleanFullMap) !== JSON.stringify(compressForm.value.formatConvertObjMap)) {
-    compressForm.value.formatConvertObjMap = cleanFullMap
-  }
-
-  await saveConfig(configPaths.buildIn.compress, toRaw(compressForm.value))
-}
-
-const activeForm = computed<any>(() => {
-  if (configId) {
-    return {
-      compress: singleConfigSettings.value.compress,
-      watermark: singleConfigSettings.value.watermark,
-      skipProcess: singleConfigSettings.value.skipProcess,
-    }
-  } else {
-    return {
-      compress: compressForm.value,
-      watermark: waterMarkForm.value,
-      skipProcess: skipProcessForm.value,
-    }
-  }
-})
-
-const autoRenameComputed = computed({
-  get() {
-    return configId ? singleConfigSettings.value.autoRename : globalAutoRename.value
-  },
-  async set(newValue) {
-    if (configId) {
-      singleConfigSettings.value.autoRename = newValue
-      const shouldUpdate = newValue !== (globalAutoRename.value ?? false)
-      singleConfigInFile.id = configId || ''
-      if (shouldUpdate) {
-        singleConfigInFile.autoRename = newValue
-        UpdateBuildInList(singleConfigInFile)
-      } else {
-        if (singleConfigInFile.autoRename !== undefined) delete singleConfigInFile.autoRename
-        checkIfItemOnlyId(singleConfigInFile).then(async isOnlyId => {
-          if (isOnlyId) {
-            await removeItemFromBuildInList(singleConfigInFile.id)
-          } else {
-            await UpdateBuildInList(singleConfigInFile)
-          }
-        })
-      }
-    } else {
-      globalAutoRename.value = newValue
-      if (!(await saveConfig(configPaths.settings.autoRename, newValue))) return
-    }
-  },
-})
-
-const manualRenameComputed = computed({
-  get() {
-    return configId ? singleConfigSettings.value.manualRename : globalManualRename.value
-  },
-  async set(newValue) {
-    if (configId) {
-      singleConfigSettings.value.manualRename = newValue
-      const shouldUpdate = newValue !== (globalManualRename.value ?? false)
-      singleConfigInFile.id = configId || ''
-      if (shouldUpdate) {
-        singleConfigInFile.manualRename = newValue
-        UpdateBuildInList(singleConfigInFile)
-      } else {
-        if (singleConfigInFile.manualRename !== undefined) delete singleConfigInFile.manualRename
-        checkIfItemOnlyId(singleConfigInFile).then(async isOnlyId => {
-          if (isOnlyId) {
-            await removeItemFromBuildInList(singleConfigInFile.id)
-          } else {
-            await UpdateBuildInList(singleConfigInFile)
-          }
-        })
-      }
-    } else {
-      globalManualRename.value = newValue
-      if (!(await saveConfig(configPaths.settings.rename, newValue))) return
-    }
-  },
-})
-
-const renameSettingsComputed = computed<any>(() => {
-  if (configId) {
-    return {
-      rename: singleConfigSettings.value.rename,
-    }
-  } else {
-    return {
-      rename: globalRenameSettings.value,
-    }
-  }
-})
-
-watch(
-  renameSettingsComputed,
-  async newValue => {
-    if (configId) {
-      singleConfigSettings.value.rename = newValue.rename
-      const shouldUpdate =
-        newValue.rename.enable !== (globalRenameSettings.value.enable ?? false) ||
-        newValue.rename.format !== (globalRenameSettings.value.format ?? '{filename}')
-      singleConfigInFile.id = configId || ''
-      if (shouldUpdate) {
-        singleConfigInFile.rename = newValue.rename
-        UpdateBuildInList(singleConfigInFile)
-      } else {
-        if (singleConfigInFile.rename) delete singleConfigInFile.rename
-        checkIfItemOnlyId(singleConfigInFile).then(async isOnlyId => {
-          if (isOnlyId) {
-            await removeItemFromBuildInList(singleConfigInFile.id)
-          } else {
-            await UpdateBuildInList(singleConfigInFile)
-          }
-        })
-      }
-    } else {
-      if (!(await saveConfig(configPaths.buildIn.rename, toRaw(newValue.rename)))) return
-    }
-  },
-  { deep: true },
-)
-
+const formatRulesDraft = ref('{}')
+const conversionError = ref(false)
 const convertStr = computed({
-  get() {
-    return configId ? singleFormatConvertObj.value : formatConvertObjStr.value
-  },
-  set(newValue) {
-    if (configId) {
-      singleFormatConvertObj.value = newValue
-    } else {
-      formatConvertObjStr.value = newValue
+  get: () => formatRulesDraft.value,
+  set(value: string) {
+    formatRulesDraft.value = value
+    try {
+      const parsed = JSON.parse(value)
+      if (
+        !parsed ||
+        typeof parsed !== 'object' ||
+        Array.isArray(parsed) ||
+        Object.entries(parsed).some(
+          ([extension, format]) =>
+            !imageExtList.includes(extension) || typeof format !== 'string' || !availableFormat.includes(format),
+        )
+      )
+        throw new Error('Invalid format rules')
+      conversionError.value = false
+      updateSetting('compress', 'formatConvertObj', parsed)
+    } catch {
+      conversionError.value = true
     }
   },
 })
-
-const compressWatchKeys = [...(Object.keys(defaultCompressSetting) as (keyof IBuildInCompressOptions)[])]
-const waterMarkWatchKeys = Object.keys(defaultWaterMarkSetting) as (keyof IBuildInWaterMarkOptions)[]
-const skipProcessWatchKeys = Object.keys(defaultSkipProcessSetting) as (keyof IBuildInSkipProcessOptions)[]
-
-async function UpdateBuildInList(newValue: IBuildInListItem) {
-  let buildInList = await getConfig<Undefinable<IBuildInListItem[]>>(configPaths.buildIn.list)
-  if (!buildInList) {
-    buildInList = []
-  }
-  const existingIndex = buildInList.findIndex(item => item.id === newValue.id)
-  if (existingIndex !== -1) {
-    buildInList[existingIndex] = newValue
-  } else {
-    buildInList.push(newValue)
-  }
-  await saveConfig(configPaths.buildIn.list, getRawData(buildInList))
+function syncFormatRules() {
+  formatRulesDraft.value = JSON.stringify(form.compress.formatConvertObj)
+  conversionError.value = false
 }
-
-async function checkIfItemOnlyId(newValue: IBuildInListItem) {
-  const keys = Object.keys(newValue).filter(key => key !== 'id')
-  if (keys.length === 0) return true
-  for (const key of keys) {
-    const value = (newValue as any)[key]
-    if (typeof value === 'object' && value !== null) {
-      if (Object.keys(value).length > 0) {
-        return false
-      }
-    } else if (value !== undefined && value !== null) {
-      return false
-    }
-  }
-  return true
+function inheritSetting(group: ProcessingGroup, key: string) {
+  updateSetting(group, key)
+  if (key === 'formatConvertObj') syncFormatRules()
 }
-
-async function removeItemFromBuildInList(id: string) {
-  let buildInList = await getConfig<Undefinable<IBuildInListItem[]>>(configPaths.buildIn.list)
-  if (!buildInList) {
-    buildInList = []
-  }
-  buildInList = buildInList.filter(item => item.id !== id)
-  await saveConfig(configPaths.buildIn.list, getRawData(buildInList))
+function editScope(level: ProcessingScope) {
+  scope.value = level
+  if (activeTab.value === 'preview') activeTab.value = 'general'
 }
-
-compressWatchKeys.forEach(key => {
-  watch(
-    () => singleConfigSettings.value.compress![key],
-    async newValue => {
-      const defaultValue = defaultCompressSetting[key]
-      const perPicBedValue = compressForm.value[`${key}Map`]?.[currentPicbedName]
-      const inheritedValue = perPicBedValue ?? compressForm.value[key] ?? defaultValue
-      singleConfigInFile.id = configId || ''
-      const shouldUpdate =
-        key === 'formatConvertObj'
-          ? JSON.stringify(newValue) !== JSON.stringify(inheritedValue)
-          : newValue !== inheritedValue
-      if (shouldUpdate) {
-        singleConfigInFile.compress = { ...singleConfigInFile.compress, [key]: newValue }
-        await UpdateBuildInList(singleConfigInFile)
-      } else {
-        if (singleConfigInFile.compress) delete singleConfigInFile.compress[key]
-        if (await checkIfItemOnlyId(singleConfigInFile)) {
-          await removeItemFromBuildInList(singleConfigInFile.id)
-        } else {
-          await UpdateBuildInList(singleConfigInFile)
-        }
-      }
-    },
-  )
+watch([scope, targetProvider, selectedConfigId, isInitialized], () => {
+  syncFormatRules()
+  if (settingsContent.value) settingsContent.value.scrollTop = 0
 })
-
-waterMarkWatchKeys.forEach(key => {
-  watch(
-    () => singleConfigSettings.value.watermark![key],
-    newValue => {
-      const defaultValue = defaultWaterMarkSetting[key]
-      const perPicBedValue = waterMarkForm.value[`${key}Map`]?.[currentPicbedName]
-      const inheritedValue = perPicBedValue ?? waterMarkForm.value[key] ?? defaultValue
-      singleConfigInFile.id = configId || ''
-      if (newValue !== inheritedValue) {
-        singleConfigInFile.watermark = { ...singleConfigInFile.watermark, [key]: newValue }
-        UpdateBuildInList(singleConfigInFile)
-      } else {
-        if (singleConfigInFile.watermark) delete singleConfigInFile.watermark[key]
-        checkIfItemOnlyId(singleConfigInFile).then(async isOnlyId => {
-          if (isOnlyId) {
-            await removeItemFromBuildInList(singleConfigInFile.id)
-          } else {
-            await UpdateBuildInList(singleConfigInFile)
-          }
-        })
-      }
-    },
-  )
-})
-
-skipProcessWatchKeys.forEach(key => {
-  watch(
-    () => singleConfigSettings.value.skipProcess![key],
-    newValue => {
-      const defaultValue = defaultSkipProcessSetting[key]
-      const inheritedValue = skipProcessForm.value[key] ?? defaultValue
-      singleConfigInFile.id = configId || ''
-      if (newValue !== inheritedValue) {
-        singleConfigInFile.skipProcess = { ...singleConfigInFile.skipProcess, [key]: newValue }
-        UpdateBuildInList(singleConfigInFile)
-      } else {
-        if (singleConfigInFile.skipProcess) delete singleConfigInFile.skipProcess[key]
-        checkIfItemOnlyId(singleConfigInFile).then(async isOnlyId => {
-          if (isOnlyId) {
-            await removeItemFromBuildInList(singleConfigInFile.id)
-          } else {
-            await UpdateBuildInList(singleConfigInFile)
-          }
-        })
-      }
-    },
-  )
-})
-
+watch(
+  scope,
+  () => {
+    if (isInitialized.value && activeTab.value === 'preview') activeTab.value = 'general'
+  },
+  { flush: 'sync' },
+)
 watch(activeTab, () => {
-  nextTick(updateTabIndicator)
+  if (settingsContent.value) settingsContent.value.scrollTop = 0
+  if (activeTab.value !== 'preview') lastEditTab.value = activeTab.value
 })
-
-watch(singleFormatConvertObj, () => {
-  try {
-    const parsedObj = JSON.parse(singleFormatConvertObj.value)
-    const cleanedObj = cleanFormatConvertObj(parsedObj)
-    singleConfigSettings.value.compress!.formatConvertObj = cleanedObj
-    if (JSON.stringify(cleanedObj) !== JSON.stringify(parsedObj)) {
-      singleFormatConvertObj.value = JSON.stringify(cleanedObj)
-    }
-  } catch (_error) {
-    return
-  }
-})
-
-watch(formatConvertObjStr, () => {
-  try {
-    const parsedObj = JSON.parse(formatConvertObjStr.value)
-    const cleanedObj = cleanFormatConvertObj(parsedObj)
-    compressForm.value.formatConvertObj = cleanedObj
-    if (JSON.stringify(cleanedObj) !== JSON.stringify(parsedObj)) {
-      formatConvertObjStr.value = JSON.stringify(cleanedObj)
-    }
-  } catch (_error) {
-    return
-  }
-})
-
-watch(skipProcessForm, () => saveSkipProcessConfig(), { deep: true })
-watch(compressForm, () => saveCompressConfig(), { deep: true })
-watch(waterMarkForm, () => saveWaterMarkConfig(), { deep: true })
-
-onBeforeMount(() => {
-  initData().then(() => {
-    isInitialized.value = true
-  })
-})
-
-onMounted(() => {
-  nextTick(updateTabIndicator)
-  window.addEventListener('resize', updateTabIndicator)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateTabIndicator)
-})
+watch(() => [configId, currentPicbedName], initData)
+onBeforeMount(initData)
 </script>
 
 <style scoped src="./css/ImageProcessSetting.css"></style>

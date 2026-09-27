@@ -9,6 +9,123 @@
   @apply focus:border-accent focus:bg-surface-elevated focus:shadow-sm focus:outline-none;
 }
 
+.scope-select {
+  @apply block w-full min-w-0 rounded-md border border-border bg-bg px-3 py-2 text-sm text-main;
+  @apply focus:border-accent focus:outline-none;
+}
+
 .form-textarea {
   @apply min-h-[90px] resize-y font-[ui-monospace,SFMono-Regular,'SF_Mono',Menlo,Consolas,'Liberation_Mono',monospace];
+}
+
+.processing-toolbar {
+  @apply grid shrink-0 items-end gap-x-5 gap-y-3 border-b border-border bg-bg-tertiary px-5 py-4;
+
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.processing-destination {
+  @apply flex min-w-0 items-end gap-3;
+}
+
+.processing-destination label {
+  @apply flex min-w-0 flex-col gap-1 text-xs font-medium text-secondary;
+}
+
+.processing-provider-label { flex: 0 1 190px; }
+.processing-config-label { flex: 1; }
+.destination-arrow { margin-bottom: 12px; }
+
+.processing-toolbar-footer {
+  @apply flex flex-wrap items-center justify-between gap-2;
+
+  grid-column: 1 / -1;
+}
+
+.processing-view-switch {
+  @apply flex gap-1 rounded-lg border border-border bg-bg-secondary p-1;
+}
+
+.processing-view-switch button {
+  @apply flex cursor-pointer items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-secondary;
+}
+
+.processing-view-switch button[aria-pressed='true'] {
+  @apply bg-accent text-white;
+}
+
+.processing-workspace {
+  @apply grid items-start gap-6 bg-bg-secondary/40 p-5;
+
+  grid-template-columns: minmax(0, 1fr) 280px;
+  scrollbar-gutter: stable;
+}
+
+.processing-workspace.preview-workspace { grid-template-columns: minmax(0, 1fr); }
+.processing-editor { min-width: 0; }
+.processing-live-preview { min-width: 0; }
+
+.processing-audience {
+  @apply mb-5 rounded-xl border border-border bg-bg-tertiary p-4;
+}
+
+.processing-scope-choices {
+  @apply mt-3 grid grid-cols-3 gap-2;
+}
+
+.processing-scope-choice {
+  @apply flex min-w-0 cursor-pointer flex-col gap-2 rounded-lg border border-border bg-transparent p-3 text-left text-secondary transition-colors;
+}
+
+.processing-scope-choice strong { @apply text-xs font-semibold leading-relaxed wrap-anywhere text-main; }
+.processing-scope-choice .scope-description { @apply text-xs leading-relaxed; }
+.processing-scope-choice:hover { @apply border-accent/50 bg-accent/5; }
+.processing-scope-choice[aria-pressed='true'] { @apply border-accent bg-accent/5 text-accent; }
+.processing-scope-choice[aria-pressed='true'] strong { @apply text-accent; }
+.processing-scope-choice:disabled { @apply cursor-not-allowed opacity-40; }
+
+.processing-help { @apply mt-3 border-t border-border/60 pt-3; }
+.processing-help summary { @apply flex cursor-pointer list-none items-center gap-1.5 text-xs text-secondary; }
+.processing-help summary:hover { @apply text-accent; }
+
+.processing-categories {
+  @apply mb-5 flex flex-wrap gap-1 border-b border-border pb-2;
+}
+
+.processing-categories button {
+  @apply flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md px-2 py-2 text-xs font-medium whitespace-nowrap text-secondary;
+}
+
+.processing-categories button:hover { @apply bg-accent/5 text-accent; }
+.processing-categories button[aria-pressed='true'] { @apply bg-accent/10 text-accent; }
+.processing-fields .form-input { @apply px-3 py-2.5; }
+.processing-fields .form-textarea { @apply px-3 py-2.5; }
+.processing-advanced { @apply col-span-full rounded-lg border border-border; }
+.processing-advanced > summary { @apply flex cursor-pointer list-none items-center justify-between gap-2 p-3 text-xs text-secondary; }
+.processing-advanced[open] > summary > svg { transform: rotate(90deg); }
+.processing-studio button:focus-visible { @apply outline-2 outline-offset-2 outline-accent; }
+
+@media (width >= 1100px) and (height >= 720px) {
+  .processing-live-preview {
+    position: sticky;
+    top: 0;
+  }
+}
+
+@media (width <= 1099px) {
+  .processing-workspace { grid-template-columns: minmax(0, 1fr); }
+  .processing-live-preview { display: none; }
+  .processing-toolbar { @apply gap-x-3; }
+  .processing-view-switch button { @apply gap-1.5 px-2 text-xs; }
+}
+
+@media (width <= 650px) {
+  .processing-toolbar { @apply gap-2 p-3; grid-template-columns: minmax(0, 1fr); }
+  .processing-view-switch { justify-self: start; }
+  .processing-toolbar-footer { @apply text-xs; }
+  .processing-workspace { @apply gap-3 p-3; }
+  .processing-audience { @apply p-3; }
+  .processing-scope-choice { @apply gap-1.5 p-2; }
+  .processing-scope-choice .scope-description { display: none; }
+  .destination-arrow { display: none; }
 }

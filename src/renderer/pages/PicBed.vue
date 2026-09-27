@@ -20,7 +20,7 @@
           <CustomButton
             type="secondary"
             :icon="Settings"
-            :text="t('pages.upload.imageProcessNameSingle')"
+            :text="t('pages.imageProcess.editor.title')"
             @click="imageProcessDialogVisible = true"
           />
           <CustomButton type="primary" :icon="Copy" :text="t('pages.picBedConfigs.copyAPI')" @click="handleCopyApi" />
@@ -102,16 +102,12 @@
       </div>
     </div>
 
-    <transition name="modal">
-      <CustomModal
-        v-if="imageProcessDialogVisible"
-        v-model:visible="imageProcessDialogVisible"
-        title=" "
-        :description="t('pages.imageProcess.subtitle-PerPicbed')"
-      >
-        <ImageProcessSetting :config-id="uuidValue" :current-picbed-name="currentPicbedType" />
-      </CustomModal>
-    </transition>
+    <ImageProcessDialog
+      v-if="imageProcessDialogVisible"
+      v-model:visible="imageProcessDialogVisible"
+      :config-id="uuidValue"
+      :current-picbed-name="currentPicbedType"
+    />
   </div>
 </template>
 
@@ -124,8 +120,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import CustomButton from '@/components/common/CustomButton.vue'
-import CustomModal from '@/components/common/CustomModal.vue'
-import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
+import ImageProcessDialog from '@/components/ImageProcessDialog.vue'
 import ConfigForm from '@/components/UnifiedConfigForm.vue'
 import useMessage from '@/hooks/useMessage'
 import { getRawData } from '@/utils/common'

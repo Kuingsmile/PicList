@@ -235,6 +235,99 @@
       "cancel": "Cancel",
       "confirm": "Confirm",
       "description": "Configure image processing options, including compression, watermarking, format conversion, etc.",
+      "design": {
+        "aboutPreview": "What does this preview include?",
+        "advancedRules": "Advanced format rules",
+        "applyTo": "Where should these changes apply?",
+        "categories": "Image processing options",
+        "categoryLabels": {
+          "general": "Format & quality",
+          "skipProcess": "Skip files",
+          "transform": "Size & rotation"
+        },
+        "combinedSources": "From multiple settings",
+        "configPreviewNote": "Settings preview. Exact dimensions and file size depend on the original image.",
+        "editingFor": "Editing: {audience}",
+        "editSettings": "Edit settings",
+        "editToCustomize": "Edit to customize",
+        "editWinning": "Edit the setting in use",
+        "explainValue": "Why this value for {setting}?",
+        "finalPreview": "Final preview",
+        "finalSettings": "Final settings",
+        "howItWorks": "How do shared settings work?",
+        "inheritanceHelp": "Start with defaults for all uploaders. Settings for a storage service replace those defaults. Settings for one uploader take priority over both. Values you do not customize keep following the shared settings.",
+        "live": "Updates as you edit",
+        "livePreview": "Live final settings",
+        "maskedValue": "This uploader uses {value} from {source}. Changing the shared value will not replace it.",
+        "previewFor": "Final settings for {config}",
+        "replacedBelow": "Replaced by a more specific setting",
+        "restoreShared": "Use shared value",
+        "resultIntro": "What this uploader will use after combining your settings.",
+        "reviewAll": "See all final settings",
+        "scopeDescriptions": {
+          "config": "Leave other uploaders unchanged",
+          "global": "Shared starting point",
+          "provider": "Shared by the same service"
+        },
+        "scopeHints": {
+          "config": "Changes here affect only {config}. Edit a value to customize it, or use the shared value to follow defaults again.",
+          "global": "These are the defaults for every uploader. Custom settings for a service or an individual uploader still take priority.",
+          "provider": "Changes here are shared by all {provider} uploaders. Individual uploader settings still take priority."
+        },
+        "scopes": {
+          "config": "Only this uploader",
+          "global": "All uploaders",
+          "provider": "All {provider} uploaders"
+        },
+        "service": "Storage service",
+        "settingCount": "{count} settings",
+        "settingsAndSources": "Settings and where they come from",
+        "showInactive": "Show inactive options",
+        "sourceHint": "Select a source to see which value wins and change it directly.",
+        "sources": {
+          "config": "{config} only",
+          "default": "PicList default",
+          "global": "All uploaders",
+          "provider": "All {provider} uploaders"
+        },
+        "summaryLabels": {
+          "dimensions": "Dimensions",
+          "format": "Format",
+          "quality": "Quality"
+        },
+        "uploader": "Uploader",
+        "usedValue": "Used for this uploader",
+        "usesShared": "Uses the shared value above",
+        "view": "Settings view",
+        "whyValue": "Why this value?"
+      },
+      "editor": {
+        "configuration": "Uploader configuration",
+        "editGlobal": "Edit defaults for all uploaders",
+        "globalOrConfigOnly": "Choose “All uploaders” or “Only this uploader” to edit these options.",
+        "hints": {
+          "config": "Editing overrides for {config} only. Unset options inherit from the provider, then global settings.",
+          "global": "Editing global settings for all uploaders. Effective config previews the selected uploader, including its overrides.",
+          "provider": "Editing provider overrides for every {provider} configuration. Uploader configuration overrides still take priority."
+        },
+        "inherit": "Use inherited value",
+        "invalidFormatRules": "Enter a JSON object mapping supported source extensions to output formats. The last valid rules remain in effect.",
+        "noConfig": "Choose an uploader above to create settings just for it.",
+        "noSavedConfig": "No saved configuration",
+        "provider": "Provider type",
+        "save": {
+          "error": "Changes not saved. Preview shows the current draft.",
+          "saved": "Changes saved automatically",
+          "saving": "Saving…"
+        },
+        "scope": "Edit scope",
+        "scopes": {
+          "config": "Uploader configuration",
+          "global": "Global",
+          "provider": "Provider"
+        },
+        "title": "Image processing"
+      },
       "general": {
         "basicImageProcessing": "Basic Image Processing",
         "destinationFormat": "Destination Format",
@@ -252,6 +345,48 @@
         "defaultValue": "Global Value: {value}",
         "description": "Configure settings for each PicBed individually",
         "title": "Per-PicBed Settings"
+      },
+      "preview": {
+        "advancedRename": "Advanced rename",
+        "automatic": "Automatic (0)",
+        "defaultAsset": "Default asset",
+        "disabled": "Disabled",
+        "empty": "Empty",
+        "enabled": "Enabled",
+        "formatRules": "Format conversion rules",
+        "heightDimensions": "{value} px high · proportional",
+        "heightOnly": "Inactive: height-only resize required",
+        "imageOnly": "Inactive: image watermarks only",
+        "inactive": "Inactive: this operation is disabled",
+        "loadFailed": "Could not load processing settings.",
+        "loading": "Loading processing settings…",
+        "longEdgeDimensions": "{value} px long edge · proportional",
+        "noRules": "No format-specific rules",
+        "originalDimensions": "Keep original dimensions",
+        "originalFormat": "Keep input format",
+        "outputNote": "This previews the built-in processing settings. Final dimensions, file size and appearance depend on the input image, its format and any plugins. Skipped extensions bypass image processing; rotation can change final dimensions.",
+        "percentagePriority": "Inactive: percentage resize takes priority",
+        "percentDimensions": "{value}% of original dimensions",
+        "precedence": "For each setting, the uploader configuration overrides the provider override, which overrides global settings. Built-in defaults apply when no value is set. Changes appear here as you edit.",
+        "readOnly": "Read-only preview",
+        "retry": "Retry",
+        "setting": "Setting",
+        "singleEdgeOnly": "Inactive: proportional resize only",
+        "source": "Source",
+        "sources": {
+          "config": "Uploader configuration",
+          "default": "Built-in default",
+          "global": "Global settings",
+          "provider": "Provider override"
+        },
+        "tab": "Effective config",
+        "target": "Preview for uploader",
+        "textOnly": "Inactive: text watermarks only",
+        "title": "Effective processing configuration",
+        "unnamedConfig": "Unnamed configuration",
+        "value": "Effective value",
+        "widthDimensions": "{value} px wide · proportional",
+        "withFormatRules": "format-specific rules take priority"
       },
       "rename": {
         "description": "Configure renaming rules for uploaded files",

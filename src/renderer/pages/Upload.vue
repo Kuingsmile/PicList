@@ -83,19 +83,14 @@
           </transition-group>
         </div>
         <div class="flex flex-wrap items-center gap-3 max-md:order-2 max-md:justify-stretch">
-          <div class="inline-flex overflow-hidden rounded-md bg-bg-secondary shadow-sm">
-            <button
-              class="segmented-button"
-              :title="t('pages.upload.imageProcessNameSingle')"
-              @click="handleImageProcessSingle"
-            >
-              <Settings :size="16" />
-              <span>{{ t('pages.upload.imageProcessNameSingle') }}</span>
-            </button>
-            <button class="segmented-button" :title="t('pages.upload.imageProcessName')" @click="handleImageProcess">
-              <span>{{ t('pages.upload.imageProcessName') }}</span>
-            </button>
-          </div>
+          <button
+            class="segmented-button rounded-md bg-bg-secondary shadow-sm"
+            :title="t('pages.imageProcess.editor.title')"
+            @click="handleImageProcess"
+          >
+            <Settings :size="16" />
+            <span>{{ t('pages.imageProcess.editor.title') }}</span>
+          </button>
           <button
             class="flex cursor-pointer items-center gap-2 rounded-md border-none bg-accent px-4 py-2.5 font-[inherit] text-sm font-medium text-white duration-fast ease-standard hover:-translate-y-px hover:bg-accent-hover hover:shadow-md focus-visible:focus-ring max-md:flex-1 max-md:justify-center max-xs:px-3 max-xs:py-2 max-xs:text-[0.8rem]"
             @click="handleChangePicBed"
@@ -256,18 +251,12 @@
       </div>
     </div>
     <!-- Image Process Dialog -->
-    <transition name="modal">
-      <CustomModal
-        v-if="imageProcessDialogVisible"
-        v-model:visible="imageProcessDialogVisible"
-        title=" "
-        :description="
-          PicBedId === '' ? t('pages.imageProcess.subtitle-Global') : t('pages.imageProcess.subtitle-PerPicbed')
-        "
-      >
-        <ImageProcessSetting :config-id="PicBedId" :current-picbed-name="defaultPicBedG" />
-      </CustomModal>
-    </transition>
+    <ImageProcessDialog
+      v-if="imageProcessDialogVisible"
+      v-model:visible="imageProcessDialogVisible"
+      :config-id="defaultIdG"
+      :current-picbed-name="defaultPicBedG"
+    />
 
     <!-- Task Queue Manager Modal -->
     <transition name="modal">
@@ -667,7 +656,7 @@ import { useRouter } from 'vue-router'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
-import ImageProcessSetting from '@/components/ImageProcessSetting.vue'
+import ImageProcessDialog from '@/components/ImageProcessDialog.vue'
 import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
 import { PICBEDS_PAGE } from '@/router/config'
@@ -738,7 +727,6 @@ const progress = ref(0)
 const showProgress = ref(false)
 const showError = ref(false)
 const pasteStyle = ref(IPasteStyle.MARKDOWN)
-const PicBedId = ref('')
 const fileInput = useTemplateRef('fileInput')
 const uploadInterval = ref(1000)
 const showTaskSettings = useStorage('upload-task-queue-show-settings', true)
@@ -844,12 +832,6 @@ function uploadProgressHandler(event: IUploadProgress): void {
 }
 
 function handleImageProcess() {
-  PicBedId.value = ''
-  imageProcessDialogVisible.value = true
-}
-
-function handleImageProcessSingle() {
-  PicBedId.value = defaultIdG.value
   imageProcessDialogVisible.value = true
 }
 

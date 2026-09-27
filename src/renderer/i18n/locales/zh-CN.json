@@ -235,6 +235,99 @@
       "cancel": "取消",
       "confirm": "确认",
       "description": "配置图片处理选项，包括压缩、水印、格式转换等",
+      "design": {
+        "aboutPreview": "此预览包含哪些内容？",
+        "advancedRules": "高级格式规则",
+        "applyTo": "这些修改应用到哪里？",
+        "categories": "图片处理选项",
+        "categoryLabels": {
+          "general": "格式与质量",
+          "skipProcess": "跳过文件",
+          "transform": "尺寸与旋转"
+        },
+        "combinedSources": "由多处设置组合生效",
+        "configPreviewNote": "此处预览处理设置。实际尺寸和文件大小取决于原始图片。",
+        "editingFor": "正在修改：{audience}",
+        "editSettings": "修改设置",
+        "editToCustomize": "修改即可自定义",
+        "editWinning": "修改正在生效的设置",
+        "explainValue": "为什么“{setting}”使用此值？",
+        "finalPreview": "最终预览",
+        "finalSettings": "最终生效设置",
+        "howItWorks": "通用设置如何生效？",
+        "inheritanceHelp": "先使用所有图床的通用设置，再使用同类图床的设置，最后使用单个图床的设置。范围越具体，优先级越高。没有自定义的选项会一直跟随通用设置。",
+        "live": "随修改实时更新",
+        "livePreview": "实时生效设置",
+        "maskedValue": "此图床实际使用 {source} 中的 {value}。修改通用值不会替换它。",
+        "previewFor": "{config} 的最终生效设置",
+        "replacedBelow": "被更具体的设置替代",
+        "restoreShared": "使用通用值",
+        "resultIntro": "合并各处设置后，此图床上传时实际使用的配置。",
+        "reviewAll": "查看全部生效设置",
+        "scopeDescriptions": {
+          "config": "不影响其他图床",
+          "global": "所有图床的基础设置",
+          "provider": "相同服务共用设置"
+        },
+        "scopeHints": {
+          "config": "仅影响 {config}。直接修改选项即可自定义，选择“使用通用值”即可重新跟随默认设置。",
+          "global": "作为所有图床的默认设置。同类图床和单个图床中的自定义设置仍然优先。",
+          "provider": "所有 {provider} 图床共用这些设置，单个图床中的自定义设置仍然优先。"
+        },
+        "scopes": {
+          "config": "仅此图床",
+          "global": "所有图床",
+          "provider": "所有 {provider} 图床"
+        },
+        "service": "图床服务",
+        "settingCount": "{count} 项设置",
+        "settingsAndSources": "生效设置及其来源",
+        "showInactive": "显示未启用的选项",
+        "sourceHint": "点击来源可查看各处的值如何生效，并直接修改对应设置。",
+        "sources": {
+          "config": "仅 {config}",
+          "default": "PicList 默认值",
+          "global": "所有图床",
+          "provider": "所有 {provider} 图床"
+        },
+        "summaryLabels": {
+          "dimensions": "尺寸",
+          "format": "格式",
+          "quality": "质量"
+        },
+        "uploader": "图床配置",
+        "usedValue": "此图床实际使用",
+        "usesShared": "沿用上方的通用值",
+        "view": "设置视图",
+        "whyValue": "为什么使用此值？"
+      },
+      "editor": {
+        "configuration": "图床配置",
+        "editGlobal": "修改所有图床的默认设置",
+        "globalOrConfigOnly": "请选择“所有图床”或“仅此图床”来修改这些选项。",
+        "hints": {
+          "config": "仅编辑 {config} 的覆盖设置。未设置的项目依次继承图床类型和全局设置。",
+          "global": "正在编辑所有图床的全局设置。生效配置会显示所选图床及其覆盖设置的最终结果。",
+          "provider": "正在编辑所有 {provider} 配置共用的类型覆盖设置。单个图床配置的覆盖设置仍然优先。"
+        },
+        "inherit": "恢复继承",
+        "invalidFormatRules": "请输入将支持的源扩展名映射到输出格式的 JSON 对象。仍使用上一次有效的规则。",
+        "noConfig": "请先在上方选择一个图床，再为其设置专用选项。",
+        "noSavedConfig": "无已保存的配置",
+        "provider": "图床类型",
+        "save": {
+          "error": "更改未保存。预览显示当前草稿。",
+          "saved": "更改会自动保存",
+          "saving": "正在保存…"
+        },
+        "scope": "编辑范围",
+        "scopes": {
+          "config": "单个图床配置",
+          "global": "全局",
+          "provider": "图床类型"
+        },
+        "title": "图片处理"
+      },
       "general": {
         "basicImageProcessing": "基本图像处理",
         "destinationFormat": "目标格式",
@@ -252,6 +345,48 @@
         "defaultValue": "全局值: {value}",
         "description": "为每个图床单独配置设置",
         "title": "图床独立设置"
+      },
+      "preview": {
+        "advancedRename": "高级重命名",
+        "automatic": "自动（0）",
+        "defaultAsset": "默认资源",
+        "disabled": "已禁用",
+        "empty": "空",
+        "enabled": "已启用",
+        "formatRules": "按格式转换规则",
+        "heightDimensions": "高 {value} px · 等比例",
+        "heightOnly": "未生效：仅用于按高度缩放",
+        "imageOnly": "未生效：仅用于图片水印",
+        "inactive": "未生效：此操作未启用",
+        "loadFailed": "无法加载图片处理设置。",
+        "loading": "正在加载图片处理设置…",
+        "longEdgeDimensions": "长边 {value} px · 等比例",
+        "noRules": "无按格式转换规则",
+        "originalDimensions": "保留原始尺寸",
+        "originalFormat": "保留输入格式",
+        "outputNote": "此处预览内置图片处理设置。最终尺寸、文件大小和外观取决于原图、格式及插件。跳过的扩展名不会进行图片处理；旋转可能改变最终尺寸。",
+        "percentagePriority": "未生效：百分比缩放优先",
+        "percentDimensions": "原始尺寸的 {value}%",
+        "precedence": "每项设置按以下优先级生效：当前图床配置 > 图床类型覆盖 > 全局设置。未设置的项目使用内置默认值。编辑设置时，此处会同步更新。",
+        "readOnly": "只读预览",
+        "retry": "重试",
+        "setting": "设置项",
+        "singleEdgeOnly": "未生效：仅用于等比例缩放",
+        "source": "来源",
+        "sources": {
+          "config": "当前图床配置",
+          "default": "内置默认值",
+          "global": "全局设置",
+          "provider": "图床类型覆盖"
+        },
+        "tab": "生效配置",
+        "target": "预览图床",
+        "textOnly": "未生效：仅用于文字水印",
+        "title": "最终生效的图片处理配置",
+        "unnamedConfig": "未命名配置",
+        "value": "生效值",
+        "widthDimensions": "宽 {value} px · 等比例",
+        "withFormatRules": "按格式转换规则优先"
       },
       "rename": {
         "description": "配置上传文件的重命名规则",
