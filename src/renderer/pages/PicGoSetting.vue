@@ -85,7 +85,7 @@
               />
             </SettingCard>
 
-            <SettingCard>
+            <SettingCard class="theme-dropdown">
               <SingleSelect
                 v-model="currentTheme"
                 :title="t('pages.settings.system.chooseTheme')"

@@ -4,7 +4,7 @@
       <div class="absolute inset-0 bg-black/15 transition-all duration-300 ease-apple" @click="handleClose" />
 
       <div
-        v-if="currentStepConfig.target"
+        v-if="spotlightRect"
         class="pointer-events-none absolute z-10000 rounded-xl border-2 border-dashed border-accent shadow-sm transition-all duration-300 ease-apple"
         :style="spotlightStyle"
       />
@@ -58,6 +58,7 @@
               type="secondary"
               :icon="ChevronLeftIcon"
               :text="t('guide.previous')"
+              :disabled="isNavigating"
               class="p-2!"
               @click="handlePrevious"
             />
@@ -68,6 +69,7 @@
               class="p-2!"
               :icon="ChevronRightIcon"
               :text="t('guide.next')"
+              :disabled="isNavigating"
               @click="handleNext"
             />
             <CustomButton
@@ -101,7 +103,7 @@ import {
 import { useStorage } from '@vueuse/core'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute, useRouter } from 'vue-router'
+import { isNavigationFailure, NavigationFailureType, useRoute, useRouter } from 'vue-router'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 
@@ -110,17 +112,22 @@ const route = useRoute()
 const router = useRouter()
 
 const hasSeenGuide = useStorage('has-seen-first-time-guide', false)
+const settingsTab = useStorage('settings-current-tab', 'system')
 const isVisible = ref(false)
+const isNavigating = ref(false)
 const currentStep = ref(0)
 const spotlightRect = ref<DOMRect | null>(null)
 let isUnmounted = false
+let navigationId = 0
 let showGuideTimer: ReturnType<typeof setTimeout> | undefined
-let spotlightTimer: ReturnType<typeof setTimeout> | undefined
+let spotlightObserver: MutationObserver | undefined
+let spotlightTarget: Element | null = null
 
 interface GuideStep {
   id: string
   title: string
   description: string
+  route: string
   additionalInfo?: string[]
   target?: string
   position?: 'top' | 'bottom' | 'left' | 'right' | 'center'
@@ -133,6 +140,7 @@ const steps: GuideStep[] = [
     id: 'welcome',
     title: 'guide.steps.welcome.title',
     description: 'guide.steps.welcome.description',
+    route: '/main-page/upload',
     position: 'center',
     icon: HelpCircleIcon,
   },
@@ -140,6 +148,7 @@ const steps: GuideStep[] = [
     id: 'upload',
     title: 'guide.steps.upload.title',
     description: 'guide.steps.upload.description',
+    route: '/main-page/upload',
     target: '#upload-area',
     position: 'bottom',
     icon: UploadCloudIcon,
@@ -148,6 +157,7 @@ const steps: GuideStep[] = [
     id: 'picbed',
     title: 'guide.steps.picbed.title',
     description: 'guide.steps.picbed.description',
+    route: '/main-page/upload',
     target: '.provider-button',
     position: 'bottom',
     icon: ArrowLeftRightIcon,
@@ -156,6 +166,7 @@ const steps: GuideStep[] = [
     id: 'theme',
     title: 'guide.steps.theme.title',
     description: 'guide.steps.theme.description',
+    route: '/main-page/upload',
     target: '.theme-switcher',
     position: 'right',
     icon: PaletteIcon,
@@ -164,14 +175,19 @@ const steps: GuideStep[] = [
     id: 'themeSelection',
     title: 'guide.steps.themeSelection.title',
     description: 'guide.steps.themeSelection.description',
+    route: '/main-page/settings',
     target: '.theme-dropdown',
     position: 'bottom',
     icon: PaletteIcon,
+    action: () => {
+      settingsTab.value = 'system'
+    },
   },
   {
     id: 'gallery',
     title: 'guide.steps.gallery.title',
     description: 'guide.steps.gallery.description',
+    route: '/main-page/gallery',
     target: 'nav .nav-item:nth-child(3)',
     position: 'right',
     icon: ImageIcon,
@@ -180,6 +196,7 @@ const steps: GuideStep[] = [
     id: 'finish',
     title: 'guide.steps.finish.title',
     description: 'guide.steps.finish.description',
+    route: '/main-page/gallery',
     position: 'center',
     icon: CheckCircleIcon,
   },
@@ -187,20 +204,25 @@ const steps: GuideStep[] = [
 
 const currentStepConfig = computed(() => steps[currentStep.value])
 
-const updateSpotlight = async () => {
-  await nextTick()
-  if (isUnmounted) return
+const updateSpotlight = () => {
+  if (isUnmounted || !isVisible.value || isNavigating.value) return
   const target = currentStepConfig.value.target
-  if (!target) {
+  if (!target || route.path !== currentStepConfig.value.route) {
     spotlightRect.value = null
+    spotlightTarget = null
     return
   }
 
   const element = document.querySelector(target)
   if (element) {
+    if (element !== spotlightTarget) {
+      spotlightTarget = element
+      element.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'nearest' })
+    }
     spotlightRect.value = element.getBoundingClientRect()
   } else {
     spotlightRect.value = null
+    spotlightTarget = null
   }
 }
 
@@ -313,9 +335,27 @@ const cardStyle = computed(() => {
   return style
 })
 
-watch(currentStep, () => {
-  updateSpotlight()
-})
+watch(
+  isVisible,
+  visible => {
+    if (visible) {
+      // Route transitions can mount the target after router.push() and nextTick().
+      spotlightObserver?.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class'],
+      })
+    } else {
+      navigationId++
+      isNavigating.value = false
+      spotlightObserver?.disconnect()
+      spotlightRect.value = null
+      spotlightTarget = null
+    }
+  },
+  { flush: 'sync' },
+)
 
 watch(
   () => route.path,
@@ -324,27 +364,46 @@ watch(
       updateSpotlight()
     }
   },
+  { flush: 'post' },
 )
 
-const handleNext = async () => {
-  if (currentStep.value < steps.length - 1) {
-    currentStep.value++
+const goToStep = async (index: number) => {
+  const id = ++navigationId
+  const step = steps[index]
+  isNavigating.value = true
+  spotlightRect.value = null
+  spotlightTarget = null
 
-    if (currentStep.value === 4) {
-      await router.push('/main-page/settings')
-      if (isUnmounted) return
-      clearTimeout(spotlightTimer)
-      spotlightTimer = setTimeout(() => {
-        spotlightTimer = undefined
-        updateSpotlight()
-      }, 400)
+  try {
+    step.action?.()
+    const failure = await router.push(step.route)
+    if (
+      isUnmounted ||
+      id !== navigationId ||
+      (failure && !isNavigationFailure(failure, NavigationFailureType.duplicated))
+    ) {
+      return
+    }
+
+    currentStep.value = index
+    await nextTick()
+  } finally {
+    if (!isUnmounted && id === navigationId) {
+      isNavigating.value = false
+      updateSpotlight()
     }
   }
 }
 
+const handleNext = () => {
+  if (!isNavigating.value && currentStep.value < steps.length - 1) {
+    return goToStep(currentStep.value + 1)
+  }
+}
+
 const handlePrevious = () => {
-  if (currentStep.value > 0) {
-    currentStep.value--
+  if (!isNavigating.value && currentStep.value > 0) {
+    return goToStep(currentStep.value - 1)
   }
 }
 
@@ -364,8 +423,10 @@ const handleFinish = () => {
 }
 
 const restartGuide = () => {
+  clearTimeout(showGuideTimer)
   currentStep.value = 0
   isVisible.value = true
+  return goToStep(0)
 }
 
 defineExpose({
@@ -373,21 +434,24 @@ defineExpose({
 })
 
 onMounted(() => {
+  spotlightObserver = new MutationObserver(updateSpotlight)
   if (!hasSeenGuide.value) {
     showGuideTimer = setTimeout(() => {
       showGuideTimer = undefined
-      isVisible.value = true
-      updateSpotlight()
+      restartGuide()
     }, 500)
   }
 
   window.addEventListener('resize', updateSpotlight)
+  window.addEventListener('scroll', updateSpotlight, true)
 })
 
 onBeforeUnmount(() => {
   isUnmounted = true
+  navigationId++
   window.removeEventListener('resize', updateSpotlight)
+  window.removeEventListener('scroll', updateSpotlight, true)
+  spotlightObserver?.disconnect()
   clearTimeout(showGuideTimer)
-  clearTimeout(spotlightTimer)
 })
 </script>
