@@ -117,7 +117,7 @@ class S3plistApi {
     }
   }
 
-  private createS3Client(options: S3ClientConfig): S3Client {
+  createS3Client(options: S3ClientConfig): S3Client {
     const client = new S3Client(options)
     if (this.dogeCloudSupport) {
       const accessKey = this.accessKeyId

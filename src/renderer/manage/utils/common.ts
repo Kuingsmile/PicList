@@ -221,8 +221,7 @@ export function customStrMatch(str: string, pattern: string): boolean {
   try {
     const reg = new RegExp(pattern, 'ug')
     return reg.test(str)
-  } catch (e) {
-    console.error(e)
+  } catch {
     return false
   }
 }
@@ -236,9 +235,7 @@ export function customStrReplace(str: string, pattern: string, replacement: stri
     result = str.replace(reg, replacement)
     // The replacement already contains the full URL or filename, including any extension.
     result = renameFileNameWithCustomString(result, result, str, undefined, false)
-  } catch (e) {
-    console.error(e)
-  }
+  } catch {}
   return result
 }
 

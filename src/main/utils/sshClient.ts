@@ -214,12 +214,17 @@ class SSHClient {
     }
   }
 
-  async renameFile(source: string, destination: string): Promise<void> {
+  async renameFile(source: string, destination: string, overwrite = true): Promise<void> {
     source = remotePath(source)
     destination = remotePath(destination)
     const sftp = await this.getSftp()
     try {
-      await this.rename(sftp, source, destination)
+      if (overwrite) await this.rename(sftp, source, destination)
+      else {
+        await new Promise<void>((resolve, reject) => {
+          sftp.rename(source, destination, error => (error ? reject(error) : resolve()))
+        })
+      }
     } finally {
       this.clearDirectories()
     }

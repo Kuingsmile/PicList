@@ -168,11 +168,7 @@
               <ClipboardIcon :size="16" />
               <span> {{ t('pages.gallery.copy') }}</span>
             </button>
-            <button
-              class="action-btn edit-btn"
-              :class="{ active: filterList.length > 0 }"
-              @click="() => (isShowBatchRenameDialog = true)"
-            >
+            <button class="action-btn edit-btn" :class="{ active: filterList.length > 0 }" @click="openBatchRename">
               <EditIcon :size="16" />
               <span> {{ t('pages.gallery.edit') }}</span>
             </button>
@@ -378,6 +374,7 @@
         :title="t('pages.gallery.batchEditUrl')"
       >
         <div class="p-6">
+          <p class="mb-4 text-sm text-secondary">{{ t('common.bulk.selectionHint') }}</p>
           <div class="mb-6 last:mb-0">
             <label class="mb-2 flex items-center gap-2 text-sm font-medium text-main">
               {{ t('pages.gallery.regexPattern', { matched: matchedCount || 0 }) }}
@@ -430,10 +427,16 @@
         </div>
         <template #footer>
           <CustomButton :type="'secondary'" :text="t('common.cancel')" @click="isShowBatchRenameDialog = false" />
-          <CustomButton :type="'primary'" :text="t('common.confirm')" @click="handleBatchRename" />
+          <CustomButton
+            :type="'primary'"
+            :text="t('common.bulk.preview')"
+            :disabled="bulkChanges.building.value"
+            @click="handleBatchRename"
+          />
         </template>
       </CustomModal>
     </transition>
+    <BulkChangePreview :workflow="bulkChanges" />
   </div>
 </template>
 
@@ -472,6 +475,7 @@ import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate } from 'vue-router'
 
 import ALLApi from '@/apis/allApi'
+import BulkChangePreview from '@/components/BulkChangePreview.vue'
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
@@ -482,6 +486,7 @@ import FileCollection from '@/components/FileCollection.vue'
 import FileViewControls from '@/components/FileViewControls.vue'
 import GalleryHoverPreview from '@/components/GalleryHoverPreview.vue'
 import ImagePreview from '@/components/ImagePreview.vue'
+import { useBulkChanges } from '@/hooks/useBulkChanges'
 import useConfirm from '@/hooks/useConfirm'
 import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
@@ -536,6 +541,9 @@ const handleBarActive = useStorage<boolean>('galleryHandleBarActive', true)
 const pasteStyle = ref<string>('')
 const useShortUrl = ref<string>('longUrl')
 const isShowBatchRenameDialog = ref(false)
+const bulkChanges = useBulkChanges(async () => {
+  await updateGallery()
+})
 const batchRenameMatch = ref('')
 const batchRenameReplace = ref('')
 const dateRangeStart = ref('')
@@ -634,8 +642,13 @@ const filteredPicBedG = computed(() => {
   return picBedG.value.filter(item => galleryPicBedFilterSetting.value.includes(item.type))
 })
 
+const bulkGalleryCandidates = computed(() => {
+  const selected = filterList.value.filter(item => choosedList[item.id!])
+  return selected.length ? selected : filterList.value
+})
+
 const matchedCount = computed(() => {
-  const matches = filterList.value.filter((item: any) => {
+  const matches = bulkGalleryCandidates.value.filter((item: any) => {
     return customStrMatch(item.imgUrl, batchRenameMatch.value)
   })
   return matches.length
@@ -657,7 +670,7 @@ const previewFilterList = computed(() => {
 })
 
 const matchedUrls = computed(() => {
-  const matches = filterList.value.filter((item: any) => {
+  const matches = bulkGalleryCandidates.value.filter((item: any) => {
     return customStrMatch(item.imgUrl, batchRenameMatch.value)
   })
   return matches.map((item: any) => item.imgUrl || '').filter(Boolean)
@@ -1349,75 +1362,40 @@ function sortFile(type: GallerySortField, toggle = true) {
   )
 }
 
-function handleBatchRename() {
-  isShowBatchRenameDialog.value = false
-  if (batchRenameMatch.value === '') {
+function openBatchRename() {
+  if (!bulkChanges.reopen() && !bulkChanges.building.value) isShowBatchRenameDialog.value = true
+}
+
+async function handleBatchRename() {
+  if (bulkChanges.building.value) return
+  if (!batchRenameMatch.value) {
     message.warning(t('pages.gallery.inputRegexTip'))
     return
   }
-  let matchedFiles = [] as any[]
-  filterList.value.forEach((item: any) => {
-    if (customStrMatch(item.imgUrl, batchRenameMatch.value)) {
-      matchedFiles.push(item)
-    }
-  })
-  if (matchedFiles.length === 0) {
+  try {
+    new RegExp(batchRenameMatch.value, 'ug')
+  } catch {
+    message.error(t('common.bulk.invalidPattern'))
+    return
+  }
+  const items = bulkGalleryCandidates.value
+    .filter(item => customStrMatch(item.imgUrl || '', batchRenameMatch.value))
+    .map((item, index) => ({
+      id: item.id!,
+      source: item.imgUrl!,
+      target: customStrReplace(item.imgUrl!, batchRenameMatch.value, batchRenameReplace.value).replaceAll(
+        '{auto}',
+        String(index + 1),
+      ),
+    }))
+  if (!items.length) {
     message.warning(t('pages.gallery.noMatch'))
     return
   }
-  for (const matchedFile of matchedFiles) {
-    matchedFile.newUrl = customStrReplace(matchedFile.imgUrl, batchRenameMatch.value, batchRenameReplace.value)
-  }
-  matchedFiles = matchedFiles.filter((item: any) => item.imgUrl !== item.newUrl)
-  if (matchedFiles.length === 0) {
-    message.warning(t('pages.gallery.noItemsNeedRename'))
-  }
-  for (let i = 0; i < matchedFiles.length; i++) {
-    matchedFiles[i].newUrl = matchedFiles[i].newUrl.replaceAll('{auto}', (i + 1).toString())
-  }
-  const duplicateFilesNum = matchedFiles.filter(
-    (item: any) => matchedFiles.filter((item2: any) => item2.newUrl === item.newUrl).length > 1,
-  ).length
-  const renamefunc = async (item: any) => {
-    await $$db.updateById(item.id, {
-      imgUrl: item.newUrl,
-    })
-  }
-  const rename = () => {
-    const promiseList = [] as any[]
-    for (const matchedFile of matchedFiles) {
-      promiseList.push(renamefunc(matchedFile))
-    }
-    Promise.all(promiseList)
-      .then(() => {
-        message.success(t('pages.gallery.operationSucceed'))
-        updateGallery()
-        nextTick(() => {
-          virtualScrollerRef.value?.refresh()
-        })
-      })
-      .catch(() => {
-        return true
-      })
-  }
-  if (duplicateFilesNum > 0) {
-    confirm({
-      title: t('pages.gallery.notice'),
-      message: t('pages.gallery.haveDuplicate'),
-      type: 'warning',
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      center: true,
-    })
-      .then(result => {
-        if (!result) return
-        rename()
-      })
-      .catch(() => {
-        message.info(t('pages.gallery.canceled'))
-      })
+  if (await bulkChanges.preview(IRPCActionType.BULK_PREVIEW_GALLERY_URL, items)) {
+    isShowBatchRenameDialog.value = false
   } else {
-    rename()
+    message.error(bulkChanges.error.value)
   }
 }
 

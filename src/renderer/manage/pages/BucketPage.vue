@@ -684,6 +684,7 @@
       :title="t('pages.manage.bucket.renameFile')"
     >
       <div class="p-6">
+        <p class="mb-4 text-sm text-secondary">{{ t('common.bulk.selectionHint') }}</p>
         <div class="mb-6 last:mb-0">
           <label class="mb-2 flex items-center gap-2 text-sm font-medium text-main">
             {{ t('pages.manage.bucket.matchedPattern', { num: matchedFilesNumber.length }) }}
@@ -757,11 +758,14 @@
         <CustomButton :type="'secondary'" :text="t('common.cancel')" @click="isShowBatchRenameDialog = false" />
         <CustomButton
           :type="'primary'"
-          :text="t('common.confirm')"
-          @click="isSingleRename ? singleRename() : BatchRename()"
+          :text="t('common.bulk.preview')"
+          :disabled="bulkChanges.building.value"
+          @click="BatchRename"
         />
       </template>
     </CustomModal>
+
+    <BulkChangePreview :workflow="bulkChanges" />
 
     <!-- Loading Indicators -->
     <div v-if="isLoadingData" class="animate-slide-right fixed right-[25px] bottom-[25px] z-9999 duration-300 ease-out">
@@ -1313,6 +1317,7 @@ import {
 } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import BulkChangePreview from '@/components/BulkChangePreview.vue'
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomInput from '@/components/common/CustomInput.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
@@ -1327,6 +1332,7 @@ import ImageLocal from '@/components/ImageLocal.vue'
 import ImagePreSign from '@/components/ImagePreSign.vue'
 import ImageWebdav from '@/components/ImageWebdav.vue'
 import VirtualScroller from '@/components/VirtualScroller.vue'
+import { useBulkChanges } from '@/hooks/useBulkChanges'
 import useConfirm from '@/hooks/useConfirm'
 import { useFilePreview } from '@/hooks/useFilePreview'
 import useMessage from '@/hooks/useMessage'
@@ -1504,6 +1510,18 @@ const newFolderName = ref('')
 const virtualScrollerRef = useTemplateRef('virtualScrollerRef')
 const bucketContainerRef = useTemplateRef('bucketContainerRef')
 const isShowBatchRenameDialog = ref(false)
+const bulkChanges = useBulkChanges(async snapshot => {
+  if (!snapshot.outcomes.some(item => item.attempts > 0)) return
+  const context = snapshot.plan.items[0].context
+  await fileCacheDbInstance
+    .table(context.provider)
+    .where('key')
+    .startsWith(context.accountId + '@' + context.bucketName + '@')
+    .delete()
+  if (!unmounted && configMap.value.alias === context.accountId && configMap.value.bucketName === context.bucketName) {
+    await resetParam(true)
+  }
+})
 const batchRenameMatch = ref('')
 const batchRenameReplace = ref('')
 const isRenameIncludeExt = ref(false)
@@ -2648,6 +2666,7 @@ async function handleUploadFromUrl() {
 }
 
 function handleBatchRenameFile() {
+  if (bulkChanges.reopen() || bulkChanges.building.value) return
   batchRenameMatch.value = ''
   isSingleRename.value = false
   isShowBatchRenameDialog.value = true
@@ -2657,135 +2676,47 @@ const matchedFilesNumber = computed(() => {
   if (!batchRenameMatch.value) {
     return [] as any[]
   }
-  return currentPageFilesInfo.filter(
+  return (selectedItems.value.length ? selectedItems.value : currentPageFilesInfo).filter(
     (item: any) => !item.isDir && matchFileName(item.fileName, batchRenameMatch.value, isRenameIncludeExt.value),
   )
 })
 
 async function BatchRename() {
-  isShowBatchRenameDialog.value = false
-  if (batchRenameMatch.value === '') {
+  if (bulkChanges.building.value) return
+  const pattern = batchRenameMatch.value || (isSingleRename.value ? '.+' : '')
+  if (!pattern) {
     message.error(t('pages.manage.bucket.inputPatternMsg'))
     return
   }
-  let matchedFiles = matchedFilesNumber.value
-  if (matchedFiles.length === 0) {
+  try {
+    new RegExp(pattern, 'ug')
+  } catch {
+    message.error(t('common.bulk.invalidPattern'))
+    return
+  }
+  const matched = isSingleRename.value ? [itemToBeRenamed.value] : matchedFilesNumber.value
+  if (!matched.length) {
     message.error(t('pages.manage.bucket.noMatchedFile'))
     return
   }
-  for (const item of matchedFiles) {
-    item.newName = replaceFileName(
-      item.fileName,
-      batchRenameMatch.value,
-      batchRenameReplace.value,
-      isRenameIncludeExt.value,
+  // Expand random/time/sequence placeholders once; the reviewed targets never change on retry.
+  const items = matched.map((item, index) => {
+    const name = replaceFileName(item.fileName, pattern, batchRenameReplace.value, isRenameIncludeExt.value).replaceAll(
+      '{auto}',
+      String(index + 1),
     )
+    return { id: item.key, source: item.key, target: item.key.slice(0, item.key.lastIndexOf('/') + 1) + name }
+  })
+  const context = {
+    accountId: configMap.value.alias,
+    provider: currentPicBedName.value,
+    bucketName: configMap.value.bucketName || '',
+    region: configMap.value.bucketConfig?.Location || '',
   }
-  matchedFiles = matchedFiles.filter((item: any) => item.fileName !== item.newName)
-  if (matchedFiles.length === 0) {
-    message.error(t('pages.manage.bucket.noFileNeedRename'))
-    return
-  }
-  for (let i = 0; i < matchedFiles.length; i++) {
-    matchedFiles[i].newName = matchedFiles[i].newName.replaceAll('{auto}', (i + 1).toString())
-  }
-  const duplicateFilesNum = matchedFiles.filter(
-    (item: any) => matchedFiles.filter((item2: any) => item2.newName === item.newName).length > 1,
-  ).length
-  let successCount = 0
-  let failCount = 0
-  const error = new Error('error')
-  const renamefunc = (item: any) => {
-    return new Promise((resolve, reject) => {
-      const param = {
-        // tcyun
-        bucketName: configMap.value.bucketName,
-        region: configMap.value.bucketConfig.Location,
-        oldKey: item.key,
-        newKey: (item.key.slice(0, item.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/'),
-        customUrl: currentCustomDomain.value,
-      }
-      window.electron
-        .triggerRPC<any>(IRPCActionType.MANAGE_RENAME_BUCKET_FILE, configMap.value.alias, param)
-        .then((res: any) => {
-          if (res) {
-            successCount++
-            resolve(true)
-            const oldKey = currentPrefix.value + item.fileName
-            if (pagingMarker.value === oldKey.slice(1)) {
-              pagingMarker.value = currentPrefix.value.slice(1) + item.newName
-            }
-            const oldName = item.fileName
-            if (item.newName.includes('/')) {
-              item.fileName = item.newName.slice(0, item.newName.indexOf('/'))
-              item.isDir = true
-              item.fileSize = 0
-              item.formatedTime = ''
-            } else {
-              item.fileName = item.newName
-            }
-            item.key = (item.key.slice(0, item.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/')
-            item.url = `${currentCustomDomain.value}${currentPrefix.value}${item.newName}`
-            item.formatedTime = new Date().toLocaleString()
-            if (!paging.value) {
-              const table = fileCacheDbInstance.table(currentPicBedName.value)
-              table
-                .where('key')
-                .equals(getTableKeyOfDb())
-                .modify((l: any) => {
-                  l.value.fullList.forEach((i: any) => {
-                    if (i.fileName === oldName) {
-                      if (item.newName.includes('/')) {
-                        i.fileName = item.newName.slice(0, item.newName.indexOf('/'))
-                        i.isDir = true
-                        i.fileSize = 0
-                        i.formatedTime = ''
-                      } else {
-                        i.fileName = item.newName
-                      }
-                      i.key = (i.key.slice(0, i.key.lastIndexOf('/') + 1) + item.newName).replaceAll('//', '/')
-                      i.url = `${currentCustomDomain.value}${currentPrefix.value}${item.newName}`
-                      i.formatedTime = new Date().toLocaleString()
-                    }
-                  })
-                })
-            }
-          } else {
-            failCount++
-            reject(error)
-          }
-        })
-    })
-  }
-  if (duplicateFilesNum > 0) {
-    try {
-      const result = await confirm.confirm({
-        message: `${t('pages.manage.bucket.fileDupNotice', { number: duplicateFilesNum })}`,
-        title: t('pages.manage.bucket.notice'),
-        confirmButtonText: t('common.confirm'),
-        cancelButtonText: t('common.cancel'),
-        type: 'warning',
-        center: true,
-      })
-      if (!result) return
-      const promiseList = [] as any[]
-      for (const item of matchedFiles) {
-        promiseList.push(renamefunc(item))
-      }
-      Promise.allSettled(promiseList).then(() => {
-        message.success(`${t('pages.manage.bucket.renameResultMsg', { success: successCount, failed: failCount })}`)
-      })
-    } catch {
-      message.info(t('pages.manage.bucket.canceled'))
-    }
+  if (await bulkChanges.preview(IRPCActionType.BULK_PREVIEW_REMOTE_RENAME, context, items)) {
+    isShowBatchRenameDialog.value = false
   } else {
-    const promiseList = [] as any[]
-    for (const item of matchedFiles) {
-      promiseList.push(renamefunc(item))
-    }
-    Promise.allSettled(promiseList).then(() => {
-      message.success(`${t('pages.manage.bucket.renameResultMsg', { success: successCount, failed: failCount })}`)
-    })
+    message.error(bulkChanges.error.value)
   }
 }
 
@@ -3065,91 +2996,11 @@ async function performDeletion(targets: DeleteTarget[]) {
 }
 
 function handleRenameFile(item: any) {
+  if (bulkChanges.reopen() || bulkChanges.building.value) return
   batchRenameMatch.value = splitFileName(item.fileName).baseName
   isSingleRename.value = true
   isShowBatchRenameDialog.value = true
   itemToBeRenamed.value = item
-}
-
-function singleRename() {
-  isShowBatchRenameDialog.value = false
-  if (batchRenameMatch.value === '') {
-    batchRenameMatch.value = '.+'
-  }
-  itemToBeRenamed.value.newName = replaceFileName(
-    itemToBeRenamed.value.fileName,
-    batchRenameMatch.value,
-    batchRenameReplace.value,
-    isRenameIncludeExt.value,
-  )
-  if (itemToBeRenamed.value.newName === itemToBeRenamed.value.fileName) {
-    message.info(t('pages.manage.bucket.noNeedToRename'))
-    return
-  }
-  itemToBeRenamed.value.newName = itemToBeRenamed.value.newName.replaceAll('{auto}', '1')
-  const item = itemToBeRenamed.value
-  const param = {
-    // tcyun
-    bucketName: configMap.value.bucketName,
-    region: configMap.value.bucketConfig.Location,
-    oldKey: item.key,
-    newKey: (item.key.slice(0, item.key.lastIndexOf('/') + 1) + itemToBeRenamed.value.newName).replaceAll('//', '/'),
-    customUrl: currentCustomDomain.value,
-  }
-  window.electron
-    .triggerRPC<any>(IRPCActionType.MANAGE_RENAME_BUCKET_FILE, configMap.value.alias, param)
-    .then((res: any) => {
-      if (res) {
-        const oldKey = currentPrefix.value + item.fileName
-        if (pagingMarker.value === oldKey.slice(1)) {
-          pagingMarker.value = currentPrefix.value.slice(1) + itemToBeRenamed.value.newName
-        }
-        const oldName = item.fileName
-        if (itemToBeRenamed.value.newName.includes('/')) {
-          item.fileName = itemToBeRenamed.value.newName.slice(0, itemToBeRenamed.value.newName.indexOf('/'))
-          item.isDir = true
-          item.fileSize = 0
-          item.formatedTime = ''
-        } else {
-          item.fileName = itemToBeRenamed.value.newName
-        }
-        item.key = (item.key.slice(0, item.key.lastIndexOf('/') + 1) + itemToBeRenamed.value.newName).replaceAll(
-          '//',
-          '/',
-        )
-        item.url = `${currentCustomDomain.value}${currentPrefix.value}${itemToBeRenamed.value.newName}`
-        item.formatedTime = new Date().toLocaleString()
-        if (!paging.value) {
-          const table = fileCacheDbInstance.table(currentPicBedName.value)
-          table
-            .where('key')
-            .equals(getTableKeyOfDb())
-            .modify((l: any) => {
-              l.value.fullList.forEach((i: any) => {
-                if (i.fileName === oldName) {
-                  if (itemToBeRenamed.value.newName.includes('/')) {
-                    i.fileName = itemToBeRenamed.value.newName.slice(0, itemToBeRenamed.value.newName.indexOf('/'))
-                    i.isDir = true
-                    i.fileSize = 0
-                    i.formatedTime = ''
-                  } else {
-                    i.fileName = itemToBeRenamed.value.newName
-                  }
-                  i.key = (i.key.slice(0, i.key.lastIndexOf('/') + 1) + itemToBeRenamed.value.newName).replaceAll(
-                    '//',
-                    '/',
-                  )
-                  i.url = `${currentCustomDomain.value}${currentPrefix.value}${itemToBeRenamed.value.newName}`
-                  i.formatedTime = new Date().toLocaleString()
-                }
-              })
-            })
-        }
-        message.success(t('pages.manage.bucket.renameSuccess'))
-      } else {
-        message.error(t('pages.manage.bucket.renameFailed'))
-      }
-    })
 }
 
 function handleGetS3Config(item: any) {
