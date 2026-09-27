@@ -69,6 +69,7 @@ export function renameFileNameWithCustomString(
   customFormat: string,
   affixFileName?: string,
   fileBuffer?: Buffer | (() => Buffer),
+  appendExtension: boolean = true,
 ): string {
   const date = new Date()
   const year = date.getFullYear().toString()
@@ -109,7 +110,7 @@ export function renameFileNameWithCustomString(
   ) {
     return oldName
   }
-  const ext = window.node.path.extname(oldName)
+  const ext = appendExtension ? window.node.path.extname(oldName) : ''
   let newName =
     Object.keys(conversionMap).reduce((acc, cur) => {
       return acc.includes(cur) ? acc.replace(new RegExp(cur, 'g'), conversionMap[cur]()) : acc
@@ -233,7 +234,8 @@ export function customStrReplace(str: string, pattern: string, replacement: stri
   try {
     const reg = new RegExp(pattern, 'ug')
     result = str.replace(reg, replacement)
-    result = renameFileNameWithCustomString(result, result, str)
+    // The replacement already contains the full URL or filename, including any extension.
+    result = renameFileNameWithCustomString(result, result, str, undefined, false)
   } catch (e) {
     console.error(e)
   }
