@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, useTemplateRef } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } from 'vue'
 
 import useConfirm, { type ConfirmOptions } from '@/hooks/useConfirm'
 import useMessage from '@/hooks/useMessage'
@@ -41,6 +41,7 @@ const confirmOptions = reactive<ConfirmOptions>({
 })
 
 let confirmResolve: ((value: boolean) => void) | null = null
+let isUnmounted = false
 
 const handleConfirm = () => {
   confirmVisible.value = false
@@ -59,6 +60,11 @@ const handleCancel = () => {
 }
 
 const showConfirm = (options: ConfirmOptions): Promise<boolean> => {
+  if (isUnmounted) return Promise.resolve(false)
+
+  // Replacing the dialog must also settle the request it was displaying.
+  handleCancel()
+
   return new Promise(resolve => {
     Object.assign(confirmOptions, {
       title: 'Confirm',
@@ -73,6 +79,11 @@ const showConfirm = (options: ConfirmOptions): Promise<boolean> => {
     confirmVisible.value = true
   })
 }
+
+onBeforeUnmount(() => {
+  isUnmounted = true
+  handleCancel()
+})
 
 onMounted(() => {
   const { setMessageService } = useMessage()
