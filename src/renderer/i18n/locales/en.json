@@ -1131,7 +1131,7 @@
         "loadingReleaseNotes": "Loading release notes...",
         "minutesAgo": "{minutes} minutes ago",
         "networkError": "Network error, please check your network connection",
-        "newestVersion": "Newest Version: {version}",
+        "newestVersion": "Newest Version",
         "noReleaseNotes": "No release notes available",
         "openUpdateHelper": "Open Update Helper",
         "openUpdateHelperDesc": "Show notification when a new version is available",

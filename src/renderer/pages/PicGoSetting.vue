@@ -1912,7 +1912,7 @@ async function initData() {
   if (!settingsWatchScope.active) return
   formOfSetting.value.logLevel = initArray(settings.logLevel || [], ['all'])
   formOfSetting.value.autoImportPicBed = initArray(settings.autoImportPicBed || [], [])
-  currentLanguage.value = settings.language || 'zh-CN'
+  currentLanguage.value = settings.language || locale.value
   currentStartMode.value =
     settings.startMode !== undefined
       ? settings.startMode

@@ -112,11 +112,12 @@
             <SingleSelect
               v-model="useShortUrl"
               :title="t('pages.gallery.urlType')"
+              :placeholder="t(`pages.gallery.${useShortUrl}`)"
               :fronticon="false"
               :key-list="shortURLList"
             >
               <template #item="{ item }">
-                {{ item }}
+                {{ t(`pages.gallery.${item}`) }}
               </template>
             </SingleSelect>
           </div>
@@ -470,7 +471,7 @@ const debouncedSearchText = ref<string>('')
 const debouncedSearchTextURL = ref<string>('')
 const handleBarActive = useStorage<boolean>('galleryHandleBarActive', true)
 const pasteStyle = ref<string>('')
-const useShortUrl = ref<string>('')
+const useShortUrl = ref<string>('longUrl')
 const fileSortNameReverse = ref(false)
 const fileSortTimeReverse = ref(false)
 const fileSortExtReverse = ref(false)
@@ -502,7 +503,7 @@ let jxlPreviewGeneration = 0
 const JXL_PREVIEW_CACHE_LIMIT = 64
 
 const pasteStyleList = ['markdown', 'HTML', 'URL', 'UBB', 'Custom']
-const shortURLList = [t('pages.gallery.shortUrl'), t('pages.gallery.longUrl')]
+const shortURLList = ['shortUrl', 'longUrl']
 
 const advancedRenameTitleList = computed(() => ({
   categoryTime: t('pages.settings.upload.placeholder.categoryTime'),
@@ -510,7 +511,7 @@ const advancedRenameTitleList = computed(() => ({
   categoryFile: t('pages.settings.upload.placeholder.categoryFile'),
 }))
 
-const advancedRenameList = {
+const advancedRenameList = computed(() => ({
   categoryTime: [
     { label: t('pages.settings.upload.placeholder.year4'), value: '{Y}' },
     { label: t('pages.settings.upload.placeholder.year2'), value: '{y}' },
@@ -537,7 +538,7 @@ const advancedRenameList = {
     { label: t('pages.settings.upload.placeholder.filename'), value: '{filename}' },
     { label: t('pages.settings.upload.placeholder.randomString'), value: '{str-n}' },
   ],
-}
+}))
 let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
 let searchURLDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -612,7 +613,7 @@ watch(pasteStyle, async newVal => {
 })
 
 watch(useShortUrl, async newVal => {
-  await saveConfig(configPaths.settings.useShortUrl, newVal === t('pages.gallery.shortUrl'))
+  await saveConfig(configPaths.settings.useShortUrl, newVal === 'shortUrl')
 })
 
 watch(filterList, items => {
@@ -707,7 +708,7 @@ function getViewModeLabel() {
 async function initConf() {
   const settingConfig = await getConfig<any>('settings')
   pasteStyle.value = settingConfig.pasteStyle || IPasteStyle.MARKDOWN
-  useShortUrl.value = settingConfig.useShortUrl ? t('pages.gallery.shortUrl') : t('pages.gallery.longUrl')
+  useShortUrl.value = settingConfig.useShortUrl ? 'shortUrl' : 'longUrl'
   enableAdvancedAnimation.value = settingConfig.enableAdvancedAnimation || false
   isAlwaysForceReload.value = settingConfig.isAlwaysForceReload || false
   deleteCloud.value = settingConfig.deleteCloudFile || false

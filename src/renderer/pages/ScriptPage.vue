@@ -642,7 +642,7 @@ const filteredMarketplaceScripts = computed(() => {
   return scripts
 })
 
-const supportedScriptCategories = [
+const supportedScriptCategories = computed(() => [
   { type: 'onSoftwareOpen', name: t('pages.scripts.scriptsTypes.onSoftwareOpen') },
   { type: 'onSoftwareClose', name: t('pages.scripts.scriptsTypes.onSoftwareClose') },
   { type: 'preProcess', name: t('pages.scripts.scriptsTypes.preProcess') },
@@ -655,7 +655,7 @@ const supportedScriptCategories = [
   { type: 'onGalleryRemove', name: t('pages.scripts.scriptsTypes.onGalleryRemove') },
   { type: 'manualTrigger', name: t('pages.scripts.scriptsTypes.manualTrigger') },
   { type: 'uploader.advancedplist', name: t('pages.scripts.scriptsTypes.uploader.advancedplist') },
-]
+])
 
 const existingPathsSet = computed(() => {
   return new Set(scriptsList.value.map(item => item.filePath.join('/')))
@@ -671,7 +671,8 @@ watch(choosedCat, async () => {
 
 async function refreshList() {
   const result: string[][] = []
-  const keysToCheck = choosedCat.value.length > 0 ? choosedCat.value : supportedScriptCategories.map(cat => cat.type)
+  const keysToCheck =
+    choosedCat.value.length > 0 ? choosedCat.value : supportedScriptCategories.value.map(cat => cat.type)
   for (const key of keysToCheck) {
     if (key.includes('.')) {
       const parts = key.split('.')

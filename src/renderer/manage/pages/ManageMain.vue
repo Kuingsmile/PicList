@@ -289,12 +289,13 @@ import ManageSetting from '@/manage/pages/ManageSetting.vue'
 import { useManageStore } from '@/manage/store/manageStore'
 import { getSupportedPicBedList } from '@/manage/utils/constants'
 import { ListingSession } from '@/manage/utils/listingSession'
-import { newBucketConfig } from '@/manage/utils/newBucketConfig'
+import { getNewBucketConfig } from '@/manage/utils/newBucketConfig'
 import { IRPCActionType } from '@/utils/enum'
 import type { ListingResult } from '#/listing'
 
 const { t } = useI18n()
 const supportedPicBedList = computed(() => getSupportedPicBedList(t))
+const newBucketConfig = computed(() => getNewBucketConfig(t))
 const manageStore = useManageStore() as any
 const route = useRoute()
 const router = useRouter()
@@ -406,7 +407,7 @@ function getDomainFromEndpoint(endpoint: string): string {
 }
 
 function getNewBucketConfigResult(picBedName: string): IStringKeyMap {
-  const configOptions = newBucketConfig[picBedName].configOptions
+  const configOptions = newBucketConfig.value[picBedName].configOptions
   return Object.keys(configOptions).reduce((result, key) => {
     const resultKey = `${picBedName}.${key}`
     const defaultValue = configOptions[key].default
@@ -421,7 +422,7 @@ function getNewBucketConfigResult(picBedName: string): IStringKeyMap {
 
 async function createNewBucket(picBedName: string) {
   const alias = currentAlias.value
-  const configOptions = newBucketConfig[picBedName].configOptions
+  const configOptions = newBucketConfig.value[picBedName].configOptions
   const resultMap = getNewBucketConfigResult(picBedName)
 
   try {
