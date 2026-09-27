@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto'
 import { createReadStream } from 'node:fs'
-import { appendFile, lstat, readdir, readFile } from 'node:fs/promises'
+import { appendFile, lstat, readdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
@@ -341,6 +341,7 @@ async function main() {
       'release-tag': { type: 'string' },
       'promote-latest': { type: 'boolean', default: false },
       'github-output': { type: 'string' },
+      'manifest-output': { type: 'string' },
     },
   })
   if (positionals.length < 1 || positionals.length > 3)
@@ -355,6 +356,23 @@ async function main() {
     releaseTag: values['release-tag'],
     promoteLatest: values['promote-latest'],
   })
+  if (values['manifest-output']) {
+    // Only serialize after local validation succeeds. Notes consume these exact
+    // binary names and digests, without copying paths or updater file contents.
+    await writeFile(
+      values['manifest-output'],
+      `${JSON.stringify(
+        {
+          schemaVersion: 1,
+          version: manifest.version,
+          build: manifest.build,
+          binaries: manifest.binaries.map(({ name, size, sha512 }) => ({ name, size, sha512 })),
+        },
+        null,
+        2,
+      )}\n`,
+    )
+  }
   if (values['github-output']) {
     const delimiter = randomUUID()
     const files = [...manifest.binaries, ...manifest.blockmaps, ...manifest.metadata]

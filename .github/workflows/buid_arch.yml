@@ -258,6 +258,9 @@ jobs:
     steps:
       - name: Check out git repository
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
 
       - name: Install Node.js
         uses: actions/setup-node@v7
@@ -276,11 +279,6 @@ jobs:
       - name: Derive expected release artifacts and metadata
         id: expected
         run: node scripts/release-manifest.js plan --build "$RELEASE_BUILD" --github-output "$GITHUB_OUTPUT"
-
-      - name: Generate Release Notes
-        run: |
-          chmod +x ./scripts/generate-release-notes.sh
-          ./scripts/generate-release-notes.sh
 
       - name: Download All Artifacts
         uses: actions/download-artifact@v8
@@ -310,7 +308,29 @@ jobs:
             args+=(--promote-latest --release-tag "$RELEASE_TAG")
           fi
           node scripts/upload-to-s3.js validate ./artifacts ./dist_electron/combined \
-            --build "$RELEASE_BUILD" --github-output "$GITHUB_OUTPUT" "${args[@]}"
+            --build "$RELEASE_BUILD" --github-output "$GITHUB_OUTPUT" \
+            --manifest-output ./verified-release-manifest.json "${args[@]}"
+
+      - name: Generate Release Notes
+        id: release-notes
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ "$PROMOTE_LATEST" == 'true' ]]; then
+            publication_tag="$RELEASE_TAG"
+          else
+            publication_tag="build-$PUBLICATION_ID"
+          fi
+          # Exclude drafts and let Git select the nearest published ancestor.
+          # A failed API request must fail the step, not imply a first release.
+          gh api --paginate "repos/$GITHUB_REPOSITORY/releases" \
+            --jq '.[] | select(.draft == false) | .tag_name' > published-release-tags.txt
+          bash ./scripts/generate-release-notes.sh \
+            --release-tag "$publication_tag" --source-commit "$GITHUB_SHA" \
+            --published-tags-file ./published-release-tags.txt \
+            --manifest ./verified-release-manifest.json --repository "$GITHUB_REPOSITORY"
+          printf 'tag=%s\n' "$publication_tag" >> "$GITHUB_OUTPUT"
 
       # GitHub is the prerequisite publication backend. A failed GitHub release
       # fails this job and prevents both S3 staging and latest promotion.
@@ -321,7 +341,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.GH_TOKEN }}
-          tag_name: ${{ env.PROMOTE_LATEST == 'true' && env.RELEASE_TAG || format('build-{0}-{1}', github.run_id, github.run_attempt) }}
+          tag_name: ${{ steps.release-notes.outputs.tag }}
           target_commitish: ${{ github.sha }}
           draft: ${{ env.PROMOTE_LATEST != 'true' }}
           prerelease: ${{ env.PROMOTE_LATEST != 'true' }}

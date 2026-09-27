@@ -36,6 +36,7 @@
     "prepare:7za": "node ./scripts/prepare.js --type=7zip",
     "prepare:plugin-runtime": "node ./scripts/prepare-plugin-runtime.mjs",
     "preview": "electron-vite preview",
+    "test:release": "node --test scripts/tests/*.test.js",
     "release": "bump-version",
     "typecheck": "vue-tsc --noEmit",
     "postuninstall": "electron-builder install-app-deps",

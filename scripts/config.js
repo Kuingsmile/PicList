@@ -134,19 +134,28 @@ export const generateFileName = (platformConfig, version) => {
   return `${platformConfig.appNameWithPrefix}${version}${platformConfig.arch}${platformConfig.ext}`
 }
 
-export const fileList = [...darwin, ...linux, ...win32].map(platformConfig => {
-  const fileName = generateFileName(platformConfig, version)
-  return {
-    name: fileName,
-    build: platformConfig.path.replace(/-artifacts$/, ''),
-    metadata: platformConfig['version-file'],
-    path: path.join(platformConfig.path, fileName),
-    blockMapPath: path.join(platformConfig.path, `${fileName}.blockmap`),
-  }
-})
+const createFileList = releaseVersion =>
+  Object.entries({ darwin, linux, win32 }).flatMap(([platform, configs]) =>
+    configs.map(platformConfig => {
+      const fileName = generateFileName(platformConfig, releaseVersion)
+      return {
+        name: fileName,
+        platform,
+        format: platformConfig.ext.slice(1),
+        arch: platformConfig.arch.replace(/^-/, '').replace(/-portable$/, ''),
+        build: platformConfig.path.replace(/-artifacts$/, ''),
+        metadata: platformConfig['version-file'],
+        path: path.join(platformConfig.path, fileName),
+        blockMapPath: path.join(platformConfig.path, `${fileName}.blockmap`),
+      }
+    }),
+  )
 
-export const selectFiles = (build = 'All') => {
-  const selected = build === 'All' ? fileList : fileList.filter(file => file.build === build)
+export const fileList = createFileList(version)
+
+export const selectFiles = (build = 'All', releaseVersion = version) => {
+  const files = releaseVersion === version ? fileList : createFileList(releaseVersion)
+  const selected = build === 'All' ? files : files.filter(file => file.build === build)
   if (selected.length === 0) throw new Error('Unknown release build selection')
   return selected
 }
