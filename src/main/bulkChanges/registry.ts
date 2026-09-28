@@ -66,7 +66,7 @@ export async function previewRemoteChanges(event: IIPCEvent, context: BulkContex
     bucketName: context.bucketName,
     region: context.region,
   })
-  const adapter = await createRemoteAdapter(frozenContext, api.createClient())
+  const adapter = await createRemoteAdapter(frozenContext, await api.createClient())
   const session = await BulkChangeSession.preview(
     randomUUID(),
     selection.map(item => ({

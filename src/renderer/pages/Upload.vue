@@ -650,13 +650,21 @@ import {
   ZapIcon,
 } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
-import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef, watch } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  onBeforeMount,
+  onBeforeUnmount,
+  reactive,
+  ref,
+  useTemplateRef,
+  watch,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
-import ImageProcessDialog from '@/components/ImageProcessDialog.vue'
 import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
 import { PICBEDS_PAGE } from '@/router/config'
@@ -668,6 +676,8 @@ import { getConfig, saveConfig } from '@/utils/dataSender'
 import { useDragEventListeners } from '@/utils/drag'
 import { IPasteStyle, IRPCActionType } from '@/utils/enum'
 import { createUploadProgressTracker } from '@/utils/uploadProgress'
+
+const ImageProcessDialog = defineAsyncComponent(() => import('@/components/ImageProcessDialog.vue'))
 
 // Task queue types
 interface IUploadTaskItem {

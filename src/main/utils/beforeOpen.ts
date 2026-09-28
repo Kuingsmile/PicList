@@ -5,107 +5,56 @@ import { fileURLToPath } from 'node:url'
 import { appConfigPath, themesDir } from '@core/datastore/dirs'
 import fs from 'fs-extra'
 
+import { copyBundledResources } from '~/utils/copyBundledResources'
+
 const configPath = appConfigPath()
 const CONFIG_DIR = path.dirname(configPath)
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
-function beforeOpen() {
-  if (process.platform === 'darwin') {
-    resolveMacWorkFlow()
-  }
-  resolveClipboardImageGenerator()
-  resolveCss()
-}
-
-function copyFileOutsideOfElectronAsar(sourceInAsarArchive: string, destOutsideAsarArchive: string) {
-  if (fs.existsSync(sourceInAsarArchive)) {
-    // file will be copied
-    if (fs.statSync(sourceInAsarArchive).isFile()) {
-      const file = destOutsideAsarArchive
-      const dir = path.dirname(file)
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true })
-      }
-      fs.writeFileSync(file, fs.readFileSync(sourceInAsarArchive))
-    } else if (fs.statSync(sourceInAsarArchive).isDirectory()) {
-      fs.readdirSync(sourceInAsarArchive).forEach(function (fileOrFolderName) {
-        copyFileOutsideOfElectronAsar(
-          `${sourceInAsarArchive}/${fileOrFolderName}`,
-          `${destOutsideAsarArchive}/${fileOrFolderName}`,
-        )
-      })
-    }
-  }
+async function beforeOpen() {
+  await Promise.all([
+    process.platform === 'darwin' ? resolveMacWorkFlow() : undefined,
+    resolveClipboardImageGenerator(),
+    resolveCss(),
+  ])
 }
 
 /**
  * macOS 右键菜单
  */
-function resolveMacWorkFlow() {
-  const dest = `${os.homedir()}/Library/Services/Upload pictures with PicList.workflow`
+async function resolveMacWorkFlow() {
+  const source = path
+    .join(dirname, '../../resources', 'Upload pictures with PicList.workflow')
+    .replace('app.asar', 'app.asar.unpacked')
+  const destination = path.join(os.homedir(), 'Library/Services/Upload pictures with PicList.workflow')
   try {
-    copyFileOutsideOfElectronAsar(
-      path
-        .join(dirname, '../../resources', 'Upload pictures with PicList.workflow')
-        .replace('app.asar', 'app.asar.unpacked'),
-      dest,
-    )
-  } catch (e) {
-    console.log(e)
-  }
-}
-
-function diffFilesAndUpdate(filePath1: string, filePath2: string) {
-  try {
-    const file1 = fs.existsSync(filePath1) && fs.readFileSync(filePath1)
-    const file2 = fs.existsSync(filePath1) && fs.readFileSync(filePath2)
-
-    if (!file1 || !file2 || !file1.equals(file2)) {
-      fs.copyFileSync(filePath1, filePath2)
-    }
-  } catch (e) {
-    console.error(e)
-    fs.copyFileSync(filePath1, filePath2)
+    if (await fs.pathExists(source)) await copyBundledResources(source, destination)
+  } catch {
+    console.error('Failed to prepare the macOS upload workflow')
   }
 }
 
 /**
  * 初始化剪贴板生成图片的脚本
  */
-function resolveClipboardImageGenerator() {
-  const clipboardFiles = getClipboardFiles()
-  if (!fs.pathExistsSync(path.join(CONFIG_DIR, 'windows10.ps1'))) {
-    clipboardFiles.forEach(item => {
-      fs.copyFileSync(item.origin, item.dest)
-    })
-  } else {
-    clipboardFiles.forEach(item => {
-      diffFilesAndUpdate(item.origin, item.dest)
-    })
-  }
-}
-
-function getClipboardFiles() {
+async function resolveClipboardImageGenerator() {
   const files = ['linux.sh', 'mac.applescript', 'windows.ps1', 'windows10.ps1', 'wsl.sh']
-
-  return files.map(item => {
-    return {
-      origin: path.join(dirname, '../../resources', item).replace('app.asar', 'app.asar.unpacked'),
-      dest: path.join(CONFIG_DIR, item),
-    }
-  })
+  await Promise.all(
+    files.map(file =>
+      copyBundledResources(
+        path.join(dirname, '../../resources', file).replace('app.asar', 'app.asar.unpacked'),
+        path.join(CONFIG_DIR, file),
+      ),
+    ),
+  )
 }
 
-function resolveCss() {
+async function resolveCss() {
   try {
-    const srcDir = path.join(dirname, '../../resources/theme').replace('app.asar', 'app.asar.unpacked')
-    const destDir = themesDir()
-    fs.copySync(srcDir, destDir, {
-      overwrite: true,
-      errorOnExist: false,
-    })
-  } catch (e) {
-    console.error('Failed to resolve CSS:', e)
+    const source = path.join(dirname, '../../resources/theme').replace('app.asar', 'app.asar.unpacked')
+    await copyBundledResources(source, themesDir())
+  } catch {
+    console.error('Failed to prepare bundled themes')
   }
 }
 

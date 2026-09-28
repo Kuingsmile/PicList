@@ -17,7 +17,8 @@ const alias = {
 export default defineConfig({
   main: {
     build: {
-      externalizeDeps: true,
+      // Bundle these pure-JS clients instead of resolving their many modules at launch.
+      externalizeDeps: { exclude: ['got', '@octokit/rest'] },
     },
     resolve: {
       alias,
@@ -25,7 +26,8 @@ export default defineConfig({
   },
   preload: {
     build: {
-      externalizeDeps: true,
+      // Each window runs the preload: avoid loading Vue, YAML and MIME from disk again.
+      externalizeDeps: false,
     },
     plugins: [],
     resolve: {

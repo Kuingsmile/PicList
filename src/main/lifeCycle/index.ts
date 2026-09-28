@@ -93,9 +93,14 @@ class LifeCycle {
     protocol.registerSchemesAsPrivileged([
       { scheme: 'theme', privileges: { standard: true, secure: true, supportFetchAPI: true } },
     ])
+    // Electron requires this before ready, including while resource copies await I/O.
+    const isDisableGPU = picgo.getConfig<boolean>(configPaths.settings.isDisableGPU) || false
+    if (isDisableGPU) {
+      app.disableHardwareAcceleration()
+    }
     // fix the $PATH in macOS & linux
     fixPath()
-    beforeOpen()
+    await beforeOpen()
     getManageApi()
     UpDownTaskQueue.getInstance()
     // Register journal references before any uploader can prune completed finalization history.
@@ -103,10 +108,6 @@ class LifeCycle {
     initI18n()
     rpcServer.start()
     busEventList.listen()
-    const isDisableGPU = picgo.getConfig<boolean>(configPaths.settings.isDisableGPU) || false
-    if (isDisableGPU) {
-      app.disableHardwareAcceleration()
-    }
   }
 
   #onReady() {

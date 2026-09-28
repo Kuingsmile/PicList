@@ -88,26 +88,26 @@ export class ManageApi extends EventEmitter implements IManageApiType {
 
   private readonly clientFactories = {
     aliyun: () =>
-      new API.AliyunApi(this.currentPicBedConfig.accessKeyId, this.currentPicBedConfig.accessKeySecret, this.logger),
+      API.AliyunApi(this.currentPicBedConfig.accessKeyId, this.currentPicBedConfig.accessKeySecret, this.logger),
     github: () =>
-      new API.GithubApi(
+      API.GithubApi(
         this.currentPicBedConfig.token,
         this.currentPicBedConfig.githubUsername,
         this.currentPicBedConfig.proxy,
         this.logger,
       ),
     imgur: () =>
-      new API.ImgurApi(
+      API.ImgurApi(
         this.currentPicBedConfig.imgurUserName,
         this.currentPicBedConfig.accessToken,
         this.currentPicBedConfig.proxy,
         this.logger,
       ),
-    local: () => new API.LocalApi(this.logger),
-    qiniu: () => new API.QiniuApi(this.currentPicBedConfig.accessKey, this.currentPicBedConfig.secretKey, this.logger),
-    smms: () => new API.SmmsApi(this.currentPicBedConfig.token, this.logger),
+    local: () => API.LocalApi(this.logger),
+    qiniu: () => API.QiniuApi(this.currentPicBedConfig.accessKey, this.currentPicBedConfig.secretKey, this.logger),
+    smms: () => API.SmmsApi(this.currentPicBedConfig.token, this.logger),
     s3plist: () =>
-      new API.S3plistApi(
+      API.S3plistApi(
         this.currentPicBedConfig.accessKeyId,
         this.currentPicBedConfig.secretAccessKey,
         this.currentPicBedConfig.endpoint,
@@ -121,7 +121,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.currentPicBedConfig.customUrl || '',
       ),
     sftp: () =>
-      new API.SftpApi(
+      API.SftpApi(
         this.currentPicBedConfig.host,
         this.currentPicBedConfig.port,
         this.currentPicBedConfig.username,
@@ -132,9 +132,9 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.currentPicBedConfig.dirMode,
         this.logger,
       ),
-    tcyun: () => new API.TcyunApi(this.currentPicBedConfig.secretId, this.currentPicBedConfig.secretKey, this.logger),
+    tcyun: () => API.TcyunApi(this.currentPicBedConfig.secretId, this.currentPicBedConfig.secretKey, this.logger),
     upyun: () =>
-      new API.UpyunApi(
+      API.UpyunApi(
         this.currentPicBedConfig.bucketName,
         this.currentPicBedConfig.operator,
         this.currentPicBedConfig.password,
@@ -143,7 +143,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.currentPicBedConfig.expireTime,
       ),
     webdavplist: () =>
-      new API.WebdavplistApi(
+      API.WebdavplistApi(
         this.currentPicBedConfig.endpoint,
         this.currentPicBedConfig.username,
         this.currentPicBedConfig.password,
@@ -154,7 +154,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       ),
   }
 
-  createClient() {
+  async createClient() {
     const factory = this.clientFactories[this.currentPicBedConfig.picBedName as keyof typeof this.clientFactories]
     return factory ? factory() : ({} as any)
   }
@@ -170,7 +170,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       return defaultValue
     }
     try {
-      const client = this.createClient() as any
+      const client = await this.createClient()
       return await operation(client)
     } catch (error: any) {
       this.errorMsg(error, this.getMsgParam(method))
@@ -197,7 +197,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         if (stream && (!window || window.webContents.isDestroyed())) throw new Error('Listing window is unavailable')
         if (provider !== this.currentPicBedConfig?.picBedName) throw new Error('Listing account is unavailable')
         if (kind === 'buckets') return { fullList: await this.listBuckets(), success: true }
-        const client = this.createClient()
+        const client = await this.createClient()
         if (typeof client[method] !== 'function') throw new Error('Unsupported listing operation')
         return client[method](param, listing)
       },
@@ -310,7 +310,8 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     if (!this.BASIC_API_CLIENTS.includes(this.currentPicBedConfig.picBedName)) {
       throw new Error('Unsupported listing operation')
     }
-    return this.createClient().getBucketList()
+    const client = await this.createClient()
+    return client.getBucketList()
   }
 
   async getBucketInfo(param?: IStringKeyMap | undefined): Promise<IStringKeyMap | IManageError> {
@@ -421,7 +422,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     if (!this.ALL_CLIENTS.includes(provider)) return failedDeletion(items, 'Unsupported provider')
     let client: any
     try {
-      client = this.createClient()
+      client = await this.createClient()
     } catch (error) {
       return failedDeletion(items, deletionError(error))
     }

@@ -1,45 +1,33 @@
-import AlistApi from '~/apis/delete/alist'
-import AlistplistApi from '~/apis/delete/alistplist'
-import AliyunApi from '~/apis/delete/aliyun'
-import AwsS3Api from '~/apis/delete/awss3'
-import DogeCloudApi from '~/apis/delete/dogecloud'
-import GithubApi from '~/apis/delete/github'
-import HuaweicloudApi from '~/apis/delete/huaweiyun'
-import ImgurApi from '~/apis/delete/imgur'
-import LocalApi from '~/apis/delete/local'
-import LskyplistApi from '~/apis/delete/lskyplist'
-import PiclistApi from '~/apis/delete/piclist'
-import QiniuApi from '~/apis/delete/qiniu'
-import SftpPlistApi from '~/apis/delete/sftpplist'
-import SmmsApi from '~/apis/delete/smms'
-import TcyunApi from '~/apis/delete/tcyun'
-import UpyunApi from '~/apis/delete/upyun'
-import WebdavApi from '~/apis/delete/webdav'
+interface DeleteApi {
+  delete(config: IStringKeyMap): Promise<boolean>
+}
 
-const apiMap: IStringKeyMap = {
-  alist: AlistApi,
-  alistplist: AlistplistApi,
-  aliyun: AliyunApi,
-  'aws-s3': AwsS3Api,
-  'aws-s3-plist': AwsS3Api,
-  dogecloud: DogeCloudApi,
-  github: GithubApi,
-  'huaweicloud-uploader': HuaweicloudApi,
-  imgur: ImgurApi,
-  local: LocalApi,
-  lskyplist: LskyplistApi,
-  piclist: PiclistApi,
-  qiniu: QiniuApi,
-  sftpplist: SftpPlistApi,
-  smms: SmmsApi,
-  tcyun: TcyunApi,
-  upyun: UpyunApi,
-  webdavplist: WebdavApi,
+const apiMap: Record<string, () => Promise<{ default: DeleteApi }>> = {
+  alist: () => import('~/apis/delete/alist'),
+  alistplist: () => import('~/apis/delete/alistplist'),
+  aliyun: () => import('~/apis/delete/aliyun'),
+  'aws-s3': () => import('~/apis/delete/awss3'),
+  'aws-s3-plist': () => import('~/apis/delete/awss3'),
+  dogecloud: () => import('~/apis/delete/dogecloud'),
+  github: () => import('~/apis/delete/github'),
+  'huaweicloud-uploader': () => import('~/apis/delete/huaweiyun'),
+  imgur: () => import('~/apis/delete/imgur'),
+  local: () => import('~/apis/delete/local'),
+  lskyplist: () => import('~/apis/delete/lskyplist'),
+  piclist: () => import('~/apis/delete/piclist'),
+  qiniu: () => import('~/apis/delete/qiniu'),
+  sftpplist: () => import('~/apis/delete/sftpplist'),
+  smms: () => import('~/apis/delete/smms'),
+  tcyun: () => import('~/apis/delete/tcyun'),
+  upyun: () => import('~/apis/delete/upyun'),
+  webdavplist: () => import('~/apis/delete/webdav'),
 }
 
 export default class ALLApi {
   static async delete(configMap: IStringKeyMap): Promise<boolean> {
-    const api = apiMap[configMap.type]
-    return api ? await api.delete(configMap) : false
+    const loadApi = Object.hasOwn(apiMap, configMap.type) ? apiMap[configMap.type] : undefined
+    if (!loadApi) return false
+    const { default: api } = await loadApi()
+    return await api.delete(configMap)
   }
 }
