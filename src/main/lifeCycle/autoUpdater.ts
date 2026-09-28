@@ -27,61 +27,83 @@ import {
 } from '~/utils/portableUpdate'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
+const RELEASE_URL = 'https://release.piclist.cn'
+const UPDATE_URL = `${RELEASE_URL}/latest`
+const MAX_CHANGELOG_LENGTH = 8000
+
+type UpdateNotification =
+  | { type: 'update-available'; title: string; version: string; releaseNotes: string }
+  | { type: 'update-downloaded'; title: string; message: string }
+  | { type: 'update-error'; title: string; version?: string; message: string }
 
 let portableUpdate: PortableUpdate | undefined
 let checkingPortableUpdate = false
 let downloadingPortableUpdate = false
+let autoUpdaterConfigured = false
+let updateNotificationId = 0
 
-const showUpdateInfo = (info: Record<string, unknown>) => {
-  windowManager.create(IWindowList.UPDATE_WINDOW)
-  const updateWindow = windowManager.get(IWindowList.UPDATE_WINDOW)
+const showUpdateInfo = (info: UpdateNotification, notificationId = ++updateNotificationId) => {
+  if (notificationId !== updateNotificationId) return
+  const updateWindow = windowManager.create(IWindowList.UPDATE_WINDOW)
+  if (!updateWindow || updateWindow.isDestroyed()) return
+
   const send = () => {
-    if (!updateWindow?.isDestroyed()) updateWindow?.webContents.send('SHOW_UPDATE_INFO', info)
+    if (
+      notificationId === updateNotificationId &&
+      !updateWindow.isDestroyed() &&
+      !updateWindow.webContents.isDestroyed()
+    ) {
+      updateWindow.webContents.send('SHOW_UPDATE_INFO', info)
+    }
   }
-  if (updateWindow?.webContents.isLoading()) {
+  if (updateWindow.webContents.isLoading()) {
     updateWindow.webContents.once('did-finish-load', send)
   } else {
     send()
   }
-  updateWindow?.show()
+  updateWindow.show()
 }
 
-const updateAvailableHandler = async (info: Pick<updater.UpdateInfo, 'version'>) => {
-  const lang = picgo.getConfig<string>(configPaths.settings.language) || II18nLanguage.ZH_CN
+const getUpdateLanguage = () => picgo.getConfig<string>(configPaths.settings.language) || II18nLanguage.ZH_CN
+
+const getReleaseNotes = async (lang: string): Promise<string> => {
   let updateLog = ''
   try {
     const url =
-      lang === II18nLanguage.ZH_CN
-        ? 'https://release.piclist.cn/currentVersion.md'
-        : 'https://release.piclist.cn/currentVersion_en.md'
+      lang === II18nLanguage.ZH_CN ? `${RELEASE_URL}/currentVersion.md` : `${RELEASE_URL}/currentVersion_en.md`
     const res = await axios.get(url, { responseType: 'text', timeout: 10_000, maxContentLength: 1024 * 1024 })
     if (typeof res.data === 'string') updateLog = res.data
   } catch {
     logger.error('Could not fetch the update changelog')
   }
 
-  const maxLogLength = 8000
-  let displayLog = updateLog
-  let truncatedNote = ''
-
-  if (updateLog.length > maxLogLength) {
-    const truncatePoint = updateLog.lastIndexOf('\n', maxLogLength)
-    displayLog = updateLog.substring(0, truncatePoint > 0 ? truncatePoint : maxLogLength)
-    truncatedNote =
-      lang === II18nLanguage.ZH_CN
-        ? '\n\n... (更多详情请查看完整更新日志)'
-        : '\n\n... (See full changelog for more details)'
-  }
-
-  showUpdateInfo({
-    type: 'update-available',
-    title: lang === II18nLanguage.ZH_CN ? '发现新版本' : 'New Update Available',
-    version: info.version,
-    releaseNotes: displayLog + truncatedNote,
-  })
+  if (updateLog.length <= MAX_CHANGELOG_LENGTH) return updateLog
+  const truncatePoint = updateLog.lastIndexOf('\n', MAX_CHANGELOG_LENGTH)
+  const displayLog = updateLog.slice(0, truncatePoint > 0 ? truncatePoint : MAX_CHANGELOG_LENGTH)
+  const truncatedNote =
+    lang === II18nLanguage.ZH_CN
+      ? '\n\n... (更多详情请查看完整更新日志)'
+      : '\n\n... (See full changelog for more details)'
+  return displayLog + truncatedNote
 }
 
-const progressHandler = (progressObj: updater.ProgressInfo) => {
+const updateAvailableHandler = async (info: Pick<updater.UpdateInfo, 'version'>) => {
+  // A slow changelog request must not overwrite a newer notification or a completed download.
+  const notificationId = ++updateNotificationId
+  const lang = getUpdateLanguage()
+  const releaseNotes = await getReleaseNotes(lang)
+  showUpdateInfo(
+    {
+      type: 'update-available',
+      title: lang === II18nLanguage.ZH_CN ? '发现新版本' : 'New Update Available',
+      version: info.version,
+      releaseNotes,
+    },
+    notificationId,
+  )
+}
+
+const progressHandler = (progressObj: Pick<updater.ProgressInfo, 'percent'>) => {
   const percent = {
     progress: progressObj.percent,
   }
@@ -90,7 +112,7 @@ const progressHandler = (progressObj: updater.ProgressInfo) => {
 }
 
 const downloadedHandler = () => {
-  const lang = picgo.getConfig<string>(configPaths.settings.language) || II18nLanguage.ZH_CN
+  const lang = getUpdateLanguage()
   showUpdateInfo({
     type: 'update-downloaded',
     title: lang === II18nLanguage.ZH_CN ? '更新已下载' : 'Update Downloaded',
@@ -101,23 +123,18 @@ const downloadedHandler = () => {
   })
 }
 
-export async function setupAutoUpdater() {
-  if (!isPortable()) {
-    updater.autoUpdater.setFeedURL({
-      provider: 'generic',
-      url: 'https://release.piclist.cn/latest',
-      channel: 'latest',
-    })
+export function setupAutoUpdater(): void {
+  if (isPortable() || autoUpdaterConfigured) return
 
-    updater.autoUpdater.forceDevUpdateConfig = true
-    updater.autoUpdater.autoDownload = false
-    updater.autoUpdater.on('update-available', updateAvailableHandler)
-    updater.autoUpdater.on('download-progress', progressHandler)
-    updater.autoUpdater.on('update-downloaded', downloadedHandler)
-    updater.autoUpdater.on('error', err => {
-      logger.error(err)
-    })
-  }
+  const { autoUpdater } = updater
+  autoUpdater.setFeedURL({ provider: 'generic', url: UPDATE_URL, channel: 'latest' })
+  autoUpdater.forceDevUpdateConfig = true
+  autoUpdater.autoDownload = false
+  autoUpdater.on('update-available', updateAvailableHandler)
+  autoUpdater.on('download-progress', progressHandler)
+  autoUpdater.on('update-downloaded', downloadedHandler)
+  autoUpdater.on('error', () => logger.error('Application update failed'))
+  autoUpdaterConfigured = true
 }
 
 export async function checkUpdateAndNotify(): Promise<void> {
@@ -127,7 +144,7 @@ export async function checkUpdateAndNotify(): Promise<void> {
   portableUpdate = undefined
   try {
     portableArchitecture(process.platform, process.arch)
-    const res = await axios.get('https://release.piclist.cn/latest/latest.yml', {
+    const res = await axios.get(`${UPDATE_URL}/latest.yml`, {
       responseType: 'text',
       timeout: 10_000,
       maxContentLength: 1024 * 1024,
@@ -142,14 +159,14 @@ export async function checkUpdateAndNotify(): Promise<void> {
 }
 
 export async function downloadAndInstallUpdate(): Promise<void> {
-  if (downloadingPortableUpdate) return
+  if (checkingPortableUpdate || downloadingPortableUpdate) return
   downloadingPortableUpdate = true
   let stage: string | undefined
   let installerStarted = false
   try {
     const update = selectPortableUpdate(portableUpdate, pkg.version, process.platform, process.arch)
     if (!update) throw new Error('No newer portable update selected')
-    progressHandler({ percent: 0 } as updater.ProgressInfo)
+    progressHandler({ percent: 0 })
     const releaseRes = await axios.get(
       `https://api.github.com/repos/Kuingsmile/PicList/releases/tags/${encodeURIComponent(`v${update.version}`)}`,
       {
@@ -166,14 +183,14 @@ export async function downloadAndInstallUpdate(): Promise<void> {
     await fs.ensureDir(updatesDir)
     stage = await fs.mkdtemp(path.join(updatesDir, 'portable-'))
     const archive = path.join(stage, update.file)
-    const download = await axios.get<Readable>(`https://release.piclist.cn/latest/${encodeURIComponent(update.file)}`, {
+    const download = await axios.get<Readable>(`${UPDATE_URL}/${encodeURIComponent(update.file)}`, {
       responseType: 'stream',
       timeout: 60_000,
       decompress: false,
       headers: { 'Accept-Encoding': 'identity' },
     })
     await downloadPortableArchive(download.data, archive, expected, percent => {
-      progressHandler({ percent } as updater.ProgressInfo)
+      progressHandler({ percent })
     })
     const resourcesDir = path.join(dirname, '../../resources').replace('app.asar', 'app.asar.unpacked')
     const extractor = path.join(stage, '7za.exe')
@@ -202,7 +219,7 @@ export async function downloadAndInstallUpdate(): Promise<void> {
       }
     }
     logger.error('Portable update failed; the current installation has been preserved')
-    const lang = picgo.getConfig<string>(configPaths.settings.language) || II18nLanguage.ZH_CN
+    const lang = getUpdateLanguage()
     showUpdateInfo({
       type: 'update-error',
       title: lang === II18nLanguage.ZH_CN ? '更新失败' : 'Update Failed',

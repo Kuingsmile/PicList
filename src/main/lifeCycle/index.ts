@@ -1,26 +1,21 @@
 import '~/lifeCycle/errorHandler'
 
 import path from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { clearTimeout, setTimeout } from 'node:timers'
 
 import bus from '@core/bus'
-import { themesDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
-import { remoteNoticeHandler } from 'apis/app/remoteNotice'
-import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
-import { createTray, setDockMenu } from 'apis/app/system'
-import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
-import { app, globalShortcut, net, Notification, protocol, screen } from 'electron'
+import { app, globalShortcut, protocol, screen } from 'electron'
 import fs from 'fs-extra'
 
 import busEventList from '~/events/busEventList'
 import { rpcServer } from '~/events/rpc'
-import { startFileServer, stopFileServer } from '~/fileServer'
-import { initializeI18n } from '~/i18n'
+import { stopFileServer } from '~/fileServer'
 import { setupAutoUpdater } from '~/lifeCycle/autoUpdater'
 import fixPath from '~/lifeCycle/fixPath'
+import { handleStartUpFiles, initializeStartup } from '~/lifeCycle/startup'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import getManageApi from '~/manage/Main'
 import { clearTempFolder } from '~/manage/utils/common'
@@ -29,23 +24,28 @@ import { isAutoStartEnabled, setAutoStart } from '~/utils/autoStart'
 import beforeOpen from '~/utils/beforeOpen'
 import clipboardPoll from '~/utils/clipboardPoll'
 import { configPaths } from '~/utils/configPaths'
-import { II18nLanguage, IRemoteNoticeTriggerHook, ISartMode, IWindowList } from '~/utils/enum'
-import { getUploadFiles } from '~/utils/handleArgv'
+import { IWindowList } from '~/utils/enum'
 import { initI18n } from '~/utils/handleI18n'
-import { notificationList } from '~/utils/notification'
 import { runScriptInStage } from '~/utils/runScript'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
-import updateChecker from '~/utils/updateChecker'
 import UploadTaskQueueManager from '~/utils/uploadTaskQueue'
-import { showMiniWindow } from '~/utils/windowHelper'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
+const SHUTDOWN_GRACE_PERIOD_MS = 5000
 process.noDeprecation = true
 
-const defaultStartMode = {
-  darwin: ISartMode.QUIET,
-  win32: ISartMode.MAIN,
-  linux: ISartMode.MINI,
+const waitForShutdown = async (operation: Promise<unknown>) => {
+  let timer: NodeJS.Timeout | undefined
+  try {
+    await Promise.race([
+      operation,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error('Shutdown grace period expired')), SHUTDOWN_GRACE_PERIOD_MS)
+      }),
+    ])
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 const isPointInRect = (point: Electron.Point, rect: Electron.Rectangle) =>
@@ -66,237 +66,173 @@ const isLikelyDockActivation = () => {
   return !isInWorkArea && !isInMenuBar
 }
 
-const handleStartUpFiles = (argv: string[], cwd: string) => {
-  const files = getUploadFiles(argv, cwd, logger)
-
-  if (files === null) {
-    logger.info('cli -> uploading file from clipboard')
-    uploadClipboardFiles()
-    return true
+const syncAutoStart = async () => {
+  const enabled = picgo.getConfig<boolean>(configPaths.settings.autoStart) || false
+  try {
+    if ((await isAutoStartEnabled()) === enabled) return
+    logger.warn('Auto-start state mismatch detected; syncing the stored preference')
+  } catch {
+    logger.error('Failed to check auto-start status; applying the stored preference')
   }
 
-  if (files.length > 0) {
-    logger.info('cli -> uploading files from cli', ...files.map(file => file.path))
-    const win = windowManager.getAvailableWindow()
-    uploadChoosedFiles(win?.webContents, files)
-    return true
+  try {
+    await setAutoStart(enabled)
+  } catch {
+    logger.error('Failed to sync auto-start')
   }
-
-  return false
 }
 
-await setupAutoUpdater()
-
 class LifeCycle {
-  async #beforeReady() {
-    protocol.registerSchemesAsPrivileged([{ scheme: 'picgo', privileges: { secure: true, standard: true } }])
+  #launchPromise?: Promise<void>
+  #preparation?: Promise<void>
+  #quitting = false
+  #queuesReady = false
+
+  #configureBeforeReady() {
+    // Electron accepts a single registration, before any asynchronous preparation.
     protocol.registerSchemesAsPrivileged([
+      { scheme: 'picgo', privileges: { secure: true, standard: true } },
       { scheme: 'theme', privileges: { standard: true, secure: true, supportFetchAPI: true } },
     ])
-    // Electron requires this before ready, including while resource copies await I/O.
-    const isDisableGPU = picgo.getConfig<boolean>(configPaths.settings.isDisableGPU) || false
-    if (isDisableGPU) {
+    if (picgo.getConfig<boolean>(configPaths.settings.isDisableGPU)) {
       app.disableHardwareAcceleration()
     }
-    // fix the $PATH in macOS & linux
-    fixPath()
-    await beforeOpen()
+    if (process.platform === 'win32') {
+      app.setAppUserModelId('com.kuingsmile.piclist')
+    }
+    if (process.env.XDG_CURRENT_DESKTOP?.includes('Unity')) {
+      process.env.XDG_CURRENT_DESKTOP = 'Unity'
+    }
+    setupAutoUpdater()
+  }
+
+  async #prepare() {
+    // These operations are independent; cleanup must finish before uploads can start.
+    await Promise.all([
+      fixPath(),
+      beforeOpen(),
+      fs.emptyDir(path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER)).catch(() => {
+        logger.error('Failed to clear the clipboard image directory')
+      }),
+    ])
+    if (this.#quitting) return
+
     getManageApi()
     UpDownTaskQueue.getInstance()
-    // Register journal references before any uploader can prune completed finalization history.
+    // Register journal references before any uploader can prune finalization history.
     UploadTaskQueueManager.getInstance()
+    this.#queuesReady = true
     initI18n()
     rpcServer.start()
     busEventList.listen()
   }
 
-  #onReady() {
-    const readyFunction = async () => {
-      protocol.handle('theme', request => {
-        const requestUrl = request.url
-        const urlObj = new URL(requestUrl)
-        const relativePath = urlObj.pathname
-        const themeBaseDir = path.join(themesDir())
-        const absolutePath = path.join(themeBaseDir, relativePath)
-        return net.fetch(pathToFileURL(absolutePath).toString())
+  #whenRunning(callback: () => void) {
+    void this.#launchPromise
+      ?.then(() => {
+        if (!this.#quitting) callback()
       })
-      const allConfig = picgo.getConfig<any>() || {}
-      // clipboard monitor
-      const isAutoListenClipboard = allConfig.settings?.isAutoListenClipboard || false
-      const ClipboardWatcher = clipboardPoll
-      if (isAutoListenClipboard) {
-        picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: true })
-        ClipboardWatcher.startListening()
-        ClipboardWatcher.on('change', () => {
-          picgo.log.info('clipboard changed')
-          uploadClipboardFiles()
-        })
-      } else {
-        picgo.saveConfig({ [configPaths.settings.isListeningClipboard]: false })
-      }
-      const locale = app.getLocale() || 'zh-CN'
-      if (allConfig.settings?.language === undefined) {
-        if (locale.startsWith('zh')) {
-          initializeI18n(II18nLanguage.ZH_CN)
-          picgo.saveConfig({ [configPaths.settings.language]: 'zh-CN' })
-        } else {
-          initializeI18n(II18nLanguage.EN)
-          picgo.saveConfig({ [configPaths.settings.language]: 'en' })
-        }
-      } else {
-        initializeI18n(allConfig.settings.language)
-      }
-      const isHideDock = allConfig.settings?.isHideDock || false
-
-      let startMode =
-        allConfig.settings?.startMode !== undefined
-          ? allConfig.settings.startMode
-          : defaultStartMode[process.platform as keyof typeof defaultStartMode] || ISartMode.MAIN
-      if (process.platform === 'darwin' && startMode === ISartMode.MINI) {
-        startMode = ISartMode.QUIET
-      }
-      const currentPicBed = allConfig.picBed?.uploader || allConfig.picBed?.current || 'smms'
-      const currentPicBedConfig = allConfig.picBed?.[currentPicBed]?._configName || 'Default'
-      const tooltip = `${currentPicBed} ${currentPicBedConfig}`
-      if (process.platform === 'darwin') {
-        isHideDock ? app.dock?.hide() : setDockMenu()
-        startMode !== ISartMode.NO_TRAY && createTray(tooltip)
-      } else {
-        createTray(tooltip)
-      }
-      picgo.saveConfig({ [configPaths.needReload]: false })
-      updateChecker()
-      process.nextTick(() => {
-        shortKeyHandler.init()
+      .catch(() => {
+        logger.error('Failed to handle application activation')
       })
-      server.startup()
-      startFileServer()
-      if (process.env.NODE_ENV !== 'development') {
-        handleStartUpFiles(process.argv, process.cwd())
-      }
-
-      if (notificationList && notificationList.length > 0) {
-        while (notificationList.length) {
-          const option = notificationList.pop()
-          const notice = new Notification(option!)
-          notice.show()
-        }
-      }
-      remoteNoticeHandler
-        .init()
-        .then(() => {
-          remoteNoticeHandler.triggerHook(IRemoteNoticeTriggerHook.APP_START)
-        })
-        .catch(() => {})
-      if (startMode === ISartMode.MINI && process.platform !== 'darwin') {
-        showMiniWindow()
-      } else if (startMode === ISartMode.MAIN) {
-        windowManager.create(IWindowList.SETTING_WINDOW)
-      }
-      const clipboardDir = path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER)
-      fs.emptyDir(clipboardDir)
-      runScriptInStage('onSoftwareOpen', picgo, {})
-    }
-    app.whenReady().then(readyFunction)
   }
 
   #onRunning() {
     app.on('second-instance', (_, commandLine, workingDirectory) => {
-      logger.info('detect second instance')
-      const result = handleStartUpFiles(commandLine, workingDirectory)
-      logger.info('handleStartUpFiles result:', String(result))
-      if (!result) {
-        windowManager.create(IWindowList.SETTING_WINDOW)
-      }
-    })
-    app.on('activate', () => {
-      logger.info('activate is called')
-      if (!windowManager.has(IWindowList.SETTING_WINDOW) && isLikelyDockActivation()) {
-        windowManager.create(IWindowList.SETTING_WINDOW)
-      }
-    })
-    const storedAutoStartEnabled = picgo.getConfig<boolean>(configPaths.settings.autoStart) || false
-    isAutoStartEnabled()
-      .then(actualAutoStartEnabled => {
-        if (actualAutoStartEnabled !== storedAutoStartEnabled) {
-          logger.warn(
-            `Auto-start state mismatch detected. Stored: ${storedAutoStartEnabled}, Actual: ${actualAutoStartEnabled}. Syncing...`,
-          )
-          setAutoStart(storedAutoStartEnabled).catch(err => {
-            logger.error('Failed to sync auto-start:', err)
-          })
+      this.#whenRunning(() => {
+        logger.info('detect second instance')
+        if (!handleStartUpFiles(commandLine, workingDirectory)) {
+          windowManager.create(IWindowList.SETTING_WINDOW)
         }
       })
-      .catch(err => {
-        logger.error('Failed to check auto-start status:', err)
-        setAutoStart(storedAutoStartEnabled).catch(fallbackErr => {
-          logger.error('Failed to set auto-start as fallback:', fallbackErr)
-        })
+    })
+    app.on('activate', () => {
+      this.#whenRunning(() => {
+        if (!windowManager.has(IWindowList.SETTING_WINDOW) && isLikelyDockActivation()) {
+          windowManager.create(IWindowList.SETTING_WINDOW)
+        }
       })
-    if (process.platform === 'win32') {
-      app.setAppUserModelId('com.kuingsmile.piclist')
-    }
+    })
+  }
 
-    if (process.env.XDG_CURRENT_DESKTOP && process.env.XDG_CURRENT_DESKTOP.includes('Unity')) {
-      process.env.XDG_CURRENT_DESKTOP = 'Unity'
-    }
+  async #shutdown() {
+    // A quit during preparation must not race with starting services or restoring queues.
+    await this.#preparation?.catch(() => {})
+    const tasks = [
+      ['clipboard watcher', () => clipboardPoll.stopListening(false)],
+      ['global shortcuts', () => globalShortcut.unregisterAll()],
+      ['RPC server', () => rpcServer.stop()],
+      ['upload server', () => waitForShutdown(server.shutdown())],
+      ['file server', () => waitForShutdown(stopFileServer())],
+      ['management checkpoints', () => this.#queuesReady && UpDownTaskQueue.getInstance().flush()],
+      ['upload checkpoints', () => this.#queuesReady && UploadTaskQueueManager.getInstance().shutdown()],
+      ['software-close scripts', () => waitForShutdown(runScriptInStage('onSoftwareClose', picgo, {}))],
+    ] as const
+    // Wrap each call so a synchronous failure cannot skip the remaining cleanup.
+    const results = await Promise.allSettled(tasks.map(async ([, cleanup]) => cleanup()))
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') logger.error(`Failed to clean up ${tasks[index][0]} before quit`)
+    })
   }
 
   #onQuit() {
     app.on('window-all-closed', () => {})
 
     let flushed = false
-    let flushing = false
     app.on('before-quit', event => {
       if (flushed) return
       event.preventDefault()
-      if (flushing) return
-      flushing = true
-      void Promise.allSettled([
-        UpDownTaskQueue.getInstance().flush(),
-        UploadTaskQueueManager.getInstance().shutdown(),
-      ]).then(results => {
-        if (results.some(result => result.status === 'rejected'))
-          logger.error('Unable to flush task checkpoints before quit')
+      if (this.#quitting) return
+      this.#quitting = true
+      void this.#shutdown().finally(() => {
         flushed = true
         app.quit()
       })
     })
 
     app.on('will-quit', () => {
-      clearTempFolder()
-      globalShortcut.unregisterAll()
+      try {
+        clearTempFolder()
+      } catch {
+        logger.error('Failed to clear temporary files before quit')
+      }
       bus.removeAllListeners()
-      server.shutdown()
-      stopFileServer()
-      runScriptInStage('onSoftwareClose', picgo, {})
     })
-    // Exit cleanly on request from parent process in development mode.
+
+    // Exit cleanly on request from the development parent process.
     if (isDevelopment) {
       if (process.platform === 'win32') {
         process.on('message', data => {
-          if (data === 'graceful-exit') {
-            app.quit()
-          }
+          if (data === 'graceful-exit') app.quit()
         })
       } else {
-        process.on('SIGTERM', () => {
-          app.quit()
-        })
+        process.on('SIGTERM', () => app.quit())
       }
     }
   }
 
-  async launchApp() {
-    const gotTheLock = app.requestSingleInstanceLock()
-    if (!gotTheLock) {
+  async #launch() {
+    if (!app.requestSingleInstanceLock()) {
       app.quit()
-    } else {
-      await this.#beforeReady()
-      this.#onReady()
-      this.#onRunning()
-      this.#onQuit()
+      return
     }
+
+    this.#configureBeforeReady()
+    this.#onRunning()
+    this.#onQuit()
+    this.#preparation = this.#prepare()
+    await this.#preparation
+    if (this.#quitting) return
+    await app.whenReady()
+    if (this.#quitting) return
+
+    initializeStartup()
+    void syncAutoStart()
+  }
+
+  launchApp(): Promise<void> {
+    this.#launchPromise ??= this.#launch()
+    return this.#launchPromise
   }
 }
 

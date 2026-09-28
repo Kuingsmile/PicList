@@ -8,19 +8,14 @@ const logger = getLogger(LOG_PATH, 'PicList')
 // since the error may occur in picgo-core
 // so we can't use the log from picgo
 
-const handleProcessError = (error: Error | string) => {
+const handleProcessError = (error: unknown) => {
   logger('error', error)
 }
 
-process.on('uncaughtException', error => {
-  handleProcessError(error)
-})
+process.on('uncaughtException', handleProcessError)
+process.on('unhandledRejection', handleProcessError)
 
-process.on('unhandledRejection', (error: any) => {
-  handleProcessError(error)
-})
-
-// acconrding to https://github.com/Molunerfinn/PicGo/commit/7363be798cfef11e980934e542817ff1d6c04389#diff-896d0db4fbd446798fbffec14d456b4cd98d4c72c46856c770a585fa7ab0926f
+// A closed parent pipe must not repeatedly crash logging to stdout or stderr.
 function bootstrapEPIPESuppression() {
   let suppressing = false
   function logEPIPEErrorOnce() {
@@ -32,27 +27,18 @@ function bootstrapEPIPESuppression() {
     handleProcessError('Detected EPIPE error; suppressing further EPIPE errors')
   }
 
-  epipeBomb(process.stdout, logEPIPEErrorOnce)
-  epipeBomb(process.stderr, logEPIPEErrorOnce)
+  suppressEPIPE(process.stdout, logEPIPEErrorOnce)
+  suppressEPIPE(process.stderr, logEPIPEErrorOnce)
 }
 
 bootstrapEPIPESuppression()
 
-function epipeBomb(stream: any, callback: any) {
-  if (stream === null) stream = process.stdout
-  if (callback === null) callback = process.exit
+function suppressEPIPE(stream: NodeJS.WriteStream, callback: () => void) {
+  stream.on('error', (error: NodeJS.ErrnoException) => {
+    if (error.code === 'EPIPE') return callback()
 
-  function epipeFilter(err: any) {
-    if (err.code === 'EPIPE') return callback()
-
-    // If there's more than one error handler (ie, us),
-    // then the error won't be bubbled up anyway
-    if (stream.listeners('error').length <= 1) {
-      stream.removeAllListeners() // Pretend we were never here
-      stream.emit('error', err) // Then emit as if we were never here
-      stream.on('error', epipeFilter) // Then reattach, ready for the next error!
-    }
-  }
-
-  stream.on('error', epipeFilter)
+    // Preserve Node's unhandled-error behavior without removing unrelated listeners
+    // or losing EPIPE suppression when the error propagates to uncaughtException.
+    if (stream.listenerCount('error') === 1) throw error
+  })
 }
