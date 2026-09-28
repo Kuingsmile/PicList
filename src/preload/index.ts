@@ -1,5 +1,6 @@
 import crypto from 'node:crypto'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 import { clipboard, contextBridge, ipcRenderer, IpcRendererEvent, webFrame, webUtils } from 'electron'
 import fs from 'fs-extra'
@@ -223,6 +224,7 @@ try {
   })
 
   contextBridge.exposeInMainWorld('node', {
+    pathToFileURL: (filePath: string) => pathToFileURL(filePath).href,
     path: {
       join: path.join,
       dirname: path.dirname,

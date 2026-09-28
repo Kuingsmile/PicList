@@ -267,6 +267,7 @@
                 @click.stop="zoomImage(index)"
               >
                 <img
+                  v-if="galleryActive"
                   :src="displayImageSources[item.key || ''] || item.src"
                   class="h-full w-full object-contain transition-all duration-fast ease-apple"
                   :class="{ loading: !imageLoadStates[item.key || ''] }"
@@ -464,6 +465,7 @@ import {
   onActivated,
   onBeforeMount,
   onBeforeUnmount,
+  onDeactivated,
   reactive,
   ref,
   shallowRef,
@@ -497,7 +499,9 @@ import { getConfig, saveConfig } from '@/utils/dataSender'
 import $$db from '@/utils/db'
 import { IPasteStyle, IRPCActionType } from '@/utils/enum'
 import { compareFileValues, type FileColumn, fileDate, fileType, formatCollectionDate } from '@/utils/fileCollection'
+import { prepareGalleryItems } from '@/utils/galleryItems'
 import { getGalleryPreviewSource, getJxlPreviewSource } from '@/utils/galleryPreview'
+import { PreviewCache } from '@/utils/previewCache'
 import { picBedsCanbeDeleted } from '@/utils/static'
 import { addCacheBustParam as withCacheBustParam } from '#/utils/url'
 
@@ -512,7 +516,9 @@ const message = useMessage()
 const { confirm } = useConfirm()
 const { picBedG } = usePicBed()
 
-const images = ref<ImgInfo[]>([])
+const images = shallowRef<IGalleryItem[]>([])
+const galleryActive = ref(true)
+let galleryDirty = false
 const virtualScrollerRef = useTemplateRef('virtualScrollerRef')
 const hoverPreviewRef = useTemplateRef('hoverPreviewRef')
 const hoverPreviewId = useId()
@@ -572,12 +578,10 @@ const displayImageSources = reactive<Record<string, string>>({})
 const jxlPreviewCache = reactive<Record<string, string>>({})
 const jxlPreviewLoading = reactive<Record<string, boolean>>({})
 const jxlPreviewErrors = reactive<Record<string, boolean>>({})
-const jxlPreviewCacheOrder: string[] = []
+const previewCache = new PreviewCache(jxlPreviewCache)
 const cacheBustToken = ref(Date.now())
 const visibleGalleryIndexes = ref<number[]>([])
 let jxlPreviewGeneration = 0
-
-const JXL_PREVIEW_CACHE_LIMIT = 64
 
 const pasteStyleList = ['markdown', 'HTML', 'URL', 'UBB', 'Custom']
 const shortURLList = ['shortUrl', 'longUrl']
@@ -801,6 +805,10 @@ async function initConf() {
 }
 
 const updateGalleryHandler = () => {
+  if (!galleryActive.value) {
+    galleryDirty = true
+    return
+  }
   nextTick(async () => {
     updateGallery()
   })
@@ -892,39 +900,20 @@ function isJxlPreviewSourceActive(previewPath: string) {
 }
 
 function touchJxlPreviewCache(previewPath: string) {
-  const index = jxlPreviewCacheOrder.indexOf(previewPath)
-  if (index >= 0) {
-    jxlPreviewCacheOrder.splice(index, 1)
-  }
-  jxlPreviewCacheOrder.push(previewPath)
+  previewCache.touch(previewPath)
 }
 
 function deleteJxlPreviewCacheEntry(previewPath: string) {
-  delete jxlPreviewCache[previewPath]
-  const index = jxlPreviewCacheOrder.indexOf(previewPath)
-  if (index >= 0) {
-    jxlPreviewCacheOrder.splice(index, 1)
-  }
+  previewCache.delete(previewPath)
 }
 
 function cacheJxlPreview(previewPath: string, previewSrc: string) {
-  jxlPreviewCache[previewPath] = previewSrc
-  touchJxlPreviewCache(previewPath)
-
-  while (jxlPreviewCacheOrder.length > JXL_PREVIEW_CACHE_LIMIT) {
-    const stalePreviewPath = jxlPreviewCacheOrder.shift()
-    if (stalePreviewPath) {
-      delete jxlPreviewCache[stalePreviewPath]
-    }
-  }
+  previewCache.set(previewPath, previewSrc)
 }
 
 function invalidateJxlPreviewCache() {
   jxlPreviewGeneration += 1
-  jxlPreviewCacheOrder.length = 0
-  Object.keys(jxlPreviewCache).forEach(key => {
-    delete jxlPreviewCache[key]
-  })
+  previewCache.clear()
   Object.keys(jxlPreviewLoading).forEach(key => {
     delete jxlPreviewLoading[key]
   })
@@ -958,6 +947,7 @@ function handleVisibleIndexesChange(indexes: number[]) {
 }
 
 function ensureJxlPreview(item?: IGalleryItem): boolean {
+  if (!galleryActive.value) return false
   const previewPath = getJxlPreviewSource(item)
   if (!previewPath || jxlPreviewErrors[previewPath]) {
     return false
@@ -1014,47 +1004,31 @@ function getGallery(): IGalleryItem[] {
     dateRange.value ||
     galleryPicBedFilterSetting.value.length > 0
   ) {
-    return images.value
-      .filter(item => {
-        let isInChoosedPicBed = true
-        let isIncludesSearchText = true
-        let isIncludesSearchTextURL = true
-        let isIncludesDateRange = true
-        if (choosedPicBed.value.length > 0) {
-          isInChoosedPicBed = choosedPicBed.value.some(type => type === item.type)
-        } else if (galleryPicBedFilterSetting.value.length > 0) {
-          isInChoosedPicBed = galleryPicBedFilterSetting.value.some(type => type === item.type)
-        }
-        if (debouncedSearchText.value) {
-          isIncludesSearchText = customStrMatch(item.fileName || '', debouncedSearchText.value)
-        }
-        if (debouncedSearchTextURL.value) {
-          isIncludesSearchTextURL = customStrMatch(item.imgUrl || '', debouncedSearchTextURL.value)
-        }
-        if (dateRange.value) {
-          const [start, end] = dateRange.value as string[]
-          const date = new Date(item.updatedAt).getTime()
-          isIncludesDateRange = date >= new Date(start).getTime() && date <= new Date(end).getTime() + 86400000
-        }
-        return isIncludesSearchText && isInChoosedPicBed && isIncludesSearchTextURL && isIncludesDateRange
-      })
-      .map((item, index) => {
-        return {
-          ...item,
-          src: item.galleryPath || item.imgUrl || '',
-          key: item.id || `item-${index}`,
-          intro: item.fileName || '',
-        }
-      })
-  } else {
-    return images.value.map((item, index) => {
-      return {
-        ...item,
-        src: item.galleryPath || item.imgUrl || '',
-        key: item.id || `item-${index}`,
-        intro: item.fileName || '',
+    return images.value.filter(item => {
+      let isInChoosedPicBed = true
+      let isIncludesSearchText = true
+      let isIncludesSearchTextURL = true
+      let isIncludesDateRange = true
+      if (choosedPicBed.value.length > 0) {
+        isInChoosedPicBed = choosedPicBed.value.some(type => type === item.type)
+      } else if (galleryPicBedFilterSetting.value.length > 0) {
+        isInChoosedPicBed = galleryPicBedFilterSetting.value.some(type => type === item.type)
       }
+      if (debouncedSearchText.value) {
+        isIncludesSearchText = customStrMatch(item.fileName || '', debouncedSearchText.value)
+      }
+      if (debouncedSearchTextURL.value) {
+        isIncludesSearchTextURL = customStrMatch(item.imgUrl || '', debouncedSearchTextURL.value)
+      }
+      if (dateRange.value) {
+        const [start, end] = dateRange.value as string[]
+        const date = new Date(item.updatedAt).getTime()
+        isIncludesDateRange = date >= new Date(start).getTime() && date <= new Date(end).getTime() + 86400000
+      }
+      return isIncludesSearchText && isInChoosedPicBed && isIncludesSearchTextURL && isIncludesDateRange
     })
+  } else {
+    return images.value
   }
 }
 
@@ -1074,7 +1048,7 @@ async function updateGallery() {
     cacheBustToken.value = Date.now()
     invalidateJxlPreviewCache()
   }
-  images.value = newList
+  images.value = prepareGalleryItems(newList)
   sortFile(currentSortField.value, false)
   nextTick(() => {
     pruneJxlPreviewState()
@@ -1355,7 +1329,7 @@ function sortFile(type: GallerySortField, toggle = true) {
   if (toggle) sortAscending.value = type === currentSortField.value ? !sortAscending.value : true
   currentSortField.value = type
   const column = tableColumns.value.find(column => column.key === type)
-  images.value.sort((a, b) =>
+  images.value = [...images.value].sort((a, b) =>
     type === 'check'
       ? Number(!!choosedList[b.id!]) - Number(!!choosedList[a.id!])
       : compareFileValues(column?.value(a), column?.value(b), sortAscending.value),
@@ -1409,7 +1383,12 @@ onBeforeRouteUpdate((to, from) => {
 })
 
 onActivated(async () => {
+  galleryActive.value = true
   await initConf()
+  if (galleryDirty) {
+    galleryDirty = false
+    await updateGallery()
+  }
   nextTick(() => {
     if (virtualScrollerRef.value && typeof virtualScrollerRef.value.refresh === 'function') {
       virtualScrollerRef.value.refresh()
@@ -1417,6 +1396,17 @@ onActivated(async () => {
       componentKey.value++
     }
   })
+})
+
+onDeactivated(() => {
+  galleryActive.value = false
+  gallerySliderControl.value.visible = false
+  hoverPreviewRef.value?.hide()
+  hoverPreviewItem.value = undefined
+  invalidateJxlPreviewCache()
+  for (const state of [displayImageSources, imageLoadStates, imageErrorStates]) {
+    for (const key of Object.keys(state)) delete state[key]
+  }
 })
 
 onBeforeMount(async () => {
@@ -1427,7 +1417,9 @@ onBeforeMount(async () => {
   document.addEventListener('click', handleOutsideClick)
 })
 
-onBeforeUnmount(async () => {
+onBeforeUnmount(() => {
+  galleryActive.value = false
+  invalidateJxlPreviewCache()
   window.electron.ipcRendererRemoveAllListeners('updateGallery')
   document.removeEventListener('click', handleOutsideClick)
   document.removeEventListener('keydown', handleDetectShiftKey)
@@ -1436,7 +1428,6 @@ onBeforeUnmount(async () => {
   // Clear timers
   if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
   if (searchURLDebounceTimer) clearTimeout(searchURLDebounceTimer)
-  isAlwaysForceReload.value = (await getConfig(configPaths.settings.isAlwaysForceReload)) || false
 })
 </script>
 

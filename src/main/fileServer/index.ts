@@ -1,5 +1,4 @@
-import { constants } from 'node:fs'
-import { open, realpath } from 'node:fs/promises'
+import { realpath } from 'node:fs/promises'
 import http from 'node:http'
 import path from 'node:path'
 
@@ -8,6 +7,8 @@ import logger from '@core/picgo/logger'
 import fs from 'fs-extra'
 
 import { closeServer, listenOnce } from '~/utils/serverLifecycle'
+
+import { streamPreviewFile } from './streamFile'
 
 export const imgFilePath = path.join(picgo.baseDir, 'imgTemp')
 fs.ensureDirSync(imgFilePath)
@@ -65,19 +66,14 @@ export function startFileServer() {
     server = http.createServer(async (req, res) => {
       try {
         const filePath = await resolvePreviewPath(req.url)
-        const file = await open(
-          filePath,
-          constants.O_RDONLY | (constants.O_NOFOLLOW || 0) | (constants.O_NONBLOCK || 0),
-        )
-        let data: Buffer
-        try {
-          if (!(await file.stat()).isFile()) throw new FileRequestError(404)
-          data = await file.readFile()
-        } finally {
-          await file.close()
-        }
-        res.end(data)
+        await streamPreviewFile(filePath, res, req.method === 'HEAD')
       } catch (error) {
+        if (res.destroyed) return
+        if (res.headersSent) {
+          res.destroy()
+          return
+        }
+        res.removeHeader('Content-Length')
         const statusCode = error instanceof FileRequestError ? error.statusCode : 404
         res.writeHead(statusCode)
         res.end(`${statusCode} ${http.STATUS_CODES[statusCode]}`)

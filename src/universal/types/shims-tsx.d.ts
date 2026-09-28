@@ -33,6 +33,7 @@ declare global {
       onThemeUpdate: (callback: (css: string) => void) => () => void
     }
     node: {
+      pathToFileURL: (filePath: string) => string
       path: {
         join: typeof path.join
         dirname: typeof path.dirname

@@ -18,7 +18,16 @@ export function useBulkChanges(afterRun: (snapshot: BulkSnapshot) => Promise<voi
   let disposed = false
   let refreshed = ''
 
+  async function release(id: string) {
+    try {
+      await window.electron.triggerRPC(IRPCActionType.BULK_CHANGES_DISCARD, id, true)
+    } catch {
+      // The main process also releases this window's sessions when it is destroyed.
+    }
+  }
+
   async function accept(result: BulkSnapshot | undefined) {
+    if (disposed) return
     if (!result || result.plan.id !== snapshot.value?.plan.id) throw new Error('Missing bulk results')
     snapshot.value = result
     uncertain.value = false
@@ -64,6 +73,10 @@ export function useBulkChanges(afterRun: (snapshot: BulkSnapshot) => Promise<voi
     try {
       const result = await window.electron.triggerRPC<BulkSnapshot>(action, ...args)
       if (!result) throw new Error('Missing bulk preview')
+      if (disposed) {
+        await release(result.plan.id)
+        return false
+      }
       snapshot.value = result
       policy.value = ''
       refreshed = ''
@@ -123,6 +136,8 @@ export function useBulkChanges(afterRun: (snapshot: BulkSnapshot) => Promise<voi
   onBeforeUnmount(() => {
     disposed = true
     clearTimeout(timer)
+    if (snapshot.value) void release(snapshot.value.plan.id)
+    snapshot.value = undefined
   })
 
   return { snapshot, visible, building, busy, error, policy, preview, execute, refresh, discard, reopen }

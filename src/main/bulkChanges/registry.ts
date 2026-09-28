@@ -9,7 +9,10 @@ import { createGalleryAdapter } from './gallery'
 import { createRemoteAdapter } from './remote'
 import { BulkChangeSession } from './session'
 
-const sessions = new Map<string, { owner: number; scope: string; session: BulkChangeSession }>()
+const sessions = new Map<
+  string,
+  { owner: number; scope: string; session: BulkChangeSession; releaseAfterRun?: boolean }
+>()
 const owners = new Set<number>()
 const busyScopes = new Set<string>()
 
@@ -89,7 +92,8 @@ export function bulkChangeStatus(event: IIPCEvent, id: string) {
 
 export async function commitBulkChanges(event: IIPCEvent, id: string, policy: BulkPolicy, retryFailed: boolean) {
   if (!isBulkPolicy(policy) || typeof retryFailed !== 'boolean') throw new Error('Invalid commit policy')
-  const { session, scope } = owned(event, id)
+  const entry = owned(event, id)
+  const { session, scope } = entry
   if (session.snapshot().running) return session.run(policy, retryFailed)
   if (busyScopes.has(scope)) throw new Error('Another bulk change is running in this destination')
   busyScopes.add(scope)
@@ -97,10 +101,16 @@ export async function commitBulkChanges(event: IIPCEvent, id: string, policy: Bu
     return await session.run(policy, retryFailed)
   } finally {
     busyScopes.delete(scope)
+    if (entry.releaseAfterRun) sessions.delete(id)
   }
 }
 
-export function discardBulkChanges(event: IIPCEvent, id: string) {
-  if (owned(event, id).session.snapshot().running) return false
+export function discardBulkChanges(event: IIPCEvent, id: string, releaseAfterRun = false) {
+  const entry = owned(event, id)
+  if (entry.session.snapshot().running) {
+    // An unmounted page can relinquish its results without interrupting remote writes.
+    if (releaseAfterRun === true) entry.releaseAfterRun = true
+    return releaseAfterRun === true
+  }
   return sessions.delete(id)
 }

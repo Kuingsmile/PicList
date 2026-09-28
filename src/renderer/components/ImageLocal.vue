@@ -5,7 +5,7 @@
     </div>
     <img
       v-else-if="!hasError"
-      :src="isShowThumbnail && item.isImage ? base64Image : `./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
+      :src="isShowThumbnail && item.isImage ? source : `./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
       alt=""
       class="h-full w-full object-contain"
       @load="handleImageLoad"
@@ -33,18 +33,13 @@ const props = defineProps<{
   localPath: string
 }>()
 
-const {
-  source: base64Image,
-  isLoading,
-  hasError,
-} = useThumbnail(
+const { source, isLoading, hasError } = useThumbnail(
   () => props.isShowThumbnail && props.item.isImage,
   [() => props.localPath],
   async signal => {
-    const filePath = window.node.path.normalize(props.localPath)
-    const base64 = await window.node.fs.readFile(filePath, 'base64')
     signal.throwIfAborted()
-    return `data:${window.node.mime.lookup(filePath) || 'image/png'};base64,${base64}`
+    // Chromium reads the file directly; no full-file base64 copies across the preload bridge.
+    return window.node.pathToFileURL(props.localPath)
   },
 )
 

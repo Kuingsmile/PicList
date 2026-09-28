@@ -34,6 +34,7 @@ export default [
   {
     action: IRPCActionType.BULK_CHANGES_DISCARD,
     type: IRPCType.INVOKE,
-    handler: async (event: IIPCEvent, [id]: [string]) => discardBulkChanges(event, id),
+    handler: async (event: IIPCEvent, [id, releaseAfterRun]: [string, boolean?]) =>
+      discardBulkChanges(event, id, releaseAfterRun),
   },
 ]

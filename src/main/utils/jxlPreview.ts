@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { initSync, JxlImage } from 'jxl-oxide-wasm'
 
 let isJxlDecoderInitialized = false
+let pendingDecode: Promise<unknown> = Promise.resolve()
 
 function isHttpSource(source: string): boolean {
   return /^https?:\/\//i.test(source)
@@ -41,7 +42,7 @@ function initJxlDecoder() {
 
 async function readJxlSource(source: string): Promise<Buffer> {
   if (isHttpSource(source)) {
-    const response = await fetch(source)
+    const response = await fetch(source, { signal: AbortSignal.timeout(30_000) })
     if (!response.ok) {
       throw new Error(`request failed with status ${response.status}`)
     }
@@ -51,9 +52,7 @@ async function readJxlSource(source: string): Promise<Buffer> {
   return await readFile(normalizeLocalFilePath(source))
 }
 
-export async function convertJxlSourceToPngDataUrl(source: string, isKnownJxl = false): Promise<string | undefined> {
-  if (!source || isInlineSource(source) || (!isKnownJxl && !isJxlSource(source))) return undefined
-
+async function decodeJxlSource(source: string): Promise<string | undefined> {
   const fileBytes = await readJxlSource(source)
   initJxlDecoder()
 
@@ -66,9 +65,26 @@ export async function convertJxlSourceToPngDataUrl(source: string, isKnownJxl = 
       return undefined
     }
 
-    const pngBytes = image.render().encodeToPng()
-    return `data:image/png;base64,${Buffer.from(pngBytes).toString('base64')}`
+    const frame = image.render()
+    try {
+      const pngBytes = frame.encodeToPng()
+      // encodeToPng returns an owned Uint8Array; a Buffer view avoids another full PNG copy.
+      return `data:image/png;base64,${Buffer.from(pngBytes.buffer, pngBytes.byteOffset, pngBytes.byteLength).toString('base64')}`
+    } finally {
+      frame.free()
+    }
   } finally {
     image.free()
   }
+}
+
+export async function convertJxlSourceToPngDataUrl(source: string, isKnownJxl = false): Promise<string | undefined> {
+  if (!source || isInlineSource(source) || (!isKnownJxl && !isJxlSource(source))) return undefined
+  // Queue before reading: scrolling must not preload many compressed images at once.
+  const result = pendingDecode.then(() => decodeJxlSource(source))
+  pendingDecode = result.then(
+    () => {},
+    () => {},
+  )
+  return result
 }
