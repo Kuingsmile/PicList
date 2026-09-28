@@ -22,7 +22,6 @@ import { initializeI18n } from '~/i18n'
 import { setupAutoUpdater } from '~/lifeCycle/autoUpdater'
 import fixPath from '~/lifeCycle/fixPath'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
-import getManageApi from '~/manage/Main'
 import { clearTempFolder } from '~/manage/utils/common'
 import server from '~/server/index'
 import { isAutoStartEnabled, setAutoStart } from '~/utils/autoStart'
@@ -96,7 +95,6 @@ class LifeCycle {
     // fix the $PATH in macOS & linux
     fixPath()
     beforeOpen()
-    getManageApi()
     UpDownTaskQueue.getInstance()
     // Register journal references before any uploader can prune completed finalization history.
     UploadTaskQueueManager.getInstance()
@@ -159,11 +157,22 @@ class LifeCycle {
       const tooltip = `${currentPicBed} ${currentPicBedConfig}`
       if (process.platform === 'darwin') {
         isHideDock ? app.dock?.hide() : setDockMenu()
+      }
+      picgo.saveConfig({ [configPaths.needReload]: false })
+
+      // The renderer and its RPC handlers are ready. Start loading the first window
+      // before initializing services that the upload page does not need to paint.
+      if (startMode === ISartMode.MINI && process.platform !== 'darwin') {
+        showMiniWindow()
+      } else if (startMode === ISartMode.MAIN) {
+        windowManager.create(IWindowList.SETTING_WINDOW)
+      }
+
+      if (process.platform === 'darwin') {
         startMode !== ISartMode.NO_TRAY && createTray(tooltip)
       } else {
         createTray(tooltip)
       }
-      picgo.saveConfig({ [configPaths.needReload]: false })
       updateChecker()
       process.nextTick(() => {
         shortKeyHandler.init()
@@ -187,11 +196,6 @@ class LifeCycle {
           remoteNoticeHandler.triggerHook(IRemoteNoticeTriggerHook.APP_START)
         })
         .catch(() => {})
-      if (startMode === ISartMode.MINI && process.platform !== 'darwin') {
-        showMiniWindow()
-      } else if (startMode === ISartMode.MAIN) {
-        windowManager.create(IWindowList.SETTING_WINDOW)
-      }
       const clipboardDir = path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER)
       fs.emptyDir(clipboardDir)
       runScriptInStage('onSoftwareOpen', picgo, {})
