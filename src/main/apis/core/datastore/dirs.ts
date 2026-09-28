@@ -9,8 +9,27 @@ import { notificationList } from '~/utils/notification'
 
 let _configFilePath = ''
 let _manageConfigFilePath = ''
-let hasCheckPath = false
-let hasCheckManagePath = false
+
+function resolveConfigPath(defaultPath: string, getLogPath: () => string, logType: string): string {
+  if (!fs.existsSync(defaultPath)) return defaultPath
+
+  try {
+    const config: { configPath?: unknown } | null = JSON.parse(fs.readFileSync(defaultPath, 'utf-8'))
+    const customPath = config?.configPath
+    if (typeof customPath === 'string' && customPath.endsWith('.json') && fs.existsSync(customPath)) {
+      return customPath
+    }
+  } catch (_e) {
+    notificationList.push({
+      title: t('main.notification.notice'),
+      body: t('main.notification.customConfigFilePathError'),
+    })
+    // JSON parse errors can include configuration contents, so do not log the original error.
+    getLogger(getLogPath(), logType)('error', 'Failed to read configuration path; using the default path.')
+  }
+
+  return defaultPath
+}
 
 export function isPortable() {
   return fs.existsSync(path.join(exeDir(), 'PORTABLE'))
@@ -31,9 +50,7 @@ export function userDataDir() {
 export function dataDir() {
   const configDir = path.dirname(appConfigPath())
   try {
-    if (!fs.existsSync(configDir)) {
-      fs.mkdirsSync(configDir)
-    }
+    fs.ensureDirSync(configDir)
   } catch (_e) {}
   return configDir
 }
@@ -48,52 +65,19 @@ export function scriptsDir() {
 }
 
 export function defaultConfigPath() {
-  if (isPortable()) {
-    return path.join(exeDir(), 'data', 'data.json')
-  }
-  return path.join(userDataDir(), 'data.json')
+  return path.join(defaultDir(), 'data.json')
 }
 
 export function defaultManageConfigPath() {
-  if (isPortable()) {
-    return path.join(exeDir(), 'data', 'manage.json')
-  }
-  return path.join(userDataDir(), 'manage.json')
+  return path.join(defaultDir(), 'manage.json')
 }
 
 export function appConfigPath() {
   if (_configFilePath) return _configFilePath
+  // Seed the cache before resolving, so error reporting can safely re-enter this getter.
   _configFilePath = defaultConfigPath()
-  if (!fs.existsSync(_configFilePath)) return _configFilePath
-  try {
-    const configString = fs.readFileSync(_configFilePath, {
-      encoding: 'utf-8',
-    })
-    const config = JSON.parse(configString)
-    // extract custom data dir
-    const userConfigPath: string = config.configPath || ''
-    if (userConfigPath) {
-      if (fs.existsSync(userConfigPath) && userConfigPath.endsWith('.json')) {
-        _configFilePath = userConfigPath
-        return _configFilePath
-      }
-    }
-    return _configFilePath
-  } catch (e) {
-    const piclistLogPath = appGUILogPath()
-    const logger = getLogger(piclistLogPath, 'PicList')
-    if (!hasCheckPath) {
-      const optionsTpl = {
-        title: t('main.notification.notice'),
-        body: t('main.notification.customConfigFilePathError'),
-      }
-      notificationList.push(optionsTpl)
-      hasCheckPath = true
-    }
-    logger('error', e)
-    _configFilePath = defaultConfigPath()
-    return _configFilePath
-  }
+  _configFilePath = resolveConfigPath(_configFilePath, appGUILogPath, 'PicList')
+  return _configFilePath
 }
 
 export function themesDir() {
@@ -115,35 +99,8 @@ export function galleryDBBackupPath() {
 export function manageConfigPath() {
   if (_manageConfigFilePath) return _manageConfigFilePath
   _manageConfigFilePath = defaultManageConfigPath()
-  if (!fs.existsSync(_manageConfigFilePath)) return _manageConfigFilePath
-  try {
-    const configString = fs.readFileSync(_manageConfigFilePath, {
-      encoding: 'utf-8',
-    })
-    const config = JSON.parse(configString)
-    const userConfigPath: string = config.configPath || ''
-    if (userConfigPath) {
-      if (fs.existsSync(userConfigPath) && userConfigPath.endsWith('.json')) {
-        _manageConfigFilePath = userConfigPath
-        return _manageConfigFilePath
-      }
-    }
-    return _manageConfigFilePath
-  } catch (e) {
-    const manageLogPath = manageGUILogPath()
-    const logger = getLogger(manageLogPath, 'Manage')
-    if (!hasCheckManagePath) {
-      const optionsTpl = {
-        title: t('main.notification.notice'),
-        body: t('main.notification.customConfigFilePathError'),
-      }
-      notificationList.push(optionsTpl)
-      hasCheckManagePath = true
-    }
-    logger('error', e)
-    _manageConfigFilePath = defaultManageConfigPath()
-    return _manageConfigFilePath
-  }
+  _manageConfigFilePath = resolveConfigPath(_manageConfigFilePath, manageGUILogPath, 'Manage')
+  return _manageConfigFilePath
 }
 
 export function manageConfigBackupPath() {

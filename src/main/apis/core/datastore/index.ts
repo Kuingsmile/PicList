@@ -5,7 +5,6 @@ import { trackGalleryStore } from '~/utils/gallerySync/store'
 
 export const DB_PATH: string = galleryDBPath()
 
-// v2.3.0 add gallery db
 class GalleryDB {
   static #instance: DBStore
   private constructor() {

@@ -1,4 +1,4 @@
-import { dbChecker } from '@core/datastore/dbChecker'
+import dbChecker from '@core/datastore/dbChecker'
 import { appConfigPath } from '@core/datastore/dirs'
 import { PicGo } from 'piclist'
 import pkg from 'root/package.json'
@@ -8,6 +8,7 @@ import { configPaths } from '~/utils/configPaths'
 
 import { executeBundledNpm } from './bundledNpm'
 import { DesktopPluginHandler } from './pluginHandler'
+
 const CONFIG_PATH = appConfigPath()
 
 dbChecker()
