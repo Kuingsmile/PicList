@@ -228,18 +228,9 @@ import {
 } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
 import { pick } from 'lodash-es'
+import QrcodeVue from 'qrcode.vue'
 import pkg from 'root/package.json'
-import {
-  computed,
-  defineAsyncComponent,
-  nextTick,
-  onBeforeMount,
-  onBeforeUnmount,
-  reactive,
-  Ref,
-  ref,
-  watch,
-} from 'vue'
+import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -252,8 +243,6 @@ import * as config from '@/router/config'
 import { SHOW_FIRST_TIME_GUIDE, SHOW_MAIN_PAGE_QRCODE } from '@/utils/constant'
 import { getConfig } from '@/utils/dataSender'
 import { IRPCActionType } from '@/utils/enum'
-
-const QrcodeVue = defineAsyncComponent(() => import('qrcode.vue'))
 
 const version = ref(pkg.version)
 const isCollapsed = useStorage('navigation-collapsed', false)
