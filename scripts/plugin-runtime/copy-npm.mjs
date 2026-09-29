@@ -7,13 +7,19 @@ function isWithin(directory, target) {
 }
 
 export async function copyNpmRuntime(source, destination) {
-  // fs.cp otherwise rewrites relative links as absolute source paths, which
-  // breaks installed npm commands and macOS's strict code-signature check.
-  await cp(source, destination, { recursive: true, verbatimSymlinks: true })
+  await cp(source, destination, {
+    recursive: true,
+    // Preserve package-owned relative links for relocation and macOS signing.
+    verbatimSymlinks: true,
+    // Yarn generates these links/shims against hoisted dependencies outside npm.
+    // They are build-machine artifacts, not part of npm's standalone runtime.
+    // Keep npm/bin and node-gyp-bin; PicList supplies its own public launchers.
+    filter: file => path.basename(file) !== '.bin' || path.basename(path.dirname(file)) !== 'node_modules',
+  })
   const root = await realpath(destination)
 
   // Extra resources live outside app.asar. Every link must still work after the
-  // application is moved off the build machine, including npm's nested .bin links.
+  // application is moved off the build machine.
   async function validate(directory) {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       const file = path.join(directory, entry.name)
