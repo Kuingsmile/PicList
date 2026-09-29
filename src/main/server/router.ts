@@ -1,13 +1,20 @@
 type HttpMethod = 'GET' | 'POST'
 
+interface Route {
+  handler: routeHandler
+  urlparams?: URLSearchParams
+}
+
 class Router {
-  private readonly router = new Map<string, Map<HttpMethod, { handler: routeHandler; urlparams?: URLSearchParams }>>()
+  private readonly routesByPath = new Map<string, Map<HttpMethod, Route>>()
 
   private add(method: HttpMethod, url: string, callback: routeHandler, urlparams?: URLSearchParams): void {
-    if (!this.router.has(url)) {
-      this.router.set(url, new Map())
+    let routesByMethod = this.routesByPath.get(url)
+    if (!routesByMethod) {
+      routesByMethod = new Map()
+      this.routesByPath.set(url, routesByMethod)
     }
-    this.router.get(url)!.set(method, { handler: callback, urlparams })
+    routesByMethod.set(method, { handler: callback, urlparams })
   }
 
   get(url: string, callback: routeHandler, urlparams?: URLSearchParams): void {
@@ -23,14 +30,8 @@ class Router {
     this.add('POST', url, callback, urlparams)
   }
 
-  getHandler(url: string, method: HttpMethod) {
-    if (this.router.has(url)) {
-      const methods = this.router.get(url)!
-      if (methods.has(method)) {
-        return methods.get(method)
-      }
-    }
-    return null
+  getHandler(url: string, method: HttpMethod): Route | null {
+    return this.routesByPath.get(url)?.get(method) ?? null
   }
 }
 
