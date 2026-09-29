@@ -44,25 +44,6 @@ export const IWindowList = {
   UPDATE_WINDOW: 'UPDATE_WINDOW',
 }
 
-export const IRemoteNoticeActionType = {
-  OPEN_URL: 'OPEN_URL',
-  SHOW_NOTICE: 'SHOW_NOTICE', // notification
-  SHOW_DIALOG: 'SHOW_DIALOG', // dialog notice
-  COMMON: 'COMMON',
-  VOID: 'VOID', // do nothing
-  SHOW_MESSAGE_BOX: 'SHOW_MESSAGE_BOX',
-}
-
-export const IRemoteNoticeTriggerHook = {
-  APP_START: 'APP_START',
-  SETTING_WINDOW_OPEN: 'SETTING_WINDOW_OPEN',
-}
-
-export const IRemoteNoticeTriggerCount = {
-  ONCE: 'ONCE', // default
-  ALWAYS: 'ALWAYS',
-}
-
 export const IRPCType = {
   INVOKE: 'INVOKE',
   SEND: 'SEND',

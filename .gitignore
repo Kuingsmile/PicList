@@ -37,7 +37,6 @@ test.js
 scripts/*.yml
 scripts/generateYmlFile.js
 .yarnrc
-remote-notice.json
 cloc*.exe
 !.gitkeep
 7za.exe

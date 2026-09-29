@@ -10,7 +10,7 @@ See the [development guide](../../../CONTRIBUTING_EN.md) / [开发指南](../../
 | `core/datastore/` | Configuration paths, gallery storage, and database checks. / 配置路径、相册存储和数据库检查。                                                                                                         |
 | `core/picgo/`     | The PicList-Core instance, logging, and the desktop plugin handler with optional bundled npm. / PicList-Core 实例、日志，以及支持可选内置 npm 的桌面插件管理器。                                      |
 | `core/utils/`     | Local GUI log helpers. / 本地 GUI 日志工具。                                                                                                                                                          |
-| `app/`            | Upload orchestration, windows, shortcuts, themes, system integration, and remote notices. / 上传流程、窗口、快捷键、主题、系统集成和远程通知。                                                        |
+| `app/`            | Upload orchestration, windows, shortcuts, themes, and system integration. / 上传流程、窗口、快捷键、主题和系统集成。                                                        |
 | `gui/`            | `GuiApi` for plugins: dialogs, file selection, uploads, notifications, configuration paths, and guarded gallery access. / 插件的 `GuiApi`：对话框、文件选择、上传、通知、配置路径和带确认的相册访问。 |
 | `delete/`         | Gallery remote-deletion adapters, dispatched by uploader ID in `allApi.ts`. / 相册远端删除适配器，由 `allApi.ts` 按上传器 ID 分发。                                                                   |
 

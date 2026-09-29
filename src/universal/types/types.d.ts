@@ -431,43 +431,6 @@ interface II18nItem {
   value: string
 }
 
-interface IRemoteNotice {
-  version: number
-  list: {
-    versions: string[] // matched picgo version
-    actions: IRemoteNoticeAction[]
-    versionMatch?: 'exact' | 'gte' | 'lte'
-  }[]
-}
-
-interface IRemoteNoticeAction {
-  type: string
-  // trigger time
-  hooks: string[]
-  id: string
-  // trigger count: always or once; default: once
-  triggerCount: string
-
-  data?: {
-    title?: string
-    content?: string
-    desc?: string // action desc
-    buttons?: IRemoteNoticeButton[]
-    url?: string
-    copyToClipboard?: string
-    options: any // for other case
-  }
-}
-
-interface IRemoteNoticeButton {
-  label: string
-  labelEN?: string
-  type: 'confirm' | 'cancel' | 'other'
-  action: IRemoteNoticeAction
-}
-
-type IRemoteNoticeLocalCountStorage = Record<string, true | number>
-
 interface IUploaderListItemMetaInfo {
   _id: string
   _configName: string

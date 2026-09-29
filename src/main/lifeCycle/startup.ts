@@ -4,7 +4,6 @@ import { pathToFileURL } from 'node:url'
 import { themesDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
-import { remoteNoticeHandler } from 'apis/app/remoteNotice'
 import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import { createTray, setDockMenu } from 'apis/app/system'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
@@ -16,7 +15,7 @@ import { initializeI18n } from '~/i18n'
 import server from '~/server/index'
 import clipboardPoll from '~/utils/clipboardPoll'
 import { configPaths, type IConfigStruct } from '~/utils/configPaths'
-import { II18nLanguage, IRemoteNoticeTriggerHook, ISartMode, IWindowList } from '~/utils/enum'
+import { II18nLanguage, ISartMode, IWindowList } from '~/utils/enum'
 import { getUploadFiles } from '~/utils/handleArgv'
 import { notificationList } from '~/utils/notification'
 import { runScriptInStage } from '~/utils/runScript'
@@ -107,10 +106,6 @@ export const initializeStartup = () => {
   while ((notification = notificationList.pop())) {
     new Notification(notification).show()
   }
-  void remoteNoticeHandler
-    .init()
-    .then(() => remoteNoticeHandler.triggerHook(IRemoteNoticeTriggerHook.APP_START))
-    .catch(() => {})
 
   if (startMode === ISartMode.MINI) {
     showMiniWindow()
