@@ -163,6 +163,7 @@ export const rpcContracts = {
   WRITE_SCRIPT_FILE: write(tuple<[path: string[], content: string]>(isScriptPath, isString)),
   DELETE_SCRIPTS_FILE: write(tuple<[path: string[]]>(isScriptPath)),
   UPLOADER_SELECT: write(tuple<[type: string, id: string]>(isUploader, isNonemptyString)),
+  PICBED_SELECT_UPLOAD_TARGET: write(tuple<[type: string, id: string]>(isUploader, isString)),
   UPLOADER_UPDATE_CONFIG: write(
     tuple<[type: string, id: string, config: ConfigPatch]>(isUploader, isNonemptyString, isConfig),
   ),

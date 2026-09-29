@@ -486,6 +486,13 @@ interface IFavoritePicbedItem {
   configName: string
 }
 
+interface IUploadTarget {
+  type: string
+  name: string
+  configId: string
+  configName: string
+}
+
 interface IuploadReturnCtxResult {
   ctx: import('piclist').IPicGo | undefined
   backupCtx: import('piclist').IPicGo | undefined

@@ -91,13 +91,7 @@
             <Settings :size="16" />
             <span>{{ t('pages.imageProcess.editor.title') }}</span>
           </button>
-          <button
-            class="flex cursor-pointer items-center gap-2 rounded-md border-none bg-accent px-4 py-2.5 font-[inherit] text-sm font-medium text-white duration-fast ease-standard hover:-translate-y-px hover:bg-accent-hover hover:shadow-md focus-visible:focus-ring max-md:flex-1 max-md:justify-center max-xs:px-3 max-xs:py-2 max-xs:text-[0.8rem]"
-            @click="handleChangePicBed"
-          >
-            <ArrowLeftRightIcon :size="16" />
-            <span>{{ t('pages.upload.changePicBed') }}</span>
-          </button>
+          <PicBedSwitcher />
         </div>
       </div>
 
@@ -623,7 +617,6 @@
 
 <script lang="ts" setup>
 import {
-  ArrowLeftRightIcon,
   CheckCircleIcon,
   CheckIcon,
   ChevronDownIcon,
@@ -665,6 +658,7 @@ import { useRouter } from 'vue-router'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
+import PicBedSwitcher from '@/components/PicBedSwitcher.vue'
 import { usePicBed } from '@/hooks/useGlobal'
 import useMessage from '@/hooks/useMessage'
 import { PICBEDS_PAGE } from '@/router/config'
@@ -1131,10 +1125,6 @@ function handleInputBoxValue(val: string) {
       message.success(t('pages.upload.uploadingMultipleUrls', { count: validUrls.length }))
     }
   }
-}
-
-async function handleChangePicBed() {
-  window.electron.sendRPC(IRPCActionType.SHOW_UPLOAD_PAGE_MENU)
 }
 
 function openTaskDialog() {
