@@ -1,4 +1,5 @@
 import picgo from '@core/picgo'
+import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import { uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
 import GuiApi from 'apis/gui'
@@ -288,10 +289,11 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
     {
       label: t('main.menu.enablePlugin'),
       enabled: !plugin.enabled,
-      click() {
+      async click() {
         picgo.saveConfig({
           [`picgoPlugins.${plugin.fullName}`]: true,
         })
+        await shortKeyHandler.registerPluginShortKey(plugin.fullName)
         windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send(PICGO_TOGGLE_PLUGIN, plugin.fullName, true)
       },
     },
@@ -302,6 +304,7 @@ const buildPluginPageMenu = (plugin: IPicGoPlugin) => {
         picgo.saveConfig({
           [`picgoPlugins.${plugin.fullName}`]: false,
         })
+        shortKeyHandler.refresh(false)
         const window = windowManager.get(IWindowList.SETTING_WINDOW)
         window?.webContents?.send(PICGO_HANDLE_PLUGIN_ING, plugin.fullName)
         window?.webContents?.send(PICGO_TOGGLE_PLUGIN, plugin.fullName, false)

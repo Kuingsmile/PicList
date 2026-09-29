@@ -74,13 +74,7 @@ interface IPicBedType {
 }
 
 // Config Settings
-interface IShortKeyConfig {
-  enable: boolean
-  key: string // 按键
-  name: string
-  label: string
-  from?: string
-}
+type IShortKeyConfig = import('../shortcuts').ShortcutConfig
 
 interface IPluginShortKeyConfig {
   key: string

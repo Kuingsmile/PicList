@@ -59,8 +59,10 @@
       "operationFailed": "操作失败",
       "operationSuccess": "操作成功",
       "quickUpload": "快捷上传",
+      "shortcutActionFailed": "快捷键操作未能完成。请在设置 → 快捷键中检查插件和所选图床配置。",
       "shortcutModifiedConflict": "快捷键冲突，修改失败",
-      "shortcutModifiedSuccess": "快捷键修改成功"
+      "shortcutModifiedSuccess": "快捷键修改成功",
+      "shortcutProblems": "有 {{count}} 个快捷键无法生效。请打开设置 → 快捷键，查看冲突或不可用的操作。"
     },
     "toolbox": {
       "checkClipboardFilePathTips": "剪贴板图片临时文件夹路径是 {{path}}",

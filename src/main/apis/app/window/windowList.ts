@@ -203,6 +203,9 @@ windowList.set(IWindowList.SETTING_WINDOW, {
       bus.emit(TOGGLE_SHORTKEY_MODIFIED_MODE, false)
       window = null as unknown as Electron.BrowserWindow
     })
+    window.on('blur', () => bus.emit(TOGGLE_SHORTKEY_MODIFIED_MODE, false))
+    window.webContents.on('render-process-gone', () => bus.emit(TOGGLE_SHORTKEY_MODIFIED_MODE, false))
+    window.webContents.on('did-start-loading', () => bus.emit(TOGGLE_SHORTKEY_MODIFIED_MODE, false))
     window.once('ready-to-show', async () => {
       window.show()
       window.focus()

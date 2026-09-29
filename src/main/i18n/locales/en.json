@@ -59,8 +59,10 @@
       "operationFailed": "Operation Failed",
       "operationSuccess": "Operation Success",
       "quickUpload": "Quick Upload",
+      "shortcutActionFailed": "The shortcut action could not be completed. Check the plugin and selected picbed profile in Settings → Shortcuts.",
       "shortcutModifiedConflict": "Shortcut Conflict, Failed to Modify",
-      "shortcutModifiedSuccess": "Shortcut Modified Successfully"
+      "shortcutModifiedSuccess": "Shortcut Modified Successfully",
+      "shortcutProblems": "{{count}} shortcut(s) could not be activated. Open Settings → Shortcuts to review conflicts or unavailable actions."
     },
     "toolbox": {
       "checkClipboardFilePathTips": "Clipboard image temporary folder path is {{path}}",

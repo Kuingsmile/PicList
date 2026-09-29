@@ -1,9 +1,21 @@
+import { isUploadShortcutAction, type ShortcutConfig } from './shortcuts'
+
+export type { ShortcutConfig } from './shortcuts'
+
 /** Shared, serializable RPC contracts. Never put exception text or request values in an error. */
 export const rpcErrorMessages = {
   INVALID_REQUEST: 'The request is invalid. Check the entered values and try again.',
   FORBIDDEN: 'This window cannot perform the requested operation.',
   NOT_FOUND: 'The requested item or operation no longer exists.',
   CONFLICT: 'The operation conflicts with the current configuration.',
+  SHORTCUT_CONFLICT:
+    'This shortcut is already assigned to another enabled action. Choose another key or disable that action.',
+  SHORTCUT_INVALID: 'Use a valid shortcut with one key and optional modifiers.',
+  SHORTCUT_UNAVAILABLE:
+    'This shortcut or action is unavailable. The key may be reserved by the system or another application.',
+  SHORTCUT_TARGET_MISSING:
+    'The selected picbed profile is unavailable. Choose an existing profile from an enabled uploader.',
+  SHORTCUT_TARGET_AMBIGUOUS: 'This picbed has duplicate profile names. Give the selected profile a unique name first.',
   WRITE_FAILED: 'The changes could not be saved. Your edits have been kept. Please try again.',
   INTERNAL_ERROR: 'The operation failed. Please try again.',
   INVALID_RESPONSE: 'The application returned an invalid acknowledgement. Please try again.',
@@ -82,20 +94,21 @@ const tuple = <T extends unknown[]>(...checks: ((value: unknown) => boolean)[]) 
   )
 const acknowledgement = schema<true>(value => value === true)
 
-export interface ShortcutConfig {
-  enable: boolean
-  key: string
-  name: string
-  label: string
-  from?: string
-}
 const isShortcut = (value: unknown) =>
   isRecord(value) &&
   typeof value.enable === 'boolean' &&
-  isNonemptyString(value.key) &&
+  isString(value.key) &&
   isNonemptyString(value.name) &&
   isSafeKey(value.name) &&
   isString(value.label)
+
+const isCustomShortcut = (value: unknown) =>
+  isShortcut(value) &&
+  isRecord(value) &&
+  isNonemptyString(value.label) &&
+  isString(value.name) &&
+  /^[a-f0-9-]{36}$/.test(value.name) &&
+  isUploadShortcutAction(value.action)
 
 export interface UploaderConfigList {
   configList: (ConfigPatch & { _id: string; _configName: string; _createdAt: number; _updatedAt: number })[]
@@ -165,6 +178,8 @@ export const rpcContracts = {
     tuple<[config: ShortcutConfig, oldKey: string, from: string]>(isShortcut, isString, isNonemptyString),
   ),
   SHORTKEY_BIND_OR_UNBIND: write(tuple<[config: ShortcutConfig, from: string]>(isShortcut, isNonemptyString)),
+  SHORTKEY_SAVE_CUSTOM: write(tuple<[config: ShortcutConfig]>(isCustomShortcut)),
+  SHORTKEY_DELETE_CUSTOM: write(tuple<[id: string]>(v => isString(v) && /^custom:[a-f0-9-]{36}$/.test(v))),
 } as const
 
 export type RpcAction = keyof typeof rpcContracts

@@ -145,6 +145,7 @@ export const handlePluginUpdate = async (fullName: string | string[]) => {
   const dispose = handleNPMError()
   const res = await picgo.pluginHandler.update(typeof fullName === 'string' ? [fullName] : fullName)
   if (res.success) {
+    for (const name of res.body as string[]) await shortKeyHandler.registerPluginShortKey(name)
     window?.webContents?.send('updateSuccess', res.body[0])
   } else {
     showNotification({
@@ -220,6 +221,7 @@ export const pluginImportLocalFunc = async (event: IIPCEvent) => {
   if (filePaths.length > 0) {
     const res = await picgo.pluginHandler.install(filePaths)
     if (res.success) {
+      for (const name of res.body as string[]) await shortKeyHandler.registerPluginShortKey(name)
       try {
         const list = await getPluginList()
         event.sender.send('pluginList', list)
