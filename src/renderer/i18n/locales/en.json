@@ -1588,6 +1588,13 @@
         "switching": "Switching destination…"
       },
       "picbedSwitched": "Switched to {name}",
+      "progress": {
+        "files": "{completed} / {total} files",
+        "finalizing": "Finalizing",
+        "preparing": "Preparing",
+        "secondary": "Backup upload",
+        "uploading": "Uploading"
+      },
       "quickUpload": "Quick Upload",
       "removeFromFavorites": "Remove from quick switch",
       "taskQueue": {

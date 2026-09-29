@@ -30,6 +30,30 @@ export class UploadJobError extends Error {
 const jobs = new AsyncLocalStorage<UploadJob>()
 export const currentUploadJob = () => jobs.getStore()
 
+const activeProgress = new Map<string, IUploadProgress>()
+const progressObservers = new Map<WebContents, () => void>()
+
+export function unsubscribeFromUploadProgress(observer: WebContents): void {
+  progressObservers.get(observer)?.()
+}
+
+export function subscribeToUploadProgress(observer: WebContents): void {
+  if (observer.isDestroyed()) return
+  if (!progressObservers.has(observer)) {
+    const cleanup = () => {
+      progressObservers.delete(observer)
+      observer.removeListener('destroyed', cleanup)
+      observer.removeListener('did-start-loading', cleanup)
+    }
+    progressObservers.set(observer, cleanup)
+    observer.once('destroyed', cleanup)
+    observer.once('did-start-loading', cleanup)
+  }
+  // Subscribe only after the renderer has installed its listener, then replay
+  // active jobs so opening/reloading the mini window cannot miss their start.
+  for (const event of activeProgress.values()) sendToWindow(observer, 'uploadProgress', event)
+}
+
 export function sendToWindow(origin: WebContents | undefined, channel: string, ...args: unknown[]): void {
   try {
     if (origin && !origin.isDestroyed()) origin.send(channel, ...args)
@@ -46,6 +70,7 @@ export class UploadJob {
   private started = false
   private settled = false
   private failureReason: unknown
+  private progressDetails: Partial<IUploadProgress> = {}
 
   constructor(options: UploadJobOptions = {}) {
     this.context = Object.freeze({
@@ -77,18 +102,44 @@ export class UploadJob {
     if (this.settled) throw new UploadJobError('cancelled')
   }
 
-  reportProgress(progress: number): void {
-    if (!this.settled && !this.signal.aborted && Number.isFinite(progress)) {
+  reportProgress(progress: number, details?: ICoreUploadProgress): void {
+    if (this.settled || this.signal.aborted || !Number.isFinite(progress)) return
+    if (details) {
+      const phase = details.phase === 'preparing' || details.phase === 'uploading' ? details.phase : 'finalizing'
+      this.progressDetails = {
+        phase,
+        indeterminate: phase !== 'uploading' || details.progress === null,
+        destination: details.destination,
+        transferredBytes: details.transferredBytes,
+        totalBytes: details.totalBytes,
+        completedFiles: details.completedFiles,
+        totalFiles: details.totalFiles,
+      }
+      this.sendProgress(Math.max(0, Math.min(100, details.progress ?? 0)), 'uploading')
+    } else {
+      this.progressDetails = {
+        phase: progress <= 0 ? 'preparing' : progress >= 100 ? 'finalizing' : 'uploading',
+        indeterminate: progress <= 0 || progress >= 100,
+      }
       this.sendProgress(Math.max(0, Math.min(99, progress)), 'uploading')
     }
   }
 
   private sendProgress(progress: number, status: IUploadProgress['status']): void {
-    sendToWindow(this.context.origin, 'uploadProgress', {
+    const event: IUploadProgress = {
+      ...this.progressDetails,
       jobId: this.context.id,
       progress,
       status,
-    } satisfies IUploadProgress)
+      indeterminate: status === 'uploading' && this.progressDetails.indeterminate,
+    }
+    if (status === 'uploading') activeProgress.set(event.jobId, event)
+    else activeProgress.delete(event.jobId)
+
+    // The owner still receives its own events. Observers never become owners
+    // and closing one must not cancel an upload started in another window.
+    const recipients = new Set([this.context.origin, ...progressObservers.keys()])
+    for (const recipient of recipients) sendToWindow(recipient, 'uploadProgress', event)
   }
 
   private wait<T>(work: () => Promise<T>): Promise<T> {

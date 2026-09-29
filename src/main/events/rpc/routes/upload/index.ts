@@ -1,14 +1,29 @@
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
+import windowManager from 'apis/app/window/windowManager'
 
 import { RPCRouter } from '~/events/rpc/router'
-import { IRPCActionType, IRPCType } from '~/utils/enum'
+import { IRPCActionType, IRPCType, IWindowList } from '~/utils/enum'
 import getPicBeds from '~/utils/getPicBeds'
-import { UploadJob } from '~/utils/uploadJob'
+import { subscribeToUploadProgress, unsubscribeFromUploadProgress, UploadJob } from '~/utils/uploadJob'
 import UploadTaskQueueManager from '~/utils/uploadTaskQueue'
 
 const uploadRouter = new RPCRouter()
 
 const uploadRoutes = [
+  {
+    action: IRPCActionType.UPLOAD_PROGRESS_SUBSCRIBE,
+    handler: async (evt: IIPCEvent) => {
+      if (evt.sender === windowManager.get(IWindowList.MINI_WINDOW)?.webContents) {
+        subscribeToUploadProgress(evt.sender)
+      }
+    },
+  },
+  {
+    action: IRPCActionType.UPLOAD_PROGRESS_UNSUBSCRIBE,
+    handler: async (evt: IIPCEvent) => {
+      unsubscribeFromUploadProgress(evt.sender)
+    },
+  },
   {
     action: IRPCActionType.MAIN_GET_PICBED,
     handler: async () => {

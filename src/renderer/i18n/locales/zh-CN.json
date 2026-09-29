@@ -1588,6 +1588,13 @@
         "switching": "正在切换图床…"
       },
       "picbedSwitched": "已切换到 {name}",
+      "progress": {
+        "files": "{completed} / {total} 个文件",
+        "finalizing": "处理中",
+        "preparing": "准备中",
+        "secondary": "备用图床上传",
+        "uploading": "上传中"
+      },
       "quickUpload": "快捷上传",
       "removeFromFavorites": "从快速切换中移除",
       "taskQueue": {

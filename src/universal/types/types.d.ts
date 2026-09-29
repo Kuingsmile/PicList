@@ -503,6 +503,24 @@ interface IUploadProgress {
   jobId: string
   progress: number
   status: 'uploading' | 'completed' | 'failed' | 'cancelled' | 'timeout'
+  phase?: 'preparing' | 'uploading' | 'finalizing'
+  indeterminate?: boolean
+  destination?: 'primary' | 'secondary'
+  transferredBytes?: number
+  totalBytes?: number | null
+  completedFiles?: number
+  totalFiles?: number
+}
+
+// Optional second argument from newer cores; older plugins can still emit numeric progress.
+interface ICoreUploadProgress {
+  phase: 'preparing' | 'uploading' | 'finalizing' | 'completed' | 'failed'
+  progress: number | null
+  destination: 'primary' | 'secondary'
+  transferredBytes: number
+  totalBytes: number | null
+  completedFiles: number
+  totalFiles: number
 }
 
 interface IRenameRequest {

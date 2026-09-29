@@ -31,8 +31,8 @@ class Uploader {
       new Notification(message).show()
     })
 
-    picgo.on(ICOREBuildInEvent.UPLOAD_PROGRESS, (progress: any) => {
-      currentUploadJob()?.reportProgress(progress)
+    picgo.on(ICOREBuildInEvent.UPLOAD_PROGRESS, (progress: number, details?: ICoreUploadProgress) => {
+      currentUploadJob()?.reportProgress(progress, details)
     })
 
     picgo.on(ICOREBuildInEvent.BEFORE_TRANSFORM, () => {

@@ -1,63 +1,138 @@
 <template>
-  <div
-    id="mini-page"
-    class="relative box-border h-screen w-screen cursor-pointer overflow-hidden border-4 border-white bg-accent bg-center bg-no-repeat text-center text-[40px] leading-[100vh]"
-    :class="[osGlobal === 'linux' ? 'rounded-none bg-size-[100vh_100vw]' : 'rounded-full bg-size-[90vh_90vw]']"
-  >
+  <div id="mini-page" class="mini-page" :class="{ 'mini-page-square': osGlobal === 'linux' }" :title="progressLabel">
     <div
       ref="uploadArea"
-      class="h-full w-full transition-all duration-200 ease-in-out"
-      :class="{
-        'bg-[rgba(0,0,0,0.3)]': dragover,
-        'bg-[linear-gradient(to_top,#409EFF_50%,#fff_51%)] bg-size-[200%]': isShowingProgress,
-        'rounded-none': osGlobal === 'linux',
-        'rounded-full': osGlobal !== 'linux',
-      }"
-      :style="{ backgroundPosition: '0 ' + progress + '%' }"
+      class="mini-upload-area"
       @drop.prevent="onDrop"
       @dragover.prevent="dragover = true"
       @dragleave.prevent="dragover = false"
     >
       <img
-        v-if="!dragover && !isShowingProgress"
         :src="logoPath ? logoPath : './squareLogo.png'"
-        class="block h-full w-full [image-rendering:-webkit-optimize-contrast]"
-        :class="osGlobal === 'linux' ? 'rounded-none' : 'rounded-full'"
+        class="mini-logo"
+        :class="{ 'mini-logo-hidden': isShowingProgress || dragover }"
+        :aria-hidden="isShowingProgress || dragover"
+        alt="PicList"
         draggable="false"
         @dragstart.prevent
       />
-      <div id="upload-dragger" class="h-full" @dblclick="openUploadWindow">
-        <input id="file-uploader" type="file" class="hidden" multiple @change="onChange" />
-      </div>
+      <Transition name="mini-progress">
+        <div
+          v-if="isShowingProgress"
+          class="mini-progress"
+          :class="`mini-progress-${uploadState}`"
+          :role="uploadState === 'uploading' ? 'progressbar' : 'status'"
+          :aria-label="progressLabel"
+          :aria-valuenow="uploadState === 'uploading' && !isIndeterminate ? progress : undefined"
+          :aria-valuemin="uploadState === 'uploading' ? 0 : undefined"
+          :aria-valuemax="uploadState === 'uploading' ? 100 : undefined"
+        >
+          <svg class="mini-progress-ring" viewBox="0 0 64 64" aria-hidden="true">
+            <defs>
+              <linearGradient :id="gradientId" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#80edff" />
+                <stop offset="100%" stop-color="#5795ff" />
+              </linearGradient>
+            </defs>
+            <circle class="mini-progress-track" cx="32" cy="32" r="27" />
+            <circle
+              v-show="!isIndeterminate"
+              class="mini-progress-value"
+              cx="32"
+              cy="32"
+              r="27"
+              pathLength="100"
+              :stroke="`url(#${gradientId})`"
+              :stroke-dashoffset="100 - progress"
+            />
+            <circle
+              v-if="uploadState === 'uploading'"
+              class="mini-progress-orbit"
+              :class="{ 'mini-progress-indeterminate': isIndeterminate }"
+              cx="32"
+              cy="32"
+              r="27"
+              pathLength="100"
+            />
+          </svg>
+          <div class="mini-progress-content" aria-hidden="true">
+            <template v-if="uploadState === 'uploading'">
+              <ArrowUp class="mini-upload-arrow" :size="14" :stroke-width="2.5" />
+              <span v-if="isIndeterminate" class="mini-progress-stage">{{ phaseLabel }}</span>
+              <span v-else class="mini-progress-percent">{{ progress }}<span>%</span></span>
+            </template>
+            <Check v-else-if="uploadState === 'completed'" class="mini-result-icon" :size="27" :stroke-width="2.5" />
+            <X v-else-if="uploadState === 'failed'" class="mini-result-icon" :size="25" :stroke-width="2.5" />
+            <Minus v-else class="mini-result-icon" :size="25" :stroke-width="2.5" />
+          </div>
+        </div>
+      </Transition>
+      <Transition name="mini-progress">
+        <div v-if="dragover" class="mini-drop-indicator" aria-hidden="true">
+          <Upload :size="25" />
+        </div>
+      </Transition>
+      <input id="file-uploader" ref="fileInput" type="file" class="hidden" multiple @change="onChange" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { ArrowUp, Check, Minus, Upload, X } from '@lucide/vue'
 import type { IConfig } from 'piclist'
-import { onBeforeMount, onBeforeUnmount, ref, useTemplateRef } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, ref, useId, useTemplateRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import { osGlobal } from '@/hooks/useGlobal'
 import { isUrl } from '@/utils/common'
 import { getConfig } from '@/utils/dataSender'
 import { useDragEventListeners } from '@/utils/drag'
 import { IRPCActionType } from '@/utils/enum'
-import { createUploadProgressTracker } from '@/utils/uploadProgress'
+import { createUploadProgressTracker, type UploadProgressState } from '@/utils/uploadProgress'
 
 const logoPath = ref('')
 const dragover = ref(false)
 const progress = ref(0)
-const isShowingProgress = ref(false)
+const progressState = ref<UploadProgressState>()
+const isIndeterminate = computed(() => uploadState.value === 'uploading' && !!progressState.value?.indeterminate)
+const phaseLabel = computed(() => t(`pages.upload.progress.${progressState.value?.phase || 'preparing'}`))
+const uploadState = ref<'idle' | 'uploading' | 'completed' | 'failed' | 'cancelled'>('idle')
+const isShowingProgress = computed(() => uploadState.value !== 'idle')
+const gradientId = useId()
+const { t } = useI18n()
+const progressLabel = computed(() => {
+  if (dragover.value) return t('pages.upload.dragFileToHere')
+  switch (uploadState.value) {
+    case 'uploading':
+      return [
+        progressState.value?.destination === 'secondary' ? t('pages.upload.progress.secondary') : '',
+        phaseLabel.value,
+        isIndeterminate.value ? '' : `${progress.value}%`,
+      ]
+        .filter(Boolean)
+        .join(' · ')
+    case 'completed':
+      return t('common.fileTable.tasks.uploaded')
+    case 'failed':
+      return t('common.fileTable.tasks.failed')
+    case 'cancelled':
+      return t('common.fileTable.tasks.canceled')
+    default:
+      return t('pages.upload.clickToUpload')
+  }
+})
 const draggingState = ref(false)
 const wX = ref(-1)
 const wY = ref(-1)
 const screenX = ref(-1)
 const screenY = ref(-1)
 const uploadArea = useTemplateRef<HTMLDivElement>('uploadArea')
+const fileInput = useTemplateRef<HTMLInputElement>('fileInput')
 
 useDragEventListeners(uploadArea)
 
 let removeListeners: () => void = () => {}
+let removeIconListener: () => void = () => {}
 
 async function initLogoPath() {
   const config = await getConfig<IConfig>()
@@ -71,21 +146,26 @@ async function initLogoPath() {
 }
 
 const trackUploadProgress = createUploadProgressTracker()
-let progressVersion = 0
+let progressHideTimer: ReturnType<typeof setTimeout> | undefined
 const uploadProgressHandler = (event: IUploadProgress) => {
-  progressVersion++
-  isShowingProgress.value = true
-  progress.value = trackUploadProgress(event).progress
-  if (progress.value === 100) {
-    const version = progressVersion
-    setTimeout(() => {
-      if (version !== progressVersion) return
-      isShowingProgress.value = false
-    }, 1000)
-    setTimeout(() => {
-      if (version !== progressVersion) return
-      progress.value = 0
-    }, 1200)
+  clearTimeout(progressHideTimer)
+  const state = trackUploadProgress(event)
+  progressState.value = state
+  progress.value = state.progress
+  uploadState.value = state.activeCount
+    ? 'uploading'
+    : state.failed
+      ? 'failed'
+      : state.cancelled
+        ? 'cancelled'
+        : 'completed'
+  if (!state.activeCount) {
+    progressHideTimer = setTimeout(
+      () => {
+        uploadState.value = 'idle'
+      },
+      state.failed ? 2400 : 1600,
+    )
   }
 }
 
@@ -127,14 +207,13 @@ function handleURLDrag(items: DataTransferItemList, dataTransfer: DataTransfer) 
 }
 
 function openUploadWindow() {
-  // @ts-expect-error file-uploader
-  document.getElementById('file-uploader').click()
+  fileInput.value?.click()
 }
 
-function onChange(e: any) {
-  ipcSendFiles(e.target.files)
-  // @ts-expect-error file-uploader
-  document.getElementById('file-uploader').value = ''
+function onChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  if (input.files?.length) ipcSendFiles(input.files)
+  input.value = ''
 }
 
 function ipcSendFiles(files: FileList) {
@@ -190,7 +269,8 @@ function openContextMenu() {
 
 onBeforeMount(async () => {
   removeListeners = window.electron.ipcRendererOn('uploadProgress', uploadProgressHandler)
-  window.electron.ipcRendererOn('updateMiniIcon', updateMiniIconHandler)
+  removeIconListener = window.electron.ipcRendererOn('updateMiniIcon', updateMiniIconHandler)
+  window.electron.sendRPC(IRPCActionType.UPLOAD_PROGRESS_SUBSCRIBE)
   window.addEventListener('mousedown', handleMouseDown, false)
   window.addEventListener('mousemove', handleMouseMove, false)
   window.addEventListener('mouseup', handleMouseUp, false)
@@ -198,8 +278,10 @@ onBeforeMount(async () => {
 })
 
 onBeforeUnmount(() => {
+  clearTimeout(progressHideTimer)
+  window.electron.sendRPC(IRPCActionType.UPLOAD_PROGRESS_UNSUBSCRIBE)
   removeListeners()
-  window.electron.ipcRendererRemoveAllListeners('updateMiniIcon')
+  removeIconListener()
   window.removeEventListener('mousedown', handleMouseDown, false)
   window.removeEventListener('mousemove', handleMouseMove, false)
   window.removeEventListener('mouseup', handleMouseUp, false)
@@ -211,3 +293,228 @@ export default {
   name: 'MiniPage',
 }
 </script>
+
+<style scoped>
+.mini-page {
+  box-sizing: border-box;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid rgb(255 255 255 / 90%);
+  border-radius: 50%;
+  background: var(--color-accent, #007aff);
+  user-select: none;
+}
+
+.mini-page-square {
+  border-radius: 0;
+}
+
+.mini-upload-area {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.mini-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  transition:
+    opacity 200ms ease,
+    transform 250ms ease;
+}
+
+.mini-logo-hidden {
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+.mini-progress {
+  --progress-color: #86ddff;
+
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 35% 20%, #243e62, #101d33 80%);
+  color: var(--progress-color);
+  pointer-events: none;
+}
+
+.mini-progress-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke-width: 3;
+  transform: rotate(-90deg);
+}
+
+.mini-progress-track {
+  stroke: rgb(255 255 255 / 12%);
+}
+
+.mini-progress-value {
+  stroke-dasharray: 100;
+  stroke-linecap: round;
+  transition:
+    stroke-dashoffset 450ms cubic-bezier(0.22, 1, 0.36, 1),
+    stroke 200ms ease;
+}
+
+.mini-progress-orbit {
+  stroke: rgb(223 249 255 / 75%);
+  stroke-dasharray: 3 97;
+  stroke-linecap: round;
+  transform-origin: center;
+  animation: mini-orbit 2.4s linear infinite;
+}
+
+.mini-progress-indeterminate {
+  stroke-dasharray: 22 78;
+  animation-duration: 1.4s;
+}
+
+.mini-progress-stage {
+  max-width: 44px;
+  overflow: hidden;
+  font-size: 8px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-progress-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.mini-upload-arrow {
+  animation: mini-upload-lift 1.4s ease-in-out infinite;
+}
+
+.mini-progress-percent {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.mini-progress-percent span {
+  margin-left: 1px;
+  color: #bfd3ee;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.mini-progress-completed {
+  --progress-color: #73e6b1;
+}
+
+.mini-progress-failed {
+  --progress-color: #ff909b;
+}
+
+.mini-progress-cancelled {
+  --progress-color: #efcb85;
+}
+
+.mini-progress-completed .mini-progress-value,
+.mini-progress-failed .mini-progress-value,
+.mini-progress-cancelled .mini-progress-value {
+  stroke: var(--progress-color);
+}
+
+.mini-result-icon {
+  animation: mini-result-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mini-drop-indicator {
+  position: absolute;
+  inset: 4px;
+  display: grid;
+  place-items: center;
+  border: 2px dashed #a9e8ff;
+  border-radius: inherit;
+  background: #152d4f;
+  color: #ffffff;
+  pointer-events: none;
+}
+
+.mini-progress-enter-active,
+.mini-progress-leave-active {
+  transition:
+    opacity 200ms ease,
+    transform 250ms ease;
+}
+
+.mini-progress-enter-from,
+.mini-progress-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+@keyframes mini-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mini-upload-lift {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: translateY(1px);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes mini-result-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mini-logo,
+  .mini-progress-value,
+  .mini-progress-enter-active,
+  .mini-progress-leave-active {
+    transition: none;
+  }
+
+  .mini-progress-orbit,
+  .mini-upload-arrow,
+  .mini-result-icon {
+    animation: none;
+  }
+
+  .mini-progress-orbit {
+    display: none;
+  }
+}
+</style>

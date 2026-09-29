@@ -139,17 +139,48 @@
         v-if="showProgress"
         class="flex w-full flex-wrap items-center justify-between gap-4 rounded-2xl border border-border-secondary p-0 shadow-md"
       >
-        <div class="flex w-full items-center gap-2 rounded-lg border border-border bg-surface p-2">
-          <div class="h-3 flex-1 overflow-hidden rounded-lg bg-bg-secondary">
+        <div class="flex w-full flex-col gap-2 rounded-lg border border-border bg-surface p-3">
+          <div class="flex w-full items-center justify-between gap-3 text-sm">
+            <span class="font-medium text-main">{{ progressLabel }}</span>
+            <span
+              v-if="
+                !progressState?.indeterminate &&
+                (progressState?.activeCount || (!progressState?.failed && !progressState?.cancelled))
+              "
+              class="font-semibold text-secondary tabular-nums"
+            >
+              {{ Math.round(progress) }}%
+            </span>
+          </div>
+          <div
+            class="h-2 w-full overflow-hidden rounded-lg bg-bg-secondary"
+            :role="progressState?.activeCount ? 'progressbar' : 'status'"
+            :aria-label="progressLabel"
+            :aria-valuenow="progressState?.activeCount && !progressState.indeterminate ? progress : undefined"
+            :aria-valuemin="progressState?.activeCount ? 0 : undefined"
+            :aria-valuemax="progressState?.activeCount ? 100 : undefined"
+          >
             <div
-              class="h-full rounded-lg bg-[linear-gradient(90deg,var(--color-accent)_0%,var(--color-primary)_50%)] duration-fast ease-standard data-[error=true]:bg-danger data-[error=true]:bg-none"
+              class="h-full rounded-lg bg-[linear-gradient(90deg,var(--color-accent)_0%,var(--color-primary)_50%)] transition-[width] duration-300 ease-standard data-[error=true]:bg-danger data-[error=true]:bg-none motion-reduce:transition-none"
+              :class="{ 'upload-progress-indeterminate': progressState?.indeterminate }"
               :data-error="showError"
-              :style="{ width: `${progress}%` }"
+              :style="{ width: progressState?.indeterminate ? '35%' : `${progress}%` }"
             />
           </div>
-          <span class="m-0 flex items-center justify-center text-center text-sm font-semibold text-secondary">
-            {{ showError ? t('pages.upload.uploadFailed') : `${Math.round(progress)}%` }}
-          </span>
+          <div
+            v-if="progressState?.totalFiles"
+            class="flex flex-wrap justify-between gap-2 text-xs text-secondary tabular-nums"
+          >
+            <span>{{
+              t('pages.upload.progress.files', {
+                completed: progressState.completedFiles,
+                total: progressState.totalFiles,
+              })
+            }}</span>
+            <span v-if="progressState.totalBytes !== null">
+              {{ formatSize(progressState.transferredBytes) }} / {{ formatSize(progressState.totalBytes) }}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -669,7 +700,7 @@ import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { useDragEventListeners } from '@/utils/drag'
 import { IPasteStyle, IRPCActionType } from '@/utils/enum'
-import { createUploadProgressTracker } from '@/utils/uploadProgress'
+import { createUploadProgressTracker, type UploadProgressState } from '@/utils/uploadProgress'
 
 const ImageProcessDialog = defineAsyncComponent(() => import('@/components/ImageProcessDialog.vue'))
 
@@ -730,6 +761,18 @@ const dragover = ref(false)
 const progress = ref(0)
 const showProgress = ref(false)
 const showError = ref(false)
+const progressState = ref<UploadProgressState>()
+const progressLabel = computed(() => {
+  const state = progressState.value
+  if (!state) return t('pages.upload.progress.preparing')
+  if (!state.activeCount) {
+    if (state.failed) return t('pages.upload.uploadFailed')
+    if (state.cancelled) return t('common.fileTable.tasks.canceled')
+    return t('common.fileTable.tasks.uploaded')
+  }
+  const phase = t(`pages.upload.progress.${state.phase}`)
+  return state.destination === 'secondary' ? `${t('pages.upload.progress.secondary')} · ${phase}` : phase
+})
 const pasteStyle = ref(IPasteStyle.MARKDOWN)
 const fileInput = useTemplateRef('fileInput')
 const uploadInterval = ref(1000)
@@ -829,10 +872,11 @@ let progressResetTimer: ReturnType<typeof setTimeout> | undefined
 function uploadProgressHandler(event: IUploadProgress): void {
   progressVersion++
   const state = trackUploadProgress(event)
+  progressState.value = state
   showProgress.value = true
-  showError.value = state.failed
+  showError.value = !state.activeCount && state.failed
   progress.value = state.progress
-  onProgressChange(state.progress)
+  onProgressChange(state.activeCount === 0)
 }
 
 function handleImageProcess() {
@@ -846,9 +890,9 @@ function clearProgressTimers() {
   progressResetTimer = undefined
 }
 
-function onProgressChange(val: number) {
+function onProgressChange(complete: boolean) {
   clearProgressTimers()
-  if (val === 100) {
+  if (complete) {
     const version = progressVersion
     progressHideTimer = setTimeout(() => {
       progressHideTimer = undefined

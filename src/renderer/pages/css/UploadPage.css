@@ -8,11 +8,31 @@
 
 /* Quick Actions Card */
 .quick-action-button {
-  @apply relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:-translate-y-[2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3 ;
+  @apply relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:-translate-y-[2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3;
 }
 
 .task-icon-btn {
   @apply flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-md border border-border bg-surface-elevated p-0 text-secondary transition-all duration-fast ease-standard;
   @apply hover:-translate-y-px hover:border-accent hover:bg-accent hover:text-white;
   @apply [.danger:hover]:border-danger [.danger:hover]:bg-danger [.danger:hover]:text-white [.is-high]:border-warning [.is-high]:bg-warning [.is-high]:text-white;
+}
+
+@keyframes upload-progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(300%);
+  }
+}
+
+.upload-progress-indeterminate {
+  animation: upload-progress-slide 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-progress-indeterminate {
+    animation: none;
+  }
 }
