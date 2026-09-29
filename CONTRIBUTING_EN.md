@@ -84,7 +84,7 @@ For a new language, add JSON files in both locale directories and update both re
 
 ## Packaging and plugin development
 
-Compiled code goes to `out/`; installers and archives go to `dist_electron/`. Targets, assets, and hooks are configured in [electron-builder.json](electron-builder.json). Use a host with the required platform toolchain; a platform script alone does not provide cross-compilation tools.
+Compiled code goes to `out/`; installers and archives go to `dist_electron/`. Targets, assets, and hooks are configured in [electron-builder.cjs](electron-builder.cjs). Use a host with the required platform toolchain; a platform script alone does not provide cross-compilation tools.
 
 For example, on Windows with the required C++ tools installed:
 

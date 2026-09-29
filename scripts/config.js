@@ -1,4 +1,4 @@
-// Expected filenames follow electron-builder.json, including each format's architecture spelling.
+// Expected filenames follow electron-builder.cjs, including each format's architecture spelling.
 import path from 'node:path'
 
 import pkg from '../package.json' with { type: 'json' }

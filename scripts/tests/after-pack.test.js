@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import fs from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
@@ -8,11 +9,13 @@ import { setImmediate } from 'node:timers/promises'
 
 import { Platform } from 'app-builder-lib'
 import { removeUnusedLanguagesIfNeeded } from 'app-builder-lib/out/electron/ElectronFramework.js'
-import { validateConfiguration } from 'app-builder-lib/out/util/config/config.js'
+import { LinuxTargetHelper } from 'app-builder-lib/out/targets/LinuxTargetHelper.js'
+import { getConfig, validateConfiguration } from 'app-builder-lib/out/util/config/config.js'
 
+import config from '../../electron-builder.cjs'
+import pkg from '../../package.json' with { type: 'json' }
 import afterPack from '../afterPack.cjs'
 
-const config = JSON.parse(await fs.readFile(new URL('../../electron-builder.json', import.meta.url), 'utf8'))
 // Resolve the filesystem dependency used by electron-builder, which may be nested.
 const builderFs = createRequire(import.meta.resolve('app-builder-lib'))('fs-extra')
 const keptLocales = ['en-GB.pak', 'en-US.pak', 'zh-CN.pak', 'zh-TW.pak']
@@ -55,9 +58,47 @@ async function assertPending(promise) {
   )
 }
 
-test('electron-builder accepts the locale selection configuration', async () => {
-  await validateConfiguration(config)
+test('electron-builder discovers and accepts the platform-aware configuration', async () => {
+  const discovered = await getConfig(process.cwd(), null, undefined)
+  assert.deepEqual(discovered, config)
+  await validateConfiguration(discovered)
 })
+
+test('Linux launchers match Electron desktop metadata, including the lowercase Snap fallback', async () => {
+  const helper = new LinuxTargetHelper({
+    config,
+    platformSpecificBuildOptions: config.linux,
+    executableName: config.linux.executableName,
+    info: { metadata: pkg },
+    appInfo: {
+      productName: config.productName,
+      sanitizedProductName: config.productName,
+      description: pkg.description,
+    },
+    fileAssociations: [],
+  })
+  const entry = await helper.computeDesktopEntry(config.linux)
+  const wmClass = /^StartupWMClass=(.+)$/m.exec(entry)?.[1]
+  assert.equal(`${wmClass}.desktop`, pkg.desktopName)
+  assert.equal(`${helper.getDesktopFileName()}.desktop`, pkg.desktopName)
+  assert.equal(`${helper.getDesktopFileName(pkg.name)}.desktop`, pkg.desktopName)
+  // Keep the existing installed launcher filename and executable path.
+  assert.equal(helper.getDesktopFileName(), 'PicList')
+  assert.match(entry, /^Exec=\/opt\/PicList\/PicList %U$/m)
+})
+
+for (const platform of ['darwin', 'win32', 'linux']) {
+  test(`only macOS registers the Apple notarization hook (${platform})`, () => {
+    const configUrl = new URL('../../electron-builder.cjs', import.meta.url).href
+    const script = `Object.defineProperty(process, 'platform', { value: ${JSON.stringify(platform)} });
+      const { default: config } = await import(${JSON.stringify(configUrl)});
+      console.log(JSON.stringify(config.afterSign ?? null));`
+    const afterSign = JSON.parse(
+      execFileSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8', windowsHide: true }),
+    )
+    assert.equal(afterSign, platform === 'darwin' ? 'scripts/notarize.cjs' : null)
+  })
+}
 
 for (const platform of [Platform.WINDOWS, Platform.LINUX]) {
   test(`${platform.nodeName} keeps English and Chinese locales before afterPack completes`, async t => {

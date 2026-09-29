@@ -1404,10 +1404,7 @@ import { renderMarkdown } from '@/utils/markdown'
 import { type DeleteResult, type DeleteTarget, failedDeletion, removeDeletedEntries } from '#/deletion'
 import type { ListingRequest, ListingResult } from '#/listing'
 
-const VideoPlayer = defineAsyncComponent(async () => {
-  const [{ VideoPlayer }] = await Promise.all([import('@videojs-player/vue'), import('video.js/dist/video-js.css')])
-  return VideoPlayer
-})
+const VideoPlayer = defineAsyncComponent(() => import('@/components/VideoPlayer.vue'))
 
 /*
 configMap:{

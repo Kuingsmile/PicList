@@ -84,7 +84,7 @@ Electron 和存储平台访问逻辑放在主进程，渲染进程通过 preload
 
 ## 打包与插件开发
 
-编译产物位于 `out/`，安装包和压缩包位于 `dist_electron/`。目标格式、资源和钩子配置在 [electron-builder.json](electron-builder.json)。请使用具备对应平台工具链的主机；平台脚本本身不提供交叉编译工具。
+编译产物位于 `out/`，安装包和压缩包位于 `dist_electron/`。目标格式、资源和钩子配置在 [electron-builder.cjs](electron-builder.cjs)。请使用具备对应平台工具链的主机；平台脚本本身不提供交叉编译工具。
 
 例如，在已安装所需 C++ 工具的 Windows 上执行：
 

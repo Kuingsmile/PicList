@@ -1,7 +1,9 @@
 import { execFileSync } from 'node:child_process'
-import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { copyNpmRuntime } from './plugin-runtime/copy-npm.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const platformNames = { win32: 'win', darwin: 'mac', linux: 'linux' }
@@ -22,7 +24,7 @@ export async function preparePluginRuntime(platform = process.platform, arch = p
   await rm(destination, { recursive: true, force: true })
   const bin = path.join(destination, 'bin')
   await mkdir(bin, { recursive: true })
-  await cp(npmDir, path.join(destination, 'npm'), { recursive: true })
+  await copyNpmRuntime(npmDir, path.join(destination, 'npm'))
   for (const [name, variable] of [
     ['npm', 'PICLIST_NPM_CLI'],
     ['npx', 'PICLIST_NPX_CLI'],
