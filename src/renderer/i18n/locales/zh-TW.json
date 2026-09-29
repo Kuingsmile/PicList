@@ -342,6 +342,72 @@
         "specificFormatConversion": "精細化轉換格式,請填寫 JSON 格式，如: {'{'}\"png\": \"jpg\"{'}'}"
       },
       "generalSettings": "常規",
+      "guide": {
+        "adjustTitle": "圖片設定",
+        "appliesTo": "套用至",
+        "askName": "上傳前詢問檔案名稱",
+        "back": "上一步",
+        "categoryHints": {
+          "general": "選擇上傳圖片的品質和格式。",
+          "rename": "選擇上傳後的檔案命名方式。",
+          "skipProcess": "以下副檔名的檔案將直接上傳，不進行圖片處理。",
+          "transform": "調整圖片大小；翻轉和旋轉可在下方展開。",
+          "watermark": "為圖片加上文字、署名或標誌。"
+        },
+        "changeScope": "變更",
+        "continue": "下一步",
+        "convert": "轉換圖片格式",
+        "convertHint": "關閉時保留圖片的原始格式。",
+        "customizeHint": "只需修改你需要的選項。",
+        "customName": "使用自訂命名規則",
+        "done": "完成",
+        "formatAdvanced": "中繼資料與格式轉換規則",
+        "formatRules": "格式轉換規則（JSON）",
+        "higherQuality": "畫質更好",
+        "moreOptions": "更多選項",
+        "orientation": "翻轉與旋轉",
+        "percentHint": "開啟後，將使用比例縮放，忽略上方的寬高設定。",
+        "presets": {
+          "70": "更小體積",
+          "85": "均衡",
+          "100": "最高品質"
+        },
+        "quality": "圖片品質",
+        "qualityPresets": "品質預設",
+        "resizeDimensions": "依寬高調整大小",
+        "resizePercent": "依比例縮放",
+        "review": "檢查設定",
+        "reviewIntro": "查看此圖床最終使用的設定，包括個別設定的選項。",
+        "reviewTitle": "檢查最終設定",
+        "scopeDescriptions": {
+          "config": "只為一個已儲存的設定單獨調整。",
+          "global": "設定所有上傳的預設處理方式。",
+          "provider": "同一服務的圖床共用這些設定。"
+        },
+        "scopeIntro": "先選擇這些設定要套用至哪些上傳。",
+        "scopeLabels": {
+          "config": "單一圖床設定",
+          "global": "所有圖床",
+          "provider": "某個圖床服務"
+        },
+        "scopeNotes": {
+          "config": "未修改的選項會繼續使用共用設定。",
+          "global": "圖床服務或單一配置的自訂設定會優先生效。",
+          "provider": "單一圖床配置的自訂設定仍會優先生效。"
+        },
+        "showSources": "顯示設定來源",
+        "smallerFile": "體積更小",
+        "stepOf": "第 {step} 步，共 3 步",
+        "steps": {
+          "1": "套用範圍",
+          "2": "調整圖片",
+          "3": "檢查設定"
+        },
+        "stepsLabel": "圖片處理設定步驟",
+        "timestampName": "用時間戳記命名",
+        "watermarkAdvanced": "樣式與更多選項",
+        "watermarkToggle": "新增浮水印"
+      },
       "perPicBed": {
         "defaultValue": "全局值: {value}",
         "description": "為每個圖床單獨配置設置",

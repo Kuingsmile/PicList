@@ -342,6 +342,72 @@
         "specificFormatConversion": "Specific Format Conversion, please fill in JSON format, such as: {'{'}\"png\": \"jpg\"{'}'}"
       },
       "generalSettings": "General",
+      "guide": {
+        "adjustTitle": "Image settings",
+        "appliesTo": "Applies to",
+        "askName": "Ask for a name before upload",
+        "back": "Back",
+        "categoryHints": {
+          "general": "Choose the quality and format of your uploaded images.",
+          "rename": "Choose how uploaded files are named.",
+          "skipProcess": "Files with these extensions will upload without image processing.",
+          "transform": "Resize your images. Open more options to flip or rotate them.",
+          "watermark": "Add your name, a caption, or a logo to your images."
+        },
+        "changeScope": "Change",
+        "continue": "Continue",
+        "convert": "Change image format",
+        "convertHint": "Turn off to keep the original format.",
+        "customizeHint": "Change only what you need.",
+        "customName": "Use a custom naming pattern",
+        "done": "Done",
+        "formatAdvanced": "Metadata and format rules",
+        "formatRules": "Format rules (JSON)",
+        "higherQuality": "Higher quality",
+        "moreOptions": "More options",
+        "orientation": "Flip and rotation",
+        "percentHint": "When enabled, this replaces the width and height settings.",
+        "presets": {
+          "70": "Smaller files",
+          "85": "Balanced",
+          "100": "Highest quality"
+        },
+        "quality": "Image quality",
+        "qualityPresets": "Quality presets",
+        "resizeDimensions": "Resize to dimensions",
+        "resizePercent": "Resize by percentage",
+        "review": "Review settings",
+        "reviewIntro": "See what this uploader will use, including any custom settings.",
+        "reviewTitle": "Review your settings",
+        "scopeDescriptions": {
+          "config": "Customize one saved configuration.",
+          "global": "Set defaults for every uploader.",
+          "provider": "Share settings across one service."
+        },
+        "scopeIntro": "Choose which uploads will use these settings.",
+        "scopeLabels": {
+          "config": "One uploader",
+          "global": "All uploads",
+          "provider": "One storage service"
+        },
+        "scopeNotes": {
+          "config": "Unchanged options keep using your shared settings.",
+          "global": "Custom settings for a service or uploader take priority.",
+          "provider": "Custom settings for an individual uploader still take priority."
+        },
+        "showSources": "Show setting sources",
+        "smallerFile": "Smaller file size",
+        "stepOf": "Step {step} of 3",
+        "steps": {
+          "1": "Apply to",
+          "2": "Adjust image",
+          "3": "Review settings"
+        },
+        "stepsLabel": "Image processing setup",
+        "timestampName": "Use a timestamp as the name",
+        "watermarkAdvanced": "Style and more options",
+        "watermarkToggle": "Add a watermark"
+      },
       "perPicBed": {
         "defaultValue": "Global Value: {value}",
         "description": "Configure settings for each PicBed individually",

@@ -342,6 +342,72 @@
         "specificFormatConversion": "精细化转换格式,请填写 JSON 格式，如: {'{'}\"png\": \"jpg\"{'}'}"
       },
       "generalSettings": "常规",
+      "guide": {
+        "adjustTitle": "图片设置",
+        "appliesTo": "应用于",
+        "askName": "上传前询问文件名",
+        "back": "上一步",
+        "categoryHints": {
+          "general": "选择上传图片的质量和格式。",
+          "rename": "选择上传后的文件命名方式。",
+          "skipProcess": "以下扩展名的文件将直接上传，不进行图片处理。",
+          "transform": "调整图片大小；翻转和旋转可在下方展开。",
+          "watermark": "为图片添加文字、署名或标志。"
+        },
+        "changeScope": "更改",
+        "continue": "下一步",
+        "convert": "转换图片格式",
+        "convertHint": "关闭时保留图片的原始格式。",
+        "customizeHint": "只需修改你需要的选项。",
+        "customName": "使用自定义命名规则",
+        "done": "完成",
+        "formatAdvanced": "元数据与格式转换规则",
+        "formatRules": "格式转换规则（JSON）",
+        "higherQuality": "画质更好",
+        "moreOptions": "更多选项",
+        "orientation": "翻转与旋转",
+        "percentHint": "开启后，将使用比例缩放，忽略上方的宽高设置。",
+        "presets": {
+          "70": "更小体积",
+          "85": "均衡",
+          "100": "最高质量"
+        },
+        "quality": "图片质量",
+        "qualityPresets": "质量预设",
+        "resizeDimensions": "按宽高调整大小",
+        "resizePercent": "按比例缩放",
+        "review": "检查设置",
+        "reviewIntro": "查看此图床最终使用的设置，包括单独设定的选项。",
+        "reviewTitle": "检查最终设置",
+        "scopeDescriptions": {
+          "config": "只为一个已保存的配置单独设置。",
+          "global": "设置所有上传的默认处理方式。",
+          "provider": "同一服务的图床共用这些设置。"
+        },
+        "scopeIntro": "先选择这些设置要应用到哪些上传。",
+        "scopeLabels": {
+          "config": "单个图床配置",
+          "global": "所有图床",
+          "provider": "某个图床服务"
+        },
+        "scopeNotes": {
+          "config": "未修改的选项会继续使用通用设置。",
+          "global": "图床服务或单个配置的自定义设置会优先生效。",
+          "provider": "单个图床配置的自定义设置仍会优先生效。"
+        },
+        "showSources": "显示设置来源",
+        "smallerFile": "体积更小",
+        "stepOf": "第 {step} 步，共 3 步",
+        "steps": {
+          "1": "应用范围",
+          "2": "调整图片",
+          "3": "检查设置"
+        },
+        "stepsLabel": "图片处理设置步骤",
+        "timestampName": "用时间戳命名",
+        "watermarkAdvanced": "样式与更多选项",
+        "watermarkToggle": "添加水印"
+      },
       "perPicBed": {
         "defaultValue": "全局值: {value}",
         "description": "为每个图床单独配置设置",

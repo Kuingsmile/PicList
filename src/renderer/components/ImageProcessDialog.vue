@@ -6,8 +6,9 @@
       :scrollable="false"
       height="92vh"
       max-height="92vh"
+      max-width="1120px"
     >
-      <ImageProcessSetting :config-id="configId" :current-picbed-name="currentPicbedName" />
+      <ImageProcessSetting :config-id="configId" :current-picbed-name="currentPicbedName" @done="visible = false" />
     </CustomModal>
   </Teleport>
 </template>

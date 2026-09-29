@@ -33,7 +33,7 @@
         <label><input v-model="showInactive" type="checkbox" />{{ t('pages.imageProcess.design.showInactive') }}</label>
       </div>
       <p class="result-source-hint">{{ t('pages.imageProcess.design.sourceHint') }}</p>
-      <details v-for="group in groups" :key="group.id" class="result-group" :open="group.id === 'general'">
+      <details v-for="group in groups" :key="group.id" class="result-group">
         <summary>
           <span>{{ group.title }}</span
           ><span class="result-group-count">{{

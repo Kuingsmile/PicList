@@ -1,26 +1,28 @@
 <template>
-  <div :data-processing-field="field" class="processing-field rounded-lg border border-border bg-bg-tertiary p-3">
+  <div :data-processing-field="field" class="processing-field rounded-xl border border-border bg-bg-tertiary p-4">
     <fieldset class="m-0 flex min-w-0 flex-col gap-2 border-none p-0" :disabled="unsupported">
       <slot />
     </fieldset>
     <p v-if="unsupported" class="mt-3 text-xs text-secondary">
       {{ t('pages.imageProcess.editor.globalOrConfigOnly') }}
     </p>
-    <div v-else class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-2 text-xs">
-      <span class="flex min-w-0 items-center gap-1.5 wrap-anywhere text-secondary">
+    <div
+      v-else-if="showSource || customized"
+      class="processing-field-source mt-2 flex flex-wrap items-center justify-between gap-2 text-xs"
+    >
+      <span v-if="showSource" class="flex min-w-0 items-center gap-1.5 wrap-anywhere text-secondary">
         <Link2 v-if="shared" :size="12" />
         <span :class="shared ? '' : 'font-medium text-accent'">{{ sourceLabel(option.source) }}</span>
       </span>
       <button
-        v-if="scope !== 'global' && option.source === scope"
+        v-if="customized"
         type="button"
         data-action="inherit"
-        class="cursor-pointer rounded-sm text-accent hover:underline"
+        class="ml-auto cursor-pointer rounded-sm text-accent hover:underline"
         @click="$emit('inherit')"
       >
         {{ t('pages.imageProcess.design.restoreShared') }}
       </button>
-      <span v-else-if="shared" class="text-secondary">{{ t('pages.imageProcess.design.editToCustomize') }}</span>
     </div>
     <div
       v-if="masked"
@@ -63,6 +65,7 @@ const {
   uploader,
   effectiveSettings,
   unsupported = false,
+  showSource = false,
 } = defineProps<{
   option: ResolvedProcessingOption
   scope: ProcessingScope
@@ -71,10 +74,12 @@ const {
   effectiveSettings: ResolvedImageProcessingConfig
   p1?: boolean
   unsupported?: boolean
+  showSource?: boolean
 }>()
 defineEmits<{ inherit: []; editSource: [scope: ProcessingScope] }>()
 const { t } = useI18n()
 const shared = computed(() => scope !== 'global' && option.source !== scope)
+const customized = computed(() => scope !== 'global' && option.source === scope)
 function sourceLabel(source: ProcessingConfigSource) {
   return t(`pages.imageProcess.design.sources.${source}`, {
     provider: uploader.providerName || uploader.type,
@@ -91,7 +96,8 @@ const finalValue = computed(() => formatProcessingValue(field.split('.')[1], fin
 
 <style scoped>
 /* Keep switches keyboard-accessible inside this editor. */
-fieldset :deep(input[type='checkbox'].hidden) {
+fieldset :deep(input[type='checkbox'].hidden),
+fieldset :deep(input[type='radio'].hidden) {
   position: absolute;
   display: block;
   width: 1px;
@@ -102,5 +108,27 @@ fieldset :deep(input[type='checkbox'].hidden) {
 fieldset :deep(label:has(input:focus-visible)) {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+fieldset :deep(> div > label:has(input[type='checkbox'])) {
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 0;
+}
+
+fieldset :deep(> div:has(> label > input[type='checkbox'])) {
+  width: 100%;
+  padding-block: 4px;
+}
+
+fieldset :deep(> div > label > div) {
+  margin-right: auto;
+}
+
+fieldset :deep(input[type='range']:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
 }
 </style>
