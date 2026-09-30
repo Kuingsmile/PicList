@@ -6,7 +6,7 @@ import writeFile from 'write-file-atomic'
 
 import { GallerySyncError, validateDocument } from './model'
 
-export const DATABASES = ['piclist.db', 'piclist.bak.db'] as const
+export const DATABASES = ['piclist.db'] as const
 export const stateDir = (root: string) => path.join(root, 'gallery-sync')
 export const snapshotDir = (root: string, id: string) => {
   if (!/^[a-f0-9-]{36}$/.test(id)) throw new GallerySyncError('Invalid gallery snapshot.')
@@ -23,7 +23,7 @@ export function decode(data: Buffer): any {
 export function decodeBundle(content: Buffer) {
   const bundle = decode(content)
   if (bundle?.version !== 1) throw new GallerySyncError('Unsupported gallery sync format.')
-  return [validateDocument(bundle.primary), validateDocument(bundle.backup)]
+  return validateDocument(bundle.primary)
 }
 export async function readOptional(file: string): Promise<Buffer | null> {
   try {
@@ -51,7 +51,8 @@ export function readJournal(root: string, id: string): Journal {
     !Number.isFinite(data.startingWatermark) ||
     !Number.isFinite(data.watermark) ||
     !Array.isArray(data.existed) ||
-    data.existed.length !== 2 ||
+    // Older journals recorded two files. The primary is always the first entry.
+    ![DATABASES.length, 2].includes(data.existed.length) ||
     data.existed.some((x: unknown) => typeof x !== 'boolean') ||
     !['prepared', 'committing', 'committed', 'rolled-back'].includes(data.status)
   )
@@ -61,8 +62,7 @@ export function readJournal(root: string, id: string): Journal {
 export const saveJournal = (root: string, journal: Journal) =>
   writeFile(path.join(snapshotDir(root, journal.id), 'journal.json'), JSON.stringify(journal))
 
-// Synchronous startup recovery must run before dbChecker replaces the startup backup,
-// and before any store can read a pair interrupted between its atomic file replacements.
+// Synchronous startup recovery must finish before any store reads the gallery.
 export function recoverGallerySync(root: string, saveWatermark: (value: number) => void): void {
   const pending = path.join(stateDir(root), 'pending.json')
   if (!fs.existsSync(pending)) return
@@ -79,7 +79,7 @@ export function recoverGallerySync(root: string, saveWatermark: (value: number) 
       if (ownerRunning) throw new GallerySyncError('Another process owns this gallery sync.')
     }
     if (journal.status === 'committing') {
-      // Read and validate every preimage before restoring either file.
+      // Validate the preimage before restoring the primary database.
       const originals = DATABASES.map((file, i) =>
         journal.existed[i] ? fs.readFileSync(path.join(snapshotDir(root, id), 'local', file)) : null,
       )

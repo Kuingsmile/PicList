@@ -116,7 +116,7 @@ export class GallerySyncTransaction {
       try {
         const transport = this.deps.transport()
         const local = await this.localFiles()
-        // Validate both local inputs before starting any remote mutation.
+        // Validate the local input before starting any remote mutation.
         const localDocs = local.map(content => (content ? validateDocument(decode(content)) : documentFrom({})))
         const bundle = await this.readRemote(transport, BUNDLE_NAME)
         const legacy: (RemoteFile | null)[] = []
@@ -124,15 +124,13 @@ export class GallerySyncTransaction {
           for (const file of DATABASES) legacy.push(await this.readRemote(transport, file))
         }
         const remoteDocs = bundle
-          ? decodeBundle(bundle.content)
+          ? [decodeBundle(bundle.content)]
           : legacy.map(item => (item ? validateDocument(decode(item.content)) : documentFrom({})))
         const id = randomUUID()
         const { entries, changes } = planMerge(
           [
             { source: 'local-primary', document: localDocs[0] },
-            { source: 'local-backup', document: localDocs[1] },
             { source: 'remote-primary', document: remoteDocs[0] },
-            { source: 'remote-backup', document: remoteDocs[1] },
           ],
           id,
         )
@@ -166,11 +164,12 @@ export class GallerySyncTransaction {
         if (currentLocal.some((value, i) => !equal(value, local[i])))
           throw new GallerySyncError('The local gallery changed. Preview again.')
         const merged = applyMerge(entries, resolutions)
-        // Stage and re-read both gzip databases before publishing anything.
+        // Stage and re-read the gzip database before publishing anything.
         for (const file of DATABASES) await fs.writeFile(path.join(directory, file), encode(merged))
         const staged = await Promise.all(DATABASES.map(file => fs.readFile(path.join(directory, file))))
         const documents = staged.map(content => validateDocument(decode(content)))
-        const publication = encode({ version: 1, primary: documents[0], backup: documents[1] })
+        // Keep the v1 wire format readable by older clients without a second local file.
+        const publication = encode({ version: 1, primary: documents[0], backup: documents[0] })
         decodeBundle(publication)
         if (!sameRemote(bundle, await this.readRemote(transport, BUNDLE_NAME)))
           throw new GallerySyncError('The remote gallery changed. Preview again.')
@@ -210,7 +209,7 @@ export class GallerySyncTransaction {
 
         if (prepared.configKey !== this.deps.configurationKey() || plan.startingWatermark !== this.deps.getWatermark())
           throw new GallerySyncError('Sync settings or watermark changed. Preview again.')
-        // One remote compare-and-swap publishes BOTH databases. No create fallback on errors.
+        // Publish with compare-and-swap. No create fallback on errors.
         if ((await transport.commit(publication, bundle?.version ?? null)) !== true)
           throw new GallerySyncError('Gallery upload did not succeed. No local changes were applied.')
         const verified = await this.readRemote(transport, BUNDLE_NAME)

@@ -84,16 +84,8 @@ export function themesDir() {
   return path.join(defaultDir(), 'themes')
 }
 
-export function appConfigBackupPath() {
-  return path.join(dataDir(), 'data.bak.json')
-}
-
 export function galleryDBPath() {
   return path.join(dataDir(), 'piclist.db')
-}
-
-export function galleryDBBackupPath() {
-  return path.join(dataDir(), 'piclist.bak.db')
 }
 
 export function manageConfigPath() {
@@ -101,10 +93,6 @@ export function manageConfigPath() {
   _manageConfigFilePath = defaultManageConfigPath()
   _manageConfigFilePath = resolveConfigPath(_manageConfigFilePath, manageGUILogPath, 'Manage')
   return _manageConfigFilePath
-}
-
-export function manageConfigBackupPath() {
-  return path.join(dataDir(), 'manage.bak.json')
 }
 
 export function appLogPath() {

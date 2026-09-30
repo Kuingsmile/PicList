@@ -1,5 +1,5 @@
 export type GallerySyncResolution = 'keep-local' | 'keep-remote' | 'preserve-both'
-export type GallerySyncSource = 'local-primary' | 'local-backup' | 'remote-primary' | 'remote-backup'
+export type GallerySyncSource = 'local-primary' | 'remote-primary'
 
 export interface GallerySyncChange {
   key: string

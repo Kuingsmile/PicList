@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { GalleryDB } from '@core/datastore'
-import { dataDir } from '@core/datastore/dirs'
+import { appConfigPath, dataDir, manageConfigPath } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
 import { Octokit } from '@octokit/rest'
@@ -9,6 +9,7 @@ import axios from 'axios'
 import fs from 'fs-extra'
 import { HttpsProxyAgent } from 'hpagent'
 import { AuthType, createClient, WebDAVClientOptions } from 'webdav'
+import writeFile from 'write-file-atomic'
 
 import type { GallerySyncRequest } from '#/types/gallerySync'
 import { formatEndpoint } from '~/utils/common'
@@ -21,14 +22,10 @@ import { createGalleryTransport } from './gallerySync/transport'
 const STORE_PATH = dataDir()
 const readFileAsBase64 = (filePath: string) => fs.readFileSync(filePath, { encoding: 'base64' })
 
-// A fresh installation may not have startup backups yet. Upload a snapshot of
-// the primary config under the backup's remote name without replacing local backups.
-const getUploadFilePath = (fileName: string) => {
-  const filePath = path.join(STORE_PATH, fileName)
-  if (!fs.existsSync(filePath) && ['data.bak.json', 'manage.bak.json'].includes(fileName)) {
-    return path.join(STORE_PATH, fileName.replace('.bak.json', '.json'))
-  }
-  return filePath
+const getConfigFilePath = (fileName: string) => {
+  if (fileName === 'data.json') return appConfigPath()
+  if (fileName === 'manage.json') return manageConfigPath()
+  return path.join(STORE_PATH, fileName)
 }
 
 const isHttpResSuccess = (res: any) => res.status >= 200 && res.status < 300
@@ -93,7 +90,7 @@ const isSyncConfigValidate = ({
 }
 
 async function uploadLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
-  const localFilePath = getUploadFilePath(fileName)
+  const localFilePath = getConfigFilePath(fileName)
   if (!fs.existsSync(localFilePath)) return false
 
   const { username, repo, branch, token, type } = syncConfig
@@ -196,7 +193,7 @@ async function uploadFile(fileName: string[]): Promise<number> {
 }
 
 async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
-  const localFilePath = getUploadFilePath(fileName)
+  const localFilePath = getConfigFilePath(fileName)
   if (!fs.existsSync(localFilePath)) {
     return false
   }
@@ -313,7 +310,7 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
 async function downloadAndWriteFile(url: string, localFilePath: string, config: any, isWriteJson = false) {
   const res = await axios.get(url, config)
   if (isHttpResSuccess(res)) {
-    await fs.writeFile(
+    await writeFile(
       localFilePath,
       isWriteJson ? JSON.stringify(res.data, null, 2) : Buffer.from(res.data.content, 'base64'),
     )
@@ -323,7 +320,7 @@ async function downloadAndWriteFile(url: string, localFilePath: string, config: 
 }
 
 async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) {
-  const localFilePath = path.join(STORE_PATH, fileName)
+  const localFilePath = getConfigFilePath(fileName)
   const { username, repo, branch, token, proxy, type } = syncConfig
   try {
     switch (type) {
@@ -377,7 +374,7 @@ async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) 
         const client = createClient(webdavEndpointF, options)
         const remoteFilePath = (webdavSavePath ? path.join(webdavSavePath, fileName) : fileName).replace(/\\/g, '/')
         const fileContent = await client.getFileContents(remoteFilePath)
-        await fs.writeFile(localFilePath, fileContent as Buffer)
+        await writeFile(localFilePath, fileContent as Buffer)
         return true
       }
       default:

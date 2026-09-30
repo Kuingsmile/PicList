@@ -18,19 +18,20 @@ import {
 
 const STORE_PATH = dataDir()
 
-const commonConfigList = ['data.json', 'data.bak.json']
-const manageConfigList = ['manage.json', 'manage.bak.json']
+const commonConfigList = ['data.json']
+const manageConfigList = ['manage.json']
 
 export default [
   {
     action: IRPCActionType.CONFIGURE_MIGRATE_FROM_PICGO,
     handler: async () => {
       const picGoConfigPath = app.getPath('userData').replace('piclist', 'picgo')
-      const files = ['data.json', 'data.bak.json', 'picgo.db', 'picgo.bak.db']
+      const files = ['data.json', 'picgo.db']
       try {
         await Promise.all(
           files.map(async file => {
             const sourcePath = path.join(picGoConfigPath, file)
+            if (file !== 'data.json' && !(await fs.pathExists(sourcePath))) return
             const targetPath = path.join(STORE_PATH, file.replace('picgo', 'piclist'))
             await fs.copy(sourcePath, targetPath, { overwrite: true })
           }),
@@ -49,11 +50,8 @@ export default [
       const configDir = app.getPath('userData')
       const files = [
         'data.json',
-        'data.bak.json',
         'manage.json',
-        'manage.bak.json',
         'piclist.db',
-        'piclist.bak.db',
         'taskQueue.json',
         'UpDownTaskQueue.json',
         'packages.json',
@@ -72,6 +70,7 @@ export default [
         await Promise.all(
           files.map(async file => {
             const sourcePath = path.join(configDir, file)
+            if (file !== 'data.json' && !(await fs.pathExists(sourcePath))) return
             const targetPath = path.join(STORE_PATH, file)
             await fs.copy(sourcePath, targetPath, { overwrite: true })
           }),
@@ -79,6 +78,7 @@ export default [
         await Promise.all(
           folders.map(async folder => {
             const sourcePath = path.join(configDir, folder)
+            if (!(await fs.pathExists(sourcePath))) return
             const targetPath = path.join(STORE_PATH, folder)
             await fs.copy(sourcePath, targetPath, { overwrite: true })
           }),
