@@ -146,21 +146,19 @@ export default {
   justify-content: center;
   align-items: center;
   padding: 1rem;
-  background: rgb(0 0 0 / 40%);
+  background: color-mix(in srgb, var(--color-black) 40%, transparent);
 }
 
 /* Container */
 .messagebox-container {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgb(229 231 235);
+  border: 1px solid var(--color-border);
   border-radius: 1rem;
   width: 100%;
   max-width: 26rem;
-  background: white;
-  box-shadow:
-    0 20px 25px -5px rgb(0 0 0 / 10%),
-    0 10px 10px -5px rgb(0 0 0 / 4%);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--shadow-xl);
 }
 
 /* Close Button */
@@ -175,15 +173,15 @@ export default {
   border: none;
   border-radius: 0.5rem;
   padding: 0.375rem;
-  color: rgb(107 114 128);
+  color: var(--color-text-secondary);
   background: transparent;
   transition: all 0.15s ease;
   cursor: pointer;
 }
 
 .messagebox-close:hover {
-  color: rgb(75 85 99);
-  background: rgb(243 244 246);
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
 }
 
 /* Body */
@@ -226,23 +224,23 @@ export default {
 }
 
 .messagebox-icon-warning {
-  color: rgb(245 158 11);
-  background: rgb(254 243 199);
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 15%, transparent);
 }
 
 .messagebox-icon-info {
-  color: rgb(59 130 246);
-  background: rgb(219 234 254);
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
 }
 
 .messagebox-icon-success {
-  color: rgb(34 197 94);
-  background: rgb(220 252 231);
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 15%, transparent);
 }
 
 .messagebox-icon-error {
-  color: rgb(239 68 68);
-  background: rgb(254 226 226);
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 15%, transparent);
 }
 
 /* Content */
@@ -256,20 +254,20 @@ export default {
   font-size: 1.0625rem;
   font-weight: 600;
   line-height: 1.4;
-  color: rgb(17 24 39);
+  color: var(--color-text-primary);
 }
 
 .messagebox-message {
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.5;
-  color: rgb(107 114 128);
+  color: var(--color-text-secondary);
 }
 
 /* Actions */
 .messagebox-actions {
   display: flex;
-  border-top: 1px solid rgb(243 244 246);
+  border-top: 1px solid var(--color-border-secondary);
   padding: 1rem 1.5rem;
   gap: 0.75rem;
 }
@@ -295,48 +293,49 @@ export default {
 
 /* Cancel Button */
 .cancel-btn {
-  border: 1px solid rgb(229 231 235);
-  color: rgb(75 85 99);
-  background: white;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
 }
 
 .cancel-btn:hover {
-  border-color: rgb(209 213 219);
-  background: rgb(249 250 251);
+  border-color: var(--color-accent);
+  background: var(--color-background-secondary);
 }
 
 /* Confirm Buttons */
 .confirm-btn {
   border: none;
-  color: white;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.confirm-btn:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .confirm-btn.primary {
-  background: linear-gradient(135deg, rgb(59 130 246) 0%, rgb(37 99 235) 100%);
+  background: var(--color-primary);
 }
 
 .confirm-btn.primary:hover {
-  background: linear-gradient(135deg, rgb(37 99 235) 0%, rgb(29 78 216) 100%);
-  box-shadow: 0 4px 12px rgb(59 130 246 / 40%);
+  background: var(--color-primary-hover);
 }
 
 .confirm-btn.danger {
-  background: linear-gradient(135deg, rgb(239 68 68) 0%, rgb(220 38 38) 100%);
+  background: var(--color-danger);
 }
 
 .confirm-btn.danger:hover {
-  background: linear-gradient(135deg, rgb(220 38 38) 0%, rgb(185 28 28) 100%);
-  box-shadow: 0 4px 12px rgb(239 68 68 / 40%);
+  background: color-mix(in srgb, var(--color-danger) 85%, var(--color-text-primary));
 }
 
 .confirm-btn.success {
-  background: linear-gradient(135deg, rgb(34 197 94) 0%, rgb(22 163 74) 100%);
+  background: var(--color-success);
 }
 
 .confirm-btn.success:hover {
-  background: linear-gradient(135deg, rgb(22 163 74) 0%, rgb(21 128 61) 100%);
-  box-shadow: 0 4px 12px rgb(34 197 94 / 40%);
+  background: color-mix(in srgb, var(--color-success) 85%, var(--color-text-primary));
 }
 
 /* Responsive */
