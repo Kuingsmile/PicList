@@ -763,34 +763,12 @@ function cleanSearch() {
 }
 
 async function handleConfirmConfig() {
-  const result = (await $configForm.value?.validate()) || false
+  const configForm = $configForm.value
+  if (!configForm) return
+
+  const result = await configForm.validate()
   if (result !== false) {
-    switch (currentType.value) {
-      case 'plugin':
-        if (
-          !(await saveConfig({
-            [`${configName.value}`]: result,
-          }))
-        )
-          return
-        break
-      case 'uploader':
-        if (
-          !(await saveConfig({
-            [`picBed.${configName.value}`]: result,
-          }))
-        )
-          return
-        break
-      case 'transformer':
-        if (
-          !(await saveConfig({
-            [`transformer.${configName.value}`]: result,
-          }))
-        )
-          return
-        break
-    }
+    if (!(await saveConfig(configForm.getConfigType(), result))) return
     if ('Notification' in window) {
       const successNotification = new Notification(t('pages.plugin.setResult'), {
         body: t('pages.plugin.setSuccess'),

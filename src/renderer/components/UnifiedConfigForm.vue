@@ -262,7 +262,7 @@ async function handleConfig(val: IPicGoPluginConfig[]) {
 
 async function getCurConfigFormData() {
   if (mode === 'plugin') {
-    return (await getConfig<IStringKeyMap>(`${id}`)) || {}
+    return (await getConfig<IStringKeyMap>(getConfigType())) || {}
   } else {
     const configId = $route.params.configId
     const curTypeConfigList = (await getConfig<IStringKeyMap[]>(`uploader.${id}.configList`)) || []
