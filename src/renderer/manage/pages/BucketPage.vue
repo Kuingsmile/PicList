@@ -1952,6 +1952,7 @@ function webkitReadDataTransfer(dataTransfer: DataTransfer) {
                 },
                 (err: any) => {
                   console.error(err)
+                  decrement()
                 },
               )
             } else if (entry.isDirectory) {
@@ -1965,6 +1966,7 @@ function webkitReadDataTransfer(dataTransfer: DataTransfer) {
       },
       (err: any) => {
         console.error(err)
+        decrement()
       },
     )
   }
