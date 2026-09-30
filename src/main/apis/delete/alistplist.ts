@@ -38,6 +38,7 @@ export default class AListplistApi {
         deleteFailedLog(fileName, 'Alist', 'No valid token or username/password provided')
         return false
       }
+      const remoteFileName = fileName.replace(/\\/g, '/')
       const result = await axios.request({
         method: 'post',
         url: `${url.replace(/\/$/, '')}/api/fs/remove`,
@@ -46,8 +47,8 @@ export default class AListplistApi {
           Authorization: token,
         },
         data: {
-          dir: path.join('/', uploadPath, path.dirname(fileName)),
-          names: [path.basename(fileName)],
+          dir: path.posix.join('/', uploadPath.replace(/\\/g, '/'), path.posix.dirname(remoteFileName)),
+          names: [path.posix.basename(remoteFileName)],
         },
       })
       const ok = result.data.code === 200

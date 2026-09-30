@@ -21,6 +21,7 @@ export default class AlistApi {
         deleteLog(fileName, 'Alist', false, 'Alist version 2 is not supported, deletion is skipped')
         return true
       }
+      const remoteFileName = fileName.replace(/\\/g, '/')
       const result = await axios.request({
         method: 'post',
         url: `${url.replace(/\/$/, '')}/api/fs/remove`,
@@ -29,8 +30,8 @@ export default class AlistApi {
           Authorization: token,
         },
         data: {
-          dir: path.join('/', uploadPath, path.dirname(fileName)),
-          names: [path.basename(fileName)],
+          dir: path.posix.join('/', uploadPath.replace(/\\/g, '/'), path.posix.dirname(remoteFileName)),
+          names: [path.posix.basename(remoteFileName)],
         },
       })
       const ok = result.data.code === 200
