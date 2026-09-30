@@ -1,13 +1,18 @@
 import path from 'node:path'
 
-import type { DBStore } from '@piclist/store'
+import type { DBStore, IGetResult, IObject } from '@piclist/store'
 import fs from 'fs-extra'
 
 import { galleryLockHeld, withGalleryLock } from './lock'
 import { type GalleryDocument, GallerySyncError, recordMutation, validateDocument } from './model'
 import { stateDir } from './storage'
 
-export function trackGalleryStore(store: DBStore, root: string): DBStore {
+export interface GalleryStore extends DBStore {
+  /** Read a fresh snapshot and keep gallery mutations locked until the operation completes. */
+  withSnapshot<T>(operation: (snapshot: IGetResult<IObject>) => Promise<T>): Promise<T>
+}
+
+export function trackGalleryStore(store: DBStore, root: string): GalleryStore {
   const adapter = store.getAdapter()
   const read = adapter.read.bind(adapter)
   const write = adapter.write.bind(adapter)
@@ -30,20 +35,28 @@ export function trackGalleryStore(store: DBStore, root: string): DBStore {
     await write(serialized)
     before = next
   }
+  const locked = <T>(operation: () => Promise<T>): Promise<T> => {
+    const nested = galleryLockHeld()
+    return withGalleryLock(async () => {
+      if (!nested && fs.existsSync(path.join(stateDir(root), 'pending.json'))) {
+        throw new GallerySyncError('Gallery recovery is required before editing. Retry gallery sync.')
+      }
+      return operation()
+    })
+  }
   return new Proxy(store, {
     get(target, property) {
+      if (property === 'withSnapshot') {
+        return <T>(operation: (snapshot: IGetResult<IObject>) => Promise<T>) =>
+          locked(async () => {
+            await target.refresh()
+            return operation(await target.get())
+          })
+      }
       const value = Reflect.get(target, property)
       if (typeof value !== 'function') return value
       if (property === 'getAdapter') return value.bind(target)
-      return (...args: unknown[]) => {
-        const nested = galleryLockHeld()
-        return withGalleryLock(async () => {
-          if (!nested && fs.existsSync(path.join(stateDir(root), 'pending.json'))) {
-            throw new GallerySyncError('Gallery recovery is required before editing. Retry gallery sync.')
-          }
-          return Reflect.apply(value, target, args)
-        })
-      }
+      return (...args: unknown[]) => locked(async () => Reflect.apply(value, target, args))
     },
-  })
+  }) as GalleryStore
 }

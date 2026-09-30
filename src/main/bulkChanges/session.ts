@@ -24,6 +24,10 @@ export interface BulkAdapter {
   source: (item: BulkCandidate) => Promise<BulkObject | undefined>
   target: (item: BulkCandidate) => Promise<BulkObject | undefined>
   write: (item: BulkCandidate, overwrite: boolean) => Promise<void>
+  /** Refresh shared checks and hold the adapter's mutation lock for the entire commit. */
+  withCommit?: (operation: () => Promise<BulkSnapshot>) => Promise<BulkSnapshot>
+  /** Persist all checked items together, without a separate source-removal stage. */
+  writeMany?: (items: readonly BulkCandidate[], overwrite: boolean) => Promise<void>
   /** Presence means write() copies; removal is a separate, resumable stage. */
   removeSource?: (item: BulkCandidate) => Promise<void>
 }
@@ -201,6 +205,17 @@ export class BulkChangeSession {
       outcome.error = undefined
       indexes.push(index)
     }
+    if (!indexes.length) return this.snapshot()
+    const apply = () => this.apply(policy, indexes)
+    try {
+      return await (this.adapter.withCommit ? this.adapter.withCommit(apply) : apply())
+    } catch (error) {
+      for (const index of indexes) this.fail(index, error)
+      return this.snapshot()
+    }
+  }
+
+  private async apply(policy: BulkPolicy, indexes: number[]): Promise<BulkSnapshot> {
     // Preflight the entire commit before any writes, including objects changed since review.
     const checked = new Set<number>()
     await bulkMap(indexes, async index => {
@@ -215,34 +230,52 @@ export class BulkChangeSession {
       for (const index of checked) this.fail(index, new ChangeError('aborted'))
       return this.snapshot()
     }
-    await bulkMap(
-      indexes.filter(index => checked.has(index)),
-      async index => {
-        const item = this.plan.items[index]
-        const outcome = this.outcomes[index]
-        const checkpoint = this.checkpoints[index]
-        outcome.status = 'running'
-        outcome.attempts++
-        try {
-          const sourceExists = await this.check(index)
-          if (outcome.stage !== 'copied') {
-            await this.adapter.write(item, policy === 'overwrite')
-            if (this.adapter.removeSource) {
-              outcome.stage = 'copied'
-              checkpoint.copiedTarget = await this.adapter.target(item)
-              if (!checkpoint.copiedTarget) throw new ChangeError('verification-failed')
-            }
-          }
-          if (this.adapter.removeSource && sourceExists && (await this.check(index))) {
-            await this.adapter.removeSource(item)
-          }
-          outcome.status = 'succeeded'
-          outcome.stage = 'complete'
-        } catch (error) {
-          this.fail(index, error)
+    const ready = indexes.filter(index => checked.has(index))
+    if (this.adapter.writeMany && !this.adapter.removeSource) {
+      if (!ready.length) return this.snapshot()
+      for (const index of ready) {
+        this.outcomes[index].status = 'running'
+        this.outcomes[index].attempts++
+      }
+      try {
+        await this.adapter.writeMany(
+          ready.map(index => this.plan.items[index]),
+          policy === 'overwrite',
+        )
+        for (const index of ready) {
+          this.outcomes[index].status = 'succeeded'
+          this.outcomes[index].stage = 'complete'
         }
-      },
-    )
+      } catch (error) {
+        for (const index of ready) this.fail(index, error)
+      }
+      return this.snapshot()
+    }
+    await bulkMap(ready, async index => {
+      const item = this.plan.items[index]
+      const outcome = this.outcomes[index]
+      const checkpoint = this.checkpoints[index]
+      outcome.status = 'running'
+      outcome.attempts++
+      try {
+        const sourceExists = await this.check(index)
+        if (outcome.stage !== 'copied') {
+          await this.adapter.write(item, policy === 'overwrite')
+          if (this.adapter.removeSource) {
+            outcome.stage = 'copied'
+            checkpoint.copiedTarget = await this.adapter.target(item)
+            if (!checkpoint.copiedTarget) throw new ChangeError('verification-failed')
+          }
+        }
+        if (this.adapter.removeSource && sourceExists && (await this.check(index))) {
+          await this.adapter.removeSource(item)
+        }
+        outcome.status = 'succeeded'
+        outcome.stage = 'complete'
+      } catch (error) {
+        this.fail(index, error)
+      }
+    })
     return this.snapshot()
   }
 }

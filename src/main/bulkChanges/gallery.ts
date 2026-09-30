@@ -12,9 +12,8 @@ interface GalleryRecord {
 }
 
 export interface BulkGalleryStore {
-  get: () => Promise<{ data: GalleryRecord[] }>
-  getById: (id: string) => Promise<GalleryRecord | undefined>
-  updateById: (id: string, value: { imgUrl: string }) => Promise<boolean>
+  withSnapshot: <T>(operation: (snapshot: { data: GalleryRecord[] }) => Promise<T>) => Promise<T>
+  updateMany: (items: { id: string; imgUrl: string }[]) => Promise<{ total: number; success: number }>
 }
 
 export function galleryUrlKey(value: string): string {
@@ -36,11 +35,35 @@ export function validGalleryUrl(value: string): boolean {
 }
 
 export async function createGalleryAdapter(inputs: readonly BulkInput[], store: BulkGalleryStore) {
-  const { data } = await store.get()
-  const byId = new Map(data.map(item => [item.id, item]))
   const selected = new Set(inputs.map(item => item.id))
+  const targetKeys = new Set(inputs.map(item => galleryUrlKey(item.target)))
+  const indexSnapshot = (data: GalleryRecord[]) => {
+    const byId = new Map<string, GalleryRecord>()
+    const targets = new Map<string, [string, string | undefined, number | undefined][]>()
+    // Scan the entire gallery once, including rows outside the current page/filter.
+    for (const record of data) {
+      if (selected.has(record.id)) {
+        // Detach the scalar fields used by checks from the store's live records.
+        byId.set(record.id, { ...record })
+        continue
+      }
+      const key = galleryUrlKey(record.imgUrl || '')
+      if (!targetKeys.has(key)) continue
+      let records = targets.get(key)
+      if (!records) targets.set(key, (records = []))
+      records.push([record.id, record.imgUrl, record.updatedAt])
+    }
+    const byTarget = new Map(
+      [...targets].map(([key, records]) => [
+        key,
+        { version: JSON.stringify(records.sort((a, b) => a[0].localeCompare(b[0]))) },
+      ]),
+    )
+    return { byId, byTarget }
+  }
+  let snapshot = await store.withSnapshot(async ({ data }) => indexSnapshot(data))
   const candidates: BulkCandidate[] = inputs.map(item => {
-    const record = byId.get(item.id)
+    const record = snapshot.byId.get(item.id)
     return {
       ...item,
       context: {
@@ -51,29 +74,31 @@ export async function createGalleryAdapter(inputs: readonly BulkInput[], store: 
       },
     }
   })
+  const writeMany: NonNullable<BulkAdapter['writeMany']> = async items => {
+    if (!items.length) return
+    const result = await store.updateMany(items.map(item => ({ id: item.id, imgUrl: item.target })))
+    // A resolved Promise alone is not a successful persistence acknowledgement.
+    if (result.total !== items.length || result.success !== items.length) {
+      throw new Error('Gallery update was not confirmed')
+    }
+  }
   const adapter: BulkAdapter = {
     kind: 'gallery-url',
     identity: (_item, key) => galleryUrlKey(key),
     validate: item => validGalleryUrl(item.target),
+    withCommit: operation =>
+      store.withSnapshot(async ({ data }) => {
+        snapshot = indexSnapshot(data)
+        return operation()
+      }),
     source: async item => {
-      const record = await store.getById(item.id)
+      const record = snapshot.byId.get(item.id)
       if (!record || record.imgUrl !== item.source) return undefined
       return { version: JSON.stringify([record.id, record.imgUrl, record.updatedAt, record.type, record.configId]) }
     },
-    target: async item => {
-      // Read the whole gallery, not the current page/filter. Selected rows are handled by the plan.
-      const { data } = await store.get()
-      const records = data
-        .filter(record => !selected.has(record.id) && galleryUrlKey(record.imgUrl || '') === galleryUrlKey(item.target))
-        .map(record => [record.id, record.imgUrl, record.updatedAt])
-        .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
-      return records.length ? { version: JSON.stringify(records) } : undefined
-    },
-    write: async item => {
-      // False is a failed persistence acknowledgement, not a successful Promise.
-      if (!(await store.updateById(item.id, { imgUrl: item.target })))
-        throw new Error('Gallery update was not confirmed')
-    },
+    target: async item => snapshot.byTarget.get(galleryUrlKey(item.target)),
+    write: item => writeMany([item], false),
+    writeMany,
   }
   return { candidates, adapter }
 }
