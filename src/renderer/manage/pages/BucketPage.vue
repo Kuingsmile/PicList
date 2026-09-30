@@ -2037,9 +2037,26 @@ function renameFileBeforeUpload(filePath: string, fullPath: string): string {
   return renameFile(typeMap, fileName, () => window.node.fs.readFileSync(fullPath))
 }
 
+function captureUploadDestination() {
+  return Object.freeze({
+    alias: configMap.value.alias,
+    bucketName: configMap.value.bucketName,
+    region: configMap.value.bucketConfig.Location,
+    prefix: currentPrefix.value,
+    githubBranch: currentCustomDomain.value,
+    aclForUpload: manageStore.config.picBed[configMap.value.alias].aclForUpload,
+    keepDirStructure: isUploadKeepDirStructure.value,
+  })
+}
+
 function uploadFiles() {
+  enqueueUploadFiles(uploadPanelFilesList.value, captureUploadDestination())
+  clearTableData()
+}
+
+function enqueueUploadFiles(files: any[], destination: ReturnType<typeof captureUploadDestination>) {
   const formateduploadPanelFilesList = [] as any[]
-  uploadPanelFilesList.value.forEach((item: any) => {
+  files.forEach((item: any) => {
     formateduploadPanelFilesList.push({
       rawName: item.name,
       path: item.path.replace(/\\/g, '/'),
@@ -2048,34 +2065,33 @@ function uploadFiles() {
       relativePath: item.relativePath ?? '',
     })
   })
-  if (isUploadKeepDirStructure.value) {
+  if (destination.keepDirStructure) {
     formateduploadPanelFilesList.forEach((item: any) => {
-      item.key = `${currentPrefix.value}${item.relativePath.substring(0, item.relativePath.lastIndexOf('/'))}/${item.renamedFileName}`
+      item.key = `${destination.prefix}${item.relativePath.substring(0, item.relativePath.lastIndexOf('/'))}/${item.renamedFileName}`
     })
   } else {
     formateduploadPanelFilesList.forEach((item: any) => {
-      item.key = currentPrefix.value + item.renamedFileName
+      item.key = destination.prefix + item.renamedFileName
     })
   }
-  clearTableData()
   const param = {
     // tcyun
     fileArray: [] as any[],
   }
   formateduploadPanelFilesList.forEach((item: any) => {
     param.fileArray.push({
-      alias: configMap.value.alias,
-      bucketName: configMap.value.bucketName,
-      region: configMap.value.bucketConfig.Location,
+      alias: destination.alias,
+      bucketName: destination.bucketName,
+      region: destination.region,
       key: item.key,
       filePath: item.path,
       fileSize: item.size,
       fileName: item.rawName,
-      githubBranch: currentCustomDomain.value,
-      aclForUpload: manageStore.config.picBed[configMap.value.alias].aclForUpload,
+      githubBranch: destination.githubBranch,
+      aclForUpload: destination.aclForUpload,
     })
   })
-  window.electron.sendRPC(IRPCActionType.MANAGE_UPLOAD_BUCKET_FILE, configMap.value.alias, param)
+  window.electron.sendRPC(IRPCActionType.MANAGE_UPLOAD_BUCKET_FILE, destination.alias, param)
 }
 
 function handleCopyUploadingTaskInfo() {
@@ -2671,6 +2687,7 @@ function showUrlDialog() {
 }
 
 async function handleUploadFromUrl() {
+  if (unmounted) return
   dialogVisible.value = false
   const urlList = [] as string[]
   urlToUpload.value.split('\n').forEach((item: string) => {
@@ -2682,18 +2699,18 @@ async function handleUploadFromUrl() {
     message.error(t('pages.manage.bucket.inputValidUrlMsg'))
     return
   }
+  const destination = captureUploadDestination()
+  const generation = viewGeneration
   message.success(t('pages.manage.bucket.startUploadMsg'))
   const res = await window.electron.triggerRPC<IUrlImportFile[]>(IRPCActionType.MANAGE_DOWNLOAD_FILE_FROM_URL, urlList)
   if (!res?.length) return
-  for (const item of res) {
-    uploadPanelFilesList.value.push({
-      name: item.fileName,
-      path: item.filePath.replace(/\\/g, '/'),
-      size: item.fileSize,
-    })
-  }
-  uploadFiles()
-  isShowUploadPanel.value = true
+  const files = res.map(item => ({
+    name: item.fileName,
+    path: item.filePath.replace(/\\/g, '/'),
+    size: item.fileSize,
+  }))
+  enqueueUploadFiles(files, destination)
+  if (!unmounted && generation === viewGeneration) isShowUploadPanel.value = true
 }
 
 function handleBatchRenameFile() {
