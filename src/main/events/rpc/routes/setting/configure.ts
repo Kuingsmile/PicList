@@ -48,14 +48,8 @@ export default [
     action: IRPCActionType.CONFIGURE_MIGRATE_FROM_PICLIST_INSTALLATION,
     handler: async () => {
       const configDir = app.getPath('userData')
-      const files = [
-        'data.json',
-        'manage.json',
-        'piclist.db',
-        'taskQueue.json',
-        'UpDownTaskQueue.json',
-        'packages.json',
-      ]
+      const requiredFiles = ['data.json']
+      const optionalFiles = ['manage.json', 'piclist.db', 'taskQueue.json', 'UpDownTaskQueue.json', 'package.json']
       const folders = [
         'themes',
         'piclistTemp',
@@ -67,21 +61,32 @@ export default [
         'node_modules',
       ]
       try {
+        // Validate required inputs before any destination files can be overwritten.
+        for (const file of requiredFiles) {
+          if (!(await fs.stat(path.join(configDir, file))).isFile()) {
+            throw new Error(`Required migration file is not a file: ${file}`)
+          }
+        }
+        const [optionalFileExists, folderExists] = await Promise.all([
+          Promise.all(optionalFiles.map(file => fs.pathExists(path.join(configDir, file)))),
+          Promise.all(folders.map(folder => fs.pathExists(path.join(configDir, folder)))),
+        ])
+        const files = [...requiredFiles, ...optionalFiles.filter((_, index) => optionalFileExists[index])]
         await Promise.all(
           files.map(async file => {
             const sourcePath = path.join(configDir, file)
-            if (file !== 'data.json' && !(await fs.pathExists(sourcePath))) return
             const targetPath = path.join(STORE_PATH, file)
             await fs.copy(sourcePath, targetPath, { overwrite: true })
           }),
         )
         await Promise.all(
-          folders.map(async folder => {
-            const sourcePath = path.join(configDir, folder)
-            if (!(await fs.pathExists(sourcePath))) return
-            const targetPath = path.join(STORE_PATH, folder)
-            await fs.copy(sourcePath, targetPath, { overwrite: true })
-          }),
+          folders
+            .filter((_, index) => folderExists[index])
+            .map(async folder => {
+              const sourcePath = path.join(configDir, folder)
+              const targetPath = path.join(STORE_PATH, folder)
+              await fs.copy(sourcePath, targetPath, { overwrite: true })
+            }),
         )
       } catch (err: any) {
         logger.error(err)
