@@ -8,20 +8,20 @@ if [ "$XDG_SESSION_TYPE" = "x11" ]; then
     if
         xclip -selection clipboard -target image/png -o >/dev/null 2>&1
     then
-        xclip -selection clipboard -target image/png -o >$1 2>/dev/null
-        echo $1
+        xclip -selection clipboard -target image/png -o >"$1" 2>/dev/null
+        printf '%s\n' "$1"
     else
         echo "no image"
     fi
   else
-    echo $filePath
+    printf '%s\n' "$filePath"
   fi
 elif [ "$XDG_SESSION_TYPE" = "wayland" ]; then
   command -v wl-paste >/dev/null 2>&1 || { echo >&1 "no wl-clipboard"; exit 1; }
   isImage=`wl-paste --list-types | grep image`
   if [ -n "$isImage" ]; then
-    wl-paste --type image/png > $1 2>/dev/null
-    echo $1
+    wl-paste --type image/png > "$1" 2>/dev/null
+    printf '%s\n' "$1"
   else
     echo "no image"
     exit 1
