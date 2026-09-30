@@ -8,6 +8,7 @@ import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
+  encodeObjectPath,
   formatError,
   getFileMimeType,
   hmacSha1Base64,
@@ -563,7 +564,7 @@ class QiniuApi {
     const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
     const urlPrefix = customUrl
     const expiration = parseInt(Date.now() / 1000 + expires)
-    const res = bucketManager.privateDownloadUrl(urlPrefix, key, expiration)
+    const res = bucketManager.privateDownloadUrl(urlPrefix, encodeObjectPath(key), expiration)
     return res
   }
 

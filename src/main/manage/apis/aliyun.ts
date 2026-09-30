@@ -477,7 +477,9 @@ class AliyunApi {
     const res = client.signatureUrl(key, {
       expires: expires || 3600,
     })
-    return customUrl ? `${customUrl.replace(/\/+$/, '')}/${key}${res.slice(res.indexOf('?'))}` : res
+    if (!customUrl) return res
+    const { pathname, search } = new URL(res)
+    return `${customUrl.replace(/\/+$/, '')}${pathname}${search}`
   }
 
   /**

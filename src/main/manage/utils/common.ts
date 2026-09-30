@@ -10,7 +10,6 @@ import got, { OptionsOfTextResponseBody, RequestError } from 'got'
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
 import mime from 'mime'
 
-import { isS3SignedUrl } from '#/utils/url'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ManageLogger } from '~/manage/utils/logger'
 import { formatHttpProxy } from '~/utils/common'
@@ -48,6 +47,9 @@ export function isInputConfigValid(config: any): boolean {
 }
 
 export const getFileMimeType = (filePath: string): string => mime.getType(filePath) || 'application/octet-stream'
+
+// Encode raw object names before building or signing a URL, preserving folder separators.
+export const encodeObjectPath = (key: string): string => key.split('/').map(encodeURIComponent).join('/')
 
 export const md5 = (str: string, code: 'hex' | 'base64'): string => crypto.createHash('md5').update(str).digest(code)
 
@@ -125,7 +127,7 @@ export const runDownloadTask = async (
 
 export const NewDownloader = async (
   instance: UpDownTaskQueue,
-  preSignedUrl: string,
+  url: string,
   id: string,
   destination: DownloadDestination,
   logger?: ManageLogger,
@@ -138,7 +140,7 @@ export const NewDownloader = async (
     id,
     destination,
     async (_partPath, createWriteStream) => {
-      const url = isS3SignedUrl(preSignedUrl) ? preSignedUrl : encodeURI(preSignedUrl)
+      // Complete provider URLs are already escaped; encoding again corrupts paths and signatures.
       for (let attempt = 0; attempt < 3; attempt++) {
         const output = createWriteStream()
         try {

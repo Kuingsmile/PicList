@@ -11,6 +11,7 @@ import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
+  encodeObjectPath,
   formatError,
   getInnerAgent,
   NewDownloader,
@@ -294,17 +295,12 @@ class WebdavplistApi {
           Authorization: `Basic ${base64Str}`,
         }
       } else if (this.authType === 'digest') {
-        const authHeader = await getAuthHeader(
-          'GET',
-          this.endpoint,
-          `/${key.replace(/^\/+/, '')}`,
-          this.username,
-          this.password,
-        )
+        const uri = `/${encodeObjectPath(key.replace(/^\/+/, ''))}`
+        const authHeader = await getAuthHeader('GET', this.endpoint, uri, this.username, this.password)
         headers = {
           Authorization: authHeader,
         }
-        preSignedUrl = `${this.endpoint}/${key.replace(/^\/+/, '')}`
+        preSignedUrl = `${this.endpoint}${uri}`
       }
       promises.push(
         () =>

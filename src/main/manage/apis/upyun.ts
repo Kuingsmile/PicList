@@ -11,6 +11,7 @@ import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
+  encodeObjectPath,
   formatError,
   getFileMimeType,
   gotUpload,
@@ -434,7 +435,7 @@ class UpyunApi {
       const id = `${bucketName}-${region}-${key}`
       const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
       if (!destination) continue
-      const preSignedUrl = `${customUrl}/${key}`
+      const preSignedUrl = `${customUrl}/${encodeObjectPath(key)}`
       promises.push(
         () =>
           new Promise((resolve, reject) => {
