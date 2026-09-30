@@ -61,6 +61,9 @@ interface Prepared {
   entries: MergeEntry[]
 }
 
+const SNAPSHOT_RETENTION_LIMIT = 50
+const SUMMARY_CACHE_LIMIT = 16
+
 const equal = (left: Buffer | null, right: Buffer | null) =>
   left === null ? right === null : right !== null && left.equals(right)
 const sameRemote = (left: RemoteFile | null, right: RemoteFile | null) =>
@@ -73,8 +76,14 @@ export class GallerySyncTransaction {
   private summaries = new Map<string, string>()
   constructor(private readonly deps: Dependencies) {}
   private now = () => this.deps.now?.() ?? Date.now()
-  private recover() {
+  private async recover() {
     recoverGallerySync(this.deps.root, this.deps.recoverWatermark)
+    await this.pruneSnapshots()
+  }
+  private cacheSummary(id: string, summary: string) {
+    this.summaries.delete(id)
+    this.summaries.set(id, summary)
+    while (this.summaries.size > SUMMARY_CACHE_LIMIT) this.summaries.delete(this.summaries.keys().next().value!)
   }
   private async readRemote(transport: GalleryTransport, name: string) {
     const result = await transport.read(name)
@@ -92,8 +101,7 @@ export class GallerySyncTransaction {
   private async discard(id: string) {
     const prepared = this.plans.get(id)
     if (prepared) {
-      if (!this.summaries.has(id)) this.summaries.set(id, this.summary(id))
-      if (this.summaries.size > 16) this.summaries.delete(this.summaries.keys().next().value!)
+      if (!this.summaries.has(id)) this.cacheSummary(id, this.summary(id))
       this.plans.delete(id)
       // Only this transaction's mkdtemp directory is ever removed.
       await fs.remove(prepared.directory).catch(() => {})
@@ -105,7 +113,7 @@ export class GallerySyncTransaction {
 
   preview(): Promise<GallerySyncPlan> {
     return withGalleryLock(async () => {
-      this.recover()
+      await this.recover()
       for (const [id, item] of this.plans) {
         if (this.now() - item.startedAt > 30 * 60_000 || this.plans.size >= 8) await this.discard(id)
       }
@@ -149,7 +157,7 @@ export class GallerySyncTransaction {
 
   apply(id: string, resolutions: Record<string, GallerySyncResolution>): Promise<GallerySyncResult> {
     return withGalleryLock(async () => {
-      this.recover()
+      await this.recover()
       const prepared = this.plans.get(id)
       if (!prepared || this.now() - prepared.startedAt > 30 * 60_000)
         throw new GallerySyncError('This sync plan expired. Preview again.')
@@ -190,7 +198,7 @@ export class GallerySyncTransaction {
         if (bundle) await writeFile(path.join(snapshot, 'remote', BUNDLE_NAME), bundle.content)
         await writeFile(path.join(snapshot, 'staged.db'), publication)
         const summary = this.summary(id, resolutions)
-        this.summaries.set(id, summary)
+        this.cacheSummary(id, summary)
         await writeFile(path.join(snapshot, 'summary.json'), summary)
         journal = {
           id,
@@ -254,7 +262,7 @@ export class GallerySyncTransaction {
               )
         if (journal && ownsPending) {
           try {
-            this.recover()
+            await this.recover()
             if (journal.status !== 'prepared') await this.deps.refresh()
           } catch {
             failure = new GallerySyncError(
@@ -266,6 +274,7 @@ export class GallerySyncTransaction {
         throw failure
       } finally {
         await this.discard(id)
+        await this.pruneSnapshots()
       }
     })
   }
@@ -315,13 +324,15 @@ export class GallerySyncTransaction {
     })
   }
 
-  listSnapshots(): GallerySyncSnapshot[] {
+  private readSnapshots(): GallerySyncSnapshot[] {
     const directory = path.join(stateDir(this.deps.root), 'snapshots')
     if (!fs.existsSync(directory)) return []
     return fs
-      .readdirSync(directory)
-      .flatMap(id => {
+      .readdirSync(directory, { withFileTypes: true })
+      .flatMap(entry => {
+        if (!entry.isDirectory()) return []
         try {
+          const id = entry.name
           const { status, watermark } = readJournal(this.deps.root, id)
           return [{ id, status, watermark }]
         } catch {
@@ -329,7 +340,42 @@ export class GallerySyncTransaction {
         }
       })
       .sort((a, b) => b.watermark - a.watermark)
-      .slice(0, 50)
+  }
+
+  private async pruneSnapshots(snapshots?: GallerySyncSnapshot[]): Promise<Set<string>> {
+    const removed = new Set<string>()
+    try {
+      const pending = path.join(stateDir(this.deps.root), 'pending.json')
+      // If pending recovery cannot be read and validated, leave every snapshot intact.
+      const pendingId = fs.existsSync(pending) ? readJournal(this.deps.root, fs.readJsonSync(pending).id).id : undefined
+      const completed = (snapshots ?? this.readSnapshots()).filter(
+        snapshot =>
+          snapshot.id !== pendingId &&
+          !this.plans.has(snapshot.id) &&
+          (snapshot.status === 'committed' || snapshot.status === 'rolled-back'),
+      )
+      // Unfinished transactions and the pending recovery snapshot are never retention candidates.
+      for (const { id } of completed.slice(SNAPSHOT_RETENTION_LIMIT)) {
+        try {
+          await fs.remove(snapshotDir(this.deps.root, id))
+          this.summaries.delete(id)
+          removed.add(id)
+        } catch {
+          // A locked or unwritable backup can be retried on the next cleanup.
+        }
+      }
+    } catch {
+      // Retention is best effort and must not turn a successful sync into a failure.
+    }
+    return removed
+  }
+
+  listSnapshots(): Promise<GallerySyncSnapshot[]> {
+    return withGalleryLock(async () => {
+      const snapshots = this.readSnapshots()
+      const removed = await this.pruneSnapshots(snapshots)
+      return snapshots.filter(snapshot => !removed.has(snapshot.id)).slice(0, SNAPSHOT_RETENTION_LIMIT)
+    })
   }
 }
 
