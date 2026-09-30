@@ -272,6 +272,7 @@ import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType } from '@/utils/enum'
 import { invokeRPC, showRpcError } from '@/utils/rpc'
+import { normalizeScriptFileName } from '@/utils/scriptFileName'
 import { defaultScriptTemplate, defaultScriptTemplateEn } from '@/utils/static'
 
 const Editor = defineAsyncComponent(() => import('@/components/Editor.vue'))
@@ -509,18 +510,17 @@ async function saveEditorContent() {
 }
 
 function handleNewScriptNameConfirm() {
-  let trimmedName = newScriptName.value.trim()
-  trimmedName = trimmedName.endsWith('.js') ? trimmedName : `${trimmedName}.js`
-  if (!trimmedName) {
+  const fileName = normalizeScriptFileName(newScriptName.value)
+  if (!fileName) {
     message.error(t('pages.scripts.pleaseEnterScriptName'))
     return
   }
-  if (scriptsList.value.includes(trimmedName)) {
+  if (scriptsList.value.includes(fileName)) {
     message.error(t('pages.scripts.duplicateScriptNameError'))
     return
   }
   newScriptNameVisible.value = false
-  openEditScripts(trimmedName, 'new')
+  openEditScripts(fileName, 'new')
 }
 
 function handleScriptClick(scriptName: string) {

@@ -549,6 +549,7 @@ import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 import { II18nLanguage, IRPCActionType } from '@/utils/enum'
 import { invokeRPC, showRpcError } from '@/utils/rpc'
+import { normalizeScriptFileName } from '@/utils/scriptFileName'
 import { defaultScriptTemplate, defaultScriptTemplateEn } from '@/utils/static'
 
 const Editor = defineAsyncComponent(() => import('@/components/Editor.vue'))
@@ -795,15 +796,14 @@ function checkDup(fullPath: string[]) {
 }
 
 function handleNewScriptNameConfirm() {
-  let trimmedName = newScriptName.value.trim()
-  trimmedName = trimmedName.endsWith('.js') ? trimmedName : `${trimmedName}.js`
-  if (!trimmedName) {
+  const fileName = normalizeScriptFileName(newScriptName.value)
+  if (!fileName) {
     message.error(t('pages.scripts.pleaseEnterScriptName'))
     return
   }
   const scriptPath = newScriptCategory.value.includes('.')
-    ? [...newScriptCategory.value.split('.'), trimmedName]
-    : [newScriptCategory.value, trimmedName]
+    ? [...newScriptCategory.value.split('.'), fileName]
+    : [newScriptCategory.value, fileName]
   if (checkDup(scriptPath)) {
     message.error(t('pages.scripts.duplicateScriptNameError'))
     return
