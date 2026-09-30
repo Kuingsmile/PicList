@@ -38,7 +38,6 @@ yarn dev
 | `yarn lint:dpdm` / `yarn lint:dpdm:renderer`           | 从主进程 / 渲染进程入口检查循环依赖。                                                    |
 | `yarn lint:style`                                      | 检查 `src/` 下的样式，**会自动修复文件**。                                               |
 | `yarn lint:style:themes`                               | 检查 `resources/theme/*.css`，**会自动修复文件**。                                       |
-| `yarn test:release`                                    | 使用 Node 测试运行器执行 `scripts/tests/*.test.js`，覆盖发布工具和打包钩子。             |
 | `yarn prepare`                                         | 下载主题并安装 Husky 钩子。                                                              |
 | `yarn prepare:7za`                                     | 按当前 Node 架构下载 Windows 构建所需的 `resources/7za.exe`。                            |
 | `yarn prepare:plugin-runtime`                          | 为当前平台和架构准备实验性内置 npm 运行时。                                              |
@@ -47,8 +46,6 @@ yarn dev
 | `yarn run link`                                        | 通过 `scripts/link.js` 输出当前版本的下载链接；使用 `run` 避免执行 Yarn 内置的链接命令。 |
 | `yarn release`                                         | 执行版本更新工具，会修改发布元数据。                                                     |
 | `yarn winget`                                          | 执行 Winget 自动化脚本，供发布维护使用。                                                 |
-
-当前没有通用的 `test` 脚本或 `i18n` 生成脚本。`test:release` 不测试 Electron 界面或存储平台功能。
 
 ## 源码结构
 
@@ -111,7 +108,6 @@ yarn typecheck
 yarn lint
 yarn lint:dpdm
 yarn lint:dpdm:renderer
-yarn test:release
 ```
 
 修改样式时使用对应的样式检查脚本，并检查自动修复结果。修改界面、平台适配或插件时，还应通过 `yarn dev` 验证相关功能；发布测试不覆盖这些流程。日志、截图和问题报告中不要包含凭据或私有文件内容。

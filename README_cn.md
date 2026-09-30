@@ -174,8 +174,6 @@ yarn preview
 
 `yarn build` 使用 electron-builder 打包，`yarn build:win`、`yarn build:mac`、`yarn build:linux` 选择平台。请先按贡献指南准备对应工具链；Windows 还需运行 `yarn prepare:7za`。编译产物位于 `out/`，安装包和压缩包位于 `dist_electron/`。
 
-提交代码前使用 `yarn typecheck`、`yarn lint` 和相关检查。`yarn test:release` 测试发布工具和打包钩子；当前没有通用的 `test` 脚本。
-
 ## 🔗 相关项目
 
 - **[PicList ThemeHub](https://github.com/Kuingsmile/piclist-themeHub)**: PicList 的主题仓库。

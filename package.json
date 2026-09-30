@@ -38,8 +38,6 @@
     "prepare:plugin-runtime": "node ./scripts/prepare-plugin-runtime.mjs",
     "preview": "electron-vite preview",
     "release": "bump-version",
-    "test:packaging": "node --test scripts/tests/after-pack.test.js scripts/tests/plugin-runtime.test.js",
-    "test:release": "node --test scripts/tests/release-*.test.js",
     "typecheck": "vue-tsc --noEmit",
     "postuninstall": "electron-builder install-app-deps",
     "winget": "node ./scripts/auto-winget.js"

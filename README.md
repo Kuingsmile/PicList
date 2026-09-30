@@ -174,8 +174,6 @@ Installation downloads themes, installs Husky hooks, and prepares Electron nativ
 
 `yarn build` packages with electron-builder; `yarn build:win`, `yarn build:mac`, and `yarn build:linux` select a platform. Follow the contributor guide's platform prerequisites first; Windows also needs `yarn prepare:7za`. Compiled output goes to `out/` and packaged artifacts to `dist_electron/`.
 
-Before submitting code, use `yarn typecheck`, `yarn lint`, and the relevant checks in the guide. `yarn test:release` tests release tooling and packaging hooks; there is no general `test` script.
-
 ## 🔗 Related Projects
 
 - **[PicList ThemeHub](https://github.com/Kuingsmile/piclist-themeHub)**: A theme repository for PicList.

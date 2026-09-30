@@ -38,7 +38,6 @@ Installation runs `postinstall` to install Electron native dependencies and `pre
 | `yarn lint:dpdm` / `yarn lint:dpdm:renderer`           | Check for circular dependencies from the main / renderer entry point.                                                |
 | `yarn lint:style`                                      | Run Stylelint on styles under `src/` **with automatic fixes**.                                                       |
 | `yarn lint:style:themes`                               | Run Stylelint on `resources/theme/*.css` **with automatic fixes**.                                                   |
-| `yarn test:release`                                    | Run Node's test runner on `scripts/tests/*.test.js` for release tooling and packaging hooks.                         |
 | `yarn prepare`                                         | Download themes and install Husky hooks.                                                                             |
 | `yarn prepare:7za`                                     | Download `resources/7za.exe` for the current Node architecture for Windows builds.                                   |
 | `yarn prepare:plugin-runtime`                          | Stage the experimental bundled npm runtime for the current platform and architecture.                                |
@@ -47,8 +46,6 @@ Installation runs `postinstall` to install Electron native dependencies and `pre
 | `yarn run link`                                        | Print versioned download links using `scripts/link.js`; use `run` to avoid Yarn's built-in linking command.          |
 | `yarn release`                                         | Run the configured version bump tool; this changes release metadata.                                                 |
 | `yarn winget`                                          | Run the Winget automation script; reserved for release maintenance.                                                  |
-
-There is no general `test` script or `i18n` generation script. `test:release` does not exercise the Electron UI or storage providers.
 
 ## Source layout
 
@@ -111,7 +108,6 @@ yarn typecheck
 yarn lint
 yarn lint:dpdm
 yarn lint:dpdm:renderer
-yarn test:release
 ```
 
 Use the style scripts when changing styles, and inspect their automatic fixes. For UI, provider, or plugin changes, also exercise the affected behavior in `yarn dev`; the release tests do not cover those flows. Keep credentials and private file contents out of logs, screenshots, and issue reports.

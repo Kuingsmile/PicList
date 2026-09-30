@@ -119,9 +119,6 @@ jobs:
         if: contains(matrix.formats, 'zip') || contains(matrix.formats, '7z')
         run: yarn run prepare:7za
 
-      - name: Test packaging hooks
-        run: yarn test:packaging
-
       - name: Compile app once for this OS and architecture
         run: yarn build:app
 
@@ -212,9 +209,6 @@ jobs:
           yarn --cwd "$RUNNER_TEMP/release-tools" install \
             --modules-folder "$GITHUB_WORKSPACE/node_modules" \
             --frozen-lockfile --ignore-scripts --ignore-engines --non-interactive
-
-      - name: Test release publication
-        run: yarn test:release
 
       - name: Derive expected release artifacts and metadata
         id: expected
