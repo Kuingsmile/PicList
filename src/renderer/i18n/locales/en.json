@@ -211,6 +211,7 @@
       "refresh": "Refresh",
       "regexPattern": "Regex Pattern Matched: {matched} Times",
       "regexPatternPlaceholder": "For example: ^\\d{4}-\\d{2}-\\d{2}, without the slashes on both sides of the regex",
+      "removeSummary": "Removed: {removed}. Failed: {failed}.",
       "replacedWith": "The string to be replaced, placeholders from the custom renaming rules can be used",
       "searchFilename": "Search by Filename",
       "searchUrl": "Search by URL",

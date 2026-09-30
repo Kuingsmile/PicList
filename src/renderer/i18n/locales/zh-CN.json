@@ -211,6 +211,7 @@
       "refresh": "刷新",
       "regexPattern": "进行替换时匹配的字符串或js正则表达式 匹配到: {matched} 个",
       "regexPatternPlaceholder": "例如：^\\d{4}-\\d{2}-\\d{2}, 不包含正则两边的斜杠",
+      "removeSummary": "已删除：{removed} 项。失败：{failed} 项。",
       "replacedWith": "需要替换的字符串，可使用自定义重命名规则中的占位符",
       "searchFilename": "搜索文件名",
       "searchUrl": "搜索URL",

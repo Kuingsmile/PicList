@@ -1220,70 +1220,62 @@ function setAllSelected(selected: boolean) {
 }
 
 function multiRemove() {
-  const multiRemoveNumber = Object.values(choosedList).filter(item => item).length
-  if (multiRemoveNumber) {
-    confirm({
-      title: t('pages.gallery.notice'),
-      message: t('pages.gallery.confirmRemove'),
-      type: 'warning',
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      center: true,
-    }).then(async result => {
-      if (!result) return
-      const files: IResult<ImgInfo>[] = []
-      const imageIDList = Object.keys(choosedList)
-      const isDeleteCloudFile = await getConfig(configPaths.settings.deleteCloudFile)
-      if (isDeleteCloudFile) {
-        for (const imageIDListItem of imageIDList) {
-          const key = imageIDListItem
-          if (choosedList[key]) {
-            const file = await $$db.getById<ImgInfo>(key)
-            if (file) {
-              if (file.type !== undefined && picBedsCanbeDeleted.includes(file.type)) {
-                const result = await ALLApi.delete(file)
-                if (result) {
-                  message.success(`${file.fileName} ${t('pages.gallery.cloudDeleteSucceed')}`, {
-                    duration: multiRemoveNumber > 5 ? 1000 : 2000,
-                  })
-                  files.push(file)
-                  await $$db.removeById(key)
-                } else {
-                  message.error(`${file.fileName} ${t('pages.gallery.cloudDeleteFailed')}`, {
-                    duration: multiRemoveNumber > 5 ? 1000 : 2000,
-                  })
-                }
-              } else {
-                files.push(file)
-                await $$db.removeById(key)
-              }
-              window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_RUN_SCRIPTS, getRawData(file))
-            }
-          }
-        }
-      } else {
-        for (const imageIDListItem of imageIDList) {
-          const key = imageIDListItem
-          if (choosedList[key]) {
-            const file = await $$db.getById<ImgInfo>(key)
-            if (file) {
-              files.push(file)
-              await $$db.removeById(key)
-              window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_RUN_SCRIPTS, getRawData(file))
-            }
-          }
-        }
-      }
-      clearChoosedList()
+  const imageIDList = Object.keys(choosedList).filter(id => choosedList[id])
+  if (!imageIDList.length) return
 
+  confirm({
+    title: t('pages.gallery.notice'),
+    message: t('pages.gallery.confirmRemove'),
+    type: 'warning',
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    center: true,
+  }).then(async result => {
+    if (!result) return
+    const files: IResult<ImgInfo>[] = []
+    let failedCount = 0
+    const isDeleteCloudFile = await getConfig(configPaths.settings.deleteCloudFile)
+    for (const key of imageIDList) {
+      let file: IResult<ImgInfo> | undefined
+      try {
+        file = await $$db.getById<ImgInfo>(key)
+        if (!file) {
+          delete choosedList[key]
+          continue
+        }
+        const isNeedDeleteCloudFile = isDeleteCloudFile && picBedsCanbeDeleted.includes(file.type || 'placeholder')
+        if (isNeedDeleteCloudFile && !(await ALLApi.delete(file))) {
+          failedCount++
+          continue
+        }
+        await $$db.removeById(key)
+      } catch {
+        failedCount++
+        continue
+      }
+      files.push(file)
+      delete choosedList[key]
+      window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_RUN_SCRIPTS, getRawData(file))
+    }
+
+    if (files.length) {
       window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_FILES, getRawData(files))
-      await updateGallery()
-      nextTick(() => {
-        virtualScrollerRef.value?.refresh()
-      })
-      message.success(t('pages.gallery.operationSucceed'))
+    }
+    await updateGallery()
+    nextTick(() => {
+      virtualScrollerRef.value?.refresh()
     })
-  }
+    const summary = t('pages.gallery.removeSummary', { removed: files.length, failed: failedCount })
+    if (failedCount && files.length) {
+      message.warning(summary)
+    } else if (failedCount) {
+      message.error(summary)
+    } else if (files.length) {
+      message.success(summary)
+    } else {
+      message.info(summary)
+    }
+  })
 }
 
 async function multiCopy() {
