@@ -188,8 +188,9 @@ async function handleDelete({ response, list = [] }: { response: IHttpResponse; 
     handleResponse({
       response,
       body: {
-        success: !!successCount,
+        success: failCount === 0,
         message: successCount ? `delete success: ${successCount}, fail: ${failCount}` : deleteErrorMessage,
+        result: filesToDelete.map((item, index) => ({ id: item.id, success: result[index] })),
       },
     })
   } catch (err: any) {

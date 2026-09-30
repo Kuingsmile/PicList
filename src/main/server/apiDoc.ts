@@ -80,8 +80,12 @@ list中的每一项都是一个对象，由上传接口返回数据的\`fullResu
 
 \`\`\`json
 {
-  "success": true, // or false
-  "message": xxx
+  "success": false,
+  "message": "delete success: 1, fail: 1",
+  "result": [
+    { "id": "gallery-id-1", "success": true },
+    { "id": "gallery-id-2", "success": false }
+  ]
 }
 \`\`\`
 `
