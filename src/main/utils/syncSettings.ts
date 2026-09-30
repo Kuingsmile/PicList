@@ -256,6 +256,7 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
       }
       const shaRes = await axios.get(apiUrl, {
         headers,
+        params: { ref: branch },
       })
       if (!isHttpResSuccess(shaRes)) {
         throw new Error('get sha failed')
