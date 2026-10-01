@@ -139,7 +139,7 @@
     "dexie": "^3.2.4",
     "dompurify": "^3.4.15",
     "dpdm": "^4.3.0",
-    "electron": "^39.2.7",
+    "electron": "^41.0.0",
     "electron-builder": "^26.16.1",
     "electron-vite": "^5.0.0",
     "eslint": "^10.11.0",
