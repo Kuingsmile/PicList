@@ -684,17 +684,18 @@ import { useRouter } from 'vue-router'
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import PicBedSwitcher from '@/components/PicBedSwitcher.vue'
-import { usePicBed } from '@/hooks/useGlobal'
-import useMessage from '@/hooks/useMessage'
+import { useDragEventListeners } from '@/composables/useDragEventListeners'
+import { usePicBed } from '@/composables/useGlobal'
+import useMessage from '@/composables/useMessage'
 import { PICBEDS_PAGE } from '@/router/config'
+import { getConfig, saveConfig } from '@/services/configService'
 import $bus from '@/utils/bus'
-import { isUrl } from '@/utils/common'
 import { configPaths } from '@/utils/configPaths'
-import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
-import { getConfig, saveConfig } from '@/utils/dataSender'
-import { useDragEventListeners } from '@/utils/drag'
-import { IPasteStyle, IRPCActionType } from '@/utils/enum'
 import { createUploadProgressTracker, type UploadProgressState } from '@/utils/uploadProgress'
+import { IPasteStyle } from '#/constants/app'
+import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '#/constants/ipcChannels'
+import { IRPCActionType } from '#/constants/rpcActions'
+import { isUrl } from '#/utils/url'
 
 const ImageProcessDialog = defineAsyncComponent(() => import('@/components/ImageProcessDialog.vue'))
 
@@ -1360,4 +1361,4 @@ export default {
 }
 </script>
 
-<style scoped src="./css/UploadPage.css"></style>
+<style scoped src="./Upload.css"></style>

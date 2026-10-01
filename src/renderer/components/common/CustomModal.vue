@@ -73,10 +73,10 @@ import { XIcon } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { getConfig } from '@/services/configService'
 import { configPaths } from '@/utils/configPaths'
-import { getConfig } from '@/utils/dataSender'
 
-import { useDialogFocus } from './useDialogFocus'
+import { useDialogFocus } from '../../composables/useDialogFocus'
 
 defineOptions({ inheritAttrs: false })
 

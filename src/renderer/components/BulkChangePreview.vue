@@ -104,7 +104,7 @@ import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
-import type { useBulkChanges } from '@/hooks/useBulkChanges'
+import type { useBulkChanges } from '@/composables/useBulkChanges'
 import { canCommitBulkPlan } from '#/bulkChanges'
 
 const { workflow } = defineProps<{ workflow: ReturnType<typeof useBulkChanges> }>()

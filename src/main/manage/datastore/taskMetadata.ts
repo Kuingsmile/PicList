@@ -1,4 +1,4 @@
-import { checkpointSource, isRecord, retainTaskHistory } from '~/utils/taskCheckpoint'
+import { checkpointSource, isRecord, retainTaskHistory } from '~/services/taskCheckpoint'
 
 export interface ManagementCheckpoint {
   uploadTaskQueue: IUploadTask[]

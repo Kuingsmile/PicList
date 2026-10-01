@@ -23,7 +23,7 @@
       "@/*": ["./src/renderer/*"],
       "~/*": ["./src/main/*"],
       "root/*": ["./*"],
-      "#/*": ["./src/universal/*"],
+      "#/*": ["./src/shared/*"],
       "apis/*": ["./src/main/apis/*"],
       "@core/*": ["./src/main/apis/core/*"]
     }

@@ -5,7 +5,7 @@ import { app } from 'electron'
 import fs from 'fs-extra'
 
 import { t } from '~/i18n'
-import { notificationList } from '~/utils/notification'
+import { notificationList } from '~/utils/notifications'
 
 let _configFilePath = ''
 let _manageConfigFilePath = ''

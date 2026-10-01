@@ -1,7 +1,7 @@
 import { dataDir, galleryDBPath } from '@core/datastore/dirs'
 import { DBStore } from '@piclist/store'
 
-import { type GalleryStore, trackGalleryStore } from '~/utils/gallerySync/store'
+import { type GalleryStore, trackGalleryStore } from '~/services/gallerySync/store'
 
 export const DB_PATH: string = galleryDBPath()
 

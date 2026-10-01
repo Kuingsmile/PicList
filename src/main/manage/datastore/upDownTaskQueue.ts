@@ -5,8 +5,8 @@ import path from 'node:path'
 
 import { dataDir } from '@core/datastore/dirs'
 
-import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
-import { TaskCheckpoint } from '~/utils/taskCheckpoint'
+import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/constants'
+import { TaskCheckpoint } from '~/services/taskCheckpoint'
 
 import { finishImportedFileUpload, retainImportedFileForUpload } from '../utils/urlImportFiles'
 import { decodeManagementCheckpoint, managementTaskMetadata, retainManagementHistory } from './taskMetadata'

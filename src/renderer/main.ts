@@ -12,8 +12,8 @@ import en from '@/i18n/locales/en.json'
 import zhCN from '@/i18n/locales/zh-CN.json'
 import zhTW from '@/i18n/locales/zh-TW.json'
 import router from '@/router'
-import { store } from '@/store'
-import db from '@/utils/db'
+import db from '@/services/galleryDatabase'
+import { store } from '@/stores/appStore'
 
 type MessageSchema = typeof zhCN
 

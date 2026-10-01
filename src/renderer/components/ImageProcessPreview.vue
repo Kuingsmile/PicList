@@ -324,4 +324,4 @@ const summaries = computed(() => {
 })
 </script>
 
-<style scoped src="./css/ImageProcessPreview.css"></style>
+<style scoped src="./ImageProcessPreview.css"></style>

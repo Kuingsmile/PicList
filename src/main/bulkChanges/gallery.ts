@@ -1,4 +1,4 @@
-import type { BulkCandidate, BulkInput } from '../../universal/bulkChanges'
+import type { BulkCandidate, BulkInput } from '../../shared/bulkChanges'
 import type { BulkAdapter } from './session'
 
 interface GalleryRecord {

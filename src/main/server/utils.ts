@@ -6,9 +6,9 @@ import ALLApi from 'apis/delete/allApi'
 import GuiApi from 'apis/gui'
 import { Notification } from 'electron'
 
+import { ICOREBuildInEvent, IWindowList } from '~/constants'
 import { t } from '~/i18n/index'
 import { configPaths } from '~/utils/configPaths'
-import { ICOREBuildInEvent, IWindowList } from '~/utils/enum'
 import { picBedsCanbeDeleted } from '~/utils/static'
 
 export const handleResponse = ({

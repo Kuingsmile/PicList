@@ -8,10 +8,10 @@ import { uploadChoosedFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
 import { BrowserWindow, dialog, ipcMain, IpcMainEvent, MessageBoxOptions, Notification } from 'electron'
 
-import { CANCEL_INPUT_BOX, SHOW_INPUT_BOX } from '~/events/constant'
+import { CANCEL_INPUT_BOX, SHOW_INPUT_BOX } from '#/constants/ipcChannels'
+import { IWindowList } from '~/constants'
 import { t } from '~/i18n'
-import { IWindowList } from '~/utils/enum'
-import { currentUploadJob, sendToWindow, UploadJob } from '~/utils/uploadJob'
+import { currentUploadJob, sendToWindow, UploadJob } from '~/services/uploads/uploadJob'
 
 // Cross-process support may be required in the future
 class GuiApi implements IGuiApi {

@@ -1256,18 +1256,19 @@ import SettingSection from '@/components/common/SettingSection.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import GallerySync from '@/components/GallerySync.vue'
 import ImageProcessDialog from '@/components/ImageProcessDialog.vue'
-import useConfirm from '@/hooks/useConfirm'
-import { osGlobal, usePicBed } from '@/hooks/useGlobal'
-import useMessage from '@/hooks/useMessage'
+import useConfirm from '@/composables/useConfirm'
+import { osGlobal, usePicBed } from '@/composables/useGlobal'
+import useMessage from '@/composables/useMessage'
 import { setCurrentLanguage } from '@/i18n'
 import { SHORTKEY_PAGE } from '@/router/config'
-import { enforceNumber } from '@/utils/common'
+import { getConfig, saveConfig } from '@/services/configService'
+import { invokeRPC, saveWithFeedback, showRpcError } from '@/services/rpcService'
+import { getLatestVersion, isValidVersion } from '@/services/updateService'
 import { configPaths } from '@/utils/configPaths'
-import { getConfig, saveConfig } from '@/utils/dataSender'
-import { II18nLanguage, IRPCActionType, ISartMode } from '@/utils/enum'
-import { getLatestVersion, isValidVersion } from '@/utils/getLatestVersion'
 import { renderMarkdown } from '@/utils/markdown'
-import { invokeRPC, saveWithFeedback, showRpcError } from '@/utils/rpc'
+import { II18nLanguage, ISartMode } from '#/constants/app'
+import { IRPCActionType } from '#/constants/rpcActions'
+import { enforceNumber } from '#/utils/values'
 
 const Editor = defineAsyncComponent(() => import('@/components/Editor.vue'))
 
@@ -2281,4 +2282,4 @@ onBeforeUnmount(() => {
 export default { name: 'SettingPage' }
 </script>
 
-<style scoped src="./css/PicgoSetting.css"></style>
+<style scoped src="./PicGoSetting.css"></style>

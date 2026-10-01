@@ -437,17 +437,18 @@ import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import ConfigForm from '@/components/UnifiedConfigForm.vue'
-import { usePicBed } from '@/hooks/useGlobal'
-import { getRawData, handleStreamlinePluginName } from '@/utils/common'
+import { usePicBed } from '@/composables/useGlobal'
+import { getConfig, saveConfig } from '@/services/configService'
 import { configPaths } from '@/utils/configPaths'
 import {
   PICGO_CONFIG_PLUGIN,
   PICGO_HANDLE_PLUGIN_DONE,
   PICGO_HANDLE_PLUGIN_ING,
   PICGO_TOGGLE_PLUGIN,
-} from '@/utils/constant'
-import { getConfig, saveConfig } from '@/utils/dataSender'
-import { IRPCActionType } from '@/utils/enum'
+} from '#/constants/ipcChannels'
+import { IRPCActionType } from '#/constants/rpcActions'
+import { getRawData } from '#/utils/rawData'
+import { handleStreamlinePluginName } from '#/utils/strings'
 
 const REGISTRY_TIMEOUT_MS = 10_000
 const METADATA_CONCURRENCY = 4

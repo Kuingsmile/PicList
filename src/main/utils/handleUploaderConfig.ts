@@ -1,10 +1,12 @@
 import picgo from '@core/picgo'
+import type { IPicGo } from 'piclist'
 import { v4 as uuid } from 'uuid'
 
 import { RpcError } from '#/rpc'
+import { trimValues } from '#/utils/values'
 import { commitConfig } from '~/utils/commitConfig'
-import { setTrayToolTip, trimValues } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
+import { setTrayToolTip } from '~/utils/tray'
 
 const isSecondUploaderConfig = (type: string, id: string): boolean =>
   picgo.getConfig<string>(configPaths.picBed.secondUploader) === type &&
@@ -217,4 +219,15 @@ export const resetUploaderConfig = (type: string, id: string) => {
     ...(currentDefault._id === id ? { [`picBed.${type}`]: config } : {}),
     ...(isSecondUploaderConfig(type, id) ? { [configPaths.picBed.secondUploaderConfig]: config } : {}),
   })
+}
+
+export function getUploaderType(ctx: IPicGo): {
+  picBed: string
+  id?: string
+} {
+  const allConfig = ctx.getConfig<any>() || {}
+  const picBed = allConfig.picBed?.uploader || allConfig.picBed?.current || 'smms'
+  const picBedConfig = allConfig.picBed?.[picBed] || {}
+  const id = picBedConfig._id || ''
+  return { picBed, id }
 }

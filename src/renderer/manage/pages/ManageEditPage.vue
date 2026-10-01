@@ -163,12 +163,12 @@ import CustomSelect from '@/components/common/CustomSelect.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
-import useMessage from '@/hooks/useMessage'
-import { useManageStore } from '@/manage/store/manageStore'
+import useMessage from '@/composables/useMessage'
+import { getConfig, saveConfig } from '@/manage/services/configService'
+import { useManageStore } from '@/manage/stores/manageStore'
 import { getSupportedPicBedList } from '@/manage/utils/constants'
-import { getConfig, saveConfig } from '@/manage/utils/dataSender'
-import { formatEndpoint } from '@/utils/common'
-import { IRPCActionType } from '@/utils/enum'
+import { IRPCActionType } from '#/constants/rpcActions'
+import { formatEndpoint } from '#/utils/url'
 
 const editMode = defineModel<boolean>('editMode')
 const emit = defineEmits<(e: 'update:editMode', value: boolean) => void>()

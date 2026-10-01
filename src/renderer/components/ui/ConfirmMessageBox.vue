@@ -70,7 +70,7 @@ import { AlertTriangle, CheckCircle, Info, X as XIcon, XCircle } from '@lucide/v
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useDialogFocus } from '@/components/common/useDialogFocus'
+import { useDialogFocus } from '@/composables/useDialogFocus'
 
 interface Props {
   isOpen: boolean

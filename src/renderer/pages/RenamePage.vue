@@ -51,7 +51,7 @@ import { nextTick, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
-import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '@/utils/constant'
+import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '#/constants/ipcChannels'
 
 const { t } = useI18n()
 const request = ref<IRenameRequest | null>(null)

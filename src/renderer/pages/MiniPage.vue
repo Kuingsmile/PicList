@@ -83,12 +83,12 @@ import type { IConfig } from 'piclist'
 import { computed, onBeforeMount, onBeforeUnmount, ref, useId, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { osGlobal } from '@/hooks/useGlobal'
-import { isUrl } from '@/utils/common'
-import { getConfig } from '@/utils/dataSender'
-import { useDragEventListeners } from '@/utils/drag'
-import { IRPCActionType } from '@/utils/enum'
+import { useDragEventListeners } from '@/composables/useDragEventListeners'
+import { osGlobal } from '@/composables/useGlobal'
+import { getConfig } from '@/services/configService'
 import { createUploadProgressTracker, type UploadProgressState } from '@/utils/uploadProgress'
+import { IRPCActionType } from '#/constants/rpcActions'
+import { isUrl } from '#/utils/url'
 
 const logoPath = ref('')
 const dragover = ref(false)

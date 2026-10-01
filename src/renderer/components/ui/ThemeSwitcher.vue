@@ -4,9 +4,9 @@ import { useMediaQuery } from '@vueuse/core'
 import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import useMessage from '@/hooks/useMessage'
+import useMessage from '@/composables/useMessage'
+import { getConfig, saveConfig } from '@/services/configService'
 import { configPaths } from '@/utils/configPaths'
-import { getConfig, saveConfig } from '@/utils/dataSender'
 
 interface Props {
   collapsed?: boolean

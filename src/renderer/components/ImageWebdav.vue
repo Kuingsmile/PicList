@@ -18,8 +18,8 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 
-import { useThumbnail } from '@/hooks/useThumbnail'
-import { getFileIconPath } from '@/manage/utils/common'
+import { useThumbnail } from '@/composables/useThumbnail'
+import { getFileIconPath } from '@/manage/utils/filePresentation'
 import { fetchPreviewResponse } from '@/manage/utils/filePreview'
 
 const props = defineProps<{

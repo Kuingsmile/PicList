@@ -204,10 +204,10 @@ import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
-import useConfirm from '@/hooks/useConfirm'
-import { IRPCActionType } from '@/utils/enum'
-import keyBinding from '@/utils/key-binding'
-import { invokeRPC, saveWithFeedback, showRpcError } from '@/utils/rpc'
+import useConfirm from '@/composables/useConfirm'
+import { invokeRPC, saveWithFeedback, showRpcError } from '@/services/rpcService'
+import keyBinding from '@/utils/keyBinding'
+import { IRPCActionType } from '#/constants/rpcActions'
 import { RpcError, rpcErrorMessages } from '#/rpc'
 import {
   findShortcutConflicts,

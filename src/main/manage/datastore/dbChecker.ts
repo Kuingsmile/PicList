@@ -2,7 +2,7 @@ import { manageConfigPath } from '@core/datastore/dirs'
 import fs from 'fs-extra'
 
 import { t } from '~/i18n'
-import { notificationList } from '~/utils/notification'
+import { notificationList } from '~/utils/notifications'
 
 function manageDbChecker() {
   if (process.type === 'renderer') return

@@ -23,8 +23,8 @@
 import { onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import useConfirm, { type ConfirmOptions } from '@/hooks/useConfirm'
-import useMessage from '@/hooks/useMessage'
+import useConfirm, { type ConfirmOptions } from '@/composables/useConfirm'
+import useMessage from '@/composables/useMessage'
 
 import ConfirmMessageBox from './ConfirmMessageBox.vue'
 import MessageToast from './MessageToast.vue'

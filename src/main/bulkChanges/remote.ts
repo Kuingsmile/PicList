@@ -7,7 +7,7 @@ import qiniu from 'qiniu'
 
 import SSHClient from '~/utils/sshClient'
 
-import type { BulkCandidate, BulkContext } from '../../universal/bulkChanges'
+import type { BulkCandidate, BulkContext } from '../../shared/bulkChanges'
 import type { BulkAdapter, BulkObject } from './session'
 
 const filesystemProviders = new Set(['local', 'sftp', 'webdavplist', 'upyun'])

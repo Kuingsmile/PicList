@@ -8,7 +8,7 @@ import {
   type BulkSnapshot,
   canCommitBulkPlan,
   isBulkPolicy,
-} from '../../universal/bulkChanges'
+} from '../../shared/bulkChanges'
 
 export interface BulkObject {
   version: string

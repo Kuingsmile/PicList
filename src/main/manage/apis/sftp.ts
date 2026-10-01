@@ -10,7 +10,7 @@ import type { ListingContext } from '~/manage/listingRequest'
 import { createDownloadTask, formatError, runDownloadTask } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { onUploadAbort, scheduleUploadBatch } from '~/manage/utils/uploadFile'
-import { isImage } from '~/utils/common'
+import { isImage } from '~/utils/filesystem'
 import SSHClient from '~/utils/sshClient'
 
 interface listDirResult {

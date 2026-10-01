@@ -3,9 +3,9 @@ import { randomUUID } from 'node:crypto'
 import windowManager from 'apis/app/window/windowManager'
 import { ipcMain, type IpcMainEvent } from 'electron'
 
-import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '~/events/constant'
-import { IWindowList } from '~/utils/enum'
-import { UploadJob, UploadJobError } from '~/utils/uploadJob'
+import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '#/constants/ipcChannels'
+import { IWindowList } from '~/constants'
+import { UploadJob, UploadJobError } from '~/services/uploads/uploadJob'
 
 export function waitForRename(job: UploadJob, fileName: string, originalName: string): Promise<string | null> {
   job.throwIfStopped()

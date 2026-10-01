@@ -1,3 +1,5 @@
+import { builtinModules } from 'node:module'
+
 import js from '@eslint/js'
 import { defineConfig, globalIgnores } from 'eslint/config'
 import jsonc from 'eslint-plugin-jsonc'
@@ -14,6 +16,38 @@ const tsFiles = ['**/*.{ts,tsx,mts,cts}']
 const vueFiles = ['**/*.vue']
 const codeFiles = [...jsFiles, ...tsFiles, ...vueFiles]
 const jsoncFiles = ['**/*.jsonc', '**/tsconfig.json', '**/tsconfig.*.json', '**/.vscode/*.json']
+const nodeOnlyImports = [...new Set(['electron', 'fs-extra', ...builtinModules])]
+const mainImports = ['~', '~/*', 'apis', 'apis/*', '@core', '@core/*', 'root/src/main/**', '**/main/**']
+const rendererImports = ['@', '@/*', 'root/src/renderer/**', '**/renderer/**']
+const preloadImports = ['root/src/preload/**', '**/preload/**']
+const processBoundaries = [
+  {
+    name: 'renderer',
+    files: ['src/renderer/**/*.{ts,tsx,vue}'],
+    imports: [...mainImports, ...preloadImports],
+    nodeOnly: true,
+    message: 'Keep Node and Electron operations behind the preload bridge.',
+  },
+  {
+    name: 'main',
+    files: ['src/main/**/*.{ts,tsx}'],
+    imports: [...rendererImports, ...preloadImports],
+    message: 'Import cross-process code from shared modules.',
+  },
+  {
+    name: 'preload',
+    files: ['src/preload/**/*.{ts,tsx}'],
+    imports: [...mainImports, ...rendererImports],
+    message: 'Preload connects processes through IPC and shared contracts.',
+  },
+  {
+    name: 'shared',
+    files: ['src/shared/**/*.{ts,tsx}'],
+    imports: [...mainImports, ...rendererImports, ...preloadImports],
+    nodeOnly: true,
+    message: 'Shared runtime modules must be safe to use in every process.',
+  },
+]
 const unusedVarsOptions = {
   varsIgnorePattern: '^_',
   args: 'all',
@@ -134,6 +168,20 @@ export default defineConfig(
       globals: globals.browser,
     },
   },
+  ...processBoundaries.map(({ name, files, imports, nodeOnly, message }) => ({
+    name: 'piclist/' + name + '-boundaries',
+    files,
+    ignores: ['**/*.d.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: nodeOnly ? nodeOnlyImports : [],
+          patterns: [{ group: [...(nodeOnly ? ['node:*'] : []), ...imports], message }],
+        },
+      ],
+    },
+  })),
   {
     name: 'piclist/explicit-esm',
     files: ['**/*.{mjs,mts}'],

@@ -4,14 +4,14 @@ import windowManager from 'apis/app/window/windowManager'
 import type { WebContents } from 'electron'
 import type { IUploadOptions } from 'piclist'
 
-import { configPaths } from '~/utils/configPaths'
 import {
   createUploadFinalization,
   finalizeUpload,
   interactiveUploadPreferences,
   type UploadFinalizationPreferences,
-} from '~/utils/uploadFinalizer'
-import { UploadJob, withUploadJob } from '~/utils/uploadJob'
+} from '~/services/uploads/uploadFinalizer'
+import { UploadJob, withUploadJob } from '~/services/uploads/uploadJob'
+import { configPaths } from '~/utils/configPaths'
 
 interface ClipboardUploadPreferences extends UploadFinalizationPreferences {
   useBuiltinClipboard?: boolean

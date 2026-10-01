@@ -3,6 +3,8 @@ import { finished } from 'node:stream/promises'
 import COS from 'cos-nodejs-sdk-v5'
 
 import type { DeleteResult } from '#/deletion'
+import { handleUrlEncode } from '#/utils/url'
+import { downloadTaskSpecialStatus } from '~/constants'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
@@ -17,8 +19,7 @@ import {
 } from '~/manage/utils/deleteObjects'
 import { ManageLogger } from '~/manage/utils/logger'
 import { createUploadAgents, MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
-import { handleUrlEncode, isImage } from '~/utils/common'
-import { downloadTaskSpecialStatus } from '~/utils/enum'
+import { isImage } from '~/utils/filesystem'
 
 class TcyunApi {
   secretId: string

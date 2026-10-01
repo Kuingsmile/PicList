@@ -20,7 +20,7 @@ import {
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { scheduleUploadBatch } from '~/manage/utils/uploadFile'
-import { isImage } from '~/utils/common'
+import { isImage } from '~/utils/filesystem'
 
 const FILE_HISTORY_PAGE_SIZE = 30
 

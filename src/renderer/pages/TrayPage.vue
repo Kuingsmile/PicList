@@ -103,11 +103,12 @@
 import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { handleUrlEncode } from '@/utils/common'
+import { getConfig } from '@/services/configService'
+import $$db from '@/services/galleryDatabase'
 import { configPaths } from '@/utils/configPaths'
-import { getConfig } from '@/utils/dataSender'
-import $$db from '@/utils/db'
-import { IPasteStyle, IRPCActionType, IWindowList } from '@/utils/enum'
+import { IPasteStyle, IWindowList } from '#/constants/app'
+import { IRPCActionType } from '#/constants/rpcActions'
+import { handleUrlEncode } from '#/utils/url'
 
 type IResult<T> = T & {
   id: string

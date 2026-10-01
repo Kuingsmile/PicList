@@ -3,6 +3,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import fs from 'fs-extra'
 import got from 'got'
 
+import { trimPath } from '#/utils/url'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
@@ -19,7 +20,8 @@ import {
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
-import { formatHttpProxy, isImage, trimPath } from '~/utils/common'
+import { isImage } from '~/utils/filesystem'
+import { formatHttpProxy } from '~/utils/network'
 
 class GithubApi {
   token: string

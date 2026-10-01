@@ -23,7 +23,7 @@ import {
 } from '~/manage/utils/common'
 import { ManageLogger } from '~/manage/utils/logger'
 import { scheduleUploadBatch } from '~/manage/utils/uploadFile'
-import { isImage } from '~/utils/common'
+import { isImage } from '~/utils/filesystem'
 
 class UpyunApi {
   ser: Upyun.Service

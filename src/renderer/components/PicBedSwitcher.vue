@@ -245,10 +245,10 @@ import { onClickOutside, useEventListener, useStorage } from '@vueuse/core'
 import { computed, type CSSProperties, nextTick, onBeforeUnmount, ref, useId, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { usePicBed } from '@/hooks/useGlobal'
-import useMessage from '@/hooks/useMessage'
-import { IRPCActionType } from '@/utils/enum'
-import { invokeRPC, showRpcError } from '@/utils/rpc'
+import { usePicBed } from '@/composables/useGlobal'
+import useMessage from '@/composables/useMessage'
+import { invokeRPC, showRpcError } from '@/services/rpcService'
+import { IRPCActionType } from '#/constants/rpcActions'
 
 const { t } = useI18n()
 const message = useMessage()

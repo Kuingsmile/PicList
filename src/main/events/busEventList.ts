@@ -15,8 +15,8 @@ import { createMenu } from 'apis/app/system'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
 
-import { IWindowList } from '~/utils/enum'
-import { UploadJobError } from '~/utils/uploadJob'
+import { IWindowList } from '~/constants'
+import { UploadJobError } from '~/services/uploads/uploadJob'
 
 function initEventCenter() {
   const eventList: any = {

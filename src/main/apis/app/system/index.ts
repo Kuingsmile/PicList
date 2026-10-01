@@ -5,14 +5,15 @@ import { app, clipboard, dialog, Menu, MenuItem, MenuItemConstructorOptions, nat
 import fs from 'fs-extra'
 import pkg from 'root/package.json'
 
+import { IWindowList } from '~/constants'
 import { buildPicBedListMenu } from '~/events/remotes/menu'
 import { t } from '~/i18n'
+import { UploadJob } from '~/services/uploads/uploadJob'
+import { ensureFilePath } from '~/utils/clipboard'
 import clipboardPoll from '~/utils/clipboardPoll'
-import { ensureFilePath, setTray, tray } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
-import { IWindowList } from '~/utils/enum'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/utils/getMacOSVersion'
-import { UploadJob } from '~/utils/uploadJob'
+import { setTray, tray } from '~/utils/tray'
 import { hideMiniWindow, openMainWindow, openMiniWindow } from '~/utils/windowHelper'
 
 import menubarPng from '../../../../../resources/menubar.png?asset&asarUnpack'

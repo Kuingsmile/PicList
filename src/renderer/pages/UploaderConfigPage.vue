@@ -249,16 +249,17 @@ import CustomButton from '@/components/common/CustomButton.vue'
 import CustomInput from '@/components/common/CustomInput.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
-import useConfirm from '@/hooks/useConfirm'
-import { usePicBed } from '@/hooks/useGlobal'
-import useMessage from '@/hooks/useMessage'
+import useConfirm from '@/composables/useConfirm'
+import { usePicBed } from '@/composables/useGlobal'
+import useMessage from '@/composables/useMessage'
 import { PICBEDS_PAGE, UPLOADER_CONFIG_PAGE } from '@/router/config'
+import { getConfig, saveConfig } from '@/services/configService'
+import { invokeRPC, showRpcError } from '@/services/rpcService'
 import { configPaths } from '@/utils/configPaths'
-import { getConfig, saveConfig } from '@/utils/dataSender'
-import { II18nLanguage, IRPCActionType } from '@/utils/enum'
-import { invokeRPC, showRpcError } from '@/utils/rpc'
 import { normalizeScriptFileName } from '@/utils/scriptFileName'
 import { defaultScriptTemplate, defaultScriptTemplateEn } from '@/utils/static'
+import { II18nLanguage } from '#/constants/app'
+import { IRPCActionType } from '#/constants/rpcActions'
 
 const Editor = defineAsyncComponent(() => import('@/components/Editor.vue'))
 
@@ -569,4 +570,4 @@ export default {
 }
 </script>
 
-<style scoped src="./css/UploaderConfigPage.css"></style>
+<style scoped src="./UploaderConfigPage.css"></style>

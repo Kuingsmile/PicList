@@ -25,6 +25,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { NodeHttpHandler } from '@smithy/node-http-handler'
 
 import type { DeleteResult } from '#/deletion'
+import { formatEndpoint } from '#/utils/url'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
@@ -53,7 +54,8 @@ import {
 } from '~/manage/utils/dogeAPI'
 import { ManageLogger } from '~/manage/utils/logger'
 import { MIB, scheduleUploadBatch, withUploadStream } from '~/manage/utils/uploadFile'
-import { formatEndpoint, formatHttpProxy, isImage } from '~/utils/common'
+import { isImage } from '~/utils/filesystem'
+import { formatHttpProxy } from '~/utils/network'
 
 class S3plistApi {
   baseOptions: S3ClientConfig

@@ -4,7 +4,7 @@ import { GalleryDB } from '@core/datastore'
 
 import { ManageApi } from '~/manage/manageApi'
 
-import { type BulkContext, type BulkInput, type BulkPolicy, isBulkPolicy } from '../../universal/bulkChanges'
+import { type BulkContext, type BulkInput, type BulkPolicy, isBulkPolicy } from '../../shared/bulkChanges'
 import { createGalleryAdapter } from './gallery'
 import { createRemoteAdapter } from './remote'
 import { BulkChangeSession } from './session'

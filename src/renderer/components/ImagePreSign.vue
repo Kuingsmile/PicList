@@ -18,9 +18,9 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 
-import { useThumbnail } from '@/hooks/useThumbnail'
-import { getFileIconPath } from '@/manage/utils/common'
-import { IRPCActionType } from '@/utils/enum'
+import { useThumbnail } from '@/composables/useThumbnail'
+import { getFileIconPath } from '@/manage/utils/filePresentation'
+import { IRPCActionType } from '#/constants/rpcActions'
 
 const props = defineProps<{
   item: {

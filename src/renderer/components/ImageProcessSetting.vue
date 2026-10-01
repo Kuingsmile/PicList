@@ -971,7 +971,7 @@ import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
 import ImageProcessPreview from '@/components/ImageProcessPreview.vue'
 import SettingSection from '@/components/ImageProcessSection.vue'
 import ImageProcessSettingField from '@/components/ImageProcessSettingField.vue'
-import { useImageProcessingSettings } from '@/hooks/useImageProcessingSettings'
+import { useImageProcessingSettings } from '@/composables/useImageProcessingSettings'
 import type { ProcessingGroup, ProcessingScope } from '@/utils/imageProcessingConfig'
 
 const { configId = '', currentPicbedName = '' } = defineProps<{ configId?: string; currentPicbedName?: string }>()
@@ -1207,4 +1207,4 @@ watch(() => [configId, currentPicbedName], initData)
 onBeforeMount(initData)
 </script>
 
-<style scoped src="./css/ImageProcessSetting.css"></style>
+<style scoped src="./ImageProcessSetting.css"></style>

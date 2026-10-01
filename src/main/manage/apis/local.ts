@@ -11,7 +11,7 @@ import type { ListingContext } from '~/manage/listingRequest'
 import { createDownloadTask, formatError, runDownloadTask } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { scheduleUploadBatch, withUploadStream } from '~/manage/utils/uploadFile'
-import { isImage } from '~/utils/common'
+import { isImage } from '~/utils/filesystem'
 
 class LocalApi {
   logger: ManageLogger

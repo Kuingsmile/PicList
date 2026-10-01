@@ -6,7 +6,7 @@
 import { CircleCheck, Loader2, TriangleAlert } from '@lucide/vue'
 import { computed } from 'vue'
 
-import { IToolboxItemCheckStatus } from '@/utils/enum'
+import { IToolboxItemCheckStatus } from '#/constants/app'
 
 interface IProps {
   status: string

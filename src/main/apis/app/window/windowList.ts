@@ -6,9 +6,9 @@ import { CREATE_APP_MENU } from '@core/bus/constants'
 import picgo from '@core/picgo'
 import { app, BrowserWindow, Rectangle } from 'electron'
 
-import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '~/events/constant'
+import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/constants/ipcChannels'
+import { IWindowList } from '~/constants'
 import { configPaths } from '~/utils/configPaths'
-import { IWindowList } from '~/utils/enum'
 
 import logo from '../../../../../resources/logo.png?asset&asarUnpack'
 

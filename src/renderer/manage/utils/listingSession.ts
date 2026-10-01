@@ -8,7 +8,7 @@ import {
   type ListingResult,
   type ListingUpdate,
   sameListingRequest,
-} from '../../../universal/listing'
+} from '../../../shared/listing'
 
 type Bridge = Pick<Window['electron'], 'sendToMain' | 'ipcRendererOn'>
 

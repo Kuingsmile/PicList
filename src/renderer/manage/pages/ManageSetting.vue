@@ -181,12 +181,12 @@ import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
-import useConfirm from '@/hooks/useConfirm'
-import useMessage from '@/hooks/useMessage'
-import { fileCacheDbInstance } from '@/manage/store/bucketFileDb'
-import { formatFileSize } from '@/manage/utils/common'
-import { getConfig, saveConfig } from '@/manage/utils/dataSender'
-import { IRPCActionType } from '@/utils/enum'
+import useConfirm from '@/composables/useConfirm'
+import useMessage from '@/composables/useMessage'
+import { fileCacheDbInstance } from '@/manage/services/bucketDatabase'
+import { getConfig, saveConfig } from '@/manage/services/configService'
+import { formatFileSize } from '@/manage/utils/filePresentation'
+import { IRPCActionType } from '#/constants/rpcActions'
 
 const { t } = useI18n()
 const message = useMessage()

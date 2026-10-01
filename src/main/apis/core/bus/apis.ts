@@ -11,7 +11,7 @@ import {
 import bus from '@core/bus/index'
 import windowManager from 'apis/app/window/windowManager'
 
-import { UploadJob, UploadJobError, type UploadJobOptions, withUploadJob } from '~/utils/uploadJob'
+import { UploadJob, UploadJobError, type UploadJobOptions, withUploadJob } from '~/services/uploads/uploadJob'
 
 export interface UploadBusRequest {
   job: UploadJob

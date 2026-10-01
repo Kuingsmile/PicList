@@ -2,7 +2,7 @@ import picgo from '@core/picgo'
 import updater from 'electron-updater'
 
 import { isPortable } from '~/apis/core/datastore/dirs'
-import { checkUpdateAndNotify } from '~/lifeCycle/autoUpdater'
+import { checkUpdateAndNotify } from '~/lifecycle/autoUpdater'
 import { configPaths } from '~/utils/configPaths'
 
 const updateChecker = async () => {

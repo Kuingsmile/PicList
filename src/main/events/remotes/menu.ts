@@ -14,15 +14,15 @@ import {
   PICGO_TOGGLE_PLUGIN,
   SHOW_FIRST_TIME_GUIDE,
   SHOW_MAIN_PAGE_QRCODE,
-} from '~/events/constant'
-import { handlePluginUninstall, handlePluginUpdate } from '~/events/rpc/routes/plugin/utils'
+} from '#/constants/ipcChannels'
+import { IWindowList } from '~/constants'
 import { t } from '~/i18n'
+import { handlePluginUninstall, handlePluginUpdate } from '~/ipc/routes/plugin/utils'
 import clipboardPoll from '~/utils/clipboardPoll'
-import { setTrayToolTip } from '~/utils/common'
 import { configPaths } from '~/utils/configPaths'
-import { IWindowList } from '~/utils/enum'
 import getPicBeds from '~/utils/getPicBeds'
 import { changeCurrentUploader, changeSecondUploader } from '~/utils/handleUploaderConfig'
+import { setTrayToolTip } from '~/utils/tray'
 import { openMainWindow } from '~/utils/windowHelper'
 
 interface GuiMenuItem {

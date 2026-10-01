@@ -23,7 +23,7 @@ import {
 } from '~/manage/utils/deleteObjects'
 import { ManageLogger } from '~/manage/utils/logger'
 import { MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
-import { isImage } from '~/utils/common'
+import { isImage } from '~/utils/filesystem'
 
 class QiniuApi {
   mac: qiniu.auth.digest.Mac

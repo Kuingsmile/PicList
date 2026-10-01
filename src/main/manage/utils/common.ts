@@ -10,10 +10,10 @@ import got, { OptionsOfTextResponseBody, RequestError } from 'got'
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
 import mime from 'mime'
 
+import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/constants'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ManageLogger } from '~/manage/utils/logger'
-import { formatHttpProxy } from '~/utils/common'
-import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/utils/enum'
+import { formatHttpProxy } from '~/utils/network'
 
 import {
   createDownloadDestination,

@@ -1,0 +1,46 @@
+@import "tailwindcss" reference;
+@import "../assets/css/theme.css" reference;
+@import "../assets/css/utilities.css" reference;
+
+.filter-group {
+  @apply flex flex-col gap-1 flex-1 min-w-[140px];
+}
+
+.date-input {
+  @apply border border-border-secondary rounded-md px-2 py-1.5 min-w-[20px] h-[28px] text-xs text-main transition-all duration-fast ease-apple flex-1 leading-[1.2];
+  @apply focus:border-accent-hover focus:outline-none focus:shadow-md;
+}
+
+.search-input {
+  @apply border border-border-secondary rounded-md pt-2 pr-3 pb-2 pl-9 w-full text-sm text-main transition-all duration-fast ease-apple;
+  @apply focus:border-accent-hover focus:outline-none focus:shadow-md;
+  @apply placeholder:text-secondary;
+}
+
+.clear-button {
+  @apply absolute flex right-3 border-none items-center p-0 text-secondary bg-none transition-all duration-fast ease-apple cursor-pointer;
+  @apply hover:text-main;
+}
+
+.action-btn {
+  @apply flex items-center justify-center border-none rounded-md px-4 py-[0.425rem] text-sm font-medium text-white transition-all duration-fast ease-apple gap-2 flex-1 opacity-60 cursor-not-allowed;
+  @apply [.active]:cursor-pointer [.active]:opacity-100 [.active]:transform-none;
+  @apply [.active:hover]:-translate-y-px [.active:hover]:shadow-sm;
+  @apply [.copy-btn]:text-white [.copy-btn]:bg-accent [.copy-btn.active:hover]:bg-accent-hover;
+  @apply [.edit-btn]:text-white [.edit-btn]:bg-success [.edit-btn.active:hover]:bg-success/80;
+  @apply [.delete-btn]:text-white [.delete-btn]:bg-danger [.delete-btn.active:hover]:bg-danger/80;
+  @apply [.select-btn]:text-white [.select-btn]:bg-warning [.select-btn.active:hover]:bg-warning/80;
+}
+
+.icon-button {
+  @apply flex items-center justify-center border-none rounded-md w-[25px] h-[25px] text-secondary transition-all duration-fast ease-apple cursor-pointer;
+  @apply hover:text-main hover:-translate-y-px;
+  @apply [.copy-icon]:hover:text-white [.copy-icon]:hover:bg-warning/50;
+  @apply [.edit-icon]:hover:text-white [.edit-icon]:hover:bg-success/50;
+  @apply [.delete-icon]:hover:text-white [.delete-icon]:hover:bg-error/50;
+}
+
+.form-input {
+  @apply border border-border rounded-md p-3 w-full text-sm text-main bg-bg-secondary transition-all duration-fast ease-apple box-border;
+  @apply focus:border-accent focus:outline-none focus:shadow-md;
+}

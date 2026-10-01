@@ -6,9 +6,9 @@ import dayjs from 'dayjs'
 import fs from 'fs-extra'
 import { ILogColor, ILogger } from 'piclist/dist/types'
 
-import { enforceNumber } from '~/utils/common'
+import { enforceNumber } from '#/utils/values'
+import { ILogType } from '~/constants'
 import { configPaths } from '~/utils/configPaths'
-import { ILogType } from '~/utils/enum'
 
 export class ManageLogger implements ILogger {
   readonly #level = {

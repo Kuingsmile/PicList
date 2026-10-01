@@ -3,8 +3,7 @@ import path from 'node:path'
 import type { Writable } from 'node:stream'
 import { finished, pipeline } from 'node:stream/promises'
 
-import type { Config, SSHExecCommandResponse } from 'node-ssh-no-cpu-features'
-import { NodeSSH } from 'node-ssh-no-cpu-features'
+import { type Config, NodeSSH, type SSHExecCommandResponse } from 'node-ssh-no-cpu-features'
 import type { ISftpPlistConfig } from 'piclist/dist/types'
 import type { FileEntry, Stats } from 'ssh2'
 

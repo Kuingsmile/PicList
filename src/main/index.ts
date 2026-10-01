@@ -1,3 +1,3 @@
-import { lifeCycle } from '~/lifeCycle'
+import { lifeCycle } from '~/lifecycle'
 
 lifeCycle.launchApp()

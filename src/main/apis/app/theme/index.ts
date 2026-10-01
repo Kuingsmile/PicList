@@ -5,9 +5,9 @@ import AdmZip from 'adm-zip'
 import axios from 'axios'
 import fs from 'fs-extra'
 
-import { randomStringGenerator } from '@/manage/utils/common'
+import { randomStringGenerator } from '#/utils/strings'
 import logger from '~/apis/core/picgo/logger'
-import { IWindowList } from '~/utils/enum'
+import { IWindowList } from '~/constants'
 
 import windowManager from '../window/windowManager'
 

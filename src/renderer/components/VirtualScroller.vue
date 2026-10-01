@@ -48,7 +48,7 @@ import {
   watch,
 } from 'vue'
 
-import { useVirtualGrid } from '@/hooks/useVirtualGrid'
+import { useVirtualGrid } from '@/composables/useVirtualGrid'
 
 interface Breakpoint {
   min: number

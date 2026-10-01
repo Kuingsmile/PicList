@@ -126,7 +126,7 @@ import { useResizeObserver } from '@vueuse/core'
 import { computed, nextTick, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { getConfig } from '@/utils/dataSender'
+import { getConfig } from '@/services/configService'
 import { addCacheBustParam as withCacheBustParam } from '#/utils/url'
 
 const gallerySliderControl = defineModel<{

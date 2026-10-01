@@ -2,8 +2,8 @@ import picgo from '@core/picgo'
 import windowManager from 'apis/app/window/windowManager'
 import { type BrowserWindow, screen } from 'electron'
 
+import { IWindowList } from '~/constants'
 import { configPaths } from '~/utils/configPaths'
-import { IWindowList } from '~/utils/enum'
 
 const miniWindowPositionListeners = new WeakMap<BrowserWindow, () => void>()
 

@@ -1,0 +1,253 @@
+import path from 'node:path'
+
+import { dataDir } from '@core/datastore/dirs'
+import picgo from '@core/picgo'
+import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
+import windowManager from 'apis/app/window/windowManager'
+import { dialog, shell } from 'electron'
+import fs from 'fs-extra'
+import { IGuiMenuItem, PicGo as PicGoCore } from 'piclist'
+
+import { handleStreamlinePluginName } from '#/utils/strings'
+import { simpleClone } from '#/utils/values'
+import { ICOREBuildInEvent, IPicGoHelperType, IWindowList } from '~/constants'
+import { t } from '~/i18n'
+import { showNotification } from '~/utils/notifications'
+
+const STORE_PATH = dataDir()
+
+// get uploader or transformer config
+const getConfig = (name: string, type: keyof typeof IPicGoHelperType, ctx: PicGoCore) => {
+  let config: any[] = []
+  if (name === '') {
+    return config
+  } else {
+    const handler = ctx.helper[type].get(name)
+    if (handler) {
+      if (handler.config) {
+        config = handler.config(ctx)
+      }
+    }
+    return config
+  }
+}
+
+const handleConfigWithFunction = (config: any[]) => {
+  for (const i in config) {
+    if (typeof config[i].default === 'function') {
+      config[i].default = config[i].default()
+    }
+    if (typeof config[i].choices === 'function') {
+      config[i].choices = config[i].choices()
+    }
+  }
+  return config
+}
+
+const normalizePluginAuthor = (author: unknown): string => {
+  const name =
+    typeof author === 'string'
+      ? author
+      : author && typeof author === 'object' && !Array.isArray(author) && 'name' in author
+        ? author.name
+        : undefined
+  return typeof name === 'string' && name.trim() ? name : 'unknown'
+}
+
+const getPluginList = async (): Promise<IPicGoPlugin[]> => {
+  const pluginList = picgo.pluginLoader.getFullList()
+  const list: IPicGoPlugin[] = []
+  for (const fullName of pluginList) {
+    try {
+      const plugin = (await picgo.pluginLoader.getPlugin(fullName))!
+      const pluginPath = path.join(STORE_PATH, `/node_modules/${fullName}`)
+      const pluginPKGPath = path.join(pluginPath, 'package.json')
+      if (!fs.existsSync(pluginPKGPath)) {
+        continue
+      }
+      const pluginPKG = fs.readJSONSync(pluginPKGPath, 'utf8')
+      const uploaderName = plugin.uploader || ''
+      const transformerName = plugin.transformer || ''
+      let menu: Omit<IGuiMenuItem, 'handle'>[] = []
+      if (plugin.guiMenu) {
+        menu = plugin.guiMenu(picgo).map(item => ({
+          label: item.label,
+        }))
+      }
+      let gui = false
+      if (pluginPKG.keywords && pluginPKG.keywords.length > 0) {
+        if (pluginPKG.keywords.includes('picgo-gui-plugin')) {
+          gui = true
+        }
+      }
+      const obj: IPicGoPlugin = {
+        name: handleStreamlinePluginName(fullName),
+        fullName,
+        author: normalizePluginAuthor(pluginPKG.author),
+        description: pluginPKG.description,
+        logo: path.join(pluginPath, 'logo.png').split(path.sep).join('/'),
+        version: pluginPKG.version,
+        gui,
+        config: {
+          plugin: {
+            fullName,
+            name: handleStreamlinePluginName(fullName),
+            config: plugin.config ? handleConfigWithFunction(plugin.config(picgo)) : [],
+          },
+          uploader: {
+            name: uploaderName,
+            config: handleConfigWithFunction(
+              getConfig(uploaderName, IPicGoHelperType.uploader as keyof typeof IPicGoHelperType, picgo),
+            ),
+          },
+          transformer: {
+            name: transformerName,
+            config: handleConfigWithFunction(
+              getConfig(transformerName, IPicGoHelperType.transformer as keyof typeof IPicGoHelperType, picgo),
+            ),
+          },
+        },
+        enabled: picgo.getConfig(`picgoPlugins.${fullName}`),
+        homepage: pluginPKG.homepage ? pluginPKG.homepage : '',
+        guiMenu: menu,
+        ing: false,
+      }
+      // Keep serialization failures local to this plugin as well.
+      list.push(simpleClone(obj))
+    } catch {
+      // Plugin errors can contain configuration values or manifest contents.
+      picgo.log.warn(`Skipping plugin with unreadable metadata: ${fullName}`)
+    }
+  }
+  return list
+}
+
+const handleNPMError = (): IDispose => {
+  const handler = (msg: string) => {
+    if (msg === 'NPM is not installed') {
+      dialog
+        .showMessageBox({
+          title: t('main.notification.error'),
+          message: t('main.notification.InstallNodeAndRestart'),
+          buttons: ['Yes'],
+        })
+        .then(res => {
+          if (res.response === 0) {
+            shell.openExternal('https://nodejs.org/')
+          }
+        })
+    }
+  }
+  picgo.once(ICOREBuildInEvent.FAILED, handler)
+  return () => picgo.off(ICOREBuildInEvent.FAILED, handler)
+}
+
+export const handlePluginUpdate = async (fullName: string | string[]) => {
+  const window = windowManager.get(IWindowList.SETTING_WINDOW)
+  const dispose = handleNPMError()
+  const res = await picgo.pluginHandler.update(typeof fullName === 'string' ? [fullName] : fullName)
+  if (res.success) {
+    for (const name of res.body as string[]) await shortKeyHandler.registerPluginShortKey(name)
+    window?.webContents?.send('updateSuccess', res.body[0])
+  } else {
+    showNotification({
+      title: t('main.notification.updatePluginFailed'),
+      body: res.body as string,
+    })
+  }
+  window?.webContents.send('hideLoading')
+  dispose()
+}
+
+export const handlePluginUninstall = async (fullName: string) => {
+  const window = windowManager.get(IWindowList.SETTING_WINDOW)
+  const dispose = handleNPMError()
+  const res = await picgo.pluginHandler.uninstall([fullName])
+  if (res.success) {
+    window?.webContents?.send('uninstallSuccess', res.body[0])
+    shortKeyHandler.unregisterPluginShortKey(res.body[0])
+  } else {
+    showNotification({
+      title: t('main.notification.uninstallPluginFailed'),
+      body: res.body as string,
+    })
+  }
+  window?.webContents?.send('hideLoading')
+  dispose()
+}
+
+export const pluginGetListFunc = async (event: IIPCEvent) => {
+  try {
+    const list = await getPluginList()
+    // here can just send JS Object not function
+    // or will cause [Failed to serialize arguments] error
+    event.sender.send('pluginList', list)
+  } catch (e: any) {
+    event.sender.send('pluginList', [])
+    showNotification({
+      title: t('main.notification.getPluginListFailed'),
+      body: e.message,
+    })
+    picgo.log.error(e)
+  }
+}
+
+export const pluginInstallFunc = async (event: IIPCEvent, args: [fullName: string]) => {
+  const fullName = args[0]
+  const dispose = handleNPMError()
+  const res = await picgo.pluginHandler.install([fullName])
+  event.sender.send('installPlugin', {
+    success: res.success,
+    body: fullName,
+    errMsg: res.success ? '' : res.body,
+  })
+  if (res.success) {
+    await shortKeyHandler.registerPluginShortKey(res.body[0])
+  } else {
+    showNotification({
+      title: t('main.notification.installPluginFailed'),
+      body: res.body as string,
+    })
+  }
+  event.sender.send('hideLoading')
+  dispose()
+}
+
+export const pluginImportLocalFunc = async (event: IIPCEvent) => {
+  const settingWindow = windowManager.get(IWindowList.SETTING_WINDOW)
+  if (!settingWindow) return
+  const res = await dialog.showOpenDialog(settingWindow, {
+    properties: ['openDirectory'],
+  })
+  const filePaths = res.filePaths
+  if (filePaths.length > 0) {
+    const res = await picgo.pluginHandler.install(filePaths)
+    if (res.success) {
+      for (const name of res.body as string[]) await shortKeyHandler.registerPluginShortKey(name)
+      try {
+        const list = await getPluginList()
+        event.sender.send('pluginList', list)
+      } catch (e: any) {
+        event.sender.send('pluginList', [])
+        showNotification({
+          title: t('main.notification.getPluginListFailed'),
+          body: e.message,
+        })
+      }
+      showNotification({
+        title: t('main.notification.importPluginSuccess'),
+        body: '',
+      })
+    } else {
+      showNotification({
+        title: t('main.notification.importPluginFailed'),
+        body: res.body as string,
+      })
+    }
+  }
+  event.sender.send('hideLoading')
+}
+
+export const pluginUpdateAllFunc = async (_: IIPCEvent, args: [list: string[]]) => {
+  handlePluginUpdate(args[0])
+}

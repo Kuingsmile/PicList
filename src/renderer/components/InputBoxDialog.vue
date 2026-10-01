@@ -44,7 +44,7 @@ import { useI18n } from 'vue-i18n'
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import $bus from '@/utils/bus'
-import { CANCEL_INPUT_BOX, SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
+import { CANCEL_INPUT_BOX, SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '#/constants/ipcChannels'
 
 const { t } = useI18n()
 const inputBoxValue = ref('')

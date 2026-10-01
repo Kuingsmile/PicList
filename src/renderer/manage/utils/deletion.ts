@@ -1,4 +1,4 @@
-import { type DeleteFailure, type DeleteResult, type DeleteTarget, isWithinFolder } from '../../../universal/deletion'
+import { type DeleteFailure, type DeleteResult, type DeleteTarget, isWithinFolder } from '../../../shared/deletion'
 
 export interface DeletionState {
   failed: DeleteFailure[]

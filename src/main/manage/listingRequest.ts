@@ -14,7 +14,7 @@ import {
   type ListingResult,
   type ListingUpdate,
   sameListingRequest,
-} from '../../universal/listing'
+} from '../../shared/listing'
 
 export interface ListingContext {
   signal: AbortSignal

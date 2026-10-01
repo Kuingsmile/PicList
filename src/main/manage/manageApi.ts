@@ -7,13 +7,13 @@ import windowManager from 'apis/app/window/windowManager'
 import fs from 'fs-extra'
 import { get, set, unset } from 'lodash-es'
 
+import { IWindowList } from '~/constants'
 import API from '~/manage/apis/api'
 import ManageDB from '~/manage/datastore/db'
 import { formatError, isInputConfigValid } from '~/manage/utils/common'
 import { deletionError } from '~/manage/utils/deleteObjects'
 import { invalidateDogecloudTokens } from '~/manage/utils/dogeAPI'
 import { ManageLogger } from '~/manage/utils/logger'
-import { IWindowList } from '~/utils/enum'
 
 import {
   type DeleteResult,
@@ -22,8 +22,8 @@ import {
   failedDeletion,
   isWithinFolder,
   mergeDeleteResults,
-} from '../../universal/deletion'
-import { isListingRequest, listingChannels, type ListingRequest } from '../../universal/listing'
+} from '../../shared/deletion'
+import { isListingRequest, listingChannels, type ListingRequest } from '../../shared/listing'
 import { runListingRequest } from './listingRequest'
 import { transferScheduler } from './transferScheduler'
 

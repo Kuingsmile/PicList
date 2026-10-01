@@ -297,7 +297,7 @@ import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import GallerySyncChangeCard from '@/components/GallerySyncChangeCard.vue'
-import { IRPCActionType } from '@/utils/enum'
+import { IRPCActionType } from '#/constants/rpcActions'
 import type {
   GallerySyncChange,
   GallerySyncPlan,

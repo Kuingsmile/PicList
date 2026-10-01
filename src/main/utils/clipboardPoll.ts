@@ -4,7 +4,7 @@ import { EventEmitter } from 'node:events'
 import logger from '@core/picgo/logger'
 import { clipboard, NativeImage } from 'electron'
 
-import { getClipboardFilePath } from '~/utils/common'
+import { getClipboardFilePath } from '~/utils/clipboard'
 
 type ClipboardState = { kind: 'empty'; value: null } | { kind: 'image' | 'path'; value: string }
 

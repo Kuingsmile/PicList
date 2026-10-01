@@ -1,7 +1,8 @@
 import picgo from '@core/picgo'
 
-import { generateShortUrl, handleUrlEncodeWithSetting } from '~/utils/common'
+import { generateShortUrl } from '~/services/shortUrls'
 import { configPaths } from '~/utils/configPaths'
+import { handleUrlEncodeWithSetting } from '~/utils/network'
 
 export const formatCustomLink = (customLink: string, item: ImgInfo) => {
   const originalName = item.fileName || ''

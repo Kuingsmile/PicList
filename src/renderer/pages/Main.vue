@@ -22,8 +22,8 @@
 import { useRouter } from 'vue-router'
 
 import InputBoxDialog from '@/components/InputBoxDialog.vue'
-import Navigation from '@/pages/NavigationPage.vue'
-import TitleBar from '@/pages/TitleBar.vue'
+import Navigation from '@/components/layout/NavigationPage.vue'
+import TitleBar from '@/components/layout/TitleBar.vue'
 
 const $router = useRouter()
 const keepAlivePages = $router

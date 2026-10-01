@@ -98,10 +98,10 @@
 import { DownloadIcon, Link2Icon, XIcon } from '@lucide/vue'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import { SHOW_UPDATE_INFO, UPDATE_PROGRESS } from '@/utils/constant'
-import { IRPCActionType } from '@/utils/enum'
+import { invokeRPC, saveWithFeedback } from '@/services/rpcService'
 import { renderMarkdown } from '@/utils/markdown'
-import { invokeRPC, saveWithFeedback } from '@/utils/rpc'
+import { SHOW_UPDATE_INFO, UPDATE_PROGRESS } from '#/constants/ipcChannels'
+import { IRPCActionType } from '#/constants/rpcActions'
 
 interface UpdateInfo {
   type: 'update-available' | 'downloading' | 'update-downloaded' | 'update-error'
@@ -170,4 +170,4 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped src="./css/UpdatePage.css"></style>
+<style scoped src="./UpdatePage.css"></style>

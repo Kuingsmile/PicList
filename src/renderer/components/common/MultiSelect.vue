@@ -62,7 +62,7 @@ import { ChevronDownIcon } from '@lucide/vue'
 import { type Component, onMounted, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useDropdown } from './useDropdown'
+import { useDropdown } from '../../composables/useDropdown'
 
 const choosed = defineModel<string[] | undefined>('choosed', { default: undefined })
 const { t } = useI18n()

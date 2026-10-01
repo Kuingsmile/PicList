@@ -1355,37 +1355,27 @@ import ImageLocal from '@/components/ImageLocal.vue'
 import ImagePreSign from '@/components/ImagePreSign.vue'
 import ImageWebdav from '@/components/ImageWebdav.vue'
 import VirtualScroller from '@/components/VirtualScroller.vue'
-import { useBulkChanges } from '@/hooks/useBulkChanges'
-import useConfirm from '@/hooks/useConfirm'
-import { useFilePreview } from '@/hooks/useFilePreview'
-import useMessage from '@/hooks/useMessage'
-import { usePolling } from '@/hooks/usePolling'
-import FileInfo from '@/manage/pages/components/FileInfo.vue'
-import IconButton from '@/manage/pages/components/IconButton.vue'
+import { useBulkChanges } from '@/composables/useBulkChanges'
+import useConfirm from '@/composables/useConfirm'
+import { useDragEventListeners } from '@/composables/useDragEventListeners'
+import { useFilePreview } from '@/composables/useFilePreview'
+import useMessage from '@/composables/useMessage'
+import FileInfo from '@/manage/components/FileInfo.vue'
+import IconButton from '@/manage/components/IconButton.vue'
+import { useTransferTasks } from '@/manage/composables/useTransferTasks'
 import EmptyPage from '@/manage/pages/EmptyPage.vue'
-import { fileCacheDbInstance } from '@/manage/store/bucketFileDb'
-import { useManageStore } from '@/manage/store/manageStore'
-import {
-  formatFileSize,
-  formatLink,
-  getFileIconPath,
-  isValidUrl,
-  matchFileName,
-  renameFile,
-  replaceFileName,
-} from '@/manage/utils/common'
-import { getConfig, saveConfig } from '@/manage/utils/dataSender'
+import { fileCacheDbInstance } from '@/manage/services/bucketDatabase'
+import { getConfig, saveConfig } from '@/manage/services/configService'
+import { useManageStore } from '@/manage/stores/manageStore'
 import { applyDeletionResult, type DeletionState, retryDeletionTargets } from '@/manage/utils/deletion'
-import { splitFileName } from '@/manage/utils/fileName'
+import { matchFileName, renameFile, replaceFileName, splitFileName } from '@/manage/utils/fileName'
+import { formatFileSize, getFileIconPath } from '@/manage/utils/filePresentation'
 import type { PreviewKind, PreviewSource } from '@/manage/utils/filePreview'
 import { fileTaskStates } from '@/manage/utils/fileTaskState'
+import { textFileExt, videoExt } from '@/manage/utils/fileTypes'
+import { formatLink } from '@/manage/utils/linkFormat'
 import { appendListingItems, ListingSession } from '@/manage/utils/listingSession'
-import { textFileExt } from '@/manage/utils/textfile'
 import { appendThumbnailSuffix } from '@/manage/utils/thumbnailUrl'
-import { videoExt } from '@/manage/utils/videofile'
-import { trimPath } from '@/utils/common'
-import { useDragEventListeners } from '@/utils/drag'
-import { IRPCActionType } from '@/utils/enum'
 import {
   compareFileValues,
   type FileColumn,
@@ -1396,8 +1386,10 @@ import {
   formatCollectionSize,
 } from '@/utils/fileCollection'
 import { renderMarkdown } from '@/utils/markdown'
+import { IRPCActionType } from '#/constants/rpcActions'
 import { type DeleteResult, type DeleteTarget, failedDeletion, removeDeletedEntries } from '#/deletion'
 import type { ListingRequest, ListingResult } from '#/listing'
+import { isUrl as isValidUrl, trimPath } from '#/utils/url'
 
 const VideoPlayer = defineAsyncComponent(() => import('@/components/VideoPlayer.vue'))
 
@@ -1489,12 +1481,6 @@ const tableData = reactive([] as any[])
 const isShowUploadPanel = ref(false)
 const activeUpLoadTab = ref('uploading')
 const uploadTaskList = ref([] as IUploadTask[])
-async function cancelUploadTask(id: string) {
-  if (await window.electron.triggerRPC<boolean>(IRPCActionType.MANAGE_CANCEL_UPLOAD_TASK, id)) {
-    const task = uploadTaskList.value.find(item => item.id === id)
-    if (task) task.cancelRequested = true
-  }
-}
 
 const uploadPanelFilesList = ref([] as any[])
 const isLoadingUploadPanelFiles = ref(false)
@@ -1693,18 +1679,28 @@ const tableColumns = computed<FileColumn[]>(() => [
   { key: 'status', label: t('common.fileTable.task'), width: 160, value: taskLabel },
 ])
 
-const uploadTasks = usePolling(
-  () => window.electron.triggerRPC<IUploadTask[]>(IRPCActionType.MANAGE_GET_UPLOAD_TASK_LIST),
-  tasks => (uploadTaskList.value = tasks ?? []),
-  () => tableActive.value && (layoutStyle.value === 'table' || isShowUploadPanel.value),
-  () => (isShowUploadPanel.value ? 300 : 1500),
-)
-const downloadTasks = usePolling(
-  () => window.electron.triggerRPC<IDownloadTask[]>(IRPCActionType.MANAGE_GET_DOWNLOAD_TASK_LIST),
-  tasks => (downloadTaskList.value = tasks ?? []),
-  () => tableActive.value && isShowDownloadPanel.value,
-  300,
-)
+const {
+  uploadTasks,
+  downloadTasks,
+  cancelUploadTask,
+  handleCopyUploadingTaskInfo,
+  handleDeleteUploadedTask,
+  handleDeleteAllUploadedTask,
+  handleCopyDownloadingTaskInfo,
+  handleDeleteDownloadedTask,
+  handleDeleteAllDownloadedTask,
+  handleOpenDownloadedFolder,
+} = useTransferTasks({
+  tableActive,
+  layoutStyle,
+  isShowUploadPanel,
+  isShowDownloadPanel,
+  uploadTaskList,
+  downloadTaskList,
+  downloadDir: () => manageStore.config.settings.downloadDir,
+  onSuccess: action =>
+    message.success(t(action === 'copy' ? 'pages.manage.bucket.copySuccess' : 'pages.manage.bucket.deleteSuccess')),
+})
 
 watch([layoutStyle, searchText, tableDensity], () => {
   copyDropdownIndex.value = -1
@@ -2025,42 +2021,6 @@ function enqueueUploadFiles(files: any[], destination: ReturnType<typeof capture
     })
   })
   window.electron.sendRPC(IRPCActionType.MANAGE_UPLOAD_BUCKET_FILE, destination.alias, param)
-}
-
-function handleCopyUploadingTaskInfo() {
-  window.electron.clipboard.writeText(JSON.stringify(uploadTaskList.value, null, 2))
-  message.success(t('pages.manage.bucket.copySuccess'))
-}
-
-function handleDeleteUploadedTask() {
-  window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_UPLOADED_TASK)
-  message.success(t('pages.manage.bucket.deleteSuccess'))
-}
-
-function handleDeleteAllUploadedTask() {
-  window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_ALL_UPLOADED_TASK)
-  message.success(t('pages.manage.bucket.deleteSuccess'))
-}
-
-// 下载任务相关
-
-function handleCopyDownloadingTaskInfo() {
-  window.electron.clipboard.writeText(JSON.stringify(downloadTaskList.value, null, 2))
-  message.success(t('pages.manage.bucket.copySuccess'))
-}
-
-function handleDeleteDownloadedTask() {
-  window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_DOWNLOADED_TASK)
-  message.success(t('pages.manage.bucket.deleteSuccess'))
-}
-
-function handleDeleteAllDownloadedTask() {
-  window.electron.sendRPC(IRPCActionType.MANAGE_DELETE_ALL_DOWNLOADED_TASK)
-  message.success(t('pages.manage.bucket.deleteSuccess'))
-}
-
-function handleOpenDownloadedFolder() {
-  window.electron.sendRPC(IRPCActionType.MANAGE_OPEN_DOWNLOADED_FOLDER, manageStore.config.settings.downloadDir)
 }
 
 // 文件列表相关
@@ -3155,4 +3115,4 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style src="./css/BucketPage.css" scoped></style>
+<style src="./BucketPage.css" scoped></style>

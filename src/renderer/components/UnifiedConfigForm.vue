@@ -143,7 +143,7 @@ import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import MultiSelect from '@/components/common/MultiSelect.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
-import { getConfig } from '@/utils/dataSender'
+import { getConfig } from '@/services/configService'
 
 interface IProps {
   config: IPicGoPluginConfig[]

@@ -543,7 +543,6 @@ import {
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteUpdate } from 'vue-router'
 
-import ALLApi from '@/apis/allApi'
 import BulkChangePreview from '@/components/BulkChangePreview.vue'
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
@@ -555,21 +554,24 @@ import FileCollection from '@/components/FileCollection.vue'
 import FileViewControls from '@/components/FileViewControls.vue'
 import GalleryHoverPreview from '@/components/GalleryHoverPreview.vue'
 import ImagePreview from '@/components/ImagePreview.vue'
-import { useBulkChanges } from '@/hooks/useBulkChanges'
-import useConfirm from '@/hooks/useConfirm'
-import { usePicBed } from '@/hooks/useGlobal'
-import useMessage from '@/hooks/useMessage'
-import { customStrMatch, customStrReplace } from '@/manage/utils/common'
-import { getRawData } from '@/utils/common'
+import { useBulkChanges } from '@/composables/useBulkChanges'
+import useConfirm from '@/composables/useConfirm'
+import { usePicBed } from '@/composables/useGlobal'
+import useMessage from '@/composables/useMessage'
+import { customStrReplace } from '@/manage/utils/fileName'
+import { getConfig, saveConfig } from '@/services/configService'
+import $$db from '@/services/galleryDatabase'
+import ALLApi from '@/services/galleryDeletionService'
 import { configPaths } from '@/utils/configPaths'
-import { getConfig, saveConfig } from '@/utils/dataSender'
-import $$db from '@/utils/db'
-import { IPasteStyle, IRPCActionType } from '@/utils/enum'
 import { compareFileValues, type FileColumn, fileDate, fileType, formatCollectionDate } from '@/utils/fileCollection'
 import { prepareGalleryItems } from '@/utils/galleryItems'
 import { getGalleryPreviewSource, getJxlPreviewSource } from '@/utils/galleryPreview'
 import { PreviewCache } from '@/utils/previewCache'
 import { picBedsCanbeDeleted } from '@/utils/static'
+import { IPasteStyle } from '#/constants/app'
+import { IRPCActionType } from '#/constants/rpcActions'
+import { getRawData } from '#/utils/rawData'
+import { customStrMatch } from '#/utils/strings'
 import { addCacheBustParam as withCacheBustParam } from '#/utils/url'
 
 type IResult<T> = T & {
@@ -1585,4 +1587,4 @@ export default {
 }
 </script>
 
-<style scoped src="./css/Gallery.css"></style>
+<style scoped src="./Gallery.css"></style>

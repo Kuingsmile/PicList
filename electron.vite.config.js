@@ -6,13 +6,19 @@ import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'electron-vite'
 
-const alias = {
-  '@': resolve('src/renderer'),
-  '~': resolve('src/main'),
+const sharedAliases = {
   root: resolve('./'),
-  '#': resolve('src/universal'),
+  '#': resolve('src/shared'),
+}
+const mainAliases = {
+  ...sharedAliases,
+  '~': resolve('src/main'),
   apis: resolve('src/main/apis'),
   '@core': resolve('src/main/apis/core'),
+}
+const rendererAliases = {
+  ...sharedAliases,
+  '@': resolve('src/renderer'),
 }
 export default defineConfig({
   main: {
@@ -21,7 +27,7 @@ export default defineConfig({
       externalizeDeps: { exclude: ['got', '@octokit/rest'] },
     },
     resolve: {
-      alias,
+      alias: mainAliases,
     },
   },
   preload: {
@@ -31,14 +37,14 @@ export default defineConfig({
     },
     plugins: [],
     resolve: {
-      alias,
+      alias: sharedAliases,
     },
   },
   renderer: {
     root: resolve('src/renderer'),
     base: './',
     resolve: {
-      alias,
+      alias: rendererAliases,
       dedupe: [
         '@codemirror/state',
         '@codemirror/view',

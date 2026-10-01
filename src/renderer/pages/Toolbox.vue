@@ -111,8 +111,9 @@ import { useI18n } from 'vue-i18n'
 import CustomButton from '@/components/common/CustomButton.vue'
 import ToolboxHandler from '@/components/toolbox/ToolboxHandler.vue'
 import ToolboxStatusIcon from '@/components/toolbox/ToolboxStatusIcon.vue'
-import useConfirm from '@/hooks/useConfirm'
-import { IRPCActionType, IToolboxItemCheckStatus, IToolboxItemType } from '@/utils/enum'
+import useConfirm from '@/composables/useConfirm'
+import { IToolboxItemCheckStatus, IToolboxItemType } from '#/constants/app'
+import { IRPCActionType } from '#/constants/rpcActions'
 
 const { t } = useI18n()
 const { confirm } = useConfirm()

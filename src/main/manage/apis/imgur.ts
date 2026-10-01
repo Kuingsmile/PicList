@@ -21,7 +21,8 @@ import {
 } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
-import { formatHttpProxy, isImage } from '~/utils/common'
+import { isImage } from '~/utils/filesystem'
+import { formatHttpProxy } from '~/utils/network'
 
 class ImgurApi {
   userName: string

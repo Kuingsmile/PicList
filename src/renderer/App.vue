@@ -9,8 +9,8 @@
 import { onBeforeMount } from 'vue'
 
 import UIServiceProvider from '@/components/ui/UIServiceProvider.vue'
-import { useATagClick } from '@/hooks/useATagClick'
-import { pageReloadCount, usePicBed } from '@/hooks/useGlobal'
+import { useATagClick } from '@/composables/useATagClick'
+import { pageReloadCount, usePicBed } from '@/composables/useGlobal'
 
 useATagClick()
 

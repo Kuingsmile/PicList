@@ -21,8 +21,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useThumbnail } from '@/hooks/useThumbnail'
-import { getFileIconPath } from '@/manage/utils/common'
+import { useThumbnail } from '@/composables/useThumbnail'
+import { getFileIconPath } from '@/manage/utils/filePresentation'
 
 const props = defineProps<{
   isShowThumbnail: boolean

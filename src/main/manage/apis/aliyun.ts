@@ -24,7 +24,7 @@ import {
 } from '~/manage/utils/deleteObjects'
 import { ManageLogger } from '~/manage/utils/logger'
 import { MIB, onUploadAbort, scheduleUploadBatch } from '~/manage/utils/uploadFile'
-import { isImage } from '~/utils/common'
+import { isImage } from '~/utils/filesystem'
 
 // 坑爹阿里云 返回数据类型标注和实际各种不一致
 class AliyunApi {

@@ -56,7 +56,7 @@
 import { ChevronDownIcon, SortAscIcon } from '@lucide/vue'
 import { type Component, useId } from 'vue'
 
-import { useDropdown } from './useDropdown'
+import { useDropdown } from '../../composables/useDropdown'
 
 const emit = defineEmits<(e: 'change', key: string) => void>()
 const modelValue = defineModel<string | undefined>({ default: undefined })

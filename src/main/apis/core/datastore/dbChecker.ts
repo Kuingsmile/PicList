@@ -3,8 +3,8 @@ import { JSONStore } from '@piclist/store'
 import fs from 'fs-extra'
 
 import { t } from '~/i18n'
-import { recoverGallerySync } from '~/utils/gallerySync/storage'
-import { notificationList } from '~/utils/notification'
+import { recoverGallerySync } from '~/services/gallerySync/storage'
+import { notificationList } from '~/utils/notifications'
 
 function readConfig(filePath: string): string | undefined {
   try {

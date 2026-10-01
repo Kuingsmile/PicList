@@ -49,24 +49,24 @@ yarn dev
 
 ## 源码结构
 
-| 路径                                                   | 职责                                                                                              |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| `src/main/index.ts`、`src/main/lifeCycle/`             | Electron 入口、应用生命周期和更新。                                                               |
-| `src/main/apis/`                                       | 核心服务、应用 API、插件 GUI API 和相册远端删除适配器；参阅 [API 指南](src/main/apis/README.md)。 |
-| `src/main/events/rpc/`                                 | 渲染进程到主进程的 RPC 分发和业务路由。                                                           |
-| `src/main/manage/`                                     | 云存储管理平台适配、列表请求、传输和管理配置。                                                    |
-| `src/main/bulkChanges/`、`src/main/utils/gallerySync/` | 批量操作会话和相册同步。                                                                          |
-| `src/main/server/`、`src/main/fileServer/`             | 上传 HTTP API 和本地文件服务。                                                                    |
-| `src/preload/index.ts`                                 | `window.electron` 和 `window.node` 上下文桥接。                                                   |
-| `src/renderer/`                                        | Vue 界面、页面、组件、路由、状态和 hooks。                                                        |
-| `src/renderer/manage/`                                 | 云存储管理界面和状态。                                                                            |
-| `src/universal/`                                       | 共享的 RPC、删除、列表和批量操作契约；全局声明位于 `types/`。                                     |
-| `resources/`、`build/`                                 | 运行时资源和打包资源；主题及插件运行时暂存文件由脚本生成。                                        |
-| `scripts/`、`scripts/tests/`                           | 准备、打包、发布自动化脚本和发布工具测试。                                                        |
+| 路径                                                      | 职责                                                                                              |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `src/main/index.ts`、`src/main/lifecycle/`                | Electron 入口、应用生命周期和更新。                                                               |
+| `src/main/apis/`                                          | 核心服务、应用 API、插件 GUI API 和相册远端删除适配器；参阅 [API 指南](src/main/apis/README.md)。 |
+| `src/main/ipc/`                                           | 渲染进程到主进程的 RPC 分发和业务路由。                                                           |
+| `src/main/manage/`                                        | 云存储管理平台适配、列表请求、传输和管理配置。                                                    |
+| `src/main/bulkChanges/`、`src/main/services/gallerySync/` | 批量操作会话和相册同步。                                                                          |
+| `src/main/server/`、`src/main/fileServer/`                | 上传 HTTP API 和本地文件服务。                                                                    |
+| `src/preload/index.ts`                                    | `window.electron` 和 `window.node` 上下文桥接。                                                   |
+| `src/renderer/`                                           | Vue 界面、页面、组件、路由、状态和 composables。                                                  |
+| `src/renderer/manage/`                                    | 云存储管理界面和状态。                                                                            |
+| `src/shared/`                                             | 共享的 RPC、删除、列表和批量操作契约；全局声明位于 `types/`。                                     |
+| `resources/`、`build/`                                    | 运行时资源和打包资源；主题及插件运行时暂存文件由脚本生成。                                        |
+| `scripts/`                                                | 准备、打包和发布自动化脚本。                                                                      |
 
-Electron 和存储平台访问逻辑放在主进程，渲染进程通过 preload 桥接调用。共享 RPC 契约位于 `src/universal/rpc.ts`，持久化操作通过 `invokeRPC` 等待确认。操作和语言常量目前分别位于 `src/main/utils/enum.ts` 与 `src/renderer/utils/enum.ts`。配置路径定义也在两个进程中各有一份，修改时应保持对应定义一致。
+Electron 和存储平台访问逻辑放在主进程，渲染进程通过 preload 桥接调用。共享 RPC 契约位于 `src/shared/rpc.ts`，持久化操作通过 `invokeRPC` 等待确认。操作和语言常量目前分别位于 `src/main/constants.ts` 与 `src/shared/constants/`。配置路径定义也在两个进程中各有一份，修改时应保持对应定义一致。
 
-路径别名配置在 [electron.vite.config.js](electron.vite.config.js) 和 [tsconfig.json](tsconfig.json)：`@` → 渲染进程，`~` → 主进程，`#` → universal，`root` → 仓库根目录，`apis` → 主进程 API，`@core` → 核心 API。
+路径别名配置在 [electron.vite.config.js](electron.vite.config.js) 和 [tsconfig.json](tsconfig.json)：`@` → 渲染进程，`~` → 主进程，`#` → shared，`root` → 仓库根目录，`apis` → 主进程 API，`@core` → 核心 API。
 
 ## 国际化
 
@@ -75,7 +75,7 @@ Electron 和存储平台访问逻辑放在主进程，渲染进程通过 preload
 - 主进程：`src/main/i18n/locales/`，在 `src/main/i18n/index.ts` 中通过 i18next 注册。
 - 渲染进程：`src/renderer/i18n/locales/`，在 `src/renderer/main.ts` 中通过 vue-i18n 注册。
 
-修改现有语言时，在受影响进程的三份语言文件中同步更新对应键，保留插值参数，并按照 ESLint 要求排序。渲染进程的语言类型由 `src/universal/types/i18n.d.ts` 根据 `src/renderer/i18n/locales/zh-CN.json` 推导，无需生成语言定义文件。
+修改现有语言时，在受影响进程的三份语言文件中同步更新对应键，保留插值参数，并按照 ESLint 要求排序。渲染进程的语言类型由 `src/renderer/types/i18n.d.ts` 根据 `src/renderer/i18n/locales/zh-CN.json` 推导，无需生成语言定义文件。
 
 新增语言时，在两处语言目录添加 JSON 文件，更新两处注册、`src/renderer/i18n/locale.ts` 中的语言类型和选择逻辑、`src/renderer/main.ts` 中的语言类型、两处 `II18nLanguage` 定义，以及 `src/renderer/pages/PicGoSetting.vue` 中的 `languageList`。检查界面和主进程通知的语言切换。
 

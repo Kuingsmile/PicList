@@ -1,5 +1,11 @@
-import type { IPicGo, IPluginHandlerOptions, IPluginHandlerResult, IProcessEnv } from 'piclist'
-import { PicGoUtils, PluginHandler } from 'piclist'
+import {
+  type IPicGo,
+  type IPluginHandlerOptions,
+  type IPluginHandlerResult,
+  type IProcessEnv,
+  PicGoUtils,
+  PluginHandler,
+} from 'piclist'
 
 import { configPaths } from '~/utils/configPaths'
 

@@ -12,12 +12,12 @@ import { AuthType, createClient, WebDAVClientOptions } from 'webdav'
 import writeFile from 'write-file-atomic'
 
 import type { GallerySyncRequest } from '#/types/gallerySync'
-import { formatEndpoint } from '~/utils/common'
+import { formatEndpoint } from '#/utils/url'
 import { configPaths } from '~/utils/configPaths'
 
-import { GallerySyncError } from './gallerySync/model'
-import { configurationKey, GallerySyncTransaction } from './gallerySync/transaction'
-import { createGalleryTransport } from './gallerySync/transport'
+import { GallerySyncError } from '../services/gallerySync/model'
+import { configurationKey, GallerySyncTransaction } from '../services/gallerySync/transaction'
+import { createGalleryTransport } from '../services/gallerySync/transport'
 
 const STORE_PATH = dataDir()
 const readFileAsBase64 = (filePath: string) => fs.readFileSync(filePath, { encoding: 'base64' })

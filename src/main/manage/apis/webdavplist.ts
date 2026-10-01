@@ -5,6 +5,7 @@ import path from 'node:path'
 
 import { AuthType, createClient, FileStat, ProgressEvent, WebDAVClient, WebDAVClientOptions } from 'webdav'
 
+import { formatEndpoint } from '#/utils/url'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
@@ -18,8 +19,9 @@ import {
 } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { MIB, scheduleUploadBatch, withUploadStream } from '~/manage/utils/uploadFile'
-import { formatEndpoint, formatHttpProxy, isImage } from '~/utils/common'
 import { getAuthHeader } from '~/utils/digestAuth'
+import { isImage } from '~/utils/filesystem'
+import { formatHttpProxy } from '~/utils/network'
 
 class WebdavplistApi {
   endpoint: string

@@ -1,4 +1,4 @@
-import { type DeleteResult, emptyDeleteResult, failedDeletion, mergeDeleteResults } from '../../../universal/deletion'
+import { type DeleteResult, emptyDeleteResult, failedDeletion, mergeDeleteResults } from '../../../shared/deletion'
 
 const unconfirmed = 'The provider did not confirm deletion of this key'
 

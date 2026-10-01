@@ -29,7 +29,7 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 
-import useMessage from '@/hooks/useMessage'
+import useMessage from '@/composables/useMessage'
 
 const { t } = useI18n()
 const message = useMessage()

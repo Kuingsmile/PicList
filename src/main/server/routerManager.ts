@@ -11,16 +11,16 @@ import { markdownContent } from '~/server/apiDoc'
 import router from '~/server/router'
 import { withUploadRateLimit } from '~/server/uploadRateLimit'
 import { deleteChoosedFiles, handleResponse } from '~/server/utils'
-import { AESHelper } from '~/utils/aesHelper'
-import type { IConfigStruct } from '~/utils/configPaths'
 import {
   backgroundUploadPreferences,
   finalizeUpload,
   loadUploadFinalization,
   UploadFinalizationError,
-} from '~/utils/uploadFinalizer'
-import { UploadJob } from '~/utils/uploadJob'
-import { isUploadUrl } from '~/utils/uploadResult'
+} from '~/services/uploads/uploadFinalizer'
+import { UploadJob } from '~/services/uploads/uploadJob'
+import { isUploadUrl } from '~/services/uploads/uploadResult'
+import { AESHelper } from '~/utils/aesHelper'
+import type { IConfigStruct } from '~/utils/configPaths'
 
 const LOG_PATH = appLogPath()
 
