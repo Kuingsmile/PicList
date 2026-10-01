@@ -1,6 +1,6 @@
 <template>
   <div class="mt-0">
-    <CustomButton type="primary" :text="props.handlerText" @click="() => props.handler(props.value)" />
+    <CustomButton :text="props.handlerText" @click="() => props.handler(props.value)" />
   </div>
 </template>
 

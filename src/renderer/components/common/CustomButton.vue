@@ -1,77 +1,79 @@
 <template>
   <button
     :type="nativeType"
-    :disabled="disabled"
+    :disabled="disabled || loading"
+    :aria-busy="loading || undefined"
     class="group flex min-w-fit cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-fast ease-apple not-disabled:hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
-    :class="classVar"
+    :class="buttonClasses"
     :data-active="active"
-    @click="emit('click')"
+    @click="handleClick"
   >
-    <slot name="icon">
-      <component :is="icon" v-if="icon" :size="iconSize" :class="iconClass" />
+    <LoaderCircle
+      v-if="loading"
+      :size="iconSize"
+      class="shrink-0 animate-spin motion-reduce:animate-none"
+      :class="iconClass"
+      aria-hidden="true"
+    />
+    <slot v-else name="icon">
+      <component :is="icon" v-if="icon" :size="iconSize" class="shrink-0" :class="iconClass" aria-hidden="true" />
     </slot>
     <slot>
-      <span
-        v-if="text"
-        :class="textClassVar"
-        :data-active="active"
-        class="text-sm leading-[1.4] font-semibold text-secondary"
-        >{{ text }}</span
-      >
+      <span v-if="text" class="text-sm leading-[1.4] font-semibold" :class="textClass">{{ text }}</span>
     </slot>
-    <slot name="extra"> </slot>
+    <slot name="extra" />
   </button>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { LoaderCircle } from '@lucide/vue'
+import { type Component, computed } from 'vue'
 
 const {
-  text,
-  disabled,
+  text = '',
+  disabled = false,
+  loading = false,
   active = false,
   icon = null,
   iconSize = 16,
   type = 'primary',
-  nativeType = undefined,
+  nativeType = 'button',
   iconClass = '',
   textClass = '',
 } = defineProps<{
-  text: string
-  icon?: any
+  text?: string
+  icon?: Component | null
   active?: boolean
   iconSize?: number
   disabled?: boolean
-  type?: string
+  loading?: boolean
+  type?: 'primary' | 'secondary' | 'danger' | 'tab' | 'custom'
   nativeType?: 'button' | 'submit' | 'reset'
   iconClass?: string
   textClass?: string
 }>()
 
-const textClassVar = computed(() => {
-  switch (type) {
-    case 'primary':
-      return 'text-white'
-    case 'secondary':
-      return 'text-main group-not-disabled:group-hover:text-white!'
-    case 'tab':
-      return active ? 'text-white' : 'text-secondary group-not-disabled:group-hover:text-white!'
-    default:
-      return textClass || ''
-  }
-})
+const emit = defineEmits<{
+  click: [event: MouseEvent]
+}>()
 
-const classVar = computed(() => {
+const buttonClasses = computed(() => {
   switch (type) {
     case 'primary':
       return 'bg-accent text-white not-disabled:hover:bg-accent-hover not-disabled:hover:-translate-y-px'
     case 'secondary':
       return 'border border-border bg-bg-secondary text-main not-disabled:hover:bg-accent/30! not-disabled:hover:text-white! not-disabled:hover:-translate-y-px'
+    case 'danger':
+      return 'bg-danger/70 text-white not-disabled:hover:bg-danger'
     case 'tab':
       return 'flex-1 text-secondary not-disabled:data-[active=false]:hover:bg-accent/30 data-[active=true]:text-white data-[active=true]:bg-accent not-disabled:hover:text-white!'
     default:
       return ''
   }
 })
-const emit = defineEmits<(e: 'click') => void>()
+
+function handleClick(event: MouseEvent) {
+  if (disabled || loading) return
+  emit('click', event)
+}
 </script>

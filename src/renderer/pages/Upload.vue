@@ -310,7 +310,6 @@
             <div class="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:justify-center">
               <CustomButton
                 v-show="taskQueueStatus.tasks.length > 0"
-                type="primary"
                 :icon="PlusIcon"
                 :text="t('pages.upload.taskQueue.addFiles')"
                 @click="addFilesToTask"
@@ -363,7 +362,12 @@
                 :text="t('pages.upload.taskQueue.clearFinished')"
                 @click="clearFinishedTasks"
               />
-              <CustomButton type="primary" :icon="SettingsIcon" text="" @click="showTaskSettings = !showTaskSettings" />
+              <CustomButton
+                :icon="SettingsIcon"
+                :aria-label="t('pages.settings.title')"
+                :aria-expanded="showTaskSettings"
+                @click="showTaskSettings = !showTaskSettings"
+              />
             </div>
           </div>
 
@@ -633,12 +637,7 @@
             <ListTodoIcon class="text-accent opacity-90" :size="48" />
             <h4 class="m-0 text-xl font-semibold text-main">{{ t('pages.upload.taskQueue.empty') }}</h4>
             <p class="m-0 max-w-[400px] text-base text-secondary">{{ t('pages.upload.taskQueue.emptyHint') }}</p>
-            <CustomButton
-              type="primary"
-              :icon="PlusIcon"
-              :text="t('pages.upload.taskQueue.selectFiles')"
-              @click="addFilesToTask"
-            />
+            <CustomButton :icon="PlusIcon" :text="t('pages.upload.taskQueue.selectFiles')" @click="addFilesToTask" />
           </div>
         </div>
       </CustomModal>

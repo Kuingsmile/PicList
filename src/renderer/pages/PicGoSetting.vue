@@ -121,7 +121,6 @@
                   <CustomButton
                     :icon="Edit2"
                     :text="t('pages.settings.system.editTheme')"
-                    type="primary"
                     :icon-size="14"
                     @click="handleEditTheme"
                   />
@@ -145,7 +144,7 @@
               :title="t('pages.settings.system.customBgImgPath')"
             >
               <template #extra>
-                <CustomButton type="primary" :text="t('pages.settings.clickToSet')" @click="handleCustomBgImg" />
+                <CustomButton :text="t('pages.settings.clickToSet')" @click="handleCustomBgImg" />
               </template>
             </CustomNavCard>
             <SettingCard v-if="formOfSetting.enableCustomBgImg">
@@ -238,7 +237,7 @@
               :title="t('pages.settings.system.customMiniIconPath')"
             >
               <template #extra>
-                <CustomButton type="primary" :text="t('pages.settings.clickToSet')" @click="handleMiniIconPath" />
+                <CustomButton :text="t('pages.settings.clickToSet')" @click="handleMiniIconPath" />
               </template>
             </CustomNavCard>
           </SettingSection>
@@ -929,7 +928,6 @@
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="cancelCheckVersion" />
         <CustomButton
-          type="primary"
           :text="needUpdate ? t('pages.settings.update.updateNow') : t('common.confirm')"
           @click="confirmCheckVersion"
         />
@@ -1066,13 +1064,7 @@
       </div>
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="cancelServerSetting" />
-        <CustomButton
-          type="primary"
-          :text="t('common.confirm')"
-          :loading="savingServer"
-          :disabled="savingServer"
-          @click="confirmServerSetting"
-        />
+        <CustomButton :text="t('common.confirm')" :loading="savingServer" @click="confirmServerSetting" />
       </template>
     </CustomModal>
 
@@ -1184,13 +1176,7 @@
       </div>
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="cancelSyncSetting" />
-        <CustomButton
-          type="primary"
-          :text="t('common.confirm')"
-          :loading="savingSync"
-          :disabled="savingSync"
-          @click="confirmSyncSetting"
-        />
+        <CustomButton :text="t('common.confirm')" :loading="savingSync" @click="confirmSyncSetting" />
       </template>
     </CustomModal>
 
@@ -1241,13 +1227,7 @@
       <Editor v-model="editorContent" :language="editorLanguage" />
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="editorVisible = false" />
-        <CustomButton
-          type="primary"
-          :text="t('common.save')"
-          :loading="savingEditor"
-          :disabled="savingEditor"
-          @click="saveEditorContent"
-        />
+        <CustomButton :text="t('common.save')" :loading="savingEditor" @click="saveEditorContent" />
       </template>
     </CustomModal>
   </div>

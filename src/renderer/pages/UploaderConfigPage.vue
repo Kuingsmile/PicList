@@ -42,7 +42,6 @@
         </div>
         <CustomButton
           v-if="type === 'advancedplist'"
-          type="primary"
           :text="t('pages.scripts.createScript')"
           @click="openNewScriptsNameDialog"
         />
@@ -205,10 +204,9 @@
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="duplicateVisible = false" />
         <CustomButton
-          type="primary"
           :text="t('common.confirm')"
           :loading="savingDuplicate"
-          :disabled="savingDuplicate || !duplicateName.trim()"
+          :disabled="!duplicateName.trim()"
           @click="confirmDuplicateConfig"
         />
       </template>
@@ -218,13 +216,7 @@
       <Editor v-model="editorContent" language="javascript" />
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="editorVisible = false" />
-        <CustomButton
-          type="primary"
-          :text="t('common.save')"
-          :loading="savingEditor"
-          :disabled="savingEditor"
-          @click="saveEditorContent"
-        />
+        <CustomButton :text="t('common.save')" :loading="savingEditor" @click="saveEditorContent" />
       </template>
     </CustomModal>
 
@@ -246,7 +238,7 @@
       </div>
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="newScriptNameVisible = false" />
-        <CustomButton type="primary" :text="t('common.confirm')" @click="handleNewScriptNameConfirm" />
+        <CustomButton :text="t('common.confirm')" @click="handleNewScriptNameConfirm" />
       </template>
     </CustomModal>
   </div>

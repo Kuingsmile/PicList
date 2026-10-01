@@ -65,21 +65,13 @@
             <CustomButton class="p-2!" type="secondary" :text="t('guide.skip')" @click="handleSkip" />
             <CustomButton
               v-if="currentStep < steps.length - 1"
-              type="primary"
               class="p-2!"
               :icon="ChevronRightIcon"
               :text="t('guide.next')"
               :disabled="isNavigating"
               @click="handleNext"
             />
-            <CustomButton
-              v-else
-              type="primary"
-              class="p-2!"
-              :icon="CheckCircleIcon"
-              :text="t('guide.finish')"
-              @click="handleFinish"
-            />
+            <CustomButton v-else class="p-2!" :icon="CheckCircleIcon" :text="t('guide.finish')" @click="handleFinish" />
           </div>
         </div>
       </div>

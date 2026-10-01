@@ -19,7 +19,6 @@
             @click="openMarketplace"
           />
           <CustomButton
-            type="primary"
             :icon="FolderOpen"
             :text="t('pages.scripts.openScriptFolder')"
             @click="handleOpenScriptFolder"
@@ -37,12 +36,7 @@
               :all-list="supportedScriptCategories"
             />
           </div>
-          <CustomButton
-            type="primary"
-            :icon="Edit2Icon"
-            :text="t('pages.scripts.editENVFile')"
-            @click="openEditPage(['.env'])"
-          />
+          <CustomButton :icon="Edit2Icon" :text="t('pages.scripts.editENVFile')" @click="openEditPage(['.env'])" />
         </div>
       </div>
 
@@ -174,13 +168,7 @@
       <Editor v-model="editorContent" language="javascript" />
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="editorVisible = false" />
-        <CustomButton
-          type="primary"
-          :text="t('common.save')"
-          :loading="savingEditor"
-          :disabled="savingEditor"
-          @click="saveEditorContent"
-        />
+        <CustomButton :text="t('common.save')" :loading="savingEditor" @click="saveEditorContent" />
       </template>
     </CustomModal>
 
@@ -223,7 +211,7 @@
       </div>
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="newScriptNameVisible = false" />
-        <CustomButton type="primary" :text="t('common.confirm')" @click="handleNewScriptNameConfirm" />
+        <CustomButton :text="t('common.confirm')" @click="handleNewScriptNameConfirm" />
       </template>
     </CustomModal>
 
@@ -258,7 +246,6 @@
             <template v-else>
               <CustomButton
                 type="secondary"
-                :icon="null"
                 :text="t('pages.scripts.marketplace.loginWithGitHub')"
                 @click="handleGitHubLogin"
               >
@@ -293,7 +280,6 @@
           <XCircleIcon :size="48" class="text-danger" />
           <span class="text-sm text-danger">{{ t('pages.scripts.marketplace.loadFailed') }}</span>
           <CustomButton
-            type="primary"
             :icon="RefreshCwIcon"
             :text="t('pages.scripts.marketplace.retry')"
             @click="fetchMarketplaceScripts"
@@ -372,7 +358,6 @@
               <Editor v-model="marketplaceScriptContent" language="javascript" :read-only="true" />
               <CustomButton
                 class="mt-4"
-                type="primary"
                 :text="t('common.cancel')"
                 @click="
                   () => {
@@ -398,12 +383,7 @@
         <div v-if="!githubAuth.isAuthenticated" class="flex flex-col items-center gap-4 py-8">
           <BaseSvg name="GitHub" :size="18" color="black" />
           <p class="text-center text-sm text-secondary">{{ t('pages.scripts.marketplace.loginRequired') }}</p>
-          <CustomButton
-            type="primary"
-            :icon="null"
-            :text="t('pages.scripts.marketplace.loginWithGitHub')"
-            @click="handleGitHubLogin"
-          >
+          <CustomButton :text="t('pages.scripts.marketplace.loginWithGitHub')" @click="handleGitHubLogin">
             <template #icon>
               <BaseSvg name="GitHub" :size="18" color="black" />
             </template>
@@ -444,7 +424,6 @@
         <CustomButton type="secondary" :text="t('common.cancel')" @click="shareDialogVisible = false" />
         <CustomButton
           v-if="githubAuth.isAuthenticated"
-          type="primary"
           :text="sharingScript ? t('pages.scripts.marketplace.sharing') : t('pages.scripts.marketplace.share')"
           :disabled="sharingScript"
           @click="handleShareScript"

@@ -51,7 +51,6 @@
           </div>
           <FileViewControls v-model:view-mode="viewMode" v-model:density="tableDensity" />
           <CustomButton
-            type="primary"
             :text="t('pages.gallery.hideFilters')"
             :icon="handleBarActive ? ChevronUpIcon : ChevronDownIcon"
             class="px-2!"
@@ -359,8 +358,8 @@
           <input v-model="imgInfo.imgUrl" type="text" class="form-input" placeholder="Enter new URL" />
         </div>
         <template #footer>
-          <CustomButton :type="'secondary'" :text="t('common.cancel')" @click="dialogVisible = false" />
-          <CustomButton :type="'primary'" :text="t('common.confirm')" @click="confirmModify" />
+          <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />
+          <CustomButton :text="t('common.confirm')" @click="confirmModify" />
         </template>
       </CustomModal>
     </transition>
@@ -427,9 +426,8 @@
           </div>
         </div>
         <template #footer>
-          <CustomButton :type="'secondary'" :text="t('common.cancel')" @click="isShowBatchRenameDialog = false" />
+          <CustomButton type="secondary" :text="t('common.cancel')" @click="isShowBatchRenameDialog = false" />
           <CustomButton
-            :type="'primary'"
             :text="t('common.bulk.preview')"
             :disabled="bulkChanges.building.value"
             @click="handleBatchRename"

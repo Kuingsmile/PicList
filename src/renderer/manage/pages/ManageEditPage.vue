@@ -139,12 +139,7 @@
             :custom-front-icon="DownloadIcon"
           />
         </div>
-        <CustomButton
-          type="primary"
-          :text="t('pages.manage.login.save')"
-          :icon="SaveIcon"
-          @click="handleConfigChange()"
-        />
+        <CustomButton :text="t('pages.manage.login.save')" :icon="SaveIcon" @click="handleConfigChange()" />
         <CustomButton
           class="bg-danger/70"
           :text="t('pages.manage.login.reset')"

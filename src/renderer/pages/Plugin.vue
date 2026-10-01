@@ -24,14 +24,8 @@
             :text="t('pages.plugin.updateAll')"
             @click="handleUpdateAllPlugin"
           />
+          <CustomButton :icon="ExternalLinkIcon" :text="t('pages.plugin.openRemoteList')" @click="goAwesomeList" />
           <CustomButton
-            type="primary"
-            :icon="ExternalLinkIcon"
-            :text="t('pages.plugin.openRemoteList')"
-            @click="goAwesomeList"
-          />
-          <CustomButton
-            type="primary"
             :icon="SearchIcon"
             :text="t('pages.plugin.browseAllPlugins')"
             @click="openBrowsePluginsDialog"
@@ -92,7 +86,6 @@
             <AlertCircleIcon class="shrink-0 text-warning" :size="22" />
             <span class="flex-1 text-sm font-bold text-secondary">{{ t('pages.plugin.needRestart') }}</span>
             <CustomButton
-              type="primary"
               :icon="RefreshCwIcon"
               :text="t('pages.plugin.restartApp')"
               class="bg-warning/80"
@@ -270,7 +263,6 @@
           </p>
           <CustomButton
             v-if="!searchText"
-            type="primary"
             :icon="ExternalLinkIcon"
             :text="t('pages.plugin.browsePlugins')"
             @click="goAwesomeList"
@@ -293,7 +285,7 @@
         </div>
         <template #footer>
           <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />
-          <CustomButton type="primary" :text="t('common.confirm')" @click="handleConfirmConfig" />
+          <CustomButton :text="t('common.confirm')" @click="handleConfirmConfig" />
         </template>
       </CustomModal>
     </transition>

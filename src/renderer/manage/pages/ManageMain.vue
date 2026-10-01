@@ -254,7 +254,7 @@
         </div>
         <template #footer>
           <CustomButton type="secondary" :text="$t('common.cancel')" @click="bucketDrawerVisible = false" />
-          <CustomButton type="primary" :text="$t('common.submit')" @click="createNewBucket(currentPicBedName)" />
+          <CustomButton :text="$t('common.submit')" @click="createNewBucket(currentPicBedName)" />
         </template>
       </CustomModal>
     </transition>

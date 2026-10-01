@@ -21,12 +21,7 @@
           </div>
           <div class="flex flex-wrap items-center gap-3">
             <template v-if="progress !== 100">
-              <CustomButton
-                type="primary"
-                :text="t('pages.toolbox.startScan')"
-                :disabled="isLoading"
-                @click="handleCheck"
-              />
+              <CustomButton :text="t('pages.toolbox.startScan')" :disabled="isLoading" @click="handleCheck" />
             </template>
             <template v-else-if="isAllSuccess">
               <div class="border border-success/50 bg-bg-secondary px-5 py-3 text-sm font-semibold text-secondary">

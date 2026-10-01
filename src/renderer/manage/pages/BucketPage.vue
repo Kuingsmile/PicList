@@ -136,7 +136,6 @@
         <div class="flex items-center justify-between gap-3">
           <span>{{ t('pages.manage.bucket.deleteFailedDetails', { num: activeDeletionState.failed.length }) }}</span>
           <CustomButton
-            type="primary"
             :disabled="isDeleting || isLoadingData"
             :text="t('pages.manage.bucket.retryFailedOnly')"
             @click="retryFailedDeletions"
@@ -618,7 +617,7 @@
 
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />
-        <CustomButton type="primary" :text="t('common.confirm')" @click="handleUploadFromUrl" />
+        <CustomButton :text="t('common.confirm')" @click="handleUploadFromUrl" />
       </template>
     </CustomModal>
 
@@ -784,13 +783,8 @@
         </div>
       </div>
       <template #footer>
-        <CustomButton :type="'secondary'" :text="t('common.cancel')" @click="isShowBatchRenameDialog = false" />
-        <CustomButton
-          :type="'primary'"
-          :text="t('common.bulk.preview')"
-          :disabled="bulkChanges.building.value"
-          @click="BatchRename"
-        />
+        <CustomButton type="secondary" :text="t('common.cancel')" @click="isShowBatchRenameDialog = false" />
+        <CustomButton :text="t('common.bulk.preview')" :disabled="bulkChanges.building.value" @click="BatchRename" />
       </template>
     </CustomModal>
 
@@ -932,7 +926,6 @@
             <!-- Upload Actions -->
             <div v-if="tableData.length" class="mt-4 flex justify-center gap-4">
               <CustomButton
-                type="primary"
                 :disabled="isLoadingUploadPanelFiles"
                 :text="
                   isLoadingUploadPanelFiles ? t('pages.manage.bucket.readingDir') : t('pages.manage.bucket.upload')
@@ -1297,13 +1290,8 @@
         </SettingCard>
       </SettingSection>
       <template #footer>
-        <CustomButton :type="'secondary'" :text="t('common.cancel')" @click="isShowCreateFolderDialog = false" />
-        <CustomButton
-          :type="'primary'"
-          :disabled="!newFolderName.trim()"
-          :text="t('common.confirm')"
-          @click="confirmCreateFolder"
-        />
+        <CustomButton type="secondary" :text="t('common.cancel')" @click="isShowCreateFolderDialog = false" />
+        <CustomButton :disabled="!newFolderName.trim()" :text="t('common.confirm')" @click="confirmCreateFolder" />
       </template>
     </CustomModal>
   </div>

@@ -168,7 +168,6 @@
 
                 <CustomButton
                   v-if="choosedPicBedForQRCode.length > 0"
-                  type="primary"
                   :icon="CopyIcon"
                   :text="t('navigation.copyPicBedConfig')"
                   @click="handleCopyPicBedConfig"
@@ -183,9 +182,8 @@
             <div class="flex justify-end gap-3 px-4 pb-4">
               <CustomButton
                 :text="t('navigation.close')"
-                class="bg-danger hover:bg-danger"
-                :text-class="'text-white'"
-                type="cus"
+                class="bg-danger text-white hover:bg-danger"
+                type="custom"
                 @click="qrcodeVisible = false"
               />
             </div>

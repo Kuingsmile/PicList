@@ -58,7 +58,6 @@
             <div class="flex flex-wrap justify-center gap-3 p-2">
               <CustomButton type="secondary" :text="t('common.cancel')" @click="handleInputBoxCancel" />
               <CustomButton
-                type="primary"
                 :disabled="!inputBoxValue.trim()"
                 :text="t('common.confirm')"
                 @click="handleInputBoxConfirm"

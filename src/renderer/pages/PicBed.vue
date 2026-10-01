@@ -23,7 +23,7 @@
             :text="t('pages.imageProcess.editor.title')"
             @click="imageProcessDialogVisible = true"
           />
-          <CustomButton type="primary" :icon="Copy" :text="t('pages.picBedConfigs.copyAPI')" @click="handleCopyApi" />
+          <CustomButton :icon="Copy" :text="t('pages.picBedConfigs.copyAPI')" @click="handleCopyApi" />
         </div>
       </header>
 
@@ -38,18 +38,10 @@
               <!-- Action Buttons -->
               <div class="mb-4 flex flex-wrap gap-3 rounded-xl border border-border bg-accent/10 p-4">
                 <CustomButton type="secondary" :icon="RotateCcw" :text="t('common.clear')" @click="handleReset" />
-                <CustomButton
-                  type="primary"
-                  :icon="Check"
-                  :text="t('common.confirm')"
-                  :loading="saving"
-                  :disabled="saving"
-                  @click="handleConfirm"
-                />
+                <CustomButton :icon="Check" :text="t('common.confirm')" :loading="saving" @click="handleConfirm" />
 
                 <div v-if="picBedConfigList.length > 0" class="relative">
                   <CustomButton
-                    type="primary"
                     :icon="Import"
                     :text="t('common.import')"
                     class="bg-warning!"

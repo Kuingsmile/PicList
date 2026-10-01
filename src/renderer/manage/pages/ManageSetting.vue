@@ -12,7 +12,6 @@
         </div>
         <div class="flex flex-wrap gap-3 overflow-visible">
           <CustomButton
-            type="primary"
             :icon="FileText"
             :text="t('pages.settings.sync.editCloudConfigFile')"
             @click="openFile('manage.json')"
@@ -29,7 +28,6 @@
               type="custom"
               :icon="Trash2Icon"
               class="bg-warning/50 p-4! text-secondary hover:bg-warning/80 hover:text-white"
-              :text-class="'group-hover:text-white'"
               :text="
                 t('pages.manage.setting.clearCache', {
                   percent: dbSizeAvailableRate,

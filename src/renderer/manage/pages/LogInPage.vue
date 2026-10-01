@@ -21,12 +21,7 @@
             @click="refreshConfigs"
           />
           <CustomButton type="secondary" :icon="BookOpen" :text="t('pages.settings.docs')" @click="goConfigPage" />
-          <CustomButton
-            type="primary"
-            :icon="Settings2"
-            :text="t('pages.manage.main.settings')"
-            @click="openBucketPageSetting"
-          />
+          <CustomButton :icon="Settings2" :text="t('pages.manage.main.settings')" @click="openBucketPageSetting" />
         </div>
       </div>
 
@@ -158,16 +153,13 @@
                 </div>
                 <div class="flex flex-col items-center justify-end gap-4">
                   <CustomButton
-                    type="primary"
                     :icon="PointerIcon"
                     :text="t('pages.manage.login.enter')"
                     @click="handleConfigClick(item)"
                   />
                   <CustomButton
                     type="danger"
-                    class="border border-border bg-danger/70 opacity-0 transition-all duration-fast ease-apple group-hover:opacity-100 hover:bg-danger"
-                    icon-class="text-white "
-                    text-class="text-white font-semibold text-sm "
+                    class="border border-border opacity-0 group-hover:opacity-100"
                     :icon="TrashIcon"
                     :text="t('pages.manage.login.delete')"
                     @click="handleConfigRemove(item.alias)"
