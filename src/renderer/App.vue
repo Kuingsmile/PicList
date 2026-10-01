@@ -1,5 +1,5 @@
 <template>
-  <div id="layout" :key="pageReloadCount" class="h-full min-h-screen w-full select-none">
+  <div id="layout" class="h-full min-h-screen w-full select-none">
     <router-view />
     <UIServiceProvider />
   </div>
@@ -10,7 +10,7 @@ import { onBeforeMount } from 'vue'
 
 import UIServiceProvider from '@/components/ui/UIServiceProvider.vue'
 import { useATagClick } from '@/composables/useATagClick'
-import { pageReloadCount, usePicBed } from '@/composables/useGlobal'
+import { usePicBed } from '@/composables/useGlobal'
 
 useATagClick()
 

@@ -3,7 +3,6 @@ import { readonly, ref } from 'vue'
 import { IRPCActionType } from '#/constants/rpcActions'
 
 const osGlobal = ref<string>(window.electron.platform)
-const pageReloadCount = ref(0)
 
 interface PicBedResult {
   picBeds: IPicBedType[]
@@ -42,8 +41,4 @@ export function usePicBed() {
   }
 }
 
-async function updatePageReloadCount() {
-  pageReloadCount.value++
-}
-
-export { osGlobal, pageReloadCount, updatePageReloadCount }
+export { osGlobal }
