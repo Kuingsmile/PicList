@@ -140,7 +140,7 @@
             <CustomNavCard
               v-if="formOfSetting.enableCustomBgImg"
               :icon="ImageIcon"
-              noarrow
+              :clickable="false"
               :title="t('pages.settings.system.customBgImgPath')"
             >
               <template #extra>
@@ -233,7 +233,7 @@
             <CustomNavCard
               v-if="osGlobal !== 'darwin' && formOfSetting.isCustomMiniIcon"
               :icon="ImageIcon"
-              noarrow
+              :clickable="false"
               :title="t('pages.settings.system.customMiniIconPath')"
             >
               <template #extra>
@@ -269,7 +269,7 @@
           class="border4 no-scrollbar flex h-full w-full flex-1 flex-col gap-6 overflow-auto p-4"
         >
           <!-- Sync Status Overview -->
-          <CustomNavCard noarrow :icon="RotateCcw" :title="t('pages.settings.sync.syncConfiguration')">
+          <CustomNavCard :clickable="false" :icon="RotateCcw" :title="t('pages.settings.sync.syncConfiguration')">
             <template #description>
               <p class="flex items-center gap-2 text-sm text-secondary">
                 <span
@@ -303,7 +303,7 @@
               :title="t('pages.settings.sync.upDownloadSettings')"
               :icon="CloudUpload"
               :description="t('pages.settings.sync.upDownloadDesc')"
-              @click="() => (upDownConfigVisible = true)"
+              @click="upDownConfigVisible = true"
             />
             <CustomNavCard
               :title="t('pages.settings.sync.migrateFromPicGo')"
@@ -324,24 +324,11 @@
           <!-- File Management Section -->
           <SettingSection :icon="FolderOpen" :title="t('pages.settings.sync.fileManagement')">
             <CustomNavCard
-              :title="t('pages.settings.sync.openConfigFile')"
-              :icon="FileText"
-              @click="openFile('data.json')"
-            />
-            <CustomNavCard
-              :title="t('pages.settings.sync.editConfigFile')"
-              :icon="Edit"
-              @click="editFile('data.json')"
-            />
-            <CustomNavCard
-              :title="t('pages.settings.sync.editCloudConfigFile')"
-              :icon="Edit"
-              @click="editFile('manage.json')"
-            />
-            <CustomNavCard
-              :title="t('pages.settings.sync.openConfigFileDir')"
-              :icon="FolderOpen"
-              @click="openDirectory"
+              v-for="action in fileManagementActions"
+              :key="action.titleKey"
+              :title="t(action.titleKey)"
+              :icon="action.icon"
+              @click="action.onClick"
             />
           </SettingSection>
         </div>
@@ -623,22 +610,12 @@
         >
           <SettingSection :icon="FileText" :title="t('pages.settings.advanced.logging')">
             <CustomNavCard
-              :title="t('pages.settings.advanced.logFile')"
-              description="piclist.log"
+              v-for="file in logFiles"
+              :key="file.name"
+              :title="t(file.titleKey)"
+              :description="file.name"
               :icon="FileText"
-              @click="openFile('piclist.log')"
-            />
-            <CustomNavCard
-              :title="t('pages.settings.advanced.guiLogFile')"
-              description="piclist-gui-local.log"
-              :icon="FileText"
-              @click="openFile('piclist-gui-local.log')"
-            />
-            <CustomNavCard
-              :title="t('pages.settings.advanced.manageLogFile')"
-              description="manage.log"
-              :icon="FileText"
-              @click="openFile('manage.log')"
+              @click="openFile(file.name)"
             />
             <CustomNavCard
               :title="t('pages.settings.advanced.setLog')"
@@ -680,7 +657,7 @@
           class="border4 no-scrollbar flex h-full w-full flex-1 flex-col gap-6 overflow-auto p-4"
         >
           <SettingSection :icon="RefreshCw" :title="t('pages.settings.update.applicationUpdates')">
-            <CustomNavCard noarrow :icon="RotateCcw" :title="t('pages.settings.update.currentVersion')">
+            <CustomNavCard :clickable="false" :icon="RotateCcw" :title="t('pages.settings.update.currentVersion')">
               <template #description>
                 <div class="flex items-center gap-2">
                   <span class="rounded-md bg-accent/30 px-2 py-1 text-sm font-semibold text-secondary"
@@ -1420,6 +1397,19 @@ const tabs = computed(() => [
   { id: 'advanced', label: t('pages.settings.advanced.title'), icon: Server },
   { id: 'update', label: t('pages.settings.update.title'), icon: RefreshCw },
 ])
+
+const fileManagementActions = [
+  { titleKey: 'pages.settings.sync.openConfigFile', icon: FileText, onClick: () => openFile('data.json') },
+  { titleKey: 'pages.settings.sync.editConfigFile', icon: Edit, onClick: () => editFile('data.json') },
+  { titleKey: 'pages.settings.sync.editCloudConfigFile', icon: Edit, onClick: () => editFile('manage.json') },
+  { titleKey: 'pages.settings.sync.openConfigFileDir', icon: FolderOpen, onClick: () => openDirectory() },
+]
+
+const logFiles = [
+  { titleKey: 'pages.settings.advanced.logFile', name: 'piclist.log' },
+  { titleKey: 'pages.settings.advanced.guiLogFile', name: 'piclist-gui-local.log' },
+  { titleKey: 'pages.settings.advanced.manageLogFile', name: 'manage.log' },
+]
 
 const syncTaskList = computed(() => [
   { task: IRPCActionType.CONFIGURE_UPLOAD_COMMON_CONFIG, label: t('pages.settings.sync.commonConfig'), number: 1 },
