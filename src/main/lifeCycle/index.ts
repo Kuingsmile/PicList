@@ -18,6 +18,7 @@ import fixPath from '~/lifeCycle/fixPath'
 import { handleStartUpFiles, initializeStartup } from '~/lifeCycle/startup'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import getManageApi from '~/manage/Main'
+import { transferScheduler } from '~/manage/transferScheduler'
 import { clearTempFolder } from '~/manage/utils/common'
 import server from '~/server/index'
 import { isAutoStartEnabled, setAutoStart } from '~/utils/autoStart'
@@ -164,7 +165,18 @@ class LifeCycle {
       ['RPC server', () => rpcServer.stop()],
       ['upload server', () => waitForShutdown(server.shutdown())],
       ['file server', () => waitForShutdown(stopFileServer())],
-      ['management checkpoints', () => this.#queuesReady && UpDownTaskQueue.getInstance().flush()],
+      [
+        'management checkpoints',
+        async () => {
+          if (!this.#queuesReady) return
+          try {
+            await waitForShutdown(transferScheduler.shutdown())
+          } finally {
+            // Uncooperative providers may exceed the grace period; still checkpoint interrupted work.
+            await UpDownTaskQueue.getInstance().flush()
+          }
+        },
+      ],
       ['upload checkpoints', () => this.#queuesReady && UploadTaskQueueManager.getInstance().shutdown()],
       ['software-close scripts', () => waitForShutdown(runScriptInStage('onSoftwareClose', picgo, {}))],
     ] as const

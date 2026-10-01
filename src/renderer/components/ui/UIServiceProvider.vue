@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import useConfirm, { type ConfirmOptions } from '@/hooks/useConfirm'
 import useMessage from '@/hooks/useMessage'
@@ -29,19 +30,22 @@ import ConfirmMessageBox from './ConfirmMessageBox.vue'
 import MessageToast from './MessageToast.vue'
 
 const messageRef = useTemplateRef('messageRef')
+const { t } = useI18n()
 const confirmVisible = ref(false)
 const confirmOptions = reactive<ConfirmOptions>({
   message: '',
-  title: 'Confirm',
+  title: t('common.confirm'),
   type: 'info',
-  confirmButtonText: 'Confirm',
-  cancelButtonText: 'Cancel',
+  confirmButtonText: t('common.confirm'),
+  cancelButtonText: t('common.cancel'),
   showClose: true,
   center: false,
 })
 
 let confirmResolve: ((value: boolean) => void) | null = null
 let isUnmounted = false
+let unregisterMessageService: (() => void) | undefined
+let unregisterConfirmService: (() => void) | undefined
 
 const handleConfirm = () => {
   confirmVisible.value = false
@@ -67,10 +71,10 @@ const showConfirm = (options: ConfirmOptions): Promise<boolean> => {
 
   return new Promise(resolve => {
     Object.assign(confirmOptions, {
-      title: 'Confirm',
+      title: t('common.confirm'),
       type: 'info',
-      confirmButtonText: 'Confirm',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       showClose: true,
       center: false,
       ...options,
@@ -83,12 +87,14 @@ const showConfirm = (options: ConfirmOptions): Promise<boolean> => {
 onBeforeUnmount(() => {
   isUnmounted = true
   handleCancel()
+  unregisterMessageService?.()
+  unregisterConfirmService?.()
 })
 
 onMounted(() => {
   const { setMessageService } = useMessage()
   if (messageRef.value) {
-    setMessageService({
+    unregisterMessageService = setMessageService({
       success: messageRef.value.success,
       error: messageRef.value.error,
       warning: messageRef.value.warning,
@@ -98,7 +104,7 @@ onMounted(() => {
 
   // Initialize confirm service
   const { setConfirmService } = useConfirm()
-  setConfirmService({
+  unregisterConfirmService = setConfirmService({
     confirm: showConfirm,
   })
 })

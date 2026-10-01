@@ -3,6 +3,7 @@
     :type="nativeType"
     :disabled="disabled || loading"
     :aria-busy="loading || undefined"
+    :aria-pressed="type === 'tab' ? active : undefined"
     class="group flex min-w-fit cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-fast ease-apple not-disabled:hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
     :class="buttonClasses"
     :data-active="active"
@@ -62,7 +63,7 @@ const buttonClasses = computed(() => {
     case 'primary':
       return 'bg-accent text-white not-disabled:hover:bg-accent-hover not-disabled:hover:-translate-y-px'
     case 'secondary':
-      return 'border border-border bg-bg-secondary text-main not-disabled:hover:bg-accent/30! not-disabled:hover:text-white! not-disabled:hover:-translate-y-px'
+      return 'border border-border bg-bg-secondary text-main not-disabled:hover:border-accent not-disabled:hover:bg-accent/10! not-disabled:hover:-translate-y-px'
     case 'danger':
       return 'bg-danger/70 text-white not-disabled:hover:bg-danger'
     case 'tab':

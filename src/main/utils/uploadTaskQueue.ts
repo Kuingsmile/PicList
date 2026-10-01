@@ -24,7 +24,12 @@ import {
   type UploadFinalization,
 } from '~/utils/uploadFinalizer'
 import { sendToWindow, UploadJob, UploadJobError } from '~/utils/uploadJob'
-import { decodeUploadCheckpoint, retainUploadHistory, uploadTaskMetadata } from '~/utils/uploadTaskMetadata'
+import {
+  decodeUploadCheckpoint,
+  normalizeUploadInterval,
+  retainUploadHistory,
+  uploadTaskMetadata,
+} from '~/utils/uploadTaskMetadata'
 
 export const UploadTaskStatus = {
   PENDING: 'pending',
@@ -62,7 +67,7 @@ export interface IUploadTaskItem {
   retryCount: number
   priority: number
   uploadSpeed?: number // bytes per second
-  uploadDuration?: number // seconds
+  uploadDuration?: number // milliseconds
 }
 
 export interface IUploadTaskQueueConfig {
@@ -113,6 +118,8 @@ class UploadTaskQueueManager {
   private wakeWorker: (() => void) | null = null
   private nextUploadAt = 0
   private generation = 0
+  private progressTimer: NodeJS.Timeout | null = null
+  private runResults = new Map<string, 'completed' | 'failed'>()
 
   private constructor() {
     this.restore()
@@ -142,6 +149,7 @@ class UploadTaskQueueManager {
     priority: number = UploadTaskPriority.NORMAL,
     origin?: WebContents,
   ): IUploadTaskItem[] {
+    if (this.closing) return []
     const newTasks: IUploadTaskItem[] = files.map(file => ({
       id: `task_${uuid()}`,
       fileName: file.name || path.basename(file.path),
@@ -151,26 +159,27 @@ class UploadTaskQueueManager {
       progress: 0,
       createdAt: Date.now(),
       retryCount: 0,
-      priority,
+      priority: Number.isFinite(priority) ? Math.max(0, Math.min(2, Math.floor(priority))) : UploadTaskPriority.NORMAL,
     }))
 
-    newTasks.forEach(task => {
-      if (origin) this.taskOrigins.set(task.id, origin)
-      const insertIndex = this.taskQueue.findIndex(
-        t => t.status === UploadTaskStatus.PENDING && t.priority < task.priority,
-      )
-      if (insertIndex === -1) {
-        this.taskQueue.push(task)
-      } else {
-        this.taskQueue.splice(insertIndex, 0, task)
-      }
-    })
+    if (!newTasks.length) return newTasks
+    if (origin) newTasks.forEach(task => this.taskOrigins.set(task.id, origin))
+    // A batch shares one priority. Insert once instead of scanning and splicing for every file.
+    const insertIndex = this.taskQueue.findIndex(
+      task => task.status === UploadTaskStatus.PENDING && task.priority < newTasks[0].priority,
+    )
+    this.taskQueue =
+      insertIndex === -1
+        ? [...this.taskQueue, ...newTasks]
+        : [...this.taskQueue.slice(0, insertIndex), ...newTasks, ...this.taskQueue.slice(insertIndex)]
 
     this.persist()
     this.notifyTaskUpdate()
 
     if (this.config.autoStart && !this.config.isRunning) {
-      this.startQueue()
+      void this.startQueue()
+    } else if (this.config.isRunning) {
+      this.ensureWorker()
     }
 
     return newTasks
@@ -179,13 +188,14 @@ class UploadTaskQueueManager {
   async startQueue(intervalS?: number): Promise<void> {
     if (this.closing) return
     if (intervalS !== undefined) {
-      this.config.intervalS = intervalS
+      this.setInterval(intervalS)
     }
 
     if (this.config.isRunning) {
       return
     }
 
+    this.runResults.clear()
     this.config.isRunning = true
     this.config.isPaused = false
     this.persist()
@@ -264,9 +274,10 @@ class UploadTaskQueueManager {
         pendingTask.result = result
         pendingTask.error = undefined
         pendingTask.failureStage = undefined
+        this.runResults.set(pendingTask.id, 'completed')
 
         if (pendingTask.startedAt && pendingTask.fileSize > 0) {
-          pendingTask.uploadDuration = pendingTask.completedAt - pendingTask.startedAt
+          pendingTask.uploadDuration = Math.max(1, pendingTask.completedAt - pendingTask.startedAt)
           pendingTask.uploadSpeed = Math.round((pendingTask.fileSize / pendingTask.uploadDuration) * 1000)
         }
       } catch (error) {
@@ -295,8 +306,10 @@ class UploadTaskQueueManager {
           pendingTask.startedAt = undefined
           pendingTask.completedAt = undefined
           pendingTask.error = undefined
+          pendingTask.progress = 0
         } else {
           pendingTask.status = UploadTaskStatus.FAILED
+          this.runResults.set(pendingTask.id, 'failed')
           if (this.config.pauseOnError) this.config.isPaused = true
         }
       } finally {
@@ -311,9 +324,33 @@ class UploadTaskQueueManager {
 
   private async uploadSingleFile(task: IUploadTaskItem, generation: number): Promise<IStringKeyMap | undefined> {
     const win = windowManager.getAvailableWindow()
-    const webContents = this.taskOrigins.get(task.id) || win?.webContents
-
-    const job = new UploadJob({ origin: webContents })
+    const origin = this.taskOrigins.get(task.id)
+    const webContents = origin && !origin.isDestroyed() ? origin : win?.webContents
+    let lastProgressAt = 0
+    const job = new UploadJob({
+      origin: webContents,
+      onProgress: event => {
+        if (event.status !== 'uploading' || !this.isTaskActive(task, generation)) return
+        const progress = event.phase === 'finalizing' ? 99 : Math.max(0, Math.min(99, Math.floor(event.progress)))
+        if (task.progress === progress) return
+        task.progress = progress
+        const now = Date.now()
+        // Progress is transient; throttle renderer snapshots without writing task checkpoints.
+        if (now - lastProgressAt >= 100) {
+          lastProgressAt = now
+          this.notifyTaskUpdate()
+        } else if (!this.progressTimer) {
+          this.progressTimer = setTimeout(
+            () => {
+              lastProgressAt = Date.now()
+              this.notifyTaskUpdate()
+            },
+            100 - (now - lastProgressAt),
+          )
+          this.progressTimer.unref()
+        }
+      },
+    })
     this.activeJobs.set(task.id, job)
     try {
       return await job.run(async () => {
@@ -446,9 +483,6 @@ class UploadTaskQueueManager {
         task.status === UploadTaskStatus.UPLOADING ||
         task.status === UploadTaskStatus.PAUSED,
     )
-    for (const taskId of this.taskOrigins.keys()) {
-      if (!this.taskQueue.some(task => task.id === taskId)) this.taskOrigins.delete(taskId)
-    }
     this.persist()
     this.notifyTaskUpdate()
   }
@@ -525,6 +559,7 @@ class UploadTaskQueueManager {
   retryTask(taskId: string): boolean {
     const task = this.taskQueue.find(t => t.id === taskId)
     if (task && task.status === UploadTaskStatus.FAILED) {
+      this.runResults.delete(taskId)
       task.status = UploadTaskStatus.PENDING
       task.retryCount = 0
       task.error = undefined
@@ -542,6 +577,7 @@ class UploadTaskQueueManager {
     let count = 0
     this.taskQueue.forEach(task => {
       if (task.status === UploadTaskStatus.FAILED) {
+        this.runResults.delete(task.id)
         task.status = UploadTaskStatus.PENDING
         task.retryCount = 0
         task.error = undefined
@@ -579,7 +615,7 @@ class UploadTaskQueueManager {
 
   moveTaskDown(taskId: string): boolean {
     const index = this.taskQueue.findIndex(t => t.id === taskId)
-    if (index < this.taskQueue.length - 1 && this.taskQueue[index].status === UploadTaskStatus.PENDING) {
+    if (index >= 0 && index < this.taskQueue.length - 1 && this.taskQueue[index].status === UploadTaskStatus.PENDING) {
       let targetIndex = index + 1
       while (targetIndex < this.taskQueue.length && this.taskQueue[targetIndex].status !== UploadTaskStatus.PENDING) {
         targetIndex++
@@ -599,7 +635,7 @@ class UploadTaskQueueManager {
   setTaskPriority(taskId: string, priority: number): boolean {
     const task = this.taskQueue.find(t => t.id === taskId)
     if (task && task.status === UploadTaskStatus.PENDING) {
-      task.priority = priority
+      task.priority = Number.isFinite(priority) ? Math.max(0, Math.min(2, Math.floor(priority))) : task.priority
       this.taskQueue.sort((a, b) => {
         if (a.status !== UploadTaskStatus.PENDING && b.status !== UploadTaskStatus.PENDING) return 0
         if (a.status !== UploadTaskStatus.PENDING) return 1
@@ -615,16 +651,16 @@ class UploadTaskQueueManager {
 
   updateSettings(settings: Partial<IUploadTaskQueueConfig>): void {
     if (settings.intervalS !== undefined) {
-      this.config.intervalS = Math.max(0.1, settings.intervalS)
+      this.updateInterval(settings.intervalS)
     }
-    if (settings.autoStart !== undefined) {
+    if (typeof settings.autoStart === 'boolean') {
       this.config.autoStart = settings.autoStart
     }
-    if (settings.pauseOnError !== undefined) {
+    if (typeof settings.pauseOnError === 'boolean') {
       this.config.pauseOnError = settings.pauseOnError
     }
-    if (settings.maxRetryCount !== undefined) {
-      this.config.maxRetryCount = Math.max(0, Math.min(10, settings.maxRetryCount))
+    if (Number.isFinite(settings.maxRetryCount)) {
+      this.config.maxRetryCount = Math.max(0, Math.min(10, Math.floor(settings.maxRetryCount!)))
     }
     this.persist()
     this.notifyTaskUpdate()
@@ -635,9 +671,16 @@ class UploadTaskQueueManager {
   }
 
   setInterval(intervalS: number): void {
-    this.config.intervalS = Math.max(0.1, intervalS) // Minimum 0.1 seconds
+    this.updateInterval(intervalS)
     this.persist()
     this.notifyTaskUpdate()
+  }
+
+  private updateInterval(intervalS: number): void {
+    const interval = normalizeUploadInterval(intervalS, this.config.intervalS)
+    if (this.nextUploadAt) this.nextUploadAt += (interval - this.config.intervalS) * 1000
+    this.config.intervalS = interval
+    this.wakeWorker?.()
   }
 
   getInterval(): number {
@@ -653,10 +696,10 @@ class UploadTaskQueueManager {
   }
 
   private showCompletionNotification(): void {
-    const stats = {
-      completed: this.taskQueue.filter(t => t.status === UploadTaskStatus.COMPLETED).length,
-      failed: this.taskQueue.filter(t => t.status === UploadTaskStatus.FAILED).length,
-    }
+    // History can include previous runs or prune older rows in a large batch.
+    // Notifications describe the run that just finished, independently of retained task history.
+    const stats = { completed: 0, failed: 0 }
+    for (const status of this.runResults.values()) stats[status]++
 
     if (stats.completed > 0 || stats.failed > 0) {
       const isShowResultNotification =
@@ -675,6 +718,10 @@ class UploadTaskQueueManager {
   }
 
   private notifyTaskUpdate(): void {
+    if (this.progressTimer) {
+      clearTimeout(this.progressTimer)
+      this.progressTimer = null
+    }
     const status = this.getQueueStatus()
     sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, 'uploadTaskQueueUpdate', status)
   }
@@ -684,8 +731,9 @@ class UploadTaskQueueManager {
     for (const task of this.legacyFinalizations) {
       if (!this.taskQueue.includes(task)) this.legacyFinalizations.delete(task)
     }
+    const taskIds = new Set(this.taskQueue.map(task => task.id))
     for (const id of this.taskOrigins.keys()) {
-      if (!this.taskQueue.some(task => task.id === id)) this.taskOrigins.delete(id)
+      if (!taskIds.has(id)) this.taskOrigins.delete(id)
     }
     protectQueueFinalizations(this.taskQueue.flatMap(task => (task.finalizationId ? [task.finalizationId] : [])))
     this.checkpoint.schedule()
@@ -698,9 +746,15 @@ class UploadTaskQueueManager {
 
   async shutdown(): Promise<void> {
     this.closing = true
+    this.generation++
     this.config.isRunning = false
     this.config.isPaused = false
     this.wakeWorker?.()
+    this.activeJobs.forEach(job => job.cancel())
+    if (this.progressTimer) {
+      clearTimeout(this.progressTimer)
+      this.progressTimer = null
+    }
     // Leave active work labelled as interrupted on recovery; shutting down is not user cancellation.
     await this.flush()
   }

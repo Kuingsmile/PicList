@@ -98,9 +98,12 @@
       "type": "类型",
       "view": "视图"
     },
+    "help": "帮助",
+    "hidePassword": "隐藏密码",
     "import": "导入",
     "reset": "重置",
     "save": "保存",
+    "showPassword": "显示密码",
     "submit": "提交",
     "version": "版本"
   },
@@ -171,7 +174,9 @@
       "configName": "配置名",
       "configNamePlaceholder": "请输入配置名称",
       "configNameRequired": "配置名称为必填项",
-      "fieldRequired": "{name}为必填项"
+      "fieldRequired": "{name}为必填项",
+      "loadFailed": "无法加载此配置，请重试后再保存。",
+      "loading": "正在加载配置…"
     },
     "gallery": {
       "batchEditUrl": "批量修改URL",
@@ -186,6 +191,8 @@
       "copyLinkFailed": "复制链接失败，请检查图片地址和链接格式。",
       "copyLinkSucceed": "复制链接成功",
       "dateRange": "日期范围",
+      "dateRangeEnd": "结束日期",
+      "dateRangeStart": "开始日期",
       "delete": "删除",
       "edit": "编辑",
       "gridSize": "网格大小",
@@ -196,7 +203,10 @@
       "inputRegexTip": "请输入匹配字符串",
       "isAlwaysForceReload": "禁用缓存",
       "listView": "列表",
+      "loadFailed": "相册刷新失败，已保留当前视图。请重试。",
+      "loading": "正在加载相册…",
       "longUrl": "长链接",
+      "nextImage": "下一张图片",
       "noImagesFound": "未找到图片",
       "noItemsNeedRename": "没有需要重命名的项目",
       "noMatch": "未找到匹配项",
@@ -208,6 +218,7 @@
       "previewHelp": "滚轮缩放 • 拖拽平移 • 方向键导航 • ESC关闭",
       "previewLoading": "正在加载预览…",
       "previewUnavailable": "预览不可用",
+      "previousImage": "上一张图片",
       "refresh": "刷新",
       "regexPattern": "进行替换时匹配的字符串或js正则表达式 匹配到: {matched} 个",
       "regexPatternPlaceholder": "例如：^\\d{4}-\\d{2}-\\d{2}, 不包含正则两边的斜杠",
@@ -231,7 +242,9 @@
       "syncDelete": "删除云端",
       "title": "相册",
       "tryAdjustingFilters": "尝试调整过滤器或上传一些图片",
-      "urlType": "链接类型"
+      "urlType": "链接类型",
+      "zoomIn": "放大",
+      "zoomOut": "缩小"
     },
     "imageProcess": {
       "cancel": "取消",

@@ -6,8 +6,11 @@ export const isValidVersion = (version: unknown): version is string =>
   typeof version === 'string' && validateStrict(version.replace(/^v/, ''))
 
 async function fetchData(url: string, options?: RequestInit) {
-  const response = await fetch(url, options)
+  const timeout = AbortSignal.timeout(10_000)
+  const signal = options?.signal ? AbortSignal.any([timeout, options.signal]) : timeout
+  const response = await fetch(url, { ...options, signal })
   if (!response.ok) {
+    await response.body?.cancel()
     throw new Error(`HTTP error! status: ${response.status}`, {
       cause: { url, status: response.status },
     })
@@ -15,11 +18,11 @@ async function fetchData(url: string, options?: RequestInit) {
   return response
 }
 
-export const getLatestVersion = async (): Promise<string> => {
+export const getLatestVersion = async (signal?: AbortSignal): Promise<string> => {
   let primaryError: unknown
 
   try {
-    const response = await fetchData(RELEASE_URL)
+    const response = await fetchData(RELEASE_URL, { signal })
     const normalList = await response.json()
     const version = Array.isArray(normalList) ? normalList[0]?.tag_name : undefined
     if (!isValidVersion(version)) {
@@ -27,12 +30,13 @@ export const getLatestVersion = async (): Promise<string> => {
     }
     return version
   } catch (err) {
+    if (signal?.aborted) return ''
     primaryError = err
     console.warn('Primary version fetch failed, trying backup...', err)
   }
 
   try {
-    const response = await fetchData(`${RELEASE_URL_BACKUP}/latest.yml`)
+    const response = await fetchData(`${RELEASE_URL_BACKUP}/latest.yml`, { signal })
     const data = await response.text()
     const r = window.node.yaml.parse(data).toJSON() as IStringKeyMap
     const version = r?.version
@@ -41,6 +45,7 @@ export const getLatestVersion = async (): Promise<string> => {
     }
     return version
   } catch (backupErr) {
+    if (signal?.aborted) return ''
     const finalError = new Error('Both primary and backup version fetch failed', {
       cause: { primaryError, backupErr },
     })

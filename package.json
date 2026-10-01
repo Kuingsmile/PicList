@@ -89,7 +89,7 @@
     "mime": "^4.1.0",
     "multer": "^2.4.0",
     "node-ssh-no-cpu-features": "^2.0.0",
-    "piclist": "^3.0.0-alpha.4",
+    "piclist": "^3.0.0-alpha.5",
     "qiniu": "7.15.2",
     "semver": "^7.8.5",
     "shell-path": "3.0.0",

@@ -98,9 +98,12 @@
       "type": "Type",
       "view": "View"
     },
+    "help": "Help",
+    "hidePassword": "Hide password",
     "import": "Import",
     "reset": "Reset",
     "save": "Save",
+    "showPassword": "Show password",
     "submit": "Submit",
     "version": "Version"
   },
@@ -171,7 +174,9 @@
       "configName": "Config Name",
       "configNamePlaceholder": "Please enter config name",
       "configNameRequired": "Configure name is required",
-      "fieldRequired": "{name} is required"
+      "fieldRequired": "{name} is required",
+      "loadFailed": "Could not load this configuration. Try again before saving.",
+      "loading": "Loading configuration…"
     },
     "gallery": {
       "batchEditUrl": "Batch Edit URL",
@@ -186,6 +191,8 @@
       "copyLinkFailed": "Could not copy the link. Check the image URL and link format.",
       "copyLinkSucceed": "Copy Link Succeed",
       "dateRange": "Date Range",
+      "dateRangeEnd": "End date",
+      "dateRangeStart": "Start date",
       "delete": "Delete",
       "edit": "Edit",
       "gridSize": "Grid Size",
@@ -196,7 +203,10 @@
       "inputRegexTip": "Please enter the matching string",
       "isAlwaysForceReload": "No Cache",
       "listView": "List",
+      "loadFailed": "Could not refresh the gallery. Your current view has been kept. Try again.",
+      "loading": "Loading gallery…",
       "longUrl": "Long URL",
+      "nextImage": "Next image",
       "noImagesFound": "No Images Found",
       "noItemsNeedRename": "No items need to be renamed",
       "noMatch": "No matching items found",
@@ -208,6 +218,7 @@
       "previewHelp": "Scroll to zoom • Drag to pan • Arrow keys to navigate • ESC to close",
       "previewLoading": "Loading preview…",
       "previewUnavailable": "Preview unavailable",
+      "previousImage": "Previous image",
       "refresh": "Refresh",
       "regexPattern": "Regex Pattern Matched: {matched} Times",
       "regexPatternPlaceholder": "For example: ^\\d{4}-\\d{2}-\\d{2}, without the slashes on both sides of the regex",
@@ -231,7 +242,9 @@
       "syncDelete": "Delete from Cloud",
       "title": "Gallery",
       "tryAdjustingFilters": "Try Adjusting Filters or Uploading Some Images",
-      "urlType": "URL Type"
+      "urlType": "URL Type",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out"
     },
     "imageProcess": {
       "cancel": "Cancel",

@@ -5,7 +5,6 @@ import { pathToFileURL } from 'node:url'
 import { clipboard, contextBridge, ipcRenderer, IpcRendererEvent, webFrame, webUtils } from 'electron'
 import fs from 'fs-extra'
 import mime from 'mime'
-import { isProxy, isRef, toRaw, unref } from 'vue'
 import yaml from 'yaml'
 
 import {
@@ -17,10 +16,12 @@ import {
   rpcResultSchema,
   unwrapRpcResult,
 } from '#/rpc'
+import { getRawData } from '#/utils/rawData'
 
 // Initial window state can arrive at did-finish-load before a lazy route subscribes.
 // Keep only the latest state for each channel until its first renderer listener.
 const pendingWindowMessages = new Map<string, unknown[]>()
+const pendingInputBoxes: unknown[][] = []
 const windowMessageBuffers = new Map(
   ['clipboardFiles', 'updateFiles', 'SHOW_UPDATE_INFO'].map(channel => {
     const buffer = (_: IpcRendererEvent, ...args: unknown[]) => {
@@ -30,6 +31,22 @@ const windowMessageBuffers = new Map(
     return [channel, buffer] as const
   }),
 )
+// Input requests are individual operations; retaining only the latest would strand earlier plugin dialogs.
+const bufferInputBox = (_: IpcRendererEvent, ...args: unknown[]) => {
+  // Keep buffering between route mounts as well as during the first renderer startup.
+  if (ipcRenderer.listenerCount('SHOW_INPUT_BOX') === 1) pendingInputBoxes.push(args)
+}
+ipcRenderer.on('SHOW_INPUT_BOX', bufferInputBox)
+windowMessageBuffers.set('SHOW_INPUT_BOX', bufferInputBox)
+const bufferInputBoxCancellation = (_: IpcRendererEvent, ...args: unknown[]) => {
+  const [requestId] = args
+  if (typeof requestId !== 'string') return
+  for (let index = pendingInputBoxes.length - 1; index >= 0; index--) {
+    if (pendingInputBoxes[index][1] === requestId) pendingInputBoxes.splice(index, 1)
+  }
+}
+ipcRenderer.on('CANCEL_INPUT_BOX', bufferInputBoxCancellation)
+windowMessageBuffers.set('CANCEL_INPUT_BOX', bufferInputBoxCancellation)
 
 function setTheme(mode: string) {
   const m = mode === 'dark' ? 'dark' : 'light'
@@ -84,42 +101,6 @@ async function injectCSS(css: string, config: { imageUrl?: string; opacity?: str
     console.error('[theme] bootstrap failed', e)
   }
 })()
-
-export function getRawData(args: any): any {
-  if (args === null || typeof args !== 'object') {
-    return args
-  }
-  const raw = isRef(args) ? unref(args) : isProxy(args) ? toRaw(args) : args
-  if (raw instanceof Date) return new Date(raw)
-  if (raw instanceof RegExp) return new RegExp(raw)
-  if (raw instanceof Map) {
-    const result = new Map()
-    raw.forEach((value, key) => {
-      result.set(getRawData(key), getRawData(value))
-    })
-    return result
-  }
-  if (raw instanceof Set) {
-    const result = new Set()
-    raw.forEach(value => {
-      result.add(getRawData(value))
-    })
-    return result
-  }
-  if (Array.isArray(raw)) {
-    return raw.map(item => getRawData(item))
-  }
-  if (typeof raw === 'object') {
-    const data: Record<string, any> = {}
-    for (const key in raw) {
-      if (Object.prototype.hasOwnProperty.call(raw, key)) {
-        data[key] = getRawData(raw[key])
-      }
-    }
-    return data
-  }
-  return raw
-}
 
 function sendToMain(channel: string, ...args: any[]) {
   ipcRenderer.send(channel, ...getRawData(args))
@@ -180,11 +161,15 @@ try {
       ipcRenderer.on(channel, subscription)
       const buffer = windowMessageBuffers.get(channel)
       if (buffer) {
-        ipcRenderer.removeListener(channel, buffer)
-        windowMessageBuffers.delete(channel)
+        if (channel !== 'SHOW_INPUT_BOX' && channel !== 'CANCEL_INPUT_BOX') {
+          ipcRenderer.removeListener(channel, buffer)
+          windowMessageBuffers.delete(channel)
+        }
         const pending = pendingWindowMessages.get(channel)
         pendingWindowMessages.delete(channel)
-        if (pending) listener(...pending)
+        if (channel === 'SHOW_INPUT_BOX') {
+          for (const request of pendingInputBoxes.splice(0)) listener(...request)
+        } else if (pending) listener(...pending)
       }
       return () => {
         ipcRenderer.removeListener(channel, subscription)

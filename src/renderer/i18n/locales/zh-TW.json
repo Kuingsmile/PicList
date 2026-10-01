@@ -98,9 +98,12 @@
       "type": "類型",
       "view": "檢視"
     },
+    "help": "說明",
+    "hidePassword": "隱藏密碼",
     "import": "匯入",
     "reset": "重置",
     "save": "保存",
+    "showPassword": "顯示密碼",
     "submit": "提交",
     "version": "版本"
   },
@@ -171,7 +174,9 @@
       "configName": "配置名稱",
       "configNamePlaceholder": "請輸入配置名稱",
       "configNameRequired": "配置名稱為必填項",
-      "fieldRequired": "{name}為必填項"
+      "fieldRequired": "{name}為必填項",
+      "loadFailed": "無法載入此設定，請重試後再儲存。",
+      "loading": "正在載入設定…"
     },
     "gallery": {
       "batchEditUrl": "批量修改URL",
@@ -186,6 +191,8 @@
       "copyLinkFailed": "複製連結失敗，請檢查圖片網址和連結格式。",
       "copyLinkSucceed": "複製連結成功",
       "dateRange": "日期範圍",
+      "dateRangeEnd": "結束日期",
+      "dateRangeStart": "開始日期",
       "delete": "刪除",
       "edit": "編輯",
       "gridSize": "網格大小",
@@ -196,7 +203,10 @@
       "inputRegexTip": "請輸入匹配字串",
       "isAlwaysForceReload": "無快取",
       "listView": "列表",
+      "loadFailed": "相冊重新整理失敗，已保留目前檢視。請重試。",
+      "loading": "正在載入相冊…",
       "longUrl": "長連結",
+      "nextImage": "下一張圖片",
       "noImagesFound": "未找到圖片",
       "noItemsNeedRename": "沒有需要重命名的項目",
       "noMatch": "未找到匹配項",
@@ -208,6 +218,7 @@
       "previewHelp": "滾輪縮放 • 拖拽平移 • 方向鍵導航 • ESC關閉",
       "previewLoading": "正在載入預覽…",
       "previewUnavailable": "預覽不可用",
+      "previousImage": "上一張圖片",
       "refresh": "刷新",
       "regexPattern": "進行替換時匹配的字符串或js正則表達式 匹配到: {matched} 個",
       "regexPatternPlaceholder": "例如：^\\d{4}-\\d{2}-\\d{2}, 不包含正則兩邊的斜杠",
@@ -231,7 +242,9 @@
       "syncDelete": "刪除雲端",
       "title": "相簿",
       "tryAdjustingFilters": "嘗試調整過濾器或上傳一些圖片",
-      "urlType": "連結類型"
+      "urlType": "連結類型",
+      "zoomIn": "放大",
+      "zoomOut": "縮小"
     },
     "imageProcess": {
       "cancel": "取消",

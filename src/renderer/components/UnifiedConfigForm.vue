@@ -1,19 +1,36 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div id="config-form" class="no-scrollbar flex h-full w-full flex-1 overflow-auto">
+  <div
+    id="config-form"
+    ref="formRef"
+    class="no-scrollbar flex h-full w-full flex-1 overflow-auto"
+    :aria-busy="isLoading"
+  >
     <SettingSection class="h-full flex-1 border-none! shadow-none!" only-one-row>
-      <SettingCard>
+      <SettingCard v-if="loadFailed">
+        <div role="status" class="flex items-center justify-between gap-3 text-sm text-main">
+          <span>{{ t('pages.configForm.loadFailed') }}</span>
+          <CustomButton :text="t('pages.gallery.refresh')" :loading="isLoading" @click="handleConfig(configProp)" />
+        </div>
+      </SettingCard>
+      <SettingCard v-else-if="isLoading">
+        <p role="status" class="m-0 text-sm text-secondary">{{ t('pages.configForm.loading') }}</p>
+      </SettingCard>
+      <SettingCard v-if="mode === 'picbed'">
         <CustomInput
           v-model="ruleForm._configName"
           :title="t('pages.configForm.configName')"
           :placeholder="t('pages.configForm.configNamePlaceholder')"
           required
+          :disabled="isLoading || loadFailed"
+          :aria-invalid="!!validationErrors._configName"
+          :aria-describedby="validationErrors._configName ? errorId('_configName') : undefined"
           :class="{ 'border-error!': validationErrors._configName }"
           @blur="validateForm"
           @input="clearFieldError('_configName')"
         />
         <template v-if="validationErrors._configName" #extra>
-          <div class="mt-1 text-xs text-error">
+          <div :id="errorId('_configName')" class="mt-1 text-xs text-error">
             {{ validationErrors._configName }}
           </div>
         </template>
@@ -25,6 +42,9 @@
           v-if="item.type === 'input' || item.type === 'password'"
           v-model="ruleForm[item.name]"
           type="text"
+          :disabled="isLoading || loadFailed"
+          :aria-invalid="!!validationErrors[item.name]"
+          :aria-describedby="validationErrors[item.name] ? errorId(item.name) : undefined"
           :placeholder="item.message || item.name"
           :class="{ 'border-error!': validationErrors[item.name] }"
           :title="item.alias || item.name"
@@ -36,6 +56,9 @@
         <CustomSwitch
           v-if="item.type === 'confirm'"
           v-model="ruleForm[item.name]"
+          :disabled="isLoading || loadFailed"
+          :aria-invalid="!!validationErrors[item.name]"
+          :aria-describedby="validationErrors[item.name] ? errorId(item.name) : undefined"
           :title="item.alias || item.name"
           :description="item.message || ''"
           no-border
@@ -53,6 +76,9 @@
         <CustomSelect
           v-if="item.type === 'list' && item.choices"
           v-model="ruleForm[item.name]"
+          :disabled="isLoading || loadFailed"
+          :aria-invalid="!!validationErrors[item.name]"
+          :aria-describedby="validationErrors[item.name] ? errorId(item.name) : undefined"
           :title="item.alias || item.name"
           :placeholder="item.message || item.name"
           :class="{ 'border-danger': validationErrors[item.name] }"
@@ -75,6 +101,9 @@
         <MultiSelect
           v-if="item.type === 'checkbox' && item.choices"
           v-model:choosed="ruleForm[item.name]"
+          :disabled="isLoading || loadFailed"
+          :aria-invalid="!!validationErrors[item.name]"
+          :aria-describedby="validationErrors[item.name] ? errorId(item.name) : undefined"
           :title="item.alias || item.name"
           :zero-placeholder="item.message || item.name"
           :icon="null"
@@ -90,7 +119,7 @@
 
         <!-- Validation Error -->
         <template v-if="validationErrors[item.name]" #extra>
-          <div class="mt-1 text-xs text-error">
+          <div :id="errorId(item.name)" class="mt-1 text-xs text-error">
             {{ validationErrors[item.name] }}
           </div>
         </template>
@@ -103,10 +132,11 @@
 
 <script lang="ts" setup>
 import { cloneDeep, union } from 'lodash-es'
-import { reactive, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, reactive, ref, useId, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
+import CustomButton from '@/components/common/CustomButton.vue'
 import CustomInput from '@/components/common/CustomInput.vue'
 import CustomSelect from '@/components/common/CustomSelect.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
@@ -130,12 +160,18 @@ const { t } = useI18n()
 const configList = ref<IPicGoPluginConfig[]>([])
 const ruleForm = reactive<IStringKeyMap>({})
 const validationErrors = reactive<IStringKeyMap>({})
+const isLoading = ref(true)
+const loadFailed = ref(false)
+const formRef = useTemplateRef('formRef')
+const formId = useId()
+const errorId = (field: string) => `${formId}-error-${encodeURIComponent(field)}`
+let loadVersion = 0
 
 // Watch for config changes
 watch(
-  () => configProp,
-  newVal => {
-    handleConfig(newVal)
+  [() => configProp, () => type, () => id, () => mode, () => $route.params.configId],
+  () => {
+    void handleConfig(configProp)
   },
   {
     deep: true,
@@ -167,7 +203,7 @@ function validateField(fieldName: string, value: any, config?: IPicGoPluginConfi
 function validateForm(): boolean {
   const errors: IStringKeyMap = {}
 
-  const configNameError = validateField('_configName', ruleForm._configName)
+  const configNameError = mode === 'picbed' ? validateField('_configName', ruleForm._configName) : null
   if (configNameError) {
     errors._configName = configNameError
   }
@@ -192,14 +228,11 @@ function clearFieldError(fieldName: string) {
 }
 
 async function validate(): Promise<IStringKeyMap | false> {
-  return new Promise(resolve => {
-    const isValid = validateForm()
-    if (isValid) {
-      resolve(ruleForm)
-    } else {
-      resolve(false)
-    }
-  })
+  if (isLoading.value || loadFailed.value) return false
+  if (validateForm()) return ruleForm
+  await nextTick()
+  formRef.value?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+  return false
 }
 
 function getConfigType() {
@@ -219,44 +252,31 @@ function getConfigType() {
 }
 
 async function handleConfig(val: IPicGoPluginConfig[]) {
-  const config = await getCurConfigFormData()
-  const configId = mode === 'picbed' ? $route.params.configId : null
-
-  Object.assign(ruleForm, config)
-
-  if (val.length > 0) {
+  const version = ++loadVersion
+  isLoading.value = true
+  loadFailed.value = false
+  try {
+    const config = await getCurConfigFormData()
+    if (version !== loadVersion) return
+    for (const key of Object.keys(ruleForm)) delete ruleForm[key]
+    for (const key of Object.keys(validationErrors)) delete validationErrors[key]
+    Object.assign(ruleForm, config)
     configList.value = cloneDeep(val).map(item => {
-      // For plugin mode, don't check configId
-      if (mode === 'plugin' || !configId) {
-        let defaultValue = item.default !== undefined ? item.default : item.type === 'checkbox' ? [] : null
-
-        if (item.type === 'checkbox') {
-          const defaults = item.choices?.filter((i: any) => i.checked).map((i: any) => i.value) || []
-          defaultValue = union(defaultValue, defaults)
-        }
-
-        if (config && config[item.name] !== undefined) {
-          defaultValue = config[item.name]
-        }
-
-        ruleForm[item.name] = defaultValue
-        return item
-      }
-
       let defaultValue = item.default !== undefined ? item.default : item.type === 'checkbox' ? [] : null
-
       if (item.type === 'checkbox') {
         const defaults = item.choices?.filter((i: any) => i.checked).map((i: any) => i.value) || []
-        defaultValue = union(defaultValue, defaults)
+        defaultValue = union(Array.isArray(defaultValue) ? defaultValue : [], defaults)
       }
-
-      if (config && config[item.name] !== undefined) {
+      if (config[item.name] !== undefined) {
         defaultValue = config[item.name]
       }
-
       ruleForm[item.name] = defaultValue
       return item
     })
+  } catch {
+    if (version === loadVersion) loadFailed.value = true
+  } finally {
+    if (version === loadVersion) isLoading.value = false
   }
 }
 
@@ -265,23 +285,28 @@ async function getCurConfigFormData() {
     return (await getConfig<IStringKeyMap>(getConfigType())) || {}
   } else {
     const configId = $route.params.configId
-    const curTypeConfigList = (await getConfig<IStringKeyMap[]>(`uploader.${id}.configList`)) || []
-    return curTypeConfigList.find(i => i._id === configId) || {}
+    if (!configId) return {}
+    const curTypeConfigList = await getConfig<IStringKeyMap[]>(`uploader.${id}.configList`)
+    const selected = Array.isArray(curTypeConfigList) ? curTypeConfigList.find(i => i?._id === configId) : undefined
+    if (!selected) throw new Error('The selected configuration is unavailable')
+    return selected
   }
 }
 
 function updateRuleForm(key: string, value: any) {
-  try {
-    ruleForm[key] = value
-    clearFieldError(key)
-  } catch (e) {
-    console.log(e)
-  }
+  if (isLoading.value || loadFailed.value) return false
+  ruleForm[key] = value
+  clearFieldError(key)
+  return true
 }
+
+onBeforeUnmount(() => loadVersion++)
 
 defineExpose({
   updateRuleForm,
   validate,
   getConfigType,
+  isLoading,
+  loadFailed,
 })
 </script>

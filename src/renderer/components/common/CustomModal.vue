@@ -1,25 +1,32 @@
 <template>
-  <Teleport to="body">
-    <Transition
-      appear
-      enter-active-class="transition-opacity duration-200 ease-apple motion-reduce:transition-none"
-      leave-active-class="transition-opacity duration-200 ease-apple motion-reduce:transition-none"
-      enter-from-class="opacity-0"
-      leave-to-class="opacity-0"
+  <TransitionRoot
+    :show="visible"
+    as="template"
+    appear
+    enter="transition-opacity duration-200 ease-apple motion-reduce:transition-none"
+    leave="transition-opacity duration-200 ease-apple motion-reduce:transition-none"
+    enter-from="opacity-0"
+    leave-to="opacity-0"
+    @after-leave="restoreFocus"
+  >
+    <Dialog
+      v-bind="$attrs"
+      static
+      :open="visible && isTopmost"
+      :aria-hidden="!isTopmost || undefined"
+      :inert="!isTopmost || undefined"
+      :data-dialog-id="dialogId"
+      class="fixed inset-0 z-1000 flex items-center justify-center overflow-hidden overscroll-none bg-black/30"
+      :class="{ 'advanced-animation': enableAdvancedAnimation }"
+      :aria-label="$attrs['aria-label'] || ($slots.header ? title || description || undefined : undefined)"
+      :initial-focus="dialogElement"
+      @close="handleClose"
     >
-      <div
-        v-if="visible"
-        v-bind="$attrs"
-        class="fixed inset-0 z-1000 flex items-center justify-center overflow-hidden overscroll-none bg-black/30"
-        :class="{ 'advanced-animation': enableAdvancedAnimation }"
-        @click.stop
-      >
+      <DialogPanel class="flex h-full w-full items-center justify-center" @click.stop>
         <div
+          ref="dialogElement"
+          tabindex="-1"
           class="m-auto flex min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border border-border-secondary bg-bg-tertiary shadow-xl"
-          role="dialog"
-          aria-modal="true"
-          :aria-label="title || description || undefined"
-          :aria-describedby="description && !$slots.header ? descriptionId : undefined"
           :style="dialogStyle"
         >
           <div
@@ -27,12 +34,12 @@
           >
             <div class="min-w-0 flex-1">
               <slot name="header">
-                <h3 v-if="title" class="m-0 text-xl font-semibold text-main">
+                <DialogTitle v-if="title" as="h3" class="m-0 text-xl font-semibold text-main">
                   {{ title }}
-                </h3>
-                <p v-if="description" :id="descriptionId" class="mt-1 text-sm text-secondary">
+                </DialogTitle>
+                <DialogDescription v-if="description" as="p" class="mt-1 text-sm text-secondary">
                   {{ description }}
-                </p>
+                </DialogDescription>
               </slot>
             </div>
             <button
@@ -55,22 +62,26 @@
             <slot name="footer" />
           </div>
         </div>
-      </div>
-    </Transition>
-  </Teleport>
+      </DialogPanel>
+    </Dialog>
+  </TransitionRoot>
 </template>
 
 <script setup lang="ts">
+import { Dialog, DialogDescription, DialogPanel, DialogTitle, TransitionRoot } from '@headlessui/vue'
 import { XIcon } from '@lucide/vue'
-import { computed, ref, useId, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { configPaths } from '@/utils/configPaths'
 import { getConfig } from '@/utils/dataSender'
 
+import { useDialogFocus } from './useDialogFocus'
+
 defineOptions({ inheritAttrs: false })
 
 const visible = defineModel<boolean>('visible', { required: true })
+const { dialogId, isTopmost, restoreFocus } = useDialogFocus(visible)
 const {
   title = '',
   description = '',
@@ -92,7 +103,7 @@ const {
 }>()
 
 const { t } = useI18n()
-const descriptionId = `modal-description-${useId()}`
+const dialogElement = ref<HTMLElement | null>(null)
 const enableAdvancedAnimation = ref(false)
 const dialogStyle = computed(() => ({
   height,

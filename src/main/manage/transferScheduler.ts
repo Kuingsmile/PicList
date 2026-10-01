@@ -64,6 +64,8 @@ export class TransferScheduler {
   private activeSlots = 0
   private activeMemory = 0
   private draining = false
+  private closing = false
+  private shutdownWaiters: (() => void)[] = []
 
   constructor(limits: Partial<TransferLimits> = {}) {
     this.limits = { ...DEFAULT_TRANSFER_LIMITS }
@@ -71,12 +73,13 @@ export class TransferScheduler {
   }
 
   configure(limits: Partial<TransferLimits>): void {
+    const next = { ...this.limits, ...limits }
     this.limits = {
-      globalConcurrency: positiveInteger(limits.globalConcurrency, DEFAULT_TRANSFER_LIMITS.globalConcurrency, 64),
-      accountConcurrency: positiveInteger(limits.accountConcurrency, DEFAULT_TRANSFER_LIMITS.accountConcurrency, 64),
-      memoryBytes: positiveInteger(limits.memoryBytes, DEFAULT_TRANSFER_LIMITS.memoryBytes),
+      globalConcurrency: positiveInteger(next.globalConcurrency, DEFAULT_TRANSFER_LIMITS.globalConcurrency, 64),
+      accountConcurrency: positiveInteger(next.accountConcurrency, DEFAULT_TRANSFER_LIMITS.accountConcurrency, 64),
+      memoryBytes: positiveInteger(next.memoryBytes, DEFAULT_TRANSFER_LIMITS.memoryBytes),
       multipartConcurrency: positiveInteger(
-        limits.multipartConcurrency,
+        next.multipartConcurrency,
         DEFAULT_TRANSFER_LIMITS.multipartConcurrency,
         64,
       ),
@@ -94,7 +97,7 @@ export class TransferScheduler {
       const cancel = () => this.cancel(job.id)
       job.signal?.addEventListener('abort', cancel, { once: true })
       transfer.detach = () => job.signal?.removeEventListener('abort', cancel)
-      if (job.signal?.aborted) cancel()
+      if (job.signal?.aborted || this.closing) cancel()
       else this.drain()
     })
   }
@@ -103,7 +106,12 @@ export class TransferScheduler {
     const transfer = this.jobs.get(id)
     if (!transfer || transfer.controller.signal.aborted) return false
     transfer.controller.abort()
-    transfer.job.onCancel?.()
+    try {
+      transfer.job.onCancel?.()
+    } catch {
+      // A status observer must not prevent cancellation or retain its reservation.
+      console.error('Transfer cancellation status update failed')
+    }
     if (!transfer.resources) {
       this.pending.splice(this.pending.indexOf(transfer), 1)
       this.finish(transfer, { success: false, status: 'canceled', reason: 'aborted' })
@@ -113,24 +121,41 @@ export class TransferScheduler {
     return true
   }
 
+  shutdown(): Promise<void> {
+    this.closing = true
+    // Abort queued jobs before providers settle so shutdown can never admit more work.
+    for (const id of this.jobs.keys()) this.cancel(id)
+    if (!this.jobs.size) return Promise.resolve()
+    return new Promise(resolve => this.shutdownWaiters.push(resolve))
+  }
+
   private finish(transfer: PendingTransfer, outcome: TransferOutcome): void {
     this.jobs.delete(transfer.job.id)
     transfer.detach()
     try {
       transfer.job.onFinish?.(outcome)
+    } catch {
+      // Always settle and admit the next job even if its UI/persistence observer failed.
+      console.error('Transfer completion status update failed')
     } finally {
       transfer.resolve(outcome)
+      if (!this.jobs.size) {
+        for (const resolve of this.shutdownWaiters.splice(0)) resolve()
+      }
     }
   }
 
   private drain(): void {
-    if (this.draining) return
+    if (this.draining || this.closing) return
     this.draining = true
     try {
       for (let index = 0; index < this.pending.length;) {
         const transfer = this.pending[index]
         const { job } = transfer
-        const accountLimit = Math.min(this.limits.accountConcurrency, job.accountConcurrency ?? Infinity)
+        const accountLimit = Math.min(
+          this.limits.accountConcurrency,
+          positiveInteger(job.accountConcurrency, this.limits.accountConcurrency, 64),
+        )
         let resources: TransferResources
         try {
           resources = job.resources({ ...this.limits, accountConcurrency: accountLimit })

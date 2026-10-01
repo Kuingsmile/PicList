@@ -12,6 +12,7 @@ export interface UploadJobOptions {
   profile?: IUploadOptions
   signal?: AbortSignal
   timeoutMs?: number
+  onProgress?: (event: IUploadProgress) => void
 }
 
 export interface UploadJobContext {
@@ -67,6 +68,7 @@ export class UploadJob {
   private readonly controller = new AbortController()
   private readonly externalSignal?: AbortSignal
   private readonly timeoutMs: number
+  private readonly onProgress?: UploadJobOptions['onProgress']
   private started = false
   private settled = false
   private failureReason: unknown
@@ -79,6 +81,7 @@ export class UploadJob {
       requestedProfile: Object.freeze({ ...options.profile }),
     })
     this.externalSignal = options.signal
+    this.onProgress = options.onProgress
     this.timeoutMs =
       Number.isFinite(options.timeoutMs) && options.timeoutMs! > 0 ? options.timeoutMs! : UPLOAD_TIMEOUT_MS
     // A batch can have many rename dialogs, each owning an abort subscription.
@@ -135,6 +138,12 @@ export class UploadJob {
     }
     if (status === 'uploading') activeProgress.set(event.jobId, event)
     else activeProgress.delete(event.jobId)
+    try {
+      this.onProgress?.(event)
+    } catch {
+      // Progress observers do not own the transfer and must not fail it.
+      console.error('Upload progress status update failed')
+    }
 
     // The owner still receives its own events. Observers never become owners
     // and closing one must not cancel an upload started in another window.

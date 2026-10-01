@@ -1,86 +1,51 @@
 <template>
-  <Teleport to="body">
-    <Transition
-      name="inputbox-fade"
-      enter-active-class="transition-all duration-200 ease-apple"
-      leave-active-class="transition-all duration-200 ease-apple"
-      enter-from-class="opacity-0"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="showInputBoxVisible"
-        class="fixed inset-0 z-1000 flex items-center justify-center overflow-y-auto bg-black/30"
-        :class="{ 'advanced-animation': enableAdvancedAnimation }"
-      >
-        <Transition name="inputbox-scale">
-          <div
-            v-if="showInputBoxVisible"
-            class="fkex-col relative m-auto flex w-full max-w-[30rem] flex-col overflow-hidden rounded-2xl border border-border-secondary bg-bg-tertiary shadow-xl"
-            @click.stop
-          >
-            <button
-              class="absolute top-4 right-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-elevated text-secondary transition-all duration-fast ease-apple hover:scale-105 hover:border-danger hover:bg-danger hover:text-white focus-visible:focus-ring"
-              @click="handleInputBoxCancel"
-            >
-              <XIcon :size="20" />
-            </button>
-
-            <div class="p-4">
-              <h3 class="mb-4 pr-8 text-lg leading-[1.4] font-semibold text-main">
-                {{ inputBoxOptions.title || t('pages.inputBox.title') }}
-              </h3>
-
-              <div class="relative">
-                <textarea
-                  v-if="inputBoxOptions.multiLine"
-                  ref="textareaRef"
-                  v-model="inputBoxValue"
-                  :placeholder="inputBoxOptions.placeholder"
-                  class="max-h-[20rem] min-h-[6rem] w-full resize-y rounded-sm border border-border bg-bg-tertiary p-4 font-[inherit] text-[0.9375rem] text-main transition-all duration-fast ease-apple outline-none placeholder:text-secondary hover:border-accent focus:border-accent focus:bg-surface"
-                  rows="4"
-                  @keyup.ctrl.enter="handleInputBoxConfirm"
-                  @keyup.meta.enter="handleInputBoxConfirm"
-                  @keyup.escape="handleInputBoxCancel"
-                />
-                <input
-                  v-else
-                  ref="inputRef"
-                  v-model="inputBoxValue"
-                  :placeholder="inputBoxOptions.placeholder"
-                  class="w-full rounded-sm border border-border bg-bg-tertiary p-4 font-[inherit] text-[0.9375rem] text-main transition-all duration-fast ease-apple outline-none placeholder:text-secondary hover:border-accent focus:border-accent focus:bg-surface"
-                  type="text"
-                  @keyup.enter="handleInputBoxConfirm"
-                  @keyup.escape="handleInputBoxCancel"
-                />
-              </div>
-            </div>
-
-            <div class="flex flex-wrap justify-center gap-3 p-2">
-              <CustomButton type="secondary" :text="t('common.cancel')" @click="handleInputBoxCancel" />
-              <CustomButton
-                :disabled="!inputBoxValue.trim()"
-                :text="t('common.confirm')"
-                @click="handleInputBoxConfirm"
-              />
-            </div>
-          </div>
-        </Transition>
-      </div>
-    </Transition>
-  </Teleport>
+  <CustomModal
+    :visible="showInputBoxVisible"
+    :title="inputBoxOptions.title || t('pages.inputBox.title')"
+    height="auto"
+    width="calc(100vw - 2rem)"
+    max-width="30rem"
+    @update:visible="value => !value && handleInputBoxCancel()"
+  >
+    <div class="p-4">
+      <textarea
+        v-if="inputBoxOptions.multiLine"
+        ref="textareaRef"
+        v-model="inputBoxValue"
+        :placeholder="inputBoxOptions.placeholder"
+        :aria-label="inputBoxOptions.title || t('pages.inputBox.title')"
+        class="max-h-[20rem] min-h-[6rem] w-full resize-y rounded-sm border border-border bg-bg-tertiary p-4 font-[inherit] text-[0.9375rem] text-main transition-all duration-fast ease-apple outline-none placeholder:text-secondary hover:border-accent focus:border-accent focus:bg-surface"
+        rows="4"
+        @keyup.ctrl.enter="handleInputBoxConfirm"
+        @keyup.meta.enter="handleInputBoxConfirm"
+      />
+      <input
+        v-else
+        ref="inputRef"
+        v-model="inputBoxValue"
+        :placeholder="inputBoxOptions.placeholder"
+        :aria-label="inputBoxOptions.title || t('pages.inputBox.title')"
+        class="w-full rounded-sm border border-border bg-bg-tertiary p-4 font-[inherit] text-[0.9375rem] text-main transition-all duration-fast ease-apple outline-none placeholder:text-secondary hover:border-accent focus:border-accent focus:bg-surface"
+        type="text"
+        @keyup.enter="handleInputBoxConfirm"
+      />
+    </div>
+    <template #footer>
+      <CustomButton type="secondary" :text="t('common.cancel')" @click="handleInputBoxCancel" />
+      <CustomButton :disabled="!inputBoxValue.trim()" :text="t('common.confirm')" @click="handleInputBoxConfirm" />
+    </template>
+  </CustomModal>
 </template>
 
 <script lang="ts" setup>
-import { XIcon } from '@lucide/vue'
 import { nextTick, onBeforeMount, onBeforeUnmount, reactive, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
+import CustomModal from '@/components/common/CustomModal.vue'
 import $bus from '@/utils/bus'
-import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
-import { getConfig } from '@/utils/dataSender'
+import { CANCEL_INPUT_BOX, SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '@/utils/constant'
 
-const enableAdvancedAnimation = ref(false)
 const { t } = useI18n()
 const inputBoxValue = ref('')
 const showInputBoxVisible = ref(false)
@@ -93,12 +58,45 @@ const inputBoxOptions = reactive({
 })
 
 let removeInputBoxListenerCallback: () => void = () => {}
+let removeInputBoxCancellationCallback: () => void = () => {}
+interface InputBoxRequest {
+  options: IShowInputBoxOption
+  requestId?: string
+  fromMain: boolean
+}
+const pendingRequests: InputBoxRequest[] = []
+let currentRequest: InputBoxRequest | undefined
+let disposed = false
 
-function handleIpcInputBoxEvent(options: IShowInputBoxOption) {
-  initInputBoxValue(options)
+function handleIpcInputBoxEvent(options: IShowInputBoxOption, requestId?: string) {
+  enqueueInputBox({ options, requestId, fromMain: true })
 }
 
-async function initInputBoxValue(options: IShowInputBoxOption) {
+function handleLocalInputBoxEvent(options: IShowInputBoxOption) {
+  enqueueInputBox({ options, fromMain: false })
+}
+
+function handleInputBoxCancellation(requestId: string) {
+  for (let index = pendingRequests.length - 1; index >= 0; index--) {
+    if (pendingRequests[index].requestId === requestId) pendingRequests.splice(index, 1)
+  }
+  if (currentRequest?.fromMain && currentRequest.requestId === requestId) {
+    currentRequest = undefined
+    showInputBoxVisible.value = false
+    void nextTick().then(showNextInputBox)
+  }
+}
+
+function enqueueInputBox(request: InputBoxRequest) {
+  if (disposed) return
+  pendingRequests.push(request)
+  if (!currentRequest) void showNextInputBox()
+}
+
+async function showNextInputBox() {
+  if (disposed || currentRequest || !pendingRequests.length) return
+  currentRequest = pendingRequests.shift()!
+  const { options } = currentRequest
   inputBoxValue.value = options.value || ''
   inputBoxOptions.title = options.title || ''
   inputBoxOptions.placeholder = options.placeholder || ''
@@ -106,6 +104,7 @@ async function initInputBoxValue(options: IShowInputBoxOption) {
   showInputBoxVisible.value = true
 
   await nextTick()
+  if (disposed || !showInputBoxVisible.value) return
   if (inputBoxOptions.multiLine) {
     textareaRef.value?.focus()
     textareaRef.value?.select()
@@ -116,32 +115,47 @@ async function initInputBoxValue(options: IShowInputBoxOption) {
 }
 
 function handleInputBoxCancel() {
-  // TODO: RPCServer
-  showInputBoxVisible.value = false
-  window.electron.sendToMain(SHOW_INPUT_BOX, '')
-  $bus.emit(SHOW_INPUT_BOX_RESPONSE, '')
+  finishInputBox('')
 }
 
 function handleInputBoxConfirm() {
-  showInputBoxVisible.value = false
-  window.electron.sendToMain(SHOW_INPUT_BOX, inputBoxValue.value)
-  $bus.emit(SHOW_INPUT_BOX_RESPONSE, inputBoxValue.value)
+  if (!inputBoxValue.value.trim()) return
+  finishInputBox(inputBoxValue.value)
 }
 
-async function initConf() {
-  const settingConfig = await getConfig<any>('settings')
-  enableAdvancedAnimation.value = settingConfig?.enableAdvancedAnimation || false
+function respondToRequest(request: InputBoxRequest, value: string) {
+  if (request.fromMain) {
+    window.electron.sendToMain(SHOW_INPUT_BOX, value, request.requestId)
+  } else {
+    // Local URL input belongs to the upload page; plugin replies must never start URL uploads.
+    $bus.emit(SHOW_INPUT_BOX_RESPONSE, value)
+  }
+}
+
+function finishInputBox(value: string) {
+  if (!currentRequest) return
+  const request = currentRequest
+  currentRequest = undefined
+  showInputBoxVisible.value = false
+  respondToRequest(request, value)
+  void nextTick().then(showNextInputBox)
 }
 
 onBeforeMount(() => {
-  initConf()
+  removeInputBoxCancellationCallback = window.electron.ipcRendererOn(CANCEL_INPUT_BOX, handleInputBoxCancellation)
   removeInputBoxListenerCallback = window.electron.ipcRendererOn(SHOW_INPUT_BOX, handleIpcInputBoxEvent)
-  $bus.on(SHOW_INPUT_BOX, initInputBoxValue)
+  $bus.on(SHOW_INPUT_BOX, handleLocalInputBoxEvent)
 })
 
 onBeforeUnmount(() => {
+  disposed = true
   removeInputBoxListenerCallback()
-  $bus.off(SHOW_INPUT_BOX)
+  removeInputBoxCancellationCallback()
+  $bus.off(SHOW_INPUT_BOX, handleLocalInputBoxEvent)
+  const requests = currentRequest ? [currentRequest, ...pendingRequests] : [...pendingRequests]
+  currentRequest = undefined
+  pendingRequests.length = 0
+  for (const request of requests) respondToRequest(request, '')
 })
 </script>
 

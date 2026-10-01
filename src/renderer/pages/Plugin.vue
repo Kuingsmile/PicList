@@ -283,7 +283,11 @@
       </div>
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />
-        <CustomButton :text="t('common.confirm')" @click="handleConfirmConfig" />
+        <CustomButton
+          :text="t('common.confirm')"
+          :disabled="!$configForm || $configForm.isLoading || $configForm.loadFailed"
+          @click="handleConfirmConfig"
+        />
       </template>
     </CustomModal>
 

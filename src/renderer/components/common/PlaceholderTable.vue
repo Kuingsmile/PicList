@@ -8,10 +8,11 @@
           {{ titleList[key] }}
         </div>
         <div class="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-0 py-2">
-          <div
+          <button
             v-for="item in list[key]"
             :key="item.value"
-            class="m-0 flex cursor-pointer items-center rounded-none px-4 py-2 text-sm leading-[1.4] hover:bg-accent/5"
+            type="button"
+            class="m-0 flex cursor-pointer items-center rounded-none px-4 py-2 text-left text-sm leading-[1.4] hover:bg-accent/5"
             @click="copyPlaceholder(item.value)"
           >
             <code
@@ -19,7 +20,7 @@
               >{{ item.value }}</code
             >
             <span class="flex-1 font-medium text-main">{{ item.label }}</span>
-          </div>
+          </button>
         </div>
       </div>
     </template>

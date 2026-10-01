@@ -1,17 +1,20 @@
 <template>
   <div class="w-full rounded-lg border border-border bg-bg-secondary p-6 shadow-sm">
-    <div class="mb-2 flex items-start gap-3">
+    <div
+      v-if="title || description || icon || $slots.title || $slots.description || $slots.icon"
+      class="mb-2 flex items-start gap-3"
+    >
       <div
-        v-if="icon"
+        v-if="icon || $slots.icon"
         class="mb-2 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-lg bg-accent text-white"
       >
         <slot name="icon">
-          <component :is="icon" :size="iconSize" />
+          <component :is="icon" :size="iconSize" aria-hidden="true" />
         </slot>
       </div>
-      <div>
+      <div class="min-w-0 wrap-break-word">
         <slot name="title"
-          ><h2 class="mb-2 text-lg font-semibold text-main">{{ title }}</h2></slot
+          ><h2 v-if="title" class="mb-2 text-lg font-semibold text-main">{{ title }}</h2></slot
         >
         <slot name="description">
           <p v-if="description !== ''" class="mb-6 text-sm text-secondary">
@@ -29,6 +32,8 @@
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
+
 const {
   title = '',
   description = '',
@@ -38,7 +43,7 @@ const {
 } = defineProps<{
   title?: string
   description?: string
-  icon?: any
+  icon?: Component | null
   iconSize?: number
   onlyOneRow?: boolean
 }>()

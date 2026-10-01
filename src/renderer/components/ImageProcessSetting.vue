@@ -344,11 +344,13 @@
                   <div class="flex flex-wrap gap-4">
                     <CustomRadioOption
                       v-model="form.watermark.watermarkType"
+                      name="watermark-type"
                       value="text"
                       :title="t('pages.imageProcess.watermark.text')"
                     />
                     <CustomRadioOption
                       v-model="form.watermark.watermarkType"
+                      name="watermark-type"
                       value="image"
                       :title="t('pages.imageProcess.watermark.image')"
                     />

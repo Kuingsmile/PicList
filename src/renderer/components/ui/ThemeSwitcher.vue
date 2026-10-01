@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Monitor, Moon, Sun } from '@lucide/vue'
-import { computed, onBeforeMount, ref } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
+import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import useMessage from '@/hooks/useMessage'
 import { configPaths } from '@/utils/configPaths'
 import { getConfig, saveConfig } from '@/utils/dataSender'
 
@@ -13,11 +15,31 @@ interface Props {
 defineProps<Props>()
 
 const { t } = useI18n()
-const currentTheme = ref<'light' | 'dark' | 'system'>('light')
+const message = useMessage()
+const currentTheme = ref<'light' | 'dark' | 'system'>('system')
+const busy = ref(true)
+const prefersDark = useMediaQuery('(prefers-color-scheme: dark)')
+let isUnmounted = false
+
+function applyTheme(theme: 'light' | 'dark' | 'system') {
+  const resolvedTheme = theme === 'system' ? (prefersDark.value ? 'dark' : 'light') : theme
+  document.documentElement.classList.remove('light', 'dark', 'system')
+  document.documentElement.classList.add(resolvedTheme)
+  document.documentElement.setAttribute('data-theme', resolvedTheme)
+}
 
 async function initializeTheme() {
-  const savedTheme = (await getConfig<'light' | 'dark' | 'system'>(configPaths.settings.systemTheme)) || 'system'
-  currentTheme.value = savedTheme
+  try {
+    const savedTheme = await getConfig<string>(configPaths.settings.systemTheme)
+    if (!isUnmounted) {
+      currentTheme.value = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'system'
+      applyTheme(currentTheme.value)
+    }
+  } catch {
+    if (!isUnmounted) message.error(t('pages.settings.system.applyThemeFailed'))
+  } finally {
+    if (!isUnmounted) busy.value = false
+  }
 }
 
 const themeOptions = computed(() => [
@@ -46,21 +68,29 @@ const currentThemeOption = computed(
 )
 
 async function toggleTheme() {
+  if (busy.value || isUnmounted) return
   const themes = ['light', 'dark', 'system'] as const
   const currentIndex = themes.indexOf(currentTheme.value)
   const nextTheme = themes[(currentIndex + 1) % themes.length]
-  currentTheme.value = nextTheme
-  document.documentElement.classList.remove('light', 'dark', 'system')
-  if (nextTheme === 'system') {
-    const systemTheme = (await window.electron.triggerRPC<'light' | 'dark'>('GET_SYSTEM_THEME')) || 'light'
-    document.documentElement.classList.add(systemTheme)
-    document.documentElement.setAttribute('data-theme', systemTheme)
-  } else {
-    document.documentElement.classList.add(nextTheme)
-    document.documentElement.setAttribute('data-theme', nextTheme)
+  busy.value = true
+  try {
+    if (!(await saveConfig({ [configPaths.settings.systemTheme]: nextTheme })) || isUnmounted) return
+    currentTheme.value = nextTheme
+    applyTheme(nextTheme)
+  } catch {
+    if (!isUnmounted) message.error(t('pages.settings.system.applyThemeFailed'))
+  } finally {
+    if (!isUnmounted) busy.value = false
   }
-  await saveConfig({ [configPaths.settings.systemTheme]: nextTheme })
 }
+
+watch(prefersDark, () => {
+  if (!isUnmounted && currentTheme.value === 'system') applyTheme('system')
+})
+
+onBeforeUnmount(() => {
+  isUnmounted = true
+})
 
 onBeforeMount(() => {
   initializeTheme()
@@ -70,12 +100,16 @@ onBeforeMount(() => {
 <template>
   <div class="relative flex items-center">
     <button
-      class="flex cursor-pointer items-center gap-2 rounded-md border border-border-secondary bg-bg-secondary px-3 py-2 text-sm text-secondary transition-all duration-fast ease-standard hover:bg-accent/30 hover:text-white max-md:justify-center max-md:gap-0 max-md:p-2 [.collapsed]:justify-center [.collapsed]:gap-0 [.collapsed]:p-2"
+      type="button"
+      :disabled="busy"
+      :aria-busy="busy || undefined"
+      :aria-label="`${t('settings.theme.toggle')}: ${currentThemeOption.label}`"
+      class="flex cursor-pointer items-center gap-2 rounded-md border border-border-secondary bg-bg-secondary px-3 py-2 text-sm text-secondary transition-all duration-fast ease-standard not-disabled:hover:bg-accent/30 not-disabled:hover:text-main disabled:cursor-wait disabled:opacity-60 max-md:justify-center max-md:gap-0 max-md:p-2 [.collapsed]:justify-center [.collapsed]:gap-0 [.collapsed]:p-2"
       :class="{ collapsed }"
       :title="t('settings.theme.toggle')"
       @click="toggleTheme"
     >
-      <component :is="currentThemeOption.icon" :size="18" />
+      <component :is="currentThemeOption.icon" :size="18" aria-hidden="true" />
       <span v-if="!collapsed" class="font-medium max-md:hidden">{{ currentThemeOption.label }}</span>
     </button>
   </div>

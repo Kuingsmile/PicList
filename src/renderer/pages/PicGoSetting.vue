@@ -1307,6 +1307,14 @@ const currentEditFile = ref('')
 
 const latestVersion = ref('')
 const latestVersionError = ref(false)
+let updateCheckController: AbortController | undefined
+watch(
+  checkUpdateVisible,
+  visible => {
+    if (!visible) updateCheckController?.abort()
+  },
+  { flush: 'sync' },
+)
 const releaseNotes = ref('')
 const releaseNotesError = ref('')
 const releaseNotesLastFetch = ref<Date | null>(null)
@@ -2130,11 +2138,17 @@ async function fetchReleaseNotesManually(): Promise<void> {
 }
 
 async function checkUpdate() {
+  updateCheckController?.abort()
+  const controller = new AbortController()
+  updateCheckController = controller
   latestVersion.value = ''
   latestVersionError.value = false
   checkUpdateVisible.value = true
-  latestVersion.value = await getLatestVersion()
-  latestVersionError.value = !latestVersion.value
+  const version = await getLatestVersion(controller.signal)
+  if (updateCheckController !== controller || controller.signal.aborted) return
+  latestVersion.value = version
+  latestVersionError.value = !version
+  updateCheckController = undefined
 }
 
 function confirmCheckVersion() {
@@ -2256,6 +2270,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  updateCheckController?.abort()
   settingsWatchScope.stop()
   if (unbindTheme) {
     unbindTheme()

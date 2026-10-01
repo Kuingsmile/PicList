@@ -9,6 +9,9 @@ export interface UploadQueueCheckpoint {
   config: Pick<IUploadTaskQueueConfig, 'intervalS' | 'autoStart' | 'pauseOnError' | 'maxRetryCount'>
 }
 
+export const normalizeUploadInterval = (value: unknown, fallback: number): number =>
+  typeof value === 'number' && Number.isFinite(value) ? Math.max(0.1, Math.min(99999, value)) : fallback
+
 export const retainUploadHistory = (tasks: IUploadTaskItem[]): IUploadTaskItem[] =>
   retainTaskHistory(
     tasks,
@@ -126,7 +129,7 @@ export function decodeUploadCheckpoint(value: unknown, legacy: boolean): UploadQ
   return {
     taskQueue: retainUploadHistory(taskQueue),
     config: {
-      intervalS: Math.max(0.1, number(config.intervalS, 1)),
+      intervalS: normalizeUploadInterval(config.intervalS, 1),
       maxRetryCount: Math.min(10, Math.floor(number(config.maxRetryCount, 3))),
       autoStart: config.autoStart === true,
       pauseOnError: config.pauseOnError === true,

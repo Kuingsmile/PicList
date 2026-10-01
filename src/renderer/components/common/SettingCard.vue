@@ -1,5 +1,5 @@
 <template>
-  <div class="relative rounded-lg border border-border bg-bg-secondary shadow-sm" :class="p1 ? 'p-1' : 'p-4'">
+  <div class="relative min-w-0 rounded-lg border border-border bg-bg-secondary shadow-sm" :class="p1 ? 'p-1' : 'p-4'">
     <slot></slot>
     <slot name="extra"></slot>
   </div>

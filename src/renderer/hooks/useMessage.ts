@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
 
 import type { MessageOptions } from '@/components/ui/MessageToast.vue'
 
@@ -9,7 +9,7 @@ interface MessageService {
   info: (message: string, options?: Partial<MessageOptions>) => string
 }
 
-const messageServiceRef = ref<MessageService | null>(null)
+const messageServiceRef = shallowRef<MessageService | null>(null)
 
 const msgHelper = (
   message: string,
@@ -26,6 +26,9 @@ const msgHelper = (
 export function useMessage() {
   const setMessageService = (service: MessageService) => {
     messageServiceRef.value = service
+    return () => {
+      if (messageServiceRef.value === service) messageServiceRef.value = null
+    }
   }
 
   const success = (message: string, options?: Partial<MessageOptions>) => {

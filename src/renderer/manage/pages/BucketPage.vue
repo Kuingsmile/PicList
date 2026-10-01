@@ -835,6 +835,14 @@
       height="90vh"
     >
       <div class="flex h-full w-full flex-col gap-2">
+        <div
+          v-if="uploadTasks.failed.value"
+          role="status"
+          class="flex items-center justify-between gap-3 rounded-md bg-warning/10 p-3 text-sm text-main"
+        >
+          <span>{{ t('pages.manage.bucket.loadingFailed') }}</span>
+          <CustomButton type="secondary" :text="t('common.bulk.retry')" @click="uploadTasks.refresh" />
+        </div>
         <div class="flex justify-end">
           <CustomSwitch
             v-model="isUploadKeepDirStructure"
@@ -1077,6 +1085,14 @@
     >
       <div class="no-scrollbar h-full w-full flex-1 overflow-hidden rounded-md border border-border p-4 shadow-md">
         <div class="flex h-full w-full flex-col">
+          <div
+            v-if="downloadTasks.failed.value"
+            role="status"
+            class="mb-3 flex items-center justify-between gap-3 rounded-md bg-warning/10 p-3 text-sm text-main"
+          >
+            <span>{{ t('pages.manage.bucket.loadingFailed') }}</span>
+            <CustomButton type="secondary" :text="t('common.bulk.retry')" @click="downloadTasks.refresh" />
+          </div>
           <!-- Download Tasks Tabs -->
           <div class="flex flex-1 flex-col gap-2 overflow-hidden border-t border-border-secondary">
             <div class="flex shrink-0 border-b border-b-border">
@@ -1343,6 +1359,7 @@ import { useBulkChanges } from '@/hooks/useBulkChanges'
 import useConfirm from '@/hooks/useConfirm'
 import { useFilePreview } from '@/hooks/useFilePreview'
 import useMessage from '@/hooks/useMessage'
+import { usePolling } from '@/hooks/usePolling'
 import FileInfo from '@/manage/pages/components/FileInfo.vue'
 import IconButton from '@/manage/pages/components/IconButton.vue'
 import EmptyPage from '@/manage/pages/EmptyPage.vue'
@@ -1479,7 +1496,6 @@ async function cancelUploadTask(id: string) {
   }
 }
 
-const refreshUploadTaskId = ref<NodeJS.Timeout | undefined>(undefined)
 const uploadPanelFilesList = ref([] as any[])
 const isLoadingUploadPanelFiles = ref(false)
 const isUploadKeepDirStructure = ref(manageStore.config.settings.isUploadKeepDirStructure ?? true)
@@ -1499,7 +1515,6 @@ const lastChoosed = ref<number>(-1)
 // 自定义域名相关
 const customDomainList = ref([] as any[])
 const currentCustomDomain = ref('')
-const refreshDownloadTaskId = ref<NodeJS.Timeout | undefined>(undefined)
 // 文件预览相关
 const isShowMarkDownDialog = filePreview.visible('markdown')
 const isShowTextFileDialog = filePreview.visible('text')
@@ -1678,29 +1693,17 @@ const tableColumns = computed<FileColumn[]>(() => [
   { key: 'status', label: t('common.fileTable.task'), width: 160, value: taskLabel },
 ])
 
-// Only poll while the table needs task metadata. Ignore late responses after a scope/view change.
-watch(
-  [layoutStyle, tableActive, () => configMap.value.alias, () => configMap.value.bucketName],
-  (_, __, onCleanup) => {
-    let stopped = false
-    let timer: ReturnType<typeof setTimeout> | undefined
-    const refresh = async () => {
-      try {
-        const tasks = await window.electron.triggerRPC<IUploadTask[]>(IRPCActionType.MANAGE_GET_UPLOAD_TASK_LIST)
-        if (!stopped && !unmounted) uploadTaskList.value = tasks ?? []
-      } catch {
-        if (!stopped) uploadTaskList.value = []
-      } finally {
-        if (!stopped && !unmounted) timer = setTimeout(refresh, 1500)
-      }
-    }
-    if (layoutStyle.value === 'table' && tableActive.value) void refresh()
-    onCleanup(() => {
-      stopped = true
-      clearTimeout(timer)
-    })
-  },
-  { immediate: true },
+const uploadTasks = usePolling(
+  () => window.electron.triggerRPC<IUploadTask[]>(IRPCActionType.MANAGE_GET_UPLOAD_TASK_LIST),
+  tasks => (uploadTaskList.value = tasks ?? []),
+  () => tableActive.value && (layoutStyle.value === 'table' || isShowUploadPanel.value),
+  () => (isShowUploadPanel.value ? 300 : 1500),
+)
+const downloadTasks = usePolling(
+  () => window.electron.triggerRPC<IDownloadTask[]>(IRPCActionType.MANAGE_GET_DOWNLOAD_TASK_LIST),
+  tasks => (downloadTaskList.value = tasks ?? []),
+  () => tableActive.value && isShowDownloadPanel.value,
+  300,
 )
 
 watch([layoutStyle, searchText, tableDensity], () => {
@@ -1731,24 +1734,6 @@ watch(currentPageNumber, (newVal, oldVal) => {
   // Update previousPageNumber when currentPageNumber changes programmatically
   if (oldVal && typeof oldVal === 'number') {
     previousPageNumber.value = oldVal
-  }
-})
-
-// Watch upload panel visibility to start/stop refresh task
-watch(isShowUploadPanel, newValue => {
-  if (newValue) {
-    startRefreshUploadTask()
-  } else {
-    stopRefreshUploadTask()
-  }
-})
-
-// Watch download panel visibility to start/stop refresh task
-watch(isShowDownloadPanel, newValue => {
-  if (newValue) {
-    startRefreshDownloadTask()
-  } else {
-    stopRefreshDownloadTask()
   }
 })
 
@@ -1785,22 +1770,6 @@ function showUploadDialog() {
   isShowUploadPanel.value = true
 }
 
-function startRefreshUploadTask() {
-  stopRefreshUploadTask()
-  const generation = viewGeneration
-  refreshUploadTaskId.value = setInterval(() => {
-    window.electron.triggerRPC(IRPCActionType.MANAGE_GET_UPLOAD_TASK_LIST).then((res: any) => {
-      if (unmounted || generation !== viewGeneration || !isShowUploadPanel.value) return
-      uploadTaskList.value = res
-    })
-  }, 300)
-}
-
-function stopRefreshUploadTask() {
-  refreshUploadTaskId.value && clearInterval(refreshUploadTaskId.value)
-  refreshUploadTaskId.value = undefined
-}
-
 function handleGetWebdavConfig() {
   return manageStore.config.picBed[configMap.value.alias]
 }
@@ -1809,22 +1778,6 @@ function handleGetWebdavConfig() {
 
 function showDownloadDialog() {
   isShowDownloadPanel.value = true
-}
-
-function startRefreshDownloadTask() {
-  stopRefreshDownloadTask()
-  const generation = viewGeneration
-  refreshDownloadTaskId.value = setInterval(() => {
-    window.electron.triggerRPC(IRPCActionType.MANAGE_GET_DOWNLOAD_TASK_LIST).then((res: any) => {
-      if (unmounted || generation !== viewGeneration || !isShowDownloadPanel.value) return
-      downloadTaskList.value = res
-    })
-  }, 300)
-}
-
-function stopRefreshDownloadTask() {
-  refreshDownloadTaskId.value && clearInterval(refreshDownloadTaskId.value)
-  refreshDownloadTaskId.value = undefined
 }
 
 // 界面相关
@@ -2347,10 +2300,6 @@ function invalidateListings() {
   downloadListings.cancel()
   isLoadingData.value = false
   isLoadingDownloadData.value = false
-  stopRefreshUploadTask()
-  stopRefreshDownloadTask()
-  if (!unmounted && isShowUploadPanel.value) startRefreshUploadTask()
-  if (!unmounted && isShowDownloadPanel.value) startRefreshDownloadTask()
 }
 
 function listingIdentity(kind: ListingRequest['kind'], prefix = currentPrefix.value) {
@@ -3202,8 +3151,6 @@ onBeforeUnmount(() => {
   downloadListings.dispose()
   document.removeEventListener('keydown', handleDetectShiftKey)
   document.removeEventListener('keyup', handleDetectShiftKey)
-  stopRefreshUploadTask()
-  stopRefreshDownloadTask()
   if (scrollTimeout) clearTimeout(scrollTimeout)
 })
 </script>

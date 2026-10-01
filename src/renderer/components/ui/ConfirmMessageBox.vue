@@ -1,42 +1,76 @@
 <template>
-  <Transition name="messagebox-fade">
-    <div v-if="isOpen" class="messagebox-overlay" @click="onCancel">
-      <Transition name="messagebox-scale">
-        <div v-if="isOpen" class="messagebox-container" @click.stop>
-          <button v-if="showClose" class="messagebox-close" @click="onCancel">
-            <XIcon :size="20" />
+  <TransitionRoot
+    :show="isOpen"
+    as="template"
+    enter="messagebox-fade-enter-active"
+    enter-from="messagebox-fade-enter-from"
+    leave="messagebox-fade-leave-active"
+    leave-to="messagebox-fade-leave-to"
+    @after-leave="restoreFocus"
+  >
+    <Dialog
+      static
+      :open="isOpen && isTopmost"
+      :aria-hidden="!isTopmost || undefined"
+      :inert="!isTopmost || undefined"
+      :data-dialog-id="dialogId"
+      class="messagebox-overlay"
+      role="alertdialog"
+      :initial-focus="cancelButton"
+      @close="onCancel"
+    >
+      <TransitionChild
+        as="template"
+        enter="messagebox-scale-enter-active"
+        enter-from="messagebox-scale-enter-from"
+        leave="messagebox-scale-leave-active"
+        leave-to="messagebox-scale-leave-to"
+      >
+        <DialogPanel class="messagebox-container">
+          <button
+            v-if="showClose"
+            type="button"
+            class="messagebox-close"
+            :aria-label="t('common.close')"
+            @click="onCancel"
+          >
+            <XIcon :size="20" aria-hidden="true" />
           </button>
 
           <div class="messagebox-body">
             <div class="messagebox-main">
               <div v-if="type" class="messagebox-icon-wrapper" :class="`messagebox-icon-${type}`">
-                <component :is="iconComponent" :size="24" :stroke-width="2.5" />
+                <component :is="iconComponent" :size="24" :stroke-width="2.5" aria-hidden="true" />
               </div>
 
               <div class="messagebox-content">
-                <h3 class="messagebox-title">{{ title }}</h3>
-                <p class="messagebox-message">{{ message }}</p>
+                <DialogTitle as="h3" class="messagebox-title">{{ title || t('common.confirm') }}</DialogTitle>
+                <DialogDescription as="p" class="messagebox-message">{{ message }}</DialogDescription>
               </div>
             </div>
           </div>
 
           <div class="messagebox-actions" :class="{ center }">
-            <button class="messagebox-btn cancel-btn" @click="onCancel">
-              {{ cancelButtonText }}
+            <button ref="cancelButton" type="button" class="messagebox-btn cancel-btn" @click="onCancel">
+              {{ cancelButtonText || t('common.cancel') }}
             </button>
-            <button class="messagebox-btn confirm-btn" :class="confirmButtonClass" @click="onConfirm">
-              {{ confirmButtonText }}
+            <button type="button" class="messagebox-btn confirm-btn" :class="confirmButtonClass" @click="onConfirm">
+              {{ confirmButtonText || t('common.confirm') }}
             </button>
           </div>
-        </div>
-      </Transition>
-    </div>
-  </Transition>
+        </DialogPanel>
+      </TransitionChild>
+    </Dialog>
+  </TransitionRoot>
 </template>
 
 <script setup lang="ts">
+import { Dialog, DialogDescription, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { AlertTriangle, CheckCircle, Info, X as XIcon, XCircle } from '@lucide/vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+import { useDialogFocus } from '@/components/common/useDialogFocus'
 
 interface Props {
   isOpen: boolean
@@ -55,15 +89,18 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  title: 'Confirm',
-  confirmButtonText: 'Confirm',
-  cancelButtonText: 'Cancel',
+  title: '',
+  confirmButtonText: '',
+  cancelButtonText: '',
   showClose: true,
   center: false,
   type: undefined,
 })
 
 const emit = defineEmits<Emits>()
+const { t } = useI18n()
+const cancelButton = ref<HTMLButtonElement | null>(null)
+const { dialogId, isTopmost, restoreFocus } = useDialogFocus(() => props.isOpen)
 
 const iconComponent = computed(() => {
   switch (props.type) {
@@ -152,11 +189,13 @@ export default {
 /* Container */
 .messagebox-container {
   position: relative;
-  overflow: hidden;
+  overflow: auto;
   border: 1px solid var(--color-border);
   border-radius: 1rem;
   width: 100%;
   max-width: 26rem;
+  max-height: calc(100dvh - 2rem);
+  overscroll-behavior: contain;
   background: var(--color-surface-elevated);
   box-shadow: var(--shadow-xl);
 }
@@ -247,6 +286,7 @@ export default {
 .messagebox-content {
   flex: 1;
   min-width: 0;
+  padding-right: 0.5rem;
 }
 
 .messagebox-title {
@@ -255,6 +295,7 @@ export default {
   font-weight: 600;
   line-height: 1.4;
   color: var(--color-text-primary);
+  overflow-wrap: anywhere;
 }
 
 .messagebox-message {
@@ -262,6 +303,8 @@ export default {
   font-size: 0.9375rem;
   line-height: 1.5;
   color: var(--color-text-secondary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* Actions */

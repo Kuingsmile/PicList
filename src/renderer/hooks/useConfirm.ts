@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
 
 export interface ConfirmOptions {
   title?: string
@@ -14,11 +14,14 @@ interface ConfirmService {
   confirm: (options: ConfirmOptions) => Promise<boolean>
 }
 
-const confirmServiceRef = ref<ConfirmService | null>(null)
+const confirmServiceRef = shallowRef<ConfirmService | null>(null)
 
 export function useConfirm() {
   const setConfirmService = (service: ConfirmService) => {
     confirmServiceRef.value = service
+    return () => {
+      if (confirmServiceRef.value === service) confirmServiceRef.value = null
+    }
   }
 
   const confirm = (options: ConfirmOptions): Promise<boolean> => {

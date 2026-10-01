@@ -1,17 +1,20 @@
 <template>
   <transition name="modal">
-    <div
-      v-if="gallerySliderControl.visible"
+    <Dialog
+      :open="gallerySliderControl.visible"
       class="image-preview-modal fixed inset-0 z-1000 flex items-center justify-center outline-none"
-      tabindex="0"
       @click.stop
       @wheel="handleImageWheel"
       @keydown="handleKeydown"
+      @close="handleClose"
     >
       <div class="absolute inset-0 bg-black/50" :class="{ 'advanced-animation': enableAdvancedAnimation }" />
-      <div class="relative max-h-[90vh] max-w-[90vw] overflow-hidden rounded-xl bg-surface shadow-lg">
+      <DialogPanel
+        class="relative flex max-h-[90vh] max-w-[90vw] flex-col overflow-hidden rounded-xl bg-surface shadow-lg"
+      >
         <button
           class="absolute top-4 right-4 z-10 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-danger bg-danger/70 text-white hover:bg-danger hover:text-white"
+          :aria-label="t('common.close')"
           @click="handleClose"
         >
           <XIcon :size="24" />
@@ -19,24 +22,42 @@
 
         <!-- Zoom controls -->
         <div class="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-lg bg-black/70 p-2">
-          <button class="zoom-btn" :disabled="imagePreviewState.scale <= 0.1" @click="zoomOut">
+          <button
+            class="zoom-btn"
+            :aria-label="t('pages.gallery.zoomOut')"
+            :disabled="imagePreviewState.scale <= minimumScale || previewFailed || previewLoading"
+            @click="zoomOut"
+          >
             <span>-</span>
           </button>
           <span class="min-w-[50px] text-center text-sm font-medium text-white"
             >{{ Math.round(imagePreviewState.scale * 100) }}%</span
           >
-          <button class="zoom-btn" :disabled="imagePreviewState.scale >= 5" @click="zoomIn">
+          <button
+            class="zoom-btn"
+            :aria-label="t('pages.gallery.zoomIn')"
+            :disabled="imagePreviewState.scale >= 5 || previewFailed || previewLoading"
+            @click="zoomIn"
+          >
             <span>+</span>
           </button>
-          <button class="zoom-btn reset-btn" @click="resetImageTransform">Reset</button>
+          <button class="zoom-btn reset-btn" :disabled="previewFailed || previewLoading" @click="resetImageTransform">
+            {{ t('common.reset') }}
+          </button>
         </div>
 
-        <div class="relative flex items-center">
-          <button class="nav-button prev" :disabled="gallerySliderControl.index === 0" @click.stop="navigateImage(-1)">
+        <div class="relative flex min-h-0 items-center">
+          <button
+            class="nav-button prev"
+            :aria-label="t('pages.gallery.previousImage')"
+            :disabled="gallerySliderControl.index === 0"
+            @click.stop="navigateImage(-1)"
+          >
             <ChevronLeftIcon :size="24" />
           </button>
 
           <div
+            ref="viewerRef"
             class="relative flex h-[80vh] w-[90vw] items-center justify-center overflow-hidden bg-black select-none active:cursor-grab!"
             @mousedown="handleImageMouseDown"
             @mousemove="handleImageMouseMove"
@@ -47,19 +68,32 @@
             @touchend="handleImageTouchEnd"
           >
             <img
+              :key="previewAttempt"
               ref="previewImageRef"
               :src="currentPreviewImage?.src"
               :alt="currentPreviewImage?.intro"
               class="block h-auto max-h-none w-auto max-w-none origin-center object-contain"
               :style="imageTransformStyle"
               @load="onPreviewImageLoad"
+              @error="onPreviewImageError"
               @dragstart.prevent
               @contextmenu.prevent
             />
+            <div
+              v-if="previewLoading || previewFailed"
+              role="status"
+              class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black text-sm text-white"
+            >
+              {{ t(previewFailed ? 'pages.gallery.previewUnavailable' : 'pages.gallery.previewLoading') }}
+              <button v-if="previewFailed" class="zoom-btn reset-btn" @click="retryPreview">
+                {{ t('pages.gallery.refresh') }}
+              </button>
+            </div>
           </div>
 
           <button
             class="nav-button next"
+            :aria-label="t('pages.gallery.nextImage')"
             :disabled="gallerySliderControl.index === filterList.length - 1"
             @click.stop="navigateImage(1)"
           >
@@ -67,10 +101,12 @@
           </button>
         </div>
 
-        <div class="flex items-center justify-between border border-border-secondary px-6 py-4">
-          <h3 class="m-0 mr-4 flex-1 overflow-hidden text-base font-semibold text-ellipsis text-main">
+        <div
+          class="flex shrink-0 flex-wrap items-center justify-between gap-2 border border-border-secondary px-6 py-4 max-sm:px-3 max-sm:py-2"
+        >
+          <DialogTitle as="h3" class="m-0 mr-4 flex-1 overflow-hidden text-base font-semibold text-ellipsis text-main">
             {{ currentPreviewImage?.intro }}
-          </h3>
+          </DialogTitle>
           <div class="mr-4 text-sm font-semibold whitespace-nowrap text-main">
             {{ gallerySliderControl.index + 1 }} / {{ filterList.length }}
           </div>
@@ -78,14 +114,16 @@
             {{ t('pages.gallery.previewHelp') }}
           </div>
         </div>
-      </div>
-    </div>
+      </DialogPanel>
+    </Dialog>
   </transition>
 </template>
 
 <script setup lang="ts">
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { ChevronLeftIcon, ChevronRightIcon, XIcon } from '@lucide/vue'
-import { computed, nextTick, onMounted, reactive, ref, useTemplateRef } from 'vue'
+import { useResizeObserver } from '@vueuse/core'
+import { computed, nextTick, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { getConfig } from '@/utils/dataSender'
@@ -108,7 +146,13 @@ const { filterList, isAlwaysForceReload } = defineProps<{
 
 const { t } = useI18n()
 const previewImageRef = useTemplateRef('previewImageRef')
+const viewerRef = useTemplateRef('viewerRef')
 const enableAdvancedAnimation = ref(false)
+const previewLoading = ref(true)
+const previewFailed = ref(false)
+const previewAttempt = ref(0)
+const minimumScale = ref(0.1)
+let manuallyZoomed = false
 const imagePreviewState = reactive({
   scale: 1,
   translateX: 0,
@@ -162,17 +206,43 @@ const currentPreviewImage = computed(() => {
   return cacheBustedItem
 })
 
+watch(
+  () => [gallerySliderControl.value.visible, currentPreviewImage.value?.src] as const,
+  ([visible, src]) => {
+    previewLoading.value = !!src
+    previewFailed.value = !src
+    resetImageTransform()
+    if (visible && !filterList.length) handleClose()
+  },
+  { flush: 'post' },
+)
+useResizeObserver(viewerRef, () => {
+  if (!gallerySliderControl.value.visible) return
+  minimumScale.value = Math.min(0.1, calculateOptimalScale())
+  if (!manuallyZoomed) resetImageTransform()
+})
+watch(
+  () => filterList.length,
+  length => {
+    if (gallerySliderControl.value.index >= length) gallerySliderControl.value.index = Math.max(0, length - 1)
+  },
+)
+
 function handleImageWheel(event: WheelEvent) {
   event.preventDefault()
   const delta = event.deltaY > 0 ? -1 : 1
   const zoomFactor = 1.1
   const newScale =
-    delta > 0 ? Math.min(imagePreviewState.scale * zoomFactor, 5) : Math.max(imagePreviewState.scale / zoomFactor, 0.1)
+    delta > 0
+      ? Math.min(imagePreviewState.scale * zoomFactor, 5)
+      : Math.min(imagePreviewState.scale, Math.max(imagePreviewState.scale / zoomFactor, minimumScale.value))
 
   zoomToScale(newScale)
 }
 
 function zoomToScale(newScale: number) {
+  if (previewFailed.value || previewLoading.value) return
+  manuallyZoomed = true
   const oldScale = imagePreviewState.scale
   imagePreviewState.scale = newScale
 
@@ -222,8 +292,10 @@ function navigateImage(direction: number) {
 }
 
 function resetImageTransform() {
+  manuallyZoomed = false
   const optimalScale = calculateOptimalScale()
   imagePreviewState.scale = optimalScale
+  minimumScale.value = Math.min(0.1, optimalScale)
   imagePreviewState.translateX = 0
   imagePreviewState.translateY = 0
   imagePreviewState.isDragging = false
@@ -260,7 +332,7 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 function zoomOut() {
-  const newScale = Math.max(imagePreviewState.scale / 1.2, 0.1)
+  const newScale = Math.min(imagePreviewState.scale, Math.max(imagePreviewState.scale / 1.2, minimumScale.value))
   zoomToScale(newScale)
 }
 
@@ -381,26 +453,89 @@ function handleImageTouchEnd(event: TouchEvent) {
 }
 
 function onPreviewImageLoad() {
+  previewLoading.value = false
+  previewFailed.value = false
   nextTick(() => {
     resetImageTransform()
   })
 }
 
+function onPreviewImageError() {
+  previewFailed.value = true
+  previewLoading.value = false
+}
+
+function retryPreview() {
+  previewFailed.value = false
+  previewLoading.value = true
+  previewAttempt.value++
+}
+
 const addCacheBustParam = (url: string | undefined) => withCacheBustParam(url, Date.now())
 
 async function initConf() {
-  const settingConfig = await getConfig<any>('settings')
-  enableAdvancedAnimation.value = settingConfig.enableAdvancedAnimation || false
+  try {
+    const settingConfig = await getConfig<any>('settings')
+    enableAdvancedAnimation.value = settingConfig?.enableAdvancedAnimation || false
+  } catch {
+    // Previewing remains usable if preferences are temporarily unavailable.
+  }
 }
 
 onMounted(() => {
   initConf()
   resetImageTransform()
-  nextTick(() => {
-    const modal = document.querySelector('.image-preview-modal') as HTMLElement
-    if (modal) {
-      modal.focus()
-    }
-  })
 })
 </script>
+
+<style scoped>
+.zoom-btn,
+.nav-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 6px;
+  background: rgb(0 0 0 / 65%);
+  color: white;
+  cursor: pointer;
+}
+
+.reset-btn {
+  padding: 0 8px;
+}
+
+.nav-button {
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  transform: translateY(-50%);
+}
+
+.prev {
+  left: 12px;
+}
+
+.next {
+  right: 12px;
+}
+
+.zoom-btn:hover:not(:disabled),
+.nav-button:hover:not(:disabled) {
+  background: var(--color-accent);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+</style>

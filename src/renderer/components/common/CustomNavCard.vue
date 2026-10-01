@@ -23,9 +23,11 @@
         <component :is="icon" :size="iconSize" />
       </span>
       <component :is="clickable ? 'span' : 'div'" class="min-w-0 flex-1">
-        <span class="block text-[0.925rem] leading-[1.4] font-semibold break-words text-secondary">{{ title }}</span>
+        <span class="block text-[0.925rem] leading-[1.4] font-semibold wrap-break-word text-secondary">{{
+          title
+        }}</span>
         <slot name="description">
-          <span v-if="description" class="mt-1 block text-xs font-medium break-words text-secondary">
+          <span v-if="description" class="mt-1 block text-xs font-medium wrap-break-word text-secondary">
             {{ description }}
           </span>
         </slot>

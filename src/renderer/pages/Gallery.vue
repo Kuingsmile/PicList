@@ -38,6 +38,7 @@
             <span class="text-sm text-secondary">{{ t('pages.gallery.isAlwaysForceReload') }}</span>
             <CustomSwitch
               v-model="isAlwaysForceReload"
+              :aria-label="t('pages.gallery.isAlwaysForceReload')"
               small
               tighter
               no-border
@@ -47,7 +48,15 @@
           </div>
           <div class="flex items-center gap-2">
             <span class="text-sm text-secondary">{{ t('pages.gallery.syncDelete') }}</span>
-            <CustomSwitch v-model="deleteCloud" small tighter no-border no-hover @change="handleDeleteCloudFile" />
+            <CustomSwitch
+              v-model="deleteCloud"
+              :aria-label="t('pages.gallery.syncDelete')"
+              small
+              tighter
+              no-border
+              no-hover
+              @change="handleDeleteCloudFile"
+            />
           </div>
           <FileViewControls v-model:view-mode="viewMode" v-model:density="tableDensity" />
           <CustomButton
@@ -60,8 +69,9 @@
             type="secondary"
             :text="t('pages.gallery.refresh')"
             :icon="RefreshCwIcon"
+            :loading="galleryLoading"
             class="px-2!"
-            @click="refreshPage"
+            @click="updateGallery"
           />
         </div>
       </div>
@@ -86,9 +96,19 @@
               t('pages.gallery.dateRange')
             }}</label>
             <div class="flex w-full flex-wrap items-center gap-2 max-md:items-start">
-              <input v-model="dateRangeStart" type="date" class="date-input" placeholder="Start date" />
+              <input
+                v-model="dateRangeStart"
+                type="date"
+                class="date-input"
+                :aria-label="t('pages.gallery.dateRangeStart')"
+              />
               <span class="shrink-0 font-medium text-secondary">-</span>
-              <input v-model="dateRangeEnd" type="date" class="date-input" placeholder="End date" />
+              <input
+                v-model="dateRangeEnd"
+                type="date"
+                class="date-input"
+                :aria-label="t('pages.gallery.dateRangeEnd')"
+              />
             </div>
           </div>
 
@@ -143,8 +163,9 @@
               type="text"
               class="search-input"
               :placeholder="$t('pages.gallery.searchFilename')"
+              :aria-label="t('pages.gallery.searchFilename')"
             />
-            <button v-if="searchText" class="clear-button" @click="cleanSearch">
+            <button v-if="searchText" class="clear-button" :aria-label="t('common.clear')" @click="cleanSearch">
               <XIcon :size="15" />
             </button>
           </div>
@@ -156,26 +177,47 @@
               type="text"
               class="search-input"
               :placeholder="t('pages.gallery.searchUrl')"
+              :aria-label="t('pages.gallery.searchUrl')"
             />
-            <button v-if="searchTextURL" class="clear-button" @click="cleanSearchUrl">
+            <button v-if="searchTextURL" class="clear-button" :aria-label="t('common.clear')" @click="cleanSearchUrl">
               <XIcon :size="14" />
             </button>
           </div>
 
           <div class="flex flex-1 flex-wrap gap-3">
-            <button class="action-btn copy-btn" :class="{ active: isMultiple(choosedList) }" @click="multiCopy">
+            <button
+              class="action-btn copy-btn"
+              :disabled="!selectedCount"
+              :class="{ active: isMultiple(choosedList) }"
+              @click="multiCopy"
+            >
               <ClipboardIcon :size="16" />
               <span> {{ t('pages.gallery.copy') }}</span>
             </button>
-            <button class="action-btn edit-btn" :class="{ active: filterList.length > 0 }" @click="openBatchRename">
+            <button
+              class="action-btn edit-btn"
+              :disabled="!filterList.length"
+              :class="{ active: filterList.length > 0 }"
+              @click="openBatchRename"
+            >
               <EditIcon :size="16" />
               <span> {{ t('pages.gallery.edit') }}</span>
             </button>
-            <button class="action-btn delete-btn" :class="{ active: isMultiple(choosedList) }" @click="multiRemove">
+            <button
+              class="action-btn delete-btn"
+              :disabled="!selectedCount"
+              :class="{ active: isMultiple(choosedList) }"
+              @click="multiRemove"
+            >
               <TrashIcon :size="16" />
               <span> {{ `${t('pages.gallery.delete')}${selectedCount > 0 ? ` (${selectedCount})` : ''}` }}</span>
             </button>
-            <button class="action-btn select-btn" :class="{ active: filterList.length > 0 }" @click="toggleSelectAll">
+            <button
+              class="action-btn select-btn"
+              :disabled="!filterList.length"
+              :class="{ active: filterList.length > 0 }"
+              @click="toggleSelectAll"
+            >
               <CheckSquareIcon :size="16" />
               <span>{{ isAllSelected ? t('pages.gallery.cancel') : t('pages.gallery.selectAll') }}</span>
             </button>
@@ -186,15 +228,40 @@
       <!-- Gallery Grid -->
       <div
         class="flex min-h-[240px] w-full min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border-secondary p-4 shadow-md"
+        :aria-busy="galleryLoading"
       >
-        <div v-if="filterList.length === 0" class="flex flex-col items-center justify-center px-8 py-16 text-center">
+        <div
+          v-if="galleryLoadFailed"
+          role="status"
+          class="mb-3 flex items-center justify-between gap-3 rounded-md bg-warning/10 p-3 text-sm text-main"
+        >
+          <span>{{ t('pages.gallery.loadFailed') }}</span>
+          <CustomButton
+            type="secondary"
+            :text="t('pages.gallery.refresh')"
+            :loading="galleryLoading"
+            @click="updateGallery"
+          />
+        </div>
+        <div
+          v-if="galleryLoading && !images.length"
+          role="status"
+          class="flex flex-1 items-center justify-center gap-3 p-8 text-secondary"
+        >
+          <RefreshCwIcon :size="20" class="animate-spin" aria-hidden="true" />
+          {{ t('pages.gallery.loading') }}
+        </div>
+        <div
+          v-else-if="filterList.length === 0 && !galleryLoadFailed"
+          class="flex flex-col items-center justify-center px-8 py-16 text-center"
+        >
           <ImageIcon :size="64" class="mb-4 text-accent" />
           <h3 class="mx-0 mt-0 mb-2 text-xl font-semibold text-main">{{ t('pages.gallery.noImagesFound') }}</h3>
           <p class="m-0 text-secondary">{{ t('pages.gallery.tryAdjustingFilters') }}</p>
         </div>
 
         <FileCollection
-          v-else
+          v-else-if="filterList.length"
           :key="componentKey"
           ref="virtualScrollerRef"
           :items="filterList"
@@ -263,11 +330,17 @@
             >
               <div
                 class="relative mb-2 flex aspect-auto min-h-0 flex-1 items-center justify-center overflow-hidden border-b border-dashed border-b-accent/40"
+                role="button"
+                tabindex="0"
+                :aria-label="`${t('common.fileTable.open')}: ${item.fileName || ''}`"
+                @keydown.enter.prevent="zoomImage(index)"
+                @keydown.space.prevent="zoomImage(index)"
                 @click.stop="zoomImage(index)"
               >
                 <img
                   v-if="galleryActive"
                   :src="displayImageSources[item.key || ''] || item.src"
+                  :alt="item.fileName || ''"
                   class="h-full w-full object-contain transition-all duration-fast ease-apple"
                   :class="{ loading: !imageLoadStates[item.key || ''] }"
                   @load="onImageLoad(item)"
@@ -316,11 +389,12 @@
                     <input
                       v-model="choosedList[item.id ? item.id : '']"
                       type="checkbox"
-                      class="peer absolute h-0 w-0 cursor-pointer opacity-0"
+                      class="peer sr-only"
+                      :aria-label="t('common.fileTable.selectFile', { name: item.fileName || '' })"
                       @change="e => handleChooseImage((e.target as HTMLInputElement).checked, index)"
                     />
                     <span
-                      class="relative inline-block h-[16px] w-[16px] rounded-sm border-2 border-accent/50 transition-all duration-fast ease-apple peer-checked:border-accent-hover peer-checked:bg-accent peer-checked:after:absolute peer-checked:after:top-[-2px] peer-checked:after:left-px peer-checked:after:text-[12px] peer-checked:after:font-bold peer-checked:after:text-white peer-checked:after:content-['✓']"
+                      class="relative inline-block h-[16px] w-[16px] rounded-sm border-2 border-accent/50 transition-all duration-fast ease-apple peer-checked:border-accent-hover peer-checked:bg-accent peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent peer-checked:after:absolute peer-checked:after:top-[-2px] peer-checked:after:left-px peer-checked:after:text-[12px] peer-checked:after:font-bold peer-checked:after:text-white peer-checked:after:content-['✓']"
                     />
                   </label>
                 </div>
@@ -348,7 +422,12 @@
     <!-- Edit URL Modal -->
     <CustomModal v-model:visible="dialogVisible" height="auto" width="40%" :title="t('pages.gallery.changeImageUrl')">
       <div class="p-2">
-        <input v-model="imgInfo.imgUrl" type="text" class="form-input" placeholder="Enter new URL" />
+        <input
+          v-model="imgInfo.imgUrl"
+          type="text"
+          class="form-input"
+          :aria-label="t('pages.gallery.changeImageUrl')"
+        />
       </div>
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />
@@ -505,6 +584,13 @@ const { confirm } = useConfirm()
 const { picBedG } = usePicBed()
 
 const images = shallowRef<IGalleryItem[]>([])
+const galleryLoading = ref(false)
+const galleryLoadFailed = ref(false)
+let galleryRefreshVersion = 0
+let galleryRefreshPromise: Promise<boolean> | undefined
+let galleryRefreshRequested = false
+let galleryDisposed = false
+let loadingConfig = false
 const galleryActive = ref(true)
 let galleryDirty = false
 const virtualScrollerRef = useTemplateRef('virtualScrollerRef')
@@ -536,7 +622,7 @@ const pasteStyle = ref<string>('')
 const useShortUrl = ref<string>('longUrl')
 const isShowBatchRenameDialog = ref(false)
 const bulkChanges = useBulkChanges(async () => {
-  await updateGallery()
+  if (!(await updateGallery())) throw new Error('Gallery refresh failed')
 })
 const batchRenameMatch = ref('')
 const batchRenameReplace = ref('')
@@ -649,6 +735,8 @@ const matchedCount = computed(() => {
 const filterList = computed(() => {
   return getGallery()
 })
+const galleryItemsByKey = computed(() => new Map(filterList.value.map(item => [item.key, item])))
+const activeJxlPreviewSources = computed(() => getActiveJxlPreviewSources())
 
 const previewFilterList = computed(() => {
   if (!gallerySliderControl.value.visible) {
@@ -676,34 +764,26 @@ const selectedCount = computed(() => {
   return Object.values(choosedList).filter(v => v).length
 })
 
-const dateRange = computed({
-  get: () => {
-    if (dateRangeStart.value && dateRangeEnd.value) {
-      return [dateRangeStart.value, dateRangeEnd.value]
-    }
-    return ''
-  },
-  set: (value: string | string[]) => {
-    if (Array.isArray(value)) {
-      dateRangeStart.value = value[0] || ''
-      dateRangeEnd.value = value[1] || ''
-    } else {
-      dateRangeStart.value = ''
-      dateRangeEnd.value = ''
-    }
-  },
-})
-
 watch(pasteStyle, async newVal => {
+  if (loadingConfig) return
   await saveConfig(configPaths.settings.pasteStyle, newVal)
 })
 
 watch(useShortUrl, async newVal => {
+  if (loadingConfig) return
   await saveConfig(configPaths.settings.useShortUrl, newVal === 'shortUrl')
 })
 
-watch(filterList, items => {
+watch(filterList, (items, previous) => {
   hoverPreviewRef.value?.hide()
+  if (gallerySliderControl.value.visible) {
+    const currentKey = previous?.[gallerySliderControl.value.index]?.key
+    const index = items.findIndex(item => item.key === currentKey)
+    if (!items.length) gallerySliderControl.value.visible = false
+    else
+      gallerySliderControl.value.index =
+        index >= 0 ? index : Math.min(gallerySliderControl.value.index, items.length - 1)
+  }
   const visibleIds = new Set(items.map(item => item.id))
   Object.keys(choosedList).forEach(id => {
     if (!visibleIds.has(id)) {
@@ -783,13 +863,21 @@ function onImageError(item: IGalleryItem) {
 }
 
 async function initConf() {
-  const settingConfig = await getConfig<any>('settings')
-  pasteStyle.value = settingConfig.pasteStyle || IPasteStyle.MARKDOWN
-  useShortUrl.value = settingConfig.useShortUrl ? 'shortUrl' : 'longUrl'
-  enableAdvancedAnimation.value = settingConfig.enableAdvancedAnimation || false
-  isAlwaysForceReload.value = settingConfig.isAlwaysForceReload || false
-  deleteCloud.value = settingConfig.deleteCloudFile || false
-  galleryPicBedFilterSetting.value = settingConfig.galleryPicBedFilter || []
+  loadingConfig = true
+  try {
+    const settingConfig = (await getConfig<any>('settings')) || {}
+    pasteStyle.value = settingConfig.pasteStyle || IPasteStyle.MARKDOWN
+    useShortUrl.value = settingConfig.useShortUrl ? 'shortUrl' : 'longUrl'
+    enableAdvancedAnimation.value = settingConfig.enableAdvancedAnimation || false
+    isAlwaysForceReload.value = settingConfig.isAlwaysForceReload || false
+    deleteCloud.value = settingConfig.deleteCloudFile || false
+    galleryPicBedFilterSetting.value = settingConfig.galleryPicBedFilter || []
+    await nextTick()
+  } catch {
+    message.error(t('pages.gallery.operationFailed'))
+  } finally {
+    loadingConfig = false
+  }
 }
 
 const updateGalleryHandler = () => {
@@ -797,9 +885,7 @@ const updateGalleryHandler = () => {
     galleryDirty = true
     return
   }
-  nextTick(async () => {
-    updateGallery()
-  })
+  void updateGallery()
 }
 
 function handleOutsideClick(event: Event) {
@@ -846,7 +932,7 @@ function buildDisplayImageSrc(item: IGalleryItem) {
 
 function updateDisplayImageSource(item?: IGalleryItem) {
   if (!item?.key) return
-  if (!filterList.value.some(currentItem => currentItem.key === item.key)) return
+  if (!galleryItemsByKey.value.has(item.key)) return
   displayImageSources[item.key] = buildDisplayImageSrc(item)
 }
 
@@ -884,7 +970,7 @@ function getActiveJxlPreviewSources(items: ImgInfo[] = filterList.value) {
 }
 
 function isJxlPreviewSourceActive(previewPath: string) {
-  return getActiveJxlPreviewSources().has(previewPath)
+  return activeJxlPreviewSources.value.has(previewPath)
 }
 
 function touchJxlPreviewCache(previewPath: string) {
@@ -985,11 +1071,17 @@ function ensureJxlPreview(item?: IGalleryItem): boolean {
 }
 
 function getGallery(): IGalleryItem[] {
+  const hasDateRange = !!(dateRangeStart.value || dateRangeEnd.value)
+  const start = dateRangeStart.value ? new Date(`${dateRangeStart.value}T00:00:00`).getTime() : -Infinity
+  // The exclusive end follows the local calendar, including daylight-saving transitions.
+  const endDate = dateRangeEnd.value ? new Date(`${dateRangeEnd.value}T00:00:00`) : undefined
+  endDate?.setDate(endDate.getDate() + 1)
+  const end = endDate?.getTime() ?? Infinity
   if (
     debouncedSearchText.value ||
     choosedPicBed.value.length > 0 ||
     debouncedSearchTextURL.value ||
-    dateRange.value ||
+    hasDateRange ||
     galleryPicBedFilterSetting.value.length > 0
   ) {
     return images.value.filter(item => {
@@ -1008,10 +1100,9 @@ function getGallery(): IGalleryItem[] {
       if (debouncedSearchTextURL.value) {
         isIncludesSearchTextURL = customStrMatch(item.imgUrl || '', debouncedSearchTextURL.value)
       }
-      if (dateRange.value) {
-        const [start, end] = dateRange.value as string[]
+      if (hasDateRange) {
         const date = new Date(item.updatedAt).getTime()
-        isIncludesDateRange = date >= new Date(start).getTime() && date <= new Date(end).getTime() + 86400000
+        isIncludesDateRange = date >= start && date < end
       }
       return isIncludesSearchText && isInChoosedPicBed && isIncludesSearchTextURL && isIncludesDateRange
     })
@@ -1020,31 +1111,73 @@ function getGallery(): IGalleryItem[] {
   }
 }
 
-async function updateGallery() {
-  const newList = (await $$db.get({ orderBy: 'desc' }))!.data
-  const newIds = new Set(newList.map(it => it.id))
-  Object.keys(imageLoadStates).forEach(k => {
-    if (!newIds.has(k)) delete imageLoadStates[k]
-  })
-  Object.keys(imageErrorStates).forEach(k => {
-    if (!newIds.has(k)) delete imageErrorStates[k]
-  })
-  Object.keys(displayImageSources).forEach(k => {
-    if (!newIds.has(k)) delete displayImageSources[k]
-  })
-  if (isAlwaysForceReload.value) {
-    cacheBustToken.value = Date.now()
-    invalidateJxlPreviewCache()
-  }
-  images.value = prepareGalleryItems(newList)
-  sortFile(currentSortField.value, false)
-  nextTick(() => {
-    pruneJxlPreviewState()
-    syncVisibleDisplayImageSources()
-    if (virtualScrollerRef.value) {
-      virtualScrollerRef.value.refresh()
+function updateGallery(): Promise<boolean> {
+  if (galleryDisposed) return Promise.resolve(false)
+  galleryRefreshRequested = true
+  if (galleryRefreshPromise) return galleryRefreshPromise
+  galleryLoading.value = true
+  galleryRefreshPromise = Promise.resolve()
+    .then(async () => {
+      let succeeded: boolean
+      do {
+        galleryRefreshRequested = false
+        succeeded = await loadGallerySnapshot()
+      } while (galleryRefreshRequested && !galleryDisposed)
+      return succeeded
+    })
+    .finally(() => {
+      galleryRefreshPromise = undefined
+      if (!galleryDisposed) galleryLoading.value = false
+    })
+  return galleryRefreshPromise
+}
+
+async function loadGallerySnapshot() {
+  const version = ++galleryRefreshVersion
+  try {
+    const result = await $$db.get<ImgInfo>({ orderBy: 'desc' })
+    if (galleryDisposed || galleryRefreshRequested) return false
+    if (!result || !Array.isArray(result.data)) throw new Error('Missing gallery snapshot')
+    const newList = result.data
+    const prepared = prepareGalleryItems(newList)
+    const previousItems = new Map(images.value.map(item => [item.key, item]))
+    const stableIds = new Set(
+      prepared
+        .filter(item => {
+          const previous = previousItems.get(item.key)
+          return previous?.src === item.src && previous?.imgUrl === item.imgUrl
+        })
+        .map(item => item.key),
+    )
+    Object.keys(imageLoadStates).forEach(k => {
+      if (!stableIds.has(k)) delete imageLoadStates[k]
+    })
+    Object.keys(imageErrorStates).forEach(k => {
+      if (!stableIds.has(k)) delete imageErrorStates[k]
+    })
+    Object.keys(displayImageSources).forEach(k => {
+      if (!stableIds.has(k)) delete displayImageSources[k]
+    })
+    if (isAlwaysForceReload.value) {
+      cacheBustToken.value = Date.now()
+      invalidateJxlPreviewCache()
     }
-  })
+    images.value = prepared
+    sortFile(currentSortField.value, false)
+    nextTick(() => {
+      if (galleryDisposed || version !== galleryRefreshVersion) return
+      pruneJxlPreviewState()
+      syncVisibleDisplayImageSources()
+      if (virtualScrollerRef.value) {
+        virtualScrollerRef.value.refresh()
+      }
+    })
+    galleryLoadFailed.value = false
+    return true
+  } catch {
+    if (!galleryDisposed && !galleryRefreshRequested) galleryLoadFailed.value = true
+    return false
+  }
 }
 
 function handleChooseImage(val: boolean, index: number) {
@@ -1073,10 +1206,6 @@ function handleChooseImage(val: boolean, index: number) {
   }
 }
 
-function refreshPage() {
-  window.electron.sendRPC(IRPCActionType.REFRESH_SETTING_WINDOW)
-}
-
 function clearChoosedList() {
   isShiftKeyPress.value = false
   Object.keys(choosedList).forEach(key => {
@@ -1098,46 +1227,60 @@ function showHoverPreview(item: IGalleryItem, anchor: Element) {
 }
 
 async function copy(item: ImgInfo) {
-  const result = await window.electron.triggerRPC<[string, string]>(IRPCActionType.GALLERY_PASTE_TEXT, getRawData(item))
-  if (!result?.[0]?.trim()) {
+  let result: [string, string] | undefined
+  try {
+    result = await window.electron.triggerRPC<[string, string]>(IRPCActionType.GALLERY_PASTE_TEXT, getRawData(item))
+    if (!result?.[0]?.trim()) throw new Error('Missing gallery link')
+  } catch {
     message.error(t('pages.gallery.copyLinkFailed'))
     return
   }
-  if (result && result[1] && item.id) {
-    await $$db.updateById(item.id, {
-      shortUrl: result[1],
-    })
-    updateGallery()
-  }
   message.success(t('pages.gallery.copyLinkSucceed'))
+  if (result[1] && item.id) {
+    try {
+      if (await $$db.updateById(item.id, { shortUrl: result[1] })) await updateGallery()
+    } catch {
+      // Copy has already succeeded; retaining a short URL is optional caching.
+    }
+  }
 }
 
-function remove(item: ImgInfo, _: number) {
+async function remove(item: ImgInfo, _: number) {
   if (!item.id) return
 
-  confirm({
-    title: t('pages.gallery.notice'),
-    message: t('pages.gallery.confirmRemove'),
-    type: 'warning',
-    confirmButtonText: t('common.confirm'),
-    cancelButtonText: t('common.cancel'),
-    center: true,
-  }).then(async result => {
-    if (!result) return
-    const file = await $$db.getById(item.id!)
+  try {
+    const confirmed = await confirm({
+      title: t('pages.gallery.notice'),
+      message: t('pages.gallery.confirmRemove'),
+      type: 'warning',
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      center: true,
+    })
+    if (!confirmed) return
+    const file = await $$db.getById<ImgInfo>(item.id!)
+    if (!file) {
+      delete choosedList[item.id]
+      await updateGallery()
+      return
+    }
     const isNeedDeleteCloudFile =
       (await getConfig(configPaths.settings.deleteCloudFile)) &&
-      picBedsCanbeDeleted.includes(item?.type || 'placeholder')
+      picBedsCanbeDeleted.includes(file.type || 'placeholder')
     if (isNeedDeleteCloudFile) {
-      const result = await ALLApi.delete(getRawData(item))
-      if (result) {
-        message.success(`${item.fileName} ${t('pages.gallery.cloudDeleteSucceed')}`)
-      } else {
+      let deleted = false
+      try {
+        deleted = await ALLApi.delete(getRawData(file))
+      } catch {
+        // A failed cloud request must leave the local record available for retry.
+      }
+      if (!deleted) {
         message.error(`${item.fileName} ${t('pages.gallery.cloudDeleteFailed')}`)
-        return true
+        return
       }
     }
     await $$db.removeById(item.id!)
+    delete choosedList[item.id]
     window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_RUN_SCRIPTS, getRawData(item))
     const args = getRawData(file)
     window.electron.sendRPC(IRPCActionType.GALLERY_REMOVE_FILES, [args])
@@ -1145,10 +1288,14 @@ function remove(item: ImgInfo, _: number) {
     nextTick(() => {
       virtualScrollerRef.value?.refresh()
     })
-    if (!isNeedDeleteCloudFile) {
-      message.success(t('pages.gallery.operationSucceed'))
-    }
-  })
+    message.success(
+      isNeedDeleteCloudFile
+        ? `${item.fileName} ${t('pages.gallery.cloudDeleteSucceed')}`
+        : t('pages.gallery.operationSucceed'),
+    )
+  } catch {
+    message.error(t('pages.gallery.operationFailed'))
+  }
 }
 
 async function handleIsAlwaysForceReload(value: boolean) {
@@ -1174,9 +1321,15 @@ function openDialog(item: ImgInfo) {
 }
 
 async function confirmModify() {
-  await $$db.updateById(imgInfo.id, {
-    imgUrl: imgInfo.imgUrl,
-  })
+  try {
+    if (!(await $$db.updateById(imgInfo.id, { imgUrl: imgInfo.imgUrl }))) {
+      message.error(t('pages.gallery.operationFailed'))
+      return
+    }
+  } catch {
+    message.error(t('pages.gallery.operationFailed'))
+    return
+  }
   message.success(t('pages.gallery.operationSucceed'))
   dialogVisible.value = false
   await updateGallery()
@@ -1207,19 +1360,20 @@ function setAllSelected(selected: boolean) {
   })
 }
 
-function multiRemove() {
+async function multiRemove() {
   const imageIDList = Object.keys(choosedList).filter(id => choosedList[id])
   if (!imageIDList.length) return
 
-  confirm({
-    title: t('pages.gallery.notice'),
-    message: t('pages.gallery.confirmRemove'),
-    type: 'warning',
-    confirmButtonText: t('common.confirm'),
-    cancelButtonText: t('common.cancel'),
-    center: true,
-  }).then(async result => {
-    if (!result) return
+  try {
+    const confirmed = await confirm({
+      title: t('pages.gallery.notice'),
+      message: t('pages.gallery.confirmRemove'),
+      type: 'warning',
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      center: true,
+    })
+    if (!confirmed) return
     const files: IResult<ImgInfo>[] = []
     let failedCount = 0
     const isDeleteCloudFile = await getConfig(configPaths.settings.deleteCloudFile)
@@ -1263,41 +1417,53 @@ function multiRemove() {
     } else {
       message.info(summary)
     }
-  })
+  } catch {
+    message.error(t('pages.gallery.operationFailed'))
+  }
 }
 
 async function multiCopy() {
   if (Object.values(choosedList).some(item => item)) {
     const copyString: string[] = []
+    const shortUrls: { id: string; shortUrl: string }[] = []
     const imageIDList = Object.keys(choosedList).filter(id => choosedList[id])
-    for (const imageIDListItem of imageIDList) {
-      const item = await $$db.getById<ImgInfo>(imageIDListItem)
-      if (item) {
-        const result = await window.electron.triggerRPC<[string, string]>(
-          IRPCActionType.GALLERY_PASTE_TEXT,
-          getRawData(item),
-          false,
-        )
-        if (!result?.[0]?.trim()) {
-          message.error(t('pages.gallery.copyLinkFailed'))
-          return
-        }
-        copyString.push(result[0])
-        if (result && result[1] && item.id) {
-          await $$db.updateById(item.id, {
-            shortUrl: result[1],
-          })
-          updateGallery()
+    try {
+      for (const imageIDListItem of imageIDList) {
+        const item = await $$db.getById<ImgInfo>(imageIDListItem)
+        if (item) {
+          const result = await window.electron.triggerRPC<[string, string]>(
+            IRPCActionType.GALLERY_PASTE_TEXT,
+            getRawData(item),
+            false,
+          )
+          if (!result?.[0]?.trim()) {
+            message.error(t('pages.gallery.copyLinkFailed'))
+            return
+          }
+          copyString.push(result[0])
+          if (result[1] && item.id) shortUrls.push({ id: item.id, shortUrl: result[1] })
         }
       }
-    }
-    if (!copyString.length) {
+      if (!copyString.length) {
+        message.error(t('pages.gallery.copyLinkFailed'))
+        return
+      }
+      window.electron.clipboard.writeText(copyString.join('\n'))
+    } catch {
       message.error(t('pages.gallery.copyLinkFailed'))
       return
     }
-    window.electron.clipboard.writeText(copyString.join('\n'))
-    clearChoosedList()
+    for (const id of imageIDList) delete choosedList[id]
     message.success(t('pages.gallery.copyLinkSucceed'))
+    let galleryChanged = false
+    for (const { id, shortUrl } of shortUrls) {
+      try {
+        if (await $$db.updateById(id, { shortUrl })) galleryChanged = true
+      } catch {
+        // Cache failures do not invalidate the clipboard contents.
+      }
+    }
+    if (galleryChanged) await updateGallery()
   }
 }
 
@@ -1398,6 +1564,8 @@ onBeforeMount(async () => {
 })
 
 onBeforeUnmount(() => {
+  galleryDisposed = true
+  galleryRefreshVersion++
   galleryActive.value = false
   invalidateJxlPreviewCache()
   window.electron.ipcRendererRemoveAllListeners('updateGallery')
