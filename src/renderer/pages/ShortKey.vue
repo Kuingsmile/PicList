@@ -113,8 +113,8 @@
     </div>
 
     <CustomModal
-      v-if="modalVisible"
       v-model:visible="modalVisible"
+      :close-disabled="busy"
       :title="isCustom ? t('pages.shortKey.customAction') : t('pages.shortKey.editBinding')"
       width="600px"
       height="auto"

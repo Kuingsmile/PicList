@@ -1,15 +1,13 @@
 <template>
   <CustomButton type="secondary" :icon="RefreshCw" :text="syncText('preview')" :disabled="busy" @click="preview" />
   <CustomModal
-    v-if="visible"
     :visible="visible"
     max-width="1000px"
-    role="dialog"
-    aria-modal="true"
-    :aria-label="syncText('title')"
+    :title="syncText('title')"
+    :close-disabled="busy"
     @update:visible="close"
   >
-    <template #titleBar>
+    <template #header>
       <div class="flex min-w-0 items-center gap-3">
         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-white">
           <RefreshCw :size="20" />

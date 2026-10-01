@@ -1,5 +1,11 @@
 <template>
-  <CustomModal v-if="snapshot && visible" v-model:visible="modalVisible" width="1100px" :title="t('common.bulk.title')">
+  <CustomModal
+    v-if="snapshot"
+    v-model:visible="modalVisible"
+    width="1100px"
+    :title="t('common.bulk.title')"
+    :close-disabled="busy"
+  >
     <div class="space-y-4 p-5 text-sm text-main">
       <p>{{ t(snapshot.committed ? 'common.bulk.resultsHint' : 'common.bulk.reviewHint') }}</p>
       <p class="text-secondary">

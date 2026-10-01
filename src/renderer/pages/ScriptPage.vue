@@ -164,7 +164,7 @@
       </div>
     </div>
 
-    <CustomModal v-if="editorVisible" v-model:visible="editorVisible" :title="t('common.edit')">
+    <CustomModal v-model:visible="editorVisible" :title="t('common.edit')">
       <Editor v-model="editorContent" language="javascript" />
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="editorVisible = false" />
@@ -172,13 +172,7 @@
       </template>
     </CustomModal>
 
-    <CustomModal
-      v-if="newScriptNameVisible"
-      v-model:visible="newScriptNameVisible"
-      :title="t('pages.scripts.addNew')"
-      height="auto"
-      width="600px"
-    >
+    <CustomModal v-model:visible="newScriptNameVisible" :title="t('pages.scripts.addNew')" height="auto" width="600px">
       <div class="flex flex-col items-center justify-center gap-4 bg-bg-secondary p-6">
         <SettingCard class="w-full">
           <SingleSelect
@@ -215,11 +209,7 @@
       </template>
     </CustomModal>
 
-    <CustomModal
-      v-if="marketplaceVisible"
-      v-model:visible="marketplaceVisible"
-      :title="t('pages.scripts.marketplace.title')"
-    >
+    <CustomModal v-model:visible="marketplaceVisible" :title="t('pages.scripts.marketplace.title')">
       <div class="flex h-full w-full flex-col gap-4 p-4">
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div class="relative flex flex-1 items-center">
@@ -373,7 +363,6 @@
     </CustomModal>
 
     <CustomModal
-      v-if="shareDialogVisible"
       v-model:visible="shareDialogVisible"
       :title="t('pages.scripts.marketplace.shareScript')"
       height="auto"
@@ -432,7 +421,6 @@
     </CustomModal>
 
     <CustomModal
-      v-if="deviceFlowDialogVisible"
       v-model:visible="deviceFlowDialogVisible"
       :title="t('pages.scripts.marketplace.loginWithGitHub')"
       width="500px"

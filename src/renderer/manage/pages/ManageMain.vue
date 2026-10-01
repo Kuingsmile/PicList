@@ -142,122 +142,101 @@
     </div>
 
     <!-- PicBed Switch Dialog -->
-    <transition
-      name="modal"
-      enter-active-class="transition-all duration-200 ease-apple"
-      leave-active-class="transition-all duration-200 ease-apple"
-      enter-from-class="opacity-0"
-      leave-to-class="opacity-0"
-    >
-      <CustomModal
-        v-if="picBedSwitchDialogVisible"
-        v-model:visible="picBedSwitchDialogVisible"
-        :title="t('pages.manage.main.switchPicBed')"
-        height="auto"
-      >
-        <div class="no-scrollbar h-full w-full overflow-auto p-8">
-          <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
-            <!-- Back to main card -->
-            <div
-              class="relative flex cursor-pointer flex-col items-center rounded-lg border-2 border-success/80 bg-bg-secondary p-6 transition-all duration-fast ease-apple hover:border-accent"
-              @click="switchPicBed('main')"
-            >
-              <div class="mb-3 flex h-[40px] w-[40px] items-center justify-center">
-                <HomeIcon class="h-[24px] w-[24px] text-main" />
-              </div>
-              <div class="text-center">
-                <div class="text-sm font-semibold text-main">
-                  {{ $t('pages.manage.main.backToHome') }}
-                </div>
-              </div>
+    <CustomModal v-model:visible="picBedSwitchDialogVisible" :title="t('pages.manage.main.switchPicBed')" height="auto">
+      <div class="no-scrollbar h-full w-full overflow-auto p-8">
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
+          <!-- Back to main card -->
+          <div
+            class="relative flex cursor-pointer flex-col items-center rounded-lg border-2 border-success/80 bg-bg-secondary p-6 transition-all duration-fast ease-apple hover:border-accent"
+            @click="switchPicBed('main')"
+          >
+            <div class="mb-3 flex h-[40px] w-[40px] items-center justify-center">
+              <HomeIcon class="h-[24px] w-[24px] text-main" />
             </div>
-
-            <!-- PicBed cards -->
-            <div
-              v-for="(config, alias) in allPicBedConfigure"
-              :key="String(alias)"
-              class="relative flex cursor-pointer flex-col items-center rounded-lg border-2 border-border/80 bg-bg-secondary p-6 transition-all duration-fast ease-apple hover:border-accent [.active]:border-accent"
-              :class="{ active: String(alias) === currentAlias }"
-              @click="switchPicBed(String(alias))"
-            >
-              <div class="mb-3 flex h-[40px] w-[40px] items-center justify-center">
-                <img :src="`./assets/${config.picBedName}.webp`" class="h-[32px] w-[32px] object-contain" />
-              </div>
-              <div class="text-center">
-                <div class="text-sm font-semibold text-main">
-                  {{ config.alias }}
-                </div>
-              </div>
-              <div v-if="String(alias) === currentAlias" class="absolute top-2 right-2 h-[20px] w-[20px] text-accent">
-                <CheckIcon />
+            <div class="text-center">
+              <div class="text-sm font-semibold text-main">
+                {{ $t('pages.manage.main.backToHome') }}
               </div>
             </div>
           </div>
+
+          <!-- PicBed cards -->
+          <div
+            v-for="(config, alias) in allPicBedConfigure"
+            :key="String(alias)"
+            class="relative flex cursor-pointer flex-col items-center rounded-lg border-2 border-border/80 bg-bg-secondary p-6 transition-all duration-fast ease-apple hover:border-accent [.active]:border-accent"
+            :class="{ active: String(alias) === currentAlias }"
+            @click="switchPicBed(String(alias))"
+          >
+            <div class="mb-3 flex h-[40px] w-[40px] items-center justify-center">
+              <img :src="`./assets/${config.picBedName}.webp`" class="h-[32px] w-[32px] object-contain" />
+            </div>
+            <div class="text-center">
+              <div class="text-sm font-semibold text-main">
+                {{ config.alias }}
+              </div>
+            </div>
+            <div v-if="String(alias) === currentAlias" class="absolute top-2 right-2 h-[20px] w-[20px] text-accent">
+              <CheckIcon />
+            </div>
+          </div>
         </div>
-      </CustomModal>
-    </transition>
-    <transition
-      name="modal-bucket"
-      enter-active-class="transition-all duration-200 ease-apple"
-      leave-active-class="transition-all duration-200 ease-apple"
-      enter-from-class="opacity-0"
-      leave-to-class="opacity-0"
+      </div>
+    </CustomModal>
+
+    <!-- New Bucket Drawer -->
+    <CustomModal
+      v-model:visible="bucketDrawerVisible"
+      :title="t('pages.manage.main.newBucket')"
+      width="600px"
+      height="auto"
     >
-      <!-- New Bucket Drawer -->
-      <CustomModal
-        v-if="bucketDrawerVisible"
-        v-model:visible="bucketDrawerVisible"
-        :title="t('pages.manage.main.newBucket')"
-        width="600px"
-        height="auto"
-      >
-        <div class="drawer-content">
-          <SettingSection :title="supportedPicBedList[currentPicBedName].name" :icon="Database" only-one-row>
-            <template v-for="option in newBucketConfig[currentPicBedName].options" :key="option">
-              <SettingCard :p1="newBucketConfig[currentPicBedName].configOptions[option].component === 'switch'">
-                <CustomInput
-                  v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'input'"
-                  v-model.trim="newBucketConfigResult[currentPicBedName + '.' + option]"
-                  type="text"
-                  :title="newBucketConfig[currentPicBedName].configOptions[option].description"
-                  :placeholder="newBucketConfig[currentPicBedName].configOptions[option].placeholder"
-                >
-                  <template v-if="currentPicBedName === 'tcyun'" #input-extra>
-                    <span
-                      class="absolute top-0.5 right-0 flex cursor-not-allowed items-center justify-center rounded-xl border border-border bg-gray-300 p-2.5 text-sm font-semibold text-secondary"
-                      >{{ '-' + currentPagePicBedConfig.appId }}</span
-                    >
-                  </template>
-                </CustomInput>
-                <CustomSwitch
-                  v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'switch'"
-                  v-model="newBucketConfigResult[currentPicBedName + '.' + option]"
-                  :title="newBucketConfig[currentPicBedName].configOptions[option].description"
-                  small
-                  no-border
-                />
-                <SingleSelect
-                  v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'select'"
-                  v-model="newBucketConfigResult[currentPicBedName + '.' + option]"
-                  :title="newBucketConfig[currentPicBedName].configOptions[option].description"
-                  :key-list="Object.keys(newBucketConfig[currentPicBedName].configOptions[option].options)"
-                  :fronticon="false"
-                >
-                  <template #item="{ item }">
-                    {{ newBucketConfig[currentPicBedName].configOptions[option].options[item] }}
-                  </template>
-                </SingleSelect>
-              </SettingCard>
-            </template>
-          </SettingSection>
-          <div></div>
-        </div>
-        <template #footer>
-          <CustomButton type="secondary" :text="$t('common.cancel')" @click="bucketDrawerVisible = false" />
-          <CustomButton :text="$t('common.submit')" @click="createNewBucket(currentPicBedName)" />
-        </template>
-      </CustomModal>
-    </transition>
+      <div class="drawer-content">
+        <SettingSection :title="supportedPicBedList[currentPicBedName].name" :icon="Database" only-one-row>
+          <template v-for="option in newBucketConfig[currentPicBedName].options" :key="option">
+            <SettingCard :p1="newBucketConfig[currentPicBedName].configOptions[option].component === 'switch'">
+              <CustomInput
+                v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'input'"
+                v-model.trim="newBucketConfigResult[currentPicBedName + '.' + option]"
+                type="text"
+                :title="newBucketConfig[currentPicBedName].configOptions[option].description"
+                :placeholder="newBucketConfig[currentPicBedName].configOptions[option].placeholder"
+              >
+                <template v-if="currentPicBedName === 'tcyun'" #input-extra>
+                  <span
+                    class="absolute top-0.5 right-0 flex cursor-not-allowed items-center justify-center rounded-xl border border-border bg-gray-300 p-2.5 text-sm font-semibold text-secondary"
+                    >{{ '-' + currentPagePicBedConfig.appId }}</span
+                  >
+                </template>
+              </CustomInput>
+              <CustomSwitch
+                v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'switch'"
+                v-model="newBucketConfigResult[currentPicBedName + '.' + option]"
+                :title="newBucketConfig[currentPicBedName].configOptions[option].description"
+                small
+                no-border
+              />
+              <SingleSelect
+                v-if="newBucketConfig[currentPicBedName].configOptions[option].component === 'select'"
+                v-model="newBucketConfigResult[currentPicBedName + '.' + option]"
+                :title="newBucketConfig[currentPicBedName].configOptions[option].description"
+                :key-list="Object.keys(newBucketConfig[currentPicBedName].configOptions[option].options)"
+                :fronticon="false"
+              >
+                <template #item="{ item }">
+                  {{ newBucketConfig[currentPicBedName].configOptions[option].options[item] }}
+                </template>
+              </SingleSelect>
+            </SettingCard>
+          </template>
+        </SettingSection>
+        <div></div>
+      </div>
+      <template #footer>
+        <CustomButton type="secondary" :text="$t('common.cancel')" @click="bucketDrawerVisible = false" />
+        <CustomButton :text="$t('common.submit')" @click="createNewBucket(currentPicBedName)" />
+      </template>
+    </CustomModal>
   </div>
 </template>
 

@@ -769,7 +769,6 @@
     <!-- Dialogs -->
     <!-- Custom Link Format Dialog -->
     <CustomModal
-      v-if="customLinkVisible"
       v-model:visible="customLinkVisible"
       height="auto"
       width="auto"
@@ -811,7 +810,6 @@
 
     <!-- Proxy Settings Dialog -->
     <CustomModal
-      v-if="proxyVisible"
       v-model:visible="proxyVisible"
       height="auto"
       width="600px"
@@ -844,7 +842,6 @@
 
     <!-- Main Window Size Dialog -->
     <CustomModal
-      v-if="mainWindowSizeVisible"
       v-model:visible="mainWindowSizeVisible"
       height="auto"
       width="600px"
@@ -882,7 +879,6 @@
 
     <!-- Check Update Dialog -->
     <CustomModal
-      v-if="checkUpdateVisible"
       v-model:visible="checkUpdateVisible"
       height="auto"
       width="500px"
@@ -936,7 +932,6 @@
 
     <!-- Advanced Rename Dialog -->
     <CustomModal
-      v-if="advancedRenameVisible"
       v-model:visible="advancedRenameVisible"
       height="85vh"
       width="65vw"
@@ -965,7 +960,6 @@
 
     <!-- Log Settings Dialog -->
     <CustomModal
-      v-if="logFileVisible"
       v-model:visible="logFileVisible"
       height="auto"
       width="800px"
@@ -997,7 +991,6 @@
 
     <!-- Server Settings Dialog -->
     <CustomModal
-      v-if="serverVisible"
       v-model:visible="serverVisible"
       height="auto"
       width="600px"
@@ -1070,7 +1063,6 @@
 
     <!-- Sync Configuration Dialog -->
     <CustomModal
-      v-if="syncVisible"
       v-model:visible="syncVisible"
       height="auto"
       width="700px"
@@ -1182,7 +1174,6 @@
 
     <!-- Upload/Download Config Dialog -->
     <CustomModal
-      v-if="upDownConfigVisible"
       v-model:visible="upDownConfigVisible"
       height="auto"
       width="700px"
@@ -1223,7 +1214,7 @@
     <!-- Image Process Dialog -->
     <ImageProcessDialog v-if="imageProcessDialogVisible" v-model:visible="imageProcessDialogVisible" />
 
-    <CustomModal v-if="editorVisible" v-model:visible="editorVisible" :title="t('common.edit')">
+    <CustomModal v-model:visible="editorVisible" :title="t('common.edit')">
       <Editor v-model="editorContent" :language="editorLanguage" />
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="editorVisible = false" />

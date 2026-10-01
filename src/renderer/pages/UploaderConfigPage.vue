@@ -188,7 +188,6 @@
     </div>
 
     <CustomModal
-      v-if="duplicateVisible"
       v-model:visible="duplicateVisible"
       :title="t('pages.uploaderConfig.duplicateTitle')"
       height="auto"
@@ -212,7 +211,7 @@
       </template>
     </CustomModal>
 
-    <CustomModal v-if="editorVisible" v-model:visible="editorVisible" :title="t('common.edit')">
+    <CustomModal v-model:visible="editorVisible" :title="t('common.edit')">
       <Editor v-model="editorContent" language="javascript" />
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="editorVisible = false" />
@@ -220,13 +219,7 @@
       </template>
     </CustomModal>
 
-    <CustomModal
-      v-if="newScriptNameVisible"
-      v-model:visible="newScriptNameVisible"
-      :title="t('pages.scripts.addNew')"
-      height="auto"
-      width="400px"
-    >
+    <CustomModal v-model:visible="newScriptNameVisible" :title="t('pages.scripts.addNew')" height="auto" width="400px">
       <div class="flex items-center justify-center bg-bg-secondary p-6">
         <SettingCard class="w-full">
           <CustomInput

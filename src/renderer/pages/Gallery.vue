@@ -346,95 +346,85 @@
     />
 
     <!-- Edit URL Modal -->
-    <transition name="modal">
-      <CustomModal
-        v-if="dialogVisible"
-        v-model:visible="dialogVisible"
-        :height="'auto'"
-        :width="'40%'"
-        :title="t('pages.gallery.changeImageUrl')"
-      >
-        <div class="p-2">
-          <input v-model="imgInfo.imgUrl" type="text" class="form-input" placeholder="Enter new URL" />
-        </div>
-        <template #footer>
-          <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />
-          <CustomButton :text="t('common.confirm')" @click="confirmModify" />
-        </template>
-      </CustomModal>
-    </transition>
+    <CustomModal v-model:visible="dialogVisible" height="auto" width="40%" :title="t('pages.gallery.changeImageUrl')">
+      <div class="p-2">
+        <input v-model="imgInfo.imgUrl" type="text" class="form-input" placeholder="Enter new URL" />
+      </div>
+      <template #footer>
+        <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />
+        <CustomButton :text="t('common.confirm')" @click="confirmModify" />
+      </template>
+    </CustomModal>
 
     <!-- Batch Rename Modal -->
-    <transition name="modal">
-      <CustomModal
-        v-if="isShowBatchRenameDialog"
-        v-model:visible="isShowBatchRenameDialog"
-        :height="'auto'"
-        :width="'700px'"
-        :title="t('pages.gallery.batchEditUrl')"
-      >
-        <div class="p-6">
-          <p class="mb-4 text-sm text-secondary">{{ t('common.bulk.selectionHint') }}</p>
-          <div class="mb-6 last:mb-0">
-            <label class="mb-2 flex items-center gap-2 text-sm font-medium text-main">
-              {{ t('pages.gallery.regexPattern', { matched: matchedCount || 0 }) }}
-            </label>
-            <input
-              v-model="batchRenameMatch"
-              type="text"
-              class="form-input"
-              :placeholder="t('pages.gallery.regexPatternPlaceholder')"
-              @focus="showMatchedUrls = true"
-              @blur="showMatchedUrls = false"
-            />
-            <div
-              v-if="showMatchedUrls && matchedUrls.length > 0"
-              class="absolute z-1000 mt-2 max-h-[300px] max-w-[650px] overflow-hidden rounded-md border border-border-secondary bg-bg-tertiary p-0 shadow-md"
-            >
-              <div class="border-b border-b-border-secondary bg-bg-secondary px-4 py-3 text-sm font-semibold text-main">
-                Matched URLs ({{ matchedUrls.length }}):
-              </div>
-              <div class="max-h-[240px] overflow-auto p-2">
-                <div
-                  v-for="(url, index) in matchedUrls"
-                  :key="index"
-                  class="rounded-sm px-3 py-2 font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] text-sm break-all text-secondary transition-all duration-fast ease-apple hover:bg-surface-elevated"
-                >
-                  {{ url }}
-                </div>
+    <CustomModal
+      v-model:visible="isShowBatchRenameDialog"
+      height="auto"
+      width="700px"
+      :title="t('pages.gallery.batchEditUrl')"
+    >
+      <div class="p-6">
+        <p class="mb-4 text-sm text-secondary">{{ t('common.bulk.selectionHint') }}</p>
+        <div class="mb-6 last:mb-0">
+          <label class="mb-2 flex items-center gap-2 text-sm font-medium text-main">
+            {{ t('pages.gallery.regexPattern', { matched: matchedCount || 0 }) }}
+          </label>
+          <input
+            v-model="batchRenameMatch"
+            type="text"
+            class="form-input"
+            :placeholder="t('pages.gallery.regexPatternPlaceholder')"
+            @focus="showMatchedUrls = true"
+            @blur="showMatchedUrls = false"
+          />
+          <div
+            v-if="showMatchedUrls && matchedUrls.length > 0"
+            class="absolute z-1000 mt-2 max-h-[300px] max-w-[650px] overflow-hidden rounded-md border border-border-secondary bg-bg-tertiary p-0 shadow-md"
+          >
+            <div class="border-b border-b-border-secondary bg-bg-secondary px-4 py-3 text-sm font-semibold text-main">
+              Matched URLs ({{ matchedUrls.length }}):
+            </div>
+            <div class="max-h-[240px] overflow-auto p-2">
+              <div
+                v-for="(url, index) in matchedUrls"
+                :key="index"
+                class="rounded-sm px-3 py-2 font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] text-sm break-all text-secondary transition-all duration-fast ease-apple hover:bg-surface-elevated"
+              >
+                {{ url }}
               </div>
             </div>
           </div>
-
-          <div class="mb-6 last:mb-0">
-            <label class="mb-2 flex items-center gap-2 text-sm font-medium text-main">
-              {{ t('pages.gallery.replacedWith') }}
-              <button
-                class="flex h-[20px] w-[20px] cursor-pointer items-center justify-around rounded-full border-none bg-accent text-white transition-all duration-fast ease-apple hover:bg-accent-hover"
-                @click="showFormatInfo = !showFormatInfo"
-              >
-                <InfoIcon :size="16" />
-              </button>
-            </label>
-            <input v-model="batchRenameReplace" type="text" class="form-input" placeholder="Ex. {Y}-{m}-{uuid}" />
-          </div>
-
-          <!-- Format Info Panel -->
-          <div v-if="showFormatInfo" class="mb-6 last:mb-0">
-            <label>{{ t('pages.settings.upload.availablePlaceholders') }}</label>
-            <PlaceholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
-          </div>
         </div>
-        <template #footer>
-          <CustomButton type="secondary" :text="t('common.cancel')" @click="isShowBatchRenameDialog = false" />
-          <CustomButton
-            :text="t('common.bulk.preview')"
-            :disabled="bulkChanges.building.value"
-            @click="handleBatchRename"
-          />
-        </template>
-      </CustomModal>
-    </transition>
+
+        <div class="mb-6 last:mb-0">
+          <label class="mb-2 flex items-center gap-2 text-sm font-medium text-main">
+            {{ t('pages.gallery.replacedWith') }}
+            <button
+              class="flex h-[20px] w-[20px] cursor-pointer items-center justify-around rounded-full border-none bg-accent text-white transition-all duration-fast ease-apple hover:bg-accent-hover"
+              @click="showFormatInfo = !showFormatInfo"
+            >
+              <InfoIcon :size="16" />
+            </button>
+          </label>
+          <input v-model="batchRenameReplace" type="text" class="form-input" placeholder="Ex. {Y}-{m}-{uuid}" />
+        </div>
+
+        <!-- Format Info Panel -->
+        <div v-if="showFormatInfo" class="mb-6 last:mb-0">
+          <label>{{ t('pages.settings.upload.availablePlaceholders') }}</label>
+          <PlaceholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
+        </div>
+      </div>
+      <template #footer>
+        <CustomButton type="secondary" :text="t('common.cancel')" @click="isShowBatchRenameDialog = false" />
+        <CustomButton
+          :text="t('common.bulk.preview')"
+          :disabled="bulkChanges.building.value"
+          @click="handleBatchRename"
+        />
+      </template>
+    </CustomModal>
+
     <BulkChangePreview :workflow="bulkChanges" />
   </div>
 </template>
