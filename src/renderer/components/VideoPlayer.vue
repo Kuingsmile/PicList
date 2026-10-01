@@ -1,6 +1,6 @@
 <template>
   <div data-vjs-player class="h-full w-full">
-    <video ref="videoElement" class="video-js" :crossorigin="crossorigin" :playsinline="playsinline" />
+    <video ref="videoElement" class="video-js" :crossorigin :playsinline />
   </div>
 </template>
 
@@ -8,46 +8,51 @@
 import 'video.js/dist/video-js.css'
 
 import videojs from 'video.js'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, useTemplateRef, watch } from 'vue'
 
-const props = withDefaults(
-  defineProps<{
-    sources: { src: string; type?: string }[]
-    options?: Record<string, unknown>
-    volume?: number
-    crossorigin?: 'anonymous' | 'use-credentials'
-    controls?: boolean
-    playsinline?: boolean
-    loop?: boolean
-  }>(),
-  { options: () => ({}), volume: 1, crossorigin: undefined },
-)
+const {
+  sources,
+  options = {},
+  volume = 1,
+  crossorigin = undefined,
+  controls,
+  playsinline,
+  loop,
+} = defineProps<{
+  sources: { src: string; type?: string }[]
+  options?: Record<string, unknown>
+  volume?: number
+  crossorigin?: 'anonymous' | 'use-credentials'
+  controls?: boolean
+  playsinline?: boolean
+  loop?: boolean
+}>()
 const emit = defineEmits<{ error: [event: unknown] }>()
-const videoElement = ref<HTMLVideoElement>()
+const videoElement = useTemplateRef('videoElement')
 let player: ReturnType<typeof videojs> | undefined
 
 onMounted(() => {
   if (!videoElement.value) return
   player = videojs(videoElement.value, {
-    ...props.options,
-    sources: props.sources,
-    controls: props.controls,
-    playsinline: props.playsinline,
-    loop: props.loop,
+    ...options,
+    sources,
+    controls,
+    playsinline,
+    loop,
   })
   player.on('error', (event: unknown) => emit('error', event))
   player.ready(() => {
-    if (player && !player.isDisposed()) player.volume(props.volume)
+    if (player && !player.isDisposed()) player.volume(volume)
   })
 })
 
 watch(
-  () => props.sources,
+  () => sources,
   sources => player?.src(sources),
-  { deep: true },
+  { deep: 2 },
 )
 watch(
-  () => props.volume,
+  () => volume,
   volume => player?.volume(volume),
 )
 

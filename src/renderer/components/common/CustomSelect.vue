@@ -10,7 +10,7 @@
     v-bind="$attrs"
     :id="selectId"
     v-model="modelValue"
-    :disabled="disabled"
+    :disabled
     :aria-required="required || undefined"
     class="box-border w-full rounded-md border border-border bg-bg-tertiary p-3 text-sm text-main transition-all duration-200 ease-apple focus:border-accent focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50"
   >
@@ -26,6 +26,12 @@
 
 <script setup lang="ts">
 import { type Component, computed, useId } from 'vue'
+
+defineSlots<{
+  icon?: () => unknown
+  'pre-info'?: () => unknown
+  extra?: () => unknown
+}>()
 
 defineOptions({ inheritAttrs: false })
 const generatedId = `select-${useId()}`

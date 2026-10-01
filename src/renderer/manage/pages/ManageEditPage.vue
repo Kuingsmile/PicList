@@ -171,7 +171,6 @@ import { IRPCActionType } from '#/constants/rpcActions'
 import { formatEndpoint } from '#/utils/url'
 
 const editMode = defineModel<boolean>('editMode')
-const emit = defineEmits<(e: 'update:editMode', value: boolean) => void>()
 
 const { aliasName, platformName } = defineProps<{
   aliasName: string
@@ -326,7 +325,6 @@ async function handleConfigChange() {
   await getExistingConfig(platformName)
   notifyUser(`${t('pages.manage.login.configSaveMsg')}${resultMap.alias}`, 'success')
   editMode.value = false
-  emit('update:editMode', false)
 }
 
 const notifyUser = (msg: string, type: 'success' | 'error' | 'warning' = 'success') => {

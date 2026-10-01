@@ -241,7 +241,7 @@
             <div class="flex flex-row">
               <button
                 v-for="(format, key) in pasteFormatList"
-                :key="key"
+                :key
                 class="flex-1 cursor-pointer rounded-md border border-border-secondary bg-bg-secondary px-1 py-1 font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] text-[0.7rem] font-medium text-secondary duration-fast ease-standard hover:bg-accent/30 hover:text-white focus-visible:focus-ring data-[active=true]:border-accent data-[active=true]:bg-accent data-[active=true]:text-white"
                 :data-active="pasteStyle === key"
                 :title="format"
@@ -696,6 +696,8 @@ import { IPasteStyle } from '#/constants/app'
 import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { isUrl } from '#/utils/url'
+
+defineOptions({ name: 'UploadPage' })
 
 const ImageProcessDialog = defineAsyncComponent(() => import('@/components/ImageProcessDialog.vue'))
 
@@ -1353,12 +1355,6 @@ onBeforeMount(async () => {
   $bus.on(SHOW_INPUT_BOX_RESPONSE, handleInputBoxValue)
   await Promise.all([initConf(), refreshTaskStatus()])
 })
-</script>
-
-<script lang="ts">
-export default {
-  name: 'UploadPage',
-}
 </script>
 
 <style scoped src="./Upload.css"></style>

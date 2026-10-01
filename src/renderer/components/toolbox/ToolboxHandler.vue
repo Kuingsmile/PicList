@@ -1,23 +1,19 @@
 <template>
   <div class="mt-0">
-    <CustomButton :text="props.handlerText" @click="() => props.handler(props.value)" />
+    <CustomButton :text="handlerText" @click="() => handler(value)" />
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup generic="T">
 import CustomButton from '@/components/common/CustomButton.vue'
+
+defineOptions({ name: 'ToolboxHandler' })
 interface IProps {
   status: string
-  value: any
+  value: T
   handlerText: string
-  handler: (value: any) => void | Promise<void>
+  handler: (value: T) => void | Promise<void>
 }
 
-const props = defineProps<IProps>()
-</script>
-
-<script lang="ts">
-export default {
-  name: 'ToolboxHandler',
-}
+const { value, handlerText, handler } = defineProps<IProps>()
 </script>

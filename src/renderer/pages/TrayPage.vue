@@ -110,6 +110,8 @@ import { IPasteStyle, IWindowList } from '#/constants/app'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { handleUrlEncode } from '#/utils/url'
 
+defineOptions({ name: 'TrayPage' })
+
 type IResult<T> = T & {
   id: string
   createdAt: number
@@ -252,10 +254,4 @@ onBeforeUnmount(() => {
   window.electron.ipcRendererRemoveAllListeners('uploadFiles')
   window.electron.ipcRendererRemoveAllListeners('updateFiles')
 })
-</script>
-
-<script lang="ts">
-export default {
-  name: 'TrayPage',
-}
 </script>

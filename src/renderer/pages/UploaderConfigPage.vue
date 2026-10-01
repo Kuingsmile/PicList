@@ -261,6 +261,8 @@ import { defaultScriptTemplate, defaultScriptTemplateEn } from '@/utils/static'
 import { II18nLanguage } from '#/constants/app'
 import { IRPCActionType } from '#/constants/rpcActions'
 
+defineOptions({ name: 'UploaderConfigPage' })
+
 const Editor = defineAsyncComponent(() => import('@/components/Editor.vue'))
 
 const { t } = useI18n()
@@ -562,12 +564,6 @@ onBeforeMount(() => {
   getCurrentConfigList()
   getScriptsList()
 })
-</script>
-
-<script lang="ts">
-export default {
-  name: 'UploaderConfigPage',
-}
 </script>
 
 <style scoped src="./UploaderConfigPage.css"></style>

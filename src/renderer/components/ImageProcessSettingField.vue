@@ -58,6 +58,10 @@ import type {
 } from '@/utils/imageProcessingConfig'
 import { formatProcessingValue } from '@/utils/imageProcessingPresentation'
 
+defineSlots<{
+  default?: () => unknown
+}>()
+
 const {
   option,
   scope,

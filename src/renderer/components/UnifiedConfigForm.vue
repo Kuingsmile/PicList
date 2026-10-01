@@ -1,11 +1,6 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div
-    id="config-form"
-    ref="formRef"
-    class="no-scrollbar flex h-full w-full flex-1 overflow-auto"
-    :aria-busy="isLoading"
-  >
+  <div :id="formId" ref="formRef" class="no-scrollbar flex h-full w-full flex-1 overflow-auto" :aria-busy="isLoading">
     <SettingSection class="h-full flex-1 border-none! shadow-none!" only-one-row>
       <SettingCard v-if="loadFailed">
         <div role="status" class="flex items-center justify-between gap-3 text-sm text-main">
@@ -144,6 +139,11 @@ import MultiSelect from '@/components/common/MultiSelect.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import { getConfig } from '@/services/configService'
+
+defineSlots<{
+  'extra-config'?: () => unknown
+  default?: () => unknown
+}>()
 
 interface IProps {
   config: IPicGoPluginConfig[]

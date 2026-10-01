@@ -228,7 +228,7 @@ import { useStorage } from '@vueuse/core'
 import { pick } from 'lodash-es'
 import QrcodeVue from 'qrcode.vue'
 import pkg from 'root/package.json'
-import { computed, nextTick, onBeforeMount, onBeforeUnmount, reactive, Ref, ref, watch } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, onWatcherCleanup, reactive, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -239,6 +239,7 @@ import { usePicBed } from '@/composables/useGlobal'
 import useMessage from '@/composables/useMessage'
 import * as config from '@/router/config'
 import { getConfig } from '@/services/configService'
+import { showRpcError } from '@/services/rpcService'
 import { SHOW_FIRST_TIME_GUIDE, SHOW_MAIN_PAGE_QRCODE } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
 
@@ -253,9 +254,9 @@ const { picBedG } = usePicBed()
 
 const routerConfig = reactive(config)
 const qrcodeVisible = ref(false)
-const choosedPicBedForQRCode: Ref<string[]> = ref([])
+const choosedPicBedForQRCode = ref<string[]>([])
 const picBedConfigString = ref('')
-const guideRef = ref<InstanceType<typeof FirstTimeGuide> | null>(null)
+const guideRef = useTemplateRef('guideRef')
 
 let removeIpcListener: () => void = () => {}
 
@@ -279,17 +280,24 @@ const navigationItems = computed(() => [
 ])
 
 watch(
-  () => choosedPicBedForQRCode,
-  val => {
-    if (val.value.length > 0) {
-      nextTick(async () => {
+  choosedPicBedForQRCode,
+  async selected => {
+    let cancelled = false
+    onWatcherCleanup(() => {
+      cancelled = true
+    })
+    picBedConfigString.value = ''
+    if (selected.length > 0) {
+      const names = [...selected]
+      try {
         const picBedConfig = await getConfig('picBed')
-        const config = pick(picBedConfig, ...choosedPicBedForQRCode.value)
-        picBedConfigString.value = JSON.stringify(config)
-      })
+        if (!cancelled) picBedConfigString.value = JSON.stringify(pick(picBedConfig, ...names))
+      } catch (error) {
+        if (!cancelled) showRpcError(error)
+      }
     }
   },
-  { deep: true },
+  { deep: 1 },
 )
 
 const qrCodeHandler = () => {

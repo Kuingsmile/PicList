@@ -7,7 +7,7 @@
         'border-[1.5px] border-border text-main hover:bg-accent/50 hover:text-white': type === 'secondary',
         'border-none bg-error/80 text-white hover:bg-error': type === 'danger',
       }"
-      :disabled="disabled"
+      :disabled
       @click="emit('click')"
     >
       <component :is="icon" v-if="icon" class="h-[16px] w-[16px]" />
@@ -35,5 +35,5 @@ const {
   disabled?: boolean
   type: 'primary' | 'secondary' | 'danger'
 }>()
-const emit = defineEmits<(e: 'click') => void>()
+const emit = defineEmits<{ click: [] }>()
 </script>

@@ -90,6 +90,8 @@ import { createUploadProgressTracker, type UploadProgressState } from '@/utils/u
 import { IRPCActionType } from '#/constants/rpcActions'
 import { isUrl } from '#/utils/url'
 
+defineOptions({ name: 'MiniPage' })
+
 const logoPath = ref('')
 const dragover = ref(false)
 const progress = ref(0)
@@ -286,12 +288,6 @@ onBeforeUnmount(() => {
   window.removeEventListener('mousemove', handleMouseMove, false)
   window.removeEventListener('mouseup', handleMouseUp, false)
 })
-</script>
-
-<script lang="ts">
-export default {
-  name: 'MiniPage',
-}
 </script>
 
 <style scoped>

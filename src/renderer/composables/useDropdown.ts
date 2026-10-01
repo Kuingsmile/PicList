@@ -1,10 +1,10 @@
 import { onClickOutside, useEventListener } from '@vueuse/core'
-import { nextTick, ref } from 'vue'
+import { nextTick, ref, useTemplateRef } from 'vue'
 
 export function useDropdown({ minWidth = 160, maxHeight = 200 } = {}) {
-  const dropdownRef = ref<HTMLElement | null>(null)
-  const triggerRef = ref<HTMLButtonElement | null>(null)
-  const optionsRef = ref<HTMLElement | null>(null)
+  const dropdownRef = useTemplateRef<HTMLElement>('dropdownRef')
+  const triggerRef = useTemplateRef<HTMLButtonElement>('triggerRef')
+  const optionsRef = useTemplateRef<HTMLElement>('optionsRef')
   const dropDownOpen = ref(false)
   let search = ''
   let lastSearchTime = 0

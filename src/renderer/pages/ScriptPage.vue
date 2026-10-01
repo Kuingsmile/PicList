@@ -499,7 +499,7 @@ import {
   XIcon,
 } from '@lucide/vue'
 import dayjs from 'dayjs'
-import { computed, defineAsyncComponent, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onBeforeMount, onBeforeUnmount, onWatcherCleanup, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import BaseSvg from '@/assets/svg/BaseSvg.vue'
@@ -519,6 +519,8 @@ import { defaultScriptTemplate, defaultScriptTemplateEn } from '@/utils/static'
 import { II18nLanguage } from '#/constants/app'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { getRawData } from '#/utils/rawData'
+
+defineOptions({ name: 'ScriptPage' })
 
 const Editor = defineAsyncComponent(() => import('@/components/Editor.vue'))
 
@@ -630,22 +632,26 @@ const existingPathsSet = computed(() => {
   return new Set(scriptsList.value.map(item => item.filePath.join('/')))
 })
 
-watch(scriptsMap, async () => {
-  await refreshList()
+watch([scriptsMap, choosedCat], async ([map, categories]) => {
+  let cancelled = false
+  onWatcherCleanup(() => {
+    cancelled = true
+  })
+  try {
+    const list = await refreshList(map, categories)
+    if (!cancelled) scriptsList.value = list
+  } catch (error) {
+    if (!cancelled) showRpcError(error)
+  }
 })
 
-watch(choosedCat, async () => {
-  await refreshList()
-})
-
-async function refreshList() {
+async function refreshList(map: Record<string, any>, categories: readonly string[]) {
   const result: string[][] = []
-  const keysToCheck =
-    choosedCat.value.length > 0 ? choosedCat.value : supportedScriptCategories.value.map(cat => cat.type)
+  const keysToCheck = categories.length > 0 ? categories : supportedScriptCategories.value.map(cat => cat.type)
   for (const key of keysToCheck) {
     if (key.includes('.')) {
       const parts = key.split('.')
-      const value = scriptsMap.value[parts[0]] ? scriptsMap.value[parts[0]][parts[1]] : undefined
+      const value = map[parts[0]] ? map[parts[0]][parts[1]] : undefined
       if (value) {
         Object.entries(value).forEach(([valueKey, item]: [string, any]) => {
           if (item === null) {
@@ -654,7 +660,7 @@ async function refreshList() {
         })
       }
     } else {
-      const value = scriptsMap.value[key]
+      const value = map[key]
       if (value) {
         Object.entries(value).forEach(([valueKey, item]: [string, any]) => {
           if (item === null) {
@@ -671,7 +677,7 @@ async function refreshList() {
     const fullPath = file.filePath.join('/')
     file.enabled = !disabledList.includes(fullPath)
   })
-  scriptsList.value = fileStats
+  return fileStats
 }
 
 async function getScriptsMap() {
@@ -1028,12 +1034,6 @@ onBeforeMount(async () => {
 onBeforeUnmount(() => {
   stopDeviceFlowPolling()
 })
-</script>
-
-<script lang="ts">
-export default {
-  name: 'ScriptPage',
-}
 </script>
 
 <style scoped>

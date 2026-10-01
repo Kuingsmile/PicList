@@ -52,6 +52,8 @@ import { useEventListener } from '@vueuse/core'
 import { onBeforeUnmount, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+defineOptions({ name: 'MessageToast' })
+
 export interface MessageOptions {
   message: string
   type?: 'success' | 'warning' | 'info' | 'error'
@@ -183,10 +185,4 @@ defineExpose({
   addMessage,
   removeMessage,
 })
-</script>
-
-<script lang="ts">
-export default {
-  name: 'MessageToast',
-}
 </script>

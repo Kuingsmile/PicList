@@ -46,6 +46,8 @@ import CustomModal from '@/components/common/CustomModal.vue'
 import $bus from '@/utils/bus'
 import { CANCEL_INPUT_BOX, SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '#/constants/ipcChannels'
 
+defineOptions({ name: 'InputBoxDialog' })
+
 const { t } = useI18n()
 const inputBoxValue = ref('')
 const showInputBoxVisible = ref(false)
@@ -157,10 +159,4 @@ onBeforeUnmount(() => {
   pendingRequests.length = 0
   for (const request of requests) respondToRequest(request, '')
 })
-</script>
-
-<script lang="ts">
-export default {
-  name: 'InputBoxDialog',
-}
 </script>

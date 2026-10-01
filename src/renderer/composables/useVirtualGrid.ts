@@ -1,15 +1,15 @@
 import { computed, type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
 
-export interface UseVirtualGridOptions {
-  items: MaybeRefOrGetter<any[]>
+export interface UseVirtualGridOptions<T> {
+  items: MaybeRefOrGetter<readonly T[]>
   itemHeight: MaybeRefOrGetter<number>
   rowGap?: MaybeRefOrGetter<number>
   containerHeight: MaybeRefOrGetter<number>
   gridItems?: number | MaybeRefOrGetter<number>
-  bufferFactor?: number
+  bufferFactor?: MaybeRefOrGetter<number>
 }
 
-export function useVirtualGrid(options: UseVirtualGridOptions) {
+export function useVirtualGrid<T>(options: UseVirtualGridOptions<T>) {
   const { items, itemHeight, rowGap = 0, containerHeight, gridItems = 1, bufferFactor = 0.5 } = options
 
   const scrollTop = ref(0)
@@ -32,36 +32,43 @@ export function useVirtualGrid(options: UseVirtualGridOptions) {
     }
   })
 
-  const visibleRange = computed(() => {
+  const visibleRange = computed<{ startRow: number; endRow: number; visibleRows: number }>(previous => {
     const { rowStride, totalRows } = gridCalculations.value
     const height = toValue(containerHeight)
 
     if (!height || !rowStride || totalRows === 0) {
-      return { startRow: 0, endRow: 0, visibleRows: 0 }
+      return previous?.startRow === 0 && previous.endRow === 0 && previous.visibleRows === 0
+        ? previous
+        : { startRow: 0, endRow: 0, visibleRows: 0 }
     }
-    const buffer = Math.ceil((height / rowStride) * bufferFactor)
+    const buffer = Math.ceil((height / rowStride) * toValue(bufferFactor))
     const offset = Math.min(scrollTop.value, Math.max(0, gridCalculations.value.totalHeight - height))
     const startRow = Math.max(0, Math.floor(offset / rowStride) - buffer)
     const endRow = Math.min(totalRows, Math.ceil((offset + height) / rowStride) + buffer)
     const visibleRows = endRow - startRow
-    return { startRow, endRow, visibleRows }
+    return previous?.startRow === startRow && previous.endRow === endRow && previous.visibleRows === visibleRows
+      ? previous
+      : { startRow, endRow, visibleRows }
   })
 
-  const visibleIndexes = computed(() => {
+  const visibleIndexes = computed<number[]>(previous => {
     const { itemsPerRow } = gridCalculations.value
     const { startRow, endRow } = visibleRange.value
     const indexes: number[] = []
+    const itemCount = toValue(items).length
 
     for (let rowIndex = startRow; rowIndex < endRow; rowIndex++) {
       for (let col = 0; col < itemsPerRow; col++) {
         const itemIndex = rowIndex * itemsPerRow + col
-        if (itemIndex < toValue(items).length) {
+        if (itemIndex < itemCount) {
           indexes.push(itemIndex)
         }
       }
     }
 
-    return indexes
+    return previous?.length === indexes.length && indexes.every((index, position) => index === previous[position])
+      ? previous
+      : indexes
   })
 
   const viewportOffset = computed(() => {

@@ -66,7 +66,7 @@
         </section>
       </div>
 
-      <fieldset v-if="change.kind === 'conflict'" :disabled="disabled" class="min-w-0 border-t border-border pt-4">
+      <fieldset v-if="change.kind === 'conflict'" :disabled class="min-w-0 border-t border-border pt-4">
         <legend class="px-1 text-sm font-semibold">{{ syncText('choose') }}</legend>
         <div class="grid grid-cols-3 gap-2 max-sm:grid-cols-1">
           <label v-for="choice in choices" :key="choice" class="relative">

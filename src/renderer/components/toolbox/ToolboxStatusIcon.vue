@@ -8,14 +8,16 @@ import { computed } from 'vue'
 
 import { IToolboxItemCheckStatus } from '#/constants/app'
 
+defineOptions({ name: 'ToolboxStatusIcon' })
+
 interface IProps {
   status: string
 }
 
-const props = defineProps<IProps>()
+const { status } = defineProps<IProps>()
 
 const color = computed(() => {
-  switch (props.status) {
+  switch (status) {
     case IToolboxItemCheckStatus.SUCCESS:
       return '#67C23A'
     case IToolboxItemCheckStatus.ERROR:
@@ -26,7 +28,7 @@ const color = computed(() => {
 })
 
 const icon = computed(() => {
-  switch (props.status) {
+  switch (status) {
     case IToolboxItemCheckStatus.SUCCESS:
       return CircleCheck
     case IToolboxItemCheckStatus.ERROR:
@@ -37,9 +39,4 @@ const icon = computed(() => {
       return null
   }
 })
-</script>
-<script lang="ts">
-export default {
-  name: 'ToolboxStatusIcon',
-}
 </script>

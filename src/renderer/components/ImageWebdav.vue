@@ -22,7 +22,7 @@ import { useThumbnail } from '@/composables/useThumbnail'
 import { getFileIconPath } from '@/manage/utils/filePresentation'
 import { fetchPreviewResponse } from '@/manage/utils/filePreview'
 
-const props = defineProps<{
+const { item, url, config, isShowThumbnail } = defineProps<{
   item: {
     key: string
     isImage: boolean
@@ -34,30 +34,28 @@ const props = defineProps<{
 }>()
 
 const imageSource = computed(() => {
-  return props.isShowThumbnail && props.item.isImage
-    ? objectUrl.value
-    : `./assets/icons/${getFileIconPath(props.item.fileName ?? '')}`
+  return isShowThumbnail && item.isImage ? objectUrl.value : `./assets/icons/${getFileIconPath(item.fileName ?? '')}`
 })
 
-const iconPath = computed(() => `./assets/icons/${getFileIconPath(props.item.fileName ?? '')}`)
+const iconPath = computed(() => `./assets/icons/${getFileIconPath(item.fileName ?? '')}`)
 
 const {
   source: objectUrl,
   isLoading,
   hasError,
 } = useThumbnail(
-  () => props.isShowThumbnail && props.item.isImage,
+  () => isShowThumbnail && item.isImage,
   [
-    () => props.url,
-    () => props.item.key,
-    () => props.config.authType,
-    () => props.config.endpoint,
-    () => props.config.sslEnabled,
-    () => props.config.username,
-    () => props.config.password,
+    () => url,
+    () => item.key,
+    () => config.authType,
+    () => config.endpoint,
+    () => config.sslEnabled,
+    () => config.username,
+    () => config.password,
   ],
   async signal => {
-    const res = await fetchPreviewResponse(props.url, signal, props.config)
+    const res = await fetchPreviewResponse(url, signal, config)
     return await res.blob()
   },
 )

@@ -199,7 +199,7 @@
 
 <script lang="ts" setup>
 import { KeyboardIcon } from '@lucide/vue'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
@@ -229,7 +229,7 @@ const editing = ref<ShortcutEntry | null>(null)
 const draft = ref<ShortcutConfig>({ name: '', label: '', key: '', enable: true })
 const actionType = ref<UploadShortcutAction['type']>('uploadClipboard')
 const targetKey = ref('')
-const keyInput = ref<HTMLInputElement>()
+const keyInput = useTemplateRef('keyInput')
 const saveError = ref('')
 let disposed = false
 let refreshId = 0

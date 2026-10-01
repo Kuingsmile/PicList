@@ -70,13 +70,19 @@
 <script setup lang="ts">
 import { Dialog, DialogDescription, DialogPanel, DialogTitle, TransitionRoot } from '@headlessui/vue'
 import { XIcon } from '@lucide/vue'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { getConfig } from '@/services/configService'
 import { configPaths } from '@/utils/configPaths'
 
 import { useDialogFocus } from '../../composables/useDialogFocus'
+
+defineSlots<{
+  header?: () => unknown
+  default?: () => unknown
+  footer?: () => unknown
+}>()
 
 defineOptions({ inheritAttrs: false })
 
@@ -103,7 +109,7 @@ const {
 }>()
 
 const { t } = useI18n()
-const dialogElement = ref<HTMLElement | null>(null)
+const dialogElement = useTemplateRef('dialogElement')
 const enableAdvancedAnimation = ref(false)
 const dialogStyle = computed(() => ({
   height,

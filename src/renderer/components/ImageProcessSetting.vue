@@ -196,8 +196,8 @@
                   @inherit="inheritSetting('compress', 'quality')"
                 >
                   <div class="processing-quality-heading">
-                    <label for="processing-quality">{{ t('pages.imageProcess.guide.quality') }}</label>
-                    <output for="processing-quality">{{ form.compress.quality }}<span>%</span></output>
+                    <label :for="controlId('processing-quality')">{{ t('pages.imageProcess.guide.quality') }}</label>
+                    <output :for="controlId('processing-quality')">{{ form.compress.quality }}<span>%</span></output>
                   </div>
                   <div
                     class="processing-quality-presets"
@@ -215,7 +215,7 @@
                     </button>
                   </div>
                   <input
-                    id="processing-quality"
+                    :id="controlId('processing-quality')"
                     v-model.number="form.compress.quality"
                     class="processing-quality-slider"
                     type="range"
@@ -253,10 +253,14 @@
                   @edit-source="editScope"
                   @inherit="inheritSetting('compress', 'convertFormat')"
                 >
-                  <label for="processing-compress-isConvert" class="text-sm font-semibold text-main">{{
+                  <label :for="controlId('processing-compress-isConvert')" class="text-sm font-semibold text-main">{{
                     t('pages.imageProcess.general.destinationFormat')
                   }}</label>
-                  <select id="processing-compress-isConvert" v-model="form.compress.convertFormat" class="form-input">
+                  <select
+                    :id="controlId('processing-compress-isConvert')"
+                    v-model="form.compress.convertFormat"
+                    class="form-input"
+                  >
                     <option v-for="format in availableFormat" :key="format" :value="format">
                       {{ format.toUpperCase() }}
                     </option>
@@ -294,11 +298,13 @@
                     @edit-source="editScope"
                     @inherit="inheritSetting('compress', 'formatConvertObj')"
                   >
-                    <label for="processing-compress-isRemoveExif" class="text-sm font-semibold text-main">{{
-                      t('pages.imageProcess.guide.formatRules')
-                    }}</label>
+                    <label
+                      :for="controlId('processing-compress-isRemoveExif')"
+                      class="text-sm font-semibold text-main"
+                      >{{ t('pages.imageProcess.guide.formatRules') }}</label
+                    >
                     <textarea
-                      id="processing-compress-isRemoveExif"
+                      :id="controlId('processing-compress-isRemoveExif')"
                       v-model="convertStr"
                       :aria-label="t('pages.imageProcess.guide.formatRules')"
                       :aria-invalid="conversionError"
@@ -365,11 +371,13 @@
                   @edit-source="editScope"
                   @inherit="inheritSetting('watermark', 'watermarkText')"
                 >
-                  <label for="processing-watermark-watermarkText" class="text-sm font-semibold text-main">{{
-                    t('pages.imageProcess.watermark.inputText')
-                  }}</label>
+                  <label
+                    :for="controlId('processing-watermark-watermarkText')"
+                    class="text-sm font-semibold text-main"
+                    >{{ t('pages.imageProcess.watermark.inputText') }}</label
+                  >
                   <input
-                    id="processing-watermark-watermarkText"
+                    :id="controlId('processing-watermark-watermarkText')"
                     v-model="form.watermark.watermarkText"
                     type="text"
                     class="form-input"
@@ -385,11 +393,13 @@
                   @edit-source="editScope"
                   @inherit="inheritSetting('watermark', 'watermarkImagePath')"
                 >
-                  <label for="processing-watermark-watermarkImagePath" class="text-sm font-semibold text-main">{{
-                    t('pages.imageProcess.watermark.imagePath')
-                  }}</label>
+                  <label
+                    :for="controlId('processing-watermark-watermarkImagePath')"
+                    class="text-sm font-semibold text-main"
+                    >{{ t('pages.imageProcess.watermark.imagePath') }}</label
+                  >
                   <input
-                    id="processing-watermark-watermarkImagePath"
+                    :id="controlId('processing-watermark-watermarkImagePath')"
                     v-model="form.watermark.watermarkImagePath"
                     type="text"
                     class="form-input"
@@ -410,7 +420,7 @@
                   <div class="grid max-w-[320px] grid-cols-3 gap-2.5">
                     <button
                       v-for="[key, label] in waterMarkPositionMap"
-                      :key="key"
+                      :key
                       type="button"
                       class="rounded-lg border border-border-secondary bg-bg p-3 text-center text-sm font-semibold text-secondary transition-all duration-200 ease-apple hover:border-accent hover:bg-accent/8 hover:text-main [.active]:border-accent/10 [.active]:bg-accent/20 [.active]:text-main"
                       :class="{ active: form.watermark.watermarkPosition === key }"
@@ -454,12 +464,14 @@
                     @edit-source="editScope"
                     @inherit="inheritSetting('watermark', 'watermarkColor')"
                   >
-                    <label for="processing-watermark-watermarkColor" class="text-sm font-semibold text-main">{{
-                      t('pages.imageProcess.watermark.color')
-                    }}</label>
+                    <label
+                      :for="controlId('processing-watermark-watermarkColor')"
+                      class="text-sm font-semibold text-main"
+                      >{{ t('pages.imageProcess.watermark.color') }}</label
+                    >
                     <div class="flex flex-wrap items-center gap-2">
                       <input
-                        id="processing-watermark-watermarkColor"
+                        :id="controlId('processing-watermark-watermarkColor')"
                         v-model="form.watermark.watermarkColor"
                         type="color"
                         class="h-[48px] w-[48px] cursor-pointer overflow-hidden rounded-lg border border-border bg-bg p-0.5 transition-all duration-200 ease-apple hover:border-accent hover:shadow-sm focus:border-accent focus:shadow-sm focus:outline-none"
@@ -535,11 +547,13 @@
                     @edit-source="editScope"
                     @inherit="inheritSetting('watermark', 'watermarkFontPath')"
                   >
-                    <label for="processing-watermark-watermarkFontPath" class="text-sm font-semibold text-main">{{
-                      t('pages.imageProcess.watermark.textFontPath')
-                    }}</label>
+                    <label
+                      :for="controlId('processing-watermark-watermarkFontPath')"
+                      class="text-sm font-semibold text-main"
+                      >{{ t('pages.imageProcess.watermark.textFontPath') }}</label
+                    >
                     <input
-                      id="processing-watermark-watermarkFontPath"
+                      :id="controlId('processing-watermark-watermarkFontPath')"
                       v-model="form.watermark.watermarkFontPath"
                       type="text"
                       class="form-input"
@@ -578,11 +592,11 @@
                   @edit-source="editScope"
                   @inherit="inheritSetting('compress', 'reSizeWidth')"
                 >
-                  <label for="processing-compress-reSizeWidth" class="text-sm font-semibold text-main">{{
+                  <label :for="controlId('processing-compress-reSizeWidth')" class="text-sm font-semibold text-main">{{
                     t('pages.imageProcess.transform.resizeWidth')
                   }}</label>
                   <input
-                    id="processing-compress-reSizeWidth"
+                    :id="controlId('processing-compress-reSizeWidth')"
                     v-model.number="form.compress.reSizeWidth"
                     type="number"
                     min="0"
@@ -599,11 +613,11 @@
                   @edit-source="editScope"
                   @inherit="inheritSetting('compress', 'reSizeHeight')"
                 >
-                  <label for="processing-compress-reSizeHeight" class="text-sm font-semibold text-main">{{
+                  <label :for="controlId('processing-compress-reSizeHeight')" class="text-sm font-semibold text-main">{{
                     t('pages.imageProcess.transform.resizeHeight')
                   }}</label>
                   <input
-                    id="processing-compress-reSizeHeight"
+                    :id="controlId('processing-compress-reSizeHeight')"
                     v-model.number="form.compress.reSizeHeight"
                     type="number"
                     min="0"
@@ -867,14 +881,14 @@
                     @inherit="inheritSetting('rename', 'format')"
                   >
                     <label
-                      for="processing-rename-format"
+                      :for="controlId('processing-rename-format')"
                       class="mb-4 flex items-center gap-2 text-sm font-semibold text-main"
                     >
                       <Edit :size="14" class="text-accent" />
                       {{ t('pages.settings.upload.advancedRnameFormat') }}
                     </label>
                     <input
-                      id="processing-rename-format"
+                      :id="controlId('processing-rename-format')"
                       v-model="form.rename.format"
                       type="text"
                       class="form-input"
@@ -961,7 +975,7 @@ import {
   UserRound,
 } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
-import { computed, nextTick, onBeforeMount, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onBeforeMount, ref, useId, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomRadioOption from '@/components/common/CustomRadioOption.vue'
@@ -973,6 +987,9 @@ import SettingSection from '@/components/ImageProcessSection.vue'
 import ImageProcessSettingField from '@/components/ImageProcessSettingField.vue'
 import { useImageProcessingSettings } from '@/composables/useImageProcessingSettings'
 import type { ProcessingGroup, ProcessingScope } from '@/utils/imageProcessingConfig'
+
+const processingId = useId()
+const controlId = (field: string) => `${processingId}-${field}`
 
 const { configId = '', currentPicbedName = '' } = defineProps<{ configId?: string; currentPicbedName?: string }>()
 defineEmits<{ done: [] }>()

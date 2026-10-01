@@ -1,11 +1,11 @@
 export type FileSortValue = string | number | null | undefined
 
-export interface FileColumn {
+export interface FileColumn<T> {
   key: string
   label: string
   width: number
-  value: (item: any) => FileSortValue
-  format?: (item: any) => string
+  value: (item: T) => FileSortValue
+  format?: (item: T) => string
 }
 
 const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })

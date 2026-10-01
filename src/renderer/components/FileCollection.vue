@@ -3,7 +3,7 @@
     <VirtualScroller
       ref="scrollerRef"
       class="collection-scroller"
-      :items="items"
+      :items
       :item-height="viewMode === 'table' ? rowHeight : gridItemHeight"
       :view-mode="viewMode"
       :grid-breakpoints="gridBreakpoints"
@@ -69,7 +69,7 @@
               type="checkbox"
               :tabindex="keyOf(item) === focusKey ? 0 : -1"
               :checked="isSelected(item)"
-              :aria-label="t('common.fileTable.selectFile', { name: item.fileName || item[keyField] })"
+              :aria-label="t('common.fileTable.selectFile', { name: item.fileName || keyOf(item) })"
               @click.stop="selectRow(item, index, $event, false)"
               @dblclick.stop
             />
@@ -101,23 +101,28 @@
           </td>
           <td class="row-actions" @click.stop @dblclick.stop>
             <div class="action-buttons">
-              <slot name="actions" :item="item" :index="index" :tabindex="keyOf(item) === focusKey ? 0 : -1" />
+              <slot name="actions" :item :index :tabindex="keyOf(item) === focusKey ? 0 : -1" />
             </div>
           </td>
         </tr>
-        <slot v-else :item="item" :index="index" />
+        <slot v-else :item :index />
       </template>
     </VirtualScroller>
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends { fileName?: string; isDir?: boolean }">
 import { FileIcon, FolderIcon } from '@lucide/vue'
 import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import VirtualScroller from '@/components/VirtualScroller.vue'
 import type { FileColumn } from '@/utils/fileCollection'
+
+defineSlots<{
+  actions?: (props: { item: T; index: number; tabindex: number }) => unknown
+  default?: (props: { item: T; index: number }) => unknown
+}>()
 
 const {
   items,
@@ -134,14 +139,14 @@ const {
   actionsWidth = 144,
   previewId = '',
 } = defineProps<{
-  items: any[]
-  columns: FileColumn[]
+  items: readonly T[]
+  columns: readonly FileColumn<T>[]
   keyField?: string
   viewMode: 'grid' | 'table'
   density?: 'compact' | 'comfortable'
   gridItemHeight: number
   gridBreakpoints: { min: number; cols: number }[]
-  isSelected: (item: any) => boolean
+  isSelected: (item: T) => boolean
   sortField: string
   sortAscending: boolean
   label: string
@@ -150,11 +155,11 @@ const {
 }>()
 
 const emit = defineEmits<{
-  select: [item: any, selected: boolean]
+  select: [item: T, selected: boolean]
   selectAll: [selected: boolean]
   sort: [field: string]
-  open: [item: any, index: number]
-  preview: [item: any, anchor: Element]
+  open: [item: T, index: number]
+  preview: [item: T, anchor: Element]
   previewEnd: []
   visibleIndexesChange: [indexes: number[]]
 }>()
@@ -165,8 +170,13 @@ const scrollerRef = useTemplateRef('scrollerRef')
 const rowHeight = computed(() => (density === 'compact' ? 36 : 48))
 const focusKey = ref<string | number>()
 const rangeAnchor = ref<string | number>()
-const keyOf = (item: any): string | number => item[keyField]
-const keys = computed(() => items.map(keyOf))
+const keyOf = (item: T): string | number => (item as Record<string, unknown>)[keyField] as string | number
+const keys = computed<(string | number)[]>(previous => {
+  const current = items.map(keyOf)
+  return previous?.length === current.length && current.every((key, index) => key === previous[index])
+    ? previous
+    : current
+})
 const allSelected = computed(() => items.length > 0 && items.every(isSelected))
 const someSelected = computed(() => items.some(isSelected))
 
@@ -179,7 +189,7 @@ watch(
   { immediate: true },
 )
 
-const cellText = (column: FileColumn, item: any) => column.format?.(item) || String(column.value(item) ?? '—')
+const cellText = (column: FileColumn<T>, item: T) => column.format?.(item) || String(column.value(item) ?? '—')
 
 function selectRange(index: number) {
   const anchor = keys.value.indexOf(rangeAnchor.value!)
@@ -187,7 +197,7 @@ function selectRange(index: number) {
   for (let i = Math.min(start, index); i <= Math.max(start, index); i++) emit('select', items[i], true)
 }
 
-function selectRow(item: any, index: number, event: MouseEvent, focus = true) {
+function selectRow(item: T, index: number, event: MouseEvent, focus = true) {
   if (event.shiftKey) selectRange(index)
   else {
     rangeAnchor.value = keyOf(item)
@@ -208,7 +218,8 @@ function onVisibleIndexesChange(indexes: number[]) {
   // Always keep a visible row in the tab order after scrolling with a mouse.
   if (!indexes.some(index => keyOf(items[index]) === focusKey.value)) {
     const first = scrollerRef.value?.captureAnchor()?.index ?? indexes[0]
-    focusKey.value = items[first]?.[keyField]
+    const item = items[first]
+    focusKey.value = item ? keyOf(item) : undefined
   }
   emit('visibleIndexesChange', indexes)
 }

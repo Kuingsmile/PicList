@@ -34,6 +34,14 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 
+defineSlots<{
+  icon?: () => unknown
+  title?: () => unknown
+  description?: () => unknown
+  default?: () => unknown
+  extra?: () => unknown
+}>()
+
 const {
   title = '',
   description = '',

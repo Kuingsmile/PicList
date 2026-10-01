@@ -1,12 +1,6 @@
 <template>
   <CustomButton type="secondary" :icon="RefreshCw" :text="syncText('preview')" :disabled="busy" @click="preview" />
-  <CustomModal
-    :visible="visible"
-    max-width="1000px"
-    :title="syncText('title')"
-    :close-disabled="busy"
-    @update:visible="close"
-  >
+  <CustomModal :visible max-width="1000px" :title="syncText('title')" :close-disabled="busy" @update:visible="close">
     <template #header>
       <div class="flex min-w-0 items-center gap-3">
         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-white">
@@ -161,7 +155,7 @@
               v-for="change in visibleChanges"
               :key="`${plan.id}-${change.key}`"
               v-model="resolutions[change.key]"
-              :change="change"
+              :change
               :disabled="busy || !ready"
             />
             <div
@@ -217,12 +211,12 @@
             @click="exportFile('summary')"
           />
           <div v-if="snapshots.length || snapshotId" class="space-y-2 border-t border-border pt-4">
-            <label for="gallery-rollback-snapshot" class="text-sm font-medium text-secondary">{{
+            <label :for="rollbackSelectId" class="text-sm font-medium text-secondary">{{
               syncText('savedSnapshots')
             }}</label>
             <div class="flex flex-wrap items-center gap-3">
               <select
-                id="gallery-rollback-snapshot"
+                :id="rollbackSelectId"
                 v-model="snapshotId"
                 :disabled="busy"
                 class="min-w-0 flex-1 rounded-md border border-border bg-bg-tertiary p-3 text-sm focus:border-accent"
@@ -290,7 +284,7 @@ import {
   Search,
   Trash2,
 } from '@lucide/vue'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
@@ -318,6 +312,7 @@ const applied = ref(false)
 const error = ref('')
 const plan = ref<GallerySyncPlan>()
 const snapshotId = ref('')
+const rollbackSelectId = useId()
 const snapshots = ref<GallerySyncSnapshot[]>([])
 const resolutions = ref<Record<string, GallerySyncResolution | ''>>({})
 const filter = ref<GallerySyncChange['kind'] | 'all'>('all')

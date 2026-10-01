@@ -45,7 +45,7 @@
           </div>
           <div v-else-if="config.length > 0" class="flex h-full w-full">
             <!-- Config Form -->
-            <config-form :id="type" ref="$configForm" :config="config" type="uploader">
+            <config-form :id="type" ref="$configForm" :config type="uploader">
               <!-- Action Buttons -->
               <div class="mb-4 flex flex-wrap gap-3 rounded-xl border border-border bg-accent/10 p-4">
                 <CustomButton
@@ -146,6 +146,8 @@ import { picBedManualUrlList } from '@/utils/static'
 import { II18nLanguage } from '#/constants/app'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { getRawData } from '#/utils/rawData'
+
+defineOptions({ name: 'PicbedsPage' })
 
 const { t } = useI18n()
 const message = useMessage()
@@ -343,10 +345,4 @@ onBeforeUnmount(() => {
   pageVersion++
   clearTimeout(blurTimer)
 })
-</script>
-
-<script lang="ts">
-export default {
-  name: 'PicbedsPage',
-}
 </script>

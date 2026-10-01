@@ -45,7 +45,7 @@
           v-bind="$attrs"
           v-model="choosed"
           type="checkbox"
-          :disabled="disabled"
+          :disabled
           :value="item.type"
           data-dropdown-item
           tabindex="-1"
@@ -63,6 +63,10 @@ import { type Component, onMounted, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useDropdown } from '../../composables/useDropdown'
+
+defineSlots<{
+  icon?: () => unknown
+}>()
 
 const choosed = defineModel<string[] | undefined>('choosed', { default: undefined })
 const { t } = useI18n()

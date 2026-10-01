@@ -22,7 +22,7 @@ import { useThumbnail } from '@/composables/useThumbnail'
 import { getFileIconPath } from '@/manage/utils/filePresentation'
 import { IRPCActionType } from '#/constants/rpcActions'
 
-const props = defineProps<{
+const { item, alias, url, config, isShowThumbnail } = defineProps<{
   item: {
     key: string
     isImage: boolean
@@ -35,37 +35,31 @@ const props = defineProps<{
 }>()
 
 const imageSource = computed(() => {
-  return props.isShowThumbnail && props.item.isImage
-    ? preSignedUrl.value
-    : `./assets/icons/${getFileIconPath(props.item.fileName ?? '')}`
+  return isShowThumbnail && item.isImage ? preSignedUrl.value : `./assets/icons/${getFileIconPath(item.fileName ?? '')}`
 })
 
-const iconPath = computed(() => `./assets/icons/${getFileIconPath(props.item.fileName ?? '')}`)
+const iconPath = computed(() => `./assets/icons/${getFileIconPath(item.fileName ?? '')}`)
 
 const {
   source: preSignedUrl,
   isLoading,
   hasError,
 } = useThumbnail(
-  () => props.isShowThumbnail && props.item.isImage,
+  () => isShowThumbnail && item.isImage,
   [
-    () => props.url,
-    () => props.item.key,
-    () => props.alias,
-    () => props.config.bucketName,
-    () => props.config.region,
-    () => props.config.key,
-    () => props.config.expires,
-    () => props.config.customUrl,
-    () => props.config.githubPrivate,
-    () => props.config.rawUrl,
+    () => url,
+    () => item.key,
+    () => alias,
+    () => config.bucketName,
+    () => config.region,
+    () => config.key,
+    () => config.expires,
+    () => config.customUrl,
+    () => config.githubPrivate,
+    () => config.rawUrl,
   ],
   async () => {
-    const url = await window.electron.triggerRPC<string>(
-      IRPCActionType.MANAGE_GET_PRE_SIGNED_URL,
-      props.alias,
-      props.config,
-    )
+    const url = await window.electron.triggerRPC<string>(IRPCActionType.MANAGE_GET_PRE_SIGNED_URL, alias, config)
     if (!url || url === 'error') throw new Error('Failed to get pre-signed URL')
     return url
   },

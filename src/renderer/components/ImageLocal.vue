@@ -24,7 +24,7 @@
 import { useThumbnail } from '@/composables/useThumbnail'
 import { getFileIconPath } from '@/manage/utils/filePresentation'
 
-const props = defineProps<{
+const { isShowThumbnail, item, localPath } = defineProps<{
   isShowThumbnail: boolean
   item: {
     isImage: boolean
@@ -34,12 +34,12 @@ const props = defineProps<{
 }>()
 
 const { source, isLoading, hasError } = useThumbnail(
-  () => props.isShowThumbnail && props.item.isImage,
-  [() => props.localPath],
+  () => isShowThumbnail && item.isImage,
+  [() => localPath],
   async signal => {
     signal.throwIfAborted()
     // Chromium reads the file directly; no full-file base64 copies across the preload bridge.
-    return window.node.pathToFileURL(props.localPath)
+    return window.node.pathToFileURL(localPath)
   },
 )
 

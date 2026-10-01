@@ -53,6 +53,8 @@ import { useI18n } from 'vue-i18n'
 import CustomButton from '@/components/common/CustomButton.vue'
 import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '#/constants/ipcChannels'
 
+defineOptions({ name: 'RenamePage' })
+
 const { t } = useI18n()
 const request = ref<IRenameRequest | null>(null)
 const fileNameInput = useTemplateRef('fileNameInput')
@@ -127,10 +129,4 @@ onBeforeMount(() => {
 onBeforeUnmount(() => {
   removeRenameListener()
 })
-</script>
-
-<script lang="ts">
-export default {
-  name: 'RenamePage',
-}
 </script>

@@ -15,7 +15,7 @@
         <tr v-if="viewportOffset > 0" aria-hidden="true">
           <td :colspan="tableColumns" class="virtual-spacer" :style="{ height: `${viewportOffset}px` }" />
         </tr>
-        <slot v-for="index in visibleIndexes" :key="itemKey(items[index], index)" :item="items[index]" :index="index" />
+        <slot v-for="index in visibleIndexes" :key="itemKey(items[index], index)" :item="items[index]" :index />
         <tr v-if="bottomSpace > 0" aria-hidden="true">
           <td :colspan="tableColumns" class="virtual-spacer" :style="{ height: `${bottomSpace}px` }" />
         </tr>
@@ -28,14 +28,14 @@
           :key="itemKey(items[index], index)"
           :style="{ height: `${itemHeight}px`, minWidth: 0 }"
         >
-          <slot :item="items[index]" :index="index" />
+          <slot :item="items[index]" :index />
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends object">
 import {
   computed,
   nextTick,
@@ -50,12 +50,18 @@ import {
 
 import { useVirtualGrid } from '@/composables/useVirtualGrid'
 
+defineSlots<{
+  columns?: () => unknown
+  header?: () => unknown
+  default?: (props: { item: T; index: number; key?: string | number }) => unknown
+}>()
+
 interface Breakpoint {
   min: number
   cols: number
 }
 
-export interface ScrollAnchor {
+interface ScrollAnchor {
   key: string | number
   index: number
   fraction: number
@@ -73,7 +79,7 @@ const {
   tableMinWidth = 800,
   tableLabel = '',
 } = defineProps<{
-  items: any[]
+  items: readonly T[]
   itemHeight: number
   gridBreakpoints?: Breakpoint[]
   bufferFactor?: number
@@ -85,7 +91,7 @@ const {
   tableLabel?: string
 }>()
 
-const emit = defineEmits<(e: 'visibleIndexesChange', indexes: number[]) => void>()
+const emit = defineEmits<{ visibleIndexesChange: [indexes: number[]] }>()
 const containerRef = useTemplateRef('containerRef')
 const headerRef = useTemplateRef('headerRef')
 const containerHeight = ref(0)
@@ -96,8 +102,12 @@ let restoring = false
 let restoreVersion = 0
 let active = true
 
-const itemKey = (item: any, index: number): string | number => item?.[keyField] ?? index
-const itemKeys = computed(() => items.map(itemKey))
+const itemKey = (item: T, index: number): string | number =>
+  ((item as Record<string, unknown>)?.[keyField] as string | number | undefined) ?? index
+const itemKeys = computed<(string | number)[]>(previous => {
+  const keys = items.map(itemKey)
+  return previous?.length === keys.length && keys.every((key, index) => key === previous[index]) ? previous : keys
+})
 const sortedBreakpoints = computed(() => [...gridBreakpoints].sort((a, b) => a.min - b.min))
 const effectiveCols = computed(() => {
   if (viewMode !== 'grid') return 1
@@ -114,7 +124,7 @@ const { gridCalculations, visibleIndexes, viewportOffset, scrollTop, updateScrol
   rowGap: () => (viewMode === 'grid' ? itemPadding : 0),
   containerHeight,
   gridItems: effectiveCols,
-  bufferFactor,
+  bufferFactor: () => bufferFactor,
 })
 
 const bottomSpace = computed(() =>
@@ -195,14 +205,17 @@ function refresh() {
   void restoreAnchor()
 }
 
-watch(
+const anchorWatcher = watch(
   [itemKeys, () => itemHeight, () => viewMode, effectiveCols],
   () => {
     void restoreAnchor()
   },
   { flush: 'pre' },
 )
-watch(visibleIndexes, indexes => emit('visibleIndexesChange', indexes), { immediate: true, flush: 'post' })
+const visibleIndexesWatcher = watch(visibleIndexes, indexes => emit('visibleIndexesChange', indexes), {
+  immediate: true,
+  flush: 'post',
+})
 
 onMounted(() => {
   observer = new ResizeObserver(refresh)
@@ -211,10 +224,14 @@ onMounted(() => {
 })
 onActivated(() => {
   active = true
+  anchorWatcher.resume()
+  visibleIndexesWatcher.resume()
   refresh()
 })
 onDeactivated(() => {
   active = false
+  anchorWatcher.pause()
+  visibleIndexesWatcher.pause()
   restoreVersion++
   restoring = false
 })

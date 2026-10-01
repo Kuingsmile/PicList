@@ -28,17 +28,17 @@
         v-bind="$attrs"
         :id="inputId"
         v-model="modelValue"
-        :type="type"
-        :disabled="disabled"
+        :type
+        :disabled
         :aria-required="required || undefined"
         class="box-border w-full rounded-md border border-border bg-bg-tertiary p-3 text-sm text-main transition-all duration-200 ease-apple focus:border-accent focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50"
         :class="{ 'pr-10': isPassword }"
-        :placeholder="placeholder"
+        :placeholder
       />
       <button
         v-if="isPassword"
         type="button"
-        :disabled="disabled"
+        :disabled
         :aria-label="passwordVisible ? t('common.hidePassword') : t('common.showPassword')"
         :aria-controls="inputId"
         :aria-pressed="passwordVisible"
@@ -59,6 +59,11 @@ import { computed, ref, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { renderMarkdown } from '@/utils/markdown'
+
+defineSlots<{
+  'title-extra'?: () => unknown
+  'input-extra'?: () => unknown
+}>()
 
 const [modelValue, modifiers] = defineModel<any>({
   default: undefined,

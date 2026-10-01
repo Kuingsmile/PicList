@@ -279,7 +279,7 @@
       height="auto"
     >
       <div class="flex-1 overflow-y-auto p-4">
-        <config-form :id="configName" ref="$configForm" :config="config" :type="currentType" mode="plugin" />
+        <config-form :id="configName" ref="$configForm" :config :type="currentType" mode="plugin" />
       </div>
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />
@@ -430,7 +430,17 @@ import {
 } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
 import { debounce } from 'lodash-es'
-import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, toRaw, useTemplateRef, watch } from 'vue'
+import {
+  computed,
+  onBeforeMount,
+  onBeforeUnmount,
+  onWatcherCleanup,
+  reactive,
+  ref,
+  toRaw,
+  useTemplateRef,
+  watch,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
@@ -449,6 +459,8 @@ import {
 import { IRPCActionType } from '#/constants/rpcActions'
 import { getRawData } from '#/utils/rawData'
 import { handleStreamlinePluginName } from '#/utils/strings'
+
+defineOptions({ name: 'PluginPage' })
 
 const REGISTRY_TIMEOUT_MS = 10_000
 const METADATA_CONCURRENCY = 4
@@ -514,15 +526,17 @@ const getSearchResult = debounce(_getSearchResult, 300)
 watch(
   [npmSearchText, strictSearch],
   ([val, strict]) => {
-    // Invalidate immediately, including while the next search is still debounced.
-    getSearchResult.cancel()
-    searchController?.abort()
-    searchController = undefined
+    const controller = val ? new AbortController() : undefined
+    onWatcherCleanup(() => {
+      getSearchResult.cancel()
+      controller?.abort()
+      if (searchController === controller) searchController = undefined
+    })
     pluginList.value = []
     loading.value = true
     if (val) {
-      searchController = new AbortController()
-      getSearchResult(val, strict, searchController)
+      searchController = controller
+      getSearchResult(val, strict, controller!)
     } else {
       getPluginList()
     }
@@ -530,16 +544,20 @@ watch(
   { flush: 'sync' },
 )
 
-watch(showBrowseDialog, (val: boolean) => {
-  if (val) {
+watch(
+  showBrowseDialog,
+  visible => {
+    if (!visible) return
     document.body.style.overflow = 'hidden'
-  } else {
-    document.body.style.overflow = 'auto'
-    browseController?.abort()
-    browseController = undefined
-    loadingBrowse.value = false
-  }
-})
+    onWatcherCleanup(() => {
+      document.body.style.overflow = 'auto'
+      browseController?.abort()
+      browseController = undefined
+      loadingBrowse.value = false
+    })
+  },
+  { flush: 'sync' },
+)
 
 function setSrc(e: Event) {
   const target = e.target as HTMLImageElement
@@ -863,6 +881,7 @@ async function openBrowsePluginsDialog() {
 }
 
 async function fetchAllPlugins() {
+  if (!showBrowseDialog.value || disposed) return
   browseController?.abort()
   const controller = new AbortController()
   browseController = controller
@@ -931,11 +950,6 @@ onBeforeMount(async () => {
 
 onBeforeUnmount(() => {
   disposed = true
-  getSearchResult.cancel()
-  searchController?.abort()
-  searchController = undefined
-  browseController?.abort()
-  browseController = undefined
   metadataQueue.clear()
   metadataControllers.forEach(controller => controller.abort())
   metadataControllers.clear()
@@ -949,10 +963,4 @@ onBeforeUnmount(() => {
   window.electron.ipcRendererRemoveAllListeners(PICGO_HANDLE_PLUGIN_ING)
   window.electron.ipcRendererRemoveAllListeners(PICGO_TOGGLE_PLUGIN)
 })
-</script>
-
-<script lang="ts">
-export default {
-  name: 'PluginPage',
-}
 </script>

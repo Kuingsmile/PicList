@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div
       v-if="visible"
-      :id="id"
+      :id
       class="gallery-hover-preview"
       role="tooltip"
       :style="position"
@@ -13,8 +13,8 @@
         <img
           v-if="src && !failed"
           :key="src"
-          :src="src"
-          :alt="alt"
+          :src
+          :alt
           :class="{ 'is-loading': !loaded }"
           @load="loaded = true"
           @error="failed = true"

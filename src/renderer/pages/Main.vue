@@ -25,13 +25,11 @@ import InputBoxDialog from '@/components/InputBoxDialog.vue'
 import Navigation from '@/components/layout/NavigationPage.vue'
 import TitleBar from '@/components/layout/TitleBar.vue'
 
+defineOptions({ name: 'MainPage' })
+
 const $router = useRouter()
 const keepAlivePages = $router
   .getRoutes()
   .filter(item => item.meta.keepAlive)
   .map(item => item.name as string)
-</script>
-
-<script lang="ts">
-export default { name: 'MainPage' }
 </script>

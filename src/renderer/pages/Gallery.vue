@@ -273,10 +273,10 @@
           key-field="key"
           :label="t('pages.gallery.title')"
           :preview-id="hoverPreviewId"
-          :is-selected="item => !!choosedList[item.id]"
+          :is-selected="item => !!choosedList[item.id || '']"
           :sort-field="currentSortField"
           :sort-ascending="sortAscending"
-          @select="(item, selected) => (choosedList[item.id] = selected)"
+          @select="(item, selected) => (choosedList[item.id || ''] = selected)"
           @select-all="setAllSelected"
           @sort="field => sortFile(field as GallerySortField)"
           @open="(_, index) => zoomImage(index)"
@@ -287,7 +287,7 @@
           <template #actions="{ item, index, tabindex }">
             <button
               type="button"
-              :tabindex="tabindex"
+              :tabindex
               :title="t('common.fileTable.open')"
               :aria-label="t('common.fileTable.open')"
               @click="zoomImage(index)"
@@ -296,7 +296,7 @@
             </button>
             <button
               type="button"
-              :tabindex="tabindex"
+              :tabindex
               :title="t('pages.gallery.copy')"
               :aria-label="t('pages.gallery.copy')"
               @click="copy(item)"
@@ -305,7 +305,7 @@
             </button>
             <button
               type="button"
-              :tabindex="tabindex"
+              :tabindex
               :title="t('pages.gallery.edit')"
               :aria-label="t('pages.gallery.edit')"
               @click="openDialog(item)"
@@ -314,7 +314,7 @@
             </button>
             <button
               type="button"
-              :tabindex="tabindex"
+              :tabindex
               :title="t('pages.gallery.delete')"
               :aria-label="t('pages.gallery.delete')"
               @click="remove(item, index)"
@@ -533,6 +533,7 @@ import {
   onBeforeMount,
   onBeforeUnmount,
   onDeactivated,
+  onWatcherCleanup,
   reactive,
   ref,
   shallowRef,
@@ -573,6 +574,8 @@ import { IRPCActionType } from '#/constants/rpcActions'
 import { getRawData } from '#/utils/rawData'
 import { customStrMatch } from '#/utils/strings'
 import { addCacheBustParam as withCacheBustParam } from '#/utils/url'
+
+defineOptions({ name: 'GalleryPage' })
 
 type IResult<T> = T & {
   id: string
@@ -696,14 +699,12 @@ const advancedRenameList = computed(() => ({
     { label: t('pages.settings.upload.placeholder.randomString'), value: '{str-n}' },
   ],
 }))
-let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
-let searchURLDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
 const effectiveGridBreakpoints = computed(() => {
   return Array.from({ length: userGridColumns.value }, (_, index) => ({ min: index * 180, cols: index + 1 }))
 })
 
-const tableColumns = computed<FileColumn[]>(() => [
+const tableColumns = computed<FileColumn<IGalleryItem>[]>(() => [
   { key: 'name', label: t('common.fileTable.name'), width: 260, value: item => item.fileName },
   { key: 'ext', label: t('common.fileTable.type'), width: 90, value: fileType },
   { key: 'time', label: t('common.fileTable.date'), width: 180, value: fileDate, format: formatCollectionDate },
@@ -826,23 +827,23 @@ watch(userGridColumns, _ => {
 })
 
 watch(searchText, newVal => {
-  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
-  searchDebounceTimer = setTimeout(() => {
+  const timer = setTimeout(() => {
     debouncedSearchText.value = newVal
     nextTick(() => {
       virtualScrollerRef.value?.scrollToTop()
     })
   }, 300)
+  onWatcherCleanup(() => clearTimeout(timer))
 })
 
 watch(searchTextURL, newVal => {
-  if (searchURLDebounceTimer) clearTimeout(searchURLDebounceTimer)
-  searchURLDebounceTimer = setTimeout(() => {
+  const timer = setTimeout(() => {
     debouncedSearchTextURL.value = newVal
     nextTick(() => {
       virtualScrollerRef.value?.scrollToTop()
     })
   }, 300)
+  onWatcherCleanup(() => clearTimeout(timer))
 })
 
 function onImageLoad(item: IGalleryItem) {
@@ -1574,17 +1575,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleOutsideClick)
   document.removeEventListener('keydown', handleDetectShiftKey)
   document.removeEventListener('keyup', handleDetectShiftKey)
-
-  // Clear timers
-  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
-  if (searchURLDebounceTimer) clearTimeout(searchURLDebounceTimer)
 })
-</script>
-
-<script lang="ts">
-export default {
-  name: 'GalleryPage',
-}
 </script>
 
 <style scoped src="./Gallery.css"></style>

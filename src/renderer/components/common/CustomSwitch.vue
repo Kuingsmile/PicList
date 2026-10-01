@@ -18,11 +18,11 @@
         v-model="modelValue"
         type="checkbox"
         role="switch"
-        :disabled="disabled"
+        :disabled
         :aria-checked="!!modelValue"
         :aria-required="required || undefined"
         class="peer sr-only"
-        @change.stop="emit('change', modelValue)"
+        @change.stop="emit('change', !!modelValue)"
       />
       <span
         class="relative shrink-0 rounded-full bg-gray-400/80 shadow-sm transition-all duration-medium ease-standard peer-checked:bg-accent peer-checked:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1),0_2px_8px_color-mix(in_srgb,var(--color-accent),transparent_30%)] peer-focus-visible:ring-2 peer-focus-visible:ring-accent peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg-tertiary before:absolute before:rounded-full before:bg-white before:shadow-sm before:transition-all before:duration-200 before:ease-apple before:content-['']"
@@ -72,7 +72,13 @@ import { useI18n } from 'vue-i18n'
 
 import { renderMarkdown } from '@/utils/markdown'
 
-const emit = defineEmits(['change'])
+defineSlots<{
+  'custom-title'?: () => unknown
+  'switch-text'?: () => unknown
+  'title-extra'?: () => unknown
+}>()
+
+const emit = defineEmits<{ change: [value: boolean] }>()
 defineOptions({ inheritAttrs: false })
 const attrs = useAttrs()
 const { t } = useI18n()

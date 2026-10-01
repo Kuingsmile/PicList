@@ -36,7 +36,7 @@
     >
       <button
         v-for="key in keyList"
-        :key="key"
+        :key
         type="button"
         role="option"
         data-dropdown-item
@@ -58,7 +58,12 @@ import { type Component, useId } from 'vue'
 
 import { useDropdown } from '../../composables/useDropdown'
 
-const emit = defineEmits<(e: 'change', key: string) => void>()
+defineSlots<{
+  icon?: () => unknown
+  item?: (props: { item: string }) => unknown
+}>()
+
+const emit = defineEmits<{ change: [key: string] }>()
 const modelValue = defineModel<string | undefined>({ default: undefined })
 const labelId = `single-select-${useId()}`
 const optionsId = `${labelId}-options`

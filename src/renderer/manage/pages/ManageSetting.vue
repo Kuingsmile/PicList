@@ -95,7 +95,7 @@
           </SettingSection>
 
           <SettingSection :icon="Download" :title="t('pages.manage.setting.section.up-down')">
-            <SettingCard v-for="key in uploadLimitKeys" :key="key">
+            <SettingCard v-for="key in uploadLimitKeys" :key>
               <CustomInput
                 v-model.number="form[key]"
                 :title="t(`pages.manage.setting.${key}`)"

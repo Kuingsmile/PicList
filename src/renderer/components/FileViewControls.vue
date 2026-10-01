@@ -1,19 +1,16 @@
 <template>
   <div class="file-view-controls">
     <div class="view-buttons" :aria-label="t('common.fileTable.view')" role="group">
-      <button type="button" :aria-pressed="viewMode === 'grid'" @click="emit('update:viewMode', 'grid')">
+      <button type="button" :aria-pressed="viewMode === 'grid'" @click="viewMode = 'grid'">
         <GridIcon :size="14" />{{ t('common.fileTable.grid') }}
       </button>
-      <button type="button" :aria-pressed="viewMode === 'table'" @click="emit('update:viewMode', 'table')">
+      <button type="button" :aria-pressed="viewMode === 'table'" @click="viewMode = 'table'">
         <ListIcon :size="14" />{{ t('common.fileTable.table') }}
       </button>
     </div>
     <label v-if="viewMode === 'table'">
       {{ t('common.fileTable.density') }}
-      <select
-        :value="density"
-        @change="emit('update:density', ($event.target as HTMLSelectElement).value as 'compact' | 'comfortable')"
-      >
+      <select v-model="density">
         <option value="compact">{{ t('common.fileTable.compact') }}</option>
         <option value="comfortable">{{ t('common.fileTable.comfortable') }}</option>
       </select>
@@ -25,11 +22,8 @@
 import { GridIcon, ListIcon } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 
-defineProps<{ viewMode: 'grid' | 'table'; density: 'compact' | 'comfortable' }>()
-const emit = defineEmits<{
-  'update:viewMode': [value: 'grid' | 'table']
-  'update:density': [value: 'compact' | 'comfortable']
-}>()
+const viewMode = defineModel<'grid' | 'table'>('viewMode', { required: true })
+const density = defineModel<'compact' | 'comfortable'>('density', { required: true })
 const { t } = useI18n()
 </script>
 

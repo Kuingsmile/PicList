@@ -12,9 +12,9 @@
         {{ t(snapshot.plan.kind === 'gallery-url' ? 'common.bulk.galleryHint' : 'common.bulk.remoteHint') }}
       </p>
       <div class="flex flex-wrap items-center gap-3">
-        <label for="bulk-conflict-policy">{{ t('common.bulk.policy') }}</label>
+        <label :for="policyId">{{ t('common.bulk.policy') }}</label>
         <select
-          id="bulk-conflict-policy"
+          :id="policyId"
           v-model="policy"
           :disabled="busy || snapshot.committed"
           class="rounded-md border border-border bg-bg-secondary px-3 py-2 text-main"
@@ -99,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
@@ -110,6 +110,7 @@ import { canCommitBulkPlan } from '#/bulkChanges'
 const { workflow } = defineProps<{ workflow: ReturnType<typeof useBulkChanges> }>()
 const { snapshot, visible, busy, policy, error } = workflow
 const { t } = useI18n()
+const policyId = useId()
 const modalVisible = computed({
   get: () => visible.value,
   set: value => {

@@ -59,7 +59,7 @@
           <div class="border border-border-secondary shadow-sm">
             <div
               v-for="(item, key) in fixList"
-              :key="key"
+              :key
               class="border-b border-border-secondary last:border-0 hover:bg-surface-elevated"
               :class="{
                 'bg-surface-elevated': activeTypes.includes(key),
@@ -114,6 +114,8 @@ import ToolboxStatusIcon from '@/components/toolbox/ToolboxStatusIcon.vue'
 import useConfirm from '@/composables/useConfirm'
 import { IToolboxItemCheckStatus, IToolboxItemType } from '#/constants/app'
 import { IRPCActionType } from '#/constants/rpcActions'
+
+defineOptions({ name: 'ToolBoxPage' })
 
 const { t } = useI18n()
 const { confirm } = useConfirm()
@@ -246,9 +248,4 @@ window.electron.ipcRendererOn(IRPCActionType.TOOLBOX_CHECK_RES, toolboxCheckResH
 onUnmounted(() => {
   window.electron.ipcRendererRemoveAllListeners(IRPCActionType.TOOLBOX_CHECK_RES)
 })
-</script>
-<script lang="ts">
-export default {
-  name: 'ToolBoxPage',
-}
 </script>

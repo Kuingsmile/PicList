@@ -11,22 +11,21 @@ import { openSearchPanel, search, searchKeymap } from '@codemirror/search'
 import { EditorState } from '@codemirror/state'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { EditorView, keymap, lineNumbers } from '@codemirror/view'
-import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import { onBeforeUnmount, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 
-const props = defineProps({
-  modelValue: { type: String, default: '' },
+const model = defineModel({ type: String, default: '' })
+const { language, readOnly } = defineProps({
   language: { type: String, default: 'javascript' },
   readOnly: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['update:modelValue'])
-const editorRef = ref(null)
+const editorRef = useTemplateRef('editorRef')
 const view = shallowRef(null)
 
 onMounted(() => {
-  const languageExtension = props.language === 'json' ? json() : props.language === 'css' ? css() : javascript()
+  const languageExtension = language === 'json' ? json() : language === 'css' ? css() : javascript()
   const startState = EditorState.create({
-    doc: props.modelValue,
+    doc: model.value,
     extensions: [
       lineNumbers(),
       history(),
@@ -36,10 +35,11 @@ onMounted(() => {
       search({ top: true }),
       keymap.of([...searchKeymap]),
       EditorView.lineWrapping,
-      EditorView.editable.of(!props.readOnly),
+      EditorView.editable.of(!readOnly),
       EditorView.updateListener.of(update => {
         if (update.docChanged) {
-          emit('update:modelValue', update.state.doc.toString())
+          const value = update.state.doc.toString()
+          if (value !== model.value) model.value = value
         }
       }),
     ],
@@ -51,17 +51,14 @@ onMounted(() => {
   })
 })
 
-watch(
-  () => props.modelValue,
-  newVal => {
-    const currVal = view.value?.state.doc.toString()
-    if (view.value && newVal !== currVal) {
-      view.value.dispatch({
-        changes: { from: 0, to: currVal.length, insert: newVal },
-      })
-    }
-  },
-)
+watch(model, newVal => {
+  const currVal = view.value?.state.doc.toString()
+  if (view.value && newVal !== currVal) {
+    view.value.dispatch({
+      changes: { from: 0, to: currVal.length, insert: newVal },
+    })
+  }
+})
 
 onMounted(() => {
   openSearchPanel(view.value)

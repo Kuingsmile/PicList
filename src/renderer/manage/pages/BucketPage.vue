@@ -351,7 +351,7 @@
             <button
               v-if="!item.isDir && isShowRenameFileIcon"
               type="button"
-              :tabindex="tabindex"
+              :tabindex
               :title="t('pages.manage.bucket.renameFile')"
               :aria-label="t('pages.manage.bucket.renameFile')"
               @click="handleRenameFile(item)"
@@ -360,7 +360,7 @@
             </button>
             <button
               type="button"
-              :tabindex="tabindex"
+              :tabindex
               :title="t('common.fileTable.download')"
               :aria-label="t('common.fileTable.download')"
               @click="item.isDir ? handleFolderBatchDownload(item) : downloadFiles([item])"
@@ -370,7 +370,7 @@
             <div :data-dropdown-index="index">
               <button
                 type="button"
-                :tabindex="tabindex"
+                :tabindex
                 :title="t('common.fileTable.copyAs')"
                 :aria-label="t('common.fileTable.copyAs')"
                 :aria-expanded="copyDropdownIndex === index"
@@ -390,7 +390,7 @@
                     v-for="format in linkFormatList"
                     :key="format"
                     type="button"
-                    :tabindex="tabindex"
+                    :tabindex
                     class="cursor-pointer rounded px-3 py-2 text-left text-sm text-main hover:bg-accent/30 focus-visible:outline-accent"
                     @click.stop="copyLink(item, format)"
                   >
@@ -399,7 +399,7 @@
                   <button
                     v-if="isShowPresignedUrl"
                     type="button"
-                    :tabindex="tabindex"
+                    :tabindex
                     class="cursor-pointer rounded px-3 py-2 text-left text-sm text-main hover:bg-accent/30"
                     @click.stop="async () => copyToClipboard(await getPreSignedUrl(item))"
                   >
@@ -410,7 +410,7 @@
             </div>
             <button
               type="button"
-              :tabindex="tabindex"
+              :tabindex
               :title="t('pages.manage.bucket.fileInfo')"
               :aria-label="t('pages.manage.bucket.fileInfo')"
               @click="handleShowFileInfo(item)"
@@ -419,7 +419,7 @@
             </button>
             <button
               type="button"
-              :tabindex="tabindex"
+              :tabindex
               :title="t('common.fileTable.delete')"
               :aria-label="t('common.fileTable.delete')"
               :disabled="isDeleting || isLoadingData"
@@ -466,7 +466,7 @@
                     isUsePreSignedUrl
                   "
                   :is-show-thumbnail="isShowThumbnail"
-                  :item="item"
+                  :item
                   :alias="configMap.alias"
                   :url="item.url"
                   :config="handleGetS3Config(item)"
@@ -476,7 +476,7 @@
                 <ImageWebdav
                   v-else-if="isShowThumbnail && !item.isDir && currentPicBedName === 'webdavplist' && item.isImage"
                   :is-show-thumbnail="isShowThumbnail"
-                  :item="item"
+                  :item
                   :config="handleGetWebdavConfig()"
                   :url="item.url"
                 />
@@ -485,7 +485,7 @@
                 <ImageLocal
                   v-else-if="isShowThumbnail && !item.isDir && currentPicBedName === 'local' && item.isImage"
                   :is-show-thumbnail="isShowThumbnail"
-                  :item="item"
+                  :item
                   :local-path="item.key"
                 />
 
@@ -666,7 +666,7 @@
         <dl class="overflow-hidden rounded-lg border border-border-secondary bg-bg-secondary">
           <div
             v-for="(value, key) in currentShowedFileInfo"
-            :key="key"
+            :key
             class="grid gap-2 border-b border-border-secondary p-4 last:border-b-0 sm:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] sm:gap-4"
           >
             <dt class="flex min-w-0 items-start justify-between gap-2 text-sm font-medium text-main">
@@ -1405,11 +1405,19 @@ configMap:{
 }
 */
 
-const props = defineProps<{
+const { configMap: configMapProp } = defineProps<{
   configMap: Record<string, any>
 }>()
 
 type ISortTypeList = 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' | 'provider' | 'status'
+
+interface BucketFile extends IObj {
+  key: string
+  fileName: string
+  isImage: boolean
+  isDir: boolean
+  checked: boolean
+}
 
 const uploadDialog = useTemplateRef<HTMLDivElement>('uploadDialog')
 useDragEventListeners(uploadDialog)
@@ -1424,7 +1432,7 @@ const message = useMessage()
 const confirm = useConfirm()
 // 页面状态变量相关
 const manageStore = useManageStore()
-const configMap = ref<Record<string, any>>(JSON.parse(JSON.stringify(props.configMap)))
+const configMap = ref<Record<string, any>>(JSON.parse(JSON.stringify(configMapProp)))
 // 页面布局控制
 const isLoadingData = ref(false)
 const isShowLoadingPage = ref(false)
@@ -1464,7 +1472,7 @@ const currentShowedFileInfo = ref({} as any)
 const currentPageNumber = ref(1)
 const pagingMarker = ref('')
 const pagingMarkerStack = reactive([] as string[])
-const currentPageFilesInfo = reactive([] as any[])
+const currentPageFilesInfo = reactive<BucketFile[]>([])
 const isDeleting = ref(false)
 const deletingTargets = ref<{ scope: string; keys: Set<string> }>({ scope: '', keys: new Set() })
 const deletionStates = reactive(new Map<string, DeletionState>())
@@ -1660,7 +1668,7 @@ function taskLabel(item: any) {
   return task.status === 'uploading' ? `${label} ${Math.round(task.progress || 0)}%` : label
 }
 
-const tableColumns = computed<FileColumn[]>(() => [
+const tableColumns = computed<FileColumn<BucketFile>[]>(() => [
   { key: 'name', label: t('common.fileTable.name'), width: 260, value: item => item.fileName },
   {
     key: 'ext',
@@ -1707,7 +1715,7 @@ watch([layoutStyle, searchText, tableDensity], () => {
 })
 
 watch(
-  () => props.configMap,
+  () => configMapProp,
   async newValue => {
     invalidateListings()
     const generation = viewGeneration

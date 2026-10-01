@@ -6,6 +6,10 @@
 </template>
 
 <script setup lang="ts">
+defineSlots<{
+  default?: () => unknown
+  extra?: () => unknown
+}>()
 const { p1 = false } = defineProps<{
   p1?: boolean
 }>()

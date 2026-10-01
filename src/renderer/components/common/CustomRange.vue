@@ -6,10 +6,10 @@
     v-model.number="modelValue"
     type="range"
     :aria-label="ariaLabel || title || undefined"
-    :min="min"
-    :max="max"
-    :step="step"
-    :disabled="disabled"
+    :min
+    :max
+    :step
+    :disabled
     :aria-valuetext="showValue || undefined"
     class="my-3 h-[8px] w-full appearance-none rounded-sm bg-linear-to-l from-accent transition-colors duration-150 ease-apple focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50 [&::-moz-range-thumb]:h-[22px] [&::-moz-range-thumb]:w-[22px] [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border [&::-moz-range-thumb]:border-border [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-sm [&::-webkit-slider-thumb]:h-[22px] [&::-webkit-slider-thumb]:w-[22px] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-border [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-200 [&::-webkit-slider-thumb]:ease-apple [&::-webkit-slider-thumb:hover]:scale-105 [&::-webkit-slider-thumb:hover]:shadow-md"
   />

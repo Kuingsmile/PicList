@@ -29,6 +29,8 @@ import useMessage from '@/composables/useMessage'
 import ConfirmMessageBox from './ConfirmMessageBox.vue'
 import MessageToast from './MessageToast.vue'
 
+defineOptions({ name: 'UIServiceProvider' })
+
 const messageRef = useTemplateRef('messageRef')
 const { t } = useI18n()
 const confirmVisible = ref(false)
@@ -108,10 +110,4 @@ onMounted(() => {
     confirm: showConfirm,
   })
 })
-</script>
-
-<script lang="ts">
-export default {
-  name: 'UIServiceProvider',
-}
 </script>

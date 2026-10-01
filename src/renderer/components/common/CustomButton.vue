@@ -30,6 +30,12 @@
 import { LoaderCircle } from '@lucide/vue'
 import { type Component, computed } from 'vue'
 
+defineSlots<{
+  icon?: () => unknown
+  default?: () => unknown
+  extra?: () => unknown
+}>()
+
 const {
   text = '',
   disabled = false,

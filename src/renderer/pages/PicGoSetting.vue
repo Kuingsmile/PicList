@@ -1236,6 +1236,7 @@ import {
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
+  onWatcherCleanup,
   ref,
   toRaw,
   watch,
@@ -1269,6 +1270,8 @@ import { renderMarkdown } from '@/utils/markdown'
 import { II18nLanguage, ISartMode } from '#/constants/app'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { enforceNumber } from '#/utils/values'
+
+defineOptions({ name: 'SettingPage' })
 
 const Editor = defineAsyncComponent(() => import('@/components/Editor.vue'))
 
@@ -1320,6 +1323,7 @@ const releaseNotes = ref('')
 const releaseNotesError = ref('')
 const releaseNotesLastFetch = ref<Date | null>(null)
 const fetchingReleaseNotes = ref(false)
+let releaseNotesController: AbortController | undefined
 const mainWindowSizeVisible = ref(false)
 const advancedRenameVisible = ref(false)
 const imageProcessDialogVisible = ref(false)
@@ -1639,7 +1643,7 @@ const addWatch = () => {
         if (!(await saveConfig(configPaths.settings.autoRename, false))) return
       }
     },
-    { deep: true },
+    { deep: 1 },
   )
 
   watch(
@@ -1868,7 +1872,7 @@ async function initData() {
         await saveConfig({ [configPaths.settings.autoStart]: actualAutoStartStatus })
       }
     }
-  } catch (error) {
+  } catch {
     if (!settingsWatchScope.active) return
     formOfSetting.value.autoStart = settings.autoStart ?? false
   }
@@ -1941,7 +1945,7 @@ async function editFile(file: string) {
   const content = (await window.electron.triggerRPC<string>(IRPCActionType.READ_FILE_CONTENT, file)) || ''
   try {
     editorContent.value = JSON.stringify(JSON.parse(content), null, 2)
-  } catch (error) {
+  } catch {
     editorContent.value = content
   }
   currentEditFile.value = file
@@ -2102,6 +2106,7 @@ function formatLastFetchTime(date: Date): string {
 }
 
 async function fetchReleaseNotes(forceRefresh = false): Promise<void> {
+  if (!settingsWatchScope.active) return
   if (!forceRefresh && releaseNotesLastFetch.value) {
     const timeSinceLastFetch = Date.now() - releaseNotesLastFetch.value.getTime()
     if (timeSinceLastFetch < RELEASE_NOTES_CACHE_DURATION) {
@@ -2109,28 +2114,41 @@ async function fetchReleaseNotes(forceRefresh = false): Promise<void> {
     }
   }
 
-  try {
-    fetchingReleaseNotes.value = true
-    releaseNotesError.value = ''
+  releaseNotesController?.abort()
+  const controller = new AbortController()
+  releaseNotesController = controller
+  onWatcherCleanup(() => controller.abort(), true)
+  const language = currentLanguage.value
+  const isCurrent = () =>
+    settingsWatchScope.active &&
+    releaseNotesController === controller &&
+    !controller.signal.aborted &&
+    currentLanguage.value === language
+  fetchingReleaseNotes.value = true
+  releaseNotesError.value = ''
 
-    const isEnglish = currentLanguage.value === 'en'
+  try {
+    const isEnglish = language === 'en'
     const fileName = isEnglish ? 'currentVersion_en.md' : 'currentVersion.md'
     const url = `https://raw.githubusercontent.com/Kuingsmile/piclist/dev/${fileName}`
 
-    const response = await fetch(url)
+    const response = await fetch(url, { signal: controller.signal })
     if (response.ok) {
       const content = await response.text()
+      if (!isCurrent()) return
       releaseNotes.value = content
       releaseNotesLastFetch.value = new Date()
       releaseNotesError.value = ''
     } else {
       throw new Error(`HTTP ${response.status}`)
     }
-  } catch (error) {
-    console.error('Failed to fetch release notes:', error)
-    releaseNotesError.value = t('pages.settings.update.releaseNotesError')
+  } catch {
+    if (isCurrent()) releaseNotesError.value = t('pages.settings.update.releaseNotesError')
   } finally {
-    fetchingReleaseNotes.value = false
+    if (settingsWatchScope.active && releaseNotesController === controller) {
+      fetchingReleaseNotes.value = false
+      releaseNotesController = undefined
+    }
   }
 }
 
@@ -2272,14 +2290,11 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   updateCheckController?.abort()
+  releaseNotesController?.abort()
   settingsWatchScope.stop()
   if (unbindTheme) {
     unbindTheme()
   }
 })
 </script>
-<script lang="ts">
-export default { name: 'SettingPage' }
-</script>
-
 <style scoped src="./PicGoSetting.css"></style>
