@@ -206,22 +206,7 @@
               t('pages.upload.urlUpload')
             }}</span>
           </button>
-          <button
-            class="quick-action-button group"
-            :class="{ 'has-badge': taskQueueStatus.tasks.length > 0 }"
-            @click="openTaskDialog"
-          >
-            <ListTodoIcon class="shrink-0 text-accent group-hover:text-white" :size="15" />
-            <span class="mt-1 text-sm font-medium text-secondary group-hover:text-white">{{
-              t('pages.upload.taskUpload')
-            }}</span>
-            <span
-              v-if="taskQueueStatus.tasks.length > 0"
-              class="absolute top-1/2 right-3 flex min-w-6 -translate-y-1/2 animate-[badge-pulse_2s_ease-in-out_infinite] items-center justify-center rounded-full border border-border-secondary px-1.5 py-0 text-sm font-bold text-accent group-hover:text-white"
-            >
-              {{ taskQueueStatus.tasks.length }}
-            </span>
-          </button>
+          <UploadTaskQueue />
         </div>
       </div>
 
@@ -282,404 +267,22 @@
       :config-id="defaultIdG"
       :current-picbed-name="defaultPicBedG"
     />
-
-    <!-- Task Queue Manager Modal -->
-    <CustomModal v-model:visible="taskDialogVisible" :title="t('pages.upload.taskQueue.title')">
-      <template #header>
-        <div class="flex flex-row items-center gap-4">
-          <h3 class="flex items-center gap-2.5 bg-clip-text text-xl font-bold tracking-tight text-main">
-            {{ t('pages.upload.taskQueue.title') }}
-          </h3>
-          <span class="m-0 text-lg font-semibold text-secondary">
-            {{
-              t('pages.upload.taskQueue.stats', {
-                completed: taskQueueStatus.stats.completed,
-                total: taskQueueStatus.stats.total,
-              })
-            }}
-          </span>
-        </div>
-      </template>
-
-      <div class="no-scrollbar max-h-[calc(90vh-90px)] overflow-y-auto">
-        <!-- Action Bar -->
-        <div
-          class="flex flex-wrap items-center justify-between gap-4 border-b border-b-border px-5 py-4 max-md:flex-col max-md:items-stretch"
-        >
-          <div class="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:justify-center">
-            <CustomButton
-              v-show="taskQueueStatus.tasks.length > 0"
-              :icon="PlusIcon"
-              :text="t('pages.upload.taskQueue.addFiles')"
-              @click="addFilesToTask"
-            />
-            <CustomButton
-              v-if="!taskQueueStatus.config.isRunning && taskQueueStatus.stats.pending > 0"
-              class="bg-success hover:bg-success!"
-              :icon="PlayIcon"
-              :text="t('pages.upload.taskQueue.start')"
-              @click="startTaskQueue"
-            />
-            <CustomButton
-              v-if="taskQueueStatus.config.isRunning && !taskQueueStatus.config.isPaused"
-              class="bg-warning hover:bg-warning!"
-              :icon="PauseIcon"
-              :text="t('pages.upload.taskQueue.pause')"
-              @click="pauseTaskQueue"
-            />
-            <CustomButton
-              v-if="taskQueueStatus.config.isPaused"
-              class="bg-success hover:bg-success!"
-              :icon="PlayIcon"
-              :text="t('pages.upload.taskQueue.resume')"
-              @click="resumeTaskQueue"
-            />
-          </div>
-          <div class="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:justify-center">
-            <CustomButton
-              v-if="taskQueueStatus.stats.failed > 0"
-              class="bg-warning hover:bg-warning!"
-              :icon="RefreshCwIcon"
-              :text="t('pages.upload.taskQueue.retryAllFailed')"
-              @click="retryAllFailedTasks"
-            />
-            <CustomButton
-              v-if="taskQueueStatus.config.isRunning || taskQueueStatus.stats.pending > 0"
-              class="bg-error hover:bg-error!"
-              :icon="XIcon"
-              :text="t('pages.upload.taskQueue.cancelAll')"
-              @click="cancelAllTasks"
-            />
-            <CustomButton
-              v-if="
-                taskQueueStatus.stats.completed > 0 ||
-                taskQueueStatus.stats.failed > 0 ||
-                taskQueueStatus.stats.cancelled > 0
-              "
-              class="bg-danger hover:bg-danger!"
-              :icon="Trash2Icon"
-              :text="t('pages.upload.taskQueue.clearFinished')"
-              @click="clearFinishedTasks"
-            />
-            <CustomButton
-              :icon="SettingsIcon"
-              :aria-label="t('pages.settings.title')"
-              :aria-expanded="showTaskSettings"
-              @click="showTaskSettings = !showTaskSettings"
-            />
-          </div>
-        </div>
-
-        <!-- Overall Progress -->
-        <div v-if="taskQueueStatus.stats.total > 0" class="border-b border-b-border p-5">
-          <div class="mb-3.5 flex items-center justify-between">
-            <span class="text-sm font-semibold text-main">{{ t('pages.upload.taskQueue.overallProgress') }}</span>
-            <span class="text-xl leading-1 font-bold text-accent">{{ overallProgressPercent }}%</span>
-          </div>
-          <div class="h-2 overflow-hidden rounded-full bg-surface-elevated">
-            <div
-              class="h-full bg-[linear-gradient(90deg,var(--color-accent)_0%,var(--color-primary)_50%)] shadow-sm transition-[width] duration-medium ease-standard"
-              :style="{ width: `${overallProgressPercent}%` }"
-            />
-          </div>
-          <div class="mt-2 flex flex-wrap justify-between gap-4">
-            <span
-              v-if="taskQueueStatus.stats.avgSpeed > 0"
-              class="flex items-center gap-2 py-1.5 text-xs text-secondary"
-            >
-              <ZapIcon :size="14" class="text-accent" />
-              {{ formatSpeed(taskQueueStatus.stats.avgSpeed) }}
-            </span>
-            <span
-              v-if="taskQueueStatus.stats.estimatedTimeMs > 0 && taskQueueStatus.config.isRunning"
-              class="flex items-center gap-2 py-1.5 text-xs text-secondary"
-            >
-              <ClockIcon :size="14" class="text-accent" />
-              {{ formatTime(taskQueueStatus.stats.estimatedTimeMs) }}
-            </span>
-            <span class="flex items-center gap-2 py-1.5 text-xs text-secondary">
-              <HardDriveIcon :size="14" class="text-accent" />
-              {{ formatSize(taskQueueStatus.stats.completedSize) }} /
-              {{ formatSize(taskQueueStatus.stats.totalSize) }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Settings Panel -->
-        <transition name="settings-slide">
-          <div v-if="showTaskSettings" class="overflow-visible border-b border-b-border p-4">
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] items-center gap-4 max-md:grid-cols-1">
-              <div class="flex min-w-0 flex-col gap-2">
-                <label class="m-0 flex items-center gap-2 text-sm font-medium text-main">
-                  {{ t('pages.upload.taskQueue.interval') }}
-                </label>
-                <div class="flex items-center gap-2.5 max-sm:flex-row">
-                  <input
-                    v-model.number="uploadInterval"
-                    type="number"
-                    min="1"
-                    max="99999"
-                    step="1"
-                    class="box-border w-full flex-1 rounded-md bg-surface-elevated px-3 py-2 text-sm text-main transition-all duration-fast ease-standard hover:border-accent hover:bg-surface focus:border-accent focus:bg-white focus:shadow-md focus:outline-0 disabled:cursor-not-allowed disabled:bg-surface disabled:opacity-60"
-                    :disabled="taskQueueStatus.config.isRunning"
-                    @change="updateInterval"
-                  />
-                  <span class="bg-transparent px-1 py-2 text-sm font-semibold text-secondary">s</span>
-                </div>
-              </div>
-              <div class="flex min-w-0 flex-col gap-2">
-                <label class="m-0 flex items-center gap-2 text-sm font-medium text-main">{{
-                  t('pages.upload.taskQueue.maxRetry')
-                }}</label>
-                <input
-                  v-model.number="maxRetryCount"
-                  type="number"
-                  min="0"
-                  max="10"
-                  step="1"
-                  class="box-border w-full rounded-md bg-surface-elevated px-3 py-2 text-sm text-main transition-all duration-fast ease-standard hover:border-accent hover:bg-surface focus:border-accent focus:bg-white focus:shadow-md focus:outline-0 disabled:cursor-not-allowed disabled:bg-surface disabled:opacity-60"
-                  @change="updateSettings"
-                />
-              </div>
-              <div
-                class="flex min-h-[40px] min-w-0 flex-row items-center justify-between gap-2 rounded-md bg-transparent px-3 py-2.5 transition-all duration-fast ease-standard hover:bg-surface-elevated"
-              >
-                <label class="m-0 flex items-center gap-2 text-base font-semibold text-main" for="task-auto-start">
-                  {{ t('pages.upload.taskQueue.autoStart') }}
-                </label>
-                <input
-                  id="task-auto-start"
-                  v-model="autoStart"
-                  type="checkbox"
-                  class="h-[16px] w-[16px] cursor-pointer accent-accent"
-                  @change="updateSettings"
-                />
-              </div>
-              <div
-                class="flex min-h-[40px] min-w-0 flex-row items-center justify-between gap-2 rounded-md bg-transparent px-3 py-2.5 transition-all duration-fast ease-standard hover:bg-surface-elevated"
-              >
-                <label class="m-0 flex items-center gap-2 text-base font-semibold text-main" for="task-pause-on-error">
-                  {{ t('pages.upload.taskQueue.pauseOnError') }}
-                </label>
-                <input
-                  id="task-pause-on-error"
-                  v-model="pauseOnError"
-                  type="checkbox"
-                  class="h-[16px] w-[16px] cursor-pointer accent-accent"
-                  @change="updateSettings"
-                />
-              </div>
-            </div>
-          </div>
-        </transition>
-
-        <!-- Filter & Search Bar -->
-        <div v-if="taskQueueStatus.tasks.length > 0" class="flex flex-col gap-2 border-b border-b-border p-5">
-          <div
-            class="flex items-center gap-2.5 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-2.5 shadow-sm transition-all duration-fast ease-standard focus-within:border-accent focus-within:bg-white focus-within:shadow-md"
-          >
-            <SearchIcon :size="16" class="shrink-0 text-accent" />
-            <input
-              v-model="taskSearchQuery"
-              type="text"
-              class="flex border-0 bg-transparent text-sm text-main outline-0 placeholder:text-tertiary max-sm:max-w-none"
-              :placeholder="t('pages.upload.taskQueue.searchPlaceholder')"
-            />
-          </div>
-          <div class="flex flex-wrap gap-2.5">
-            <CustomButton
-              v-for="status in ['all', 'pending', 'completed', 'failed']"
-              :key="status"
-              :type="taskFilter === status ? 'primary' : 'secondary'"
-              :text="t(`pages.upload.taskQueue.filter${status.charAt(0).toUpperCase() + status.slice(1)}`)"
-              @click="taskFilter = status"
-            />
-          </div>
-        </div>
-
-        <!-- Task List -->
-        <div v-if="taskQueueStatus.tasks.length > 0" class="min-h-[300px] flex-1 overflow-y-auto">
-          <TransitionGroup name="task" tag="div" class="flex flex-col">
-            <div
-              v-for="task in filteredTasks"
-              :key="task.id"
-              class="group/tasklist relative flex items-center justify-between gap-2 border-b border-b-border bg-surface px-5 py-4 transition-all duration-fast ease-standard last:border-b-0 hover:bg-surface-elevated hover:shadow-sm max-md:flex-col max-md:items-start max-md:gap-3"
-              :class="getTaskStatusClass(task.status)"
-            >
-              <div class="flex min-w-0 flex-1 flex-col gap-2.5">
-                <div class="flex items-center justify-between gap-3.5">
-                  <div class="flex min-w-0 flex-1 items-center gap-2.5">
-                    <span
-                      class="overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-main group-[.status-cancelled]/tasklist:text-tertiary group-[.status-cancelled]/tasklist:line-through group-[.status-completed]/tasklist:text-success group-[.status-failed]/tasklist:text-danger"
-                      :title="task.filePath"
-                      >{{ task.fileName }}</span
-                    >
-                    <span
-                      v-if="task.priority === 2"
-                      class="flex shrink-0 items-center justify-center rounded-full bg-warning p-1 text-white"
-                    >
-                      <StarIcon :size="13" />
-                    </span>
-                  </div>
-                  <div
-                    class="rounded-full px-2.5 py-1 text-xs font-semibold tracking-wider whitespace-nowrap uppercase [.status-cancelled]:bg-tertiary/15 [.status-cancelled]:text-tertiary [.status-cancelled]:line-through [.status-completed]:bg-success/15 [.status-completed]:text-success [.status-failed]:bg-danger/15 [.status-failed]:text-danger [.status-pending]:bg-accent/15 [.status-pending]:text-secondary [.status-uploading]:bg-primary/15 [.status-uploading]:text-primary"
-                    :class="getTaskStatusClass(task.status)"
-                  >
-                    {{ getTaskStatusText(task.status) }}
-                  </div>
-                </div>
-                <div class="flex flex-wrap items-center gap-3">
-                  <span v-if="task.fileSize > 0" class="flex items-center gap-1 text-[0.75rem] text-tertiary">
-                    <HardDriveIcon :size="12" class="text-secondary" />
-                    {{ formatSize(task.fileSize) }}
-                  </span>
-                  <span
-                    v-if="task.uploadSpeed && task.status === 'uploading'"
-                    class="flex items-center gap-1 text-[0.75rem] text-tertiary"
-                  >
-                    <ZapIcon :size="12" />
-                    {{ formatSpeed(task.uploadSpeed) }}
-                  </span>
-                  <span v-if="task.retryCount > 0" class="flex items-center gap-1 text-[0.75rem] text-warning">
-                    {{ t('pages.upload.taskQueue.retryCount', { count: task.retryCount }) }}
-                  </span>
-                  <span
-                    v-if="task.error"
-                    class="flex max-w-[200px] items-center gap-1 overflow-hidden text-[0.75rem] text-ellipsis whitespace-nowrap text-danger"
-                    :title="task.error"
-                  >
-                    {{ task.error }}
-                  </span>
-                </div>
-              </div>
-              <div class="flex items-center gap-1.5">
-                <!-- Pending task actions -->
-                <template v-if="task.status === 'pending'">
-                  <button
-                    class="task-icon-btn"
-                    :title="t('pages.upload.taskQueue.moveUp')"
-                    @click="moveTaskUp(task.id)"
-                  >
-                    <ChevronUpIcon :size="16" />
-                  </button>
-                  <button
-                    class="task-icon-btn"
-                    :title="t('pages.upload.taskQueue.moveDown')"
-                    @click="moveTaskDown(task.id)"
-                  >
-                    <ChevronDownIcon :size="16" />
-                  </button>
-                  <button
-                    class="task-icon-btn"
-                    :class="{ 'is-high': task.priority === 2 }"
-                    :title="t('pages.upload.taskQueue.togglePriority')"
-                    @click="toggleTaskPriority(task.id, task.priority)"
-                  >
-                    <StarIcon :size="16" />
-                  </button>
-                  <button
-                    class="task-icon-btn danger"
-                    :title="t('pages.upload.taskQueue.cancelTask')"
-                    @click="cancelTask(task.id)"
-                  >
-                    <XIcon :size="16" />
-                  </button>
-                </template>
-                <!-- Failed task actions -->
-                <template v-if="task.status === 'failed'">
-                  <button
-                    class="task-icon-btn"
-                    :title="t('pages.upload.taskQueue.retryTask')"
-                    @click="retryTask(task.id)"
-                  >
-                    <RefreshCwIcon :size="16" />
-                  </button>
-                  <button
-                    class="task-icon-btn danger"
-                    :title="t('pages.upload.taskQueue.removeTask')"
-                    @click="removeTask(task.id)"
-                  >
-                    <Trash2Icon :size="16" />
-                  </button>
-                </template>
-                <!-- Completed/Cancelled task actions -->
-                <template v-if="task.status === 'completed' || task.status === 'cancelled'">
-                  <button
-                    class="task-icon-btn"
-                    :title="t('pages.upload.taskQueue.removeTask')"
-                    @click="removeTask(task.id)"
-                  >
-                    <Trash2Icon :size="16" />
-                  </button>
-                </template>
-                <!-- Status icon -->
-                <div class="flex h-[32px] w-[32px] items-center justify-center">
-                  <CheckCircleIcon v-if="task.status === 'completed'" :size="18" class="text-success" />
-                  <XCircleIcon v-if="task.status === 'failed'" :size="18" class="text-error" />
-                  <LoaderIcon
-                    v-if="task.status === 'uploading'"
-                    :size="18"
-                    class="animate-[spin_1s_linear_infinite] text-accent"
-                  />
-                  <ClockIcon v-if="task.status === 'pending'" :size="18" class="text-tertiary" />
-                </div>
-              </div>
-            </div>
-          </TransitionGroup>
-        </div>
-
-        <!-- Empty State -->
-        <div v-else class="flex h-full flex-col items-center gap-4 bg-bg-tertiary px-8 py-12 text-center">
-          <ListTodoIcon class="text-accent opacity-90" :size="48" />
-          <h4 class="m-0 text-xl font-semibold text-main">{{ t('pages.upload.taskQueue.empty') }}</h4>
-          <p class="m-0 max-w-[400px] text-base text-secondary">{{ t('pages.upload.taskQueue.emptyHint') }}</p>
-          <CustomButton :icon="PlusIcon" :text="t('pages.upload.taskQueue.selectFiles')" @click="addFilesToTask" />
-        </div>
-      </div>
-    </CustomModal>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {
-  CheckCircleIcon,
-  CheckIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  ClipboardIcon,
-  ClockIcon,
-  EditIcon,
-  HardDriveIcon,
-  LinkIcon,
-  ListTodoIcon,
-  LoaderIcon,
-  PauseIcon,
-  PlayIcon,
-  PlusIcon,
-  RefreshCwIcon,
-  SearchIcon,
-  Settings,
-  SettingsIcon,
-  StarIcon,
-  Trash2Icon,
-  UploadCloudIcon,
-  XCircleIcon,
-  XIcon,
-  ZapIcon,
-} from '@lucide/vue'
+import { CheckIcon, ClipboardIcon, EditIcon, LinkIcon, PlusIcon, Settings, UploadCloudIcon, XIcon } from '@lucide/vue'
 import { computed, defineAsyncComponent, onBeforeMount, onBeforeUnmount, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-import CustomButton from '@/components/common/CustomButton.vue'
-import CustomModal from '@/components/common/CustomModal.vue'
 import PicBedSwitcher from '@/components/PicBedSwitcher.vue'
+import UploadTaskQueue from '@/components/UploadTaskQueue.vue'
 import { useDragEventListeners } from '@/composables/useDragEventListeners'
 import { MAX_FAVORITE_PICBEDS, useFavoritePicbeds } from '@/composables/useFavoritePicbeds'
 import { usePicBed } from '@/composables/useGlobal'
 import useMessage from '@/composables/useMessage'
 import { useUploadProgress } from '@/composables/useUploadProgress'
-import { useUploadTaskQueue } from '@/composables/useUploadTaskQueue'
 import { PICBEDS_PAGE } from '@/router/config'
 import { getConfig, saveConfig } from '@/services/configService'
 import $bus from '@/utils/bus'
@@ -715,38 +318,6 @@ const {
   endBadgeLongPress,
 } = useFavoritePicbeds()
 const { progress, showProgress, showError, progressState, progressLabel } = useUploadProgress()
-const {
-  taskDialogVisible,
-  uploadInterval,
-  showTaskSettings,
-  taskSearchQuery,
-  taskFilter,
-  autoStart,
-  pauseOnError,
-  maxRetryCount,
-  taskQueueStatus,
-  filteredTasks,
-  overallProgressPercent,
-  openTaskDialog,
-  refreshTaskStatus,
-  addFilesToTask,
-  startTaskQueue,
-  pauseTaskQueue,
-  resumeTaskQueue,
-  cancelAllTasks,
-  cancelTask,
-  removeTask,
-  clearFinishedTasks,
-  updateInterval,
-  retryTask,
-  retryAllFailedTasks,
-  moveTaskUp,
-  moveTaskDown,
-  toggleTaskPriority,
-  updateSettings,
-  getTaskStatusClass,
-  getTaskStatusText,
-} = useUploadTaskQueue()
 
 const imageProcessDialogVisible = ref(false)
 const dragover = ref(false)
@@ -912,22 +483,6 @@ function formatSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(unitSize, unitIndex)).toFixed(1)) + ' ' + units[unitIndex]
 }
 
-function formatSpeed(bytesPerSecond: number): string {
-  return formatSize(bytesPerSecond) + '/s'
-}
-
-function formatTime(ms: number): string {
-  if (ms < 1000) return '< 1s'
-  const seconds = Math.floor(ms / 1000)
-  if (seconds < 60) return `${seconds}s`
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  if (minutes < 60) return `${minutes}m ${remainingSeconds}s`
-  const hours = Math.floor(minutes / 60)
-  const remainingMinutes = minutes % 60
-  return `${hours}h ${remainingMinutes}m`
-}
-
 let removeSyncPicBedListener: () => void = () => {}
 
 onBeforeMount(async () => {
@@ -935,7 +490,7 @@ onBeforeMount(async () => {
     updatePicBeds()
   })
   $bus.on(SHOW_INPUT_BOX_RESPONSE, handleInputBoxValue)
-  await Promise.all([loadUploadSettings(), refreshTaskStatus()])
+  await loadUploadSettings()
 })
 
 onBeforeUnmount(() => {

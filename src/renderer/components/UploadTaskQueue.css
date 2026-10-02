@@ -1,0 +1,212 @@
+@import 'tailwindcss' reference;
+@import '../assets/css/theme.css' reference;
+@import '../assets/css/utilities.css' reference;
+
+.queue-entry {
+  @apply relative flex min-w-0 flex-1 cursor-pointer items-center gap-3 overflow-hidden rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3 text-left transition-colors hover:border-accent hover:bg-accent/10 focus-visible:focus-ring;
+}
+
+.queue-count {
+  @apply rounded-md bg-surface px-2 py-0.5 text-sm font-semibold text-accent tabular-nums;
+}
+
+.queue-entry-progress {
+  @apply absolute bottom-0 left-0 h-0.5 bg-accent transition-[width] motion-reduce:transition-none;
+}
+
+.queue-panel {
+  @apply relative flex h-full min-h-0 flex-col overflow-y-auto bg-surface text-main;
+}
+
+.queue-toolbar {
+  @apply flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3;
+}
+
+.queue-state {
+  @apply rounded-md bg-bg-secondary px-2 py-1 text-xs font-medium text-secondary;
+}
+
+.queue-state[data-state='running'] {
+  @apply bg-accent/10 text-accent;
+}
+
+.queue-state[data-state='paused'],
+.queue-state[data-state='pausing'],
+.queue-state[data-state='needsAttention'] {
+  @apply bg-warning/10 text-warning;
+}
+
+.queue-overview {
+  @apply flex shrink-0 flex-col gap-2 border-b border-border px-5 py-4;
+}
+
+.queue-progress {
+  @apply h-1.5 overflow-hidden rounded-full bg-bg-secondary;
+}
+
+.queue-progress > div {
+  @apply h-full rounded-full bg-accent transition-[width] duration-200 motion-reduce:transition-none;
+}
+
+.queue-settings {
+  @apply m-0 grid shrink-0 grid-cols-4 items-center gap-4 border-0 border-b border-border bg-bg-secondary px-5 py-3 disabled:opacity-60 max-md:grid-cols-2;
+}
+
+.queue-settings label {
+  @apply mb-1 block text-xs font-medium text-secondary;
+}
+
+.queue-settings input[type='number'] {
+  @apply box-border w-full min-w-0 rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-main;
+}
+
+.queue-settings .queue-toggle {
+  @apply m-0 flex cursor-pointer items-center gap-2 text-xs text-main;
+}
+
+.queue-toggle input {
+  @apply h-4 w-4 shrink-0 accent-accent;
+}
+
+.queue-filters {
+  @apply flex shrink-0 flex-col gap-2 border-b border-border px-5 py-3;
+}
+
+.queue-search {
+  @apply flex items-center gap-2 rounded-md border border-border bg-bg-secondary px-3 py-2 focus-within:border-accent;
+}
+
+.queue-search input {
+  @apply min-w-0 flex-1 border-0 bg-transparent text-sm text-main outline-0;
+}
+
+.queue-filter {
+  @apply flex cursor-pointer items-center gap-2 rounded-md border border-transparent bg-transparent px-2.5 py-1.5 text-xs text-secondary hover:bg-bg-secondary focus-visible:focus-ring;
+}
+
+.queue-filter[aria-pressed='true'] {
+  @apply border-accent/30 bg-accent/10 font-semibold text-accent;
+}
+
+.queue-filter span {
+  @apply opacity-75;
+}
+
+.queue-list {
+  @apply min-h-[140px] flex-1 overflow-y-auto overscroll-contain;
+}
+
+.queue-row {
+  @apply flex items-center gap-3 border-b border-border-secondary px-5 py-3 last:border-b-0 hover:bg-bg-secondary/50;
+}
+
+.queue-file-icon {
+  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-bg-secondary text-secondary;
+}
+
+.queue-row-details {
+  @apply mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-secondary;
+}
+
+.queue-row[data-status='uploading'] .queue-file-icon,
+.queue-row[data-status='uploading'] .queue-task-status {
+  @apply text-accent;
+}
+
+.queue-row[data-status='completed'] .queue-file-icon {
+  @apply text-success;
+}
+
+.queue-row[data-status='failed'] .queue-file-icon,
+.queue-row[data-status='failed'] .queue-task-status {
+  @apply text-danger;
+}
+
+.queue-row[data-status='cancelled'] .queue-file-icon {
+  @apply text-tertiary;
+}
+
+.queue-row-actions {
+  @apply flex shrink-0 items-center gap-1;
+}
+
+.queue-icon-button {
+  @apply flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border border-transparent bg-transparent text-secondary transition-colors not-disabled:hover:border-border not-disabled:hover:bg-bg-secondary not-disabled:hover:text-accent focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-30;
+}
+
+.queue-icon-button[aria-pressed='true'] {
+  @apply bg-warning/10 text-warning;
+}
+
+.queue-icon-button.is-danger:not(:disabled):hover {
+  @apply bg-danger/10 text-danger;
+}
+
+.queue-task-error {
+  @apply mt-1.5 mb-0 text-xs leading-relaxed wrap-break-word text-danger;
+}
+
+.queue-empty {
+  @apply flex h-full min-h-[180px] flex-col items-center justify-center gap-3 px-6 py-8 text-center text-secondary;
+}
+
+.queue-empty h4 {
+  @apply m-0 text-base font-semibold text-main;
+}
+
+.queue-empty p {
+  @apply m-0 max-w-[360px] text-sm leading-relaxed;
+}
+
+.queue-footer {
+  @apply flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-border px-5 py-2.5;
+}
+
+.queue-cancel {
+  @apply cursor-pointer rounded-md border-0 bg-transparent px-2 py-1.5 text-xs text-danger not-disabled:hover:bg-danger/10 focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-40;
+}
+
+.queue-load-error {
+  @apply flex items-center justify-between gap-3 bg-danger/10 px-5 py-3 text-sm text-danger;
+}
+
+.queue-drop-overlay {
+  @apply pointer-events-none absolute inset-2 z-10 flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-accent bg-surface-elevated text-base font-semibold text-accent;
+}
+
+.queue-indeterminate {
+  animation: queue-progress-slide 1.4s ease-in-out infinite;
+}
+
+@keyframes queue-progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(300%);
+  }
+}
+
+@media (width <= 600px) {
+  .queue-row {
+    @apply flex-wrap gap-2 px-3;
+  }
+
+  .queue-row-actions {
+    @apply ml-auto;
+  }
+
+  .queue-toolbar,
+  .queue-overview,
+  .queue-filters,
+  .queue-footer {
+    @apply px-3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .queue-indeterminate {
+    animation: none;
+  }
+}

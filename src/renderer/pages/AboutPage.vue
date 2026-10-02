@@ -48,7 +48,7 @@
         {{ copyState === 'error' ? t('pages.about.copyFailed') : '' }}
       </p>
 
-      <nav :aria-label="t('pages.about.resources')" class="-mx-[10px] mt-0 mb-[22px]">
+      <nav :aria-label="t('pages.about.resources')" class="mx-[-10px] mt-0 mb-[22px]">
         <a
           v-for="link in links"
           :key="link.id"
