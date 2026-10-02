@@ -37,6 +37,7 @@ export function useImageProcessingSettings(initialConfigId: () => string, initia
   // Serial, coalesced writes keep quick scope/provider changes from saving to the wrong target.
   const pending = new Map<string, unknown>()
   let saving: Promise<void> | undefined
+
   function flushSaves(): Promise<void> {
     if (saving) return saving
     saving = (async () => {

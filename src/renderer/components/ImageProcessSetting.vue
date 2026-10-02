@@ -267,7 +267,7 @@
                   </select>
                 </ImageProcessSettingField>
               </SettingSection>
-              <details class="processing-advanced" data-testid="advanced-format-rules">
+              <details open class="processing-advanced" data-testid="advanced-format-rules">
                 <summary>
                   <span
                     >{{ t('pages.imageProcess.guide.moreOptions')
@@ -432,7 +432,7 @@
                   </div>
                 </ImageProcessSettingField>
               </SettingSection>
-              <details v-if="form.watermark.isAddWatermark" class="processing-advanced">
+              <details v-if="form.watermark.isAddWatermark" open class="processing-advanced">
                 <summary>
                   <span>{{ t('pages.imageProcess.guide.watermarkAdvanced') }}</span
                   ><ChevronRight :size="16" />
@@ -706,7 +706,7 @@
                   />
                 </ImageProcessSettingField>
               </SettingSection>
-              <details class="processing-advanced">
+              <details open class="processing-advanced">
                 <summary>
                   <span>{{ t('pages.imageProcess.guide.orientation') }}</span
                   ><ChevronRight :size="16" />
@@ -896,7 +896,7 @@
                     />
                   </ImageProcessSettingField>
                 </SettingSection>
-                <details v-if="form.rename.enable" class="processing-advanced">
+                <details v-if="form.rename.enable" open class="processing-advanced">
                   <summary>{{ t('pages.settings.upload.availablePlaceholders') }}<ChevronRight :size="16" /></summary>
                   <div class="processing-advanced-content">
                     <PlaceholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
@@ -1016,6 +1016,7 @@ const {
   () => configId,
   () => currentPicbedName,
 )
+
 const scopes: ProcessingScope[] = ['global', 'provider', 'config']
 const scopeIcons = { config: UserRound, provider: Layers, global: Globe }
 const activeTab = useStorage<string>('image-process-setting-active-tab', 'general')
