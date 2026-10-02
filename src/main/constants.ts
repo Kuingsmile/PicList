@@ -63,6 +63,7 @@ export const downloadTaskSpecialStatus = {
 
 export const IWindowList = {
   ...sharedWindowList,
+  ABOUT_WINDOW: 'ABOUT_WINDOW',
   UPDATE_WINDOW: 'UPDATE_WINDOW',
 }
 

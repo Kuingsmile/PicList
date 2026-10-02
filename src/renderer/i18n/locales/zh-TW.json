@@ -170,6 +170,27 @@
     "upload": "上傳"
   },
   "pages": {
+    "about": {
+      "builtOn": "基於 {picgo} 建構，感謝所有開源貢獻者。",
+      "copied": "已複製",
+      "copyFailed": "無法複製版本資訊，請選取版本號手動複製。",
+      "copyVersion": "複製版本",
+      "createdBy": "開發者",
+      "credits": "致謝",
+      "description": "在一個地方管理你的圖片與雲端檔案。",
+      "documentation": "使用文件",
+      "documentationDescription": "設定圖床，了解 PicList 的各項功能。",
+      "feedback": "問題與回饋",
+      "feedbackDescription": "回報問題，或提出改善建議。",
+      "installedVersion": "目前版本",
+      "license": "{license} 開源授權",
+      "releases": "更新日誌",
+      "releasesDescription": "查看更新內容，取得最新版本。",
+      "resources": "專案資源",
+      "sourceCode": "原始碼",
+      "sourceCodeDescription": "在 GitHub 上查看專案並參與貢獻。",
+      "title": "關於 PicList"
+    },
     "configForm": {
       "configName": "配置名稱",
       "configNamePlaceholder": "請輸入配置名稱",

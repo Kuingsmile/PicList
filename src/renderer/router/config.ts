@@ -1,3 +1,4 @@
+export const ABOUT_PAGE = 'AboutPage'
 export const DocumentPage = 'DocumentPage'
 export const GALLERY_PAGE = 'GalleryPage'
 export const MANAGE_BUCKET_PAGE = 'ManageBucketPage'

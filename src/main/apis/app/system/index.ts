@@ -1,9 +1,8 @@
 import picgo from '@core/picgo'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
-import { app, clipboard, dialog, Menu, MenuItem, MenuItemConstructorOptions, nativeTheme, Tray } from 'electron'
+import { app, clipboard, Menu, MenuItem, MenuItemConstructorOptions, nativeTheme, Tray } from 'electron'
 import fs from 'fs-extra'
-import pkg from 'root/package.json'
 
 import { IWindowList } from '~/constants'
 import { buildPicBedListMenu } from '~/events/remotes/menu'
@@ -63,6 +62,13 @@ export function createMenu() {
     {
       label: 'PicList',
       submenu: [
+        {
+          label: t('main.menu.about'),
+          click() {
+            windowManager.create(IWindowList.ABOUT_WINDOW)
+          },
+        },
+        { type: 'separator' },
         { label: t('main.menu.openMainWindow'), click: openMainWindow },
         {
           label: t('main.menu.restartApp'),
@@ -205,12 +211,7 @@ export function createContextMenu() {
       {
         label: t('main.menu.about'),
         click() {
-          dialog.showMessageBox({
-            title: 'PicList',
-            message: 'PicList',
-            buttons: ['Ok'],
-            detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`,
-          })
+          windowManager.create(IWindowList.ABOUT_WINDOW)
         },
       },
       { label: t('main.menu.quit'), role: 'quit' },

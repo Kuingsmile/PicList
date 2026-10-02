@@ -3,9 +3,8 @@ import shortKeyHandler from 'apis/app/shortKey/shortKeyHandler'
 import { uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
 import GuiApi from 'apis/gui'
-import { app, BrowserWindow, dialog, Menu, MenuItem, MenuItemConstructorOptions, shell } from 'electron'
+import { app, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions, shell } from 'electron'
 import { PicGo as PicGoCore } from 'piclist'
-import pkg from 'root/package.json'
 
 import {
   PICGO_CONFIG_PLUGIN,
@@ -100,12 +99,7 @@ const buildMainPageMenu = (win: BrowserWindow | undefined) => {
     {
       label: t('main.menu.about'),
       click() {
-        dialog.showMessageBox({
-          type: 'info',
-          title: 'PicList',
-          message: 'PicList',
-          detail: `Version: ${pkg.version}\nAuthor: Kuingsmile\nGithub: https://github.com/Kuingsmile/PicList`,
-        })
+        windowManager.create(IWindowList.ABOUT_WINDOW)
       },
     },
     {

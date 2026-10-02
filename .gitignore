@@ -31,6 +31,7 @@ resources/theme/
 release-notes.md
 .github/prompts
 .shared/
+/docs/
 dev-app-update.yml
 
 test.js

@@ -170,6 +170,27 @@
     "upload": "Upload"
   },
   "pages": {
+    "about": {
+      "builtOn": "Built on {picgo} and the work of open-source contributors.",
+      "copied": "Copied",
+      "copyFailed": "Could not copy the version. Select the version number to copy it manually.",
+      "copyVersion": "Copy version",
+      "createdBy": "Created by",
+      "credits": "Credits",
+      "description": "Your images and cloud storage, in one place.",
+      "documentation": "Documentation",
+      "documentationDescription": "Set up image hosts and explore PicList's features.",
+      "feedback": "Feedback & issues",
+      "feedbackDescription": "Report a problem or suggest an improvement.",
+      "installedVersion": "Installed version",
+      "license": "{license} license",
+      "releases": "Release notes",
+      "releasesDescription": "See what's changed and find the latest release.",
+      "resources": "Project resources",
+      "sourceCode": "Source code",
+      "sourceCodeDescription": "Explore the project and contribute on GitHub.",
+      "title": "About PicList"
+    },
     "configForm": {
       "configName": "Config Name",
       "configNamePlaceholder": "Please enter config name",

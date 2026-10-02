@@ -109,6 +109,11 @@ export default createRouter({
       component: () => import('@/pages/Toolbox.vue'),
     },
     {
+      path: '/about-page',
+      name: config.ABOUT_PAGE,
+      component: () => import('@/pages/AboutPage.vue'),
+    },
+    {
       path: '/update-page',
       name: config.UPDATE_PAGE,
       component: () => import('@/pages/UpdatePage.vue'),

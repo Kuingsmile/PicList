@@ -4,10 +4,11 @@ import { fileURLToPath } from 'node:url'
 import bus from '@core/bus'
 import { CREATE_APP_MENU } from '@core/bus/constants'
 import picgo from '@core/picgo'
-import { app, BrowserWindow, Rectangle } from 'electron'
+import { app, BrowserWindow, nativeTheme, Rectangle } from 'electron'
 
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/constants/ipcChannels'
 import { IWindowList } from '~/constants'
+import { t } from '~/i18n'
 import { configPaths } from '~/utils/configPaths'
 
 import logo from '../../../../../resources/logo.png?asset&asarUnpack'
@@ -335,6 +336,46 @@ windowList.set(IWindowList.UPDATE_WINDOW, {
     }
     window.on('closed', () => {
       window = null as unknown as Electron.BrowserWindow
+    })
+  },
+})
+
+windowList.set(IWindowList.ABOUT_WINDOW, {
+  isValid: true,
+  multiple: false,
+  options: () => ({
+    width: 600,
+    height: 690,
+    minWidth: 360,
+    minHeight: 480,
+    show: false,
+    center: true,
+    fullscreenable: false,
+    maximizable: false,
+    resizable: true,
+    autoHideMenuBar: true,
+    title: `${t('main.menu.about')} PicList`,
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#2c2c2e' : '#fbfbfd',
+    icon: logo,
+    webPreferences: {
+      sandbox: false,
+      preload: preloadPath,
+      nodeIntegration: false,
+      nodeIntegrationInWorker: false,
+      contextIsolation: true,
+      backgroundThrottling: true,
+    },
+  }),
+  callback(window) {
+    if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
+      window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#about-page`)
+    } else {
+      window.loadFile(path.join(dirname, '../renderer/index.html'), { hash: 'about-page' })
+    }
+    window.setMenu(null)
+    window.once('ready-to-show', () => {
+      window.show()
+      window.focus()
     })
   },
 })
