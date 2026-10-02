@@ -11,7 +11,7 @@
           <button
             class="provider-button group/provider flex w-auto min-w-[150px] shrink-0 cursor-pointer items-center gap-3 rounded-lg bg-bg-secondary px-4 py-2 font-[inherit] shadow-sm duration-fast ease-standard hover:-translate-y-px hover:bg-accent/30 hover:text-white hover:shadow-sm focus-visible:focus-ring max-xs:w-full max-xs:min-w-[100px]"
             :title="t('pages.upload.uploadViewHint')"
-            @click="handlePicBedNameClick(picBedName)"
+            @click="openPicBedSettings"
           >
             <div class="flex flex-1 flex-col items-start">
               <span class="text-sm leading-[1.2] font-semibold text-main group-hover/provider:text-white">{{
@@ -52,12 +52,12 @@
               :class="{ 'is-active': isCurrentPicbed(picbedType), 'show-delete': longPressedBadge === picbedType.id }"
               :title="t('pages.upload.longPressToRemoveFromFavorites') + getPicbedName(picbedType)"
               @click="handleBadgeClick(picbedType)"
-              @mousedown="handleBadgeMouseDown(picbedType)"
-              @mouseup="handleBadgeMouseUp"
-              @mouseleave="handleBadgeMouseUp"
-              @touchstart="handleBadgeTouchStart(picbedType, $event)"
-              @touchend="handleBadgeTouchEnd"
-              @touchcancel="handleBadgeTouchEnd"
+              @mousedown="startBadgeLongPress(picbedType)"
+              @mouseup="endBadgeLongPress"
+              @mouseleave="endBadgeLongPress"
+              @touchstart="startBadgeLongPress(picbedType, $event)"
+              @touchend="endBadgeLongPress"
+              @touchcancel="endBadgeLongPress"
             >
               <div class="min-w-0 flex-1 overflow-hidden">
                 <div
@@ -129,7 +129,7 @@
               </div>
             </div>
           </div>
-          <input id="file-uploader" ref="fileInput" type="file" multiple class="hidden" @change="onChange" />
+          <input id="file-uploader" ref="fileInput" type="file" multiple class="hidden" @change="handleFileSelection" />
         </div>
 
         <!-- Progress Bar -->
@@ -667,17 +667,7 @@ import {
   XIcon,
   ZapIcon,
 } from '@lucide/vue'
-import { useStorage } from '@vueuse/core'
-import {
-  computed,
-  defineAsyncComponent,
-  onBeforeMount,
-  onBeforeUnmount,
-  reactive,
-  ref,
-  useTemplateRef,
-  watch,
-} from 'vue'
+import { computed, defineAsyncComponent, onBeforeMount, onBeforeUnmount, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
@@ -685,13 +675,16 @@ import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import PicBedSwitcher from '@/components/PicBedSwitcher.vue'
 import { useDragEventListeners } from '@/composables/useDragEventListeners'
+import { MAX_FAVORITE_PICBEDS, useFavoritePicbeds } from '@/composables/useFavoritePicbeds'
 import { usePicBed } from '@/composables/useGlobal'
 import useMessage from '@/composables/useMessage'
+import { useUploadProgress } from '@/composables/useUploadProgress'
+import { useUploadTaskQueue } from '@/composables/useUploadTaskQueue'
 import { PICBEDS_PAGE } from '@/router/config'
 import { getConfig, saveConfig } from '@/services/configService'
 import $bus from '@/utils/bus'
 import { configPaths } from '@/utils/configPaths'
-import { createUploadProgressTracker, type UploadProgressState } from '@/utils/uploadProgress'
+import { getUploadFiles } from '@/utils/uploadFiles'
 import { IPasteStyle } from '#/constants/app'
 import { SHOW_INPUT_BOX, SHOW_INPUT_BOX_RESPONSE } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
@@ -701,109 +694,64 @@ defineOptions({ name: 'UploadPage' })
 
 const ImageProcessDialog = defineAsyncComponent(() => import('@/components/ImageProcessDialog.vue'))
 
-// Task queue types
-interface IUploadTaskItem {
-  id: string
-  fileName: string
-  filePath: string
-  fileSize: number
-  status: string
-  progress: number
-  error?: string
-  result?: any
-  createdAt: number
-  startedAt?: number
-  completedAt?: number
-  retryCount: number
-  priority: number
-  uploadSpeed?: number
-  uploadDuration?: number
-}
-
-interface IUploadTaskQueueStatus {
-  tasks: IUploadTaskItem[]
-  config: {
-    intervalS: number
-    isRunning: boolean
-    isPaused: boolean
-    autoStart: boolean
-    pauseOnError: boolean
-    maxRetryCount: number
-  }
-  stats: {
-    total: number
-    pending: number
-    completed: number
-    failed: number
-    cancelled: number
-    uploading: number
-    totalSize: number
-    completedSize: number
-    avgSpeed: number
-    estimatedTimeMs: number
-  }
-}
-
 const uploadArea = useTemplateRef('uploadArea')
+const fileInput = useTemplateRef('fileInput')
 useDragEventListeners(uploadArea)
+
 const $router = useRouter()
 const { t } = useI18n()
 const message = useMessage()
 const { picBedG, defaultPicBedG, defaultConfigNameG, defaultIdG, updatePicBeds } = usePicBed()
+const {
+  favoritePicbeds,
+  longPressedBadge,
+  isCurrentPicBedInFavorites,
+  addCurrentPicbedToFavorites,
+  removePicbedFromFavorites,
+  getPicbedName,
+  isCurrentPicbed,
+  handleBadgeClick,
+  startBadgeLongPress,
+  endBadgeLongPress,
+} = useFavoritePicbeds()
+const { progress, showProgress, showError, progressState, progressLabel } = useUploadProgress()
+const {
+  taskDialogVisible,
+  uploadInterval,
+  showTaskSettings,
+  taskSearchQuery,
+  taskFilter,
+  autoStart,
+  pauseOnError,
+  maxRetryCount,
+  taskQueueStatus,
+  filteredTasks,
+  overallProgressPercent,
+  openTaskDialog,
+  refreshTaskStatus,
+  addFilesToTask,
+  startTaskQueue,
+  pauseTaskQueue,
+  resumeTaskQueue,
+  cancelAllTasks,
+  cancelTask,
+  removeTask,
+  clearFinishedTasks,
+  updateInterval,
+  retryTask,
+  retryAllFailedTasks,
+  moveTaskUp,
+  moveTaskDown,
+  toggleTaskPriority,
+  updateSettings,
+  getTaskStatusClass,
+  getTaskStatusText,
+} = useUploadTaskQueue()
 
 const imageProcessDialogVisible = ref(false)
-const taskDialogVisible = ref(false)
-const useShortUrl = ref(false)
 const dragover = ref(false)
-const progress = ref(0)
-const showProgress = ref(false)
-const showError = ref(false)
-const progressState = ref<UploadProgressState>()
-const progressLabel = computed(() => {
-  const state = progressState.value
-  if (!state) return t('pages.upload.progress.preparing')
-  if (!state.activeCount) {
-    if (state.failed) return t('pages.upload.uploadFailed')
-    if (state.cancelled) return t('common.fileTable.tasks.canceled')
-    return t('common.fileTable.tasks.uploaded')
-  }
-  const phase = t(`pages.upload.progress.${state.phase}`)
-  return state.destination === 'secondary' ? `${t('pages.upload.progress.secondary')} · ${phase}` : phase
-})
+const useShortUrl = ref(false)
 const pasteStyle = ref(IPasteStyle.MARKDOWN)
-const fileInput = useTemplateRef('fileInput')
-const uploadInterval = ref(1000)
-const showTaskSettings = useStorage('upload-task-queue-show-settings', true)
-const taskSearchQuery = ref('')
-const taskFilter = ref<string>('all')
-const autoStart = ref(false)
-const pauseOnError = ref(false)
-const maxRetryCount = ref(3)
-const favoritePicbeds = useStorage<IFavoritePicbedItem[]>('favorite-picbeds', [])
-const taskQueueStatus = reactive<IUploadTaskQueueStatus>({
-  tasks: [],
-  config: {
-    intervalS: 1,
-    isRunning: false,
-    isPaused: false,
-    autoStart: false,
-    pauseOnError: false,
-    maxRetryCount: 3,
-  },
-  stats: {
-    total: 0,
-    pending: 0,
-    completed: 0,
-    failed: 0,
-    cancelled: 0,
-    uploading: 0,
-    totalSize: 0,
-    completedSize: 0,
-    avgSpeed: 0,
-    estimatedTimeMs: 0,
-  },
-})
-const longPressedBadge = ref<string | null>(null)
 const pasteFormatList = ref<Record<string, string>>({
   [IPasteStyle.MARKDOWN]: '![alt](url)',
   [IPasteStyle.HTML]: '<img src="url"/>',
@@ -812,101 +760,18 @@ const pasteFormatList = ref<Record<string, string>>({
   [IPasteStyle.CUSTOM]: '',
 })
 
-const MAX_FAVORITE_PICBEDS = 6
-let longPressTimer: ReturnType<typeof setTimeout> | undefined
-let longPressResetTimer: ReturnType<typeof setTimeout> | undefined
-const LONG_PRESS_DURATION = 500
-
-const isCurrentPicBedInFavorites = computed(() => {
-  const result = favoritePicbeds.value.some(item => item.id === defaultIdG.value)
-  return result
-})
-
-const filteredTasks = computed(() => {
-  let tasks = taskQueueStatus.tasks
-
-  if (taskFilter.value !== 'all') {
-    tasks = tasks.filter(t => t.status === taskFilter.value)
-  }
-
-  if (taskSearchQuery.value) {
-    const query = taskSearchQuery.value.toLowerCase()
-    tasks = tasks.filter(t => t.fileName.toLowerCase().includes(query))
-  }
-
-  return tasks
-})
-
-const overallProgressPercent = computed(() => {
-  if (taskQueueStatus.stats.total === 0) return 0
-  const completed = taskQueueStatus.stats.completed
-  const total = taskQueueStatus.stats.total - taskQueueStatus.stats.cancelled
-  return total > 0 ? Math.round((completed / total) * 100) : 0
-})
-
 const picBedName = computed(() => {
-  if (!picBedG.value || picBedG.value.length === 0) {
-    return ''
-  }
-  const target = picBedG.value.find(item => item.type === defaultPicBedG.value)
-  return target ? target.name : defaultPicBedG.value
+  if (!picBedG.value || picBedG.value.length === 0) return ''
+  const provider = picBedG.value.find(item => item.type === defaultPicBedG.value)
+  return provider ? provider.name : defaultPicBedG.value
 })
-
-function syncPicBedHandler(): void {
-  updatePicBeds()
-}
-
-watch(favoritePicbeds, valideFavoritePicbeds, { immediate: true })
-
-let removeUploadProgressListenerCallback: () => void = () => {}
-let removeSyncPicBedListenerCallback: () => void = () => {}
-
-const trackUploadProgress = createUploadProgressTracker()
-let progressVersion = 0
-let progressHideTimer: ReturnType<typeof setTimeout> | undefined
-let progressResetTimer: ReturnType<typeof setTimeout> | undefined
-
-function uploadProgressHandler(event: IUploadProgress): void {
-  progressVersion++
-  const state = trackUploadProgress(event)
-  progressState.value = state
-  showProgress.value = true
-  showError.value = !state.activeCount && state.failed
-  progress.value = state.progress
-  onProgressChange(state.activeCount === 0)
-}
 
 function handleImageProcess() {
   imageProcessDialogVisible.value = true
 }
 
-function clearProgressTimers() {
-  clearTimeout(progressHideTimer)
-  clearTimeout(progressResetTimer)
-  progressHideTimer = undefined
-  progressResetTimer = undefined
-}
-
-function onProgressChange(complete: boolean) {
-  clearProgressTimers()
-  if (complete) {
-    const version = progressVersion
-    progressHideTimer = setTimeout(() => {
-      progressHideTimer = undefined
-      if (version !== progressVersion) return
-      showProgress.value = false
-      showError.value = false
-    }, 1000)
-    progressResetTimer = setTimeout(() => {
-      progressResetTimer = undefined
-      if (version !== progressVersion) return
-      progress.value = 0
-    }, 1200)
-  }
-}
-
-async function handlePicBedNameClick(_picBedName: string) {
-  const currentPicBedConfig = ((await getConfig<any[]>(`uploader.${defaultPicBedG.value}`)) as any) || {}
+async function openPicBedSettings() {
+  const uploader = await getConfig<IUploaderConfigItem>(`uploader.${defaultPicBedG.value}`)
   $router.push({
     name: PICBEDS_PAGE,
     params: {
@@ -914,72 +779,67 @@ async function handlePicBedNameClick(_picBedName: string) {
       configId: defaultIdG.value,
     },
     query: {
-      defaultConfigId: currentPicBedConfig.defaultId || '',
+      defaultConfigId: uploader?.defaultId || '',
     },
   })
 }
 
-function onDrop(e: DragEvent) {
+function onDrop(event: DragEvent) {
   dragover.value = false
+  const dataTransfer = event.dataTransfer
+  if (!dataTransfer) return
 
-  // send files first
-  if (e.dataTransfer?.files?.length) {
-    ipcSendFiles(e.dataTransfer.files)
-  } else if (e.dataTransfer?.items) {
-    const items = e.dataTransfer.items
-    if (items.length === 2 && items[0].type === 'text/uri-list') {
-      handleURLDrag(items, e.dataTransfer)
-    } else if (items[0].type === 'text/plain') {
-      const str = e.dataTransfer.getData(items[0].type)
-      if (isUrl(str)) {
-        window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [{ path: str }])
-      } else {
-        message.error(t('pages.upload.dragValidPictureOrUrl'))
-      }
-    }
+  // Local files take precedence over dragged text or HTML.
+  if (dataTransfer.files?.length) {
+    uploadFiles(dataTransfer.files)
+    return
   }
+
+  const items = dataTransfer.items
+  if (!items?.length) return
+  if (items.length === 2 && items[0].type === 'text/uri-list') {
+    handleURLDrag(items, dataTransfer)
+    return
+  }
+  if (items[0].type !== 'text/plain') return
+
+  const url = dataTransfer.getData(items[0].type)
+  if (!isUrl(url)) {
+    message.error(t('pages.upload.dragValidPictureOrUrl'))
+    return
+  }
+  window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [{ path: url }])
 }
 
 function handleURLDrag(items: DataTransferItemList, dataTransfer: DataTransfer) {
-  const urlString = dataTransfer.getData(items[1].type)
-  const urlMatch = urlString.match(/<img.*src="(.*?)"/)
-  if (urlMatch) {
-    window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [
-      {
-        path: urlMatch[1],
-      },
-    ])
-  } else {
+  const html = dataTransfer.getData(items[1].type)
+  const imageMatch = html.match(/<img.*src="(.*?)"/)
+  if (!imageMatch) {
     message.error(t('pages.upload.dragValidPictureOrUrl'))
+    return
   }
+  window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [{ path: imageMatch[1] }])
 }
 
 function openUploadWindow() {
   fileInput.value?.click()
 }
 
-function onChange(e: any) {
-  ipcSendFiles(e.target.files)
-  ;(fileInput.value as HTMLInputElement).value = ''
+function handleFileSelection(event: Event) {
+  const input = event.target as HTMLInputElement
+  if (input.files) uploadFiles(input.files)
+  if (fileInput.value) fileInput.value.value = ''
 }
 
-function ipcSendFiles(files: FileList) {
-  const sendFiles: IFileWithPath[] = []
-  Array.from(files).forEach(item => {
-    const obj = {
-      name: item.name,
-      path: window.electron.showFilePath(item),
-    }
-    sendFiles.push(obj)
-  })
-  window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, sendFiles)
+function uploadFiles(files: FileList) {
+  window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, getUploadFiles(files))
 }
 
-async function initConf() {
-  const settingConfig = await getConfig<any>('settings')
-  pasteStyle.value = settingConfig?.pasteStyle || IPasteStyle.MARKDOWN
-  pasteFormatList.value.Custom = settingConfig?.customLink || '![$fileName]($url)'
-  useShortUrl.value = settingConfig?.useShortUrl || false
+async function loadUploadSettings() {
+  const settings = await getConfig<{ pasteStyle?: string; customLink?: string; useShortUrl?: boolean }>('settings')
+  pasteStyle.value = settings?.pasteStyle || IPasteStyle.MARKDOWN
+  pasteFormatList.value.Custom = settings?.customLink || '![$fileName]($url)'
+  useShortUrl.value = settings?.useShortUrl || false
 }
 
 async function updatePasteStyle(style: string) {
@@ -996,302 +856,60 @@ async function updateUrlType(shortUrl: boolean) {
   })
 }
 
-async function valideFavoritePicbeds() {
-  if (!favoritePicbeds.value.length) return
-  const allUploaders = (await getConfig<IStringKeyMap>(configPaths.uploader)) || {}
-
-  const availableFavorites = favoritePicbeds.value.filter(item => {
-    return (
-      Object.keys(allUploaders).includes(item.type) &&
-      allUploaders[item.type]?.configList.some((cfg: any) => cfg._id === item.id && cfg._configName === item.configName)
-    )
-  })
-  if (JSON.stringify(availableFavorites) !== JSON.stringify(favoritePicbeds.value)) {
-    favoritePicbeds.value = availableFavorites
-  }
-}
-
-function addCurrentPicbedToFavorites() {
-  favoritePicbeds.value.push({
-    id: defaultIdG.value,
-    type: defaultPicBedG.value,
-    configName: defaultConfigNameG.value,
-  })
-  message.success(t('pages.upload.picbedAddedToFavorites'))
-}
-
-function removePicbedFromFavorites(picbedType: IFavoritePicbedItem) {
-  const index = favoritePicbeds.value.findIndex(
-    item => item.type === picbedType.type && item.id === picbedType.id && item.configName === picbedType.configName,
-  )
-  if (index === -1) return
-  favoritePicbeds.value.splice(index, 1)
-}
-
-async function switchToPicbed(picbedType: IFavoritePicbedItem) {
-  if (!picbedType.id || !picbedType.type || !picbedType.configName) {
-    return
-  }
-  const uploaders = (await getConfig<IStringKeyMap>(`uploader.${picbedType.type}`)) || {}
-  const targetConfig = uploaders?.configList.find(
-    (cfg: any) => cfg._id === picbedType.id && cfg._configName === picbedType.configName,
-  )
-  if (!targetConfig) {
-    return
-  }
-  if (
-    !(await saveConfig({
-      [`uploader.${picbedType.type}.defaultId`]: picbedType.id,
-      [`picBed.${picbedType.type}`]: targetConfig,
-      [configPaths.picBed.current]: picbedType.type,
-      [configPaths.picBed.uploader]: picbedType.type,
-    }))
-  )
-    return
-  await updatePicBeds()
-  const name = getPicbedName(picbedType).split('-')[0]
-  window.electron.sendRPC(IRPCActionType.TRAY_SET_TOOL_TIP, `${name} ${targetConfig._configName}`)
-  message.success(t('pages.upload.picbedSwitched', { name: getPicbedName(picbedType) }))
-}
-
-function getPicbedName(picbedType: IFavoritePicbedItem): string {
-  if (!picBedG.value || picBedG.value.length === 0) {
-    return picbedType.configName || 'Default'
-  }
-  const target = picBedG.value.find(item => item.type === picbedType.type)
-  return `${target ? target.name : picbedType.type}-${picbedType.configName}`
-}
-
-function isCurrentPicbed(picbedType: IFavoritePicbedItem): boolean {
-  return defaultIdG.value === picbedType.id
-}
-
-function handleBadgeClick(picbedType: IFavoritePicbedItem) {
-  if (longPressedBadge.value === picbedType.id) {
-    return
-  }
-  if (isCurrentPicbed(picbedType)) {
-    return
-  }
-  switchToPicbed(picbedType)
-}
-
-function clearLongPressTimers() {
-  clearTimeout(longPressTimer)
-  clearTimeout(longPressResetTimer)
-  longPressTimer = undefined
-  longPressResetTimer = undefined
-}
-
-function handleBadgeMouseDown(picbedType: IFavoritePicbedItem) {
-  clearLongPressTimers()
-  longPressTimer = setTimeout(() => {
-    longPressTimer = undefined
-    longPressedBadge.value = picbedType.id
-  }, LONG_PRESS_DURATION)
-}
-
-function handleBadgeMouseUp() {
-  clearLongPressTimers()
-  longPressResetTimer = setTimeout(() => {
-    longPressResetTimer = undefined
-    longPressedBadge.value = null
-  }, 10000)
-}
-
-function handleBadgeTouchStart(picbedType: IFavoritePicbedItem, event: TouchEvent) {
-  clearLongPressTimers()
-  longPressTimer = setTimeout(() => {
-    longPressTimer = undefined
-    longPressedBadge.value = picbedType.id
-    event.preventDefault()
-  }, LONG_PRESS_DURATION)
-}
-
-function handleBadgeTouchEnd() {
-  handleBadgeMouseUp()
-}
-
 function uploadClipboardFiles() {
   window.electron.sendRPC(IRPCActionType.UPLOAD_CLIPBOARD_FILES_FROM_UPLOAD_PAGE)
 }
 
 async function uploadURLFiles() {
-  const str = await navigator.clipboard.readText()
+  const text = await navigator.clipboard.readText()
   $bus.emit(SHOW_INPUT_BOX, {
-    value: isUrl(str) ? str : '',
+    value: isUrl(text) ? text : '',
     title: t('pages.upload.inputUrlTip'),
     placeholder: t('pages.upload.httpPrefixTip') + '\n' + t('pages.upload.multipleUrlsHint'),
     multiLine: true,
   })
 }
 
-function handleInputBoxValue(val: string) {
-  if (val === '') return
+function showInvalidUrls(urls: string[]) {
+  if (!urls.length) return
+  const errorMessage =
+    urls.length === 1
+      ? t('pages.upload.inputValidUrl') + ': ' + urls[0]
+      : t('pages.upload.invalidUrlsFound', {
+          count: urls.length,
+          urls: urls.slice(0, 3).join(', ') + (urls.length > 3 ? '...' : ''),
+        })
+  message.error(errorMessage)
+}
 
-  const urls = val
-    .split('\n')
-    .map(url => url.trim())
-    .filter(url => url !== '')
-
-  if (urls.length === 0) return
-
-  const invalidUrls: string[] = []
+function handleInputBoxValue(value: string) {
   const validUrls: string[] = []
-
-  urls.forEach(url => {
-    if (isUrl(url)) {
-      validUrls.push(url)
-    } else {
-      invalidUrls.push(url)
-    }
-  })
-
-  if (invalidUrls.length > 0) {
-    const errorMessage =
-      invalidUrls.length === 1
-        ? t('pages.upload.inputValidUrl') + ': ' + invalidUrls[0]
-        : t('pages.upload.invalidUrlsFound', {
-            count: invalidUrls.length,
-            urls: invalidUrls.slice(0, 3).join(', ') + (invalidUrls.length > 3 ? '...' : ''),
-          })
-    message.error(errorMessage)
+  const invalidUrls: string[] = []
+  for (const line of value.split('\n')) {
+    const url = line.trim()
+    if (!url) continue
+    if (isUrl(url)) validUrls.push(url)
+    else invalidUrls.push(url)
   }
 
-  if (validUrls.length > 0) {
-    const filesToUpload = validUrls.map(url => ({ path: url }))
-    window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, filesToUpload)
+  showInvalidUrls(invalidUrls)
+  if (!validUrls.length) return
 
-    if (validUrls.length > 1) {
-      message.success(t('pages.upload.uploadingMultipleUrls', { count: validUrls.length }))
-    }
+  window.electron.sendRPC(
+    IRPCActionType.UPLOAD_CHOOSED_FILES,
+    validUrls.map(path => ({ path })),
+  )
+  if (validUrls.length > 1) {
+    message.success(t('pages.upload.uploadingMultipleUrls', { count: validUrls.length }))
   }
 }
 
-function openTaskDialog() {
-  taskDialogVisible.value = true
-  refreshTaskStatus()
-}
-
-async function refreshTaskStatus() {
-  const status = await window.electron.triggerRPC<IUploadTaskQueueStatus>(IRPCActionType.UPLOAD_TASK_GET_STATUS)
-  if (status) {
-    Object.assign(taskQueueStatus, status)
-    uploadInterval.value = status.config.intervalS
-    autoStart.value = status.config.autoStart
-    pauseOnError.value = status.config.pauseOnError
-    maxRetryCount.value = status.config.maxRetryCount
-  }
-}
-
-async function addFilesToTask() {
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.multiple = true
-  input.onchange = async (e: Event) => {
-    const target = e.target as HTMLInputElement
-    if (target.files && target.files.length > 0) {
-      const files: IFileWithPath[] = Array.from(target.files).map(file => ({
-        name: file.name,
-        path: window.electron.showFilePath(file),
-      }))
-
-      await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_ADD, files)
-      await refreshTaskStatus()
-      message.success(t('pages.upload.taskQueue.filesAdded', { count: files.length }))
-    }
-  }
-  input.click()
-}
-
-async function startTaskQueue() {
-  await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_START, uploadInterval.value)
-  await refreshTaskStatus()
-  message.success(t('pages.upload.taskQueue.started'))
-}
-
-async function pauseTaskQueue() {
-  await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_PAUSE)
-  await refreshTaskStatus()
-  message.info(t('pages.upload.taskQueue.paused'))
-}
-
-async function resumeTaskQueue() {
-  await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_RESUME)
-  await refreshTaskStatus()
-  message.success(t('pages.upload.taskQueue.resumed'))
-}
-
-async function cancelAllTasks() {
-  await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_CANCEL_ALL)
-  await refreshTaskStatus()
-  message.info(t('pages.upload.taskQueue.allCancelled'))
-}
-
-async function cancelTask(taskId: string) {
-  await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_CANCEL_ONE, taskId)
-  await refreshTaskStatus()
-}
-
-async function removeTask(taskId: string) {
-  await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_REMOVE_ONE, taskId)
-  await refreshTaskStatus()
-}
-
-async function clearFinishedTasks() {
-  await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_CLEAR_FINISHED)
-  await refreshTaskStatus()
-  message.success(t('pages.upload.taskQueue.cleared'))
-}
-
-async function updateInterval() {
-  await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_SET_INTERVAL, uploadInterval.value)
-}
-
-async function retryTask(taskId: string) {
-  await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_RETRY_ONE, taskId)
-  await refreshTaskStatus()
-  message.success(t('pages.upload.taskQueue.taskRetried'))
-}
-
-async function retryAllFailedTasks() {
-  const count = await window.electron.triggerRPC<number>(IRPCActionType.UPLOAD_TASK_RETRY_ALL_FAILED)
-  await refreshTaskStatus()
-  message.success(t('pages.upload.taskQueue.retriedAllFailed', { count }))
-}
-
-async function moveTaskUp(taskId: string) {
-  await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_MOVE_UP, taskId)
-  await refreshTaskStatus()
-}
-
-async function moveTaskDown(taskId: string) {
-  await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_MOVE_DOWN, taskId)
-  await refreshTaskStatus()
-}
-
-async function toggleTaskPriority(taskId: string, currentPriority: number) {
-  const newPriority = currentPriority === 2 ? 1 : 2
-  await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_SET_PRIORITY, taskId, newPriority)
-  await refreshTaskStatus()
-}
-
-async function updateSettings() {
-  await window.electron.triggerRPC(IRPCActionType.UPLOAD_TASK_UPDATE_SETTINGS, {
-    intervalS: uploadInterval.value,
-    autoStart: autoStart.value,
-    pauseOnError: pauseOnError.value,
-    maxRetryCount: maxRetryCount.value,
-  })
-}
-
-// Helper functions
 function formatSize(bytes: number): string {
   if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+  const unitSize = 1024
+  const units = ['B', 'KB', 'MB', 'GB']
+  const unitIndex = Math.floor(Math.log(bytes) / Math.log(unitSize))
+  return parseFloat((bytes / Math.pow(unitSize, unitIndex)).toFixed(1)) + ' ' + units[unitIndex]
 }
 
 function formatSpeed(bytesPerSecond: number): string {
@@ -1310,50 +928,19 @@ function formatTime(ms: number): string {
   return `${hours}h ${remainingMinutes}m`
 }
 
-function getTaskStatusClass(status: string): string {
-  const statusMap: Record<string, string> = {
-    pending: 'status-pending',
-    uploading: 'status-uploading',
-    completed: 'status-completed',
-    failed: 'status-failed',
-    cancelled: 'status-cancelled',
-  }
-  return statusMap[status] || ''
-}
-
-function getTaskStatusText(status: string): string {
-  const statusMap: Record<string, string> = {
-    pending: t('pages.upload.taskQueue.statusPending'),
-    uploading: t('pages.upload.taskQueue.statusUploading'),
-    completed: t('pages.upload.taskQueue.statusCompleted'),
-    failed: t('pages.upload.taskQueue.statusFailed'),
-    cancelled: t('pages.upload.taskQueue.statusCancelled'),
-  }
-  return statusMap[status] || status
-}
-
-function taskQueueUpdateHandler(status: IUploadTaskQueueStatus) {
-  Object.assign(taskQueueStatus, status)
-  uploadInterval.value = status.config.intervalS
-}
-
-let removeTaskQueueUpdateListenerCallback: () => void = () => {}
-
-onBeforeUnmount(() => {
-  clearProgressTimers()
-  clearLongPressTimers()
-  $bus.off(SHOW_INPUT_BOX_RESPONSE)
-  removeUploadProgressListenerCallback()
-  removeSyncPicBedListenerCallback()
-  removeTaskQueueUpdateListenerCallback()
-})
+let removeSyncPicBedListener: () => void = () => {}
 
 onBeforeMount(async () => {
-  removeUploadProgressListenerCallback = window.electron.ipcRendererOn('uploadProgress', uploadProgressHandler)
-  removeSyncPicBedListenerCallback = window.electron.ipcRendererOn('syncPicBed', syncPicBedHandler)
-  removeTaskQueueUpdateListenerCallback = window.electron.ipcRendererOn('uploadTaskQueueUpdate', taskQueueUpdateHandler)
+  removeSyncPicBedListener = window.electron.ipcRendererOn('syncPicBed', () => {
+    updatePicBeds()
+  })
   $bus.on(SHOW_INPUT_BOX_RESPONSE, handleInputBoxValue)
-  await Promise.all([initConf(), refreshTaskStatus()])
+  await Promise.all([loadUploadSettings(), refreshTaskStatus()])
+})
+
+onBeforeUnmount(() => {
+  $bus.off(SHOW_INPUT_BOX_RESPONSE)
+  removeSyncPicBedListener()
 })
 </script>
 
