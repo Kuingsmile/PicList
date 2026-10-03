@@ -59,7 +59,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: '22.x'
+          node-version: '24.x'
       - name: Plan selected OS and architecture groups
         id: plan
         env:
@@ -85,7 +85,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           cache: yarn
           cache-dependency-path: yarn.lock
 
@@ -198,7 +198,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           cache: yarn
           cache-dependency-path: yarn.lock
 
