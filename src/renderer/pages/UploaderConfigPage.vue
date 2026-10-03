@@ -107,7 +107,7 @@
                 class="grid grid-cols-2 gap-1.5 opacity-0 transition-all duration-fast ease-apple group-hover/config-card:opacity-100 peer-[.is-active]:opacity-100"
               >
                 <button
-                  class="action-btn"
+                  class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border-secondary/80 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                   :title="
                     isConfigFavorited(item._id)
                       ? t('pages.uploaderConfig.removeFromFavorites')
@@ -117,18 +117,22 @@
                 >
                   <Heart :size="14" :fill="isConfigFavorited(item._id) ? 'var(--color-warning)' : 'none'" />
                 </button>
-                <button class="action-btn" :title="t('pages.uploaderConfig.edit')" @click.stop="openEditPage(item._id)">
+                <button
+                  class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border-secondary/80 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
+                  :title="t('pages.uploaderConfig.edit')"
+                  @click.stop="openEditPage(item._id)"
+                >
                   <Pencil :size="14" />
                 </button>
                 <button
-                  class="action-btn"
+                  class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border-secondary/80 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                   :title="t('pages.uploaderConfig.duplicate')"
                   @click.stop="() => duplicateConfig(item._id)"
                 >
                   <Copy :size="14" />
                 </button>
                 <button
-                  class="action-btn danger"
+                  class="action-btn danger flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border-secondary/80 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                   :class="{ disabled: curConfigList.length <= 1 }"
                   :title="t('pages.uploaderConfig.delete')"
                   :disabled="curConfigList.length <= 1"
@@ -565,5 +569,3 @@ onBeforeMount(() => {
   getScriptsList()
 })
 </script>
-
-<style scoped src="./UploaderConfigPage.css"></style>

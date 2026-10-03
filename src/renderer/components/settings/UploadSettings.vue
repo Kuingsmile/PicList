@@ -1,0 +1,438 @@
+<template>
+  <div v-show="active" class="no-scrollbar flex h-full w-full flex-1 flex-col gap-6 overflow-auto p-4">
+    <!-- Upload Behavior Section -->
+    <SettingSection :icon="Server" :title="t('pages.settings.upload.controlShow')">
+      <SettingCard>
+        <MultiSelect
+          v-model:choosed="showPicBedList"
+          :icon="Server"
+          :tight="false"
+          :title="t('pages.settings.upload.chooseShowedPicBed')"
+          :zero-placeholder="t('pages.gallery.chooseShowedPicBed')"
+          :all-list="picBedG"
+        />
+      </SettingCard>
+      <SettingCard>
+        <MultiSelect
+          v-model:choosed="galleryPicBedFilterList"
+          :icon="ImageIcon"
+          :tight="false"
+          :title="t('pages.settings.upload.galleryPicBedFilter')"
+          :zero-placeholder="t('pages.gallery.chooseShowedPicBed')"
+          :all-list="picBedG"
+        />
+      </SettingCard>
+    </SettingSection>
+    <SettingSection :icon="CloudUpload" :title="t('pages.settings.upload.uploadBehavior')">
+      <!-- Auto Import Card -->
+      <SettingCard p1>
+        <CustomSwitch
+          v-model="formOfSetting.autoImport"
+          small
+          no-border
+          :title="t('pages.settings.upload.autoImportInManage')"
+          :description="t('pages.settings.upload.autoImportInManageHint')"
+        />
+      </SettingCard>
+      <!-- Auto Import PicBed Selection -->
+      <SettingCard v-if="formOfSetting.autoImport">
+        <MultiSelect
+          v-model:choosed="formOfSetting.autoImportPicBed"
+          :icon="ImageIcon"
+          :tight="false"
+          :title="t('pages.settings.upload.autoImportPicBed')"
+          :zero-placeholder="t('pages.settings.upload.autoImportPicBed')"
+          :all-list="picBedG"
+        />
+      </SettingCard>
+      <!-- Second PicBed Card -->
+      <SettingCard p1>
+        <CustomSwitch
+          v-model="formOfSetting.enableSecondUploader"
+          small
+          no-border
+          :title="t('pages.settings.upload.enableSecondPicBed')"
+          :description="t('pages.settings.upload.enableSecondPicBedHint')"
+        />
+      </SettingCard>
+
+      <CustomNavCard
+        :title="t('pages.settings.upload.setSecondPicBed')"
+        :icon="CloudUpload"
+        :description="t('pages.settings.upload.setSecondPicBedDesc')"
+        @click="handleChangeSecondPicBed"
+      />
+
+      <SettingCard>
+        <CustomSelect
+          v-model="currentSecondMode"
+          :select-list="secondModeList"
+          :title="t('pages.settings.upload.chooseSecondPicBedMode')"
+          :icon="Settings2Icon"
+        />
+      </SettingCard>
+    </SettingSection>
+
+    <!-- Upload Processing Section -->
+    <SettingSection :icon="ImageIcon" :title="t('pages.settings.upload.uploadProcessing')">
+      <CustomNavCard
+        :title="t('pages.settings.upload.advancedRname')"
+        :icon="Edit"
+        :description="t('pages.settings.upload.advancedRnameDesc')"
+        @click="advancedRenameVisible = true"
+      />
+      <CustomNavCard
+        :title="t('pages.settings.upload.imageProcessing')"
+        :icon="ImageIcon"
+        :description="t('pages.settings.upload.imageProcessingDesc')"
+        @click="imageProcessDialogVisible = true"
+      />
+      <SettingCard p1>
+        <CustomSwitch
+          v-model="formOfSetting.deleteCloudFile"
+          small
+          no-border
+          :title="t('pages.settings.upload.deleteCloud')"
+        />
+      </SettingCard>
+
+      <SettingCard p1>
+        <CustomSwitch v-model="formOfSetting.rename" small no-border :title="t('pages.settings.upload.manualRename')" />
+      </SettingCard>
+
+      <SettingCard p1>
+        <CustomSwitch
+          v-model="formOfSetting.autoRename"
+          small
+          no-border
+          :title="t('pages.settings.upload.timestampRename')"
+          description="YYYYMMDDHHmmssSSS"
+        />
+      </SettingCard>
+
+      <SettingCard p1 class="flex flex-col justify-center">
+        <CustomSwitch
+          v-model="formOfSetting.deleteLocalFile"
+          small
+          no-border
+          :title="t('pages.settings.upload.deleteLocalFileAfterUpload')"
+        />
+      </SettingCard>
+    </SettingSection>
+
+    <!-- Clipboard & Notification Section -->
+    <SettingSection :icon="Edit" :title="t('pages.settings.upload.clipboardAndNotification')">
+      <SettingCard p1>
+        <CustomSwitch
+          v-model="formOfSetting.uploadNotification"
+          small
+          no-border
+          :title="t('pages.settings.upload.enableUploadNotification')"
+        />
+      </SettingCard>
+
+      <SettingCard p1>
+        <CustomSwitch
+          v-model="formOfSetting.uploadResultNotification"
+          small
+          no-border
+          :title="t('pages.settings.upload.enableUploadResultNotification')"
+        />
+      </SettingCard>
+
+      <SettingCard p1 class="flex flex-col justify-center">
+        <CustomSwitch
+          v-model="formOfSetting.autoCopy"
+          small
+          no-border
+          :title="t('pages.settings.upload.autoCopyUrlAfterUpload')"
+        />
+      </SettingCard>
+
+      <SettingCard p1>
+        <CustomSwitch
+          v-model="formOfSetting.useBuiltinClipboard"
+          small
+          no-border
+          :title="t('pages.settings.upload.useBuiltInClipboardUpload')"
+          :description="t('pages.settings.upload.useBuiltInClipboardUploadHint')"
+        />
+      </SettingCard>
+
+      <SettingCard p1>
+        <CustomSwitch
+          v-model="formOfSetting.isAutoListenClipboard"
+          small
+          no-border
+          :title="t('pages.settings.upload.isAutoListenClipboard')"
+        />
+      </SettingCard>
+    </SettingSection>
+
+    <!-- URL Format & Link Type Section -->
+    <SettingSection :icon="Link" :title="t('pages.settings.upload.urlFormatAndLinkType')">
+      <!-- Custom Link Format Action -->
+      <CustomNavCard
+        :title="t('pages.settings.upload.customLinkFormat')"
+        :icon="Link"
+        :description="t('pages.settings.upload.customLinkFormatDesc')"
+        @click="customLinkVisible = true"
+      />
+      <SettingCard p1>
+        <CustomSwitch
+          v-model="formOfSetting.useShortUrl"
+          small
+          no-border
+          :title="t('pages.settings.upload.enableShortUrl')"
+          :description="t('pages.settings.upload.enableShortUrlDesc')"
+        />
+      </SettingCard>
+
+      <SettingCard v-if="formOfSetting.useShortUrl">
+        <CustomSelect
+          v-model="currentShortUrlServer"
+          :select-list="shortUrlServerList"
+          :title="t('pages.settings.upload.shortUrlServer')"
+          :icon="Link"
+        />
+      </SettingCard>
+
+      <SettingCard v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'c1n'">
+        <CustomInput
+          v-model="formOfSetting.c1nToken"
+          :title="t('pages.settings.upload.c1nToken')"
+          :icon="Link"
+          :placeholder="t('pages.settings.upload.c1nToken')"
+        />
+      </SettingCard>
+
+      <SettingCard v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'yourls'">
+        <CustomInput
+          v-model="formOfSetting.yourlsDomain"
+          :title="t('pages.settings.upload.yourlsDomain')"
+          :icon="Link"
+          :placeholder="t('pages.settings.upload.yourlsDomain')"
+        />
+      </SettingCard>
+
+      <SettingCard v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'yourls'">
+        <CustomInput
+          v-model="formOfSetting.yourlsSignature"
+          :title="t('pages.settings.upload.yourlsSignature')"
+          :icon="Link"
+          :placeholder="t('pages.settings.upload.yourlsSignature')"
+        />
+      </SettingCard>
+
+      <SettingCard v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'cf_worker'">
+        <CustomInput
+          v-model="formOfSetting.cfWorkerHost"
+          :title="t('pages.settings.upload.cfWorkerHost')"
+          :icon="Link"
+          :placeholder="t('pages.settings.upload.cfWorkerHost')"
+        />
+      </SettingCard>
+
+      <SettingCard v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'sink'">
+        <CustomInput
+          v-model="formOfSetting.sinkDomain"
+          :title="t('pages.settings.upload.sinkDomain')"
+          :icon="Link"
+          :placeholder="t('pages.settings.upload.sinkDomain')"
+        />
+      </SettingCard>
+
+      <SettingCard v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'sink'">
+        <CustomInput
+          v-model="formOfSetting.sinkToken"
+          :title="t('pages.settings.upload.sinkToken')"
+          :icon="Link"
+          :placeholder="t('pages.settings.upload.sinkToken')"
+        />
+      </SettingCard>
+
+      <SettingCard p1>
+        <CustomSwitch
+          v-model="formOfSetting.encodeOutputURL"
+          small
+          no-border
+          :title="t('pages.settings.upload.encodeOutputUrl')"
+        />
+      </SettingCard>
+    </SettingSection>
+  </div>
+
+  <CustomModal
+    v-model:visible="customLinkVisible"
+    height="auto"
+    width="auto"
+    :title="t('pages.settings.upload.customLinkFormat')"
+  >
+    <div class="flex flex-col gap-4 p-4">
+      <div class="rounded-lg border border-border p-4">
+        <div class="mb-2 flex items-center gap-2 p-1">
+          <FileText :size="16" class="text-accent" />
+          <span class="text-sm font-semibold text-main">{{
+            t('pages.settings.upload.availablePlaceholdersTitle')
+          }}</span>
+        </div>
+        <div class="flex flex-col gap-2">
+          <template v-for="item in placeholderList" :key="item.code">
+            <div class="flex items-center gap-3">
+              <code
+                class="min-w-[80px] rounded-sm border border-border bg-bg-secondary px-2 py-1 text-center font-['SF_Mono,Monaco,Menlo,monospace'] text-sm font-semibold text-main"
+                >{{ item.code }}</code
+              >
+              <span class="text-sm font-semibold text-secondary">{{
+                t(`pages.settings.upload.${item.description}`)
+              }}</span>
+            </div>
+          </template>
+        </div>
+      </div>
+      <div>
+        <SettingCard>
+          <CustomInput
+            v-model="customLink"
+            :title="t('pages.settings.upload.customLinkFormatInput')"
+            :placeholder="'![$fileName]($url)'"
+          />
+        </SettingCard>
+      </div>
+    </div>
+  </CustomModal>
+
+  <CustomModal
+    v-model:visible="advancedRenameVisible"
+    height="85vh"
+    width="65vw"
+    :title="t('pages.settings.upload.advancedRname')"
+  >
+    <div class="flex h-full w-full flex-col p-2">
+      <SettingSection>
+        <CustomSwitch
+          v-model="advancedRename.enable"
+          small
+          :title="t('pages.settings.upload.enableAdvancedRname')"
+          :description="t('pages.settings.upload.enableAdvancedRnameDesc')"
+        />
+        <CustomInput
+          v-model="advancedRename.format"
+          :title="t('pages.settings.upload.advancedRnameFormat')"
+          placeholder="Ex. {Y}-{m}-{uuid}"
+        />
+      </SettingSection>
+      <div class="flex w-full flex-1 flex-col overflow-hidden p-2">
+        <label class="text-xl font-bold text-secondary">{{ t('pages.settings.upload.availablePlaceholders') }}</label>
+        <placeholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
+      </div>
+    </div>
+  </CustomModal>
+
+  <ImageProcessDialog v-if="imageProcessDialogVisible" v-model:visible="imageProcessDialogVisible" />
+</template>
+
+<script setup lang="ts">
+import { CloudUpload, Edit, FileText, Image as ImageIcon, Link, Server, Settings2Icon } from '@lucide/vue'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+import CustomInput from '@/components/common/CustomInput.vue'
+import CustomModal from '@/components/common/CustomModal.vue'
+import CustomNavCard from '@/components/common/CustomNavCard.vue'
+import CustomSelect from '@/components/common/CustomSelect.vue'
+import CustomSwitch from '@/components/common/CustomSwitch.vue'
+import MultiSelect from '@/components/common/MultiSelect.vue'
+import placeholderTable from '@/components/common/PlaceholderTable.vue'
+import SettingCard from '@/components/common/SettingCard.vue'
+import SettingSection from '@/components/common/SettingSection.vue'
+import ImageProcessDialog from '@/components/ImageProcessDialog.vue'
+import { useSettingsContext } from '@/composables/settings/useSettingsContext'
+import { IRPCActionType } from '#/constants/rpcActions'
+
+defineProps<{ active: boolean }>()
+const { t } = useI18n()
+const {
+  formOfSetting,
+  showPicBedList,
+  galleryPicBedFilterList,
+  picBedG,
+  currentSecondMode,
+  currentShortUrlServer,
+  customLink,
+  advancedRename,
+} = useSettingsContext()
+
+const customLinkVisible = ref(false)
+
+const advancedRenameVisible = ref(false)
+
+const imageProcessDialogVisible = ref(false)
+
+const secondModeList = computed(() => [
+  { label: t('pages.settings.upload.secondPicBedMode.backup'), value: 'backup' },
+  { label: t('pages.settings.upload.secondPicBedMode.separate'), value: 'separate' },
+])
+
+const shortUrlServerList = [
+  { label: 'c1n', value: 'c1n' },
+  { label: 'yourls', value: 'yourls' },
+  { label: 'xyTom/Url-Shorten-Worker', value: 'cf_worker' },
+  { label: 'ccbikai/Sink', value: 'sink' },
+]
+
+const advancedRenameList = computed(() => ({
+  categoryTime: [
+    { label: t('pages.settings.upload.placeholder.year4'), value: '{Y}' },
+    { label: t('pages.settings.upload.placeholder.year2'), value: '{y}' },
+    { label: t('pages.settings.upload.placeholder.month'), value: '{m}' },
+    { label: t('pages.settings.upload.placeholder.date'), value: '{d}' },
+    { label: t('pages.settings.upload.placeholder.hour'), value: '{h}' },
+    { label: t('pages.settings.upload.placeholder.minute'), value: '{i}' },
+    { label: t('pages.settings.upload.placeholder.second'), value: '{s}' },
+    { label: t('pages.settings.upload.placeholder.millisecond'), value: '{ms}' },
+    { label: t('pages.settings.upload.placeholder.timestamp'), value: '{timestamp}' },
+    { label: t('pages.settings.upload.placeholder.timestampS'), value: '{timestampS}' },
+  ],
+  categoryHash: [
+    { label: t('pages.settings.upload.placeholder.md5'), value: '{md5}' },
+    { label: t('pages.settings.upload.placeholder.md5-16'), value: '{md5-16}' },
+    { label: t('pages.settings.upload.placeholder.uuid'), value: '{uuid}' },
+    { label: t('pages.settings.upload.placeholder.ulid'), value: '{ulid}' },
+    { label: t('pages.settings.upload.placeholder.sha1'), value: '{sha1}' },
+    { label: t('pages.settings.upload.placeholder.sha1-n'), value: '{sha1-n}' },
+    { label: t('pages.settings.upload.placeholder.sha256'), value: '{sha256}' },
+    { label: t('pages.settings.upload.placeholder.sha256-n'), value: '{sha256-n}' },
+  ],
+  categoryFile: [
+    { label: t('pages.settings.upload.placeholder.filename'), value: '{filename}' },
+    { label: t('pages.settings.upload.placeholder.localFolder'), value: '{localFolder:n}' },
+    { label: t('pages.settings.upload.placeholder.randomString'), value: '{str-n}' },
+  ],
+}))
+
+const advancedRenameTitleList = computed(() => ({
+  categoryTime: t('pages.settings.upload.placeholder.categoryTime'),
+  categoryHash: t('pages.settings.upload.placeholder.categoryHash'),
+  categoryFile: t('pages.settings.upload.placeholder.categoryFile'),
+}))
+
+const placeholderList = [
+  {
+    code: '$url',
+    description: 'urlPlaceholder',
+  },
+  {
+    code: '$fileName',
+    description: 'fileNamePlaceholder',
+  },
+  {
+    code: '$extName',
+    description: 'extNamePlaceholder',
+  },
+]
+
+async function handleChangeSecondPicBed() {
+  window.electron.sendRPC(IRPCActionType.SHOW_SECOND_UPLOADER_MENU)
+}
+</script>

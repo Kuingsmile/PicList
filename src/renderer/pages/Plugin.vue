@@ -111,139 +111,16 @@
       >
         <div class="no-scrollbar h-full w-full overflow-auto rounded-sm">
           <div class="grid w-full grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5 border-none p-4 max-md:gap-4">
-            <div
+            <PluginCard
               v-for="item in pluginList"
               :key="item.fullName"
-              class="relative flex h-auto flex-col rounded-xl border-2 border-border-secondary p-6 shadow-md transition-all duration-200 ease-apple hover:border-accent hover:shadow-xl [.disabled]:opacity-70"
-              :class="{ disabled: !item.enabled && !searchText }"
-            >
-              <!-- Plugin Badge -->
-              <div
-                v-if="!item.gui"
-                class="absolute top-4 right-4 z-1 rounded-sm bg-accent/20 px-2 py-1 text-sm font-semibold text-secondary"
-              >
-                CLI
-              </div>
-
-              <!-- Update Badge -->
-              <div
-                v-if="latestVersionMap[item.fullName] && latestVersionMap[item.fullName] !== item.version"
-                class="absolute top-4 right-4 z-1 rounded-sm bg-success px-2 py-1 text-sm font-semibold text-white"
-              >
-                NEW
-              </div>
-
-              <!-- Plugin Header -->
-              <div class="mb-4 flex items-start gap-2">
-                <img
-                  class="h-[48px] w-[48px] shrink-0 rounded-lg object-cover"
-                  :src="item.logo"
-                  :onerror="setSrc"
-                  alt=""
-                />
-                <div class="relative min-w-0 flex-1">
-                  <div class="flex flex-row gap-3">
-                    <h3
-                      class="br-3 mb-1 flex cursor-pointer items-center overflow-hidden text-base font-semibold text-ellipsis whitespace-nowrap text-main hover:text-accent"
-                      @click="openHomepage(item.homepage)"
-                    >
-                      {{ item.name }}
-                      <span
-                        class="text-secondar ml-1 rounded-sm bg-bg-tertiary px-1 py-0.5 text-xs font-normal opacity-80"
-                        >v{{ item.version }}</span
-                      >
-                    </h3>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <p class="m-0 overflow-hidden text-sm text-ellipsis whitespace-nowrap text-secondary">
-                      {{ item.author.replace(/<.*>/, '') }}
-                    </p>
-                    <span
-                      v-if="updateTimeMap[item.fullName]"
-                      class="flex shrink-0 items-center gap-1 text-xs text-secondary/70"
-                      :title="t('pages.plugin.lastUpdated')"
-                    >
-                      <CalendarIcon :size="11" />
-                      {{ updateTimeMap[item.fullName] }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Plugin Description -->
-              <div class="mb-6 flex flex-1 items-start">
-                <p
-                  class="m-0 min-h-10 overflow-hidden text-sm leading-[1.5] font-semibold text-secondary"
-                  :title="item.description"
-                >
-                  {{ item.description }}
-                </p>
-              </div>
-
-              <!-- Plugin Actions -->
-              <div class="mt-auto pt-4">
-                <template v-if="searchText">
-                  <template v-if="!item.hasInstall">
-                    <button
-                      v-if="!item.ing"
-                      class="flex w-full cursor-pointer items-center gap-2 rounded-md border-none bg-success/90 px-4 py-3 font-[inherit] text-sm font-semibold text-white not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
-                      @click="installPlugin(item)"
-                    >
-                      <DownloadIcon :size="16" />
-                      {{ t('pages.plugin.install') }}
-                    </button>
-                    <button
-                      v-else
-                      class="flex w-full cursor-pointer items-center gap-2 rounded-md border bg-surface-elevated px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
-                      disabled
-                    >
-                      <div
-                        class="h-[16px] w-[16px] animate-spin rounded-full border-2 border-t-2 border-transparent border-t-current"
-                      />
-                      {{ t('pages.plugin.installing') }}
-                    </button>
-                  </template>
-                  <button
-                    v-else
-                    class="flex w-full cursor-pointer items-center gap-2 rounded-md border border-success bg-success/30 px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
-                    disabled
-                  >
-                    <CheckIcon :size="16" />
-                    {{ t('pages.plugin.installed') }}
-                  </button>
-                </template>
-                <template v-else>
-                  <button
-                    v-if="item.ing"
-                    class="flex w-full cursor-pointer items-center gap-2 rounded-md border bg-surface-elevated px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
-                    disabled
-                  >
-                    <div
-                      class="h-[16px] w-[16px] animate-spin rounded-full border-2 border-t-2 border-transparent border-t-current"
-                    />
-                    {{ t('pages.plugin.doingSomething') }}
-                  </button>
-                  <template v-else>
-                    <button
-                      v-if="item.enabled"
-                      class="flex w-full cursor-pointer items-center gap-2 rounded-md border border-border bg-bg-secondary px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
-                      @click="buildContextMenu(item)"
-                    >
-                      <SettingsIcon :size="16" />
-                      {{ t('pages.plugin.settings') }}
-                    </button>
-                    <button
-                      v-else
-                      class="flex w-full cursor-pointer items-center gap-2 rounded-md border border-border bg-bg-secondary px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px not-disabled:hover:border-warning not-disabled:hover:bg-surface-elevated not-disabled:hover:text-warning disabled:cursor-not-allowed disabled:opacity-70"
-                      @click="buildContextMenu(item)"
-                    >
-                      <XCircleIcon :size="16" />
-                      {{ t('pages.plugin.disabled') }}
-                    </button>
-                  </template>
-                </template>
-              </div>
-            </div>
+              :item="item"
+              :install-mode="!!searchText"
+              :latest-version="latestVersionMap[item.fullName]"
+              :updated-at="updateTimeMap[item.fullName]"
+              @install="installPlugin"
+              @settings="buildContextMenu"
+            />
           </div>
         </div>
       </div>
@@ -272,695 +149,73 @@
     </div>
 
     <!-- Config Modal -->
-    <CustomModal
+    <PluginConfigDialog
       v-model:visible="dialogVisible"
-      :title="t('pages.plugin.configThing', { c: configName })"
-      width="600px"
-      height="auto"
-    >
-      <div class="flex-1 overflow-y-auto p-4">
-        <config-form :id="configName" ref="$configForm" :config :type="currentType" mode="plugin" />
-      </div>
-      <template #footer>
-        <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />
-        <CustomButton
-          :text="t('common.confirm')"
-          :disabled="!$configForm || $configForm.isLoading || $configForm.loadFailed"
-          @click="handleConfirmConfig"
-        />
-      </template>
-    </CustomModal>
+      :config-name="configName"
+      :current-type="currentType"
+      :config="config"
+      @saved="getPluginList"
+    />
 
     <!-- Browse All Plugins Modal -->
-    <CustomModal v-model:visible="showBrowseDialog" :title="t('pages.plugin.browseAllPlugins')">
-      <div class="flex h-full w-full flex-col gap-4 p-4">
-        <div class="shrink-0">
-          <div class="relative flex items-center">
-            <SearchIcon class="absolute left-4 z-10 text-secondary" :size="20" />
-            <input
-              v-model="browseSearchText"
-              type="text"
-              class="w-full rounded-lg border border-border bg-bg-secondary pt-3 pr-4 pb-3 pl-12 font-[inherit] text-sm text-main placeholder:text-secondary focus:border-accent focus:bg-bg-tertiary focus:shadow-md focus:outline-none"
-              :placeholder="t('pages.plugin.searchInBrowse')"
-            />
-            <button
-              v-if="browseSearchText"
-              class="absolute right-2 flex items-center rounded-full border border-border bg-transparent text-danger hover:bg-danger/10"
-              @click="browseSearchText = ''"
-            >
-              <XIcon :size="16" />
-            </button>
-          </div>
-        </div>
-        <div v-if="loadingBrowse" class="flex flex-1 flex-col items-center justify-center gap-4 p-4">
-          <div class="h-12 w-12 animate-spin rounded-full border-[3px] border-t-[3px] border-border border-t-accent" />
-          <span class="text-sm font-semibold text-accent">{{ t('pages.plugin.loadingPlugins') }}</span>
-        </div>
-        <div v-else class="flex-1 overflow-hidden rounded-md border border-border shadow-md">
-          <div class="grid h-full grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 overflow-auto p-4">
-            <div
-              v-for="item in filteredBrowsePlugins"
-              :key="item.fullName"
-              class="relative flex h-auto flex-col rounded-xl border-2 border-border-secondary p-6 shadow-md transition-all duration-200 ease-apple hover:border-accent hover:shadow-xl [.disabled]:opacity-70"
-            >
-              <div class="mb-4 flex items-start gap-4">
-                <img
-                  class="h-[48px] w-[48px] shrink-0 rounded-lg object-cover"
-                  :src="item.logo"
-                  :onerror="setSrc"
-                  alt=""
-                />
-                <div class="relative min-w-0 flex-1">
-                  <h3
-                    class="br-3 mb-1 flex cursor-pointer items-center overflow-hidden text-base font-semibold text-ellipsis whitespace-nowrap text-main hover:text-accent"
-                    @click="openHomepage(item.homepage)"
-                  >
-                    {{ item.name }}
-                    <span class="rounded-sm bg-bg-tertiary px-2 py-1 text-xs font-normal text-secondary"
-                      >v{{ item.version }}</span
-                    >
-                    <div
-                      v-if="!item.gui"
-                      class="absolute top-4 right-4 z-1 rounded-sm bg-accent/20 px-1 py-0 text-sm font-semibold text-secondary"
-                    >
-                      CLI
-                    </div>
-                  </h3>
-                  <p class="m-0 overflow-hidden text-sm text-ellipsis whitespace-nowrap text-secondary">
-                    {{ item.author }}
-                  </p>
-                  <p
-                    v-if="item.date"
-                    class="mt-1 flex shrink-0 items-center gap-1 text-xs text-secondary/70"
-                    :title="t('pages.plugin.lastUpdated')"
-                  >
-                    <CalendarIcon :size="11" />
-                    {{ item.date }}
-                  </p>
-                </div>
-              </div>
-              <div class="mb-6 flex flex-1 items-start">
-                <p
-                  class="m-0 min-h-10 overflow-hidden text-sm leading-[1.5] font-semibold text-secondary"
-                  :title="item.description"
-                >
-                  {{ item.description }}
-                </p>
-              </div>
-              <div class="mt-auto pt-4">
-                <template v-if="!item.hasInstall">
-                  <button
-                    v-if="!item.ing"
-                    class="flex w-full cursor-pointer items-center gap-2 rounded-md border-none bg-success/90 px-4 py-3 font-[inherit] text-sm font-semibold text-white not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
-                    @click="installPluginFromBrowse(item)"
-                  >
-                    <DownloadIcon :size="16" />
-                    {{ t('pages.plugin.install') }}
-                  </button>
-                  <button
-                    v-else
-                    class="flex w-full cursor-pointer items-center gap-2 rounded-md border bg-surface-elevated px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
-                    disabled
-                  >
-                    <div
-                      class="h-[16px] w-[16px] animate-spin rounded-full border-2 border-t-2 border-transparent border-t-current"
-                    />
-                    {{ t('pages.plugin.installing') }}
-                  </button>
-                </template>
-                <button
-                  v-else
-                  class="flex w-full cursor-pointer items-center gap-2 rounded-md border border-success bg-success/30 px-4 py-3 font-[inherit] text-sm font-semibold text-secondary not-disabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
-                  disabled
-                >
-                  <CheckIcon :size="16" />
-                  {{ t('pages.plugin.installed') }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div
-          v-if="!loadingBrowse && filteredBrowsePlugins.length === 0"
-          class="flex flex-col items-center gap-4 text-center"
-        >
-          <PackageIcon class="text-secondary opacity-50" :size="48" />
-          <h3 class="m-0 text-lg font-semibold text-main">{{ t('pages.plugin.noPluginsFound') }}</h3>
-          <p class="m-0 max-w-[400px] text-sm text-secondary">{{ t('pages.plugin.tryDifferentSearch') }}</p>
-        </div>
-      </div>
-    </CustomModal>
+    <PluginBrowseDialog
+      v-model:visible="showBrowseDialog"
+      v-model:search-text="browseSearchText"
+      :filtered-browse-plugins="filteredBrowsePlugins"
+      :loading-browse="loadingBrowse"
+      @install="installPlugin"
+    />
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import {
   AlertCircleIcon,
-  CalendarIcon,
-  CheckIcon,
   DownloadIcon,
   ExternalLinkIcon,
   PackageIcon,
   PlugIcon,
   RefreshCwIcon,
   SearchIcon,
-  SettingsIcon,
-  XCircleIcon,
   XIcon,
 } from '@lucide/vue'
-import { useStorage } from '@vueuse/core'
-import { debounce } from 'lodash-es'
-import {
-  computed,
-  onBeforeMount,
-  onBeforeUnmount,
-  onWatcherCleanup,
-  reactive,
-  ref,
-  toRaw,
-  useTemplateRef,
-  watch,
-} from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
-import CustomModal from '@/components/common/CustomModal.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
-import ConfigForm from '@/components/UnifiedConfigForm.vue'
-import { usePicBed } from '@/composables/useGlobal'
-import { getConfig, saveConfig } from '@/services/configService'
-import { configPaths } from '@/utils/configPaths'
-import {
-  PICGO_CONFIG_PLUGIN,
-  PICGO_HANDLE_PLUGIN_DONE,
-  PICGO_HANDLE_PLUGIN_ING,
-  PICGO_TOGGLE_PLUGIN,
-} from '#/constants/ipcChannels'
-import { IRPCActionType } from '#/constants/rpcActions'
-import { getRawData } from '#/utils/rawData'
-import { handleStreamlinePluginName } from '#/utils/strings'
+import PluginBrowseDialog from '@/components/plugins/PluginBrowseDialog.vue'
+import PluginCard from '@/components/plugins/PluginCard.vue'
+import PluginConfigDialog from '@/components/plugins/PluginConfigDialog.vue'
+import { usePlugins } from '@/composables/plugins/usePlugins'
 
 defineOptions({ name: 'PluginPage' })
-
-const REGISTRY_TIMEOUT_MS = 10_000
-const METADATA_CONCURRENCY = 4
-const METADATA_CACHE_TTL_MS = 5 * 60_000
-
 const { t } = useI18n()
-const { updatePicBeds } = usePicBed()
-const searchText = ref('')
-const pluginList = ref<IPicGoPlugin[]>([])
-const config = ref<any[]>([])
-const currentType = ref<'plugin' | 'uploader' | 'transformer'>('plugin')
-const configName = ref('')
-const dialogVisible = ref(false)
-const pluginNameList = ref<string[]>([])
-const loading = ref(true)
-const needReload = ref(false)
-const latestVersionMap = reactive<Record<string, string>>({})
-const updateTimeMap = reactive<Record<string, string>>({})
-const $configForm = useTemplateRef('$configForm')
-const strictSearch = useStorage('plugin-strict-search', true)
-const showBrowseDialog = ref(false)
-const browseSearchText = ref('')
-const browsePlugins = ref<IPicGoPlugin[]>([])
-const loadingBrowse = ref(false)
-const experimentalBundledNpm = ref(false)
-let searchController: AbortController | undefined
-let browseController: AbortController | undefined
-let disposed = false
-const metadataQueue = new Set<string>()
-const metadataControllers = new Map<string, AbortController>()
-const metadataFetchedAt = new Map<string, number>()
-
-async function saveBundledNpmSetting(enabled: boolean) {
-  experimentalBundledNpm.value = enabled
-  await saveConfig(configPaths.settings.experimentalBundledNpm, enabled)
-}
-
-const npmSearchText = computed(() => {
-  return searchText.value.match('picgo-plugin-')
-    ? searchText.value
-    : searchText.value !== ''
-      ? `picgo-plugin-${searchText.value}`
-      : searchText.value
-})
-
-const filteredBrowsePlugins = computed(() => {
-  if (!browseSearchText.value) {
-    return browsePlugins.value
-  }
-  const search = browseSearchText.value.toLowerCase()
-  return browsePlugins.value.filter(plugin => {
-    return (
-      plugin.name.toLowerCase().includes(search) ||
-      plugin.fullName.toLowerCase().includes(search) ||
-      plugin.description?.toLowerCase().includes(search) ||
-      plugin.author?.toLowerCase().includes(search)
-    )
-  })
-})
-
-const getSearchResult = debounce(_getSearchResult, 300)
-
-watch(
-  [npmSearchText, strictSearch],
-  ([val, strict]) => {
-    const controller = val ? new AbortController() : undefined
-    onWatcherCleanup(() => {
-      getSearchResult.cancel()
-      controller?.abort()
-      if (searchController === controller) searchController = undefined
-    })
-    pluginList.value = []
-    loading.value = true
-    if (val) {
-      searchController = controller
-      getSearchResult(val, strict, controller!)
-    } else {
-      getPluginList()
-    }
-  },
-  { flush: 'sync' },
-)
-
-watch(
+const {
+  pluginList,
+  config,
+  currentType,
+  configName,
+  dialogVisible,
+  loading,
+  needReload,
+  experimentalBundledNpm,
+  saveBundledNpmSetting,
+  buildContextMenu,
+  getPluginList,
+  installPlugin,
+  reloadApp,
+  cleanSearch,
+  goAwesomeList,
+  handleImportLocalPlugin,
+  handleUpdateAllPlugin,
+  searchText,
+  strictSearch,
+  latestVersionMap,
+  updateTimeMap,
   showBrowseDialog,
-  visible => {
-    if (!visible) return
-    document.body.style.overflow = 'hidden'
-    onWatcherCleanup(() => {
-      document.body.style.overflow = 'auto'
-      browseController?.abort()
-      browseController = undefined
-      loadingBrowse.value = false
-    })
-  },
-  { flush: 'sync' },
-)
-
-function setSrc(e: Event) {
-  const target = e.target as HTMLImageElement
-  target.src = import.meta.env.BASE_URL + 'roundLogo.png'
-}
-
-async function fetchRegistryJson(url: string, controller: AbortController) {
-  const timeout = setTimeout(() => controller.abort(), REGISTRY_TIMEOUT_MS)
-  try {
-    const res = await fetch(url, { signal: controller.signal })
-    if (!res.ok) throw new Error(`Registry request failed (${res.status})`)
-    // Keep the timeout active until the response body has also been read.
-    return await res.json()
-  } finally {
-    clearTimeout(timeout)
-  }
-}
-
-function queuePluginMetadata(list: IPicGoPlugin[]) {
-  for (const { fullName } of list) {
-    const fetchedAt = metadataFetchedAt.get(fullName)
-    if (fetchedAt !== undefined && Date.now() - fetchedAt < METADATA_CACHE_TTL_MS) continue
-    if (!metadataControllers.has(fullName)) metadataQueue.add(fullName)
-  }
-  loadNextPluginMetadata()
-}
-
-function loadNextPluginMetadata() {
-  while (!disposed && metadataControllers.size < METADATA_CONCURRENCY && metadataQueue.size > 0) {
-    const pluginName = metadataQueue.values().next().value!
-    metadataQueue.delete(pluginName)
-    const controller = new AbortController()
-    metadataControllers.set(pluginName, controller)
-    void getLatestVersionOfPlugIn(pluginName, controller)
-  }
-}
-
-async function getLatestVersionOfPlugIn(pluginName: string, controller: AbortController) {
-  try {
-    const data = await fetchRegistryJson(`https://registry.npmjs.com/${encodeURIComponent(pluginName)}`, controller)
-    if (disposed || controller.signal.aborted || typeof data['dist-tags']?.latest !== 'string') return
-    latestVersionMap[pluginName] = data['dist-tags'].latest
-    updateTimeMap[pluginName] = (data.time?.modified || '').split('T')[0]
-    metadataFetchedAt.set(pluginName, Date.now())
-  } catch {
-    if (!controller.signal.aborted) console.error('Failed to fetch plugin metadata')
-  } finally {
-    metadataControllers.delete(pluginName)
-    loadNextPluginMetadata()
-  }
-}
-
-function hideLoadingHandler() {
-  loading.value = false
-}
-
-function picgoHandlePluginDoneHandler(fullName: string) {
-  pluginList.value.forEach(item => {
-    if (item.fullName === fullName || item.name === fullName) {
-      item.ing = false
-    }
-  })
-  loading.value = false
-}
-
-function pluginListHandler(list: IPicGoPlugin[]) {
-  pluginNameList.value = list.map(item => item.fullName)
-  const installedPlugins = new Set(pluginNameList.value)
-  if (searchText.value) {
-    pluginList.value.forEach(item => {
-      item.hasInstall = installedPlugins.has(item.fullName)
-    })
-  } else {
-    pluginList.value = list
-    loading.value = false
-  }
-  browsePlugins.value.forEach(item => {
-    item.hasInstall = installedPlugins.has(item.fullName)
-  })
-  queuePluginMetadata(list)
-}
-
-function installPluginHandler({ success, body }: { success: boolean; body: string }) {
-  loading.value = false
-  pluginList.value.forEach(item => {
-    if (item.fullName === body) {
-      item.ing = false
-      item.hasInstall = success
-    }
-  })
-  // Update browse dialog if open
-  browsePlugins.value.forEach(item => {
-    if (item.fullName === body) {
-      item.ing = false
-      item.hasInstall = success
-    }
-  })
-  if (success) {
-    getPluginList()
-    updatePicBeds()
-  }
-}
-
-function updateSuccessHandler(plugin: string) {
-  loading.value = false
-  pluginList.value.forEach(item => {
-    if (item.fullName === plugin) {
-      item.ing = false
-      item.hasInstall = true
-    }
-    updatePicBeds()
-  })
-  handleReload()
-  getPluginList()
-}
-
-function uninstallSuccessHandler(plugin: string) {
-  loading.value = false
-  pluginList.value = pluginList.value.filter(item => {
-    if (item.fullName === plugin) {
-      // restore Uploader & Transformer after uninstalling
-      if (item.config.transformer.name) {
-        handleRestoreState('transformer', item.config.transformer.name)
-      }
-      if (item.config.uploader.name) {
-        handleRestoreState('uploader', item.config.uploader.name)
-      }
-      updatePicBeds()
-    }
-    return item.fullName !== plugin
-  })
-  pluginNameList.value = pluginNameList.value.filter(item => item !== plugin)
-}
-
-function picgoConfigPluginHandler(
-  _currentType: 'plugin' | 'transformer' | 'uploader',
-  _configName: string,
-  _config: any,
-) {
-  currentType.value = _currentType
-  configName.value = _configName
-  config.value = _config
-  dialogVisible.value = true
-}
-
-function picgoHandlePluginIngHandler(fullName: string) {
-  pluginList.value.forEach(item => {
-    if (item.fullName === fullName || item.name === fullName) {
-      item.ing = true
-    }
-  })
-}
-
-const picgoTogglePluginHandler = (fullName: string, enabled: boolean) => {
-  const plugin = pluginList.value.find(item => item.fullName === fullName)
-  if (plugin) {
-    plugin.enabled = enabled
-    updatePicBeds()
-    needReload.value = true
-  }
-}
-
-async function buildContextMenu(plugin: IPicGoPlugin) {
-  window.electron.sendRPC(IRPCActionType.SHOW_PLUGIN_PAGE_MENU, getRawData(plugin))
-}
-
-function getPluginList() {
-  window.electron.sendRPC(IRPCActionType.PLUGIN_GET_LIST)
-}
-
-function installPlugin(item: IPicGoPlugin) {
-  if (!item.gui) {
-    if (confirm(t('pages.plugin.notGuiImplement'))) {
-      item.ing = true
-      window.electron.sendRPC(IRPCActionType.PLUGIN_INSTALL, item.fullName)
-    }
-  } else {
-    item.ing = true
-    window.electron.sendRPC(IRPCActionType.PLUGIN_INSTALL, item.fullName)
-  }
-}
-
-function reloadApp() {
-  window.electron.sendRPC(IRPCActionType.RELOAD_APP)
-}
-
-async function handleReload() {
-  if (
-    !(await saveConfig({
-      needReload: true,
-    }))
-  )
-    return
-  needReload.value = true
-  if ('Notification' in window) {
-    const successNotification = new Notification(t('pages.plugin.updateSuccess'), {
-      body: t('pages.plugin.needRestart'),
-    })
-    successNotification.onclick = () => {
-      reloadApp()
-    }
-  }
-}
-
-function cleanSearch() {
-  searchText.value = ''
-}
-
-async function handleConfirmConfig() {
-  const configForm = $configForm.value
-  if (!configForm) return
-
-  const result = await configForm.validate()
-  if (result !== false) {
-    if (!(await saveConfig(configForm.getConfigType(), result))) return
-    if ('Notification' in window) {
-      const successNotification = new Notification(t('pages.plugin.setResult'), {
-        body: t('pages.plugin.setSuccess'),
-      })
-      successNotification.onclick = () => {
-        return true
-      }
-    }
-    dialogVisible.value = false
-    getPluginList()
-  }
-}
-
-async function _getSearchResult(val: string, strict: boolean, controller: AbortController) {
-  try {
-    const data = await fetchRegistryJson(
-      `https://registry.npmjs.com/-/v1/search?text=${encodeURIComponent(val)}`,
-      controller,
-    )
-    if (controller !== searchController || controller.signal.aborted) return
-    pluginList.value = data.objects
-      .filter((item: INPMSearchResultObject) => {
-        return strict
-          ? item.package.name.includes('picgo-plugin-') && item.package.name.includes(val)
-          : item.package.name.includes('picgo-plugin-')
-      })
-      .map((item: INPMSearchResultObject) => {
-        return handleSearchResult(item)
-      })
-  } catch {
-    if (controller === searchController && !controller.signal.aborted) console.error('Failed to search plugins')
-  } finally {
-    if (controller === searchController) {
-      loading.value = false
-      searchController = undefined
-    }
-  }
-}
-
-function handleSearchResult(item: INPMSearchResultObject) {
-  const pkg = item.package
-  const name = handleStreamlinePluginName(pkg.name)
-  let gui = false
-  if (pkg.keywords && pkg.keywords.length > 0) {
-    if (pkg.keywords.includes('picgo-gui-plugin')) {
-      gui = true
-    }
-  }
-  return {
-    name,
-    date: pkg.date ? pkg.date.split('T')[0] : '',
-    fullName: pkg.name,
-    author: pkg.author?.name || pkg.publisher?.username || 'unknown',
-    description: pkg.description,
-    logo: `https://cdn.jsdelivr.net/npm/${pkg.name}/logo.png`,
-    config: {},
-    homepage: pkg.links ? pkg.links.homepage : '',
-    hasInstall: pluginNameList.value.some(plugin => plugin === pkg.name),
-    version: pkg.version,
-    gui,
-    ing: false, // installing or uninstalling
-  }
-}
-
-// restore Uploader & Transformer
-async function handleRestoreState(item: string, name: string) {
-  if (item === 'uploader') {
-    const current = await getConfig(configPaths.picBed.current)
-    if (current === name) {
-      if (
-        !(await saveConfig({
-          [configPaths.picBed.current]: 'smms',
-          [configPaths.picBed.uploader]: 'smms',
-        }))
-      )
-        return
-    }
-  }
-  if (item === 'transformer') {
-    const current = await getConfig(configPaths.picBed.transformer)
-    if (current === name) {
-      if (
-        !(await saveConfig({
-          [configPaths.picBed.transformer]: 'path',
-        }))
-      )
-        return
-    }
-  }
-}
-
-function openHomepage(url: string) {
-  if (url) {
-    window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
-  }
-}
-
-function goAwesomeList() {
-  window.electron.sendRPC(IRPCActionType.OPEN_URL, 'https://github.com/PicGo/Awesome-PicGo')
-}
-
-async function openBrowsePluginsDialog() {
-  showBrowseDialog.value = true
-  browseSearchText.value = ''
-  await fetchAllPlugins()
-}
-
-async function fetchAllPlugins() {
-  if (!showBrowseDialog.value || disposed) return
-  browseController?.abort()
-  const controller = new AbortController()
-  browseController = controller
-  loadingBrowse.value = true
-  try {
-    const data = await fetchRegistryJson(
-      'https://registry.npmjs.com/-/v1/search?text=picgo-plugin-&size=250',
-      controller,
-    )
-    if (controller !== browseController || controller.signal.aborted) return
-    browsePlugins.value = data.objects
-      .filter((item: INPMSearchResultObject) => {
-        return item.package.name.startsWith('picgo-plugin-')
-      })
-      .map((item: INPMSearchResultObject) => {
-        return handleSearchResult(item)
-      })
-      .sort((a: IPicGoPlugin, b: IPicGoPlugin) => {
-        return b.fullName.localeCompare(a.fullName)
-      })
-  } catch {
-    if (controller === browseController && !controller.signal.aborted) console.error('Failed to fetch plugins')
-  } finally {
-    if (controller === browseController) {
-      loadingBrowse.value = false
-      browseController = undefined
-    }
-  }
-}
-
-function installPluginFromBrowse(item: IPicGoPlugin) {
-  if (!item.gui) {
-    if (confirm(t('pages.plugin.notGuiImplement'))) {
-      item.ing = true
-      window.electron.sendRPC(IRPCActionType.PLUGIN_INSTALL, item.fullName)
-    }
-  } else {
-    item.ing = true
-    window.electron.sendRPC(IRPCActionType.PLUGIN_INSTALL, item.fullName)
-  }
-}
-
-function handleImportLocalPlugin() {
-  window.electron.sendRPC(IRPCActionType.PLUGIN_IMPORT_LOCAL)
-  loading.value = true
-}
-
-function handleUpdateAllPlugin() {
-  window.electron.sendRPC(IRPCActionType.PLUGIN_UPDATE_ALL, toRaw(pluginNameList.value))
-}
-
-onBeforeMount(async () => {
-  window.electron.ipcRendererOn('hideLoading', hideLoadingHandler)
-  window.electron.ipcRendererOn(PICGO_HANDLE_PLUGIN_DONE, picgoHandlePluginDoneHandler)
-  window.electron.ipcRendererOn('pluginList', pluginListHandler)
-  window.electron.ipcRendererOn('installPlugin', installPluginHandler)
-  window.electron.ipcRendererOn('updateSuccess', updateSuccessHandler)
-  window.electron.ipcRendererOn('uninstallSuccess', uninstallSuccessHandler)
-  window.electron.ipcRendererOn(PICGO_CONFIG_PLUGIN, picgoConfigPluginHandler)
-  window.electron.ipcRendererOn(PICGO_HANDLE_PLUGIN_ING, picgoHandlePluginIngHandler)
-  window.electron.ipcRendererOn(PICGO_TOGGLE_PLUGIN, picgoTogglePluginHandler)
-  getPluginList()
-  needReload.value = (await getConfig<boolean>(configPaths.needReload)) || false
-  experimentalBundledNpm.value = (await getConfig<boolean>(configPaths.settings.experimentalBundledNpm)) === true
-})
-
-onBeforeUnmount(() => {
-  disposed = true
-  metadataQueue.clear()
-  metadataControllers.forEach(controller => controller.abort())
-  metadataControllers.clear()
-  window.electron.ipcRendererRemoveAllListeners('pluginList')
-  window.electron.ipcRendererRemoveAllListeners('installPlugin')
-  window.electron.ipcRendererRemoveAllListeners('uninstallSuccess')
-  window.electron.ipcRendererRemoveAllListeners('updateSuccess')
-  window.electron.ipcRendererRemoveAllListeners('hideLoading')
-  window.electron.ipcRendererRemoveAllListeners(PICGO_HANDLE_PLUGIN_DONE)
-  window.electron.ipcRendererRemoveAllListeners(PICGO_CONFIG_PLUGIN)
-  window.electron.ipcRendererRemoveAllListeners(PICGO_HANDLE_PLUGIN_ING)
-  window.electron.ipcRendererRemoveAllListeners(PICGO_TOGGLE_PLUGIN)
-})
+  browseSearchText,
+  loadingBrowse,
+  filteredBrowsePlugins,
+  openBrowsePluginsDialog,
+} = usePlugins()
 </script>

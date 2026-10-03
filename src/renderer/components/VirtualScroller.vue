@@ -1,28 +1,40 @@
 <template>
-  <div ref="containerRef" class="virtual-scroller" @scroll="handleScroll">
+  <div
+    ref="containerRef"
+    class="virtual-scroller relative min-h-0 min-w-0 overflow-auto contain-[layout_style] [overflow-anchor:none]"
+    @scroll="handleScroll"
+  >
     <table
       v-if="viewMode === 'table'"
-      class="virtual-table"
+      class="virtual-table w-full table-fixed border-separate border-spacing-0"
       :style="{ minWidth: `${tableMinWidth}px` }"
       :aria-label="tableLabel"
       :aria-rowcount="items.length + 1"
     >
       <slot name="columns" />
-      <thead ref="headerRef">
+      <thead ref="headerRef" class="sticky top-0 z-3">
         <slot name="header" />
       </thead>
       <tbody>
         <tr v-if="viewportOffset > 0" aria-hidden="true">
-          <td :colspan="tableColumns" class="virtual-spacer" :style="{ height: `${viewportOffset}px` }" />
+          <td
+            :colspan="tableColumns"
+            class="virtual-spacer border-0 p-0 leading-0"
+            :style="{ height: `${viewportOffset}px` }"
+          />
         </tr>
         <slot v-for="index in visibleIndexes" :key="itemKey(items[index], index)" :item="items[index]" :index />
         <tr v-if="bottomSpace > 0" aria-hidden="true">
-          <td :colspan="tableColumns" class="virtual-spacer" :style="{ height: `${bottomSpace}px` }" />
+          <td
+            :colspan="tableColumns"
+            class="virtual-spacer border-0 p-0 leading-0"
+            :style="{ height: `${bottomSpace}px` }"
+          />
         </tr>
       </tbody>
     </table>
-    <div v-else class="virtual-content" :style="{ height: `${gridCalculations.totalHeight}px` }">
-      <div class="virtual-viewport" :style="viewportStyle">
+    <div v-else class="virtual-content relative w-full" :style="{ height: `${gridCalculations.totalHeight}px` }">
+      <div class="virtual-viewport absolute top-0 left-0 w-full" :style="viewportStyle">
         <div
           v-for="index in visibleIndexes"
           :key="itemKey(items[index], index)"
@@ -251,44 +263,3 @@ defineExpose({
   pageSize: computed(() => Math.max(1, Math.floor(containerHeight.value / itemHeight))),
 })
 </script>
-
-<style scoped>
-.virtual-scroller {
-  position: relative;
-  overflow: auto;
-  min-height: 0;
-  min-width: 0;
-  overflow-anchor: none;
-  contain: layout style;
-}
-
-.virtual-content {
-  position: relative;
-  width: 100%;
-}
-
-.virtual-viewport {
-  position: absolute;
-  inset: 0 auto auto 0;
-  width: 100%;
-}
-
-.virtual-table {
-  width: 100%;
-  table-layout: fixed;
-  border-spacing: 0;
-  border-collapse: separate;
-}
-
-thead {
-  position: sticky;
-  top: 0;
-  z-index: 3;
-}
-
-.virtual-spacer {
-  padding: 0;
-  border: 0;
-  line-height: 0;
-}
-</style>

@@ -3,26 +3,36 @@
     <div
       v-if="visible"
       :id
-      class="gallery-hover-preview"
+      class="gallery-hover-preview fixed z-1000 box-border flex flex-col gap-[8px] rounded-md border border-border bg-bg-tertiary p-[8px] text-main shadow-lg"
       role="tooltip"
       :style="position"
       @mouseenter="cancelHide"
       @mouseleave="hide"
     >
-      <div class="preview-image">
+      <div class="preview-image relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[4px]">
         <img
           v-if="src && !failed"
           :key="src"
+          class="h-full w-full object-contain [&.is-loading]:invisible"
           :src
           :alt
           :class="{ 'is-loading': !loaded }"
           @load="loaded = true"
           @error="failed = true"
         />
-        <span v-if="failed || !src" class="preview-status">{{ t('pages.gallery.previewUnavailable') }}</span>
-        <span v-else-if="!loaded" class="preview-status" role="status">{{ t('pages.gallery.previewLoading') }}</span>
+        <span
+          v-if="failed || !src"
+          class="preview-status absolute inset-0 flex items-center justify-center text-[12px] text-secondary"
+          >{{ t('pages.gallery.previewUnavailable') }}</span
+        >
+        <span
+          v-else-if="!loaded"
+          class="preview-status absolute inset-0 flex items-center justify-center text-[12px] text-secondary"
+          role="status"
+          >{{ t('pages.gallery.previewLoading') }}</span
+        >
       </div>
-      <div class="preview-name" :title="alt">{{ alt }}</div>
+      <div class="preview-name flex-none truncate text-[12px] leading-[18px]" :title="alt">{{ alt }}</div>
     </div>
   </Teleport>
 </template>
@@ -107,60 +117,3 @@ onBeforeUnmount(hide)
 
 defineExpose({ show, hide, scheduleHide })
 </script>
-
-<style scoped>
-.gallery-hover-preview {
-  position: fixed;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  box-sizing: border-box;
-  padding: 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-background-tertiary);
-  color: var(--color-text-primary);
-  box-shadow: var(--shadow-lg);
-}
-
-.preview-image {
-  position: relative;
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  min-height: 0;
-  overflow: hidden;
-  border-radius: 4px;
-}
-
-.preview-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.preview-image img.is-loading {
-  visibility: hidden;
-}
-
-.preview-status {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
-
-.preview-name {
-  flex: none;
-  overflow: hidden;
-  font-size: 12px;
-  line-height: 18px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-</style>

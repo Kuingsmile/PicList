@@ -1,3 +1,9 @@
+export const linkFormatList = ['url', 'markdown', 'markdown-with-link', 'html', 'bbcode', 'custom'] as const
+
+export const preSignedUrlFormat = 'preSignedUrl'
+
+export type CopyFormat = (typeof linkFormatList)[number] | typeof preSignedUrlFormat
+
 import { getConfig } from '@/manage/services/configService'
 import { handleUrlEncode } from '#/utils/url'
 

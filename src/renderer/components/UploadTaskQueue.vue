@@ -312,7 +312,7 @@
                     :aria-valuetext="task.indeterminate ? getTaskStatusText(task) : undefined"
                   >
                     <div
-                      :class="{ 'queue-indeterminate': task.indeterminate }"
+                      :class="{ 'animate-upload-progress motion-reduce:animate-none': task.indeterminate }"
                       :style="{ width: task.indeterminate ? '35%' : `${task.progress}%` }"
                     />
                   </div>

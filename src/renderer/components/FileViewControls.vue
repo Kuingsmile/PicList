@@ -1,16 +1,29 @@
 <template>
-  <div class="file-view-controls">
-    <div class="view-buttons" :aria-label="t('common.fileTable.view')" role="group">
-      <button type="button" :aria-pressed="viewMode === 'grid'" @click="viewMode = 'grid'">
+  <div class="file-view-controls flex flex-wrap items-center gap-[6px] text-[12px] text-secondary">
+    <div class="view-buttons flex items-center gap-[6px]" :aria-label="t('common.fileTable.view')" role="group">
+      <button
+        class="flex min-h-[30px] cursor-pointer items-center gap-[6px] rounded-[4px] border border-border bg-bg-secondary px-[8px] py-[4px] text-inherit focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"
+        type="button"
+        :aria-pressed="viewMode === 'grid'"
+        @click="viewMode = 'grid'"
+      >
         <GridIcon :size="14" />{{ t('common.fileTable.grid') }}
       </button>
-      <button type="button" :aria-pressed="viewMode === 'table'" @click="viewMode = 'table'">
+      <button
+        class="flex min-h-[30px] cursor-pointer items-center gap-[6px] rounded-[4px] border border-border bg-bg-secondary px-[8px] py-[4px] text-inherit focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"
+        type="button"
+        :aria-pressed="viewMode === 'table'"
+        @click="viewMode = 'table'"
+      >
         <ListIcon :size="14" />{{ t('common.fileTable.table') }}
       </button>
     </div>
-    <label v-if="viewMode === 'table'">
+    <label v-if="viewMode === 'table'" class="flex items-center gap-[6px]">
       {{ t('common.fileTable.density') }}
-      <select v-model="density">
+      <select
+        v-model="density"
+        class="min-h-[30px] rounded-[4px] border border-border bg-bg-secondary px-[8px] py-[4px] text-inherit focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid"
+      >
         <option value="compact">{{ t('common.fileTable.compact') }}</option>
         <option value="comfortable">{{ t('common.fileTable.comfortable') }}</option>
       </select>
@@ -26,46 +39,3 @@ const viewMode = defineModel<'grid' | 'table'>('viewMode', { required: true })
 const density = defineModel<'compact' | 'comfortable'>('density', { required: true })
 const { t } = useI18n()
 </script>
-
-<style scoped>
-.file-view-controls,
-.view-buttons,
-label,
-button {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.file-view-controls {
-  flex-wrap: wrap;
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
-
-button,
-select {
-  min-height: 30px;
-  padding: 4px 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  color: inherit;
-  background: var(--color-background-secondary);
-}
-
-button {
-  cursor: pointer;
-}
-
-button[aria-pressed='true'] {
-  color: white;
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-}
-
-button:focus-visible,
-select:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-</style>

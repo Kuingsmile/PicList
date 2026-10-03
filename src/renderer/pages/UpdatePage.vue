@@ -28,7 +28,7 @@
       <div class="p-6">
         <div v-if="updateInfo.releaseNotes" class="mb-5">
           <h2 class="mb-2 text-base font-bold tracking-wide text-main">{{ $t('pages.update.releaseNotes') }}</h2>
-          <div class="notes-body" v-html="renderMarkdown(updateInfo.releaseNotes)"></div>
+          <MarkdownContent :html="renderMarkdown(updateInfo.releaseNotes)" class="max-h-[200px] rounded-lg" />
         </div>
 
         <div v-else-if="updateInfo.message" class="mb-6">
@@ -65,27 +65,42 @@
       <!-- Actions -->
       <footer class="flex justify-end gap-3 border-t border-border bg-surface p-5">
         <template v-if="updateInfo.type === 'update-available' || updateInfo.type === 'update-error'">
-          <button class="btn-ghost" @click="goToDownloadPage">
-            <Link2Icon class="btn-icon" />
+          <button
+            class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border-none bg-bg-secondary px-5 py-2.5 font-[inherit] text-sm font-semibold text-secondary shadow-md transition-all duration-fast ease-standard hover:-translate-y-px hover:shadow-lg focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50"
+            @click="goToDownloadPage"
+          >
+            <Link2Icon class="h-6 w-6 shrink-0" />
             {{ $t('pages.update.goToDownloadPage') }}
           </button>
-          <button class="btn-primary" @click="downloadUpdate">
-            <DownloadIcon class="btn-icon" />
+          <button
+            class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border-none bg-accent px-5 py-2.5 font-[inherit] text-sm font-semibold text-white shadow-md transition-all duration-fast ease-standard hover:-translate-y-px hover:shadow-lg focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50"
+            @click="downloadUpdate"
+          >
+            <DownloadIcon class="h-6 w-6 shrink-0" />
             {{ $t('pages.update.download') }}
           </button>
         </template>
         <template v-else-if="updateInfo.type === 'downloading'">
-          <button class="btn-ghost" @click="closeWindow">
-            <XIcon class="btn-icon" />
+          <button
+            class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border-none bg-bg-secondary px-5 py-2.5 font-[inherit] text-sm font-semibold text-secondary shadow-md transition-all duration-fast ease-standard hover:-translate-y-px hover:shadow-lg focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50"
+            @click="closeWindow"
+          >
+            <XIcon class="h-6 w-6 shrink-0" />
             {{ $t('common.cancel') }}
           </button>
         </template>
         <template v-else-if="updateInfo.type === 'update-downloaded'">
-          <button class="btn-ghost" @click="closeWindow">
+          <button
+            class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border-none bg-bg-secondary px-5 py-2.5 font-[inherit] text-sm font-semibold text-secondary shadow-md transition-all duration-fast ease-standard hover:-translate-y-px hover:shadow-lg focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50"
+            @click="closeWindow"
+          >
             {{ $t('pages.update.later') }}
           </button>
-          <button class="btn-primary" @click="installUpdate">
-            <DownloadIcon class="btn-icon" />
+          <button
+            class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border-none bg-accent px-5 py-2.5 font-[inherit] text-sm font-semibold text-white shadow-md transition-all duration-fast ease-standard hover:-translate-y-px hover:shadow-lg focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50"
+            @click="installUpdate"
+          >
+            <DownloadIcon class="h-6 w-6 shrink-0" />
             {{ $t('pages.update.installNow') }}
           </button>
         </template>
@@ -98,6 +113,7 @@
 import { DownloadIcon, Link2Icon, XIcon } from '@lucide/vue'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
+import MarkdownContent from '@/components/common/MarkdownContent.vue'
 import { invokeRPC, saveWithFeedback } from '@/services/rpcService'
 import { renderMarkdown } from '@/utils/markdown'
 import { SHOW_UPDATE_INFO, UPDATE_PROGRESS } from '#/constants/ipcChannels'
@@ -169,5 +185,3 @@ onBeforeUnmount(() => {
   unbindThemeListener?.()
 })
 </script>
-
-<style scoped src="./UpdatePage.css"></style>

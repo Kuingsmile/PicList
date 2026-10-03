@@ -99,40 +99,31 @@ const finalValue = computed(() => formatProcessingValue(field.split('.')[1], fin
 </script>
 
 <style scoped>
+@reference '../index.css';
+
 /* Keep switches keyboard-accessible inside this editor. */
 fieldset :deep(input[type='checkbox'].hidden),
 fieldset :deep(input[type='radio'].hidden) {
-  position: absolute;
-  display: block;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
+  @apply absolute block h-px w-px opacity-0;
 }
 
 fieldset :deep(label:has(input:focus-visible)) {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
+  @apply outline-2 outline-offset-2 outline-accent outline-solid;
 }
 
 fieldset :deep(> div > label:has(input[type='checkbox'])) {
-  flex-direction: row-reverse;
-  justify-content: space-between;
-  gap: 16px;
-  width: 100%;
-  padding: 0;
+  @apply w-full flex-row-reverse justify-between gap-[16px] p-0;
 }
 
 fieldset :deep(> div:has(> label > input[type='checkbox'])) {
-  width: 100%;
-  padding-block: 4px;
+  @apply w-full py-[4px];
 }
 
 fieldset :deep(> div > label > div) {
-  margin-right: auto;
+  @apply mr-auto;
 }
 
 fieldset :deep(input[type='range']:focus-visible) {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 4px;
+  @apply outline-2 outline-offset-4 outline-accent outline-solid;
 }
 </style>

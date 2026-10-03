@@ -174,20 +174,6 @@
   @apply pointer-events-none absolute inset-2 z-10 flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-accent bg-surface-elevated text-base font-semibold text-accent;
 }
 
-.queue-indeterminate {
-  animation: queue-progress-slide 1.4s ease-in-out infinite;
-}
-
-@keyframes queue-progress-slide {
-  from {
-    transform: translateX(-100%);
-  }
-
-  to {
-    transform: translateX(300%);
-  }
-}
-
 @media (width <= 600px) {
   .queue-row {
     @apply flex-wrap gap-2 px-3;
@@ -202,11 +188,5 @@
   .queue-filters,
   .queue-footer {
     @apply px-3;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .queue-indeterminate {
-    animation: none;
   }
 }

@@ -13,7 +13,7 @@
         class="relative flex max-h-[90vh] max-w-[90vw] flex-col overflow-hidden rounded-xl bg-surface shadow-lg"
       >
         <button
-          class="absolute top-4 right-4 z-10 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-danger bg-danger/70 text-white hover:bg-danger hover:text-white"
+          class="absolute top-4 right-4 z-10 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-danger bg-danger/70 text-white hover:bg-danger hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
           :aria-label="t('common.close')"
           @click="handleClose"
         >
@@ -23,7 +23,7 @@
         <!-- Zoom controls -->
         <div class="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-lg bg-black/70 p-2">
           <button
-            class="zoom-btn"
+            class="zoom-btn inline-flex h-[32px] min-w-[32px] cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
             :aria-label="t('pages.gallery.zoomOut')"
             :disabled="imagePreviewState.scale <= minimumScale || previewFailed || previewLoading"
             @click="zoomOut"
@@ -34,21 +34,25 @@
             >{{ Math.round(imagePreviewState.scale * 100) }}%</span
           >
           <button
-            class="zoom-btn"
+            class="zoom-btn inline-flex h-[32px] min-w-[32px] cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
             :aria-label="t('pages.gallery.zoomIn')"
             :disabled="imagePreviewState.scale >= 5 || previewFailed || previewLoading"
             @click="zoomIn"
           >
             <span>+</span>
           </button>
-          <button class="zoom-btn reset-btn" :disabled="previewFailed || previewLoading" @click="resetImageTransform">
+          <button
+            class="zoom-btn reset-btn inline-flex h-[32px] min-w-[32px] cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 px-[8px] py-0 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
+            :disabled="previewFailed || previewLoading"
+            @click="resetImageTransform"
+          >
             {{ t('common.reset') }}
           </button>
         </div>
 
         <div class="relative flex min-h-0 items-center">
           <button
-            class="nav-button prev"
+            class="nav-button prev absolute top-1/2 left-[12px] z-10 inline-flex h-[40px] w-[40px] min-w-[32px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
             :aria-label="t('pages.gallery.previousImage')"
             :disabled="gallerySliderControl.index === 0"
             @click.stop="navigateImage(-1)"
@@ -85,14 +89,18 @@
               class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black text-sm text-white"
             >
               {{ t(previewFailed ? 'pages.gallery.previewUnavailable' : 'pages.gallery.previewLoading') }}
-              <button v-if="previewFailed" class="zoom-btn reset-btn" @click="retryPreview">
+              <button
+                v-if="previewFailed"
+                class="zoom-btn reset-btn inline-flex h-[32px] min-w-[32px] cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 px-[8px] py-0 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
+                @click="retryPreview"
+              >
                 {{ t('pages.gallery.refresh') }}
               </button>
             </div>
           </div>
 
           <button
-            class="nav-button next"
+            class="nav-button next absolute top-1/2 right-[12px] z-10 inline-flex h-[40px] w-[40px] min-w-[32px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
             :aria-label="t('pages.gallery.nextImage')"
             :disabled="gallerySliderControl.index === filterList.length - 1"
             @click.stop="navigateImage(1)"
@@ -487,55 +495,3 @@ onMounted(() => {
   resetImageTransform()
 })
 </script>
-
-<style scoped>
-.zoom-btn,
-.nav-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  height: 32px;
-  border: 0;
-  border-radius: 6px;
-  background: rgb(0 0 0 / 65%);
-  color: white;
-  cursor: pointer;
-}
-
-.reset-btn {
-  padding: 0 8px;
-}
-
-.nav-button {
-  position: absolute;
-  top: 50%;
-  z-index: 10;
-  width: 40px;
-  height: 40px;
-  transform: translateY(-50%);
-}
-
-.prev {
-  left: 12px;
-}
-
-.next {
-  right: 12px;
-}
-
-.zoom-btn:hover:not(:disabled),
-.nav-button:hover:not(:disabled) {
-  background: var(--color-accent);
-}
-
-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-button:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 2px;
-}
-</style>

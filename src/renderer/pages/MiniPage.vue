@@ -1,25 +1,35 @@
 <template>
-  <div id="mini-page" class="mini-page" :class="{ 'mini-page-square': osGlobal === 'linux' }" :title="progressLabel">
+  <div
+    id="mini-page"
+    class="mini-page box-border h-screen w-screen cursor-pointer overflow-hidden rounded-full border-2 border-white/90 bg-(--color-accent,#007aff) select-none [&.mini-page-square]:rounded-none"
+    :class="{ 'mini-page-square': osGlobal === 'linux' }"
+    :title="progressLabel"
+  >
     <div
       ref="uploadArea"
-      class="mini-upload-area"
+      class="mini-upload-area relative h-full w-full overflow-hidden rounded-[inherit]"
       @drop.prevent="onDrop"
       @dragover.prevent="dragover = true"
       @dragleave.prevent="dragover = false"
     >
       <img
         :src="logoPath ? logoPath : './squareLogo.png'"
-        class="mini-logo"
+        class="mini-logo pointer-events-none block h-full w-full object-cover [transition:opacity_200ms_ease,transform_250ms_ease] motion-reduce:transition-none [&.mini-logo-hidden]:scale-85 [&.mini-logo-hidden]:opacity-0"
         :class="{ 'mini-logo-hidden': isShowingProgress || dragover }"
         :aria-hidden="isShowingProgress || dragover"
         alt="PicList"
         draggable="false"
         @dragstart.prevent
       />
-      <Transition name="mini-progress">
+      <Transition
+        enter-active-class="[transition:opacity_200ms_ease,transform_250ms_ease] motion-reduce:transition-none"
+        leave-active-class="[transition:opacity_200ms_ease,transform_250ms_ease] motion-reduce:transition-none"
+        enter-from-class="opacity-0 scale-90"
+        leave-to-class="opacity-0 scale-90"
+      >
         <div
           v-if="isShowingProgress"
-          class="mini-progress"
+          class="mini-progress pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_35%_20%,#243e62,#101d33_80%)] text-(--progress-color) [--progress-color:#86ddff] [&.mini-progress-cancelled]:[--progress-color:#efcb85] [&.mini-progress-cancelled_.mini-progress-value]:stroke-(--progress-color) [&.mini-progress-completed]:[--progress-color:#73e6b1] [&.mini-progress-completed_.mini-progress-value]:stroke-(--progress-color) [&.mini-progress-failed]:[--progress-color:#ff909b] [&.mini-progress-failed_.mini-progress-value]:stroke-(--progress-color)"
           :class="`mini-progress-${uploadState}`"
           :role="uploadState === 'uploading' ? 'progressbar' : 'status'"
           :aria-label="progressLabel"
@@ -27,17 +37,21 @@
           :aria-valuemin="uploadState === 'uploading' ? 0 : undefined"
           :aria-valuemax="uploadState === 'uploading' ? 100 : undefined"
         >
-          <svg class="mini-progress-ring" viewBox="0 0 64 64" aria-hidden="true">
+          <svg
+            class="mini-progress-ring absolute inset-0 h-full w-full -rotate-90 overflow-visible fill-none stroke-3"
+            viewBox="0 0 64 64"
+            aria-hidden="true"
+          >
             <defs>
               <linearGradient :id="gradientId" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stop-color="#80edff" />
                 <stop offset="100%" stop-color="#5795ff" />
               </linearGradient>
             </defs>
-            <circle class="mini-progress-track" cx="32" cy="32" r="27" />
+            <circle class="mini-progress-track stroke-white/12" cx="32" cy="32" r="27" />
             <circle
               v-show="!isIndeterminate"
-              class="mini-progress-value"
+              class="mini-progress-value [stroke-dasharray:100] [stroke-linecap:round] [transition:stroke-dashoffset_450ms_cubic-bezier(0.22,1,0.36,1),stroke_200ms_ease] motion-reduce:transition-none"
               cx="32"
               cy="32"
               r="27"
@@ -47,7 +61,7 @@
             />
             <circle
               v-if="uploadState === 'uploading'"
-              class="mini-progress-orbit"
+              class="mini-progress-orbit origin-center animate-mini-orbit stroke-[#dff9ff]/75 [stroke-dasharray:3_97] [stroke-linecap:round] motion-reduce:hidden motion-reduce:animate-none [&.mini-progress-indeterminate]:[animation-duration:1.4s] [&.mini-progress-indeterminate]:[stroke-dasharray:22_78]"
               :class="{ 'mini-progress-indeterminate': isIndeterminate }"
               cx="32"
               cy="32"
@@ -55,20 +69,59 @@
               pathLength="100"
             />
           </svg>
-          <div class="mini-progress-content" aria-hidden="true">
+          <div
+            class="mini-progress-content absolute inset-0 flex flex-col items-center justify-center gap-px"
+            aria-hidden="true"
+          >
             <template v-if="uploadState === 'uploading'">
-              <ArrowUp class="mini-upload-arrow" :size="14" :stroke-width="2.5" />
-              <span v-if="isIndeterminate" class="mini-progress-stage">{{ phaseLabel }}</span>
-              <span v-else class="mini-progress-percent">{{ progress }}<span>%</span></span>
+              <ArrowUp
+                class="mini-upload-arrow animate-mini-upload-lift motion-reduce:animate-none"
+                :size="14"
+                :stroke-width="2.5"
+              />
+              <span
+                v-if="isIndeterminate"
+                class="mini-progress-stage max-w-[44px] truncate text-[8px] leading-[1.5] font-semibold"
+                >{{ phaseLabel }}</span
+              >
+              <span
+                v-else
+                class="mini-progress-percent text-[16px] leading-[1.15] font-bold text-white tabular-nums [&>span]:ml-px [&>span]:text-[9px] [&>span]:font-medium [&>span]:text-[#bfd3ee]"
+                >{{ progress }}<span>%</span></span
+              >
             </template>
-            <Check v-else-if="uploadState === 'completed'" class="mini-result-icon" :size="27" :stroke-width="2.5" />
-            <X v-else-if="uploadState === 'failed'" class="mini-result-icon" :size="25" :stroke-width="2.5" />
-            <Minus v-else class="mini-result-icon" :size="25" :stroke-width="2.5" />
+            <Check
+              v-else-if="uploadState === 'completed'"
+              class="mini-result-icon animate-mini-result-in motion-reduce:animate-none"
+              :size="27"
+              :stroke-width="2.5"
+            />
+            <X
+              v-else-if="uploadState === 'failed'"
+              class="mini-result-icon animate-mini-result-in motion-reduce:animate-none"
+              :size="25"
+              :stroke-width="2.5"
+            />
+            <Minus
+              v-else
+              class="mini-result-icon animate-mini-result-in motion-reduce:animate-none"
+              :size="25"
+              :stroke-width="2.5"
+            />
           </div>
         </div>
       </Transition>
-      <Transition name="mini-progress">
-        <div v-if="dragover" class="mini-drop-indicator" aria-hidden="true">
+      <Transition
+        enter-active-class="[transition:opacity_200ms_ease,transform_250ms_ease] motion-reduce:transition-none"
+        leave-active-class="[transition:opacity_200ms_ease,transform_250ms_ease] motion-reduce:transition-none"
+        enter-from-class="opacity-0 scale-90"
+        leave-to-class="opacity-0 scale-90"
+      >
+        <div
+          v-if="dragover"
+          class="mini-drop-indicator pointer-events-none absolute inset-[4px] grid place-items-center rounded-[inherit] border-2 border-dashed border-[#a9e8ff] bg-[#152d4f] text-white"
+          aria-hidden="true"
+        >
           <Upload :size="25" />
         </div>
       </Transition>
@@ -289,228 +342,3 @@ onBeforeUnmount(() => {
   window.removeEventListener('mouseup', handleMouseUp, false)
 })
 </script>
-
-<style scoped>
-.mini-page {
-  box-sizing: border-box;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  cursor: pointer;
-  border: 2px solid rgb(255 255 255 / 90%);
-  border-radius: 50%;
-  background: var(--color-accent, #007aff);
-  user-select: none;
-}
-
-.mini-page-square {
-  border-radius: 0;
-}
-
-.mini-upload-area {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  border-radius: inherit;
-}
-
-.mini-logo {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  pointer-events: none;
-  transition:
-    opacity 200ms ease,
-    transform 250ms ease;
-}
-
-.mini-logo-hidden {
-  opacity: 0;
-  transform: scale(0.85);
-}
-
-.mini-progress {
-  --progress-color: #86ddff;
-
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(circle at 35% 20%, #243e62, #101d33 80%);
-  color: var(--progress-color);
-  pointer-events: none;
-}
-
-.mini-progress-ring {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  fill: none;
-  stroke-width: 3;
-  transform: rotate(-90deg);
-}
-
-.mini-progress-track {
-  stroke: rgb(255 255 255 / 12%);
-}
-
-.mini-progress-value {
-  stroke-dasharray: 100;
-  stroke-linecap: round;
-  transition:
-    stroke-dashoffset 450ms cubic-bezier(0.22, 1, 0.36, 1),
-    stroke 200ms ease;
-}
-
-.mini-progress-orbit {
-  stroke: rgb(223 249 255 / 75%);
-  stroke-dasharray: 3 97;
-  stroke-linecap: round;
-  transform-origin: center;
-  animation: mini-orbit 2.4s linear infinite;
-}
-
-.mini-progress-indeterminate {
-  stroke-dasharray: 22 78;
-  animation-duration: 1.4s;
-}
-
-.mini-progress-stage {
-  max-width: 44px;
-  overflow: hidden;
-  font-size: 8px;
-  font-weight: 600;
-  line-height: 1.5;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.mini-progress-content {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-}
-
-.mini-upload-arrow {
-  animation: mini-upload-lift 1.4s ease-in-out infinite;
-}
-
-.mini-progress-percent {
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.15;
-}
-
-.mini-progress-percent span {
-  margin-left: 1px;
-  color: #bfd3ee;
-  font-size: 9px;
-  font-weight: 500;
-}
-
-.mini-progress-completed {
-  --progress-color: #73e6b1;
-}
-
-.mini-progress-failed {
-  --progress-color: #ff909b;
-}
-
-.mini-progress-cancelled {
-  --progress-color: #efcb85;
-}
-
-.mini-progress-completed .mini-progress-value,
-.mini-progress-failed .mini-progress-value,
-.mini-progress-cancelled .mini-progress-value {
-  stroke: var(--progress-color);
-}
-
-.mini-result-icon {
-  animation: mini-result-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.mini-drop-indicator {
-  position: absolute;
-  inset: 4px;
-  display: grid;
-  place-items: center;
-  border: 2px dashed #a9e8ff;
-  border-radius: inherit;
-  background: #152d4f;
-  color: #ffffff;
-  pointer-events: none;
-}
-
-.mini-progress-enter-active,
-.mini-progress-leave-active {
-  transition:
-    opacity 200ms ease,
-    transform 250ms ease;
-}
-
-.mini-progress-enter-from,
-.mini-progress-leave-to {
-  opacity: 0;
-  transform: scale(0.9);
-}
-
-@keyframes mini-orbit {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes mini-upload-lift {
-  0%,
-  100% {
-    opacity: 0.65;
-    transform: translateY(1px);
-  }
-
-  50% {
-    opacity: 1;
-    transform: translateY(-2px);
-  }
-}
-
-@keyframes mini-result-in {
-  from {
-    opacity: 0;
-    transform: scale(0.6);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mini-logo,
-  .mini-progress-value,
-  .mini-progress-enter-active,
-  .mini-progress-leave-active {
-    transition: none;
-  }
-
-  .mini-progress-orbit,
-  .mini-upload-arrow,
-  .mini-result-icon {
-    animation: none;
-  }
-
-  .mini-progress-orbit {
-    display: none;
-  }
-}
-</style>

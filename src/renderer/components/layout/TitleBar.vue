@@ -24,7 +24,11 @@
 
       <div class="flex items-center no-drag-region">
         <div class="flex items-center gap-[8px]">
-          <button class="control-button" :title="$t('titleBar.alwaysOnTop')" @click="setAlwaysOnTop">
+          <button
+            class="control-button flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard hover:bg-surface-elevated hover:text-main [.close:hover]:bg-danger [.close:hover]:text-white [.mini:hover]:bg-success/85 [.mini:hover]:text-white [.minimize:hover]:bg-accent/85 [.minimize:hover]:text-white"
+            :title="$t('titleBar.alwaysOnTop')"
+            @click="setAlwaysOnTop"
+          >
             <PinIcon
               :size="14"
               class="text-[#6b7280] [.active]:rotate-90 [.active]:text-[#ce6769]"
@@ -32,13 +36,25 @@
             />
           </button>
           <template v-if="osGlobal !== 'darwin'">
-            <button class="control-button minimize" :title="$t('titleBar.minimize')" @click="minimizeWindow">
+            <button
+              class="control-button minimize flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard hover:bg-surface-elevated hover:text-main [.close:hover]:bg-danger [.close:hover]:text-white [.mini:hover]:bg-success/85 [.mini:hover]:text-white [.minimize:hover]:bg-accent/85 [.minimize:hover]:text-white"
+              :title="$t('titleBar.minimize')"
+              @click="minimizeWindow"
+            >
               <MinusIcon :size="14" />
             </button>
-            <button class="control-button mini" :title="$t('titleBar.miniWindow')" @click="openMiniWindow">
+            <button
+              class="control-button mini flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard hover:bg-surface-elevated hover:text-main [.close:hover]:bg-danger [.close:hover]:text-white [.mini:hover]:bg-success/85 [.mini:hover]:text-white [.minimize:hover]:bg-accent/85 [.minimize:hover]:text-white"
+              :title="$t('titleBar.miniWindow')"
+              @click="openMiniWindow"
+            >
               <ShrinkIcon :size="14" />
             </button>
-            <button class="control-button close" :title="$t('titleBar.close')" @click="closeWindow">
+            <button
+              class="control-button close flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard hover:bg-surface-elevated hover:text-main [.close:hover]:bg-danger [.close:hover]:text-white [.mini:hover]:bg-success/85 [.mini:hover]:text-white [.minimize:hover]:bg-accent/85 [.minimize:hover]:text-white"
+              :title="$t('titleBar.close')"
+              @click="closeWindow"
+            >
               <XIcon :size="14" />
             </button>
           </template>
@@ -83,13 +99,3 @@ onBeforeUnmount(() => {
   window.electron.ipcRendererRemoveAllListeners('updateProgress')
 })
 </script>
-
-<style scoped>
-@import 'tailwindcss' reference;
-@import '../../assets/css/theme.css' reference;
-@import '../../assets/css/utilities.css' reference;
-
-.control-button {
-  @apply flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard hover:bg-surface-elevated hover:text-main [.close:hover]:bg-danger [.close:hover]:text-white [.mini:hover]:bg-success/85 [.mini:hover]:text-white [.minimize:hover]:bg-accent/85 [.minimize:hover]:text-white;
-}
-</style>

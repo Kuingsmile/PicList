@@ -3,7 +3,7 @@
 @import '../assets/css/utilities.css' reference;
 
 .processing-studio {
-  container-type: inline-size;
+  @apply @container;
 }
 
 .form-input,
@@ -27,8 +27,7 @@
 
 .processing-steps > button:not(:last-child)::after {
   @apply mx-5 h-px w-16 bg-border;
-
-  content: '';
+  @apply content-[''];
 }
 
 .processing-step-number {
@@ -49,8 +48,7 @@
 
 .processing-workspace {
   @apply bg-bg-tertiary;
-
-  scrollbar-gutter: stable;
+  @apply scrollbar-gutter-stable;
 }
 
 .processing-setup,
@@ -71,7 +69,7 @@
 }
 
 .processing-page-heading h2:focus {
-  outline: none;
+  @apply outline-none;
 }
 
 .processing-page-heading p {
@@ -132,15 +130,15 @@
 }
 
 .processing-destination .processing-provider-label {
-  flex: 1;
+  @apply flex-1;
 }
 
 .processing-destination .processing-config-label {
-  flex: 1.4;
+  @apply flex-[1.4];
 }
 
 .destination-arrow {
-  margin-bottom: 12px;
+  @apply mb-[12px];
 }
 
 .processing-empty {
@@ -169,8 +167,7 @@
 
 .processing-editor {
   @apply grid min-h-full items-start;
-
-  grid-template-columns: 216px minmax(0, 1fr);
+  @apply grid-cols-[216px_minmax(0,1fr)];
 }
 
 .processing-sidebar {
@@ -206,7 +203,7 @@
 }
 
 .processing-categories button[aria-pressed='true'] .category-arrow {
-  opacity: 1;
+  @apply opacity-100;
 }
 
 .processing-scope-summary {
@@ -238,7 +235,7 @@
 }
 
 .processing-field-options input {
-  accent-color: var(--color-accent);
+  @apply accent-accent;
 }
 
 .processing-quality-heading {
@@ -279,8 +276,7 @@
 
 .processing-quality-slider {
   @apply my-1 w-full cursor-pointer;
-
-  accent-color: var(--color-accent);
+  @apply accent-accent;
 }
 
 .processing-range-labels {
@@ -305,7 +301,7 @@
 
 .processing-advanced[open] > summary > svg,
 .processing-help[open] > summary > svg {
-  transform: rotate(90deg);
+  @apply rotate-90;
 }
 
 .processing-advanced-content {
@@ -325,7 +321,7 @@
 }
 
 .processing-save-status.text-danger {
-  color: var(--color-danger);
+  @apply text-danger;
 }
 
 .processing-footer-actions {
@@ -372,7 +368,7 @@
   }
 
   .processing-editor {
-    grid-template-columns: minmax(0, 1fr);
+    @apply grid-cols-1;
   }
 
   .processing-sidebar {
@@ -382,7 +378,7 @@
   .processing-sidebar > .processing-eyebrow,
   .processing-sidebar > h2,
   .processing-categories .category-arrow {
-    display: none;
+    @apply hidden;
   }
 
   .processing-categories {
@@ -413,12 +409,11 @@
 @container (width < 480px) {
   .processing-steps > button {
     @apply flex-col gap-1.5 text-[11px];
-
-    flex: 1;
+    @apply flex-1;
   }
 
   .processing-steps > button:not(:last-child)::after {
-    display: none;
+    @apply hidden;
   }
 
   .processing-scope-choices {
@@ -446,7 +441,7 @@
   }
 
   .destination-arrow {
-    display: none;
+    @apply hidden;
   }
 
   .processing-review-target {

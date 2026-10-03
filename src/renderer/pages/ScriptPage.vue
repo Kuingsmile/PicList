@@ -70,21 +70,21 @@
                   class="grid grid-cols-2 gap-1.5 opacity-0 transition-all duration-fast ease-apple group-hover/config-card:opacity-100"
                 >
                   <button
-                    class="action-btn"
+                    class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                     :title="t('pages.scripts.editScript')"
                     @click.stop="openEditPage(item.filePath)"
                   >
                     <Pencil :size="14" />
                   </button>
                   <button
-                    class="action-btn danger"
+                    class="action-btn danger flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                     :title="t('pages.scripts.deleteScript')"
                     @click.stop="() => deleteConfig(item.filePath)"
                   >
                     <Trash2 :size="14" />
                   </button>
                   <button
-                    class="action-btn bg-accent/50 text-white! hover:bg-accent!"
+                    class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 bg-accent/50 text-white! transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent! hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                     :title="t('pages.scripts.marketplace.shareScript')"
                     @click.stop="openShareDialog(item)"
                   >
@@ -92,7 +92,7 @@
                   </button>
                   <button
                     v-if="item.category === 'manualTrigger'"
-                    class="action-btn bg-accent/50 text-white! hover:bg-accent!"
+                    class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 bg-accent/50 text-white! transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent! hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                     :title="t('pages.scripts.runScript')"
                     @click.stop="runScript(item.filePath)"
                   >
@@ -101,7 +101,7 @@
 
                   <button
                     v-if="item.category !== 'manualTrigger' && item.category !== 'uploader.advancedplist'"
-                    class="action-btn border-none"
+                    class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-none border-accent/20 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                     :class="{
                       'bg-success/50 hover:bg-success!': !item.enabled,
                       'bg-error/50 hover:bg-error!': item.enabled,
@@ -1035,13 +1035,3 @@ onBeforeUnmount(() => {
   stopDeviceFlowPolling()
 })
 </script>
-
-<style scoped>
-@import 'tailwindcss' reference;
-@import '../assets/css/theme.css' reference;
-@import '../assets/css/utilities.css' reference;
-
-.action-btn {
-  @apply flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger;
-}
-</style>

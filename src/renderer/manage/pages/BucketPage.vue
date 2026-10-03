@@ -1,10 +1,5 @@
-<!-- eslint-disable vue/no-v-html -->
 <template>
-  <div
-    ref="bucketContainerRef"
-    class="relative flex h-full w-full items-center justify-center"
-    @scroll="handleBucketContainerScroll"
-  >
+  <div class="relative flex h-full w-full items-center justify-center" @scroll="handleBucketContainerScroll">
     <div class="relative z-1 flex h-full w-full flex-col items-center justify-start gap-1 rounded-xl border-none p-0">
       <!-- Header Card -->
       <div
@@ -214,11 +209,11 @@
               class="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-bg-secondary px-3 py-2 text-sm font-medium text-secondary hover:border-accent hover:bg-accent/10"
               @click="sortDropdownOpen = !sortDropdownOpen"
             >
-              <ArrowUpDownIcon class="action-icon" />
+              <ArrowUpDownIcon class="h-[16px] w-[16px]" />
               <span class="text-sm font-medium text-secondary">
                 {{ t(`pages.manage.bucket.sort.${currentSortType}`) }}</span
               >
-              <ChevronDownIcon class="action-icon" />
+              <ChevronDownIcon class="h-[16px] w-[16px]" />
             </button>
             <div
               v-if="sortDropdownOpen"
@@ -316,287 +311,32 @@
         </div>
       </div>
 
-      <div
-        class="flex min-h-[240px] w-full min-w-0 flex-1 flex-col overflow-hidden rounded-md border border-border-secondary p-1 shadow-md"
-      >
-        <div v-if="filterList.length === 0" class="h-full w-full">
-          <EmptyPage />
-        </div>
-        <FileCollection
-          v-else
-          ref="virtualScrollerRef"
-          :items="filterList"
-          :columns="tableColumns"
-          :density="tableDensity"
-          :grid-item-height="260"
-          :view-mode="layoutStyle"
-          :grid-breakpoints="gridBreakpoints"
-          key-field="key"
-          :label="configMap.bucketName || t('common.fileTable.name')"
-          :is-selected="item => !!item.checked"
-          :sort-field="isLoadingData ? '' : currentSortType"
-          :sort-ascending="sortAscending"
-          :actions-width="184"
-          @select="(item, selected) => (item.checked = selected)"
-          @select-all="setAllSelected"
-          @sort="field => sortFile(field as ISortTypeList)"
-          @open="handleClickFile"
-          @visible-indexes-change="
-            indexes => {
-              if (!indexes.includes(copyDropdownIndex)) copyDropdownIndex = -1
-            }
-          "
-        >
-          <template #actions="{ item, index, tabindex }">
-            <button
-              v-if="!item.isDir && isShowRenameFileIcon"
-              type="button"
-              :tabindex
-              :title="t('pages.manage.bucket.renameFile')"
-              :aria-label="t('pages.manage.bucket.renameFile')"
-              @click="handleRenameFile(item)"
-            >
-              <EditIcon :size="16" />
-            </button>
-            <button
-              type="button"
-              :tabindex
-              :title="t('common.fileTable.download')"
-              :aria-label="t('common.fileTable.download')"
-              @click="item.isDir ? handleFolderBatchDownload(item) : downloadFiles([item])"
-            >
-              <DownloadIcon :size="16" />
-            </button>
-            <div :data-dropdown-index="index">
-              <button
-                type="button"
-                :tabindex
-                :title="t('common.fileTable.copyAs')"
-                :aria-label="t('common.fileTable.copyAs')"
-                :aria-expanded="copyDropdownIndex === index"
-                @click.stop="toggleCopyDropdown(index, $event)"
-              >
-                <CopyIcon :size="16" />
-              </button>
-              <teleport to="body">
-                <div
-                  v-if="copyDropdownIndex === index"
-                  data-copy-menu
-                  class="absolute z-9999 flex max-h-[260px] min-w-[140px] flex-col overflow-auto rounded-md border border-border bg-bg-tertiary p-1 shadow-md"
-                  :style="getDropdownStyle(index)"
-                  @keydown.esc.stop="closeCopyDropdown"
-                >
-                  <button
-                    v-for="format in linkFormatList"
-                    :key="format"
-                    type="button"
-                    :tabindex
-                    class="cursor-pointer rounded px-3 py-2 text-left text-sm text-main hover:bg-accent/30 focus-visible:outline-accent"
-                    @click.stop="copyLink(item, format)"
-                  >
-                    {{ t(`pages.manage.bucket.linkFormat.${format}`) }}
-                  </button>
-                  <button
-                    v-if="isShowPresignedUrl"
-                    type="button"
-                    :tabindex
-                    class="cursor-pointer rounded px-3 py-2 text-left text-sm text-main hover:bg-accent/30"
-                    @click.stop="async () => copyToClipboard(await getPreSignedUrl(item))"
-                  >
-                    {{ t('pages.manage.bucket.linkFormat.presign') }}
-                  </button>
-                </div>
-              </teleport>
-            </div>
-            <button
-              type="button"
-              :tabindex
-              :title="t('pages.manage.bucket.fileInfo')"
-              :aria-label="t('pages.manage.bucket.fileInfo')"
-              @click="handleShowFileInfo(item)"
-            >
-              <InfoIcon :size="16" />
-            </button>
-            <button
-              type="button"
-              :tabindex
-              :title="t('common.fileTable.delete')"
-              :aria-label="t('common.fileTable.delete')"
-              :disabled="isDeleting || isLoadingData"
-              @click="handleDeleteFile(item)"
-            >
-              <Trash2Icon :size="16" />
-            </button>
-          </template>
-          <template #default="{ item, index }">
-            <!-- Grid View -->
-            <div
-              class="group/image m-0 box-border flex h-[calc(100%-8px)] w-full cursor-pointer flex-col overflow-hidden rounded-lg border-2 border-border shadow-sm transition-all duration-fast ease-apple hover:translate-y-[-2px] hover:border-accent hover:shadow-md [.selected]:border-2 [.selected]:border-accent [.selected]:shadow-md"
-              :class="{ selected: item.checked }"
-              @click="item.checked = !item.checked"
-            >
-              <div
-                class="relative mb-2 flex aspect-auto min-h-0 flex-1 items-center justify-center overflow-hidden border-b border-dashed border-b-accent/40"
-                @click.stop="handleClickFile(item)"
-              >
-                <!-- Image Preview -->
-                <template
-                  v-if="!item.isDir && !['webdavplist', 'sftp', 'local', 's3plist'].includes(currentPicBedName)"
-                >
-                  <img
-                    v-if="isShowThumbnail && item.isImage"
-                    :src="getThumbnailUrl(item.url)"
-                    class="h-full w-full object-contain transition-all duration-fast ease-apple"
-                    @error="() => {}"
-                  />
-                  <img
-                    v-else
-                    :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
-                    class="h-full w-full object-contain transition-all duration-fast ease-apple"
-                  />
-                </template>
-
-                <!-- S3 PreSign Image -->
-                <ImagePreSign
-                  v-else-if="
-                    isShowThumbnail &&
-                    !item.isDir &&
-                    item.isImage &&
-                    currentPicBedName === 's3plist' &&
-                    isUsePreSignedUrl
-                  "
-                  :is-show-thumbnail="isShowThumbnail"
-                  :item
-                  :alias="configMap.alias"
-                  :url="item.url"
-                  :config="handleGetS3Config(item)"
-                />
-
-                <!-- WebDAV Image -->
-                <ImageWebdav
-                  v-else-if="isShowThumbnail && !item.isDir && currentPicBedName === 'webdavplist' && item.isImage"
-                  :is-show-thumbnail="isShowThumbnail"
-                  :item
-                  :config="handleGetWebdavConfig()"
-                  :url="item.url"
-                />
-
-                <!-- Local Image -->
-                <ImageLocal
-                  v-else-if="isShowThumbnail && !item.isDir && currentPicBedName === 'local' && item.isImage"
-                  :is-show-thumbnail="isShowThumbnail"
-                  :item
-                  :local-path="item.key"
-                />
-
-                <!-- Default File Icon -->
-                <template v-else-if="!item.isDir">
-                  <img
-                    :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
-                    class="h-full w-full object-contain p-4 transition-all duration-fast ease-apple"
-                  />
-                </template>
-
-                <!-- Folder Icon -->
-                <template v-else>
-                  <FolderIcon class="h-[64px] w-[64px] text-accent/70" />
-                </template>
-              </div>
-
-              <div class="flex min-w-0 shrink-0 flex-col justify-between gap-0.5">
-                <div
-                  class="w-full truncate text-center text-sm font-medium text-main"
-                  :title="item.fileName"
-                  @click.stop="copyToClipboard(item.fileName ?? '')"
-                >
-                  {{ item.fileName ?? '' }}
-                </div>
-                <div
-                  v-if="!item.isDir"
-                  class="flex items-center justify-center gap-2 text-xs font-medium text-secondary"
-                >
-                  <span class="text-medium text-center text-xs font-medium">{{ formatFileSize(item.fileSize) }}</span>
-                  <span class="text-medium text-center text-xs font-medium">{{ item.formatedTime }}</span>
-                </div>
-                <div class="mr-2 flex items-center justify-between">
-                  <div class="flex flex-1 justify-center gap-2">
-                    <!-- Rename -->
-                    <button
-                      v-if="!item.isDir && isShowRenameFileIcon"
-                      class="file-action-button"
-                      @click.stop="handleRenameFile(item)"
-                    >
-                      <EditIcon class="action-icon" />
-                    </button>
-
-                    <!-- Download Folder -->
-                    <button v-if="item.isDir" class="file-action-button" @click.stop="handleFolderBatchDownload(item)">
-                      <DownloadIcon class="action-icon" />
-                    </button>
-
-                    <!-- Copy Link Dropdown -->
-                    <div class="relative z-100" :data-dropdown-index="index">
-                      <button class="file-action-button" @click.stop="toggleCopyDropdown(index, $event)">
-                        <CopyIcon class="action-icon" />
-                      </button>
-                      <teleport to="body">
-                        <div
-                          v-if="copyDropdownIndex === index"
-                          class="absolute top-full right-0 z-9999 mt-1 max-h-[240px] max-w-[200px] min-w-[100px] overflow-visible overflow-y-auto border border-border bg-bg-tertiary whitespace-nowrap shadow-md transition-all duration-fast ease-apple"
-                          :style="getDropdownStyle(index)"
-                        >
-                          <div
-                            v-for="format in linkFormatList"
-                            :key="format"
-                            class="itmes-center flex cursor-pointer border-b border-b-border-secondary bg-bg-tertiary px-3 py-2 text-center text-sm text-main last:border-b-0 hover:bg-accent/50 hover:text-white"
-                            @click.stop="copyLink(item, format)"
-                          >
-                            {{ t(`pages.manage.bucket.linkFormat.${format}`) }}
-                          </div>
-                          <div
-                            v-if="isShowPresignedUrl"
-                            class="itmes-center flex cursor-pointer border-b border-b-border-secondary bg-bg-tertiary px-3 py-2 text-sm text-main last:border-b-0 hover:bg-accent/50 hover:text-white"
-                            @click.stop="async () => copyToClipboard(await getPreSignedUrl(item))"
-                          >
-                            {{ t('pages.manage.bucket.linkFormat.presign') }}
-                          </div>
-                        </div>
-                      </teleport>
-                    </div>
-
-                    <!-- File Info -->
-                    <button class="file-action-button" @click.stop="handleShowFileInfo(item)">
-                      <InfoIcon class="action-icon" />
-                    </button>
-
-                    <!-- Delete -->
-                    <button
-                      class="file-action-button danger"
-                      :disabled="isDeleting || isLoadingData"
-                      @click.stop="handleDeleteFile(item)"
-                    >
-                      <Trash2Icon class="action-icon" />
-                    </button>
-                  </div>
-
-                  <!-- Checkbox -->
-                  <label class="relative flex cursor-pointer items-center" @click.stop>
-                    <input
-                      v-model="item.checked"
-                      type="checkbox"
-                      class="peer absolute h-0 w-0 cursor-pointer opacity-0"
-                      @click.stop
-                    />
-                    <span
-                      class="relative inline-block h-[16px] w-[16px] rounded-sm border-2 border-accent/50 transition-all duration-fast ease-apple peer-checked:border-accent-hover peer-checked:bg-accent peer-checked:after:absolute peer-checked:after:top-[-2px] peer-checked:after:left-px peer-checked:after:text-[12px] peer-checked:after:font-bold peer-checked:after:text-white peer-checked:after:content-['✓']"
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
-          </template>
-        </FileCollection>
-      </div>
+      <BucketFileList
+        ref="virtualScrollerRef"
+        :config-map="configMap"
+        :filter-list="filterList"
+        :table-columns="tableColumns"
+        :table-density="tableDensity"
+        :layout-style="layoutStyle"
+        :is-loading-data="isLoadingData"
+        :is-deleting="isDeleting"
+        :current-sort-type="currentSortType"
+        :sort-ascending="sortAscending"
+        :get-s3-config="handleGetS3Config"
+        :get-webdav-config="handleGetWebdavConfig"
+        :get-pre-signed-url="getPreSignedUrl"
+        @select="(item, selected) => (item.checked = selected)"
+        @select-all="setAllSelected"
+        @sort="sortFile"
+        @open="handleClickFile"
+        @rename="handleRenameFile"
+        @download-folder="handleFolderBatchDownload"
+        @download="downloadFiles"
+        @info="handleShowFileInfo"
+        @delete="handleDeleteFile"
+        @copy-link="copyLink"
+        @copy-text="copyToClipboard"
+      />
     </div>
 
     <!-- URL Upload Dialog -->
@@ -621,170 +361,24 @@
     </CustomModal>
 
     <!-- Image Preview -->
-    <CustomModal
-      v-model:visible="isShowImagePreview"
-      :title="t('pages.manage.bucket.imagePreview')"
-      width="auto"
-      height="auto"
-      class="image-preview-modal"
-    >
-      <div class="flex-1 p-4">
-        <img :src="previewContent" class="max-h-[70vh] max-w-full object-contain" @error="handlePreviewError" />
-      </div>
-    </CustomModal>
+    <BucketPreviewDialogs :file-preview="filePreview" @error="handlePreviewError" />
 
     <!-- File Info Dialog -->
-    <CustomModal
+    <BucketFileInfoDialog
       v-model:visible="isShowFileInfo"
-      width="760px"
-      height="auto"
-      :title="t('pages.manage.bucket.fileInfo')"
-    >
-      <div class="bg-bg p-4 sm:p-6">
-        <div class="mb-5 flex flex-wrap items-center justify-between gap-4 border-b border-border-secondary pb-5">
-          <div class="flex min-w-0 flex-1 items-center gap-3">
-            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
-              <FolderIcon v-if="currentShowedFileInfo.isDir" :size="22" />
-              <FileIcon v-else :size="22" />
-            </div>
-            <div class="min-w-0">
-              <p class="text-xs font-medium text-secondary">
-                {{ t(currentShowedFileInfo.isDir ? 'common.fileTable.folder' : 'pages.manage.bucket.fileInfo') }}
-              </p>
-              <p class="text-base font-semibold wrap-anywhere text-main">
-                {{ currentShowedFileInfo.fileName || currentShowedFileInfo.key || '—' }}
-              </p>
-            </div>
-          </div>
-          <CustomButton
-            type="secondary"
-            :icon="CopyIcon"
-            :text="t('pages.manage.bucket.copyFileInfoInJson')"
-            @click="copyToClipboard(JSON.stringify(currentShowedFileInfo, null, 2))"
-          />
-        </div>
-        <dl class="overflow-hidden rounded-lg border border-border-secondary bg-bg-secondary">
-          <div
-            v-for="(value, key) in currentShowedFileInfo"
-            :key
-            class="grid gap-2 border-b border-border-secondary p-4 last:border-b-0 sm:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] sm:gap-4"
-          >
-            <dt class="flex min-w-0 items-start justify-between gap-2 text-sm font-medium text-main">
-              <span class="pt-1 wrap-anywhere">{{ key }}</span>
-              <button
-                type="button"
-                class="shrink-0 rounded p-1 text-secondary transition-colors hover:bg-accent/15 hover:text-accent focus-visible:focus-ring"
-                :title="`${t('pages.manage.bucket.copyFileInfoInJson')}: ${key}`"
-                :aria-label="`${t('pages.manage.bucket.copyFileInfoInJson')}: ${key}`"
-                @click="copyToClipboard(JSON.stringify({ [key]: value }))"
-              >
-                <CopyIcon :size="15" />
-              </button>
-            </dt>
-            <dd class="flex min-w-0 items-start gap-2">
-              <pre
-                class="min-w-0 flex-1 font-mono text-sm leading-relaxed wrap-anywhere whitespace-pre-wrap text-secondary"
-                >{{ formatFileInfoValue(value) }}</pre>
-              <button
-                type="button"
-                class="shrink-0 rounded p-1 text-secondary transition-colors hover:bg-accent/15 hover:text-accent focus-visible:focus-ring"
-                :title="`${t('common.copy')}: ${key}`"
-                :aria-label="`${t('common.copy')}: ${key}`"
-                @click="copyToClipboard(formatFileInfoValue(value))"
-              >
-                <CopyIcon :size="15" />
-              </button>
-            </dd>
-          </div>
-        </dl>
-      </div>
-    </CustomModal>
+      :current-showed-file-info="currentShowedFileInfo"
+      @copy="copyToClipboard"
+    />
 
     <!-- Batch Rename Dialog -->
-    <CustomModal
-      v-model:visible="isShowBatchRenameDialog"
-      width="700px"
-      height="auto"
-      :title="t('pages.manage.bucket.renameFile')"
-    >
-      <div class="p-6">
-        <p class="mb-4 text-sm text-secondary">{{ t('common.bulk.selectionHint') }}</p>
-        <div class="mb-6 last:mb-0">
-          <label class="mb-2 flex items-center gap-2 text-sm font-medium text-main">
-            {{ t('pages.manage.bucket.matchedPattern', { num: matchedFilesNumber.length }) }}
-            <div class="group relative inline-block">
-              <InfoIcon class="action-icon" />
-              <span
-                class="invisible absolute top-[125%] left-1/2 z-1000 w-max max-w-[200px] translate-x-[-50%] rounded-md border border-border bg-bg-tertiary p-2 text-center text-xs text-main opacity-0 shadow-md transition-opacity duration-300 group-hover:visible group-hover:opacity-100"
-                >{{ t('pages.manage.bucket.regexPatternTips') }}</span
-              >
-            </div>
-          </label>
-          <input
-            v-model="batchRenameMatch"
-            type="text"
-            class="w-full rounded-md border border-border bg-bg-tertiary p-3 text-sm text-main focus:border-accent focus:bg-white focus:outline-none"
-            :placeholder="t('pages.manage.bucket.regexPlaceholder')"
-            @focus="showMatchedUrls = true"
-            @blur="showMatchedUrls = false"
-          />
-          <div
-            v-if="showMatchedUrls && matchedFilesNumber.length > 0"
-            class="absolute z-1000 mt-2 max-h-[300px] max-w-[650px] overflow-hidden rounded-md border border-border-secondary bg-bg-tertiary p-0 shadow-md"
-          >
-            <div class="border-b border-b-border-secondary bg-bg-secondary px-4 py-3 text-sm font-semibold text-main">
-              Matched ({{ matchedFilesNumber.length }}):
-            </div>
-            <div class="max-h-[240px] overflow-auto p-2">
-              <div
-                v-for="(item, index) in matchedFilesNumber"
-                :key="index"
-                class="rounded-sm px-3 py-2 font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] text-sm break-all text-secondary transition-all duration-fast ease-apple hover:bg-surface-elevated"
-              >
-                {{ item?.fileName || item?.key || item }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mb-6 last:mb-0">
-          <label class="mb-2 flex items-center gap-2 text-sm font-medium text-main">
-            {{ t('pages.manage.bucket.replaceInput') }}
-            <button
-              class="flex h-[20px] w-[20px] cursor-pointer items-center justify-around rounded-full border-none bg-accent text-white transition-all duration-fast ease-apple hover:bg-accent-hover"
-              @click="showFormatInfo = !showFormatInfo"
-            >
-              <InfoIcon :size="16" />
-            </button>
-          </label>
-          <input
-            v-model="batchRenameReplace"
-            type="text"
-            class="w-full rounded-md border border-border bg-bg-tertiary p-3 text-sm text-main focus:border-accent focus:bg-white focus:outline-none"
-            placeholder="Ex. {Y}-{m}-{uuid}"
-          />
-        </div>
-
-        <div class="mb-6 last:mb-0">
-          <CustomSwitch
-            v-model="isRenameIncludeExt"
-            small
-            no-border
-            :title="isRenameIncludeExt ? t('pages.manage.bucket.includeExt') : t('pages.manage.bucket.excludeExt')"
-          />
-        </div>
-        <div v-if="showFormatInfo" class="mb-6 last:mb-0">
-          <label>{{ t('pages.settings.upload.availablePlaceholders') }}</label>
-          <PlaceholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
-        </div>
-      </div>
-      <template #footer>
-        <CustomButton type="secondary" :text="t('common.cancel')" @click="isShowBatchRenameDialog = false" />
-        <CustomButton :text="t('common.bulk.preview')" :disabled="bulkChanges.building.value" @click="BatchRename" />
-      </template>
-    </CustomModal>
-
-    <BulkChangePreview :workflow="bulkChanges" />
+    <BucketRenameDialog
+      ref="renameDialog"
+      :config-map="configMap"
+      :provider="currentPicBedName"
+      :selected-items="selectedItems"
+      :current-page-files-info="currentPageFilesInfo"
+      @renamed="resetParam(true)"
+    />
 
     <!-- Loading Indicators -->
     <div v-if="isLoadingData" class="animate-slide-right fixed right-[25px] bottom-[25px] z-9999 duration-300 ease-out">
@@ -800,7 +394,7 @@
           :title="t('common.cancel')"
           @click="cancelLoading"
         >
-          <XIcon class="action-icon" />
+          <XIcon class="h-[16px] w-[16px]" />
         </button>
       </div>
     </div>
@@ -823,461 +417,42 @@
           :title="t('common.cancel')"
           @click="cancelDownloadLoading"
         >
-          <XIcon class="action-icon" />
+          <XIcon class="h-[16px] w-[16px]" />
         </button>
       </div>
     </div>
     <!-- Upload Drawer -->
-    <CustomModal
+    <BucketUploadPanel
       v-model:visible="isShowUploadPanel"
-      :title="t('pages.manage.bucket.uploadFile')"
-      width="900px"
-      height="90vh"
-    >
-      <div class="flex h-full w-full flex-col gap-2">
-        <div
-          v-if="uploadTasks.failed.value"
-          role="status"
-          class="flex items-center justify-between gap-3 rounded-md bg-warning/10 p-3 text-sm text-main"
-        >
-          <span>{{ t('pages.manage.bucket.loadingFailed') }}</span>
-          <CustomButton type="secondary" :text="t('common.bulk.retry')" @click="uploadTasks.refresh" />
-        </div>
-        <div class="flex justify-end">
-          <CustomSwitch
-            v-model="isUploadKeepDirStructure"
-            :title="
-              isUploadKeepDirStructure
-                ? t('pages.manage.bucket.keepDirStructure')
-                : t('pages.manage.bucket.noKeepDirStructure')
-            "
-            small
-            no-border
-            @change="handleUploadKeepDirChange"
-          />
-        </div>
-
-        <div class="no-scrollbar w-full flex-1 overflow-hidden rounded-md border border-border p-4 shadow-md">
-          <div class="flex h-full w-full flex-col">
-            <div
-              v-if="!tableData.length"
-              ref="uploadDialog"
-              class="h-[200px] w-full cursor-pointer rounded-lg border-2 border-dashed border-border bg-surface p-4 text-center transition-all duration-fast ease-apple hover:border-accent hover:bg-accent/10 [.dragover]:border-accent [.dragover]:bg-accent/10"
-              :class="{ dragover: isDragover }"
-              @drop.prevent="onDrop"
-              @dragover.prevent="isDragover = true"
-              @dragleave.prevent="isDragover = false"
-              @click="openFileSelectDialog"
-            >
-              <div class="flex h-full flex-col items-center justify-center gap-2">
-                <div class="mb-2 text-lg font-semibold text-secondary">
-                  {{ t('pages.manage.bucket.dragUpload') }}
-                </div>
-                <div class="text-sm font-medium text-secondary">
-                  {{ t('pages.manage.bucket.clickUpload') }}
-                </div>
-              </div>
-            </div>
-
-            <!-- Upload File List -->
-            <div
-              v-if="tableData.length"
-              class="flex h-[200px] w-full cursor-pointer rounded-lg border-2 border-dashed border-border bg-surface p-4 text-center transition-all duration-fast ease-apple"
-            >
-              <VirtualScroller
-                :items="
-                  tableData.sort((a, b) =>
-                    b.isFolder - a.isFolder === 0 ? b.filesList.length - a.filesList.length : b.isFolder - a.isFolder,
-                  )
-                "
-                :item-height="90"
-                class="min-h-0 w-full flex-1 p-3"
-                view-mode="list"
-              >
-                <template #default="{ item }">
-                  <div
-                    class="m-0 flex w-full cursor-pointer items-center gap-2 rounded-md border border-border-secondary bg-bg-secondary px-4 py-3 hover:bg-accent/10"
-                  >
-                    <div class="flex h-[25px] w-[25px] shrink-0 items-center justify-center">
-                      <FolderIcon v-if="item.isFolder" class="h-[48px] w-[48px] text-tertiary" />
-                      <FileIcon v-else class="h-[48px] w-[48px] text-tertiary" />
-                    </div>
-                    <div class="min-w-0 flex-1 flex-col">
-                      <div class="flex flex-row justify-between gap-3">
-                        <div
-                          class="mb-1 cursor-pointer overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap text-secondary"
-                        >
-                          {{ item.name }}
-                        </div>
-                        <div
-                          v-if="item.fullPath"
-                          class="overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-secondary"
-                        >
-                          {{ item.fullPath }}
-                        </div>
-                      </div>
-                      <div class="flex text-xs text-secondary">
-                        <span>{{ formatFileSize(item.fileSize) }}</span>
-                        <span v-if="item.isFolder"> {{ item.filesList.length }} files </span>
-                      </div>
-                    </div>
-                  </div>
-                </template>
-              </VirtualScroller>
-            </div>
-
-            <!-- Upload Actions -->
-            <div v-if="tableData.length" class="mt-4 flex justify-center gap-4">
-              <CustomButton
-                :disabled="isLoadingUploadPanelFiles"
-                :text="
-                  isLoadingUploadPanelFiles ? t('pages.manage.bucket.readingDir') : t('pages.manage.bucket.upload')
-                "
-                :icon="UploadIcon"
-                @click="uploadFiles"
-              />
-              <CustomButton
-                type="secondary"
-                :icon="Trash2Icon"
-                :text="t('pages.manage.bucket.clear')"
-                :disabled="isLoadingUploadPanelFiles"
-                @click="clearTableData"
-              />
-            </div>
-
-            <!-- Upload Tasks Tabs -->
-            <div class="flex flex-1 flex-col gap-2 overflow-hidden border-t border-border-secondary">
-              <div class="flex shrink-0 border-b border-b-border">
-                <button
-                  class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
-                  :class="{ active: activeUpLoadTab === 'uploading' }"
-                  @click="activeUpLoadTab = 'uploading'"
-                >
-                  {{ t('pages.manage.bucket.uploading') }}
-                  <span
-                    v-if="uploadingTaskList.length"
-                    class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
-                  >
-                    {{ uploadingTaskList.length }}
-                  </span>
-                </button>
-                <button
-                  class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
-                  :class="{ active: activeUpLoadTab === 'finished' }"
-                  @click="activeUpLoadTab = 'finished'"
-                >
-                  {{ t('pages.manage.bucket.success') }}
-                  <span
-                    v-if="uploadedTaskList.filter(item => item.status === 'uploaded').length"
-                    class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
-                  >
-                    {{ uploadedTaskList.filter(item => item.status === 'uploaded').length }}
-                  </span>
-                </button>
-                <button
-                  class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
-                  :class="{ active: activeUpLoadTab === 'failed' }"
-                  @click="activeUpLoadTab = 'failed'"
-                >
-                  {{ t('pages.manage.bucket.failed') }}
-                  <span
-                    v-if="uploadedTaskList.filter(item => item.status !== 'uploaded').length"
-                    class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
-                  >
-                    {{ uploadedTaskList.filter(item => item.status !== 'uploaded').length }}
-                  </span>
-                </button>
-              </div>
-
-              <div class="flex flex-row justify-center gap-3 rounded-md border border-border shadow-sm">
-                <CustomButton
-                  type="secondary"
-                  :text="t('pages.manage.bucket.copyUploadTask')"
-                  :icon="CopyIcon"
-                  @click="handleCopyUploadingTaskInfo"
-                />
-                <CustomButton
-                  type="secondary"
-                  :text="t('pages.manage.bucket.clearFinishedTasks')"
-                  :icon="Trash2Icon"
-                  @click="handleDeleteUploadedTask"
-                />
-                <CustomButton
-                  type="secondary"
-                  :text="t('pages.manage.bucket.clearAll')"
-                  :icon="Trash2Icon"
-                  @click="handleDeleteAllUploadedTask"
-                />
-              </div>
-
-              <div
-                class="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-md border border-border-secondary p-2"
-              >
-                <!-- Uploading Tab -->
-                <VirtualScroller
-                  :items="
-                    activeUpLoadTab === 'uploading'
-                      ? uploadingTaskList
-                      : activeUpLoadTab === 'finished'
-                        ? uploadedTaskList.filter(item => item.status === 'uploaded')
-                        : uploadedTaskList.filter(item => item.status !== 'uploaded')
-                  "
-                  :item-height="70"
-                  class="min-h-0 w-full flex-1 p-3"
-                  view-mode="list"
-                >
-                  <template #default="{ item }">
-                    <div
-                      class="m-0 flex w-full cursor-pointer items-center gap-3 rounded-md border border-border bg-bg-secondary px-4 py-3 hover:border-accent hover:shadow-md"
-                    >
-                      <div class="flex flex-1 flex-col gap-1">
-                        <div class="overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-secondary">
-                          {{ item.sourceFileName }}
-                        </div>
-                        <div
-                          v-if="activeUpLoadTab === 'uploading'"
-                          class="h-[8px] w-full overflow-hidden rounded-[4px] bg-surface-elevated"
-                        >
-                          <div
-                            class="h-full rounded-[4px] bg-accent transition-all duration-300 ease-apple"
-                            :style="{ width: `${item.progress}%` }"
-                          />
-                        </div>
-                        <div v-else class="flex gap-4 text-xs text-secondary">
-                          <span>{{ item.finishTime }}</span>
-                          <span class="text-xs font-semibold text-success">
-                            {{
-                              item.status === 'canceled'
-                                ? t('pages.manage.bucket.uploadCanceled')
-                                : activeUpLoadTab === 'finished'
-                                  ? t('pages.manage.bucket.success')
-                                  : t('pages.manage.bucket.failed')
-                            }}
-                          </span>
-                          <span v-if="item.response?.reason">{{
-                            t(`pages.manage.bucket.uploadFailure.${item.response.reason}`)
-                          }}</span>
-                        </div>
-                      </div>
-                      <CustomButton
-                        v-if="activeUpLoadTab === 'uploading'"
-                        type="secondary"
-                        :disabled="item.cancelRequested"
-                        :text="item.cancelRequested ? t('pages.manage.bucket.cancelingUpload') : t('common.cancel')"
-                        @click="cancelUploadTask(item.id)"
-                      />
-                    </div>
-                  </template>
-                </VirtualScroller>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </CustomModal>
+      v-model:keep-directory="isUploadKeepDirStructure"
+      :tasks="uploadTaskList"
+      :failed="uploadTasks.failed.value"
+      @upload="uploadFiles"
+      @refresh="uploadTasks.refresh"
+      @copy="handleCopyUploadingTaskInfo"
+      @clear-finished="handleDeleteUploadedTask"
+      @clear-all="handleDeleteAllUploadedTask"
+      @cancel-task="cancelUploadTask"
+      @keep-directory-change="handleUploadKeepDirChange"
+    />
 
     <!-- Download Drawer -->
-    <CustomModal
+    <BucketDownloadPanel
       v-model:visible="isShowDownloadPanel"
-      :title="t('pages.manage.bucket.downloadPage')"
-      width="900px"
-      height="90vh"
-    >
-      <div class="no-scrollbar h-full w-full flex-1 overflow-hidden rounded-md border border-border p-4 shadow-md">
-        <div class="flex h-full w-full flex-col">
-          <div
-            v-if="downloadTasks.failed.value"
-            role="status"
-            class="mb-3 flex items-center justify-between gap-3 rounded-md bg-warning/10 p-3 text-sm text-main"
-          >
-            <span>{{ t('pages.manage.bucket.loadingFailed') }}</span>
-            <CustomButton type="secondary" :text="t('common.bulk.retry')" @click="downloadTasks.refresh" />
-          </div>
-          <!-- Download Tasks Tabs -->
-          <div class="flex flex-1 flex-col gap-2 overflow-hidden border-t border-border-secondary">
-            <div class="flex shrink-0 border-b border-b-border">
-              <button
-                class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
-                :class="{ active: activeDownLoadTab === 'downloading' }"
-                @click="activeDownLoadTab = 'downloading'"
-              >
-                {{ t('pages.manage.bucket.downloading') }}
-                <span
-                  v-if="downloadingTaskList.length"
-                  class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
-                >
-                  {{ downloadingTaskList.length }}
-                </span>
-              </button>
-              <button
-                class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
-                :class="{ active: activeDownLoadTab === 'finished' }"
-                @click="activeDownLoadTab = 'finished'"
-              >
-                {{ t('pages.manage.bucket.success') }}
-                <span
-                  v-if="downloadedTaskList.filter(item => item.status === 'downloaded').length"
-                  class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
-                >
-                  {{ downloadedTaskList.filter(item => item.status === 'downloaded').length }}
-                </span>
-              </button>
-              <button
-                class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
-                :class="{ active: activeDownLoadTab === 'failed' }"
-                @click="activeDownLoadTab = 'failed'"
-              >
-                {{ t('pages.manage.bucket.failed') }}
-                <span
-                  v-if="downloadedTaskList.filter(item => item.status !== 'downloaded').length"
-                  class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
-                >
-                  {{ downloadedTaskList.filter(item => item.status !== 'downloaded').length }}
-                </span>
-              </button>
-            </div>
-
-            <div class="flex flex-row justify-center gap-3 rounded-md border border-border shadow-sm">
-              <CustomButton
-                type="secondary"
-                :text="t('pages.manage.bucket.copyDownloadTask')"
-                :icon="CopyIcon"
-                @click="handleCopyDownloadingTaskInfo"
-              />
-              <CustomButton
-                type="secondary"
-                :text="t('pages.manage.bucket.clearFinishedTasks')"
-                :icon="Trash2Icon"
-                @click="handleDeleteDownloadedTask"
-              />
-              <CustomButton
-                type="secondary"
-                :text="t('pages.manage.bucket.clearAll')"
-                :icon="Trash2Icon"
-                @click="handleDeleteAllDownloadedTask"
-              />
-              <CustomButton
-                type="secondary"
-                :text="t('pages.manage.bucket.openDownloadFolder')"
-                :icon="FolderIcon"
-                @click="handleOpenDownloadedFolder"
-              />
-            </div>
-
-            <div
-              class="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-md border border-border-secondary p-2"
-            >
-              <!-- Downloading Tab -->
-              <VirtualScroller
-                :items="
-                  activeDownLoadTab === 'downloading'
-                    ? downloadingTaskList
-                    : activeDownLoadTab === 'finished'
-                      ? downloadedTaskList.filter(item => item.status === 'downloaded')
-                      : downloadedTaskList.filter(item => item.status !== 'downloaded')
-                "
-                :item-height="70"
-                class="min-h-0 w-full flex-1 p-3"
-                view-mode="list"
-              >
-                <template #default="{ item }">
-                  <div
-                    class="m-0 flex w-full cursor-pointer items-center gap-3 rounded-md border border-border bg-bg-secondary px-4 py-3 hover:border-accent hover:shadow-md"
-                  >
-                    <div class="flex flex-1 flex-col gap-1">
-                      <div class="overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-secondary">
-                        {{ item.sourceFileName }}
-                      </div>
-                      <div
-                        v-if="activeDownLoadTab === 'downloading'"
-                        class="relative h-[8px] w-full overflow-hidden rounded-[4px] bg-surface-elevated"
-                      >
-                        <div
-                          class="h-full rounded-[4px] bg-accent transition-all duration-300 ease-apple"
-                          :style="{ width: `${item.progress}%` }"
-                        />
-                      </div>
-                      <div v-else class="flex gap-4 text-xs text-secondary">
-                        <span>{{ item.finishTime }}</span>
-                        <span class="text-xs font-semibold text-success">
-                          {{
-                            activeDownLoadTab === 'finished'
-                              ? t('pages.manage.bucket.success')
-                              : t('pages.manage.bucket.failed')
-                          }}
-                        </span>
-                        <span v-if="item.response?.reason === 'interrupted'">{{
-                          t('pages.manage.bucket.downloadInterrupted')
-                        }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </template>
-              </VirtualScroller>
-            </div>
-          </div>
-        </div>
-      </div>
-    </CustomModal>
+      :tasks="downloadTaskList"
+      :failed="downloadTasks.failed.value"
+      @refresh="downloadTasks.refresh"
+      @copy="handleCopyDownloadingTaskInfo"
+      @clear-finished="handleDeleteDownloadedTask"
+      @clear-all="handleDeleteAllDownloadedTask"
+      @open-folder="handleOpenDownloadedFolder"
+    />
 
     <!-- Markdown Preview Dialog -->
-    <CustomModal
-      v-model:visible="isShowMarkDownDialog"
-      width="80vw"
-      height="80vh"
-      :title="t('pages.manage.bucket.preview')"
-    >
-      <div class="flex h-full w-full">
-        <div class="notes-body select-text" v-html="markDownContent" />
-      </div>
-    </CustomModal>
 
     <!-- Text File Preview Dialog -->
-    <CustomModal
-      v-model:visible="isShowTextFileDialog"
-      width="80vw"
-      height="80vh"
-      :title="t('pages.manage.bucket.preview')"
-    >
-      <div class="flex h-full w-full">
-        <pre class="overflow-auto font-['SF_Mono',Monaco,Menlo,'Ubuntu_Mono',monospace] text-base text-main">{{
-          previewContent
-        }}</pre>
-      </div>
-    </CustomModal>
 
     <!-- Video Player Dialog -->
-    <CustomModal
-      v-model:visible="isShowVideoFileDialog"
-      width="90vw"
-      height="90vh"
-      :title="t('pages.manage.bucket.play')"
-    >
-      <div class="flex h-full w-full items-center justify-center bg-black">
-        <VideoPlayer
-          class="video-player"
-          :sources="videoSources"
-          :volume="0.6"
-          :options="{
-            autoplay: true,
-            muted: false,
-            responsive: true,
-            fill: true,
-            fluid: false,
-            controlBar: {
-              volumePanel: {
-                inline: false,
-              },
-            },
-          }"
-          crossorigin="anonymous"
-          controls
-          playsinline
-          loop
-          @error="handlePreviewError"
-        />
-      </div>
-    </CustomModal>
 
     <!-- Create Folder Dialog -->
     <CustomModal
@@ -1303,7 +478,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import {
   ArrowUpDownIcon,
   ChevronDownIcon,
@@ -1312,72 +487,51 @@ import {
   DownloadIcon,
   EditIcon,
   ExpandIcon,
-  FileIcon,
-  FolderIcon,
   FolderPlusIcon,
   HomeIcon,
   InfoIcon,
   LinkIcon,
   RefreshCwIcon,
   ShrinkIcon,
-  Trash2Icon,
   UploadIcon,
   XIcon,
 } from '@lucide/vue'
 import { useLocalStorage } from '@vueuse/core'
-import {
-  computed,
-  defineAsyncComponent,
-  nextTick,
-  onActivated,
-  onBeforeMount,
-  onBeforeUnmount,
-  onDeactivated,
-  reactive,
-  ref,
-  useTemplateRef,
-  watch,
-} from 'vue'
+import { computed, onActivated, onBeforeMount, onBeforeUnmount, onDeactivated, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import BulkChangePreview from '@/components/BulkChangePreview.vue'
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomInput from '@/components/common/CustomInput.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
-import CustomSwitch from '@/components/common/CustomSwitch.vue'
-import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
-import FileCollection from '@/components/FileCollection.vue'
 import FileViewControls from '@/components/FileViewControls.vue'
-import ImageLocal from '@/components/ImageLocal.vue'
-import ImagePreSign from '@/components/ImagePreSign.vue'
-import ImageWebdav from '@/components/ImageWebdav.vue'
-import VirtualScroller from '@/components/VirtualScroller.vue'
-import { useBulkChanges } from '@/composables/useBulkChanges'
-import useConfirm from '@/composables/useConfirm'
-import { useDragEventListeners } from '@/composables/useDragEventListeners'
 import { useFilePreview } from '@/composables/useFilePreview'
 import useMessage from '@/composables/useMessage'
+import BucketDownloadPanel from '@/manage/components/bucket/BucketDownloadPanel.vue'
+import BucketFileInfoDialog from '@/manage/components/bucket/BucketFileInfoDialog.vue'
+import BucketFileList from '@/manage/components/bucket/BucketFileList.vue'
+import BucketPreviewDialogs from '@/manage/components/bucket/BucketPreviewDialogs.vue'
+import BucketRenameDialog from '@/manage/components/bucket/BucketRenameDialog.vue'
+import BucketUploadPanel from '@/manage/components/bucket/BucketUploadPanel.vue'
 import FileInfo from '@/manage/components/FileInfo.vue'
 import IconButton from '@/manage/components/IconButton.vue'
+import { useBucketDeletion } from '@/manage/composables/useBucketDeletion'
+import { useBucketDomains } from '@/manage/composables/useBucketDomains'
+import { useBucketDownloads } from '@/manage/composables/useBucketDownloads'
+import { useBucketListing } from '@/manage/composables/useBucketListing'
+import { useBucketUploads } from '@/manage/composables/useBucketUploads'
 import { useTransferTasks } from '@/manage/composables/useTransferTasks'
-import EmptyPage from '@/manage/pages/EmptyPage.vue'
-import { fileCacheDbInstance } from '@/manage/services/bucketDatabase'
-import { getConfig, saveConfig } from '@/manage/services/configService'
 import { useManageStore } from '@/manage/stores/manageStore'
-import { applyDeletionResult, type DeletionState, retryDeletionTargets } from '@/manage/utils/deletion'
-import { matchFileName, renameFile, replaceFileName, splitFileName } from '@/manage/utils/fileName'
-import { formatFileSize, getFileIconPath } from '@/manage/utils/filePresentation'
+import type { BucketFile } from '@/manage/types/bucket'
+import { formatFileSize } from '@/manage/utils/filePresentation'
 import type { PreviewKind, PreviewSource } from '@/manage/utils/filePreview'
 import { fileTaskStates } from '@/manage/utils/fileTaskState'
 import { textFileExt, videoExt } from '@/manage/utils/fileTypes'
 import { formatLink } from '@/manage/utils/linkFormat'
-import { appendListingItems, ListingSession } from '@/manage/utils/listingSession'
-import { appendThumbnailSuffix } from '@/manage/utils/thumbnailUrl'
+import { type CopyFormat, linkFormatList, preSignedUrlFormat } from '@/manage/utils/linkFormat'
 import {
-  compareFileValues,
   type FileColumn,
   fileDate,
   fileSize,
@@ -1385,218 +539,129 @@ import {
   formatCollectionDate,
   formatCollectionSize,
 } from '@/utils/fileCollection'
-import { renderMarkdown } from '@/utils/markdown'
 import { IRPCActionType } from '#/constants/rpcActions'
-import { type DeleteResult, type DeleteTarget, failedDeletion, removeDeletedEntries } from '#/deletion'
-import type { ListingRequest, ListingResult } from '#/listing'
-import { isUrl as isValidUrl, trimPath } from '#/utils/url'
-
-const VideoPlayer = defineAsyncComponent(() => import('@/components/VideoPlayer.vue'))
-
-/*
-configMap:{
-    prefix: string, -> baseDir
-    bucketName: string, -> bucketName
-    customUrl: string, -> customUrl
-    picBedName: string, -> picBedName
-    bucketConfig: {region, customUrl},
-    alias: string,
-    bucketConfig
-}
-*/
+import { trimPath } from '#/utils/url'
 
 const { configMap: configMapProp } = defineProps<{
   configMap: Record<string, any>
 }>()
 
-type ISortTypeList = 'name' | 'size' | 'time' | 'ext' | 'check' | 'init' | 'provider' | 'status'
-
-interface BucketFile extends IObj {
-  key: string
-  fileName: string
-  isImage: boolean
-  isDir: boolean
-  checked: boolean
-}
-
-const uploadDialog = useTemplateRef<HTMLDivElement>('uploadDialog')
-useDragEventListeners(uploadDialog)
-const fileListings = new ListingSession(window.electron)
-const downloadListings = new ListingSession(window.electron)
 const filePreview = useFilePreview()
+
 let viewGeneration = 0
+
 let unmounted = false
+
 let scrollTimeout: ReturnType<typeof setTimeout> | undefined
+
 const { t } = useI18n()
+
 const message = useMessage()
-const confirm = useConfirm()
-// 页面状态变量相关
+
 const manageStore = useManageStore()
+
 const configMap = ref<Record<string, any>>(JSON.parse(JSON.stringify(configMapProp)))
-// 页面布局控制
-const isLoadingData = ref(false)
-const isShowLoadingPage = ref(false)
+
 const tableActive = ref(true)
+
 onActivated(() => {
   tableActive.value = true
 })
+
 onDeactivated(() => {
   tableActive.value = false
 })
-const isShowImagePreview = filePreview.visible('image')
+
 const isContentFullscreen = ref(false)
+
 const storedLayoutStyle = useLocalStorage<'list' | 'table' | 'grid'>('manage-bucket-page-layout-style', 'grid')
+
 const layoutStyle = computed({
   get: () => (storedLayoutStyle.value === 'grid' ? ('grid' as const) : ('table' as const)),
   set: (value: 'grid' | 'table') => {
     storedLayoutStyle.value = value
   },
 })
+
 const tableDensity = useLocalStorage<'compact' | 'comfortable'>('manage-bucket-table-density', 'compact')
+
 const copyDropdownOpen = ref(false)
+
 const sortDropdownOpen = ref(false)
-const copyDropdownIndex = ref(-1)
-const dropdownPositions = ref(new Map<number, { left: boolean; up: boolean }>())
-const gridBreakpoints = ref([
-  { min: 0, cols: 1 },
-  { min: 380, cols: 2 },
-  { min: 768, cols: 3 },
-  { min: 1024, cols: 4 },
-  { min: 1280, cols: 5 },
-  { min: 1536, cols: 6 },
-])
-// 文件信息相关
+
 const isShowFileInfo = ref(false)
+
 const currentShowedFileInfo = ref({} as any)
-// 分页相关
-const currentPageNumber = ref(1)
-const pagingMarker = ref('')
-const pagingMarkerStack = reactive([] as string[])
-const currentPageFilesInfo = reactive<BucketFile[]>([])
-const isDeleting = ref(false)
-const deletingTargets = ref<{ scope: string; keys: Set<string> }>({ scope: '', keys: new Set() })
-const deletionStates = reactive(new Map<string, DeletionState>())
-const activeDeletionState = computed(() => deletionStates.get(deletionScope()) || { failed: [], pendingFolders: [] })
-// 当前路径前缀
+
 const currentPrefix = ref('/')
-// 文件排序控制
-const sortAscending = ref(true)
-// 页面搜索相关
-const searchText = ref('')
-// 上传页面相关
-const isDragover = ref(false)
-const tableData = reactive([] as any[])
-const isShowUploadPanel = ref(false)
-const activeUpLoadTab = ref('uploading')
+
+const currentPicBedName = computed<string>(() => manageStore.config.picBed[configMap.value.alias].picBedName)
+
+const { customDomainList, currentCustomDomain, handleChangeCustomUrl, initCustomDomainList } = useBucketDomains({
+  configMap,
+  currentPicBedName,
+  getGeneration: () => viewGeneration,
+  isDisposed: () => unmounted,
+})
+
+const {
+  fileListings,
+  isLoadingData,
+  isShowLoadingPage,
+  currentPageNumber,
+  currentPageFilesInfo,
+  searchText,
+  sortAscending,
+  currentSortType,
+  paging,
+  resetParam,
+  forceRefreshFileList,
+  handlePageNumberInput,
+  sortFile,
+  cancelLoading,
+  listingParams,
+  listingIdentity,
+  getTableKeyOfDb,
+} = useBucketListing({
+  configMap,
+  currentPrefix,
+  currentPicBedName,
+  currentCustomDomain,
+  isDisposed: () => unmounted,
+  invalidateListings,
+  getColumns: () => tableColumns.value,
+  closeUrlDialog: () => {
+    urlToUpload.value = ''
+    dialogVisible.value = false
+  },
+  onReset: () => {
+    currentDownloadFileList.length = 0
+    isShowFileInfo.value = false
+    isShowCreateFolderDialog.value = false
+    newFolderName.value = ''
+    lastChoosed.value = -1
+  },
+  onSorted: () => {
+    sortDropdownOpen.value = false
+    virtualScrollerRef.value?.resetCopyDropdown()
+  },
+})
+
 const uploadTaskList = ref([] as IUploadTask[])
 
-const uploadPanelFilesList = ref([] as any[])
-const isLoadingUploadPanelFiles = ref(false)
-const isUploadKeepDirStructure = ref(manageStore.config.settings.isUploadKeepDirStructure ?? true)
-const currentSortType = ref<ISortTypeList>('name')
-// 下载页面相关
-const isShowDownloadPanel = ref(false)
-const isLoadingDownloadData = ref(false)
-const activeDownLoadTab = ref('downloading')
-const currentDownloadFileList = reactive([] as any[])
 const downloadTaskList = ref([] as IDownloadTask[])
-// 上传文件相关
-const dialogVisible = ref(false)
-const urlToUpload = ref('')
-// 快捷键相关
+
 const isShiftKeyPress = ref<boolean>(false)
+
 const lastChoosed = ref<number>(-1)
-// 自定义域名相关
-const customDomainList = ref([] as any[])
-const currentCustomDomain = ref('')
-// 文件预览相关
-const isShowMarkDownDialog = filePreview.visible('markdown')
-const isShowTextFileDialog = filePreview.visible('text')
-const isShowVideoFileDialog = filePreview.visible('video')
-const videoSources = filePreview.videoSources
-const previewContent = computed(() => filePreview.preview.value?.content ?? '')
-const markDownContent = computed(() => (isShowMarkDownDialog.value ? renderMarkdown(previewContent.value) : ''))
-// 创建文件夹相关
+
 const isShowCreateFolderDialog = ref(false)
+
 const newFolderName = ref('')
-// Refs for scroll handling
+
 const virtualScrollerRef = useTemplateRef('virtualScrollerRef')
-const bucketContainerRef = useTemplateRef('bucketContainerRef')
-const isShowBatchRenameDialog = ref(false)
-const bulkChanges = useBulkChanges(async snapshot => {
-  if (!snapshot.outcomes.some(item => item.attempts > 0)) return
-  const context = snapshot.plan.items[0].context
-  await fileCacheDbInstance
-    .table(context.provider)
-    .where('key')
-    .startsWith(context.accountId + '@' + context.bucketName + '@')
-    .delete()
-  if (!unmounted && configMap.value.alias === context.accountId && configMap.value.bucketName === context.bucketName) {
-    await resetParam(true)
-  }
-})
-const batchRenameMatch = ref('')
-const batchRenameReplace = ref('')
-const isRenameIncludeExt = ref(false)
-const isSingleRename = ref(false)
-const itemToBeRenamed = ref({} as any)
-const previousPageNumber = ref(1)
-const showMatchedUrls = ref(false)
-const showFormatInfo = ref(false)
 
-const linkFormatList = ['url', 'markdown', 'markdown-with-link', 'html', 'bbcode', 'custom'] as const
-const preSignedUrlFormat = 'preSignedUrl'
-type CopyFormat = (typeof linkFormatList)[number] | typeof preSignedUrlFormat
 const sortTypeList = ['name', 'size', 'time', 'ext', 'provider', 'status', 'check', 'init']
-
-const advancedRenameList = computed(() => ({
-  categoryTime: [
-    { label: t('pages.settings.upload.placeholder.year4'), value: '{Y}' },
-    { label: t('pages.settings.upload.placeholder.year2'), value: '{y}' },
-    { label: t('pages.settings.upload.placeholder.month'), value: '{m}' },
-    { label: t('pages.settings.upload.placeholder.date'), value: '{d}' },
-    { label: t('pages.settings.upload.placeholder.hour'), value: '{h}' },
-    { label: t('pages.settings.upload.placeholder.minute'), value: '{i}' },
-    { label: t('pages.settings.upload.placeholder.second'), value: '{s}' },
-    { label: t('pages.settings.upload.placeholder.millisecond'), value: '{ms}' },
-    { label: t('pages.settings.upload.placeholder.timestamp'), value: '{timestamp}' },
-    { label: t('pages.settings.upload.placeholder.timestampS'), value: '{timestampS}' },
-  ],
-  categoryHash: [
-    { label: t('pages.settings.upload.placeholder.md5'), value: '{md5}' },
-    { label: t('pages.settings.upload.placeholder.md5-16'), value: '{md5-16}' },
-    { label: t('pages.settings.upload.placeholder.uuid'), value: '{uuid}' },
-    { label: t('pages.settings.upload.placeholder.ulid'), value: '{ulid}' },
-    { label: t('pages.settings.upload.placeholder.sha1'), value: '{sha1}' },
-    { label: t('pages.settings.upload.placeholder.sha1-n'), value: '{sha1-n}' },
-    { label: t('pages.settings.upload.placeholder.sha256'), value: '{sha256}' },
-    { label: t('pages.settings.upload.placeholder.sha256-n'), value: '{sha256-n}' },
-  ],
-  categoryFile: [
-    { label: t('pages.settings.upload.placeholder.filename'), value: '{filename}' },
-    { label: t('pages.settings.upload.placeholder.randomString'), value: '{str-number}' },
-  ],
-}))
-
-const advancedRenameTitleList = computed(() => ({
-  categoryTime: t('pages.settings.upload.placeholder.categoryTime'),
-  categoryHash: t('pages.settings.upload.placeholder.categoryHash'),
-  categoryFile: t('pages.settings.upload.placeholder.categoryFile'),
-}))
-
-const uploadingTaskList = computed(() =>
-  uploadTaskList.value.filter(item => ['uploading', 'queuing', 'paused'].includes(item.status)),
-)
-const uploadedTaskList = computed(() =>
-  uploadTaskList.value.filter(item => ['uploaded', 'failed', 'canceled'].includes(item.status)),
-)
-
-const downloadingTaskList = computed(() =>
-  downloadTaskList.value.filter(item => ['downloading', 'queuing', 'paused'].includes(item.status)),
-)
-const downloadedTaskList = computed(() =>
-  downloadTaskList.value.filter(item => ['downloaded', 'failed', 'canceled'].includes(item.status)),
-)
 
 const filterList = computed(() => {
   return getList()
@@ -1607,36 +672,31 @@ const selectedItems = computed(() => filterList.value.filter(item => item.checke
 const isShowCustomDomainSelectList = computed(() =>
   ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value),
 )
+
 const isShowCustomDomainInput = computed(() =>
   ['aliyun', 'qiniu', 'tcyun', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value),
 )
+
 const isAutoCustomDomain = computed(() =>
   manageStore.config.picBed[configMap.value.alias].isAutoCustomUrl === undefined
     ? true
     : manageStore.config.picBed[configMap.value.alias].isAutoCustomUrl,
 )
 
-// 重命名相关
 const isShowRenameFileIcon = computed(() =>
   ['tcyun', 'aliyun', 'qiniu', 'upyun', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value),
 )
 
-// 当前页面信息相关
-const currentPicBedName = computed<string>(() => manageStore.config.picBed[configMap.value.alias].picBedName)
-const paging = computed(() => manageStore.config.picBed[configMap.value.alias].paging)
-const itemsPerPage = computed(() => manageStore.config.picBed[configMap.value.alias].itemsPerPage)
 const calculateAllFileSize = computed(() => {
   const knownSize =
     formatFileSize(currentPageFilesInfo.reduce((total: number, item: any) => total + (fileSize(item) ?? 0), 0)) || '0'
   return currentPageFilesInfo.some(item => !item.isDir && fileSize(item) === undefined) ? `≥ ${knownSize}` : knownSize
 })
-const isShowThumbnail = computed(() => manageStore.config.settings.isShowThumbnail ?? false)
-const thumbnailSuffix = computed(() => manageStore.config.settings.thumbnailSuffix ?? '')
+
 const isUsePreSignedUrl = computed(() => manageStore.config.settings.isUsePreSignedUrl ?? false)
-const isAutoRefresh = computed(() => manageStore.config.settings.isAutoRefresh ?? false)
+
 const isIgnoreCase = computed(() => manageStore.config.settings.isIgnoreCase ?? false)
 
-// 新建文件夹相关
 const isShowCreateNewFolder = computed(() =>
   ['aliyun', 'github', 'local', 'qiniu', 'tcyun', 's3plist', 'upyun', 'webdavplist', 'sftp'].includes(
     currentPicBedName.value,
@@ -1655,7 +715,6 @@ const taskStates = computed(() =>
     configMap.value.bucketName || '',
   ),
 )
-const failedDeletionKeys = computed(() => new Set(activeDeletionState.value.failed.map(item => item.key)))
 
 function taskLabel(item: any) {
   if (deletingTargets.value.scope === deletionScope() && deletingTargets.value.keys.has(item.key))
@@ -1688,6 +747,79 @@ const tableColumns = computed<FileColumn<BucketFile>[]>(() => [
 ])
 
 const {
+  isShowUploadPanel,
+  isUploadKeepDirStructure,
+  dialogVisible,
+  urlToUpload,
+  handleUploadKeepDirChange,
+  showUploadDialog,
+  showUrlDialog,
+  handleUploadFromUrl,
+  uploadFiles,
+} = useBucketUploads({
+  configMap,
+  currentPrefix,
+  currentCustomDomain,
+  getGeneration: () => viewGeneration,
+  isDisposed: () => unmounted,
+})
+
+const {
+  downloadListings,
+  isShowDownloadPanel,
+  isLoadingDownloadData,
+  currentDownloadFileList,
+  showDownloadDialog,
+  handleFolderBatchDownload,
+  handleBatchDownload,
+  downloadFiles,
+  cancelDownloadLoading,
+} = useBucketDownloads({
+  configMap,
+  currentPrefix,
+  currentPicBedName,
+  currentCustomDomain,
+  getGeneration: () => viewGeneration,
+  isDisposed: () => unmounted,
+  listingIdentity,
+  listingParams,
+  selectedItems,
+  handleCancelCheck,
+})
+
+const {
+  isDeleting,
+  deletingTargets,
+  activeDeletionState,
+  failedDeletionKeys,
+  handleBatchDeleteInfo,
+  handleDeleteFile,
+  deletionScope,
+  retryFailedDeletions,
+} = useBucketDeletion({
+  configMap,
+  currentPrefix,
+  currentPicBedName,
+  currentCustomDomain,
+  getGeneration: () => viewGeneration,
+  isDisposed: () => unmounted,
+  currentPageFilesInfo,
+  selectedItems,
+  isLoadingData,
+  getTableKeyOfDb,
+})
+
+const renameDialog = useTemplateRef('renameDialog')
+
+function handleBatchRenameFile() {
+  renameDialog.value?.openBatch()
+}
+
+function handleRenameFile(item: BucketFile) {
+  renameDialog.value?.openFile(item)
+}
+
+const {
   uploadTasks,
   downloadTasks,
   cancelUploadTask,
@@ -1711,7 +843,7 @@ const {
 })
 
 watch([layoutStyle, searchText, tableDensity], () => {
-  copyDropdownIndex.value = -1
+  virtualScrollerRef.value?.resetCopyDropdown()
 })
 
 watch(
@@ -1731,27 +863,6 @@ watch(
   { deep: true, immediate: true, flush: 'sync' },
 )
 
-watch(currentPageNumber, (newVal, oldVal) => {
-  if (typeof newVal !== 'number') {
-    currentPageNumber.value = 1
-  }
-  // Update previousPageNumber when currentPageNumber changes programmatically
-  if (oldVal && typeof oldVal === 'number') {
-    previousPageNumber.value = oldVal
-  }
-})
-
-watch(
-  () => manageStore.config.settings.isUploadKeepDirStructure,
-  newValue => {
-    isUploadKeepDirStructure.value = newValue ?? true
-  },
-)
-
-function getThumbnailUrl(url: string) {
-  return appendThumbnailSuffix(url, thumbnailSuffix.value)
-}
-
 function getList() {
   if (!searchText.value) {
     return currentPageFilesInfo
@@ -1765,26 +876,9 @@ function getList() {
   })
 }
 
-async function handleUploadKeepDirChange(value: boolean) {
-  if (!(await saveConfig('settings.isUploadKeepDirStructure', value))) return
-  manageStore.refreshConfig()
-}
-
-function showUploadDialog() {
-  isShowUploadPanel.value = true
-}
-
 function handleGetWebdavConfig() {
   return manageStore.config.picBed[configMap.value.alias]
 }
-
-// 下载相关函数
-
-function showDownloadDialog() {
-  isShowDownloadPanel.value = true
-}
-
-// 界面相关
 
 function toggleContentFullscreen() {
   isContentFullscreen.value = !isContentFullscreen.value
@@ -1801,246 +895,9 @@ function handleBucketContainerScroll() {
   }, 16)
 }
 
-// 上传文件选择相关
-
-function openFileSelectDialog() {
-  window.electron.triggerRPC(IRPCActionType.MANAGE_OPEN_FILE_SELECT_DIALOG).then((res: any) => {
-    if (res) {
-      res.forEach((item: any) => {
-        tableData.push({
-          fileSize: window.node.fs.statSync(item).size,
-          isFolder: false,
-          name: window.node.path.basename(item),
-          filesList: [],
-          fullPath: item,
-        })
-        const index = uploadPanelFilesList.value.findIndex((file: any) => file.path === item)
-        if (index === -1) {
-          uploadPanelFilesList.value.push({
-            name: window.node.path.basename(item),
-            path: item,
-            size: window.node.fs.statSync(item).size,
-          })
-        }
-      })
-    }
-  })
-}
-
-function onDrop(e: DragEvent) {
-  isDragover.value = false
-  const items = e.dataTransfer?.items
-  if (items) {
-    webkitReadDataTransfer(e.dataTransfer as DataTransfer)
-  }
-}
-/* 参考 https://blog.csdn.net/mingwei_zhu/article/details/128541169
- * 作者 前端 - wei
- * 递归读取文件夹
- */
-function webkitReadDataTransfer(dataTransfer: DataTransfer) {
-  isLoadingUploadPanelFiles.value = true
-  let fileNum = dataTransfer.items.length
-  const decrement = () => {
-    fileNum--
-    if (fileNum === 0) {
-      files.forEach((item: any) => {
-        const index = uploadPanelFilesList.value.findIndex((file: any) => file.path === item.path)
-        if (index === -1) {
-          uploadPanelFilesList.value.push({
-            name: item.name,
-            path: window.electron.showFilePath(item),
-            size: item.size,
-            relativePath: item.relativePath,
-          })
-        }
-      })
-      handleUploadFiles(files)
-      isLoadingUploadPanelFiles.value = false
-    }
-  }
-  const files = [] as any[]
-  const items = dataTransfer.items
-  for (const item of items) {
-    const entry = item.webkitGetAsEntry() as any
-    if (!entry) {
-      decrement()
-      continue
-    }
-    if (entry.isFile) {
-      readFiles(item.getAsFile(), entry.fullPath)
-    } else if (entry.isDirectory) {
-      readDirectory(entry.createReader())
-    }
-  }
-
-  function readDirectory(reader: any) {
-    reader.readEntries(
-      (entries: any) => {
-        if (entries.length) {
-          fileNum += entries.length
-          entries.forEach((entry: any) => {
-            if (entry.isFile) {
-              entry.file(
-                (file: any) => {
-                  readFiles(file, entry.fullPath)
-                },
-                (err: any) => {
-                  console.error(err)
-                  decrement()
-                },
-              )
-            } else if (entry.isDirectory) {
-              readDirectory(entry.createReader())
-            }
-          })
-          readDirectory(reader)
-        } else {
-          decrement()
-        }
-      },
-      (err: any) => {
-        console.error(err)
-        decrement()
-      },
-    )
-  }
-
-  function readFiles(file: any, fullPath: string) {
-    file.relativePath = fullPath.substring(1)
-    files.push(file)
-    decrement()
-  }
-}
-
-function handleUploadFiles(files: any[]) {
-  const dirObj = {} as any
-  files.forEach(item => {
-    if (item.relativePath === item.name) {
-      const index = tableData.findIndex((file: any) => file.fullPath === item.path)
-      if (index === -1) {
-        tableData.push({
-          name: item.name,
-          filesList: [item.file],
-          isFolder: false,
-          fileSize: item.size,
-          fullPath: window.electron.showFilePath(item),
-        })
-      }
-    } else {
-      const folderName = item.relativePath.split('/')[0]
-      if (dirObj[folderName]) {
-        const dirList = dirObj[folderName].filesList || []
-        dirList.push(item)
-        dirObj[folderName].filesList = dirList
-        const dirSize = dirObj[folderName].fileSize
-        dirObj[folderName].fileSize = dirSize ? dirSize + item.size : item.size
-      } else {
-        dirObj[folderName] = {
-          filesList: [item],
-          fileSize: item.size,
-          path: window.electron.showFilePath(item),
-        }
-      }
-    }
-  })
-  Object.keys(dirObj).forEach(key => {
-    const index = tableData.findIndex((item: any) => item.fullPath === dirObj[key].path)
-    if (index === -1) {
-      tableData.push({
-        name: key,
-        filesList: dirObj[key].filesList,
-        isFolder: true,
-        fileSize: dirObj[key].fileSize,
-        fullPath: dirObj[key].path,
-      })
-    }
-  })
-}
-
-function clearTableData() {
-  tableData.length = 0
-  uploadPanelFilesList.value = []
-}
-
-function renameFileBeforeUpload(filePath: string, fullPath: string): string {
-  const fileName = window.node.path.basename(filePath)
-  const typeMap = {
-    timestampRename: manageStore.config.settings.timestampRename,
-    randomStringRename: manageStore.config.settings.randomStringRename,
-    customRenameFormat: manageStore.config.settings.customRenameFormat,
-    customRename: manageStore.config.settings.customRename,
-  }
-  return renameFile(typeMap, fileName, () => window.node.fs.readFileSync(fullPath))
-}
-
-function captureUploadDestination() {
-  return Object.freeze({
-    alias: configMap.value.alias,
-    bucketName: configMap.value.bucketName,
-    region: configMap.value.bucketConfig.Location,
-    prefix: currentPrefix.value,
-    githubBranch: currentCustomDomain.value,
-    aclForUpload: manageStore.config.picBed[configMap.value.alias].aclForUpload,
-    keepDirStructure: isUploadKeepDirStructure.value,
-  })
-}
-
-function uploadFiles() {
-  enqueueUploadFiles(uploadPanelFilesList.value, captureUploadDestination())
-  clearTableData()
-}
-
-function enqueueUploadFiles(files: any[], destination: ReturnType<typeof captureUploadDestination>) {
-  const formateduploadPanelFilesList = [] as any[]
-  files.forEach((item: any) => {
-    formateduploadPanelFilesList.push({
-      rawName: item.name,
-      path: item.path.replace(/\\/g, '/'),
-      size: item.size,
-      renamedFileName: renameFileBeforeUpload(item.name, item.path),
-      relativePath: item.relativePath ?? '',
-    })
-  })
-  if (destination.keepDirStructure) {
-    formateduploadPanelFilesList.forEach((item: any) => {
-      item.key = `${destination.prefix}${item.relativePath.substring(0, item.relativePath.lastIndexOf('/'))}/${item.renamedFileName}`
-    })
-  } else {
-    formateduploadPanelFilesList.forEach((item: any) => {
-      item.key = destination.prefix + item.renamedFileName
-    })
-  }
-  const param = {
-    // tcyun
-    fileArray: [] as any[],
-  }
-  formateduploadPanelFilesList.forEach((item: any) => {
-    param.fileArray.push({
-      alias: destination.alias,
-      bucketName: destination.bucketName,
-      region: destination.region,
-      key: item.key,
-      filePath: item.path,
-      fileSize: item.size,
-      fileName: item.rawName,
-      githubBranch: destination.githubBranch,
-      aclForUpload: destination.aclForUpload,
-    })
-  })
-  window.electron.sendRPC(IRPCActionType.MANAGE_UPLOAD_BUCKET_FILE, destination.alias, param)
-}
-
-// 文件列表相关
-
 function handleShowFileInfo(item: any) {
   isShowFileInfo.value = true
   currentShowedFileInfo.value = item
-}
-
-function formatFileInfoValue(value: unknown): string {
-  if (value !== null && typeof value === 'object') return JSON.stringify(value, null, 2)
-  return String(value)
 }
 
 async function handleBreadcrumbClick(index: number) {
@@ -2106,160 +963,6 @@ async function handleChangeCustomUrlInput() {
   if (unmounted || generation !== viewGeneration) return
   await forceRefreshFileList()
 }
-// 自定义域名相关
-
-async function handleChangeCustomUrl(generation = viewGeneration) {
-  if (['aliyun', 'tcyun', 'qiniu', 's3plist', 'webdavplist', 'local', 'sftp'].includes(currentPicBedName.value)) {
-    const currentConfigs = await getConfig<any>('picBed')
-    if (unmounted || generation !== viewGeneration) return
-    const currentConfig = currentConfigs[configMap.value.alias]
-    const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
-    if (currentTransformedConfig[configMap.value.bucketName]) {
-      currentTransformedConfig[configMap.value.bucketName].customUrl = currentCustomDomain.value
-    } else {
-      currentTransformedConfig[configMap.value.bucketName] = {
-        customUrl: currentCustomDomain.value,
-      }
-    }
-    currentConfig.transformedConfig = JSON.stringify(currentTransformedConfig)
-    if (!(await saveConfig(`picBed.${configMap.value.alias}`, currentConfig))) return
-    await manageStore.refreshConfig()
-  }
-}
-
-// when the current picBed is github, the customDomainList is used to store the github repo branches
-async function initCustomDomainList(generation = viewGeneration) {
-  if (
-    (['aliyun', 'tcyun', 'qiniu'].includes(currentPicBedName.value) &&
-      (manageStore.config.picBed[configMap.value.alias].isAutoCustomUrl === undefined ||
-        manageStore.config.picBed[configMap.value.alias].isAutoCustomUrl === true)) ||
-    ['github', 'smms', 'upyun', 'imgur'].includes(currentPicBedName.value)
-  ) {
-    const param = {
-      bucketName: configMap.value.bucketName,
-      region: configMap.value.bucketConfig.Location,
-    }
-    let defaultUrl = ''
-    if (currentPicBedName.value === 'tcyun') {
-      defaultUrl = `https://${configMap.value.bucketName}.cos.${configMap.value.bucketConfig.Location}.myqcloud.com`
-    } else if (currentPicBedName.value === 'aliyun') {
-      defaultUrl = `https://${configMap.value.bucketName}.${configMap.value.bucketConfig.Location}.aliyuncs.com`
-    } else if (currentPicBedName.value === 'github') {
-      defaultUrl = 'main'
-    }
-    const res = await window.electron.triggerRPC<any>(
-      IRPCActionType.MANAGE_GET_BUCKET_DOMAIN,
-      configMap.value.alias,
-      param,
-    )
-    if (unmounted || generation !== viewGeneration) return
-    if (res.length > 0) {
-      customDomainList.value.length = 0
-      res.forEach((item: any) => {
-        if (!/^https?:\/\//.test(item) && currentPicBedName.value !== 'github') {
-          item = manageStore.config.settings.isForceCustomUrlHttps ? `https://${item}` : `http://${item}`
-        }
-        customDomainList.value.push({
-          label: item,
-          value: item,
-        })
-      })
-      defaultUrl !== '' &&
-        currentPicBedName.value !== 'github' &&
-        customDomainList.value.push({
-          label: defaultUrl,
-          value: defaultUrl,
-        })
-      currentCustomDomain.value = customDomainList.value[0].value
-    } else {
-      customDomainList.value.length = 0
-      customDomainList.value = [
-        {
-          label: defaultUrl,
-          value: defaultUrl,
-        },
-      ]
-      currentCustomDomain.value = defaultUrl
-    }
-  } else if (['aliyun', 'tcyun', 'qiniu'].includes(currentPicBedName.value)) {
-    const currentConfigs = await getConfig<any>('picBed')
-    if (unmounted || generation !== viewGeneration) return
-    const currentConfig = currentConfigs[configMap.value.alias]
-    const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
-    if (currentTransformedConfig[configMap.value.bucketName]) {
-      currentCustomDomain.value = currentTransformedConfig[configMap.value.bucketName].customUrl ?? ''
-    } else {
-      currentCustomDomain.value = ''
-    }
-  } else if (currentPicBedName.value === 's3plist') {
-    const currentConfigs = await getConfig<any>('picBed')
-    if (unmounted || generation !== viewGeneration) return
-    const currentConfig = currentConfigs[configMap.value.alias]
-    const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
-    const configuredDomain = currentTransformedConfig[configMap.value.bucketName]?.customUrl || currentConfig.customUrl
-    if (configuredDomain) {
-      currentCustomDomain.value = configuredDomain
-    } else {
-      if (manageStore.config.picBed[configMap.value.alias].endpoint) {
-        const endpoint = manageStore.config.picBed[configMap.value.alias].endpoint
-        const s3ForcePathStyle = manageStore.config.picBed[configMap.value.alias].s3ForcePathStyle
-        let url
-        if (/^https?:\/\//.test(endpoint)) {
-          url = new URL(endpoint)
-        } else {
-          url = new URL(
-            manageStore.config.picBed[configMap.value.alias].sslEnabled ? `https://${endpoint}` : `http://${endpoint}`,
-          )
-        }
-        if (s3ForcePathStyle) {
-          currentCustomDomain.value = `${url.protocol}//${url.hostname}${url.port ? ':' + url.port : ''}/${configMap.value.bucketName}`
-        } else {
-          currentCustomDomain.value = `${url.protocol}//${configMap.value.bucketName}.${url.hostname}${url.port ? ':' + url.port : ''}`
-        }
-      } else {
-        currentCustomDomain.value = `https://${configMap.value.bucketName}.s3.amazonaws.com`
-      }
-    }
-    await handleChangeCustomUrl()
-  } else if (currentPicBedName.value === 'webdavplist') {
-    const currentConfigs = await getConfig<any>('picBed')
-    if (unmounted || generation !== viewGeneration) return
-    const currentConfig = currentConfigs[configMap.value.alias]
-    const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
-    if (
-      currentTransformedConfig[configMap.value.bucketName] &&
-      currentTransformedConfig[configMap.value.bucketName]?.customUrl
-    ) {
-      currentCustomDomain.value = currentTransformedConfig[configMap.value.bucketName].customUrl
-    } else {
-      let endpoint = manageStore.config.picBed[configMap.value.alias].endpoint
-      if (!/^https?:\/\//.test(endpoint)) {
-        endpoint = 'http://' + endpoint
-      }
-      currentCustomDomain.value = endpoint
-    }
-    await handleChangeCustomUrl()
-  } else if (currentPicBedName.value === 'local' || currentPicBedName.value === 'sftp') {
-    const currentConfigs = await getConfig<any>('picBed')
-    if (unmounted || generation !== viewGeneration) return
-    const currentConfig = currentConfigs[configMap.value.alias]
-    const currentTransformedConfig = JSON.parse(currentConfig.transformedConfig ?? '{}')
-    if (
-      currentTransformedConfig[configMap.value.bucketName] &&
-      currentTransformedConfig[configMap.value.bucketName]?.customUrl
-    ) {
-      currentCustomDomain.value = currentTransformedConfig[configMap.value.bucketName].customUrl ?? ''
-      if (manageStore.config.settings.isForceCustomUrlHttps && currentCustomDomain.value.startsWith('http://')) {
-        currentCustomDomain.value = currentCustomDomain.value.replace('http://', 'https://')
-      }
-    } else {
-      currentCustomDomain.value = ''
-    }
-    await handleChangeCustomUrl()
-  }
-}
-
-// 重置
 
 function invalidateListings() {
   viewGeneration++
@@ -2268,151 +971,6 @@ function invalidateListings() {
   downloadListings.cancel()
   isLoadingData.value = false
   isLoadingDownloadData.value = false
-}
-
-function listingIdentity(kind: ListingRequest['kind'], prefix = currentPrefix.value) {
-  return {
-    accountId: configMap.value.alias,
-    provider: currentPicBedName.value,
-    bucketName: configMap.value.bucketName,
-    prefix,
-    kind,
-  }
-}
-
-async function resetParam(force: boolean = false) {
-  if (unmounted) return
-  invalidateListings()
-  isShowLoadingPage.value = true
-  pagingMarker.value = ''
-  pagingMarkerStack.length = 0
-  currentPrefix.value = configMap.value.prefix
-  const request = fileListings.begin(listingIdentity('files'))
-  currentPageNumber.value = 1
-  currentPageFilesInfo.length = 0
-  currentDownloadFileList.length = 0
-  searchText.value = ''
-  urlToUpload.value = ''
-  dialogVisible.value = false
-  isShowFileInfo.value = false
-  isShowCreateFolderDialog.value = false
-  newFolderName.value = ''
-  lastChoosed.value = -1
-  sortAscending.value = true
-  if (!isAutoRefresh.value && !force && !paging.value) {
-    const cachedData = await searchExistFileList()
-    if (!fileListings.isCurrent(request)) return
-    if (cachedData.length > 0) {
-      appendListingItems(currentPageFilesInfo, cachedData[0].value.fullList)
-      const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
-      sortFile(sortType, false)
-      isShowLoadingPage.value = false
-      fileListings.complete(request)
-      return
-    }
-  }
-  if (paging.value) {
-    const res = await getBucketFileList(request)
-    if (!res || !fileListings.isCurrent(request)) return
-    if (res.success) {
-      appendListingItems(currentPageFilesInfo, res.fullList)
-      const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
-      sortFile(sortType, false)
-      if (res.isTruncated && paging.value) {
-        pagingMarkerStack.push(pagingMarker.value)
-        pagingMarker.value = String(res.nextMarker ?? '')
-      } else if (paging.value && currentPageNumber.value > 1) {
-        message.success(t('pages.manage.bucket.lastPageMsg'))
-      }
-    } else {
-      message.error(t('pages.manage.bucket.getFileListFailed'))
-    }
-  } else {
-    getBucketFileListBackStage(request)
-    message.info(t('pages.manage.bucket.getInBackground'))
-  }
-  if (fileListings.isCurrent(request)) isShowLoadingPage.value = false
-}
-
-async function forceRefreshFileList() {
-  if (isLoadingData.value) {
-    message.error(t('pages.manage.bucket.isLoadingMsg'))
-    return
-  }
-  await resetParam(true)
-}
-
-const changePage = async (cur: number | undefined, prev: number | undefined) => {
-  if (unmounted) return
-  if (!cur || !prev) {
-    currentPageNumber.value = 1
-    return
-  }
-  const isForwardNavigation = cur > prev
-  const newPageNumber = isForwardNavigation ? prev + 1 : prev - 1
-  const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
-
-  invalidateListings()
-  const request = fileListings.begin(listingIdentity('files'))
-  isShowLoadingPage.value = true
-  currentPageNumber.value = newPageNumber
-  currentPageFilesInfo.length = 0
-  searchText.value = ''
-  urlToUpload.value = ''
-  dialogVisible.value = false
-
-  if (!isForwardNavigation) {
-    pagingMarker.value = pagingMarkerStack[pagingMarkerStack.length - 2]
-    pagingMarkerStack.pop()
-    pagingMarkerStack.pop()
-  }
-
-  const res = await getBucketFileList(request)
-  if (!res || !fileListings.isCurrent(request)) return
-  isShowLoadingPage.value = false
-
-  if (!res.success) {
-    message.error(t('pages.manage.bucket.getFileListFailed'))
-    return
-  }
-
-  appendListingItems(currentPageFilesInfo, res.fullList)
-
-  sortFile(sortType, false)
-
-  if (!(cur < prev && !paging.value)) {
-    if (res.isTruncated) {
-      pagingMarkerStack.push(pagingMarker.value)
-      pagingMarker.value = String(res.nextMarker ?? '')
-    } else {
-      message.success(t('pages.manage.bucket.lastPageMsg'))
-    }
-  }
-}
-
-const handlePageNumberInput = async (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const value = parseInt(target.value, 10)
-  if (!isNaN(value) && value > 0) {
-    currentPageNumber.value = value
-    await changePage(currentPageNumber.value, previousPageNumber.value)
-    previousPageNumber.value = currentPageNumber.value
-  }
-}
-
-function sortFile(type: ISortTypeList, toggle = true) {
-  if (toggle) sortAscending.value = currentSortType.value === type ? !sortAscending.value : true
-  currentSortType.value = type
-  localStorage.setItem('sortType', type)
-  sortDropdownOpen.value = false
-  copyDropdownIndex.value = -1
-  if (isLoadingData.value) return
-  const column = tableColumns.value.find(column => column.key === type)
-  currentPageFilesInfo.sort((a, b) => {
-    if (type === 'check') return Number(!!b.checked) - Number(!!a.checked)
-    if (type === 'init') return Number(!!b.isDir) - Number(!!a.isDir) || compareFileValues(a.fileName, b.fileName)
-    return compareFileValues(column?.value(a), column?.value(b), sortAscending.value)
-  })
 }
 
 function handleCancelCheck() {
@@ -2425,109 +983,6 @@ function handleReverseCheck() {
   currentPageFilesInfo.forEach((item: any) => {
     item.checked = !item.checked
   })
-}
-
-async function handleFolderBatchDownload(item: any) {
-  if (unmounted) return
-  isLoadingDownloadData.value = false
-  const request = downloadListings.begin(listingIdentity('download', `/${item.key.replace(/^\/+|\/+$/g, '')}/`))
-  const paramGet = listingParams(request)
-  const keepStructure = manageStore.config.settings.isDownloadFolderKeepDirStructure !== false
-  try {
-    const confirmed = await confirm.confirm({
-      message: t('pages.manage.bucket.notice'),
-      title: t('pages.manage.bucket.downloadFolderNotice'),
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning',
-    })
-    if (!downloadListings.isCurrent(request)) return
-    if (!confirmed) {
-      downloadListings.cancel()
-      return
-    }
-    const defaultDownloadPath = await window.electron.triggerRPC<string>(
-      IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER,
-    )
-    if (!downloadListings.isCurrent(request)) return
-    const param = {
-      downloadPath: manageStore.config.settings.downloadDir || defaultDownloadPath,
-      downloadConflictPolicy: manageStore.config.settings.downloadConflictPolicy ?? 'rename',
-      maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount || 5,
-      fileArray: [] as any[],
-    }
-    isLoadingDownloadData.value = true
-    currentDownloadFileList.length = 0
-    downloadListings.subscribe(request, data => {
-      appendListingItems(currentDownloadFileList, data.items)
-      if (!data.finished) return nextTick()
-      isLoadingDownloadData.value = false
-      if (!data.success) {
-        if (data.phase !== 'cancelled') message.error(t('pages.manage.bucket.getDownloadListFailed'))
-        return
-      }
-      message.success(t('pages.manage.bucket.getDownloadListSuccess'))
-      param.fileArray = currentDownloadFileList.map(item => ({
-        alias: request.accountId,
-        bucketName: request.bucketName,
-        region: paramGet.bucketConfig.Location,
-        key: item.key,
-        fileName: keepStructure ? item.key.replace(/^\/+|\/+$/g, '') : item.fileName,
-        customUrl: paramGet.customUrl,
-        downloadUrl: item.downloadUrl,
-        githubUrl: item.url,
-        githubPrivate: paramGet.bucketConfig.private,
-      }))
-      window.electron.sendRPC(IRPCActionType.MANAGE_DOWNLOAD_BUCKET_FILE, request.accountId, param)
-      isShowDownloadPanel.value = true
-    })
-    window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_RECURSIVELY, request.accountId, paramGet)
-  } catch {
-    if (!downloadListings.isCurrent(request)) return
-    downloadListings.cancel()
-    isLoadingDownloadData.value = false
-    message.info(t('pages.manage.bucket.canceled'))
-  }
-}
-
-async function handleBatchDownload() {
-  if (await downloadFiles(selectedItems.value)) handleCancelCheck()
-}
-
-async function downloadFiles(files: any[]) {
-  const generation = viewGeneration
-  const defaultDownloadPath = await window.electron.triggerRPC<string>(
-    IRPCActionType.MANAGE_GET_DEFAULT_DOWNLOAD_FOLDER,
-  )
-  if (unmounted || generation !== viewGeneration) return false
-  const param = {
-    downloadPath: manageStore.config.settings.downloadDir || defaultDownloadPath,
-    downloadConflictPolicy: manageStore.config.settings.downloadConflictPolicy ?? 'rename',
-    maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount
-      ? manageStore.config.settings.maxDownloadFileCount
-      : 5,
-    fileArray: [] as any[],
-  }
-  files.forEach((item: any) => {
-    if (!item.isDir) {
-      param.fileArray.push({
-        alias: configMap.value.alias,
-        bucketName: configMap.value.bucketName,
-        region: configMap.value.bucketConfig.Location,
-        key: item.key,
-        fileName: manageStore.config.settings.isDownloadFileKeepDirStructure
-          ? item.key.replace(/^\/+|\/+$/g, '')
-          : item.fileName,
-        customUrl: currentCustomDomain.value,
-        downloadUrl: item.downloadUrl,
-        githubUrl: item.url,
-        githubPrivate: configMap.value.bucketConfig.private,
-      })
-    }
-  })
-  window.electron.sendRPC(IRPCActionType.MANAGE_DOWNLOAD_BUCKET_FILE, configMap.value.alias, param)
-  isShowDownloadPanel.value = true
-  return true
 }
 
 function handleCheckAllChange() {
@@ -2579,92 +1034,6 @@ async function confirmCreateFolder() {
   }
 }
 
-function showUrlDialog() {
-  dialogVisible.value = true
-}
-
-async function handleUploadFromUrl() {
-  if (unmounted) return
-  dialogVisible.value = false
-  const urlList = [] as string[]
-  urlToUpload.value.split('\n').forEach((item: string) => {
-    if (item.trim() !== '' && isValidUrl(item.trim())) {
-      urlList.push(item.trim())
-    }
-  })
-  if (urlList.length === 0) {
-    message.error(t('pages.manage.bucket.inputValidUrlMsg'))
-    return
-  }
-  const destination = captureUploadDestination()
-  const generation = viewGeneration
-  message.success(t('pages.manage.bucket.startUploadMsg'))
-  const res = await window.electron.triggerRPC<IUrlImportFile[]>(IRPCActionType.MANAGE_DOWNLOAD_FILE_FROM_URL, urlList)
-  if (!res?.length) return
-  const files = res.map(item => ({
-    name: item.fileName,
-    path: item.filePath.replace(/\\/g, '/'),
-    size: item.fileSize,
-  }))
-  enqueueUploadFiles(files, destination)
-  if (!unmounted && generation === viewGeneration) isShowUploadPanel.value = true
-}
-
-function handleBatchRenameFile() {
-  if (bulkChanges.reopen() || bulkChanges.building.value) return
-  batchRenameMatch.value = ''
-  isSingleRename.value = false
-  isShowBatchRenameDialog.value = true
-}
-
-const matchedFilesNumber = computed(() => {
-  if (!batchRenameMatch.value) {
-    return [] as any[]
-  }
-  return (selectedItems.value.length ? selectedItems.value : currentPageFilesInfo).filter(
-    (item: any) => !item.isDir && matchFileName(item.fileName, batchRenameMatch.value, isRenameIncludeExt.value),
-  )
-})
-
-async function BatchRename() {
-  if (bulkChanges.building.value) return
-  const pattern = batchRenameMatch.value || (isSingleRename.value ? '.+' : '')
-  if (!pattern) {
-    message.error(t('pages.manage.bucket.inputPatternMsg'))
-    return
-  }
-  try {
-    new RegExp(pattern, 'ug')
-  } catch {
-    message.error(t('common.bulk.invalidPattern'))
-    return
-  }
-  const matched = isSingleRename.value ? [itemToBeRenamed.value] : matchedFilesNumber.value
-  if (!matched.length) {
-    message.error(t('pages.manage.bucket.noMatchedFile'))
-    return
-  }
-  // Expand random/time/sequence placeholders once; the reviewed targets never change on retry.
-  const items = matched.map((item, index) => {
-    const name = replaceFileName(item.fileName, pattern, batchRenameReplace.value, isRenameIncludeExt.value).replaceAll(
-      '{auto}',
-      String(index + 1),
-    )
-    return { id: item.key, source: item.key, target: item.key.slice(0, item.key.lastIndexOf('/') + 1) + name }
-  })
-  const context = {
-    accountId: configMap.value.alias,
-    provider: currentPicBedName.value,
-    bucketName: configMap.value.bucketName || '',
-    region: configMap.value.bucketConfig?.Location || '',
-  }
-  if (await bulkChanges.preview(IRPCActionType.BULK_PREVIEW_REMOTE_RENAME, context, items)) {
-    isShowBatchRenameDialog.value = false
-  } else {
-    message.error(bulkChanges.error.value)
-  }
-}
-
 function handleBatchCopyInfo() {
   if (selectedItems.value.length === 0) {
     message.warning(t('pages.manage.bucket.selectFileMsg'))
@@ -2680,7 +1049,7 @@ function handleBatchCopyInfo() {
 
 async function copyLink(item: any, type: string) {
   copyToClipboard(await formatLink(item.url, item.fileName, type, customPasteFormat.value, item.key || item.Key))
-  copyDropdownIndex.value = -1
+  virtualScrollerRef.value?.resetCopyDropdown()
 }
 
 const customPasteFormat = computed(
@@ -2725,229 +1094,6 @@ async function handleBatchCopyLink(type: CopyFormat) {
   }
 }
 
-async function cancelLoading() {
-  const request = fileListings.request
-  try {
-    const result = await confirm.confirm({
-      message: t('pages.manage.bucket.notice'),
-      title: t('pages.manage.bucket.stopGetFileListMsg'),
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning',
-      center: true,
-    })
-    if (!result || !request || !fileListings.isCurrent(request)) return
-    isLoadingData.value = false
-    isShowLoadingPage.value = false
-    fileListings.cancel()
-    sortFile((localStorage.getItem('sortType') as ISortTypeList) || 'init', false)
-    message.success(t('pages.manage.bucket.stopSuccessMsg'))
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-async function cancelDownloadLoading() {
-  const request = downloadListings.request
-  try {
-    const result = await confirm.confirm({
-      message: t('pages.manage.bucket.notice'),
-      title: t('pages.manage.bucket.stopGetDownloadListMsg'),
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning',
-      center: true,
-    })
-    if (!result || !request || !downloadListings.isCurrent(request)) return
-    isLoadingDownloadData.value = false
-    downloadListings.cancel()
-    message.success(t('pages.manage.bucket.stopSuccessMsg'))
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-function getBucketFileListBackStage(request: ListingRequest) {
-  const param = listingParams(request)
-  const cacheTarget = { provider: request.provider, key: getTableKeyOfDb() }
-  isLoadingData.value = true
-  sortFile((localStorage.getItem('sortType') as ISortTypeList) || 'init', false)
-  fileListings.subscribe(request, data => {
-    appendListingItems(currentPageFilesInfo, data.items)
-    // Keep arrival order while loading; filterList searches all received items. Sort the
-    // completed (or partial failed) inventory once, preserving object/selection identity.
-    if (data.finished) {
-      isLoadingData.value = false
-      const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
-      sortFile(sortType, false)
-      if (data.success) {
-        void cacheFileList(cacheTarget, currentPageFilesInfo)
-        message.success(t('pages.manage.bucket.getFileListSuccess'))
-      } else if (data.phase !== 'cancelled') {
-        message.error(t('pages.manage.bucket.partFileListFailed'))
-      }
-    }
-    return nextTick()
-  })
-  window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_BACKSTAGE, request.accountId, param)
-}
-
-async function getBucketFileList(request: ListingRequest): Promise<ListingResult | undefined> {
-  isLoadingData.value = true
-  let result: ListingResult
-  try {
-    const response = await window.electron.triggerRPC<ListingResult>(
-      IRPCActionType.MANAGE_GET_BUCKET_FILE_LIST,
-      request.accountId,
-      listingParams(request),
-    )
-    if (!response) throw new Error('Missing listing response')
-    result = response
-  } catch {
-    result = { ...request, fullList: [], success: false, finished: true, phase: 'error', error: 'LISTING_FAILED' }
-  }
-  if (!fileListings.accept(request, result)) return
-  isLoadingData.value = false
-  return result
-}
-
-function listingParams(request: ListingRequest) {
-  return {
-    ...request,
-    bucketConfig: { ...configMap.value.bucketConfig },
-    paging: paging.value,
-    marker: pagingMarker.value,
-    itemsPerPage: itemsPerPage.value,
-    customUrl: currentCustomDomain.value,
-    currentPage: currentPageNumber.value,
-    cdnUrl: configMap.value.cdnUrl,
-    baseDir: configMap.value.baseDir,
-    webPath: configMap.value.webPath,
-  }
-}
-
-async function handleBatchDeleteInfo() {
-  await confirmDeletion(selectedItems.value.map(item => ({ key: item.key, isDir: item.isDir, DeleteHash: item.sha })))
-}
-
-async function handleDeleteFile(item: any) {
-  await confirmDeletion([{ key: item.key, isDir: item.isDir, DeleteHash: item.sha }])
-}
-
-function deletionScope() {
-  return JSON.stringify([
-    configMap.value.alias,
-    currentPicBedName.value,
-    configMap.value.bucketName,
-    currentPicBedName.value === 'github' ? currentCustomDomain.value : '',
-  ])
-}
-
-async function confirmDeletion(targets: DeleteTarget[]) {
-  if (isDeleting.value || isLoadingData.value || targets.length === 0) return
-  const scope = deletionScope()
-  try {
-    const result = await confirm.confirm({
-      message: t('pages.manage.bucket.willDeleteMsg', { num: targets.length }),
-      title: t('pages.manage.bucket.notice'),
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning',
-      center: true,
-    })
-    if (result && scope === deletionScope()) await performDeletion(targets)
-  } catch {
-    message.info(t('pages.manage.bucket.canceled'))
-  }
-}
-
-async function retryFailedDeletions() {
-  await performDeletion(retryDeletionTargets(activeDeletionState.value))
-}
-
-async function performDeletion(targets: DeleteTarget[]) {
-  if (isDeleting.value || isLoadingData.value || targets.length === 0) return
-  isDeleting.value = true
-  const scope = deletionScope()
-  const generation = viewGeneration
-  deletingTargets.value = { scope, keys: new Set(targets.map(item => item.key)) }
-  const accountId = configMap.value.alias
-  const provider = currentPicBedName.value
-  const cachePrefix = getTableKeyOfDb().slice(0, -currentPrefix.value.length)
-  const param = {
-    bucketName: configMap.value.bucketName,
-    region: configMap.value.bucketConfig.Location,
-    githubBranch: currentCustomDomain.value,
-    items: targets,
-  }
-  if (!deletionStates.has(scope)) deletionStates.set(scope, { failed: [], pendingFolders: [] })
-  const state = deletionStates.get(scope)!
-  message.info(t('pages.manage.bucket.deletingMsg'))
-  try {
-    let result: DeleteResult
-    try {
-      const response = await window.electron.triggerRPC<DeleteResult>(
-        IRPCActionType.MANAGE_DELETE_BUCKET_ITEMS,
-        accountId,
-        param,
-      )
-      if (
-        !response ||
-        !Array.isArray(response.deleted) ||
-        !Array.isArray(response.failed) ||
-        !Array.isArray(response.deletedFolders)
-      ) {
-        throw new Error('Missing deletion results')
-      }
-      result = response
-    } catch {
-      result = failedDeletion(targets, t('pages.manage.bucket.deleteFailed'))
-    }
-    const confirmed = applyDeletionResult(state, targets, result)
-    if (!unmounted && scope === deletionScope() && generation === viewGeneration) {
-      const retained = removeDeletedEntries(currentPageFilesInfo, confirmed)
-      const retainedEntries = new Set(retained)
-      for (let index = currentPageFilesInfo.length - 1; index >= 0; index--) {
-        if (!retainedEntries.has(currentPageFilesInfo[index])) currentPageFilesInfo.splice(index, 1)
-      }
-    }
-    try {
-      // Update cached parent and child listings in the captured bucket, even after navigation.
-      await fileCacheDbInstance
-        .table(provider)
-        .where('key')
-        .startsWith(cachePrefix)
-        .modify((entry: any) => {
-          if (Array.isArray(entry.value.fullList)) {
-            entry.value.fullList = removeDeletedEntries(entry.value.fullList, confirmed)
-          }
-        })
-    } catch {
-      // Cache errors must not turn confirmed remote deletions into retry candidates.
-      console.warn('Failed to update the bucket file cache after deletion')
-    }
-    if (unmounted || scope !== deletionScope()) return
-    if (result.failed.length === 0) message.success(t('pages.manage.bucket.deleteSuccess'))
-    else if (result.deleted.length === 0 && result.deletedFolders.length === 0)
-      message.error(t('pages.manage.bucket.deleteFailed'))
-    else
-      message.warning(
-        t('pages.manage.bucket.deleteMultiMsg', { success: result.deleted.length, failed: result.failed.length }),
-      )
-  } finally {
-    isDeleting.value = false
-    deletingTargets.value = { scope: '', keys: new Set() }
-  }
-}
-
-function handleRenameFile(item: any) {
-  if (bulkChanges.reopen() || bulkChanges.building.value) return
-  batchRenameMatch.value = splitFileName(item.fileName).baseName
-  isSingleRename.value = true
-  isShowBatchRenameDialog.value = true
-  itemToBeRenamed.value = item
-}
-
 function handleGetS3Config(item: any) {
   return {
     bucketName: configMap.value.bucketName,
@@ -2977,118 +1123,7 @@ async function getPreSignedUrl(item: any) {
 function copyToClipboard(text: string) {
   window.electron.clipboard.writeText(String(text))
   message.success(t('pages.manage.bucket.copySuccess'))
-  if (layoutStyle.value === 'table' && copyDropdownIndex.value >= 0) closeCopyDropdown()
-  else copyDropdownIndex.value = -1
-}
-
-function toggleCopyDropdown(index: number, event?: MouseEvent) {
-  if (copyDropdownIndex.value === index) {
-    copyDropdownIndex.value = -1
-  } else {
-    copyDropdownIndex.value = index
-
-    if (event) {
-      const button = event.currentTarget as HTMLElement
-      const rect = button.getBoundingClientRect()
-      const viewportWidth = window.innerWidth
-      const viewportHeight = window.innerHeight
-
-      const container = bucketContainerRef.value
-      const containerRect = container?.getBoundingClientRect()
-      const dropdownWidth = 160
-      const shouldShowLeft =
-        rect.right > viewportWidth - dropdownWidth ||
-        (containerRect && rect.right > containerRect.right - dropdownWidth)
-
-      const dropdownHeight = 200
-      const shouldShowUp =
-        rect.bottom > viewportHeight - dropdownHeight ||
-        (containerRect && rect.bottom > containerRect.bottom - dropdownHeight)
-
-      dropdownPositions.value.set(index, {
-        left: shouldShowLeft,
-        up: shouldShowUp,
-        x: rect.left,
-        y: rect.top,
-        width: rect.width,
-        height: rect.height,
-      } as any)
-    }
-    if (layoutStyle.value === 'table')
-      nextTick(() => document.querySelector<HTMLElement>('[data-copy-menu] button')?.focus())
-  }
-}
-
-function closeCopyDropdown() {
-  const index = copyDropdownIndex.value
-  copyDropdownIndex.value = -1
-  nextTick(() =>
-    bucketContainerRef.value
-      ?.querySelector<HTMLElement>(`[data-dropdown-index="${index}"] button`)
-      ?.focus({ preventScroll: true }),
-  )
-}
-
-function getDropdownStyle(index: number) {
-  const pos: any = dropdownPositions.value.get(index)
-  if (!pos) return { display: 'none' as const }
-  const estWidth = 180
-  const estHeight = 240
-  let left = pos.left ? pos.x + pos.width - estWidth : pos.x
-  let top = pos.up ? pos.y - estHeight : pos.y + pos.height
-  const vw = window.innerWidth
-  const vh = window.innerHeight
-  if (left + estWidth > vw - 4) left = vw - estWidth - 4
-  if (left < 4) left = 4
-  if (top + estHeight > vh - 4) top = vh - estHeight - 4
-  if (top < 4) top = 4
-  return {
-    position: 'fixed' as const,
-    left: left + 'px',
-    top: top + 'px',
-    maxHeight: '240px',
-    zIndex: 9999,
-    minWidth: '100px',
-    maxWidth: '200px',
-  }
-}
-
-function getTableKeyOfDb() {
-  let tableKey
-  if (currentPicBedName.value === 'github') {
-    // customUrl is branch
-    tableKey = `${configMap.value.alias}@${configMap.value.bucketConfig.githubUsername}@${configMap.value.bucketName}@${currentCustomDomain.value}@${currentPrefix.value}`
-  } else {
-    tableKey = `${configMap.value.alias}@${configMap.value.bucketName}@${currentPrefix.value}`
-  }
-  return tableKey
-}
-
-async function searchExistFileList() {
-  try {
-    const table = fileCacheDbInstance.table(currentPicBedName.value)
-    return await table.where('key').equals(getTableKeyOfDb()).toArray()
-  } catch {
-    // A cache failure is a miss so remote storage remains accessible.
-    console.warn('Failed to read the bucket file cache')
-    return []
-  }
-}
-
-async function cacheFileList(target: { provider: string; key: string }, files: any[]) {
-  try {
-    const table = fileCacheDbInstance.table(target.provider)
-    await table.put({
-      key: target.key,
-      value: JSON.parse(
-        JSON.stringify({
-          fullList: files,
-        }),
-      ),
-    })
-  } catch {
-    console.warn('Failed to write the bucket file cache')
-  }
+  virtualScrollerRef.value?.onCopied()
 }
 
 function handleDetectShiftKey(event: KeyboardEvent) {
@@ -3122,5 +1157,3 @@ onBeforeUnmount(() => {
   if (scrollTimeout) clearTimeout(scrollTimeout)
 })
 </script>
-
-<style src="./BucketPage.css" scoped></style>

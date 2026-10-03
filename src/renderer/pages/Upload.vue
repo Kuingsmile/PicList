@@ -84,7 +84,7 @@
         </div>
         <div class="flex flex-wrap items-center gap-3 max-md:order-2 max-md:justify-stretch">
           <button
-            class="segmented-button rounded-md bg-bg-secondary shadow-sm"
+            class="segmented-button flex cursor-pointer items-center gap-2 rounded-md border-r border-none border-r-border-secondary bg-bg-secondary px-4 py-2.5 font-[inherit] text-sm font-medium whitespace-nowrap text-secondary shadow-sm duration-fast ease-standard last:border-r-0 hover:bg-accent/30 hover:text-white"
             :title="t('pages.imageProcess.editor.title')"
             @click="handleImageProcess"
           >
@@ -194,13 +194,19 @@
           </h4>
         </div>
         <div class="flex w-full flex-1 flex-row flex-wrap items-center justify-center gap-4 max-md:gap-3 max-md:px-5">
-          <button class="quick-action-button group" @click="uploadClipboardFiles">
+          <button
+            class="quick-action-button group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
+            @click="uploadClipboardFiles"
+          >
             <ClipboardIcon class="shrink-0 text-accent group-hover:text-white" :size="15" />
             <span class="text-sm font-medium text-secondary group-hover:text-white">{{
               t('pages.upload.clipboardPicture')
             }}</span>
           </button>
-          <button class="quick-action-button group" @click="uploadURLFiles">
+          <button
+            class="quick-action-button group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
+            @click="uploadURLFiles"
+          >
             <LinkIcon class="shrink-0 text-accent group-hover:text-white" :size="15" />
             <span class="text-sm font-medium text-secondary group-hover:text-white">{{
               t('pages.upload.urlUpload')
@@ -498,5 +504,3 @@ onBeforeUnmount(() => {
   removeSyncPicBedListener()
 })
 </script>
-
-<style scoped src="./Upload.css"></style>

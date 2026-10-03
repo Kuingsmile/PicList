@@ -1,8 +1,12 @@
 <template>
-  <div ref="rootRef" class="file-collection" :style="{ '--file-row-height': `${rowHeight}px` }">
+  <div
+    ref="rootRef"
+    class="file-collection flex min-h-0 w-full min-w-0 flex-1 flex-col text-main"
+    :style="{ '--file-row-height': `${rowHeight}px` }"
+  >
     <VirtualScroller
       ref="scrollerRef"
-      class="collection-scroller"
+      class="collection-scroller flex-1"
       :items
       :item-height="viewMode === 'table' ? rowHeight : gridItemHeight"
       :view-mode="viewMode"
@@ -15,7 +19,7 @@
     >
       <template #columns>
         <colgroup>
-          <col style="width: 44px" />
+          <col class="w-[44px]" />
           <col
             v-for="column in columns"
             :key="column.key"
@@ -26,8 +30,12 @@
       </template>
       <template #header>
         <tr aria-rowindex="1">
-          <th scope="col" class="selection-cell">
+          <th
+            scope="col"
+            class="selection-cell h-[36px] overflow-hidden border-b border-border-secondary px-[10px] py-0 text-center text-[12px] [background:linear-gradient(var(--color-background-secondary),var(--color-background-secondary)),var(--color-background-tertiary)]"
+          >
             <input
+              class="h-[16px] w-[16px] cursor-pointer align-middle accent-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid"
               type="checkbox"
               :checked="allSelected"
               :indeterminate="someSelected && !allSelected"
@@ -38,21 +46,31 @@
           <th
             v-for="column in columns"
             :key="column.key"
+            class="h-[36px] overflow-hidden border-b border-border-secondary px-[10px] py-0 text-left text-[12px] [background:linear-gradient(var(--color-background-secondary),var(--color-background-secondary)),var(--color-background-tertiary)]"
             scope="col"
             :aria-sort="sortField === column.key ? (sortAscending ? 'ascending' : 'descending') : 'none'"
           >
-            <button type="button" class="sort-button" @click="emit('sort', column.key)">
+            <button
+              type="button"
+              class="sort-button flex h-[36px] w-full cursor-pointer items-center gap-[6px] border-0 bg-transparent whitespace-nowrap text-inherit focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid"
+              @click="emit('sort', column.key)"
+            >
               {{ column.label }}
               <span aria-hidden="true">{{ sortField === column.key ? (sortAscending ? '↑' : '↓') : '↕' }}</span>
             </button>
           </th>
-          <th scope="col" class="row-actions">{{ t('common.fileTable.actions') }}</th>
+          <th
+            scope="col"
+            class="row-actions sticky right-0 z-1 h-[36px] overflow-hidden border-b border-border-secondary px-[10px] py-0 text-left text-[12px] shadow-[-1px_0_var(--color-border-secondary)] [background:linear-gradient(var(--color-background-secondary),var(--color-background-secondary)),var(--color-background-tertiary)]"
+          >
+            {{ t('common.fileTable.actions') }}
+          </th>
         </tr>
       </template>
       <template #default="{ item, index }">
         <tr
           v-if="viewMode === 'table'"
-          class="file-row"
+          class="file-row h-(--file-row-height) text-[13px] [--file-row-background:var(--color-background-primary)] hover:[--file-row-background:var(--color-background-secondary)] focus:outline-2 focus:-outline-offset-2 focus:outline-accent focus:outline-solid [&.is-selected]:text-accent [&.is-selected]:[--file-row-background:var(--color-background-secondary)]"
           :class="{ 'is-selected': isSelected(item) }"
           :data-file-index="index"
           :aria-rowindex="index + 2"
@@ -64,8 +82,11 @@
           @dblclick="emit('open', item, index)"
           @keydown="onKeydown($event, index)"
         >
-          <td class="selection-cell">
+          <td
+            class="selection-cell h-(--file-row-height) overflow-hidden border-b border-border-secondary bg-(--file-row-background) px-[10px] py-0 text-center"
+          >
             <input
+              class="h-[16px] w-[16px] cursor-pointer align-middle accent-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid"
               type="checkbox"
               :tabindex="keyOf(item) === focusKey ? 0 : -1"
               :checked="isSelected(item)"
@@ -74,11 +95,16 @@
               @dblclick.stop
             />
           </td>
-          <td v-for="column in columns" :key="column.key" :title="cellText(column, item)">
+          <td
+            v-for="column in columns"
+            :key="column.key"
+            class="h-(--file-row-height) overflow-hidden border-b border-border-secondary bg-(--file-row-background) px-[10px] py-0"
+            :title="cellText(column, item)"
+          >
             <button
               v-if="column.key === 'name'"
               type="button"
-              class="file-name"
+              class="file-name flex h-[calc(var(--file-row-height)-2px)] w-full min-w-0 cursor-pointer items-center gap-[8px] border-0 bg-transparent p-0 text-left text-inherit focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid"
               :tabindex="keyOf(item) === focusKey ? 0 : -1"
               :aria-describedby="previewId"
               @focus="emit('preview', item, $event.currentTarget as Element)"
@@ -87,7 +113,7 @@
               @dblclick.stop
             >
               <span
-                class="file-icon"
+                class="file-icon flex-none"
                 title=""
                 @mouseenter="emit('preview', item, $event.currentTarget as Element)"
                 @mouseleave="emit('previewEnd')"
@@ -95,12 +121,18 @@
                 <FolderIcon v-if="item.isDir" :size="16" aria-hidden="true" />
                 <FileIcon v-else :size="16" aria-hidden="true" />
               </span>
-              <span class="file-name-label">{{ cellText(column, item) }}</span>
+              <span class="file-name-label block truncate">{{ cellText(column, item) }}</span>
             </button>
-            <span v-else class="cell-text">{{ cellText(column, item) }}</span>
+            <span v-else class="cell-text block truncate">{{ cellText(column, item) }}</span>
           </td>
-          <td class="row-actions" @click.stop @dblclick.stop>
-            <div class="action-buttons">
+          <td
+            class="row-actions sticky right-0 z-1 h-(--file-row-height) overflow-hidden border-b border-border-secondary px-[10px] py-0 shadow-[-1px_0_var(--color-border-secondary)] [background:linear-gradient(var(--file-row-background),var(--file-row-background)),var(--color-background-tertiary)]"
+            @click.stop
+            @dblclick.stop
+          >
+            <div
+              class="action-buttons flex items-center justify-end gap-[4px] [&_button]:inline-flex [&_button]:h-[28px] [&_button]:w-[28px] [&_button]:cursor-pointer [&_button]:items-center [&_button]:justify-center [&_button]:rounded-[4px] [&_button]:border-0 [&_button]:bg-transparent [&_button]:p-[4px] [&_button]:text-secondary [&_button:disabled]:cursor-not-allowed [&_button:disabled]:opacity-40 [&_button:focus-visible]:outline-2 [&_button:focus-visible]:-outline-offset-2 [&_button:focus-visible]:outline-accent [&_button:focus-visible]:outline-solid [&_button:hover]:bg-accent [&_button:hover]:text-white"
+            >
               <slot name="actions" :item :index :tabindex="keyOf(item) === focusKey ? 0 : -1" />
             </div>
           </td>
@@ -271,163 +303,3 @@ defineExpose({
   scrollTo: (index: number) => scrollerRef.value?.scrollTo(index),
 })
 </script>
-
-<style scoped>
-.file-collection {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  width: 100%;
-  color: var(--color-text-primary);
-}
-
-.collection-scroller {
-  flex: 1;
-}
-
-/* Themes can make primary/secondary backgrounds transparent; sticky cells need a solid backing. */
-th {
-  height: 36px;
-  text-align: left;
-  background:
-    linear-gradient(var(--color-background-secondary), var(--color-background-secondary)),
-    var(--color-background-tertiary);
-  font-size: 12px;
-}
-
-th,
-td {
-  padding: 0 10px;
-  border-bottom: 1px solid var(--color-border-secondary);
-  overflow: hidden;
-}
-
-.sort-button {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  width: 100%;
-  height: 36px;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.selection-cell {
-  text-align: center;
-}
-
-input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
-  vertical-align: middle;
-  accent-color: var(--color-accent);
-  cursor: pointer;
-}
-
-.file-row {
-  --file-row-background: var(--color-background-primary);
-
-  height: var(--file-row-height);
-  font-size: 13px;
-}
-
-.file-row td {
-  height: var(--file-row-height);
-  background: var(--file-row-background);
-}
-
-.file-row:hover,
-.file-row.is-selected {
-  --file-row-background: var(--color-background-secondary);
-}
-
-.file-row td.row-actions {
-  background: linear-gradient(var(--file-row-background), var(--file-row-background)), var(--color-background-tertiary);
-}
-
-.file-row.is-selected {
-  color: var(--color-accent);
-}
-
-.file-row:focus {
-  outline: 2px solid var(--color-accent);
-  outline-offset: -2px;
-}
-
-.file-name {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  width: 100%;
-  min-width: 0;
-  height: calc(var(--file-row-height) - 2px);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.file-name-label,
-.cell-text {
-  display: block;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.file-icon {
-  flex: none;
-}
-
-.row-actions {
-  position: sticky;
-  right: 0;
-  z-index: 1;
-  box-shadow: -1px 0 var(--color-border-secondary);
-}
-
-.action-buttons {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
-}
-
-.action-buttons :deep(button) {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 4px;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-}
-
-.action-buttons :deep(button:hover) {
-  background: var(--color-accent);
-  color: white;
-}
-
-.action-buttons :deep(button:disabled) {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-button:focus-visible,
-input:focus-visible,
-.action-buttons :deep(button:focus-visible) {
-  outline: 2px solid var(--color-accent);
-  outline-offset: -2px;
-}
-</style>

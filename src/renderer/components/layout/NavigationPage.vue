@@ -36,12 +36,12 @@
       <div
         v-for="item in navigationItems.slice(0, 3)"
         :key="item.path"
-        class="nav-item"
+        class="nav-item flex cursor-pointer items-center justify-center gap-3 px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple group-[.collapsed]:justify-center group-[.collapsed]:gap-0 group-[.collapsed]:px-2 group-[.collapsed]:py-3 hover:bg-surface hover:text-accent [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
         :class="{ 'router-link-active': isPathActive(item.path) }"
         :title="`${item.name}`"
         @click="navigateToPath(item.path)"
       >
-        <div class="nav-icon-container">
+        <div class="nav-icon-container relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
           <component :is="item.icon" :size="18" />
         </div>
         <span v-show="!isCollapsed" class="max-md:hidden" :class="isCollapsed ? 'hidden' : ''">{{ item.name }}</span>
@@ -49,9 +49,9 @@
 
       <Disclosure v-show="!isCollapsed" v-slot="{ open }" as="div" class="relative mt-[4px] justify-center">
         <DisclosureButton
-          class="nav-item relative flex w-full cursor-pointer items-center justify-center gap-3 border-none bg-transparent px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple hover:bg-surface-elevated hover:text-main"
+          class="nav-item relative flex w-full cursor-pointer items-center justify-center gap-3 border-none bg-transparent px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple group-[.collapsed]:justify-center group-[.collapsed]:gap-0 group-[.collapsed]:px-2 group-[.collapsed]:py-3 hover:bg-surface-elevated hover:text-accent [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
         >
-          <div class="nav-icon-container">
+          <div class="nav-icon-container relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
             <DatabaseIcon :size="18" />
           </div>
           <span class="shrink-0 max-md:hidden" :class="isCollapsed ? 'hidden' : ''">{{ t('navigation.picbed') }}</span>
@@ -75,11 +75,11 @@
       </Disclosure>
       <div
         v-show="isCollapsed"
-        class="nav-item cursor-default bg-surface-elevated hover:text-main"
+        class="nav-item flex cursor-pointer items-center justify-center gap-3 bg-surface-elevated px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple group-[.collapsed]:justify-center group-[.collapsed]:gap-0 group-[.collapsed]:px-2 group-[.collapsed]:py-3 hover:bg-surface hover:text-accent [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
         :title="t('navigation.picbed')"
         @click="isCollapsed = !isCollapsed"
       >
-        <div class="nav-icon-container">
+        <div class="nav-icon-container relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
           <DatabaseIcon :size="18" />
         </div>
       </div>
@@ -87,12 +87,12 @@
       <div
         v-for="item in navigationItems.slice(3)"
         :key="item.path"
-        class="nav-item"
+        class="nav-item flex cursor-pointer items-center justify-center gap-3 px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple group-[.collapsed]:justify-center group-[.collapsed]:gap-0 group-[.collapsed]:px-2 group-[.collapsed]:py-3 hover:bg-surface hover:text-accent [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
         :class="{ 'router-link-active': isPathActive(item.path) }"
         :title="`${item.name}`"
         @click="navigateToPath(item.path)"
       >
-        <div class="nav-icon-container">
+        <div class="nav-icon-container relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
           <component :is="item.icon" :size="18" />
         </div>
         <span v-show="!isCollapsed" class="max-md:hidden" :class="isCollapsed ? 'hidden' : ''">{{ item.name }}</span>
@@ -358,5 +358,3 @@ onBeforeUnmount(() => {
   removeIpcListener()
 })
 </script>
-
-<style scoped src="./NavigationPage.css"></style>

@@ -7,7 +7,12 @@
       </h3>
       <p v-if="description" class="mt-1 text-xs leading-relaxed text-secondary">{{ description }}</p>
     </header>
-    <div class="processing-section-fields" :class="{ 'single-column': onlyOneRow }"><slot /></div>
+    <div
+      class="processing-section-fields grid grid-cols-2 gap-[12px] [&.single-column]:grid-cols-1 [&>.processing-section]:col-span-full [@media(width<=700px)]:grid-cols-1"
+      :class="{ 'single-column': onlyOneRow }"
+    >
+      <slot />
+    </div>
     <slot name="extra" />
   </section>
 </template>
@@ -32,25 +37,3 @@ const {
   onlyOneRow?: boolean
 }>()
 </script>
-
-<style scoped>
-.processing-section-fields {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.processing-section-fields.single-column {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.processing-section-fields > :deep(.processing-section) {
-  grid-column: 1 / -1;
-}
-
-@media (width <= 700px) {
-  .processing-section-fields {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-</style>
