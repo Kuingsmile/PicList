@@ -2,7 +2,7 @@ import crypto from 'node:crypto'
 import { EventEmitter } from 'node:events'
 
 import logger from '@core/picgo/logger'
-import { clipboard, NativeImage } from 'electron'
+import { clipboard, type NativeImage } from 'electron'
 
 import { getClipboardFilePath } from '~/utils/clipboard'
 
@@ -47,10 +47,11 @@ class ClipboardWatcher extends EventEmitter {
   }
 
   private getClipboardState(): ClipboardState {
-    const imgPath = getClipboardFilePath()
+    // Reuse the snapshot: reading an image decodes the clipboard's PNG on every call.
+    const image = clipboard.readImage()
+    const imgPath = getClipboardFilePath(image)
     if (imgPath) return { kind: 'path', value: imgPath }
 
-    const image = clipboard.readImage()
     if (image.isEmpty()) return { kind: 'empty', value: null }
 
     return { kind: 'image', value: this.getImageHash(image) }
@@ -58,7 +59,7 @@ class ClipboardWatcher extends EventEmitter {
 
   getImageHash(image: NativeImage): string {
     const buffer = image.toBitmap()
-    return crypto.createHash('md5').update(buffer).digest('hex')
+    return crypto.createHash('sha256').update(buffer).digest('hex')
   }
 }
 

@@ -1,5 +1,5 @@
 import picgo from '@core/picgo'
-import { clipboard } from 'electron'
+import { clipboard, type NativeImage } from 'electron'
 import fs from 'fs-extra'
 
 import { getClipboardTextFilePath } from '~/utils/clipboardFilePath'
@@ -31,9 +31,8 @@ export const ensureFilePath = (filePath: string, prefix = 'file://'): string => 
  * for builtin clipboard to get image path from clipboard
  * @returns
  */
-export const getClipboardFilePath = (): string => {
+export const getClipboardFilePath = (img: NativeImage = clipboard.readImage()): string => {
   // TODO: linux support
-  const img = clipboard.readImage()
   const platform = process.platform
 
   if (!img.isEmpty() && platform === 'darwin') {
