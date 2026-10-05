@@ -4,6 +4,7 @@ import windowManager from 'apis/app/window/windowManager'
 import { app, clipboard, Menu, MenuItem, MenuItemConstructorOptions, nativeTheme, Tray } from 'electron'
 import fs from 'fs-extra'
 
+import { UPDATE_FILES } from '#/constants/ipcChannels'
 import { IWindowList } from '~/constants'
 import { buildPicBedListMenu } from '~/events/remotes/menu'
 import { t } from '~/i18n'
@@ -309,10 +310,10 @@ function toggleWindow(bounds: IBounds) {
     trayWindow.setPosition(bounds.x - 98 + 11, bounds.y, false)
     if (trayWindow.webContents.isLoading()) {
       trayWindow.webContents.once('did-finish-load', () => {
-        trayWindow.webContents.send('updateFiles')
+        trayWindow.webContents.send(UPDATE_FILES)
       })
     } else {
-      trayWindow.webContents.send('updateFiles')
+      trayWindow.webContents.send(UPDATE_FILES)
     }
     trayWindow.show()
     trayWindow.focus()

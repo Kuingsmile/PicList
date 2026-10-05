@@ -207,6 +207,7 @@ import CustomModal from '@/components/common/CustomModal.vue'
 import useConfirm from '@/composables/useConfirm'
 import { invokeRPC, saveWithFeedback, showRpcError } from '@/services/rpcService'
 import keyBinding from '@/utils/keyBinding'
+import { SHORT_CUTS_CHANGED } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { RpcError, rpcErrorMessages } from '#/rpc'
 import {
@@ -416,7 +417,7 @@ watch(modalVisible, () => {
   resumeCapture()
 })
 onMounted(async () => {
-  unsubscribe = window.electron.ipcRendererOn('shortcutsChanged', refresh)
+  unsubscribe = window.electron.ipcRendererOn(SHORT_CUTS_CHANGED, refresh)
   window.addEventListener('blur', pauseCapture)
   window.addEventListener('focus', resumeCapture)
   await retry()

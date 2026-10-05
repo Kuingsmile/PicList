@@ -155,7 +155,7 @@
             </div>
             <div class="text-center">
               <div class="text-sm font-semibold text-main">
-                {{ $t('pages.manage.main.backToHome') }}
+                {{ t('pages.manage.main.backToHome') }}
               </div>
             </div>
           </div>
@@ -233,8 +233,8 @@
         <div></div>
       </div>
       <template #footer>
-        <CustomButton type="secondary" :text="$t('common.cancel')" @click="bucketDrawerVisible = false" />
-        <CustomButton :text="$t('common.submit')" @click="createNewBucket(currentPicBedName)" />
+        <CustomButton type="secondary" :text="t('common.cancel')" @click="bucketDrawerVisible = false" />
+        <CustomButton :text="t('common.submit')" @click="createNewBucket(currentPicBedName)" />
       </template>
     </CustomModal>
   </div>

@@ -171,13 +171,12 @@
   },
   "pages": {
     "about": {
-      "builtOn": "Built on {picgo} and the work of open-source contributors.",
       "copied": "Copied",
       "copyFailed": "Could not copy the version. Select the version number to copy it manually.",
       "copyVersion": "Copy version",
       "createdBy": "Created by",
       "credits": "Credits",
-      "description": "Your images and cloud storage, in one place.",
+      "description": "Your images and cloud storage, in one place",
       "documentation": "Documentation",
       "documentationDescription": "Set up image hosts and explore PicList's features.",
       "feedback": "Feedback & issues",

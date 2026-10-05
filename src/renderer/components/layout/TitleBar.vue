@@ -1,20 +1,18 @@
 <template>
   <div
-    class="fixed top-0 right-0 left-0 z-1000 h-[32px] border-b border-b-border/40 bg-bg-secondary drag-region"
+    class="fixed inset-x-0 top-0 z-1000 h-[32px] border-b border-b-border/40 bg-bg-secondary drag-region"
     data-drag-region
   >
-    <div class="flex h-full items-center justify-between px-4 py-0">
-      <div v-if="osGlobal !== 'darwin'" class="flex items-center gap-2 no-drag-region">
-        <div class="flex items-center text-accent">
-          <img :src="defaultLogo" width="18" height="18" class="pointer-events-none select-none no-drag-region" />
-        </div>
+    <div class="flex h-full items-center justify-between px-4">
+      <div v-if="!isMacOS" class="flex items-center text-accent no-drag-region">
+        <img :src="defaultLogo" width="18" height="18" class="pointer-events-none select-none no-drag-region" />
       </div>
 
-      <div class="flex flex-1 items-center justify-center no-drag-region">
-        <div v-if="isShowprogress" class="flex w-full max-w-[600px] min-w-[100px] items-center gap-2">
-          <div class="h-[14px] w-full max-w-[600px] min-w-[100px] flex-1 overflow-hidden rounded-[2px] bg-border">
+      <div v-if="isShowprogress" class="flex flex-1 items-center justify-center no-drag-region">
+        <div class="flex w-full max-w-[600px] min-w-[100px] items-center gap-2">
+          <div class="h-[14px] w-full flex-1 overflow-hidden rounded-sm bg-border">
             <div
-              class="h-full rounded-[2px] bg-success transition-all duration-300 ease-in-out"
+              class="h-full rounded-sm bg-success transition-all duration-300 ease-in-out"
               :style="{ width: `${progress}%` }"
             />
           </div>
@@ -22,43 +20,30 @@
         </div>
       </div>
 
-      <div class="flex items-center no-drag-region">
-        <div class="flex items-center gap-[8px]">
-          <button
-            class="control-button flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard hover:bg-surface-elevated hover:text-main [.close:hover]:bg-danger [.close:hover]:text-white [.mini:hover]:bg-success/85 [.mini:hover]:text-white [.minimize:hover]:bg-accent/85 [.minimize:hover]:text-white"
-            :title="$t('titleBar.alwaysOnTop')"
-            @click="setAlwaysOnTop"
-          >
-            <PinIcon
-              :size="14"
-              class="text-[#6b7280] [.active]:rotate-90 [.active]:text-[#ce6769]"
-              :class="{ active: isAlwaysOnTop }"
-            />
-          </button>
-          <template v-if="osGlobal !== 'darwin'">
+      <div class="ml-auto flex items-center gap-2 no-drag-region">
+        <button
+          class="group flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard hover:bg-warning/85 hover:text-white"
+          :title="t('titleBar.alwaysOnTop')"
+          @click="setAlwaysOnTop"
+        >
+          <PinIcon
+            :size="14"
+            class="text-secondary group-hover:text-white! [.active]:rotate-90 [.active]:text-danger"
+            :class="{ active: isAlwaysOnTop }"
+          />
+        </button>
+        <template v-if="!isMacOS">
+          <template v-for="button in nonMacOSButton" :key="button.title">
             <button
-              class="control-button minimize flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard hover:bg-surface-elevated hover:text-main [.close:hover]:bg-danger [.close:hover]:text-white [.mini:hover]:bg-success/85 [.mini:hover]:text-white [.minimize:hover]:bg-accent/85 [.minimize:hover]:text-white"
-              :title="$t('titleBar.minimize')"
-              @click="minimizeWindow"
+              class="flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard"
+              :class="button.class"
+              :title="t(button.title)"
+              @click="handleNonMacOSButtonClick(button.action)"
             >
-              <MinusIcon :size="14" />
-            </button>
-            <button
-              class="control-button mini flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard hover:bg-surface-elevated hover:text-main [.close:hover]:bg-danger [.close:hover]:text-white [.mini:hover]:bg-success/85 [.mini:hover]:text-white [.minimize:hover]:bg-accent/85 [.minimize:hover]:text-white"
-              :title="$t('titleBar.miniWindow')"
-              @click="openMiniWindow"
-            >
-              <ShrinkIcon :size="14" />
-            </button>
-            <button
-              class="control-button close flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard hover:bg-surface-elevated hover:text-main [.close:hover]:bg-danger [.close:hover]:text-white [.mini:hover]:bg-success/85 [.mini:hover]:text-white [.minimize:hover]:bg-accent/85 [.minimize:hover]:text-white"
-              :title="$t('titleBar.close')"
-              @click="closeWindow"
-            >
-              <XIcon :size="14" />
+              <component :is="button.icon" :size="14" />
             </button>
           </template>
-        </div>
+        </template>
       </div>
     </div>
   </div>
@@ -67,14 +52,39 @@
 <script setup lang="ts">
 import { MinusIcon, PinIcon, ShrinkIcon, XIcon } from '@lucide/vue'
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import { osGlobal } from '@/composables/useGlobal'
+import { TITLE_BAR_UPDATE_PROGRESS } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
 
 const isShowprogress = ref(false)
 const progress = ref(0)
 const isAlwaysOnTop = ref(false)
+const { t } = useI18n()
 
+const nonMacOSButton = [
+  {
+    title: 'titleBar.minimize',
+    action: IRPCActionType.MINIMIZE_WINDOW,
+    icon: MinusIcon,
+    class: 'hover:bg-accent/85 hover:text-white',
+  },
+  {
+    title: 'titleBar.miniWindow',
+    action: IRPCActionType.OPEN_MINI_WINDOW,
+    icon: ShrinkIcon,
+    class: 'hover:bg-success/85 hover:text-white',
+  },
+  {
+    title: 'titleBar.close',
+    action: IRPCActionType.CLOSE_WINDOW,
+    icon: XIcon,
+    class: 'hover:bg-danger/85 hover:text-white',
+  },
+]
+
+const isMacOS = computed(() => osGlobal.value === 'darwin')
 const defaultLogo = computed(() => `${import.meta.env.BASE_URL}roundLogo.png`)
 
 function setAlwaysOnTop() {
@@ -82,9 +92,12 @@ function setAlwaysOnTop() {
   window.electron.sendRPC(IRPCActionType.MAIN_WINDOW_ON_TOP)
 }
 
-const minimizeWindow = () => window.electron.sendRPC(IRPCActionType.MINIMIZE_WINDOW)
-const openMiniWindow = () => window.electron.sendRPC(IRPCActionType.OPEN_MINI_WINDOW)
-const closeWindow = () => window.electron.sendRPC(IRPCActionType.CLOSE_WINDOW)
+function handleNonMacOSButtonClick(
+  action:
+    typeof IRPCActionType.MINIMIZE_WINDOW | typeof IRPCActionType.OPEN_MINI_WINDOW | typeof IRPCActionType.CLOSE_WINDOW,
+) {
+  window.electron.sendRPC(action)
+}
 
 function uploadProcessHandler(data: { progress: number }) {
   isShowprogress.value = data.progress !== 100 && data.progress !== 0
@@ -92,10 +105,10 @@ function uploadProcessHandler(data: { progress: number }) {
 }
 
 onBeforeMount(() => {
-  window.electron.ipcRendererOn('updateProgress', uploadProcessHandler)
+  window.electron.ipcRendererOn(TITLE_BAR_UPDATE_PROGRESS, uploadProcessHandler)
 })
 
 onBeforeUnmount(() => {
-  window.electron.ipcRendererRemoveAllListeners('updateProgress')
+  window.electron.ipcRendererRemoveAllListeners(TITLE_BAR_UPDATE_PROGRESS)
 })
 </script>

@@ -1,6 +1,7 @@
 import windowManager from 'apis/app/window/windowManager'
 import { app, BrowserWindow } from 'electron'
 
+import { UPDATE_MINI_ICON } from '#/constants/ipcChannels'
 import { IRPCActionType, IWindowList } from '~/constants'
 import {
   buildMainPageMenu,
@@ -126,7 +127,7 @@ export default [
     action: IRPCActionType.UPDATE_MINI_WINDOW_ICON,
     handler: async (_: IIPCEvent, args: [iconPath: string]) => {
       const miniWindow = windowManager.get(IWindowList.MINI_WINDOW)
-      miniWindow?.webContents?.send('updateMiniIcon', args[0])
+      miniWindow?.webContents?.send(UPDATE_MINI_ICON, args[0])
     },
   },
   {

@@ -1,3 +1,21 @@
+<template>
+  <div class="relative flex items-center">
+    <button
+      type="button"
+      :disabled="busy"
+      :aria-busy="busy || undefined"
+      :aria-label="`${t('settings.theme.toggle')}: ${currentThemeOption.label}`"
+      class="flex cursor-pointer items-center gap-2 rounded-md border border-border-secondary bg-bg-secondary px-3 py-2 text-sm text-secondary transition-all duration-fast ease-standard not-disabled:hover:bg-accent/30 not-disabled:hover:text-main disabled:cursor-wait disabled:opacity-60 max-md:justify-center max-md:gap-0 max-md:p-2 [.collapsed]:justify-center [.collapsed]:gap-0 [.collapsed]:p-2"
+      :class="{ collapsed }"
+      :title="t('settings.theme.toggle')"
+      @click="toggleTheme"
+    >
+      <component :is="currentThemeOption.icon" :size="18" aria-hidden="true" />
+      <span v-if="!collapsed" class="font-medium max-md:hidden">{{ currentThemeOption.label }}</span>
+    </button>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { Monitor, Moon, Sun } from '@lucide/vue'
 import { useMediaQuery } from '@vueuse/core'
@@ -8,11 +26,9 @@ import useMessage from '@/composables/useMessage'
 import { getConfig, saveConfig } from '@/services/configService'
 import { configPaths } from '@/utils/configPaths'
 
-interface Props {
+defineProps<{
   collapsed?: boolean
-}
-
-defineProps<Props>()
+}>()
 
 const { t } = useI18n()
 const message = useMessage()
@@ -96,21 +112,3 @@ onBeforeMount(() => {
   initializeTheme()
 })
 </script>
-
-<template>
-  <div class="relative flex items-center">
-    <button
-      type="button"
-      :disabled="busy"
-      :aria-busy="busy || undefined"
-      :aria-label="`${t('settings.theme.toggle')}: ${currentThemeOption.label}`"
-      class="flex cursor-pointer items-center gap-2 rounded-md border border-border-secondary bg-bg-secondary px-3 py-2 text-sm text-secondary transition-all duration-fast ease-standard not-disabled:hover:bg-accent/30 not-disabled:hover:text-main disabled:cursor-wait disabled:opacity-60 max-md:justify-center max-md:gap-0 max-md:p-2 [.collapsed]:justify-center [.collapsed]:gap-0 [.collapsed]:p-2"
-      :class="{ collapsed }"
-      :title="t('settings.theme.toggle')"
-      @click="toggleTheme"
-    >
-      <component :is="currentThemeOption.icon" :size="18" aria-hidden="true" />
-      <span v-if="!collapsed" class="font-medium max-md:hidden">{{ currentThemeOption.label }}</span>
-    </button>
-  </div>
-</template>

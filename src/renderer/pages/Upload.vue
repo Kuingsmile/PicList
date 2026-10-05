@@ -1,7 +1,7 @@
 <template>
   <div class="relative no-scrollbar flex h-full w-full items-center justify-center">
     <div
-      class="relative z-1 no-scrollbar flex h-full w-full flex-col items-center justify-start gap-6 overflow-auto rounded-xl border-none p-8 shadow-sm"
+      class="relative z-1 no-scrollbar flex h-full w-full flex-col items-center justify-start gap-6 overflow-auto rounded-xl border-none p-6 shadow-sm"
     >
       <!-- Header Card -->
       <div
@@ -131,10 +131,9 @@
           </div>
           <input id="file-uploader" ref="fileInput" type="file" multiple class="hidden" @change="handleFileSelection" />
         </div>
-
-        <!-- Progress Bar -->
       </div>
 
+      <!-- Progress Bar -->
       <div
         v-if="showProgress"
         class="flex w-full flex-wrap items-center justify-between gap-4 rounded-2xl border border-border-secondary p-0 shadow-md"
@@ -268,7 +267,6 @@
     </div>
     <!-- Image Process Dialog -->
     <ImageProcessDialog
-      v-if="imageProcessDialogVisible"
       v-model:visible="imageProcessDialogVisible"
       :config-id="defaultIdG"
       :current-picbed-name="defaultPicBedG"

@@ -7,21 +7,23 @@
       class="relative flex items-center justify-center bg-bg-secondary px-4 py-5 group-[.collapsed]:px-2 group-[.collapsed]:py-4"
     >
       <div v-show="!isCollapsed" class="flex flex-col items-center gap-1 group-[.collapsed]:hidden max-md:hidden">
-        <div
+        <a
           class="text-[16px] font-bold tracking-tight text-main hover:cursor-pointer hover:text-accent"
-          @click="openGithubPage"
+          :href="GITHUB_URL"
+          target="_blank"
+          rel="noopener noreferrer"
         >
           {{ t('app.title') }}
-        </div>
+        </a>
         <div
           class="rounded-lg border border-border/50 bg-bg-secondary px-[8px] py-[3px] text-[10px] font-medium text-secondary"
         >
-          v{{ version }}
+          v{{ pkg.version }}
         </div>
       </div>
       <button
         :title="isCollapsed ? t('navigation.expand') : t('navigation.collapse')"
-        class="absolute top-1/2 right-[8px] flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border-none bg-transparent p-[4px] transition-all duration-200 ease-apple group-[.collapsed]:absolute group-[.collapsed]:top-[20px] group-[.collapsed]:right-[16px] group-[.collapsed]:transform-none hover:bg-accent/30 hover:text-white"
+        class="absolute top-1/2 right-[8px] flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border border-border/50 bg-transparent p-[4px] transition-all duration-200 ease-apple group-[.collapsed]:absolute group-[.collapsed]:top-[20px] group-[.collapsed]:right-[16px] group-[.collapsed]:transform-none hover:bg-accent/30 hover:text-white"
         @click="isCollapsed = !isCollapsed"
       >
         <component :is="isCollapsed ? ChevronRightIcon : ChevronLeftIcon" :size="16" />
@@ -182,7 +184,7 @@
             <div class="flex justify-end gap-3 px-4 pb-4">
               <CustomButton
                 :text="t('navigation.close')"
-                class="bg-danger text-white hover:bg-danger"
+                class="bg-danger/70 text-white hover:bg-danger"
                 type="custom"
                 @click="qrcodeVisible = false"
               />
@@ -240,10 +242,10 @@ import useMessage from '@/composables/useMessage'
 import * as config from '@/router/config'
 import { getConfig } from '@/services/configService'
 import { showRpcError } from '@/services/rpcService'
+import { GITHUB_URL } from '@/utils/static'
 import { SHOW_FIRST_TIME_GUIDE, SHOW_MAIN_PAGE_QRCODE } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
 
-const version = ref(pkg.version)
 const isCollapsed = useStorage('navigation-collapsed', false)
 
 const { t } = useI18n()
@@ -337,10 +339,6 @@ function isPathActive(path: string): boolean {
 
 function isPicBedPathActive(type: string): boolean {
   return route.name === routerConfig.UPLOADER_CONFIG_PAGE && route.params.type === type
-}
-
-function openGithubPage() {
-  window.electron.sendRPC(IRPCActionType.OPEN_URL, 'https://github.com/Kuingsmile/PicList')
 }
 
 onBeforeMount(() => {

@@ -107,6 +107,7 @@ import { getConfig } from '@/services/configService'
 import $$db from '@/services/galleryDatabase'
 import { configPaths } from '@/utils/configPaths'
 import { IPasteStyle, IWindowList } from '#/constants/app'
+import { CLIPBOARD_FILES, UPDATE_FILES, UPLOAD_FILES } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { handleUrlEncode } from '#/utils/url'
 
@@ -242,16 +243,16 @@ function updateFilesHandler() {
 }
 
 onBeforeMount(async () => {
-  window.electron.ipcRendererOn('clipboardFiles', clipboardFilesHandler)
-  window.electron.ipcRendererOn('uploadFiles', uploadFilesHandler)
-  window.electron.ipcRendererOn('updateFiles', updateFilesHandler)
+  window.electron.ipcRendererOn(CLIPBOARD_FILES, clipboardFilesHandler)
+  window.electron.ipcRendererOn(UPLOAD_FILES, uploadFilesHandler)
+  window.electron.ipcRendererOn(UPDATE_FILES, updateFilesHandler)
   disableDragFile()
   await getData()
 })
 
 onBeforeUnmount(() => {
-  window.electron.ipcRendererRemoveAllListeners('clipboardFiles')
-  window.electron.ipcRendererRemoveAllListeners('uploadFiles')
-  window.electron.ipcRendererRemoveAllListeners('updateFiles')
+  window.electron.ipcRendererRemoveAllListeners(CLIPBOARD_FILES)
+  window.electron.ipcRendererRemoveAllListeners(UPLOAD_FILES)
+  window.electron.ipcRendererRemoveAllListeners(UPDATE_FILES)
 })
 </script>

@@ -5,10 +5,15 @@ import { usePicBed } from '@/composables/useGlobal'
 import { getConfig, saveConfig } from '@/services/configService'
 import { configPaths } from '@/utils/configPaths'
 import {
+  HIDE_LOADING,
+  INSTALL_PLUGIN,
   PICGO_CONFIG_PLUGIN,
   PICGO_HANDLE_PLUGIN_DONE,
   PICGO_HANDLE_PLUGIN_ING,
   PICGO_TOGGLE_PLUGIN,
+  PLUGIN_LIST,
+  UNINSTALL_SUCCESS,
+  UPDATE_SUCCESS,
 } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { getRawData } from '#/utils/rawData'
@@ -236,12 +241,12 @@ export function usePlugins() {
     window.electron.sendRPC(IRPCActionType.PLUGIN_UPDATE_ALL, toRaw(pluginNameList.value))
   }
   onBeforeMount(async () => {
-    window.electron.ipcRendererOn('hideLoading', hideLoadingHandler)
+    window.electron.ipcRendererOn(HIDE_LOADING, hideLoadingHandler)
     window.electron.ipcRendererOn(PICGO_HANDLE_PLUGIN_DONE, picgoHandlePluginDoneHandler)
-    window.electron.ipcRendererOn('pluginList', pluginListHandler)
-    window.electron.ipcRendererOn('installPlugin', installPluginHandler)
-    window.electron.ipcRendererOn('updateSuccess', updateSuccessHandler)
-    window.electron.ipcRendererOn('uninstallSuccess', uninstallSuccessHandler)
+    window.electron.ipcRendererOn(PLUGIN_LIST, pluginListHandler)
+    window.electron.ipcRendererOn(INSTALL_PLUGIN, installPluginHandler)
+    window.electron.ipcRendererOn(UPDATE_SUCCESS, updateSuccessHandler)
+    window.electron.ipcRendererOn(UNINSTALL_SUCCESS, uninstallSuccessHandler)
     window.electron.ipcRendererOn(PICGO_CONFIG_PLUGIN, picgoConfigPluginHandler)
     window.electron.ipcRendererOn(PICGO_HANDLE_PLUGIN_ING, picgoHandlePluginIngHandler)
     window.electron.ipcRendererOn(PICGO_TOGGLE_PLUGIN, picgoTogglePluginHandler)
@@ -250,11 +255,11 @@ export function usePlugins() {
     experimentalBundledNpm.value = (await getConfig<boolean>(configPaths.settings.experimentalBundledNpm)) === true
   })
   onBeforeUnmount(() => {
-    window.electron.ipcRendererRemoveAllListeners('pluginList')
-    window.electron.ipcRendererRemoveAllListeners('installPlugin')
-    window.electron.ipcRendererRemoveAllListeners('uninstallSuccess')
-    window.electron.ipcRendererRemoveAllListeners('updateSuccess')
-    window.electron.ipcRendererRemoveAllListeners('hideLoading')
+    window.electron.ipcRendererRemoveAllListeners(PLUGIN_LIST)
+    window.electron.ipcRendererRemoveAllListeners(INSTALL_PLUGIN)
+    window.electron.ipcRendererRemoveAllListeners(UPDATE_SUCCESS)
+    window.electron.ipcRendererRemoveAllListeners(UNINSTALL_SUCCESS)
+    window.electron.ipcRendererRemoveAllListeners(HIDE_LOADING)
     window.electron.ipcRendererRemoveAllListeners(PICGO_HANDLE_PLUGIN_DONE)
     window.electron.ipcRendererRemoveAllListeners(PICGO_CONFIG_PLUGIN)
     window.electron.ipcRendererRemoveAllListeners(PICGO_HANDLE_PLUGIN_ING)

@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import useMessage from '@/composables/useMessage'
 import { getUploadFiles } from '@/utils/uploadFiles'
+import { UPLOAD_TASK_QUEUE_UPDATE } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
 import type { UploadTask, UploadTaskQueueConfig, UploadTaskQueueStatus } from '#/types/uploadTask'
 import { getUploadTaskStats } from '#/utils/uploadTask'
@@ -205,7 +206,7 @@ export function useUploadTaskQueue() {
   }
 
   onBeforeMount(() => {
-    removeTaskQueueListener = window.electron.ipcRendererOn('uploadTaskQueueUpdate', applyTaskStatus)
+    removeTaskQueueListener = window.electron.ipcRendererOn(UPLOAD_TASK_QUEUE_UPDATE, applyTaskStatus)
     void refreshTaskStatus()
   })
   onBeforeUnmount(() => removeTaskQueueListener())

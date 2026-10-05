@@ -40,13 +40,6 @@ export default [
     },
   },
   {
-    action: IRPCActionType.GET_SYSTEM_THEME,
-    handler: async () => {
-      return nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
-    },
-    type: IRPCType.INVOKE,
-  },
-  {
     action: IRPCActionType.SET_SYSTEM_THEME,
     handler: async (_: IIPCEvent, args: [theme: 'light' | 'dark' | 'system']) => {
       nativeTheme.themeSource = args[0]

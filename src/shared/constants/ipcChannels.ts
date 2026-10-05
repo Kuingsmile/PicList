@@ -1,39 +1,43 @@
 export const SHOW_INPUT_BOX = 'SHOW_INPUT_BOX'
-
 export const CANCEL_INPUT_BOX = 'CANCEL_INPUT_BOX'
-
 export const SHOW_INPUT_BOX_RESPONSE = 'SHOW_INPUT_BOX_RESPONSE'
-
 export const TOGGLE_SHORTKEY_MODIFIED_MODE = 'TOGGLE_SHORTKEY_MODIFIED_MODE'
+export const SHORT_CUTS_CHANGED = 'shortcutsChanged'
 
 // picgo plugin
 export const PICGO_CONFIG_PLUGIN = 'PICGO_CONFIG_PLUGIN'
-
 export const PICGO_HANDLE_PLUGIN_ING = 'PICGO_HANDLE_PLUGIN_ING'
-
 export const PICGO_HANDLE_PLUGIN_DONE = 'PICGO_HANDLE_PLUGIN_DONE'
-
 export const PICGO_TOGGLE_PLUGIN = 'PICGO_TOGGLE_PLUGIN'
+export const HIDE_LOADING = 'hideLoading'
+export const PLUGIN_LIST = 'pluginList'
+export const INSTALL_PLUGIN = 'installPlugin'
+export const UPDATE_SUCCESS = 'updateSuccess'
+export const UNINSTALL_SUCCESS = 'uninstallSuccess'
 
 // picgo uploader
 export const RENAME_FILE_NAME = 'RENAME_FILE_NAME'
-
 export const GET_RENAME_FILE_NAME = 'GET_RENAME_FILE_NAME'
-
 export const SHOW_MAIN_PAGE_QRCODE = 'SHOW_MAIN_PAGE_QRCODE'
-
 export const SHOW_FIRST_TIME_GUIDE = 'SHOW_FIRST_TIME_GUIDE'
 
 // rpc
 export const RPC_ACTIONS = 'RPC_ACTIONS'
-
 export const RPC_ACTIONS_INVOKE = 'RPC_ACTIONS_INVOKE'
 
 // update window
 export const SHOW_UPDATE_INFO = 'SHOW_UPDATE_INFO'
-
 export const UPDATE_PROGRESS = 'UPDATE_PROGRESS'
-
 export const THEME_UPDATE = 'THEME_UPDATE'
 export const CLIPBOARD_FILES = 'clipboardFiles'
+export const UPLOAD_FILES = 'uploadFiles'
 export const UPDATE_FILES = 'updateFiles'
+
+export const TITLE_BAR_UPDATE_PROGRESS = 'TITLE_BAR_UPDATE_PROGRESS'
+
+export const UPDATE_GALLERY = 'updateGallery'
+
+export const UPDATE_MINI_ICON = 'updateMiniIcon'
+export const UPLOAD_PROGRESS = 'uploadProgress'
+
+export const UPLOAD_TASK_QUEUE_UPDATE = 'uploadTaskQueueUpdate'

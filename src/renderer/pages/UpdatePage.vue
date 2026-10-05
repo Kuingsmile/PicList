@@ -14,7 +14,7 @@
 
       <div v-if="updateInfo.type === 'downloading' && downloadProgress !== null" class="bg-accent-hover/5 p-6">
         <div class="mb-3 flex items-center justify-between">
-          <span class="text-sm font-semibold text-main">{{ $t('pages.update.downloading') }}</span>
+          <span class="text-sm font-semibold text-main">{{ t('pages.update.downloading') }}</span>
           <span class="text-sm font-semibold text-main tabular-nums">{{ Math.round(downloadProgress) }}%</span>
         </div>
         <div class="relative h-2 w-full overflow-hidden rounded-full bg-white">
@@ -27,7 +27,7 @@
 
       <div class="p-6">
         <div v-if="updateInfo.releaseNotes" class="mb-5">
-          <h2 class="mb-2 text-base font-bold tracking-wide text-main">{{ $t('pages.update.releaseNotes') }}</h2>
+          <h2 class="mb-2 text-base font-bold tracking-wide text-main">{{ t('pages.update.releaseNotes') }}</h2>
           <MarkdownContent :html="renderMarkdown(updateInfo.releaseNotes)" class="max-h-[200px] rounded-lg" />
         </div>
 
@@ -57,7 +57,7 @@
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </span>
-            <span class="text-sm font-normal text-main">{{ $t('pages.update.noMoreNotice') }}</span>
+            <span class="text-sm font-normal text-main">{{ t('pages.update.noMoreNotice') }}</span>
           </label>
         </div>
       </div>
@@ -70,14 +70,14 @@
             @click="goToDownloadPage"
           >
             <Link2Icon class="h-6 w-6 shrink-0" />
-            {{ $t('pages.update.goToDownloadPage') }}
+            {{ t('pages.update.goToDownloadPage') }}
           </button>
           <button
             class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border-none bg-accent px-5 py-2.5 font-[inherit] text-sm font-semibold text-white shadow-md transition-all duration-fast ease-standard hover:-translate-y-px hover:shadow-lg focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50"
             @click="downloadUpdate"
           >
             <DownloadIcon class="h-6 w-6 shrink-0" />
-            {{ $t('pages.update.download') }}
+            {{ t('pages.update.download') }}
           </button>
         </template>
         <template v-else-if="updateInfo.type === 'downloading'">
@@ -86,7 +86,7 @@
             @click="closeWindow"
           >
             <XIcon class="h-6 w-6 shrink-0" />
-            {{ $t('common.cancel') }}
+            {{ t('common.cancel') }}
           </button>
         </template>
         <template v-else-if="updateInfo.type === 'update-downloaded'">
@@ -94,14 +94,14 @@
             class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border-none bg-bg-secondary px-5 py-2.5 font-[inherit] text-sm font-semibold text-secondary shadow-md transition-all duration-fast ease-standard hover:-translate-y-px hover:shadow-lg focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50"
             @click="closeWindow"
           >
-            {{ $t('pages.update.later') }}
+            {{ t('pages.update.later') }}
           </button>
           <button
             class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border-none bg-accent px-5 py-2.5 font-[inherit] text-sm font-semibold text-white shadow-md transition-all duration-fast ease-standard hover:-translate-y-px hover:shadow-lg focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50"
             @click="installUpdate"
           >
             <DownloadIcon class="h-6 w-6 shrink-0" />
-            {{ $t('pages.update.installNow') }}
+            {{ t('pages.update.installNow') }}
           </button>
         </template>
       </footer>
@@ -112,6 +112,7 @@
 <script lang="ts" setup>
 import { DownloadIcon, Link2Icon, XIcon } from '@lucide/vue'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import MarkdownContent from '@/components/common/MarkdownContent.vue'
 import { invokeRPC, saveWithFeedback } from '@/services/rpcService'
@@ -134,6 +135,7 @@ const updateInfo = ref<UpdateInfo>({
 
 const dontShowAgain = ref(false)
 const downloadProgress = ref<number | null>(null)
+const { t } = useI18n()
 
 watch(dontShowAgain, async (newVal: boolean) => {
   await saveWithFeedback(() => invokeRPC(IRPCActionType.SET_SHOW_UPDATE_TIP, !newVal))
@@ -169,19 +171,13 @@ function closeWindow() {
   window.electron.sendRPC(IRPCActionType.CLOSE_CURRENT_WINDOW)
 }
 
-let unbindThemeListener: (() => void) | null = null
-
 onMounted(() => {
   window.electron.ipcRendererOn(SHOW_UPDATE_INFO, handleUpdateInfo)
   window.electron.ipcRendererOn(UPDATE_PROGRESS, handleUpdateProgress)
-  unbindThemeListener = window.electron.onThemeUpdate(_ => {
-    console.log('UpdatePage received THEME_UPDATE')
-  })
 })
 
 onBeforeUnmount(() => {
   window.electron.ipcRendererRemoveAllListeners(SHOW_UPDATE_INFO)
   window.electron.ipcRendererRemoveAllListeners(UPDATE_PROGRESS)
-  unbindThemeListener?.()
 })
 </script>

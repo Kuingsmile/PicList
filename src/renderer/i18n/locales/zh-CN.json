@@ -171,13 +171,12 @@
   },
   "pages": {
     "about": {
-      "builtOn": "基于 {picgo} 构建，感谢所有开源贡献者。",
       "copied": "已复制",
       "copyFailed": "无法复制版本信息，请选中版本号手动复制。",
       "copyVersion": "复制版本",
       "createdBy": "开发者",
       "credits": "致谢",
-      "description": "在一个地方管理你的图片与云端文件。",
+      "description": "在一个地方管理你的图片与云端文件",
       "documentation": "使用文档",
       "documentationDescription": "配置图床，了解 PicList 的各项功能。",
       "feedback": "问题与反馈",

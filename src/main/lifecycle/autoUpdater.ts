@@ -14,6 +14,7 @@ import pkg from 'root/package.json'
 import yaml from 'yaml'
 
 import { II18nLanguage } from '#/constants/app'
+import { TITLE_BAR_UPDATE_PROGRESS, UPDATE_PROGRESS } from '#/constants/ipcChannels'
 import { IWindowList } from '~/constants'
 import { configPaths } from '~/utils/configPaths'
 import {
@@ -108,8 +109,8 @@ const progressHandler = (progressObj: Pick<updater.ProgressInfo, 'percent'>) => 
   const percent = {
     progress: progressObj.percent,
   }
-  windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('updateProgress', percent)
-  windowManager.get(IWindowList.UPDATE_WINDOW)?.webContents?.send('UPDATE_PROGRESS', percent)
+  windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send(TITLE_BAR_UPDATE_PROGRESS, percent)
+  windowManager.get(IWindowList.UPDATE_WINDOW)?.webContents?.send(UPDATE_PROGRESS, percent)
 }
 
 const downloadedHandler = () => {

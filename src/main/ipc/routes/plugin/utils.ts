@@ -8,6 +8,7 @@ import { dialog, shell } from 'electron'
 import fs from 'fs-extra'
 import { IGuiMenuItem, PicGo as PicGoCore } from 'piclist'
 
+import { HIDE_LOADING, INSTALL_PLUGIN, PLUGIN_LIST, UNINSTALL_SUCCESS, UPDATE_SUCCESS } from '#/constants/ipcChannels'
 import { handleStreamlinePluginName } from '#/utils/strings'
 import { simpleClone } from '#/utils/values'
 import { ICOREBuildInEvent, IPicGoHelperType, IWindowList } from '~/constants'
@@ -148,14 +149,14 @@ export const handlePluginUpdate = async (fullName: string | string[]) => {
   const res = await picgo.pluginHandler.update(typeof fullName === 'string' ? [fullName] : fullName)
   if (res.success) {
     for (const name of res.body as string[]) await shortKeyHandler.registerPluginShortKey(name)
-    window?.webContents?.send('updateSuccess', res.body[0])
+    window?.webContents?.send(UPDATE_SUCCESS, res.body[0])
   } else {
     showNotification({
       title: t('main.notification.updatePluginFailed'),
       body: res.body as string,
     })
   }
-  window?.webContents.send('hideLoading')
+  window?.webContents.send(HIDE_LOADING)
   dispose()
 }
 
@@ -164,7 +165,7 @@ export const handlePluginUninstall = async (fullName: string) => {
   const dispose = handleNPMError()
   const res = await picgo.pluginHandler.uninstall([fullName])
   if (res.success) {
-    window?.webContents?.send('uninstallSuccess', res.body[0])
+    window?.webContents?.send(UNINSTALL_SUCCESS, res.body[0])
     shortKeyHandler.unregisterPluginShortKey(res.body[0])
   } else {
     showNotification({
@@ -172,7 +173,7 @@ export const handlePluginUninstall = async (fullName: string) => {
       body: res.body as string,
     })
   }
-  window?.webContents?.send('hideLoading')
+  window?.webContents?.send(HIDE_LOADING)
   dispose()
 }
 
@@ -181,9 +182,9 @@ export const pluginGetListFunc = async (event: IIPCEvent) => {
     const list = await getPluginList()
     // here can just send JS Object not function
     // or will cause [Failed to serialize arguments] error
-    event.sender.send('pluginList', list)
+    event.sender.send(PLUGIN_LIST, list)
   } catch (e: any) {
-    event.sender.send('pluginList', [])
+    event.sender.send(PLUGIN_LIST, [])
     showNotification({
       title: t('main.notification.getPluginListFailed'),
       body: e.message,
@@ -196,7 +197,7 @@ export const pluginInstallFunc = async (event: IIPCEvent, args: [fullName: strin
   const fullName = args[0]
   const dispose = handleNPMError()
   const res = await picgo.pluginHandler.install([fullName])
-  event.sender.send('installPlugin', {
+  event.sender.send(INSTALL_PLUGIN, {
     success: res.success,
     body: fullName,
     errMsg: res.success ? '' : res.body,
@@ -209,7 +210,7 @@ export const pluginInstallFunc = async (event: IIPCEvent, args: [fullName: strin
       body: res.body as string,
     })
   }
-  event.sender.send('hideLoading')
+  event.sender.send(HIDE_LOADING)
   dispose()
 }
 
@@ -226,9 +227,9 @@ export const pluginImportLocalFunc = async (event: IIPCEvent) => {
       for (const name of res.body as string[]) await shortKeyHandler.registerPluginShortKey(name)
       try {
         const list = await getPluginList()
-        event.sender.send('pluginList', list)
+        event.sender.send(PLUGIN_LIST, list)
       } catch (e: any) {
-        event.sender.send('pluginList', [])
+        event.sender.send(PLUGIN_LIST, [])
         showNotification({
           title: t('main.notification.getPluginListFailed'),
           body: e.message,
@@ -245,7 +246,7 @@ export const pluginImportLocalFunc = async (event: IIPCEvent) => {
       })
     }
   }
-  event.sender.send('hideLoading')
+  event.sender.send(HIDE_LOADING)
 }
 
 export const pluginUpdateAllFunc = async (_: IIPCEvent, args: [list: string[]]) => {

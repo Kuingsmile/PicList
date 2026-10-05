@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div
-      class="pointer-events-none fixed top-[34px] right-4 z-10000 max-h-[calc(100dvh-3rem)] max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain"
+      class="pointer-events-none fixed top-[34px] right-4 z-10000 max-h-[calc(100dvh-3rem)] max-w-[calc(100vw-2rem)] overflow-x-hidden overflow-y-auto overscroll-contain"
     >
       <TransitionGroup
         name="message"

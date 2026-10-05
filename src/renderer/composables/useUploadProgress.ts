@@ -2,6 +2,7 @@ import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { createUploadProgressTracker, type UploadProgressState } from '@/utils/uploadProgress'
+import { UPLOAD_PROGRESS } from '#/constants/ipcChannels'
 
 export function useUploadProgress() {
   const { t } = useI18n()
@@ -61,7 +62,7 @@ export function useUploadProgress() {
   }
 
   onBeforeMount(() => {
-    removeProgressListener = window.electron.ipcRendererOn('uploadProgress', handleUploadProgress)
+    removeProgressListener = window.electron.ipcRendererOn(UPLOAD_PROGRESS, handleUploadProgress)
   })
 
   onBeforeUnmount(() => {

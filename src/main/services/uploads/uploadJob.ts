@@ -5,6 +5,8 @@ import { setMaxListeners } from 'node:events'
 import type { WebContents } from 'electron'
 import type { IUploadOptions } from 'piclist'
 
+import { UPLOAD_PROGRESS } from '#/constants/ipcChannels'
+
 export const UPLOAD_TIMEOUT_MS = 10 * 60 * 1000
 
 export interface UploadJobOptions {
@@ -52,7 +54,7 @@ export function subscribeToUploadProgress(observer: WebContents): void {
   }
   // Subscribe only after the renderer has installed its listener, then replay
   // active jobs so opening/reloading the mini window cannot miss their start.
-  for (const event of activeProgress.values()) sendToWindow(observer, 'uploadProgress', event)
+  for (const event of activeProgress.values()) sendToWindow(observer, UPLOAD_PROGRESS, event)
 }
 
 export function sendToWindow(origin: WebContents | undefined, channel: string, ...args: unknown[]): void {
@@ -148,7 +150,7 @@ export class UploadJob {
     // The owner still receives its own events. Observers never become owners
     // and closing one must not cancel an upload started in another window.
     const recipients = new Set([this.context.origin, ...progressObservers.keys()])
-    for (const recipient of recipients) sendToWindow(recipient, 'uploadProgress', event)
+    for (const recipient of recipients) sendToWindow(recipient, UPLOAD_PROGRESS, event)
   }
 
   private wait<T>(work: () => Promise<T>): Promise<T> {

@@ -162,7 +162,7 @@
               v-model="searchText"
               type="text"
               class="search-input w-full rounded-md border border-border-secondary pt-2 pr-3 pb-2 pl-9 text-sm text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent-hover focus:shadow-md focus:outline-none"
-              :placeholder="$t('pages.gallery.searchFilename')"
+              :placeholder="t('pages.gallery.searchFilename')"
               :aria-label="t('pages.gallery.searchFilename')"
             />
             <button
@@ -501,6 +501,7 @@ import { prepareGalleryItems } from '@/utils/galleryItems'
 import { getGalleryPreviewSource, getJxlPreviewSource } from '@/utils/galleryPreview'
 import { PreviewCache } from '@/utils/previewCache'
 import { IPasteStyle } from '#/constants/app'
+import { UPDATE_GALLERY } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { customStrMatch } from '#/utils/strings'
 import { addCacheBustParam as withCacheBustParam } from '#/utils/url'
@@ -1243,7 +1244,7 @@ onDeactivated(() => {
 })
 
 onBeforeMount(async () => {
-  window.electron.ipcRendererOn('updateGallery', updateGalleryHandler)
+  window.electron.ipcRendererOn(UPDATE_GALLERY, updateGalleryHandler)
   updateGallery()
   document.addEventListener('keydown', handleDetectShiftKey)
   document.addEventListener('keyup', handleDetectShiftKey)
@@ -1255,7 +1256,7 @@ onBeforeUnmount(() => {
   galleryRefreshVersion++
   galleryActive.value = false
   invalidateJxlPreviewCache()
-  window.electron.ipcRendererRemoveAllListeners('updateGallery')
+  window.electron.ipcRendererRemoveAllListeners(UPDATE_GALLERY)
   document.removeEventListener('click', handleOutsideClick)
   document.removeEventListener('keydown', handleDetectShiftKey)
   document.removeEventListener('keyup', handleDetectShiftKey)

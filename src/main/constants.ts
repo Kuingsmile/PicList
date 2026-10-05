@@ -69,7 +69,6 @@ export const IWindowList = {
 
 export const IRPCActionType = {
   ...sharedRpcActions,
-  GET_SYSTEM_THEME: 'GET_SYSTEM_THEME',
   SET_SYSTEM_THEME: 'SET_SYSTEM_THEME',
   APPLY_THEME: 'APPLY_THEME',
   THEME_GET_BOOTSTRAP: 'THEME_GET_BOOTSTRAP',

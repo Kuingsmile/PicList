@@ -8,6 +8,7 @@ import { Notification, WebContents } from 'electron'
 import fs from 'fs-extra'
 import { v4 as uuid } from 'uuid'
 
+import { UPLOAD_TASK_QUEUE_UPDATE } from '#/constants/ipcChannels'
 import type { UploadTask, UploadTaskQueueConfig, UploadTaskQueueStatus } from '#/types/uploadTask'
 import { getUploadTaskStats } from '#/utils/uploadTask'
 import { IWindowList } from '~/constants'
@@ -707,7 +708,7 @@ class UploadTaskQueueManager {
       this.progressTimer = null
     }
     const status = this.getQueueStatus()
-    sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, 'uploadTaskQueueUpdate', status)
+    sendToWindow(windowManager.get(IWindowList.SETTING_WINDOW)?.webContents, UPLOAD_TASK_QUEUE_UPDATE, status)
   }
 
   private persist(): void {

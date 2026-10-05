@@ -34,7 +34,7 @@
               </template>
               <template v-else>
                 <div class="flex flex-wrap items-center gap-3">
-                  <span class="text-sm text-secondary">{{ $t('pages.toolbox.autoFixFail') }}</span>
+                  <span class="text-sm text-secondary">{{ t('pages.toolbox.autoFixFail') }}</span>
                   <CustomButton type="secondary" :text="t('pages.toolbox.reScan')" @click="handleCheck" />
                 </div>
               </template>

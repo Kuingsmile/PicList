@@ -1,5 +1,5 @@
 <template>
-  <main class="h-screen overflow-auto bg-bg-tertiary text-main" aria-labelledby="about-title">
+  <main class="h-screen overflow-auto bg-bg-secondary text-main" aria-labelledby="about-title">
     <div
       class="mx-auto flex min-h-full w-full max-w-[640px] flex-col px-[36px] pt-[32px] pb-[20px] max-[420px]:px-[20px] max-[420px]:pt-[24px]"
     >
@@ -81,23 +81,11 @@
             {{ pkg.author.name }}
           </a>
         </p>
-        <i18n-t keypath="pages.about.builtOn" tag="p" scope="global" class="m-0 mb-[3px]">
-          <template #picgo>
-            <a
-              href="https://github.com/Molunerfinn/PicGo"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-main underline decoration-border underline-offset-[3px] hover:text-accent hover:decoration-current"
-            >
-              PicGo
-            </a>
-          </template>
-        </i18n-t>
       </section>
 
       <footer class="mt-[18px] flex flex-wrap items-center justify-between gap-[12px]">
         <a
-          :href="`${repositoryUrl}/blob/dev/LICENSE`"
+          :href="`${GITHUB_URL}/blob/dev/LICENSE`"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-[7px] text-[12px] text-main underline decoration-border underline-offset-[3px] hover:text-accent hover:decoration-current"
@@ -124,6 +112,7 @@ import pkg from 'root/package.json'
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { GITHUB_URL } from '@/utils/static'
 import { IRPCActionType } from '#/constants/rpcActions'
 
 defineOptions({ name: 'AboutPage' })
@@ -131,7 +120,6 @@ defineOptions({ name: 'AboutPage' })
 const { t, locale } = useI18n()
 useTitle(computed(() => t('pages.about.title')))
 const logoUrl = `${import.meta.env.BASE_URL}roundLogo.png`
-const repositoryUrl = 'https://github.com/Kuingsmile/PicList'
 const copyState = ref<'idle' | 'copied' | 'error'>('idle')
 let copyResetTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -147,14 +135,14 @@ const links = computed(() => [
     id: 'releases',
     title: t('pages.about.releases'),
     description: t('pages.about.releasesDescription'),
-    href: `${repositoryUrl}/releases`,
+    href: `${GITHUB_URL}/releases`,
     icon: PackageOpen,
   },
   {
     id: 'source',
     title: t('pages.about.sourceCode'),
     description: t('pages.about.sourceCodeDescription'),
-    href: repositoryUrl,
+    href: GITHUB_URL,
     icon: CodeXml,
   },
   {
@@ -187,9 +175,7 @@ useEventListener('keydown', event => {
   if (event.key === 'Escape') closeWindow()
 })
 
-const removeThemeListener = window.electron.onThemeUpdate(() => {})
 onBeforeUnmount(() => {
   clearTimeout(copyResetTimer)
-  removeThemeListener()
 })
 </script>

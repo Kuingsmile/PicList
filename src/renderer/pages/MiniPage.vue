@@ -140,6 +140,7 @@ import { useDragEventListeners } from '@/composables/useDragEventListeners'
 import { osGlobal } from '@/composables/useGlobal'
 import { getConfig } from '@/services/configService'
 import { createUploadProgressTracker, type UploadProgressState } from '@/utils/uploadProgress'
+import { UPDATE_MINI_ICON, UPLOAD_PROGRESS } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { isUrl } from '#/utils/url'
 
@@ -323,8 +324,8 @@ function openContextMenu() {
 }
 
 onBeforeMount(async () => {
-  removeListeners = window.electron.ipcRendererOn('uploadProgress', uploadProgressHandler)
-  removeIconListener = window.electron.ipcRendererOn('updateMiniIcon', updateMiniIconHandler)
+  removeListeners = window.electron.ipcRendererOn(UPLOAD_PROGRESS, uploadProgressHandler)
+  removeIconListener = window.electron.ipcRendererOn(UPDATE_MINI_ICON, updateMiniIconHandler)
   window.electron.sendRPC(IRPCActionType.UPLOAD_PROGRESS_SUBSCRIBE)
   window.addEventListener('mousedown', handleMouseDown, false)
   window.addEventListener('mousemove', handleMouseMove, false)

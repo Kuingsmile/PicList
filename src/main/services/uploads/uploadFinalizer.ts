@@ -11,6 +11,7 @@ import { cloneDeep, get } from 'lodash-es'
 import type { IPicGo } from 'piclist'
 
 import { IPasteStyle } from '#/constants/app'
+import { UPDATE_GALLERY, UPLOAD_FILES } from '#/constants/ipcChannels'
 import { IWindowList } from '~/constants'
 import { t } from '~/i18n'
 import {
@@ -310,11 +311,11 @@ function resultItems(state: UploadFinalization): FinalizationItem[] {
 function publishGallery(origin?: WebContents): void {
   const tray = windowManager.get(IWindowList.TRAY_WINDOW)?.webContents
   const setting = windowManager.get(IWindowList.SETTING_WINDOW)?.webContents
-  sendToWindow(tray, 'uploadFiles')
-  sendToWindow(setting, 'updateGallery')
+  sendToWindow(tray, UPLOAD_FILES)
+  sendToWindow(setting, UPDATE_GALLERY)
   if (origin && origin !== tray && origin !== setting) {
-    sendToWindow(origin, 'uploadFiles')
-    sendToWindow(origin, 'updateGallery')
+    sendToWindow(origin, UPLOAD_FILES)
+    sendToWindow(origin, UPDATE_GALLERY)
   }
 }
 

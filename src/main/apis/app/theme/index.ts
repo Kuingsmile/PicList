@@ -5,6 +5,7 @@ import AdmZip from 'adm-zip'
 import axios from 'axios'
 import fs from 'fs-extra'
 
+import { THEME_UPDATE } from '#/constants/ipcChannels'
 import { randomStringGenerator } from '#/utils/strings'
 import logger from '~/apis/core/picgo/logger'
 import { IWindowList } from '~/constants'
@@ -84,7 +85,7 @@ export async function readTheme(theme: string): Promise<string> {
 export async function applyTheme(theme: string): Promise<void> {
   const basePath = path.basename(theme)
   const css = await readTheme(basePath)
-  windowManager.get(IWindowList.SETTING_WINDOW)?.webContents.send('THEME_UPDATE', css)
-  windowManager.get(IWindowList.UPDATE_WINDOW)?.webContents.send('THEME_UPDATE', css)
-  windowManager.get(IWindowList.TRAY_WINDOW)?.webContents.send('THEME_UPDATE', css)
+  windowManager.get(IWindowList.SETTING_WINDOW)?.webContents.send(THEME_UPDATE, css)
+  windowManager.get(IWindowList.UPDATE_WINDOW)?.webContents.send(THEME_UPDATE, css)
+  windowManager.get(IWindowList.TRAY_WINDOW)?.webContents.send(THEME_UPDATE, css)
 }

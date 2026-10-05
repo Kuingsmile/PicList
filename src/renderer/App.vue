@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, onBeforeUnmount } from 'vue'
 
 import UIServiceProvider from '@/components/ui/UIServiceProvider.vue'
 import { useATagClick } from '@/composables/useATagClick'
@@ -17,6 +17,9 @@ defineOptions({ name: 'PicList' })
 useATagClick()
 
 const { updatePicBeds } = usePicBed()
+
+const removeThemeListener = window.electron.onThemeUpdate(() => {})
+onBeforeUnmount(removeThemeListener)
 
 onBeforeMount(() => {
   updatePicBeds()

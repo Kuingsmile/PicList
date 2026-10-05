@@ -7,7 +7,7 @@ import windowManager from 'apis/app/window/windowManager'
 import GuiApi from 'apis/gui'
 import { dialog, globalShortcut, Notification } from 'electron'
 
-import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/constants/ipcChannels'
+import { SHORT_CUTS_CHANGED, TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/constants/ipcChannels'
 import { RpcError } from '#/rpc'
 import { isUploadShortcutAction, type ShortcutConfig, shortcutSource, type ShortcutTarget } from '#/shortcuts'
 import { IWindowList } from '~/constants'
@@ -119,7 +119,7 @@ class ShortKeyHandler {
   }
 
   private changed() {
-    windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('shortcutsChanged')
+    windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send(SHORT_CUTS_CHANGED)
   }
 
   private notifyProblems() {

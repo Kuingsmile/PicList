@@ -6,6 +6,7 @@ import ALLApi from 'apis/delete/allApi'
 import GuiApi from 'apis/gui'
 import { Notification } from 'electron'
 
+import { UPDATE_GALLERY } from '#/constants/ipcChannels'
 import { ICOREBuildInEvent, IWindowList } from '~/constants'
 import { t } from '~/i18n/index'
 import { configPaths } from '~/utils/configPaths'
@@ -89,6 +90,6 @@ export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> =>
       result.push(false)
     }
   }
-  windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send('updateGallery')
+  windowManager.get(IWindowList.SETTING_WINDOW)?.webContents?.send(UPDATE_GALLERY)
   return result
 }
