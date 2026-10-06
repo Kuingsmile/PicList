@@ -70,30 +70,34 @@
                   class="grid grid-cols-2 gap-1.5 opacity-0 transition-all duration-fast ease-apple group-hover/config-card:opacity-100"
                 >
                   <button
+                    v-tooltip="t('pages.scripts.editScript')"
                     class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
-                    :title="t('pages.scripts.editScript')"
+                    :aria-label="t('pages.scripts.editScript')"
                     @click.stop="openEditPage(item.filePath)"
                   >
                     <Pencil :size="14" />
                   </button>
                   <button
+                    v-tooltip="t('pages.scripts.deleteScript')"
                     class="action-btn danger flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
-                    :title="t('pages.scripts.deleteScript')"
+                    :aria-label="t('pages.scripts.deleteScript')"
                     @click.stop="() => deleteConfig(item.filePath)"
                   >
                     <Trash2 :size="14" />
                   </button>
                   <button
+                    v-tooltip="t('pages.scripts.marketplace.shareScript')"
                     class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 bg-accent/50 text-white! transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent! hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
-                    :title="t('pages.scripts.marketplace.shareScript')"
+                    :aria-label="t('pages.scripts.marketplace.shareScript')"
                     @click.stop="openShareDialog(item)"
                   >
                     <Share2Icon :size="14" />
                   </button>
                   <button
                     v-if="item.category === 'manualTrigger'"
+                    v-tooltip="t('pages.scripts.runScript')"
                     class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 bg-accent/50 text-white! transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent! hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
-                    :title="t('pages.scripts.runScript')"
+                    :aria-label="t('pages.scripts.runScript')"
                     @click.stop="runScript(item.filePath)"
                   >
                     <Play :size="14" />
@@ -101,12 +105,13 @@
 
                   <button
                     v-if="item.category !== 'manualTrigger' && item.category !== 'uploader.advancedplist'"
+                    v-tooltip="item.enabled ? t('pages.scripts.disableScript') : t('pages.scripts.enableScript')"
                     class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-none border-accent/20 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                     :class="{
                       'bg-success/50 hover:bg-success!': !item.enabled,
                       'bg-error/50 hover:bg-error!': item.enabled,
                     }"
-                    :title="item.enabled ? t('pages.scripts.disableScript') : t('pages.scripts.enableScript')"
+                    :aria-label="item.enabled ? t('pages.scripts.disableScript') : t('pages.scripts.enableScript')"
                     @click.stop="toggleScript(item.filePath)"
                   >
                     <template v-if="!item.enabled">
@@ -438,8 +443,9 @@
               {{ deviceFlowState.userCode }}
             </code>
             <button
+              v-tooltip="t('pages.scripts.marketplace.copyCode')"
               class="rounded-lg bg-bg-secondary p-2 transition-colors hover:bg-bg-tertiary"
-              :title="t('pages.scripts.marketplace.copyCode')"
+              :aria-label="t('pages.scripts.marketplace.copyCode')"
               @click="copyUserCode"
             >
               <CheckIcon v-if="false" :size="20" class="text-success" />

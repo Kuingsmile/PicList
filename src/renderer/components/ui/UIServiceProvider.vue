@@ -2,6 +2,7 @@
   <div>
     <!-- MessageToast component -->
     <MessageToast ref="messageRef" />
+    <TooltipProvider />
 
     <!-- ConfirmMessageBox component -->
     <ConfirmMessageBox
@@ -28,6 +29,7 @@ import useMessage from '@/composables/useMessage'
 
 import ConfirmMessageBox from './ConfirmMessageBox.vue'
 import MessageToast from './MessageToast.vue'
+import TooltipProvider from './TooltipProvider.vue'
 
 defineOptions({ name: 'UIServiceProvider' })
 

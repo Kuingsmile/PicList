@@ -7,6 +7,7 @@ import { createI18n } from 'vue-i18n'
 import VueLazyLoad from 'vue3-lazyload'
 
 import App from '@/App.vue'
+import { vTooltip } from '@/directives/tooltip'
 import { getInitialLocale } from '@/i18n/locale'
 import en from '@/i18n/locales/en.json'
 import zhCN from '@/i18n/locales/zh-CN.json'
@@ -21,6 +22,7 @@ window.electron.setVisualZoomLevelLimits(1, 1)
 const userLanguage = navigator.language || 'zh-CN'
 
 const app = createApp(App)
+app.directive('tooltip', vTooltip)
 
 app.config.globalProperties.$$db = db
 app.config.globalProperties.triggerRPC = window.electron.triggerRPC

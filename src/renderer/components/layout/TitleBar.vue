@@ -22,8 +22,9 @@
 
       <div class="ml-auto flex items-center gap-2 no-drag-region">
         <button
+          v-tooltip="t('titleBar.alwaysOnTop')"
           class="group flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard hover:bg-warning/85 hover:text-white"
-          :title="t('titleBar.alwaysOnTop')"
+          :aria-label="t('titleBar.alwaysOnTop')"
           @click="setAlwaysOnTop"
         >
           <PinIcon
@@ -35,9 +36,10 @@
         <template v-if="!isMacOS">
           <template v-for="button in nonMacOSButton" :key="button.title">
             <button
+              v-tooltip="t(button.title)"
               class="flex h-[20px] w-[28px] cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-secondary transition-all duration-fast ease-standard"
               :class="button.class"
-              :title="t(button.title)"
+              :aria-label="t(button.title)"
               @click="handleNonMacOSButtonClick(button.action)"
             >
               <component :is="button.icon" :size="14" />

@@ -34,18 +34,18 @@
       <template #actions="{ item, index, tabindex }">
         <button
           v-if="!item.isDir && isShowRenameFileIcon"
+          v-tooltip="t('pages.manage.bucket.renameFile')"
           type="button"
           :tabindex
-          :title="t('pages.manage.bucket.renameFile')"
           :aria-label="t('pages.manage.bucket.renameFile')"
           @click="emit('rename', item)"
         >
           <EditIcon :size="16" />
         </button>
         <button
+          v-tooltip="t('common.fileTable.download')"
           type="button"
           :tabindex
-          :title="t('common.fileTable.download')"
           :aria-label="t('common.fileTable.download')"
           @click="item.isDir ? emit('download-folder', item) : emit('download', [item])"
         >
@@ -53,9 +53,9 @@
         </button>
         <div :data-dropdown-index="index">
           <button
+            v-tooltip="t('common.fileTable.copyAs')"
             type="button"
             :tabindex
-            :title="t('common.fileTable.copyAs')"
             :aria-label="t('common.fileTable.copyAs')"
             :aria-expanded="copyDropdownIndex === index"
             @click.stop="toggleCopyDropdown(index, $event)"
@@ -93,18 +93,18 @@
           </teleport>
         </div>
         <button
+          v-tooltip="t('pages.manage.bucket.fileInfo')"
           type="button"
           :tabindex
-          :title="t('pages.manage.bucket.fileInfo')"
           :aria-label="t('pages.manage.bucket.fileInfo')"
           @click="emit('info', item)"
         >
           <InfoIcon :size="16" />
         </button>
         <button
+          v-tooltip="t('common.fileTable.delete')"
           type="button"
           :tabindex
-          :title="t('common.fileTable.delete')"
           :aria-label="t('common.fileTable.delete')"
           :disabled="isDeleting || isLoadingData"
           @click="emit('delete', item)"
@@ -183,8 +183,8 @@
 
           <div class="flex min-w-0 shrink-0 flex-col justify-between gap-0.5">
             <div
+              v-tooltip.overflow="item.fileName"
               class="w-full truncate text-center text-sm font-medium text-main"
-              :title="item.fileName"
               @click.stop="emit('copy-text', item.fileName ?? '')"
             >
               {{ item.fileName ?? '' }}

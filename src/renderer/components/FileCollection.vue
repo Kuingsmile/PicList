@@ -99,7 +99,6 @@
             v-for="column in columns"
             :key="column.key"
             class="h-(--file-row-height) overflow-hidden border-b border-border-secondary bg-(--file-row-background) px-[10px] py-0"
-            :title="cellText(column, item)"
           >
             <button
               v-if="column.key === 'name'"
@@ -114,16 +113,19 @@
             >
               <span
                 class="file-icon flex-none"
-                title=""
                 @mouseenter="emit('preview', item, $event.currentTarget as Element)"
                 @mouseleave="emit('previewEnd')"
               >
                 <FolderIcon v-if="item.isDir" :size="16" aria-hidden="true" />
                 <FileIcon v-else :size="16" aria-hidden="true" />
               </span>
-              <span class="file-name-label block truncate">{{ cellText(column, item) }}</span>
+              <span v-tooltip.overflow="cellText(column, item)" class="file-name-label block truncate">{{
+                cellText(column, item)
+              }}</span>
             </button>
-            <span v-else class="cell-text block truncate">{{ cellText(column, item) }}</span>
+            <span v-else v-tooltip.overflow="cellText(column, item)" class="cell-text block truncate">{{
+              cellText(column, item)
+            }}</span>
           </td>
           <td
             class="row-actions sticky right-0 z-1 h-(--file-row-height) overflow-hidden border-b border-border-secondary px-[10px] py-0 shadow-[-1px_0_var(--color-border-secondary)] [background:linear-gradient(var(--file-row-background),var(--file-row-background)),var(--color-background-tertiary)]"

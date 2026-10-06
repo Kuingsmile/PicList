@@ -6,22 +6,7 @@
         <span v-if="required" class="ml-1 text-danger" aria-hidden="true">*</span>
       </label>
       <slot name="title-extra"></slot>
-      <div v-if="tips" class="group relative inline-block">
-        <button
-          type="button"
-          :aria-label="t('common.help')"
-          :aria-describedby="tipsId"
-          class="flex h-[20px] w-[20px] cursor-pointer items-center justify-center rounded-full p-[2px] text-secondary hover:bg-bg-secondary hover:text-accent"
-        >
-          <Info :size="16" aria-hidden="true" />
-        </button>
-        <div
-          :id="tipsId"
-          role="tooltip"
-          class="invisible absolute top-[125%] left-1/2 z-1000 w-max max-w-[200px] translate-x-[-50%] rounded-md border border-border bg-bg-tertiary p-2 text-center text-xs text-main opacity-0 shadow-md transition-opacity duration-300 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100"
-          v-html="tipsHtml"
-        />
-      </div>
+      <HelpTooltip v-if="tips" :content="tips" />
     </div>
     <div class="relative w-full">
       <input
@@ -54,11 +39,11 @@
 </template>
 
 <script setup lang="ts">
-import { EyeClosedIcon, EyeIcon, Info } from '@lucide/vue'
+import { EyeClosedIcon, EyeIcon } from '@lucide/vue'
 import { computed, ref, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { renderMarkdown } from '@/utils/markdown'
+import HelpTooltip from '@/components/common/HelpTooltip.vue'
 
 defineSlots<{
   'title-extra'?: () => unknown
@@ -83,10 +68,8 @@ const [modelValue, modifiers] = defineModel<any>({
 const { t } = useI18n()
 const generatedId = `input-${useId()}`
 const inputId = computed(() => id || generatedId)
-const tipsId = `${generatedId}-tips`
 const passwordVisible = ref(false)
 const type = computed(() => (isPassword ? (passwordVisible.value ? 'text' : 'password') : nativeType || inputType))
-const tipsHtml = computed(() => transformMarkdownToHTML(tips))
 
 const {
   isPassword = false,
@@ -109,14 +92,6 @@ const {
   disabled?: boolean
   type?: string
 }>()
-
-function transformMarkdownToHTML(markdown: string) {
-  try {
-    return renderMarkdown(markdown, false)
-  } catch (_e) {
-    return ''
-  }
-}
 
 defineOptions({
   inheritAttrs: false,

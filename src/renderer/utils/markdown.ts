@@ -47,7 +47,8 @@ export function renderMarkdown(content: string, breaks = true): string {
       'tr',
       'ul',
     ],
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'align', 'colspan', 'rowspan', 'start'],
+    // Link and image titles would reintroduce native browser hints.
+    ALLOWED_ATTR: ['href', 'src', 'alt', 'align', 'colspan', 'rowspan', 'start'],
     ALLOW_ARIA_ATTR: false,
     ALLOW_DATA_ATTR: false,
   })

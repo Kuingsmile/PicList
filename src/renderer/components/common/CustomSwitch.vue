@@ -46,31 +46,14 @@
       </div>
     </label>
     <slot name="title-extra"></slot>
-    <div v-if="tips" class="group relative inline-block">
-      <button
-        type="button"
-        :aria-label="t('common.help')"
-        :aria-describedby="tipsId"
-        class="flex h-[20px] w-[20px] cursor-pointer items-center justify-center rounded-full p-[2px] text-secondary hover:bg-bg-secondary hover:text-accent"
-      >
-        <Info :size="16" aria-hidden="true" />
-      </button>
-      <div
-        :id="tipsId"
-        role="tooltip"
-        class="invisible absolute top-[125%] left-1/2 z-1000 w-max max-w-[200px] translate-x-[-50%] rounded-md border border-border bg-bg-tertiary p-2 text-center text-xs text-main opacity-0 shadow-md transition-opacity duration-300 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100"
-        v-html="tipsHtml"
-      />
-    </div>
+    <HelpTooltip v-if="tips" :content="tips" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Info } from '@lucide/vue'
-import { computed, onMounted, useAttrs, useId } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { onMounted, useAttrs } from 'vue'
 
-import { renderMarkdown } from '@/utils/markdown'
+import HelpTooltip from '@/components/common/HelpTooltip.vue'
 
 defineSlots<{
   'custom-title'?: () => unknown
@@ -81,9 +64,6 @@ defineSlots<{
 const emit = defineEmits<{ change: [value: boolean] }>()
 defineOptions({ inheritAttrs: false })
 const attrs = useAttrs()
-const { t } = useI18n()
-const tipsId = `switch-${useId()}-tips`
-const tipsHtml = computed(() => transformMarkdownToHTML(tips))
 
 function inputAttrs() {
   const { class: _class, style: _style, ...inputAttributes } = attrs
@@ -112,14 +92,6 @@ const {
   tighter?: boolean
   disabled?: boolean
 }>()
-
-function transformMarkdownToHTML(markdown: string) {
-  try {
-    return renderMarkdown(markdown, false)
-  } catch (_e) {
-    return ''
-  }
-}
 
 onMounted(() => {
   if (typeof modelValue.value === 'string') {

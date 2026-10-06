@@ -9,8 +9,8 @@
       >
         <div class="flex max-w-[calc(100%-300px)] flex-1 flex-wrap items-center gap-2 max-md:order-1">
           <button
+            v-tooltip="t('pages.upload.uploadViewHint')"
             class="provider-button group/provider flex w-auto min-w-[150px] shrink-0 cursor-pointer items-center gap-3 rounded-lg bg-bg-secondary px-4 py-2 font-[inherit] shadow-sm duration-fast ease-standard hover:-translate-y-px hover:bg-accent/30 hover:text-white hover:shadow-sm focus-visible:focus-ring max-xs:w-full max-xs:min-w-[100px]"
-            :title="t('pages.upload.uploadViewHint')"
             @click="openPicBedSettings"
           >
             <div class="flex flex-1 flex-col items-start">
@@ -23,10 +23,12 @@
             </div>
             <EditIcon :size="16" class="text-secondary duration-fast ease-standard group-hover/provider:text-white" />
           </button>
-          <div
-            class="flex h-[22px] w-[22px] shrink-0 cursor-pointer items-center justify-center rounded-lg border border-border bg-surface font-[inherit] text-secondary duration-fast ease-standard hover:-translate-y-px hover:bg-accent/30 hover:text-white data-[disabled=true]:pointer-events-none data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50"
-            :title="t('pages.upload.addToFavorites')"
-            :data-disabled="favoritePicbeds.length >= MAX_FAVORITE_PICBEDS || isCurrentPicBedInFavorites"
+          <button
+            v-tooltip="t('pages.upload.addToFavorites')"
+            type="button"
+            class="flex h-[22px] w-[22px] shrink-0 cursor-pointer items-center justify-center rounded-lg border border-border bg-surface font-[inherit] text-secondary duration-fast ease-standard hover:-translate-y-px hover:bg-accent/30 hover:text-white disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+            :aria-label="t('pages.upload.addToFavorites')"
+            :disabled="favoritePicbeds.length >= MAX_FAVORITE_PICBEDS || isCurrentPicBedInFavorites"
             @click="addCurrentPicbedToFavorites"
           >
             <component
@@ -34,7 +36,7 @@
               :size="14"
               class="duration-fast ease-standard"
             />
-          </div>
+          </button>
           <transition-group
             name="badges-slide"
             tag="div"
@@ -48,9 +50,10 @@
             <button
               v-for="picbedType in favoritePicbeds"
               :key="picbedType.id"
+              v-tooltip="t('pages.upload.longPressToRemoveFromFavorites') + getPicbedName(picbedType)"
               class="group/badge relative flex w-[85px] shrink-0 cursor-pointer items-center gap-2 overflow-hidden rounded-md bg-bg-secondary pt-1.5 pr-2 pb-1.5 pl-3 text-xs font-medium whitespace-nowrap text-secondary shadow-sm transition-all duration-fast ease-standard select-none hover:-translate-y-px hover:border-accent-hover hover:bg-accent/30 hover:text-white [.is-active]:border-[0.1rem] [.is-active]:border-accent-hover [.is-active]:font-semibold [.show-delete]:pr-2"
               :class="{ 'is-active': isCurrentPicbed(picbedType), 'show-delete': longPressedBadge === picbedType.id }"
-              :title="t('pages.upload.longPressToRemoveFromFavorites') + getPicbedName(picbedType)"
+              :aria-label="getPicbedName(picbedType)"
               @click="handleBadgeClick(picbedType)"
               @mousedown="startBadgeLongPress(picbedType)"
               @mouseup="endBadgeLongPress"
@@ -73,8 +76,9 @@
               </div>
               <button
                 v-if="longPressedBadge === picbedType.id"
+                v-tooltip="t('pages.upload.removeFromFavorites')"
                 class="flex shrink-0 animate-[fade-in_0.2s_ease-in] cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0.5 text-inherit duration-fast ease-standard hover:bg-danger/20 hover:text-danger"
-                :title="t('pages.upload.removeFromFavorites')"
+                :aria-label="t('pages.upload.removeFromFavorites')"
                 @click.stop="removePicbedFromFavorites(picbedType)"
               >
                 <XIcon :size="12" />
@@ -85,7 +89,6 @@
         <div class="flex flex-wrap items-center gap-3 max-md:order-2 max-md:justify-stretch">
           <button
             class="segmented-button flex cursor-pointer items-center gap-2 rounded-md border-r border-none border-r-border-secondary bg-bg-secondary px-4 py-2.5 font-[inherit] text-sm font-medium whitespace-nowrap text-secondary shadow-sm duration-fast ease-standard last:border-r-0 hover:bg-accent/30 hover:text-white"
-            :title="t('pages.imageProcess.editor.title')"
             @click="handleImageProcess"
           >
             <Settings :size="16" />
@@ -232,9 +235,9 @@
               <button
                 v-for="(format, key) in pasteFormatList"
                 :key
+                v-tooltip="format"
                 class="flex-1 cursor-pointer rounded-md border border-border-secondary bg-bg-secondary px-1 py-1 font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] text-[0.7rem] font-medium text-secondary duration-fast ease-standard hover:bg-accent/30 hover:text-white focus-visible:focus-ring data-[active=true]:border-accent data-[active=true]:bg-accent data-[active=true]:text-white"
                 :data-active="pasteStyle === key"
-                :title="format"
                 @click="updatePasteStyle(key)"
               >
                 {{ key }}

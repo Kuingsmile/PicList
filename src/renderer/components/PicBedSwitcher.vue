@@ -53,9 +53,11 @@
           <div class="min-w-0 flex-1">
             <div class="mb-0.5 text-[11px] text-secondary">{{ t('pages.upload.picbedPicker.current') }}</div>
             <div class="flex min-w-0 items-center gap-1.5 text-sm">
-              <span class="truncate font-semibold" :title="currentProviderName">{{ currentProviderName }}</span>
+              <span v-tooltip.overflow="currentProviderName" class="truncate font-semibold">{{
+                currentProviderName
+              }}</span>
               <span class="shrink-0 text-tertiary" aria-hidden="true">/</span>
-              <span class="truncate text-secondary" :title="defaultConfigNameG || 'Default'">{{
+              <span v-tooltip.overflow="defaultConfigNameG || 'Default'" class="truncate text-secondary">{{
                 defaultConfigNameG || 'Default'
               }}</span>
             </div>
@@ -168,7 +170,7 @@
               aria-hidden="true"
             />
             <CloudIcon :size="16" class="shrink-0 text-secondary" aria-hidden="true" />
-            <span class="min-w-0 flex-1 truncate font-medium" :title="group.name">{{ group.name }}</span>
+            <span v-tooltip.overflow="group.name" class="min-w-0 flex-1 truncate font-medium">{{ group.name }}</span>
             <span
               v-if="group.type === defaultPicBedG"
               class="shrink-0 rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent"
@@ -190,11 +192,11 @@
               v-for="target in group.targets"
               :id="`${listId}-config-${target.type}-${target.configId}`"
               :key="target.configId"
+              v-tooltip.overflow="target.configName"
               role="treeitem"
               :aria-label="target.configName"
               :aria-selected="isSelected(target)"
               :aria-disabled="switching"
-              :title="target.configName"
               class="mt-0.5 flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-[13px] transition-colors duration-fast"
               :class="[
                 activeRow?.kind === 'config' && activeRow.target === target
@@ -210,7 +212,7 @@
               @click="select(target)"
             >
               <FileTextIcon :size="14" class="shrink-0 opacity-60" aria-hidden="true" />
-              <span class="min-w-0 flex-1 truncate">{{ target.configName }}</span>
+              <span class="min-w-0 flex-1 truncate" data-tooltip-overflow>{{ target.configName }}</span>
               <CheckIcon v-if="isSelected(target)" :size="16" class="shrink-0 text-accent" aria-hidden="true" />
             </div>
           </div>

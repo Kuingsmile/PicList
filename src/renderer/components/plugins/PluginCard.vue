@@ -40,8 +40,8 @@
           </p>
           <span
             v-if="updatedAt"
+            v-tooltip="t('pages.plugin.lastUpdated')"
             class="flex shrink-0 items-center gap-1 text-xs text-secondary/70"
-            :title="t('pages.plugin.lastUpdated')"
           >
             <CalendarIcon :size="11" />
             {{ updatedAt }}
@@ -52,10 +52,7 @@
 
     <!-- Plugin Description -->
     <div class="mb-6 flex flex-1 items-start">
-      <p
-        class="m-0 min-h-10 overflow-hidden text-sm leading-[1.5] font-semibold text-secondary"
-        :title="item.description"
-      >
+      <p class="m-0 min-h-10 overflow-hidden text-sm leading-[1.5] font-semibold text-secondary">
         {{ item.description }}
       </p>
     </div>

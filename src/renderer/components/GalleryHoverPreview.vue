@@ -32,7 +32,7 @@
           >{{ t('pages.gallery.previewLoading') }}</span
         >
       </div>
-      <div class="preview-name flex-none truncate text-[12px] leading-[18px]" :title="alt">{{ alt }}</div>
+      <div class="preview-name flex-none text-[12px] leading-[18px] wrap-anywhere">{{ alt }}</div>
     </div>
   </Teleport>
 </template>

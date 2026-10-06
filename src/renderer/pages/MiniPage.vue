@@ -3,7 +3,6 @@
     id="mini-page"
     class="mini-page box-border h-screen w-screen cursor-pointer overflow-hidden rounded-full border-2 border-white/90 bg-(--color-accent,#007aff) select-none [&.mini-page-square]:rounded-none"
     :class="{ 'mini-page-square': osGlobal === 'linux' }"
-    :title="progressLabel"
   >
     <div
       ref="uploadArea"

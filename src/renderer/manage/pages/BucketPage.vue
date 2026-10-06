@@ -390,8 +390,9 @@
         />
         <span class="flex-1 text-sm leading-[1.4] font-medium text-white">{{ t('pages.manage.bucket.loading') }}</span>
         <button
+          v-tooltip="t('common.cancel')"
           class="flex h-[28px] w-[28px] shrink-0 cursor-pointer items-center justify-center rounded-md border border-border bg-white text-accent transition-all duration-fast ease-apple hover:scale-105 hover:border-danger"
-          :title="t('common.cancel')"
+          :aria-label="t('common.cancel')"
           @click="cancelLoading"
         >
           <XIcon class="h-[16px] w-[16px]" />
@@ -413,8 +414,9 @@
           t('pages.manage.bucket.prepareDownload')
         }}</span>
         <button
+          v-tooltip="t('common.cancel')"
           class="flex h-[28px] w-[28px] shrink-0 cursor-pointer items-center justify-center rounded-md border border-border bg-white text-accent transition-all duration-fast ease-apple hover:scale-105 hover:border-danger"
-          :title="t('common.cancel')"
+          :aria-label="t('common.cancel')"
           @click="cancelDownloadLoading"
         >
           <XIcon class="h-[16px] w-[16px]" />

@@ -61,11 +61,11 @@
             />
             <CustomButton
               v-else-if="taskQueueStatus.config.isRunning"
+              v-tooltip="t('pages.upload.taskQueue.pauseHint')"
               type="secondary"
               :icon="PauseIcon"
               :disabled="actionsDisabled"
               :text="t('pages.upload.taskQueue.pause')"
-              :title="t('pages.upload.taskQueue.pauseHint')"
               @click="pauseTaskQueue"
             />
             <CustomButton
@@ -94,18 +94,18 @@
               @click="retryAllFailedTasks"
             />
             <CustomButton
+              v-tooltip="t('pages.upload.taskQueue.clearFinishedHint')"
               type="secondary"
               :icon="ListXIcon"
               :disabled="actionsDisabled || !(taskQueueStatus.stats.completed + taskQueueStatus.stats.cancelled)"
               :text="t('pages.upload.taskQueue.clearFinished')"
-              :title="t('pages.upload.taskQueue.clearFinishedHint')"
               @click="clearFinishedTasks"
             />
             <button
+              v-tooltip="t('pages.settings.title')"
               type="button"
               class="queue-icon-button"
               :aria-label="t('pages.settings.title')"
-              :title="t('pages.settings.title')"
               :aria-expanded="showTaskSettings"
               aria-controls="upload-queue-settings"
               @click="showTaskSettings = !showTaskSettings"
@@ -283,7 +283,9 @@
               </div>
               <div class="min-w-0 flex-1">
                 <div class="flex min-w-0 items-center gap-2">
-                  <span class="truncate text-sm font-medium text-main" :title="task.filePath">{{ task.fileName }}</span>
+                  <span v-tooltip="task.filePath" class="truncate text-sm font-medium text-main">{{
+                    task.fileName
+                  }}</span>
                   <StarIcon
                     v-if="task.priority === 2"
                     :size="13"
@@ -325,31 +327,31 @@
               <div class="queue-row-actions">
                 <template v-if="task.status === 'pending'">
                   <button
+                    v-tooltip="t('pages.upload.taskQueue.moveUp')"
                     type="button"
                     class="queue-icon-button"
                     :disabled="actionsDisabled || !pendingPositions.get(task.id)?.up"
-                    :title="t('pages.upload.taskQueue.moveUp')"
                     :aria-label="t('pages.upload.taskQueue.moveUp')"
                     @click="moveTaskUp(task.id)"
                   >
                     <ChevronUpIcon :size="16" />
                   </button>
                   <button
+                    v-tooltip="t('pages.upload.taskQueue.moveDown')"
                     type="button"
                     class="queue-icon-button"
                     :disabled="actionsDisabled || !pendingPositions.get(task.id)?.down"
-                    :title="t('pages.upload.taskQueue.moveDown')"
                     :aria-label="t('pages.upload.taskQueue.moveDown')"
                     @click="moveTaskDown(task.id)"
                   >
                     <ChevronDownIcon :size="16" />
                   </button>
                   <button
+                    v-tooltip="t('pages.upload.taskQueue.togglePriority')"
                     type="button"
                     class="queue-icon-button"
                     :disabled="actionsDisabled"
                     :aria-pressed="task.priority === 2"
-                    :title="t('pages.upload.taskQueue.togglePriority')"
                     :aria-label="t('pages.upload.taskQueue.togglePriority')"
                     @click="toggleTaskPriority(task.id, task.priority)"
                   >
@@ -358,10 +360,10 @@
                 </template>
                 <button
                   v-if="task.status === 'pending' || task.status === 'uploading'"
+                  v-tooltip="t('pages.upload.taskQueue.cancelTask')"
                   type="button"
                   class="queue-icon-button is-danger"
                   :disabled="actionsDisabled"
-                  :title="t('pages.upload.taskQueue.cancelTask')"
                   :aria-label="t('pages.upload.taskQueue.cancelTask')"
                   @click="cancelTask(task.id)"
                 >
@@ -369,10 +371,10 @@
                 </button>
                 <button
                   v-if="canRetryTask(task)"
+                  v-tooltip="t('pages.upload.taskQueue.retryTask')"
                   type="button"
                   class="queue-icon-button"
                   :disabled="actionsDisabled"
-                  :title="t('pages.upload.taskQueue.retryTask')"
                   :aria-label="t('pages.upload.taskQueue.retryTask')"
                   @click="retryTask(task.id)"
                 >
@@ -380,10 +382,10 @@
                 </button>
                 <button
                   v-if="['completed', 'cancelled', 'failed'].includes(task.status)"
+                  v-tooltip="t('pages.upload.taskQueue.removeTask')"
                   type="button"
                   class="queue-icon-button is-danger"
                   :disabled="actionsDisabled"
-                  :title="t('pages.upload.taskQueue.removeTask')"
                   :aria-label="t('pages.upload.taskQueue.removeTask')"
                   @click="removeTask(task.id)"
                 >

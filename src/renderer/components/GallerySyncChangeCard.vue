@@ -12,7 +12,7 @@
         <component :is="kindStyle.icon" :size="18" />
       </div>
       <div class="min-w-0 flex-1">
-        <h3 class="truncate text-sm font-semibold" :title="recordName">{{ recordName }}</h3>
+        <h3 v-tooltip.overflow="recordName" class="truncate text-sm font-semibold">{{ recordName }}</h3>
         <p class="mt-0.5 text-xs text-secondary">{{ syncText('versionCount', { count: change.versions.length }) }}</p>
       </div>
       <span class="rounded-md bg-bg-secondary px-2 py-1 text-xs font-medium" :class="kindStyle.color">{{

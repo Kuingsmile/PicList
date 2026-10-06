@@ -22,8 +22,9 @@
             </span>
           </div>
           <button
+            v-tooltip="t('guide.close')"
             class="flex cursor-pointer items-center justify-center rounded-sm border-none bg-transparent p-[4px] text-secondary transition-all duration-200 ease-apple hover:bg-accent-hover hover:text-main"
-            :title="t('guide.close')"
+            :aria-label="t('guide.close')"
             @click="handleClose"
           >
             <XIcon :size="20" />

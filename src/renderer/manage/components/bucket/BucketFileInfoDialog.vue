@@ -32,9 +32,9 @@
           <dt class="flex min-w-0 items-start justify-between gap-2 text-sm font-medium text-main">
             <span class="pt-1 wrap-anywhere">{{ key }}</span>
             <button
+              v-tooltip="`${t('pages.manage.bucket.copyFileInfoInJson')}: ${key}`"
               type="button"
               class="shrink-0 rounded p-1 text-secondary transition-colors hover:bg-accent/15 hover:text-accent focus-visible:focus-ring"
-              :title="`${t('pages.manage.bucket.copyFileInfoInJson')}: ${key}`"
               :aria-label="`${t('pages.manage.bucket.copyFileInfoInJson')}: ${key}`"
               @click="copyToClipboard(JSON.stringify({ [key]: value }))"
             >
@@ -46,9 +46,9 @@
               class="min-w-0 flex-1 font-mono text-sm leading-relaxed wrap-anywhere whitespace-pre-wrap text-secondary"
               >{{ formatFileInfoValue(value) }}</pre>
             <button
+              v-tooltip="`${t('common.copy')}: ${key}`"
               type="button"
               class="shrink-0 rounded p-1 text-secondary transition-colors hover:bg-accent/15 hover:text-accent focus-visible:focus-ring"
-              :title="`${t('common.copy')}: ${key}`"
               :aria-label="`${t('common.copy')}: ${key}`"
               @click="copyToClipboard(formatFileInfoValue(value))"
             >

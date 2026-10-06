@@ -22,7 +22,8 @@
         </div>
       </div>
       <button
-        :title="isCollapsed ? t('navigation.expand') : t('navigation.collapse')"
+        v-tooltip="isCollapsed ? t('navigation.expand') : t('navigation.collapse')"
+        :aria-label="isCollapsed ? t('navigation.expand') : t('navigation.collapse')"
         class="absolute top-1/2 right-[8px] flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border border-border/50 bg-transparent p-[4px] transition-all duration-200 ease-apple group-[.collapsed]:absolute group-[.collapsed]:top-[20px] group-[.collapsed]:right-[16px] group-[.collapsed]:transform-none hover:bg-accent/30 hover:text-white"
         @click="isCollapsed = !isCollapsed"
       >
@@ -38,10 +39,16 @@
       <div
         v-for="item in navigationItems.slice(0, 3)"
         :key="item.path"
+        v-tooltip="{ content: isCollapsed || compactNavigation ? item.name : '', placement: 'right' }"
         class="nav-item flex cursor-pointer items-center justify-center gap-3 px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple group-[.collapsed]:justify-center group-[.collapsed]:gap-0 group-[.collapsed]:px-2 group-[.collapsed]:py-3 hover:bg-surface hover:text-accent [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
         :class="{ 'router-link-active': isPathActive(item.path) }"
-        :title="`${item.name}`"
+        role="link"
+        tabindex="0"
+        :aria-label="item.name"
+        :aria-current="isPathActive(item.path) ? 'page' : undefined"
         @click="navigateToPath(item.path)"
+        @keydown.enter.prevent="navigateToPath(item.path)"
+        @keydown.space.prevent="navigateToPath(item.path)"
       >
         <div class="nav-icon-container relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
           <component :is="item.icon" :size="18" />
@@ -51,6 +58,8 @@
 
       <Disclosure v-show="!isCollapsed" v-slot="{ open }" as="div" class="relative mt-[4px] justify-center">
         <DisclosureButton
+          v-tooltip="{ content: compactNavigation ? t('navigation.picbed') : '', placement: 'right' }"
+          :aria-label="t('navigation.picbed')"
           class="nav-item relative flex w-full cursor-pointer items-center justify-center gap-3 border-none bg-transparent px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple group-[.collapsed]:justify-center group-[.collapsed]:gap-0 group-[.collapsed]:px-2 group-[.collapsed]:py-3 hover:bg-surface-elevated hover:text-accent [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
         >
           <div class="nav-icon-container relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
@@ -77,9 +86,14 @@
       </Disclosure>
       <div
         v-show="isCollapsed"
+        v-tooltip="{ content: t('navigation.picbed'), placement: 'right' }"
         class="nav-item flex cursor-pointer items-center justify-center gap-3 bg-surface-elevated px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple group-[.collapsed]:justify-center group-[.collapsed]:gap-0 group-[.collapsed]:px-2 group-[.collapsed]:py-3 hover:bg-surface hover:text-accent [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
-        :title="t('navigation.picbed')"
+        role="button"
+        tabindex="0"
+        :aria-label="t('navigation.picbed')"
         @click="isCollapsed = !isCollapsed"
+        @keydown.enter.prevent="isCollapsed = !isCollapsed"
+        @keydown.space.prevent="isCollapsed = !isCollapsed"
       >
         <div class="nav-icon-container relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
           <DatabaseIcon :size="18" />
@@ -89,10 +103,16 @@
       <div
         v-for="item in navigationItems.slice(3)"
         :key="item.path"
+        v-tooltip="{ content: isCollapsed || compactNavigation ? item.name : '', placement: 'right' }"
         class="nav-item flex cursor-pointer items-center justify-center gap-3 px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple group-[.collapsed]:justify-center group-[.collapsed]:gap-0 group-[.collapsed]:px-2 group-[.collapsed]:py-3 hover:bg-surface hover:text-accent [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
         :class="{ 'router-link-active': isPathActive(item.path) }"
-        :title="`${item.name}`"
+        role="link"
+        tabindex="0"
+        :aria-label="item.name"
+        :aria-current="isPathActive(item.path) ? 'page' : undefined"
         @click="navigateToPath(item.path)"
+        @keydown.enter.prevent="navigateToPath(item.path)"
+        @keydown.space.prevent="navigateToPath(item.path)"
       >
         <div class="nav-icon-container relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
           <component :is="item.icon" :size="18" />
@@ -102,8 +122,9 @@
     </div>
     <div class="border-t border-t-border p-3">
       <button
+        v-tooltip="t('navigation.moreOptions')"
         class="fixed bottom-[4px] left-[4px] cursor-pointer rounded-full border-none bg-transparent p-[8px] text-tertiary hover:bg-accent/30 hover:text-white"
-        :title="t('navigation.moreOptions')"
+        :aria-label="t('navigation.moreOptions')"
         @click="openMenu"
       >
         <Info :size="20" />
@@ -226,7 +247,7 @@ import {
   Settings,
   UploadIcon,
 } from '@lucide/vue'
-import { useStorage } from '@vueuse/core'
+import { useMediaQuery, useStorage } from '@vueuse/core'
 import { pick } from 'lodash-es'
 import QrcodeVue from 'qrcode.vue'
 import pkg from 'root/package.json'
@@ -247,6 +268,7 @@ import { SHOW_FIRST_TIME_GUIDE, SHOW_MAIN_PAGE_QRCODE } from '#/constants/ipcCha
 import { IRPCActionType } from '#/constants/rpcActions'
 
 const isCollapsed = useStorage('navigation-collapsed', false)
+const compactNavigation = useMediaQuery('(max-width: 767px)')
 
 const { t } = useI18n()
 const route = useRoute()

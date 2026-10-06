@@ -132,7 +132,7 @@
                                   {{ tableItem.key }}
                                 </td>
                                 <td class="relative px-4 py-2.5 font-mono text-slate-500">
-                                  <div class="wrap-break-word group-hover:pr-10" :title="tableItem.value">
+                                  <div class="wrap-break-word group-hover:pr-10">
                                     {{ tableItem.value }}
                                   </div>
                                   <div
@@ -190,15 +190,17 @@
                     </div>
                     <div class="grid grid-cols-2 gap-1.5 transition-all duration-fast ease-apple">
                       <button
+                        v-tooltip="t('pages.uploaderConfig.edit')"
                         class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/30 text-accent transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white"
-                        :title="t('pages.uploaderConfig.edit')"
+                        :aria-label="t('pages.uploaderConfig.edit')"
                         @click.stop="openEditPage(item.alias)"
                       >
                         <Pencil :size="14" />
                       </button>
                       <button
+                        v-tooltip="t('pages.uploaderConfig.delete')"
                         class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border bg-danger/10 text-danger transition-all duration-fast ease-standard hover:scale-105 hover:bg-danger hover:text-white"
-                        :title="t('pages.uploaderConfig.delete')"
+                        :aria-label="t('pages.uploaderConfig.delete')"
                         @click.stop="() => handleConfigRemove(item.alias)"
                       >
                         <Trash2 :size="14" />
