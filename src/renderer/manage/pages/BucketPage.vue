@@ -381,7 +381,7 @@
     />
 
     <!-- Loading Indicators -->
-    <div v-if="isLoadingData" class="animate-slide-right fixed right-[25px] bottom-[25px] z-9999 duration-300 ease-out">
+    <div v-if="isLoadingData" class="fixed right-[25px] bottom-[25px] z-9999 duration-300 ease-out">
       <div
         class="flex min-w-[240px] items-center gap-3 rounded-lg bg-accent/85 px-4 py-3.5 shadow-lg transition-all duration-200 ease-apple hover:translate-y-[-2px] hover:bg-accent/95 hover:shadow-xl"
       >
@@ -400,10 +400,7 @@
       </div>
     </div>
 
-    <div
-      v-if="isLoadingDownloadData"
-      class="animate-slide-right fixed top-[50px] right-[25px] z-9999 duration-300 ease-out"
-    >
+    <div v-if="isLoadingDownloadData" class="fixed top-[50px] right-[25px] z-9999 duration-300 ease-out">
       <div
         class="flex min-w-[240px] items-center gap-3 rounded-lg bg-accent/85 px-4 py-3.5 shadow-lg transition-all duration-200 ease-apple hover:translate-y-[-2px] hover:bg-accent/95 hover:shadow-xl"
       >

@@ -1,15 +1,12 @@
 <template>
-  <div :data-processing-field="field" class="processing-field rounded-xl border border-border bg-bg-tertiary p-4">
+  <div :data-processing-field="field" class="rounded-xl border border-border bg-bg-tertiary p-4">
     <fieldset class="m-0 flex min-w-0 flex-col gap-2 border-none p-0" :disabled="unsupported">
       <slot />
     </fieldset>
     <p v-if="unsupported" class="mt-3 text-xs text-secondary">
       {{ t('pages.imageProcess.editor.globalOrConfigOnly') }}
     </p>
-    <div
-      v-else-if="showSource || customized"
-      class="processing-field-source mt-2 flex flex-wrap items-center justify-between gap-2 text-xs"
-    >
+    <div v-else-if="showSource || customized" class="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
       <span v-if="showSource" class="flex min-w-0 items-center gap-1.5 wrap-anywhere text-secondary">
         <Link2 v-if="shared" :size="12" />
         <span :class="shared ? '' : 'font-medium text-accent'">{{ sourceLabel(option.source) }}</span>

@@ -31,7 +31,7 @@
       role="listbox"
       :aria-required="required || undefined"
       :aria-labelledby="labelId"
-      class="sort-options fixed z-10000 max-h-[200px] overflow-y-auto overscroll-contain rounded-md border border-border-secondary bg-bg-tertiary shadow-lg"
+      class="fixed z-10000 max-h-[200px] overflow-y-auto overscroll-contain rounded-md border border-border-secondary bg-bg-tertiary shadow-lg"
       @keydown="handleOptionsKeydown"
     >
       <button

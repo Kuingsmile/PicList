@@ -1,6 +1,6 @@
 <template>
-  <div class="file-view-controls flex flex-wrap items-center gap-[6px] text-[12px] text-secondary">
-    <div class="view-buttons flex items-center gap-[6px]" :aria-label="t('common.fileTable.view')" role="group">
+  <div class="flex flex-wrap items-center gap-[6px] text-[12px] text-secondary">
+    <div class="flex items-center gap-[6px]" :aria-label="t('common.fileTable.view')" role="group">
       <button
         class="flex min-h-[30px] cursor-pointer items-center gap-[6px] rounded-[4px] border border-border bg-bg-secondary px-[8px] py-[4px] text-inherit focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"
         type="button"

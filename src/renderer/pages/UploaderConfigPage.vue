@@ -112,7 +112,7 @@
                       ? t('pages.uploaderConfig.removeFromFavorites')
                       : t('pages.uploaderConfig.addToFavorites')
                   "
-                  class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border-secondary/80 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
+                  class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border-secondary/80 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                   :aria-label="
                     isConfigFavorited(item._id)
                       ? t('pages.uploaderConfig.removeFromFavorites')
@@ -124,7 +124,7 @@
                 </button>
                 <button
                   v-tooltip="t('pages.uploaderConfig.edit')"
-                  class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border-secondary/80 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
+                  class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border-secondary/80 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                   :aria-label="t('pages.uploaderConfig.edit')"
                   @click.stop="openEditPage(item._id)"
                 >
@@ -132,7 +132,7 @@
                 </button>
                 <button
                   v-tooltip="t('pages.uploaderConfig.duplicate')"
-                  class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border-secondary/80 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
+                  class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border-secondary/80 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                   :aria-label="t('pages.uploaderConfig.duplicate')"
                   @click.stop="() => duplicateConfig(item._id)"
                 >
@@ -140,7 +140,7 @@
                 </button>
                 <button
                   v-tooltip="t('pages.uploaderConfig.delete')"
-                  class="action-btn danger flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border-secondary/80 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
+                  class="danger flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-border-secondary/80 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                   :class="{ disabled: curConfigList.length <= 1 }"
                   :aria-label="t('pages.uploaderConfig.delete')"
                   :disabled="curConfigList.length <= 1"

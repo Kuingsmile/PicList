@@ -3,13 +3,13 @@
     <div
       v-if="visible"
       :id
-      class="gallery-hover-preview fixed z-1000 box-border flex flex-col gap-[8px] rounded-md border border-border bg-bg-tertiary p-[8px] text-main shadow-lg"
+      class="fixed z-1000 box-border flex flex-col gap-[8px] rounded-md border border-border bg-bg-tertiary p-[8px] text-main shadow-lg"
       role="tooltip"
       :style="position"
       @mouseenter="cancelHide"
       @mouseleave="hide"
     >
-      <div class="preview-image relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[4px]">
+      <div class="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[4px]">
         <img
           v-if="src && !failed"
           :key="src"
@@ -22,17 +22,17 @@
         />
         <span
           v-if="failed || !src"
-          class="preview-status absolute inset-0 flex items-center justify-center text-[12px] text-secondary"
+          class="absolute inset-0 flex items-center justify-center text-[12px] text-secondary"
           >{{ t('pages.gallery.previewUnavailable') }}</span
         >
         <span
           v-else-if="!loaded"
-          class="preview-status absolute inset-0 flex items-center justify-center text-[12px] text-secondary"
+          class="absolute inset-0 flex items-center justify-center text-[12px] text-secondary"
           role="status"
           >{{ t('pages.gallery.previewLoading') }}</span
         >
       </div>
-      <div class="preview-name flex-none text-[12px] leading-[18px] wrap-anywhere">{{ alt }}</div>
+      <div class="flex-none text-[12px] leading-[18px] wrap-anywhere">{{ alt }}</div>
     </div>
   </Teleport>
 </template>

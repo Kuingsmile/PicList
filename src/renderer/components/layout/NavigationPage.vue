@@ -50,7 +50,7 @@
         @keydown.enter.prevent="navigateToPath(item.path)"
         @keydown.space.prevent="navigateToPath(item.path)"
       >
-        <div class="nav-icon-container relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
+        <div class="relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
           <component :is="item.icon" :size="18" />
         </div>
         <span v-show="!isCollapsed" class="max-md:hidden" :class="isCollapsed ? 'hidden' : ''">{{ item.name }}</span>
@@ -62,7 +62,7 @@
           :aria-label="t('navigation.picbed')"
           class="nav-item relative flex w-full cursor-pointer items-center justify-center gap-3 border-none bg-transparent px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple group-[.collapsed]:justify-center group-[.collapsed]:gap-0 group-[.collapsed]:px-2 group-[.collapsed]:py-3 hover:bg-surface-elevated hover:text-accent [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
         >
-          <div class="nav-icon-container relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
+          <div class="relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
             <DatabaseIcon :size="18" />
           </div>
           <span class="shrink-0 max-md:hidden" :class="isCollapsed ? 'hidden' : ''">{{ t('navigation.picbed') }}</span>
@@ -95,7 +95,7 @@
         @keydown.enter.prevent="isCollapsed = !isCollapsed"
         @keydown.space.prevent="isCollapsed = !isCollapsed"
       >
-        <div class="nav-icon-container relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
+        <div class="relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
           <DatabaseIcon :size="18" />
         </div>
       </div>
@@ -114,7 +114,7 @@
         @keydown.enter.prevent="navigateToPath(item.path)"
         @keydown.space.prevent="navigateToPath(item.path)"
       >
-        <div class="nav-icon-container relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
+        <div class="relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
           <component :is="item.icon" :size="18" />
         </div>
         <span v-show="!isCollapsed" class="max-md:hidden" :class="isCollapsed ? 'hidden' : ''">{{ item.name }}</span>

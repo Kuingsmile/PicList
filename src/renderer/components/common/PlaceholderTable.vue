@@ -3,7 +3,7 @@
     <template v-for="key in Object.keys(list)" :key="key">
       <div class="border-b border-border last:border-0">
         <div
-          class="bg-linear-150-r m-0 border-b border-border bg-accent/10 px-4 pt-3.5 pb-2 text-sm font-semibold tracking-wide text-secondary"
+          class="m-0 border-b border-border bg-accent/10 px-4 pt-3.5 pb-2 text-sm font-semibold tracking-wide text-secondary"
         >
           {{ titleList[key] }}
         </div>

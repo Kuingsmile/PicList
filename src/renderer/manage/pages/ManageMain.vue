@@ -191,7 +191,7 @@
       width="600px"
       height="auto"
     >
-      <div class="drawer-content">
+      <div>
         <SettingSection :title="supportedPicBedList[currentPicBedName].name" :icon="Database" only-one-row>
           <template v-for="option in newBucketConfig[currentPicBedName].options" :key="option">
             <SettingCard :p1="newBucketConfig[currentPicBedName].configOptions[option].component === 'switch'">

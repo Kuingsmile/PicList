@@ -34,7 +34,7 @@
             <button
               v-for="item in tabItems"
               :key="item.key"
-              class="transition-al flex min-w-fit flex-none cursor-pointer items-center gap-2 rounded-md border border-border-secondary bg-bg-secondary px-4 py-2 text-sm font-semibold whitespace-nowrap text-secondary no-underline duration-200 ease-apple hover:border-border hover:bg-accent/30 hover:text-white [.active]:border-accent [.active]:bg-accent [.active]:text-white"
+              class="flex min-w-fit flex-none cursor-pointer items-center gap-2 rounded-md border border-border-secondary bg-bg-secondary px-4 py-2 text-sm font-semibold whitespace-nowrap text-secondary no-underline duration-200 ease-apple hover:border-border hover:bg-accent/30 hover:text-white [.active]:border-accent [.active]:bg-accent [.active]:text-white"
               :class="{ active: activePlatform === item.key }"
               @click="handleTabChange(item.key)"
             >

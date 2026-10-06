@@ -4,7 +4,6 @@
     :title="t('pages.manage.bucket.imagePreview')"
     width="auto"
     height="auto"
-    class="image-preview-modal"
   >
     <div class="flex-1 p-4">
       <img :src="previewContent" class="max-h-[70vh] max-w-full object-contain" @error="handlePreviewError" />
@@ -43,7 +42,7 @@
   >
     <div class="flex h-full w-full items-center justify-center bg-black">
       <VideoPlayer
-        class="video-player [&_.video-js]:h-full [&_.video-js]:max-h-[90vh] [&_.video-js]:w-full"
+        class="[&_.video-js]:h-full [&_.video-js]:max-h-[90vh] [&_.video-js]:w-full"
         :sources="videoSources"
         :volume="0.6"
         :options="{

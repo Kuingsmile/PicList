@@ -578,7 +578,6 @@
                   <CustomSwitch
                     v-model="form.compress.isReSize"
                     :title="t('pages.imageProcess.guide.resizeDimensions')"
-                    class="custom-switch"
                     no-border
                     small
                   />
@@ -641,7 +640,6 @@
                   <CustomSwitch
                     v-model="form.compress.longEdgeAsHeight"
                     :title="t('pages.imageProcess.transform.longEdgeAsHeight')"
-                    class="custom-switch"
                     no-border
                     small
                   />
@@ -663,7 +661,6 @@
                   <CustomSwitch
                     v-model="form.compress.skipReSizeOfSmallImg"
                     :title="t('pages.imageProcess.transform.skipResizeOfSmallImgHeight')"
-                    class="custom-switch"
                     no-border
                     small
                   />
@@ -727,7 +724,6 @@
                       <CustomSwitch
                         v-model="form.compress.isFlip"
                         :title="t('pages.imageProcess.transform.isFlip')"
-                        class="custom-switch"
                         no-border
                         small
                       />
@@ -743,7 +739,6 @@
                       <CustomSwitch
                         v-model="form.compress.isFlop"
                         :title="t('pages.imageProcess.transform.isFlop')"
-                        class="custom-switch"
                         small
                         no-border
                       />
@@ -765,7 +760,6 @@
                       <CustomSwitch
                         v-model="form.compress.isRotate"
                         :title="t('pages.imageProcess.transform.isRotate')"
-                        class="custom-switch"
                         no-border
                         small
                       />

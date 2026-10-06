@@ -40,7 +40,6 @@
 
       <section
         class="queue-panel"
-        :class="{ 'is-dragging': dragDepth > 0 }"
         @dragenter.prevent.stop="onDragEnter"
         @dragover.prevent.stop="onDragOver"
         @dragleave.prevent.stop="dragDepth = Math.max(0, dragDepth - 1)"

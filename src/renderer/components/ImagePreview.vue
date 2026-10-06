@@ -2,7 +2,7 @@
   <transition name="modal">
     <Dialog
       :open="gallerySliderControl.visible"
-      class="image-preview-modal fixed inset-0 z-1000 flex items-center justify-center outline-none"
+      class="fixed inset-0 z-1000 flex items-center justify-center outline-none"
       @click.stop
       @wheel="handleImageWheel"
       @keydown="handleKeydown"
@@ -23,7 +23,7 @@
         <!-- Zoom controls -->
         <div class="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-lg bg-black/70 p-2">
           <button
-            class="zoom-btn inline-flex h-[32px] min-w-[32px] cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex h-[32px] min-w-[32px] cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
             :aria-label="t('pages.gallery.zoomOut')"
             :disabled="imagePreviewState.scale <= minimumScale || previewFailed || previewLoading"
             @click="zoomOut"
@@ -34,7 +34,7 @@
             >{{ Math.round(imagePreviewState.scale * 100) }}%</span
           >
           <button
-            class="zoom-btn inline-flex h-[32px] min-w-[32px] cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex h-[32px] min-w-[32px] cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
             :aria-label="t('pages.gallery.zoomIn')"
             :disabled="imagePreviewState.scale >= 5 || previewFailed || previewLoading"
             @click="zoomIn"
@@ -42,7 +42,7 @@
             <span>+</span>
           </button>
           <button
-            class="zoom-btn reset-btn inline-flex h-[32px] min-w-[32px] cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 px-[8px] py-0 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex h-[32px] min-w-[32px] cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 px-[8px] py-0 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
             :disabled="previewFailed || previewLoading"
             @click="resetImageTransform"
           >
@@ -52,7 +52,7 @@
 
         <div class="relative flex min-h-0 items-center">
           <button
-            class="nav-button prev absolute top-1/2 left-[12px] z-10 inline-flex h-[40px] w-[40px] min-w-[32px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
+            class="prev absolute top-1/2 left-[12px] z-10 inline-flex h-[40px] w-[40px] min-w-[32px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
             :aria-label="t('pages.gallery.previousImage')"
             :disabled="gallerySliderControl.index === 0"
             @click.stop="navigateImage(-1)"
@@ -91,7 +91,7 @@
               {{ t(previewFailed ? 'pages.gallery.previewUnavailable' : 'pages.gallery.previewLoading') }}
               <button
                 v-if="previewFailed"
-                class="zoom-btn reset-btn inline-flex h-[32px] min-w-[32px] cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 px-[8px] py-0 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
+                class="inline-flex h-[32px] min-w-[32px] cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 px-[8px] py-0 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
                 @click="retryPreview"
               >
                 {{ t('pages.gallery.refresh') }}
@@ -100,7 +100,7 @@
           </div>
 
           <button
-            class="nav-button next absolute top-1/2 right-[12px] z-10 inline-flex h-[40px] w-[40px] min-w-[32px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
+            class="next absolute top-1/2 right-[12px] z-10 inline-flex h-[40px] w-[40px] min-w-[32px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
             :aria-label="t('pages.gallery.nextImage')"
             :disabled="gallerySliderControl.index === filterList.length - 1"
             @click.stop="navigateImage(1)"

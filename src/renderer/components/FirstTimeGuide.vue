@@ -32,9 +32,7 @@
         </div>
 
         <div class="flex items-start gap-4 px-5 py-4">
-          <div
-            class="border-lg flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-lg bg-accent text-white"
-          >
+          <div class="flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-lg bg-accent text-white">
             <component :is="currentStepConfig.icon" :size="24" />
           </div>
           <div class="min-w-0 flex-1">

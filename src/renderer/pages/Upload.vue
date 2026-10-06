@@ -88,7 +88,7 @@
         </div>
         <div class="flex flex-wrap items-center gap-3 max-md:order-2 max-md:justify-stretch">
           <button
-            class="segmented-button flex cursor-pointer items-center gap-2 rounded-md border-r border-none border-r-border-secondary bg-bg-secondary px-4 py-2.5 font-[inherit] text-sm font-medium whitespace-nowrap text-secondary shadow-sm duration-fast ease-standard last:border-r-0 hover:bg-accent/30 hover:text-white"
+            class="flex cursor-pointer items-center gap-2 rounded-md border-r border-none border-r-border-secondary bg-bg-secondary px-4 py-2.5 font-[inherit] text-sm font-medium whitespace-nowrap text-secondary shadow-sm duration-fast ease-standard last:border-r-0 hover:bg-accent/30 hover:text-white"
             @click="handleImageProcess"
           >
             <Settings :size="16" />
@@ -164,7 +164,6 @@
           >
             <div
               class="h-full rounded-lg bg-[linear-gradient(90deg,var(--color-accent)_0%,var(--color-primary)_50%)] transition-[width] duration-300 ease-standard data-[error=true]:bg-danger data-[error=true]:bg-none motion-reduce:transition-none"
-              :class="{ 'upload-progress-indeterminate': progressState?.indeterminate }"
               :data-error="showError"
               :style="{ width: progressState?.indeterminate ? '35%' : `${progress}%` }"
             />
@@ -197,7 +196,7 @@
         </div>
         <div class="flex w-full flex-1 flex-row flex-wrap items-center justify-center gap-4 max-md:gap-3 max-md:px-5">
           <button
-            class="quick-action-button group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
+            class="group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
             @click="uploadClipboardFiles"
           >
             <ClipboardIcon class="shrink-0 text-accent group-hover:text-white" :size="15" />
@@ -206,7 +205,7 @@
             }}</span>
           </button>
           <button
-            class="quick-action-button group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
+            class="group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
             @click="uploadURLFiles"
           >
             <LinkIcon class="shrink-0 text-accent group-hover:text-white" :size="15" />

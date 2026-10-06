@@ -30,7 +30,7 @@
               min="1"
               max="15"
               step="1"
-              class="grid-slider h-[4px] w-[70px] cursor-pointer appearance-none rounded-[2px] bg-(--color-background-tertiary) outline-none [&::-moz-range-thumb]:h-[14px] [&::-moz-range-thumb]:w-[14px] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:bg-accent [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:duration-200 [&::-webkit-slider-thumb]:h-[15px] [&::-webkit-slider-thumb]:w-[15px] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-200 hover:[&::-webkit-slider-thumb]:scale-110 hover:[&::-webkit-slider-thumb]:shadow-[0_0_0_2px_rgba(var(--color-accent-rgb),0.4)]"
+              class="h-[4px] w-[70px] cursor-pointer appearance-none rounded-[2px] bg-(--color-background-tertiary) outline-none [&::-moz-range-thumb]:h-[14px] [&::-moz-range-thumb]:w-[14px] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:bg-accent [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:duration-200 [&::-webkit-slider-thumb]:h-[15px] [&::-webkit-slider-thumb]:w-[15px] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-200 hover:[&::-webkit-slider-thumb]:scale-110 hover:[&::-webkit-slider-thumb]:shadow-[0_0_0_2px_rgba(var(--color-accent-rgb),0.4)]"
               :aria-label="t('pages.gallery.gridSize')"
             />
           </div>
@@ -82,7 +82,7 @@
         class="flex w-full flex-wrap items-center justify-between gap-2 rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
       >
         <div class="mb-1 flex w-full flex-wrap items-start gap-3">
-          <div class="filter-group flex min-w-[140px] flex-1 flex-col gap-1">
+          <div class="flex min-w-[140px] flex-1 flex-col gap-1">
             <MultiSelect
               v-model:choosed="choosedPicBed"
               :title="t('pages.gallery.picBedType')"
@@ -91,7 +91,7 @@
             />
           </div>
 
-          <div class="filter-group flex min-w-[140px] flex-1 flex-col gap-1">
+          <div class="flex min-w-[140px] flex-1 flex-col gap-1">
             <label class="mb-0 text-sm leading-[1.4] font-semibold text-secondary">{{
               t('pages.gallery.dateRange')
             }}</label>
@@ -99,20 +99,20 @@
               <input
                 v-model="dateRangeStart"
                 type="date"
-                class="date-input h-[28px] min-w-[20px] flex-1 rounded-md border border-border-secondary px-2 py-1.5 text-xs leading-[1.2] text-main transition-all duration-fast ease-apple focus:border-accent-hover focus:shadow-md focus:outline-none"
+                class="h-[28px] min-w-[20px] flex-1 rounded-md border border-border-secondary px-2 py-1.5 text-xs leading-[1.2] text-main transition-all duration-fast ease-apple focus:border-accent-hover focus:shadow-md focus:outline-none"
                 :aria-label="t('pages.gallery.dateRangeStart')"
               />
               <span class="shrink-0 font-medium text-secondary">-</span>
               <input
                 v-model="dateRangeEnd"
                 type="date"
-                class="date-input h-[28px] min-w-[20px] flex-1 rounded-md border border-border-secondary px-2 py-1.5 text-xs leading-[1.2] text-main transition-all duration-fast ease-apple focus:border-accent-hover focus:shadow-md focus:outline-none"
+                class="h-[28px] min-w-[20px] flex-1 rounded-md border border-border-secondary px-2 py-1.5 text-xs leading-[1.2] text-main transition-all duration-fast ease-apple focus:border-accent-hover focus:shadow-md focus:outline-none"
                 :aria-label="t('pages.gallery.dateRangeEnd')"
               />
             </div>
           </div>
 
-          <div class="filter-group flex min-w-[140px] flex-1 flex-col gap-1">
+          <div class="flex min-w-[140px] flex-1 flex-col gap-1">
             <SingleSelect
               v-model="pasteStyle"
               :title="t('pages.gallery.pasteFormat')"
@@ -125,7 +125,7 @@
             </SingleSelect>
           </div>
 
-          <div class="filter-group flex min-w-[140px] flex-1 flex-col gap-1">
+          <div class="flex min-w-[140px] flex-1 flex-col gap-1">
             <SingleSelect
               v-model="useShortUrl"
               :title="t('pages.gallery.urlType')"
@@ -139,7 +139,7 @@
             </SingleSelect>
           </div>
 
-          <div class="filter-group flex min-w-[140px] flex-1 flex-col gap-1">
+          <div class="flex min-w-[140px] flex-1 flex-col gap-1">
             <SingleSelect
               :model-value="currentSortField"
               :placeholder="t(`pages.gallery.sortBy.${currentSortField}`)"
@@ -161,13 +161,13 @@
             <input
               v-model="searchText"
               type="text"
-              class="search-input w-full rounded-md border border-border-secondary pt-2 pr-3 pb-2 pl-9 text-sm text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent-hover focus:shadow-md focus:outline-none"
+              class="w-full rounded-md border border-border-secondary pt-2 pr-3 pb-2 pl-9 text-sm text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent-hover focus:shadow-md focus:outline-none"
               :placeholder="t('pages.gallery.searchFilename')"
               :aria-label="t('pages.gallery.searchFilename')"
             />
             <button
               v-if="searchText"
-              class="clear-button absolute right-3 flex cursor-pointer items-center border-none bg-none p-0 text-secondary transition-all duration-fast ease-apple hover:text-main"
+              class="absolute right-3 flex cursor-pointer items-center border-none bg-none p-0 text-secondary transition-all duration-fast ease-apple hover:text-main"
               :aria-label="t('common.clear')"
               @click="cleanSearch"
             >
@@ -180,13 +180,13 @@
             <input
               v-model="searchTextURL"
               type="text"
-              class="search-input w-full rounded-md border border-border-secondary pt-2 pr-3 pb-2 pl-9 text-sm text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent-hover focus:shadow-md focus:outline-none"
+              class="w-full rounded-md border border-border-secondary pt-2 pr-3 pb-2 pl-9 text-sm text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent-hover focus:shadow-md focus:outline-none"
               :placeholder="t('pages.gallery.searchUrl')"
               :aria-label="t('pages.gallery.searchUrl')"
             />
             <button
               v-if="searchTextURL"
-              class="clear-button absolute right-3 flex cursor-pointer items-center border-none bg-none p-0 text-secondary transition-all duration-fast ease-apple hover:text-main"
+              class="absolute right-3 flex cursor-pointer items-center border-none bg-none p-0 text-secondary transition-all duration-fast ease-apple hover:text-main"
               :aria-label="t('common.clear')"
               @click="cleanSearchUrl"
             >
@@ -196,7 +196,7 @@
 
           <div class="flex flex-1 flex-wrap gap-3">
             <button
-              class="action-btn copy-btn flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-md border-none px-4 py-[0.425rem] text-sm font-medium text-white opacity-60 transition-all duration-fast ease-apple [.active]:transform-none [.active]:cursor-pointer [.active]:opacity-100 [.active:hover]:-translate-y-px [.active:hover]:shadow-sm [.copy-btn]:bg-accent [.copy-btn]:text-white [.copy-btn.active:hover]:bg-accent-hover [.delete-btn]:bg-danger [.delete-btn]:text-white [.delete-btn.active:hover]:bg-danger/80 [.edit-btn]:bg-success [.edit-btn]:text-white [.edit-btn.active:hover]:bg-success/80 [.select-btn]:bg-warning [.select-btn]:text-white [.select-btn.active:hover]:bg-warning/80"
+              class="copy-btn flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-md border-none px-4 py-[0.425rem] text-sm font-medium text-white opacity-60 transition-all duration-fast ease-apple [.active]:transform-none [.active]:cursor-pointer [.active]:opacity-100 [.active:hover]:-translate-y-px [.active:hover]:shadow-sm [.copy-btn]:bg-accent [.copy-btn]:text-white [.copy-btn.active:hover]:bg-accent-hover [.delete-btn]:bg-danger [.delete-btn]:text-white [.delete-btn.active:hover]:bg-danger/80 [.edit-btn]:bg-success [.edit-btn]:text-white [.edit-btn.active:hover]:bg-success/80 [.select-btn]:bg-warning [.select-btn]:text-white [.select-btn.active:hover]:bg-warning/80"
               :disabled="!selectedCount"
               :class="{ active: isMultiple(choosedList) }"
               @click="multiCopy"
@@ -205,7 +205,7 @@
               <span> {{ t('pages.gallery.copy') }}</span>
             </button>
             <button
-              class="action-btn edit-btn flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-md border-none px-4 py-[0.425rem] text-sm font-medium text-white opacity-60 transition-all duration-fast ease-apple [.active]:transform-none [.active]:cursor-pointer [.active]:opacity-100 [.active:hover]:-translate-y-px [.active:hover]:shadow-sm [.copy-btn]:bg-accent [.copy-btn]:text-white [.copy-btn.active:hover]:bg-accent-hover [.delete-btn]:bg-danger [.delete-btn]:text-white [.delete-btn.active:hover]:bg-danger/80 [.edit-btn]:bg-success [.edit-btn]:text-white [.edit-btn.active:hover]:bg-success/80 [.select-btn]:bg-warning [.select-btn]:text-white [.select-btn.active:hover]:bg-warning/80"
+              class="edit-btn flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-md border-none px-4 py-[0.425rem] text-sm font-medium text-white opacity-60 transition-all duration-fast ease-apple [.active]:transform-none [.active]:cursor-pointer [.active]:opacity-100 [.active:hover]:-translate-y-px [.active:hover]:shadow-sm [.copy-btn]:bg-accent [.copy-btn]:text-white [.copy-btn.active:hover]:bg-accent-hover [.delete-btn]:bg-danger [.delete-btn]:text-white [.delete-btn.active:hover]:bg-danger/80 [.edit-btn]:bg-success [.edit-btn]:text-white [.edit-btn.active:hover]:bg-success/80 [.select-btn]:bg-warning [.select-btn]:text-white [.select-btn.active:hover]:bg-warning/80"
               :disabled="!filterList.length"
               :class="{ active: filterList.length > 0 }"
               @click="openBatchRename"
@@ -214,7 +214,7 @@
               <span> {{ t('pages.gallery.edit') }}</span>
             </button>
             <button
-              class="action-btn delete-btn flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-md border-none px-4 py-[0.425rem] text-sm font-medium text-white opacity-60 transition-all duration-fast ease-apple [.active]:transform-none [.active]:cursor-pointer [.active]:opacity-100 [.active:hover]:-translate-y-px [.active:hover]:shadow-sm [.copy-btn]:bg-accent [.copy-btn]:text-white [.copy-btn.active:hover]:bg-accent-hover [.delete-btn]:bg-danger [.delete-btn]:text-white [.delete-btn.active:hover]:bg-danger/80 [.edit-btn]:bg-success [.edit-btn]:text-white [.edit-btn.active:hover]:bg-success/80 [.select-btn]:bg-warning [.select-btn]:text-white [.select-btn.active:hover]:bg-warning/80"
+              class="delete-btn flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-md border-none px-4 py-[0.425rem] text-sm font-medium text-white opacity-60 transition-all duration-fast ease-apple [.active]:transform-none [.active]:cursor-pointer [.active]:opacity-100 [.active:hover]:-translate-y-px [.active:hover]:shadow-sm [.copy-btn]:bg-accent [.copy-btn]:text-white [.copy-btn.active:hover]:bg-accent-hover [.delete-btn]:bg-danger [.delete-btn]:text-white [.delete-btn.active:hover]:bg-danger/80 [.edit-btn]:bg-success [.edit-btn]:text-white [.edit-btn.active:hover]:bg-success/80 [.select-btn]:bg-warning [.select-btn]:text-white [.select-btn.active:hover]:bg-warning/80"
               :disabled="!selectedCount"
               :class="{ active: isMultiple(choosedList) }"
               @click="multiRemove"
@@ -223,7 +223,7 @@
               <span> {{ `${t('pages.gallery.delete')}${selectedCount > 0 ? ` (${selectedCount})` : ''}` }}</span>
             </button>
             <button
-              class="action-btn select-btn flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-md border-none px-4 py-[0.425rem] text-sm font-medium text-white opacity-60 transition-all duration-fast ease-apple [.active]:transform-none [.active]:cursor-pointer [.active]:opacity-100 [.active:hover]:-translate-y-px [.active:hover]:shadow-sm [.copy-btn]:bg-accent [.copy-btn]:text-white [.copy-btn.active:hover]:bg-accent-hover [.delete-btn]:bg-danger [.delete-btn]:text-white [.delete-btn.active:hover]:bg-danger/80 [.edit-btn]:bg-success [.edit-btn]:text-white [.edit-btn.active:hover]:bg-success/80 [.select-btn]:bg-warning [.select-btn]:text-white [.select-btn.active:hover]:bg-warning/80"
+              class="select-btn flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-md border-none px-4 py-[0.425rem] text-sm font-medium text-white opacity-60 transition-all duration-fast ease-apple [.active]:transform-none [.active]:cursor-pointer [.active]:opacity-100 [.active:hover]:-translate-y-px [.active:hover]:shadow-sm [.copy-btn]:bg-accent [.copy-btn]:text-white [.copy-btn.active:hover]:bg-accent-hover [.delete-btn]:bg-danger [.delete-btn]:text-white [.delete-btn.active:hover]:bg-danger/80 [.edit-btn]:bg-success [.edit-btn]:text-white [.edit-btn.active:hover]:bg-success/80 [.select-btn]:bg-warning [.select-btn]:text-white [.select-btn.active:hover]:bg-warning/80"
               :disabled="!filterList.length"
               :class="{ active: filterList.length > 0 }"
               @click="toggleSelectAll"
@@ -379,7 +379,7 @@
                     <button
                       v-tooltip="t('pages.gallery.copy')"
                       :aria-label="t('pages.gallery.copy')"
-                      class="icon-button copy-icon flex h-[25px] w-[25px] cursor-pointer items-center justify-center rounded-md border-none text-secondary transition-all duration-fast ease-apple hover:-translate-y-px hover:text-main [.copy-icon]:hover:bg-warning/50 [.copy-icon]:hover:text-white [.delete-icon]:hover:bg-error/50 [.delete-icon]:hover:text-white [.edit-icon]:hover:bg-success/50 [.edit-icon]:hover:text-white"
+                      class="copy-icon flex h-[25px] w-[25px] cursor-pointer items-center justify-center rounded-md border-none text-secondary transition-all duration-fast ease-apple hover:-translate-y-px hover:text-main [.copy-icon]:hover:bg-warning/50 [.copy-icon]:hover:text-white [.delete-icon]:hover:bg-error/50 [.delete-icon]:hover:text-white [.edit-icon]:hover:bg-success/50 [.edit-icon]:hover:text-white"
                       @click.stop="copy(item)"
                     >
                       <ClipboardIcon :size="16" />
@@ -387,7 +387,7 @@
                     <button
                       v-tooltip="t('pages.gallery.edit')"
                       :aria-label="t('pages.gallery.edit')"
-                      class="icon-button edit-icon flex h-[25px] w-[25px] cursor-pointer items-center justify-center rounded-md border-none text-secondary transition-all duration-fast ease-apple hover:-translate-y-px hover:text-main [.copy-icon]:hover:bg-warning/50 [.copy-icon]:hover:text-white [.delete-icon]:hover:bg-error/50 [.delete-icon]:hover:text-white [.edit-icon]:hover:bg-success/50 [.edit-icon]:hover:text-white"
+                      class="edit-icon flex h-[25px] w-[25px] cursor-pointer items-center justify-center rounded-md border-none text-secondary transition-all duration-fast ease-apple hover:-translate-y-px hover:text-main [.copy-icon]:hover:bg-warning/50 [.copy-icon]:hover:text-white [.delete-icon]:hover:bg-error/50 [.delete-icon]:hover:text-white [.edit-icon]:hover:bg-success/50 [.edit-icon]:hover:text-white"
                       @click.stop="openDialog(item)"
                     >
                       <EditIcon :size="16" />
@@ -395,7 +395,7 @@
                     <button
                       v-tooltip="t('pages.gallery.delete')"
                       :aria-label="t('pages.gallery.delete')"
-                      class="icon-button delete-icon flex h-[25px] w-[25px] cursor-pointer items-center justify-center rounded-md border-none text-secondary transition-all duration-fast ease-apple hover:-translate-y-px hover:text-main [.copy-icon]:hover:bg-warning/50 [.copy-icon]:hover:text-white [.delete-icon]:hover:bg-error/50 [.delete-icon]:hover:text-white [.edit-icon]:hover:bg-success/50 [.edit-icon]:hover:text-white"
+                      class="delete-icon flex h-[25px] w-[25px] cursor-pointer items-center justify-center rounded-md border-none text-secondary transition-all duration-fast ease-apple hover:-translate-y-px hover:text-main [.copy-icon]:hover:bg-warning/50 [.copy-icon]:hover:text-white [.delete-icon]:hover:bg-error/50 [.delete-icon]:hover:text-white [.edit-icon]:hover:bg-success/50 [.edit-icon]:hover:text-white"
                       @click.stop="remove(item, index)"
                     >
                       <TrashIcon :size="16" />

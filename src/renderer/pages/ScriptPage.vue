@@ -71,7 +71,7 @@
                 >
                   <button
                     v-tooltip="t('pages.scripts.editScript')"
-                    class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
+                    class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                     :aria-label="t('pages.scripts.editScript')"
                     @click.stop="openEditPage(item.filePath)"
                   >
@@ -79,7 +79,7 @@
                   </button>
                   <button
                     v-tooltip="t('pages.scripts.deleteScript')"
-                    class="action-btn danger flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
+                    class="danger flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                     :aria-label="t('pages.scripts.deleteScript')"
                     @click.stop="() => deleteConfig(item.filePath)"
                   >
@@ -87,7 +87,7 @@
                   </button>
                   <button
                     v-tooltip="t('pages.scripts.marketplace.shareScript')"
-                    class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 bg-accent/50 text-white! transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent! hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
+                    class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 bg-accent/50 text-white! transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent! hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                     :aria-label="t('pages.scripts.marketplace.shareScript')"
                     @click.stop="openShareDialog(item)"
                   >
@@ -96,7 +96,7 @@
                   <button
                     v-if="item.category === 'manualTrigger'"
                     v-tooltip="t('pages.scripts.runScript')"
-                    class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 bg-accent/50 text-white! transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent! hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
+                    class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-accent/20 bg-accent/50 text-white! transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent! hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                     :aria-label="t('pages.scripts.runScript')"
                     @click.stop="runScript(item.filePath)"
                   >
@@ -106,7 +106,7 @@
                   <button
                     v-if="item.category !== 'manualTrigger' && item.category !== 'uploader.advancedplist'"
                     v-tooltip="item.enabled ? t('pages.scripts.disableScript') : t('pages.scripts.enableScript')"
-                    class="action-btn flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-none border-accent/20 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
+                    class="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md border border-none border-accent/20 text-secondary transition-all duration-fast ease-standard hover:scale-105 hover:bg-accent/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 hover:not-disabled:[.danger]:border-danger hover:not-disabled:[.danger]:bg-danger"
                     :class="{
                       'bg-success/50 hover:bg-success!': !item.enabled,
                       'bg-error/50 hover:bg-error!': item.enabled,

@@ -190,8 +190,8 @@
               {{ item.fileName ?? '' }}
             </div>
             <div v-if="!item.isDir" class="flex items-center justify-center gap-2 text-xs font-medium text-secondary">
-              <span class="text-medium text-center text-xs font-medium">{{ formatFileSize(item.fileSize) }}</span>
-              <span class="text-medium text-center text-xs font-medium">{{ item.formatedTime }}</span>
+              <span class="text-center text-xs font-medium">{{ formatFileSize(item.fileSize) }}</span>
+              <span class="text-center text-xs font-medium">{{ item.formatedTime }}</span>
             </div>
             <div class="mr-2 flex items-center justify-between">
               <div class="flex flex-1 justify-center gap-2">
@@ -230,14 +230,14 @@
                       <div
                         v-for="format in linkFormatList"
                         :key="format"
-                        class="itmes-center flex cursor-pointer border-b border-b-border-secondary bg-bg-tertiary px-3 py-2 text-center text-sm text-main last:border-b-0 hover:bg-accent/50 hover:text-white"
+                        class="flex cursor-pointer border-b border-b-border-secondary bg-bg-tertiary px-3 py-2 text-center text-sm text-main last:border-b-0 hover:bg-accent/50 hover:text-white"
                         @click.stop="emit('copy-link', item, format)"
                       >
                         {{ t(`pages.manage.bucket.linkFormat.${format}`) }}
                       </div>
                       <div
                         v-if="isShowPresignedUrl"
-                        class="itmes-center flex cursor-pointer border-b border-b-border-secondary bg-bg-tertiary px-3 py-2 text-sm text-main last:border-b-0 hover:bg-accent/50 hover:text-white"
+                        class="flex cursor-pointer border-b border-b-border-secondary bg-bg-tertiary px-3 py-2 text-sm text-main last:border-b-0 hover:bg-accent/50 hover:text-white"
                         @click.stop="async () => emit('copy-text', await getPreSignedUrl(item))"
                       >
                         {{ t('pages.manage.bucket.linkFormat.presign') }}

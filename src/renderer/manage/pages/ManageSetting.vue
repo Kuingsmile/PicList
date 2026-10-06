@@ -21,7 +21,7 @@
       <div
         class="relative flex h-full w-full flex-1 items-center justify-center overflow-hidden rounded-2xl border border-border-secondary p-1 shadow-md"
       >
-        <div class="border4 no-scrollbar flex h-full w-full flex-1 flex-col gap-6 overflow-auto p-4">
+        <div class="no-scrollbar flex h-full w-full flex-1 flex-col gap-6 overflow-auto p-4">
           <!-- Cache Info Card -->
           <SettingSection :title="t('pages.manage.setting.section.cache')" :icon="Trash2Icon" only-one-row>
             <CustomButton

@@ -1,20 +1,20 @@
 <template>
   <div
     id="mini-page"
-    class="mini-page box-border h-screen w-screen cursor-pointer overflow-hidden rounded-full border-2 border-white/90 bg-(--color-accent,#007aff) select-none [&.mini-page-square]:rounded-none"
-    :class="{ 'mini-page-square': osGlobal === 'linux' }"
+    class="box-border h-screen w-screen cursor-pointer overflow-hidden rounded-full border-2 border-white/90 bg-accent/50 select-none [.is-square]:rounded-none"
+    :class="{ 'is-square': osGlobal === 'linux' }"
   >
     <div
       ref="uploadArea"
-      class="mini-upload-area relative h-full w-full overflow-hidden rounded-[inherit]"
+      class="relative h-full w-full overflow-hidden rounded-[inherit]"
       @drop.prevent="onDrop"
       @dragover.prevent="dragover = true"
       @dragleave.prevent="dragover = false"
     >
       <img
-        :src="logoPath ? logoPath : './squareLogo.png'"
-        class="mini-logo pointer-events-none block h-full w-full object-cover [transition:opacity_200ms_ease,transform_250ms_ease] motion-reduce:transition-none [&.mini-logo-hidden]:scale-85 [&.mini-logo-hidden]:opacity-0"
-        :class="{ 'mini-logo-hidden': isShowingProgress || dragover }"
+        :src="logoPath || './squareLogo.png'"
+        class="pointer-events-none block h-full w-full object-cover [transition:opacity_200ms_ease,transform_250ms_ease] motion-reduce:transition-none [.is-logo-hidden]:scale-85 [.is-logo-hidden]:opacity-0"
+        :class="{ 'is-logo-hidden': isShowingProgress || dragover }"
         :aria-hidden="isShowingProgress || dragover"
         alt="PicList"
         draggable="false"
@@ -28,7 +28,7 @@
       >
         <div
           v-if="isShowingProgress"
-          class="mini-progress pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_35%_20%,#243e62,#101d33_80%)] text-(--progress-color) [--progress-color:#86ddff] [&.mini-progress-cancelled]:[--progress-color:#efcb85] [&.mini-progress-cancelled_.mini-progress-value]:stroke-(--progress-color) [&.mini-progress-completed]:[--progress-color:#73e6b1] [&.mini-progress-completed_.mini-progress-value]:stroke-(--progress-color) [&.mini-progress-failed]:[--progress-color:#ff909b] [&.mini-progress-failed_.mini-progress-value]:stroke-(--progress-color)"
+          class="pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_35%_20%,#243e62,#101d33_80%)] text-(--progress-color) [--progress-color:#86ddff] [&.mini-progress-cancelled]:[--progress-color:#efcb85] [&.mini-progress-cancelled_.mini-progress-value]:stroke-(--progress-color) [&.mini-progress-completed]:[--progress-color:#73e6b1] [&.mini-progress-completed_.mini-progress-value]:stroke-(--progress-color) [&.mini-progress-failed]:[--progress-color:#ff909b] [&.mini-progress-failed_.mini-progress-value]:stroke-(--progress-color)"
           :class="`mini-progress-${uploadState}`"
           :role="uploadState === 'uploading' ? 'progressbar' : 'status'"
           :aria-label="progressLabel"
@@ -37,7 +37,7 @@
           :aria-valuemax="uploadState === 'uploading' ? 100 : undefined"
         >
           <svg
-            class="mini-progress-ring absolute inset-0 h-full w-full -rotate-90 overflow-visible fill-none stroke-3"
+            class="absolute inset-0 h-full w-full -rotate-90 overflow-visible fill-none stroke-3"
             viewBox="0 0 64 64"
             aria-hidden="true"
           >
@@ -47,7 +47,7 @@
                 <stop offset="100%" stop-color="#5795ff" />
               </linearGradient>
             </defs>
-            <circle class="mini-progress-track stroke-white/12" cx="32" cy="32" r="27" />
+            <circle class="stroke-white/12" cx="32" cy="32" r="27" />
             <circle
               v-show="!isIndeterminate"
               class="mini-progress-value [stroke-dasharray:100] [stroke-linecap:round] [transition:stroke-dashoffset_450ms_cubic-bezier(0.22,1,0.36,1),stroke_200ms_ease] motion-reduce:transition-none"
@@ -60,7 +60,7 @@
             />
             <circle
               v-if="uploadState === 'uploading'"
-              class="mini-progress-orbit origin-center animate-mini-orbit stroke-[#dff9ff]/75 [stroke-dasharray:3_97] [stroke-linecap:round] motion-reduce:hidden motion-reduce:animate-none [&.mini-progress-indeterminate]:[animation-duration:1.4s] [&.mini-progress-indeterminate]:[stroke-dasharray:22_78]"
+              class="origin-center animate-mini-orbit stroke-[#dff9ff]/75 [stroke-dasharray:3_97] [stroke-linecap:round] motion-reduce:hidden motion-reduce:animate-none [&.mini-progress-indeterminate]:[animation-duration:1.4s] [&.mini-progress-indeterminate]:[stroke-dasharray:22_78]"
               :class="{ 'mini-progress-indeterminate': isIndeterminate }"
               cx="32"
               cy="32"
@@ -68,45 +68,31 @@
               pathLength="100"
             />
           </svg>
-          <div
-            class="mini-progress-content absolute inset-0 flex flex-col items-center justify-center gap-px"
-            aria-hidden="true"
-          >
+          <div class="absolute inset-0 flex flex-col items-center justify-center gap-px" aria-hidden="true">
             <template v-if="uploadState === 'uploading'">
-              <ArrowUp
-                class="mini-upload-arrow animate-mini-upload-lift motion-reduce:animate-none"
-                :size="14"
-                :stroke-width="2.5"
-              />
-              <span
-                v-if="isIndeterminate"
-                class="mini-progress-stage max-w-[44px] truncate text-[8px] leading-[1.5] font-semibold"
-                >{{ phaseLabel }}</span
-              >
+              <ArrowUp class="animate-mini-upload-lift motion-reduce:animate-none" :size="14" :stroke-width="2.5" />
+              <span v-if="isIndeterminate" class="max-w-[44px] truncate text-[8px] leading-[1.5] font-semibold">{{
+                phaseLabel
+              }}</span>
               <span
                 v-else
-                class="mini-progress-percent text-[16px] leading-[1.15] font-bold text-white tabular-nums [&>span]:ml-px [&>span]:text-[9px] [&>span]:font-medium [&>span]:text-[#bfd3ee]"
+                class="text-[16px] leading-[1.15] font-bold text-white tabular-nums [&>span]:ml-px [&>span]:text-[9px] [&>span]:font-medium [&>span]:text-[#bfd3ee]"
                 >{{ progress }}<span>%</span></span
               >
             </template>
             <Check
               v-else-if="uploadState === 'completed'"
-              class="mini-result-icon animate-mini-result-in motion-reduce:animate-none"
+              class="animate-mini-result-in motion-reduce:animate-none"
               :size="27"
               :stroke-width="2.5"
             />
             <X
               v-else-if="uploadState === 'failed'"
-              class="mini-result-icon animate-mini-result-in motion-reduce:animate-none"
+              class="animate-mini-result-in motion-reduce:animate-none"
               :size="25"
               :stroke-width="2.5"
             />
-            <Minus
-              v-else
-              class="mini-result-icon animate-mini-result-in motion-reduce:animate-none"
-              :size="25"
-              :stroke-width="2.5"
-            />
+            <Minus v-else class="animate-mini-result-in motion-reduce:animate-none" :size="25" :stroke-width="2.5" />
           </div>
         </div>
       </Transition>
@@ -118,7 +104,7 @@
       >
         <div
           v-if="dragover"
-          class="mini-drop-indicator pointer-events-none absolute inset-[4px] grid place-items-center rounded-[inherit] border-2 border-dashed border-[#a9e8ff] bg-[#152d4f] text-white"
+          class="pointer-events-none absolute inset-[4px] grid place-items-center rounded-[inherit] border-2 border-dashed border-[#a9e8ff] bg-[#152d4f] text-white"
           aria-hidden="true"
         >
           <Upload :size="25" />
@@ -191,12 +177,10 @@ let removeIconListener: () => void = () => {}
 
 async function initLogoPath() {
   const config = await getConfig<IConfig>()
-  if (config) {
-    if (config.settings?.isCustomMiniIcon && config.settings?.customMiniIcon) {
-      logoPath.value =
-        'data:image/jpg;base64,' +
-        (await window.electron.triggerRPC(IRPCActionType.MANAGE_CONVERT_PATH_TO_BASE64, config.settings.customMiniIcon))
-    }
+  if (config && config.settings?.isCustomMiniIcon && config.settings?.customMiniIcon) {
+    logoPath.value =
+      'data:image/jpg;base64,' +
+      (await window.electron.triggerRPC(IRPCActionType.MANAGE_CONVERT_PATH_TO_BASE64, config.settings.customMiniIcon))
   }
 }
 

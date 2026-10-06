@@ -33,7 +33,7 @@
       ref="optionsRef"
       role="group"
       :aria-label="title || zeroPlaceholder"
-      class="multiselect-dropdown fixed z-10000 max-h-[150px] overflow-y-auto overscroll-contain rounded-md border border-border-secondary bg-bg-tertiary px-2 py-1.5 text-main shadow-lg"
+      class="fixed z-10000 max-h-[150px] overflow-y-auto overscroll-contain rounded-md border border-border-secondary bg-bg-tertiary px-2 py-1.5 text-main shadow-lg"
       @keydown="handleOptionsKeydown"
     >
       <label

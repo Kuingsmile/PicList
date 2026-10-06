@@ -8,7 +8,7 @@
       <p v-if="description" class="mt-1 text-xs leading-relaxed text-secondary">{{ description }}</p>
     </header>
     <div
-      class="processing-section-fields grid grid-cols-2 gap-[12px] [&.single-column]:grid-cols-1 [&>.processing-section]:col-span-full [@media(width<=700px)]:grid-cols-1"
+      class="grid grid-cols-2 gap-[12px] [&.single-column]:grid-cols-1 [&>.processing-section]:col-span-full [@media(width<=700px)]:grid-cols-1"
       :class="{ 'single-column': onlyOneRow }"
     >
       <slot />

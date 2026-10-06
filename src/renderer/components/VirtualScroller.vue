@@ -1,12 +1,12 @@
 <template>
   <div
     ref="containerRef"
-    class="virtual-scroller relative min-h-0 min-w-0 overflow-auto contain-[layout_style] [overflow-anchor:none]"
+    class="relative min-h-0 min-w-0 overflow-auto contain-[layout_style] [overflow-anchor:none]"
     @scroll="handleScroll"
   >
     <table
       v-if="viewMode === 'table'"
-      class="virtual-table w-full table-fixed border-separate border-spacing-0"
+      class="w-full table-fixed border-separate border-spacing-0"
       :style="{ minWidth: `${tableMinWidth}px` }"
       :aria-label="tableLabel"
       :aria-rowcount="items.length + 1"
@@ -17,24 +17,16 @@
       </thead>
       <tbody>
         <tr v-if="viewportOffset > 0" aria-hidden="true">
-          <td
-            :colspan="tableColumns"
-            class="virtual-spacer border-0 p-0 leading-0"
-            :style="{ height: `${viewportOffset}px` }"
-          />
+          <td :colspan="tableColumns" class="border-0 p-0 leading-0" :style="{ height: `${viewportOffset}px` }" />
         </tr>
         <slot v-for="index in visibleIndexes" :key="itemKey(items[index], index)" :item="items[index]" :index />
         <tr v-if="bottomSpace > 0" aria-hidden="true">
-          <td
-            :colspan="tableColumns"
-            class="virtual-spacer border-0 p-0 leading-0"
-            :style="{ height: `${bottomSpace}px` }"
-          />
+          <td :colspan="tableColumns" class="border-0 p-0 leading-0" :style="{ height: `${bottomSpace}px` }" />
         </tr>
       </tbody>
     </table>
-    <div v-else class="virtual-content relative w-full" :style="{ height: `${gridCalculations.totalHeight}px` }">
-      <div class="virtual-viewport absolute top-0 left-0 w-full" :style="viewportStyle">
+    <div v-else class="relative w-full" :style="{ height: `${gridCalculations.totalHeight}px` }">
+      <div class="absolute top-0 left-0 w-full" :style="viewportStyle">
         <div
           v-for="index in visibleIndexes"
           :key="itemKey(items[index], index)"

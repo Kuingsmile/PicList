@@ -5,7 +5,7 @@
   >
     <!-- Header -->
     <div
-      class="rounded-b-0 flex min-h-[32px] cursor-pointer items-center justify-between bg-tertiary/95 px-3 py-2 transition-all duration-fast ease-apple hover:shadow-md"
+      class="flex min-h-[32px] cursor-pointer items-center justify-between bg-tertiary/95 px-3 py-2 transition-all duration-fast ease-apple hover:shadow-md"
       @click="openSettingWindow"
     >
       <div class="flex flex-1 items-center gap-2">

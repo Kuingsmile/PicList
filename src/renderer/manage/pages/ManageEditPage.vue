@@ -15,7 +15,7 @@
       <LinkIcon :size="15" class="mr-1" />
       <p class="m-0 text-sm leading-[1.5] font-semibold text-secondary">
         {{ supportedPicBedList[platformName].referenceText }}
-        <button class="link-button" @click="handleReferenceClick(supportedPicBedList[platformName].refLink)">
+        <button @click="handleReferenceClick(supportedPicBedList[platformName].refLink)">
           {{ supportedPicBedList[platformName].refLink }}
         </button>
       </p>
