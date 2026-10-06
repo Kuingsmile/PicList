@@ -36,11 +36,6 @@ type IShortKeyConfig = import('../shortcuts').ShortcutConfig
 
 type IShortKeyConfigs = Record<string, IShortKeyConfig>
 
-interface IKeyCommandType {
-  key: string
-  command: string
-}
-
 interface ILocalConfig {
   path: string
   customUrl?: string
@@ -143,14 +138,6 @@ interface ISftpPlistConfig {
   dirMode?: string
 }
 
-interface IPicListConfig {
-  host: string
-  port?: number
-  picbed?: string
-  configName?: string
-  serverKey?: string
-}
-
 interface ILskyConfig {
   version: string
   host: string
@@ -211,17 +198,3 @@ interface IFavoritePicbedItem {
   type: string
   configName: string
 }
-
-type IScriptLifecycle =
-  | 'onSoftwareOpen'
-  | 'onSoftwareClose'
-  | 'preProcess'
-  | 'beforeTransform'
-  | 'transform'
-  | 'beforeUpload'
-  | 'upload'
-  | 'afterUpload'
-  | 'onUploadSuccess'
-  | 'onGalleryRemove'
-  | 'manualTrigger'
-  | 'uploader.advancedplist'

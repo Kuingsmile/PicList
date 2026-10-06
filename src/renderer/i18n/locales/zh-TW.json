@@ -1673,7 +1673,6 @@
       "picbedPicker": {
         "collapseAll": "全部摺疊",
         "configurations": "設定",
-        "current": "目前圖床",
         "empty": "暫無可用圖床",
         "expandAll": "全部展開",
         "loadFailed": "無法載入圖床。",

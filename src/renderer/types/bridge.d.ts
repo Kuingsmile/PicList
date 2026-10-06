@@ -16,7 +16,6 @@ declare global {
     electron: {
       platform: string
       setVisualZoomLevelLimits: (min: number, max: number) => void
-      sendRpcSync: (action: string, ...args: any[]) => any
       triggerRPC: <T>(action: string, ...args: any[]) => Promise<T | undefined>
       invokeRPC: import('../../shared/rpc').InvokeRPC
       sendToMain: (channel: string, ...args: any[]) => void

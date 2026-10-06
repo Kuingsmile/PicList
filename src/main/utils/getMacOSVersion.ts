@@ -62,25 +62,3 @@ export function isMacOSVersionGreaterThanOrEqualTo(version: string) {
 
   return semver.gte(macOSVersion(), clean(version))
 }
-
-export function assertMacOSVersion(semverRange: string) {
-  semverRange = semverRange.replace('10.16', '11')
-
-  if (!isMacOSVersion(semverRange)) {
-    throw new Error(`Requires macOS ${semverRange}`)
-  }
-}
-
-export function assertMacOSVersionGreaterThanOrEqualTo(version: string) {
-  version = version.replace('10.16', '11')
-
-  if (!isMacOSVersionGreaterThanOrEqualTo(version)) {
-    throw new Error(`Requires macOS ${version} or later`)
-  }
-}
-
-export function assertMacOS() {
-  if (!isMacOS) {
-    throw new Error('Requires macOS')
-  }
-}

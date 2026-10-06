@@ -1,8 +1,5 @@
 export const CLIPBOARD_IMAGE_FOLDER = 'piclist-clipboard-images'
 
-export const cancelDownloadLoadingFileList = 'cancelDownloadLoadingFileList'
-export const refreshDownloadFileTransferList = 'refreshDownloadFileTransferList'
-
 export const picBedsCanbeDeleted = [
   'aliyun',
   'alist',

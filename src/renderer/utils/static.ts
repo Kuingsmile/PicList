@@ -2,9 +2,6 @@ export const RELEASE_URL = 'https://api.github.com/repos/Kuingsmile/PicList/rele
 export const RELEASE_URL_BACKUP = 'https://release.piclist.cn'
 export const GITHUB_URL = 'https://github.com/Kuingsmile/PicList'
 
-export const cancelDownloadLoadingFileList = 'cancelDownloadLoadingFileList'
-export const refreshDownloadFileTransferList = 'refreshDownloadFileTransferList'
-
 export const picBedsCanbeDeleted = [
   'aliyun',
   'alist',

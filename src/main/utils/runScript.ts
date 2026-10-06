@@ -25,21 +25,6 @@ function getFreshEnv() {
   return {}
 }
 
-export const scriptLifecycleStages = [
-  'onSoftwareOpen',
-  'onSoftwareClose',
-  'preProcess',
-  'beforeTransform',
-  'transform',
-  'beforeUpload',
-  'upload',
-  'afterUpload',
-  'onUploadSuccess',
-  'onGalleryRemove',
-  'manualTrigger',
-  'uploader.advancedplist',
-] as const
-
 function format(data: unknown): string {
   if (data instanceof Error) {
     return `${data.name}: ${data.message}\n${data.stack}`

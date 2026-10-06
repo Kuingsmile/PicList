@@ -43,34 +43,6 @@ export default [
     type: IRPCType.INVOKE,
   },
   {
-    action: IRPCActionType.MANAGE_SET_BUCKET_ACL_POLICY,
-    handler: async (_: IIPCEvent, args: [currentPicBed: string, param: IStringKeyMap]) => {
-      return new ManageApi(args[0]).setBucketAclPolicy(args[1])
-    },
-    type: IRPCType.INVOKE,
-  },
-  {
-    action: IRPCActionType.MANAGE_RENAME_BUCKET_FILE,
-    handler: async (_: IIPCEvent, args: [currentPicBed: string, param: IStringKeyMap]) => {
-      return new ManageApi(args[0]).renameBucketFile(args[1])
-    },
-    type: IRPCType.INVOKE,
-  },
-  {
-    action: IRPCActionType.MANAGE_DELETE_BUCKET_FILE,
-    handler: async (_: IIPCEvent, args: [currentPicBed: string, param: IStringKeyMap]) => {
-      return new ManageApi(args[0]).deleteBucketFile(args[1])
-    },
-    type: IRPCType.INVOKE,
-  },
-  {
-    action: IRPCActionType.MANAGE_DELETE_BUCKET_FOLDER,
-    handler: async (_: IIPCEvent, args: [currentPicBed: string, param: IStringKeyMap]) => {
-      return new ManageApi(args[0]).deleteBucketFolder(args[1])
-    },
-    type: IRPCType.INVOKE,
-  },
-  {
     action: IRPCActionType.MANAGE_DELETE_BUCKET_ITEMS,
     handler: async (_: IIPCEvent, args: [currentPicBed: string, param: IStringKeyMap]) => {
       return new ManageApi(args[0]).deleteBucketItems(args[1])

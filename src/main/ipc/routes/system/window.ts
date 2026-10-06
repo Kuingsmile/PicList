@@ -3,13 +3,7 @@ import { app, BrowserWindow } from 'electron'
 
 import { UPDATE_MINI_ICON } from '#/constants/ipcChannels'
 import { IRPCActionType, IWindowList } from '~/constants'
-import {
-  buildMainPageMenu,
-  buildMiniPageMenu,
-  buildPicBedListMenu,
-  buildPluginPageMenu,
-  buildSecondPicBedMenu,
-} from '~/events/remotes/menu'
+import { buildMainPageMenu, buildMiniPageMenu, buildPluginPageMenu, buildSecondPicBedMenu } from '~/events/remotes/menu'
 import { openMiniWindow } from '~/utils/windowHelper'
 
 export default [
@@ -66,16 +60,6 @@ export default [
     handler: async () => {
       const window = windowManager.get(IWindowList.SETTING_WINDOW)
       const menu = buildMainPageMenu(window)
-      menu.popup({
-        window,
-      })
-    },
-  },
-  {
-    action: IRPCActionType.SHOW_UPLOAD_PAGE_MENU,
-    handler: async () => {
-      const window = windowManager.get(IWindowList.SETTING_WINDOW)
-      const menu = buildPicBedListMenu()
       menu.popup({
         window,
       })

@@ -1,11 +1,9 @@
 import crypto from 'node:crypto'
 import http from 'node:http'
 import https from 'node:https'
-import path from 'node:path'
 import type { Readable } from 'node:stream'
 import { finished, pipeline } from 'node:stream/promises'
 
-import fs from 'fs-extra'
 import got, { OptionsOfTextResponseBody, RequestError } from 'got'
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
 import mime from 'mime'
@@ -26,21 +24,6 @@ import {
 } from './downloadFile'
 
 export { clearTempFolder, downloadFileFromUrl } from './urlImportFiles'
-
-export const getFSFile = async (filePath: string, stream: boolean = false): Promise<IStringKeyMap> => {
-  try {
-    return {
-      extension: path.extname(filePath),
-      fileName: path.basename(filePath),
-      buffer: stream ? fs.createReadStream(filePath) : await fs.readFile(filePath),
-      success: true,
-    }
-  } catch (_e) {
-    return {
-      success: false,
-    }
-  }
-}
 
 export function isInputConfigValid(config: any): boolean {
   return typeof config === 'object' && !Array.isArray(config) && Object.keys(config).length > 0

@@ -44,18 +44,6 @@ class UpDownTaskQueue {
     return UpDownTaskQueue.instance
   }
 
-  getUploadTaskQueue() {
-    return UpDownTaskQueue.getInstance().uploadTaskQueue
-  }
-
-  getDownloadTaskQueue() {
-    return UpDownTaskQueue.getInstance().downloadTaskQueue
-  }
-
-  getUploadTask(taskId: string) {
-    return UpDownTaskQueue.getInstance().uploadTaskQueue.find(item => item.id === taskId)
-  }
-
   getAllUploadTask() {
     return UpDownTaskQueue.getInstance().uploadTaskQueue
   }
@@ -89,14 +77,6 @@ class UpDownTaskQueue {
         task.status === commonTaskStatus.canceled)
     ) {
       finishImportedFileUpload(task.id)
-    }
-  }
-
-  removeUploadTask(taskId: string) {
-    const taskIndex = UpDownTaskQueue.getInstance().uploadTaskQueue.findIndex(item => item.id === taskId)
-    if (taskIndex !== -1) {
-      UpDownTaskQueue.getInstance().uploadTaskQueue.splice(taskIndex, 1)
-      this.persist()
     }
   }
 
@@ -166,11 +146,6 @@ class UpDownTaskQueue {
   clearDownloadTaskQueue() {
     UpDownTaskQueue.getInstance().downloadTaskQueue = []
     this.persist()
-  }
-
-  clearAllTaskQueue() {
-    this.clearUploadTaskQueue()
-    this.clearDownloadTaskQueue()
   }
 
   persist() {

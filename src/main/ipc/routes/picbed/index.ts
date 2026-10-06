@@ -10,7 +10,6 @@ import {
   deleteUploaderConfig,
   duplicateUploaderConfig,
   getUploaderConfigList,
-  resetUploaderConfig,
   selectUploaderConfig,
   updateUploaderConfig,
 } from '~/utils/handleUploaderConfig'
@@ -77,7 +76,7 @@ const picbedRoutes = [
       IRPCActionType.PICBED_DELETE_CONFIG,
       async (_: IIPCEvent, args: [type: string, id: string]) => {
         const [type, id] = args
-        const config = await deleteUploaderConfig(type, id)
+        const config = deleteUploaderConfig(type, id)
         return config
       },
     ),
@@ -89,7 +88,7 @@ const picbedRoutes = [
       IRPCActionType.PICBED_DUPLICATE_CONFIG,
       async (_: IIPCEvent, args: [type: string, id: string, newName: string]) => {
         const [type, id, newName] = args
-        const config = await duplicateUploaderConfig(type, id, newName)
+        const config = duplicateUploaderConfig(type, id, newName)
         return config
       },
     ),
@@ -101,7 +100,7 @@ const picbedRoutes = [
       IRPCActionType.UPLOADER_SELECT,
       async (_: IIPCEvent, args: [type: string, id: string]) => {
         const [type, id] = args
-        await selectUploaderConfig(type, id)
+        selectUploaderConfig(type, id)
         return true
       },
     ),
@@ -113,19 +112,7 @@ const picbedRoutes = [
       IRPCActionType.UPLOADER_UPDATE_CONFIG,
       async (_: IIPCEvent, args: [type: string, id: string, config: IStringKeyMap]) => {
         const [type, id, config] = args
-        await updateUploaderConfig(type, id, config)
-        return true
-      },
-    ),
-    type: IRPCType.INVOKE,
-  },
-  {
-    action: IRPCActionType.UPLOADER_RESET_CONFIG,
-    handler: defineRpcHandler(
-      IRPCActionType.UPLOADER_RESET_CONFIG,
-      async (_: IIPCEvent, args: [type: string, id: string]) => {
-        const [type, id] = args
-        await resetUploaderConfig(type, id)
+        updateUploaderConfig(type, id, config)
         return true
       },
     ),

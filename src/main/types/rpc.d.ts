@@ -1,6 +1,4 @@
-type IGetLatestVersionArgs = [isCheckBetaVersion: boolean]
 type IToolboxCheckArgs = [type: string]
-type IShowDockIconArgs = [visible: boolean]
 
 interface IRPCServer {
   start: () => void

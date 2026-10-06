@@ -1,10 +1,3 @@
-interface IPluginShortKeyConfig {
-  key: string
-  name: string
-  label: string
-  handle: IShortKeyHandler
-}
-
 // PicGo Types
 type ICtx = import('piclist').PicGo
 

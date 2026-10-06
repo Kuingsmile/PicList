@@ -1673,7 +1673,6 @@
       "picbedPicker": {
         "collapseAll": "全部折叠",
         "configurations": "配置",
-        "current": "当前图床",
         "empty": "暂无可用图床",
         "expandAll": "全部展开",
         "loadFailed": "无法加载图床。",

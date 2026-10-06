@@ -11,8 +11,6 @@
     @click="toggle"
     @keydown.down.prevent="show"
   >
-    <LoaderCircleIcon v-if="switching" :size="16" class="animate-spin" aria-hidden="true" />
-    <ArrowLeftRightIcon v-else :size="16" aria-hidden="true" />
     <span>{{ t('pages.upload.changePicBed') }}</span>
     <ChevronDownIcon
       :size="14"
@@ -28,44 +26,12 @@
       :id="panelId"
       ref="panel"
       role="dialog"
-      :aria-labelledby="`${panelId}-title`"
       class="fixed z-100 flex min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-bg-tertiary text-main shadow-xl"
       :style="panelStyle"
       @keydown.esc="handleEscape"
       @keydown.tab="handleTab"
     >
-      <div class="shrink-0 px-4 pt-3 pb-2">
-        <div class="mb-3 flex items-center justify-between gap-3">
-          <h2 :id="`${panelId}-title`" class="text-sm font-semibold">{{ t('pages.upload.changePicBed') }}</h2>
-          <button
-            type="button"
-            class="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-secondary hover:bg-bg-secondary hover:text-main focus-visible:focus-ring"
-            :aria-label="t('common.close')"
-            @click="close()"
-          >
-            <XIcon :size="16" aria-hidden="true" />
-          </button>
-        </div>
-        <div class="flex items-center gap-3 rounded-lg border border-accent/15 bg-accent/5 px-3 py-2.5">
-          <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
-            <CloudIcon :size="18" aria-hidden="true" />
-          </div>
-          <div class="min-w-0 flex-1">
-            <div class="mb-0.5 text-[11px] text-secondary">{{ t('pages.upload.picbedPicker.current') }}</div>
-            <div class="flex min-w-0 items-center gap-1.5 text-sm">
-              <span v-tooltip.overflow="currentProviderName" class="truncate font-semibold">{{
-                currentProviderName
-              }}</span>
-              <span class="shrink-0 text-tertiary" aria-hidden="true">/</span>
-              <span v-tooltip.overflow="defaultConfigNameG || 'Default'" class="truncate text-secondary">{{
-                defaultConfigNameG || 'Default'
-              }}</span>
-            </div>
-          </div>
-          <CheckIcon :size="16" class="shrink-0 text-accent" aria-hidden="true" />
-        </div>
-      </div>
-      <div class="relative mx-4 mt-1 mb-3 shrink-0">
+      <div class="relative mx-4 mt-2 mb-3 shrink-0">
         <SearchIcon
           :size="16"
           class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-secondary"
@@ -233,7 +199,6 @@
 
 <script setup lang="ts">
 import {
-  ArrowLeftRightIcon,
   CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
@@ -254,7 +219,7 @@ import { IRPCActionType } from '#/constants/rpcActions'
 
 const { t } = useI18n()
 const message = useMessage()
-const { picBedG, defaultPicBedG, defaultConfigNameG, defaultIdG, updatePicBeds } = usePicBed()
+const { defaultPicBedG, defaultIdG, updatePicBeds } = usePicBed()
 const panelId = `picbed-picker-${useId()}`
 const listId = `${panelId}-options`
 const trigger = useTemplateRef('trigger')
@@ -276,10 +241,6 @@ let loadVersion = 0
 type PickerRow = { kind: 'provider'; type: string } | { kind: 'config'; target: IUploadTarget }
 
 const isSearching = computed(() => !!query.value.trim())
-const currentProviderName = computed(() => {
-  const provider = picBedG.value.find(item => item.type === defaultPicBedG.value)
-  return provider?.name || defaultPicBedG.value
-})
 const filteredTargets = computed(() => {
   const terms = query.value.trim().toLocaleLowerCase().split(/\s+/)
   return targets.value.filter(target => {

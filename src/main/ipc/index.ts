@@ -15,7 +15,6 @@ import { toolboxRouter } from '~/ipc/routes/toolbox'
 import { trayRouter } from '~/ipc/routes/tray'
 import { updaterRouter } from '~/ipc/routes/updater'
 import { uploadRouter } from '~/ipc/routes/upload'
-import { isTrustedRendererSender } from '~/utils/rendererSecurity'
 
 import { dispatchRpc, redactedDiagnostic } from './dispatch'
 
@@ -24,10 +23,6 @@ class RPCServer implements IRPCServer {
   private routesWithResponse: IRPCRoutes = new Map()
 
   private rpcEventHandler = async (event: IpcMainEvent, action: string, args: any[]) => {
-    if (!isTrustedRendererSender(event)) {
-      event.returnValue = null
-      return
-    }
     try {
       rpcRequestSchema.parse({ action, args })
       if (isRpcAction(action)) throw new RpcError('INVALID_REQUEST')
@@ -35,7 +30,6 @@ class RPCServer implements IRPCServer {
       if (!route) throw new RpcError('NOT_FOUND')
       await route.handler(event, args)
     } catch (error) {
-      event.returnValue = null
       logger.error(JSON.stringify({ rpc: 'notification-failed', ...redactedDiagnostic(error) }))
     }
   }
@@ -44,7 +38,6 @@ class RPCServer implements IRPCServer {
     return dispatchRpc(
       action,
       args,
-      isTrustedRendererSender(event),
       action => {
         const route = this.routesWithResponse.get(action)
         return route ? args => route.handler(event, args) : undefined
@@ -60,11 +53,8 @@ class RPCServer implements IRPCServer {
 
   use(routes: IRPCRoutes) {
     for (const [action, route] of routes) {
-      if (route.type === IRPCType.SEND) {
-        this.routes.set(action, route)
-      } else {
-        this.routesWithResponse.set(action, route)
-      }
+      const target = route.type === IRPCType.SEND ? this.routes : this.routesWithResponse
+      target.set(action, route)
     }
   }
 
@@ -94,4 +84,4 @@ for (const route of routes) {
   rpcServer.use(route)
 }
 
-export { rpcServer }
+export default rpcServer

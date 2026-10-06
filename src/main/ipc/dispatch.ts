@@ -66,13 +66,11 @@ export function redactedDiagnostic(error: unknown, depth = 0): Record<string, un
 export async function dispatchRpc(
   action: unknown,
   args: unknown,
-  trusted: boolean,
   findHandler: (action: string) => ((args: unknown[]) => Promise<unknown>) | undefined,
   log: (diagnostic: Record<string, unknown>) => void,
 ): Promise<RpcResult<unknown>> {
   let knownAction: string | undefined
   try {
-    if (!trusted) throw new RpcError('FORBIDDEN')
     const request = rpcRequestSchema.parse({ action, args })
     const handler = findHandler(request.action)
     if (!handler) throw new RpcError('NOT_FOUND')

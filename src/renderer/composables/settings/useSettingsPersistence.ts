@@ -276,7 +276,7 @@ export function useSettingsPersistence(state: SettingsState) {
     if (result && result[0]) {
       formOfSetting.value.customMiniIcon = result[0]
       if (!(await saveConfig(configPaths.settings.customMiniIcon, formOfSetting.value.customMiniIcon))) return
-      window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
+      window.electron.sendRPC(IRPCActionType.UPDATE_MINI_WINDOW_ICON)
     }
   }
 

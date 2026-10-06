@@ -47,7 +47,3 @@ export const invokeRPC = ((action: string, ...args: unknown[]) => invokeTranspor
 export async function triggerRPC<T>(action: string, ...args: any[]): Promise<T | undefined> {
   return unwrapRpcResult<T | undefined>(await invokeTransport(action, args), action)
 }
-
-export function sendRpcSync(action: string, ...args: any[]): any {
-  return ipcRenderer.sendSync(RPC_ACTIONS, action, getRawData(args))
-}

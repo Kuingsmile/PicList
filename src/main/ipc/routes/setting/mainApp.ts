@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import { appGUILogPath, appLogPath, dataDir, manageLogPath, scriptsDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
-import { IpcMainEvent, shell } from 'electron'
+import { shell } from 'electron'
 import fs from 'fs-extra'
 
 import { IRPCActionType, IRPCType } from '~/constants'
@@ -22,14 +22,6 @@ export default [
       return picgo.getConfig(args[0])
     },
     type: IRPCType.INVOKE,
-  },
-  {
-    action: IRPCActionType.PICLIST_GET_CONFIG_SYNC,
-    handler: async (event: IIPCEvent, args: [key?: string]) => {
-      const result = picgo.getConfig(args[0])
-      const eventInstance = event as IpcMainEvent
-      eventInstance.returnValue = result
-    },
   },
   {
     action: IRPCActionType.PICLIST_SAVE_CONFIG,
@@ -94,17 +86,6 @@ export default [
       await runScript(picgo, scriptContent, {})
       return true
     },
-    type: IRPCType.INVOKE,
-  },
-  {
-    action: IRPCActionType.CREATE_SCRIPTS_FILE,
-    handler: defineRpcHandler(
-      IRPCActionType.CREATE_SCRIPTS_FILE,
-      async (_: IIPCEvent, args: [fileName: string[], content: string]) => {
-        const abFilePath = path.join(scriptsDir(), ...args[0])
-        return await writeRpcFile(abFilePath, args[1])
-      },
-    ),
     type: IRPCType.INVOKE,
   },
   {

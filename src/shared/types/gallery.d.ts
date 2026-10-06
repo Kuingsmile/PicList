@@ -23,8 +23,3 @@ interface IGalleryDBGalleryItem {
   updatedAt?: number
   [propName: string]: any
 }
-
-interface IGalleryDBFile {
-  gallery: IGalleryDBGalleryItem[]
-  __gallery_KEY__: Record<string, number>
-}

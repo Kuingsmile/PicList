@@ -1,5 +1,3 @@
-import path from 'node:path'
-
 import { app, dialog, shell } from 'electron'
 import fs from 'fs-extra'
 
@@ -88,13 +86,6 @@ export default [
       } else {
         shell.openPath(app.getPath('downloads'))
       }
-    },
-  },
-  {
-    action: IRPCActionType.MANAGE_OPEN_LOCAL_FILE,
-    handler: async (_: IIPCEvent, args: [fullPath: string]) => {
-      const fullPath = args[0]
-      fs.existsSync(fullPath) ? shell.showItemInFolder(fullPath) : shell.openPath(path.dirname(fullPath))
     },
   },
   {

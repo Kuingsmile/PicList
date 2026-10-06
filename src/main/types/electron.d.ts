@@ -17,8 +17,6 @@ interface IWindowManager {
   getAvailableWindow: (isSkipMiniWindow?: boolean) => import('electron').BrowserWindow | undefined
 }
 
-type IpcRendererListener = (event: import('electron').IpcRendererEvent, ...args: any[]) => void
-
 // Main process
 interface IBrowserWindowOptions {
   height: number

@@ -31,7 +31,6 @@ class ImgurApi {
   logger: ManageLogger
   proxyStr: string | undefined
   tokenHeaders: any
-  idHeaders: any
   baseUrl = 'https://api.imgur.com/3'
 
   constructor(userName: string, accessToken: string, proxy: any, logger: ManageLogger) {

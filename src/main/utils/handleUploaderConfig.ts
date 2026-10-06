@@ -12,19 +12,6 @@ const isSecondUploaderConfig = (type: string, id: string): boolean =>
   picgo.getConfig<string>(configPaths.picBed.secondUploader) === type &&
   picgo.getConfig<IStringKeyMap>(configPaths.picBed.secondUploaderConfig)?._id === id
 
-export const handleConfigWithFunction = (config: IPicGoPluginOriginConfig[]): IPicGoPluginConfig[] => {
-  for (const i in config) {
-    if (typeof config[i].default === 'function') {
-      config[i].default = config[i].default()
-    }
-    if (typeof config[i].choices === 'function') {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-      config[i].choices = (config[i].choices as Function)()
-    }
-  }
-  return config as IPicGoPluginConfig[]
-}
-
 export const completeUploaderMetaConfig = (originData: IStringKeyMap, id?: string): IUploaderConfigListItem => {
   return {
     _configName: 'Default',
@@ -197,27 +184,6 @@ export const updateUploaderConfig = (type: string, id: string, config: IStringKe
     [`uploader.${type}.defaultId`]: updatedDefaultId,
     ...(updatedDefaultId === updatedConfig._id ? { [`picBed.${type}`]: updatedConfig } : {}),
     ...(isSecondUploaderConfig(type, id) ? { [configPaths.picBed.secondUploaderConfig]: updatedConfig } : {}),
-  })
-}
-
-/**
- * Reset selected congfig id to default
- */
-
-export const resetUploaderConfig = (type: string, id: string) => {
-  const configList = getUploaderConfigList(type).configList.map(item => ({ ...item }))
-  const config = configList.find(item => item._id === id)
-  if (!config) throw new RpcError('NOT_FOUND')
-  Object.keys(config).forEach(key => {
-    if (!['_configName', '_id', '_createdAt', '_updatedAt'].includes(key)) {
-      delete config[key]
-    }
-  })
-  const currentDefault = picgo.getConfig<IStringKeyMap>(`picBed.${type}`) ?? {}
-  commitConfig(picgo, {
-    [`uploader.${type}.configList`]: configList,
-    ...(currentDefault._id === id ? { [`picBed.${type}`]: config } : {}),
-    ...(isSecondUploaderConfig(type, id) ? { [configPaths.picBed.secondUploaderConfig]: config } : {}),
   })
 }
 

@@ -114,36 +114,10 @@ const uploadRoutes = [
     type: IRPCType.INVOKE,
   },
   {
-    action: IRPCActionType.UPLOAD_TASK_CLEAR_ALL,
-    handler: async () => {
-      const manager = UploadTaskQueueManager.getInstance()
-      manager.clearAllTasks()
-      return manager.getQueueStatus()
-    },
-    type: IRPCType.INVOKE,
-  },
-  {
     action: IRPCActionType.UPLOAD_TASK_GET_STATUS,
     handler: async () => {
       const manager = UploadTaskQueueManager.getInstance()
       return manager.getQueueStatus()
-    },
-    type: IRPCType.INVOKE,
-  },
-  {
-    action: IRPCActionType.UPLOAD_TASK_SET_INTERVAL,
-    handler: async (_: IIPCEvent, args: [intervalS: number]) => {
-      const manager = UploadTaskQueueManager.getInstance()
-      manager.setInterval(args[0])
-      return manager.getInterval()
-    },
-    type: IRPCType.INVOKE,
-  },
-  {
-    action: IRPCActionType.UPLOAD_TASK_GET_INTERVAL,
-    handler: async () => {
-      const manager = UploadTaskQueueManager.getInstance()
-      return manager.getInterval()
     },
     type: IRPCType.INVOKE,
   },
@@ -192,14 +166,6 @@ const uploadRoutes = [
     handler: async (_: IIPCEvent, args: [settings: any]) => {
       const manager = UploadTaskQueueManager.getInstance()
       manager.updateSettings(args[0])
-      return manager.getSettings()
-    },
-    type: IRPCType.INVOKE,
-  },
-  {
-    action: IRPCActionType.UPLOAD_TASK_GET_SETTINGS,
-    handler: async () => {
-      const manager = UploadTaskQueueManager.getInstance()
       return manager.getSettings()
     },
     type: IRPCType.INVOKE,

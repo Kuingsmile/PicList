@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import bus from '@core/bus'
 import { CREATE_APP_MENU } from '@core/bus/constants'
 import picgo from '@core/picgo'
-import { app, BrowserWindow, nativeTheme, Rectangle } from 'electron'
+import { app, nativeTheme } from 'electron'
 
 import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/constants/ipcChannels'
 import { IWindowList } from '~/constants'
@@ -23,21 +23,6 @@ const getDefaultWindowSizes = (): { width: number; height: number } => {
     width: mainWindowWidth || 1200,
     height: mainWindowHeight || 800,
   }
-}
-
-export function setMiniWindowShape(win: BrowserWindow) {
-  const radius = 32
-  const shape: Rectangle[] = []
-
-  for (let y = -radius; y <= radius; y++) {
-    for (let x = -radius; x <= radius; x++) {
-      if (x * x + y * y <= radius * radius) {
-        shape.push({ x: radius + x, y: radius + y, width: 1, height: 1 })
-      }
-    }
-  }
-
-  win.setShape(shape)
 }
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))

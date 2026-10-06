@@ -159,7 +159,6 @@ export const rpcContracts = {
     ),
   ),
   THEME_WRITE_THEME: write(tuple<[file: string, content: string]>(v => isSegment(v) && v.endsWith('.css'), isString)),
-  CREATE_SCRIPTS_FILE: write(tuple<[path: string[], content: string]>(isScriptPath, isString)),
   WRITE_SCRIPT_FILE: write(tuple<[path: string[], content: string]>(isScriptPath, isString)),
   DELETE_SCRIPTS_FILE: write(tuple<[path: string[]]>(isScriptPath)),
   UPLOADER_SELECT: write(tuple<[type: string, id: string]>(isUploader, isNonemptyString)),
@@ -167,7 +166,6 @@ export const rpcContracts = {
   UPLOADER_UPDATE_CONFIG: write(
     tuple<[type: string, id: string, config: ConfigPatch]>(isUploader, isNonemptyString, isConfig),
   ),
-  UPLOADER_RESET_CONFIG: write(tuple<[type: string, id: string]>(isUploader, isNonemptyString)),
   PICBED_DELETE_CONFIG: write(tuple<[type: string, id: string]>(isUploader, isNonemptyString), uploaderList),
   PICBED_DUPLICATE_CONFIG: write(
     tuple<[type: string, id: string, name: string]>(isUploader, isNonemptyString, isNonemptyString),
@@ -186,7 +184,6 @@ export const rpcContracts = {
 export type RpcAction = keyof typeof rpcContracts
 export type RpcArgs<A extends RpcAction> = ReturnType<(typeof rpcContracts)[A]['args']['parse']>
 export type RpcData<A extends RpcAction> = ReturnType<(typeof rpcContracts)[A]['result']['parse']>
-export type RpcRequest<A extends RpcAction = RpcAction> = A extends RpcAction ? { action: A; args: RpcArgs<A> } : never
 export type InvokeRPC = <A extends RpcAction>(action: A, ...args: RpcArgs<A>) => Promise<RpcResult<RpcData<A>>>
 
 export const isRpcAction = (action: string): action is RpcAction => Object.hasOwn(rpcContracts, action)

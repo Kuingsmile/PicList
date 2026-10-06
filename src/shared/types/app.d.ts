@@ -14,8 +14,6 @@ type IDispose = () => void
 
 type PartialKeys<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-type ILoggerType = string | Error | boolean | number | undefined
-
 interface IAppNotification {
   title: string
   body: string
@@ -27,13 +25,6 @@ type IStringKeyMap = Record<string, any>
 type ILogArgvType = string | number
 
 type ILogArgvTypeWithError = ILogArgvType | Error
-
-type PromiseResType<T> = T extends Promise<infer R> ? R : T
-
-interface II18nItem {
-  label: string
-  value: string
-}
 
 type ICheckBoxValueType = boolean | string | number
 

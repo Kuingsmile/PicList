@@ -2,7 +2,7 @@ import { clipboard, contextBridge, webFrame, webUtils } from 'electron'
 
 import { ipcRendererCountListeners, ipcRendererOn, ipcRendererRemoveAllListeners } from './events'
 import { nodeBridge } from './nodeBridge'
-import { invokeRPC, sendRPC, sendRpcSync, sendToMain, triggerRPC } from './rpc'
+import { invokeRPC, sendRPC, sendToMain, triggerRPC } from './rpc'
 import { bootstrapTheme, onThemeUpdate } from './theme'
 
 void bootstrapTheme()
@@ -16,7 +16,6 @@ try {
       writeText: clipboard.writeText,
     },
     platform: process.platform,
-    sendRpcSync,
     triggerRPC,
     invokeRPC,
     sendToMain,
