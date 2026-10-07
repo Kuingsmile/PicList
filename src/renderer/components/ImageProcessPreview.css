@@ -3,6 +3,9 @@
 
 .processing-result {
   @apply min-w-0;
+
+  /* The preview sits in a dialog column, so size its grid by its own width rather than the window. */
+  container-type: inline-size;
 }
 
 .result-heading {
@@ -238,7 +241,7 @@
   @apply mt-1;
 }
 
-@media (width <= 800px) {
+@container (width <= 640px) {
   .result-summaries {
     @apply grid-cols-2;
   }

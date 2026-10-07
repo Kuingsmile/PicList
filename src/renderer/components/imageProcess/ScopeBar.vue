@@ -8,7 +8,11 @@
         <span :id="controlId('scope-label')" class="text-[0.925rem] leading-[1.4] font-semibold text-secondary">
           {{ t('pages.imageProcess.studio.applyTo') }}
         </span>
-        <div class="flex gap-1" role="group" :aria-labelledby="controlId('scope-label')">
+        <div
+          class="flex gap-1 rounded-lg border border-border-secondary p-1"
+          role="group"
+          :aria-labelledby="controlId('scope-label')"
+        >
           <CustomButton
             v-for="level in scopes"
             :key="level"

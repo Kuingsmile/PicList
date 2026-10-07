@@ -98,7 +98,7 @@
           />
         </aside>
       </div>
-      <footer class="flex flex-wrap items-center gap-3 px-1">
+      <footer class="-mx-4 -mb-1 flex flex-wrap items-center gap-3 border-t border-border-secondary px-5 pt-3">
         <span
           role="status"
           class="flex min-w-0 flex-wrap items-center gap-1.5 text-xs"
@@ -142,7 +142,9 @@
         </div>
       </footer>
     </template>
-    <div v-else class="flex flex-col items-center gap-3 p-6 text-sm text-secondary" role="status">
+    <div v-else class="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-sm text-secondary" role="status">
+      <CircleAlert v-if="loadFailed" :size="28" class="text-danger" aria-hidden="true" />
+      <LoaderCircle v-else :size="28" class="animate-spin text-accent motion-reduce:animate-none" aria-hidden="true" />
       {{ t(`pages.imageProcess.preview.${loadFailed ? 'loadFailed' : 'loading'}`) }}
       <CustomButton
         v-if="loadFailed"
