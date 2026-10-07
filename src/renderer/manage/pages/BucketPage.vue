@@ -1,367 +1,435 @@
 <template>
-  <div class="relative flex h-full w-full items-center justify-center" @scroll="handleBucketContainerScroll">
-    <div class="relative z-1 flex h-full w-full flex-col items-center justify-start gap-1 rounded-xl border-none p-0">
-      <!-- Header Card -->
-      <div
-        v-if="!isContentFullscreen"
-        class="flex w-full flex-wrap items-center justify-between gap-4 overflow-visible rounded-xl p-0"
+  <div class="relative flex h-full w-full min-w-0 flex-col" @scroll="handleBucketContainerScroll">
+    <!-- Location: breadcrumb + domain / branch -->
+    <div class="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-border-secondary px-4 py-2.5">
+      <nav
+        ref="breadcrumbNav"
+        class="no-scrollbar flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto"
+        :aria-label="t('pages.manage.bucket.location')"
       >
-        <div class="flex flex-1 flex-wrap items-center gap-4 p-1">
-          <!-- Custom Domain Input/Select -->
+        <template v-for="(segment, index) in breadcrumbs" :key="segment.index">
+          <ChevronRightIcon v-if="index !== 0" :size="14" class="shrink-0 text-tertiary" aria-hidden="true" />
+          <button
+            type="button"
+            class="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-sm transition-colors duration-fast focus-visible:focus-ring"
+            :class="
+              index === breadcrumbs.length - 1
+                ? 'font-semibold text-main hover:bg-accent/10'
+                : 'font-medium text-secondary hover:bg-accent/10 hover:text-main'
+            "
+            :title="index === 0 ? configMap.bucketName : segment.name"
+            :aria-current="index === breadcrumbs.length - 1 ? 'location' : undefined"
+            @click="handleBreadcrumbClick(segment.index)"
+          >
+            <HomeIcon v-if="index === 0" :size="14" class="text-accent" aria-hidden="true" />
+            <span class="max-w-[220px] truncate">
+              {{ index === 0 ? configMap.bucketName || t('pages.manage.bucket.rootFolder') : segment.name }}
+            </span>
+          </button>
+        </template>
+      </nav>
+
+      <div
+        v-if="domainControl !== 'none'"
+        class="flex max-w-[50%] min-w-0 items-center gap-2 max-md:max-w-full"
+        :title="currentPicBedName === 'github' ? undefined : t('pages.manage.bucket.domain')"
+      >
+        <GitBranchIcon
+          v-if="currentPicBedName === 'github'"
+          :size="15"
+          class="shrink-0 text-tertiary"
+          aria-hidden="true"
+        />
+        <GlobeIcon v-else :size="15" class="shrink-0 text-tertiary" aria-hidden="true" />
+        <div v-if="domainControl === 'select'" class="min-w-[160px]">
           <SingleSelect
-            v-if="isShowCustomDomainSelectList && customDomainList.length > 1 && isAutoCustomDomain"
             v-model="currentCustomDomain"
             title=""
+            tight
             :key-list="customDomainList.map(item => item.value)"
             :fronticon="false"
+            :aria-label="t('pages.manage.bucket.selectCustomDomain')"
             @change="handleChangeCustomUrlInput"
           />
-          <input
-            v-else-if="isShowCustomDomainInput"
-            v-model="currentCustomDomain"
-            type="text"
-            class="w-auto max-w-[200px] min-w-[120px] rounded-md border border-border bg-bg-tertiary px-3 py-2 text-sm text-main placeholder:text-sm placeholder:text-secondary"
-            :placeholder="t('pages.manage.bucket.inputCustomDomain')"
-            @blur="handleChangeCustomUrlInput"
-          />
-          <a
-            v-else
-            class="ml-2 cursor-pointer text-sm font-semibold text-accent no-underline hover:underline"
-            @click="copyToClipboard(currentCustomDomain)"
-          >
-            {{ currentCustomDomain }}
-          </a>
         </div>
+        <input
+          v-else-if="domainControl === 'input'"
+          v-model="currentCustomDomain"
+          type="text"
+          class="h-[32px] w-[240px] min-w-0 rounded-lg border border-border bg-bg-secondary px-3 font-mono text-xs text-main transition-all duration-fast ease-apple placeholder:font-sans placeholder:text-secondary focus:border-accent focus:outline-none focus-visible:focus-ring"
+          :placeholder="t('pages.manage.bucket.inputCustomDomain')"
+          :aria-label="t('pages.manage.bucket.inputCustomDomain')"
+          @blur="handleChangeCustomUrlInput"
+          @keydown.enter="($event.target as HTMLInputElement).blur()"
+        />
+        <button
+          v-else
+          v-tooltip="t('common.copy')"
+          type="button"
+          class="flex min-w-0 cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 font-mono text-xs text-secondary transition-colors duration-fast hover:bg-accent/10 hover:text-accent focus-visible:focus-ring"
+          @click="copyToClipboard(currentCustomDomain)"
+        >
+          <span class="truncate">{{ currentCustomDomain }}</span>
+          <CopyIcon :size="13" class="shrink-0" aria-hidden="true" />
+        </button>
+      </div>
+    </div>
 
-        <div class="flex flex-wrap gap-1 overflow-visible">
-          <!-- Upload Files -->
-          <IconButton
-            :tips="t('pages.manage.bucket.uploadFiles')"
-            type="primary"
-            :icon="UploadIcon"
-            @click="showUploadDialog"
-          />
-          <IconButton
-            :tips="t('pages.manage.bucket.uploadFromUrl')"
-            type="primary"
-            :icon="LinkIcon"
+    <!-- Toolbar -->
+    <div class="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-secondary px-4 py-2.5">
+      <div class="relative flex max-w-[320px] min-w-[160px] flex-1 items-center">
+        <SearchIcon :size="16" class="pointer-events-none absolute left-3 text-secondary" aria-hidden="true" />
+        <input
+          v-model="searchText"
+          type="search"
+          class="h-[32px] w-full rounded-lg border border-border bg-bg-secondary pr-8 pl-9 text-sm text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent focus:outline-none focus-visible:focus-ring [&::-webkit-search-cancel-button]:hidden"
+          :placeholder="t('pages.manage.bucket.searchPlaceholder')"
+          :aria-label="t('pages.manage.bucket.searchPlaceholder')"
+        />
+        <button
+          v-if="searchText"
+          type="button"
+          class="absolute right-2 flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded-full text-secondary hover:bg-accent/10 hover:text-main focus-visible:focus-ring"
+          :aria-label="t('common.clear')"
+          @click="searchText = ''"
+        >
+          <XIcon :size="14" aria-hidden="true" />
+        </button>
+      </div>
+
+      <div class="ml-auto flex flex-wrap items-center gap-2">
+        <CustomButton
+          :icon="UploadIcon"
+          :text="t('pages.manage.bucket.upload')"
+          class="h-[32px] px-3! py-0!"
+          @click="showUploadDialog"
+        />
+        <div :class="toolGroupClass">
+          <button
+            v-tooltip="t('pages.manage.bucket.uploadFromUrl')"
+            type="button"
+            :class="toolButtonClass"
+            :aria-label="t('pages.manage.bucket.uploadFromUrl')"
             @click="showUrlDialog"
-          />
-          <IconButton
+          >
+            <LinkIcon :size="16" aria-hidden="true" />
+          </button>
+          <button
             v-if="isShowCreateNewFolder"
-            :tips="t('pages.manage.bucket.createFolder')"
-            type="primary"
-            :icon="FolderPlusIcon"
+            v-tooltip="t('pages.manage.bucket.createFolder')"
+            type="button"
+            :class="toolButtonClass"
+            :aria-label="t('pages.manage.bucket.createFolder')"
             @click="handleCreateFolder"
-          />
-          <IconButton
-            :tips="t('pages.manage.bucket.downloadPage')"
-            type="primary"
-            :icon="DownloadIcon"
-            @click="showDownloadDialog"
-          />
-          <IconButton
+          >
+            <FolderPlusIcon :size="16" aria-hidden="true" />
+          </button>
+          <button
             v-if="isShowRenameFileIcon"
-            :tips="t('pages.manage.bucket.batchRename')"
-            type="primary"
-            :icon="EditIcon"
+            v-tooltip="t('pages.manage.bucket.batchRename')"
+            type="button"
+            :class="toolButtonClass"
+            :aria-label="t('pages.manage.bucket.batchRename')"
             @click="handleBatchRenameFile"
-          />
-
-          <!-- Copy URL -->
-          <div class="relative">
-            <IconButton
-              tips=""
-              type="primary"
-              :icon="CopyIcon"
-              :disabled="selectedItems.length === 0"
-              @click="handlecopyDropdownOpen"
-            />
-            <div
-              v-if="copyDropdownOpen"
-              class="absolute top-full left-0 z-1000 mt-1 min-w-[150px] rounded-md border border-border bg-bg-tertiary shadow-lg"
-            >
-              <div
-                v-for="i in linkFormatList"
-                :key="i"
-                class="cursor-pointer bg-bg-tertiary px-3 py-2 text-center text-sm text-main hover:bg-accent/50"
-                @click="handleBatchCopyLink(i)"
-              >
-                {{ t(`pages.manage.bucket.linkFormat.${i}`) }}
-              </div>
-              <div
-                v-if="isShowPresignedUrl"
-                class="cursor-pointer bg-bg-tertiary px-3 py-2 text-center text-sm text-main hover:bg-accent/50"
-                @click="handleBatchCopyLink(preSignedUrlFormat)"
-              >
-                {{ t('pages.manage.bucket.linkFormat.presign') }}
-              </div>
-            </div>
-          </div>
-
-          <IconButton
-            :tips="t('pages.manage.bucket.copyFileIno')"
-            type="primary"
-            :icon="InfoIcon"
-            :disabled="selectedItems.length === 0"
-            @click="handleBatchCopyInfo"
-          />
-          <IconButton
-            :tips="t('pages.manage.bucket.forceRefreshFileList')"
-            type="secondary"
-            :icon="RefreshCwIcon"
+          >
+            <PencilLineIcon :size="16" aria-hidden="true" />
+          </button>
+        </div>
+        <div :class="toolGroupClass">
+          <button
+            v-tooltip="t('pages.manage.bucket.downloadPage')"
+            type="button"
+            :class="toolButtonClass"
+            :aria-label="t('pages.manage.bucket.downloadPage')"
+            @click="showDownloadDialog"
+          >
+            <ArrowDownToLineIcon :size="16" aria-hidden="true" />
+          </button>
+          <button
+            v-tooltip="t('pages.manage.bucket.forceRefreshFileList')"
+            type="button"
+            :class="toolButtonClass"
+            :disabled="isLoadingData"
+            :aria-label="t('pages.manage.bucket.forceRefreshFileList')"
             @click="forceRefreshFileList"
-          />
-          <!-- Search -->
+          >
+            <RefreshCwIcon
+              :size="16"
+              :class="{ 'animate-spin motion-reduce:animate-none': isLoadingData }"
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+        <label
+          v-if="layoutStyle === 'grid'"
+          v-tooltip="t('pages.manage.bucket.gridColumns')"
+          class="flex h-[32px] items-center gap-2 rounded-lg border border-border-secondary px-2.5"
+        >
+          <LayoutGridIcon :size="14" class="text-secondary" aria-hidden="true" />
           <input
-            v-model="searchText"
-            type="text"
-            class="w-auto max-w-[200px] min-w-[120px] rounded-md border border-border bg-bg-tertiary px-3 py-2 text-sm text-main placeholder:text-sm placeholder:text-secondary focus:border-accent focus:shadow-sm focus:outline-none"
-            :placeholder="t('pages.manage.bucket.searchPlaceholder')"
+            v-model.number="gridColumns"
+            type="range"
+            :min="GRID_COLUMNS_MIN"
+            :max="GRID_COLUMNS_MAX"
+            step="1"
+            class="h-[4px] w-[72px] cursor-pointer appearance-none rounded-[2px] bg-(--color-background-tertiary) outline-none focus-visible:focus-ring [&::-webkit-slider-thumb]:h-[14px] [&::-webkit-slider-thumb]:w-[14px] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-200 hover:[&::-webkit-slider-thumb]:scale-110"
+            :aria-label="t('pages.manage.bucket.gridColumns')"
           />
-        </div>
-      </div>
-
-      <!-- Deletion failures -->
-      <div
-        v-if="activeDeletionState.failed.length"
-        class="w-full rounded-md border border-border bg-bg-secondary p-3 text-sm text-main"
-        role="status"
-      >
-        <div class="flex items-center justify-between gap-3">
-          <span>{{ t('pages.manage.bucket.deleteFailedDetails', { num: activeDeletionState.failed.length }) }}</span>
-          <CustomButton
-            :disabled="isDeleting || isLoadingData"
-            :text="t('pages.manage.bucket.retryFailedOnly')"
-            @click="retryFailedDeletions"
-          />
-        </div>
-        <ul class="mt-2 max-h-36 overflow-auto">
-          <li v-for="failure in activeDeletionState.failed" :key="`${failure.isDir}:${failure.key}`" class="break-all">
-            {{ failure.key }}: {{ failure.error }}
-          </li>
-        </ul>
-      </div>
-
-      <!-- Breadcrumb Card -->
-      <div
-        v-if="!isContentFullscreen"
-        class="flex w-full items-center justify-between gap-4 overflow-hidden rounded-sm border border-border-secondary p-0"
-      >
-        <div class="flex flex-1 items-center gap-0 overflow-x-auto px-4 py-1">
-          <HomeIcon class="h-[16px] w-[16px] shrink-0 text-accent" />
-          <template v-if="configMap.prefix !== '/'">
-            <template v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')" :key="index">
-              <ChevronRightIcon v-if="index !== 0" class="h-[16px] w-[15px] shrink-0 text-accent" />
-              <button
-                class="flex shrink-0 cursor-pointer items-center gap-1 rounded-md border-none bg-bg-secondary p-1 text-sm font-semibold text-secondary last:bg-accent/10 hover:bg-accent/10 hover:text-main"
-                @click="handleBreadcrumbClick(Number(index))"
-              >
-                {{ item === '' ? t('pages.manage.bucket.rootFolder') : item }}
-              </button>
-            </template>
-          </template>
-          <template v-else>
-            <span
-              class="flex shrink-0 cursor-pointer items-center gap-1 rounded-md border-none bg-bg-secondary p-1 text-sm font-semibold text-secondary hover:bg-accent/10 hover:text-main"
-            >
-              {{ t('pages.manage.bucket.rootFolder') }}
-            </span>
-          </template>
-        </div>
-      </div>
-
-      <!-- Control Panel Card -->
-      <div
-        v-if="!isContentFullscreen"
-        class="flex w-full flex-wrap items-center justify-between gap-2 overflow-visible rounded-sm border border-border-secondary p-0"
-      >
-        <FileInfo :current-page-files-info="currentPageFilesInfo" :calculate-all-file-size="calculateAllFileSize" />
-
-        <div class="flex flex-wrap items-center gap-2">
-          <!-- Selection Controls -->
-          <IconButton
-            v-if="selectedItems.length === 0"
-            :title="t('pages.manage.bucket.selectAll')"
-            type="secondary"
-            @click="handleCheckAllChange"
-          />
-          <template v-else>
-            <IconButton :title="t('pages.manage.bucket.cancel')" type="secondary" @click="handleCancelCheck" />
-            <IconButton :title="t('pages.manage.bucket.reverseSelect')" type="secondary" @click="handleReverseCheck" />
-            <IconButton :title="t('pages.manage.bucket.selectAll')" type="secondary" @click="handleCheckAllChange" />
-            <IconButton
-              :title="`${t('pages.manage.bucket.downloadBtn', { num: selectedItems.filter(item => item.isDir === false).length })}`"
-              type="primary"
-              @click="handleBatchDownload"
-            />
-            <IconButton
-              :title="`${t('pages.manage.bucket.removeBtn', { num: selectedItems.length })}`"
-              type="danger"
-              :disabled="isDeleting || isLoadingData"
-              @click="handleBatchDeleteInfo"
-            />
-          </template>
-
-          <!-- Sort Dropdown -->
-          <div class="relative">
+          <span class="w-[1.25rem] text-center text-xs font-semibold text-secondary tabular-nums">
+            {{ gridColumns }}
+          </span>
+        </label>
+        <div :class="toolGroupClass" role="group" :aria-label="t('common.fileTable.view')">
+          <button
+            v-tooltip="t('common.fileTable.grid')"
+            type="button"
+            :class="toolButtonClass"
+            :aria-pressed="layoutStyle === 'grid'"
+            :aria-label="t('common.fileTable.grid')"
+            @click="layoutStyle = 'grid'"
+          >
+            <GridIcon :size="16" aria-hidden="true" />
+          </button>
+          <button
+            v-tooltip="t('common.fileTable.table')"
+            type="button"
+            :class="toolButtonClass"
+            :aria-pressed="layoutStyle === 'table'"
+            :aria-label="t('common.fileTable.table')"
+            @click="layoutStyle = 'table'"
+          >
+            <ListIcon :size="16" aria-hidden="true" />
+          </button>
+          <template v-if="layoutStyle === 'table'">
+            <span class="mx-0.5 h-[16px] w-px bg-border-secondary" aria-hidden="true" />
             <button
-              class="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-bg-secondary px-3 py-2 text-sm font-medium text-secondary hover:border-accent hover:bg-accent/10"
-              @click="sortDropdownOpen = !sortDropdownOpen"
+              v-for="density in ['compact', 'comfortable'] as const"
+              :key="density"
+              v-tooltip="`${t('common.fileTable.density')}: ${t(`common.fileTable.${density}`)}`"
+              type="button"
+              :class="toolButtonClass"
+              :aria-pressed="tableDensity === density"
+              :aria-label="`${t('common.fileTable.density')}: ${t(`common.fileTable.${density}`)}`"
+              @click="tableDensity = density"
             >
-              <ArrowUpDownIcon class="h-[16px] w-[16px]" />
-              <span class="text-sm font-medium text-secondary">
-                {{ t(`pages.manage.bucket.sort.${currentSortType}`) }}</span
-              >
-              <ChevronDownIcon class="h-[16px] w-[16px]" />
+              <Rows4Icon v-if="density === 'compact'" :size="16" aria-hidden="true" />
+              <Rows3Icon v-else :size="16" aria-hidden="true" />
             </button>
-            <div
-              v-if="sortDropdownOpen"
-              class="absolute top-full left-0 z-1000 mt-1 min-w-[150px] rounded-md border border-border bg-bg-tertiary shadow-md"
-            >
-              <div
-                v-for="item in sortTypeList"
-                :key="item"
-                class="cursor-pointer bg-bg-tertiary px-3 py-2 text-sm text-main transition-all duration-fast ease-apple hover:bg-accent/30 hover:text-white"
-                @click="sortFile(item as any)"
-              >
-                {{ t(`pages.manage.bucket.sort.${item}`) }}
-              </div>
-            </div>
-          </div>
+          </template>
         </div>
-
-        <div class="flex flex-wrap items-center gap-2">
-          <!-- Fullscreen Toggle -->
-          <IconButton
-            :icon="isContentFullscreen ? ShrinkIcon : ExpandIcon"
-            :tips="
+        <div :class="toolGroupClass">
+          <button
+            v-tooltip="
               isContentFullscreen ? t('pages.manage.bucket.exitFullScreen') : t('pages.manage.bucket.enterFullScreen')
             "
-            type="primary"
-            class="z-2"
+            type="button"
+            :class="toolButtonClass"
+            :aria-pressed="isContentFullscreen"
+            :aria-label="
+              isContentFullscreen ? t('pages.manage.bucket.exitFullScreen') : t('pages.manage.bucket.enterFullScreen')
+            "
             @click="toggleContentFullscreen"
+          >
+            <ShrinkIcon v-if="isContentFullscreen" :size="16" aria-hidden="true" />
+            <ExpandIcon v-else :size="16" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selection bar -->
+    <div
+      class="flex min-h-[48px] shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b border-border-secondary px-4 py-2 transition-colors duration-fast ease-apple"
+      :class="selectedItems.length ? 'bg-accent/10' : ''"
+    >
+      <label class="flex cursor-pointer items-center gap-2.5 text-sm select-none">
+        <input
+          type="checkbox"
+          class="h-[16px] w-[16px] cursor-pointer accent-accent focus-visible:focus-ring disabled:cursor-not-allowed"
+          :checked="isAllSelected"
+          :indeterminate="selectedItems.length > 0 && !isAllSelected"
+          :disabled="!filterList.length"
+          :aria-label="t('pages.manage.bucket.selectAll')"
+          @change="handleCheckAllChange"
+        />
+        <span v-if="selectedItems.length" class="font-semibold text-main tabular-nums" aria-live="polite">
+          {{ t('pages.manage.bucket.selectedCount', { num: selectedItems.length }) }}
+        </span>
+        <span v-else class="text-secondary">{{ t('pages.manage.bucket.selectAll') }}</span>
+      </label>
+      <template v-if="selectedItems.length">
+        <button type="button" :class="linkButtonClass" @click="handleReverseCheck">
+          {{ t('pages.manage.bucket.reverseSelect') }}
+        </button>
+        <button type="button" :class="linkButtonClass" @click="handleCancelCheck">
+          {{ t('pages.manage.bucket.clearSelection') }}
+        </button>
+      </template>
+      <span v-else class="text-xs text-secondary tabular-nums">
+        {{
+          calculateAllFileSize === '0'
+            ? t('pages.manage.bucket.itemCount', { num: currentPageFilesInfo.length })
+            : t('pages.manage.bucket.summary', { num: currentPageFilesInfo.length, size: calculateAllFileSize })
+        }}
+        <template v-if="searchText"> · {{ t('pages.manage.bucket.matched', { num: filterList.length }) }}</template>
+      </span>
+
+      <div class="ml-auto flex flex-wrap items-center gap-2">
+        <template v-if="selectedItems.length">
+          <ToolbarMenu
+            :options="copyMenuOptions"
+            :label="t('pages.manage.bucket.copyLinks')"
+            @select="handleBatchCopyLink($event as CopyFormat)"
+          >
+            <ClipboardIcon :size="15" aria-hidden="true" />
+            {{ t('pages.manage.bucket.copyLinks') }}
+          </ToolbarMenu>
+          <button
+            v-tooltip="t('pages.manage.bucket.copyFileInfoInJson')"
+            type="button"
+            :class="[toolGroupClass, toolButtonClass, 'w-[32px]']"
+            :aria-label="t('pages.manage.bucket.copyFileIno')"
+            @click="handleBatchCopyInfo"
+          >
+            <InfoIcon :size="16" aria-hidden="true" />
+          </button>
+          <CustomButton
+            type="secondary"
+            :icon="DownloadIcon"
+            :text="t('pages.manage.bucket.downloadBtn', { num: selectedFileCount })"
+            :disabled="selectedFileCount === 0"
+            class="h-[32px] px-3! py-0!"
+            @click="handleBatchDownload"
           />
-
-          <!-- View Toggle -->
-          <FileViewControls v-model:view-mode="layoutStyle" v-model:density="tableDensity" />
-
-          <!-- Pagination -->
+          <CustomButton
+            type="danger"
+            :icon="Trash2Icon"
+            :text="t('pages.manage.bucket.removeBtn', { num: selectedItems.length })"
+            :disabled="isDeleting || isLoadingData"
+            class="h-[32px] px-3! py-0!"
+            @click="handleBatchDeleteInfo"
+          />
+          <span class="mx-0.5 h-[20px] w-px bg-border-secondary max-sm:hidden" aria-hidden="true" />
+        </template>
+        <ToolbarMenu
+          :options="sortMenuOptions"
+          :label="t('pages.manage.bucket.sort.title')"
+          :tips="t('pages.manage.bucket.sort.title')"
+          @select="sortFile($event as any)"
+        >
+          <ArrowUpDownIcon :size="15" class="text-secondary" aria-hidden="true" />
+          {{ t(`pages.manage.bucket.sort.${currentSortType}`) }}
+          <template v-if="!['check', 'init'].includes(currentSortType)">
+            <ArrowUpIcon v-if="sortAscending" :size="14" class="text-accent" aria-hidden="true" />
+            <ArrowDownIcon v-else :size="14" class="text-accent" aria-hidden="true" />
+          </template>
+        </ToolbarMenu>
+        <label v-if="paging" class="flex items-center gap-1.5 text-sm text-secondary">
+          {{ t('pages.manage.bucket.page') }}
           <input
-            v-if="paging"
             v-model="currentPageNumber"
             type="number"
             min="1"
-            class="mr-2 w-[60px] max-w-[60px] min-w-[40px] rounded-md border border-border bg-bg-tertiary px-2 py-1 text-center text-sm text-main focus:border-accent focus:outline-none"
-            :disabled="!paging"
+            class="h-[32px] w-[64px] rounded-lg border border-border bg-bg-secondary px-2 text-center text-sm text-main tabular-nums focus:border-accent focus:outline-none focus-visible:focus-ring"
             @input="handlePageNumberInput"
           />
-        </div>
+        </label>
       </div>
-
-      <!-- Content Card -->
-      <div
-        v-if="isContentFullscreen"
-        class="flex w-full flex-wrap items-center justify-between gap-2 overflow-visible rounded-xl border border-border-secondary p-0 shadow-sm"
-      >
-        <div class="flex max-w-[400px] min-w-[200px] items-center overflow-x-auto px-4 py-1">
-          <div class="flex flex-wrap items-center gap-1 rounded-md shadow-sm">
-            <HomeIcon class="h-[16px] w-[16px] shrink-0 text-accent" />
-            <template v-if="configMap.prefix !== '/'">
-              <template v-for="(item, index) in configMap.prefix.replace(/\/$/g, '').split('/')" :key="index">
-                <ChevronRightIcon v-if="index !== 0" class="h-[16px] w-[15px] shrink-0 text-accent" />
-                <button
-                  class="flex shrink-0 cursor-pointer items-center gap-1 rounded-md border-none bg-bg-secondary p-1 text-sm font-semibold text-secondary last:bg-accent/10 hover:bg-accent/10 hover:text-main"
-                  @click="handleBreadcrumbClick(Number(index))"
-                >
-                  {{ item === '' ? t('pages.manage.bucket.rootFolder') : item }}
-                </button>
-              </template>
-            </template>
-            <template v-else>
-              <span
-                class="flex shrink-0 cursor-pointer items-center gap-1 rounded-md border-none bg-bg-secondary p-1 text-sm font-semibold text-secondary hover:bg-accent/10 hover:text-main"
-              >
-                {{ t('pages.manage.bucket.rootFolder') }}
-              </span>
-            </template>
-          </div>
-        </div>
-        <FileInfo :current-page-files-info="currentPageFilesInfo" :calculate-all-file-size="calculateAllFileSize" />
-        <div class="flex min-w-[200px] flex-1 flex-wrap items-center justify-end gap-3">
-          <!-- Search -->
-          <input
-            v-model="searchText"
-            type="text"
-            class="w-auto max-w-[200px] min-w-[120px] rounded-md border border-border bg-bg-tertiary px-3 py-2 text-sm text-main placeholder:text-sm placeholder:text-secondary focus:border-accent focus:shadow-sm focus:outline-none"
-            :placeholder="t('pages.manage.bucket.searchPlaceholder')"
-          />
-
-          <!-- Exit Fullscreen -->
-          <IconButton
-            :icon="isContentFullscreen ? ShrinkIcon : ExpandIcon"
-            :tips="
-              isContentFullscreen ? t('pages.manage.bucket.exitFullScreen') : t('pages.manage.bucket.enterFullScreen')
-            "
-            type="primary"
-            class="z-2"
-            @click="toggleContentFullscreen"
-          />
-          <FileViewControls v-model:view-mode="layoutStyle" v-model:density="tableDensity" />
-        </div>
-      </div>
-
-      <BucketFileList
-        ref="virtualScrollerRef"
-        :config-map="configMap"
-        :filter-list="filterList"
-        :table-columns="tableColumns"
-        :table-density="tableDensity"
-        :layout-style="layoutStyle"
-        :is-loading-data="isLoadingData"
-        :is-deleting="isDeleting"
-        :current-sort-type="currentSortType"
-        :sort-ascending="sortAscending"
-        :get-s3-config="handleGetS3Config"
-        :get-webdav-config="handleGetWebdavConfig"
-        :get-pre-signed-url="getPreSignedUrl"
-        @select="(item, selected) => (item.checked = selected)"
-        @select-all="setAllSelected"
-        @sort="sortFile"
-        @open="handleClickFile"
-        @rename="handleRenameFile"
-        @download-folder="handleFolderBatchDownload"
-        @download="downloadFiles"
-        @info="handleShowFileInfo"
-        @delete="handleDeleteFile"
-        @copy-link="copyLink"
-        @copy-text="copyToClipboard"
-      />
     </div>
+
+    <!-- Deletion failures -->
+    <div
+      v-if="activeDeletionState.failed.length"
+      class="mx-4 mt-3 shrink-0 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-main"
+      role="status"
+    >
+      <div class="flex items-center justify-between gap-3">
+        <span class="flex items-center gap-2 font-semibold">
+          <TriangleAlertIcon :size="16" class="shrink-0 text-warning" aria-hidden="true" />
+          {{ t('pages.manage.bucket.deleteFailedDetails', { num: activeDeletionState.failed.length }) }}
+        </span>
+        <CustomButton
+          type="secondary"
+          :icon="RotateCcwIcon"
+          :disabled="isDeleting || isLoadingData"
+          :text="t('pages.manage.bucket.retryFailedOnly')"
+          class="h-[30px] px-3! py-0!"
+          @click="retryFailedDeletions"
+        />
+      </div>
+      <ul class="m-0 mt-2 max-h-36 list-none overflow-auto p-0 font-mono text-xs text-secondary">
+        <li v-for="failure in activeDeletionState.failed" :key="`${failure.isDir}:${failure.key}`" class="break-all">
+          {{ failure.key }}: {{ failure.error }}
+        </li>
+      </ul>
+    </div>
+
+    <BucketFileList
+      ref="virtualScrollerRef"
+      :config-map="configMap"
+      :filter-list="filterList"
+      :table-columns="tableColumns"
+      :table-density="tableDensity"
+      :layout-style="layoutStyle"
+      :grid-columns="gridColumns"
+      :is-loading-data="isLoadingData"
+      :is-deleting="isDeleting"
+      :current-sort-type="currentSortType"
+      :sort-ascending="sortAscending"
+      :searching="!!searchText"
+      :get-s3-config="handleGetS3Config"
+      :get-webdav-config="handleGetWebdavConfig"
+      :get-pre-signed-url="getPreSignedUrl"
+      @select="(item, selected) => (item.checked = selected)"
+      @select-all="setAllSelected"
+      @sort="sortFile"
+      @open="handleClickFile"
+      @rename="handleRenameFile"
+      @download-folder="handleFolderBatchDownload"
+      @download="downloadFiles"
+      @info="handleShowFileInfo"
+      @delete="handleDeleteFile"
+      @copy-link="copyLink"
+      @copy-text="copyToClipboard"
+      @upload="showUploadDialog"
+    />
 
     <!-- URL Upload Dialog -->
     <CustomModal
       v-model:visible="dialogVisible"
       :title="t('pages.manage.bucket.urlUploadTitle')"
-      width="500px"
+      :description="currentLocationLabel"
+      width="560px"
       height="auto"
     >
-      <div class="flex items-center justify-center p-4">
+      <div class="p-5">
         <textarea
           v-model="urlToUpload"
-          class="h-full min-h-[150px] w-full rounded-xl border-2 border-border p-3 text-sm text-main placeholder:text-sm placeholder:text-secondary focus:border-accent focus:outline-none"
-          placeholder="https://www.baidu.com/img/bd_logo1.png&#10;https://www.baidu.com/img/bd_logo1.png"
+          rows="6"
+          class="w-full resize-y rounded-lg border border-border bg-bg-secondary p-3 font-mono text-xs leading-relaxed text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent focus:outline-none focus-visible:focus-ring"
+          :aria-label="t('pages.manage.bucket.urlUploadTitle')"
+          placeholder="https://example.com/image-1.png&#10;https://example.com/image-2.png"
         />
       </div>
 
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />
-        <CustomButton :text="t('common.confirm')" @click="handleUploadFromUrl" />
+        <CustomButton
+          :icon="UploadIcon"
+          :disabled="!urlToUpload.trim()"
+          :text="t('pages.manage.bucket.upload')"
+          @click="handleUploadFromUrl"
+        />
       </template>
     </CustomModal>
 
     <!-- Image Preview -->
-    <BucketPreviewDialogs :file-preview="filePreview" @error="handlePreviewError" />
+    <BucketPreviewDialogs
+      :file-preview="filePreview"
+      :file-name="previewFileName"
+      @error="handlePreviewError"
+      @copy="copyToClipboard"
+    />
 
     <!-- File Info Dialog -->
     <BucketFileInfoDialog
@@ -380,50 +448,39 @@
       @renamed="resetParam(true)"
     />
 
-    <!-- Loading Indicators -->
-    <div v-if="isLoadingData" class="fixed right-[25px] bottom-[25px] z-9999 duration-300 ease-out">
-      <div
-        class="flex min-w-[240px] items-center gap-3 rounded-lg bg-accent/85 px-4 py-3.5 shadow-lg transition-all duration-200 ease-apple hover:translate-y-[-2px] hover:bg-accent/95 hover:shadow-xl"
+    <!-- Background work -->
+    <div class="pointer-events-none fixed right-6 bottom-6 z-9999 flex flex-col items-end gap-2">
+      <TransitionGroup
+        enter-active-class="transition-all duration-200 ease-apple"
+        enter-from-class="translate-y-2 opacity-0"
+        leave-active-class="transition-all duration-150 ease-apple"
+        leave-to-class="translate-y-2 opacity-0"
       >
         <div
-          class="mr-0 inline-block h-[18px] w-[18px] shrink-0 animate-spin rounded-full border-2 border-t-2 border-black/30 border-t-white"
-        />
-        <span class="flex-1 text-sm leading-[1.4] font-medium text-white">{{ t('pages.manage.bucket.loading') }}</span>
-        <button
-          v-tooltip="t('common.cancel')"
-          class="flex h-[28px] w-[28px] shrink-0 cursor-pointer items-center justify-center rounded-md border border-border bg-white text-accent transition-all duration-fast ease-apple hover:scale-105 hover:border-danger"
-          :aria-label="t('common.cancel')"
-          @click="cancelLoading"
+          v-for="toast in loadingToasts"
+          :key="toast.key"
+          class="pointer-events-auto flex min-w-[260px] items-center gap-3 rounded-xl border border-border-secondary bg-bg-secondary py-2 pr-2 pl-4 shadow-lg"
+          role="status"
         >
-          <XIcon class="h-[16px] w-[16px]" />
-        </button>
-      </div>
-    </div>
-
-    <div v-if="isLoadingDownloadData" class="fixed top-[50px] right-[25px] z-9999 duration-300 ease-out">
-      <div
-        class="flex min-w-[240px] items-center gap-3 rounded-lg bg-accent/85 px-4 py-3.5 shadow-lg transition-all duration-200 ease-apple hover:translate-y-[-2px] hover:bg-accent/95 hover:shadow-xl"
-      >
-        <div
-          class="mr-0 inline-block h-[18px] w-[18px] shrink-0 animate-spin rounded-full border-2 border-t-2 border-black/30 border-t-white"
-        />
-        <span class="flex-1 text-sm leading-[1.4] font-medium text-white">{{
-          t('pages.manage.bucket.prepareDownload')
-        }}</span>
-        <button
-          v-tooltip="t('common.cancel')"
-          class="flex h-[28px] w-[28px] shrink-0 cursor-pointer items-center justify-center rounded-md border border-border bg-white text-accent transition-all duration-fast ease-apple hover:scale-105 hover:border-danger"
-          :aria-label="t('common.cancel')"
-          @click="cancelDownloadLoading"
-        >
-          <XIcon class="h-[16px] w-[16px]" />
-        </button>
-      </div>
+          <LoaderCircleIcon :size="18" class="shrink-0 animate-spin text-accent motion-reduce:animate-none" />
+          <span class="flex-1 text-sm font-medium text-main">{{ toast.text }}</span>
+          <button
+            v-tooltip="t('common.cancel')"
+            type="button"
+            class="flex h-[28px] w-[28px] shrink-0 cursor-pointer items-center justify-center rounded-md text-secondary transition-colors duration-fast hover:bg-danger/10 hover:text-danger focus-visible:focus-ring"
+            :aria-label="t('common.cancel')"
+            @click="toast.cancel"
+          >
+            <XIcon :size="16" aria-hidden="true" />
+          </button>
+        </div>
+      </TransitionGroup>
     </div>
     <!-- Upload Drawer -->
     <BucketUploadPanel
       v-model:visible="isShowUploadPanel"
       v-model:keep-directory="isUploadKeepDirStructure"
+      :destination="currentLocationLabel"
       :tasks="uploadTaskList"
       :failed="uploadTasks.failed.value"
       @upload="uploadFiles"
@@ -447,31 +504,29 @@
       @open-folder="handleOpenDownloadedFolder"
     />
 
-    <!-- Markdown Preview Dialog -->
-
-    <!-- Text File Preview Dialog -->
-
-    <!-- Video Player Dialog -->
-
     <!-- Create Folder Dialog -->
     <CustomModal
       v-model:visible="isShowCreateFolderDialog"
-      width="600px"
+      width="520px"
       height="auto"
       :title="t('pages.manage.bucket.createFolder')"
+      :description="currentLocationLabel"
     >
-      <SettingSection only-one-row>
-        <SettingCard>
-          <CustomInput
-            v-model="newFolderName"
-            :title="t('pages.manage.bucket.inputFolderTitle')"
-            :placeholder="t('pages.manage.bucket.inputFolderTitle')"
-          />
-        </SettingCard>
-      </SettingSection>
+      <form class="p-5" @submit.prevent="confirmCreateFolder">
+        <CustomInput
+          v-model="newFolderName"
+          :title="t('pages.manage.bucket.inputFolderTitle')"
+          :placeholder="t('pages.manage.bucket.inputFolderTitle')"
+        />
+      </form>
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="isShowCreateFolderDialog = false" />
-        <CustomButton :disabled="!newFolderName.trim()" :text="t('common.confirm')" @click="confirmCreateFolder" />
+        <CustomButton
+          :icon="FolderPlusIcon"
+          :disabled="!newFolderName.trim()"
+          :text="t('common.confirm')"
+          @click="confirmCreateFolder"
+        />
       </template>
     </CustomModal>
   </div>
@@ -479,19 +534,34 @@
 
 <script setup lang="ts">
 import {
+  ArrowDownIcon,
+  ArrowDownToLineIcon,
   ArrowUpDownIcon,
-  ChevronDownIcon,
+  ArrowUpIcon,
   ChevronRightIcon,
+  ClipboardIcon,
   CopyIcon,
   DownloadIcon,
-  EditIcon,
   ExpandIcon,
   FolderPlusIcon,
+  GitBranchIcon,
+  GlobeIcon,
+  GridIcon,
   HomeIcon,
   InfoIcon,
+  LayoutGridIcon,
   LinkIcon,
+  ListIcon,
+  LoaderCircleIcon,
+  PencilLineIcon,
   RefreshCwIcon,
+  RotateCcwIcon,
+  Rows3Icon,
+  Rows4Icon,
+  SearchIcon,
   ShrinkIcon,
+  Trash2Icon,
+  TriangleAlertIcon,
   UploadIcon,
   XIcon,
 } from '@lucide/vue'
@@ -502,10 +572,7 @@ import { useI18n } from 'vue-i18n'
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomInput from '@/components/common/CustomInput.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
-import SettingCard from '@/components/common/SettingCard.vue'
-import SettingSection from '@/components/common/SettingSection.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
-import FileViewControls from '@/components/FileViewControls.vue'
 import { useFilePreview } from '@/composables/useFilePreview'
 import useMessage from '@/composables/useMessage'
 import BucketDownloadPanel from '@/manage/components/bucket/BucketDownloadPanel.vue'
@@ -514,8 +581,7 @@ import BucketFileList from '@/manage/components/bucket/BucketFileList.vue'
 import BucketPreviewDialogs from '@/manage/components/bucket/BucketPreviewDialogs.vue'
 import BucketRenameDialog from '@/manage/components/bucket/BucketRenameDialog.vue'
 import BucketUploadPanel from '@/manage/components/bucket/BucketUploadPanel.vue'
-import FileInfo from '@/manage/components/FileInfo.vue'
-import IconButton from '@/manage/components/IconButton.vue'
+import ToolbarMenu, { type ToolbarMenuOption } from '@/manage/components/ToolbarMenu.vue'
 import { useBucketDeletion } from '@/manage/composables/useBucketDeletion'
 import { useBucketDomains } from '@/manage/composables/useBucketDomains'
 import { useBucketDownloads } from '@/manage/composables/useBucketDownloads'
@@ -547,6 +613,8 @@ const { configMap: configMapProp } = defineProps<{
 
 const filePreview = useFilePreview()
 
+const previewFileName = ref('')
+
 let viewGeneration = 0
 
 let unmounted = false
@@ -571,7 +639,7 @@ onDeactivated(() => {
   tableActive.value = false
 })
 
-const isContentFullscreen = ref(false)
+const isContentFullscreen = defineModel<boolean>('fullscreen', { default: false })
 
 const storedLayoutStyle = useLocalStorage<'list' | 'table' | 'grid'>('manage-bucket-page-layout-style', 'grid')
 
@@ -584,9 +652,18 @@ const layoutStyle = computed({
 
 const tableDensity = useLocalStorage<'compact' | 'comfortable'>('manage-bucket-table-density', 'compact')
 
-const copyDropdownOpen = ref(false)
+const GRID_COLUMNS_MIN = 1
 
-const sortDropdownOpen = ref(false)
+const GRID_COLUMNS_MAX = 12
+
+const storedGridColumns = useLocalStorage<number>('manage-bucket-grid-columns', 5)
+
+const gridColumns = computed({
+  get: () => Math.min(GRID_COLUMNS_MAX, Math.max(GRID_COLUMNS_MIN, Math.round(Number(storedGridColumns.value) || 5))),
+  set: value => {
+    storedGridColumns.value = value
+  },
+})
 
 const isShowFileInfo = ref(false)
 
@@ -641,7 +718,6 @@ const {
     lastChoosed.value = -1
   },
   onSorted: () => {
-    sortDropdownOpen.value = false
     virtualScrollerRef.value?.resetCopyDropdown()
   },
 })
@@ -667,6 +743,76 @@ const filterList = computed(() => {
 })
 
 const selectedItems = computed(() => filterList.value.filter(item => item.checked))
+
+const selectedFileCount = computed(() => selectedItems.value.filter(item => !item.isDir).length)
+
+const isAllSelected = computed(
+  () => filterList.value.length > 0 && selectedItems.value.length === filterList.value.length,
+)
+
+// Keep each segment's position in the prefix: handleBreadcrumbClick slices the prefix by that index.
+const breadcrumbs = computed(() =>
+  String(configMap.value.prefix ?? '/')
+    .replace(/\/$/g, '')
+    .split('/')
+    .map((name, index) => ({ name, index }))
+    .filter(segment => segment.index === 0 || segment.name),
+)
+
+const breadcrumbNav = useTemplateRef('breadcrumbNav')
+
+// Deep paths overflow the bar; keep the current folder in view.
+watch(
+  breadcrumbs,
+  () => {
+    breadcrumbNav.value?.scrollTo({ left: breadcrumbNav.value.scrollWidth })
+  },
+  { immediate: true, flush: 'post' },
+)
+
+const currentLocationLabel = computed(() =>
+  [
+    configMap.value.bucketName || t('pages.manage.bucket.rootFolder'),
+    ...breadcrumbs.value.slice(1).map(segment => segment.name),
+  ].join(' / '),
+)
+
+const domainControl = computed<'select' | 'input' | 'text' | 'none'>(() => {
+  if (isShowCustomDomainSelectList.value && customDomainList.value.length > 1 && isAutoCustomDomain.value)
+    return 'select'
+  if (isShowCustomDomainInput.value) return 'input'
+  return currentCustomDomain.value ? 'text' : 'none'
+})
+
+const copyMenuOptions = computed<ToolbarMenuOption[]>(() => [
+  ...linkFormatList.map(value => ({ value, label: t(`pages.manage.bucket.linkFormat.${value}`) })),
+  ...(isShowPresignedUrl.value
+    ? [{ value: preSignedUrlFormat, label: t('pages.manage.bucket.linkFormat.presign') }]
+    : []),
+])
+
+const sortMenuOptions = computed<ToolbarMenuOption[]>(() =>
+  sortTypeList.map(value => ({
+    value,
+    label: t(`pages.manage.bucket.sort.${value}`),
+    checked: currentSortType.value === value,
+  })),
+)
+
+const loadingToasts = computed(() => [
+  ...(isLoadingData.value ? [{ key: 'list', text: t('pages.manage.bucket.loading'), cancel: cancelLoading }] : []),
+  ...(isLoadingDownloadData.value
+    ? [{ key: 'download', text: t('pages.manage.bucket.prepareDownload'), cancel: cancelDownloadLoading }]
+    : []),
+])
+
+const toolGroupClass = 'flex h-[32px] items-center gap-0.5 rounded-lg border border-border-secondary p-0.5'
+
+const toolButtonClass =
+  'flex h-full min-w-[28px] cursor-pointer items-center justify-center rounded-md px-1.5 text-secondary transition-colors duration-fast not-disabled:hover:bg-accent/10 not-disabled:hover:text-accent focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-40 aria-pressed:bg-accent! aria-pressed:text-white!'
+
+const linkButtonClass =
+  'cursor-pointer rounded-md px-1.5 py-0.5 text-xs font-medium text-accent hover:bg-accent/10 focus-visible:focus-ring'
 
 const isShowCustomDomainSelectList = computed(() =>
   ['tcyun', 'aliyun', 'qiniu', 'github'].includes(currentPicBedName.value),
@@ -944,6 +1090,7 @@ async function handleClickFile(item: any) {
 
   try {
     message.success(t('pages.manage.bucket.startLoadingFile'))
+    previewFileName.value = item.fileName ?? ''
     await filePreview.open(kind, source)
   } catch {
     handlePreviewError()
@@ -1057,14 +1204,9 @@ const customPasteFormat = computed(
     manageStore.config.settings.customPasteFormat,
 )
 
-function handlecopyDropdownOpen() {
-  copyDropdownOpen.value = !copyDropdownOpen.value
-}
-
 async function handleBatchCopyLink(type: CopyFormat) {
   if (!selectedItems.value.length) {
     message.warning(t('pages.manage.bucket.selectFileMsg'))
-    copyDropdownOpen.value = false
     return
   }
   try {
@@ -1088,8 +1230,6 @@ async function handleBatchCopyLink(type: CopyFormat) {
     message.error(
       t(type === preSignedUrlFormat ? 'pages.manage.bucket.copyPreSignedUrlFailed' : 'pages.manage.bucket.copyFailed'),
     )
-  } finally {
-    copyDropdownOpen.value = false
   }
 }
 

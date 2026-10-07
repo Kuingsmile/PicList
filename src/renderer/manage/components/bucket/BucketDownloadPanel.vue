@@ -2,155 +2,85 @@
   <CustomModal
     v-model:visible="isShowDownloadPanel"
     :title="t('pages.manage.bucket.downloadPage')"
-    width="900px"
-    height="90vh"
+    width="760px"
+    height="80vh"
   >
-    <div class="no-scrollbar h-full w-full flex-1 overflow-hidden rounded-md border border-border p-4 shadow-md">
-      <div class="flex h-full w-full flex-col">
-        <div
-          v-if="failed"
-          role="status"
-          class="mb-3 flex items-center justify-between gap-3 rounded-md bg-warning/10 p-3 text-sm text-main"
-        >
-          <span>{{ t('pages.manage.bucket.loadingFailed') }}</span>
-          <CustomButton type="secondary" :text="t('common.bulk.retry')" @click="emit('refresh')" />
-        </div>
-        <!-- Download Tasks Tabs -->
-        <div class="flex flex-1 flex-col gap-2 overflow-hidden border-t border-border-secondary">
-          <div class="flex shrink-0 border-b border-b-border">
-            <button
-              class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
-              :class="{ active: activeDownLoadTab === 'downloading' }"
-              @click="activeDownLoadTab = 'downloading'"
-            >
-              {{ t('pages.manage.bucket.downloading') }}
-              <span
-                v-if="downloadingTaskList.length"
-                class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
-              >
-                {{ downloadingTaskList.length }}
-              </span>
-            </button>
-            <button
-              class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
-              :class="{ active: activeDownLoadTab === 'finished' }"
-              @click="activeDownLoadTab = 'finished'"
-            >
-              {{ t('pages.manage.bucket.success') }}
-              <span
-                v-if="downloadedTaskList.filter(item => item.status === 'downloaded').length"
-                class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
-              >
-                {{ downloadedTaskList.filter(item => item.status === 'downloaded').length }}
-              </span>
-            </button>
-            <button
-              class="relative flex-1 rounded-md border-b-2 border-b-transparent bg-none px-6 py-3 text-sm font-semibold text-secondary shadow-sm transition-all duration-fast ease-apple hover:border-b-accent hover:text-main [.active]:border-b-accent [.active]:bg-accent [.active]:text-white"
-              :class="{ active: activeDownLoadTab === 'failed' }"
-              @click="activeDownLoadTab = 'failed'"
-            >
-              {{ t('pages.manage.bucket.failed') }}
-              <span
-                v-if="downloadedTaskList.filter(item => item.status !== 'downloaded').length"
-                class="absolute top-1 right-1 min-w-[16px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs text-white"
-              >
-                {{ downloadedTaskList.filter(item => item.status !== 'downloaded').length }}
-              </span>
-            </button>
-          </div>
-
-          <div class="flex flex-row justify-center gap-3 rounded-md border border-border shadow-sm">
-            <CustomButton
-              type="secondary"
-              :text="t('pages.manage.bucket.copyDownloadTask')"
-              :icon="CopyIcon"
-              @click="emit('copy')"
-            />
-            <CustomButton
-              type="secondary"
-              :text="t('pages.manage.bucket.clearFinishedTasks')"
-              :icon="Trash2Icon"
-              @click="emit('clear-finished')"
-            />
-            <CustomButton
-              type="secondary"
-              :text="t('pages.manage.bucket.clearAll')"
-              :icon="Trash2Icon"
-              @click="emit('clear-all')"
-            />
-            <CustomButton
-              type="secondary"
-              :text="t('pages.manage.bucket.openDownloadFolder')"
-              :icon="FolderIcon"
-              @click="emit('open-folder')"
-            />
-          </div>
-
-          <div
-            class="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-md border border-border-secondary p-2"
-          >
-            <!-- Downloading Tab -->
-            <VirtualScroller
-              :items="
-                activeDownLoadTab === 'downloading'
-                  ? downloadingTaskList
-                  : activeDownLoadTab === 'finished'
-                    ? downloadedTaskList.filter(item => item.status === 'downloaded')
-                    : downloadedTaskList.filter(item => item.status !== 'downloaded')
-              "
-              :item-height="70"
-              class="min-h-0 w-full flex-1 p-3"
-              view-mode="list"
-            >
-              <template #default="{ item }">
-                <div
-                  class="m-0 flex w-full cursor-pointer items-center gap-3 rounded-md border border-border bg-bg-secondary px-4 py-3 hover:border-accent hover:shadow-md"
-                >
-                  <div class="flex flex-1 flex-col gap-1">
-                    <div class="overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap text-secondary">
-                      {{ item.sourceFileName }}
-                    </div>
-                    <div
-                      v-if="activeDownLoadTab === 'downloading'"
-                      class="relative h-[8px] w-full overflow-hidden rounded-[4px] bg-surface-elevated"
-                    >
-                      <div
-                        class="h-full rounded-[4px] bg-accent transition-all duration-300 ease-apple"
-                        :style="{ width: `${item.progress}%` }"
-                      />
-                    </div>
-                    <div v-else class="flex gap-4 text-xs text-secondary">
-                      <span>{{ item.finishTime }}</span>
-                      <span class="text-xs font-semibold text-success">
-                        {{
-                          activeDownLoadTab === 'finished'
-                            ? t('pages.manage.bucket.success')
-                            : t('pages.manage.bucket.failed')
-                        }}
-                      </span>
-                      <span v-if="item.response?.reason === 'interrupted'">{{
-                        t('pages.manage.bucket.downloadInterrupted')
-                      }}</span>
-                    </div>
-                  </div>
-                </div>
-              </template>
-            </VirtualScroller>
-          </div>
-        </div>
+    <div class="flex h-full min-h-0 flex-col gap-4 p-5">
+      <div
+        v-if="failed"
+        role="status"
+        class="flex shrink-0 items-center justify-between gap-3 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-main"
+      >
+        <span class="flex items-center gap-2">
+          <TriangleAlertIcon :size="16" class="shrink-0 text-warning" aria-hidden="true" />
+          {{ t('pages.manage.bucket.loadingFailed') }}
+        </span>
+        <CustomButton
+          type="secondary"
+          :icon="RotateCcwIcon"
+          :text="t('common.bulk.retry')"
+          class="h-[30px] px-3! py-0!"
+          @click="emit('refresh')"
+        />
       </div>
+
+      <TransferTaskList
+        v-model:tab="activeDownLoadTab"
+        :tabs="taskTabs"
+        :items="visibleTasks"
+        :label="t('pages.manage.bucket.downloadPage')"
+        :reason="taskReason"
+      >
+        <template #actions>
+          <button
+            v-tooltip="t('pages.manage.bucket.copyDownloadTask')"
+            type="button"
+            :class="taskActionClass"
+            :aria-label="t('pages.manage.bucket.copyDownloadTask')"
+            @click="emit('copy')"
+          >
+            <CopyIcon :size="16" aria-hidden="true" />
+          </button>
+          <button
+            v-tooltip="t('pages.manage.bucket.clearFinishedTasks')"
+            type="button"
+            :class="taskActionClass"
+            :aria-label="t('pages.manage.bucket.clearFinishedTasks')"
+            @click="emit('clear-finished')"
+          >
+            <ListChecksIcon :size="16" aria-hidden="true" />
+          </button>
+          <button
+            v-tooltip="t('pages.manage.bucket.clearAll')"
+            type="button"
+            :class="[taskActionClass, 'hover:bg-danger/10! hover:text-danger!']"
+            :aria-label="t('pages.manage.bucket.clearAll')"
+            @click="emit('clear-all')"
+          >
+            <Trash2Icon :size="16" aria-hidden="true" />
+          </button>
+        </template>
+      </TransferTaskList>
     </div>
+    <template #footer>
+      <CustomButton
+        type="secondary"
+        :icon="FolderOpenIcon"
+        :text="t('pages.manage.bucket.openDownloadFolder')"
+        @click="emit('open-folder')"
+      />
+    </template>
   </CustomModal>
 </template>
 
 <script setup lang="ts">
-import { CopyIcon, FolderIcon, Trash2Icon } from '@lucide/vue'
+import { CopyIcon, FolderOpenIcon, ListChecksIcon, RotateCcwIcon, Trash2Icon, TriangleAlertIcon } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
-import VirtualScroller from '@/components/VirtualScroller.vue'
+import TransferTaskList from '@/manage/components/bucket/TransferTaskList.vue'
 
 const isShowDownloadPanel = defineModel<boolean>('visible', { required: true })
 const { tasks: downloadTaskList } = defineProps<{ tasks: IDownloadTask[]; failed: boolean }>()
@@ -158,11 +88,30 @@ const emit = defineEmits<{ refresh: []; copy: []; 'clear-finished': []; 'clear-a
 const { t } = useI18n()
 const activeDownLoadTab = ref('downloading')
 
+const taskActionClass =
+  'flex h-[30px] w-[30px] shrink-0 cursor-pointer items-center justify-center rounded-md text-secondary transition-colors duration-fast hover:bg-accent/10 hover:text-accent focus-visible:focus-ring'
+
 const downloadingTaskList = computed(() =>
   downloadTaskList.filter(item => ['downloading', 'queuing', 'paused'].includes(item.status)),
 )
+const succeededTaskList = computed(() => downloadTaskList.filter(item => item.status === 'downloaded'))
+const failedTaskList = computed(() => downloadTaskList.filter(item => ['failed', 'canceled'].includes(item.status)))
 
-const downloadedTaskList = computed(() =>
-  downloadTaskList.filter(item => ['downloaded', 'failed', 'canceled'].includes(item.status)),
+const taskTabs = computed(() => [
+  { id: 'downloading', label: t('pages.manage.bucket.downloading'), count: downloadingTaskList.value.length },
+  { id: 'finished', label: t('pages.manage.bucket.success'), count: succeededTaskList.value.length },
+  { id: 'failed', label: t('pages.manage.bucket.failed'), count: failedTaskList.value.length },
+])
+
+const visibleTasks = computed(() =>
+  activeDownLoadTab.value === 'downloading'
+    ? downloadingTaskList.value
+    : activeDownLoadTab.value === 'finished'
+      ? succeededTaskList.value
+      : failedTaskList.value,
 )
+
+function taskReason(item: IDownloadTask) {
+  return item.response?.reason === 'interrupted' ? t('pages.manage.bucket.downloadInterrupted') : undefined
+}
 </script>

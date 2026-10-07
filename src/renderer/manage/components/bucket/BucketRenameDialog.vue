@@ -1,96 +1,113 @@
 <template>
   <CustomModal
     v-model:visible="isShowBatchRenameDialog"
-    width="700px"
+    width="720px"
     height="auto"
-    :title="t('pages.manage.bucket.renameFile')"
+    max-height="88vh"
+    :title="isSingleRename ? t('pages.manage.bucket.renameFile') : t('pages.manage.bucket.batchRename')"
+    :description="scopeText"
   >
-    <div class="p-6">
-      <p class="mb-4 text-sm text-secondary">{{ t('common.bulk.selectionHint') }}</p>
-      <div class="mb-6 last:mb-0">
-        <label class="mb-2 flex items-center gap-2 text-sm font-medium text-main">
-          {{ t('pages.manage.bucket.matchedPattern', { num: matchedFilesNumber.length }) }}
-          <div class="group relative inline-block">
-            <InfoIcon class="h-[16px] w-[16px]" />
-            <span
-              class="invisible absolute top-[125%] left-1/2 z-1000 w-max max-w-[200px] translate-x-[-50%] rounded-md border border-border bg-bg-tertiary p-2 text-center text-xs text-main opacity-0 shadow-md transition-opacity duration-300 group-hover:visible group-hover:opacity-100"
-              >{{ t('pages.manage.bucket.regexPatternTips') }}</span
-            >
-          </div>
-        </label>
-        <input
+    <div class="flex flex-col gap-4 p-5">
+      <div class="grid grid-cols-2 gap-4 max-md:grid-cols-1">
+        <CustomInput
           v-model="batchRenameMatch"
-          type="text"
-          class="w-full rounded-md border border-border bg-bg-tertiary p-3 text-sm text-main focus:border-accent focus:bg-white focus:outline-none"
+          :title="t('pages.manage.bucket.rename.find')"
+          :tips="t('pages.manage.bucket.regexPatternTips')"
           :placeholder="t('pages.manage.bucket.regexPlaceholder')"
-          @focus="showMatchedUrls = true"
-          @blur="showMatchedUrls = false"
+          spellcheck="false"
         />
-        <div
-          v-if="showMatchedUrls && matchedFilesNumber.length > 0"
-          class="absolute z-1000 mt-2 max-h-[300px] max-w-[650px] overflow-hidden rounded-md border border-border-secondary bg-bg-tertiary p-0 shadow-md"
-        >
-          <div class="border-b border-b-border-secondary bg-bg-secondary px-4 py-3 text-sm font-semibold text-main">
-            Matched ({{ matchedFilesNumber.length }}):
-          </div>
-          <div class="max-h-[240px] overflow-auto p-2">
-            <div
-              v-for="(item, index) in matchedFilesNumber"
-              :key="index"
-              class="rounded-sm px-3 py-2 font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] text-sm break-all text-secondary transition-all duration-fast ease-apple hover:bg-surface-elevated"
-            >
-              {{ item?.fileName || item?.key || item }}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="mb-6 last:mb-0">
-        <label class="mb-2 flex items-center gap-2 text-sm font-medium text-main">
-          {{ t('pages.manage.bucket.replaceInput') }}
-          <button
-            class="flex h-[20px] w-[20px] cursor-pointer items-center justify-around rounded-full border-none bg-accent text-white transition-all duration-fast ease-apple hover:bg-accent-hover"
-            @click="showFormatInfo = !showFormatInfo"
-          >
-            <InfoIcon :size="16" />
-          </button>
-        </label>
-        <input
+        <CustomInput
           v-model="batchRenameReplace"
-          type="text"
-          class="w-full rounded-md border border-border bg-bg-tertiary p-3 text-sm text-main focus:border-accent focus:bg-white focus:outline-none"
-          placeholder="Ex. {Y}-{m}-{uuid}"
-        />
+          :title="t('pages.manage.bucket.rename.replace')"
+          :tips="t('pages.manage.bucket.rename.replaceTips', { auto: '{auto}' })"
+          placeholder="{Y}-{m}-{uuid}"
+          spellcheck="false"
+        >
+          <template #title-extra>
+            <button
+              type="button"
+              class="cursor-pointer rounded-md px-1.5 py-0.5 text-xs font-medium text-accent hover:bg-accent/10 focus-visible:focus-ring"
+              :aria-expanded="showFormatInfo"
+              @click="showFormatInfo = !showFormatInfo"
+            >
+              {{ t('pages.manage.bucket.rename.placeholders') }}
+            </button>
+          </template>
+        </CustomInput>
       </div>
 
-      <div class="mb-6 last:mb-0">
-        <CustomSwitch
-          v-model="isRenameIncludeExt"
-          small
-          no-border
-          :title="isRenameIncludeExt ? t('pages.manage.bucket.includeExt') : t('pages.manage.bucket.excludeExt')"
-        />
-      </div>
-      <div v-if="showFormatInfo" class="mb-6 last:mb-0">
-        <label>{{ t('pages.settings.upload.availablePlaceholders') }}</label>
-        <PlaceholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
-      </div>
+      <CustomSwitch
+        v-if="!isSingleRename"
+        v-model="isRenameIncludeExt"
+        small
+        tighter
+        no-border
+        no-hover
+        :title="t('pages.manage.bucket.includeExt')"
+      />
+
+      <PlaceholderTable v-if="showFormatInfo" :list="advancedRenameList" :title-list="advancedRenameTitleList" />
+
+      <!-- Live preview -->
+      <section class="flex flex-col overflow-hidden rounded-xl border border-border-secondary bg-bg-secondary">
+        <div class="flex items-center gap-2 border-b border-border-secondary px-3 py-2">
+          <span class="text-sm font-semibold text-main">{{ t('pages.manage.bucket.rename.preview') }}</span>
+          <span
+            class="rounded-full px-2 text-[11px] leading-[20px] font-semibold tabular-nums"
+            :class="previewRows.length ? 'bg-accent/10 text-accent' : 'bg-bg-tertiary text-secondary'"
+          >
+            {{ t('pages.manage.bucket.rename.matched', { num: renameTargets.length }) }}
+          </span>
+        </div>
+        <p v-if="!isValidPattern" class="m-0 px-3 py-6 text-center text-sm text-danger" role="status">
+          {{ t('common.bulk.invalidPattern') }}
+        </p>
+        <p v-else-if="!previewRows.length" class="m-0 px-3 py-6 text-center text-sm text-secondary" role="status">
+          {{ batchRenameMatch ? t('pages.manage.bucket.noMatchedFile') : t('pages.manage.bucket.rename.emptyHint') }}
+        </p>
+        <ul v-else class="m-0 max-h-[220px] list-none overflow-auto p-1">
+          <li
+            v-for="row in previewRows"
+            :key="row.key"
+            class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 rounded-md px-2 py-1.5 font-mono text-xs hover:bg-accent/5"
+          >
+            <span class="truncate text-secondary" :title="row.from">{{ row.from }}</span>
+            <ArrowRightIcon :size="13" class="text-tertiary" aria-hidden="true" />
+            <span class="truncate" :class="row.changed ? 'font-semibold text-main' : 'text-tertiary'" :title="row.to">
+              {{ row.to }}
+            </span>
+          </li>
+          <li v-if="renameTargets.length > previewRows.length" class="px-2 py-1.5 text-xs text-tertiary">
+            {{ t('pages.manage.bucket.rename.more', { num: renameTargets.length - previewRows.length }) }}
+          </li>
+        </ul>
+        <p class="m-0 border-t border-border-secondary px-3 py-2 text-xs text-tertiary">
+          {{ t('pages.manage.bucket.rename.sampleNote') }}
+        </p>
+      </section>
     </div>
     <template #footer>
       <CustomButton type="secondary" :text="t('common.cancel')" @click="isShowBatchRenameDialog = false" />
-      <CustomButton :text="t('common.bulk.preview')" :disabled="bulkChanges.building.value" @click="BatchRename" />
+      <CustomButton
+        :icon="ListChecksIcon"
+        :text="t('common.bulk.preview')"
+        :loading="bulkChanges.building.value"
+        :disabled="!renameTargets.length"
+        @click="BatchRename"
+      />
     </template>
   </CustomModal>
   <BulkChangePreview :workflow="bulkChanges" />
 </template>
 
 <script setup lang="ts">
-import { InfoIcon } from '@lucide/vue'
+import { ArrowRightIcon, ListChecksIcon } from '@lucide/vue'
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import BulkChangePreview from '@/components/BulkChangePreview.vue'
 import CustomButton from '@/components/common/CustomButton.vue'
+import CustomInput from '@/components/common/CustomInput.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
@@ -100,6 +117,8 @@ import { fileCacheDbInstance } from '@/manage/services/bucketDatabase'
 import type { BucketFile } from '@/manage/types/bucket'
 import { matchFileName, replaceFileName, splitFileName } from '@/manage/utils/fileName'
 import { IRPCActionType } from '#/constants/rpcActions'
+
+const PREVIEW_LIMIT = 50
 
 const { configMap, provider, selectedItems, currentPageFilesInfo } = defineProps<{
   configMap: Record<string, any>
@@ -135,8 +154,6 @@ const isRenameIncludeExt = ref(false)
 const isSingleRename = ref(false)
 
 const itemToBeRenamed = ref({} as any)
-
-const showMatchedUrls = ref(false)
 
 const showFormatInfo = ref(false)
 
@@ -179,17 +196,59 @@ function handleBatchRenameFile() {
   if (bulkChanges.reopen() || bulkChanges.building.value) return
   batchRenameMatch.value = ''
   isSingleRename.value = false
+  showFormatInfo.value = false
   isShowBatchRenameDialog.value = true
 }
 
+const renamePool = computed(() =>
+  (selectedItems.length ? selectedItems : currentPageFilesInfo).filter(item => !item.isDir),
+)
+
+const scopeText = computed(() => {
+  if (isSingleRename.value) return itemToBeRenamed.value?.fileName ?? ''
+  return selectedItems.length
+    ? t('pages.manage.bucket.rename.scopeSelected', { num: renamePool.value.length })
+    : t('pages.manage.bucket.rename.scopeAll', { num: renamePool.value.length })
+})
+
+const isValidPattern = computed(() => {
+  try {
+    new RegExp(batchRenameMatch.value || '.+', 'ug')
+    return true
+  } catch {
+    return false
+  }
+})
+
 const matchedFilesNumber = computed(() => {
-  if (!batchRenameMatch.value) {
+  if (!batchRenameMatch.value || !isValidPattern.value) {
     return [] as any[]
   }
-  return (selectedItems.length ? selectedItems : currentPageFilesInfo).filter(
-    (item: any) => !item.isDir && matchFileName(item.fileName, batchRenameMatch.value, isRenameIncludeExt.value),
+  return renamePool.value.filter((item: any) =>
+    matchFileName(item.fileName, batchRenameMatch.value, isRenameIncludeExt.value),
   )
 })
+
+const renameTargets = computed(() => {
+  if (!isValidPattern.value) return [] as any[]
+  return isSingleRename.value ? [itemToBeRenamed.value] : matchedFilesNumber.value
+})
+
+const previewRows = computed(() => {
+  const pattern = batchRenameMatch.value || (isSingleRename.value ? '.+' : '')
+  if (!pattern) return []
+  return renameTargets.value.slice(0, PREVIEW_LIMIT).map((item, index) => {
+    const to = renameTo(item.fileName, pattern, index)
+    return { key: item.key, from: item.fileName, to, changed: to !== item.fileName }
+  })
+})
+
+function renameTo(fileName: string, pattern: string, index: number) {
+  return replaceFileName(fileName, pattern, batchRenameReplace.value, isRenameIncludeExt.value).replaceAll(
+    '{auto}',
+    String(index + 1),
+  )
+}
 
 async function BatchRename() {
   if (bulkChanges.building.value) return
@@ -211,10 +270,7 @@ async function BatchRename() {
   }
   // Expand random/time/sequence placeholders once; the reviewed targets never change on retry.
   const items = matched.map((item, index) => {
-    const name = replaceFileName(item.fileName, pattern, batchRenameReplace.value, isRenameIncludeExt.value).replaceAll(
-      '{auto}',
-      String(index + 1),
-    )
+    const name = renameTo(item.fileName, pattern, index)
     return { id: item.key, source: item.key, target: item.key.slice(0, item.key.lastIndexOf('/') + 1) + name }
   })
   const context = {
@@ -234,8 +290,10 @@ function handleRenameFile(item: any) {
   if (bulkChanges.reopen() || bulkChanges.building.value) return
   batchRenameMatch.value = splitFileName(item.fileName).baseName
   isSingleRename.value = true
-  isShowBatchRenameDialog.value = true
+  isRenameIncludeExt.value = false
+  showFormatInfo.value = false
   itemToBeRenamed.value = item
+  isShowBatchRenameDialog.value = true
 }
 onBeforeUnmount(() => {
   disposed = true
