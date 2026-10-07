@@ -98,8 +98,10 @@
         </template>
         <template v-for="option in supportedPicBedList[platformName].options" :key="option">
           <SettingCard v-if="supportedPicBedList[platformName].configOptions[option].type === 'select'">
-            <CustomSelect
+            <SingleSelect
               v-model="configResult[option]"
+              :fronticon="false"
+              :tight="false"
               :title="supportedPicBedList[platformName].configOptions[option].description"
               :required="supportedPicBedList[platformName].configOptions[option].required"
               :select-list="
@@ -118,7 +120,7 @@
                   {{ t('pages.manage.login.selectPlaceholder') }}
                 </option>
               </template>
-            </CustomSelect>
+            </SingleSelect>
             <template v-if="formErrors[option]" #extra>
               <div class="mt-1 text-xs text-danger">
                 {{ formErrors[option] }}
@@ -159,7 +161,6 @@ import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomInput from '@/components/common/CustomInput.vue'
-import CustomSelect from '@/components/common/CustomSelect.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'

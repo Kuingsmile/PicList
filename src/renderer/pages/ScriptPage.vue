@@ -183,22 +183,9 @@
           <SingleSelect
             v-model="newScriptCategory"
             :title="t('pages.scripts.selectScriptType')"
-            :key-list="supportedScriptCategories.map(cat => cat.type)"
+            :select-list="supportedScriptCategories.map(cat => ({ value: cat.type, label: cat.name }))"
             :fronticon="false"
-            :placeholder="
-              supportedScriptCategories.find(cat => cat.type === newScriptCategory)
-                ? supportedScriptCategories.find(cat => cat.type === newScriptCategory)?.name
-                : newScriptCategory
-            "
-          >
-            <template #item="{ item }">
-              {{
-                supportedScriptCategories.find(cat => cat.type === item)
-                  ? supportedScriptCategories.find(cat => cat.type === item)?.name
-                  : item
-              }}
-            </template>
-          </SingleSelect>
+          />
         </SettingCard>
         <SettingCard class="w-full">
           <CustomInput

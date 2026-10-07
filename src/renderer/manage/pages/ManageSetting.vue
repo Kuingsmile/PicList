@@ -40,8 +40,10 @@
 
           <SettingSection :title="t('pages.manage.setting.section.general')" :icon="Settings">
             <SettingCard>
-              <CustomSelect
+              <SingleSelect
                 v-model="form.pasteFormat"
+                :fronticon="false"
+                :tight="false"
                 :select-list="pasteFormatList"
                 :title="t('pages.manage.setting.copyFormat.title')"
                 :icon="Edit2Icon"
@@ -107,8 +109,10 @@
               />
             </SettingCard>
             <SettingCard>
-              <CustomSelect
+              <SingleSelect
                 v-model="form.downloadConflictPolicy"
+                :fronticon="false"
+                :tight="false"
                 :select-list="downloadConflictPolicies"
                 :title="t('pages.manage.setting.downloadConflictPolicy.title')"
               />
@@ -176,11 +180,11 @@ import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomInput from '@/components/common/CustomInput.vue'
-import CustomSelect from '@/components/common/CustomSelect.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
+import SingleSelect from '@/components/common/SingleSelect.vue'
 import useConfirm from '@/composables/useConfirm'
 import useMessage from '@/composables/useMessage'
 import { fileCacheDbInstance } from '@/manage/services/bucketDatabase'

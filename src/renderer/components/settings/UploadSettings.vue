@@ -64,8 +64,10 @@
       />
 
       <SettingCard>
-        <CustomSelect
+        <SingleSelect
           v-model="currentSecondMode"
+          :fronticon="false"
+          :tight="false"
           :select-list="secondModeList"
           :title="t('pages.settings.upload.chooseSecondPicBedMode')"
           :icon="Settings2Icon"
@@ -189,8 +191,10 @@
       </SettingCard>
 
       <SettingCard v-if="formOfSetting.useShortUrl">
-        <CustomSelect
+        <SingleSelect
           v-model="currentShortUrlServer"
+          :fronticon="false"
+          :tight="false"
           :select-list="shortUrlServerList"
           :title="t('pages.settings.upload.shortUrlServer')"
           :icon="Link"
@@ -340,12 +344,12 @@ import { useI18n } from 'vue-i18n'
 import CustomInput from '@/components/common/CustomInput.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import CustomNavCard from '@/components/common/CustomNavCard.vue'
-import CustomSelect from '@/components/common/CustomSelect.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import MultiSelect from '@/components/common/MultiSelect.vue'
 import placeholderTable from '@/components/common/PlaceholderTable.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
+import SingleSelect from '@/components/common/SingleSelect.vue'
 import ImageProcessDialog from '@/components/ImageProcessDialog.vue'
 import { useSettingsContext } from '@/composables/settings/useSettingsContext'
 import { IRPCActionType } from '#/constants/rpcActions'

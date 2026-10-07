@@ -129,28 +129,23 @@
             <SingleSelect
               v-model="useShortUrl"
               :title="t('pages.gallery.urlType')"
-              :placeholder="t(`pages.gallery.${useShortUrl}`)"
               :fronticon="false"
-              :key-list="shortURLList"
-            >
-              <template #item="{ item }">
-                {{ t(`pages.gallery.${item}`) }}
-              </template>
-            </SingleSelect>
+              :select-list="shortURLList.map(value => ({ value, label: t(`pages.gallery.${value}`) }))"
+            />
           </div>
 
           <div class="flex min-w-[140px] flex-1 flex-col gap-1">
             <SingleSelect
               :model-value="currentSortField"
-              :placeholder="t(`pages.gallery.sortBy.${currentSortField}`)"
               :title="t('pages.gallery.sort')"
-              :key-list="['name', 'ext', 'time', 'provider', 'check']"
+              :select-list="
+                ['name', 'ext', 'time', 'provider', 'check'].map(value => ({
+                  value,
+                  label: t(`pages.gallery.sortBy.${value}`),
+                }))
+              "
               @change="field => sortFile(field as GallerySortField)"
-            >
-              <template #item="{ item }">
-                {{ t(`pages.gallery.sortBy.${item}`) }}
-              </template>
-            </SingleSelect>
+            />
           </div>
         </div>
 

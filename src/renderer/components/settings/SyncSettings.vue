@@ -140,8 +140,10 @@
             />
           </SettingCard>
           <SettingCard v-if="sync.type === 'webdav'">
-            <CustomSelect
+            <SingleSelect
               v-model="sync.webdavAuthType"
+              :fronticon="false"
+              :tight="false"
               :select-list="[
                 { label: 'Basic', value: 'basic' },
                 { label: 'Digest', value: 'digest' },
@@ -237,10 +239,10 @@ import CustomButton from '@/components/common/CustomButton.vue'
 import CustomInput from '@/components/common/CustomInput.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import CustomNavCard from '@/components/common/CustomNavCard.vue'
-import CustomSelect from '@/components/common/CustomSelect.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
+import SingleSelect from '@/components/common/SingleSelect.vue'
 import GallerySync from '@/components/GallerySync.vue'
 import { useSettingsContext } from '@/composables/settings/useSettingsContext'
 import useConfirm from '@/composables/useConfirm'

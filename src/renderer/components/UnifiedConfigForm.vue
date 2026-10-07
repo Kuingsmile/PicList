@@ -68,9 +68,11 @@
             </span>
           </template>
         </CustomSwitch>
-        <CustomSelect
+        <SingleSelect
           v-if="item.type === 'list' && item.choices"
           v-model="ruleForm[item.name]"
+          :fronticon="false"
+          :tight="false"
           :disabled="isLoading || loadFailed"
           :aria-invalid="!!validationErrors[item.name]"
           :aria-describedby="validationErrors[item.name] ? errorId(item.name) : undefined"
@@ -92,7 +94,7 @@
               {{ item.message || item.name }}
             </option>
           </template>
-        </CustomSelect>
+        </SingleSelect>
         <MultiSelect
           v-if="item.type === 'checkbox' && item.choices"
           v-model:choosed="ruleForm[item.name]"
@@ -133,11 +135,11 @@ import { useRoute } from 'vue-router'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomInput from '@/components/common/CustomInput.vue'
-import CustomSelect from '@/components/common/CustomSelect.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import MultiSelect from '@/components/common/MultiSelect.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
+import SingleSelect from '@/components/common/SingleSelect.vue'
 import { getConfig } from '@/services/configService'
 
 defineSlots<{

@@ -2,8 +2,10 @@
   <div v-show="active" class="no-scrollbar flex h-full w-full flex-1 flex-col gap-6 overflow-auto p-4">
     <SettingSection :title="t('pages.settings.system.languageAndAppearance')" :icon="Globe">
       <SettingCard>
-        <CustomSelect
+        <SingleSelect
           v-model="currentLanguage"
+          :fronticon="false"
+          :tight="false"
           :select-list="languageList"
           :title="t('pages.settings.system.chooseLanguage')"
           :icon="Globe"
@@ -11,7 +13,13 @@
       </SettingCard>
 
       <SettingCard>
-        <CustomSelect v-model="currentStartMode" :title="t('pages.settings.system.startMode')" :icon="Monitor">
+        <SingleSelect
+          v-model="currentStartMode"
+          :title="t('pages.settings.system.startMode')"
+          :icon="Monitor"
+          :fronticon="false"
+          :tight="false"
+        >
           <template #extra>
             <option value="quiet">{{ t('pages.settings.system.quietMode') }}</option>
             <option v-if="osGlobal !== 'darwin'" value="mini">{{ t('pages.settings.system.miniMode') }}</option>
@@ -20,7 +28,7 @@
             </option>
             <option value="main">{{ t('pages.settings.system.mainMode') }}</option>
           </template>
-        </CustomSelect>
+        </SingleSelect>
       </SettingCard>
 
       <SettingCard p1>
@@ -49,13 +57,8 @@
           v-model="currentTheme"
           :title="t('pages.settings.system.chooseTheme')"
           :fronticon="false"
-          :key-list="themeList.map(item => item.value)"
-          :placeholder="themeList.find(theme => theme.value === currentTheme)?.label || ''"
-        >
-          <template #item="{ item }">
-            {{ themeList.find(theme => theme.value === item)?.label || item }}
-          </template>
-        </SingleSelect>
+          :select-list="themeList"
+        />
         <template #extra>
           <div class="mt-3 flex gap-4">
             <CustomButton
@@ -271,7 +274,6 @@ import CustomButton from '@/components/common/CustomButton.vue'
 import CustomInput from '@/components/common/CustomInput.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import CustomNavCard from '@/components/common/CustomNavCard.vue'
-import CustomSelect from '@/components/common/CustomSelect.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
@@ -349,8 +351,8 @@ async function handleDownloadThemes() {
     if (!result) {
       throw new Error('No themes were downloaded.')
     }
-    message.success(t('pages.settings.system.downloadThemesSuccess'))
     await loadThemes()
+    message.success(t('pages.settings.system.downloadThemesSuccess'))
   } catch (error) {
     console.error('Failed to download themes:', error)
     message.error(t('pages.settings.system.downloadThemesFailed'))
@@ -368,8 +370,8 @@ async function handleImportThemes() {
     })
     if (result && result.length > 0) {
       await window.electron.triggerRPC(IRPCActionType.THEME_IMPORT_THEMES, result)
-      message.success(t('pages.settings.system.importThemesSuccess'))
       await loadThemes()
+      message.success(t('pages.settings.system.importThemesSuccess'))
     }
   } catch (error) {
     console.error('Failed to import themes:', error)
