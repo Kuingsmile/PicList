@@ -289,7 +289,6 @@
         "explainValue": "為什麼「{setting}」使用此值？",
         "finalPreview": "最終預覽",
         "finalSettings": "最終生效設定",
-        "howItWorks": "共用設定如何生效？",
         "inheritanceHelp": "先使用所有圖床的共用設定，再使用同類圖床的設定，最後使用單個圖床的設定。範圍越具體，優先順序越高。未自訂的選項會持續跟隨共用設定。",
         "live": "隨修改即時更新",
         "livePreview": "即時生效設定",
@@ -377,28 +376,20 @@
       },
       "generalSettings": "常規",
       "guide": {
-        "adjustTitle": "圖片設定",
-        "appliesTo": "套用至",
         "askName": "上傳前詢問檔案名稱",
-        "back": "上一步",
         "categoryHints": {
           "general": "選擇上傳圖片的品質和格式。",
           "rename": "選擇上傳後的檔案命名方式。",
           "skipProcess": "以下副檔名的檔案將直接上傳，不進行圖片處理。",
-          "transform": "調整圖片大小；翻轉和旋轉可在下方展開。",
+          "transform": "依固定尺寸或百分比調整圖片大小。",
           "watermark": "為圖片加上文字、署名或標誌。"
         },
-        "changeScope": "變更",
-        "continue": "下一步",
         "convert": "轉換圖片格式",
         "convertHint": "關閉時保留圖片的原始格式。",
         "customizeHint": "只需修改你需要的選項。",
         "customName": "使用自訂命名規則",
         "done": "完成",
-        "formatAdvanced": "中繼資料與格式轉換規則",
         "formatRules": "格式轉換規則（JSON）",
-        "higherQuality": "畫質更好",
-        "moreOptions": "更多選項",
         "orientation": "翻轉與旋轉",
         "percentHint": "開啟後，將使用比例縮放，忽略上方的寬高設定。",
         "presets": {
@@ -410,15 +401,6 @@
         "qualityPresets": "品質預設",
         "resizeDimensions": "依寬高調整大小",
         "resizePercent": "依比例縮放",
-        "review": "檢查設定",
-        "reviewIntro": "查看此圖床最終使用的設定，包括個別設定的選項。",
-        "reviewTitle": "檢查最終設定",
-        "scopeDescriptions": {
-          "config": "只為一個已儲存的設定單獨調整。",
-          "global": "設定所有上傳的預設處理方式。",
-          "provider": "同一服務的圖床共用這些設定。"
-        },
-        "scopeIntro": "先選擇這些設定要套用至哪些上傳。",
         "scopeLabels": {
           "config": "單一圖床設定",
           "global": "所有圖床",
@@ -430,16 +412,7 @@
           "provider": "單一圖床配置的自訂設定仍會優先生效。"
         },
         "showSources": "顯示設定來源",
-        "smallerFile": "體積更小",
-        "stepOf": "第 {step} 步，共 3 步",
-        "steps": {
-          "1": "套用範圍",
-          "2": "調整圖片",
-          "3": "檢查設定"
-        },
-        "stepsLabel": "圖片處理設定步驟",
         "timestampName": "用時間戳記命名",
-        "watermarkAdvanced": "樣式與更多選項",
         "watermarkToggle": "新增浮水印"
       },
       "perPicBed": {
@@ -500,6 +473,22 @@
       },
       "renameSettings": "重命名",
       "skipProcessSettings": "文件跳過",
+      "studio": {
+        "applyTo": "變更套用於",
+        "appearanceDescription": "調整浮水印的大小、角度和外觀。",
+        "appearanceTitle": "外觀",
+        "backToEdit": "返回編輯",
+        "customizedCount": "此處自訂了 {count} 項",
+        "extensions": "副檔名",
+        "formatDescription": "將上傳的圖片轉換為其他格式，並移除相機中繼資料。",
+        "formatRulesHint": "選填。將來源副檔名對應到輸出格式，例如 png 轉為 webp。這些規則優先於上方的格式。",
+        "formatTitle": "格式與中繼資料",
+        "off": "關",
+        "on": "開",
+        "placeholdersHint": "點擊預留位置即可複製。",
+        "resizeDimensionsHint": "將寬度或高度設為 0 可維持長寬比。",
+        "resizeTitle": "調整尺寸"
+      },
       "subtitle-Global": "為所有圖床配置設置",
       "subtitle-PerPicbed": "為當前圖床單獨配置設置",
       "transform": {

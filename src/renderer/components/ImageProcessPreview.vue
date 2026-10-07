@@ -1,7 +1,7 @@
 <template>
   <section class="processing-result" :class="{ compact }" :aria-label="t('pages.imageProcess.design.finalSettings')">
     <header class="result-heading">
-      <div class="result-icon"><Eye :size="19" /></div>
+      <div class="result-icon"><Eye :size="18" aria-hidden="true" /></div>
       <div class="min-w-0">
         <h2>{{ t('pages.imageProcess.design.finalSettings') }}</h2>
         <p class="result-target">
@@ -22,18 +22,31 @@
         </dd>
       </div>
     </dl>
-    <button v-if="compact" type="button" class="result-review" @click="$emit('review')">
-      {{ t('pages.imageProcess.design.reviewAll') }}<ArrowRight :size="15" />
-    </button>
+    <CustomButton
+      v-if="compact"
+      type="secondary"
+      class="mb-3 w-full"
+      :text="t('pages.imageProcess.design.reviewAll')"
+      @click="$emit('review')"
+    >
+      <template #extra><ArrowRight :size="15" aria-hidden="true" /></template>
+    </CustomButton>
     <p class="result-note">{{ t('pages.imageProcess.design.configPreviewNote') }}</p>
 
     <template v-if="!compact">
       <div class="result-detail-toolbar">
         <h3>{{ t('pages.imageProcess.design.settingsAndSources') }}</h3>
-        <label><input v-model="showInactive" type="checkbox" />{{ t('pages.imageProcess.design.showInactive') }}</label>
+        <CustomSwitch
+          v-model="showInactive"
+          :title="t('pages.imageProcess.design.showInactive')"
+          small
+          no-border
+          no-hover
+          tighter
+        />
       </div>
       <p class="result-source-hint">{{ t('pages.imageProcess.design.sourceHint') }}</p>
-      <details v-for="group in groups" :key="group.id" class="result-group">
+      <details v-for="group in groups" :key="group.id" open class="result-group">
         <summary>
           <span>{{ group.title }}</span
           ><span class="result-group-count">{{
@@ -122,6 +135,8 @@ import { ArrowRight, ChevronDown, Eye } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import CustomButton from '@/components/common/CustomButton.vue'
+import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import type {
   ProcessingConfigSource,
   ProcessingGroup,

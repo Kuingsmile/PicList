@@ -289,7 +289,6 @@
         "explainValue": "Why this value for {setting}?",
         "finalPreview": "Final preview",
         "finalSettings": "Final settings",
-        "howItWorks": "How do shared settings work?",
         "inheritanceHelp": "Start with defaults for all uploaders. Settings for a storage service replace those defaults. Settings for one uploader take priority over both. Values you do not customize keep following the shared settings.",
         "live": "Updates as you edit",
         "livePreview": "Live final settings",
@@ -377,28 +376,20 @@
       },
       "generalSettings": "General",
       "guide": {
-        "adjustTitle": "Image settings",
-        "appliesTo": "Applies to",
         "askName": "Ask for a name before upload",
-        "back": "Back",
         "categoryHints": {
           "general": "Choose the quality and format of your uploaded images.",
           "rename": "Choose how uploaded files are named.",
           "skipProcess": "Files with these extensions will upload without image processing.",
-          "transform": "Resize your images. Open more options to flip or rotate them.",
+          "transform": "Resize images to fixed dimensions or by a percentage.",
           "watermark": "Add your name, a caption, or a logo to your images."
         },
-        "changeScope": "Change",
-        "continue": "Continue",
         "convert": "Change image format",
         "convertHint": "Turn off to keep the original format.",
         "customizeHint": "Change only what you need.",
         "customName": "Use a custom naming pattern",
         "done": "Done",
-        "formatAdvanced": "Metadata and format rules",
         "formatRules": "Format rules (JSON)",
-        "higherQuality": "Higher quality",
-        "moreOptions": "More options",
         "orientation": "Flip and rotation",
         "percentHint": "When enabled, this replaces the width and height settings.",
         "presets": {
@@ -410,15 +401,6 @@
         "qualityPresets": "Quality presets",
         "resizeDimensions": "Resize to dimensions",
         "resizePercent": "Resize by percentage",
-        "review": "Review settings",
-        "reviewIntro": "See what this uploader will use, including any custom settings.",
-        "reviewTitle": "Review your settings",
-        "scopeDescriptions": {
-          "config": "Customize one saved configuration.",
-          "global": "Set defaults for every uploader.",
-          "provider": "Share settings across one service."
-        },
-        "scopeIntro": "Choose which uploads will use these settings.",
         "scopeLabels": {
           "config": "One uploader",
           "global": "All uploads",
@@ -430,16 +412,7 @@
           "provider": "Custom settings for an individual uploader still take priority."
         },
         "showSources": "Show setting sources",
-        "smallerFile": "Smaller file size",
-        "stepOf": "Step {step} of 3",
-        "steps": {
-          "1": "Apply to",
-          "2": "Adjust image",
-          "3": "Review settings"
-        },
-        "stepsLabel": "Image processing setup",
         "timestampName": "Use a timestamp as the name",
-        "watermarkAdvanced": "Style and more options",
         "watermarkToggle": "Add a watermark"
       },
       "perPicBed": {
@@ -500,6 +473,22 @@
       },
       "renameSettings": "Rename",
       "skipProcessSettings": "Skip Process",
+      "studio": {
+        "applyTo": "Apply changes to",
+        "appearanceDescription": "Adjust the watermark's size, angle, and look.",
+        "appearanceTitle": "Appearance",
+        "backToEdit": "Back to editing",
+        "customizedCount": "{count} customized here",
+        "extensions": "File extensions",
+        "formatDescription": "Convert uploads to another format and remove camera metadata.",
+        "formatRulesHint": "Optional. Map a source extension to an output format, such as png to webp. These rules take priority over the format above.",
+        "formatTitle": "Format & metadata",
+        "off": "Off",
+        "on": "On",
+        "placeholdersHint": "Select a placeholder to copy it.",
+        "resizeDimensionsHint": "Set width or height to 0 to keep the aspect ratio.",
+        "resizeTitle": "Resize"
+      },
       "subtitle-Global": "Configure settings for all PicBeds",
       "subtitle-PerPicbed": "Configure settings for current PicBed",
       "transform": {
