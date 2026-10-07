@@ -56,7 +56,14 @@
               @click="emit('sort', column.key)"
             >
               {{ column.label }}
-              <span aria-hidden="true">{{ sortField === column.key ? (sortAscending ? '↑' : '↓') : '↕' }}</span>
+              <ArrowUpIcon
+                v-if="sortField === column.key && sortAscending"
+                :size="13"
+                class="text-accent"
+                aria-hidden="true"
+              />
+              <ArrowDownIcon v-else-if="sortField === column.key" :size="13" class="text-accent" aria-hidden="true" />
+              <ChevronsUpDownIcon v-else :size="13" class="opacity-40" aria-hidden="true" />
             </button>
           </th>
           <th
@@ -70,7 +77,7 @@
       <template #default="{ item, index }">
         <tr
           v-if="viewMode === 'table'"
-          class="h-(--file-row-height) text-[13px] [--file-row-background:var(--color-background-primary)] hover:[--file-row-background:var(--color-background-secondary)] focus:outline-2 focus:-outline-offset-2 focus:outline-accent focus:outline-solid [&.is-selected]:text-accent [&.is-selected]:[--file-row-background:var(--color-background-secondary)]"
+          class="h-(--file-row-height) text-[13px] [--file-row-background:var(--color-background-primary)] hover:[--file-row-background:var(--color-background-secondary)] focus:outline-2 focus:-outline-offset-2 focus:outline-accent focus:outline-solid [&.is-selected]:[--file-row-background:color-mix(in_srgb,var(--color-accent)_12%,var(--color-background-primary))]"
           :class="{ 'is-selected': isSelected(item) }"
           :data-file-index="index"
           :aria-rowindex="index + 2"
@@ -116,8 +123,10 @@
                 @mouseenter="emit('preview', item, $event.currentTarget as Element)"
                 @mouseleave="emit('previewEnd')"
               >
-                <FolderIcon v-if="item.isDir" :size="16" aria-hidden="true" />
-                <FileIcon v-else :size="16" aria-hidden="true" />
+                <slot name="icon" :item>
+                  <FolderIcon v-if="item.isDir" :size="16" aria-hidden="true" />
+                  <FileIcon v-else :size="16" aria-hidden="true" />
+                </slot>
               </span>
               <span v-tooltip.overflow="cellText(column, item)" class="block truncate">{{
                 cellText(column, item)
@@ -146,7 +155,7 @@
 </template>
 
 <script setup lang="ts" generic="T extends { fileName?: string; isDir?: boolean }">
-import { FileIcon, FolderIcon } from '@lucide/vue'
+import { ArrowDownIcon, ArrowUpIcon, ChevronsUpDownIcon, FileIcon, FolderIcon } from '@lucide/vue'
 import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -155,6 +164,7 @@ import type { FileColumn } from '@/utils/fileCollection'
 
 defineSlots<{
   actions?: (props: { item: T; index: number; tabindex: number }) => unknown
+  icon?: (props: { item: T }) => unknown
   default?: (props: { item: T; index: number }) => unknown
 }>()
 

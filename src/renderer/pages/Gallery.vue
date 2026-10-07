@@ -1,420 +1,648 @@
 <template>
-  <div class="relative no-scrollbar flex h-full w-full items-center justify-center">
-    <!-- Header Card -->
+  <div class="relative flex h-full w-full items-center justify-center">
     <div
-      class="relative z-1 no-scrollbar flex h-full w-full flex-col items-center justify-start gap-4 overflow-auto rounded-xl border-none p-4 shadow-sm"
+      class="relative z-1 flex h-full w-full min-w-0 flex-col items-center justify-start gap-4 rounded-xl border-none p-4"
     >
-      <div
-        class="flex w-full flex-wrap items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-0 shadow-md max-md:items-stretch max-md:p-5"
+      <!-- Header -->
+      <header
+        class="flex w-full flex-wrap items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:p-5"
       >
-        <div class="flex flex-1 items-center gap-4 p-1">
-          <ImagesIcon :size="24" class="text-accent" />
-          <div>
+        <div class="flex min-w-0 flex-1 items-center gap-4 p-1">
+          <ImagesIcon :size="24" class="shrink-0 text-accent" aria-hidden="true" />
+          <div class="min-w-0">
             <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">{{ t('pages.gallery.title') }}</h1>
-            <p v-if="selectedCount > 0" class="m-0 text-sm text-secondary">
-              {{ `${selectedCount}/${filterList.length} ${t('pages.gallery.selected')}` }}
+            <p class="m-0 text-sm text-secondary tabular-nums" aria-live="polite">
+              {{
+                hasActiveFilters
+                  ? t('pages.gallery.filteredCount', { shown: filterList.length, total: images.length })
+                  : t('pages.gallery.imageCount', images.length)
+              }}
             </p>
-            <p v-else class="m-0 text-sm text-secondary">{{ `${filterList.length} ${t('pages.gallery.images')}` }}</p>
           </div>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <div
-            v-if="viewMode === 'grid'"
-            class="flex items-center gap-1.5 rounded-md border border-border-secondary px-2 py-1.5"
-          >
-            <GridIcon :size="14" class="text-main" />
-            <input
-              v-model.number="userGridColumns"
-              v-tooltip="t('pages.gallery.gridSize')"
-              type="range"
-              min="1"
-              max="15"
-              step="1"
-              class="h-[4px] w-[70px] cursor-pointer appearance-none rounded-[2px] bg-(--color-background-tertiary) outline-none [&::-moz-range-thumb]:h-[14px] [&::-moz-range-thumb]:w-[14px] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:bg-accent [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:duration-200 [&::-webkit-slider-thumb]:h-[15px] [&::-webkit-slider-thumb]:w-[15px] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-200 hover:[&::-webkit-slider-thumb]:scale-110 hover:[&::-webkit-slider-thumb]:shadow-[0_0_0_2px_rgba(var(--color-accent-rgb),0.4)]"
-              :aria-label="t('pages.gallery.gridSize')"
-            />
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-sm text-secondary">{{ t('pages.gallery.isAlwaysForceReload') }}</span>
-            <CustomSwitch
-              v-model="isAlwaysForceReload"
-              :aria-label="t('pages.gallery.isAlwaysForceReload')"
-              small
-              tighter
-              no-border
-              no-hover
-              @update:model-value="handleIsAlwaysForceReload"
-            />
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-sm text-secondary">{{ t('pages.gallery.syncDelete') }}</span>
-            <CustomSwitch
-              v-model="deleteCloud"
-              :aria-label="t('pages.gallery.syncDelete')"
-              small
-              tighter
-              no-border
-              no-hover
-              @update:model-value="handleDeleteCloudFile"
-            />
-          </div>
-          <FileViewControls v-model:view-mode="viewMode" v-model:density="tableDensity" />
-          <CustomButton
-            :text="t('pages.gallery.hideFilters')"
-            :icon="handleBarActive ? ChevronUpIcon : ChevronDownIcon"
-            class="px-2!"
-            @click="toggleHandleBar"
-          />
-          <CustomButton
-            type="secondary"
-            :text="t('pages.gallery.refresh')"
-            :icon="RefreshCwIcon"
-            :loading="galleryLoading"
-            class="px-2!"
-            @click="updateGallery"
-          />
-        </div>
-      </div>
+        <CustomButton
+          type="secondary"
+          :text="t('pages.gallery.refresh')"
+          :icon="RefreshCwIcon"
+          :loading="galleryLoading"
+          @click="updateGallery"
+        />
+      </header>
 
-      <!-- Filter Controls Card -->
-      <div
-        v-show="handleBarActive"
-        class="flex w-full flex-wrap items-center justify-between gap-2 rounded-2xl border border-border-secondary px-6 py-2 shadow-md max-md:items-stretch max-md:p-5"
-      >
-        <div class="mb-1 flex w-full flex-wrap items-start gap-3">
-          <div class="flex min-w-[140px] flex-1 flex-col gap-1">
-            <MultiSelect
-              v-model:choosed="choosedPicBed"
-              :title="t('pages.gallery.picBedType')"
-              :zero-placeholder="t('pages.gallery.chooseShowedPicBed')"
-              :all-list="filteredPicBedG"
-            />
-          </div>
-
-          <div class="flex min-w-[140px] flex-1 flex-col gap-1">
-            <label class="mb-0 text-sm leading-[1.4] font-semibold text-secondary">{{
-              t('pages.gallery.dateRange')
-            }}</label>
-            <div class="flex w-full flex-wrap items-center gap-2 max-md:items-start">
-              <input
-                v-model="dateRangeStart"
-                type="date"
-                class="h-[28px] min-w-[20px] flex-1 rounded-md border border-border-secondary px-2 py-1.5 text-xs leading-[1.2] text-main transition-all duration-fast ease-apple focus:border-accent-hover focus:shadow-md focus:outline-none"
-                :aria-label="t('pages.gallery.dateRangeStart')"
-              />
-              <span class="shrink-0 font-medium text-secondary">-</span>
-              <input
-                v-model="dateRangeEnd"
-                type="date"
-                class="h-[28px] min-w-[20px] flex-1 rounded-md border border-border-secondary px-2 py-1.5 text-xs leading-[1.2] text-main transition-all duration-fast ease-apple focus:border-accent-hover focus:shadow-md focus:outline-none"
-                :aria-label="t('pages.gallery.dateRangeEnd')"
-              />
-            </div>
-          </div>
-
-          <div class="flex min-w-[140px] flex-1 flex-col gap-1">
-            <SingleSelect
-              v-model="pasteStyle"
-              :title="t('pages.gallery.pasteFormat')"
-              :fronticon="false"
-              :key-list="pasteStyleList"
-            >
-              <template #item="{ item }">
-                {{ item }}
-              </template>
-            </SingleSelect>
-          </div>
-
-          <div class="flex min-w-[140px] flex-1 flex-col gap-1">
-            <SingleSelect
-              v-model="useShortUrl"
-              :title="t('pages.gallery.urlType')"
-              :fronticon="false"
-              :select-list="shortURLList.map(value => ({ value, label: t(`pages.gallery.${value}`) }))"
-            />
-          </div>
-
-          <div class="flex min-w-[140px] flex-1 flex-col gap-1">
-            <SingleSelect
-              :model-value="currentSortField"
-              :title="t('pages.gallery.sort')"
-              :select-list="
-                ['name', 'ext', 'time', 'provider', 'check'].map(value => ({
-                  value,
-                  label: t(`pages.gallery.sortBy.${value}`),
-                }))
-              "
-              @change="field => sortFile(field as GallerySortField)"
-            />
-          </div>
-        </div>
-
-        <!-- Second Row - Search and Actions -->
-        <div class="mb-1 flex w-full flex-wrap items-start gap-3">
-          <div class="relative flex min-w-[100px] flex-row items-center gap-2">
-            <SearchIcon :size="16" class="absolute left-3 z-1 text-secondary" />
+      <!-- Toolbar -->
+      <div class="flex w-full flex-col gap-3 rounded-2xl border border-border-secondary px-4 py-3 shadow-md">
+        <div class="flex w-full flex-wrap items-center gap-2">
+          <div class="relative flex min-w-[180px] flex-2 items-center">
+            <SearchIcon :size="16" class="pointer-events-none absolute left-3 text-secondary" aria-hidden="true" />
             <input
               v-model="searchText"
-              type="text"
-              class="w-full rounded-md border border-border-secondary pt-2 pr-3 pb-2 pl-9 text-sm text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent-hover focus:shadow-md focus:outline-none"
+              type="search"
+              class="h-[36px] w-full rounded-lg border border-border bg-bg-secondary pr-8 pl-9 text-sm text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent focus:outline-none focus-visible:focus-ring [&::-webkit-search-cancel-button]:hidden"
               :placeholder="t('pages.gallery.searchFilename')"
               :aria-label="t('pages.gallery.searchFilename')"
             />
             <button
               v-if="searchText"
-              class="absolute right-3 flex cursor-pointer items-center border-none bg-none p-0 text-secondary transition-all duration-fast ease-apple hover:text-main"
+              type="button"
+              class="absolute right-2 flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded-full text-secondary hover:bg-accent/10 hover:text-main focus-visible:focus-ring"
               :aria-label="t('common.clear')"
               @click="cleanSearch"
             >
-              <XIcon :size="15" />
+              <XIcon :size="14" aria-hidden="true" />
             </button>
           </div>
-
-          <div class="relative flex min-w-[100px] flex-row items-center gap-2">
-            <LinkIcon :size="16" class="absolute left-3 z-1 text-secondary" />
+          <div class="relative flex min-w-[160px] flex-1 items-center">
+            <LinkIcon :size="16" class="pointer-events-none absolute left-3 text-secondary" aria-hidden="true" />
             <input
               v-model="searchTextURL"
-              type="text"
-              class="w-full rounded-md border border-border-secondary pt-2 pr-3 pb-2 pl-9 text-sm text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent-hover focus:shadow-md focus:outline-none"
+              type="search"
+              class="h-[36px] w-full rounded-lg border border-border bg-bg-secondary pr-8 pl-9 text-sm text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent focus:outline-none focus-visible:focus-ring [&::-webkit-search-cancel-button]:hidden"
               :placeholder="t('pages.gallery.searchUrl')"
               :aria-label="t('pages.gallery.searchUrl')"
             />
             <button
               v-if="searchTextURL"
-              class="absolute right-3 flex cursor-pointer items-center border-none bg-none p-0 text-secondary transition-all duration-fast ease-apple hover:text-main"
+              type="button"
+              class="absolute right-2 flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded-full text-secondary hover:bg-accent/10 hover:text-main focus-visible:focus-ring"
               :aria-label="t('common.clear')"
               @click="cleanSearchUrl"
             >
-              <XIcon :size="14" />
+              <XIcon :size="14" aria-hidden="true" />
             </button>
           </div>
 
-          <div class="flex flex-1 flex-wrap gap-3">
-            <button
-              class="copy-btn flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-md border-none px-4 py-[0.425rem] text-sm font-medium text-white opacity-60 transition-all duration-fast ease-apple [.active]:transform-none [.active]:cursor-pointer [.active]:opacity-100 [.active:hover]:-translate-y-px [.active:hover]:shadow-sm [.copy-btn]:bg-accent [.copy-btn]:text-white [.copy-btn.active:hover]:bg-accent-hover [.delete-btn]:bg-danger [.delete-btn]:text-white [.delete-btn.active:hover]:bg-danger/80 [.edit-btn]:bg-success [.edit-btn]:text-white [.edit-btn.active:hover]:bg-success/80 [.select-btn]:bg-warning [.select-btn]:text-white [.select-btn.active:hover]:bg-warning/80"
-              :disabled="!selectedCount"
-              :class="{ active: isMultiple(choosedList) }"
-              @click="multiCopy"
+          <CustomButton
+            type="secondary"
+            :text="t('pages.gallery.hideFilters')"
+            :icon="SlidersHorizontalIcon"
+            :aria-expanded="handleBarActive"
+            aria-controls="gallery-options-panel"
+            class="h-[36px] px-3! py-0!"
+            :class="{ 'border-accent! bg-accent/10! text-accent': handleBarActive }"
+            @click="toggleHandleBar"
+          >
+            <template #extra>
+              <span
+                v-if="panelFilterCount"
+                class="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-accent px-1 text-[11px] font-semibold text-white tabular-nums"
+              >
+                {{ panelFilterCount }}
+              </span>
+              <ChevronDownIcon
+                :size="14"
+                class="transition-transform duration-fast ease-apple"
+                :class="{ 'rotate-180': handleBarActive }"
+                aria-hidden="true"
+              />
+            </template>
+          </CustomButton>
+          <button
+            v-if="hasActiveFilters"
+            type="button"
+            class="flex h-[36px] cursor-pointer items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-accent hover:bg-accent/10 focus-visible:focus-ring"
+            @click="clearFilters"
+          >
+            <FilterXIcon :size="15" aria-hidden="true" />{{ t('pages.gallery.clearFilters') }}
+          </button>
+
+          <div class="ml-auto flex items-center gap-2">
+            <div
+              v-if="viewMode === 'grid'"
+              class="flex h-[36px] items-center gap-2 rounded-lg border border-border-secondary px-2.5"
             >
-              <ClipboardIcon :size="16" />
-              <span> {{ t('pages.gallery.copy') }}</span>
-            </button>
-            <button
-              class="edit-btn flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-md border-none px-4 py-[0.425rem] text-sm font-medium text-white opacity-60 transition-all duration-fast ease-apple [.active]:transform-none [.active]:cursor-pointer [.active]:opacity-100 [.active:hover]:-translate-y-px [.active:hover]:shadow-sm [.copy-btn]:bg-accent [.copy-btn]:text-white [.copy-btn.active:hover]:bg-accent-hover [.delete-btn]:bg-danger [.delete-btn]:text-white [.delete-btn.active:hover]:bg-danger/80 [.edit-btn]:bg-success [.edit-btn]:text-white [.edit-btn.active:hover]:bg-success/80 [.select-btn]:bg-warning [.select-btn]:text-white [.select-btn.active:hover]:bg-warning/80"
-              :disabled="!filterList.length"
-              :class="{ active: filterList.length > 0 }"
-              @click="openBatchRename"
+              <GridIcon :size="14" class="text-secondary" aria-hidden="true" />
+              <input
+                v-model.number="userGridColumns"
+                v-tooltip="t('pages.gallery.gridSize')"
+                type="range"
+                min="1"
+                max="15"
+                step="1"
+                class="h-[4px] w-[72px] cursor-pointer appearance-none rounded-[2px] bg-(--color-background-tertiary) outline-none focus-visible:focus-ring [&::-webkit-slider-thumb]:h-[14px] [&::-webkit-slider-thumb]:w-[14px] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-200 hover:[&::-webkit-slider-thumb]:scale-110"
+                :aria-label="t('pages.gallery.gridSize')"
+              />
+              <span class="w-[1.25rem] text-center text-xs font-semibold text-secondary tabular-nums">
+                {{ userGridColumns }}
+              </span>
+            </div>
+            <div
+              class="flex h-[36px] items-center gap-0.5 rounded-lg border border-border-secondary p-0.5"
+              role="group"
+              :aria-label="t('common.fileTable.view')"
             >
-              <EditIcon :size="16" />
-              <span> {{ t('pages.gallery.edit') }}</span>
-            </button>
-            <button
-              class="delete-btn flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-md border-none px-4 py-[0.425rem] text-sm font-medium text-white opacity-60 transition-all duration-fast ease-apple [.active]:transform-none [.active]:cursor-pointer [.active]:opacity-100 [.active:hover]:-translate-y-px [.active:hover]:shadow-sm [.copy-btn]:bg-accent [.copy-btn]:text-white [.copy-btn.active:hover]:bg-accent-hover [.delete-btn]:bg-danger [.delete-btn]:text-white [.delete-btn.active:hover]:bg-danger/80 [.edit-btn]:bg-success [.edit-btn]:text-white [.edit-btn.active:hover]:bg-success/80 [.select-btn]:bg-warning [.select-btn]:text-white [.select-btn.active:hover]:bg-warning/80"
-              :disabled="!selectedCount"
-              :class="{ active: isMultiple(choosedList) }"
-              @click="multiRemove"
+              <CustomButton
+                type="tab"
+                :icon="GridIcon"
+                :icon-size="14"
+                :active="viewMode === 'grid'"
+                :text="t('common.fileTable.grid')"
+                class="h-full px-2.5! py-0!"
+                @click="viewMode = 'grid'"
+              />
+              <CustomButton
+                type="tab"
+                :icon="ListIcon"
+                :icon-size="14"
+                :active="viewMode === 'table'"
+                :text="t('common.fileTable.table')"
+                class="h-full px-2.5! py-0!"
+                @click="viewMode = 'table'"
+              />
+            </div>
+            <div
+              v-if="viewMode === 'table'"
+              class="flex h-[36px] items-center gap-0.5 rounded-lg border border-border-secondary p-0.5"
+              role="group"
+              :aria-label="t('common.fileTable.density')"
             >
-              <TrashIcon :size="16" />
-              <span> {{ `${t('pages.gallery.delete')}${selectedCount > 0 ? ` (${selectedCount})` : ''}` }}</span>
-            </button>
-            <button
-              class="select-btn flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-md border-none px-4 py-[0.425rem] text-sm font-medium text-white opacity-60 transition-all duration-fast ease-apple [.active]:transform-none [.active]:cursor-pointer [.active]:opacity-100 [.active:hover]:-translate-y-px [.active:hover]:shadow-sm [.copy-btn]:bg-accent [.copy-btn]:text-white [.copy-btn.active:hover]:bg-accent-hover [.delete-btn]:bg-danger [.delete-btn]:text-white [.delete-btn.active:hover]:bg-danger/80 [.edit-btn]:bg-success [.edit-btn]:text-white [.edit-btn.active:hover]:bg-success/80 [.select-btn]:bg-warning [.select-btn]:text-white [.select-btn.active:hover]:bg-warning/80"
-              :disabled="!filterList.length"
-              :class="{ active: filterList.length > 0 }"
-              @click="toggleSelectAll"
-            >
-              <CheckSquareIcon :size="16" />
-              <span>{{ isAllSelected ? t('pages.gallery.cancel') : t('pages.gallery.selectAll') }}</span>
-            </button>
+              <CustomButton
+                v-for="density in ['compact', 'comfortable'] as const"
+                :key="density"
+                v-tooltip="t('common.fileTable.density')"
+                type="tab"
+                :icon="density === 'compact' ? Rows4Icon : Rows3Icon"
+                :icon-size="14"
+                :active="tableDensity === density"
+                :text="t(`common.fileTable.${density}`)"
+                class="h-full px-2.5! py-0!"
+                @click="tableDensity = density"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters & options -->
+        <div
+          v-show="handleBarActive"
+          id="gallery-options-panel"
+          class="flex w-full flex-col gap-3 border-t border-border-secondary pt-3"
+        >
+          <div
+            class="grid grid-cols-2 items-end gap-3 md:grid-cols-4"
+            role="group"
+            :aria-label="t('pages.gallery.filterAndSort')"
+          >
+            <div class="flex min-w-0 flex-col gap-1">
+              <MultiSelect
+                v-model:choosed="choosedPicBed"
+                :title="t('pages.gallery.picBedType')"
+                :zero-placeholder="t('pages.gallery.chooseShowedPicBed')"
+                :all-list="filteredPicBedG"
+                trigger-class="min-h-[32px]"
+              />
+            </div>
+            <div class="col-span-2 flex min-w-0 flex-col gap-1 max-md:order-last">
+              <span class="text-[0.925rem] leading-[1.4] font-semibold text-secondary">{{
+                t('pages.gallery.dateRange')
+              }}</span>
+              <div class="flex w-full items-center gap-2">
+                <input
+                  v-model="dateRangeStart"
+                  type="date"
+                  :max="dateRangeEnd || undefined"
+                  class="h-[32px] min-w-0 flex-1 rounded-md border border-border-secondary bg-transparent px-2 text-xs text-main transition-all duration-fast ease-apple hover:border-accent-hover focus:border-accent focus:outline-none focus-visible:focus-ring"
+                  :aria-label="t('pages.gallery.dateRangeStart')"
+                />
+                <span class="shrink-0 text-secondary" aria-hidden="true">–</span>
+                <input
+                  v-model="dateRangeEnd"
+                  type="date"
+                  :min="dateRangeStart || undefined"
+                  class="h-[32px] min-w-0 flex-1 rounded-md border border-border-secondary bg-transparent px-2 text-xs text-main transition-all duration-fast ease-apple hover:border-accent-hover focus:border-accent focus:outline-none focus-visible:focus-ring"
+                  :aria-label="t('pages.gallery.dateRangeEnd')"
+                />
+              </div>
+            </div>
+            <div class="flex min-w-0 items-end gap-1.5">
+              <div class="flex min-w-0 flex-1 flex-col gap-1">
+                <SingleSelect
+                  :model-value="currentSortField"
+                  :title="t('pages.gallery.sort')"
+                  :fronticon="false"
+                  class="min-h-[32px]"
+                  :select-list="
+                    ['name', 'ext', 'time', 'provider', 'check'].map(value => ({
+                      value,
+                      label: t(`pages.gallery.sortBy.${value}`),
+                    }))
+                  "
+                  @change="field => sortFile(field as GallerySortField, false)"
+                />
+              </div>
+              <button
+                v-tooltip="sortAscending ? t('pages.gallery.sortAscending') : t('pages.gallery.sortDescending')"
+                type="button"
+                class="flex h-[32px] w-[32px] shrink-0 cursor-pointer items-center justify-center rounded-md border border-border-secondary text-secondary transition-all duration-fast ease-apple hover:border-accent-hover hover:text-main focus-visible:focus-ring"
+                :aria-label="sortAscending ? t('pages.gallery.sortAscending') : t('pages.gallery.sortDescending')"
+                @click="toggleSortDirection"
+              >
+                <ArrowUpNarrowWideIcon v-if="sortAscending" :size="16" aria-hidden="true" />
+                <ArrowDownWideNarrowIcon v-else :size="16" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="grid grid-cols-2 items-end gap-3 md:grid-cols-4"
+            role="group"
+            :aria-label="t('pages.gallery.copyOptions')"
+          >
+            <div class="flex min-w-0 flex-col gap-1">
+              <SingleSelect
+                v-model="pasteStyle"
+                :title="t('pages.gallery.pasteFormat')"
+                :fronticon="false"
+                class="min-h-[32px]"
+                :key-list="pasteStyleList"
+              >
+                <template #item="{ item }">
+                  {{ item }}
+                </template>
+              </SingleSelect>
+            </div>
+            <div class="flex min-w-0 flex-col gap-1">
+              <SingleSelect
+                v-model="useShortUrl"
+                :title="t('pages.gallery.urlType')"
+                :fronticon="false"
+                class="min-h-[32px]"
+                :select-list="shortURLList.map(value => ({ value, label: t(`pages.gallery.${value}`) }))"
+              />
+            </div>
+            <div class="flex min-w-0 flex-col gap-1">
+              <span class="flex min-w-0 items-center gap-1">
+                <span class="truncate text-[0.925rem] leading-[1.4] font-semibold text-secondary">
+                  {{ t('pages.gallery.isAlwaysForceReload') }}
+                </span>
+                <HelpTooltip :content="t('pages.gallery.isAlwaysForceReloadTip')" />
+              </span>
+              <div class="flex h-[32px] items-center">
+                <CustomSwitch
+                  v-model="isAlwaysForceReload"
+                  :aria-label="t('pages.gallery.isAlwaysForceReload')"
+                  small
+                  tighter
+                  no-border
+                  no-hover
+                  @update:model-value="handleIsAlwaysForceReload"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Gallery Grid -->
-      <div
-        class="flex min-h-[240px] w-full min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border-secondary p-4 shadow-md"
+      <!-- Gallery -->
+      <section
+        class="flex min-h-[240px] w-full min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border-secondary shadow-md"
         :aria-busy="galleryLoading"
+        :aria-label="t('pages.gallery.title')"
       >
+        <!-- Selection bar -->
         <div
-          v-if="galleryLoadFailed"
-          role="status"
-          class="mb-3 flex items-center justify-between gap-3 rounded-md bg-warning/10 p-3 text-sm text-main"
+          class="flex min-h-[52px] flex-wrap items-center gap-x-3 gap-y-2 border-b border-border-secondary px-4 py-2 transition-colors duration-fast ease-apple"
+          :class="selectedCount ? 'bg-accent/10' : ''"
         >
-          <span>{{ t('pages.gallery.loadFailed') }}</span>
-          <CustomButton
-            type="secondary"
-            :text="t('pages.gallery.refresh')"
-            :loading="galleryLoading"
-            @click="updateGallery"
-          />
-        </div>
-        <div
-          v-if="galleryLoading && !images.length"
-          role="status"
-          class="flex flex-1 items-center justify-center gap-3 p-8 text-secondary"
-        >
-          <RefreshCwIcon :size="20" class="animate-spin" aria-hidden="true" />
-          {{ t('pages.gallery.loading') }}
-        </div>
-        <div
-          v-else-if="filterList.length === 0 && !galleryLoadFailed"
-          class="flex flex-col items-center justify-center px-8 py-16 text-center"
-        >
-          <ImageIcon :size="64" class="mb-4 text-accent" />
-          <h3 class="mx-0 mt-0 mb-2 text-xl font-semibold text-main">{{ t('pages.gallery.noImagesFound') }}</h3>
-          <p class="m-0 text-secondary">{{ t('pages.gallery.tryAdjustingFilters') }}</p>
+          <label class="flex cursor-pointer items-center gap-2.5 text-sm select-none">
+            <input
+              type="checkbox"
+              class="h-[16px] w-[16px] cursor-pointer accent-accent focus-visible:focus-ring disabled:cursor-not-allowed"
+              :checked="isAllSelected"
+              :indeterminate="selectedCount > 0 && !isAllSelected"
+              :disabled="!filterList.length"
+              :aria-label="t('pages.gallery.selectAll')"
+              @change="toggleSelectAll"
+            />
+            <span v-if="selectedCount" class="font-semibold text-main tabular-nums" aria-live="polite">
+              {{ t('pages.gallery.selectedCount', selectedCount) }}
+            </span>
+            <span v-else class="text-secondary">{{ t('pages.gallery.selectAll') }}</span>
+          </label>
+          <button
+            v-if="selectedCount"
+            type="button"
+            class="cursor-pointer rounded-md px-1.5 py-0.5 text-xs font-medium text-accent hover:bg-accent/10 focus-visible:focus-ring"
+            @click="clearChoosedList"
+          >
+            {{ t('pages.gallery.clearSelection') }}
+          </button>
+          <span v-else-if="filterList.length" class="text-xs text-secondary max-md:hidden">
+            {{ t('pages.gallery.selectionHint') }}
+          </span>
+
+          <div class="ml-auto flex flex-wrap items-center gap-2">
+            <CustomSwitch
+              v-model="deleteCloud"
+              v-tooltip="t('pages.gallery.syncDeleteTip')"
+              :aria-label="t('pages.gallery.syncDelete')"
+              small
+              tighter
+              no-border
+              no-hover
+              class="h-[34px] rounded-lg border px-2.5 transition-colors duration-fast ease-apple"
+              :class="deleteCloud ? 'border-warning/60 bg-warning/10' : 'border-border-secondary'"
+              @update:model-value="handleDeleteCloudFile"
+            >
+              <template #custom-title>
+                <span
+                  class="-ml-2 flex items-center gap-1.5 text-sm font-medium whitespace-nowrap"
+                  :class="deleteCloud ? 'text-warning' : 'text-secondary'"
+                >
+                  <CloudIcon v-if="deleteCloud" :size="15" aria-hidden="true" />
+                  <CloudOffIcon v-else :size="15" aria-hidden="true" />
+                  {{ t('pages.gallery.syncDelete') }}
+                </span>
+              </template>
+            </CustomSwitch>
+            <span class="mx-0.5 h-[20px] w-px bg-border-secondary max-sm:hidden" aria-hidden="true" />
+            <template v-if="selectedCount">
+              <CustomButton
+                type="secondary"
+                :icon="ClipboardIcon"
+                :text="t('pages.gallery.copy')"
+                class="px-3! py-1.5!"
+                @click="multiCopy"
+              />
+              <CustomButton
+                type="secondary"
+                :icon="EditIcon"
+                :text="t('pages.gallery.batchEditUrl')"
+                class="px-3! py-1.5!"
+                @click="openBatchRename"
+              />
+              <CustomButton
+                type="danger"
+                :icon="TrashIcon"
+                :text="`${t('pages.gallery.delete')} (${selectedCount})`"
+                class="px-3! py-1.5!"
+                @click="multiRemove"
+              />
+            </template>
+            <CustomButton
+              v-else
+              v-tooltip="t('pages.gallery.batchEditUrlAllTip')"
+              type="secondary"
+              :icon="EditIcon"
+              :text="t('pages.gallery.batchEditUrl')"
+              :disabled="!filterList.length"
+              class="px-3! py-1.5!"
+              @click="openBatchRename"
+            />
+          </div>
         </div>
 
-        <FileCollection
-          v-else-if="filterList.length"
-          :key="componentKey"
-          ref="virtualScrollerRef"
-          :items="filterList"
-          :view-mode="viewMode"
-          :density="tableDensity"
-          :columns="tableColumns"
-          :grid-item-height="300"
-          :grid-breakpoints="effectiveGridBreakpoints"
-          key-field="key"
-          :label="t('pages.gallery.title')"
-          :preview-id="hoverPreviewId"
-          :is-selected="item => !!choosedList[item.id || '']"
-          :sort-field="currentSortField"
-          :sort-ascending="sortAscending"
-          @select="(item, selected) => (choosedList[item.id || ''] = selected)"
-          @select-all="setAllSelected"
-          @sort="field => sortFile(field as GallerySortField)"
-          @open="(_, index) => zoomImage(index)"
-          @preview="showHoverPreview"
-          @preview-end="hoverPreviewRef?.scheduleHide()"
-          @visible-indexes-change="handleVisibleIndexesChange"
-        >
-          <template #actions="{ item, index, tabindex }">
-            <button
-              v-tooltip="t('common.fileTable.open')"
-              type="button"
-              :tabindex
-              :aria-label="t('common.fileTable.open')"
-              @click="zoomImage(index)"
-            >
-              <ImageIcon :size="16" />
-            </button>
-            <button
-              v-tooltip="t('pages.gallery.copy')"
-              type="button"
-              :tabindex
-              :aria-label="t('pages.gallery.copy')"
-              @click="copy(item)"
-            >
-              <ClipboardIcon :size="16" />
-            </button>
-            <button
-              v-tooltip="t('pages.gallery.edit')"
-              type="button"
-              :tabindex
-              :aria-label="t('pages.gallery.edit')"
-              @click="openDialog(item)"
-            >
-              <EditIcon :size="16" />
-            </button>
-            <button
-              v-tooltip="t('pages.gallery.delete')"
-              type="button"
-              :tabindex
-              :aria-label="t('pages.gallery.delete')"
-              @click="remove(item, index)"
-            >
-              <TrashIcon :size="16" />
-            </button>
-          </template>
-          <template #default="{ item, index }">
+        <div class="flex min-h-0 flex-1 flex-col p-4">
+          <div
+            v-if="galleryLoadFailed"
+            role="status"
+            class="mb-3 flex items-center justify-between gap-3 rounded-md bg-warning/10 p-3 text-sm text-main"
+          >
+            <span>{{ t('pages.gallery.loadFailed') }}</span>
+            <CustomButton
+              type="secondary"
+              :text="t('pages.gallery.refresh')"
+              :loading="galleryLoading"
+              @click="updateGallery"
+            />
+          </div>
+          <div
+            v-if="galleryLoading && !images.length"
+            role="status"
+            class="flex flex-1 items-center justify-center gap-3 p-8 text-secondary"
+          >
+            <RefreshCwIcon :size="20" class="animate-spin" aria-hidden="true" />
+            {{ t('pages.gallery.loading') }}
+          </div>
+          <div
+            v-else-if="filterList.length === 0 && !galleryLoadFailed"
+            class="flex flex-1 flex-col items-center justify-center px-8 py-12 text-center"
+          >
             <div
-              class="group/image m-0 box-border flex h-[calc(100%-8px)] w-full cursor-pointer flex-col overflow-hidden rounded-lg border-2 border-border shadow-sm transition-all duration-fast ease-apple hover:translate-y-[-2px] hover:border-accent hover:shadow-md [.selected]:border-2 [.selected]:border-accent [.selected]:shadow-md"
-              :class="{ selected: choosedList[item.id || ''] }"
-              @click="handleChooseImage(!choosedList[item.id || ''], index)"
+              class="mb-4 flex h-[64px] w-[64px] items-center justify-center rounded-2xl bg-accent/10 text-accent"
+              aria-hidden="true"
             >
-              <div
-                class="relative mb-2 flex aspect-auto min-h-0 flex-1 items-center justify-center overflow-hidden border-b border-dashed border-b-accent/40"
-                role="button"
-                tabindex="0"
-                :aria-label="`${t('common.fileTable.open')}: ${item.fileName || ''}`"
-                @keydown.enter.prevent="zoomImage(index)"
-                @keydown.space.prevent="zoomImage(index)"
-                @click.stop="zoomImage(index)"
+              <SearchXIcon v-if="images.length" :size="30" />
+              <ImageIcon v-else :size="30" />
+            </div>
+            <h3 class="mx-0 mt-0 mb-1.5 text-lg font-semibold text-main">
+              {{ images.length ? t('pages.gallery.noMatch') : t('pages.gallery.noImagesFound') }}
+            </h3>
+            <p class="m-0 max-w-[360px] text-sm text-secondary">
+              {{ images.length ? t('pages.gallery.noMatchHint') : t('pages.gallery.emptyHint') }}
+            </p>
+            <CustomButton
+              v-if="images.length"
+              type="secondary"
+              class="mt-4"
+              :icon="FilterXIcon"
+              :text="t('pages.gallery.clearFilters')"
+              @click="clearFilters"
+            />
+            <CustomButton
+              v-else
+              class="mt-4"
+              :icon="UploadIcon"
+              :text="t('pages.gallery.goUpload')"
+              @click="router.push({ name: UPLOAD_PAGE })"
+            />
+          </div>
+
+          <FileCollection
+            v-else-if="filterList.length"
+            :key="componentKey"
+            ref="virtualScrollerRef"
+            :items="filterList"
+            :view-mode="viewMode"
+            :density="tableDensity"
+            :columns="tableColumns"
+            :grid-item-height="gridItemHeight"
+            :grid-breakpoints="effectiveGridBreakpoints"
+            key-field="key"
+            :label="t('pages.gallery.title')"
+            :preview-id="hoverPreviewId"
+            :is-selected="item => !!choosedList[item.id || '']"
+            :sort-field="currentSortField"
+            :sort-ascending="sortAscending"
+            @select="(item, selected) => (choosedList[item.id || ''] = selected)"
+            @select-all="setAllSelected"
+            @sort="field => sortFile(field as GallerySortField)"
+            @open="(_, index) => zoomImage(index)"
+            @preview="showHoverPreview"
+            @preview-end="hoverPreviewRef?.scheduleHide()"
+            @visible-indexes-change="handleVisibleIndexesChange"
+          >
+            <template #icon="{ item }">
+              <span
+                class="relative flex aspect-square h-[calc(var(--file-row-height)-10px)] items-center justify-center overflow-hidden rounded-md border border-border-secondary bg-bg-tertiary"
               >
                 <img
                   v-if="galleryActive"
                   :src="displayImageSources[item.key || ''] || item.src"
-                  :alt="item.fileName || ''"
-                  class="h-full w-full object-contain transition-all duration-fast ease-apple"
-                  :class="{ loading: !imageLoadStates[item.key || ''] }"
+                  alt=""
+                  class="h-full w-full object-cover"
+                  draggable="false"
                   @load="onImageLoad(item)"
                   @error="onImageError(item)"
                 />
+              </span>
+            </template>
+            <template #actions="{ item, index, tabindex }">
+              <button
+                v-tooltip="t('common.fileTable.open')"
+                type="button"
+                :tabindex
+                :aria-label="t('common.fileTable.open')"
+                @click="zoomImage(index)"
+              >
+                <ImageIcon :size="16" />
+              </button>
+              <button
+                v-tooltip="t('pages.gallery.copy')"
+                type="button"
+                :tabindex
+                :aria-label="t('pages.gallery.copy')"
+                @click="copy(item)"
+              >
+                <ClipboardIcon :size="16" />
+              </button>
+              <button
+                v-tooltip="t('pages.gallery.edit')"
+                type="button"
+                :tabindex
+                :aria-label="t('pages.gallery.edit')"
+                @click="openDialog(item)"
+              >
+                <EditIcon :size="16" />
+              </button>
+              <button
+                v-tooltip="t('pages.gallery.delete')"
+                type="button"
+                :tabindex
+                :aria-label="t('pages.gallery.delete')"
+                @click="remove(item, index)"
+              >
+                <TrashIcon :size="16" />
+              </button>
+            </template>
+            <template #default="{ item, index }">
+              <div
+                class="group/card relative flex h-full w-full flex-col overflow-hidden rounded-lg border bg-bg-secondary shadow-sm transition-all duration-fast ease-apple hover:shadow-md"
+                :class="
+                  choosedList[item.id || '']
+                    ? 'border-accent ring-2 ring-accent/40'
+                    : 'border-border hover:border-accent/60'
+                "
+              >
                 <div
-                  v-if="!imageLoadStates[item.key || '']"
-                  class="absolute inset-0 flex items-center justify-center bg-surface-elevated"
+                  class="relative flex min-h-0 flex-1 cursor-pointer items-center justify-center overflow-hidden bg-bg-tertiary focus-visible:focus-ring"
+                  role="button"
+                  tabindex="0"
+                  :aria-label="
+                    selectedCount
+                      ? t('common.fileTable.selectFile', { name: item.fileName || '' })
+                      : `${t('common.fileTable.open')}: ${item.fileName || ''}`
+                  "
+                  @keydown.enter.prevent="zoomImage(index)"
+                  @keydown.space.prevent="handleChooseImage(!choosedList[item.id || ''], index)"
+                  @click="handleCardClick(item, index, $event)"
                 >
+                  <img
+                    v-if="galleryActive"
+                    :src="displayImageSources[item.key || ''] || item.src"
+                    :alt="item.fileName || ''"
+                    class="h-full w-full object-contain transition-transform duration-medium ease-apple group-hover/card:scale-[1.03]"
+                    draggable="false"
+                    @load="onImageLoad(item)"
+                    @error="onImageError(item)"
+                  />
                   <div
-                    class="h-[24px] w-[24px] animate-spin rounded-full border-2 border-t-2 border-border-secondary border-t-accent"
+                    v-if="!imageLoadStates[item.key || '']"
+                    class="absolute inset-0 flex items-center justify-center bg-bg-tertiary"
+                  >
+                    <div
+                      class="h-[22px] w-[22px] animate-spin rounded-full border-2 border-border-secondary border-t-accent"
+                    />
+                  </div>
+                  <div
+                    v-if="choosedList[item.id || '']"
+                    class="pointer-events-none absolute inset-0 bg-accent/10"
+                    aria-hidden="true"
                   />
                 </div>
-              </div>
 
-              <div class="flex min-w-0 shrink-0 flex-col justify-between">
-                <div
-                  v-tooltip.overflow="item.fileName || ''"
-                  class="mb-1.5 w-full truncate text-center text-sm font-medium text-main"
+                <!-- Selection checkbox -->
+                <label
+                  class="absolute top-2 left-2 z-1 flex cursor-pointer transition-opacity duration-fast ease-apple group-hover/card:opacity-100 focus-within:opacity-100"
+                  :class="selectedCount ? 'opacity-100' : 'opacity-0'"
+                  @click.stop
                 >
-                  {{ formatFileName(item.fileName || '') }}
+                  <input
+                    v-model="choosedList[item.id ? item.id : '']"
+                    type="checkbox"
+                    class="peer sr-only"
+                    :aria-label="t('common.fileTable.selectFile', { name: item.fileName || '' })"
+                    @change="e => handleChooseImage((e.target as HTMLInputElement).checked, index)"
+                  />
+                  <span
+                    class="group/check flex h-[28px] w-[28px] items-center justify-center rounded-md bg-bg-secondary/90 shadow-sm backdrop-blur-sm transition-all duration-fast ease-apple peer-checked:bg-accent peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent"
+                    aria-hidden="true"
+                  >
+                    <CheckIcon v-if="choosedList[item.id || '']" :size="16" :stroke-width="3" class="text-white" />
+                    <span
+                      v-else
+                      class="h-[16px] w-[16px] rounded-sm border-2 border-accent/60 transition-colors duration-fast ease-apple group-hover/check:border-accent"
+                    />
+                  </span>
+                </label>
+
+                <!-- Quick actions -->
+                <div
+                  class="absolute top-2 right-2 z-1 flex gap-1 opacity-0 transition-opacity duration-fast ease-apple group-hover/card:opacity-100 focus-within:opacity-100"
+                >
+                  <button
+                    v-for="action in cardActions"
+                    :key="action.key"
+                    v-tooltip="action.label"
+                    type="button"
+                    :aria-label="action.label"
+                    class="flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-md bg-bg-secondary/90 text-main shadow-sm backdrop-blur-sm transition-all duration-fast ease-apple focus-visible:focus-ring"
+                    :class="
+                      action.key === 'delete' ? 'hover:bg-danger hover:text-white' : 'hover:bg-accent hover:text-white'
+                    "
+                    @click.stop="action.run(item, index)"
+                  >
+                    <component :is="action.icon" :size="15" aria-hidden="true" />
+                  </button>
                 </div>
 
-                <div class="mr-2 flex items-center justify-between">
-                  <div class="flex flex-1 justify-center gap-2">
-                    <button
-                      v-tooltip="t('pages.gallery.copy')"
-                      :aria-label="t('pages.gallery.copy')"
-                      class="copy-icon flex h-[25px] w-[25px] cursor-pointer items-center justify-center rounded-md border-none text-secondary transition-all duration-fast ease-apple hover:-translate-y-px hover:text-main [.copy-icon]:hover:bg-warning/50 [.copy-icon]:hover:text-white [.delete-icon]:hover:bg-error/50 [.delete-icon]:hover:text-white [.edit-icon]:hover:bg-success/50 [.edit-icon]:hover:text-white"
-                      @click.stop="copy(item)"
-                    >
-                      <ClipboardIcon :size="16" />
-                    </button>
-                    <button
-                      v-tooltip="t('pages.gallery.edit')"
-                      :aria-label="t('pages.gallery.edit')"
-                      class="edit-icon flex h-[25px] w-[25px] cursor-pointer items-center justify-center rounded-md border-none text-secondary transition-all duration-fast ease-apple hover:-translate-y-px hover:text-main [.copy-icon]:hover:bg-warning/50 [.copy-icon]:hover:text-white [.delete-icon]:hover:bg-error/50 [.delete-icon]:hover:text-white [.edit-icon]:hover:bg-success/50 [.edit-icon]:hover:text-white"
-                      @click.stop="openDialog(item)"
-                    >
-                      <EditIcon :size="16" />
-                    </button>
-                    <button
-                      v-tooltip="t('pages.gallery.delete')"
-                      :aria-label="t('pages.gallery.delete')"
-                      class="delete-icon flex h-[25px] w-[25px] cursor-pointer items-center justify-center rounded-md border-none text-secondary transition-all duration-fast ease-apple hover:-translate-y-px hover:text-main [.copy-icon]:hover:bg-warning/50 [.copy-icon]:hover:text-white [.delete-icon]:hover:bg-error/50 [.delete-icon]:hover:text-white [.edit-icon]:hover:bg-success/50 [.edit-icon]:hover:text-white"
-                      @click.stop="remove(item, index)"
-                    >
-                      <TrashIcon :size="16" />
-                    </button>
-                  </div>
-
-                  <label class="relative flex cursor-pointer items-center" @click.stop>
-                    <input
-                      v-model="choosedList[item.id ? item.id : '']"
-                      type="checkbox"
-                      class="peer sr-only"
-                      :aria-label="t('common.fileTable.selectFile', { name: item.fileName || '' })"
-                      @change="e => handleChooseImage((e.target as HTMLInputElement).checked, index)"
-                    />
+                <div class="flex min-w-0 shrink-0 flex-col gap-0.5 border-t border-border-secondary px-3 py-2">
+                  <div class="flex min-w-0 items-center gap-2">
                     <span
-                      class="relative inline-block h-[16px] w-[16px] rounded-sm border-2 border-accent/50 transition-all duration-fast ease-apple peer-checked:border-accent-hover peer-checked:bg-accent peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent peer-checked:after:absolute peer-checked:after:top-[-2px] peer-checked:after:left-px peer-checked:after:text-[12px] peer-checked:after:font-bold peer-checked:after:text-white peer-checked:after:content-['✓']"
-                    />
-                  </label>
+                      v-tooltip.overflow="item.fileName || ''"
+                      class="min-w-0 flex-1 truncate text-sm font-medium text-main"
+                    >
+                      {{ formatFileName(item.fileName || '') }}
+                    </span>
+                    <span
+                      v-if="fileType(item)"
+                      class="shrink-0 rounded bg-accent/10 px-1.5 py-px text-[10px] font-semibold text-accent uppercase"
+                    >
+                      {{ fileType(item) }}
+                    </span>
+                  </div>
+                  <div class="flex min-w-0 items-center gap-1 text-xs text-secondary">
+                    <span class="truncate">{{ providerName(item) }}</span>
+                    <template v-if="item.updatedAt">
+                      <span aria-hidden="true">·</span>
+                      <span class="shrink-0 tabular-nums">{{ formatCardDate(item) }}</span>
+                    </template>
+                  </div>
                 </div>
               </div>
-            </div>
-          </template>
-        </FileCollection>
-      </div>
+            </template>
+          </FileCollection>
+        </div>
+      </section>
     </div>
     <GalleryHoverPreview
       :id="hoverPreviewId"
@@ -439,25 +667,34 @@
       :update-gallery="updateGallery"
       @changed="virtualScrollerRef?.refresh()"
     />
-
-    <!-- Batch Rename Modal -->
   </div>
 </template>
 
 <script setup lang="ts">
 import {
-  CheckSquareIcon,
+  ArrowDownWideNarrowIcon,
+  ArrowUpNarrowWideIcon,
+  CheckIcon,
   ChevronDownIcon,
-  ChevronUpIcon,
   ClipboardIcon,
+  CloudIcon,
+  CloudOffIcon,
   EditIcon,
+  FilterXIcon,
   GridIcon,
   ImageIcon,
   ImagesIcon,
   LinkIcon,
+  ListIcon,
+  Maximize2Icon,
   RefreshCwIcon,
+  Rows3Icon,
+  Rows4Icon,
   SearchIcon,
+  SearchXIcon,
+  SlidersHorizontalIcon,
   TrashIcon,
+  UploadIcon,
   XIcon,
 } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
@@ -477,20 +714,21 @@ import {
   watch,
 } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { onBeforeRouteUpdate } from 'vue-router'
+import { onBeforeRouteUpdate, useRouter } from 'vue-router'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
+import HelpTooltip from '@/components/common/HelpTooltip.vue'
 import MultiSelect from '@/components/common/MultiSelect.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import FileCollection from '@/components/FileCollection.vue'
-import FileViewControls from '@/components/FileViewControls.vue'
 import GalleryUrlEditor from '@/components/gallery/GalleryUrlEditor.vue'
 import GalleryHoverPreview from '@/components/GalleryHoverPreview.vue'
 import ImagePreview from '@/components/ImagePreview.vue'
 import { useGalleryActions } from '@/composables/useGalleryActions'
 import { usePicBed } from '@/composables/useGlobal'
 import useMessage from '@/composables/useMessage'
+import { UPLOAD_PAGE } from '@/router/config'
 import { getConfig, saveConfig } from '@/services/configService'
 import $$db from '@/services/galleryDatabase'
 import { configPaths } from '@/utils/configPaths'
@@ -508,6 +746,8 @@ import { enforceBoolean } from '#/utils/values'
 defineOptions({ name: 'GalleryPage' })
 
 const { t } = useI18n()
+
+const router = useRouter()
 
 const message = useMessage()
 
@@ -641,6 +881,15 @@ const pasteStyleList = ['markdown', 'HTML', 'URL', 'UBB', 'Custom']
 
 const shortURLList = ['shortUrl', 'longUrl']
 
+// Fewer columns mean wider cards, so give them more height to keep thumbnails roughly proportional.
+const gridItemHeight = computed(() => {
+  const columns = userGridColumns.value
+  if (columns <= 2) return 340
+  if (columns <= 4) return 260
+  if (columns <= 8) return 220
+  return 190
+})
+
 const effectiveGridBreakpoints = computed(() => {
   return Array.from({ length: userGridColumns.value }, (_, index) => ({ min: index * 180, cols: index + 1 }))
 })
@@ -656,6 +905,32 @@ const tableColumns = computed<FileColumn<IGalleryItem>[]>(() => [
     value: item => picBedG.value.find(provider => provider.type === item.type)?.name || item.type,
   },
 ])
+
+const cardActions = computed(() => [
+  {
+    key: 'open',
+    label: t('common.fileTable.open'),
+    icon: Maximize2Icon,
+    run: (_: IGalleryItem, i: number) => zoomImage(i),
+  },
+  { key: 'copy', label: t('pages.gallery.copy'), icon: ClipboardIcon, run: (item: IGalleryItem) => copy(item) },
+  { key: 'edit', label: t('pages.gallery.edit'), icon: EditIcon, run: (item: IGalleryItem) => openDialog(item) },
+  {
+    key: 'delete',
+    label: t('pages.gallery.delete'),
+    icon: TrashIcon,
+    run: (item: IGalleryItem, i: number) => remove(item, i),
+  },
+])
+
+/** Filters hidden inside the collapsible panel; search boxes stay visible, so they are not counted. */
+const panelFilterCount = computed(
+  () => Number(choosedPicBed.value.length > 0) + Number(!!(dateRangeStart.value || dateRangeEnd.value)),
+)
+
+const hasActiveFilters = computed(
+  () => panelFilterCount.value > 0 || !!debouncedSearchText.value || !!debouncedSearchTextURL.value,
+)
 
 const filteredPicBedG = computed(() => {
   if (galleryPicBedFilterSetting.value.length === 0) {
@@ -943,7 +1218,7 @@ function pruneJxlPreviewState(items: ImgInfo[] = filterList.value) {
 }
 
 function handleVisibleIndexesChange(indexes: number[]) {
-  visibleGalleryIndexes.value = viewMode.value === 'grid' ? indexes : []
+  visibleGalleryIndexes.value = indexes
   syncVisibleDisplayImageSources(visibleGalleryIndexes.value)
 }
 
@@ -1177,8 +1452,46 @@ function cleanSearchUrl() {
   searchTextURL.value = ''
 }
 
-function isMultiple(obj: IObj) {
-  return Object.values(obj).some(item => item)
+function clearFilters() {
+  searchText.value = ''
+  searchTextURL.value = ''
+  debouncedSearchText.value = ''
+  debouncedSearchTextURL.value = ''
+  choosedPicBed.value = []
+  dateRangeStart.value = ''
+  dateRangeEnd.value = ''
+}
+
+function providerName(item: IGalleryItem) {
+  return picBedG.value.find(provider => provider.type === item.type)?.name || item.type || ''
+}
+
+function formatCardDate(item: IGalleryItem) {
+  const date = fileDate(item)
+  return date === undefined ? '' : new Date(date).toLocaleDateString()
+}
+
+/** Once anything is selected, clicking a card toggles it instead of opening the preview. */
+function handleCardClick(item: IGalleryItem, index: number, event: MouseEvent) {
+  if (selectedCount.value > 0 || event.shiftKey || event.ctrlKey || event.metaKey) {
+    handleChooseImage(!choosedList[item.id || ''], index)
+    return
+  }
+  zoomImage(index)
+}
+
+function handleGalleryShortcut(event: KeyboardEvent) {
+  if (!galleryActive.value || event.defaultPrevented || gallerySliderControl.value.visible) return
+  const target = event.target as HTMLElement | null
+  if (target?.closest('input, textarea, select, [contenteditable="true"], [role="dialog"], [role="listbox"]')) return
+  if (document.querySelector('[role="dialog"], [aria-modal="true"]')) return
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a' && filterList.value.length) {
+    event.preventDefault()
+    setAllSelected(true)
+  } else if (event.key === 'Escape' && selectedCount.value > 0) {
+    event.preventDefault()
+    clearChoosedList()
+  }
 }
 
 function toggleSelectAll() {
@@ -1189,6 +1502,11 @@ function setAllSelected(selected: boolean) {
   filterList.value.forEach(item => {
     choosedList[item.id!] = selected
   })
+}
+
+function toggleSortDirection() {
+  sortAscending.value = !sortAscending.value
+  sortFile(currentSortField.value, false)
 }
 
 function toggleHandleBar() {
@@ -1247,6 +1565,7 @@ onBeforeMount(async () => {
   updateGallery()
   document.addEventListener('keydown', handleDetectShiftKey)
   document.addEventListener('keyup', handleDetectShiftKey)
+  document.addEventListener('keydown', handleGalleryShortcut)
   document.addEventListener('click', handleOutsideClick)
 })
 
@@ -1259,5 +1578,6 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleOutsideClick)
   document.removeEventListener('keydown', handleDetectShiftKey)
   document.removeEventListener('keyup', handleDetectShiftKey)
+  document.removeEventListener('keydown', handleGalleryShortcut)
 })
 </script>
