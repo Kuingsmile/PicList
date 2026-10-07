@@ -72,89 +72,67 @@
     height="auto"
     width="700px"
     :title="t('pages.settings.sync.syncEndpointConfig')"
+    :close-disabled="savingSync"
   >
     <div class="flex w-full flex-col gap-4 p-4">
-      <div class="p-2">
-        <div class="grid grid-cols-4 gap-3">
-          <button
-            v-for="typeitem of syncType"
-            :key="typeitem"
-            class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-border bg-bg-tertiary px-2 py-4 hover:border-accent/50 hover:bg-accent/10 [.active]:border-accent [.active]:bg-accent/10 [.active]:text-accent [.active]:shadow-md"
-            :class="{ active: syncDraft.type === typeitem }"
-            @click="syncDraft.type = typeitem"
-          >
-            <GitBranch v-if="typeitem.includes('git')" class="text-secondary" :size="20" />
-            <Store v-else-if="typeitem === 'webdav'" class="text-secondary" :size="20" />
-            <span class="text-sm font-semibold text-secondary">{{
-              typeitem.slice(0, 1).toUpperCase() + typeitem.slice(1)
-            }}</span>
-          </button>
-        </div>
+      <!-- Platform Picker -->
+      <div class="flex w-full items-center gap-2 rounded-2xl border border-border-secondary p-2 shadow-md">
+        <CustomButton
+          v-for="platform in syncPlatforms"
+          :key="platform.value"
+          :text="platform.label"
+          :icon="platform.icon"
+          :active="syncDraft.type === platform.value"
+          :icon-size="18"
+          type="tab"
+          @click="syncDraft.type = platform.value"
+        />
       </div>
 
       <!-- Configuration Fields -->
-      <div class="flex w-full flex-col gap-4">
-        <SettingSection :icon="Settings" :title="syncDraft.type">
-          <SettingCard v-if="syncDraft.type === 'gitea'">
-            <CustomInput
-              v-model.trim="syncDraft.endpoint"
-              :title="t('pages.settings.sync.giteaHost')"
-              :placeholder="t('pages.settings.sync.giteaHost')"
-            />
-          </SettingCard>
-          <SettingCard v-if="syncDraft.type === 'webdav'">
+      <SettingSection>
+        <template v-if="syncDraft.type === 'webdav'">
+          <SettingCard class="col-span-full">
             <CustomInput
               v-model.trim="syncDraft.webdavEndpoint"
+              required
               :title="t('pages.settings.sync.webdavEndpoint')"
-              :placeholder="t('pages.settings.sync.webdavEndpoint')"
+              placeholder="https://dav.example.com/dav"
             />
           </SettingCard>
-          <template v-if="syncDraft.type !== 'webdav'">
-            <SettingCard v-for="inputItem in syncFields" :key="inputItem">
-              <CustomInput
-                v-model.trim="syncDraft[inputItem]"
-                :is-password="inputItem === 'token'"
-                :title="t(`pages.settings.sync.${syncDraft.type.toLowerCase()}.${inputItem.toLowerCase()}`)"
-                :placeholder="t(`pages.settings.sync.${syncDraft.type.toLowerCase()}.${inputItem.toLowerCase()}`)"
-              />
-            </SettingCard>
-          </template>
-          <SettingCard v-if="syncDraft.type === 'webdav'">
+          <SettingCard>
             <CustomInput
               v-model.trim="syncDraft.webdavUsername"
               :title="t('pages.settings.sync.webdav.username')"
               :placeholder="t('pages.settings.sync.webdav.username')"
             />
           </SettingCard>
-          <SettingCard v-if="syncDraft.type === 'webdav'">
+          <SettingCard>
             <CustomInput
               v-model.trim="syncDraft.webdavPassword"
-              :is-password="true"
+              is-password
               :title="t('pages.settings.sync.webdav.password')"
               :placeholder="t('pages.settings.sync.webdav.password')"
             />
           </SettingCard>
-          <SettingCard v-if="syncDraft.type === 'webdav'">
+          <SettingCard>
             <CustomInput
               v-model.trim="syncDraft.webdavSavePath"
               :title="t('pages.settings.sync.webdav.savePath')"
-              :placeholder="t('pages.settings.sync.webdav.savePath')"
+              placeholder="piclist/config"
             />
           </SettingCard>
-          <SettingCard v-if="syncDraft.type === 'webdav'">
+          <SettingCard>
             <SingleSelect
               v-model="syncDraft.webdavAuthType"
               :fronticon="false"
               :tight="false"
-              :select-list="[
-                { label: 'Basic', value: 'basic' },
-                { label: 'Digest', value: 'digest' },
-              ]"
+              :select-list="webdavAuthTypes"
               :title="t('pages.settings.sync.webdav.authType')"
               :icon="Settings"
             />
           </SettingCard>
-          <SettingCard v-if="syncDraft.type === 'webdav'">
+          <SettingCard class="col-span-full" p1>
             <CustomSwitch
               v-model="syncDraft.webdavSslEnabled"
               small
@@ -163,18 +141,37 @@
               :description="t('pages.settings.sync.webdav.enableSSLDesc')"
             />
           </SettingCard>
-          <SettingCard v-if="syncDraft.type === 'github'">
+        </template>
+        <template v-else>
+          <SettingCard v-if="syncDraft.type === 'gitea'" class="col-span-full">
+            <CustomInput
+              v-model.trim="syncDraft.endpoint"
+              required
+              :title="t('pages.settings.sync.giteaHost')"
+              placeholder="https://gitea.example.com"
+            />
+          </SettingCard>
+          <SettingCard v-for="field in gitFields" :key="field.key">
+            <CustomInput
+              v-model.trim="syncDraft[field.key]"
+              :is-password="field.key === 'token'"
+              :required="field.required"
+              :title="t(`pages.settings.sync.${syncDraft.type}.${field.key}`)"
+              :placeholder="field.placeholder || t(`pages.settings.sync.${syncDraft.type}.${field.key}`)"
+            />
+          </SettingCard>
+          <SettingCard v-if="syncDraft.type === 'github'" class="col-span-full">
             <CustomInput
               v-model.trim="syncDraft.proxy"
               :title="t('pages.settings.sync.syncConfigProxy')"
-              :placeholder="t('pages.settings.sync.syncConfigProxy')"
+              placeholder="http://127.0.0.1:7890"
             />
           </SettingCard>
-        </SettingSection>
-      </div>
+        </template>
+      </SettingSection>
     </div>
     <template #footer>
-      <CustomButton type="secondary" :text="t('common.cancel')" @click="cancelSyncSetting" />
+      <CustomButton type="secondary" :text="t('common.cancel')" :disabled="savingSync" @click="syncVisible = false" />
       <CustomButton :text="t('common.confirm')" :loading="savingSync" @click="confirmSyncSetting" />
     </template>
   </CustomModal>
@@ -230,10 +227,10 @@ import {
   Image as ImageIcon,
   Import,
   RotateCcw,
+  Server,
   Settings,
-  Store,
 } from '@lucide/vue'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -287,13 +284,28 @@ const syncTaskList = computed(() => [
   { task: IRPCActionType.CONFIGURE_DOWNLOAD_ALL_CONFIG, label: t('pages.settings.sync.allConfig'), number: 2 },
 ])
 
-const syncType = ['github', 'gitee', 'gitea', 'webdav']
-const syncFields = ['username', 'repo', 'branch', 'token'] as const
+const syncPlatforms = [
+  { value: 'github', label: 'GitHub', icon: GitBranch },
+  { value: 'gitee', label: 'Gitee', icon: GitBranch },
+  { value: 'gitea', label: 'Gitea', icon: GitBranch },
+  { value: 'webdav', label: 'WebDAV', icon: Server },
+]
 
-async function cancelSyncSetting() {
-  syncVisible.value = false
-  syncDraft.value = createSyncDraft(await getConfig<ISyncConfig>(configPaths.settings.sync))
-}
+const gitFields: { key: 'username' | 'repo' | 'branch' | 'token'; required: boolean; placeholder?: string }[] = [
+  { key: 'username', required: true },
+  { key: 'repo', required: true },
+  { key: 'branch', required: false, placeholder: 'main' },
+  { key: 'token', required: true },
+]
+const webdavAuthTypes = [
+  { label: 'Basic', value: 'basic' },
+  { label: 'Digest', value: 'digest' },
+]
+
+// Closing the modal any way other than a successful save discards the unsaved draft.
+watch(syncVisible, async visible => {
+  if (!visible) syncDraft.value = createSyncDraft(await getConfig<ISyncConfig>(configPaths.settings.sync))
+})
 
 async function confirmSyncSetting() {
   if (savingSync.value) return
