@@ -340,14 +340,11 @@
               no-border
               no-hover
               class="h-[34px] rounded-lg border px-2.5 transition-colors duration-fast ease-apple"
-              :class="deleteCloud ? 'border-warning/60 bg-warning/10' : 'border-border-secondary'"
+              :class="deleteCloud ? 'border-warning/30 bg-warning/5' : 'border-border-secondary'"
               @update:model-value="handleDeleteCloudFile"
             >
               <template #custom-title>
-                <span
-                  class="-ml-2 flex items-center gap-1.5 text-sm font-medium whitespace-nowrap"
-                  :class="deleteCloud ? 'text-warning' : 'text-secondary'"
-                >
+                <span class="-ml-2 flex items-center gap-1.5 text-sm font-medium whitespace-nowrap text-secondary">
                   <CloudIcon v-if="deleteCloud" :size="15" aria-hidden="true" />
                   <CloudOffIcon v-else :size="15" aria-hidden="true" />
                   {{ t('pages.gallery.syncDelete') }}
