@@ -8,14 +8,7 @@
             class="inline-flex items-center rounded-sm bg-bg-tertiary px-2 py-1 text-xs font-semibold tracking-wide text-accent"
             >{{ syncDraft.type?.toUpperCase() || 'N/A' }}</span
           >
-          <span v-if="syncDraft.type !== 'webdav' && syncDraft.username" class="m-0 text-sm text-secondary"
-            >{{ syncDraft.username }}/{{ syncDraft.repo || '...' }}</span
-          >
-          <span
-            v-else-if="syncDraft.type === 'webdav' && syncDraft.webdavEndpoint"
-            class="m-0 text-sm text-secondary"
-            >{{ syncDraft.webdavEndpoint }}</span
-          >
+          <span v-if="syncTarget" class="m-0 truncate text-sm text-secondary">{{ syncTarget }}</span>
           <span v-else class="text-sm font-semibold text-danger/70 italic">{{
             t('pages.settings.sync.notConfigured')
           }}</span>
@@ -179,37 +172,74 @@
   <CustomModal
     v-model:visible="upDownConfigVisible"
     height="auto"
-    width="700px"
+    width="760px"
     :title="t('pages.settings.sync.upDownloadSettings')"
+    :close-disabled="!!runningTask"
   >
     <div class="flex flex-col gap-6 p-4">
-      <SettingSection :icon="CloudUpload" :title="t('pages.settings.sync.uploadSettings')">
-        <CustomButton
-          v-for="item in syncTaskList.slice(0, 3)"
-          :key="item.task"
-          type="secondary"
-          :icon="CloudUpload"
-          :text="item.label"
-          @click="syncTaskFn(item.task, item.number)"
-        />
+      <CustomNavCard :clickable="false" :icon="RotateCcw" :title="t('pages.settings.sync.syncConfiguration')">
+        <template #description>
+          <p class="mt-1 flex min-w-0 items-center gap-2 text-sm text-secondary">
+            <span
+              class="inline-flex shrink-0 items-center rounded-sm bg-bg-tertiary px-2 py-1 text-xs font-semibold tracking-wide text-accent"
+              >{{ syncDraft.type?.toUpperCase() || 'N/A' }}</span
+            >
+            <span v-if="syncConfigured" class="truncate">{{ syncTarget }}</span>
+            <span v-else class="flex items-center gap-1.5 text-warning">
+              <TriangleAlert :size="14" class="shrink-0" aria-hidden="true" />
+              {{ t('pages.settings.sync.notConfiguredHint') }}
+            </span>
+          </p>
+        </template>
+        <template #extra>
+          <CustomButton
+            :icon="Settings"
+            :text="t('pages.settings.sync.configureSync')"
+            :type="syncConfigured ? 'secondary' : 'primary'"
+            :disabled="!!runningTask"
+            @click="syncVisible = true"
+          />
+        </template>
+      </CustomNavCard>
+
+      <SettingSection
+        :icon="FileCog"
+        :title="t('pages.settings.sync.configFiles')"
+        :description="t('pages.settings.sync.configFilesDesc')"
+        only-one-row
+      >
+        <CustomNavCard
+          v-for="scope in syncScopes"
+          :key="scope.key"
+          :clickable="false"
+          :icon="scope.icon"
+          :title="t(`pages.settings.sync.${scope.key}`)"
+          :description="t(`pages.settings.sync.${scope.key}Desc`)"
+        >
+          <template #extra>
+            <div class="flex flex-wrap justify-end gap-2">
+              <CustomButton
+                v-for="direction in syncDirections"
+                :key="direction.key"
+                type="secondary"
+                :icon="direction.icon"
+                :text="t(`pages.settings.sync.${direction.key}`)"
+                :loading="runningTask === scope[direction.key]"
+                :disabled="!syncConfigured || (!!runningTask && runningTask !== scope[direction.key])"
+                @click="runSyncTask(scope, direction.key)"
+              />
+            </div>
+          </template>
+        </CustomNavCard>
       </SettingSection>
-      <SettingSection :icon="Download" :title="t('pages.settings.sync.downloadSettings')">
-        <CustomButton
-          v-for="item in syncTaskList.slice(3, 6)"
-          :key="item.task"
-          type="secondary"
-          :icon="Download"
-          :text="item.label"
-          @click="syncTaskFn(item.task, item.number)"
-        />
-      </SettingSection>
+
       <SettingSection
         :icon="ImageIcon"
         :title="t('pages.settings.sync.galleryDB')"
         :description="t('pages.settings.sync.galleryPlan.entryDescription')"
         only-one-row
       >
-        <GallerySync />
+        <GallerySync :disabled="!syncConfigured || !!runningTask" />
       </SettingSection>
     </div>
   </CustomModal>
@@ -221,6 +251,8 @@ import {
   CloudUpload,
   Download,
   Edit,
+  FileCog,
+  Files,
   FileText,
   FolderOpen,
   GitBranch,
@@ -229,6 +261,8 @@ import {
   RotateCcw,
   Server,
   Settings,
+  TriangleAlert,
+  Wrench,
 } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { useTemplateRef } from 'vue'
@@ -267,6 +301,7 @@ const syncVisible = ref(false)
 const upDownConfigVisible = ref(false)
 
 const savingSync = ref(false)
+const runningTask = ref<string | null>(null)
 
 const fileManagementActions = [
   { titleKey: 'pages.settings.sync.openConfigFile', icon: FileText, onClick: () => openFile('data.json') },
@@ -275,14 +310,52 @@ const fileManagementActions = [
   { titleKey: 'pages.settings.sync.openConfigFileDir', icon: FolderOpen, onClick: () => openDirectory() },
 ]
 
-const syncTaskList = computed(() => [
-  { task: IRPCActionType.CONFIGURE_UPLOAD_COMMON_CONFIG, label: t('pages.settings.sync.commonConfig'), number: 1 },
-  { task: IRPCActionType.CONFIGURE_UPLOAD_MANAGE_CONFIG, label: t('pages.settings.sync.manageConfig'), number: 1 },
-  { task: IRPCActionType.CONFIGURE_UPLOAD_ALL_CONFIG, label: t('pages.settings.sync.allConfig'), number: 2 },
-  { task: IRPCActionType.CONFIGURE_DOWNLOAD_COMMON_CONFIG, label: t('pages.settings.sync.commonConfig'), number: 1 },
-  { task: IRPCActionType.CONFIGURE_DOWNLOAD_MANAGE_CONFIG, label: t('pages.settings.sync.manageConfig'), number: 1 },
-  { task: IRPCActionType.CONFIGURE_DOWNLOAD_ALL_CONFIG, label: t('pages.settings.sync.allConfig'), number: 2 },
-])
+const syncScopes = [
+  {
+    key: 'commonConfig',
+    icon: Wrench,
+    files: 1,
+    upload: IRPCActionType.CONFIGURE_UPLOAD_COMMON_CONFIG,
+    download: IRPCActionType.CONFIGURE_DOWNLOAD_COMMON_CONFIG,
+  },
+  {
+    key: 'manageConfig',
+    icon: FolderOpen,
+    files: 1,
+    upload: IRPCActionType.CONFIGURE_UPLOAD_MANAGE_CONFIG,
+    download: IRPCActionType.CONFIGURE_DOWNLOAD_MANAGE_CONFIG,
+  },
+  {
+    key: 'allConfig',
+    icon: Files,
+    files: 2,
+    upload: IRPCActionType.CONFIGURE_UPLOAD_ALL_CONFIG,
+    download: IRPCActionType.CONFIGURE_DOWNLOAD_ALL_CONFIG,
+  },
+] as const
+const syncDirections = [
+  { key: 'upload', icon: CloudUpload },
+  { key: 'download', icon: Download },
+] as const
+
+const syncTarget = computed(() => {
+  const { type, username, repo, webdavEndpoint } = syncDraft.value
+  if (type === 'webdav') return webdavEndpoint || ''
+  return username ? `${username}/${repo || '...'}` : ''
+})
+// Mirrors the main process validation so sync actions are only offered when they can run.
+const syncConfigured = computed(() => {
+  const config = syncDraft.value
+  if (config.type === 'webdav') return !!(config.webdavEndpoint && config.webdavUsername && config.webdavPassword)
+  return !!(
+    config.type &&
+    config.username &&
+    config.repo &&
+    config.branch &&
+    config.token &&
+    (config.type !== 'gitea' || config.endpoint)
+  )
+})
 
 const syncPlatforms = [
   { value: 'github', label: 'GitHub', icon: GitBranch },
@@ -371,16 +444,26 @@ function handleMigrateFromPicListInstallation() {
   })
 }
 
-function syncMessage(failed: number) {
-  if (failed) {
+async function runSyncTask(scope: (typeof syncScopes)[number], direction: 'upload' | 'download') {
+  if (runningTask.value || !syncConfigured.value) return
+  const confirmed = await confirm({
+    title: t(`pages.settings.sync.${direction}`),
+    message: t(`pages.settings.sync.${direction}Confirm`, { name: t(`pages.settings.sync.${scope.key}`) }),
+    type: 'warning',
+    confirmButtonText: t(`pages.settings.sync.${direction}`),
+    cancelButtonText: t('common.cancel'),
+  })
+  if (!confirmed) return
+  const task = scope[direction]
+  runningTask.value = task
+  try {
+    const succeeded = (await window.electron.triggerRPC<number>(task)) || 0
+    if (succeeded < scope.files) message.error(t('pages.settings.sync.syncResult.failed'))
+    else message.success(t('pages.settings.sync.syncResult.success'))
+  } catch {
     message.error(t('pages.settings.sync.syncResult.failed'))
-  } else {
-    message.success(t('pages.settings.sync.syncResult.success'))
+  } finally {
+    runningTask.value = null
   }
-}
-
-async function syncTaskFn(task: string, number: number) {
-  const failed = number - ((await window.electron.triggerRPC<number>(task)) || 0)
-  syncMessage(failed)
 }
 </script>

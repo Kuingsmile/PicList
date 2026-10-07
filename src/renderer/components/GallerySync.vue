@@ -1,5 +1,11 @@
 <template>
-  <CustomButton type="secondary" :icon="RefreshCw" :text="syncText('preview')" :disabled="busy" @click="preview" />
+  <CustomNavCard
+    :icon="RefreshCw"
+    :title="syncText('preview')"
+    :description="syncText('previewHint')"
+    :disabled="disabled || busy"
+    @click="preview"
+  />
   <CustomModal :visible max-width="1000px" :title="syncText('title')" :close-disabled="busy" @update:visible="close">
     <template #header>
       <div class="flex min-w-0 items-center gap-3">
@@ -62,35 +68,13 @@
         <p class="text-sm text-secondary">{{ syncText('loadingDescription') }}</p>
       </div>
 
-      <template v-if="plan">
-        <div
-          v-if="plan.migration && !applied"
-          class="flex items-start gap-3 rounded-lg border border-accent/20 bg-accent/5 p-4"
-        >
+      <template v-if="plan && !applied">
+        <div v-if="plan.migration" class="flex items-start gap-3 rounded-lg border border-accent/20 bg-accent/5 p-4">
           <Info :size="18" class="mt-0.5 shrink-0 text-accent" />
           <div>
             <p class="text-sm font-semibold">{{ syncText('migrationTitle') }}</p>
             <p class="mt-1 text-sm leading-relaxed text-secondary">{{ syncText('migration') }}</p>
           </div>
-        </div>
-
-        <div class="grid grid-cols-4 gap-3 max-sm:grid-cols-2" :aria-label="syncText('overview')">
-          <button
-            v-for="item in changeTypes"
-            :key="item.kind"
-            type="button"
-            class="rounded-lg border bg-bg-secondary p-4 text-left shadow-sm transition-colors hover:border-accent focus-visible:focus-ring"
-            :class="filter === item.kind ? 'border-accent ring-1 ring-accent' : 'border-border'"
-            :aria-pressed="filter === item.kind"
-            :aria-label="`${syncText(item.kind)}: ${plan.counts[item.kind]}`"
-            @click="filter = filter === item.kind ? 'all' : item.kind"
-          >
-            <div class="mb-2 flex items-center justify-between gap-2">
-              <span class="text-sm font-medium text-secondary">{{ syncText(item.kind) }}</span>
-              <component :is="item.icon" :size="18" :class="item.color" />
-            </div>
-            <span class="text-2xl font-semibold tabular-nums">{{ plan.counts[item.kind] }}</span>
-          </button>
         </div>
 
         <SettingSection
@@ -99,19 +83,60 @@
           :description="syncText('description')"
           only-one-row
         >
-          <template #description>
-            <p class="text-sm text-secondary">{{ syncText('description') }}</p>
-          </template>
-          <div v-if="plan.counts.conflict" class="rounded-md border border-border bg-bg-tertiary p-3">
+          <div
+            v-if="plan.changes.length"
+            role="group"
+            :aria-label="syncText('overview')"
+            class="flex w-full flex-wrap items-center gap-2 rounded-2xl border border-border-secondary p-2 shadow-md"
+          >
+            <CustomButton
+              v-for="tab in filterTabs"
+              :key="tab.kind"
+              type="tab"
+              :icon="tab.icon"
+              :text="tab.label"
+              :active="filter === tab.kind"
+              :disabled="!tab.count"
+              @click="filter = tab.kind"
+            >
+              <template #extra>
+                <span class="rounded-full bg-current/15 px-1.5 text-xs font-semibold tabular-nums">{{
+                  tab.count
+                }}</span>
+              </template>
+            </CustomButton>
+          </div>
+
+          <div
+            v-if="plan.counts.conflict"
+            class="rounded-md border bg-bg-tertiary p-3"
+            :class="unresolvedCount ? 'border-warning/40' : 'border-border'"
+          >
             <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
               <p class="flex items-center gap-2 font-semibold">
                 <CircleCheck v-if="!unresolvedCount" :size="16" class="text-success" />
                 <GitMerge v-else :size="16" class="text-warning" />
                 {{ syncText('resolutionProgress', { resolved: resolvedCount, total: plan.counts.conflict }) }}
               </p>
-              <button v-if="unresolvedCount" type="button" class="text-accent hover:underline" @click="showConflicts">
+              <button
+                v-if="unresolvedCount && filter !== 'conflict'"
+                type="button"
+                class="text-accent hover:underline"
+                @click="showConflicts"
+              >
                 {{ syncText('showConflicts') }}
               </button>
+            </div>
+            <div v-if="unresolvedCount" class="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+              <span class="text-sm text-secondary">{{ syncText('resolveAll') }}</span>
+              <CustomButton
+                v-for="choice in resolutionChoices"
+                :key="choice"
+                type="secondary"
+                :text="syncText(choice)"
+                :disabled="busy || !ready"
+                @click="resolveRemaining(choice)"
+              />
             </div>
             <details class="mt-2 text-sm text-secondary">
               <summary class="cursor-pointer hover:text-accent">{{ syncText('resolutionHelp') }}</summary>
@@ -120,15 +145,11 @@
           </div>
 
           <div v-if="plan.changes.length" class="flex flex-wrap items-center justify-between gap-3">
-            <button
-              type="button"
-              class="rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent/10"
-              :class="filter === 'all' ? 'bg-accent/10 text-accent' : 'text-secondary'"
-              :aria-pressed="filter === 'all'"
-              @click="filter = 'all'"
-            >
-              {{ syncText('allChanges') }} <span class="ml-1 tabular-nums">{{ plan.changes.length }}</span>
-            </button>
+            <p class="text-xs text-secondary" role="status">
+              <template v-if="filteredChanges.length">{{
+                syncText('showingChanges', { from: firstVisible, to: lastVisible, total: filteredChanges.length })
+              }}</template>
+            </p>
             <div class="relative min-w-0 flex-1 sm:max-w-72">
               <Search :size="16" class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-secondary" />
               <input
@@ -147,10 +168,6 @@
             <p class="text-sm text-secondary">{{ syncText(plan.migration ? 'migrationReady' : 'upToDate') }}</p>
           </div>
           <template v-else-if="filteredChanges.length">
-            <p class="text-xs text-secondary" role="status">
-              {{ syncText('showingChanges', { from: firstVisible, to: lastVisible, total: filteredChanges.length }) }}
-              <span v-if="filter !== 'all'"> · {{ syncText(filter) }}</span>
-            </p>
             <GallerySyncChangeCard
               v-for="change in visibleChanges"
               :key="`${plan.id}-${change.key}`"
@@ -193,14 +210,19 @@
 
       <details
         v-if="plan || snapshots.length || snapshotId"
-        class="rounded-lg border border-border bg-bg-secondary p-4 shadow-sm"
+        class="group/exports rounded-lg border border-border bg-bg-secondary shadow-sm"
       >
-        <summary class="cursor-pointer text-sm font-semibold">
-          <span class="ml-1 inline-flex items-center gap-2 align-middle"
-            ><History :size="17" class="text-accent" />{{ syncText('exportsTitle') }}</span
-          >
+        <summary
+          class="flex cursor-pointer list-none items-center gap-2 p-4 text-sm font-semibold [&::-webkit-details-marker]:hidden"
+        >
+          <History :size="17" class="shrink-0 text-accent" />
+          {{ syncText('exportsTitle') }}
+          <ChevronDown
+            :size="16"
+            class="ml-auto shrink-0 text-secondary transition-transform group-open/exports:rotate-180"
+          />
         </summary>
-        <div class="mt-4 space-y-4">
+        <div class="space-y-4 border-t border-border p-4">
           <p class="text-sm leading-relaxed text-secondary">{{ syncText('snapshot') }}</p>
           <CustomButton
             v-if="plan"
@@ -210,32 +232,24 @@
             :disabled="busy"
             @click="exportFile('summary')"
           />
-          <div v-if="snapshots.length || snapshotId" class="space-y-2 border-t border-border pt-4">
-            <label :for="rollbackSelectId" class="text-sm font-medium text-secondary">{{
-              syncText('savedSnapshots')
-            }}</label>
-            <div class="flex flex-wrap items-center gap-3">
-              <select
-                :id="rollbackSelectId"
+          <div v-if="snapshotOptions.length" class="flex flex-wrap items-end gap-3 border-t border-border pt-4">
+            <div class="min-w-0 flex-1">
+              <SingleSelect
                 v-model="snapshotId"
+                :title="syncText('savedSnapshots')"
+                :select-list="snapshotOptions"
+                :fronticon="false"
+                :tight="false"
                 :disabled="busy"
-                class="min-w-0 flex-1 rounded-md border border-border bg-bg-tertiary p-3 text-sm focus:border-accent"
-              >
-                <option v-if="snapshotId && !snapshots.some(item => item.id === snapshotId)" :value="snapshotId">
-                  {{ syncText('latestSnapshot') }}
-                </option>
-                <option v-for="item in snapshots" :key="item.id" :value="item.id">
-                  {{ formatDate(item.watermark) }} — {{ syncText(item.status) }}
-                </option>
-              </select>
-              <CustomButton
-                type="secondary"
-                :icon="Download"
-                :text="syncText('exportSnapshot')"
-                :disabled="busy || !snapshotId"
-                @click="exportFile('snapshot')"
               />
             </div>
+            <CustomButton
+              type="secondary"
+              :icon="Download"
+              :text="syncText('exportSnapshot')"
+              :disabled="busy || !snapshotId"
+              @click="exportFile('snapshot')"
+            />
           </div>
         </div>
       </details>
@@ -250,7 +264,7 @@
           {{ statusText }}
         </p>
         <div class="ml-auto flex flex-wrap justify-end gap-2">
-          <CustomButton type="secondary" :text="syncText('close')" :disabled="busy" @click="close" />
+          <CustomButton v-if="!applied" type="secondary" :text="syncText('close')" :disabled="busy" @click="close" />
           <CustomButton
             type="secondary"
             :icon="RefreshCw"
@@ -258,7 +272,15 @@
             :disabled="busy"
             @click="preview"
           />
-          <CustomButton :icon="Check" :text="syncText('apply')" :disabled="!canApply" @click="apply" />
+          <CustomButton v-if="applied" :icon="Check" :text="syncText('close')" @click="close" />
+          <CustomButton
+            v-else
+            :icon="Check"
+            :text="syncText('apply')"
+            :loading="operation === 'apply'"
+            :disabled="!canApply"
+            @click="apply"
+          />
         </div>
       </div>
     </template>
@@ -268,6 +290,7 @@
 <script setup lang="ts">
 import {
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   CircleAlert,
@@ -284,12 +307,14 @@ import {
   Search,
   Trash2,
 } from '@lucide/vue'
-import { computed, ref, useId, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
+import CustomNavCard from '@/components/common/CustomNavCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
+import SingleSelect from '@/components/common/SingleSelect.vue'
 import GallerySyncChangeCard from '@/components/GallerySyncChangeCard.vue'
 import { IRPCActionType } from '#/constants/rpcActions'
 import type {
@@ -301,6 +326,7 @@ import type {
   GallerySyncSnapshot,
 } from '#/types/gallerySync'
 
+const { disabled = false } = defineProps<{ disabled?: boolean }>()
 const { t, locale } = useI18n()
 const syncText = (key: string, params: Record<string, string | number> = {}) =>
   t(`pages.settings.sync.galleryPlan.${key}`, params)
@@ -312,7 +338,6 @@ const applied = ref(false)
 const error = ref('')
 const plan = ref<GallerySyncPlan>()
 const snapshotId = ref('')
-const rollbackSelectId = useId()
 const snapshots = ref<GallerySyncSnapshot[]>([])
 const resolutions = ref<Record<string, GallerySyncResolution | ''>>({})
 const filter = ref<GallerySyncChange['kind'] | 'all'>('all')
@@ -321,11 +346,25 @@ const page = ref(1)
 const pageSize = 20
 const steps = ['reviewStep', 'resolveStep', 'applyStep']
 const changeTypes = [
-  { kind: 'addition', icon: Plus, color: 'text-success' },
-  { kind: 'update', icon: Pencil, color: 'text-accent' },
-  { kind: 'conflict', icon: GitMerge, color: 'text-warning' },
-  { kind: 'deletion', icon: Trash2, color: 'text-danger' },
+  { kind: 'addition', icon: Plus },
+  { kind: 'update', icon: Pencil },
+  { kind: 'conflict', icon: GitMerge },
+  { kind: 'deletion', icon: Trash2 },
 ] as const
+const resolutionChoices: GallerySyncResolution[] = ['keep-local', 'keep-remote', 'preserve-both']
+const filterTabs = computed(() => [
+  { kind: 'all' as const, icon: ListChecks, label: syncText('allChanges'), count: plan.value?.changes.length ?? 0 },
+  ...changeTypes.map(({ kind, icon }) => ({ kind, icon, label: syncText(kind), count: plan.value?.counts[kind] ?? 0 })),
+])
+const snapshotOptions = computed(() => [
+  ...(snapshotId.value && !snapshots.value.some(item => item.id === snapshotId.value)
+    ? [{ value: snapshotId.value, label: syncText('latestSnapshot') }]
+    : []),
+  ...snapshots.value.map(item => ({
+    value: item.id,
+    label: `${formatDate(item.watermark)} — ${syncText(item.status)}`,
+  })),
+])
 const unresolvedCount = computed(
   () => plan.value?.changes.filter(change => change.kind === 'conflict' && !resolutions.value[change.key]).length ?? 0,
 )
@@ -366,6 +405,16 @@ function resetFilters() {
 function showConflicts() {
   resetFilters()
   filter.value = 'conflict'
+}
+
+// Applies the choice to every unresolved conflict that has a version on the chosen side.
+function resolveRemaining(choice: GallerySyncResolution) {
+  const side = { 'keep-local': 'local', 'keep-remote': 'remote', 'preserve-both': '' }[choice]
+  for (const change of plan.value?.changes ?? []) {
+    if (change.kind !== 'conflict' || resolutions.value[change.key]) continue
+    if (!side || change.versions.some(version => version.source.startsWith(side)))
+      resolutions.value[change.key] = choice
+  }
 }
 
 function formatDate(value: number) {
