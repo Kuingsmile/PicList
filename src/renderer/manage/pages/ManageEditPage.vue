@@ -170,6 +170,7 @@ import { useManageStore } from '@/manage/stores/manageStore'
 import { getSupportedPicBedList } from '@/manage/utils/constants'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { formatEndpoint } from '#/utils/url'
+import { enforceBoolean } from '#/utils/values'
 
 const editMode = defineModel<boolean>('editMode')
 
@@ -366,7 +367,9 @@ function handleConfigImport(alias: string) {
 
   supportedPicBedList.value[selectedConfig.picBedName].options.forEach((option: any) => {
     if (selectedConfig[option] !== undefined) {
-      configResult.value[option] = selectedConfig[option]
+      const configOption = supportedPicBedList.value[selectedConfig.picBedName].configOptions[option]
+      configResult.value[option] =
+        configOption.type === 'boolean' ? enforceBoolean(selectedConfig[option]) : selectedConfig[option]
     }
   })
 }

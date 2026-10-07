@@ -7,34 +7,17 @@ import { getConfig, saveConfig } from '@/services/configService'
 import { configPaths } from '@/utils/configPaths'
 import { ISartMode } from '#/constants/app'
 import { IRPCActionType } from '#/constants/rpcActions'
-import { enforceNumber } from '#/utils/values'
+import { enforceBoolean, enforceNumber } from '#/utils/values'
 
-import { createSettingsState } from './settingsState'
+import { createServerDraft, createSettingsState, createSyncDraft } from './settingsState'
 import { useSettingsPersistence } from './useSettingsPersistence'
 
 export function useSettingsState() {
   const state = createSettingsState()
-  const {
-    showPicBedList,
-    galleryPicBedFilterList,
-    currentTheme,
-    proxy,
-    isDisableGPU,
-    isPortable,
-    currentLanguage,
-    currentSecondMode,
-    currentStartMode,
-    currentShortUrlServer,
-    customLink,
-    server,
-    advancedRename,
-    sync,
-    formOfSetting,
-    picBedG,
-    ready,
-  } = state
+  const { settings, visiblePicBeds, uploadProxy, isPortable, serverDraft, advancedRename, syncDraft, picBedG, ready } =
+    state
   const { locale } = useI18n()
-  const { addWatch, ...handlers } = useSettingsPersistence(state)
+  const { startPersistence, ...actions } = useSettingsPersistence(state)
   // Async hydration must finish before autosave watchers are registered.
   const settingsWatchScope = effectScope()
   const defaultStartMode = {
@@ -43,78 +26,63 @@ export function useSettingsState() {
     linux: ISartMode.MINI,
   }
 
-  const formKeys = Object.keys(formOfSetting.value) as (keyof ISettingForm)[]
   async function initData() {
     const config = (await getConfig<IConfig>()) || ({} as IConfig)
     if (!settingsWatchScope.active) return
-    const settings = config.settings || {}
-    const picBed = config.picBed
-    isDisableGPU.value = settings.isDisableGPU || false
+    const stored = config.settings || {}
+    const hydrateField = <K extends keyof ISettingForm>(key: K) => {
+      const fallback = settings.value[key]
+      const value = stored[key] ?? fallback
+      settings.value[key] = (typeof fallback === 'boolean' ? enforceBoolean(value) : value) as ISettingForm[K]
+    }
+    for (const key of Object.keys(settings.value) as (keyof ISettingForm)[]) hydrateField(key)
+
     const portable = await window.electron.triggerRPC<boolean>(IRPCActionType.GET_IS_PORTABLE)
     if (!settingsWatchScope.active) return
     isPortable.value = portable || false
-    showPicBedList.value = picBedG.value.filter(item => item.visible).map(item => item.type)
-    galleryPicBedFilterList.value = settings.galleryPicBedFilter || []
-    currentTheme.value = settings.theme || 'default.css'
-    formKeys.forEach(key => {
-      ;(formOfSetting.value as any)[key] = settings[key] ?? formOfSetting.value[key]
-    })
+    visiblePicBeds.value = picBedG.value.filter(item => item.visible).map(item => item.type)
+    settings.value.theme = stored.theme || 'default.css'
     try {
       const actualAutoStartStatus = await window.electron.triggerRPC<boolean>(IRPCActionType.PICLIST_AUTO_START_STATUS)
       if (!settingsWatchScope.active) return
       if (typeof actualAutoStartStatus === 'boolean') {
-        formOfSetting.value.autoStart = actualAutoStartStatus
-        if (actualAutoStartStatus !== settings.autoStart) {
+        settings.value.autoStart = actualAutoStartStatus
+        if (actualAutoStartStatus !== stored.autoStart) {
           await saveConfig({ [configPaths.settings.autoStart]: actualAutoStartStatus })
         }
       }
     } catch {
       if (!settingsWatchScope.active) return
-      formOfSetting.value.autoStart = settings.autoStart ?? false
+      settings.value.autoStart = enforceBoolean(stored.autoStart)
     }
     if (!settingsWatchScope.active) return
-    formOfSetting.value.logLevel = initArray(settings.logLevel || [], ['all'])
-    formOfSetting.value.autoImportPicBed = initArray(settings.autoImportPicBed || [], [])
-    currentLanguage.value = settings.language || locale.value
-    currentStartMode.value =
-      settings.startMode !== undefined
-        ? settings.startMode
+    settings.value.logLevel = initArray(stored.logLevel || [], ['all'])
+    settings.value.autoImportPicBed = initArray(stored.autoImportPicBed || [], [])
+    settings.value.language = stored.language || locale.value
+    settings.value.startMode =
+      stored.startMode !== undefined
+        ? stored.startMode
         : defaultStartMode[osGlobal.value as keyof typeof defaultStartMode] || ISartMode.MAIN
-    currentSecondMode.value = settings.secondPicBedMode || 'backup'
-    if (osGlobal.value === 'darwin' && currentStartMode.value === ISartMode.MINI) {
-      currentStartMode.value = ISartMode.QUIET
+    settings.value.secondPicBedMode = stored.secondPicBedMode || 'backup'
+    if (osGlobal.value === 'darwin' && settings.value.startMode === ISartMode.MINI) {
+      settings.value.startMode = ISartMode.QUIET
       await saveConfig(configPaths.settings.startMode, ISartMode.QUIET)
       if (!settingsWatchScope.active) return
     }
-    currentShortUrlServer.value = settings.shortUrlServer || 'c1n'
-    customLink.value = settings.customLink || '![$fileName]($url)'
-    proxy.value = picBed.proxy || ''
-    server.value = settings.server || { port: 36677, host: '0.0.0.0', enable: true }
+    settings.value.shortUrlServer = stored.shortUrlServer || 'c1n'
+    settings.value.customLink = stored.customLink || '![$fileName]($url)'
+    uploadProxy.value = config.picBed?.proxy || ''
+    serverDraft.value = createServerDraft(stored.server)
     advancedRename.value = config.buildIn?.rename || { enable: false, format: '{filename}' }
+    advancedRename.value.enable = enforceBoolean(advancedRename.value.enable)
     if (advancedRename.value.enable) {
-      formOfSetting.value.autoRename = false
+      settings.value.autoRename = false
       await saveConfig({ [configPaths.settings.autoRename]: false })
       if (!settingsWatchScope.active) return
     }
-    sync.value = settings.sync || {
-      type: 'github',
-      username: '',
-      repo: '',
-      branch: '',
-      token: '',
-      endpoint: '',
-      proxy: '',
-      interval: 60,
-      // WebDAV-specific fields
-      webdavEndpoint: '',
-      webdavUsername: '',
-      webdavPassword: '',
-      webdavAuthType: 'basic',
-      webdavSslEnabled: true,
-      webdavSavePath: '',
-    }
-    formOfSetting.value.logFileSizeLimit = enforceNumber(settings.logFileSizeLimit) || 10
-    settingsWatchScope.run(addWatch)
+    syncDraft.value = createSyncDraft(stored.sync)
+    settings.value.logFileSizeLimit = enforceNumber(stored.logFileSizeLimit) || 10
+    settingsWatchScope.run(startPersistence)
     ready.value = true
   }
 
@@ -130,5 +98,5 @@ export function useSettingsState() {
   }
   onBeforeMount(initData)
   onBeforeUnmount(() => settingsWatchScope.stop())
-  return { ...state, ...handlers }
+  return { ...state, ...actions }
 }

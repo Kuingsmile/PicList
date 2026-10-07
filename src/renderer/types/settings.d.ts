@@ -1,4 +1,10 @@
 interface ISettingForm {
+  language: string
+  startMode: string
+  isDisableGPU: boolean
+  secondPicBedMode: string
+  galleryPicBedFilter: string[]
+  customLink: string
   showUpdateTip: boolean
   autoStart: boolean
   rename: boolean

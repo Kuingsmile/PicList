@@ -43,7 +43,7 @@
               tighter
               no-border
               no-hover
-              @change="handleIsAlwaysForceReload"
+              @update:model-value="handleIsAlwaysForceReload"
             />
           </div>
           <div class="flex items-center gap-2">
@@ -55,7 +55,7 @@
               tighter
               no-border
               no-hover
-              @change="handleDeleteCloudFile"
+              @update:model-value="handleDeleteCloudFile"
             />
           </div>
           <FileViewControls v-model:view-mode="viewMode" v-model:density="tableDensity" />
@@ -503,6 +503,7 @@ import { UPDATE_GALLERY } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { customStrMatch } from '#/utils/strings'
 import { addCacheBustParam as withCacheBustParam } from '#/utils/url'
+import { enforceBoolean } from '#/utils/values'
 
 defineOptions({ name: 'GalleryPage' })
 
@@ -795,8 +796,8 @@ async function initConf() {
     pasteStyle.value = settingConfig.pasteStyle || IPasteStyle.MARKDOWN
     useShortUrl.value = settingConfig.useShortUrl ? 'shortUrl' : 'longUrl'
     enableAdvancedAnimation.value = settingConfig.enableAdvancedAnimation || false
-    isAlwaysForceReload.value = settingConfig.isAlwaysForceReload || false
-    deleteCloud.value = settingConfig.deleteCloudFile || false
+    isAlwaysForceReload.value = enforceBoolean(settingConfig.isAlwaysForceReload)
+    deleteCloud.value = enforceBoolean(settingConfig.deleteCloudFile)
     galleryPicBedFilterSetting.value = settingConfig.galleryPicBedFilter || []
     await nextTick()
   } catch {

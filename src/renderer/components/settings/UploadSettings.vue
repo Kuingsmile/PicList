@@ -4,7 +4,7 @@
     <SettingSection :icon="Server" :title="t('pages.settings.upload.controlShow')">
       <SettingCard>
         <MultiSelect
-          v-model:choosed="showPicBedList"
+          v-model:choosed="visiblePicBeds"
           :icon="Server"
           :tight="false"
           :title="t('pages.settings.upload.chooseShowedPicBed')"
@@ -14,7 +14,7 @@
       </SettingCard>
       <SettingCard>
         <MultiSelect
-          v-model:choosed="galleryPicBedFilterList"
+          v-model:choosed="settings.galleryPicBedFilter"
           :icon="ImageIcon"
           :tight="false"
           :title="t('pages.settings.upload.galleryPicBedFilter')"
@@ -27,7 +27,7 @@
       <!-- Auto Import Card -->
       <SettingCard p1>
         <CustomSwitch
-          v-model="formOfSetting.autoImport"
+          v-model="settings.autoImport"
           small
           no-border
           :title="t('pages.settings.upload.autoImportInManage')"
@@ -35,9 +35,9 @@
         />
       </SettingCard>
       <!-- Auto Import PicBed Selection -->
-      <SettingCard v-if="formOfSetting.autoImport">
+      <SettingCard v-if="settings.autoImport">
         <MultiSelect
-          v-model:choosed="formOfSetting.autoImportPicBed"
+          v-model:choosed="settings.autoImportPicBed"
           :icon="ImageIcon"
           :tight="false"
           :title="t('pages.settings.upload.autoImportPicBed')"
@@ -48,7 +48,7 @@
       <!-- Second PicBed Card -->
       <SettingCard p1>
         <CustomSwitch
-          v-model="formOfSetting.enableSecondUploader"
+          v-model="settings.enableSecondUploader"
           small
           no-border
           :title="t('pages.settings.upload.enableSecondPicBed')"
@@ -65,7 +65,7 @@
 
       <SettingCard>
         <SingleSelect
-          v-model="currentSecondMode"
+          v-model="settings.secondPicBedMode"
           :fronticon="false"
           :tight="false"
           :select-list="secondModeList"
@@ -91,7 +91,7 @@
       />
       <SettingCard p1>
         <CustomSwitch
-          v-model="formOfSetting.deleteCloudFile"
+          v-model="settings.deleteCloudFile"
           small
           no-border
           :title="t('pages.settings.upload.deleteCloud')"
@@ -99,12 +99,12 @@
       </SettingCard>
 
       <SettingCard p1>
-        <CustomSwitch v-model="formOfSetting.rename" small no-border :title="t('pages.settings.upload.manualRename')" />
+        <CustomSwitch v-model="settings.rename" small no-border :title="t('pages.settings.upload.manualRename')" />
       </SettingCard>
 
       <SettingCard p1>
         <CustomSwitch
-          v-model="formOfSetting.autoRename"
+          v-model="settings.autoRename"
           small
           no-border
           :title="t('pages.settings.upload.timestampRename')"
@@ -114,7 +114,7 @@
 
       <SettingCard p1 class="flex flex-col justify-center">
         <CustomSwitch
-          v-model="formOfSetting.deleteLocalFile"
+          v-model="settings.deleteLocalFile"
           small
           no-border
           :title="t('pages.settings.upload.deleteLocalFileAfterUpload')"
@@ -126,7 +126,7 @@
     <SettingSection :icon="Edit" :title="t('pages.settings.upload.clipboardAndNotification')">
       <SettingCard p1>
         <CustomSwitch
-          v-model="formOfSetting.uploadNotification"
+          v-model="settings.uploadNotification"
           small
           no-border
           :title="t('pages.settings.upload.enableUploadNotification')"
@@ -135,7 +135,7 @@
 
       <SettingCard p1>
         <CustomSwitch
-          v-model="formOfSetting.uploadResultNotification"
+          v-model="settings.uploadResultNotification"
           small
           no-border
           :title="t('pages.settings.upload.enableUploadResultNotification')"
@@ -144,7 +144,7 @@
 
       <SettingCard p1 class="flex flex-col justify-center">
         <CustomSwitch
-          v-model="formOfSetting.autoCopy"
+          v-model="settings.autoCopy"
           small
           no-border
           :title="t('pages.settings.upload.autoCopyUrlAfterUpload')"
@@ -153,7 +153,7 @@
 
       <SettingCard p1>
         <CustomSwitch
-          v-model="formOfSetting.useBuiltinClipboard"
+          v-model="settings.useBuiltinClipboard"
           small
           no-border
           :title="t('pages.settings.upload.useBuiltInClipboardUpload')"
@@ -163,7 +163,7 @@
 
       <SettingCard p1>
         <CustomSwitch
-          v-model="formOfSetting.isAutoListenClipboard"
+          v-model="settings.isAutoListenClipboard"
           small
           no-border
           :title="t('pages.settings.upload.isAutoListenClipboard')"
@@ -182,7 +182,7 @@
       />
       <SettingCard p1>
         <CustomSwitch
-          v-model="formOfSetting.useShortUrl"
+          v-model="settings.useShortUrl"
           small
           no-border
           :title="t('pages.settings.upload.enableShortUrl')"
@@ -190,9 +190,9 @@
         />
       </SettingCard>
 
-      <SettingCard v-if="formOfSetting.useShortUrl">
+      <SettingCard v-if="settings.useShortUrl">
         <SingleSelect
-          v-model="currentShortUrlServer"
+          v-model="settings.shortUrlServer"
           :fronticon="false"
           :tight="false"
           :select-list="shortUrlServerList"
@@ -201,54 +201,54 @@
         />
       </SettingCard>
 
-      <SettingCard v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'c1n'">
+      <SettingCard v-if="settings.useShortUrl && settings.shortUrlServer === 'c1n'">
         <CustomInput
-          v-model="formOfSetting.c1nToken"
+          v-model="settings.c1nToken"
           :title="t('pages.settings.upload.c1nToken')"
           :icon="Link"
           :placeholder="t('pages.settings.upload.c1nToken')"
         />
       </SettingCard>
 
-      <SettingCard v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'yourls'">
+      <SettingCard v-if="settings.useShortUrl && settings.shortUrlServer === 'yourls'">
         <CustomInput
-          v-model="formOfSetting.yourlsDomain"
+          v-model="settings.yourlsDomain"
           :title="t('pages.settings.upload.yourlsDomain')"
           :icon="Link"
           :placeholder="t('pages.settings.upload.yourlsDomain')"
         />
       </SettingCard>
 
-      <SettingCard v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'yourls'">
+      <SettingCard v-if="settings.useShortUrl && settings.shortUrlServer === 'yourls'">
         <CustomInput
-          v-model="formOfSetting.yourlsSignature"
+          v-model="settings.yourlsSignature"
           :title="t('pages.settings.upload.yourlsSignature')"
           :icon="Link"
           :placeholder="t('pages.settings.upload.yourlsSignature')"
         />
       </SettingCard>
 
-      <SettingCard v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'cf_worker'">
+      <SettingCard v-if="settings.useShortUrl && settings.shortUrlServer === 'cf_worker'">
         <CustomInput
-          v-model="formOfSetting.cfWorkerHost"
+          v-model="settings.cfWorkerHost"
           :title="t('pages.settings.upload.cfWorkerHost')"
           :icon="Link"
           :placeholder="t('pages.settings.upload.cfWorkerHost')"
         />
       </SettingCard>
 
-      <SettingCard v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'sink'">
+      <SettingCard v-if="settings.useShortUrl && settings.shortUrlServer === 'sink'">
         <CustomInput
-          v-model="formOfSetting.sinkDomain"
+          v-model="settings.sinkDomain"
           :title="t('pages.settings.upload.sinkDomain')"
           :icon="Link"
           :placeholder="t('pages.settings.upload.sinkDomain')"
         />
       </SettingCard>
 
-      <SettingCard v-if="formOfSetting.useShortUrl && formOfSetting.shortUrlServer === 'sink'">
+      <SettingCard v-if="settings.useShortUrl && settings.shortUrlServer === 'sink'">
         <CustomInput
-          v-model="formOfSetting.sinkToken"
+          v-model="settings.sinkToken"
           :title="t('pages.settings.upload.sinkToken')"
           :icon="Link"
           :placeholder="t('pages.settings.upload.sinkToken')"
@@ -257,7 +257,7 @@
 
       <SettingCard p1>
         <CustomSwitch
-          v-model="formOfSetting.encodeOutputURL"
+          v-model="settings.encodeOutputURL"
           small
           no-border
           :title="t('pages.settings.upload.encodeOutputUrl')"
@@ -297,7 +297,7 @@
       <div>
         <SettingCard>
           <CustomInput
-            v-model="customLink"
+            v-model="settings.customLink"
             :title="t('pages.settings.upload.customLinkFormatInput')"
             :placeholder="'![$fileName]($url)'"
           />
@@ -356,16 +356,7 @@ import { IRPCActionType } from '#/constants/rpcActions'
 
 defineProps<{ active: boolean }>()
 const { t } = useI18n()
-const {
-  formOfSetting,
-  showPicBedList,
-  galleryPicBedFilterList,
-  picBedG,
-  currentSecondMode,
-  currentShortUrlServer,
-  customLink,
-  advancedRename,
-} = useSettingsContext()
+const { settings, visiblePicBeds, picBedG, advancedRename } = useSettingsContext()
 
 const customLinkVisible = ref(false)
 

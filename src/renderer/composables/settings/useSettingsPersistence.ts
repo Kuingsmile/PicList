@@ -13,206 +13,150 @@ import { enforceNumber } from '#/utils/values'
 
 import type { SettingsState } from './settingsState'
 
+type SettingPolicies = {
+  [K in keyof ISettingForm]: 'auto' | 'manual' | ((value: ISettingForm[K]) => Promise<unknown>)
+}
+
 export function useSettingsPersistence(state: SettingsState) {
   const { t, locale } = useI18n()
   const message = useMessage()
   const { updatePicBeds } = usePicBed()
-  const {
-    showPicBedList,
-    galleryPicBedFilterList,
-    currentTheme,
-    proxy,
-    currentLanguage,
-    currentSecondMode,
-    currentStartMode,
-    currentShortUrlServer,
-    rawPicGoSize,
-    customLink,
-    advancedRename,
-    formOfSetting,
-    picBedG,
-  } = state
-  const autoWatchKeys = [
-    'showUpdateTip',
-    'autoImport',
-    'autoImportPicBed',
-    'useBuiltinClipboard',
-    'isAutoListenClipboard',
-    'deleteCloudFile',
-    'deleteLocalFile',
-    'rename',
-    'autoRename',
-    'serverKey',
-    'serverMaxConcurrency',
-    'serverUploadInterval',
-    'uploadNotification',
-    'uploadResultNotification',
-    'autoCloseMainWindow',
-    'autoCloseMiniWindow',
-    'isCustomMiniIcon',
-    'c1nToken',
-    'yourlsDomain',
-    'yourlsSignature',
-    'cfWorkerHost',
-    'sinkDomain',
-    'sinkToken',
-    'registry',
-    'proxy',
-    'autoCopy',
-    'encodeOutputURL',
-    'useShortUrl',
-    'enableSecondUploader',
-    'enableAdvancedAnimation',
-  ]
+  const { settings, visiblePicBeds, uploadProxy, rawPicGoSize, advancedRename, picBedG } = state
 
-  const addWatch = () => {
-    autoWatchKeys.forEach(key => {
-      watch(
-        () => formOfSetting.value[key as keyof ISettingForm],
-        async value => {
-          await saveConfig({ [`settings.${key}`]: value })
-        },
-      )
-    })
+  // Every settings field has exactly one policy. Adding a field requires choosing
+  // autosave, a business effect, or an explicit commit (blur/file selection).
+  const policies: SettingPolicies = {
+    language: handleLanguageChange,
+    startMode: handleStartModeChange,
+    isDisableGPU: handleIsDisableGPUChange,
+    secondPicBedMode: value => saveNonemptySetting('secondPicBedMode', value),
+    galleryPicBedFilter: 'auto',
+    customLink: 'auto',
+    showUpdateTip: 'auto',
+    autoStart: handleAutoStartChange,
+    rename: 'auto',
+    autoRename: 'auto',
+    uploadNotification: 'auto',
+    uploadResultNotification: 'auto',
+    miniWindowOntop: handleMiniWindowOntop,
+    autoCloseMiniWindow: 'auto',
+    autoCloseMainWindow: 'auto',
+    logLevel: handleLogLevelChange,
+    autoCopy: 'auto',
+    useBuiltinClipboard: 'auto',
+    logFileSizeLimit: handleLogFileSizeLimitChange,
+    deleteCloudFile: 'auto',
+    isCustomMiniIcon: 'auto',
+    customMiniIcon: 'manual',
+    isHideDock: handleHideDockChange,
+    autoImport: 'auto',
+    autoImportPicBed: 'auto',
+    encodeOutputURL: 'auto',
+    isAutoListenClipboard: 'auto',
+    useShortUrl: 'auto',
+    shortUrlServer: value => saveNonemptySetting('shortUrlServer', value),
+    c1nToken: 'auto',
+    yourlsDomain: 'auto',
+    yourlsSignature: 'auto',
+    cfWorkerHost: 'auto',
+    sinkDomain: 'auto',
+    sinkToken: 'auto',
+    deleteLocalFile: 'auto',
+    serverKey: 'auto',
+    serverMaxConcurrency: 'auto',
+    serverUploadInterval: 'auto',
+    aesPassword: value => saveSetting('aesPassword', value || 'PicList-aesPassword'),
+    registry: 'auto',
+    proxy: 'auto',
+    mainWindowWidth: value =>
+      saveSetting('mainWindowWidth', rawPicGoSize.value ? 800 : Math.max(enforceNumber(value), 100)),
+    mainWindowHeight: value =>
+      saveSetting('mainWindowHeight', rawPicGoSize.value ? 450 : Math.max(enforceNumber(value), 100)),
+    enableSecondUploader: 'auto',
+    enableAdvancedAnimation: 'auto',
+    theme: handleThemeChange,
+    enableCustomBgImg: handleEnableCustomBgImgChange,
+    customBgImgPath: 'manual',
+    customBgImgOpacity: 'manual',
+    customBgImgBlur: 'manual',
+  }
 
-    watch(showPicBedList, val => {
-      handleShowPicBedListChange(val)
-    })
+  function saveSetting<K extends keyof ISettingForm>(key: K, value: ISettingForm[K]) {
+    return saveConfig({ ['settings.' + key]: value })
+  }
 
-    watch(galleryPicBedFilterList, val => {
-      handleGalleryPicBedFilterChange(val)
-    })
+  async function saveNonemptySetting(key: 'secondPicBedMode' | 'shortUrlServer', value: string) {
+    if (value) await saveSetting(key, value)
+  }
 
+  function watchSetting<K extends keyof ISettingForm>(key: K) {
+    const policy = policies[key]
+    if (policy === 'manual') return
     watch(
-      () => formOfSetting.value.aesPassword,
-      val => {
-        handleAesPasswordChange(val)
-      },
+      () => settings.value[key],
+      value => (policy === 'auto' ? saveSetting(key, value) : policy(value)),
     )
+  }
 
-    watch(currentSecondMode, async newVal => {
-      if (newVal) {
-        if (!(await saveConfig({ [configPaths.settings.secondPicBedMode]: newVal }))) return
-      }
-    })
-
-    watch(currentLanguage, newVal => {
-      if (newVal) {
-        handleLanguageChange(newVal)
-      }
-    })
-
-    watch(currentStartMode, newVal => {
-      if (newVal) {
-        handleStartModeChange(newVal)
-      }
-    })
-
-    watch(currentShortUrlServer, newVal => {
-      if (newVal) {
-        handleShortUrlServerChange(newVal)
-      }
-    })
-
-    watch(currentTheme, newVal => {
-      if (newVal) {
-        handleThemeChange(newVal)
-      }
-    })
-
+  function startPersistence() {
+    for (const key of Object.keys(policies) as (keyof ISettingForm)[]) watchSetting(key)
+    watch(visiblePicBeds, handleShowPicBedListChange)
+    watch(uploadProxy, value => saveConfig({ [configPaths.picBed.proxy]: value }))
     watch(
       advancedRename,
-      async newVal => {
-        if (!(await saveConfig(configPaths.buildIn.rename, toRaw(newVal)))) return
-        if (newVal.enable) {
-          formOfSetting.value.autoRename = false
-          if (!(await saveConfig(configPaths.settings.autoRename, false))) return
+      async value => {
+        if (!(await saveConfig(configPaths.buildIn.rename, toRaw(value)))) return
+        if (value.enable) {
+          settings.value.autoRename = false
+          await saveSetting('autoRename', false)
         }
       },
       { deep: 1 },
     )
-
-    watch(
-      () => formOfSetting.value.mainWindowWidth,
-      async newVal => {
-        const width = enforceNumber(newVal)
-        await saveConfig({ [configPaths.settings.mainWindowWidth]: rawPicGoSize.value ? 800 : Math.max(width, 100) })
-      },
-    )
-
-    watch(
-      () => formOfSetting.value.mainWindowHeight,
-      async newVal => {
-        const height = enforceNumber(newVal)
-        await saveConfig({
-          [configPaths.settings.mainWindowHeight]: rawPicGoSize.value ? 450 : Math.max(height, 100),
-        })
-      },
-    )
-
-    watch(rawPicGoSize, newVal => {
-      if (newVal) {
-        formOfSetting.value.mainWindowWidth = 800
-        formOfSetting.value.mainWindowHeight = 450
+    watch(rawPicGoSize, value => {
+      if (value) {
+        settings.value.mainWindowWidth = 800
+        settings.value.mainWindowHeight = 450
       }
     })
-
-    watch(customLink, async newVal => {
-      await saveConfig(configPaths.settings.customLink, newVal)
-    })
-
-    watch(proxy, async value => {
-      await saveConfig({ 'picBed.proxy': value })
-    })
-
-    watch(
-      () => formOfSetting.value.logFileSizeLimit,
-      async newVal => {
-        const size = enforceNumber(newVal)
-        if (size < 1) {
-          formOfSetting.value.logFileSizeLimit = 1
-          if (!(await saveConfig({ [configPaths.settings.logFileSizeLimit]: 1 }))) return
-        } else {
-          if (!(await saveConfig({ [configPaths.settings.logFileSizeLimit]: size }))) return
-        }
-      },
-    )
-
-    watch(
-      () => formOfSetting.value.logLevel,
-      async newVal => {
-        if (newVal.length === 0) {
-          message.error(t('pages.settings.advanced.chooseLogLevel'))
-          return
-        }
-        await saveConfig({
-          [configPaths.settings.logLevel]: newVal,
-        })
-      },
-    )
-
-    watch(
-      () => formOfSetting.value.enableCustomBgImg,
-      async newVal => {
-        if (!(await saveConfig({ [configPaths.settings.enableCustomBgImg]: newVal }))) return
-        window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
-      },
-    )
   }
+
+  async function handleLogFileSizeLimitChange(value: number) {
+    const size = enforceNumber(value)
+    if (size < 1) {
+      settings.value.logFileSizeLimit = 1
+      return // The corrected value is saved by the same field watcher.
+    }
+    await saveSetting('logFileSizeLimit', size)
+  }
+
+  async function handleLogLevelChange(value: string[]) {
+    if (value.length === 0) {
+      message.error(t('pages.settings.advanced.chooseLogLevel'))
+      return
+    }
+    await saveSetting('logLevel', value)
+  }
+
+  async function handleEnableCustomBgImgChange(value: boolean) {
+    if (!(await saveSetting('enableCustomBgImg', value))) return
+    window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
+  }
+
   async function handleBlurCustomBgImgBlur() {
-    if (!(await saveConfig({ [configPaths.settings.customBgImgBlur]: formOfSetting.value.customBgImgBlur }))) return
+    if (!(await saveSetting('customBgImgBlur', settings.value.customBgImgBlur))) return
     window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
   }
 
   async function handleBlurCustomBgImgOpacity() {
-    if (!(await saveConfig({ [configPaths.settings.customBgImgOpacity]: formOfSetting.value.customBgImgOpacity })))
-      return
+    if (!(await saveSetting('customBgImgOpacity', settings.value.customBgImgOpacity))) return
     window.electron.sendRPC(IRPCActionType.RELOAD_WINDOW)
   }
 
   async function handleThemeChange(theme: string) {
+    if (!theme) return
     try {
-      if (!(await saveConfig({ [configPaths.settings.theme]: theme }))) return
+      if (!(await saveSetting('theme', theme))) return
       await window.electron.triggerRPC(IRPCActionType.THEME_APPLY_THEME, theme)
     } catch (error) {
       console.error('Failed to apply theme:', error)
@@ -220,25 +164,36 @@ export function useSettingsPersistence(state: SettingsState) {
     }
   }
 
-  async function handleIsDisableGPUChange(value: boolean | undefined) {
-    if (value === undefined) return
-    if (!(await saveConfig({ [configPaths.settings.isDisableGPU]: value }))) return
+  async function handleIsDisableGPUChange(value: boolean) {
+    if (!(await saveSetting('isDisableGPU', value))) return
     message.info(t('pages.settings.system.needRestart'))
   }
 
-  async function handleHideDockChange(val: ICheckBoxValueType) {
-    if (val && currentStartMode.value === ISartMode.NO_TRAY) {
-      message.warning(t('pages.settings.system.hideDockHint'))
-      formOfSetting.value.isHideDock = false
+  let restoringDock = false
+  async function handleHideDockChange(value: boolean) {
+    // Resetting a rejected toggle must not save or invoke the Dock action again.
+    if (restoringDock && !value) {
+      restoringDock = false
       return
     }
-    if (!(await saveConfig(configPaths.settings.isHideDock, val))) return
-    window.electron.sendRPC(IRPCActionType.HIDE_DOCK, val)
+    restoringDock = false
+    if (value && settings.value.startMode === ISartMode.NO_TRAY) {
+      message.warning(t('pages.settings.system.hideDockHint'))
+      // Flush the attempted value so reverting it also resets the native checkbox.
+      await nextTick()
+      if (settings.value.isHideDock) {
+        restoringDock = true
+        settings.value.isHideDock = false
+      }
+      return
+    }
+    if (!(await saveSetting('isHideDock', value))) return
+    window.electron.sendRPC(IRPCActionType.HIDE_DOCK, value)
   }
 
-  async function handleShowPicBedListChange(val: ICheckBoxValueType[]) {
+  async function handleShowPicBedListChange(value: string[]) {
     try {
-      const list = picBedG.value.map(item => ({ ...item, visible: val.includes(item.type) }))
+      const list = picBedG.value.map(item => ({ ...item, visible: value.includes(item.type) }))
       if (!(await saveConfig({ [configPaths.picBed.list]: list }))) return
       nextTick(() => {
         updatePicBeds()
@@ -248,75 +203,63 @@ export function useSettingsPersistence(state: SettingsState) {
     }
   }
 
-  async function handleGalleryPicBedFilterChange(val: ICheckBoxValueType[]) {
-    await saveConfig({ [configPaths.settings.galleryPicBedFilter]: val })
+  async function handleAutoStartChange(value: boolean) {
+    if (!(await saveWithFeedback(() => invokeRPC(IRPCActionType.PICLIST_AUTO_START, value)))) return
+    await saveSetting('autoStart', value)
   }
 
-  async function handleAutoStartChange(val: ICheckBoxValueType) {
-    if (!(await saveWithFeedback(() => invokeRPC(IRPCActionType.PICLIST_AUTO_START, Boolean(val))))) return
-    await saveConfig(configPaths.settings.autoStart, val)
-  }
-
-  async function handleMiniWindowOntop(val: ICheckBoxValueType) {
-    if (!(await saveConfig(configPaths.settings.miniWindowOntop, val))) return
-    window.electron.sendRPC(IRPCActionType.MINI_WINDOW_ON_TOP, val)
+  async function handleMiniWindowOntop(value: boolean) {
+    if (!(await saveSetting('miniWindowOntop', value))) return
+    window.electron.sendRPC(IRPCActionType.MINI_WINDOW_ON_TOP, value)
   }
 
   async function handleCustomBgImg() {
     const result = await window.electron.triggerRPC<string[]>(IRPCActionType.MANAGE_OPEN_FILE_SELECT_DIALOG)
     if (result && result[0]) {
       const fileName = await window.electron.triggerRPC<string>(IRPCActionType.COPY_CUSTOM_IMG_TO_THEMES_DIR, result[0])
-      formOfSetting.value.customBgImgPath = `theme://./image/${fileName}`
-      if (!(await saveConfig(configPaths.settings.customBgImgPath, formOfSetting.value.customBgImgPath))) return
-      await window.electron.triggerRPC(IRPCActionType.THEME_APPLY_THEME, currentTheme.value)
+      settings.value.customBgImgPath = 'theme://./image/' + fileName
+      if (!(await saveSetting('customBgImgPath', settings.value.customBgImgPath))) return
+      await window.electron.triggerRPC(IRPCActionType.THEME_APPLY_THEME, settings.value.theme)
     }
   }
 
   async function handleMiniIconPath() {
     const result = await window.electron.triggerRPC<string[]>(IRPCActionType.MANAGE_OPEN_FILE_SELECT_DIALOG)
     if (result && result[0]) {
-      formOfSetting.value.customMiniIcon = result[0]
-      if (!(await saveConfig(configPaths.settings.customMiniIcon, formOfSetting.value.customMiniIcon))) return
+      settings.value.customMiniIcon = result[0]
+      if (!(await saveSetting('customMiniIcon', settings.value.customMiniIcon))) return
       window.electron.sendRPC(IRPCActionType.UPDATE_MINI_WINDOW_ICON)
     }
   }
 
-  async function handleShortUrlServerChange(val: string) {
-    formOfSetting.value.shortUrlServer = val
-    await saveConfig(configPaths.settings.shortUrlServer, val)
-  }
-
-  async function handleAesPasswordChange(val: string) {
-    await saveConfig(configPaths.settings.aesPassword, val || 'PicList-aesPassword')
-  }
-
-  async function handleLanguageChange(val: string) {
-    if (!(await saveConfig({ [configPaths.settings.language]: val }))) return
-    locale.value = val
-    setCurrentLanguage(val)
-    localStorage.setItem('currentLanguage', val)
+  async function handleLanguageChange(value: string) {
+    if (!value) return
+    if (!(await saveSetting('language', value))) return
+    locale.value = value
+    setCurrentLanguage(value)
+    localStorage.setItem('currentLanguage', value)
     updatePicBeds()
   }
 
-  async function handleStartModeChange(val: string) {
-    if (val === ISartMode.NO_TRAY) {
-      if (formOfSetting.value.isHideDock) {
+  async function handleStartModeChange(value: string) {
+    if (!value) return
+    if (value === ISartMode.NO_TRAY) {
+      if (settings.value.isHideDock) {
         message.warning(t('pages.settings.system.hideDockHint'))
-        currentStartMode.value = ISartMode.QUIET
+        settings.value.startMode = ISartMode.QUIET
         return
       }
       message.info(t('pages.settings.system.needRestart'))
     }
-    await saveConfig({ [configPaths.settings.startMode]: val })
+    await saveSetting('startMode', value)
   }
+
+  // Components receive actions only for explicit user commands; model changes
+  // and their business effects are handled by the persistence policies above.
   return {
-    addWatch,
+    startPersistence,
     handleBlurCustomBgImgBlur,
     handleBlurCustomBgImgOpacity,
-    handleIsDisableGPUChange,
-    handleHideDockChange,
-    handleAutoStartChange,
-    handleMiniWindowOntop,
     handleCustomBgImg,
     handleMiniIconPath,
   }

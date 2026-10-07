@@ -19,7 +19,7 @@
 
       <SettingCard p1>
         <CustomSwitch
-          v-model="formOfSetting.showUpdateTip"
+          v-model="settings.showUpdateTip"
           small
           no-border
           :title="t('pages.settings.update.openUpdateHelper')"
@@ -155,7 +155,7 @@ import { IRPCActionType } from '#/constants/rpcActions'
 
 defineProps<{ active: boolean }>()
 const { t } = useI18n()
-const { formOfSetting, currentLanguage, ready } = useSettingsContext()
+const { settings, ready } = useSettingsContext()
 const checkUpdateVisible = ref(false)
 
 const latestVersion = ref('')
@@ -220,12 +220,12 @@ async function fetchReleaseNotes(forceRefresh = false): Promise<void> {
   const controller = new AbortController()
   releaseNotesController = controller
   onWatcherCleanup(() => controller.abort(), true)
-  const language = currentLanguage.value
+  const language = settings.value.language
   const isCurrent = () =>
     !disposed &&
     releaseNotesController === controller &&
     !controller.signal.aborted &&
-    currentLanguage.value === language
+    settings.value.language === language
   fetchingReleaseNotes.value = true
   releaseNotesError.value = ''
 
@@ -291,7 +291,7 @@ watch(
   { flush: 'sync' },
 )
 watch(
-  [ready, currentLanguage],
+  [ready, () => settings.value.language],
   ([initialized]) => {
     if (initialized) void fetchReleaseNotes(true)
   },

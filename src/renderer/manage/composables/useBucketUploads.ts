@@ -8,6 +8,7 @@ import type { BucketLocation, BucketViewLifecycle } from '@/manage/types/bucket'
 import { renameFile } from '@/manage/utils/fileName'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { isUrl as isValidUrl } from '#/utils/url'
+import { enforceBoolean } from '#/utils/values'
 interface BucketUploadOptions
   extends Pick<BucketLocation, 'configMap' | 'currentPrefix' | 'currentCustomDomain'>, BucketViewLifecycle {}
 export function useBucketUploads({
@@ -22,7 +23,7 @@ export function useBucketUploads({
   const message = useMessage()
   const isShowUploadPanel = ref(false)
 
-  const isUploadKeepDirStructure = ref(manageStore.config.settings.isUploadKeepDirStructure ?? true)
+  const isUploadKeepDirStructure = ref(enforceBoolean(manageStore.config.settings.isUploadKeepDirStructure ?? true))
 
   const dialogVisible = ref(false)
 
@@ -136,7 +137,7 @@ export function useBucketUploads({
   watch(
     () => manageStore.config.settings.isUploadKeepDirStructure,
     value => {
-      isUploadKeepDirStructure.value = value ?? true
+      isUploadKeepDirStructure.value = enforceBoolean(value ?? true)
     },
   )
   function uploadFiles(files: any[]) {

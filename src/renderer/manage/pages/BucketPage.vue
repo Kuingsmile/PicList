@@ -432,7 +432,7 @@
       @clear-finished="handleDeleteUploadedTask"
       @clear-all="handleDeleteAllUploadedTask"
       @cancel-task="cancelUploadTask"
-      @keep-directory-change="handleUploadKeepDirChange"
+      @update:keep-directory="handleUploadKeepDirChange"
     />
 
     <!-- Download Drawer -->

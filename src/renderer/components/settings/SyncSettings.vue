@@ -6,14 +6,16 @@
         <p class="flex items-center gap-2 text-sm text-secondary">
           <span
             class="inline-flex items-center rounded-sm bg-bg-tertiary px-2 py-1 text-xs font-semibold tracking-wide text-accent"
-            >{{ sync.type?.toUpperCase() || 'N/A' }}</span
+            >{{ syncDraft.type?.toUpperCase() || 'N/A' }}</span
           >
-          <span v-if="sync.type !== 'webdav' && sync.username" class="m-0 text-sm text-secondary"
-            >{{ sync.username }}/{{ sync.repo || '...' }}</span
+          <span v-if="syncDraft.type !== 'webdav' && syncDraft.username" class="m-0 text-sm text-secondary"
+            >{{ syncDraft.username }}/{{ syncDraft.repo || '...' }}</span
           >
-          <span v-else-if="sync.type === 'webdav' && sync.webdavEndpoint" class="m-0 text-sm text-secondary">{{
-            sync.webdavEndpoint
-          }}</span>
+          <span
+            v-else-if="syncDraft.type === 'webdav' && syncDraft.webdavEndpoint"
+            class="m-0 text-sm text-secondary"
+            >{{ syncDraft.webdavEndpoint }}</span
+          >
           <span v-else class="text-sm font-semibold text-danger/70 italic">{{
             t('pages.settings.sync.notConfigured')
           }}</span>
@@ -78,8 +80,8 @@
             v-for="typeitem of syncType"
             :key="typeitem"
             class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-border bg-bg-tertiary px-2 py-4 hover:border-accent/50 hover:bg-accent/10 [.active]:border-accent [.active]:bg-accent/10 [.active]:text-accent [.active]:shadow-md"
-            :class="{ active: sync.type === typeitem }"
-            @click="sync.type = typeitem"
+            :class="{ active: syncDraft.type === typeitem }"
+            @click="syncDraft.type = typeitem"
           >
             <GitBranch v-if="typeitem.includes('git')" class="text-secondary" :size="20" />
             <Store v-else-if="typeitem === 'webdav'" class="text-secondary" :size="20" />
@@ -92,56 +94,56 @@
 
       <!-- Configuration Fields -->
       <div class="flex w-full flex-col gap-4">
-        <SettingSection :icon="Settings" :title="sync.type">
-          <SettingCard v-if="sync.type === 'gitea'">
+        <SettingSection :icon="Settings" :title="syncDraft.type">
+          <SettingCard v-if="syncDraft.type === 'gitea'">
             <CustomInput
-              v-model.trim="sync.endpoint"
+              v-model.trim="syncDraft.endpoint"
               :title="t('pages.settings.sync.giteaHost')"
               :placeholder="t('pages.settings.sync.giteaHost')"
             />
           </SettingCard>
-          <SettingCard v-if="sync.type === 'webdav'">
+          <SettingCard v-if="syncDraft.type === 'webdav'">
             <CustomInput
-              v-model.trim="sync.webdavEndpoint"
+              v-model.trim="syncDraft.webdavEndpoint"
               :title="t('pages.settings.sync.webdavEndpoint')"
               :placeholder="t('pages.settings.sync.webdavEndpoint')"
             />
           </SettingCard>
-          <template v-if="sync.type !== 'webdav'">
-            <SettingCard v-for="inputItem in ['username', 'repo', 'branch', 'token']" :key="inputItem">
+          <template v-if="syncDraft.type !== 'webdav'">
+            <SettingCard v-for="inputItem in syncFields" :key="inputItem">
               <CustomInput
-                v-model.trim="sync[inputItem as any]"
+                v-model.trim="syncDraft[inputItem]"
                 :is-password="inputItem === 'token'"
-                :title="t(`pages.settings.sync.${sync.type.toLowerCase()}.${inputItem.toLowerCase()}`)"
-                :placeholder="t(`pages.settings.sync.${sync.type.toLowerCase()}.${inputItem.toLowerCase()}`)"
+                :title="t(`pages.settings.sync.${syncDraft.type.toLowerCase()}.${inputItem.toLowerCase()}`)"
+                :placeholder="t(`pages.settings.sync.${syncDraft.type.toLowerCase()}.${inputItem.toLowerCase()}`)"
               />
             </SettingCard>
           </template>
-          <SettingCard v-if="sync.type === 'webdav'">
+          <SettingCard v-if="syncDraft.type === 'webdav'">
             <CustomInput
-              v-model.trim="sync.webdavUsername"
+              v-model.trim="syncDraft.webdavUsername"
               :title="t('pages.settings.sync.webdav.username')"
               :placeholder="t('pages.settings.sync.webdav.username')"
             />
           </SettingCard>
-          <SettingCard v-if="sync.type === 'webdav'">
+          <SettingCard v-if="syncDraft.type === 'webdav'">
             <CustomInput
-              v-model.trim="sync.webdavPassword"
+              v-model.trim="syncDraft.webdavPassword"
               :is-password="true"
               :title="t('pages.settings.sync.webdav.password')"
               :placeholder="t('pages.settings.sync.webdav.password')"
             />
           </SettingCard>
-          <SettingCard v-if="sync.type === 'webdav'">
+          <SettingCard v-if="syncDraft.type === 'webdav'">
             <CustomInput
-              v-model.trim="sync.webdavSavePath"
+              v-model.trim="syncDraft.webdavSavePath"
               :title="t('pages.settings.sync.webdav.savePath')"
               :placeholder="t('pages.settings.sync.webdav.savePath')"
             />
           </SettingCard>
-          <SettingCard v-if="sync.type === 'webdav'">
+          <SettingCard v-if="syncDraft.type === 'webdav'">
             <SingleSelect
-              v-model="sync.webdavAuthType"
+              v-model="syncDraft.webdavAuthType"
               :fronticon="false"
               :tight="false"
               :select-list="[
@@ -152,18 +154,18 @@
               :icon="Settings"
             />
           </SettingCard>
-          <SettingCard v-if="sync.type === 'webdav'">
+          <SettingCard v-if="syncDraft.type === 'webdav'">
             <CustomSwitch
-              v-model="sync.webdavSslEnabled"
+              v-model="syncDraft.webdavSslEnabled"
               small
               no-border
               :title="t('pages.settings.sync.webdav.enableSSL')"
               :description="t('pages.settings.sync.webdav.enableSSLDesc')"
             />
           </SettingCard>
-          <SettingCard v-if="sync.type === 'github'">
+          <SettingCard v-if="syncDraft.type === 'github'">
             <CustomInput
-              v-model.trim="sync.proxy"
+              v-model.trim="syncDraft.proxy"
               :title="t('pages.settings.sync.syncConfigProxy')"
               :placeholder="t('pages.settings.sync.syncConfigProxy')"
             />
@@ -244,6 +246,7 @@ import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import GallerySync from '@/components/GallerySync.vue'
+import { createSyncDraft } from '@/composables/settings/settingsState'
 import { useSettingsContext } from '@/composables/settings/useSettingsContext'
 import useConfirm from '@/composables/useConfirm'
 import useMessage from '@/composables/useMessage'
@@ -255,7 +258,7 @@ import SettingsFileEditor from './SettingsFileEditor.vue'
 
 defineProps<{ active: boolean }>()
 const { t } = useI18n()
-const { sync, isPortable } = useSettingsContext()
+const { syncDraft, isPortable } = useSettingsContext()
 const { confirm } = useConfirm()
 const message = useMessage()
 const editor = useTemplateRef('editor')
@@ -285,35 +288,20 @@ const syncTaskList = computed(() => [
 ])
 
 const syncType = ['github', 'gitee', 'gitea', 'webdav']
+const syncFields = ['username', 'repo', 'branch', 'token'] as const
 
 async function cancelSyncSetting() {
   syncVisible.value = false
-  sync.value = (await getConfig(configPaths.settings.sync)) || {
-    type: 'github',
-    username: '',
-    repo: '',
-    branch: '',
-    token: '',
-    endpoint: '',
-    proxy: '',
-    interval: 60,
-    // WebDAV-specific fields
-    webdavEndpoint: '',
-    webdavUsername: '',
-    webdavPassword: '',
-    webdavAuthType: 'basic',
-    webdavSslEnabled: true,
-    webdavSavePath: '',
-  }
+  syncDraft.value = createSyncDraft(await getConfig<ISyncConfig>(configPaths.settings.sync))
 }
 
 async function confirmSyncSetting() {
   if (savingSync.value) return
   savingSync.value = true
-  const draft = JSON.stringify(sync.value)
+  const draft = JSON.stringify(syncDraft.value)
   try {
-    if (!(await saveConfig({ [configPaths.settings.sync]: sync.value }))) return
-    if (JSON.stringify(sync.value) === draft) syncVisible.value = false
+    if (!(await saveConfig({ [configPaths.settings.sync]: syncDraft.value }))) return
+    if (JSON.stringify(syncDraft.value) === draft) syncVisible.value = false
   } finally {
     savingSync.value = false
   }

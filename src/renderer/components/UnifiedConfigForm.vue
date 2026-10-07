@@ -60,7 +60,7 @@
           small
           :required="item.required || false"
           :tips="item.tips"
-          @change="clearFieldError(item.name)"
+          @update:model-value="clearFieldError(item.name)"
         >
           <template #switch-text>
             <span class="text-[0.925rem] font-semibold text-secondary">
@@ -141,6 +141,7 @@ import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import { getConfig } from '@/services/configService'
+import { enforceBoolean } from '#/utils/values'
 
 defineSlots<{
   'extra-config'?: () => unknown
@@ -272,7 +273,7 @@ async function handleConfig(val: IPicGoPluginConfig[]) {
       if (config[item.name] !== undefined) {
         defaultValue = config[item.name]
       }
-      ruleForm[item.name] = defaultValue
+      ruleForm[item.name] = item.type === 'confirm' ? enforceBoolean(defaultValue) : defaultValue
       return item
     })
   } catch {
@@ -297,7 +298,8 @@ async function getCurConfigFormData() {
 
 function updateRuleForm(key: string, value: any) {
   if (isLoading.value || loadFailed.value) return false
-  ruleForm[key] = value
+  const config = configList.value.find(item => item.name === key)
+  ruleForm[key] = config?.type === 'confirm' ? enforceBoolean(value) : value
   clearFieldError(key)
   return true
 }

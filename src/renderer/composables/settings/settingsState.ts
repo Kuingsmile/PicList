@@ -1,55 +1,48 @@
 import { ref } from 'vue'
 
 import { usePicBed } from '@/composables/useGlobal'
+import { enforceBoolean } from '#/utils/values'
+
+export function createServerDraft(config?: IServerConfig): IServerConfig {
+  const draft = config ? { ...config } : { port: 36677, host: '0.0.0.0', enable: true }
+  draft.enable = enforceBoolean(draft.enable)
+  return draft
+}
+
+export function createSyncDraft(config?: ISyncConfig): ISyncConfig {
+  const draft = config
+    ? { ...config }
+    : {
+        type: 'github',
+        username: '',
+        repo: '',
+        branch: '',
+        token: '',
+        endpoint: '',
+        proxy: '',
+        interval: 60,
+        webdavEndpoint: '',
+        webdavUsername: '',
+        webdavPassword: '',
+        webdavAuthType: 'basic' as const,
+        webdavSslEnabled: true,
+        webdavSavePath: '',
+      }
+  draft.webdavSslEnabled = enforceBoolean(draft.webdavSslEnabled)
+  return draft
+}
 
 export function createSettingsState() {
   const { picBedG } = usePicBed()
-  const ready = ref(false)
-  const showPicBedList = ref<string[]>([])
 
-  const galleryPicBedFilterList = ref<string[]>([])
-
-  const currentTheme = ref('default.css')
-
-  const proxy = ref('')
-
-  const isDisableGPU = ref(false)
-
-  const isPortable = ref(false)
-
-  const currentLanguage = ref()
-
-  const currentSecondMode = ref()
-
-  const currentStartMode = ref()
-
-  const currentShortUrlServer = ref()
-
-  const rawPicGoSize = ref(false)
-
-  const customLink = ref('![$fileName]($url)')
-
-  const server = ref({ port: 36677, host: '0.0.0.0', enable: true })
-
-  const advancedRename = ref({ enable: false, format: '{filename}' })
-
-  const sync = ref<any>({
-    type: 'github',
-    username: '',
-    repo: '',
-    branch: '',
-    token: '',
-    endpoint: '',
-    proxy: '',
-    interval: 60,
-    // WebDAV-specific fields
-    password: '',
-    authType: 'basic',
-    sslEnabled: true,
-    webdavSavePath: '',
-  })
-
-  const formOfSetting = ref<ISettingForm>({
+  // These fields map directly to settings.* in the persisted configuration.
+  const settings = ref<ISettingForm>({
+    language: '',
+    startMode: '',
+    isDisableGPU: false,
+    secondPicBedMode: 'backup',
+    galleryPicBedFilter: [],
+    customLink: '![$fileName]($url)',
     showUpdateTip: true,
     autoStart: false,
     rename: false,
@@ -96,25 +89,22 @@ export function createSettingsState() {
     customBgImgOpacity: 0.7,
     customBgImgBlur: 5,
   })
+
   return {
-    ready,
+    settings,
     picBedG,
-    showPicBedList,
-    galleryPicBedFilterList,
-    currentTheme,
-    proxy,
-    isDisableGPU,
-    isPortable,
-    currentLanguage,
-    currentSecondMode,
-    currentStartMode,
-    currentShortUrlServer,
-    rawPicGoSize,
-    customLink,
-    server,
-    advancedRename,
-    sync,
-    formOfSetting,
+    // These values live outside settings.* and have their own persistence rules.
+    visiblePicBeds: ref<string[]>([]),
+    uploadProxy: ref(''),
+    advancedRename: ref({ enable: false, format: '{filename}' }),
+    // Dialog drafts are saved only on confirmation, never by autosave.
+    serverDraft: ref<IServerConfig>(createServerDraft()),
+    syncDraft: ref<ISyncConfig>(createSyncDraft()),
+    // UI and runtime state is not persisted as settings.
+    ready: ref(false),
+    isPortable: ref(false),
+    rawPicGoSize: ref(false),
   }
 }
+
 export type SettingsState = ReturnType<typeof createSettingsState>

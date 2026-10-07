@@ -19,10 +19,10 @@
         type="checkbox"
         role="switch"
         :disabled
-        :aria-checked="!!modelValue"
+        :aria-checked="modelValue"
         :aria-required="required || undefined"
         class="peer sr-only"
-        @change.stop="emit('change', !!modelValue)"
+        @change.stop
       />
       <span
         class="relative shrink-0 rounded-full bg-gray-400/80 shadow-sm transition-all duration-medium ease-standard peer-checked:bg-accent peer-checked:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1),0_2px_8px_color-mix(in_srgb,var(--color-accent),transparent_30%)] peer-focus-visible:ring-2 peer-focus-visible:ring-accent peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg-tertiary before:absolute before:rounded-full before:bg-white before:shadow-sm before:transition-all before:duration-200 before:ease-apple before:content-['']"
@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, useAttrs } from 'vue'
+import { useAttrs } from 'vue'
 
 import HelpTooltip from '@/components/common/HelpTooltip.vue'
 
@@ -61,7 +61,6 @@ defineSlots<{
   'title-extra'?: () => unknown
 }>()
 
-const emit = defineEmits<{ change: [value: boolean] }>()
 defineOptions({ inheritAttrs: false })
 const attrs = useAttrs()
 
@@ -70,7 +69,7 @@ function inputAttrs() {
   return inputAttributes
 }
 
-const modelValue = defineModel<boolean>()
+const modelValue = defineModel<boolean>({ default: false })
 const {
   title = '',
   description = '',
@@ -92,10 +91,4 @@ const {
   tighter?: boolean
   disabled?: boolean
 }>()
-
-onMounted(() => {
-  if (typeof modelValue.value === 'string') {
-    modelValue.value = modelValue.value === 'true'
-  }
-})
 </script>

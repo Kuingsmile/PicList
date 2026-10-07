@@ -72,7 +72,7 @@
           small
           :title="t('pages.plugin.bundledNpmTitle')"
           :description="t('pages.plugin.bundledNpmDescription')"
-          @update:model-value="saveBundledNpmSetting(experimentalBundledNpm)"
+          @update:model-value="saveBundledNpmSetting"
         />
       </div>
 

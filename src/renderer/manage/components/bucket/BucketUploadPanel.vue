@@ -24,7 +24,6 @@
           "
           small
           no-border
-          @change="emit('keep-directory-change', $event)"
         />
       </div>
 
@@ -260,7 +259,6 @@ const emit = defineEmits<{
   'clear-finished': []
   'clear-all': []
   'cancel-task': [id: string]
-  'keep-directory-change': [value: boolean]
 }>()
 const { t } = useI18n()
 const {

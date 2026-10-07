@@ -3,7 +3,7 @@
     <SettingSection :title="t('pages.settings.system.languageAndAppearance')" :icon="Globe">
       <SettingCard>
         <SingleSelect
-          v-model="currentLanguage"
+          v-model="settings.language"
           :fronticon="false"
           :tight="false"
           :select-list="languageList"
@@ -14,7 +14,7 @@
 
       <SettingCard>
         <SingleSelect
-          v-model="currentStartMode"
+          v-model="settings.startMode"
           :title="t('pages.settings.system.startMode')"
           :icon="Monitor"
           :fronticon="false"
@@ -33,18 +33,17 @@
 
       <SettingCard p1>
         <CustomSwitch
-          v-model="isDisableGPU"
+          v-model="settings.isDisableGPU"
           no-border
           small
           :title="t('pages.settings.system.isDisableGPU')"
           :description="t('pages.settings.system.isDisableGPUDesc')"
-          @update:model-value="handleIsDisableGPUChange"
         />
       </SettingCard>
 
       <SettingCard p1>
         <CustomSwitch
-          v-model="formOfSetting.enableAdvancedAnimation"
+          v-model="settings.enableAdvancedAnimation"
           no-border
           small
           :title="t('pages.settings.system.enableAdvancedAnimation')"
@@ -54,7 +53,7 @@
 
       <SettingCard class="theme-dropdown">
         <SingleSelect
-          v-model="currentTheme"
+          v-model="settings.theme"
           :title="t('pages.settings.system.chooseTheme')"
           :fronticon="false"
           :select-list="themeList"
@@ -92,7 +91,7 @@
 
       <SettingCard p1 class="flex flex-col justify-center">
         <CustomSwitch
-          v-model="formOfSetting.enableCustomBgImg"
+          v-model="settings.enableCustomBgImg"
           no-border
           small
           :title="t('pages.settings.system.enableCustomBgImg')"
@@ -100,7 +99,7 @@
       </SettingCard>
 
       <CustomNavCard
-        v-if="formOfSetting.enableCustomBgImg"
+        v-if="settings.enableCustomBgImg"
         :icon="ImageIcon"
         :clickable="false"
         :title="t('pages.settings.system.customBgImgPath')"
@@ -109,9 +108,9 @@
           <CustomButton :text="t('pages.settings.clickToSet')" @click="handleCustomBgImg" />
         </template>
       </CustomNavCard>
-      <SettingCard v-if="formOfSetting.enableCustomBgImg">
+      <SettingCard v-if="settings.enableCustomBgImg">
         <CustomInput
-          v-model="formOfSetting.customBgImgOpacity"
+          v-model="settings.customBgImgOpacity"
           type="number"
           min="0"
           max="1"
@@ -121,9 +120,9 @@
           @blur="handleBlurCustomBgImgOpacity"
         />
       </SettingCard>
-      <SettingCard v-if="formOfSetting.enableCustomBgImg">
+      <SettingCard v-if="settings.enableCustomBgImg">
         <CustomInput
-          v-model="formOfSetting.customBgImgBlur"
+          v-model="settings.customBgImgBlur"
           type="number"
           min="1"
           step="1"
@@ -146,18 +145,12 @@
       <!-- Window Behavior Toggles -->
 
       <SettingCard v-if="osGlobal === 'darwin'" p1>
-        <CustomSwitch
-          v-model="formOfSetting.isHideDock"
-          small
-          no-border
-          :title="t('pages.settings.system.isHideDock')"
-          @change="handleHideDockChange"
-        />
+        <CustomSwitch v-model="settings.isHideDock" small no-border :title="t('pages.settings.system.isHideDock')" />
       </SettingCard>
 
       <SettingCard v-if="osGlobal !== 'darwin'" p1>
         <CustomSwitch
-          v-model="formOfSetting.autoCloseMiniWindow"
+          v-model="settings.autoCloseMiniWindow"
           small
           no-border
           :title="t('pages.settings.system.autoCloseMiniWindow')"
@@ -166,7 +159,7 @@
 
       <SettingCard v-if="osGlobal !== 'darwin'" p1>
         <CustomSwitch
-          v-model="formOfSetting.autoCloseMainWindow"
+          v-model="settings.autoCloseMainWindow"
           small
           no-border
           :title="t('pages.settings.system.autoCloseMainWindow')"
@@ -175,17 +168,16 @@
 
       <SettingCard v-if="osGlobal !== 'darwin'" p1>
         <CustomSwitch
-          v-model="formOfSetting.miniWindowOntop"
+          v-model="settings.miniWindowOntop"
           small
           no-border
           :title="t('pages.settings.system.miniWindowOnTop')"
-          @change="handleMiniWindowOntop"
         />
       </SettingCard>
 
       <SettingCard v-if="osGlobal !== 'darwin'" p1>
         <CustomSwitch
-          v-model="formOfSetting.isCustomMiniIcon"
+          v-model="settings.isCustomMiniIcon"
           small
           no-border
           :title="t('pages.settings.system.isCustomMiniIcon')"
@@ -193,7 +185,7 @@
       </SettingCard>
 
       <CustomNavCard
-        v-if="osGlobal !== 'darwin' && formOfSetting.isCustomMiniIcon"
+        v-if="osGlobal !== 'darwin' && settings.isCustomMiniIcon"
         :icon="ImageIcon"
         :clickable="false"
         :title="t('pages.settings.system.customMiniIconPath')"
@@ -208,12 +200,11 @@
       <!-- Auto Launch Toggle -->
       <SettingCard p1>
         <CustomSwitch
-          v-model="formOfSetting.autoStart"
+          v-model="settings.autoStart"
           small
           no-border
           :title="t('pages.settings.system.autoLaunch')"
           :description="t('pages.settings.system.autoLaunchDesc')"
-          @change="handleAutoStartChange"
         />
       </SettingCard>
       <CustomNavCard
@@ -234,7 +225,7 @@
     <SettingSection>
       <SettingCard>
         <CustomInput
-          v-model="formOfSetting.mainWindowWidth"
+          v-model="settings.mainWindowWidth"
           type="number"
           min="1"
           max="10000"
@@ -244,7 +235,7 @@
       </SettingCard>
       <SettingCard>
         <CustomInput
-          v-model="formOfSetting.mainWindowHeight"
+          v-model="settings.mainWindowHeight"
           type="number"
           min="1"
           max="10000"
@@ -289,18 +280,10 @@ import SettingsFileEditor from './SettingsFileEditor.vue'
 defineProps<{ active: boolean }>()
 const { t } = useI18n()
 const {
-  formOfSetting,
-  currentTheme,
-  currentLanguage,
-  currentStartMode,
-  isDisableGPU,
+  settings,
   rawPicGoSize,
   handleBlurCustomBgImgBlur,
   handleBlurCustomBgImgOpacity,
-  handleIsDisableGPUChange,
-  handleHideDockChange,
-  handleAutoStartChange,
-  handleMiniWindowOntop,
   handleCustomBgImg,
   handleMiniIconPath,
 } = useSettingsContext()
@@ -308,7 +291,7 @@ const $router = useRouter()
 const message = useMessage()
 const editor = useTemplateRef('editor')
 function handleEditTheme() {
-  void editor.value?.editTheme(currentTheme.value)
+  void editor.value?.editTheme(settings.value.theme)
 }
 onBeforeMount(loadThemes)
 const themeList = ref<{ value: string; label: string }[]>([{ value: 'default.css', label: '默认' }])

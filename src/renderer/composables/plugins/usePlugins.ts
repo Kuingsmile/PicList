@@ -42,7 +42,6 @@ export function usePlugins() {
   const registry = usePluginRegistry({ pluginList, pluginNameList, loading, getPluginList })
   const { searchText, browsePlugins, queuePluginMetadata } = registry
   async function saveBundledNpmSetting(enabled: boolean) {
-    experimentalBundledNpm.value = enabled
     await saveConfig(configPaths.settings.experimentalBundledNpm, enabled)
   }
 

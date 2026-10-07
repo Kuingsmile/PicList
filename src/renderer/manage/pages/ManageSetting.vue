@@ -191,6 +191,7 @@ import { fileCacheDbInstance } from '@/manage/services/bucketDatabase'
 import { getConfig, saveConfig } from '@/manage/services/configService'
 import { formatFileSize } from '@/manage/utils/filePresentation'
 import { IRPCActionType } from '#/constants/rpcActions'
+import { enforceBoolean } from '#/utils/values'
 
 const { t } = useI18n()
 const message = useMessage()
@@ -359,7 +360,8 @@ const advancedRenameTitleList = computed(() => ({
 async function initData() {
   const config = (await getConfig()) as IStringKeyMap
   settingsKeys.forEach(key => {
-    form.value[key] = config.settings[key] ?? form.value[key]
+    const value = config.settings[key] ?? form.value[key]
+    form.value[key] = typeof form.value[key] === 'boolean' ? enforceBoolean(value) : value
   })
   await nextTick() // 确保DOM更新完成
 }

@@ -36,7 +36,7 @@
       />
       <SettingCard>
         <CustomInput
-          v-model="formOfSetting.aesPassword"
+          v-model="settings.aesPassword"
           :is-password="true"
           :title="t('pages.settings.advanced.serverEncryptionKey')"
           :placeholder="t('pages.settings.advanced.serverEncryptionKey')"
@@ -54,21 +54,21 @@
     <SettingSection>
       <SettingCard>
         <CustomInput
-          v-model="proxy"
+          v-model="uploadProxy"
           :title="t('pages.settings.advanced.uploadProxy')"
           placeholder="http://127.0.0.1:1080"
         />
       </SettingCard>
       <SettingCard>
         <CustomInput
-          v-model="formOfSetting.proxy"
+          v-model="settings.proxy"
           :title="t('pages.settings.advanced.pluginInstallProxy')"
           placeholder="http://127.0.0.1:1080"
         />
       </SettingCard>
       <SettingCard>
         <CustomInput
-          v-model="formOfSetting.registry"
+          v-model="settings.registry"
           :title="t('pages.settings.advanced.pluginInstallMirror')"
           placeholder="https://registry.npmmirror.com"
         />
@@ -85,7 +85,7 @@
     <div class="flex h-full w-full flex-col p-4">
       <SettingSection>
         <CustomInput
-          v-model="formOfSetting.logFileSizeLimit"
+          v-model="settings.logFileSizeLimit"
           :title="t('pages.settings.advanced.logFileSize')"
           placeholder="10"
           type="number"
@@ -95,7 +95,7 @@
         />
         <SettingCard>
           <MultiSelect
-            v-model:choosed="formOfSetting.logLevel"
+            v-model:choosed="settings.logLevel"
             :icon="FileText"
             :tight="false"
             :title="t('pages.settings.advanced.logLevel')"
@@ -119,12 +119,12 @@
         <span>{{ t('pages.settings.advanced.serverSettingsNotice') }}</span>
       </div>
       <SettingCard p1>
-        <CustomSwitch v-model="server.enable" :title="t('pages.settings.advanced.enableServer')" no-border small />
+        <CustomSwitch v-model="serverDraft.enable" :title="t('pages.settings.advanced.enableServer')" no-border small />
       </SettingCard>
-      <SettingSection v-if="server.enable">
+      <SettingSection v-if="serverDraft.enable">
         <SettingCard>
           <CustomInput
-            v-model="server.host"
+            v-model="serverDraft.host"
             type="text"
             :title="t('pages.settings.advanced.serverHost')"
             placeholder="127.0.0.1"
@@ -132,7 +132,7 @@
         </SettingCard>
         <SettingCard>
           <CustomInput
-            v-model="server.port"
+            v-model="serverDraft.port"
             type="number"
             :min="1"
             :max="65535"
@@ -143,7 +143,7 @@
         </SettingCard>
         <SettingCard>
           <CustomInput
-            v-model="formOfSetting.serverKey"
+            v-model="settings.serverKey"
             :is-password="true"
             :title="t('pages.settings.advanced.serverKey')"
             :placeholder="t('pages.settings.advanced.serverKeyPlaceholder')"
@@ -151,7 +151,7 @@
         </SettingCard>
         <SettingCard>
           <CustomInput
-            v-model="formOfSetting.serverMaxConcurrency"
+            v-model="settings.serverMaxConcurrency"
             type="number"
             :min="0"
             :step="1"
@@ -161,7 +161,7 @@
         </SettingCard>
         <SettingCard>
           <CustomInput
-            v-model="formOfSetting.serverUploadInterval"
+            v-model="settings.serverUploadInterval"
             type="number"
             :min="0"
             :step="100"
@@ -191,6 +191,7 @@ import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import MultiSelect from '@/components/common/MultiSelect.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
+import { createServerDraft } from '@/composables/settings/settingsState'
 import { useSettingsContext } from '@/composables/settings/useSettingsContext'
 import { getConfig, saveConfig } from '@/services/configService'
 import { configPaths } from '@/utils/configPaths'
@@ -198,7 +199,7 @@ import { IRPCActionType } from '#/constants/rpcActions'
 
 defineProps<{ active: boolean }>()
 const { t } = useI18n()
-const { formOfSetting, proxy, server } = useSettingsContext()
+const { settings, uploadProxy, serverDraft } = useSettingsContext()
 
 const logFileVisible = ref(false)
 
@@ -235,10 +236,10 @@ async function confirmServerSetting() {
   if (savingServer.value) return
   savingServer.value = true
   try {
-    server.value.port = parseInt(server.value.port as unknown as string, 10)
-    const draft = JSON.stringify(server.value)
-    if (!(await saveConfig({ [configPaths.settings.server]: server.value }))) return
-    if (JSON.stringify(server.value) === draft) serverVisible.value = false
+    serverDraft.value.port = parseInt(String(serverDraft.value.port), 10)
+    const draft = JSON.stringify(serverDraft.value)
+    if (!(await saveConfig({ [configPaths.settings.server]: serverDraft.value }))) return
+    if (JSON.stringify(serverDraft.value) === draft) serverVisible.value = false
     window.electron.sendRPC(IRPCActionType.ADVANCED_UPDATE_SERVER)
   } finally {
     savingServer.value = false
@@ -247,6 +248,6 @@ async function confirmServerSetting() {
 
 async function cancelServerSetting() {
   serverVisible.value = false
-  server.value = (await getConfig(configPaths.settings.server)) || { port: 36677, host: '0.0.0.0', enable: true }
+  serverDraft.value = createServerDraft(await getConfig<IServerConfig>(configPaths.settings.server))
 }
 </script>
