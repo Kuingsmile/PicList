@@ -5,13 +5,24 @@ import updater from 'electron-updater'
 
 import { IRPCActionType, IRPCType } from '~/constants'
 import { defineRpcHandler, RPCRouter } from '~/ipc/router'
-import { downloadAndInstallUpdate } from '~/lifecycle/autoUpdater'
+import { checkForUpdates, downloadAndInstallUpdate, showUpdateDetails } from '~/lifecycle/autoUpdater'
 import { commitConfig } from '~/utils/commitConfig'
 import { configPaths } from '~/utils/configPaths'
 
 const updaterRouter = new RPCRouter()
 
 const updaterRoutes = [
+  {
+    action: IRPCActionType.CHECK_FOR_UPDATES,
+    handler: async () => checkForUpdates(),
+    type: IRPCType.INVOKE,
+  },
+  {
+    action: IRPCActionType.SHOW_UPDATE_DETAILS,
+    handler: async () => {
+      await showUpdateDetails()
+    },
+  },
   {
     action: IRPCActionType.DOWNLOAD_UPDATE,
     handler: async () => {

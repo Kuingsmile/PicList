@@ -40,3 +40,26 @@ interface IToolboxCheckRes {
   msg?: string
   value?: any
 }
+
+interface IAppInfo {
+  version: string
+  electron: string
+  chrome: string
+  node: string
+  v8: string
+  platform: string
+  arch: string
+  osName: string
+  osRelease: string
+  isPortable: boolean
+  language: string
+  dataDir: string
+  configPath: string
+  logPath: string
+}
+
+interface IUpdateCheckResult {
+  currentVersion: string
+  latestVersion: string
+  hasUpdate: boolean
+}

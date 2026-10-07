@@ -63,6 +63,8 @@
       "shortcutProblems": "{{count}} shortcut(s) could not be activated. Open Settings → Shortcuts to review conflicts or unavailable actions."
     },
     "toolbox": {
+      "brokenFileBackedUpTips": "The damaged file was renamed to {{path}}. A new one is created when PicList restarts.",
+      "brokenFileBackupFailedTips": "Couldn't rename {{path}}. Close any program that is using it, or move it out of the folder yourself.",
       "checkClipboardFilePathTips": "Clipboard image temporary folder path is {{path}}",
       "checkConfigFilePathTips": "Config file path is {{path}}",
       "checkGalleryFilePathTips": "Gallery image folder path is {{path}}",
@@ -71,9 +73,15 @@
       "clipboardFilePathNotExistTips": "Clipboard image temporary folder path {{path}} does not exist",
       "configFileBrokenTips": "Config file is broken",
       "createClipboardFilePathManuallyTips": "Please manually create the clipboard image temporary folder path {{path}}",
+      "dataDirNotWritableTips": "PicList can't write to {{path}}. Check the folder's permissions, or move PicList out of a protected location such as Program Files.",
+      "dataDirWritableTips": "PicList can save files to {{path}}",
       "galleryFileBrokenTips": "Gallery file is broken",
       "incorrectProxyTips": "Current proxy setting is incorrect",
-      "noProxy": "No proxy is set"
+      "noProxy": "No proxy is set",
+      "uploadServerDisabledTips": "The upload server is turned off in Settings. Turn it on if apps such as Typora or Obsidian upload through PicList.",
+      "uploadServerFallbackPortTips": "Listening on port {{port}} because port {{configuredPort}} was busy. Apps set to port {{configuredPort}} can't reach it.",
+      "uploadServerNotRunningTips": "The upload server is turned on but isn't running. Port {{port}} may be in use by another app.",
+      "uploadServerRunningTips": "Listening on port {{port}}"
     }
   }
 }

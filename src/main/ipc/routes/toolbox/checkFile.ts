@@ -19,14 +19,14 @@ export const checkFileMap: IToolboxCheckerMap<string> = {
     try {
       if (fs.existsSync(configFilePath)) {
         await fs.readJSON(configFilePath)
-        sendToolboxRes(event, {
-          status: IToolboxItemCheckStatus.SUCCESS,
-          msg: t('main.toolbox.checkConfigFilePathTips', {
-            path: configFilePath,
-          }),
-          value: configFilePath,
-        })
       }
+      sendToolboxRes(event, {
+        status: IToolboxItemCheckStatus.SUCCESS,
+        msg: t('main.toolbox.checkConfigFilePathTips', {
+          path: configFilePath,
+        }),
+        value: configFilePath,
+      })
     } catch (_e) {
       sendToolboxRes(event, {
         status: IToolboxItemCheckStatus.ERROR,
@@ -59,27 +59,30 @@ export const checkFileMap: IToolboxCheckerMap<string> = {
   },
 }
 
+// Keep the damaged file so the user can still recover settings from it by hand.
+function backupBrokenFile(type: string, filePath: string): IToolboxCheckRes {
+  const backupPath = `${filePath}.broken-${Date.now()}.bak`
+  try {
+    if (fs.existsSync(filePath)) fs.moveSync(filePath, backupPath)
+    return {
+      type,
+      status: IToolboxItemCheckStatus.SUCCESS,
+      msg: t('main.toolbox.brokenFileBackedUpTips', { path: backupPath }),
+      value: path.dirname(filePath),
+    }
+  } catch (_e) {
+    return {
+      type,
+      status: IToolboxItemCheckStatus.ERROR,
+      msg: t('main.toolbox.brokenFileBackupFailedTips', { path: filePath }),
+      value: path.dirname(filePath),
+    }
+  }
+}
+
 export const fixFileMap: IToolboxFixMap<string> = {
-  [IToolboxItemType.IS_CONFIG_FILE_BROKEN]: async () => {
-    try {
-      fs.unlinkSync(appConfigPath())
-    } catch (_e) {
-      // do nothing
-    }
-    return {
-      type: IToolboxItemType.IS_CONFIG_FILE_BROKEN,
-      status: IToolboxItemCheckStatus.SUCCESS,
-    }
-  },
-  [IToolboxItemType.IS_GALLERY_FILE_BROKEN]: async () => {
-    try {
-      fs.unlinkSync(DB_PATH)
-    } catch (_e) {
-      // do nothing
-    }
-    return {
-      type: IToolboxItemType.IS_GALLERY_FILE_BROKEN,
-      status: IToolboxItemCheckStatus.SUCCESS,
-    }
-  },
+  [IToolboxItemType.IS_CONFIG_FILE_BROKEN]: async () =>
+    backupBrokenFile(IToolboxItemType.IS_CONFIG_FILE_BROKEN, appConfigPath()),
+  [IToolboxItemType.IS_GALLERY_FILE_BROKEN]: async () =>
+    backupBrokenFile(IToolboxItemType.IS_GALLERY_FILE_BROKEN, DB_PATH),
 }

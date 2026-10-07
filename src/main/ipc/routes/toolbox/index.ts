@@ -3,6 +3,7 @@ import { IpcMainEvent } from 'electron'
 import { IRPCActionType, IRPCType } from '~/constants'
 import { RPCRouter } from '~/ipc/router'
 import { checkClipboardUploadMap, fixClipboardUploadMap } from '~/ipc/routes/toolbox/checkClipboardUpload'
+import { checkEnvironmentMap, fixEnvironmentMap } from '~/ipc/routes/toolbox/checkEnvironment'
 import { checkFileMap, fixFileMap } from '~/ipc/routes/toolbox/checkFile'
 import { checkProxyMap } from '~/ipc/routes/toolbox/checkProxy'
 
@@ -12,11 +13,13 @@ const toolboxCheckMap: Partial<IToolboxCheckerMap<string>> = {
   ...checkFileMap,
   ...checkClipboardUploadMap,
   ...checkProxyMap,
+  ...checkEnvironmentMap,
 }
 
 const toolboxFixMap: Partial<IToolboxFixMap<string>> = {
   ...fixFileMap,
   ...fixClipboardUploadMap,
+  ...fixEnvironmentMap,
 }
 
 toolboxRouter

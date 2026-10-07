@@ -65,6 +65,8 @@ export const checkProxyMap: IToolboxCheckerMap<string> = {
           try {
             await axios.get('https://www.google.com', {
               httpsAgent,
+              proxy: false,
+              timeout: 10_000,
             })
             return sendToolboxRes(event, {
               status: IToolboxItemCheckStatus.SUCCESS,

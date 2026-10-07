@@ -1,9 +1,11 @@
+import os from 'node:os'
 import path from 'node:path'
 
-import { isPortable, themesDir } from '@core/datastore/dirs'
+import { appConfigPath, appLogPath, dataDir, isPortable, themesDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import { app, nativeTheme, shell } from 'electron'
 import fs from 'fs-extra'
+import pkg from 'root/package.json'
 
 import { applyTheme, fetchThemes, importThemes, readTheme, resolveThemes } from '~/apis/app/theme'
 import { IRPCActionType, IRPCType } from '~/constants'
@@ -117,6 +119,26 @@ export default [
     handler: async () => {
       return isPortable()
     },
+    type: IRPCType.INVOKE,
+  },
+  {
+    action: IRPCActionType.GET_APP_INFO,
+    handler: async (): Promise<IAppInfo> => ({
+      version: pkg.version,
+      electron: process.versions.electron,
+      chrome: process.versions.chrome,
+      node: process.versions.node,
+      v8: process.versions.v8,
+      platform: process.platform,
+      arch: process.arch,
+      osName: os.version(),
+      osRelease: os.release(),
+      isPortable: isPortable(),
+      language: picgo.getConfig<string>(configPaths.settings.language) || app.getLocale(),
+      dataDir: dataDir(),
+      configPath: appConfigPath(),
+      logPath: appLogPath(),
+    }),
     type: IRPCType.INVOKE,
   },
   {

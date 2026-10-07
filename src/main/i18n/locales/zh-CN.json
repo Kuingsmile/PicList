@@ -63,6 +63,8 @@
       "shortcutProblems": "有 {{count}} 个快捷键无法生效。请打开设置 → 快捷键，查看冲突或不可用的操作。"
     },
     "toolbox": {
+      "brokenFileBackedUpTips": "已将损坏的文件重命名为 {{path}}，重启 PicList 后会创建新文件。",
+      "brokenFileBackupFailedTips": "无法重命名 {{path}}。请关闭正在使用它的程序，或手动将其移出该文件夹。",
       "checkClipboardFilePathTips": "剪贴板图片临时文件夹路径是 {{path}}",
       "checkConfigFilePathTips": "配置文件路径是 {{path}}",
       "checkGalleryFilePathTips": "相册图片文件夹路径是 {{path}}",
@@ -71,9 +73,15 @@
       "clipboardFilePathNotExistTips": "剪贴板图片临时文件夹路径 {{path}} 不存在",
       "configFileBrokenTips": "配置文件损坏",
       "createClipboardFilePathManuallyTips": "请手动创建剪贴板图片临时文件夹路径 {{path}}",
+      "dataDirNotWritableTips": "PicList 无法写入 {{path}}。请检查文件夹权限，或将 PicList 移出 Program Files 等受保护的位置。",
+      "dataDirWritableTips": "PicList 可以写入 {{path}}",
       "galleryFileBrokenTips": "相册文件已损坏",
       "incorrectProxyTips": "当前代理设置不正确",
-      "noProxy": "当前未设置代理"
+      "noProxy": "当前未设置代理",
+      "uploadServerDisabledTips": "上传服务器已在设置中关闭。如果 Typora、Obsidian 等应用需要通过 PicList 上传，请开启它。",
+      "uploadServerFallbackPortTips": "端口 {{configuredPort}} 被占用，当前监听端口 {{port}}。设置为端口 {{configuredPort}} 的应用将无法连接。",
+      "uploadServerNotRunningTips": "上传服务器已开启但未运行，端口 {{port}} 可能被其他应用占用。",
+      "uploadServerRunningTips": "正在监听端口 {{port}}"
     }
   }
 }

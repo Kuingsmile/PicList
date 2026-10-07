@@ -126,33 +126,32 @@ if (process.platform !== 'darwin') {
   renameWindowOptions.transparent = false
 }
 
-const toolboxWindowOptions = {
-  height: 450,
-  width: 800,
-  show: false,
-  frame: true,
-  center: true,
-  fullscreenable: false,
-  resizable: false,
-  title: 'PicList TOOLBOX',
-  backgroundColor: '#ebeef5',
-  icon: logo,
-  webPreferences: {
-    sandbox: false,
-    backgroundThrottling: true,
-    preload: preloadPath,
-    nodeIntegration: false,
-    contextIsolation: true,
-    nodeIntegrationInWorker: false,
-    webSecurity: false,
-  },
-} as IBrowserWindowOptions
-
-if (process.platform !== 'darwin') {
-  toolboxWindowOptions.backgroundColor = '#3f3c37'
-  toolboxWindowOptions.autoHideMenuBar = true
-  toolboxWindowOptions.transparent = false
-}
+const toolboxWindowOptions = () =>
+  ({
+    height: 680,
+    width: 860,
+    minWidth: 520,
+    minHeight: 480,
+    show: false,
+    frame: true,
+    center: true,
+    fullscreenable: false,
+    maximizable: false,
+    resizable: true,
+    autoHideMenuBar: true,
+    title: 'PicList Toolbox',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#2c2c2e' : '#fbfbfd',
+    icon: logo,
+    webPreferences: {
+      sandbox: false,
+      backgroundThrottling: true,
+      preload: preloadPath,
+      nodeIntegration: false,
+      contextIsolation: true,
+      nodeIntegrationInWorker: false,
+      webSecurity: false,
+    },
+  }) as IBrowserWindowOptions
 
 windowList.set(IWindowList.TRAY_WINDOW, {
   isValid: process.platform !== 'linux',
@@ -246,7 +245,7 @@ windowList.set(IWindowList.RENAME_WINDOW, {
 windowList.set(IWindowList.TOOLBOX_WINDOW, {
   isValid: true,
   multiple: false,
-  options: () => toolboxWindowOptions,
+  options: toolboxWindowOptions,
   async callback(window, windowManager) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#toolbox-page`)
@@ -258,8 +257,9 @@ windowList.set(IWindowList.TOOLBOX_WINDOW, {
     const currentWindow = windowManager.getAvailableWindow(true)
     if (currentWindow && currentWindow.isVisible()) {
       const { x, y, width, height } = currentWindow.getBounds()
-      const positionX = Math.floor(x + width / 2 - 400)
-      const positionY = Math.floor(y + height / 2 - (height > 400 ? 225 : 0))
+      const [ownWidth, ownHeight] = window.getSize()
+      const positionX = Math.floor(x + width / 2 - ownWidth / 2)
+      const positionY = Math.max(y, Math.floor(y + height / 2 - ownHeight / 2))
       window.setPosition(positionX, positionY, false)
     }
     window.once('ready-to-show', () => {

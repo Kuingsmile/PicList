@@ -164,6 +164,17 @@ class Server {
     return this.#pendingOperation
   }
 
+  getStatus() {
+    const address = this.#httpServer.address()
+    return {
+      enabled: !!this.#config.enable,
+      listening: this.#httpServer.listening,
+      host: this.#config.host,
+      configuredPort: Number(this.#config.port),
+      port: address && typeof address === 'object' ? address.port : undefined,
+    }
+  }
+
   startup() {
     const generation = this.#lifecycleGeneration
     return this.#enqueueLifecycleOperation(() => this.#listen(generation))

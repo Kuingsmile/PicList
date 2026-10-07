@@ -51,15 +51,3 @@ interface ISettingForm {
   customBgImgOpacity: number
   customBgImgBlur: number
 }
-
-interface IToolboxItem {
-  title: string
-  status: string
-  msg?: string
-  value?: any // for handler
-  hasNoFixMethod?: boolean
-  handler?: (value: any) => Promise<void> | void
-  handlerText?: string
-}
-
-type IToolboxMap = Record<string, IToolboxItem>

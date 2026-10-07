@@ -20,8 +20,10 @@ import { configPaths } from '~/utils/configPaths'
 import {
   downloadPortableArchive,
   extractPortableArchive,
+  isNewerPortableVersion,
   portableArchitecture,
   type PortableUpdate,
+  portableVersion,
   selectPortableUpdate,
   startPortableInstaller,
   validatePortableAsset,
@@ -157,6 +159,32 @@ export async function checkUpdateAndNotify(): Promise<void> {
     if (portableUpdate) await updateAvailableHandler(portableUpdate)
   } finally {
     checkingPortableUpdate = false
+  }
+}
+
+/** Reads the release manifest without opening the update window. */
+export async function checkForUpdates(): Promise<IUpdateCheckResult> {
+  const res = await axios.get(`${UPDATE_URL}/latest.yml`, {
+    responseType: 'text',
+    timeout: 10_000,
+    maxContentLength: 1024 * 1024,
+  })
+  const document = yaml.parseDocument(res.data)
+  if (document.errors.length) throw new Error('Invalid update manifest')
+  const latestVersion = portableVersion((document.toJSON() as { version?: unknown } | null)?.version)
+  return {
+    currentVersion: pkg.version,
+    latestVersion,
+    hasUpdate: isNewerPortableVersion(pkg.version, latestVersion),
+  }
+}
+
+/** Opens the regular update window, which offers release notes and the download. */
+export async function showUpdateDetails(): Promise<void> {
+  if (isPortable()) {
+    await checkUpdateAndNotify()
+  } else {
+    await updater.autoUpdater.checkForUpdates()
   }
 }
 
