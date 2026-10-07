@@ -12,6 +12,7 @@ import { IRPCActionType } from '#/constants/rpcActions'
 import { enforceNumber } from '#/utils/values'
 
 import type { SettingsState } from './settingsState'
+
 export function useSettingsPersistence(state: SettingsState) {
   const { t, locale } = useI18n()
   const message = useMessage()

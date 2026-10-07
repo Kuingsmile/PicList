@@ -14,9 +14,10 @@ export default [
   },
   {
     action: IRPCActionType.MANAGE_OPEN_FILE_SELECT_DIALOG,
-    handler: async () => {
+    handler: async (_: IIPCEvent, args: [config?: Electron.OpenDialogOptions]) => {
       const res = await dialog.showOpenDialog({
         properties: ['openFile', 'multiSelections'],
+        ...args[0],
       })
       return res.canceled ? [] : res.filePaths
     },

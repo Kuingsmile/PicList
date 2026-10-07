@@ -7,10 +7,12 @@
       >
         <div class="flex flex-1 flex-wrap items-center gap-4 p-2">
           <Settings :size="24" class="text-accent" />
-          <div>
-            <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">{{ t('pages.settings.title') }}</h1>
-          </div>
+
+          <h1 class="m-0 text-2xl font-semibold tracking-tight text-main">
+            {{ t('pages.settings.title') }}
+          </h1>
         </div>
+
         <div class="flex gap-3">
           <CustomButton :text="t('pages.settings.docs')" type="secondary" :icon="BookOpen" @click="goConfigPage" />
         </div>
@@ -36,14 +38,9 @@
       <div
         class="relative flex h-full w-full flex-1 items-center justify-center overflow-hidden rounded-2xl border border-border-secondary p-1 shadow-md"
       >
-        <!-- System Settings Tab -->
         <SystemSettings :active="currentTab === 'system'" />
-
-        <!-- Sync & Configure Tab -->
         <SyncSettings :active="currentTab === 'sync'" />
-        <!-- Upload Settings Tab -->
         <UploadSettings :active="currentTab === 'upload'" />
-
         <AdvancedSettings :active="currentTab === 'advanced'" />
         <UpdateSettings :active="currentTab === 'update'" />
       </div>
@@ -70,26 +67,63 @@ import { configPaths } from '@/utils/configPaths'
 import { II18nLanguage } from '#/constants/app'
 import { IRPCActionType } from '#/constants/rpcActions'
 
-defineOptions({ name: 'SettingPage' })
+defineOptions({
+  name: 'SettingPage',
+})
+
 const { t } = useI18n()
+
 provideSettings(useSettingsState())
-const currentTab = useStorage<'system' | 'sync' | 'upload' | 'advanced' | 'update'>('settings-current-tab', 'system')
 
-const tabs = computed(() => [
-  { id: 'system', label: t('pages.settings.system.title'), icon: Settings },
-  { id: 'sync', label: t('pages.settings.sync.title'), icon: RotateCcw },
-  { id: 'upload', label: t('pages.settings.upload.title'), icon: CloudUpload },
-  { id: 'advanced', label: t('pages.settings.advanced.title'), icon: Server },
-  { id: 'update', label: t('pages.settings.update.title'), icon: RefreshCw },
-])
+const tabDefinitions = [
+  {
+    id: 'system',
+    labelKey: 'pages.settings.system.title',
+    icon: Settings,
+  },
+  {
+    id: 'sync',
+    labelKey: 'pages.settings.sync.title',
+    icon: RotateCcw,
+  },
+  {
+    id: 'upload',
+    labelKey: 'pages.settings.upload.title',
+    icon: CloudUpload,
+  },
+  {
+    id: 'advanced',
+    labelKey: 'pages.settings.advanced.title',
+    icon: Server,
+  },
+  {
+    id: 'update',
+    labelKey: 'pages.settings.update.title',
+    icon: RefreshCw,
+  },
+] as const
 
-function tabClick(tabId: string) {
-  currentTab.value = tabId as 'system' | 'sync' | 'upload' | 'advanced' | 'update'
+type TabId = (typeof tabDefinitions)[number]['id']
+
+const currentTab = useStorage<TabId>('settings-current-tab', tabDefinitions[0].id)
+
+const tabs = computed(() =>
+  tabDefinitions.map(({ id, labelKey, icon }) => ({
+    id,
+    icon,
+    label: t(labelKey),
+  })),
+)
+
+function tabClick(tabId: TabId) {
+  currentTab.value = tabId
 }
 
 async function goConfigPage() {
-  const lang = (await getConfig(configPaths.settings.language)) || II18nLanguage.ZH_CN
-  const url = `https://piclist.cn/${lang === II18nLanguage.EN ? 'en/' : ''}configure.html`
+  const lang = (await getConfig(configPaths.settings.language)) ?? II18nLanguage.ZH_CN
+  const localePath = lang === II18nLanguage.EN ? 'en/' : ''
+  const url = `https://piclist.cn/${localePath}configure.html`
+
   window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
 }
 </script>

@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 
 import { usePicBed } from '@/composables/useGlobal'
+
 export function createSettingsState() {
   const { picBedG } = usePicBed()
   const ready = ref(false)

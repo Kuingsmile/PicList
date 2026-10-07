@@ -11,6 +11,7 @@ import { enforceNumber } from '#/utils/values'
 
 import { createSettingsState } from './settingsState'
 import { useSettingsPersistence } from './useSettingsPersistence'
+
 export function useSettingsState() {
   const state = createSettingsState()
   const {
