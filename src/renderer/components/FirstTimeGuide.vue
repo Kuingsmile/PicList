@@ -179,7 +179,7 @@ const steps: GuideStep[] = [
     title: 'guide.steps.gallery.title',
     description: 'guide.steps.gallery.description',
     route: '/main-page/gallery',
-    target: 'nav .nav-item:nth-child(3)',
+    target: 'nav [data-nav="gallery"]',
     position: 'right',
     icon: ImageIcon,
   },

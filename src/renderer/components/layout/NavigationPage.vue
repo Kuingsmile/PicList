@@ -1,380 +1,170 @@
 <template>
   <nav
-    class="group no-scrollbar flex h-screen w-[150px] flex-col overflow-hidden border-r border-r-border-secondary/50 bg-bg-secondary transition-all duration-medium ease-apple max-md:w-[60px] [.collapsed]:w-[60px]"
-    :class="{ collapsed: isCollapsed }"
+    :aria-label="t('navigation.ariaLabel')"
+    class="flex shrink-0 flex-col overflow-hidden border-r border-border-secondary bg-bg-secondary transition-[width] duration-medium ease-apple"
+    :class="collapsed ? 'w-[60px]' : 'w-[176px]'"
   >
     <div
-      class="relative flex items-center justify-center bg-bg-secondary px-4 py-5 group-[.collapsed]:px-2 group-[.collapsed]:py-4"
+      v-if="!compactNavigation"
+      class="flex h-[52px] shrink-0 items-center gap-2 px-2"
+      :class="collapsed ? 'justify-center' : 'justify-between pl-4'"
     >
-      <div v-show="!isCollapsed" class="flex flex-col items-center gap-1 group-[.collapsed]:hidden max-md:hidden">
-        <a
-          class="text-[16px] font-bold tracking-tight text-main hover:cursor-pointer hover:text-accent"
-          :href="GITHUB_URL"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {{ t('app.title') }}
-        </a>
-        <div
-          class="rounded-lg border border-border/50 bg-bg-secondary px-[8px] py-[3px] text-[10px] font-medium text-secondary"
+      <div v-if="!collapsed" class="flex min-w-0 items-center gap-1.5">
+        <span class="truncate text-base font-bold tracking-tight text-main">{{ t('app.title') }}</span>
+        <span
+          class="shrink-0 rounded-full bg-accent/10 px-1.5 text-[10px] leading-4 font-semibold text-accent tabular-nums"
         >
           v{{ pkg.version }}
-        </div>
+        </span>
       </div>
       <button
-        v-tooltip="isCollapsed ? t('navigation.expand') : t('navigation.collapse')"
-        :aria-label="isCollapsed ? t('navigation.expand') : t('navigation.collapse')"
-        class="absolute top-1/2 right-[8px] flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border border-border/50 bg-transparent p-[4px] transition-all duration-200 ease-apple group-[.collapsed]:absolute group-[.collapsed]:top-[20px] group-[.collapsed]:right-[16px] group-[.collapsed]:transform-none hover:bg-accent/30 hover:text-white"
+        v-tooltip="{ content: toggleLabel, placement: collapsed ? 'right' : 'bottom' }"
+        type="button"
+        :aria-label="toggleLabel"
+        :aria-expanded="!collapsed"
+        class="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-secondary transition-colors duration-fast ease-apple hover:bg-accent/10 hover:text-main focus-visible:focus-ring"
         @click="isCollapsed = !isCollapsed"
       >
-        <component :is="isCollapsed ? ChevronRightIcon : ChevronLeftIcon" :size="16" />
+        <component :is="collapsed ? PanelLeftOpen : PanelLeftClose" :size="18" aria-hidden="true" />
       </button>
     </div>
 
-    <div class="theme-switcher flex items-center justify-center p-3">
-      <ThemeSwitcher :collapsed="isCollapsed" />
-    </div>
-
-    <div class="no-scrollbar min-h-0 flex-1 overflow-y-auto py-4">
-      <div
-        v-for="item in navigationItems.slice(0, 3)"
-        :key="item.path"
-        v-tooltip="{ content: isCollapsed || compactNavigation ? item.name : '', placement: 'right' }"
-        class="nav-item flex cursor-pointer items-center justify-center gap-3 px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple group-[.collapsed]:justify-center group-[.collapsed]:gap-0 group-[.collapsed]:px-2 group-[.collapsed]:py-3 hover:bg-surface hover:text-accent [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
-        :class="{ 'router-link-active': isPathActive(item.path) }"
-        role="link"
-        tabindex="0"
-        :aria-label="item.name"
-        :aria-current="isPathActive(item.path) ? 'page' : undefined"
-        @click="navigateToPath(item.path)"
-        @keydown.enter.prevent="navigateToPath(item.path)"
-        @keydown.space.prevent="navigateToPath(item.path)"
-      >
-        <div class="relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
-          <component :is="item.icon" :size="18" />
-        </div>
-        <span v-show="!isCollapsed" class="max-md:hidden" :class="isCollapsed ? 'hidden' : ''">{{ item.name }}</span>
-      </div>
-
-      <Disclosure v-show="!isCollapsed" v-slot="{ open }" as="div" class="relative mt-[4px] justify-center">
-        <DisclosureButton
-          v-tooltip="{ content: compactNavigation ? t('navigation.picbed') : '', placement: 'right' }"
-          :aria-label="t('navigation.picbed')"
-          class="nav-item relative flex w-full cursor-pointer items-center justify-center gap-3 border-none bg-transparent px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple group-[.collapsed]:justify-center group-[.collapsed]:gap-0 group-[.collapsed]:px-2 group-[.collapsed]:py-3 hover:bg-surface-elevated hover:text-accent [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
+    <div class="no-scrollbar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-2">
+      <template v-for="item in navigationItems" :key="item.id">
+        <!-- Workspace pages stay on top; configuration pages sit at the bottom. -->
+        <div v-if="item.id === 'settings'" class="min-h-4 flex-1" aria-hidden="true" />
+        <NavigationPicBedGroup
+          v-if="item.id === 'picbed'"
+          :collapsed="collapsed"
+          :label="item.name"
+          :icon="item.icon"
+        />
+        <button
+          v-else
+          v-tooltip="{ content: collapsed ? item.name : '', placement: 'right' }"
+          type="button"
+          :data-nav="item.id"
+          :aria-label="collapsed ? item.name : undefined"
+          :aria-current="isItemActive(item) ? 'page' : undefined"
+          :class="[navItemBase, collapsed ? 'justify-center' : 'px-3', navItemState(isItemActive(item))]"
+          @click="router.push({ name: item.routes[0] })"
         >
-          <div class="relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
-            <DatabaseIcon :size="18" />
-          </div>
-          <span class="shrink-0 max-md:hidden" :class="isCollapsed ? 'hidden' : ''">{{ t('navigation.picbed') }}</span>
-          <ChevronDownIcon
-            :size="16"
-            class="absolute right-4 shrink-0 transition-all duration-200 ease-apple"
-            :class="{ 'rotate-180': open }"
-          />
-        </DisclosureButton>
-        <DisclosurePanel class="mt-[2px] flex flex-col gap-[4px] pl-11">
-          <div
-            v-for="item in visiblePicBeds"
-            :key="item.type"
-            :class="{ 'router-link-active': isPicBedPathActive(item.type) }"
-            class="flex cursor-pointer items-center px-4 py-2 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple hover:bg-surface-elevated hover:text-accent-hover [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
-            @click="navigateToUploaderConfig(item.type)"
-          >
-            <span>{{ item.name }}</span>
-          </div>
-        </DisclosurePanel>
-      </Disclosure>
-      <div
-        v-show="isCollapsed"
-        v-tooltip="{ content: t('navigation.picbed'), placement: 'right' }"
-        class="nav-item flex cursor-pointer items-center justify-center gap-3 bg-surface-elevated px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple group-[.collapsed]:justify-center group-[.collapsed]:gap-0 group-[.collapsed]:px-2 group-[.collapsed]:py-3 hover:bg-surface hover:text-accent [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
-        role="button"
-        tabindex="0"
-        :aria-label="t('navigation.picbed')"
-        @click="isCollapsed = !isCollapsed"
-        @keydown.enter.prevent="isCollapsed = !isCollapsed"
-        @keydown.space.prevent="isCollapsed = !isCollapsed"
-      >
-        <div class="relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
-          <DatabaseIcon :size="18" />
-        </div>
-      </div>
-
-      <div
-        v-for="item in navigationItems.slice(3)"
-        :key="item.path"
-        v-tooltip="{ content: isCollapsed || compactNavigation ? item.name : '', placement: 'right' }"
-        class="nav-item flex cursor-pointer items-center justify-center gap-3 px-4 py-3 text-sm font-medium text-secondary no-underline transition-all duration-200 ease-apple group-[.collapsed]:justify-center group-[.collapsed]:gap-0 group-[.collapsed]:px-2 group-[.collapsed]:py-3 hover:bg-surface hover:text-accent [.router-link-active]:border-r-4 [.router-link-active]:border-accent [.router-link-active]:bg-surface [.router-link-active]:text-accent"
-        :class="{ 'router-link-active': isPathActive(item.path) }"
-        role="link"
-        tabindex="0"
-        :aria-label="item.name"
-        :aria-current="isPathActive(item.path) ? 'page' : undefined"
-        @click="navigateToPath(item.path)"
-        @keydown.enter.prevent="navigateToPath(item.path)"
-        @keydown.space.prevent="navigateToPath(item.path)"
-      >
-        <div class="relative flex h-[20px] w-[20px] shrink-0 items-center justify-center">
-          <component :is="item.icon" :size="18" />
-        </div>
-        <span v-show="!isCollapsed" class="max-md:hidden" :class="isCollapsed ? 'hidden' : ''">{{ item.name }}</span>
-      </div>
+          <component :is="item.icon" :size="18" class="shrink-0" aria-hidden="true" />
+          <span v-if="!collapsed" class="min-w-0 flex-1 truncate">{{ item.name }}</span>
+        </button>
+      </template>
     </div>
-    <div class="border-t border-t-border p-3">
+
+    <div
+      class="flex shrink-0 gap-1 border-t border-border-secondary p-2"
+      :class="collapsed ? 'flex-col items-center' : 'items-center'"
+    >
+      <div class="theme-switcher" :class="collapsed ? '' : 'min-w-0 flex-1'">
+        <ThemeSwitcher :collapsed="collapsed" />
+      </div>
       <button
-        v-tooltip="t('navigation.moreOptions')"
-        class="fixed bottom-[4px] left-[4px] cursor-pointer rounded-full border-none bg-transparent p-[8px] text-tertiary hover:bg-accent/30 hover:text-white"
+        v-tooltip="{ content: t('navigation.moreOptions'), placement: collapsed ? 'right' : 'top' }"
+        type="button"
+        aria-haspopup="menu"
         :aria-label="t('navigation.moreOptions')"
+        class="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-md text-secondary transition-colors duration-fast ease-apple hover:bg-accent/10 hover:text-main focus-visible:focus-ring"
         @click="openMenu"
       >
-        <Info :size="20" />
+        <Ellipsis :size="18" aria-hidden="true" />
       </button>
     </div>
   </nav>
 
   <FirstTimeGuide ref="guideRef" />
-
-  <TransitionRoot appear :show="qrcodeVisible" as="template">
-    <Dialog
-      as="div"
-      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto"
-      @close="qrcodeVisible = false"
-    >
-      <div class="fixed inset-0 z-50 flex min-h-screen items-center justify-center overflow-y-auto p-[16px]">
-        <TransitionChild as="template">
-          <DialogPanel
-            class="w-full max-w-[500px] overflow-visible rounded-xl border border-border bg-bg-tertiary shadow-md"
-          >
-            <DialogTitle class="m-0 px-[24px] pt-[20px] text-2xl font-semibold text-main">
-              {{ t('navigation.picBedQrCode') }}
-            </DialogTitle>
-
-            <div class="p-4">
-              <div class="mb-4">
-                <label class="mb-2 block text-base font-medium text-main">{{ t('navigation.choosePicBed') }}</label>
-                <Listbox v-model="choosedPicBedForQRCode" multiple class="mb-2">
-                  <div class="relative">
-                    <ListboxButton
-                      class="flex w-full cursor-pointer items-center justify-between rounded-2xl border border-border bg-surface px-4 py-3 text-base text-main hover:border-accent"
-                    >
-                      <span v-if="choosedPicBedForQRCode.length === 0" class="text-secondary">
-                        {{ t('navigation.selectPicBeds') }}
-                      </span>
-                      <span v-else class="text-main">
-                        {{ choosedPicBedForQRCode.length }} {{ t('navigation.selected') }}
-                      </span>
-                      <ChevronDownIcon :size="16" class="text-secondary" />
-                    </ListboxButton>
-
-                    <transition>
-                      <ListboxOptions
-                        class="absolute top-full right-0 left-0 z-1000 mt-[4px] max-h-[300px] overflow-y-auto rounded-sm border border-border bg-bg-tertiary shadow-md"
-                      >
-                        <ListboxOption
-                          v-for="picbed in picBedG"
-                          :key="picbed.type"
-                          v-slot="{ active, selected }"
-                          :value="picbed.type"
-                        >
-                          <li
-                            class="flex cursor-pointer items-center justify-between px-4 py-3 text-base text-main [.active]:bg-surface-elevated [.selected]:bg-accent [.selected]:text-white"
-                            :class="{ active, selected }"
-                          >
-                            <span>{{ picbed.name }}</span>
-                            <CheckIcon v-if="selected" :size="16" />
-                          </li>
-                        </ListboxOption>
-                      </ListboxOptions>
-                    </transition>
-                  </div>
-                </Listbox>
-
-                <CustomButton
-                  v-if="choosedPicBedForQRCode.length > 0"
-                  :icon="CopyIcon"
-                  :text="t('navigation.copyPicBedConfig')"
-                  @click="handleCopyPicBedConfig"
-                />
-              </div>
-
-              <div v-if="choosedPicBedForQRCode.length > 0" class="flex justify-center py-5">
-                <qrcode-vue :size="280" :value="picBedConfigString" class="overflow-hidden shadow-sm" />
-              </div>
-            </div>
-
-            <div class="flex justify-end gap-3 px-4 pb-4">
-              <CustomButton
-                :text="t('navigation.close')"
-                class="bg-danger/70 text-white hover:bg-danger"
-                type="custom"
-                @click="qrcodeVisible = false"
-              />
-            </div>
-          </DialogPanel>
-        </TransitionChild>
-      </div>
-    </Dialog>
-  </TransitionRoot>
+  <PicBedQrCodeDialog />
 </template>
 
 <script setup lang="ts">
 import {
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-  TransitionChild,
-  TransitionRoot,
-} from '@headlessui/vue'
-import {
-  CheckIcon,
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   Cloud,
-  CopyIcon,
   DatabaseIcon,
+  Ellipsis,
   FileCode,
   ImagesIcon,
-  Info,
+  PanelLeftClose,
+  PanelLeftOpen,
   PlugIcon,
   Settings,
   UploadIcon,
 } from '@lucide/vue'
 import { useMediaQuery, useStorage } from '@vueuse/core'
-import { pick } from 'lodash-es'
-import QrcodeVue from 'qrcode.vue'
 import pkg from 'root/package.json'
-import { computed, onBeforeMount, onBeforeUnmount, onWatcherCleanup, reactive, ref, useTemplateRef, watch } from 'vue'
+import { type Component, computed, onBeforeMount, onBeforeUnmount, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
-import CustomButton from '@/components/common/CustomButton.vue'
 import FirstTimeGuide from '@/components/FirstTimeGuide.vue'
+import NavigationPicBedGroup from '@/components/layout/NavigationPicBedGroup.vue'
+import { navItemBase, navItemState } from '@/components/layout/navStyles'
+import PicBedQrCodeDialog from '@/components/layout/PicBedQrCodeDialog.vue'
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher.vue'
-import { usePicBed } from '@/composables/useGlobal'
-import useMessage from '@/composables/useMessage'
-import * as config from '@/router/config'
-import { getConfig } from '@/services/configService'
-import { showRpcError } from '@/services/rpcService'
-import { GITHUB_URL } from '@/utils/static'
-import { SHOW_FIRST_TIME_GUIDE, SHOW_MAIN_PAGE_QRCODE } from '#/constants/ipcChannels'
+import {
+  GALLERY_PAGE,
+  MANAGE_LOGIN_PAGE,
+  MANAGE_MAIN_PAGE,
+  MANAGE_SETTING_PAGE_DIRECT,
+  PLUGIN_PAGE,
+  SCRIPT_PAGE,
+  SETTING_PAGE,
+  SHORTKEY_PAGE,
+  UPLOAD_PAGE,
+} from '@/router/config'
+import { SHOW_FIRST_TIME_GUIDE } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
 
-const isCollapsed = useStorage('navigation-collapsed', false)
-const compactNavigation = useMediaQuery('(max-width: 767px)')
+interface NavigationItem {
+  id: string
+  name: string
+  icon: Component
+  /** Route names that highlight this item; the first one is where it navigates. */
+  routes: string[]
+}
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const message = useMessage()
-const { picBedG } = usePicBed()
 
-const routerConfig = reactive(config)
-const qrcodeVisible = ref(false)
-const choosedPicBedForQRCode = ref<string[]>([])
-const picBedConfigString = ref('')
+const isCollapsed = useStorage('navigation-collapsed', false)
+const compactNavigation = useMediaQuery('(max-width: 767px)')
+const collapsed = computed(() => isCollapsed.value || compactNavigation.value)
+const toggleLabel = computed(() => (collapsed.value ? t('navigation.expand') : t('navigation.collapse')))
 const guideRef = useTemplateRef('guideRef')
 
-let removeIpcListener: () => void = () => {}
-
-const visiblePicBeds = computed(() => picBedG.value.filter(item => item.visible))
-
-const navigationItems = computed(() => [
-  { name: t('navigation.upload'), path: '/main-page/upload', icon: UploadIcon },
-  { name: t('navigation.manage'), path: '/main-page/manage-login-page', icon: Cloud },
-  { name: t('navigation.gallery'), path: '/main-page/gallery', icon: ImagesIcon },
-  { name: t('navigation.settings'), path: '/main-page/settings', icon: Settings },
+const navigationItems = computed<NavigationItem[]>(() => [
+  { id: 'upload', name: t('navigation.upload'), icon: UploadIcon, routes: [UPLOAD_PAGE] },
   {
-    name: t('navigation.plugins'),
-    path: '/main-page/plugins',
-    icon: PlugIcon,
+    id: 'manage',
+    name: t('navigation.manage'),
+    icon: Cloud,
+    routes: [MANAGE_LOGIN_PAGE, MANAGE_MAIN_PAGE, MANAGE_SETTING_PAGE_DIRECT],
   },
-  {
-    name: t('navigation.scripts'),
-    path: '/main-page/scripts',
-    icon: FileCode,
-  },
+  { id: 'gallery', name: t('navigation.gallery'), icon: ImagesIcon, routes: [GALLERY_PAGE] },
+  { id: 'picbed', name: t('navigation.picbed'), icon: DatabaseIcon, routes: [] },
+  { id: 'settings', name: t('navigation.settings'), icon: Settings, routes: [SETTING_PAGE, SHORTKEY_PAGE] },
+  { id: 'plugins', name: t('navigation.plugins'), icon: PlugIcon, routes: [PLUGIN_PAGE] },
+  { id: 'scripts', name: t('navigation.scripts'), icon: FileCode, routes: [SCRIPT_PAGE] },
 ])
 
-watch(
-  choosedPicBedForQRCode,
-  async selected => {
-    let cancelled = false
-    onWatcherCleanup(() => {
-      cancelled = true
-    })
-    picBedConfigString.value = ''
-    if (selected.length > 0) {
-      const names = [...selected]
-      try {
-        const picBedConfig = await getConfig('picBed')
-        if (!cancelled) picBedConfigString.value = JSON.stringify(pick(picBedConfig, ...names))
-      } catch (error) {
-        if (!cancelled) showRpcError(error)
-      }
-    }
-  },
-  { deep: 1 },
-)
-
-const qrCodeHandler = () => {
-  qrcodeVisible.value = true
-}
-
-const guideHandler = () => {
-  guideRef.value?.restartGuide()
+function isItemActive(item: NavigationItem) {
+  return route.matched.some(record => item.routes.includes(record.name as string))
 }
 
 function openMenu() {
   window.electron.sendRPC(IRPCActionType.SHOW_MAIN_PAGE_MENU)
 }
 
-function handleCopyPicBedConfig() {
-  let result
-  try {
-    result = JSON.stringify(JSON.parse(picBedConfigString.value), null, 2)
-  } catch (_e) {
-    result = picBedConfigString.value
-  }
-  window.electron.clipboard.writeText(result)
-  message.success(t('navigation.copySuccess'))
-}
-
-function navigateToPath(path: string) {
-  router.push(path)
-}
-
-function navigateToUploaderConfig(type: string) {
-  router.push({ name: routerConfig.UPLOADER_CONFIG_PAGE, params: { type } })
-}
-
-function isPathActive(path: string): boolean {
-  return route.path === path
-}
-
-function isPicBedPathActive(type: string): boolean {
-  return route.name === routerConfig.UPLOADER_CONFIG_PAGE && route.params.type === type
-}
+let removeGuideListener: () => void = () => {}
 
 onBeforeMount(() => {
-  removeIpcListener = window.electron.ipcRendererOn(SHOW_MAIN_PAGE_QRCODE, qrCodeHandler)
-  const removeGuideListener = window.electron.ipcRendererOn(SHOW_FIRST_TIME_GUIDE, guideHandler)
-
-  const originalRemove = removeIpcListener
-  removeIpcListener = () => {
-    originalRemove()
-    removeGuideListener()
-  }
+  removeGuideListener = window.electron.ipcRendererOn(SHOW_FIRST_TIME_GUIDE, () => guideRef.value?.restartGuide())
 })
 
 onBeforeUnmount(() => {
-  removeIpcListener()
+  removeGuideListener()
 })
 </script>
