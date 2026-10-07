@@ -196,7 +196,11 @@
       "configNameRequired": "Configure name is required",
       "fieldRequired": "{name} is required",
       "loadFailed": "Could not load this configuration. Try again before saving.",
-      "loading": "Loading configuration…"
+      "loading": "Loading configuration…",
+      "no": "No",
+      "requiredHint": "Fields marked with * are required",
+      "unsavedChanges": "Unsaved changes",
+      "yes": "Yes"
     },
     "gallery": {
       "batchEditUrl": "Batch Edit URL",
@@ -1695,6 +1699,7 @@
         "secondary": "Backup upload",
         "uploading": "Uploading"
       },
+      "putToUpload": "Release mouse to upload",
       "quickUpload": "Quick Upload",
       "removeFromFavorites": "Remove from quick switch",
       "taskQueue": {

@@ -7,6 +7,7 @@
       {{ title }}
     </label>
     <span v-if="required" class="ml-1 text-danger" aria-hidden="true">*</span>
+    <HelpTooltip v-if="tips" :content="tips" />
   </div>
   <div ref="dropdownRef" class="sort-dropdown relative">
     <button
@@ -61,6 +62,8 @@
 <script setup lang="ts">
 import { ChevronDownIcon, SortAscIcon } from '@lucide/vue'
 import { Comment, type Component, computed, Fragment, isVNode, useId, type VNode, watch } from 'vue'
+
+import HelpTooltip from '@/components/common/HelpTooltip.vue'
 
 import { useDropdown } from '../../composables/useDropdown'
 
@@ -137,6 +140,7 @@ const {
   required = false,
   disabled = false,
   id = undefined,
+  tips = '',
 } = defineProps<{
   title: string
   icon?: Component | null
@@ -150,6 +154,7 @@ const {
   required?: boolean
   disabled?: boolean
   id?: string
+  tips?: string
 }>()
 
 watch(

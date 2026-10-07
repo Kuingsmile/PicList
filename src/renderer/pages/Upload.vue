@@ -5,7 +5,7 @@
     >
       <!-- Header Card -->
       <div
-        class="flex w-full flex-wrap items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-4 shadow-md max-md:flex-col max-md:items-stretch max-md:p-5"
+        class="flex w-full flex-wrap items-center justify-between gap-4 rounded-2xl border border-border-secondary px-6 py-4 shadow-sm max-md:flex-col max-md:items-stretch max-md:p-5"
       >
         <div class="flex max-w-[calc(100%-300px)] flex-1 flex-wrap items-center gap-2 max-md:order-1">
           <button
@@ -100,7 +100,7 @@
 
       <!-- Main Upload Card -->
       <div
-        class="flex min-h-[230px] w-full flex-1 flex-wrap items-center justify-center gap-4 rounded-2xl border border-border-secondary px-6 py-4 shadow-md max-md:flex-col max-md:items-stretch max-md:p-5"
+        class="flex min-h-[230px] w-full flex-1 flex-wrap items-center justify-center gap-4 rounded-2xl border border-border-secondary px-6 py-4 shadow-sm max-md:flex-col max-md:items-stretch max-md:p-5"
       >
         <div
           id="upload-area"
@@ -120,7 +120,7 @@
             </div>
             <div class="flex flex-col gap-2">
               <h3 class="m-0 text-xl font-semibold tracking-tight text-main max-xs:text-lg">
-                {{ t('pages.upload.dragFileToHere') }}
+                {{ dragover ? t('pages.upload.putToUpload') : t('pages.upload.dragFileToHere') }}
               </h3>
               <p class="m-0 text-sm text-secondary">
                 {{ ' ' }}
@@ -187,16 +187,11 @@
 
       <!-- Quick Actions Card -->
       <div
-        class="flex w-full flex-col flex-wrap items-center justify-between gap-2 rounded-2xl border border-border-secondary px-6 py-4 shadow-md max-md:items-stretch max-md:p-5"
+        class="flex w-full flex-col flex-wrap items-center justify-between gap-2 rounded-2xl border border-border-secondary px-6 py-4 shadow-sm max-md:items-stretch max-md:p-5"
       >
-        <div class="flex w-full items-start p-0">
-          <h4 class="m-0 text-[0.9rem] font-semibold tracking-tight text-main">
-            {{ t('pages.upload.quickUpload') }}
-          </h4>
-        </div>
         <div class="flex w-full flex-1 flex-row flex-wrap items-center justify-center gap-4 max-md:gap-3 max-md:px-5">
           <button
-            class="group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
+            class="group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border-2 border-border/20 bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
             @click="uploadClipboardFiles"
           >
             <ClipboardIcon class="shrink-0 text-accent group-hover:text-white" :size="15" />
@@ -205,7 +200,7 @@
             }}</span>
           </button>
           <button
-            class="group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-border-secondary bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
+            class="group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border-2 border-border/20 bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
             @click="uploadURLFiles"
           >
             <LinkIcon class="shrink-0 text-accent group-hover:text-white" :size="15" />
@@ -219,13 +214,8 @@
 
       <!-- Settings Card -->
       <div
-        class="flex w-full flex-row flex-wrap items-center justify-between gap-0 rounded-2xl border border-border-secondary px-6 py-4 shadow-md max-md:flex-col max-md:items-stretch max-md:p-5"
+        class="flex w-full flex-row flex-wrap items-center justify-between gap-0 rounded-2xl border-2 border-border/20 px-6 py-4 shadow-sm max-md:flex-col max-md:items-stretch max-md:p-5"
       >
-        <div class="flex w-full items-start p-0">
-          <h4 class="m-0 text-[0.9rem] font-semibold tracking-tight text-main">
-            {{ t('pages.upload.linkFormat') }}
-          </h4>
-        </div>
         <div class="flex w-full flex-row gap-2 p-2">
           <!-- Format Options -->
           <div class="flex flex-1 flex-col gap-3">

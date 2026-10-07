@@ -196,7 +196,11 @@
       "configNameRequired": "配置名稱為必填項",
       "fieldRequired": "{name}為必填項",
       "loadFailed": "無法載入此設定，請重試後再儲存。",
-      "loading": "正在載入設定…"
+      "loading": "正在載入設定…",
+      "no": "否",
+      "requiredHint": "標有 * 的為必填項",
+      "unsavedChanges": "有未儲存的變更",
+      "yes": "是"
     },
     "gallery": {
       "batchEditUrl": "批量修改URL",
@@ -404,7 +408,7 @@
         "scopeLabels": {
           "config": "單一圖床設定",
           "global": "所有圖床",
-          "provider": "某個圖床服務"
+          "provider": "某個圖床平台"
         },
         "scopeNotes": {
           "config": "未修改的選項會繼續使用共用設定。",
@@ -1695,6 +1699,7 @@
         "secondary": "備用圖床上傳",
         "uploading": "上傳中"
       },
+      "putToUpload": "鬆開滑鼠以上傳",
       "quickUpload": "快捷上傳",
       "removeFromFavorites": "從快速切換中移除",
       "taskQueue": {

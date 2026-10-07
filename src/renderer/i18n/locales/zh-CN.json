@@ -196,7 +196,11 @@
       "configNameRequired": "配置名称为必填项",
       "fieldRequired": "{name}为必填项",
       "loadFailed": "无法加载此配置，请重试后再保存。",
-      "loading": "正在加载配置…"
+      "loading": "正在加载配置…",
+      "no": "否",
+      "requiredHint": "带 * 的为必填项",
+      "unsavedChanges": "有未保存的更改",
+      "yes": "是"
     },
     "gallery": {
       "batchEditUrl": "批量修改URL",
@@ -404,7 +408,7 @@
         "scopeLabels": {
           "config": "单个图床配置",
           "global": "所有图床",
-          "provider": "某个图床服务"
+          "provider": "某个图床平台"
         },
         "scopeNotes": {
           "config": "未修改的选项会继续使用通用设置。",
@@ -1695,6 +1699,7 @@
         "secondary": "备用图床上传",
         "uploading": "上传中"
       },
+      "putToUpload": "松开鼠标来上传",
       "quickUpload": "快捷上传",
       "removeFromFavorites": "从快速切换中移除",
       "taskQueue": {

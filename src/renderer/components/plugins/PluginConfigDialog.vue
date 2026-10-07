@@ -6,7 +6,14 @@
     height="auto"
   >
     <div class="flex-1 overflow-y-auto p-4">
-      <ConfigForm :id="configName" ref="$configForm" :config :type="currentType" mode="plugin" />
+      <ConfigForm
+        :id="configName"
+        ref="$configForm"
+        :config
+        :type="currentType"
+        mode="plugin"
+        @submit="handleConfirmConfig"
+      />
     </div>
     <template #footer>
       <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />

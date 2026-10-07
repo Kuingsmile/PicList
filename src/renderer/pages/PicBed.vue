@@ -45,38 +45,29 @@
           </div>
           <div v-else-if="config.length > 0" class="flex h-full w-full">
             <!-- Config Form -->
-            <config-form :id="type" ref="$configForm" :config type="uploader">
+            <config-form :id="type" ref="$configForm" :config type="uploader" @submit="handleConfirm">
               <!-- Action Buttons -->
-              <div class="mb-4 flex flex-wrap gap-3 rounded-xl border border-border bg-accent/10 p-4">
-                <CustomButton
-                  type="secondary"
-                  :icon="RotateCcw"
-                  :text="t('common.clear')"
-                  :disabled="!$configForm || $configForm.isLoading || $configForm.loadFailed || saving"
-                  @click="handleReset"
-                />
-                <CustomButton
-                  :icon="Check"
-                  :text="t('common.confirm')"
-                  :loading="saving"
-                  :disabled="!$configForm || $configForm.isLoading || $configForm.loadFailed"
-                  @click="handleConfirm"
-                />
-
+              <div
+                class="flex flex-wrap items-center gap-3 rounded-xl border border-border-secondary bg-bg-secondary/90 p-3 shadow-md backdrop-blur-md"
+              >
                 <div v-if="picBedConfigList.length > 0" class="relative">
                   <CustomButton
+                    type="secondary"
                     :icon="Import"
                     :text="t('common.import')"
-                    :disabled="!$configForm || $configForm.isLoading || $configForm.loadFailed || saving"
-                    class="bg-warning!"
+                    :disabled="formUnavailable || saving"
+                    aria-haspopup="menu"
+                    :aria-expanded="dropdownVisible"
                     @click="toggleDropdown"
                     @blur="handleDropdownBlur"
+                    @keydown.esc="dropdownVisible = false"
                   />
 
                   <Transition name="dropdown">
                     <div
                       v-show="dropdownVisible"
-                      class="absolute right-0 bottom-[calc(100%+8px)] z-1000 min-w-[220px] overflow-auto rounded-xl border border-border bg-surface shadow-md"
+                      role="menu"
+                      class="absolute bottom-[calc(100%+8px)] left-0 z-1000 min-w-[220px] overflow-auto rounded-xl border border-border bg-surface shadow-md"
                     >
                       <div class="bg-bg-tertiary px-4 py-3 text-xs font-semibold tracking-wider text-main uppercase">
                         <span>{{ t('pages.picBedConfigs.selectConfig') }}</span>
@@ -85,16 +76,44 @@
                         <button
                           v-for="item in picBedConfigList"
                           :key="item._id"
-                          class="flex w-full cursor-pointer items-center gap-2.5 border-none bg-bg-tertiary px-4 py-3 text-center text-sm text-main hover:text-accent"
+                          type="button"
+                          role="menuitem"
+                          class="flex w-full cursor-pointer items-center gap-2.5 border-none bg-bg-tertiary px-4 py-3 text-left text-sm text-main hover:text-accent focus-visible:focus-ring"
                           @click="handleConfigImport(item)"
+                          @blur="handleDropdownBlur"
+                          @focus="cancelDropdownClose"
                         >
-                          <FileJson :size="14" class="text-accent" />
-                          <span>{{ item._configName }}</span>
+                          <FileJson :size="14" class="shrink-0 text-accent" />
+                          <span class="min-w-0 truncate">{{ item._configName }}</span>
                         </button>
                       </div>
                     </div>
                   </Transition>
                 </div>
+                <CustomButton
+                  type="secondary"
+                  :icon="RotateCcw"
+                  :text="t('common.clear')"
+                  :disabled="formUnavailable || saving"
+                  @click="handleReset"
+                />
+
+                <span
+                  v-if="$configForm?.isDirty"
+                  role="status"
+                  class="ml-auto flex items-center gap-1.5 text-xs font-medium text-secondary"
+                >
+                  <span class="h-2 w-2 rounded-full bg-warning" aria-hidden="true" />
+                  {{ t('pages.configForm.unsavedChanges') }}
+                </span>
+                <CustomButton
+                  :class="{ 'ml-auto': !$configForm?.isDirty }"
+                  :icon="Check"
+                  :text="t('common.confirm')"
+                  :loading="saving"
+                  :disabled="formUnavailable"
+                  @click="handleConfirm"
+                />
               </div>
             </config-form>
           </div>
@@ -166,11 +185,18 @@ const uuidValue = ref('')
 const currentPicbedType = type
 const pageLoading = ref(false)
 const pageLoadFailed = ref(false)
+const formUnavailable = computed(
+  (): boolean => !$configForm.value || $configForm.value.isLoading || $configForm.value.loadFailed,
+)
 let pageVersion = 0
 let blurTimer: ReturnType<typeof setTimeout> | undefined
 
 function toggleDropdown() {
   dropdownVisible.value = !dropdownVisible.value
+}
+
+function cancelDropdownClose() {
+  clearTimeout(blurTimer)
 }
 
 function handleDropdownBlur() {

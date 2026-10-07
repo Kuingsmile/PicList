@@ -135,8 +135,12 @@
               @mousedown.prevent
               @click="select(group.targets[0])"
             >
-              <span class="w-3.5 shrink-0" aria-hidden="true" />
-              <span :class="monogramClass(group.type)" aria-hidden="true">{{ initial(group.name) }}</span>
+              <CircleIcon
+                :size="14"
+                class="shrink-0 text-secondary transition-transform duration-fast"
+                :class="{ 'rotate-90': isGroupExpanded(group.type) }"
+                aria-hidden="true"
+              />
               <span v-tooltip.overflow="group.name" class="min-w-0 flex-1 truncate font-medium">
                 <HighlightText :text="group.name" />
               </span>
@@ -179,7 +183,6 @@
                   :class="{ 'rotate-90': isGroupExpanded(group.type) }"
                   aria-hidden="true"
                 />
-                <span :class="monogramClass(group.type)" aria-hidden="true">{{ initial(group.name) }}</span>
                 <span v-tooltip.overflow="group.name" class="min-w-0 flex-1 truncate font-medium">
                   <HighlightText :text="group.name" />
                 </span>
@@ -283,6 +286,7 @@ import {
   ChevronRightIcon,
   ChevronsDownUpIcon,
   ChevronsUpDownIcon,
+  CircleIcon,
   CloudIcon,
   LoaderCircleIcon,
   SearchIcon,
@@ -411,19 +415,6 @@ function isPending(target: IUploadTarget) {
 
 function hasPendingTarget(type: string) {
   return pendingKey.value.startsWith(`${listId}-config-${type}-`)
-}
-
-function initial(name: string) {
-  return [...name.trim()][0]?.toLocaleUpperCase() ?? '?'
-}
-
-function monogramClass(type: string) {
-  return [
-    'flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-semibold',
-    type === defaultPicBedG.value
-      ? 'bg-accent text-white'
-      : 'border border-border-secondary bg-bg-secondary text-secondary',
-  ]
 }
 
 function configRowClass(target: IUploadTarget, idleClass: string) {

@@ -5,6 +5,7 @@
     </slot>
     <span class="text-[0.925rem] leading-[1.4] font-semibold text-secondary">{{ title }}</span>
     <span v-if="required" class="text-danger" aria-hidden="true">*</span>
+    <HelpTooltip v-if="tips" :content="tips" />
   </div>
   <div ref="dropdownRef" class="custom-multiselect relative">
     <button
@@ -15,7 +16,7 @@
       :aria-expanded="dropDownOpen"
       :aria-controls="optionsId"
       class="flex min-h-[28px] w-full cursor-pointer items-center justify-between gap-2 rounded-md border border-border-secondary px-2 py-1.5 text-sm leading-[1.4] text-main transition-all duration-fast ease-apple hover:border-accent-hover disabled:cursor-not-allowed disabled:opacity-50 focus:[.active]:border-accent-hover focus:[.active]:shadow-sm"
-      :class="{ active: dropDownOpen }"
+      :class="[triggerClass, { active: dropDownOpen }]"
       @click="toggleDropdown()"
       @keydown="handleTriggerKeydown"
     >
@@ -62,6 +63,8 @@ import { ChevronDownIcon } from '@lucide/vue'
 import { type Component, onMounted, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import HelpTooltip from '@/components/common/HelpTooltip.vue'
+
 import { useDropdown } from '../../composables/useDropdown'
 
 defineSlots<{
@@ -91,6 +94,8 @@ const {
   allList,
   disabled = false,
   required = false,
+  tips = '',
+  triggerClass = '',
 } = defineProps<{
   tight?: boolean
   title?: string
@@ -100,6 +105,8 @@ const {
   allList: readonly { type: string; name: string }[]
   disabled?: boolean
   required?: boolean
+  tips?: string
+  triggerClass?: string | Record<string, boolean> | (string | Record<string, boolean>)[]
 }>()
 
 onMounted(() => {

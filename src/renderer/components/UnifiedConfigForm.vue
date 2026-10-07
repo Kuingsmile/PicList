@@ -1,135 +1,198 @@
-<!-- eslint-disable vue/no-v-html -->
 <template>
-  <div :id="formId" ref="formRef" class="no-scrollbar flex h-full w-full flex-1 overflow-auto" :aria-busy="isLoading">
+  <div
+    :id="formId"
+    ref="formRef"
+    class="@container no-scrollbar flex h-full w-full flex-1 overflow-auto"
+    :aria-busy="isLoading"
+    @keydown.enter="handleEnter"
+  >
     <SettingSection class="h-full flex-1 border-none! shadow-none!" only-one-row>
-      <SettingCard v-if="loadFailed">
-        <div role="status" class="flex items-center justify-between gap-3 text-sm text-main">
-          <span>{{ t('pages.configForm.loadFailed') }}</span>
-          <CustomButton :text="t('pages.gallery.refresh')" :loading="isLoading" @click="handleConfig(configProp)" />
-        </div>
-      </SettingCard>
-      <SettingCard v-else-if="isLoading">
-        <p role="status" class="m-0 text-sm text-secondary">{{ t('pages.configForm.loading') }}</p>
-      </SettingCard>
-      <SettingCard v-if="mode === 'picbed'">
-        <CustomInput
-          v-model="ruleForm._configName"
-          :title="t('pages.configForm.configName')"
-          :placeholder="t('pages.configForm.configNamePlaceholder')"
-          required
-          :disabled="isLoading || loadFailed"
-          :aria-invalid="!!validationErrors._configName"
-          :aria-describedby="validationErrors._configName ? errorId('_configName') : undefined"
-          :class="{ 'border-error!': validationErrors._configName }"
-          @blur="validateForm"
-          @input="clearFieldError('_configName')"
-        />
-        <template v-if="validationErrors._configName" #extra>
-          <div :id="errorId('_configName')" class="mt-1 text-xs text-error">
-            {{ validationErrors._configName }}
-          </div>
-        </template>
-      </SettingCard>
+      <div class="grid grid-cols-1 gap-4 @2xl:grid-cols-2">
+        <p v-if="isLoading" role="status" class="sr-only">{{ t('pages.configForm.loading') }}</p>
 
-      <!-- Dynamic Config Fields -->
-      <SettingCard v-for="(item, index) in configList" :key="item.name + index" :p1="item.type === 'confirm'">
-        <CustomInput
-          v-if="item.type === 'input' || item.type === 'password'"
-          v-model="ruleForm[item.name]"
-          type="text"
-          :disabled="isLoading || loadFailed"
-          :aria-invalid="!!validationErrors[item.name]"
-          :aria-describedby="validationErrors[item.name] ? errorId(item.name) : undefined"
-          :placeholder="item.message || item.name"
-          :class="{ 'border-error!': validationErrors[item.name] }"
-          :title="item.alias || item.name"
-          :required="item.required || false"
-          :tips="item.tips"
-          @blur="validateForm"
-          @input="clearFieldError(item.name)"
-        />
-        <CustomSwitch
-          v-if="item.type === 'confirm'"
-          v-model="ruleForm[item.name]"
-          :disabled="isLoading || loadFailed"
-          :aria-invalid="!!validationErrors[item.name]"
-          :aria-describedby="validationErrors[item.name] ? errorId(item.name) : undefined"
-          :title="item.alias || item.name"
-          :description="item.message || ''"
-          no-border
-          small
-          :required="item.required || false"
-          :tips="item.tips"
-          @update:model-value="clearFieldError(item.name)"
-        >
-          <template #switch-text>
-            <span class="text-[0.925rem] font-semibold text-secondary">
-              {{ ruleForm[item.name] ? item.confirmText || 'Yes' : item.cancelText || 'No' }}
+        <SettingCard v-if="loadFailed" class="col-span-full border-error/40!">
+          <div role="alert" class="flex flex-wrap items-center justify-between gap-3 text-sm text-main">
+            <span class="flex min-w-0 items-center gap-2">
+              <CircleAlert :size="18" class="shrink-0 text-error" aria-hidden="true" />
+              {{ t('pages.configForm.loadFailed') }}
             </span>
-          </template>
-        </CustomSwitch>
-        <SingleSelect
-          v-if="item.type === 'list' && item.choices"
-          v-model="ruleForm[item.name]"
-          :fronticon="false"
-          :tight="false"
-          :disabled="isLoading || loadFailed"
-          :aria-invalid="!!validationErrors[item.name]"
-          :aria-describedby="validationErrors[item.name] ? errorId(item.name) : undefined"
-          :title="item.alias || item.name"
-          :placeholder="item.message || item.name"
-          :class="{ 'border-danger': validationErrors[item.name] }"
-          :required="item.required || false"
-          :select-list="
-            item.choices.map(choice => ({
-              value: choice.value ?? choice,
-              label: choice.name ?? choice.value ?? choice,
-            }))
-          "
-          :icon="null"
-          @change="clearFieldError(item.name)"
-        >
-          <template #pre-info>
-            <option value="" disabled>
-              {{ item.message || item.name }}
-            </option>
-          </template>
-        </SingleSelect>
-        <MultiSelect
-          v-if="item.type === 'checkbox' && item.choices"
-          v-model:choosed="ruleForm[item.name]"
-          :disabled="isLoading || loadFailed"
-          :aria-invalid="!!validationErrors[item.name]"
-          :aria-describedby="validationErrors[item.name] ? errorId(item.name) : undefined"
-          :title="item.alias || item.name"
-          :zero-placeholder="item.message || item.name"
-          :icon="null"
-          :required="item.required || false"
-          :all-list="
-            item.choices.map(choice => ({
-              type: choice.value ?? choice,
-              name: choice.name ?? choice.value ?? choice,
-            }))
-          "
-          @change="clearFieldError(item.name)"
-        />
-
-        <!-- Validation Error -->
-        <template v-if="validationErrors[item.name]" #extra>
-          <div :id="errorId(item.name)" class="mt-1 text-xs text-error">
-            {{ validationErrors[item.name] }}
+            <CustomButton
+              type="secondary"
+              :icon="RefreshCw"
+              :text="t('pages.gallery.refresh')"
+              :loading="isLoading"
+              @click="handleConfig(configProp)"
+            />
           </div>
+        </SettingCard>
+
+        <!-- First load: placeholders keep the layout steady -->
+        <template v-else-if="isLoading && !hasLoaded">
+          <SettingCard v-for="n in 4" :key="n" aria-hidden="true" class="motion-safe:animate-pulse">
+            <div class="mb-2 h-4 w-1/3 rounded-sm bg-bg-tertiary" />
+            <div class="h-[46px] rounded-md bg-bg-tertiary" />
+          </SettingCard>
         </template>
-      </SettingCard>
-      <slot name="extra-config" />
-      <slot />
+
+        <template v-else>
+          <p v-if="hasRequired" class="col-span-full m-0 text-xs text-secondary">
+            <span class="text-danger" aria-hidden="true">*</span>
+            {{ t('pages.configForm.requiredHint') }}
+          </p>
+
+          <SettingCard
+            v-if="mode === 'picbed'"
+            class="col-span-full"
+            :class="{ 'border-error/50!': validationErrors._configName }"
+            :data-invalid="!!validationErrors._configName || undefined"
+          >
+            <CustomInput
+              v-model="ruleForm._configName"
+              :title="t('pages.configForm.configName')"
+              :placeholder="t('pages.configForm.configNamePlaceholder')"
+              required
+              :disabled="isLoading"
+              :aria-invalid="!!validationErrors._configName"
+              :aria-describedby="validationErrors._configName ? errorId('_configName') : undefined"
+              :class="{ 'border-error!': validationErrors._configName }"
+              @blur="touchField('_configName')"
+              @input="clearFieldError('_configName')"
+            />
+            <template v-if="validationErrors._configName" #extra>
+              <p :id="errorId('_configName')" class="mt-2 mb-0 flex items-center gap-1.5 text-xs text-error">
+                <CircleAlert :size="14" class="shrink-0" aria-hidden="true" />
+                {{ validationErrors._configName }}
+              </p>
+            </template>
+          </SettingCard>
+
+          <!-- Dynamic Config Fields -->
+          <SettingCard
+            v-for="(item, index) in configList"
+            :key="item.name + index"
+            :p1="item.type === 'confirm'"
+            :class="{
+              'flex flex-col justify-center': item.type === 'confirm',
+              'border-error/50!': validationErrors[item.name],
+            }"
+            :data-invalid="!!validationErrors[item.name] || undefined"
+          >
+            <CustomInput
+              v-if="item.type === 'input' || item.type === 'password'"
+              v-model="ruleForm[item.name]"
+              :is-password="item.type === 'password'"
+              :disabled="isLoading"
+              :aria-invalid="!!validationErrors[item.name]"
+              :aria-describedby="validationErrors[item.name] ? errorId(item.name) : undefined"
+              :autocomplete="item.type === 'password' ? 'off' : undefined"
+              spellcheck="false"
+              :placeholder="item.message || item.name"
+              :class="{ 'border-error!': validationErrors[item.name] }"
+              :title="item.alias || item.name"
+              :required="item.required || false"
+              :tips="item.tips"
+              @blur="touchField(item.name)"
+              @input="clearFieldError(item.name)"
+            />
+            <CustomSwitch
+              v-if="item.type === 'confirm'"
+              v-model="ruleForm[item.name]"
+              :disabled="isLoading"
+              :aria-invalid="!!validationErrors[item.name]"
+              :aria-describedby="validationErrors[item.name] ? errorId(item.name) : undefined"
+              :title="item.alias || item.name"
+              :description="item.message || ''"
+              no-border
+              small
+              :required="item.required || false"
+              :tips="item.tips"
+              @update:model-value="clearFieldError(item.name)"
+            >
+              <template #switch-text>
+                <span
+                  class="ml-1 shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold"
+                  :class="ruleForm[item.name] ? 'bg-accent/15 text-accent' : 'bg-bg-tertiary text-secondary'"
+                >
+                  {{
+                    ruleForm[item.name]
+                      ? item.confirmText || t('pages.configForm.yes')
+                      : item.cancelText || t('pages.configForm.no')
+                  }}
+                </span>
+              </template>
+            </CustomSwitch>
+            <SingleSelect
+              v-if="item.type === 'list' && item.choices"
+              v-model="ruleForm[item.name]"
+              :fronticon="false"
+              :disabled="isLoading"
+              :aria-invalid="!!validationErrors[item.name]"
+              :aria-describedby="validationErrors[item.name] ? errorId(item.name) : undefined"
+              :title="item.alias || item.name"
+              :placeholder="item.message || item.name"
+              class="mt-1 bg-bg-tertiary px-3! py-3!"
+              :class="validationErrors[item.name] ? 'border-error!' : 'border-border!'"
+              :required="item.required || false"
+              :tips="item.tips"
+              :select-list="toSelectList(item.choices)"
+              :icon="null"
+              @change="clearFieldError(item.name)"
+            >
+              <template #pre-info>
+                <option value="" disabled>
+                  {{ item.message || item.name }}
+                </option>
+              </template>
+            </SingleSelect>
+            <MultiSelect
+              v-if="item.type === 'checkbox' && item.choices"
+              v-model:choosed="ruleForm[item.name]"
+              :disabled="isLoading"
+              :aria-invalid="!!validationErrors[item.name]"
+              :aria-describedby="validationErrors[item.name] ? errorId(item.name) : undefined"
+              :title="item.alias || item.name"
+              :zero-placeholder="item.message || item.name"
+              :icon="null"
+              :required="item.required || false"
+              :tips="item.tips"
+              :trigger-class="[
+                'mt-1 bg-bg-tertiary px-3! py-3!',
+                validationErrors[item.name] ? 'border-error!' : 'border-border!',
+              ]"
+              :all-list="toMultiList(item.choices)"
+              @change="clearFieldError(item.name)"
+            />
+
+            <!-- Validation Error -->
+            <template v-if="validationErrors[item.name]" #extra>
+              <p
+                :id="errorId(item.name)"
+                class="mt-2 mb-0 flex items-center gap-1.5 text-xs text-error"
+                :class="{ 'px-4 pb-2': item.type === 'confirm' }"
+              >
+                <CircleAlert :size="14" class="shrink-0" aria-hidden="true" />
+                {{ validationErrors[item.name] }}
+              </p>
+            </template>
+          </SettingCard>
+        </template>
+
+        <div v-if="$slots['extra-config']" class="col-span-full">
+          <slot name="extra-config" />
+        </div>
+        <!-- Actions stay reachable while scrolling long forms -->
+        <div v-if="$slots.default" class="sticky bottom-0 z-10 col-span-full">
+          <slot />
+        </div>
+      </div>
     </SettingSection>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { CircleAlert, RefreshCw } from '@lucide/vue'
 import { cloneDeep, union } from 'lodash-es'
-import { nextTick, onBeforeUnmount, reactive, ref, useId, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, reactive, ref, useId, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
@@ -156,6 +219,7 @@ interface IProps {
 }
 
 const { config: configProp, type, id, mode = 'picbed' } = defineProps<IProps>()
+const emit = defineEmits<{ submit: [] }>()
 
 const $route = useRoute()
 const { t } = useI18n()
@@ -165,10 +229,17 @@ const ruleForm = reactive<IStringKeyMap>({})
 const validationErrors = reactive<IStringKeyMap>({})
 const isLoading = ref(true)
 const loadFailed = ref(false)
+const hasLoaded = ref(false)
+const pristineSnapshot = ref('')
 const formRef = useTemplateRef('formRef')
 const formId = useId()
 const errorId = (field: string) => `${formId}-error-${encodeURIComponent(field)}`
 let loadVersion = 0
+
+const hasRequired = computed(() => mode === 'picbed' || configList.value.some(item => item.required))
+const isDirty = computed(
+  () => !isLoading.value && !loadFailed.value && JSON.stringify(ruleForm) !== pristineSnapshot.value,
+)
 
 // Watch for config changes
 watch(
@@ -181,6 +252,20 @@ watch(
     immediate: true,
   },
 )
+
+function toSelectList(choices: any[]) {
+  return choices.map(choice => ({
+    value: choice.value ?? choice,
+    label: choice.name ?? choice.value ?? choice,
+  }))
+}
+
+function toMultiList(choices: any[]) {
+  return choices.map(choice => ({
+    type: choice.value ?? choice,
+    name: choice.name ?? choice.value ?? choice,
+  }))
+}
 
 function validateField(fieldName: string, value: any, config?: IPicGoPluginConfig): string | null {
   if (fieldName === '_configName') {
@@ -224,17 +309,50 @@ function validateForm(): boolean {
   return Object.keys(errors).length === 0
 }
 
+// Validate only the field the user just left, so untouched fields stay quiet
+function touchField(fieldName: string) {
+  if (isLoading.value || loadFailed.value) return
+  const config = configList.value.find(item => item.name === fieldName)
+  const error = validateField(fieldName, ruleForm[fieldName], config)
+  if (error) validationErrors[fieldName] = error
+  else clearFieldError(fieldName)
+}
+
 function clearFieldError(fieldName: string) {
   if (validationErrors[fieldName]) {
     delete validationErrors[fieldName]
   }
 }
 
+function handleEnter(event: KeyboardEvent) {
+  const target = event.target as HTMLInputElement | null
+  if (
+    isLoading.value ||
+    loadFailed.value ||
+    event.isComposing ||
+    target?.tagName !== 'INPUT' ||
+    !['text', 'password'].includes(target.type)
+  )
+    return
+  event.preventDefault()
+  emit('submit')
+}
+
+async function focusFirstInvalid() {
+  await nextTick()
+  const card = formRef.value?.querySelector<HTMLElement>('[data-invalid]')
+  if (!card) return
+  card.scrollIntoView({ block: 'center' })
+  const target =
+    card.querySelector<HTMLElement>('[aria-invalid="true"]:not([tabindex="-1"])') ??
+    card.querySelector<HTMLElement>('input:not([tabindex="-1"]), button')
+  target?.focus({ preventScroll: true })
+}
+
 async function validate(): Promise<IStringKeyMap | false> {
   if (isLoading.value || loadFailed.value) return false
   if (validateForm()) return ruleForm
-  await nextTick()
-  formRef.value?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+  await focusFirstInvalid()
   return false
 }
 
@@ -276,6 +394,8 @@ async function handleConfig(val: IPicGoPluginConfig[]) {
       ruleForm[item.name] = item.type === 'confirm' ? enforceBoolean(defaultValue) : defaultValue
       return item
     })
+    pristineSnapshot.value = JSON.stringify(ruleForm)
+    hasLoaded.value = true
   } catch {
     if (version === loadVersion) loadFailed.value = true
   } finally {
@@ -312,5 +432,6 @@ defineExpose({
   getConfigType,
   isLoading,
   loadFailed,
+  isDirty,
 })
 </script>
