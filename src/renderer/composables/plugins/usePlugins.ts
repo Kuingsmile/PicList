@@ -1,6 +1,7 @@
-import { onBeforeMount, onBeforeUnmount, ref, toRaw } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import useConfirm from '@/composables/useConfirm'
 import { usePicBed } from '@/composables/useGlobal'
 import { getConfig, saveConfig } from '@/services/configService'
 import { configPaths } from '@/utils/configPaths'
@@ -21,6 +22,7 @@ import { getRawData } from '#/utils/rawData'
 import { usePluginRegistry } from './usePluginRegistry'
 export function usePlugins() {
   const { t } = useI18n()
+  const { confirm } = useConfirm()
   const { updatePicBeds } = usePicBed()
   const pluginList = ref<IPicGoPlugin[]>([])
 
@@ -39,14 +41,25 @@ export function usePlugins() {
   const needReload = ref(false)
 
   const experimentalBundledNpm = ref(false)
-  const registry = usePluginRegistry({ pluginList, pluginNameList, loading, getPluginList })
-  const { searchText, browsePlugins, queuePluginMetadata } = registry
+  const registry = usePluginRegistry({ pluginNameList })
+  const { latestVersionMap, markInstalled, setInstalling, queuePluginMetadata } = registry
+
+  const updatablePlugins = computed(() =>
+    pluginList.value.filter(item => {
+      const latest = latestVersionMap[item.fullName]
+      return !!latest && latest !== String(item.version)
+    }),
+  )
   async function saveBundledNpmSetting(enabled: boolean) {
     await saveConfig(configPaths.settings.experimentalBundledNpm, enabled)
   }
 
+  // Sent when any plugin task ends, including failed ones that never report PICGO_HANDLE_PLUGIN_DONE.
   function hideLoadingHandler() {
     loading.value = false
+    pluginList.value.forEach(item => {
+      item.ing = false
+    })
   }
 
   function picgoHandlePluginDoneHandler(fullName: string) {
@@ -60,36 +73,15 @@ export function usePlugins() {
 
   function pluginListHandler(list: IPicGoPlugin[]) {
     pluginNameList.value = list.map(item => item.fullName)
-    const installedPlugins = new Set(pluginNameList.value)
-    if (searchText.value) {
-      pluginList.value.forEach(item => {
-        item.hasInstall = installedPlugins.has(item.fullName)
-      })
-    } else {
-      pluginList.value = list
-      loading.value = false
-    }
-    browsePlugins.value.forEach(item => {
-      item.hasInstall = installedPlugins.has(item.fullName)
-    })
+    pluginList.value = list
+    loading.value = false
+    markInstalled()
     queuePluginMetadata(list)
   }
 
   function installPluginHandler({ success, body }: { success: boolean; body: string }) {
     loading.value = false
-    pluginList.value.forEach(item => {
-      if (item.fullName === body) {
-        item.ing = false
-        item.hasInstall = success
-      }
-    })
-    // Update browse dialog if open
-    browsePlugins.value.forEach(item => {
-      if (item.fullName === body) {
-        item.ing = false
-        item.hasInstall = success
-      }
-    })
+    setInstalling(body, false, success)
     if (success) {
       getPluginList()
       updatePicBeds()
@@ -125,6 +117,7 @@ export function usePlugins() {
       return item.fullName !== plugin
     })
     pluginNameList.value = pluginNameList.value.filter(item => item !== plugin)
+    markInstalled()
   }
 
   function picgoConfigPluginHandler(
@@ -163,16 +156,24 @@ export function usePlugins() {
     window.electron.sendRPC(IRPCActionType.PLUGIN_GET_LIST)
   }
 
-  function installPlugin(item: IPicGoPlugin) {
+  async function installPlugin(item: IPicGoPlugin) {
     if (!item.gui) {
-      if (confirm(t('pages.plugin.notGuiImplement'))) {
-        item.ing = true
-        window.electron.sendRPC(IRPCActionType.PLUGIN_INSTALL, item.fullName)
-      }
-    } else {
-      item.ing = true
-      window.electron.sendRPC(IRPCActionType.PLUGIN_INSTALL, item.fullName)
+      const proceed = await confirm({
+        title: t('pages.plugin.cliOnlyTitle', { name: item.name }),
+        message: t('pages.plugin.notGuiImplement'),
+        type: 'warning',
+        confirmButtonText: t('pages.plugin.install'),
+        cancelButtonText: t('common.cancel'),
+      })
+      if (!proceed) return
     }
+    setInstalling(item.fullName, true)
+    window.electron.sendRPC(IRPCActionType.PLUGIN_INSTALL, item.fullName)
+  }
+
+  function updatePlugin(item: IPicGoPlugin) {
+    item.ing = true
+    window.electron.sendRPC(IRPCActionType.PLUGIN_UPDATE_ALL, [item.fullName])
   }
 
   function reloadApp() {
@@ -195,10 +196,6 @@ export function usePlugins() {
         reloadApp()
       }
     }
-  }
-
-  function cleanSearch() {
-    searchText.value = ''
   }
 
   async function handleRestoreState(item: string, name: string) {
@@ -237,6 +234,10 @@ export function usePlugins() {
   }
 
   function handleUpdateAllPlugin() {
+    if (pluginNameList.value.length === 0) return
+    pluginList.value.forEach(item => {
+      item.ing = true
+    })
     window.electron.sendRPC(IRPCActionType.PLUGIN_UPDATE_ALL, toRaw(pluginNameList.value))
   }
   onBeforeMount(async () => {
@@ -275,11 +276,12 @@ export function usePlugins() {
     needReload,
     experimentalBundledNpm,
     saveBundledNpmSetting,
+    updatablePlugins,
     buildContextMenu,
     getPluginList,
     installPlugin,
+    updatePlugin,
     reloadApp,
-    cleanSearch,
     goAwesomeList,
     handleImportLocalPlugin,
     handleUpdateAllPlugin,
