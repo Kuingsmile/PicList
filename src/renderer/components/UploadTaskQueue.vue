@@ -1,21 +1,25 @@
 <template>
   <div class="contents">
-    <button type="button" class="queue-entry" aria-haspopup="dialog" @click="openTaskDialog">
-      <ListTodoIcon :size="18" class="shrink-0 text-accent" aria-hidden="true" />
-      <span class="min-w-0 flex-1">
-        <span class="block text-sm font-medium text-main">{{ t('pages.upload.taskUpload') }}</span>
-        <span class="block truncate text-xs text-secondary">{{
-          statusError ? t('pages.upload.taskQueue.unavailable') : queueStateLabel
-        }}</span>
-      </span>
+    <button
+      v-tooltip="statusError ? t('pages.upload.taskQueue.unavailable') : queueStateLabel"
+      type="button"
+      class="queue-entry group"
+      aria-haspopup="dialog"
+      @click="openTaskDialog"
+    >
+      <ListTodoIcon :size="15" class="shrink-0 text-accent group-hover:text-white" aria-hidden="true" />
+      <span class="text-sm font-medium whitespace-nowrap text-secondary group-hover:text-white">{{
+        t('pages.upload.taskUpload')
+      }}</span>
+      <span class="min-w-0 flex-1 truncate text-right text-xs text-secondary group-hover:text-white">{{
+        statusError ? t('pages.upload.taskQueue.unavailable') : queueStateLabel
+      }}</span>
       <span
         v-if="activeCount || taskQueueStatus.stats.failed"
         class="queue-count"
-        :class="{ 'text-danger': !activeCount }"
+        :class="{ 'is-danger': !activeCount }"
+        >{{ activeCount || taskQueueStatus.stats.failed }}</span
       >
-        {{ activeCount || taskQueueStatus.stats.failed }}
-      </span>
-      <ChevronRightIcon :size="16" class="text-secondary" aria-hidden="true" />
       <span
         v-if="taskQueueStatus.config.isRunning"
         class="queue-entry-progress"
@@ -34,7 +38,9 @@
       <template #header>
         <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
           <h3 class="m-0 text-lg font-semibold text-main">{{ t('pages.upload.taskQueue.title') }}</h3>
-          <span class="queue-state" :data-state="queueState" role="status">{{ queueStateLabel }}</span>
+          <span class="queue-state" :data-state="queueState" role="status">
+            <span class="queue-state-dot" aria-hidden="true" />{{ queueStateLabel }}
+          </span>
         </div>
       </template>
 
@@ -49,6 +55,7 @@
           <UploadCloudIcon :size="32" />
           <span>{{ t('pages.upload.taskQueue.dropFiles') }}</span>
         </div>
+
         <div class="queue-toolbar">
           <div class="flex flex-wrap items-center gap-2">
             <CustomButton
@@ -93,69 +100,34 @@
               @click="retryAllFailedTasks"
             />
             <CustomButton
+              v-if="finishedCount"
               v-tooltip="t('pages.upload.taskQueue.clearFinishedHint')"
               type="secondary"
               :icon="ListXIcon"
-              :disabled="actionsDisabled || !(taskQueueStatus.stats.completed + taskQueueStatus.stats.cancelled)"
+              :disabled="actionsDisabled"
               :text="t('pages.upload.taskQueue.clearFinished')"
               @click="clearFinishedTasks"
             />
+            <CustomButton
+              v-if="activeCount"
+              type="secondary"
+              :icon="CircleStopIcon"
+              icon-class="text-danger"
+              :disabled="actionsDisabled"
+              :text="t('pages.upload.taskQueue.cancelAll')"
+              @click="cancelAllTasks"
+            />
             <button
-              v-tooltip="t('pages.settings.title')"
+              v-tooltip="t('pages.upload.taskQueue.settings')"
               type="button"
               class="queue-icon-button"
-              :aria-label="t('pages.settings.title')"
+              :aria-label="t('pages.upload.taskQueue.settings')"
               :aria-expanded="showTaskSettings"
               aria-controls="upload-queue-settings"
               @click="showTaskSettings = !showTaskSettings"
             >
-              <SettingsIcon :size="18" aria-hidden="true" />
+              <SlidersHorizontalIcon :size="18" aria-hidden="true" />
             </button>
-          </div>
-        </div>
-
-        <div v-if="taskQueueStatus.stats.total" class="queue-overview">
-          <div class="flex flex-wrap items-baseline justify-between gap-2">
-            <span class="text-sm text-main">{{
-              t('pages.upload.taskQueue.completedSummary', {
-                completed: taskQueueStatus.stats.completed,
-                total: taskQueueStatus.stats.total - taskQueueStatus.stats.cancelled,
-              })
-            }}</span>
-            <span class="text-sm font-semibold text-accent tabular-nums">{{ taskQueueStatus.stats.progress }}%</span>
-          </div>
-          <div
-            class="queue-progress"
-            role="progressbar"
-            :aria-label="t('pages.upload.taskQueue.overallProgress')"
-            :aria-valuenow="taskQueueStatus.stats.progress"
-            :aria-valuemin="0"
-            :aria-valuemax="100"
-          >
-            <div :style="{ width: `${taskQueueStatus.stats.progress}%` }" />
-          </div>
-          <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs text-secondary">
-            <span v-if="taskQueueStatus.config.isPaused">{{ t('pages.upload.taskQueue.pauseHint') }}</span>
-            <span v-else>{{
-              t('pages.upload.taskQueue.intervalSummary', { seconds: taskQueueStatus.config.intervalS })
-            }}</span>
-            <div class="flex flex-wrap items-center gap-3 tabular-nums">
-              <span
-                v-if="
-                  taskQueueStatus.config.isRunning &&
-                  !taskQueueStatus.config.isPaused &&
-                  taskQueueStatus.stats.avgSpeed > 0
-                "
-                >{{ formatSize(taskQueueStatus.stats.avgSpeed) }}/s</span
-              >
-              <span v-if="taskQueueStatus.stats.estimatedTimeMs > 0">{{
-                t('pages.upload.taskQueue.timeRemaining', { time: formatTime(taskQueueStatus.stats.estimatedTimeMs) })
-              }}</span>
-              <span
-                >{{ formatSize(taskQueueStatus.stats.transferredSize) }} /
-                {{ formatSize(taskQueueStatus.stats.totalSize) }}</span
-              >
-            </div>
           </div>
         </div>
 
@@ -165,56 +137,116 @@
           class="queue-settings"
           :disabled="savingSettings || actionsDisabled"
         >
-          <div>
-            <label for="queue-interval">{{ t('pages.upload.taskQueue.interval') }}</label>
-            <div class="flex items-center gap-2">
-              <input
-                id="queue-interval"
-                v-model.number="settings.intervalS"
-                type="number"
-                min="0.1"
-                max="99999"
-                step="0.1"
-                @change="updateSettings('intervalS')"
-              />
-              <span class="text-xs text-secondary">s</span>
-            </div>
-          </div>
-          <div>
-            <label for="queue-retries">{{ t('pages.upload.taskQueue.maxRetry') }}</label>
-            <input
+          <legend class="sr-only">{{ t('pages.upload.taskQueue.settings') }}</legend>
+          <SettingCard>
+            <CustomInput
+              id="queue-interval"
+              v-model.number="settings.intervalS"
+              type="number"
+              min="0.1"
+              max="99999"
+              step="0.1"
+              :title="t('pages.upload.taskQueue.interval')"
+              :tips="t('pages.upload.taskQueue.intervalHint')"
+              placeholder="1"
+              :disabled="savingSettings || actionsDisabled"
+              class="pr-8"
+              @change="updateSettings('intervalS')"
+            >
+              <template #input-extra>
+                <span class="queue-input-unit" aria-hidden="true">s</span>
+              </template>
+            </CustomInput>
+          </SettingCard>
+          <SettingCard>
+            <CustomInput
               id="queue-retries"
               v-model.number="settings.maxRetryCount"
               type="number"
               min="0"
               max="10"
               step="1"
+              :title="t('pages.upload.taskQueue.maxRetry')"
+              :tips="t('pages.upload.taskQueue.maxRetryHint')"
+              placeholder="3"
+              :disabled="savingSettings || actionsDisabled"
               @change="updateSettings('maxRetryCount')"
             />
-          </div>
-          <label class="queue-toggle" for="queue-auto-start">
-            <input
-              id="queue-auto-start"
-              v-model="settings.autoStart"
-              type="checkbox"
-              @change="updateSettings('autoStart')"
+          </SettingCard>
+          <SettingCard p1 class="flex flex-col justify-center">
+            <CustomSwitch
+              :model-value="settings.autoStart"
+              small
+              no-border
+              :disabled="savingSettings || actionsDisabled"
+              :title="t('pages.upload.taskQueue.autoStart')"
+              :tips="t('pages.upload.taskQueue.autoStartHint')"
+              @update:model-value="setSwitch('autoStart', $event)"
             />
-            <span>{{ t('pages.upload.taskQueue.autoStart') }}</span>
-          </label>
-          <label class="queue-toggle" for="queue-pause-on-error">
-            <input
-              id="queue-pause-on-error"
-              v-model="settings.pauseOnError"
-              type="checkbox"
-              @change="updateSettings('pauseOnError')"
+          </SettingCard>
+          <SettingCard p1 class="flex flex-col justify-center">
+            <CustomSwitch
+              :model-value="settings.pauseOnError"
+              small
+              no-border
+              :disabled="savingSettings || actionsDisabled"
+              :title="t('pages.upload.taskQueue.pauseOnError')"
+              :tips="t('pages.upload.taskQueue.pauseOnErrorHint')"
+              @update:model-value="setSwitch('pauseOnError', $event)"
             />
-            <span>{{ t('pages.upload.taskQueue.pauseOnError') }}</span>
-          </label>
+          </SettingCard>
         </fieldset>
 
+        <div v-if="taskQueueStatus.stats.total" class="queue-overview">
+          <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <span class="text-sm font-medium text-main tabular-nums"
+              >{{ t('pages.upload.taskQueue.completedSummary', { completed: stats.completed, total: queuedTotal })
+              }}<span v-if="stats.failed" class="text-danger">
+                · {{ t('pages.upload.taskQueue.failedSummary', { count: stats.failed }) }}</span
+              ></span
+            >
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-secondary tabular-nums">
+              <span v-if="showSpeed">{{ formatSize(stats.avgSpeed) }}/s</span>
+              <span v-if="stats.estimatedTimeMs > 0">{{
+                t('pages.upload.taskQueue.timeRemaining', { time: formatTime(stats.estimatedTimeMs) })
+              }}</span>
+              <span>{{ formatSize(stats.transferredSize) }} / {{ formatSize(stats.totalSize) }}</span>
+            </div>
+          </div>
+          <div
+            class="queue-progress flex"
+            role="progressbar"
+            :aria-label="t('pages.upload.taskQueue.overallProgress')"
+            :aria-valuenow="stats.progress"
+            :aria-valuemin="0"
+            :aria-valuemax="100"
+          >
+            <div
+              v-for="segment in progressSegments"
+              :key="segment.key"
+              :class="segment.class"
+              :style="{ width: `${segment.width}%` }"
+            />
+          </div>
+          <p v-if="queueHint" class="m-0 text-xs text-secondary">{{ queueHint }}</p>
+        </div>
+
         <div v-if="taskQueueStatus.stats.total" class="queue-filters">
+          <div class="flex min-w-0 flex-wrap gap-1" role="group" :aria-label="t('pages.upload.taskQueue.filterLabel')">
+            <button
+              v-for="filter in shownFilters"
+              :key="filter.value"
+              type="button"
+              class="queue-filter"
+              :data-filter="filter.value"
+              :aria-pressed="taskFilter === filter.value"
+              @click="taskFilter = filter.value"
+            >
+              {{ filter.label }} <span class="tabular-nums">{{ filter.count }}</span>
+            </button>
+          </div>
           <label class="queue-search">
-            <SearchIcon :size="16" class="shrink-0 text-secondary" aria-hidden="true" />
+            <SearchIcon :size="15" class="shrink-0 text-secondary" aria-hidden="true" />
             <input
               v-model="taskSearchQuery"
               type="search"
@@ -222,18 +254,6 @@
               :placeholder="t('pages.upload.taskQueue.searchPlaceholder')"
             />
           </label>
-          <div class="flex flex-wrap gap-1" role="group" :aria-label="t('pages.upload.taskQueue.filterLabel')">
-            <button
-              v-for="filter in taskFilters"
-              :key="filter.value"
-              type="button"
-              class="queue-filter"
-              :aria-pressed="taskFilter === filter.value"
-              @click="taskFilter = filter.value"
-            >
-              {{ filter.label }} <span class="tabular-nums">{{ filter.count }}</span>
-            </button>
-          </div>
         </div>
 
         <div v-if="statusError" class="queue-load-error" role="alert">
@@ -253,7 +273,7 @@
             }}
           </div>
           <div v-else-if="!taskQueueStatus.stats.total && !statusError" class="queue-empty">
-            <ListTodoIcon :size="36" class="text-accent" aria-hidden="true" />
+            <div class="queue-empty-icon" aria-hidden="true"><UploadCloudIcon :size="28" /></div>
             <h4>{{ t('pages.upload.taskQueue.empty') }}</h4>
             <p>{{ t('pages.upload.taskQueue.emptyHint') }}</p>
             <CustomButton
@@ -271,29 +291,30 @@
           <ul v-else class="m-0 list-none p-0">
             <li v-for="task in visibleTasks" :key="task.id" class="queue-row" :data-status="task.status">
               <div class="queue-file-icon" aria-hidden="true">
-                <CheckCircleIcon v-if="task.status === 'completed'" :size="20" />
-                <CircleAlertIcon v-else-if="task.status === 'failed'" :size="20" />
+                <CheckIcon v-if="task.status === 'completed'" :size="18" />
+                <CircleAlertIcon v-else-if="task.status === 'failed'" :size="18" />
+                <BanIcon v-else-if="task.status === 'cancelled'" :size="18" />
                 <LoaderCircleIcon
                   v-else-if="task.status === 'uploading'"
-                  :size="20"
+                  :size="18"
                   class="animate-spin motion-reduce:animate-none"
                 />
-                <FileIcon v-else :size="20" />
+                <span v-else-if="pendingPositions.get(task.id)" class="text-xs font-semibold tabular-nums">{{
+                  pendingPositions.get(task.id)?.position
+                }}</span>
+                <FileIcon v-else :size="18" />
               </div>
               <div class="min-w-0 flex-1">
-                <div class="flex min-w-0 items-center gap-2">
-                  <span v-tooltip="task.filePath" class="truncate text-sm font-medium text-main">{{
-                    task.fileName
-                  }}</span>
-                  <StarIcon
-                    v-if="task.priority === 2"
-                    :size="13"
-                    class="shrink-0 fill-warning text-warning"
-                    :aria-label="t('pages.upload.taskQueue.highPriority')"
-                  />
-                </div>
+                <span v-tooltip="task.filePath" class="block truncate text-sm font-medium text-main">{{
+                  task.fileName
+                }}</span>
                 <div class="queue-row-details">
                   <span class="queue-task-status">{{ getTaskStatusText(task) }}</span>
+                  <span v-if="task.priority === 2" class="queue-priority">
+                    <StarIcon :size="11" class="fill-current" aria-hidden="true" />{{
+                      t('pages.upload.taskQueue.highPriority')
+                    }}
+                  </span>
                   <span v-if="task.fileSize > 0">{{ formatSize(task.fileSize) }}</span>
                   <span v-if="task.status === 'uploading' && task.uploadSpeed"
                     >{{ formatSize(task.uploadSpeed) }}/s</span
@@ -313,6 +334,7 @@
                     :aria-valuetext="task.indeterminate ? getTaskStatusText(task) : undefined"
                   >
                     <div
+                      class="bg-accent"
                       :class="{ 'animate-upload-progress motion-reduce:animate-none': task.indeterminate }"
                       :style="{ width: task.indeterminate ? '35%' : `${task.progress}%` }"
                     />
@@ -321,10 +343,12 @@
                     >{{ task.progress }}%</span
                   >
                 </div>
-                <p v-if="task.error" class="queue-task-error">{{ task.error }}</p>
+                <p v-if="task.status === 'failed'" v-tooltip="task.error" class="queue-task-error">
+                  {{ getTaskFailureText(task) }}
+                </p>
               </div>
               <div class="queue-row-actions">
-                <template v-if="task.status === 'pending'">
+                <div v-if="task.status === 'pending'" class="queue-row-reorder">
                   <button
                     v-tooltip="t('pages.upload.taskQueue.moveUp')"
                     type="button"
@@ -345,28 +369,18 @@
                   >
                     <ChevronDownIcon :size="16" />
                   </button>
-                  <button
-                    v-tooltip="t('pages.upload.taskQueue.togglePriority')"
-                    type="button"
-                    class="queue-icon-button"
-                    :disabled="actionsDisabled"
-                    :aria-pressed="task.priority === 2"
-                    :aria-label="t('pages.upload.taskQueue.togglePriority')"
-                    @click="toggleTaskPriority(task.id, task.priority)"
-                  >
-                    <StarIcon :size="16" />
-                  </button>
-                </template>
+                </div>
                 <button
-                  v-if="task.status === 'pending' || task.status === 'uploading'"
-                  v-tooltip="t('pages.upload.taskQueue.cancelTask')"
+                  v-if="task.status === 'pending'"
+                  v-tooltip="t('pages.upload.taskQueue.togglePriority')"
                   type="button"
-                  class="queue-icon-button is-danger"
+                  class="queue-icon-button queue-priority-toggle"
                   :disabled="actionsDisabled"
-                  :aria-label="t('pages.upload.taskQueue.cancelTask')"
-                  @click="cancelTask(task.id)"
+                  :aria-pressed="task.priority === 2"
+                  :aria-label="t('pages.upload.taskQueue.togglePriority')"
+                  @click="toggleTaskPriority(task.id, task.priority)"
                 >
-                  <XIcon :size="16" />
+                  <StarIcon :size="16" :class="{ 'fill-current': task.priority === 2 }" />
                 </button>
                 <button
                   v-if="canRetryTask(task)"
@@ -380,7 +394,18 @@
                   <RefreshCwIcon :size="16" />
                 </button>
                 <button
-                  v-if="['completed', 'cancelled', 'failed'].includes(task.status)"
+                  v-if="task.status === 'pending' || task.status === 'uploading'"
+                  v-tooltip="t('pages.upload.taskQueue.cancelTask')"
+                  type="button"
+                  class="queue-icon-button is-danger"
+                  :disabled="actionsDisabled"
+                  :aria-label="t('pages.upload.taskQueue.cancelTask')"
+                  @click="cancelTask(task.id)"
+                >
+                  <XIcon :size="16" />
+                </button>
+                <button
+                  v-else
                   v-tooltip="t('pages.upload.taskQueue.removeTask')"
                   type="button"
                   class="queue-icon-button is-danger"
@@ -394,45 +419,33 @@
             </li>
           </ul>
         </div>
-        <footer class="queue-footer">
-          <span v-if="filteredTasks.length" class="text-xs text-secondary tabular-nums">{{
+        <footer v-if="pageCount > 1" class="queue-footer">
+          <span class="text-xs text-secondary tabular-nums">{{
             t('pages.upload.taskQueue.showing', {
               from: (taskPage - 1) * pageSize + 1,
               to: Math.min(taskPage * pageSize, filteredTasks.length),
               total: filteredTasks.length,
             })
           }}</span>
-          <span v-else class="text-xs text-secondary">{{ t('pages.upload.taskQueue.dropFiles') }}</span>
           <div class="flex items-center gap-2">
-            <template v-if="pageCount > 1">
-              <button
-                type="button"
-                class="queue-icon-button"
-                :disabled="taskPage === 1"
-                :aria-label="t('pages.upload.taskQueue.previousPage')"
-                @click="taskPage--"
-              >
-                <ChevronLeftIcon :size="16" />
-              </button>
-              <span class="text-xs text-secondary tabular-nums">{{ taskPage }} / {{ pageCount }}</span>
-              <button
-                type="button"
-                class="queue-icon-button"
-                :disabled="taskPage === pageCount"
-                :aria-label="t('pages.upload.taskQueue.nextPage')"
-                @click="taskPage++"
-              >
-                <ChevronRightIcon :size="16" />
-              </button>
-            </template>
             <button
-              v-if="activeCount"
               type="button"
-              class="queue-cancel"
-              :disabled="actionsDisabled"
-              @click="cancelAllTasks"
+              class="queue-icon-button"
+              :disabled="taskPage === 1"
+              :aria-label="t('pages.upload.taskQueue.previousPage')"
+              @click="taskPage--"
             >
-              {{ t('pages.upload.taskQueue.cancelAll') }}
+              <ChevronLeftIcon :size="16" />
+            </button>
+            <span class="text-xs text-secondary tabular-nums">{{ taskPage }} / {{ pageCount }}</span>
+            <button
+              type="button"
+              class="queue-icon-button"
+              :disabled="taskPage === pageCount"
+              :aria-label="t('pages.upload.taskQueue.nextPage')"
+              @click="taskPage++"
+            >
+              <ChevronRightIcon :size="16" />
             </button>
           </div>
         </footer>
@@ -443,12 +456,14 @@
 
 <script setup lang="ts">
 import {
-  CheckCircleIcon,
+  BanIcon,
+  CheckIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronUpIcon,
   CircleAlertIcon,
+  CircleStopIcon,
   FileIcon,
   ListTodoIcon,
   ListXIcon,
@@ -458,17 +473,20 @@ import {
   PlusIcon,
   RefreshCwIcon,
   SearchIcon,
-  SettingsIcon,
+  SlidersHorizontalIcon,
   StarIcon,
   Trash2Icon,
   UploadCloudIcon,
   XIcon,
 } from '@lucide/vue'
-import { ref, useTemplateRef, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
+import CustomInput from '@/components/common/CustomInput.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
+import CustomSwitch from '@/components/common/CustomSwitch.vue'
+import SettingCard from '@/components/common/SettingCard.vue'
 import { useUploadTaskQueue } from '@/composables/useUploadTaskQueue'
 import { IRPCActionType } from '#/constants/rpcActions'
 
@@ -502,6 +520,7 @@ const {
   addTaskFiles,
   updateSettings,
   getTaskStatusText,
+  getTaskFailureText,
   canRetryTask,
   startTaskQueue,
   pauseTaskQueue,
@@ -518,12 +537,48 @@ const {
 } = useUploadTaskQueue()
 const dragDepth = ref(0)
 const taskList = useTemplateRef('taskList')
+const stats = computed(() => taskQueueStatus.stats)
+const queuedTotal = computed(() => stats.value.total - stats.value.cancelled)
+const finishedCount = computed(() => stats.value.completed + stats.value.cancelled)
+const showSpeed = computed(
+  () => taskQueueStatus.config.isRunning && !taskQueueStatus.config.isPaused && stats.value.avgSpeed > 0,
+)
+// Zero-count filters only add noise; keep the active one so it can be switched off.
+const shownFilters = computed(() =>
+  taskFilters.value.filter(filter => filter.value === 'all' || filter.count || taskFilter.value === filter.value),
+)
+// Segment the bar by file outcome so failures stay visible next to progress.
+const progressSegments = computed(() => {
+  const total = queuedTotal.value
+  if (!total) return []
+  const uploading = taskQueueStatus.tasks.reduce(
+    (sum, task) => sum + (task.status === 'uploading' ? task.progress / 100 : 0),
+    0,
+  )
+  return [
+    { key: 'completed', class: 'bg-success', count: stats.value.completed },
+    { key: 'uploading', class: 'bg-accent', count: uploading },
+    { key: 'failed', class: 'bg-danger', count: stats.value.failed },
+  ].map(segment => ({ ...segment, width: (segment.count / total) * 100 }))
+})
+const queueHint = computed(() => {
+  if (taskQueueStatus.config.isPaused) return t('pages.upload.taskQueue.pauseHint')
+  if (taskQueueStatus.config.isRunning)
+    return t('pages.upload.taskQueue.intervalSummary', { seconds: taskQueueStatus.config.intervalS })
+  return ''
+})
+
 watch([taskPage, taskFilter, taskSearchQuery], () => {
   taskList.value?.scrollTo({ top: 0 })
 })
 watch(taskDialogVisible, () => {
   dragDepth.value = 0
 })
+
+function setSwitch(key: 'autoStart' | 'pauseOnError', value: boolean) {
+  settings[key] = value
+  void updateSettings(key)
+}
 
 function resetFilters() {
   taskFilter.value = 'all'

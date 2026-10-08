@@ -2,6 +2,7 @@ import { useStorage } from '@vueuse/core'
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import useConfirm from '@/composables/useConfirm'
 import useMessage from '@/composables/useMessage'
 import { getUploadFiles } from '@/utils/uploadFiles'
 import { UPLOAD_TASK_QUEUE_UPDATE } from '#/constants/ipcChannels'
@@ -21,6 +22,7 @@ const statusLabels = {
 export function useUploadTaskQueue() {
   const { t } = useI18n()
   const message = useMessage()
+  const { confirm } = useConfirm()
   const taskDialogVisible = ref(false)
   const showTaskSettings = useStorage('upload-task-queue-show-settings', false)
   const taskSearchQuery = ref('')
@@ -55,7 +57,9 @@ export function useUploadTaskQueue() {
     return taskQueueStatus.tasks
       .filter(
         task =>
-          (taskFilter.value === 'all' || task.status === taskFilter.value) &&
+          (taskFilter.value === 'all' ||
+            task.status === taskFilter.value ||
+            (taskFilter.value === 'pending' && task.status === 'paused')) &&
           (!query || task.fileName.toLocaleLowerCase().includes(query)),
       )
       .sort((a, b) => order[a.status] - order[b.status])
@@ -88,6 +92,7 @@ export function useUploadTaskQueue() {
       tasks.map((task, index) => [
         task.id,
         {
+          position: index + 1,
           up: index > 0 && tasks[index - 1].priority === task.priority,
           down: index < tasks.length - 1 && tasks[index + 1].priority === task.priority,
         },
@@ -205,6 +210,25 @@ export function useUploadTaskQueue() {
     return task.destination === 'secondary' ? `${t('pages.upload.progress.secondary')} · ${phase}` : phase
   }
 
+  // Main-process errors are English diagnostics; explain what the user can do instead.
+  function getTaskFailureText(task: UploadTask): string {
+    if (task.failureStage === 'finalization' || task.remoteCompleted)
+      return t('pages.upload.taskQueue.failedFinalization')
+    if (task.sourceRequired) return t('pages.upload.taskQueue.failedSourceRequired')
+    return t('pages.upload.taskQueue.failedTransfer')
+  }
+
+  async function cancelAllTasks() {
+    const confirmed = await confirm({
+      title: t('pages.upload.taskQueue.cancelAllTitle'),
+      message: t('pages.upload.taskQueue.cancelAllConfirm', { count: activeCount.value }),
+      type: 'warning',
+      confirmButtonText: t('pages.upload.taskQueue.cancelAll'),
+      cancelButtonText: t('pages.upload.taskQueue.keepTasks'),
+    })
+    if (confirmed) await runTaskAction(IRPCActionType.UPLOAD_TASK_CANCEL_ALL)
+  }
+
   onBeforeMount(() => {
     removeTaskQueueListener = window.electron.ipcRendererOn(UPLOAD_TASK_QUEUE_UPDATE, applyTaskStatus)
     void refreshTaskStatus()
@@ -240,11 +264,12 @@ export function useUploadTaskQueue() {
     addTaskFiles,
     updateSettings,
     getTaskStatusText,
+    getTaskFailureText,
     canRetryTask,
     startTaskQueue: () => runTaskAction(IRPCActionType.UPLOAD_TASK_START),
     pauseTaskQueue: () => runTaskAction(IRPCActionType.UPLOAD_TASK_PAUSE),
     resumeTaskQueue: () => runTaskAction(IRPCActionType.UPLOAD_TASK_RESUME),
-    cancelAllTasks: () => runTaskAction(IRPCActionType.UPLOAD_TASK_CANCEL_ALL),
+    cancelAllTasks,
     cancelTask: (id: string) => runTaskAction(IRPCActionType.UPLOAD_TASK_CANCEL_ONE, [id]),
     removeTask: (id: string) => runTaskAction(IRPCActionType.UPLOAD_TASK_REMOVE_ONE, [id]),
     clearFinishedTasks: () => runTaskAction(IRPCActionType.UPLOAD_TASK_CLEAR_FINISHED),
