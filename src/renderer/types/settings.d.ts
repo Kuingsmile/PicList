@@ -1,6 +1,7 @@
 interface ISettingForm {
   language: string
   startMode: string
+  trayClickAction: string
   isDisableGPU: boolean
   secondPicBedMode: string
   galleryPicBedFilter: string[]

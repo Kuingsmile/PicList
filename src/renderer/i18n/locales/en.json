@@ -1648,6 +1648,9 @@
         "startMode": "Startup Mode",
         "startupAndShortcuts": "Startup and Shortcuts",
         "title": "General",
+        "trayClickAction": "Tray icon click",
+        "trayClickMainWindow": "Open main window",
+        "trayClickPanel": "Show quick panel",
         "windowBehavior": "Window Behavior"
       },
       "title": "Settings",
@@ -1883,9 +1886,15 @@
       "uploadServerDescription": "Checks the built-in server that other apps use to upload through PicList."
     },
     "tray": {
-      "copySuccess": "Copy Success",
+      "clickToCopy": "Click to copy the link",
+      "copyFormat": "Link format used when copying",
+      "copySuccess": "Link copied",
+      "emptyHint": "Drop files onto the menu bar icon or copy an image to upload it here.",
+      "emptyHintWin": "Copy an image or a file, then click the tray icon to upload it here.",
+      "emptyTitle": "No uploads yet",
       "openMainWindow": "Open Main Window",
-      "uploaded": "Uploaded",
+      "uploaded": "Recent Uploads",
+      "uploadFailedRetry": "Upload failed · Click to retry",
       "waitForUpload": "Waiting for Upload"
     },
     "update": {

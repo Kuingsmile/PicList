@@ -1,19 +1,24 @@
+import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+
 import picgo from '@core/picgo'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
-import { app, clipboard, Menu, MenuItem, MenuItemConstructorOptions, nativeTheme, Tray } from 'electron'
+import { app, clipboard, Menu, MenuItem, MenuItemConstructorOptions, nativeTheme, screen, Tray } from 'electron'
 import fs from 'fs-extra'
 
-import { UPDATE_FILES } from '#/constants/ipcChannels'
+import { getDefaultTrayClickAction, ITrayClickAction } from '#/constants/app'
+import { CLIPBOARD_FILES, UPDATE_FILES } from '#/constants/ipcChannels'
 import { IWindowList } from '~/constants'
 import { buildPicBedListMenu } from '~/events/remotes/menu'
 import { t } from '~/i18n'
 import { UploadJob } from '~/services/uploads/uploadJob'
-import { ensureFilePath } from '~/utils/clipboard'
+import { getClipboardFilePath } from '~/utils/clipboard'
 import clipboardPoll from '~/utils/clipboardPoll'
 import { configPaths } from '~/utils/configPaths'
+import { isImage } from '~/utils/filesystem'
 import { isMacOSVersionGreaterThanOrEqualTo } from '~/utils/getMacOSVersion'
-import { setTray, tray } from '~/utils/tray'
+import { getTrayWindowPosition, isTrayWindowJustHidden, setTray, tray } from '~/utils/tray'
 import { hideMiniWindow, openMainWindow, openMiniWindow } from '~/utils/windowHelper'
 
 import menubarPng from '../../../../../resources/menubar.png?asset&asarUnpack'
@@ -242,25 +247,14 @@ export function createTray(tooltip: string) {
     })
 
     tray.on('click', (_, bounds) => {
-      if (process.platform === 'darwin') {
-        toggleWindow(bounds)
-        const trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
-        if (!trayWindow) return
-        if (trayWindow.webContents.isLoading()) {
-          trayWindow.webContents.once('did-finish-load', () => {
-            sendClipboardFiles()
-          })
-        } else {
-          sendClipboardFiles()
-        }
+      const clickAction =
+        picgo.getConfig<string | undefined>(configPaths.settings.trayClickAction) ||
+        getDefaultTrayClickAction(process.platform)
+      if (clickAction === ITrayClickAction.PANEL) {
+        toggleTrayPanel(bounds)
       } else {
         windowManager.get(IWindowList.TRAY_WINDOW)?.hide()
-        const autoCloseMiniWindow =
-          picgo.getConfig<boolean | undefined>(configPaths.settings.autoCloseMiniWindow) || false
-        if (autoCloseMiniWindow) {
-          windowManager.get(IWindowList.MINI_WINDOW)?.close()
-        }
-        windowManager.create(IWindowList.SETTING_WINDOW)
+        openMainWindow()
       }
     })
 
@@ -298,58 +292,51 @@ export function createTray(tooltip: string) {
   }
 }
 
-function toggleWindow(bounds: IBounds) {
-  let trayWindow = windowManager.get(IWindowList.TRAY_WINDOW)
-  if (!trayWindow) {
-    trayWindow = windowManager.create(IWindowList.TRAY_WINDOW)
+function toggleTrayPanel(bounds: Electron.Rectangle) {
+  const existing = windowManager.get(IWindowList.TRAY_WINDOW)
+  if (existing?.isVisible()) {
+    existing.hide()
+    return
   }
+  // The click that blurred the open panel should only close it.
+  if (isTrayWindowJustHidden()) return
+  const trayWindow = existing ?? windowManager.create(IWindowList.TRAY_WINDOW)
   if (!trayWindow) return
-  if (trayWindow.isVisible()) {
-    trayWindow.hide()
-  } else {
-    trayWindow.setPosition(bounds.x - 98 + 11, bounds.y, false)
-    if (trayWindow.webContents.isLoading()) {
-      trayWindow.webContents.once('did-finish-load', () => {
-        trayWindow.webContents.send(UPDATE_FILES)
-      })
-    } else {
-      trayWindow.webContents.send(UPDATE_FILES)
-    }
+  const [width, height] = trayWindow.getSize()
+  const { workArea } = screen.getDisplayMatching(bounds)
+  const { x, y } = getTrayWindowPosition(bounds, { width, height }, workArea, process.platform === 'darwin' ? 4 : 12)
+  trayWindow.setPosition(x, y, false)
+  const reveal = () => {
+    trayWindow.webContents.send(UPDATE_FILES)
+    sendClipboardFiles()
     trayWindow.show()
     trayWindow.focus()
   }
+  // Show once rendered, so a new panel never flashes empty.
+  if (trayWindow.webContents.isLoading()) {
+    trayWindow.webContents.once('did-finish-load', reveal)
+  } else {
+    reveal()
+  }
 }
 
+// Preview what the built-in clipboard upload would send: a copied file (Finder/Explorer) or raw image data.
 async function sendClipboardFiles() {
   const img = clipboard.readImage()
-  const obj: ImgInfo[] = []
-  if (!img.isEmpty()) {
-    // 从剪贴板来的图片默认转为png
-    // https://github.com/electron/electron/issues/9035
-    const imgPath = clipboard.read('public.file-url')
-    if (imgPath) {
-      const decodePath = ensureFilePath(imgPath)
-      if (decodePath === imgPath) {
-        obj.push({
-          imgUrl: imgPath,
-        })
-      } else {
-        if (decodePath !== '') {
-          // 带有中文的路径，无法直接被img.src所使用，会被转义
-          const base64 = await fs.readFile(decodePath.replace('file://', ''), { encoding: 'base64' })
-          obj.push({
-            imgUrl: `data:image/png;base64,${base64}`,
-          })
-        }
-      }
-    } else {
-      const imgUrl = img.toDataURL()
-      obj.push({
-        width: img.getSize().width,
-        height: img.getSize().height,
-        imgUrl,
-      })
-    }
+  const files: ImgInfo[] = []
+  const filePath = getClipboardFilePath(img)
+  const isFile = filePath
+    ? await fs.stat(filePath).then(
+        stat => stat.isFile(),
+        () => false,
+      )
+    : false
+  if (isFile) {
+    const fileName = path.basename(filePath)
+    files.push({ fileName, imgUrl: isImage(fileName) ? pathToFileURL(filePath).href : '' })
+  } else if (!img.isEmpty()) {
+    const { width, height } = img.getSize()
+    files.push({ width, height, imgUrl: img.toDataURL() })
   }
-  windowManager.get(IWindowList.TRAY_WINDOW)?.webContents.send('clipboardFiles', obj)
+  windowManager.get(IWindowList.TRAY_WINDOW)?.webContents.send(CLIPBOARD_FILES, files)
 }

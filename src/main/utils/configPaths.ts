@@ -47,6 +47,7 @@ export interface IConfigStruct {
     isCustomMiniIcon: boolean
     customMiniIcon: string
     startMode: string
+    trayClickAction: string
     autoRename: boolean
     deleteCloudFile: boolean
     server: IServerConfig
@@ -141,6 +142,7 @@ export const configPaths = {
     isCustomMiniIcon: 'settings.isCustomMiniIcon',
     customMiniIcon: 'settings.customMiniIcon',
     startMode: 'settings.startMode',
+    trayClickAction: 'settings.trayClickAction',
     autoRename: 'settings.autoRename',
     deleteCloudFile: 'settings.deleteCloudFile',
     server: 'settings.server',

@@ -39,6 +39,12 @@ export default [
     },
   },
   {
+    action: IRPCActionType.HIDE_CURRENT_WINDOW,
+    handler: async (event: IIPCEvent) => {
+      BrowserWindow.fromWebContents(event.sender)?.hide()
+    },
+  },
+  {
     action: IRPCActionType.MINIMIZE_WINDOW,
     handler: async () => {
       const window = BrowserWindow.getFocusedWindow()

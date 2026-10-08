@@ -1648,6 +1648,9 @@
         "startMode": "啟動模式",
         "startupAndShortcuts": "啟動和快捷鍵",
         "title": "通用",
+        "trayClickAction": "單擊系統匣圖示",
+        "trayClickMainWindow": "打開主視窗",
+        "trayClickPanel": "顯示快捷面板",
         "windowBehavior": "窗口行為"
       },
       "title": "設定",
@@ -1883,9 +1886,15 @@
       "uploadServerDescription": "檢查供其他應用程式透過 PicList 上傳的內建伺服器。"
     },
     "tray": {
+      "clickToCopy": "點擊複製連結",
+      "copyFormat": "複製時使用的連結格式",
       "copySuccess": "複製成功",
+      "emptyHint": "將檔案拖到選單列圖示上，或複製一張圖片，即可在這裡上傳。",
+      "emptyHintWin": "複製一張圖片或一個檔案，然後點擊系統匣圖示即可在這裡上傳。",
+      "emptyTitle": "暫無上傳記錄",
       "openMainWindow": "打開主窗口",
-      "uploaded": "已上傳",
+      "uploaded": "最近上傳",
+      "uploadFailedRetry": "上傳失敗 · 點擊重試",
       "waitForUpload": "等待上傳"
     },
     "update": {

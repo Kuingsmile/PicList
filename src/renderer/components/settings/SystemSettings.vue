@@ -144,6 +144,23 @@
       />
       <!-- Window Behavior Toggles -->
 
+      <SettingCard v-if="osGlobal !== 'linux'">
+        <SingleSelect
+          v-model="settings.trayClickAction"
+          :title="t('pages.settings.system.trayClickAction')"
+          :icon="MousePointerClick"
+          :fronticon="false"
+          :tight="false"
+        >
+          <template #extra>
+            <option :value="ITrayClickAction.PANEL">{{ t('pages.settings.system.trayClickPanel') }}</option>
+            <option :value="ITrayClickAction.MAIN_WINDOW">
+              {{ t('pages.settings.system.trayClickMainWindow') }}
+            </option>
+          </template>
+        </SingleSelect>
+      </SettingCard>
+
       <SettingCard v-if="osGlobal === 'darwin'" p1>
         <CustomSwitch v-model="settings.isHideDock" small no-border :title="t('pages.settings.system.isHideDock')" />
       </SettingCard>
@@ -255,7 +272,7 @@
 </template>
 
 <script setup lang="ts">
-import { Download, Edit2, Globe, Image as ImageIcon, Import, Keyboard, Monitor } from '@lucide/vue'
+import { Download, Edit2, Globe, Image as ImageIcon, Import, Keyboard, Monitor, MousePointerClick } from '@lucide/vue'
 import { onBeforeMount, ref } from 'vue'
 import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -273,6 +290,7 @@ import { useSettingsContext } from '@/composables/settings/useSettingsContext'
 import { osGlobal } from '@/composables/useGlobal'
 import useMessage from '@/composables/useMessage'
 import { SHORTKEY_PAGE } from '@/router/config'
+import { ITrayClickAction } from '#/constants/app'
 import { IRPCActionType } from '#/constants/rpcActions'
 
 import SettingsFileEditor from './SettingsFileEditor.vue'

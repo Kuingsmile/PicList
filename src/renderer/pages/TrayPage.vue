@@ -1,115 +1,195 @@
 <template>
   <div
-    id="tay-page"
-    class="font-[-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif] no-scrollbar flex h-[350px] w-[196px] flex-col overflow-hidden bg-bg-tertiary/95"
+    id="tray-page"
+    class="flex h-screen w-screen flex-col overflow-hidden text-main"
+    :class="osGlobal === 'darwin' ? 'bg-bg-tertiary/90' : 'border border-border bg-bg-tertiary'"
   >
     <!-- Header -->
-    <div
-      class="flex min-h-[32px] cursor-pointer items-center justify-between bg-tertiary/95 px-3 py-2 transition-all duration-fast ease-apple hover:shadow-md"
-      @click="openSettingWindow"
-    >
-      <div class="flex flex-1 items-center gap-2">
-        <span class="text-xs font-semibold text-white opacity-95">
-          {{ t('pages.tray.openMainWindow') }}
-        </span>
+    <header class="relative flex h-11 shrink-0 items-center justify-between gap-2 border-b border-border px-3">
+      <div class="flex min-w-0 items-center gap-2">
+        <img :src="logoUrl" class="size-5 shrink-0" alt="" draggable="false" />
+        <span class="truncate text-sm font-semibold">PicList</span>
       </div>
-      <div
-        class="flex items-center text-white opacity-80 transition-transform duration-fast ease-apple hover:translate-x-px"
+      <button
+        type="button"
+        class="flex shrink-0 cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-accent focus-ring transition-colors duration-fast ease-apple hover:bg-accent/10"
+        @click="openSettingWindow"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4">
-          <path d="m9 18 6-6-6-6" />
-        </svg>
+        {{ t('pages.tray.openMainWindow') }}
+        <ArrowUpRight :size="13" :stroke-width="2.25" aria-hidden="true" />
+      </button>
+      <div
+        v-if="uploadProgress"
+        class="absolute inset-x-0 -bottom-px h-0.5 overflow-hidden bg-accent/15"
+        role="progressbar"
+        :aria-label="t('common.fileTable.tasks.uploading')"
+        :aria-valuenow="uploadProgress.indeterminate ? undefined : uploadProgress.progress"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <div
+          v-if="uploadProgress.indeterminate"
+          class="h-full w-1/3 animate-upload-progress bg-accent motion-reduce:animate-none"
+        />
+        <div
+          v-else
+          class="h-full bg-accent transition-[width] duration-medium ease-standard"
+          :style="{ width: `${uploadProgress.progress}%` }"
+        />
       </div>
-    </div>
+    </header>
 
-    <!-- Content -->
-    <div class="no-scrollbar flex-1 overflow-x-hidden overflow-y-auto p-2">
-      <!-- Clipboard Files Section -->
-      <div v-if="clipboardFiles.length > 0" class="mb-3 last:mb-0">
-        <div class="mb-1 flex items-center justify-between px-2">
-          <div class="text-xs font-semibold text-gray-600 uppercase">
+    <main class="no-scrollbar flex flex-1 flex-col gap-3 overflow-x-hidden overflow-y-auto p-2.5">
+      <!-- Clipboard image waiting for upload -->
+      <section v-if="clipboardFiles.length" class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between px-1">
+          <h2 class="text-[11px] font-semibold tracking-wide text-tertiary uppercase">
             {{ t('pages.tray.waitForUpload') }}
-          </div>
-          <div class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-accent">
+          </h2>
+          <span
+            v-if="clipboardFiles.length > 1"
+            class="rounded-full bg-accent/10 px-1.5 text-[11px] font-semibold text-accent tabular-nums"
+          >
             {{ clipboardFiles.length }}
-          </div>
+          </span>
         </div>
-        <div class="grid grid-cols-1 gap-1">
+        <button
+          v-for="(item, index) in clipboardFiles"
+          :key="index"
+          type="button"
+          class="group relative h-28 w-full shrink-0 cursor-pointer overflow-hidden rounded-lg border border-border bg-bg-secondary shadow-sm focus-ring transition-all duration-fast ease-apple hover:border-accent/50 hover:shadow-md disabled:cursor-progress"
+          :disabled="clipboardState === 'uploading'"
+          :aria-label="clipboardLabel"
+          @click="uploadClipboardFiles"
+        >
+          <img
+            v-if="item.imgUrl"
+            :src="item.imgUrl"
+            class="h-full w-full bg-[repeating-conic-gradient(var(--color-border-secondary)_0_25%,transparent_0_50%)] bg-size-[12px_12px] object-contain"
+            alt=""
+            draggable="false"
+            @error="onImageError"
+          />
+          <span v-else class="flex h-full w-full flex-col items-center justify-center gap-1.5 px-3 text-secondary">
+            <FileIcon :size="26" aria-hidden="true" />
+            <span class="max-w-full truncate text-xs font-medium">{{ item.fileName }}</span>
+          </span>
           <div
-            v-for="(item, index) in clipboardFiles"
-            :key="index"
-            class="group/one relative cursor-pointer overflow-hidden rounded-md border border-border-secondary bg-white/80 transition-all duration-fast ease-apple hover:border-accent/30 hover:shadow-md"
-            :class="{ uploading: uploadFlag }"
-            @click="uploadClipboardFiles"
+            class="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs font-semibold text-white transition-opacity duration-fast ease-apple"
+            :class="
+              clipboardState === 'idle'
+                ? 'bg-black/45 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
+                : clipboardState === 'failed'
+                  ? 'bg-danger/75'
+                  : 'bg-black/55'
+            "
+            aria-hidden="true"
           >
-            <div class="relative h-16 w-full overflow-hidden">
-              <img
-                :src="item.imgUrl"
-                class="h-full w-full object-cover transition-all duration-fast ease-apple group-hover/one:scale-105"
-                @error="onImageError"
-              />
-              <div v-if="uploadFlag" class="absolute inset-0 flex items-center justify-center bg-white/90">
-                <div
-                  class="h-[16px] w-[16px] animate-spin rounded-full border-2 border-t-2 border-gray-400 border-t-transparent"
-                />
-              </div>
-            </div>
+            <LoaderCircle
+              v-if="clipboardState === 'uploading'"
+              :size="20"
+              class="animate-spin motion-reduce:animate-none"
+            />
+            <RotateCw v-else-if="clipboardState === 'failed'" :size="20" />
+            <Upload v-else :size="20" />
+            <span class="tabular-nums">{{ clipboardLabel }}</span>
           </div>
-        </div>
-      </div>
+        </button>
+      </section>
 
-      <!-- Uploaded Files Section -->
-      <div class="mb-3">
-        <div class="mb-1.5 flex items-center justify-between px-0.5">
-          <div class="text-xs font-semibold text-gray-600 uppercase">
+      <!-- Recent uploads -->
+      <section class="flex min-h-0 flex-1 flex-col gap-1.5">
+        <div class="flex items-center justify-between gap-2 px-1">
+          <h2 class="text-[11px] font-semibold tracking-wide text-tertiary uppercase">
             {{ t('pages.tray.uploaded') }}
-          </div>
-        </div>
-        <div class="flex w-full flex-col items-center gap-3">
-          <div
-            v-for="item in files"
-            :key="item.imgUrl"
-            class="group/two relative w-full flex-1 cursor-pointer overflow-hidden rounded-md border border-border-secondary bg-white/80 transition-all duration-fast ease-apple hover:border-accent/30 hover:shadow-md"
-            @click="copyTheLink(item)"
+          </h2>
+          <span
+            v-if="files.length && pasteStyleLabel"
+            class="truncate rounded-full border border-border px-1.5 text-[11px] font-medium text-secondary"
+            :title="t('pages.tray.copyFormat')"
           >
-            <div class="relative flex h-[75px] w-full flex-col overflow-hidden">
+            {{ pasteStyleLabel }}
+          </span>
+        </div>
+
+        <ul v-if="files.length" class="flex flex-col gap-0.5">
+          <li v-for="item in files" :key="item.id">
+            <button
+              type="button"
+              class="group flex w-full cursor-pointer items-center gap-2.5 rounded-lg p-1.5 text-left focus-ring transition-colors duration-fast ease-apple hover:bg-accent/10"
+              :title="t('pages.tray.clickToCopy')"
+              @click="copyTheLink(item)"
+            >
               <img
                 :src="item.imgUrl"
-                class="h-[60px] w-full object-cover transition-all duration-fast ease-apple group-hover/two:scale-105"
+                class="size-10 shrink-0 rounded-md border border-border-secondary bg-bg-secondary object-cover"
+                alt=""
+                loading="lazy"
+                draggable="false"
                 @error="onImageError"
               />
-              <div
-                class="flex items-start justify-between bg-white/70 p-1 transition-all duration-fast ease-apple group-hover/two:opacity-100"
+              <span class="flex min-w-0 flex-1 flex-col">
+                <span class="truncate text-xs font-medium">{{ item.fileName || item.imgUrl }}</span>
+                <span class="truncate text-[11px] text-tertiary">{{ itemMeta(item) }}</span>
+              </span>
+              <span
+                class="grid size-6 shrink-0 place-items-center rounded-md transition-all duration-fast ease-apple"
+                :class="
+                  copyState[item.id] === 'copied'
+                    ? 'text-success'
+                    : copyState[item.id] === 'failed'
+                      ? 'text-danger'
+                      : 'text-tertiary opacity-0 group-hover:text-accent group-hover:opacity-100 group-focus-visible:opacity-100'
+                "
               >
-                <div class="overflow-hidden text-[0.6rem] font-medium text-ellipsis whitespace-nowrap text-secondary">
-                  {{ item.fileName }}
-                </div>
-                <div class="flex items-center text-accent opacity-80">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                  </svg>
-                </div>
-              </div>
-            </div>
+                <Check
+                  v-if="copyState[item.id] === 'copied'"
+                  :size="15"
+                  :stroke-width="2.5"
+                  class="animate-icon-pop motion-reduce:animate-none"
+                />
+                <X v-else-if="copyState[item.id] === 'failed'" :size="15" :stroke-width="2.5" />
+                <Copy v-else :size="14" />
+              </span>
+            </button>
+          </li>
+        </ul>
+
+        <div
+          v-else-if="loaded"
+          class="flex flex-1 flex-col items-center justify-center gap-2 px-4 pb-6 text-center text-tertiary"
+        >
+          <div class="grid size-11 place-items-center rounded-full bg-bg-secondary">
+            <Images :size="20" />
           </div>
+          <p class="text-xs font-semibold text-secondary">{{ t('pages.tray.emptyTitle') }}</p>
+          <p class="text-[11px] leading-snug">
+            {{ t(osGlobal === 'darwin' ? 'pages.tray.emptyHint' : 'pages.tray.emptyHintWin') }}
+          </p>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
+
+    <div class="sr-only" role="status" aria-live="polite">{{ liveMessage }}</div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
+import { ArrowUpRight, Check, Copy, File as FileIcon, Images, LoaderCircle, RotateCw, Upload, X } from '@lucide/vue'
+import dayjs from 'dayjs'
+import { computed, onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { osGlobal, usePicBed } from '@/composables/useGlobal'
+import { getInitialLocale } from '@/i18n/locale'
 import { getConfig } from '@/services/configService'
 import $$db from '@/services/galleryDatabase'
 import { configPaths } from '@/utils/configPaths'
+import { createUploadProgressTracker, type UploadProgressState } from '@/utils/uploadProgress'
 import { IPasteStyle, IWindowList } from '#/constants/app'
-import { CLIPBOARD_FILES, UPDATE_FILES, UPLOAD_FILES } from '#/constants/ipcChannels'
+import { CLIPBOARD_FILES, UPDATE_FILES, UPLOAD_FILES, UPLOAD_PROGRESS } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
-import { handleUrlEncode } from '#/utils/url'
+import { getRawData } from '#/utils/rawData'
 
 defineOptions({ name: 'TrayPage' })
 
@@ -119,140 +199,168 @@ type IResult<T> = T & {
   updatedAt: number
 }
 
-const { t } = useI18n()
+const RECENT_LIMIT = 10
+const logoUrl = `${import.meta.env.BASE_URL}roundLogo.png`
+const FEEDBACK_DURATION = 1600
+
+const { t, locale } = useI18n()
+const { picBedG } = usePicBed()
 
 const files = ref<IResult<ImgInfo>[]>([])
-const notification = reactive({
-  title: t('pages.tray.copySuccess'),
-  body: '',
-})
+const loaded = ref(false)
 const clipboardFiles = ref<ImgInfo[]>([])
-const uploadFlag = ref(false)
+const clipboardState = ref<'idle' | 'uploading' | 'failed'>('idle')
+const uploadProgress = ref<UploadProgressState>()
+const pasteStyle = ref('')
+const copyState = reactive<Record<string, 'copied' | 'failed'>>({})
+const liveMessage = ref('')
+
+const pasteStyleLabel = computed(() => (pasteStyle.value === IPasteStyle.MARKDOWN ? 'Markdown' : pasteStyle.value))
+
+const clipboardLabel = computed(() => {
+  switch (clipboardState.value) {
+    case 'uploading': {
+      const state = uploadProgress.value
+      const label = t('common.fileTable.tasks.uploading')
+      return state && !state.indeterminate ? `${label} ${state.progress}%` : label
+    }
+    case 'failed':
+      return t('pages.tray.uploadFailedRetry')
+    default:
+      return t('pages.upload.clickToUpload')
+  }
+})
+
+const picBedNames = computed(() => new Map(picBedG.value.map(item => [item.type, item.name])))
+
+function itemMeta(item: IResult<ImgInfo>) {
+  const date = dayjs(item.createdAt)
+  const time = date.format(
+    date.isSame(dayjs(), 'day') ? 'HH:mm' : date.isSame(dayjs(), 'year') ? 'MM/DD HH:mm' : 'YYYY/MM/DD',
+  )
+  const picBed = item.type ? picBedNames.value.get(item.type) || item.type : ''
+  return [picBed, time].filter(Boolean).join(' · ')
+}
 
 function openSettingWindow() {
   window.electron.sendRPC(IRPCActionType.OPEN_WINDOW, IWindowList.SETTING_WINDOW)
 }
 
 async function getData() {
-  files.value = (await $$db.get<ImgInfo>({ orderBy: 'desc', limit: 10 }))!.data
+  // The hidden panel keeps its renderer, so refresh the locale when it reopens.
+  locale.value = getInitialLocale(localStorage.getItem('currentLanguage'), navigator.language || 'zh-CN')
+  const [result, style] = await Promise.all([
+    $$db.get<ImgInfo>({ orderBy: 'desc', limit: RECENT_LIMIT }),
+    getConfig<string>(configPaths.settings.pasteStyle),
+  ])
+  files.value = result?.data ?? []
+  pasteStyle.value = style || IPasteStyle.MARKDOWN
+  loaded.value = true
 }
 
-function formatCustomLink(customLink: string, item: ImgInfo) {
-  const fileName = item.fileName!.replace(new RegExp(`\\${item.extname}$`), '')
-  const url = item.url || item.imgUrl
-  const extName = item.extname
-  const formatObj = {
-    url,
-    fileName,
-    extName,
-  }
-  const keys = Object.keys(formatObj) as ['url', 'fileName', 'extName']
-  keys.forEach(item => {
-    if (customLink.indexOf(`$${item}`) !== -1) {
-      const reg = new RegExp(`\\$${item}`, 'g')
-      customLink = customLink.replace(reg, formatObj[item])
+const feedbackTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+function showCopyFeedback(id: string, state: 'copied' | 'failed') {
+  clearTimeout(feedbackTimers.get(id))
+  copyState[id] = state
+  liveMessage.value = state === 'copied' ? t('pages.tray.copySuccess') : t('pages.gallery.copyLinkFailed')
+  feedbackTimers.set(
+    id,
+    setTimeout(() => {
+      delete copyState[id]
+      feedbackTimers.delete(id)
+    }, FEEDBACK_DURATION),
+  )
+}
+
+async function copyTheLink(item: IResult<ImgInfo>) {
+  try {
+    const result = await window.electron.triggerRPC<[string, string]>(
+      IRPCActionType.GALLERY_PASTE_TEXT,
+      getRawData(item),
+    )
+    if (!result?.[0]?.trim()) throw new Error('Missing link')
+    showCopyFeedback(item.id, 'copied')
+    if (result[1] && result[1] !== item.shortUrl) {
+      // Copy has already succeeded; caching the short URL is optional.
+      $$db.updateById(item.id, { shortUrl: result[1] }).catch(() => {})
     }
-  })
-  return customLink
-}
-
-async function copyTheLink(item: ImgInfo) {
-  const pasteStyle = (await getConfig<string>(configPaths.settings.pasteStyle)) || IPasteStyle.MARKDOWN
-  const customLink = await getConfig<string>(configPaths.settings.customLink)
-  const txt = await pasteTemplate(pasteStyle, item, customLink)
-  window.electron.clipboard.writeText(txt)
-  const myNotification = new Notification(notification.title, notification)
-  myNotification.onclick = () => {
-    return true
+  } catch {
+    showCopyFeedback(item.id, 'failed')
   }
 }
 
-async function pasteTemplate(style: string, item: ImgInfo, customLink: string | undefined) {
-  let url = item.url || item.imgUrl
-  if (item.type === 'aws-s3' || item.type === 'aws-s3-plist') {
-    url = item.imgUrl || item.url || ''
+async function uploadClipboardFiles() {
+  if (clipboardState.value === 'uploading') return
+  clipboardState.value = 'uploading'
+  const result = await window.electron
+    .triggerRPC<{ url?: string }>(IRPCActionType.TRAY_UPLOAD_CLIPBOARD_FILES)
+    .catch(() => undefined)
+  if (result?.url) {
+    clipboardState.value = 'idle'
+    // The upload already copied its link; flag the new entry once the list refreshes.
+    await getData()
+    if (files.value[0]) showCopyFeedback(files.value[0].id, 'copied')
+  } else {
+    // A cancelled upload (e.g. from the rename dialog) is not an error.
+    clipboardState.value = uploadProgress.value?.cancelled && !uploadProgress.value.failed ? 'idle' : 'failed'
   }
-  if ((await getConfig(configPaths.settings.encodeOutputURL)) === true) {
-    url = handleUrlEncode(url)
-  }
-  const useShortUrl = (await getConfig(configPaths.settings.useShortUrl)) || false
-  if (useShortUrl) {
-    url = (await window.electron.triggerRPC<string>(IRPCActionType.TRAY_GET_SHORT_URL, url)) || url
-  }
-  notification.body = url
-  const _customLink = customLink || '![$fileName]($url)'
-  const tpl: Record<string, string> = {
-    markdown: `![](${url})`,
-    HTML: `<img src="${url}"/>`,
-    URL: url,
-    UBB: `[IMG]${url}[/IMG]`,
-    Custom: formatCustomLink(_customLink, {
-      ...item,
-      url,
-    }),
-  }
-  return tpl[style]
-}
-
-function disableDragFile() {
-  window.addEventListener(
-    'dragover',
-    e => {
-      e = e || event
-      e.preventDefault()
-    },
-    false,
-  )
-  window.addEventListener(
-    'drop',
-    e => {
-      e = e || event
-      e.preventDefault()
-    },
-    false,
-  )
-}
-
-function uploadClipboardFiles() {
-  if (uploadFlag.value) {
-    return
-  }
-  uploadFlag.value = true
-  window.electron.sendRPC(IRPCActionType.TRAY_UPLOAD_CLIPBOARD_FILES)
 }
 
 function onImageError(event: Event) {
   const img = event.target as HTMLImageElement
-  img.src = './errorLoading.png'
+  if (!img.src.endsWith('/errorLoading.png')) img.src = `${import.meta.env.BASE_URL}errorLoading.png`
 }
 
-function clipboardFilesHandler(files: ImgInfo[]) {
-  clipboardFiles.value = files
+function clipboardFilesHandler(list: ImgInfo[]) {
+  clipboardFiles.value = list
+  if (clipboardState.value === 'failed') clipboardState.value = 'idle'
 }
 
-async function uploadFilesHandler() {
-  files.value = (await $$db.get<ImgInfo>({
-    orderBy: 'desc',
-    limit: 5,
-  }))!.data
-  uploadFlag.value = false
+const trackUploadProgress = createUploadProgressTracker()
+let progressHideTimer: ReturnType<typeof setTimeout> | undefined
+
+function uploadProgressHandler(event: IUploadProgress) {
+  clearTimeout(progressHideTimer)
+  const state = trackUploadProgress(event)
+  uploadProgress.value = state
+  if (!state.activeCount) {
+    progressHideTimer = setTimeout(() => {
+      uploadProgress.value = undefined
+    }, 400)
+  }
 }
 
-function updateFilesHandler() {
-  getData()
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') window.electron.sendRPC(IRPCActionType.HIDE_CURRENT_WINDOW)
 }
+
+// Dropping a file on the page would otherwise navigate the window to it.
+function preventDrop(e: DragEvent) {
+  e.preventDefault()
+}
+
+const disposers: (() => void)[] = []
 
 onBeforeMount(async () => {
-  window.electron.ipcRendererOn(CLIPBOARD_FILES, clipboardFilesHandler)
-  window.electron.ipcRendererOn(UPLOAD_FILES, uploadFilesHandler)
-  window.electron.ipcRendererOn(UPDATE_FILES, updateFilesHandler)
-  disableDragFile()
+  disposers.push(
+    window.electron.ipcRendererOn(CLIPBOARD_FILES, clipboardFilesHandler),
+    window.electron.ipcRendererOn(UPLOAD_FILES, getData),
+    window.electron.ipcRendererOn(UPDATE_FILES, getData),
+    window.electron.ipcRendererOn(UPLOAD_PROGRESS, uploadProgressHandler),
+  )
+  window.addEventListener('dragover', preventDrop)
+  window.addEventListener('drop', preventDrop)
+  window.addEventListener('keydown', onKeydown)
   await getData()
 })
 
 onBeforeUnmount(() => {
-  window.electron.ipcRendererRemoveAllListeners(CLIPBOARD_FILES)
-  window.electron.ipcRendererRemoveAllListeners(UPLOAD_FILES)
-  window.electron.ipcRendererRemoveAllListeners(UPDATE_FILES)
+  disposers.forEach(dispose => dispose())
+  clearTimeout(progressHideTimer)
+  feedbackTimers.forEach(timer => clearTimeout(timer))
+  window.removeEventListener('dragover', preventDrop)
+  window.removeEventListener('drop', preventDrop)
+  window.removeEventListener('keydown', onKeydown)
 })
 </script>

@@ -28,6 +28,7 @@ export function useSettingsPersistence(state: SettingsState) {
   const policies: SettingPolicies = {
     language: handleLanguageChange,
     startMode: handleStartModeChange,
+    trayClickAction: 'auto',
     isDisableGPU: handleIsDisableGPUChange,
     secondPicBedMode: value => saveNonemptySetting('secondPicBedMode', value),
     galleryPicBedFilter: 'auto',

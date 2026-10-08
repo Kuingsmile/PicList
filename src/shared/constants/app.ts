@@ -37,6 +37,15 @@ export const ISartMode = {
   NO_TRAY: 'no-tray',
 }
 
+export const ITrayClickAction = {
+  PANEL: 'panel',
+  MAIN_WINDOW: 'mainWindow',
+}
+
+// macOS has always opened the panel from the menu bar; Windows opens the main window.
+export const getDefaultTrayClickAction = (platform: string) =>
+  platform === 'darwin' ? ITrayClickAction.PANEL : ITrayClickAction.MAIN_WINDOW
+
 export const II18nLanguage = {
   ZH_CN: 'zh-CN',
   ZH_TW: 'zh-TW',

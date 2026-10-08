@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { osGlobal } from '@/composables/useGlobal'
 import { getConfig, saveConfig } from '@/services/configService'
 import { configPaths } from '@/utils/configPaths'
-import { ISartMode } from '#/constants/app'
+import { getDefaultTrayClickAction, ISartMode } from '#/constants/app'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { enforceBoolean, enforceNumber } from '#/utils/values'
 
@@ -63,6 +63,7 @@ export function useSettingsState() {
       stored.startMode !== undefined
         ? stored.startMode
         : defaultStartMode[osGlobal.value as keyof typeof defaultStartMode] || ISartMode.MAIN
+    settings.value.trayClickAction = stored.trayClickAction || getDefaultTrayClickAction(osGlobal.value)
     settings.value.secondPicBedMode = stored.secondPicBedMode || 'backup'
     if (osGlobal.value === 'darwin' && settings.value.startMode === ISartMode.MINI) {
       settings.value.startMode = ISartMode.QUIET

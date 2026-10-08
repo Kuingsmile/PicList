@@ -39,6 +39,7 @@ export function createSettingsState() {
   const settings = ref<ISettingForm>({
     language: '',
     startMode: '',
+    trayClickAction: '',
     isDisableGPU: false,
     secondPicBedMode: 'backup',
     galleryPicBedFilter: [],

@@ -10,6 +10,7 @@ import { TOGGLE_SHORTKEY_MODIFIED_MODE } from '#/constants/ipcChannels'
 import { IWindowList } from '~/constants'
 import { t } from '~/i18n'
 import { configPaths } from '~/utils/configPaths'
+import { markTrayWindowHidden } from '~/utils/tray'
 
 import logo from '../../../../../resources/logo.png?asset&asarUnpack'
 
@@ -30,15 +31,22 @@ const preloadPath = fileURLToPath(new URL('../preload/index.mjs', import.meta.ur
 
 const { width: defaultWindowWidth, height: defaultWindowHeight } = getDefaultWindowSizes()
 
+const isDarwin = process.platform === 'darwin'
+
+// A popover under the macOS menu bar; a flyout above the Windows taskbar.
 const trayWindowOptions = {
-  height: 350,
-  width: 196,
+  height: 400,
+  width: 260,
   show: false,
   frame: false,
   fullscreenable: false,
   resizable: false,
-  transparent: true,
-  vibrancy: 'ultra-dark',
+  minimizable: false,
+  maximizable: false,
+  skipTaskbar: true,
+  alwaysOnTop: !isDarwin,
+  transparent: isDarwin,
+  ...(isDarwin ? { vibrancy: 'popover' } : {}),
   webPreferences: {
     sandbox: false,
     preload: preloadPath,
@@ -162,8 +170,10 @@ windowList.set(IWindowList.TRAY_WINDOW, {
     } else {
       window.loadFile(path.join(dirname, '../renderer/index.html'))
     }
+    // Hide rather than close, so the next click opens the panel instantly.
     window.on('blur', () => {
-      window.close()
+      markTrayWindowHidden()
+      window.hide()
     })
     window.on('closed', () => {
       window = null as unknown as Electron.BrowserWindow

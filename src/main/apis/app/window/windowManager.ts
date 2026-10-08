@@ -65,8 +65,9 @@ class WindowManager implements IWindowManager {
     const settingWindow = this.get(IWindowList.SETTING_WINDOW)
     if (settingWindow) return settingWindow
 
+    // The tray panel stays alive while hidden; never parent dialogs or uploads to it then.
     const trayWindow = this.get(IWindowList.TRAY_WINDOW)
-    if (trayWindow) return trayWindow
+    if (trayWindow?.isVisible()) return trayWindow
     return undefined
   }
 }
