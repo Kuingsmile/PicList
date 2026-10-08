@@ -1244,7 +1244,19 @@
       "working": "Working…"
     },
     "rename": {
-      "placeholder": "Please enter new file name"
+      "confirm": "Rename",
+      "extensionChanged": "Extension changes from {from} to {to}",
+      "extensionRemoved": "No extension, so some hosts won't serve it as an image",
+      "hintConfirm": "rename",
+      "hintKeep": "keep original",
+      "inputLabel": "New file name",
+      "keepOriginal": "Keep original",
+      "placeholder": "Enter a file name",
+      "progress": "{current} of {total}",
+      "required": "Enter a file name",
+      "reset": "Restore suggested name",
+      "title": "Rename before upload",
+      "unsafeChars": "{chars} may break the image link"
     },
     "scripts": {
       "addNew": "Add New Script",

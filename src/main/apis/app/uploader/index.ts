@@ -63,19 +63,20 @@ class Uploader {
         const rename = idSpecificRename !== undefined ? !!idSpecificRename : !!globalRename
         const autoRename = idSpecificAutoRename !== undefined ? !!idSpecificAutoRename : !!globalAutoRename
         if (autoRename || rename) {
-          await Promise.all(
-            ctx.output.map(async (item, index) => {
-              let name: undefined | string | null
-              const fileName = autoRename
-                ? `${dayjs().add(index, 'ms').format('YYYYMMDDHHmmssSSS')}${item.extname}`
-                : item.fileName || `image${item.extname || ''}`
-              if (rename) {
-                name = await waitForRename(job, fileName, item.fileName || fileName)
-              }
-              job.throwIfStopped()
-              item.fileName = name || fileName
-            }),
-          )
+          const now = dayjs()
+          const total = ctx.output.length
+          // Ask one file at a time so the dialogs follow the upload order instead of stacking up.
+          for (const [index, item] of ctx.output.entries()) {
+            let name: undefined | string | null
+            const fileName = autoRename
+              ? `${now.add(index, 'ms').format('YYYYMMDDHHmmssSSS')}${item.extname}`
+              : item.fileName || `image${item.extname || ''}`
+            if (rename) {
+              name = await waitForRename(job, fileName, item.fileName || fileName, { index, total })
+            }
+            job.throwIfStopped()
+            item.fileName = name || fileName
+          }
         }
       },
     })

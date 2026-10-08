@@ -45,6 +45,9 @@ interface IRenameRequest {
   dialogId: string
   fileName: string
   originalName: string
+  /** Zero-based position of this file in the batch being renamed. */
+  index: number
+  total: number
 }
 
 interface IRenameResponse {

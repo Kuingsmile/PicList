@@ -1244,7 +1244,19 @@
       "working": "處理中…"
     },
     "rename": {
-      "placeholder": "請輸入新的檔案名稱"
+      "confirm": "重新命名",
+      "extensionChanged": "副檔名將從 {from} 改為 {to}",
+      "extensionRemoved": "缺少副檔名，部分圖床可能無法將其識別為圖片",
+      "hintConfirm": "重新命名",
+      "hintKeep": "保留原名",
+      "inputLabel": "新檔案名稱",
+      "keepOriginal": "保留原名",
+      "placeholder": "請輸入新的檔案名稱",
+      "progress": "第 {current} / {total} 個",
+      "required": "請輸入檔案名稱",
+      "reset": "還原建議名稱",
+      "title": "上傳前重新命名",
+      "unsafeChars": "{chars} 可能導致圖片連結失效"
     },
     "scripts": {
       "addNew": "添加新腳本",

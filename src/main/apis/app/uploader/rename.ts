@@ -7,11 +7,26 @@ import { GET_RENAME_FILE_NAME, RENAME_FILE_NAME } from '#/constants/ipcChannels'
 import { IWindowList } from '~/constants'
 import { UploadJob, UploadJobError } from '~/services/uploads/uploadJob'
 
-export function waitForRename(job: UploadJob, fileName: string, originalName: string): Promise<string | null> {
+// Offset for each rename window that is already open, so concurrent dialogs don't hide each other.
+const CASCADE_OFFSET = 28
+let openDialogs = 0
+
+export function waitForRename(
+  job: UploadJob,
+  fileName: string,
+  originalName: string,
+  position: { index: number; total: number },
+): Promise<string | null> {
   job.throwIfStopped()
   const window = windowManager.create(IWindowList.RENAME_WINDOW)
   if (!window || window.isDestroyed() || window.webContents.isDestroyed()) {
     return Promise.reject(new UploadJobError('failed'))
+  }
+  const stackIndex = openDialogs++
+  if (stackIndex > 0) {
+    const [x, y] = window.getPosition()
+    const offset = (stackIndex % 8) * CASCADE_OFFSET
+    window.setPosition(x + offset, y + offset, false)
   }
   const sender = window.webContents
   const jobId = job.context.id
@@ -23,6 +38,7 @@ export function waitForRename(job: UploadJob, fileName: string, originalName: st
     const finish = (name: string | null, error?: unknown) => {
       if (settled) return
       settled = true
+      openDialogs = Math.max(0, openDialogs - 1)
       ipcMain.removeListener(GET_RENAME_FILE_NAME, onReady)
       ipcMain.removeListener(channel, onRename)
       window.removeListener('closed', onClosed)
@@ -39,7 +55,14 @@ export function waitForRename(job: UploadJob, fileName: string, originalName: st
     const onReady = (event: IpcMainEvent) => {
       if (event.sender !== sender || sender.isDestroyed()) return
       try {
-        sender.send(RENAME_FILE_NAME, { jobId, dialogId, fileName, originalName } satisfies IRenameRequest)
+        sender.send(RENAME_FILE_NAME, {
+          jobId,
+          dialogId,
+          fileName,
+          originalName,
+          index: position.index,
+          total: position.total,
+        } satisfies IRenameRequest)
       } catch {
         finish(null, new UploadJobError('failed'))
       }

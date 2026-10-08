@@ -102,29 +102,28 @@ if (picgo.getConfig<boolean>(configPaths.settings.miniWindowOntop)) {
   miniWindowOptions.alwaysOnTop = true
 }
 
-const renameWindowOptions = {
-  height: 270,
-  width: 350,
-  show: true,
-  fullscreenable: false,
-  icon: logo,
-  resizable: true,
-  webPreferences: {
-    sandbox: false,
-    preload: preloadPath,
-    nodeIntegration: false,
-    contextIsolation: true,
-    nodeIntegrationInWorker: false,
-    backgroundThrottling: false,
-  },
-} as IBrowserWindowOptions
-
-if (process.platform !== 'darwin') {
-  renameWindowOptions.show = true
-  renameWindowOptions.backgroundColor = '#3f3c37'
-  renameWindowOptions.autoHideMenuBar = true
-  renameWindowOptions.transparent = false
-}
+const renameWindowOptions = () =>
+  ({
+    height: 212,
+    width: 440,
+    useContentSize: true,
+    show: false,
+    center: true,
+    fullscreenable: false,
+    maximizable: false,
+    resizable: false,
+    autoHideMenuBar: true,
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#2c2c2e' : '#fbfbfd',
+    icon: logo,
+    webPreferences: {
+      sandbox: false,
+      preload: preloadPath,
+      nodeIntegration: false,
+      contextIsolation: true,
+      nodeIntegrationInWorker: false,
+      backgroundThrottling: false,
+    },
+  }) as IBrowserWindowOptions
 
 const toolboxWindowOptions = () =>
   ({
@@ -220,7 +219,7 @@ windowList.set(IWindowList.MINI_WINDOW, {
 windowList.set(IWindowList.RENAME_WINDOW, {
   isValid: true,
   multiple: true,
-  options: () => renameWindowOptions,
+  options: renameWindowOptions,
   async callback(window, windowManager) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
       window.loadURL(`${process.env.ELECTRON_RENDERER_URL}#rename-page`)
@@ -232,10 +231,15 @@ windowList.set(IWindowList.RENAME_WINDOW, {
     const currentWindow = windowManager.getAvailableWindow(true)
     if (currentWindow && currentWindow.isVisible()) {
       const { x, y, width, height } = currentWindow.getBounds()
-      const positionX = Math.floor(x + width / 2 - 150)
-      const positionY = Math.floor(y + height / 2 - (height > 400 ? 88 : 0))
+      const [ownWidth, ownHeight] = window.getSize()
+      const positionX = Math.floor(x + width / 2 - ownWidth / 2)
+      const positionY = Math.max(y, Math.floor(y + height / 2 - ownHeight / 2))
       window.setPosition(positionX, positionY, false)
     }
+    window.once('ready-to-show', () => {
+      window.show()
+      window.focus()
+    })
     window.on('closed', () => {
       window = null as unknown as Electron.BrowserWindow
     })
