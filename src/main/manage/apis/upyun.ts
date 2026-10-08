@@ -63,12 +63,14 @@ class UpyunApi {
     return `_upt=${upt}`
   }
 
+  private getObjectUrl(key: string, urlPrefix: string): string {
+    const url = `${urlPrefix}/${encodeObjectPath(key)}`
+    return this.antiLeechToken ? `${url}?${this.getAntiLeechParam(key)}` : url
+  }
+
   formatFolder(item: any, slicedPrefix: string, urlPrefix: string) {
     const key = `${slicedPrefix}${item.name}/`
-    let url = `${urlPrefix}/${key}`
-    if (this.antiLeechToken) {
-      url = `${url}?${this.getAntiLeechParam(key)}`
-    }
+    const url = this.getObjectUrl(key, urlPrefix)
     return {
       ...item,
       key,
@@ -86,10 +88,7 @@ class UpyunApi {
 
   formatFile(item: any, slicedPrefix: string, urlPrefix: string) {
     const key = `${slicedPrefix}${item.name}`
-    let url = `${urlPrefix}/${key}`
-    if (this.antiLeechToken) {
-      url = `${url}?${this.getAntiLeechParam(key)}`
-    }
+    const url = this.getObjectUrl(key, urlPrefix)
     return {
       ...item,
       fileName: item.name,
@@ -436,10 +435,10 @@ class UpyunApi {
       const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
       if (!task) continue
       const { id, destination } = task
-      const preSignedUrl = `${customUrl}/${encodeObjectPath(key)}`
       promises.push(
         () =>
           new Promise((resolve, reject) => {
+            const preSignedUrl = this.getObjectUrl(key, customUrl)
             NewDownloader(instance, preSignedUrl, id, destination, this.logger).then((res: boolean) => {
               if (res) {
                 resolve(res)
