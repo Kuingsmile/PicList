@@ -3,22 +3,23 @@
     <!-- Sync Status Overview -->
     <CustomNavCard :clickable="false" :icon="RotateCcw" :title="t('pages.settings.sync.syncConfiguration')">
       <template #description>
-        <p class="flex items-center gap-2 text-sm text-secondary">
+        <p class="mt-1 flex min-w-0 items-center gap-2 text-sm text-secondary">
           <span
-            class="inline-flex items-center rounded-sm bg-bg-tertiary px-2 py-1 text-xs font-semibold tracking-wide text-accent"
+            class="inline-flex shrink-0 items-center rounded-sm bg-bg-tertiary px-2 py-1 text-xs font-semibold tracking-wide text-accent"
             >{{ syncDraft.type?.toUpperCase() || 'N/A' }}</span
           >
-          <span v-if="syncTarget" class="m-0 truncate text-sm text-secondary">{{ syncTarget }}</span>
-          <span v-else class="text-sm font-semibold text-danger/70 italic">{{
-            t('pages.settings.sync.notConfigured')
-          }}</span>
+          <span v-if="syncConfigured" class="truncate">{{ syncTarget }}</span>
+          <span v-else class="flex items-center gap-1.5 text-warning">
+            <TriangleAlert :size="14" class="shrink-0" aria-hidden="true" />
+            {{ t('pages.settings.sync.notConfigured') }}
+          </span>
         </p>
       </template>
       <template #extra>
         <CustomButton
           :icon="Settings"
           :text="t('pages.settings.sync.configureSync')"
-          type="secondary"
+          :type="syncConfigured ? 'secondary' : 'primary'"
           @click="syncVisible = true"
         />
       </template>

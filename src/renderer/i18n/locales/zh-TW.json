@@ -1420,8 +1420,10 @@
         "serverHost": "監聽地址",
         "serverKey": "鑑權密鑰",
         "serverKeyPlaceholder": "請輸入鑑權密鑰,用於防止接口濫用",
+        "serverListening": "監聽於 {address}",
         "serverMaxConcurrency": "最大上傳並發數",
         "serverMaxConcurrencyPlaceholder": "通過API同時上傳的最大數量（0表示不限制）",
+        "serverOff": "未啟用",
         "serverPort": "監聽端口",
         "serverSettings": "伺服器設置",
         "serverSettingsNotice": "如果你不知道上傳API服務的作用，請閱讀文檔，或者不用修改配置。",
@@ -1613,6 +1615,7 @@
         "customBgImgOpacity": "自定義背景圖片不透明度",
         "customBgImgPath": "選擇自定義背景圖片",
         "customMiniIconPath": "自定義迷你窗口圖標路徑",
+        "defaultTheme": "預設",
         "downloadingThemes": "下載中...",
         "downloadThemes": "下載主題",
         "downloadThemesFailed": "下載主題失敗",
@@ -1714,6 +1717,7 @@
         "encodeOutputUrl": "輸出（複製） URL 時進行轉義",
         "extNamePlaceholder": "用占位符 $extName 來表示文件格式的位置",
         "fileNamePlaceholder": "用占位符 $fileName 來表示文件名的位置",
+        "formatPreview": "預覽",
         "galleryPicBedFilter": "相簿圖床篩選器",
         "galleryPicBedFilterDesc": "選擇在相簿中顯示的圖床",
         "imageProcessing": "圖片預處理設置",
@@ -1746,6 +1750,8 @@
           "year2": "年份，2位數",
           "year4": "年份，4位數"
         },
+        "placeholderInsert": "插入 {code}",
+        "placeholderInsertHint": "點擊佔位符即可插入到游標位置",
         "secondPicBedMode": {
           "backup": "備份模式",
           "separate": "獨立模式"

@@ -51,15 +51,17 @@
         />
       </SettingCard>
 
-      <SettingCard class="theme-dropdown">
+      <SettingCard>
         <SingleSelect
           v-model="settings.theme"
           :title="t('pages.settings.system.chooseTheme')"
+          :icon="Palette"
           :fronticon="false"
-          :select-list="themeList"
+          :tight="false"
+          :select-list="themeOptions"
         />
         <template #extra>
-          <div class="mt-3 flex gap-4">
+          <div class="mt-3 flex flex-wrap gap-2">
             <CustomButton
               :disabled="downloadingThemes"
               :text="
@@ -83,6 +85,7 @@
               :icon="Edit2"
               :text="t('pages.settings.system.editTheme')"
               :icon-size="14"
+              type="secondary"
               @click="handleEditTheme"
             />
           </div>
@@ -103,6 +106,7 @@
         :icon="ImageIcon"
         :clickable="false"
         :title="t('pages.settings.system.customBgImgPath')"
+        :description="fileName(settings.customBgImgPath)"
       >
         <template #extra>
           <CustomButton :text="t('pages.settings.clickToSet')" @click="handleCustomBgImg" />
@@ -139,7 +143,8 @@
 
       <CustomNavCard
         :title="t('pages.settings.system.mainWindowSize')"
-        :icon="Monitor"
+        :description="rawPicGoSize ? '800 × 450' : `${settings.mainWindowWidth} × ${settings.mainWindowHeight}`"
+        :icon="Scaling"
         @click="mainWindowSizeVisible = true"
       />
       <!-- Window Behavior Toggles -->
@@ -206,6 +211,7 @@
         :icon="ImageIcon"
         :clickable="false"
         :title="t('pages.settings.system.customMiniIconPath')"
+        :description="fileName(settings.customMiniIcon)"
       >
         <template #extra>
           <CustomButton :text="t('pages.settings.clickToSet')" @click="handleMiniIconPath" />
@@ -244,6 +250,7 @@
         <CustomInput
           v-model="settings.mainWindowWidth"
           type="number"
+          :disabled="rawPicGoSize"
           min="1"
           max="10000"
           :title="t('pages.settings.system.mainWindowWidth')"
@@ -254,26 +261,41 @@
         <CustomInput
           v-model="settings.mainWindowHeight"
           type="number"
+          :disabled="rawPicGoSize"
           min="1"
           max="10000"
           :title="t('pages.settings.system.mainWindowHeight')"
           placeholder="800"
         />
       </SettingCard>
-      <CustomSwitch
-        v-model="rawPicGoSize"
-        small
-        :title="t('pages.settings.system.rawPicGoSize')"
-        :description="t('pages.settings.system.rawPicGoSizeHint')"
-      />
+      <SettingCard p1 class="col-span-full">
+        <CustomSwitch
+          v-model="rawPicGoSize"
+          small
+          no-border
+          :title="t('pages.settings.system.rawPicGoSize')"
+          :description="t('pages.settings.system.rawPicGoSizeHint')"
+        />
+      </SettingCard>
     </SettingSection>
   </CustomModal>
   <SettingsFileEditor ref="editor" @theme-saved="loadThemes" />
 </template>
 
 <script setup lang="ts">
-import { Download, Edit2, Globe, Image as ImageIcon, Import, Keyboard, Monitor, MousePointerClick } from '@lucide/vue'
-import { onBeforeMount, ref } from 'vue'
+import {
+  Download,
+  Edit2,
+  Globe,
+  Image as ImageIcon,
+  Import,
+  Keyboard,
+  Monitor,
+  MousePointerClick,
+  Palette,
+  Scaling,
+} from '@lucide/vue'
+import { computed, onBeforeMount, ref } from 'vue'
 import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -312,7 +334,14 @@ function handleEditTheme() {
   void editor.value?.editTheme(settings.value.theme)
 }
 onBeforeMount(loadThemes)
-const themeList = ref<{ value: string; label: string }[]>([{ value: 'default.css', label: '默认' }])
+const themeList = ref<{ value: string; label: string }[]>([{ value: 'default.css', label: '' }])
+
+// Theme names come from each CSS file's header comment; only the built-in default is ours to translate.
+const themeOptions = computed(() =>
+  themeList.value.map(theme =>
+    theme.value === 'default.css' ? { ...theme, label: t('pages.settings.system.defaultTheme') } : theme,
+  ),
+)
 
 const downloadingThemes = ref(false)
 
@@ -378,6 +407,10 @@ async function handleImportThemes() {
     console.error('Failed to import themes:', error)
     message.error(t('pages.settings.system.importThemesFailed'))
   }
+}
+
+function fileName(path?: string) {
+  return path ? path.split(/[\\/]/).pop() || path : ''
 }
 
 function goShortCutPage() {

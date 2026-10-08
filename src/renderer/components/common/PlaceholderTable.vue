@@ -13,7 +13,7 @@
             :key="item.value"
             type="button"
             class="m-0 flex cursor-pointer items-center rounded-none px-4 py-2 text-left text-sm leading-[1.4] hover:bg-accent/5"
-            @click="copyPlaceholder(item.value)"
+            @click="handleSelect(item.value)"
           >
             <code
               class="mr-3.5 min-w-[80px] shrink-0 rounded-md border border-white/20 bg-bg-secondary px-2 py-1 text-center font-['SF_Mono',Monaco,Menlo,'Ubuntu_Mono',monospace] text-base font-semibold text-main shadow-sm"
@@ -33,12 +33,22 @@ import useMessage from '@/composables/useMessage'
 
 const { t } = useI18n()
 const message = useMessage()
-function copyPlaceholder(placeholder: string) {
+// Callers that pass @select get the placeholder (e.g. to insert it); everyone else gets it copied.
+function handleSelect(placeholder: string) {
+  if (onSelect) {
+    onSelect(placeholder)
+    return
+  }
   window.electron.clipboard.writeText(placeholder)
   message.success(t('pages.settings.upload.copySuccess', { content: placeholder }))
 }
-const { list, titleList } = defineProps<{
+const {
+  list,
+  titleList,
+  onSelect = undefined,
+} = defineProps<{
   list: Record<string, { label: string; value: string }[]>
   titleList: Record<string, string>
+  onSelect?: (placeholder: string) => void
 }>()
 </script>

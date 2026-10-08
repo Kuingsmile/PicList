@@ -1,5 +1,5 @@
 <template>
-  <CustomModal v-model:visible="editorVisible" :title="t('common.edit')">
+  <CustomModal v-model:visible="editorVisible" :title="`${t('common.edit')} · ${currentEditFile}`">
     <Editor v-model="editorContent" :language="editorLanguage" />
     <template #footer>
       <CustomButton type="secondary" :text="t('common.cancel')" @click="editorVisible = false" />
@@ -24,7 +24,7 @@ const editorVisible = ref(false)
 
 const savingEditor = ref(false)
 
-const editorContent = ref('// 在这里开始编写代码...\nfunction hello() {\n  console.log("Hello Electron!");\n}')
+const editorContent = ref('')
 
 const editorLanguage = ref('json')
 
@@ -34,7 +34,7 @@ const buildInThemesList = [
   'adwaita.css',
   'anime.css',
   'bilibili.css',
-  'Catppucin.css',
+  'Catppuccin.css',
   'CoolApk.css',
   'Cupertino.css',
   'default.css',

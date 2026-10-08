@@ -57,13 +57,14 @@
       </SettingCard>
 
       <CustomNavCard
+        v-if="settings.enableSecondUploader"
         :title="t('pages.settings.upload.setSecondPicBed')"
         :icon="CloudUpload"
         :description="t('pages.settings.upload.setSecondPicBedDesc')"
         @click="handleChangeSecondPicBed"
       />
 
-      <SettingCard>
+      <SettingCard v-if="settings.enableSecondUploader">
         <SingleSelect
           v-model="settings.secondPicBedMode"
           :fronticon="false"
@@ -89,16 +90,8 @@
         :description="t('pages.settings.upload.imageProcessingDesc')"
         @click="imageProcessDialogVisible = true"
       />
-      <SettingCard p1>
-        <CustomSwitch
-          v-model="settings.deleteCloudFile"
-          small
-          no-border
-          :title="t('pages.settings.upload.deleteCloud')"
-        />
-      </SettingCard>
 
-      <SettingCard p1>
+      <SettingCard p1 class="flex flex-col justify-center">
         <CustomSwitch v-model="settings.rename" small no-border :title="t('pages.settings.upload.manualRename')" />
       </SettingCard>
 
@@ -112,7 +105,7 @@
         />
       </SettingCard>
 
-      <SettingCard p1 class="flex flex-col justify-center">
+      <SettingCard p1>
         <CustomSwitch
           v-model="settings.deleteLocalFile"
           small
@@ -120,10 +113,19 @@
           :title="t('pages.settings.upload.deleteLocalFileAfterUpload')"
         />
       </SettingCard>
+
+      <SettingCard p1>
+        <CustomSwitch
+          v-model="settings.deleteCloudFile"
+          small
+          no-border
+          :title="t('pages.settings.upload.deleteCloud')"
+        />
+      </SettingCard>
     </SettingSection>
 
     <!-- Clipboard & Notification Section -->
-    <SettingSection :icon="Edit" :title="t('pages.settings.upload.clipboardAndNotification')">
+    <SettingSection :icon="ClipboardList" :title="t('pages.settings.upload.clipboardAndNotification')">
       <SettingCard p1>
         <CustomSwitch
           v-model="settings.uploadNotification"
@@ -161,7 +163,7 @@
         />
       </SettingCard>
 
-      <SettingCard p1>
+      <SettingCard p1 class="col-span-full">
         <CustomSwitch
           v-model="settings.isAutoListenClipboard"
           small
@@ -269,67 +271,104 @@
   <CustomModal
     v-model:visible="customLinkVisible"
     height="auto"
-    width="auto"
+    width="600px"
     :title="t('pages.settings.upload.customLinkFormat')"
   >
     <div class="flex flex-col gap-4 p-4">
-      <div class="rounded-lg border border-border p-4">
-        <div class="mb-2 flex items-center gap-2 p-1">
-          <FileText :size="16" class="text-accent" />
+      <SettingCard>
+        <CustomInput
+          ref="customLinkInput"
+          v-model="settings.customLink"
+          spellcheck="false"
+          :title="t('pages.settings.upload.customLinkFormatInput')"
+          :placeholder="'![$fileName]($url)'"
+        />
+        <template #extra>
+          <div class="mt-3 flex min-w-0 items-center gap-2 rounded-md bg-bg-tertiary px-3 py-2">
+            <span class="shrink-0 text-xs font-semibold text-secondary">{{
+              t('pages.settings.upload.formatPreview')
+            }}</span>
+            <code class="min-w-0 truncate font-mono text-sm text-main" :title="customLinkPreview">{{
+              customLinkPreview
+            }}</code>
+          </div>
+        </template>
+      </SettingCard>
+      <SettingCard>
+        <div class="mb-3 flex items-center gap-2">
+          <FileText :size="16" class="text-accent" aria-hidden="true" />
           <span class="text-sm font-semibold text-main">{{
             t('pages.settings.upload.availablePlaceholdersTitle')
           }}</span>
         </div>
         <div class="flex flex-col gap-2">
-          <template v-for="item in placeholderList" :key="item.code">
-            <div class="flex items-center gap-3">
-              <code
-                class="min-w-[80px] rounded-sm border border-border bg-bg-secondary px-2 py-1 text-center font-['SF_Mono,Monaco,Menlo,monospace'] text-sm font-semibold text-main"
-                >{{ item.code }}</code
-              >
-              <span class="text-sm font-semibold text-secondary">{{
-                t(`pages.settings.upload.${item.description}`)
-              }}</span>
-            </div>
-          </template>
+          <div v-for="item in placeholderList" :key="item.code" class="flex items-center gap-3">
+            <button
+              type="button"
+              class="min-w-[90px] shrink-0 cursor-pointer rounded-sm border border-border bg-bg-tertiary px-2 py-1 text-center font-mono text-sm font-semibold text-main transition-colors duration-fast ease-apple hover:border-accent hover:text-accent focus-visible:focus-ring"
+              :aria-label="t('pages.settings.upload.placeholderInsert', { code: item.code })"
+              @click="insertPlaceholder(customLinkInput, 'customLink', item.code)"
+            >
+              {{ item.code }}
+            </button>
+            <span class="text-sm text-secondary">{{ t(`pages.settings.upload.${item.description}`) }}</span>
+          </div>
         </div>
-      </div>
-      <div>
-        <SettingCard>
-          <CustomInput
-            v-model="settings.customLink"
-            :title="t('pages.settings.upload.customLinkFormatInput')"
-            :placeholder="'![$fileName]($url)'"
-          />
-        </SettingCard>
-      </div>
+        <p class="mt-3 text-xs text-secondary">{{ t('pages.settings.upload.placeholderInsertHint') }}</p>
+      </SettingCard>
     </div>
   </CustomModal>
 
   <CustomModal
     v-model:visible="advancedRenameVisible"
-    height="85vh"
-    width="65vw"
+    height="auto"
+    width="760px"
     :title="t('pages.settings.upload.advancedRname')"
   >
-    <div class="flex h-full w-full flex-col p-2">
+    <div class="flex flex-col gap-4 p-4">
       <SettingSection>
-        <CustomSwitch
-          v-model="advancedRename.enable"
-          small
-          :title="t('pages.settings.upload.enableAdvancedRname')"
-          :description="t('pages.settings.upload.enableAdvancedRnameDesc')"
-        />
-        <CustomInput
-          v-model="advancedRename.format"
-          :title="t('pages.settings.upload.advancedRnameFormat')"
-          placeholder="Ex. {Y}-{m}-{uuid}"
+        <SettingCard p1 class="col-span-full">
+          <CustomSwitch
+            v-model="advancedRename.enable"
+            small
+            no-border
+            :title="t('pages.settings.upload.enableAdvancedRname')"
+            :description="t('pages.settings.upload.enableAdvancedRnameDesc')"
+          />
+        </SettingCard>
+        <SettingCard v-if="advancedRename.enable" class="col-span-full">
+          <CustomInput
+            ref="renameFormatInput"
+            v-model="advancedRename.format"
+            spellcheck="false"
+            :title="t('pages.settings.upload.advancedRnameFormat')"
+            placeholder="Ex. {Y}-{m}-{uuid}"
+          />
+          <template #extra>
+            <div class="mt-3 flex min-w-0 items-center gap-2 rounded-md bg-bg-tertiary px-3 py-2">
+              <span class="shrink-0 text-xs font-semibold text-secondary">{{
+                t('pages.settings.upload.formatPreview')
+              }}</span>
+              <code class="min-w-0 truncate font-mono text-sm text-main" :title="renamePreview">{{
+                renamePreview
+              }}</code>
+            </div>
+          </template>
+        </SettingCard>
+      </SettingSection>
+      <SettingSection
+        v-if="advancedRename.enable"
+        :icon="Braces"
+        :title="t('pages.settings.upload.availablePlaceholders')"
+        :description="t('pages.settings.upload.placeholderInsertHint')"
+        only-one-row
+      >
+        <PlaceholderTable
+          :list="advancedRenameList"
+          :title-list="advancedRenameTitleList"
+          @select="insertPlaceholder(renameFormatInput, 'rename', $event)"
         />
       </SettingSection>
-      <div class="flex w-full flex-1 flex-col overflow-hidden p-2">
-        <label class="text-xl font-bold text-secondary">{{ t('pages.settings.upload.availablePlaceholders') }}</label>
-        <placeholderTable :list="advancedRenameList" :title-list="advancedRenameTitleList" />
-      </div>
     </div>
   </CustomModal>
 
@@ -337,8 +376,18 @@
 </template>
 
 <script setup lang="ts">
-import { CloudUpload, Edit, FileText, Image as ImageIcon, Link, Server, Settings2Icon } from '@lucide/vue'
-import { computed, ref } from 'vue'
+import {
+  Braces,
+  ClipboardList,
+  CloudUpload,
+  Edit,
+  FileText,
+  Image as ImageIcon,
+  Link,
+  Server,
+  Settings2Icon,
+} from '@lucide/vue'
+import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomInput from '@/components/common/CustomInput.vue'
@@ -346,12 +395,13 @@ import CustomModal from '@/components/common/CustomModal.vue'
 import CustomNavCard from '@/components/common/CustomNavCard.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import MultiSelect from '@/components/common/MultiSelect.vue'
-import placeholderTable from '@/components/common/PlaceholderTable.vue'
+import PlaceholderTable from '@/components/common/PlaceholderTable.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import ImageProcessDialog from '@/components/ImageProcessDialog.vue'
 import { useSettingsContext } from '@/composables/settings/useSettingsContext'
+import { renameFileNameWithCustomString } from '@/manage/utils/fileName'
 import { IRPCActionType } from '#/constants/rpcActions'
 
 defineProps<{ active: boolean }>()
@@ -359,6 +409,27 @@ const { t } = useI18n()
 const { settings, visiblePicBeds, picBedG, advancedRename } = useSettingsContext()
 
 const customLinkVisible = ref(false)
+
+const customLinkInput = useTemplateRef<InstanceType<typeof CustomInput>>('customLinkInput')
+
+const renameFormatInput = useTemplateRef<InstanceType<typeof CustomInput>>('renameFormatInput')
+
+const customLinkPreview = computed(() =>
+  (settings.value.customLink || '![$fileName]($url)')
+    .replaceAll('$url', 'https://example.com/image.png')
+    .replaceAll('$fileName', 'image')
+    .replaceAll('$extName', '.png'),
+)
+
+// {localFolder:n} depends on the source path, so the preview substitutes a sample folder.
+const renamePreview = computed(() => {
+  const format = (advancedRename.value.format || '{filename}').replace(/{localFolder:\d+}/g, 'photos')
+  try {
+    return renameFileNameWithCustomString('example.png', format)
+  } catch {
+    return format
+  }
+})
 
 const advancedRenameVisible = ref(false)
 
@@ -426,6 +497,24 @@ const placeholderList = [
     description: 'extNamePlaceholder',
   },
 ]
+
+// Inserts at the caret position, replacing any selection; appends when the input was never focused.
+async function insertPlaceholder(
+  field: InstanceType<typeof CustomInput> | null,
+  target: 'customLink' | 'rename',
+  code: string,
+) {
+  const input = (field?.$el as HTMLElement | undefined)?.querySelector('input')
+  const value = (target === 'customLink' ? settings.value.customLink : advancedRename.value.format) || ''
+  const start = input?.selectionStart ?? value.length
+  const end = input?.selectionEnd ?? value.length
+  const next = value.slice(0, start) + code + value.slice(end)
+  if (target === 'customLink') settings.value.customLink = next
+  else advancedRename.value.format = next
+  await nextTick()
+  input?.focus()
+  input?.setSelectionRange(start + code.length, start + code.length)
+}
 
 async function handleChangeSecondPicBed() {
   window.electron.sendRPC(IRPCActionType.SHOW_SECOND_UPLOADER_MENU)

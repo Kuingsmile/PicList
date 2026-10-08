@@ -1,57 +1,40 @@
 <template>
   <div v-show="active" class="no-scrollbar flex h-full w-full flex-1 flex-col gap-6 overflow-auto p-4">
     <SettingSection :icon="FileText" :title="t('pages.settings.advanced.logging')">
-      <CustomNavCard
-        v-for="file in logFiles"
-        :key="file.name"
-        :title="t(file.titleKey)"
-        :description="file.name"
-        :icon="FileText"
-        @click="openFile(file.name)"
-      />
-      <CustomNavCard
-        :title="t('pages.settings.advanced.setLog')"
-        :description="t('pages.settings.advanced.setLogDesc')"
-        :icon="Settings"
-        @click="openLogSetting"
-      />
+      <SettingCard>
+        <MultiSelect
+          v-model:choosed="settings.logLevel"
+          :icon="ListFilter"
+          :tight="false"
+          :title="t('pages.settings.advanced.logLevel')"
+          :zero-placeholder="t('pages.settings.advanced.chooseLogLevel')"
+          :all-list="logLevel"
+        />
+      </SettingCard>
+      <SettingCard>
+        <CustomInput
+          v-model="settings.logFileSizeLimit"
+          :title="`${t('pages.settings.advanced.logFileSize')} (MB)`"
+          placeholder="10"
+          type="number"
+          min="1"
+          max="1024"
+          step="1"
+        />
+      </SettingCard>
+      <div class="col-span-full grid grid-cols-3 gap-4 max-md:grid-cols-1">
+        <CustomNavCard
+          v-for="file in logFiles"
+          :key="file.name"
+          :title="t(file.titleKey)"
+          :description="file.name"
+          :icon="FileText"
+          @click="openFile(file.name)"
+        />
+      </div>
     </SettingSection>
 
     <SettingSection :icon="Globe" :title="t('pages.settings.advanced.networkAndProxy')">
-      <CustomNavCard
-        :title="t('pages.settings.advanced.setProxyAndMirror')"
-        :description="t('pages.settings.advanced.setProxyAndMirrorDesc')"
-        :icon="Globe"
-        @click="proxyVisible = true"
-      />
-    </SettingSection>
-
-    <!-- Server Settings Section -->
-    <SettingSection :icon="Server" :title="t('pages.settings.advanced.serverSettings')">
-      <CustomNavCard
-        :title="t('pages.settings.advanced.uploadServer')"
-        :description="t('pages.settings.advanced.uploadServerDesc')"
-        :icon="Globe"
-        @click="serverVisible = true"
-      />
-      <SettingCard>
-        <CustomInput
-          v-model="settings.aesPassword"
-          :is-password="true"
-          :title="t('pages.settings.advanced.serverEncryptionKey')"
-          :placeholder="t('pages.settings.advanced.serverEncryptionKey')"
-        />
-      </SettingCard>
-    </SettingSection>
-  </div>
-
-  <CustomModal
-    v-model:visible="proxyVisible"
-    height="auto"
-    width="600px"
-    :title="t('pages.settings.advanced.setProxyAndMirror')"
-  >
-    <SettingSection>
       <SettingCard>
         <CustomInput
           v-model="uploadProxy"
@@ -66,7 +49,7 @@
           placeholder="http://127.0.0.1:1080"
         />
       </SettingCard>
-      <SettingCard>
+      <SettingCard class="col-span-full">
         <CustomInput
           v-model="settings.registry"
           :title="t('pages.settings.advanced.pluginInstallMirror')"
@@ -74,48 +57,50 @@
         />
       </SettingCard>
     </SettingSection>
-  </CustomModal>
 
-  <CustomModal
-    v-model:visible="logFileVisible"
-    height="auto"
-    width="800px"
-    :title="t('pages.settings.advanced.setLog')"
-  >
-    <div class="flex h-full w-full flex-col p-4">
-      <SettingSection>
+    <!-- Server Settings Section -->
+    <SettingSection :icon="Server" :title="t('pages.settings.advanced.serverSettings')">
+      <CustomNavCard :title="t('pages.settings.advanced.uploadServer')" :icon="Server" @click="serverVisible = true">
+        <template #description>
+          <span class="mt-1 flex min-w-0 items-center gap-1.5 text-xs font-medium text-secondary">
+            <span
+              class="h-2 w-2 shrink-0 rounded-full"
+              :class="serverDraft.enable ? 'bg-success' : 'bg-gray-400'"
+              aria-hidden="true"
+            />
+            <span class="truncate">{{
+              serverDraft.enable
+                ? t('pages.settings.advanced.serverListening', { address: `${serverDraft.host}:${serverDraft.port}` })
+                : t('pages.settings.advanced.serverOff')
+            }}</span>
+          </span>
+        </template>
+      </CustomNavCard>
+      <SettingCard>
         <CustomInput
-          v-model="settings.logFileSizeLimit"
-          :title="t('pages.settings.advanced.logFileSize')"
-          placeholder="10"
-          type="number"
-          min="1"
-          max="1024"
-          step="1"
+          v-model="settings.aesPassword"
+          :is-password="true"
+          :title="t('pages.settings.advanced.serverEncryptionKey')"
+          :tips="t('pages.settings.advanced.serverEncryptionKeyDesc')"
+          :placeholder="t('pages.settings.advanced.serverEncryptionKey')"
         />
-        <SettingCard>
-          <MultiSelect
-            v-model:choosed="settings.logLevel"
-            :icon="FileText"
-            :tight="false"
-            :title="t('pages.settings.advanced.logLevel')"
-            :zero-placeholder="t('pages.settings.advanced.logLevel')"
-            :all-list="logLevel"
-        /></SettingCard>
-      </SettingSection>
-    </div>
-  </CustomModal>
+      </SettingCard>
+    </SettingSection>
+  </div>
 
   <CustomModal
     v-model:visible="serverVisible"
     height="auto"
     width="600px"
     :title="t('pages.settings.advanced.uploadServer')"
+    :close-disabled="savingServer"
   >
     <div class="flex w-full flex-col gap-4 p-4">
       <div
-        class="mb-4 flex items-start gap-3 rounded-lg border border-border bg-success/10 px-4 py-3 text-sm leading-1.5 font-semibold text-secondary"
+        role="note"
+        class="flex items-start gap-3 rounded-lg border border-accent/30 bg-accent/10 px-4 py-3 text-sm leading-relaxed text-secondary"
       >
+        <Info :size="16" class="mt-0.5 shrink-0 text-accent" aria-hidden="true" />
         <span>{{ t('pages.settings.advanced.serverSettingsNotice') }}</span>
       </div>
       <SettingCard p1>
@@ -141,7 +126,7 @@
             placeholder="36677"
           />
         </SettingCard>
-        <SettingCard>
+        <SettingCard class="col-span-full">
           <CustomInput
             v-model="settings.serverKey"
             :is-password="true"
@@ -172,15 +157,20 @@
       </SettingSection>
     </div>
     <template #footer>
-      <CustomButton type="secondary" :text="t('common.cancel')" @click="cancelServerSetting" />
+      <CustomButton
+        type="secondary"
+        :text="t('common.cancel')"
+        :disabled="savingServer"
+        @click="serverVisible = false"
+      />
       <CustomButton :text="t('common.confirm')" :loading="savingServer" @click="confirmServerSetting" />
     </template>
   </CustomModal>
 </template>
 
 <script setup lang="ts">
-import { FileText, Globe, Server, Settings } from '@lucide/vue'
-import { computed, ref } from 'vue'
+import { FileText, Globe, Info, ListFilter, Server } from '@lucide/vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
@@ -201,11 +191,7 @@ defineProps<{ active: boolean }>()
 const { t } = useI18n()
 const { settings, uploadProxy, serverDraft } = useSettingsContext()
 
-const logFileVisible = ref(false)
-
 const serverVisible = ref(false)
-
-const proxyVisible = ref(false)
 
 const savingServer = ref(false)
 
@@ -228,10 +214,6 @@ async function openFile(file: string) {
   window.electron.sendRPC(IRPCActionType.PICLIST_OPEN_FILE, file)
 }
 
-function openLogSetting() {
-  logFileVisible.value = true
-}
-
 async function confirmServerSetting() {
   if (savingServer.value) return
   savingServer.value = true
@@ -246,8 +228,8 @@ async function confirmServerSetting() {
   }
 }
 
-async function cancelServerSetting() {
-  serverVisible.value = false
-  serverDraft.value = createServerDraft(await getConfig<IServerConfig>(configPaths.settings.server))
-}
+// Closing the modal any way other than a successful save discards the unsaved draft.
+watch(serverVisible, async visible => {
+  if (!visible) serverDraft.value = createServerDraft(await getConfig<IServerConfig>(configPaths.settings.server))
+})
 </script>

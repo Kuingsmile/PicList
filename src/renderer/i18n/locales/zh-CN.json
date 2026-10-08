@@ -1420,8 +1420,10 @@
         "serverHost": "监听地址",
         "serverKey": "鉴权密钥",
         "serverKeyPlaceholder": "请输入鉴权密钥,用于防止接口滥用",
+        "serverListening": "监听于 {address}",
         "serverMaxConcurrency": "最大上传并发数",
         "serverMaxConcurrencyPlaceholder": "通过API同时上传的最大数量（0表示不限制）",
+        "serverOff": "未启用",
         "serverPort": "监听端口",
         "serverSettings": "服务器设置",
         "serverSettingsNotice": "如果你不知道上传API服务的作用，请阅读文档，或者不用修改配置。",
@@ -1613,6 +1615,7 @@
         "customBgImgOpacity": "自定义背景图片不透明度",
         "customBgImgPath": "自定义背景图片选择",
         "customMiniIconPath": "自定义迷你窗口图标路径",
+        "defaultTheme": "默认",
         "downloadingThemes": "下载中...",
         "downloadThemes": "下载主题",
         "downloadThemesFailed": "下载主题失败",
@@ -1714,6 +1717,7 @@
         "encodeOutputUrl": "输出（复制） URL 时进行转义",
         "extNamePlaceholder": "用占位符 $extName 来表示文件格式的位置",
         "fileNamePlaceholder": "用占位符 $fileName 来表示文件名的位置",
+        "formatPreview": "预览",
         "galleryPicBedFilter": "相册图床过滤器",
         "galleryPicBedFilterDesc": "选择在相册中显示的图床",
         "imageProcessing": "图片预处理设置",
@@ -1746,6 +1750,8 @@
           "year2": "年份，2位数",
           "year4": "年份，4位数"
         },
+        "placeholderInsert": "插入 {code}",
+        "placeholderInsertHint": "点击占位符即可插入到光标位置",
         "secondPicBedMode": {
           "backup": "备份模式",
           "separate": "独立模式"
