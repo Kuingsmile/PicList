@@ -11,17 +11,24 @@ export const digestAuthHeader = createDigestAuthHeader(
 
 export async function getAuthHeader(
   method: string,
-  host: string,
-  uri: string,
+  url: string,
   username: string,
   password: string,
   body: string | Buffer = '',
 ) {
+  const target = new URL(url)
   try {
-    await axios.get(`${host}${uri}`)
+    await axios.get(target.href)
   } catch (error: any) {
     if (error.response.status === 401 && error.response.headers['www-authenticate']) {
-      return digestAuthHeader(method, uri, error.response.headers['www-authenticate'], username, password, body)
+      return digestAuthHeader(
+        method,
+        target.pathname + target.search,
+        error.response.headers['www-authenticate'],
+        username,
+        password,
+        body,
+      )
     }
   }
 }

@@ -288,22 +288,23 @@ class WebdavplistApi {
       const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
       if (!task) continue
       const { id, destination } = task
-      let preSignedUrl = await this.getPreSignedUrl({
-        key,
-      })
+      let preSignedUrl: string
       let headers = {} as IStringKeyMap
       if (this.authType === 'basic' || !this.authType) {
+        preSignedUrl = await this.getPreSignedUrl({ key })
         const base64Str = Buffer.from(`${this.username}:${this.password}`).toString('base64')
         headers = {
           Authorization: `Basic ${base64Str}`,
         }
       } else if (this.authType === 'digest') {
-        const uri = `/${encodeObjectPath(key.replace(/^\/+/, ''))}`
-        const authHeader = await getAuthHeader('GET', this.endpoint, uri, this.username, this.password)
+        const target = new URL(this.endpoint)
+        target.pathname = `${target.pathname.replace(/\/+$/, '')}/${encodeObjectPath(key.replace(/^\/+/, ''))}`
+        target.hash = ''
+        preSignedUrl = target.href
+        const authHeader = await getAuthHeader('GET', preSignedUrl, this.username, this.password)
         headers = {
           Authorization: authHeader,
         }
-        preSignedUrl = `${this.endpoint}${uri}`
       }
       promises.push(
         () =>
