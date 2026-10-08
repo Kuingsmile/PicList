@@ -32,6 +32,10 @@ interface IHTTPProxy {
   host: string
   port: number
   protocol: string
+  auth?: {
+    username: string
+    password: string
+  }
 }
 
 interface IToolboxCheckRes {

@@ -11,22 +11,25 @@ export const formatHttpProxy = (
   type: 'object' | 'string',
 ): IHTTPProxy | undefined | string => {
   if (!proxy) return undefined
-  if (/^https?:\/\//.test(proxy)) {
-    const { protocol, hostname, port } = new URL(proxy)
+  try {
+    const { protocol, host, hostname, port, username, password } = new URL(
+      /^[a-z][a-z\d+.-]*:\/\//i.test(proxy) ? proxy : `http://${proxy}`,
+    )
+    if (protocol !== 'http:' && protocol !== 'https:') throw new Error('Unsupported proxy protocol')
+    const auth =
+      username || password
+        ? { username: decodeURIComponent(username), password: decodeURIComponent(password) }
+        : undefined
     return type === 'string'
-      ? `${protocol}//${hostname}:${port}`
+      ? `${protocol}//${auth ? `${username}:${password}@` : ''}${host}`
       : {
           host: hostname,
-          port: Number(port),
+          port: Number(port || (protocol === 'https:' ? 443 : 80)),
           protocol: protocol.slice(0, -1),
+          ...(auth && { auth }),
         }
+  } catch {
+    // URL parsing errors can retain the input, including proxy credentials.
+    throw new Error('Invalid HTTP proxy URL')
   }
-  const [host, port] = proxy.split(':')
-  return type === 'string'
-    ? `http://${host}:${port}`
-    : {
-        host,
-        port: port ? Number(port) : 80,
-        protocol: 'http',
-      }
 }

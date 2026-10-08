@@ -326,17 +326,19 @@ export const getAgent = (
   https?: HttpsProxyAgent
   http?: HttpProxyAgent
 } => {
-  const formatProxy = formatHttpProxy(proxy, 'string') as any
+  const formatProxy = formatHttpProxy(proxy, 'string') as string | undefined
   const commonResult = {
     https: undefined,
     http: undefined,
   }
   if (!formatProxy) return commonResult
-  commonOptions.proxy = formatProxy.replace('127.0.0.1', 'localhost')
+  const proxyUrl = new URL(formatProxy)
+  if (proxyUrl.hostname === '127.0.0.1') proxyUrl.hostname = 'localhost'
+  const options = { ...commonOptions, proxy: proxyUrl }
   if (https) {
     return {
       https: new HttpsProxyAgent({
-        ...commonOptions,
+        ...options,
         rejectUnauthorized: false,
       }),
       http: undefined,
@@ -344,44 +346,23 @@ export const getAgent = (
   }
   return {
     http: new HttpProxyAgent({
-      ...commonOptions,
+      ...options,
     }),
     https: undefined,
   }
 }
 
 export const getInnerAgent = (proxy: any, sslEnabled: boolean = true) => {
-  const formatProxy = formatHttpProxy(proxy, 'object') as IHTTPProxy
-  if (sslEnabled) {
-    return formatProxy
-      ? {
-          agent: new https.Agent({
-            ...commonOptions,
-            rejectUnauthorized: false,
-            host: formatProxy.host,
-            port: formatProxy.port,
-          }),
-        }
-      : {
-          agent: new https.Agent({
-            rejectUnauthorized: false,
-            keepAlive: true,
-          }),
-        }
+  const agents = getAgent(proxy, sslEnabled)
+  return {
+    agent: sslEnabled
+      ? (agents.https ??
+        new https.Agent({
+          ...commonOptions,
+          rejectUnauthorized: false,
+        }))
+      : (agents.http ?? new http.Agent({ ...commonOptions })),
   }
-  return formatProxy
-    ? {
-        agent: new http.Agent({
-          ...commonOptions,
-          host: formatProxy.host,
-          port: formatProxy.port,
-        }),
-      }
-    : {
-        agent: new http.Agent({
-          ...commonOptions,
-        }),
-      }
 }
 
 export function getOptions(
