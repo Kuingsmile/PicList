@@ -47,7 +47,7 @@ export function useSettingsPersistence(state: SettingsState) {
     useBuiltinClipboard: 'auto',
     logFileSizeLimit: handleLogFileSizeLimitChange,
     deleteCloudFile: 'auto',
-    isCustomMiniIcon: 'auto',
+    isCustomMiniIcon: handleIsCustomMiniIconChange,
     customMiniIcon: 'manual',
     isHideDock: handleHideDockChange,
     autoImport: 'auto',
@@ -212,6 +212,11 @@ export function useSettingsPersistence(state: SettingsState) {
   async function handleMiniWindowOntop(value: boolean) {
     if (!(await saveSetting('miniWindowOntop', value))) return
     window.electron.sendRPC(IRPCActionType.MINI_WINDOW_ON_TOP, value)
+  }
+
+  async function handleIsCustomMiniIconChange(value: boolean) {
+    if (!(await saveSetting('isCustomMiniIcon', value))) return
+    window.electron.sendRPC(IRPCActionType.UPDATE_MINI_WINDOW_ICON)
   }
 
   async function handleCustomBgImg() {

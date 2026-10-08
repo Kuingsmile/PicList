@@ -249,14 +249,21 @@ useDragEventListeners(uploadArea)
 
 let removeListeners: () => void = () => {}
 let removeIconListener: () => void = () => {}
+let logoLoadVersion = 0
 
 async function initLogoPath() {
+  const version = ++logoLoadVersion
   const config = await getConfig<IConfig>()
-  if (config && config.settings?.isCustomMiniIcon && config.settings?.customMiniIcon) {
-    logoPath.value =
-      'data:image/jpg;base64,' +
-      (await window.electron.triggerRPC(IRPCActionType.MANAGE_CONVERT_PATH_TO_BASE64, config.settings.customMiniIcon))
+  if (version !== logoLoadVersion) return
+  if (!config?.settings?.isCustomMiniIcon || !config.settings.customMiniIcon) {
+    logoPath.value = ''
+    return
   }
+  const base64 = await window.electron.triggerRPC<string>(
+    IRPCActionType.MANAGE_CONVERT_PATH_TO_BASE64,
+    config.settings.customMiniIcon,
+  )
+  if (version === logoLoadVersion) logoPath.value = 'data:image/jpg;base64,' + base64
 }
 
 const trackUploadProgress = createUploadProgressTracker()
@@ -439,6 +446,7 @@ onBeforeMount(async () => {
 })
 
 onBeforeUnmount(() => {
+  logoLoadVersion++
   clearTimeout(progressHideTimer)
   cancelAnimationFrame(moveFrame)
   window.electron.sendRPC(IRPCActionType.UPLOAD_PROGRESS_UNSUBSCRIBE)
