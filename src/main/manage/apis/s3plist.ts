@@ -784,7 +784,7 @@ class S3plistApi {
               Body: source,
               ContentLength: fileSize,
               ContentType: getFileMimeType(fileName),
-              ACL: allowedAcl.includes(aclForUpload) ? aclForUpload : 'private',
+              ...(allowedAcl.includes(aclForUpload) ? { ACL: aclForUpload } : {}),
               Metadata: { description: 'uploaded by PicList' },
             },
           })

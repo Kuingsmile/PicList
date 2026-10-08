@@ -783,6 +783,7 @@
         "s3": {
           "acl": {
             "authenticatedRead": "已驗證讀取",
+            "auto": "自動（不傳送 ACL）",
             "awsExecRead": "AWS 執行讀取",
             "bucketOwnerFullControl": "儲存桶擁有者完全控制",
             "bucketOwnerRead": "儲存桶擁有者讀取",

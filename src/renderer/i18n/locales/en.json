@@ -783,6 +783,7 @@
         "s3": {
           "acl": {
             "authenticatedRead": "Authenticated read",
+            "auto": "Auto (omit ACL)",
             "awsExecRead": "AWS Exec Read",
             "bucketOwnerFullControl": "Bucket owner full control",
             "bucketOwnerRead": "Bucket owner read",

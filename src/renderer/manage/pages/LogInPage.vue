@@ -1031,7 +1031,7 @@ async function transUpToManage(config: IUploaderConfigListItem, picBedName: stri
         itemsPerPage: 50,
         proxy: '',
         sslEnabled: config.endpoint ? config.endpoint.startsWith('https') : false,
-        aclForUpload: 'public-read',
+        aclForUpload: config.acl || 'auto',
         s3ForcePathStyle: config.pathStyleAccess,
         dogeCloudSupport: false,
         transformedConfig: JSON.stringify(
