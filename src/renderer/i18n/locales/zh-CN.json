@@ -104,8 +104,7 @@
     "reset": "重置",
     "save": "保存",
     "showPassword": "显示密码",
-    "submit": "提交",
-    "version": "版本"
+    "submit": "提交"
   },
   "guide": {
     "close": "关闭",
@@ -126,10 +125,6 @@
       "picbed": {
         "description": "点击这里查看和配置您当前使用的图床服务。",
         "title": "选择图床服务"
-      },
-      "settings": {
-        "description": "自定义 PicList 以满足您的需求。配置上传设置、快捷键等。",
-        "title": "配置设置"
       },
       "theme": {
         "description": "点击侧边栏中的明暗切换来改变明暗主题。",
@@ -231,7 +226,6 @@
     "gallery": {
       "batchEditUrl": "批量修改URL",
       "batchEditUrlAllTip": "修改当前显示的所有图片的 URL。先勾选图片可只修改选中的图片。",
-      "canceled": "已取消",
       "changeImageUrl": "修改图片URL",
       "chooseShowedPicBed": "请选择显示的图床",
       "clearFilters": "清除筛选",
@@ -253,20 +247,16 @@
       "filteredCount": "共 {total} 张，显示 {shown} 张",
       "goUpload": "上传图片",
       "gridSize": "网格大小",
-      "gridView": "网格",
-      "haveDuplicate": "已选中的图片中有命名重复, 是否继续?",
       "hideFilters": "过滤器",
       "imageCount": "{n} 张图片",
       "inputRegexTip": "请输入匹配字符串",
       "isAlwaysForceReload": "禁用缓存",
       "isAlwaysForceReloadTip": "始终从服务器重新加载缩略图，不使用缓存。",
-      "listView": "列表",
       "loadFailed": "相册刷新失败，已保留当前视图。请重试。",
       "loading": "正在加载相册…",
       "longUrl": "长链接",
       "nextImage": "下一张图片",
       "noImagesFound": "未找到图片",
-      "noItemsNeedRename": "没有需要重命名的项目",
       "noMatch": "未找到匹配项",
       "noMatchHint": "没有符合搜索或筛选条件的图片。",
       "notice": "通知",
@@ -290,7 +280,6 @@
       "selectedCount": "已选择 {n} 张",
       "selectionHint": "按住 Shift 点击可连续选择，Ctrl+A 全选。",
       "shortUrl": "短链接",
-      "showFilters": "过滤器",
       "sort": "排序",
       "sortAscending": "升序",
       "sortBy": {
@@ -298,7 +287,6 @@
         "ext": "后缀",
         "name": "名称",
         "provider": "存储服务",
-        "size": "大小",
         "time": "日期"
       },
       "sortDescending": "降序",
@@ -310,11 +298,7 @@
       "zoomOut": "缩小"
     },
     "imageProcess": {
-      "cancel": "取消",
-      "confirm": "确认",
-      "description": "配置图片处理选项，包括压缩、水印、格式转换等",
       "design": {
-        "advancedRules": "高级格式规则",
         "applyTo": "这些修改应用到哪里？",
         "categories": "图片处理选项",
         "categoryLabels": {
@@ -326,33 +310,19 @@
         },
         "combinedSources": "由多处设置组合生效",
         "configPreviewNote": "此处预览处理设置。实际尺寸和文件大小取决于原始图片。",
-        "editingFor": "正在修改：{audience}",
         "editSettings": "编辑",
-        "editToCustomize": "修改即可自定义",
         "editWinning": "修改正在生效的设置",
         "explainValue": "为什么“{setting}”使用此值？",
-        "finalPreview": "最终预览",
         "finalSettings": "最终生效设置",
         "inheritanceHelp": "先使用所有图床的通用设置，再使用同类图床的设置，最后使用单个图床的设置。范围越具体，优先级越高。没有自定义的选项会一直跟随通用设置。",
         "live": "随修改实时更新",
         "livePreview": "实时生效设置",
         "maskedValue": "此图床实际使用 {source} 中的 {value}。修改通用值不会替换它。",
-        "previewFor": "{config} 的最终生效设置",
         "restoreShared": "使用通用值",
-        "scopeDescriptions": {
-          "config": "不影响其他图床",
-          "global": "所有图床的基础设置",
-          "provider": "相同服务共用设置"
-        },
         "scopeHints": {
           "config": "仅影响 {config}。直接修改选项即可自定义，选择“使用通用值”即可重新跟随默认设置。",
           "global": "作为所有图床的默认设置。同类图床和单个图床中的自定义设置仍然优先。",
           "provider": "所有 {provider} 图床共用这些设置，单个图床中的自定义设置仍然优先。"
-        },
-        "scopes": {
-          "config": "仅此图床",
-          "global": "所有图床",
-          "provider": "所有 {provider} 图床"
         },
         "service": "图床服务",
         "settingCount": "{count} 项设置",
@@ -365,51 +335,20 @@
           "global": "所有图床",
           "provider": "所有 {provider} 图床"
         },
-        "summaryLabels": {
-          "dimensions": "尺寸",
-          "format": "格式",
-          "quality": "质量"
-        },
-        "uploader": "图床配置",
-        "view": "设置视图"
+        "uploader": "图床配置"
       },
       "editor": {
-        "configuration": "图床配置",
         "editGlobal": "修改所有图床的默认设置",
         "globalOrConfigOnly": "请选择“所有图床”或“仅此图床”来修改这些选项。",
-        "hints": {
-          "config": "仅编辑 {config} 的覆盖设置。未设置的项目依次继承图床类型和全局设置。",
-          "global": "正在编辑所有图床的全局设置。生效配置会显示所选图床及其覆盖设置的最终结果。",
-          "provider": "正在编辑所有 {provider} 配置共用的类型覆盖设置。单个图床配置的覆盖设置仍然优先。"
-        },
-        "inherit": "恢复继承",
         "noConfig": "请先在上方选择一个图床，再为其设置专用选项。",
         "noSavedConfig": "无已保存的配置",
-        "provider": "图床类型",
         "save": {
           "error": "更改未保存。预览显示当前草稿。",
           "saved": "更改会自动保存",
           "saving": "正在保存…"
         },
-        "scope": "编辑范围",
-        "scopes": {
-          "config": "单个图床配置",
-          "global": "全局",
-          "provider": "图床类型"
-        },
         "title": "图片处理"
       },
-      "general": {
-        "basicImageProcessing": "基本图像处理",
-        "formatConversion": "图片格式转换",
-        "isConvert": "转换格式",
-        "isRemoveExif": "移除 Exif 信息",
-        "quality": "压缩质量 (1-100)",
-        "skipProcessExtList": "跳过处理的文件扩展名列表",
-        "skipProcessExtListLabel": "跳过处理的扩展名",
-        "specificFormatConversion": "精细化转换格式,请填写 JSON 格式，如: {'{'}\"png\": \"jpg\"{'}'}"
-      },
-      "generalSettings": "常规",
       "guide": {
         "askName": "上传前询问文件名",
         "categoryHints": {
@@ -428,7 +367,6 @@
           "85": "均衡",
           "100": "最高质量"
         },
-        "quality": "图片质量",
         "qualityPresets": "质量预设",
         "resizeDimensions": "按宽高调整大小",
         "resizePercent": "按比例缩放",
@@ -441,19 +379,12 @@
         "timestampName": "用时间戳命名",
         "watermarkToggle": "添加水印"
       },
-      "perPicBed": {
-        "defaultValue": "全局值: {value}",
-        "description": "为每个图床单独配置设置",
-        "title": "图床独立设置"
-      },
       "preview": {
-        "advancedRename": "高级重命名",
         "automatic": "自动（0）",
         "defaultAsset": "默认资源",
         "disabled": "已禁用",
         "empty": "空",
         "enabled": "已启用",
-        "formatRules": "按格式转换规则",
         "heightDimensions": "高 {value} px · 等比例",
         "heightOnly": "未生效：仅用于按高度缩放",
         "imageOnly": "未生效：仅用于图片水印",
@@ -467,37 +398,11 @@
         "outputNote": "此处预览内置图片处理设置。最终尺寸、文件大小和外观取决于原图、格式及插件。跳过的扩展名不会进行图片处理；旋转可能改变最终尺寸。",
         "percentagePriority": "未生效：百分比缩放优先",
         "percentDimensions": "原始尺寸的 {value}%",
-        "precedence": "每项设置按以下优先级生效：当前图床配置 > 图床类型覆盖 > 全局设置。未设置的项目使用内置默认值。编辑设置时，此处会同步更新。",
-        "readOnly": "只读预览",
         "retry": "重试",
-        "setting": "设置项",
-        "source": "来源",
-        "sources": {
-          "config": "当前图床配置",
-          "default": "内置默认值",
-          "global": "全局设置",
-          "provider": "图床类型覆盖"
-        },
-        "tab": "生效配置",
-        "target": "预览图床",
         "textOnly": "未生效：仅用于文字水印",
-        "title": "最终生效的图片处理配置",
         "unnamedConfig": "未命名配置",
-        "value": "生效值",
-        "widthDimensions": "宽 {value} px · 等比例",
-        "withFormatRules": "按格式转换规则优先"
+        "widthDimensions": "宽 {value} px · 等比例"
       },
-      "rename": {
-        "description": "配置上传文件的重命名规则",
-        "manualRename": "手动重命名",
-        "renameCustomFormat": "自定义重命名格式",
-        "renameCustomFormatPlaceholder": "请输入自定义重命名格式",
-        "renameDescription": "设置上传文件的重命名规则",
-        "renameTimestamp": "时间戳重命名",
-        "title": "重命名设置"
-      },
-      "renameSettings": "重命名",
-      "skipProcessSettings": "文件跳过",
       "studio": {
         "addExtension": "添加扩展名…",
         "addRule": "添加规则",
@@ -620,41 +525,11 @@
         "watermarkType": "类型",
         "width": "宽度"
       },
-      "subtitle-Global": "为所有图床配置通用设置",
-      "subtitle-PerPicbed": "为当前图床单独配置设置",
       "transform": {
-        "description": "调整图片大小、旋转、翻转等",
-        "isFlop": "水平翻转",
-        "isResize": "启用调整大小",
-        "isResizeByPercent": "启用按比例调整",
-        "isResizeByPercentHint": "优先级更高",
-        "isRotate": "启用旋转",
-        "percentageResize": "按比例调整尺寸",
-        "resizeDescription": "设置图片缩放参数",
-        "resizeHeight": "调整高度 (0 表示按宽度等比缩放)",
-        "resizePercent": "调整比例 (输入 50 表示 50%)",
-        "resizeTitle": "调整大小",
-        "resizeWidth": "调整宽度 (0 表示按高度等比缩放)",
-        "rotationDegree": "旋转角度",
-        "rotationDescription": "设置图片旋转参数",
-        "rotationTitle": "旋转设置",
-        "skipResizeOfSmallImgHeight": "当图片小于设定时跳过缩放",
-        "title": "变换设置"
+        "rotationDegree": "旋转角度"
       },
-      "transformSettings": "变换",
       "watermark": {
-        "color": "水印颜色,手动输入或取色器",
-        "degree": "水印旋转角度",
-        "description": "添加文字或图片水印到图片上",
         "image": "图片",
-        "imageOpacity": "水印透明度",
-        "imagePath": "水印图片路径（留空使用默认图片）",
-        "imagePathPlaceholder": "可选，请输入路径",
-        "inputText": "水印文字",
-        "inputTextPlaceholder": "请输入水印文字",
-        "isAdd": "启用或禁用水印",
-        "isFullScreen": "是否全屏水印",
-        "position": "水印位置",
         "positionOptions": {
           "bottom": "下",
           "bottomLeft": "左下",
@@ -666,12 +541,7 @@
           "topLeft": "左上",
           "topRight": "右上"
         },
-        "scaleRatio": "水印占原图比例",
-        "text": "文字",
-        "textFontPath": "水印字体路径（第一次使用前自动下载）",
-        "textFontPathPlaceholder": "可选，请输入路径",
-        "title": "水印设置",
-        "type": "水印类型"
+        "text": "文字"
       },
       "watermarkSettings": "水印"
     },
@@ -681,7 +551,6 @@
     "manage": {
       "bucket": {
         "batchRename": "批量重命名",
-        "cancel": "取消",
         "canceled": "已取消",
         "cancelingUpload": "正在取消…",
         "clear": "清空",
@@ -702,7 +571,6 @@
         "createSuccess": "创建成功,请刷新",
         "deleteFailed": "删除失败",
         "deleteFailedDetails": "删除失败（{num} 项）",
-        "deleteMsg": "将永久删除，是否继续？",
         "deleteMultiMsg": "删除成功 {success} 个, 失败 {failed} 个",
         "deleteSuccess": "删除成功",
         "deletingMsg": "正在删除中，请稍候...",
@@ -716,12 +584,9 @@
         "emptyFolder": "此文件夹为空",
         "emptyFolderDesc": "点击上传添加文件，或在工具栏中新建文件夹。",
         "enterFullScreen": "进入全屏(F11)",
-        "excludeExt": "替换时不包含后缀名",
         "exitFullScreen": "退出全屏(F11)",
         "failed": "失败",
-        "fileDupNotice": "检测到有 {number} 个文件名重复, 是否继续?",
         "fileInfo": "文件信息",
-        "fileNum": "文件数: {num}",
         "filesInFolder": "{num} 个文件",
         "forceRefreshFileList": "强制刷新文件列表",
         "getDownloadListFailed": "获取下载列表失败",
@@ -754,18 +619,13 @@
         "loadingFailed": "加载失败",
         "location": "位置",
         "matched": "匹配 {num} 项",
-        "matchedPattern": "匹配用字符串或正则表达式 - 已匹配 {num} 个",
-        "noFileNeedRename": "没有需要重命名的文件",
-        "noKeepDirStructure": "不保持目录结构",
         "noMatchedFile": "未找到匹配文件",
-        "noNeedToRename": "无需重命名",
         "noSearchMatch": "没有匹配的文件",
         "noSearchMatchDesc": "换个关键词试试，或清除搜索。",
         "noTasks": "暂无任务",
         "notice": "通知",
         "openDownloadFolder": "打开下载文件夹",
         "page": "页码",
-        "pageFileSize": "总大小: {size}",
         "partFileListFailed": "部分文件获取失败",
         "play": "播放",
         "prepareDownload": "准备下载中，点击取消",
@@ -788,11 +648,7 @@
           "scopeAll": "在当前文件夹的 {num} 个文件中重命名匹配项",
           "scopeSelected": "在已选择的 {num} 个文件中重命名匹配项"
         },
-        "renameFailed": "重命名失败",
         "renameFile": "重命名文件",
-        "renameResultMsg": "重命名成功 {success} 个, 失败 {failed} 个",
-        "renameSuccess": "重命名成功",
-        "replaceInput": "需要替换为的字符串，可以使用自定义重命名中的占位符",
         "retryFailedOnly": "仅重试失败项",
         "reverseSelect": "反选",
         "rootFolder": "根目录",
@@ -824,11 +680,9 @@
           "done": "已完成",
           "failed": "失败",
           "paused": "已暂停",
-          "queued": "排队中",
-          "running": "进行中"
+          "queued": "排队中"
         },
         "upload": "上传",
-        "uploadCanceled": "已取消",
         "uploadFailure": {
           "aborted": "上传已取消",
           "file": "源文件不存在、无法读取或已更改",
@@ -839,7 +693,6 @@
           "unsupported": "该来源不是支持的普通文件"
         },
         "uploadFile": "上传文件",
-        "uploadFiles": "上传文件",
         "uploadFromUrl": "从URL上传",
         "uploading": "上传中",
         "uploadNum": "上传 {num} 个",
@@ -946,8 +799,6 @@
         "secretIdDesc": "Secret ID, 可在控制台获取",
         "secretIdPlaceholder": "请输入 Secret ID",
         "secretKeyDesc": "Secret Key, 可在控制台获取",
-        "secretKeyIdDesc": "Secret Key, 可在控制台获取",
-        "secretKeyIdPlaceholder": "请输入 Secret Key",
         "secretKeyPlaceholder": "请输入Secret Key",
         "sftp": {
           "baseDirDesc": "起始目录",
@@ -969,7 +820,6 @@
           "portPlaceholder": "例如：22",
           "privateKeyDesc": "私钥",
           "privateKeyPlaceholder": "请输入私钥",
-          "protocolRuleMsg": "请以http://或https://开头",
           "webPathDesc": "网址拼接用起始路径",
           "webPathPlaceholder": "例如：/dir2",
           "webPathTips": "用于拼接访问网址"
@@ -1040,16 +890,12 @@
         "backToList": "返回列表",
         "chooseProvider": "选择云端",
         "chooseProviderDesc": "选择此配置要连接的存储服务。",
-        "configChangeMsg": "配置已更改",
         "configSaveMsg": "配置已保存",
-        "configTabTitle": "已有配置，单击复制",
         "configurationRefreshMsg": "配置已刷新",
-        "confirmDeleteConfig": "确认删除配置吗？",
         "confirmDeleteNamed": "确定删除配置“{alias}”吗？云端中的文件不受影响。",
         "connectionSection": "连接信息",
         "connectionSectionDesc": "为配置命名，并填写凭证和存储位置。",
         "copied": "已复制到剪贴板",
-        "copySuccess": "复制成功: {text}",
         "delete": "删除",
         "deleteConfigFailedMsg": "删除配置失败",
         "deleteConfigSuccessMsg": "删除配置成功",
@@ -1057,7 +903,6 @@
         "discardMsg": "此配置有未保存的更改，确定不保存就离开吗？",
         "discardTitle": "放弃更改？",
         "editTitle": "编辑 {alias}",
-        "enter": "进入",
         "hideSecrets": "隐藏密钥",
         "import": "导入",
         "importFrom": "从已有配置复制",
@@ -1066,8 +911,6 @@
         "keepEditing": "继续编辑",
         "newConfig": "新建配置",
         "newTitle": "新建{name}配置",
-        "noConfigs": "未找到配置",
-        "noConfigsDesc": "请检查您的配置文件或重新加载页面",
         "noMatch": "没有与“{query}”匹配的配置",
         "noProviderConfigs": "还没有{name}配置",
         "noProviderConfigsDesc": "添加一个配置，即可浏览和管理该云端中的文件。",
@@ -1077,10 +920,8 @@
         "optionsSectionDesc": "连接方式以及文件的列出方式。",
         "providers": "云端",
         "refresh": "刷新",
-        "reset": "重置",
         "restoreDefaults": "恢复默认值",
         "save": "保存",
-        "savedConfigs": "已配置云端",
         "savedCount": "暂无已保存配置 | {n} 个已保存配置 | {n} 个已保存配置",
         "searchPlaceholder": "搜索别名、云端或存储桶",
         "selectPlaceholder": "请选择",
@@ -1094,7 +935,6 @@
       },
       "main": {
         "allAccounts": "全部账户",
-        "backToHome": "首页",
         "bucket": "存储桶",
         "collapseRail": "收起列表",
         "createAclFailed": "存储桶已创建，但设置访问控制权限失败：{error}",
@@ -1118,8 +958,7 @@
         "settings": "设置",
         "storage": "存储",
         "switchAccount": "切换账户",
-        "switchAccountDesc": "打开另一个已保存的云存储账户。",
-        "switchPicBed": "切换"
+        "switchAccountDesc": "打开另一个已保存的云存储账户。"
       },
       "newBucket": {
         "acl": {
@@ -1175,14 +1014,11 @@
           "storageCustomTitle": "此存储的自定义链接格式",
           "title": "复制格式"
         },
-        "copySuccess": "已复制 {name}",
         "customRenameFormat": "自定义重命名格式",
         "customRenameTablePlaceholder": "请输入自定义重命名格式",
-        "customRenameTableTitle": "自定义重命名格式参考表",
         "customRenameTips": "开启后填写命名格式",
         "customRenameTitle": "上传文件自定义重命名(低优先级)",
         "defaultDownloadFolder": "系统默认下载文件夹",
-        "description": "描述",
         "downloadConflictPolicy": {
           "overwrite": "下载成功后替换",
           "rename": "保留两个文件（重命名下载文件）",
@@ -1207,7 +1043,6 @@
         "maxDownLoadFileLimit": "最大并行下载文件数",
         "maxDownLoadFileLimitDesc": "建议根据网络情况调整",
         "notice": "通知",
-        "placeholder": "占位符",
         "preSignedUrlExpire": "预签名URL过期时间(单位: 秒)",
         "preSignedUrlExpireDesc": "建议根据实际需求调整",
         "randomStringRenameTips": "20位随机字符",
@@ -1229,7 +1064,6 @@
           "thumbnail": "缩略图",
           "thumbnailDesc": "在文件列表中预览图片，而不是显示文件类型图标。"
         },
-        "selectDownloadFolderTips": "选择下载目录",
         "selectDownloadFolderTitle": "选择下载文件夹",
         "subtitle": "适用于所有云存储账户",
         "tabs": {
@@ -1253,14 +1087,12 @@
       }
     },
     "picBedConfigs": {
-      "configSettings": "配置设置",
       "copyAPI": "复制上传API",
       "copyAPIFailed": "复制API地址失败",
       "copyAPISucceed": "复制API地址成功",
       "importConfigFailed": "导入配置失败",
       "importConfigSuccess": "导入配置成功",
       "loadConfigFailed": "加载配置失败, 请检查配置文件是否正确",
-      "loadPicBedListFailed": "加载图床列表失败",
       "noConfigOptions": "暂无配置项",
       "noConfigOptionsDesc": "该上传器没有可用的配置选项。",
       "noConfigs": "配置为空",
@@ -1392,11 +1224,9 @@
         "download": "下载",
         "downloaded": "已下载",
         "downloadFailed": "脚本下载失败",
-        "downloading": "下载中...",
         "downloadSuccess": "脚本下载成功",
         "loadFailed": "加载市场脚本失败",
         "loadingScripts": "正在加载脚本...",
-        "loggedInAs": "已登录为 {username}",
         "loginFailed": "GitHub 登录失败",
         "loginRequired": "请使用 GitHub 登录以分享脚本",
         "loginSuccess": "GitHub 登录成功",
@@ -1438,7 +1268,6 @@
       "scriptCount": "{n} 个脚本",
       "scriptNameTips": "若未填写 .js 后缀会自动补全。",
       "scriptsTypes": {
-        "_name": "脚本类型",
         "afterUpload": "上传后",
         "beforeTransform": "图片变换前",
         "beforeUpload": "上传前",
@@ -1479,12 +1308,8 @@
         "enableServer": "是否开启上传API服务",
         "guiLogFile": "打开 GUI 日志文件",
         "invalidJson": "无效的JSON格式",
-        "logDialogDesc": "查看日志文件和配置日志设置",
         "logFile": "打开常规日志文件",
-        "logFilePath": "日志文件路径",
-        "logFilePathDesc": "查看日志文件所在目录",
         "logFileSize": "日志文件大小",
-        "logFilesTitle": "打开日志文件",
         "logging": "日志",
         "logLevel": "日志记录等级",
         "logLevelList": {
@@ -1499,11 +1324,7 @@
         "networkAndProxy": "网络与代理",
         "pluginInstallMirror": "插件安装镜像",
         "pluginInstallProxy": "插件安装代理",
-        "proxyDialogDesc": "配置网络代理和插件安装镜像",
-        "saveFileFailed": "文件保存失败",
         "saveFileSuccess": "文件保存成功",
-        "serverConfig": "服务器配置",
-        "serverDialogDesc": "配置上传 API 服务的连接参数",
         "serverEncryptionKey": "接口数据加密密钥",
         "serverEncryptionKeyDesc": "用于加密 API 接口传输的数据",
         "serverHost": "监听地址",
@@ -1518,16 +1339,10 @@
         "serverSettingsNotice": "如果你不知道上传API服务的作用，请阅读文档，或者不用修改配置。",
         "serverUploadInterval": "上传间隔（毫秒）",
         "serverUploadIntervalPlaceholder": "通过API上传时每次上传之间的延迟（0表示无延迟）",
-        "setLog": "设置日志",
-        "setLogDesc": "配置日志等级和文件大小",
-        "setProxyAndMirror": "设置代理和镜像地址",
-        "setProxyAndMirrorDesc": "配置网络代理和 npm 镜像源",
         "title": "高级",
         "uploadProxy": "上传代理",
-        "uploadServer": "上传API服务设置",
-        "uploadServerDesc": "配置上传 API 服务端口和鉴权"
+        "uploadServer": "上传API服务设置"
       },
-      "clickToOpen": "点击打开",
       "clickToSet": "点击设置",
       "docs": "文档",
       "sync": {
@@ -1631,8 +1446,7 @@
           "unresolved": "还有 {count} 个冲突需要处理。",
           "update": "更新",
           "upToDate": "本地与云端记录一致。",
-          "versionCount": "{count} 个版本",
-          "working": "处理中…"
+          "versionCount": "{count} 个版本"
         },
         "gitea": {
           "branch": "分支名",
@@ -1668,7 +1482,6 @@
         "notConfiguredHint": "请先完成同步平台配置。",
         "openConfigFile": "打开通用配置文件",
         "openConfigFileDir": "打开应用文件目录",
-        "selectType": "请选择平台",
         "syncActions": "同步操作",
         "syncConfigProxy": "代理",
         "syncConfiguration": "同步平台",
@@ -1750,7 +1563,6 @@
         "applicationUpdates": "应用程序更新",
         "checking": "正在检查更新…",
         "checkUpdate": "检查更新",
-        "checkUpdateDialogDesc": "检查是否有可用的新版本",
         "currentVersion": "当前版本",
         "downloadUpdate": "前往下载",
         "justNow": "刚刚",
@@ -1763,19 +1575,16 @@
         "openUpdateHelper": "打开更新提醒",
         "openUpdateHelperDesc": "当有新版本时显示通知",
         "refresh": "刷新",
-        "releaseNotes": "版本说明",
         "releaseNotesError": "加载版本说明失败，请检查网络连接。",
         "restartToUpdate": "重启以更新",
         "retry": "重试",
         "title": "更新",
-        "updatePreferences": "更新偏好",
         "upToDate": "已是最新版本",
         "viewOnGitHub": "在 GitHub 查看"
       },
       "upload": {
         "advancedRname": "高级重命名",
         "advancedRnameDesc": "使用高级重命名格式自定义文件名",
-        "advancedRnameDialogDesc": "配置文件上传时的高级重命名规则",
         "advancedRnameFormat": "高级重命名格式",
         "autoCopyUrlAfterUpload": "上传后自动复制URL",
         "autoImportInManage": "云端页面自动导入配置",
@@ -1808,7 +1617,6 @@
         "fileNamePlaceholder": "用占位符 $fileName 来表示文件名的位置",
         "formatPreview": "预览",
         "galleryPicBedFilter": "相册图床过滤器",
-        "galleryPicBedFilterDesc": "选择在相册中显示的图床",
         "imageProcessing": "图片预处理设置",
         "imageProcessingDesc": "配置上传前的图片预处理选项",
         "isAutoListenClipboard": "软件启动时自动监听剪贴板上传",
@@ -1868,7 +1676,6 @@
       "addAction": "添加操作",
       "bind": "快捷键绑定",
       "builtIn": "内置",
-      "changeUpload": "修改上传快捷键",
       "chooseTarget": "选择图床配置",
       "clear": "清除绑定",
       "clearHint": "清除绑定会禁用此快捷键。",
@@ -1880,7 +1687,6 @@
       "deleteConfirm": "删除“{name}”及其快捷键？",
       "description": "管理内置、插件和自定义上传快捷键。",
       "disable": "禁用",
-      "disabled": "已禁用",
       "disabledHint": "保存后此快捷键仍保持禁用。",
       "edit": "编辑",
       "editBinding": "编辑快捷键",
@@ -1998,10 +1804,8 @@
       "goToDownloadPage": "前往下载页面",
       "installNow": "立即安装",
       "later": "稍后",
-      "newUpdateAvailable": "发现新版本",
       "noMoreNotice": "不再提示",
-      "releaseNotes": "更新内容",
-      "updateReady": "更新已准备好"
+      "releaseNotes": "更新内容"
     },
     "upload": {
       "addToFavorites": "添加当前图床到快速切换",
@@ -2011,12 +1815,9 @@
       "dragFileToHere": "将文件拖到此处，或单击上传",
       "dragValidPictureOrUrl": "请拖入合法的图片文件或者图片URL地址",
       "httpPrefixTip": "http://或https://开头",
-      "imageProcessName": "全局处理",
-      "imageProcessNameSingle": "单图床处理",
       "inputUrlTip": "请输入URL地址",
       "inputValidUrl": "请输入合法的URL",
       "invalidUrlsFound": "发现无效的URL: {urls}",
-      "linkFormat": "链接格式",
       "longPressToRemoveFromFavorites": "长按移除",
       "multipleUrlsHint": "多个URL请分行输入",
       "outputFormat": "输出格式",
@@ -2048,21 +1849,16 @@
         "uploading": "上传中"
       },
       "putToUpload": "松开鼠标来上传",
-      "quickUpload": "快捷上传",
       "removeFromFavorites": "从快速切换中移除",
       "taskQueue": {
         "actionFailed": "无法更新队列，请重试。",
         "addFiles": "添加文件",
-        "allCancelled": "所有任务已取消",
         "autoStart": "添加文件后自动开始",
         "cancelAll": "取消全部",
         "cancelTask": "取消此任务",
-        "cleared": "已清理已完成和已取消的任务",
         "clearFinished": "清理已结束",
         "clearFinishedHint": "移除已完成和已取消的任务，保留失败任务以便重试。",
         "completedSummary": "已完成 {completed} / {total} 个文件",
-        "dialogSubtitle": "添加文件到上传队列",
-        "dialogTitle": "创建上传任务",
         "dropFiles": "拖放文件以添加到队列",
         "empty": "队列中没有任务",
         "emptyHint": "将文件拖到此处或选择文件，然后启动队列。文件将逐个上传。",
@@ -2077,11 +1873,9 @@
         "highPriority": "高优先级",
         "idle": "添加文件到队列",
         "interval": "文件上传间隔",
-        "intervalHint": "文件上传间隔，单位为秒（0.1–99999）。",
         "intervalSummary": "文件间隔 {seconds} 秒",
         "loadFailed": "无法加载队列，请重试。",
         "loading": "正在加载队列…",
-        "manage": "管理",
         "maxRetry": "自动重试次数",
         "moveDown": "下移队列",
         "moveUp": "上移队列",
@@ -2100,7 +1894,6 @@
         "removeTask": "移除此任务",
         "resetFilters": "清除搜索和筛选",
         "resume": "继续",
-        "resumed": "上传任务已继续",
         "retriedAllFailed": "{count} 个失败任务已加入重试队列",
         "retryAllFailed": "重试失败任务",
         "retryCount": "重试: {count}",
@@ -2110,8 +1903,6 @@
         "selectFiles": "选择要上传的文件",
         "showing": "第 {from}–{to} 项，共 {total} 个任务",
         "start": "开始",
-        "started": "上传任务已开始",
-        "stats": "{completed} / {total}",
         "statusCancelled": "已取消",
         "statusCompleted": "已完成",
         "statusFailed": "失败",
@@ -2146,7 +1937,6 @@
       "deleteSuccess": "删除成功",
       "deleteTitle": "通知",
       "duplicate": "拷贝",
-      "duplicateError": "拷贝失败",
       "duplicatePlaceholder": "请输入新配置名称",
       "duplicateSuccess": "拷贝成功",
       "duplicateTitle": "拷贝配置",

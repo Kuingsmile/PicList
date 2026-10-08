@@ -104,8 +104,7 @@
     "reset": "Reset",
     "save": "Save",
     "showPassword": "Show password",
-    "submit": "Submit",
-    "version": "Version"
+    "submit": "Submit"
   },
   "guide": {
     "close": "Close",
@@ -126,10 +125,6 @@
       "picbed": {
         "description": "Click here to view and configure your current image hosting service (PicBed).",
         "title": "Choose Your Image Host"
-      },
-      "settings": {
-        "description": "Customize PicList to suit your needs. Configure upload settings, shortcuts, and more.",
-        "title": "Configure Settings"
       },
       "theme": {
         "description": "Click the light/dark mode toggle in the sidebar to switch themes.",
@@ -231,7 +226,6 @@
     "gallery": {
       "batchEditUrl": "Batch Edit URL",
       "batchEditUrlAllTip": "Edit the URLs of all images shown. Select images first to edit only those.",
-      "canceled": "Canceled",
       "changeImageUrl": "Change Image URL",
       "chooseShowedPicBed": "Choose Showed PicBed",
       "clearFilters": "Clear filters",
@@ -253,20 +247,16 @@
       "filteredCount": "{shown} of {total} images",
       "goUpload": "Upload images",
       "gridSize": "Grid Size",
-      "gridView": "Grid",
-      "haveDuplicate": "There are naming duplicates among the selected images, do you want to continue?",
       "hideFilters": "Filters",
       "imageCount": "No images | {n} image | {n} images",
       "inputRegexTip": "Please enter the matching string",
       "isAlwaysForceReload": "No Cache",
       "isAlwaysForceReloadTip": "Always reload thumbnails from the server instead of using the cache.",
-      "listView": "List",
       "loadFailed": "Could not refresh the gallery. Your current view has been kept. Try again.",
       "loading": "Loading gallery…",
       "longUrl": "Long URL",
       "nextImage": "Next image",
       "noImagesFound": "No Images Found",
-      "noItemsNeedRename": "No items need to be renamed",
       "noMatch": "No matching items found",
       "noMatchHint": "No images match your search or filters.",
       "notice": "Notice",
@@ -290,7 +280,6 @@
       "selectedCount": "{n} selected",
       "selectionHint": "Shift-click to select a range. Ctrl+A selects all.",
       "shortUrl": "Short URL",
-      "showFilters": "Filters",
       "sort": "Sort",
       "sortAscending": "Ascending",
       "sortBy": {
@@ -298,7 +287,6 @@
         "ext": "Extension",
         "name": "Name",
         "provider": "Provider",
-        "size": "Size",
         "time": "Date"
       },
       "sortDescending": "Descending",
@@ -310,11 +298,7 @@
       "zoomOut": "Zoom out"
     },
     "imageProcess": {
-      "cancel": "Cancel",
-      "confirm": "Confirm",
-      "description": "Configure image processing options, including compression, watermarking, format conversion, etc.",
       "design": {
-        "advancedRules": "Advanced format rules",
         "applyTo": "Where should these changes apply?",
         "categories": "Image processing options",
         "categoryLabels": {
@@ -326,33 +310,19 @@
         },
         "combinedSources": "From multiple settings",
         "configPreviewNote": "Settings preview. Exact dimensions and file size depend on the original image.",
-        "editingFor": "Editing: {audience}",
         "editSettings": "Edit",
-        "editToCustomize": "Edit to customize",
         "editWinning": "Edit the setting in use",
         "explainValue": "Why this value for {setting}?",
-        "finalPreview": "Final preview",
         "finalSettings": "Final settings",
         "inheritanceHelp": "Start with defaults for all uploaders. Settings for a storage service replace those defaults. Settings for one uploader take priority over both. Values you do not customize keep following the shared settings.",
         "live": "Updates as you edit",
         "livePreview": "Live final settings",
         "maskedValue": "This uploader uses {value} from {source}. Changing the shared value will not replace it.",
-        "previewFor": "Final settings for {config}",
         "restoreShared": "Use shared value",
-        "scopeDescriptions": {
-          "config": "Leave other uploaders unchanged",
-          "global": "Shared starting point",
-          "provider": "Shared by the same service"
-        },
         "scopeHints": {
           "config": "Changes here affect only {config}. Edit a value to customize it, or use the shared value to follow defaults again.",
           "global": "These are the defaults for every uploader. Custom settings for a service or an individual uploader still take priority.",
           "provider": "Changes here are shared by all {provider} uploaders. Individual uploader settings still take priority."
-        },
-        "scopes": {
-          "config": "Only this uploader",
-          "global": "All uploaders",
-          "provider": "All {provider} uploaders"
         },
         "service": "Storage service",
         "settingCount": "{count} setting | {count} settings",
@@ -365,51 +335,20 @@
           "global": "All uploaders",
           "provider": "All {provider} uploaders"
         },
-        "summaryLabels": {
-          "dimensions": "Dimensions",
-          "format": "Format",
-          "quality": "Quality"
-        },
-        "uploader": "Uploader",
-        "view": "Settings view"
+        "uploader": "Uploader"
       },
       "editor": {
-        "configuration": "Uploader configuration",
         "editGlobal": "Edit defaults for all uploaders",
         "globalOrConfigOnly": "Choose “All uploaders” or “Only this uploader” to edit these options.",
-        "hints": {
-          "config": "Editing overrides for {config} only. Unset options inherit from the provider, then global settings.",
-          "global": "Editing global settings for all uploaders. Effective config previews the selected uploader, including its overrides.",
-          "provider": "Editing provider overrides for every {provider} configuration. Uploader configuration overrides still take priority."
-        },
-        "inherit": "Use inherited value",
         "noConfig": "Choose an uploader above to create settings just for it.",
         "noSavedConfig": "No saved configuration",
-        "provider": "Provider type",
         "save": {
           "error": "Changes not saved. Preview shows the current draft.",
           "saved": "Changes saved automatically",
           "saving": "Saving…"
         },
-        "scope": "Edit scope",
-        "scopes": {
-          "config": "Uploader configuration",
-          "global": "Global",
-          "provider": "Provider"
-        },
         "title": "Image processing"
       },
-      "general": {
-        "basicImageProcessing": "Basic Image Processing",
-        "formatConversion": "Image Format Conversion",
-        "isConvert": "Convert Format",
-        "isRemoveExif": "Remove Exif Information",
-        "quality": "Compression Quality (1-100)",
-        "skipProcessExtList": "Skip Processed File Extensions",
-        "skipProcessExtListLabel": "Skip Processed Extensions",
-        "specificFormatConversion": "Specific Format Conversion, please fill in JSON format, such as: {'{'}\"png\": \"jpg\"{'}'}"
-      },
-      "generalSettings": "General",
       "guide": {
         "askName": "Ask for a name before upload",
         "categoryHints": {
@@ -428,7 +367,6 @@
           "85": "Balanced",
           "100": "Highest quality"
         },
-        "quality": "Image quality",
         "qualityPresets": "Quality presets",
         "resizeDimensions": "Resize to dimensions",
         "resizePercent": "Resize by percentage",
@@ -441,19 +379,12 @@
         "timestampName": "Use a timestamp as the name",
         "watermarkToggle": "Add a watermark"
       },
-      "perPicBed": {
-        "defaultValue": "Global Value: {value}",
-        "description": "Configure settings for each PicBed individually",
-        "title": "Per-PicBed Settings"
-      },
       "preview": {
-        "advancedRename": "Advanced rename",
         "automatic": "Automatic (0)",
         "defaultAsset": "Default asset",
         "disabled": "Disabled",
         "empty": "Empty",
         "enabled": "Enabled",
-        "formatRules": "Format conversion rules",
         "heightDimensions": "{value} px high · proportional",
         "heightOnly": "Inactive: height-only resize required",
         "imageOnly": "Inactive: image watermarks only",
@@ -467,37 +398,11 @@
         "outputNote": "This previews the built-in processing settings. Final dimensions, file size and appearance depend on the input image, its format and any plugins. Skipped extensions bypass image processing; rotation can change final dimensions.",
         "percentagePriority": "Inactive: percentage resize takes priority",
         "percentDimensions": "{value}% of original dimensions",
-        "precedence": "For each setting, the uploader configuration overrides the provider override, which overrides global settings. Built-in defaults apply when no value is set. Changes appear here as you edit.",
-        "readOnly": "Read-only preview",
         "retry": "Retry",
-        "setting": "Setting",
-        "source": "Source",
-        "sources": {
-          "config": "Uploader configuration",
-          "default": "Built-in default",
-          "global": "Global settings",
-          "provider": "Provider override"
-        },
-        "tab": "Effective config",
-        "target": "Preview for uploader",
         "textOnly": "Inactive: text watermarks only",
-        "title": "Effective processing configuration",
         "unnamedConfig": "Unnamed configuration",
-        "value": "Effective value",
-        "widthDimensions": "{value} px wide · proportional",
-        "withFormatRules": "format-specific rules take priority"
+        "widthDimensions": "{value} px wide · proportional"
       },
-      "rename": {
-        "description": "Configure renaming rules for uploaded files",
-        "manualRename": "Manual Rename",
-        "renameCustomFormat": "Custom Rename Format",
-        "renameCustomFormatPlaceholder": "Please enter custom rename format",
-        "renameDescription": "Set renaming rules for uploaded files",
-        "renameTimestamp": "Timestamp Rename",
-        "title": "Rename Settings"
-      },
-      "renameSettings": "Rename",
-      "skipProcessSettings": "Skip Process",
       "studio": {
         "addExtension": "Add an extension…",
         "addRule": "Add rule",
@@ -620,41 +525,11 @@
         "watermarkType": "Type",
         "width": "Width"
       },
-      "subtitle-Global": "Configure settings for all PicBeds",
-      "subtitle-PerPicbed": "Configure settings for current PicBed",
       "transform": {
-        "description": "Adjust image size, rotation, flipping, etc.",
-        "isFlop": "Horizontal Flip",
-        "isResize": "Enable Resize",
-        "isResizeByPercent": "Enable Resize by Percentage",
-        "isResizeByPercentHint": "Higher priority",
-        "isRotate": "Enable Rotation",
-        "percentageResize": "Resize by Percentage",
-        "resizeDescription": "Set image scaling parameters",
-        "resizeHeight": "Resize Height (0 means scale by width)",
-        "resizePercent": "Resize Percentage (Enter 50 for 50%)",
-        "resizeTitle": "Resize",
-        "resizeWidth": "Resize Width (0 means scale by height)",
-        "rotationDegree": "Rotation Angle",
-        "rotationDescription": "Set image rotation parameters",
-        "rotationTitle": "Rotation Settings",
-        "skipResizeOfSmallImgHeight": "Skip resizing when image is smaller than set",
-        "title": "Transform Settings"
+        "rotationDegree": "Rotation Angle"
       },
-      "transformSettings": "Transform",
       "watermark": {
-        "color": "Watermark Color, manually enter or use color picker",
-        "degree": "Watermark Rotation Angle",
-        "description": "Add text or image watermark to the image",
         "image": "Image",
-        "imageOpacity": "Watermark Opacity",
-        "imagePath": "Watermark Image Path (Leave empty to use default image)",
-        "imagePathPlaceholder": "Optional, please enter path",
-        "inputText": "Watermark Text",
-        "inputTextPlaceholder": "Please enter watermark text",
-        "isAdd": "Enable or Disable Watermark",
-        "isFullScreen": "Enable Full Screen Watermark",
-        "position": "Watermark Position",
         "positionOptions": {
           "bottom": "Bottom",
           "bottomLeft": "Bottom Left",
@@ -666,12 +541,7 @@
           "topLeft": "Top Left",
           "topRight": "Top Right"
         },
-        "scaleRatio": "Watermark Scale Ratio",
-        "text": "Text",
-        "textFontPath": "Watermark Font Path (Automatically downloaded before first use)",
-        "textFontPathPlaceholder": "Optional, please enter path",
-        "title": "Watermark Settings",
-        "type": "Watermark Type"
+        "text": "Text"
       },
       "watermarkSettings": "Watermark"
     },
@@ -681,7 +551,6 @@
     "manage": {
       "bucket": {
         "batchRename": "Batch Rename",
-        "cancel": "Cancel",
         "canceled": "Canceled",
         "cancelingUpload": "Canceling…",
         "clear": "Clear",
@@ -702,7 +571,6 @@
         "createSuccess": "Create success, please refresh",
         "deleteFailed": "Delete failed",
         "deleteFailedDetails": "Failed deletions ({num})",
-        "deleteMsg": "This will permanently delete, are you sure?",
         "deleteMultiMsg": "Delete success {success} items, failed {failed} items",
         "deleteSuccess": "Delete success",
         "deletingMsg": "Deleting, please wait...",
@@ -716,12 +584,9 @@
         "emptyFolder": "This folder is empty",
         "emptyFolderDesc": "Upload files, or create a folder from the toolbar.",
         "enterFullScreen": "Enter Full Screen (F11)",
-        "excludeExt": "Exclude file extensions when replacing",
         "exitFullScreen": "Exit Full Screen (F11)",
         "failed": "Failed",
-        "fileDupNotice": "Detected {number} duplicate file names, do you want to continue?",
         "fileInfo": "File Information",
-        "fileNum": "File Count: {num}",
         "filesInFolder": "{num} files",
         "forceRefreshFileList": "Force Refresh File List",
         "getDownloadListFailed": "Get download list failed",
@@ -754,18 +619,13 @@
         "loadingFailed": "Loading failed",
         "location": "Location",
         "matched": "{num} matched",
-        "matchedPattern": "Matching string or regular expression - {num} matched",
-        "noFileNeedRename": "No files need to be renamed",
-        "noKeepDirStructure": "Do not keep directory structure",
         "noMatchedFile": "No matching files found",
-        "noNeedToRename": "No need to rename",
         "noSearchMatch": "No matching files",
         "noSearchMatchDesc": "Try a different search term, or clear the search.",
         "noTasks": "No tasks here",
         "notice": "Notice",
         "openDownloadFolder": "Open Download Folder",
         "page": "Page",
-        "pageFileSize": "Total Size: {size}",
         "partFileListFailed": "Part file list failed",
         "play": "Play",
         "prepareDownload": "Preparing to download, click to cancel",
@@ -788,11 +648,7 @@
           "scopeAll": "Renames matching files among all {num} in this folder",
           "scopeSelected": "Renames matching files among the {num} selected"
         },
-        "renameFailed": "Rename failed",
         "renameFile": "Rename File",
-        "renameResultMsg": "Rename success {success} items, failed {failed} items",
-        "renameSuccess": "Rename success",
-        "replaceInput": "The string to replace can use placeholders in custom renaming",
         "retryFailedOnly": "Retry failed only",
         "reverseSelect": "Reverse Select",
         "rootFolder": "Root Folder",
@@ -824,11 +680,9 @@
           "done": "Done",
           "failed": "Failed",
           "paused": "Paused",
-          "queued": "Queued",
-          "running": "Running"
+          "queued": "Queued"
         },
         "upload": "Upload",
-        "uploadCanceled": "Canceled",
         "uploadFailure": {
           "aborted": "Upload canceled",
           "file": "The source file is missing, unreadable, or changed",
@@ -839,7 +693,6 @@
           "unsupported": "This source is not a supported regular file"
         },
         "uploadFile": "Upload File",
-        "uploadFiles": "Upload Files",
         "uploadFromUrl": "Upload from URL",
         "uploading": "Uploading",
         "uploadNum": "Upload {num}",
@@ -946,8 +799,6 @@
         "secretIdDesc": "Secret ID, available in the console",
         "secretIdPlaceholder": "Please enter Secret ID",
         "secretKeyDesc": "Secret Key, available in the console",
-        "secretKeyIdDesc": "Secret Key, available in the console",
-        "secretKeyIdPlaceholder": "Please enter Secret Key",
         "secretKeyPlaceholder": "Please enter Secret Key",
         "sftp": {
           "baseDirDesc": "Starting directory",
@@ -969,7 +820,6 @@
           "portPlaceholder": "e.g., 22",
           "privateKeyDesc": "Private key",
           "privateKeyPlaceholder": "Please enter private key",
-          "protocolRuleMsg": "Must start with http:// or https://",
           "webPathDesc": "Base path for URL joining",
           "webPathPlaceholder": "e.g., /dir2",
           "webPathTips": "Used to assemble the public URL"
@@ -1040,16 +890,12 @@
         "backToList": "Back to list",
         "chooseProvider": "Choose a cloud",
         "chooseProviderDesc": "Pick the storage service this configuration connects to.",
-        "configChangeMsg": "Configuration changed",
         "configSaveMsg": "Configuration saved",
-        "configTabTitle": "Existing configurations, click to copy",
         "configurationRefreshMsg": "Configuration refreshed",
-        "confirmDeleteConfig": "Are you sure you want to delete this configuration?",
         "confirmDeleteNamed": "Delete the configuration “{alias}”? Files in the cloud are not affected.",
         "connectionSection": "Connection",
         "connectionSectionDesc": "Name this configuration and enter the credentials and storage location.",
         "copied": "Copied to clipboard",
-        "copySuccess": "Copied: {text}",
         "delete": "Delete",
         "deleteConfigFailedMsg": "Failed to delete configuration",
         "deleteConfigSuccessMsg": "Configuration deleted successfully",
@@ -1057,7 +903,6 @@
         "discardMsg": "You have unsaved changes to this configuration. Leave without saving?",
         "discardTitle": "Discard changes?",
         "editTitle": "Edit {alias}",
-        "enter": "Enter",
         "hideSecrets": "Hide secrets",
         "import": "Import",
         "importFrom": "Copy settings from",
@@ -1066,8 +911,6 @@
         "keepEditing": "Keep editing",
         "newConfig": "New configuration",
         "newTitle": "New {name} configuration",
-        "noConfigs": "No configurations found",
-        "noConfigsDesc": "Please check your configuration file or reload the page",
         "noMatch": "No configurations match “{query}”",
         "noProviderConfigs": "No {name} configurations yet",
         "noProviderConfigsDesc": "Add one to browse and manage the files stored in this cloud.",
@@ -1077,10 +920,8 @@
         "optionsSectionDesc": "Connection behavior and how files are listed.",
         "providers": "Clouds",
         "refresh": "Refresh",
-        "reset": "Reset",
         "restoreDefaults": "Restore defaults",
         "save": "Save",
-        "savedConfigs": "Saved Cloud",
         "savedCount": "No saved configurations | {n} saved configuration | {n} saved configurations",
         "searchPlaceholder": "Search by alias, cloud or bucket",
         "selectPlaceholder": "Please select",
@@ -1094,7 +935,6 @@
       },
       "main": {
         "allAccounts": "All accounts",
-        "backToHome": "Home",
         "bucket": "Bucket",
         "collapseRail": "Collapse list",
         "createAclFailed": "Bucket created, but setting its ACL failed: {error}",
@@ -1118,8 +958,7 @@
         "settings": "Settings",
         "storage": "Storage",
         "switchAccount": "Switch account",
-        "switchAccountDesc": "Open another saved cloud storage account.",
-        "switchPicBed": "Switch"
+        "switchAccountDesc": "Open another saved cloud storage account."
       },
       "newBucket": {
         "acl": {
@@ -1175,14 +1014,11 @@
           "storageCustomTitle": "Custom link format for this storage",
           "title": "Copy format"
         },
-        "copySuccess": "Copied {name}",
         "customRenameFormat": "Custom rename format",
         "customRenameTablePlaceholder": "Please enter a custom renaming format",
-        "customRenameTableTitle": "Reference table for custom renaming format",
         "customRenameTips": "Provide a naming pattern after enabling",
         "customRenameTitle": "Custom rename on upload (low priority)",
         "defaultDownloadFolder": "System default download folder",
-        "description": "Description",
         "downloadConflictPolicy": {
           "overwrite": "Replace after a successful download",
           "rename": "Keep both files (rename the download)",
@@ -1207,7 +1043,6 @@
         "maxDownLoadFileLimit": "Maximum concurrent downloads",
         "maxDownLoadFileLimitDesc": "Adjust based on network conditions",
         "notice": "Notifications",
-        "placeholder": "Placeholder",
         "preSignedUrlExpire": "Pre-signed URL expiration (seconds)",
         "preSignedUrlExpireDesc": "Adjust based on actual needs",
         "randomStringRenameTips": "20 random characters",
@@ -1229,7 +1064,6 @@
           "thumbnail": "Thumbnails",
           "thumbnailDesc": "Preview images in the file list instead of file-type icons."
         },
-        "selectDownloadFolderTips": "Select download directory",
         "selectDownloadFolderTitle": "Choose download folder",
         "subtitle": "Applies to every cloud storage account",
         "tabs": {
@@ -1253,14 +1087,12 @@
       }
     },
     "picBedConfigs": {
-      "configSettings": "Configuration Settings",
       "copyAPI": "Copy Upload API",
       "copyAPIFailed": "Copy API Address Failed",
       "copyAPISucceed": "Copy API Address Succeed",
       "importConfigFailed": "Import Config Failed",
       "importConfigSuccess": "Import Config Success",
       "loadConfigFailed": "Load Config Failed, Please Check If Config File Is Correct",
-      "loadPicBedListFailed": "Load PicBed List Failed",
       "noConfigOptions": "No Configuration Options",
       "noConfigOptionsDesc": "This uploader does not have any configuration options available.",
       "noConfigs": "No Configs",
@@ -1392,11 +1224,9 @@
         "download": "Download",
         "downloaded": "Downloaded",
         "downloadFailed": "Failed to download script",
-        "downloading": "Downloading...",
         "downloadSuccess": "Script downloaded successfully",
         "loadFailed": "Failed to load marketplace scripts",
         "loadingScripts": "Loading scripts...",
-        "loggedInAs": "Logged in as {username}",
         "loginFailed": "GitHub login failed",
         "loginRequired": "Please login with GitHub to share scripts",
         "loginSuccess": "GitHub login successful",
@@ -1438,7 +1268,6 @@
       "scriptCount": "No scripts | {n} script | {n} scripts",
       "scriptNameTips": "\".js\" is added automatically if missing.",
       "scriptsTypes": {
-        "_name": "Script Types",
         "afterUpload": "After Upload",
         "beforeTransform": "Before Transform",
         "beforeUpload": "Before Upload",
@@ -1479,12 +1308,8 @@
         "enableServer": "Enable Upload API Service",
         "guiLogFile": "Open GUI Log File",
         "invalidJson": "Invalid JSON format",
-        "logDialogDesc": "View log files and configure log settings",
         "logFile": "Open General Log File",
-        "logFilePath": "Log File Path",
-        "logFilePathDesc": "View log file directory",
         "logFileSize": "Log File Size",
-        "logFilesTitle": "Open Log Files",
         "logging": "Logging",
         "logLevel": "Log Level",
         "logLevelList": {
@@ -1499,11 +1324,7 @@
         "networkAndProxy": "Network and Proxy",
         "pluginInstallMirror": "Plugin Install Mirror",
         "pluginInstallProxy": "Plugin Install Proxy",
-        "proxyDialogDesc": "Configure network proxy and plugin mirrors",
-        "saveFileFailed": "failed to save file",
         "saveFileSuccess": "file saved successfully",
-        "serverConfig": "Server Configuration",
-        "serverDialogDesc": "Configure upload API service connection parameters",
         "serverEncryptionKey": "API Data Encryption Key",
         "serverEncryptionKeyDesc": "Used to encrypt API data transmission",
         "serverHost": "Listen Address",
@@ -1518,16 +1339,10 @@
         "serverSettingsNotice": "If you don't know the purpose of the Upload API Service, please read the documentation or do not modify the configuration.",
         "serverUploadInterval": "Upload Interval (ms)",
         "serverUploadIntervalPlaceholder": "Delay in ms between uploads via API (0 = no delay)",
-        "setLog": "Set Log",
-        "setLogDesc": "Configure log level and file size",
-        "setProxyAndMirror": "Set Proxy and Mirror Address",
-        "setProxyAndMirrorDesc": "Configure network proxy and npm registry",
         "title": "Advanced",
         "uploadProxy": "Upload Proxy",
-        "uploadServer": "Upload API Service Settings",
-        "uploadServerDesc": "Configure upload API port and authentication"
+        "uploadServer": "Upload API Service Settings"
       },
-      "clickToOpen": "Click to Open",
       "clickToSet": "Click to Set",
       "docs": "Documentation",
       "sync": {
@@ -1631,8 +1446,7 @@
           "unresolved": "{count} conflict still needs a choice. | {count} conflicts still need a choice.",
           "update": "Updates",
           "upToDate": "Your local and cloud records match.",
-          "versionCount": "{count} version | {count} versions",
-          "working": "Working…"
+          "versionCount": "{count} version | {count} versions"
         },
         "gitea": {
           "branch": "Branch Name",
@@ -1668,7 +1482,6 @@
         "notConfiguredHint": "Finish the platform configuration before syncing.",
         "openConfigFile": "Open General Configuration File",
         "openConfigFileDir": "Open Application File Directory",
-        "selectType": "Please select sync platform",
         "syncActions": "Sync Actions",
         "syncConfigProxy": "Proxy",
         "syncConfiguration": "Sync Platform",
@@ -1750,7 +1563,6 @@
         "applicationUpdates": "Application Updates",
         "checking": "Checking for updates…",
         "checkUpdate": "Check for Updates",
-        "checkUpdateDialogDesc": "Check for and install the latest version",
         "currentVersion": "Current Version",
         "downloadUpdate": "Download",
         "justNow": "just now",
@@ -1763,19 +1575,16 @@
         "openUpdateHelper": "Open Update Helper",
         "openUpdateHelperDesc": "Show notification when a new version is available",
         "refresh": "Refresh",
-        "releaseNotes": "Release Notes",
         "releaseNotesError": "Failed to load release notes. Please check your network connection.",
         "restartToUpdate": "Restart to Update",
         "retry": "Retry",
         "title": "Update",
-        "updatePreferences": "Update Preferences",
         "upToDate": "You're on the latest version",
         "viewOnGitHub": "View on GitHub"
       },
       "upload": {
         "advancedRname": "Advanced Rename",
         "advancedRnameDesc": "Use advanced rename format to customize file names",
-        "advancedRnameDialogDesc": "Configure advanced renaming rules for file uploads",
         "advancedRnameFormat": "Advanced Rename Format",
         "autoCopyUrlAfterUpload": "Auto Copy URL After Upload",
         "autoImportInManage": "Auto Import Configuration in Cloud Page",
@@ -1808,7 +1617,6 @@
         "fileNamePlaceholder": "Use placeholder $fileName to represent the position of the file name",
         "formatPreview": "Preview",
         "galleryPicBedFilter": "Gallery PicBed Filter",
-        "galleryPicBedFilterDesc": "Select picbeds to display in gallery",
         "imageProcessing": "Image Processing Settings",
         "imageProcessingDesc": "Configure image preprocessing options before upload",
         "isAutoListenClipboard": "Automatically listen for clipboard uploads when the software starts.",
@@ -1868,7 +1676,6 @@
       "addAction": "Add action",
       "bind": "Shortcut",
       "builtIn": "Built-in",
-      "changeUpload": "Change Upload Shortcut",
       "chooseTarget": "Choose a picbed profile",
       "clear": "Clear binding",
       "clearHint": "Clearing the binding disables this shortcut.",
@@ -1880,7 +1687,6 @@
       "deleteConfirm": "Delete “{name}” and its shortcut?",
       "description": "Manage built-in, plugin, and custom upload shortcuts.",
       "disable": "Disable",
-      "disabled": "Disabled",
       "disabledHint": "This shortcut will stay disabled after saving.",
       "edit": "Edit",
       "editBinding": "Edit shortcut",
@@ -1998,10 +1804,8 @@
       "goToDownloadPage": "Go to Download Page",
       "installNow": "Install Now",
       "later": "Later",
-      "newUpdateAvailable": "New Update Available",
       "noMoreNotice": "Do not show this again",
-      "releaseNotes": "What's New",
-      "updateReady": "Update Ready to Install"
+      "releaseNotes": "What's New"
     },
     "upload": {
       "addToFavorites": "Add current picbed to quick switch",
@@ -2011,12 +1815,9 @@
       "dragFileToHere": "Drag file to here, or click to upload",
       "dragValidPictureOrUrl": "Please drag a valid picture file or URL here",
       "httpPrefixTip": "Starts with http:// or https://",
-      "imageProcessName": "Global Processing",
-      "imageProcessNameSingle": "Single Processing",
       "inputUrlTip": "Please enter URL(s)",
       "inputValidUrl": "Please enter a valid URL",
       "invalidUrlsFound": "Invalid URLs found: {urls}",
-      "linkFormat": "Link Format",
       "longPressToRemoveFromFavorites": "Long press to remove",
       "multipleUrlsHint": "Each URL on a separate line for multiple uploads",
       "outputFormat": "Output Format",
@@ -2048,21 +1849,16 @@
         "uploading": "Uploading"
       },
       "putToUpload": "Release mouse to upload",
-      "quickUpload": "Quick Upload",
       "removeFromFavorites": "Remove from quick switch",
       "taskQueue": {
         "actionFailed": "Could not update the queue. Please try again.",
         "addFiles": "Add Files",
-        "allCancelled": "All tasks cancelled",
         "autoStart": "Start when files are added",
         "cancelAll": "Cancel All",
         "cancelTask": "Cancel this task",
-        "cleared": "Completed and cancelled tasks cleared",
         "clearFinished": "Clear finished",
         "clearFinishedHint": "Remove completed and cancelled tasks. Keep failed tasks for retry.",
         "completedSummary": "{completed} of {total} files completed",
-        "dialogSubtitle": "Add files to upload queue",
-        "dialogTitle": "Create Upload Task",
         "dropFiles": "Drop files to add to the queue",
         "empty": "No tasks in queue",
         "emptyHint": "Drop files here or select files, then start the queue. Files upload one at a time.",
@@ -2077,11 +1873,9 @@
         "highPriority": "High priority",
         "idle": "Add files to queue",
         "interval": "Time between files",
-        "intervalHint": "Delay between files, in seconds (0.1–99999).",
         "intervalSummary": "{seconds}s between files",
         "loadFailed": "Could not load the queue. Try again.",
         "loading": "Loading queue…",
-        "manage": "Manage",
         "maxRetry": "Automatic retries",
         "moveDown": "Move down in queue",
         "moveUp": "Move up in queue",
@@ -2100,7 +1894,6 @@
         "removeTask": "Remove this task",
         "resetFilters": "Clear search and filters",
         "resume": "Resume",
-        "resumed": "Upload task resumed",
         "retriedAllFailed": "{count} failed tasks queued for retry",
         "retryAllFailed": "Retry failed",
         "retryCount": "Retry: {count}",
@@ -2110,8 +1903,6 @@
         "selectFiles": "Select Files to Upload",
         "showing": "{from}–{to} of {total} tasks",
         "start": "Start",
-        "started": "Upload task started",
-        "stats": "{completed} / {total}",
         "statusCancelled": "Cancelled",
         "statusCompleted": "Completed",
         "statusFailed": "Failed",
@@ -2146,7 +1937,6 @@
       "deleteSuccess": "Delete Success",
       "deleteTitle": "Notification",
       "duplicate": "Duplicate",
-      "duplicateError": "Duplicate Failed",
       "duplicatePlaceholder": "Enter new configuration name",
       "duplicateSuccess": "Duplicate Success",
       "duplicateTitle": "Duplicate Configuration",

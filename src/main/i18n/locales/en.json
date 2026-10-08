@@ -47,7 +47,6 @@
       "updatePluginFailed": "Update Plugin Failed",
       "uploadFailed": "Upload Failed",
       "uploading": "Uploading",
-      "uploadNotPicturesTips": "Latest items in clipboard are not pictures",
       "uploadProgress": "Upload Progress",
       "uploadSuccess": "Upload Success",
       "uploadTaskComplete": "Upload Task Complete",
@@ -55,11 +54,8 @@
     },
     "strings": {
       "operationFailed": "Operation Failed",
-      "operationSuccess": "Operation Success",
       "quickUpload": "Quick Upload",
       "shortcutActionFailed": "The shortcut action could not be completed. Check the plugin and selected picbed profile in Settings → Shortcuts.",
-      "shortcutModifiedConflict": "Shortcut Conflict, Failed to Modify",
-      "shortcutModifiedSuccess": "Shortcut Modified Successfully",
       "shortcutProblems": "{{count}} shortcut(s) could not be activated. Open Settings → Shortcuts to review conflicts or unavailable actions."
     },
     "toolbox": {

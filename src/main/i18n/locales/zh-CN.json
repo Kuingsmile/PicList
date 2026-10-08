@@ -47,7 +47,6 @@
       "updatePluginFailed": "更新插件失败",
       "uploadFailed": "上传失败",
       "uploading": "上传中",
-      "uploadNotPicturesTips": "剪贴板最新内容不是图片",
       "uploadProgress": "上传进度",
       "uploadSuccess": "上传成功",
       "uploadTaskComplete": "上传任务完成",
@@ -55,11 +54,8 @@
     },
     "strings": {
       "operationFailed": "操作失败",
-      "operationSuccess": "操作成功",
       "quickUpload": "快捷上传",
       "shortcutActionFailed": "快捷键操作未能完成。请在设置 → 快捷键中检查插件和所选图床配置。",
-      "shortcutModifiedConflict": "快捷键冲突，修改失败",
-      "shortcutModifiedSuccess": "快捷键修改成功",
       "shortcutProblems": "有 {{count}} 个快捷键无法生效。请打开设置 → 快捷键，查看冲突或不可用的操作。"
     },
     "toolbox": {
