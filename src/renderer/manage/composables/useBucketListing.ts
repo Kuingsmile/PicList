@@ -188,6 +188,8 @@ export function useBucketListing({
   }
 
   function sortFile(type: ISortTypeList, toggle = true) {
+    // A remembered sort whose column has since been removed falls back to the default order.
+    if (type !== 'check' && type !== 'init' && !getColumns().some(column => column.key === type)) type = 'init'
     if (toggle) sortAscending.value = currentSortType.value === type ? !sortAscending.value : true
     currentSortType.value = type
     localStorage.setItem('sortType', type)

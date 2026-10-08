@@ -2,32 +2,13 @@
   <div class="relative flex h-full w-full min-w-0 flex-col" @scroll="handleBucketContainerScroll">
     <!-- Location: breadcrumb + domain / branch -->
     <div class="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-border-secondary px-4 py-2.5">
-      <nav
-        ref="breadcrumbNav"
-        class="no-scrollbar flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto"
-        :aria-label="t('pages.manage.bucket.location')"
-      >
-        <template v-for="(segment, index) in breadcrumbs" :key="segment.index">
-          <ChevronRightIcon v-if="index !== 0" :size="14" class="shrink-0 text-tertiary" aria-hidden="true" />
-          <button
-            type="button"
-            class="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-sm transition-colors duration-fast focus-visible:focus-ring"
-            :class="
-              index === breadcrumbs.length - 1
-                ? 'font-semibold text-main hover:bg-accent/10'
-                : 'font-medium text-secondary hover:bg-accent/10 hover:text-main'
-            "
-            :title="index === 0 ? configMap.bucketName : segment.name"
-            :aria-current="index === breadcrumbs.length - 1 ? 'location' : undefined"
-            @click="handleBreadcrumbClick(segment.index)"
-          >
-            <HomeIcon v-if="index === 0" :size="14" class="text-accent" aria-hidden="true" />
-            <span class="max-w-[220px] truncate">
-              {{ index === 0 ? configMap.bucketName || t('pages.manage.bucket.rootFolder') : segment.name }}
-            </span>
-          </button>
-        </template>
-      </nav>
+      <BucketBreadcrumb
+        :segments="breadcrumbs"
+        :label="t('pages.manage.bucket.location')"
+        :root-label="configMap.bucketName || t('pages.manage.bucket.rootFolder')"
+        :root-title="configMap.bucketName"
+        @navigate="handleBreadcrumbClick"
+      />
 
       <div
         v-if="domainControl !== 'none'"
@@ -538,7 +519,6 @@ import {
   ArrowDownToLineIcon,
   ArrowUpDownIcon,
   ArrowUpIcon,
-  ChevronRightIcon,
   ClipboardIcon,
   CopyIcon,
   DownloadIcon,
@@ -547,7 +527,6 @@ import {
   GitBranchIcon,
   GlobeIcon,
   GridIcon,
-  HomeIcon,
   InfoIcon,
   LayoutGridIcon,
   LinkIcon,
@@ -575,6 +554,7 @@ import CustomModal from '@/components/common/CustomModal.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import { useFilePreview } from '@/composables/useFilePreview'
 import useMessage from '@/composables/useMessage'
+import BucketBreadcrumb from '@/manage/components/bucket/BucketBreadcrumb.vue'
 import BucketDownloadPanel from '@/manage/components/bucket/BucketDownloadPanel.vue'
 import BucketFileInfoDialog from '@/manage/components/bucket/BucketFileInfoDialog.vue'
 import BucketFileList from '@/manage/components/bucket/BucketFileList.vue'
@@ -736,7 +716,7 @@ const newFolderName = ref('')
 
 const virtualScrollerRef = useTemplateRef('virtualScrollerRef')
 
-const sortTypeList = ['name', 'size', 'time', 'ext', 'provider', 'status', 'check', 'init']
+const sortTypeList = ['init', 'name', 'size', 'time', 'ext', 'status', 'check']
 
 const filterList = computed(() => {
   return getList()
@@ -757,17 +737,6 @@ const breadcrumbs = computed(() =>
     .split('/')
     .map((name, index) => ({ name, index }))
     .filter(segment => segment.index === 0 || segment.name),
-)
-
-const breadcrumbNav = useTemplateRef('breadcrumbNav')
-
-// Deep paths overflow the bar; keep the current folder in view.
-watch(
-  breadcrumbs,
-  () => {
-    breadcrumbNav.value?.scrollTo({ left: breadcrumbNav.value.scrollWidth })
-  },
-  { immediate: true, flush: 'post' },
 )
 
 const currentLocationLabel = computed(() =>
@@ -882,12 +851,7 @@ const tableColumns = computed<FileColumn<BucketFile>[]>(() => [
   },
   { key: 'size', label: t('common.fileTable.size'), width: 100, value: fileSize, format: formatCollectionSize },
   { key: 'time', label: t('common.fileTable.date'), width: 180, value: fileDate, format: formatCollectionDate },
-  {
-    key: 'provider',
-    label: t('common.fileTable.provider'),
-    width: 150,
-    value: () => `${configMap.value.alias} · ${currentPicBedName.value}`,
-  },
+  // No provider column: every row of a bucket listing shares the account shown in the header.
   { key: 'status', label: t('common.fileTable.task'), width: 160, value: taskLabel },
 ])
 

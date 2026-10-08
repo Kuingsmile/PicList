@@ -18,7 +18,7 @@
     role="radiogroup"
     :aria-label="t('settings.theme.toggle')"
     :aria-busy="busy || undefined"
-    class="flex h-10 w-full items-center gap-0.5 rounded-lg bg-bg-secondary p-1"
+    class="flex h-10 w-full items-center gap-0.5 rounded-lg border border-border-secondary p-1"
     @keydown.left.prevent="moveSelection(-1)"
     @keydown.right.prevent="moveSelection(1)"
   >

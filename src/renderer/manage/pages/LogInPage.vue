@@ -37,11 +37,14 @@
       <div class="flex min-h-0 w-full flex-1 gap-4 max-md:flex-col">
         <!-- Provider rail -->
         <nav
-          class="no-scrollbar flex w-[210px] shrink-0 flex-col gap-1 overflow-auto rounded-2xl border border-border-secondary p-2 shadow-md max-md:w-full max-md:flex-row"
+          ref="railRef"
+          class="no-scrollbar flex w-[210px] shrink-0 flex-col gap-0.5 overflow-auto overscroll-contain rounded-2xl border border-border-secondary scroll-fade-y p-2 shadow-md max-md:w-full max-md:flex-row max-md:scroll-fade-x"
           :aria-label="t('pages.manage.login.providers')"
+          @wheel="handleRailWheel"
         >
           <button
             type="button"
+            data-rail="all"
             :class="railItemClass('all')"
             :aria-current="activePlatform === 'all' ? 'page' : undefined"
             @click="selectPlatform('all')"
@@ -62,6 +65,7 @@
             v-for="provider in providers"
             :key="provider.key"
             type="button"
+            :data-rail="provider.key"
             :class="railItemClass(provider.key)"
             :aria-current="activePlatform === provider.key ? 'page' : undefined"
             @click="selectPlatform(provider.key)"
@@ -108,9 +112,10 @@
                 </h2>
               </div>
               <div class="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2">
+                <!-- Nothing to search in an empty cloud -->
                 <div
-                  v-if="allConfigAliasList.length > 0"
-                  class="relative flex max-w-[280px] min-w-[160px] flex-1 items-center"
+                  v-if="scopeCount > 0"
+                  class="group/search relative flex max-w-[280px] min-w-[160px] flex-1 items-center"
                 >
                   <SearchIcon
                     :size="16"
@@ -118,21 +123,31 @@
                     aria-hidden="true"
                   />
                   <input
+                    ref="searchRef"
                     v-model="searchText"
                     type="search"
-                    class="h-[36px] w-full rounded-lg border border-border bg-bg-secondary pr-8 pl-9 text-sm text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent focus:outline-none focus-visible:focus-ring [&::-webkit-search-cancel-button]:hidden"
+                    class="h-[36px] w-full rounded-lg border border-border bg-bg-secondary pr-14 pl-9 text-sm text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent focus:outline-none focus-visible:focus-ring [&::-webkit-search-cancel-button]:hidden"
                     :placeholder="t('pages.manage.login.searchPlaceholder')"
                     :aria-label="t('pages.manage.login.searchPlaceholder')"
+                    :aria-keyshortcuts="isMacOS ? 'Meta+F' : 'Control+F'"
+                    @keydown.esc="handleSearchEscape"
                   />
                   <button
                     v-if="searchText"
                     type="button"
                     class="absolute right-2 flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded-full text-secondary hover:bg-accent/10 hover:text-main focus-visible:focus-ring"
                     :aria-label="t('common.clear')"
-                    @click="searchText = ''"
+                    @click="clearSearch"
                   >
                     <XIcon :size="14" aria-hidden="true" />
                   </button>
+                  <kbd
+                    v-else
+                    class="pointer-events-none absolute right-2.5 inline-flex items-center rounded border border-border-secondary bg-bg-tertiary px-1 font-sans text-[10px] leading-4 text-secondary transition-opacity duration-fast group-focus-within/search:opacity-0"
+                    aria-hidden="true"
+                  >
+                    {{ isMacOS ? '⌘F' : 'Ctrl F' }}
+                  </kbd>
                 </div>
                 <CustomButton
                   :icon="Plus"
@@ -143,7 +158,7 @@
               </div>
             </div>
 
-            <div class="no-scrollbar min-h-0 flex-1 overflow-auto p-4">
+            <div ref="listRef" class="no-scrollbar min-h-0 flex-1 overflow-auto p-4">
               <!-- Loading -->
               <div
                 v-if="loading"
@@ -228,7 +243,7 @@
               >
                 <SearchXIcon :size="40" class="text-tertiary" aria-hidden="true" />
                 <p class="m-0 text-sm text-secondary">{{ t('pages.manage.login.noMatch', { query: searchText }) }}</p>
-                <CustomButton type="secondary" :text="t('common.clear')" @click="searchText = ''" />
+                <CustomButton type="secondary" :text="t('common.clear')" @click="clearSearch" />
               </div>
 
               <!-- Configuration cards -->
@@ -236,6 +251,7 @@
                 <li
                   v-for="item in visibleConfigs"
                   :key="item.alias"
+                  :data-alias="item.alias"
                   class="group/card relative flex items-center gap-3.5 rounded-xl border bg-bg-secondary py-3.5 pr-3 pl-3.5 shadow-sm transition-all duration-fast ease-apple hover:border-accent/60 hover:shadow-md"
                   :class="
                     recentAlias === item.alias ? 'border-accent ring-2 ring-accent/25' : 'border-border-secondary'
@@ -254,14 +270,14 @@
                     <!-- The stretched button makes the whole card open the cloud -->
                     <button
                       type="button"
-                      class="cursor-pointer truncate text-left text-[15px] leading-snug font-semibold text-main after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-accent"
+                      class="min-w-0 cursor-pointer text-left text-[15px] leading-snug font-semibold text-main after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-accent"
                       :title="item.alias"
                       :aria-label="`${t('pages.manage.login.open')}: ${item.alias}`"
                       @click="handleConfigClick(item)"
                     >
-                      {{ item.alias }}
+                      <span :class="['block truncate', FADE_UNDER_ACTIONS]">{{ item.alias }}</span>
                     </button>
-                    <p class="m-0 flex min-w-0 items-center gap-1.5 text-xs text-secondary">
+                    <p :class="['m-0 flex min-w-0 items-center gap-1.5 text-xs text-secondary', FADE_UNDER_ACTIONS]">
                       <span class="shrink-0">{{ providerName(item.picBedName) }}</span>
                       <template v-if="configSummary(item.config)">
                         <span class="text-tertiary" aria-hidden="true">·</span>
@@ -271,8 +287,9 @@
                       </template>
                     </p>
                   </div>
+                  <!-- Shown on hover or focus over the end of the text, so the summary keeps the full width at rest -->
                   <div
-                    class="relative z-1 flex shrink-0 items-center gap-0.5 opacity-70 transition-opacity duration-fast group-focus-within/card:opacity-100 group-hover/card:opacity-100"
+                    class="pointer-events-none absolute inset-y-0 right-[34px] z-1 flex items-center gap-0.5 opacity-0 transition-opacity duration-fast ease-apple group-focus-within/card:opacity-100 group-hover/card:opacity-100 [&>button]:pointer-events-auto"
                   >
                     <button
                       v-tooltip="t('pages.manage.login.viewDetails')"
@@ -350,7 +367,7 @@
       max-height="80vh"
     >
       <div v-if="detailsItem" class="flex flex-col">
-        <div class="flex items-center justify-end px-5 pt-3 pb-1">
+        <div v-if="detailRows.some(row => row.secret)" class="flex items-center justify-end px-5 pt-3 pb-1">
           <button
             type="button"
             class="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-accent hover:bg-accent/10 focus-visible:focus-ring"
@@ -427,13 +444,15 @@ import {
   Trash2,
   XIcon,
 } from '@lucide/vue'
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
+import { useEventListener } from '@vueuse/core'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import useConfirm from '@/composables/useConfirm'
+import { osGlobal } from '@/composables/useGlobal'
 import useMessage from '@/composables/useMessage'
 import ProviderPickerGrid from '@/manage/components/ProviderPickerGrid.vue'
 import ManageEditPage from '@/manage/pages/ManageEditPage.vue'
@@ -471,6 +490,10 @@ const router = useRouter()
 const message = useMessage()
 const { confirm } = useConfirm()
 const editorRef = useTemplateRef('editorRef')
+const railRef = useTemplateRef('railRef')
+const searchRef = useTemplateRef('searchRef')
+const listRef = useTemplateRef('listRef')
+const isMacOS = computed(() => osGlobal.value === 'darwin')
 
 const loading = ref(true)
 const refreshing = ref(false)
@@ -501,6 +524,10 @@ const PB_LIST = [
   'webdavplist',
 ] as const
 
+// Fades card text out under the hover actions. A mask rather than a backdrop, since themes may make cards transparent.
+const FADE_UNDER_ACTIONS =
+  'group-focus-within/card:[mask-image:linear-gradient(to_right,#000_calc(100%_-_110px),transparent_calc(100%_-_86px))] group-hover/card:[mask-image:linear-gradient(to_right,#000_calc(100%_-_110px),transparent_calc(100%_-_86px))]'
+
 const iconButtonClass =
   'flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-lg text-secondary transition-all duration-fast ease-apple hover:bg-accent/10 hover:text-accent focus-visible:focus-ring'
 
@@ -519,6 +546,11 @@ const providerCounts = computed(() => {
   for (const item of allConfigAliasList.value) counts[item.picBedName] = (counts[item.picBedName] ?? 0) + 1
   return counts
 })
+
+// How many configurations the current rail selection holds, before searching.
+const scopeCount = computed(() =>
+  activeProvider.value ? (providerCounts.value[activeProvider.value.key] ?? 0) : allConfigAliasList.value.length,
+)
 
 const providerName = (key: string) => supportedPicBedList.value[key]?.name || key
 const providerIcon = (key: string) => supportedPicBedList.value[key]?.icon || key
@@ -571,21 +603,60 @@ const detailRows = computed(() => {
     }))
 })
 
+// A tint rather than a solid pill: the sidebar already shows one, and brand logos vanish on solid accent.
 function railItemClass(key: string) {
   return [
-    'flex w-full min-w-fit cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm font-medium transition-all duration-fast ease-apple focus-visible:focus-ring max-md:w-auto',
+    'flex w-full min-w-fit cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors duration-fast ease-apple focus-visible:focus-ring max-md:w-auto',
     activePlatform.value === key
-      ? 'bg-accent text-white shadow-sm'
-      : 'text-secondary hover:bg-accent/10 hover:text-main',
+      ? 'bg-accent/10 font-semibold text-accent'
+      : 'font-medium text-secondary hover:bg-accent/10 hover:text-main',
   ]
 }
 
 function railCountClass(key: string) {
   return [
-    'min-w-[1.25rem] shrink-0 text-right text-xs font-medium tabular-nums',
-    activePlatform.value === key ? 'text-white/85' : 'text-tertiary',
+    'min-w-[20px] shrink-0 rounded-full px-1.5 text-center text-[11px] leading-[18px] font-semibold tabular-nums',
+    activePlatform.value === key ? 'bg-accent/15 text-accent' : 'bg-bg-tertiary text-secondary',
   ]
 }
+
+// On narrow windows the rail becomes a horizontal strip; let a plain mouse wheel scroll it.
+function handleRailWheel(event: WheelEvent) {
+  const rail = railRef.value
+  if (!rail || event.deltaX !== 0 || rail.scrollWidth <= rail.clientWidth) return
+  event.preventDefault()
+  rail.scrollLeft += event.deltaY
+}
+
+function clearSearch() {
+  searchText.value = ''
+  searchRef.value?.focus()
+}
+
+function handleSearchEscape(event: KeyboardEvent) {
+  if (!searchText.value) {
+    searchRef.value?.blur()
+    return
+  }
+  event.stopPropagation()
+  searchText.value = ''
+}
+
+useEventListener(window, 'keydown', (event: KeyboardEvent) => {
+  if (!(isMacOS.value ? event.metaKey : event.ctrlKey) || event.key.toLowerCase() !== 'f') return
+  if (!searchRef.value || pickerVisible.value || detailsVisible.value) return
+  event.preventDefault()
+  searchRef.value.focus()
+  searchRef.value.select()
+})
+
+// Keep the selected cloud visible when the rail scrolls, as the horizontal strip does on narrow windows.
+watch(activePlatform, async key => {
+  await nextTick()
+  railRef.value
+    ?.querySelector(`[data-rail="${CSS.escape(key)}"]`)
+    ?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })
+})
 
 const openUrl = (url: string) => window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
 
@@ -626,9 +697,15 @@ async function startEdit(item: IConfigEntry) {
 async function handleSaved(alias: string) {
   editing.value = null
   await getAllConfigAliasArray()
+  // Make sure the saved card is on screen to receive its highlight.
+  if (!visibleConfigs.value.some(item => item.alias === alias)) searchText.value = ''
   recentAlias.value = alias
   clearTimeout(recentTimer)
   recentTimer = setTimeout(() => (recentAlias.value = ''), 2400)
+  await nextTick()
+  listRef.value
+    ?.querySelector(`[data-alias="${CSS.escape(alias)}"]`)
+    ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
 }
 
 function openDetails(item: IConfigEntry) {

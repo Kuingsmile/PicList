@@ -350,10 +350,10 @@
             <div class="flex min-w-0 items-center gap-1 text-xs text-secondary tabular-nums">
               <template v-if="item.isDir">{{ t('common.fileTable.folder') }}</template>
               <template v-else>
-                <span class="shrink-0">{{ formatFileSize(item.fileSize) || '—' }}</span>
-                <template v-if="item.formatedTime">
+                <span class="shrink-0">{{ formatCollectionSize(item) }}</span>
+                <template v-if="cardDate(item)">
                   <span aria-hidden="true">·</span>
-                  <span class="truncate">{{ item.formatedTime }}</span>
+                  <span v-tooltip="formatCollectionDate(item)" class="truncate">{{ cardDate(item) }}</span>
                 </template>
               </template>
             </div>
@@ -391,10 +391,10 @@ import ImageWebdav from '@/components/ImageWebdav.vue'
 import EmptyPage from '@/manage/pages/EmptyPage.vue'
 import { useManageStore } from '@/manage/stores/manageStore'
 import type { BucketFile, ISortTypeList } from '@/manage/types/bucket'
-import { formatFileSize, getFileIconPath } from '@/manage/utils/filePresentation'
+import { getFileIconPath } from '@/manage/utils/filePresentation'
 import { linkFormatList } from '@/manage/utils/linkFormat'
 import { appendThumbnailSuffix } from '@/manage/utils/thumbnailUrl'
-import type { FileColumn } from '@/utils/fileCollection'
+import { type FileColumn, fileDate, formatCollectionDate, formatCollectionSize } from '@/utils/fileCollection'
 
 const props = defineProps<{
   configMap: Record<string, any>
@@ -476,6 +476,12 @@ const copyMenuClass =
 
 const copyMenuItemClass =
   'cursor-pointer rounded-md px-2.5 py-1.5 text-left text-sm whitespace-nowrap text-main transition-colors duration-fast hover:bg-accent/10 focus:bg-accent/10 focus:outline-none'
+
+/** Cards show the day only; the tooltip and the table carry the full timestamp. */
+function cardDate(item: BucketFile) {
+  const date = fileDate(item)
+  return date === undefined ? item.formatedTime || '' : new Date(date).toLocaleDateString()
+}
 
 function fileExtension(fileName = '') {
   const index = fileName.lastIndexOf('.')

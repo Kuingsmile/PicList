@@ -29,7 +29,8 @@
       </button>
     </div>
 
-    <div class="no-scrollbar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-2">
+    <!-- Only very short windows scroll here; with the scrollbar hidden, the faded edges hint at what's past them. -->
+    <div class="no-scrollbar flex min-h-0 flex-1 scroll-py-4 flex-col gap-0.5 overflow-y-auto scroll-fade-y p-2">
       <template v-for="item in navigationItems" :key="item.id">
         <!-- Workspace pages stay on top; configuration pages sit at the bottom. -->
         <div v-if="item.id === 'settings'" class="min-h-4 flex-1" aria-hidden="true" />

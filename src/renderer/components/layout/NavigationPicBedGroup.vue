@@ -77,10 +77,14 @@
         aria-hidden="true"
       />
     </button>
+    <!--
+      The panel takes whatever height the sidebar has left, so the pages below it stay in view;
+      it never shrinks below a few rows, or below its own content when that is shorter.
+    -->
     <div
       v-show="expanded"
       :id="panelId"
-      class="mb-1 ml-[20px] flex shrink-0 flex-col gap-1 border-l border-border pl-1.5"
+      class="mb-1 ml-[20px] flex min-h-[calc-size(max-content,min(size,8rem))] flex-col gap-1 border-l border-border pl-1.5"
     >
       <div v-if="showFilter" class="relative mt-1">
         <SearchIcon
@@ -95,7 +99,7 @@
           spellcheck="false"
           :aria-label="t('navigation.filterPicBeds')"
           :placeholder="t('navigation.filterPicBeds')"
-          class="h-7 w-full min-w-0 rounded-md border border-border-secondary bg-bg-tertiary pr-6 pl-6 text-xs text-main shadow-sm transition-colors duration-fast ease-apple placeholder:text-tertiary hover:border-border focus:border-accent focus:outline-none"
+          class="h-7 w-full min-w-0 rounded-md border border-transparent bg-border-secondary pr-6 pl-6 text-xs text-main transition-colors duration-fast ease-apple placeholder:text-tertiary hover:bg-border focus:border-accent focus:bg-bg-tertiary focus:outline-none"
           @keydown.esc.stop="filter = ''"
         />
         <button
@@ -110,11 +114,12 @@
       </div>
       <!--
         The list reaches back over the tree line so the active marker isn't clipped by its overflow;
-        a thin scrollbar that only shows on hover keeps it from reading as a second rail.
+        a thin scrollbar that only shows on hover keeps it from reading as a second rail, and the
+        edges fade while more rows sit past them (scroll padding keeps a scrolled-to row clear of the fade).
       -->
       <div
         ref="list"
-        class="-ml-2 flex max-h-[min(40vh,360px)] flex-col gap-0.5 overflow-y-auto overscroll-contain pl-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb:hover]:bg-tertiary"
+        class="-ml-2 flex min-h-0 scroll-py-4 flex-col gap-0.5 overflow-y-auto overscroll-contain scroll-fade-y pl-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb:hover]:bg-tertiary"
       >
         <button
           v-for="picBed in filteredPicBeds"
@@ -217,13 +222,14 @@ function open(type: string) {
   router.push({ name: UPLOADER_CONFIG_PAGE, params: { type } })
 }
 
+// Bring the active picbed into view when it changes and whenever the list (re)appears.
 watch(
-  activeType,
-  async type => {
+  [activeType, expanded, () => collapsed],
+  async ([type]) => {
     if (!type || collapsed || !expanded.value) return
     await nextTick()
     list.value?.querySelector(`[data-picbed="${CSS.escape(type)}"]`)?.scrollIntoView({ block: 'nearest' })
   },
-  { flush: 'post' },
+  { flush: 'post', immediate: true },
 )
 </script>

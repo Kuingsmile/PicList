@@ -106,6 +106,12 @@
           </button>
 
           <div class="ml-auto flex items-center gap-2">
+            <GalleryCopyOptions
+              v-model:paste-style="pasteStyle"
+              v-model:url-type="useShortUrl"
+              v-model:no-cache="isAlwaysForceReload"
+              @update:no-cache="handleIsAlwaysForceReload"
+            />
             <div
               v-if="viewMode === 'grid'"
               class="flex h-[36px] items-center gap-2 rounded-lg border border-border-secondary px-2.5"
@@ -239,54 +245,6 @@
                 <ArrowUpNarrowWideIcon v-if="sortAscending" :size="16" aria-hidden="true" />
                 <ArrowDownWideNarrowIcon v-else :size="16" aria-hidden="true" />
               </button>
-            </div>
-          </div>
-
-          <div
-            class="grid grid-cols-2 items-end gap-3 md:grid-cols-4"
-            role="group"
-            :aria-label="t('pages.gallery.copyOptions')"
-          >
-            <div class="flex min-w-0 flex-col gap-1">
-              <SingleSelect
-                v-model="pasteStyle"
-                :title="t('pages.gallery.pasteFormat')"
-                :fronticon="false"
-                class="min-h-[32px]"
-                :key-list="pasteStyleList"
-              >
-                <template #item="{ item }">
-                  {{ item }}
-                </template>
-              </SingleSelect>
-            </div>
-            <div class="flex min-w-0 flex-col gap-1">
-              <SingleSelect
-                v-model="useShortUrl"
-                :title="t('pages.gallery.urlType')"
-                :fronticon="false"
-                class="min-h-[32px]"
-                :select-list="shortURLList.map(value => ({ value, label: t(`pages.gallery.${value}`) }))"
-              />
-            </div>
-            <div class="flex min-w-0 flex-col gap-1">
-              <span class="flex min-w-0 items-center gap-1">
-                <span class="truncate text-[0.925rem] leading-[1.4] font-semibold text-secondary">
-                  {{ t('pages.gallery.isAlwaysForceReload') }}
-                </span>
-                <HelpTooltip :content="t('pages.gallery.isAlwaysForceReloadTip')" />
-              </span>
-              <div class="flex h-[32px] items-center">
-                <CustomSwitch
-                  v-model="isAlwaysForceReload"
-                  :aria-label="t('pages.gallery.isAlwaysForceReload')"
-                  small
-                  tighter
-                  no-border
-                  no-hover
-                  @update:model-value="handleIsAlwaysForceReload"
-                />
-              </div>
             </div>
           </div>
         </div>
@@ -715,10 +673,10 @@ import { onBeforeRouteUpdate, useRouter } from 'vue-router'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
-import HelpTooltip from '@/components/common/HelpTooltip.vue'
 import MultiSelect from '@/components/common/MultiSelect.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import FileCollection from '@/components/FileCollection.vue'
+import GalleryCopyOptions from '@/components/gallery/GalleryCopyOptions.vue'
 import GalleryUrlEditor from '@/components/gallery/GalleryUrlEditor.vue'
 import GalleryHoverPreview from '@/components/GalleryHoverPreview.vue'
 import ImagePreview from '@/components/ImagePreview.vue'
@@ -873,10 +831,6 @@ const cacheBustToken = ref(Date.now())
 const visibleGalleryIndexes = ref<number[]>([])
 
 let jxlPreviewGeneration = 0
-
-const pasteStyleList = ['markdown', 'HTML', 'URL', 'UBB', 'Custom']
-
-const shortURLList = ['shortUrl', 'longUrl']
 
 // Fewer columns mean wider cards, so give them more height to keep thumbnails roughly proportional.
 const gridItemHeight = computed(() => {

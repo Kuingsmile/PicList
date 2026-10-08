@@ -124,6 +124,14 @@
     --shadow-xl: 0 20px 25px rgb(0 0 0 / 10%), 0 10px 10px rgb(0 0 0 / 4%);
   }
 
+  /*
+   * Native controls (checkboxes, date pickers, number spinners) follow the app theme instead of the OS.
+   * Scoped to the controls themselves so transparent windows keep their see-through canvas.
+   */
+  :is(.dark, [data-theme='dark']) :is(input, select, textarea) {
+    color-scheme: dark;
+  }
+
   @keyframes badge-scroll {
     0% {
       transform: translateX(0);

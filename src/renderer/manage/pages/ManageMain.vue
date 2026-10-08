@@ -28,24 +28,18 @@
             </p>
           </div>
         </div>
-        <div class="flex flex-wrap gap-3">
+        <!-- Narrow windows drop the labels so the account name keeps its room. -->
+        <div class="flex flex-wrap gap-3 max-lg:gap-2">
           <CustomButton
+            v-for="action in headerActions"
+            :key="action.key"
+            v-tooltip="compactHeader ? action.label : ''"
             type="secondary"
-            :icon="ArrowLeftIcon"
-            :text="t('pages.manage.main.allAccounts')"
-            @click="backToAccounts"
-          />
-          <CustomButton
-            type="secondary"
-            :icon="ArrowLeftRightIcon"
-            :text="t('pages.manage.main.switchAccount')"
-            @click="picBedSwitchDialogVisible = true"
-          />
-          <CustomButton
-            type="secondary"
-            :icon="ExternalLinkIcon"
-            :text="t('pages.manage.main.openPicBedUrl')"
-            @click="openPicBedUrl"
+            :icon="action.icon"
+            :text="action.label"
+            text-class="max-lg:sr-only"
+            class="max-lg:px-2.5"
+            @click="action.run"
           />
         </div>
       </header>
@@ -55,41 +49,53 @@
         <nav
           v-if="!isFocusMode"
           class="flex min-h-0 shrink-0 flex-col overflow-hidden rounded-2xl border border-border-secondary shadow-md"
-          :style="{ width: `${sidebarWidth}px` }"
+          :style="{ width: `${railCollapsed ? RAIL_COLLAPSED_WIDTH : sidebarWidth}px` }"
           :aria-label="listTitle"
         >
-          <div class="flex items-center gap-1 px-3 pt-3 pb-2">
-            <p class="m-0 min-w-0 flex-1 truncate text-[11px] font-semibold tracking-wider text-tertiary uppercase">
-              {{ listTitle }}
-              <span v-if="bucketNameList.length" class="ml-1 tabular-nums">{{ bucketNameList.length }}</span>
-            </p>
+          <div class="flex items-center gap-1 pt-3 pb-2" :class="railCollapsed ? 'justify-center px-2' : 'px-3'">
+            <template v-if="!railCollapsed">
+              <p class="m-0 min-w-0 flex-1 truncate text-[11px] font-semibold tracking-wider text-tertiary uppercase">
+                {{ listTitle }}
+                <span v-if="bucketNameList.length" class="ml-1 tabular-nums">{{ bucketNameList.length }}</span>
+              </p>
+              <button
+                v-tooltip="t('pages.manage.main.refreshList')"
+                type="button"
+                :class="railIconButtonClass"
+                :disabled="isLoadingBucketList"
+                :aria-label="t('pages.manage.main.refreshList')"
+                @click="getBucketList()"
+              >
+                <RefreshCwIcon
+                  :size="14"
+                  :class="{ 'animate-spin motion-reduce:animate-none': isLoadingBucketList }"
+                  aria-hidden="true"
+                />
+              </button>
+              <button
+                v-if="canCreateBucket"
+                v-tooltip="t('pages.manage.main.newBucket')"
+                type="button"
+                :class="railIconButtonClass"
+                :aria-label="t('pages.manage.main.newBucket')"
+                @click="openNewBucketDrawer"
+              >
+                <PlusIcon :size="15" aria-hidden="true" />
+              </button>
+            </template>
             <button
-              v-tooltip="t('pages.manage.main.refreshList')"
+              v-tooltip="{ content: railToggleLabel, placement: railCollapsed ? 'right' : 'bottom' }"
               type="button"
               :class="railIconButtonClass"
-              :disabled="isLoadingBucketList"
-              :aria-label="t('pages.manage.main.refreshList')"
-              @click="getBucketList()"
+              :aria-label="railToggleLabel"
+              :aria-expanded="!railCollapsed"
+              @click="railCollapsed = !railCollapsed"
             >
-              <RefreshCwIcon
-                :size="14"
-                :class="{ 'animate-spin motion-reduce:animate-none': isLoadingBucketList }"
-                aria-hidden="true"
-              />
-            </button>
-            <button
-              v-if="canCreateBucket"
-              v-tooltip="t('pages.manage.main.newBucket')"
-              type="button"
-              :class="railIconButtonClass"
-              :aria-label="t('pages.manage.main.newBucket')"
-              @click="openNewBucketDrawer"
-            >
-              <PlusIcon :size="15" aria-hidden="true" />
+              <component :is="railCollapsed ? PanelLeftOpenIcon : PanelLeftCloseIcon" :size="15" aria-hidden="true" />
             </button>
           </div>
 
-          <div v-if="bucketNameList.length > 5" class="relative mx-2 mb-2 flex items-center">
+          <div v-if="!railCollapsed && bucketNameList.length > 5" class="relative mx-2 mb-2 flex items-center">
             <SearchIcon :size="14" class="pointer-events-none absolute left-2.5 text-secondary" aria-hidden="true" />
             <input
               v-model="bucketSearchText"
@@ -119,30 +125,47 @@
               <div
                 v-for="n in 5"
                 :key="n"
-                class="flex h-[36px] items-center gap-2.5 rounded-lg px-2.5 motion-safe:animate-pulse"
+                class="flex h-[36px] items-center gap-2.5 rounded-lg motion-safe:animate-pulse"
+                :class="railCollapsed ? 'justify-center' : 'px-2.5'"
                 aria-hidden="true"
               >
                 <div class="h-[16px] w-[16px] rounded-sm bg-bg-tertiary" />
-                <div class="h-3 flex-1 rounded-sm bg-bg-tertiary" :style="{ maxWidth: `${90 - n * 9}%` }" />
+                <div
+                  v-if="!railCollapsed"
+                  class="h-3 flex-1 rounded-sm bg-bg-tertiary"
+                  :style="{ maxWidth: `${90 - n * 9}%` }"
+                />
               </div>
             </div>
-            <p v-else-if="bucketNameList.length === 0" class="m-0 px-2.5 py-3 text-xs text-tertiary">
+            <p v-else-if="!railCollapsed && bucketNameList.length === 0" class="m-0 px-2.5 py-3 text-xs text-tertiary">
               {{ t('pages.manage.main.noBuckets') }}
             </p>
-            <p v-else-if="filteredBucketNameList.length === 0" class="m-0 px-2.5 py-3 text-xs text-tertiary">
+            <p v-else-if="!railCollapsed && railBuckets.length === 0" class="m-0 px-2.5 py-3 text-xs text-tertiary">
               {{ t('pages.manage.main.noMatch') }}
             </p>
-            <ul v-else class="m-0 flex list-none flex-col gap-0.5 p-0">
-              <li v-for="item in filteredBucketNameList" :key="item">
+            <ul v-else-if="railBuckets.length" class="m-0 flex list-none flex-col gap-0.5 p-0">
+              <li v-for="item in railBuckets" :key="item">
+                <!-- Collapsed, every bucket shares one icon, so its initial tells them apart. -->
                 <button
+                  v-tooltip="{ content: railCollapsed ? item : '', placement: 'right' }"
                   type="button"
-                  :class="railItemClass(isBucketActive(item))"
-                  :title="item"
+                  :class="[railItemClass(isBucketActive(item)), { 'justify-center px-0!': railCollapsed }]"
+                  :title="railCollapsed ? undefined : item"
+                  :aria-label="railCollapsed ? item : undefined"
                   :aria-current="isBucketActive(item) ? 'page' : undefined"
                   @click="handleSelectMenu(item)"
                 >
-                  <component :is="bucketIcon" :size="16" class="shrink-0" aria-hidden="true" />
-                  <span class="min-w-0 flex-1 truncate">{{ item }}</span>
+                  <span
+                    v-if="railCollapsed"
+                    class="flex h-[20px] w-[20px] items-center justify-center text-sm leading-none font-semibold"
+                    aria-hidden="true"
+                  >
+                    {{ bucketInitial(item) }}
+                  </span>
+                  <template v-else>
+                    <component :is="bucketIcon" :size="16" class="shrink-0" aria-hidden="true" />
+                    <span class="min-w-0 flex-1 truncate">{{ item }}</span>
+                  </template>
                 </button>
               </li>
             </ul>
@@ -150,20 +173,24 @@
 
           <div class="border-t border-border-secondary p-2">
             <button
+              v-tooltip="{ content: railCollapsed ? t('pages.manage.main.settings') : '', placement: 'right' }"
               type="button"
-              :class="railItemClass(currentPageInMain === 'setting')"
+              :class="[railItemClass(currentPageInMain === 'setting'), { 'justify-center px-0!': railCollapsed }]"
+              :aria-label="railCollapsed ? t('pages.manage.main.settings') : undefined"
               :aria-current="currentPageInMain === 'setting' ? 'page' : undefined"
               @click="openSettingPage"
             >
               <SettingsIcon :size="16" class="shrink-0" aria-hidden="true" />
-              <span class="min-w-0 flex-1 truncate">{{ t('pages.manage.main.settings') }}</span>
+              <span v-if="!railCollapsed" class="min-w-0 flex-1 truncate">{{ t('pages.manage.main.settings') }}</span>
             </button>
           </div>
         </nav>
 
+        <!-- A collapsed rail has nothing to resize; keep the gutter. -->
+        <div v-if="!isFocusMode && railCollapsed" class="w-4 shrink-0" aria-hidden="true" />
         <!-- Resize handle, sits in the gutter between the rail and the content -->
         <div
-          v-if="!isFocusMode"
+          v-else-if="!isFocusMode"
           class="group/resize flex w-4 shrink-0 cursor-col-resize justify-center py-4 focus-visible:outline-none"
           role="separator"
           aria-orientation="vertical"
@@ -378,13 +405,15 @@ import {
   ImagesIcon,
   LoaderCircleIcon,
   MousePointerClickIcon,
+  PanelLeftCloseIcon,
+  PanelLeftOpenIcon,
   PlusIcon,
   RefreshCwIcon,
   SearchIcon,
   SettingsIcon,
   XIcon,
 } from '@lucide/vue'
-import { useLocalStorage } from '@vueuse/core'
+import { useLocalStorage, useMediaQuery } from '@vueuse/core'
 import { computed, onBeforeMount, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -407,6 +436,7 @@ import type { ListingResult } from '#/listing'
 
 const SIDEBAR_MIN = 180
 const SIDEBAR_MAX = 400
+const RAIL_COLLAPSED_WIDTH = 56
 
 const { t } = useI18n()
 const supportedPicBedList = computed(() => getSupportedPicBedList(t))
@@ -434,6 +464,9 @@ const sidebarWidth = computed({
 })
 const isResizing = ref(false)
 const isFocusMode = ref(false)
+const railCollapsed = useLocalStorage('manage-main-rail-collapsed', false)
+// Matches Tailwind's `lg` breakpoint, below which the header buttons show icons only.
+const compactHeader = useMediaQuery('(max-width: 1023.98px)')
 // The last opened bucket per account, so returning to an account reopens it.
 const lastBuckets = useLocalStorage<Record<string, string>>('manage-main-last-bucket', {})
 
@@ -457,6 +490,24 @@ const filteredBucketNameList = computed(() => {
   if (!query) return bucketNameList.value
   return bucketNameList.value.filter(name => name.toLowerCase().includes(query))
 })
+
+// The filter box is hidden while the rail is collapsed, so it must not hide buckets there.
+const railBuckets = computed(() => (railCollapsed.value ? bucketNameList.value : filteredBucketNameList.value))
+
+const railToggleLabel = computed(() =>
+  railCollapsed.value ? t('pages.manage.main.expandRail') : t('pages.manage.main.collapseRail'),
+)
+
+const headerActions = computed(() => [
+  { key: 'accounts', icon: ArrowLeftIcon, label: t('pages.manage.main.allAccounts'), run: backToAccounts },
+  {
+    key: 'switch',
+    icon: ArrowLeftRightIcon,
+    label: t('pages.manage.main.switchAccount'),
+    run: () => (picBedSwitchDialogVisible.value = true),
+  },
+  { key: 'site', icon: ExternalLinkIcon, label: t('pages.manage.main.openPicBedUrl'), run: openPicBedUrl },
+])
 
 const accountList = computed(() =>
   Object.entries(allPicBedConfigure.value).map(([alias, config]) => ({
@@ -555,6 +606,10 @@ function railItemClass(active: boolean) {
     'flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm font-medium transition-all duration-fast ease-apple focus-visible:focus-ring',
     active ? 'bg-accent text-white shadow-sm' : 'text-secondary hover:bg-accent/10 hover:text-main',
   ]
+}
+
+function bucketInitial(bucketName: string) {
+  return (bucketName.match(/[\p{L}\p{N}]/u)?.[0] ?? bucketName.charAt(0)).toLocaleUpperCase()
 }
 
 function isBucketActive(bucketName: string) {

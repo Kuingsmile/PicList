@@ -22,6 +22,89 @@
   }
 }
 
+/*
+ * Fades the top or bottom edge of a vertical scroller only while more content sits past it.
+ * A scroller with nothing to scroll has an inactive timeline, so it shows no fade at all.
+ */
+@property --scroll-fade-top {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --scroll-fade-bottom {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0;
+}
+
+@keyframes scroll-fade-top {
+  to {
+    --scroll-fade-top: 1rem;
+  }
+}
+
+@keyframes scroll-fade-bottom {
+  from {
+    --scroll-fade-bottom: 1rem;
+  }
+}
+
+@utility scroll-fade-y {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000000 var(--scroll-fade-top),
+    #000000 calc(100% - var(--scroll-fade-bottom)),
+    transparent
+  );
+  animation-name: scroll-fade-top, scroll-fade-bottom;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-timeline: scroll(self);
+  animation-range: 0 1rem, calc(100% - 1rem) 100%;
+}
+
+/* The horizontal counterpart of scroll-fade-y. */
+@property --scroll-fade-left {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --scroll-fade-right {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0;
+}
+
+@keyframes scroll-fade-left {
+  to {
+    --scroll-fade-left: 1.5rem;
+  }
+}
+
+@keyframes scroll-fade-right {
+  from {
+    --scroll-fade-right: 1.5rem;
+  }
+}
+
+@utility scroll-fade-x {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000000 var(--scroll-fade-left),
+    #000000 calc(100% - var(--scroll-fade-right)),
+    transparent
+  );
+  animation-name: scroll-fade-left, scroll-fade-right;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-timeline: scroll(self inline);
+  animation-range: 0 1.5rem, calc(100% - 1.5rem) 100%;
+}
+
 @utility drag-region {
   -webkit-app-region: drag;
 }
