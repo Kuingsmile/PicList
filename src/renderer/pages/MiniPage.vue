@@ -1,8 +1,14 @@
 <template>
   <div
     id="mini-page"
-    class="box-border h-screen w-screen cursor-pointer overflow-hidden rounded-full border-2 border-white/90 bg-accent/50 select-none [.is-square]:rounded-none"
-    :class="{ 'is-square': osGlobal === 'linux' }"
+    class="group box-border h-screen w-screen overflow-hidden rounded-full border-2 border-white/90 bg-accent/50 outline-none select-none [.is-square]:rounded-none"
+    :class="[{ 'is-square': osGlobal === 'linux' }, isMoving ? 'cursor-grabbing' : 'cursor-pointer']"
+    tabindex="0"
+    role="button"
+    :aria-label="t('pages.upload.clickToUpload')"
+    @keydown="onKeydown"
+    @mouseenter="isHovered = true"
+    @mouseleave="onMouseLeave"
   >
     <div
       ref="uploadArea"
@@ -13,12 +19,18 @@
     >
       <img
         :src="logoPath || './squareLogo.png'"
-        class="pointer-events-none block h-full w-full object-cover [transition:opacity_200ms_ease,transform_250ms_ease] motion-reduce:transition-none [.is-logo-hidden]:scale-85 [.is-logo-hidden]:opacity-0"
-        :class="{ 'is-logo-hidden': isShowingProgress || dragover }"
-        :aria-hidden="isShowingProgress || dragover"
+        class="pointer-events-none block h-full w-full object-cover [transition:opacity_200ms_ease,transform_250ms_ease] motion-reduce:transition-none"
+        :class="isLogoHidden ? 'scale-85 opacity-0' : isPressed ? 'scale-94' : isMoving ? '' : 'group-hover:scale-106'"
+        :aria-hidden="isLogoHidden"
         alt="PicList"
         draggable="false"
         @dragstart.prevent
+      />
+      <div
+        v-show="!isLogoHidden"
+        class="pointer-events-none absolute inset-0 rounded-[inherit] ring-accent transition-colors duration-200 ring-inset group-hover:bg-white/10 group-focus-visible:ring-2 motion-reduce:transition-none"
+        :class="{ 'bg-black/10': isPressed }"
+        aria-hidden="true"
       />
       <Transition
         enter-active-class="[transition:opacity_200ms_ease,transform_250ms_ease] motion-reduce:transition-none"
@@ -28,8 +40,8 @@
       >
         <div
           v-if="isShowingProgress"
-          class="pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_35%_20%,#243e62,#101d33_80%)] text-(--progress-color) [--progress-color:#86ddff] [&.mini-progress-cancelled]:[--progress-color:#efcb85] [&.mini-progress-cancelled_.mini-progress-value]:stroke-(--progress-color) [&.mini-progress-completed]:[--progress-color:#73e6b1] [&.mini-progress-completed_.mini-progress-value]:stroke-(--progress-color) [&.mini-progress-failed]:[--progress-color:#ff909b] [&.mini-progress-failed_.mini-progress-value]:stroke-(--progress-color)"
-          :class="`mini-progress-${uploadState}`"
+          class="pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_35%_20%,color-mix(in_srgb,var(--progress-color)_24%,#1d3354),#0e1a2e_80%)] text-(--progress-color)"
+          :style="{ '--progress-color': tone.color }"
           :role="uploadState === 'uploading' ? 'progressbar' : 'status'"
           :aria-label="progressLabel"
           :aria-valuenow="uploadState === 'uploading' && !isIndeterminate ? progress : undefined"
@@ -37,62 +49,88 @@
           :aria-valuemax="uploadState === 'uploading' ? 100 : undefined"
         >
           <svg
-            class="absolute inset-0 h-full w-full -rotate-90 overflow-visible fill-none stroke-3"
+            class="absolute inset-0 h-full w-full -rotate-90 overflow-visible fill-none stroke-3 [stroke-linecap:round]"
             viewBox="0 0 64 64"
             aria-hidden="true"
           >
             <defs>
               <linearGradient :id="gradientId" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#80edff" />
-                <stop offset="100%" stop-color="#5795ff" />
+                <stop offset="0%" :stop-color="tone.from" class="[transition:stop-color_300ms_ease]" />
+                <stop offset="100%" :stop-color="tone.to" class="[transition:stop-color_300ms_ease]" />
               </linearGradient>
             </defs>
-            <circle class="stroke-white/12" cx="32" cy="32" r="27" />
-            <circle
-              v-show="!isIndeterminate"
-              class="mini-progress-value [stroke-dasharray:100] [stroke-linecap:round] [transition:stroke-dashoffset_450ms_cubic-bezier(0.22,1,0.36,1),stroke_200ms_ease] motion-reduce:transition-none"
-              cx="32"
-              cy="32"
-              r="27"
-              pathLength="100"
-              :stroke="`url(#${gradientId})`"
-              :stroke-dashoffset="100 - progress"
-            />
-            <circle
-              v-if="uploadState === 'uploading'"
-              class="origin-center animate-mini-orbit stroke-[#dff9ff]/75 [stroke-dasharray:3_97] [stroke-linecap:round] motion-reduce:hidden motion-reduce:animate-none [&.mini-progress-indeterminate]:[animation-duration:1.4s] [&.mini-progress-indeterminate]:[stroke-dasharray:22_78]"
-              :class="{ 'mini-progress-indeterminate': isIndeterminate }"
-              cx="32"
-              cy="32"
-              r="27"
-              pathLength="100"
-            />
+            <circle class="stroke-white/10" cx="32" cy="32" r="27" />
+            <g v-if="isIndeterminate" class="origin-center animate-mini-orbit [animation-duration:1.4s]">
+              <circle
+                class="blur-[2px] motion-reduce:hidden"
+                :stroke="ringStroke"
+                stroke-opacity="0.6"
+                cx="32"
+                cy="32"
+                r="27"
+                pathLength="100"
+                stroke-dasharray="24 76"
+              />
+              <circle :stroke="ringStroke" cx="32" cy="32" r="27" pathLength="100" stroke-dasharray="24 76" />
+            </g>
+            <g v-else-if="progress > 0">
+              <circle
+                class="blur-[2px] [transition:stroke-dashoffset_450ms_cubic-bezier(0.22,1,0.36,1)] motion-reduce:hidden motion-reduce:transition-none"
+                :class="uploadState === 'uploading' ? 'animate-mini-ring-breathe' : 'opacity-70'"
+                :stroke="ringStroke"
+                cx="32"
+                cy="32"
+                r="27"
+                pathLength="100"
+                stroke-dasharray="100"
+                :stroke-dashoffset="100 - progress"
+              />
+              <circle
+                class="[transition:stroke-dashoffset_450ms_cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+                :stroke="ringStroke"
+                cx="32"
+                cy="32"
+                r="27"
+                pathLength="100"
+                stroke-dasharray="100"
+                :stroke-dashoffset="100 - progress"
+              />
+            </g>
           </svg>
           <div class="absolute inset-0 flex flex-col items-center justify-center gap-px" aria-hidden="true">
             <template v-if="uploadState === 'uploading'">
-              <ArrowUp class="animate-mini-upload-lift motion-reduce:animate-none" :size="14" :stroke-width="2.5" />
+              <span v-if="fileCount" class="text-[8px] leading-[14px] font-semibold text-[#c3d4ec] tabular-nums">{{
+                fileCount
+              }}</span>
+              <component
+                :is="isSecondary ? DatabaseBackup : ArrowUp"
+                v-else
+                class="animate-mini-upload-lift motion-reduce:animate-none"
+                :size="14"
+                :stroke-width="2.5"
+              />
               <span v-if="isIndeterminate" class="max-w-[44px] truncate text-[8px] leading-[1.5] font-semibold">{{
                 phaseLabel
               }}</span>
               <span
                 v-else
-                class="text-[16px] leading-[1.15] font-bold text-white tabular-nums [&>span]:ml-px [&>span]:text-[9px] [&>span]:font-medium [&>span]:text-[#bfd3ee]"
-                >{{ progress }}<span>%</span></span
+                class="text-[16px] leading-[1.15] font-bold text-white tabular-nums [&>span]:ml-px [&>span]:text-[9px] [&>span]:font-medium [&>span]:text-[#c3d4ec]"
+                >{{ displayedProgress }}<span>%</span></span
               >
             </template>
-            <Check
-              v-else-if="uploadState === 'completed'"
-              class="animate-mini-result-in motion-reduce:animate-none"
-              :size="27"
-              :stroke-width="2.5"
-            />
-            <X
-              v-else-if="uploadState === 'failed'"
-              class="animate-mini-result-in motion-reduce:animate-none"
-              :size="25"
-              :stroke-width="2.5"
-            />
-            <Minus v-else class="animate-mini-result-in motion-reduce:animate-none" :size="25" :stroke-width="2.5" />
+            <template v-else>
+              <span class="animate-mini-result-in motion-reduce:animate-none">
+                <component
+                  :is="resultIcon"
+                  :class="{ 'animate-mini-shake motion-reduce:animate-none': uploadState === 'failed' }"
+                  :size="fileCount ? 22 : 26"
+                  :stroke-width="2.5"
+                />
+              </span>
+              <span v-if="fileCount" class="text-[8px] leading-[1.4] font-semibold text-[#c3d4ec] tabular-nums">{{
+                fileCount
+              }}</span>
+            </template>
           </div>
         </div>
       </Transition>
@@ -116,7 +154,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowUp, Check, Minus, Upload, X } from '@lucide/vue'
+import { ArrowUp, Check, DatabaseBackup, Minus, Upload, X } from '@lucide/vue'
+import { TransitionPresets, usePreferredReducedMotion, useTransition } from '@vueuse/core'
 import type { IConfig } from 'piclist'
 import { computed, onBeforeMount, onBeforeUnmount, ref, useId, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -139,7 +178,40 @@ const isIndeterminate = computed(() => uploadState.value === 'uploading' && !!pr
 const phaseLabel = computed(() => t(`pages.upload.progress.${progressState.value?.phase || 'preparing'}`))
 const uploadState = ref<'idle' | 'uploading' | 'completed' | 'failed' | 'cancelled'>('idle')
 const isShowingProgress = computed(() => uploadState.value !== 'idle')
+const isLogoHidden = computed(() => isShowingProgress.value || dragover.value)
+const fileCount = computed(() => {
+  const state = progressState.value
+  return state && state.totalFiles > 1 ? `${Math.min(state.completedFiles, state.totalFiles)}/${state.totalFiles}` : ''
+})
+const isSecondary = computed(
+  () => uploadState.value === 'uploading' && progressState.value?.destination === 'secondary',
+)
+// color drives the icon and text, from/to drive the ring gradient
+const TONES = {
+  primary: { color: '#86ddff', from: '#80edff', to: '#5795ff' },
+  secondary: { color: '#cbb9ff', from: '#e2ccff', to: '#8b7bff' },
+  completed: { color: '#73e6b1', from: '#a2f5cc', to: '#3fcf8e' },
+  failed: { color: '#ff909b', from: '#ffb4a2', to: '#ff5f7a' },
+  cancelled: { color: '#efcb85', from: '#f7e0a8', to: '#e5a84a' },
+}
+const tone = computed(() =>
+  uploadState.value === 'uploading' || uploadState.value === 'idle'
+    ? TONES[isSecondary.value ? 'secondary' : 'primary']
+    : TONES[uploadState.value],
+)
+const RESULT_ICONS = { completed: Check, failed: X, cancelled: Minus }
+const resultIcon = computed(() =>
+  uploadState.value in RESULT_ICONS ? RESULT_ICONS[uploadState.value as keyof typeof RESULT_ICONS] : Check,
+)
+const reducedMotion = usePreferredReducedMotion()
+const tweenedProgress = useTransition(progress, {
+  duration: 450,
+  easing: TransitionPresets.easeOutCubic,
+  disabled: computed(() => reducedMotion.value === 'reduce'),
+})
+const displayedProgress = computed(() => Math.round(tweenedProgress.value))
 const gradientId = useId()
+const ringStroke = `url(#${gradientId})`
 const { t } = useI18n()
 const progressLabel = computed(() => {
   if (dragover.value) return t('pages.upload.dragFileToHere')
@@ -148,6 +220,7 @@ const progressLabel = computed(() => {
       return [
         progressState.value?.destination === 'secondary' ? t('pages.upload.progress.secondary') : '',
         phaseLabel.value,
+        fileCount.value,
         isIndeterminate.value ? '' : `${progress.value}%`,
       ]
         .filter(Boolean)
@@ -162,11 +235,13 @@ const progressLabel = computed(() => {
       return t('pages.upload.clickToUpload')
   }
 })
-const draggingState = ref(false)
-const wX = ref(-1)
-const wY = ref(-1)
-const screenX = ref(-1)
-const screenY = ref(-1)
+// Pointer travel (px) before a press becomes a window move instead of a click
+const MOVE_THRESHOLD = 3
+const isPressed = ref(false)
+const isMoving = ref(false)
+let pointerStart: { button: number; pageX: number; pageY: number; screenX: number; screenY: number } | null = null
+let pendingWindowPos: { x: number; y: number } | undefined
+let moveFrame = 0
 const uploadArea = useTemplateRef<HTMLDivElement>('uploadArea')
 const fileInput = useTemplateRef<HTMLInputElement>('fileInput')
 
@@ -186,8 +261,37 @@ async function initLogoPath() {
 
 const trackUploadProgress = createUploadProgressTracker()
 let progressHideTimer: ReturnType<typeof setTimeout> | undefined
+const isHovered = ref(false)
+let hideOnLeave = false
+
+function scheduleProgressHide(delay: number) {
+  clearTimeout(progressHideTimer)
+  progressHideTimer = setTimeout(() => {
+    // keep the result readable while the pointer rests on the widget
+    if (isHovered.value) {
+      hideOnLeave = true
+      return
+    }
+    uploadState.value = 'idle'
+    // reset once the overlay has faded out, so the next batch starts from an empty ring
+    progressHideTimer = setTimeout(() => {
+      progress.value = 0
+      progressState.value = undefined
+    }, 300)
+  }, delay)
+}
+
+function onMouseLeave() {
+  isHovered.value = false
+  if (hideOnLeave) {
+    hideOnLeave = false
+    scheduleProgressHide(600)
+  }
+}
+
 const uploadProgressHandler = (event: IUploadProgress) => {
   clearTimeout(progressHideTimer)
+  hideOnLeave = false
   const state = trackUploadProgress(event)
   progressState.value = state
   progress.value = state.progress
@@ -198,14 +302,7 @@ const uploadProgressHandler = (event: IUploadProgress) => {
       : state.cancelled
         ? 'cancelled'
         : 'completed'
-  if (!state.activeCount) {
-    progressHideTimer = setTimeout(
-      () => {
-        uploadState.value = 'idle'
-      },
-      state.failed ? 2400 : 1600,
-    )
-  }
+  if (!state.activeCount) scheduleProgressHide(state.failed ? 2800 : 1600)
 }
 
 const updateMiniIconHandler = async () => {
@@ -268,37 +365,61 @@ function ipcSendFiles(files: FileList) {
 }
 
 function handleMouseDown(e: MouseEvent) {
-  draggingState.value = true
-  wX.value = e.pageX
-  wY.value = e.pageY
-  screenX.value = e.screenX
-  screenY.value = e.screenY
+  pointerStart = { button: e.button, pageX: e.pageX, pageY: e.pageY, screenX: e.screenX, screenY: e.screenY }
+  isPressed.value = e.button === 0
+  isMoving.value = false
 }
 
 function handleMouseMove(e: MouseEvent) {
+  // only the left button moves the window
+  if (pointerStart?.button !== 0) return
   e.preventDefault()
   e.stopPropagation()
-  if (draggingState.value) {
-    const xLoc = e.screenX - wX.value
-    const yLoc = e.screenY - wY.value
-    window.electron.sendRPC(IRPCActionType.SET_MINI_WINDOW_POS, {
-      x: xLoc,
-      y: yLoc,
-      width: 64,
-      height: 64,
-    })
+  if (!isMoving.value) {
+    if (Math.hypot(e.screenX - pointerStart.screenX, e.screenY - pointerStart.screenY) < MOVE_THRESHOLD) return
+    isMoving.value = true
+    isPressed.value = false
+  }
+  pendingWindowPos = { x: e.screenX - pointerStart.pageX, y: e.screenY - pointerStart.pageY }
+  // coalesce mousemove bursts into one window move per frame
+  moveFrame ||= requestAnimationFrame(flushWindowPos)
+}
+
+function flushWindowPos() {
+  cancelAnimationFrame(moveFrame)
+  moveFrame = 0
+  if (!pendingWindowPos) return
+  window.electron.sendRPC(IRPCActionType.SET_MINI_WINDOW_POS, { ...pendingWindowPos, width: 64, height: 64 })
+  pendingWindowPos = undefined
+}
+
+function resetPointer() {
+  pointerStart = null
+  isPressed.value = false
+  isMoving.value = false
+}
+
+function handleMouseUp() {
+  if (!pointerStart) return
+  const { button } = pointerStart
+  const moved = isMoving.value
+  resetPointer()
+  if (moved) {
+    flushWindowPos()
+  } else if (button === 0) {
+    openUploadWindow()
+  } else if (button === 2) {
+    openContextMenu()
   }
 }
 
-function handleMouseUp(e: MouseEvent) {
-  draggingState.value = false
-  if (screenX.value === e.screenX && screenY.value === e.screenY) {
-    if (e.button === 0) {
-      // left mouse
-      openUploadWindow()
-    } else {
-      openContextMenu()
-    }
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault()
+    openUploadWindow()
+  } else if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) {
+    e.preventDefault()
+    openContextMenu()
   }
 }
 
@@ -313,16 +434,19 @@ onBeforeMount(async () => {
   window.addEventListener('mousedown', handleMouseDown, false)
   window.addEventListener('mousemove', handleMouseMove, false)
   window.addEventListener('mouseup', handleMouseUp, false)
+  window.addEventListener('blur', resetPointer, false)
   await initLogoPath()
 })
 
 onBeforeUnmount(() => {
   clearTimeout(progressHideTimer)
+  cancelAnimationFrame(moveFrame)
   window.electron.sendRPC(IRPCActionType.UPLOAD_PROGRESS_UNSUBSCRIBE)
   removeListeners()
   removeIconListener()
   window.removeEventListener('mousedown', handleMouseDown, false)
   window.removeEventListener('mousemove', handleMouseMove, false)
   window.removeEventListener('mouseup', handleMouseUp, false)
+  window.removeEventListener('blur', resetPointer, false)
 })
 </script>
