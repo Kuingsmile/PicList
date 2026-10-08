@@ -570,8 +570,14 @@
                   </button>
                 </div>
 
-                <div class="flex min-w-0 shrink-0 flex-col gap-0.5 border-t border-border-secondary px-3 py-2">
-                  <div class="flex min-w-0 items-center gap-2">
+                <button
+                  type="button"
+                  class="flex min-w-0 shrink-0 cursor-pointer flex-col gap-0.5 border-t border-border-secondary px-3 py-2 text-left focus-visible:focus-ring"
+                  :aria-label="t('common.fileTable.selectFile', { name: item.fileName || '' })"
+                  :aria-pressed="!!choosedList[item.id || '']"
+                  @click.stop="handleChooseImage(!choosedList[item.id || ''], index)"
+                >
+                  <span class="flex min-w-0 items-center gap-2">
                     <span
                       v-tooltip.overflow="item.fileName || ''"
                       class="min-w-0 flex-1 truncate text-sm font-medium text-main"
@@ -584,15 +590,15 @@
                     >
                       {{ fileType(item) }}
                     </span>
-                  </div>
-                  <div class="flex min-w-0 items-center gap-1 text-xs text-secondary">
+                  </span>
+                  <span class="flex min-w-0 items-center gap-1 text-xs text-secondary">
                     <span class="truncate">{{ providerName(item) }}</span>
                     <template v-if="item.updatedAt">
                       <span aria-hidden="true">·</span>
                       <span class="shrink-0 tabular-nums">{{ formatCardDate(item) }}</span>
                     </template>
-                  </div>
-                </div>
+                  </span>
+                </button>
               </div>
             </template>
           </FileCollection>
