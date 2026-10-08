@@ -271,10 +271,12 @@ class LocalApi {
   }
 
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, downloadConflictPolicy = 'rename' } = configMap
+    const { downloadPath, fileArray, baseDir, keepDirStructure = false, downloadConflictPolicy = 'rename' } = configMap
     const instance = UpDownTaskQueue.getInstance()
     for (const item of fileArray) {
-      const { alias, bucketName, key, fileName } = item
+      const { alias, bucketName, key } = item
+      // Local keys identify absolute source paths; only relative names belong in the destination.
+      const fileName = keepDirStructure ? path.relative(this.transBack(baseDir), this.transBack(key)) : item.fileName
       const sourceId = `${alias}-${bucketName}-local-${key}`
       const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
       if (!task) continue

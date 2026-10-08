@@ -66,6 +66,8 @@ export function useBucketDownloads({
       if (!downloadListings.isCurrent(request)) return
       const param = {
         downloadPath: manageStore.config.settings.downloadDir || defaultDownloadPath,
+        baseDir: paramGet.baseDir,
+        keepDirStructure: keepStructure,
         downloadConflictPolicy: manageStore.config.settings.downloadConflictPolicy ?? 'rename',
         maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount || 5,
         fileArray: [] as any[],
@@ -86,7 +88,7 @@ export function useBucketDownloads({
           bucketName: request.bucketName,
           region: paramGet.bucketConfig.Location,
           key: item.key,
-          fileName: keepStructure ? item.key.replace(/^\/+|\/+$/g, '') : item.fileName,
+          fileName: keepStructure && request.provider !== 'local' ? item.key.replace(/^\/+|\/+$/g, '') : item.fileName,
           customUrl: paramGet.customUrl,
           downloadUrl: item.downloadUrl,
           githubUrl: item.url,
@@ -116,6 +118,8 @@ export function useBucketDownloads({
     if (isDisposed() || generation !== getGeneration()) return false
     const param = {
       downloadPath: manageStore.config.settings.downloadDir || defaultDownloadPath,
+      baseDir: configMap.value.baseDir,
+      keepDirStructure: !!manageStore.config.settings.isDownloadFileKeepDirStructure,
       downloadConflictPolicy: manageStore.config.settings.downloadConflictPolicy ?? 'rename',
       maxDownloadFileCount: manageStore.config.settings.maxDownloadFileCount
         ? manageStore.config.settings.maxDownloadFileCount
@@ -129,9 +133,10 @@ export function useBucketDownloads({
           bucketName: configMap.value.bucketName,
           region: configMap.value.bucketConfig.Location,
           key: item.key,
-          fileName: manageStore.config.settings.isDownloadFileKeepDirStructure
-            ? item.key.replace(/^\/+|\/+$/g, '')
-            : item.fileName,
+          fileName:
+            param.keepDirStructure && configMap.value.picBedName !== 'local'
+              ? item.key.replace(/^\/+|\/+$/g, '')
+              : item.fileName,
           customUrl: currentCustomDomain.value,
           downloadUrl: item.downloadUrl,
           githubUrl: item.url,
