@@ -30,7 +30,7 @@ export const nodeBridge = {
     createHash: (algorithm: string, text: string | Buffer) => crypto.createHash(algorithm).update(text).digest('hex'),
   },
   yaml: {
-    parse: yaml.parseDocument,
+    parse: yaml.parse,
   },
   mime: {
     lookup: mime.getType.bind(mime),

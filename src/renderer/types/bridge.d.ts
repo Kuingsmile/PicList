@@ -53,7 +53,7 @@ declare global {
         statSync: typeof fs.statSync
       }
       yaml: {
-        parse: typeof yaml.parseDocument
+        parse: typeof yaml.parse
       }
       mime: {
         lookup: typeof mime.getType

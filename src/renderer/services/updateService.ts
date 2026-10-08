@@ -38,7 +38,7 @@ export const getLatestVersion = async (signal?: AbortSignal): Promise<string> =>
   try {
     const response = await fetchData(`${RELEASE_URL_BACKUP}/latest.yml`, { signal })
     const data = await response.text()
-    const r = window.node.yaml.parse(data).toJSON() as IStringKeyMap
+    const r = window.node.yaml.parse(data) as IStringKeyMap
     const version = r?.version
     if (!isValidVersion(version)) {
       throw new Error('Invalid version in backup release metadata')
