@@ -434,11 +434,12 @@ async function handleSave() {
   }
 
   const configOptions = platform.value.configOptions
+  const formValues = { ...configResult.value }
   const resultMap: IStringKeyMap = {}
   for (const key of Object.keys(configOptions)) {
-    let value = configResult.value[key]
+    let value = formValues[key]
     if (key === 'customUrl' && typeof value === 'string' && value !== '') {
-      const sslEnabled = configResult.value.sslEnabled ?? configOptions.sslEnabled?.default ?? false
+      const sslEnabled = formValues.sslEnabled ?? configOptions.sslEnabled?.default ?? false
       value = value
         .split(',')
         .map((url: string) => {
@@ -457,37 +458,51 @@ async function handleSave() {
     }
   }
   resultMap.picBedName = platformName
-  if (resultMap.bucketName !== undefined) {
-    const transformedConfig: IStringKeyMap = {}
-    const bucketName = String(resultMap.bucketName).split(',')
-    const baseDir = resultMap.baseDir?.split(',')
-    const area = resultMap.area?.split(',')
-    const customUrl = resultMap.customUrl?.split(',')
-    const operator = resultMap.operator?.split(',')
-    const password = resultMap.password?.split(',')
-    for (let i = 0; i < bucketName.length; i++) {
-      if (bucketName[i]) {
-        transformedConfig[bucketName[i]] = {
-          baseDir: baseDir?.[i] || '/',
-          area: area?.[i] || '',
-          customUrl: customUrl?.[i] || '',
-          operator: operator?.[i] || '',
-          password: password?.[i] || '',
-        }
-      }
-    }
-    resultMap.transformedConfig = JSON.stringify(transformedConfig)
-  }
 
   saving.value = true
   try {
+    if (resultMap.bucketName !== undefined) {
+      // Read again so bucket settings saved while this editor was open are retained.
+      const currentConfigs = aliasName ? await getConfig<IStringKeyMap>('picBed') : undefined
+      const transformedConfig: IStringKeyMap = JSON.parse(currentConfigs?.[aliasName]?.transformedConfig ?? '{}')
+      const originalForm = JSON.parse(pristineSnapshot.value || '{}') as IStringKeyMap
+      const bucketNames = String(resultMap.bucketName).split(',')
+      const originalBucketNames = String(originalForm.bucketName ?? '').split(',')
+
+      // An empty list means all accessible buckets, so it must not delete saved settings.
+      if (bucketNames.some(name => name)) {
+        for (const name of originalBucketNames) {
+          if (name && !bucketNames.includes(name)) delete transformedConfig[name]
+        }
+      }
+
+      const bucketFieldDefaults = { baseDir: '/', area: '', customUrl: '', operator: '', password: '' }
+      for (const [index, name] of bucketNames.entries()) {
+        if (!name) continue
+        const bucketConfig = { ...transformedConfig[name] }
+        const originalIndex = originalBucketNames.indexOf(name)
+        for (const [field, defaultValue] of Object.entries(bucketFieldDefaults)) {
+          const inputValue = String(formValues[field] ?? '').split(',')[index] ?? ''
+          const originalValue = String(originalForm[field] ?? '').split(',')[originalIndex] ?? ''
+          const fieldChanged =
+            formValues[field] !== originalForm[field] && (originalIndex < 0 || inputValue !== originalValue)
+          // Compare form values before URL normalization, and keep unchanged per-bucket overrides.
+          if (!Object.hasOwn(bucketConfig, field) || fieldChanged) {
+            bucketConfig[field] = resultMap[field]?.split(',')[index] || defaultValue
+          }
+        }
+        transformedConfig[name] = bucketConfig
+      }
+      resultMap.transformedConfig = JSON.stringify(transformedConfig)
+    }
+
     if (!(await saveConfig(`picBed.${resultMap.alias}`, resultMap))) return
     // Changing the alias renames the configuration instead of leaving a stale copy behind.
     if (aliasName && aliasName !== resultMap.alias) {
       await removeConfig('picBed', aliasName)
     }
     await manageStore.refreshConfig()
-    pristineSnapshot.value = JSON.stringify(configResult.value)
+    pristineSnapshot.value = JSON.stringify(formValues)
     message.success(`${t('pages.manage.login.configSaveMsg')} ${resultMap.alias}`)
     emit('saved', resultMap.alias)
   } finally {
