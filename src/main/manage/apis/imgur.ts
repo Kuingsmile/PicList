@@ -218,9 +218,10 @@ class ImgurApi {
     const promises = [] as any
     for (const item of fileArray) {
       const { bucketName, region, key, fileName, githubUrl: url } = item
-      const id = `${bucketName}-${region}-${key}-${fileName}`
-      const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!destination) continue
+      const sourceId = `${bucketName}-${region}-${key}-${fileName}`
+      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
+      if (!task) continue
+      const { id, destination } = task
       promises.push(
         () =>
           new Promise((resolve, reject) => {

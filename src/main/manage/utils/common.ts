@@ -62,26 +62,44 @@ const failDownloadTask = (instance: UpDownTaskQueue, id: string, error: unknown,
   })
 }
 
+export interface DownloadAttempt {
+  readonly id: string
+  readonly destination: DownloadDestination
+}
+
 export function createDownloadTask(
   instance: UpDownTaskQueue,
-  id: string,
+  sourceId: string,
   root: string,
   fileName: string,
   policy: DownloadConflictPolicy = 'rename',
   logger?: ManageLogger,
-): DownloadDestination | undefined {
-  const previous = instance.getDownloadTask(id)
-  if (previous && !['failed', 'canceled'].includes(previous.status)) return undefined
-  if (previous) instance.removeDownloadTask(id)
-  instance.addDownloadTask({ id, progress: 0, status: commonTaskStatus.queuing, sourceFileName: fileName })
+): DownloadAttempt | undefined {
+  const id = crypto.randomUUID()
+  const task: IDownloadTask = { id, sourceId, progress: 0, status: commonTaskStatus.queuing, sourceFileName: fileName }
+  let destination: DownloadDestination
   try {
-    const destination = createDownloadDestination(root, fileName, policy)
-    instance.updateDownloadTask({ id, targetFilePath: resolveDownloadPath(root, fileName) })
-    return destination
+    destination = createDownloadDestination(root, fileName, policy)
+    task.targetFilePath = resolveDownloadPath(destination.root, destination.relativePath)
   } catch (error) {
+    instance.addDownloadTask(task)
     failDownloadTask(instance, id, error, logger)
     return undefined
   }
+  // History belongs to individual attempts; only an active transfer to the same destination is a duplicate.
+  const duplicate = instance
+    .getAllDownloadTask()
+    .some(
+      previous =>
+        (previous.sourceId ?? previous.id) === sourceId &&
+        previous.targetFilePath === task.targetFilePath &&
+        [commonTaskStatus.queuing, downloadTaskSpecialStatus.downloading, commonTaskStatus.paused].includes(
+          previous.status,
+        ),
+    )
+  if (duplicate) return undefined
+  instance.addDownloadTask(task)
+  return { id, destination }
 }
 
 export const runDownloadTask = async (

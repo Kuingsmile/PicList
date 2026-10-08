@@ -275,9 +275,10 @@ class LocalApi {
     const instance = UpDownTaskQueue.getInstance()
     for (const item of fileArray) {
       const { alias, bucketName, key, fileName } = item
-      const id = `${alias}-${bucketName}-local-${key}`
-      const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!destination) continue
+      const sourceId = `${alias}-${bucketName}-local-${key}`
+      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
+      if (!task) continue
+      const { id, destination } = task
       await runDownloadTask(
         instance,
         id,

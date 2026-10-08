@@ -36,6 +36,7 @@ export function managementTaskMetadata<T extends IUploadTask | IDownloadTask>(ta
     progress: ['uploaded', 'downloaded'].includes(task.status) ? 100 : 0,
   }
   for (const key of [
+    'sourceId',
     'sourceFileName',
     'sourceFilePath',
     'targetFilePath',

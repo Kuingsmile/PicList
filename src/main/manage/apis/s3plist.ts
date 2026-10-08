@@ -808,9 +808,10 @@ class S3plistApi {
     const promises = [] as any
     for (const item of fileArray) {
       const { bucketName, region, key, fileName, customUrl } = item
-      const id = `${bucketName}-${String(region)}-${key}-${downloadPath}-${fileName}`
-      const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!destination) continue
+      const sourceId = `${bucketName}-${String(region)}-${key}-${fileName}`
+      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
+      if (!task) continue
+      const { id, destination } = task
       const accessKey = this.accessKeyId
       const secretKey = this.secretAccessKey
       const preSignedUrl = await this.getPreSignedUrl({

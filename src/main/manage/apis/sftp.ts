@@ -361,16 +361,10 @@ class SftpApi {
     try {
       for (const item of fileArray) {
         const { alias, bucketName, region, key, fileName } = item
-        const id = `${alias}-${bucketName}-${region}-${key}`
-        const destination = createDownloadTask(
-          instance,
-          id,
-          downloadPath,
-          fileName,
-          downloadConflictPolicy,
-          this.logger,
-        )
-        if (!destination) continue
+        const sourceId = `${alias}-${bucketName}-${region}-${key}`
+        const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
+        if (!task) continue
+        const { id, destination } = task
         await runDownloadTask(
           instance,
           id,

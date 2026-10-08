@@ -242,9 +242,10 @@ class SmmsApi {
     const promises = [] as any
     for (const item of fileArray) {
       const { bucketName, region, key, fileName, downloadUrl: preSignedUrl } = item
-      const id = `${bucketName}-${region}-${key}`
-      const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!destination) continue
+      const sourceId = `${bucketName}-${region}-${key}`
+      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
+      if (!task) continue
+      const { id, destination } = task
       promises.push(
         () =>
           new Promise((resolve, reject) => {

@@ -499,9 +499,10 @@ class GithubApi {
     const promises = [] as any
     for (const item of fileArray) {
       const { bucketName: repo, customUrl: branch, key, fileName, githubPrivate, githubUrl } = item
-      const id = `${repo}-${branch}-${key}-${fileName}`
-      const destination = createDownloadTask(instance, id, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!destination) continue
+      const sourceId = `${repo}-${branch}-${key}-${fileName}`
+      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
+      if (!task) continue
+      const { id, destination } = task
       let downloadUrl: string
       if (githubPrivate) {
         const preSignedUrl = await this.getPreSignedUrl({

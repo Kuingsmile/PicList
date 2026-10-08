@@ -182,6 +182,7 @@ interface IUploadTask {
 
 interface IDownloadTask {
   id: string
+  sourceId?: string
   progress: number
   status: any
   sourceFileUrl?: string
