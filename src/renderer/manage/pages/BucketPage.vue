@@ -305,16 +305,6 @@
             <ArrowDownIcon v-else :size="14" class="text-accent" aria-hidden="true" />
           </template>
         </ToolbarMenu>
-        <label v-if="paging" class="flex items-center gap-1.5 text-sm text-secondary">
-          {{ t('pages.manage.bucket.page') }}
-          <input
-            v-model="currentPageNumber"
-            type="number"
-            min="1"
-            class="h-[32px] w-[64px] rounded-lg border border-border bg-bg-secondary px-2 text-center text-sm text-main tabular-nums focus:border-accent focus:outline-none focus-visible:focus-ring"
-            @input="handlePageNumberInput"
-          />
-        </label>
       </div>
     </div>
 
@@ -345,34 +335,75 @@
       </ul>
     </div>
 
-    <BucketFileList
-      ref="virtualScrollerRef"
-      :config-map="configMap"
-      :filter-list="filterList"
-      :table-columns="tableColumns"
-      :table-density="tableDensity"
-      :layout-style="layoutStyle"
-      :grid-columns="gridColumns"
-      :is-loading-data="isLoadingData"
-      :is-deleting="isDeleting"
-      :current-sort-type="currentSortType"
-      :sort-ascending="sortAscending"
-      :searching="!!searchText"
-      :get-s3-config="handleGetS3Config"
-      :get-webdav-config="handleGetWebdavConfig"
-      :get-pre-signed-url="getPreSignedUrl"
-      @select="(item, selected) => (item.checked = selected)"
-      @select-all="setAllSelected"
-      @sort="sortFile"
-      @open="handleClickFile"
-      @rename="handleRenameFile"
-      @download-folder="handleFolderBatchDownload"
-      @download="downloadFiles"
-      @info="handleShowFileInfo"
-      @delete="handleDeleteFile"
-      @copy-link="copyLink"
-      @copy-text="copyToClipboard"
-      @upload="showUploadDialog"
+    <div class="relative flex min-h-[240px] min-w-0 flex-1 flex-col">
+      <BucketFileList
+        ref="virtualScrollerRef"
+        :config-map="configMap"
+        :filter-list="filterList"
+        :table-columns="tableColumns"
+        :table-density="tableDensity"
+        :layout-style="layoutStyle"
+        :grid-columns="gridColumns"
+        :is-loading-data="isLoadingData"
+        :is-deleting="isDeleting"
+        :current-sort-type="currentSortType"
+        :sort-ascending="sortAscending"
+        :searching="!!searchText"
+        :get-s3-config="handleGetS3Config"
+        :get-webdav-config="handleGetWebdavConfig"
+        :get-pre-signed-url="getPreSignedUrl"
+        @select="(item, selected) => (item.checked = selected)"
+        @select-all="setAllSelected"
+        @sort="sortFile"
+        @open="handleClickFile"
+        @rename="handleRenameFile"
+        @download-folder="handleFolderBatchDownload"
+        @download="downloadFiles"
+        @info="handleShowFileInfo"
+        @delete="handleDeleteFile"
+        @copy-link="copyLink"
+        @copy-text="copyToClipboard"
+        @upload="showUploadDialog"
+      />
+
+      <!-- Keep background notices inside the file area, above the pagination footer. -->
+      <div class="pointer-events-none absolute right-4 bottom-4 left-4 z-10 flex flex-col items-end gap-2">
+        <TransitionGroup
+          enter-active-class="transition-all duration-200 ease-apple"
+          enter-from-class="translate-y-2 opacity-0"
+          leave-active-class="transition-all duration-150 ease-apple"
+          leave-to-class="translate-y-2 opacity-0"
+        >
+          <div
+            v-for="toast in loadingToasts"
+            :key="toast.key"
+            class="pointer-events-auto flex w-full max-w-[360px] items-center gap-3 rounded-xl border border-border-secondary bg-bg-secondary py-2 pr-2 pl-4 shadow-lg"
+            role="status"
+          >
+            <LoaderCircleIcon :size="18" class="shrink-0 animate-spin text-accent motion-reduce:animate-none" />
+            <span class="min-w-0 flex-1 text-sm font-medium wrap-break-word text-main">{{ toast.text }}</span>
+            <button
+              v-tooltip="t('common.cancel')"
+              type="button"
+              class="flex h-[28px] w-[28px] shrink-0 cursor-pointer items-center justify-center rounded-md text-secondary transition-colors duration-fast hover:bg-danger/10 hover:text-danger focus-visible:focus-ring"
+              :aria-label="t('common.cancel')"
+              @click="toast.cancel"
+            >
+              <XIcon :size="16" aria-hidden="true" />
+            </button>
+          </div>
+        </TransitionGroup>
+      </div>
+    </div>
+
+    <BucketPagination
+      v-if="paging"
+      :current-page-number="currentPageNumber"
+      :available-page-count="availablePageCount"
+      :last-page-number="lastPageNumber"
+      :loading="isLoadingData || isShowLoadingPage"
+      :disabled="isDeleting"
+      @change="changePage"
     />
 
     <!-- URL Upload Dialog -->
@@ -429,34 +460,6 @@
       @renamed="resetParam(true)"
     />
 
-    <!-- Background work -->
-    <div class="pointer-events-none fixed right-6 bottom-6 z-9999 flex flex-col items-end gap-2">
-      <TransitionGroup
-        enter-active-class="transition-all duration-200 ease-apple"
-        enter-from-class="translate-y-2 opacity-0"
-        leave-active-class="transition-all duration-150 ease-apple"
-        leave-to-class="translate-y-2 opacity-0"
-      >
-        <div
-          v-for="toast in loadingToasts"
-          :key="toast.key"
-          class="pointer-events-auto flex min-w-[260px] items-center gap-3 rounded-xl border border-border-secondary bg-bg-secondary py-2 pr-2 pl-4 shadow-lg"
-          role="status"
-        >
-          <LoaderCircleIcon :size="18" class="shrink-0 animate-spin text-accent motion-reduce:animate-none" />
-          <span class="flex-1 text-sm font-medium text-main">{{ toast.text }}</span>
-          <button
-            v-tooltip="t('common.cancel')"
-            type="button"
-            class="flex h-[28px] w-[28px] shrink-0 cursor-pointer items-center justify-center rounded-md text-secondary transition-colors duration-fast hover:bg-danger/10 hover:text-danger focus-visible:focus-ring"
-            :aria-label="t('common.cancel')"
-            @click="toast.cancel"
-          >
-            <XIcon :size="16" aria-hidden="true" />
-          </button>
-        </div>
-      </TransitionGroup>
-    </div>
     <!-- Upload Drawer -->
     <BucketUploadPanel
       v-model:visible="isShowUploadPanel"
@@ -558,6 +561,7 @@ import BucketBreadcrumb from '@/manage/components/bucket/BucketBreadcrumb.vue'
 import BucketDownloadPanel from '@/manage/components/bucket/BucketDownloadPanel.vue'
 import BucketFileInfoDialog from '@/manage/components/bucket/BucketFileInfoDialog.vue'
 import BucketFileList from '@/manage/components/bucket/BucketFileList.vue'
+import BucketPagination from '@/manage/components/bucket/BucketPagination.vue'
 import BucketPreviewDialogs from '@/manage/components/bucket/BucketPreviewDialogs.vue'
 import BucketRenameDialog from '@/manage/components/bucket/BucketRenameDialog.vue'
 import BucketUploadPanel from '@/manage/components/bucket/BucketUploadPanel.vue'
@@ -665,6 +669,8 @@ const {
   isLoadingData,
   isShowLoadingPage,
   currentPageNumber,
+  availablePageCount,
+  lastPageNumber,
   currentPageFilesInfo,
   searchText,
   sortAscending,
@@ -672,7 +678,7 @@ const {
   paging,
   resetParam,
   forceRefreshFileList,
-  handlePageNumberInput,
+  changePage,
   sortFile,
   cancelLoading,
   listingParams,

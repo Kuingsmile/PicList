@@ -1,4 +1,4 @@
-import { computed, nextTick, reactive, ref, watch } from 'vue'
+import { computed, nextTick, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import useConfirm from '@/composables/useConfirm'
@@ -43,9 +43,12 @@ export function useBucketListing({
 
   const currentPageNumber = ref(1)
 
-  const pagingMarker = ref('')
+  // Each entry is the cursor used to load that page, including the first page's empty cursor.
+  const pageMarkers = reactive<string[]>([''])
 
-  const pagingMarkerStack = reactive([] as string[])
+  const lastPageNumber = ref<number | null>(null)
+
+  const availablePageCount = computed(() => pageMarkers.length)
 
   const currentPageFilesInfo = reactive<BucketFile[]>([])
 
@@ -54,8 +57,6 @@ export function useBucketListing({
   const searchText = ref('')
 
   const currentSortType = ref<ISortTypeList>('name')
-
-  const previousPageNumber = ref(1)
 
   const paging = computed(() => manageStore.config.picBed[configMap.value.alias].paging)
 
@@ -77,8 +78,8 @@ export function useBucketListing({
     if (isDisposed()) return
     invalidateListings()
     isShowLoadingPage.value = true
-    pagingMarker.value = ''
-    pagingMarkerStack.length = 0
+    pageMarkers.splice(0, pageMarkers.length, '')
+    lastPageNumber.value = null
     currentPrefix.value = configMap.value.prefix
     const request = fileListings.begin(listingIdentity('files'))
     currentPageNumber.value = 1
@@ -106,12 +107,7 @@ export function useBucketListing({
         appendListingItems(currentPageFilesInfo, res.fullList)
         const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
         sortFile(sortType, false)
-        if (res.isTruncated && paging.value) {
-          pagingMarkerStack.push(pagingMarker.value)
-          pagingMarker.value = String(res.nextMarker ?? '')
-        } else if (paging.value && currentPageNumber.value > 1) {
-          message.success(t('pages.manage.bucket.lastPageMsg'))
-        }
+        updatePagination(1, res)
       } else {
         message.error(t('pages.manage.bucket.getFileListFailed'))
       }
@@ -130,31 +126,40 @@ export function useBucketListing({
     await resetParam(true)
   }
 
-  const changePage = async (cur: number | undefined, prev: number | undefined) => {
-    if (isDisposed()) return
-    if (!cur || !prev) {
-      currentPageNumber.value = 1
-      return
+  function updatePagination(page: number, result: ListingResult) {
+    const nextMarker = String(result.nextMarker ?? '')
+    if (result.isTruncated && nextMarker && nextMarker !== pageMarkers[page - 1]) {
+      // Keep known pages when revisiting them, but discard cursors invalidated by a changed listing.
+      if (pageMarkers[page] !== nextMarker) {
+        pageMarkers.splice(page, pageMarkers.length - page, nextMarker)
+        lastPageNumber.value = null
+      }
+    } else {
+      pageMarkers.splice(page)
+      lastPageNumber.value = page
     }
-    const isForwardNavigation = cur > prev
-    const newPageNumber = isForwardNavigation ? prev + 1 : prev - 1
+  }
+
+  const changePage = async (page: number) => {
+    if (
+      isDisposed() ||
+      !paging.value ||
+      isLoadingData.value ||
+      isShowLoadingPage.value ||
+      !Number.isSafeInteger(page) ||
+      page < 1 ||
+      page > availablePageCount.value ||
+      page === currentPageNumber.value
+    )
+      return
     const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
 
     invalidateListings()
     const request = fileListings.begin(listingIdentity('files'))
     isShowLoadingPage.value = true
-    currentPageNumber.value = newPageNumber
-    currentPageFilesInfo.length = 0
-    searchText.value = ''
     closeUrlDialog()
 
-    if (!isForwardNavigation) {
-      pagingMarker.value = pagingMarkerStack[pagingMarkerStack.length - 2]
-      pagingMarkerStack.pop()
-      pagingMarkerStack.pop()
-    }
-
-    const res = await getBucketFileList(request)
+    const res = await getBucketFileList(request, page)
     if (!res || !fileListings.isCurrent(request)) return
     isShowLoadingPage.value = false
 
@@ -163,28 +168,12 @@ export function useBucketListing({
       return
     }
 
+    currentPageNumber.value = page
+    currentPageFilesInfo.length = 0
     appendListingItems(currentPageFilesInfo, res.fullList)
-
+    searchText.value = ''
+    updatePagination(page, res)
     sortFile(sortType, false)
-
-    if (!(cur < prev && !paging.value)) {
-      if (res.isTruncated) {
-        pagingMarkerStack.push(pagingMarker.value)
-        pagingMarker.value = String(res.nextMarker ?? '')
-      } else {
-        message.success(t('pages.manage.bucket.lastPageMsg'))
-      }
-    }
-  }
-
-  const handlePageNumberInput = async (event: Event) => {
-    const target = event.target as HTMLInputElement
-    const value = parseInt(target.value, 10)
-    if (!isNaN(value) && value > 0) {
-      currentPageNumber.value = value
-      await changePage(currentPageNumber.value, previousPageNumber.value)
-      previousPageNumber.value = currentPageNumber.value
-    }
   }
 
   function sortFile(type: ISortTypeList, toggle = true) {
@@ -250,14 +239,17 @@ export function useBucketListing({
     window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_BACKSTAGE, request.accountId, param)
   }
 
-  async function getBucketFileList(request: ListingRequest): Promise<ListingResult | undefined> {
+  async function getBucketFileList(
+    request: ListingRequest,
+    page = currentPageNumber.value,
+  ): Promise<ListingResult | undefined> {
     isLoadingData.value = true
     let result: ListingResult
     try {
       const response = await window.electron.triggerRPC<ListingResult>(
         IRPCActionType.MANAGE_GET_BUCKET_FILE_LIST,
         request.accountId,
-        listingParams(request),
+        listingParams(request, page),
       )
       if (!response) throw new Error('Missing listing response')
       result = response
@@ -269,15 +261,15 @@ export function useBucketListing({
     return result
   }
 
-  function listingParams(request: ListingRequest) {
+  function listingParams(request: ListingRequest, page = currentPageNumber.value) {
     return {
       ...request,
       bucketConfig: { ...configMap.value.bucketConfig },
       paging: paging.value,
-      marker: pagingMarker.value,
+      marker: pageMarkers[page - 1] ?? '',
       itemsPerPage: itemsPerPage.value,
       customUrl: currentCustomDomain.value,
-      currentPage: currentPageNumber.value,
+      currentPage: page,
       cdnUrl: configMap.value.cdnUrl,
       baseDir: configMap.value.baseDir,
       webPath: configMap.value.webPath,
@@ -321,20 +313,13 @@ export function useBucketListing({
       console.warn('Failed to write the bucket file cache')
     }
   }
-  watch(currentPageNumber, (newVal, oldVal) => {
-    if (typeof newVal !== 'number') {
-      currentPageNumber.value = 1
-    }
-    // Update previousPageNumber when currentPageNumber changes programmatically
-    if (oldVal && typeof oldVal === 'number') {
-      previousPageNumber.value = oldVal
-    }
-  })
   return {
     fileListings,
     isLoadingData,
     isShowLoadingPage,
     currentPageNumber,
+    availablePageCount,
+    lastPageNumber,
     currentPageFilesInfo,
     searchText,
     sortAscending,
@@ -342,7 +327,7 @@ export function useBucketListing({
     paging,
     resetParam,
     forceRefreshFileList,
-    handlePageNumberInput,
+    changePage,
     sortFile,
     cancelLoading,
     listingParams,
