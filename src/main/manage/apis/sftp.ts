@@ -7,7 +7,7 @@ import type { FileEntry } from 'ssh2'
 import { LISTING_PAGE_ITEMS } from '#/listing'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
-import { createDownloadTask, formatError, runDownloadTask } from '~/manage/utils/common'
+import { createDownloadTask, encodeObjectPath, formatError, runDownloadTask } from '~/manage/utils/common'
 import ManageLogger from '~/manage/utils/logger'
 import { onUploadAbort, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/filesystem'
@@ -81,6 +81,12 @@ class SftpApi {
   }
 
   logParam = (error: any, method: string) => this.logger.error(formatError(error, { class: 'SftpApi', method }))
+
+  private getWebUrl(key: string, urlPrefix: string, baseDir: string, webPath = '') {
+    const relativePath = path.posix.relative(baseDir || '/', `/${key}`)
+    const urlPath = encodeObjectPath(path.posix.join('/', webPath, relativePath))
+    return `${urlPrefix.replace(/\/+$/, '')}${urlPath}`
+  }
 
   formatFolder(item: listDirResult, urlPrefix: string, isWebPath = false) {
     const key = item.key
@@ -185,7 +191,7 @@ class SftpApi {
   }
 
   async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
-    const { prefix, customUrl } = configMap
+    const { prefix, customUrl, baseDir, webPath } = configMap
     const urlPrefix = customUrl || `${this.host}:${this.port}`
     const result = {
       fullList: [] as ReturnType<SftpApi['formatFile']>[],
@@ -196,7 +202,8 @@ class SftpApi {
       await listing.wait(() =>
         this.withClient(async client => {
           for await (const item of this.walkDirectory(prefix, listing, client, true)) {
-            result.fullList.push(this.formatFile(item, urlPrefix))
+            const url = customUrl ? this.getWebUrl(item.key, urlPrefix, baseDir, webPath) : urlPrefix
+            result.fullList.push(this.formatFile(item, url, !!customUrl))
             if (result.fullList.length === LISTING_PAGE_ITEMS) {
               await listing.publish(result)
               result.fullList = []
@@ -237,13 +244,9 @@ class SftpApi {
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
-    const { prefix, customUrl, baseDir } = configMap
-    let urlPrefix = customUrl || `${this.host}:${this.port}`
-    urlPrefix = urlPrefix.replace(/\/+$/, '')
-    let webPath = configMap.webPath || ''
-    if (webPath && customUrl && webPath !== '/') {
-      webPath = webPath.replace(/^\/+|\/+$/, '')
-    }
+    const { prefix, customUrl, baseDir, webPath } = configMap
+    const urlPrefix = customUrl || `${this.host}:${this.port}`
+    const isWebPath = !!(customUrl || webPath)
     const result = {
       fullList: [] as any,
       success: false,
@@ -253,12 +256,9 @@ class SftpApi {
       await listing.wait(() =>
         this.withClient(async client => {
           for await (const item of this.walkDirectory(prefix, listing, client, false)) {
-            const relativePath = path.posix.relative(baseDir, `/${item.key}`)
-            const relative = webPath && `${urlPrefix}${path.posix.join('/', webPath, relativePath)}`
+            const url = isWebPath ? this.getWebUrl(item.key, urlPrefix, baseDir, webPath) : urlPrefix
             result.fullList.push(
-              item.isDir
-                ? this.formatFolder(item, webPath ? relative : urlPrefix, !!webPath)
-                : this.formatFile(item, webPath ? relative : urlPrefix, !!webPath),
+              item.isDir ? this.formatFolder(item, url, isWebPath) : this.formatFile(item, url, isWebPath),
             )
             if (result.fullList.length === LISTING_PAGE_ITEMS) {
               await listing.publish(result)
