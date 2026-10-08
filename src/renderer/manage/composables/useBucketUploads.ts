@@ -74,7 +74,8 @@ export function useBucketUploads({
     })
     if (destination.keepDirStructure) {
       formateduploadPanelFilesList.forEach((item: any) => {
-        item.key = `${destination.prefix}${item.relativePath.substring(0, item.relativePath.lastIndexOf('/'))}/${item.renamedFileName}`
+        const relativeParent = item.relativePath.substring(0, item.relativePath.lastIndexOf('/'))
+        item.key = `${destination.prefix}${relativeParent ? `${relativeParent}/` : ''}${item.renamedFileName}`
       })
     } else {
       formateduploadPanelFilesList.forEach((item: any) => {
