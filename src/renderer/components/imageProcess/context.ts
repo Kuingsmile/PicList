@@ -1,11 +1,20 @@
+import { FileImage, FileX, PenLine, Scaling, Stamp } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
 import { inject, type InjectionKey, provide, ref, useId } from 'vue'
 
 import { useImageProcessingSettings } from '@/composables/useImageProcessingSettings'
 import type { ProcessingGroup, ProcessingScope } from '@/utils/imageProcessingConfig'
 
-export const processingCategories = ['general', 'watermark', 'transform', 'skipProcess', 'rename'] as const
+export const processingCategories = ['general', 'transform', 'watermark', 'rename', 'skipProcess'] as const
 export type ProcessingCategory = (typeof processingCategories)[number]
+
+export const categoryIcons = {
+  general: FileImage,
+  transform: Scaling,
+  watermark: Stamp,
+  rename: PenLine,
+  skipProcess: FileX,
+} satisfies Record<ProcessingCategory, unknown>
 
 // Provider overrides are only stored for compress and watermark options.
 export const globalOrConfigCategories: readonly ProcessingCategory[] = ['skipProcess', 'rename']
@@ -29,8 +38,12 @@ export function useImageProcessStudio(configId: () => string, provider: () => st
     settings.scope.value = level
     view.value = 'edit'
   }
+  function openCategory(category: ProcessingCategory) {
+    activeCategory.value = category
+    view.value = 'edit'
+  }
 
-  return { ...settings, activeCategory, view, showSources, controlId, inheritSetting, editScope }
+  return { ...settings, activeCategory, view, showSources, controlId, inheritSetting, editScope, openCategory }
 }
 
 type ImageProcessContext = ReturnType<typeof useImageProcessStudio>

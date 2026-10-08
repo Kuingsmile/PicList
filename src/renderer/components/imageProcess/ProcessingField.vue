@@ -10,19 +10,19 @@
     <div
       v-if="unsupported || inactive || showSources || customized || masked"
       class="flex flex-col gap-2 text-xs"
-      :class="p1 ? 'px-3 pb-3' : 'mt-3'"
+      :class="p1 ? 'px-3 pb-2.5' : 'mt-3'"
     >
-      <p v-if="unsupported" class="text-secondary">{{ t('pages.imageProcess.editor.globalOrConfigOnly') }}</p>
-      <p v-else-if="inactive" class="text-secondary">{{ inactive }}</p>
+      <p v-if="unsupported" class="flex items-start gap-1.5 text-secondary">
+        <Info :size="13" class="mt-px shrink-0" aria-hidden="true" />
+        {{ t('pages.imageProcess.editor.globalOrConfigOnly') }}
+      </p>
+      <p v-else-if="inactive" class="flex items-start gap-1.5 leading-relaxed text-secondary">
+        <Info :size="13" class="mt-px shrink-0" aria-hidden="true" />
+        {{ inactive }}
+      </p>
       <div v-if="!unsupported && (showSources || customized)" class="flex flex-wrap items-center gap-2">
-        <span
-          v-if="showSources"
-          class="flex min-w-0 items-center gap-1.5 rounded-md px-2 py-1 wrap-anywhere"
-          :class="customized ? 'bg-accent/10 font-medium text-accent' : 'bg-bg-tertiary text-secondary'"
-        >
-          <Link2 v-if="!customized" :size="12" aria-hidden="true" />
-          {{ sourceLabel(option.source) }}
-        </span>
+        <SourceBadge v-if="showSources" :source="option.source" :label="sourceLabel(option.source)" />
+        <span v-else class="font-medium text-accent">{{ t('pages.imageProcess.studio.customizedHere') }}</span>
         <button
           v-if="customized"
           type="button"
@@ -45,10 +45,10 @@
         </p>
         <button
           type="button"
-          class="mt-1 cursor-pointer rounded-sm font-medium text-accent hover:underline focus-visible:focus-ring"
+          class="mt-1 flex cursor-pointer items-center gap-1 rounded-sm font-medium text-accent hover:underline focus-visible:focus-ring"
           @click="editScope(finalOption.source === 'default' ? 'global' : finalOption.source)"
         >
-          {{ t('pages.imageProcess.design.editWinning') }} <span aria-hidden="true">→</span>
+          {{ t('pages.imageProcess.design.editWinning') }} <ArrowRight :size="12" aria-hidden="true" />
         </button>
       </div>
     </div>
@@ -56,18 +56,19 @@
 </template>
 
 <script setup lang="ts">
-import { Link2, Undo2 } from '@lucide/vue'
+import { ArrowRight, Info, Undo2 } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useImageProcessContext } from '@/components/imageProcess/context'
+import SourceBadge from '@/components/imageProcess/SourceBadge.vue'
 import type {
   ProcessingConfigSource,
   ProcessingGroup,
   ResolvedImageProcessingConfig,
   ResolvedProcessingOption,
 } from '@/utils/imageProcessingConfig'
-import { formatProcessingValue } from '@/utils/imageProcessingPresentation'
+import { formatProcessingSource, formatProcessingValue } from '@/utils/imageProcessingPresentation'
 
 defineSlots<{
   default?: () => unknown
@@ -98,9 +99,6 @@ const masked = computed(() => !unsupported && finalOption.value.source !== optio
 const finalValue = computed(() => formatProcessingValue(field.split('.')[1], finalOption.value.value, t))
 
 function sourceLabel(source: ProcessingConfigSource) {
-  return t(`pages.imageProcess.design.sources.${source}`, {
-    provider: previewUploader.value.providerName || previewUploader.value.type,
-    config: previewUploader.value.configName || t('pages.imageProcess.preview.unnamedConfig'),
-  })
+  return formatProcessingSource(source, previewUploader.value, t)
 }
 </script>

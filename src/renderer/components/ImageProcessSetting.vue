@@ -3,27 +3,24 @@
     <template v-if="isInitialized">
       <ScopeBar />
       <div
-        class="grid min-h-0 flex-1 grid-cols-[200px_minmax(0,1fr)_272px] gap-3 @max-[960px]:grid-cols-[200px_minmax(0,1fr)] @max-[640px]:grid-cols-1 @max-[640px]:grid-rows-[auto_minmax(0,1fr)]"
+        class="grid min-h-0 flex-1 grid-cols-[208px_minmax(0,1fr)_268px] gap-3 @max-[980px]:grid-cols-[208px_minmax(0,1fr)] @max-[640px]:grid-cols-1 @max-[640px]:grid-rows-[auto_minmax(0,1fr)]"
       >
         <CategoryNav
-          class="self-start @max-[640px]:flex-row @max-[640px]:overflow-x-auto @max-[640px]:overscroll-x-contain"
+          class="no-scrollbar self-start @max-[640px]:flex-row @max-[640px]:overflow-x-auto @max-[640px]:overscroll-x-contain"
         />
         <div
           ref="content"
           data-testid="image-process-content"
-          class="no-scrollbar flex min-h-0 min-w-0 flex-col gap-4 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl"
-          :class="{ 'col-span-2 @max-[960px]:col-span-1': view === 'review' }"
+          class="no-scrollbar flex min-h-0 min-w-0 flex-col gap-4 overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg scroll-fade-y"
+          :class="{ 'col-span-2 @max-[980px]:col-span-1': view === 'review' }"
         >
-          <template v-if="view === 'review'">
-            <SettingSection only-one-row>
-              <ImageProcessPreview
-                :settings="effectiveSettings"
-                :layers="settingsByScope"
-                :uploader="previewUploader"
-                @edit="editFromPreview"
-              />
-            </SettingSection>
-          </template>
+          <ImageProcessPreview
+            v-if="view === 'review'"
+            :settings="effectiveSettings"
+            :layers="settingsByScope"
+            :uploader="previewUploader"
+            @edit="editFromPreview"
+          />
           <SettingSection
             v-else-if="!canEdit"
             :icon="CircleAlert"
@@ -41,9 +38,11 @@
           </SettingSection>
           <SettingSection
             v-else-if="unsupportedCategory"
-            :icon="CircleAlert"
-            :title="currentCategoryLabel"
-            :description="t('pages.imageProcess.editor.globalOrConfigOnly')"
+            :icon="categoryIcons[activeCategory]"
+            :title="t(`pages.imageProcess.design.categoryLabels.${activeCategory}`)"
+            :description="
+              t('pages.imageProcess.studio.notPerServiceDescription', { provider: previewUploader.providerName })
+            "
             only-one-row
           >
             <div class="flex flex-wrap gap-2">
@@ -62,31 +61,11 @@
               />
             </div>
           </SettingSection>
-          <template v-else>
-            <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-2 pt-1">
-              <p class="text-xs text-secondary">
-                {{
-                  scope === 'global'
-                    ? t('pages.imageProcess.guide.scopeNotes.global')
-                    : t('pages.imageProcess.guide.customizeHint')
-                }}
-              </p>
-              <CustomSwitch
-                v-model="showSources"
-                class="ml-auto"
-                :title="t('pages.imageProcess.guide.showSources')"
-                small
-                no-border
-                no-hover
-                tighter
-              />
-            </div>
-            <component :is="panels[activeCategory]" :key="activeCategory" />
-          </template>
+          <component :is="panels[activeCategory]" v-else :key="activeCategory" />
         </div>
         <aside
           v-if="view === 'edit'"
-          class="no-scrollbar min-h-0 overflow-y-auto overscroll-contain @max-[960px]:hidden"
+          class="no-scrollbar min-h-0 overflow-y-auto overscroll-contain scroll-fade-y @max-[980px]:hidden"
           :aria-label="t('pages.imageProcess.design.livePreview')"
         >
           <ImageProcessPreview
@@ -124,13 +103,11 @@
         </span>
         <div class="ml-auto flex shrink-0 items-center gap-2">
           <CustomButton
+            v-if="view === 'review'"
             type="secondary"
-            data-testid="processing-review"
-            :icon="view === 'review' ? ArrowLeft : Eye"
-            :text="
-              t(view === 'review' ? 'pages.imageProcess.studio.backToEdit' : 'pages.imageProcess.design.reviewAll')
-            "
-            @click="view = view === 'review' ? 'edit' : 'review'"
+            :icon="ArrowLeft"
+            :text="t('pages.imageProcess.studio.backToEdit')"
+            @click="view = 'edit'"
           />
           <CustomButton
             data-testid="processing-done"
@@ -158,15 +135,15 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowLeft, Check, CircleAlert, Eye, Globe, LoaderCircle, RotateCw, UserRound } from '@lucide/vue'
+import { ArrowLeft, Check, CircleAlert, Globe, LoaderCircle, RotateCw, UserRound } from '@lucide/vue'
 import { computed, nextTick, onBeforeMount, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
-import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import CategoryNav from '@/components/imageProcess/CategoryNav.vue'
 import {
+  categoryIcons,
   globalOrConfigCategories,
   type ProcessingCategory,
   provideImageProcess,
@@ -205,32 +182,24 @@ const {
   retrySave,
   activeCategory,
   view,
-  showSources,
+  openCategory,
 } = studio
 
 const panels = {
   general: GeneralPanel,
-  watermark: WatermarkPanel,
   transform: TransformPanel,
-  skipProcess: SkipProcessPanel,
+  watermark: WatermarkPanel,
   rename: RenamePanel,
+  skipProcess: SkipProcessPanel,
 }
 const content = useTemplateRef('content')
 const unsupportedCategory = computed(
   () => scope.value === 'provider' && globalOrConfigCategories.includes(activeCategory.value),
 )
-const currentCategoryLabel = computed(() =>
-  t(
-    activeCategory.value === 'rename'
-      ? 'pages.imageProcess.renameSettings'
-      : 'pages.imageProcess.design.categoryLabels.' + activeCategory.value,
-  ),
-)
 
-async function editFromPreview(level: ProcessingScope, category: string, field?: string) {
-  scope.value = level
-  activeCategory.value = category as ProcessingCategory
-  view.value = 'edit'
+async function editFromPreview(level: ProcessingScope | undefined, category: ProcessingCategory, field?: string) {
+  if (level) scope.value = level
+  openCategory(category)
   await nextTick()
   if (!field) return
   const element = content.value?.querySelector<HTMLElement>(`[data-processing-field="${field}"]`)

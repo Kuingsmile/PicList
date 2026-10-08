@@ -24,6 +24,63 @@ export interface ImageProcessingGlobals {
   manualRename?: boolean
 }
 
+/** Source extensions that format rules can map from. */
+export const convertibleExtensions = [
+  'jpg',
+  'jpeg',
+  'png',
+  'webp',
+  'bmp',
+  'tiff',
+  'tif',
+  'svg',
+  'ico',
+  'avif',
+  'heif',
+  'heic',
+]
+
+/** Output formats sharp can write, common web formats first. */
+export const outputFormats = [
+  'webp',
+  'jpg',
+  'png',
+  'avif',
+  'gif',
+  'jpeg',
+  'tiff',
+  'tif',
+  'heif',
+  'svg',
+  'input',
+  'dz',
+  'fits',
+  'jp2',
+  'jxl',
+  'magick',
+  'openslide',
+  'pdf',
+  'ppm',
+  'raw',
+  'v',
+]
+
+export function normalizeWatermarkPosition(value: ProcessingOptionValue) {
+  return value === 'center' ? 'centre' : String(value)
+}
+
+/** Match the upload lifecycle's comma-only parsing and extension normalization. */
+export function parseSkipProcessExtensions(value: ProcessingOptionValue) {
+  return [
+    ...new Set(
+      String(value)
+        .split(',')
+        .map(extension => extension.trim().toLowerCase().replace(/^\./, ''))
+        .filter(Boolean),
+    ),
+  ]
+}
+
 // These are processing fallbacks, not the suggested values in the settings inputs.
 const compressDefaults = {
   quality: 100,
@@ -119,6 +176,7 @@ export function resolveImageProcessingConfig(
   const watermark = resolveGroup(watermarkDefaults, global.watermark ?? {}, profile.watermark ?? {}, provider)
   normalizeGroup(compressDefaults, compress)
   normalizeGroup(watermarkDefaults, watermark)
+  watermark.watermarkPosition.value = normalizeWatermarkPosition(watermark.watermarkPosition.value)
 
   // Match encoder quality and watermark scaling fallbacks in PicList's processor.
   const quality = compress.quality.value as number

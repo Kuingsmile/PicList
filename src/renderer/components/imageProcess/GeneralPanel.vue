@@ -1,24 +1,17 @@
 <template>
   <SettingSection
     :icon="Gauge"
-    :title="t('pages.imageProcess.guide.quality')"
-    :description="t('pages.imageProcess.guide.categoryHints.general')"
-    only-one-row
+    :title="t('pages.imageProcess.studio.qualityTitle')"
+    :description="t('pages.imageProcess.studio.qualityDescription')"
   >
-    <ProcessingField field="compress.quality">
-      <CustomRange
-        :id="controlId('processing-quality')"
-        v-model.number="form.compress.quality"
-        :title="t('pages.imageProcess.guide.quality')"
-        :min="1"
-        :max="100"
-        :step="1"
-        :show-value="`${form.compress.quality}%`"
-      />
+    <ProcessingField field="compress.quality" class="col-span-full">
+      <span :id="controlId('quality-presets')" class="text-sm font-semibold text-secondary">
+        {{ t('pages.imageProcess.guide.qualityPresets') }}
+      </span>
       <div
-        class="mt-2 flex gap-1 rounded-lg border border-border-secondary p-1"
+        class="flex gap-1 rounded-lg border border-border-secondary p-1"
         role="group"
-        :aria-label="t('pages.imageProcess.guide.qualityPresets')"
+        :aria-labelledby="controlId('quality-presets')"
       >
         <CustomButton
           v-for="quality in qualityPresets"
@@ -34,6 +27,27 @@
           </span>
         </CustomButton>
       </div>
+      <CustomRange
+        :id="controlId('processing-quality')"
+        v-model.number="form.compress.quality"
+        class="mt-3"
+        :title="t('pages.imageProcess.studio.customQuality')"
+        :min="1"
+        :max="100"
+        :step="1"
+        :show-value="`${form.compress.quality}%`"
+        :min-label="t('pages.imageProcess.guide.presets.70')"
+        :max-label="t('pages.imageProcess.guide.presets.100')"
+      />
+    </ProcessingField>
+    <ProcessingField field="compress.isRemoveExif" p1 class="col-span-full">
+      <CustomSwitch
+        v-model="form.compress.isRemoveExif"
+        :title="t('pages.imageProcess.studio.removeExif')"
+        :description="t('pages.imageProcess.studio.removeExifHint')"
+        small
+        no-border
+      />
     </ProcessingField>
   </SettingSection>
 
@@ -42,7 +56,7 @@
     :title="t('pages.imageProcess.studio.formatTitle')"
     :description="t('pages.imageProcess.studio.formatDescription')"
   >
-    <ProcessingField field="compress.isConvert" p1>
+    <ProcessingField field="compress.isConvert" p1 :class="{ 'col-span-full': !form.compress.isConvert }">
       <CustomSwitch
         v-model="form.compress.isConvert"
         :title="t('pages.imageProcess.guide.convert')"
@@ -51,48 +65,25 @@
         no-border
       />
     </ProcessingField>
-    <ProcessingField v-if="form.compress.isConvert" field="compress.convertFormat">
-      <SingleSelect
-        v-model="form.compress.convertFormat"
-        :title="t('pages.imageProcess.general.destinationFormat')"
-        :fronticon="false"
-        :tight="false"
-        :select-list="formatOptions"
-      />
-    </ProcessingField>
-    <ProcessingField field="compress.isRemoveExif" p1>
-      <CustomSwitch
-        v-model="form.compress.isRemoveExif"
-        :title="t('pages.imageProcess.general.isRemoveExif')"
-        small
-        no-border
-      />
-    </ProcessingField>
-    <ProcessingField v-if="form.compress.isConvert" field="compress.formatConvertObj" class="col-span-full">
-      <label :for="controlId('processing-format-rules')" class="text-sm font-semibold text-secondary">
-        {{ t('pages.imageProcess.guide.formatRules') }}
-      </label>
-      <p class="text-xs text-secondary">{{ t('pages.imageProcess.studio.formatRulesHint') }}</p>
-      <textarea
-        :id="controlId('processing-format-rules')"
-        v-model="rulesDraft"
-        :aria-invalid="rulesError"
-        class="box-border min-h-[90px] w-full resize-y rounded-md border border-border bg-bg-tertiary p-3 font-mono text-sm text-main transition-all duration-200 ease-apple focus:border-accent focus-visible:focus-ring"
-        :class="{ 'border-danger!': rulesError }"
-        rows="3"
-        spellcheck="false"
-        placeholder='{"png": "webp", "jpg": "webp"}'
-      />
-      <p v-if="rulesError" role="alert" class="text-xs text-danger">
-        {{ t('pages.imageProcess.editor.invalidFormatRules') }}
-      </p>
-    </ProcessingField>
+    <template v-if="form.compress.isConvert">
+      <ProcessingField field="compress.convertFormat">
+        <SingleSelect
+          v-model="form.compress.convertFormat"
+          :title="t('pages.imageProcess.studio.convertTo')"
+          :fronticon="false"
+          :tight="false"
+          :select-list="formatOptions"
+        />
+      </ProcessingField>
+      <ProcessingField field="compress.formatConvertObj" class="col-span-full">
+        <FormatRulesEditor />
+      </ProcessingField>
+    </template>
   </SettingSection>
 </template>
 
 <script setup lang="ts">
 import { FileImage, Gauge } from '@lucide/vue'
-import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
@@ -101,75 +92,13 @@ import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import { useImageProcessContext } from '@/components/imageProcess/context'
+import FormatRulesEditor from '@/components/imageProcess/FormatRulesEditor.vue'
 import ProcessingField from '@/components/imageProcess/ProcessingField.vue'
+import { outputFormats } from '@/utils/imageProcessingConfig'
 
 const { t } = useI18n()
-const { form, controlId, updateSetting } = useImageProcessContext()
+const { form, controlId } = useImageProcessContext()
 
 const qualityPresets = [70, 85, 100]
-const imageExtList = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'tif', 'svg', 'ico', 'avif', 'heif', 'heic']
-const availableFormat = [
-  'webp',
-  'jpg',
-  'png',
-  'avif',
-  'gif',
-  'jpeg',
-  'tiff',
-  'tif',
-  'heif',
-  'svg',
-  'input',
-  'dz',
-  'fits',
-  'jp2',
-  'jxl',
-  'magick',
-  'openslide',
-  'pdf',
-  'ppm',
-  'raw',
-  'v',
-]
-const formatOptions = availableFormat.map(format => ({ value: format, label: format.toUpperCase() }))
-
-function isFormatRules(value: unknown): value is Record<string, string> {
-  return (
-    !!value &&
-    typeof value === 'object' &&
-    !Array.isArray(value) &&
-    Object.entries(value).every(
-      ([extension, format]) =>
-        imageExtList.includes(extension) && typeof format === 'string' && availableFormat.includes(format),
-    )
-  )
-}
-
-const rulesDraft = ref('')
-const rulesError = ref(false)
-// Follow scope changes and "use shared value" without reformatting rules while they are typed.
-watch(
-  () => JSON.stringify(form.compress.formatConvertObj),
-  json => {
-    try {
-      if (JSON.stringify(JSON.parse(rulesDraft.value)) === json) return
-    } catch {
-      // An unfinished draft is replaced by the value now in effect.
-    }
-    rulesDraft.value = JSON.stringify(form.compress.formatConvertObj, null, 2)
-    rulesError.value = false
-  },
-  { immediate: true },
-)
-watch(rulesDraft, value => {
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(value)
-  } catch {
-    // Invalid JSON is reported below and keeps the last valid rules.
-  }
-  rulesError.value = !isFormatRules(parsed)
-  if (!rulesError.value && JSON.stringify(parsed) !== JSON.stringify(form.compress.formatConvertObj))
-    updateSetting('compress', 'formatConvertObj', parsed as Record<string, string>)
-})
+const formatOptions = outputFormats.map(format => ({ value: format, label: format.toUpperCase() }))
 </script>

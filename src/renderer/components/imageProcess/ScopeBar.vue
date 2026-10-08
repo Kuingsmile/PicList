@@ -3,8 +3,8 @@
     class="flex w-full flex-col gap-3 rounded-2xl border border-border-secondary px-4 py-3 shadow-md"
     :aria-label="t('pages.imageProcess.design.applyTo')"
   >
-    <div class="flex flex-wrap items-end gap-x-6 gap-y-3">
-      <div class="flex min-w-[min(100%,360px)] flex-[1.4] flex-col gap-2">
+    <div class="flex flex-wrap items-end gap-x-5 gap-y-3">
+      <div class="flex min-w-[min(100%,380px)] flex-[1.4] flex-col gap-2">
         <span :id="controlId('scope-label')" class="text-[0.925rem] leading-[1.4] font-semibold text-secondary">
           {{ t('pages.imageProcess.studio.applyTo') }}
         </span>
@@ -21,12 +21,13 @@
             :icon="scopeIcons[level]"
             :text="t('pages.imageProcess.guide.scopeLabels.' + level)"
             :active="scope === level"
-            class="px-2"
+            class="min-w-0 px-2"
+            text-class="truncate"
             @click="scope = level"
           />
         </div>
       </div>
-      <div class="grid min-w-[min(100%,320px)] flex-1 grid-cols-2 gap-3">
+      <div class="grid min-w-[min(100%,300px)] flex-1 grid-cols-2 gap-3">
         <div class="flex min-w-0 flex-col gap-2">
           <SingleSelect
             v-model="targetProvider"
@@ -48,11 +49,25 @@
         </div>
       </div>
     </div>
-    <p class="flex items-start gap-2 text-xs leading-relaxed text-secondary" data-testid="processing-scope-hint">
-      <component :is="scopeIcons[scope]" :size="14" class="mt-px shrink-0 text-accent" aria-hidden="true" />
-      <span class="min-w-0 flex-1 wrap-anywhere">{{ scopeHint }}</span>
-      <HelpTooltip :content="t('pages.imageProcess.design.inheritanceHelp')" />
-    </p>
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border-secondary pt-2.5">
+      <p
+        class="flex min-w-[min(100%,320px)] flex-1 items-start gap-2 text-xs leading-relaxed text-secondary"
+        data-testid="processing-scope-hint"
+      >
+        <component :is="scopeIcons[scope]" :size="14" class="mt-0.5 shrink-0 text-accent" aria-hidden="true" />
+        <span class="min-w-0 wrap-anywhere">{{ scopeHint }}</span>
+        <HelpTooltip :content="t('pages.imageProcess.design.inheritanceHelp')" />
+      </p>
+      <CustomSwitch
+        v-model="showSources"
+        class="ml-auto"
+        :title="t('pages.imageProcess.guide.showSources')"
+        small
+        no-border
+        no-hover
+        tighter
+      />
+    </div>
   </section>
 </template>
 
@@ -62,14 +77,23 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
+import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import HelpTooltip from '@/components/common/HelpTooltip.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import { useImageProcessContext } from '@/components/imageProcess/context'
 import type { ProcessingScope } from '@/utils/imageProcessingConfig'
 
 const { t } = useI18n()
-const { scope, providers, configurationOptions, targetProvider, selectedConfigId, previewUploader, controlId } =
-  useImageProcessContext()
+const {
+  scope,
+  providers,
+  configurationOptions,
+  targetProvider,
+  selectedConfigId,
+  previewUploader,
+  controlId,
+  showSources,
+} = useImageProcessContext()
 
 const scopes: ProcessingScope[] = ['global', 'provider', 'config']
 const scopeIcons = { global: Globe, provider: Layers, config: UserRound }
