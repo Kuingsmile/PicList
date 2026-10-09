@@ -1027,7 +1027,7 @@ async function handleBreadcrumbClick(index: number) {
 
 async function handleClickFile(item: any) {
   if (item.isDir) {
-    configMap.value.prefix = `/${item.key}`
+    configMap.value.prefix = `/${item.key.replace(/\/+$/, '')}/`
     await resetParam(false)
     return
   }

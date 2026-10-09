@@ -54,7 +54,7 @@ export function useBucketUploads({
       alias: configMap.value.alias,
       bucketName: configMap.value.bucketName,
       region: configMap.value.bucketConfig.Location,
-      prefix: currentPrefix.value,
+      prefix: `${currentPrefix.value.replace(/\/+$/, '')}/`,
       githubBranch: currentCustomDomain.value,
       aclForUpload: manageStore.config.picBed[configMap.value.alias].aclForUpload,
       keepDirStructure: isUploadKeepDirStructure.value,
