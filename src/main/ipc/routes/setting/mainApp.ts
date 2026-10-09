@@ -162,16 +162,13 @@ export default [
   {
     action: IRPCActionType.PICLIST_OPEN_DIRECTORY,
     handler: async (_: IIPCEvent, args: [dirPath?: string, inStorePath?: boolean]) => {
-      let [dirPath] = args
-      const [inStorePath = true] = args
-      if (inStorePath) {
-        dirPath = path.join(STORE_PATH, dirPath || '')
-      }
-      if (!dirPath) {
+      const [dirPath, inStorePath = true] = args
+      const targetDir = inStorePath ? path.join(STORE_PATH, dirPath || '') : dirPath
+      if (!targetDir) {
         return
       }
-      fs.ensureDirSync(dirPath)
-      shell.openPath(dirPath)
+      fs.ensureDirSync(targetDir)
+      shell.openPath(targetDir)
     },
   },
   {
