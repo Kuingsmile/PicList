@@ -59,8 +59,15 @@
     <div class="mt-auto flex min-h-[32px] items-center gap-2 border-t border-border-secondary pt-3">
       <template v-if="installMode">
         <span
+          v-if="weeklyDownloads"
+          v-tooltip="t('pages.plugin.weeklyDownloads')"
+          class="inline-flex items-center gap-1 text-xs text-secondary tabular-nums"
+        >
+          <TrendingUpIcon :size="13" aria-hidden="true" />{{ t('pages.plugin.perWeek', { n: weeklyDownloads }) }}
+        </span>
+        <span
           v-if="item.hasInstall"
-          class="inline-flex items-center gap-1.5 text-xs font-medium text-success"
+          class="ml-auto inline-flex items-center gap-1.5 text-xs font-medium text-success"
           role="status"
         >
           <CircleCheck :size="14" aria-hidden="true" />{{ t('pages.plugin.installed') }}
@@ -119,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowUpCircle, CircleCheck, DownloadIcon, LoaderCircle, SlidersHorizontal } from '@lucide/vue'
+import { ArrowUpCircle, CircleCheck, DownloadIcon, LoaderCircle, SlidersHorizontal, TrendingUpIcon } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -137,11 +144,16 @@ const emit = defineEmits<{
   manage: [plugin: IPicGoPlugin]
   update: [plugin: IPicGoPlugin]
 }>()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const isDisabled = computed(() => !installMode && !item.enabled)
 const hasUpdate = computed(() => !!latestVersion && latestVersion !== String(item.version))
 const author = computed(() => item.author?.replace(/<.*>/, '').trim() || 'unknown')
+const weeklyDownloads = computed(() =>
+  item.downloads
+    ? new Intl.NumberFormat(locale.value, { notation: 'compact', maximumFractionDigits: 1 }).format(item.downloads)
+    : '',
+)
 
 function setFallbackLogo(e: Event) {
   const target = e.target as HTMLImageElement

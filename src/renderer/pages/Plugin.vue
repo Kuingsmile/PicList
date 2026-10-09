@@ -165,10 +165,62 @@
         class="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl border border-border-secondary shadow-md"
         :aria-busy="contentLoading || undefined"
       >
+        <!-- Discover results bar -->
+        <div
+          v-if="activeTab === 'discover' && !discoverFailed"
+          class="flex shrink-0 flex-wrap items-center gap-2 border-b border-border-secondary px-4 py-2"
+        >
+          <div
+            class="flex min-w-0 flex-1 items-center gap-2 text-xs whitespace-nowrap text-secondary tabular-nums"
+            aria-live="polite"
+          >
+            <LoaderCircle
+              v-if="discoverLoading"
+              :size="13"
+              class="animate-spin motion-reduce:animate-none"
+              aria-hidden="true"
+            />
+            {{ statusLine }}
+          </div>
+          <div
+            class="flex h-[32px] items-center gap-0.5 rounded-lg border border-border-secondary p-0.5"
+            role="group"
+            :aria-label="t('pages.plugin.discoverFilters')"
+          >
+            <CustomButton
+              type="tab"
+              :icon="AppWindowIcon"
+              :icon-size="14"
+              :active="guiOnly"
+              :text="t('pages.plugin.guiOnly')"
+              class="h-full px-2.5! py-0!"
+              @click="guiOnly = !guiOnly"
+            />
+            <CustomButton
+              type="tab"
+              :icon="EyeOffIcon"
+              :icon-size="14"
+              :active="hideInstalled"
+              :text="t('pages.plugin.hideInstalled')"
+              class="h-full px-2.5! py-0!"
+              @click="hideInstalled = !hideInstalled"
+            />
+          </div>
+          <div class="flex items-center gap-2">
+            <SingleSelect
+              v-model="discoverSort"
+              class="h-[32px] min-w-[150px]"
+              :title="t('pages.plugin.sortBy')"
+              :custom-front-icon="ArrowDownUpIcon"
+              :select-list="sortOptions"
+            />
+          </div>
+        </div>
+
         <div class="no-scrollbar flex min-h-0 flex-1 flex-col overflow-auto p-4">
           <!-- Status line -->
           <div
-            v-if="statusLine"
+            v-if="activeTab === 'installed' && statusLine"
             class="mb-3 flex items-center gap-2 text-xs text-secondary tabular-nums"
             aria-live="polite"
           >
@@ -274,9 +326,12 @@
 <script setup lang="ts">
 import {
   AlertCircleIcon,
+  AppWindowIcon,
+  ArrowDownUpIcon,
   CloudOffIcon,
   CompassIcon,
   ExternalLinkIcon,
+  EyeOffIcon,
   FolderInputIcon,
   LoaderCircle,
   PackageIcon,
@@ -295,6 +350,7 @@ import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
+import SingleSelect from '@/components/common/SingleSelect.vue'
 import PluginCard from '@/components/plugins/PluginCard.vue'
 import PluginConfigDialog from '@/components/plugins/PluginConfigDialog.vue'
 import { usePlugins } from '@/composables/plugins/usePlugins'
@@ -302,6 +358,7 @@ import { usePlugins } from '@/composables/plugins/usePlugins'
 defineOptions({ name: 'PluginPage' })
 
 type StatusFilter = 'all' | 'updates' | 'disabled'
+type DiscoverSort = 'relevance' | 'downloads' | 'updated' | 'name'
 
 const { t } = useI18n()
 const {
@@ -337,6 +394,9 @@ const {
 const activeTab = useStorage<'installed' | 'discover'>('plugin-page-tab', 'installed')
 const installedQuery = ref('')
 const statusFilter = ref<StatusFilter>('all')
+const discoverSort = useStorage<DiscoverSort>('plugin-discover-sort', 'downloads')
+const guiOnly = ref(false)
+const hideInstalled = ref(false)
 
 const anyBusy = computed(() => pluginList.value.some(item => item.ing))
 const disabledCount = computed(() => pluginList.value.filter(item => !item.enabled).length)
@@ -347,6 +407,27 @@ const statusOptions = computed<{ value: StatusFilter; label: string; count?: num
   { value: 'updates', label: t('pages.plugin.filterUpdates'), count: updatablePlugins.value.length },
   { value: 'disabled', label: t('pages.plugin.filterDisabled'), count: disabledCount.value },
 ])
+
+const sortOptions = computed<{ value: DiscoverSort; label: string }[]>(() => [
+  { value: 'downloads', label: t('pages.plugin.sortDownloads') },
+  { value: 'updated', label: t('pages.plugin.sortUpdated') },
+  { value: 'name', label: t('pages.plugin.sortName') },
+  { value: 'relevance', label: t('pages.plugin.sortRelevance') },
+])
+
+const discoverComparators: Record<Exclude<DiscoverSort, 'relevance'>, (a: IPicGoPlugin, b: IPicGoPlugin) => number> = {
+  downloads: (a, b) => (b.downloads ?? 0) - (a.downloads ?? 0),
+  updated: (a, b) => (b.date || '').localeCompare(a.date || ''),
+  name: (a, b) => a.name.localeCompare(b.name),
+}
+
+const filteredDiscover = computed(() => {
+  const list = discoverPlugins.value.filter(
+    item => (!guiOnly.value || item.gui) && (!hideInstalled.value || !item.hasInstall),
+  )
+  // 'relevance' keeps the order npm returned.
+  return discoverSort.value === 'relevance' ? list : list.sort(discoverComparators[discoverSort.value])
+})
 
 const filteredInstalled = computed(() => {
   const query = installedQuery.value.trim().toLowerCase()
@@ -360,7 +441,7 @@ const filteredInstalled = computed(() => {
 })
 
 const visiblePlugins = computed(() =>
-  activeTab.value === 'installed' ? filteredInstalled.value : discoverPlugins.value,
+  activeTab.value === 'installed' ? filteredInstalled.value : filteredDiscover.value,
 )
 const contentLoading = computed(() => (activeTab.value === 'installed' ? loading.value : discoverLoading.value))
 const showSkeleton = computed(() => contentLoading.value && visiblePlugins.value.length === 0)
@@ -376,6 +457,12 @@ const statusLine = computed(() => {
   if (discoverFailed.value) return ''
   if (discoverLoading.value) return searchText.value ? t('pages.plugin.searching') : t('pages.plugin.loadingPlugins')
   if (discoverPlugins.value.length === 0) return ''
+  if (filteredDiscover.value.length !== discoverPlugins.value.length) {
+    return t('pages.plugin.filteredCount', {
+      shown: filteredDiscover.value.length,
+      total: discoverPlugins.value.length,
+    })
+  }
   return searchText.value
     ? t('pages.plugin.searchResultCount', discoverPlugins.value.length)
     : t('pages.plugin.registryCount', discoverPlugins.value.length)
@@ -388,6 +475,14 @@ const emptyState = computed<{
   action?: { icon: Component; text: string; run: () => void }
 }>(() => {
   if (activeTab.value === 'discover') {
+    if (discoverPlugins.value.length > 0) {
+      return {
+        icon: SearchXIcon,
+        title: t('pages.plugin.noMatchFilters'),
+        description: t('pages.plugin.noMatchFiltersHint'),
+        action: { icon: XIcon, text: t('pages.plugin.clearFilters'), run: clearDiscoverFilters },
+      }
+    }
     return {
       icon: SearchXIcon,
       title: t('pages.plugin.noPluginsFound'),
@@ -416,6 +511,11 @@ const emptyState = computed<{
 function clearInstalledFilters() {
   installedQuery.value = ''
   statusFilter.value = 'all'
+}
+
+function clearDiscoverFilters() {
+  guiOnly.value = false
+  hideInstalled.value = false
 }
 
 function clearQuery() {

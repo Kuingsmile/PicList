@@ -22,6 +22,8 @@ interface IPicGoPlugin {
   guiMenu?: any[]
   ing: boolean
   hasInstall?: boolean
+  // Weekly npm downloads, only set for registry results.
+  downloads?: number
   [propName: string]: any
 }
 
@@ -65,6 +67,10 @@ interface IPluginMenuConfig {
 }
 
 interface INPMSearchResultObject {
+  downloads?: {
+    monthly: number
+    weekly: number
+  }
   package: {
     date?: string
     name: string
@@ -81,6 +87,7 @@ interface INPMSearchResultObject {
     links: {
       npm: string
       homepage: string
+      repository?: string
     }
   }
 }

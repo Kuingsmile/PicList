@@ -112,7 +112,7 @@ export function usePluginRegistry({ pluginNameList }: PluginRegistryOptions) {
   async function _getSearchResult(val: string, strict: boolean, controller: AbortController) {
     try {
       const data = await fetchRegistryJson(
-        `https://registry.npmjs.com/-/v1/search?text=${encodeURIComponent(val)}`,
+        `https://registry.npmjs.com/-/v1/search?text=${encodeURIComponent(val)}&size=100`,
         controller,
       )
       if (controller !== searchController || controller.signal.aborted) return
@@ -149,9 +149,10 @@ export function usePluginRegistry({ pluginNameList }: PluginRegistryOptions) {
       description: pkg.description,
       logo: `https://cdn.jsdelivr.net/npm/${pkg.name}/logo.png`,
       config: {},
-      homepage: pkg.links ? pkg.links.homepage : '',
+      homepage: pkg.links?.homepage || pkg.links?.repository || pkg.links?.npm || '',
       hasInstall: pluginNameList.value.includes(pkg.name),
       version: pkg.version,
+      downloads: item.downloads?.weekly ?? 0,
       gui: !!pkg.keywords?.includes('picgo-gui-plugin'),
       ing: false, // installing or uninstalling
     }
