@@ -452,7 +452,8 @@ async function preview() {
         planId: previousPlan.id,
       })
     snapshots.value = await request<GallerySyncSnapshot[]>({ action: 'list-snapshots' })
-    if (!snapshotId.value && snapshots.value.length) snapshotId.value = snapshots.value[0].id
+    if (!snapshots.value.some(snapshot => snapshot.id === snapshotId.value))
+      snapshotId.value = snapshots.value[0]?.id ?? ''
     plan.value = await request<GallerySyncPlan>({ action: 'preview' })
     resolutions.value = Object.fromEntries(
       plan.value.changes.filter(item => item.kind === 'conflict').map(item => [item.key, '']),
@@ -478,14 +479,11 @@ async function apply() {
       ),
     })
     snapshotId.value = result.snapshotId
-    snapshots.value = [
-      { id: result.snapshotId, watermark: result.watermark, status: 'committed' },
-      ...snapshots.value.filter(item => item.id !== result.snapshotId),
-    ]
     applied.value = true
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : syncText('failed')
   } finally {
+    snapshots.value = await request<GallerySyncSnapshot[]>({ action: 'list-snapshots' }).catch(() => snapshots.value)
     operation.value = null
     ready.value = false
   }

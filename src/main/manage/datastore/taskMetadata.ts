@@ -63,7 +63,11 @@ export function managementTaskMetadata<T extends IUploadTask | IDownloadTask>(ta
   return metadata as T
 }
 
-export function decodeManagementCheckpoint(value: unknown): ManagementCheckpoint {
+export function decodeManagementCheckpoint(value: unknown, legacy: boolean): ManagementCheckpoint {
+  // Older builds can overwrite a versioned checkpoint with an empty object when they quit.
+  if (legacy && isRecord(value) && Object.keys(value).length === 0) {
+    return { uploadTaskQueue: [], downloadTaskQueue: [] }
+  }
   if (!isRecord(value) || !Array.isArray(value.uploadTaskQueue) || !Array.isArray(value.downloadTaskQueue)) {
     throw new Error('Invalid management checkpoint')
   }

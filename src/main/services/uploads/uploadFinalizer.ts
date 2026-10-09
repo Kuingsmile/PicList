@@ -14,13 +14,7 @@ import { IPasteStyle } from '#/constants/app'
 import { UPDATE_GALLERY, UPLOAD_FILES } from '#/constants/ipcChannels'
 import { IWindowList } from '~/constants'
 import { t } from '~/i18n'
-import {
-  isRecord,
-  quarantineTaskStore,
-  TASK_HISTORY_LIMIT,
-  TASK_HISTORY_MAX_AGE,
-  writeAtomicTaskFile,
-} from '~/services/taskCheckpoint'
+import { isRecord, quarantineTaskStore, writeAtomicTaskFile } from '~/services/taskCheckpoint'
 import { sendToWindow } from '~/services/uploads/uploadJob'
 import { getUploadedSourcePath, isUploadUrl } from '~/services/uploads/uploadResult'
 import { handleCopyUrl } from '~/utils/clipboard'
@@ -36,6 +30,23 @@ export interface UploadFinalizationPreferences {
 
 export const interactiveUploadPreferences: UploadFinalizationPreferences = { copy: true, notification: 'batch' }
 export const backgroundUploadPreferences: UploadFinalizationPreferences = { copy: false, notification: 'none' }
+
+const FINALIZATION_HISTORY_LIMIT = 100
+const FINALIZATION_HISTORY_MAX_AGE = 7 * 24 * 60 * 60 * 1000
+const FINALIZATION_CLEANUP_INTERVAL = 60 * 60 * 1000
+
+const journalOperations = new Map<string, Promise<unknown>>()
+
+function withJournalLock<T>(id: string, operation: () => Promise<T>): Promise<T> {
+  const previous = journalOperations.get(id) ?? Promise.resolve()
+  const result = previous.catch(() => {}).then(operation)
+  journalOperations.set(id, result)
+  const release = () => {
+    if (journalOperations.get(id) === result) journalOperations.delete(id)
+  }
+  void result.then(release, release)
+  return result
+}
 
 interface FinalizationItem {
   role: 'ctx' | 'backupCtx'
@@ -179,15 +190,32 @@ export function assertFinalizationStorageAvailable(): void {
 
 export async function saveUploadFinalization(state: UploadFinalization): Promise<void> {
   if (!isUploadFinalization(state)) throw new Error('Invalid upload finalization')
-  await app.whenReady()
-  assertFinalizationStorageAvailable()
-  const file = journalPath(state.id)
-  // Plugin result metadata and hook snapshots can contain credentials. Keep them out of plaintext task stores.
-  const ciphertext = safeStorage.encryptString(JSON.stringify(state)).toString('base64')
-  await writeAtomicTaskFile(
-    file,
-    JSON.stringify({ version: 1, savedAt: Date.now(), completed: !!state.completed, ciphertext }),
-  )
+  await withJournalLock(state.id, async () => {
+    await app.whenReady()
+    assertFinalizationStorageAvailable()
+    const file = journalPath(state.id)
+    // Completed receipts need result metadata for idempotent replies, but no recovery-only configuration or paths.
+    const saved = state.completed
+      ? {
+          ...state,
+          inputs: [],
+          picBeds: {},
+          deletedSources: [],
+          settings: { deleteLocalFile: false, pasteStyle: state.settings.pasteStyle, notify: false },
+          preferences: { copy: false, notification: 'none' },
+          items: state.items.map(({ sourcePath: _sourcePath, completedScripts: _completedScripts, ...item }) => ({
+            ...item,
+            completedScripts: [],
+          })),
+        }
+      : state
+    // Plugin result metadata can contain credentials. Keep it encrypted even after completion.
+    const ciphertext = safeStorage.encryptString(JSON.stringify(saved)).toString('base64')
+    await writeAtomicTaskFile(
+      file,
+      JSON.stringify({ version: 1, savedAt: Date.now(), completed: !!state.completed, ciphertext }),
+    )
+  })
   if (state.completed) scheduleJournalCleanup()
 }
 
@@ -248,10 +276,16 @@ export async function loadUploadFinalization(id: string): Promise<UploadFinaliza
 
 let queueFinalizations = new Set<string>()
 let cleanupTimer: NodeJS.Timeout | undefined
+let periodicCleanupTimer: NodeJS.Timeout | undefined
+let journalCleanup: Promise<void> | undefined
 
 export function protectQueueFinalizations(ids: string[]): void {
   queueFinalizations = new Set(ids)
   scheduleJournalCleanup()
+  if (!periodicCleanupTimer) {
+    periodicCleanupTimer = setInterval(scheduleJournalCleanup, FINALIZATION_CLEANUP_INTERVAL)
+    periodicCleanupTimer.unref()
+  }
 }
 
 function scheduleJournalCleanup(): void {
@@ -263,7 +297,32 @@ function scheduleJournalCleanup(): void {
   cleanupTimer.unref()
 }
 
-export async function pruneUploadFinalizations(): Promise<void> {
+export function pruneUploadFinalizations(): Promise<void> {
+  if (!journalCleanup) {
+    journalCleanup = pruneJournals().finally(() => {
+      journalCleanup = undefined
+    })
+  }
+  return journalCleanup
+}
+
+function journalProtected(id: string): boolean {
+  return queueFinalizations.has(id) || activeFinalizations.has(id) || pendingFinalizations.has(id)
+}
+
+async function completedJournalTime(file: string): Promise<number | undefined> {
+  const data = await fs.readJSON(file).catch(() => undefined)
+  if (!isRecord(data) || data.completed !== true) return
+  const savedAt = data.savedAt
+  if (data.version !== undefined) {
+    if (data.version !== 1 || typeof data.ciphertext !== 'string' || !/^[A-Za-z0-9+/]+={0,2}$/.test(data.ciphertext))
+      return
+  } else if (!isUploadFinalization(data)) return
+  if (typeof savedAt === 'number' && Number.isFinite(savedAt) && savedAt > 0) return savedAt
+  return (await fs.stat(file).catch(() => undefined))?.mtimeMs
+}
+
+async function pruneJournals(): Promise<void> {
   const directory = path.join(dataDir(), 'uploadFinalizations')
   const files = await fs.readdir(directory).catch((error: NodeJS.ErrnoException) => {
     if (error.code === 'ENOENT') return []
@@ -273,18 +332,23 @@ export async function pruneUploadFinalizations(): Promise<void> {
   for (const file of files) {
     if (!/^[\w-]+\.json$/.test(file)) continue
     const id = file.slice(0, -5)
-    if (queueFinalizations.has(id) || activeFinalizations.has(id) || pendingFinalizations.has(id)) continue
-    const data = await fs.readJSON(path.join(directory, file)).catch(() => undefined)
-    if (!isRecord(data) || data.completed !== true) continue
-    const time = typeof data.savedAt === 'number' ? data.savedAt : (await fs.stat(path.join(directory, file))).mtimeMs
+    if (journalProtected(id)) continue
+    const time = await completedJournalTime(path.join(directory, file))
+    if (time === undefined) continue
     completed.push({ id, time })
   }
-  completed.sort((a, b) => b.time - a.time)
+  completed.sort((a, b) => b.time - a.time || b.id.localeCompare(a.id))
+  const cutoff = Date.now() - FINALIZATION_HISTORY_MAX_AGE
   for (const [index, { id, time }] of completed.entries()) {
-    if (index < TASK_HISTORY_LIMIT && time >= Date.now() - TASK_HISTORY_MAX_AGE) continue
-    if (queueFinalizations.has(id) || activeFinalizations.has(id) || pendingFinalizations.has(id)) continue
-    await fs.unlink(journalPath(id)).catch((error: NodeJS.ErrnoException) => {
-      if (error.code !== 'ENOENT') throw new Error('Upload finalization history cleanup failed')
+    if (index < FINALIZATION_HISTORY_LIMIT && time >= cutoff) continue
+    await withJournalLock(id, async () => {
+      if (journalProtected(id)) return
+      const file = journalPath(id)
+      // A retry may have rewritten this receipt since the scan. Serialize deletion with saves and recheck its age.
+      if ((await completedJournalTime(file)) !== time || journalProtected(id)) return
+      await fs.unlink(file).catch((error: NodeJS.ErrnoException) => {
+        if (error.code !== 'ENOENT') throw new Error('Upload finalization history cleanup failed')
+      })
     })
   }
 }

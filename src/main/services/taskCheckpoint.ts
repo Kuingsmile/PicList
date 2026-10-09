@@ -150,7 +150,8 @@ export class TaskCheckpoint<T> {
       const data = await this.options.snapshot()
       await (this.options.write ?? writeAtomicTaskFile)(
         this.options.file,
-        JSON.stringify({ version: TASK_CHECKPOINT_VERSION, savedAt: Date.now(), data }),
+        // Legacy readers need the sanitized queue fields at the root; newer readers use the envelope.
+        JSON.stringify({ ...data, version: TASK_CHECKPOINT_VERSION, savedAt: Date.now(), data }),
       )
       this.savedRevision = revision
     }

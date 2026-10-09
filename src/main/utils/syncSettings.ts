@@ -417,12 +417,19 @@ const getGallerySync = () =>
       picgo.saveConfig({ [configPaths.settings.lastSyncTime]: value })
     },
     refresh: () => GalleryDB.getInstance().refresh(),
+    getSnapshotRetention: () => picgo.getConfig<number>(configPaths.settings.gallerySnapshotRetention),
+    saveSnapshotRetention: limit => {
+      picgo.saveConfig({ [configPaths.settings.gallerySnapshotRetention]: limit })
+    },
   }))
 
 // A call without an explicit apply request is always a dry run.
 async function syncGallery(request: GallerySyncRequest = { action: 'preview' }) {
   const transaction = getGallerySync()
   if (request.action === 'list-snapshots') return transaction.listSnapshots()
+  if (request.action === 'snapshot-settings') return transaction.getSnapshotSettings()
+  if (request.action === 'set-snapshot-retention') return transaction.setSnapshotRetention(request.limit)
+  if (request.action === 'delete-snapshot') return transaction.deleteSnapshot(request.snapshotId)
   if (request.action === 'cancel') return transaction.cancel(request.planId)
   if (!isSyncConfigValidate(getSyncConfig())) throw new GallerySyncError('Sync configuration is invalid.')
   switch (request.action) {
@@ -437,5 +444,6 @@ async function syncGallery(request: GallerySyncRequest = { action: 'preview' }) 
 
 export const exportGallerySyncSummary = (id: string) => getGallerySync().summary(id)
 export const exportGallerySyncSnapshot = (id: string) => getGallerySync().exportSnapshot(id)
+export const pruneGallerySyncSnapshots = () => getGallerySync().listSnapshots()
 
 export { downloadFile, syncGallery, uploadFile }

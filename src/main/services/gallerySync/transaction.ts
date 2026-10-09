@@ -10,7 +10,9 @@ import type {
   GallerySyncResolution,
   GallerySyncResult,
   GallerySyncSnapshot,
+  GallerySyncSnapshotSettings,
 } from '#/types/gallerySync'
+import { DEFAULT_GALLERY_SNAPSHOT_LIMIT, MAX_GALLERY_SNAPSHOT_LIMIT } from '#/types/gallerySync'
 
 import { withGalleryLock } from './lock'
 import {
@@ -46,6 +48,8 @@ interface Dependencies {
   saveWatermark: (value: number) => void | Promise<void>
   recoverWatermark: (value: number) => void
   refresh: () => Promise<unknown>
+  getSnapshotRetention?: () => number | undefined
+  saveSnapshotRetention?: (limit: number) => void | Promise<void>
   now?: () => number
   // Atomic file replacement is injectable for interrupted-write tests.
   replace?: (file: string, data: Buffer) => Promise<unknown>
@@ -61,8 +65,22 @@ interface Prepared {
   entries: MergeEntry[]
 }
 
-const SNAPSHOT_RETENTION_LIMIT = 50
 const SUMMARY_CACHE_LIMIT = 16
+
+const validSnapshotLimit = (limit: unknown): limit is number =>
+  typeof limit === 'number' && Number.isSafeInteger(limit) && limit >= 1 && limit <= MAX_GALLERY_SNAPSHOT_LIMIT
+
+async function directorySize(directory: string): Promise<number> {
+  const entries = await fs.readdir(directory, { withFileTypes: true })
+  const sizes = await Promise.all(
+    entries.map(async entry => {
+      const file = path.join(directory, entry.name)
+      if (entry.isDirectory()) return directorySize(file)
+      return entry.isFile() ? (await fs.stat(file)).size : 0
+    }),
+  )
+  return sizes.reduce((sum, size) => sum + size, 0)
+}
 
 const equal = (left: Buffer | null, right: Buffer | null) =>
   left === null ? right === null : right !== null && left.equals(right)
@@ -76,6 +94,23 @@ export class GallerySyncTransaction {
   private summaries = new Map<string, string>()
   constructor(private readonly deps: Dependencies) {}
   private now = () => this.deps.now?.() ?? Date.now()
+  private retentionLimit() {
+    const limit = this.deps.getSnapshotRetention?.()
+    return validSnapshotLimit(limit) ? limit : DEFAULT_GALLERY_SNAPSHOT_LIMIT
+  }
+  private protectedSnapshots() {
+    const protectedIds = new Set(this.plans.keys())
+    const pending = path.join(stateDir(this.deps.root), 'pending.json')
+    if (fs.existsSync(pending)) protectedIds.add(readJournal(this.deps.root, fs.readJsonSync(pending).id).id)
+    return protectedIds
+  }
+  private async removeSnapshot(id: string) {
+    const directory = snapshotDir(this.deps.root, id)
+    const stat = await fs.lstat(directory)
+    if (!stat.isDirectory() || stat.isSymbolicLink()) throw new GallerySyncError('Invalid gallery snapshot.')
+    await fs.remove(directory)
+    this.summaries.delete(id)
+  }
   private async recover() {
     recoverGallerySync(this.deps.root, this.deps.recoverWatermark)
     await this.pruneSnapshots()
@@ -164,6 +199,7 @@ export class GallerySyncTransaction {
       const { plan, local, directory, bundle, entries } = prepared
       let journal: Journal | undefined
       let ownsPending = false
+      let snapshotCreated = false
       try {
         if (prepared.configKey !== this.deps.configurationKey() || plan.startingWatermark !== this.deps.getWatermark())
           throw new GallerySyncError('Sync settings or watermark changed. Preview again.')
@@ -189,6 +225,9 @@ export class GallerySyncTransaction {
         }
 
         const snapshot = snapshotDir(this.deps.root, id)
+        await fs.ensureDir(path.dirname(snapshot))
+        await fs.mkdir(snapshot)
+        snapshotCreated = true
         await fs.ensureDir(path.join(snapshot, 'local'))
         await fs.ensureDir(path.join(snapshot, 'remote'))
         for (const [i, file] of DATABASES.entries()) {
@@ -274,6 +313,8 @@ export class GallerySyncTransaction {
         throw failure
       } finally {
         await this.discard(id)
+        // Before claiming pending recovery, no gallery changes or remote publication can have occurred.
+        if (snapshotCreated && !ownsPending) await this.removeSnapshot(id).catch(() => {})
         await this.pruneSnapshots()
       }
     })
@@ -339,26 +380,22 @@ export class GallerySyncTransaction {
           return []
         }
       })
-      .sort((a, b) => b.watermark - a.watermark)
+      .sort((a, b) => b.watermark - a.watermark || b.id.localeCompare(a.id))
   }
 
   private async pruneSnapshots(snapshots?: GallerySyncSnapshot[]): Promise<Set<string>> {
     const removed = new Set<string>()
     try {
-      const pending = path.join(stateDir(this.deps.root), 'pending.json')
       // If pending recovery cannot be read and validated, leave every snapshot intact.
-      const pendingId = fs.existsSync(pending) ? readJournal(this.deps.root, fs.readJsonSync(pending).id).id : undefined
+      const protectedIds = this.protectedSnapshots()
       const completed = (snapshots ?? this.readSnapshots()).filter(
         snapshot =>
-          snapshot.id !== pendingId &&
-          !this.plans.has(snapshot.id) &&
-          (snapshot.status === 'committed' || snapshot.status === 'rolled-back'),
+          !protectedIds.has(snapshot.id) && (snapshot.status === 'committed' || snapshot.status === 'rolled-back'),
       )
       // Unfinished transactions and the pending recovery snapshot are never retention candidates.
-      for (const { id } of completed.slice(SNAPSHOT_RETENTION_LIMIT)) {
+      for (const { id } of completed.slice(this.retentionLimit())) {
         try {
-          await fs.remove(snapshotDir(this.deps.root, id))
-          this.summaries.delete(id)
+          await this.removeSnapshot(id)
           removed.add(id)
         } catch {
           // A locked or unwritable backup can be retried on the next cleanup.
@@ -374,7 +411,59 @@ export class GallerySyncTransaction {
     return withGalleryLock(async () => {
       const snapshots = this.readSnapshots()
       const removed = await this.pruneSnapshots(snapshots)
-      return snapshots.filter(snapshot => !removed.has(snapshot.id)).slice(0, SNAPSHOT_RETENTION_LIMIT)
+      return snapshots.filter(snapshot => !removed.has(snapshot.id))
+    })
+  }
+
+  private async snapshotSettings(): Promise<GallerySyncSnapshotSettings> {
+    await this.pruneSnapshots()
+    let protectedIds: Set<string> | undefined
+    try {
+      protectedIds = this.protectedSnapshots()
+    } catch {
+      // Unknown pending recovery protects all snapshots until its journal can be validated.
+    }
+    const snapshots = await Promise.all(
+      this.readSnapshots().map(async snapshot => ({
+        ...snapshot,
+        sizeBytes: await directorySize(snapshotDir(this.deps.root, snapshot.id)).catch(() => 0),
+        deletable:
+          !!protectedIds &&
+          !protectedIds.has(snapshot.id) &&
+          (snapshot.status === 'committed' || snapshot.status === 'rolled-back'),
+      })),
+    )
+    return { retentionLimit: this.retentionLimit(), snapshots }
+  }
+
+  getSnapshotSettings(): Promise<GallerySyncSnapshotSettings> {
+    return withGalleryLock(() => this.snapshotSettings())
+  }
+
+  setSnapshotRetention(limit: number): Promise<GallerySyncSnapshotSettings> {
+    return withGalleryLock(async () => {
+      if (!validSnapshotLimit(limit))
+        throw new GallerySyncError(`Keep between 1 and ${MAX_GALLERY_SNAPSHOT_LIMIT} gallery snapshots.`)
+      if (!this.deps.saveSnapshotRetention) throw new GallerySyncError('Snapshot settings could not be saved.')
+      await this.deps.saveSnapshotRetention(limit)
+      return this.snapshotSettings()
+    })
+  }
+
+  deleteSnapshot(id: string): Promise<GallerySyncSnapshotSettings> {
+    return withGalleryLock(async () => {
+      snapshotDir(this.deps.root, id)
+      let protectedIds: Set<string>
+      try {
+        protectedIds = this.protectedSnapshots()
+      } catch {
+        throw new GallerySyncError('Snapshots are protected until pending gallery recovery can be verified.')
+      }
+      const journal = readJournal(this.deps.root, id)
+      if (protectedIds.has(id) || !['committed', 'rolled-back'].includes(journal.status))
+        throw new GallerySyncError('This snapshot is required by an active sync or pending gallery recovery.')
+      await this.removeSnapshot(id)
+      return this.snapshotSettings()
     })
   }
 }

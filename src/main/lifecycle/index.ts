@@ -30,6 +30,7 @@ import { configPaths } from '~/utils/configPaths'
 import { initI18n } from '~/utils/handleI18n'
 import { runScriptInStage } from '~/utils/runScript'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
+import { pruneGallerySyncSnapshots } from '~/utils/syncSettings'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 const SHUTDOWN_GRACE_PERIOD_MS = 5000
@@ -122,6 +123,7 @@ class LifeCycle {
     UpDownTaskQueue.getInstance()
     // Register journal references before any uploader can prune finalization history.
     UploadTaskQueueManager.getInstance()
+    await pruneGallerySyncSnapshots().catch(() => logger.error('Gallery snapshot cleanup failed'))
     this.#queuesReady = true
     initI18n()
     rpcServer.start()

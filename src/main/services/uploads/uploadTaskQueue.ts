@@ -13,7 +13,7 @@ import type { UploadTask, UploadTaskQueueConfig, UploadTaskQueueStatus } from '#
 import { getUploadTaskStats } from '#/utils/uploadTask'
 import { IWindowList } from '~/constants'
 import { t } from '~/i18n/index'
-import { TaskCheckpoint } from '~/services/taskCheckpoint'
+import { TaskCheckpoint, writeAtomicTaskFile } from '~/services/taskCheckpoint'
 import {
   assertFinalizationStorageAvailable,
   createUploadFinalization,
@@ -88,7 +88,14 @@ class UploadTaskQueueManager {
       }
     },
     onError: () => console.error('Upload task checkpoint unavailable'),
+    write: async (file, contents) => {
+      await writeAtomicTaskFile(file, contents)
+      const { data } = JSON.parse(contents) as { data: { taskQueue: IUploadTaskItem[] } }
+      this.persistedFinalizations = this.finalizationsNeeded(data.taskQueue)
+      this.protectFinalizations()
+    },
   })
+  private persistedFinalizations = new Set<string>()
   private legacyFinalizations = new Set<IUploadTaskItem>()
   private closing = false
   private taskTimer: NodeJS.Timeout | null = null
@@ -102,6 +109,8 @@ class UploadTaskQueueManager {
 
   private constructor() {
     this.restore()
+    // Also start cleanup when there is no saved queue or the queue is empty.
+    this.protectFinalizations()
   }
 
   static getInstance(): UploadTaskQueueManager {
@@ -720,8 +729,23 @@ class UploadTaskQueueManager {
     for (const id of this.taskOrigins.keys()) {
       if (!taskIds.has(id)) this.taskOrigins.delete(id)
     }
-    protectQueueFinalizations(this.taskQueue.flatMap(task => (task.finalizationId ? [task.finalizationId] : [])))
+    this.protectFinalizations()
     this.checkpoint.schedule()
+  }
+
+  private finalizationsNeeded(tasks: IUploadTaskItem[]): Set<string> {
+    return new Set(
+      tasks.flatMap(task =>
+        task.finalizationId && task.status !== UploadTaskStatus.COMPLETED && task.status !== UploadTaskStatus.CANCELLED
+          ? [task.finalizationId]
+          : [],
+      ),
+    )
+  }
+
+  private protectFinalizations(): void {
+    // A completed in-memory row can still be retryable in the last durable checkpoint.
+    protectQueueFinalizations([...this.persistedFinalizations, ...this.finalizationsNeeded(this.taskQueue)])
   }
 
   async flush(): Promise<void> {
@@ -764,6 +788,7 @@ class UploadTaskQueueManager {
     const data = this.checkpoint.load()
     if (!data) return
     this.taskQueue = data.taskQueue
+    this.persistedFinalizations = this.finalizationsNeeded(this.taskQueue)
     this.config = { ...this.config, ...data.config, isRunning: false, isPaused: false }
     for (const task of this.taskQueue) {
       if (task.finalization) this.legacyFinalizations.add(task)

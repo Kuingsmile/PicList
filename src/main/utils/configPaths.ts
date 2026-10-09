@@ -86,6 +86,7 @@ export interface IConfigStruct {
     galleryPicBedFilter: string[]
     enableSecondUploader?: boolean
     lastSyncTime?: number
+    gallerySnapshotRetention?: number
     theme: string
     enableAdvancedAnimation: boolean
     isDisableGPU: boolean
@@ -181,6 +182,7 @@ export const configPaths = {
     galleryPicBedFilter: 'settings.galleryPicBedFilter',
     enableSecondUploader: 'settings.enableSecondUploader',
     lastSyncTime: 'settings.lastSyncTime',
+    gallerySnapshotRetention: 'settings.gallerySnapshotRetention',
     theme: 'settings.theme',
     systemTheme: 'settings.systemTheme',
     enableAdvancedAnimation: 'settings.enableAdvancedAnimation',

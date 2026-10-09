@@ -33,6 +33,7 @@
         :description="t('pages.settings.sync.upDownloadDesc')"
         @click="upDownConfigVisible = true"
       />
+      <GallerySyncSnapshots />
       <CustomNavCard
         :title="t('pages.settings.sync.migrateFromPicGo')"
         :icon="Import"
@@ -278,6 +279,7 @@ import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import GallerySync from '@/components/GallerySync.vue'
+import GallerySyncSnapshots from '@/components/GallerySyncSnapshots.vue'
 import { createSyncDraft } from '@/composables/settings/settingsState'
 import { useSettingsContext } from '@/composables/settings/useSettingsContext'
 import useConfirm from '@/composables/useConfirm'
