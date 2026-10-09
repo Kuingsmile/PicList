@@ -1,7 +1,13 @@
 <template>
-  <transition name="modal">
+  <TransitionRoot
+    :show="gallerySliderControl.visible"
+    as="template"
+    enter="transition-opacity duration-200 ease-apple motion-reduce:transition-none"
+    enter-from="opacity-0"
+    leave="transition-opacity duration-200 ease-apple motion-reduce:transition-none"
+    leave-to="opacity-0"
+  >
     <Dialog
-      :open="gallerySliderControl.visible"
       class="fixed inset-0 z-1000 flex items-center justify-center outline-none"
       @click.stop
       @wheel="handleImageWheel"
@@ -124,11 +130,11 @@
         </div>
       </DialogPanel>
     </Dialog>
-  </transition>
+  </TransitionRoot>
 </template>
 
 <script setup lang="ts">
-import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
+import { Dialog, DialogPanel, DialogTitle, TransitionRoot } from '@headlessui/vue'
 import { ChevronLeftIcon, ChevronRightIcon, XIcon } from '@lucide/vue'
 import { useResizeObserver } from '@vueuse/core'
 import { computed, nextTick, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
