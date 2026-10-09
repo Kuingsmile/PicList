@@ -23,7 +23,7 @@
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:win": "electron-vite build && electron-builder --win",
     "cz": "git-cz",
-    "dev": "electron-vite dev",
+    "dev": "electron-vite dev --watch",
     "dev:prod": "electron-vite --mode production",
     "postinstall": "electron-builder install-app-deps",
     "link": "node ./scripts/link.js",

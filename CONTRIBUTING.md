@@ -19,7 +19,7 @@ yarn dev
 
 安装时，`postinstall` 会安装 Electron 原生依赖，`prepare` 会将主题下载到 `resources/theme/` 并安装 Husky 钩子。这些步骤需要网络连接。主题下载失败时，恢复网络后重新运行 `yarn prepare`。
 
-`yarn dev` 通过 electron-vite 启动 Electron。渲染进程开发服务器固定使用 `127.0.0.1:30303`；启动第二个开发实例前需要释放该端口。
+`yarn dev` 通过 electron-vite 的 watch 模式启动 Electron。主进程变更会重新编译并重启 Electron，内存中的状态会重置；预加载脚本变更会重新编译脚本并刷新渲染进程窗口。渲染进程变更使用 Vite HMR。渲染进程开发服务器固定使用 `127.0.0.1:30303`；启动第二个开发实例前需要释放该端口。
 
 ## package.json 脚本
 

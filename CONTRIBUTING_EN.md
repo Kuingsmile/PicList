@@ -19,7 +19,7 @@ yarn dev
 
 Installation runs `postinstall` to install Electron native dependencies and `prepare` to download themes into `resources/theme/` and install Husky composables. These steps need network access. If the theme download fails, rerun `yarn prepare` after restoring connectivity.
 
-`yarn dev` starts Electron with electron-vite. The renderer development server uses `127.0.0.1:30303` with a strict port, so free that port before starting a second development instance.
+`yarn dev` starts Electron with electron-vite watch mode. Main-process changes rebuild and restart Electron, resetting in-memory state; preload changes rebuild the preload scripts and reload the renderer windows. Renderer changes use Vite HMR. The renderer development server uses `127.0.0.1:30303` with a strict port, so free that port before starting a second development instance.
 
 ## Package scripts
 
