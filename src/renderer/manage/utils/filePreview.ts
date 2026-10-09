@@ -12,6 +12,7 @@ export interface PreviewSource {
   url: string
   mimeType?: string
   sign?: () => Promise<string | undefined>
+  read?: () => Promise<Uint8Array | undefined>
   webdav?: WebdavCredentials
 }
 
@@ -50,11 +51,20 @@ export async function fetchPreviewResponse(url: string, signal: AbortSignal, web
 }
 
 export async function loadFilePreview(kind: PreviewKind, source: PreviewSource, signal: AbortSignal) {
+  signal.throwIfAborted()
+  const isMedia = kind === 'image' || kind === 'video'
+  if (source.read) {
+    const bytes = await source.read()
+    signal.throwIfAborted()
+    if (!bytes) throw new Error('Failed to read preview content')
+    const blob = new Blob([new Uint8Array(bytes)], { type: source.mimeType })
+    return isMedia ? blob : await blob.text()
+  }
+
   const url = source.sign ? await source.sign() : source.url
   signal.throwIfAborted()
   if (!url || url === 'error') throw new Error('Failed to resolve preview URL')
 
-  const isMedia = kind === 'image' || kind === 'video'
   // Native media elements can stream signed/public URLs, but cannot attach auth headers.
   if (isMedia && !source.webdav) return url
 

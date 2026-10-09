@@ -1,5 +1,6 @@
 import { constants } from 'node:fs'
 import path from 'node:path'
+import { Writable } from 'node:stream'
 import { setImmediate as yieldToEventLoop } from 'node:timers/promises'
 
 import type { FileEntry } from 'ssh2'
@@ -347,6 +348,24 @@ class SftpApi {
       this.logParam(error, 'createBucketFolder')
     }
     return result
+  }
+
+  async getFilePreview({ key }: { key: string }): Promise<Uint8Array> {
+    if (typeof key !== 'string' || !key || key.includes('\0')) throw new Error('Invalid SFTP preview key')
+    return this.withClient(async client => {
+      const chunks: Buffer[] = []
+      await client.getFileToStream(
+        `/${key.replace(/^\/+/, '')}`,
+        () =>
+          new Writable({
+            write(chunk: Buffer, _encoding, callback) {
+              chunks.push(chunk)
+              callback()
+            },
+          }),
+      )
+      return Buffer.concat(chunks)
+    })
   }
 
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {

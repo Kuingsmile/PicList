@@ -57,6 +57,13 @@ export default [
     type: IRPCType.INVOKE,
   },
   {
+    action: IRPCActionType.MANAGE_GET_FILE_PREVIEW,
+    handler: async (_: IIPCEvent, args: [currentPicBed: string, param: { key: string }]) => {
+      return new ManageApi(args[0]).getFilePreview(args[1])
+    },
+    type: IRPCType.INVOKE,
+  },
+  {
     action: IRPCActionType.MANAGE_UPLOAD_BUCKET_FILE,
     handler: async (_: IIPCEvent, args: [currentPicBed: string, param: IStringKeyMap]) => {
       return new ManageApi(args[0]).uploadBucketFile(args[1])

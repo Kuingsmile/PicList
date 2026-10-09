@@ -149,6 +149,16 @@
                     {{ isMacOS ? '⌘F' : 'Ctrl F' }}
                   </kbd>
                 </div>
+                <!-- Only offered once there is a custom order to undo -->
+                <CustomButton
+                  v-if="accountOrder.length && scopeCount > 1"
+                  v-tooltip="t('pages.manage.login.resetOrder')"
+                  type="secondary"
+                  :icon="ListRestartIcon"
+                  class="h-[36px] w-[36px] px-0! py-0!"
+                  :aria-label="t('pages.manage.login.resetOrder')"
+                  @click="resetAccountOrder"
+                />
                 <CustomButton
                   :icon="Plus"
                   :text="t('pages.manage.login.newConfig')"
@@ -252,17 +262,27 @@
                 <CustomButton type="secondary" :text="t('common.clear')" @click="clearSearch" />
               </div>
 
-              <!-- Configuration cards -->
-              <ul v-else class="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3 p-0">
+              <!-- Configuration cards: drag a card, or use the arrow keys on its grip, to change the saved order -->
+              <TransitionGroup
+                v-else
+                tag="ul"
+                move-class="config-moving transition-transform duration-200 ease-apple motion-reduce:transition-none"
+                class="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3 p-0"
+                @dragenter="handleListDragOver"
+                @dragover="handleListDragOver"
+                @drop="handleListDrop"
+              >
                 <!-- Two zones: the top opens the cloud, the footer holds the other actions and never opens it on a near miss -->
                 <li
                   v-for="item in visibleConfigs"
                   :key="item.alias"
                   :data-alias="item.alias"
-                  class="flex flex-col overflow-hidden rounded-xl border bg-bg-secondary shadow-sm transition-all duration-fast ease-apple has-[>button:hover]:border-accent/60 has-[>button:hover]:shadow-md"
-                  :class="
-                    recentAlias === item.alias ? 'border-accent ring-2 ring-accent/25' : 'border-border-secondary'
-                  "
+                  :draggable="canReorder"
+                  class="flex flex-col overflow-hidden rounded-xl border bg-bg-secondary shadow-sm transition-all duration-fast ease-apple"
+                  :class="cardStateClass(item.alias)"
+                  @dragstart="handleDragStart($event, item.alias)"
+                  @dragover="handleCardDragOver($event, item.alias)"
+                  @dragend="handleDragEnd"
                 >
                   <button
                     type="button"
@@ -278,6 +298,7 @@
                         :src="`./assets/${providerIcon(item.picBedName)}.webp`"
                         class="h-[26px] w-[26px] object-contain"
                         alt=""
+                        draggable="false"
                       />
                     </span>
                     <span class="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -299,6 +320,18 @@
                     />
                   </button>
                   <div class="flex items-center gap-1 border-t border-border-secondary px-2 py-1.5">
+                    <button
+                      v-if="canReorder"
+                      v-tooltip="t('pages.manage.login.dragToReorder')"
+                      type="button"
+                      data-grip
+                      class="flex h-[28px] w-[20px] shrink-0 cursor-grab items-center justify-center rounded-md text-tertiary transition-colors duration-fast ease-apple hover:bg-accent/10 hover:text-accent focus-visible:focus-ring active:cursor-grabbing"
+                      :aria-label="`${t('pages.manage.login.dragToReorder')}: ${item.alias}`"
+                      aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
+                      @keydown="handleGripKeydown($event, item.alias)"
+                    >
+                      <GripVerticalIcon :size="14" aria-hidden="true" />
+                    </button>
                     <button
                       type="button"
                       class="flex h-[28px] cursor-pointer items-center gap-1.5 rounded-md px-2 text-xs font-medium text-secondary transition-colors duration-fast ease-apple hover:bg-accent/10 hover:text-accent focus-visible:focus-ring"
@@ -329,7 +362,7 @@
                   </div>
                 </li>
 
-                <li v-if="activeProvider" class="flex">
+                <li v-if="activeProvider" key="new-config" class="flex">
                   <button
                     type="button"
                     class="flex min-h-[116px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border text-sm font-semibold text-secondary transition-all duration-fast ease-apple hover:border-accent hover:bg-accent/5 hover:text-accent focus-visible:focus-ring"
@@ -339,7 +372,8 @@
                     {{ t('pages.manage.login.newConfig') }}
                   </button>
                 </li>
-              </ul>
+              </TransitionGroup>
+              <p class="sr-only" aria-live="polite">{{ reorderAnnouncement }}</p>
             </div>
           </template>
         </section>
@@ -435,8 +469,10 @@ import {
   EyeIcon,
   EyeOffIcon,
   FolderOpenIcon,
+  GripVerticalIcon,
   InfoIcon,
   LayoutGridIcon,
+  ListRestartIcon,
   Pencil,
   Plus,
   RefreshCwIcon,
@@ -508,8 +544,16 @@ const detailsItem = ref<IConfigEntry | null>(null)
 const showSecrets = ref(false)
 const recentAlias = ref('')
 const allConfigAliasList = ref<IConfigEntry[]>([])
+const accountOrder = ref<string[]>([])
+// The order shown while a card is being dragged; saved only when it is dropped inside the list.
+const draftOrder = ref<string[] | null>(null)
+const draggingAlias = ref('')
+const reorderAnnouncement = ref('')
 const importedNewConfig: IStringKeyMap = {}
 let recentTimer: ReturnType<typeof setTimeout> | undefined
+let dropped = false
+
+const ACCOUNT_ORDER_KEY = 'settings.accountOrder'
 
 const PB_LIST = [
   'aliyun',
@@ -565,21 +609,129 @@ function configSummary(config: IStringKeyMap): string {
   return summary.replace(/^https?:\/\//i, '')
 }
 
-// Flat list ordered like the cloud rail, then by alias.
-const visibleConfigs = computed(() => {
-  const query = searchText.value.trim().toLowerCase()
+// The user's saved order first; anything not placed yet follows, ordered like the cloud rail, then by alias.
+const orderedAliases = computed(() => {
+  if (draftOrder.value) return draftOrder.value
+  const saved = new Map(accountOrder.value.map((alias, index) => [alias, index]))
   const order = providers.value.map(item => item.key)
   const rank = (key: string) => (order.includes(key) ? order.indexOf(key) : order.length)
-  return allConfigAliasList.value
-    .filter(item => {
+  return [...allConfigAliasList.value]
+    .sort(
+      (a, b) =>
+        (saved.get(a.alias) ?? Infinity) - (saved.get(b.alias) ?? Infinity) ||
+        rank(a.picBedName) - rank(b.picBedName) ||
+        a.alias.localeCompare(b.alias),
+    )
+    .map(item => item.alias)
+})
+
+const visibleConfigs = computed(() => {
+  const query = searchText.value.trim().toLowerCase()
+  const entries = new Map(allConfigAliasList.value.map(item => [item.alias, item]))
+  return orderedAliases.value
+    .map(alias => entries.get(alias))
+    .filter((item): item is IConfigEntry => {
+      if (!item) return false
       if (activePlatform.value !== 'all' && item.picBedName !== activePlatform.value) return false
       if (!query) return true
       return [item.alias, providerName(item.picBedName), configSummary(item.config)].some(text =>
         text.toLowerCase().includes(query),
       )
     })
-    .sort((a, b) => rank(a.picBedName) - rank(b.picBedName) || a.alias.localeCompare(b.alias))
 })
+
+const canReorder = computed(() => visibleConfigs.value.length > 1)
+
+function cardStateClass(alias: string) {
+  if (draggingAlias.value === alias) return 'border-dashed border-accent opacity-50 shadow-none'
+  if (recentAlias.value === alias) return 'border-accent ring-2 ring-accent/25'
+  return draggingAlias.value
+    ? 'border-border-secondary'
+    : 'border-border-secondary has-[>button:hover]:border-accent/60 has-[>button:hover]:shadow-md'
+}
+
+// Places `alias` where `target` is; hidden configurations in between keep their relative order.
+function moveAlias(order: string[], alias: string, target: string) {
+  const from = order.indexOf(alias)
+  const to = order.indexOf(target)
+  if (from < 0 || to < 0 || from === to) return order
+  const next = order.slice()
+  next.splice(from, 1)
+  next.splice(to, 0, alias)
+  return next
+}
+
+async function saveAccountOrder(order: string[]) {
+  if (order.join('\n') === accountOrder.value.join('\n')) return
+  const previous = accountOrder.value
+  accountOrder.value = order
+  if (!(await saveConfig(ACCOUNT_ORDER_KEY, order))) accountOrder.value = previous
+}
+
+function handleDragStart(event: DragEvent, alias: string) {
+  if (!canReorder.value || !event.dataTransfer) {
+    event.preventDefault()
+    return
+  }
+  event.dataTransfer.effectAllowed = 'move'
+  draggingAlias.value = alias
+  draftOrder.value = orderedAliases.value.slice()
+  dropped = false
+}
+
+function handleCardDragOver(event: DragEvent, alias: string) {
+  if (!draggingAlias.value || !draftOrder.value) return
+  event.preventDefault()
+  // A card still sliding out of the way would otherwise be swapped straight back under a resting pointer.
+  if ((event.currentTarget as HTMLElement).classList.contains('config-moving')) return
+  draftOrder.value = moveAlias(draftOrder.value, draggingAlias.value, alias)
+}
+
+// The gaps between cards accept the drop too, so a release just off a card still counts.
+// dragenter is accepted as well: a release right after crossing onto a card may come before any dragover.
+function handleListDragOver(event: DragEvent) {
+  if (!draggingAlias.value) return
+  event.preventDefault()
+  if (event.dataTransfer) event.dataTransfer.dropEffect = 'move'
+}
+
+function handleListDrop(event: DragEvent) {
+  if (!draggingAlias.value) return
+  event.preventDefault()
+  dropped = true
+}
+
+// Escape or a release outside the list puts every card back.
+function handleDragEnd() {
+  const order = dropped ? draftOrder.value : null
+  draggingAlias.value = ''
+  draftOrder.value = null
+  if (order) saveAccountOrder(order)
+}
+
+async function handleGripKeydown(event: KeyboardEvent, alias: string) {
+  const step = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1 }[event.key]
+  if (!step) return
+  event.preventDefault()
+  const visible = visibleConfigs.value
+  const index = visible.findIndex(item => item.alias === alias)
+  const target = visible[index + step]
+  if (!target) return
+  await saveAccountOrder(moveAlias(orderedAliases.value, alias, target.alias))
+  reorderAnnouncement.value = t('pages.manage.login.movedTo', {
+    alias,
+    position: index + step + 1,
+    total: visible.length,
+  })
+  // Moving the card re-inserts its node, which drops focus.
+  await nextTick()
+  listRef.value?.querySelector<HTMLElement>(`[data-alias="${CSS.escape(alias)}"] [data-grip]`)?.focus()
+}
+
+async function resetAccountOrder() {
+  await saveAccountOrder([])
+  message.success(t('pages.manage.login.orderReset'))
+}
 
 const detailRows = computed(() => {
   if (!detailsItem.value) return []
@@ -690,8 +842,13 @@ async function startEdit(item: IConfigEntry) {
 }
 
 async function handleSaved(alias: string) {
+  const previousAlias = editing.value?.alias
   editing.value = null
   await getAllConfigAliasArray()
+  // A renamed configuration keeps its place in the saved order.
+  if (previousAlias && previousAlias !== alias && accountOrder.value.includes(previousAlias)) {
+    await saveAccountOrder(accountOrder.value.map(item => (item === previousAlias ? alias : item)))
+  }
   // Make sure the saved card is on screen to receive its highlight.
   if (!visibleConfigs.value.some(item => item.alias === alias)) searchText.value = ''
   recentAlias.value = alias
@@ -731,7 +888,11 @@ const handleConfigRemove = async (alias: string) => {
 }
 
 const getAllConfigAliasArray = async () => {
-  const result = await getConfig<IStringKeyMap>('picBed')
+  const [result, order] = await Promise.all([
+    getConfig<IStringKeyMap>('picBed'),
+    getConfig<string[]>(ACCOUNT_ORDER_KEY),
+  ])
+  accountOrder.value = Array.isArray(order) ? order.filter(alias => typeof alias === 'string') : []
   allConfigAliasList.value = Object.values(result ?? {})
     .filter((value: any) => value && typeof value === 'object' && value.alias)
     .map((value: any) => ({

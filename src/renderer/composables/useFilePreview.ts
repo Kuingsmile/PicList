@@ -21,7 +21,7 @@ export function useFilePreview() {
     controller = request
     try {
       const content = await loadFilePreview(kind, source, request.signal)
-      // Signing RPCs cannot be cancelled; an older request must never reopen a preview.
+      // RPCs cannot be cancelled; an older request must never reopen a preview.
       if (request.signal.aborted) return
       if (typeof content === 'string') {
         preview.value = { kind, content, mimeType: source.mimeType }

@@ -130,6 +130,7 @@
             v-tooltip="t('pages.manage.bucket.forceRefreshFileList')"
             type="button"
             :class="toolButtonClass"
+            class="text-danger/80!"
             :disabled="isLoadingData"
             :aria-label="t('pages.manage.bucket.forceRefreshFileList')"
             @click="forceRefreshFileList"
@@ -1044,11 +1045,15 @@ async function handleClickFile(item: any) {
   const provider = currentPicBedName.value
   const source: PreviewSource = {
     url: item.url,
-    mimeType: kind === 'video' ? window.node.mime.lookup(fileName) || undefined : undefined,
+    mimeType: window.node.mime.lookup(fileName) || undefined,
   }
   if (provider === 'webdavplist') {
     const { authType, username, password } = handleGetWebdavConfig()
     source.webdav = { authType, username, password }
+  } else if (provider === 'sftp' && !/^https?:\/\//i.test(item.url)) {
+    const alias = configMap.value.alias
+    const key = item.key
+    source.read = () => window.electron.triggerRPC<Uint8Array>(IRPCActionType.MANAGE_GET_FILE_PREVIEW, alias, { key })
   } else if (
     (isUsePreSignedUrl.value && ['aliyun', 'tcyun', 'qiniu', 's3plist', 'github'].includes(provider)) ||
     (provider === 'github' && configMap.value.bucketConfig.private)

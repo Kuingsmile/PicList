@@ -509,6 +509,13 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     })
   }
 
+  async getFilePreview(param: { key: string }): Promise<Uint8Array> {
+    if (this.currentPicBedConfig?.picBedName !== 'sftp') throw new Error('Unsupported preview provider')
+    const client = await this.createClient()
+    // Let the RPC boundary report failures without logging remote paths or credentials.
+    return client.getFilePreview(param)
+  }
+
   async getPreSignedUrl(param?: IStringKeyMap): Promise<string> {
     const supportedClients = ['tcyun', 'aliyun', 'qiniu', 'github', 's3plist', 'webdavplist']
     return this.executeWithClient(
