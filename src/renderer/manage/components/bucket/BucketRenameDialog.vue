@@ -102,6 +102,7 @@
 
 <script setup lang="ts">
 import { ArrowRightIcon, ListChecksIcon } from '@lucide/vue'
+import { escapeRegExp } from 'lodash-es'
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -288,7 +289,7 @@ async function BatchRename() {
 
 function handleRenameFile(item: any) {
   if (bulkChanges.reopen() || bulkChanges.building.value) return
-  batchRenameMatch.value = splitFileName(item.fileName).baseName
+  batchRenameMatch.value = `^${escapeRegExp(splitFileName(item.fileName).baseName)}$`
   isSingleRename.value = true
   isRenameIncludeExt.value = false
   showFormatInfo.value = false
