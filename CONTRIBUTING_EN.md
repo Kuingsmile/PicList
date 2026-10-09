@@ -85,6 +85,8 @@ For a new language, add JSON files in both locale directories and update both re
 
 Compiled code goes to `out/`; installers and archives go to `dist_electron/`. Targets, assets, and composables are configured in [electron-builder.cjs](electron-builder.cjs). Use a host with the required platform toolchain; a platform script alone does not provide cross-compilation tools.
 
+Windows builds default to the host architecture and produce NSIS, ZIP, and 7z artifacts. Use `yarn build:win --x64 --arm64 --publish never` to build both architectures explicitly. ARM64 packaging requires the Visual Studio component `Microsoft.VisualStudio.Component.VC.Tools.ARM64`, including its compiler and runtime libraries.
+
 For example, on Windows with the required C++ tools installed:
 
 ```bash

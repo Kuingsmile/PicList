@@ -1,3 +1,9 @@
+const { LogMessageByKey, logMessageLevelByKey } = require('app-builder-lib/out/node-module-collector/moduleManager')
+
+// Shared, resolved dependency references are routine collector diagnostics.
+// Keep them available with DEBUG=electron-builder; unresolved references still warn.
+logMessageLevelByKey[LogMessageByKey.PKG_DUPLICATE_REF] = 'debug'
+
 module.exports = {
   productName: 'PicList',
   appId: 'com.kuingsmile.piclist',
@@ -62,26 +68,19 @@ module.exports = {
     electronLanguages: ['en', 'zh'],
     artifactName: 'PicList-Setup-${version}-${arch}-portable.${ext}',
     verifyUpdateCodeSignature: false,
-    target: [
-      {
-        target: 'nsis',
-        arch: ['x64', 'arm64'],
-      },
-      {
-        target: '7z',
-        arch: ['x64', 'arm64'],
-      },
-      {
-        target: 'zip',
-        arch: ['x64', 'arm64'],
-      },
-    ],
+    // Build for the host by default. Pass --x64 --arm64 to package both architectures.
+    target: ['nsis', '7z', 'zip'],
   },
   nsis: {
     artifactName: 'PicList-Setup-${version}-${arch}.exe',
     shortcutName: 'PicList',
     oneClick: false,
     allowToChangeInstallationDirectory: true,
+    // Drawn at 2x (328x628, 300x114) because installer.nsh makes the installer DPI-aware.
+    installerSidebar: 'build/installerSidebar.bmp',
+    installerHeader: 'build/installerHeader.bmp',
+    // Match the app's locales; installer.nsh defines its strings for exactly these.
+    installerLanguages: ['en_US', 'zh_CN', 'zh_TW'],
     include: 'build/installer.nsh',
   },
   linux: {
