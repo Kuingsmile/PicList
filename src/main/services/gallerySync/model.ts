@@ -122,6 +122,20 @@ export function validateDocument(input: unknown): GalleryDocument {
   return documentFrom(records)
 }
 
+// Older gallery writers can append records without adding sync revisions. Recover
+// only those local additions; existing revisions and tombstones remain authoritative.
+export function recoverLocalDocument(input: unknown): GalleryDocument {
+  if (!isObject(input) || !isObject(input.__sync) || input.__sync.version !== 1 || !isObject(input.__sync.records))
+    return validateDocument(input)
+  const local = validateDocument({ gallery: input.gallery, __gallery_KEY__: input.__gallery_KEY__ })
+  const records = Object.assign(Object.create(null), input.__sync.records) as Record<string, Revision>
+  for (const value of local.gallery) {
+    if (!Object.hasOwn(records, value.id)) records[value.id] = revision(value)
+  }
+  // Never replace a damaged revision or turn a tombstone back into a live record.
+  return validateDocument({ ...input, __sync: { ...input.__sync, records } })
+}
+
 // Called only by the gallery store's atomic mutation writer. The before/after difference
 // represents a successful user mutation, never a comparison of two sync inputs.
 export function recordMutation(before: GalleryDocument, after: { gallery: RecordValue[] }): GalleryDocument {

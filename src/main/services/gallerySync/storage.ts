@@ -1,10 +1,11 @@
+import { randomUUID } from 'node:crypto'
 import path from 'node:path'
 import { gunzipSync, gzipSync } from 'node:zlib'
 
 import fs from 'fs-extra'
 import writeFile from 'write-file-atomic'
 
-import { GallerySyncError, validateDocument } from './model'
+import { GallerySyncError, recoverLocalDocument, validateDocument } from './model'
 
 export const DATABASES = ['piclist.db'] as const
 export const stateDir = (root: string) => path.join(root, 'gallery-sync')
@@ -32,6 +33,28 @@ export async function readOptional(file: string): Promise<Buffer | null> {
     if (error.code === 'ENOENT') return null
     throw error
   }
+}
+
+export function recoverLocalGallery(root: string): boolean {
+  if (fs.existsSync(path.join(stateDir(root), 'pending.json')))
+    throw new GallerySyncError('Gallery recovery is required before editing. Retry gallery sync.')
+  const file = path.join(root, DATABASES[0])
+  const original = fs.readFileSync(file)
+  const data = decode(original)
+  try {
+    validateDocument(data)
+    return false
+  } catch (error) {
+    if (!(error instanceof GallerySyncError)) throw error
+  }
+  const recovered = recoverLocalDocument(data)
+  const replacement = encode({ ...data, __sync: recovered.__sync })
+  // Retain the exact original, including fields unknown to the sync model.
+  fs.writeFileSync(`${file}.sync-recovery-${randomUUID()}.bak`, original, { flag: 'wx', mode: 0o600 })
+  if (!fs.readFileSync(file).equals(original))
+    throw new GallerySyncError('Gallery changed during recovery. Retry before editing.')
+  writeFile.sync(file, replacement)
+  return true
 }
 
 export interface Journal {

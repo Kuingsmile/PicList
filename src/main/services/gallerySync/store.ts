@@ -5,7 +5,7 @@ import fs from 'fs-extra'
 
 import { galleryLockHeld, withGalleryLock } from './lock'
 import { type GalleryDocument, GallerySyncError, recordMutation, validateDocument } from './model'
-import { stateDir } from './storage'
+import { recoverLocalGallery, stateDir } from './storage'
 
 export interface GalleryStore extends DBStore {
   /** Read a fresh snapshot and keep gallery mutations locked until the operation completes. */
@@ -18,9 +18,16 @@ export function trackGalleryStore(store: DBStore, root: string): GalleryStore {
   const write = adapter.write.bind(adapter)
   let before: GalleryDocument | undefined
   adapter.read = async () => {
-    const data = await read()
-    before = validateDocument(data)
-    return data
+    try {
+      const data = await read()
+      before = validateDocument(data)
+      return data
+    } catch (error) {
+      if (!(error instanceof GallerySyncError) || !recoverLocalGallery(root)) throw error
+      const data = await read()
+      before = validateDocument(data)
+      return data
+    }
   }
   adapter.write = async data => {
     if (!before) throw new GallerySyncError('Read the gallery before changing it.')
