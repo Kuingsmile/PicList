@@ -88,18 +88,12 @@ class SftpApi {
     return `${urlPrefix.replace(/\/+$/, '')}${urlPath}`
   }
 
+  private getSftpUrl(key: string, urlPrefix: string) {
+    return `${urlPrefix.replace(/\/+$/, '')}/${encodeObjectPath(key.replace(/^\/+/, ''))}`
+  }
+
   formatFolder(item: listDirResult, urlPrefix: string, isWebPath = false) {
     const key = item.key
-    let url: string
-    if (isWebPath) {
-      url = urlPrefix
-    } else {
-      if (this.username && this.password) {
-        url = `sfpt://${this.username}:${this.password}@${urlPrefix}${item.filename}`
-      } else {
-        url = `${urlPrefix}${item.filename}`
-      }
-    }
     return {
       ...item,
       key,
@@ -111,7 +105,7 @@ class SftpApi {
       checked: false,
       isImage: false,
       match: false,
-      url,
+      url: isWebPath ? urlPrefix : this.getSftpUrl(key, urlPrefix),
     }
   }
 
@@ -128,7 +122,7 @@ class SftpApi {
       checked: false,
       match: false,
       isImage: isImage(item.filename),
-      url: isWebPath ? urlPrefix : `${urlPrefix}${item.filename}`,
+      url: isWebPath ? urlPrefix : this.getSftpUrl(key, urlPrefix),
     }
   }
 
@@ -192,7 +186,8 @@ class SftpApi {
 
   async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const { prefix, customUrl, baseDir, webPath } = configMap
-    const urlPrefix = customUrl || `${this.host}:${this.port}`
+    const urlPrefix = customUrl || `sftp://${this.host}:${this.port}`
+    const isWebPath = !!(customUrl || webPath)
     const result = {
       fullList: [] as ReturnType<SftpApi['formatFile']>[],
       success: false,
@@ -202,8 +197,8 @@ class SftpApi {
       await listing.wait(() =>
         this.withClient(async client => {
           for await (const item of this.walkDirectory(prefix, listing, client, true)) {
-            const url = customUrl ? this.getWebUrl(item.key, urlPrefix, baseDir, webPath) : urlPrefix
-            result.fullList.push(this.formatFile(item, url, !!customUrl))
+            const url = isWebPath ? this.getWebUrl(item.key, urlPrefix, baseDir, webPath) : urlPrefix
+            result.fullList.push(this.formatFile(item, url, isWebPath))
             if (result.fullList.length === LISTING_PAGE_ITEMS) {
               await listing.publish(result)
               result.fullList = []
@@ -245,7 +240,7 @@ class SftpApi {
 
   async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const { prefix, customUrl, baseDir, webPath } = configMap
-    const urlPrefix = customUrl || `${this.host}:${this.port}`
+    const urlPrefix = customUrl || `sftp://${this.host}:${this.port}`
     const isWebPath = !!(customUrl || webPath)
     const result = {
       fullList: [] as any,
