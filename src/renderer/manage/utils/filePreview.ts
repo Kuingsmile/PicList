@@ -15,6 +15,11 @@ export interface PreviewSource {
   webdav?: WebdavCredentials
 }
 
+export function getPreviewReferrerPolicy(url: string): ReferrerPolicy | undefined {
+  // Imgur rejects loopback referrers sent by the development renderer.
+  return /^https?:\/\/i\.imgur\.com\//i.test(url) ? 'no-referrer' : undefined
+}
+
 export async function fetchPreviewResponse(url: string, signal: AbortSignal, webdav?: WebdavCredentials) {
   const headers: Record<string, string> = {}
   if (webdav) {

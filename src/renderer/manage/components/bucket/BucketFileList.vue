@@ -164,6 +164,7 @@
               <template v-else-if="!item.isDir && !['webdavplist', 'sftp', 'local'].includes(currentPicBedName)">
                 <img
                   v-if="isShowThumbnail && item.isImage"
+                  :referrerpolicy="getPreviewReferrerPolicy(item.url)"
                   :src="getThumbnailUrl(item.url)"
                   alt=""
                   class="h-full w-full object-contain transition-transform duration-medium ease-apple group-hover/card:scale-[1.03]"
@@ -392,6 +393,7 @@ import EmptyPage from '@/manage/pages/EmptyPage.vue'
 import { useManageStore } from '@/manage/stores/manageStore'
 import type { BucketFile, ISortTypeList } from '@/manage/types/bucket'
 import { getFileIconPath } from '@/manage/utils/filePresentation'
+import { getPreviewReferrerPolicy } from '@/manage/utils/filePreview'
 import { linkFormatList } from '@/manage/utils/linkFormat'
 import { appendThumbnailSuffix } from '@/manage/utils/thumbnailUrl'
 import { type FileColumn, fileDate, formatCollectionDate, formatCollectionSize } from '@/utils/fileCollection'

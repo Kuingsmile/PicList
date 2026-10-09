@@ -19,6 +19,7 @@
     >
       <img
         v-if="isShowImagePreview"
+        :referrerpolicy="getPreviewReferrerPolicy(previewContent)"
         :src="previewContent"
         :alt="fileName"
         class="max-h-[72vh] max-w-full rounded-md object-contain shadow-md"
@@ -111,6 +112,7 @@ import CustomModal from '@/components/common/CustomModal.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import MarkdownContent from '@/components/common/MarkdownContent.vue'
 import { useFilePreview } from '@/composables/useFilePreview'
+import { getPreviewReferrerPolicy } from '@/manage/utils/filePreview'
 import { renderMarkdown } from '@/utils/markdown'
 
 const { filePreview, fileName = '' } = defineProps<{
