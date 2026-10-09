@@ -101,7 +101,12 @@
                 :placeholder="t('pages.manage.setting.copyFormat.customTips')"
               />
             </SettingCard>
-            <SettingCard v-for="key in ['isEncodeUrl', 'isForceCustomUrlHttps']" :key p1>
+            <SettingCard
+              v-for="key in ['isEncodeUrl', 'isForceCustomUrlHttps']"
+              :key
+              p1
+              class="flex flex-col justify-center"
+            >
               <CustomSwitch v-model="form[key]" small no-border :title="switchTitle(key)" :tips="switchTips(key)" />
             </SettingCard>
           </SettingSection>
@@ -111,7 +116,7 @@
             :description="t('pages.manage.setting.section.preSignedDesc')"
             :icon="KeyRoundIcon"
           >
-            <SettingCard p1>
+            <SettingCard p1 class="flex flex-col justify-center">
               <CustomSwitch
                 v-model="form.isUsePreSignedUrl"
                 small
@@ -139,7 +144,7 @@
             :description="t('pages.manage.setting.section.fileListDesc')"
             :icon="FolderOpenIcon"
           >
-            <SettingCard v-for="key in ['isAutoRefresh', 'isIgnoreCase']" :key p1>
+            <SettingCard v-for="key in ['isAutoRefresh', 'isIgnoreCase']" :key p1 class="flex flex-col justify-center">
               <CustomSwitch v-model="form[key]" small no-border :title="switchTitle(key)" :tips="switchTips(key)" />
             </SettingCard>
           </SettingSection>
@@ -150,7 +155,7 @@
             :icon="ImageIcon"
             only-one-row
           >
-            <SettingCard p1>
+            <SettingCard p1 class="flex flex-col justify-center">
               <CustomSwitch v-model="form.isShowThumbnail" small no-border :title="switchTitle('isShowThumbnail')" />
             </SettingCard>
             <SettingCard v-if="form.isShowThumbnail">
@@ -171,7 +176,7 @@
             :description="t('pages.manage.setting.section.namingDesc')"
             :icon="Edit2Icon"
           >
-            <SettingCard p1>
+            <SettingCard p1 class="flex flex-col justify-center">
               <CustomSwitch
                 v-model="form.isUploadKeepDirStructure"
                 small
@@ -180,7 +185,12 @@
                 :tips="switchTips('isUploadKeepDirStructure')"
               />
             </SettingCard>
-            <SettingCard v-for="key in ['timestampRename', 'randomStringRename', 'customRename']" :key p1>
+            <SettingCard
+              v-for="key in ['timestampRename', 'randomStringRename', 'customRename']"
+              :key
+              p1
+              class="flex flex-col justify-center"
+            >
               <CustomSwitch v-model="form[key]" small no-border :title="switchTitle(key)" :tips="switchTips(key)" />
             </SettingCard>
             <template v-if="form.customRename" #extra>
@@ -277,7 +287,12 @@
                 step="1"
               />
             </SettingCard>
-            <SettingCard v-for="key in ['isDownloadFileKeepDirStructure', 'isDownloadFolderKeepDirStructure']" :key p1>
+            <SettingCard
+              v-for="key in ['isDownloadFileKeepDirStructure', 'isDownloadFolderKeepDirStructure']"
+              :key
+              p1
+              class="flex flex-col justify-center"
+            >
               <CustomSwitch
                 v-model="form[key]"
                 small

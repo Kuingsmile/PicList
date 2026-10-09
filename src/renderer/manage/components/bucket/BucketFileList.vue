@@ -148,8 +148,20 @@
               @keydown.enter.prevent="emit('open', item)"
               @keydown.space.prevent="emit('select', item, !item.checked)"
             >
-              <!-- Image Preview -->
-              <template v-if="!item.isDir && !['webdavplist', 'sftp', 'local', 's3plist'].includes(currentPicBedName)">
+              <!-- S3 PreSign Image -->
+              <ImagePreSign
+                v-if="
+                  isShowThumbnail && !item.isDir && item.isImage && currentPicBedName === 's3plist' && isUsePreSignedUrl
+                "
+                :is-show-thumbnail="isShowThumbnail"
+                :item
+                :alias="configMap.alias"
+                :url="item.url"
+                :config="getS3Config(item)"
+              />
+
+              <!-- Public Image Preview -->
+              <template v-else-if="!item.isDir && !['webdavplist', 'sftp', 'local'].includes(currentPicBedName)">
                 <img
                   v-if="isShowThumbnail && item.isImage"
                   :src="getThumbnailUrl(item.url)"
@@ -166,18 +178,6 @@
                   draggable="false"
                 />
               </template>
-
-              <!-- S3 PreSign Image -->
-              <ImagePreSign
-                v-else-if="
-                  isShowThumbnail && !item.isDir && item.isImage && currentPicBedName === 's3plist' && isUsePreSignedUrl
-                "
-                :is-show-thumbnail="isShowThumbnail"
-                :item
-                :alias="configMap.alias"
-                :url="item.url"
-                :config="getS3Config(item)"
-              />
 
               <!-- WebDAV Image -->
               <ImageWebdav

@@ -169,13 +169,19 @@
                 <div
                   v-for="n in 6"
                   :key="n"
-                  class="flex h-[74px] items-center gap-3.5 rounded-xl border border-border-secondary bg-bg-secondary px-3.5 motion-safe:animate-pulse"
+                  class="flex h-[116px] flex-col rounded-xl border border-border-secondary bg-bg-secondary motion-safe:animate-pulse"
                   aria-hidden="true"
                 >
-                  <div class="h-[44px] w-[44px] rounded-xl bg-bg-tertiary" />
-                  <div class="flex flex-1 flex-col gap-2">
-                    <div class="h-3.5 w-1/2 rounded-sm bg-bg-tertiary" />
-                    <div class="h-3 w-3/4 rounded-sm bg-bg-tertiary" />
+                  <div class="flex flex-1 items-center gap-3.5 px-3.5">
+                    <div class="h-[44px] w-[44px] rounded-xl bg-bg-tertiary" />
+                    <div class="flex flex-1 flex-col gap-2">
+                      <div class="h-3.5 w-1/2 rounded-sm bg-bg-tertiary" />
+                      <div class="h-3 w-3/4 rounded-sm bg-bg-tertiary" />
+                    </div>
+                  </div>
+                  <div class="flex h-[41px] items-center gap-2 border-t border-border-secondary px-3.5">
+                    <div class="h-3 w-16 rounded-sm bg-bg-tertiary" />
+                    <div class="h-3 w-10 rounded-sm bg-bg-tertiary" />
                   </div>
                 </div>
               </div>
@@ -248,89 +254,85 @@
 
               <!-- Configuration cards -->
               <ul v-else class="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3 p-0">
+                <!-- Two zones: the top opens the cloud, the footer holds the other actions and never opens it on a near miss -->
                 <li
                   v-for="item in visibleConfigs"
                   :key="item.alias"
                   :data-alias="item.alias"
-                  class="group/card relative flex items-center gap-3.5 rounded-xl border bg-bg-secondary py-3.5 pr-3 pl-3.5 shadow-sm transition-all duration-fast ease-apple hover:border-accent/60 hover:shadow-md"
+                  class="flex flex-col overflow-hidden rounded-xl border bg-bg-secondary shadow-sm transition-all duration-fast ease-apple has-[>button:hover]:border-accent/60 has-[>button:hover]:shadow-md"
                   :class="
                     recentAlias === item.alias ? 'border-accent ring-2 ring-accent/25' : 'border-border-secondary'
                   "
                 >
-                  <span
-                    class="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-xl bg-bg-tertiary transition-transform duration-fast ease-apple group-hover/card:scale-105"
+                  <button
+                    type="button"
+                    class="group/open flex w-full min-w-0 cursor-pointer items-center gap-3.5 py-3.5 pr-3 pl-3.5 text-left transition-colors duration-fast ease-apple hover:bg-accent/5 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none focus-visible:ring-inset"
+                    :title="item.alias"
+                    :aria-label="`${t('pages.manage.login.open')}: ${item.alias}`"
+                    @click="handleConfigClick(item)"
                   >
-                    <img
-                      :src="`./assets/${providerIcon(item.picBedName)}.webp`"
-                      class="h-[26px] w-[26px] object-contain"
-                      alt=""
-                    />
-                  </span>
-                  <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <!-- The stretched button makes the whole card open the cloud -->
-                    <button
-                      type="button"
-                      class="min-w-0 cursor-pointer text-left text-[15px] leading-snug font-semibold text-main after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-accent"
-                      :title="item.alias"
-                      :aria-label="`${t('pages.manage.login.open')}: ${item.alias}`"
-                      @click="handleConfigClick(item)"
+                    <span
+                      class="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-xl bg-bg-tertiary transition-transform duration-fast ease-apple group-hover/open:scale-105"
                     >
-                      <span :class="['block truncate', FADE_UNDER_ACTIONS]">{{ item.alias }}</span>
-                    </button>
-                    <p :class="['m-0 flex min-w-0 items-center gap-1.5 text-xs text-secondary', FADE_UNDER_ACTIONS]">
-                      <span class="shrink-0">{{ providerName(item.picBedName) }}</span>
-                      <template v-if="configSummary(item.config)">
-                        <span class="text-tertiary" aria-hidden="true">·</span>
-                        <span class="truncate font-mono text-[11px] text-tertiary" :title="configSummary(item.config)">
-                          {{ configSummary(item.config) }}
-                        </span>
-                      </template>
-                    </p>
-                  </div>
-                  <!-- Shown on hover or focus over the end of the text, so the summary keeps the full width at rest -->
-                  <div
-                    class="pointer-events-none absolute inset-y-0 right-[34px] z-1 flex items-center gap-0.5 opacity-0 transition-opacity duration-fast ease-apple group-focus-within/card:opacity-100 group-hover/card:opacity-100 [&>button]:pointer-events-auto"
-                  >
+                      <img
+                        :src="`./assets/${providerIcon(item.picBedName)}.webp`"
+                        class="h-[26px] w-[26px] object-contain"
+                        alt=""
+                      />
+                    </span>
+                    <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <span class="truncate text-[15px] leading-snug font-semibold text-main">{{ item.alias }}</span>
+                      <span class="flex min-w-0 items-center gap-1.5 text-xs text-secondary">
+                        <span class="shrink-0">{{ providerName(item.picBedName) }}</span>
+                        <template v-if="configSummary(item.config)">
+                          <span class="text-tertiary" aria-hidden="true">·</span>
+                          <span class="truncate font-mono text-[11px] text-tertiary">
+                            {{ configSummary(item.config) }}
+                          </span>
+                        </template>
+                      </span>
+                    </span>
+                    <ChevronRightIcon
+                      :size="18"
+                      class="shrink-0 text-tertiary transition-all duration-fast ease-apple group-hover/open:translate-x-0.5 group-hover/open:text-accent"
+                      aria-hidden="true"
+                    />
+                  </button>
+                  <div class="flex items-center gap-1 border-t border-border-secondary px-2 py-1.5">
                     <button
-                      v-tooltip="t('pages.manage.login.viewDetails')"
                       type="button"
-                      :class="iconButtonClass"
-                      :aria-label="t('pages.manage.login.viewDetails')"
+                      class="flex h-[28px] cursor-pointer items-center gap-1.5 rounded-md px-2 text-xs font-medium text-secondary transition-colors duration-fast ease-apple hover:bg-accent/10 hover:text-accent focus-visible:focus-ring"
                       @click="openDetails(item)"
                     >
-                      <InfoIcon :size="15" aria-hidden="true" />
+                      <InfoIcon :size="14" aria-hidden="true" />
+                      {{ t('pages.manage.login.viewDetails') }}
                     </button>
                     <button
                       v-if="supportedPicBedList[item.picBedName]"
-                      v-tooltip="t('pages.uploaderConfig.edit')"
                       type="button"
-                      :class="iconButtonClass"
-                      :aria-label="t('pages.uploaderConfig.edit')"
+                      class="flex h-[28px] cursor-pointer items-center gap-1.5 rounded-md px-2 text-xs font-medium text-secondary transition-colors duration-fast ease-apple hover:bg-accent/10 hover:text-accent focus-visible:focus-ring"
                       @click="startEdit(item)"
                     >
-                      <Pencil :size="15" aria-hidden="true" />
+                      <Pencil :size="14" aria-hidden="true" />
+                      {{ t('pages.uploaderConfig.edit') }}
                     </button>
+                    <!-- Kept apart from the everyday actions and icon-only so it is never the easy target -->
                     <button
                       v-tooltip="t('pages.manage.login.delete')"
                       type="button"
-                      :class="[iconButtonClass, 'hover:bg-danger/10! hover:text-danger!']"
-                      :aria-label="t('pages.manage.login.delete')"
+                      class="ml-auto flex h-[28px] w-[28px] cursor-pointer items-center justify-center gap-1.5 rounded-md px-0! text-xs font-medium text-secondary transition-colors duration-fast ease-apple hover:bg-danger/10! hover:text-danger! focus-visible:focus-ring"
+                      :aria-label="`${t('pages.manage.login.delete')}: ${item.alias}`"
                       @click="handleConfigRemove(item.alias)"
                     >
-                      <Trash2 :size="15" aria-hidden="true" />
+                      <Trash2 :size="14" aria-hidden="true" />
                     </button>
                   </div>
-                  <ChevronRightIcon
-                    :size="18"
-                    class="shrink-0 text-tertiary transition-all duration-fast ease-apple group-hover/card:translate-x-0.5 group-hover/card:text-accent"
-                    aria-hidden="true"
-                  />
                 </li>
 
                 <li v-if="activeProvider" class="flex">
                   <button
                     type="button"
-                    class="flex min-h-[74px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border text-sm font-semibold text-secondary transition-all duration-fast ease-apple hover:border-accent hover:bg-accent/5 hover:text-accent focus-visible:focus-ring"
+                    class="flex min-h-[116px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border text-sm font-semibold text-secondary transition-all duration-fast ease-apple hover:border-accent hover:bg-accent/5 hover:text-accent focus-visible:focus-ring"
                     @click="startCreate(activeProvider.key)"
                   >
                     <Plus :size="16" aria-hidden="true" />
@@ -524,13 +526,6 @@ const PB_LIST = [
   'webdavplist',
 ] as const
 
-// Fades card text out under the hover actions. A mask rather than a backdrop, since themes may make cards transparent.
-const FADE_UNDER_ACTIONS =
-  'group-focus-within/card:[mask-image:linear-gradient(to_right,#000_calc(100%_-_110px),transparent_calc(100%_-_86px))] group-hover/card:[mask-image:linear-gradient(to_right,#000_calc(100%_-_110px),transparent_calc(100%_-_86px))]'
-
-const iconButtonClass =
-  'flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-lg text-secondary transition-all duration-fast ease-apple hover:bg-accent/10 hover:text-accent focus-visible:focus-ring'
-
 const providers = computed(() =>
   Object.entries(supportedPicBedList.value).map(([key, item]: [string, any]) => ({
     key,
@@ -616,7 +611,7 @@ function railItemClass(key: string) {
 function railCountClass(key: string) {
   return [
     'min-w-[20px] shrink-0 rounded-full px-1.5 text-center text-[11px] leading-[18px] font-semibold tabular-nums',
-    activePlatform.value === key ? 'bg-accent/15 text-accent' : 'bg-bg-tertiary text-secondary',
+    activePlatform.value === key ? 'bg-accent/15 text-accent' : 'bg-bg-tertiary/40 text-secondary',
   ]
 }
 

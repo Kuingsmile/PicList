@@ -1042,7 +1042,7 @@
         "isForceCustomUrlHttpsTitle": "Force HTTPS for custom domains",
         "isIgnoreCaseTips": "Recommended to enable",
         "isIgnoreCaseTitle": "Ignore case when searching files",
-        "isShowThumbnailTitle": "Show images as originals instead of default file-type icons (bucket must be publicly accessible)",
+        "isShowThumbnailTitle": "Show image previews instead of default file-type icons",
         "isUploadKeepDirStructureTips": "When off, all files will be flattened into the target directory",
         "isUploadKeepDirStructureTitle": "Keep directory structure on upload",
         "isUsePreSignedUrlTitle": "Use pre-signed URL to preview images",
@@ -1068,8 +1068,8 @@
           "performanceDesc": "Limit parallel requests and memory use for large uploads.",
           "preSigned": "Pre-signed URLs",
           "preSignedDesc": "Temporary signed links for private buckets.",
-          "thumbnail": "Thumbnails",
-          "thumbnailDesc": "Preview images in the file list instead of file-type icons."
+          "thumbnail": "Image previews",
+          "thumbnailDesc": "Images fit the grid cards. Click an image for a larger preview. Cloud images require public access or pre-signed URLs."
         },
         "selectDownloadFolderTitle": "Choose download folder",
         "subtitle": "Applies to every cloud storage account",
@@ -1081,7 +1081,7 @@
           "upload": "Upload"
         },
         "thumbnailSuffixPlaceholder": "Example: ?imageMogr2/thumbnail/200x200",
-        "thumbnailSuffixTips": "Only affects image previews in the cloud management list. Copy, download, and delete still use the original URL",
+        "thumbnailSuffixTips": "Leave empty to use the original image URL. A suffix can request a smaller preview without changing copied links or downloads.",
         "thumbnailSuffixTitle": "Image preview thumbnail suffix",
         "timestampRenameTips": "When enabled, uploaded files will be renamed to a timestamp",
         "timestampRenameTitle": "Timestamp rename on upload (highest priority)",

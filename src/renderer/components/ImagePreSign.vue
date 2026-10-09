@@ -21,6 +21,7 @@ import { computed } from 'vue'
 import { useThumbnail } from '@/composables/useThumbnail'
 import { getFileIconPath } from '@/manage/utils/filePresentation'
 import { IRPCActionType } from '#/constants/rpcActions'
+import { getRawData } from '#/utils/rawData'
 
 const { item, alias, url, config, isShowThumbnail } = defineProps<{
   item: {
@@ -59,7 +60,11 @@ const {
     () => config.rawUrl,
   ],
   async () => {
-    const url = await window.electron.triggerRPC<string>(IRPCActionType.MANAGE_GET_PRE_SIGNED_URL, alias, config)
+    const url = await window.electron.triggerRPC<string>(
+      IRPCActionType.MANAGE_GET_PRE_SIGNED_URL,
+      alias,
+      getRawData(config),
+    )
     if (!url || url === 'error') throw new Error('Failed to get pre-signed URL')
     return url
   },

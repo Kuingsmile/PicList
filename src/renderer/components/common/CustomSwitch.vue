@@ -1,11 +1,11 @@
 <template>
   <div
-    class="flex min-w-0 flex-wrap items-center gap-2 rounded-xl"
+    class="flex min-w-0 items-center gap-2 rounded-xl"
     :class="[$attrs.class, noHover ? '' : 'hover:border-accent hover:bg-surface hover:shadow-sm']"
     :style="$attrs.style"
   >
     <label
-      class="relative flex max-w-full min-w-0 items-center gap-4 rounded-lg border border-border transition-all duration-200 ease-apple"
+      class="relative flex max-w-full min-w-0 flex-1 items-center gap-4 rounded-lg border border-border transition-all duration-200 ease-apple"
       :class="{
         'border-none': noBorder,
         'p-4': !tighter,
@@ -33,9 +33,9 @@
             : 'h-[28px] w-[52px] before:top-[3px] before:left-[3px] before:h-[22px] before:w-[22px] peer-checked:before:translate-x-[24px]'
         "
       />
-      <div class="flex min-w-0 flex-row items-center gap-1 wrap-anywhere">
+      <div class="flex min-w-0 flex-1 flex-row items-center gap-1 wrap-anywhere">
         <slot name="custom-title"></slot>
-        <div v-if="!!title" class="flex flex-1 flex-col gap-1">
+        <div v-if="!!title" class="flex min-w-0 flex-1 flex-col gap-1">
           <div>
             <span class="text-[0.925rem] leading-[1.4] font-semibold text-secondary">{{ title }}</span>
             <span v-if="required" class="ml-1 text-danger" aria-hidden="true">*</span>
@@ -46,7 +46,7 @@
       </div>
     </label>
     <slot name="title-extra"></slot>
-    <HelpTooltip v-if="tips" :content="tips" />
+    <HelpTooltip v-if="tips" :content="tips" :class="{ 'mr-4': !tighter }" />
   </div>
 </template>
 

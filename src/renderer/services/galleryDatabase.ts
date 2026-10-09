@@ -1,4 +1,5 @@
 import { IRPCActionType } from '#/constants/rpcActions'
+import { getRawData } from '#/utils/rawData'
 
 interface IFilter {
   orderBy?: 'asc' | 'desc'
@@ -23,7 +24,7 @@ type IResult<T> = T & {
 
 export class GalleryDB implements IGalleryDB {
   async #actionHandler<T>(method: string, ...args: any[]): Promise<T | undefined> {
-    return await window.electron.triggerRPC<T>(method, ...args)
+    return await window.electron.triggerRPC<T>(method, ...getRawData(args))
   }
 
   async get<T>(filter?: IFilter): Promise<IGetResult<T> | undefined> {

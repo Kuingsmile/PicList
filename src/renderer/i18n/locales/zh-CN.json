@@ -1042,7 +1042,7 @@
         "isForceCustomUrlHttpsTitle": "为自定义域名开启强制HTTPS",
         "isIgnoreCaseTips": "建议开启",
         "isIgnoreCaseTitle": "文件搜索时，是否忽略大小写",
-        "isShowThumbnailTitle": "图片显示为原图而非默认文件格式图标(需要存储桶可公开访问)",
+        "isShowThumbnailTitle": "显示图片预览而非默认文件类型图标",
         "isUploadKeepDirStructureTips": "关闭后会将所有文件展开到指定目录下",
         "isUploadKeepDirStructureTitle": "上传时保持目录结构",
         "isUsePreSignedUrlTitle": "是否使用预签名URL预览图片",
@@ -1068,8 +1068,8 @@
           "performanceDesc": "限制并发请求数和大文件上传时的内存占用。",
           "preSigned": "预签名链接",
           "preSignedDesc": "用于私有存储桶的临时签名链接。",
-          "thumbnail": "缩略图",
-          "thumbnailDesc": "在文件列表中预览图片，而不是显示文件类型图标。"
+          "thumbnail": "图片预览",
+          "thumbnailDesc": "图片会缩放以适应网格卡片。点击图片可打开更大的预览。云端图片需要公开访问或预签名 URL。"
         },
         "selectDownloadFolderTitle": "选择下载文件夹",
         "subtitle": "适用于所有云存储账户",
@@ -1081,7 +1081,7 @@
           "upload": "上传"
         },
         "thumbnailSuffixPlaceholder": "例如：?imageMogr2/thumbnail/200x200",
-        "thumbnailSuffixTips": "仅影响云管理列表中的图片预览，不会改变复制链接、下载或删除使用的原始地址",
+        "thumbnailSuffixTips": "留空时使用原始图片地址。后缀可请求较小的预览图片，不会影响复制链接或下载。",
         "thumbnailSuffixTitle": "图片预览缩略图后缀",
         "timestampRenameTips": "开启后，上传的文件将自动重命名为时间戳",
         "timestampRenameTitle": "上传文件时间戳重命名(最高优先级)",

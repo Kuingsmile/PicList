@@ -11,6 +11,7 @@ import { appendListingItems, ListingSession } from '@/manage/utils/listingSessio
 import { compareFileValues, type FileColumn } from '@/utils/fileCollection'
 import { IRPCActionType } from '#/constants/rpcActions'
 import type { ListingRequest, ListingResult } from '#/listing'
+import { getRawData } from '#/utils/rawData'
 interface BucketListingOptions extends BucketLocation {
   isDisposed: () => boolean
   invalidateListings: () => void
@@ -112,8 +113,7 @@ export function useBucketListing({
         message.error(t('pages.manage.bucket.getFileListFailed'))
       }
     } else {
-      getBucketFileListBackStage(request)
-      message.info(t('pages.manage.bucket.getInBackground'))
+      if (getBucketFileListBackStage(request)) message.info(t('pages.manage.bucket.getInBackground'))
     }
     if (fileListings.isCurrent(request)) isShowLoadingPage.value = false
   }
@@ -215,28 +215,37 @@ export function useBucketListing({
   }
 
   function getBucketFileListBackStage(request: ListingRequest) {
-    const param = listingParams(request)
-    const cacheTarget = { provider: request.provider, key: getTableKeyOfDb() }
     isLoadingData.value = true
-    sortFile((localStorage.getItem('sortType') as ISortTypeList) || 'init', false)
-    fileListings.subscribe(request, data => {
-      appendListingItems(currentPageFilesInfo, data.items)
-      // Keep arrival order while loading; filterList searches all received items. Sort the
-      // completed (or partial failed) inventory once, preserving object/selection identity.
-      if (data.finished) {
-        isLoadingData.value = false
-        const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
-        sortFile(sortType, false)
-        if (data.success) {
-          void cacheFileList(cacheTarget, currentPageFilesInfo)
-          message.success(t('pages.manage.bucket.getFileListSuccess'))
-        } else if (data.phase !== 'cancelled') {
-          message.error(t('pages.manage.bucket.partFileListFailed'))
+    try {
+      const param = listingParams(request)
+      const cacheTarget = { provider: request.provider, key: getTableKeyOfDb() }
+      sortFile((localStorage.getItem('sortType') as ISortTypeList) || 'init', false)
+      fileListings.subscribe(request, data => {
+        appendListingItems(currentPageFilesInfo, data.items)
+        // Keep arrival order while loading; filterList searches all received items. Sort the
+        // completed (or partial failed) inventory once, preserving object/selection identity.
+        if (data.finished) {
+          isLoadingData.value = false
+          const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
+          sortFile(sortType, false)
+          if (data.success) {
+            void cacheFileList(cacheTarget, currentPageFilesInfo)
+            message.success(t('pages.manage.bucket.getFileListSuccess'))
+          } else if (data.phase !== 'cancelled') {
+            message.error(t('pages.manage.bucket.partFileListFailed'))
+          }
         }
-      }
-      return nextTick()
-    })
-    window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_BACKSTAGE, request.accountId, param)
+        return nextTick()
+      })
+      window.electron.sendRPC(IRPCActionType.MANAGE_GET_BUCKET_LIST_BACKSTAGE, request.accountId, param)
+      return true
+    } catch {
+      if (!fileListings.isCurrent(request)) return false
+      fileListings.complete(request)
+      isLoadingData.value = false
+      message.error(t('pages.manage.bucket.getFileListFailed'))
+      return false
+    }
   }
 
   async function getBucketFileList(
@@ -262,7 +271,8 @@ export function useBucketListing({
   }
 
   function listingParams(request: ListingRequest, page = currentPageNumber.value) {
-    return {
+    // Nested Vue state must be unwrapped before Electron copies it across the context bridge.
+    return getRawData({
       ...request,
       bucketConfig: { ...configMap.value.bucketConfig },
       paging: paging.value,
@@ -273,7 +283,7 @@ export function useBucketListing({
       cdnUrl: configMap.value.cdnUrl,
       baseDir: configMap.value.baseDir,
       webPath: configMap.value.webPath,
-    }
+    })
   }
 
   function getTableKeyOfDb() {

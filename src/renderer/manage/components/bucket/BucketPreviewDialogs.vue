@@ -18,10 +18,11 @@
       }"
     >
       <img
+        v-if="isShowImagePreview"
         :src="previewContent"
         :alt="fileName"
         class="max-h-[72vh] max-w-full rounded-md object-contain shadow-md"
-        @error="handlePreviewError"
+        @error="handlePreviewError('image')"
       />
     </div>
   </CustomModal>
@@ -74,6 +75,7 @@
   >
     <div class="flex h-full w-full items-center justify-center bg-black">
       <VideoPlayer
+        v-if="isShowVideoFileDialog"
         class="[&_.video-js]:h-full [&_.video-js]:max-h-[90vh] [&_.video-js]:w-full"
         :sources="videoSources"
         :volume="0.6"
@@ -93,7 +95,7 @@
         controls
         playsinline
         loop
-        @error="handlePreviewError"
+        @error="handlePreviewError('video')"
       />
     </div>
   </CustomModal>
@@ -138,7 +140,8 @@ function copyText() {
   emit('copy', previewContent.value)
 }
 
-function handlePreviewError() {
-  emit('error')
+function handlePreviewError(kind: 'image' | 'video') {
+  // Media errors can arrive while the modal's leave transition is still running.
+  if (filePreview.preview.value?.kind === kind) emit('error')
 }
 </script>

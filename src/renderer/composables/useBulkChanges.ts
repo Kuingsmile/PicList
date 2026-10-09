@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n'
 
 import type { BulkPolicy, BulkSnapshot } from '#/bulkChanges'
 import { IRPCActionType } from '#/constants/rpcActions'
+import { getRawData } from '#/utils/rawData'
 
 export function useBulkChanges(afterRun: (snapshot: BulkSnapshot) => Promise<void>) {
   const { t } = useI18n()
@@ -71,7 +72,7 @@ export function useBulkChanges(afterRun: (snapshot: BulkSnapshot) => Promise<voi
     building.value = true
     error.value = ''
     try {
-      const result = await window.electron.triggerRPC<BulkSnapshot>(action, ...args)
+      const result = await window.electron.triggerRPC<BulkSnapshot>(action, ...getRawData(args))
       if (!result) throw new Error('Missing bulk preview')
       if (disposed) {
         await release(result.plan.id)

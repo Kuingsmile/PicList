@@ -1042,7 +1042,7 @@
         "isForceCustomUrlHttpsTitle": "為自訂網域啟用強制 HTTPS",
         "isIgnoreCaseTips": "建議啟用",
         "isIgnoreCaseTitle": "檔案搜尋時，是否忽略大小寫",
-        "isShowThumbnailTitle": "圖片顯示為原圖而非預設檔案格式圖示（需要儲存桶可公開存取）",
+        "isShowThumbnailTitle": "顯示圖片預覽而非預設檔案類型圖示",
         "isUploadKeepDirStructureTips": "關閉後會將所有檔案展開到指定目錄下",
         "isUploadKeepDirStructureTitle": "上傳時保持目錄結構",
         "isUsePreSignedUrlTitle": "是否使用預先簽名 URL 預覽圖片",
@@ -1068,8 +1068,8 @@
           "performanceDesc": "限制並行請求數與大型檔案上傳時的記憶體用量。",
           "preSigned": "預簽章連結",
           "preSignedDesc": "用於私有儲存桶的臨時簽章連結。",
-          "thumbnail": "縮圖",
-          "thumbnailDesc": "在檔案清單中預覽圖片，而非顯示檔案類型圖示。"
+          "thumbnail": "圖片預覽",
+          "thumbnailDesc": "圖片會縮放以適應網格卡片。點擊圖片可開啟更大的預覽。雲端圖片需要公開存取或預先簽名 URL。"
         },
         "selectDownloadFolderTitle": "選擇下載資料夾",
         "subtitle": "適用於所有雲端儲存帳戶",
@@ -1081,7 +1081,7 @@
           "upload": "上傳"
         },
         "thumbnailSuffixPlaceholder": "例如：?imageMogr2/thumbnail/200x200",
-        "thumbnailSuffixTips": "僅影響雲端管理列表中的圖片預覽，不會變更複製連結、下載或刪除使用的原始地址",
+        "thumbnailSuffixTips": "留空時使用原始圖片網址。後綴可請求較小的預覽圖片，不會影響複製連結或下載。",
         "thumbnailSuffixTitle": "圖片預覽縮圖後綴",
         "timestampRenameTips": "啟用後，上傳的檔案將自動更名為時間戳",
         "timestampRenameTitle": "上傳檔案時間戳重新命名（最高優先級）",
