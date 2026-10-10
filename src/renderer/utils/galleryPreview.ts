@@ -1,3 +1,5 @@
+import { getFileIconPath } from '@/manage/utils/filePresentation'
+
 type GalleryPreviewItem = Pick<ImgInfo, 'extname' | 'fileName' | 'imgUrl'> & {
   galleryPath?: string
 }
@@ -5,13 +7,37 @@ type GalleryPreviewItem = Pick<ImgInfo, 'extname' | 'fileName' | 'imgUrl'> & {
 export const JXL_LOADING_PREVIEW_SRC = './loading.jpg'
 export const JXL_ERROR_PREVIEW_SRC = './errorLoading.png'
 
+const imageExtensions = new Set([
+  '.jpg',
+  '.jpeg',
+  '.jfif',
+  '.pjpeg',
+  '.pjp',
+  '.png',
+  '.apng',
+  '.gif',
+  '.webp',
+  '.bmp',
+  '.ico',
+  '.svg',
+  '.avif',
+  '.jxl',
+])
+
 function stripUrlSuffix(value: string): string {
   return value.split(/[?#]/, 1)[0]
 }
 
 function getSourceExtension(value?: string): string {
   if (!value) return ''
-  const match = stripUrlSuffix(value).match(/\.([a-z0-9]+)$/i)
+  if (/^[a-z][a-z\d+.-]*:\/\//i.test(value)) {
+    try {
+      value = new URL(value).pathname
+    } catch {
+      // Fall back to the original path for malformed URLs.
+    }
+  }
+  const match = stripUrlSuffix(value).match(/\.([a-z0-9_]+)$/i)
   return match ? `.${match[1].toLowerCase()}` : ''
 }
 
@@ -32,6 +58,19 @@ function normalizeExtname(extname?: string): string {
 
 function isInlineImageSource(value: string): boolean {
   return /^(data:|blob:)/i.test(value)
+}
+
+export function getGalleryFileIconSource(item: GalleryPreviewItem): string {
+  const metadataExtension = getSourceExtension(item.fileName) || normalizeExtname(item.extname)
+  const source = item.galleryPath || item.imgUrl || ''
+  if (!metadataExtension && isInlineImageSource(source)) return ''
+
+  const extension = metadataExtension || getSourceExtension(source)
+  if (imageExtensions.has(extension) || getJxlPreviewSource(item)) return ''
+  // Keep trying extensionless image URLs when no filename identifies the file.
+  if (!extension && !item.fileName && source) return ''
+
+  return `./assets/icons/${getFileIconPath(`file${extension}`)}`
 }
 
 export function getJxlPreviewSource(item?: GalleryPreviewItem): string {
@@ -63,6 +102,9 @@ export function getGalleryPreviewSource(
   jxlPreviewErrors: Record<string, boolean> = {},
   preferNativeFallbackOnError = false,
 ): string {
+  const fileIconSource = getGalleryFileIconSource(item)
+  if (fileIconSource) return fileIconSource
+
   const fallbackSrc = item.galleryPath || item.imgUrl || ''
   const jxlPreviewSource = getJxlPreviewSource(item)
   if (!jxlPreviewSource) return fallbackSrc

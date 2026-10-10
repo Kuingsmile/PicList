@@ -432,9 +432,10 @@
               >
                 <img
                   v-if="galleryActive"
-                  :src="displayImageSources[item.key || ''] || item.src"
+                  :src="displayImageSources[item.key || ''] || buildDisplayImageSrc(item)"
                   alt=""
-                  class="h-full w-full object-cover"
+                  class="h-full w-full"
+                  :class="getGalleryFileIconSource(item) ? 'object-contain p-0.5' : 'object-cover'"
                   draggable="false"
                   @load="onImageLoad(item)"
                   @error="onImageError(item)"
@@ -503,15 +504,16 @@
                 >
                   <img
                     v-if="galleryActive"
-                    :src="displayImageSources[item.key || ''] || item.src"
+                    :src="displayImageSources[item.key || ''] || buildDisplayImageSrc(item)"
                     :alt="item.fileName || ''"
-                    class="h-full w-full object-contain transition-transform duration-medium ease-apple group-hover/card:scale-[1.03]"
+                    class="object-contain transition-transform duration-medium ease-apple group-hover/card:scale-[1.03]"
+                    :class="getGalleryFileIconSource(item) ? 'h-[56px] w-[56px]' : 'h-full w-full'"
                     draggable="false"
                     @load="onImageLoad(item)"
                     @error="onImageError(item)"
                   />
                   <div
-                    v-if="!imageLoadStates[item.key || '']"
+                    v-if="!getGalleryFileIconSource(item) && !imageLoadStates[item.key || '']"
                     class="absolute inset-0 flex items-center justify-center bg-bg-tertiary"
                   >
                     <div
@@ -695,7 +697,7 @@ import $$db from '@/services/galleryDatabase'
 import { configPaths } from '@/utils/configPaths'
 import { compareFileValues, type FileColumn, fileDate, fileType, formatCollectionDate } from '@/utils/fileCollection'
 import { prepareGalleryItems } from '@/utils/galleryItems'
-import { getGalleryPreviewSource, getJxlPreviewSource } from '@/utils/galleryPreview'
+import { getGalleryFileIconSource, getGalleryPreviewSource, getJxlPreviewSource } from '@/utils/galleryPreview'
 import { PreviewCache } from '@/utils/previewCache'
 import { IPasteStyle } from '#/constants/app'
 import { UPDATE_GALLERY } from '#/constants/ipcChannels'
@@ -1084,6 +1086,9 @@ function getPreviewSource(item: ImgInfo) {
 }
 
 function buildDisplayImageSrc(item: IGalleryItem) {
+  const fileIconSource = getGalleryFileIconSource(item)
+  if (fileIconSource) return fileIconSource
+
   if (imageErrorStates[item.key || '']) return './errorLoading.png'
   const src = getJxlPreviewSource(item) ? getPreviewSource(item) : item.src || item.galleryPath || item.imgUrl || ''
   return isAlwaysForceReload.value ? addCacheBustParam(src) : src
