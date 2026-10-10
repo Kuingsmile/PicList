@@ -455,9 +455,9 @@ let stopResizing: (() => void) | undefined
 const currentAlias = ref(route.query.alias as string)
 const currentPicBedName = ref(route.query.picBedName as string)
 
-const storedSidebarWidth = useLocalStorage('manage-main-sidebar-width', 220)
+const storedSidebarWidth = useLocalStorage('manage-main-sidebar-width', 180)
 const sidebarWidth = computed({
-  get: () => Math.max(SIDEBAR_MIN, Math.min(SIDEBAR_MAX, Number(storedSidebarWidth.value) || 220)),
+  get: () => Math.max(SIDEBAR_MIN, Math.min(SIDEBAR_MAX, Number(storedSidebarWidth.value) || 180)),
   set: value => {
     storedSidebarWidth.value = Math.max(SIDEBAR_MIN, Math.min(SIDEBAR_MAX, Math.round(value)))
   },
