@@ -418,19 +418,36 @@
       <div class="p-5">
         <textarea
           v-model="urlToUpload"
+          :disabled="isImportingUrls"
           rows="6"
           class="w-full resize-y rounded-lg border border-border bg-bg-secondary p-3 font-mono text-xs leading-relaxed text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent focus:outline-none focus-visible:focus-ring"
           :aria-label="t('pages.manage.bucket.urlUploadTitle')"
           placeholder="https://example.com/image-1.png&#10;https://example.com/image-2.png"
         />
+        <div
+          v-if="urlImportFailures.length"
+          role="alert"
+          class="mt-3 rounded-lg border border-danger/30 bg-danger/10 p-3 text-sm text-main"
+        >
+          <p class="m-0 font-medium">
+            {{ t('pages.manage.bucket.urlImportFailedMsg', { num: urlImportFailures.length }) }}
+          </p>
+          <ul class="m-0 mt-2 max-h-44 list-none space-y-2 overflow-y-auto p-0">
+            <li v-for="(failure, index) in urlImportFailures" :key="index">
+              <p class="m-0 font-mono text-xs wrap-anywhere">{{ failure.url }}</p>
+              <p class="m-0 mt-0.5 text-xs text-danger">{{ urlImportFailureMessage(failure) }}</p>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="dialogVisible = false" />
         <CustomButton
           :icon="UploadIcon"
-          :disabled="!urlToUpload.trim()"
-          :text="t('pages.manage.bucket.upload')"
+          :loading="isImportingUrls"
+          :disabled="!urlToUpload.trim() || isImportingUrls"
+          :text="urlImportFailures.length ? t('common.bulk.retry') : t('pages.manage.bucket.upload')"
           @click="handleUploadFromUrl"
         />
       </template>
@@ -695,6 +712,7 @@ const {
   getColumns: () => tableColumns.value,
   closeUrlDialog: () => {
     urlToUpload.value = ''
+    urlImportFailures.value = []
     dialogVisible.value = false
   },
   onReset: () => {
@@ -867,6 +885,9 @@ const {
   isUploadKeepDirStructure,
   dialogVisible,
   urlToUpload,
+  isImportingUrls,
+  urlImportFailures,
+  urlImportFailureMessage,
   handleUploadKeepDirChange,
   showUploadDialog,
   showUrlDialog,

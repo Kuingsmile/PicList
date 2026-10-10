@@ -716,6 +716,12 @@
         "uploading": "上传中",
         "uploadNum": "上传 {num} 个",
         "uploadTo": "上传到 {path}",
+        "urlImportFailedMsg": "{num} 个 URL 下载失败。请修正下方 URL 或重试。",
+        "urlImportFailure": {
+          "download": "下载失败。请检查 URL 和网络连接后重试。",
+          "http": "HTTP {statusCode}：下载失败。请检查 URL 及其访问权限后重试。",
+          "request": "无法完成下载请求，请重试。"
+        },
         "urlUploadTitle": "请输入URL，换行分隔",
         "willDeleteMsg": "即将删除 {num} 个文件，是否继续？",
         "wrapLines": "自动换行"

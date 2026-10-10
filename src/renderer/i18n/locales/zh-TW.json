@@ -716,6 +716,12 @@
         "uploading": "上傳中",
         "uploadNum": "上傳 {num} 個",
         "uploadTo": "上傳到 {path}",
+        "urlImportFailedMsg": "{num} 個 URL 下載失敗。請修正下方 URL 或重試。",
+        "urlImportFailure": {
+          "download": "下載失敗。請檢查 URL 和網路連線後重試。",
+          "http": "HTTP {statusCode}：下載失敗。請檢查 URL 及其存取權限後重試。",
+          "request": "無法完成下載請求，請重試。"
+        },
         "urlUploadTitle": "請輸入 URL，以換行分隔",
         "willDeleteMsg": "即將刪除 {num} 個檔案，是否繼續？",
         "wrapLines": "自動換行"

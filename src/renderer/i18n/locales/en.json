@@ -716,6 +716,12 @@
         "uploading": "Uploading",
         "uploadNum": "Upload {num}",
         "uploadTo": "Uploading to {path}",
+        "urlImportFailedMsg": "Failed to download {num} URL(s). Correct the URLs below or retry.",
+        "urlImportFailure": {
+          "download": "Download failed. Check the URL and connection, then retry.",
+          "http": "HTTP {statusCode}: download failed. Check the URL and its access permissions, then retry.",
+          "request": "Could not complete the download request. Please try again."
+        },
         "urlUploadTitle": "Please enter URL, separated by new lines",
         "willDeleteMsg": "Are you sure you want to delete {num} items?",
         "wrapLines": "Wrap lines"

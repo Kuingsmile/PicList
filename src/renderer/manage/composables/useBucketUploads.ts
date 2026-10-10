@@ -29,6 +29,10 @@ export function useBucketUploads({
 
   const urlToUpload = ref('')
 
+  const isImportingUrls = ref(false)
+
+  const urlImportFailures = ref<IUrlImportFailure[]>([])
+
   async function handleUploadKeepDirChange(value: boolean) {
     if (!(await saveConfig('settings.isUploadKeepDirStructure', value))) return
     manageStore.refreshConfig()
@@ -106,9 +110,12 @@ export function useBucketUploads({
     dialogVisible.value = true
   }
 
+  function urlImportFailureMessage(failure: IUrlImportFailure) {
+    return t(`pages.manage.bucket.urlImportFailure.${failure.reason}`, { statusCode: failure.statusCode })
+  }
+
   async function handleUploadFromUrl() {
-    if (isDisposed()) return
-    dialogVisible.value = false
+    if (isDisposed() || isImportingUrls.value) return
     const urlList = [] as string[]
     urlToUpload.value.split('\n').forEach((item: string) => {
       if (item.trim() !== '' && isValidUrl(item.trim())) {
@@ -121,19 +128,53 @@ export function useBucketUploads({
     }
     const destination = captureUploadDestination()
     const generation = getGeneration()
-    message.success(t('pages.manage.bucket.startUploadMsg'))
-    const res = await window.electron.triggerRPC<IUrlImportFile[]>(
-      IRPCActionType.MANAGE_DOWNLOAD_FILE_FROM_URL,
-      urlList,
-    )
-    if (!res?.length) return
-    const files = res.map(item => ({
-      name: item.fileName,
-      path: item.filePath.replace(/\\/g, '/'),
-      size: item.fileSize,
-    }))
-    enqueueUploadFiles(files, destination)
-    if (!isDisposed() && generation === getGeneration()) isShowUploadPanel.value = true
+    isImportingUrls.value = true
+    urlImportFailures.value = []
+    dialogVisible.value = false
+    message.info(t('pages.manage.bucket.startUploadMsg'))
+    try {
+      let res: IUrlImportResult
+      try {
+        const response = await window.electron.triggerRPC<IUrlImportResult>(
+          IRPCActionType.MANAGE_DOWNLOAD_FILE_FROM_URL,
+          urlList,
+        )
+        if (
+          !response ||
+          !Array.isArray(response.files) ||
+          !Array.isArray(response.failures) ||
+          response.files.length + response.failures.length !== urlList.length
+        ) {
+          throw new Error('Missing URL import results')
+        }
+        res = response
+      } catch {
+        res = { files: [], failures: urlList.map(url => ({ url, reason: 'request' })) }
+      }
+      if (res.files.length) {
+        enqueueUploadFiles(
+          res.files.map(item => ({
+            name: item.fileName,
+            path: item.filePath.replace(/\\/g, '/'),
+            size: item.fileSize,
+          })),
+          destination,
+        )
+      }
+      if (isDisposed() || generation !== getGeneration()) return
+      urlImportFailures.value = res.failures
+      if (res.failures.length) {
+        urlToUpload.value = res.failures.map(item => item.url).join('\n')
+        dialogVisible.value = true
+        message.error(t('pages.manage.bucket.urlImportFailedMsg', { num: res.failures.length }), { duration: 8000 })
+      } else {
+        urlToUpload.value = ''
+        dialogVisible.value = false
+        isShowUploadPanel.value = true
+      }
+    } finally {
+      isImportingUrls.value = false
+    }
   }
   watch(
     () => manageStore.config.settings.isUploadKeepDirStructure,
@@ -149,6 +190,9 @@ export function useBucketUploads({
     isUploadKeepDirStructure,
     dialogVisible,
     urlToUpload,
+    isImportingUrls,
+    urlImportFailures,
+    urlImportFailureMessage,
     handleUploadKeepDirChange,
     showUploadDialog,
     showUrlDialog,

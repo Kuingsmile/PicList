@@ -1,4 +1,5 @@
 import path from 'node:path'
+import type { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 
 import axios from 'axios'
@@ -26,31 +27,39 @@ const removeImportedFile = (filePath: string) => {
   }
 }
 
-export const downloadFileFromUrl = async (urls: string[]): Promise<IUrlImportFile[]> => {
+export const downloadFileFromUrl = async (urls: string[]): Promise<IUrlImportResult> => {
   const tempPath = getTempDirPath()
   await fs.ensureDir(tempPath)
-  const result: IUrlImportFile[] = []
-  const filePaths: string[] = []
-  try {
-    for (const url of urls) {
+  const result: IUrlImportResult = { files: [], failures: [] }
+  for (const url of urls) {
+    let filePath: string | undefined
+    let downloadStream: Readable | undefined
+    try {
       const fileName = path.posix.basename(new URL(url).pathname) || 'download'
       const directory = await fs.mkdtemp(path.join(tempPath, 'url-'))
-      const filePath = path.join(directory, fileName.replace(/[\\/:*?"<>|]/g, '_'))
-      filePaths.push(filePath)
+      filePath = path.join(directory, fileName.replace(/[\\/:*?"<>|]/g, '_'))
       importedFiles.set(filePath, { directory, awaitingUpload: true, uploads: new Set() })
       const res = await axios({ method: 'get', url, responseType: 'stream' })
+      downloadStream = res.data
       await pipeline(res.data, fs.createWriteStream(filePath))
-      result.push({ filePath, fileName, fileSize: (await fs.stat(filePath)).size })
+      result.files.push({ filePath, fileName, fileSize: (await fs.stat(filePath)).size })
+    } catch (error) {
+      downloadStream?.destroy()
+      const statusCode = axios.isAxiosError(error) ? error.response?.status : undefined
+      if (axios.isAxiosError(error)) error.response?.data?.destroy?.()
+      if (filePath) {
+        importedFiles.get(filePath)!.awaitingUpload = false
+        removeImportedFile(filePath)
+      }
+      // Return only safe failure details; Axios errors can contain credentials and response bodies.
+      result.failures.push({
+        url,
+        reason: statusCode === undefined ? 'download' : 'http',
+        ...(statusCode === undefined ? {} : { statusCode }),
+      })
     }
-    return result
-  } catch (error) {
-    // No paths have been handed to uploads yet, so discard only this failed batch.
-    for (const filePath of filePaths) {
-      importedFiles.get(filePath)!.awaitingUpload = false
-      removeImportedFile(filePath)
-    }
-    throw error
   }
+  return result
 }
 
 export const retainImportedFileForUpload = (filePath: string, taskId: string) => {

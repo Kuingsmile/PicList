@@ -165,6 +165,17 @@ interface IUrlImportFile {
   fileSize: number
 }
 
+interface IUrlImportFailure {
+  url: string
+  reason: 'http' | 'download' | 'request'
+  statusCode?: number
+}
+
+interface IUrlImportResult {
+  files: IUrlImportFile[]
+  failures: IUrlImportFailure[]
+}
+
 interface IUploadTask {
   id: string
   progress: number
