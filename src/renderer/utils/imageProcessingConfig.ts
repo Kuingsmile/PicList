@@ -51,7 +51,6 @@ export const outputFormats = [
   'tiff',
   'tif',
   'heif',
-  'svg',
   'input',
   'dz',
   'fits',
