@@ -1,4 +1,12 @@
-export function getSupportedPicBedList(t: (key: string, values?: Record<string, unknown>) => string): IStringKeyMap {
+import { II18nLanguage } from '#/constants/app'
+
+export function getSupportedPicBedList(
+  t: (key: string, values?: Record<string, unknown>) => string,
+  language: string = II18nLanguage.ZH_CN,
+): IStringKeyMap {
+  const localePath = language === II18nLanguage.EN ? 'en/' : ''
+  const managementManualUrl = `https://piclist.cn/${localePath}manage#configuration-page`
+
   const defaultBaseRule = (name: string) => {
     return [
       {
@@ -89,7 +97,7 @@ export function getSupportedPicBedList(t: (key: string, values?: Record<string, 
       },
       explain: t('pages.manage.constant.smms.explain'),
       options: ['alias', 'token', 'paging'],
-      refLink: 'https://piclist.cn/manage.html#smms',
+      refLink: managementManualUrl,
       referenceText: t('pages.manage.constant.referText'),
     },
     qiniu: {
@@ -168,7 +176,7 @@ export function getSupportedPicBedList(t: (key: string, values?: Record<string, 
         'paging',
         'itemsPerPage',
       ],
-      refLink: 'https://piclist.cn/manage.html#%E4%B8%83%E7%89%9B%E4%BA%91',
+      refLink: managementManualUrl,
       referenceText: t('pages.manage.constant.referText'),
     },
     github: {
@@ -273,7 +281,7 @@ export function getSupportedPicBedList(t: (key: string, values?: Record<string, 
       },
       explain: t('pages.manage.constant.github.explain'),
       options: ['alias', 'token', 'githubUsername', 'proxy', 'customUrl'],
-      refLink: 'https://piclist.cn/manage.html#github',
+      refLink: managementManualUrl,
       referenceText: t('pages.manage.constant.referText'),
     },
     aliyun: {
@@ -352,7 +360,7 @@ export function getSupportedPicBedList(t: (key: string, values?: Record<string, 
         'paging',
         'itemsPerPage',
       ],
-      refLink: 'https://piclist.cn/manage.html#%E9%98%BF%E9%87%8C%E4%BA%91oss',
+      refLink: managementManualUrl,
       referenceText: t('pages.manage.constant.referText'),
     },
     tcyun: {
@@ -440,7 +448,7 @@ export function getSupportedPicBedList(t: (key: string, values?: Record<string, 
         'paging',
         'itemsPerPage',
       ],
-      refLink: 'https://piclist.cn/manage.html#%E8%85%BE%E8%AE%AF%E4%BA%91',
+      refLink: managementManualUrl,
       referenceText: t('pages.manage.constant.referText'),
     },
     upyun: {
@@ -564,7 +572,7 @@ export function getSupportedPicBedList(t: (key: string, values?: Record<string, 
         'antiLeechToken',
         'expireTime',
       ],
-      refLink: 'https://piclist.cn/manage.html#%E5%8F%88%E6%8B%8D%E4%BA%91',
+      refLink: managementManualUrl,
       referenceText: t('pages.manage.constant.referText'),
     },
     imgur: {
@@ -604,7 +612,7 @@ export function getSupportedPicBedList(t: (key: string, values?: Record<string, 
       },
       explain: t('pages.manage.constant.imgur.explain'),
       options: ['alias', 'imgurUserName', 'accessToken', 'proxy'],
-      refLink: 'https://piclist.cn/manage.html#imgur',
+      refLink: managementManualUrl,
       referenceText: t('pages.manage.constant.referText'),
     },
     s3plist: {
@@ -751,7 +759,7 @@ export function getSupportedPicBedList(t: (key: string, values?: Record<string, 
         'paging',
         'itemsPerPage',
       ],
-      refLink: 'https://piclist.cn/manage.html#s3',
+      refLink: managementManualUrl,
       referenceText: t('pages.manage.constant.referText'),
     },
     webdavplist: {
@@ -875,7 +883,7 @@ export function getSupportedPicBedList(t: (key: string, values?: Record<string, 
         'sslEnabled',
         'authType',
       ],
-      refLink: 'https://piclist.cn/manage.html#webdav',
+      refLink: managementManualUrl,
       referenceText: t('pages.manage.constant.referText'),
     },
     local: {
@@ -952,7 +960,7 @@ export function getSupportedPicBedList(t: (key: string, values?: Record<string, 
       },
       explain: t('pages.manage.constant.local.explain'),
       options: ['alias', 'baseDir', 'customUrl', 'bucketName', 'webPath'],
-      refLink: 'https://piclist.cn/manage.html#%E6%9C%AC%E5%9C%B0%E5%AD%98%E5%82%A8',
+      refLink: managementManualUrl,
       referenceText: t('pages.manage.constant.referText'),
     },
     sftp: {
@@ -1100,7 +1108,7 @@ export function getSupportedPicBedList(t: (key: string, values?: Record<string, 
         'bucketName',
         'webPath',
       ],
-      refLink: 'https://piclist.cn/manage.html#sftp',
+      refLink: managementManualUrl,
       referenceText: t('pages.manage.constant.referText'),
     },
   }

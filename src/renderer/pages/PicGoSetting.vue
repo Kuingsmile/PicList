@@ -122,7 +122,7 @@ function tabClick(tabId: TabId) {
 async function goConfigPage() {
   const lang = (await getConfig(configPaths.settings.language)) ?? II18nLanguage.ZH_CN
   const localePath = lang === II18nLanguage.EN ? 'en/' : ''
-  const url = `https://piclist.cn/${localePath}configure.html`
+  const url = `https://piclist.cn/${localePath}configure`
 
   window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
 }

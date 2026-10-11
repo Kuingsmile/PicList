@@ -2,7 +2,7 @@
 
 [简体中文](FAQ.md) | [README](README.md) | [Development guide](CONTRIBUTING_EN.md)
 
-This FAQ originated from PicGo's FAQ. Thanks to PicGo's author, Molunerfinn. For general configuration, see the [user manual](https://piclist.cn/en).
+This FAQ originated from PicGo's FAQ. Thanks to PicGo's author, Molunerfinn. For general configuration, see the [user manual](https://piclist.cn/en/configure).
 
 ## 1. What is the relationship between PicList and PicGo?
 

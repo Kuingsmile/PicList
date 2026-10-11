@@ -2,7 +2,7 @@
 
 [English](FAQ_EN.md) | [README](README_cn.md) | [开发指南](CONTRIBUTING.md)
 
-本 FAQ 源自 PicGo 的 FAQ，感谢 PicGo 作者 Molunerfinn。常规配置问题请参阅 [官方文档](https://piclist.cn)。
+本 FAQ 源自 PicGo 的 FAQ，感谢 PicGo 作者 Molunerfinn。常规配置问题请参阅 [官方文档](https://piclist.cn/configure)。
 
 ## 1. PicList 和 PicGo 有什么关系？
 

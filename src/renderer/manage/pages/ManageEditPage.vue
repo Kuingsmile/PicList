@@ -303,9 +303,9 @@ const SECRET_FIELDS = new Set([
   'antiLeechToken',
 ])
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { confirm } = useConfirm()
-const supportedPicBedList = computed(() => getSupportedPicBedList(t))
+const supportedPicBedList = computed(() => getSupportedPicBedList(t, locale.value))
 const platform = computed(() => supportedPicBedList.value[platformName])
 const manageStore = useManageStore()
 const message = useMessage()

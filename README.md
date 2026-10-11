@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://piclist.cn">
+  <a href="https://piclist.cn/en/">
     <img src="https://imgx.horosama.com/admin_uploads/2022/10/2022_10_05_633d79e401694.png" alt="PicList Logo" width="120" height="120">
   </a>
 

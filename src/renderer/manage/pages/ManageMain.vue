@@ -431,6 +431,8 @@ import { useManageStore } from '@/manage/stores/manageStore'
 import { getSupportedPicBedList } from '@/manage/utils/constants'
 import { ListingSession } from '@/manage/utils/listingSession'
 import { getNewBucketConfig } from '@/manage/utils/newBucketConfig'
+import { picBedManualUrlList } from '@/utils/static'
+import { II18nLanguage } from '#/constants/app'
 import { IRPCActionType } from '#/constants/rpcActions'
 import type { ListingResult } from '#/listing'
 
@@ -438,8 +440,8 @@ const SIDEBAR_MIN = 180
 const SIDEBAR_MAX = 400
 const RAIL_COLLAPSED_WIDTH = 56
 
-const { t } = useI18n()
-const supportedPicBedList = computed(() => getSupportedPicBedList(t))
+const { t, locale } = useI18n()
+const supportedPicBedList = computed(() => getSupportedPicBedList(t, locale.value))
 const newBucketConfig = computed(() => getNewBucketConfig(t))
 const manageStore = useManageStore() as any
 const route = useRoute()
@@ -547,7 +549,7 @@ const urlMap = computed<IStringKeyMap>(() => ({
   aliyun: 'https://oss.console.aliyun.com',
   github: 'https://github.com',
   imgur: 'https://imgur.com',
-  local: 'https://piclist.cn',
+  local: picBedManualUrlList[locale.value === II18nLanguage.EN ? 'en' : 'zh_cn'].local,
   qiniu: 'https://portal.qiniu.com',
   s3plist: 'https://aws.amazon.com/cn/s3/',
   sftp: 'https://github.com/imba97/picgo-plugin-sftp-uploader',

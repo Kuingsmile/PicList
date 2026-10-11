@@ -521,8 +521,8 @@ const SECRET_FIELDS = new Set([
   'antiLeechToken',
 ])
 
-const { t } = useI18n()
-const supportedPicBedList = computed(() => getSupportedPicBedList(t))
+const { t, locale } = useI18n()
+const supportedPicBedList = computed(() => getSupportedPicBedList(t, locale.value))
 const manageStore = useManageStore()
 const router = useRouter()
 const message = useMessage()
@@ -962,7 +962,7 @@ async function getCurrentConfigList() {
 
 async function goConfigPage() {
   const lang = (await getConfig(configPaths.settings.language)) || II18nLanguage.ZH_CN
-  const url = `https://piclist.cn/${lang === II18nLanguage.EN ? 'en/' : ''}manage.html`
+  const url = `https://piclist.cn/${lang === II18nLanguage.EN ? 'en/' : ''}manage#configuration-page`
   window.electron.sendRPC(IRPCActionType.OPEN_URL, url)
 }
 
