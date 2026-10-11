@@ -123,6 +123,13 @@ jobs:
             console.log('Checking SVG and watermark rendering')
             const svgOutput = await PicGoUtils.imageCompress(svg, { isConvert: true, convertFormat: 'png' }, 'svg', logger)
             assert.equal((await sharp(svgOutput).metadata()).format, 'png')
+            const textSvg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="240" height="70"><rect width="240" height="70" fill="white"/><text x="5" y="48" font-family="sans-serif" font-size="36" fill="black">PicList</text></svg>')
+            const renderedText = await sharp(textSvg).removeAlpha().raw().toBuffer({ resolveWithObject: true })
+            let textPixels = 0
+            for (let i = 0; i < renderedText.data.length; i += renderedText.info.channels) {
+              if (renderedText.data[i] < 128) textPixels++
+            }
+            assert.ok(textPixels > 100, `SVG text is missing: ${textPixels} dark pixels`)
             const marked = await PicGoUtils.AddWatermark(input, 'image', '')
             assert.equal((await sharp(marked).metadata()).width, 128)
             assert.notDeepEqual(await sharp(marked).raw().toBuffer(), await sharp(input).raw().toBuffer())
