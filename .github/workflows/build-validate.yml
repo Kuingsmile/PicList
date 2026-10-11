@@ -252,6 +252,14 @@ jobs:
                 assert.equal(path.resolve(info.dataDir), path.resolve(profile))
               })
 
+              await check('first-run guide dismissal', async () => {
+                // Fresh profiles show a delayed tour that covers the navigation.
+                const welcome = mainWindow.getByRole('heading', { name: 'Welcome to PicList', exact: true })
+                await welcome.waitFor({ state: 'visible' })
+                await mainWindow.getByRole('button', { name: 'Skip Tour', exact: true }).click()
+                await welcome.waitFor({ state: 'hidden' })
+              })
+
               await check('packaged image processing', async () => {
                 const result = await application.evaluate(async ({ app }) => {
                   const { createRequire } = process.getBuiltinModule('module')
