@@ -20,7 +20,6 @@ overrides:
   external-editor>tmp: ^0.2.7
   fast-uri@^3.0.0: ^3.1.8
   min-document@^2.0.0: ^2.19.1
-  piclist>sharp: 0.35.5
   picomatch@^2.0.0: ^2.3.2
   rollup@^4.0.0: ^4.59.0
   semver: ^7.8.5
@@ -34,9 +33,6 @@ patchedDependencies:
   app-builder-lib@26.16.1:
     hash: 87d6914918b9944bef756ac64f1040517d1307376a8bbc712f3b0484a5e87374
     path: patches/app-builder-lib@26.16.1.patch
-  piclist@3.0.0:
-    hash: 8e13f3df9d2006021d213985df3e715c024847951cdc24a52c2591c71e839e4d
-    path: patches/piclist@3.0.0.patch
   sharp@0.35.5:
     hash: 32bc36eddf915be450282a339532db43cec8c4049f92e287ced82ed28ba13f63
     path: patches/sharp@0.35.5.patch
@@ -130,8 +126,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       piclist:
-        specifier: ^3.0.0
-        version: 3.0.0(patch_hash=8e13f3df9d2006021d213985df3e715c024847951cdc24a52c2591c71e839e4d)(@types/node@26.6.2)
+        specifier: ^3.0.1
+        version: 3.0.1(@types/node@26.6.2)
       qiniu:
         specifier: 7.15.2
         version: 7.15.2
@@ -4889,8 +4885,8 @@ packages:
   performance-now@2.1.0:
     resolution: {integrity: sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==}
 
-  piclist@3.0.0:
-    resolution: {integrity: sha512-DUiWqycvSQXgN2DlwS+x3fvW7dUQt8W0i0NE6bEK7cTJOh34fYV/Ji0hXVmol8AWuBzk96r24sD3x8Nbw24CQw==}
+  piclist@3.0.1:
+    resolution: {integrity: sha512-809pFFwuY1+usyohyFy9cXXGUVqfAGwqy6v30VfvJUf+kFmWKu68qsrQiZk4PQuwySA962yeimxC2EkbygSuMA==}
     engines: {node: ^22.13.0}
     hasBin: true
 
@@ -10784,7 +10780,7 @@ snapshots:
 
   performance-now@2.1.0: {}
 
-  piclist@3.0.0(patch_hash=8e13f3df9d2006021d213985df3e715c024847951cdc24a52c2591c71e839e4d)(@types/node@26.6.2):
+  piclist@3.0.1(@types/node@26.6.2):
     dependencies:
       '@aws-sdk/client-s3': 3.1142.0
       '@aws-sdk/lib-storage': 3.1142.0(@aws-sdk/client-s3@3.1142.0)

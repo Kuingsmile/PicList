@@ -24,8 +24,6 @@ overrides:
   external-editor>tmp: ^0.2.7
   fast-uri@^3.0.0: ^3.1.8
   min-document@^2.0.0: ^2.19.1
-  # The published core still pins 0.34.4. Keep desktop native binaries reproducible.
-  piclist>sharp: 0.35.5
   picomatch@^2.0.0: ^2.3.2
   rollup@^4.0.0: ^4.59.0
   semver: ^7.8.5
@@ -36,7 +34,6 @@ overrides:
   vite: ^7.3.7
 patchedDependencies:
   app-builder-lib@26.16.1: patches/app-builder-lib@26.16.1.patch
-  piclist@3.0.0: patches/piclist@3.0.0.patch
   sharp@0.35.5: patches/sharp@0.35.5.patch
 
 # Keep both supported CPU targets available when packaging on one host.
