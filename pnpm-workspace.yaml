@@ -11,18 +11,29 @@ overrides:
   '@aws-sdk/client-s3': ^3.1142.0
   '@aws-sdk/lib-storage': ^3.1142.0
   '@aws-sdk/s3-request-presigner': ^3.1142.0
+  '@babel/core@^7.0.0': ^7.29.6
   '@codemirror/state': ^6.7.5
+  '@humanfs/node@^0.16.0': ^0.16.8
   '@smithy/node-http-handler': ^4.12.1
+  '@xmldom/xmldom@^0.8.0': ^0.8.15
   baseline-browser-mapping: ^2.11.25
   # Security fixes for older transitive dependencies retained by the Yarn lockfile.
+  brace-expansion@^1.0.0: ^1.1.21
   brace-expansion@^2.0.0: ^2.1.7
+  defu@^6.0.0: ^6.1.5
+  external-editor>tmp: ^0.2.7
+  fast-uri@^3.0.0: ^3.1.8
+  min-document@^2.0.0: ^2.19.1
   # The published core still pins 0.34.4. Keep desktop native binaries reproducible.
   piclist>sharp: 0.35.5
+  picomatch@^2.0.0: ^2.3.2
+  rollup@^4.0.0: ^4.59.0
   semver: ^7.8.5
   source-map-js: ^1.2.2
+  tmp@^0.2.0: ^0.2.7
   upyun>axios: ^0.34.0
   urllib@^2.44.0: ^2.44.1
-  vite: ^7.3.1
+  vite: ^7.3.7
 patchedDependencies:
   app-builder-lib@26.16.1: patches/app-builder-lib@26.16.1.patch
   piclist@3.0.0: patches/piclist@3.0.0.patch

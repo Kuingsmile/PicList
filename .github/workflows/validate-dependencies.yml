@@ -262,7 +262,7 @@ jobs:
         env:
           SHARP_VERSION: ${{ matrix.sharp }}
           # Match the Electron version in pnpm-lock.yaml for the upgrade comparison.
-          ELECTRON_VERSION: '39.2.7'
+          ELECTRON_VERSION: '39.8.10'
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y xvfb
