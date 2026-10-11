@@ -1,0 +1,355 @@
+name: Build and validate
+
+on:
+  push:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-validate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  HUSKY: '0'
+  CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+  ELECTRON_SKIP_NOTARIZATION: 'true'
+  USE_HARD_LINKS: 'false'
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+jobs:
+  quality:
+    name: Types, lint and dependency boundaries
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.x'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Check types
+        run: pnpm typecheck
+      - name: Lint
+        run: pnpm lint
+      - name: Check circular dependencies
+        run: |
+          pnpm lint:dpdm
+          pnpm lint:dpdm:renderer
+
+  desktop:
+    name: Desktop / ${{ matrix.platform }} / ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: win
+            arch: x64
+          - os: windows-11-arm
+            platform: win
+            arch: arm64
+          - os: macos-15-intel
+            platform: mac
+            arch: x64
+          - os: macos-15
+            platform: mac
+            arch: arm64
+          - os: ubuntu-24.04
+            platform: linux
+            arch: x64
+          - os: ubuntu-24.04-arm
+            platform: linux
+            arch: arm64
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.x'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install Linux desktop prerequisites
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            xvfb xauth dbus-x11 libgtk-3-0t64 libnss3 libasound2t64 libgbm1 fonts-dejavu-core
+
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Compile production app
+        run: pnpm build:app
+
+      # Exercise the release packaging hooks and ASAR layout without publishing
+      # or rebuilding every installer format on every commit.
+      - name: Package native application
+        run: pnpm exec electron-builder --${{ matrix.platform }} --${{ matrix.arch }} --dir --publish never
+
+      - name: Install validation tools in temporary storage
+        run: |
+          npm install --prefix "$RUNNER_TEMP/piclist-validation" \
+            --ignore-scripts --no-package-lock --no-audit --no-fund --save-exact playwright-core@1.64.0
+
+      # Generated checks, profiles and synthetic inputs stay outside the checkout.
+      - name: Prepare packaged application validation
+        run: |
+          cat > "$RUNNER_TEMP/piclist-validation/validate.cjs" <<'JS'
+          const assert = require('node:assert/strict')
+          const { execFileSync } = require('node:child_process')
+          const fs = require('node:fs')
+          const path = require('node:path')
+          const { _electron: electron } = require('playwright-core')
+
+          const root = process.env.GITHUB_WORKSPACE || process.cwd()
+          const build = process.env.PICLIST_BUILD_DIR || path.join(root, 'dist_electron')
+          const diagnostics = path.join(process.env.RUNNER_TEMP, 'piclist-validation', 'diagnostics')
+          const profile = fs.mkdtempSync(path.join(process.env.RUNNER_TEMP, 'piclist-profile-'))
+          const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'))
+          const arch = process.env.PICLIST_ARCH
+          const executables = {
+            win32: `${arch === 'arm64' ? 'win-arm64-unpacked' : 'win-unpacked'}/PicList.exe`,
+            darwin: `${arch === 'arm64' ? 'mac-arm64' : 'mac'}/PicList.app/Contents/MacOS/PicList`,
+            linux: `${arch === 'arm64' ? 'linux-arm64-unpacked' : 'linux-unpacked'}/PicList`,
+          }
+          const report = { platform: process.platform, arch, success: false, checks: [], failures: [] }
+          fs.mkdirSync(diagnostics, { recursive: true })
+          fs.writeFileSync(path.join(profile, 'data.json'), JSON.stringify({
+            settings: {
+              startMode: 'main', language: 'en', showUpdateTip: false,
+              isAutoListenClipboard: false, isDisableGPU: true, autoStart: false,
+              shortKey: {}, server: { enable: false, port: 36677, host: '127.0.0.1' },
+            },
+          }))
+
+          let application
+          let child
+          let mainWindow
+          let profileVerified = false
+          let shuttingDown = false
+          async function check(name, operation) {
+            report.phase = name
+            await operation()
+            report.checks.push(name)
+            console.log(`Passed: ${name}`)
+          }
+          function saveReport() {
+            fs.writeFileSync(path.join(diagnostics, 'report.json'), JSON.stringify(report, null, 2))
+          }
+          function killApplication() {
+            if (!child || child.exitCode !== null || child.signalCode !== null) return
+            try {
+              if (process.platform === 'win32') {
+                execFileSync('taskkill', ['/pid', String(child.pid), '/t', '/f'], { stdio: 'ignore', windowsHide: true })
+              } else {
+                child.kill('SIGKILL')
+              }
+            } catch {}
+          }
+          // Bound IPC calls, image processing and shutdown as well as UI waits.
+          const watchdog = setTimeout(() => {
+            report.failures.push('validation-timeout')
+            saveReport()
+            killApplication()
+            console.error(`Validation timed out during: ${report.phase}`)
+            process.exit(1)
+          }, 180_000)
+
+          async function validate() {
+            try {
+              await check('packaged launch', async () => {
+                assert.equal(process.arch, arch, 'Validation requires a native runner')
+                const executablePath = path.join(build, executables[process.platform])
+                assert.ok(fs.existsSync(executablePath), 'Packaged executable is missing')
+                const env = { ...process.env, NODE_ENV: 'production' }
+                delete env.ELECTRON_RUN_AS_NODE
+                delete env.ELECTRON_RENDERER_URL
+                delete env.NODE_OPTIONS
+                application = await electron.launch({
+                  executablePath,
+                  args: [`--user-data-dir=${profile}`, '--disable-gpu', '--no-sandbox'],
+                  cwd: profile,
+                  env,
+                  locale: 'en-US',
+                  timeout: 60_000,
+                })
+                child = application.process()
+                application.on('close', () => {
+                  if (!shuttingDown) report.failures.push('unexpected-app-exit')
+                })
+                const observePage = page => {
+                  page.on('pageerror', () => report.failures.push('renderer-exception'))
+                  page.on('crash', () => report.failures.push('renderer-crash'))
+                  page.on('console', message => {
+                    if (message.type() === 'error') report.failures.push('renderer-console-error')
+                  })
+                }
+                application.context().on('page', observePage)
+                application.context().pages().forEach(observePage)
+                await application.evaluate(({ app, webContents }) => {
+                  globalThis.__piclistValidationFailures = []
+                  const fail = name => globalThis.__piclistValidationFailures.push(name)
+                  process.on('uncaughtExceptionMonitor', () => fail('main-exception'))
+                  process.on('unhandledRejection', () => fail('main-rejection'))
+                  const observe = contents => {
+                    contents.on('preload-error', () => fail('preload-error'))
+                    contents.on('render-process-gone', (_, details) => {
+                      if (details.reason !== 'clean-exit') fail('renderer-process-gone')
+                    })
+                    contents.on('did-fail-load', (_, code, _description, _url, mainFrame) => {
+                      if (mainFrame && code !== -3) fail('document-load-error')
+                    })
+                  }
+                  app.on('web-contents-created', (_, contents) => observe(contents))
+                  webContents.getAllWebContents().forEach(observe)
+                })
+                const info = await application.evaluate(({ app }) => ({
+                  packaged: app.isPackaged, version: app.getVersion(),
+                  platform: process.platform, arch: process.arch, profile: app.getPath('userData'),
+                }))
+                assert.equal(info.packaged, true)
+                assert.equal(info.version, pkg.version)
+                assert.equal(info.platform, process.platform)
+                assert.equal(info.arch, arch)
+                assert.equal(path.resolve(info.profile), path.resolve(profile))
+                profileVerified = true
+              })
+
+              await check('main window and preload IPC', async () => {
+                // The tray may create the first window; select the actual main route.
+                const deadline = Date.now() + 60_000
+                while (!mainWindow && Date.now() < deadline) {
+                  mainWindow = application.windows().find(page => page.url().includes('#/main-page/upload'))
+                  if (!mainWindow) await new Promise(resolve => setTimeout(resolve, 100))
+                }
+                assert.ok(mainWindow, 'Main window did not open')
+                mainWindow.setDefaultTimeout(30_000)
+                await mainWindow.locator('#main').waitFor({ state: 'visible' })
+                await mainWindow.locator('.provider-button').waitFor({ state: 'visible' })
+                const info = await mainWindow.evaluate(() => window.electron.triggerRPC('GET_APP_INFO'))
+                assert.equal(info.version, pkg.version)
+                assert.equal(info.platform, process.platform)
+                assert.equal(info.arch, arch)
+                assert.equal(path.resolve(info.dataDir), path.resolve(profile))
+              })
+
+              await check('packaged image processing', async () => {
+                const result = await application.evaluate(async ({ app }) => {
+                  const { createRequire } = process.getBuiltinModule('module')
+                  const path = process.getBuiltinModule('path')
+                  const appRequire = createRequire(path.join(app.getAppPath(), 'package.json'))
+                  const coreRequire = createRequire(appRequire.resolve('piclist'))
+                  const sharp = coreRequire('sharp')
+                  const input = await sharp({
+                    create: { width: 64, height: 40, channels: 4, background: '#487abd' },
+                  }).png().toBuffer()
+                  const output = await sharp(input).resize(32, 20).webp().toBuffer()
+                  const metadata = await sharp(output).metadata()
+                  const { Resvg } = appRequire('@resvg/resvg-js')
+                  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8"><rect width="12" height="8" fill="red"/></svg>'
+                  const rendered = await sharp(new Resvg(svg).render().asPng()).metadata()
+                  return {
+                    width: metadata.width, height: metadata.height, format: metadata.format,
+                    wasm: Boolean(sharp.versions.emscripten), svgWidth: rendered.width, svgHeight: rendered.height,
+                  }
+                })
+                assert.deepEqual(result, {
+                  width: 32, height: 20, format: 'webp', wasm: process.platform === 'linux', svgWidth: 12, svgHeight: 8,
+                })
+              })
+
+              await check('gallery and settings navigation', async () => {
+                for (const [route, heading] of [['gallery', 'Gallery'], ['settings', 'Settings']]) {
+                  await mainWindow.locator(`[data-nav="${route}"]`).click()
+                  await mainWindow.waitForURL(`**#/main-page/${route}`)
+                  await mainWindow.getByRole('heading', { name: heading, exact: true }).waitFor({ state: 'visible' })
+                }
+                await mainWindow.locator('[data-nav="upload"]').click()
+                await mainWindow.locator('.provider-button').waitFor({ state: 'visible' })
+                await mainWindow.screenshot({ path: path.join(diagnostics, 'main-window.png') })
+              })
+
+              await check('runtime health', async () => {
+                report.failures.push(...await application.evaluate(() => globalThis.__piclistValidationFailures))
+                assert.equal(report.failures.length, 0, 'Runtime errors were detected')
+              })
+
+              await check('clean shutdown', async () => {
+                shuttingDown = true
+                const exited = new Promise(resolve => child.once('exit', (code, signal) => resolve({ code, signal })))
+                await application.close()
+                const { code, signal } = await exited
+                assert.equal(code, 0)
+                assert.equal(signal, null)
+              })
+              report.success = true
+            } catch {
+              // Playwright errors can contain DOM or process output. Report only
+              // fixed check names and failure categories, never profile contents.
+              console.error(`Packaged validation failed during: ${report.phase}`)
+              process.exitCode = 1
+              if (profileVerified && mainWindow && !mainWindow.isClosed()) {
+                await mainWindow.screenshot({ path: path.join(diagnostics, 'failure.png'), timeout: 5_000 }).catch(() => {})
+              }
+            } finally {
+              killApplication()
+              clearTimeout(watchdog)
+              saveReport()
+            }
+          }
+          validate().catch(() => { killApplication(); process.exit(1) })
+          JS
+
+      - name: Launch and validate packaged application
+        timeout-minutes: 5
+        env:
+          PICLIST_ARCH: ${{ matrix.arch }}
+        run: |
+          if [[ "$RUNNER_OS" == Linux ]]; then
+            xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' \
+              dbus-run-session -- node "$RUNNER_TEMP/piclist-validation/validate.cjs"
+          else
+            node "$RUNNER_TEMP/piclist-validation/validate.cjs"
+          fi
+
+      - name: Upload validation report and screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: validation-${{ matrix.platform }}-${{ matrix.arch }}
+          path: ${{ runner.temp }}/piclist-validation/diagnostics/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  validate:
+    name: Build and runtime validation
+    if: always()
+    needs: [quality, desktop]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require all checks and all six native builds
+        env:
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          DESKTOP_RESULT: ${{ needs.desktop.result }}
+        run: |
+          [[ "$QUALITY_RESULT" == success && "$DESKTOP_RESULT" == success ]]
