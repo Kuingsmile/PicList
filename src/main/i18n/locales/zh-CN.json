@@ -27,7 +27,7 @@
       "uploadClipboardImage": "上传剪贴板图片"
     },
     "notification": {
-      "bundledNpmUnavailable": "无法启动内置 npm。请关闭实验性选项以使用系统 npm，或重新安装 PicList。开发环境请运行 yarn prepare:plugin-runtime。",
+      "bundledNpmUnavailable": "无法启动内置 npm。请关闭实验性选项以使用系统 npm，或重新安装 PicList。开发环境请运行 pnpm prepare:plugin-runtime。",
       "cloudSyncDeleteFailed": "云端删除失败",
       "cloudSyncDeleteSucceed": "云端删除成功",
       "configFileBrokenDefaultTips": "配置文件损坏，已重置为默认配置",

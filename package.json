@@ -50,16 +50,6 @@
       "config": ".cz-config.cjs"
     }
   },
-  "resolutions": {
-    "@codemirror/state": "^6.7.5",
-    "baseline-browser-mapping": "^2.11.25",
-    "semver": "^7.8.5",
-    "vite": "^7.3.1",
-    "@aws-sdk/client-s3": "^3.1142.0",
-    "@aws-sdk/lib-storage": "^3.1142.0",
-    "@aws-sdk/s3-request-presigner": "^3.1142.0",
-    "@smithy/node-http-handler": "^4.12.1"
-  },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1142.0",
     "@aws-sdk/lib-storage": "^3.1142.0",
@@ -181,5 +171,9 @@
   },
   "bumpVersion": {
     "preset": "emoji"
+  },
+  "packageManager": "pnpm@10.34.6",
+  "engines": {
+    "node": "^22.13.0"
   }
 }

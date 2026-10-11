@@ -1,1 +1,1 @@
-yarn run lint:fix
+pnpm run lint:fix

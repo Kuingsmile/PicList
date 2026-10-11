@@ -70,9 +70,9 @@ PicList 是基于 PicGo 开发的桌面应用，上传引擎为以 `piclist` 依
 
 ## 10. 如何运行或排查开发环境？
 
-使用 Node.js 22.x（至少 22.13.0）和 Yarn Classic 1.22.x，在仓库根目录运行 `yarn install --frozen-lockfile` 和 `yarn dev`。渲染进程开发端口为 `30303`，与上传服务端口 `36677` 不同。
+使用 Node.js 22.x（至少 22.13.0）和 pnpm 10.34.6，在仓库根目录运行 `pnpm install --frozen-lockfile` 和 `pnpm dev`。渲染进程开发端口为 `30303`，与上传服务端口 `36677` 不同。
 
-缺少主题时重新运行 `yarn prepare`。测试实验性内置 npm 时，先运行 `yarn prepare:plugin-runtime`；Windows 需要 Visual Studio C++ Build Tools。编译、检查、平台打包和国际化流程见 [开发指南](CONTRIBUTING.md)。当前没有 `i18n` 生成脚本。
+缺少主题时重新运行 `pnpm prepare`。测试实验性内置 npm 时，先运行 `pnpm prepare:plugin-runtime`；Windows 需要 Visual Studio C++ Build Tools。编译、检查、平台打包和国际化流程见 [开发指南](CONTRIBUTING.md)。当前没有 `i18n` 生成脚本。
 
 ## 11. macOS 提示应用损坏或无法启动怎么办？
 
@@ -92,7 +92,7 @@ PicList 是基于 PicGo 开发的桌面应用，上传引擎为以 `piclist` 依
 
 兼容性取决于插件使用的 API 和原生依赖，包括 `sharp` 的版本。内置水印和相册远端删除已覆盖部分旧插件提供的功能。插件失败时请提供准确版本和脱敏错误片段，不要假定所有插件都兼容。
 
-插件安装、更新和卸载**默认使用系统 npm**，因此该模式需要 PicList 能访问 Node.js/npm。插件页面提供**实验性内置 npm**选项，使用 PicList 的 Electron 可执行文件和随包附带的 npm 运行时。这些操作不再需要单独安装系统 npm，但插件本身仍可能需要外部编译工具。内置运行时无法启动时，可以关闭该选项改用系统 npm，或重新安装应用。开发环境通过 `yarn prepare:plugin-runtime` 准备运行时。
+插件安装、更新和卸载**默认使用系统 npm**，因此该模式需要 PicList 能访问 Node.js/npm。插件页面提供**实验性内置 npm**选项，使用 PicList 的 Electron 可执行文件和随包附带的 npm 运行时。这些操作不再需要单独安装系统 npm，但插件本身仍可能需要外部编译工具。内置运行时无法启动时，可以关闭该选项改用系统 npm，或重新安装应用。开发环境通过 `pnpm prepare:plugin-runtime` 准备运行时。
 
 ## 15. 如何通过 Docker 运行 PicList-Core？
 

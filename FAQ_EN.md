@@ -70,9 +70,9 @@ Custom configuration and log paths can change these locations. Core assets and g
 
 ## 10. How do I run or troubleshoot a development checkout?
 
-Use Node.js 22.x (at least 22.13.0) and Yarn Classic 1.22.x, then run `yarn install --frozen-lockfile` and `yarn dev` from the repository root. The renderer development port is `30303`; it is separate from the upload server port `36677`.
+Use Node.js 22.x (at least 22.13.0) and pnpm 10.34.6, then run `pnpm install --frozen-lockfile` and `pnpm dev` from the repository root. The renderer development port is `30303`; it is separate from the upload server port `36677`.
 
-For missing themes, rerun `yarn prepare`. To test the experimental bundled npm option, run `yarn prepare:plugin-runtime`; Windows requires Visual Studio C++ Build Tools. For compilation, checks, platform packaging, and localization, follow the [development guide](CONTRIBUTING_EN.md). There is no `i18n` generation script.
+For missing themes, rerun `pnpm prepare`. To test the experimental bundled npm option, run `pnpm prepare:plugin-runtime`; Windows requires Visual Studio C++ Build Tools. For compilation, checks, platform packaging, and localization, follow the [development guide](CONTRIBUTING_EN.md). There is no `i18n` generation script.
 
 ## 11. What if macOS reports a damaged app or the app does not start?
 
@@ -92,7 +92,7 @@ Use the S3-compatible uploader and verify the endpoint, bucket, credentials, reg
 
 Compatibility varies with the plugin's APIs and native dependencies, including its version of `sharp`. Built-in watermarking and gallery remote deletion already cover functionality offered by some older plugins. If a plugin fails, report its exact version and a redacted error excerpt rather than assuming all plugins are compatible.
 
-Plugin installation, updates, and removal use **system npm by default**, so that mode needs Node.js/npm available to PicList. The Plugins page offers an **experimental bundled npm** option that uses PicList's Electron executable and packaged npm runtime. It does not require a separate system npm installation for those operations, but a plugin may still need external build tools. If the bundled runtime cannot start, disable the option to use system npm or reinstall the application. For development, prepare it with `yarn prepare:plugin-runtime`.
+Plugin installation, updates, and removal use **system npm by default**, so that mode needs Node.js/npm available to PicList. The Plugins page offers an **experimental bundled npm** option that uses PicList's Electron executable and packaged npm runtime. It does not require a separate system npm installation for those operations, but a plugin may still need external build tools. If the bundled runtime cannot start, disable the option to use system npm or reinstall the application. For development, prepare it with `pnpm prepare:plugin-runtime`.
 
 ## 15. How do I run PicList-Core through Docker?
 

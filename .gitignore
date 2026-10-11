@@ -4,6 +4,7 @@ Thumbs.db
 desktop.ini
 # --- Dependencies ---
 /node_modules/
+.pnpm-store/
 # --- Logs ---
 *.log
 npm-debug.log*

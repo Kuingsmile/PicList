@@ -2,18 +2,18 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "yarn: install",
+      "label": "pnpm: install",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "problemMatcher": [],
       "presentation": {
         "panel": "dedicated"
       }
     },
     {
-      "label": "yarn: dev",
+      "label": "pnpm: dev",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["dev"],
       "problemMatcher": [],
       "presentation": {
@@ -22,9 +22,9 @@
       }
     },
     {
-      "label": "yarn: build",
+      "label": "pnpm: build",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["build"],
       "group": "build",
       "problemMatcher": [],
@@ -33,10 +33,10 @@
       }
     },
     {
-      "label": "yarn: test",
+      "label": "pnpm: typecheck",
       "type": "shell",
-      "command": "yarn",
-      "args": ["test", "--run"],
+      "command": "pnpm",
+      "args": ["typecheck"],
       "group": "test",
       "problemMatcher": [],
       "presentation": {
@@ -44,9 +44,9 @@
       }
     },
     {
-      "label": "yarn: lint",
+      "label": "pnpm: lint",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["lint"],
       "problemMatcher": "$eslint-stylish",
       "presentation": {
@@ -54,9 +54,9 @@
       }
     },
     {
-      "label": "yarn: lint:fix",
+      "label": "pnpm: lint:fix",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["lint:fix"],
       "problemMatcher": "$eslint-stylish",
       "presentation": {
@@ -64,9 +64,9 @@
       }
     },
     {
-      "label": "yarn: lint:style",
+      "label": "pnpm: lint:style",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["lint:style"],
       "problemMatcher": [],
       "presentation": {
@@ -74,9 +74,9 @@
       }
     },
     {
-      "label": "yarn: lint:dpdm",
+      "label": "pnpm: lint:dpdm",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["lint:dpdm"],
       "problemMatcher": [],
       "presentation": {
@@ -84,9 +84,9 @@
       }
     },
     {
-      "label": "yarn: lint:dpdm:renderer",
+      "label": "pnpm: lint:dpdm:renderer",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["lint:dpdm:renderer"],
       "problemMatcher": [],
       "presentation": {

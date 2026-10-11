@@ -82,12 +82,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Install Node.js
         uses: actions/setup-node@v7
         with:
           node-version: '22.x'
-          cache: yarn
-          cache-dependency-path: yarn.lock
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install Linux packaging prerequisites
         if: runner.os == 'Linux' && (contains(matrix.formats, 'deb') || contains(matrix.formats, 'rpm'))
@@ -113,14 +116,14 @@ jobs:
 
       - name: Install dependencies
         shell: bash
-        run: yarn install --frozen-lockfile --ignore-engines --non-interactive
+        run: pnpm install --frozen-lockfile
 
       - name: Prepare portable resources
         if: contains(matrix.formats, 'zip') || contains(matrix.formats, '7z')
-        run: yarn run prepare:7za
+        run: pnpm run prepare:7za
 
       - name: Compile app once for this OS and architecture
-        run: yarn build:app
+        run: pnpm build:app
 
       - name: Package and validate selected formats
         shell: bash
@@ -134,9 +137,9 @@ jobs:
             # The application is already compiled. Package each target separately
             # and snapshot its YAML before another target writes the same filename.
             case "${{ runner.os }}" in
-              Windows) yarn electron-builder --win "$format" --${{ matrix.arch }} --publish never ;;
-              macOS) yarn electron-builder --mac default --${{ matrix.arch }} --publish never ;;
-              Linux) yarn electron-builder --linux "$format" --${{ matrix.arch }} --publish never ;;
+              Windows) pnpm exec electron-builder --win "$format" --${{ matrix.arch }} --publish never ;;
+              macOS) pnpm exec electron-builder --mac default --${{ matrix.arch }} --publish never ;;
+              Linux) pnpm exec electron-builder --linux "$format" --${{ matrix.arch }} --publish never ;;
               *) exit 1 ;;
             esac
             node scripts/release-manifest.js stage-build ./dist_electron \
@@ -195,20 +198,23 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Install Node.js
         uses: actions/setup-node@v7
         with:
           node-version: '22.x'
-          cache: yarn
-          cache-dependency-path: yarn.lock
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install release utility dependencies without lifecycle scripts
         shell: bash
         run: |
           node scripts/prepare-release-dependencies.js "$RUNNER_TEMP/release-tools"
-          yarn --cwd "$RUNNER_TEMP/release-tools" install \
-            --modules-folder "$GITHUB_WORKSPACE/node_modules" \
-            --frozen-lockfile --ignore-scripts --ignore-engines --non-interactive
+          pnpm --dir "$RUNNER_TEMP/release-tools" install \
+            --frozen-lockfile --ignore-scripts
+          ln -s "$RUNNER_TEMP/release-tools/node_modules" "$GITHUB_WORKSPACE/node_modules"
 
       - name: Derive expected release artifacts and metadata
         id: expected

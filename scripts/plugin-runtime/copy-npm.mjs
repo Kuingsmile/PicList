@@ -11,7 +11,7 @@ export async function copyNpmRuntime(source, destination) {
     recursive: true,
     // Preserve package-owned relative links for relocation and macOS signing.
     verbatimSymlinks: true,
-    // Yarn generates these links/shims against hoisted dependencies outside npm.
+    // Package managers generate these links/shims against dependencies outside npm.
     // They are build-machine artifacts, not part of npm's standalone runtime.
     // Keep npm/bin and node-gyp-bin; PicList supplies its own public launchers.
     filter: file => path.basename(file) !== '.bin' || path.basename(path.dirname(file)) !== 'node_modules',

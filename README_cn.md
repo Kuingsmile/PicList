@@ -152,7 +152,7 @@ PicList 可以与常用的 Markdown 编辑器无缝集成。
 ### 环境要求
 
 - Node.js **22.x，至少 22.13.0**（当前核心依赖的版本要求；发布工作流使用 22.x）。
-- **Yarn Classic 1.22.x** 和 Git。
+- **pnpm 10.34.6** 和 Git。
 - 原生依赖可能需要平台编译工具。Windows 打包和准备实验性插件运行时需要 Visual Studio C++ Build Tools。
 
 ### 从源码运行
@@ -160,19 +160,20 @@ PicList 可以与常用的 Markdown 编辑器无缝集成。
 ```bash
 git clone https://github.com/Kuingsmile/PicList.git
 cd PicList
-yarn install --frozen-lockfile
+corepack enable pnpm
+pnpm install --frozen-lockfile
 
 # 启动 Electron 开发模式
-yarn dev
+pnpm dev
 
 # 编译生产代码（不生成安装包），再预览
-yarn prebuild
-yarn preview
+pnpm build:app
+pnpm preview
 ```
 
 安装时会下载主题、安装 Husky 钩子并处理 Electron 原生依赖。开发服务器固定使用 `127.0.0.1:30303`。
 
-`yarn build` 使用 electron-builder 打包，`yarn build:win`、`yarn build:mac`、`yarn build:linux` 选择平台。请先按贡献指南准备对应工具链；Windows 还需运行 `yarn prepare:7za`。编译产物位于 `out/`，安装包和压缩包位于 `dist_electron/`。
+`pnpm build` 使用 electron-builder 打包，`pnpm build:win`、`pnpm build:mac`、`pnpm build:linux` 选择平台。请先按贡献指南准备对应工具链；Windows 还需运行 `pnpm prepare:7za`。编译产物位于 `out/`，安装包和压缩包位于 `dist_electron/`。
 
 ## 🔗 相关项目
 

@@ -33,7 +33,7 @@ function findWindowsToolchain(arch) {
     throw new Error(
       `Windows ${arch} packaging requires Visual Studio C++ tools for ${arch}. ` +
         `Install ${component} in Visual Studio Installer's Individual components tab. ` +
-        'To build for this computer, run yarn build:win without architecture flags.',
+        'To build for this computer, run pnpm build:win without architecture flags.',
     )
   }
   return {

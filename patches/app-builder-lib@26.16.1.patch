@@ -1,0 +1,41 @@
+diff --git a/out/node-module-collector/pnpmNodeModulesCollector.js b/out/node-module-collector/pnpmNodeModulesCollector.js
+index 7144ab8c5b6b319e86da79ef0ed868e29aeebf1c..a7cc91cad8cd53cca5e40e6c67c932d59da06e1f 100644
+--- a/out/node-module-collector/pnpmNodeModulesCollector.js
++++ b/out/node-module-collector/pnpmNodeModulesCollector.js
+@@ -2,6 +2,7 @@
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.PnpmNodeModulesCollector = void 0;
+ const lazy_val_1 = require("lazy-val");
++const path = require("node:path");
+ const moduleManager_1 = require("./moduleManager");
+ const nodeModulesCollector_1 = require("./nodeModulesCollector");
+ const packageManager_1 = require("./packageManager");
+@@ -76,7 +77,12 @@ class PnpmNodeModulesCollector extends nodeModulesCollector_1.NodeModulesCollect
+         // land at `<root>/node_modules/A/node_modules/B` — downward BFS is needed to find them.
+         const skipDownwardSearch = !(await this.isHoisted.value);
+         const promise = (async () => {
+-            const fromDep = parentPath ? await this.cache.locatePackageVersion({ pkgName, parentDir: parentPath, requiredRange, skipDownwardSearch }) : null;
++            // With the hoisted linker, pnpm list still reports virtual-store paths
++            // that do not exist. Searching upward from those paths can accept an
++            // unrelated root version before the real nested version is searched.
++            const fromDep = parentPath && await this.cache.exists[parentPath]
++                ? await this.cache.locatePackageVersion({ pkgName, parentDir: parentPath, requiredRange, skipDownwardSearch })
++                : null;
+             if (fromDep) {
+                 return fromDep;
+             }
+@@ -109,7 +115,13 @@ class PnpmNodeModulesCollector extends nodeModulesCollector_1.NodeModulesCollect
+             }
+         }
+         const packageName = tree.name || tree.from;
+-        const { packageJson } = (await this.locateFromDepOrRoot(packageName, tree.path, tree.version)) || {};
++        // pnpm reports the project itself as the root tree. Searching only its
++        // node_modules can select an older dependency with the same name, then
++        // silently filter the application's dependencies against that manifest.
++        const ownPackageJson = tree.path ? await this.cache.json[path.join(tree.path, "package.json")] : null;
++        const packageJson = ownPackageJson && ownPackageJson.name === packageName && ownPackageJson.version === tree.version
++            ? ownPackageJson
++            : ((await this.locateFromDepOrRoot(packageName, tree.path, tree.version)) || {}).packageJson;
+         const all = packageJson ? { ...packageJson.dependencies, ...packageJson.optionalDependencies } : { ...tree.dependencies, ...tree.optionalDependencies };
+         const optional = packageJson ? { ...packageJson.optionalDependencies } : {};
+         const deps = { ...(tree.dependencies || {}), ...(tree.optionalDependencies || {}) };

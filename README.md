@@ -152,7 +152,7 @@ The [contributor and development guide](CONTRIBUTING_EN.md) covers the source la
 ### Prerequisites
 
 - Node.js **22.x, at least 22.13.0** (required by the current core dependency; release CI uses 22.x).
-- **Yarn Classic 1.22.x** and Git.
+- **pnpm 10.34.6** and Git.
 - Native dependencies may need platform build tools. Windows packaging and experimental plugin runtime preparation require Visual Studio C++ Build Tools.
 
 ### Run from source
@@ -160,19 +160,20 @@ The [contributor and development guide](CONTRIBUTING_EN.md) covers the source la
 ```bash
 git clone https://github.com/Kuingsmile/PicList.git
 cd PicList
-yarn install --frozen-lockfile
+corepack enable pnpm
+pnpm install --frozen-lockfile
 
 # Start Electron in development mode
-yarn dev
+pnpm dev
 
 # Compile production code without an installer, then preview it
-yarn prebuild
-yarn preview
+pnpm build:app
+pnpm preview
 ```
 
 Installation downloads themes, installs Husky hooks, and prepares Electron native dependencies. The development server uses the fixed address `127.0.0.1:30303`.
 
-`yarn build` packages with electron-builder; `yarn build:win`, `yarn build:mac`, and `yarn build:linux` select a platform. Follow the contributor guide's platform prerequisites first; Windows also needs `yarn prepare:7za`. Compiled output goes to `out/` and packaged artifacts to `dist_electron/`.
+`pnpm build` packages with electron-builder; `pnpm build:win`, `pnpm build:mac`, and `pnpm build:linux` select a platform. Follow the contributor guide's platform prerequisites first; Windows also needs `pnpm prepare:7za`. Compiled output goes to `out/` and packaged artifacts to `dist_electron/`.
 
 ## 🔗 Related Projects
 

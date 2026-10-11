@@ -1,0 +1,34 @@
+allowBuilds:
+  electron: true
+  # Squirrel.Windows is not a PicList target (NSIS, ZIP and 7z are used).
+  electron-winstaller: false
+  esbuild: true
+  ssh2-no-cpu-features: true
+# Electron packaging and the standalone npm runtime need a physical dependency tree.
+nodeLinker: hoisted
+
+overrides:
+  '@aws-sdk/client-s3': ^3.1142.0
+  '@aws-sdk/lib-storage': ^3.1142.0
+  '@aws-sdk/s3-request-presigner': ^3.1142.0
+  '@codemirror/state': ^6.7.5
+  '@smithy/node-http-handler': ^4.12.1
+  baseline-browser-mapping: ^2.11.25
+  # The published core still pins 0.34.4. Keep desktop native binaries reproducible.
+  piclist>sharp: 0.35.5
+  semver: ^7.8.5
+  vite: ^7.3.1
+patchedDependencies:
+  app-builder-lib@26.16.1: patches/app-builder-lib@26.16.1.patch
+  piclist@3.0.0: patches/piclist@3.0.0.patch
+
+# Keep both supported CPU targets available when packaging on one host.
+# The lockfile still records optional binaries for every supported OS.
+supportedArchitectures:
+  cpu:
+    - x64
+    - arm64
+  libc:
+    - glibc
+  os:
+    - current

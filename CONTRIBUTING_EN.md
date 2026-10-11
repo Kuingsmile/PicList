@@ -5,7 +5,7 @@
 ## Requirements and startup
 
 - Use Node.js **22.x, at least 22.13.0**, preferably the latest 22.x patch. The current PicList-Core dependency declares `^22.13.0`, and the release workflow uses `22.x`.
-- Use **Yarn Classic 1.22.x** and the committed `yarn.lock`.
+- Use **pnpm 10.34.6** and the committed `pnpm-lock.yaml`.
 - Install Git. Native dependencies may need platform build tools if a prebuilt binary is unavailable. Windows packaging and preparing the experimental plugin runtime require Visual Studio C++ Build Tools, including the compiler for the target architecture.
 
 Run these commands from the repository root:
@@ -13,13 +13,16 @@ Run these commands from the repository root:
 ```bash
 git clone https://github.com/Kuingsmile/PicList.git
 cd PicList
-yarn install --frozen-lockfile
-yarn dev
+corepack enable pnpm
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-Installation runs `postinstall` to install Electron native dependencies and `prepare` to download themes into `resources/theme/` and install Husky composables. These steps need network access. If the theme download fails, rerun `yarn prepare` after restoring connectivity.
+When migrating an existing Yarn checkout, start with a clean `node_modules` directory before installing. Keep `pnpm-workspace.yaml`: it preserves dependency overrides, permits the required Electron/esbuild/SSH install scripts, and uses a hoisted layout for Electron packaging and the bundled npm runtime. Do not omit optional dependencies; Sharp's native binaries are optional packages.
 
-`yarn dev` starts Electron with electron-vite watch mode. Main-process changes rebuild and restart Electron, resetting in-memory state; preload changes rebuild the preload scripts and reload the renderer windows. Renderer changes use Vite HMR. The renderer development server uses `127.0.0.1:30303` with a strict port, so free that port before starting a second development instance.
+Installation runs `postinstall` to install Electron native dependencies and `prepare` to download themes into `resources/theme/` and install Husky composables. These steps need network access. If the theme download fails, rerun `pnpm prepare` after restoring connectivity.
+
+`pnpm dev` starts Electron with electron-vite watch mode. Main-process changes rebuild and restart Electron, resetting in-memory state; preload changes rebuild the preload scripts and reload the renderer windows. Renderer changes use Vite HMR. The renderer development server uses `127.0.0.1:30303` with a strict port, so free that port before starting a second development instance.
 
 ## Package scripts
 
@@ -27,25 +30,25 @@ Installation runs `postinstall` to install Electron native dependencies and `pre
 
 | Command                                                | Purpose                                                                                                              |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| `yarn dev`                                             | Start the application in development mode.                                                                           |
-| `yarn dev:prod`                                        | Start electron-vite with production mode settings.                                                                   |
-| `yarn prebuild`                                        | Compile main, preload, and renderer code into `out/`, without packaging.                                             |
-| `yarn preview`                                         | Run Electron using the existing compiled output; run `yarn prebuild` first.                                          |
-| `yarn build`                                           | Compile and package with electron-builder for the current platform. Yarn also invokes the `prebuild` lifecycle hook. |
-| `yarn build:win`, `yarn build:mac`, `yarn build:linux` | Compile and package for the named platform; accept electron-builder target and architecture arguments.               |
-| `yarn typecheck`                                       | Run `vue-tsc --noEmit`.                                                                                              |
-| `yarn lint` / `yarn lint:fix`                          | Check JavaScript, TypeScript, Vue, and configured JSON files / apply ESLint fixes.                                   |
-| `yarn lint:dpdm` / `yarn lint:dpdm:renderer`           | Check for circular dependencies from the main / renderer entry point.                                                |
-| `yarn lint:style`                                      | Run Stylelint on styles under `src/` **with automatic fixes**.                                                       |
-| `yarn lint:style:themes`                               | Run Stylelint on `resources/theme/*.css` **with automatic fixes**.                                                   |
-| `yarn prepare`                                         | Download themes and install Husky composables.                                                                       |
-| `yarn prepare:7za`                                     | Download `resources/7za.exe` for the current Node architecture for Windows builds.                                   |
-| `yarn prepare:plugin-runtime`                          | Stage the experimental bundled npm runtime for the current platform and architecture.                                |
-| `yarn postinstall` / `yarn postuninstall`              | Run electron-builder's native dependency installation lifecycle composables.                                         |
-| `yarn cz`                                              | Open the configured Commitizen commit prompt.                                                                        |
-| `yarn run link`                                        | Print versioned download links using `scripts/link.js`; use `run` to avoid Yarn's built-in linking command.          |
-| `yarn release`                                         | Run the configured version bump tool; this changes release metadata.                                                 |
-| `yarn winget`                                          | Run the Winget automation script; reserved for release maintenance.                                                  |
+| `pnpm dev`                                             | Start the application in development mode.                                                                           |
+| `pnpm dev:prod`                                        | Start electron-vite with production mode settings.                                                                   |
+| `pnpm build:app`                                        | Compile main, preload, and renderer code into `out/`, without packaging.                                             |
+| `pnpm preview`                                         | Run Electron using the existing compiled output; run `pnpm build:app` first.                                          |
+| `pnpm build`                                           | Compile and package with electron-builder for the current platform. |
+| `pnpm build:win`, `pnpm build:mac`, `pnpm build:linux` | Compile and package for the named platform; accept electron-builder target and architecture arguments.               |
+| `pnpm typecheck`                                       | Run `vue-tsc --noEmit`.                                                                                              |
+| `pnpm lint` / `pnpm lint:fix`                          | Check JavaScript, TypeScript, Vue, and configured JSON files / apply ESLint fixes.                                   |
+| `pnpm lint:dpdm` / `pnpm lint:dpdm:renderer`           | Check for circular dependencies from the main / renderer entry point.                                                |
+| `pnpm lint:style`                                      | Run Stylelint on styles under `src/` **with automatic fixes**.                                                       |
+| `pnpm lint:style:themes`                               | Run Stylelint on `resources/theme/*.css` **with automatic fixes**.                                                   |
+| `pnpm prepare`                                         | Download themes and install Husky composables.                                                                       |
+| `pnpm prepare:7za`                                     | Download `resources/7za.exe` for the current Node architecture for Windows builds.                                   |
+| `pnpm prepare:plugin-runtime`                          | Stage the experimental bundled npm runtime for the current platform and architecture.                                |
+| `pnpm postinstall` / `pnpm postuninstall`              | Run electron-builder's native dependency installation lifecycle composables.                                         |
+| `pnpm cz`                                              | Open the configured Commitizen commit prompt.                                                                        |
+| `pnpm run link`                                        | Print versioned download links using `scripts/link.js`; use `run` to avoid pnpm's built-in linking command.          |
+| `pnpm release`                                         | Run the configured version bump tool; this changes release metadata.                                                 |
+| `pnpm winget`                                          | Run the Winget automation script; reserved for release maintenance.                                                  |
 
 ## Source layout
 
@@ -85,35 +88,41 @@ For a new language, add JSON files in both locale directories and update both re
 
 Compiled code goes to `out/`; installers and archives go to `dist_electron/`. Targets, assets, and composables are configured in [electron-builder.cjs](electron-builder.cjs). Use a host with the required platform toolchain; a platform script alone does not provide cross-compilation tools.
 
-Windows builds default to the host architecture and produce NSIS, ZIP, and 7z artifacts. Use `yarn build:win --x64 --arm64 --publish never` to build both architectures explicitly. ARM64 packaging requires the Visual Studio component `Microsoft.VisualStudio.Component.VC.Tools.ARM64`, including its compiler and runtime libraries.
+The pnpm configuration installs x64 and ARM64 optional binaries for the host OS. Build Windows on Windows, macOS on macOS, and Linux on a glibc host; CI uses a native runner for each OS/architecture pair. Sharp and its `@img` binaries must remain external to the JavaScript bundle and unpacked from ASAR. Sharp 0.35.5 requires Node-API 9 / Node.js 20.9 or newer; this project's Node 22 requirement and Electron 39 satisfy that requirement. Linux binaries require glibc 2.28 or newer, and x64 requires SSE4.2. The desktop targets do not include 32-bit Windows or musl Linux.
+
+Sharp documents an unresolved [Linux/Electron GLib conflict](https://sharp.pixelplumbing.com/install/#electron-and-linux). The `Validate native dependencies` workflow checks image processing in Electron and from the packaged ASAR on native Windows, macOS, and Ubuntu x64/ARM64 runners. Passing this matrix does not establish compatibility with every Linux distribution. AVIF's quality scale changed in Sharp 0.35, so identical quality settings can produce different output sizes and appearance.
+
+Keep the patches registered in `pnpm-workspace.yaml` when installing or preparing release utilities. The electron-builder patch preserves the desktop dependency graph when the application and core share the `piclist` name, and resolves nested package versions from the hoisted tree. The core patch reads watermark files through Node so Electron can load its bundled logo from ASAR. Remove each patch only after upgrading to an upstream version that includes the fix and rerunning packaged validation.
+
+Windows builds default to the host architecture and produce NSIS, ZIP, and 7z artifacts. Use `pnpm build:win --x64 --arm64 --publish never` to build both architectures explicitly. ARM64 packaging requires the Visual Studio component `Microsoft.VisualStudio.Component.VC.Tools.ARM64`, including its compiler and runtime libraries.
 
 For example, on Windows with the required C++ tools installed:
 
 ```bash
-yarn prepare:7za
-yarn build:win nsis --x64 --publish never
+pnpm prepare:7za
+pnpm build:win nsis --x64 --publish never
 ```
 
 For a Linux AppImage or a macOS build on the corresponding host:
 
 ```bash
-yarn build:linux AppImage --x64 --publish never
-yarn build:mac default --arm64 --publish never
+pnpm build:linux AppImage --x64 --publish never
+pnpm build:mac default --arm64 --publish never
 ```
 
-The `beforePack` hook stages the plugin runtime for each packaging target automatically, using the exact npm version pinned in `package.json`. To test the **experimental bundled npm** option in development, run `yarn prepare:plugin-runtime` and enable the option on the Plugins page. It stages files in `build/plugin-runtime/<platform>-<arch>/`, with `win`, `mac`, or `linux` as the platform. System npm remains the default when the option is disabled; changing modes uses the same installed plugins and configuration.
+The `beforePack` hook stages the plugin runtime for each packaging target automatically, using the exact npm version pinned in `package.json`. To test the **experimental bundled npm** option in development, run `pnpm prepare:plugin-runtime` and enable the option on the Plugins page. It stages files in `build/plugin-runtime/<platform>-<arch>/`, with `win`, `mac`, or `linux` as the platform. System npm remains the default when the option is disabled; changing modes uses the same installed plugins and configuration.
 
 ## Checks and submitting changes
 
 For code changes, run the applicable checks before submitting:
 
 ```bash
-yarn typecheck
-yarn lint
-yarn lint:dpdm
-yarn lint:dpdm:renderer
+pnpm typecheck
+pnpm lint
+pnpm lint:dpdm
+pnpm lint:dpdm:renderer
 ```
 
-Use the style scripts when changing styles, and inspect their automatic fixes. For UI, provider, or plugin changes, also exercise the affected behavior in `yarn dev`; the release tests do not cover those flows. Keep credentials and private file contents out of logs, screenshots, and issue reports.
+Use the style scripts when changing styles, and inspect their automatic fixes. For UI, provider, or plugin changes, also exercise the affected behavior in `pnpm dev`; the release tests do not cover those flows. Keep credentials and private file contents out of logs, screenshots, and issue reports.
 
-Remove temporary debugging code, stage only the intended files, and use `yarn cz` for the commit prompt. The pre-commit hook runs `yarn lint:fix`, which can modify files; review and stage those fixes as needed. The commit-msg hook validates messages with the project's node-bump-version convention.
+Remove temporary debugging code, stage only the intended files, and use `pnpm cz` for the commit prompt. The pre-commit hook runs `pnpm lint:fix`, which can modify files; review and stage those fixes as needed. The commit-msg hook validates messages with the project's node-bump-version convention.

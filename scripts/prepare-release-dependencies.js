@@ -1,39 +1,27 @@
-import { copyFile, mkdir, writeFile } from 'node:fs/promises'
+import { copyFile, cp, mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 import pkg from '../package.json' with { type: 'json' }
 
-// Only the metadata, publication and release-test utilities run in this job.
-// Reuse the application's declared ranges and lockfile so they cannot drift.
-const packages = [
-  '@aws-sdk/client-s3',
-  '@aws-sdk/lib-storage',
-  '@smithy/node-http-handler',
-  'dotenv',
-  'js-yaml',
-  'semver',
-  'yaml',
-]
-
 export async function prepareReleaseDependencies(directory) {
-  const dependencies = Object.fromEntries(
-    packages.map(name => {
-      const version = pkg.dependencies[name] ?? pkg.devDependencies[name]
-      if (!version) throw new Error('A release utility dependency is missing from package.json')
-      return [name, version]
-    }),
-  )
+  // pnpm's frozen importer must match the complete dependency manifest, unlike
+  // Yarn's shared lockfile. Keep it intact and skip all install hooks in CI.
   const manifest = {
     name: 'piclist-release-tools',
     version: '1.0.0',
     private: true,
-    dependencies,
-    resolutions: Object.fromEntries(Object.entries(pkg.resolutions).filter(([name]) => packages.includes(name))),
+    packageManager: pkg.packageManager,
+    engines: pkg.engines,
+    dependencies: pkg.dependencies,
+    devDependencies: pkg.devDependencies,
   }
   await mkdir(directory, { recursive: true })
   await writeFile(path.join(directory, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`)
-  await copyFile(new URL('../yarn.lock', import.meta.url), path.join(directory, 'yarn.lock'))
+  for (const file of ['pnpm-lock.yaml', 'pnpm-workspace.yaml']) {
+    await copyFile(new URL(`../${file}`, import.meta.url), path.join(directory, file))
+  }
+  await cp(new URL('../patches/', import.meta.url), path.join(directory, 'patches'), { recursive: true })
   return manifest
 }
 

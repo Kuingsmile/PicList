@@ -5,7 +5,7 @@
 ## 环境要求与启动
 
 - 使用 **Node.js 22.x，至少 22.13.0**，建议安装 22.x 的最新补丁版本。当前 PicList-Core 依赖声明的版本范围为 `^22.13.0`，发布工作流使用 `22.x`。
-- 使用 **Yarn Classic 1.22.x** 和仓库中的 `yarn.lock`。
+- 使用 **pnpm 10.34.6** 和仓库中的 `pnpm-lock.yaml`。
 - 安装 Git。原生依赖没有可用的预编译文件时，可能需要平台编译工具。Windows 打包和准备实验性插件运行时需要 Visual Studio C++ Build Tools，以及目标架构对应的编译器。
 
 在仓库根目录执行：
@@ -13,13 +13,16 @@
 ```bash
 git clone https://github.com/Kuingsmile/PicList.git
 cd PicList
-yarn install --frozen-lockfile
-yarn dev
+corepack enable pnpm
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-安装时，`postinstall` 会安装 Electron 原生依赖，`prepare` 会将主题下载到 `resources/theme/` 并安装 Husky 钩子。这些步骤需要网络连接。主题下载失败时，恢复网络后重新运行 `yarn prepare`。
+从已有 Yarn 工作区迁移时，请先清理旧的 `node_modules` 再安装。请保留 `pnpm-workspace.yaml`：它包含依赖版本覆盖、Electron/esbuild/SSH 安装脚本许可，以及 Electron 打包和内置 npm 所需的 hoisted 布局。不要禁用可选依赖，Sharp 的平台原生二进制通过可选依赖安装。
 
-`yarn dev` 通过 electron-vite 的 watch 模式启动 Electron。主进程变更会重新编译并重启 Electron，内存中的状态会重置；预加载脚本变更会重新编译脚本并刷新渲染进程窗口。渲染进程变更使用 Vite HMR。渲染进程开发服务器固定使用 `127.0.0.1:30303`；启动第二个开发实例前需要释放该端口。
+安装时，`postinstall` 会安装 Electron 原生依赖，`prepare` 会将主题下载到 `resources/theme/` 并安装 Husky 钩子。这些步骤需要网络连接。主题下载失败时，恢复网络后重新运行 `pnpm prepare`。
+
+`pnpm dev` 通过 electron-vite 的 watch 模式启动 Electron。主进程变更会重新编译并重启 Electron，内存中的状态会重置；预加载脚本变更会重新编译脚本并刷新渲染进程窗口。渲染进程变更使用 Vite HMR。渲染进程开发服务器固定使用 `127.0.0.1:30303`；启动第二个开发实例前需要释放该端口。
 
 ## package.json 脚本
 
@@ -27,25 +30,25 @@ yarn dev
 
 | 命令                                                   | 用途                                                                                     |
 | ------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| `yarn dev`                                             | 启动开发模式。                                                                           |
-| `yarn dev:prod`                                        | 使用 production 模式配置启动 electron-vite。                                             |
-| `yarn prebuild`                                        | 将主进程、预加载脚本和渲染进程编译到 `out/`，不打包。                                    |
-| `yarn preview`                                         | 使用已有编译产物启动 Electron；先运行 `yarn prebuild`。                                  |
-| `yarn build`                                           | 编译并使用 electron-builder 为当前平台打包。Yarn 还会自动执行 `prebuild` 生命周期钩子。  |
-| `yarn build:win`、`yarn build:mac`、`yarn build:linux` | 编译并为指定平台打包，可传入 electron-builder 的目标格式和架构参数。                     |
-| `yarn typecheck`                                       | 执行 `vue-tsc --noEmit`。                                                                |
-| `yarn lint` / `yarn lint:fix`                          | 检查 JavaScript、TypeScript、Vue 和配置范围内的 JSON 文件 / 自动修复 ESLint 问题。       |
-| `yarn lint:dpdm` / `yarn lint:dpdm:renderer`           | 从主进程 / 渲染进程入口检查循环依赖。                                                    |
-| `yarn lint:style`                                      | 检查 `src/` 下的样式，**会自动修复文件**。                                               |
-| `yarn lint:style:themes`                               | 检查 `resources/theme/*.css`，**会自动修复文件**。                                       |
-| `yarn prepare`                                         | 下载主题并安装 Husky 钩子。                                                              |
-| `yarn prepare:7za`                                     | 按当前 Node 架构下载 Windows 构建所需的 `resources/7za.exe`。                            |
-| `yarn prepare:plugin-runtime`                          | 为当前平台和架构准备实验性内置 npm 运行时。                                              |
-| `yarn postinstall` / `yarn postuninstall`              | 执行 electron-builder 的原生依赖安装生命周期钩子。                                       |
-| `yarn cz`                                              | 打开配置好的 Commitizen 提交向导。                                                       |
-| `yarn run link`                                        | 通过 `scripts/link.js` 输出当前版本的下载链接；使用 `run` 避免执行 Yarn 内置的链接命令。 |
-| `yarn release`                                         | 执行版本更新工具，会修改发布元数据。                                                     |
-| `yarn winget`                                          | 执行 Winget 自动化脚本，供发布维护使用。                                                 |
+| `pnpm dev`                                             | 启动开发模式。                                                                           |
+| `pnpm dev:prod`                                        | 使用 production 模式配置启动 electron-vite。                                             |
+| `pnpm build:app`                                        | 将主进程、预加载脚本和渲染进程编译到 `out/`，不打包。                                    |
+| `pnpm preview`                                         | 使用已有编译产物启动 Electron；先运行 `pnpm build:app`。                                  |
+| `pnpm build`                                           | 编译并使用 electron-builder 为当前平台打包。  |
+| `pnpm build:win`、`pnpm build:mac`、`pnpm build:linux` | 编译并为指定平台打包，可传入 electron-builder 的目标格式和架构参数。                     |
+| `pnpm typecheck`                                       | 执行 `vue-tsc --noEmit`。                                                                |
+| `pnpm lint` / `pnpm lint:fix`                          | 检查 JavaScript、TypeScript、Vue 和配置范围内的 JSON 文件 / 自动修复 ESLint 问题。       |
+| `pnpm lint:dpdm` / `pnpm lint:dpdm:renderer`           | 从主进程 / 渲染进程入口检查循环依赖。                                                    |
+| `pnpm lint:style`                                      | 检查 `src/` 下的样式，**会自动修复文件**。                                               |
+| `pnpm lint:style:themes`                               | 检查 `resources/theme/*.css`，**会自动修复文件**。                                       |
+| `pnpm prepare`                                         | 下载主题并安装 Husky 钩子。                                                              |
+| `pnpm prepare:7za`                                     | 按当前 Node 架构下载 Windows 构建所需的 `resources/7za.exe`。                            |
+| `pnpm prepare:plugin-runtime`                          | 为当前平台和架构准备实验性内置 npm 运行时。                                              |
+| `pnpm postinstall` / `pnpm postuninstall`              | 执行 electron-builder 的原生依赖安装生命周期钩子。                                       |
+| `pnpm cz`                                              | 打开配置好的 Commitizen 提交向导。                                                       |
+| `pnpm run link`                                        | 通过 `scripts/link.js` 输出当前版本的下载链接；使用 `run` 避免执行 pnpm 内置的链接命令。 |
+| `pnpm release`                                         | 执行版本更新工具，会修改发布元数据。                                                     |
+| `pnpm winget`                                          | 执行 Winget 自动化脚本，供发布维护使用。                                                 |
 
 ## 源码结构
 
@@ -83,33 +86,39 @@ Electron 和存储平台访问逻辑放在主进程，渲染进程通过 preload
 
 编译产物位于 `out/`，安装包和压缩包位于 `dist_electron/`。目标格式、资源和钩子配置在 [electron-builder.cjs](electron-builder.cjs)。请使用具备对应平台工具链的主机；平台脚本本身不提供交叉编译工具。
 
+pnpm 会为当前系统安装 x64 和 ARM64 可选二进制依赖。Windows、macOS 和 Linux 分别在对应系统上构建；Linux 桌面版使用 glibc，要求 glibc 2.28 及以上，x64 处理器还需要 SSE4.2。Sharp 及其 `@img` 依赖必须保留为外部模块并从 ASAR 解包。Node.js 22 和 Electron 39 满足 Sharp 0.35.5 的运行时要求；桌面版不提供 32 位 Windows 或 musl Linux 构建。
+
+请保留 `pnpm-workspace.yaml` 中登记的补丁：electron-builder 补丁修复桌面应用与核心同名导致的依赖遗漏，以及 hoisted 布局下嵌套依赖版本选择错误；核心补丁通过 Node 读取水印文件，支持 ASAR 内的默认图片。升级到包含相应修复的上游版本并通过打包验证后才能移除补丁。
+
+Sharp 仍记录了 [Linux/Electron GLib 冲突](https://sharp.pixelplumbing.com/install/#electron-and-linux)。`Validate native dependencies` 工作流会在 Windows、macOS 和 Ubuntu 的 x64/ARM64 原生运行器中验证 Electron 和 ASAR 内的图像处理；通过这些检查不代表覆盖全部 Linux 发行版。Sharp 0.35 调整了 AVIF 质量标尺，相同质量参数可能产生不同体积或观感。
+
 例如，在已安装所需 C++ 工具的 Windows 上执行：
 
 ```bash
-yarn prepare:7za
-yarn build:win nsis --x64 --publish never
+pnpm prepare:7za
+pnpm build:win nsis --x64 --publish never
 ```
 
 在对应平台主机上构建 Linux AppImage 或 macOS 安装包：
 
 ```bash
-yarn build:linux AppImage --x64 --publish never
-yarn build:mac default --arm64 --publish never
+pnpm build:linux AppImage --x64 --publish never
+pnpm build:mac default --arm64 --publish never
 ```
 
-`beforePack` 钩子会自动为每个打包目标准备插件运行时，使用 `package.json` 中精确固定的 npm 版本。在开发环境中测试**实验性内置 npm**时，先运行 `yarn prepare:plugin-runtime`，再在插件页面启用该选项。生成文件位于 `build/plugin-runtime/<platform>-<arch>/`，平台名为 `win`、`mac` 或 `linux`。选项关闭时默认使用系统 npm；切换模式沿用同一套已安装插件和配置。
+`beforePack` 钩子会自动为每个打包目标准备插件运行时，使用 `package.json` 中精确固定的 npm 版本。在开发环境中测试**实验性内置 npm**时，先运行 `pnpm prepare:plugin-runtime`，再在插件页面启用该选项。生成文件位于 `build/plugin-runtime/<platform>-<arch>/`，平台名为 `win`、`mac` 或 `linux`。选项关闭时默认使用系统 npm；切换模式沿用同一套已安装插件和配置。
 
 ## 检查与提交
 
 修改代码后，提交前运行适用的检查：
 
 ```bash
-yarn typecheck
-yarn lint
-yarn lint:dpdm
-yarn lint:dpdm:renderer
+pnpm typecheck
+pnpm lint
+pnpm lint:dpdm
+pnpm lint:dpdm:renderer
 ```
 
-修改样式时使用对应的样式检查脚本，并检查自动修复结果。修改界面、平台适配或插件时，还应通过 `yarn dev` 验证相关功能；发布测试不覆盖这些流程。日志、截图和问题报告中不要包含凭据或私有文件内容。
+修改样式时使用对应的样式检查脚本，并检查自动修复结果。修改界面、平台适配或插件时，还应通过 `pnpm dev` 验证相关功能；发布测试不覆盖这些流程。日志、截图和问题报告中不要包含凭据或私有文件内容。
 
-清理临时调试代码，只暂存本次需要提交的文件，然后使用 `yarn cz` 打开提交向导。pre-commit 钩子会执行 `yarn lint:fix`，可能修改文件，请检查并按需重新暂存。commit-msg 钩子按照项目的 node-bump-version 规范校验提交信息。
+清理临时调试代码，只暂存本次需要提交的文件，然后使用 `pnpm cz` 打开提交向导。pre-commit 钩子会执行 `pnpm lint:fix`，可能修改文件，请检查并按需重新暂存。commit-msg 钩子按照项目的 node-bump-version 规范校验提交信息。
