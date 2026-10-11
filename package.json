@@ -160,7 +160,7 @@
     "stylelint-order": "^8.1.1",
     "tailwindcss": "^4.3.3",
     "tar": "^7.5.7",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "typescript-eslint": "^8.70.1",
     "ulid": "^3.0.2",
     "video.js": "^8.24.1",
