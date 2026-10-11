@@ -26,6 +26,7 @@ overrides:
 patchedDependencies:
   app-builder-lib@26.16.1: patches/app-builder-lib@26.16.1.patch
   piclist@3.0.0: patches/piclist@3.0.0.patch
+  sharp@0.35.5: patches/sharp@0.35.5.patch
 
 # Keep both supported CPU targets available when packaging on one host.
 # The lockfile still records optional binaries for every supported OS.

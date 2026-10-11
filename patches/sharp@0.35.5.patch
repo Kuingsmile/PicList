@@ -1,0 +1,58 @@
+diff --git a/dist/sharp.cjs b/dist/sharp.cjs
+index bea6c6afb571715e3489640477e3c36231b1da27..5d3f10649499d87d8bdd0220be99c39e8389f961 100644
+--- a/dist/sharp.cjs
++++ b/dist/sharp.cjs
+@@ -19,12 +19,19 @@ const runtimePlatform = runtimePlatformArch();
+ 
+ /* node:coverage disable */
+ 
+-let sharp;
++// Electron links the system GLib on Linux; loading native libvips in the same
++// process can corrupt GLib state. Use Sharp's official Wasm build in Electron
++// only, and let a missing Wasm dependency fail rather than retry native loading.
++let sharp = process.versions.electron && runtimePlatform.startsWith("linux")
++  ? require("@img/sharp-wasm32/sharp.node")
++  : undefined;
+ const errors = [];
+-try {
+-  sharp = require(`../src/build/Release/sharp-${runtimePlatform}-${version}.node`);
+-} catch (err) {
+-  errors.push(err);
++if (!sharp) {
++  try {
++    sharp = require(`../src/build/Release/sharp-${runtimePlatform}-${version}.node`);
++  } catch (err) {
++    errors.push(err);
++  }
+ }
+ if (!sharp) {
+   try {
+diff --git a/dist/sharp.mjs b/dist/sharp.mjs
+index df4acb42ba5c4406eb57955f620244d8519c71a9..ba3ef4f975af99ac1842a13bea43cce4481036af 100644
+--- a/dist/sharp.mjs
++++ b/dist/sharp.mjs
+@@ -19,12 +19,19 @@ const runtimePlatform = runtimePlatformArch();
+ 
+ /* node:coverage disable */
+ 
+-let sharp;
++// Electron links the system GLib on Linux; loading native libvips in the same
++// process can corrupt GLib state. Use Sharp's official Wasm build in Electron
++// only, and let a missing Wasm dependency fail rather than retry native loading.
++let sharp = process.versions.electron && runtimePlatform.startsWith("linux")
++  ? require("@img/sharp-wasm32/sharp.node")
++  : undefined;
+ const errors = [];
+-try {
+-  sharp = require(`../src/build/Release/sharp-${runtimePlatform}-${version}.node`);
+-} catch (err) {
+-  errors.push(err);
++if (!sharp) {
++  try {
++    sharp = require(`../src/build/Release/sharp-${runtimePlatform}-${version}.node`);
++  } catch (err) {
++    errors.push(err);
++  }
+ }
+ if (!sharp) {
+   try {

@@ -105,6 +105,7 @@ jobs:
             console.log('Checking core imports and image encoders')
             assert.equal(sharp.versions.sharp, '0.35.5')
             assert.ok(Number(process.versions.napi) >= 9)
+            assert.equal(Boolean(sharp.versions.emscripten), process.platform === 'linux' && Boolean(process.versions.electron))
             const { PicGoUtils } = await import(pathToFileURL(coreEntry).href)
             const logger = { error() { throw new Error('Core image processing reported an error') } }
             const input = await sharp({ create: { width: 128, height: 80, channels: 4, background: '#487abd' } }).png().toBuffer()
@@ -145,7 +146,7 @@ jobs:
             const stripped = await PicGoUtils.removeExif(exif, 'jpg')
             assert.equal((await sharp(stripped).metadata()).exif, undefined)
             await Promise.all(Array.from({ length: 12 }, () => sharp(svg).resize(16, 10).png().toBuffer()))
-            console.log(JSON.stringify({ status: 'passed', platform: process.platform, arch: process.arch, node: process.versions.node, electron: process.versions.electron, sharp: sharp.versions.sharp, vips: sharp.versions.vips, packaged: Boolean(process.env.APP_ROOT) }))
+            console.log(JSON.stringify({ status: 'passed', platform: process.platform, arch: process.arch, node: process.versions.node, electron: process.versions.electron, sharp: sharp.versions.sharp, vips: sharp.versions.vips, wasm: Boolean(sharp.versions.emscripten), packaged: Boolean(process.env.APP_ROOT) }))
           }
           const electron = process.versions.electron && !process.env.ELECTRON_RUN_AS_NODE ? require('electron') : undefined
           if (electron) {
@@ -300,7 +301,8 @@ jobs:
             result=$?
             set -e
             echo "Sharp ${{ matrix.sharp }} / $timing: exit $result" | tee -a "$GITHUB_STEP_SUMMARY"
-            head -n 35 "$RUNNER_TEMP/glib-$timing.log"
+            head -n 12 "$RUNNER_TEMP/glib-$timing.log"
+            grep -E 'Encoding|Decoding|Rasterizing|"status"|Trace/breakpoint|Error' "$RUNNER_TEMP/glib-$timing.log" | tail -n 10 || true
           done
           # Informational baseline only; the native matrix above remains the release gate.
 

@@ -90,7 +90,9 @@ pnpm 会为当前系统安装 x64 和 ARM64 可选二进制依赖。Windows、ma
 
 请保留 `pnpm-workspace.yaml` 中登记的补丁：electron-builder 补丁修复桌面应用与核心同名导致的依赖遗漏，以及 hoisted 布局下嵌套依赖版本选择错误；核心补丁通过 Node 读取水印文件，支持 ASAR 内的默认图片。升级到包含相应修复的上游版本并通过打包验证后才能移除补丁。
 
-Sharp 仍记录了 [Linux/Electron GLib 冲突](https://sharp.pixelplumbing.com/install/#electron-and-linux)。`Validate native dependencies` 工作流会在 Windows、macOS 和 Ubuntu 的 x64/ARM64 原生运行器中验证 Electron 和 ASAR 内的图像处理；通过这些检查不代表覆盖全部 Linux 发行版。Sharp 0.35 调整了 AVIF 质量标尺，相同质量参数可能产生不同体积或观感。
+Sharp 记录了 [Linux/Electron GLib 冲突](https://sharp.pixelplumbing.com/install/#electron-and-linux)，验证中在 Ubuntu ARM64 的 0.34.4 和 0.35.5 上均复现。Sharp 加载器补丁仅在 Linux Electron 中选择官方 `@img/sharp-wasm32` 构建。请将该依赖与 Sharp 固定在相同版本，并保留 CommonJS 和 ESM 两种加载器的补丁。Windows、macOS 和独立 Node 进程继续使用原生 Sharp。
+
+[WebAssembly 后端](https://sharp.pixelplumbing.com/install/#webassembly)支持 PicList 将文字转为 SVG 路径的水印功能，但不支持 Sharp 原生文字输入和金字塔切片输出。大图处理速度和内存限制可能与原生构建不同。`Validate native dependencies` 工作流会在 Windows、macOS 和 Ubuntu 的 x64/ARM64 原生运行器中验证 Electron 和 ASAR 内的编码、水印、动画、元数据清理与并发处理，并确认实际使用的后端；这些检查不代表覆盖全部 Linux 发行版或第三方插件。Sharp 0.35 还调整了 AVIF 质量标尺，相同质量参数可能产生不同体积或观感。
 
 例如，在已安装所需 C++ 工具的 Windows 上执行：
 

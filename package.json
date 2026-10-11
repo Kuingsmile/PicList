@@ -54,6 +54,7 @@
     "@aws-sdk/client-s3": "^3.1142.0",
     "@aws-sdk/lib-storage": "^3.1142.0",
     "@aws-sdk/s3-request-presigner": "^3.1142.0",
+    "@img/sharp-wasm32": "0.35.5",
     "@octokit/rest": "^22.0.1",
     "@piclist/store": "^4.0.0",
     "@smithy/node-http-handler": "^4.12.1",
