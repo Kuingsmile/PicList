@@ -21,6 +21,7 @@ module.exports = {
     '**/node_modules/sharp/**',
     '**/node_modules/ssh2-no-cpu-features/**',
     '**/node_modules/@img/**',
+    '**/node_modules/@resvg/**',
     'resources/**',
   ],
   files: ['out/**/*', 'resources/**', 'package.json', '!**/node_modules/typescript{,/**}'],

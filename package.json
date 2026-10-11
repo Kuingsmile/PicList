@@ -57,6 +57,7 @@
     "@img/sharp-wasm32": "0.35.5",
     "@octokit/rest": "^22.0.1",
     "@piclist/store": "^4.0.0",
+    "@resvg/resvg-js": "2.6.2",
     "@smithy/node-http-handler": "^4.12.1",
     "adm-zip": "^0.6.1",
     "ali-oss": "^6.23.0",

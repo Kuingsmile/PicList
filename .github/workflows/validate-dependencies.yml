@@ -130,6 +130,21 @@ jobs:
               if (renderedText.data[i] < 128) textPixels++
             }
             assert.ok(textPixels > 100, `SVG text is missing: ${textPixels} dark pixels`)
+            assert.equal((await sharp(textSvg).metadata()).size, textSvg.length)
+            const textFile = path.join(process.env.RUNNER_TEMP, 'svg-text-without-extension')
+            fs.writeFileSync(textFile, textSvg)
+            const textInputs = [textFile, require('node:zlib').gzipSync(textSvg)]
+            for (const textInput of textInputs) {
+              assert.equal((await sharp(textInput).metadata()).format, 'svg')
+              assert.equal((await sharp(textInput).stats()).channels[0].min, 0)
+            }
+            const textStream = sharp().png()
+            require('node:stream').Readable.from([textSvg]).pipe(textStream)
+            assert.equal((await sharp(await textStream.toBuffer()).stats()).channels[0].min, 0)
+            assert.equal((await sharp(textSvg, { density: 144 }).png().toBuffer({ resolveWithObject: true })).info.width, 480)
+            const textComposite = await sharp({ create: { width: 240, height: 70, channels: 4, background: 'white' } })
+              .composite([{ input: textSvg }]).png().toBuffer()
+            assert.equal((await sharp(textComposite).stats()).channels[0].min, 0)
             const marked = await PicGoUtils.AddWatermark(input, 'image', '')
             assert.equal((await sharp(marked).metadata()).width, 128)
             assert.notDeepEqual(await sharp(marked).raw().toBuffer(), await sharp(input).raw().toBuffer())

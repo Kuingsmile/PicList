@@ -1,5 +1,5 @@
 diff --git a/dist/sharp.cjs b/dist/sharp.cjs
-index bea6c6afb571715e3489640477e3c36231b1da27..5d3f10649499d87d8bdd0220be99c39e8389f961 100644
+index bea6c6afb571715e3489640477e3c36231b1da27..826b02d629d2dd8a05d72978501916e8a3368199 100644
 --- a/dist/sharp.cjs
 +++ b/dist/sharp.cjs
 @@ -19,12 +19,19 @@ const runtimePlatform = runtimePlatformArch();
@@ -11,7 +11,7 @@ index bea6c6afb571715e3489640477e3c36231b1da27..5d3f10649499d87d8bdd0220be99c39e
 +// process can corrupt GLib state. Use Sharp's official Wasm build in Electron
 +// only, and let a missing Wasm dependency fail rather than retry native loading.
 +let sharp = process.versions.electron && runtimePlatform.startsWith("linux")
-+  ? require("@img/sharp-wasm32/sharp.node")
++  ? require("./svg-text.cjs")(require("@img/sharp-wasm32/sharp.node"))
 +  : undefined;
  const errors = [];
 -try {
@@ -28,7 +28,7 @@ index bea6c6afb571715e3489640477e3c36231b1da27..5d3f10649499d87d8bdd0220be99c39e
  if (!sharp) {
    try {
 diff --git a/dist/sharp.mjs b/dist/sharp.mjs
-index df4acb42ba5c4406eb57955f620244d8519c71a9..ba3ef4f975af99ac1842a13bea43cce4481036af 100644
+index df4acb42ba5c4406eb57955f620244d8519c71a9..952c2a7c67eed51237d34a729193fd101895094f 100644
 --- a/dist/sharp.mjs
 +++ b/dist/sharp.mjs
 @@ -19,12 +19,19 @@ const runtimePlatform = runtimePlatformArch();
@@ -40,7 +40,7 @@ index df4acb42ba5c4406eb57955f620244d8519c71a9..ba3ef4f975af99ac1842a13bea43cce4
 +// process can corrupt GLib state. Use Sharp's official Wasm build in Electron
 +// only, and let a missing Wasm dependency fail rather than retry native loading.
 +let sharp = process.versions.electron && runtimePlatform.startsWith("linux")
-+  ? require("@img/sharp-wasm32/sharp.node")
++  ? require("./svg-text.cjs")(require("@img/sharp-wasm32/sharp.node"))
 +  : undefined;
  const errors = [];
 -try {
@@ -56,3 +56,99 @@ index df4acb42ba5c4406eb57955f620244d8519c71a9..ba3ef4f975af99ac1842a13bea43cce4
  }
  if (!sharp) {
    try {
+diff --git a/dist/svg-text.cjs b/dist/svg-text.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..17372ec2a074f014610978f2f76cd52aff7a89a3
+--- /dev/null
++++ b/dist/svg-text.cjs
+@@ -0,0 +1,90 @@
++// Preserve SVG text when using the official Wasm binary, whose resvg build
++// omits text shaping. resvg-js outlines text without loading native GLib.
++const fs = require('node:fs');
++const { gunzipSync } = require('node:zlib');
++
++function isGzip(buffer) {
++  return buffer.length > 2 && buffer[0] === 0x1f && buffer[1] === 0x8b;
++}
++
++function isXml(buffer) {
++  return /^\s*(?:<\?xml\b|<!--|<!DOCTYPE\s+svg\b|<(?:[\w.-]+:)?svg\b)/i.test(
++    buffer.subarray(0, 4096).toString('utf8').replace(/^\uFEFF/, '')
++  );
++}
++
++function outlineInput(input) {
++  if (!input || input.rawChannels || input.createChannels || input.textValue !== undefined) return input;
++  let buffer = input.buffer;
++  if (input.file) {
++    // Probe the actual contents, including SVG files without an SVG extension.
++    // Raster files retain libvips' original filename-based loading path.
++    const fd = fs.openSync(input.file, 'r');
++    const head = Buffer.alloc(4096);
++    let length;
++    try {
++      length = fs.readSync(fd, head, 0, head.length, 0);
++    } finally {
++      fs.closeSync(fd);
++    }
++    const prefix = head.subarray(0, length);
++    if (!isXml(prefix) && !isGzip(prefix)) return input;
++    buffer = fs.readFileSync(input.file);
++  }
++  if (!Buffer.isBuffer(buffer)) return input;
++  if (isGzip(buffer)) buffer = gunzipSync(buffer);
++  if (!isXml(buffer)) return input;
++  let svg = buffer.toString('utf8');
++  if (!/<(?:[\w.-]+:)?text\b/.test(svg)) return input;
++  if (input.svgStylesheet) {
++    const css = input.svgStylesheet.replace(/&/g, '&amp;').replace(/</g, '&lt;');
++    svg = svg.replace(/(<\/(?:[\w.-]+:)?svg\s*>\s*)$/, `<style>${css}</style>$1`);
++  }
++  const { Resvg } = require('@resvg/resvg-js');
++  // Sharp's default SVG density is 72 DPI. Leave its density option intact so
++  // the outlined vector retains the original scaling and resize behaviour.
++  const outlined = Buffer.from(new Resvg(svg, { dpi: 72 }).toString());
++  const result = { ...input, buffer: outlined };
++  delete result.file;
++  delete result.svgStylesheet;
++  return result;
++}
++
++function prepareOptions(options) {
++  const result = { ...options, input: outlineInput(options.input) };
++  for (const key of ['join', 'joinChannelIn']) {
++    if (options[key]) result[key] = options[key].map(outlineInput);
++  }
++  if (options.composite) {
++    result.composite = options.composite.map(item => ({ ...item, input: outlineInput(item.input) }));
++  }
++  if (options.boolean) result.boolean = outlineInput(options.boolean);
++  return result;
++}
++
++module.exports = sharp => {
++  const wrapped = Object.create(sharp);
++  for (const method of ['pipeline', 'metadata', 'stats']) {
++    Object.defineProperty(wrapped, method, {
++      value(options, callback) {
++        try {
++          const prepared = prepareOptions(options);
++          if (method === 'metadata' && prepared.input !== options.input) {
++            return sharp.metadata(prepared, (error, metadata) => {
++              if (metadata) {
++                if (Buffer.isBuffer(options.input.buffer)) metadata.size = options.input.buffer.length;
++                else delete metadata.size;
++              }
++              callback(error, metadata);
++            });
++          }
++          return sharp[method](prepared, callback);
++        } catch (error) {
++          // Keep invalid input errors asynchronous, including stream inputs.
++          queueMicrotask(() => callback(error));
++        }
++      }
++    });
++  }
++  return wrapped;
++};
