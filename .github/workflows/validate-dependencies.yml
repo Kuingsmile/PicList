@@ -146,7 +146,9 @@ jobs:
             const stripped = await PicGoUtils.removeExif(exif, 'jpg')
             assert.equal((await sharp(stripped).metadata()).exif, undefined)
             await Promise.all(Array.from({ length: 12 }, () => sharp(svg).resize(16, 10).png().toBuffer()))
-            console.log(JSON.stringify({ status: 'passed', platform: process.platform, arch: process.arch, node: process.versions.node, electron: process.versions.electron, sharp: sharp.versions.sharp, vips: sharp.versions.vips, wasm: Boolean(sharp.versions.emscripten), packaged: Boolean(process.env.APP_ROOT) }))
+            const result = { status: 'passed', platform: process.platform, arch: process.arch, node: process.versions.node, electron: process.versions.electron, sharp: sharp.versions.sharp, vips: sharp.versions.vips, wasm: Boolean(sharp.versions.emscripten), packaged: Boolean(process.env.APP_ROOT) }
+            if (process.env.SMOKE_RESULT) fs.writeFileSync(process.env.SMOKE_RESULT, JSON.stringify(result))
+            console.log(JSON.stringify(result))
           }
           const electron = process.versions.electron && !process.env.ELECTRON_RUN_AS_NODE ? require('electron') : undefined
           if (electron) {
@@ -161,7 +163,10 @@ jobs:
 
       - name: Check published core with Sharp in Node
         timeout-minutes: 3
-        run: node "$RUNNER_TEMP/sharp-smoke.cjs"
+        run: |
+          export SMOKE_RESULT="$RUNNER_TEMP/node-smoke-result.json"
+          node "$RUNNER_TEMP/sharp-smoke.cjs"
+          node -e "require('node:assert/strict').equal(JSON.parse(require('node:fs').readFileSync(process.env.SMOKE_RESULT, 'utf8')).status, 'passed')"
 
       - name: Check Sharp in the Electron main process
         id: electron-smoke
@@ -169,12 +174,15 @@ jobs:
         continue-on-error: true
         timeout-minutes: 3
         run: |
+          export SMOKE_RESULT="$RUNNER_TEMP/electron-smoke-result.json"
           electron="$(node -p "require('electron')")"
           if [[ '${{ runner.os }}' == Linux ]]; then
             xvfb-run -a "$electron" --no-sandbox "$RUNNER_TEMP/sharp-smoke.cjs"
           else
             "$electron" "$RUNNER_TEMP/sharp-smoke.cjs"
           fi
+          # A native process can terminate early with exit 0; require completed checks.
+          node -e "require('node:assert/strict').equal(JSON.parse(require('node:fs').readFileSync(process.env.SMOKE_RESULT, 'utf8')).status, 'passed')"
 
       - name: Compile application
         run: pnpm build:app
@@ -193,6 +201,7 @@ jobs:
         continue-on-error: true
         timeout-minutes: 3
         run: |
+          export SMOKE_RESULT="$RUNNER_TEMP/packaged-smoke-result.json"
           case '${{ runner.os }}-${{ matrix.arch }}' in
             Windows-x64) app_dir='dist_electron/win-unpacked'; executable="$app_dir/PicList.exe"; resources="$app_dir/resources" ;;
             Windows-arm64) app_dir='dist_electron/win-arm64-unpacked'; executable="$app_dir/PicList.exe"; resources="$app_dir/resources" ;;
@@ -208,6 +217,7 @@ jobs:
           else
             "$electron" "$RUNNER_TEMP/sharp-smoke.cjs"
           fi
+          node -e "require('node:assert/strict').equal(JSON.parse(require('node:fs').readFileSync(process.env.SMOKE_RESULT, 'utf8')).status, 'passed')"
           ELECTRON_RUN_AS_NODE=1 "$executable" "$resources/plugin-runtime/npm/bin/npm-cli.js" --version
           git diff --exit-code -- package.json pnpm-lock.yaml pnpm-workspace.yaml
 
@@ -282,6 +292,7 @@ jobs:
             await sharp(input).resize(16, 10).webp().toBuffer()
             console.log('Rasterizing SVG')
             await sharp(Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="20"><rect width="32" height="20" fill="red"/></svg>')).png().toBuffer()
+            if (process.env.PROBE_RESULT) require('node:fs').writeFileSync(process.env.PROBE_RESULT, 'passed')
             console.log(JSON.stringify({ status: 'passed', sharp: sharp.versions.sharp, electron: process.versions.electron, arch: process.arch, timing: process.env.LOAD_TIMING }))
           }
           if (electron) {
@@ -297,10 +308,12 @@ jobs:
           electron="$(node -p "require('electron')")"
           for timing in before-ready after-ready; do
             set +e
-            LOAD_TIMING="$timing" timeout 60s xvfb-run -a "$electron" --no-sandbox probe.cjs > "$RUNNER_TEMP/glib-$timing.log" 2>&1
+            PROBE_RESULT="$RUNNER_TEMP/glib-$timing.passed" LOAD_TIMING="$timing" timeout 60s xvfb-run -a "$electron" --no-sandbox probe.cjs > "$RUNNER_TEMP/glib-$timing.log" 2>&1
             result=$?
             set -e
-            echo "Sharp ${{ matrix.sharp }} / $timing: exit $result" | tee -a "$GITHUB_STEP_SUMMARY"
+            completed=no
+            if [[ -f "$RUNNER_TEMP/glib-$timing.passed" ]]; then completed=yes; fi
+            echo "Sharp ${{ matrix.sharp }} / $timing: exit $result, completed=$completed" | tee -a "$GITHUB_STEP_SUMMARY"
             head -n 12 "$RUNNER_TEMP/glib-$timing.log"
             grep -E 'Encoding|Decoding|Rasterizing|"status"|Trace/breakpoint|Error' "$RUNNER_TEMP/glib-$timing.log" | tail -n 10 || true
           done
