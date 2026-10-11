@@ -36,7 +36,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v7
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - name: Install frozen dependencies
@@ -83,7 +83,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v7
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
