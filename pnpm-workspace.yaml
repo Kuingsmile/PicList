@@ -14,9 +14,14 @@ overrides:
   '@codemirror/state': ^6.7.5
   '@smithy/node-http-handler': ^4.12.1
   baseline-browser-mapping: ^2.11.25
+  # Security fixes for older transitive dependencies retained by the Yarn lockfile.
+  brace-expansion@^2.0.0: ^2.1.7
   # The published core still pins 0.34.4. Keep desktop native binaries reproducible.
   piclist>sharp: 0.35.5
   semver: ^7.8.5
+  source-map-js: ^1.2.2
+  upyun>axios: ^0.34.0
+  urllib@^2.44.0: ^2.44.1
   vite: ^7.3.1
 patchedDependencies:
   app-builder-lib@26.16.1: patches/app-builder-lib@26.16.1.patch

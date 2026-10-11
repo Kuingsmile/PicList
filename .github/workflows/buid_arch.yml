@@ -209,12 +209,8 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Install release utility dependencies without lifecycle scripts
-        shell: bash
-        run: |
-          node scripts/prepare-release-dependencies.js "$RUNNER_TEMP/release-tools"
-          pnpm --dir "$RUNNER_TEMP/release-tools" install \
-            --frozen-lockfile --ignore-scripts
-          ln -s "$RUNNER_TEMP/release-tools/node_modules" "$GITHUB_WORKSPACE/node_modules"
+        # Keep the frozen importer intact; skip Electron downloads, rebuilds and themes.
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Derive expected release artifacts and metadata
         id: expected

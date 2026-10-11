@@ -99,8 +99,10 @@ jobs:
           const appRequire = createRequire(path.join(root, 'package.json'))
           const coreEntry = process.env.CORE_ROOT ? path.join(root, 'dist/index.js') : appRequire.resolve('piclist')
           const coreRequire = createRequire(coreEntry)
+          console.log('Loading Sharp')
           const sharp = coreRequire('sharp')
           async function check() {
+            console.log('Checking core imports and image encoders')
             assert.equal(sharp.versions.sharp, '0.35.5')
             assert.ok(Number(process.versions.napi) >= 9)
             const { PicGoUtils } = await import(pathToFileURL(coreEntry).href)
@@ -117,6 +119,7 @@ jobs:
               assert.equal(metadata.height, 20)
             }
             const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="40"><rect width="64" height="40" fill="red"/></svg>')
+            console.log('Checking SVG and watermark rendering')
             const svgOutput = await PicGoUtils.imageCompress(svg, { isConvert: true, convertFormat: 'png' }, 'svg', logger)
             assert.equal((await sharp(svgOutput).metadata()).format, 'png')
             const marked = await PicGoUtils.AddWatermark(input, 'image', '')
@@ -128,6 +131,7 @@ jobs:
             const text = await PicGoUtils.AddWatermark(input, 'text', font, true, 30, 'PicList')
             assert.equal((await sharp(text).metadata()).width, 128)
             const frames = Buffer.alloc(64 * 80 * 4)
+            console.log('Checking animation, metadata and concurrent processing')
             for (let i = 0; i < frames.length; i += 4) {
               frames[i] = i < 64 * 40 * 4 ? 255 : 0
               frames[i + 2] = i < 64 * 40 * 4 ? 0 : 255
@@ -145,6 +149,7 @@ jobs:
           }
           const electron = process.versions.electron && !process.env.ELECTRON_RUN_AS_NODE ? require('electron') : undefined
           if (electron) {
+            console.log('Waiting for Electron app readiness')
             electron.app.setPath('userData', path.join(process.env.RUNNER_TEMP, 'piclist-validation-userdata'))
             electron.app.disableHardwareAcceleration()
             electron.app.whenReady().then(check).then(() => electron.app.exit(0)).catch(error => { console.error(error.message); electron.app.exit(1) })
@@ -154,9 +159,14 @@ jobs:
           JS
 
       - name: Check published core with Sharp in Node
+        timeout-minutes: 3
         run: node "$RUNNER_TEMP/sharp-smoke.cjs"
 
       - name: Check Sharp in the Electron main process
+        id: electron-smoke
+        # Finish packaging even when a native crash occurs, then fail the gate below.
+        continue-on-error: true
+        timeout-minutes: 3
         run: |
           electron="$(node -p "require('electron')")"
           if [[ '${{ runner.os }}' == Linux ]]; then
@@ -178,6 +188,9 @@ jobs:
         run: pnpm exec electron-builder --${{ matrix.platform }} ${{ matrix.formats }} --${{ matrix.arch }} --publish never
 
       - name: Check Sharp from the packaged ASAR and bundled npm
+        id: packaged-smoke
+        continue-on-error: true
+        timeout-minutes: 3
         run: |
           case '${{ runner.os }}-${{ matrix.arch }}' in
             Windows-x64) app_dir='dist_electron/win-unpacked'; executable="$app_dir/PicList.exe"; resources="$app_dir/resources" ;;
@@ -214,6 +227,83 @@ jobs:
           pnpm --dir core-candidate build
           CORE_ROOT="$GITHUB_WORKSPACE/core-candidate" APP_ROOT='' node "$RUNNER_TEMP/sharp-smoke.cjs"
 
+      - name: Require successful Electron image processing
+        if: always() && (steps.electron-smoke.outcome == 'failure' || steps.packaged-smoke.outcome == 'failure')
+        run: |
+          echo 'Electron image processing failed; packaged artifacts are not release-ready.' >&2
+          exit 1
+
+  linux-glib-comparison:
+    name: Linux ARM64 / Sharp ${{ matrix.sharp }} comparison
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        sharp: ['0.34.4', '0.35.5']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.x'
+      - name: Install isolated comparison dependencies
+        env:
+          SHARP_VERSION: ${{ matrix.sharp }}
+          # Match the Electron version in pnpm-lock.yaml for the upgrade comparison.
+          ELECTRON_VERSION: '39.2.7'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y xvfb
+          export GLIB_ROOT="$RUNNER_TEMP/glib-comparison"
+          mkdir -p "$GLIB_ROOT"
+          node -e "require('node:fs').writeFileSync(process.env.GLIB_ROOT + '/package.json', JSON.stringify({private: true, dependencies: {sharp: process.env.SHARP_VERSION, electron: process.env.ELECTRON_VERSION}}))"
+          printf 'allowBuilds:\n  electron: true\n  sharp: true\n' > "$GLIB_ROOT/pnpm-workspace.yaml"
+          pnpm --dir "$GLIB_ROOT" install
+      - name: Compare Node and Electron load timing
+        run: |
+          export GLIB_ROOT="$RUNNER_TEMP/glib-comparison"
+          cat > "$GLIB_ROOT/probe.cjs" <<'JS'
+          const assert = require('node:assert/strict')
+          const electron = process.versions.electron && !process.env.ELECTRON_RUN_AS_NODE ? require('electron') : undefined
+          let sharp
+          function load() {
+            console.log('Loading Sharp')
+            sharp = require('sharp')
+          }
+          if (process.env.LOAD_TIMING !== 'after-ready') load()
+          async function check() {
+            if (!sharp) load()
+            console.log('Encoding PNG')
+            const input = await sharp({ create: { width: 32, height: 20, channels: 4, background: 'red' } }).png().toBuffer()
+            console.log('Decoding and resizing PNG')
+            assert.equal((await sharp(input).metadata()).width, 32)
+            await sharp(input).resize(16, 10).webp().toBuffer()
+            console.log('Rasterizing SVG')
+            await sharp(Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="20"><rect width="32" height="20" fill="red"/></svg>')).png().toBuffer()
+            console.log(JSON.stringify({ status: 'passed', sharp: sharp.versions.sharp, electron: process.versions.electron, arch: process.arch, timing: process.env.LOAD_TIMING }))
+          }
+          if (electron) {
+            console.log('Waiting for Electron app readiness')
+            electron.app.disableHardwareAcceleration()
+            electron.app.whenReady().then(check).then(() => electron.app.exit(0)).catch(error => { console.error(error.message); electron.app.exit(1) })
+          } else {
+            check().catch(error => { console.error(error.message); process.exitCode = 1 })
+          }
+          JS
+          cd "$GLIB_ROOT"
+          node probe.cjs
+          electron="$(node -p "require('electron')")"
+          for timing in before-ready after-ready; do
+            set +e
+            LOAD_TIMING="$timing" timeout 60s xvfb-run -a "$electron" --no-sandbox probe.cjs > "$RUNNER_TEMP/glib-$timing.log" 2>&1
+            result=$?
+            set -e
+            echo "Sharp ${{ matrix.sharp }} / $timing: exit $result" | tee -a "$GITHUB_STEP_SUMMARY"
+            head -n 35 "$RUNNER_TEMP/glib-$timing.log"
+          done
+          # Informational baseline only; the native matrix above remains the release gate.
+
   release-tools:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -224,10 +314,8 @@ jobs:
         with:
           node-version: '22.x'
           cache: pnpm
-      - name: Validate isolated frozen installation for release utilities
+      - name: Validate frozen installation for release utilities without hooks
         run: |
-          node scripts/prepare-release-dependencies.js "$RUNNER_TEMP/release-tools"
-          pnpm --dir "$RUNNER_TEMP/release-tools" install --frozen-lockfile --ignore-scripts
-          ln -s "$RUNNER_TEMP/release-tools/node_modules" "$GITHUB_WORKSPACE/node_modules"
+          pnpm install --frozen-lockfile --ignore-scripts
           node scripts/release-manifest.js plan --build All
           node -e "Promise.all(['@aws-sdk/client-s3', '@aws-sdk/lib-storage', '@smithy/node-http-handler', 'dotenv', 'js-yaml', 'semver', 'yaml'].map(name => import(name))).then(() => console.log('Release utility imports passed'))"
