@@ -1492,7 +1492,7 @@
           "snapshotProtected": "已保護：同步中的作業或待復原的交易需要此快照。",
           "snapshotRetention": "快照保留數量",
           "snapshotRetentionConfirm": "儲存此設定將永久刪除 {count} 個較舊的快照。請先匯出需要保留的副本。",
-          "snapshotRetentionDescription": "保留最新的 1–{max} 個已完成快照，自動刪除更舊的副本。復原所需的快照一律保留。",
+          "snapshotRetentionDescription": "保留最新的 {count} ( 最大 {max}) 個已完成快照，自動刪除更舊的副本。復原所需的快照一律保留。",
           "snapshotRetentionSaved": "快照保留設定已儲存。",
           "snapshotStorage": "{count} 個已儲存快照 · {size}",
           "subtitle": "預覽變更、處理衝突，確認後同步。",

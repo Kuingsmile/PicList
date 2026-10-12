@@ -1492,7 +1492,7 @@
           "snapshotProtected": "已保护：正在同步或待恢复的事务需要此快照。",
           "snapshotRetention": "快照保留数量",
           "snapshotRetentionConfirm": "保存此设置将永久删除 {count} 个较旧的快照。请先导出需要保留的副本。",
-          "snapshotRetentionDescription": "保留最新的 1–{max} 个已完成快照，自动删除更旧的副本。恢复所需的快照始终保留。",
+          "snapshotRetentionDescription": "保留最新的 {count} ( 最大 {max}) 个已完成快照，自动删除更旧的副本。恢复所需的快照始终保留。",
           "snapshotRetentionSaved": "快照保留设置已保存。",
           "snapshotStorage": "{count} 个已保存快照 · {size}",
           "subtitle": "预览变更、处理冲突，确认后同步。",

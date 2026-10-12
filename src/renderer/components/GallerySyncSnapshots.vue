@@ -36,7 +36,7 @@
         />
       </div>
       <p class="text-sm text-secondary">
-        {{ syncText('snapshotRetentionDescription', { max: MAX_GALLERY_SNAPSHOT_LIMIT }) }}
+        {{ syncText('snapshotRetentionDescription', { count: retentionLimit, max: MAX_GALLERY_SNAPSHOT_LIMIT }) }}
       </p>
       <p class="text-sm font-semibold" role="status">
         {{ syncText('snapshotStorage', { count: snapshots.length, size: formatSize(totalBytes) }) }}

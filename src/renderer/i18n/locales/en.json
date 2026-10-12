@@ -1492,7 +1492,7 @@
           "snapshotProtected": "Protected: required by an active sync or pending recovery.",
           "snapshotRetention": "Snapshots to keep",
           "snapshotRetentionConfirm": "Saving this limit will permanently delete {count} older snapshots. Export any copies you want to keep first.",
-          "snapshotRetentionDescription": "Keep the newest 1–{max} completed snapshots. Older copies are removed automatically. Snapshots needed for recovery are always kept.",
+          "snapshotRetentionDescription": "Keep the newest {count} ( max {max}) completed snapshots. Older copies are removed automatically. Snapshots needed for recovery are always kept.",
           "snapshotRetentionSaved": "Snapshot retention saved.",
           "snapshotStorage": "{count} saved snapshots · {size}",
           "subtitle": "Compare your local gallery with the cloud.",
