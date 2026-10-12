@@ -1856,12 +1856,17 @@
     },
     "update": {
       "download": "下载",
-      "downloading": "下载中",
+      "downloading": "正在下载更新",
       "goToDownloadPage": "前往下载页面",
-      "installNow": "立即安装",
       "later": "稍后",
       "noMoreNotice": "不再提示",
-      "releaseNotes": "更新内容"
+      "notesUnavailable": "无法加载更新内容，可前往下载页面查看。",
+      "preparing": "正在准备更新…",
+      "releaseNotes": "更新内容",
+      "restartToInstall": "重启并安装",
+      "retry": "重试",
+      "runInBackground": "后台下载",
+      "versionChange": "从 {current} 更新到 {latest}"
     },
     "upload": {
       "addToFavorites": "添加当前图床到快速切换",

@@ -1,5 +1,8 @@
 <template>
-  <div class="w-full rounded-lg border border-border bg-bg-secondary p-6 shadow-sm">
+  <div
+    class="w-full rounded-lg border border-border bg-bg-secondary p-6 shadow-sm"
+    :class="{ 'flex flex-col': fillHeight }"
+  >
     <div
       v-if="title || description || icon || $slots.title || $slots.description || $slots.icon"
       class="mb-2 flex items-start gap-3"
@@ -24,7 +27,15 @@
       </div>
     </div>
 
-    <div :class="onlyOneRow ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-2 gap-4 max-md:grid-cols-1'">
+    <div
+      :class="
+        fillHeight
+          ? 'flex min-h-0 flex-1 flex-col gap-4'
+          : onlyOneRow
+            ? 'grid grid-cols-1 gap-4'
+            : 'grid grid-cols-2 gap-4 max-md:grid-cols-1'
+      "
+    >
       <slot />
     </div>
     <slot name="extra"></slot>
@@ -48,11 +59,14 @@ const {
   icon = null,
   iconSize = 20,
   onlyOneRow = false,
+  fillHeight = false,
 } = defineProps<{
   title?: string
   description?: string
   icon?: Component | null
   iconSize?: number
   onlyOneRow?: boolean
+  // Stacks the content in a column so a flex-1 child can take the remaining height, e.g. a scrollable panel.
+  fillHeight?: boolean
 }>()
 </script>

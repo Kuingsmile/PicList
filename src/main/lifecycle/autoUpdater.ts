@@ -37,7 +37,7 @@ const MAX_CHANGELOG_LENGTH = 8000
 
 type UpdateNotification =
   | { type: 'update-available'; title: string; version: string; releaseNotes: string }
-  | { type: 'update-downloaded'; title: string; message: string }
+  | { type: 'update-downloaded'; title: string; version: string; message: string }
   | { type: 'update-error'; title: string; version?: string; message: string }
 
 let portableUpdate: PortableUpdate | undefined
@@ -45,6 +45,7 @@ let checkingPortableUpdate = false
 let downloadingPortableUpdate = false
 let autoUpdaterConfigured = false
 let updateNotificationId = 0
+let availableVersion: string | undefined
 
 const showUpdateInfo = (info: UpdateNotification, notificationId = ++updateNotificationId) => {
   if (notificationId !== updateNotificationId) return
@@ -94,6 +95,7 @@ const getReleaseNotes = async (lang: string): Promise<string> => {
 const updateAvailableHandler = async (info: Pick<updater.UpdateInfo, 'version'>) => {
   // A slow changelog request must not overwrite a newer notification or a completed download.
   const notificationId = ++updateNotificationId
+  availableVersion = info.version
   const lang = getUpdateLanguage()
   const releaseNotes = await getReleaseNotes(lang)
   showUpdateInfo(
@@ -115,15 +117,29 @@ const progressHandler = (progressObj: Pick<updater.ProgressInfo, 'percent'>) => 
   windowManager.get(IWindowList.UPDATE_WINDOW)?.webContents?.send(UPDATE_PROGRESS, percent)
 }
 
-const downloadedHandler = () => {
+const downloadedHandler = (info: Pick<updater.UpdateDownloadedEvent, 'version'>) => {
   const lang = getUpdateLanguage()
   showUpdateInfo({
     type: 'update-downloaded',
     title: lang === II18nLanguage.ZH_CN ? '更新已下载' : 'Update Downloaded',
+    version: info.version,
     message:
       lang === II18nLanguage.ZH_CN
         ? '更新已下载完成，将在下次重启应用时安装。是否立即重启？'
         : 'The update has been downloaded and will be installed on the next app restart. Would you like to restart now?',
+  })
+}
+
+const showUpdateError = (version?: string) => {
+  const lang = getUpdateLanguage()
+  showUpdateInfo({
+    type: 'update-error',
+    title: lang === II18nLanguage.ZH_CN ? '更新失败' : 'Update Failed',
+    version,
+    message:
+      lang === II18nLanguage.ZH_CN
+        ? '无法准备更新。当前安装未被修改，请重试或前往下载页面。'
+        : 'The update could not be prepared. Your current installation is unchanged. Retry or visit the download page.',
   })
 }
 
@@ -188,6 +204,20 @@ export async function showUpdateDetails(): Promise<void> {
   }
 }
 
+/** Downloads the offered update; a failure reopens the update window on its error state. */
+export async function downloadUpdate(): Promise<void> {
+  if (isPortable()) {
+    await downloadAndInstallUpdate()
+    return
+  }
+  try {
+    await updater.autoUpdater.downloadUpdate()
+  } catch {
+    // The updater's 'error' listener has already logged the failure.
+    showUpdateError(availableVersion)
+  }
+}
+
 export async function downloadAndInstallUpdate(): Promise<void> {
   if (checkingPortableUpdate || downloadingPortableUpdate) return
   downloadingPortableUpdate = true
@@ -249,16 +279,7 @@ export async function downloadAndInstallUpdate(): Promise<void> {
       }
     }
     logger.error('Portable update failed; the current installation has been preserved')
-    const lang = getUpdateLanguage()
-    showUpdateInfo({
-      type: 'update-error',
-      title: lang === II18nLanguage.ZH_CN ? '更新失败' : 'Update Failed',
-      version: portableUpdate?.version,
-      message:
-        lang === II18nLanguage.ZH_CN
-          ? '无法准备更新。当前安装未被修改，请重试或前往下载页面。'
-          : 'The update could not be prepared. Your current installation is unchanged. Retry or visit the download page.',
-    })
+    showUpdateError(portableUpdate?.version)
   } finally {
     if (!installerStarted) downloadingPortableUpdate = false
   }

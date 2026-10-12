@@ -1,11 +1,10 @@
-import { isPortable } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import { BrowserWindow, shell } from 'electron'
 import updater from 'electron-updater'
 
 import { IRPCActionType, IRPCType } from '~/constants'
 import { defineRpcHandler, RPCRouter } from '~/ipc/router'
-import { checkForUpdates, downloadAndInstallUpdate, showUpdateDetails } from '~/lifecycle/autoUpdater'
+import { checkForUpdates, downloadUpdate, showUpdateDetails } from '~/lifecycle/autoUpdater'
 import { commitConfig } from '~/utils/commitConfig'
 import { configPaths } from '~/utils/configPaths'
 
@@ -26,11 +25,7 @@ const updaterRoutes = [
   {
     action: IRPCActionType.DOWNLOAD_UPDATE,
     handler: async () => {
-      if (!isPortable()) {
-        updater.autoUpdater.downloadUpdate()
-      } else {
-        await downloadAndInstallUpdate()
-      }
+      await downloadUpdate()
     },
   },
   {

@@ -1856,12 +1856,17 @@
     },
     "update": {
       "download": "下載",
-      "downloading": "下載中",
+      "downloading": "正在下載更新",
       "goToDownloadPage": "前往下載頁面",
-      "installNow": "立即安裝",
       "later": "稍後",
       "noMoreNotice": "不再提示",
-      "releaseNotes": "更新內容"
+      "notesUnavailable": "無法載入更新內容，可前往下載頁面查看。",
+      "preparing": "正在準備更新…",
+      "releaseNotes": "更新內容",
+      "restartToInstall": "重新啟動並安裝",
+      "retry": "重試",
+      "runInBackground": "背景下載",
+      "versionChange": "從 {current} 更新到 {latest}"
     },
     "upload": {
       "addToFavorites": "添加當前圖床到快速切換",

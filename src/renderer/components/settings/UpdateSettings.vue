@@ -1,112 +1,98 @@
 <template>
-  <div v-show="active" class="no-scrollbar flex h-full w-full flex-1 flex-col gap-6 overflow-auto p-4">
-    <SettingSection :icon="RefreshCw" :title="t('pages.settings.update.applicationUpdates')">
-      <CustomNavCard
-        class="col-span-full"
-        :clickable="false"
-        :icon="Package"
-        :title="t('pages.settings.update.currentVersion')"
-      >
-        <template #description>
-          <div class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-            <span class="rounded-md bg-accent/15 px-2 py-0.5 text-sm font-semibold text-main tabular-nums"
-              >v{{ version }}</span
-            >
-            <span role="status" aria-live="polite" class="inline-flex items-center gap-1.5 text-xs font-medium">
-              <template v-if="checkStatus">
-                <component
-                  :is="checkStatus.icon"
-                  :size="14"
-                  class="shrink-0"
-                  :class="[
-                    checkStatus.iconClass,
-                    { 'animate-spin motion-reduce:animate-none': checkState === 'checking' },
-                  ]"
-                  aria-hidden="true"
-                />
-                <span :class="checkStatus.textClass">{{ checkStatus.text }}</span>
-              </template>
-            </span>
-          </div>
-        </template>
-        <template #extra>
-          <CustomButton
-            v-if="checkState === 'available'"
-            :icon="updateHelperOn ? RotateCw : Download"
-            :text="
-              updateHelperOn ? t('pages.settings.update.restartToUpdate') : t('pages.settings.update.downloadUpdate')
-            "
-            @click="installUpdate"
-          />
-          <CustomButton
-            v-else
-            :icon="RefreshCw"
-            :text="t('pages.settings.update.checkUpdate')"
-            type="secondary"
-            :loading="checkState === 'checking'"
-            @click="checkUpdate"
-          />
-        </template>
-      </CustomNavCard>
+  <div v-show="active" class="no-scrollbar flex h-full w-full flex-1 flex-col overflow-auto p-4">
+    <!-- Only the release notes scroll; the page itself scrolls once the window is too short for their min height. -->
+    <SettingSection fill-height class="flex-1" :icon="RefreshCw" :title="t('pages.settings.update.applicationUpdates')">
+      <div class="@container">
+        <div class="grid grid-cols-1 gap-4 @4xl:grid-cols-2">
+          <CustomNavCard :clickable="false" :icon="Package" :title="t('pages.settings.update.currentVersion')">
+            <template #description>
+              <div class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                <span class="rounded-md bg-accent/15 px-2 py-0.5 text-sm font-semibold text-main tabular-nums"
+                  >v{{ version }}</span
+                >
+                <span role="status" aria-live="polite" class="inline-flex items-center gap-1.5 text-xs font-medium">
+                  <template v-if="checkStatus">
+                    <component
+                      :is="checkStatus.icon"
+                      :size="14"
+                      class="shrink-0"
+                      :class="[
+                        checkStatus.iconClass,
+                        { 'animate-spin motion-reduce:animate-none': checkState === 'checking' },
+                      ]"
+                      aria-hidden="true"
+                    />
+                    <span :class="checkStatus.textClass">{{ checkStatus.text }}</span>
+                  </template>
+                </span>
+              </div>
+            </template>
+            <template #extra>
+              <CustomButton
+                v-if="checkState === 'available'"
+                :icon="updateHelperOn ? RotateCw : Download"
+                :text="
+                  updateHelperOn
+                    ? t('pages.settings.update.restartToUpdate')
+                    : t('pages.settings.update.downloadUpdate')
+                "
+                @click="installUpdate"
+              />
+              <CustomButton
+                v-else
+                :icon="RefreshCw"
+                :text="t('pages.settings.update.checkUpdate')"
+                type="secondary"
+                :loading="checkState === 'checking'"
+                @click="checkUpdate"
+              />
+            </template>
+          </CustomNavCard>
 
-      <SettingCard p1 class="col-span-full">
-        <CustomSwitch
-          v-model="settings.showUpdateTip"
-          small
-          no-border
-          :title="t('pages.settings.update.openUpdateHelper')"
-          :description="t('pages.settings.update.openUpdateHelperDesc')"
-        />
-      </SettingCard>
-    </SettingSection>
-
-    <SettingSection only-one-row :icon="BookOpen" :title="t('pages.settings.update.latestReleaseNotes')">
-      <div class="overflow-hidden rounded-lg border border-border">
-        <div class="max-h-[420px] overflow-y-auto bg-bg-tertiary" :aria-busy="fetchingReleaseNotes || undefined">
-          <MarkdownContent v-if="releaseNotes.trim()" :html="renderedReleaseNotes" />
-          <div
-            v-else-if="releaseNotesError && !fetchingReleaseNotes"
-            class="flex flex-col items-center justify-center gap-3 px-5 py-10 text-center"
-          >
-            <div class="flex h-11 w-11 items-center justify-center rounded-full bg-danger/10 text-danger">
-              <CircleAlert :size="22" aria-hidden="true" />
-            </div>
-            <p class="max-w-sm text-sm text-secondary">{{ releaseNotesError }}</p>
-            <CustomButton
-              :icon="RefreshCw"
-              :text="t('pages.settings.update.retry')"
-              type="secondary"
-              @click="fetchReleaseNotesManually"
+          <SettingCard p1 class="flex items-center">
+            <CustomSwitch
+              v-model="settings.showUpdateTip"
+              class="flex-1"
+              small
+              no-border
+              :title="t('pages.settings.update.openUpdateHelper')"
+              :description="t('pages.settings.update.openUpdateHelperDesc')"
             />
-          </div>
-          <div
-            v-else-if="releaseNotesLastFetch && !fetchingReleaseNotes"
-            class="px-5 py-10 text-center text-sm text-secondary"
-          >
-            {{ t('pages.settings.update.noReleaseNotes') }}
-          </div>
-          <div v-else class="flex flex-col gap-3 p-5 motion-safe:animate-pulse" aria-hidden="true">
-            <div class="h-5 w-2/5 rounded-sm bg-border" />
-            <div class="h-3.5 w-11/12 rounded-sm bg-border-secondary" />
-            <div class="h-3.5 w-4/5 rounded-sm bg-border-secondary" />
-            <div class="h-3.5 w-3/5 rounded-sm bg-border-secondary" />
-            <div class="mt-2 h-5 w-1/3 rounded-sm bg-border" />
-            <div class="h-3.5 w-10/12 rounded-sm bg-border-secondary" />
-            <div class="h-3.5 w-2/3 rounded-sm bg-border-secondary" />
-          </div>
+          </SettingCard>
         </div>
+      </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-border bg-bg-secondary px-3 py-2">
-          <p role="status" aria-live="polite" class="flex min-w-0 items-center gap-1.5 text-xs text-secondary">
-            <template v-if="fetchingReleaseNotes">{{ t('pages.settings.update.loadingReleaseNotes') }}</template>
-            <template v-else-if="releaseNotesError && releaseNotes.trim()">
-              <CircleAlert :size="12" class="shrink-0 text-danger" aria-hidden="true" />
-              <span class="text-danger">{{ releaseNotesError }}</span>
-            </template>
-            <template v-else-if="releaseNotesLastFetch">
-              {{ t('pages.settings.update.lastUpdated') }}: {{ formatLastFetchTime(releaseNotesLastFetch) }}
-            </template>
-          </p>
+      <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border">
+        <div
+          class="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-border bg-bg-secondary px-4 py-2.5"
+        >
+          <div class="flex min-w-0 items-center gap-3">
+            <span
+              class="flex h-[25px] w-[25px] shrink-0 items-center justify-center rounded-lg bg-accent text-white"
+              aria-hidden="true"
+            >
+              <BookOpen :size="15" />
+            </span>
+            <div class="min-w-0">
+              <h3 class="text-[0.925rem] leading-[1.4] font-semibold text-secondary">
+                {{ t('pages.settings.update.latestReleaseNotes') }}
+              </h3>
+              <p
+                role="status"
+                aria-live="polite"
+                class="flex min-h-4 min-w-0 items-center gap-1.5 text-xs text-secondary"
+              >
+                <template v-if="fetchingReleaseNotes">{{ t('pages.settings.update.loadingReleaseNotes') }}</template>
+                <template v-else-if="releaseNotesError && releaseNotes.trim()">
+                  <CircleAlert :size="12" class="shrink-0 text-danger" aria-hidden="true" />
+                  <span class="text-danger">{{ releaseNotesError }}</span>
+                </template>
+                <template v-else-if="releaseNotesLastFetch">
+                  {{ t('pages.settings.update.lastUpdated') }}: {{ formatLastFetchTime(releaseNotesLastFetch) }}
+                </template>
+              </p>
+            </div>
+          </div>
           <div class="flex shrink-0 items-center gap-2">
             <CustomButton
               :icon="RefreshCw"
@@ -123,6 +109,43 @@
               type="secondary"
               @click="openReleasesPage"
             />
+          </div>
+        </div>
+
+        <div
+          class="min-h-56 grow basis-0 overflow-y-auto overscroll-contain bg-bg-tertiary"
+          :aria-busy="fetchingReleaseNotes || undefined"
+        >
+          <MarkdownContent v-if="releaseNotes.trim()" :html="renderedReleaseNotes" />
+          <div
+            v-else-if="releaseNotesError && !fetchingReleaseNotes"
+            class="flex min-h-full flex-col items-center justify-center gap-3 px-5 py-10 text-center"
+          >
+            <div class="flex h-11 w-11 items-center justify-center rounded-full bg-danger/10 text-danger">
+              <CircleAlert :size="22" aria-hidden="true" />
+            </div>
+            <p class="max-w-sm text-sm text-secondary">{{ releaseNotesError }}</p>
+            <CustomButton
+              :icon="RefreshCw"
+              :text="t('pages.settings.update.retry')"
+              type="secondary"
+              @click="fetchReleaseNotesManually"
+            />
+          </div>
+          <div
+            v-else-if="releaseNotesLastFetch && !fetchingReleaseNotes"
+            class="flex min-h-full items-center justify-center px-5 py-10 text-center text-sm text-secondary"
+          >
+            {{ t('pages.settings.update.noReleaseNotes') }}
+          </div>
+          <div v-else class="flex flex-col gap-3 p-5 motion-safe:animate-pulse" aria-hidden="true">
+            <div class="h-5 w-2/5 rounded-sm bg-border" />
+            <div class="h-3.5 w-11/12 rounded-sm bg-border-secondary" />
+            <div class="h-3.5 w-4/5 rounded-sm bg-border-secondary" />
+            <div class="h-3.5 w-3/5 rounded-sm bg-border-secondary" />
+            <div class="mt-2 h-5 w-1/3 rounded-sm bg-border" />
+            <div class="h-3.5 w-10/12 rounded-sm bg-border-secondary" />
+            <div class="h-3.5 w-2/3 rounded-sm bg-border-secondary" />
           </div>
         </div>
       </div>

@@ -1856,12 +1856,17 @@
     },
     "update": {
       "download": "Download",
-      "downloading": "Downloading",
+      "downloading": "Downloading update",
       "goToDownloadPage": "Go to Download Page",
-      "installNow": "Install Now",
       "later": "Later",
       "noMoreNotice": "Do not show this again",
-      "releaseNotes": "What's New"
+      "notesUnavailable": "Release notes could not be loaded. You can read them on the download page.",
+      "preparing": "Preparing update…",
+      "releaseNotes": "What's New",
+      "restartToInstall": "Restart and Install",
+      "retry": "Retry",
+      "runInBackground": "Run in Background",
+      "versionChange": "Update from {current} to {latest}"
     },
     "upload": {
       "addToFavorites": "Add current picbed to quick switch",
