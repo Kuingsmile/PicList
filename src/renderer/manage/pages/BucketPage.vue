@@ -1068,7 +1068,10 @@ async function handleClickFile(item: any) {
     url: item.url,
     mimeType: window.node.mime.lookup(fileName) || undefined,
   }
-  if (provider === 'webdavplist') {
+  if (provider === 'local' && !/^https?:\/\//i.test(item.url)) {
+    // Without a custom URL the item URL is a raw path; '#', '?' and '%' in it would be parsed as URL syntax.
+    source.url = window.node.pathToFileURL(item.url)
+  } else if (provider === 'webdavplist') {
     const { authType, username, password } = handleGetWebdavConfig()
     source.webdav = { authType, username, password }
   } else if (provider === 'sftp' && !/^https?:\/\//i.test(item.url)) {
