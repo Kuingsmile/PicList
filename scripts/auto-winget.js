@@ -342,7 +342,7 @@ export async function main(
       )
       return 0
     }
-    if (!(await run('wingetcreate.exe', ['submit', '--prtitle', `PicList v${version}`, '--no-open', target], true))) {
+    if (!(await run('wingetcreate.exe', ['submit', '--prtitle', `PicList v${version}`, target], true))) {
       fail('Winget submission failed. Validated local manifests were retained for retry.')
     }
     log.log('Winget submission succeeded.')
