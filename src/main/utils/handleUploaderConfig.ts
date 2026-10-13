@@ -90,6 +90,11 @@ export const deleteUploaderConfig = (type: string, id: string): IUploaderConfigI
     patch[`uploader.${type}.defaultId`] = newDefaultId
     patch[`picBed.${type}`] = newDefaultConfig
   }
+  // Drop the per-config image processing overrides so they don't linger in buildIn.list.
+  const processingList = picgo.getConfig<IBuildInListItem[]>(configPaths.buildIn.list._name)
+  if (processingList?.some(item => item.id === id)) {
+    patch[configPaths.buildIn.list._name] = processingList.filter(item => item.id !== id)
+  }
   commitConfig(picgo, {
     ...patch,
     ...(isSecondUploaderConfig(type, id)
@@ -107,6 +112,30 @@ export const deleteUploaderConfig = (type: string, id: string): IUploaderConfigI
     configList: updatedConfigList,
     defaultId: newDefaultId,
   }
+}
+
+/**
+ * Remove image processing overrides whose uploader config no longer exists.
+ * Run before any window or RPC client starts: the processing editor may create
+ * an entry for a config that has not been saved yet.
+ */
+export const pruneImageProcessingProfiles = (): number => {
+  const config = picgo.getConfig<IStringKeyMap>()
+  const list = config?.buildIn?.list
+  if (!Array.isArray(list) || !list.length) return 0
+  const knownIds = new Set<string>()
+  for (const uploader of Object.values<IStringKeyMap>(config.uploader || {})) {
+    if (!Array.isArray(uploader?.configList)) continue
+    for (const item of uploader.configList) if (item?._id) knownIds.add(item._id)
+  }
+  // Active and second-uploader configs, including legacy ones not yet moved into a configList.
+  for (const item of Object.values<IStringKeyMap>(config.picBed || {})) {
+    if (item?._id) knownIds.add(item._id)
+  }
+  const kept = list.filter((item: IBuildInListItem) => item?.id && knownIds.has(item.id))
+  if (kept.length === list.length) return 0
+  commitConfig(picgo, { [configPaths.buildIn.list._name]: kept })
+  return list.length - kept.length
 }
 
 export const duplicateUploaderConfig = (type: string, id: string, newName: string): IUploaderConfigItem => {

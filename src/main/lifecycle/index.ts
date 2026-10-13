@@ -28,6 +28,7 @@ import beforeOpen from '~/utils/beforeOpen'
 import clipboardPoll from '~/utils/clipboardPoll'
 import { configPaths } from '~/utils/configPaths'
 import { initI18n } from '~/utils/handleI18n'
+import { pruneImageProcessingProfiles } from '~/utils/handleUploaderConfig'
 import { runScriptInStage } from '~/utils/runScript'
 import { CLIPBOARD_IMAGE_FOLDER } from '~/utils/static'
 import { pruneGallerySyncSnapshots } from '~/utils/syncSettings'
@@ -124,6 +125,12 @@ class LifeCycle {
     // Register journal references before any uploader can prune finalization history.
     UploadTaskQueueManager.getInstance()
     await pruneGallerySyncSnapshots().catch(() => logger.error('Gallery snapshot cleanup failed'))
+    try {
+      const removed = pruneImageProcessingProfiles()
+      if (removed) logger.info(`Removed ${removed} orphaned image processing profiles`)
+    } catch {
+      logger.error('Image processing profile cleanup failed')
+    }
     this.#queuesReady = true
     initI18n()
     rpcServer.start()
