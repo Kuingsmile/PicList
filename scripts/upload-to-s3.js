@@ -5,7 +5,14 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
 
-import { CopyObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import {
+  CopyObjectCommand,
+  DeleteObjectsCommand,
+  GetObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
 import { NodeHttpHandler } from '@smithy/node-http-handler'
 import dotenv from 'dotenv'
@@ -16,11 +23,13 @@ import { selectManifest, version } from './config.js'
 
 const BUCKET = 'piclist-dl'
 const CONCURRENCY = 3
+const MAX_DELETE_OBJECTS = 1000
 const MAX_METADATA_SIZE = 1024 * 1024
 // CopyObject supports objects up to 5 GiB; larger installers need multipart copy.
 const MAX_ARTIFACT_SIZE = 5 * 1024 ** 3
 const IMMUTABLE_CACHE = 'public, max-age=31536000, immutable'
 const METADATA_CACHE = 'no-cache, no-store, must-revalidate'
+const RELEASES_PREFIX = 'releases/'
 
 class PublicationError extends Error {}
 
@@ -175,7 +184,45 @@ export function createStorage(
     responseChecksumValidation: 'WHEN_REQUIRED',
     requestHandler,
   })
+  const remove = async keys => {
+    for (let start = 0; start < keys.length; start += MAX_DELETE_OBJECTS) {
+      const result = await client.send(
+        new DeleteObjectsCommand({
+          Bucket: BUCKET,
+          Delete: { Objects: keys.slice(start, start + MAX_DELETE_OBJECTS).map(Key => ({ Key })), Quiet: true },
+        }),
+      )
+      // DeleteObjects can return HTTP 200 while individual keys failed to delete.
+      if (result.Errors?.length) fail('Storage deletion failed; some objects could not be removed')
+    }
+  }
   return {
+    remove,
+    async clearReleases() {
+      const keys = []
+      let continuationToken
+      do {
+        const result = await client.send(
+          new ListObjectsV2Command({
+            Bucket: BUCKET,
+            Prefix: RELEASES_PREFIX,
+            MaxKeys: MAX_DELETE_OBJECTS,
+            ContinuationToken: continuationToken,
+          }),
+        )
+        for (const object of result.Contents ?? []) {
+          if (!object.Key?.startsWith(RELEASES_PREFIX)) fail('Invalid release staging object key')
+          keys.push(object.Key)
+        }
+        const nextToken = result.IsTruncated ? result.NextContinuationToken : undefined
+        if (result.IsTruncated && (!nextToken || nextToken === continuationToken)) {
+          fail('Invalid release staging continuation token')
+        }
+        continuationToken = nextToken
+      } while (continuationToken)
+      // Finish listing before deleting, so cleanup cannot invalidate a listing cursor.
+      await remove(keys)
+    },
     async upload(file, key) {
       const body = createReadStream(file.filePath)
       try {
@@ -250,8 +297,9 @@ async function verify(storage, file, key, optional = false) {
 }
 
 async function assertNotOlder(storage, manifest) {
-  for (const file of manifest.metadata) {
-    const result = await storage.get(`latest/${file.name}`)
+  const keys = manifest.metadata.flatMap(file => [`latest/${file.name}`, file.name])
+  for (const key of keys) {
+    const result = await storage.get(key)
     if (!result) continue
     try {
       if (result.ContentLength > MAX_METADATA_SIZE) fail('Existing updater metadata exceeds 1 MiB')
@@ -280,7 +328,7 @@ export async function publishRelease(options, storageFactory = createStorage) {
   const manifest = await validateManifest(options)
   if (mode === 'promote' || promoteLatest) assertPromotion(manifest, releaseTag)
   if (mode === 'validate') return manifest
-  const prefix = `releases/${manifest.version}/${publicationId}`
+  const prefix = `${RELEASES_PREFIX}${manifest.version}/${publicationId}`
   const artifacts = [...manifest.binaries, ...manifest.blockmaps]
   const storage = storageFactory()
   try {
@@ -315,10 +363,21 @@ export async function publishRelease(options, storageFactory = createStorage) {
         await verify(storage, file, `latest/${file.name}`)
       })
       // All referenced binaries (and portable archives) are now available and verified.
+      // Remove all four old channels in both locations before uploading the validated YAML bytes.
+      await storage.remove(manifest.metadata.flatMap(file => [`latest/${file.name}`, file.name]))
       // Each PUT is atomic; S3 has no transaction spanning multiple channel objects.
       for (const file of manifest.metadata) {
-        await storage.putMetadata(file, `latest/${file.name}`)
-        await verify(storage, file, `latest/${file.name}`)
+        for (const key of [`latest/${file.name}`, file.name]) {
+          await storage.putMetadata(file, key)
+          await verify(storage, file, key)
+        }
+      }
+      // Only discard staging (including leftovers from older runs) after both copies
+      // of every updater channel have been published and verified.
+      try {
+        await storage.clearReleases()
+      } catch {
+        fail('Latest metadata was published, but release staging cleanup failed')
       }
     }
     return manifest

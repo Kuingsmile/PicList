@@ -181,7 +181,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     # All branches/tags write the same bucket and latest/ keys. Hold the lock through
-    # GitHub publication, versioned staging, compatibility copies and final metadata.
+    # GitHub publication, versioned staging, compatibility copies, final metadata and staging cleanup.
     concurrency:
       group: piclist-release-publication
       cancel-in-progress: false
@@ -298,7 +298,7 @@ jobs:
           R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
 
-      - name: Promote verified S3 release to latest
+      - name: Promote verified S3 release and clean staging
         if: env.PROMOTE_LATEST == 'true'
         run: |
           node scripts/upload-to-s3.js promote ./artifacts ./dist_electron/combined \
