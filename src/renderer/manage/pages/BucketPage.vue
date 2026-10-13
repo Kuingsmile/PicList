@@ -64,8 +64,12 @@
           v-model="searchText"
           type="search"
           class="h-[32px] w-full rounded-lg border border-border bg-bg-secondary pr-8 pl-9 text-sm text-main transition-all duration-fast ease-apple placeholder:text-secondary focus:border-accent focus:outline-none focus-visible:focus-ring [&::-webkit-search-cancel-button]:hidden"
-          :placeholder="t('pages.manage.bucket.searchPlaceholder')"
-          :aria-label="t('pages.manage.bucket.searchPlaceholder')"
+          :placeholder="
+            t(paging ? 'pages.manage.bucket.searchPagePlaceholder' : 'pages.manage.bucket.searchPlaceholder')
+          "
+          :aria-label="
+            t(paging ? 'pages.manage.bucket.searchPagePlaceholder' : 'pages.manage.bucket.searchPlaceholder')
+          "
         />
         <button
           v-if="searchText"
@@ -402,9 +406,17 @@
       :current-page-number="currentPageNumber"
       :available-page-count="availablePageCount"
       :last-page-number="lastPageNumber"
+      :all-pages-loaded="allPagesLoaded"
+      :total-item-count="totalItemCount"
+      :loading-page="loadingPage"
+      :finding-newest="isFindingNewest"
+      :scanned-item-count="scannedItemCount"
       :loading="isLoadingData || isShowLoadingPage"
       :disabled="isDeleting"
       @change="changePage"
+      @last="goToLastPage"
+      @newest="showNewestFiles"
+      @cancel="cancelLoading"
     />
 
     <!-- URL Upload Dialog -->
@@ -689,6 +701,11 @@ const {
   currentPageNumber,
   availablePageCount,
   lastPageNumber,
+  allPagesLoaded,
+  totalItemCount,
+  loadingPage,
+  isFindingNewest,
+  scannedItemCount,
   currentPageFilesInfo,
   searchText,
   sortAscending,
@@ -697,6 +714,9 @@ const {
   resetParam,
   forceRefreshFileList,
   changePage,
+  goToLastPage,
+  showNewestFiles,
+  removeListedEntries,
   sortFile,
   cancelLoading,
   listingParams,
@@ -944,6 +964,7 @@ const {
   selectedItems,
   isLoadingData,
   getTableKeyOfDb,
+  onDeleted: removeListedEntries,
 })
 
 const renameDialog = useTemplateRef('renameDialog')

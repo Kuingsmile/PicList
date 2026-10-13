@@ -126,8 +126,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       piclist:
-        specifier: ^3.0.1
-        version: 3.0.1(@types/node@26.6.2)
+        specifier: ^3.0.2
+        version: 3.0.2(@types/node@26.6.2)
       qiniu:
         specifier: 7.15.2
         version: 7.15.2
@@ -4885,8 +4885,8 @@ packages:
   performance-now@2.1.0:
     resolution: {integrity: sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==}
 
-  piclist@3.0.1:
-    resolution: {integrity: sha512-809pFFwuY1+usyohyFy9cXXGUVqfAGwqy6v30VfvJUf+kFmWKu68qsrQiZk4PQuwySA962yeimxC2EkbygSuMA==}
+  piclist@3.0.2:
+    resolution: {integrity: sha512-kK13WSmPWYj3oC8lW2lVFleYFovt7WmJBt6TbdZgnLX2lnvOHZmxC8aPz2DB4cVCccHIdIbB2uQtE5pMVhH0PQ==}
     engines: {node: ^22.13.0}
     hasBin: true
 
@@ -10780,7 +10780,7 @@ snapshots:
 
   performance-now@2.1.0: {}
 
-  piclist@3.0.1(@types/node@26.6.2):
+  piclist@3.0.2(@types/node@26.6.2):
     dependencies:
       '@aws-sdk/client-s3': 3.1142.0
       '@aws-sdk/lib-storage': 3.1142.0(@aws-sdk/client-s3@3.1142.0)

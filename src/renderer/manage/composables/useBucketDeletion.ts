@@ -14,6 +14,7 @@ interface BucketDeletionOptions extends BucketLocation, BucketViewLifecycle {
   selectedItems: Ref<BucketFile[]>
   isLoadingData: Ref<boolean>
   getTableKeyOfDb: () => string
+  onDeleted?: (result: DeleteResult) => void
 }
 export function useBucketDeletion({
   configMap,
@@ -26,6 +27,7 @@ export function useBucketDeletion({
   selectedItems,
   isLoadingData,
   getTableKeyOfDb,
+  onDeleted,
 }: BucketDeletionOptions) {
   const { t } = useI18n()
   const message = useMessage()
@@ -124,6 +126,7 @@ export function useBucketDeletion({
         for (let index = currentPageFilesInfo.length - 1; index >= 0; index--) {
           if (!retainedEntries.has(currentPageFilesInfo[index])) currentPageFilesInfo.splice(index, 1)
         }
+        onDeleted?.(confirmed)
       }
       try {
         // Update cached parent and child listings in the captured bucket, even after navigation.
