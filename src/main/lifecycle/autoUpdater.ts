@@ -150,6 +150,8 @@ export function setupAutoUpdater(): void {
   autoUpdater.setFeedURL({ provider: 'generic', url: UPDATE_URL, channel: 'latest' })
   autoUpdater.forceDevUpdateConfig = true
   autoUpdater.autoDownload = false
+  // Failed differential verification restarts the download with the full installer.
+  autoUpdater.disableDifferentialDownload = process.platform === 'win32'
   autoUpdater.on('update-available', updateAvailableHandler)
   autoUpdater.on('download-progress', progressHandler)
   autoUpdater.on('update-downloaded', downloadedHandler)
