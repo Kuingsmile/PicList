@@ -814,7 +814,10 @@ const sortMenuOptions = computed<ToolbarMenuOption[]>(() =>
 )
 
 const loadingToasts = computed(() => [
-  ...(isLoadingData.value ? [{ key: 'list', text: t('pages.manage.bucket.loading'), cancel: cancelLoading }] : []),
+  // Paged listings show their progress and cancel action in the pagination footer.
+  ...(isLoadingData.value && !paging.value
+    ? [{ key: 'list', text: t('pages.manage.bucket.loading'), cancel: cancelLoading }]
+    : []),
   ...(isLoadingDownloadData.value
     ? [{ key: 'download', text: t('pages.manage.bucket.prepareDownload'), cancel: cancelDownloadLoading }]
     : []),
