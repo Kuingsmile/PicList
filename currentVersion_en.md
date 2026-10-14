@@ -1,6 +1,11 @@
-## 🎉 [v3.6.0] Release Notes
+## 🎉 [v3.6.1] Release Notes
 
 This update brings redesigned pages, improved gallery synchronization and batch operations, improving the reliability of concurrent uploads, image processing, and multiple image hosting configurations.
+
+### 3.6.1
+
+- Fixed an issue where setting the proxy to null caused an exception.
+- Optimized the UI for cloud browsing page pagination and added a quick access entry for the latest files.
 
 ### ⚠️ Important Changes
 
