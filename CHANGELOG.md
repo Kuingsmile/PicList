@@ -1,3 +1,13 @@
+## :tada: 3.6.1 (2026-10-14)
+
+### :sparkles: Features
+
+* add button find newest file in pagination of bucket page kuingsmile/piclist[#597](https://github.com/Kuingsmile/piclist/issues/597) ([349b6cc](https://github.com/Kuingsmile/piclist/commit/349b6cc))
+* polish the pagination ui ([65c0bad](https://github.com/Kuingsmile/piclist/commit/65c0bad))
+
+### :package: Chore
+
+* update winget file ([500b64c](https://github.com/Kuingsmile/piclist/commit/500b64c))
 # :tada: 3.6.0 (2026-10-10)
 
 ### :sparkles: Features
