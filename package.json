@@ -176,6 +176,6 @@
   },
   "packageManager": "pnpm@10.34.6",
   "engines": {
-    "node": "^22.13.0"
+    "node": "^24.0.0"
   }
 }
