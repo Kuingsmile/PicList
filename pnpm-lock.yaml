@@ -121,7 +121,7 @@ importers:
         version: 4.1.0
       multer:
         specifier: ^2.4.0
-        version: 2.4.0
+        version: 2.5.0
       node-ssh-no-cpu-features:
         specifier: ^2.0.0
         version: 2.0.0
@@ -4557,8 +4557,8 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  multer@2.4.0:
-    resolution: {integrity: sha512-7dqa0ZcFfzbefdTuIkzOSMvZWC0J7FLqBOjJUZvDCXShIURWKxAyTT1wHhnE5q19c7jOJf43IYYKjBmZVZmvhg==}
+  multer@2.5.0:
+    resolution: {integrity: sha512-BsqOzYGVq49JcW2IzoSAxeKYRevb+dGGPPWleOR8Lrlk4igwxu1/9pwSXlByhCb7MVZDrNJFC0IBP5/O5nLYRw==}
     engines: {node: '>= 10.16.0'}
 
   mute-stream@0.0.7:
@@ -10531,7 +10531,7 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  multer@2.4.0:
+  multer@2.5.0:
     dependencies:
       append-field: 1.0.0
       busboy: 1.6.0
@@ -10807,7 +10807,7 @@ snapshots:
       lodash-es: 4.18.1
       mime: 4.1.0
       minimist: 1.2.8
-      multer: 2.4.0
+      multer: 2.5.0
       node-ssh-no-cpu-features: 2.0.0
       qiniu: 7.15.2
       react: 19.3.0
