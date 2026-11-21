@@ -56,8 +56,8 @@ jobs:
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version-file: '.nvmrc'
       - name: Plan selected OS and architecture groups
@@ -80,13 +80,13 @@ jobs:
           git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6
 
       - name: Install Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version-file: '.nvmrc'
           cache: pnpm
@@ -160,7 +160,7 @@ jobs:
           USE_HARD_LINKS: false
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ${{ matrix.os }}-${{ matrix.arch }}-artifacts
           path: ./release/artifacts/
@@ -169,7 +169,7 @@ jobs:
 
       - name: Upload yml artifacts
         if: matrix.has_metadata
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ${{ matrix.os }}-${{ matrix.arch }}-yml
           path: ./release/yml/
@@ -193,16 +193,16 @@ jobs:
 
     steps:
       - name: Check out git repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6
 
       - name: Install Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version-file: '.nvmrc'
           cache: pnpm
@@ -217,7 +217,7 @@ jobs:
         run: node scripts/release-manifest.js plan --build "$RELEASE_BUILD" --github-output "$GITHUB_OUTPUT"
 
       - name: Download All Artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: '*-artifacts'
           path: ./artifacts
@@ -226,7 +226,7 @@ jobs:
       - name: Download YML Artifacts
         # Windows ZIP/7z and Snap builds intentionally have no updater YAML.
         if: steps.expected.outputs.has_metadata == 'true'
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: '*-yml'
           path: ./yml-artifacts
@@ -275,7 +275,7 @@ jobs:
       # tag. Isolate every non-promoting run so partial metadata cannot replace
       # assets on a complete public update channel, even if that tag was requested.
       - name: Publish GitHub release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3
         with:
           token: ${{ secrets.GH_TOKEN }}
           tag_name: ${{ steps.release-notes.outputs.tag }}
