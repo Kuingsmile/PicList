@@ -30,7 +30,7 @@
       "bundledNpmUnavailable": "Bundled npm could not start. Turn off the experimental option to use system npm, or reinstall PicList. For development, run pnpm prepare:plugin-runtime.",
       "cloudSyncDeleteFailed": "Cloud Sync Delete Failed",
       "cloudSyncDeleteSucceed": "Cloud Sync Delete Succeed",
-      "configFileBrokenDefaultTips": "Config file is broken, reset to default",
+      "configFileBrokenDefaultTips": "PicList will use default settings. You can recover the damaged configuration from {{- path}}.",
       "customConfigFilePathError": "Custom config file path error",
       "deleteSuccess": "Delete Success",
       "error": "Error",

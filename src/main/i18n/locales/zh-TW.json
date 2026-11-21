@@ -30,7 +30,7 @@
       "bundledNpmUnavailable": "無法啟動內建 npm。請關閉實驗性選項以使用系統 npm，或重新安裝 PicList。開發環境請執行 pnpm prepare:plugin-runtime。",
       "cloudSyncDeleteFailed": "雲端刪除失敗",
       "cloudSyncDeleteSucceed": "雲端刪除成功",
-      "configFileBrokenDefaultTips": "配置文件損壞，已重置為默認配置",
+      "configFileBrokenDefaultTips": "PicList 將使用預設設定。損壞的設定檔已備份至 {{- path}}。",
       "customConfigFilePathError": "自定義配置文件路徑錯誤",
       "deleteSuccess": "刪除成功",
       "error": "錯誤",

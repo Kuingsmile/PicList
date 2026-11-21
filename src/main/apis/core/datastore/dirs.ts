@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import { readConfigFile } from '@core/datastore/configFile'
 import { getLogger } from '@core/utils/localLogger'
 import { app } from 'electron'
 import fs from 'fs-extra'
@@ -11,11 +12,8 @@ let _configFilePath = ''
 let _manageConfigFilePath = ''
 
 function resolveConfigPath(defaultPath: string, getLogPath: () => string, logType: string): string {
-  if (!fs.existsSync(defaultPath)) return defaultPath
-
   try {
-    const config: { configPath?: unknown } | null = JSON.parse(fs.readFileSync(defaultPath, 'utf-8'))
-    const customPath = config?.configPath
+    const customPath = readConfigFile(defaultPath).configPath
     if (typeof customPath === 'string' && customPath.endsWith('.json') && fs.existsSync(customPath)) {
       return customPath
     }
