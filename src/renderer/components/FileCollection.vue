@@ -132,9 +132,11 @@
                 cellText(column, item)
               }}</span>
             </button>
-            <span v-else v-tooltip.overflow="cellText(column, item)" class="block truncate">{{
-              cellText(column, item)
-            }}</span>
+            <slot v-else :name="`cell-${column.key}`" :item :tabindex="keyOf(item) === focusKey ? 0 : -1">
+              <span v-tooltip.overflow="cellText(column, item)" class="block truncate">{{
+                cellText(column, item)
+              }}</span>
+            </slot>
           </td>
           <td
             class="sticky right-0 z-1 h-(--file-row-height) overflow-hidden border-b border-border-secondary px-[10px] py-0 shadow-[-1px_0_var(--color-border-secondary)] [background:linear-gradient(var(--file-row-background),var(--file-row-background)),var(--color-background-tertiary)]"
@@ -163,6 +165,7 @@ import VirtualScroller from '@/components/VirtualScroller.vue'
 import type { FileColumn } from '@/utils/fileCollection'
 
 defineSlots<{
+  [cell: `cell-${string}`]: (props: { item: T; tabindex: number }) => unknown
   actions?: (props: { item: T; index: number; tabindex: number }) => unknown
   icon?: (props: { item: T }) => unknown
   default?: (props: { item: T; index: number }) => unknown

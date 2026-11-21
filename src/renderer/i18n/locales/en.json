@@ -283,11 +283,26 @@
         "ext": "Extension",
         "name": "Name",
         "provider": "Provider",
+        "tags": "Tags",
         "time": "Date"
       },
       "sortDescending": "Descending",
       "syncDelete": "Delete from Cloud",
       "syncDeleteTip": "Deleting an image here also deletes the file from its image host.",
+      "tags": {
+        "all": "All images",
+        "create": "Create “{tag}”",
+        "edit": "Edit tags",
+        "editFor": "Edit tags for {name}",
+        "empty": "Type a name to create your first tag.",
+        "find": "Find or create a tag",
+        "label": "Tags",
+        "missing": "An image in this selection was removed. Close the editor and select the images again.",
+        "saved": "Tags saved",
+        "saveFailed": "Couldn’t save the tags. Try again.",
+        "some": "Some images",
+        "untagged": "Untagged"
+      },
       "title": "Gallery",
       "urlEditor": {
         "emptyHint": "Type what to find to see the new URLs here.",
@@ -1450,6 +1465,7 @@
           "fields": {
             "createdAt": "Created",
             "fileName": "Filename",
+            "galleryTags": "Tags",
             "height": "Height",
             "imgUrl": "Image URL",
             "type": "Storage",

@@ -19,7 +19,7 @@
       class="fixed inset-0 z-1000 flex items-center justify-center overflow-hidden overscroll-none bg-black/30"
       :class="{ 'advanced-animation': enableAdvancedAnimation }"
       :aria-label="$attrs['aria-label'] || ($slots.header ? title || description || undefined : undefined)"
-      :initial-focus="dialogElement"
+      :initial-focus="initialFocus ?? dialogElement"
       @close="handleClose"
     >
       <DialogPanel class="flex h-full w-full items-center justify-center" @click.stop>
@@ -97,6 +97,7 @@ const {
   maxWidth = '90vw',
   scrollable = true,
   closeDisabled = false,
+  initialFocus = null,
 } = defineProps<{
   title?: string
   description?: string
@@ -106,6 +107,7 @@ const {
   maxWidth?: string
   scrollable?: boolean
   closeDisabled?: boolean
+  initialFocus?: HTMLElement | null
 }>()
 
 const { t } = useI18n()

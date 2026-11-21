@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 
+import { normalizeGalleryTags } from '#/galleryTags'
 import type { GallerySyncChange, GallerySyncResolution, GallerySyncSource } from '#/types/gallerySync'
 import { withoutBackupPayload } from '~/services/uploads/backupPayload'
 
@@ -186,6 +187,8 @@ function frontier(candidates: Candidate[]): Candidate[] {
 
 function previewDetails(value: RecordValue | null): Record<string, string> {
   const details: Record<string, string> = {}
+  const tags = normalizeGalleryTags(value?.galleryTags)
+  if (tags.length) details.galleryTags = tags.join(', ')
   for (const field of ['fileName', 'type', 'width', 'height', 'imgUrl', 'createdAt', 'updatedAt']) {
     if (typeof value?.[field] !== 'string' && typeof value?.[field] !== 'number') continue
     if (field === 'imgUrl') {

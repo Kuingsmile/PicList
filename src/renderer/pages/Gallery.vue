@@ -181,10 +181,10 @@
         <div
           v-show="handleBarActive"
           id="gallery-options-panel"
-          class="flex w-full flex-col gap-3 border-t border-border-secondary pt-3"
+          class="@container flex w-full flex-col gap-3 border-t border-border-secondary pt-3"
         >
           <div
-            class="grid grid-cols-2 items-end gap-3 md:grid-cols-4"
+            class="grid grid-cols-5 items-end gap-3 @max-[760px]:grid-cols-3 @max-[440px]:grid-cols-2"
             role="group"
             :aria-label="t('pages.gallery.filterAndSort')"
           >
@@ -197,7 +197,23 @@
                 trigger-class="min-h-[32px]"
               />
             </div>
-            <div class="col-span-2 flex min-w-0 flex-col gap-1 max-md:order-last">
+            <div class="flex min-w-0 flex-col gap-1">
+              <label for="gallery-tag-filter" class="text-[0.925rem] leading-[1.4] font-semibold text-secondary">{{
+                t('pages.gallery.tags.label')
+              }}</label>
+              <select
+                id="gallery-tag-filter"
+                v-model="tagFilter"
+                class="h-[32px] w-full cursor-pointer truncate rounded-md border border-border-secondary bg-bg-secondary px-2 text-xs font-semibold text-main focus-visible:focus-ring"
+              >
+                <option :value="null">{{ t('pages.gallery.tags.all') }}</option>
+                <option value="">{{ t('pages.gallery.tags.untagged') }}</option>
+                <optgroup v-if="filterTags.length" :label="t('pages.gallery.tags.label')">
+                  <option v-for="tag in filterTags" :key="tag" :value="tag">{{ tag }}</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="col-span-2 flex min-w-0 flex-col gap-1 @max-[760px]:order-last @max-[760px]:col-span-full">
               <span class="text-[0.925rem] leading-[1.4] font-semibold text-secondary">{{
                 t('pages.gallery.dateRange')
               }}</span>
@@ -227,7 +243,7 @@
                   :fronticon="false"
                   class="min-h-[32px]"
                   :select-list="
-                    ['name', 'ext', 'time', 'provider', 'check'].map(value => ({
+                    ['name', 'tags', 'ext', 'time', 'provider', 'check'].map(value => ({
                       value,
                       label: t(`pages.gallery.sortBy.${value}`),
                     }))
@@ -311,6 +327,13 @@
             </CustomSwitch>
             <span class="mx-0.5 h-[20px] w-px bg-border-secondary max-sm:hidden" aria-hidden="true" />
             <template v-if="selectedCount">
+              <CustomButton
+                type="secondary"
+                :icon="TagIcon"
+                :text="t('pages.gallery.tags.edit')"
+                class="px-3! py-1.5!"
+                @click="editSelectedTags"
+              />
               <CustomButton
                 type="secondary"
                 :icon="ClipboardIcon"
@@ -442,6 +465,14 @@
                 />
               </span>
             </template>
+            <template #cell-tags="{ item, tabindex }">
+              <GalleryItemTags
+                :tags="item.galleryTags"
+                :name="item.fileName || ''"
+                :tabindex
+                @edit="tagEditor?.open([item])"
+              />
+            </template>
             <template #actions="{ item, index, tabindex }">
               <button
                 v-tooltip="t('common.fileTable.open')"
@@ -572,35 +603,45 @@
                   </button>
                 </div>
 
-                <button
-                  type="button"
-                  class="flex min-w-0 shrink-0 cursor-pointer flex-col gap-0.5 border-t border-border-secondary px-3 py-2 text-left focus-visible:focus-ring"
-                  :aria-label="t('common.fileTable.selectFile', { name: item.fileName || '' })"
-                  :aria-pressed="!!choosedList[item.id || '']"
-                  @click.stop="handleChooseImage(!choosedList[item.id || ''], index)"
+                <div
+                  class="flex shrink-0 flex-wrap items-center gap-x-1 gap-y-0.5 border-t border-border-secondary px-3 py-2"
                 >
-                  <span class="flex min-w-0 items-center gap-2">
-                    <span
-                      v-tooltip.overflow="item.fileName || ''"
-                      class="min-w-0 flex-1 truncate text-sm font-medium text-main"
-                    >
-                      {{ formatFileName(item.fileName || '') }}
+                  <button
+                    type="button"
+                    class="flex min-w-0 flex-1 cursor-pointer flex-col gap-0.5 text-left focus-visible:focus-ring"
+                    :aria-label="t('common.fileTable.selectFile', { name: item.fileName || '' })"
+                    :aria-pressed="!!choosedList[item.id || '']"
+                    @click.stop="handleChooseImage(!choosedList[item.id || ''], index)"
+                  >
+                    <span class="flex min-w-0 items-center gap-2">
+                      <span
+                        v-tooltip.overflow="item.fileName || ''"
+                        class="min-w-0 flex-1 truncate text-sm font-medium text-main"
+                      >
+                        {{ formatFileName(item.fileName || '') }}
+                      </span>
+                      <span
+                        v-if="fileType(item)"
+                        class="shrink-0 rounded bg-accent/10 px-1.5 py-px text-[10px] font-semibold text-accent uppercase"
+                      >
+                        {{ fileType(item) }}
+                      </span>
                     </span>
-                    <span
-                      v-if="fileType(item)"
-                      class="shrink-0 rounded bg-accent/10 px-1.5 py-px text-[10px] font-semibold text-accent uppercase"
-                    >
-                      {{ fileType(item) }}
+                    <span class="flex min-w-0 items-center gap-1 text-xs text-secondary">
+                      <span class="truncate">{{ providerName(item) }}</span>
+                      <template v-if="item.updatedAt">
+                        <span aria-hidden="true">·</span>
+                        <span class="shrink-0 tabular-nums">{{ formatCardDate(item) }}</span>
+                      </template>
                     </span>
-                  </span>
-                  <span class="flex min-w-0 items-center gap-1 text-xs text-secondary">
-                    <span class="truncate">{{ providerName(item) }}</span>
-                    <template v-if="item.updatedAt">
-                      <span aria-hidden="true">·</span>
-                      <span class="shrink-0 tabular-nums">{{ formatCardDate(item) }}</span>
-                    </template>
-                  </span>
-                </button>
+                  </button>
+                  <GalleryItemTags
+                    :tags="item.galleryTags"
+                    :name="item.fileName || ''"
+                    :class="item.galleryTags.length ? 'basis-full' : 'shrink-0'"
+                    @edit="tagEditor?.open([item])"
+                  />
+                </div>
               </div>
             </template>
           </FileCollection>
@@ -630,6 +671,7 @@
       :update-gallery="updateGallery"
       @changed="virtualScrollerRef?.refresh()"
     />
+    <GalleryTagEditor ref="tagEditor" :available-tags="availableTags" @refresh="updateGallery" />
   </div>
 </template>
 
@@ -656,6 +698,7 @@ import {
   SearchIcon,
   SearchXIcon,
   SlidersHorizontalIcon,
+  TagIcon,
   TrashIcon,
   UploadIcon,
   XIcon,
@@ -685,6 +728,8 @@ import MultiSelect from '@/components/common/MultiSelect.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import FileCollection from '@/components/FileCollection.vue'
 import GalleryCopyOptions from '@/components/gallery/GalleryCopyOptions.vue'
+import GalleryItemTags from '@/components/gallery/GalleryItemTags.vue'
+import GalleryTagEditor from '@/components/gallery/GalleryTagEditor.vue'
 import GalleryUrlEditor from '@/components/gallery/GalleryUrlEditor.vue'
 import GalleryHoverPreview from '@/components/GalleryHoverPreview.vue'
 import ImagePreview from '@/components/ImagePreview.vue'
@@ -702,6 +747,7 @@ import { PreviewCache } from '@/utils/previewCache'
 import { IPasteStyle } from '#/constants/app'
 import { UPDATE_GALLERY } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
+import { galleryTagKey, normalizeGalleryTags } from '#/galleryTags'
 import { customStrMatch } from '#/utils/strings'
 import { addCacheBustParam as withCacheBustParam } from '#/utils/url'
 import { enforceBoolean } from '#/utils/values'
@@ -746,6 +792,10 @@ const hoverPreviewItem = shallowRef<IGalleryItem>()
 
 const choosedList: IObjT<boolean> = reactive({})
 const urlEditor = useTemplateRef('urlEditor')
+const tagEditor = useTemplateRef('tagEditor')
+function editSelectedTags() {
+  tagEditor.value?.open(filterList.value.filter(item => item.id && choosedList[item.id]))
+}
 const { copy, remove, multiRemove, multiCopy } = useGalleryActions({
   choosedList,
   updateGallery,
@@ -768,6 +818,19 @@ const deleteCloud = ref<boolean>(false)
 const isAlwaysForceReload = ref<boolean>(false)
 
 const choosedPicBed = ref<string[]>([])
+
+// null includes every image. The empty string matches images without tags.
+const tagFilter = ref<string | null>(null)
+const availableTags = computed(() =>
+  normalizeGalleryTags(images.value.flatMap(item => item.galleryTags)).sort((a, b) => a.localeCompare(b)),
+)
+const filterTags = computed(() => {
+  const active = tagFilter.value
+  // Keep the active filter identifiable if its last image loses the tag.
+  return active && !availableTags.value.includes(active)
+    ? normalizeGalleryTags([active, ...availableTags.value])
+    : availableTags.value
+})
 
 const galleryPicBedFilterSetting = ref<string[]>([])
 
@@ -812,7 +875,7 @@ const tableDensity = useStorage<'compact' | 'comfortable'>('galleryTableDensity'
 
 const componentKey = ref(0)
 
-type GallerySortField = 'name' | 'time' | 'ext' | 'provider' | 'check'
+type GallerySortField = 'name' | 'tags' | 'time' | 'ext' | 'provider' | 'check'
 
 const currentSortField = ref<GallerySortField>('time')
 
@@ -854,13 +917,14 @@ const effectiveGridBreakpoints = computed(() => {
 })
 
 const tableColumns = computed<FileColumn<IGalleryItem>[]>(() => [
-  { key: 'name', label: t('common.fileTable.name'), width: 260, value: item => item.fileName },
-  { key: 'ext', label: t('common.fileTable.type'), width: 90, value: fileType },
-  { key: 'time', label: t('common.fileTable.date'), width: 180, value: fileDate, format: formatCollectionDate },
+  { key: 'name', label: t('common.fileTable.name'), width: 200, value: item => item.fileName },
+  { key: 'tags', label: t('pages.gallery.tags.label'), width: 156, value: item => item.galleryTags.join(', ') },
+  { key: 'ext', label: t('common.fileTable.type'), width: 76, value: fileType },
+  { key: 'time', label: t('common.fileTable.date'), width: 170, value: fileDate, format: formatCollectionDate },
   {
     key: 'provider',
     label: t('common.fileTable.provider'),
-    width: 150,
+    width: 130,
     value: item => picBedG.value.find(provider => provider.type === item.type)?.name || item.type,
   },
 ])
@@ -884,7 +948,10 @@ const cardActions = computed(() => [
 
 /** Filters hidden inside the collapsible panel; search boxes stay visible, so they are not counted. */
 const panelFilterCount = computed(
-  () => Number(choosedPicBed.value.length > 0) + Number(!!(dateRangeStart.value || dateRangeEnd.value)),
+  () =>
+    Number(choosedPicBed.value.length > 0) +
+    Number(tagFilter.value !== null) +
+    Number(!!(dateRangeStart.value || dateRangeEnd.value)),
 )
 
 const hasActiveFilters = computed(
@@ -1235,6 +1302,7 @@ function ensureJxlPreview(item?: IGalleryItem): boolean {
 }
 
 function getGallery(): IGalleryItem[] {
+  const tagKey = tagFilter.value && galleryTagKey(tagFilter.value)
   const hasDateRange = !!(dateRangeStart.value || dateRangeEnd.value)
   const start = dateRangeStart.value ? new Date(`${dateRangeStart.value}T00:00:00`).getTime() : -Infinity
   // The exclusive end follows the local calendar, including daylight-saving transitions.
@@ -1244,11 +1312,14 @@ function getGallery(): IGalleryItem[] {
   if (
     debouncedSearchText.value ||
     choosedPicBed.value.length > 0 ||
+    tagKey !== null ||
     debouncedSearchTextURL.value ||
     hasDateRange ||
     galleryPicBedFilterSetting.value.length > 0
   ) {
     return images.value.filter(item => {
+      if (tagKey === '' && item.galleryTags.length) return false
+      if (tagKey && !item.galleryTags.some(tag => galleryTagKey(tag) === tagKey)) return false
       let isInChoosedPicBed = true
       let isIncludesSearchText = true
       let isIncludesSearchTextURL = true
@@ -1420,6 +1491,7 @@ function clearFilters() {
   debouncedSearchText.value = ''
   debouncedSearchTextURL.value = ''
   choosedPicBed.value = []
+  tagFilter.value = null
   dateRangeStart.value = ''
   dateRangeEnd.value = ''
 }

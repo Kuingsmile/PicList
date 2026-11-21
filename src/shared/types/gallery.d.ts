@@ -9,10 +9,12 @@ interface ImgInfo {
   imgUrl?: string
   id?: string
   type?: string
+  galleryTags?: string[]
   [propName: string]: any
 }
 
 interface IGalleryItem extends ImgInfo {
+  galleryTags: string[]
   src: string
   key: string
   intro: string

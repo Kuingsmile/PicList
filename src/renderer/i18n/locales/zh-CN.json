@@ -283,11 +283,26 @@
         "ext": "后缀",
         "name": "名称",
         "provider": "存储服务",
+        "tags": "标签",
         "time": "日期"
       },
       "sortDescending": "降序",
       "syncDelete": "删除云端",
       "syncDeleteTip": "在此删除图片时，会同时删除图床上的文件。",
+      "tags": {
+        "all": "所有图片",
+        "create": "创建「{tag}」",
+        "edit": "编辑标签",
+        "editFor": "编辑「{name}」的标签",
+        "empty": "输入名称即可创建第一个标签。",
+        "find": "查找或创建标签",
+        "label": "标签",
+        "missing": "所选图片中有图片已被移除。请关闭编辑窗口并重新选择。",
+        "saved": "标签已保存",
+        "saveFailed": "标签保存失败，请重试。",
+        "some": "部分图片",
+        "untagged": "无标签"
+      },
       "title": "相册",
       "urlEditor": {
         "emptyHint": "输入要查找的内容，即可在此预览新的 URL。",
@@ -1450,6 +1465,7 @@
           "fields": {
             "createdAt": "创建时间",
             "fileName": "文件名",
+            "galleryTags": "标签",
             "height": "高度",
             "imgUrl": "图片链接",
             "type": "图床",

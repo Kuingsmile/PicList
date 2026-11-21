@@ -70,6 +70,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null)
 const isString = (value: unknown): value is string => typeof value === 'string'
 const isNonemptyString = (value: unknown): value is string => isString(value) && value.trim().length > 0
+const isStringList = (value: unknown): value is string[] => Array.isArray(value) && value.every(isNonemptyString)
 const isSafeKey = (value: string) =>
   !value.split(/[.[\]'"]/).some(key => ['__proto__', 'prototype', 'constructor'].includes(key))
 const isJson = (value: unknown, seen = new Set<object>()): boolean => {
@@ -139,6 +140,13 @@ const write = <A extends unknown[], R = true>(
 
 /** Persistent routes must be invoked, validated and acknowledged. Notifications remain on SEND. */
 export const rpcContracts = {
+  GALLERY_EDIT_TAGS: write(
+    tuple<[ids: string[], add: string[], remove: string[]]>(
+      v => isStringList(v) && v.length > 0,
+      isStringList,
+      isStringList,
+    ),
+  ),
   SAVE_LOCAL_FILE_SERVER: write(
     tuple<[config: ILocalFileServerConfig]>(
       value =>

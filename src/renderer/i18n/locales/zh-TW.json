@@ -283,11 +283,26 @@
         "ext": "後綴",
         "name": "名稱",
         "provider": "儲存服務",
+        "tags": "標籤",
         "time": "日期"
       },
       "sortDescending": "遞減",
       "syncDelete": "刪除雲端",
       "syncDeleteTip": "在此刪除圖片時，會同時刪除圖床上的檔案。",
+      "tags": {
+        "all": "所有圖片",
+        "create": "建立「{tag}」",
+        "edit": "編輯標籤",
+        "editFor": "編輯「{name}」的標籤",
+        "empty": "輸入名稱即可建立第一個標籤。",
+        "find": "尋找或建立標籤",
+        "label": "標籤",
+        "missing": "所選圖片中有圖片已被移除。請關閉編輯視窗並重新選取。",
+        "saved": "已儲存標籤",
+        "saveFailed": "無法儲存標籤，請再試一次。",
+        "some": "部分圖片",
+        "untagged": "無標籤"
+      },
       "title": "相簿",
       "urlEditor": {
         "emptyHint": "輸入要尋找的內容，即可在此預覽新的 URL。",
@@ -1450,6 +1465,7 @@
           "fields": {
             "createdAt": "建立時間",
             "fileName": "檔案名稱",
+            "galleryTags": "標籤",
             "height": "高度",
             "imgUrl": "圖片連結",
             "type": "圖床",

@@ -5,8 +5,10 @@ import GuiApi from 'apis/gui'
 import { clipboard } from 'electron'
 
 import { IPasteStyle } from '#/constants/app'
+import { galleryTagKey, normalizeGalleryTags } from '#/galleryTags'
+import { RpcError } from '#/rpc'
 import { ICOREBuildInEvent, IRPCActionType, IRPCType } from '~/constants'
-import { RPCRouter } from '~/ipc/router'
+import { defineRpcHandler, RPCRouter } from '~/ipc/router'
 import { convertJxlSourceToPngDataUrl } from '~/utils/jxlPreview'
 import pasteTemplate from '~/utils/pasteTemplate'
 import { runScriptInStage } from '~/utils/runScript'
@@ -77,6 +79,35 @@ const galleryRoutes = [
       const dbStore = GalleryDB.getInstance()
       return await dbStore.updateById(args[0], args[1])
     },
+    type: IRPCType.INVOKE,
+  },
+  {
+    action: IRPCActionType.GALLERY_EDIT_TAGS,
+    handler: defineRpcHandler(IRPCActionType.GALLERY_EDIT_TAGS, async (_, [ids, add, remove]) => {
+      const selected = new Set(ids)
+      const additions = normalizeGalleryTags(add)
+      const removals = new Set(remove.map(galleryTagKey))
+      if (additions.some(tag => removals.has(galleryTagKey(tag)))) throw new RpcError('INVALID_REQUEST')
+
+      const store = GalleryDB.getInstance()
+      await store.withSnapshot(async ({ data }) => {
+        const records = data.filter(record => selected.has(record.id))
+        if (records.length !== selected.size) throw new RpcError('NOT_FOUND')
+
+        // Merge the requested edits into the current records, including tags added since the editor opened.
+        const updates = records.flatMap(record => {
+          const current = normalizeGalleryTags(record.galleryTags)
+          const kept = current.filter(tag => !removals.has(galleryTagKey(tag)))
+          const galleryTags = normalizeGalleryTags([...kept, ...additions])
+          const unchanged = galleryTags.length === current.length && galleryTags.every((tag, i) => tag === current[i])
+          if (unchanged) return []
+          return [{ id: record.id, galleryTags }]
+        })
+        if (updates.length && (await store.updateMany(updates)).success !== updates.length)
+          throw new RpcError('WRITE_FAILED')
+      })
+      return true
+    }),
     type: IRPCType.INVOKE,
   },
   {
