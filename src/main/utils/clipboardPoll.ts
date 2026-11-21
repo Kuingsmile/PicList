@@ -2,38 +2,41 @@ import crypto from 'node:crypto'
 import { EventEmitter } from 'node:events'
 
 import logger from '@core/picgo/logger'
-import { clipboard, type NativeImage } from 'electron'
 
-import { getClipboardFilePath } from '~/utils/clipboard'
+import { readUploadClipboard } from '~/utils/clipboard'
 
 type ClipboardState = { kind: 'empty'; value: null } | { kind: 'image' | 'path'; value: string }
 
 class ClipboardWatcher extends EventEmitter {
-  timer: NodeJS.Timeout | null
-  private lastClipboardState: ClipboardState
-
-  constructor() {
-    super()
-    this.lastClipboardState = { kind: 'empty', value: null }
-    this.timer = null
-  }
+  private timer: NodeJS.Timeout | null = null
 
   startListening(watchDelay = 1000) {
     this.stopListening(false)
-    this.lastClipboardState = this.getClipboardState()
-
-    this.timer = setInterval(() => {
-      const currentState = this.getClipboardState()
-      const previousState = this.lastClipboardState
-      this.lastClipboardState = currentState
-
-      if (
-        currentState.kind !== 'empty' &&
-        (currentState.kind !== previousState.kind || currentState.value !== previousState.value)
-      ) {
-        this.emit('change')
+    let previous: ClipboardState | undefined
+    let reading = false
+    const poll = async () => {
+      if (reading) return
+      reading = true
+      try {
+        const current = await this.getClipboardState()
+        if (this.timer !== timer) return
+        if (
+          previous &&
+          current.kind !== 'empty' &&
+          (current.kind !== previous.kind || current.value !== previous.value)
+        ) {
+          this.emit('change')
+        }
+        previous = current
+      } catch (error) {
+        logger.warn(`Failed to read clipboard: ${error}`)
+      } finally {
+        reading = false
       }
-    }, watchDelay)
+    }
+    const timer = setInterval(poll, watchDelay)
+    this.timer = timer
+    void poll()
     logger.info('Start to watch clipboard')
   }
 
@@ -42,24 +45,14 @@ class ClipboardWatcher extends EventEmitter {
       clearInterval(this.timer)
       this.timer = null
     }
-    this.lastClipboardState = { kind: 'empty', value: null }
     isLog && logger.info('Stop to watch clipboard')
   }
 
-  private getClipboardState(): ClipboardState {
-    // Reuse the snapshot: reading an image decodes the clipboard's PNG on every call.
-    const image = clipboard.readImage()
-    const imgPath = getClipboardFilePath(image)
-    if (imgPath) return { kind: 'path', value: imgPath }
-
+  private async getClipboardState(): Promise<ClipboardState> {
+    const { filePath, image } = await readUploadClipboard()
+    if (filePath) return { kind: 'path', value: filePath }
     if (image.isEmpty()) return { kind: 'empty', value: null }
-
-    return { kind: 'image', value: this.getImageHash(image) }
-  }
-
-  getImageHash(image: NativeImage): string {
-    const buffer = image.toBitmap()
-    return crypto.createHash('sha256').update(buffer).digest('hex')
+    return { kind: 'image', value: crypto.createHash('sha256').update(image.toBitmap()).digest('hex') }
   }
 }
 

@@ -1,0 +1,18 @@
+diff --git a/from.js b/from.js
+--- a/from.js
++++ b/from.js
+@@ -1,6 +1,5 @@
+ import { statSync, createReadStream, promises as fs } from 'node:fs'
+ import { basename } from 'node:path'
+-import DOMException from 'node-domexception'
+ 
+ import File from './file.js'
+ import Blob from './index.js'
+diff --git a/package.json b/package.json
+--- a/package.json
++++ b/package.json
+@@ -52,4 +52,3 @@
+     "dependencies": {
+-        "node-domexception": "^1.0.0",
+         "web-streams-polyfill": "^3.0.3"
+     }

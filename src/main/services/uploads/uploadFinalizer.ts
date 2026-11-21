@@ -496,7 +496,7 @@ async function finishUpload(state: UploadFinalization, options: FinalizationOpti
         sendToWindow(windowManager.get(IWindowList.TRAY_WINDOW)?.webContents, 'clipboardFiles', [])
       }
       if (state.preferences.copy)
-        handleCopyUrl(
+        await handleCopyUrl(
           resultItems(state)
             .map(item => item.pasteText)
             .join('\n'),

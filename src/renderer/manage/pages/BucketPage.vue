@@ -1203,7 +1203,7 @@ async function confirmCreateFolder() {
   }
 }
 
-function handleBatchCopyInfo() {
+async function handleBatchCopyInfo() {
   if (selectedItems.value.length === 0) {
     message.warning(t('pages.manage.bucket.selectFileMsg'))
     return
@@ -1212,7 +1212,7 @@ function handleBatchCopyInfo() {
   selectedItems.value.forEach((item: any) => {
     result[item.fileName] = item
   })
-  window.electron.clipboard.writeText(JSON.stringify(result, null, 2))
+  await window.electron.clipboard.writeText(JSON.stringify(result, null, 2))
   message.success(`${t('pages.manage.bucket.copySuccess')}`)
 }
 
@@ -1247,7 +1247,7 @@ async function handleBatchCopyLink(type: CopyFormat) {
         result.push(await formatLink(item.url, item.fileName, type, customPasteFormat.value, item.key || item.Key))
       }
     }
-    window.electron.clipboard.writeText(result.join('\n'))
+    await window.electron.clipboard.writeText(result.join('\n'))
     message.success(t('pages.manage.bucket.copySuccess'))
   } catch {
     message.error(
@@ -1282,8 +1282,8 @@ async function getPreSignedUrl(item: any) {
   return await window.electron.triggerRPC<any>(IRPCActionType.MANAGE_GET_PRE_SIGNED_URL, configMap.value.alias, param)
 }
 
-function copyToClipboard(text: string) {
-  window.electron.clipboard.writeText(String(text))
+async function copyToClipboard(text: string) {
+  await window.electron.clipboard.writeText(String(text))
   message.success(t('pages.manage.bucket.copySuccess'))
   virtualScrollerRef.value?.onCopied()
 }

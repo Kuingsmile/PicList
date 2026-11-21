@@ -91,7 +91,7 @@
       <CustomButton
         :icon="ListChecksIcon"
         :text="t('common.bulk.preview')"
-        :loading="bulkChanges.building.value"
+        :loading="building"
         :disabled="!renameTargets.length"
         @click="BatchRename"
       />
@@ -145,6 +145,7 @@ const bulkChanges = useBulkChanges(async snapshot => {
     emit('renamed')
   }
 })
+const { building } = bulkChanges
 
 const batchRenameMatch = ref('')
 
@@ -194,7 +195,7 @@ const advancedRenameTitleList = computed(() => ({
 }))
 
 function handleBatchRenameFile() {
-  if (bulkChanges.reopen() || bulkChanges.building.value) return
+  if (bulkChanges.reopen() || building.value) return
   batchRenameMatch.value = ''
   isSingleRename.value = false
   showFormatInfo.value = false
@@ -252,7 +253,7 @@ function renameTo(fileName: string, pattern: string, index: number) {
 }
 
 async function BatchRename() {
-  if (bulkChanges.building.value) return
+  if (building.value) return
   const pattern = batchRenameMatch.value || (isSingleRename.value ? '.+' : '')
   if (!pattern) {
     message.error(t('pages.manage.bucket.inputPatternMsg'))
@@ -288,7 +289,7 @@ async function BatchRename() {
 }
 
 function handleRenameFile(item: any) {
-  if (bulkChanges.reopen() || bulkChanges.building.value) return
+  if (bulkChanges.reopen() || building.value) return
   batchRenameMatch.value = `^${escapeRegExp(splitFileName(item.fileName).baseName)}$`
   isSingleRename.value = true
   isRenameIncludeExt.value = false

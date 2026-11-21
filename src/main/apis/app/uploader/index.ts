@@ -4,7 +4,7 @@ import util from 'node:util'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
 import dayjs from 'dayjs'
-import { clipboard, Notification } from 'electron'
+import { Notification } from 'electron'
 import fs from 'fs-extra'
 import { cloneDeep } from 'lodash-es'
 import type { IPicGo, IUploadOptions } from 'piclist'
@@ -15,7 +15,7 @@ import { t } from '~/i18n'
 import { assertFinalizationStorageAvailable } from '~/services/uploads/uploadFinalizer'
 import { currentUploadJob, UploadJob, UploadJobError, withUploadJob } from '~/services/uploads/uploadJob'
 import { isUploadUrl } from '~/services/uploads/uploadResult'
-import { getClipboardFilePath } from '~/utils/clipboard'
+import { readUploadClipboard } from '~/utils/clipboard'
 import { configPaths } from '~/utils/configPaths'
 import { getUploaderType } from '~/utils/handleUploaderConfig'
 import { showNotification } from '~/utils/notifications'
@@ -83,10 +83,9 @@ class Uploader {
   }
 
   private async getClipboardImagePath(job: UploadJob): Promise<string | false> {
-    const imgPath = getClipboardFilePath()
+    const { filePath: imgPath, image: nativeImage } = await readUploadClipboard()
     if (imgPath) return imgPath
 
-    const nativeImage = clipboard.readImage()
     if (nativeImage.isEmpty()) return false
 
     const buffer = nativeImage.toPNG()

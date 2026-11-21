@@ -112,7 +112,7 @@
       <CustomButton
         :icon="ListChecksIcon"
         :text="t('common.bulk.preview')"
-        :loading="bulkChanges.building.value"
+        :loading="building"
         :disabled="!matchedItems.length"
         @click="handleBatchRename"
       />
@@ -161,6 +161,7 @@ const isShowBatchRenameDialog = ref(false)
 const bulkChanges = useBulkChanges(async () => {
   if (!(await updateGallery())) throw new Error('Gallery refresh failed')
 })
+const { building } = bulkChanges
 
 const batchRenameMatch = ref('')
 
@@ -286,7 +287,7 @@ async function confirmModify() {
 }
 
 function openBatchRename() {
-  if (bulkChanges.reopen() || bulkChanges.building.value) return
+  if (bulkChanges.reopen() || building.value) return
   batchRenameMatch.value = ''
   showFormatInfo.value = false
   isShowBatchRenameDialog.value = true
@@ -297,7 +298,7 @@ function submitOnEnter(event: KeyboardEvent) {
 }
 
 async function handleBatchRename() {
-  if (bulkChanges.building.value) return
+  if (building.value) return
   if (!batchRenameMatch.value) {
     message.warning(t('pages.gallery.urlEditor.findRequired'))
     return

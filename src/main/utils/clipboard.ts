@@ -1,57 +1,45 @@
 import picgo from '@core/picgo'
-import { clipboard, type NativeImage } from 'electron'
-import fs from 'fs-extra'
+import { clipboard, nativeImage } from 'electron'
 
 import { getClipboardTextFilePath } from '~/utils/clipboardFilePath'
 import { configPaths } from '~/utils/configPaths'
 
-export const handleCopyUrl = (str: string): void => {
+export const handleCopyUrl = async (str: string): Promise<void> => {
   if (picgo.getConfig<boolean>(configPaths.settings.autoCopy) !== false) {
-    clipboard.writeText(str)
+    await clipboard.writeText(str)
   }
 }
 
-/**
- * macOS public.file-url will get encoded file path,
- * so we need to decode it
- */
-export const ensureFilePath = (filePath: string, prefix = 'file://'): string => {
-  filePath = filePath.replace(prefix, '')
-  if (fs.existsSync(filePath)) {
-    return `${prefix}${filePath}`
-  }
-  filePath = decodeURIComponent(filePath)
-  if (fs.existsSync(filePath)) {
-    return `${prefix}${filePath}`
-  }
-  return ''
-}
+type UploadFormat =
+  | 'image/png'
+  | 'image/jpeg'
+  | 'text/plain'
+  | 'text/uri-list'
+  | 'electron application/osclipboard;format="public.file-url"'
+  | 'electron application/osclipboard;format="FileNameW"'
 
-/**
- * for builtin clipboard to get image path from clipboard
- * @returns
- */
-export const getClipboardFilePath = (img: NativeImage = clipboard.readImage()): string => {
-  // TODO: linux support
-  const platform = process.platform
+export async function readUploadClipboard() {
+  const items = await clipboard.read()
+  const read = (type: UploadFormat) => items.find(item => item.types.includes(type))?.getType(type)
+  const blob = (await read('image/png')) ?? (await read('image/jpeg'))
+  const image = blob ? nativeImage.createFromBuffer(Buffer.from(await blob.arrayBuffer())) : nativeImage.createEmpty()
 
-  if (!img.isEmpty() && platform === 'darwin') {
-    let imgPath = clipboard.read('public.file-url') // will get file://xxx/xxx
-    imgPath = ensureFilePath(imgPath)
-    return imgPath ? imgPath.replace('file://', '') : ''
+  let filePath = ''
+  if (process.platform === 'darwin') {
+    const url =
+      (await read('electron application/osclipboard;format="public.file-url"')) ?? (await read('text/uri-list'))
+    if (url) filePath = getClipboardTextFilePath(await url.text())
   }
-
-  if (img.isEmpty() && platform === 'win32') {
-    const imgPath = clipboard
-      .readBuffer('FileNameW')
-      ?.toString('ucs2')
-      ?.replace(RegExp(String.fromCharCode(0), 'g'), '')
-    if (imgPath) return imgPath
+  if (image.isEmpty() && process.platform === 'win32') {
+    const name = await read('electron application/osclipboard;format="FileNameW"')
+    if (name)
+      filePath = Buffer.from(await name.arrayBuffer())
+        .toString('utf16le')
+        .split('\0', 1)[0]
   }
-
-  if (img.isEmpty()) {
-    return getClipboardTextFilePath(clipboard.readText())
+  if (!filePath && image.isEmpty()) {
+    const text = await read('text/plain')
+    if (text) filePath = getClipboardTextFilePath(await text.text())
   }
-
-  return ''
+  return { filePath, image }
 }

@@ -38,8 +38,8 @@ export function useTransferTasks(options: TransferTaskOptions) {
     300,
   )
 
-  function handleCopyUploadingTaskInfo() {
-    window.electron.clipboard.writeText(JSON.stringify(uploadTaskList.value, null, 2))
+  async function handleCopyUploadingTaskInfo() {
+    await window.electron.clipboard.writeText(JSON.stringify(uploadTaskList.value, null, 2))
     options.onSuccess('copy')
   }
 
@@ -53,8 +53,8 @@ export function useTransferTasks(options: TransferTaskOptions) {
     options.onSuccess('delete')
   }
 
-  function handleCopyDownloadingTaskInfo() {
-    window.electron.clipboard.writeText(JSON.stringify(downloadTaskList.value, null, 2))
+  async function handleCopyDownloadingTaskInfo() {
+    await window.electron.clipboard.writeText(JSON.stringify(downloadTaskList.value, null, 2))
     options.onSuccess('copy')
   }
 

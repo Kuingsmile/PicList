@@ -10,7 +10,7 @@
 ### ⚠️ 重要变更
 
 - 移除了内置网页上传界面及其 Web 服务器。
-- 独立使用 PicList-Core 命令行或服务端时，现在需要 Node.js `22.13.0` 或更高的 `22.x` 版本。
+- 独立使用 PicList-Core 3.1 命令行或服务端时，需要 Node.js 24.x（至少 24.15.0）或 26 及以上版本。
 - PicList-Core 命令行和服务端的默认配置文件改为 `~/.piclist/data.json`。该文件不存在时，会继续使用已有的 `~/.piclist/config.json`；两者同时存在时优先使用 `data.json`。
 
 ### 🚀 性能优化

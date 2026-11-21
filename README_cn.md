@@ -94,7 +94,7 @@
 | **Windows** |  **Winget**  | `winget install Kuingsmile.PicList`                                                              |
 |             |  **Scoop**   | `scoop bucket add lemon https://github.com/hoilc/scoop-lemon` <br> `scoop install lemon/piclist` |
 |             |  **安装包**  | [下载 .exe](https://github.com/Kuingsmile/PicList/releases/latest)                               |
-|  **macOS**  | **Homebrew** | `brew install piclist --cask`                                                                    |
+| **macOS 13+** | **Homebrew** | `brew install piclist --cask`                                                                    |
 |             |   **DMG**    | [下载 .dmg](https://github.com/Kuingsmile/PicList/releases/latest)                               |
 |  **Linux**  |  **安装包**  | [下载 AppImage/Snap/Deb](https://github.com/Kuingsmile/PicList/releases/latest)                  |
 
@@ -151,8 +151,8 @@ PicList 可以与常用的 Markdown 编辑器无缝集成。
 
 ### 环境要求
 
-- Node.js **22.x，至少 22.13.0**（当前核心依赖的版本要求；发布工作流使用 22.x）。
-- **pnpm 10.34.6** 和 Git。
+- Node.js **24.15.0 及以上的 24.x 版本**，或 **26 及以上版本**。CI 使用 `.nvmrc` 指定的版本。
+- **pnpm 12.21.0** 和 Git。
 - 原生依赖可能需要平台编译工具。Windows 打包和准备实验性插件运行时需要 Visual Studio C++ Build Tools。
 
 ### 从源码运行
@@ -160,7 +160,7 @@ PicList 可以与常用的 Markdown 编辑器无缝集成。
 ```bash
 git clone https://github.com/Kuingsmile/PicList.git
 cd PicList
-corepack enable pnpm
+npm install --global pnpm@12.21.0
 pnpm install --frozen-lockfile
 
 # 启动 Electron 开发模式
@@ -171,7 +171,7 @@ pnpm build:app
 pnpm preview
 ```
 
-安装时会下载主题、安装 Husky 钩子并处理 Electron 原生依赖。开发服务器固定使用 `127.0.0.1:30303`。
+安装时会下载 Electron 和主题、安装 Husky 钩子并处理原生依赖。开发服务器固定使用 `127.0.0.1:30303`。
 
 `pnpm build` 使用 electron-builder 打包，`pnpm build:win`、`pnpm build:mac`、`pnpm build:linux` 选择平台。请先按贡献指南准备对应工具链；Windows 还需运行 `pnpm prepare:7za`。编译产物位于 `out/`，安装包和压缩包位于 `dist_electron/`。
 

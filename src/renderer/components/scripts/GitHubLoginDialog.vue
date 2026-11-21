@@ -73,9 +73,9 @@ const { deviceFlow, loginDialogVisible, cancelGitHubLogin } = useGitHubAuth()
 const copied = ref(false)
 const { start: resetCopiedLater } = useTimeoutFn(() => (copied.value = false), 2000, { immediate: false })
 
-function copyUserCode() {
+async function copyUserCode() {
   if (!deviceFlow.value) return
-  window.electron.clipboard.writeText(deviceFlow.value.userCode)
+  await window.electron.clipboard.writeText(deviceFlow.value.userCode)
   copied.value = true
   resetCopiedLater()
 }

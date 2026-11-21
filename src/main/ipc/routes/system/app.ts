@@ -3,7 +3,7 @@ import path from 'node:path'
 
 import { appConfigPath, appLogPath, dataDir, isPortable, themesDir } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
-import { app, nativeTheme, shell } from 'electron'
+import { app, clipboard, nativeTheme, shell } from 'electron'
 import fs from 'fs-extra'
 import pkg from 'root/package.json'
 
@@ -15,6 +15,14 @@ import { defineRpcHandler } from '~/ipc/router'
 import { configPaths } from '~/utils/configPaths'
 
 export default [
+  {
+    action: IRPCActionType.CLIPBOARD_WRITE_TEXT,
+    handler: async (_: IIPCEvent, [text]: [string]) => {
+      if (typeof text !== 'string') throw new TypeError('Expected clipboard text')
+      await clipboard.writeText(text)
+    },
+    type: IRPCType.INVOKE,
+  },
   {
     action: IRPCActionType.RELOAD_APP,
     handler: async () => {

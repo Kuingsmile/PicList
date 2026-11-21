@@ -1,39 +1,76 @@
 allowBuilds:
-  electron: true
-  # Squirrel.Windows is not a PicList target (NSIS, ZIP and 7z are used).
-  electron-winstaller: false
   esbuild: true
   ssh2-no-cpu-features: true
 # Electron packaging and the standalone npm runtime need a physical dependency tree.
 nodeLinker: hoisted
 
 overrides:
-  '@aws-sdk/client-s3': ^3.1142.0
-  '@aws-sdk/lib-storage': ^3.1142.0
-  '@aws-sdk/s3-request-presigner': ^3.1142.0
-  '@babel/core@^7.0.0': ^7.29.6
-  '@codemirror/state': ^6.7.5
+  '@aws-sdk/client-s3': ^3.1175.0
+  '@aws-sdk/lib-storage': ^3.1175.0
+  '@aws-sdk/s3-request-presigner': ^3.1175.0
+  '@babel/core@^7.0.0': ^7.29.13
+  '@codemirror/state': ^6.7.6
+  # Both packaging tools use the current ASAR API for reading and writing archives.
+  'app-builder-lib@26.18.0>@electron/asar': ^4.3.2
+  'app-builder-lib@26.18.0>@electron/universal': ^3.0.6
+  '@electron/get@3>global-agent': ^4.1.7
   '@humanfs/node@^0.16.0': ^0.16.8
-  '@smithy/node-http-handler': ^4.12.1
+  '@smithy/node-http-handler': ^4.14.2
   '@xmldom/xmldom@^0.8.0': ^0.8.15
-  baseline-browser-mapping: ^2.11.25
-  # Security fixes for older transitive dependencies retained by the Yarn lockfile.
-  brace-expansion@^1.0.0: ^1.1.21
-  brace-expansion@^2.0.0: ^2.1.7
-  defu@^6.0.0: ^6.1.5
-  external-editor>tmp: ^0.2.7
-  fast-uri@^3.0.0: ^3.1.8
-  min-document@^2.0.0: ^2.19.1
+  baseline-browser-mapping: ^2.11.39
+  # The matching patches use Node's built-in equality check and DOMException.
+  electron-updater@6.8.11>lodash.isequal: '-'
+  fetch-blob@3.2.0>node-domexception: '-'
+  # Use the fixed glob and minimatch releases for dependency checks, packaging and WebDAV listing.
+  dpdm@4.3.0>glob: ^14.0.6
+  app-builder-lib@26.18.0>minimatch: ^11.0.9
+  webdav@5.11.0>minimatch: ^11.0.9
+  brace-expansion@^1.0.0: ^1.1.22
+  brace-expansion@^2.0.0: ^2.1.8
+  defu@^6.0.0: ^6.1.7
+  fast-uri@^3.0.0: ^3.1.9
+  min-document@^2.0.0: ^2.19.2
   picomatch@^2.0.0: ^2.3.2
-  rollup@^4.0.0: ^4.59.0
-  semver: ^7.8.5
-  source-map-js: ^1.2.2
+  rollup@^4.0.0: ^4.68.8
+  semver@^7.0.0: ^7.8.6
+  source-map-js: ^1.2.4
   tmp@^0.2.0: ^0.2.7
-  upyun>axios: ^0.34.0
+  upyun>axios: ^0.35.0
   urllib@^2.44.0: ^2.44.1
-  vite: ^7.3.7
+
+# Exact releases in this lockfile that were published within pnpm's 24-hour delay.
+minimumReleaseAgeExclude:
+  - '@aws-sdk/checksums@3.1002.6'
+  - '@aws-sdk/client-s3@3.1175.0'
+  - '@aws-sdk/core@3.981.1'
+  - '@aws-sdk/credential-provider-env@3.972.85'
+  - '@aws-sdk/credential-provider-http@3.972.87'
+  - '@aws-sdk/credential-provider-ini@3.973.31'
+  - '@aws-sdk/credential-provider-login@3.972.93'
+  - '@aws-sdk/credential-provider-node@3.972.98'
+  - '@aws-sdk/credential-provider-process@3.972.85'
+  - '@aws-sdk/credential-provider-sso@3.973.29'
+  - '@aws-sdk/credential-provider-web-identity@3.972.91'
+  - '@aws-sdk/lib-storage@3.1175.0'
+  - '@aws-sdk/middleware-sdk-s3@3.972.91'
+  - '@aws-sdk/nested-clients@3.998.4'
+  - '@aws-sdk/s3-request-presigner@3.1175.0'
+  - '@aws-sdk/token-providers@3.1175.0'
+  - piclist@3.1.0
+  - stylelint-config-recommended@19.1.0
+  - stylelint-config-standard@41.1.0
+  - stylelint@18.1.0
+
+packageExtensions:
+  # PicList builds NSIS, ZIP and 7z on Windows. Only the Squirrel target loads this peer.
+  app-builder-lib@26.18.0:
+    peerDependenciesMeta:
+      electron-builder-squirrel-windows:
+        optional: true
+
 patchedDependencies:
-  app-builder-lib@26.16.1: patches/app-builder-lib@26.16.1.patch
+  electron-updater@6.8.11: patches/electron-updater@6.8.11.patch
+  fetch-blob@3.2.0: patches/fetch-blob@3.2.0.patch
   sharp@0.35.5: patches/sharp@0.35.5.patch
 
 # Keep both supported CPU targets available when packaging on one host.

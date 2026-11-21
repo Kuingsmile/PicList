@@ -1,0 +1,24 @@
+diff --git a/out/DownloadedUpdateHelper.js b/out/DownloadedUpdateHelper.js
+--- a/out/DownloadedUpdateHelper.js
++++ b/out/DownloadedUpdateHelper.js
+@@ -4,8 +4,7 @@
+ exports.createTempUpdateFile = createTempUpdateFile;
+ const crypto_1 = require("crypto");
+ const fs_1 = require("fs");
+-// @ts-ignore
+-const isEqual = require("lodash.isequal");
++const { isDeepStrictEqual: isEqual } = require("node:util");
+ const fs_extra_1 = require("fs-extra");
+ const path = require("path");
+ /** @private **/
+diff --git a/package.json b/package.json
+--- a/package.json
++++ b/package.json
+@@ -20,7 +20,6 @@
+     "js-yaml": "^4.1.0",
+     "lazy-val": "^1.0.5",
+     "lodash.escaperegexp": "^4.1.2",
+-    "lodash.isequal": "^4.5.0",
+     "semver": "~7.7.3",
+     "tiny-typed-emitter": "^2.1.0",
+     "builder-util-runtime": "9.7.0"

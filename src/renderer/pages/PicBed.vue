@@ -345,7 +345,7 @@ async function handleCopyApi() {
     const apiUrl = `http://${host === '0.0.0.0' ? '127.0.0.1' : host}:${port}/upload?${urlSearchParams.toString()}`
 
     try {
-      window.electron.clipboard.writeText(apiUrl)
+      await window.electron.clipboard.writeText(apiUrl)
       message.success(`${t('pages.picBedConfigs.copyAPISucceed')} ${apiUrl}`)
     } catch (clipboardError) {
       console.error('Failed to copy to clipboard:', clipboardError)

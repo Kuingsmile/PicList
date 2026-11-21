@@ -4,8 +4,8 @@
 
 ## Requirements and startup
 
-- Use Node.js **22.x, at least 22.13.0**, preferably the latest 22.x patch. The current PicList-Core dependency declares `^22.13.0`, and the release workflow uses `22.x`.
-- Use **pnpm 10.34.6** and the committed `pnpm-lock.yaml`.
+- Use Node.js **24.15.0 or later in 24.x**, or **26 and newer**, as required by PicList-Core. Use the version in `.nvmrc` to match CI.
+- Use **pnpm 12.21.0** and the committed `pnpm-lock.yaml`.
 - Install Git. Native dependencies may need platform build tools if a prebuilt binary is unavailable. Windows packaging and preparing the experimental plugin runtime require Visual Studio C++ Build Tools, including the compiler for the target architecture.
 
 Run these commands from the repository root:
@@ -13,14 +13,14 @@ Run these commands from the repository root:
 ```bash
 git clone https://github.com/Kuingsmile/PicList.git
 cd PicList
-corepack enable pnpm
+npm install --global pnpm@12.21.0
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-When migrating an existing Yarn checkout, start with a clean `node_modules` directory before installing. Keep `pnpm-workspace.yaml`: it preserves dependency overrides, permits the required Electron/esbuild/SSH install scripts, and uses a hoisted layout for Electron packaging and the bundled npm runtime. Do not omit optional dependencies; Sharp's native binaries are optional packages.
+When migrating an existing Yarn checkout, start with a clean `node_modules` directory before installing. Keep `pnpm-workspace.yaml`: it preserves dependency overrides, permits the required esbuild and SSH install scripts, and uses a hoisted layout for Electron packaging and the bundled npm runtime. Do not omit optional dependencies; Sharp's native binaries are optional packages.
 
-Installation runs `postinstall` to install Electron native dependencies and `prepare` to download themes into `resources/theme/` and install Husky composables. These steps need network access. If the theme download fails, rerun `pnpm prepare` after restoring connectivity.
+During installation, `postinstall` downloads the Electron executable used by electron-vite and prepares native dependencies. The `prepare` script downloads themes into `resources/theme/` and installs Husky hooks. These steps need network access. If the theme download fails, rerun `pnpm prepare` after restoring connectivity.
 
 `pnpm dev` starts Electron with electron-vite watch mode. Main-process changes rebuild and restart Electron, resetting in-memory state; preload changes rebuild the preload scripts and reload the renderer windows. Renderer changes use Vite HMR. The renderer development server uses `127.0.0.1:30303` with a strict port, so free that port before starting a second development instance.
 
@@ -44,8 +44,8 @@ Installation runs `postinstall` to install Electron native dependencies and `pre
 | `pnpm prepare`                                         | Download themes and install Husky composables.                                                                       |
 | `pnpm prepare:7za`                                     | Download `resources/7za.exe` for the current Node architecture for Windows builds.                                   |
 | `pnpm prepare:plugin-runtime`                          | Stage the experimental bundled npm runtime for the current platform and architecture.                                |
-| `pnpm postinstall` / `pnpm postuninstall`              | Run electron-builder's native dependency installation lifecycle composables.                                         |
-| `pnpm cz`                                              | Open the configured Commitizen commit prompt.                                                                        |
+| `pnpm postinstall` / `pnpm postuninstall`              | Prepare native dependencies. `postinstall` also installs the Electron executable.                                         |
+| `pnpm cz`                                              | Open the configured czg commit prompt.                                                                              |
 | `pnpm run link`                                        | Print versioned download links using `scripts/link.js`; use `run` to avoid pnpm's built-in linking command.          |
 | `pnpm release`                                         | Run the configured version bump tool; this changes release metadata.                                                 |
 | `pnpm winget`                                          | Run the Winget automation script; reserved for release maintenance.                                                  |
@@ -88,13 +88,13 @@ For a new language, add JSON files in both locale directories and update both re
 
 Compiled code goes to `out/`; installers and archives go to `dist_electron/`. Targets, assets, and composables are configured in [electron-builder.cjs](electron-builder.cjs). Use a host with the required platform toolchain; a platform script alone does not provide cross-compilation tools.
 
-The pnpm configuration installs x64 and ARM64 optional binaries for the host OS. Build Windows on Windows, macOS on macOS, and Linux on a glibc host; CI uses a native runner for each OS/architecture pair. Sharp and its `@img` binaries must remain external to the JavaScript bundle and unpacked from ASAR. Sharp 0.35.5 requires Node-API 9 / Node.js 20.9 or newer; this project's Node 22 requirement and Electron 39 satisfy that requirement. Linux binaries require glibc 2.28 or newer, and x64 requires SSE4.2. The desktop targets do not include 32-bit Windows or musl Linux.
+The pnpm configuration installs x64 and ARM64 optional binaries for the host OS. Build Windows on Windows, macOS on macOS, and Linux on a glibc host; CI uses a native runner for each OS/architecture pair. Sharp and its `@img` binaries must remain external to the JavaScript bundle and unpacked from ASAR. Sharp 0.35.5 requires Node-API 9 / Node.js 20.9 or newer; this project's Node 24 minimum and Electron 45 satisfy that requirement. Linux binaries require glibc 2.28 or newer, and x64 requires SSE4.2. The desktop targets do not include 32-bit Windows or musl Linux.
 
 Sharp documents a [Linux/Electron GLib conflict](https://sharp.pixelplumbing.com/install/#electron-and-linux), reproduced by our checks on Ubuntu ARM64 with both 0.34.4 and 0.35.5. The Sharp loader patch selects the official `@img/sharp-wasm32` build only inside Linux Electron. Keep this dependency pinned to the same version as Sharp and retain the patch for both its CommonJS and ESM loaders. Windows, macOS and standalone Node continue to use native Sharp.
 
 The [WebAssembly backend](https://sharp.pixelplumbing.com/install/#webassembly) supports PicList's SVG path-based text watermarks. Its SVG renderer omits text shaping, so the loader patch uses `@resvg/resvg-js` to convert SVG text to vector outlines before processing, including file, buffer, stream and composite inputs. Keep `@resvg` unpacked from ASAR. Sharp's native text input and tiled pyramid output remain unavailable. Large-image throughput and memory limits can differ from the native build. The `Build and validate` workflow checks image resizing, PNG/WebP encoding, SVG rasterization and the selected Sharp backend inside the packaged Electron app on native Windows, macOS and Ubuntu x64/ARM64 runners. These smoke checks do not cover every image-processing option, Linux distribution or third-party plugin. Sharp 0.35 also changes the AVIF quality scale, so the same quality value can produce different sizes or visual results.
 
-Keep the patches registered in `pnpm-workspace.yaml` when installing or preparing release utilities. The electron-builder patch preserves the desktop dependency graph when the application and core share the `piclist` name, and resolves nested package versions from the hoisted tree. The core patch reads watermark files through Node so Electron can load its bundled logo from ASAR. Remove each patch only after upgrading to an upstream version that includes the fix and rerunning packaged validation.
+The other patches in `pnpm-workspace.yaml` let electron-updater compare cached update metadata with Node’s built-in equality check and fetch-blob use the native `DOMException` for file reads. Keep the matching dependency overrides in sync when upgrading either package.
 
 Windows builds default to the host architecture and produce NSIS, ZIP, and 7z artifacts. Use `pnpm build:win --x64 --arm64 --publish never` to build both architectures explicitly. ARM64 packaging requires the Visual Studio component `Microsoft.VisualStudio.Component.VC.Tools.ARM64`, including its compiler and runtime libraries.
 

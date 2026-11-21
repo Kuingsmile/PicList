@@ -94,7 +94,7 @@ Whether you need to organize your cloud files, sync markdown images, or manage m
 | **Windows** |  **Winget**   | `winget install Kuingsmile.PicList`                                                              |
 |             |   **Scoop**   | `scoop bucket add lemon https://github.com/hoilc/scoop-lemon` <br> `scoop install lemon/piclist` |
 |             | **Installer** | [Download .exe](https://github.com/Kuingsmile/PicList/releases/latest)                           |
-|  **macOS**  | **Homebrew**  | `brew install piclist --cask`                                                                    |
+| **macOS 13+** | **Homebrew**  | `brew install piclist --cask`                                                                    |
 |             |    **DMG**    | [Download .dmg](https://github.com/Kuingsmile/PicList/releases/latest)                           |
 |  **Linux**  | **Installer** | [Download AppImage/Snap/Deb](https://github.com/Kuingsmile/PicList/releases/latest)              |
 
@@ -151,8 +151,8 @@ The [contributor and development guide](CONTRIBUTING_EN.md) covers the source la
 
 ### Prerequisites
 
-- Node.js **22.x, at least 22.13.0** (required by the current core dependency; release CI uses 22.x).
-- **pnpm 10.34.6** and Git.
+- Node.js **24.15.0 or later in 24.x**, or **26 and newer**. CI uses the version in `.nvmrc`.
+- **pnpm 12.21.0** and Git.
 - Native dependencies may need platform build tools. Windows packaging and experimental plugin runtime preparation require Visual Studio C++ Build Tools.
 
 ### Run from source
@@ -160,7 +160,7 @@ The [contributor and development guide](CONTRIBUTING_EN.md) covers the source la
 ```bash
 git clone https://github.com/Kuingsmile/PicList.git
 cd PicList
-corepack enable pnpm
+npm install --global pnpm@12.21.0
 pnpm install --frozen-lockfile
 
 # Start Electron in development mode
@@ -171,7 +171,7 @@ pnpm build:app
 pnpm preview
 ```
 
-Installation downloads themes, installs Husky hooks, and prepares Electron native dependencies. The development server uses the fixed address `127.0.0.1:30303`.
+Installation downloads Electron and the themes, installs Husky hooks, and prepares native dependencies. The development server uses the fixed address `127.0.0.1:30303`.
 
 `pnpm build` packages with electron-builder; `pnpm build:win`, `pnpm build:mac`, and `pnpm build:linux` select a platform. Follow the contributor guide's platform prerequisites first; Windows also needs `pnpm prepare:7za`. Compiled output goes to `out/` and packaged artifacts to `dist_electron/`.
 

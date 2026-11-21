@@ -1,4 +1,6 @@
-import { clipboard, contextBridge, webFrame, webUtils } from 'electron'
+import { contextBridge, webFrame, webUtils } from 'electron'
+
+import { IRPCActionType } from '#/constants/rpcActions'
 
 import { ipcRendererCountListeners, ipcRendererOn, ipcRendererRemoveAllListeners } from './events'
 import { nodeBridge } from './nodeBridge'
@@ -13,7 +15,7 @@ try {
       webFrame.setVisualZoomLevelLimits(min, max)
     },
     clipboard: {
-      writeText: clipboard.writeText,
+      writeText: (text: string) => triggerRPC<void>(IRPCActionType.CLIPBOARD_WRITE_TEXT, text),
     },
     platform: process.platform,
     triggerRPC,

@@ -70,7 +70,7 @@ PicList 是基于 PicGo 开发的桌面应用，上传引擎为以 `piclist` 依
 
 ## 10. 如何运行或排查开发环境？
 
-使用 Node.js 22.x（至少 22.13.0）和 pnpm 10.34.6，在仓库根目录运行 `pnpm install --frozen-lockfile` 和 `pnpm dev`。渲染进程开发端口为 `30303`，与上传服务端口 `36677` 不同。
+使用 pnpm 12.21.0 和 Node.js 24.x（至少 24.15.0）或 26 及以上版本，在仓库根目录运行 `pnpm install --frozen-lockfile` 和 `pnpm dev`。渲染进程开发端口为 `30303`，与上传服务端口 `36677` 不同。
 
 缺少主题时重新运行 `pnpm prepare`。测试实验性内置 npm 时，先运行 `pnpm prepare:plugin-runtime`；Windows 需要 Visual Studio C++ Build Tools。编译、检查、平台打包和国际化流程见 [开发指南](CONTRIBUTING.md)。当前没有 `i18n` 生成脚本。
 

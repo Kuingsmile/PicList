@@ -17,9 +17,11 @@ export const showNotification = (
     title: options.title,
     body: options.body,
   })
-  const handleClick = () => {
+  const handleClick = async () => {
     if (options.clickToCopy) {
-      clipboard.writeText(options.copyContent || options.body)
+      await clipboard
+        .writeText(options.copyContent || options.body)
+        .catch(error => console.warn('Failed to copy notification', error))
     }
     if (options.clickFn) {
       options.clickFn()

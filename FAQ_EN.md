@@ -70,7 +70,7 @@ Custom configuration and log paths can change these locations. Core assets and g
 
 ## 10. How do I run or troubleshoot a development checkout?
 
-Use Node.js 22.x (at least 22.13.0) and pnpm 10.34.6, then run `pnpm install --frozen-lockfile` and `pnpm dev` from the repository root. The renderer development port is `30303`; it is separate from the upload server port `36677`.
+Use pnpm 12.21.0 with Node.js 24.x (at least 24.15.0) or Node.js 26 and newer, then run `pnpm install --frozen-lockfile` and `pnpm dev` from the repository root. The renderer development port is `30303`; it is separate from the upload server port `36677`.
 
 For missing themes, rerun `pnpm prepare`. To test the experimental bundled npm option, run `pnpm prepare:plugin-runtime`; Windows requires Visual Studio C++ Build Tools. For compilation, checks, platform packaging, and localization, follow the [development guide](CONTRIBUTING_EN.md). There is no `i18n` generation script.
 

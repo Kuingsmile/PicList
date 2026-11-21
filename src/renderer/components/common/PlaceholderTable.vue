@@ -34,12 +34,12 @@ import useMessage from '@/composables/useMessage'
 const { t } = useI18n()
 const message = useMessage()
 // Callers that pass @select get the placeholder (e.g. to insert it); everyone else gets it copied.
-function handleSelect(placeholder: string) {
+async function handleSelect(placeholder: string) {
   if (onSelect) {
     onSelect(placeholder)
     return
   }
-  window.electron.clipboard.writeText(placeholder)
+  await window.electron.clipboard.writeText(placeholder)
   message.success(t('pages.settings.upload.copySuccess', { content: placeholder }))
 }
 const {

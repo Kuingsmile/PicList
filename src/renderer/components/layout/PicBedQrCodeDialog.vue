@@ -175,8 +175,8 @@ watch(visible, async (isVisible, _previous, onCleanup) => {
   }
 })
 
-function copyConfig() {
-  window.electron.clipboard.writeText(JSON.stringify(selectedConfig.value, null, 2))
+async function copyConfig() {
+  await window.electron.clipboard.writeText(JSON.stringify(selectedConfig.value, null, 2))
   message.success(t('navigation.copySuccess'))
 }
 

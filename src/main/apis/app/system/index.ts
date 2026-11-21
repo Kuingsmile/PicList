@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url'
 import picgo from '@core/picgo'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
-import { app, clipboard, Menu, MenuItem, MenuItemConstructorOptions, nativeTheme, screen, Tray } from 'electron'
+import { app, Menu, MenuItem, MenuItemConstructorOptions, nativeTheme, screen, Tray } from 'electron'
 import fs from 'fs-extra'
 
 import { getDefaultTrayClickAction, ITrayClickAction } from '#/constants/app'
@@ -13,7 +13,7 @@ import { IWindowList } from '~/constants'
 import { buildPicBedListMenu } from '~/events/remotes/menu'
 import { t } from '~/i18n'
 import { UploadJob } from '~/services/uploads/uploadJob'
-import { getClipboardFilePath } from '~/utils/clipboard'
+import { readUploadClipboard } from '~/utils/clipboard'
 import clipboardPoll from '~/utils/clipboardPoll'
 import { configPaths } from '~/utils/configPaths'
 import { isImage } from '~/utils/filesystem'
@@ -308,7 +308,7 @@ function toggleTrayPanel(bounds: Electron.Rectangle) {
   trayWindow.setPosition(x, y, false)
   const reveal = () => {
     trayWindow.webContents.send(UPDATE_FILES)
-    sendClipboardFiles()
+    sendClipboardFiles().catch(error => picgo.log.warn(`Failed to preview clipboard: ${error}`))
     trayWindow.show()
     trayWindow.focus()
   }
@@ -322,9 +322,8 @@ function toggleTrayPanel(bounds: Electron.Rectangle) {
 
 // Preview what the built-in clipboard upload would send: a copied file (Finder/Explorer) or raw image data.
 async function sendClipboardFiles() {
-  const img = clipboard.readImage()
+  const { filePath, image: img } = await readUploadClipboard()
   const files: ImgInfo[] = []
-  const filePath = getClipboardFilePath(img)
   const isFile = filePath
     ? await fs.stat(filePath).then(
         stat => stat.isFile(),

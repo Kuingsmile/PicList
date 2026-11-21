@@ -24,7 +24,7 @@ const galleryRoutes = [
       const [txt, shortUrl] = await pasteTemplate(pasteStyle, item, customLink)
       if (!txt?.trim()) throw new Error('Gallery link format produced empty text')
       if (copy) {
-        clipboard.writeText(txt)
+        await clipboard.writeText(txt)
       }
       return [txt, shortUrl]
     },

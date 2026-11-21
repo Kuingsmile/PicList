@@ -10,7 +10,7 @@ This update brings redesigned pages, improved gallery synchronization and batch 
 ### ⚠️ Important Changes
 
 - Removed the built-in web upload page and its web server.
-- Standalone PicList-Core CLI and server usage now requires Node.js `22.13.0` or later in the `22.x` release line.
+- The standalone PicList-Core 3.1 CLI and server require Node.js 24.x (at least 24.15.0) or Node.js 26 and newer.
 - The PicList-Core CLI and server now use `~/.piclist/data.json` as the default configuration file. If it does not exist, an existing `~/.piclist/config.json` is used instead; when both files exist, `data.json` takes precedence.
 
 ### 🚀 Performance Improvements

@@ -4,8 +4,8 @@
 
 ## 环境要求与启动
 
-- 使用 **Node.js 22.x，至少 22.13.0**，建议安装 22.x 的最新补丁版本。当前 PicList-Core 依赖声明的版本范围为 `^22.13.0`，发布工作流使用 `22.x`。
-- 使用 **pnpm 10.34.6** 和仓库中的 `pnpm-lock.yaml`。
+- PicList-Core 要求使用 **Node.js 24.15.0 及以上的 24.x 版本**，或 **26 及以上版本**。使用 `.nvmrc` 指定的版本可与 CI 保持一致。
+- 使用 **pnpm 12.21.0** 和仓库中的 `pnpm-lock.yaml`。
 - 安装 Git。原生依赖没有可用的预编译文件时，可能需要平台编译工具。Windows 打包和准备实验性插件运行时需要 Visual Studio C++ Build Tools，以及目标架构对应的编译器。
 
 在仓库根目录执行：
@@ -13,14 +13,14 @@
 ```bash
 git clone https://github.com/Kuingsmile/PicList.git
 cd PicList
-corepack enable pnpm
+npm install --global pnpm@12.21.0
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-从已有 Yarn 工作区迁移时，请先清理旧的 `node_modules` 再安装。请保留 `pnpm-workspace.yaml`：它包含依赖版本覆盖、Electron/esbuild/SSH 安装脚本许可，以及 Electron 打包和内置 npm 所需的 hoisted 布局。不要禁用可选依赖，Sharp 的平台原生二进制通过可选依赖安装。
+从已有 Yarn 工作区迁移时，请先清理旧的 `node_modules` 再安装。请保留 `pnpm-workspace.yaml`：它包含依赖版本覆盖、esbuild/SSH 安装脚本许可，以及 Electron 打包和内置 npm 所需的 hoisted 布局。不要禁用可选依赖，Sharp 的平台原生二进制通过可选依赖安装。
 
-安装时，`postinstall` 会安装 Electron 原生依赖，`prepare` 会将主题下载到 `resources/theme/` 并安装 Husky 钩子。这些步骤需要网络连接。主题下载失败时，恢复网络后重新运行 `pnpm prepare`。
+安装时，`postinstall` 会下载 electron-vite 所需的 Electron 可执行文件并安装原生依赖，`prepare` 会将主题下载到 `resources/theme/` 并安装 Husky 钩子。这些步骤需要网络连接。主题下载失败时，恢复网络后重新运行 `pnpm prepare`。
 
 `pnpm dev` 通过 electron-vite 的 watch 模式启动 Electron。主进程变更会重新编译并重启 Electron，内存中的状态会重置；预加载脚本变更会重新编译脚本并刷新渲染进程窗口。渲染进程变更使用 Vite HMR。渲染进程开发服务器固定使用 `127.0.0.1:30303`；启动第二个开发实例前需要释放该端口。
 
@@ -44,8 +44,8 @@ pnpm dev
 | `pnpm prepare`                                         | 下载主题并安装 Husky 钩子。                                                              |
 | `pnpm prepare:7za`                                     | 按当前 Node 架构下载 Windows 构建所需的 `resources/7za.exe`。                            |
 | `pnpm prepare:plugin-runtime`                          | 为当前平台和架构准备实验性内置 npm 运行时。                                              |
-| `pnpm postinstall` / `pnpm postuninstall`              | 执行 electron-builder 的原生依赖安装生命周期钩子。                                       |
-| `pnpm cz`                                              | 打开配置好的 Commitizen 提交向导。                                                       |
+| `pnpm postinstall` / `pnpm postuninstall`              | 安装原生依赖。`postinstall` 还会下载 Electron 可执行文件。                                       |
+| `pnpm cz`                                              | 打开配置好的 czg 提交向导。                                                             |
 | `pnpm run link`                                        | 通过 `scripts/link.js` 输出当前版本的下载链接；使用 `run` 避免执行 pnpm 内置的链接命令。 |
 | `pnpm release`                                         | 执行版本更新工具，会修改发布元数据。                                                     |
 | `pnpm winget`                                          | 执行 Winget 自动化脚本，供发布维护使用。                                                 |
@@ -86,9 +86,9 @@ Electron 和存储平台访问逻辑放在主进程，渲染进程通过 preload
 
 编译产物位于 `out/`，安装包和压缩包位于 `dist_electron/`。目标格式、资源和钩子配置在 [electron-builder.cjs](electron-builder.cjs)。请使用具备对应平台工具链的主机；平台脚本本身不提供交叉编译工具。
 
-pnpm 会为当前系统安装 x64 和 ARM64 可选二进制依赖。Windows、macOS 和 Linux 分别在对应系统上构建；Linux 桌面版使用 glibc，要求 glibc 2.28 及以上，x64 处理器还需要 SSE4.2。Sharp 及其 `@img` 依赖必须保留为外部模块并从 ASAR 解包。Node.js 22 和 Electron 39 满足 Sharp 0.35.5 的运行时要求；桌面版不提供 32 位 Windows 或 musl Linux 构建。
+pnpm 会为当前系统安装 x64 和 ARM64 可选二进制依赖。Windows、macOS 和 Linux 分别在对应系统上构建；Linux 桌面版使用 glibc，要求 glibc 2.28 及以上，x64 处理器还需要 SSE4.2。Sharp 及其 `@img` 依赖必须保留为外部模块并从 ASAR 解包。Node.js 24 和 Electron 45 满足 Sharp 0.35.5 的运行时要求；桌面版不提供 32 位 Windows 或 musl Linux 构建。
 
-请保留 `pnpm-workspace.yaml` 中登记的补丁：electron-builder 补丁修复桌面应用与核心同名导致的依赖遗漏，以及 hoisted 布局下嵌套依赖版本选择错误；核心补丁通过 Node 读取水印文件，支持 ASAR 内的默认图片。升级到包含相应修复的上游版本并通过打包验证后才能移除补丁。
+`pnpm-workspace.yaml` 中的另外两个补丁让 electron-updater 使用 Node 的内置方法比较缓存的更新元数据，并让 fetch-blob 在读取文件时使用原生 `DOMException`。升级这两个依赖时，请同步检查对应的版本覆盖。
 
 Sharp 记录了 [Linux/Electron GLib 冲突](https://sharp.pixelplumbing.com/install/#electron-and-linux)，验证中在 Ubuntu ARM64 的 0.34.4 和 0.35.5 上均复现。Sharp 加载器补丁仅在 Linux Electron 中选择官方 `@img/sharp-wasm32` 构建。请将该依赖与 Sharp 固定在相同版本，并保留 CommonJS 和 ESM 两种加载器的补丁。Windows、macOS 和独立 Node 进程继续使用原生 Sharp。
 

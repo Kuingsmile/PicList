@@ -30,10 +30,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
-          node-version: '22.x'
+          node-version-file: '.nvmrc'
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - name: Install frozen dependencies
@@ -77,10 +77,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
-          node-version: '22.x'
+          node-version-file: '.nvmrc'
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
@@ -105,7 +105,7 @@ jobs:
       - name: Install validation tools in temporary storage
         run: |
           npm install --prefix "$RUNNER_TEMP/piclist-validation" \
-            --ignore-scripts --no-package-lock --no-audit --no-fund --save-exact playwright-core@1.64.0
+            --ignore-scripts --no-package-lock --no-audit --no-fund --save-exact playwright-core@1.65.1
 
       # Generated checks, profiles and synthetic inputs stay outside the checkout.
       - name: Prepare packaged application validation
@@ -247,6 +247,23 @@ jobs:
                 assert.equal(info.platform, process.platform)
                 assert.equal(info.arch, arch)
                 assert.equal(path.resolve(info.dataDir), path.resolve(profile))
+              })
+
+              await check('clipboard bridge', async () => {
+                const text = 'PicList clipboard check'
+                await mainWindow.evaluate(value => window.electron.clipboard.writeText(value), text)
+                assert.equal(await application.evaluate(({ clipboard }) => clipboard.readText()), text)
+              })
+
+              await check('bundled npm runtime', async () => {
+                const { executable, resources } = await application.evaluate(() => ({
+                  executable: process.execPath, resources: process.resourcesPath,
+                }))
+                const npm = path.join(resources, 'plugin-runtime', 'npm', 'bin', 'npm-cli.js')
+                const version = execFileSync(executable, [npm, '--version'], {
+                  cwd: profile, env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, encoding: 'utf8',
+                })
+                assert.equal(version.trim(), pkg.devDependencies.npm)
               })
 
               await check('first-run guide dismissal', async () => {

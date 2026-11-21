@@ -48,10 +48,10 @@ export function useCopyState() {
   const copyState = shallowRef<'idle' | 'copied' | 'error'>('idle')
   let resetTimer: ReturnType<typeof setTimeout> | undefined
 
-  function copy(text: string) {
+  async function copy(text: string) {
     clearTimeout(resetTimer)
     try {
-      window.electron.clipboard.writeText(text)
+      await window.electron.clipboard.writeText(text)
       copyState.value = 'copied'
     } catch {
       copyState.value = 'error'

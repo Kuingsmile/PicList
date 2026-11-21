@@ -185,7 +185,7 @@ export function useGalleryActions({ choosedList, updateGallery, refresh }: Galle
           message.error(t('pages.gallery.copyLinkFailed'))
           return
         }
-        window.electron.clipboard.writeText(copyString.join('\n'))
+        await window.electron.clipboard.writeText(copyString.join('\n'))
       } catch {
         message.error(t('pages.gallery.copyLinkFailed'))
         return
