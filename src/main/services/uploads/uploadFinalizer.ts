@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { realpath, stat } from 'node:fs/promises'
 import path from 'node:path'
 
 import { GalleryDB } from '@core/datastore'
@@ -372,6 +373,33 @@ function resultItems(state: UploadFinalization): FinalizationItem[] {
   return primary.length ? primary : state.items
 }
 
+async function fileIdentity(file: string): Promise<string> {
+  try {
+    const { dev, ino } = await stat(file, { bigint: true })
+    // Some filesystems don't supply inode numbers. Use the canonical path there.
+    return ino === 0n ? await realpath(file) : `${dev}:${ino}`
+  } catch (error: any) {
+    if (error.code !== 'ENOENT') throw error
+    return path.resolve(file)
+  }
+}
+
+async function getLocalDestinations(items: FinalizationItem[]): Promise<Set<string>> {
+  const destinations = new Set<string>()
+  for (const { image } of items) {
+    if (image.type !== 'local') continue
+    // Local records the committed path in hash even when imgUrl is a custom public URL.
+    const file = [image.hash, image.imgUrl].find(
+      (value): value is string => typeof value === 'string' && path.isAbsolute(value),
+    )
+    if (file) {
+      destinations.add(path.resolve(file))
+      destinations.add(await fileIdentity(file))
+    }
+  }
+  return destinations
+}
+
 function publishGallery(origin?: WebContents): void {
   const tray = windowManager.get(IWindowList.TRAY_WINDOW)?.webContents
   const setting = windowManager.get(IWindowList.SETTING_WINDOW)?.webContents
@@ -476,10 +504,15 @@ async function finishUpload(state: UploadFinalization, options: FinalizationOpti
     // A failed checkpoint or hook never authorizes deleting a source.
     await checkpoint()
     if (state.settings.deleteLocalFile) {
+      const destinations = await getLocalDestinations(state.items)
       const sources = new Set(state.items.map(item => item.sourcePath).filter((source): source is string => !!source))
       for (const source of sources) {
         assertActive()
         if (state.deletedSources.includes(source) || !path.isAbsolute(source)) continue
+        if (destinations.size) {
+          if (destinations.has(path.resolve(source)) || destinations.has(await fileIdentity(source))) continue
+          assertActive()
+        }
         try {
           // Only unlink files; never recursively remove a directory supplied as an upload input.
           await fs.unlink(source)
