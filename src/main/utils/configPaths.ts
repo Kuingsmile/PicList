@@ -51,6 +51,7 @@ export interface IConfigStruct {
     autoRename: boolean
     deleteCloudFile: boolean
     server: IServerConfig
+    localFileServer?: ILocalFileServerConfig
     serverKey: string
     serverMaxConcurrency: number
     serverUploadInterval: number
@@ -147,6 +148,7 @@ export const configPaths = {
     autoRename: 'settings.autoRename',
     deleteCloudFile: 'settings.deleteCloudFile',
     server: 'settings.server',
+    localFileServer: 'settings.localFileServer',
     serverKey: 'settings.serverKey',
     serverMaxConcurrency: 'settings.serverMaxConcurrency',
     serverUploadInterval: 'settings.serverUploadInterval',

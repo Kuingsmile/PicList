@@ -98,6 +98,8 @@ export const IRPCActionType = {
 
   // advanced setting rpc
   ADVANCED_UPDATE_SERVER: 'ADVANCED_UPDATE_SERVER',
+  GET_LOCAL_FILE_SERVER: 'GET_LOCAL_FILE_SERVER',
+  SAVE_LOCAL_FILE_SERVER: 'SAVE_LOCAL_FILE_SERVER',
 
   // upload and main page rpc
   MAIN_GET_PICBED: 'MAIN_GET_PICBED',

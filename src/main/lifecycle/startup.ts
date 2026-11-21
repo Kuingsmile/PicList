@@ -13,6 +13,7 @@ import { app, net, Notification, protocol } from 'electron'
 import { II18nLanguage, ISartMode } from '#/constants/app'
 import { IWindowList } from '~/constants'
 import { startFileServer } from '~/fileServer'
+import { startLocalFileServer } from '~/fileServer/localFileServer'
 import { initializeI18n } from '~/i18n'
 import server from '~/server/index'
 import clipboardPoll from '~/utils/clipboardPoll'
@@ -99,6 +100,7 @@ export const initializeStartup = () => {
   process.nextTick(() => shortKeyHandler.init())
   void server.startup()
   void startFileServer()
+  void startLocalFileServer()
   if (process.env.NODE_ENV !== 'development') {
     handleStartUpFiles(process.argv, process.cwd())
   }

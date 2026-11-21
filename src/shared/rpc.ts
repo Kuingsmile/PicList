@@ -8,6 +8,8 @@ export const rpcErrorMessages = {
   FORBIDDEN: 'This window cannot perform the requested operation.',
   NOT_FOUND: 'The requested item or operation no longer exists.',
   CONFLICT: 'The operation conflicts with the current configuration.',
+  FILE_SERVER_ROOT: 'Choose an existing folder to serve.',
+  FILE_SERVER_ADDRESS: 'Choose an available listen address and port.',
   SHORTCUT_CONFLICT:
     'This shortcut is already assigned to another enabled action. Choose another key or disable that action.',
   SHORTCUT_INVALID: 'Use a valid shortcut with one key and optional modifiers.',
@@ -137,6 +139,17 @@ const write = <A extends unknown[], R = true>(
 
 /** Persistent routes must be invoked, validated and acknowledged. Notifications remain on SEND. */
 export const rpcContracts = {
+  SAVE_LOCAL_FILE_SERVER: write(
+    tuple<[config: ILocalFileServerConfig]>(
+      value =>
+        isRecord(value) &&
+        typeof value.enable === 'boolean' &&
+        isString(value.root) &&
+        isString(value.host) &&
+        typeof value.port === 'number' &&
+        Number.isFinite(value.port),
+    ),
+  ),
   PICLIST_SAVE_CONFIG: write(tuple<[config: ConfigPatch]>(isPatch)),
   MANAGE_SAVE_CONFIG: write(tuple<[config: ConfigPatch]>(isPatch)),
   MANAGE_REMOVE_CONFIG: write(

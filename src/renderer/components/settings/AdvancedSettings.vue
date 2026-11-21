@@ -60,6 +60,7 @@
 
     <!-- Server Settings Section -->
     <SettingSection :icon="Server" :title="t('pages.settings.advanced.serverSettings')">
+      <CustomNavCard :title="t('pages.localFileServer.title')" :icon="Globe" @click="fileServerVisible = true" />
       <CustomNavCard :title="t('pages.settings.advanced.uploadServer')" :icon="Server" @click="serverVisible = true">
         <template #description>
           <span class="mt-1 flex min-w-0 items-center gap-1.5 text-xs font-medium text-secondary">
@@ -88,6 +89,7 @@
     </SettingSection>
   </div>
 
+  <LocalFileServerDialog v-if="fileServerVisible" v-model:visible="fileServerVisible" />
   <CustomModal
     v-model:visible="serverVisible"
     height="auto"
@@ -181,6 +183,7 @@ import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import MultiSelect from '@/components/common/MultiSelect.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
+import LocalFileServerDialog from '@/components/settings/LocalFileServerDialog.vue'
 import { createServerDraft } from '@/composables/settings/settingsState'
 import { useSettingsContext } from '@/composables/settings/useSettingsContext'
 import { getConfig, saveConfig } from '@/services/configService'
@@ -192,6 +195,7 @@ const { t } = useI18n()
 const { settings, uploadProxy, serverDraft } = useSettingsContext()
 
 const serverVisible = ref(false)
+const fileServerVisible = ref(false)
 
 const savingServer = ref(false)
 

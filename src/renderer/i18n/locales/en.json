@@ -561,6 +561,14 @@
     "inputBox": {
       "title": "Input Box"
     },
+    "localFileServer": {
+      "enable": "Enable file server",
+      "folder": "Folder to serve",
+      "hint": "Use your Local uploader’s destination folder here and set its custom URL to {url}. Anyone who can reach this address can browse and read the folder.",
+      "invalidAddress": "Enter an available listen address and a port between 1 and 65535. The file server needs its own port.",
+      "invalidFolder": "Choose an existing folder using its full path.",
+      "title": "Local file server"
+    },
     "manage": {
       "bucket": {
         "allPagesSort": "All {num} items loaded. Sorting covers the whole folder; search covers this page.",

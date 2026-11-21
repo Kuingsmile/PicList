@@ -17,6 +17,12 @@
         </div>
       </div>
       <div class="flex items-center justify-center gap-3">
+        <CustomButton
+          v-if="type === 'local'"
+          type="secondary"
+          :text="t('pages.localFileServer.title')"
+          @click="fileServerVisible = true"
+        />
         <div class="relative">
           <CustomButton
             v-if="type === 'advancedplist'"
@@ -223,6 +229,7 @@
       </template>
     </CustomModal>
 
+    <LocalFileServerDialog v-if="type === 'local' && fileServerVisible" v-model:visible="fileServerVisible" />
     <CustomModal v-model:visible="editorVisible" :title="t('common.edit')">
       <Editor v-model="editorContent" language="javascript" />
       <template #footer>
@@ -261,6 +268,7 @@ import CustomButton from '@/components/common/CustomButton.vue'
 import CustomInput from '@/components/common/CustomInput.vue'
 import CustomModal from '@/components/common/CustomModal.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
+import LocalFileServerDialog from '@/components/settings/LocalFileServerDialog.vue'
 import useConfirm from '@/composables/useConfirm'
 import { usePicBed } from '@/composables/useGlobal'
 import useMessage from '@/composables/useMessage'
@@ -290,6 +298,7 @@ const defaultConfigId = ref('')
 const scriptsListVisible = ref(false)
 const scriptsList = ref<string[]>([])
 const editorVisible = ref(false)
+const fileServerVisible = ref(false)
 const editorContent = ref('')
 const savingEditor = ref(false)
 const duplicateVisible = ref(false)

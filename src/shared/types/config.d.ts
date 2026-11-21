@@ -4,6 +4,13 @@ interface IServerConfig {
   enable: boolean
 }
 
+interface ILocalFileServerConfig {
+  enable: boolean
+  host: string
+  port: number
+  root: string
+}
+
 // Sync
 
 interface ISyncConfig {

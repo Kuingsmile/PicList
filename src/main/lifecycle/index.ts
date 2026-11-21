@@ -13,6 +13,7 @@ import fs from 'fs-extra'
 import { IWindowList } from '~/constants'
 import busEventList from '~/events/busEventList'
 import { stopFileServer } from '~/fileServer'
+import { stopLocalFileServer } from '~/fileServer/localFileServer'
 import rpcServer from '~/ipc'
 import { setupAutoUpdater } from '~/lifecycle/autoUpdater'
 import fixPath from '~/lifecycle/fixPath'
@@ -180,6 +181,7 @@ class LifeCycle {
       ['RPC server', () => rpcServer.stop()],
       ['upload server', () => waitForShutdown(server.shutdown())],
       ['file server', () => waitForShutdown(stopFileServer())],
+      ['local file server', () => waitForShutdown(stopLocalFileServer())],
       [
         'management checkpoints',
         async () => {
