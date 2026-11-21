@@ -14,7 +14,7 @@ overrides:
   'app-builder-lib@26.18.0>@electron/asar': ^4.3.2
   'app-builder-lib@26.18.0>@electron/universal': ^3.0.6
   '@electron/get@3>global-agent': ^4.1.7
-  '@humanfs/node@^0.16.0': ^0.16.8
+  '@humanfs/node@^0.16.0': ^0.17.0
   '@smithy/node-http-handler': ^4.14.2
   '@xmldom/xmldom@^0.8.0': ^0.8.15
   baseline-browser-mapping: ^2.11.39
