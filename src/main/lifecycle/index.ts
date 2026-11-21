@@ -22,6 +22,7 @@ import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { transferScheduler } from '~/manage/transferScheduler'
 import { clearTempFolder } from '~/manage/utils/common'
 import server from '~/server/index'
+import { cleanupGallery } from '~/services/gallerySync/cleanup'
 import UploadTaskQueueManager from '~/services/uploads/uploadTaskQueue'
 import { isAutoStartEnabled, setAutoStart } from '~/utils/autoStart'
 import beforeOpen from '~/utils/beforeOpen'
@@ -114,6 +115,11 @@ class LifeCycle {
     await Promise.all([
       fixPath(),
       beforeOpen(),
+      cleanupGallery(picgo.baseDir)
+        .then(backup => {
+          if (backup) logger.info(`Removed temporary upload payloads. Original gallery saved to ${backup}`)
+        })
+        .catch(() => logger.error('Gallery payload cleanup failed. The original gallery was retained.')),
       fs.emptyDir(path.join(picgo.baseDir, CLIPBOARD_IMAGE_FOLDER)).catch(() => {
         logger.error('Failed to clear the clipboard image directory')
       }),

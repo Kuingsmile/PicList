@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 
 import type { GallerySyncChange, GallerySyncResolution, GallerySyncSource } from '#/types/gallerySync'
+import { withoutBackupPayload } from '~/services/uploads/backupPayload'
 
 export interface RecordValue {
   id: string
@@ -37,7 +38,12 @@ export class GallerySyncError extends Error {
 }
 
 export function canonical(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`
+  if (Array.isArray(value)) {
+    // Serialized image bytes use ordinary JSON number order. Avoid a temporary string per byte.
+    if (typeof value[0] === 'number' && !value.includes(undefined) && value.every(item => typeof item === 'number'))
+      return JSON.stringify(value)
+    return `[${value.map(canonical).join(',')}]`
+  }
   if (value !== null && typeof value === 'object') {
     return `{${Object.keys(value)
       .sort()
@@ -68,6 +74,20 @@ export function documentFrom(records: Record<string, Revision>): GalleryDocument
     __gallery_KEY__: Object.fromEntries(gallery.map(item => [item.id, 1])),
     __sync: { version: 1, records },
   }
+}
+
+// Run only on validated revisions. Older peers can then recognize the cleanup as a descendant.
+export function cleanBackupPayloads(document: GalleryDocument): GalleryDocument {
+  const records = Object.assign(Object.create(null), document.__sync.records) as Record<string, Revision>
+  const gallery = document.gallery.map(value => {
+    const clean = withoutBackupPayload(value)
+    if (clean !== value) {
+      const previous = records[value.id]
+      records[value.id] = { ...previous, ...revision(clean, [previous]) }
+    }
+    return clean
+  })
+  return { ...document, gallery, __sync: { ...document.__sync, records } }
 }
 
 // Missing records in an input are not deletions. Only explicit, validated tombstones delete records.
@@ -282,5 +302,5 @@ export function applyMerge(entries: MergeEntry[], resolutions: Record<string, Ga
   for (const [id, entry] of Object.entries(records)) {
     records[id] = { revision: entry.revision, parents: entry.parents, ancestors: entry.ancestors, value: entry.value }
   }
-  return validateDocument(documentFrom(records))
+  return cleanBackupPayloads(validateDocument(documentFrom(records)))
 }

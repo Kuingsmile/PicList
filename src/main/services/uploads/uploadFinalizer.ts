@@ -16,6 +16,7 @@ import { UPDATE_GALLERY, UPLOAD_FILES } from '#/constants/ipcChannels'
 import { IWindowList } from '~/constants'
 import { t } from '~/i18n'
 import { isRecord, quarantineTaskStore, writeAtomicTaskFile } from '~/services/taskCheckpoint'
+import { withoutBackupPayload } from '~/services/uploads/backupPayload'
 import { sendToWindow } from '~/services/uploads/uploadJob'
 import { getUploadedSourcePath, isUploadUrl } from '~/services/uploads/uploadResult'
 import { handleCopyUrl } from '~/utils/clipboard'
@@ -114,7 +115,7 @@ export function createUploadFinalization(
     if (ctx) state.picBeds[role] = cloneDeep(ctx.getConfig<IStringKeyMap>('picBed') || {})
     output.forEach((image, index) => {
       if (!isUploadUrl(image?.imgUrl)) return
-      const { buffer: _buffer, base64Image: _base64Image, ...metadata } = image
+      const { buffer: _buffer, base64Image: _base64Image, ...metadata } = withoutBackupPayload(image)
       state.items.push({
         role,
         // New IDs distinguish repeated uploads, while retries reuse these exact records.
@@ -191,6 +192,8 @@ export function assertFinalizationStorageAvailable(): void {
 
 export async function saveUploadFinalization(state: UploadFinalization): Promise<void> {
   if (!isUploadFinalization(state)) throw new Error('Invalid upload finalization')
+  // Older retry journals and queue checkpoints may still contain the plugin's copies.
+  for (const item of state.items) item.image = withoutBackupPayload(item.image)
   await withJournalLock(state.id, async () => {
     await app.whenReady()
     assertFinalizationStorageAvailable()
@@ -483,8 +486,11 @@ async function finishUpload(state: UploadFinalization, options: FinalizationOpti
     for (const item of state.items) {
       assertActive()
       if (item.hooksCompleted) continue
-      const ctx = options.contexts?.[item.role] || restoredContext(state, item.role)
-      ctx.output = state.items.filter(output => output.role === item.role).map(output => cloneDeep(output.image))
+      const live = options.contexts?.[item.role]
+      // Give scripts finalized records without replacing an in-flight plugin's ctx.output.
+      const ctx: IPicGo = live ? Object.create(live) : restoredContext(state, item.role)
+      if (live)
+        ctx.output = state.items.filter(output => output.role === item.role).map(output => cloneDeep(output.image))
       await runScriptInStage(
         'onUploadSuccess',
         ctx,
