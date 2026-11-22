@@ -318,7 +318,9 @@ const groups = computed(() => {
     : !c.isReSize.value
       ? disabled
       : undefined
-  const watermarkInactive = !w.isAddWatermark.value ? disabled : undefined
+  const watermarkOff = !w.isAddWatermark.value ? disabled : undefined
+  const watermarkInactive =
+    watermarkOff || (w.randomWatermark.value ? t('pages.imageProcess.watermark.usingPreset') : undefined)
   const textInactive = watermarkInactive || (w.watermarkType.value !== 'text' ? t(`${prefix}.textOnly`) : undefined)
   const imageInactive = watermarkInactive || (w.watermarkType.value !== 'image' ? t(`${prefix}.imageOnly`) : undefined)
   const row = (
@@ -405,14 +407,38 @@ const groups = computed(() => {
       title: t('pages.imageProcess.design.categoryLabels.watermark'),
       rows: [
         row('watermark', 'isAddWatermark', 'pages.imageProcess.guide.watermarkToggle', w.isAddWatermark),
+        row('watermark', 'randomWatermark', 'pages.imageProcess.watermark.random', w.randomWatermark, watermarkOff),
+        row(
+          'watermark',
+          'watermarkPresets',
+          'pages.imageProcess.watermark.presets',
+          w.watermarkPresets,
+          watermarkOff || (!w.randomWatermark.value ? disabled : undefined),
+        ),
         row('watermark', 'watermarkType', `${studio}.watermarkType`, w.watermarkType, watermarkInactive),
         row('watermark', 'watermarkText', `${studio}.watermarkText`, w.watermarkText, textInactive),
         row('watermark', 'watermarkImagePath', `${studio}.watermarkImage`, w.watermarkImagePath, imageInactive),
         row('watermark', 'watermarkPosition', `${studio}.position`, w.watermarkPosition, watermarkInactive),
         row('watermark', 'watermarkColor', `${studio}.color`, w.watermarkColor, textInactive),
         row('watermark', 'watermarkFontPath', `${studio}.font`, w.watermarkFontPath, textInactive),
+        row(
+          'watermark',
+          'watermarkFontSize',
+          'pages.imageProcess.watermark.fontSize',
+          w.watermarkFontSize,
+          textInactive,
+        ),
         row('watermark', 'watermarkImageOpacity', `${studio}.opacity`, w.watermarkImageOpacity, imageInactive),
-        row('watermark', 'watermarkScaleRatio', `${studio}.size`, w.watermarkScaleRatio, watermarkInactive),
+        row(
+          'watermark',
+          'watermarkScaleRatio',
+          `${studio}.size`,
+          w.watermarkScaleRatio,
+          watermarkInactive ||
+            (w.watermarkType.value === 'text' && Number(w.watermarkFontSize.value) > 0
+              ? t('pages.imageProcess.watermark.fixedSize')
+              : undefined),
+        ),
         row('watermark', 'watermarkDegree', `${studio}.angle`, w.watermarkDegree, watermarkInactive),
         row('watermark', 'isFullScreenWatermark', `${studio}.tile`, w.isFullScreenWatermark, watermarkInactive),
       ],

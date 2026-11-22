@@ -42,6 +42,16 @@ export function formatProcessingValue(key: string, value: ProcessingOptionValue,
   if (typeof value === 'boolean') return t(`${preview}.${value ? 'enabled' : 'disabled'}`)
   if (key === 'watermarkType') return t(`pages.imageProcess.watermark.${value}`)
   if (key === 'watermarkPosition') return formatWatermarkPosition(value, t)
+  if (key === 'watermarkFontSize')
+    return Number(value) > 0 ? `${value} px` : t('pages.imageProcess.watermark.proportional')
+  if (Array.isArray(value)) {
+    return (
+      value
+        .filter(preset => preset.enabled)
+        .map(preset => preset.name || t(`pages.imageProcess.watermark.${preset.watermarkType}`))
+        .join(', ') || t('pages.imageProcess.watermark.noChecked')
+    )
+  }
   if (key === 'convertFormat') return String(value).toUpperCase()
   if (key === 'quality' || key === 'reSizePercent') return `${value}%`
   if (key === 'watermarkScaleRatio') return `${Math.round(Number(value) * 100)}%`
@@ -128,6 +138,8 @@ export function processingSummaries(settings: ResolvedImageProcessingConfig, t: 
   const { compress: c, watermark: w, rename, naming } = settings
   const studio = 'pages.imageProcess.studio'
   const rules = Object.keys(c.formatConvertObj.value).length
+  const presets = w.watermarkPresets.value
+  const checkedPresets = Array.isArray(presets) ? presets.filter(preset => preset.enabled).length : 0
 
   const orientation = [
     ...(c.isRotate.value && Number(c.rotateDegree.value)
@@ -181,22 +193,27 @@ export function processingSummaries(settings: ResolvedImageProcessingConfig, t: 
       id: 'watermark',
       category: 'watermark',
       label: t(`${studio}.summary.watermark`),
-      active: !!w.isAddWatermark.value,
+      active: !!w.isAddWatermark.value && (!w.randomWatermark.value || checkedPresets > 0),
       value: w.isAddWatermark.value
-        ? [
-            t(`pages.imageProcess.watermark.${w.watermarkType.value}`),
-            w.isFullScreenWatermark.value
-              ? t(`${studio}.summary.tiled`)
-              : formatWatermarkPosition(w.watermarkPosition.value, t),
-          ].join(' · ')
+        ? w.randomWatermark.value
+          ? t('pages.imageProcess.watermark.randomCount', { count: checkedPresets })
+          : [
+              t(`pages.imageProcess.watermark.${w.watermarkType.value}`),
+              w.isFullScreenWatermark.value
+                ? t(`${studio}.summary.tiled`)
+                : formatWatermarkPosition(w.watermarkPosition.value, t),
+            ].join(' · ')
         : t(`${studio}.off`),
       source: w.isAddWatermark.value
-        ? commonSource(
-            w.isAddWatermark,
-            w.watermarkType,
-            w.isFullScreenWatermark,
-            ...(w.isFullScreenWatermark.value ? [] : [w.watermarkPosition]),
-          )
+        ? w.randomWatermark.value
+          ? commonSource(w.isAddWatermark, w.randomWatermark, w.watermarkPresets)
+          : commonSource(
+              w.isAddWatermark,
+              w.randomWatermark,
+              w.watermarkType,
+              w.isFullScreenWatermark,
+              ...(w.isFullScreenWatermark.value ? [] : [w.watermarkPosition]),
+            )
         : w.isAddWatermark.source,
     },
     {

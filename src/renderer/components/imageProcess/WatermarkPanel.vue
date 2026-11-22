@@ -13,7 +13,16 @@
         no-border
       />
     </ProcessingField>
-    <template v-if="form.watermark.isAddWatermark">
+    <ProcessingField v-if="form.watermark.isAddWatermark" field="watermark.randomWatermark" p1 class="col-span-full">
+      <CustomSwitch
+        v-model="form.watermark.randomWatermark"
+        :title="t('pages.imageProcess.watermark.random')"
+        :description="t('pages.imageProcess.watermark.randomHint')"
+        small
+        no-border
+      />
+    </ProcessingField>
+    <template v-if="form.watermark.isAddWatermark && !form.watermark.randomWatermark">
       <ProcessingField field="watermark.watermarkType">
         <span :id="controlId('watermark-type')" class="text-sm font-semibold text-secondary">
           {{ t('pages.imageProcess.studio.watermarkType') }}
@@ -47,6 +56,13 @@
           :title="t('pages.imageProcess.studio.watermarkText')"
           :placeholder="t('pages.imageProcess.studio.watermarkTextPlaceholder')"
         />
+        <p class="text-xs text-secondary">
+          {{
+            t('pages.imageProcess.watermark.tokens', {
+              tokens: '{filename}, {timestamp}, {timestampS}, {Y}, {y}, {m}, {d}, {h}, {i}, {s}, {ms}',
+            })
+          }}
+        </p>
       </ProcessingField>
       <ProcessingField v-else field="watermark.watermarkImagePath">
         <FilePathInput
@@ -100,12 +116,22 @@
   </SettingSection>
 
   <SettingSection
-    v-if="form.watermark.isAddWatermark"
+    v-if="form.watermark.isAddWatermark && !form.watermark.randomWatermark"
     :icon="Palette"
     :title="t('pages.imageProcess.studio.appearanceTitle')"
     :description="t('pages.imageProcess.studio.appearanceDescription')"
   >
     <template v-if="isText">
+      <ProcessingField field="watermark.watermarkFontSize">
+        <CustomInput
+          v-model.number="form.watermark.watermarkFontSize"
+          type="number"
+          min="0"
+          :title="t('pages.imageProcess.watermark.fontSize')"
+          :tips="t('pages.imageProcess.watermark.fontSizeHint')"
+          placeholder="0"
+        />
+      </ProcessingField>
       <ProcessingField field="watermark.watermarkColor">
         <CustomInput
           v-model="form.watermark.watermarkColor"
@@ -152,7 +178,7 @@
         max-label="100%"
       />
     </ProcessingField>
-    <ProcessingField field="watermark.watermarkScaleRatio">
+    <ProcessingField v-if="!isText || !(form.watermark.watermarkFontSize > 0)" field="watermark.watermarkScaleRatio">
       <CustomRange
         v-model.number="form.watermark.watermarkScaleRatio"
         :title="t('pages.imageProcess.studio.size')"
@@ -186,6 +212,8 @@
       />
     </ProcessingField>
   </SettingSection>
+
+  <WatermarkPresets v-if="form.watermark.isAddWatermark" />
 </template>
 
 <script setup lang="ts">
@@ -201,6 +229,7 @@ import SettingSection from '@/components/common/SettingSection.vue'
 import { useImageProcessContext } from '@/components/imageProcess/context'
 import FilePathInput from '@/components/imageProcess/FilePathInput.vue'
 import ProcessingField from '@/components/imageProcess/ProcessingField.vue'
+import WatermarkPresets from '@/components/imageProcess/WatermarkPresets.vue'
 import { vTooltip } from '@/directives/tooltip'
 import { formatOpacity, formatWatermarkPosition, watermarkPositions } from '@/utils/imageProcessingPresentation'
 

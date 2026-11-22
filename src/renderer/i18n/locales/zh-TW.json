@@ -557,7 +557,11 @@
         "rotationDegree": "旋轉角度"
       },
       "watermark": {
+        "fixedSize": "文字使用固定字號。",
+        "fontSize": "字號（像素）",
+        "fontSizeHint": "輸入 0 可依圖片寬度縮放文字。",
         "image": "圖片",
+        "noChecked": "沒有勾選任何方案，圖片將不加水印直接上傳。",
         "positionOptions": {
           "bottom": "下",
           "bottomLeft": "左下",
@@ -569,7 +573,18 @@
           "topLeft": "左上",
           "topRight": "右上"
         },
-        "text": "文字"
+        "presetName": "方案名稱",
+        "presets": "水印方案",
+        "presetsHint": "關閉隨機選取後，可設定文字或圖片水印，並在此儲存其樣式。",
+        "proportional": "依比例縮放",
+        "random": "隨機選取水印方案",
+        "randomCount": "隨機 · 已勾選 {count} 項",
+        "randomHint": "每張圖片隨機使用一個已勾選的方案。",
+        "removePreset": "移除「{name}」",
+        "savePreset": "儲存目前水印",
+        "text": "文字",
+        "tokens": "可用佔位符：{tokens}。",
+        "usingPreset": "此設定由選中的方案決定。"
       },
       "watermarkSettings": "水印"
     },

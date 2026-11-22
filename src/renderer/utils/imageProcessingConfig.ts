@@ -1,7 +1,8 @@
 import type { IBuildInCompressOptions, IBuildInWaterMarkOptions } from 'piclist'
 
 export type ProcessingConfigSource = 'config' | 'provider' | 'global' | 'default'
-export type ProcessingOptionValue = boolean | number | string | Record<string, string>
+export type WatermarkPreset = NonNullable<IBuildInWaterMarkOptions['watermarkPresets']>[number]
+export type ProcessingOptionValue = boolean | number | string | Record<string, string> | WatermarkPreset[]
 
 export interface ResolvedProcessingOption {
   value: ProcessingOptionValue
@@ -102,15 +103,18 @@ const compressDefaults = {
 
 const watermarkDefaults = {
   isAddWatermark: false,
+  randomWatermark: false,
+  watermarkPresets: [] as WatermarkPreset[],
   watermarkType: 'text',
   isFullScreenWatermark: false,
   watermarkDegree: 0,
   watermarkScaleRatio: 0.15,
   watermarkText: '',
   watermarkFontPath: '',
+  watermarkFontSize: 0,
   watermarkColor: '#CCCCCC73',
   watermarkImagePath: '',
-  watermarkImageOpacity: 0,
+  watermarkImageOpacity: 255,
   watermarkPosition: 'southeast',
 }
 
@@ -175,6 +179,10 @@ export function resolveImageProcessingConfig(
   const watermark = resolveGroup(watermarkDefaults, global.watermark ?? {}, profile.watermark ?? {}, provider)
   normalizeGroup(compressDefaults, compress)
   normalizeGroup(watermarkDefaults, watermark)
+  const presets = watermark.watermarkPresets.value
+  watermark.watermarkPresets.value = Array.isArray(presets)
+    ? presets.filter(preset => preset?.watermarkType === 'text' || preset?.watermarkType === 'image')
+    : []
   watermark.watermarkPosition.value = normalizeWatermarkPosition(watermark.watermarkPosition.value)
 
   // Match encoder quality and watermark scaling fallbacks in PicList's processor.

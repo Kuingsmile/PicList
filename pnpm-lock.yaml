@@ -298,8 +298,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       piclist:
-        specifier: ^3.1.0
-        version: 3.1.0(@types/node@24.19.2)(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/node@24.19.2)(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0)
       qiniu:
         specifier: 7.15.2
         version: 7.15.2
@@ -4550,8 +4550,8 @@ packages:
   performance-now@2.1.0:
     resolution: {integrity: sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==}
 
-  piclist@3.1.0:
-    resolution: {integrity: sha512-AB82pFbSpEIvRwS9IeDf/v7MWzeuGpaHbYHwvZIIvMz27bwFPZJqBze3eo5+cmRFO9gmZK1GKYcT845QlYBkoQ==}
+  piclist@3.1.1:
+    resolution: {integrity: sha512-nklfE9SFmvzLpU6EsZWmoFJrcQJ7fDL2AIkpGpnGQmrMxvnXf74hjZBVtKLSJ8zM/2CP+8Fv8V3sltse6qoTBg==}
     engines: {node: ^24.15.0 || >=26.0.0}
     hasBin: true
     bundledDependencies:
@@ -9842,7 +9842,7 @@ snapshots:
 
   performance-now@2.1.0: {}
 
-  piclist@3.1.0(@types/node@24.19.2)(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0):
+  piclist@3.1.1(@types/node@24.19.2)(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0):
     dependencies:
       '@aws-sdk/client-s3': 3.1175.0
       '@aws-sdk/lib-storage': 3.1175.0(@aws-sdk/client-s3@3.1175.0)

@@ -557,7 +557,11 @@
         "rotationDegree": "Rotation Angle"
       },
       "watermark": {
+        "fixedSize": "Text uses a fixed font size.",
+        "fontSize": "Font size (px)",
+        "fontSizeHint": "Enter 0 to scale text with the image width.",
         "image": "Image",
+        "noChecked": "No presets are checked. Images will upload without a watermark.",
         "positionOptions": {
           "bottom": "Bottom",
           "bottomLeft": "Bottom Left",
@@ -569,7 +573,18 @@
           "topLeft": "Top Left",
           "topRight": "Top Right"
         },
-        "text": "Text"
+        "presetName": "Preset name",
+        "presets": "Watermark presets",
+        "presetsHint": "Turn off random selection to set up a text or image watermark and save its appearance here.",
+        "proportional": "Proportional",
+        "random": "Choose a random preset",
+        "randomCount": "Random · {count} checked",
+        "randomHint": "Apply one checked preset to each image.",
+        "removePreset": "Remove {name}",
+        "savePreset": "Save current watermark",
+        "text": "Text",
+        "tokens": "Available placeholders include {tokens}.",
+        "usingPreset": "The selected preset supplies this setting."
       },
       "watermarkSettings": "Watermark"
     },
