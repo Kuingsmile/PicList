@@ -7,6 +7,7 @@ interface ImgInfo {
   height?: number
   extname?: string
   imgUrl?: string
+  s3Object?: { bucket: string; key: string }
   id?: string
   type?: string
   galleryTags?: string[]

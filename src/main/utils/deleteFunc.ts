@@ -86,44 +86,42 @@ async function getDogeToken(accessKey: string, secretKey: string): Promise<IObj 
   }
 }
 
-export async function removeFileFromS3InMain(configMap: IStringKeyMap, dogeMode: boolean = false) {
-  const {
-    url: rawUrl,
-    type,
-    config: {
-      accessKeyID,
-      secretAccessKey,
-      bucketName,
-      endpoint,
-      pathStyleAccess,
-      rejectUnauthorized,
-      proxy,
-      urlPrefix,
-    },
-  } = configMap
-  let {
-    imgUrl,
-    config: { region },
-  } = configMap
-  if (type === 'aws-s3' || type === 'aws-s3-plist') {
-    imgUrl = rawUrl || imgUrl || ''
+function getS3DeleteTarget(item: ImgInfo) {
+  const isS3 = item.type === 'aws-s3' || item.type === 'aws-s3-plist'
+  if (isS3 && item.s3Object) {
+    return { Bucket: item.s3Object.bucket, Key: item.s3Object.key }
   }
-  let fileKey
+
+  const { bucketName, pathStyleAccess, urlPrefix, disableBucketPrefixToURL } = item.config
+  const imgUrl: string = (isS3 && item.url) || item.imgUrl || ''
+  let fileKey: string
   if (urlPrefix && imgUrl.startsWith(urlPrefix)) {
-    const urlPrefixObj = new URL(urlPrefix)
-    const imgUrlObj = new URL(imgUrl)
-    if (imgUrlObj.pathname.startsWith(urlPrefixObj.pathname)) {
-      fileKey = imgUrlObj.pathname.substring(urlPrefixObj.pathname.length).replace(/^\/+/, '')
-    } else {
-      fileKey = imgUrlObj.pathname.replace(/^\/+/, '')
+    // Mirror the uploader's public URL prefix, including legacy string settings.
+    let prefix = urlPrefix.replace(/\/$/, '') + '/'
+    if (isS3 && pathStyleAccess && String(disableBucketPrefixToURL).toLowerCase() !== 'true') {
+      prefix += bucketName + '/'
     }
+    if (!imgUrl.startsWith(prefix)) throw new Error('Gallery URL does not match the configured object prefix')
+    fileKey = imgUrl.slice(prefix.length).split(/[?#]/, 1)[0]
   } else {
     const url = new URL(!/^https?:\/\//.test(imgUrl) ? `http://${imgUrl}` : imgUrl)
-    fileKey = url.pathname.replace(/^\/+/, '')
+    fileKey = url.pathname.slice(1)
     if (pathStyleAccess) {
       fileKey = fileKey.replace(/^[^/]+\//, '')
     }
   }
+  try {
+    fileKey = decodeURIComponent(fileKey)
+  } catch {
+    // Older URLs may contain a literal percent sign.
+  }
+  return { Bucket: bucketName, Key: fileKey }
+}
+
+export async function removeFileFromS3InMain(configMap: IStringKeyMap, dogeMode: boolean = false) {
+  const target = getS3DeleteTarget(configMap)
+  const { accessKeyID, secretAccessKey, endpoint, pathStyleAccess, rejectUnauthorized, proxy } = configMap.config
+  let { region } = configMap.config
   const endpointUrl: string | undefined = endpoint
     ? /^https?:\/\//.test(endpoint)
       ? endpoint
@@ -177,22 +175,13 @@ export async function removeFileFromS3InMain(configMap: IStringKeyMap, dogeMode:
   }
   let result: any
   try {
-    fileKey = decodeURIComponent(fileKey)
-  } catch (_err: any) {}
-  try {
     const client = new S3Client(s3Options)
-    const command = new DeleteObjectCommand({
-      Bucket: bucketName,
-      Key: fileKey,
-    })
+    const command = new DeleteObjectCommand(target)
     result = await client.send(command)
   } catch (_err: any) {
     s3Options.region = 'us-east-1'
     const client = new S3Client(s3Options)
-    const command = new DeleteObjectCommand({
-      Bucket: bucketName,
-      Key: fileKey,
-    })
+    const command = new DeleteObjectCommand(target)
     result = await client.send(command)
   }
   return result.$metadata.httpStatusCode === 204
