@@ -469,8 +469,8 @@ const isFocusMode = ref(false)
 const railCollapsed = useLocalStorage('manage-main-rail-collapsed', false)
 // Matches Tailwind's `lg` breakpoint, below which the header buttons show icons only.
 const compactHeader = useMediaQuery('(max-width: 1023.98px)')
-// The last opened bucket per account, so returning to an account reopens it.
-const lastBuckets = useLocalStorage<Record<string, string>>('manage-main-last-bucket', {})
+// GitHub repository IDs survive renames and transfers. Other providers use bucket names.
+const lastBuckets = useLocalStorage<Record<string, string | number>>('manage-main-last-bucket', {})
 
 const allPicBedConfigure = shallowRef<IStringKeyMap>(JSON.parse(route.query.allPicBedConfigure as string))
 const currentPagePicBedConfig = shallowRef<IStringKeyMap>(JSON.parse(route.query.config as string))
@@ -748,6 +748,16 @@ async function getBucketList() {
       bucketList.value[item.Name] = item
       bucketNameList.value.push(item.Name)
     })
+    if (
+      result.success &&
+      request.provider === 'github' &&
+      currentPageInMain.value === 'bucket' &&
+      bucketList.value[currentSelectedBucket.value]?.id !== configMap.value.bucketConfig.id
+    ) {
+      currentPageInMain.value = 'empty'
+      currentSelectedBucket.value = ''
+      configMap.value = null
+    }
     restoreSelection()
   } catch {
     if (bucketListings.isCurrent(request)) bucketListings.complete(request)
@@ -760,7 +770,17 @@ function restoreSelection() {
   if (currentPageInMain.value !== 'empty' || currentSelectedBucket.value) return
   const remembered = lastBuckets.value[currentAlias.value]
   const names = bucketNameList.value
-  const target = remembered && names.includes(remembered) ? remembered : names.length === 1 ? names[0] : ''
+  if (currentPicBedName.value === 'github' && remembered !== undefined) {
+    // Older versions saved the bare name, which can match multiple owners.
+    const matches = names.filter(name => {
+      const repo = bucketList.value[name]
+      return typeof remembered === 'number' ? repo.id === remembered : repo.name === remembered
+    })
+    if (matches.length === 1) handleSelectMenu(matches[0])
+    return
+  }
+  const target =
+    typeof remembered === 'string' && names.includes(remembered) ? remembered : names.length === 1 ? names[0] : ''
   if (target) handleSelectMenu(target)
 }
 
@@ -802,7 +822,10 @@ function handleSelectMenu(bucketName: string) {
     webPath: currentPicBedConfig.webPath || '',
   }
   currentSelectedBucket.value = bucketName
-  lastBuckets.value = { ...lastBuckets.value, [currentAlias.value]: bucketName }
+  lastBuckets.value = {
+    ...lastBuckets.value,
+    [currentAlias.value]: cpicBedName === 'github' ? configMapT.bucketConfig.id : bucketName,
+  }
   configMap.value = configMapT
   currentPageInMain.value = 'bucket'
 }

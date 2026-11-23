@@ -446,14 +446,12 @@ export function useBucketListing({
   }
 
   function getTableKeyOfDb() {
-    let tableKey
+    const { alias, bucketName, bucketConfig } = configMap.value
     if (currentPicBedName.value === 'github') {
-      // customUrl is branch
-      tableKey = `${configMap.value.alias}@${configMap.value.bucketConfig.githubUsername}@${configMap.value.bucketName}@${currentCustomDomain.value}@${currentPrefix.value}`
-    } else {
-      tableKey = `${configMap.value.alias}@${configMap.value.bucketName}@${currentPrefix.value}`
+      const scope = JSON.stringify([alias, bucketConfig.id, bucketName, currentCustomDomain.value])
+      return `${scope}@${currentPrefix.value}`
     }
-    return tableKey
+    return `${alias}@${bucketName}@${currentPrefix.value}`
   }
 
   async function searchExistFileList() {

@@ -46,17 +46,23 @@ class GithubApi {
     }
   }
 
-  private contentsUrl(repo: string, key: string): string {
-    return `${this.baseUrl}/repos/${this.username}/${repo}/contents/${encodeObjectPath(trimPath(key))}`
+  private repositoryUrl(fullName: string): string {
+    if (!/^[\w.-]+\/[\w.-]+$/.test(fullName)) throw new Error('Expected a GitHub repository in owner/repo format')
+    return `${this.baseUrl}/repos/${fullName}`
   }
 
-  private publicUrl(key: string, branch: string, repo: string, cdnUrl?: string): string {
+  private contentsUrl(fullName: string, key: string): string {
+    return `${this.repositoryUrl(fullName)}/contents/${encodeObjectPath(trimPath(key))}`
+  }
+
+  private publicUrl(key: string, branch: string, fullName: string, cdnUrl?: string): string {
     const placeholder = /\{(username|repo|branch|path)\}/g
     if (cdnUrl && placeholder.test(cdnUrl)) {
-      const values: Record<string, string> = { username: this.username, repo, branch, path: encodeObjectPath(key) }
+      const [owner, repo] = fullName.split('/')
+      const values: Record<string, string> = { username: owner, repo, branch, path: encodeObjectPath(key) }
       return cdnUrl.replace(placeholder, (_, name: string) => values[name])
     }
-    return getPublicObjectUrl(cdnUrl || `https://raw.githubusercontent.com/${this.username}/${repo}/${branch}`, key)
+    return getPublicObjectUrl(cdnUrl || `https://raw.githubusercontent.com/${fullName}/${branch}`, key)
   }
 
   formatFolder(item: any, slicedPrefix: string, branch: string, repo: string, cdnUrl: string | undefined) {
@@ -118,7 +124,7 @@ class GithubApi {
         res.body.forEach((item: any) => {
           result.push({
             ...item,
-            Name: item.name,
+            Name: item.full_name,
             Location: item.id,
             CreationDate: item.created_at,
           })
@@ -135,13 +141,13 @@ class GithubApi {
    * 获取branch列表
    */
   async getBucketDomain(param: IStringKeyMap): Promise<any> {
-    const { bucketName: repo } = param
+    const repoUrl = this.repositoryUrl(param.bucketName)
     let initPage = 1
     let res
     const result = [] as string[]
     do {
       res = (await got(
-        `${this.baseUrl}/repos/${this.username}/${repo}/branches`,
+        `${repoUrl}/branches`,
         getOptions(
           'GET',
           this.commonHeaders,
@@ -164,6 +170,7 @@ class GithubApi {
 
   async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const { bucketName: repo, customUrl: branch, prefix, cdnUrl } = configMap
+    const repoUrl = this.repositoryUrl(repo)
     const slicedPrefix = prefix.replace(/(^\/+|\/+$)/g, '')
     const result = {
       fullList: [] as any,
@@ -178,7 +185,7 @@ class GithubApi {
       }
       const currentPrefix = treeQueue.shift()!
       const res = (await listing.wait(() =>
-        got(`${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${encodeObjectPath(currentPrefix)}`, {
+        got(`${repoUrl}/git/trees/${branch}:${encodeObjectPath(currentPrefix)}`, {
           ...getOptions('GET', this.commonHeaders, {}, 'json', undefined, undefined, this.proxy),
           signal: listing.signal,
         }),
@@ -209,6 +216,7 @@ class GithubApi {
 
   async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const { bucketName: repo, customUrl: branch, prefix, cdnUrl } = configMap
+    const repoUrl = this.repositoryUrl(repo)
     const slicedPrefix = prefix.replace(/(^\/+|\/+$)/g, '')
     const result = {
       fullList: [] as any,
@@ -216,7 +224,7 @@ class GithubApi {
       finished: false,
     }
     const res = (await listing.wait(() =>
-      got(`${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${encodeObjectPath(slicedPrefix)}`, {
+      got(`${repoUrl}/git/trees/${branch}:${encodeObjectPath(slicedPrefix)}`, {
         ...getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy),
         signal: listing.signal,
       }),
@@ -269,17 +277,18 @@ class GithubApi {
    * @param configMap
    */
   async deleteBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
-    const { bucketName: repo, githubBranch: branch, key } = configMap
+    const { githubBranch: branch, key } = configMap
+    const repoUrl = this.repositoryUrl(configMap.bucketName)
     // get sha of the branch
     const refRes = (await got(
-      `${this.baseUrl}/repos/${this.username}/${repo}/git/refs/heads/${branch}`,
+      `${repoUrl}/git/refs/heads/${branch}`,
       getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy),
     )) as any
     if (refRes.statusCode !== 200) return false
     const refSha = refRes.body.object.sha
     // get sha of the root tree
     const rootRes = (await got(
-      `${this.baseUrl}/repos/${this.username}/${repo}/branches/${branch}`,
+      `${repoUrl}/branches/${branch}`,
       getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy),
     )) as any
     if (rootRes.statusCode !== 200) return false
@@ -288,7 +297,7 @@ class GithubApi {
     // Rare cases, not considered for now
     // get sha of the folder tree
     const treeRes = (await got(
-      `${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${key.replace(/(^\/+|\/+$)/g, '')}`,
+      `${repoUrl}/git/trees/${branch}:${key.replace(/(^\/+|\/+$)/g, '')}`,
       getOptions(
         'GET',
         this.commonHeaders,
@@ -313,7 +322,7 @@ class GithubApi {
         sha: null,
       }))
     const newTreeShaRes = (await got(
-      `${this.baseUrl}/repos/${this.username}/${repo}/git/trees`,
+      `${repoUrl}/git/trees`,
       getOptions(
         'POST',
         this.commonHeaders,
@@ -331,7 +340,7 @@ class GithubApi {
     const newTreeSha = newTreeShaRes.body.sha
     // create a new commit
     const commitRes = (await got(
-      `${this.baseUrl}/repos/${this.username}/${repo}/git/commits`,
+      `${repoUrl}/git/commits`,
       getOptions(
         'POST',
         this.commonHeaders,
@@ -350,7 +359,7 @@ class GithubApi {
     const commitSha = commitRes.body.sha
     // update the branch
     const updateRefRes = (await got(
-      `${this.baseUrl}/repos/${this.username}/${repo}/git/refs/heads/${branch}`,
+      `${repoUrl}/git/refs/heads/${branch}`,
       getOptions(
         'PATCH',
         this.commonHeaders,
@@ -475,20 +484,13 @@ class GithubApi {
     const promises = [] as any
     for (const item of fileArray) {
       const { bucketName: repo, customUrl: branch, key, fileName, githubPrivate, githubUrl } = item
-      const sourceId = `${repo}-${branch}-${key}-${fileName}`
+      const sourceId = JSON.stringify([item.region, repo, branch, key, fileName])
       const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
       if (!task) continue
       const { id, destination } = task
       let downloadUrl: string
       if (githubPrivate) {
-        const preSignedUrl = await this.getPreSignedUrl({
-          bucketName: repo,
-          customUrl: branch,
-          key,
-          rawUrl: githubUrl,
-          githubPrivate,
-        })
-        downloadUrl = preSignedUrl
+        downloadUrl = await this.getPreSignedUrl({ ...item, rawUrl: githubUrl })
       } else {
         downloadUrl = githubUrl
       }
