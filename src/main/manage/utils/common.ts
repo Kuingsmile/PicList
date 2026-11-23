@@ -57,7 +57,7 @@ const downloadError = (error: unknown) => ({
     : {}),
 })
 
-const failDownloadTask = (instance: UpDownTaskQueue, id: string, error: unknown, logger?: ManageLogger) => {
+export const failDownloadTask = (instance: UpDownTaskQueue, id: string, error: unknown, logger?: ManageLogger) => {
   const response = downloadError(error)
   logger?.error(response)
   instance.updateDownloadTask({

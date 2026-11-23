@@ -11,6 +11,7 @@ import {
   ConcurrencyPromisePool,
   createDownloadTask,
   encodeObjectPath,
+  failDownloadTask,
   formatError,
   getAgent,
   getOptions,
@@ -481,34 +482,26 @@ class GithubApi {
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
     const instance = UpDownTaskQueue.getInstance()
-    const promises = [] as any
+    const jobs: (() => Promise<boolean>)[] = []
     for (const item of fileArray) {
-      const { bucketName: repo, customUrl: branch, key, fileName, githubPrivate, githubUrl } = item
+      const { bucketName: repo, customUrl: branch, key, fileName, githubUrl } = item
       const sourceId = JSON.stringify([item.region, repo, branch, key, fileName])
       const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
       if (!task) continue
       const { id, destination } = task
-      let downloadUrl: string
-      if (githubPrivate) {
-        downloadUrl = await this.getPreSignedUrl({ ...item, rawUrl: githubUrl })
-      } else {
-        downloadUrl = githubUrl
-      }
-      promises.push(
-        () =>
-          new Promise((resolve, reject) => {
-            NewDownloader(instance, downloadUrl, id, destination, this.logger, this.proxyStr).then((res: boolean) => {
-              if (res) {
-                resolve(res)
-              } else {
-                reject(res)
-              }
-            })
-          }),
-      )
+      jobs.push(async () => {
+        try {
+          const url = await this.getPreSignedUrl({ ...item, rawUrl: githubUrl })
+          if (!url) throw new Error('GitHub did not return a download URL')
+          return await NewDownloader(instance, url, id, destination, this.logger, this.proxyStr)
+        } catch (error) {
+          failDownloadTask(instance, id, error, this.logger)
+          return false
+        }
+      })
     }
     const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
-    pool.all(promises).catch(error => {
+    pool.all(jobs).catch(error => {
       this.logger.error(
         formatError(error, {
           class: 'GithubApi',
