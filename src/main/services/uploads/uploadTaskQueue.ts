@@ -30,6 +30,7 @@ import {
   decodeUploadCheckpoint,
   normalizeUploadInterval,
   retainUploadHistory,
+  uploadSourceFileName,
   uploadTaskMetadata,
 } from '~/services/uploads/uploadTaskMetadata'
 import { configPaths } from '~/utils/configPaths'
@@ -147,7 +148,7 @@ class UploadTaskQueueManager {
       const batch = await Promise.all(
         files.slice(offset, offset + 32).map(async file => ({
           id: `task_${uuid()}`,
-          fileName: file.name || path.basename(file.path),
+          fileName: file.name || uploadSourceFileName(file.path),
           filePath: file.path,
           fileSize: await this.getFileSize(file.path),
           status: UploadTaskStatus.PENDING,

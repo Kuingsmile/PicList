@@ -5,6 +5,7 @@ import { pipeline } from 'node:stream/promises'
 import axios from 'axios'
 import { app } from 'electron'
 import fs from 'fs-extra'
+import { PicGoUtils } from 'piclist'
 
 interface ImportedFile {
   directory: string
@@ -35,9 +36,9 @@ export const downloadFileFromUrl = async (urls: string[]): Promise<IUrlImportRes
     let filePath: string | undefined
     let downloadStream: Readable | undefined
     try {
-      const fileName = path.posix.basename(new URL(url).pathname) || 'download'
+      const fileName = PicGoUtils.getUrlFileName(new URL(url)) || 'download'
       const directory = await fs.mkdtemp(path.join(tempPath, 'url-'))
-      filePath = path.join(directory, fileName.replace(/[\\/:*?"<>|]/g, '_'))
+      filePath = path.join(directory, fileName)
       importedFiles.set(filePath, { directory, awaitingUpload: true, uploads: new Set() })
       const res = await axios({ method: 'get', url, responseType: 'stream' })
       downloadStream = res.data

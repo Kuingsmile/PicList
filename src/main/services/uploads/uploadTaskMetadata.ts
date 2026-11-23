@@ -1,5 +1,7 @@
 import path from 'node:path'
 
+import { PicGoUtils } from 'piclist'
+
 import { checkpointSource, isRecord, retainTaskHistory } from '../taskCheckpoint'
 import { isUploadFinalization } from './uploadFinalizer'
 import type { IUploadTaskItem, IUploadTaskQueueConfig } from './uploadTaskQueue'
@@ -21,19 +23,20 @@ export const retainUploadHistory = (tasks: IUploadTaskItem[]): IUploadTaskItem[]
     task => task.completedAt,
   )
 
+export function uploadSourceFileName(filePath: string, localName?: string): string {
+  if (!/^https?:\/\//i.test(filePath)) return localName ?? path.basename(filePath)
+  try {
+    return PicGoUtils.getUrlFileName(new URL(filePath)) || 'download'
+  } catch {
+    return 'download'
+  }
+}
+
 export function uploadTaskMetadata(task: IUploadTaskItem): IUploadTaskItem {
   const filePath = checkpointSource(task.filePath) || ''
-  let fileName = task.fileName
-  if (/^https?:\/\//i.test(task.filePath)) {
-    try {
-      fileName = path.posix.basename(new URL(task.filePath).pathname) || 'download'
-    } catch {
-      fileName = 'download'
-    }
-  }
   return {
     id: task.id,
-    fileName,
+    fileName: uploadSourceFileName(task.filePath, task.fileName),
     filePath,
     fileSize: task.fileSize,
     status: task.status,
