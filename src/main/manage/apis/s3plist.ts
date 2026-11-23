@@ -400,10 +400,10 @@ class S3plistApi {
         })
         res = await listing.wait(() => client.send(command, { abortSignal: listing.signal }))
         if (res.$metadata.httpStatusCode === 200) {
-          res.Contents &&
-            res.Contents.forEach((item: _Object) => {
-              result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
-            })
+          for (const item of res.Contents ?? []) {
+            if (!item.Key || item.Key.endsWith('/')) continue
+            result.fullList.push(this.formatFile(item, slicedPrefix, urlPrefix))
+          }
           await listing.publish(result)
           result.fullList = []
         } else {
