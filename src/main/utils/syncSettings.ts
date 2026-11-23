@@ -1,11 +1,12 @@
 import path from 'node:path'
 
 import { GalleryDB } from '@core/datastore'
+import { readConfigFile } from '@core/datastore/configFile'
 import { appConfigPath, dataDir, manageConfigPath } from '@core/datastore/dirs'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
 import { Octokit } from '@octokit/rest'
-import axios from 'axios'
+import axios, { type AxiosRequestConfig } from 'axios'
 import fs from 'fs-extra'
 import { HttpsProxyAgent } from 'hpagent'
 import { AuthType, createClient, WebDAVClientOptions } from 'webdav'
@@ -308,81 +309,87 @@ async function updateLocalToRemote(syncConfig: ISyncConfig, fileName: string) {
   }
 }
 
-async function downloadAndWriteFile(url: string, localFilePath: string, config: any, isWriteJson = false) {
-  const res = await axios.get(url, config)
-  if (isHttpResSuccess(res)) {
-    await writeFile(
-      localFilePath,
-      isWriteJson ? JSON.stringify(res.data, null, 2) : Buffer.from(res.data.content, 'base64'),
-    )
-    return true
+async function downloadBase64Config(url: string, config: AxiosRequestConfig) {
+  const res = await axios.get<{ content: string }>(url, config)
+  return isHttpResSuccess(res) ? Buffer.from(res.data.content, 'base64') : null
+}
+
+async function downloadConfig(syncConfig: ISyncConfig, fileName: string): Promise<Buffer | null> {
+  const { username, repo, branch, token, proxy, type } = syncConfig
+  switch (type) {
+    case 'gitee': {
+      const url = `https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`
+      return downloadBase64Config(url, { params: { access_token: token, ref: branch } })
+    }
+    case 'github': {
+      const octokit = getOctokit(syncConfig)
+      const { status, data } = await octokit.rest.repos.getContent({
+        owner: username,
+        repo,
+        path: fileName,
+        ref: branch,
+      })
+      if (status !== 200 || Array.isArray(data) || !data.download_url) return null
+      const res = await axios.get<ArrayBuffer>(data.download_url, {
+        httpsAgent: getProxyagent(proxy),
+        responseType: 'arraybuffer',
+      })
+      return isHttpResSuccess(res) ? Buffer.from(res.data) : null
+    }
+    case 'gitea': {
+      const { endpoint = '' } = syncConfig
+      const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
+      return downloadBase64Config(apiUrl, {
+        headers: { Authorization: `token ${token}` },
+        params: { ref: branch },
+      })
+    }
+    case 'webdav': {
+      const {
+        webdavEndpoint = '',
+        webdavUsername,
+        webdavPassword,
+        webdavAuthType = 'basic',
+        webdavSslEnabled = true,
+        webdavSavePath = '',
+      } = syncConfig
+      const webdavEndpointF = formatEndpoint(webdavEndpoint, webdavSslEnabled)
+      const options: WebDAVClientOptions = {
+        username: webdavUsername,
+        password: webdavPassword,
+      }
+      if (webdavAuthType === 'digest') {
+        options.authType = AuthType.Digest
+      }
+      const client = createClient(webdavEndpointF, options)
+      const remoteFilePath = (webdavSavePath ? path.join(webdavSavePath, fileName) : fileName).replace(/\\/g, '/')
+      const content = await client.getFileContents(remoteFilePath, { format: 'binary' })
+      return Buffer.isBuffer(content) ? content : null
+    }
+    default:
+      return null
   }
-  return false
 }
 
 async function downloadRemoteToLocal(syncConfig: ISyncConfig, fileName: string) {
-  const localFilePath = getConfigFilePath(fileName)
-  const { username, repo, branch, token, proxy, type } = syncConfig
   try {
-    switch (type) {
-      case 'gitee': {
-        const url = `https://gitee.com/api/v5/repos/${username}/${repo}/contents/${fileName}`
-        const config = {
-          params: { access_token: token, ref: branch },
-        }
-        return downloadAndWriteFile(url, localFilePath, config)
-      }
-      case 'github': {
-        const octokit = getOctokit(syncConfig)
-        const res = await octokit.rest.repos.getContent({
-          owner: username,
-          repo,
-          path: fileName,
-          ref: branch,
-        })
-        if (res.status === 200) {
-          const data = res.data as any
-          const downloadUrl = data.download_url
-          return downloadAndWriteFile(downloadUrl, localFilePath, { httpsAgent: getProxyagent(proxy) }, true)
-        }
-        return false
-      }
-      case 'gitea': {
-        const { endpoint = '', token, username, repo, branch } = syncConfig
-        const apiUrl = `${endpoint}/api/v1/repos/${username}/${repo}/contents/${fileName}`
-        return downloadAndWriteFile(apiUrl, localFilePath, {
-          headers: { Authorization: `token ${token}` },
-          params: { ref: branch },
-        })
-      }
-      case 'webdav': {
-        const {
-          webdavEndpoint = '',
-          webdavUsername,
-          webdavPassword,
-          webdavAuthType = 'basic',
-          webdavSslEnabled = true,
-          webdavSavePath = '',
-        } = syncConfig
-        const webdavEndpointF = formatEndpoint(webdavEndpoint, webdavSslEnabled)
-        const options: WebDAVClientOptions = {
-          username: webdavUsername,
-          password: webdavPassword,
-        }
-        if (webdavAuthType === 'digest') {
-          options.authType = AuthType.Digest
-        }
-        const client = createClient(webdavEndpointF, options)
-        const remoteFilePath = (webdavSavePath ? path.join(webdavSavePath, fileName) : fileName).replace(/\\/g, '/')
-        const fileContent = await client.getFileContents(remoteFilePath)
-        await writeFile(localFilePath, fileContent as Buffer)
-        return true
-      }
-      default:
-        return false
+    const content = await downloadConfig(syncConfig, fileName)
+    if (!content?.length) return false
+
+    const localFilePath = getConfigFilePath(fileName)
+    // The startup reader takes a path, so validate a private copy of the bytes first.
+    const stagingDir = await fs.mkdtemp(path.join(path.dirname(localFilePath), '.piclist-restore-'))
+    try {
+      const stagedPath = path.join(stagingDir, 'config.json')
+      await fs.writeFile(stagedPath, content, { mode: 0o600 })
+      readConfigFile(stagedPath)
+    } finally {
+      await fs.remove(stagingDir)
     }
-  } catch (_error: any) {
-    logger.error('Settings transport failed')
+    await writeFile(localFilePath, content)
+    return true
+  } catch (_error) {
+    logger.error('Settings restore failed')
     return false
   }
 }
