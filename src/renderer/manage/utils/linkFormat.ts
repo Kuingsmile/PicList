@@ -5,7 +5,6 @@ export const preSignedUrlFormat = 'preSignedUrl'
 export type CopyFormat = (typeof linkFormatList)[number] | typeof preSignedUrlFormat
 
 import { getConfig } from '@/manage/services/configService'
-import { handleUrlEncode } from '#/utils/url'
 
 export function formatStorageLink(
   format: string | undefined,
@@ -34,7 +33,8 @@ export async function formatLink(
   filePath?: string,
 ): Promise<string> {
   const encode = !!(await getConfig('settings.isEncodeUrl'))
-  const encodedUrl = encode ? handleUrlEncode(url) : url
+  // Copy pre-encoded provider URLs verbatim, including reserved escapes such as %23.
+  const encodedUrl = encode && !/%[\da-f]{2}/i.test(url) ? encodeURI(url) : url
   switch (type) {
     case 'markdown':
       return `![${fileName}](${encodedUrl})`

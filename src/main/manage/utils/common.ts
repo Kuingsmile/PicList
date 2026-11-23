@@ -34,6 +34,13 @@ export const getFileMimeType = (filePath: string): string => mime.getType(filePa
 // Encode raw object names before building or signing a URL, preserving folder separators.
 export const encodeObjectPath = (key: string): string => key.split('/').map(encodeURIComponent).join('/')
 
+export function getPublicObjectUrl(urlPrefix: string, key: string): string {
+  const suffixIndex = urlPrefix.search(/[?#]/)
+  const base = suffixIndex < 0 ? urlPrefix : urlPrefix.slice(0, suffixIndex)
+  const separator = base.endsWith('/') ? '' : '/'
+  return `${base}${separator}${encodeObjectPath(key)}${urlPrefix.slice(base.length)}`
+}
+
 export const md5 = (str: string, code: 'hex' | 'base64'): string => crypto.createHash('md5').update(str).digest(code)
 
 export const hmacSha1Base64 = (secretKey: string, stringToSign: string): string =>

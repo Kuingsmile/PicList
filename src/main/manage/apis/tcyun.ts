@@ -8,7 +8,7 @@ import { downloadTaskSpecialStatus } from '~/constants'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
-import { createDownloadTask, getFileMimeType, runDownloadTask } from '~/manage/utils/common'
+import { createDownloadTask, getFileMimeType, getPublicObjectUrl, runDownloadTask } from '~/manage/utils/common'
 import {
   deleteInBatches,
   deleteListedFolder,
@@ -42,7 +42,7 @@ class TcyunApi {
       ...item,
       key: item.Prefix,
       fileSize: 0,
-      url: `${urlPrefix}/${item.Prefix}`,
+      url: getPublicObjectUrl(urlPrefix, item.Prefix),
       formatedTime: '',
       fileName: item.Prefix.replace(slicedPrefix, '').replace('/', ''),
       isDir: true,
@@ -63,7 +63,7 @@ class TcyunApi {
       checked: false,
       isImage: isImage(item.Key),
       match: false,
-      url: `${urlPrefix}/${item.Key}`,
+      url: getPublicObjectUrl(urlPrefix, item.Key),
     }
   }
 

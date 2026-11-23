@@ -52,6 +52,10 @@ export class FileCacheDb extends Dexie {
       return acc
     }, {} as IStringKeyMap)
     this.version(5).stores(tableNamesMap)
+    // Re-list these providers once because older cached URLs contain unescaped object keys.
+    this.version(6).upgrade(tx =>
+      Promise.all(['aliyun', 'github', 'qiniu', 's3plist', 'tcyun'].map(provider => tx.table(provider).clear())),
+    )
     this.aliyun = this.table('aliyun')
     this.github = this.table('github')
     this.imgur = this.table('imgur')

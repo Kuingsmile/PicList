@@ -11,6 +11,7 @@ import {
   createDownloadTask,
   formatError,
   getFileMimeType,
+  getPublicObjectUrl,
   hmacSha1Base64,
   NewDownloader,
 } from '~/manage/utils/common'
@@ -48,7 +49,7 @@ class AliyunApi {
   formatFolder(item: string, slicedPrefix: string, urlPrefix: string): any {
     return {
       key: item,
-      url: `${urlPrefix}/${item}`,
+      url: getPublicObjectUrl(urlPrefix, item),
       fileSize: 0,
       formatedTime: '',
       fileName: item.replace(slicedPrefix, '').replace('/', ''),
@@ -73,7 +74,7 @@ class AliyunApi {
       match: false,
       isImage: isImage(fileName),
       rawUrl: item.url,
-      url: `${urlPrefix}/${item.name}`,
+      url: getPublicObjectUrl(urlPrefix, item.name),
     }
   }
 

@@ -35,6 +35,7 @@ import {
   formatError,
   getAgent,
   getFileMimeType,
+  getPublicObjectUrl,
   NewDownloader,
 } from '~/manage/utils/common'
 import {
@@ -183,7 +184,7 @@ class S3plistApi {
   formatFolder(item: CommonPrefix, slicedPrefix: string, urlPrefix: string): any {
     return {
       Key: item.Prefix,
-      url: `${urlPrefix}/${item.Prefix}`,
+      url: item.Prefix ? getPublicObjectUrl(urlPrefix, item.Prefix) : '',
       fileSize: 0,
       formatedTime: '',
       fileName: item.Prefix?.replace(slicedPrefix, '').replace('/', ''),
@@ -200,7 +201,7 @@ class S3plistApi {
     return {
       ...item,
       key: item.Key,
-      url: `${urlPrefix}/${item.Key}`,
+      url: item.Key ? getPublicObjectUrl(urlPrefix, item.Key) : '',
       fileName,
       fileSize: item.Size,
       formatedTime: new Date(item.LastModified!).toLocaleString(),

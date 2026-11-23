@@ -11,6 +11,7 @@ import {
   encodeObjectPath,
   formatError,
   getFileMimeType,
+  getPublicObjectUrl,
   hmacSha1Base64,
   NewDownloader,
 } from '~/manage/utils/common'
@@ -50,7 +51,7 @@ class QiniuApi {
     return {
       Key: item,
       key: item,
-      url: `${urlPrefix}/${item}`,
+      url: getPublicObjectUrl(urlPrefix, item),
       fileSize: 0,
       fileName: item.replace(slicedPrefix, '').replace('/', ''),
       isDir: true,
@@ -65,7 +66,7 @@ class QiniuApi {
     return {
       ...item,
       fileName,
-      url: `${urlPrefix}/${item.key}`,
+      url: getPublicObjectUrl(urlPrefix, item.key),
       fileSize: item.fsize,
       formatedTime: new Date(parseInt(item.putTime.toString().slice(0, -4), 10)).toLocaleString(),
       isDir: false,

@@ -14,6 +14,7 @@ import {
   formatError,
   getAgent,
   getOptions,
+  getPublicObjectUrl,
   gotUpload,
   isUploadResponseObject,
   isUploadResponseString,
@@ -49,31 +50,21 @@ class GithubApi {
     return `${this.baseUrl}/repos/${this.username}/${repo}/contents/${encodeObjectPath(trimPath(key))}`
   }
 
+  private publicUrl(key: string, branch: string, repo: string, cdnUrl?: string): string {
+    const placeholder = /\{(username|repo|branch|path)\}/g
+    if (cdnUrl && placeholder.test(cdnUrl)) {
+      const values: Record<string, string> = { username: this.username, repo, branch, path: encodeObjectPath(key) }
+      return cdnUrl.replace(placeholder, (_, name: string) => values[name])
+    }
+    return getPublicObjectUrl(cdnUrl || `https://raw.githubusercontent.com/${this.username}/${repo}/${branch}`, key)
+  }
+
   formatFolder(item: any, slicedPrefix: string, branch: string, repo: string, cdnUrl: string | undefined) {
     const key = `${slicedPrefix ? `${slicedPrefix}/` : ''}${item.path}/`
-    const placeholders = ['{username}', '{repo}', '{branch}', '{path}']
-    let rawUrl = cdnUrl
-      ? placeholders.some(item => cdnUrl.includes(item))
-        ? placeholders.reduce((url, ph) => {
-            const value =
-              ph === '{username}'
-                ? this.username
-                : ph === '{repo}'
-                  ? repo
-                  : ph === '{branch}'
-                    ? branch
-                    : ph === '{path}'
-                      ? key
-                      : ''
-            return url.replaceAll(ph, value)
-          }, cdnUrl)
-        : `${cdnUrl}/${key}`
-      : `https://raw.githubusercontent.com/${this.username}/${repo}/${branch}/${key}`
-    rawUrl = rawUrl.replace(/(?<!https?:)\/{2,}/g, '/')
     return {
       ...item,
       Key: key,
-      url: rawUrl,
+      url: this.publicUrl(key, branch, repo, cdnUrl),
       key,
       fileSize: 0,
       formatedTime: '',
@@ -86,26 +77,7 @@ class GithubApi {
   }
 
   formatFile(item: any, slicedPrefix: string, branch: string, repo: string, cdnUrl: string | undefined) {
-    const placeholders = ['{username}', '{repo}', '{branch}', '{path}']
     const key = slicedPrefix === '' ? item.path : `${slicedPrefix}/${item.path}`
-    let rawUrl = cdnUrl
-      ? placeholders.some(item => cdnUrl.includes(item))
-        ? placeholders.reduce((url, ph) => {
-            const value =
-              ph === '{username}'
-                ? this.username
-                : ph === '{repo}'
-                  ? repo
-                  : ph === '{branch}'
-                    ? branch
-                    : ph === '{path}'
-                      ? `${slicedPrefix}/${item.path}`
-                      : ''
-            return url.replaceAll(ph, value)
-          }, cdnUrl)
-        : `${cdnUrl}/${key}`
-      : `https://raw.githubusercontent.com/${this.username}/${repo}/${branch}/${key}`
-    rawUrl = rawUrl.replace(/(?<!https?:)\/{2,}/g, '/')
     return {
       ...item,
       Key: key,
@@ -118,7 +90,7 @@ class GithubApi {
       match: false,
       isImage: isImage(item.path),
       rawUrl: item.url,
-      url: rawUrl,
+      url: this.publicUrl(key, branch, repo, cdnUrl),
     }
   }
 
@@ -204,9 +176,9 @@ class GithubApi {
         result.finished = true
         return result
       }
-      const currentPrefix = treeQueue[0]
+      const currentPrefix = treeQueue.shift()!
       const res = (await listing.wait(() =>
-        got(`${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${treeQueue.shift()}`, {
+        got(`${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${encodeObjectPath(currentPrefix)}`, {
           ...getOptions('GET', this.commonHeaders, {}, 'json', undefined, undefined, this.proxy),
           signal: listing.signal,
         }),
@@ -215,7 +187,7 @@ class GithubApi {
         const { tree } = res.body
         tree.forEach((item: any) => {
           if (item.type === 'tree') {
-            treeQueue.push(`${currentPrefix}/${item.path}`)
+            treeQueue.push(currentPrefix ? `${currentPrefix}/${item.path}` : item.path)
           } else {
             result.fullList.push(this.formatFile(item, currentPrefix, branch, repo, cdnUrl))
           }
@@ -244,7 +216,7 @@ class GithubApi {
       finished: false,
     }
     const res = (await listing.wait(() =>
-      got(`${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${slicedPrefix}`, {
+      got(`${this.baseUrl}/repos/${this.username}/${repo}/git/trees/${branch}:${encodeObjectPath(slicedPrefix)}`, {
         ...getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy),
         signal: listing.signal,
       }),
