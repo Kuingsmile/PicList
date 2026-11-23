@@ -1,10 +1,10 @@
 import picgo from '@core/picgo'
+import { PicGoUtils } from 'piclist'
 
-import { handleUrlEncode } from '#/utils/url'
 import { configPaths } from '~/utils/configPaths'
 
 export const handleUrlEncodeWithSetting = (url: string) =>
-  picgo.getConfig<boolean>(configPaths.settings.encodeOutputURL) ? handleUrlEncode(url) : url
+  picgo.getConfig<boolean>(configPaths.settings.encodeOutputURL) ? PicGoUtils.handleUrlEncode(url) : url
 
 export const formatHttpProxy = (
   proxy: string | undefined,
